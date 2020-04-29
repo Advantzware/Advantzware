@@ -44,6 +44,9 @@ DEF TEMP-TABLE tt-sel NO-UNDO LIKE ap-sel
 ASSIGN cocode = g_company
        locode = g_loc.
 
+&SCOPED-DEFINE yellowColumnsName w-selven
+&SCOPED-DEFINE noSortByField 
+
 DEF NEW SHARED VAR uperiod AS INT NO-UNDO.  /* for gl-open.p */
 /*
 &SCOPED-DEFINE SORTBY-ASC ASCENDING
@@ -90,8 +93,8 @@ DEF VAR ll-continue AS LOG NO-UNDO.
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-1 tt-sel
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-1 tt-sel
 &Scoped-define SELF-NAME BROWSE-1
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH tt-sel WHERE NOT tt-deleted
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH tt-sel WHERE NOT tt-deleted .
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH tt-sel WHERE NOT tt-deleted ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH tt-sel WHERE NOT tt-deleted ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 tt-sel
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 tt-sel
 
@@ -196,12 +199,12 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 W-Win _FREEFORM
   QUERY BROWSE-1 DISPLAY
-      tt-sel.inv-no
-    tt-sel.due-date LABEL "Due Date"
-    tt-sel.inv-bal LABEL "Invoice Amt"
-    tt-sel.amt-due LABEL "Balance Due"
-    tt-sel.disc-amt LABEL "Discount"
-    tt-sel.amt-paid LABEL "To Be Paid"
+    tt-sel.inv-no                       LABEL-BGCOLOR 14
+    tt-sel.due-date LABEL "Due Date"    LABEL-BGCOLOR 14 
+    tt-sel.inv-bal  LABEL "Invoice Amt" LABEL-BGCOLOR 14 
+    tt-sel.amt-due  LABEL "Balance Due" LABEL-BGCOLOR 14 
+    tt-sel.disc-amt LABEL "Discount"    LABEL-BGCOLOR 14 
+    tt-sel.amt-paid LABEL "To Be Paid"  LABEL-BGCOLOR 14 
     ENABLE tt-sel.inv-no
            tt-sel.disc-amt
            tt-sel.amt-paid
@@ -289,6 +292,9 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME Custom                                                    */
 /* BROWSE-TAB BROWSE-1 lv-amount F-Main */
+ASSIGN 
+       BROWSE-1:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
+
 /* SETTINGS FOR BUTTON btn-cancel IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lv-amount IN FRAME F-Main
@@ -311,7 +317,7 @@ THEN W-Win:HIDDEN = yes.
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH tt-sel WHERE NOT tt-deleted .
+OPEN QUERY {&SELF-NAME} FOR EACH tt-sel WHERE NOT tt-deleted ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
@@ -442,7 +448,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 W-Win
 ON START-SEARCH OF BROWSE-1 IN FRAME F-Main
 DO:
-    /*
+    RUN startsearch.
+/*
     DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -979,6 +986,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3helpw.i}
+{custom/yellowColumns.i}
 
 
 

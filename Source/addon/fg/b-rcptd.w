@@ -44,7 +44,6 @@ DEF VAR lv-job-no2 AS CHAR NO-UNDO.
 
 DEF VAR lv-prev-job2 AS cha NO-UNDO.
 DEF VAR lv-new-job-ran AS LOG NO-UNDO.
-DEF VAR fg-uom-list  AS CHAR NO-UNDO.
 DEF VAR v-fgpostgl AS CHAR NO-UNDO.
 DEF VAR v-post-date AS DATE INITIAL TODAY.
 
@@ -66,6 +65,8 @@ DEF VAR lv-linker LIKE fg-rcpts.linker NO-UNDO.
 DEF VAR ll-set-parts AS LOG NO-UNDO.
 DEFINE VARIABLE hInventoryProcs      AS HANDLE NO-UNDO.
 DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
+
+RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
 
 {pc/pcprdd4u.i NEW}
 {fg/invrecpt.i NEW}
@@ -103,8 +104,6 @@ DO TRANSACTION:
           AND sys-ctrl.name    EQ "CASETAG" NO-LOCK NO-ERROR.
    IF AVAIL sys-ctrl THEN v-case-tag = sys-ctrl.log-fld.
 END.
-
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 &SCOPED-DEFINE item-key-phrase TRUE
 &SCOPED-DEFINE init-proc init-proc
@@ -188,6 +187,9 @@ DEFINE VARIABLE cReturnValue        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glCheckClosedStatus AS LOGICAL   NO-UNDO.
 
+DEFINE VARIABLE cFGDefWhse AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFGDefBin  AS CHARACTER NO-UNDO.
+
 RUN sys/ref/nk1look.p (
     INPUT cocode,           /* Company Code */ 
     INPUT "FGReceiptRules", /* sys-ctrl name */
@@ -201,7 +203,15 @@ RUN sys/ref/nk1look.p (
     ). 
  
  glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.
-
+ 
+RUN Inventory_GetDefaultWhse IN hInventoryProcs(
+    INPUT  cocode,
+    OUTPUT cFGDefWhse
+    ).
+RUN Inventory_GetDefaultBin IN hInventoryProcs(
+    INPUT  cocode,
+    OUTPUT cFGDefBin
+    ).  
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -748,6 +758,12 @@ DO:
               
               {addon/loadtags/disptgf2.i "FGItem" fg-rctd.tag:SCREEN-VALUE}
               
+              IF cFGDefWhse NE "" THEN 
+                  fg-rctd.loc:SCREEN-VALUE = cFGDefWhse.
+         
+              IF cFGDefBin NE "" THEN 
+                  fg-rctd.loc-bin:SCREEN-VALUE = cFGDefBin. 
+                       
               RUN get-def-values.
               ASSIGN
               lv-prev-job2 = fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -867,6 +883,10 @@ DO:
         END.
         IF AVAIL fg-rctd AND fg-rctd.tag <> SELF:SCREEN-VALUE THEN DO:
           {addon/loadtags/disptgf2.i "FGItem" fg-rctd.tag:SCREEN-VALUE}
+          IF cFGDefWhse NE "" THEN 
+              fg-rctd.loc:SCREEN-VALUE = cFGDefWhse.      
+          IF cFGDefBin NE "" THEN 
+              fg-rctd.loc-bin:SCREEN-VALUE = cFGDefBin. 
         END.
         /*IF fg-rctd.loc:SCREEN-VALUE = "" THEN*/
             
@@ -911,10 +931,13 @@ DO:
 
     IF SELF:MODIFIED THEN DO:
        IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
-          DEF VAR v-locbin AS cha NO-UNDO.
+          DEFINE VARIABLE v-locbin AS CHARACTER NO-UNDO.
+          
           v-locbin = SELF:SCREEN-VALUE.
-          ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,5)
-                 fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
+          ASSIGN 
+              fg-rctd.loc:SCREEN-VALUE     IN BROWSE {&BROWSE-NAME} = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE SUBSTRING(v-locbin,1,5)
+              fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE SUBSTRING(v-locbin,6,8)
+              .
        END.
 
        RUN ValidateLoc IN hInventoryProcs (cocode, fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lActiveBin).
@@ -1264,10 +1287,12 @@ DO:
            FIND FIRST itemfg {sys/look/itemfgrlW.i}
                      AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                      NO-LOCK NO-ERROR.
-           IF AVAIL itemfg THEN ASSIGN fg-rctd.i-name:SCREEN-VALUE = itemfg.i-name
-                                       fg-rctd.loc:SCREEN-VALUE = itemfg.def-loc
-                                       fg-rctd.loc-bin:SCREEN-VALUE = itemfg.def-loc-bin
-                                        .
+           IF AVAIL itemfg THEN 
+           ASSIGN 
+               fg-rctd.i-name:SCREEN-VALUE  = itemfg.i-name
+               fg-rctd.loc:SCREEN-VALUE     = IF cFGdefWhse NE "" THEN cFGDefWhse ELSE itemfg.def-loc
+               fg-rctd.loc-bin:SCREEN-VALUE = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE itemfg.def-loc-bin
+               .
        END.
      END.
   END.
@@ -1316,7 +1341,6 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-RUN Inventory/InventoryProcs.p PERSISTENT SET hInventoryProcs.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -1407,8 +1431,15 @@ PROCEDURE display-item :
   Notes:       
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}: 
-  {addon/loadtags/disptgf2.i "FGItem" 
-    "fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}"}
+        {addon/loadtags/disptgf2.i "FGItem" 
+        "fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}"}
+        
+        IF cFGDefWhse NE "" THEN 
+            fg-rctd.loc:SCREEN-VALUE = cFGDefWhse.
+         
+        IF cFGDefBin NE "" THEN 
+            fg-rctd.loc-bin:SCREEN-VALUE = cFGDefBin.   
+     
     END.
 END PROCEDURE.
 
@@ -1482,28 +1513,28 @@ PROCEDURE get-first-r-no :
 
   lv-frst-rno = 999999999.
 
-  FOR EACH bq-fg-rctd FIELDS(r-no)
+  FOR EACH bq-fg-rctd FIELDS(r-no)NO-LOCK
       WHERE bq-fg-rctd.company   EQ cocode
         AND bq-fg-rctd.rita-code EQ "R"
-        AND ((lv-do-what = "delete" AND fg-rctd.t-qty < 0) or
-             (lv-do-what <> "delete" AND fg-rctd.t-qty >= 0))
-        AND fg-rctd.SetHeaderRno EQ 0      
-        AND bq-fg-rctd.r-no      LT lv-frst-rno
-      USE-INDEX rita-code NO-LOCK
+        AND ((lv-do-what EQ "delete" AND bq-fg-rctd.t-qty LT 0) OR
+             (lv-do-what NE "delete" AND bq-fg-rctd.t-qty GE 0))
+        AND bq-fg-rctd.SetHeaderRno EQ 0      
+        AND bq-fg-rctd.r-no         LT lv-frst-rno
+      USE-INDEX rita-code
       BY bq-fg-rctd.r-no:
     lv-frst-rno = bq-fg-rctd.r-no.
     LEAVE.
   END.
   /*RELEASE bq-fg-rctd.*/
 
-  FOR EACH bq-fg-rctd FIELDS(r-no)
+  FOR EACH bq-fg-rctd FIELDS(r-no)NO-LOCK
       WHERE bq-fg-rctd.company   EQ cocode
         AND bq-fg-rctd.rita-code EQ "E"
-        AND ((lv-do-what = "delete" AND fg-rctd.t-qty < 0) or
-             (lv-do-what <> "delete" AND fg-rctd.t-qty >= 0))
-        AND fg-rctd.SetHeaderRno EQ 0        
-        AND bq-fg-rctd.r-no      LT lv-frst-rno
-      USE-INDEX rita-code NO-LOCK
+        AND ((lv-do-what EQ "delete" AND bq-fg-rctd.t-qty LT 0) OR
+             (lv-do-what NE "delete" AND bq-fg-rctd.t-qty GE 0))
+        AND bq-fg-rctd.SetHeaderRno EQ 0        
+        AND bq-fg-rctd.r-no         LT lv-frst-rno
+      USE-INDEX rita-code 
       BY bq-fg-rctd.r-no:
     lv-frst-rno = bq-fg-rctd.r-no.
     LEAVE.
@@ -1630,8 +1661,8 @@ IF ip-first-disp  AND AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&br
 
   /* convert cost pr-uom*/
   IF fg-rctd.cost-uom EQ lv-cost-uom               OR
-     (LOOKUP(fg-rctd.cost-uom,fg-uom-list) GT 0 AND
-      LOOKUP(lv-cost-uom,fg-uom-list)      GT 0)   THEN
+     (DYNAMIC-FUNCTION("Conv_IsEAUOM", fg-rctd.company, fg-rctd.i-no, fg-rctd.cost-uom) AND
+      DYNAMIC-FUNCTION("Conv_IsEAUOM", fg-rctd.company, fg-rctd.i-no, lv-cost-uom))   THEN
     lv-out-cost = fg-rctd.std-cost.
   ELSE
     RUN rm/convcuom.p(fg-rctd.cost-uom, lv-cost-uom,                   
@@ -1655,7 +1686,7 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
      v-wid = po-ordl.s-wid
      v-rec-qty = po-ordl.t-rec-qty + int(fg-rctd.t-qty:SCREEN-VALUE).
 
-    IF LOOKUP(po-ordl.pr-qty-uom,fg-uom-list) EQ 0 THEN
+    IF NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no, po-ordl.pr-qty-uom) THEN
        RUN sys/ref/convquom.p("EA", po-ordl.pr-qty-uom, 0, 0, 0, 0,
                               v-rec-qty, OUTPUT v-rec-qty).
     IF iFGUnderOver EQ 0 AND v-rec-qty GT (po-ordl.ord-qty * 
@@ -1737,8 +1768,8 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
   lv-out-qty = DEC(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}). 
   
   IF fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ lv-cost-uom               OR
-     (LOOKUP(fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name},fg-uom-list) GT 0 AND
-      LOOKUP(lv-cost-uom,fg-uom-list)                                            GT 0)   THEN
+     (DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}, fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name}) AND
+      DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}, lv-cost-uom))   THEN
     lv-out-cost = DEC(fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name}).
   ELSE
     RUN rm/convcuom.p(fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name}, lv-cost-uom,                   
@@ -1746,7 +1777,7 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
                       fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lv-out-cost).
 END.
   
-IF LOOKUP(lv-cost-uom,fg-uom-list) EQ 0 THEN
+IF NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}, lv-cost-uom) THEN
   RUN rm/convquom.p("EA", lv-cost-uom,                   
                     v-bwt, v-len, v-wid, v-dep,
                     lv-out-qty, OUTPUT lv-out-qty).
@@ -2021,8 +2052,8 @@ PROCEDURE get-values :
     IF fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     EQ "" OR
        fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN
       ASSIGN
-       fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = lv-loc
-       fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = lv-loc-bin.
+       fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE lv-loc
+       fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE lv-loc-bin.
 
     IF INT(fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
       fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = lv-qty-case.
@@ -3445,10 +3476,11 @@ PROCEDURE valid-tag :
                                     ).
           IF llValid AND (adm-new-record OR ip-focus:MODIFIED) THEN
             ASSIGN 
-                fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-NAME} = lcJobNo
+                fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-NAME}  = lcJobNo
                 fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-NAME} = lcJobNo2
-                fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-NAME} = lcLoc
-                fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-NAME} = lcLocBin.
+                fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-NAME}     = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE lcLoc
+                fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-NAME} = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE lcLocBin
+                .
 /*       IF lv-msg EQ "" AND ll-set-parts                                                             */
 /*           AND int(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-NAME}) < 0 THEN DO:                */
 /*             iTotalQty = 0.                                                                         */

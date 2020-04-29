@@ -1110,13 +1110,14 @@ for each oe-ord
          find first itemfg {sys/look/itemfgrlW.i} 
                    and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
 
-        RUN GetPriceTotal IN hdPriceProcs (oe-ordl.qty,
-                                       oe-ordl.price,
-                                       oe-ordl.pr-uom,
-                                       itemfg.case-count,
-                                       oe-ordl.disc,
-                                       OUTPUT v-ext-price).
-        
+        RUN Conv_CalcTotalPrice (oe-ordl.company,
+                                 oe-ordl.i-no,
+                                 oe-ordl.qty,
+                                 oe-ordl.price,
+                                 oe-ordl.pr-uom,
+                                 itemfg.case-count,
+                                 oe-ordl.disc,
+                                 OUTPUT v-ext-price).
 
        /** CALCULATE FREIGHT CHARGES **/
         v-tot-freight = v-tot-freight +

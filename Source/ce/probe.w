@@ -163,6 +163,7 @@ DEFINE VARIABLE glEstimateCalcNewPrompt AS LOGICAL NO-UNDO.
 DEFINE VARIABLE gcEstimateFormat AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcEstimateFont AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
+DEFINE VARIABLE hdEstimateProcs AS HANDLE NO-UNDO.
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -177,7 +178,13 @@ IF lRecFound THEN
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT gcEstimateFont, OUTPUT lRecFound).
     
-RUN est/EstimateProcs.p (cocode, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+RUN est/EstimateProcs.p PERSISTENT SET hdEstimateProcs.
+
+RUN Estimate_GetEstimateDir IN hdEstimateProcs (
+    INPUT  cocode,
+    OUTPUT cCEBrowseBaseDir,
+    OUTPUT tmp-dir
+    ).
 
   lv-cebrowse-dir = tmp-dir.
 
@@ -3433,6 +3440,8 @@ PROCEDURE run-whatif :
   vprint = yes.
   lv-eb-recid = recid(eb).
   lv-ef-recid = recid(ef).
+  
+    RUN pDisplaySpecAN(est.est-no) .
     
     RUN pGetCEVersionCalcSettings(BUFFER est).
     IF glEstimateCalcNew THEN 
@@ -3474,7 +3483,14 @@ PROCEDURE run-whatif :
     RETURN.
    END.
   END.
-  RUN est/EstimateProcs.p (est.company, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+
+  RUN Estimate_GetEstimateDir IN hdEstimateProcs (
+      INPUT  cocode,
+      OUTPUT cCEBrowseBaseDir,
+      OUTPUT tmp-dir
+      ).
+
+
   lv-cebrowse-dir = tmp-dir.
   RUN est\CostResetHeaders.p(?,?).
   IF est.est-type >= 3 AND est.est-type <= 4 AND cerunf = "HOP" THEN RUN ce/dAskSum.w (OUTPUT gEstSummaryOnly).
@@ -3899,6 +3915,43 @@ PROCEDURE pCheckMultiRecords :
         LEAVE .
      END.
   END.   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplaySpecAN B-table-Win 
+PROCEDURE pDisplaySpecAN :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipcEstimate AS CHARACTER NO-UNDO.
+  DEFINE BUFFER bff-eb FOR eb .
+  DEFINE BUFFER bff-itemfg FOR itemfg.
+  
+  FOR EACH bff-eb NO-LOCK
+     WHERE bff-eb.company = cocode
+       and bff-eb.est-no = ipcEstimate 
+       AND bff-eb.stock-no NE "" BREAK BY bff-eb.stock-no:
+       
+       IF FIRST-OF(bff-eb.stock-no) THEN do: 
+           FIND FIRST bff-itemfg WHERE bff-itemfg.company = cocode AND
+                     bff-itemfg.i-no = bff-eb.stock-no
+                     NO-LOCK NO-ERROR. 
+           IF avail bff-itemfg THEN          
+           FOR EACH notes NO-LOCK
+             WHERE notes.rec_key EQ bff-itemfg.rec_key 
+               AND notes.note_type EQ "S"
+               AND notes.note_code EQ "AN":
+                 MESSAGE 
+                        notes.note_text 
+                    VIEW-AS ALERT-BOX MESSAGE 
+                    TITLE notes.note_title .            
+           END.     
+       END. /* FIRST-OF(bff-eb.stock-no)*/
+  END. /*FOR EACH bff-eb*/  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

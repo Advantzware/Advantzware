@@ -9,8 +9,6 @@ ASSIGN
     {&FIRST-EXTERNAL-TABLE}.company     = cCompany
     {&FIRST-EXTERNAL-TABLE}.itemType    = "FG"
     {&FIRST-EXTERNAL-TABLE}.itemID      = cItemNo
-    {&FIRST-EXTERNAL-TABLE}.createdBy   = USERID("ASI")
-    {&FIRST-EXTERNAL-TABLE}.createdDtTm = NOW
     .
 FIND FIRST itemfg NO-LOCK
      WHERE itemfg.company EQ cCompany

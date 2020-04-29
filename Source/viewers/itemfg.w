@@ -736,6 +736,7 @@ DO:
             WHEN "sell-uom" THEN 
                 DO:
                     /*run sys/ref/uom-rm.p  (item.mat-type, output uom-list). */
+                    RUN SetValidUOMs.
                     RUN windows/l-stduom.w (gcompany,uom-list, lw-focus:SCREEN-VALUE, OUTPUT char-val).
                     /*    run windows/l-uom.w (lw-focus:SCREEN-VALUE, output char-val).     display all Uom */
                     IF char-val <> "" THEN 
@@ -1323,6 +1324,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.sell-uom V-table-Win
 ON LEAVE OF itemfg.sell-uom IN FRAME F-Main /* UOM */
 DO:
+        DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+        DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+        
         {&methods/lValidateError.i YES}
         IF LASTKEY <> -1 THEN 
         DO:
@@ -1333,7 +1337,7 @@ DO:
                     VIEW-AS ALERT-BOX ERROR.
                 RETURN NO-APPLY.
             END.
-
+            RUN SetValidUOMs.      
             IF SELF:SCREEN-VALUE <> "" AND
                 NOT CAN-FIND(FIRST uom WHERE uom.uom = SELF:SCREEN-VALUE AND
                 lookup(uom.uom, uom-list) > 0 )
@@ -2777,6 +2781,28 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetValidUOMs V-table-Win
+PROCEDURE SetValidUOMs PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lError   AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+
+    IF AVAILABLE itemfg THEN 
+        RUN Conv_GetValidPriceUOMsForItem(ROWID(itemfg), OUTPUT uom-list, OUTPUT lError, OUTPUT cMessage).
+    ELSE  
+        RUN Conv_GetValidPriceUOMs(ROWID(itemfg), OUTPUT uom-list).
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :

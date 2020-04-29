@@ -86,9 +86,19 @@ router.post('/splittag', (req,res) => {
     lib.handleRouteJSON(req, res);
 });
 
+//This will update status of a tag
+router.post('/updatetagstatus', (req,res) => {
+    lib.handleRouteJSON(req, res);
+});
+
 //Dummy api to return "Running" status. This is to check the status of node server 
 router.get('/getnodestatus', (req,res) => {
     return res.status(200).send(lib.JSONResponse(200,"Running"))
+});
+
+//This will delete BOL 
+router.post('/deletebilloflading', (req,res) => {
+    lib.handleRouteJSON(req, res);
 });
 
 module.exports = router;

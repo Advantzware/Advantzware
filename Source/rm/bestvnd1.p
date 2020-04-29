@@ -25,7 +25,12 @@ FIND FIRST ef
       AND ef.form-no EQ eb.form-no
     NO-LOCK NO-ERROR.
 
-IF lNewVendorItemCost THEN RUN createTempFromVendItemCost.
+IF lNewVendorItemCost THEN DO:
+    IF eb.pur-man THEN 
+        RUN createTempFromVendItemCost(eb.company, "FG", eb.stock-no, eb.est-no, eb.form-no, eb.blank-no).
+    ELSE 
+        RUN createTempFromVendItemCost(eb.company, "RM", ef.board, eb.est-no, eb.form-no, eb.blank-no).
+END.
 ELSE DO: 
 IF eb.pur-man THEN
 FOR EACH e-itemfg-vend NO-LOCK
@@ -207,15 +212,22 @@ PROCEDURE createTempFromVendItemCost:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
     DEF VAR v-index AS INT NO-UNDO.
     
     FOR EACH vendItemCost NO-LOCK
-        WHERE vendItemCost.company  EQ eb.company
-        AND vendItemCost.itemType =  (if eb.pur-man then "FG" ELSE "RM")
-        AND vendItemCost.estimateNo   EQ eb.est-no
-        /*    AND vendItemCost.eqty     EQ eb.eqty*/
-        AND vendItemCost.formNo  EQ eb.form-no
-        AND vendItemCost.blankNo EQ eb.blank-no
+        WHERE vendItemCost.company  EQ ipcCompany
+        AND vendItemCost.itemType EQ ipcItemType
+        AND vendItemCost.itemID EQ ipcItemID
+        AND (ipcItemType EQ "FG" AND (vendItemCost.estimateNo   EQ ipcEstNo
+        AND vendItemCost.formNo  EQ ipiFormNo
+        AND vendItemCost.blankNo EQ ipiBlankNo)
+        OR (ipcItemType EQ "RM" AND vendItemCost.estimateNo EQ ""))
         BREAK BY vendItemCost.vendorID:
 
         IF FIRST(vendItemCost.vendorID) THEN 
@@ -224,19 +236,19 @@ PROCEDURE createTempFromVendItemCost:
             CREATE tt-ei.
             ASSIGN
                 tt-ei.std-uom = IF vendItemCost.vendorUOM <> "" THEN vendItemCost.vendorUOM ELSE "EA"
-                tt-ei.i-no    = eb.stock-no
+                tt-ei.i-no    = ipcItemID
                 tt-ei.company = vendItemCost.company.
 
         END.
         IF NOT CAN-FIND(FIRST tt-eiv
                 WHERE tt-eiv.company   EQ vendItemCost.company
-                AND tt-eiv.i-no      EQ eb.stock-no
+                AND tt-eiv.i-no      EQ ipcItemID
                 AND tt-eiv.vend-no   EQ vendItemCost.vendorID) THEN 
         DO:
             CREATE tt-eiv.
             ASSIGN
                 tt-eiv.row-id = ROWID(vendItemCost)
-                tt-eiv.i-no   = eb.stock-no
+                tt-eiv.i-no   = ipcItemID
                 tt-eiv.company = vendItemCost.company
                 tt-eiv.vend-no = vendItemCost.vendorID
                 tt-eiv.item-type = vendItemCost.itemType = "RM"
@@ -253,7 +265,7 @@ PROCEDURE createTempFromVendItemCost:
         END.
         v-index = 0.
         FOR EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
-            BY vendItemCostLevel.vendItemCostLevelID:
+            BY vendItemCostLevel.quantityBase:
          
             v-index = v-index + 1.
             IF v-index LE 20 THEN 

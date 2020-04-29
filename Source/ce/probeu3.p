@@ -11,6 +11,7 @@ DEF SHARED BUFFER xeb  FOR eb.
 DEF VAR lv-cebrowse-dir AS cha NO-UNDO.
 DEFINE VARIABLE cCeBrowseBaseDir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE tmp-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdEstimateProcs AS HANDLE NO-UNDO.
 {ce/print4.i SHARED SHARED}
 {ce/print42.i SHARED}
 
@@ -30,7 +31,15 @@ if not avail sys-ctrl then DO TRANSACTION:
    sys-ctrl.int-fld = 30.
 end.
 
-RUN est/EstimateProcs.p (cocode, OUTPUT cCEBrowseBaseDir, OUTPUT tmp-dir ).
+RUN est/EstimateProcs.p PERSISTENT SET hdEstimateProcs.
+
+RUN Estimate_GetEstimateDir IN hdEstimateProcs (
+    INPUT  cocode,
+    OUTPUT cCEBrowseBaseDir,
+    OUTPUT tmp-dir
+    ).
+
+DELETE PROCEDURE hdEstimateProcs.
 
 lv-cebrowse-dir = tmp-dir.
 

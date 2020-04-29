@@ -563,7 +563,8 @@ DO:
     DEFINE VARIABLE iAPIOutboundID        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iAPIOutboundTriggerID AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iAPIOutboundEventID   AS INTEGER   NO-UNDO.
-
+    DEFINE VARIABLE cRequestType          AS CHARACTER NO-UNDO.
+    
     RUN pValidateOutboundAPI (
          OUTPUT iAPIOutboundID,
          OUTPUT iAPIOutboundTriggerID,
@@ -595,15 +596,31 @@ DO:
         .
     
     SESSION:SET-WAIT-STATE("GENERAL").
-      
-    RUN api/CallOutBoundAPI.p (
-        INPUT  iAPIOutboundID,
-        INPUT  lcRequestData,
-        INPUT  cParentProgram,
-        OUTPUT lcResponseData,
+    
+    RUN Outbound_GetAPIRequestType IN hdOutboundProcs (
+        INPUT  cCompany,
+        INPUT  fiAPIID:SCREEN-VALUE,
+        INPUT  fiClientID:SCREEN-VALUE,
+        OUTPUT cRequestType,
         OUTPUT lSuccess,
         OUTPUT cMessage
-        ). 
+        ).
+
+    IF cRequestType EQ "API" THEN
+        RUN api/CallOutBoundAPI.p (
+            INPUT  iAPIOutboundID,
+            INPUT  lcRequestData,
+            INPUT  cParentProgram,
+            OUTPUT lcResponseData,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ). 
+    ELSE
+        ASSIGN
+            lcResponseData = "Success"
+            lSuccess       = TRUE
+            cMessage       = "Success"
+            .
 
     SESSION:SET-WAIT-STATE(""). 
 

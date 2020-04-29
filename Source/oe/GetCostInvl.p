@@ -24,8 +24,12 @@ DEFINE OUTPUT PARAMETER opdCostPerUOMTotal              AS   DECIMAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opcCostUOM                      AS   CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER opdCostTotalExtended            AS   DECIMAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opcCostSource                   AS   CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opdCostFreight                  AS   DECIMAL NO-UNDO.
+DEFINE OUTPUT PARAMETER opdCostWarehouse                AS   DECIMAL NO-UNDO.
+DEFINE OUTPUT PARAMETER opdCostDeviation                AS   DECIMAL NO-UNDO.
+DEFINE OUTPUT PARAMETER opdCostManufacture              AS   DECIMAL NO-UNDO.
 
-DEFINE VARIABLE hdCostProcs AS HANDLE.
+DEFINE VARIABLE hdCostProcs         AS HANDLE.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -41,6 +45,8 @@ RUN GetCostForInvoiceLine IN hdCostProcs (ipriInvl,
     OUTPUT opdCostPerUOMTotal, 
     OUTPUT opcCostUOM, 
     OUTPUT opdCostTotalExtended,
-    OUTPUT opcCostSource).
-                        
-
+    OUTPUT opcCostSource,
+    OUTPUT opdCostFreight,
+    OUTPUT opdCostWarehouse,
+    OUTPUT opdCostDeviation,
+    OUTPUT opdCostManufacture).

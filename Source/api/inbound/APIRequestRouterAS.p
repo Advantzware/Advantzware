@@ -44,7 +44,7 @@ cPassword = IF ipcRecordSource EQ "offline" THEN
 FIND APIInbound NO-LOCK
      WHERE APIInbound.apiRoute     EQ ipcRoute 
        AND APIInbound.requestVerb  EQ ipcVerb 
-       AND APIInbound.isActive
+       AND NOT APIInbound.Inactive
      NO-ERROR.
 IF NOT AVAILABLE APIInbound THEN DO:
     ASSIGN 

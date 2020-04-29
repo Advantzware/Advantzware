@@ -51,7 +51,6 @@
    DEF VAR ll-whs-item AS LOG NO-UNDO.
    DEF VAR choice AS LOG.
    DEF VAR v-post-date AS DATE NO-UNDO INIT TODAY.
-   def var fg-uom-list  as char NO-UNDO.
    DEF VAR v-fgpostgl AS CHAR NO-UNDO.
    DEFINE VARIABLE v-prgmname LIKE prgrms.prgmname NO-UNDO.
 
@@ -98,8 +97,6 @@ FUNCTION fCanCloseJob RETURNS LOGICAL
       FIELD qty AS INT
       FIELD cust-no AS cha
       INDEX tt-cust IS PRIMARY cust-no DESCENDING .
-
-   RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list). 
 
    DEF TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd FIELD row-id   AS ROWID
                                     FIELD has-rec  AS LOG INIT NO
@@ -276,7 +273,7 @@ FUNCTION fCanCloseJob RETURNS LOGICAL
             IF itemfg.prod-uom EQ "M" THEN
               b-oe-ordl.cost = itemfg.total-std-cost.
             ELSE
-              RUN sys/ref/convcuom.p((IF LOOKUP(itemfg.prod-uom,fg-uom-list) GT 0
+              RUN sys/ref/convcuom.p((IF DYNAMIC-FUNCTION("Conv_IsEAUOM",itemfg.company, itemfg.i-no, itemfg.prod-uom)
                                       THEN "EA" ELSE itemfg.prod-uom),
                                      "M", 0, 0, 0, 0,
                                      itemfg.total-std-cost, OUTPUT b-oe-ordl.cost).

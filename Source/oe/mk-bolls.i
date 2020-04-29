@@ -149,5 +149,6 @@ FOR EACH oe-rell
 /*                        OUTPUT oe-boll.freight). */
 end. /* each oe-rell */
 
-
-RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), OUTPUT oe-bolh.freight).
+IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN do:
+    RUN oe/calcBolFrt.p (INPUT ROWID(oe-bolh), OUTPUT oe-bolh.freight).
+END.

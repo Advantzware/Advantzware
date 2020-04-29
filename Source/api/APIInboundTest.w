@@ -722,7 +722,7 @@ PROCEDURE pUpdateAPI :
     
     FOR EACH APIInbound NO-LOCK
         WHERE APIInbound.requestDataType EQ cbRequestDataType:SCREEN-VALUE
-          AND APIInbound.isActive:
+          AND NOT APIInbound.Inactive:
         cAPIList = cAPIList + "," + APIInbound.apiRoute.
     END.
     

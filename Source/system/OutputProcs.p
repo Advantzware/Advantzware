@@ -286,6 +286,12 @@ PROCEDURE TempTableToCSV:
         hQuery:GET-NEXT().   
         IF hQuery:QUERY-OFF-END THEN LEAVE.   
         DO iIndex = 1 TO hBuffer:NUM-FIELDS: 
+    
+            IF hBuffer:BUFFER-FIELD(iIndex):DATA-TYPE EQ "rowid" THEN 
+                PUT STREAM sOutput UNFORMATTED
+                    '"' STRING(hBuffer:BUFFER-FIELD(iIndex):BUFFER-VALUE)
+                    (IF iIndex NE hBuffer:NUM-FIELDS THEN '",' ELSE '"').
+            ELSE 
             IF hBuffer:BUFFER-FIELD(iIndex):EXTENT GT 0 THEN DO:
                 DO eIndex = 1 to hBuffer:BUFFER-FIELD(iIndex):EXTENT:
                     PUT STREAM sOutput UNFORMATTED  

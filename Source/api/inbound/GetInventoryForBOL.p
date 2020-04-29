@@ -86,6 +86,11 @@ FOR EACH  oe-boll NO-LOCK
         INPUT  oe-boll.job-no,  /* Job Number */
         INPUT  oe-boll.job-no2, /* Job Number2 */
         INPUT  oe-boll.cust-no, /* Customer Number */
+        INPUT  0,               /* Po # */
+        INPUT  YES,             /* Include Zero qty bins */
+        INPUT  YES,             /* Include empty tag bins */
+        INPUT  "",              /* status id */
+        INPUT  ?,               /* On Hold status. Send ? for both yes and no */              
         INPUT  cItemFG ,        /* Item Type */
         OUTPUT oplSuccess,
         OUTPUT opcMessage,

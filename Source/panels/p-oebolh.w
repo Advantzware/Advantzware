@@ -61,6 +61,15 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 {methods/defines/hndldefs.i}
 {methods/prgsecdt.i}
 
+DEFINE VARIABLE cRtnChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+RUN sys/ref/nk1look.p (INPUT g_company, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cFreightCalculationValue = cRtnChar NO-ERROR.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -278,15 +287,18 @@ DO:
   DEF VAR char-hdl AS cha NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
 
-
-  MESSAGE "Calculate Freight?"
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE ll.
+ IF cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing" THEN do: 
+  
+      RUN displayMessageQuestionLOG ("26", OUTPUT ll).
 
   IF ll THEN DO:
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-target", OUTPUT char-hdl).
     RUN calc-freight IN WIDGET-HANDLE(char-hdl).
   END.
+ END.
+ ELSE DO:
+    RUN displayMessage ("25").
+ END.
 END.
 
 /* _UIB-CODE-BLOCK-END */

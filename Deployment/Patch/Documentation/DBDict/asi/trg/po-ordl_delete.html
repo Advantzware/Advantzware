@@ -42,7 +42,10 @@
 <span class="src-prep">{methods/<span class="src-keyword">triggers</span><!--src-keyword-->/<span class="src-keyword">delete</span><!--src-keyword-->.i}</span><!--src-prep-->
  
  
-<span class="src-keyword">RUN</span><!--src-keyword--> po/del-po-ordl.p (<span class="src-keyword">BUFFER</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->).
+<span class="src-keyword">RUN</span><!--src-keyword--> po/del-po-ordl.p(
+    <span class="src-keyword">BUFFER</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->,
+    <span class="src-keyword">INPUT  YES</span><!--src-keyword-->  <span class="src-comment">/* Show Messages */</span><!--src-comment-->
+    ).
  
 <span class="src-comment">/* Clear out any error-status from find with no-error that is false */</span><!--src-comment-->
 <span class="src-keyword">DEF VAR</span><!--src-keyword--> ll-error <span class="src-keyword">AS LOG NO-UNDO</span><!--src-keyword-->.

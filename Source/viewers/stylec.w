@@ -1096,14 +1096,19 @@ END.
 ON LEAVE OF style.style IN FRAME F-Main /* Style No. */
 DO:
     {&methods/lValidateError.i YES}
-    DEF BUFFER bf-style FOR style.
-    IF LASTKEY <> -1 AND 
-       CAN-FIND(FIRST bf-style WHERE bf-style.company = style.company AND
-                      bf-style.style = SELF:screen-value)
-    THEN DO:
-         MESSAGE "Style already exists. Try different style code." VIEW-AS ALERT-BOX.
-         RETURN NO-APPLY.
-    END.     
+    DEFINE BUFFER bf-style FOR style.
+    IF LASTKEY <> -1 THEN DO:   
+        RUN pValidStyle NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            RETURN NO-APPLY.    
+             
+        IF CAN-FIND(FIRST bf-style 
+                    WHERE bf-style.company EQ style.company 
+                      AND bf-style.style   EQ SELF:screen-value)THEN DO:
+            MESSAGE "Style already exists. Try different style code." VIEW-AS ALERT-BOX.
+            RETURN NO-APPLY.
+        END.    
+    END.        
    {&methods/lValidateError.i NO}             
 END.
 
@@ -1595,45 +1600,46 @@ PROCEDURE local-delete-record :
 
    {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
+  IF NOT adm-new-record THEN DO: 
+    FIND FIRST eb WHERE eb.company = gcompany AND
+                        eb.loc = gloc AND
+                        eb.style = style.style AND
+                        eb.style NE ""
+                        NO-LOCK NO-ERROR.
+    IF AVAILABLE eb THEN DO:
+       MESSAGE 
+          "This style is referenced in at least one estimate." SKIP 
+          "It cannot be deleted at this time."
+           VIEW-AS ALERT-BOX ERROR.
+       RETURN.        
+    END.
+    
+    FOR EACH bf-flute NO-LOCK:
+        /* IF this style/flute not used in any other company, OK to delete non-co-specific data */
+        /* This will be replaced when the STYFLU reftable project is merged, but this is a current problem */
+        IF CAN-FIND (FIRST bstyle WHERE 
+                          bstyle.company NE style.company AND 
+                          bstyle.style EQ style.style AND 
+                          bstyle.style NE "" AND 
+                          bstyle.flute EQ bf-flute.code) THEN DO:
+              MESSAGE 
+                  "This style/flute combination exists in multiple companies.  If you delete it," SKIP 
+                  "you will need to recreate the detail data in the other company style records." SKIP 
+                  "Are you sure?"
+                  VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lDelete AS LOG.
+              IF NOT lDelete THEN RETURN.
+        END. 
+        ELSE DO j = 1 TO 7:
+           FIND FIRST reftable EXCLUSIVE WHERE 
+              reftable.reftable = "STYFLU" AND 
+              reftable.company = style.style AND 
+              reftable.loc = bf-flute.code AND 
+              reftable.code = string(j) 
+              NO-ERROR.
+           IF AVAIL reftable THEN DELETE reftable.
+        END.
+    END.  
 
-  FIND FIRST eb WHERE eb.company = gcompany AND
-                      eb.loc = gloc AND
-                      eb.style = style.style
-                      NO-LOCK NO-ERROR.
-  IF AVAIL eb THEN DO:
-     MESSAGE 
-        "This style is referenced in at least one estimate." SKIP 
-        "It cannot be deleted at this time."
-         VIEW-AS ALERT-BOX ERROR.
-     RETURN.        
-  END.
-
-  FOR EACH bf-flute NO-LOCK:
-      /* IF this style/flute not used in any other company, OK to delete non-co-specific data */
-      /* This will be replaced when the STYFLU reftable project is merged, but this is a current problem */
-      IF CAN-FIND (FIRST bstyle WHERE 
-                        bstyle.company NE style.company AND 
-                        bstyle.style EQ style.style AND 
-                        bstyle.flute EQ bf-flute.code) THEN DO:
-            MESSAGE 
-                "This style/flute combination exists in multiple companies.  If you delete it," SKIP 
-                "you will need to recreate the detail data in the other company style records." SKIP 
-                "Are you sure?"
-                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lDelete AS LOG.
-            IF NOT lDelete THEN RETURN.
-      END. 
-      ELSE DO j = 1 TO 7:
-         FIND FIRST reftable EXCLUSIVE WHERE 
-            reftable.reftable = "STYFLU" AND 
-            reftable.company = style.style AND 
-            reftable.loc = bf-flute.code AND 
-            reftable.code = string(j) 
-            NO-ERROR.
-         IF AVAIL reftable THEN DELETE reftable.
-      END.
-  END.   
-
-  IF NOT adm-new-record THEN DO:
     MESSAGE "Are you sure you want to delete style " style.style "?"
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
     IF NOT ll-ans THEN RETURN NO-APPLY.
@@ -1645,16 +1651,19 @@ PROCEDURE local-delete-record :
   RUN get-link-handle IN adm-broker-hdl(WIDGET-HANDLE(char-hdl), "record-source", OUTPUT char-hdl).
 
   lv-rowid[1] = ROWID(style).
-
-  RUN dispatch IN WIDGET-HANDLE(char-hdl) ("get-next").
-  IF NOT AVAIL style THEN
-  RUN dispatch IN WIDGET-HANDLE(char-hdl) ("get-prev").
-  IF AVAIL style THEN
-  lv-rowid[2] = IF AVAIL style THEN ROWID(style) ELSE lv-rowid[1].
-
-  RUN reset-browse (lv-rowid[1]).
-
-
+  
+  RUN DISPATCH IN THIS-PROCEDURE(INPUT "disable-fields":U).
+  
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
+      RUN dispatch IN WIDGET-HANDLE(char-hdl) ("get-next").
+      IF NOT AVAIL style THEN
+      RUN dispatch IN WIDGET-HANDLE(char-hdl) ("get-prev").
+      IF AVAIL style THEN
+      lv-rowid[2] = IF AVAIL style THEN ROWID(style) ELSE lv-rowid[1].
+      
+      RUN reset-browse (lv-rowid[1]).
+  END.
+  
   FOR EACH routing-mtx OF style :
       DELETE routing-mtx.
   END.
@@ -1663,7 +1672,8 @@ PROCEDURE local-delete-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  RUN reset-browse (lv-rowid[2]).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN  
+      RUN reset-browse (lv-rowid[2]).
 
   RUN set-attribute-list IN adm-broker-hdl ("IS-DELETED=yes").  /* to force update button to be enabled */
 
@@ -1825,6 +1835,12 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   /* validation check */
+  RUN pValidStyle NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN DO:
+      APPLY "ENTRY":U TO style.style IN FRAME {&FRAME-NAME}.
+      RETURN ERROR.
+  END.    
+      
   RUN valid-type NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
    {&methods/lValidateError.i YES}
@@ -1923,6 +1939,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidStyle V-table-Win
+PROCEDURE pValidStyle PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: To check whether a style is blank or not
+ Notes:
+------------------------------------------------------------------------------*/
+    IF style.style:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN DO:
+        MESSAGE "Blank style is not a valid option."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN ERROR.
+    END.  
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reset-browse V-table-Win 
 PROCEDURE reset-browse :
 /*------------------------------------------------------------------------------

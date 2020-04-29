@@ -16,7 +16,6 @@ def var v-rec            as   log init no.
 def var ll-one-empty-bin as   log no-undo.
 DEF VAR ld-cvt-cost AS DEC NO-UNDO.
 DEF VAR lv-uom LIKE fg-rctd.cost-uom NO-UNDO.
-DEF VAR fg-uom-list AS CHAR NO-UNDO.
 
 DEF BUFFER b-itemfg FOR itemfg.
 DEF BUFFER b-fg-rcpth FOR fg-rcpth.
@@ -28,8 +27,6 @@ DEF TEMP-TABLE tt-fg-rctd NO-UNDO LIKE fg-rctd.
 
 {fg/fullset.i NEW}
 
-
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 find itemfg where ROWID(itemfg) eq ip-rowid NO-ERROR.
 

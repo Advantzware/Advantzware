@@ -13,18 +13,13 @@ TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.
 DEF VAR v-invlotline-int AS INT NO-UNDO.
 
 DEF BUFFER b-{&TABLENAME} FOR {&TABLENAME}.
-
-DEF VAR ll-calc-disc-first AS LOG NO-UNDO.
 DEF VAR v-cost AS DEC EXTENT 4.
 DEF VAR v-basis LIKE sman.commbasis  INIT "" NO-UNDO.
-
-DEF VAR fg-uom-list AS cha NO-UNDO.
-RUN sys/ref/uom-ea.p (OUTPUT fg-uom-list).
 
 ASSIGN
  cocode             = g_company
  locode             = g_loc
- ll-calc-disc-first = NO.
+ .
 
 find first sys-ctrl where
     sys-ctrl.company eq cocode AND
@@ -86,15 +81,7 @@ END.
 IF {&TABLENAME}.po-no NE old-{&TABLENAME}.po-no THEN
   RUN oe/invlinpo.p (BUFFER {&TABLENAME}, old-{&TABLENAME}.po-no).
 
-FOR EACH sys-ctrl
-    WHERE sys-ctrl.company  EQ cocode
-      AND sys-ctrl.name     EQ "INVPRINT"
-      AND sys-ctrl.char-fld EQ "Dayton"
-    NO-LOCK:
-  ll-calc-disc-first = YES.
-  LEAVE.
-END.
-    
+   
 FOR EACH inv-head OF {&TABLENAME}
     WHERE NOT inv-head.multi-invoice NO-LOCK,
     FIRST cust
@@ -105,60 +92,69 @@ FOR EACH inv-head OF {&TABLENAME}
     {sys/look/itemfgrlW.i}
       AND itemfg.i-no eq {&TABLENAME}.i-no
     NO-LOCK:
-
-  {&TABLENAME}.t-price = {&TABLENAME}.inv-qty / 1000 * {&TABLENAME}.price.
-
-  IF {&TABLENAME}.pr-uom BEGINS "L" AND {&TABLENAME}.pr-uom NE "LB" THEN
-    {&TABLENAME}.t-price = {&TABLENAME}.price *
-                           IF {&TABLENAME}.inv-qty LT 0 THEN -1 ELSE IF {&TABLENAME}.inv-qty EQ 0 THEN 0 ELSE 1.
-
-  ELSE
-  IF {&TABLENAME}.pr-uom EQ "CS" THEN
-    {&TABLENAME}.t-price = {&TABLENAME}.inv-qty /
-                           (IF {&TABLENAME}.cas-cnt NE 0 THEN
-                             {&TABLENAME}.cas-cnt
-                            ELSE
-                            IF itemfg.case-count NE 0 THEN
-                              itemfg.case-count ELSE 1) *
-                           {&TABLENAME}.price.
-  ELSE
-  IF LOOKUP({&TABLENAME}.pr-uom,fg-uom-list) GT 0 THEN
-    {&TABLENAME}.t-price = {&TABLENAME}.inv-qty * {&TABLENAME}.price.
-
-  ELSE
-  FOR EACH uom
-      WHERE uom.uom  EQ {&TABLENAME}.pr-uom
-        AND uom.mult NE 0
-      NO-LOCK:
-    {&TABLENAME}.t-price = {&TABLENAME}.inv-qty / uom.mult * {&TABLENAME}.price.
-    LEAVE.
-  END.
-
-  {&TABLENAME}.t-price = ROUND({&TABLENAME}.t-price,2).
-
-
-  IF {&TABLENAME}.t-price NE 0                                              AND
-     {&TABLENAME}.pr-uom BEGINS "L"                                         AND
-     {&TABLENAME}.pr-uom NE "LB"                                            AND
-     v-invlotline-int = 0                                                   AND
-     AVAIL oe-ordl                                                          AND
-     ((oe-ordl.qty GT 0 AND oe-ordl.inv-qty - {&TABLENAME}.inv-qty GT 0) OR
-      (oe-ordl.qty LT 0 AND oe-ordl.inv-qty - {&TABLENAME}.inv-qty LT 0))                          THEN
-    {&TABLENAME}.t-price = 0.
-
-  IF {&TABLENAME}.disc NE 0 THEN
-    {&TABLENAME}.t-price = 
-        IF ll-calc-disc-first THEN 
-          ({&TABLENAME}.t-price - ROUND({&TABLENAME}.t-price * {&TABLENAME}.disc / 100,2))
-        ELSE
-          ROUND({&TABLENAME}.t-price * (1 - ({&TABLENAME}.disc / 100)),2).
+    
+    RUN Conv_CalcTotalPrice({&TABLENAME}.company, 
+                        {&TABLENAME}.i-no,
+                        {&TABLENAME}.qty,
+                        {&TABLENAME}.price,
+                        {&TABLENAME}.pr-uom,
+                        {&TABLENAME}.disc,
+                        {&TABLENAME}.cas-cnt,    
+                        OUTPUT {&TABLENAME}.t-price).
+/*  {&TABLENAME}.t-price = {&TABLENAME}.inv-qty / 1000 * {&TABLENAME}.price.                                      */
+/*                                                                                                                */
+/*  IF {&TABLENAME}.pr-uom BEGINS "L" AND {&TABLENAME}.pr-uom NE "LB" THEN                                        */
+/*    {&TABLENAME}.t-price = {&TABLENAME}.price *                                                                 */
+/*                           IF {&TABLENAME}.inv-qty LT 0 THEN -1 ELSE IF {&TABLENAME}.inv-qty EQ 0 THEN 0 ELSE 1.*/
+/*                                                                                                                */
+/*  ELSE                                                                                                          */
+/*  IF {&TABLENAME}.pr-uom EQ "CS" THEN                                                                           */
+/*    {&TABLENAME}.t-price = {&TABLENAME}.inv-qty /                                                               */
+/*                           (IF {&TABLENAME}.cas-cnt NE 0 THEN                                                   */
+/*                             {&TABLENAME}.cas-cnt                                                               */
+/*                            ELSE                                                                                */
+/*                            IF itemfg.case-count NE 0 THEN                                                      */
+/*                              itemfg.case-count ELSE 1) *                                                       */
+/*                           {&TABLENAME}.price.                                                                  */
+/*  ELSE                                                                                                          */
+/*  IF LOOKUP({&TABLENAME}.pr-uom,fg-uom-list) GT 0 THEN                                                          */
+/*    {&TABLENAME}.t-price = {&TABLENAME}.inv-qty * {&TABLENAME}.price.                                           */
+/*                                                                                                                */
+/*  ELSE                                                                                                          */
+/*  FOR EACH uom                                                                                                  */
+/*      WHERE uom.uom  EQ {&TABLENAME}.pr-uom                                                                     */
+/*        AND uom.mult NE 0                                                                                       */
+/*      NO-LOCK:                                                                                                  */
+/*    {&TABLENAME}.t-price = {&TABLENAME}.inv-qty / uom.mult * {&TABLENAME}.price.                                */
+/*    LEAVE.                                                                                                      */
+/*  END.                                                                                                          */
+/*                                                                                                                */
+/*  {&TABLENAME}.t-price = ROUND({&TABLENAME}.t-price,2).                                                         */
+/*                                                                                                                */
+/*                                                                                                                */
+/*  IF {&TABLENAME}.t-price NE 0                                              AND                                 */
+/*     {&TABLENAME}.pr-uom BEGINS "L"                                         AND                                 */
+/*     {&TABLENAME}.pr-uom NE "LB"                                            AND                                 */
+/*     v-invlotline-int = 0                                                   AND                                 */
+/*     AVAIL oe-ordl                                                          AND                                 */
+/*     ((oe-ordl.qty GT 0 AND oe-ordl.inv-qty - {&TABLENAME}.inv-qty GT 0) OR                                     */
+/*      (oe-ordl.qty LT 0 AND oe-ordl.inv-qty - {&TABLENAME}.inv-qty LT 0))                          THEN         */
+/*    {&TABLENAME}.t-price = 0.                                                                                   */
+/*                                                                                                                */
+/*  IF {&TABLENAME}.disc NE 0 THEN                                                                                */
+/*    {&TABLENAME}.t-price =                                                                                      */
+/*        IF ll-calc-disc-first THEN                                                                              */
+/*          ({&TABLENAME}.t-price - ROUND({&TABLENAME}.t-price * {&TABLENAME}.disc / 100,2))                      */
+/*        ELSE                                                                                                    */
+/*          ROUND({&TABLENAME}.t-price * (1 - ({&TABLENAME}.disc / 100)),2).                                      */
 
   IF {&TABLENAME}.ord-no NE 0 THEN
     RUN oe/GetCostInvl.p (ROWID({&TABLENAME}),
                        OUTPUT v-cost[1], OUTPUT v-cost[2],
                        OUTPUT v-cost[3], OUTPUT v-cost[4],
                        OUTPUT {&TABLENAME}.cost, OUTPUT {&TABLENAME}.spare-char-2, 
-                       OUTPUT {&TABLENAME}.t-cost, OUTPUT {&TABLENAME}.spare-char-1).
+                       OUTPUT {&TABLENAME}.t-cost, OUTPUT {&TABLENAME}.spare-char-1,
+                       OUTPUT {&TABLENAME}.costStdFreight, OUTPUT {&TABLENAME}.costStdWarehouse, OUTPUT {&TABLENAME}.costStdDeviation, OUTPUT {&TABLENAME}.costStdManufacture).
 
   DO i = 1 TO EXTENT({&TABLENAME}.sman):    /** Calculate Commission Amount **/
     RUN custom/combasis.p (cocode, {&TABLENAME}.sman[i], cust.type, itemfg.procat, 0,

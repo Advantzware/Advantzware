@@ -63,7 +63,6 @@ END.
 {oe/oe-bolpi.i NEW}
 */
 DEFINE VARIABLE v-process          AS LOG     NO-UNDO.
-DEFINE VARIABLE fg-uom-list        AS cha     NO-UNDO.
 DEFINE VARIABLE ll-calc-disc-FIRST AS LOG     NO-UNDO.
 DEFINE VARIABLE v-cost             AS DECIMAL EXTENT 4 NO-UNDO.
 DEFINE VARIABLE v-basis            LIKE sman.commbasis INIT "" NO-UNDO.

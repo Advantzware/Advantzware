@@ -4,10 +4,10 @@
   DEF VAR lv-cons-qty AS DEC NO-UNDO.
   DEF VAR lv-cons-cost AS DEC NO-UNDO.
   DEF VAR lv-t-cost AS DEC NO-UNDO.
-  DEF VAR ll-ea AS LOG INIT NO NO-UNDO.
-  DEF VAR lv-uom LIKE po-ordl.pr-qty-uom INIT NO NO-UNDO.
   DEF VAR lv-orig-uom AS CHAR NO-UNDO.
-
+  DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  
   {ce/msfcalc.i}
 
   RELEASE item.
@@ -35,14 +35,6 @@
         AND itemfg.i-no    EQ po-ordl.i-no{2}
       NO-LOCK NO-ERROR.
 
-  IF AVAIL itemfg THEN
-    RUN sys/ref/ea-um-fg.p (po-ordl.pr-qty-uom{2}, OUTPUT ll-ea).
-
-  IF ll-ea AND ip-type NE "view" THEN
-    ASSIGN
-     lv-uom                = po-ordl.pr-qty-uom{2}
-     po-ordl.pr-qty-uom{2} = "EA".
-
   IF v-len EQ 0 AND AVAIL ITEM AND
      ITEM.i-code EQ "R" AND item.r-wid GT 0 THEN
      DO:
@@ -63,7 +55,7 @@
   
   IF po-ordl.pr-qty-uom{2} EQ "EA"       OR
      (NOT po-ordl.item-type AND
-      LOOKUP(po-ordl.pr-qty-uom,fg-uom-list) GT 0
+      DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ord.company, po-ordl.i-no{2}, po-ordl.pr-qty-uom{2})
       AND po-ordl.pr-qty-uom{2} NE "CS") THEN DO:
  
 
@@ -105,8 +97,8 @@
   
   IF po-ordl.cons-uom{2} NE po-ordl.pr-qty-uom{2} AND
      (po-ordl.item-type                           OR
-      LOOKUP(po-ordl.cons-uom{2},fg-uom-list)   EQ 0 OR
-      LOOKUP(po-ordl.pr-qty-uom{2},fg-uom-list) EQ 0)       THEN DO:
+      NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.cons-uom{2}) OR
+      NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ordl.company, po-ordl.i-no, po-ordl.pr-qty-uom{2}))       THEN DO:
     
     IF (po-ordl.pr-qty-uom{2} EQ "CS" 
         /* OR po-ordl.spare-int-1 EQ 1 */) AND AVAIL(itemfg) THEN DO:
@@ -122,8 +114,16 @@
         
     END.
     ELSE DO:
-     
-        RUN sys/ref/convquom.p(INPUT ({3} po-ordl.pr-qty-uom),
+        IF AVAILABLE itemfg THEN 
+            RUN Conv_QuantityFromUOMtoUOM(itemfg.company, 
+                itemfg.i-no, "FG", 
+                lv-cons-qty, IF po-ordl.pr-qty-uom EQ "" THEN po-ordl.pr-qty-uom{2} ELSE po-ordl.pr-qty-uom,
+                IF po-ordl.cons-uom EQ "" THEN po-ordl.cons-uom{2} ELSE po-ordl.cons-uom, 
+                v-basis-w, v-len, v-wid, v-dep, 0, 
+                OUTPUT  lv-cons-qty, OUTPUT lError, OUTPUT cMessage).
+        ELSE 
+        
+            RUN sys/ref/convquom.p(INPUT ({3} po-ordl.pr-qty-uom),
                    INPUT ({3} po-ordl.cons-uom),
                    v-basis-w, v-len, v-wid, v-dep,
                    lv-cons-qty,
@@ -145,17 +145,22 @@
     /* Get quantity in the same UOM as the cost */
     IF {3} po-ordl.pr-qty-uom NE {3} po-ordl.pr-uom     AND
        (po-ordl.item-type                                 OR
-        LOOKUP({3} po-ordl.pr-qty-uom,fg-uom-list) EQ 0 OR
-        LOOKUP({3} po-ordl.pr-uom,fg-uom-list)     EQ 0)  THEN DO:
+        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ord.company, po-ordl.i-no{2}, {3} po-ordl.pr-qty-uom) OR
+        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",po-ord.company, po-ordl.i-no{2}, {3} po-ordl.pr-uom))  THEN DO:
        
       IF po-ordl.pr-qty-uom{2} EQ "CS" AND AVAIL(itemfg) THEN DO:
         /* Convert quantity to EA */
         v-ord-qty = v-ord-qty * itemfg.case-count.
        
-        RUN sys/ref/convquom.p("EA",
-                               po-ordl.pr-uom{2},
-                               v-basis-w, v-len, v-wid, v-dep,
-                               v-ord-qty, OUTPUT v-ord-qty).
+        RUN Conv_QuantityFromUOMtoUOM(itemfg.company, 
+                itemfg.i-no, "FG", 
+                v-ord-qty, "EA", po-ordl.pr-uom{2}, 
+                v-basis-w, v-len, v-wid, v-dep, 0, 
+                OUTPUT  v-ord-qty, OUTPUT lError, OUTPUT cMessage).
+/*                RUN sys/ref/convquom.p("EA",                  */
+/*                               po-ordl.pr-uom{2},             */
+/*                               v-basis-w, v-len, v-wid, v-dep,*/
+/*                               v-ord-qty, OUTPUT v-ord-qty).  */
        
 
       END.
@@ -170,8 +175,14 @@
           v-ord-qty = v-ord-qty / itemfg.case-count.
         END.
         ELSE DO:
-           
-          RUN sys/ref/convquom.p(po-ordl.pr-qty-uom{2},
+          IF AVAILABLE itemfg THEN 
+                RUN Conv_QuantityFromUOMtoUOM(itemfg.company, 
+                    itemfg.i-no, "FG", 
+                    v-ord-qty, po-ordl.pr-qty-uom{2}, po-ordl.pr-uom{2}, 
+                    v-basis-w, v-len, v-wid, v-dep, 0, 
+                    OUTPUT  v-ord-qty, OUTPUT lError, OUTPUT cMessage).
+          ELSE  
+                RUN sys/ref/convquom.p(po-ordl.pr-qty-uom{2},
                                  po-ordl.pr-uom{2},
                                  v-basis-w, v-len, v-wid, v-dep,
                                  v-ord-qty, OUTPUT v-ord-qty).
@@ -191,5 +202,4 @@ IF ip-type NE "view" THEN
      po-ordl.t-cost{2} = {1}(lv-t-cost)
      po-ordl.pr-qty-uom{2} = lv-orig-uom.
 
-  IF ll-ea AND ip-type NE "view" THEN po-ordl.pr-qty-uom{2} = lv-uom.
 

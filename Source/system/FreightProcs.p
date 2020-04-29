@@ -17,6 +17,19 @@ DEFINE VARIABLE giAllFormsIndicator      AS INTEGER INITIAL -1.
 DEFINE VARIABLE giAllBlanksIndicator     AS INTEGER INITIAL -1.
 DEFINE VARIABLE gdAllQuantitiesIndicator AS INTEGER INITIAL -1.
 DEFINE VARIABLE ghInventoryProcs         AS HANDLE  NO-UNDO.
+
+DEFINE TEMP-TABLE ttBOLLine
+    FIELD riBOLLine AS ROWID
+    FIELD dMSF AS DECIMAL 
+    FIELD dLbs AS DECIMAL 
+    FIELD dPallets AS DECIMAL
+    .
+DEFINE TEMP-TABLE ttFreightClass
+    FIELD cFreightClass AS CHARACTER 
+    FIELD dMSF AS DECIMAL 
+    FIELD dLbs AS DECIMAL 
+    FIELD dPallets AS DECIMAL
+    . 
 {Inventory/ttInventory.i "NEW SHARED"}
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -47,6 +60,9 @@ FUNCTION fGetTotalMSF RETURNS DECIMAL PRIVATE
     ipdWidth AS DECIMAL,
     ipcDimUOM AS CHARACTER) FORWARD.
 
+FUNCTION fUseFreightClassForDestination RETURNS LOGICAL PRIVATE
+	(ipcCompany AS CHARACTER) FORWARD.
+
 FUNCTION HasReleases RETURNS LOGICAL 
     (ipriEb AS ROWID) FORWARD.
 
@@ -69,7 +85,7 @@ PROCEDURE CalcFreightForEstRelease:
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER bf-estRelease FOR estRelease.
-    DEFINE BUFFER bf-eb       FOR eb.
+    DEFINE BUFFER bf-eb         FOR eb.
     
     DEFINE VARIABLE dSubUnits    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dPartial     AS DECIMAL NO-UNDO.
@@ -105,6 +121,7 @@ PROCEDURE CalcFreightForEstRelease:
             .
     DELETE OBJECT ghInventoryProcs.
 END PROCEDURE.
+
 PROCEDURE CalcStorageAndHandlingForEstRelease:
     /*------------------------------------------------------------------------------
      Purpose: Calculates a given estReleaseID's Storage and Handling
@@ -141,6 +158,155 @@ PROCEDURE CalcStorageAndHandlingForEstRelease:
     DELETE OBJECT ghInventoryProcs.
 END PROCEDURE.
 
+PROCEDURE GetFreightForBOL:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given a BOL ROWID, calculate the total freight.  Optionally, update the 
+     freight field on the BOL header and pro-rated freight values on each bill of lading line
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriBOL AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER iplUpdate AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdFreight AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-oe-bolh  FOR oe-bolh.
+    DEFINE BUFFER bf-oe-boll  FOR oe-boll.
+    DEFINE BUFFER bf-carrier  FOR carrier.
+    DEFINE BUFFER bf-carr-mtx FOR carr-mtx.
+    DEFINE BUFFER bf-shipto   FOR shipto.
+    
+    DEFINE VARIABLE dTotPallets AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTotMSF     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTotLbs     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dMSF        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cShipFrom   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dFreight    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dFreightMin AS DECIMAL   NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttBOLLine.
+    EMPTY TEMP-TABLE ttFreightClass.
+    
+    FIND FIRST oe-bolh NO-LOCK
+        WHERE ROWID(oe-bolh) EQ ipriBOL
+        NO-ERROR.
+    IF NOT AVAILABLE oe-bolh THEN 
+    DO: 
+        ASSIGN
+            oplError   = YES
+            opcMessage = "Invalid ROWID for BOL"
+            .
+        RETURN.  
+    END.
+    /*Get shipto either for the BOL customer or customer X*/
+    RUN oe/custxship.p (oe-bolh.company,
+                        oe-bolh.cust-no,
+                        oe-bolh.ship-id,
+                        BUFFER bf-shipto).
+                        
+    IF NOT AVAILABLE bf-shipto THEN 
+    DO: 
+        ASSIGN
+            oplError   = YES
+            opcMessage = "Invalid Ship To (" + oe-bolh.ship-id + ") for BOL"
+            .
+        RETURN.  
+    END.
+    cShipFrom = bf-shipto.loc.
+    /*Process Each Line - Calculate Totals*/
+    FOR EACH oe-boll NO-LOCK 
+        WHERE oe-boll.company EQ oe-bolh.company
+        AND oe-boll.b-no EQ oe-bolh.b-no,
+        FIRST itemfg NO-LOCK 
+        WHERE itemfg.company EQ oe-boll.company
+        AND itemfg.i-no EQ oe-boll.i-no
+        BREAK BY itemfg.i-no
+        BY oe-boll.line:
+        
+        IF FIRST(oe-boll.line) THEN 
+            cShipFrom = oe-boll.loc.
+        IF FIRST-OF(itemfg.i-no) THEN
+            RUN fg/GetFGArea.p (ROWID(itemfg),"MSF", OUTPUT dMSF).    
+        
+        FIND FIRST ttFreightClass
+            WHERE ttFreightClass.cFreightClass EQ itemfg.frt-class
+            NO-ERROR.
+        IF NOT AVAILABLE ttFreightClass THEN DO: 
+            CREATE ttFreightClass.
+            ASSIGN 
+                ttFreightClass.cFreightClass = itemfg.frt-class
+                .
+        END.
+        CREATE ttBOLLine.
+        ASSIGN 
+            ttBOLLine.riBOLLine   = ROWID(oe-boll)
+            ttBOLLine.dLbs = oe-boll.weight
+            ttBOLLine.dPallets = oe-boll.tot-pallets
+            ttBOLLine.dMSF = dMSF * oe-boll.qty
+            dTotPallets = dTotPallets + ttBOLLine.dPallets
+            dTotMSF     = dTotMSF + ttBOLLine.dMSF
+            dTotLbs     = dTotLbs + ttBOLLine.dLbs
+            ttFreightClass.dLbs = ttFreightClass.dLbs + ttBOLLine.dLbs
+            ttFreightClass.dMSF = ttFreightClass.dMSF + ttBOLLine.dMSF
+            ttFreightClass.dPallets = ttFreightClass.dPallets + ttBOLLine.dPallets
+            .
+    END.  /*each oe-boll*/
+    
+    IF fUseFreightClassForDestination(oe-bolh.company) THEN DO:
+        FOR EACH ttFreightClass:
+            RUN GetFreightForCarrierZone (oe-bolh.company, cShipFrom, oe-bolh.carrier, ttFreightClass.cFreightClass, bf-shipto.ship-zip,
+               ttFreightClass.dPallets, ttFreightClass.dLbs, ttFreightClass.dMSF, 
+                OUTPUT dFreight, OUTPUT dFreightMin,
+                OUTPUT oplError, OUTPUT opcMessage).
+            IF oplError THEN 
+                RUN GetFreightForCarrierZone (oe-bolh.company, cShipFrom, oe-bolh.carrier, bf-shipto.dest-code, bf-shipto.ship-zip,
+                    ttFreightClass.dPallets, ttFreightClass.dLbs, ttFreightClass.dMSF,
+                    OUTPUT dFreight, OUTPUT dFreightMin,
+                    OUTPUT oplError, OUTPUT opcMessage).
+            opdFreight = opdFreight + dFreight.
+        END.
+    END. 
+    ELSE 
+        RUN GetFreightForCarrierZone (oe-bolh.company, cShipFrom, oe-bolh.carrier, bf-shipto.dest-code, bf-shipto.ship-zip,
+            dTotPallets, dTotLbs, dTotMSF, 
+            OUTPUT opdFreight, OUTPUT dFreightMin,
+            OUTPUT oplError, OUTPUT opcMessage).  
+    
+    IF iplUpdate THEN /*assign freight and prorated freight per line*/
+    DO:
+        RUN pGetCarrierBuffers(oe-bolh.company, cShipFrom, oe-bolh.carrier, bf-shipto.dest-code, bf-shipto.ship-zip, 
+            BUFFER bf-carrier, BUFFER bf-carr-mtx, 
+            OUTPUT oplError, OUTPUT opcMessage).
+        IF AVAILABLE bf-carrier THEN DO:
+            FOR EACH bf-oe-boll EXCLUSIVE-LOCK 
+                WHERE bf-oe-boll.company EQ oe-bolh.company
+                AND bf-oe-boll.b-no EQ oe-bolh.b-no, 
+                FIRST ttBOLLine
+                WHERE ttBOLLine.riBOLLine EQ ROWID(bf-oe-boll): 
+                    CASE bf-carrier.chg-method:
+                        WHEN "P" THEN 
+                            bf-oe-boll.freight = ttBOLLine.dPallets / dTotPallets * opdFreight.
+                        WHEN "W" THEN 
+                            bf-oe-boll.freight = ttBOLLine.dLbs / dTotLbs * opdFreight.
+                        OTHERWISE 
+                            bf-oe-boll.freight = ttBOLLine.dMSF / dTotMSF * opdFreight.
+                    END CASE.
+            END. /*Each bf-oe-boll - exclusive*/
+            
+            /*update bol-header*/
+            FIND FIRST bf-oe-bolh EXCLUSIVE-LOCK 
+                WHERE ROWID(bf-oe-bolh) EQ ROWID(oe-bolh)
+                NO-ERROR.
+            IF AVAILABLE bf-oe-bolh THEN 
+                bf-oe-bolh.freight = opdFreight.
+            
+            RELEASE bf-oe-bolh.
+            RELEASE bf-oe-boll.
+        END. /*available bf-carrier*/
+    END. /*iplUpdate = YES*/
+    
+END PROCEDURE.
+
 PROCEDURE GetFreightForCarrierZone:
     /*------------------------------------------------------------------------------
      Purpose: Given a Company, Loc, Carrier, Zone, Zip (optional), and lookup quantities
@@ -167,49 +333,16 @@ PROCEDURE GetFreightForCarrierZone:
 
     DEFINE BUFFER bf-carrier  FOR carrier.
     DEFINE BUFFER bf-carr-mtx FOR carr-mtx.
-    DEFINE VARIABLE iLevel          AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dCostMultiplier AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dQtyToLookup    AS DECIMAL NO-UNDO.
 
     RUN pGetCarrierBuffers(ipcCompany, ipcLocationID, ipcCarrier, ipcZone, ipcZip, 
         BUFFER bf-carrier, BUFFER bf-carr-mtx, 
         OUTPUT oplError, OUTPUT opcMessage).
     IF AVAILABLE bf-carrier AND AVAILABLE bf-carr-mtx THEN 
     DO:
-        CASE bf-carrier.chg-method:
-            WHEN "W" THEN
-                ASSIGN 
-                    dCostMultiplier = ipdTotalWeight / 100
-                    dQtyToLookup    = ipdTotalWeight
-                    opcMessage      = "Freight Calculated from carrier charge based on total weight of " + STRING(ipdTotalWeight,"->>,>>>,>>9.99")
-                    .
-                
-            WHEN "P" THEN 
-                ASSIGN 
-                    dCostMultiplier = ipdTotalPallets
-                    dQtyToLookup    = ipdTotalPallets
-                    opcMessage      = "Freight Calculated from carrier charge based on total pallets of " + STRING(ipdTotalPallets,"->>,>>>,>>9")
-                    .
-            OTHERWISE /*MSF*/
-            ASSIGN 
-                dCostMultiplier = ipdTotalMSF
-                dQtyToLookup    = ipdTotalMSF
-                opcMessage      = "Freight Calculated from carrier charge based on total MSF of " + STRING(ipdTotalMSF,"->>,>>>,>>9.99")
-                .
-        END CASE. 
-        IF dCostMultiplier EQ ? THEN dCostMultiplier = 0.
-        DO iLevel = 1 TO 10:
-            IF bf-carr-mtx.weight[iLevel] GE dQtyToLookup THEN LEAVE.
-        END.
-        IF iLevel LE 10 THEN 
-            ASSIGN 
-                opdFreightMin   = bf-carr-mtx.min-rate
-                opdFreightTotal = bf-carr-mtx.rate[iLevel] * dCostMultiplier
-                .
-        IF opdFreightTotal LT opdFreightMin THEN 
-            ASSIGN 
-                opdFreightTotal = opdFreightMin
-                opcMessage      = opcMessage + " - minimum not exceeded".
+        RUN pGetFreightForCarrierBuffers(BUFFER bf-carrier, BUFFER bf-carr-mtx, 
+            ipdTotalPallets, ipdTotalWeight, ipdTotalMSF, 
+            OUTPUT opdFreightTotal, OUTPUT opdFreightMin, OUTPUT oplError, OUTPUT opcMessage).
+        
     END.
 
 END PROCEDURE.
@@ -359,7 +492,7 @@ PROCEDURE GetFreightForEstimate:
     DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     
-    RUN pGetFreight(ipcCompany, ipcEstimateNo, ipdQuantity, giAllFormsIndicator, giAllBlanksIndicator, 
+    RUN pGetFreightForEstReleases(ipcCompany, ipcEstimateNo, ipdQuantity, giAllFormsIndicator, giAllBlanksIndicator, 
         OUTPUT opdFreightTotal,
         OUTPUT lError, OUTPUT cMessage ).
 
@@ -381,21 +514,21 @@ PROCEDURE GetFreightForEstimateBlank:
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     
     
-    RUN pGetFreight(ipcCompany, ipcEstimateNo, ipdQuantity, ipiFormNo, ipiBlankNo, 
+    RUN pGetFreightForEstReleases(ipcCompany, ipcEstimateNo, ipdQuantity, ipiFormNo, ipiBlankNo, 
         OUTPUT opdFreightTotal,
         OUTPUT lError, OUTPUT cMessage ).
 
 END PROCEDURE.
 
 PROCEDURE GetFreight:
-/*------------------------------------------------------------------------------
- Purpose: Given all required inputs, return the total freight 
- Notes:
- Syntax:
-       RUN GetFreight(ipcCompany, ipcShipFromLocationID, ipcCarrierID, ipcCarrierZone, ipcZip, 
-            ipdQuantityInEA, ipdLBsofEA, ipdMSFofEA, ipdTotalUnits, ipdFreightPer100LbsOverride, ipdFreightPerMOverride,
-            OUTPUT opdFreightCost, OUTPUT oplError, OUTPUT opcMessage).
-    ------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose: Given all required inputs, return the total freight 
+     Notes:
+     Syntax:
+           RUN GetFreight(ipcCompany, ipcShipFromLocationID, ipcCarrierID, ipcCarrierZone, ipcZip, 
+                ipdQuantityInEA, ipdLBsofEA, ipdMSFofEA, ipdTotalUnits, ipdFreightPer100LbsOverride, ipdFreightPerMOverride,
+                OUTPUT opdFreightCost, OUTPUT oplError, OUTPUT opcMessage).
+        ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcShipFromLocationID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCarrierID AS CHARACTER NO-UNDO.
@@ -413,8 +546,8 @@ PROCEDURE GetFreight:
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
     RUN pCalculateFreight(ipcCompany, ipcShipFromLocationID, ipcCarrierID, ipcCarrierZone, ipcZip, 
-            ipdQuantityInEA, ipdLBsofEA, ipdMSFofEA, ipdTotalUnits, ipdFreightPer100LbsOverride, ipdFreightPerMOverride,
-            OUTPUT opdFreightCost, OUTPUT opdFreightMin, OUTPUT oplError, OUTPUT opcMessage).
+        ipdQuantityInEA, ipdLBsofEA, ipdMSFofEA, ipdTotalUnits, ipdFreightPer100LbsOverride, ipdFreightPerMOverride,
+        OUTPUT opdFreightCost, OUTPUT opdFreightMin, OUTPUT oplError, OUTPUT opcMessage).
 
 END PROCEDURE.
 
@@ -568,7 +701,7 @@ PROCEDURE pCalculateFreight PRIVATE:
     DEFINE VARIABLE dTotalMSF    AS DECIMAL NO-UNDO.
 
     ASSIGN 
-        dTotalMSF = ipdQuantityInEA * ipdMSFOfEA
+        dTotalMSF    = ipdQuantityInEA * ipdMSFOfEA
         dTotalWeight = ipdQuantityInEA * ipdLBsOfEA
         .
     IF ipdFreightPer100LbsOverride NE 0 THEN 
@@ -757,7 +890,7 @@ PROCEDURE pGetEffectiveQuantity PRIVATE:
 
 END PROCEDURE.
 
-PROCEDURE pGetFreight PRIVATE:
+PROCEDURE pGetFreightForEstReleases PRIVATE:
     /*------------------------------------------------------------------------------
     Purpose: Given an estimate, qty, form, and blank, return the total freight cost
     costs
@@ -804,6 +937,63 @@ PROCEDURE pGetFreight PRIVATE:
     END. /*Each estRelease for blank*/
     
 END PROCEDURE.
+
+PROCEDURE pGetFreightForCarrierBuffers PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-carrier  FOR carrier.
+    DEFINE PARAMETER BUFFER ipbf-carr-mtx FOR carr-mtx.
+    DEFINE INPUT PARAMETER ipdTotalPallets AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdTotalWeight AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdTotalMSF AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdFreightTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdFreightMin AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iLevel          AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dCostMultiplier AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyToLookup    AS DECIMAL NO-UNDO.
+    
+    CASE ipbf-carrier.chg-method:
+        WHEN "W" THEN
+            ASSIGN 
+                dCostMultiplier = ipdTotalWeight / 100
+                dQtyToLookup    = ipdTotalWeight
+                opcMessage      = "Freight Calculated from carrier charge based on total weight of " + STRING(ipdTotalWeight,"->>,>>>,>>9.99")
+                .
+                
+        WHEN "P" THEN 
+            ASSIGN 
+                dCostMultiplier = ipdTotalPallets
+                dQtyToLookup    = ipdTotalPallets
+                opcMessage      = "Freight Calculated from carrier charge based on total pallets of " + STRING(ipdTotalPallets,"->>,>>>,>>9")
+                .
+        OTHERWISE /*MSF*/
+        ASSIGN 
+            dCostMultiplier = ipdTotalMSF
+            dQtyToLookup    = ipdTotalMSF
+            opcMessage      = "Freight Calculated from carrier charge based on total MSF of " + STRING(ipdTotalMSF,"->>,>>>,>>9.99")
+            .
+    END CASE. 
+    IF dCostMultiplier EQ ? THEN dCostMultiplier = 0.
+    DO iLevel = 1 TO 10:
+        IF ipbf-carr-mtx.weight[iLevel] GE dQtyToLookup THEN LEAVE.
+    END.
+    IF iLevel LE 10 THEN 
+        ASSIGN 
+            opdFreightMin   = ipbf-carr-mtx.min-rate
+            opdFreightTotal = ipbf-carr-mtx.rate[iLevel] * dCostMultiplier
+            .
+    IF opdFreightTotal LT opdFreightMin THEN 
+        ASSIGN 
+            opdFreightTotal = opdFreightMin
+            opcMessage      = opcMessage + " - minimum not exceeded".
+
+END PROCEDURE.
+
 PROCEDURE pGetStorageAndHandling PRIVATE:
     /*------------------------------------------------------------------------------
     Purpose: Given an estimate, qty, form, and blank, return the total storage and handling
@@ -1046,6 +1236,23 @@ FUNCTION fGetTotalMSF RETURNS DECIMAL PRIVATE
     
     RETURN ipdQuantity * fGetMSF(ipdLength, ipdWidth, ipcDimUOM).    
 		
+END FUNCTION.
+
+FUNCTION fUseFreightClassForDestination RETURNS LOGICAL PRIVATE
+    (ipcCompany AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns NK1 setting indicating that Freight Class should be
+     used for destination code instead of shipto dest code
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    
+    RUN sys\ref\nk1look.p (ipcCompany,'BOLFreight','C',NO,NO,'','', 
+        OUTPUT cReturn, OUTPUT lFound).
+    
+    RETURN lFound AND cReturn EQ "FGFreightClass".    
+             
 END FUNCTION.
 
 FUNCTION HasReleases RETURNS LOGICAL 

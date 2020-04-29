@@ -60,6 +60,7 @@ RUN spSetSessionParam ("Location", g_loc).
 
 /* ***************************  Main Block  *************************** */
 
+&IF "{&program-id}" NE "dynBrowserParam." &THEN
 CREATE BROWSE hQueryBrowse
     ASSIGN
         FRAME = FRAME resultsFrame:HANDLE
@@ -114,6 +115,7 @@ ON ROW-DISPLAY OF hQueryBrowse DO:
             .
     END. /* do idx */
 END. /* row-display */
+&ENDIF
 
 {AOA/includes/pDynParamProcs.i "{1}"}
 {AOA/includes/pRunNow.i}
@@ -167,6 +169,7 @@ PROCEDURE pResultsBrowser :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphQuery AS HANDLE NO-UNDO.
     
+&IF "{&program-id}" NE "dynBrowserParam." &THEN
     DEFINE VARIABLE hColumn AS HANDLE  NO-UNDO.
     DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
     
@@ -242,6 +245,7 @@ PROCEDURE pResultsBrowser :
         btnSaveResults:MOVE-TO-TOP().
     END. /* results frame */
     RUN LockWindowUpdate (0,OUTPUT i).
+&ENDIF
 
 END PROCEDURE.
 
@@ -255,8 +259,9 @@ PROCEDURE pResultsJasper :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcType   AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcType       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTaskRecKey AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
     
@@ -268,6 +273,7 @@ PROCEDURE pResultsJasper :
         dynSubject.subjectTitle,
         ipcUserID,
         hAppSrvBin,
+        ipcTaskRecKey,
         OUTPUT cJasperFile
         ).
     
@@ -284,9 +290,10 @@ PROCEDURE pRunQuery:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iplRun    AS LOGICAL   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcType   AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcUserID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplRun        AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcType       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTaskRecKey AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE cError     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTableName AS CHARACTER NO-UNDO.
@@ -331,12 +338,12 @@ PROCEDURE pRunQuery:
                 WHEN "Grid" THEN
                 RUN pResultsBrowser (hQuery).
                 WHEN "Print -d" OR WHEN "View" THEN
-                RUN pResultsJasper (ipcType, ipcUserID).
+                RUN pResultsJasper (ipcType, ipcUserID, ipcTaskRecKey).
                 OTHERWISE
                 IF dynParamValue.user-id NE "_default" THEN
                 RUN pRunNow (ipcType, dynSubject.subjectTitle, YES).
                 ELSE
-                RUN pResultsJasper (ipcType, ipcUserID).
+                RUN pResultsJasper (ipcType, ipcUserID, ipcTaskRecKey).
             END CASE.
         END. /* if run */
         ELSE
@@ -362,7 +369,9 @@ PROCEDURE pRunSubject :
     DEFINE INPUT PARAMETER ipcType     AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcUserID   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcPrgmName AS CHARACTER NO-UNDO.
-
+    
+    DEFINE VARIABLE cTaskRecKey AS CHARACTER NO-UNDO.
+    
     SESSION:SET-WAIT-STATE("General").
     IF AVAILABLE dynParamValue THEN
     DO TRANSACTION:
@@ -379,7 +388,8 @@ PROCEDURE pRunSubject :
     RUN pSetDynParamValue (dynSubject.subjectID, ipcUserID, ipcPrgmName, 0).
     IF iplRun THEN
     RUN pSaveDynParamValues (ipcType).
-    RUN pRunQuery (iplRun, ipcType, ipcUserID).
+    cTaskRecKey = IF AVAILABLE Task THEN Task.rec_key ELSE "NoTask".
+    RUN pRunQuery (iplRun, ipcType, ipcUserID, cTaskRecKey).
     SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.

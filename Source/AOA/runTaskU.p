@@ -56,6 +56,7 @@ IF AVAILABLE user-print THEN DO:
                     ROWID(user-print),
                     hAppSrv,
                     hAppSrvBin,
+                    "AOA",
                     OUTPUT cJasperFile
                     ).
                 RUN pCreateAuditHdr.

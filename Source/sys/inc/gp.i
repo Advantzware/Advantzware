@@ -2,6 +2,7 @@
 DEF VAR gp-dir LIKE sys-ctrl.descrip NO-UNDO.
 DEF VAR gp-log LIKE sys-ctrl.log-fld NO-UNDO.
 DEF VAR gp-cha LIKE sys-ctrl.char-fld NO-UNDO.
+DEF VAR gp-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 
 {sys/inc/poexport.i}
@@ -21,4 +22,7 @@ end.
 assign
  gp-dir = sys-ctrl.descrip
  gp-log = sys-ctrl.log-fld
- gp-cha = sys-ctrl.char-fld.
+ gp-cha = sys-ctrl.char-fld
+ gp-int = sys-ctrl.int-fld.
+ 
+

@@ -25,6 +25,13 @@ DEFINE VARIABLE gcOnOrderQtyCode    LIKE sys-ctrl.char-fld NO-UNDO. /* determine
 DEFINE VARIABLE gcTagSelectionCode  AS CHARACTER NO-UNDO. /* Tag selection code */
 DEFINE VARIABLE glUseItemfgLoc      AS LOGICAL   NO-UNDO. /* Get location from itemfg? */
 DEFINE VARIABLE gcCompanyDefaultBin AS CHARACTER NO-UNDO.  /* default bin */
+DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lr-rel-lib AS HANDLE NO-UNDO.
+
+DEFINE TEMP-TABLE ttUpdateOrderReleaseStatus NO-UNDO 
+  FIELD ord-no AS INTEGER.
+
+RUN sbo/oerel-recalc-act.p PERSISTENT SET lr-rel-lib.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -424,7 +431,8 @@ PROCEDURE pApproveImportedOrder PRIVATE:
         ipbf-oe-ord.user-id     = USERID("nosweat")
         ipbf-oe-ord.approved-id = USERID("nosweat")
         ipbf-oe-ord.t-freight   = 0.
-
+        
+    RUN pSetGlobalSettings (INPUT ipbf-oe-ord.company).
     IF ipbf-oe-ord.type EQ "" THEN ipbf-oe-ord.type = "O".
 
     IF ipbf-oe-ord.sman[1] EQ "" THEN
@@ -508,15 +516,16 @@ PROCEDURE pApproveImportedOrder PRIVATE:
         IF cUOM NE "M" THEN
             RUN sys/ref/convcuom.p(cUOM, "M", 0, 0, 0, 0,
                 oe-ordl.cost, OUTPUT oe-ordl.cost).
-
-        RUN oe/ordlfrat.p (ROWID(oe-ordl), OUTPUT oe-ordl.t-freight).
-        ipbf-oe-ord.t-freight = ipbf-oe-ord.t-freight + oe-ordl.t-freight.
+        IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN do:
+            RUN oe/ordlfrat.p (ROWID(oe-ordl), OUTPUT oe-ordl.t-freight).
+            ipbf-oe-ord.t-freight = ipbf-oe-ord.t-freight + oe-ordl.t-freight.
+        end.
         FIND CURRENT oe-ordl NO-LOCK.
         RELEASE oe-ordl.
     END. /* Each oe-ordl */
-  
-
-    RUN oe/ordfrate.p (ROWID(ipbf-oe-ord)).
+     
+    IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN 
+      RUN oe/ordfrate.p (ROWID(ipbf-oe-ord)).
     
     RUN CalcOrderCommission(ROWID(ipbf-oe-ord), OUTPUT oplError, OUTPUT opcMessage).
     
@@ -719,7 +728,7 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cReturnChar AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lRecFound   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound   AS LOGICAL NO-UNDO.
               
     RUN sys/ref/nk1look.p (INPUT ipcCompany, "ADDXFER", "L" /* Logical */, NO /* check by cust */, 
         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -760,7 +769,13 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     RUN sys/ref/nk1look.p (INPUT ipcCompany, "BOLPRINT", "C" /* Logical */, NO /* check by cust */, 
         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
         OUTPUT cReturnChar, OUTPUT lRecFound).
-    gcCompanyDefaultBin = cReturnChar NO-ERROR.    
+    gcCompanyDefaultBin = cReturnChar NO-ERROR. 
+    RUN sys/ref/nk1look.p (INPUT g_company, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturnChar, OUTPUT lRecFound).
+    IF lRecFound THEN
+     cFreightCalculationValue = cReturnChar NO-ERROR. 
+      
 END PROCEDURE.
 
 PROCEDURE ReleaseOrder :
@@ -1904,11 +1919,12 @@ PROCEDURE pOrderProcsCreateBOLLines PRIVATE:
         RUN oe/bolhtots.p (
             INPUT ROWID(oe-bolh)
             ).
-      
-        RUN oe/calcBolFrt.p (
-            INPUT ROWID(oe-bolh), 
-            OUTPUT oe-bolh.freight
-            ).
+        IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN do:       
+            RUN oe/calcBolFrt.p (
+                INPUT ROWID(oe-bolh), 
+                OUTPUT oe-bolh.freight
+                ).
+        END.
       
         IF oe-bolh.freight EQ ? THEN 
             oe-bolh.freight = 0.
@@ -2111,11 +2127,12 @@ PROCEDURE pOrderProcsMakeBOLLs PRIVATE:
         IF oe-boll.qty LT 0 THEN 
             oe-boll.tag = "".
     END. /* each oe-rell */
-
-    RUN oe/calcBolFrt.p (
-        INPUT ROWID(oe-bolh), 
-        OUTPUT oe-bolh.freight
-        ).
+    IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Bol Processing") THEN do:
+        RUN oe/calcBolFrt.p (
+            INPUT ROWID(oe-bolh), 
+            OUTPUT oe-bolh.freight
+            ).
+    END.
                
 END PROCEDURE.
 
@@ -2198,6 +2215,301 @@ PROCEDURE pOrderProcsPostRelease PRIVATE:
         oe-relh.posted = YES.
 
     RELEASE oe-relh.
+END PROCEDURE.
+
+PROCEDURE Order_DeleteBOL:
+    /*------------------------------------------------------------------------------
+     Purpose: Deletes BOL and Unposts related release
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBOLID   AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
+    DEFINE BUFFER bf-oe-boll FOR oe-boll
+    .
+    DEFINE VARIABLE dOut AS DECIMAL NO-UNDO.
+    
+    oplSuccess = YES.
+    
+    EMPTY TEMP-TABLE ttUpdateOrderReleaseStatus.
+    
+    FIND FIRST bf-oe-bolh NO-LOCK
+         WHERE bf-oe-bolh.company EQ ipcCompany
+           AND bf-oe-bolh.bol-no  EQ ipiBOLID
+         NO-ERROR.
+    IF NOT AVAILABLE bf-oe-bolh THEN DO:
+        ASSIGN
+            oplSuccess = NO
+            opcMessage = "BOL header is not available"
+            .
+            
+        RETURN.
+    END.
+    FOR EACH  bf-oe-boll NO-LOCK
+        WHERE bf-oe-boll.company EQ bf-oe-bolh.company
+          AND bf-oe-boll.b-no    EQ bf-oe-bolh.b-no: 
+              
+        FIND FIRST ttUpdateOrderReleaseStatus 
+             WHERE ttUpdateOrderReleaseStatus.ord-no EQ bf-oe-boll.ord-no 
+             NO-ERROR.
+             
+        IF NOT AVAILABLE ttUpdateOrderReleaseStatus THEN DO:
+            CREATE ttUpdateOrderReleaseStatus.
+            ttUpdateOrderReleaseStatus.ord-no = bf-oe-boll.ord-no.
+        END.
+        
+        RUN pReleaseLineUpdateBOLStatusLinks (
+            INPUT  ROWID(bf-oe-boll),
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN DO:
+            ASSIGN
+                oplSuccess = NO
+                opcMessage = ERROR-STATUS:GET-MESSAGE(1)
+                .
+            
+            RETURN.
+        END.
+                
+        FIND CURRENT bf-oe-boll EXCLUSIVE-LOCK NO-ERROR.
+        DELETE bf-oe-boll. /* deletes BOL line */
+        
+    END. /* each oe-boll */  
+    
+    RUN pBOLReleaseHeaderUpdateStatus (
+        INPUT  ROWID(bf-oe-bolh),
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN DO:
+        ASSIGN
+            oplSuccess = NO
+            opcMessage = ERROR-STATUS:GET-MESSAGE(1)
+            .
+        
+        RETURN.
+    END.    
+    FIND CURRENT bf-oe-bolh EXCLUSIVE-LOCK NO-ERROR.
+    DELETE bf-oe-bolh. /* deletes BOL header */
+
+    FOR EACH ttUpdateOrderReleaseStatus 
+        WHERE ttUpdateOrderReleaseStatus.ord-no NE 0
+        BREAK BY ttUpdateOrderReleaseStatus.ord-no:
+    
+        IF LAST-OF(ttUpdateOrderReleaseStatus.ord-no) THEN DO:
+            FOR EACH oe-rel
+                WHERE oe-rel.company EQ ipcCompany
+                  AND oe-rel.ord-no  EQ ttUpdateOrderReleaseStatus.ord-no:
+                RUN oe/rel-stat.p (
+                    INPUT ROWID(oe-rel), 
+                    OUTPUT oe-rel.stat
+                    ).
+ 
+                IF AVAILABLE oe-rel AND VALID-HANDLE(lr-rel-lib) THEN 
+                    RUN recalc-act-qty IN lr-rel-lib (
+                        INPUT ROWID(oe-rel), 
+                        OUTPUT dOut
+                        ).
+            END.          
+        END.
+    
+        DELETE ttUpdateOrderReleaseStatus.
+    END.
+    
+    RELEASE bf-oe-bolh.
+    RELEASE bf-oe-bolh.
+    DELETE PROCEDURE lr-rel-lib.
+END PROCEDURE.
+
+PROCEDURE pReleaseLineUpdateBOLStatusLinks PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Updates release line status,links,order quantity
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iprioeboll AS ROWID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-boll  FOR oe-boll.
+    DEFINE BUFFER bf-oe-bolh  FOR oe-bolh.
+    DEFINE BUFFER bf-oe-rell  FOR oe-rell.
+    DEFINE BUFFER bf-oe-rel   FOR oe-rel.
+    DEFINE BUFFER bf-oe-ordl  FOR oe-ordl.
+    DEFINE BUFFER bf1-oe-boll FOR oe-boll.
+    
+    DEFINE VARIABLE iOrdNo AS INTEGER NO-UNDO.
+   
+    DISABLE TRIGGERS FOR LOAD OF bf-oe-ordl.
+    
+    oplSuccess = YES.
+    
+    FIND FIRST bf1-oe-boll NO-LOCK
+         WHERE ROWID(bf1-oe-boll) EQ iprioeboll
+         NO-ERROR.
+    IF NOT AVAILABLE bf1-oe-boll THEN DO:
+        ASSIGN
+            oplSuccess = NO
+            opcMessage = "BOL Line is not available"
+            .
+            
+        RETURN.
+    END.
+    FIND FIRST bf-oe-boll NO-LOCK
+         WHERE bf-oe-boll.company  EQ bf1-oe-boll.company
+           AND bf-oe-boll.ord-no   EQ bf1-oe-boll.ord-no
+           AND bf-oe-boll.line     EQ bf1-oe-boll.line
+           AND bf-oe-boll.i-no     EQ bf1-oe-boll.i-no
+           AND bf-oe-boll.r-no     EQ bf1-oe-boll.r-no
+           AND bf-oe-boll.rel-no   EQ bf1-oe-boll.rel-no
+           AND bf-oe-boll.b-ord-no EQ bf1-oe-boll.b-ord-no
+           AND bf-oe-boll.po-no    EQ bf1-oe-boll.po-no
+           AND ROWID(bf-oe-boll)   NE ROWID(bf1-oe-boll)
+           AND CAN-FIND(FIRST bf-oe-bolh 
+                        WHERE bf-oe-bolh.b-no   EQ bf-oe-boll.b-no
+                          AND bf-oe-bolh.posted EQ NO)
+           NO-ERROR.
+    
+     IF NOT AVAILABLE bf-oe-boll THEN DO:
+         FOR EACH  oe-rell NO-LOCK
+             WHERE oe-rell.company  EQ bf1-oe-boll.company
+               AND oe-rell.ord-no   EQ bf1-oe-boll.ord-no
+               AND oe-rell.line     EQ bf1-oe-boll.line
+               AND oe-rell.i-no     EQ bf1-oe-boll.i-no
+               AND oe-rell.rel-no   EQ bf1-oe-boll.rel-no
+               AND oe-rell.b-ord-no EQ bf1-oe-boll.b-ord-no
+               AND oe-rell.po-no    EQ bf1-oe-boll.po-no
+               AND CAN-FIND(FIRST oe-relh 
+                            WHERE oe-relh.r-no EQ oe-rell.r-no):
+
+            FIND FIRST bf-oe-ordl EXCLUSIVE-LOCK
+                 WHERE bf-oe-ordl.company EQ bf1-oe-boll.company
+                   AND bf-oe-ordl.ord-no  EQ oe-rell.ord-no
+                   AND bf-oe-ordl.i-no    EQ oe-rell.i-no
+                   AND bf-oe-ordl.line    EQ oe-rell.line
+                 NO-ERROR.
+            IF oe-rell.s-code NE "I" THEN
+                bf-oe-ordl.t-rel-qty = bf-oe-ordl.t-rel-qty - oe-rell.qty.
+            IF bf-oe-ordl.t-rel-qty LT 0 THEN
+                bf-oe-ordl.t-rel-qty = 0.
+            
+            iOrdNo = oe-rell.ord-no.
+           
+            IF oe-rell.posted EQ YES THEN DO:
+                FIND FIRST bf-oe-rell EXCLUSIVE-LOCK
+                     WHERE ROWID(bf-oe-rell) EQ ROWID(oe-rell)
+                     NO-WAIT NO-ERROR.
+                IF LOCKED bf-oe-rell THEN DO:
+                    ASSIGN
+                        oplSuccess = NO
+                        opcMessage = "release line is locked and not available to update"
+                        .
+                       
+                    RETURN.
+                END. 
+                bf-oe-rell.posted = NO.
+                RELEASE bf-oe-rell.
+            END.
+            FOR EACH  oe-rel NO-LOCK
+                WHERE oe-rel.company EQ oe-boll.company
+                  AND oe-rel.ord-no  EQ iOrdNo
+                  AND oe-rel.link-no NE 0:
+        
+                FOR EACH  bf-oe-rell EXCLUSIVE-LOCK
+                    WHERE bf-oe-rell.company  EQ oe-rel.company
+                      AND bf-oe-rell.r-no     EQ oe-rel.link-no
+                      AND bf-oe-rell.ord-no   EQ oe-rel.ord-no
+                      AND bf-oe-rell.i-no     EQ oe-rel.i-no
+                      AND bf-oe-rell.line     EQ oe-rel.line
+                      AND bf-oe-rell.rel-no   EQ oe-rel.rel-no
+                      AND bf-oe-rell.b-ord-no EQ oe-rel.b-ord-no
+                      AND bf-oe-rell.po-no    EQ oe-rel.po-no
+                      AND bf-oe-rell.posted   EQ YES
+                    USE-INDEX r-no
+                    BREAK BY bf-oe-rell.r-no:
+                    
+                    bf-oe-rell.link-no = oe-rel.r-no.
+                    
+                    IF LAST(bf-oe-rell.r-no) THEN 
+                        LEAVE.
+                END.
+                
+                FIND FIRST bf-oe-rel EXCLUSIVE-LOCK
+                     WHERE ROWID(bf-oe-rel) EQ ROWID(oe-rel)
+                     NO-ERROR.
+                IF AVAILABLE bf-oe-rel THEN
+                    bf-oe-rel.link-no = 0.
+                
+            END.
+    
+            RUN oe/rel-stat-upd.p (
+                INPUT ROWID(oe-rell)
+                ).
+        END. /* each oe-rell */
+    END.
+    
+    RELEASE bf-oe-boll.
+    RELEASE bf-oe-bolh.
+    RELEASE bf-oe-rell.
+    RELEASE bf-oe-rel.
+    RELEASE bf-oe-ordl.
+    RELEASE bf1-oe-boll.
+END PROCEDURE.
+
+PROCEDURE pBOLReleaseHeaderUpdateStatus PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Updates release header status
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iprioebolh AS ROWID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-relh FOR oe-relh.
+    DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
+   
+    oplSuccess = YES.
+    
+    FIND FIRST bf-oe-bolh NO-LOCK
+         WHERE ROWID(bf-oe-bolh) EQ iprioebolh
+         NO-ERROR.
+    IF NOT AVAILABLE bf-oe-bolh THEN DO:
+        ASSIGN
+            oplSuccess = NO
+            opcMessage = "BOL header is not available" 
+            .
+            
+        RETURN.
+    END.    
+    
+    FIND FIRST bf-oe-relh EXCLUSIVE-LOCK 
+         WHERE bf-oe-relh.company  EQ bf-oe-bolh.company
+           AND bf-oe-relh.release# EQ bf-oe-bolh.release#
+         NO-WAIT NO-ERROR.
+    IF LOCKED bf-oe-relh THEN DO:
+        ASSIGN
+            oplSuccess = NO
+            opcMessage = "Release header is locked and not available to update" 
+            .
+            
+        RETURN.
+    END.
+    IF NOT AVAILABLE bf-oe-relh THEN DO:
+        ASSIGN
+            oplSuccess = NO
+            opcMessage = "Release header is not available" 
+            .
+            
+        RETURN.
+    END.
+
+    bf-oe-relh.posted = NO.
+    
+    RELEASE bf-oe-relh.
+    RELEASE bf-oe-bolh.
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */

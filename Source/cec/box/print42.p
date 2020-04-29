@@ -47,6 +47,7 @@ def new shared var v-prep-lab like tprep-lab no-undo.
 def var ls-outfile as cha no-undo.
 def var ls-probetime as cha no-undo.  /* time display */
 DEF VAR lv-override AS LOG NO-UNDO.
+DEFINE VARIABLE hdEstimateProcs AS HANDLE NO-UNDO.
 
 DEF NEW SHARED VAR v-update-qty-gsa AS LOG NO-UNDO.
 DEF NEW SHARED VAR ld-gsa-brd AS DEC NO-UNDO.
@@ -65,7 +66,15 @@ find first xeb where xeb.company = xest.company
                  AND xeb.est-no   eq xest.est-no and
                      xeb.form-no eq xef.form-no no-lock.
 
-RUN est/EstimateProcs.p (xest.company, OUTPUT cCeBrowseBaseDir, OUTPUT tmp-dir).
+RUN est/EstimateProcs.p PERSISTENT SET hdEstimateProcs.
+
+RUN Estimate_GetEstimateDir IN hdEstimateProcs (
+    INPUT  xest.company,
+    OUTPUT cCEBrowseBaseDir,
+    OUTPUT tmp-dir
+    ).
+
+DELETE PROCEDURE hdEstimateProcs.
     
 {sys/inc/f16to32.i}
 {cec/print42p.i }

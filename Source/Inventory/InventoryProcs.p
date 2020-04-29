@@ -93,6 +93,156 @@ FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE Inventory_GetDefaultBin:
+/*------------------------------------------------------------------------------
+ Purpose: To get the default bin defined for a user in reftable
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFGDefBin AS CHARACTER NO-UNDO.
+    
+    FIND FIRST reftable NO-LOCK
+         WHERE reftable.company  EQ ipcCompany 
+           AND reftable.reftable EQ "Xref"
+           AND reftable.code     EQ USERID("ASI")
+           AND reftable.loc      EQ "FGDefBin"
+          NO-ERROR.
+
+    IF AVAILABLE reftable THEN
+        opcFGDefBin = reftable.code2.
+
+END PROCEDURE.
+
+PROCEDURE Inventory_GetDefaultWhse:
+/*------------------------------------------------------------------------------
+ Purpose: To get the default location defined for a user in reftable
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCompany       AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFGDefBin      AS CHARACTER NO-UNDO.
+    
+    FIND FIRST reftable NO-LOCK
+         WHERE reftable.company  EQ ipcCompany 
+           AND reftable.reftable EQ "Xref"
+           AND reftable.code     EQ USERID("ASI")
+           AND reftable.loc      EQ "FGDefWhse"
+          NO-ERROR.
+
+    IF AVAILABLE reftable THEN
+            opcFGDefBin = reftable.code2.
+    
+END PROCEDURE.
+
+PROCEDURE Inventory_GetStatusDescription:
+/*------------------------------------------------------------------------------
+ Purpose: To get the status description based on status ID
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcStatusID    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcDescription AS CHARACTER NO-UNDO.
+    
+    FIND FIRST inventoryStatusType NO-LOCK
+         WHERE inventoryStatusType.statusID EQ ipcStatusID
+         NO-ERROR.
+    
+    IF AVAILABLE inventoryStatusType
+        THEN opcDescription = inventoryStatusType.description.
+        
+
+END PROCEDURE.
+
+PROCEDURE Inventory_UpdateFGBinStatusID:
+/*------------------------------------------------------------------------------
+ Purpose: Updates the FG statusID
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriFGBin   AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStatusID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-fg-bin FOR fg-bin.
+    
+    FIND FIRST bf-fg-bin EXCLUSIVE-LOCK
+         WHERE ROWID(bf-fg-bin) EQ ipriFGBin
+         NO-ERROR NO-WAIT.
+    IF LOCKED bf-fg-bin THEN DO:
+        ASSIGN
+            oplSuccess = NO
+            opcMessage = "fg-bin record locked"
+            .            
+        RETURN.    
+    END.
+
+    IF NOT AVAILABLE bf-fg-bin THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid fg-bin record"
+            .
+        RETURN. 
+    END.
+    
+    ASSIGN
+        bf-fg-bin.statusID = ipcStatusID
+        oplSuccess         = TRUE
+        opcMessage         = "Success"
+        .
+    
+    RELEASE bf-fg-bin.
+END PROCEDURE.
+
+PROCEDURE Inventory_UpdateFGBinOnHold:
+/*------------------------------------------------------------------------------
+ Purpose: Updates the onHold status
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriFGBin   AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER iplOnHold   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-fg-bin FOR fg-bin.
+    
+    FIND FIRST bf-fg-bin EXCLUSIVE-LOCK
+         WHERE ROWID(bf-fg-bin) EQ ipriFGBin
+         NO-ERROR NO-WAIT.
+    IF LOCKED bf-fg-bin THEN DO:
+        ASSIGN
+            oplSuccess = NO
+            opcMessage = "fg-bin record locked"
+            .            
+        RETURN.    
+    END.
+
+    IF NOT AVAILABLE bf-fg-bin THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid fg-bin record"
+            .
+        RETURN. 
+    END.
+    
+    ASSIGN
+        bf-fg-bin.onHold   = iplOnHold
+        oplSuccess         = TRUE
+        opcMessage         = "Success"
+        .
+    
+    RELEASE bf-fg-bin.
+END PROCEDURE.
+
+PROCEDURE Inventory_ValidateStatusID:
+/*------------------------------------------------------------------------------
+ Purpose: Verify if an input status is valid 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcStatusID      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValidStatusID AS LOGICAL   NO-UNDO.
+    
+    oplValidStatusID = CAN-FIND(FIRST InventoryStatusType
+                                WHERE InventoryStatusType.statusID EQ ipcStatusID).
+END PROCEDURE.
+
 PROCEDURE RecalculateQuantities:
 /*------------------------------------------------------------------------------
  Purpose: To add the location into itemfg-loc based on history records and oe-rel
@@ -1187,6 +1337,9 @@ PROCEDURE CreatePrintInventory:
     DEFINE VARIABLE cMachName LIKE mach.m-dscr      NO-UNDO.
     DEFINE VARIABLE cItemName LIKE item.i-name      NO-UNDO.
     
+    DEFINE VARIABLE hdJobProcs AS HANDLE NO-UNDO.
+    RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
+    
     FIND FIRST inventoryStock NO-LOCK
          WHERE inventoryStock.inventoryStockID = ipcinventoryStockID
          NO-ERROR.
@@ -1219,7 +1372,28 @@ PROCEDURE CreatePrintInventory:
                    item.i-no    = inventoryStock.rmItemID NO-ERROR.
         IF AVAILABLE item THEN
             ASSIGN cItemName = item.i-name.
-            
+
+        /* Get Next machine ID for the given machine */
+        RUN Job_GetNextOperation IN hdJobProcs (
+            INPUT  inventoryStock.company, 
+            INPUT  inventoryStock.jobID, 
+            INPUT  inventoryStock.jobID2,
+            INPUT  inventoryStock.formNo,
+            INPUT  inventoryStock.pass,
+            INPUT  inventoryStock.machineID,
+            OUTPUT ttPrintInventoryStock.nextMachineID            
+            ).
+
+        /* Get description of the next machine */
+        IF ttPrintInventoryStock.nextMachineID NE "" THEN DO:
+            FIND FIRST mach NO-LOCK
+                 WHERE mach.company EQ inventoryStock.company 
+                   AND mach.m-code  EQ ttPrintInventoryStock.nextMachineID
+                 NO-ERROR.
+            IF AVAILABLE mach THEN
+                ttPrintInventoryStock.nextMachineName = mach.m-dscr.        
+        END.
+
         ASSIGN
             ttPrintInventoryStock.jobNumber    = LEFT-TRIM(TRIM(inventoryStock.jobID))
             ttPrintInventoryStock.jobNumber    = FILL(" ",6 - LENGTH(ttPrintInventoryStock.jobNumber)) + ttPrintInventoryStock.jobNumber
@@ -1232,6 +1406,9 @@ PROCEDURE CreatePrintInventory:
             ttPrintInventoryStock.machineName  = cMachName
             ttPrintInventoryStock.rmItemName   = cItemName.
     END.
+    
+    IF VALID-HANDLE(hdJobProcs) THEN
+        DELETE PROCEDURE hdJobProcs.
 END PROCEDURE.
 
 PROCEDURE CreatePrintInventoryForRM:
@@ -3923,6 +4100,46 @@ PROCEDURE Inventory_CreateWIPInventoryStockForIssuedRM:
     RELEASE bf-po-ordl.                 
 END PROCEDURE.
 
+PROCEDURE UpdateTagStatusID:
+/*------------------------------------------------------------------------------
+ Purpose: Updates statusID for a FG bin
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iprifgbin   AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStatusID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-fg-bin FOR fg-bin.
+    
+    oplSuccess = YES.
+     
+    FIND FIRST bf-fg-bin EXCLUSIVE-LOCK
+         WHERE ROWID(bf-fg-bin) EQ iprifgbin
+         NO-WAIT NO-ERROR.
+    /* Checks whether bin available or not */
+    IF NOT AVAILABLE bf-fg-bin THEN DO:
+        ASSIGN
+            oplSuccess = NO
+            opcMessage = "fg-bin not available"
+            .
+ 
+        RETURN.
+    END.
+    /* Checks whether row locked or not */
+    IF LOCKED bf-fg-bin THEN DO:
+        ASSIGN
+            oplSuccess = NO
+            opcMessage = "fg-bin record locked"
+            .
+            
+        RETURN.
+    
+    END. 
+    /* Updates bin status ID */
+    bf-fg-bin.statusID = ipcStatusID.
+    RELEASE bf-fg-bin.        
+END.
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fCanDeleteInventoryStock RETURNS LOGICAL 

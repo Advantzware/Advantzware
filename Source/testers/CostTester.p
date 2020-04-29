@@ -72,32 +72,32 @@ OUTPUT STREAM sOutput TO VALUE(cOutputFile).
 /*    "Cost Per UOM Freight:" dCostFreight                                                                          */
 /*    VIEW-AS ALERT-BOX .                                                                                           */
 /*                                                                                                                  */
-/*FIND FIRST inv-head NO-LOCK                                                                                       */
-/*    WHERE inv-head.company EQ '001'                                                                               */
-/*    AND inv-head.inv-no EQ 8418                                                                                   */
-/*    NO-ERROR.                                                                                                     */
-/*                                                                                                                  */
-/*FIND FIRST inv-line NO-LOCK                                                                                       */
-/*    WHERE inv-line.company EQ inv-head.company                                                                    */
-/*    AND inv-line.r-no EQ inv-head.r-no                                                                            */
-/*    NO-ERROR.                                                                                                     */
-/*                                                                                                                  */
-/*RUN oe/GetCostInvl.p (ROWID(inv-line),                                                                            */
-/*    OUTPUT dCost[1], OUTPUT dCost[2],                                                                             */
-/*    OUTPUT dCost[3], OUTPUT dCost[4],                                                                             */
-/*    OUTPUT dCost[5], OUTPUT cCostUOM,                                                                             */
-/*    OUTPUT dCost[6], OUTPUT cCostSource).                                                                         */
-/*                                                                                                                  */
-/*MESSAGE 4 "Invoice Line Costs: " inv-head.inv-no SKIP                                                             */
-/*    1 dCost[1] SKIP                                                                                               */
-/*    2 dCost[2] SKIP                                                                                               */
-/*    3 dCost[3] SKIP                                                                                               */
-/*    4 dCost[4] SKIP                                                                                               */
-/*    5 dCost[5] SKIP                                                                                               */
-/*    6 dCost[6] SKIP                                                                                               */
-/*    "UOM: " cCostUOM SKIP                                                                                         */
-/*    "Source:" cCostSource                                                                                         */
-/*    VIEW-AS ALERT-BOX .                                                                                           */
+FIND FIRST inv-head NO-LOCK
+    WHERE inv-head.company EQ '001'
+    AND inv-head.inv-no EQ 8418
+    NO-ERROR.
+
+FIND FIRST inv-line NO-LOCK
+    WHERE inv-line.company EQ inv-head.company
+    AND inv-line.r-no EQ inv-head.r-no
+    NO-ERROR.
+
+RUN oe/GetCostInvl.p (ROWID(inv-line),
+    OUTPUT dCost[1], OUTPUT dCost[2],
+    OUTPUT dCost[3], OUTPUT dCost[4],
+    OUTPUT dCost[5], OUTPUT cCostUOM,
+    OUTPUT dCost[6], OUTPUT cCostSource).
+
+MESSAGE 4 "Invoice Line Costs: " inv-head.inv-no SKIP
+    1 dCost[1] SKIP
+    2 dCost[2] SKIP
+    3 dCost[3] SKIP
+    4 dCost[4] SKIP
+    5 dCost[5] SKIP
+    6 dCost[6] SKIP
+    "UOM: " cCostUOM SKIP
+    "Source:" cCostSource
+    VIEW-AS ALERT-BOX .
 
 EXPORT STREAM sOutput DELIMITER "," 
     "ItemID" 

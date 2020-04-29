@@ -9,7 +9,6 @@ DEF VAR v-cost AS DEC NO-UNDO.
 DEF VAR v-tagcost AS DEC NO-UNDO.
 DEF VAR ld-cvt-cost AS DEC NO-UNDO.
 DEF VAR lv-uom LIKE fg-rctd.cost-uom NO-UNDO.
-DEF VAR fg-uom-list AS CHAR NO-UNDO.
 
 DEF VAR lvdRctdT-qty     LIKE fg-rctd.t-qty     NO-UNDO.
 DEF VAR lvdRctdPartial   LIKE fg-rctd.partial   NO-UNDO.
@@ -25,8 +24,6 @@ DEF BUFFER b-fg-rdtlh FOR fg-rdtlh.
 
 DEF TEMP-TABLE tt-fg-bin NO-UNDO  LIKE fg-bin.
 DEF TEMP-TABLE tt-fg-rctd NO-UNDO LIKE fg-rctd.
-
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 FIND fg-bin WHERE ROWID(fg-bin) EQ ip-rowid NO-ERROR.
 

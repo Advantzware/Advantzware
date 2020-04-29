@@ -57,6 +57,12 @@ DEFINE TEMP-TABLE work-ord NO-UNDO
     FIELD cust-no LIKE job-hdr.cust-no
     FIELD ord-no  LIKE job-hdr.ord-no.
 
+DEF TEMP-TABLE tt-cust-part FIELD cust-no  LIKE eb.cust-no
+                            FIELD part-no  LIKE eb.part-no
+                            FIELD stock-no LIKE eb.stock-no
+                            FIELD qty-set  AS   DEC
+                            INDEX cust-no cust-no part-no stock-no.
+
 DEFINE BUFFER bf-blk FOR blk.
 
 DEFINE VARIABLE type-chk           AS CHARACTER INIT "C,D,F,G,I,L,M,P,R,T,V,W,B,1,2,3,4,5,6,7,8,9,X,Y,@" NO-UNDO.
@@ -100,6 +106,9 @@ DEFINE VARIABLE cUserID            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRecipients        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cOutputFormat      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lPriorJobMchExists AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE riJobHdr           AS ROWID     NO-UNDO.
+DEFINE VARIABLE lAvailOeRel        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAvailOeOrdl       AS LOGICAL   NO-UNDO.
 
 DEFINE BUFFER x-eb            FOR eb.
 DEFINE BUFFER x-job-hdr       FOR job-hdr.
@@ -298,7 +307,7 @@ DO:
         END.
     END.
   
-    FIND FIRST xest
+    FIND FIRST xest NO-LOCK
         WHERE xest.company EQ cocode
         AND xest.est-no  EQ job.est-no
         NO-ERROR.
@@ -360,312 +369,36 @@ DO:
     END.
   
     IF nufile THEN
-        FOR EACH xeb WHERE xeb.company = xest.company 
+        FOR EACH xeb NO-LOCK WHERE xeb.company = xest.company 
             AND xeb.est-no = xest.est-no
             BREAK BY xeb.est-no
             BY xeb.form-no
-            BY xeb.blank-no TRANSACTION:
-            IF lv-format-f EQ "CentBox" OR lv-format-f EQ "Accord" THEN
-                ASSIGN
-                    li         = li + 1
-                    xeb.spc-no = TRIM(job.job-no)         + "-" +
-                      STRING(job.job-no2,"99") + "-" +
-                      STRING(xeb.form-no,"99") + "-" +
-                      STRING(li,"99").
-      
-            FIND FIRST oe-ordl
-                WHERE oe-ordl.company    EQ cocode
-                AND oe-ordl.job-no     EQ job.job-no
-                AND oe-ordl.job-no2    EQ job.job-no2
-                AND ((oe-ordl.form-no  EQ xeb.form-no AND
-                oe-ordl.blank-no EQ xeb.blank-no) OR
-                xeb.est-type EQ 2 OR xeb.est-type EQ 6)
-                NO-LOCK NO-ERROR.
+            BY xeb.blank-no:
+            
+            /* Breaking the process into three procedures, so that all the changes happen in individual 
+               transactions. This way the Job Quantity entry popup will not lock any records when kept
+               open */
 
-            IF xeb.stock-no EQ "" AND AVAILABLE oe-ordl THEN xeb.stock-no = oe-ordl.i-no.
-      
-            FIND FIRST itemfg WHERE itemfg.company EQ cocode
-                AND itemfg.i-no    EQ xeb.stock-no
-                NO-LOCK NO-ERROR.
-
-            /* choice = YES.
-             if not avail itemfg OR xeb.stock-no EQ "" THEN DO WHILE TRUE  :
-               IF NOT choice OR xeb.stock-no EQ '' THEN DO:
-                 choice = NO.
-                 IF NOT gvlNoPrompt THEN
-                   RUN jc/fgPrompt.w (cocode,xeb.cust-no,xeb.part-no,recid(xeb),INPUT-OUTPUT xeb.stock-no).
-                 IF xeb.stock-no EQ '' THEN NEXT.
-               END.
-       
-               FIND FIRST itemfg
-                     {sys/look/itemfgrlW.i}
-                       and itemfg.i-no   EQ xeb.stock-no
-                     NO-LOCK NO-ERROR.
-                 if not avail itemfg THEN do on endkey undo, NEXT :
-                   choice = yes.
-                   IF gvlNoPrompt THEN
-                       choice = NO.
-                   IF NOT gvlNoPrompt THEN
-                   message "Item: " + TRIM(xeb.stock-no) + " doesn't exist, would you LIKE to create it?"
-                           view-as alert-box question button yes-no update choice.
-                   if choice THEN do:
-                     {jc/fgadd.i} 
-                     leave.
-                   END.
-                 END.
-                 ELSE IF itemfg.est-no EQ '' THEN LEAVE.
-             END.*/
-
-            choice = YES.
-            IF NOT AVAILABLE itemfg OR xeb.stock-no EQ "" THEN 
-            DO  :
-       
-                IF NOT gvlNoPrompt AND xeb.stock-no EQ "" THEN
-                    RUN jc/fgPrompt.w (cocode,xeb.cust-no,xeb.part-no,RECID(xeb),INPUT-OUTPUT xeb.stock-no).
+            RUN pUpdateJobQty (
+                INPUT  ROWID(xeb),
+                INPUT  LAST(xeb.est-no),
+                OUTPUT riJobHdr,
+                OUTPUT lAvailOeRel,
+                OUTPUT lAvailOeOrdl
+                ).
           
-                IF xeb.stock-no NE "" THEN
-                    FIND FIRST itemfg
-                    {sys/look/itemfgrlW.i}
-                AND itemfg.i-no   EQ xeb.stock-no
-                        NO-LOCK NO-ERROR.
-                IF NOT AVAILABLE itemfg THEN 
-                DO ON ENDKEY UNDO, NEXT :
-                    choice = YES.
-                    IF gvlNoPrompt THEN
-                        choice = NO.
-                    IF NOT gvlNoPrompt THEN
-                        MESSAGE "Item: " + TRIM(xeb.stock-no) + " doesn't exist, would you LIKE to create it?"
-                            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE choice.
-                    IF choice THEN 
-                    DO:
-                    {jc/fgadd.i} 
-                    END.
-                END.
-         
-            END.
+            RUN pUpdateEntryQuantity (
+                INPUT riJobHdr,
+                INPUT LAST(xeb.blank-no),                
+                INPUT lAvailOeRel,
+                INPUT lAvailOeOrdl
+                ).             
 
-            IF xeb.form-no EQ 0 THEN 
-            DO:
-                v-set-hdr = xeb.stock-no.      
-                FIND FIRST eb WHERE eb.company = xeb.company
-                    AND eb.est-no   EQ xeb.est-no
-                    AND eb.cust-no NE ""
-                    NO-LOCK NO-ERROR.
-            END.
-           
-            IF xest.est-type EQ 3 OR
-                xest.est-type EQ 4 OR
-                xest.est-type EQ 8 THEN
-                FIND FIRST job-hdr WHERE job-hdr.company EQ cocode
-                    AND job-hdr.job     EQ job.job
-                    AND job-hdr.job-no  EQ job.job-no
-                    AND job-hdr.job-no2 EQ job.job-no2
-                    AND job-hdr.frm     EQ xeb.form-no
-                    AND job-hdr.i-no    EQ xeb.stock-no
-                    NO-ERROR.          
-            ELSE
-                IF xest.est-type EQ 1 OR
-                    xest.est-type EQ 5 OR
-                    xeb.form-no EQ 0   THEN
-                    FIND FIRST job-hdr WHERE job-hdr.company  EQ cocode
-                        AND job-hdr.job      EQ job.job
-                        AND job-hdr.job-no   EQ job.job-no
-                        AND job-hdr.job-no2  EQ job.job-no2 NO-ERROR.          
-                ELSE 
-                DO:
-                    IF LAST(xeb.est-no)                           AND
-                        (xest.est-type EQ 2 OR xest.est-type EQ 6) THEN 
-                    DO:
-                        {fg/addset.i v-set-hdr}
-                    END.   
-                    NEXT.
-                END.
+            RUN util/upditmfg.p (riJobHdr, 1).
 
-            RUN jc/job4rel.p (BUFFER job, BUFFER oe-rel).
-
-            ll-new-job-hdr = NOT AVAILABLE job-hdr.
-
-            IF ll-new-job-hdr THEN 
-            DO:
-                CREATE job-hdr.
-                ASSIGN 
-                    job-hdr.company    = cocode
-                    job-hdr.loc        = locode
-                    job-hdr.e-num      = xest.e-num
-                    job-hdr.est-no     = xest.est-no
-                    job-hdr.i-no       = xeb.stock-no
-                    job-hdr.job-no     = job.job-no
-                    job-hdr.job-no2    = job.job-no2
-                    job-hdr.cust-no    = IF xeb.form-no EQ 0 AND AVAILABLE eb THEN eb.cust-no
-                                       ELSE xeb.cust-no
-                    job-hdr.frm        = xeb.form-no
-                    job-hdr.job        = job.job
-                    job-hdr.start-date = job.start-date                           
-                    job-hdr.due-date   = job.due-date.
-       
-                FIND FIRST work-ord WHERE work-ord.cust-no EQ job-hdr.cust-no NO-ERROR.
-                IF AVAILABLE work-ord THEN 
-                DO: 
-                    job-hdr.ord-no = work-ord.ord-no.
-
-                    FIND FIRST b-oe-ordl WHERE
-                        b-oe-ordl.company   EQ cocode 
-                        AND b-oe-ordl.opened    EQ YES 
-                        AND b-oe-ordl.ord-no    EQ job-hdr.ord-no
-                        AND b-oe-ordl.i-no      EQ job-hdr.i-no NO-LOCK NO-ERROR.
-                    IF AVAILABLE b-oe-ordl THEN
-                        job-hdr.po-no = b-oe-ordl.po-no.
-                END.
-
-                {util/mkjobkey.i}
-
-            END.
-            IF job-hdr.frm EQ 0 THEN job-hdr.frm = 1.
-
-            job-hdr.blank-no = IF xeb.form-no EQ 0 THEN 1 ELSE xeb.blank-no.
-            RUN util/upditmfg.p (ROWID(job-hdr), -1).
-            RUN jc/qty-changed.p (BUFFER job, OUTPUT ll-qty-changed).      
-
-            /* wfk - If user makes a choice, allow it to go to this block */
-            IF NOT ll-qty-changed OR gvlQtyFromJob NE ? THEN 
-            DO:
-                ASSIGN
-                    v-qty      = 0
-                    v-hold-qty = job-hdr.qty.
-         
-                IF NOT gvlQtyFromJob OR gvlQtyFromjob = ? THEN 
-                DO:              
-                    IF xest.est-type EQ 4 OR
-                        xest.est-type EQ 8 OR
-                        xest.est-type EQ 3 THEN
-                        FOR EACH eb FIELDS(form-no blank-no yld-qty bl-qty) WHERE
-                            eb.company  EQ xest.company AND
-                            eb.est-no   EQ xest.est-no AND
-                            eb.stock-no EQ xeb.stock-no
-                            NO-LOCK :
-                
-                            IF eb.form-no EQ xeb.form-no AND eb.blank-no EQ xeb.blank-no THEN
-                                job-hdr.qty = IF ll-combo-req-qty EQ YES THEN eb.bl-qty ELSE eb.yld-qty.
-               
-                            v-qty = v-qty + (IF ll-combo-req-qty EQ YES THEN eb.bl-qty ELSE eb.yld-qty).
-                        END.
-                    ELSE 
-                    DO:
-                        ASSIGN
-                            v-qty       = xest.est-qty[1]
-                            job-hdr.qty = xest.est-qty[1].
-                    END.
-             
-                END.
-                ELSE 
-                    ASSIGN v-qty = job-hdr.qty. 
-         
-                IF job-hdr.qty EQ 0 THEN job-hdr.qty = 1.
-                IF v-qty       EQ 0 THEN v-qty       = 1.
-                RUN jc/jobhordl.p (BUFFER job-hdr, BUFFER oe-rel, BUFFER oe-ordl).
-
-                IF (ll-hold-qty OR
-                    (ip-recalc-stds-ju1 EQ NO AND
-                    job-hdr.ord-no EQ 0 AND NOT AVAILABLE oe-rel)) AND
-                    v-hold-qty NE 0 THEN 
-                DO: 
-                    job-hdr.qty = v-hold-qty.
-
-                END.
-                ELSE
-                    IF AVAILABLE oe-ordl THEN 
-                    DO:
-                        IF ll-combo-req-qty EQ YES THEN 
-                        DO: 
-                            job-hdr.qty = (IF AVAILABLE oe-rel THEN oe-rel.qty            
-                            ELSE oe-ordl.qty) *
-                                (job-hdr.qty / v-qty).
-                        END.
-                        ELSE
-                        DO:
-                            IF NOT (xest.est-type EQ 4 OR
-                                xest.est-type EQ 8 OR
-                                xest.est-type EQ 3) THEN 
-                                job-hdr.qty = (IF AVAILABLE oe-rel THEN oe-rel.qty
-                                ELSE oe-ordl.qty) *
-                                    (job-hdr.qty / v-qty).
-                            ELSE
-                                job-hdr.qty = job-hdr.qty *
-                                    (job-hdr.qty / v-qty).
-                        END.
-           
-                        IF NOT AVAILABLE oe-rel THEN job-hdr.ord-no = oe-ordl.ord-no.
-                        ll-whs-item = oe-ordl.managed.
-                        IF NOT ll-whs-item AND ll-add-over THEN
-                            RUN oe/overundr.p ("O", "+", oe-ordl.over-pct, job-hdr.qty,
-                                OUTPUT job-hdr.qty).
-                    END.
-
-                IF ip-recalc-stds-ju1 AND
-                    ll-jqcust EQ YES AND
-                    NOT AVAILABLE oe-ordl AND
-                    job-hdr.ord-no EQ 0 AND
-                    NOT AVAILABLE oe-rel AND
-                    NOT ll-new-job-hdr THEN
-                DO:
-                    FIND FIRST cust WHERE
-                        cust.company EQ job-hdr.company AND
-                        cust.cust-no EQ job-hdr.cust-no
-                        NO-LOCK NO-ERROR.
-            
-                    IF AVAILABLE cust THEN
-                    DO:
-                        job-hdr.qty = job-hdr.qty + (job-hdr.qty * cust.over-pct * .01).
-                        {sys/inc/roundup.i job-hdr.qty}
-                    END.
-                END.
-            END.
-      
-            IF AVAILABLE oe-ordl THEN job-hdr.due-date = oe-ordl.req-date.
-            
-            IF job-hdr.qty EQ 0 OR
-                (job-hdr.ord-no EQ 0 AND
-                NOT AVAILABLE oe-rel    AND
-                ll-new-job-hdr) THEN
-            DO: 
-
-                IF NOT gvlNoPrompt AND (LAST(xeb.blank-no) OR xeb.form-no EQ 0) THEN do:
-                    RUN jc/dUpdJobQty.w(ROWID(job),ll-jqcust) .
-                END.
-                ELSE IF gvlNoPrompt THEN DO:
-                    IF ll-jqcust EQ YES AND NOT AVAILABLE oe-ordl THEN
-                    DO:
-                        FIND FIRST cust WHERE
-                            cust.company EQ job-hdr.company AND
-                            cust.cust-no EQ job-hdr.cust-no
-                            NO-LOCK NO-ERROR.
-               
-                        IF AVAILABLE cust THEN
-                        DO:
-                            job-hdr.qty = job-hdr.qty + (job-hdr.qty * cust.over-pct * .01).
-                            {sys/inc/roundup.i job-hdr.qty}
-                        END.
-                    END.
-                END. /* IF gvlNoPrompt*/
-
-            END.
-
-            RUN util/upditmfg.p (ROWID(job-hdr), 1).
-
-            FOR EACH x-job-hdr
-                WHERE x-job-hdr.company EQ job-hdr.company
-                AND x-job-hdr.job     EQ job-hdr.job
-                AND x-job-hdr.job-no  EQ job-hdr.job-no
-                AND x-job-hdr.job-no2 EQ job-hdr.job-no2
-                AND x-job-hdr.frm     EQ job-hdr.frm
-                AND x-job-hdr.i-no    EQ job-hdr.i-no
-                AND ROWID(x-job-hdr)  NE ROWID(job-hdr):
-
-                RUN util/upditmfg.p (ROWID(x-job-hdr), -1) .
-
-                DELETE x-job-hdr.
-            END.
-     
+            RUN pUpdateItem (
+                INPUT riJobHdr
+                ).
         END.  /* FOR EACH xeb */
 
     FOR EACH job-hdr
@@ -1732,6 +1465,132 @@ IF lAuditJobMch AND iAuditID NE 0 THEN DO:
     RUN pRunNow (cOutputFormat,"",YES).
 END. /* if iauditid */
 
+
+
+/* **********************  Internal Procedures  *********************** */
+
+
+PROCEDURE pAddSet PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER cSetHdr AS CHARACTER NO-UNDO.
+
+    FOR EACH x-eb NO-LOCK
+        WHERE x-eb.company EQ xest.company 
+          AND x-eb.est-no  EQ xest.est-no
+          AND x-eb.form-no NE 0
+        BREAK BY x-eb.form-no:
+        ll-one-part = FIRST(x-eb.form-no) AND LAST(x-eb.form-no).
+        LEAVE.
+    END.
+
+    FOR EACH x-eb
+        WHERE x-eb.company EQ xest.company 
+          AND x-eb.est-no  EQ xest.est-no
+        BY x-eb.form-no 
+        BY x-eb.blank-no:
+
+        IF x-eb.form-no EQ 0 THEN
+            tmpstore = cSetHdr.
+        ELSE DO:
+            FIND FIRST tt-cust-part
+                 WHERE tt-cust-part.cust-no EQ x-eb.cust-no
+                   AND tt-cust-part.part-no EQ x-eb.part-no
+                 NO-ERROR.
+
+            IF NOT AVAIL tt-cust-part THEN DO:
+                CREATE tt-cust-part.
+                ASSIGN
+                    tt-cust-part.cust-no  = x-eb.cust-no
+                    tt-cust-part.part-no  = x-eb.part-no
+                    tt-cust-part.stock-no = x-eb.stock-no
+                    .
+            END.
+
+            ASSIGN
+                v-item-no  = tt-cust-part.stock-no
+                v-part-qty = IF x-eb.cust-% NE 0 THEN 
+                                 x-eb.cust-% 
+                             ELSE
+                                 x-eb.quantityPerSet
+                .
+
+            IF v-part-qty LT 0 THEN 
+                v-part-qty = -1 / v-part-qty.
+
+            tt-cust-part.qty-set = tt-cust-part.qty-set + v-part-qty.
+
+            IF v-item-no EQ "" THEN
+                RUN fg/GetFGItemID.p (
+                    INPUT  ROWID(x-eb), 
+                    INPUT  tmpstore, 
+                    OUTPUT v-item-no). 
+     
+            IF ll-one-part THEN 
+                v-item-no = tmpstore.
+
+            FIND FIRST fg-set
+                WHERE fg-set.company EQ cocode
+                  AND fg-set.set-no  EQ tmpstore
+                  AND fg-set.part-no EQ v-item-no
+                NO-ERROR.
+            IF NOT AVAIL fg-set THEN DO:
+                FIND LAST fg-set USE-INDEX s-no NO-ERROR.
+                y = IF AVAIL fg-set THEN 
+                        fg-set.s-no 
+                    ELSE 
+                        0.
+
+                FIND LAST fg-set NO-LOCK
+                    WHERE fg-set.company EQ cocode
+                      AND fg-set.set-no  EQ tmpstore
+                    NO-ERROR.
+                x = IF AVAILABLE fg-set THEN 
+                        fg-set.line 
+                    ELSE 
+                        0.
+
+                CREATE fg-set.
+                ASSIGN
+                    fg-set.company = cocode
+                    fg-set.set-no  = tmpstore
+                    fg-set.part-no = v-item-no
+                    fg-set.s-no    = y + 1
+                    fg-set.line    = x + 1
+                    .
+            END.
+
+            ASSIGN
+                x-eb.stock-no         = v-item-no
+                tt-cust-part.stock-no = x-eb.stock-no
+                .
+
+            fg-set.qtyPerSet = tt-cust-part.qty-set.
+        END.
+    END. /* each eb */
+
+    FOR EACH fg-set
+        WHERE fg-set.company EQ cocode
+          AND fg-set.set-no  EQ tmpstore
+        BY fg-set.line DESC:
+        fg-set.line = fg-set.line + 10000.
+    END.
+
+    x = 0.
+    FOR EACH fg-set
+        WHERE fg-set.company EQ cocode
+          AND fg-set.set-no  EQ tmpstore
+        BY fg-set.line:
+        ASSIGN
+            x           = x + 1
+            fg-set.line = x
+            .
+    END.
+
+END PROCEDURE.
+
 PROCEDURE pGetParamValue:
     DEFINE VARIABLE cFound    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cNK1Value AS CHARACTER NO-UNDO.
@@ -1795,6 +1654,372 @@ END PROCEDURE.
 /* procedure from message indicating a Run Now report has been submitted   */
 &Scoped-define silentSubmitted
 {AOA/includes/pRunNow.i}
+
+PROCEDURE pUpdateJobQty PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriEb         AS ROWID   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplIsLastEstNo AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opriJobHdr     AS ROWID   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplAvailOeRel  AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplAvailOeOrdl AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER xeb    FOR eb.
+    DEFINE BUFFER itemfg FOR itemfg.
+    
+    FIND FIRST xeb EXCLUSIVE-LOCK 
+         WHERE ROWID(xeb) EQ ipriEb
+         NO-ERROR.
+    IF NOT AVAILABLE xeb THEN
+        RETURN.
+        
+    IF lv-format-f EQ "CentBox" OR lv-format-f EQ "Accord" THEN
+        ASSIGN
+            li         = li + 1
+            xeb.spc-no = TRIM(job.job-no) + "-" 
+                       + STRING(job.job-no2,"99") + "-"
+                       + STRING(xeb.form-no,"99") + "-" 
+                       + STRING(li,"99").
+  
+    FIND FIRST oe-ordl NO-LOCK
+        WHERE oe-ordl.company    EQ cocode
+          AND oe-ordl.job-no     EQ job.job-no
+          AND oe-ordl.job-no2    EQ job.job-no2
+          AND ((oe-ordl.form-no  EQ xeb.form-no AND
+                oe-ordl.blank-no EQ xeb.blank-no) OR
+                xeb.est-type EQ 2 OR xeb.est-type EQ 6)
+        NO-ERROR.
+
+    IF xeb.stock-no EQ "" AND AVAILABLE oe-ordl THEN 
+        xeb.stock-no = oe-ordl.i-no.
+  
+    FIND FIRST itemfg NO-LOCK
+         WHERE itemfg.company EQ cocode
+           AND itemfg.i-no    EQ xeb.stock-no
+         NO-ERROR.
+
+    choice = YES.
+    
+    IF NOT AVAILABLE itemfg OR xeb.stock-no EQ "" THEN DO:
+   
+        IF NOT gvlNoPrompt AND xeb.stock-no EQ "" THEN
+            RUN jc/fgPrompt.w (
+                INPUT cocode,
+                INPUT xeb.cust-no,
+                INPUT xeb.part-no,
+                INPUT RECID(xeb),
+                INPUT-OUTPUT xeb.stock-no
+                ).
+  
+        IF xeb.stock-no NE "" THEN
+            FIND FIRST itemfg NO-LOCK
+                {sys/look/itemfgrlW.i}
+                AND itemfg.i-no   EQ xeb.stock-no
+                NO-ERROR.
+
+        IF NOT AVAILABLE itemfg THEN 
+            DO ON ENDKEY UNDO, NEXT :
+            choice = YES.
+            IF gvlNoPrompt THEN
+                choice = NO.
+            IF NOT gvlNoPrompt THEN
+                MESSAGE "Item: " + TRIM(xeb.stock-no) + " doesn't exist, would you LIKE to create it?"
+                    VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE choice.
+            IF choice THEN 
+            DO:
+                {jc/fgadd.i} 
+            END.
+        END.
+    END.
+
+    IF xeb.form-no EQ 0 THEN DO:
+        v-set-hdr = xeb.stock-no.      
+        FIND FIRST eb NO-LOCK
+             WHERE eb.company = xeb.company
+               AND eb.est-no   EQ xeb.est-no
+               AND eb.cust-no NE ""
+             NO-ERROR.
+    END.
+   
+    IF xest.est-type EQ 3 OR
+       xest.est-type EQ 4 OR
+       xest.est-type EQ 8 THEN
+        FIND FIRST job-hdr 
+             WHERE job-hdr.company EQ cocode
+               AND job-hdr.job     EQ job.job
+               AND job-hdr.job-no  EQ job.job-no
+               AND job-hdr.job-no2 EQ job.job-no2
+               AND job-hdr.frm     EQ xeb.form-no
+               AND job-hdr.i-no    EQ xeb.stock-no
+             NO-ERROR.          
+    ELSE IF xest.est-type EQ 1 OR
+           xest.est-type EQ 5 OR
+           xeb.form-no   EQ 0 THEN
+        FIND FIRST job-hdr 
+             WHERE job-hdr.company  EQ cocode
+               AND job-hdr.job      EQ job.job
+               AND job-hdr.job-no   EQ job.job-no
+               AND job-hdr.job-no2  EQ job.job-no2
+             NO-ERROR.          
+    ELSE DO:
+        IF iplIsLastEstNo AND (xest.est-type EQ 2 OR xest.est-type EQ 6) THEN DO:
+            RUN pAddSet (
+                INPUT v-set-hdr
+                ).
+        END.   
+        NEXT.
+    END.
+
+    RUN jc/job4rel.p (
+        BUFFER job, 
+        BUFFER oe-rel
+        ).
+
+    ll-new-job-hdr = NOT AVAILABLE job-hdr.
+
+    IF ll-new-job-hdr THEN DO:
+        CREATE job-hdr.
+        ASSIGN 
+            job-hdr.company    = cocode
+            job-hdr.loc        = locode
+            job-hdr.e-num      = xest.e-num
+            job-hdr.est-no     = xest.est-no
+            job-hdr.i-no       = xeb.stock-no
+            job-hdr.job-no     = job.job-no
+            job-hdr.job-no2    = job.job-no2
+            job-hdr.cust-no    = IF xeb.form-no EQ 0 AND AVAILABLE eb THEN 
+                                     eb.cust-no
+                                 ELSE 
+                                     xeb.cust-no
+            job-hdr.frm        = xeb.form-no
+            job-hdr.job        = job.job
+            job-hdr.start-date = job.start-date                           
+            job-hdr.due-date   = job.due-date
+            .
+   
+        FIND FIRST work-ord 
+             WHERE work-ord.cust-no EQ job-hdr.cust-no
+             NO-ERROR.
+        IF AVAILABLE work-ord THEN DO: 
+            job-hdr.ord-no = work-ord.ord-no.
+
+            FIND FIRST b-oe-ordl NO-LOCK
+                 WHERE b-oe-ordl.company EQ cocode 
+                   AND b-oe-ordl.opened  EQ YES 
+                   AND b-oe-ordl.ord-no  EQ job-hdr.ord-no
+                   AND b-oe-ordl.i-no    EQ job-hdr.i-no 
+                 NO-ERROR.
+            IF AVAILABLE b-oe-ordl THEN
+                job-hdr.po-no = b-oe-ordl.po-no.
+        END.
+
+        {util/mkjobkey.i}
+
+    END.
+    
+    opriJobHdr = ROWID(job-hdr).
+    
+    IF job-hdr.frm EQ 0 THEN 
+        job-hdr.frm = 1.
+
+    job-hdr.blank-no = IF xeb.form-no EQ 0 THEN 
+                           1 
+                       ELSE
+                           xeb.blank-no.
+    
+    RUN util/upditmfg.p (
+        INPUT ROWID(job-hdr), 
+        INPUT -1
+        ).
+        
+    RUN jc/qty-changed.p (
+        BUFFER job, 
+        OUTPUT ll-qty-changed
+        ).      
+
+    /* wfk - If user makes a choice, allow it to go to this block */
+    IF NOT ll-qty-changed OR gvlQtyFromJob NE ? THEN DO:
+        ASSIGN
+            v-qty      = 0
+            v-hold-qty = job-hdr.qty
+            .
+ 
+        IF NOT gvlQtyFromJob OR gvlQtyFromjob = ? THEN DO:              
+            IF xest.est-type EQ 4 OR
+                xest.est-type EQ 8 OR
+                xest.est-type EQ 3 THEN
+                FOR EACH eb FIELDS(form-no blank-no yld-qty bl-qty) WHERE
+                    eb.company  EQ xest.company AND
+                    eb.est-no   EQ xest.est-no AND
+                    eb.stock-no EQ xeb.stock-no
+                    NO-LOCK :
+        
+                    IF eb.form-no EQ xeb.form-no AND eb.blank-no EQ xeb.blank-no THEN
+                        job-hdr.qty = IF ll-combo-req-qty EQ YES THEN eb.bl-qty ELSE eb.yld-qty.
+       
+                    v-qty = v-qty + (IF ll-combo-req-qty EQ YES THEN eb.bl-qty ELSE eb.yld-qty).
+                END.
+            ELSE DO:
+                ASSIGN
+                    v-qty       = xest.est-qty[1]
+                    job-hdr.qty = xest.est-qty[1]
+                    .
+            END.     
+        END.
+        ELSE 
+            v-qty = job-hdr.qty. 
+ 
+        IF job-hdr.qty EQ 0 THEN 
+            job-hdr.qty = 1.
+
+        IF v-qty EQ 0 THEN 
+            v-qty = 1.
+
+        RUN jc/jobhordl.p (
+            BUFFER job-hdr, 
+            BUFFER oe-rel, 
+            BUFFER oe-ordl
+            ).
+
+        IF (ll-hold-qty OR
+            (ip-recalc-stds-ju1 EQ NO AND
+            job-hdr.ord-no EQ 0 AND NOT AVAILABLE oe-rel)) AND
+            v-hold-qty NE 0 THEN DO: 
+            job-hdr.qty = v-hold-qty.    
+        END.
+        ELSE IF AVAILABLE oe-ordl THEN DO:
+            IF ll-combo-req-qty EQ YES THEN DO: 
+                job-hdr.qty = (IF AVAILABLE oe-rel THEN 
+                                   oe-rel.qty            
+                               ELSE 
+                                   oe-ordl.qty) * (job-hdr.qty / v-qty).
+            END.
+            ELSE DO:
+                IF NOT (xest.est-type EQ 4 OR
+                    xest.est-type EQ 8 OR
+                    xest.est-type EQ 3) THEN 
+                    job-hdr.qty = (IF AVAILABLE oe-rel THEN 
+                                        oe-rel.qty
+                                   ELSE oe-ordl.qty) * (job-hdr.qty / v-qty).
+                ELSE
+                    job-hdr.qty = job-hdr.qty * (job-hdr.qty / v-qty).
+            END.
+   
+            IF NOT AVAILABLE oe-rel THEN 
+                job-hdr.ord-no = oe-ordl.ord-no.
+
+            ll-whs-item = oe-ordl.managed.
+
+            IF NOT ll-whs-item AND ll-add-over THEN
+                RUN oe/overundr.p (
+                    INPUT  "O", 
+                    INPUT  "+", 
+                    INPUT  oe-ordl.over-pct, 
+                    INPUT  job-hdr.qty,
+                    OUTPUT job-hdr.qty
+                    ).
+        END.
+
+        IF ip-recalc-stds-ju1 AND
+            ll-jqcust EQ YES AND
+            NOT AVAILABLE oe-ordl AND
+            job-hdr.ord-no EQ 0 AND
+            NOT AVAILABLE oe-rel AND
+            NOT ll-new-job-hdr THEN DO:
+            FIND FIRST cust WHERE
+                cust.company EQ job-hdr.company AND
+                cust.cust-no EQ job-hdr.cust-no
+                NO-LOCK NO-ERROR.
+    
+            IF AVAILABLE cust THEN DO:
+                job-hdr.qty = job-hdr.qty + (job-hdr.qty * cust.over-pct * .01).
+                {sys/inc/roundup.i job-hdr.qty}
+            END.
+        END.
+    END.
+  
+    IF AVAILABLE oe-ordl THEN 
+        job-hdr.due-date = oe-ordl.req-date.
+    
+    ASSIGN
+        oplAvailOeRel  = AVAILABLE oe-rel
+        oplAvailOeOrdl = AVAILABLE oe-ordl
+        .
+END PROCEDURE.
+
+PROCEDURE pUpdateEntryQuantity PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriJobHdr     AS ROWID   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplLastBlankNo AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER iplAvailOeRel  AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER iplAvailOeOrdl AS LOGICAL NO-UNDO.
+    
+    FIND FIRST job-hdr EXCLUSIVE-LOCK
+         WHERE ROWID(job-hdr) EQ ipriJobHdr
+         NO-ERROR.
+    IF NOT AVAILABLE job-hdr THEN
+        RETURN.
+
+    IF job-hdr.qty EQ 0 OR (job-hdr.ord-no EQ 0 AND NOT iplAvailOeRel AND ll-new-job-hdr) THEN
+    DO: 
+        IF NOT gvlNoPrompt AND (iplLastBlankNo OR xeb.form-no EQ 0) THEN
+            RUN jc/dUpdJobQty.w(
+                ROWID(job),
+                ll-jqcust
+                ).
+        ELSE IF gvlNoPrompt THEN DO:
+            IF ll-jqcust EQ YES AND NOT iplAvailOeOrdl THEN
+            DO:
+                FIND FIRST cust NO-LOCK
+                     WHERE cust.company EQ job-hdr.company 
+                       AND cust.cust-no EQ job-hdr.cust-no
+                     NO-ERROR.       
+                IF AVAILABLE cust THEN DO:
+                    job-hdr.qty = job-hdr.qty + (job-hdr.qty * cust.over-pct * .01).
+                    {sys/inc/roundup.i job-hdr.qty}
+                END.
+            END.
+        END. /* IF gvlNoPrompt*/
+    END.
+
+END PROCEDURE.
+
+PROCEDURE pUpdateItem PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriJobHdr     AS ROWID   NO-UNDO.
+    
+    FIND FIRST job-hdr EXCLUSIVE-LOCK
+         WHERE ROWID(job-hdr) EQ ipriJobHdr
+         NO-ERROR.
+    IF NOT AVAILABLE job-hdr THEN
+        RETURN.
+    
+    FOR EACH x-job-hdr
+        WHERE x-job-hdr.company EQ job-hdr.company
+          AND x-job-hdr.job     EQ job-hdr.job
+          AND x-job-hdr.job-no  EQ job-hdr.job-no
+          AND x-job-hdr.job-no2 EQ job-hdr.job-no2
+          AND x-job-hdr.frm     EQ job-hdr.frm
+          AND x-job-hdr.i-no    EQ job-hdr.i-no
+          AND ROWID(x-job-hdr)  NE ROWID(job-hdr):
+
+        RUN util/upditmfg.p (
+            INPUT ROWID(x-job-hdr),
+            INPUT -1
+            ).
+
+        DELETE x-job-hdr.
+    END.
+
+END PROCEDURE.
 
 PROCEDURE pSetParamValueAuditID:
     DEFINE INPUT PARAMETER ipiAuditID AS INTEGER NO-UNDO.

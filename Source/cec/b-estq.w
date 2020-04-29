@@ -39,7 +39,7 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {custom/gcompany.i}
 {custom/gloc.i}
-{sys/inc/VAR.i NEW SHARED}
+{sys/inc/var.i NEW SHARED}
 
 ASSIGN
  cocode = g_company
@@ -75,19 +75,21 @@ DEFINE VARIABLE cEstType AS CHARACTER NO-UNDO .
 DEF VAR v-rec-key-list AS CHAR NO-UNDO.
 DEF VAR lActive AS LOG NO-UNDO.
 DO TRANSACTION:
-     {sys/ref/CustList.i NEW}
+    {sys/ref/CustList.i NEW}
     {sys/inc/custlistform.i ""EC"" }
 END.
 
+DEFINE VARIABLE cStartEstTypeID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndEstTypeID   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iStartEstType   AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iEndEstType     AS INTEGER   NO-UNDO.
+
 &SCOPED-DEFINE key-phrase  YES
 /*
-    
 &SCOPED-DEFINE for-est                            ~
          FOR EACH ASI.est WHERE ~{&KEY-PHRASE}      ~
                      AND est.company = g_company    ~
                      AND ASI.est.est-type >= 5 AND est.est-date >= vi_est-date
-             
-                    
 
 &SCOPED-DEFINE for-eqty                            ~
           EACH ASI.est-qty WHERE  est-qty.company = ASI.est.company ~
@@ -107,12 +109,10 @@ END.
                  AND eb.style BEGINS vi_style                 ~
                  AND eb.len >= vi_len                   
 
-/*
 &SCOPED-DEFINE for-eb                     ~
         FIRST ASI.eb WHERE ASI.eb.company = ASI.est.company  ~
                  AND ASI.eb.est-no = ASI.est.est-no          ~
                  and eb.form-no > 0 and eb.blank-no > 0      ~
-*/
 
 &SCOPED-DEFINE sortby-log                             ~
     IF lv-sort-by EQ "est-no"  THEN est.est-no   ELSE     ~
@@ -132,9 +132,6 @@ END.
     IF lv-sort-by EQ "die-no"  THEN eb.die-no  ELSE ~
     eb.plate-no  ~
     
-
-
-
 &SCOPED-DEFINE sortby BY est.est-no BY eb.form-no BY eb.blank-no
 
 &SCOPED-DEFINE sortby-phrase-asc  ~
@@ -144,27 +141,28 @@ END.
 &SCOPED-DEFINE sortby-phrase-desc ~
     BY ({&sortby-log}) DESC       ~
     {&sortby}
-
 */
           
 &SCOPED-DEFINE for-est                            ~
          EACH ASI.est WHERE ~{&KEY-PHRASE}      ~
-                     AND est.company = g_company    ~
-                     AND est.est-no = eb.est-no ~
-                     AND ASI.est.est-type >= 5 ~
+                     AND est.company EQ g_company    ~
+                     AND est.est-no EQ eb.est-no ~
+                     AND ASI.est.est-type GE iStartEstType ~
+                     AND ASI.est.est-type LE iEndEstType ~
+                     AND ASI.est.estimateTypeID GE cStartEstTypeID ~
+                     AND ASI.est.estimateTypeID LE cEndEstTypeID ~
                      AND ((est.est-type EQ 5 AND tb_single) OR ~
                           (est.est-type EQ 6 AND tb_set)    OR ~
                           (est.est-type GT 6 AND tb_tancom))  
              
-                    
 &SCOPED-DEFINE for-eqty                            ~
           EACH ASI.est-qty WHERE  est-qty.company = ASI.est.company ~
                              AND ASI.est-qty.est-no = ASI.est.est-no ~
                              AND ASI.est-qty.eqty = eb.eqty 
 
 &SCOPED-DEFINE for-ef                     ~
-           each ASI.ef  WHERE ASI.ef.company = ASI.est.company ~
-                          AND ASI.ef.est-no = ASI.est.est-no AND ef.form-no = eb.form-no  
+           each ASI.ef WHERE ASI.ef.company = ASI.est.company ~
+                         AND ASI.ef.est-no = ASI.est.est-no AND ef.form-no = eb.form-no  
 
 &SCOPED-DEFINE for-eb                     ~
        FOR EACH ASI.eb WHERE ASI.eb.company = g_company  ~
@@ -186,7 +184,6 @@ END.
                  AND eb.wid LE TRUNC(vi_wid-2,0) + ((vi_wid-2 - TRUNC(vi_wid-2,0)) * k_frac) ~
                  AND eb.dep GE TRUNC(vi_dep,0) + ((vi_dep - TRUNC(vi_dep,0)) * k_frac) ~
                  AND eb.dep LE TRUNC(vi_dep-2,0) + ((vi_dep-2 - TRUNC(vi_dep-2,0)) * k_frac) 
-
 
 &SCOPED-DEFINE sortby-log                             ~
     IF lv-sort-by EQ "est-no"  THEN est.est-no   ELSE     ~
@@ -211,9 +208,6 @@ END.
     IF lv-sort-by EQ "updated-id" THEN est.updated-id ELSE ~
     IF lv-sort-by EQ "ship-id"  THEN eb.ship-id  ELSE ""
     
-
-
-
 &SCOPED-DEFINE sortby BY est.est-no BY eb.form-no BY eb.blank-no
 
 &SCOPED-DEFINE sortby-phrase-asc  ~
@@ -278,7 +272,10 @@ eb.plate-no est.est-date
 eb.est-no = lv-last-est-no NO-LOCK, ~
       FIRST est WHERE est.company = eb.company ~
   AND est.est-no = eb.est-no ~
-  AND est.est-type >= 5 NO-LOCK, ~
+  AND ASI.est.est-type GE iStartEstType ~
+  AND ASI.est.est-type LE iEndEstType ~
+  AND ASI.est.estimateTypeID GE cStartEstTypeID ~
+  AND ASI.est.estimateTypeID LE cEndEstTypeID NO-LOCK, ~
       FIRST est-qty WHERE est-qty.company = eb.company and est-qty.est-no = eb.est-no ~
 and est-qty.eqty = eb.eqty  ~
  NO-LOCK, ~
@@ -291,7 +288,10 @@ and est-qty.eqty = eb.eqty  ~
 eb.est-no = lv-last-est-no NO-LOCK, ~
       FIRST est WHERE est.company = eb.company ~
   AND est.est-no = eb.est-no ~
-  AND est.est-type >= 5 NO-LOCK, ~
+  AND ASI.est.est-type GE iStartEstType ~
+  AND ASI.est.est-type LE iEndEstType ~
+  AND ASI.est.estimateTypeID GE cStartEstTypeID ~
+  AND ASI.est.estimateTypeID LE cEndEstTypeID NO-LOCK, ~
       FIRST est-qty WHERE est-qty.company = eb.company and est-qty.est-no = eb.est-no ~
 and est-qty.eqty = eb.eqty  ~
  NO-LOCK, ~
@@ -756,7 +756,10 @@ ASSIGN
 eb.est-no = lv-last-est-no"
      _JoinCode[2]      = "ASI.est.company = ASI.eb.company
   AND ASI.est.est-no = ASI.eb.est-no
-  AND ASI.est.est-type >= 5"
+  AND ASI.est.est-type GE iStartEstType
+  AND ASI.est.est-type LE iEndEstType
+  AND ASI.est.estimateTypeID GE cStartEstTypeID
+  AND ASI.est.estimateTypeID LE cEndEstTypeID"
      _JoinCode[3]      = "est-qty.company = eb.company and est-qty.est-no = eb.est-no
 and est-qty.eqty = eb.eqty 
 "
@@ -1091,6 +1094,7 @@ DO:
                 {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-layout" "(yes)"}
                 {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-BoxDesign" "(yes)"}
         END.
+       RUN setFarmTab. 
   END.
 END.
 
@@ -1569,6 +1573,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
+{AOA/includes/pDynBrowserParam.i}
 {methods/winReSize.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -1917,11 +1922,13 @@ PROCEDURE first-run :
 DEF VAR li AS INT NO-UNDO.
 DEF VAR lv-est-no AS CHAR INIT "" NO-UNDO.
 
-&SCOPED-DEFINE where-first1           ~
+&SCOPED-DEFINE where-first1 ~
       WHERE est.company  EQ g_company ~
-        AND est.est-type GE 5         ~
+        AND ASI.est.est-type GE iStartEstType ~
+        AND ASI.est.est-type LE iEndEstType ~
+        AND ASI.est.estimateTypeID GE cStartEstTypeID ~
+        AND ASI.est.estimateTypeID LE cEndEstTypeID ~
       USE-INDEX est-no2
-
 
 RUN set-defaults.
 FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
@@ -2082,7 +2089,22 @@ PROCEDURE local-initialize :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+  RUN pDynBrowserParam ("cec/b-estq").
+  IF AVAILABLE dynParamValue THEN
+  ASSIGN
+      cStartEstTypeID = fGetDynParamValue ("StartEstTypeID")
+      cEndEstTypeID   = fGetDynParamValue ("EndEstTypeID")
+      iStartEstType   = INTEGER(fGetDynParamValue ("StartEstTypeCorr"))
+      iEndEstType     = INTEGER(fGetDynParamValue ("EndEstTypeCorr"))
+      .
+  ELSE
+  ASSIGN
+      cStartEstTypeID = CHR(32)
+      cEndEstTypeID   = CHR(254)
+      iStartEstType   = 5
+      iEndEstType     = 9
+      .
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
   /* Code placed here will execute AFTER standard behavior.    */
@@ -2188,9 +2210,7 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
-  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-
-  {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(NO)"}
+  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.  
 
 END PROCEDURE.
 
@@ -2550,13 +2570,21 @@ RUN set-defaults.
   
 IF lv-show-prev THEN DO:
    li = 0.
-  FOR EACH est WHERE est.company = g_company      
-                 AND est.est-no <= lv-last-show-est-no
-                AND est.est-type >= 5  NO-LOCK,
-      FIRST eb WHERE eb.company = g_company
-          AND eb.est-no = est.est-no 
-          AND ( (LOOKUP(eb.cust-no,custcount) <> 0 AND eb.cust-no <> "") OR custcount = "") NO-LOCK BY est.est-no DESC:
-
+  FOR EACH est NO-LOCK
+      WHERE est.company = g_company      
+        AND est.est-no <= lv-last-show-est-no
+        AND ASI.est.est-type GE iStartEstType
+        AND ASI.est.est-type LE iEndEstType
+        AND ASI.est.estimateTypeID GE cStartEstTypeID
+        AND ASI.est.estimateTypeID LE cEndEstTypeID,
+      FIRST eb NO-LOCK
+      WHERE eb.company = g_company
+        AND eb.est-no = est.est-no 
+        AND ( (LOOKUP(eb.cust-no,custcount) <> 0
+        AND eb.cust-no <> "")
+         OR custcount = "")
+         BY est.est-no DESC
+      :
      li = li + 1.
      lv-est-no = est.est-no.
      IF li >= sys-ctrl.int-fld THEN LEAVE.
@@ -2583,13 +2611,21 @@ END.  /* lv-show-prev */
 ELSE IF lv-show-next THEN DO:
     li = 0.   
 
-    FOR EACH est WHERE est.company = g_company
-                  AND est.est-no >= lv-first-show-est-no
-                  AND est.est-type >= 5  NO-LOCK,
-        FIRST eb WHERE eb.company = g_company
+    FOR EACH est NO-LOCK
+        WHERE est.company = g_company
+          AND est.est-no >= lv-first-show-est-no
+          AND ASI.est.est-type GE iStartEstType
+          AND ASI.est.est-type LE iEndEstType
+          AND ASI.est.estimateTypeID GE cStartEstTypeID
+          AND ASI.est.estimateTypeID LE cEndEstTypeID,
+        FIRST eb NO-LOCK
+        WHERE eb.company = g_company
           AND eb.est-no = est.est-no 
-          AND ( (LOOKUP(eb.cust-no,custcount) <> 0 AND eb.cust-no <> "") OR custcount = "") NO-LOCK BY est.est-no  :
-
+          AND ( (LOOKUP(eb.cust-no,custcount) <> 0
+          AND eb.cust-no <> "")
+           OR custcount = "")
+           BY est.est-no
+        :
        li = li + 1.
        lv-est-no = est.est-no.
        IF li >= sys-ctrl.int-fld THEN LEAVE.
@@ -2675,6 +2711,37 @@ PROCEDURE value-changed-proc :
    DO WITH FRAME {&FRAME-NAME}:
       APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setFarmTab B-table-Win 
+PROCEDURE setFarmTab :
+/*------------------------------------------------------------------------------
+  Purpose:     disable/enable FARM tab
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  IF NOT AVAILABLE eb THEN RETURN.      
+  {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(eb.pur-man)"}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetMiscType B-table-Win 
+PROCEDURE pGetMiscType :
+/*------------------------------------------------------------------------------
+  Purpose:     disable/enable FARM tab
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplMiscType AS LOGICAL NO-UNDO.   
+  ASSIGN 
+     oplMiscType =  cStartEstTypeID  EQ "MISC" AND cEndEstTypeID EQ "MISC" .
+     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

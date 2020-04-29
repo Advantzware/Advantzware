@@ -50,17 +50,12 @@ ASSIGN
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-
-
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 /* *********************** Procedure Settings ************************ */
 
@@ -85,11 +80,7 @@ ASSIGN
                                                                         */
 &ANALYZE-RESUME
 
- 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Include 
-
 
 /* ***************************  Main Block  *************************** */
 
@@ -103,10 +94,10 @@ ASSIGN
 &ENDIF
 {methods/template/brwsrtrg.i}
 {methods/enhance.i}
+{AOA/includes/pDynBrowserParam.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -317,16 +308,17 @@ PROCEDURE local-initialize :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  RUN pDynBrowserParam ("{&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}").
+
   &IF LOOKUP("{&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}",
              "address notes phone {custom/brwsinit.i}"," ") NE 0 &THEN
   {methods/browsers/initial/{&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}.i}
   &ENDIF
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-    
+  /* Code placed here will execute AFTER standard behavior.    */    
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     ll-order-set = YES.
@@ -418,7 +410,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE runCueCard Include
 PROCEDURE runCueCard:
 /*------------------------------------------------------------------------------
@@ -435,8 +426,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus Include 
 PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
@@ -452,4 +441,3 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

@@ -165,13 +165,12 @@
             cCarrierID           = STRING(oe-relh.carrier)
             cTrailerID           = STRING(oe-relh.trailer)
             cCustomerID          = STRING(oe-relh.cust-no)
-            cCsr                 = STRING(oe-relh.user-id)
             cShipFromWarehouseID = STRING(oe-relh.spare-char-1)
             cShipNotes           = STRING(oe-relh.ship-i[1]) + " "
                                  + STRING(oe-relh.ship-i[2]) + " "
                                  + STRING(oe-relh.ship-i[3]) + " "
                                  + STRING(oe-relh.ship-i[4])
-            cReleaseStatus       = IF oe-relh.printed THEN "Update" ELSE "New"
+            cReleaseStatus       = IF oe-relh.w-ord THEN "On Hold" ELSE "Approved"
             .
         
         RUN oe/custxship.p (
@@ -215,8 +214,21 @@
                 cCustomerAddressFull = cCustomerAddress1 + " "
                                      + cCustomerAddress2 + " "
                                      + cCustomerAddress3
+                cFreightTerms        = IF cust.frt-pay EQ "P" THEN "Prepaid"
+                                       ELSE IF cust.frt-pay EQ "B" THEN "Bill"
+                                       ELSE IF cust.frt-pay EQ "T" THEN "3rd Party"
+                                       ELSE  "Collect"  
                 .
-                                            
+                
+        FIND FIRST oe-rel NO-LOCK
+             WHERE oe-rel.r-no EQ oe-relh.r-no
+             NO-ERROR. 
+        IF AVAILABLE oe-rel THEN
+            ASSIGN
+                cReleaseType = oe-rel.s-code
+                cFreightFOB  = oe-rel.fob-code
+                .
+                                                          
         FOR EACH oe-rell
             WHERE oe-rell.company EQ oe-relh.company
               AND oe-rell.r-no    EQ oe-relh.r-no:        
@@ -252,9 +264,9 @@
                 cItemDesc1                     = ""
                 cItemDesc2                     = ""
                 cItemDesc3                     = ""
-                cReleaseLineType               = ""
                 cQuantityReleased              = ""
                 dQuantityReleased              = 0
+                cReleaseLineType               = oe-rell.s-code
                 .
             
             FOR EACH bf-oe-rell NO-LOCK
@@ -288,6 +300,7 @@
                                        + cSoldToAddress2 + " "
                                        + cSoldToAddress3
                     cCustomerPOOrder   = STRING(oe-ord.po-no)
+                    cCsr               = oe-ord.csrUser_id
                     .
                                                     
             FIND FIRST oe-ordl NO-LOCK
@@ -356,7 +369,7 @@
             RUN updateRequestData(INPUT-OUTPUT lcDetailData, "itemfg.part-dscr1", cItemDesc1).
             RUN updateRequestData(INPUT-OUTPUT lcDetailData, "itemfg.part-dscr2", cItemDesc2).
             RUN updateRequestData(INPUT-OUTPUT lcDetailData, "itemfg.part-dscr3", cItemDesc3).
-            RUN updateRequestData(INPUT-OUTPUT lcDetailData, "TBD1", cReleaseLineType).
+            RUN updateRequestData(INPUT-OUTPUT lcDetailData, "ReleaseLineType", cReleaseLineType).
 
             /* The below values are hardcoded as they are currently not mapped
                to any database table's field */
@@ -377,12 +390,12 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "oe-relh.carrier", cCarrierID).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "oe-relh.trailer", cTrailerID).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "oe-relh.cust-no", cCustomerID).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "oe-relh.user-id", cCsr).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CsrUserID", cCsr).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "cShipNotes", cShipNotes).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "cReleaseStatus", cReleaseStatus).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TBD1", cReleaseType).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TBD2", cFreightTerms).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TBD3", cFreightFOB)            .
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ReleaseType", cReleaseType).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "FreightTerms", cFreightTerms).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "FreightFOB", cFreightFOB)            .
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "oe-relh.spare-char-1", cShipFromWarehouseID).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "shipto.ship-name", cShipToName).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "shipto.ship-addr[1]", cShipToAddress1).

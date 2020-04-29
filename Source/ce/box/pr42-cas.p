@@ -35,6 +35,8 @@ DEF VAR ld-rm AS DEC NO-UNDO.
 DEF VAR ld-hp AS DEC NO-UNDO.
 DEF VAR ll-unitize AS LOG NO-UNDO.
 DEFINE VARIABLE iCaseMult AS INTEGER     NO-UNDO.
+DEFINE VARIABLE dPackQty AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dPackCostTotal AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dCasesProRata AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dPalletsProRata AS DECIMAL NO-UNDO.
 
@@ -707,6 +709,73 @@ for each cas where cas.typ = 3:
       blk.lab  = blk.lab  + (cas.cost * ld-hp).
    end.*/
 end.
+      
+FOR EACH estPacking NO-LOCK 
+        WHERE estPacking.company EQ xeb.company
+        AND estPacking.estimateNo EQ xeb.est-no
+        AND estPacking.formNo EQ 0 ,
+        FIRST ITEM NO-LOCK 
+        WHERE item.company EQ estPacking.company
+        AND item.i-no EQ estPacking.rmItemID
+            WITH FRAME ac6 NO-BOX NO-LABELS:
+        dPackQty = 0.
+        CASE estPacking.quantityPer:
+            WHEN "P" THEN 
+                dPackQty = estPacking.quantity * dPalletsProRata.
+            WHEN "C" THEN 
+                dPackQty = estPacking.quantity * dCasesProRata.
+            OTHERWISE 
+                dPackQty = estPacking.quantity.
+        END CASE. 
+              
+        {sys/inc/roundup.i dPackQty}
+        IF NOT estPacking.noCharge THEN do:
+            IF estPacking.costOverridePerUOM NE 0 THEN 
+                dPackCostTotal = estPacking.costOverridePerUOM * dPackQty.
+            ELSE DO:               
+               {est/matcost.i dPackQty dPackCostTotal estPacking}      
+               dPackCostTotal = dPackCostTotal * dPackQty + lv-setup-estPacking.            
+            END.      
+            ASSIGN
+                dm-tot[4] = dm-tot[4] + dPackCostTotal / (qty / 1000)
+                dm-tot[5] = dm-tot[5] + dPackCostTotal
+                .
+        END.
+        ELSE 
+        ASSIGN dPackCostTotal = 0 .
+        
+        FIND FIRST BRD 
+            WHERE BRD.form-no EQ 0
+            AND BRD.blank-no EQ 0
+            AND BRD.i-no EQ estPacking.rmItemID
+            NO-ERROR.
+        IF NOT AVAILABLE BRD THEN 
+        DO:
+            CREATE BRD.
+            ASSIGN 
+                BRD.form-no = 0
+                BRD.blank-no = 0
+                BRD.i-no    = estPacking.rmItemID
+                BRD.dscr    = item.est-dscr
+                BRD.basis-w = item.basis-w
+                .
+        END.
+        ASSIGN
+            BRD.qty = dPackQty  
+            BRD.qty-uom = "Ea"
+            BRD.sc-uom  = "Ea"
+            BRD.cost = dPackCostTotal / dPackQty
+            BRD.cost-m = dPackCostTotal / (qty / 1000)
+            .
+        IF dPackCostTotal NE 0 THEN                                           
+             DISPLAY string(estPacking.formNo,"99") + "-" + string(estPacking.blankNo,"9") format "x(4)"
+             item.i-name dPackQty FORMAT ">>>>>9" TO 50               
+              "Ea."                                                           
+              dPackCostTotal / (qty / 1000) FORMAT ">>>>9.99" TO 69           
+              dPackCostTotal FORMAT ">>>,>>9.99" TO 80 SKIP WITH STREAM-IO  
+              .                                                               
+        
+    END.
 
 IF CAN-FIND(FIRST cas WHERE cas.typ EQ 1 AND cas.snum EQ 0) THEN
 FOR EACH cas WHERE cas.snum NE 0:

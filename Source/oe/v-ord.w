@@ -124,6 +124,8 @@ DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lErrorValid AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cOeShipChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMisEstimate AS CHARACTER NO-UNDO .
 
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
@@ -221,6 +223,11 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEShip", "C" /* Logical */, NO /* check by
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     cOeShipChar = cRtnChar NO-ERROR.
+RUN sys/ref/nk1look.p (INPUT g_company, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
+                     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                     OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cFreightCalculationValue = cRtnChar NO-ERROR.    
 
 /* transaction */
 {sys/inc/f16to32.i}
@@ -989,6 +996,7 @@ DO:
                    APPLY "value-changed" TO oe-ord.est-no.
                    RUN valid-cust-user("est") NO-ERROR.
                    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+                   RUN pGetMiscEst(INPUT eb.est-no) . 
                    RUN get-from-est.
                  END.
               END.  
@@ -1416,6 +1424,7 @@ DO:
   ASSIGN
    ll-est-no-mod            = YES
    oe-ord.cust-no:SENSITIVE = TRIM({&self-name}:SCREEN-VALUE) EQ "".
+   RUN pGetMiscEst( INPUT TRIM(oe-ord.est-no:SCREEN-VALUE)) .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1744,12 +1753,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.ship-id V-table-Win
 ON VALUE-CHANGED OF oe-ord.ship-id IN FRAME F-Main /* Ship To */
 DO:
-  IF LASTKEY NE -1 AND oe-ord.ship-id:SCREEN-VALUE <> "" THEN DO:      
-       FIND FIRST shipto NO-LOCK 
-          WHERE shipto.company EQ g_company 
-          AND shipto.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
-          AND TRIM(shipto.ship-id) = TRIM(oe-ord.ship-id:SCREEN-VALUE)
-          NO-ERROR.
+  IF LASTKEY NE -1 AND oe-ord.ship-id:SCREEN-VALUE <> "" THEN DO:             
        RUN pGetOverUnderPct.
   END.
 END.
@@ -4402,17 +4406,18 @@ PROCEDURE hold-approve :
                     IF lv-uom NE "M" THEN
                         RUN sys/ref/convcuom.p(lv-uom, "M", 0, 0, 0, 0,
                             oe-ordl.cost, OUTPUT oe-ordl.cost).
-
-                    RUN oe/ordlfrat.p (ROWID(oe-ordl), OUTPUT oe-ordl.t-freight).
-                    oe-ord.t-freight = oe-ord.t-freight + oe-ordl.t-freight.
+                    IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN do: 
+                        RUN oe/ordlfrat.p (ROWID(oe-ordl), OUTPUT oe-ordl.t-freight).
+                        oe-ord.t-freight = oe-ord.t-freight + oe-ordl.t-freight.
+                    END.    
                     FIND CURRENT oe-ordl NO-LOCK.
                     RELEASE oe-ordl.
                 END. /* Each oe-ordl */
                 FIND CURRENT oe-ord NO-LOCK.
             END. /* Transaction, set default values */
 
-
-            RUN oe/ordfrate.p (ROWID(oe-ord)).
+            IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN
+               RUN oe/ordfrate.p (ROWID(oe-ord)).
 
             FIND xoe-ord WHERE ROWID(xoe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
             IF AVAIL xoe-ord THEN RUN oe/oe-comm.p.
@@ -5153,7 +5158,7 @@ PROCEDURE local-create-record :
      oe-ctrl.n-ord = oe-ord.ord-no + 1.
      RELEASE oe-ctrl.
    END.
-
+   cMisEstimate = "" .
 
 END PROCEDURE.
 
@@ -5912,6 +5917,7 @@ nufile = YES.
 RUN oe/ordfrest.p 
 (INPUT THIS-PROCEDURE,
  INPUT        v-ord-rec,
+ INPUT        cMisEstimate,
  INPUT-OUTPUT ip-new-ord,
  INPUT-OUTPUT v-qty-mod,
  INPUT-OUTPUT v-inactive,
@@ -7390,15 +7396,10 @@ PROCEDURE pGetOverUnderPct :
    DEFINE VARIABLE dOverPer AS DECIMAL NO-UNDO.
    DEFINE VARIABLE dUnderPer AS DECIMAL NO-UNDO.
   
-  DO WITH FRAME {&FRAME-NAME}:
-    IF NOT AVAIL shipto THEN
-    FIND FIRST shipto NO-LOCK 
-          WHERE shipto.company EQ g_company 
-          AND shipto.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
-          AND TRIM(shipto.ship-id) = TRIM(oe-ord.ship-id:SCREEN-VALUE)
-          NO-ERROR.
-    IF AVAIL shipto THEN      
-    RUN oe/GetOverUnderPct.p(ROWID(shipto), 
+  DO WITH FRAME {&FRAME-NAME}:          
+    RUN oe/GetOverUnderPct.p(g_company,
+                           oe-ord.cust-no:SCREEN-VALUE ,
+                           TRIM(oe-ord.ship-id:SCREEN-VALUE),
                            OUTPUT dOverPer , OUTPUT dUnderPer ) .
                            oe-ord.over-pct:SCREEN-VALUE = STRING(dOverPer).
                            oe-ord.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
@@ -7409,6 +7410,45 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetMiscEst V-table-Win 
+PROCEDURE pGetMiscEst :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+     DEFINE INPUT PARAMETER ipoEstNo AS CHARACTER NO-UNDO.
+     DEFINE BUFFER bff-est FOR est .
+     DEFINE BUFFER bff-eb FOR eb.
+     DEFINE BUFFER b-eb FOR eb.
+     cMisEstimate = "" .     
+     FIND FIRST bff-est WHERE bff-est.company EQ cocode
+                AND trim(bff-est.est-no) EQ trim(ipoEstNo)
+                AND bff-est.estimateTypeID EQ "MISC" NO-LOCK NO-ERROR. 
+     IF AVAIL bff-est THEN             
+     FIND FIRST bff-eb NO-LOCK
+          WHERE bff-eb.company EQ cocode 
+            AND bff-eb.est-no EQ bff-est.est-no NO-ERROR.
+                
+     DO WITH FRAME {&FRAME-NAME}:                
+         IF AVAIL bff-eb AND AVAIL bff-est AND bff-est.estimateTypeID EQ "MISC" THEN DO:
+         
+         FIND FIRST b-eb NO-LOCK
+             WHERE b-eb.company EQ bff-eb.company
+               AND trim(b-eb.est-no) EQ trim(bff-eb.sourceEstimate)  /*trim(bff-eb.est-no)*/
+               AND b-eb.stock-no EQ bff-eb.stock-no NO-ERROR. 
+               IF AVAIL b-eb THEN do:                                  
+                 cMisEstimate = bff-eb.est-no .
+                 oe-ord.est-no:SCREEN-VALUE = bff-eb.sourceEstimate.
+               END.
+         END.
+     END.
+       
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME    
 
 /* ************************  Function Implementations ***************** */
 

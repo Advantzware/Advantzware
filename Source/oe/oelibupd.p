@@ -134,6 +134,7 @@ DEF VAR lcReturn AS CHAR NO-UNDO.
 DEF VAR llRecFound AS LOG NO-UNDO.
 DEF VAR llOeShipFromLog AS LOG NO-UNDO.
 DEF VAR OEJobHold-log AS LOG NO-UNDO.
+DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (cocode, "OESHIPFROM", "L", NO, NO, "", "", 
     OUTPUT lcReturn, OUTPUT llRecFound).
@@ -153,6 +154,12 @@ IF llRecFound THEN
  {sys/inc/ceprepprice.i} 
 
 RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
+
+RUN sys/ref/nk1look.p (INPUT g_company, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
+                     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                     OUTPUT lcReturn, OUTPUT llRecFound).
+IF llRecFound THEN
+    cFreightCalculationValue = lcReturn NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1770,12 +1777,13 @@ PROCEDURE hold-approve :
          IF lv-uom NE "M" THEN
            RUN sys/ref/convcuom.p(lv-uom, "M", 0, 0, 0, 0,
                                   oe-ordl.cost, OUTPUT oe-ordl.cost).
-      
-         RUN oe/ordlfrat.p (ROWID(oe-ordl), OUTPUT oe-ordl.t-freight).
-         oe-ord.t-freight = oe-ord.t-freight + oe-ordl.t-freight.
+         IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN do:
+            RUN oe/ordlfrat.p (ROWID(oe-ordl), OUTPUT oe-ordl.t-freight).
+            oe-ord.t-freight = oe-ord.t-freight + oe-ordl.t-freight.
+         END.
        END.
-      
-       RUN oe/ordfrate.p (ROWID(oe-ord)).
+       IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN
+         RUN oe/ordfrate.p (ROWID(oe-ord)).
       
        FIND xoe-ord WHERE ROWID(xoe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
        IF AVAIL xoe-ord THEN RUN oe/oe-comm.p.
@@ -2400,6 +2408,7 @@ nufile = YES.
 RUN oe/ordfrest.p 
 (INPUT THIS-PROCEDURE,
  INPUT        v-ord-rec,
+ INPUT        "",
  INPUT-OUTPUT ip-new-ord,
  INPUT-OUTPUT v-qty-mod,
  INPUT-OUTPUT v-inactive,

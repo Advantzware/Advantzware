@@ -1135,11 +1135,11 @@ PROCEDURE local-change-page :
   DO: /* farm */        
              
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "Est"' ).
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + string(oe-ordl.est-no)).
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + oe-ordl.est-no).
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + oe-ordl.i-no ).         
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "FG" ' ).       
         /*      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).*/
-        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = ' + oe-ordl.cust-no ).  
+        RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = ""').  
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = ' + string(oe-ordl.form-no) ).
         RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = ' + string(oe-ordl.blank-no) ).
         li-pageb4VendCost = li-page[2].  

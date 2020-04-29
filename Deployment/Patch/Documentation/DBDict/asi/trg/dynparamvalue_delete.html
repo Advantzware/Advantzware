@@ -39,6 +39,33 @@
  
 <span class="src-keyword">TRIGGER PROCEDURE FOR DELETE OF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.
  
+<span class="src-keyword">FOR EACH</span><!--src-keyword--> dynValueParam <span class="src-keyword">EXCLUSIVE-LOCK</span><!--src-keyword-->
+    <span class="src-keyword">WHERE</span><!--src-keyword--> dynValueParam.subjectID    <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.subjectID
+      <span class="src-keyword">AND</span><!--src-keyword--> dynValueParam.<span class="src-keyword">user-id      EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.<span class="src-keyword">user-id</span><!--src-keyword-->
+      <span class="src-keyword">AND</span><!--src-keyword--> dynValueParam.prgmName     <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.prgmName
+      <span class="src-keyword">AND</span><!--src-keyword--> dynValueParam.paramValueID <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.paramValueID
+    :
+    <span class="src-keyword">DELETE</span><!--src-keyword--> dynValueParam.
+<span class="src-keyword">END</span><!--src-keyword-->. <span class="src-comment">/* each dynvalueparam */</span><!--src-comment-->
+ 
+<span class="src-keyword">FOR EACH</span><!--src-keyword--> dynValueParamSet <span class="src-keyword">EXCLUSIVE-LOCK</span><!--src-keyword-->
+    <span class="src-keyword">WHERE</span><!--src-keyword--> dynValueParamSet.subjectID    <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.subjectID
+      <span class="src-keyword">AND</span><!--src-keyword--> dynValueParamSet.<span class="src-keyword">user-id      EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.<span class="src-keyword">user-id</span><!--src-keyword-->
+      <span class="src-keyword">AND</span><!--src-keyword--> dynValueParamSet.prgmName     <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.prgmName
+      <span class="src-keyword">AND</span><!--src-keyword--> dynValueParamSet.paramValueID <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.paramValueID
+    :
+    <span class="src-keyword">DELETE</span><!--src-keyword--> dynValueParamSet.
+<span class="src-keyword">END</span><!--src-keyword-->. <span class="src-comment">/* each dynvalueparamset */</span><!--src-comment-->
+ 
+<span class="src-keyword">FOR EACH</span><!--src-keyword--> dynValueColumn <span class="src-keyword">EXCLUSIVE-LOCK</span><!--src-keyword-->
+    <span class="src-keyword">WHERE</span><!--src-keyword--> dynValueColumn.subjectID    <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.subjectID
+      <span class="src-keyword">AND</span><!--src-keyword--> dynValueColumn.<span class="src-keyword">user-id      EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.<span class="src-keyword">user-id</span><!--src-keyword-->
+      <span class="src-keyword">AND</span><!--src-keyword--> dynValueColumn.prgmName     <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.prgmName
+      <span class="src-keyword">AND</span><!--src-keyword--> dynValueColumn.paramValueID <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.paramValueID
+    :
+    <span class="src-keyword">DELETE</span><!--src-keyword--> dynValueColumn.
+<span class="src-keyword">END</span><!--src-keyword-->. <span class="src-comment">/* each dynvaluecolumn */</span><!--src-comment-->
+ 
 <span class="src-prep">{methods/<span class="src-keyword">triggers</span><!--src-keyword-->/<span class="src-keyword">delete</span><!--src-keyword-->.i}</span><!--src-prep-->
 </div><!--progresscode-->
 </body>

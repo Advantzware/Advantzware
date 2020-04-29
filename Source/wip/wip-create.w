@@ -1028,6 +1028,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cb-jobno2 W-Win
 ON VALUE-CHANGED OF cb-jobno2 IN FRAME F-Main
 DO:
+    RUN pUpdateMachineList (
+        INPUT  cFormattedJobno,
+        INPUT  cb-jobno2:SCREEN-VALUE,
+        OUTPUT cMachineListItems
+        ).
+        
     RUN onValueChangedOfJobDetails.
 END.
 
@@ -1099,7 +1105,11 @@ DO:
                                       ELSE
                                           ENTRY(1,cb-blankno:LIST-ITEMS)
             NO-ERROR.
+            
+        APPLY "VALUE-CHANGED" to cb-jobno2.
+        
     END.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1213,16 +1223,16 @@ DO:
                                               ENTRY(1,cBlanknoListItems)
                                           ELSE
                                               STRING(INTEGER(cBlankNo),"99")
-                cb-machine:SCREEN-VALUE = ENTRY(1,cMachineListItems)
                 .
     ELSE
         ASSIGN 
             cb-jobno2:SCREEN-VALUE  = ENTRY(1,cJobno2ListItems)
             cb-formno:SCREEN-VALUE  = ENTRY(1,cFormnoListItems)
             cb-blankno:SCREEN-VALUE = ENTRY(1,cBlanknoListItems)
-            cb-machine:SCREEN-VALUE = ENTRY(1,cMachineListItems)
             .
-                                   
+            
+    APPLY "VALUE-CHANGED" to cb-jobno2. 
+          
     RUN ValidateJob IN hdJobProcs (
         INPUT ipcCompany,
         INPUT cFormattedJobno,
@@ -1662,15 +1672,21 @@ PROCEDURE jobScan :
     RUN updateComboBoxes.
        
     DO WITH FRAME {&FRAME-NAME}:
-        ASSIGN 
+        ASSIGN
             cb-jobno2:LIST-ITEMS    = cJobno2ListItems
+            cb-jobno2:SCREEN-VALUE  = STRING(ipiJobno2,"99")
+            .
+            
+        APPLY "VALUE-CHANGED" to cb-jobno2.
+        
+        ASSIGN 
             cb-formno:LIST-ITEMS    = cFormnoListItems
             cb-blankno:LIST-ITEMS   = cBlanknoListItems
             cb-machine:LIST-ITEMS   = cMachineListItems
-            cb-jobno2:SCREEN-VALUE  = STRING(ipiJobno2,"99")
             cb-formno:SCREEN-VALUE  = STRING(ipiFormno,"99")
             cb-blankno:SCREEN-VALUE = STRING(ipiBlankno,"99")
-            cb-machine:SCREEN-VALUE = ipcmachine.
+            cb-machine:SCREEN-VALUE = ipcmachine
+            .
     END.
     
     cValidateJobno = ls-jobno:SCREEN-VALUE.
@@ -1973,6 +1989,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateMachine W-Win 
+PROCEDURE pUpdateMachineList :
+/*------------------------------------------------------------------------------
+  Purpose:     Gets machine list for Job no and Job no2 combination
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcJobNo            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobNo2           AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMachineListItems AS CHARACTER NO-UNDO.
+    
+    RUN GetOperationsForJob IN hdJobProcs (
+        ipcCompany,
+        ipcJobNo,
+        INT(ipcJobNo2),
+        INPUT-OUTPUT opcMachineListItems 
+        ).
+
+    IF opcMachineListItems EQ "" THEN
+        ASSIGN
+            opcMachineListItems                            = ""
+            cb-machine:LIST-ITEMS IN FRAME {&FRAME-NAME}   = opcMachineListItems
+            cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
+    ELSE
+        cb-machine:LIST-ITEMS IN FRAME {&FRAME-NAME} = opcMachineListItems.
+    cb-machine:SCREEN-VALUE = ENTRY(1,opcMachineListItems).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRMDetails W-Win 
 PROCEDURE pUpdateRMDetails :
 /*------------------------------------------------------------------------------
@@ -2017,9 +2064,13 @@ PROCEDURE pUpdateRMDetails :
         ASSIGN 
             cValidateJobno          = cJobNo
             cb-jobno2:SCREEN-VALUE  = STRING(iJobNo2,"99")
+            .
+            
+        APPLY "VALUE-CHANGED" to cb-jobno2.
+        
+        ASSIGN
             cb-formno:SCREEN-VALUE  = STRING(iFormNo,"99")
             cb-blankno:SCREEN-VALUE = STRING(iBlankNo,"99")
-            cb-machine:SCREEN-VALUE = ENTRY(1,cb-machine:LIST-ITEMS)
             fiRMItem:SCREEN-VALUE   = cItemName
             fiSize:SCREEN-VALUE     = ""
             fiUOM:SCREEN-VALUE      = cQtyUOM
@@ -2183,6 +2234,11 @@ PROCEDURE tagScan :
         ASSIGN 
             cValidateJobno          = cJobNo
             cb-jobno2:SCREEN-VALUE  = STRING(iJobNo2,"99")
+            .
+            
+        APPLY "VALUE-CHANGED" to cb-jobno2.
+        
+        ASSIGN
             cb-formno:SCREEN-VALUE  = STRING(iFormNo,"99")
             cb-blankno:SCREEN-VALUE = STRING(iBlankNo,"99")
             cb-machine:SCREEN-VALUE = cMachine
@@ -2228,7 +2284,7 @@ PROCEDURE tagScan :
             cb-machine:SCREEN-VALUE = ""
             NO-ERROR.
     END.
-        
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2268,12 +2324,6 @@ PROCEDURE updateComboBoxes :
             INPUT-OUTPUT cBlanknoListItems
             ).
 
-        RUN GetOperationsForJob IN hdJobProcs (
-            ipcCompany,
-            cFormattedJobno,
-            INTEGER(ENTRY(iCount, cJobno2ListItems)),
-            INPUT-OUTPUT cMachineListItems
-            ).
     END.
     
     IF cJobno2ListItems EQ "" THEN
@@ -2283,7 +2333,9 @@ PROCEDURE updateComboBoxes :
             cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "00".
     ELSE
         cb-jobno2:LIST-ITEMS IN FRAME {&FRAME-NAME} = cJobno2ListItems.
- 
+        
+    APPLY "VALUE-CHANGED" to cb-jobno2.
+    
     IF cFormnoListItems EQ "" THEN
         ASSIGN
             cFormnoListItems                              = "00"
@@ -2299,14 +2351,6 @@ PROCEDURE updateComboBoxes :
             cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "00".
     ELSE
         cb-blankno:LIST-ITEMS IN FRAME {&FRAME-NAME} = cBlanknoListItems.
-
-    IF cMachineListItems EQ "" THEN
-        ASSIGN
-            cMachineListItems                              = ""
-            cb-machine:LIST-ITEMS IN FRAME {&FRAME-NAME}   = cMachineListItems
-            cb-machine:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
-    ELSE
-        cb-machine:LIST-ITEMS IN FRAME {&FRAME-NAME} = cMachineListItems.
     
 END PROCEDURE.
 

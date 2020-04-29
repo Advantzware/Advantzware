@@ -506,6 +506,7 @@ DO:
   {&methods/lValidateError.i YES}
   case FOCUS:NAME :
     when "uom" then do:
+      RUN pSetValidUOMList(cocode,oe-prmtx.i-no:SCREEN-VALUE).
       run windows/l-stduom.w (cocode, uom-list, focus:screen-value, output char-val).
       if char-val ne "" then 
         focus:screen-value in frame {&frame-name} = entry(1,char-val).
@@ -1158,6 +1159,46 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetValidUOMList V-table-Win
+PROCEDURE pSetValidUOMList PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ Purpose:  Given company and get, set the global UOM list variable
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+ 
+DEFINE BUFFER bf-itemfg FOR itemfg.
+
+    IF ipcItemID NE "" THEN DO:
+        FIND FIRST bf-itemfg NO-LOCK
+            WHERE bf-itemfg.company EQ ipcCompany
+            AND bf-itemfg.i-no EQ ipcItemID
+            NO-ERROR.
+
+    END.
+    IF AVAILABLE bf-itemfg THEN DO: 
+        RUN Conv_GetValidPriceUOMsForItem(ROWID(bf-itemfg), OUTPUT uom-list, OUTPUT lError, OUTPUT cMessage).
+    END.
+    ELSE DO: 
+        RUN Conv_GetValidPriceUOMs(OUTPUT uom-list).
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-panel V-table-Win 
 PROCEDURE set-panel :
 /*------------------------------------------------------------------------------
@@ -1557,7 +1598,7 @@ PROCEDURE valid-uom-01 :
 
   {methods/lValidateError.i YES}
 v-invalid = no.
-
+RUN pSetValidUOMList(cocode, oe-prmtx.i-no:SCREEN-VALUE IN FRAME {&frame-name}).
 if int(oe-prmtx.qty[01]:screen-value in frame {&frame-name}) ne 0 then do:
   find first uom
       where uom.uom eq oe-prmtx.uom[01]:screen-value in frame {&frame-name}
@@ -1588,7 +1629,7 @@ PROCEDURE valid-uom-02 :
 
   {methods/lValidateError.i YES}
 v-invalid = no.
-
+RUN pSetValidUOMList(cocode, oe-prmtx.i-no:SCREEN-VALUE IN FRAME {&frame-name}).
 if int(oe-prmtx.qty[02]:screen-value in frame {&frame-name}) ne 0 then do:
   find first uom
       where uom.uom eq oe-prmtx.uom[02]:screen-value in frame {&frame-name}
@@ -1619,7 +1660,7 @@ PROCEDURE valid-uom-03 :
 
   {methods/lValidateError.i YES}
 v-invalid = no.
-
+RUN pSetValidUOMList(cocode, oe-prmtx.i-no:SCREEN-VALUE IN FRAME {&frame-name}).
 if int(oe-prmtx.qty [03]:screen-value in frame {&frame-name}) ne 0 then do:
   find first uom
       where uom.uom eq oe-prmtx.uom[03]:screen-value in frame {&frame-name}
@@ -1650,7 +1691,7 @@ PROCEDURE valid-uom-04 :
 
   {methods/lValidateError.i YES}
 v-invalid = no.
-
+RUN pSetValidUOMList(cocode, oe-prmtx.i-no:SCREEN-VALUE IN FRAME {&frame-name}).
 if int(oe-prmtx.qty[04]:screen-value in frame {&frame-name}) ne 0 then do:
   find first uom
       where uom.uom eq oe-prmtx.uom[04]:screen-value in frame {&frame-name}
@@ -1681,7 +1722,7 @@ PROCEDURE valid-uom-05 :
 
   {methods/lValidateError.i YES}
 v-invalid = no.
-
+RUN pSetValidUOMList(cocode, oe-prmtx.i-no:SCREEN-VALUE IN FRAME {&frame-name}).
 if int(oe-prmtx.qty[05]:screen-value in frame {&frame-name}) ne 0 then do:
   find first uom
       where uom.uom eq oe-prmtx.uom[05]:screen-value in frame {&frame-name}
@@ -1712,7 +1753,7 @@ PROCEDURE valid-uom-06 :
 
   {methods/lValidateError.i YES}
 v-invalid = no.
-
+RUN pSetValidUOMList(cocode, oe-prmtx.i-no:SCREEN-VALUE IN FRAME {&frame-name}).
 if int(oe-prmtx.qty[06]:screen-value in frame {&frame-name}) ne 0 then do:
   find first uom
       where uom.uom eq oe-prmtx.uom[06]:screen-value in frame {&frame-name}
@@ -1743,7 +1784,7 @@ PROCEDURE valid-uom-07 :
 
   {methods/lValidateError.i YES}
 v-invalid = no.
-
+RUN pSetValidUOMList(cocode, oe-prmtx.i-no:SCREEN-VALUE IN FRAME {&frame-name}).
 if int(oe-prmtx.qty[07]:screen-value in frame {&frame-name}) ne 0 then do:
   find first uom
       where uom.uom eq oe-prmtx.uom[07]:screen-value in frame {&frame-name}
@@ -1774,7 +1815,7 @@ PROCEDURE valid-uom-08 :
 
   {methods/lValidateError.i YES}
 v-invalid = no.
-
+RUN pSetValidUOMList(cocode, oe-prmtx.i-no:SCREEN-VALUE IN FRAME {&frame-name}).
 if int(oe-prmtx.qty[08]:screen-value in frame {&frame-name}) ne 0 then do:
   find first uom
       where uom.uom eq oe-prmtx.uom[08]:screen-value in frame {&frame-name}
@@ -1805,7 +1846,7 @@ PROCEDURE valid-uom-09 :
 
   {methods/lValidateError.i YES}
 v-invalid = no.
-
+RUN pSetValidUOMList(cocode, oe-prmtx.i-no:SCREEN-VALUE IN FRAME {&frame-name}).
 if int(oe-prmtx.qty[09]:screen-value in frame {&frame-name}) ne 0 then do:
   find first uom
       where uom.uom eq oe-prmtx.uom[09]:screen-value in frame {&frame-name}
@@ -1836,7 +1877,7 @@ PROCEDURE valid-uom-10 :
 
   {methods/lValidateError.i YES}
 v-invalid = no.
-
+RUN pSetValidUOMList(cocode, oe-prmtx.i-no:SCREEN-VALUE IN FRAME {&frame-name}).
 if int(oe-prmtx.qty[10]:screen-value in frame {&frame-name}) ne 0 then do:
   find first uom
       where uom.uom eq oe-prmtx.uom[10]:screen-value in frame {&frame-name}

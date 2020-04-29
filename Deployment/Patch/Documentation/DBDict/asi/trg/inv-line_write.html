@@ -48,18 +48,13 @@
 <span class="src-keyword">DEF VAR</span><!--src-keyword--> v-invlotline-int <span class="src-keyword">AS INT NO-UNDO</span><!--src-keyword-->.
  
 <span class="src-keyword">DEF BUFFER</span><!--src-keyword--> b-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep--> <span class="src-keyword">FOR</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.
- 
-<span class="src-keyword">DEF VAR</span><!--src-keyword--> ll-calc-disc-first <span class="src-keyword">AS LOG NO-UNDO</span><!--src-keyword-->.
 <span class="src-keyword">DEF VAR</span><!--src-keyword--> v-cost <span class="src-keyword">AS DEC EXTENT</span><!--src-keyword--> <span class="src-number">4</span><!--src-number-->.
 <span class="src-keyword">DEF VAR</span><!--src-keyword--> v-basis <span class="src-keyword">LIKE</span><!--src-keyword--> sman.commbasis  <span class="src-keyword">INIT</span><!--src-keyword--> <span class="src-char">""</span><!--src-char--> <span class="src-keyword">NO-UNDO</span><!--src-keyword-->.
- 
-<span class="src-keyword">DEF VAR</span><!--src-keyword--> fg-uom-list <span class="src-keyword">AS</span><!--src-keyword--> cha <span class="src-keyword">NO-UNDO</span><!--src-keyword-->.
-<span class="src-keyword">RUN</span><!--src-keyword--> sys/ref/uom-ea.p (<span class="src-keyword">OUTPUT</span><!--src-keyword--> fg-uom-list).
  
 <span class="src-keyword">ASSIGN</span><!--src-keyword-->
  cocode             = g_company
  locode             = g_loc
- ll-calc-disc-first = <span class="src-keyword">NO</span><!--src-keyword-->.
+ .
  
 <span class="src-keyword">find first</span><!--src-keyword--> sys-ctrl <span class="src-keyword">where</span><!--src-keyword-->
     sys-ctrl.company <span class="src-keyword">eq</span><!--src-keyword--> cocode <span class="src-keyword">AND</span><!--src-keyword-->
@@ -121,14 +116,6 @@
 <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.po-no <span class="src-keyword">NE</span><!--src-keyword--> old-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.po-no <span class="src-keyword">THEN</span><!--src-keyword-->
   <span class="src-keyword">RUN</span><!--src-keyword--> oe/invlinpo.p (<span class="src-keyword">BUFFER</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->, old-<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.po-no).
  
-<span class="src-keyword">FOR EACH</span><!--src-keyword--> sys-ctrl
-    <span class="src-keyword">WHERE</span><!--src-keyword--> sys-ctrl.company  <span class="src-keyword">EQ</span><!--src-keyword--> cocode
-      <span class="src-keyword">AND</span><!--src-keyword--> sys-ctrl.<span class="src-keyword">name     EQ</span><!--src-keyword--> <span class="src-char">"INVPRINT"</span><!--src-char-->
-      <span class="src-keyword">AND</span><!--src-keyword--> sys-ctrl.char-fld <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-char">"Dayton"</span><!--src-char-->
-    <span class="src-keyword">NO-LOCK</span><!--src-keyword-->:
-  ll-calc-disc-first = <span class="src-keyword">YES</span><!--src-keyword-->.
-  <span class="src-keyword">LEAVE</span><!--src-keyword-->.
-<span class="src-keyword">END</span><!--src-keyword-->.
  
 <span class="src-keyword">FOR EACH</span><!--src-keyword--> inv-head <span class="src-keyword">OF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->
     <span class="src-keyword">WHERE NOT</span><!--src-keyword--> inv-head.multi-invoice <span class="src-keyword">NO-LOCK</span><!--src-keyword-->,
@@ -141,59 +128,68 @@
       <span class="src-keyword">AND</span><!--src-keyword--> itemfg.i-no <span class="src-keyword">eq</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no
     <span class="src-keyword">NO-LOCK</span><!--src-keyword-->:
  
-  <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-price = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.inv-qty / <span class="src-number">1000</span><!--src-number--> <span class="src-keyword">*</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.price.
- 
-  <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom <span class="src-keyword">BEGINS</span><!--src-keyword--> <span class="src-char">"L"</span><!--src-char--> <span class="src-keyword">AND</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-char">"LB"</span><!--src-char--> <span class="src-keyword">THEN</span><!--src-keyword-->
-    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-price = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.price <span class="src-keyword">*</span><!--src-keyword-->
-                           <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.inv-qty <span class="src-keyword">LT</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">THEN</span><!--src-keyword--> <span class="src-number">-1</span><!--src-number--> <span class="src-keyword">ELSE IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.inv-qty <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">THEN</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">ELSE</span><!--src-keyword--> <span class="src-number">1</span><!--src-number-->.
- 
-  <span class="src-keyword">ELSE</span><!--src-keyword-->
-  <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-char">"CS"</span><!--src-char--> <span class="src-keyword">THEN</span><!--src-keyword-->
-    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-price = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.inv-qty /
-                           (<span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.cas-cnt <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">THEN</span><!--src-keyword-->
-                             <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.cas-cnt
-                            <span class="src-keyword">ELSE</span><!--src-keyword-->
-                            <span class="src-keyword">IF</span><!--src-keyword--> itemfg.case-count <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">THEN</span><!--src-keyword-->
-                              itemfg.case-count <span class="src-keyword">ELSE</span><!--src-keyword--> <span class="src-number">1</span><!--src-number-->) <span class="src-keyword">*</span><!--src-keyword-->
-                           <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.price.
-  <span class="src-keyword">ELSE</span><!--src-keyword-->
-  <span class="src-keyword">IF LOOKUP</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom,fg-uom-list) <span class="src-keyword">GT</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">THEN</span><!--src-keyword-->
-    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-price = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.inv-qty <span class="src-keyword">*</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.price.
- 
-  <span class="src-keyword">ELSE</span><!--src-keyword-->
-  <span class="src-keyword">FOR EACH</span><!--src-keyword--> uom
-      <span class="src-keyword">WHERE</span><!--src-keyword--> uom.uom  <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom
-        <span class="src-keyword">AND</span><!--src-keyword--> uom.mult <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-number">0</span><!--src-number-->
-      <span class="src-keyword">NO-LOCK</span><!--src-keyword-->:
-    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-price = <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.inv-qty / uom.mult <span class="src-keyword">*</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.price.
-    <span class="src-keyword">LEAVE</span><!--src-keyword-->.
-  <span class="src-keyword">END</span><!--src-keyword-->.
- 
-  <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-price = <span class="src-keyword">ROUND</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-price,<span class="src-number">2</span><!--src-number-->).
- 
- 
-  <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-price <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-number">0</span><!--src-number-->                                              <span class="src-keyword">AND</span><!--src-keyword-->
-     <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom <span class="src-keyword">BEGINS</span><!--src-keyword--> <span class="src-char">"L"</span><!--src-char-->                                         <span class="src-keyword">AND</span><!--src-keyword-->
-     <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-char">"LB"</span><!--src-char-->                                            <span class="src-keyword">AND</span><!--src-keyword-->
-     v-invlotline-int = <span class="src-number">0</span><!--src-number-->                                                   <span class="src-keyword">AND</span><!--src-keyword-->
-     <span class="src-keyword">AVAIL</span><!--src-keyword--> oe-ordl                                                          <span class="src-keyword">AND</span><!--src-keyword-->
-     ((oe-ordl.qty <span class="src-keyword">GT</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">AND</span><!--src-keyword--> oe-ordl.inv-qty <span class="src-keyword">-</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.inv-qty <span class="src-keyword">GT</span><!--src-keyword--> <span class="src-number">0</span><!--src-number-->) <span class="src-keyword">OR</span><!--src-keyword-->
-      (oe-ordl.qty <span class="src-keyword">LT</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">AND</span><!--src-keyword--> oe-ordl.inv-qty <span class="src-keyword">-</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.inv-qty <span class="src-keyword">LT</span><!--src-keyword--> <span class="src-number">0</span><!--src-number-->))                          <span class="src-keyword">THEN</span><!--src-keyword-->
-    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-price = <span class="src-number">0</span><!--src-number-->.
- 
-  <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.disc <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">THEN</span><!--src-keyword-->
-    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-price = 
-        <span class="src-keyword">IF</span><!--src-keyword--> ll-calc-disc-first <span class="src-keyword">THEN</span><!--src-keyword--> 
-          (<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-price <span class="src-keyword">- ROUND</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-price <span class="src-keyword">*</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.disc / <span class="src-number">100</span><!--src-number-->,<span class="src-number">2</span><!--src-number-->))
-        <span class="src-keyword">ELSE</span><!--src-keyword-->
-          <span class="src-keyword">ROUND</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-price <span class="src-keyword">*</span><!--src-keyword--> (<span class="src-number">1</span><!--src-number--> <span class="src-keyword">-</span><!--src-keyword--> (<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.disc / <span class="src-number">100</span><!--src-number-->)),<span class="src-number">2</span><!--src-number-->).
+    <span class="src-keyword">RUN</span><!--src-keyword--> Conv_CalcTotalPrice(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.company, 
+                        <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.i-no,
+                        <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.qty,
+                        <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.price,
+                        <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.pr-uom,
+                        <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.disc,
+                        <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.cas-cnt,    
+                        <span class="src-keyword">OUTPUT</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-price).
+<span class="src-comment">/*  {&amp;TABLENAME}.t-price = {&amp;TABLENAME}.inv-qty / 1000 * {&amp;TABLENAME}.price.                                      */</span><!--src-comment-->
+<span class="src-comment">/*                                                                                                                */</span><!--src-comment-->
+<span class="src-comment">/*  IF {&amp;TABLENAME}.pr-uom BEGINS "L" AND {&amp;TABLENAME}.pr-uom NE "LB" THEN                                        */</span><!--src-comment-->
+<span class="src-comment">/*    {&amp;TABLENAME}.t-price = {&amp;TABLENAME}.price *                                                                 */</span><!--src-comment-->
+<span class="src-comment">/*                           IF {&amp;TABLENAME}.inv-qty LT 0 THEN -1 ELSE IF {&amp;TABLENAME}.inv-qty EQ 0 THEN 0 ELSE 1.*/</span><!--src-comment-->
+<span class="src-comment">/*                                                                                                                */</span><!--src-comment-->
+<span class="src-comment">/*  ELSE                                                                                                          */</span><!--src-comment-->
+<span class="src-comment">/*  IF {&amp;TABLENAME}.pr-uom EQ "CS" THEN                                                                           */</span><!--src-comment-->
+<span class="src-comment">/*    {&amp;TABLENAME}.t-price = {&amp;TABLENAME}.inv-qty /                                                               */</span><!--src-comment-->
+<span class="src-comment">/*                           (IF {&amp;TABLENAME}.cas-cnt NE 0 THEN                                                   */</span><!--src-comment-->
+<span class="src-comment">/*                             {&amp;TABLENAME}.cas-cnt                                                               */</span><!--src-comment-->
+<span class="src-comment">/*                            ELSE                                                                                */</span><!--src-comment-->
+<span class="src-comment">/*                            IF itemfg.case-count NE 0 THEN                                                      */</span><!--src-comment-->
+<span class="src-comment">/*                              itemfg.case-count ELSE 1) *                                                       */</span><!--src-comment-->
+<span class="src-comment">/*                           {&amp;TABLENAME}.price.                                                                  */</span><!--src-comment-->
+<span class="src-comment">/*  ELSE                                                                                                          */</span><!--src-comment-->
+<span class="src-comment">/*  IF LOOKUP({&amp;TABLENAME}.pr-uom,fg-uom-list) GT 0 THEN                                                          */</span><!--src-comment-->
+<span class="src-comment">/*    {&amp;TABLENAME}.t-price = {&amp;TABLENAME}.inv-qty * {&amp;TABLENAME}.price.                                           */</span><!--src-comment-->
+<span class="src-comment">/*                                                                                                                */</span><!--src-comment-->
+<span class="src-comment">/*  ELSE                                                                                                          */</span><!--src-comment-->
+<span class="src-comment">/*  FOR EACH uom                                                                                                  */</span><!--src-comment-->
+<span class="src-comment">/*      WHERE uom.uom  EQ {&amp;TABLENAME}.pr-uom                                                                     */</span><!--src-comment-->
+<span class="src-comment">/*        AND uom.mult NE 0                                                                                       */</span><!--src-comment-->
+<span class="src-comment">/*      NO-LOCK:                                                                                                  */</span><!--src-comment-->
+<span class="src-comment">/*    {&amp;TABLENAME}.t-price = {&amp;TABLENAME}.inv-qty / uom.mult * {&amp;TABLENAME}.price.                                */</span><!--src-comment-->
+<span class="src-comment">/*    LEAVE.                                                                                                      */</span><!--src-comment-->
+<span class="src-comment">/*  END.                                                                                                          */</span><!--src-comment-->
+<span class="src-comment">/*                                                                                                                */</span><!--src-comment-->
+<span class="src-comment">/*  {&amp;TABLENAME}.t-price = ROUND({&amp;TABLENAME}.t-price,2).                                                         */</span><!--src-comment-->
+<span class="src-comment">/*                                                                                                                */</span><!--src-comment-->
+<span class="src-comment">/*                                                                                                                */</span><!--src-comment-->
+<span class="src-comment">/*  IF {&amp;TABLENAME}.t-price NE 0                                              AND                                 */</span><!--src-comment-->
+<span class="src-comment">/*     {&amp;TABLENAME}.pr-uom BEGINS "L"                                         AND                                 */</span><!--src-comment-->
+<span class="src-comment">/*     {&amp;TABLENAME}.pr-uom NE "LB"                                            AND                                 */</span><!--src-comment-->
+<span class="src-comment">/*     v-invlotline-int = 0                                                   AND                                 */</span><!--src-comment-->
+<span class="src-comment">/*     AVAIL oe-ordl                                                          AND                                 */</span><!--src-comment-->
+<span class="src-comment">/*     ((oe-ordl.qty GT 0 AND oe-ordl.inv-qty - {&amp;TABLENAME}.inv-qty GT 0) OR                                     */</span><!--src-comment-->
+<span class="src-comment">/*      (oe-ordl.qty LT 0 AND oe-ordl.inv-qty - {&amp;TABLENAME}.inv-qty LT 0))                          THEN         */</span><!--src-comment-->
+<span class="src-comment">/*    {&amp;TABLENAME}.t-price = 0.                                                                                   */</span><!--src-comment-->
+<span class="src-comment">/*                                                                                                                */</span><!--src-comment-->
+<span class="src-comment">/*  IF {&amp;TABLENAME}.disc NE 0 THEN                                                                                */</span><!--src-comment-->
+<span class="src-comment">/*    {&amp;TABLENAME}.t-price =                                                                                      */</span><!--src-comment-->
+<span class="src-comment">/*        IF ll-calc-disc-first THEN                                                                              */</span><!--src-comment-->
+<span class="src-comment">/*          ({&amp;TABLENAME}.t-price - ROUND({&amp;TABLENAME}.t-price * {&amp;TABLENAME}.disc / 100,2))                      */</span><!--src-comment-->
+<span class="src-comment">/*        ELSE                                                                                                    */</span><!--src-comment-->
+<span class="src-comment">/*          ROUND({&amp;TABLENAME}.t-price * (1 - ({&amp;TABLENAME}.disc / 100)),2).                                      */</span><!--src-comment-->
  
   <span class="src-keyword">IF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.ord-no <span class="src-keyword">NE</span><!--src-keyword--> <span class="src-number">0</span><!--src-number--> <span class="src-keyword">THEN</span><!--src-keyword-->
     <span class="src-keyword">RUN</span><!--src-keyword--> oe/GetCostInvl.p (<span class="src-keyword">ROWID</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->),
                        <span class="src-keyword">OUTPUT</span><!--src-keyword--> v-cost[1], <span class="src-keyword">OUTPUT</span><!--src-keyword--> v-cost[2],
                        <span class="src-keyword">OUTPUT</span><!--src-keyword--> v-cost[3], <span class="src-keyword">OUTPUT</span><!--src-keyword--> v-cost[4],
                        <span class="src-keyword">OUTPUT</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.cost, <span class="src-keyword">OUTPUT</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.spare-char-2, 
-                       <span class="src-keyword">OUTPUT</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-cost, <span class="src-keyword">OUTPUT</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.spare-char-1).
+                       <span class="src-keyword">OUTPUT</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.t-cost, <span class="src-keyword">OUTPUT</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.spare-char-1,
+                       <span class="src-keyword">OUTPUT</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.costStdFreight, <span class="src-keyword">OUTPUT</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.costStdWarehouse, <span class="src-keyword">OUTPUT</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.costStdDeviation, <span class="src-keyword">OUTPUT</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.costStdManufacture).
  
   <span class="src-keyword">DO</span><!--src-keyword--> i = <span class="src-number">1</span><!--src-number--> <span class="src-keyword">TO EXTENT</span><!--src-keyword-->(<span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.sman):    <span class="src-comment">/** Calculate Commission Amount **/</span><!--src-comment-->
     <span class="src-keyword">RUN</span><!--src-keyword--> custom/combasis.p (cocode, <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.sman[i], cust.<span class="src-keyword">type</span><!--src-keyword-->, itemfg.procat, <span class="src-number">0</span><!--src-number-->,

@@ -392,21 +392,13 @@ DO:
   DEFINE VARIABLE cMainField AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cAllFields AS CHARACTER NO-UNDO.
   DEFINE VARIABLE recRecordID AS RECID    NO-UNDO.
+  DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
   {&methods/lValidateError.i YES}
   CASE FOCUS:NAME :
     WHEN "vendorUOM" THEN DO:
-        IF vendItemCost.itemType:SCREEN-VALUE EQ "RM" THEN DO:
-            FIND FIRST ITEM NO-LOCK
-                WHERE ITEM.company EQ cocode
-                AND ITEM.i-no EQ  vendItemCost.itemID:SCREEN-VALUE NO-ERROR.
-            IF AVAILABLE ITEM THEN
-                RUN sys/ref/uom-rm.p  (ITEM.mat-type, OUTPUT uom-list).
-        END.
-        ELSE DO:
-            RUN sys/ref/uom-fg.p (NO, OUTPUT uom-list).
-        END.
-
+        RUN pSetUomList(cocode,vendItemCost.itemID:SCREEN-VALUE,vendItemCost.itemType:SCREEN-VALUE).
         RUN windows/l-stduom.w (cocode, uom-list, FOCUS:SCREEN-VALUE, OUTPUT char-val).
         IF char-val NE "" THEN 
             FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val).
@@ -638,12 +630,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL vendItemCost.vendorUOM V-table-Win
 ON ENTRY OF vendItemCost.vendorUOM IN FRAME F-Main /* Cost and Quantity UOM */
     DO:
-        IF vendItemCost.ItemID:SCREEN-VALUE = "" THEN DO:
-           MESSAGE "Item ID is blank. Enter Item ID first!"           
-             VIEW-AS ALERT-BOX error.
-           APPLY "ENTRY" TO vendItemCost.ItemID.   
-           RETURN NO-APPLY.
-        END.
+/*        IF vendItemCost.ItemID:SCREEN-VALUE = "" THEN DO:  */
+/*           MESSAGE "Item ID is blank. Enter Item ID first!"*/
+/*             VIEW-AS ALERT-BOX error.                      */
+/*           APPLY "ENTRY" TO vendItemCost.ItemID.           */
+/*           RETURN NO-APPLY.                                */
+/*        END.                                               */
 
     END.
 
@@ -1140,6 +1132,47 @@ END PROCEDURE.
 
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetUomList V-table-Win
+PROCEDURE pSetUomList PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO. 
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+
+    IF ipcItemType EQ "RM" THEN DO:
+          FIND FIRST ITEM NO-LOCK
+              WHERE ITEM.company EQ ipcCompany
+                AND ITEM.i-no EQ  ipcItemID
+                NO-ERROR.
+          IF AVAILABLE ITEM THEN
+              RUN sys/ref/uom-rm.p  (ITEM.mat-type, OUTPUT uom-list).
+    END.
+    ELSE DO:
+        FIND FIRST itemfg NO-LOCK 
+            WHERE itemfg.company EQ ipcCompany
+            AND itemfg.i-no EQ  ipcItemID
+            NO-ERROR.
+        lError = YES.
+        IF AVAILABLE itemfg THEN
+            RUN Conv_GetValidCostUOMsForItem(ROWID(itemfg), OUTPUT uom-list, OUTPUT lError, OUTPUT cMessage).
+        IF lError THEN  
+            RUN Conv_GetValidCostUOMs(ROWID(itemfg), OUTPUT uom-list).
+    END.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-key V-table-Win  adm/support/_key-snd.p
 PROCEDURE send-key :
 /*------------------------------------------------------------------------------
@@ -1473,19 +1506,8 @@ PROCEDURE valid-uom :
 {&methods/lValidateError.i YES}
   
   DO WITH FRAME {&FRAME-NAME}:
-
-      IF vendItemCost.itemType:SCREEN-VALUE EQ "RM" THEN DO:
-          FIND FIRST ITEM NO-LOCK
-              WHERE ITEM.company EQ cocode
-                AND ITEM.i-no EQ  vendItemCost.itemID:SCREEN-VALUE NO-ERROR.
-          IF AVAILABLE ITEM THEN
-              RUN sys/ref/uom-rm.p  (ITEM.mat-type, OUTPUT uom-list).
-      END.
-      ELSE DO:
-          RUN sys/ref/uom-fg.p (NO, OUTPUT uom-list).
-      END.
-
-
+      RUN pSetUomList(cocode,vendItemCost.itemID:SCREEN-VALUE,vendItemCost.itemType:SCREEN-VALUE).
+      
       cUom = vendItemCost.vendorUOM:SCREEN-VALUE.
 
       RUN pIsValidUOM IN hdValidator (cUom, YES, OUTPUT lValid, OUTPUT cValidMessage).

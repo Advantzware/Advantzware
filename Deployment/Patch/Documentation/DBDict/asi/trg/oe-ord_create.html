@@ -42,8 +42,8 @@
  
 <span class="src-comment">/* RUN oe/ordupdat.p ({&amp;TABLENAME}.company, {&amp;TABLENAME}.ord-no, YES). */</span><!--src-comment-->
 <span class="src-keyword">ASSIGN</span><!--src-keyword-->
-    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.<span class="src-keyword">USER-ID</span><!--src-keyword--> = <span class="src-keyword">USERID</span><!--src-keyword-->(<span class="src-char">"nosweat"</span><!--src-char-->)
-    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.entered-id = <span class="src-keyword">USERID</span><!--src-keyword-->(<span class="src-char">"nosweat"</span><!--src-char-->).
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.<span class="src-keyword">USER-ID</span><!--src-keyword-->    = <span class="src-keyword">USERID</span><!--src-keyword-->(<span class="src-char">"asi"</span><!--src-char-->)
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.entered-id = <span class="src-keyword">USERID</span><!--src-keyword-->(<span class="src-char">"asi"</span><!--src-char-->).
  
 <span class="src-comment">/* Clear out any error-status from find with no-error that is false */</span><!--src-comment-->
 <span class="src-keyword">DEF VAR</span><!--src-keyword--> ll-error <span class="src-keyword">AS LOG NO-UNDO</span><!--src-keyword-->.

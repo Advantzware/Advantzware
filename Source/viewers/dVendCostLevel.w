@@ -1,5 +1,8 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
+/* Connected Databases 
+          asi              PROGRESS
+*/
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS D-Dialog 
@@ -96,11 +99,21 @@ IF lRecFound THEN
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME D-Dialog
 
+/* Internal Tables (found by Frame, Query & Browse Queries)             */
+&Scoped-define INTERNAL-TABLES vendItemCostLevel
+
+/* Definitions for DIALOG-BOX D-Dialog                                  */
+&Scoped-define QUERY-STRING-D-Dialog FOR EACH vendItemCostLevel SHARE-LOCK
+&Scoped-define OPEN-QUERY-D-Dialog OPEN QUERY D-Dialog FOR EACH vendItemCostLevel SHARE-LOCK.
+&Scoped-define TABLES-IN-QUERY-D-Dialog vendItemCostLevel
+&Scoped-define FIRST-TABLE-IN-QUERY-D-Dialog vendItemCostLevel
+
+
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_OK dFrom1 dToQty1 dEaCost1 dSetup1 dDev1 ~
-Btn_Cancel dFrom-2 cDevLabel RECT-21 iLeadTime 
-&Scoped-Define DISPLAYED-OBJECTS dFrom1 dToQty1 dEaCost1 dSetup1 dDev1 ~
-dFrom-2 cDevLabel cPriceUom iLeadTime 
+&Scoped-Define ENABLED-OBJECTS tb_BestCost Btn_OK dFrom1 dToQty1 dEaCost1 ~
+dSetup1 dDev1 Btn_Cancel dFrom-2 cDevLabel iLeadTime RECT-21 
+&Scoped-Define DISPLAYED-OBJECTS tb_BestCost dFrom1 dToQty1 dEaCost1 ~
+dSetup1 dDev1 dFrom-2 cDevLabel cPriceUom iLeadTime 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -182,10 +195,22 @@ DEFINE RECTANGLE RECT-21
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 21.8 BY 2.38.
 
+DEFINE VARIABLE tb_BestCost AS LOGICAL INITIAL no 
+     LABEL "Use For Best Cost" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 32 BY .81
+     FONT 6.
+
+/* Query definitions                                                    */
+&ANALYZE-SUSPEND
+DEFINE QUERY D-Dialog FOR 
+      vendItemCostLevel SCROLLING.
+&ANALYZE-RESUME
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
+     tb_BestCost AT ROW 8.52 COL 21.2 WIDGET-ID 386
      Btn_OK AT ROW 10.14 COL 39
      dFrom1 AT ROW 3.76 COL 20.2 COLON-ALIGNED NO-LABEL WIDGET-ID 218
      dToQty1 AT ROW 3.76 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 254
@@ -199,8 +224,8 @@ DEFINE FRAME D-Dialog
      iLeadTime AT ROW 8.48 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 382
      "Quantity Range" VIEW-AS TEXT
           SIZE 18 BY 1 AT ROW 2.76 COL 31.6 WIDGET-ID 242
-     "Quantity To" VIEW-AS TEXT
-          SIZE 14.2 BY 1 AT ROW 2.76 COL 3 WIDGET-ID 252
+     "Quantity Up To" VIEW-AS TEXT
+          SIZE 16.9 BY 1 AT ROW 2.76 COL 3 WIDGET-ID 252
      "Cost Per" VIEW-AS TEXT
           SIZE 12 BY 1 AT ROW 5.19 COL 3 WIDGET-ID 264
      "Setup" VIEW-AS TEXT
@@ -209,7 +234,7 @@ DEFINE FRAME D-Dialog
           SIZE 12 BY 1 AT ROW 7.48 COL 3 WIDGET-ID 384
      RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 82
      RECT-21 AT ROW 9.91 COL 38
-     SPACE(0.19) SKIP(0.56)
+     SPACE(0.20) SKIP(0.56)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -259,6 +284,7 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK DIALOG-BOX D-Dialog
 /* Query rebuild information for DIALOG-BOX D-Dialog
+     _TblList          = "asi.vendItemCostLevel"
      _Options          = "SHARE-LOCK"
      _Query            is NOT OPENED
 */  /* DIALOG-BOX D-Dialog */
@@ -411,6 +437,8 @@ DO:
 
 
 /* ***************************  Main Block  *************************** */
+{sys/inc/f3helpw.i}
+
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
@@ -496,11 +524,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY dFrom1 dToQty1 dEaCost1 dSetup1 dDev1 dFrom-2 cDevLabel cPriceUom 
-          iLeadTime 
+  DISPLAY tb_BestCost dFrom1 dToQty1 dEaCost1 dSetup1 dDev1 dFrom-2 cDevLabel 
+          cPriceUom iLeadTime 
       WITH FRAME D-Dialog.
-  ENABLE Btn_OK dFrom1 dToQty1 dEaCost1 dSetup1 dDev1 Btn_Cancel dFrom-2 
-         cDevLabel RECT-21 iLeadTime 
+  ENABLE tb_BestCost Btn_OK dFrom1 dToQty1 dEaCost1 dSetup1 dDev1 Btn_Cancel 
+         dFrom-2 cDevLabel iLeadTime RECT-21 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -528,11 +556,13 @@ PROCEDURE pAssignValues :
 
     DO WITH FRAME {&frame-name}:  
         ASSIGN 
-            vendItemCostLevel.quantityBase    = decimal(dToQty1:SCREEN-VALUE)  
-            vendItemCostLevel.costPerUOM    = decimal(dEaCost1:SCREEN-VALUE) 
-            vendItemCostLevel.costSetup     = decimal(dSetup1:SCREEN-VALUE)
-            vendItemCostLevel.costDeviation = decimal(dDev1:SCREEN-VALUE) 
-            vendItemCostLevel.leadTimeDays  = INTEGER(iLeadTime:SCREEN-VALUE). 
+            vendItemCostLevel.quantityBase    = DECIMAL(dToQty1:SCREEN-VALUE)  
+            vendItemCostLevel.costPerUOM    = DECIMAL(dEaCost1:SCREEN-VALUE) 
+            vendItemCostLevel.costSetup     = DECIMAL(dSetup1:SCREEN-VALUE)
+            vendItemCostLevel.costDeviation = DECIMAL(dDev1:SCREEN-VALUE) 
+            vendItemCostLevel.leadTimeDays  = INTEGER(iLeadTime:SCREEN-VALUE)
+            vendItemCostLevel.useForBestCost = LOGICAL(tb_BestCost:SCREEN-VALUE)
+            .
     END.
     opRowid = ROWID(vendItemCostLevel) .
     FIND CURRENT vendItemCostLevel NO-LOCK NO-ERROR .
@@ -565,11 +595,13 @@ PROCEDURE pCreateValues :
         CREATE vendItemCostLevel .
         ASSIGN vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostID .
         ASSIGN 
-            vendItemCostLevel.quantityBase    = decimal(dToQty1:SCREEN-VALUE)  
-            vendItemCostLevel.costPerUOM    = decimal(dEaCost1:SCREEN-VALUE) 
-            vendItemCostLevel.costSetup     = decimal(dSetup1:SCREEN-VALUE)
-            vendItemCostLevel.costDeviation = decimal(dDev1:SCREEN-VALUE)
-            vendItemCostLevel.leadTimeDays  = INTEGER(iLeadTime:SCREEN-VALUE). 
+            vendItemCostLevel.quantityBase    = DECIMAL(dToQty1:SCREEN-VALUE)  
+            vendItemCostLevel.costPerUOM    = DECIMAL(dEaCost1:SCREEN-VALUE) 
+            vendItemCostLevel.costSetup     = DECIMAL(dSetup1:SCREEN-VALUE)
+            vendItemCostLevel.costDeviation = DECIMAL(dDev1:SCREEN-VALUE)
+            vendItemCostLevel.leadTimeDays  = INTEGER(iLeadTime:SCREEN-VALUE)
+            vendItemCostLevel.useForBestCost = LOGICAL(tb_BestCost:SCREEN-VALUE)
+            . 
     END.
     
     FIND CURRENT vendItemCostLevel NO-LOCK NO-ERROR .
@@ -610,7 +642,10 @@ PROCEDURE pDisplayValue :
                 dSetup1:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)
                 dDev1:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
                 cPriceUom:SCREEN-VALUE = vendItemCost.vendorUOM 
-                iLeadTime:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays).
+                iLeadTime:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                tb_BestCost:SCREEN-VALUE = STRING(vendItemCostLevel.useForBestCost)
+                .
+                
         IF ipcType EQ "Copy" THEN
             dToQty1:SCREEN-VALUE  = "0" .
       DISABLE dFrom1 dFrom-2 cDevLabel.
@@ -619,7 +654,7 @@ PROCEDURE pDisplayValue :
               dDev1:HIDDEN = TRUE
               cDevLabel:HIDDEN = TRUE .
       IF ipcType EQ "View" THEN
-          DISABLE dFrom1 dFrom-2 dToQty1 dEaCost1 dSetup1 dDev1 iLeadTime .
+          DISABLE dFrom1 dFrom-2 dToQty1 dEaCost1 dSetup1 dDev1 iLeadTime tb_BestCost.
         
       opRowid = iprRowid2 .
     END.
@@ -637,9 +672,14 @@ PROCEDURE send-records :
   Parameters:  see template/snd-head.i
 ------------------------------------------------------------------------------*/
 
-  /* SEND-RECORDS does nothing because there are no External
-     Tables specified for this SmartDialog, and there are no
-     tables specified in any contained Browse, Query, or Frame. */
+  /* Define variables needed by this internal procedure.               */
+  {src/adm/template/snd-head.i}
+
+  /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "vendItemCostLevel"}
+
+  /* Deal with any unexpected table requests before closing.           */
+  {src/adm/template/snd-end.i}
 
 END PROCEDURE.
 

@@ -1,6 +1,7 @@
 
 DEF VAR hrms-dir LIKE sys-ctrl.descrip NO-UNDO.
 DEF VAR hrms-log LIKE sys-ctrl.log-fld NO-UNDO.
+DEF VAR hrms-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 
 {sys/inc/poexport.i}
@@ -19,5 +20,6 @@ if not avail sys-ctrl then do:
 end.
 assign
  hrms-dir = sys-ctrl.descrip
- hrms-log = sys-ctrl.log-fld.
+ hrms-log = sys-ctrl.log-fld
+ hrms-int = sys-ctrl.int-fld. 
 

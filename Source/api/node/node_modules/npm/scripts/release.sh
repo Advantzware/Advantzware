@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # script for creating a zip and tarball for inclusion in node
 
@@ -12,6 +12,8 @@ node ./bin/npm-cli.js pack --loglevel error >/dev/null
 mv *.tgz release
 cd release
 tar xzf *.tgz
+cp ../.npmrc package/
+cp -r ../tap-snapshots package/
 cp -r ../test package/
 
 mkdir node_modules

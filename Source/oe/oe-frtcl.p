@@ -17,9 +17,18 @@ DEF VAR ws_cwt-tmp AS DECIMAL NO-UNDO.
 DEF VAR mtx_rec AS RECID NO-UNDO.
 DEF VAR v-pallet AS DEC NO-UNDO.
 DEF VAR v-msf AS DEC NO-UNDO.
+DEFINE VARIABLE cReturnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound   AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 
-
-RUN oe/ordfrate.p (ROWID(xoe-ord)).
+RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturnChar, OUTPUT lRecFound).
+    IF lRecFound THEN
+     cFreightCalculationValue = cReturnChar NO-ERROR. 
+     
+IF (cFreightCalculationValue EQ "ALL" OR cFreightCalculationValue EQ "Order processing") THEN     
+  RUN oe/ordfrate.p (ROWID(xoe-ord)).
 /*
 find first frt-oe-ord where RECID(frt-oe-ord) = RECID(xoe-ord) no-error.
 

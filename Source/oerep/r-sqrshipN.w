@@ -1396,12 +1396,13 @@ PROCEDURE run-report :
         itemfg.company EQ cocode AND
         itemfg.i-no    EQ oe-boll.i-no 
         NO-LOCK
-        BREAK BY oe-bolh.bol-no:
+        BREAK BY oe-bolh.bol-no
+              BY oe-boll.i-no:
 
         STATUS DEFAULT "Processing Order#: " +
             TRIM(STRING(oe-boll.ord-no,">>>>>>>>")) .
 
-        IF FIRST-OF (oe-bolh.bol-no) THEN
+        IF FIRST-OF (oe-boll.i-no) THEN
             ASSIGN iShipQty = 0
                    iOrdQty = 0
                    dTtlSqFt = 0 .
@@ -1453,9 +1454,12 @@ PROCEDURE run-report :
              dTotalSqft = round(dTotalSqft,5) * oe-boll.qty .
 
         iShipQty = iShipQty + /*(IF AVAIL oe-ordl THEN oe-ordl.ship-qty ELSE 0)*/ oe-boll.qty . /* ticket 60604*/
+        
+        IF FIRST-OF (oe-boll.i-no) THEN
         iOrdQty = iOrdQty + (IF AVAIL oe-ordl THEN oe-ordl.qty ELSE 0).
+        
         dTtlSqFt = dTtlSqFt + dTotalSqft.
-      IF LAST-OF(oe-bolh.bol-no) THEN DO:
+      IF LAST-OF(oe-boll.i-no) THEN DO:
             
         ASSIGN 
             cDisplay       = ""

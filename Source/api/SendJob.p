@@ -77,6 +77,7 @@
     DEFINE VARIABLE cWarehoused                   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOpened                       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPrinted                      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCSRID                        AS CHARACTER NO-UNDO.
     
     /*Job Material variables*/
     
@@ -234,13 +235,14 @@
                     cJobNo                        = job-hdr.job-no
                     cJobNo2                       = STRING(job-hdr.job-no2)            
                     cLocation                     = job-hdr.loc    
-                    cEstimate                     = job-hdr.est-no
+                    cEstimate                     = TRIM(job-hdr.est-no)
                     cOrder                        = TRIM(STRING(job-hdr.ord-no,">>>>>9"))                                     
                     cStartDate                    = TRIM(STRING(job-hdr.start-date,"99/99/9999"))
                     cQuantity                     = TRIM(STRING(job-hdr.qty,">>,>>>,>>9"))                    cAverageCost                  = TRIM(STRING(job-hdr.avg-cost,">>>,>>9.9999"))                    cLastPurchaseCost             = TRIM(STRING(job-hdr.last-cost,">>>,>>9.9999"))                    cStandardItemCost             = TRIM(STRING(job-hdr.std-tot-cost,"->>>,>>9.99<<"))                    cStandardMaterialCost         = TRIM(STRING(job-hdr.std-mat-cost,"->>>,>>9.99<<"))                    cStandardLaborCost            = TRIM(STRING(job-hdr.std-lab-cost,"->>>,>>9.99<<"))                    cStandardFixedOverheadCost    = TRIM(STRING(job-hdr.std-fix-cost,"->>>,>>9.99<<"))                    cStandardVariableOverHeadCost = TRIM(STRING(job-hdr.std-var-cost,"->>>,>>9.99<<"))                    cItem                         = job-hdr.i-no                    cCustomer                     = job-hdr.cust-no                    cForm                         = TRIM(STRING(job-hdr.frm,">>9"))                    cBlank                        = TRIM(STRING(job-hdr.blank-no,">9"))                    cDueDate                      = TRIM(STRING(job-hdr.due-date,"99/99/9999"))                    cCustomerPO                   = job-hdr.po-no                    cDueTime                      = TRIM(STRING(job-hdr.due-time,">>>>9"))                    cFreezeNotes                  = STRING(job-hdr.freezeNote)                    cSplitShip                    = STRING(job-hdr.splitShip)
                     cSquareInchPct                = STRING(job-hdr.sq-in,">>9.99")                    cFreezeNotesDate              = STRING(job-hdr.freezeNotesDate,"99/99/9999")                    cWarehoused                   = STRING(job-hdr.whsed)
                     cOpened                       = STRING(job-hdr.opened)
                     cPrinted                      = STRING(job-hdr.ftick-prnt)
+                    cCSRID                        = job.csrUser_id
                     .
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "AverageCost",cAverageCost).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Blank",cBlank).
@@ -268,6 +270,7 @@
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Opened",cWarehoused).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Printed",cPrinted).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "SquareInchPercentage",cSquareInchPct).
+                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "CSRID",cCSRID).                
                        
                 lcConcatJobHeaderData = lcConcatJobHeaderData + lcJobHeaderData.
             END.

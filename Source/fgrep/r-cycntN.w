@@ -1953,15 +1953,15 @@ ELSE DO:
 
   cSellUom = IF AVAIL oe-ordl THEN oe-ordl.pr-uom ELSE itemfg.sell-uom .
   cPoNo = IF fg-bin.po-no NE "" THEN fg-bin.po-no ELSE "" .
-   IF fg-bin.po-no NE "" THEN DO:
-    FIND FIRST po-ordl NO-LOCK
-      WHERE po-ordl.company EQ cocode 
-        AND po-ordl.po-no EQ  INTEGER(fg-bin.po-no) 
-        AND po-ordl.i-no EQ itemfg.i-no NO-ERROR . 
-    IF AVAIL po-ordl THEN
-       cPoNo = cPoNo + "-" + STRING(po-ordl.LINE,"99") .
+    IF fg-bin.po-no NE "" THEN DO:
+        FIND FIRST po-ordl NO-LOCK
+            WHERE po-ordl.company EQ cocode 
+            AND po-ordl.po-no EQ  INTEGER(fg-bin.po-no) 
+            AND po-ordl.i-no EQ itemfg.i-no NO-ERROR . 
+        IF AVAIL po-ordl THEN
+            cPoNo = cPoNo + "-" + STRING(po-ordl.LINE,"99") .
    END.
-
+   
    IF fg-bin.pur-uom NE "" THEN
    DO:
        if fg-bin.pur-uom eq "M" THEN v-costM = fg-bin.std-tot-cost.
@@ -2020,7 +2020,6 @@ ELSE DO:
                  WHEN "cFirstTrxDt" THEN cVarValue = IF dTrxDate <> ? THEN string(dTrxDate,"99/99/9999") ELSE "".
                  WHEN "cFirstTrxTyp" THEN cVarValue = STRING(cTrxType).
                  WHEN "po-no" THEN cVarValue =  STRING(cPoNo,"x(9)") .
-                 
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +

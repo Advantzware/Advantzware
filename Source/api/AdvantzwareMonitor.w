@@ -432,15 +432,15 @@ DO:
         btStart:SENSITIVE = AVAILABLE serverResource AND 
                             serverResource.resourceStatus EQ "Stopped" AND
                             (serverResource.resourceType  NE "Node" OR
-                             (serverResource.resourceType EQ "Node" AND
-                              cMachineIPAddress           EQ cAPIIPAddress))
+                            (serverResource.resourceType EQ "Node" AND
+                             cMachineIPAddress           EQ cAPIIPAddress))
         btStop:SENSITIVE  = AVAILABLE serverResource  AND 
                             serverResource.resourceStatus EQ "Running" AND
                             serverResource.resourceType NE "AdminServer" AND
                             serverResource.resourceType NE "ASI" AND
                             (serverResource.resourceType NE "Node" OR
-                             (serverResource.resourceType EQ "Node" AND
-                              cMachineIPAddress           EQ cAPIIPAddress))
+                            (serverResource.resourceType EQ "Node" AND
+                            cMachineIPAddress           EQ cAPIIPAddress))
         .
 END.
 

@@ -155,6 +155,7 @@ PROCEDURE pCreateDynParameters :
     DEFINE VARIABLE cParamValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dCol        AS DECIMAL   NO-UNDO INITIAL 1.
     DEFINE VARIABLE dRow        AS DECIMAL   NO-UNDO INITIAL 1.
+    DEFINE VARIABLE dRowMax     AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dSetCol     AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dSetRow     AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE hCalendar   AS HANDLE    NO-UNDO.
@@ -233,13 +234,17 @@ PROCEDURE pCreateDynParameters :
             cParamValue = dynParamSetDtl.initialValue
             cInitItems  = dynParamSetDtl.initialItems
             .
+&IF "{&program-id}" NE "dynBrowserParam." &THEN
         CASE svSetAlignment:
             WHEN "Custom" THEN
+&ENDIF
             ASSIGN
                 dCol = dynParamSetDtl.paramCol + dSetCol - 1
                 dRow = dynParamSetDtl.paramRow + dSetRow - 1
                 .
+&IF "{&program-id}" NE "dynBrowserParam." &THEN
         END CASE.
+&ENDIF
         /* set screen-value for parameters from dynparamvalue */
         IF iplLive AND lSensitive THEN
         DO pdx = 1 TO EXTENT(dynParamValue.paramName):
@@ -258,6 +263,7 @@ PROCEDURE pCreateDynParameters :
                 lSensitive = NO
                 cInitItems = REPLACE(cInitItems,":DISABLE","")
                 .
+            IF dynParam.viewAs NE "COMBO-BOX" THEN
             cParamValue = cInitItems.
         END. /* if initializeProc */
         IF FIRST-OF({1}SubjectParamSet.paramSetID) AND
@@ -471,6 +477,7 @@ PROCEDURE pCreateDynParameters :
 /*    OS-COMMAND NO-WAIT notepad.exe c:\tmp\ttDynAction.txt.              */
     /* get and set the output frame values */
     IF iplLive THEN DO:
+&IF "{&program-id}" NE "dynBrowserParam." &THEN
         ASSIGN
             FRAME outputFrame:TITLE = dynSubject.subjectTitle
             hWidget = FRAME outputFrame:HANDLE
@@ -486,6 +493,28 @@ PROCEDURE pCreateDynParameters :
             END. /* do pdx */
             hWidget = hWidget:NEXT-SIBLING.
         END. /* do while */
+&ELSE
+        /* shift objects up when in dynamic browser parameter */
+        ASSIGN
+            hWidget = FRAME {&FRAME-NAME}:HANDLE
+            hWidget = hWidget:FIRST-CHILD
+            hWidget = hWidget:FIRST-CHILD
+            .
+        DO WHILE VALID-HANDLE(hWidget):
+            IF hWidget:TYPE NE "FRAME" THEN 
+            hWidget:ROW = hWidget:ROW - 5.
+            IF dRowMax LT hWidget:ROW + hWidget:HEIGHT THEN
+            dRowMax = hWidget:ROW + hWidget:HEIGHT.
+            hWidget = hWidget:NEXT-SIBLING.
+        END. /* do while */
+        ASSIGN
+            dRowMax                            = dRowMax + FRAME FRAME-OK:HEIGHT
+            {&WINDOW-NAME}:HEIGHT              = dRowMax
+            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
+            FRAME FRAME-OK:ROW                 = dRowMax - FRAME FRAME-OK:HEIGHT
+            .
+&ENDIF
         hFrame:HIDDEN = NO.
         RUN pInitDynParameters (hFrame).
     END. /* if live */

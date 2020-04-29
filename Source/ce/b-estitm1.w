@@ -1701,7 +1701,7 @@ PROCEDURE add-estimate :
   ASSIGN
   ll-is-add-from-tool = YES  /* add from option button not from add button */
   ls-add-what = "est" .   /* new estimate */
-  RUN est/d-addfol.w (INPUT NO,OUTPUT ls-add-what). /* one item or set cec/est-add.p */
+  RUN est/d-addfol.w (INPUT NO,INPUT NO,OUTPUT ls-add-what). /* one item or set cec/est-add.p */
   IF ls-add-what = "" THEN RETURN NO-APPLY.  /* cancel */
 
   IF ls-add-what EQ "est" THEN DO:
@@ -3447,7 +3447,7 @@ PROCEDURE local-add-record :
   
   IF NOT ll-is-add-from-tool THEN DO:
     ls-add-what = "est" .   /* new estimate */
-    RUN est/d-addfol.w (INPUT NO,OUTPUT ls-add-what). /* one item or set cec/est-add.p */
+    RUN est/d-addfol.w (INPUT NO,INPUT NO,OUTPUT ls-add-what). /* one item or set cec/est-add.p */
     IF ls-add-what = "" THEN RETURN NO-APPLY.  /* cancel */
   END.
 
@@ -3986,7 +3986,7 @@ PROCEDURE local-assign-record :
                         AND vendItemCost.formNo     EQ eb.form-no
                         AND vendItemCost.blankNo    EQ eb.blank-no) THEN 
                         
-              RUN UpdateVendItemCost(
+              RUN VendCost_UpdateVendItemCost(
                   INPUT cocode,
                   INPUT eb.est-no,
                   INPUT eb.form-no,
@@ -4797,13 +4797,16 @@ PROCEDURE mass-delete :
         INPUT-OUTPUT TABLE tt-eb
         ).
     FOR EACH tt-eb
-        WHERE tt-eb.selected:
+        WHERE tt-eb.selected
+        BY tt-eb.form-no DESCENDING 
+        BY tt-eb.blank-no DESCENDING:
         FIND FIRST bf-ef NO-LOCK
              WHERE bf-ef.company EQ tt-eb.company 
                AND bf-ef.est-no  EQ tt-eb.est-no 
                AND bf-ef.form-no EQ tt-eb.form-no NO-ERROR .
       RUN repo-query (ROWID(bf-ef),tt-eb.row-id).
-      IF AVAIL eb THEN RUN dispatch ("delete-record").
+      IF AVAIL eb AND eb.est-no EQ tt-eb.est-no THEN
+             RUN dispatch ("delete-record").
     END.  
   END.
 
@@ -5476,31 +5479,15 @@ PROCEDURE update-e-itemfg-vend :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE BUFFER bf-e-itemfg-vend FOR e-itemfg-vend.
-   DEFINE BUFFER e-itemfg-vend    FOR e-itemfg-vend.
-
-    FOR EACH e-itemfg-vend NO-LOCK
-        WHERE e-itemfg-vend.company  EQ eb.company 
-          AND e-itemfg-vend.est-no   EQ eb.est-no
-          AND e-itemfg-vend.form-no  EQ eb.form-no
-          AND e-itemfg-vend.blank-no EQ eb.blank-no
-          AND e-itemfg-vend.i-no     EQ cOldFGItem:
-        FIND FIRST bf-e-itemfg-vend EXCLUSIVE-LOCK
-             WHERE bf-e-itemfg-vend.company  EQ e-itemfg-vend.company
-               AND bf-e-itemfg-vend.est-no   EQ e-itemfg-vend.est-no
-               AND bf-e-itemfg-vend.form-no  EQ e-itemfg-vend.form-no
-               AND bf-e-itemfg-vend.blank-no EQ e-itemfg-vend.blank-no
-               AND bf-e-itemfg-vend.i-no     EQ e-itemfg-vend.i-no
-            NO-ERROR.
-        IF AVAILABLE bf-e-itemfg-vend THEN DO:
-            ASSIGN 
-                bf-e-itemfg-vend.i-no = eb.stock-no
-                bf-e-itemfg-vend.eQty = IF bf-e-itemfg-vend.eQty NE eb.eQty THEN eb.eQty 
-                                        ELSE bf-e-itemfg-vend.eQty
-                .                                   
-        END.                 
-    END.
-    RELEASE bf-e-itemfg-vend. 
+    RUN VendCost_UpdateItemFGVend(
+        INPUT cocode,
+        INPUT eb.est-no,
+        INPUT eb.form-no,
+        INPUT eb.blank-no,
+        INPUT cOLDFGItem,  /* Old FG Item */
+        INPUT eb.stock-no, /* New FG Item */
+        INPUT eb.eQTy 
+        ).  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

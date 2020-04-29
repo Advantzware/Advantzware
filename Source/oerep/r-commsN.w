@@ -89,11 +89,13 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect  = "Rep,Customer,Name,Type,FG Item#,Cust Part#,Order#,Inv#,Cat,Quantity,Sell Price,Total Cost," +
-                            "GP %,Comm Amt,Comm %,Group,Currency,Invoice Date,Warehouse,Ship To,MSF"  
+                            "GP %,Comm Amt,Comm %,Group,Currency,Invoice Date,Warehouse,Ship To,MSF," +
+                            "Est. Freight,Est. Warehouse,Est. Inhouse,Est. Deviation"
        cFieldListToSelect = "sman,cust-no,cust-nam,type,i-no,part-no,ord,inv,cat,qty,sel-pric,totl-cst," +
-                            "v-gp,v-camt,v-comm,grp,curr,inv-date,ware-house,ship-id,msf"
+                            "v-gp,v-camt,v-comm,grp,curr,inv-date,ware-house,ship-id,msf," +
+                            "fre-cost,ware-cost,manu-cost,devi-cost"
 
-       cFieldLength = "4,8,19,8,15,15,6,7,8,10,12,12," + "9,10,8,8,8,12,9,8,10"
+       cFieldLength = "4,8,19,8,15,15,6,7,8,10,12,12," + "9,10,8,8,8,12,9,8,10," + "12,14,16,14"
        .
 
 {sys/inc/ttRptSel.i}
@@ -1361,6 +1363,11 @@ def var v-slsm      like ar-invl.sman extent 1 NO-UNDO.
 def var v-slsc      like ar-invl.s-comm extent 1 NO-UNDO.
 def var v-slsp      like ar-invl.s-pct extent 1 NO-UNDO.
 def var v-inv-no    like ar-invl.inv-no NO-UNDO FORMAT ">>>>>>9".
+def var dFreightCost     AS DECIMAL NO-UNDO .
+def var dWarehouseCost   AS DECIMAL NO-UNDO .
+def var dManufactureCost AS DECIMAL NO-UNDO .
+def var dDeviationCost   AS DECIMAL NO-UNDO .
+
 /*BV - 01071303*/
 def var v-inv-date    like ar-invl.inv-date NO-UNDO.
 

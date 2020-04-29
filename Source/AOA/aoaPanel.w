@@ -475,6 +475,7 @@ PROCEDURE pPanelSelection :
                 rUserPrintRowID,
                 hAppSrv,
                 hAppSrvBin,
+                "AOA",
                 OUTPUT cJasperFile
                 ).
         END. /* if print or view */

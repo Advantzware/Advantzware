@@ -1550,7 +1550,8 @@ FOR EACH bf-jobhdr NO-LOCK WHERE bf-jobhdr.company = job-hdr.company
         FOR EACH notes WHERE notes.rec_key = job.rec_key 
              AND notes.note_code <> ''  NO-LOCK,
              FIRST bf-ttSoule WHERE  bf-ttSoule.frm EQ notes.note_form_no
-              AND  bf-ttSoule.runForm EQ YES NO-LOCK  :
+              AND  bf-ttSoule.runForm EQ YES NO-LOCK  
+              BY notes.note_form_no:
             v-inst2 = "".
             IF v-prev-note-rec <> ? AND
                 v-prev-note-rec <> RECID(notes) THEN v-prev-extent = lv-note-cnt.
@@ -1988,7 +1989,7 @@ PROCEDURE pPrintMiscItems :
     DEFINE INPUT PARAMETER ipiForm AS INTEGER NO-UNDO .
     DEFINE INPUT PARAMETER ipiBlank AS INTEGER NO-UNDO .
     DEFINE INPUT PARAMETER ipcMatTypes AS CHARACTER NO-UNDO.
-   
+        
     DEFINE BUFFER bf-eb FOR eb.
     DEFINE BUFFER bf-job-mat FOR job-mat.
     
@@ -2012,26 +2013,7 @@ PROCEDURE pPrintMiscItems :
             
         END.
     END.
-
-    IF ipiForm EQ 0 THEN DO:  /*To work around defect that doesn't include 0 form layers, pad, and enhanced packing in job-mat*/
-        FOR EACH estPacking NO-LOCK
-            WHERE estPacking.company  EQ cocode
-            AND estPacking.estimateNo EQ ipcEstimate
-            AND estPacking.FormNo     EQ ipiForm
-            AND estPacking.BlankNo    EQ ipiBlank
-            BREAK BY estPacking.rmItemID:
-    
-            FIND FIRST bf-item NO-LOCK
-                WHERE bf-item.company  EQ cocode
-                AND bf-item.i-no     EQ estPacking.rmItemID
-                NO-ERROR.
-            IF AVAIL bf-item AND LAST-OF(estPacking.rmItemID) THEN do:
-                PUT
-                    "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)
-                    "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.
-    
-            END.
-        END.
+       
         
         FIND FIRST bf-eb NO-LOCK 
             WHERE bf-eb.company EQ cocode
@@ -2053,7 +2035,7 @@ PROCEDURE pPrintMiscItems :
                 AND bf-job-mat.blank-no EQ 0
                 AND bf-job-mat.i-no EQ bf-eb.divider
                 NO-ERROR.
-            IF AVAILABLE bf-item AND NOT AVAILABLE bf-job-mat THEN 
+            IF AVAILABLE bf-item AND NOT AVAILABLE bf-job-mat THEN  
                 PUT
                     "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)
                     "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.
@@ -2075,9 +2057,8 @@ PROCEDURE pPrintMiscItems :
             IF AVAILABLE bf-item AND NOT AVAILABLE bf-job-mat THEN 
                 PUT
                     "<P10><C20><b>Code: </B>" STRING(bf-item.i-no)
-                    "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.
+                    "<C45><b>Desc: </b>" bf-item.i-name FORMAT "x(20)" SKIP.        
         END.
-    END.
                                  
 /*    IF ipiBlank EQ 1  THEN do:                                                                         */
 /*        DO i = 1 TO 5: /*no room for all 6*/                                                           */

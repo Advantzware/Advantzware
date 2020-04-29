@@ -40,6 +40,39 @@
 <span class="src-keyword">TRIGGER PROCEDURE FOR DELETE OF</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.
  
 <span class="src-prep">{methods/<span class="src-keyword">triggers</span><!--src-keyword-->/<span class="src-keyword">delete</span><!--src-keyword-->.i}</span><!--src-prep-->
+ 
+<span class="src-keyword">FOR EACH</span><!--src-keyword--> estCostMisc <span class="src-keyword">EXCLUSIVE-LOCK</span><!--src-keyword-->
+    <span class="src-keyword">WHERE</span><!--src-keyword--> estCostMisc.estCostHeaderID <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.estCostHeaderID:
+    <span class="src-keyword">DELETE</span><!--src-keyword--> estCostMisc.
+<span class="src-keyword">END</span><!--src-keyword-->. 
+<span class="src-keyword">FOR EACH</span><!--src-keyword--> estCostOperation <span class="src-keyword">EXCLUSIVE-LOCK</span><!--src-keyword-->
+    <span class="src-keyword">WHERE</span><!--src-keyword--> estCostOperation.estCostHeaderID <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.estCostHeaderID:
+    <span class="src-keyword">DELETE</span><!--src-keyword--> estCostOperation.
+<span class="src-keyword">END</span><!--src-keyword-->. 
+<span class="src-keyword">FOR EACH</span><!--src-keyword--> estCostMaterial <span class="src-keyword">EXCLUSIVE-LOCK</span><!--src-keyword-->
+    <span class="src-keyword">WHERE</span><!--src-keyword--> estCostMaterial.estCostHeaderID <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.estCostHeaderID:
+    <span class="src-keyword">DELETE</span><!--src-keyword--> estCostMaterial.
+<span class="src-keyword">END</span><!--src-keyword-->.
+<span class="src-keyword">FOR EACH</span><!--src-keyword--> estCostForm <span class="src-keyword">EXCLUSIVE-LOCK</span><!--src-keyword--> 
+    <span class="src-keyword">WHERE</span><!--src-keyword--> estCostForm.estCostHeaderID <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.estCostHeaderID:
+    <span class="src-keyword">DELETE</span><!--src-keyword--> estCostForm.
+<span class="src-keyword">END</span><!--src-keyword-->.    
+<span class="src-keyword">FOR EACH</span><!--src-keyword--> estCostBlank <span class="src-keyword">EXCLUSIVE-LOCK</span><!--src-keyword--> 
+    <span class="src-keyword">WHERE</span><!--src-keyword--> estCostBlank.estCostHeaderID <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.estCostHeaderID:
+    <span class="src-keyword">DELETE</span><!--src-keyword--> estCostBlank.
+<span class="src-keyword">END</span><!--src-keyword-->.
+<span class="src-keyword">FOR EACH</span><!--src-keyword--> estCostItem <span class="src-keyword">EXCLUSIVE-LOCK</span><!--src-keyword--> 
+    <span class="src-keyword">WHERE</span><!--src-keyword--> estCostItem.estCostHeaderID <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.estCostHeaderID:
+    <span class="src-keyword">DELETE</span><!--src-keyword--> estCostItem.
+<span class="src-keyword">END</span><!--src-keyword-->.
+<span class="src-keyword">FOR EACH</span><!--src-keyword--> estCostDetail <span class="src-keyword">EXCLUSIVE-LOCK</span><!--src-keyword--> 
+    <span class="src-keyword">WHERE</span><!--src-keyword--> estCostDetail.estCostHeaderID <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.estCostHeaderID:
+    <span class="src-keyword">DELETE</span><!--src-keyword--> estCostDetail.
+<span class="src-keyword">END</span><!--src-keyword-->.
+<span class="src-keyword">FOR EACH</span><!--src-keyword--> estCostSummary <span class="src-keyword">EXCLUSIVE-LOCK</span><!--src-keyword--> 
+    <span class="src-keyword">WHERE</span><!--src-keyword--> estCostSummary.estCostHeaderID <span class="src-keyword">EQ</span><!--src-keyword--> <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.estCostHeaderID:
+    <span class="src-keyword">DELETE</span><!--src-keyword--> estCostSummary.
+<span class="src-keyword">END</span><!--src-keyword-->. 
 </div><!--progresscode-->
 </body>
 </html>

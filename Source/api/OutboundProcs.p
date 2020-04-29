@@ -27,6 +27,7 @@ DEFINE TEMP-TABLE ttRequestData NO-UNDO
     FIELD requestStatus        AS CHARACTER
     FIELD parentProgram        AS CHARACTER
     FIELD requestMessage       AS CHARACTER
+    FIELD requestType          AS CHARACTER
     FIELD requestDataType      AS CHARACTER
     FIELD apiOutboundID        AS INT64
     FIELD apiOutboundTriggerID AS INT64
@@ -39,13 +40,23 @@ DEFINE TEMP-TABLE ttRequestData NO-UNDO
 
 {api/ttAPIOutboundEvent.i}
 
+DEFINE VARIABLE cRequestTypeList          AS CHARACTER NO-UNDO INITIAL "API,FTP,SAVE".
+DEFINE VARIABLE cRequestVerbList          AS CHARACTER NO-UNDO INITIAL "POST,GET".
+DEFINE VARIABLE cRequestDataTypeList      AS CHARACTER NO-UNDO INITIAL "JSON,XML,TXT,CSV".
 DEFINE VARIABLE cRequestStatusInitialized AS CHARACTER NO-UNDO INITIAL "Initialized".
 DEFINE VARIABLE cRequestStatusPrepared    AS CHARACTER NO-UNDO INITIAL "Prepared".
 DEFINE VARIABLE cRequestStatusError       AS CHARACTER NO-UNDO INITIAL "Error".
 DEFINE VARIABLE cRequestStatusSuccess     AS CHARACTER NO-UNDO INITIAL "Success".
 DEFINE VARIABLE cRequestStatusFailed      AS CHARACTER NO-UNDO INITIAL "Failed".
-DEFINE VARIABLE cRequestDataTypeFTP       AS CHARACTER NO-UNDO INITIAL "FTP".
-DEFINE VARIABLE cLocValidationExceptions  AS CHARACTER NO-UNDO INITIAL "SendAdvancedShipNotice". /* Should be comma (,) separated. loc.isAPIEnabled will not be validated for APIs in the list */
+DEFINE VARIABLE cRequestTypeAPI           AS CHARACTER NO-UNDO INITIAL "API".
+DEFINE VARIABLE cRequestTypeFTP           AS CHARACTER NO-UNDO INITIAL "FTP".
+DEFINE VARIABLE cRequestTypeSAVE          AS CHARACTER NO-UNDO INITIAL "SAVE".
+DEFINE VARIABLE cLocValidationExceptions  AS CHARACTER NO-UNDO INITIAL "SendAdvancedShipNotice,SendFinishedGood". /* Should be comma (,) separated. loc.isAPIEnabled will not be validated for APIs in the list */
+
+
+
+/* **********************  Internal Procedures  *********************** */
+
 
 PROCEDURE Outbound_GetAPIID:
     /*------------------------------------------------------------------------------
@@ -65,11 +76,45 @@ PROCEDURE Outbound_GetAPIID:
             AND APIOutbound.clientID EQ ipcClientID
           NO-ERROR.
     IF AVAILABLE APIOutbound AND
-        APIOutbound.isActive THEN
+        NOT APIOutbound.Inactive THEN
         ASSIGN
             oplValid         = TRUE
             opcMessage       = "Success"
             opiAPIOutboundID = APIOutbound.apiOutboundID
+            .
+    ELSE
+        ASSIGN
+            oplValid   = FALSE
+            opcMessage = "Outbound configuration for API ID ["
+                       + ipcAPIID + "] is not available or inactive"
+            .
+END PROCEDURE.
+
+PROCEDURE Outbound_GetAPIRequestType:
+/*------------------------------------------------------------------------------
+ Purpose: Returns request type of an API
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientID    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcRequestType AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValid       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
+    
+    FIND FIRST bf-APIOutbound NO-LOCK
+          WHERE bf-APIOutbound.company  EQ ipcCompany
+            AND bf-APIOutbound.apiID    EQ ipcAPIID
+            AND bf-APIOutbound.clientID EQ ipcClientID
+          NO-ERROR.
+    IF AVAILABLE bf-APIOutbound AND
+        NOT bf-APIOutbound.Inactive THEN
+        ASSIGN
+            oplValid       = TRUE
+            opcMessage     = "Success"
+            opcRequestType = bf-APIOutbound.requestType
             .
     ELSE
         ASSIGN
@@ -99,7 +144,7 @@ PROCEDURE Outbound_GetAPITriggerID:
            AND APIOutboundTrigger.triggerID EQ ipcTriggerID
          NO-ERROR.
     IF AVAILABLE APIOutboundTrigger AND
-        APIOutboundTrigger.isActive THEN
+        NOT APIOutboundTrigger.Inactive THEN
         ASSIGN
             oplValid                = TRUE
             opcMessage              = "Success"
@@ -111,6 +156,36 @@ PROCEDURE Outbound_GetAPITriggerID:
             opcMessage = "Outbound Trigger configuration for Trigger ID ["
                        + ipcTriggerID + "] is not available or inactive"
             .
+END PROCEDURE.
+
+PROCEDURE Outbound_GetRequestTypeList:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the comma separated list of outbound request types
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcRequestTypeList AS CHARACTER NO-UNDO.
+    
+    opcRequestTypeList = cRequestTypeList. 
+END PROCEDURE.
+
+PROCEDURE Outbound_GetRequestDataTypeList:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the comma separated list of outbound request data types
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcRequestDataTypeList AS CHARACTER NO-UNDO.
+    
+    opcRequestDataTypeList = cRequestDataTypeList.
+END PROCEDURE.
+
+PROCEDURE Outbound_GetRequestVerbList:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the comma separated list of outbound request verbs
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcRequestVerbList AS CHARACTER NO-UNDO.
+    
+    opcRequestVerbList = cRequestVerbList.
 END PROCEDURE.
 
 PROCEDURE Outbound_ReTrigger:
@@ -426,13 +501,13 @@ PROCEDURE pPopulateRequestData PRIVATE:
               ELSE
                   APIOutbound.clientID EQ ipcClientID):
 
-        IF NOT APIOutbound.isActive THEN
+        IF APIOutbound.Inactive THEN
             NEXT.
 
         FIND FIRST APIOutboundTrigger NO-LOCK
              WHERE APIOutboundTrigger.apiOutboundID EQ APIOutbound.apiOutboundID
                AND APIOutboundTrigger.triggerID     EQ ipcTriggerID
-               AND APIOutboundtrigger.isActive      EQ TRUE
+               AND APIOutboundtrigger.Inactive      EQ FALSE
              NO-ERROR.
         IF NOT AVAILABLE APIOutboundTrigger THEN
             NEXT.
@@ -447,6 +522,7 @@ PROCEDURE pPopulateRequestData PRIVATE:
             INPUT ipcEventDescription,
             INPUT ipcTableList,
             INPUT ipcROWIDList,
+            INPUT APIOutbound.requestType,
             INPUT APIOutbound.requestDataType,
             INPUT iplReTrigger,
             INPUT "",                                     /* Empty request data - Populated after Preparing request data */
@@ -518,6 +594,7 @@ PROCEDURE pPopulateRequestDataForReTrigger PRIVATE:
             INPUT ipcEventDescription,
             INPUT ttArgs.argKey,
             INPUT ttArgs.argValue,
+            INPUT "",                          /* Empty requestType - populates after validation with APIOutbound */
             INPUT "",                          /* Empty requestDataType - populates after validation with APIOutbound */
             INPUT iplReTrigger,
             INPUT lcRequestData,
@@ -544,9 +621,13 @@ PROCEDURE pPopulateRequestDataForReTrigger PRIVATE:
                AND APIOutbound.clientID EQ ttRequestData.clientID
              NO-ERROR.
         IF AVAILABLE APIOutbound AND
-           APIOutbound.isActive THEN DO:
+           NOT APIOutbound.Inactive THEN DO:
 
-            ttRequestData.apiOutboundID = APIOutbound.apiOutboundID.
+            ASSIGN
+                ttRequestData.apiOutboundID   = APIOutbound.apiOutboundID
+                ttRequestData.requestType     = APIOutbound.requestType
+                ttRequestData.requestDataType = APIOutbound.requestDataType
+                .
 
             /* Validate if location is API enabled (see APIEnabled toggle box in I-F-4 screen) */
             RUN pValidateLocation (
@@ -762,8 +843,8 @@ PROCEDURE pExecute PRIVATE:
 
         lcRequestData = ttRequestData.requestData.
 
-        /* Make the API call - We will have to exclude FTP request type as those are handled in its customized handler */
-        IF ttRequestData.requestDataType NE cRequestDataTypeFTP THEN
+        /* Make the API call - We will have to exclude FTP and SAVE request type as those are handled in its customized handler */
+        IF ttRequestData.requestType EQ cRequestTypeAPI THEN
             RUN api/CallOutBoundAPI.p (
                 INPUT  ttRequestData.apiOutboundID,
                 INPUT  lcRequestData,
@@ -772,7 +853,13 @@ PROCEDURE pExecute PRIVATE:
                 OUTPUT ttRequestData.success,
                 OUTPUT ttRequestData.requestMessage
                 ) NO-ERROR.
-
+        ELSE
+            ASSIGN
+                lcResponseData               = "Success"
+                ttRequestData.success        = TRUE
+                ttRequestData.requestMessage = "Success"
+                .
+                
         ttRequestData.requestStatus = cRequestStatusSuccess.
 
         IF NOT ttRequestData.success THEN
@@ -918,6 +1005,7 @@ PROCEDURE pCreateTTRequestData PRIVATE:
     DEFINE INPUT PARAMETER ipcEventDescription     AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTableList            AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcROWIDList            AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRequestType          AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcRequestDataType      AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iplReTrigger            AS LOGICAL   NO-UNDO.
     DEFINE INPUT PARAMETER iplcRequestData         AS LONGCHAR  NO-UNDO.
@@ -945,6 +1033,7 @@ PROCEDURE pCreateTTRequestData PRIVATE:
         ttRequestData.tableList            = ipcTableList
         ttRequestData.rowidList            = ipcROWIDList
         ttRequestData.reTrigger            = iplReTrigger
+        ttRequestData.requestType          = ipcRequestType
         ttRequestData.requestDataType      = ipcRequestDataType
         ttRequestData.apiOutboundID        = ipiAPIOutboundID
         ttRequestData.apiOutboundTriggerID = ipiAPIOutboundTriggerID

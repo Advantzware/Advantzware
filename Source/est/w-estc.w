@@ -1103,7 +1103,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 2.05 , 17.20 ) */
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('2,7':U) NO-ERROR.
 
        /* Links to SmartViewer h_vi-est2-2. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_vi-est2-2 ).
@@ -1395,16 +1395,16 @@ PROCEDURE local-change-page :
   IF li-page[1] = 11 AND lNewVendorItemCost THEN 
   DO: /* farm */
       DEF VAR opEbRowid AS ROWID NO-UNDO.
-      DEF BUFFER bf-eb FOR eb.
-      
+      DEF BUFFER bf-eb FOR eb.       
+      RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
       RUN get-eb-rowid IN h_b-estitm (OUTPUT opEbRowID).
       FIND bf-eb NO-LOCK WHERE rowid(bf-eb) = opEbRowID NO-ERROR.
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "Est"' ).
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + string(est.est-no)).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + est.est-no).
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + (IF AVAIL bf-eb THEN bf-eb.stock-no ELSE "") ).         
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "FG" ' ).       
       /*      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).*/
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = ' + ( IF AVAIL bf-eb THEN bf-eb.cust-no ELSE "" ) ).  
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = ""').  
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = ' + ( IF AVAIL bf-eb THEN string(bf-eb.form-no) ELSE "" ) ).
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = ' + ( IF AVAIL bf-eb THEN string(bf-eb.blank-no) ELSE "" ) ).
       li-pageb4VendCost = li-page[2].  

@@ -32,6 +32,7 @@ DEFINE VARIABLE hSysCtrlUsageHandle AS HANDLE    NO-UNDO.
 DEFINE VARIABLE idx                 AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iParamValueID       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iPeriod             AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lAdmin              AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSecure             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUserAMPM           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSuperAdmin         AS LOGICAL   NO-UNDO.
@@ -56,6 +57,11 @@ ASSIGN
                     + "system/PurgeProcs.p,"
                     + "system/TagProcs.p,"
                     + "system/VendorCostProcs.p,"
+                    + "system/ConversionProcs.p,"
+                    + "system/FileSysProcs.p,"
+                    + "system/OSProcs.p,"
+                    + "system/FormatProcs.p,"
+                    + "est/EstimateProcs.p,"                                                                
     cSuperProcedure = TRIM(cSuperProcedure,",")
     .
 DEFINE TEMP-TABLE ttSessionParam NO-UNDO
@@ -91,24 +97,6 @@ DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
 
 /* ************************  Function Prototypes ********************** */
 
-&IF DEFINED(EXCLUDE-fConvertItemTxnQty) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fConvertItemTxnQty Procedure
-FUNCTION fConvertItemTxnQty RETURNS DECIMAL 
-  (ipcCompany AS CHAR,
-   ipcItemType AS CHAR,
-   ipcItemID AS CHAR,
-   ipdTxnQty AS DECI,
-   ipcFromUoM AS CHAR,
-   ipcToUoM AS CHAR) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
 &IF DEFINED(EXCLUDE-fCueCardActive) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCueCardActive Procedure
@@ -119,111 +107,6 @@ FUNCTION fCueCardActive RETURNS LOGICAL
 &ANALYZE-RESUME
 
 &ENDIF
-
-&IF DEFINED(EXCLUDE-fGetItemBaseQtyPerUoM) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetItemBaseQtyPerUoM Procedure
-FUNCTION fGetItemBaseQtyPerUoM RETURNS INTEGER 
-  ( ipcCompany AS CHAR, ipcItemType AS CHAR, ipcItemID AS CHAR, ipiTxnQty AS INT, ipcUom AS CHAR  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-fGetItemTxnQtyPerBase) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetItemTxnQtyPerBase Procedure
-FUNCTION fGetItemTxnQtyPerBase RETURNS DECIMAL 
-  (ipcCompany AS CHAR,
-   ipcItemType AS CHAR,
-   ipcItemID AS CHAR,
-   ipiBaseQty AS INT,
-   ipcUoM AS CHAR) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-fGetValidItemUoMs) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetValidItemUoMs Procedure
-FUNCTION fGetValidItemUoMs RETURNS CHARACTER 
-  (ipcCompany AS CHAR,
-   ipcItemType AS CHAR) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-fGetValidPurchasUoMsForItem) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetValidPurchasUoMsForItem Procedure
-FUNCTION fGetValidPurchasUoMsForItem RETURNS CHARACTER 
-  (ipcCompany AS CHAR,
-   ipcItemType AS CHAR,
-   ipcItemID AS CHAR) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-fGetValidSellUoMsForItem) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetValidSellUoMsForItem Procedure
-FUNCTION fGetValidSellUoMsForItem RETURNS CHARACTER 
-  (ipcCompany AS CHAR,
-   ipcItemType AS CHAR,
-   ipcItemID AS CHAR) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-fGetValidUoMsForItem) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetValidUoMsForItem Procedure
-FUNCTION fGetValidUoMsForItem RETURNS CHARACTER 
-  (ipcCompany AS CHAR,
-   ipcItemType AS CHAR,
-   ipcItemID AS CHAR) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-fIsValidItemUoM) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIsValidItemUoM Procedure
-FUNCTION fIsValidItemUoM RETURNS LOGICAL 
-  (ipcCompany AS CHAR,
-   ipcItemType AS CHAR,
-   ipcItemID AS CHAR,
-   ipcUOM AS CHAR) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
 
 &IF DEFINED(EXCLUDE-fMessageText) = 0 &THEN
 
@@ -281,6 +164,17 @@ FUNCTION sfGetBeginSearch RETURNS CHARACTER
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetTtPermissionsHandle Procedure
 FUNCTION sfGetTtPermissionsHandle RETURNS HANDLE 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+&IF DEFINED(EXCLUDE-sfIsUserAdmin) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfIsUserAdmin Procedure
+FUNCTION sfIsUserAdmin RETURNS LOGICAL 
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -434,8 +328,9 @@ FIND FIRST users NO-LOCK
      NO-ERROR.
 IF AVAILABLE users THEN 
 ASSIGN 
-    lUserAMPM       = users.AMPM
-    lSuperAdmin     = users.securityLevel GE 1000
+    lUserAMPM   = users.AMPM
+    lSuperAdmin = users.securityLevel GE 1000
+    lAdmin      = users.securityLevel GE 900
     .
 /* build temp-table of super-procedures */
 DO idx = 1 TO NUM-ENTRIES(cSuperProcedure):
@@ -530,6 +425,8 @@ PROCEDURE displayMessageQuestion:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcMessageID AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcOutput    AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lMessage AS LOGICAL NO-UNDO.
 
     FIND FIRST zMessage NO-LOCK
          WHERE zMessage.msgID EQ ipcMessageID       
@@ -541,8 +438,34 @@ PROCEDURE displayMessageQuestion:
             VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.  
-    ELSE IF zMessage.userSuppress THEN
+    ELSE IF zMessage.userSuppress AND LOOKUP(zMessage.rtnValue,"YES,NO") NE 0 THEN
          opcOutput = zMessage.rtnValue.
+         
+    ELSE IF zMessage.userSuppress AND zMessage.rtnValue EQ "" AND
+            zMessage.msgType EQ "QUESTION-YN" THEN DO:
+            MESSAGE "Message # " + zMessage.msgID + " requires an answer that is not defined, " +
+                "so please respond here with the desired response."  SKIP   
+                fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  
+                TITLE fMessageTitle()
+                UPDATE lMessage.
+                opcOutput = STRING(lMessage).
+                       
+    END. 
+    
+    ELSE IF zMessage.msgType NE "QUESTION-YN" AND zMessage.msgType NE "Message-Action" AND LOOKUP(zMessage.rtnValue,"YES,NO") NE 0 THEN DO:
+        IF zMessage.userSuppress THEN 
+            opcOutput = zMessage.rtnValue.
+        ELSE DO:
+            MESSAGE "User must enter a valid response, " +
+                "so please respond here with the desired response."  SKIP   
+                fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  
+                TITLE fMessageTitle()
+                UPDATE lMessage.
+                opcOutput = STRING(lMessage).
+        END.                          
+    END.                  
     ELSE DO:
         CASE zMessage.msgType:
             WHEN "QUESTION-YN" THEN DO:
@@ -550,11 +473,27 @@ PROCEDURE displayMessageQuestion:
                     fMessageText(ipcMessageID)
                 VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  
                 TITLE fMessageTitle()
-                UPDATE lMessage AS LOGICAL.
+                UPDATE lMessage.
                 opcOutput = STRING(lMessage).
             END.
             /* Deal with these options in next phase */
-            WHEN "QUESTION-CHAR" THEN DO:
+            WHEN "Message-Action" THEN DO:                      
+              IF zMessage.rtnValue EQ "ASK" THEN
+              DO:
+                 MESSAGE 
+                    fMessageText(ipcMessageID)
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  
+                TITLE fMessageTitle()
+                UPDATE lMessage.
+                opcOutput = STRING(lMessage).                  
+              END.
+              ELSE do:
+                 MESSAGE 
+                    fMessageText(ipcMessageID)
+                  VIEW-AS ALERT-BOX MESSAGE 
+                  TITLE fMessageTitle().
+                  opcOutput = STRING(zMessage.rtnValue).
+              END.            
             END.
             WHEN "QUESTION-INT" THEN DO:
             END.
@@ -710,7 +649,7 @@ PROCEDURE spActivateCueCards:
     END. /* do trans */
 
 END PROCEDURE.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -737,7 +676,7 @@ PROCEDURE spCheckTrackUsage:
     END. /* if lAuditRecalcQty */
 
 END PROCEDURE.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -769,7 +708,7 @@ PROCEDURE spCreateAuditDtl:
         . 
 
 END PROCEDURE.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -803,7 +742,7 @@ PROCEDURE spCreateAuditHdr:
         . 
 
 END PROCEDURE.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -926,7 +865,7 @@ PROCEDURE spCreateTtPermissions:
         .
 
 END PROCEDURE.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -958,7 +897,7 @@ PROCEDURE spCueCardClose:
     RUN spNextCue (iphWidget).
 
 END PROCEDURE.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -977,7 +916,7 @@ PROCEDURE spCueCardFrame:
     iphWidget:MOVE-TO-TOP ().
 
 END PROCEDURE.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1095,7 +1034,7 @@ PROCEDURE spDynAuditField:
                 .
 
 END PROCEDURE.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1145,7 +1084,7 @@ PROCEDURE spGetDynParamValue:
     oprRowID = ROWID(dynParamValue).
 
 END PROCEDURE.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1167,7 +1106,7 @@ PROCEDURE spGetLookupTitle:
         .
 
 END PROCEDURE.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1191,7 +1130,7 @@ PROCEDURE spGetSessionParam:
     opcSessionValue = ttSessionParam.sessionValue.
 
 END PROCEDURE.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1216,7 +1155,7 @@ PROCEDURE spGetTaskFilter:
         .
 
 END PROCEDURE.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1355,17 +1294,17 @@ PROCEDURE spSendEmail:
             opcMessage = "Email recipients are not available"
             .
         RETURN.
-    END.        
+    END.		
     
     /* If value for input recipientsinBCC is null, then gets value from emailConfig table */
     IF ipcRecipientsSendBCC EQ "" THEN
         ipcRecipientsSendBCC = emailConfig.recipientsSendBCC. 
                
-    /* If value for input recipientsinCC is null, then gets value from emailConfig table */            
+    /* If value for input recipientsinCC is null, then gets value from emailConfig table */			
     IF ipcRecipientsSendCC EQ "" THEN
         ipcRecipientsSendCC = emailConfig.recipientsSendCC.  
               
-    /* If value for input recipientsinReplyTo is null, then gets value from emailConfig table */            
+    /* If value for input recipientsinReplyTo is null, then gets value from emailConfig table */			
     IF ipcRecipientsReplyTo EQ "" THEN
         ipcRecipientsReplyTo = emailConfig.recipientsReplyTo.      
           
@@ -1386,11 +1325,11 @@ PROCEDURE spSendEmail:
              
     /* If value for input attachment is valid, then only attachment will be sent in email  */
     IF ipcAttachment NE ? THEN
-        cAttachments = cAttachments + " -a:" + ipcAttachment.    
-            
+        cAttachments = cAttachments + " -a:" + ipcAttachment.	
+        	
     /* cMail don't supports adding multiple recipients to a single (to/cc/bcc/reply-to) field. 
        Only one recipient can be added to a single (to/cc/bcc/reply-to) field. 
-     So,This setting may be required multiple times based on the number of receipients */
+	 So,This setting may be required multiple times based on the number of receipients */
     DO idx = 1 TO NUM-ENTRIES(ipcRecipientsSendTO):
         cRecipientsSendTo = cRecipientsSendTo + " -to:" + ENTRY(idx,ipcRecipientsSendTO).
     END. /*do idx*/
@@ -1424,13 +1363,10 @@ PROCEDURE spSendEmail:
               + cRecipientsReplyTo
         cMail = REPLACE(cMail,CHR(10),"~\n")
         .
-        
-MESSAGE cMail VIEW-AS ALERT-BOX.
-        
     OS-COMMAND SILENT VALUE(cMail).
 
 END PROCEDURE.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1462,7 +1398,7 @@ PROCEDURE spSetDontShowAgain:
     RUN spNextCue (iphWidget).
 
 END PROCEDURE.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1504,7 +1440,7 @@ PROCEDURE spSetDismiss:
     RUN spNextCue (iphWidget).
 
 END PROCEDURE.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1903,7 +1839,7 @@ PROCEDURE spSetSessionParam:
     ttSessionParam.sessionValue = ipcSessionValue.
 
 END PROCEDURE.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1960,7 +1896,7 @@ PROCEDURE spSetTaskFilter:
     END CASE.
 
 END PROCEDURE.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1998,7 +1934,7 @@ PROCEDURE spTtPermissions:
     END. /* each bprgrms */
 
 END PROCEDURE.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2007,29 +1943,6 @@ END PROCEDURE.
 
 
 /* ************************  Function Implementations ***************** */
-
-&IF DEFINED(EXCLUDE-fConvertItemTxnQty) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fConvertItemTxnQty Procedure
-FUNCTION fConvertItemTxnQty RETURNS DECIMAL 
-  ( ipcCompany AS CHAR, ipcItemType AS CHAR, ipcItemID AS CHAR, ipdTxnQty AS DECI, ipcFromUoM AS CHAR, ipcToUoM AS CHAR ):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-        DEFINE VARIABLE opdTxnQty AS DECIMAL NO-UNDO.
-        opdTxnQty = fGetItemBaseQtyPerUoM (ipcCompany, ipcItemType, ipcItemID, INTEGER(ipdTxnQty), ipcFromUom).
-        opdTxnQty = fGetItemTxnQtyPerBase (ipcCompany, ipcItemType, ipcItemID, INTEGER(opdTxnQty), ipcToUoM). 
-        RETURN opdTxnQty.
-
-END FUNCTION.
-    
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
 
 &IF DEFINED(EXCLUDE-fCueCardActive) = 0 &THEN
 
@@ -2043,220 +1956,11 @@ FUNCTION fCueCardActive RETURNS LOGICAL
     RETURN lCueCardActive.
 
 END FUNCTION.
-    
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-fGetItemBaseQtyPerUoM) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetItemBaseQtyPerUoM Procedure
-FUNCTION fGetItemBaseQtyPerUoM RETURNS INTEGER 
-  ( ipcCompany AS CHAR, ipcItemType AS CHAR, ipcItemID AS CHAR, ipiTxnQty AS INT, ipcUom AS CHAR  ):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE opiBaseQty AS INTEGER NO-UNDO.
-        
-    FIND FIRST itemUoM WHERE 
-        itemUoM.company EQ ipcCompany AND 
-        itemUoM.itemType EQ ipcItemType AND 
-        itemUoM.itemID EQ ipcItemID AND 
-        itemUoM.UoM EQ ipcUoM
-        NO-LOCK NO-ERROR.
-          
-    IF NOT AVAIL itemUoM THEN RETURN ERROR.
-    ASSIGN 
-        opiBaseQty = ipiTxnQty * itemUoM.convFactor.
-    RETURN opiBaseQty.
-
-END FUNCTION.
-    
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-fGetItemTxnQtyPerBase) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetItemTxnQtyPerBase Procedure
-FUNCTION fGetItemTxnQtyPerBase RETURNS DECIMAL 
-  ( ipcCompany AS CHAR, ipcItemType AS CHAR, ipcItemID AS CHAR, ipiBaseQty AS INT, ipcUoM AS CHAR  ):
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE opdTxnQty AS DECIMAL NO-UNDO.
-        
-    FIND FIRST itemUoM WHERE 
-        itemUoM.company EQ ipcCompany AND 
-        itemUoM.itemType EQ ipcItemType AND 
-        itemUoM.itemID EQ ipcItemID AND 
-        itemUoM.UoM EQ ipcUoM
-        NO-LOCK NO-ERROR.
-          
-    IF NOT AVAIL itemUoM THEN RETURN ERROR.
-    ASSIGN 
-        opdTxnQty = ipiBaseQty / itemUoM.convFactor.
-    RETURN opdTxnQty.
-
-END FUNCTION.
-    
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-fGetValidItemUoMs) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetValidItemUoMs Procedure
-FUNCTION fGetValidItemUoMs RETURNS CHARACTER 
-  ( ipcCompany AS CHAR, ipcItemType AS CHAR ):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cUoMlist AS CHARACTER NO-UNDO.
-    IF ipcItemType EQ "FG" THEN ASSIGN 
-        cUoMList = "M,EA,L,CS,C,LB,DRM,ROL,PLT,PKG,SET,DOZ,BDL".
-    RETURN cUomList.
-
-END FUNCTION.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
-
-&IF DEFINED(EXCLUDE-fGetValidPurchasUoMsForItem) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetValidPurchasUoMsForItem Procedure
-FUNCTION fGetValidPurchasUoMsForItem RETURNS CHARACTER 
-  ( ipcCompany AS CHAR, ipcItemType AS CHAR, ipcItemID AS CHAR  ):
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE opcUoMList AS CHARACTER NO-UNDO.
-
-    FOR EACH itemUoM WHERE 
-        itemUoM.company EQ ipcCompany AND 
-        itemUoM.itemType EQ ipcItemType AND 
-        itemUoM.itemID EQ ipcItemID AND 
-        itemUoM.canPurchase EQ TRUE:
-        ASSIGN 
-            opcUoMList = opcUoMList + itemUoM.UOM + ",".
-    END.
-    ASSIGN 
-        opcUoMList = TRIM(opcUoMList,",").
-    RETURN opcUoMList.
-    
-END FUNCTION.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-fGetValidSellUoMsForItem) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetValidSellUoMsForItem Procedure
-FUNCTION fGetValidSellUoMsForItem RETURNS CHARACTER 
-  ( ipcCompany AS CHAR, ipcItemType AS CHAR, ipcItemID AS CHAR ):
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE opcUoMList AS CHARACTER NO-UNDO.
-
-    FOR EACH itemUoM WHERE 
-        itemUoM.company EQ ipcCompany AND 
-        itemUoM.itemType EQ ipcItemType AND 
-        itemUoM.itemID EQ ipcItemID AND 
-        itemUoM.canSell EQ TRUE:
-        ASSIGN 
-            opcUoMList = opcUoMList + itemUoM.UOM + ",".
-    END.
-    ASSIGN 
-        opcUoMList = TRIM(opcUoMList,",").
-    RETURN opcUoMList.
-    
-END FUNCTION.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-fGetValidUoMsForItem) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetValidUoMsForItem Procedure
-FUNCTION fGetValidUoMsForItem RETURNS CHARACTER 
-  ( ipcCompany AS CHAR, ipcItemType AS CHAR, ipcItemID AS CHAR  ):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE opcUoMList AS CHARACTER NO-UNDO.
-
-    FOR EACH itemUoM WHERE 
-        itemUoM.company EQ ipcCompany AND 
-        itemUoM.itemType EQ ipcItemType AND 
-        itemUoM.itemID EQ ipcItemID:
-        ASSIGN 
-            opcUoMList = opcUoMList + itemUoM.UOM + ",".
-    END.
-    ASSIGN 
-        opcUoMList = TRIM(opcUoMList,",").
-    RETURN opcUoMList.
-
-END FUNCTION.
-    
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-fIsValidItemUoM) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIsValidItemUoM Procedure
-FUNCTION fIsValidItemUoM RETURNS LOGICAL 
-  ( ipcCompany AS CHAR, ipcItemType AS CHAR, ipcItemID AS CHAR, ipcUOM AS CHAR ):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-		FIND FIRST itemUoM NO-LOCK WHERE 
-		  itemUoM.company EQ ipcCompany AND 
-		  itemUoM.itemType EQ ipcItemType AND 
-		  itemUoM.itemID EQ ipcItemID AND 
-		  itemUOM.UOM EQ ipcUOM
-		  NO-ERROR.
-	   
-		RETURN AVAIL itemUoM.
-
-END FUNCTION.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
 
 &IF DEFINED(EXCLUDE-fMessageText) = 0 &THEN
 
@@ -2271,7 +1975,7 @@ FUNCTION fMessageText RETURNS CHARACTER
            ELSE zMessage.defaultMsg + " (" + ipcMessageID + ")".
 
 END FUNCTION.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2288,11 +1992,11 @@ FUNCTION fMessageTitle RETURNS CHARACTER
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    RETURN IF zMessage.currentTitle NE "" THEN zMessage.currentTitle
-           ELSE zMessage.defaultTitle.
+	RETURN IF zMessage.currentTitle NE "" THEN zMessage.currentTitle
+	       ELSE zMessage.defaultTitle.
 
 END FUNCTION.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2342,7 +2046,7 @@ FUNCTION sfGetBeginSearch RETURNS CHARACTER
   RETURN cResult.
 
 END FUNCTION.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2360,7 +2064,24 @@ FUNCTION sfGetTtPermissionsHandle RETURNS HANDLE
     RETURN TEMP-TABLE ttPermissions:HANDLE.
     
 END FUNCTION.
-    
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+&IF DEFINED(EXCLUDE-sfIsUserAdmin) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfIsUserAdmin Procedure
+FUNCTION sfIsUserAdmin RETURNS LOGICAL 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:  Returns logical if current user is admin
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN lAdmin.
+
+END FUNCTION.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2397,7 +2118,7 @@ FUNCTION sfWebCharacters RETURNS CHARACTER
         6=\ (back slash)
         7=/ (forward slash)
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cWebString AS CHARACTER NO-UNDO.
+	DEFINE VARIABLE cWebString AS CHARACTER NO-UNDO.
 
     cWebString = ipcWebString.
     IF ipiLevel GE 1 THEN
@@ -2419,10 +2140,10 @@ FUNCTION sfWebCharacters RETURNS CHARACTER
     IF ipiLevel GE 9 THEN
     cWebString = REPLACE(cWebString,"~/",IF ipcType EQ "Web" THEN "~/~/"    ELSE "").
 
-    RETURN cWebString.
+	RETURN cWebString.
 
 END FUNCTION.
-    
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

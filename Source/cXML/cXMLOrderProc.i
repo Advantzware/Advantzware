@@ -490,13 +490,32 @@ PROCEDURE genOrderLines:
   DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
   
+  DEFINE VARIABLE lOEImportConsol AS LOGICAL NO-UNDO.
+  
+  DEFINE BUFFER bf-ttOrdLines FOR ttOrdLines.
+  
   FIND oe-ord WHERE ROWID(oe-ord) EQ iprOeOrd NO-LOCK NO-ERROR.
   
   RUN sys/ref/nk1look.p (INPUT oe-ord.company, "CaseUOMList", "C" /* Logical */, NO /* check by cust */, 
             INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
             OUTPUT cRtnChar, OUTPUT lRecFound).
   cCaseUomList = cRtnChar.  
+
+  RUN sys/ref/nk1look.p (
+      INPUT  oe-ord.company, 
+      INPUT  "OEImportConsol", 
+      INPUT  "L",  /* LOGICAL */
+      INPUT  YES,  /* check by cust */
+      INPUT  YES,  /* use cust not vendor */
+      INPUT  oe-ord.cust-no, /* cust */
+      INPUT  oe-ord.ship-id, /* ship-to*/
+      OUTPUT cRtnChar,
+      OUTPUT lRecFound
+      ).
   
+  IF lRecFound THEN
+      lOEImportConsol = LOGICAL(cRtnChar).
+
   FIND FIRST cust WHERE cust.cust-no EQ oe-ord.cust-no 
     AND cust.company EQ oe-ord.company NO-LOCK NO-ERROR.
   FIND FIRST ttordlines NO-LOCK NO-ERROR.
@@ -504,6 +523,22 @@ PROCEDURE genOrderLines:
   IF NOT AVAILABLE ttOrdHead THEN 
     FIND FIRST ttOrdHead
       WHERE ttOrdHead.ttOrderID EQ oe-ord.po-no NO-ERROR.
+  
+  /* Code to delete duplicates order line. Applicable only for the customers
+     in NK1 OEImportConsol configuration */
+  IF lOEImportConsol THEN DO:
+      FOR EACH ttOrdLines 
+          WHERE ttOrdLines.ttpayLoadID EQ ttOrdHead.ttpayLoadID
+          BY ttOrdLines.ttItemLineNumber:
+          FOR EACH bf-ttOrdLines
+              WHERE bf-ttOrdLines.ttpayLoadID              EQ ttOrdHead.ttpayLoadID
+                AND bf-ttOrdLines.ttItemManufacturerPartID EQ ttOrdLines.ttItemManufacturerPartID
+                AND bf-ttOrdLines.ttItemLineNumber         NE ttOrdLines.ttItemLineNumber:
+              ttOrdLines.ttItemQuantity = STRING(DECIMAL(ttOrdLines.ttItemQuantity) + DECIMAL(bf-ttOrdLines.ttItemQuantity)).
+              DELETE bf-ttOrdLines.
+          END.
+      END.
+  END.
 
   FOR EACH ttOrdLines WHERE 
       ttOrdLines.ttpayLoadID = ttOrdHead.ttpayLoadID
@@ -582,23 +617,32 @@ PROCEDURE genOrderLines:
         ASSIGN 
           oe-ordl.spare-dec-1 = oe-ordl.qty
           oe-ordl.spare-char-2 = oe-ordl.pr-uom
-          oe-ordl.t-price = oe-ordl.spare-dec-1 * oe-ordl.price
-          oe-ordl.pr-uom = (IF LOOKUP(oe-ordl.pr-uom, cCaseUOMList) GT 0 THEN "CS" ELSE oe-ordl.pr-uom)
+          //oe-ordl.t-price = oe-ordl.spare-dec-1 * oe-ordl.price
+          //oe-ordl.pr-uom = (IF LOOKUP(oe-ordl.pr-uom, cCaseUOMList) GT 0 THEN "CS" ELSE oe-ordl.pr-uom)
           .
-        IF oe-ordl.pr-uom EQ "CS" THEN
-            oe-ordl.qty = oe-ordl.qty * itemfg.case-count.
-        ELSE IF oe-ordl.pr-uom EQ "C" THEN oe-ordl.qty = oe-ordl.qty * 100.
-        ELSE DO:
-           FIND FIRST uom NO-LOCK 
-            WHERE uom.uom EQ oe-ordl.pr-uom NO-ERROR.
-            IF AVAILABLE uom AND uom.mult NE 0 AND uom.Other EQ "EA" THEN
-                dMultiplier = uom.mult.
-            ELSE 
-                dMultiplier = 1.
-            IF NOT AVAIL uom THEN 
-                dMultiplier = 1000.  /* original default */
-            oe-ordl.qty = oe-ordl.qty * dMultiplier.
-        END.
+        RUN Conv_QtyToEA(oe-ordl.company, oe-ordl.i-no, oe-ordl.qty, oe-ordl.pr-uom, 0, OUTPUT oe-ordl.qty).
+        RUN Conv_CalcTotalPrice(oe-ordl.company, 
+                                oe-ordl.i-no,
+                                oe-ordl.qty,
+                                oe-ordl.price,
+                                oe-ordl.pr-uom,
+                                oe-ordl.disc,
+                                oe-ordl.cas-cnt,    
+                                OUTPUT oe-ordl.t-price).
+/*        IF oe-ordl.pr-uom EQ "CS" THEN                                     */
+/*            oe-ordl.qty = oe-ordl.qty * itemfg.case-count.                 */
+/*        ELSE IF oe-ordl.pr-uom EQ "C" THEN oe-ordl.qty = oe-ordl.qty * 100.*/
+/*        ELSE DO:                                                           */
+/*           FIND FIRST uom NO-LOCK                                          */
+/*            WHERE uom.uom EQ oe-ordl.pr-uom NO-ERROR.                      */
+/*            IF AVAILABLE uom AND uom.mult NE 0 AND uom.Other EQ "EA" THEN  */
+/*                dMultiplier = uom.mult.                                    */
+/*            ELSE                                                           */
+/*                dMultiplier = 1.                                           */
+/*            IF NOT AVAIL uom THEN                                          */
+/*                dMultiplier = 1000.  /* original default */                */
+/*            oe-ordl.qty = oe-ordl.qty * dMultiplier.                       */
+/*        END.                                                               */
       END.
       ELSE 
       oe-ordl.t-price = oe-ordl.qty * oe-ordl.price.

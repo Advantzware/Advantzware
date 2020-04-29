@@ -1312,9 +1312,11 @@ PROCEDURE pJasperStarter :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcType     AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcJastFile AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcType       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTaskRecKey AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcJastFile   AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE cFileName      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJasperFile    AS CHARACTER NO-UNDO EXTENT 4.
     DEFINE VARIABLE cJasperStarter AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUserFolder    AS CHARACTER NO-UNDO.
@@ -1326,8 +1328,9 @@ PROCEDURE pJasperStarter :
     ASSIGN
         dtDate         = TODAY
         iTime          = TIME
-        cJasperFile[1] = SEARCH(cUserFolder + REPLACE(aoaTitle," ","") + ".jrxml")
-        cJasperFile[2] = SEARCH(cUserFolder + REPLACE(aoaTitle," ","") + ".json")
+        cFileName      = REPLACE(aoaTitle," ","") + "." + ipcTaskRecKey
+        cJasperFile[1] = SEARCH(cUserFolder + cFileName + ".jrxml")
+        cJasperFile[2] = SEARCH(cUserFolder + cFileName + ".json")
         cJasperFile[3] = REPLACE(cJasperFile[1],"jrxml",ipcType)
         cJasperFile[3] = REPLACE(cJasperFile[3]," -d","")
         cJasperFile[4] = "TaskResults/"
@@ -1642,6 +1645,7 @@ PROCEDURE spJasper :
     DEFINE INPUT  PARAMETER iprRowID      AS ROWID     NO-UNDO.
     DEFINE INPUT  PARAMETER iphAppSrv     AS HANDLE    NO-UNDO.
     DEFINE INPUT  PARAMETER iphAppSrvBin  AS HANDLE    NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTaskRecKey AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcJasperFile AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
@@ -1674,7 +1678,10 @@ PROCEDURE spJasper :
     /* create xml data file */
     RUN pJasperJSON.
     /* create jasper jrxml file */
-    cJasperFile = "users\" + aoaUserID + "\" + REPLACE(aoaTitle," ","") + ".jrxml".    
+    cJasperFile = "users\" + aoaUserID + "\"
+                + REPLACE(aoaTitle," ","") + "."
+                + ipcTaskRecKey + ".jrxml"
+                .    
     OUTPUT TO VALUE(cJasperFile).    
     RUN pJasperReport ("Open", ipcType, iSize).
     RUN pJasperStyles.
@@ -1705,7 +1712,7 @@ PROCEDURE spJasper :
     /* copy local jasper files to jasper studio workspace */
     RUN pJasperCopy (cJasperFile).
     /* command line call to jasperstarter script */
-    RUN pJasperStarter (ipcType, OUTPUT opcJasperFile).
+    RUN pJasperStarter (ipcType, "AOA", OUTPUT opcJasperFile).
 
 END PROCEDURE.
 
@@ -1727,10 +1734,12 @@ PROCEDURE spJasperQuery:
     DEFINE INPUT  PARAMETER ipcTitle      AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcUserID     AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iphAppSrvBin  AS HANDLE    NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTaskRecKey AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcJasperFile AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cError        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJasperFile   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cjrxml        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTableName    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUserFolder   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hQuery        AS HANDLE    NO-UNDO.
@@ -1742,6 +1751,7 @@ PROCEDURE spJasperQuery:
         aoaTitle   = ipcTitle
         aoaUserID  = ipcUserID
         hAppSrvBin = iphAppSrvBin
+        cjrxml     = REPLACE(aoaTitle," ","") + "." + ipcTaskRecKey
         .
     /* find dynParamValue storing parameter values */
     RUN pGetUserParamValue (iprRowID).
@@ -1753,9 +1763,9 @@ PROCEDURE spJasperQuery:
         RUN pCreateDir (OUTPUT cUserFolder).
         OS-COPY
             VALUE(dynParamValue.externalForm)
-            VALUE(cUserFolder + REPLACE(aoaTitle," ","") + ".jrxml")
+            VALUE(cUserFolder + cjrxml + ".jrxml")
             .
-        cJasperFile = SEARCH(cUserFolder + REPLACE(aoaTitle," ","") + ".jrxml").
+        cJasperFile = SEARCH(cUserFolder + cjrxml + ".jrxml").
     END. /* if external form */
     ELSE DO: /* dynamically create jasper report */
         /* calculate width of jasper report */
@@ -1763,7 +1773,7 @@ PROCEDURE spJasperQuery:
         /* if no active columns, done */
         IF iSize EQ ? THEN RETURN.    
         /* create jasper jrxml file */
-        cJasperFile = "users\" + aoaUserID + "\" + REPLACE(aoaTitle," ","") + ".jrxml".    
+        cJasperFile = "users\" + aoaUserID + "\" + cjrxml + ".jrxml".    
         OUTPUT TO VALUE(cJasperFile).    
         RUN pJasperReport ("Open", ipcType, iSize).
         RUN pJasperStyles.
@@ -1830,6 +1840,7 @@ PROCEDURE spJasperQuery:
                 hQuery,
                 ipcUserID,
                 dynSubject.subjectTitle,
+                ipcTaskRecKey,
                 OUTPUT cJasperFile,
                 OUTPUT lOK
                 ).
@@ -1837,7 +1848,7 @@ PROCEDURE spJasperQuery:
                 /* copy local jasper files to jasper studio workspace */
                 RUN pJasperCopy (cJasperFile).
                 /* command line call to jasperstarter script */
-                RUN pJasperStarter (ipcType, OUTPUT opcJasperFile).
+                RUN pJasperStarter (ipcType, ipcTaskRecKey, OUTPUT opcJasperFile).
             END. /* if lok */
         END. /* if lok */
     END. /* avail dynsubject */

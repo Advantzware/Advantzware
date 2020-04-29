@@ -56,6 +56,7 @@ IF AVAILABLE dynParamValue THEN DO:
                     dynSubject.subjectTitle,
                     Task.user-id,
                     hAppSrvBin,
+                    Task.rec_key,
                     OUTPUT cJasperFile
                     ).
                 IF cJasperFile NE "" THEN DO:

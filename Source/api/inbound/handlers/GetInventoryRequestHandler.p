@@ -157,6 +157,11 @@ PROCEDURE pProcessInputs:
         INPUT  cJobNo,
         INPUT  iJobNo2,
         INPUT  cCustNo,
+        INPUT  0,            /* Po # */
+        INPUT  YES,          /* Include Zero qty bins */
+        INPUT  YES,          /* Include empty tag bins */
+        INPUT  "",           /* status id */
+        INPUT  ?,            /* On Hold status. Send ? for both yes and no */      
         INPUT  cItemType,
         OUTPUT oplSuccess,
         OUTPUT opcMessage,
@@ -189,7 +194,9 @@ PROCEDURE pProcessInputs:
             RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"UnitHeight",STRING(ttItem.UnitHeight,"->>>>>>>>9.9<<<<<")) NO-ERROR.
             RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"UnitWidth",STRING(ttItem.UnitWidth,"->>>>>>>>9.9<<<<<")) NO-ERROR.
             RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"StackHeight",STRING(ttItem.StackHeight)) NO-ERROR.
-
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"TagStatus",ttItem.TagStatus) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"StatusDescription",ttItem.StatusDescription) NO-ERROR. 
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcResponseData,"OnHold",STRING(ttItem.OnHold)) NO-ERROR.                       
             oplcConcatResponseData = oplcConcatResponseData + "," + lcResponseData.
     END.
     

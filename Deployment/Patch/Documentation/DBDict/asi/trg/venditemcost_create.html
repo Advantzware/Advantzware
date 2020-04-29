@@ -44,8 +44,18 @@
 <span class="src-keyword">ASSIGN</span><!--src-keyword--> 
     <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.createdID = <span class="src-keyword">USERID</span><!--src-keyword-->(<span class="src-char">'ASI'</span><!--src-char-->)
     <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.createdDate = <span class="src-keyword">DATE</span><!--src-keyword-->(<span class="src-keyword">TODAY</span><!--src-keyword-->)
-    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.dimUOM = <span class="src-char">"IN"</span><!--src-char-->
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.dimUOM = <span class="src-char">"IN"</span><!--src-char--> 
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.effectiveDate = <span class="src-keyword">DATE</span><!--src-keyword-->(<span class="src-keyword">TODAY</span><!--src-keyword-->) 
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.expirationDate = <span class="src-number">12</span><!--src-number-->/<span class="src-number">31</span><!--src-number-->/<span class="src-number">2099</span><!--src-number--> 
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.dimWidthMaximum = <span class="src-number">99999</span><!--src-number-->.<span class="src-number">99</span><!--src-number-->
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.dimLengthMaximum = <span class="src-number">99999</span><!--src-number-->.<span class="src-number">99</span><!--src-number-->
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.dimWidthOver = <span class="src-number">99999</span><!--src-number-->.<span class="src-number">99</span><!--src-number-->
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.dimLengthOver = <span class="src-number">99999</span><!--src-number-->.<span class="src-number">99</span><!--src-number-->
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.quantityMaximumOrder = <span class="src-number">99999</span><!--src-number-->.<span class="src-number">99</span><!--src-number-->
+    <span class="src-prep">{&amp;TABLENAME}</span><!--src-prep-->.itemType = <span class="src-char">"FG"</span><!--src-char--> 
     .
+ 
+ 
 </div><!--progresscode-->
 </body>
 </html>

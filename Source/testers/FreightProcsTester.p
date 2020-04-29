@@ -30,44 +30,45 @@ DEFINE VARIABLE giDeleteBlank AS INTEGER   INIT 2.
 
 /* ***************************  Main Block  *************************** */
 RUN system\FreightProcs.p PERSISTENT SET hFreightProcs.
-RUN DeleteAllEstReleasesForEstimate IN hFreightProcs (gcCompany, gcEstimate1).
-RUN DeleteAllEstReleasesForEstimate IN hFreightProcs (gcCompany, gcEstimate2).
 
-RUN pCreateSampleEstReleases.
-RUN DeleteAllEstReleasesForEstimate IN hFreightProcs (gcCompany, gcEstimate2).
-IF CAN-FIND(FIRST estRelease WHERE estRelease.company EQ gcCompany
-    AND estRelease.estimateNo EQ gcEstimate2) THEN 
-    MESSAGE "Deletion Error - Estimate"
-        VIEW-AS ALERT-BOX.
-RUN DeleteAllEstReleasesForEstimateQuantity IN hFreightProcs (gcCompany, gcEstimate1, gdQty1).
-IF CAN-FIND(FIRST estRelease WHERE estRelease.company EQ gcCompany
-    AND estRelease.estimateNo EQ gcEstimate1
-    AND estRelease.quantity EQ gdQty1) THEN 
-    MESSAGE "Deletion Error - Estimate Quantity"
-        VIEW-AS ALERT-BOX. 
-RUN DeleteAllEstReleasesForEstimateForm IN hFreightProcs (gcCompany, gcEstimate1, giDeleteForm).
-IF CAN-FIND(FIRST estRelease WHERE estRelease.company EQ gcCompany
-    AND estRelease.estimateNo EQ gcEstimate1
-    AND estRelease.formNo EQ giDeleteForm) THEN 
-    MESSAGE "Deletion Error - Estimate Form"
-        VIEW-AS ALERT-BOX.
+/*RUN DeleteAllEstReleasesForEstimate IN hFreightProcs (gcCompany, gcEstimate1).                                       */
+/*RUN DeleteAllEstReleasesForEstimate IN hFreightProcs (gcCompany, gcEstimate2).                                       */
+/*                                                                                                                     */
+/*RUN pCreateSampleEstReleases.                                                                                        */
+/*RUN DeleteAllEstReleasesForEstimate IN hFreightProcs (gcCompany, gcEstimate2).                                       */
+/*IF CAN-FIND(FIRST estRelease WHERE estRelease.company EQ gcCompany                                                   */
+/*    AND estRelease.estimateNo EQ gcEstimate2) THEN                                                                   */
+/*    MESSAGE "Deletion Error - Estimate"                                                                              */
+/*        VIEW-AS ALERT-BOX.                                                                                           */
+/*RUN DeleteAllEstReleasesForEstimateQuantity IN hFreightProcs (gcCompany, gcEstimate1, gdQty1).                       */
+/*IF CAN-FIND(FIRST estRelease WHERE estRelease.company EQ gcCompany                                                   */
+/*    AND estRelease.estimateNo EQ gcEstimate1                                                                         */
+/*    AND estRelease.quantity EQ gdQty1) THEN                                                                          */
+/*    MESSAGE "Deletion Error - Estimate Quantity"                                                                     */
+/*        VIEW-AS ALERT-BOX.                                                                                           */
+/*RUN DeleteAllEstReleasesForEstimateForm IN hFreightProcs (gcCompany, gcEstimate1, giDeleteForm).                     */
+/*IF CAN-FIND(FIRST estRelease WHERE estRelease.company EQ gcCompany                                                   */
+/*    AND estRelease.estimateNo EQ gcEstimate1                                                                         */
+/*    AND estRelease.formNo EQ giDeleteForm) THEN                                                                      */
+/*    MESSAGE "Deletion Error - Estimate Form"                                                                         */
+/*        VIEW-AS ALERT-BOX.                                                                                           */
+/*                                                                                                                     */
+/*RUN DeleteAllEstReleasesForEstimateBlank IN hFreightProcs (gcCompany, gcEstimate1, giDeleteBlankForm, giDeleteBlank).*/
+/*IF CAN-FIND(FIRST estRelease WHERE estRelease.company EQ gcCompany                                                   */
+/*    AND estRelease.estimateNo EQ gcEstimate1                                                                         */
+/*    AND estRelease.formNo EQ giDeleteBlankForm                                                                       */
+/*    AND estRelease.blankNo EQ giDeleteBlank) THEN                                                                    */
+/*    MESSAGE "Deletion Error - Estimate Blank"                                                                        */
+/*        VIEW-AS ALERT-BOX.                                                                                           */
+/*RUN DeleteAllEstReleasesForEstimate IN hFreightProcs (gcCompany, gcEstimate1).                                       */
+/*RUN DeleteAllEstReleasesForEstimate IN hFreightProcs (gcCompany, gcEstimate2).                                       */
+/*                                                                                                                     */
+/*FOR EACH estRelease EXCLUSIVE-LOCK:                                                                                  */
+/*    DELETE estRelease.                                                                                               */
+/*END.                                                                                                                 */
+/*RUN pCreateTestEstReleases.                                                                                          */
 
-RUN DeleteAllEstReleasesForEstimateBlank IN hFreightProcs (gcCompany, gcEstimate1, giDeleteBlankForm, giDeleteBlank).
-IF CAN-FIND(FIRST estRelease WHERE estRelease.company EQ gcCompany
-    AND estRelease.estimateNo EQ gcEstimate1
-    AND estRelease.formNo EQ giDeleteBlankForm
-    AND estRelease.blankNo EQ giDeleteBlank) THEN 
-    MESSAGE "Deletion Error - Estimate Blank"
-        VIEW-AS ALERT-BOX.
-RUN DeleteAllEstReleasesForEstimate IN hFreightProcs (gcCompany, gcEstimate1).
-RUN DeleteAllEstReleasesForEstimate IN hFreightProcs (gcCompany, gcEstimate2).
-
-FOR EACH estRelease EXCLUSIVE-LOCK:
-    DELETE estRelease.
-END.
-RUN pCreateTestEstReleases.
-
-
+RUN pTestFreightForBOL.
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -249,6 +250,31 @@ RUN GetFreightForCarrierZone IN hFreightProcs (eb.company, eb.loc, eb.carrier, e
 
 END PROCEDURE.
 
+PROCEDURE pTestFreightForBOL PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dFreight AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    FOR EACH oe-bolh NO-LOCK 
+        WHERE oe-bolh.company EQ '001'
+        //AND oe-bolh.bol-no EQ 9550
+        AND NOT oe-bolh.posted
+        AND CAN-FIND(FIRST oe-boll WHERE oe-boll.company EQ oe-bolh.company AND oe-boll.b-no EQ oe-bolh.b-no)       
+        : 
+        RUN GetFreightForBOL IN hFreightProcs (ROWID(oe-bolh), NO, OUTPUT dFreight, OUTPUT lError, OUTPUT cMessage).
+        IF ROUND(dFreight,2) NE ROUND(oe-bolh.freight,2) THEN 
+            MESSAGE "BOL" oe-bolh.bol-no SKIP 
+            "New" dFreight SKIP 
+            "Old" oe-bolh.freight
+            VIEW-AS ALERT-BOX.    
+    END.
+    
+
+END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 

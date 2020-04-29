@@ -322,26 +322,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-table Dialog-Frame
 ON DEFAULT-ACTION OF br-table IN FRAME Dialog-Frame
 DO:
-    DEFINE VARIABLE h_lfield AS HANDLE NO-UNDO.
-     
-    IF h_browser:NUM-SELECTED-ROWS GT 0 AND h_brBuffer:AVAILABLE THEN DO:
-      DO li-count = 1 TO NUM-ENTRIES(ip-outList):
-          h_lfield = h_brbuffer:BUFFER-FIELD(ENTRY(li-count,ip-outList)):HANDLE.
-          op-returnFields = op-returnFields + h_lfield:NAME + "|".
-          IF h_lfield:DATA-TYPE EQ "DATE" THEN
-             op-returnFields = op-returnFields + 
-                              (IF h_lfield:BUFFER-VALUE EQ ? THEN "" 
-                              ELSE h_lfield:BUFFER-VALUE) + "|".
-          ELSE 
-             op-returnFields = op-returnFields + h_lfield:BUFFER-VALUE + "|".
-      END.
-      ASSIGN
-          op-lookupField = h_brbuffer:BUFFER-FIELD(ip-lookupField):BUFFER-VALUE
-          op-recVal      = h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE
-          .      
-    END.
-  
-    APPLY "WINDOW-CLOSE" TO FRAME {&FRAME-NAME}.
+    APPLY "CHOOSE":U TO bt-ok.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -463,13 +444,15 @@ DO:
     
     IF h_browser:NUM-SELECTED-ROWS GT 0 AND h_brBuffer:AVAILABLE THEN DO:
        DO li-count = 1 TO NUM-ENTRIES(ip-outList):
-           h_lfield = h_brbuffer:BUFFER-FIELD(ENTRY(li-count,ip-outList)):HANDLE.
-           IF h_lfield:DATA-TYPE EQ "DATE" THEN
-              op-returnFields = op-returnFields + 
-                                (IF h_lfield:BUFFER-VALUE EQ ? THEN "" 
-                                ELSE h_lfield:BUFFER-VALUE) + "|".
-           ELSE 
-              op-returnFields = op-returnFields + h_lfield:BUFFER-VALUE + "|".
+           ASSIGN
+               h_lfield        = h_brbuffer:BUFFER-FIELD(ENTRY(li-count,ip-outList)):HANDLE
+               op-returnFields = op-returnFields + h_lfield:NAME + "|"
+                               + (IF h_lfield:DATA-TYPE EQ "DATE" THEN
+                                     (IF h_lfield:BUFFER-VALUE EQ ? THEN "" 
+                                      ELSE h_lfield:BUFFER-VALUE)
+                                  ELSE h_lfield:BUFFER-VALUE)
+                               + "|"
+                               .
        END.
        ASSIGN
           op-lookupField = h_brbuffer:BUFFER-FIELD(ip-lookupField):BUFFER-VALUE

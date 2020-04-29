@@ -16,6 +16,12 @@ DEFINE INPUT  PARAMETER ipcDateTime         AS DATETIME  NO-UNDO.
 DEFINE OUTPUT PARAMETER opiOutboundEventID  AS INTEGER   NO-UNDO.
 
 DEFINE VARIABLE lcNotes        AS LONGCHAR  NO-UNDO.
+DEFINE VARIABLE lSuccess       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE gcRequestFile  AS CHARACTER NO-UNDO.
+
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 FIND FIRST APIOutboundEvent EXCLUSIVE-LOCK
      WHERE APIOutboundEvent.apiOutboundEventID EQ ipiOutboundEventID
@@ -73,3 +79,25 @@ ELSE DO:
 END.
 
 opiOutboundEventID = APIOutboundEvent.apiOutboundEventID.
+
+FIND FIRST APIOutbound NO-LOCK
+     WHERE APIOutbound.company  EQ ipcCompany 
+       AND APIOutbound.apiId    EQ ipcAPIID
+       AND APIOutbound.clientID EQ ipcClientID
+       AND NOT APIOutbound.Inactive
+     NO-ERROR.
+IF AVAILABLE APIOutbound AND APIOutbound.SaveFile THEN DO:
+    RUN FileSys_CreateDirectory IN hdFileSysProcs (
+        INPUT  APIOutbound.SaveFileFolder,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ) NO-ERROR.
+    IF lSuccess THEN DO:    
+        gcRequestFile = STRING(opiOutboundEventID) + "." + APIOutbound.requestDatatype.     
+        COPY-LOB iplcRequestData TO FILE gcRequestFile.
+        OS-COPY VALUE (gcRequestFile) VALUE (APIOutbound.saveFileFolder).
+        OS-DELETE VALUE(gcRequestFile).
+    END.    
+END. 
+IF VALID-HANDLE(hdFileSysProcs) THEN
+    DELETE PROCEDURE hdFileSysProcs. 

@@ -39,13 +39,13 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
-def var char-val as cha no-undo.
-def var ld-cost as decimal no-undo.
-def var lv-uom as char no-undo.
-def var ls-prev-po as cha no-undo.
-def var hd-post as widget-handle no-undo.
-def var hd-post-child as widget-handle no-undo.
-def var ll-help-run as log no-undo. /* set on browse help, reset row-entry */
+DEF VAR char-val AS cha NO-UNDO.
+DEF VAR ld-cost AS DECIMAL NO-UNDO.
+DEF VAR lv-uom AS CHAR NO-UNDO.
+DEF VAR ls-prev-po AS cha NO-UNDO.
+DEF VAR hd-post AS WIDGET-HANDLE NO-UNDO.
+DEF VAR hd-post-child AS WIDGET-HANDLE NO-UNDO.
+DEF VAR ll-help-run AS LOG NO-UNDO. /* set on browse help, reset row-entry */
 
 DEF BUFFER bf-tmp FOR fg-rctd.  /* for tag validation */
 DEF BUFFER xfg-rdtlh FOR fg-rdtlh. /* for tag validation */
@@ -383,13 +383,13 @@ fg-rctd.rita-code = ""A"""
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 DO:
-   def var phandle as widget-handle no-undo.
-   def var char-hdl as cha no-undo.   
+   DEF VAR phandle AS WIDGET-HANDLE NO-UNDO.
+   DEF VAR char-hdl AS cha NO-UNDO.   
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
    
-   RUN new-state in phandle ('update-begin':U).
+   RUN new-state IN phandle ('update-begin':U).
 
 END.
 
@@ -453,7 +453,7 @@ DO:
   /* This code displays initial values for newly added or copied rows. */
   {src/adm/template/brsentry.i}
   
-  ll-help-run = no.
+  ll-help-run = NO.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -494,9 +494,9 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-i-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    find first itemfg {sys/look/itemfgrlW.i}
-        and itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-        no-lock no-error.
+    FIND FIRST itemfg {sys/look/itemfgrlW.i}
+        AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+        NO-LOCK NO-ERROR.
     IF AVAIL itemfg THEN ASSIGN fg-rctd.i-name:SCREEN-VALUE = itemfg.i-name
         fg-rctd.loc:SCREEN-VALUE = itemfg.def-loc
         fg-rctd.loc-bin:SCREEN-VALUE = itemfg.def-loc-bin .
@@ -888,14 +888,14 @@ PROCEDURE fgbin-help :
         FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
         TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
 
-    RUN windows/l-fgibn4.w (cocode, fg-rctd.i-no:screen-value in browse {&browse-name}, fg-rctd.job-no:screen-value in browse {&browse-name}, INT(fg-rctd.job-no2:screen-value in browse {&browse-name}), fg-rctd.loc:screen-value in browse {&browse-name}, fg-rctd.loc-bin:screen-value in browse {&browse-name}, fg-rctd.tag:screen-value in browse {&browse-name}, output lv-rowid).
+    RUN windows/l-fgibn4.w (cocode, fg-rctd.i-no:screen-value IN BROWSE {&browse-name}, fg-rctd.job-no:screen-value IN BROWSE {&browse-name}, INT(fg-rctd.job-no2:screen-value IN BROWSE {&browse-name}), fg-rctd.loc:screen-value IN BROWSE {&browse-name}, fg-rctd.loc-bin:screen-value IN BROWSE {&browse-name}, fg-rctd.tag:screen-value IN BROWSE {&browse-name}, OUTPUT lv-rowid).
 
     FIND fg-bin WHERE ROWID(fg-bin) EQ lv-rowid NO-LOCK NO-ERROR.
 
     IF AVAIL fg-bin AND (fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}      NE fg-bin.job-no  OR
                          INT(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) NE fg-bin.job-no2 OR
                          fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}         NE fg-bin.loc     OR
-                         fg-rctd.loc-bin:SCREEN-VALUE IN browse {&browse-name}     NE fg-bin.loc-bin OR
+                         fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}     NE fg-bin.loc-bin OR
                          fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}         NE fg-bin.tag     OR
                          fg-rctd.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}     NE fg-bin.cust-no)
     THEN DO:
@@ -1040,7 +1040,7 @@ PROCEDURE local-create-record :
     LEAVE.
   END.
 
-  assign fg-rctd.company = g_company
+  ASSIGN fg-rctd.company = g_company
          fg-rctd.r-no    = lv-rno
          fg-rctd.rita-code = "A".
 
@@ -1105,7 +1105,7 @@ PROCEDURE local-disable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  if valid-handle(hd-post-child) then  hd-post-child:sensitive = yes.
+  IF VALID-HANDLE(hd-post-child) THEN  hd-post-child:SENSITIVE = YES.
             /* value assigned from local-enable-fields*/
   
 END PROCEDURE.
@@ -1119,9 +1119,9 @@ PROCEDURE local-enable-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var out-hd-lst as cha no-undo.
-  def var ii as int no-undo.
-  def var hd-next as widget-handle no-undo.
+  DEF VAR out-hd-lst AS cha NO-UNDO.
+  DEF VAR ii AS INT NO-UNDO.
+  DEF VAR hd-next AS WIDGET-HANDLE NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
   DEFINE VARIABLE ilogic AS LOG NO-UNDO.
    
@@ -1215,7 +1215,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var li as int no-undo.
+  DEF VAR li AS INT NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-reason NO-ERROR .
@@ -1502,9 +1502,9 @@ PROCEDURE validate-record :
         END.
         ELSE DO:
             RUN fg/d-crtitm.w (fg-rctd.i-no:SCREEN-VALUE).
-            FIND first itemfg {sys/look/itemfgrlW.i}
-                       and itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                       no-lock no-error.
+            FIND FIRST itemfg {sys/look/itemfgrlW.i}
+                       AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+                       NO-LOCK NO-ERROR.
             IF AVAIL itemfg THEN ASSIGN fg-rctd.i-name:SCREEN-VALUE = itemfg.i-name.
         END.
      END.
@@ -1538,26 +1538,26 @@ PROCEDURE validate-record :
                         AND RECID(bf-tmp) <> RECID(fg-rctd)
                         NO-LOCK NO-ERROR.
     IF AVAIL bf-tmp THEN DO:
-       MESSAGE "This Tag Number Has Already Been Used." skip
+       MESSAGE "This Tag Number Has Already Been Used." SKIP
                "Please Enter A Unique Tag Number." 
            VIEW-AS ALERT-BOX ERROR.
        APPLY "entry" TO fg-rctd.tag.
        RETURN ERROR.
     END.
     ELSE DO:
-        find first xfg-rdtlh
-               where xfg-rdtlh.company   eq g_company
-                 and xfg-rdtlh.loc       eq fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
-                 and xfg-rdtlh.tag       eq fg-rctd.tag:SCREEN-VALUE
-                 and xfg-rdtlh.qty       gt 0
-                 and xfg-rdtlh.rita-code ne "S"
-               use-index tag no-lock no-error.
-           if avail xfg-rdtlh THEN  DO:
-               MESSAGE "This Tag Number Has Already Been Used." skip
+        FIND FIRST xfg-rdtlh
+               WHERE xfg-rdtlh.company   EQ g_company
+                 AND xfg-rdtlh.loc       EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
+                 AND xfg-rdtlh.tag       EQ fg-rctd.tag:SCREEN-VALUE
+                 AND xfg-rdtlh.qty       GT 0
+                 AND xfg-rdtlh.rita-code NE "S"
+               USE-INDEX tag NO-LOCK NO-ERROR.
+           IF AVAIL xfg-rdtlh THEN  DO:
+               MESSAGE "This Tag Number Has Already Been Used." SKIP
                        "Please Enter A Unique Tag Number." 
                        VIEW-AS ALERT-BOX ERROR.
                APPLY "entry" TO fg-rctd.tag.
-               RETURN error.
+               RETURN ERROR.
            END.
     END.
   END.

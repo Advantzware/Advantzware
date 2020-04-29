@@ -48,7 +48,6 @@ DEFINE VARIABLE v-msf AS DECIMAL FORMAT ">,>>9.999" EXTENT 6.
 DEFINE VARIABLE is-xprint-form AS LOG NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-print-fmt  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
-DEFINE VARIABLE fg-uom-list AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-list-name LIKE list-name EXTENT 2 NO-UNDO.
 DEFINE VARIABLE t-setup AS LOG NO-UNDO.
 DEFINE VARIABLE lInvFrt AS LOG NO-UNDO.
@@ -115,7 +114,6 @@ DEFINE TEMP-TABLE tt-set
 
 {sys/ref/fgoecost.i}
 DEFINE TEMP-TABLE tt-inv LIKE w-inv.
-RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
 DEFINE STREAM st-email.
 DEFINE STREAM logFile.
@@ -2699,7 +2697,7 @@ PROCEDURE fg-post :
             IF itemfg.prod-uom EQ "M" THEN
               v-calc-cost = itemfg.total-std-cost.
             ELSE
-              RUN sys/ref/convcuom.p((IF LOOKUP(itemfg.prod-uom,fg-uom-list) GT 0
+              RUN sys/ref/convcuom.p((IF DYNAMIC-FUNCTION("Conv_IsEAUOM",itemfg.company, itemfg.i-no, itemfg.prod-uom)
                                       THEN "EA" ELSE itemfg.prod-uom),
                                       "M", 0, 0, 0, 0,
                                       itemfg.total-std-cost, OUTPUT v-calc-cost).
