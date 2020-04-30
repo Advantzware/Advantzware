@@ -47,7 +47,7 @@ DEFINE BUFFER b-eb FOR eb .
          CREATE bf-estPacking .
          ASSIGN
             bf-estPacking.company      = eb.company 
-            bf-estPacking.estimateNo   = eb.est-no
+            bf-estPacking.estimateNo   = b-eb.est-no
             bf-estPacking.FormNo       = b-eb.form-no
             bf-estPacking.BlankNo      = b-eb.blank-No .
          BUFFER-COPY estPacking EXCEPT company estimateNo FormNo  BlankNo estPackingID TO bf-estPacking.
