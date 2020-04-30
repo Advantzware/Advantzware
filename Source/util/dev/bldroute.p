@@ -70,6 +70,7 @@ FOR EACH xest
                      NO-LOCK NO-ERROR.
 
     IF xest.est-type EQ 1 OR
+       xest.est-type EQ 2 OR
        xest.est-type EQ 5 OR
        xest.est-type EQ 6 THEN
     FOR EACH est-qty
@@ -85,12 +86,10 @@ FOR EACH xest
       END.
       
       IF xest.est-type EQ 1 THEN RUN ce/mach-seq.p (est-qty.eqty).
+      else IF xest.est-type EQ 1 THEN RUN ce/box/mach-seq.p (est-qty.eqty).
                             ELSE RUN cec/mach-seq.p (0, est-qty.eqty, NO).
     END.
-
-    ELSE
-    IF xest.est-type EQ 2 THEN RUN ce/box/mach-seq.p.
-
+   
     ELSE
     IF xest.est-type EQ 3 THEN RUN ce/tan/mach-seq.p. 
  
