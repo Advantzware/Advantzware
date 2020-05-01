@@ -519,3 +519,15 @@ PROCEDURE pIsValidProcat:
         &ValidateMessage = "Product Category"}
         
 END PROCEDURE.
+
+PROCEDURE pIsValidNAICS:
+    /*------------------------------------------------------------------------------
+    Purpose:  Validates Mat Type
+    Notes: Input 1 = Mat Type
+    ------------------------------------------------------------------------------*/
+    {util/dev/ValidateWithNoCompany.i
+        &ValidateTable = "NAICS" 
+        &ValidateField = "naicsID"        
+        &ValidateMessage = "NAICS Id"}
+        
+END PROCEDURE.
