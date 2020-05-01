@@ -119,13 +119,13 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 ASSIGN cTextListToSelect = "ITEM,DESCRIPTION,CUSTOMER," +
                       "JOB#,WHSE,BIN,TAG," +
                       "RCT DATE,ON HAND QTY,PALLETS,QUANTITY COUNTED,COUNTED DATE,COST/M,SELL VALUE,CUSTOMER PART #," +
-                      "SELL UOM,FIRST TRX DATE,FIRST TRX TYPE,PO #"
+                      "SELL UOM,FIRST TRX DATE,FIRST TRX TYPE,PO #,SALESPERSON CODE,SALESPERSON NAME"
        cFieldListToSelect = "fg-bin.i-no,itemfg.i-name,v-cust-no," +
                             "lv-job-no,fg-bin.loc,fg-bin.loc-bin,v-tag," +
                             "lv-date,fg-bin.qty,li-palls,v-writein,v-counted-date,v-costM,v-sellValue,itemfg.part-no," +
-                            "v-sellUom,cFirstTrxDt,cFirstTrxTyp,po-no" 
-       cFieldLength = "15,25,8," + "9,5,8,20," + "10,11,7,21,12,10,10,15," + "8,14,14,9"
-       cFieldType   = "c,c,c," + "c,c,c,c," + "c,i,i,i,c,i,i,c," + "c,c,c,c" 
+                            "v-sellUom,cFirstTrxDt,cFirstTrxTyp,po-no,sales-code,sales-name" 
+       cFieldLength = "15,25,8," + "9,5,8,20," + "10,11,7,21,12,10,10,15," + "8,14,14,9,16,30"
+       cFieldType   = "c,c,c," + "c,c,c,c," + "c,i,i,i,c,i,i,c," + "c,c,c,c,c,c" 
        .
 ASSIGN cTextListToDefault  = "ITEM,DESCRIPTION,CUSTOMER," + "WHSE,BIN,TAG,JOB#," +
                              "RCT DATE,ON HAND QTY,PALLETS,QUANTITY COUNTED" .
@@ -1736,6 +1736,8 @@ DEF BUFFER bfg-bin FOR fg-bin .
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 DEFINE VARIABLE cPoNo AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iEntryNumber AS INTEGER NO-UNDO.
+DEFINE VARIABLE cSalesCode AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSalesName AS CHARACTER NO-UNDO.
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 ASSIGN
@@ -1971,6 +1973,16 @@ ELSE DO:
    ELSE run sys/ref/convcuom.p(itemfg.prod-uom, "M", 0, 0, 0, 0,fg-bin.std-tot-cost, output v-costM).
    IF v-sellValue = ? THEN v-sellValue = 0.
    IF v-costM = ? THEN v-costM = 0.
+   
+   FIND FIRST cust NO-LOCK
+        WHERE cust.company EQ itemfg.company 
+        AND cust.cust-no EQ itemfg.cust-no NO-ERROR.
+   cSalesCode = IF AVAIL cust THEN cust.sman ELSE "" .
+   IF AVAIL cust THEN 
+   FIND FIRST sman NO-LOCK
+        WHERE sman.company EQ itemfg.company 
+        AND sman.sman EQ cust.sman NO-ERROR .
+   cSalesName = IF AVAIL cust AND AVAIL sman THEN sman.sname ELSE "" .     
 
    BUFFER bfg-bin:FIND-BY-ROWID(ROWID(fg-bin), NO-LOCK) .
    BUFFER bitemfg:FIND-BY-ROWID(ROWID(itemfg), NO-LOCK) .
@@ -2020,6 +2032,8 @@ ELSE DO:
                  WHEN "cFirstTrxDt" THEN cVarValue = IF dTrxDate <> ? THEN string(dTrxDate,"99/99/9999") ELSE "".
                  WHEN "cFirstTrxTyp" THEN cVarValue = STRING(cTrxType).
                  WHEN "po-no" THEN cVarValue =  STRING(cPoNo,"x(9)") .
+                 WHEN "sales-code" THEN cVarValue = STRING(cSalesCode).
+                 WHEN "sales-name" THEN cVarValue =  STRING(cSalesName,"x(30)") .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -2156,6 +2170,8 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF BUFFER bitemfg FOR itemfg.
 DEF BUFFER bfg-bin FOR fg-bin.
 DEFINE VARIABLE iEntryNumber AS INTEGER NO-UNDO.
+DEFINE VARIABLE cSalesCode AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSalesName AS CHARACTER NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
 ASSIGN 
@@ -2254,6 +2270,16 @@ FOR EACH tt-report
    ELSE run sys/ref/convcuom.p(itemfg.prod-uom, "M", 0, 0, 0, 0,fg-bin.std-tot-cost, output v-costM).
    IF v-sellValue = ? THEN v-sellValue = 0.
    IF v-costM = ? THEN v-costM = 0.
+   
+   FIND FIRST cust NO-LOCK
+        WHERE cust.company EQ itemfg.company 
+        AND cust.cust-no EQ itemfg.cust-no NO-ERROR.
+   cSalesCode = IF AVAIL cust THEN cust.sman ELSE "" .
+   IF AVAIL cust THEN 
+   FIND FIRST sman NO-LOCK
+        WHERE sman.company EQ itemfg.company 
+        AND sman.sman EQ cust.sman NO-ERROR .
+   cSalesName = IF AVAIL cust AND AVAIL sman THEN sman.sname ELSE "" . 
 
    BUFFER bfg-bin:FIND-BY-ROWID(ROWID(fg-bin), NO-LOCK) .
    BUFFER bitemfg:FIND-BY-ROWID(ROWID(itemfg), NO-LOCK) .
@@ -2303,6 +2329,8 @@ FOR EACH tt-report
                  WHEN "v-sellUom" THEN cVarValue = STRING(cSellUom).
                  WHEN "cFirstTrxDt" THEN cVarValue = IF dTrxDate <> ? THEN string(dTrxDate,"99/99/9999") ELSE "".
                  WHEN "cFirstTrxTyp" THEN cVarValue = STRING(cTrxType).
+                 WHEN "sales-code" THEN cVarValue = STRING(cSalesCode).
+                 WHEN "sales-name" THEN cVarValue =  STRING(cSalesName,"x(30)") .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
