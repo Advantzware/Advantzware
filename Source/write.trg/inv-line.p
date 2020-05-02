@@ -95,7 +95,7 @@ FOR EACH inv-head OF {&TABLENAME}
     
     RUN Conv_CalcTotalPrice({&TABLENAME}.company, 
                         {&TABLENAME}.i-no,
-                        {&TABLENAME}.qty,
+                        {&TABLENAME}.inv-qty,
                         {&TABLENAME}.price,
                         {&TABLENAME}.pr-uom,
                         {&TABLENAME}.disc,

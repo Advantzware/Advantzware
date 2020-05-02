@@ -1226,7 +1226,7 @@ FOR EACH oe-boll WHERE oe-boll.b-no = oe-bolh.b-no NO-LOCK :
 
     RUN Conv_CalcTotalPrice(inv-line.company, 
                         inv-line.i-no,
-                        inv-line.qty,
+                        inv-line.inv-qty,
                         inv-line.price,
                         inv-line.pr-uom,
                         inv-line.disc,

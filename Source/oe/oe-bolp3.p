@@ -1,4 +1,3 @@
-
 /*------------------------------------------------------------------------
     File        : oe-bolp3new.p
     Purpose     : 
@@ -896,7 +895,7 @@ PROCEDURE ipPostSingleBOL:
 
         RUN Conv_CalcTotalPrice(inv-line.company, 
                         inv-line.i-no,
-                        inv-line.qty,
+                        inv-line.inv-qty,
                         inv-line.price,
                         inv-line.pr-uom,
                         inv-line.disc,
