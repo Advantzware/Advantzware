@@ -329,6 +329,14 @@ PROCEDURE dynValRMItem:
         ).
 END PROCEDURE.
 
+PROCEDURE dynValSalesGroup:
+    {&defInputParam}
+    {&checkRange}
+        CAN-FIND(FIRST usergrps
+                 WHERE usergrps.usergrps EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
 PROCEDURE dynValSalesRep:
     {&defInputParam}
     {&checkRange}

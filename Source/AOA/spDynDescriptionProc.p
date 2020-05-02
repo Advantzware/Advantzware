@@ -189,7 +189,6 @@ PROCEDURE dynDescripRouting:
     iphWidgetTo:SCREEN-VALUE = routing.dscr .
 END PROCEDURE.
 
-
 PROCEDURE dynDescripRMItem:
     {&defInputParam}
     FIND FIRST item NO-LOCK
@@ -198,6 +197,15 @@ PROCEDURE dynDescripRMItem:
          NO-ERROR.
     IF AVAILABLE item THEN
     iphWidgetTo:SCREEN-VALUE = item.i-name.       
+END PROCEDURE.
+
+PROCEDURE dynDescripSalesGroup:
+    {&defInputParam}
+    FIND FIRST usergrps NO-LOCK
+         WHERE usergrps.usergrps EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE usergrps THEN
+    iphWidgetTo:SCREEN-VALUE = usergrps.dscr.
 END PROCEDURE.
 
 PROCEDURE dynDescripSalesRep:
