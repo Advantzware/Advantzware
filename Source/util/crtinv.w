@@ -948,7 +948,7 @@ DEF VAR v-index AS INT NO-UNDO.
 
       RUN Conv_CalcTotalPrice(inv-line.company, 
                         inv-line.i-no,
-                        inv-line.qty,
+                        inv-line.inv-qty,
                         inv-line.price,
                         inv-line.pr-uom,
                         inv-line.disc,

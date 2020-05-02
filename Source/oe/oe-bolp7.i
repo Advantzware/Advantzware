@@ -377,7 +377,7 @@ oe-ordl.stat = "".
 RUN oe/ordlsqty.p (ROWID(oe-ordl), OUTPUT oe-ordl.inv-qty, OUTPUT oe-ordl.ship-qty).
 RUN Conv_CalcTotalPrice(inv-line.company, 
                         inv-line.i-no,
-                        inv-line.qty,
+                        inv-line.inv-qty,
                         inv-line.price,
                         inv-line.pr-uom,
                         inv-line.disc,
