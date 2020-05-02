@@ -85,8 +85,8 @@ ASSIGN cTextListToSelect = "Item #,Item Name,Customer Part #,Customer,Customer N
                             "Qty Invoiced PTD,Qty Invoiced YTD,Qty Invoiced Last Yr," +
                             "Total MSF PTD,Total MSF YTD,Total MSF Last Yr," +
                             "Box Length,Box Width,Box Depth,Blank Length,Blank Width," +
-                            "Total Sq In,Total Sq Ft,Color1,Color2,Color3,Color4,Color5," +
-                            "Color6,Color7,Color8,Color9,Color10,Coating1,Coating2,Coating3," +
+                            "Total Sq In,Total Sq Ft,FgItem Color1,FgItem Color2,FgItem Color3,FgItem Color4,FgItem Color5," +
+                            "FgItem Color6,FgItem Color7,FgItem Color8,FgItem Color9,FgItem Color10,FGItem Coating1,FGItem Coating2,FGItem Coating3," +
                             "Board Code,Board Name,Caliper,Case Code,Case Name,Case Qty,Skid Code," + 
                             "Skid Name,Skid Qty,Release Sequence,Units/Pall,Factor Invoice,Sales Rep," +
                             "Spec Note 1 Group,Spec Note 1 Title,Spec Note 1 Note [Large]," +
@@ -1449,7 +1449,9 @@ FOR EACH b-itemfg WHERE b-itemfg.company = cocode
         v-case-count = 0
         v-pallet-count = 0
         v-cases-per-pallet = 0 
-        v-clip  =  0.
+        v-clip  =  0
+        v-ink = ""
+        v-coat = "".
 
 
      v-spec-note = "".
