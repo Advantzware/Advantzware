@@ -217,7 +217,15 @@ for each {1}fg-rctd
        END.
     END.
 
-    run fg/updfgcs1.p (recid(itemfg), NO, NO).
+/* Procedure updfgcs1.p re-calculates average cost,mat cost,lab cost etc. 
+   for all bins for the given item while posting counts which is impacting 
+   the performance of createinventorycount API . Re-calculation of costs 
+   is not required for posting counts. So, updfgcs1.p call has been commented 
+   out to improve the performance of createinventorycount API call.
+   
+   run fg/updfgcs1.p (recid(itemfg), NO, NO).
+   
+*/
 
     find b-itemfg where recid(b-itemfg) eq recid(itemfg) NO-LOCK.
 
