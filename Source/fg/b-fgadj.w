@@ -415,27 +415,27 @@ DO:
     END.
 
     WHEN "job-no" THEN DO:
-      RUN fgbin-help.
+      RUN fgbin-help("").
     END.
 
     WHEN "job-no2" THEN DO:
-      RUN fgbin-help.
+      RUN fgbin-help("").
     END.
 
     WHEN "loc" THEN DO:
-      RUN fgbin-help.
+      RUN fgbin-help("").
     END.
 
     WHEN "loc-bin" THEN DO:
-      RUN fgbin-help.
+      RUN fgbin-help("").
     END.
 
     WHEN "tag" THEN DO:
-      RUN fgbin-help.
+      RUN fgbin-help("Tag").
     END.
 
     WHEN "cust-no" THEN DO:
-      RUN fgbin-help.
+      RUN fgbin-help("").
     END.
   END CASE.
 
@@ -880,6 +880,7 @@ PROCEDURE fgbin-help :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipcFieldInput AS CHARACTER NO-UNDO.
   DEF VAR lv-rowid AS ROWID NO-UNDO.
 
 
@@ -904,8 +905,10 @@ PROCEDURE fgbin-help :
        fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fg-bin.job-no2)
        fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = fg-bin.loc
        fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.loc-bin
-       fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}     = fg-bin.tag
-       fg-rctd.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.cust-no.
+       fg-rctd.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.cust-no .
+       
+      IF ipcFieldInput EQ "Tag" THEN
+       fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}     = fg-bin.tag.
 
       RUN new-bin.
     END.
@@ -943,10 +946,8 @@ PROCEDURE get-def-values :
        fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}  = fg-bin.job-no
        fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fg-bin.job-no2)
        fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = fg-bin.loc
-       fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.loc-bin
-       fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}     = fg-bin.tag
-       fg-rctd.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.cust-no.
-
+       fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.loc-bin        
+       fg-rctd.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.cust-no.    
     RUN new-bin.
   END.
 
