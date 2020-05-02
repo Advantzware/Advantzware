@@ -583,32 +583,38 @@ PROCEDURE import-excel :
                tt-item-comm.row-no = v-RowCount
                v-RowCount = v-RowCount + 1.
          END.
-      END.
-      
-      /*Free memory*/
-      chWorkbook = chExcelApplication:Workbooks:CLOSE() NO-ERROR.
-      RELEASE OBJECT chWorkbook NO-ERROR.
-      RELEASE OBJECT chWorkSheet NO-ERROR.
-      RELEASE OBJECT chExcelApplication NO-ERROR.
-
-      FOR EACH tt-item-comm:
-
-         FIND FIRST b-cust WHERE b-cust.company = tt-item-comm.company
-                             AND b-cust.cust-no = tt-item-comm.cust-no NO-LOCK NO-ERROR.
-         IF NOT AVAILABLE(b-cust) THEN DO:
-            PUT UNFORMATTED "Invalid Customer Number " + '"' + tt-item-comm.cust-no + '"' + ", in row " + STRING(tt-item-comm.row-no) + "." SKIP.
-            tt-item-comm.valid = FALSE.
-         END.
+         /*Free memory*/
+         chWorkbook = chExcelApplication:Workbooks:CLOSE() NO-ERROR.
+         RELEASE OBJECT chWorkbook NO-ERROR.
+         RELEASE OBJECT chWorkSheet NO-ERROR.
+         RELEASE OBJECT chExcelApplication NO-ERROR.
          
-         FIND FIRST b-itemfg WHERE b-itemfg.company = tt-item-comm.company
-                               AND b-itemfg.cust-no = tt-item-comm.cust-no
-                               AND b-itemfg.i-no    = tt-item-comm.i-no NO-LOCK NO-ERROR.
-         IF NOT AVAILABLE(b-itemfg) THEN DO:
-            FIND FIRST b-itemfg WHERE b-itemfg.company = tt-item-comm.company
-                                  AND b-itemfg.i-no    = tt-item-comm.i-no NO-LOCK NO-ERROR.
-            IF NOT AVAILABLE(b-itemfg) THEN DO: 
-               PUT UNFORMATTED "Invalid FG Item Number " + '"' + tt-item-comm.i-no + '"' + ", in row " + STRING(tt-item-comm.row-no) + "." SKIP.
+         FOR EACH tt-item-comm:
+         
+            FIND FIRST b-cust WHERE b-cust.company = tt-item-comm.company
+                                AND b-cust.cust-no = tt-item-comm.cust-no NO-LOCK NO-ERROR.
+            IF NOT AVAILABLE(b-cust) THEN DO:
+               PUT UNFORMATTED "Invalid Customer Number " + '"' + tt-item-comm.cust-no + '"' + ", in row " + STRING(tt-item-comm.row-no) + "." SKIP.
                tt-item-comm.valid = FALSE.
+            END.
+            
+            FIND FIRST b-itemfg WHERE b-itemfg.company = tt-item-comm.company
+                                  AND b-itemfg.cust-no = tt-item-comm.cust-no
+                                  AND b-itemfg.i-no    = tt-item-comm.i-no NO-LOCK NO-ERROR.
+            IF NOT AVAILABLE(b-itemfg) THEN DO:
+               FIND FIRST b-itemfg WHERE b-itemfg.company = tt-item-comm.company
+                                     AND b-itemfg.i-no    = tt-item-comm.i-no NO-LOCK NO-ERROR.
+               IF NOT AVAILABLE(b-itemfg) THEN DO: 
+                  PUT UNFORMATTED "Invalid FG Item Number " + '"' + tt-item-comm.i-no + '"' + ", in row " + STRING(tt-item-comm.row-no) + "." SKIP.
+                  tt-item-comm.valid = FALSE.
+               END.
+               ELSE
+                  ASSIGN
+                     tt-item-comm.part-no    = b-itemfg.part-no
+                     tt-item-comm.i-dscr     = b-itemfg.i-dscr
+                     tt-item-comm.i-name     = b-itemfg.i-name
+                     tt-item-comm.part-dscr1 = b-itemfg.part-dscr1
+                     tt-item-comm.part-dscr2 = b-itemfg.part-dscr2.
             END.
             ELSE
                ASSIGN
@@ -617,74 +623,67 @@ PROCEDURE import-excel :
                   tt-item-comm.i-name     = b-itemfg.i-name
                   tt-item-comm.part-dscr1 = b-itemfg.part-dscr1
                   tt-item-comm.part-dscr2 = b-itemfg.part-dscr2.
+            
+/*             IF CAN-FIND(FIRST b-item-comm WHERE b-item-comm.company = tt-item-comm.company                                                                                                             */
+/*                                             AND b-item-comm.cust-no = tt-item-comm.cust-no                                                                                                             */
+/*                                             AND b-item-comm.i-no    = tt-item-comm.i-no) THEN DO:                                                                                                      */
+/*                PUT UNFORMATTED "FG Item Number " + '"' + tt-item-comm.i-no + '"' + ", in row " + STRING(tt-item-comm.row-no) + " already exists in the Commission Cost Item file. Did not load." SKIP. */
+/*                tt-item-comm.valid = FALSE.                                                                                                                                                             */
+/*             END.                                                                                                                                                                                       */
+            IF tt-item-comm.valid = TRUE THEN DO:
+               FIND FIRST b-item-comm WHERE b-item-comm.company = tt-item-comm.company
+                                        AND b-item-comm.cust-no = tt-item-comm.cust-no
+                                        AND b-item-comm.i-no    = tt-item-comm.i-no NO-ERROR.
+               IF NOT AVAILABLE(b-item-comm) THEN DO:
+                  CREATE item-comm.
+                  BUFFER-COPY tt-item-comm EXCEPT tt-item-comm.valid tt-item-comm.row-no TO item-comm NO-ERROR.
+                  ASSIGN
+                     v-ok-cnt = v-ok-cnt + 1
+                     v-rowid = ROWID(item-comm).
+               END.
+               ELSE DO:
+                  ASSIGN
+                     b-item-comm.set-sales-price = tt-item-comm.set-sales-price               
+                     b-item-comm.base-cost       = tt-item-comm.base-cost
+                     v-rowid = ROWID(b-item-comm)
+                     v-over-written = v-over-written + 1.
+                  IF tt-item-comm.zz-char[2] NE "" AND tt-item-comm.zz-char[2] NE ? THEN
+                     b-item-comm.zz-char[2]      = tt-item-comm.zz-char[2].
+                  IF tt-item-comm.zz-char[3] NE "" AND tt-item-comm.zz-char[3] NE ? THEN
+                     b-item-comm.zz-char[3]      = tt-item-comm.zz-char[3].
+                  IF tt-item-comm.zz-dec[1] NE 0 AND tt-item-comm.zz-dec[1] NE ? THEN 
+                     b-item-comm.zz-dec[1]       = tt-item-comm.zz-dec[1].
+                  IF tt-item-comm.fixed-gross-profit NE 0 AND tt-item-comm.fixed-gross-profit NE ? THEN
+                     b-item-comm.fixed-gross-profit = tt-item-comm.fixed-gross-profit.
+                  IF tt-item-comm.overhead-percent NE 0 AND tt-item-comm.overhead-percent NE ? THEN
+                     b-item-comm.overhead-percent   = tt-item-comm.overhead-percent.
+                  IF tt-item-comm.misc-percent NE 0 AND tt-item-comm.misc-percent NE ? THEN
+                     b-item-comm.misc-percent       = tt-item-comm.misc-percent.
+                  IF tt-item-comm.freight-percent NE 0 AND tt-item-comm.freight-percent NE ? THEN
+                     b-item-comm.freight-percent    = tt-item-comm.freight-percent.
+                  IF tt-item-comm.industrial-percent NE 0 AND tt-item-comm.industrial-percent NE ? THEN
+                     b-item-comm.industrial-percent = tt-item-comm.industrial-percent.
+                  IF tt-item-comm.comm-rate-percent NE 0 AND tt-item-comm.comm-rate-percent NE ? THEN
+                     b-item-comm.comm-rate-percent  = tt-item-comm.comm-rate-percent.
+                  IF tt-item-comm.warehouse-percent NE 0 AND tt-item-comm.warehouse-percent NE ? THEN
+                     b-item-comm.warehouse-percent  = tt-item-comm.warehouse-percent.
+                  IF tt-item-comm.zz-char[4] EQ "YES" OR tt-item-comm.zz-char[4] EQ "NO" THEN
+                     b-item-comm.zz-char[4]  = tt-item-comm.zz-char[4].
+               END.
+            END.
+            ELSE
+               v-nok-cnt = v-nok-cnt + 1.
          END.
-         ELSE
-            ASSIGN
-               tt-item-comm.part-no    = b-itemfg.part-no
-               tt-item-comm.i-dscr     = b-itemfg.i-dscr
-               tt-item-comm.i-name     = b-itemfg.i-name
-               tt-item-comm.part-dscr1 = b-itemfg.part-dscr1
-               tt-item-comm.part-dscr2 = b-itemfg.part-dscr2.
          
-/*          IF CAN-FIND(FIRST b-item-comm WHERE b-item-comm.company = tt-item-comm.company                                                                                                             */
-/*                                          AND b-item-comm.cust-no = tt-item-comm.cust-no                                                                                                             */
-/*                                          AND b-item-comm.i-no    = tt-item-comm.i-no) THEN DO:                                                                                                      */
-/*             PUT UNFORMATTED "FG Item Number " + '"' + tt-item-comm.i-no + '"' + ", in row " + STRING(tt-item-comm.row-no) + " already exists in the Commission Cost Item file. Did not load." SKIP. */
-/*             tt-item-comm.valid = FALSE.                                                                                                                                                             */
-/*          END.                                                                                                                                                                                       */
-         IF tt-item-comm.valid = TRUE THEN DO:
-            FIND FIRST b-item-comm WHERE b-item-comm.company = tt-item-comm.company
-                                     AND b-item-comm.cust-no = tt-item-comm.cust-no
-                                     AND b-item-comm.i-no    = tt-item-comm.i-no NO-ERROR.
-            IF NOT AVAILABLE(b-item-comm) THEN DO:
-               CREATE item-comm.
-               BUFFER-COPY tt-item-comm EXCEPT tt-item-comm.valid tt-item-comm.row-no TO item-comm NO-ERROR.
-               ASSIGN
-                  v-ok-cnt = v-ok-cnt + 1
-                  v-rowid = ROWID(item-comm).
-            END.
-            ELSE DO:
-               ASSIGN
-                  b-item-comm.set-sales-price = tt-item-comm.set-sales-price               
-                  b-item-comm.base-cost       = tt-item-comm.base-cost
-                  v-rowid = ROWID(b-item-comm)
-                  v-over-written = v-over-written + 1.
-               IF tt-item-comm.zz-char[2] NE "" AND tt-item-comm.zz-char[2] NE ? THEN
-                  b-item-comm.zz-char[2]      = tt-item-comm.zz-char[2].
-               IF tt-item-comm.zz-char[3] NE "" AND tt-item-comm.zz-char[3] NE ? THEN
-                  b-item-comm.zz-char[3]      = tt-item-comm.zz-char[3].
-               IF tt-item-comm.zz-dec[1] NE 0 AND tt-item-comm.zz-dec[1] NE ? THEN 
-                  b-item-comm.zz-dec[1]       = tt-item-comm.zz-dec[1].
-               IF tt-item-comm.fixed-gross-profit NE 0 AND tt-item-comm.fixed-gross-profit NE ? THEN
-                  b-item-comm.fixed-gross-profit = tt-item-comm.fixed-gross-profit.
-               IF tt-item-comm.overhead-percent NE 0 AND tt-item-comm.overhead-percent NE ? THEN
-                  b-item-comm.overhead-percent   = tt-item-comm.overhead-percent.
-               IF tt-item-comm.misc-percent NE 0 AND tt-item-comm.misc-percent NE ? THEN
-                  b-item-comm.misc-percent       = tt-item-comm.misc-percent.
-               IF tt-item-comm.freight-percent NE 0 AND tt-item-comm.freight-percent NE ? THEN
-                  b-item-comm.freight-percent    = tt-item-comm.freight-percent.
-               IF tt-item-comm.industrial-percent NE 0 AND tt-item-comm.industrial-percent NE ? THEN
-                  b-item-comm.industrial-percent = tt-item-comm.industrial-percent.
-               IF tt-item-comm.comm-rate-percent NE 0 AND tt-item-comm.comm-rate-percent NE ? THEN
-                  b-item-comm.comm-rate-percent  = tt-item-comm.comm-rate-percent.
-               IF tt-item-comm.warehouse-percent NE 0 AND tt-item-comm.warehouse-percent NE ? THEN
-                  b-item-comm.warehouse-percent  = tt-item-comm.warehouse-percent.
-               IF tt-item-comm.zz-char[4] EQ "YES" OR tt-item-comm.zz-char[4] EQ "NO" THEN
-                  b-item-comm.zz-char[4]  = tt-item-comm.zz-char[4].
-            END.
-         END.
-         ELSE
-            v-nok-cnt = v-nok-cnt + 1.
-      END.
-
-      PUT UNFORMATTED "Total number of records in Excel file " + STRING(v-tot-cnt)              SKIP
-                      "Total number of records sucessfully created " + STRING(v-ok-cnt)         SKIP
-                      "Total number of records over written " + STRING(v-over-written)          SKIP
-                      "Total number of records in Excel file with errors " + STRING(v-nok-cnt)  SKIP.
-
-      MESSAGE "Excel File Import Completed." SKIP
-              "Please review error file: c:\tmp\comm-item-error.txt"
-         VIEW-AS ALERT-BOX INFO BUTTONS OK.
+         PUT UNFORMATTED "Total number of records in Excel file " + STRING(v-tot-cnt)              SKIP
+                         "Total number of records sucessfully created " + STRING(v-ok-cnt)         SKIP
+                         "Total number of records over written " + STRING(v-over-written)          SKIP
+                         "Total number of records in Excel file with errors " + STRING(v-nok-cnt)  SKIP.
+         
+         MESSAGE "Excel File Import Completed." SKIP
+                 "Please review error file: c:\tmp\comm-item-error.txt"
+            VIEW-AS ALERT-BOX INFO BUTTONS OK.
+      END.      
    END.
 
    OUTPUT CLOSE.
