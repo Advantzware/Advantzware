@@ -75,7 +75,7 @@ SESSION:SET-WAIT-STATE("").
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS ed-text btUpdateHelp btPrint Btn_OK 
 &Scoped-Define DISPLAYED-OBJECTS lv-help-title lv-program lv-frame-name ~
-lv-version ed-text 
+lv-version ed-text lv-messageId lv-help-count
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -119,6 +119,16 @@ DEFINE VARIABLE lv-help-title AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE lv-program AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 47 BY 1 NO-UNDO.
+ 
+DEFINE VARIABLE lv-messageId AS INTEGER FORMAT ">>>>>9":U 
+     LABEL "Message#"
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1 NO-UNDO.
+  
+DEFINE VARIABLE lv-help-count AS INTEGER FORMAT ">>>>>9":U 
+     LABEL "Usage"
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-version AS CHARACTER FORMAT "x(100)":U 
      VIEW-AS FILL-IN 
@@ -129,13 +139,15 @@ DEFINE VARIABLE lv-version AS CHARACTER FORMAT "x(100)":U
 
 DEFINE FRAME gDialog
      lv-help-title AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 14
-     lv-program AT ROW 1.24 COL 68 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     lv-program AT ROW 1.24 COL 72 COLON-ALIGNED NO-LABEL WIDGET-ID 16
      lv-frame-name AT ROW 2.43 COL 2 NO-LABEL WIDGET-ID 12
-     lv-version AT ROW 2.43 COL 68 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     lv-version AT ROW 2.43 COL 72 COLON-ALIGNED NO-LABEL WIDGET-ID 18
      ed-text AT ROW 3.62 COL 2 NO-LABEL WIDGET-ID 10
      btUpdateHelp AT ROW 22.43 COL 67 WIDGET-ID 6
      btPrint AT ROW 22.43 COL 86 WIDGET-ID 4
      Btn_OK AT ROW 22.43 COL 102
+     lv-help-count AT ROW 22.43 COL 4
+     lv-messageId AT ROW 22.43 COL 30 
      SPACE(1.79) SKIP(0.28)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -186,6 +198,10 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lv-version IN FRAME gDialog
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN lv-messageId IN FRAME gDialog
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN lv-help-count IN FRAME gDialog
+   NO-ENABLE                                                            */      
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -304,6 +320,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DEF VAR fr-flags AS CHAR NO-UNDO.
     DEF VAR cRtnChar AS CHARACTER NO-UNDO.
     DEF VAR lRecFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cAutoCreate AS CHARACTER NO-UNDO.
+    
+    RUN sys/ref/nk1look.p (INPUT g_company, "AutoCreateHelp", "C" /* Logical */, 
+                           NO /* check by cust */, YES /* use cust not vendor */, 
+                           "" /* cust */, "" /* ship-to*/,
+                           OUTPUT cRtnChar, OUTPUT lRecFound).
+     cAutoCreate = cRtnChar .                      
         
     RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpService", "C" /* Logical */, 
                            NO /* check by cust */, YES /* use cust not vendor */, 
@@ -359,7 +382,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         IF is-frame-help THEN ASSIGN
             lv-help-title = "Help For " + (if hlp-head.frm-title <> "" then hlp-head.frm-title
                             else substring(hlp-head.help-txt,1,30) )
-                            + "   " + hlp-head.fil-name + "." + hlp-head.fld-name.
+                            + "    " + hlp-head.fil-name + "." + hlp-head.fld-name.
         ELSE IF hlp-head.frm-title EQ "" THEN ASSIGN
             lv-help-title = "Help For " + ip-db + "." + ip-table + "." + ip-field.
                             else lv-help-title = "Help On " + hlp-head.frm-title +  " For " +
@@ -368,10 +391,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             idx = IF INDEX(PROGRAM-NAME(2)," ") LT 1 THEN 1 ELSE INDEX(PROGRAM-NAME(2)," ")
             lv-frame-name = "Frame Name: " + ip-frame
             lv-program = "Procedure: " + substring(program-name(2),idx)
-            ed-text = hlp-head.help-txt.
+            ed-text = hlp-head.help-txt
+            lv-messageId = hlp-head.MSG-NUM
+            lv-help-count = hlp-head.usageCount .
 
     END. /* WebService no conn*/
-    ELSE DO:  /* WebService conn*/ 
+    ELSE DO:  /* WebService conn*/   
         IF ip-table EQ ? THEN ASSIGN
             ip-table = "" .
         IF ip-field EQ ? THEN ASSIGN 
@@ -387,8 +412,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             fr-file  = STRING(entry(3,parameters1))
             fr-title = STRING(entry(4,parameters1))
             fr-fram  = STRING(entry(2,parameters1))
+            lv-messageId = INTEGER(entry(5,parameters1))
+            lv-help-count = INTEGER(entry(6,parameters1))
             fr-txt = parameters2 NO-ERROR.
-
+                  
         IF ip-field NE "" 
         AND ip-table NE "" 
         AND fr-fram = "" THEN ASSIGN
@@ -399,21 +426,31 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         IF is-frame-help THEN ASSIGN
             lv-help-title = "Help For " + (if fr-title <> "" then fr-title
                             else substring(fr-txt,1,30) )
-                        + "   " + fr-file + "." + fr-field .                    
+                        + "    " + fr-file + "." + fr-field .                    
         ELSE IF fr-title EQ "" THEN ASSIGN 
             lv-help-title = "Help For " + ip-db + "." + ip-table + "." + ip-field.
         ELSE ASSIGN 
-            lv-help-title = "Help On " + fr-title +  " For " + ip-db + "." + ip-table + "." + ip-field .
+            lv-help-title = fr-title +  " For      " + ip-db + "." + ip-table + "." + ip-field .
                       
         ASSIGN
             idx = IF INDEX(PROGRAM-NAME(2)," ") LT 1 THEN 1 ELSE INDEX(PROGRAM-NAME(2)," ")
             lv-frame-name = "Frame Name: " + ip-frame
             lv-program = "Procedure: " + substring(program-name(2),idx).
-
+            
+        IF ed-text EQ "" THEN
+            ed-text = "No Detail Help Information Available!."  .
          
          RUN HelpVersion IN vhSalesSoap( OUTPUT parameters1).
          ASSIGN lv-version = "Current Version available: " +  parameters1. 
+         
+         IF cAutoCreate EQ "Local-Asi" AND lv-messageId EQ 0 AND string(ip-field) NE "" THEN
+         DO:
+            RUN pRunAutoCreate(OUTPUT lv-messageId). 
+            IF lv-messageId NE 0 THEN
+            RUN HelpInsert IN vhSalesSoap(INPUT STRING(lv-messageId),INPUT STRING(ip-field),INPUT STRING(""),INPUT STRING(ip-table),INPUT STRING(ip-frame),INPUT STRING(""),  OUTPUT parameters1).
+         END.
 
+         
     END.  /* WebService is conn*/     /*mod-sewa  */
           
   RUN enable_UI.
@@ -481,8 +518,8 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY lv-help-title lv-program lv-frame-name lv-version ed-text 
-      WITH FRAME gDialog.
+  DISPLAY lv-help-title lv-program lv-frame-name lv-version ed-text lv-messageId
+       lv-help-count WITH FRAME gDialog.
   ENABLE ed-text btUpdateHelp btPrint Btn_OK 
       WITH FRAME gDialog.
   VIEW FRAME gDialog.
@@ -491,4 +528,37 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunAutoCreate D-Dialog 
+PROCEDURE pRunAutoCreate :
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER ipiReturn AS INTEGER NO-UNDO.
+  DEFINE BUFFER bf-hlp FOR hlp-head.
+  DEFINE BUFFER bf-hlp-head FOR hlp-head.
+  DEFINE VARIABLE li-next-num AS INTEGER NO-UNDO.
+  
+  FIND LAST bf-hlp USE-INDEX mess-num NO-LOCK NO-ERROR.
+  IF AVAILABLE bf-hlp THEN li-next-num = bf-hlp.msg-num + 1.
+  ELSE li-next-num = 1.
+  
+  CREATE bf-hlp-head .
+  bf-hlp-head.msg-num = li-next-num.
+  bf-hlp-head.CreatedDate  = TODAY .
+  bf-hlp-head.FLD-NAME  = ip-field. 
+  bf-hlp-head.FRM-TITLE = ip-frame.
+  bf-hlp-head.FIL-NAME = ip-table.   
+  bf-hlp-head.autoCreated = TRUE .
+  ipiReturn = li-next-num.
+  RELEASE bf-hlp-head . 
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
