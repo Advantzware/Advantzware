@@ -853,7 +853,17 @@ DO v-local-loop = 1 TO v-local-copies:
                 .
         
         PAGE.
+        
+         IF s-prt-fgimage THEN DO:        
+            ls-fgitem-img = IF AVAIL bf-itemfg THEN bf-itemfg.box-image ELSE "".
 
+            PUT UNFORMATTED "<#12><C1><FROM><C106><R+47><RECT><||3><C80>" /*v-qa-text*/ SKIP
+                "<=12><R+1><C5>FG Item: " (IF AVAIL bf-itemfg THEN bf-itemfg.i-no ELSE "") " " ( IF AVAIL bf-itemfg THEN bf-itemfg.i-name ELSE "")
+                "<=12><R+3><C1><FROM><C106><LINE><||3>"
+                "<=12><R+5><C5><#21><R+40><C+90><IMAGE#21=" ls-fgitem-img ">" SKIP. 
+            PAGE.
+         END.
+         
         /*v-shipto = IF AVAILABLE xoe-rel THEN xoe-rel.ship-id 
                         ELSE IF AVAILABLE xeb THEN xeb.ship-id
                         ELSE IF AVAILABLE xoe-ord THEN xoe-ord.sold-id 
