@@ -105,7 +105,7 @@ FOR EACH oe-ordl NO-LOCK
   FIND b-oe-ordl EXCLUSIVE WHERE ROWID(b-oe-ordl) EQ ROWID(oe-ordl)
       NO-WAIT NO-ERROR.
 
-  IF AVAIL b-oe-ordl THEN DO:
+  IF {&TABLENAME}.qty NE old-{&TABLENAME}.qty AND AVAIL b-oe-ordl THEN DO:
     RUN oe/ordlsqty.p (ROWID(b-oe-ordl),
                        OUTPUT b-oe-ordl.inv-qty,
                        OUTPUT b-oe-ordl.ship-qty).

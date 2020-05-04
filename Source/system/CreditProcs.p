@@ -31,7 +31,7 @@
 
 /* **********************  Internal Procedures  *********************** */
 
-PROCEDURE GetTerms:
+PROCEDURE Credit_GetTerms:
     /*------------------------------------------------------------------------------
      Purpose: Calculates a given estReleaseID's Freight Cost
      Notes:
@@ -43,18 +43,21 @@ PROCEDURE GetTerms:
     DEFINE OUTPUT PARAMETER opiDueOnDay   AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiNetDays    AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdDiscRate   AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiDiscDays   AS DECIMAL NO-UNDO. 
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL NO-UNDO.
 
-   find first terms NO-LOCK
-       where terms.company = ipcCompany
+   FIND FIRST terms NO-LOCK
+       WHERE terms.company = ipcCompany
          AND terms.t-code  = ipcTermsCode 
-       no-error. 
+       NO-ERROR. 
    IF AVAIL terms THEN DO:
        ASSIGN
            opiDueOnMonth = terms.dueOnMonth
            opiDueOnDay   = terms.dueOnDay
            opiNetDays    = terms.net-days
-           opdDiscRate   = terms.disc-rate .
+           opdDiscRate   = terms.disc-rate 
+           opiDiscDays   = terms.disc-days
+           .
    END.
    ELSE DO:
        oplError = YES .
@@ -79,9 +82,10 @@ FUNCTION GetInvDueDate RETURNS DATE
     DEFINE VARIABLE iDueOnDay   AS INTEGER NO-UNDO.
     DEFINE VARIABLE iNetDays    AS INTEGER NO-UNDO.
     DEFINE VARIABLE dDiscRate   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iDiscDays   AS INTEGER NO-UNDO.
     DEFINE VARIABLE lGetError      AS LOGICAL NO-UNDO.
 
-    RUN GetTerms( ipcCompany,ipcTerms, OUTPUT iDueOnMonth,OUTPUT iDueOnDay,OUTPUT iNetDays,OUTPUT dDiscRate,OUTPUT lGetError) .
+    RUN Credit_GetTerms( ipcCompany,ipcTerms, OUTPUT iDueOnMonth,OUTPUT iDueOnDay,OUTPUT iNetDays,OUTPUT dDiscRate, OUTPUT iDiscDays, OUTPUT lGetError) .
 
     IF NOT lGetError THEN do:
         IF iDueOnMonth GT 0 AND ipdtInvDate  GT  DATE(string(iDueOnMonth,"99") + "/" + STRING(iDueOnDay,"99") + "/" + STRING(YEAR(TODAY),"9999"))   THEN
