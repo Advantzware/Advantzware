@@ -46,6 +46,7 @@ DEF VAR ls-prev-po AS cha NO-UNDO.
 DEF VAR hd-post AS WIDGET-HANDLE NO-UNDO.
 DEF VAR hd-post-child AS WIDGET-HANDLE NO-UNDO.
 DEF VAR ll-help-run AS LOG NO-UNDO. /* set on browse help, reset row-entry */
+DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
 
 DEF BUFFER bf-tmp FOR fg-rctd.  /* for tag validation */
 DEF BUFFER xfg-rdtlh FOR fg-rdtlh. /* for tag validation */
@@ -942,9 +943,7 @@ PROCEDURE get-def-values :
         NO-LOCK NO-ERROR.
 
     IF AVAIL fg-bin THEN
-      ASSIGN
-       fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}  = fg-bin.job-no
-       fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fg-bin.job-no2)
+      ASSIGN       
        fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}     = fg-bin.loc
        fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.loc-bin        
        fg-rctd.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.cust-no.    
@@ -994,15 +993,18 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  IF adm-new-record AND NOT AVAIL fg-rctd THEN
+   FIND FIRST fg-rctd NO-LOCK WHERE  ROWID(fg-rctd) EQ rwRowid NO-ERROR .
+   
  /* Buttons were made not sensitive during add, so reverse that here */
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
   RUN make-buttons-sensitive IN WIDGET-HANDLE(char-hdl).
-
+           
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
   /* Code placed here will execute AFTER standard behavior.    */
-
+  rwRowid = ?.
+           
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1059,6 +1061,7 @@ PROCEDURE local-create-record :
             fg-rctd.reject-code[1] = ""
             fg-rctd.reject-code[1]:SCREEN-VALUE IN BROWSE {&browse-name} = ""  .
     DISPLAY fg-rctd.rct-date fg-rctd.reject-code[1] WITH BROWSE {&browse-name}.
+    rwRowid = ROWID(fg-rctd).
   END.  
 
 /*
@@ -1244,7 +1247,7 @@ PROCEDURE local-update-record :
       APPLY 'cursor-left' TO {&BROWSE-NAME}.
     END.
   END.
-
+  rwRowid = ?.
 
 END PROCEDURE.
 
