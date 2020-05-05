@@ -166,7 +166,12 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Update Other Estimates */
 DO:
-  APPLY "END-ERROR":U TO SELF.
+  ASSIGN 
+     ioplInks = NO
+     ioplPacking = NO
+     ioplFreight = NO. 
+     
+  APPLY "END-ERROR":U TO SELF.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
