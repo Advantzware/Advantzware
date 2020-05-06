@@ -824,7 +824,7 @@ PROCEDURE local-delete-record :
 
   RUN pCheckMultiRecord(OUTPUT lMultiRecords) .
  IF lMultiRecords THEN do:
-     RUN est/delRouteMulti.w(ROWID(est),RECID(est-op),ROWID(est-qty)) . 
+     RUN est/delRouteMulti.w(ROWID(est),RECID(est-op),ROWID(est-qty),"Delete") . 
      RUN local-open-query .
  END.
  ELSE do: 
@@ -863,6 +863,34 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pImportRoute B-table-Win 
+PROCEDURE pImportRoute :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER ipRowid AS ROWID NO-UNDO.
+  DEFINE VARIABLE lMultiRecords AS LOGICAL NO-UNDO .
+  
+  /*DEFINE BUFFER xop FOR est-op.  
+  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.*/
+ 
+
+  RUN pCheckMultiRecord(OUTPUT lMultiRecords) .
+  IF lMultiRecords THEN do:
+     RUN est/delRouteMulti.w(ROWID(est),RECID(est-op),ROWID(est-qty),"Import") .      
+  END.
+  ELSE do: 
+     RUN est/d-estop.w (RECID(est-op),RECID(est),RECID(est-qty), "import", OUTPUT ipRowid) .
+  END.     
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
 PROCEDURE local-initialize :

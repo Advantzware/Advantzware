@@ -454,13 +454,9 @@ ON CHOOSE OF Btn-Imp IN FRAME F-Main /* Import */
      
             EMPTY TEMP-TABLE tt-est-op.
 
-            IF est.est-type LT 5 THEN
-                RUN ce/d-estop.w (RECID(est-op),RECID(est),RECID(est-qty), "import", OUTPUT lv-rowid) .
-            ELSE
-                RUN est/d-estop.w (RECID(est-op),RECID(est),RECID(est-qty), "import", OUTPUT lv-rowid) . 
-       
-       
-            RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
+ 	    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
+            RUN pImportRoute IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rowid).		       
+            
             RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
       
         END.
