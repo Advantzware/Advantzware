@@ -2378,8 +2378,7 @@ PROCEDURE copy-frat :
      CAN-FIND(FIRST b-eb WHERE b-eb.company EQ eb.company
                            AND b-eb.est-no  EQ eb.est-no
                            AND b-eb.eqty    EQ eb.eqty
-                           AND b-eb.form-no NE 0
-                           AND ROWID(b-eb)  NE ROWID(eb)) THEN
+                           AND b-eb.form-no NE 0) THEN
     RUN est/copyfrat.p (ROWID(eb),ipUpdateOtherEst).
 
 END PROCEDURE.
@@ -2402,8 +2401,7 @@ PROCEDURE copy-inks :
      CAN-FIND(FIRST b-eb WHERE b-eb.company EQ eb.company
                            AND b-eb.est-no  EQ eb.est-no
                            AND b-eb.eqty    EQ eb.eqty
-                           AND b-eb.form-no NE 0
-                           AND ROWID(b-eb)  NE ROWID(eb)) THEN
+                           AND b-eb.form-no NE 0) THEN
     RUN est/copyinks.p (ROWID(eb),ipUpdateOtherEst).
 
 END PROCEDURE.
@@ -2420,14 +2418,12 @@ PROCEDURE copy-pack :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipUpdateOtherEst AS LOGICAL NO-UNDO.
   DEF BUFFER b-eb FOR eb.
-
-
+      
   IF eb.form-no NE 0                                      AND
      CAN-FIND(FIRST b-eb WHERE b-eb.company EQ eb.company
                            AND b-eb.est-no  EQ eb.est-no
                            AND b-eb.eqty    EQ eb.eqty
-                           AND b-eb.form-no NE 0
-                           AND ROWID(b-eb)  NE ROWID(eb)) THEN
+                           AND b-eb.form-no NE 0) THEN 
     RUN est/copypack.p (ROWID(eb), ipUpdateOtherEst).
 
 END PROCEDURE.
