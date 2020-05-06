@@ -29,6 +29,7 @@ DEFINE VARIABLE lLogMeIn        AS LOG NO-UNDO.
 DEFINE VARIABLE iLoginCnt AS INTEGER NO-UNDO.
 DEFINE VARIABLE ppid AS INTEGER NO-UNDO.
 DEFINE VARIABLE lStrongDisconnect AS LOG NO-UNDO.
+DEFINE VARIABLE iLoginUserSecLevel AS INT NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {custom/gcompany.i}    
@@ -128,7 +129,8 @@ ASSIGN
 /*        RETURN.                                                  */
 /*    END.                                                         */
     ELSE ASSIGN  
-        cUserName = users.user_name.
+        cUserName = users.user_name
+        iLoginUserSecLevel = users.securityLevel.
 
 /* Verify user has "signed" the EULA agreement */
     cEulaFile = SEARCH("{&EulaFile}").
@@ -177,10 +179,12 @@ ASSIGN
     IF iLoginCnt GT 0 
     AND lPromptMultiSession THEN DO:
         /* user 'monitor' gets a free pass for multiple connections; everybody else counts */
-        IF cCurrentUserID NE "monitor" THEN 
-            RUN system/wSession.w (INPUT iLoginCnt, INPUT userControl.maxSessionsPerUser, OUTPUT cResponse).
-        ELSE ASSIGN 
+        IF cCurrentUserID EQ "monitor" 
+        OR iLoginUserSecLevel GE 1000 THEN ASSIGN 
             cResponse = "".
+        ELSE  
+            RUN system/wSession.w (INPUT iLoginCnt, INPUT userControl.maxSessionsPerUser, OUTPUT cResponse).
+
         CASE cResponse:
             WHEN "" THEN ASSIGN     /* First time, or user wants multiple sessions */ 
                 lLogMeIn = TRUE.
@@ -239,7 +243,7 @@ ASSIGN
         /* ASI and Monitor can log in no matter what count is; otherwise exceeding the grace count prevents login */
         IF iAllUserCount + 1 GT userControl.maxAllowedUsers + userControl.numUsersOverLimit 
         AND cCurrentUserID NE "Monitor" 
-        AND cCurrentUserID NE "ASI" THEN DO:            
+        AND iLoginUserSecLevel LT 1000 THEN DO:            
             MESSAGE 
                 "The maximum number of connections has been reached.  Exiting the application."
                 VIEW-AS ALERT-BOX WARNING .
