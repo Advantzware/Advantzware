@@ -851,7 +851,22 @@ DO:
                 INPUT STRING(ROWID(job))
                 ).                      
         END.    
-        
+        WHEN "SendOrderAck"  THEN DO:
+            FIND FIRST oe-ord NO-LOCK
+                 WHERE oe-ord.company EQ cCompany
+                   AND oe-ord.ord-no   EQ INTEGER(fiPrimaryKey:SCREEN-VALUE)
+                 NO-ERROR.
+            IF NOT AVAILABLE oe-ord THEN DO:    
+                MESSAGE "Invalid Sales Order" VIEW-AS ALERT-BOX ERROR.
+                RETURN.
+            END.
+
+            RUN pCreateArgs (
+                INPUT "ROWID",
+                INPUT "oe-ord",
+                INPUT STRING(ROWID(oe-ord))
+                ).
+        END.        
     END CASE.
     RUN api/PrepareOutboundRequest.p (
         INPUT TABLE ttArgs,
