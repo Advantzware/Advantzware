@@ -374,19 +374,19 @@ PROCEDURE pValidate PRIVATE:
         ipbf-ttImportCust.CustStatus = "A".
     ELSE IF ipbf-ttImportCust.CustStatus EQ "Inactive" THEN 
         ipbf-ttImportCust.CustStatus = "I".
-    ELSE IF ipbf-ttImportCust.cFrtPay EQ "Inhouse" THEN 
+    ELSE IF ipbf-ttImportCust.CustStatus EQ "Inhouse" THEN 
         ipbf-ttImportCust.CustStatus = "X".
-    ELSE IF ipbf-ttImportCust.cFrtPay EQ "Statement" THEN 
+    ELSE IF ipbf-ttImportCust.CustStatus EQ "Statement" THEN 
         ipbf-ttImportCust.CustStatus = "S".
-    ELSE IF ipbf-ttImportCust.cFrtPay EQ "Service" THEN 
+    ELSE IF ipbf-ttImportCust.CustStatus EQ "Service" THEN 
         ipbf-ttImportCust.CustStatus = "E".
        
     IF ipbf-ttImportCust.accountType EQ "Split" THEN 
-        ipbf-ttImportCust.CustStatus = "S".
-    ELSE IF ipbf-ttImportCust.CustStatus EQ "Originated" THEN 
-        ipbf-ttImportCust.CustStatus = "O".
-    ELSE IF ipbf-ttImportCust.cFrtPay EQ "Handed" THEN 
-        ipbf-ttImportCust.CustStatus = "H".
+        ipbf-ttImportCust.accountType = "S".
+    ELSE IF ipbf-ttImportCust.accountType EQ "Originated" THEN 
+        ipbf-ttImportCust.accountType = "O".
+    ELSE IF ipbf-ttImportCust.accountType EQ "Handed" THEN 
+        ipbf-ttImportCust.accountType = "H".
      
 
     
