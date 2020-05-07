@@ -166,11 +166,11 @@ DEFINE VARIABLE ytd-profit-pct AS DECIMAL FORMAT "->>>,>>>,>>9.99":U INITIAL 0
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 107 BY 13.81.
+     SIZE 105 BY 13.81.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 42 BY 13.81.
+     SIZE 44 BY 13.81.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -185,7 +185,13 @@ DEFINE FRAME F-Main
      cust.lyr-sales AT ROW 1.95 COL 75 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-          BGCOLOR 15 FONT 4     
+          BGCOLOR 15 FONT 4
+     cust.accountType AT ROW 2.86 COL 126 COLON-ALIGNED
+          VIEW-AS COMBO-BOX INNER-LINES 4
+          LIST-ITEMS "","Split","Originated","Handed" 
+          DROP-DOWN-LIST
+          SIZE 19 BY 1
+          BGCOLOR 15 FONT 4
      cust.cost[1] AT ROW 3.14 COL 26 COLON-ALIGNED
           LABEL "Costs"
           VIEW-AS FILL-IN 
@@ -198,13 +204,24 @@ DEFINE FRAME F-Main
      cust.cost[6] AT ROW 3.14 COL 75 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-          BGCOLOR 15 FONT 4      
+          BGCOLOR 15 FONT 4
+     cust.splitType AT ROW 4.24 COL 126 COLON-ALIGNED FORMAT "9"
+          VIEW-AS COMBO-BOX INNER-LINES 10
+          LIST-ITEMS "0","1","2","3","4","5","6","7","8","9" 
+          DROP-DOWN-LIST
+          SIZE 8 BY 1
+          BGCOLOR 15 FONT 4
      ptd-profit AT ROW 4.33 COL 26 COLON-ALIGNED
      ytd-profit AT ROW 4.33 COL 51 COLON-ALIGNED NO-LABEL
      lyr-profit AT ROW 4.33 COL 75 COLON-ALIGNED NO-LABEL
      ptd-profit-pct AT ROW 5.52 COL 26 COLON-ALIGNED
      ytd-profit-pct AT ROW 5.52 COL 51 COLON-ALIGNED NO-LABEL
      lyr-profit-pct AT ROW 5.52 COL 75 COLON-ALIGNED NO-LABEL
+     cust.parentCust AT ROW 5.62 COL 126 COLON-ALIGNED
+          LABEL "Parent Customer" FORMAT "x(12)"
+          VIEW-AS FILL-IN 
+          SIZE 14.8 BY 1
+          BGCOLOR 15 FONT 4
      cust.comm[1] AT ROW 6.71 COL 26 COLON-ALIGNED
           LABEL "Commissions"
           VIEW-AS FILL-IN 
@@ -217,7 +234,12 @@ DEFINE FRAME F-Main
      cust.comm[6] AT ROW 6.71 COL 75 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-          BGCOLOR 15 FONT 4      
+          BGCOLOR 15 FONT 4
+     cust.marketSegment AT ROW 7.05 COL 126 COLON-ALIGNED
+          LABEL "Market Segment" FORMAT "x(16)"
+          VIEW-AS FILL-IN 
+          SIZE 18.8 BY 1
+          BGCOLOR 15 FONT 4
      total-msf AT ROW 7.91 COL 26 COLON-ALIGNED HELP
           "Enter Total MSF"
      cust.ytd-msf AT ROW 7.91 COL 51 COLON-ALIGNED NO-LABEL
@@ -227,7 +249,12 @@ DEFINE FRAME F-Main
      cust.lyytd-msf AT ROW 7.95 COL 75 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-          BGCOLOR 15 FONT 4     
+          BGCOLOR 15 FONT 4
+     cust.naicsCode AT ROW 8.57 COL 126 COLON-ALIGNED
+          LABEL "NAICS Code" FORMAT "x(6)"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+          BGCOLOR 15 FONT 4
      cust.hibal AT ROW 9.57 COL 26 COLON-ALIGNED
           LABEL "High Balance"
           VIEW-AS FILL-IN 
@@ -238,11 +265,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
           BGCOLOR 15 FONT 4
-     cust.num-inv AT ROW 9.57 COL 94 COLON-ALIGNED
-          LABEL "Total# of Inv. Paid"
-          VIEW-AS FILL-IN 
-          SIZE 8 BY 1
-          BGCOLOR 15 FONT 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -250,6 +272,11 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     cust.num-inv AT ROW 9.57 COL 94 COLON-ALIGNED
+          LABEL "Total# of Inv. Paid"
+          VIEW-AS FILL-IN 
+          SIZE 8 BY 1
+          BGCOLOR 15 FONT 4
      cust.lpay AT ROW 10.76 COL 26 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
@@ -260,7 +287,6 @@ DEFINE FRAME F-Main
           SIZE 18 BY 1
           BGCOLOR 15 FONT 4
      cust.avg-pay AT ROW 10.76 COL 94 COLON-ALIGNED
-          FORMAT ">>>9" 
           LABEL "Avg# Days to Pay"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
@@ -277,62 +303,16 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
           BGCOLOR 15 FONT 4
-     cust.accountType AT ROW 2.86 COL 128 COLON-ALIGNED
-          HELP "Account type is used for sales reporting"
-          LABEL "Account Type" FORMAT "x(6)"
-          VIEW-AS COMBO-BOX INNER-LINES 4
-          LIST-ITEM-PAIRS "","",
-                     "Split","S",
-                     "Originated","O",
-                     "Handed","H"
-          DROP-DOWN-LIST 
-          SIZE 16 BY 1
-          BGCOLOR 15 FONT 4 
-     cust.splitType AT ROW 4.24 COL 128 COLON-ALIGNED
-          HELP "Split type used for sales reporting"
-          LABEL "Split Type" FORMAT ">>9"
-          VIEW-AS COMBO-BOX INNER-LINES 10
-          LIST-ITEM-PAIRS "0","0",
-                     "1","1",
-                     "2","2",
-                     "3","3",
-                     "4","4",
-                     "5","5",
-                     "6","6",
-                     "7","7",
-                     "8","8",
-                     "9","9"                     
-          DROP-DOWN-LIST 
-          SIZE 6.8 BY 1
-          BGCOLOR 15 FONT 4 
-     cust.parentCust AT ROW 5.62 COL 128 COLON-ALIGNED
-          HELP "Master customer account"
-          LABEL "Parent Customer" FORMAT "x(12)"
-          VIEW-AS FILL-IN 
-          SIZE 14.8 BY 1
-          BGCOLOR 15 FONT 4
-     cust.marketSegment AT ROW 7.05 COL 128 COLON-ALIGNED
-          HELP "Market segment for sales reporting"
-          LABEL "Market Segment" FORMAT "x(16)"
-          VIEW-AS FILL-IN 
-          SIZE 18.8 BY 1
-          BGCOLOR 15 FONT 4
-     cust.naicsCode AT ROW 8.57 COL 128 COLON-ALIGNED
-          HELP "NAICS Code’, link to NaicsTable, Default = 999999"
-          LABEL "NAICS Code" FORMAT "x(6)"
-          VIEW-AS FILL-IN 
-          SIZE 13 BY 1
-          BGCOLOR 15 FONT 4     
      "Reporting Data" VIEW-AS TEXT
-          SIZE 21 BY 1.19 AT ROW 1.24 COL 125 WIDGET-ID 2
-     "Year to Date" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 1.24 COL 56
-     "Prior Year" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 1.24 COL 81
+          SIZE 21 BY 1.19 AT ROW 1.24 COL 123 WIDGET-ID 2
      "Period to Date" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 1.24 COL 30
+     "Prior Year" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 1.24 COL 81
+     "Year to Date" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 1.24 COL 56
      RECT-1 AT ROW 1 COL 1
-     RECT-2 AT ROW 1 COL 108 WIDGET-ID 4
+     RECT-2 AT ROW 1 COL 106 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -366,8 +346,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 27.43
-         WIDTH              = 160.
+         HEIGHT             = 14.52
+         WIDTH              = 150.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -395,8 +375,6 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN cust.accountType IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN cust.avg-pay IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN cust.comm[1] IN FRAME F-Main
@@ -433,8 +411,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ptd-sales IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
-/* SETTINGS FOR FILL-IN cust.splitType IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR COMBO-BOX cust.splitType IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN total-msf IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN ytd-profit IN FRAME F-Main
@@ -461,6 +439,7 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
 &Scoped-define SELF-NAME F-Main
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
 ON HELP OF FRAME F-Main
@@ -533,6 +512,38 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME cust.naicsCode
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.naicsCode V-table-Win
+ON LEAVE OF cust.naicsCode IN FRAME F-Main /* NAICS Code */
+DO:
+   DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
+   IF LASTKEY NE -1 THEN 
+        DO:
+            RUN valid-naics(OUTPUT lCheckError) NO-ERROR.
+            IF lCheckError THEN RETURN NO-APPLY.
+        END. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cust.parentCust
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.parentCust V-table-Win
+ON LEAVE OF cust.parentCust IN FRAME F-Main /* Parent Customer */
+DO:
+   DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
+   IF LASTKEY NE -1 THEN 
+        DO:
+            RUN valid-cust(OUTPUT lCheckError) NO-ERROR.
+            IF lCheckError THEN RETURN NO-APPLY.
+        END. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME ptd-sales
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ptd-sales V-table-Win
 ON LEAVE OF ptd-sales IN FRAME F-Main /* Sales */
@@ -553,36 +564,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&Scoped-define SELF-NAME cust.parentCust
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.parentCust V-table-Win
-ON LEAVE OF cust.parentCust IN FRAME F-Main /* YTD Sales */
-DO:
-   DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
-   IF LASTKEY NE -1 THEN 
-        DO:
-            RUN valid-cust(OUTPUT lCheckError) NO-ERROR.
-            IF lCheckError THEN RETURN NO-APPLY.
-        END. 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME cust.naicsCode
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.naicsCode V-table-Win
-ON LEAVE OF cust.naicsCode IN FRAME F-Main /* YTD Sales */
-DO:
-   DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
-   IF LASTKEY NE -1 THEN 
-        DO:
-            RUN valid-naics(OUTPUT lCheckError) NO-ERROR.
-            IF lCheckError THEN RETURN NO-APPLY.
-        END. 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME  
 
 
 &UNDEFINE SELF-NAME
@@ -870,5 +851,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
