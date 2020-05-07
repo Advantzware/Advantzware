@@ -23,10 +23,15 @@ DEFINE INPUT PARAMETER ipcCustomerIDStart AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcCustomerIDEnd AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipdtPostDate AS DATE NO-UNDO.
 DEFINE INPUT PARAMETER ipcOptions AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opiCountProcessed AS INTEGER NO-UNDO.
+DEFINE OUTPUT PARAMETER opiCountValid AS INTEGER NO-UNDO.
+DEFINE OUTPUT PARAMETER opiCountPosted AS INTEGER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
-DEFINE TEMP-TABLE ttPostingMaster
+
+
+DEFINE TEMP-TABLE ttPostingMaster NO-UNDO 
     FIELD company           AS CHARACTER
     FIELD blockZeroCost     AS LOGICAL
     FIELD invoiceStart      AS INTEGER 
@@ -47,7 +52,7 @@ DEFINE TEMP-TABLE ttPostingMaster
     FIELD accountARCash     AS CHARACTER 
     .
     
-DEFINE TEMP-TABLE ttInvoiceToPost
+DEFINE TEMP-TABLE ttInvoiceToPost NO-UNDO 
     FIELD riInvHead                    AS ROWID
     FIELD isOKToPost                   AS LOGICAL
     FIELD rNo                          AS INTEGER
@@ -88,7 +93,7 @@ DEFINE TEMP-TABLE ttInvoiceToPost
     FIELD isInvoiceDateInCurrentPeriod AS LOGICAL     
     .
     
-DEFINE TEMP-TABLE ttInvoiceLineToPost
+DEFINE TEMP-TABLE ttInvoiceLineToPost NO-UNDO 
     FIELD riInvLine               AS ROWID
     FIELD rNo                     AS INTEGER 
     FIELD rNoOld                  AS INTEGER
@@ -135,7 +140,7 @@ DEFINE TEMP-TABLE ttInvoiceLineToPost
     FIELD squareFeetPerEA         AS DECIMAL
     .    
     
-DEFINE TEMP-TABLE ttInvoiceMiscToPost
+DEFINE TEMP-TABLE ttInvoiceMiscToPost NO-UNDO 
     FIELD riInvMisc      AS ROWID
     FIELD rNo            AS INTEGER 
     FIELD rNoOld         AS INTEGER
@@ -153,7 +158,7 @@ DEFINE TEMP-TABLE ttInvoiceMiscToPost
     FIELD amount         AS DECIMAL          
     .
     
-DEFINE TEMP-TABLE ttGLTransaction
+DEFINE TEMP-TABLE ttGLTransaction NO-UNDO 
     FIELD company           AS CHARACTER 
     FIELD transactionType   AS CHARACTER
     FIELD transactionDate   AS DATE 
@@ -169,7 +174,7 @@ DEFINE TEMP-TABLE ttGLTransaction
     FIELD journalNote       AS CHARACTER
     .
 
-DEFINE TEMP-TABLE ttARLedgerTransaction
+DEFINE TEMP-TABLE ttARLedgerTransaction NO-UNDO 
     FIELD company       AS CHARACTER
     FIELD customerID    AS CHARACTER
     FIELD amount        AS DECIMAL 
@@ -179,21 +184,24 @@ DEFINE TEMP-TABLE ttARLedgerTransaction
     FIELD postDate      AS DATE
     .
     
-DEFINE TEMP-TABLE ttOrderToUpdate
+DEFINE TEMP-TABLE ttOrderToUpdate NO-UNDO 
     FIELD riOeOrd AS ROWID 
     FIELD company AS CHARACTER 
     FIELD orderID AS INTEGER
     .
     
-DEFINE TEMP-TABLE ttBolLineToUpdate
+DEFINE TEMP-TABLE ttBolLineToUpdate NO-UNDO 
     FIELD riOeBoll  AS ROWID
     FIELD riOeBolh  AS ROWID
     FIELD company   AS CHARACTER
     FIELD bolID     AS INTEGER
     FIELD invoiceID AS INTEGER
+    FIELD orderID   AS INTEGER
+    FIELD orderLine AS INTEGER
+    FIELD itemID    AS CHARACTER
     .
     
-DEFINE TEMP-TABLE ttOrderLineToUpdate
+DEFINE TEMP-TABLE ttOrderLineToUpdate NO-UNDO 
     FIELD riOeOrdl            AS ROWID 
     FIELD company             AS CHARACTER 
     FIELD orderID             AS INTEGER
@@ -203,7 +211,17 @@ DEFINE TEMP-TABLE ttOrderLineToUpdate
     FIELD newQuantityShipped  AS DECIMAL
     .    
 
-DEFINE TEMP-TABLE ttCustomerToUpdate 
+DEFINE TEMP-TABLE ttOrderMiscToUpdate NO-UNDO 
+    FIELD riOeOrdm   AS ROWID 
+    FIELD company    AS CHARACTER 
+    FIELD orderID    AS INTEGER
+    FIELD orderLine  AS INTEGER 
+    FIELD itemID     AS CHARACTER
+    FIELD billStatus AS CHARACTER
+    FIELD riEstPrep  AS ROWID 
+    .
+
+DEFINE TEMP-TABLE ttCustomerToUpdate NO-UNDO 
     FIELD riCust                 AS ROWID
     FIELD company                AS CHARACTER 
     FIELD customerID             AS CHARACTER 
@@ -223,16 +241,11 @@ DEFINE TEMP-TABLE ttCustomerToUpdate
     FIELD accountBalanceIncrease AS DECIMAL 
     FIELD lastInvoiceDate        AS DATE       
     .
-    
+
+{custom/globdefs.i}    
 /*Program-level Handles for persistent procs*/
-DEFINE VARIABLE ghNotesProcs AS HANDLE  NO-UNDO.
 
-/*Program-level variables*/
-DEFINE VARIABLE giRunID      AS INTEGER NO-UNDO.
-DEFINE VARIABLE gdtPostDate  AS DATE    NO-UNDO.
-DEFINE VARIABLE giPeriod     AS INTEGER NO-UNDO.
-
-
+DEFINE VARIABLE ghNotesProcs AS HANDLE NO-UNDO.
 
     
 /* ********************  Preprocessor Definitions  ******************** */
@@ -241,7 +254,8 @@ DEFINE VARIABLE giPeriod     AS INTEGER NO-UNDO.
 
 
 FUNCTION fGetNextRun RETURNS INTEGER PRIVATE
-    (ipcCompany AS CHARACTER) FORWARD.
+    (ipcCompany AS CHARACTER,
+    iplUpdateControl AS LOGICAL) FORWARD.
 
 FUNCTION fGetNextXNo RETURNS INTEGER PRIVATE
     (  ) FORWARD.
@@ -273,17 +287,17 @@ RUN pInitialize(ipcCompany,
 
 IF NOT oplError THEN
     /*Build the master list of invoices based on ttPostingMaster*/
-    RUN pBuildInvoicesToPost(OUTPUT oplError, OUTPUT opcMessage).
+    RUN pBuildInvoicesToPost(OUTPUT opiCountProcessed, OUTPUT oplError, OUTPUT opcMessage).
 
 IF NOT oplError THEN
     /*Process the master list of invoices for reporting and/or posting*/
-    RUN pProcessInvoicesToPost(OUTPUT oplError, OUTPUT opcMessage).
+    RUN pProcessInvoicesToPost(OUTPUT opiCountValid, OUTPUT oplError, OUTPUT opcMessage).
 
 IF NOT oplError AND LOOKUP("Export",ipcOptions) GT 0 THEN
     RUN pExportAllTempTables.
 
 IF NOT oplError AND LOOKUP("Post",ipcOptions) GT 0 THEN
-    RUN pPostInvoices (ipcCompany).
+    RUN pPostInvoices (OUTPUT opiCountPosted, OUTPUT oplError, OUTPUT opcMessage).
 
 
 DELETE OBJECT ghNotesProcs.
@@ -292,7 +306,7 @@ DELETE OBJECT ghNotesProcs.
 
 PROCEDURE pAddARLedgerTransaction PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose:
+     Purpose:  given an invoice to post, create the ttARLedgerTransaction
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttInvoiceToPost FOR ttInvoiceToPost.
@@ -317,7 +331,7 @@ PROCEDURE pAddARLedgerTransaction PRIVATE:
             
             .
     END.
-    ttARLedgerTransaction.amount = ttARLedgerTransaction.amount - ROUND(ipbf-ttInvoiceToPost.amountBilled, 2).
+    ttARLedgerTransaction.amount = ttARLedgerTransaction.amount - ipbf-ttInvoiceToPost.amountBilled.
     
 END PROCEDURE.
 
@@ -415,11 +429,6 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
         END.
     END. /*AVailb bf-fgcat - FGCat dependencies*/
         
-    RUN pGetBOLInfoForInvoiceLine(BUFFER ipbf-inv-line, OUTPUT ttInvoiceLineToPost.bolID, OUTPUT ttInvoiceLineToPost.locationID).
-    RUN pGetOrderInfoForInvoiceLine(BUFFER ipbf-inv-line, OUTPUT ttInvoiceLineToPost.quantityPerSubUnit).
-
-    IF ipbf-inv-line.cas-cnt NE 0 THEN 
-        ttInvoiceLineToPost.quantityPerSubUnit = ipbf-inv-line.cas-cnt.
                             
     RUN oe/GetCostInvl.p (ROWID(ipbf-inv-line),
         OUTPUT ttInvoiceLineToPost.costDirectLabor, OUTPUT ttInvoiceLineToPost.costFixedOverhead,
@@ -463,7 +472,15 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
                 .
         END.                
     END.            
-        
+    IF NOT oplError THEN /*Do not create Bols and orders to update unless all is ok*/
+    DO:
+        RUN pGetBOLInfoForInvoiceLine(BUFFER ipbf-inv-line, ipbf-inv-head.inv-no, OUTPUT ttInvoiceLineToPost.bolID, OUTPUT ttInvoiceLineToPost.locationID).
+        RUN pGetOrderInfoForInvoiceLine(BUFFER ipbf-inv-line, OUTPUT ttInvoiceLineToPost.quantityPerSubUnit).
+
+        IF ipbf-inv-line.cas-cnt NE 0 THEN 
+            ttInvoiceLineToPost.quantityPerSubUnit = ipbf-inv-line.cas-cnt.
+         
+    END.
         
 END PROCEDURE.
 
@@ -480,6 +497,8 @@ PROCEDURE pAddInvoiceMiscToPost PRIVATE:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
        
+    DEFINE BUFFER bf-oe-ord FOR oe-ord.
+    
     DEFINE VARIABLE lAccountError        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cAccountErrorMessage AS CHARACTER NO-UNDO.
     
@@ -515,7 +534,78 @@ PROCEDURE pAddInvoiceMiscToPost PRIVATE:
             RETURN.
         END.
     END.
-        
+    IF NOT oplError THEN 
+    DO:
+        IF ipbf-inv-misc.ord-no NE 0 THEN 
+            FIND FIRST bf-oe-ord NO-LOCK 
+                WHERE bf-oe-ord.company EQ ipbf-inv-misc.company
+                AND bf-oe-ord.ord-no EQ ipbf-inv-misc.ord-no
+                NO-ERROR.
+        IF AVAILABLE bf-oe-ord THEN 
+        DO:
+            FIND FIRST ttOrderToUpdate NO-LOCK
+                WHERE ttOrderToUpdate.riOeOrd EQ ROWID(bf-oe-ord)
+                NO-ERROR.
+            IF NOT AVAILABLE ttOrderToUpdate THEN 
+            DO: 
+                CREATE ttOrderToUpdate.
+                ASSIGN 
+                    ttOrderToUpdate.riOeOrd = ROWID(bf-oe-ord)
+                    ttOrderToUpdate.company = bf-oe-ord.company
+                    ttOrderToUpdate.orderID = bf-oe-ord.ord-no
+                    .
+            END.
+        END.            
+              
+                
+    /*            IF v-post THEN                                                                               */
+    /*            DO:                                                                                          */
+    /*                FIND FIRST oe-ordm                                                                       */
+    /*                    WHERE oe-ordm.company EQ inv-misc.company                                            */
+    /*                    AND oe-ordm.ord-no  EQ inv-misc.ord-no                                               */
+    /*                    AND oe-ordm.line    EQ inv-misc.line                                                 */
+    /*                    AND oe-ordm.charge  EQ inv-misc.charge                                               */
+    /*                    NO-ERROR.                                                                            */
+    /*                IF AVAILABLE oe-ordm THEN                                                                */
+    /*                DO:                                                                                      */
+    /*                    IF oe-ordm.bill EQ "P" THEN oe-ordm.bill = IF inv-misc.bill EQ "Y" THEN "I" ELSE "Y".*/
+    /*                                                                                                         */
+    /*                                                                                                         */
+    /*                                                                                                         */
+    /*                    IF oe-ordm.miscType EQ 1 THEN                                                        */
+    /*                        FOR EACH est-prep                                                                */
+    /*                            WHERE est-prep.company EQ oe-ordm.company                                    */
+    /*                            AND est-prep.est-no  EQ oe-ordm.est-no                                       */
+    /*                            AND est-prep.eqty    EQ oe-ordm.estPrepEqty                                  */
+    /*                            AND est-prep.line    EQ oe-ordm.estPrepLine                                  */
+    /*                            AND est-prep.code    EQ oe-ordm.charge                                       */
+    /*                            AND est-prep.simon   EQ "S"                                                  */
+    /*                            AND est-prep.amtz    EQ 100:                                                 */
+    /*                            IF oeprep-log THEN DELETE est-prep.                                          */
+    /*                            ELSE est-prep.simon = "N".                                                   */
+    /*                        END.                                                                             */
+    /*                                                                                                         */
+    /*                                                                                                         */
+    /*                                                                                                         */
+    /*                END.                                                                                     */
+    /*                                                                                                         */
+    /*                IF inv-misc.bill EQ "Y" THEN                                                             */
+    /*                DO:                                                                                      */
+    /*                    RUN ar/calctax2.p (bf-inv-head.tax-gr,                                               */
+    /*                        NO,                                                                              */
+    /*                        inv-misc.amt,                                                                    */
+    /*                        inv-misc.company,                                                                */
+    /*                        inv-misc.inv-i-no,                                                               */
+    /*                        OUTPUT dTax).                                                                    */
+    /*                                                                                                         */
+    /*                    v-reduce-ord-bal = v-reduce-ord-bal + inv-misc.amt +                                 */
+    /*                        (IF inv-misc.tax THEN dTax ELSE 0).                                              */
+    /*                END.                                                                                     */
+    /*                                                                                                         */
+    /*                                                                                                         */
+    /*            END. /* v-post */                                                                            */
+                    
+    END. /*Not oplError*/    
             
 END PROCEDURE.
 
@@ -564,12 +654,12 @@ PROCEDURE pAddInvoiceToPost PRIVATE:
     IF opbf-ttInvoiceToPost.isFreightBillable THEN 
         opbf-ttInvoiceToPost.amountBilledFreight = ipbf-inv-head.t-inv-freight.
         
-    RUN pGetCurrencyCodeAndRate(BUFFER ipbf-inv-head, BUFFER ipbf-cust, OUTPUT opbf-ttInvoiceToPost.currencyCode, OUTPUT opbf-ttInvoiceToPost.currencyExRate, OUTPUT opbf-ttInvoiceToPost.currencyARAccount,
+    RUN pGetCurrencyCodeAndRate(ipbf-inv-head.company, ipbf-inv-head.curr-code[1], ipbf-cust.curr-code, OUTPUT opbf-ttInvoiceToPost.currencyCode, OUTPUT opbf-ttInvoiceToPost.currencyExRate, OUTPUT opbf-ttInvoiceToPost.currencyARAccount,
         OUTPUT oplError, OUTPUT opcMessage).
         
     IF oplError THEN 
         ASSIGN 
-            opbf-ttInvoiceToPost.isOKToPost = NO
+            opbf-ttInvoiceToPost.isOKToPost     = NO
             opbf-ttInvoiceToPost.problemMessage = opcMessage
             .
     
@@ -591,11 +681,11 @@ PROCEDURE pAlignMultiInvoiceLinesWithMaster PRIVATE:
     DEFINE BUFFER bf-child-inv-line FOR inv-line.
     DEFINE BUFFER bf-child-inv-misc FOR inv-misc.
     
-    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     
     ASSIGN 
-        oplError = YES
+        oplError   = YES
         opcMessage = "Invalid Master Invoice"
         .
     
@@ -611,7 +701,7 @@ PROCEDURE pAlignMultiInvoiceLinesWithMaster PRIVATE:
             
             /*Clear procedure error if at least one found*/
             ASSIGN 
-                oplError = NO
+                oplError   = NO
                 opcMessage = ""
                 .   
                 
@@ -659,6 +749,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
      Purpose:  Given Criteria Range, build invoices to post
      Notes:  Will process multi-invoices and "link-up" the inv-lines to one master
     ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opiProcessed AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
         
@@ -671,7 +762,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
     DEFINE BUFFER bf-ttInvoiceLineToPost        FOR ttInvoiceLineToPost.
     DEFINE BUFFER bf-ttInvoiceMiscToPost        FOR ttInvoiceMiscToPost.
     
-    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
     FIND FIRST ttPostingMaster NO-LOCK NO-ERROR.
@@ -684,7 +775,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
         RETURN.
     END.    
     ASSIGN 
-        oplError = YES
+        oplError   = YES
         opcMessage = "No Invoices Available for Posting"
         .
     FOR EACH bf-inv-head NO-LOCK
@@ -709,24 +800,25 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
         :
         /*Add CustomerList Exclusions*/
         /*TBD*/
-        
+        opiProcessed = opiProcessed + 1.
+        RUN pAddInvoiceToPost(BUFFER ttPostingMaster, BUFFER bf-inv-head, BUFFER bf-cust, OUTPUT lError, OUTPUT cMessage, BUFFER bf-ttInvoiceToPost).
         IF fIsWritable(ROWID(bf-inv-head)) THEN 
         DO:
             ASSIGN 
-                oplError = NO
+                oplError   = NO
                 opcMessage = ""
                 .
-            RUN pAddInvoiceToPost(BUFFER ttPostingMaster, BUFFER bf-inv-head, BUFFER bf-cust, OUTPUT lError, OUTPUT cMessage, BUFFER bf-ttInvoiceToPost).
             IF lError THEN NEXT.
                 
             FOR EACH bf-inv-line NO-LOCK
                 WHERE bf-inv-line.r-no EQ bf-inv-head.r-no
                 USE-INDEX r-no:
                 RUN pAddInvoiceLineToPost(BUFFER ttPostingMaster, BUFFER bf-inv-head, BUFFER bf-inv-line, bf-inv-head.r-no, OUTPUT lError, OUTPUT cMessage). 
-            END.
-            IF lError THEN DO: 
+            END. /*each bf-inv-line*/
+            IF lError THEN 
+            DO: 
                 ASSIGN
-                    bf-ttInvoiceToPost.isOKToPost = NO
+                    bf-ttInvoiceToPost.isOKToPost     = NO
                     bf-ttInvoiceToPost.problemMessage = cMessage
                     .
                 NEXT. 
@@ -735,7 +827,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
                 WHERE bf-inv-misc.r-no EQ bf-inv-head.r-no
                 USE-INDEX r-no:
                 RUN pAddInvoiceMiscToPost(BUFFER ttPostingMaster, BUFFER bf-inv-head, BUFFER bf-inv-misc, bf-inv-head.r-no, OUTPUT lError, OUTPUT cMessage). 
-            END.
+            END. /*each bf-inv-misc*/
             IF lError THEN 
             DO: 
                 ASSIGN
@@ -749,7 +841,8 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
             IF bf-inv-head.multi-invoice THEN 
             DO:             
                 RUN pAlignMultiInvoiceLinesWithMaster(BUFFER ttPostingMaster, BUFFER bf-inv-head, BUFFER bf-ttInvoiceToPost, OUTPUT lError, OUTPUT cMessage).
-                IF lError THEN DO:
+                IF lError THEN 
+                DO:
                     ASSIGN
                         bf-ttInvoiceToPost.isOKToPost     = NO
                         bf-ttInvoiceToPost.problemMessage = cMessage
@@ -762,9 +855,10 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
                 WHERE bf-ttInvoiceLineToPost.rNo EQ bf-ttInvoiceToPost.rNo
                 AND NOT bf-ttInvoiceLineToPost.isOKToPost
                 NO-ERROR.
-            IF AVAILABLE bf-ttInvoiceLineToPost THEN DO:
+            IF AVAILABLE bf-ttInvoiceLineToPost THEN 
+            DO:
                 ASSIGN 
-                    bf-ttInvoiceToPost.isOKToPost = NO
+                    bf-ttInvoiceToPost.isOKToPost     = NO
                     bf-ttInvoiceToPost.problemMessage = bf-ttInvoiceLineToPost.problemMessage
                     .
                 NEXT.                
@@ -781,21 +875,28 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
                     .
                 NEXT.                
             END.
-            
-            FIND FIRST ttCustomerToUpdate NO-LOCK
-                WHERE ttCustomerToUpdate.riCust EQ ROWID(bf-cust)
-                NO-ERROR.
-            IF NOT AVAILABLE ttCustomerToUpdate THEN 
+            IF bf-ttInvoiceToPost.isOKToPost THEN 
             DO:
-                CREATE ttCustomerToUpdate.
-                ASSIGN 
-                    ttCustomerToUpdate.riCust      = ROWID(bf-cust)
-                    ttCustomerToUpdate.company     = bf-cust.company
-                    ttCustomerToUpdate.customerID  = bf-cust.cust-no
-                    ttCustomerToUpdate.periodID    = ttPostingMaster.periodID
-                    .  
+                FIND FIRST ttCustomerToUpdate NO-LOCK
+                    WHERE ttCustomerToUpdate.riCust EQ ROWID(bf-cust)
+                    NO-ERROR.
+                IF NOT AVAILABLE ttCustomerToUpdate THEN 
+                DO:
+                    CREATE ttCustomerToUpdate.
+                    ASSIGN 
+                        ttCustomerToUpdate.riCust     = ROWID(bf-cust)
+                        ttCustomerToUpdate.company    = bf-cust.company
+                        ttCustomerToUpdate.customerID = bf-cust.cust-no
+                        ttCustomerToUpdate.periodID   = ttPostingMaster.periodID
+                        .  
+                END.
             END.
         END. /*inv-head is writable*/
+        ELSE 
+            ASSIGN 
+                bf-ttInvoiceToPost.isOKToPost     = NO
+                bf-ttInvoiceToPost.problemMessage = "Invoice is locked"
+                .
     END.  /*Each Inv-head that meets range criteria*/
     
 END PROCEDURE.
@@ -975,6 +1076,8 @@ PROCEDURE pCreateARInvHeader PRIVATE:
         /* total invoiced - freight - misc - tax */
         bf-ar-inv.t-sales      = ipbf-inv-head.t-inv-rev - ipbf-inv-head.t-inv-tax
         bf-ar-inv.net          = bf-ar-inv.t-sales
+        bf-ar-inv.curr-code[1] = ipbf-ttInvoiceToPost.currencyCode
+        bf-ar-inv.ex-rate      = ipbf-ttInvoiceToPost.currencyExRate
         .
     
     IF ipbf-inv-head.f-bill THEN /*Exclude Freight billed from total true sales*/ 
@@ -989,9 +1092,7 @@ PROCEDURE pCreateARInvHeader PRIVATE:
     IF NOT lError THEN         
         bf-ar-inv.due-date  =  DYNAMIC-FUNCTION("GetInvDueDate", DATE(bf-ar-inv.inv-date), ipbf-inv-head.company, ipbf-inv-head.terms).  /*From CreditProcs*/
         
-    
-    RUN pGetCurrencyCodeAndRate(bf-ar-inv.company, bf-ar-inv.cust-no, OUTPUT bf-ar-inv.curr-code[1], OUTPUT bf-ar-inv.ex-rate).
-    
+    opriArinv = ROWID(bf-ar-inv).
 
 END PROCEDURE.
 
@@ -1211,6 +1312,7 @@ PROCEDURE pExportAllTempTables PRIVATE:
     RUN Output_TempTableToCSV(TEMP-TABLE ttInvoiceLineToPost:HANDLE, cTempFolder + "\InvoiceLines.csv", YES).
     RUN Output_TempTableToCSV(TEMP-TABLE ttInvoiceMiscToPost:HANDLE, cTempFolder + "\InvoiceMiscs.csv", YES).
     RUN Output_TempTableToCSV(TEMP-TABLE ttGLTransaction:HANDLE, cTempFolder + "\GLTransactions.csv", YES).
+    RUN Output_TempTableToCSV(TEMP-TABLE ttArLedgerTransaction:HANDLE, cTempFolder + "\ARLedgerTransactions.csv", YES).
     RUN Output_TempTableToCSV(TEMP-TABLE ttCustomerToUpdate:HANDLE, cTempFolder + "\Customers.csv", YES).
     RUN Output_TempTableToCSV(TEMP-TABLE ttOrderToUpdate:HANDLE, cTempFolder + "\OrderHeaders.csv", YES).
     RUN Output_TempTableToCSV(TEMP-TABLE ttOrderLineToUpdate:HANDLE, cTempFolder + "\OrderLines.csv", YES).
@@ -1284,6 +1386,7 @@ PROCEDURE pGetBOLInfoForInvoiceLine PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-inv-line FOR inv-line.
+    DEFINE INPUT PARAMETER ipiInvoiceID AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiBOLID AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcLocationID AS CHARACTER NO-UNDO.
     
@@ -1299,8 +1402,9 @@ PROCEDURE pGetBOLInfoForInvoiceLine PRIVATE:
         AND bf-oe-boll.line EQ ipbf-inv-line.line
         AND bf-oe-boll.po-no EQ ipbf-inv-line.po-no,
         FIRST bf-oe-bolh NO-LOCK  
-        WHERE bf-oe-bolh.b-no EQ bf-oe-bolh.b-no
-        BREAK BY bf-oe-bolh.bol-no: 
+        WHERE bf-oe-bolh.company EQ bf-oe-boll.company
+        AND bf-oe-bolh.b-no EQ bf-oe-boll.b-no
+        BREAK BY bf-oe-bolh.bol-no:
                 
         FIND FIRST ttBolLineToUpdate
             WHERE ttBolLineToUpdate.riOeBoll EQ ROWID(bf-oe-boll)
@@ -1310,7 +1414,12 @@ PROCEDURE pGetBOLInfoForInvoiceLine PRIVATE:
             CREATE ttBolLineToUpdate.
             ASSIGN 
                 ttBolLineToUpdate.riOeBoll  = ROWID(bf-oe-boll)
-                ttBollineToUpdate.invoiceID = ipbf-inv-line.inv-no
+                ttBollineToUpdate.invoiceID = ipiInvoiceID
+                ttBolLineToUpdate.bolID     = bf-oe-bolh.bol-no
+                ttBolLineToUpdate.company   = bf-oe-bolh.company
+                ttBolLineToUpdate.orderID   = bf-oe-boll.ord-no
+                ttBolLineToUpdate.orderLine = bf-oe-boll.line
+                ttBOLLineToUpdate.itemID    = bf-oe-boll.i-no      
                 ttBolLineToUpdate.riOeBolh  = ROWID(bf-oe-bolh)
                 .
         END. /*create new bol line to update*/
@@ -1328,8 +1437,9 @@ PROCEDURE pGetCurrencyCodeAndRate PRIVATE:
      Purpose:  Given customer , get applicable currency code and rate
      Notes: 
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-inv-head FOR inv-head.
-    DEFINE PARAMETER BUFFER ipbf-cust     FOR cust.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCurrCodeInvoice AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCurrCodeCust AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcCurrencyCode AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdCurrencyExchangeRate AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcCurrencyARAccount AS CHARACTER NO-UNDO.
@@ -1339,22 +1449,22 @@ PROCEDURE pGetCurrencyCodeAndRate PRIVATE:
     DEFINE BUFFER bf-company  FOR company.
     DEFINE BUFFER bf-currency FOR currency.
     
-    opcCurrencyCode = ipbf-inv-head.curr-code[1].
-    IF opcCurrencyCode EQ "" AND AVAILABLE ipbf-cust THEN 
+    opcCurrencyCode = ipcCurrCodeInvoice.
+    IF opcCurrencyCode EQ "" THEN 
         ASSIGN 
-            opcCurrencyCode = ipbf-cust.curr-code
+            opcCurrencyCode = ipcCurrCodeCust
             .
     IF opcCurrencyCode EQ "" THEN 
     DO:
         FIND FIRST bf-company NO-LOCK    
-            WHERE bf-company.company EQ ipbf-inv-head.company 
+            WHERE bf-company.company EQ ipcCompany 
             NO-ERROR.
-        IF AVAILABLE bf-company THEN 
+        IF AVAILABLE bf-company THEN        
             opcCurrencyCode = bf-company.curr-code.
     END.            
     IF opcCurrencyCode NE "" THEN 
         FIND bf-currency NO-LOCK 
-            WHERE bf-currency.company EQ ipbf-inv-head.company
+            WHERE bf-currency.company EQ ipcCompany
             AND bf-currency.c-code EQ opcCurrencyCode
 //            AND bf-currency.ar-ast-acct NE ""
             AND bf-currency.ex-rate GT 0 
@@ -1362,7 +1472,7 @@ PROCEDURE pGetCurrencyCodeAndRate PRIVATE:
     ELSE 
         ASSIGN 
             oplError   = YES
-            opcMessage = "No valid currency code for invoice, customer or company (" + ipbf-inv-head.company + ")"
+            opcMessage = "No valid currency code for invoice, customer or company (" + ipcCompany    + ")"
             .
         
     IF AVAILABLE bf-currency THEN 
@@ -1546,115 +1656,32 @@ PROCEDURE pPostGL PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttPostingMaster FOR ttPostingMaster.
+    DEFINE INPUT PARAMETER iplCreateGL AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE riGLTrans    AS ROWID   NO-UNDO.
-    DEFINE VARIABLE iRunID       AS INTEGER NO-UNDO.
-    DEFINE VARIABLE cAccountDesc LIKE gltrans.tr-dscr NO-UNDO. 
+    DEFINE VARIABLE iRunID          AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dRunningBalance AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dAmount         AS DECIMAL NO-UNDO. 
    
-    iRunID = fGetNextRun(ipcCompany).    
-    FOR EACH ttGLTransaction
-        WHERE ttGLTransaction.transactionType EQ 'work-line'
-        BREAK BY ttGLTransaction.account
-        BY ttGLTransaction.invoiceID:
-        
-        ACCUMULATE ttGlTransaction.amount (TOTAL BY ttGLTransaction.invoiceID).
-        
-        IF LAST-OF(ttGlTransaction.invoiceID) THEN 
-            RUN pCreateGLTrans(BUFFER ttGLTransaction, 
-                (ACCUMULATE TOTAL BY ttGLTransaction.invoiceID ttGlTransaction.amount),
-                iRunID,
-                OUTPUT riGLTrans).
-                           
-    END. /* each work-line ttGLTransaction */
+    ASSIGN 
+        iRunID          = fGetNextRun(ttPostingMaster.company, iplCreateGL)
+        dRunningBalance = 0.
+      
+    RUN pPostGLAccumulateAndAdd("work-line", iRunID, iplCreateGL, INPUT-OUTPUT dRunningBalance). 
+    RUN pPostGLAccumulateAndAdd("work-misc", iRunID, iplCreateGL, INPUT-OUTPUT dRunningBalance).
+    RUN pPostGLAccumulateAndAdd("work-tax", iRunID, iplCreateGL, INPUT-OUTPUT dRunningBalance).
+    RUN pPostGLAccumulateAndAdd("work-freight", iRunID, iplCreateGL, INPUT-OUTPUT dRunningBalance).
+    RUN pPostGLAccumulateAndAdd("work-disc", iRunID, iplCreateGL, INPUT-OUTPUT dRunningBalance).
+    RUN pPostGLAccumulateAndAdd("work-cash", iRunID, iplCreateGL, INPUT-OUTPUT dRunningBalance).
+    RUN pPostGLAccumulateAndAdd("work-ar", iRunID, iplCreateGL, INPUT-OUTPUT dRunningBalance).
     
-    FOR EACH ttGLTransaction
-        WHERE ttGLTransaction.transactionType EQ 'work-misc'
-        BREAK BY ttGLTransaction.account
-        BY ttGLTransaction.invoiceID:
-        
-        ACCUMULATE ttGlTransaction.amount (TOTAL BY ttGLTransaction.invoiceID).
-        
-        IF LAST-OF(ttGlTransaction.invoiceID) THEN 
-            RUN pCreateGLTrans(BUFFER ttGLTransaction, 
-                (ACCUMULATE TOTAL BY ttGLTransaction.invoiceID ttGlTransaction.amount),
-                iRunID,
-                OUTPUT riGLTrans).
-                           
-    END. /* each work-misc ttGLTransaction */
+    IF dRunningBalance NE 0 THEN 
+        ASSIGN 
+            oplError   = YES
+            opcMessage = "Run out of balance by " + STRING(dRunningBalance, ">>>,>>>,>>9.99")
+            .
     
-    FOR EACH ttGLTransaction
-        WHERE ttGLTransaction.transactionType EQ 'work-tax'
-        BREAK BY ttGLTransaction.account
-        BY ttGLTransaction.invoiceID:
-        
-        ACCUMULATE ttGlTransaction.amount (TOTAL BY ttGLTransaction.invoiceID).
-        
-        IF LAST-OF(ttGlTransaction.invoiceID) THEN 
-            RUN pCreateGLTrans(BUFFER ttGLTransaction, 
-                (ACCUMULATE TOTAL BY ttGLTransaction.invoiceID ttGlTransaction.amount),
-                iRunID,
-                OUTPUT riGLTrans).
-                           
-    END. /* each work-tax ttGLTransaction */
-
-    FOR EACH ttGLTransaction
-        WHERE ttGLTransaction.transactionType EQ 'work-freight'
-        BREAK BY ttGLTransaction.account
-        BY ttGLTransaction.invoiceID:
-        
-        ACCUMULATE ttGlTransaction.amount (TOTAL BY ttGLTransaction.invoiceID).
-        
-        IF LAST-OF(ttGlTransaction.invoiceID) THEN 
-            RUN pCreateGLTrans(BUFFER ttGLTransaction, 
-                (ACCUMULATE TOTAL BY ttGLTransaction.invoiceID ttGlTransaction.amount),
-                iRunID,
-                OUTPUT riGLTrans).
-                           
-    END. /* each work-freight ttGLTransaction */
-    
-    FOR EACH ttGLTransaction
-        WHERE ttGLTransaction.transactionType EQ 'work-disc'
-        BREAK BY ttGLTransaction.account
-        BY ttGLTransaction.invoiceID:
-        
-        ACCUMULATE ttGlTransaction.amount (TOTAL BY ttGLTransaction.invoiceID).
-        
-        IF LAST-OF(ttGlTransaction.invoiceID) THEN 
-            RUN pCreateGLTrans(BUFFER ttGLTransaction, 
-                (ACCUMULATE TOTAL BY ttGLTransaction.invoiceID ttGlTransaction.amount),
-                iRunID,
-                OUTPUT riGLTrans).
-                           
-    END. /* each work-disc ttGLTransaction */
-    FOR EACH ttGLTransaction
-        WHERE ttGLTransaction.transactionType EQ 'work-cash'
-        BREAK BY ttGLTransaction.account
-        BY ttGLTransaction.invoiceID:
-        
-        ACCUMULATE ttGlTransaction.amount (TOTAL BY ttGLTransaction.invoiceID).
-        
-        IF LAST-OF(ttGlTransaction.invoiceID) THEN 
-            RUN pCreateGLTrans(BUFFER ttGLTransaction, 
-                (ACCUMULATE TOTAL BY ttGLTransaction.invoiceID ttGlTransaction.amount),
-                iRunID,
-                OUTPUT riGLTrans).
-                           
-    END. /* each work-cash ttGLTransaction */
-    FOR EACH ttGLTransaction
-        WHERE ttGLTransaction.transactionType EQ 'work-ar'
-        BREAK BY ttGLTransaction.account
-        BY ttGLTransaction.invoiceID:
-        
-        ACCUMULATE ttGlTransaction.amount (TOTAL BY ttGLTransaction.invoiceID).
-        
-        IF LAST-OF(ttGlTransaction.invoiceID) THEN 
-            RUN pCreateGLTrans(BUFFER ttGLTransaction, 
-                (ACCUMULATE TOTAL BY ttGLTransaction.invoiceID ttGlTransaction.amount),
-                iRunID,
-                OUTPUT riGLTrans).
-                           
-    END. /* each work-ar ttGLTransaction */
-/*                                                                                                  */
 /*    /** POST CURRENCY TO G/L TRANS **/                                                            */
 /*    FOR EACH tt-report NO-LOCK                                                                    */
 /*        WHERE tt-report.term-id EQ ""                                                             */
@@ -1720,7 +1747,46 @@ PROCEDURE pPostGL PRIVATE:
 /*        END.                                                                                      */
 /*    END. /* each work-job */                                                                      */
 /*                                                                                                  */
+    
         
+
+END PROCEDURE.
+
+PROCEDURE pPostGLAccumulateAndAdd PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: given a GL trans type, accumulate the total balance by invoice
+     and create the gltrans
+     Notes:  RUN pPostGLAccumulateAndAdd("work-line", iRunID, INPUT-OUTPUT dRunningBalance).
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcTransactionType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiRunID AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iplCreateGL AS LOGICAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopdRunningBalance AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE dAmountToPost AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE riGlTrans     AS ROWID   NO-UNDO.
+     
+    FOR EACH ttGLTransaction
+        WHERE ttGLTransaction.transactionType EQ ipcTransactionType
+        BREAK BY ttGLTransaction.account
+        BY ttGLTransaction.invoiceID:
+        
+        ASSIGN 
+            dAmountToPost      = dAmountToPost + ttGLTransaction.amount
+            iopdRunningBalance = iopdRunningBalance + dAmountToPost
+            .
+        //ACCUMULATE ttGlTransaction.amount (TOTAL BY ttGLTransaction.invoiceID).
+        
+        IF LAST-OF(ttGlTransaction.invoiceID) THEN 
+        DO:
+            IF iplCreateGL THEN 
+                RUN pCreateGLTrans(BUFFER ttGLTransaction, 
+                    dAmountToPost,
+                    ipiRunID,
+                    OUTPUT riGLTrans).
+            dAmountToPost = 0.
+        END.                           
+    END. /* each work-line ttGLTransaction */
 
 END PROCEDURE.
 
@@ -1730,7 +1796,9 @@ PROCEDURE pPostInvoices PRIVATE:
         Transactions for updating the DB
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER.
+    DEFINE OUTPUT PARAMETER opiCountPosted AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-inv-head       FOR inv-head.
     DEFINE BUFFER bf-inv-line       FOR inv-line.
@@ -1745,20 +1813,37 @@ PROCEDURE pPostInvoices PRIVATE:
     DEFINE VARIABLE riArInv  AS ROWID   NO-UNDO.
     DEFINE VARIABLE riArInvl AS ROWID   NO-UNDO.
     DEFINE VARIABLE iRun     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lError   AS LOGICAL NO-UNDO.
           
-    /*    DISABLE TRIGGERS FOR LOAD OF inv-head.*/
-    /*    DISABLE TRIGGERS FOR LOAD OF inv-line.*/
+    DISABLE TRIGGERS FOR LOAD OF inv-head.
+    DISABLE TRIGGERS FOR LOAD OF inv-line.
+    DISABLE TRIGGERS FOR LOAD OF inv-misc.
     /*    DISABLE TRIGGERS FOR LOAD OF oe-ord.  */
     /*    DISABLE TRIGGERS FOR LOAD OF oe-ordl. */
     /*    DISABLE TRIGGERS FOR LOAD OF itemfg.  */
     /*    DISABLE TRIGGERS FOR LOAD OF oe-relh. */
     /*    DISABLE TRIGGERS FOR LOAD OF oe-rell. */
     
+    FIND FIRST ttPostingMaster NO-ERROR.
+    IF NOT AVAILABLE ttPostingMaster THEN 
+    DO:
+        ASSIGN 
+            oplError   = YES
+            opcMessage = "Posting Master not available"
+            .
+        RETURN.
+    END.
+    
+    RUN pPostGL(BUFFER ttPostingMaster, NO, OUTPUT oplError, OUTPUT opcMessage).
+    
+    IF oplError THEN RETURN.
+    
     FOR EACH ttInvoiceToPost NO-LOCK
         WHERE ttInvoiceToPost.isOKToPost,
         FIRST bf-inv-head EXCLUSIVE-LOCK 
         WHERE ROWID(bf-inv-head) EQ ttInvoiceToPost.riInvHead 
         :
+        opiCountPosted = opiCountPosted + 1.
         /*Create ar-inv based on inv-head and return writeable buffer*/
         RUN pCreateARInvHeader(BUFFER bf-inv-head, BUFFER ttInvoiceToPost, OUTPUT riArInv).  
         FIND FIRST bf-ar-inv NO-LOCK
@@ -1824,8 +1909,9 @@ PROCEDURE pPostInvoices PRIVATE:
             
         END. /*each invoice line*/
         FOR EACH ttInvoiceMiscToPost NO-LOCK
-            WHERE ttInvoiceMiscToPost.isOKToPost,
-            FIRST bf-inv-misc NO-LOCK
+            WHERE ttInvoiceMiscToPost.isOKToPost
+            AND ttInvoiceMisctoPost.rNo EQ ttInvoicetoPost.rNo,
+            FIRST bf-inv-misc EXCLUSIVE-LOCK
             WHERE ROWID(bf-inv-misc) EQ ttInvoiceMiscToPost.riInvMisc:
          
             RUN pCreateARInvMisc(BUFFER bf-inv-head, BUFFER bf-inv-misc, BUFFER ttInvoiceMiscToPost, iXno, iLine, OUTPUT riArInvl).
@@ -1852,11 +1938,13 @@ PROCEDURE pPostInvoices PRIVATE:
     END. /*each invoice to post*/
     
     /*Create GL Records*/
-    RUN pPostGL(ipcCompany).       
+    RUN pPostGL(BUFFER ttPostingMaster, YES, OUTPUT oplError, OUTPUT opcMessage).       
     
     RUN pUpdateOrders.
     RUN pUpdateBOLs.
     RUN pUpdateCustomers.
+    
+/*Straggler check*/
     
 END PROCEDURE.
 
@@ -1866,17 +1954,14 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
      and create temp-tables for GL account creation
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opiCountValid AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
      
     DEFINE BUFFER bf-inv-head FOR inv-head.
     DEFINE BUFFER bf-inv-line FOR inv-line.
     DEFINE BUFFER bf-inv-misc FOR inv-misc.
-    DEFINE BUFFER bf-oe-ordl  FOR oe-ordl.
-    DEFINE BUFFER bf-oe-ord   FOR oe-ord.
-    DEFINE BUFFER bf-oe-bolh  FOR oe-bolh.
-    DEFINE BUFFER bf-oe-boll  FOR oe-boll.
-    
+   
     DEFINE VARIABLE dDiscountAmount AS DECIMAL.
     DEFINE VARIABLE dInvoiceAmount  AS DECIMAL.
 
@@ -1899,7 +1984,7 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
         FIRST ttCustomerToUpdate
         WHERE ttCustomerToUpdate.riCust EQ ttInvoiceToPost.riCust
         BY ttInvoiceToPost.invoiceID:
-         
+        opiCountValid = opiCountValid + 1. 
         LineBlock:
         FOR EACH ttInvoiceLineToPost
             WHERE ttInvoiceLineToPost.rNo EQ ttInvoiceToPost.rNo
@@ -1972,75 +2057,7 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
                     .                    
                 
             END. /*Billable misc*/
-            
-            IF bf-inv-misc.ord-no NE 0 THEN 
-                FIND FIRST bf-oe-ord NO-LOCK 
-                    WHERE bf-oe-ord.company EQ bf-inv-misc.company
-                    AND bf-oe-ord.ord-no EQ bf-inv-misc.ord-no
-                    NO-ERROR.
-            IF AVAILABLE bf-oe-ord THEN 
-            DO:
-                FIND FIRST ttOrderToUpdate NO-LOCK
-                    WHERE ttOrderToUpdate.riOeOrd EQ ROWID(bf-oe-ord)
-                    NO-ERROR.
-                IF NOT AVAILABLE ttOrderToUpdate THEN 
-                DO: 
-                    CREATE ttOrderToUpdate.
-                    ASSIGN 
-                        ttOrderToUpdate.riOeOrd = ROWID(bf-oe-ord)
-                        ttOrderToUpdate.company = bf-oe-ord.company
-                        ttOrderToUpdate.orderID = bf-oe-ord.ord-no
-                        .
-                END.
-            END.            
-                
-        /*            IF v-post THEN                                                                               */
-        /*            DO:                                                                                          */
-        /*                FIND FIRST oe-ordm                                                                       */
-        /*                    WHERE oe-ordm.company EQ inv-misc.company                                            */
-        /*                    AND oe-ordm.ord-no  EQ inv-misc.ord-no                                               */
-        /*                    AND oe-ordm.line    EQ inv-misc.line                                                 */
-        /*                    AND oe-ordm.charge  EQ inv-misc.charge                                               */
-        /*                    NO-ERROR.                                                                            */
-        /*                IF AVAILABLE oe-ordm THEN                                                                */
-        /*                DO:                                                                                      */
-        /*                    IF oe-ordm.bill EQ "P" THEN oe-ordm.bill = IF inv-misc.bill EQ "Y" THEN "I" ELSE "Y".*/
-        /*                                                                                                         */
-        /*                                                                                                         */
-        /*                                                                                                         */
-        /*                    IF oe-ordm.miscType EQ 1 THEN                                                        */
-        /*                        FOR EACH est-prep                                                                */
-        /*                            WHERE est-prep.company EQ oe-ordm.company                                    */
-        /*                            AND est-prep.est-no  EQ oe-ordm.est-no                                       */
-        /*                            AND est-prep.eqty    EQ oe-ordm.estPrepEqty                                  */
-        /*                            AND est-prep.line    EQ oe-ordm.estPrepLine                                  */
-        /*                            AND est-prep.code    EQ oe-ordm.charge                                       */
-        /*                            AND est-prep.simon   EQ "S"                                                  */
-        /*                            AND est-prep.amtz    EQ 100:                                                 */
-        /*                            IF oeprep-log THEN DELETE est-prep.                                          */
-        /*                            ELSE est-prep.simon = "N".                                                   */
-        /*                        END.                                                                             */
-        /*                                                                                                         */
-        /*                                                                                                         */
-        /*                                                                                                         */
-        /*                END.                                                                                     */
-        /*                                                                                                         */
-        /*                IF inv-misc.bill EQ "Y" THEN                                                             */
-        /*                DO:                                                                                      */
-        /*                    RUN ar/calctax2.p (bf-inv-head.tax-gr,                                               */
-        /*                        NO,                                                                              */
-        /*                        inv-misc.amt,                                                                    */
-        /*                        inv-misc.company,                                                                */
-        /*                        inv-misc.inv-i-no,                                                               */
-        /*                        OUTPUT dTax).                                                                    */
-        /*                                                                                                         */
-        /*                    v-reduce-ord-bal = v-reduce-ord-bal + inv-misc.amt +                                 */
-        /*                        (IF inv-misc.tax THEN dTax ELSE 0).                                              */
-        /*                END.                                                                                     */
-        /*                                                                                                         */
-        /*                                                                                                         */
-        /*            END. /* v-post */                                                                            */
-                    
+           
         END. /* each inv-misc */
 
         /******************* DISCOUNT ITEMS ****************************************/
@@ -2101,7 +2118,7 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
         IF ttInvoiceToPost.invoiceDate GT ttCustomerToUpdate.lastInvoiceDate OR ttCustomerToUpdate.lastInvoiceDate EQ ? THEN 
             ttCustomerToUpdate.lastInvoiceDate = ttInvoiceToPost.invoiceDate.
         
-         /*Add discount per invoice*/
+        /*Add discount per invoice*/
         IF ttInvoiceToPost.amountDiscount NE 0 THEN 
         DO:
             CREATE ttGLTransaction.
@@ -2232,7 +2249,7 @@ PROCEDURE pUpdateCustomers PRIVATE:
      Replaces oe/invcust.p
     ------------------------------------------------------------------------------*/
     
-    DEFINE BUFFER bf-cust   FOR cust.  
+    DEFINE BUFFER bf-cust FOR cust.  
     
     FOR EACH ttCustomerToUpdate NO-LOCK,
         FIRST bf-cust EXCLUSIVE-LOCK
@@ -2282,7 +2299,7 @@ END PROCEDURE.
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fGetNextRun RETURNS INTEGER PRIVATE
-    ( ipcCompany AS CHARACTER ):
+    ( ipcCompany AS CHARACTER, iplUpdateControl AS LOGICAL):
     /*------------------------------------------------------------------------------
      Purpose:  Gets the next available run # for a company
      Notes:
@@ -2299,7 +2316,8 @@ FUNCTION fGetNextRun RETURNS INTEGER PRIVATE
             IF AVAILABLE bf-gl-ctrl THEN 
             DO:
                 ASSIGN 
-                    iRun             = bf-gl-ctrl.trnum + 1 
+                    iRun = bf-gl-ctrl.trnum + 1.
+                IF iplUpdateControl THEN  
                     bf-gl-ctrl.trnum = iRun.
                 FIND CURRENT bf-gl-ctrl NO-LOCK.
                 LEAVE.
