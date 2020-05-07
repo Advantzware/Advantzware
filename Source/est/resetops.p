@@ -26,7 +26,7 @@ DO li = 1 TO 2:
      li2         = li2 + 1
      est-op.line = li2.
 
-    IF est.est-type EQ 1 OR est.est-type EQ 5 OR est.est-type EQ 6 THEN DO:
+    IF est.est-type EQ 1 OR est.est-type EQ 2 OR est.est-type EQ 5 OR est.est-type EQ 6 THEN DO:
       IF est-op.qty EQ 0 THEN est-op.qty = eb.eqty.
     END.
 
