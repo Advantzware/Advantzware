@@ -85,8 +85,8 @@ ASSIGN cTextListToSelect = "Item #,Item Name,Customer Part #,Customer,Customer N
                             "Qty Invoiced PTD,Qty Invoiced YTD,Qty Invoiced Last Yr," +
                             "Total MSF PTD,Total MSF YTD,Total MSF Last Yr," +
                             "Box Length,Box Width,Box Depth,Blank Length,Blank Width," +
-                            "Total Sq In,Total Sq Ft,FgItem Color1,FgItem Color2,FgItem Color3,FgItem Color4,FgItem Color5," +
-                            "FgItem Color6,FgItem Color7,FgItem Color8,FgItem Color9,FgItem Color10,FGItem Coating1,FGItem Coating2,FGItem Coating3," +
+                            "Total Sq In,Total Sq Ft,Est Ink1,Est Ink2,Est Ink3,Est Ink4,Est Ink5," +
+                            "Est Ink6,Est Ink7,Est Ink8,Est Ink9,Est Ink10,Est Coating1,Est Coating2,Est Coating3," +
                             "Board Code,Board Name,Caliper,Case Code,Case Name,Case Qty,Skid Code," + 
                             "Skid Name,Skid Qty,Release Sequence,Units/Pall,Factor Invoice,Sales Rep," +
                             "Spec Note 1 Group,Spec Note 1 Title,Spec Note 1 Note [Large]," +
@@ -94,7 +94,9 @@ ASSIGN cTextListToSelect = "Item #,Item Name,Customer Part #,Customer,Customer N
                             "Spec Note 3 Group,Spec Note 3 Title,Spec Note 3 Note [Large]," +
                             "Spec Note 4 Group,Spec Note 4 Title,Spec Note 4 Note [Large]," +
                             "Spec Note 5 Group,Spec Note 5 Title,Spec Note 5 Note [Large]," +
-                            "Setup By UserId,Setup Date,Modified By,Modified Date,Pallet Quantity"
+                            "Setup By UserId,Setup Date,Modified By,Modified Date,Pallet Quantity," +
+                            "FgItem Color1,FgItem Color2,FgItem Color3,FgItem Color4,FgItem Color5," +
+                            "FgItem Color6,FgItem Color7,FgItem Color8,FgItem Color9,FgItem Color10"
             cFieldListToSelect = "i-no,i-name,part-no,cust-no,cust-name," +
                             "est-no,style,procat,procat-desc,part-dscr1,part-dscr2,part-dscr3,i-code," +
                             "die-no,plate-no,upc-no,cad-no,spc-no,stocked," +
@@ -125,7 +127,9 @@ ASSIGN cTextListToSelect = "Item #,Item Name,Customer Part #,Customer,Customer N
                             "spc-grp3,spc-title3,spc-note3," +
                             "spc-grp4,spc-title4,spc-note4," +
                             "spc-grp5,spc-title5,spc-note5," +
-                            "setupBy,setupDate,modifiedBy,modifiedDate,pallet-qty"
+                            "setupBy,setupDate,modifiedBy,modifiedDate,pallet-qty," +
+                            "fgcol1,fgcol2,fgcol3,fgcol4,fgcol5," +
+                            "fgcol6,fgcol7,fgcol8,fgcol9,fgcol10"
 /*         cFieldListToSelect = "itemfg.i-no,itemfg.i-name,itemfg.part-no,itemfg.cust-no," +                 */
 /*                             "itemfg.est-no,itemfg.style,itemfg.procat,itemfg.part-dscr1,itemfg.i-code," + */
 /*                             "itemfg.cad-no,itemfg.spc-no,itemfg.stocked,itemfg.q-onh"                     */
@@ -1402,6 +1406,7 @@ DEFINE VARIABLE cSpecGroup AS CHAR EXTENT 7 NO-UNDO.
 DEFINE VARIABLE cSpecTitle AS CHAR EXTENT 7 NO-UNDO.
 DEFINE VARIABLE cSpecNote AS CHAR EXTENT 7 NO-UNDO.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEF VAR cFGColor AS CHARACTER FORM "x(10)" EXTENT 10 NO-UNDO.
 
 v-excelheader = buildHeader().
 SESSION:SET-WAIT-STATE ("general").
@@ -1451,7 +1456,8 @@ FOR EACH b-itemfg WHERE b-itemfg.company = cocode
         v-cases-per-pallet = 0 
         v-clip  =  0
         v-ink = ""
-        v-coat = "".
+        v-coat = ""
+        cFGColor = "".
 
 
      v-spec-note = "".
@@ -1552,7 +1558,14 @@ FOR EACH b-itemfg WHERE b-itemfg.company = cocode
           END.
         END. 
      
-     END.   
+     END.  
+     v-ink-cnt = 1.
+     MAIN-LOOP-INK:
+     FOR EACH itemfg-ink OF b-itemfg NO-LOCK:  
+         cFGColor[v-ink-cnt] = itemfg-ink.rm-i-no.            
+          IF v-ink-cnt GE 10 THEN LEAVE MAIN-LOOP-INK.
+          v-ink-cnt = v-ink-cnt + 1 .
+     END.        
         
 /*      IF v-case-count EQ 0 AND v-cases-per-pallet EQ 0 THEN                                          */
 /*      DO:                                                                                            */
@@ -1576,7 +1589,7 @@ FOR EACH b-itemfg WHERE b-itemfg.company = cocode
 
     FOR EACH ttRptSelected:
 
-        IF LOOKUP(ttRptSelected.FieldList,"col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,cat1,cat2,cat3,brd-cd,brd-nam,calp,cas-cd,cas-nam,cas-qt,skid-cd,skid-nam,skid-qt,spec-cod1,spc-grp1,spc-title1,spc-note1,spc-grp2,spc-title2,spc-note2,spc-grp3,spc-title3,spc-note3,spc-grp4,spc-title4,spc-note4,spc-grp5,spc-title5,spc-note5,pallet-qty") = 0 THEN
+        IF LOOKUP(ttRptSelected.FieldList,"fgcol1,fgcol2,fgcol3,fgcol4,fgcol5,fgcol6,fgcol7,fgcol8,fgcol9,fgcol10,col1,col2,col3,col4,col5,col6,col7,col8,col9,col10,cat1,cat2,cat3,brd-cd,brd-nam,calp,cas-cd,cas-nam,cas-qt,skid-cd,skid-nam,skid-qt,spec-cod1,spc-grp1,spc-title1,spc-note1,spc-grp2,spc-title2,spc-note2,spc-grp3,spc-title3,spc-note3,spc-grp4,spc-title4,spc-note4,spc-grp5,spc-title5,spc-note5,pallet-qty") = 0 THEN
         v-excel-detail-lines = v-excel-detail-lines + 
             appendXLLine(getValue-itemfg(BUFFER b-itemfg,ttRptSelected.FieldList)).
         
@@ -1665,6 +1678,26 @@ FOR EACH b-itemfg WHERE b-itemfg.company = cocode
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cSpecNote[5]).
             WHEN "pallet-qty" THEN                                                              
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING((b-itemfg.case-count * b-itemfg.case-pall ) + b-itemfg.quantityPartial)).
+            WHEN "fgcol1" THEN                                                                
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cFGColor[1]).   
+            WHEN "fgcol2" THEN                                                                
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cFGColor[2]). 
+            WHEN "fgcol3" THEN                                                                
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cFGColor[3]). 
+            WHEN "fgcol4" THEN                                                                
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cFGColor[4]). 
+            WHEN "fgcol5" THEN                                                                
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cFGColor[5]). 
+            WHEN "fgcol6" THEN                                                                
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cFGColor[6]). 
+            WHEN "fgcol7" THEN                                                                
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cFGColor[7]). 
+            WHEN "fgcol8" THEN                                                                
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cFGColor[8]). 
+            WHEN "fgcol9" THEN                                                                
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cFGColor[9]). 
+            WHEN "fgcol10" THEN                                                                
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cFGColor[10]).    
                 
           END CASE.  
         END.
