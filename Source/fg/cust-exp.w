@@ -1428,18 +1428,6 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                     lc-return = "3rd Party".
             END CASE.
         END.
-        WHEN "accountType" THEN DO:
-            CASE ipb-itemfg.accountType :
-                WHEN "S" THEN
-                    lc-return = "Split".
-                WHEN "O" THEN
-                    lc-return = "Originated".
-                WHEN "H" THEN
-                    lc-return = "Handed".
-                WHEN "" THEN
-                    lc-return = "".
-            END CASE.
-        END.
         WHEN "title"  THEN DO:
             lc-return = "" .
         END.
