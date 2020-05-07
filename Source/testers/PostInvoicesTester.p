@@ -13,17 +13,34 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+{custom/globdefs.i &NEW=NEW}
 DEFINE VARIABLE hdSession AS HANDLE.
 RUN system\session.p PERSISTENT SET hdSession.
 SESSION:ADD-SUPER-PROCEDURE (hdSession).
 
+DEFINE TEMP-TABLE ttARInv LIKE ar-inv
+    USE-INDEX rec_key AS PRIMARY.
+DEFINE TEMP-TABLE ttARInvl LIKE ar-invl
+    USE-INDEX rec_key AS PRIMARY.
+DEFINE TEMP-TABLE ttGLTrans LIKE gltrans
+    USE-INDEX rec_key AS PRIMARY.
 
+DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO INITIAL '001'.
+DEFINE VARIABLE iInvStart  AS INTEGER   NO-UNDO INITIAL 1000027.
+DEFINE VARIABLE iInvEnd    AS INTEGER   NO-UNDO INITIAL 1000043.
+DEFINE VARIABLE dtStart    AS DATE      NO-UNDO INITIAL 1/1/2018.
+DEFINE VARIABLE dtEnd      AS DATE      NO-UNDO INITIAL 12/31/2020.
+DEFINE VARIABLE cCustStart AS CHARACTER NO-UNDO INITIAL ''.
+DEFINE VARIABLE cCustEnd   AS CHARACTER NO-UNDO INITIAL 'ZZZZZZ'.
+DEFINE VARIABLE dtPost     AS DATE      NO-UNDO INITIAL TODAY.
 /* ********************  Preprocessor Definitions  ******************** */
 
 
 /* ***************************  Main Block  *************************** */
 
 RUN pBuildAndDisplay.
+
+//RUN pBuildCompareFiles("Standard").
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -32,34 +49,29 @@ PROCEDURE pBuildAndDisplay PRIVATE:
      Purpose:  Just process the invoices and export all related temp-tables for review
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO INITIAL '001'.
-    DEFINE VARIABLE iInvStart  AS INTEGER   NO-UNDO INITIAL 1.
-    DEFINE VARIABLE iInvEnd    AS INTEGER   NO-UNDO INITIAL 9999999.
-    DEFINE VARIABLE dtStart    AS DATE      NO-UNDO INITIAL 1/1/2018.
-    DEFINE VARIABLE dtEnd      AS DATE      NO-UNDO INITIAL 12/31/2020.
-    DEFINE VARIABLE cCustStart AS CHARACTER NO-UNDO INITIAL ''.
-    DEFINE VARIABLE cCustEnd   AS CHARACTER NO-UNDO INITIAL 'ZZZZZZ'.
-    DEFINE VARIABLE dtPost     AS DATE      NO-UNDO INITIAL TODAY.
 
     DEFINE VARIABLE lError     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iTimer     AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iCount     AS INTEGER   NO-UNDO.    
+    DEFINE VARIABLE iCount     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iProcessed AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iValid     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iPosted    AS INTEGER   NO-UNDO.
     
     DEFINE BUFFER bf-inv-line FOR inv-line.
     DEFINE BUFFER bf-inv-misc FOR inv-misc.
-    DEFINE BUFFER bf-cust FOR cust.
+    DEFINE BUFFER bf-cust     FOR cust.
     
-/*    FIND FIRST cust NO-LOCK                                                                                                                                       */
-/*        WHERE cust.company EQ cCompany                                                                                                                            */
-/*        AND cust.inv-meth NE ?                                                                                                                                    */
-/*        AND CAN-FIND(FIRST inv-head WHERE inv-head.company EQ cust.company AND inv-head.cust-no EQ cust.cust-no AND inv-head.inv-no NE 0 AND inv-head.stat NE 'H')*/
-/*        NO-ERROR.                                                                                                                                                 */
-/*    IF AVAILABLE cust THEN                                                                                                                                        */
-/*        ASSIGN                                                                                                                                                    */
-/*            cCustStart = cust.cust-no                                                                                                                             */
-/*            cCustEnd   = cust.cust-no                                                                                                                             */
-/*            .                                                                                                                                                     */
+    /*    FIND FIRST cust NO-LOCK                                                                                                                                       */
+    /*        WHERE cust.company EQ cCompany                                                                                                                            */
+    /*        AND cust.inv-meth NE ?                                                                                                                                    */
+    /*        AND CAN-FIND(FIRST inv-head WHERE inv-head.company EQ cust.company AND inv-head.cust-no EQ cust.cust-no AND inv-head.inv-no NE 0 AND inv-head.stat NE 'H')*/
+    /*        NO-ERROR.                                                                                                                                                 */
+    /*    IF AVAILABLE cust THEN                                                                                                                                        */
+    /*        ASSIGN                                                                                                                                                    */
+    /*            cCustStart = cust.cust-no                                                                                                                             */
+    /*            cCustEnd   = cust.cust-no                                                                                                                             */
+    /*            .                                                                                                                                                     */
     FOR EACH inv-head NO-LOCK
         WHERE inv-head.company EQ cCompany
         AND inv-head.inv-no GE iInvStart
@@ -81,7 +93,7 @@ PROCEDURE pBuildAndDisplay PRIVATE:
         AND ((bf-cust.inv-meth EQ ? AND inv-head.multi-invoice) OR (bf-cust.inv-meth NE ? AND NOT inv-head.multi-invoice))  /*Filter multi-invoices correctly based on customer*/
         :
         iCount = iCount + 1.
-        DISPLAY inv-head.inv-no FORMAT ">>>>>>>9" inv-head.t-inv-rev inv-head.t-inv-freight inv-head.t-inv-tax.
+//        DISPLAY inv-head.inv-no FORMAT ">>>>>>>9" inv-head.t-inv-rev inv-head.t-inv-freight inv-head.t-inv-tax.
     END.
     iTimer = TIME.    
     RUN oe/PostInvoices.p(cCompany,
@@ -89,11 +101,64 @@ PROCEDURE pBuildAndDisplay PRIVATE:
         dtStart, dtEnd,
         cCustStart, cCustEnd,
         dtPost,
-        "Export",
+        "Export,Post",
+        OUTPUT iProcessed, OUTPUT iValid, OUTPUT iPosted,
         OUTPUT lError, OUTPUT cMessage).
 
-    MESSAGE  "Processed " iCount " invoices" SKIP 
-    "Completed in " TIME - iTimer " seconds"
-    VIEW-AS ALERT-BOX.
+    MESSAGE  "Should be processed = " iCount SKIP
+        "Processed = " iProcessed SKIP 
+        "Valid = " iValid SKIP
+        "Posted = " iPosted SKIP(2)
+        "Error" lError cMessage SKIP(2) 
+        "Completed in " TIME - iTimer " seconds"
+        VIEW-AS ALERT-BOX.
+     
+     RUN pBuildCompareFiles("New").
+        
+END PROCEDURE.
+
+
+
+PROCEDURE pBuildCompareFiles PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcResults AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hdOutput    AS HANDLE.
+    DEFINE VARIABLE cTempFolder AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFile       AS CHARACTER NO-UNDO.
+    
+    RUN system\OutputProcs.p PERSISTENT SET hdOutput.
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdOutput).
+    
+    RUN FileSys_GetTempDirectory (OUTPUT cTempFolder).
+    
+    FOR EACH ar-inv NO-LOCK
+        WHERE ar-inv.company EQ cCompany
+        AND ar-inv.inv-no GE iInvStart
+        AND ar-inv.inv-no LE iInvEnd:
+        CREATE ttArInv.
+        BUFFER-COPY ar-inv TO ttArInv.
+        
+        FOR EACH ar-invl NO-LOCK 
+            WHERE ar-invl.x-no EQ ar-inv.x-no:
+            CREATE ttArInvl.
+            BUFFER-COPY ar-invl TO ttArInvl.
+        END.    
+    END.
+    FOR EACH gltrans NO-LOCK
+        WHERE gltrans.company EQ '001'
+        AND gltrans.trnum EQ 60101:
+        CREATE ttGlTrans.
+        BUFFER-COPY gltrans TO ttGlTrans.
+    END.
+    
+    RUN Output_TempTableToCSV(TEMP-TABLE ttArInv:HANDLE, cTempFolder + "\" + ipcResults + "ARInv.csv", YES).
+    RUN Output_TempTableToCSV(TEMP-TABLE ttArInvl:HANDLE, cTempFolder + "\" + ipcResults + "ARInvl.csv", YES).
+    RUN Output_TempTableToCSV(TEMP-TABLE ttGlTrans:HANDLE, cTempFolder + "\" + ipcResults + "GlTrans.csv", YES).
+          
+
 END PROCEDURE.
 
