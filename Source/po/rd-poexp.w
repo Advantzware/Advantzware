@@ -69,7 +69,7 @@ ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID,Ship Name," +
                             "Ship Address 1,Ship Address 2,Ship City,Ship State,Ship Zip," +
                             "Shipping Carrier,Total Freight,Freight Payment,FOB," +
                             "Tax Code,Tax,Taxable,Payment Terms,Total Cost," +
-                            "Job #,Item #,Item Name,Width,Length," +
+                            "Job #,Item Type,Item #,Item Name,Width,Length," +
                             "Sheet #,Blank #,Description 1,Description 2," +
                             "Vendor Item #,Order Qty,Order UOM," +
                             "Qty Received,Rec. UOM,Item Cost,UOM,Buyer," +
@@ -83,7 +83,7 @@ ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID,Ship Name," +
                             "po-ord.ship-addr[1],po-ord.ship-addr[2],po-ord.ship-city,po-ord.ship-state,po-ord.ship-zip," +
                             "po-ord.carrier,po-ord.t-freight,po-ord.frt-pay,po-ord.fob-code," +
                             "po-ord.tax-gr,po-ord.tax,po-ordl.tax,po-ord.terms,po-ord.t-cost," +
-                            "po-ordl.job-no,po-ordl.i-no,po-ordl.i-name,po-ordl.s-wid,po-ordl.s-len," +
+                            "po-ordl.job-no,po-ordl.item-type,po-ordl.i-no,po-ordl.i-name,po-ordl.s-wid,po-ordl.s-len," +
                             "po-ordl.s-num,po-ordl.b-num,po-ordl.dscr[1],po-ordl.dscr[2]," +
                             "po-ordl.vend-i-no,po-ordl.ord-qty,po-ordl.pr-qty-uom," +
                             "po-ordl.t-rec-qty,po-ordl.cons-uom,po-ordl.cost,po-ordl.pr-uom,po-ord.buyer," +
@@ -103,20 +103,18 @@ ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID,Ship Name," +
        lv_vend-zip:SCREEN-VALUE   = vend.zip.*/
 {sys/inc/ttRptSel.i}
 
-    ASSIGN cTextListToDefault  = "PO #,Po Line,Vendor #,Due Date,Ship ID,Ship Name," +
+    ASSIGN cTextListToDefault  = "Vendor #,PO #,Po Line,Due Date,Ship ID,Ship Name," +
                             "Ship Address 1,Ship Address 2,Ship City,Ship State,Ship Zip," +
                             "Shipping Carrier,Total Freight,Freight Payment,FOB," +
                             "Tax Code,Tax,Taxable,Payment Terms,Total Cost," +
-                            "Job #,Item #,Item Name,Width,Length," +
+                            "Job #,Item Type,Item #,Item Name,Width,Length," +
                             "Sheet #,Blank #,Description 1,Description 2," +
                             "Vendor Item #,Order Qty,Order UOM," +
                             "Qty Received,Rec. UOM,Item Cost,UOM,Buyer," +
                             "Status,Item Status,Printed,Opened,Type,Contact," +
-                            "PO Date,Last Ship Date," +
-                            "Vendor Name,Vendor Address 1,Vendor Address 2,Vendor City,Vendor State,Vendor Zip," +
+                            "PO Date,Last Ship Date," +                             
                             "Setup,Discount,GL Number,Overrun,Underrun," +
-                            "Customer #,Order #,Customer # From Order,FG Item # From Job,Cust Part#,Adder," +
-                            "RM Item Code,FG Item Code".
+                            "Customer #,Order #".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1780,6 +1778,9 @@ FUNCTION getValue-po-ordl RETURNS CHARACTER
                 IF AVAIL lb-oe-ord THEN
                     lc-return = lb-oe-ord.cust-no.
             END.
+        END. 
+        WHEN "item-type"  THEN DO:
+            lc-return = IF ipb-buffer.item-type EQ YES THEN "RM" ELSE "FG".            
         END.
         OTHERWISE DO:
             IF INDEX(ipc-field,"[") > 0 THEN DO:
