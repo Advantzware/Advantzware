@@ -2426,8 +2426,8 @@ PROCEDURE reopen-query2 :
   Purpose:   This procedure is a copy of reopen-query1 without open-query call. 
              Rebuild of jobstuds was taking long time because of executing 
              open-query. So, that call has been removed in this procedure and 
-             reopen-query1 call replaced with this Procedures's call to improve performance
-             performance of Rebuild of jobstuds
+             reopen-query1 call replaced with this Procedures's call to improve 
+             performance while Rebuilding jobstuds
              
   Parameters:  <none>
   Notes:       
