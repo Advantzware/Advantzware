@@ -41,7 +41,9 @@ PROCEDURE ReadRequestData:
         iplcRequestData = REPLACE(iplcRequestData,'}','')
         oplSuccess = YES
         .
-
+    
+    EMPTY TEMP-TABLE ttRequest.
+    
     TEMP-TABLE-BLOCK:
     DO iIndex1 = 1 TO NUM-ENTRIES(iplcRequestData,','):   
         ASSIGN

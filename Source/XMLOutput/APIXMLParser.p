@@ -18,7 +18,8 @@ DEFINE INPUT PARAMETER ipXMLData AS LONGCHAR NO-UNDO.
 
 DEFINE VARIABLE iLevel AS INTEGER NO-UNDO.
 DEFINE VARIABLE iOrder AS INTEGER NO-UNDO.
-DEFINE VARIABLE parentName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE parentName   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iParentOrder AS INTEGER   NO-UNDO.
 
 RUN processXML(ipXMLData) NO-ERROR.
 IF ERROR-STATUS:ERROR THEN
@@ -45,7 +46,10 @@ PROCEDURE processXML:
   IF ERROR-STATUS:ERROR THEN
       RETURN ERROR ERROR-STATUS:GET-MESSAGE(1).
               
-  parentName = 'ROOT'. 
+  ASSIGN
+      parentName   = 'ROOT'
+      iParentOrder = 0
+      . 
 
   RUN processChildren(hRoot) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN
@@ -67,11 +71,14 @@ PROCEDURE processChildren:
   
   CREATE ttNodes. 
   ASSIGN
-    iOrder = iOrder + 1
-    ttNodes.order = iOrder
-    ttNodes.nodeName = hParent:NAME 
-    ttNodes.parentName = parentName 
-    ttNodes.level = iLevel
+    iOrder              = iOrder + 1
+    ttNodes.order       = iOrder
+    ttNodes.nodeName    = hParent:NAME 
+    ttNodes.parentName  = parentName
+    ttNodes.parentOrder = iParentOrder
+    ttNodes.nodeType    = "parent" 
+    ttNodes.level       = iLevel
+    iParentOrder        = ttNodes.parentOrder
     .
   
   RUN processAttributes(hParent).
@@ -82,14 +89,18 @@ PROCEDURE processChildren:
       IF i GT 1 THEN DO:
         CREATE ttNodes.
         ASSIGN
-          iOrder = iOrder + 1
-          ttNodes.order = iOrder
-          ttNodes.nodeName = hParent:NAME
-          ttNodes.parentName = parentName
-          ttNodes.level = iLevel
+          iOrder              = iOrder + 1
+          ttNodes.order       = iOrder
+          ttNodes.nodeName    = hParent:NAME
+          ttNodes.parentName  = parentName
+          ttNodes.parentOrder = iParentOrder
+          ttNodes.level       = iLevel
           .
       END.
-      ttNodes.nodeValue = hChild:NODE-VALUE.
+      ASSIGN
+          ttNodes.nodeValue = hChild:NODE-VALUE.
+          ttNodes.nodeType  = "child"
+          .
     END.
     ELSE DO:
       parentName = hParent:NAME.
@@ -112,12 +123,14 @@ PROCEDURE processAttributes:
     cAttribute = ENTRY(i,hParent:ATTRIBUTE-NAMES). 
     CREATE ttNodes. 
     ASSIGN 
-      iOrder = iOrder + 1
-      ttNodes.order = iOrder
-      ttNodes.nodeName = cAttribute 
-      ttNodes.parentName = hParent:NAME 
-      ttNodes.nodeValue = hParent:GET-ATTRIBUTE(cAttribute) 
-      ttNodes.level = iLevel + 1
+      iOrder              = iOrder + 1
+      ttNodes.order       = iOrder
+      ttNodes.nodeName    = cAttribute 
+      ttNodes.parentName  = hParent:NAME
+      ttNodes.parentOrder = iParentOrder 
+      ttNodes.nodeValue   = hParent:GET-ATTRIBUTE(cAttribute) 
+      ttNodes.nodeType    = "attribute"
+      ttNodes.level       = iLevel + 1
       NO-ERROR.
   END. 
 END. /* processAttributes */
