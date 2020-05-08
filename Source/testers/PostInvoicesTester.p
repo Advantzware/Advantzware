@@ -25,22 +25,26 @@ DEFINE TEMP-TABLE ttARInvl LIKE ar-invl
 DEFINE TEMP-TABLE ttGLTrans LIKE gltrans
     USE-INDEX rec_key AS PRIMARY.
 
-DEFINE VARIABLE cCompany   AS CHARACTER NO-UNDO INITIAL '001'.
-DEFINE VARIABLE iInvStart  AS INTEGER   NO-UNDO INITIAL 1000027.
-DEFINE VARIABLE iInvEnd    AS INTEGER   NO-UNDO INITIAL 1000043.
-DEFINE VARIABLE dtStart    AS DATE      NO-UNDO INITIAL 1/1/2018.
-DEFINE VARIABLE dtEnd      AS DATE      NO-UNDO INITIAL 12/31/2020.
-DEFINE VARIABLE cCustStart AS CHARACTER NO-UNDO INITIAL ''.
-DEFINE VARIABLE cCustEnd   AS CHARACTER NO-UNDO INITIAL 'ZZZZZZ'.
-DEFINE VARIABLE dtPost     AS DATE      NO-UNDO INITIAL TODAY.
+DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO INITIAL '001'.
+DEFINE VARIABLE iInvStart           AS INTEGER   NO-UNDO INITIAL 1000027.
+DEFINE VARIABLE iInvEnd             AS INTEGER   NO-UNDO INITIAL 1000043.
+DEFINE VARIABLE dtStart             AS DATE      NO-UNDO INITIAL 1/1/2018.
+DEFINE VARIABLE dtEnd               AS DATE      NO-UNDO INITIAL 12/31/2020.
+DEFINE VARIABLE cCustStart          AS CHARACTER NO-UNDO INITIAL ''.
+DEFINE VARIABLE cCustEnd            AS CHARACTER NO-UNDO INITIAL 'ZZZZZZ'.
+DEFINE VARIABLE dtPost              AS DATE      NO-UNDO INITIAL TODAY.
+DEFINE VARIABLE lPost               AS LOGICAL   NO-UNDO INITIAL NO.
+DEFINE VARIABLE lRunLegacyFilesOnly AS LOGICAL   NO-UNDO INITIAL YES.
 /* ********************  Preprocessor Definitions  ******************** */
 
 
 /* ***************************  Main Block  *************************** */
+IF lRunLegacyFilesOnly THEN 
+    RUN pBuildCompareFiles("Standard").    
+ELSE 
+    RUN pBuildAndDisplay.
 
-RUN pBuildAndDisplay.
 
-//RUN pBuildCompareFiles("Standard").
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -49,6 +53,7 @@ PROCEDURE pBuildAndDisplay PRIVATE:
      Purpose:  Just process the invoices and export all related temp-tables for review
      Notes:
     ------------------------------------------------------------------------------*/
+    
 
     DEFINE VARIABLE lError     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
@@ -57,21 +62,15 @@ PROCEDURE pBuildAndDisplay PRIVATE:
     DEFINE VARIABLE iProcessed AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iValid     AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iPosted    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cOptions   AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-inv-line FOR inv-line.
     DEFINE BUFFER bf-inv-misc FOR inv-misc.
     DEFINE BUFFER bf-cust     FOR cust.
     
-    /*    FIND FIRST cust NO-LOCK                                                                                                                                       */
-    /*        WHERE cust.company EQ cCompany                                                                                                                            */
-    /*        AND cust.inv-meth NE ?                                                                                                                                    */
-    /*        AND CAN-FIND(FIRST inv-head WHERE inv-head.company EQ cust.company AND inv-head.cust-no EQ cust.cust-no AND inv-head.inv-no NE 0 AND inv-head.stat NE 'H')*/
-    /*        NO-ERROR.                                                                                                                                                 */
-    /*    IF AVAILABLE cust THEN                                                                                                                                        */
-    /*        ASSIGN                                                                                                                                                    */
-    /*            cCustStart = cust.cust-no                                                                                                                             */
-    /*            cCustEnd   = cust.cust-no                                                                                                                             */
-    /*            .                                                                                                                                                     */
+    cOptions = "Export".
+    IF lPost THEN cOptions = cOptions + ",Post,ExportExceptions".
+    
     FOR EACH inv-head NO-LOCK
         WHERE inv-head.company EQ cCompany
         AND inv-head.inv-no GE iInvStart
@@ -101,7 +100,7 @@ PROCEDURE pBuildAndDisplay PRIVATE:
         dtStart, dtEnd,
         cCustStart, cCustEnd,
         dtPost,
-        "Export,Post",
+        cOptions,
         OUTPUT iProcessed, OUTPUT iValid, OUTPUT iPosted,
         OUTPUT lError, OUTPUT cMessage).
 
@@ -113,17 +112,17 @@ PROCEDURE pBuildAndDisplay PRIVATE:
         "Completed in " TIME - iTimer " seconds"
         VIEW-AS ALERT-BOX.
      
-     RUN pBuildCompareFiles("New").
+    IF lPost THEN RUN pBuildCompareFiles("New").
         
 END PROCEDURE.
 
 
 
 PROCEDURE pBuildCompareFiles PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcResults AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE hdOutput    AS HANDLE.
