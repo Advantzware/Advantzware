@@ -1,4 +1,3 @@
-
 /*------------------------------------------------------------------------
     File        : oe/PostInvoices.p
     Purpose     : 
@@ -556,6 +555,7 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttPostingMaster FOR ttPostingMaster.
     DEFINE PARAMETER BUFFER ipbf-ttInvoiceToPost FOR ttInvoiceToPost.
     DEFINE PARAMETER BUFFER ipbf-inv-line        FOR inv-line.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiRNo AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
@@ -687,7 +687,7 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
                 .
         END.                
     END.
-    RUN pGetAccountProductLine (BUFFER ttInvoiceLineToPost, OUTPUT oplError, OUTPUT opcMessage).
+    RUN pGetAccountProductLine (BUFFER ttInvoiceLineToPost, ipcCompany, OUTPUT oplError, OUTPUT opcMessage).
                 
     IF NOT oplError THEN /*Do not create FGs, Bols and orders to update unless all is ok*/
     DO:
@@ -890,6 +890,7 @@ PROCEDURE pAlignMultiInvoiceLinesWithMaster PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttPostingMaster FOR ttPostingMaster.
     DEFINE PARAMETER BUFFER ipbf-master-inv-head FOR inv-head.
     DEFINE PARAMETER BUFFER ipbf-ttInvoiceToPost FOR ttInvoiceToPost.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
@@ -921,7 +922,7 @@ PROCEDURE pAlignMultiInvoiceLinesWithMaster PRIVATE:
                 opcMessage = ""
                 .   
                 
-            RUN pAddInvoiceLineToPost(BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceToPost, BUFFER bf-child-inv-line, ipbf-master-inv-head.r-no, OUTPUT lError, OUTPUT cMessage).
+            RUN pAddInvoiceLineToPost(BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceToPost, BUFFER bf-child-inv-line, ipcCompany, ipbf-master-inv-head.r-no, OUTPUT lError, OUTPUT cMessage).
             IF lError THEN 
             DO:  /*Flag invoice as bad but continue*/ 
                 ASSIGN
@@ -965,6 +966,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
      Purpose:  Given Criteria Range, build invoices to post
      Notes:  Will process multi-invoices and "link-up" the inv-lines to one master
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiProcessed AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
@@ -1029,7 +1031,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
             FOR EACH bf-inv-line NO-LOCK
                 WHERE bf-inv-line.r-no EQ bf-inv-head.r-no
                 USE-INDEX r-no:
-                RUN pAddInvoiceLineToPost(BUFFER ttPostingMaster, BUFFER bf-ttInvoiceToPost, BUFFER bf-inv-line, bf-inv-head.r-no, OUTPUT lError, OUTPUT cMessage). 
+                RUN pAddInvoiceLineToPost(BUFFER ttPostingMaster, BUFFER bf-ttInvoiceToPost, BUFFER bf-inv-line, ipcCompany, bf-inv-head.r-no, OUTPUT lError, OUTPUT cMessage). 
             END. /*each bf-inv-line*/
             IF lError THEN 
             DO: 
@@ -1056,7 +1058,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
             /*Manage Multi Invoices*/
             IF bf-inv-head.multi-invoice THEN 
             DO:             
-                RUN pAlignMultiInvoiceLinesWithMaster(BUFFER ttPostingMaster, BUFFER bf-inv-head, BUFFER bf-ttInvoiceToPost, OUTPUT lError, OUTPUT cMessage).
+                RUN pAlignMultiInvoiceLinesWithMaster(BUFFER ttPostingMaster, BUFFER bf-inv-head, BUFFER bf-ttInvoiceToPost, ipcCompany, OUTPUT lError, OUTPUT cMessage).
                 IF lError THEN 
                 DO:
                     ASSIGN
@@ -1645,6 +1647,7 @@ PROCEDURE pGetAccountProductLine PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttInvoiceLineToPost FOR ttInvoiceLineToPost.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
@@ -2019,7 +2022,7 @@ PROCEDURE PostInvoices:
 
     IF NOT oplError THEN
         /*Build the master list of invoices based on ttPostingMaster*/
-        RUN pBuildInvoicesToPost(OUTPUT opiCountProcessed, OUTPUT oplError, OUTPUT opcMessage).
+        RUN pBuildInvoicesToPost(ipcCompany, OUTPUT opiCountProcessed, OUTPUT oplError, OUTPUT opcMessage).
 
     IF NOT oplError THEN
         /*Process the master list of invoices for reporting and/or posting*/
