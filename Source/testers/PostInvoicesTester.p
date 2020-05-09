@@ -123,8 +123,6 @@ PROCEDURE pBuildAndDisplay PRIVATE:
         
 END PROCEDURE.
 
-
-
 PROCEDURE pBuildCompareFiles PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:

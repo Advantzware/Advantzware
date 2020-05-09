@@ -1807,7 +1807,7 @@ PROCEDURE pGetCurrencyCodeAndRate PRIVATE:
     DEFINE INPUT PARAMETER ipcCurrCodeMaster AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcCurrencyCode AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdCurrencyExchangeRate AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcaccountARCurrency AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcAccountARCurrency AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
@@ -1837,7 +1837,7 @@ PROCEDURE pGetCurrencyCodeAndRate PRIVATE:
     IF AVAILABLE bf-currency THEN 
         ASSIGN 
             opdCurrencyExchangeRate = bf-currency.ex-rate 
-            opcaccountARCurrency    = bf-currency.ar-ast-acct
+            opcAccountARCurrency    = bf-currency.ar-ast-acct
             .
     ELSE 
         ASSIGN 
