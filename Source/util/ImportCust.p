@@ -381,15 +381,6 @@ PROCEDURE pValidate PRIVATE:
     ELSE IF ipbf-ttImportCust.CustStatus EQ "Service" THEN 
         ipbf-ttImportCust.CustStatus = "E".
        
-    IF ipbf-ttImportCust.accountType EQ "Split" THEN 
-        ipbf-ttImportCust.accountType = "S".
-    ELSE IF ipbf-ttImportCust.accountType EQ "Originated" THEN 
-        ipbf-ttImportCust.accountType = "O".
-    ELSE IF ipbf-ttImportCust.accountType EQ "Handed" THEN 
-        ipbf-ttImportCust.accountType = "H".
-     
-
-    
 END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:

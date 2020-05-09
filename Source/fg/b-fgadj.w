@@ -492,9 +492,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.i-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.i-no IN BROWSE Browser-Table /* Item No */
 DO:
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-i-no NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-i-no(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
     FIND FIRST itemfg {sys/look/itemfgrlW.i}
         AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
         NO-LOCK NO-ERROR.
@@ -566,9 +567,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.job-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.job-no IN BROWSE Browser-Table /* Job # */
 DO:
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-job-loc-bin-tag (1) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-job-loc-bin-tag (INPUT 1,OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -580,9 +582,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.job-no2 Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.job-no2 IN BROWSE Browser-Table
 DO:
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO. 
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-job-loc-bin-tag (2) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-job-loc-bin-tag (INPUT 2,OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -594,9 +597,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.loc IN BROWSE Browser-Table /* Whse */
 DO:
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO. 
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-job-loc-bin-tag (3) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-job-loc-bin-tag (INPUT 3, OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -608,9 +612,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.loc-bin Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.loc-bin IN BROWSE Browser-Table /* Bin */
 DO:
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-job-loc-bin-tag (4) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-job-loc-bin-tag (INPUT 4,OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -622,13 +627,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.tag IN BROWSE Browser-Table /* Tag */
 DO:
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   IF LASTKEY NE -1 THEN DO:
 
-    RUN valid-tag NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-tag(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
 
-    RUN valid-job-loc-bin-tag (5) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-job-loc-bin-tag (INPUT 5, OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -640,9 +646,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.cust-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.cust-no IN BROWSE Browser-Table /* Customer# */
 DO:
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-job-loc-bin-tag (6) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-job-loc-bin-tag (INPUT 6,OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -713,7 +720,7 @@ END.
 ON ENTRY OF fg-rctd.reject-code[1] IN BROWSE Browser-Table /* Reason */
 DO: 
    IF AVAIL fg-rctd AND fg-rctd.reject-code[1] EQ "" THEN
-       ASSIGN fg-rctd.reject-code[1]:SCREEN-VALUE IN BROWSE {&browse-name} = "" .
+       ASSIGN fg-rctd.reject-code[1]:SCREEN-VALUE IN BROWSE {&browse-name} = "" .   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -723,9 +730,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.reject-code[1] Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.reject-code[1] IN BROWSE Browser-Table /* Reason */
 DO:
+   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-reason NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-reason(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -1220,19 +1228,19 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
-
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN valid-reason NO-ERROR .
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-reason(OUTPUT lReturnError) NO-ERROR .
+  IF lReturnError THEN RETURN NO-APPLY.
 
-  RUN valid-i-no NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-i-no(OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
 
-  RUN valid-job-loc-bin-tag (6) NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-job-loc-bin-tag (6,OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
 
-  RUN valid-tag NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-tag(OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
 
   RUN calc-qty.
 
@@ -1367,7 +1375,7 @@ PROCEDURE valid-i-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST itemfg
                     {sys/look/itemfgrlW.i}
@@ -1375,7 +1383,7 @@ PROCEDURE valid-i-no :
     THEN DO:
       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO fg-rctd.i-no IN BROWSE {&browse-name}.
-      RETURN ERROR.
+      oplReturnError = YES.
     END.
   END.
   
@@ -1392,7 +1400,7 @@ PROCEDURE valid-job-loc-bin-tag :
   Notes:       
 ------------------------------------------------------------------------------*/ 
   DEF INPUT PARAM ip-int AS INT NO-UNDO.
-
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
@@ -1426,7 +1434,7 @@ PROCEDURE valid-job-loc-bin-tag :
         APPLY "entry" TO fg-rctd.tag IN BROWSE {&browse-name}.
       ELSE
         APPLY "entry" TO fg-rctd.cust-no IN BROWSE {&browse-name}.
-      RETURN ERROR.
+      oplReturnError = YES.
     END.
   END.
   
@@ -1442,13 +1450,13 @@ PROCEDURE valid-reason :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DO WITH FRAME {&FRAME-NAME}:
     IF cComboList NE "" AND lAdjustReason-log AND fg-rctd.reject-code[1]:SCREEN-VALUE IN BROWSE {&browse-name} EQ ""
     THEN DO:
       MESSAGE "Please Enter , Adjustment Reason code..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO fg-rctd.reject-code[1] IN BROWSE {&browse-name}.
-      RETURN ERROR.
+      oplReturnError = YES.
     END.
   END.
   
@@ -1464,6 +1472,7 @@ PROCEDURE valid-tag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   IF lv-fgrecpt-val = 1 THEN DO:
      FIND FIRST loadtag WHERE loadtag.company = g_company
                           AND loadtag.item-type = NO
@@ -1472,7 +1481,7 @@ PROCEDURE valid-tag :
      IF NOT AVAIL loadtag /*or fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = ""*/ THEN DO:
         MESSAGE "Invalid Tag#. Try help or Scan valid tag#..." VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO fg-rctd.tag IN BROWSE {&browse-name}.
-        RETURN ERROR.
+        oplReturnError = YES.
      END.
   END.
 END PROCEDURE.
