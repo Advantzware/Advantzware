@@ -35,6 +35,7 @@ DEFINE TEMP-TABLE ttPostingMaster NO-UNDO
     FIELD accountARSalesTax  AS CHARACTER
     FIELD accountARDiscount  AS CHARACTER
     FIELD accountARCash      AS CHARACTER
+    FIELD accountARCurrency  AS CHARACTER
     FIELD accountCOGS        AS CHARACTER
     FIELD accountFG          AS CHARACTER 
     FIELD journalNote        AS CHARACTER
@@ -47,6 +48,9 @@ DEFINE TEMP-TABLE ttPostingMaster NO-UNDO
     FIELD consolidateDisc    AS LOGICAL 
     FIELD consolidateFreight AS LOGICAL  
     FIELD consolidateCash    AS LOGICAL
+    FIELD currencyCode       AS CHARACTER 
+    FIELD currencyExRate     AS DECIMAL
+  
     .
     
 DEFINE TEMP-TABLE ttInvoiceToPost NO-UNDO 
@@ -69,7 +73,7 @@ DEFINE TEMP-TABLE ttInvoiceToPost NO-UNDO
     FIELD quantityTotalMSF             AS DECIMAL
     FIELD currencyCode                 AS CHARACTER 
     FIELD currencyExRate               AS DECIMAL
-    FIELD currencyARAccount            AS CHARACTER
+    FIELD accountARCurrency            AS CHARACTER
     FIELD accountAR                    AS CHARACTER
     FIELD accountARFreight             AS CHARACTER
     FIELD accountARSales               AS CHARACTER
@@ -872,7 +876,8 @@ PROCEDURE pAddInvoiceToPost PRIVATE:
     IF opbf-ttInvoiceToPost.isFreightBillable THEN 
         opbf-ttInvoiceToPost.amountBilledFreight = ipbf-inv-head.t-inv-freight.
         
-    RUN pGetCurrencyCodeAndRate(ipbf-inv-head.company, ipbf-inv-head.curr-code[1], ipbf-cust.curr-code, OUTPUT opbf-ttInvoiceToPost.currencyCode, OUTPUT opbf-ttInvoiceToPost.currencyExRate, OUTPUT opbf-ttInvoiceToPost.currencyARAccount,
+    RUN pGetCurrencyCodeAndRate(ipbf-inv-head.company, ipbf-inv-head.curr-code[1], ipbf-cust.curr-code, ipbf-ttPostingMaster.currencyCode, 
+        OUTPUT opbf-ttInvoiceToPost.currencyCode, OUTPUT opbf-ttInvoiceToPost.currencyExRate, OUTPUT opbf-ttInvoiceToPost.accountARCurrency,
         OUTPUT oplError, OUTPUT opcMessage).
         
     IF oplError THEN 
@@ -1495,7 +1500,8 @@ PROCEDURE pCreateGLTransFromTransaction PRIVATE:
     DEFINE OUTPUT PARAMETER opriGLTrans AS ROWID NO-UNDO.
      
     RUN pCreateGLTrans(BUFFER ipbf-ttPostingMaster, ipdTransactionAmount, ipbf-ttGLTransaction.account, ipbf-ttGLTransaction.transactionDesc, ipiRun, ipbf-ttGLTransaction.transactionDate, 
-        ipbf-ttGLTransaction.transactionPeriod, OUTPUT opriGLTrans).
+        ipbf-ttGLTransaction.transactionPeriod, 
+        ipbf-ttGLTransaction.currencyCode, ipbf-ttGLTransaction.currencyExRate, OUTPUT opriGLTrans).
 
 END PROCEDURE.
 
@@ -1504,7 +1510,7 @@ PROCEDURE pCreateGLTrans PRIVATE:
      Purpose: Given temp-table buffer, create GL transaction
      Notes:
          RUN pCreateGLTrans(BUFFER ipbf-ttPostingMaster, dAmount, cAccount, cDescription, iRun, 
-         dtTransDate, iPeriod, OUTPUT riGLTrans). 
+         dtTransDate, iPeriod, ipcCurrCode, ipdExRate, OUTPUT riGLTrans). 
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttPostingMaster FOR ttPostingMaster.
     DEFINE INPUT PARAMETER ipdTransactionAmount AS DECIMAL NO-UNDO.
@@ -1513,21 +1519,25 @@ PROCEDURE pCreateGLTrans PRIVATE:
     DEFINE INPUT PARAMETER ipiRun AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipdtTransactionDate AS DATE NO-UNDO.
     DEFINE INPUT PARAMETER ipiTransactionPeriod AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCurrCode AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdExRate AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opriGLTrans AS ROWID NO-UNDO.
      
     DEFINE BUFFER bf-gltrans FOR gltrans.
      
     CREATE bf-gltrans.
     ASSIGN
-        opriGLTrans        = ROWID(bf-gltrans)
-        bf-gltrans.company = ipbf-ttPostingMaster.company
-        bf-gltrans.actnum  = ipcAccount
-        bf-gltrans.jrnl    = ipbf-ttPostingMaster.journalNote
-        bf-gltrans.tr-dscr = ipcDescription
-        bf-gltrans.tr-amt  = ipdTransactionAmount
-        bf-gltrans.period  = IF ipiTransactionPeriod EQ 0 THEN ipbf-ttPostingMaster.periodID ELSE ipiTransactionPeriod
-        bf-gltrans.tr-date = IF ipdtTransactionDate EQ ? THEN ipbf-ttPostingMaster.postDate ELSE ipdtTransactionDate
-        bf-gltrans.trnum   = ipiRun
+        opriGLTrans          = ROWID(bf-gltrans)
+        bf-gltrans.company   = ipbf-ttPostingMaster.company
+        bf-gltrans.actnum    = ipcAccount
+        bf-gltrans.jrnl      = ipbf-ttPostingMaster.journalNote
+        bf-gltrans.tr-dscr   = ipcDescription
+        bf-gltrans.tr-amt    = ipdTransactionAmount
+        bf-gltrans.period    = IF ipiTransactionPeriod EQ 0 THEN ipbf-ttPostingMaster.periodID ELSE ipiTransactionPeriod
+        bf-gltrans.tr-date   = IF ipdtTransactionDate EQ ? THEN ipbf-ttPostingMaster.postDate ELSE ipdtTransactionDate
+        bf-gltrans.trnum     = ipiRun
+        bf-gltrans.curr-code = ipcCurrCode
+        bf-gltrans.ex-rate   = ipdExRate
         .
     
     RELEASE bf-gltrans.
@@ -1627,8 +1637,8 @@ PROCEDURE pGetAccountDefaults PRIVATE:
             opcAccountARSalesTax = ar-ctrl.stax
             opcAccountARDiscount = ar-ctrl.discount
             opcAccountARCash     = ar-ctrl.cash-act
-            opcAccountCogs       = ""  /*REFACTOR - Assign Default*/
-            opcAccountFG         = ""  /*REFACTOR - Assign Default*/
+            opcAccountCogs       = ar-ctrl.discount  /*REFACTOR - Assign Appropriate Default*/
+            opcAccountFG         = ar-ctrl.discount  /*REFACTOR - Assign Appropriate Default*/
             .
 
         RUN pCheckAccount(ipcCompany, opcAccountAR, cAccountSource, "Receivables Account", OUTPUT oplError, OUTPUT opcMessage).
@@ -1642,7 +1652,10 @@ PROCEDURE pGetAccountDefaults PRIVATE:
             RUN pCheckAccount(ipcCompany, opcAccountARDiscount, cAccountSource, "Discount Account", OUTPUT oplError, OUTPUT opcMessage).
         IF NOT oplError THEN 
             RUN pCheckAccount(ipcCompany, opcAccountARCash, cAccountSource, "Cash Account", OUTPUT oplError, OUTPUT opcMessage).     
-                   
+        IF NOT oplError THEN 
+            RUN pCheckAccount(ipcCompany, opcAccountCOGS, cAccountSource, "COGS Default Account", OUTPUT oplError, OUTPUT opcMessage).
+        IF NOT oplError THEN 
+            RUN pCheckAccount(ipcCompany, opcAccountFG, cAccountSource, "FG Default Account", OUTPUT oplError, OUTPUT opcMessage).                   
     END.  /*valid ar-ctrl*/
     
     
@@ -1686,16 +1699,17 @@ PROCEDURE pGetAccountProductLine PRIVATE:
         AND bf-prod.prolin  EQ bf-prodl.prolin
         NO-LOCK:
         ASSIGN 
-            cAccountSource                         = "Product Line File for " + bf-prod.prolin
-            ipbf-ttInvoiceLineToPost.accountDLCogs = bf-prod.cgs-dl
-            ipbf-ttInvoiceLineToPost.accountDLFG   = bf-prod.fg-lab
-            ipbf-ttInvoiceLineToPost.accountVOCogs = bf-prod.cgs-vo
-            ipbf-ttInvoiceLineToPost.accountVOFG   = bf-prod.fg-vo
-            ipbf-ttInvoiceLineToPost.accountFOCogs = bf-prod.cgs-fo
-            ipbf-ttInvoiceLineToPost.accountFOFG   = bf-prod.fg-fo
-            ipbf-ttInvoiceLineToPost.accountDMCogs = bf-prod.cgs-mat
-            ipbf-ttInvoiceLineToPost.accountDMFG   = bf-prod.fg-mat
-            .    
+            cAccountSource = "Product Line File for " + bf-prod.prolin
+            .
+        IF bf-prod.cgs-dl NE "" THEN ipbf-ttInvoiceLineToPost.accountDLCogs = bf-prod.cgs-dl.
+        IF bf-prod.fg-lab NE "" THEN ipbf-ttInvoiceLineToPost.accountDLFG = bf-prod.fg-lab.
+        IF bf-prod.cgs-vo NE "" THEN ipbf-ttInvoiceLineToPost.accountVOCogs = bf-prod.cgs-vo.             
+        IF bf-prod.fg-vo NE "" THEN ipbf-ttInvoiceLineToPost.accountVOFG = bf-prod.fg-vo.
+        IF bf-prod.cgs-fo NE "" THEN ipbf-ttInvoiceLineToPost.accountFOCogs = bf-prod.cgs-fo.
+        IF bf-prod.fg-fo NE "" THEN ipbf-ttInvoiceLineToPost.accountFOFG   = bf-prod.fg-fo.
+        IF bf-prod.cgs-mat NE "" THEN ipbf-ttInvoiceLineToPost.accountDMCogs = bf-prod.cgs-mat.
+        IF bf-prod.fg-mat NE "" THEN ipbf-ttInvoiceLineToPost.accountDMFG   = bf-prod.fg-mat.
+               
         LEAVE.
     END.    
     
@@ -1786,9 +1800,10 @@ PROCEDURE pGetCurrencyCodeAndRate PRIVATE:
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCurrCodeInvoice AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCurrCodeCust AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCurrCodeMaster AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcCurrencyCode AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdCurrencyExchangeRate AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcCurrencyARAccount AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcaccountARCurrency AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
@@ -1797,16 +1812,10 @@ PROCEDURE pGetCurrencyCodeAndRate PRIVATE:
     
     opcCurrencyCode = ipcCurrCodeInvoice.
     IF opcCurrencyCode EQ "" THEN 
-        ASSIGN 
-            opcCurrencyCode = ipcCurrCodeCust
-            .
+        opcCurrencyCode = ipcCurrCodeCust.
     IF opcCurrencyCode EQ "" THEN 
     DO:
-        FIND FIRST bf-company NO-LOCK    
-            WHERE bf-company.company EQ ipcCompany 
-            NO-ERROR.
-        IF AVAILABLE bf-company THEN        
-            opcCurrencyCode = bf-company.curr-code.
+        opcCurrencyCode = ipcCurrCodeMaster.
     END.            
     IF opcCurrencyCode NE "" THEN 
         FIND bf-currency NO-LOCK 
@@ -1818,13 +1827,13 @@ PROCEDURE pGetCurrencyCodeAndRate PRIVATE:
     ELSE 
         ASSIGN 
             oplError   = YES
-            opcMessage = "No valid currency code for invoice, customer or company (" + ipcCompany    + ")"
+            opcMessage = "Currency code is blank for invoice, customer and company (" + ipcCompany + ")"
             .
         
     IF AVAILABLE bf-currency THEN 
         ASSIGN 
             opdCurrencyExchangeRate = bf-currency.ex-rate 
-            opcCurrencyARAccount    = bf-currency.ar-ast-acct
+            opcaccountARCurrency    = bf-currency.ar-ast-acct
             .
     ELSE 
         ASSIGN 
@@ -1946,11 +1955,13 @@ PROCEDURE pInitialize PRIVATE:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER bf-period FOR period.
+    DEFINE BUFFER bf-period  FOR period.
+    DEFINE BUFFER bf-company FOR company.
     
     EMPTY TEMP-TABLE ttPostingMaster.
     EMPTY TEMP-TABLE ttInvoiceToPost.
     EMPTY TEMP-TABLE ttInvoiceLineToPost.
+    
     
     CREATE ttPostingMaster.
     ASSIGN 
@@ -1974,6 +1985,20 @@ PROCEDURE pInitialize PRIVATE:
         ttPostingMaster.journalNote        = "OEINV"
         .
     
+    FIND FIRST bf-company NO-LOCK    
+        WHERE bf-company.company EQ ipcCompany 
+        NO-ERROR.
+    IF AVAILABLE bf-company THEN        
+        ttPostingMaster.currencyCode = bf-company.curr-code.
+    ELSE 
+    DO:
+        ASSIGN 
+            oplError   = YES
+            opcMessage = "Invalid company " + ipcCompany
+            .
+        RETURN.
+    END.        
+    
     RUN pGetSettings(BUFFER ttPostingMaster).
     
     FIND FIRST bf-period NO-LOCK 
@@ -1995,6 +2020,7 @@ PROCEDURE pInitialize PRIVATE:
             .
         RETURN.
     END.
+    
     RUN pGetAccountDefaults(ipcCompany, 
         OUTPUT ttPostingMaster.accountAR, 
         OUTPUT ttPostingMaster.accountARFreight, 
@@ -2004,6 +2030,10 @@ PROCEDURE pInitialize PRIVATE:
         OUTPUT ttPostingMaster.accountARCash,
         OUTPUT ttPostingMaster.accountCogs,
         OUTPUT ttPostingMaster.accountFG,
+        OUTPUT oplError, OUTPUT opcMessage).
+        
+    RUN pGetCurrencyCodeAndRate(ipcCompany, "", "", ttPostingMaster.currencyCode, 
+        OUTPUT ttPostingMaster.currencyCode, OUTPUT ttPostingMaster.currencyExRate, OUTPUT ttPostingMaster.accountARCurrency,
         OUTPUT oplError, OUTPUT opcMessage).
         
 
@@ -2324,7 +2354,8 @@ PROCEDURE pPostGLType PRIVATE:
     RUN pPostGLAccumulateAndAdd(BUFFER ipbf-ttPostingMaster, ipcTransactionType, ipiRunID, iplCreateGL, iplConsolidate, OUTPUT dAmount, INPUT-OUTPUT iopdRunningBalance).
     IF iplConsolidate AND dAmount NE 0 AND iplCreateGL THEN 
         RUN pCreateGLTrans(BUFFER ipbf-ttPostingMaster, dAmount, ipcConsolidateAccount, ipcConsolidateDesc, ipiRunID, 
-            ipbf-ttPostingMaster.postDate, ipbf-ttPostingMaster.periodID, OUTPUT riGLTrans).
+            ipbf-ttPostingMaster.postDate, ipbf-ttPostingMaster.periodID, 
+            ipbf-ttPostingMaster.currencyCode, ipbf-ttPostingMaster.currencyExRate, OUTPUT riGLTrans).
 
 END PROCEDURE.
 
