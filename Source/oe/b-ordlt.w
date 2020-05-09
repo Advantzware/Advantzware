@@ -1846,7 +1846,7 @@ PROCEDURE reopen-query :
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl). /* viewer */
   RUN get-link-handle IN adm-broker-hdl (WIDGET-HANDLE(char-hdl),"record-source", OUTPUT char-hdl). /* browser */
 
-  RUN reopen-query1 IN WIDGET-HANDLE(char-hdl) (ip-rowid).
+  RUN reopen-query2 IN WIDGET-HANDLE(char-hdl) (ip-rowid).
 
   APPLY "value-changed" TO BROWSE {&browse-name}.
 
