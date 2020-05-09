@@ -15,8 +15,11 @@
 /* ***************************  Definitions  ************************** */
 {custom/globdefs.i &NEW=NEW}
 DEFINE VARIABLE hdSession AS HANDLE.
+DEFINE VARIABLE hdPostInvoices AS HANDLE.
 RUN system\session.p PERSISTENT SET hdSession.
 SESSION:ADD-SUPER-PROCEDURE (hdSession).
+RUN oe\PostInvoices.p PERSISTENT SET hdPostInvoices.
+SESSION:ADD-SUPER-PROCEDURE (hdPostInvoices).
 
 DEFINE TEMP-TABLE ttARInv LIKE ar-inv
     USE-INDEX rec_key AS PRIMARY.
@@ -33,12 +36,16 @@ DEFINE VARIABLE dtEnd               AS DATE      NO-UNDO INITIAL 12/31/2020.
 DEFINE VARIABLE cCustStart          AS CHARACTER NO-UNDO INITIAL ''.
 DEFINE VARIABLE cCustEnd            AS CHARACTER NO-UNDO INITIAL 'ZZZZZZ'.
 DEFINE VARIABLE dtPost              AS DATE      NO-UNDO INITIAL TODAY.
-DEFINE VARIABLE lPost               AS LOGICAL   NO-UNDO INITIAL NO.
-DEFINE VARIABLE lRunLegacyFilesOnly AS LOGICAL   NO-UNDO INITIAL YES.
+DEFINE VARIABLE lPost               AS LOGICAL   NO-UNDO INITIAL YES.
+DEFINE VARIABLE lRunLegacyFilesOnly AS LOGICAL   NO-UNDO INITIAL NO.
+
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 
 /* ***************************  Main Block  *************************** */
+RUN oe/PostInvoices.p PERSISTENT SET hdPostInvoices.
+
 IF lRunLegacyFilesOnly THEN 
     RUN pBuildCompareFiles("Standard").    
 ELSE 
@@ -95,7 +102,7 @@ PROCEDURE pBuildAndDisplay PRIVATE:
 //        DISPLAY inv-head.inv-no FORMAT ">>>>>>>9" inv-head.t-inv-rev inv-head.t-inv-freight inv-head.t-inv-tax.
     END.
     iTimer = TIME.    
-    RUN oe/PostInvoices.p(cCompany,
+    RUN PostInvoices(cCompany,
         iInvStart, iInvEnd,
         dtStart, dtEnd,
         cCustStart, cCustEnd,
@@ -115,8 +122,6 @@ PROCEDURE pBuildAndDisplay PRIVATE:
     IF lPost THEN RUN pBuildCompareFiles("New").
         
 END PROCEDURE.
-
-
 
 PROCEDURE pBuildCompareFiles PRIVATE:
     /*------------------------------------------------------------------------------
@@ -149,7 +154,7 @@ PROCEDURE pBuildCompareFiles PRIVATE:
     END.
     FOR EACH gltrans NO-LOCK
         WHERE gltrans.company EQ '001'
-        AND gltrans.trnum EQ 60101:
+        AND gltrans.trnum EQ 60105:
         CREATE ttGlTrans.
         BUFFER-COPY gltrans TO ttGlTrans.
     END.
