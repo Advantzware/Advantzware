@@ -34,7 +34,9 @@ DEFINE TEMP-TABLE ttPostingMaster NO-UNDO
     FIELD accountARSales     AS CHARACTER
     FIELD accountARSalesTax  AS CHARACTER
     FIELD accountARDiscount  AS CHARACTER
-    FIELD accountARCash      AS CHARACTER 
+    FIELD accountARCash      AS CHARACTER
+    FIELD accountCOGS        AS CHARACTER
+    FIELD accountFG          AS CHARACTER 
     FIELD journalNote        AS CHARACTER
     FIELD consolidateAR      AS LOGICAL
     FIELD consolidateFG      AS LOGICAL
@@ -294,7 +296,7 @@ DEFINE TEMP-TABLE ttException NO-UNDO
 {custom/globdefs.i}    
 /*Program-level Handles for persistent procs*/
 
-DEFINE VARIABLE ghNotesProcs AS HANDLE  NO-UNDO.
+DEFINE VARIABLE ghNotesProcs AS HANDLE NO-UNDO.
     
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -302,7 +304,7 @@ DEFINE VARIABLE ghNotesProcs AS HANDLE  NO-UNDO.
 
 
 FUNCTION fGetInvoiceToPostHandle RETURNS HANDLE 
-	(  ) FORWARD.
+    (  ) FORWARD.
 
 FUNCTION fGetNextRun RETURNS INTEGER PRIVATE
     (ipcCompany AS CHARACTER,
@@ -687,7 +689,7 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
                 .
         END.                
     END.
-    RUN pGetAccountProductLine (BUFFER ttInvoiceLineToPost, OUTPUT oplError, OUTPUT opcMessage).
+    RUN pGetAccountProductLine (BUFFER ipbf-ttPostingMaster, BUFFER ttInvoiceLineToPost, OUTPUT oplError, OUTPUT opcMessage).
                 
     IF NOT oplError THEN /*Do not create FGs, Bols and orders to update unless all is ok*/
     DO:
@@ -1501,6 +1503,8 @@ PROCEDURE pCreateGLTrans PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given temp-table buffer, create GL transaction
      Notes:
+         RUN pCreateGLTrans(BUFFER ipbf-ttPostingMaster, dAmount, cAccount, cDescription, iRun, 
+         dtTransDate, iPeriod, OUTPUT riGLTrans). 
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttPostingMaster FOR ttPostingMaster.
     DEFINE INPUT PARAMETER ipdTransactionAmount AS DECIMAL NO-UNDO.
@@ -1555,6 +1559,7 @@ PROCEDURE pExportAllTempTables PRIVATE:
     RUN Output_TempTableToCSV(TEMP-TABLE ttOrderToUpdate:HANDLE, cTempFolder + "\OrderHeaders.csv", YES).
     RUN Output_TempTableToCSV(TEMP-TABLE ttOrderLineToUpdate:HANDLE, cTempFolder + "\OrderLines.csv", YES).
     RUN Output_TempTableToCSV(TEMP-TABLE ttBolLineToUpdate:HANDLE, cTempFolder + "\BOLLines.csv", YES).
+    RUN Output_TempTableToCSV(TEMP-TABLE ttFGItemToUpdate:HANDLE, cTempFolder + "\FGItems.csv", YES).
     
     
     DELETE OBJECT hdOutput.
@@ -1594,6 +1599,8 @@ PROCEDURE pGetAccountDefaults PRIVATE:
     DEFINE OUTPUT PARAMETER opcAccountARSalesTax AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcAccountARDiscount AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcAccountARCash AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcAccountCogs AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcAccountFG AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
@@ -1620,6 +1627,8 @@ PROCEDURE pGetAccountDefaults PRIVATE:
             opcAccountARSalesTax = ar-ctrl.stax
             opcAccountARDiscount = ar-ctrl.discount
             opcAccountARCash     = ar-ctrl.cash-act
+            opcAccountCogs       = ""  /*REFACTOR - Assign Default*/
+            opcAccountFG         = ""  /*REFACTOR - Assign Default*/
             .
 
         RUN pCheckAccount(ipcCompany, opcAccountAR, cAccountSource, "Receivables Account", OUTPUT oplError, OUTPUT opcMessage).
@@ -1636,6 +1645,7 @@ PROCEDURE pGetAccountDefaults PRIVATE:
                    
     END.  /*valid ar-ctrl*/
     
+    
 END PROCEDURE.
 
 PROCEDURE pGetAccountProductLine PRIVATE:
@@ -1644,6 +1654,7 @@ PROCEDURE pGetAccountProductLine PRIVATE:
      COGS and FG
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttPostingMaster     FOR ttPostingMaster.
     DEFINE PARAMETER BUFFER ipbf-ttInvoiceLineToPost FOR ttInvoiceLineToPost.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
@@ -1655,6 +1666,17 @@ PROCEDURE pGetAccountProductLine PRIVATE:
     DEFINE VARIABLE lError         AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
     
+    ASSIGN 
+        ipbf-ttInvoiceLineToPost.accountDLCogs = ipbf-ttPostingMaster.accountCOGS
+        ipbf-ttInvoiceLineToPost.accountVOCogs = ipbf-ttPostingMaster.accountCOGS
+        ipbf-ttInvoiceLineToPost.accountFOCogs = ipbf-ttPostingMaster.accountCOGS
+        ipbf-ttInvoiceLineToPost.accountDMCogs = ipbf-ttPostingMaster.accountCOGS
+        ipbf-ttInvoiceLineToPost.accountDLFG   = ipbf-ttPostingMaster.accountFG
+        ipbf-ttInvoiceLineToPost.accountVOFG   = ipbf-ttPostingMaster.accountFG
+        ipbf-ttInvoiceLineToPost.accountFOFG   = ipbf-ttPostingMaster.accountFG
+        ipbf-ttInvoiceLineToPost.accountDMFG   = ipbf-ttPostingMaster.accountFG
+        .
+        
     FOR EACH bf-prodl
         WHERE bf-prodl.company EQ ipbf-ttInvoiceLineToPost.company
         AND bf-prodl.procat  EQ ipbf-ttInvoiceLineToPost.productCategory
@@ -1677,21 +1699,21 @@ PROCEDURE pGetAccountProductLine PRIVATE:
         LEAVE.
     END.    
     
-    RUN pCheckAccount(ipcCompany, ipbf-ttInvoiceLineToPost.accountDLCogs, cAccountSource, "COGS Direct Labor Account", OUTPUT lError, OUTPUT cMessage).
+    RUN pCheckAccount(ipbf-ttInvoiceLineToPost.company, ipbf-ttInvoiceLineToPost.accountDLCogs, cAccountSource, "COGS Direct Labor Account", OUTPUT lError, OUTPUT cMessage).
     IF NOT lError THEN 
-        RUN pCheckAccount(ipcCompany, ipbf-ttInvoiceLineToPost.accountDLFG, cAccountSource, "FG Direct Labor Account", OUTPUT lError, OUTPUT cMessage).
+        RUN pCheckAccount(ipbf-ttInvoiceLineToPost.company, ipbf-ttInvoiceLineToPost.accountDLFG, cAccountSource, "FG Direct Labor Account", OUTPUT lError, OUTPUT cMessage).
     IF NOT lError THEN 
-        RUN pCheckAccount(ipcCompany, ipbf-ttInvoiceLineToPost.accountVOCogs, cAccountSource, "COGS Variable Overhead Account", OUTPUT lError, OUTPUT cMessage).
+        RUN pCheckAccount(ipbf-ttInvoiceLineToPost.company, ipbf-ttInvoiceLineToPost.accountVOCogs, cAccountSource, "COGS Variable Overhead Account", OUTPUT lError, OUTPUT cMessage).
     IF NOT lError THEN 
-        RUN pCheckAccount(ipcCompany, ipbf-ttInvoiceLineToPost.accountVOFG, cAccountSource, "FG Variable Overhead Account", OUTPUT lError, OUTPUT cMessage).
+        RUN pCheckAccount(ipbf-ttInvoiceLineToPost.company, ipbf-ttInvoiceLineToPost.accountVOFG, cAccountSource, "FG Variable Overhead Account", OUTPUT lError, OUTPUT cMessage).
     IF NOT lError THEN 
-        RUN pCheckAccount(ipcCompany, ipbf-ttInvoiceLineToPost.accountFOCogs, cAccountSource, "COGS Fixed Overhead Account", OUTPUT lError, OUTPUT cMessage).
+        RUN pCheckAccount(ipbf-ttInvoiceLineToPost.company, ipbf-ttInvoiceLineToPost.accountFOCogs, cAccountSource, "COGS Fixed Overhead Account", OUTPUT lError, OUTPUT cMessage).
     IF NOT lError THEN 
-        RUN pCheckAccount(ipcCompany, ipbf-ttInvoiceLineToPost.accountFOFG, cAccountSource, "FG Fixed Overhead Account", OUTPUT lError, OUTPUT cMessage).
+        RUN pCheckAccount(ipbf-ttInvoiceLineToPost.company, ipbf-ttInvoiceLineToPost.accountFOFG, cAccountSource, "FG Fixed Overhead Account", OUTPUT lError, OUTPUT cMessage).
     IF NOT lError THEN 
-        RUN pCheckAccount(ipcCompany, ipbf-ttInvoiceLineToPost.accountDMCogs, cAccountSource, "COGS Direct Material Account", OUTPUT lError, OUTPUT cMessage).
+        RUN pCheckAccount(ipbf-ttInvoiceLineToPost.company, ipbf-ttInvoiceLineToPost.accountDMCogs, cAccountSource, "COGS Direct Material Account", OUTPUT lError, OUTPUT cMessage).
     IF NOT lError THEN 
-        RUN pCheckAccount(ipcCompany, ipbf-ttInvoiceLineToPost.accountDMFG, cAccountSource, "FG Direct Material Account", OUTPUT lError, OUTPUT cMessage).
+        RUN pCheckAccount(ipbf-ttInvoiceLineToPost.company, ipbf-ttInvoiceLineToPost.accountDMFG, cAccountSource, "FG Direct Material Account", OUTPUT lError, OUTPUT cMessage).
     
     IF lError THEN 
         ASSIGN
@@ -1980,6 +2002,8 @@ PROCEDURE pInitialize PRIVATE:
         OUTPUT ttPostingMaster.accountARSalesTax, 
         OUTPUT ttPostingMaster.accountARDiscount,
         OUTPUT ttPostingMaster.accountARCash,
+        OUTPUT ttPostingMaster.accountCogs,
+        OUTPUT ttPostingMaster.accountFG,
         OUTPUT oplError, OUTPUT opcMessage).
         
 
@@ -2005,7 +2029,7 @@ PROCEDURE PostInvoices:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE lExceptions  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lExceptions AS LOGICAL NO-UNDO.
     
     RUN "sys/NotesProcs.p" PERSISTENT SET ghNotesProcs.
 
@@ -2091,6 +2115,8 @@ PROCEDURE pPostGL PRIVATE:
     DEFINE VARIABLE dAmount             AS DECIMAL   NO-UNDO. 
     DEFINE VARIABLE riGLTrans           AS ROWID     NO-UNDO.
     DEFINE VARIABLE cConsolidateMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cConsolidateAccount AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cConsolidateDesc    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTransactionType    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lConsolidate        AS LOGICAL   NO-UNDO.
     
@@ -2100,81 +2126,82 @@ PROCEDURE pPostGL PRIVATE:
         cConsolidateMessage = "ORDER ENTRY INVOICE"
         .
     
-    /*REFACTOR - Need to process multi-currency*/
-    ASSIGN 
-        cTransactionType = "LINE"
-        lConsolidate     = ipbf-ttPostingMaster.consolidateLine
-        .  
-    RUN pPostGLAccumulateAndAdd(BUFFER ipbf-ttPostingMaster, cTransactionType, iRunID, iplCreateGL, lConsolidate, OUTPUT dAmount, INPUT-OUTPUT dRunningBalance).
-    IF lConsolidate AND dAmount NE 0 AND iplCreateGL THEN 
-        RUN pCreateGLTrans(BUFFER ipbf-ttPostingMaster, dAmount, iRunID, cConsolidateMessage + " " + cTransactionType, OUTPUT riGLTrans).
     
     ASSIGN 
-        cTransactionType = "MISC"
-        lConsolidate     = ipbf-ttPostingMaster.consolidateMisc
+        cTransactionType    = "LINE"
+        lConsolidate        = ipbf-ttPostingMaster.consolidateLine
+        cConsolidateAccount = ipbf-ttPostingMaster.accountARSales
         .  
-    RUN pPostGLAccumulateAndAdd(BUFFER ipbf-ttPostingMaster, cTransactionType, iRunID, iplCreateGL, lConsolidate, OUTPUT dAmount, INPUT-OUTPUT dRunningBalance).
-    IF lConsolidate AND dAmount NE 0 AND iplCreateGL THEN 
-        RUN pCreateGLTrans(BUFFER ipbf-ttPostingMaster, dAmount, iRunID, cConsolidateMessage + " " + cTransactionType, OUTPUT riGLTrans).
+    RUN pPostGLType(BUFFER ipbf-ttPostingMaster, iplCreateGL, cTransactionType, iRunID, 
+        lConsolidate, cConsolidateAccount, cConsolidateMessage + " " + cTransactionType, INPUT-OUTPUT dRunningBalance).
+
+    ASSIGN 
+        cTransactionType    = "MISC"
+        lConsolidate        = ipbf-ttPostingMaster.consolidateMisc
+        cConsolidateAccount = ipbf-ttPostingMaster.accountARSales
+        cConsolidateDesc    = cConsolidateMessage + " " + cTransactionType
+        .  
+    RUN pPostGLType(BUFFER ipbf-ttPostingMaster, iplCreateGL, cTransactionType, iRunID, 
+        lConsolidate, cConsolidateAccount, cConsolidateMessage + " " + cTransactionType, INPUT-OUTPUT dRunningBalance).
     
     ASSIGN 
-        cTransactionType = "TAX"
-        lConsolidate     = ipbf-ttPostingMaster.consolidateTax
+        cTransactionType    = "TAX"
+        lConsolidate        = ipbf-ttPostingMaster.consolidateTax
+        cConsolidateAccount = ipbf-ttPostingMaster.accountARSalesTax
+        cConsolidateDesc    = cConsolidateMessage + " " + cTransactionType
         .  
-    RUN pPostGLAccumulateAndAdd(BUFFER ipbf-ttPostingMaster, cTransactionType, iRunID, iplCreateGL, lConsolidate, OUTPUT dAmount, INPUT-OUTPUT dRunningBalance).
-    IF lConsolidate AND dAmount NE 0 AND iplCreateGL THEN 
-        RUN pCreateGLTrans(BUFFER ipbf-ttPostingMaster, dAmount, iRunID, cConsolidateMessage + " " + cTransactionType, OUTPUT riGLTrans).
+    RUN pPostGLType(BUFFER ipbf-ttPostingMaster, iplCreateGL, cTransactionType, iRunID, 
+        lConsolidate, cConsolidateAccount, cConsolidateMessage + " " + cTransactionType, INPUT-OUTPUT dRunningBalance).
+            
+    ASSIGN 
+        cTransactionType    = "FG"
+        lConsolidate        = ipbf-ttPostingMaster.consolidateFG
+        cConsolidateAccount = ipbf-ttPostingMaster.accountFG
+        cConsolidateDesc    = cConsolidateMessage + " " + cTransactionType
+        .  
+    RUN pPostGLType(BUFFER ipbf-ttPostingMaster, iplCreateGL, cTransactionType, iRunID, 
+        lConsolidate, cConsolidateAccount, cConsolidateMessage + " " + cTransactionType, INPUT-OUTPUT dRunningBalance).    
     
     ASSIGN 
-        cTransactionType = "FG"
-        lConsolidate     = ipbf-ttPostingMaster.consolidateFG
+        cTransactionType    = "COGS"
+        lConsolidate        = ipbf-ttPostingMaster.consolidateCogs
+        cConsolidateAccount = ipbf-ttPostingMaster.accountCogs
         .  
-    RUN pPostGLAccumulateAndAdd(BUFFER ipbf-ttPostingMaster, cTransactionType, iRunID, iplCreateGL, lConsolidate, OUTPUT dAmount, INPUT-OUTPUT dRunningBalance).
-    IF lConsolidate AND dAmount NE 0 AND iplCreateGL THEN 
-        RUN pCreateGLTrans(BUFFER ipbf-ttPostingMaster, dAmount, iRunID, cConsolidateMessage + " " + cTransactionType, OUTPUT riGLTrans).
+    RUN pPostGLType(BUFFER ipbf-ttPostingMaster, iplCreateGL, cTransactionType, iRunID, 
+        lConsolidate, cConsolidateAccount, cConsolidateMessage + " " + cTransactionType, INPUT-OUTPUT dRunningBalance).    
+    
+    ASSIGN 
+        cTransactionType    = "FREIGHT"
+        lConsolidate        = ipbf-ttPostingMaster.consolidateFreight
+        cConsolidateAccount = ipbf-ttPostingMaster.accountARFreight
+        .  
+    RUN pPostGLType(BUFFER ipbf-ttPostingMaster, iplCreateGL, cTransactionType, iRunID, 
+        lConsolidate, cConsolidateAccount, cConsolidateMessage + " " + cTransactionType, INPUT-OUTPUT dRunningBalance). 
         
     ASSIGN 
-        cTransactionType = "COGS"
-        lConsolidate     = ipbf-ttPostingMaster.consolidateCogs
+        cTransactionType    = "DISC"
+        lConsolidate        = ipbf-ttPostingMaster.consolidateDisc
+        cConsolidateAccount = ipbf-ttPostingMaster.accountARDiscount
         .  
-    RUN pPostGLAccumulateAndAdd(BUFFER ipbf-ttPostingMaster, cTransactionType, iRunID, iplCreateGL, lConsolidate, OUTPUT dAmount, INPUT-OUTPUT dRunningBalance).
-    IF lConsolidate AND dAmount NE 0 AND iplCreateGL THEN 
-        RUN pCreateGLTrans(BUFFER ipbf-ttPostingMaster, dAmount, iRunID, cConsolidateMessage + " " + cTransactionType, OUTPUT riGLTrans).
+    RUN pPostGLType(BUFFER ipbf-ttPostingMaster, iplCreateGL, cTransactionType, iRunID, 
+        lConsolidate, cConsolidateAccount, cConsolidateMessage + " " + cTransactionType, INPUT-OUTPUT dRunningBalance).
     
     ASSIGN 
-        cTransactionType = "FREIGHT"
-        lConsolidate     = ipbf-ttPostingMaster.consolidateFreight
+        cTransactionType    = "CASH"
+        lConsolidate        = ipbf-ttPostingMaster.consolidateCash
+        cConsolidateAccount = ipbf-ttPostingMaster.accountAR
         .  
-    RUN pPostGLAccumulateAndAdd(BUFFER ipbf-ttPostingMaster, cTransactionType, iRunID, iplCreateGL, lConsolidate, OUTPUT dAmount, INPUT-OUTPUT dRunningBalance).
-    IF lConsolidate AND dAmount NE 0 AND iplCreateGL THEN 
-        RUN pCreateGLTrans(BUFFER ipbf-ttPostingMaster, dAmount, iRunID, cConsolidateMessage + " " + cTransactionType, OUTPUT riGLTrans).
+    RUN pPostGLType(BUFFER ipbf-ttPostingMaster, iplCreateGL, cTransactionType, iRunID, 
+        lConsolidate, cConsolidateAccount, cConsolidateMessage + " " + cTransactionType, INPUT-OUTPUT dRunningBalance).
     
     ASSIGN 
-        cTransactionType = "DISC"
-        lConsolidate     = ipbf-ttPostingMaster.consolidateDisc
+        cTransactionType    = "AR"
+        lConsolidate        = ipbf-ttPostingMaster.consolidateAR
+        cConsolidateAccount = ipbf-ttPostingMaster.accountAR
         .  
-    RUN pPostGLAccumulateAndAdd(BUFFER ipbf-ttPostingMaster, cTransactionType, iRunID, iplCreateGL, lConsolidate, OUTPUT dAmount, INPUT-OUTPUT dRunningBalance).
-    IF lConsolidate AND dAmount NE 0 AND iplCreateGL THEN 
-        RUN pCreateGLTrans(BUFFER ipbf-ttPostingMaster, dAmount, iRunID, cConsolidateMessage + " " + cTransactionType, OUTPUT riGLTrans).
-    
-    ASSIGN 
-        cTransactionType = "CASH"
-        lConsolidate     = ipbf-ttPostingMaster.consolidateCash
-        .  
-    RUN pPostGLAccumulateAndAdd(BUFFER ipbf-ttPostingMaster, cTransactionType, iRunID, iplCreateGL, lConsolidate, OUTPUT dAmount, INPUT-OUTPUT dRunningBalance).
-    IF lConsolidate AND dAmount NE 0 AND iplCreateGL THEN 
-        RUN pCreateGLTrans(BUFFER ipbf-ttPostingMaster, dAmount, iRunID, cConsolidateMessage + " " + cTransactionType, OUTPUT riGLTrans).
-    
-    
-    ASSIGN 
-        cTransactionType = "AR"
-        lConsolidate     = ipbf-ttPostingMaster.consolidateAR
-        .  
-    RUN pPostGLAccumulateAndAdd(BUFFER ipbf-ttPostingMaster, cTransactionType, iRunID, iplCreateGL, lConsolidate, OUTPUT dAmount, INPUT-OUTPUT dRunningBalance).
-    IF lConsolidate AND dAmount NE 0 AND iplCreateGL THEN 
-        RUN pCreateGLTrans(BUFFER ipbf-ttPostingMaster, dAmount, iRunID, cConsolidateMessage, OUTPUT riGLTrans).
-    
-    
+    RUN pPostGLType(BUFFER ipbf-ttPostingMaster, iplCreateGL, cTransactionType, iRunID, 
+        lConsolidate, cConsolidateAccount, cConsolidateMessage + " " + cTransactionType, INPUT-OUTPUT dRunningBalance).
+                
     IF dRunningBalance NE 0 THEN 
         ASSIGN 
             oplError   = YES
@@ -2210,17 +2237,17 @@ PROCEDURE pPostGLAccumulateAndAdd PRIVATE:
         
         ASSIGN 
             dAmountToPost      = dAmountToPost + ttGLTransaction.amount
-            iopdRunningBalance = iopdRunningBalance + dAmountToPost
+            iopdRunningBalance = iopdRunningBalance + ttGLTransaction.amount
             .
         
         IF LAST-OF(ttGlTransaction.invoiceID) AND NOT iplConsolidateOnly THEN 
         DO:
             IF iplCreateGL THEN 
-                RUN pCreateGLTrans(BUFFER ttGLTransaction, dAmountToPost, ipiRunID, OUTPUT riGLTrans).
+                RUN pCreateGLTransFromTransaction(BUFFER ipbf-ttPostingMaster, BUFFER ttGLTransaction, dAmountToPost, ipiRunID, OUTPUT riGLTrans).
             dAmountToPost = 0.
         END.                           
         
-        DELETE ttGLTransaction.
+        IF iplCreateGL THEN DELETE ttGLTransaction.
     END. /* each ttGLTransaction */
     
     IF iplConsolidateOnly  THEN 
@@ -2264,6 +2291,8 @@ PROCEDURE pPostAll PRIVATE:
     RUN pUpdateOrders.
     RUN pUpdateBOLs.
     RUN pUpdateCustomers.
+    RUN pUpdateEstPreps.
+    RUN pUpdateFGItems.
     
     RUN pBuildExceptions(OUTPUT oplExceptionsFound).
     
@@ -2271,6 +2300,32 @@ PROCEDURE pPostAll PRIVATE:
     
     
     
+END PROCEDURE.
+
+PROCEDURE pPostGLType PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Posts GLs for a specific type
+     Notes:
+     RUN pPostGLType(BUFFER ipbf-ttPostingMaster, iplCreateGL, ipcTransactionType, ipiRunID, 
+        iplConsolidate, ipcConsolidateAccount, ipcConsolidateDesc, INPUT-OUTPUT iopdRunningBalance).
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttPostingMaster FOR ttPostingMaster.
+    DEFINE INPUT PARAMETER iplCreateGL AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTransactionType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiRunID AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iplConsolidate AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcConsolidateAccount AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcConsolidateDesc AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopdRunningBalance AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE dAmount   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE riGLTrans AS ROWID   NO-UNDO.
+    
+    RUN pPostGLAccumulateAndAdd(BUFFER ipbf-ttPostingMaster, ipcTransactionType, ipiRunID, iplCreateGL, iplConsolidate, OUTPUT dAmount, INPUT-OUTPUT iopdRunningBalance).
+    IF iplConsolidate AND dAmount NE 0 AND iplCreateGL THEN 
+        RUN pCreateGLTrans(BUFFER ipbf-ttPostingMaster, dAmount, ipcConsolidateAccount, ipcConsolidateDesc, ipiRunID, 
+            ipbf-ttPostingMaster.postDate, ipbf-ttPostingMaster.periodID, OUTPUT riGLTrans).
+
 END PROCEDURE.
 
 PROCEDURE pPostInvoices PRIVATE:
@@ -2500,6 +2555,7 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
         
     END. /*Each ttInvoiceToPost*/    
     
+/*REFACTOR - Need to process multi-currency - Manipulate GLTransactions and amounts and create CURR types for offsets*/
 
 END PROCEDURE.
 
@@ -2541,7 +2597,7 @@ PROCEDURE pUpdateBOLs PRIVATE:
 
 END PROCEDURE.
 
-PROCEDURE pBuildExceptionTable PRIVATE:
+PROCEDURE pBuildExceptions PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Builds Exception List for invoices and peripheral tables
      Notes:
@@ -2563,7 +2619,7 @@ PROCEDURE pBuildExceptionTable PRIVATE:
             cKey               = "Acct: " + ttGLTransaction.account + " Trans: " + ttGLTransaction.transactionDesc.
         RUN pAddException(?, "Unable to create GL Transaction",
             ttGlTransaction.company, "gltrans","GL Transaction", cKey,
-            "tr-amt", "Amount", STRING(ttGLTransaction.amount,">>>>>>>>>9.99")).
+            "tr-amt", "Amount", STRING(ttGLTransaction.amount,"->>>>>>>>>9.99")).
     END.
     FOR EACH ttCustomerToUpdate:
         ASSIGN 
@@ -2782,12 +2838,12 @@ END PROCEDURE.
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fGetInvoiceToPostHandle RETURNS HANDLE 
-	(  ):
-/*------------------------------------------------------------------------------
- Purpose:  Returns the handle to the ttInvoiceToPost
- Notes:
-------------------------------------------------------------------------------*/	
-	RETURN TEMP-TABLE ttInvoiceToPost:HANDLE.
+    (  ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the handle to the ttInvoiceToPost
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    RETURN TEMP-TABLE ttInvoiceToPost:HANDLE.
 		
 END FUNCTION.
 
