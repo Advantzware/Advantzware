@@ -44,6 +44,7 @@ DEFINE VARIABLE v-prof AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cReturn AS CHAR NO-UNDO.
 DEFINE VARIABLE lFound AS LOG NO-UNDO.
 DEFINE VARIABLE lUseNewInvoicePost AS LOG NO-UNDO.
+DEFINE VARIABLE hPostInvoices AS HANDLE NO-UNDO.
 DEF VAR iProcessed AS INT NO-UNDO.
 DEF VAR iValid AS INT NO-UNDO.
 DEF VAR iPosted AS INT NO-UNDO.
@@ -833,33 +834,34 @@ DO:
             
                         RUN close-order (BUFFER oe-ord).
                     END. /* Each w-ord */
-    
-    
+        
                     MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
     
                     IF oeclose-log THEN
                     DO:
-                        /*         RUN oe/closchkinv.p (0).  - removing this since orderlines already closed based on rules in the close-order2 block*/
-            
+                        /*         RUN oe/closchkinv.p (0).  - removing this since orderlines already closed based on rules in the close-order2 block*/            
                         IF CAN-FIND (FIRST w-ord) THEN
                             RUN oe/d-close.w.
                     END.
                 END.  /* Old posting */
                 ELSE DO:  /* Use NEW Invoice Post */
-                    RUN oe/PostInvoices.p (cocode,
-                                           INT(begin_inv),
-                                           INT(end_inv),
-                                           DATE(begin_date),
-                                           DATE(end_date),
-                                           begin_cust,
-                                           end_cust,
-                                           DATE(tran-date),
-                                           "export,post",
-                                           OUTPUT iProcessed,
-                                           OUTPUT iValid,
-                                           OUTPUT iPosted,
-                                           OUTPUT lError,
-                                           OUTPUT cMessage).
+                    RUN oe/PostInvoices.p PERSISTENT SET hPostInvoices.
+                    RUN PostInvoices IN hPostInvoices (
+                        cocode,
+                        INT(begin_inv),
+                        INT(end_inv),
+                        DATE(begin_date),
+                        DATE(end_date),
+                        begin_cust,
+                        end_cust,
+                        DATE(tran-date),
+                        "export,post",
+                        OUTPUT iProcessed,
+                        OUTPUT iValid,
+                        OUTPUT iPosted,
+                        OUTPUT lError,
+                        OUTPUT cMessage
+                        ).
                     MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
                 END.
             END.
