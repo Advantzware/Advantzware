@@ -43,14 +43,22 @@ DEFINE BUFFER b-eb FOR eb .
            AND estPacking.estimateNo EQ eb.est-no 
            AND estPacking.FormNo  EQ eb.form-no 
            AND estPacking.BlankNo  EQ eb.blank-No :
-
-         CREATE bf-estPacking .
-         ASSIGN
-            bf-estPacking.company      = eb.company 
-            bf-estPacking.estimateNo   = b-eb.est-no
-            bf-estPacking.FormNo       = b-eb.form-no
-            bf-estPacking.BlankNo      = b-eb.blank-No .
-         BUFFER-COPY estPacking EXCEPT company estimateNo FormNo  BlankNo estPackingID TO bf-estPacking.
+         FIND FIRST bf-estPacking EXCLUSIVE-LOCK 
+              WHERE bf-estPacking.company EQ b-eb.company
+              AND bf-estPacking.estimateNo EQ b-eb.est-no
+              AND bf-estPacking.FormNo EQ b-eb.form-no
+              AND bf-estPacking.BlankNo EQ b-eb.blank-No
+              AND bf-estPacking.rmItemID EQ estPacking.rmItemID NO-ERROR.
+         IF NOT AVAIL bf-estPacking THEN do:     
+             CREATE bf-estPacking .
+             ASSIGN
+                bf-estPacking.company      = eb.company 
+                bf-estPacking.estimateNo   = b-eb.est-no
+                bf-estPacking.FormNo       = b-eb.form-no
+                bf-estPacking.BlankNo      = b-eb.blank-No 
+                bf-estPacking.rmItemID     = estPacking.rmItemID.
+         END.
+         BUFFER-COPY estPacking EXCEPT company estimateNo FormNo  BlankNo estPackingID rmItemID TO bf-estPacking.
       END.
       RELEASE bf-estPacking NO-ERROR .
   END.
