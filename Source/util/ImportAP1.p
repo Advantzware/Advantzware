@@ -44,8 +44,9 @@ DEFINE TEMP-TABLE ttImportAP1
     .
     
 
-DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
-DEFINE VARIABLE hdTagProcs    AS HANDLE  NO-UNDO.
+DEFINE VARIABLE giIndexOffset    AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
+DEFINE VARIABLE hdTagProcs       AS HANDLE  NO-UNDO.
+DEFINE VARIABLE dTotalInvoiceAmt AS DECIMAL NO-UNDO.
 
 RUN system/TagProcs.p PERSISTENT SET hdTagProcs.
 
@@ -58,6 +59,17 @@ RUN system/TagProcs.p PERSISTENT SET hdTagProcs.
 /* **********************  Internal Procedures  *********************** */
  /*This Includes Procedures with the expected parameters.  Includes pInitialize, pAddRecord, pProcessImport*/
 {util/ImportProcs.i &ImportTempTable = "ttImportAP1"}
+
+PROCEDURE GetSummaryMessage:
+/*------------------------------------------------------------------------------
+ Purpose: To return the total invoice amount
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcSummaryMessage AS CHARACTER NO-UNDO.
+    
+    opcSummaryMessage = "Total Invoice Amount = " + STRING(dTotalInvoiceAmt).
+          
+END PROCEDURE.
 
 /* FG Item Receipt quantity and price validation */
 PROCEDURE pValidateFGItemReceiptQtyPrice:
@@ -1070,10 +1082,12 @@ PROCEDURE pRecalculateInvoiceHeader:
 
         ASSIGN
             bf-ap-inv.tax-amt = bf-ap-inv.tax-amt +
-                        ROUND((bf-ap-inv.freight * dTaxRateFreight / 100),2)
+                               ROUND((bf-ap-inv.freight * dTaxRateFreight / 100),2)
             bf-ap-inv.net     = bf-ap-inv.net + bf-ap-inv.tax-amt
             bf-ap-inv.due     = bf-ap-inv.net - bf-ap-inv.disc-taken -
-                        bf-ap-inv.paid + bf-ap-inv.freight.
+                                bf-ap-inv.paid + bf-ap-inv.freight
+            dTotalInvoiceAmt  = dTotalInvoiceAmt + bf-ap-inv.net
+            .
     END.
 
     FIND CURRENT bf-ap-inv NO-LOCK.
