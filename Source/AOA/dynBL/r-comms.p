@@ -626,6 +626,14 @@ PROCEDURE pBusinessLogic:
         FIND FIRST naics NO-LOCK
              WHERE naics.naicsID EQ cust.naicsCode
              NO-ERROR.
+        /* cap percentages range to -9999.99 to 9999.99 */
+        ASSIGN
+            dTotalGP = IF dTotalGP LT 0 THEN MAX(-9999.99,dTotalGP)
+                                        ELSE MIN(dTotalGP,9999.99)
+            dFullGP  = IF dFullGP  LT 0 THEN MAX(-9999.99,dFullGP)
+                                        ELSE MIN(dFullGP,9999.99)
+            .
+        IF ABSOLUTE(dTotalGP) GT 99999.99 THEN dTotalGP = 99999.99.
         CREATE ttCommissions.
         ASSIGN
             ttCommissions.salesRep      = ttReport.key-01
