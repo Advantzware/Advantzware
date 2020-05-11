@@ -297,6 +297,7 @@ DEFINE TEMP-TABLE ttException NO-UNDO
     .
     
 {custom/globdefs.i}    
+{sys/inc/var.i SHARED}
 /*Program-level Handles for persistent procs*/
 
 DEFINE VARIABLE ghNotesProcs AS HANDLE NO-UNDO.
@@ -1672,7 +1673,6 @@ PROCEDURE pGetAccountProductLine PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttPostingMaster     FOR ttPostingMaster.
     DEFINE PARAMETER BUFFER ipbf-ttInvoiceLineToPost FOR ttInvoiceLineToPost.
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
@@ -2831,6 +2831,11 @@ PROCEDURE pUpdateOrders PRIVATE:
     
     DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
     DEFINE BUFFER bf-oe-ordm FOR oe-ordm.
+    DEFINE BUFFER bf-oe-ord  FOR oe-ord.
+    
+    DEFINE VARIABLE cStatus      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReason      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFullyClosed AS LOGICAL   NO-UNDO.
     
     DISABLE TRIGGERS FOR LOAD OF oe-ordl.
     DISABLE TRIGGERS FOR LOAD OF oe-ordm.
@@ -2867,6 +2872,31 @@ PROCEDURE pUpdateOrders PRIVATE:
         END. /*avail bf-oe-ordm to write*/
         
     END. /*each ttOrderMiscToUpdate*/
+    
+    /*REFACTOR - This could be major source of slowness*/
+    FOR EACH ttOrderToUpdate,
+        FIRST bf-oe-ord NO-LOCK
+        WHERE ROWID(bf-oe-ord) EQ ttOrderToUpdate.riOeOrd:
+        lFullyClosed = YES.
+        FOR EACH bf-oe-ordl EXCLUSIVE-LOCK 
+            WHERE bf-oe-ordl.company EQ bf-oe-ord.company 
+            AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no 
+            AND bf-oe-ordl.stat    NE "C":
+            /* No UI */
+            RUN oe/CloseOrder.p(INPUT ROWID(bf-oe-ordl),
+                INPUT NO,
+                OUTPUT cStatus,
+                OUTPUT cReason).
+            /* No UI */
+            IF cStatus EQ 'C' THEN
+                RUN oe/closelin.p (INPUT ROWID(oe-ordl),YES).
+            ELSE 
+                lFullyClosed = NO.
+        END.
+        IF lFullyClosed THEN 
+            RUN oe\close.p(RECID(bf-oe-ord), YES).
+    END. /* Each w-ord */            
+    
     
 END PROCEDURE.
 

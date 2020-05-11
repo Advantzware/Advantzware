@@ -14,6 +14,7 @@
 
 /* ***************************  Definitions  ************************** */
 {custom/globdefs.i &NEW=NEW}
+{sys/inc/var.i NEW SHARED}
 DEFINE VARIABLE hdSession AS HANDLE.
 DEFINE VARIABLE hdPostInvoices AS HANDLE.
 RUN system\session.p PERSISTENT SET hdSession.
