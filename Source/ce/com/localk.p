@@ -87,8 +87,7 @@ IF op-lock.val[1] EQ 1 OR op-lock.val[2] EQ 1 THEN DO:
 
   FOR EACH est-op
       WHERE est-op.company EQ xest.company
-        AND est-op.est-no  EQ xest.est-no
-        AND (est-op.qty    EQ qty  OR xest.est-type EQ 4)
+        AND est-op.est-no  EQ xest.est-no         
         AND est-op.eqty    EQ 0
         AND est-op.s-num   EQ b-ef.form-no
         AND est-op.line    GE ip-line
@@ -315,8 +314,7 @@ ASSIGN
 
 FOR EACH est-op
     WHERE est-op.company EQ xest.company
-      AND est-op.est-no  EQ xest.est-no
-      AND (est-op.qty    EQ qty OR xest.est-type EQ 4)
+      AND est-op.est-no  EQ xest.est-no       
       AND est-op.eqty    EQ 0
       AND est-op.s-num   EQ b-ef.form-no
       AND est-op.line    GE ip-line
