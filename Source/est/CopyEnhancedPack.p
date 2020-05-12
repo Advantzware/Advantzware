@@ -58,7 +58,7 @@ DEFINE BUFFER b-eb FOR eb .
                 bf-estPacking.BlankNo      = b-eb.blank-No 
                 bf-estPacking.rmItemID     = estPacking.rmItemID.
          END.
-         BUFFER-COPY estPacking EXCEPT company estimateNo FormNo  BlankNo estPackingID rmItemID TO bf-estPacking.
+         BUFFER-COPY estPacking EXCEPT company estimateNo FormNo  BlankNo estPackingID rmItemID rec_key TO bf-estPacking.
       END.
       RELEASE bf-estPacking NO-ERROR .
   END.
