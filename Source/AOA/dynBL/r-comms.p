@@ -633,7 +633,6 @@ PROCEDURE pBusinessLogic:
             dFullGP  = IF dFullGP  LT 0 THEN MAX(-9999.99,dFullGP)
                                         ELSE MIN(dFullGP,9999.99)
             .
-        IF ABSOLUTE(dTotalGP) GT 99999.99 THEN dTotalGP = 99999.99.
         CREATE ttCommissions.
         ASSIGN
             ttCommissions.salesRep      = ttReport.key-01
