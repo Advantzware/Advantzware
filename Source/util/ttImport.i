@@ -35,12 +35,13 @@ DEFINE {1} {2} TEMP-TABLE ttImportMap
     FIELD cHelp         AS CHARACTER
     .
     
-DEFINE {1} {2} VARIABLE gcTypeList AS CHARACTER.   
-DEFINE {1} {2} VARIABLE gcTypeLabels AS CHARACTER.
-DEFINE {1} {2} VARIABLE gcTypePrograms AS CHARACTER.
-DEFINE {1} {2} VARIABLE gcUpdatesAllowedTypes AS CHARACTER.
-DEFINE {1} {2} VARIABLE gcTypeProgramsFolder AS CHARACTER INIT "util\".
-DEFINE {1} {2} VARIABLE giRecordLimit AS INTEGER INIT 5000.
+DEFINE {1} {2} VARIABLE gcTypeList             AS CHARACTER.   
+DEFINE {1} {2} VARIABLE gcTypeLabels           AS CHARACTER.
+DEFINE {1} {2} VARIABLE gcTypePrograms         AS CHARACTER.
+DEFINE {1} {2} VARIABLE gcUpdatesAllowedTypes  AS CHARACTER.
+DEFINE {1} {2} VARIABLE gcTypeProgramsFolder   AS CHARACTER INIT "util\".
+DEFINE {1} {2} VARIABLE giRecordLimit          AS INTEGER   INIT 5000.
+DEFINE {1} {2} VARIABLE gcImporterMessageList  AS CHARACTER NO-UNDO.
  
 ASSIGN          /*     1           2             3             4              5           6          7              8        9           10           11               12                13                14                     15                16             17        18               19         20                      21                 22           23                 24              25          26            27                28                   29           30         31            32               33                    34 */
     gcTypeList = "ttImportAP,ttImportCash,ttImportShipTo,ttImportEstimate,ttImportFG,ttImportVend,ttImportCust,ttImportAR,ttImportGL,ttImportBin,ttImportRelease,ttImportVendCost,ttImportPriceMatrix,ttImportEstimateARD,ttImportEstimateARDP,ttImportUsers,ttImportConfig,ttImportQuote,ttImportUtil,ttImportReOrdLevel,ttImportCarrier,ttImportCarrierMtx,ttImportBankReconl,ttImportPrep,ttImportLoadtag,ttImportAP1,ttImportVendCostMtx,ttImportWarehouse,ttImportRmRctd,ttImportItem,ttImportMach,ttImportMessage,ttImportapiClientXref,ttImportPo"
@@ -53,6 +54,7 @@ ASSIGN          /*     1           2             3             4              5 
     
     gcUpdatesAllowedTypes = "ttImportShipTo,ttImportFG,ttImportVend,ttImportCust,ttImportGL,ttImportBin,ttImportVendCost,ttImportPriceMatrix,ttImportConfig,ttImportQuote,ttImportUtil,ttImportReOrdLevel,ttImportCarrier,ttImportCarrierMtx,ttImportBankReconl,ttImportPrep,ttImportLoadtag,ttImportVendCostMtx,ttImportWarehouse,ttImportItem,ttImportMach,ttImportMessage,ttImportAP1,ttImportapiClientXref,ttImportPo"
 
+    gcImporterMessageList = "ImportAP1.p"
     .
                           
 /* ********************  Preprocessor Definitions  ******************** */

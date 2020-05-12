@@ -43,6 +43,22 @@ FUNCTION fIsExcel RETURNS LOGICAL
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE GetSummaryMessage:
+/*------------------------------------------------------------------------------
+ Purpose: To get summary message from the import program
+ Notes:
+------------------------------------------------------------------------------*/ 
+    DEFINE OUTPUT PARAMETER opcSummaryMessage AS CHARACTER NO-UNDO.
+    
+    IF LOOKUP("GetSummaryMessage",ghdImportProcForType:INTERNAL-ENTRIES) GT 0  AND
+        LOOKUP(ENTRY(2,ghdImportProcForType:NAME,"~\"),gcImporterMessageList) GT 0 THEN
+        RUN GetSummaryMessage IN ghdImportProcForType(
+            OUTPUT opcSummaryMessage 
+            ).
+     
+
+END PROCEDURE.
+
 PROCEDURE pBuildFileList:
     /*------------------------------------------------------------------------------
      Purpose: Recursively processes all sub folders below 
