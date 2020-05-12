@@ -50,3 +50,5 @@ RUN GetCostForInvoiceLine IN hdCostProcs (ipriInvl,
     OUTPUT opdCostWarehouse,
     OUTPUT opdCostDeviation,
     OUTPUT opdCostManufacture).
+    
+DELETE OBJECT hdCostProcs.
