@@ -261,7 +261,7 @@ PROCEDURE Outbound_GetClientIDForScope:
              WHERE bf-apiClient.company  EQ bf-apiClientXref.company
                AND bf-apiClient.clientID EQ bf-apiClientXref.clientID
              NO-ERROR.
-        IF AVAILABLE bf-apiClient AND NOT bf-apiClient.inactive THEN
+        IF AVAILABLE bf-apiClient THEN
             ASSIGN
                 oplFound    = TRUE
                 opcClientID = bf-apiClient.clientID
