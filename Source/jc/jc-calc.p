@@ -1633,13 +1633,23 @@ PROCEDURE pGetParamValue:
                cOutputFormat EQ "" OR
                cOutputFormat EQ "Grid" THEN
             cOutputFormat = "PDF".
-            DO idx = 1 TO EXTENT(dynParamValue.paramName):
-                IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
-                IF dynParamValue.paramName[idx] EQ "svRecipients" THEN DO:
-                    cRecipients = dynParamValue.paramValue[idx].
-                    LEAVE.
-                END. /* if svrecipients */
-            END. /* do idx */
+            FIND FIRST dynValueParam NO-LOCK
+                 WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
+                   AND dynValueParam.user-id      EQ dynParamValue.user-id
+                   AND dynValueParam.prgmName     EQ dynParamValue.prgmName
+                   AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
+                   AND dynValueParam.paramName    EQ "svRecipients"
+                 NO-ERROR.
+            IF AVAILABLE dynValueParam THEN
+            cRecipients = dynValueParam.paramValue.
+/*            /* rstark - remove when depricated */                         */
+/*            DO idx = 1 TO EXTENT(dynParamValue.paramName):                */
+/*                IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.         */
+/*                IF dynParamValue.paramName[idx] EQ "svRecipients" THEN DO:*/
+/*                    cRecipients = dynParamValue.paramValue[idx].          */
+/*                    LEAVE.                                                */
+/*                END. /* if svrecipients */                                */
+/*            END. /* do idx */                                             */
         END. /* if avail */
     END. /* if found */
 END PROCEDURE.

@@ -101,8 +101,8 @@ DEFINE VARIABLE h_paramSetDtl AS HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnErrorCheck 
      IMAGE-UP FILE "Graphics/16x16/save.jpg":U NO-FOCUS FLAT-BUTTON
-     LABEL "E" 
-     SIZE 4.4 BY 1.05.
+     LABEL "Error Check Report" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Error Check Report".
 
 DEFINE BUTTON btnRestoreDefaults 
      IMAGE-UP FILE "Graphics/16x16/rename.jpg":U NO-FOCUS FLAT-BUTTON
@@ -235,7 +235,7 @@ END.
 
 &Scoped-define SELF-NAME btnErrorCheck
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnErrorCheck W-Win
-ON CHOOSE OF btnErrorCheck IN FRAME F-Main /* E */
+ON CHOOSE OF btnErrorCheck IN FRAME F-Main /* Error Check Report */
 DO:
     RUN pErrorCheck.
 END.
@@ -441,8 +441,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pErrorCheck W-Win
-PROCEDURE pErrorCheck:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pErrorCheck W-Win 
+PROCEDURE pErrorCheck :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -545,22 +545,45 @@ PROCEDURE pErrorCheck:
     FOR EACH dynParamValue NO-LOCK
         WITH FRAME fDynPAramValue WIDTH 170 TITLE "*** Dynamic Parameter Value ***" STREAM-IO
         :
-        DO idx = 1 TO EXTENT(dynParamValue.calcProc):
-            IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
-            IF NOT CAN-DO(cCalcProc, dynParamValue.calcProc[idx]) THEN DO:
+        FOR EACH dynValueColumn NO-LOCK
+            WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
+              AND dynValueColumn.user-id      EQ dynParamValue.user-id
+              AND dynValueColumn.prgmName     EQ dynParamValue.prgmName
+              AND dynValueColumn.paramValueID EQ dynParamValue.paramValueID
+               BY dynValueColumn.sortOrder
+            :
+            IF NOT CAN-DO(cCalcProc, dynValueColumn.calcProc) THEN DO:
                 lErrors = YES.
                 DISPLAY
                     dynParamValue.subjectID
                     dynParamValue.user-id
                     dynParamValue.paramValueID
                     dynParamValue.paramDescription
-                    idx
-                    dynParamValue.colName[idx]
-                    dynParamValue.colLabel[idx]
-                    dynParamValue.calcProc[idx]
+                    dynValueColumn.sortOrder
+                    dynValueColumn.colName
+                    dynValueColumn.colLabel
+                    dynValueColumn.calcProc
                     .
             END. /* if can-do */
-        END. /* do idx */
+        END. /* each dynvaluecolumn */
+        
+/*        /* rstark - remove when depricated */                             */
+/*        DO idx = 1 TO EXTENT(dynParamValue.calcProc):                     */
+/*            IF dynParamValue.colName[idx] EQ "" THEN LEAVE.               */
+/*            IF NOT CAN-DO(cCalcProc, dynParamValue.calcProc[idx]) THEN DO:*/
+/*                lErrors = YES.                                            */
+/*                DISPLAY                                                   */
+/*                    dynParamValue.subjectID                               */
+/*                    dynParamValue.user-id                                 */
+/*                    dynParamValue.paramValueID                            */
+/*                    dynParamValue.paramDescription                        */
+/*                    idx                                                   */
+/*                    dynParamValue.colName[idx]                            */
+/*                    dynParamValue.colLabel[idx]                           */
+/*                    dynParamValue.calcProc[idx]                           */
+/*                    .                                                     */
+/*            END. /* if can-do */                                          */
+/*        END. /* do idx */                                                 */
     END. /* each dynsubjectcolumn */
     OUTPUT CLOSE.
     MESSAGE 
@@ -571,7 +594,7 @@ PROCEDURE pErrorCheck:
     OS-COMMAND NO-WAIT notepad.exe c:\tmp\DynParamErrors.txt.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

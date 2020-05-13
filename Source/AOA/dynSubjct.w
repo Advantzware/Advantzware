@@ -4528,14 +4528,28 @@ PROCEDURE pGenerateDefsInclude :
         "/* parameter values loaded into these variables */"
         SKIP
         .
-    DO idx = 1 TO EXTENT(dynParamValue.paramName):
-        IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
-        cVariable = fGetVariable(dynParamValue.paramName[idx],dynParamValue.paramDataType[idx]).
+    FOR EACH dynValueParam NO-LOCK
+        WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
+          AND dynValueParam.user-id      EQ dynParamValue.user-id
+          AND dynValueParam.prgmName     EQ dynParamValue.prgmName
+          AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
+           BY dynValueParam.sortOrder
+        :
+        cVariable = fGetVariable(dynValueParam.paramName,dynValueParam.dataType).
         PUT UNFORMATTED
             "DEFINE VARIABLE " cVariable            
-            " AS " dynParamValue.paramDataType[idx] " NO-UNDO."
+            " AS " dynValueParam.dataType " NO-UNDO."
             SKIP.
-    END. /* do idx */
+    END. /* each dynvalueparam */
+/*    /* rstark - remove when depricated */                                                       */
+/*    DO idx = 1 TO EXTENT(dynParamValue.paramName):                                              */
+/*        IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.                                       */
+/*        cVariable = fGetVariable(dynParamValue.paramName[idx],dynParamValue.paramDataType[idx]).*/
+/*        PUT UNFORMATTED                                                                         */
+/*            "DEFINE VARIABLE " cVariable                                                        */
+/*            " AS " dynParamValue.paramDataType[idx] " NO-UNDO."                                 */
+/*            SKIP.                                                                               */
+/*    END. /* do idx */                                                                           */
     PUT UNFORMATTED
         SKIP(1)
         "PROCEDURE pAssignParamVariables:" SKIP
@@ -4543,22 +4557,27 @@ PROCEDURE pGenerateDefsInclude :
         SKIP
         "    ASSIGN"
         SKIP.
-    DO idx = 1 TO EXTENT(dynParamValue.paramName):
-        IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
-        cVariable = fGetVariable(dynParamValue.paramName[idx],dynParamValue.paramDataType[idx]).
+    FOR EACH dynValueParam NO-LOCK
+        WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
+          AND dynValueParam.user-id      EQ dynParamValue.user-id
+          AND dynValueParam.prgmName     EQ dynParamValue.prgmName
+          AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
+           BY dynValueParam.sortOrder
+        :
+        cVariable = fGetVariable(dynValueParam.paramName,dynValueParam.dataType).
         PUT UNFORMATTED FILL(" ",8) cVariable " = ".
-        IF dynParamValue.paramDataType[idx] EQ "Date" THEN
+        IF dynValueParam.dataType EQ "Date" THEN
         PUT UNFORMATTED "DATE(".
         PUT UNFORMATTED
             "DYNAMIC-FUNCTION(~"fGetDynParamValue~",~""
-            dynParamValue.paramName[idx] "~")"
+            dynValueParam.paramName "~")"
             .
-        IF dynParamValue.paramDataType[idx] EQ "Logical" THEN
+        IF dynValueParam.dataType EQ "Logical" THEN
         PUT UNFORMATTED " EQ ~"YES~"".
-        IF dynParamValue.paramDataType[idx] EQ "Date" THEN
+        IF dynValueParam.dataType EQ "Date" THEN
         PUT UNFORMATTED ")".
         PUT UNFORMATTED SKIP.
-        IF dynParamValue.paramName[idx] BEGINS "DatePickList" THEN
+        IF dynValueParam.paramName BEGINS "DatePickList" THEN
         cPriorParam = cVariable.
         IF cPriorParam NE "" AND cPriorParam NE cVariable THEN DO:
             PUT UNFORMATTED FILL(" ",8)
@@ -4567,7 +4586,33 @@ PROCEDURE pGenerateDefsInclude :
                 SKIP.
             cPriorParam = "".
         END. /* if cpriorparam */
-    END. /* do idx */
+    END. /* each dynvalueparam */
+/*    /* rstark - remove when depricated */                                                       */
+/*    DO idx = 1 TO EXTENT(dynParamValue.paramName):                                              */
+/*        IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.                                       */
+/*        cVariable = fGetVariable(dynParamValue.paramName[idx],dynParamValue.paramDataType[idx]).*/
+/*        PUT UNFORMATTED FILL(" ",8) cVariable " = ".                                            */
+/*        IF dynParamValue.paramDataType[idx] EQ "Date" THEN                                      */
+/*        PUT UNFORMATTED "DATE(".                                                                */
+/*        PUT UNFORMATTED                                                                         */
+/*            "DYNAMIC-FUNCTION(~"fGetDynParamValue~",~""                                         */
+/*            dynParamValue.paramName[idx] "~")"                                                  */
+/*            .                                                                                   */
+/*        IF dynParamValue.paramDataType[idx] EQ "Logical" THEN                                   */
+/*        PUT UNFORMATTED " EQ ~"YES~"".                                                          */
+/*        IF dynParamValue.paramDataType[idx] EQ "Date" THEN                                      */
+/*        PUT UNFORMATTED ")".                                                                    */
+/*        PUT UNFORMATTED SKIP.                                                                   */
+/*        IF dynParamValue.paramName[idx] BEGINS "DatePickList" THEN                              */
+/*        cPriorParam = cVariable.                                                                */
+/*        IF cPriorParam NE "" AND cPriorParam NE cVariable THEN DO:                              */
+/*            PUT UNFORMATTED FILL(" ",8)                                                         */
+/*                cVariable " = DYNAMIC-FUNCTION(~"fDateOptionDate~","                            */
+/*                cPriorParam "," cVariable ")"                                                   */
+/*                SKIP.                                                                           */
+/*            cPriorParam = "".                                                                   */
+/*        END. /* if cpriorparam */                                                               */
+/*    END. /* do idx */                                                                           */
     PUT UNFORMATTED FILL(" ",8) "." SKIP
         "END PROCEDURE." SKIP.
     OUTPUT CLOSE.

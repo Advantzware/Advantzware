@@ -32,16 +32,6 @@ DEFINE VARIABLE cDatePickList-3 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dtEndReceiptDate AS DATE NO-UNDO.
 DEFINE VARIABLE cItemCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lZeroBalance AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cSvRecipients AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cSvSetAlignment AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lSvShowAll AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lSvShowReportHeader AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lSvShowReportFooter AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lSvShowPageHeader AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lSvShowPageFooter AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lSvShowGroupHeader AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lSvShowGroupFooter AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lSvShowParameters AS LOGICAL NO-UNDO.
 
 PROCEDURE pAssignParamVariables:
     /* load dynamic parameter values into variables */
@@ -78,15 +68,5 @@ PROCEDURE pAssignParamVariables:
         dtEndReceiptDate = DYNAMIC-FUNCTION("fDateOptionDate",cDatePickList-3,dtEndReceiptDate)
         cItemCode = DYNAMIC-FUNCTION("fGetDynParamValue","itemCode")
         lZeroBalance = DYNAMIC-FUNCTION("fGetDynParamValue","zeroBalance") EQ "YES"
-        cSvRecipients = DYNAMIC-FUNCTION("fGetDynParamValue","svRecipients")
-        cSvSetAlignment = DYNAMIC-FUNCTION("fGetDynParamValue","svSetAlignment")
-        lSvShowAll = DYNAMIC-FUNCTION("fGetDynParamValue","svShowAll") EQ "YES"
-        lSvShowReportHeader = DYNAMIC-FUNCTION("fGetDynParamValue","svShowReportHeader") EQ "YES"
-        lSvShowReportFooter = DYNAMIC-FUNCTION("fGetDynParamValue","svShowReportFooter") EQ "YES"
-        lSvShowPageHeader = DYNAMIC-FUNCTION("fGetDynParamValue","svShowPageHeader") EQ "YES"
-        lSvShowPageFooter = DYNAMIC-FUNCTION("fGetDynParamValue","svShowPageFooter") EQ "YES"
-        lSvShowGroupHeader = DYNAMIC-FUNCTION("fGetDynParamValue","svShowGroupHeader") EQ "YES"
-        lSvShowGroupFooter = DYNAMIC-FUNCTION("fGetDynParamValue","svShowGroupFooter") EQ "YES"
-        lSvShowParameters = DYNAMIC-FUNCTION("fGetDynParamValue","svShowParameters") EQ "YES"
         .
 END PROCEDURE.

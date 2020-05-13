@@ -777,7 +777,10 @@ PROCEDURE pCopyTask :
     DEFINE VARIABLE iParamValueID AS INTEGER NO-UNDO INITIAL 1.
     DEFINE VARIABLE rRowID        AS ROWID   NO-UNDO.
 
-    DEFINE BUFFER bDynParamValue FOR dynParamValue.
+    DEFINE BUFFER bDynParamValue    FOR dynParamValue.
+    DEFINE BUFFER bDynValueColumn   FOR dynValueColumn.
+    DEFINE BUFFER bDynValueParam    FOR dynValueParam.
+    DEFINE BUFFER bDynValueParamSet FOR dynValueParamSet.
 
     DO TRANSACTION:
         FIND LAST dynParamValue NO-LOCK USE-INDEX si-paramValueID.
@@ -786,13 +789,60 @@ PROCEDURE pCopyTask :
         FIND FIRST dynParamValue NO-LOCK
              WHERE ROWID(dynParamValue) EQ ttDynParamValue.paramValueRowID.
         CREATE bDynParamValue.
-        BUFFER-COPY dynParamValue EXCEPT paramValueID user-id rec_key TO bDynParamValue
-            ASSIGN
-                bDynParamValue.paramValueID     = iParamValueID
-                bDynParamValue.user-id          = USERID("ASI")
-                bDynParamValue.paramDescription = "New Task ID " + STRING(iParamValueID)
-                rRowID                          = ROWID(bDynParamValue)
-                .
+        BUFFER-COPY dynParamValue
+             EXCEPT paramValueID user-id rec_key
+                 TO bDynParamValue
+             ASSIGN
+                 bDynParamValue.paramValueID     = iParamValueID
+                 bDynParamValue.user-id          = USERID("ASI")
+                 bDynParamValue.paramDescription = "New Task ID " + STRING(iParamValueID)
+                 rRowID                          = ROWID(bDynParamValue)
+                 .
+        FOR EACH dynValueColumn NO-LOCK
+            WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
+              AND dynValueColumn.user-id      EQ dynParamValue.user-id
+              AND dynValueColumn.prgmName     EQ dynParamValue.prgmName
+              AND dynValueColumn.paramValueID EQ dynParamValue.paramValueID
+            :
+            CREATE bDynValueColumn.
+            BUFFER-COPY dynValueColumn
+                 EXCEPT paramValueID user-id rec_key
+                     TO bDynValueColumn
+                 ASSIGN
+                     bDynValueColumn.paramValueID = iParamValueID
+                     bDynValueColumn.user-id      = USERID("ASI")
+                     .
+        END. /* each dynvaluecolumn */
+        FOR EACH dynValueParam NO-LOCK
+            WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
+              AND dynValueParam.user-id      EQ dynParamValue.user-id
+              AND dynValueParam.prgmName     EQ dynParamValue.prgmName
+              AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
+            :
+            CREATE bDynValueParam.
+            BUFFER-COPY dynValueParam
+                 EXCEPT paramValueID user-id rec_key
+                     TO bDynValueParam
+                 ASSIGN
+                     bDynValueParam.paramValueID = iParamValueID
+                     bDynValueParam.user-id      = USERID("ASI")
+                     .
+        END. /* each dynvalueparam */
+        FOR EACH dynValueParamSet NO-LOCK
+            WHERE dynValueParamSet.subjectID    EQ dynParamValue.subjectID
+              AND dynValueParamSet.user-id      EQ dynParamValue.user-id
+              AND dynValueParamSet.prgmName     EQ dynParamValue.prgmName
+              AND dynValueParamSet.paramValueID EQ dynParamValue.paramValueID
+            :
+            CREATE bDynValueParamSet.
+            BUFFER-COPY dynValueParamSet
+                 EXCEPT paramValueID user-id rec_key
+                     TO bDynValueParamSet
+                 ASSIGN
+                     bDynValueParamSet.paramValueID = iParamValueID
+                     bDynValueParamSet.user-id      = USERID("ASI")
+                     .
+        END. /* each dynvalueparamset */
         UPDATE
             SKIP(1)
             bDynParamValue.paramDescription AT 5
