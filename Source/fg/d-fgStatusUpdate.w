@@ -210,13 +210,7 @@ DO:
     DEFINE VARIABLE cStatusDesc  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lValidStatus AS LOGICAL   NO-UNDO.
     
-    IF KEYLABEL(LASTKEY) NE "F1" THEN DO:
-        IF SELF:SCREEN-VALUE EQ "" THEN DO:
-            MESSAGE "Tag Status cannot be empty"
-                VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
-        END.
-        
+    IF SELF:SCREEN-VALUE NE "" THEN DO:
         RUN Inventory_ValidateStatusID IN hdInventoryProcs (
             INPUT  SELF:SCREEN-VALUE,
             OUTPUT lValidStatus
@@ -233,7 +227,7 @@ DO:
             ).  
         
         fiTagDesc:SCREEN-VALUE = cStatusDesc.
-    END. /* if lastkey */
+    END. /* if not blank */
 END.
 
 /* _UIB-CODE-BLOCK-END */
