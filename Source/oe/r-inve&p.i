@@ -674,6 +674,14 @@
         ASSIGN
          v-post-total   = v-post-total   + inv-head.t-inv-rev
          v-post-total-w = v-post-total-w + v-line-tot-w.
+   
+         CREATE tt-report.
+          ASSIGN
+           tt-report.term-id = ""
+           tt-report.key-01  = "act-rece"
+           tt-report.key-02  = IF avail cust and cust.classId NE 0 THEN string(DYNAMIC-FUNCTION("spfGetARClassAccount", cust.classId)) ELSE v-ar-acct
+           tt-report.key-05  = string(inv-head.t-inv-rev - (IF inv-head.terms EQ "CASH" AND inv-head.t-inv-rev NE 0  then inv-head.t-inv-rev else 0))             
+           tt-report.key-06  = string(v-line-tot-w - (IF inv-head.terms EQ "CASH" AND inv-head.t-inv-rev NE 0  then v-line-tot-w else 0)) .            
 
         IF AVAIL currency THEN DO:
           CREATE tt-report.

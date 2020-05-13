@@ -510,6 +510,7 @@ def var v-invl-pric as dec.
 def var v-tax-rate as dec extent 4.
 DEFINE VARIABLE cCostUOM AS CHARACTER.
 DEFINE VARIABLE cCostSource AS CHARACTER.
+DEFINE VARIABLE cRecAccount AS CHARACTER NO-UNDO.
 
 FOR EACH ar-inv
     WHERE ar-inv.company EQ g_company
@@ -539,6 +540,12 @@ FOR EACH ar-inv
          v-misc-tot = 0.
 
         RUN oe/getacct.p.
+        
+     FIND FIRST cust
+      WHERE cust.company EQ cocode
+      AND cust.cust-no EQ ar-inv.cust-no
+      NO-LOCK NO-ERROR.   
+      cRecAccount = IF AVAIL cust AND cust.classId NE 0 THEN string(DYNAMIC-FUNCTION("spfGetARClassAccount", cust.classId)) ELSE v-ar-acct.          
 
         FIND FIRST ar-ctrl WHERE ar-ctrl.company EQ cocode NO-LOCK.
 
@@ -880,7 +887,7 @@ FOR EACH ar-inv
     create gltrans.
     assign
      gltrans.company = cocode
-     gltrans.actnum  = v-ar-acct
+     gltrans.actnum  = cRecAccount
      gltrans.jrnl    = "OEINV"
      gltrans.tr-dscr = "ORDER ENTRY INVOICE"
      gltrans.tr-date = ar-ledger.tr-date

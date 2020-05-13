@@ -26,6 +26,9 @@
      ipcCompany AS CHARACTER ,
      ipcTerms AS CHARACTER) FORWARD.
 
+FUNCTION spGetARClassAccount RETURNS CHARACTER 
+    (ipiARClassId AS INTEGER) FORWARD.
+
 /* ***************************  Main Block  *************************** */
 /*Initialize Constants and Property Defaults*/
 
@@ -57,6 +60,30 @@ PROCEDURE Credit_GetTerms:
            opiNetDays    = terms.net-days
            opdDiscRate   = terms.disc-rate 
            opiDiscDays   = terms.disc-days
+           .
+   END.
+   ELSE DO:
+       oplError = YES .
+   END.
+
+END PROCEDURE.
+
+PROCEDURE spCredit_GetARClassAccount:
+    /*------------------------------------------------------------------------------
+     Purpose: get AR Class GL Account
+     Notes:
+     Syntax:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiClassID      AS INTEGER   NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opcClassAccount AS CHARACTER NO-UNDO.     
+    DEFINE OUTPUT PARAMETER oplError        AS LOGICAL NO-UNDO.
+
+   FIND FIRST arClass NO-LOCK
+       WHERE arClass.classID = ipiClassID        
+       NO-ERROR. 
+   IF AVAIL arClass THEN DO:
+       ASSIGN
+           opcClassAccount = arClass.receivablesAcct.
            .
    END.
    ELSE DO:
@@ -101,6 +128,29 @@ FUNCTION GetInvDueDate RETURNS DATE
     END.
 
     RETURN dtReturn .   
+		
+END FUNCTION.
+
+FUNCTION spfGetARClassAccount RETURNS CHARACTER 
+    ( ipiARClassId AS INTEGER ):
+    /*------------------------------------------------------------------------------
+     Purpose: return due date on invoice 
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE cReturnAccount AS CHARACTER NO-UNDO .    
+    DEFINE VARIABLE lGetError      AS LOGICAL NO-UNDO.
+
+    RUN spCredit_GetARClassAccount( ipiARClassId, OUTPUT cReturnAccount , OUTPUT lGetError) .
+
+    IF NOT lGetError THEN do:
+        ASSIGN cReturnValue = cReturnAccount .            
+    END.
+    ELSE DO:
+         ASSIGN cReturnValue = "".
+    END.
+
+    RETURN cReturnValue .   
 		
 END FUNCTION.
 

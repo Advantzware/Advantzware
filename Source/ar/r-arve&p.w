@@ -1248,6 +1248,7 @@ def var ws_net    like wkdistrib.amount column-label "Net"   no-undo.
 def var num-recs  like wkdistrib.recs no-undo.
 def var tot-debit  like wkdistrib.amount no-undo.
 def var tot-credit like wkdistrib.amount no-undo.
+DEFINE VARIABLE cAccountNum AS CHARACTER NO-UNDO.
 
 {sys/form/r-top3w.f}
 
@@ -1379,8 +1380,8 @@ IF cust.factored THEN
           AND currency.ar-ast-acct NE ""
           AND currency.ex-rate     GT 0
         NO-ERROR.        
-
-    {sys/inc/gldstsum.i xar-acct "ar-inv.gross" YES "HEADER"}
+    cAccountNum = IF cust.classId NE 0 THEN string(DYNAMIC-FUNCTION("spfGetARClassAccount", cust.classId)) ELSE xar-acct.
+    {sys/inc/gldstsum.i cAccountNum "ar-inv.gross" YES "HEADER"}
 
     IF AVAIL currency THEN DO:
       ld-gl-amt = (ar-inv.gross * currency.ex-rate) - ar-inv.gross.

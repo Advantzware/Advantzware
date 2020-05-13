@@ -959,6 +959,7 @@ DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEF VAR fcust AS CHAR NO-UNDO .
 DEF VAR tcust AS CHAR NO-UNDO .
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE cRecAccount AS CHARACTER NO-UNDO.
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
@@ -1031,6 +1032,11 @@ FOR EACH ar-ledger
     NO-LOCK:
 
     {custom/statusMsg.i " 'Processing Customer#  '  + ar-ledger.cust-no "}
+    FIND FIRST cust
+      WHERE cust.company EQ cocode
+        AND cust.cust-no EQ ar-ledger.cust-no
+      NO-LOCK NO-ERROR.   
+      cRecAccount = IF AVAIL cust AND cust.classId NE 0 THEN string(DYNAMIC-FUNCTION("spfGetARClassAccount", cust.classId)) ELSE ar-ctrl.receivables.          
 
   IF ar-ledger.ref-num BEGINS "INV# " THEN DO:
     FIND FIRST ar-inv
@@ -1047,7 +1053,7 @@ FOR EACH ar-ledger
       ASSIGN
        tt-report.inv-no = ar-inv.inv-no
        tt-report.jrnl   = lv-jrnl
-       tt-report.actnum = ar-ctrl.receivables
+       tt-report.actnum = cRecAccount
        tt-report.amt    = (IF lv-jrnl EQ "ARINV"
                            THEN ar-inv.net ELSE ar-inv.gross) * -1.
 
@@ -1160,7 +1166,7 @@ FOR EACH ar-ledger
       ASSIGN
        tt-report.inv-no  = ar-cashl.inv-no
        tt-report.jrnl    = lv-jrnl
-       tt-report.actnum  = ar-ctrl.receivables
+       tt-report.actnum  = cRecAccount
        tt-report.amt     = (ar-cashl.amt-paid - ar-cashl.amt-disc) * -1
 /*        tt-report.jrnl    = IF tt-report.amt < 0        */
 /*                              THEN "DBMEM" ELSE "CRMEM" */
@@ -1200,7 +1206,7 @@ FOR EACH ar-ledger
       ASSIGN
        tt-report.inv-no  = ar-cashl.inv-no
        tt-report.jrnl    = lv-jrnl
-       tt-report.actnum  = ar-ctrl.receivables
+       tt-report.actnum  = cRecAccount
        tt-report.amt     = ar-cashl.amt-paid + ar-cashl.amt-disc.
 
       CREATE tt-report.
