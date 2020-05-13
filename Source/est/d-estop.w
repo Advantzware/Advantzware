@@ -757,17 +757,7 @@ DO:
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
         END.
 
-        ll-import-all = NO.
-        IF ll-import-selected THEN 
-            DO WITH FRAME {&FRAME-NAME}:
-                MESSAGE
-                    "NO = Import Standards for Only Machine Imported?" SKIP
-                    "YES = Import Standards for All Machines on Routing?"
-                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO TITLE "Import Standards"
-                UPDATE ll-import-all.
-            END. /* with frame */
-
-  
+        ll-import-all = NO.   
         DO TRANSACTION:
             FIND CURRENT est-op EXCLUSIVE-LOCK NO-ERROR.
 

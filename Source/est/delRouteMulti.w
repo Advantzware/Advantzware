@@ -509,6 +509,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunImport Dialog-Frame 
 PROCEDURE pRunImport :
+    DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
     DEFINE BUFFER bf-est-op FOR est-op .
     
     FIND FIRST xest WHERE ROWID(xest) EQ iprwRowidEb NO-LOCK NO-ERROR .      
@@ -531,59 +532,17 @@ PROCEDURE pRunImport :
                 AND (xeb.blank-no EQ bf-est-op.b-num OR bf-est-op.b-num EQ 0)
                 NO-LOCK NO-ERROR.
                 
-                FOR EACH ef 
-                    WHERE ef.company EQ bf-est-op.company
-                    AND ef.est-no  EQ bf-est-op.est-no
-                    NO-LOCK:
-                    RUN set-lock (ef.form-no, NO).
-                END.
-                
-                fil_id  = RECID(bf-est-op).
-                
-                IF xest.est-type LT 5 THEN
-                RUN ce/mach-rek.p (ROWID(bf-est-op)).
-                ELSE
-                RUN cec/mach-rek.p (ROWID(bf-est-op)).
-                
-                FOR EACH ef 
-                    WHERE ef.company EQ est-op.company
-                    AND ef.est-no  EQ est-op.est-no
-                  NO-LOCK:
-                    RUN set-lock (ef.form-no, YES).
-                END.
-            
+             IF avail xeb AND xeb.est-type LE 4 THEN do:    
+              RUN ce/d-estop.w (RECID(bf-est-op),RECID(est),RECID(est-qty), "import", OUTPUT rwRowid) .              
+             END.
+             ELSE IF AVAIL xeb AND xeb.est-type GE 5 THEN do: 
+              RUN est/d-estop.w (RECID(bf-est-op),RECID(est),RECID(est-qty), "import", OUTPUT rwRowid) .
+             END.
         END.
     END.
    
     RELEASE bf-est-op .
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-lock Dialog-Frame 
-PROCEDURE set-lock :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ip-form-no LIKE ef.form-no NO-UNDO.
-    DEFINE INPUT PARAMETER ip-op-lock LIKE ef.op-lock NO-UNDO.
-  
-
-    FIND FIRST ef
-        WHERE ef.company EQ est.company
-        AND ef.est-no  EQ est.est-no
-        AND ef.form-no EQ ip-form-no
-        NO-ERROR.
-    IF AVAILABLE ef THEN 
-    DO:
-        ef.op-lock = ip-op-lock.
-        RELEASE ef.
-    END.
-  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

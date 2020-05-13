@@ -771,16 +771,7 @@ DO:
             RUN valid-mach NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-            ll-import-all = NO.
-            IF ll-import-selected AND NOT est-op.isLocked THEN 
-            DO WITH FRAME {&FRAME-NAME}:
-                MESSAGE
-                    "NO = Import Standards for Only Machine Imported?" SKIP
-                    "YES = Import Standards for All Machines on Routing?"
-                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO TITLE "Import Standards"
-                UPDATE ll-import-all.
-            END. /* with frame */
-
+            ll-import-all = NO.   
             IF ll-import-stds AND NOT CAN-DO("RC,GU",lv-dept) THEN
                 IF CAN-DO("PR,CT",lv-dept) THEN 
                 DO:
