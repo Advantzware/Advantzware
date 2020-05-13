@@ -13,16 +13,33 @@ DEFINE TEMP-TABLE ttSortBy NO-UNDO
             ttOrder
             .
 
-DO idx = 1 TO EXTENT(dynParamValue.colName):
-    IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
-    IF dynParamValue.sortCol[idx] EQ 0  THEN NEXT.
-    CREATE ttSortBy.        
+FOR EACH dynValueColumn NO-LOCK
+    WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
+      AND dynValueColumn.user-id      EQ dynParamValue.user-id
+      AND dynValueColumn.prgmName     EQ dynParamValue.prgmName
+      AND dynValueColumn.paramValueID EQ dynParamValue.paramValueID
+      AND dynValueColumn.sortCol      GT 0
+       BY dynValueColumn.sortOrder
+    :
+    CREATE ttSortBy.
     ASSIGN 
-        ttSortBy.ttOrder      = dynParamValue.sortCol[idx]
-        ttSortBy.ttSortBy     = dynParamValue.colName[idx]
-        ttSortBy.ttDescending = dynParamValue.sortDescending[idx]
+        ttSortBy.ttOrder      = dynValueColumn.sortCol
+        ttSortBy.ttSortBy     = dynValueColumn.colName
+        ttSortBy.ttDescending = dynValueColumn.sortDescending
         .
-END. /* do idx */
+END. /* each dynvaluecolumn */
+
+/*/* rstark - remove when depricated */                            */
+/*DO idx = 1 TO EXTENT(dynParamValue.colName):                     */
+/*    IF dynParamValue.colName[idx] EQ "" THEN LEAVE.              */
+/*    IF dynParamValue.sortCol[idx] EQ 0  THEN NEXT.               */
+/*    CREATE ttSortBy.                                             */
+/*    ASSIGN                                                       */
+/*        ttSortBy.ttOrder      = dynParamValue.sortCol[idx]       */
+/*        ttSortBy.ttSortBy     = dynParamValue.colName[idx]       */
+/*        ttSortBy.ttDescending = dynParamValue.sortDescending[idx]*/
+/*        .                                                        */
+/*END. /* do idx */                                                */
 
 FOR EACH ttSortBy BY ttSortBy.ttOrder:
     iopcQueryStr = iopcQueryStr + " BY " + ttSortBy.ttSortBy

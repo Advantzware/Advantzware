@@ -199,9 +199,20 @@ PROCEDURE pCreateDynParameters :
               BY {1}SubjectParamSet.paramSetID
         :
         IF FIRST-OF({1}SubjectParamSet.paramSetID) THEN DO:
+            FIND FIRST dynValueParamSet EXCLUSIVE-LOCK
+                 WHERE dynValueParamSet.subjectID    EQ dynParamValue.subjectID
+                   AND dynValueParamSet.user-id      EQ dynParamValue.user-id
+                   AND dynValueParamSet.prgmName     EQ dynParamValue.prgmName
+                   AND dynValueParamSet.paramValueID EQ dynParamValue.paramValueID
+                   AND dynValueParamSet.paramSetID   EQ dynParamSet.paramSetID
+                   AND dynValueParamSet.sortOrder    EQ {1}SubjectParamSet.sortOrder
+                 NO-ERROR.
             ASSIGN
-                lIsVisible = IF AVAILABLE dynParamValue THEN dynParamValue.isVisible[{1}SubjectParamSet.sortOrder]
+                lIsVisible = IF AVAILABLE dynValueParamSet THEN dynValueParamSet.isVisible
                              ELSE {1}SubjectParamSet.isVisible
+/*                /* rstark - remove when depricated */                                                             */
+/*                lIsVisible = IF AVAILABLE dynParamValue THEN dynParamValue.isVisible[{1}SubjectParamSet.sortOrder]*/
+/*                             ELSE {1}SubjectParamSet.isVisible                                                    */
                 lShowLabel = iplLive EQ NO OR lIsVisible
                 dSetCol    = IF iplLive THEN {1}SubjectParamSet.setCol ELSE 1
                 dSetRow    = IF iplLive THEN {1}SubjectParamSet.setRow ELSE 1
@@ -245,14 +256,26 @@ PROCEDURE pCreateDynParameters :
 &IF "{&program-id}" NE "dynBrowserParam." &THEN
         END CASE.
 &ENDIF
-        /* set screen-value for parameters from dynparamvalue */
+        /* set screen-value for parameters from dynvalueparam */
         IF iplLive AND lSensitive THEN
-        DO pdx = 1 TO EXTENT(dynParamValue.paramName):
-            IF dynParamValue.paramName[pdx] EQ "" THEN LEAVE.
-            IF dynParamValue.paramName[pdx] NE cParamName THEN NEXT.
-            cParamValue = dynParamValue.paramValue[pdx].
-            LEAVE.
-        END. /* do pdx */
+        FIND FIRST dynValueParam NO-LOCK
+             WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
+               AND dynValueParam.user-id      EQ dynParamValue.user-id
+               AND dynValueParam.prgmName     EQ dynParamValue.prgmName
+               AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
+               AND dynValueParam.paramName    EQ cParamName
+             NO-ERROR.
+        IF AVAILABLE dynValueParam THEN
+        cParamValue = dynValueParam.paramValue.
+/*        /* rstark - remove when depricated */                       */
+/*        /* set screen-value for parameters from dynparamvalue */    */
+/*        IF iplLive AND lSensitive THEN                              */
+/*        DO pdx = 1 TO EXTENT(dynParamValue.paramName):              */
+/*            IF dynParamValue.paramName[pdx] EQ "" THEN LEAVE.       */
+/*            IF dynParamValue.paramName[pdx] NE cParamName THEN NEXT.*/
+/*            cParamValue = dynParamValue.paramValue[pdx].            */
+/*            LEAVE.                                                  */
+/*        END. /* do pdx */                                           */
         /* get any initialized values from custom procedures */
         IF dynParamSetDtl.initializeProc NE "" AND
            CAN-DO(hDynInitProc:INTERNAL-ENTRIES,dynParamSetDtl.initializeProc) THEN DO:
@@ -485,12 +508,23 @@ PROCEDURE pCreateDynParameters :
             hWidget = hWidget:FIRST-CHILD
             .
         DO WHILE VALID-HANDLE(hWidget):
-            DO pdx = 1 TO EXTENT(dynParamValue.paramName):
-                IF dynParamValue.paramName[pdx] EQ "" THEN LEAVE.
-                IF dynParamValue.paramName[pdx] NE hWidget:NAME THEN NEXT.
-                hWidget:SCREEN-VALUE = dynParamValue.paramValue[pdx].
-                LEAVE.
-            END. /* do pdx */
+            FIND FIRST dynValueParam NO-LOCK
+                 WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
+                   AND dynValueParam.user-id      EQ dynParamValue.user-id
+                   AND dynValueParam.prgmName     EQ dynParamValue.prgmName
+                   AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
+                   AND dynValueParam.paramName    EQ hWidget:NAME
+                 NO-ERROR.
+            IF AVAILABLE dynValueParam THEN
+            hWidget:SCREEN-VALUE = dynValueParam.paramValue.
+            RELEASE dynValueParam.
+/*            /* rstark - remove when depricated */                         */
+/*            DO pdx = 1 TO EXTENT(dynParamValue.paramName):                */
+/*                IF dynParamValue.paramName[pdx] EQ "" THEN LEAVE.         */
+/*                IF dynParamValue.paramName[pdx] NE hWidget:NAME THEN NEXT.*/
+/*                hWidget:SCREEN-VALUE = dynParamValue.paramValue[pdx].     */
+/*                LEAVE.                                                    */
+/*            END. /* do pdx */                                             */
             hWidget = hWidget:NEXT-SIBLING.
         END. /* do while */
 &ELSE

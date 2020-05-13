@@ -607,8 +607,6 @@ PROCEDURE pGetParamValues :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
-
     EMPTY TEMP-TABLE ttParamValues.
 
     FIND FIRST dynParamValue NO-LOCK
@@ -626,17 +624,34 @@ PROCEDURE pGetParamValues :
          NO-ERROR.
     IF AVAILABLE dynParamValue THEN DO:
         rDynParamValueRowID = ROWID(dynParamValue).
-        DO idx = 1 TO EXTENT(dynParamValue.paramName):
-            IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
-            IF dynParamValue.paramName[idx] BEGINS "sv" THEN NEXT.
+        FOR EACH dynValueParam NO-LOCK
+            WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
+              AND dynValueParam.user-id      EQ dynParamValue.user-id
+              AND dynValueParam.prgmName     EQ dynParamValue.prgmName
+              AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
+               BY dynValueParam.sortOrder
+            :
+            IF dynValueParam.paramName BEGINS "sv" THEN NEXT.
             CREATE ttParamValues.
             ASSIGN
-                ttParamValues.sortOrder  = idx
-                ttParamValues.paramName  = dynParamValue.paramName[idx]
-                ttParamValues.paramLabel = dynParamValue.paramLabel[idx]
-                ttParamValues.paramValue = dynParamValue.paramValue[idx]
+                ttParamValues.sortOrder  = dynValueParam.sortOrder
+                ttParamValues.paramName  = dynValueParam.paramName
+                ttParamValues.paramLabel = dynValueParam.paramLabel
+                ttParamValues.paramValue = dynValueParam.paramValue
                 .
-        END. /* do idx */
+        END. /* each dynvalueparam */
+/*        /* rstark - remove when depricated */                           */
+/*        DO idx = 1 TO EXTENT(dynParamValue.paramName):                  */
+/*            IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.           */
+/*            IF dynParamValue.paramName[idx] BEGINS "sv" THEN NEXT.      */
+/*            CREATE ttParamValues.                                       */
+/*            ASSIGN                                                      */
+/*                ttParamValues.sortOrder  = idx                          */
+/*                ttParamValues.paramName  = dynParamValue.paramName[idx] */
+/*                ttParamValues.paramLabel = dynParamValue.paramLabel[idx]*/
+/*                ttParamValues.paramValue = dynParamValue.paramValue[idx]*/
+/*                .                                                       */
+/*        END. /* do idx */                                               */
     END. /* if avail */
     {&OPEN-QUERY-paramValueBrowse}
 
