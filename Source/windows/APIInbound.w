@@ -93,8 +93,8 @@ DEFINE VARIABLE h_exit-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-updsav-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-updapi AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-updapi-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
@@ -121,7 +121,7 @@ DEFINE FRAME message-frame
    Type: SmartWindow
    External Tables: ASI.APIInbound
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
+   Design Page: 3
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -337,28 +337,28 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-navico ( 2.38 , 54.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.w':U ,
+             INPUT  'panels/p-updapi.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
-             OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 26.95 , 80.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsav ( 2.38 , 78.80 ) NO-ERROR.
+             OUTPUT h_p-updapi ).
+       RUN set-position IN h_p-updapi ( 26.95 , 80.00 ) NO-ERROR.
+       RUN set-size IN h_p-updapi ( 2.38 , 78.80 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
        /* Links to SmartViewer h_apiinbound-2. */
        RUN add-link IN adm-broker-hdl ( h_apiinbound , 'Record':U , h_apiinbound-2 ).
-       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_apiinbound-2 ).
+       RUN add-link IN adm-broker-hdl ( h_p-updapi , 'TableIO':U , h_apiinbound-2 ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_apiinbound-2 ,
              h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
              h_apiinbound-2 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updapi ,
              h_p-navico , 'AFTER':U ).
     END. /* Page 2 */
     WHEN 3 THEN DO:
@@ -379,14 +379,14 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 10.71 , 126.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.w':U ,
+             INPUT  'panels/p-updapi.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
-             OUTPUT h_p-updsav-2 ).
-       RUN set-position IN h_p-updsav-2 ( 25.76 , 46.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsav-2 ( 2.24 , 77.00 ) NO-ERROR.
+             OUTPUT h_p-updapi-2 ).
+       RUN set-position IN h_p-updapi-2 ( 25.76 , 46.00 ) NO-ERROR.
+       RUN set-size IN h_p-updapi-2 ( 2.24 , 77.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
@@ -396,14 +396,14 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartViewer h_apiinbounddetail-2. */
        RUN add-link IN adm-broker-hdl ( h_apiinbounddetail , 'Record':U , h_apiinbounddetail-2 ).
-       RUN add-link IN adm-broker-hdl ( h_p-updsav-2 , 'TableIO':U , h_apiinbounddetail-2 ).
+       RUN add-link IN adm-broker-hdl ( h_p-updapi-2 , 'TableIO':U , h_apiinbounddetail-2 ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_apiinbounddetail ,
              h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_apiinbounddetail-2 ,
              h_apiinbounddetail , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav-2 ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updapi-2 ,
              h_apiinbounddetail-2 , 'AFTER':U ).
     END. /* Page 3 */
 
