@@ -17,7 +17,7 @@ IF AVAILABLE po-ord THEN DO:
         cTriggerID   = "DeletePurchaseOrder"
         cPrimaryID   = STRING(po-ord.po-no)
         cTableList   = "po-ord"
-        cDescription = cAPIID + " triggered by " + cTriggerID + " from r-poprt.w for PO: " + cPrimaryID
+        cDescription = cAPIID + " triggered by " + cTriggerID + " from v-purord.w for PO: " + cPrimaryID
         .
     /* Prepare Outbound request before deleting the po-ord record.
        Call the outbound request only if the po-ord record is deleted successfully */
