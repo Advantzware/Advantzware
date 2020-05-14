@@ -548,6 +548,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win
+PROCEDURE local-cancel-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    ASSIGN            
+        lCopyAPIOutbound     = FALSE
+        iSourceAPIOutboundID = 0
+        .
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record V-table-Win 
 PROCEDURE local-copy-record :
 /*------------------------------------------------------------------------------
@@ -744,7 +768,11 @@ PROCEDURE local-update-record :
             INPUT iSourceAPIOutboundID,
             INPUT APIOutbound.apiOutboundID
             ).
-        lCopyAPIOutbound = FALSE.
+        
+        ASSIGN
+            lCopyAPIOutbound     = FALSE
+            iSourceAPIOutboundID = 0
+            .
         
         RUN dispatch (
             INPUT "row-changed"
@@ -1144,9 +1172,7 @@ PROCEDURE SelectAndCopyAPIOutbound :
                AND APIOutbound.apiID    EQ cAPIID
                AND APIOutbound.clientID EQ cClientID
              NO-ERROR.
-        IF AVAILABLE APIOutbound THEN DO:
-            lCopyAPIOutbound = TRUE.
-            
+        IF AVAILABLE APIOutbound THEN DO:           
             RUN dispatch (
                 INPUT "row-changed"
                 ).

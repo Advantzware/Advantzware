@@ -327,49 +327,48 @@ PROCEDURE Outbound_PrepareAndExecuteForScope:
     DEFINE INPUT  PARAMETER ipcEventDescription AS CHARACTER NO-UNDO.    
     DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE cClientID    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lClientFound AS LOGICAL   NO-UNDO.
     
-    RUN Outbound_GetClientIDForScope (
-        INPUT  ipcCompany,
-        INPUT  ipcScopeID,
-        INPUT  ipcScopeType,
-        OUTPUT lClientFound,
-        OUTPUT cClientID
-        ).
-    
-    IF NOT lClientFound THEN DO:
-        ASSIGN
-            oplSuccess = FALSE
-            opcMessage = "Client not found for scope ID " + ipcScopeID + " and scope type " + ipcScopeType
-            .
-        RETURN. 
-    END.    
+    DEFINE BUFFER bf-apiClientXref FOR apiClientXref.
+    DEFINE BUFFER bf-apiClient     FOR apiClient.
+     
+    FOR EACH bf-apiClientXref NO-LOCK
+        WHERE bf-apiClientXref.company   EQ ipcCompany
+          AND bf-apiClientXref.scopeID   EQ ipcScopeID
+          AND bf-apiClientXref.scopeType EQ ipcScopeType:
+        FIND FIRST bf-apiClient NO-LOCK
+             WHERE bf-apiClient.company  EQ bf-apiClientXref.company
+               AND bf-apiClient.clientID EQ bf-apiClientXref.clientID
+             NO-ERROR.
+        IF AVAILABLE bf-apiClient THEN DO:
+            RUN pPrepareAndExecute (
+                INPUT  ipcCompany,
+                INPUT  ipcLocation,
+                INPUT  ipcAPIID,
+                INPUT  bf-apiClient.clientID,
+                INPUT  ipcTriggerID,
+                INPUT  ipcTableList,
+                INPUT  ipcROWIDList,
+                INPUT  ipcPrimaryID,
+                INPUT  ipcEventDescription,
+                INPUT  FALSE, /* Re-Trigger request */
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ) NO-ERROR.
         
-    RUN pPrepareAndExecute (
-        INPUT  ipcCompany,
-        INPUT  ipcLocation,
-        INPUT  ipcAPIID,
-        INPUT  cClientID,
-        INPUT  ipcTriggerID,
-        INPUT  ipcTableList,
-        INPUT  ipcROWIDList,
-        INPUT  ipcPrimaryID,
-        INPUT  ipcEventDescription,
-        INPUT  FALSE, /* Re-Trigger request */
-        OUTPUT oplSuccess,
-        OUTPUT opcMessage
-        ) NO-ERROR.
-
-    IF ERROR-STATUS:ERROR THEN DO:
-        ASSIGN
-            oplSuccess = FALSE
-            opcMessage = ERROR-STATUS:GET-MESSAGE(1)
-            .
-        RETURN.
+            IF ERROR-STATUS:ERROR THEN DO:
+                ASSIGN
+                    oplSuccess = FALSE
+                    opcMessage = ERROR-STATUS:GET-MESSAGE(1)
+                    .
+                RETURN.
+            END.            
+        END.
     END.
-
+    
+    ASSIGN
+        oplSuccess = TRUE
+        opcMessage = "Success"
+        .   
 END PROCEDURE.
 
 PROCEDURE Outbound_ReTrigger:
