@@ -981,7 +981,8 @@ PROCEDURE spDynAuditField:
                     IF AVAILABLE dynParamValue THEN DO:
                         IF lResults THEN
                         DO TRANSACTION:
-                            FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
+/*                            /* rstark - remove when depricated */     */
+/*                            FIND CURRENT dynParamValue EXCLUSIVE-LOCK.*/
                             ASSIGN
                                 oplRunAudit  = YES
                                 cLookupTitle = "Audit Field History for Database: " + ipcFrameDB
@@ -989,20 +990,41 @@ PROCEDURE spDynAuditField:
                                              + " - Field: " + ipcFrameField
                                              + " - Audit Key: " + ipcAuditKey
                                              .
-                            DO idx = 1 TO EXTENT(dynParamValue.paramName):
-                                IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
-                                CASE dynParamValue.paramName[idx]:
+                            FOR EACH dynValueParam EXCLUSIVE-LOCK
+                                WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
+                                  AND dynValueParam.user-id      EQ dynParamValue.user-id
+                                  AND dynValueParam.prgmName     EQ dynParamValue.prgmName
+                                  AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
+                                   BY dynValueParam.sortOrder
+                                :
+                                CASE dynValueParam.paramName:
                                     WHEN "AuditDB" THEN
-                                    dynParamValue.paramValue[idx] = ipcFrameDB.
+                                    dynValueParam.paramValue = ipcFrameDB.
                                     WHEN "AuditTable" THEN
-                                    dynParamValue.paramValue[idx] = ipcFrameFile.
+                                    dynValueParam.paramValue = ipcFrameFile.
                                     WHEN "AuditField" THEN
-                                    dynParamValue.paramValue[idx] = ipcFrameField.
+                                    dynValueParam.paramValue = ipcFrameField.
                                     WHEN "AuditKey" THEN
-                                    dynParamValue.paramValue[idx] = ipcAuditKey.
+                                    dynValueParam.paramValue = ipcAuditKey.
                                 END CASE.
-                            END. /* do idx */
-                            FIND CURRENT dynParamValue NO-LOCK.
+                            END. /* each dynvalueparam */
+                            RELEASE dynValueParam.
+/*                            /* rstark - remove when depricated */                 */
+/*                            DO idx = 1 TO EXTENT(dynParamValue.paramName):        */
+/*                                IF dynParamValue.paramName[idx] EQ "" THEN LEAVE. */
+/*                                CASE dynParamValue.paramName[idx]:                */
+/*                                    WHEN "AuditDB" THEN                           */
+/*                                    dynParamValue.paramValue[idx] = ipcFrameDB.   */
+/*                                    WHEN "AuditTable" THEN                        */
+/*                                    dynParamValue.paramValue[idx] = ipcFrameFile. */
+/*                                    WHEN "AuditField" THEN                        */
+/*                                    dynParamValue.paramValue[idx] = ipcFrameField.*/
+/*                                    WHEN "AuditKey" THEN                          */
+/*                                    dynParamValue.paramValue[idx] = ipcAuditKey.  */
+/*                                END CASE.                                         */
+/*                            END. /* do idx */                                     */
+/*                            /* rstark - remove when depricated */                 */
+/*                            FIND CURRENT dynParamValue NO-LOCK.                   */
                         END. /* if results exist */
                         ELSE
                         opcErrorMsg = "No Audit Field History Exists".

@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="FGExecutiveDetail" pageWidth="1311" pageHeight="612" orientation="Landscape" columnWidth="1271" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="6f824465-2eda-47e1-8104-9d0a850d3bfe">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="DataAdapter.xml"/>
+	<style name="Zebra" mode="Transparent">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 1]]></conditionExpression>
+			<style backcolor="#DCF5EB"/>
+		</conditionalStyle>
+	</style>
+	<queryString language="json">
+		<![CDATA[FG_Executive_Detail.FGExecutiveDetail]]>
+	</queryString>
+	<field name="NoDataMessage" class="java.lang.String">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="NoDataMessage"/>
+		<fieldDescription><![CDATA[NoDataMessage]]></fieldDescription>
+	</field>
+	<field name="ttJobItem__cJob" class="java.lang.String">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__cJob"/>
+		<fieldDescription><![CDATA[ttJobItem__cJob]]></fieldDescription>
+	</field>
+	<field name="ttJobItem__dtOrderDate" class="java.lang.String">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__dtOrderDate"/>
+		<fieldDescription><![CDATA[ttJobItem__dtOrderDate]]></fieldDescription>
+	</field>
+	<field name="ttJobItem__dtDueDate" class="java.lang.String">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__dtDueDate"/>
+		<fieldDescription><![CDATA[ttJobItem__dtDueDate]]></fieldDescription>
+	</field>
+	<field name="ttJobItem__cItemDescription" class="java.lang.String">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__cItemDescription"/>
+		<fieldDescription><![CDATA[ttJobItem__cItemDescription]]></fieldDescription>
+	</field>
+	<field name="ttJobItem__cSalesRep" class="java.lang.String">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__cSalesRep"/>
+		<fieldDescription><![CDATA[ttJobItem__cSalesRep]]></fieldDescription>
+	</field>
+	<field name="ttJobItem__cProductCategory" class="java.lang.String">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__cProductCategory"/>
+		<fieldDescription><![CDATA[ttJobItem__cProductCategory]]></fieldDescription>
+	</field>
+	<field name="ttJobItem__dQuantityOrdered" class="java.lang.Double">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__dQuantityOrdered"/>
+		<fieldDescription><![CDATA[ttJobItem__dQuantityOrdered]]></fieldDescription>
+	</field>
+	<field name="ttJobItem__dQuantityProduced" class="java.lang.Double">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__dQuantityProduced"/>
+		<fieldDescription><![CDATA[ttJobItem__dQuantityProduced]]></fieldDescription>
+	</field>
+	<field name="ttJobItem__dQuantityShipped" class="java.lang.Double">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__dQuantityShipped"/>
+		<fieldDescription><![CDATA[ttJobItem__dQuantityShipped]]></fieldDescription>
+	</field>
+	<field name="ttJobItem__dQuantityBalanceToRun" class="java.lang.Double">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__dQuantityBalanceToRun"/>
+		<fieldDescription><![CDATA[ttJobItem__dQuantityBalanceToRun]]></fieldDescription>
+	</field>
+	<field name="ttJobItem__dQuantityOnHand" class="java.lang.Double">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__dQuantityOnHand"/>
+		<fieldDescription><![CDATA[ttJobItem__dQuantityOnHand]]></fieldDescription>
+	</field>
+	<field name="ttJobItem__dPricePerEA" class="java.lang.Double">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__dPricePerEA"/>
+		<fieldDescription><![CDATA[ttJobItem__dPricePerEA]]></fieldDescription>
+	</field>
+	<field name="ttJobItem__dPriceTotalOnHand" class="java.lang.Double">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__dPriceTotalOnHand"/>
+		<fieldDescription><![CDATA[ttJobItem__dPriceTotalOnHand]]></fieldDescription>
+	</field>
+	<field name="ttJobItem__cCustomerID" class="java.lang.String">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__cCustomerID"/>
+		<fieldDescription><![CDATA[ttJobItem__cCustomerID]]></fieldDescription>
+	</field>
+	<field name="ttJobItem__cCustomerName" class="java.lang.String">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__cCustomerName"/>
+		<fieldDescription><![CDATA[ttJobItem__cCustomerName]]></fieldDescription>
+	</field>
+	<field name="ttJobItem__dtAsOfDate" class="java.lang.String">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__dtAsOfDate"/>
+		<fieldDescription><![CDATA[ttJobItem__dtAsOfDate]]></fieldDescription>
+	</field>
+	<field name="ttJobItem__cAsOfDateOption" class="java.lang.String">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__cAsOfDateOption"/>
+		<fieldDescription><![CDATA[ttJobItem__cAsOfDateOption]]></fieldDescription>
+	</field>
+	<variable name="dQuantityOrdered_ReportFooter" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{ttJobItem__dQuantityOrdered}]]></variableExpression>
+	</variable>
+	<variable name="dQuantityProduced_ReportFooter" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{ttJobItem__dQuantityProduced}]]></variableExpression>
+	</variable>
+	<variable name="dQuantityShipped_ReportFooter" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{ttJobItem__dQuantityShipped}]]></variableExpression>
+	</variable>
+	<variable name="dQuantityOnHand_ReportFooter" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{ttJobItem__dQuantityOnHand}]]></variableExpression>
+	</variable>
+	<variable name="dQuantityBalanceToRun_ReportFooter" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{ttJobItem__dQuantityBalanceToRun}]]></variableExpression>
+	</variable>
+	<variable name="dPriceTotalOnHand_ReportFooter" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{ttJobItem__dPriceTotalOnHand}]]></variableExpression>
+	</variable>
+	<variable name="dPriceTotalOnHand_CUST_ID_Group" class="java.lang.Double" resetType="Group" resetGroup="CUST_ID_Group" calculation="Sum">
+		<variableExpression><![CDATA[$F{ttJobItem__dPriceTotalOnHand}]]></variableExpression>
+	</variable>
+	<group name="CUST_ID_Group">
+		<groupExpression><![CDATA[$F{ttJobItem__cCustomerID}]]></groupExpression>
+		<groupHeader>
+			<band height="20" splitType="Stretch">
+				<textField isBlankWhenNull="true">
+					<reportElement x="30" y="0" width="48" height="14" uuid="a08092df-b6a6-4abd-a076-c6bd7e54ef00">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+					</reportElement>
+					<textFieldExpression><![CDATA[$F{ttJobItem__cCustomerID}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="84" y="0" width="180" height="14" uuid="c9be4a25-8936-4fd7-831a-f3c83679fa6c">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+					</reportElement>
+					<textFieldExpression><![CDATA[$F{ttJobItem__cCustomerName}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="321" y="0" width="30" height="14" uuid="9082fefd-3cbc-48e9-bed7-f302e4de5096">
+						<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+					</reportElement>
+					<textFieldExpression><![CDATA[$F{ttJobItem__cSalesRep}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="20" splitType="Stretch">
+				<staticText>
+					<reportElement x="806" y="0" width="114" height="14" uuid="5a4cd1cf-db2b-4245-a812-5558a103d9b9"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[SUB-TOTAL >>>]]></text>
+				</staticText>
+				<textField pattern="#,###,##0.00" isBlankWhenNull="true">
+					<reportElement x="901" y="0" width="78" height="14" uuid="580d7bcf-1e94-403a-ab65-211166a3c9a0"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{dPriceTotalOnHand_CUST_ID_Group}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="80" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="672" height="40" uuid="cdd17ca3-6121-4279-8d26-46619d21e3c7"/>
+				<textElement>
+					<font size="26"/>
+				</textElement>
+				<text><![CDATA[FG Executive Detail]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="40" width="49" height="40" uuid="cdd17ca3-6121-4279-8d26-46619d21e3c7"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[As Of Date:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="50" y="40" width="158" height="40" uuid="9082fefd-3cbc-48e9-bed7-f302e4de5096">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+				</reportElement>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ttJobItem__dtAsOfDate}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="100" y="40" width="90" height="40" uuid="cdd17ca3-6121-4279-8d26-46619d21e3c7"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[- As Of Date Option:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="190" y="40" width="158" height="40" uuid="9082fefd-3cbc-48e9-bed7-f302e4de5096">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+				</reportElement>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ttJobItem__cAsOfDateOption}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="14" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement x="30" y="0" width="48" height="14" uuid="2124bde7-6c2c-432c-9d39-f58213f292e1">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{ttJobItem__cCustomerID}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="84" y="0" width="180" height="14" uuid="0e0951e7-8137-4bec-987b-8ae36d22fca8">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{ttJobItem__cCustomerName}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="321" y="0" width="30" height="14" uuid="4c788f0c-79d4-426b-b4ee-dce6a81102a6">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{ttJobItem__cSalesRep}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="14" splitType="Stretch">
+			<staticText>
+				<reportElement x="1" y="0" width="60" height="14" uuid="73aac218-de87-479d-87f7-fc41c6e85e23"/>
+				<textElement>
+					<font isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[SALES-ORD]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="66" y="0" width="60" height="14" uuid="e3aa4f6e-8416-4ee9-879e-30d71314f846"/>
+				<textElement>
+					<font isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[ORD-DATE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="131" y="0" width="60" height="14" uuid="e7d45348-cb34-48b5-9021-0409bbc00d4f"/>
+				<textElement>
+					<font isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[COM-DATE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="199" y="0" width="120" height="14" uuid="fa92463f-2d1c-41e2-81fe-959993fd0b33"/>
+				<textElement>
+					<font isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[DESCRIPTION-SIZE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="321" y="0" width="30" height="14" uuid="7b2a4c9f-207a-4349-9d83-04a1e6dc4d5c"/>
+				<textElement>
+					<font isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[SLSMN]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="356" y="0" width="42" height="14" uuid="d3eb7223-9889-4c00-9071-30c7cf47bd91"/>
+				<textElement>
+					<font isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[PR CD]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="403" y="0" width="78" height="14" uuid="f350865a-b655-47bd-95bc-1aefadb7f12e"/>
+				<textElement textAlignment="Right">
+					<font isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[ORDER]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="486" y="0" width="78" height="14" uuid="a3c8ce04-cecd-43c1-9703-b26d33ba770c"/>
+				<textElement textAlignment="Right">
+					<font isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[MADE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="569" y="0" width="78" height="14" uuid="b3ceb5b9-1a73-4f79-988c-d75d846f7497"/>
+				<textElement textAlignment="Right">
+					<font isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[SHIPPED]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="652" y="0" width="78" height="14" uuid="8a6e56e1-cc8a-446e-bea8-17247aa5a612"/>
+				<textElement textAlignment="Right">
+					<font isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[BAL/RUN]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="735" y="0" width="78" height="14" uuid="8203e85f-30ab-4e1d-8916-77b5eb0b39c4"/>
+				<textElement textAlignment="Right">
+					<font isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[ON HAND]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="818" y="0" width="78" height="14" uuid="d1cfcd99-b7d2-4829-a7e4-1b449b62f8f9"/>
+				<textElement textAlignment="Right">
+					<font isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[PRICE PER]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="901" y="0" width="78" height="14" uuid="d902fca2-4c74-41db-a181-5c2781729b27"/>
+				<textElement textAlignment="Right">
+					<font isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[VALUE]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="14" splitType="Stretch">
+			<rectangle radius="0">
+				<reportElement style="Zebra" mode="Opaque" x="0" y="0" width="1271" height="14" uuid="fc748f27-3b25-46e5-8efe-c710c6a6f682"/>
+				<graphicElement>
+					<pen lineWidth="0.0"/>
+				</graphicElement>
+			</rectangle>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1" y="0" width="350" height="14" uuid="15dc8c1e-cba3-4e15-876c-7a6c42806d7a">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{NoDataMessage}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1" y="0" width="54" height="14" uuid="d7531d59-bcb3-4d52-9c73-ee48e4655c62">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{ttJobItem__cJob}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="66" y="0" width="60" height="14" uuid="90695df4-fe72-4559-bf0d-eb58a40c2854">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{ttJobItem__dtOrderDate}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="131" y="0" width="60" height="14" uuid="8005c49a-f2c3-40ea-b9cd-fe13b00af6b9">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{ttJobItem__dtDueDate}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="196" y="0" width="120" height="14" uuid="97de601a-e987-4a76-9dfd-3553c16e4605">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{ttJobItem__cItemDescription}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="356" y="0" width="42" height="14" uuid="264a00af-2248-4d19-8c31-204db2a4591c">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{ttJobItem__cProductCategory}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,###,##0.00" isBlankWhenNull="true">
+				<reportElement x="403" y="0" width="78" height="14" uuid="745d3f44-49f7-40fe-a360-d558af913e15">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+				</reportElement>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{ttJobItem__dQuantityOrdered}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,###,##0.00" isBlankWhenNull="true">
+				<reportElement x="486" y="0" width="78" height="14" uuid="c9e6d8ef-bf01-4614-b1c6-a40ac73feff6">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+				</reportElement>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{ttJobItem__dQuantityProduced}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,###,##0.00" isBlankWhenNull="true">
+				<reportElement x="569" y="0" width="78" height="14" uuid="a900165e-d5ee-4793-ac3d-6b237c987b71">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+				</reportElement>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{ttJobItem__dQuantityShipped}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,###,##0.00" isBlankWhenNull="true">
+				<reportElement x="652" y="0" width="78" height="14" uuid="9d445d7a-9f92-4d26-a239-1f9f745a8afd">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+				</reportElement>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{ttJobItem__dQuantityBalanceToRun}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,###,##0.00" isBlankWhenNull="true">
+				<reportElement x="735" y="0" width="78" height="14" uuid="44748782-79db-473f-a3b5-7ba54d6e045e">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+				</reportElement>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{ttJobItem__dQuantityOnHand}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,###,##0.00" isBlankWhenNull="true">
+				<reportElement x="818" y="0" width="78" height="14" uuid="bcf75456-d858-453d-954c-d12ecaa54f48">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+				</reportElement>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{ttJobItem__dPricePerEA}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,###,##0.00" isBlankWhenNull="true">
+				<reportElement x="901" y="0" width="78" height="14" uuid="164dbd6a-99db-48d8-beac-e942338a58c6">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+				</reportElement>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{ttJobItem__dPriceTotalOnHand}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="14" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="44" splitType="Stretch">
+			<textField pattern="MMM d, yyyy h:mm:ss a">
+				<reportElement x="0" y="0" width="180" height="14" uuid="fc45e347-6a8e-4f22-8cf0-9947cdca6cf2"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="14" width="26" height="14" uuid="1d8f4891-5b44-4ebc-9478-295aaaf54d2d"/>
+				<text><![CDATA[Page:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="30" y="14" width="100" height="14" uuid="6fe6852a-3e53-4b1c-b379-8b2723f5ed4e"/>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="14" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="110" height="14" uuid="3dcf5313-1fb9-4443-9c2b-6c73b186d9d6"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[** Report **]]></text>
+			</staticText>
+			<textField pattern="#,###,##0.00" isBlankWhenNull="true">
+				<reportElement x="403" y="0" width="78" height="14" uuid="ca3ff1cc-d06b-4eb8-b4e6-2ab0b3800bb5"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{dQuantityOrdered_ReportFooter}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,###,##0.00" isBlankWhenNull="true">
+				<reportElement x="486" y="0" width="78" height="14" uuid="4969694d-3353-43ca-a2d0-257e4f9aaa6c"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{dQuantityProduced_ReportFooter}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,###,##0.00" isBlankWhenNull="true">
+				<reportElement x="569" y="0" width="78" height="14" uuid="49f8e1b0-c99c-4951-9aa2-c9475f15949c"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{dQuantityShipped_ReportFooter}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,###,##0.00" isBlankWhenNull="true">
+				<reportElement x="652" y="0" width="78" height="14" uuid="2cae881e-f164-429b-902b-f75985985fa6"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{dQuantityBalanceToRun_ReportFooter}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,###,##0.00" isBlankWhenNull="true">
+				<reportElement x="735" y="0" width="78" height="14" uuid="6b160c3a-7283-4854-aab2-092c877c0577"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{dQuantityOnHand_ReportFooter}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,###,##0.00" isBlankWhenNull="true">
+				<reportElement x="901" y="0" width="78" height="14" uuid="c889bcc0-2d19-4665-b70d-1d1deba9edc8"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{dPriceTotalOnHand_ReportFooter}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

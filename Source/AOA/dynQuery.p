@@ -65,8 +65,8 @@ PROCEDURE pGetWhereCalcFields:
         sdx = INDEX(ipcQueryStr,"[|").
         IF sdx EQ 0 THEN LEAVE.
         ASSIGN
-            edx = INDEX(ipcQueryStr,"|]")
-            cCalcField = SUBSTR(ipcQueryStr,sdx,edx - sdx + 2)
+            edx         = INDEX(ipcQueryStr,"|]")
+            cCalcField  = SUBSTR(ipcQueryStr,sdx,edx - sdx + 2)
             ipcQueryStr = SUBSTR(ipcQueryStr,edx + 2)
             .
         FIND FIRST dynSubjectWhere NO-LOCK
@@ -81,13 +81,23 @@ PROCEDURE pGetWhereCalcFields:
                 cParamField = REPLACE(cParamField,"[[","")
                 cParamField = REPLACE(cParamField,"]]","")
                 .
-            DO idx = 1 TO EXTENT(dynParamValue.paramName):
-                IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
-                IF dynParamValue.paramName[idx] EQ cParamField THEN DO:
-                    ENTRY(jdx,cParamValue,"|") = dynParamValue.paramValue[idx].
-                    LEAVE.
-                END. /* if cparamfield */
-            END. /* do idx */
+            FIND FIRST dynValueParam NO-LOCK
+                 WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
+                   AND dynValueParam.user-id      EQ dynParamValue.user-id
+                   AND dynValueParam.prgmName     EQ dynParamValue.prgmName
+                   AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
+                   AND dynValueParam.paramName    EQ cParamField
+                 NO-ERROR.
+            IF NOT AVAILABLE dynValueParam THEN NEXT.
+            ENTRY(jdx,cParamValue,"|") = dynValueParam.paramValue.
+/*            /* rstark - remove when depricated */                              */
+/*            DO idx = 1 TO EXTENT(dynParamValue.paramName):                     */
+/*                IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.              */
+/*                IF dynParamValue.paramName[idx] EQ cParamField THEN DO:        */
+/*                    ENTRY(jdx,cParamValue,"|") = dynParamValue.paramValue[idx].*/
+/*                    LEAVE.                                                     */
+/*                END. /* if cparamfield */                                      */
+/*            END. /* do idx */                                                  */
         END. /* do jdx */
         RUN spDynCalcField IN hDynCalcField (
             ?,
@@ -100,4 +110,5 @@ PROCEDURE pGetWhereCalcFields:
         cQueryStr = REPLACE(cQueryStr,cCalcField,cBufferValue).
     END. /* do while */
     iopcQueryStr = cQueryStr.
+
 END PROCEDURE.
