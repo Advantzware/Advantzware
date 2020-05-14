@@ -40,7 +40,7 @@ def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
 &scoped-define fld-name-1 item.i-no
 &scoped-define fld-name-2 item.i-name
-&scoped-define fld-name-3 item.press-type
+&scoped-define fld-name-3 item.mat-type
 &scoped-define SORTBY-1 BY {&fld-name-1}
 &scoped-define SORTBY-2 BY {&fld-name-2}
 &scoped-define SORTBY-3 BY {&fld-name-3}
@@ -70,7 +70,7 @@ def var lv-first-time as log init yes no-undo.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 item.i-no item.i-name item.i-dscr ~
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 item.i-no item.i-name item.mat-type ~
 item.press-type 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH item WHERE ~{&KEY-PHRASE} ~
@@ -131,7 +131,7 @@ DEFINE VARIABLE rd-sort AS INTEGER
      RADIO-BUTTONS 
           "Item #", 1,
 "Name", 2,
-"Press Type", 3
+"Material Type", 3
      SIZE 69 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
@@ -150,7 +150,7 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 NO-LOCK DISPLAY
       item.i-no FORMAT "x(10)":U WIDTH 15 COLUMN-FONT 0
       item.i-name FORMAT "x(30)":U COLUMN-FONT 0
-      item.i-dscr FORMAT "x(30)":U COLUMN-FONT 0
+      item.mat-type FORMAT "x(1)":U COLUMN-FONT 0
       item.press-type FORMAT "X":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -217,8 +217,8 @@ and lookup(item.mat-type,ip-mat-type) > 0"
 "i-no" ? ? "character" ? ? 0 ? ? ? no ? no no "15" yes no no "U" "" ""
      _FldNameList[2]   > ASI.item.i-name
 "i-name" ? ? "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[3]   > ASI.item.i-dscr
-"i-dscr" ? ? "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" ""
+     _FldNameList[3]   > ASI.item.mat-type
+"mat-type" ? ? "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[4]   = ASI.item.press-type
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */

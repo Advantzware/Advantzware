@@ -139,6 +139,7 @@ RUN jc/JobProcs.p   PERSISTENT SET hdJobProcs.
                           
 DEFINE VARIABLE cReturnValue         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cSSVendTagRtnValue   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glCheckClosedStatus  AS LOGICAL   NO-UNDO.
 
 RUN sys/ref/nk1look.p (
@@ -155,6 +156,17 @@ RUN sys/ref/nk1look.p (
 
 glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.    
 
+RUN sys/ref/nk1look.p (
+    INPUT cocode,           /* Company Code */ 
+    INPUT "SSVendTagOnly", /* sys-ctrl name */
+    INPUT "L",              /* Output return value */
+    INPUT NO,               /* Use ship-to */
+    INPUT NO,               /* ship-to vendor */
+    INPUT "",               /* ship-to vendor value */
+    INPUT "",               /* shi-id value */
+    OUTPUT cSSVendTagRtnValue, 
+    OUTPUT lRecFound
+    ).    
 DEFINE VARIABLE lSSScanVendorLength AS LOGICAL NO-UNDO .
 
 /* _UIB-CODE-BLOCK-END */
@@ -779,55 +791,64 @@ DO:
                   VIEW-AS ALERT-BOX ERROR.
                RETURN NO-APPLY.
             END.
-
             
-            
-         RUN edDocSearch (OUTPUT lEdDocFound).
-         IF lEdDocFound THEN DO:
-             RUN poSearch(NO, OUTPUT lContinue).
+         IF LOGICAL(cSSVendTagRtnValue) THEN DO:
+             RUN pCheckTagLength(
+                 INPUT cocode, 
+                 INPUT "",
+                 INPUT scr-vend-tag,
+                 OUTPUT lContinue
+                 ).
+             IF NOT lContinue THEN
+                RETURN NO-APPLY.
          END. 
-         ELSE DO:              
-             v-po-no = INT(SUBSTR(scr-vend-tag,1,6)) NO-ERROR.
-             
-             IF NOT ERROR-STATUS:ERROR THEN
-             DO:
-                IF NOT CAN-FIND(FIRST po-ord WHERE
-                   po-ord.company EQ cocode AND
-                   po-ord.po-no EQ v-po-no) THEN DO:
-                   RUN pCheckTagLength(cocode, "", scr-vend-tag, OUTPUT lContinue).
-                   IF NOT lContinue THEN DO:
-                      APPLY "entry" TO SELF.
-                      RETURN NO-APPLY.
-                   END.
-                   LEAVE.
-                END.
-                begin_po-no:SCREEN-VALUE = STRING(v-po-no).
+         ELSE DO:           
+             RUN edDocSearch (OUTPUT lEdDocFound).
+             IF lEdDocFound THEN DO:
+                 RUN poSearch(NO, OUTPUT lContinue).
+             END. 
+             ELSE DO:              
+                 v-po-no = INT(SUBSTR(scr-vend-tag,1,6)) NO-ERROR.
+                 
+                 IF NOT ERROR-STATUS:ERROR THEN
+                 DO:
+                    IF NOT CAN-FIND(FIRST po-ord WHERE
+                       po-ord.company EQ cocode AND
+                       po-ord.po-no EQ v-po-no) THEN DO:
+                       RUN pCheckTagLength(cocode, "", scr-vend-tag, OUTPUT lContinue).
+                       IF NOT lContinue THEN DO:
+                          APPLY "entry" TO SELF.
+                          RETURN NO-APPLY.
+                       END.
+                       LEAVE.
+                    END.
+                    begin_po-no:SCREEN-VALUE = STRING(v-po-no).
+                 END.
+                 ELSE DO:
+                     RUN pCheckTagLength(cocode, "", scr-vend-tag, OUTPUT lContinue).
+                       IF NOT lContinue THEN DO:
+                          APPLY "entry" TO SELF.
+                          RETURN NO-APPLY.
+                       END.
+                    LEAVE.
+                 END.
+                  
+                 v-po-line = INT(SUBSTR(scr-vend-tag,7,3)) NO-ERROR.
+                 
+                 IF NOT ERROR-STATUS:ERROR THEN
+                    scr-po-line:SCREEN-VALUE = STRING(v-po-line).
+                 
+                 v-qty = INT(SUBSTR(scr-vend-tag,10,5)) NO-ERROR.
+                 
+                 IF NOT ERROR-STATUS:ERROR THEN
+                    scr-qty:SCREEN-VALUE = STRING(v-qty).
+                
+                 RUN poSearch(YES, OUTPUT lContinue).
+                 IF NOT lContinue THEN DO:
+                     APPLY "entry" TO SELF.
+                     RETURN NO-APPLY.
+                 END.               
              END.
-             ELSE DO:
-                 RUN pCheckTagLength(cocode, "", scr-vend-tag, OUTPUT lContinue).
-                   IF NOT lContinue THEN DO:
-                      APPLY "entry" TO SELF.
-                      RETURN NO-APPLY.
-                   END.
-                LEAVE.
-             END.
-              
-             v-po-line = INT(SUBSTR(scr-vend-tag,7,3)) NO-ERROR.
-             
-             IF NOT ERROR-STATUS:ERROR THEN
-                scr-po-line:SCREEN-VALUE = STRING(v-po-line).
-             
-             v-qty = INT(SUBSTR(scr-vend-tag,10,5)) NO-ERROR.
-             
-             IF NOT ERROR-STATUS:ERROR THEN
-                scr-qty:SCREEN-VALUE = STRING(v-qty).
-            
-             RUN poSearch(YES, OUTPUT lContinue).
-             IF NOT lContinue THEN DO:
-                 APPLY "entry" TO SELF.
-                 RETURN NO-APPLY.
-             END.
-             
          END.
       END.
    END.

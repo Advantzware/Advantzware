@@ -142,24 +142,24 @@ DEFINE VARIABLE W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-add 
-    LABEL "Add New" 
-    SIZE 15 BY 1.14.
+    LABEL "Add" 
+    SIZE 9.5 BY 1.14.
 
 DEFINE BUTTON btn-copy 
-    LABEL "Copy Selected" 
-    SIZE 19 BY 1.14.
+    LABEL "Copy " 
+    SIZE 9.5 BY 1.14.
 
 DEFINE BUTTON btn-ok 
     LABEL "OK" 
     SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn-update 
-    LABEL "Update Selected" 
-    SIZE 21.8 BY 1.14.  
+    LABEL "Update" 
+    SIZE 9.5 BY 1.14.  
 
 DEFINE BUTTON btn-delete 
-    LABEL "Delete Selected" 
-    SIZE 21.8 BY 1.14.
+    LABEL "Delete" 
+    SIZE 9.5 BY 1.14.
 
 DEFINE VARIABLE cCustPart AS CHARACTER FORMAT "X(15)":U 
     LABEL "Part#" 
@@ -235,10 +235,10 @@ DEFINE BROWSE BROWSE-1
 
 DEFINE FRAME F-Main
     BROWSE-1 AT ROW 6.52 COL 2.2
-    btn-update AT ROW 4.95 COL 37.8
     btn-add AT ROW 4.95 COL 2.2 WIDGET-ID 16
-    btn-copy AT ROW 4.95 COL 17.6
-    btn-delete AT ROW 4.95 COL 60.8
+    btn-copy AT ROW 4.95 COL 12.2
+    btn-update AT ROW 4.95 COL 22.2
+    btn-delete AT ROW 4.95 COL 32.2
     btn-ok AT ROW 20.62 COL 57
     est-no AT ROW 2.14 COL 13.8 COLON-ALIGNED WIDGET-ID 200
     iForm AT ROW 2.14 COL 37.4 COLON-ALIGNED WIDGET-ID 314

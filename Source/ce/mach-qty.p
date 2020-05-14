@@ -42,7 +42,7 @@ IF AVAIL mach THEN DO:
   END.
 
   ELSE
-    v-chk-qty = IF xest.est-type EQ 2 THEN xest.est-qty[1] ELSE qty.
+    v-chk-qty = qty.   
 .
   if p-type ne "B" then do:
     v-chk-qty = v-chk-qty / xeb.num-up.

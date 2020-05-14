@@ -1151,7 +1151,7 @@ PROCEDURE create-item :
             est-op.s-num   = 1
             est-op.b-num   = 0
             est-op.op-pass = 1
-            est-op.qty     = IF est.est-type EQ 1 THEN est-qty.eqty ELSE lv-eqty.
+            est-op.qty     = IF est.est-type NE 4 THEN est-qty.eqty ELSE lv-eqty.
 
         FIND CURRENT est-op NO-LOCK NO-ERROR.
     END. /* avail oe-relh */
@@ -1326,7 +1326,7 @@ PROCEDURE pGetQty :
     lv-eqty = 0.
 
     IF AVAILABLE est THEN
-        IF est.est-type EQ 1 THEN lv-eqty = est-qty.eqty.
+        IF est.est-type NE 4 THEN lv-eqty = est-qty.eqty.
 
         ELSE
             FOR EACH xop NO-LOCK

@@ -9,9 +9,11 @@ DEFINE VARIABLE hAppServerBin AS HANDLE NO-UNDO.
 RUN AOA/appServer/aoaBin.p PERSISTENT SET hAppServerBin.
 SESSION:ADD-SUPER-PROCEDURE (hAppServerBin).
 
+&IF DEFINED(fGetTableHandle) EQ 0 &THEN
 FUNCTION fGetTableHandle RETURNS HANDLE ():
     RETURN TEMP-TABLE {&ttTempTable}:HANDLE.
 END FUNCTION.
+&ENDIF
 
 {AOA/includes/fGetDynParamValue.i}
 

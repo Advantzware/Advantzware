@@ -1,5 +1,6 @@
 DEF PARAM BUFFER io-po-ordl FOR po-ordl.
 DEF PARAM BUFFER io-ap-invl FOR ap-invl.
+DEFINE OUTPUT PARAMETER opcOutError AS CHARACTER NO-UNDO .
 
 DEF BUFFER b-po-ord FOR po-ord.
 DEF VAR v-negative-receipt AS LOG NO-UNDO.
@@ -56,15 +57,7 @@ DO:
       END.
 END.
 
-IF AVAIL io-po-ordl                                             AND
-   (NOT AVAIL io-ap-invl OR
-    NOT CAN-FIND(FIRST ap-invl
-                 WHERE ap-invl.i-no       EQ io-ap-invl.i-no
-                   AND ap-invl.po-no      EQ io-po-ordl.po-no
-                   AND {ap/invlline.i -1} EQ io-po-ordl.line
-                   AND ROWID(ap-invl)     NE ROWID(io-ap-invl)
-                 USE-INDEX i-no))                               AND
-                               
+IF AVAIL io-po-ordl                                             AND                                 
   io-po-ordl.stat      NE "X"   /* not deleted or cancelled */  AND            
   io-po-ordl.stat      NE "F"   /* not deleted or cancelled */  AND            
   (io-po-ordl.t-rec-qty NE 0 OR v-negative-receipt OR
@@ -76,3 +69,16 @@ IF AVAIL io-po-ordl                                             AND
                AND item.stocked EQ NO
              USE-INDEX i-no)))                                  THEN.
 ELSE RELEASE io-po-ordl.
+
+ FIND FIRST ap-invl no-lock
+      WHERE ap-invl.i-no EQ io-ap-invl.i-no
+      AND ap-invl.po-no  EQ io-po-ordl.po-no
+      AND {ap/invlline.i -1} EQ io-po-ordl.line
+      AND ROWID(ap-invl)     NE ROWID(io-ap-invl) NO-ERROR .
+IF AVAIL ap-invl THEN
+DO:
+  RELEASE io-po-ordl.
+   FIND FIRST ap-inv WHERE ap-inv.i-no EQ ap-invl.i-no NO-LOCK NO-ERROR.
+   opcOutError = "The PO has already been paid   Invoice:" + STRING(ap-inv.inv-no) + "  Date:" + STRING(ap-inv.inv-date) . 
+END.
+      

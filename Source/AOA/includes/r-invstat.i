@@ -671,8 +671,6 @@ PROCEDURE pGetQuantityInvShipAsOf PRIVATE:
               AND oe-bolh.bol-date LE ipdtAsOf
             USE-INDEX b-no
             :
-            IF oe-boll.s-code NE "S" AND NOT oe-ordl.is-a-component AND NOT lInvQty THEN
-            opdQuantityInvoiced = opdQuantityInvoiced + oe-boll.qty.    
             IF (oe-boll.s-code NE "I" OR
                 CAN-FIND(FIRST bf-oe-ordl 
                          WHERE bf-oe-ordl.company        EQ oe-ordl.company

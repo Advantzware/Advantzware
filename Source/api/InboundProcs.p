@@ -13,6 +13,63 @@
 {api\ttInboundRequest.i}
 
 /* Loads data from CSV log file to temp table */
+
+
+/* **********************  Internal Procedures  *********************** */
+
+
+PROCEDURE Inbound_UpdateEventRequestData:
+/*------------------------------------------------------------------------------
+ Purpose: Update API Inbound Event's request data
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiAPIInboundEventID AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplcRequestData      AS LONGCHAR  NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMessage           AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess           AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cAPIInboundEvent AS INTEGER  NO-UNDO.
+    DEFINE VARIABLE lcResponseData   AS LONGCHAR NO-UNDO.
+    
+    DEFINE BUFFER bf-APIInboundEvent FOR APIInboundEvent.
+        
+    FIND FIRST bf-APIInboundEvent NO-LOCK
+         WHERE bf-APIInboundEvent.apiInboundEventID EQ ipiAPIInboundEventID
+         NO-ERROR.
+    IF NOT AVAILABLE bf-APIInboundEvent THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Unable to find Inbound event with event ID " + STRING(ipiAPIInboundEventID)
+            .
+        RETURN. 
+    END.
+     
+    lcResponseData = bf-APIInboundEvent.responseData.
+     
+    RUN api\CreateAPIInboundEvent.p (
+        INPUT  FALSE,                   /* Re-trigger */                  
+        INPUT  bf-APIInboundEvent.apiInboundEventID,
+        INPUT  bf-APIInboundEvent.company,            
+        INPUT  bf-APIInboundEvent.apiRoute,
+        INPUT  iplcRequestData,
+        INPUT  lcResponseData,
+        INPUT  bf-APIInboundEvent.success,
+        INPUT  ipcMessage,
+        INPUT  NOW,
+        INPUT  bf-APIInboundEvent.requestedBy,
+        INPUT  bf-APIInboundEvent.recordSource,
+        INPUT  bf-APIInboundEvent.notes,
+        INPUT  bf-APIInboundEvent.externalID, /* PayloadID */
+        OUTPUT cAPIInboundEvent
+        ) NO-ERROR. 
+
+    ASSIGN
+        oplSuccess = FALSE
+        opcMessage = "Success"
+        .        
+END PROCEDURE.
+
 PROCEDURE LoadRequestsFomCSV:
     DEFINE INPUT  PARAMETER ipcCSVFile AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE FOR ttInboundRequest. 

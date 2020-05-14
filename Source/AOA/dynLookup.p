@@ -28,6 +28,7 @@ DEFINE VARIABLE cTitle          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWhereClause    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWidths         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dtDate          AS DATE      NO-UNDO.
+DEFINE VARIABLE hBusinessLogic  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hDynCalcField   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE idx             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iRecordLimit    AS INTEGER   NO-UNDO.
@@ -123,18 +124,18 @@ cWhereClause = cQueryStr.
 
 /* rstark - remove when depricated */
 ASSIGN
-    cTableName = ""
-    cFieldName = ""
+    cTableName      = ""
+    cFieldName      = ""
     cRequiredFields = ""
-    cSourceTable = ""
-    cSourceField = ""
-    cDisplayFields = ""
-    cFormats = ""
-    cLabels = ""
-    cWidths = ""
-    cReturnFields = ""
-    cSearchFields = ""
-    cSortFields = ""
+    cSourceTable    = ""
+    cSourceField    = ""
+    cDisplayFields  = ""
+    cFormats        = ""
+    cLabels         = ""
+    cWidths         = ""
+    cReturnFields   = ""
+    cSearchFields   = ""
+    cSortFields     = ""
     .
 DO idx = 1 TO EXTENT(dynParamValue.colName):
     IF dynParamValue.colName[idx] EQ "" THEN LEAVE.
@@ -178,40 +179,54 @@ DO idx = 1 TO EXTENT(dynParamValue.colName):
     END. /* if isactive */
 END. /* do idx */
 
-ASSIGN
-    cDisplayFields  = TRIM(cDisplayFields,",")
-    cFormats        = TRIM(cFormats,",")
-    cLabels         = TRIM(cLabels,",")
-    cRequiredFields = TRIM(cRequiredFields,",")
-    cReturnFields   = TRIM(cReturnFields,",")
-    cSearchFields   = TRIM(cSearchFields,",")
-    cSortFields     = TRIM(cSortFields,",")
-    cWidths         = SUBSTRING(cWidths,1,LENGTH(cWidths) - 1)
-    cDisplayFields  = REPLACE(cDisplayFields,cSourceTable + ".","")
-    cRequiredFields = REPLACE(cRequiredFields,cSourceTable + ".","")
-    cReturnFields   = REPLACE(cReturnFields,cSourceTable + ".","")
-    cSearchFields   = REPLACE(cSearchFields,cSourceTable + ".","")
-    cSortFields     = REPLACE(cSortFields,cSourceTable + ".","")
-    cSourceField    = REPLACE(cSourceField,cSourceTable + ".","")
-    .
-RUN windows/l-lookup.w (
-    cTitle,
-    cSourceField,
-    cSourceTable,
-    cRequiredFields,
-    cDisplayFields,
-    cLabels,
-    cFormats,
-    cWidths,
-    cSearchFields,
-    cSortFields,
-    cWhereClause,
-    cReturnFields,
-    iRecordLimit,
-    ipiSubjectID,
-    ipcUserID,
-    ipiParamValueID,
-    OUTPUT opcReturnValues,
-    OUTPUT opcLookupField,
-    OUTPUT oprRecID
-    ).
+IF cSourceTable BEGINS "tt" THEN DO:
+    FIND FIRST dynSubject NO-LOCK
+         WHERE dynSubject.subjectID     EQ ipiSubjectID
+           AND dynSubject.businessLogic NE ""
+         NO-ERROR.
+    IF AVAILABLE dynSubject THEN DO:
+        RUN VALUE(dynSubject.businessLogic) PERSISTENT SET hBusinessLogic.
+        RUN pGetFileName IN hBusinessLogic (OUTPUT opcLookupField).
+        FOCUS:SCREEN-VALUE = opcLookupField.
+        DELETE PROCEDURE hBusinessLogic.
+    END. /* if avail */
+END. /* if begins */
+ELSE DO:
+    ASSIGN
+        cDisplayFields  = TRIM(cDisplayFields,",")
+        cFormats        = TRIM(cFormats,",")
+        cLabels         = TRIM(cLabels,",")
+        cRequiredFields = TRIM(cRequiredFields,",")
+        cReturnFields   = TRIM(cReturnFields,",")
+        cSearchFields   = TRIM(cSearchFields,",")
+        cSortFields     = TRIM(cSortFields,",")
+        cWidths         = SUBSTRING(cWidths,1,LENGTH(cWidths) - 1)
+        cDisplayFields  = REPLACE(cDisplayFields,cSourceTable + ".","")
+        cRequiredFields = REPLACE(cRequiredFields,cSourceTable + ".","")
+        cReturnFields   = REPLACE(cReturnFields,cSourceTable + ".","")
+        cSearchFields   = REPLACE(cSearchFields,cSourceTable + ".","")
+        cSortFields     = REPLACE(cSortFields,cSourceTable + ".","")
+        cSourceField    = REPLACE(cSourceField,cSourceTable + ".","")
+        .
+    RUN windows/l-lookup.w (
+        cTitle,
+        cSourceField,
+        cSourceTable,
+        cRequiredFields,
+        cDisplayFields,
+        cLabels,
+        cFormats,
+        cWidths,
+        cSearchFields,
+        cSortFields,
+        cWhereClause,
+        cReturnFields,
+        iRecordLimit,
+        ipiSubjectID,
+        ipcUserID,
+        ipiParamValueID,
+        OUTPUT opcReturnValues,
+        OUTPUT opcLookupField,
+        OUTPUT oprRecID
+        ).
+END. /* else */

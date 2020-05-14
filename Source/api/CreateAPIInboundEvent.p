@@ -25,7 +25,8 @@ DEFINE INPUT  PARAMETER ipcNotes            AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcPayloadID        AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER opcAPIInboundEvent  AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE lcNotes AS LONGCHAR NO-UNDO.
+DEFINE VARIABLE lcNotes       AS LONGCHAR NO-UNDO.
+DEFINE VARIABLE lcRequestData AS LONGCHAR NO-UNDO.
 
 FIND FIRST APIInboundEvent EXCLUSIVE-LOCK
      WHERE APIInboundEvent.apiInboundEventID EQ ipiInboundEventID
@@ -39,6 +40,7 @@ IF AVAILABLE APIInboundEvent THEN DO:
        APIInboundEvent.success         = iplSuccess
        APIInboundEvent.requestDateTime = ipcDateTime
        lcNotes                         = APIInboundEvent.errorMessage
+       lcRequestData                   = APIInboundEvent.requestData
        APIInboundEvent.errorMessage    = STRING(ipcDateTime, "99/99/9999 HH:MM:SS.SSS")
                                          + " - "
                                          + USERID("ASI")
@@ -51,6 +53,9 @@ IF AVAILABLE APIInboundEvent THEN DO:
                                          + "@@@"
                                          + lcNotes
        .
+    
+    IF lcRequestData NE iplcRequestData THEN
+        APIInboundEvent.requestData = iplcRequestData.
 END.     
 ELSE DO:
     CREATE APIInboundEvent.

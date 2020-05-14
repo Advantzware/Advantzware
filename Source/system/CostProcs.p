@@ -1107,7 +1107,7 @@ PROCEDURE GetCostForInvoiceLine:
         IF opdCostPerUOMFO EQ ? THEN opdCostPerUOMFO = 0.
         IF opdCostPerUOMVO EQ ? THEN opdCostPerUOMVO = 0.
         IF opdCostPerUOMDM EQ ? THEN opdCostPerUOMDM = 0.
-        opdCostTotalExtended = opdCostPerUOMTotal * dQtyInvoiced / 1000.
+        opdCostTotalExtended = ROUND(opdCostPerUOMTotal * dQtyInvoiced / 1000, 2).
         
         RUN pCalculateCostsFromEstimate(cCompany, iOrderNo, cFGItemID, OUTPUT opdCostFreight, OUTPUT opdCostWarehouse, OUTPUT opdCostDeviation, OUTPUT opdCostManufacture).
     

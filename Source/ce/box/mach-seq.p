@@ -1,7 +1,7 @@
 /* --------------------------------------------------- ce/box/mach-seq.p  */
 /* create machine routing sequence                                        */
 /* ---------------------------------------------------------------------- */
-
+ def input parameter ipiQty like est-op.qty.
 {sys/inc/var.i shared}
 {sys/form/s-top.f}
 
@@ -37,6 +37,8 @@ DEF VAR ll-style AS LOG NO-UNDO.
 
   
 run ce/mach-ink.p.
+
+qty = if ipiQty eq 0 then xest.est-qty[1] else ipiQty .
 
 for each xef
     where xef.company eq xest.company

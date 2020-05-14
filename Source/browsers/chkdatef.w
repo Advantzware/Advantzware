@@ -151,7 +151,7 @@ DEFINE VARIABLE fi_cust-no AS CHARACTER FORMAT "x(8)"
      SIZE 15 BY 1
      BGCOLOR 15 .
 
-DEFINE VARIABLE fi_inv-no AS INTEGER FORMAT ">>>>>>" INITIAL 0 
+DEFINE VARIABLE fi_inv-no AS INTEGER FORMAT ">>>>>>>" INITIAL 0 
      LABEL "Invoice#" 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1
@@ -169,6 +169,7 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
       ar-cashl.check-no COLUMN-LABEL "Check#" FORMAT "x(12)":U
+            WIDTH 16
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 21 BY 7.62.
@@ -262,7 +263,7 @@ ASSIGN
  AND ASI.ar-cashl.inv-no = fi_inv-no"
      _JoinCode[2]      = "ASI.ar-cash.c-no = ar-cashl.c-no"
      _FldNameList[1]   > ASI.ar-cashl.check-no
-"ar-cashl.check-no" "Check#" "x(12)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"ar-cashl.check-no" "Check#" "x(12)" "character" ? ? ? ? ? ? no ? no no "16" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME

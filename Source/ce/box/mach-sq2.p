@@ -43,6 +43,7 @@ for each m-lst by m-lst.f-no by m-lst.seq by m-lst.b-no by m-lst.pass-no:
       est-op.company    = xest.company
       est-op.e-num      = xest.e-num
       est-op.est-no     = xest.est-no
+      est-op.qty        = qty
       est-op.line       = j
       est-op.dept       = m-lst.dept
       est-op.d-seq      = mach.d-seq
@@ -67,7 +68,8 @@ end.
 i = 0.
 for each est-op
     where est-op.company eq xest.company
-      and est-op.est-no  eq xest.est-no:
+      and est-op.est-no  eq xest.est-no
+      and est-op.qty     eq qty:
    ASSIGN
    i = i + 1
    est-op.line = i.
@@ -75,8 +77,7 @@ end.
 
 assign
  v-num-up = xeb.num-up / (if xest.form-qty eq 1 then 2 else 1)
- save-qty = qty
- qty      = xest.est-qty[1]
+ save-qty = qty   
  maxco    = 0.
 
 for each ef
@@ -106,9 +107,12 @@ for each ef
   
 end. /* for each ef */
 
+qty = save-qty.
+
 for each est-op
     where est-op.company eq xest.company
       and est-op.est-no  eq xest.est-no
+      and est-op.qty     eq qty
     break by est-op.s-num:
   if first-of(est-op.s-num) then do:
      find first ef
@@ -121,6 +125,6 @@ for each est-op
   end.
 end.
 find xef where recid(xef) = call_id no-lock no-error.
-qty = xest.est-qty[1].
+
 
 /* end ---------------------------------- copr. 1993  advanced software, inc. */

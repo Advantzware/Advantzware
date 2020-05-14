@@ -33,6 +33,18 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
+{custom/gcompany.i}
+{custom/globdefs.i} 
+DEF VAR cRtnChar AS CHAR NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE vconn AS CHARACTER  NO-UNDO.
+                       
+RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpService", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    vconn = cRtnChar NO-ERROR.
+
 
 /* Local Variable Definitions ---                                       */
 &SCOPED-DEFINE enable-hlp-head enable-hlp-head
@@ -62,16 +74,17 @@ CREATE WIDGET-POOL.
 DEFINE QUERY external_tables FOR hlp-head.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS hlp-head.showInGlossary hlp-head.FLD-NAME ~
-hlp-head.FRM-TITLE hlp-head.FIL-NAME hlp-head.FRM-NAME hlp-head.help-txt 
+hlp-head.FRM-TITLE hlp-head.FIL-NAME hlp-head.FRM-NAME hlp-head.help-txt ~
+hlp-head.updatedBy hlp-head.updatedDate
 &Scoped-define ENABLED-TABLES hlp-head
 &Scoped-define FIRST-ENABLED-TABLE hlp-head
-&Scoped-Define ENABLED-OBJECTS RECT-1 tb_re-view 
+&Scoped-Define ENABLED-OBJECTS RECT-1 tb_re-view  
 &Scoped-Define DISPLAYED-FIELDS hlp-head.MSG-NUM hlp-head.showInGlossary ~
 hlp-head.FLD-NAME hlp-head.FRM-TITLE hlp-head.FIL-NAME hlp-head.FRM-NAME ~
-hlp-head.help-txt 
+hlp-head.help-txt hlp-head.updatedBy hlp-head.updatedDate hlp-head.usageCount 
 &Scoped-define DISPLAYED-TABLES hlp-head
 &Scoped-define FIRST-DISPLAYED-TABLE hlp-head
-&Scoped-Define DISPLAYED-OBJECTS tb_re-view 
+&Scoped-Define DISPLAYED-OBJECTS tb_re-view tb_auto-create iUsageCount
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -114,7 +127,17 @@ DEFINE RECTANGLE RECT-1
 DEFINE VARIABLE tb_re-view AS LOGICAL INITIAL NO 
      LABEL "Reviewed?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 24 BY .81 NO-UNDO.
+     SIZE 24 BY .81 NO-UNDO.        
+ 
+ DEFINE VARIABLE tb_auto-create AS LOGICAL INITIAL NO 
+     LABEL "AutoCreated?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 20 BY .81 NO-UNDO.      
+ 
+DEFINE VARIABLE iUsageCount AS INTEGER INITIAL 0 
+     VIEW-AS FILL-IN
+     SIZE 18 BY 1
+     BGCOLOR 15 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -124,7 +147,8 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
      tb_re-view AT ROW 1.24 COL 73.6
-     hlp-head.showInGlossary AT ROW 1.24 COL 100
+     tb_auto-create AT ROW 1.24 COL 123
+     hlp-head.showInGlossary AT ROW 1.24 COL 93
           VIEW-AS TOGGLE-BOX
           SIZE 29 BY .81
      hlp-head.FLD-NAME AT ROW 2.19 COL 29 COLON-ALIGNED
@@ -143,6 +167,25 @@ DEFINE FRAME F-Main
      hlp-head.help-txt AT ROW 4.57 COL 29 NO-LABELS
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 115 BY 13.1
+      "Modified By:" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 6.34 COL 5    
+      hlp-head.updatedBy AT ROW 7.14 COL 5 NO-LABEL FORMAT "x(8)"
+          VIEW-AS FILL-IN  
+          SIZE 18 BY 1
+          BGCOLOR 15
+      "Last Modified:" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 8.34 COL 5   
+      hlp-head.updatedDate AT ROW 9.14 COL 5 NO-LABEL FORMAT "99/99/9999"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+          BGCOLOR 15
+      "Usage:" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 10.34 COL 5   
+      hlp-head.usageCount AT ROW 11.14 COL 5 NO-LABEL FORMAT ">>>>>9"
+          VIEW-AS FILL-IN  
+          SIZE 18 BY 1  
+          BGCOLOR 15
+      iUsageCount AT ROW 11.14 COL 5 NO-LABEL   
      "Help Contents:" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 4.33 COL 10
      "Status:" VIEW-AS TEXT
@@ -191,7 +234,7 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/viewer.i}
-{methods/template/viewer4.i}
+/*{methods/template/viewer4.i} */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -214,6 +257,13 @@ ASSIGN
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN hlp-head.FRM-TITLE IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN hlp-head.updatedBy IN FRAME F-Main
+  NO-LABEL EXP-FORMAT                                                   */
+/* SETTINGS FOR FILL-IN hlp-head.updatedDate IN FRAME F-Main
+  NO-LABEL EXP-FORMAT                                                   */
+/* SETTINGS FOR FILL-IN hlp-head.usageCount IN FRAME F-Main
+   NO-ENABLE NO-LABEL EXP-FORMAT                                          */   
+   
 ASSIGN 
        hlp-head.help-txt:RETURN-INSERTED IN FRAME F-Main  = TRUE.
 
@@ -292,7 +342,7 @@ PROCEDURE disable-fields :
 ------------------------------------------------------------------------------*/
 
    DO WITH FRAME {&FRAME-NAME}.
-     DISABLE tb_re-view .
+     DISABLE tb_re-view tb_auto-create iUsageCount .
    END.
 
 END PROCEDURE.
@@ -328,6 +378,7 @@ PROCEDURE enable-hlp-head :
 
    DO WITH FRAME {&FRAME-NAME}.
      ENABLE tb_re-view .
+     DISABLE tb_auto-create iUsageCount hlp-head.updatedBy hlp-head.updatedDate.
    END.
 
 END PROCEDURE.
@@ -350,6 +401,8 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   hlp-head.reviewstatus = IF tb_re-view:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Yes" THEN "R" ELSE "B" .
+  hlp-head.updatedBy = USERID(LDBNAME(1)) .
+  hlp-head.updatedDate = TODAY .
   
 END PROCEDURE.
 
@@ -377,6 +430,7 @@ PROCEDURE local-create-record :
   ELSE li-next-num = 1.
   
   hlp-head.msg-num = li-next-num.
+  hlp-head.CreatedDate  = TODAY .
   DISPLAY hlp-head.msg-num WITH FRAME {&frame-name}.
   
 END PROCEDURE.
@@ -392,10 +446,11 @@ PROCEDURE local-delete-record :
 ------------------------------------------------------------------------------*/
     /* mod - sewa for Web Services task 08211210 */
     DEFINE VARIABLE msg-num AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE vconn AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE vhWebService AS HANDLE NO-UNDO.
     DEFINE VARIABLE vhSalesSoap AS HANDLE NO-UNDO.
     DEFINE VARIABLE parameters1 AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE char-hdl    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE phandle  AS HANDLE NO-UNDO. 
     /*mod -sewa */
     ASSIGN msg-num = STRING(hlp-head.MSG-NUM) .   /*mod- sewa*/
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -411,13 +466,7 @@ PROCEDURE local-delete-record :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/template/local/deleteAfter.i}
 
-  /* mod - sewa for Web Services task 08211210 */
-   FIND FIRST sys-ctrl  WHERE sys-ctrl.name    EQ "UpdateService"
-        NO-LOCK NO-ERROR.
-  IF AVAILABLE sys-ctrl THEN
-      ASSIGN vconn = sys-ctrl.char-fld .
-  ELSE
-      vconn = "".
+  /* mod - sewa for Web Services task 08211210 */    
 
       CREATE SERVER vhWebService.
       vhWebService:CONNECT(vconn) NO-ERROR.
@@ -445,25 +494,64 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+   
   /* Code placed here will execute PRIOR to standard behavior. */
   IF AVAILABLE hlp-head THEN DO:
+      tb_auto-create  = hlp-head.autoCreated. 
       tb_re-view = IF hlp-head.reviewstatus = "R" THEN TRUE ELSE FALSE . 
-      tb_re-view:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF hlp-head.reviewstatus = "R" THEN "Yes" ELSE "No" .
+      tb_re-view:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF hlp-head.reviewstatus = "R" THEN "Yes" ELSE "No" .          
   END.
 
     /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
-  DO WITH FRAME {&FRAME-NAME}:
-    DISABLE tb_re-view .
-  END.
-
+  
   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view V-table-Win 
+PROCEDURE local-view :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE msg-num AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE vhWebService AS HANDLE NO-UNDO.
+   DEFINE VARIABLE vhSalesSoap AS HANDLE NO-UNDO.
+   DEFINE VARIABLE parameters1 AS LONGCHAR NO-UNDO.
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  
+  ASSIGN msg-num = IF AVAIL hlp-head THEN STRING(hlp-head.MSG-NUM) ELSE "" .   /*mod- sewa*/
+  DO WITH FRAME {&FRAME-NAME}:           
+    IF msg-num <> "" THEN DO:      
+     CREATE SERVER vhWebService.
+      vhWebService:CONNECT(vconn) NO-ERROR.
+
+      IF NOT vhWebService:CONNECTED() THEN
+      DO:
+        STOP.
+      END.   
+                    
+      RUN Service1Soap SET vhSalesSoap ON vhWebService .
+
+      RUN HelpUsageCount IN vhSalesSoap(INPUT STRING(msg-num),  OUTPUT parameters1).
+      iUsageCount:SCREEN-VALUE = string(parameters1) NO-ERROR .  
+      msg-num = "" .
+    END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
@@ -472,7 +560,6 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
 /* mod - sewa for Web Services task 08211210 */
-    DEFINE VARIABLE vconn AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE vhWebService AS HANDLE NO-UNDO.
     DEFINE VARIABLE vhSalesSoap AS HANDLE NO-UNDO.
     DEFINE VARIABLE parameters1 AS LONGCHAR NO-UNDO.
@@ -489,15 +576,11 @@ PROCEDURE local-update-record :
   
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE tb_re-view .
+    IF hlp-head.updatedBy:SCREEN-VALUE EQ "" THEN
+    ASSIGN hlp-head.updatedBy:SCREEN-VALUE = USERID(LDBNAME(1)) 
+    hlp-head.updatedDate:SCREEN-VALUE = STRING(TODAY). 
   END.
-/* mod - sewa for Web Services task 08211210 */
-  
-FIND FIRST sys-ctrl  WHERE sys-ctrl.name    EQ "UpdateService"
-        NO-LOCK NO-ERROR.
-  IF AVAILABLE sys-ctrl THEN
-      ASSIGN vconn = sys-ctrl.char-fld .
-  ELSE
-      vconn = "".
+/* mod - sewa for Web Services task 08211210 */   
 
       CREATE SERVER vhWebService.
       vhWebService:CONNECT(vconn) NO-ERROR.
@@ -510,7 +593,9 @@ FIND FIRST sys-ctrl  WHERE sys-ctrl.name    EQ "UpdateService"
       RUN Service1Soap SET vhSalesSoap ON vhWebService .
 
       RUN HelpInsert IN vhSalesSoap(INPUT STRING(hlp-head.MSG-NUM),INPUT STRING(hlp-head.FLD-NAME),INPUT STRING(hlp-head.FRM-TITLE),INPUT STRING(hlp-head.FIL-NAME),INPUT STRING(hlp-head.FRM-NAME),INPUT STRING(hlp-head.help-txt),  OUTPUT parameters1).
+      
 /* mod- sewa */
+
               
 END PROCEDURE.
 

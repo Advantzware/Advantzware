@@ -283,23 +283,24 @@ DO:
   DEF VAR ll-inks AS LOG NO-UNDO.
   DEF VAR ll-pack AS LOG NO-UNDO.
   DEF VAR ll-frat AS LOG NO-UNDO.
+  DEF VAR ll-updest AS LOG NO-UNDO.
   DEF VAR ll-error AS LOG NO-UNDO.
 
 
   DO WITH FRAME Panel-Frame:
     RUN est/d-copy1.w (OUTPUT ll-inks, OUTPUT ll-pack, OUTPUT ll-frat,
-                       OUTPUT ll-error).
+                       OUTPUT ll-updest, OUTPUT ll-error).
 
     IF NOT ll-error THEN DO:
       RUN get-link-handle IN adm-broker-hdl
           (THIS-PROCEDURE, 'Tableio-Target':U, OUTPUT char-hdl).
 
       IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
-        IF ll-inks THEN RUN copy-inks IN WIDGET-HANDLE(char-hdl). 
+        IF ll-inks THEN RUN copy-inks IN WIDGET-HANDLE(char-hdl) (ll-updest). 
  
-        IF ll-pack THEN RUN copy-pack IN WIDGET-HANDLE(char-hdl).
+        IF ll-pack THEN RUN copy-pack IN WIDGET-HANDLE(char-hdl) (ll-updest).
 
-        IF ll-frat THEN RUN copy-frat IN WIDGET-HANDLE(char-hdl).
+        IF ll-frat THEN RUN copy-frat IN WIDGET-HANDLE(char-hdl) (ll-updest).
       END.
     END.
   END.

@@ -2371,15 +2371,15 @@ PROCEDURE copy-frat :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ipUpdateOtherEst AS LOGICAL NO-UNDO.
   DEF BUFFER b-eb FOR eb.
 
   IF eb.form-no NE 0                                      AND
      CAN-FIND(FIRST b-eb WHERE b-eb.company EQ eb.company
                            AND b-eb.est-no  EQ eb.est-no
                            AND b-eb.eqty    EQ eb.eqty
-                           AND b-eb.form-no NE 0
-                           AND ROWID(b-eb)  NE ROWID(eb)) THEN
-    RUN est/copyfrat.p (ROWID(eb)).
+                           AND b-eb.form-no NE 0) THEN
+    RUN est/copyfrat.p (ROWID(eb),ipUpdateOtherEst).
 
 END PROCEDURE.
 
@@ -2393,6 +2393,7 @@ PROCEDURE copy-inks :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ipUpdateOtherEst AS LOGICAL NO-UNDO.
   DEF BUFFER b-eb FOR eb.
 
 
@@ -2400,9 +2401,8 @@ PROCEDURE copy-inks :
      CAN-FIND(FIRST b-eb WHERE b-eb.company EQ eb.company
                            AND b-eb.est-no  EQ eb.est-no
                            AND b-eb.eqty    EQ eb.eqty
-                           AND b-eb.form-no NE 0
-                           AND ROWID(b-eb)  NE ROWID(eb)) THEN
-    RUN est/copyinks.p (ROWID(eb)).
+                           AND b-eb.form-no NE 0) THEN
+    RUN est/copyinks.p (ROWID(eb),ipUpdateOtherEst).
 
 END PROCEDURE.
 
@@ -2416,16 +2416,15 @@ PROCEDURE copy-pack :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipUpdateOtherEst AS LOGICAL NO-UNDO.
   DEF BUFFER b-eb FOR eb.
-
-
+      
   IF eb.form-no NE 0                                      AND
      CAN-FIND(FIRST b-eb WHERE b-eb.company EQ eb.company
                            AND b-eb.est-no  EQ eb.est-no
                            AND b-eb.eqty    EQ eb.eqty
-                           AND b-eb.form-no NE 0
-                           AND ROWID(b-eb)  NE ROWID(eb)) THEN
-    RUN est/copypack.p (ROWID(eb)).
+                           AND b-eb.form-no NE 0) THEN 
+    RUN est/copypack.p (ROWID(eb), ipUpdateOtherEst).
 
 END PROCEDURE.
 
@@ -3229,8 +3228,8 @@ PROCEDURE local-update-record :
 
   RUN custom/framechk.p (2, FRAME {&FRAME-NAME}:HANDLE).
   
-  IF framechk-i-changed AND (ll-update-pack OR ll-unit-calc) THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 3).
-  ELSE IF framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 2).
+  IF framechk-i-changed AND (ll-update-pack OR ll-unit-calc) THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 3,YES).
+  ELSE IF framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 2,YES).
 
   ASSIGN
    ll-unit-calc   = NO
@@ -3339,7 +3338,7 @@ IF eb.form-no NE 0 THEN DO:
 
   RUN custom/framechk.p (2, FRAME {&FRAME-NAME}:HANDLE).
 
-  IF framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 1).
+  IF framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 1,YES).
 END.
 
 END PROCEDURE.
