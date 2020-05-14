@@ -908,6 +908,7 @@ PROCEDURE pPageFormat:
         ).
     IF lContinue THEN
     DO TRANSACTION:
+        RUN pSetDynParamValue (dynSubject.subjectID, USERID("ASI"), cPrgmName, 0).
         FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
         ASSIGN
             dynParamValue.pageFormat      = iPageFormat
