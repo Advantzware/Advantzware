@@ -566,10 +566,7 @@ PROCEDURE local-copy-record :
     
     /* Code placed here will execute AFTER standard behavior.    */
 
-    ASSIGN
-        APIOutbound.apiID:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE
-        lCopyAPIOutbound                                   = FALSE
-        .
+    APIOutbound.apiID:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
