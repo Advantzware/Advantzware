@@ -19,7 +19,7 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD Company                 AS CHARACTER 
     FIELD Location                AS CHARACTER    
     FIELD vend-no                 AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Vendor #" HELP "Required - Size:1"
-    FIELD po-no                   AS INTEGER FORMAT ">>>>>>>" COLUMN-LABEL "PO #" HELP "Optional - Integer" 
+    FIELD po-no                   AS CHARACTER FORMAT "x(7)" COLUMN-LABEL "PO #" HELP "Optional - Use Auto for new records " 
     FIELD iline                   AS INTEGER FORMAT ">>>" COLUMN-LABEL "Po Line" HELP "Optional - Integer"
     FIELD due-date                AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Due Date" HELP "Optional - Date"
     FIELD ship-id                 AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Ship ID" HELP "Optional - Size:8"
@@ -105,7 +105,7 @@ PROCEDURE pProcessRecord PRIVATE:
 
     FIND FIRST bf-po-ord EXCLUSIVE-LOCK 
         WHERE bf-po-ord.company EQ ipbf-ttImportPo.Company
-        AND bf-po-ord.po-no EQ ipbf-ttImportPo.po-no
+        AND bf-po-ord.po-no EQ integer(ipbf-ttImportPo.po-no)
         NO-ERROR.
 
     IF NOT AVAILABLE bf-po-ord THEN 
@@ -273,11 +273,11 @@ PROCEDURE pValidate PRIVATE:
     DO:
         FIND FIRST bf-ttImportPo NO-LOCK 
             WHERE bf-ttImportPo.Company EQ ipbf-ttImportPo.Company
-            AND bf-ttImportPo.po-no EQ ipbf-ttImportPo.po-no
+            AND bf-ttImportPo.po-no EQ ipbf-ttImportPo.po-no 
             AND bf-ttImportPo.iline EQ ipbf-ttImportPo.iline
             AND ROWID(bf-ttImportPo) NE ROWID(ipbf-ttImportPo)
             NO-ERROR.
-        IF AVAILABLE bf-ttImportPo THEN 
+        IF AVAILABLE bf-ttImportPo AND ipbf-ttImportPo.po-no NE "Auto" THEN 
             ASSIGN 
                 oplValid = NO 
                 opcNote  = "Duplicate Record in Import File"
@@ -288,7 +288,7 @@ PROCEDURE pValidate PRIVATE:
     DO:
         FIND FIRST po-ord NO-LOCK 
             WHERE po-ord.company EQ ipbf-ttImportPo.Company
-            AND po-ord.po-no EQ ipbf-ttImportPo.po-no
+            AND po-ord.po-no EQ integer(ipbf-ttImportPo.po-no)
             NO-ERROR .
         IF AVAIL po-ord THEN
         DO: 
@@ -303,11 +303,15 @@ PROCEDURE pValidate PRIVATE:
                     opcNote = "Update existing record"
                     .        
         END.
-        ELSE 
+        ELSE  IF ipbf-ttImportPo.po-no EQ "Auto" THEN
             ASSIGN 
                 oplValid = YES
                 opcNote = "Add record"
                 .            
+         ELSE
+             ASSIGN
+                 oplValid = NO
+                 opcNote = "PO# not exist" .
     END.
     
     /*Field Level Validation*/
