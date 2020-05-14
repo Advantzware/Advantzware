@@ -128,18 +128,18 @@ PROCEDURE updateRequestData:
                 ASSIGN
                     cTargetString = STRING(INTEGER(ipcValue),cFormat)
                     cTargetString = TRIM(cTargetString)
-                    .
+                    NO-ERROR.
             ELSE IF cFormatType BEGINS "DEC" THEN
                 ASSIGN
                     cTargetString = STRING(DECIMAL(ipcValue),cFormat)
                     cTargetString = TRIM(cTargetString)
-                    .
+                    NO-ERROR.
             ELSE IF cFormatType EQ "DATE" THEN
-                RUN Format_Date IN hdFormatProcs (
-                    INPUT  DATE(ipcValue),
+                RUN Format_DateTimeTZ IN hdFormatProcs (
+                    INPUT  DATETIME-TZ(ipcValue),
                     INPUT  cFormat,
                     OUTPUT cTargetString
-                    ).
+                    ) NO-ERROR.
         END.
         ELSE
             cTargetString = STRING(ipcValue,cFormat).

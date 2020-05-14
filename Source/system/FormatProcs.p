@@ -173,14 +173,14 @@ PROCEDURE Format_DateTime:
         glFormatAll       = FALSE
         .
 
-    RUN Format_Date (
-        INPUT  DATE(ipdtDateTime),
+    RUN Format_MTime (
+        INPUT  MTIME(ipdtDateTime),
         INPUT  opcDateTimeString,
         OUTPUT opcDateTimeString   
         ).
 
-    RUN Format_MTime (
-        INPUT  MTIME(ipdtDateTime),
+    RUN Format_Date (
+        INPUT  DATE(ipdtDateTime),
         INPUT  opcDateTimeString,
         OUTPUT opcDateTimeString   
         ).
@@ -206,6 +206,9 @@ PROCEDURE Format_DateTimeTZ:
     DEFINE VARIABLE ipdtDateTime AS DATETIME  NO-UNDO.
     DEFINE VARIABLE ipcTimeZone  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFormatAll   AS LOGICAL   NO-UNDO.
+    
+    IF ipdtDateTimeTZ EQ ? THEN
+        RETURN.
     
     ASSIGN
         ipdtDateTime        = ipdtDateTimeTZ
