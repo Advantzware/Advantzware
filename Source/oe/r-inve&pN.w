@@ -144,6 +144,8 @@ DEFINE VARIABLE ll-warned AS LOG NO-UNDO.
 DEFINE VARIABLE v-ttl-tax AS DECIMAL NO-UNDO.
 DEFINE VARIABLE v-ttl-rate AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cItemFgCat LIKE itemfg.procat NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
 DEFINE TEMP-TABLE w-report NO-UNDO LIKE report.
 
@@ -208,21 +210,20 @@ DO TRANSACTION:
 END.
 v-export = sys-ctrl.char-fld.
 
-FIND FIRST sys-ctrl
-    WHERE sys-ctrl.company EQ cocode
-    AND sys-ctrl.name    EQ "UseNewInvoicePost"
-    NO-LOCK NO-ERROR.
-IF NOT AVAILABLE sys-ctrl THEN 
-DO TRANSACTION:
-    CREATE sys-ctrl.
-    ASSIGN
-        sys-ctrl.company = cocode
-        sys-ctrl.name    = "UseNewInvoicePost"
-        sys-ctrl.char-fld = "./CustFiles/AOA".
-END.
-ASSIGN 
-    lUseNewInvoicePost = sys-ctrl.log-fld.
-
+RUN sys/ref/nk1look.p  (INPUT cocode, 
+                        "UseNewInvoicePost", 
+                        "L",     /* Logical */ 
+                        NO,     /* check by cust */ 
+                        YES,     /* use cust not vendor */ 
+                        "",     /* cust */
+                        "",      /* ship-to*/
+                        OUTPUT cRtnChar, 
+                        OUTPUT lRecFound).
+IF lRecFound THEN ASSIGN 
+    lUseNewInvoicePost = LOGICAL(cRtnChar) NO-ERROR.
+ELSE ASSIGN 
+    lUseNewInvoicePost = FALSE.
+    
 FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK.
 ASSIGN
     v-fr-tax = oe-ctrl.f-tax
