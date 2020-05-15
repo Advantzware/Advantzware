@@ -219,11 +219,29 @@ do vmcl = 1 to 28:
    v-brd-cost = 0
    qty        = qtty[vmcl]
    t-blksht   = 0
-   t-blkqty   = 0.
+   t-blkqty   = 0
+   v-op-qty   = 0 .
 
    IF vprint THEN DO:
 	{custom/statusMsg.i " 'Calculating... Est#  '  + xest.est-no  + ' Qty - ' + string(qty) "}
    END.
+   FOR EACH est-op
+      WHERE est-op.company EQ xest.company 
+        AND est-op.est-no  EQ xest.est-no 
+        AND est-op.line    LT 500
+      NO-LOCK
+      BREAK BY est-op.qty:
+    
+    IF FIRST-OF(est-op.qty) THEN DO:
+      IF FIRST(est-op.qty) OR
+         CAN-FIND(FIRST est-qty
+                  WHERE est-qty.company EQ est-op.company
+                    AND est-qty.est-no  EQ est-op.est-no
+                    AND est-qty.eqty    EQ est-op.qty)
+      THEN v-op-qty = est-op.qty.
+      IF est-op.qty GE qty THEN LEAVE.
+    END.
+  END.
 
   for each kli:
     delete kli.

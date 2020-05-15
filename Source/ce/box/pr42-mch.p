@@ -37,6 +37,7 @@ ASSIGN
 FOR EACH est-op
     WHERE est-op.company EQ xest.company
     AND est-op.est-no  EQ xest.est-no
+    AND est-op.qty     EQ v-op-qty
     AND est-op.line    GT 500,
 
     FIRST mach
