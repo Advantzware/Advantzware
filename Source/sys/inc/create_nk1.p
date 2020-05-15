@@ -938,7 +938,7 @@ CASE ip-nk1-value:
             INPUT cocode, 
             INPUT ip-nk1-value, 
             INPUT NO,                                            /* Prompt? */
-            INPUT "To show or suppress the restrcition message", /* Description */
+            INPUT "To show or suppress the restriction message", /* Description */
             INPUT "",                                            /* Char Value */
             INPUT 0,                                             /* Int value */
             INPUT YES,                                           /* Logical value */ 
