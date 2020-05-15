@@ -170,9 +170,26 @@
                                  + STRING(oe-relh.ship-i[2]) + " "
                                  + STRING(oe-relh.ship-i[3]) + " "
                                  + STRING(oe-relh.ship-i[4])
-            cReleaseStatus       = IF oe-relh.w-ord THEN "On Hold" ELSE "Approved"
             .
-        
+            
+            FIND FIRST APIOutboundTrigger NO-LOCK
+                 WHERE APIOutboundTrigger.APIOutboundTriggerID EQ ipiAPIOutboundTriggerID
+                 NO-ERROR.
+            IF AVAILABLE APIOutboundTrigger THEN 
+                cReleaseStatus  = IF APIOutboundTrigger.TriggerID      EQ "DeleteRelease" THEN
+                                      "Deleted"
+                                  ELSE IF APIOutboundTrigger.TriggerID EQ "HoldRelease" THEN
+                                      "OnHold"
+                                  ELSE IF APIOutboundTrigger.TriggerID EQ "ApproveRelease" THEN
+                                      "Approved"
+                                  ELSE IF APIOutboundTrigger.TriggerID EQ "UpdateRelease" OR
+                                          APIOutboundTrigger.TriggerID EQ "PrintRelease"  OR 
+                                          APIOutboundTrigger.TriggerID EQ "ReprintRelease" THEN
+                                      "Updated"
+                                  ELSE
+                                      ""
+                                  .
+            
         RUN oe/custxship.p (
             INPUT oe-relh.company,
             INPUT oe-relh.cust-no,
