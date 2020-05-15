@@ -331,7 +331,8 @@ FUNCTION fIsWritable RETURNS LOGICAL PRIVATE
 
 
 /* ***************************  Main Block  *************************** */
-
+/* Shared Vars needed for 810 invoices */
+RUN rc/genrcvar.p.
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -1492,6 +1493,33 @@ PROCEDURE pCreateARInvMisc PRIVATE:
 END PROCEDURE.
 
 
+PROCEDURE pCreateEDI PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an inv-header buffer, executes EDI (810) procedure
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-inv-head FOR inv-head.
+      
+    RUN ed/asi/o810hook.p (RECID(ipbf-inv-head), NO, NO).     
+    FIND FIRST edmast NO-LOCK
+        WHERE edmast.cust EQ ipbf-inv-head.cust-no
+        NO-ERROR.
+    IF AVAILABLE edmast THEN 
+    DO: 
+        FIND FIRST edcode NO-LOCK
+            WHERE edcode.partner EQ edmast.partner
+            NO-ERROR.
+        IF NOT AVAILABLE edcode THEN 
+            FIND FIRST edcode NO-LOCK
+                WHERE edcode.partner EQ edmast.partnerGrp
+                NO-ERROR.
+        IF AVAILABLE edcode AND edcode.sendFileOnPrint THEN    
+            RUN ed/asi/write810.p (ipbf-inv-head.company, ipbf-inv-head.inv-no).    
+    END.  
+        
+
+END PROCEDURE.
+
 PROCEDURE pCreateGLTransFromTransaction PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given temp-table buffer, create GL transaction
@@ -2390,7 +2418,7 @@ PROCEDURE pPostInvoices PRIVATE:
     DISABLE TRIGGERS FOR LOAD OF bf-inv-misc.
     
     
-    FOR EACH ttInvoiceToPost NO-LOCK
+    FOR EACH ttInvoiceToPost
         WHERE ttInvoiceToPost.isOKToPost,
         FIRST bf-inv-head EXCLUSIVE-LOCK 
         WHERE ROWID(bf-inv-head) EQ ttInvoiceToPost.riInvHead 
@@ -2409,7 +2437,7 @@ PROCEDURE pPostInvoices PRIVATE:
             RUN pCopyNotesFromInvHeadToArInv(BUFFER bf-inv-head, bf-ar-inv.rec_key).
         END.            
         iLine = 1.
-        FOR EACH ttInvoiceLineToPost NO-LOCK
+        FOR EACH ttInvoiceLineToPost
             WHERE ttInvoiceLineToPost.rNo EQ ttInvoiceToPost.rNo 
             AND ttInvoiceLineToPost.isOKToPost,
             FIRST bf-inv-line EXCLUSIVE-LOCK 
@@ -2422,7 +2450,7 @@ PROCEDURE pPostInvoices PRIVATE:
             DELETE ttInvoiceLineToPost.
             
         END. /*each invoice line*/
-        FOR EACH ttInvoiceMiscToPost NO-LOCK
+        FOR EACH ttInvoiceMiscToPost
             WHERE ttInvoiceMiscToPost.isOKToPost
             AND ttInvoiceMisctoPost.rNo EQ ttInvoicetoPost.rNo,
             FIRST bf-inv-misc EXCLUSIVE-LOCK
@@ -2447,7 +2475,9 @@ PROCEDURE pPostInvoices PRIVATE:
 
                 DELETE bf-child-inv-head.
             END.
-
+        
+        RUN pCreateEDI(BUFFER bf-inv-head).
+        
         DELETE bf-inv-head.
         DELETE ttInvoiceToPost.
     END. /*each invoice to post*/
