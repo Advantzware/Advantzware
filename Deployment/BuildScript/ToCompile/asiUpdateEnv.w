@@ -1340,7 +1340,7 @@ PROCEDURE ipBackupDataFiles :
     END.
     OUTPUT CLOSE.
 
-&SCOPED-DEFINE cFile dynSubjectParamSEt
+&SCOPED-DEFINE cFile dynSubjectParamSet
     OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
@@ -1355,6 +1355,20 @@ PROCEDURE ipBackupDataFiles :
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile dynSubjectWhere
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile dynPrgrmsPage
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile dynLookup
     OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
@@ -3103,7 +3117,7 @@ PROCEDURE ipDataFix999999 :
 
     RUN ipUseOldNK1.
     RUN ipAuditSysCtrl.
-    RUN ipLoadJasperData.
+    RUN ipLoadDAOAData.
     RUN ipLoadAPIData.
     RUN ipSetCueCards.
     RUN ipDeleteAudit.
@@ -4115,37 +4129,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadDynPrgrmsPage C-Win
-PROCEDURE ipLoadDynPrgrmsPage:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    RUN ipStatus ("  Loading dynPrgrmsPage Records").
-
-    &SCOPED-DEFINE tablename dynPrgrmsPage
-    
-    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
-    
-    FOR EACH {&tablename} EXCLUSIVE:
-        DELETE {&tablename}.
-    END.
-    
-    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
-    REPEAT:
-        CREATE {&tablename}.
-        IMPORT {&tablename}.
-    END.
-    INPUT CLOSE.
-
-    EMPTY TEMP-TABLE tt{&tablename}.
-
-END PROCEDURE.
-    
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadEmailCodes C-Win 
 PROCEDURE ipLoadEmailCodes :
     /*------------------------------------------------------------------------------
@@ -4252,8 +4235,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadJasperData C-Win 
-PROCEDURE ipLoadJasperData :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadDAOAData C-Win 
+PROCEDURE ipLoadDAOAData :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -4269,12 +4252,12 @@ PROCEDURE ipLoadJasperData :
     DISABLE TRIGGERS FOR LOAD OF dynParamSet.
     DISABLE TRIGGERS FOR LOAD OF dynParamValue.
     DISABLE TRIGGERS FOR LOAD OF dynParamSetDtl.
+    DISABLE TRIGGERS FOR LOAD OF dynPrgrmsPage.
+    DISABLE TRIGGERS FOR LOAD OF dynLookup.
     
     /* Remove all records that we plan to replace */
     FOR EACH dynSubject EXCLUSIVE WHERE 
-        dynSubject.subjecttype EQ "system" AND 
-        dynSubject.user-id EQ "_default"
-        BY dynSubject.subjectid:
+        dynSubject.subjectid LT 5000:
         FOR EACH dynSubjectTable OF dynSubject EXCLUSIVE:
             DELETE dynSubjectTable.
         END.
@@ -4306,6 +4289,14 @@ PROCEDURE ipLoadJasperData :
     FOR EACH dynParamValue EXCLUSIVE WHERE 
         dynParamValue.user-id EQ "_default":
         DELETE dynParamValue.
+    END.
+
+    FOR EACH dynPrgrmsPage EXCLUSIVE:
+        DELETE dynPrgrmsPage.
+    END.
+
+    FOR EACH dynLookup:
+        DELETE dynLookup.
     END.
 
 &SCOPED-DEFINE tablename dynSubject
@@ -4397,6 +4388,28 @@ PROCEDURE ipLoadJasperData :
     INPUT CLOSE.
 
 &SCOPED-DEFINE tablename dynParamValue
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename dynPrgrmsPage
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename dynLookup
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
@@ -6125,8 +6138,6 @@ PROCEDURE ipUpdateMaster :
         RUN ipLoadCueCardText IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\zMessage.d") <> ? THEN
         RUN ipLoadZmessage IN THIS-PROCEDURE.
-    IF SEARCH(cUpdDataDir + "\dynPrgrmsPage.d") <> ? THEN
-        RUN ipLoadDynPrgrmsPage IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\naics.d") <> ? THEN
         RUN ipLoadNaicsData IN THIS-PROCEDURE.
 
