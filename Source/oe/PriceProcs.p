@@ -338,8 +338,8 @@ PROCEDURE CalculateLinePrice:
             ttItemLines.dQuantity,
             ttItemLines.dPrice,
             ttItemLines.cPriceUOM,
-            ttItemLines.iCaseCount,
             ttItemLines.dDiscount,
+            ttItemLines.iCaseCount,
             OUTPUT ttItemLines.dPriceTotal).   
     END.
     IF iplUpdateDB THEN 

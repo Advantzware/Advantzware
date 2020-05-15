@@ -104,8 +104,8 @@ FOR EACH oe-ord NO-LOCK
                                  oe-ordl.qty,
                                  oe-ordl.price,
                                  oe-ordl.pr-uom,
-                                 (IF AVAILABLE itemfg THEN itemfg.case-count ELSE 0),
                                  oe-ordl.disc,
+                                 (IF AVAILABLE itemfg THEN itemfg.case-count ELSE 0),
                                  OUTPUT dExtPrice).
         
         dTotFreight = dTotFreight
