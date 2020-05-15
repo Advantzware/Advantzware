@@ -401,7 +401,7 @@
             
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "oe-relh.company", cCompany).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "oe-relh.release#", cReleaseNo).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "oe-relh.prt-date", cPrintDate).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "oe-relh.prt-date", cReleaseDate).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "oe-relh.rel-date", cReleaseDate).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "oe-relh.ship-id", cShipToID).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "oe-relh.carrier", cCarrierID).
