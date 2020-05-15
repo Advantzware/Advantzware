@@ -1036,7 +1036,7 @@ FOR EACH ar-ledger
       WHERE cust.company EQ cocode
         AND cust.cust-no EQ ar-ledger.cust-no
       NO-LOCK NO-ERROR.   
-      cRecAccount = IF AVAIL cust AND cust.classId NE 0 THEN string(DYNAMIC-FUNCTION("spfGetARClassAccount", cust.classId)) ELSE ar-ctrl.receivables.          
+      cRecAccount = string(DYNAMIC-FUNCTION("spfGetARClassAccount", cust.company, cust.cust-no)).
 
   IF ar-ledger.ref-num BEGINS "INV# " THEN DO:
     FIND FIRST ar-inv

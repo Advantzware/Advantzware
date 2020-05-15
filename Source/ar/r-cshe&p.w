@@ -976,8 +976,7 @@ PROCEDURE post-gl :
   DEF VAR xar-cashl AS CHAR NO-UNDO.
   DEF VAR lv-rowid AS ROWID NO-UNDO.
   DEF VAR li-iter AS INT NO-UNDO.
-  DEFINE VARIABLE cRecAccount AS CHARACTER NO-UNDO.
-
+  
   DEF BUFFER b-cashl FOR ar-cashl.
   DEF BUFFER ar-c-memo FOR reftable.
 
@@ -1007,7 +1006,7 @@ PROCEDURE post-gl :
      xar-cashl = bank.actnum
      bank.bal  = bank.bal + tt-post.curr-amt
      t1        = 0.
-     cRecAccount = IF cust.classId NE 0 THEN string(DYNAMIC-FUNCTION("spfGetARClassAccount", cust.classId)) ELSE xar-acct.
+     xar-acct = string(DYNAMIC-FUNCTION("spfGetARClassAccount", cust.company, cust.cust-no)).
     FOR EACH ar-cashl WHERE ar-cashl.c-no EQ ar-cash.c-no:
       ar-cashl.posted = YES.
 
@@ -1126,7 +1125,7 @@ PROCEDURE post-gl :
         CREATE gltrans.
         ASSIGN
          gltrans.company = cocode
-         gltrans.actnum  = cRecAccount
+         gltrans.actnum  = xar-acct
          gltrans.jrnl    = "CASHR"
          gltrans.tr-dscr = "CASH RECEIPTS"
          gltrans.tr-date = tran-date

@@ -770,8 +770,7 @@ PROCEDURE post-gl :
  /** POST TO GENERAL LEDGER ACCOUNTS TRANSACTION FILE **/
  DEF VAR t1 AS DEC NO-UNDO.
  DEF VAR lv-rowid AS ROWID NO-UNDO.
- DEFINE VARIABLE cRecAccount AS CHARACTER NO-UNDO.
-
+ 
  postit:
  do transaction on error undo, leave:
 
@@ -888,7 +887,7 @@ PROCEDURE post-gl :
              cust.hibal      = cust.acc-bal
              cust.hibal-date = tran-date.
              
-       cRecAccount = IF cust.classId NE 0 THEN string(DYNAMIC-FUNCTION("spfGetARClassAccount", cust.classId)) ELSE xar-acct.      
+       xar-acct = string(DYNAMIC-FUNCTION("spfGetARClassAccount", cust.company, cust.cust-no)).
 
        IF t1 NE 0 THEN DO:
           FIND gltrans WHERE ROWID(gltrans) EQ lv-rowid NO-ERROR.
@@ -896,7 +895,7 @@ PROCEDURE post-gl :
             CREATE gltrans.
             ASSIGN
              gltrans.company = cocode
-             gltrans.actnum  = cRecAccount
+             gltrans.actnum  = xar-acct
              gltrans.jrnl    = "CASHRVD"
              gltrans.tr-dscr = "CASH RECEIPTS VOID"
              gltrans.tr-date = tran-date

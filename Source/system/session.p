@@ -61,7 +61,8 @@ ASSIGN
                     + "system/FileSysProcs.p,"
                     + "system/OSProcs.p,"
                     + "system/FormatProcs.p,"
-                    + "est/EstimateProcs.p,"                                                                
+                    + "est/EstimateProcs.p,"
+                    + "system/GLProcs.p,"
     cSuperProcedure = TRIM(cSuperProcedure,",")
     .
 DEFINE TEMP-TABLE ttSessionParam NO-UNDO

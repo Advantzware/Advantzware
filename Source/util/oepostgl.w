@@ -545,7 +545,7 @@ FOR EACH ar-inv
       WHERE cust.company EQ cocode
       AND cust.cust-no EQ ar-inv.cust-no
       NO-LOCK NO-ERROR.   
-      cRecAccount = IF AVAIL cust AND cust.classId NE 0 THEN string(DYNAMIC-FUNCTION("spfGetARClassAccount", cust.classId)) ELSE v-ar-acct.          
+      cRecAccount = IF AVAIL cust THEN string(DYNAMIC-FUNCTION("spfGetARClassAccount", cust.company, cust.cust-no)) ELSE v-ar-acct.          
 
         FIND FIRST ar-ctrl WHERE ar-ctrl.company EQ cocode NO-LOCK.
 
