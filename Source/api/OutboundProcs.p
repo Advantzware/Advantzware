@@ -67,71 +67,71 @@ PROCEDURE Outbound_CopyAPIDependencies:
     DEFINE INPUT  PARAMETER ipiSourceAPIOutboundID AS INTEGER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiTargetAPIOutboundID AS INTEGER NO-UNDO.
     
-    DEFINE BUFFER bf-APIOutbound-Source        FOR APIOutbound.
-    DEFINE BUFFER bf-APIOutbound-Target        FOR APIOutbound.
-    DEFINE BUFFER bf-APIOutboundDetail-Source  FOR APIOutboundDetail.
-    DEFINE BUFFER bf-APIOutboundDetail-Target  FOR APIOutboundDetail.
-    DEFINE BUFFER bf-APIOutboundTrigger-Source FOR APIOutboundTrigger.
-    DEFINE BUFFER bf-APIOutboundTrigger-Target FOR APIOutboundTrigger.
+    DEFINE BUFFER bf-Source-APIOutbound        FOR APIOutbound.
+    DEFINE BUFFER bf-Target-APIOutbound        FOR APIOutbound.
+    DEFINE BUFFER bf-Source-APIOutboundDetail  FOR APIOutboundDetail.
+    DEFINE BUFFER bf-Target-APIOutboundDetail  FOR APIOutboundDetail.
+    DEFINE BUFFER bf-Source-APIOutboundTrigger FOR APIOutboundTrigger.
+    DEFINE BUFFER bf-Target-APIOutboundTrigger FOR APIOutboundTrigger.
       
-    FIND FIRST bf-APIOutbound-Source NO-LOCK
-         WHERE bf-APIOutbound-Source.apiOutboundID EQ ipiSourceAPIOutboundID
+    FIND FIRST bf-Source-APIOutbound NO-LOCK
+         WHERE bf-Source-APIOutbound.apiOutboundID EQ ipiSourceAPIOutboundID
            NO-ERROR.
-    IF NOT AVAILABLE bf-APIOutbound-Source THEN
+    IF NOT AVAILABLE bf-Source-APIOutbound THEN
         RETURN.
         
-    FIND FIRST bf-APIOutbound-Target NO-LOCK
-         WHERE bf-APIOutbound-Target.apiOutboundID EQ ipiTargetAPIOutboundID
+    FIND FIRST bf-Target-APIOutbound NO-LOCK
+         WHERE bf-Target-APIOutbound.apiOutboundID EQ ipiTargetAPIOutboundID
            NO-ERROR.
-    IF NOT AVAILABLE bf-APIOutbound-Target THEN
+    IF NOT AVAILABLE bf-Target-APIOutbound THEN
         RETURN.
 
-    FOR EACH bf-APIOutboundDetail-Source NO-LOCK
-        WHERE bf-APIOutboundDetail-Source.apiOutboundID EQ bf-APIOutbound-Source.apiOutboundID:
-        FIND FIRST bf-APIOutboundDetail-Target NO-LOCK
-             WHERE bf-APIOutboundDetail-Target.company  EQ bf-APIOutbound-Target.company
-               AND bf-APIOutboundDetail-Target.apiID    EQ bf-APIOutbound-Target.apiID
-               AND bf-APIOutboundDetail-Target.clientID EQ bf-APIOutbound-Target.clientID
-               AND bf-APIOutboundDetail-Target.detailID EQ bf-APIOutboundDetail-Source.detailID
+    FOR EACH bf-Source-APIOutboundDetail NO-LOCK
+        WHERE bf-Source-APIOutboundDetail.apiOutboundID EQ bf-Source-APIOutbound.apiOutboundID:
+        FIND FIRST bf-Target-APIOutboundDetail NO-LOCK
+             WHERE bf-Target-APIOutboundDetail.company  EQ bf-Target-APIOutbound.company
+               AND bf-Target-APIOutboundDetail.apiID    EQ bf-Target-APIOutbound.apiID
+               AND bf-Target-APIOutboundDetail.clientID EQ bf-Target-APIOutbound.clientID
+               AND bf-Target-APIOutboundDetail.detailID EQ bf-Source-APIOutboundDetail.detailID
              NO-ERROR.
-        IF NOT AVAILABLE bf-APIOutboundDetail-Target THEN DO:
-            CREATE bf-APIOutboundDetail-Target.
-            BUFFER-COPY bf-APIOutboundDetail-Source 
-                EXCEPT bf-APIOutboundDetail-Source.apiID 
-                       bf-APIOutboundDetail-Source.clientID 
-                       bf-APIOutboundDetail-Source.apiOutboundID 
-                       bf-APIOutboundDetail-Source.apiOutboundDetailID
-                       bf-APIOutboundDetail-Source.rec_key
-                TO bf-APIOutboundDetail-Target.
+        IF NOT AVAILABLE bf-Target-APIOutboundDetail THEN DO:
+            CREATE bf-Target-APIOutboundDetail.
+            BUFFER-COPY bf-Source-APIOutboundDetail 
+                EXCEPT bf-Source-APIOutboundDetail.apiID 
+                       bf-Source-APIOutboundDetail.clientID 
+                       bf-Source-APIOutboundDetail.apiOutboundID 
+                       bf-Source-APIOutboundDetail.apiOutboundDetailID
+                       bf-Source-APIOutboundDetail.rec_key
+                TO bf-Target-APIOutboundDetail.
             ASSIGN
-                bf-APIOutboundDetail-Target.apiID         = bf-APIOutbound-Target.apiID
-                bf-APIOutboundDetail-Target.clientID      = bf-APIOutbound-Target.clientID
-                bf-APIOutboundDetail-Target.apiOutboundID = bf-APIOutbound-Target.apiOutboundID
+                bf-Target-APIOutboundDetail.apiID         = bf-Target-APIOutbound.apiID
+                bf-Target-APIOutboundDetail.clientID      = bf-Target-APIOutbound.clientID
+                bf-Target-APIOutboundDetail.apiOutboundID = bf-Target-APIOutbound.apiOutboundID
                 .
         END.
     END.
 
-    FOR EACH bf-APIOutboundTrigger-Source NO-LOCK
-        WHERE bf-APIOutboundTrigger-Source.apiOutboundID EQ bf-APIOutbound-Source.apiOutboundID:
-        FIND FIRST bf-APIOutboundTrigger-Target NO-LOCK
-             WHERE bf-APIOutboundTrigger-Target.company   EQ bf-APIOutbound-Target.company
-               AND bf-APIOutboundTrigger-Target.apiID     EQ bf-APIOutbound-Target.apiID
-               AND bf-APIOutboundTrigger-Target.clientID  EQ bf-APIOutbound-Target.clientID
-               AND bf-APIOutboundTrigger-Target.triggerID EQ bf-APIOutboundTrigger-Source.triggerID
+    FOR EACH bf-Source-APIOutboundTrigger NO-LOCK
+        WHERE bf-Source-APIOutboundTrigger.apiOutboundID EQ bf-Source-APIOutbound.apiOutboundID:
+        FIND FIRST bf-Target-APIOutboundTrigger NO-LOCK
+             WHERE bf-Target-APIOutboundTrigger.company   EQ bf-Target-APIOutbound.company
+               AND bf-Target-APIOutboundTrigger.apiID     EQ bf-Target-APIOutbound.apiID
+               AND bf-Target-APIOutboundTrigger.clientID  EQ bf-Target-APIOutbound.clientID
+               AND bf-Target-APIOutboundTrigger.triggerID EQ bf-Source-APIOutboundTrigger.triggerID
              NO-ERROR.        
-        IF NOT AVAILABLE bf-APIOutboundTrigger-Target THEN DO:
-            CREATE bf-APIOutboundTrigger-Target.
-            BUFFER-COPY bf-APIOutboundTrigger-Source 
-                EXCEPT bf-APIOutboundTrigger-Source.apiID 
-                       bf-APIOutboundTrigger-Source.clientID 
-                       bf-APIOutboundTrigger-Source.apiOutboundID 
-                       bf-APIOutboundTrigger-Source.apiOutboundTriggerID
-                       bf-APIOutboundTrigger-Source.rec_key
-                TO bf-APIOutboundTrigger-Target.
+        IF NOT AVAILABLE bf-Target-APIOutboundTrigger THEN DO:
+            CREATE bf-Target-APIOutboundTrigger.
+            BUFFER-COPY bf-Source-APIOutboundTrigger 
+                EXCEPT bf-Source-APIOutboundTrigger.apiID 
+                       bf-Source-APIOutboundTrigger.clientID 
+                       bf-Source-APIOutboundTrigger.apiOutboundID 
+                       bf-Source-APIOutboundTrigger.apiOutboundTriggerID
+                       bf-Source-APIOutboundTrigger.rec_key
+                TO bf-Target-APIOutboundTrigger.
             ASSIGN
-                bf-APIOutboundTrigger-Target.apiID         = bf-APIOutbound-Target.apiID
-                bf-APIOutboundTrigger-Target.clientID      = bf-APIOutbound-Target.clientID
-                bf-APIOutboundTrigger-Target.apiOutboundID = bf-APIOutbound-Target.apiOutboundID
+                bf-Target-APIOutboundTrigger.apiID         = bf-Target-APIOutbound.apiID
+                bf-Target-APIOutboundTrigger.clientID      = bf-Target-APIOutbound.clientID
+                bf-Target-APIOutboundTrigger.apiOutboundID = bf-Target-APIOutbound.apiOutboundID
                 .
         END.
     END.
