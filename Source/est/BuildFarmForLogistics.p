@@ -25,6 +25,7 @@ DEFINE VARIABLE cCostUOM AS CHARACTER NO-UNDO INITIAL "EA".
 DEFINE VARIABLE ghVendorCost AS HANDLE.
 DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMiscEstimateSource AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
 DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
@@ -46,8 +47,13 @@ FIND FIRST cust NO-LOCK
     NO-ERROR.
 IF AVAILABLE cust THEN 
     cVendor = cust.cust-no.
-    
-RUN pBuildQuantitiesAndCosts(BUFFER eb).
+RUN pGetCostFrom(INPUT eb.company,OUTPUT cMiscEstimateSource). 
+IF cMiscEstimateSource EQ "Estimate" THEN
+   RUN pBuildQuantitiesAndCosts(BUFFER eb).
+ELSE IF cMiscEstimateSource EQ "Quote" THEN
+DO:
+   RUN pBuildQuantitiesAndCostsFromQuote(BUFFER eb).    
+END.
 
 FIND FIRST bf-vendItemCost EXCLUSIVE-LOCK
     WHERE bf-vendItemCost.company EQ eb.company
@@ -152,5 +158,101 @@ PROCEDURE pBuildQuantitiesAndCosts PRIVATE:
             ttQuantityCost.dCost = probe.sell-price / 1000.
     END.
 
-END PROCEDURE.
+END PROCEDURE.  
 
+PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    
+    DEFINE VARIABLE iCount AS INTEGER.
+    DEFINE VARIABLE cEstNo AS CHARACTER NO-UNDO.
+    DEFIN VARIABLE iQuoteNo AS INTEGER NO-UNDO.
+    DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
+    
+    DEFIN VARIABLE dQuotePrice AS DECIMAL .
+    DEFIN VARIABLE cQuoteUom AS CHARACTER.
+    DEFIN VARIABLE cChoice  AS CHARACTER .
+    DEFIN VARIABLE iQuoteQty  AS INTEGER.
+    DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttQuantityCost.
+    cEstNo = ipbf-eb.sourceEstimate.
+    RUN util/rjust.p (INPUT-OUTPUT cEstNo,8). 
+    
+    FIND FIRST est NO-LOCK 
+        WHERE est.company EQ ipbf-eb.company
+        AND est.est-no EQ cEstNo
+        NO-ERROR.
+    IF AVAILABLE est THEN 
+    DO iCount = 1 TO EXTENT(est.est-qty):
+        IF est.est-qty[iCount] NE 0 THEN DO:
+            CREATE ttQuantityCost.
+            ASSIGN 
+                ttQuantityCost.iQty = est.est-qty[iCount].
+        END.
+    END.
+    
+    FOR EACH quotehd NO-LOCK
+            WHERE quotehd.company  EQ ipbf-eb.company
+            AND quotehd.est-no    EQ cEstNo :
+            iCount = iCount + 1.
+            iQuoteNo = quotehd.q-no.
+    END.
+    IF iCount GT 1 THEN
+    DO:
+       FIND FIRST est NO-LOCK
+            WHERE est.company EQ ipbf-eb.company
+            AND est.est-no EQ ipbf-eb.est-no NO-ERROR .        
+        RUN oe/QuotePopup.w("",ipbf-eb.company,
+                          ipbf-eb.loc,
+                          cEstNo,
+                          ipbf-eb.stock-no,
+                          INPUT-OUTPUT dQuotePrice,
+                          INPUT-OUTPUT cQuoteUom,
+                          INPUT-OUTPUT iQuoteQty,
+                          INPUT-OUTPUT iQuoteNo,
+                          OUTPUT cChoice,
+                          OUTPUT rwRowid).  
+    END.
+    
+    FOR EACH ttQuantityCost:
+    
+       FIND FIRST quoteqty no-lock
+            WHERE quoteqty.company EQ ipbf-eb.company
+              AND quoteqty.q-no EQ iQuoteNo
+              AND quoteqty.qty  EQ ttQuantityCost.iQty
+              AND rowid(quoteqty) EQ rwRowid NO-ERROR .
+       IF NOT AVAIL quoteqty THEN
+            FIND FIRST quoteqty no-lock
+                 WHERE quoteqty.company EQ ipbf-eb.company
+                 AND quoteqty.q-no EQ iQuoteNo
+                 AND quoteqty.qty  EQ ttQuantityCost.iQty NO-ERROR .
+       IF NOT AVAIL quoteqty THEN
+           FIND FIRST quoteqty no-lock
+            WHERE quoteqty.company EQ ipbf-eb.company
+              AND quoteqty.q-no EQ iQuoteNo NO-ERROR .
+        IF AVAIL quoteqty THEN      
+        ttQuantityCost.dCost = quoteqty.price .
+    END.       
+
+END PROCEDURE. 
+          
+PROCEDURE pGetCostFrom PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opcMiscEstimateSource AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE lRecFound AS LOGICAL.
+    DEFINE VARIABLE cRtnChar AS CHARACTER.
+    
+    RUN sys/ref/nk1look.p (INPUT ipcCompany, "MiscEstimateSource", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound). 
+    opcMiscEstimateSource = STRING(cRtnChar) NO-ERROR .
+
+END PROCEDURE.          
