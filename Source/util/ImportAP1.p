@@ -47,6 +47,7 @@ DEFINE TEMP-TABLE ttImportAP1
 DEFINE VARIABLE giIndexOffset    AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
 DEFINE VARIABLE hdTagProcs       AS HANDLE  NO-UNDO.
 DEFINE VARIABLE dTotalInvoiceAmt AS DECIMAL NO-UNDO.
+DEFINE VARIABLE lInvalid         AS LOGICAL NO-UNDO.
 
 RUN system/TagProcs.p PERSISTENT SET hdTagProcs.
 
@@ -72,6 +73,26 @@ PROCEDURE GetSummaryMessage:
 END PROCEDURE.
 
 /* FG Item Receipt quantity and price validation */
+
+PROCEDURE pValidateAccountNum PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcActNum  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplInvalid AS LOGICAL   NO-UNDO.
+    
+    FIND FIRST account NO-LOCK 
+         WHERE account.company EQ ipcCompany
+           AND account.actnum  EQ ipcActNum  
+         NO-ERROR.
+    IF AVAILABLE account THEN 
+        oplInvalid = account.inactive.
+    ELSE 
+        oplInvalid = YES.
+END PROCEDURE.
+
 PROCEDURE pValidateFGItemReceiptQtyPrice:
     DEFINE INPUT        PARAMETER ipriAPInvl   AS ROWID     NO-UNDO.
     DEFINE INPUT        PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
@@ -480,6 +501,19 @@ PROCEDURE pValidate PRIVATE:
        If atleast one PO line is not existing in invoice then create invoice line */ 
     DO iIndex = 1 TO 4:
         IF cPOLineDetails[iIndex] NE "" AND oplValid THEN DO:
+            RUN pValidateAccountNum(
+                INPUT ipbf-ttImportAP1.Company,
+                INPUT ENTRY(2,cPOLineDetails[iIndex]),
+                OUTPUT lInvalid
+                ).
+            IF lInvalid THEN DO:
+                ASSIGN 
+                    opcNote = "Invalid GL account No. " + STRING(iIndex)
+                    oplValid = FALSE
+                    .                    
+                LEAVE.            
+            END.
+          
             IF AVAILABLE ap-inv THEN DO:
                 FIND FIRST ap-invl NO-LOCK 
                     WHERE ap-invl.company EQ ap-inv.company
