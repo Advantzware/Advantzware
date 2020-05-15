@@ -17,9 +17,10 @@
 
 DEFINE TEMP-TABLE ttImportPo
     FIELD Company                 AS CHARACTER 
-    FIELD Location                AS CHARACTER    
+    FIELD Location                AS CHARACTER
+    FIELD PoNoGroup               AS CHARACTER
     FIELD vend-no                 AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Vendor #" HELP "Required - Size:1"
-    FIELD po-no                   AS CHARACTER FORMAT "x(7)" COLUMN-LABEL "PO #" HELP "Optional - Use Auto for new records " 
+    FIELD po-no                   AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "PO #" HELP "Optional - Integer or <AUTO> to auto-number.  Use <AUTO>#### where # is a unique group number. " 
     FIELD iline                   AS INTEGER FORMAT ">>>" COLUMN-LABEL "Po Line" HELP "Optional - Integer"
     FIELD due-date                AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Due Date" HELP "Optional - Date"
     FIELD ship-id                 AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Ship ID" HELP "Optional - Size:8"
@@ -69,12 +70,13 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD actnum                  AS CHARACTER FORMAT "x(25)" COLUMN-LABEL "GL Number" HELP "Optional - Size:25"
     FIELD over-pct                AS DECIMAL FORMAT ">>9.99%" COLUMN-LABEL "Overrun" HELP "Optional - Decimal"
     FIELD under-pct               AS DECIMAL   FORMAT ">>9.99%" COLUMN-LABEL "Underrun" HELP "Optional - Decimal"
-    FIELD cust-no                 AS DECIMAL   FORMAT "->>,>>9.99<<<<" COLUMN-LABEL "Customer #" HELP "Optional - Decimal"
+    FIELD cust-no                 AS CHARACTER   FORMAT "x(8)" COLUMN-LABEL "Customer #" HELP "Optional - Size:8"
     FIELD ord-no                  AS INTEGER   FORMAT ">>>>>9" COLUMN-LABEL "Order #" HELP "Optional - Integer"
        
     
     .
-DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 2 to skip Company and Location field in temp-table since this will not be part of the import data*/
+DEFINE VARIABLE gcAutoIndicator AS CHARACTER NO-UNDO INITIAL "<AUTO>".    
+DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 3. /*Set to 3 to skip Company Location and PoNoGroup field in temp-table since this will not be part of the import data*/
  
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -99,13 +101,42 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
     
+    DEFINE VARIABLE cPoNumber AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoNoGroup AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAutoNumber AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lNewGroup AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dTotCost AS DECIMAL NO-UNDO .
+    
     DEFINE VARIABLE riNote AS ROWID NO-UNDO.
     DEFINE BUFFER bf-po-ord FOR po-ord.
     DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    
+    DEFINE BUFFER bf-ttImportPo FOR ttImportPo.
+    
+     ASSIGN 
+        cPoNoGroup = ""
+        lAutoNumber = NO
+        cPoNumber = ipbf-ttImportPo.po-no
+        .
+    IF cPoNumber BEGINS gcAutoIndicator THEN DO:
+        /*Auto numbering logic*/
+        
+        /*Get the PoNoGroup as string to the right of the indicator*/
+        IF LENGTH(cPoNumber) NE LENGTH(gcAutoIndicator) THEN 
+            cPoNoGroup = SUBSTRING(cPoNumber,LENGTH(gcAutoIndicator) + 1, LENGTH(cPoNumber) - LENGTH(gcAutoIndicator)).
+        IF cPoNoGroup NE "" THEN 
+            FIND FIRST bf-ttImportPo NO-LOCK
+                 WHERE bf-ttImportPo.PoNoGroup EQ cPoNoGroup
+                NO-ERROR.
+        IF AVAILABLE bf-ttImportPo THEN
+            cPoNumber = bf-ttImportPo.po-no.
+        ELSE 
+            lAutoNumber = YES.
+    END.    
 
     FIND FIRST bf-po-ord EXCLUSIVE-LOCK 
         WHERE bf-po-ord.company EQ ipbf-ttImportPo.Company
-        AND bf-po-ord.po-no EQ integer(ipbf-ttImportPo.po-no)
+        AND bf-po-ord.po-no EQ integer(cPoNumber)
         NO-ERROR.
 
     IF NOT AVAILABLE bf-po-ord THEN 
@@ -120,13 +151,22 @@ PROCEDURE pProcessRecord PRIVATE:
                bf-po-ord.po-no          = inextPO         
                bf-po-ord.po-date        = TODAY
                bf-po-ord.loc            = ipbf-ttImportPo.Location
-               bf-po-ord.buyer          = USERID("NOSWEAT")  /*global-uid*/
+               bf-po-ord.buyer          = USERID(LDBNAME(1))
                bf-po-ord.under-pct      = 10
                bf-po-ord.over-pct       = 10         
                bf-po-ord.due-date       = bf-po-ord.po-date + 
                                        IF WEEKDAY(bf-po-ord.po-date) EQ 6 THEN 3 ELSE 1
                bf-po-ord.last-ship-date = bf-po-ord.due-date                 
-               bf-po-ord.user-id        = USERID('nosweat') .        
+               bf-po-ord.user-id        = USERID(LDBNAME(1)) .  
+               
+               IF lAutoNumber AND cPoNoGroup NE "" THEN DO:
+                 FIND CURRENT ipbf-ttImportPo EXCLUSIVE-LOCK.
+                   ASSIGN 
+                ipbf-ttImportpo.PoNoGroup = cPoNoGroup
+                ipbf-ttImportpo.po-no = STRING(bf-po-ord.po-no)
+                .
+               FIND CURRENT ipbf-ttImportPo NO-LOCK.
+        END.
     END.
                                                                                                                                      
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */                                        
@@ -268,50 +308,49 @@ PROCEDURE pValidate PRIVATE:
                 opcNote  = "Item Type is Blank(must be FG or RM)".
     END.
     
-    /*Check for Duplicate Import Record and Ignore It*/ 
+    /*Determine if Add or Update*/ 
     IF oplValid THEN 
     DO:
-        FIND FIRST bf-ttImportPo NO-LOCK 
-            WHERE bf-ttImportPo.Company EQ ipbf-ttImportPo.Company
-            AND bf-ttImportPo.po-no EQ ipbf-ttImportPo.po-no 
-            AND bf-ttImportPo.iline EQ ipbf-ttImportPo.iline
-            AND ROWID(bf-ttImportPo) NE ROWID(ipbf-ttImportPo)
-            NO-ERROR.
-        IF AVAILABLE bf-ttImportPo AND ipbf-ttImportPo.po-no NE "Auto" THEN 
-            ASSIGN 
+        IF ipbf-ttImportPo.po-no BEGINS gcAutoIndicator THEN DO:
+            opcNote = "Add Record - Auto Increment Po#"
+            .
+        END.          
+        ELSE do:
+            FIND FIRST bf-ttImportPo NO-LOCK 
+                WHERE bf-ttImportPo.Company EQ ipbf-ttImportPo.Company
+                AND bf-ttImportPo.po-no EQ ipbf-ttImportPo.po-no 
+                AND bf-ttImportPo.iline EQ ipbf-ttImportPo.iline
+                AND ROWID(bf-ttImportPo) NE ROWID(ipbf-ttImportPo)
+                NO-ERROR.
+            IF AVAILABLE bf-ttImportPo THEN 
+              ASSIGN 
                 oplValid = NO 
                 opcNote  = "Duplicate Record in Import File"
                 .
-    END.
-    /*Determine if Add or Update*/
-    IF oplValid THEN 
-    DO:
-        FIND FIRST po-ord NO-LOCK 
-            WHERE po-ord.company EQ ipbf-ttImportPo.Company
-            AND po-ord.po-no EQ integer(ipbf-ttImportPo.po-no)
-            NO-ERROR .
-        IF AVAIL po-ord THEN
-        DO: 
-            IF NOT iplUpdateDuplicates THEN 
-                ASSIGN 
-                    oplValid = NO
-                    opcNote  = "Duplicate record exists"
-                    .
+        IF oplValid THEN do:
+            FIND FIRST po-ord NO-LOCK 
+                WHERE po-ord.company EQ ipbf-ttImportPo.Company
+                AND po-ord.po-no EQ integer(ipbf-ttImportPo.po-no)
+                NO-ERROR .
+            IF AVAIL po-ord THEN
+            DO: 
+                IF NOT iplUpdateDuplicates THEN 
+                    ASSIGN 
+                        oplValid = NO
+                        opcNote  = "Duplicate record exists"
+                        .
+                ELSE
+                    ASSIGN 
+                        oplValid = YES
+                        opcNote = "Update existing record"
+                        .        
+            END.             
             ELSE
-                ASSIGN 
-                    oplValid = YES
-                    opcNote = "Update existing record"
-                    .        
+                ASSIGN
+                    oplValid = NO
+                    opcNote = "Add record" .
+            END. 
         END.
-        ELSE  IF ipbf-ttImportPo.po-no EQ "Auto" THEN
-            ASSIGN 
-                oplValid = YES
-                opcNote = "Add record"
-                .            
-         ELSE
-             ASSIGN
-                 oplValid = NO
-                 opcNote = "PO# not exist" .
     END.
     
     /*Field Level Validation*/
