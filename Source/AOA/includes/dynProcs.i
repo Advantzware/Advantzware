@@ -479,6 +479,10 @@ PROCEDURE pRunSubject :
         FIND CURRENT dynSubject EXCLUSIVE-LOCK.
         FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
         ASSIGN
+            dynParamValue.pageFormat      = dynSubject.pageFormat
+            dynParamValue.pageOrientation = dynSubject.pageOrientation
+            dynParamValue.pageWidth       = dynSubject.pageWidth
+            dynParamValue.pageHeight      = dynSubject.pageHeight
             dynParamValue.outputFormat    = ipcType
             dynParamValue.lastRunDateTime = NOW
             dynSubject.lastRunDateTime    = NOW
