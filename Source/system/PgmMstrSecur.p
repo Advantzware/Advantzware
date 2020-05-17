@@ -81,6 +81,12 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "windows/uom.w" AND ipFunction EQ "") OR /*NZ8 (NZ7) Units of Measure*/
                 (ipProgName EQ "windows/xref.w" AND ipFunction EQ "") OR /*NZ11 (NZ10) Cross References*/
                 (ipProgName EQ "ap/r-prnchk.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "viewers/APIOutbound.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "viewers/APIOutboundDetail.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "viewers/APIOutboundTrigger.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "browsers/APIOutbound.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "viewers/APIInbound.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "viewers/APIInboundDetail.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "" AND ipFunction EQ "")
                 ) THEN ASSIGN opCanAccess = FALSE.
             /* Second group - programs/functions ONLY available to Administrators */
