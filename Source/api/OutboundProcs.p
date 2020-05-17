@@ -52,11 +52,90 @@ DEFINE VARIABLE cRequestTypeAPI           AS CHARACTER NO-UNDO INITIAL "API".
 DEFINE VARIABLE cRequestTypeFTP           AS CHARACTER NO-UNDO INITIAL "FTP".
 DEFINE VARIABLE cRequestTypeSAVE          AS CHARACTER NO-UNDO INITIAL "SAVE".
 DEFINE VARIABLE cLocValidationExceptions  AS CHARACTER NO-UNDO INITIAL "SendAdvancedShipNotice,SendFinishedGood". /* Should be comma (,) separated. loc.isAPIEnabled will not be validated for APIs in the list */
-
+DEFINE VARIABLE cScopeTypeList            AS CHARACTER NO-UNDO INITIAL "Customer,Vendor,ShipTo".
 
 
 /* **********************  Internal Procedures  *********************** */
 
+
+PROCEDURE Outbound_CopyAPIDependencies:
+/*------------------------------------------------------------------------------
+ Purpose: Copies all API dependent table records and links to target API Outbound
+          table
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiSourceAPIOutboundID AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiTargetAPIOutboundID AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-Source-APIOutbound        FOR APIOutbound.
+    DEFINE BUFFER bf-Target-APIOutbound        FOR APIOutbound.
+    DEFINE BUFFER bf-Source-APIOutboundDetail  FOR APIOutboundDetail.
+    DEFINE BUFFER bf-Target-APIOutboundDetail  FOR APIOutboundDetail.
+    DEFINE BUFFER bf-Source-APIOutboundTrigger FOR APIOutboundTrigger.
+    DEFINE BUFFER bf-Target-APIOutboundTrigger FOR APIOutboundTrigger.
+      
+    FIND FIRST bf-Source-APIOutbound NO-LOCK
+         WHERE bf-Source-APIOutbound.apiOutboundID EQ ipiSourceAPIOutboundID
+           NO-ERROR.
+    IF NOT AVAILABLE bf-Source-APIOutbound THEN
+        RETURN.
+        
+    FIND FIRST bf-Target-APIOutbound NO-LOCK
+         WHERE bf-Target-APIOutbound.apiOutboundID EQ ipiTargetAPIOutboundID
+           NO-ERROR.
+    IF NOT AVAILABLE bf-Target-APIOutbound THEN
+        RETURN.
+
+    FOR EACH bf-Source-APIOutboundDetail NO-LOCK
+        WHERE bf-Source-APIOutboundDetail.apiOutboundID EQ bf-Source-APIOutbound.apiOutboundID:
+        FIND FIRST bf-Target-APIOutboundDetail NO-LOCK
+             WHERE bf-Target-APIOutboundDetail.company  EQ bf-Target-APIOutbound.company
+               AND bf-Target-APIOutboundDetail.apiID    EQ bf-Target-APIOutbound.apiID
+               AND bf-Target-APIOutboundDetail.clientID EQ bf-Target-APIOutbound.clientID
+               AND bf-Target-APIOutboundDetail.detailID EQ bf-Source-APIOutboundDetail.detailID
+             NO-ERROR.
+        IF NOT AVAILABLE bf-Target-APIOutboundDetail THEN DO:
+            CREATE bf-Target-APIOutboundDetail.
+            BUFFER-COPY bf-Source-APIOutboundDetail 
+                EXCEPT bf-Source-APIOutboundDetail.apiID 
+                       bf-Source-APIOutboundDetail.clientID 
+                       bf-Source-APIOutboundDetail.apiOutboundID 
+                       bf-Source-APIOutboundDetail.apiOutboundDetailID
+                       bf-Source-APIOutboundDetail.rec_key
+                TO bf-Target-APIOutboundDetail.
+            ASSIGN
+                bf-Target-APIOutboundDetail.apiID         = bf-Target-APIOutbound.apiID
+                bf-Target-APIOutboundDetail.clientID      = bf-Target-APIOutbound.clientID
+                bf-Target-APIOutboundDetail.apiOutboundID = bf-Target-APIOutbound.apiOutboundID
+                .
+        END.
+    END.
+
+    FOR EACH bf-Source-APIOutboundTrigger NO-LOCK
+        WHERE bf-Source-APIOutboundTrigger.apiOutboundID EQ bf-Source-APIOutbound.apiOutboundID:
+        FIND FIRST bf-Target-APIOutboundTrigger NO-LOCK
+             WHERE bf-Target-APIOutboundTrigger.company   EQ bf-Target-APIOutbound.company
+               AND bf-Target-APIOutboundTrigger.apiID     EQ bf-Target-APIOutbound.apiID
+               AND bf-Target-APIOutboundTrigger.clientID  EQ bf-Target-APIOutbound.clientID
+               AND bf-Target-APIOutboundTrigger.triggerID EQ bf-Source-APIOutboundTrigger.triggerID
+             NO-ERROR.        
+        IF NOT AVAILABLE bf-Target-APIOutboundTrigger THEN DO:
+            CREATE bf-Target-APIOutboundTrigger.
+            BUFFER-COPY bf-Source-APIOutboundTrigger 
+                EXCEPT bf-Source-APIOutboundTrigger.apiID 
+                       bf-Source-APIOutboundTrigger.clientID 
+                       bf-Source-APIOutboundTrigger.apiOutboundID 
+                       bf-Source-APIOutboundTrigger.apiOutboundTriggerID
+                       bf-Source-APIOutboundTrigger.rec_key
+                TO bf-Target-APIOutboundTrigger.
+            ASSIGN
+                bf-Target-APIOutboundTrigger.apiID         = bf-Target-APIOutbound.apiID
+                bf-Target-APIOutboundTrigger.clientID      = bf-Target-APIOutbound.clientID
+                bf-Target-APIOutboundTrigger.apiOutboundID = bf-Target-APIOutbound.apiOutboundID
+                .
+        END.
+    END.
+END PROCEDURE.
 
 PROCEDURE Outbound_GetAPIID:
     /*------------------------------------------------------------------------------
@@ -158,6 +237,38 @@ PROCEDURE Outbound_GetAPITriggerID:
             .
 END PROCEDURE.
 
+PROCEDURE Outbound_GetClientIDForScope:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeType AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplFound     AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcClientID  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-apiClientXref FOR apiClientXref.
+    DEFINE BUFFER bf-apiClient     FOR apiClient.
+     
+    FIND FIRST bf-apiClientXref NO-LOCK
+         WHERE bf-apiClientXref.company   EQ ipcCompany
+           AND bf-apiClientXref.scopeID   EQ ipcScopeID
+           AND bf-apiClientXref.scopeType EQ ipcScopeType
+         NO-ERROR.
+    IF AVAILABLE bf-apiClientXref THEN DO:
+        FIND FIRST bf-apiClient NO-LOCK
+             WHERE bf-apiClient.company  EQ bf-apiClientXref.company
+               AND bf-apiClient.clientID EQ bf-apiClientXref.clientID
+             NO-ERROR.
+        IF AVAILABLE bf-apiClient THEN
+            ASSIGN
+                oplFound    = TRUE
+                opcClientID = bf-apiClient.clientID
+                .
+    END.
+END PROCEDURE.
+
 PROCEDURE Outbound_GetRequestTypeList:
 /*------------------------------------------------------------------------------
  Purpose: Returns the comma separated list of outbound request types
@@ -186,6 +297,78 @@ PROCEDURE Outbound_GetRequestVerbList:
     DEFINE OUTPUT PARAMETER opcRequestVerbList AS CHARACTER NO-UNDO.
     
     opcRequestVerbList = cRequestVerbList.
+END PROCEDURE.
+
+PROCEDURE Outbound_GetScopeTypeList:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcScopeTypeList AS CHARACTER NO-UNDO.
+    
+    opcScopeTypeList = cScopeTypeList.
+END PROCEDURE.
+
+PROCEDURE Outbound_PrepareAndExecuteForScope:
+    /*----------------------------------------------------------vi--------------------
+     Purpose: Public wrapper procedure to prepare request data and call Outbound API
+              for a given scope id and scope Type
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID            AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcScopeID          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeType        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTriggerID        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTableList        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcROWIDList        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPrimaryID        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEventDescription AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-apiClientXref FOR apiClientXref.
+    DEFINE BUFFER bf-apiClient     FOR apiClient.
+     
+    FOR EACH bf-apiClientXref NO-LOCK
+        WHERE bf-apiClientXref.company   EQ ipcCompany
+          AND bf-apiClientXref.scopeID   EQ ipcScopeID
+          AND bf-apiClientXref.scopeType EQ ipcScopeType:
+        FIND FIRST bf-apiClient NO-LOCK
+             WHERE bf-apiClient.company  EQ bf-apiClientXref.company
+               AND bf-apiClient.clientID EQ bf-apiClientXref.clientID
+             NO-ERROR.
+        IF AVAILABLE bf-apiClient THEN DO:
+            RUN pPrepareAndExecute (
+                INPUT  ipcCompany,
+                INPUT  ipcLocation,
+                INPUT  ipcAPIID,
+                INPUT  bf-apiClient.clientID,
+                INPUT  ipcTriggerID,
+                INPUT  ipcTableList,
+                INPUT  ipcROWIDList,
+                INPUT  ipcPrimaryID,
+                INPUT  ipcEventDescription,
+                INPUT  FALSE, /* Re-Trigger request */
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ) NO-ERROR.
+        
+            IF ERROR-STATUS:ERROR THEN DO:
+                ASSIGN
+                    oplSuccess = FALSE
+                    opcMessage = ERROR-STATUS:GET-MESSAGE(1)
+                    .
+                RETURN.
+            END.            
+        END.
+    END.
+    
+    ASSIGN
+        oplSuccess = TRUE
+        opcMessage = "Success"
+        .   
 END PROCEDURE.
 
 PROCEDURE Outbound_ReTrigger:
@@ -367,6 +550,34 @@ PROCEDURE Outbound_ResetContext:
     EMPTY TEMP-TABLE ttAPIOutboundEvent.
     EMPTY TEMP-TABLE ttRequestData.
 END.
+
+PROCEDURE Outbound_ValidateClientID:
+/*------------------------------------------------------------------------------
+ Purpose: Validate clientID from apiClient table
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValid    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-apiClient FOR apiClient.
+    
+    FIND FIRST bf-apiClient NO-LOCK
+         WHERE bf-apiClient.company  EQ ipcCompany
+           AND bf-apiClient.clientID EQ ipcClientID
+         NO-ERROR.
+    IF AVAILABLE bf-apiClient THEN
+        ASSIGN
+            oplValid   = TRUE
+            opcMessage = "Success"
+            .
+    ELSE
+        ASSIGN
+            oplValid   = FALSE
+            opcMessage = "Invalid clientID '" + ipcClientID + "'"
+            . 
+END PROCEDURE.
 
 PROCEDURE pInitializeRequest PRIVATE:
     /*------------------------------------------------------------------------------

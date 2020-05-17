@@ -13,7 +13,7 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File:
+  File: viewers/APIInbound.w
 
   Description: from VIEWER.W - Template for SmartViewer Objects
 
@@ -36,10 +36,23 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+{custom/globdefs.i}
 
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE lSuperAdmin AS LOGICAL NO-UNDO.
+
+DEFINE VARIABLE hdPgmMstrSecur AS HANDLE NO-UNDO.
+RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmMstrSecur.
+
+RUN epCanAccess IN hdPgmMstrSecur (
+    INPUT  "viewers/APIInbound.w", /* Program Name */
+    INPUT  "",                     /* Function */
+    OUTPUT lSuperAdmin
+    ).
+    
+DELETE PROCEDURE hdPgmMstrSecur.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -493,6 +506,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-row-available V-table-Win 
+PROCEDURE local-row-available :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.    
+    DEFINE VARIABLE cRowState AS CHARACTER NO-UNDO.
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
+
+    RUN pGetRowState (
+        OUTPUT cRowState
+        ).
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    {methods/run_link.i "TABLEIO-SOURCE" "set-buttons" "(INPUT cRowState)"}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -618,15 +657,26 @@ PROCEDURE pEnableFields :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
+    /* Enable only Inactive and Can Be queued for normal users */
+    
     ASSIGN
         tgInactive:SENSITIVE        = TRUE
-        cbRequestVerb:SENSITIVE     = TRUE
-        cbRequestDataType:SENSITIVE = TRUE
         tgCanBeQueued:SENSITIVE     = TRUE
-        edRequestData:READ-ONLY     = FALSE
-        edResponseData:READ-ONLY    = FALSE
-        edDescription:READ-ONLY     = FALSE
         .
+
+    IF lSuperAdmin THEN
+        ASSIGN        
+            cbRequestVerb:SENSITIVE     = TRUE
+            cbRequestDataType:SENSITIVE = TRUE
+            edRequestData:READ-ONLY     = FALSE
+            edResponseData:READ-ONLY    = FALSE
+            edDescription:READ-ONLY     = FALSE
+            .
+    ELSE
+        ASSIGN
+            APIInbound.apiRoute:SENSITIVE       = FALSE
+            APIInbound.requestHandler:SENSITIVE = FALSE            
+            .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -651,6 +701,31 @@ PROCEDURE pFieldValidations :
     END.
     
     oplSuccess = TRUE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetRowState V-table-Win 
+PROCEDURE pGetRowState :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcRowState AS CHARACTER NO-UNDO.
+    
+    IF AVAILABLE APIInbound THEN
+        opcRowState = "update-only".
+    ELSE
+        opcRowState = "disable-all".
+    
+    IF lSuperAdmin THEN DO:
+        IF AVAILABLE APIInbound THEN
+            opcRowState = "initial".
+        ELSE
+            opcRowState = "add-only".
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -692,6 +767,7 @@ PROCEDURE pUpdateFields :
 
     IF AVAILABLE APIInbound THEN    
         ASSIGN
+            APIInbound.company         = g_company
             APIInbound.Inactive        = tgInactive:CHECKED
             APIInbound.description     = edDescription:SCREEN-VALUE
             APIInbound.requestVerb     = cbRequestVerb:SCREEN-VALUE
