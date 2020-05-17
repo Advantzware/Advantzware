@@ -299,8 +299,9 @@ FOR EACH report
                     END.
                     ELSE DO:  
                       ASSIGN cBoard = bf-item.i-name.
-                       IF cBolcert-char EQ "CCC" AND oe-bolh.cust-no EQ "EXE1002" AND 
-                           AVAIL eb AND eb.est-type LE 4 THEN 
+/* Revert all formatting for EXE1002 */
+/*                       IF cBolcert-char EQ "CCC" AND oe-bolh.cust-no EQ "EXE1002" AND*/
+/*                           AVAIL eb AND eb.est-type LE 4 THEN                        */
 /*  Revert change from 61413                                  */                         
 /*                           do:                              */
 /*                           IF cBoard EQ ".020 SBS" THEN     */
@@ -310,9 +311,9 @@ FOR EACH report
 /*                           ELSE IF cBoard EQ ".012 ABC" THEN*/
 /*                            ASSIGN cBoard = "12PT/ABC/C1S". */
 /*                           ELSE                             */
-                            ASSIGN cBoard = cBoard + "/C1S".  
+/*                            ASSIGN cBoard = cBoard + "/C1S".*/
 /*                       END.  */
-                       IF cBolcert-char EQ "CCC" AND oe-bolh.cust-no EQ "MIK1000" THEN DO:
+/*                       IF cBolcert-char EQ "CCC" AND oe-bolh.cust-no EQ "MIK1000" THEN DO:*/
                         /*    IF AVAIL eb THEN                                  */
                         /*        FIND FIRST prodl NO-LOCK                      */
                         /*        WHERE prodl.company EQ cocode AND             */
@@ -322,8 +323,8 @@ FOR EACH report
                         /*    IF AVAIL prodl AND prodl.prolin EQ "Labels" THEN  */
                         /*      ASSIGN cBoard = cBoard + "/40#SCK".             */
                         /*    ELSE ASSIGN cBoard = cBoard + "/C1S".             */
-                         cBoard = " 22PT/SBS/C1S " .
-                       END.                                                     
+/*                         cBoard = " 22PT/SBS/C1S " .*/
+/*                       END.                         */
                     END.
 
                     ASSIGN 
