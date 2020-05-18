@@ -1176,10 +1176,9 @@ IF tb_excel THEN
           str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
           excelheader = excelHeader + ttRptSelected.TextList + ","
           .        
-          cSlist = cSlist + ttRptSelected.FieldList + ",".
-          IF LOOKUP(ttRptSelected.TextList, "Line Amount,Line Cost,Line Discount") <> 0    THEN
-          lLineTotal = TRUE .
-          ELSE lLineTotal = FALSE .
+          cSlist = cSlist + ttRptSelected.FieldList + ",". 
+          IF LOOKUP(ttRptSelected.TextList,"Line Amount,Line Cost,Line Discount") GT 0 THEN
+          lLineTotal = TRUE .           
  END.
 
 
@@ -1242,90 +1241,86 @@ IF tb_excel THEN
 
        distot[1]    = 0 .
 
-       IF ar-invl.dscr[1] NE "EA" THEN
-           RUN sys/ref/convcuom.p (ar-invl.dscr[1], "EA", 0, 0, 0, 0,
-                                   ar-invl.cost, OUTPUT dvalue).
-       ELSE dvalue = ar-invl.cost .
+       /*IF ar-invl.dscr[1] NE "EA" THEN                                 */
+       /*    RUN sys/ref/convcuom.p (ar-invl.dscr[1], "EA", 0, 0, 0, 0,  */
+       /*                            ar-invl.cost, OUTPUT dvalue).       */   /* it make report slow */
+       IF ar-invl.dscr[1] EQ "M" THEN       /* ar-invl.dscr[1] only allow M or EA*/           
+        costot[1] =  ar-invl.inv-qty * ar-invl.cost / 1000 .                      
+       ELSE ASSIGN        
+       costot[1] = (ar-invl.inv-qty * ar-invl.cost).
      
        ASSIGN
        distot[1] = distot[1] + ar-inv.disc-taken 
-       Amounttot[1] = Amounttot[1] + amount 
-       costot[1] = (ar-invl.inv-qty * dvalue).
+       Amounttot[1] = Amounttot[1] + amount  .
 
-     DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-       cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+     FOR EACH ttRptSelected:
         
-             CASE cTmpField:
-                  WHEN "ar-invl.inv-no"  THEN cVarValue   = STRING(ar-invl.inv-no,">>>>>>9" ).
-                  WHEN "ar-invl.bol-no"  THEN cVarValue   = STRING(ar-invl.bol-no,">>>>>>9").
-                  WHEN "ar-invl.cust-no" THEN cVarValue   = STRING(ar-invl.cust-no,"x(8)"). 
-                  WHEN "ar-inv.cust-name" THEN cVarValue  = STRING(ar-inv.cust-name). 
-                  WHEN "ar-inv.inv-date" THEN cVarValue   = IF ar-inv.inv-date NE ? THEN STRING(ar-inv.inv-date) ELSE "". 
-                  WHEN "ar-invl.actnum"  THEN cVarValue   = STRING(ar-invl.actnum). 
-                  WHEN "ar-invl.i-no"    THEN cVarValue   = STRING(ar-invl.i-no).
-                  WHEN "ar-invl.i-name" THEN cVarValue    = STRING(ar-invl.i-name).
-                  WHEN "ar-invl.i-dscr" THEN cVarValue    = STRING(ar-invl.i-dscr) .
-                  WHEN "ar-invl.part-no" THEN cVarValue   = STRING(ar-invl.part-no).
-                  WHEN "ar-invl.ord-no" THEN cVarValue    = STRING(ar-invl.ord-no).
-                  WHEN "ar-invl.po-no" THEN cVarValue     = STRING(ar-invl.po-no).
-                  WHEN "ar-invl.est-no" THEN cVarValue    = STRING(ar-invl.est-no).
-                  WHEN "ar-inv.ship-id" THEN cVarValue    = STRING(ar-inv.ship-id) .
-                  WHEN "ar-inv.tax-code" THEN cVarValue   = STRING(ar-inv.tax-code).
-                  WHEN "ar-inv.terms" THEN cVarValue      = STRING(ar-inv.terms) .
-                  WHEN "ar-inv.terms-d" THEN cVarValue    = STRING(ar-inv.terms-d).
-                  WHEN "ar-inv.due-date" THEN cVarValue   = IF ar-inv.due-date NE ? THEN  STRING(ar-inv.due-date) ELSE "" .
-                  WHEN "ar-inv.disc-%" THEN cVarValue     = STRING( ar-inv.disc-% ).
-                  WHEN "ar-inv.disc-taken" THEN cVarValue = STRING(ar-inv.disc-taken).
-                  WHEN "ar-inv.disc-days" THEN cVarValue  = STRING(ar-inv.disc-days). 
-                  WHEN "ar-inv.carrier" THEN cVarValue    = STRING(ar-inv.carrier). 
-                  WHEN "ar-inv.gross" THEN cVarValue      = STRING(ar-inv.gross). 
-                  WHEN "ar-inv.freight" THEN cVarValue    = STRING(ar-inv.freight). 
-                  WHEN "ar-inv.tax-amt" THEN cVarValue    = STRING(ar-inv.tax-amt).
-                  WHEN "ar-inv.paid" THEN cVarValue       = STRING(ar-inv.paid).
-                  WHEN "ar-inv.due" THEN cVarValue        = STRING(ar-inv.due) .
-                  WHEN "ar-invl.LINE" THEN cVarValue      = STRING(ar-invl.LINE).
-                  WHEN "ar-invl.lot-no" THEN cVarValue    = STRING(ar-invl.lot-no).
-                  WHEN "ar-invl.inv-qty" THEN cVarValue   = STRING(ar-invl.inv-qty).
-                  WHEN "ar-invl.ship-qty" THEN cVarValue = STRING(ar-invl.ship-qty).
-                  WHEN "ar-invl.cons-uom" THEN cVarValue  = STRING(ar-invl.cons-uom).
-                  WHEN "ar-invl.sf-sht" THEN cVarValue    = STRING(ar-invl.sf-sht) .
-                  WHEN "ar-invl.unit-pr" THEN cVarValue   = STRING(ar-invl.unit-pr).
-                  WHEN "ar-invl.pr-qty-uom" THEN cVarValue = STRING(ar-invl.pr-qty-uom) .
-                  WHEN "ar-invl.disc" THEN cVarValue      = STRING(ar-invl.disc).
-                  WHEN "ar-invl.amt-msf" THEN cVarValue   = STRING(ar-invl.amt-msf).
-                  WHEN "ar-invl.cost" THEN cVarValue      = STRING(ar-invl.cost).
-                  WHEN "actdscr" THEN cVarValue           = STRING( get-actdscr() ).
-                  WHEN "amount" THEN cVarValue            = STRING(amount).
-                  WHEN "dscr[1]" THEN cVarValue           = STRING(ar-invl.dscr[1]). 
-                  WHEN "sman[1]" THEN cVarValue           = STRING(ar-invl.sman[1]). 
-                  WHEN "sman[2]" THEN cVarValue           = STRING(ar-invl.sman[2]). 
-                  WHEN "sman[3]" THEN cVarValue           = STRING(ar-invl.sman[3]). 
-                  WHEN "s-pct[1]" THEN cVarValue          = STRING(ar-invl.s-pct[1]).
-                  WHEN "s-pct[2]" THEN cVarValue          = STRING(ar-invl.s-pct[2]).
-                  WHEN "s-pct[3]" THEN cVarValue          = STRING(ar-invl.s-pct[3]) .
-                  WHEN "s-comm[1]" THEN cVarValue         = STRING(ar-invl.s-comm[1]).
-                  WHEN "s-comm[2]" THEN cVarValue         = STRING(ar-invl.s-comm[2]).
-                  WHEN "s-comm[3]" THEN cVarValue         = STRING(ar-invl.s-comm[3]).
-                  WHEN "line-amt" THEN cVarValue          = STRING(Amounttot[2]).
-                  WHEN "line-cst" THEN cVarValue          = STRING(costot[2]) .
-                  WHEN "total-amt" THEN cVarValue         = STRING(Amounttot[1]).
-                  WHEN "total-cst" THEN cVarValue         = STRING(costot[1]) .
-                  WHEN "line-dis" THEN cVarValue          = STRING(distot[2]).
-                  WHEN "total-dis" THEN cVarValue         = STRING(distot[1]).
+             CASE ttRptSelected.FieldList:
+                  WHEN "ar-invl.inv-no"  THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.inv-no,">>>>>>9" )).
+                  WHEN "ar-invl.bol-no"  THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.bol-no,">>>>>>9")).
+                  WHEN "ar-invl.cust-no" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.cust-no,"x(8)")). 
+                  WHEN "ar-inv.cust-name" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-inv.cust-name)). 
+                  WHEN "ar-inv.inv-date" THEN do:
+                  v-excel-detail-lines   = v-excel-detail-lines + appendXLLine(string(IF ar-inv.inv-date NE ? THEN STRING(ar-inv.inv-date) ELSE "")). 
+                  END.
+                  WHEN "ar-invl.actnum"  THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.actnum)). 
+                  WHEN "ar-invl.i-no"    THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.i-no)).
+                  WHEN "ar-invl.i-name" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.i-name)).
+                  WHEN "ar-invl.i-dscr" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.i-dscr)) .
+                  WHEN "ar-invl.part-no" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.part-no)).
+                  WHEN "ar-invl.ord-no" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.ord-no)).
+                  WHEN "ar-invl.po-no" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.po-no)).
+                  WHEN "ar-invl.est-no" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.est-no)).
+                  WHEN "ar-inv.ship-id" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-inv.ship-id)) .
+                  WHEN "ar-inv.tax-code" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-inv.tax-code)).
+                  WHEN "ar-inv.terms" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-inv.terms)) .
+                  WHEN "ar-inv.terms-d" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-inv.terms-d)).
+                  WHEN "ar-inv.due-date" THEN do:
+                    v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(IF ar-inv.due-date NE ? THEN  STRING(ar-inv.due-date) ELSE "")) .
+                  END.
+                  WHEN "ar-inv.disc-%" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-inv.disc-% )).
+                  WHEN "ar-inv.disc-taken" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-inv.disc-taken)).
+                  WHEN "ar-inv.disc-days" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-inv.disc-days)). 
+                  WHEN "ar-inv.carrier" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-inv.carrier)). 
+                  WHEN "ar-inv.gross" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-inv.gross)). 
+                  WHEN "ar-inv.freight" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-inv.freight)). 
+                  WHEN "ar-inv.tax-amt" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-inv.tax-amt)).
+                  WHEN "ar-inv.paid" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-inv.paid)).
+                  WHEN "ar-inv.due" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-inv.due)) .
+                  WHEN "ar-invl.LINE" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.LINE)).
+                  WHEN "ar-invl.lot-no" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.lot-no)).
+                  WHEN "ar-invl.inv-qty" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.inv-qty)).
+                  WHEN "ar-invl.ship-qty" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.ship-qty)).
+                  WHEN "ar-invl.cons-uom" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.cons-uom)).
+                  WHEN "ar-invl.sf-sht" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.sf-sht)) .
+                  WHEN "ar-invl.unit-pr" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.unit-pr)).
+                  WHEN "ar-invl.pr-qty-uom" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.pr-qty-uom)) .
+                  WHEN "ar-invl.disc" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.disc)).
+                  WHEN "ar-invl.amt-msf" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.amt-msf)).
+                  WHEN "ar-invl.cost" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.cost)).
+                  WHEN "actdscr" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING( get-actdscr() )).
+                  WHEN "amount" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(amount)).
+                  WHEN "dscr[1]" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.dscr[1])). 
+                  WHEN "sman[1]" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.sman[1])). 
+                  WHEN "sman[2]" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.sman[2])). 
+                  WHEN "sman[3]" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.sman[3])). 
+                  WHEN "s-pct[1]" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.s-pct[1])).
+                  WHEN "s-pct[2]" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.s-pct[2])).
+                  WHEN "s-pct[3]" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.s-pct[3])) .
+                  WHEN "s-comm[1]" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.s-comm[1])).
+                  WHEN "s-comm[2]" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.s-comm[2])).
+                  WHEN "s-comm[3]" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(ar-invl.s-comm[3])).
+                  WHEN "line-amt" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(Amounttot[2])).
+                  WHEN "line-cst" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(costot[2])) .
+                  WHEN "total-amt" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(Amounttot[1])).
+                  WHEN "total-cst" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(costot[1])) .
+                  WHEN "line-dis" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(distot[2])).
+                  WHEN "total-dis" THEN v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(distot[1])).
 
-             END CASE.
-
-             cExcelVarValue = cVarValue.
-             cDisplay = cDisplay + cVarValue +
-                                   FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                       cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
-        
-      END.
+             END CASE.              
+      END.    
       
-     IF tb_excel THEN DO:
-         PUT STREAM excel UNFORMATTED  
-               cExcelDisplay SKIP.
-     END.
+     PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
 
      v-excel-detail-lines = "".
       
