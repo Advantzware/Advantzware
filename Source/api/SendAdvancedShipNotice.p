@@ -383,26 +383,6 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-FUNCTION FormatDateForCXML RETURNS CHARACTER 
-	( ipdtDate AS DATE, ipiTime AS INTEGER ):
-/*------------------------------------------------------------------------------
- Purpose: Formats a given date and time to cXML formatted date
- Notes:
-------------------------------------------------------------------------------*/	
-    DEFINE VARIABLE cFormattedDate AS CHARACTER NO-UNDO.
-    
-    IF ipdtDate EQ ? THEN
-        cFormattedDate = "".
-    ELSE
-        cFormattedDate = STRING(YEAR(ipdtDate),"9999") + "-" 
-                       + STRING(MONTH(ipdtDate),"99") + "-" 
-                       + STRING(DAY(ipdtDate),"99")
-                       + 'T'
-                       + STRING(ipiTime,'hh:mm:ss')
-                       + '-05:00'.
-    RETURN cFormattedDate.
-END FUNCTION.
-
 FUNCTION GetPayLoadID RETURNS CHARACTER
 	(ipcProcessID AS CHARACTER):
 /*------------------------------------------------------------------------------
