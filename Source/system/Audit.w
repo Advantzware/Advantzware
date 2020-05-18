@@ -50,11 +50,11 @@ DEFINE VARIABLE lHeaderSorting     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE dtStartDateTime    AS DATETIME  NO-UNDO.
 DEFINE VARIABLE dtEndDateTime      AS DATETIME  NO-UNDO.
 DEFINE VARIABLE cAuditKeyFilter    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartAuditKey     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndAuditKey       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAuditKeyFilter    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lBeforeValueFilter AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cBeforeValueFilter AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAfterValueFilter  AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cAfterValueFilter  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hPgmMstrSecur      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lAdmin             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE dtRecKeyDate       AS DATE      NO-UNDO LABEL "RecKeyDate" FORMAT "99/99/9999".
@@ -69,6 +69,10 @@ DEFINE VARIABLE cStartTable        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEndTable          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cStartField        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEndField          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartBeforeValue  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndBeforeValue    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartAfterValue   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndAfterValue     AS CHARACTER NO-UNDO.
 
 {AOA/tempTable/ttAudit.i}
 
@@ -93,7 +97,7 @@ SESSION:SET-WAIT-STATE("").
 &Scoped-define BROWSE-NAME AuditDetail
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES AuditDtl ttAuditDBTable AuditHdr
+&Scoped-define INTERNAL-TABLES AuditDtl AuditHdr
 
 /* Definitions for BROWSE AuditDetail                                   */
 &Scoped-define FIELDS-IN-QUERY-AuditDetail AuditDtl.AuditIdxField ~
@@ -102,20 +106,20 @@ AuditDtl.AuditAfterValue
 &Scoped-define ENABLED-FIELDS-IN-QUERY-AuditDetail 
 &Scoped-define QUERY-STRING-AuditDetail FOR EACH AuditDtl ~
       WHERE AuditDtl.AuditID EQ AuditHdr.AuditID ~
-AND (AuditDtl.AuditField EQ svField ~
-OR svField EQ "ALL") ~
-AND (AuditDtl.AuditBeforeValue BEGINS cBeforeValueFilter ~
-OR cBeforeValueFilter EQ "") ~
-AND (AuditDtl.AuditAfterValue BEGINS cAfterValueFilter ~
-OR cAfterValueFilter EQ "") NO-LOCK
+AND AuditDtl.AuditField GE cStartField ~
+AND AuditDtl.AuditField LE cEndField ~
+AND AuditDtl.AuditBeforeValue GE cStartBeforeValue ~
+AND AuditDtl.AuditBeforeValue LE cEndBeforeValue ~
+AND AuditDtl.AuditAfterValue GE cStartAfterValue ~
+AND AuditDtl.AuditAfterValue LE cEndAfterValue NO-LOCK
 &Scoped-define OPEN-QUERY-AuditDetail OPEN QUERY AuditDetail FOR EACH AuditDtl ~
       WHERE AuditDtl.AuditID EQ AuditHdr.AuditID ~
-AND (AuditDtl.AuditField EQ svField ~
-OR svField EQ "ALL") ~
-AND (AuditDtl.AuditBeforeValue BEGINS cBeforeValueFilter ~
-OR cBeforeValueFilter EQ "") ~
-AND (AuditDtl.AuditAfterValue BEGINS cAfterValueFilter ~
-OR cAfterValueFilter EQ "") NO-LOCK.
+AND AuditDtl.AuditField GE cStartField ~
+AND AuditDtl.AuditField LE cEndField ~
+AND AuditDtl.AuditBeforeValue GE cStartBeforeValue ~
+AND AuditDtl.AuditBeforeValue LE cEndBeforeValue ~
+AND AuditDtl.AuditAfterValue GE cStartAfterValue ~
+AND AuditDtl.AuditAfterValue LE cEndAfterValue NO-LOCK.
 &Scoped-define TABLES-IN-QUERY-AuditDetail AuditDtl
 &Scoped-define FIRST-TABLE-IN-QUERY-AuditDetail AuditDtl
 
@@ -124,22 +128,19 @@ OR cAfterValueFilter EQ "") NO-LOCK.
 &Scoped-define FIELDS-IN-QUERY-AuditHeader AuditHdr.AuditID AuditHdr.AuditType AuditHdr.AuditDateTime AuditHdr.AuditDB AuditHdr.AuditTable AuditHdr.AuditUser AuditHdr.AuditKey fRecKeyDate(AuditHdr.AuditRecKey) @ dtRecKeyDate fRecKeyTime(AuditHdr.AuditRecKey) @ cRecKeyTime AuditHdr.AuditRecKey AuditHdr.AuditStackID   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-AuditHeader   
 &Scoped-define SELF-NAME AuditHeader
-&Scoped-define QUERY-STRING-AuditHeader FOR EACH ttAuditDBTable WHERE ttAuditDBTable.AuditDB GE cStartDB AND ttAuditDBTable.AuditDB LE cEndDB AND ttAuditDBTable.AuditTable GE cStartTable AND ttAuditDBTable.AuditTable LE cEndTable, ~
-       EACH AuditHdr NO-LOCK WHERE AuditHdr.AuditDB EQ ttAuditDBTable.AuditDB AND AuditHdr.AuditTable EQ ttAuditDBTable.AuditTable AND AuditHdr.AuditDateTime GE dtStartDateTime AND AuditHdr.AuditDateTime LE dtEndDateTime AND AuditHdr.AuditType GE cStartType AND AuditHdr.AuditType LE cEndType AND AuditHdr.AuditUser GE cStartUser AND AuditHdr.AuditUser LE cEndUser AND (AuditHdr.AuditKey EQ cAuditKeyFilter OR lAuditKeyFilter EQ FALSE), ~
-       FIRST AuditDtl OF AuditHdr NO-LOCK WHERE AuditDtl.AuditField GE cStartField AND AuditDtl.AuditField LE cEndField AND (AuditDtl.AuditBeforeValue BEGINS cBeforeValueFilter OR cBeforeValueFilter EQ "") AND (AuditDtl.AuditAfterValue BEGINS cAfterValueFilter OR cAfterValueFilter EQ "")  ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-AuditHeader OPEN QUERY {&SELF-NAME} FOR EACH ttAuditDBTable WHERE ttAuditDBTable.AuditDB GE cStartDB AND ttAuditDBTable.AuditDB LE cEndDB AND ttAuditDBTable.AuditTable GE cStartTable AND ttAuditDBTable.AuditTable LE cEndTable, ~
-       EACH AuditHdr NO-LOCK WHERE AuditHdr.AuditDB EQ ttAuditDBTable.AuditDB AND AuditHdr.AuditTable EQ ttAuditDBTable.AuditTable AND AuditHdr.AuditDateTime GE dtStartDateTime AND AuditHdr.AuditDateTime LE dtEndDateTime AND AuditHdr.AuditType GE cStartType AND AuditHdr.AuditType LE cEndType AND AuditHdr.AuditUser GE cStartUser AND AuditHdr.AuditUser LE cEndUser AND (AuditHdr.AuditKey EQ cAuditKeyFilter OR lAuditKeyFilter EQ FALSE), ~
-       FIRST AuditDtl OF AuditHdr NO-LOCK WHERE AuditDtl.AuditField GE cStartField AND AuditDtl.AuditField LE cEndField AND (AuditDtl.AuditBeforeValue BEGINS cBeforeValueFilter OR cBeforeValueFilter EQ "") AND (AuditDtl.AuditAfterValue BEGINS cAfterValueFilter OR cAfterValueFilter EQ "")  ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-AuditHeader ttAuditDBTable AuditHdr AuditDtl
-&Scoped-define FIRST-TABLE-IN-QUERY-AuditHeader ttAuditDBTable
-&Scoped-define SECOND-TABLE-IN-QUERY-AuditHeader AuditHdr
-&Scoped-define THIRD-TABLE-IN-QUERY-AuditHeader AuditDtl
+&Scoped-define QUERY-STRING-AuditHeader FOR EACH AuditHdr NO-LOCK WHERE AuditHdr.AuditDB GE cStartDB AND AuditHdr.AuditDB LE cEndDB AND AuditHdr.AuditTable GE cStartTable AND AuditHdr.AuditTable LE cEndTable AND AuditHdr.AuditDateTime GE dtStartDateTime AND AuditHdr.AuditDateTime LE dtEndDateTime AND AuditHdr.AuditType GE cStartType AND AuditHdr.AuditType LE cEndType AND AuditHdr.AuditUser GE cStartUser AND AuditHdr.AuditUser LE cEndUser AND AuditHdr.AuditKey GE cStartAuditKey AND AuditHdr.AuditKey LE cEndAuditKey, ~
+       FIRST AuditDtl OF AuditHdr NO-LOCK WHERE AuditDtl.AuditField GE cStartField AND AuditDtl.AuditField LE cEndField AND AuditDtl.AuditBeforeValue GE cStartBeforeValue AND AuditDtl.AuditBeforeValue LE cEndBeforeValue AND AuditDtl.AuditAfterValue GE cStartAfterValue AND AuditDtl.AuditAfterValue LE cEndAfterValue  ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-AuditHeader OPEN QUERY {&SELF-NAME} FOR EACH AuditHdr NO-LOCK WHERE AuditHdr.AuditDB GE cStartDB AND AuditHdr.AuditDB LE cEndDB AND AuditHdr.AuditTable GE cStartTable AND AuditHdr.AuditTable LE cEndTable AND AuditHdr.AuditDateTime GE dtStartDateTime AND AuditHdr.AuditDateTime LE dtEndDateTime AND AuditHdr.AuditType GE cStartType AND AuditHdr.AuditType LE cEndType AND AuditHdr.AuditUser GE cStartUser AND AuditHdr.AuditUser LE cEndUser AND AuditHdr.AuditKey GE cStartAuditKey AND AuditHdr.AuditKey LE cEndAuditKey, ~
+       FIRST AuditDtl OF AuditHdr NO-LOCK WHERE AuditDtl.AuditField GE cStartField AND AuditDtl.AuditField LE cEndField AND AuditDtl.AuditBeforeValue GE cStartBeforeValue AND AuditDtl.AuditBeforeValue LE cEndBeforeValue AND AuditDtl.AuditAfterValue GE cStartAfterValue AND AuditDtl.AuditAfterValue LE cEndAfterValue  ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-AuditHeader AuditHdr AuditDtl
+&Scoped-define FIRST-TABLE-IN-QUERY-AuditHeader AuditHdr
+&Scoped-define SECOND-TABLE-IN-QUERY-AuditHeader AuditDtl
 
 
 /* Definitions for FRAME AuditSearch                                    */
 &Scoped-define FIELDS-IN-QUERY-AuditSearch AuditHdr.AuditKey 
-&Scoped-define QUERY-STRING-AuditSearch FOR EACH AuditHdr SHARE-LOCK
-&Scoped-define OPEN-QUERY-AuditSearch OPEN QUERY AuditSearch FOR EACH AuditHdr SHARE-LOCK.
+&Scoped-define QUERY-STRING-AuditSearch FOR EACH AuditHdr NO-LOCK
+&Scoped-define OPEN-QUERY-AuditSearch OPEN QUERY AuditSearch FOR EACH AuditHdr NO-LOCK.
 &Scoped-define TABLES-IN-QUERY-AuditSearch AuditHdr
 &Scoped-define FIRST-TABLE-IN-QUERY-AuditSearch AuditHdr
 
@@ -149,10 +150,10 @@ OR cAfterValueFilter EQ "") NO-LOCK.
 AuditHdr.AuditTable AuditDtl.AuditField AuditHdr.AuditType AuditHdr.AuditID ~
 AuditHdr.AuditUser AuditHdr.AuditDateTime AuditDtl.AuditIdxField ~
 AuditDtl.AuditBeforeValue AuditDtl.AuditExtent AuditDtl.AuditAfterValue 
-&Scoped-define QUERY-STRING-AuditView FOR EACH AuditDtl SHARE-LOCK, ~
-      EACH AuditHdr OF AuditDtl SHARE-LOCK
-&Scoped-define OPEN-QUERY-AuditView OPEN QUERY AuditView FOR EACH AuditDtl SHARE-LOCK, ~
-      EACH AuditHdr OF AuditDtl SHARE-LOCK.
+&Scoped-define QUERY-STRING-AuditView FOR EACH AuditDtl NO-LOCK, ~
+      EACH AuditHdr OF AuditDtl NO-LOCK
+&Scoped-define OPEN-QUERY-AuditView OPEN QUERY AuditView FOR EACH AuditDtl NO-LOCK, ~
+      EACH AuditHdr OF AuditDtl NO-LOCK.
 &Scoped-define TABLES-IN-QUERY-AuditView AuditDtl AuditHdr
 &Scoped-define FIRST-TABLE-IN-QUERY-AuditView AuditDtl
 &Scoped-define SECOND-TABLE-IN-QUERY-AuditView AuditHdr
@@ -487,8 +488,7 @@ DEFINE VARIABLE svSortByHdr AS CHARACTER FORMAT "X(256)":U
 DEFINE QUERY AuditDetail FOR 
       AuditDtl SCROLLING.
 
-DEFINE QUERY AuditHeader FOR 
-      ttAuditDBTable, 
+DEFINE QUERY AuditHeader FOR  
       AuditHdr, 
       AuditDtl SCROLLING.
 
@@ -550,6 +550,67 @@ DEFINE FRAME DEFAULT-FRAME
          AT COL 1 ROW 1
          SIZE 238.2 BY 28.57
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
+
+DEFINE FRAME AuditView
+     AuditHdr.AuditDB AT ROW 1.24 COL 6 COLON-ALIGNED WIDGET-ID 16
+          LABEL "DB"
+          VIEW-AS FILL-IN 
+          SIZE 8.6 BY 1
+          BGCOLOR 15 
+     AuditHdr.AuditTable AT ROW 1.24 COL 30 COLON-ALIGNED WIDGET-ID 20
+          LABEL "Table"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15 
+     AuditDtl.AuditField AT ROW 1.24 COL 58 COLON-ALIGNED WIDGET-ID 8
+          LABEL "Field"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15 
+     AuditHdr.AuditType AT ROW 2.43 COL 6 COLON-ALIGNED WIDGET-ID 22
+          LABEL "Type"
+          VIEW-AS FILL-IN 
+          SIZE 13.6 BY 1
+          BGCOLOR 15 
+     AuditHdr.AuditID AT ROW 2.43 COL 30 COLON-ALIGNED WIDGET-ID 18
+          VIEW-AS FILL-IN 
+          SIZE 19 BY 1
+          BGCOLOR 15 
+     AuditHdr.AuditUser AT ROW 2.43 COL 58 COLON-ALIGNED WIDGET-ID 24
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+          BGCOLOR 15 
+     AuditHdr.AuditDateTime AT ROW 2.43 COL 88 COLON-ALIGNED WIDGET-ID 14
+          LABEL "Date/Time"
+          VIEW-AS FILL-IN 
+          SIZE 34 BY 1
+          BGCOLOR 15 
+     AuditDtl.AuditIdxField AT ROW 3.62 COL 14 COLON-ALIGNED WIDGET-ID 12
+          LABEL "Idx" FORMAT "Yes/No"
+          VIEW-AS FILL-IN 
+          SIZE 5 BY 1
+          BGCOLOR 15 
+     AuditDtl.AuditBeforeValue AT ROW 3.62 COL 30 COLON-ALIGNED WIDGET-ID 4
+          LABEL "Before" FORMAT "x(256)"
+          VIEW-AS FILL-IN 
+          SIZE 92 BY 1
+          BGCOLOR 15 
+     AuditDtl.AuditExtent AT ROW 4.81 COL 14 COLON-ALIGNED WIDGET-ID 6
+          LABEL "Ext"
+          VIEW-AS FILL-IN 
+          SIZE 5 BY 1
+          BGCOLOR 15 
+     AuditDtl.AuditAfterValue AT ROW 4.81 COL 30 COLON-ALIGNED WIDGET-ID 2
+          LABEL "After" FORMAT "x(256)"
+          VIEW-AS FILL-IN 
+          SIZE 92 BY 1
+          BGCOLOR 15 
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 115 ROW 23.38
+         SIZE 124 BY 6
+         BGCOLOR 15 FGCOLOR 1 
+         TITLE BGCOLOR 15 "Audit Detail View" WIDGET-ID 400.
 
 DEFINE FRAME AuditSearch
      svType AT ROW 1.24 COL 8 COLON-ALIGNED HELP
@@ -659,67 +720,6 @@ DEFINE FRAME AuditSearch
          SIZE 238 BY 7.14
          BGCOLOR 15 FGCOLOR 1 
          TITLE "Search Filters" WIDGET-ID 500.
-
-DEFINE FRAME AuditView
-     AuditHdr.AuditDB AT ROW 1.24 COL 6 COLON-ALIGNED WIDGET-ID 16
-          LABEL "DB"
-          VIEW-AS FILL-IN 
-          SIZE 8.6 BY 1
-          BGCOLOR 15 
-     AuditHdr.AuditTable AT ROW 1.24 COL 30 COLON-ALIGNED WIDGET-ID 20
-          LABEL "Table"
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-          BGCOLOR 15 
-     AuditDtl.AuditField AT ROW 1.24 COL 58 COLON-ALIGNED WIDGET-ID 8
-          LABEL "Field"
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-          BGCOLOR 15 
-     AuditHdr.AuditType AT ROW 2.43 COL 6 COLON-ALIGNED WIDGET-ID 22
-          LABEL "Type"
-          VIEW-AS FILL-IN 
-          SIZE 13.6 BY 1
-          BGCOLOR 15 
-     AuditHdr.AuditID AT ROW 2.43 COL 30 COLON-ALIGNED WIDGET-ID 18
-          VIEW-AS FILL-IN 
-          SIZE 19 BY 1
-          BGCOLOR 15 
-     AuditHdr.AuditUser AT ROW 2.43 COL 58 COLON-ALIGNED WIDGET-ID 24
-          VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-          BGCOLOR 15 
-     AuditHdr.AuditDateTime AT ROW 2.43 COL 88 COLON-ALIGNED WIDGET-ID 14
-          LABEL "Date/Time"
-          VIEW-AS FILL-IN 
-          SIZE 34 BY 1
-          BGCOLOR 15 
-     AuditDtl.AuditIdxField AT ROW 3.62 COL 14 COLON-ALIGNED WIDGET-ID 12
-          LABEL "Idx" FORMAT "Yes/No"
-          VIEW-AS FILL-IN 
-          SIZE 5 BY 1
-          BGCOLOR 15 
-     AuditDtl.AuditBeforeValue AT ROW 3.62 COL 30 COLON-ALIGNED WIDGET-ID 4
-          LABEL "Before" FORMAT "x(256)"
-          VIEW-AS FILL-IN 
-          SIZE 92 BY 1
-          BGCOLOR 15 
-     AuditDtl.AuditExtent AT ROW 4.81 COL 14 COLON-ALIGNED WIDGET-ID 6
-          LABEL "Ext"
-          VIEW-AS FILL-IN 
-          SIZE 5 BY 1
-          BGCOLOR 15 
-     AuditDtl.AuditAfterValue AT ROW 4.81 COL 30 COLON-ALIGNED WIDGET-ID 2
-          LABEL "After" FORMAT "x(256)"
-          VIEW-AS FILL-IN 
-          SIZE 92 BY 1
-          BGCOLOR 15 
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 115 ROW 23.38
-         SIZE 124 BY 6
-         BGCOLOR 15 FGCOLOR 1 
-         TITLE BGCOLOR 15 "Audit Detail View" WIDGET-ID 400.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -983,12 +983,12 @@ THEN C-Win:HIDDEN = no.
      _TblList          = "audit.AuditDtl"
      _Options          = "NO-LOCK"
      _Where[1]         = "AuditDtl.AuditID EQ AuditHdr.AuditID
-AND (AuditDtl.AuditField EQ svField
-OR svField EQ ""ALL"")
-AND (AuditDtl.AuditBeforeValue BEGINS cBeforeValueFilter
-OR cBeforeValueFilter EQ """")
-AND (AuditDtl.AuditAfterValue BEGINS cAfterValueFilter
-OR cAfterValueFilter EQ """")"
+AND AuditDtl.AuditField GE cStartField
+AND AuditDtl.AuditField LE cEndField
+AND AuditDtl.AuditBeforeValue GE cStartBeforeValue
+AND AuditDtl.AuditBeforeValue LE cEndBeforeValue
+AND AuditDtl.AuditAfterValue GE cStartAfterValue
+AND AuditDtl.AuditAfterValue LE cEndAfterValue"
      _FldNameList[1]   > audit.AuditDtl.AuditIdxField
 "AuditDtl.AuditIdxField" ? "-X-/" "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > audit.AuditDtl.AuditField
@@ -1007,50 +1007,49 @@ OR cAfterValueFilter EQ """")"
 /* Query rebuild information for BROWSE AuditHeader
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME}
-FOR EACH ttAuditDBTable
-WHERE ttAuditDBTable.AuditDB GE cStartDB
-AND ttAuditDBTable.AuditDB LE cEndDB
-AND ttAuditDBTable.AuditTable GE cStartTable
-AND ttAuditDBTable.AuditTable LE cEndTable,
-EACH AuditHdr NO-LOCK
-WHERE AuditHdr.AuditDB EQ ttAuditDBTable.AuditDB
-AND AuditHdr.AuditTable EQ ttAuditDBTable.AuditTable
+FOR EACH AuditHdr NO-LOCK
+WHERE AuditHdr.AuditDB GE cStartDB
+AND AuditHdr.AuditDB LE cEndDB
+AND AuditHdr.AuditTable GE cStartTable
+AND AuditHdr.AuditTable LE cEndTable,
 AND AuditHdr.AuditDateTime GE dtStartDateTime
 AND AuditHdr.AuditDateTime LE dtEndDateTime
 AND AuditHdr.AuditType GE cStartType
 AND AuditHdr.AuditType LE cEndType
 AND AuditHdr.AuditUser GE cStartUser
 AND AuditHdr.AuditUser LE cEndUser
-AND (AuditHdr.AuditKey EQ cAuditKeyFilter
-OR lAuditKeyFilter EQ FALSE),
+AND AuditHdr.AuditKey GE cStartAuditKey
+AND AuditHdr.AuditKey LE cEndAuditKey,
 FIRST AuditDtl OF AuditHdr NO-LOCK
 WHERE AuditDtl.AuditField GE cStartField
 AND AuditDtl.AuditField LE cEndField
-AND (AuditDtl.AuditBeforeValue BEGINS cBeforeValueFilter
-OR cBeforeValueFilter EQ "")
-AND (AuditDtl.AuditAfterValue BEGINS cAfterValueFilter
-OR cAfterValueFilter EQ "")
+AND AuditDtl.AuditBeforeValue GE cStartBeforeValue
+AND AuditDtl.AuditBeforeValue LE cEndBeforeValue
+AND AuditDtl.AuditAfterValue GE cStartAfterValue
+AND AuditDtl.AuditAfterValue LE cEndAfterValue
  ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK SORTBY-PHRASE"
      _TblOptList       = ", EACH, FIRST"
-     _Where[1]         = "(ttAuditDBTable.AuditDB EQ svDB OR svDB EQ ""ALL"")
-AND (ttAuditDBTable.AuditTable EQ svTable OR svTable EQ ""ALL"")
-"
-     _Where[2]         = "AuditHdr.AuditDB EQ ttAudit.AuditDB
-AND AuditHdr.AuditTable EQ ttAudit.AuditTable
+     _Where[1]         = "AuditHdr.AuditDB GE cStartDB
+AND AuditHdr.AuditDB LE cEndDB
+AND AuditHdr.AuditTable GE cStartTable
+AND AuditHdr.AuditTable LE cEndTable
 AND AuditHdr.AuditDateTime GE dtStartDateTime
 AND AuditHdr.AuditDateTime LE dtEndDateTime
-AND (AuditHdr.AuditType EQ svType OR svType EQ ""ALL"")
-AND (AuditHdr.AuditUser EQ svUser OR svUser EQ ""ALL"")
-AND (AuditHdr.AuditKey EQ cAuditKeyFilter
-OR lAuditKeyFilter EQ FALSE)
+AND AuditHdr.AuditType GE cStartType
+AND AuditHdr.AuditType LE cEndType
+AND AuditHdr.AuditUser GE cStartUser
+AND AuditHdr.AuditUser LE cEndUser
+AND AuditHdr.AuditKey GE cStartAuditKey
+AND AuditHdr.AuditKey LE cEndAuditKey
 "
-     _Where[3]         = "(AuditDtl.AuditField EQ svField OR svField EQ ""ALL"")
-AND (AuditDtl.AuditBeforeValue BEGINS cBeforeValueFilter
-OR cBeforeValueFilter EQ """")
-AND (AuditDtl.AuditAfterValue BEGINS cAfterValueFilter
-OR cAfterValueFilter EQ """")"
+     _Where[2]         = "AuditDtl.AuditField GE cStartField
+AND AuditDtl.AuditField LE cEndField
+AND AuditDtl.AuditBeforeValue GE cStartBeforeValue
+AND AuditDtl.AuditBeforeValue LE cEndBeforeValue
+AND AuditDtl.AuditAfterValue GE cStartAfterValue
+AND AuditDtl.AuditAfterValue LE cEndAfterValue"
      _Query            is NOT OPENED
 */  /* BROWSE AuditHeader */
 &ANALYZE-RESUME
@@ -1221,7 +1220,8 @@ DO:
         svAfterValueFilter:SCREEN-VALUE = ""
         svAfterValueFilter
         lAfterValueFilter = NO
-        cAfterValueFilter = ""
+        cStartAfterValue  = CHR(32)
+        cEndAfterValue    = CHR(254)
         svAfterValueFilter:BGCOLOR = 15
         .
     APPLY "CHOOSE":U TO btnSearch.
@@ -1250,7 +1250,8 @@ DO:
         svBeforeValueFilter:SCREEN-VALUE = ""
         svBeforeValueFilter
         lBeforeValueFilter = NO
-        cBeforeValueFilter = ""
+        cStartBeforeValue  = CHR(32)
+        cEndBeforeValue    = CHR(254)
         svBeforeValueFilter:BGCOLOR = 15
         .
     APPLY "CHOOSE":U TO btnSearch.
@@ -1324,14 +1325,17 @@ DO:
         svTable
         svField:SCREEN-VALUE = "All"
         svField
-        cAuditKeyFilter      = ""
+        cStartAuditKey       = CHR(32)
+        cEndAuditKey         = CHR(254)
         lAuditKeyFilter      = NO
         AuditHdr.AuditKey:BGCOLOR   = 15
         lBeforeValueFilter   = NO
-        cBeforeValueFilter   = ""
+        cStartBeforeValue    = CHR(32)
+        cEndBeforeValue      = CHR(254)
         svBeforeValueFilter:BGCOLOR = 15
         lAfterValueFilter    = NO
-        cAfterValueFilter    = ""
+        cStartAfterValue     = CHR(32)
+        cEndAfterValue       = CHR(254)
         svAfterValueFilter:BGCOLOR  = 15
         .
     RUN pGetFilterValues ("ALL").
@@ -1352,9 +1356,9 @@ DO:
     ASSIGN
         svAfterValueFilter
         lAfterValueFilter = NOT lAfterValueFilter
-        cAfterValueFilter = IF lAfterValueFilter THEN svAfterValueFilter ELSE ""
         svAfterValueFilter:BGCOLOR = IF lAfterValueFilter THEN 14 ELSE 15
         .
+    RUN pSetStartEndRange (svAfterValueFilter:HANDLE).
     APPLY "CHOOSE":U TO btnSearch.
 END.
 
@@ -1371,6 +1375,7 @@ DO:
         cAuditKeyFilter = IF lAuditKeyFilter THEN AuditHdr.AuditKey ELSE ""
         AuditHdr.AuditKey:BGCOLOR = IF lAuditKeyFilter THEN 14 ELSE 15
         .
+    RUN pSetStartEndRange (SELF).
     APPLY "CHOOSE":U TO btnSearch.
 END.
 
@@ -1385,9 +1390,9 @@ DO:
     ASSIGN
         svBeforeValueFilter
         lBeforeValueFilter = NOT lBeforeValueFilter
-        cBeforeValueFilter = IF lBeforeValueFilter THEN svBeforeValueFilter ELSE ""
         svBeforeValueFilter:BGCOLOR = IF lBeforeValueFilter THEN 14 ELSE 15
         .
+    RUN pSetStartEndRange (svBeforeValueFilter:HANDLE).
     APPLY "CHOOSE":U TO btnSearch.
 END.
 
@@ -1926,6 +1931,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ASSIGN
         lAuditKeyFilter = YES
         cAuditKeyFilter = fAuditKey(iphTable,cIdxFlds)
+        cStartAuditKey  = cAuditKeyFilter
+        cEndAuditKey    = cAuditKeyFilter
         AuditHdr.AuditKey:BGCOLOR = 14
         {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
                              + " [Key: "
@@ -2077,26 +2084,26 @@ PROCEDURE pAuditKeyFilter :
   Notes:       
 ------------------------------------------------------------------------------*/
     OPEN QUERY AuditHeader
-        FOR EACH ttAuditDBTable
-            WHERE ttAuditDBTable.AuditDB    GE cStartDB
-              AND ttAuditDBTable.AuditDB    LE cEndDB
-              AND ttAuditDBTable.AuditTable GE cStartTable
-              AND ttAuditDBTable.AuditTable LE cEndTable,
-             EACH AuditHdr NO-LOCK
-            WHERE AuditHdr.AuditDB       EQ ttAuditDBTable.AuditDB
-              AND AuditHdr.AuditTable    EQ ttAuditDBTable.AuditTable
+        FOR EACH AuditHdr NO-LOCK
+            WHERE AuditHdr.AuditDB       GE cStartDB
+              AND AuditHdr.AuditDB       LE cEndDB
+              AND AuditHdr.AuditTable    GE cStartTable
+              AND AuditHdr.AuditTable    LE cEndTable
               AND AuditHdr.AuditDateTime GE dtStartDateTime
               AND AuditHdr.AuditDateTime LE dtEndDateTime
               AND AuditHdr.AuditType     GE cStartType
               AND AuditHdr.AuditType     LE cEndType
               AND AuditHdr.AuditUser     GE cStartUser
               AND AuditHdr.AuditUser     LE cEndUser
-              AND (AuditHdr.AuditKey     EQ cAuditKeyFilter OR lAuditKeyFilter EQ FALSE),
+              AND AuditHdr.AuditKey      GE cStartAuditKey
+              AND AuditHdr.AuditKey      LE cEndAuditKey,
             FIRST AuditDtl OF AuditHdr NO-LOCK
-            WHERE AuditDtl.AuditField GE cStartField
-              AND AuditDtl.AuditField LE cEndField
-              AND (AuditDtl.AuditBeforeValue BEGINS cBeforeValueFilter OR cBeforeValueFilter EQ "")
-              AND (AuditDtl.AuditAfterValue  BEGINS cAfterValueFilter  OR cAfterValueFilter  EQ "")
+            WHERE AuditDtl.AuditField       GE cStartField
+              AND AuditDtl.AuditField       LE cEndField
+              AND AuditDtl.AuditBeforeValue GE cStartBeforeValue
+              AND AuditDtl.AuditBeforeValue LE cEndBeforeValue
+              AND AuditDtl.AuditAfterValue  GE cStartAfterValue
+              AND AuditDtl.AuditAfterValue  LE cEndAfterValue
             INDEXED-REPOSITION
             {&MAX-ROWS}
             .
@@ -2127,18 +2134,6 @@ PROCEDURE pGetSettings :
         hChild = FRAME AuditSearch:FIRST-CHILD
         hChild = hChild:FIRST-CHILD
         .
-/*    DO WHILE VALID-HANDLE(hChild):                                                       */
-/*        IF hChild:NAME NE ? AND (hChild:SENSITIVE OR hChild:TYPE EQ "COMBO-BOX") THEN DO:*/
-/*            DO idx = 1 TO EXTENT(user-print.field-name):                                 */
-/*                IF TRIM(user-print.field-name[idx]) EQ hChild:NAME THEN DO:              */
-/*                    IF hChild:PRIVATE-DATA EQ "NoUserPrint" THEN LEAVE.                  */
-/*                    hChild:SCREEN-VALUE = user-print.field-value[idx].                   */
-/*                    LEAVE.                                                               */
-/*                END. /* found screen object */                                           */
-/*            END. /* do idx */                                                            */
-/*        END. /* name <> ? */                                                             */
-/*        hChild = hChild:NEXT-SIBLING.                                                    */
-/*    END. /* do while */                                                                  */
     DO idx = 1 TO EXTENT(user-print.field-name):
         IF user-print.field-name[idx] EQ "" THEN
         CASE user-print.field-label[idx]:
@@ -2192,6 +2187,8 @@ PROCEDURE pHistory :
         lSaveFilter     = lAuditKeyFilter
         lAuditKeyFilter = YES
         cAuditKeyFilter = ipcAuditKey
+        cStartAuditKey  = ipcAuditKey
+        cEndAuditKey    = ipcAuditKey
         .
     OUTPUT TO c:\tmp\AuditHistory.txt.
     PUT UNFORMATTED "Audit History for: " cAuditKeyFilter SKIP.
@@ -2212,6 +2209,8 @@ PROCEDURE pHistory :
     ASSIGN
         lAuditKeyFilter = lSaveFilter
         cAuditKeyFilter = IF lAuditKeyFilter THEN ipcAuditKey ELSE ""
+        cStartAuditKey  = IF lAuditKeyFilter THEN ipcAuditKey ELSE CHR(32)
+        cEndAuditKey    = IF lAuditKeyFilter THEN ipcAuditKey ELSE CHR(254)
         .
 &IF DEFINED(FWD-VERSION) > 0 &THEN
     open-mime-resource "text/plain" "file:///c:\tmp\AuditHistory.txt" false.
@@ -2301,19 +2300,19 @@ PROCEDURE pReopenBrowse :
         RUN pByAuditBeforeValue.
         WHEN "AuditAfterValue" THEN
         RUN pByAuditAfterValue.
-        OTHERWISE
+        WHEN "AuditID" THEN
         RUN pByAuditID.
+        OTHERWISE
+        &SCOPED-DEFINE SORTBY-PHRASE {&MAX-ROWS}
+        {&OPEN-QUERY-AuditHeader}
     END CASE.
     ELSE DO:
         OPEN QUERY AuditHeader
-        FOR EACH ttAuditDBTable
-            WHERE ttAuditDBTable.AuditDB    GE cStartDB
-              AND ttAuditDBTable.AuditDB    LE cEndDB
-              AND ttAuditDBTable.AuditTable GE cStartTable
-              AND ttAuditDBTable.AuditTable LE cEndTable,
-            EACH AuditHdr NO-LOCK
-            WHERE AuditHdr.AuditDB       EQ ttAuditDBTable.AuditDB
-              AND AuditHdr.AuditTable    EQ ttAuditDBTable.AuditTable
+        FOR EACH AuditHdr NO-LOCK
+            WHERE AuditHdr.AuditDB       GE cStartDB
+              AND AuditHdr.AuditDB       LE cEndDB
+              AND AuditHdr.AuditTable    GE cStartTable
+              AND AuditHdr.AuditTable    LE cEndTable
               AND AuditHdr.AuditDateTime GE dtStartDateTime
               AND AuditHdr.AuditDateTime LE dtEndDateTime
               AND AuditHdr.AuditRecKey   GE svStartAuditRecKey
@@ -2472,6 +2471,27 @@ PROCEDURE pSetStartEndRange :
                          ELSE CHR(32)
             cEndUser   = IF iphSelf:SCREEN-VALUE NE "All" THEN iphSelf:SCREEN-VALUE
                          ELSE CHR(254)
+            .
+        WHEN "svBeforeValueFilter" THEN
+        ASSIGN
+            cStartBeforeValue = IF lBeforeValueFilter THEN iphSelf:SCREEN-VALUE
+                                ELSE CHR(32)
+            cEndBeforeValue   = IF lBeforeValueFilter THEN iphSelf:SCREEN-VALUE
+                                ELSE CHR(254)
+            .
+        WHEN "svAfterValueFilter" THEN
+        ASSIGN
+            cStartAfterValue = IF lAfterValueFilter THEN iphSelf:SCREEN-VALUE
+                               ELSE CHR(32)
+            cEndAfterValue   = IF lAfterValueFilter THEN iphSelf:SCREEN-VALUE
+                               ELSE CHR(254)
+            .
+        WHEN "btnFilterAuditKey" THEN
+        ASSIGN
+            cStartAuditKey = IF lAuditKeyFilter THEN iphSelf:SCREEN-VALUE
+                             ELSE CHR(32)
+            cEndAuditKey   = IF lAuditKeyFilter THEN iphSelf:SCREEN-VALUE
+                             ELSE CHR(254)
             .
     END CASE.
 
