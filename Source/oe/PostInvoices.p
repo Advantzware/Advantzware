@@ -192,14 +192,17 @@ DEFINE TEMP-TABLE ttGLTransaction NO-UNDO
     .
 
 DEFINE TEMP-TABLE ttARLedgerTransaction NO-UNDO 
-    FIELD company       AS CHARACTER
-    FIELD customerID    AS CHARACTER
-    FIELD amount        AS DECIMAL 
-    FIELD referenceDesc AS CHARACTER
-    FIELD referenceDate AS DATE
-    FIELD runID         AS INTEGER
-    FIELD accountAR     AS CHARACTER 
-    FIELD postDate      AS DATE
+    FIELD company        AS CHARACTER
+    FIELD customerID     AS CHARACTER
+    FIELD amount         AS DECIMAL 
+    FIELD referenceDesc  AS CHARACTER
+    FIELD referenceDate  AS DATE
+    FIELD runID          AS INTEGER
+    FIELD accountAR      AS CHARACTER 
+    FIELD postDate       AS DATE
+    FIELD periodID       AS INTEGER
+    FIELD currencyCode   AS CHARACTER 
+    FIELD currencyExRate AS DECIMAL 
     .
     
 DEFINE TEMP-TABLE ttFGItemToUpdate NO-UNDO
@@ -356,11 +359,15 @@ PROCEDURE pAddARLedgerTransaction PRIVATE:
     DO:
         CREATE ttARLedgerTransaction.
         ASSIGN 
-            ttARLedgerTransaction.company       = ipbf-ttInvoiceToPost.company
-            ttARLedgerTransaction.customerID    = ipbf-ttInvoiceToPost.customerID
-            ttARLedgerTransaction.referenceDate = ipbf-ttInvoiceToPost.invoiceDate
-            ttARLedgerTransaction.referenceDesc = cReferenceDesc
-            ttARLedgerTransaction.accountAR     = ipbf-ttInvoiceToPost.accountAR
+            ttARLedgerTransaction.company        = ipbf-ttInvoiceToPost.company
+            ttARLedgerTransaction.customerID     = ipbf-ttInvoiceToPost.customerID
+            ttARLedgerTransaction.referenceDate  = ipbf-ttInvoiceToPost.invoiceDate
+            ttARLedgerTransaction.referenceDesc  = cReferenceDesc
+            ttARLedgerTransaction.accountAR      = ipbf-ttInvoiceToPost.accountAR
+            ttARLedgerTransaction.currencyCode   = ipbf-ttInvoiceToPost.currencyCode
+            ttARLedgerTransaction.currencyExRate = ipbf-ttInvoiceToPost.currencyExRate
+            ttARLedgerTransaction.periodID       = ipbf-ttInvoiceToPost.periodID
+            ttARLedgerTransaction.postDate       = ipbf-ttInvoiceToPost.postDate
             .
     END.
     ttARLedgerTransaction.amount = ttARLedgerTransaction.amount - ipbf-ttInvoiceToPost.amountBilled.
@@ -601,6 +608,8 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
         ttInvoiceLineToPost.bolID             = ipbf-ttInvoiceToPost.bolID
         ttInvoiceLineToPost.customerID        = ipbf-ttInvoiceToPost.customerID
         ttInvoiceLineToPost.periodID          = ipbf-ttInvoiceToPost.periodID
+        ttInvoiceLineToPost.currencyCode      = ipbf-ttInvoiceToPost.currencyCode
+        ttInvoiceLineToPost.currencyExRate    = ipbf-ttInvoiceToPost.currencyExRate
         .
 
     /*FG Dependent fields*/
@@ -1557,22 +1566,25 @@ PROCEDURE pCreateGLTrans PRIVATE:
      
     DEFINE BUFFER bf-gltrans FOR gltrans.
      
-    CREATE bf-gltrans.
-    ASSIGN
-        opriGLTrans          = ROWID(bf-gltrans)
-        bf-gltrans.company   = ipbf-ttPostingMaster.company
-        bf-gltrans.actnum    = ipcAccount
-        bf-gltrans.jrnl      = ipbf-ttPostingMaster.journalNote
-        bf-gltrans.tr-dscr   = ipcDescription
-        bf-gltrans.tr-amt    = ipdTransactionAmount
-        bf-gltrans.period    = IF ipiTransactionPeriod EQ 0 THEN ipbf-ttPostingMaster.periodID ELSE ipiTransactionPeriod
-        bf-gltrans.tr-date   = IF ipdtTransactionDate EQ ? THEN ipbf-ttPostingMaster.postDate ELSE ipdtTransactionDate
-        bf-gltrans.trnum     = ipiRun
-        bf-gltrans.curr-code = ipcCurrCode
-        bf-gltrans.ex-rate   = ipdExRate
-        .
+    IF ipdTransactionAmount NE 0 THEN 
+    DO:
+        CREATE bf-gltrans.
+        ASSIGN
+            opriGLTrans          = ROWID(bf-gltrans)
+            bf-gltrans.company   = ipbf-ttPostingMaster.company
+            bf-gltrans.actnum    = ipcAccount
+            bf-gltrans.jrnl      = ipbf-ttPostingMaster.journalNote
+            bf-gltrans.tr-dscr   = ipcDescription
+            bf-gltrans.tr-amt    = ipdTransactionAmount
+            bf-gltrans.period    = IF ipiTransactionPeriod EQ 0 THEN ipbf-ttPostingMaster.periodID ELSE ipiTransactionPeriod
+            bf-gltrans.tr-date   = IF ipdtTransactionDate EQ ? THEN ipbf-ttPostingMaster.postDate ELSE ipdtTransactionDate
+            bf-gltrans.trnum     = ipiRun
+            bf-gltrans.curr-code = ipcCurrCode
+            bf-gltrans.ex-rate   = ipdExRate
+            .
     
-    RELEASE bf-gltrans.
+        RELEASE bf-gltrans.
+    END.
     
 END PROCEDURE.
 
@@ -2141,17 +2153,19 @@ PROCEDURE pPostARLedger PRIVATE:
             AND bf-ar-ledger.ref-date EQ ttARLedgerTransaction.referenceDate
             AND bf-ar-ledger.ref-num EQ ttARLedgerTransaction.referenceDesc
             NO-ERROR.
-        IF NOT AVAILABLE bf-ar-ledger THEN 
+        IF NOT AVAILABLE bf-ar-ledger THEN
         DO: 
             CREATE bf-ar-ledger.
             ASSIGN 
-                bf-ar-ledger.company  = ttARLedgerTransaction.company
-                bf-ar-ledger.cust-no  = ttARLedgerTransaction.customerID
-                bf-ar-ledger.amt      = ttArLedgerTransaction.amount
-                bf-ar-ledger.ref-num  = ttARLedgerTransaction.referenceDesc
-                bf-ar-ledger.ref-date = ttARLedgerTransaction.referenceDate
-                bf-ar-ledger.tr-num   = ipiRun
-                bf-ar-ledger.tr-date  = ttARLedgerTransaction.postDate
+                bf-ar-ledger.company   = ttARLedgerTransaction.company
+                bf-ar-ledger.cust-no   = ttARLedgerTransaction.customerID
+                bf-ar-ledger.amt       = ttArLedgerTransaction.amount
+                bf-ar-ledger.ref-num   = ttARLedgerTransaction.referenceDesc
+                bf-ar-ledger.ref-date  = ttARLedgerTransaction.referenceDate
+                bf-ar-ledger.tr-num    = ipiRun
+                bf-ar-ledger.tr-date   = ttARLedgerTransaction.postDate
+                bf-ar-ledger.curr-code = ttARLedgerTransaction.currencyCode
+                bf-ar-ledger.ex-rate   = ttARLedgerTransaction.currencyExRate
                 .
         END.
         ELSE 

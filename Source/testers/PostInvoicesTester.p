@@ -30,8 +30,8 @@ DEFINE TEMP-TABLE ttGLTrans LIKE gltrans
     USE-INDEX rec_key AS PRIMARY.
 
 DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO INITIAL '001'.
-DEFINE VARIABLE iInvStart           AS INTEGER   NO-UNDO INITIAL 1000027.
-DEFINE VARIABLE iInvEnd             AS INTEGER   NO-UNDO INITIAL 1000043.
+DEFINE VARIABLE iInvStart           AS INTEGER   NO-UNDO INITIAL 1000054.
+DEFINE VARIABLE iInvEnd             AS INTEGER   NO-UNDO INITIAL 1000060.
 DEFINE VARIABLE dtStart             AS DATE      NO-UNDO INITIAL 1/1/2018.
 DEFINE VARIABLE dtEnd               AS DATE      NO-UNDO INITIAL 12/31/2020.
 DEFINE VARIABLE cCustStart          AS CHARACTER NO-UNDO INITIAL ''.
@@ -155,7 +155,7 @@ PROCEDURE pBuildCompareFiles PRIVATE:
     END.
     FOR EACH gltrans NO-LOCK
         WHERE gltrans.company EQ '001'
-        AND gltrans.trnum EQ 60105:
+        AND gltrans.trnum EQ 60193:
         CREATE ttGlTrans.
         BUFFER-COPY gltrans TO ttGlTrans.
     END.
