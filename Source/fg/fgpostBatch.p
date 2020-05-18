@@ -35,6 +35,7 @@ DEFINE VARIABLE lvReturnChar    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvFound         AS LOG       NO-UNDO.
 DEFINE VARIABLE autofgissue-log AS LOGICAL   NO-UNDO. /* set and used */
 DEFINE VARIABLE v-fgpostgl      AS CHARACTER NO-UNDO. /* set by fgpostgl nk1 value */
+DEF VAR iCtr AS INT NO-UNDO.
 
 /* ***************************  Definitions  ************************** */
 {methods/defines/hndldefs.i}
@@ -648,35 +649,42 @@ PROCEDURE fg-post:
             itemfg.i-no    EQ w-fg-rctd.i-no) THEN
             NEXT.
 
-        loop1:
-        REPEAT:
-
+        FIND FIRST itemfg WHERE
+            itemfg.company EQ cocode AND
+            itemfg.i-no    EQ w-fg-rctd.i-no
+            EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
+        ASSIGN 
+            iCtr = 0.
+        DO WHILE NOT AVAIL itemfg:
+            PAUSE 1 NO-MESSAGE.
+            ASSIGN 
+                iCtr = iCtr + 1.
+            IF ictr MODULO 10 EQ 0 THEN MESSAGE 
+                "Item " + w-fg-rctd.i-no + " has been locked by another " + 
+                "process for " + STRING(iCtr,">>>>9") + " seconds.  Waiting for item to be released."
+                VIEW-AS ALERT-BOX INFO.
             FIND FIRST itemfg WHERE
                 itemfg.company EQ cocode AND
                 itemfg.i-no    EQ w-fg-rctd.i-no
                 EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
+        END.            
 
-            IF AVAILABLE itemfg THEN
-            DO:           
-                /* If FGEMAIL is active and quantity on hand is zero and item is allocated,
-                   then process user data into a temp-table for processing emails later. */
-                IF gv-fgemail = YES AND (itemfg.q-onh = 0 AND itemfg.q-alloc > 0) THEN
-                    RUN Process-FGemail-Data (INPUT itemfg.i-no, w-fg-rctd.t-qty,w-fg-rctd.po-no).
+        /* If FGEMAIL is active and quantity on hand is zero and item is allocated,
+           then process user data into a temp-table for processing emails later. */
+        IF gv-fgemail = YES AND (itemfg.q-onh = 0 AND itemfg.q-alloc > 0) THEN
+                RUN Process-FGemail-Data (INPUT itemfg.i-no, w-fg-rctd.t-qty,w-fg-rctd.po-no).
 
-          /* itemfg gets updated here. */
-          /* w-job created here */
-                    {fg/fg-post.i w-fg-rctd w-fg-rctd}
+        /* itemfg gets updated here. */
+        /* w-job created here */
+        {fg/fg-post.i w-fg-rctd w-fg-rctd}
 
-                IF autofgissue-log THEN
-                    RUN farmOutComp.
+        IF autofgissue-log THEN
+            RUN farmOutComp.
 
-                FIND CURRENT itemfg NO-LOCK NO-ERROR.
-                FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
-                FIND CURRENT po-ordl NO-LOCK NO-ERROR.
-                FIND CURRENT fg-bin NO-LOCK NO-ERROR.
-                LEAVE loop1.
-            END. /* IF AVAIL itemfg */
-        END. /* loop1 REPEAT */
+        FIND CURRENT itemfg NO-LOCK NO-ERROR.
+        FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
+        FIND CURRENT po-ordl NO-LOCK NO-ERROR.
+        FIND CURRENT fg-bin NO-LOCK NO-ERROR.
 
         IF w-fg-rctd.rita-code = "R" THEN 
         DO:
@@ -860,7 +868,7 @@ PROCEDURE fg-post:
 
                 /* Default to standard cost, or accept calculated value from code above */
                 IF NOT (v-cost-from-receipt = "TransferCost" AND itemfg.spare-dec-1 EQ 0) THEN 
-                DO:
+                DO:  
                     IF oe-ordl.cost EQ 0 THEN 
                     DO:
 
