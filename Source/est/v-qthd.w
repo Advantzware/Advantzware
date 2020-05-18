@@ -39,15 +39,18 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 
 {est/printquo.i new}
 
-def NEW SHARED buffer xquo for quotehd.
+DEFINE NEW SHARED BUFFER xquo FOR quotehd.
 
-def var list-name as cha no-undo.
-def var tmp-dir as cha no-undo.
-def var init-dir as cha no-undo.
-DEF VAR lv-ship-no LIKE shipto.ship-no NO-UNDO.
-DEF VAR ll-new-file AS LOG NO-UNDO.
-DEF VAR lv-part-no LIKE quoteitm.part-no NO-UNDO.
-DEF VAR lv-rowid AS ROWID NO-UNDO.
+DEFINE VARIABLE list-name       AS CHARACTER          NO-UNDO.
+DEFINE VARIABLE tmp-dir         AS CHARACTER          NO-UNDO.
+DEFINE VARIABLE init-dir        AS CHARACTER          NO-UNDO.
+DEFINE VARIABLE lv-ship-no      LIKE shipto.ship-no   NO-UNDO.
+DEFINE VARIABLE ll-new-file     AS LOGICAL            NO-UNDO.
+DEFINE VARIABLE lv-part-no      LIKE quoteitm.part-no NO-UNDO.
+DEFINE VARIABLE lv-rowid        AS ROWID              NO-UNDO.
+DEFINE VARIABLE hdCustomerProcs AS HANDLE             NO-UNDO.
+
+RUN system/customerProcs.p PERSISTENT SET hdCustomerProcs.
 
 DEF TEMP-TABLE w-qqty NO-UNDO FIELD w-rowid AS ROWID.
 
@@ -1290,63 +1293,61 @@ PROCEDURE new-cust-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE riShipTo AS ROWID NO-UNDO.
 
-  DO WITH FRAME {&FRAME-NAME}:
+    DO WITH FRAME {&FRAME-NAME}:
 
-    IF quotehd.cust-no:SCREEN-VALUE NE "TEMP" THEN
-    DO:
-       FIND FIRST cust
-           WHERE cust.company EQ gcompany
-             AND cust.cust-no EQ quotehd.cust-no:SCREEN-VALUE
-           NO-LOCK NO-ERROR.
-       IF AVAIL cust THEN DO:
-         ASSIGN
-          quotehd.billto[1]:SCREEN-VALUE = cust.name
-          quotehd.billto[2]:SCREEN-VALUE = cust.addr[1]
-          quotehd.billto[3]:SCREEN-VALUE = cust.addr[2]
-          quotehd.billto[4]:SCREEN-VALUE = cust.city + ", " +
+        IF quotehd.cust-no:SCREEN-VALUE NE "TEMP" THEN DO:
+            FIND FIRST cust NO-LOCK 
+                 WHERE cust.company EQ gcompany
+                   AND cust.cust-no EQ quotehd.cust-no:SCREEN-VALUE
+                 NO-ERROR.
+            IF AVAIL cust THEN DO:
+                ASSIGN
+                    quotehd.billto[1]:SCREEN-VALUE = cust.name
+                    quotehd.billto[2]:SCREEN-VALUE = cust.addr[1]
+                    quotehd.billto[3]:SCREEN-VALUE = cust.addr[2]
+                    quotehd.billto[4]:SCREEN-VALUE = cust.city + ", " +
                                            cust.state + "  " +
                                            cust.zip
-          quotehd.sman:SCREEN-VALUE      = cust.sman
-          quotehd.terms:SCREEN-VALUE     = cust.terms
-          quotehd.contact:SCREEN-VALUE   = cust.contact
-          quotehd.del-zone:SCREEN-VALUE  = cust.del-zone
-          quotehd.carrier:SCREEN-VALUE   = cust.carrier.
+                    quotehd.sman:SCREEN-VALUE      = cust.sman
+                    quotehd.terms:SCREEN-VALUE     = cust.terms
+                    quotehd.contact:SCREEN-VALUE   = cust.contact
+                    quotehd.del-zone:SCREEN-VALUE  = cust.del-zone
+                    quotehd.carrier:SCREEN-VALUE   = cust.carrier
+                    .
+               
+                RUN Customer_GetDefaultShipTo IN hdCustomerProcs(
+                    INPUT  cocode,
+                    INPUT  quotehd.cust-no:SCREEN-VALUE,
+                    OUTPUT riShipTo
+                    ).
+                FIND FIRST shipto NO-LOCK 
+                    WHERE ROWID(shipto) EQ riShipTo
+                    NO-ERROR.
+                    
+                IF AVAILABLE shipto THEN DO:
+                    quotehd.ship-id:SCREEN-VALUE = shipto.ship-id.
+                    RUN new-ship-id.   
+                END.     
 
-         FIND FIRST shipto
-             WHERE shipto.company EQ gcompany
-               AND shipto.cust-no EQ quotehd.cust-no:SCREEN-VALUE
-               AND shipto.ship-id EQ quotehd.ship-id:SCREEN-VALUE
-             NO-LOCK NO-ERROR.
-         IF NOT AVAIL shipto THEN
-         FOR EACH shipto
-             WHERE shipto.company EQ gcompany
-               AND shipto.cust-no EQ quotehd.cust-no:SCREEN-VALUE
-               AND shipto.ship-id NE ""
-             NO-LOCK:
-           quotehd.ship-id:SCREEN-VALUE = shipto.ship-id.
-           RUN new-ship-id.
-           LEAVE.
-         END.
-
-         FIND FIRST soldto
-             WHERE soldto.company EQ gcompany
-               AND soldto.cust-no EQ quotehd.cust-no:SCREEN-VALUE
-               AND soldto.sold-id EQ quotehd.sold-id:SCREEN-VALUE
-             NO-LOCK NO-ERROR.
-         IF NOT AVAIL soldto THEN
-         FOR EACH soldto
-             WHERE soldto.company EQ gcompany
-               AND soldto.cust-no EQ quotehd.cust-no:SCREEN-VALUE
-               AND soldto.sold-id NE ""
-             NO-LOCK:
-           quotehd.sold-id:SCREEN-VALUE = soldto.sold-id.
-           RUN new-sold-id.
-           LEAVE.
-         END.
-       END.
+                FIND FIRST soldto NO-LOCK
+                    WHERE soldto.company EQ gcompany
+                      AND soldto.cust-no   EQ quotehd.cust-no:SCREEN-VALUE
+                      AND soldto.sold-id   EQ quotehd.sold-id:SCREEN-VALUE
+                    NO-ERROR.
+                IF NOT AVAIL soldto THEN
+                    FOR EACH soldto NO-LOCK
+                        WHERE soldto.company EQ gcompany
+                          AND soldto.cust-no EQ quotehd.cust-no:SCREEN-VALUE
+                          AND soldto.sold-id NE "" :
+                        quotehd.sold-id:SCREEN-VALUE = soldto.sold-id.
+                        RUN new-sold-id.
+                        LEAVE.
+                    END.
+            END.
+        END.
     END.
-  END.
 
 END PROCEDURE.
 
