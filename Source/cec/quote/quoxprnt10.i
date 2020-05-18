@@ -179,8 +179,8 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
     ELSE
     IF i EQ 5 THEN DO:   
-     IF  xqitm.i-coldscr NE "" THEN
-       PUT "<C21>" xqitm.i-coldscr   FORM "x(30)".
+     IF (AVAIL eb AND eb.i-coldscr NE "") OR xqitm.i-coldscr NE "" THEN
+       PUT "<C21>" (IF AVAIL eb AND eb.i-coldscr NE "" THEN eb.i-coldscr ELSE xqitm.i-coldscr)   FORM "x(40)".
      ELSE do:
             numfit = numfit + 1 .
             NEXT .
