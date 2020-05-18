@@ -2256,14 +2256,15 @@ PROCEDURE list-post-inv :
 
         BY w-report.key-01:
  
-        /* Create eddoc for invoice if required */
-        RUN ed/asi/o810hook.p (RECID(inv-head), NO, NO).    
-        
+           
         FIND FIRST edmast NO-LOCK
             WHERE edmast.cust EQ inv-head.cust-no
             NO-ERROR.
-        IF AVAILABLE edmast THEN 
-        DO: 
+        IF AVAILABLE edmast AND v-post THEN 
+        DO:             
+            /* Create eddoc for invoice if required */
+            RUN ed/asi/o810hook.p (RECID(inv-head), NO, NO). 
+            
             FIND FIRST edcode NO-LOCK
                 WHERE edcode.partner EQ edmast.partner
                 NO-ERROR.
@@ -2271,12 +2272,11 @@ PROCEDURE list-post-inv :
                 FIND FIRST edcode NO-LOCK
                     WHERE edcode.partner EQ edmast.partnerGrp
                     NO-ERROR.
+            IF AVAILABLE edcode AND edcode.sendFileOnPrint THEN    
+                RUN ed/asi/write810.p (INPUT cocode, INPUT inv-head.inv-no).                     
         END.  
-     
-        IF AVAILABLE edcode AND edcode.sendFileOnPrint THEN    
-            RUN ed/asi/write810.p (INPUT cocode, INPUT inv-head.inv-no).    
-              
-            {oe/r-inve&p.i}
+                  
+        {oe/r-inve&p.i}
     END.
 
     FIND CURRENT inv-head NO-LOCK NO-ERROR.
