@@ -3888,8 +3888,12 @@ PROCEDURE release-item :
   Notes:       
 ------------------------------------------------------------------------------*/
 IF adm-brs-in-update THEN RETURN.
-DEF BUFFER bf-oe-rel FOR oe-rel.
-DEF VAR lrCurrentRel AS ROWID NO-UNDO.
+
+DEFINE BUFFER bf-oe-rel FOR oe-rel.
+
+DEFINE VARIABLE lrCurrentRel AS ROWID   NO-UNDO.
+DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
+
 SESSION:SET-WAIT-STATE ('general').
 
  /*IF oe-rel.s-code = "I"  THEN DO: 
@@ -3938,6 +3942,16 @@ end.
 
   EMPTY TEMP-TABLE tt-email.
   
+  IF oe-rel.tot-qty LE 0 THEN DO:  
+     RUN displayMessageQuestionLog(
+         INPUT "36",
+         OUTPUT lMsgResponse
+         ).
+         
+     IF NOT lMsgResponse THEN 
+         RETURN.
+  END.       
+      
   RUN oe/CheckAckPrint.p(INPUT ROWID(oe-ord)).
   RUN oe/actrel.p (RECID(oe-rel), INPUT-OUTPUT iocPrompt).
 
