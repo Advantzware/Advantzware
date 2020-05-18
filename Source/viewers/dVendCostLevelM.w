@@ -3086,184 +3086,224 @@ PROCEDURE pDisplayValue :
 
            IF i EQ 1 THEN
                 ASSIGN 
-                dFromTo1:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)
-                dToQty1:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)
-                dEaCost1:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)
-                dSetup1:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)
-                dDev1:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
-                iLeadTime-1:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                rwRowid[1]            = ROWID(vendItemCostLevel)  .
+                    dFromTo1:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)
+                    dFrom1:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)
+                    dToQty1:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)
+                    dEaCost1:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)
+                    dSetup1:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)
+                    dDev1:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                    iLeadTime-1:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                    rwRowid[1]               = ROWID(vendItemCostLevel)  
+                    .
             ELSE IF i EQ 2 THEN
                 ASSIGN 
-                dFromTo2:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)    
-                dToQty2:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)      
-                dEaCost2:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)      
-                dSetup2:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)       
-                dDev2:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
-                iLeadTime-2:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                rwRowid[2]            = ROWID(vendItemCostLevel)  . 
+                    dFromTo2:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)
+                    dFrom2:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)    
+                    dToQty2:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
+                    dEaCost2:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
+                    dSetup2:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
+                    dDev2:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                    iLeadTime-2:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                    rwRowid[2]               = ROWID(vendItemCostLevel) 
+                    . 
             ELSE IF i EQ 3 THEN
                 ASSIGN 
-                dFromTo3:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)    
-                dToQty3:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)      
-                dEaCost3:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)      
-                dSetup3:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)       
-                dDev3:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
-                iLeadTime-3:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                rwRowid[3]            = ROWID(vendItemCostLevel)  . 
+                    dFromTo3:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)
+                    dFrom3:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)    
+                    dToQty3:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
+                    dEaCost3:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
+                    dSetup3:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
+                    dDev3:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                    iLeadTime-3:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                    rwRowid[3]               = ROWID(vendItemCostLevel)  
+                    . 
             ELSE IF i EQ 4 THEN
                 ASSIGN 
-                dFromTo4:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)    
-                dToQty4:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)      
-                dEaCost4:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)      
-                dSetup4:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)       
-                dDev4:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
-                iLeadTime-4:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                rwRowid[4]            = ROWID(vendItemCostLevel)  . 
+                    dFromTo4:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)
+                    dFrom4:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)    
+                    dToQty4:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
+                    dEaCost4:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
+                    dSetup4:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
+                    dDev4:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                    iLeadTime-4:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                    rwRowid[4]               = ROWID(vendItemCostLevel) 
+                    . 
             ELSE IF i EQ 5 THEN
                 ASSIGN 
-                dFromTo5:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)    
-                dToQty5:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)      
-                dEaCost5:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)      
-                dSetup5:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)       
-                dDev5:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
-                iLeadTime-5:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                rwRowid[5]            = ROWID(vendItemCostLevel)  . 
+                    dFromTo5:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo) 
+                    dFrom5:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)   
+                    dToQty5:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
+                    dEaCost5:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
+                    dSetup5:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
+                    dDev5:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                    iLeadTime-5:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                    rwRowid[5]               = ROWID(vendItemCostLevel)  
+                    . 
             ELSE IF  i EQ 6 THEN
                 ASSIGN 
-                dFromTo6:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)    
-                dToQty6:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)      
-                dEaCost6:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)      
-                dSetup6:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)       
-                dDev6:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
-                iLeadTime-6:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                rwRowid[6]            = ROWID(vendItemCostLevel)  . 
+                    dFromTo6:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo) 
+                    dFrom6:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)   
+                    dToQty6:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
+                    dEaCost6:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
+                    dSetup6:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
+                    dDev6:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                    iLeadTime-6:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                    rwRowid[6]               = ROWID(vendItemCostLevel)  
+                    . 
             ELSE IF i EQ 7 THEN
                 ASSIGN 
-                dFromTo7:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)    
-                dToQty7:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)      
-                dEaCost7:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)      
-                dSetup7:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)       
-                dDev7:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
-                iLeadTime-7:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                rwRowid[7]            = ROWID(vendItemCostLevel)  . 
+                    dFromTo7:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)
+                    dFrom7:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)    
+                    dToQty7:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
+                    dEaCost7:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
+                    dSetup7:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
+                    dDev7:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                    iLeadTime-7:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                    rwRowid[7]               = ROWID(vendItemCostLevel)  
+                    . 
             ELSE IF i EQ 8 THEN
                 ASSIGN 
-                dFromTo8:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)    
-                dToQty8:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)      
-                dEaCost8:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)      
-                dSetup8:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)       
-                dDev8:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
-                iLeadTime-8:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                rwRowid[8]            = ROWID(vendItemCostLevel)  . 
+                    dFromTo8:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)   
+                    dFrom8:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom) 
+                    dToQty8:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
+                    dEaCost8:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
+                    dSetup8:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
+                    dDev8:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                    iLeadTime-8:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                    rwRowid[8]               = ROWID(vendItemCostLevel)  
+                    . 
             ELSE IF i EQ 9 THEN
                 ASSIGN 
-                dFromTo9:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)    
-                dToQty9:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)      
-                dEaCost9:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)      
-                dSetup9:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)       
-                dDev9:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
-                iLeadTime-9:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                rwRowid[9]            = ROWID(vendItemCostLevel)  . 
+                    dFromTo9:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)  
+                    dFrom9:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)  
+                    dToQty9:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
+                    dEaCost9:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
+                    dSetup9:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
+                    dDev9:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                    iLeadTime-9:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                    rwRowid[9]               = ROWID(vendItemCostLevel)  
+                    . 
             ELSE IF i EQ 10 THEN
                 ASSIGN 
-                dFromTo10:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)    
-                dToQty10:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)      
-                dEaCost10:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)      
-                dSetup10:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)       
-                dDev10:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
-                iLeadTime-10:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                rwRowid[10]            = ROWID(vendItemCostLevel)  . 
+                    dFromTo10:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)
+                    dFrom10:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)    
+                    dToQty10:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
+                    dEaCost10:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
+                    dSetup10:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
+                    dDev10:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                    iLeadTime-10:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                    rwRowid[10]               = ROWID(vendItemCostLevel)  
+                    . 
            ELSE IF i EQ 11 THEN
                 ASSIGN 
-                dFromTo-11:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)
-                dToQty11:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)
-                dEaCost-11:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)
-                dSetup-11:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)
-                dDev-11:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
-                iLeadTime-11:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                rwRowid[11]             = ROWID(vendItemCostLevel) .
+                    dFromTo-11:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
+                    dFrom-11:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)
+                    dToQty11:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)
+                    dEaCost-11:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)
+                    dSetup-11:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)
+                    dDev-11:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
+                    iLeadTime-11:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                    rwRowid[11]               = ROWID(vendItemCostLevel) 
+                    .
             ELSE IF i EQ 12 THEN
                 ASSIGN 
-                dFromTo-12:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)    
-                dToQty12:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)      
-                dEaCost-12:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)      
-                dSetup-12:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)       
-                dDev-12:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
-                iLeadTime-12:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                rwRowid[12]             = ROWID(vendItemCostLevel)  . 
+                    dFromTo-12:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
+                    dFrom-12:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                    dToQty12:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
+                    dEaCost-12:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
+                    dSetup-12:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
+                    dDev-12:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
+                    iLeadTime-12:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                    rwRowid[12]               = ROWID(vendItemCostLevel)  
+                    . 
             ELSE IF i EQ 13 THEN
                 ASSIGN 
-                dFromTo-13:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)    
-                dToQty13:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)      
-                dEaCost-13:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)      
-                dSetup-13:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)       
-                dDev-13:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
-                iLeadTime-13:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)                
-                rwRowid[13]             = ROWID(vendItemCostLevel)  . 
+                    dFromTo-13:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
+                    dFrom-13:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                    dToQty13:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
+                    dEaCost-13:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
+                    dSetup-13:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
+                    dDev-13:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
+                    iLeadTime-13:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)                
+                    rwRowid[13]               = ROWID(vendItemCostLevel)  
+                    . 
             ELSE IF i EQ 14 THEN
                 ASSIGN 
-                dFromTo-14:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)    
-                dToQty14:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)      
-                dEaCost-14:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)      
-                dSetup-14:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)       
-                dDev-14:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
-                iLeadTime-14:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                rwRowid[14]             = ROWID(vendItemCostLevel)  . 
+                    dFromTo-14:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
+                    dFrom-14:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                    dToQty14:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
+                    dEaCost-14:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
+                    dSetup-14:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
+                    dDev-14:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
+                    iLeadTime-14:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                    rwRowid[14]               = ROWID(vendItemCostLevel) 
+                    . 
             ELSE IF i EQ 15 THEN
                 ASSIGN 
-                dFromTo-15:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)    
-                dToQty15:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)      
-                dEaCost-15:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)      
-                dSetup-15:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)       
-                dDev-15:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation) 
-                iLeadTime-15:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                rwRowid[15]             = ROWID(vendItemCostLevel) . 
+                    dFromTo-15:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo) 
+                    dFrom-15:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)   
+                    dToQty15:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
+                    dEaCost-15:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
+                    dSetup-15:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
+                    dDev-15:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation) 
+                    iLeadTime-15:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                    rwRowid[15]               = ROWID(vendItemCostLevel)
+                    . 
             ELSE IF  i EQ 16 THEN
                 ASSIGN 
-                dFromTo-16:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)    
-                dToQty16:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)      
-                dEaCost-16:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)      
-                dSetup-16:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)       
-                dDev-16:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation) 
-                iLeadTime-16:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                rwRowid[16]             = ROWID(vendItemCostLevel) . 
+                    dFromTo-16:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
+                    dFrom-16:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                    dToQty16:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
+                    dEaCost-16:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
+                    dSetup-16:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
+                    dDev-16:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation) 
+                    iLeadTime-16:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                    rwRowid[16]               = ROWID(vendItemCostLevel) 
+                    . 
             ELSE IF i EQ 17 THEN
                 ASSIGN 
-                dFromTo-17:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)    
-                dToQty17:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)      
-                dEaCost-17:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)      
-                dSetup-17:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)       
-                dDev-17:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
-                iLeadTime-17:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                rwRowid[17]             = ROWID(vendItemCostLevel)  . 
+                    dFromTo-17:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
+                    dFrom-17:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                    dToQty17:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
+                    dEaCost-17:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
+                    dSetup-17:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
+                    dDev-17:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
+                    iLeadTime-17:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                    rwRowid[17]               = ROWID(vendItemCostLevel)  
+                    . 
             ELSE IF i EQ 18 THEN
                 ASSIGN 
-                dFromTo-18:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)    
-                dToQty18:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)      
-                dEaCost-18:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)      
-                dSetup-18:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)       
-                dDev-18:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
-                iLeadTime-18:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                rwRowid[18]             = ROWID(vendItemCostLevel)  . 
+                    dFromTo-18:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
+                    dFrom-18:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                    dToQty18:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
+                    dEaCost-18:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
+                    dSetup-18:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
+                    dDev-18:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
+                    iLeadTime-18:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                    rwRowid[18]               = ROWID(vendItemCostLevel)  
+                    . 
             ELSE IF i EQ 19 THEN
                 ASSIGN 
-                dFromTo-19:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)    
-                dToQty19:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)      
-                dEaCost-19:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)      
-                dSetup-19:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)       
-                dDev-19:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
-                iLeadTime-19:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                rwRowid[19]             = ROWID(vendItemCostLevel)  . 
+                    dFromTo-19:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
+                    dFrom-19:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                    dToQty19:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
+                    dEaCost-19:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
+                    dSetup-19:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
+                    dDev-19:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
+                    iLeadTime-19:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                    rwRowid[19]               = ROWID(vendItemCostLevel)  
+                    . 
             ELSE IF i EQ 20 THEN
                 ASSIGN 
-                dFromTo-20:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)    
-                dToQty20:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)      
-                dEaCost-20:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)      
-                dSetup-20:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)       
-                dDev-20:SCREEN-VALUE    = string(vendItemCostLevel.costDeviation)
-                iLeadTime-20:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                rwRowid[20]             = ROWID(vendItemCostLevel) . 
+                    dFromTo-20:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
+                    dFrom-20:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                    dToQty20:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
+                    dEaCost-20:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
+                    dSetup-20:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
+                    dDev-20:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
+                    iLeadTime-20:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                    rwRowid[20]               = ROWID(vendItemCostLevel) 
+                    . 
             i = i + 1 .
             IF i GT 20 THEN LEAVE .
         END.
