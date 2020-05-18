@@ -2490,7 +2490,7 @@ PROCEDURE pPostInvoices PRIVATE:
                 DELETE bf-child-inv-head.
             END.
         
-        RUN pCreateEDI(BUFFER bf-inv-head).
+        //REFACTOR TEMPORARY REMOVAL - RUN pCreateEDI(BUFFER bf-inv-head).
         
         DELETE bf-inv-head.
         DELETE ttInvoiceToPost.
