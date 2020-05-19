@@ -36,12 +36,22 @@ CREATE WIDGET-POOL.
 DEF OUTPUT PARAM op-inks AS LOG NO-UNDO.
 DEF OUTPUT PARAM op-pack AS LOG NO-UNDO.
 DEF OUTPUT PARAM op-frat AS LOG NO-UNDO.
+DEF OUTPUT PARAM op-UpdEst AS LOG NO-UNDO.
 DEF OUTPUT PARAM op-error AS LOG INIT YES NO-UNDO.
 
+DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
 {sys/inc/varasgn.i}
+
+RUN sys/ref/nk1look.p (INPUT g_company, "CEUpdate", "C" /* Logical */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cRtnChar, OUTPUT lFound).
+    IF NOT lFound OR cRtnChar EQ "" OR cRtnChar EQ "None" THEN 
+        cRtnChar = "FG Item #".         
+  
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -56,13 +66,14 @@ DEF OUTPUT PARAM op-error AS LOG INIT YES NO-UNDO.
 
 &Scoped-define ADM-CONTAINER DIALOG-BOX
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tb_inks tb_pack tb_frat Btn_OK Btn_Cancel ~
-RECT-26 
-&Scoped-Define DISPLAYED-OBJECTS tb_inks tb_pack tb_frat 
+&Scoped-Define ENABLED-OBJECTS RECT-26 tb_inks tb_pack tb_frat ~
+tb_update-other-est Btn_OK Btn_Cancel 
+&Scoped-Define DISPLAYED-OBJECTS tb_inks tb_pack tb_frat ~
+tb_update-other-est fi_Criteria 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -88,9 +99,13 @@ DEFINE BUTTON Btn_OK AUTO-GO
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
+DEFINE VARIABLE fi_Criteria AS CHARACTER FORMAT "X(30)":U 
+     VIEW-AS FILL-IN 
+     SIZE 46.8 BY 1 NO-UNDO.
+
 DEFINE RECTANGLE RECT-26
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 33 BY 3.81.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 63.9 BY 5.38.
 
 DEFINE VARIABLE tb_frat AS LOGICAL INITIAL yes 
      LABEL "" 
@@ -107,25 +122,34 @@ DEFINE VARIABLE tb_pack AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY 1 NO-UNDO.
 
+DEFINE VARIABLE tb_update-other-est AS LOGICAL INITIAL yes 
+     LABEL "" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 4 BY 1 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     tb_inks AT ROW 1.24 COL 24
-     tb_pack AT ROW 2.19 COL 24
-     tb_frat AT ROW 3.14 COL 24
-     Btn_OK AT ROW 4.81 COL 2
-     Btn_Cancel AT ROW 4.81 COL 18
-     RECT-26 AT ROW 1 COL 1
-     "Packing?" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 2.19 COL 10
-     "Freight?" VIEW-AS TEXT
-          SIZE 10 BY 1 AT ROW 3.14 COL 12
-     "Inks?" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 1.24 COL 15
+     tb_inks AT ROW 1.24 COL 12.4
+     tb_pack AT ROW 2.19 COL 12.4
+     tb_frat AT ROW 3.14 COL 12.4
+     tb_update-other-est AT ROW 4.29 COL 12.4
+     fi_Criteria AT ROW 5.24 COL 16.2 NO-LABEL /*WIDGET-ID 6*/
+     Btn_OK AT ROW 6.76 COL 26.4
+     Btn_Cancel AT ROW 6.76 COL 42.4
+     "Update on other estimates with the same" VIEW-AS TEXT
+          SIZE 46.8 BY 1 AT ROW 4.24 COL 17.2
      "Copy..." VIEW-AS TEXT
-          SIZE 10 BY 1 AT ROW 1.24 COL 3
-     SPACE(20.99) SKIP(3.89)
+          SIZE 9 BY 1 AT ROW 1.24 COL 3
+     "Inks?" VIEW-AS TEXT
+          SIZE 7 BY 1 AT ROW 1.24 COL 17.4
+     "Freight?" VIEW-AS TEXT
+          SIZE 10 BY 1 AT ROW 3.14 COL 17.4
+     "Packing?" VIEW-AS TEXT
+          SIZE 12 BY 1 AT ROW 2.19 COL 17.4
+     RECT-26 AT ROW 1.1 COL 1.2
+     SPACE(0.19) SKIP(2.27)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
@@ -157,11 +181,13 @@ DEFINE FRAME D-Dialog
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX D-Dialog
-                                                                        */
+   FRAME-NAME                                                           */
 ASSIGN 
        FRAME D-Dialog:SCROLLABLE       = FALSE
        FRAME D-Dialog:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN fi_Criteria IN FRAME D-Dialog
+   NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR TOGGLE-BOX tb_frat IN FRAME D-Dialog
    1                                                                    */
 /* SETTINGS FOR TOGGLE-BOX tb_inks IN FRAME D-Dialog
@@ -222,6 +248,7 @@ DO:
    op-inks  = tb_inks
    op-pack  = tb_pack
    op-frat  = tb_frat
+   op-UpdEst = tb_update-other-est
    op-error = NO.
 END.
 
@@ -236,7 +263,28 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
-{src/adm/template/dialogmn.i}
+IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
+THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
+
+/* Now enable the interface and wait for the exit condition.            */
+/* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
+MAIN-BLOCK:
+DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
+   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+   
+  DO WITH FRAME {&FRAME-NAME}:
+   fi_Criteria:SCREEN-VALUE = cRtnChar.
+   fi_Criteria = cRtnChar.      
+  END. 
+  
+  RUN enable_UI.
+
+  WAIT-FOR GO OF FRAME {&FRAME-NAME}.
+END.
+RUN disable_UI.    
+
+/*{src/adm/template/dialogmn.i}*/
+ 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -307,9 +355,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tb_inks tb_pack tb_frat 
+  DISPLAY tb_inks tb_pack tb_frat tb_update-other-est fi_Criteria 
       WITH FRAME D-Dialog.
-  ENABLE tb_inks tb_pack tb_frat Btn_OK Btn_Cancel RECT-26 
+  ENABLE RECT-26 tb_inks tb_pack tb_frat tb_update-other-est Btn_OK Btn_Cancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}

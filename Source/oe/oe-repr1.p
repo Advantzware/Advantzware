@@ -52,8 +52,8 @@ FOR EACH bf-oe-ordl EXCLUSIVE-LOCK
                                  bf-oe-ordl.qty,
                                  bf-oe-ordl.price,
                                  bf-oe-ordl.pr-uom,
-                                 itemfg.case-count,
                                  bf-oe-ordl.disc,
+                                 itemfg.case-count,
                                  OUTPUT bf-oe-ordl.t-price).
 
     ASSIGN 

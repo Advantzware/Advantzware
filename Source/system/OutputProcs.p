@@ -138,6 +138,35 @@ PROCEDURE GetBarDirFilePath:
     
 END PROCEDURE.
 
+PROCEDURE Output_GetTempFilePath:
+/*------------------------------------------------------------------------------
+ Purpose: Returns a temporary file name to write the data into
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcTempFile AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cFilePath AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
+    
+    RUN FileSys_GetTempDirectory (
+        OUTPUT cFilePath
+        ).
+
+    RUN Format_DateTime (
+        INPUT  NOW,
+        INPUT  "YYYYMMDD_hhmmssnnn",
+        OUTPUT cFileName
+        ).
+
+    IF cFilePath NE "" THEN DO:
+        IF SUBSTRING(cFilePath, LENGTH(cFilePath), 1) EQ "/" OR
+           SUBSTRING(cFilePath, LENGTH(cFilePath), 1) EQ "\" THEN
+            cFilePath = SUBSTRING(cFilePath, 1, LENGTH(cFilePath) - 1).
+    END.
+        
+    opcTempFile = cFilePath + "\" + cFileName.
+END PROCEDURE.
+
 PROCEDURE Output_InitializeXprint:
     /*------------------------------------------------------------------------------
      Purpose: Initialize XPrintOutput with default Font and FontSize

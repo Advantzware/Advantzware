@@ -91,6 +91,12 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD BankAcct      AS CHARACTER FORMAT "x(18)" COLUMN-LABEL "Account#" HELP "Optional - Validated - Size:18"
     FIELD SwiftBIC      AS CHARACTER FORMAT "x(11)" COLUMN-LABEL "Swift Code" HELP "Optional - Validated - Size:11"
     FIELD BankRTN       AS INTEGER FORMAT "999999999" COLUMN-LABEL "Routing" HELP "Optional - Integer"
+    
+    FIELD accountType   AS CHARACTER FORMAT "X(12)" COLUMN-LABEL "Account Type" HELP "Account type is used for sales reporting optional - Size:12 Split,Originated,Handed"
+    FIELD splitType     AS INTEGER FORMAT "9" COLUMN-LABEL "Split Type" HELP "Split type used for sales reporting Optional - default 0"
+    FIELD parentCust    AS CHARACTER FORMAT "x(12)" COLUMN-LABEL "Parent Customer" HELP "Master customer account Optional - Size:12"
+    FIELD marketSegment AS CHARACTER FORMAT "x(16)" COLUMN-LABEL "Market Segment" HELP "Market segment for sales reporting Optional - Size:16"
+    FIELD naicsCode     AS CHARACTER FORMAT "999999" COLUMN-LABEL "NAICS" HELP "NAICS Code, link to NaicsTable, Default = 999999"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
@@ -331,6 +337,15 @@ PROCEDURE pValidate PRIVATE:
 
         IF oplValid AND ipbf-ttImportCust.cTaxGr NE "" THEN 
             RUN pIsValidTaxGroup IN hdValidator (ipbf-ttImportCust.cTaxGr, NO, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            
+        IF oplValid AND ipbf-ttImportCust.accountType NE "" THEN 
+            RUN pIsValidFromList IN hdValidator ("Account Type", ipbf-ttImportCust.accountType, ",Split,Originated,Handed", OUTPUT oplValid, OUTPUT cValidNote).                
+            
+        IF oplValid AND ipbf-ttImportCust.splitType NE 0 THEN 
+            RUN pIsValidFromList IN hdValidator ("Split Type", ipbf-ttImportCust.splitType, "0,1,2,3,4,5,6,7,8,9", OUTPUT oplValid, OUTPUT cValidNote).                     
+        
+        IF oplValid AND ipbf-ttImportCust.naicsCode NE "" THEN 
+            RUN pIsValidNAICS IN hdValidator (ipbf-ttImportCust.naicsCode, YES, OUTPUT oplValid, OUTPUT cValidNote).
         
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
@@ -359,14 +374,13 @@ PROCEDURE pValidate PRIVATE:
         ipbf-ttImportCust.CustStatus = "A".
     ELSE IF ipbf-ttImportCust.CustStatus EQ "Inactive" THEN 
         ipbf-ttImportCust.CustStatus = "I".
-    ELSE IF ipbf-ttImportCust.cFrtPay EQ "Inhouse" THEN 
+    ELSE IF ipbf-ttImportCust.CustStatus EQ "Inhouse" THEN 
         ipbf-ttImportCust.CustStatus = "X".
-    ELSE IF ipbf-ttImportCust.cFrtPay EQ "Statement" THEN 
+    ELSE IF ipbf-ttImportCust.CustStatus EQ "Statement" THEN 
         ipbf-ttImportCust.CustStatus = "S".
-    ELSE IF ipbf-ttImportCust.cFrtPay EQ "Service" THEN 
+    ELSE IF ipbf-ttImportCust.CustStatus EQ "Service" THEN 
         ipbf-ttImportCust.CustStatus = "E".
-
-    
+       
 END PROCEDURE.
 
 PROCEDURE pProcessRecord PRIVATE:
@@ -463,6 +477,11 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCust.BankAcct, YES, INPUT-OUTPUT bf-cust.Bank-Acct).
     RUN pAssignValueC (ipbf-ttImportCust.SwiftBIC, YES, INPUT-OUTPUT bf-cust.SwiftBIC).
     RUN pAssignValueC (ipbf-ttImportCust.BankRTN, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.Bank-RTN).
+    RUN pAssignValueC (ipbf-ttImportCust.accountType, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.accountType).
+    RUN pAssignValueI (ipbf-ttImportCust.splitType, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.splitType).
+    RUN pAssignValueC (ipbf-ttImportCust.parentCust, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.parentCust).
+    RUN pAssignValueC (ipbf-ttImportCust.marketSegment, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.marketSegment).
+    RUN pAssignValueC (ipbf-ttImportCust.naicsCode, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.naicsCode).
 
     FIND FIRST bf-shipto EXCLUSIVE-LOCK 
         WHERE bf-shipto.company EQ bf-cust.company

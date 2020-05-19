@@ -30,6 +30,7 @@
 DEFINE INPUT PARAMETER iprwRowidEb AS ROWID NO-UNDO .
 DEFINE INPUT PARAMETER iprwRecid AS RECID NO-UNDO .
 DEFINE INPUT PARAMETER iprwRowidEstQty AS ROWID NO-UNDO .
+DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
 /* Local Variable Definitions ---                                       */
 
 {custom/globdefs.i}
@@ -46,7 +47,11 @@ DEFINE TEMP-TABLE tt-oe-route
 
 DEFINE VARIABLE lv-eqty LIKE est-qty.eqty NO-UNDO.
 DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
+DEFINE NEW SHARED VARIABLE fil_id AS RECID     NO-UNDO.
 DEFINE BUFFER xop FOR est-op.
+DEFINE NEW SHARED BUFFER xest    FOR est.
+DEFINE NEW SHARED BUFFER xef     FOR ef.
+DEFINE NEW SHARED BUFFER xeb     FOR eb.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -250,11 +255,20 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* OK */
                 VIEW-AS ALERT-BOX INFORMATION BUTTONS OK .
             RETURN NO-APPLY .
         END.
+        
+        IF ipcType EQ "Delete" THEN DO:
 
-        MESSAGE "Are you sure you want to delete records" 
-            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
+            MESSAGE "Are you sure you want to delete records" 
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
 
-        IF v-process THEN RUN run-process.
+            IF v-process THEN RUN run-process.
+        END.  
+        IF ipcType EQ "Import" THEN DO:
+            MESSAGE "Are you sure you want to Import Standards" 
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
+
+            IF v-process THEN RUN pRunImport.
+        END.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -330,6 +344,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          
         OPEN QUERY browse-route FOR EACH tt-oe-route
             NO-LOCK BY tt-oe-route.s-num.
+      IF ipcType EQ "Import" THEN DO:
+            FRAME {&FRAME-NAME}:TITLE = "Import Routing" .
+            Btn_OK:LABEL = "Import".
+       END.      
     END.
  
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -363,7 +381,7 @@ PROCEDURE build-table :
 
             lv-eqty = 0.
             IF AVAILABLE est THEN
-                IF est.est-type EQ 1 THEN lv-eqty = est-qty.eqty.
+                IF est.est-type NE 4 THEN lv-eqty = est-qty.eqty.
                 ELSE
                     FOR EACH xop NO-LOCK
                         WHERE xop.company EQ est-qty.company
@@ -479,6 +497,47 @@ PROCEDURE run-process :
             WHERE bf-est-op.company EQ tt-oe-route.company AND 
             recid(bf-est-op) EQ tt-oe-route.tt-recid :
             DELETE bf-est-op .
+        END.
+    END.
+   
+    RELEASE bf-est-op .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunImport Dialog-Frame 
+PROCEDURE pRunImport :
+    DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
+    DEFINE BUFFER bf-est-op FOR est-op .
+    
+    FIND FIRST xest WHERE ROWID(xest) EQ iprwRowidEb NO-LOCK NO-ERROR .      
+    
+    FOR EACH tt-oe-route WHERE tt-oe-route.IS-SELECTED:
+        FOR EACH bf-est-op NO-LOCK 
+            WHERE bf-est-op.company EQ tt-oe-route.company AND 
+            recid(bf-est-op) EQ tt-oe-route.tt-recid :
+            
+             FIND FIRST xef NO-LOCK
+                  WHERE xef.company EQ bf-est-op.company
+                  AND xef.est-no  EQ bf-est-op.est-no
+                  AND xef.form-no EQ bf-est-op.s-num
+                  NO-ERROR.
+                  
+             FIND FIRST xeb
+                WHERE xeb.company   EQ xef.company
+                AND xeb.est-no    EQ xef.est-no
+                AND xeb.form-no   EQ xef.form-no
+                AND (xeb.blank-no EQ bf-est-op.b-num OR bf-est-op.b-num EQ 0)
+                NO-LOCK NO-ERROR.
+                
+             IF avail xeb AND xeb.est-type LE 4 THEN do:    
+              RUN ce/d-estop.w (RECID(bf-est-op),RECID(est),RECID(est-qty), "import", OUTPUT rwRowid) .              
+             END.
+             ELSE IF AVAIL xeb AND xeb.est-type GE 5 THEN do: 
+              RUN est/d-estop.w (RECID(bf-est-op),RECID(est),RECID(est-qty), "import", OUTPUT rwRowid) .
+             END.
         END.
     END.
    

@@ -44,8 +44,10 @@ DEFINE TEMP-TABLE ttImportAP1
     .
     
 
-DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
-DEFINE VARIABLE hdTagProcs    AS HANDLE  NO-UNDO.
+DEFINE VARIABLE giIndexOffset    AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
+DEFINE VARIABLE hdTagProcs       AS HANDLE  NO-UNDO.
+DEFINE VARIABLE dTotalInvoiceAmt AS DECIMAL NO-UNDO.
+DEFINE VARIABLE lInvalid         AS LOGICAL NO-UNDO.
 
 RUN system/TagProcs.p PERSISTENT SET hdTagProcs.
 
@@ -59,7 +61,38 @@ RUN system/TagProcs.p PERSISTENT SET hdTagProcs.
  /*This Includes Procedures with the expected parameters.  Includes pInitialize, pAddRecord, pProcessImport*/
 {util/ImportProcs.i &ImportTempTable = "ttImportAP1"}
 
+PROCEDURE GetSummaryMessage:
+/*------------------------------------------------------------------------------
+ Purpose: To return the total invoice amount
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcSummaryMessage AS CHARACTER NO-UNDO.
+    
+    opcSummaryMessage = "Total Invoice Amount = " + STRING(dTotalInvoiceAmt).
+          
+END PROCEDURE.
+
 /* FG Item Receipt quantity and price validation */
+
+PROCEDURE pValidateAccountNum PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcActNum  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplInvalid AS LOGICAL   NO-UNDO.
+    
+    FIND FIRST account NO-LOCK 
+         WHERE account.company EQ ipcCompany
+           AND account.actnum  EQ ipcActNum  
+         NO-ERROR.
+    IF AVAILABLE account THEN 
+        oplInvalid = account.inactive.
+    ELSE 
+        oplInvalid = YES.
+END PROCEDURE.
+
 PROCEDURE pValidateFGItemReceiptQtyPrice:
     DEFINE INPUT        PARAMETER ipriAPInvl   AS ROWID     NO-UNDO.
     DEFINE INPUT        PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
@@ -468,6 +501,19 @@ PROCEDURE pValidate PRIVATE:
        If atleast one PO line is not existing in invoice then create invoice line */ 
     DO iIndex = 1 TO 4:
         IF cPOLineDetails[iIndex] NE "" AND oplValid THEN DO:
+            RUN pValidateAccountNum(
+                INPUT ipbf-ttImportAP1.Company,
+                INPUT ENTRY(2,cPOLineDetails[iIndex]),
+                OUTPUT lInvalid
+                ).
+            IF lInvalid THEN DO:
+                ASSIGN 
+                    opcNote = "Invalid GL account No. " + STRING(iIndex)
+                    oplValid = FALSE
+                    .                    
+                LEAVE.            
+            END.
+          
             IF AVAILABLE ap-inv THEN DO:
                 FIND FIRST ap-invl NO-LOCK 
                     WHERE ap-invl.company EQ ap-inv.company
@@ -1070,10 +1116,12 @@ PROCEDURE pRecalculateInvoiceHeader:
 
         ASSIGN
             bf-ap-inv.tax-amt = bf-ap-inv.tax-amt +
-                        ROUND((bf-ap-inv.freight * dTaxRateFreight / 100),2)
+                               ROUND((bf-ap-inv.freight * dTaxRateFreight / 100),2)
             bf-ap-inv.net     = bf-ap-inv.net + bf-ap-inv.tax-amt
             bf-ap-inv.due     = bf-ap-inv.net - bf-ap-inv.disc-taken -
-                        bf-ap-inv.paid + bf-ap-inv.freight.
+                                bf-ap-inv.paid + bf-ap-inv.freight
+            dTotalInvoiceAmt  = dTotalInvoiceAmt + bf-ap-inv.net
+            .
     END.
 
     FIND CURRENT bf-ap-inv NO-LOCK.

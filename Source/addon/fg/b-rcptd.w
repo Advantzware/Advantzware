@@ -249,6 +249,7 @@ fg-rctd.cases-unit fg-rctd.partial fg-rctd.stack-code fg-rctd.rct-date
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table fg-rctd
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
       AND fg-rctd.company eq cocode and ~
+      fg-rctd.created-by eq userid(ldbname(1)) and ~
 fg-rctd.r-no ge lv-frst-rno and ~
 LOOKUP(fg-rctd.rita-code,"R,E") > 0 ~
 and ((lv-do-what = "delete" and fg-rctd.t-qty < 0) or  ~
@@ -258,6 +259,7 @@ use-index fg-rctd NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
       AND fg-rctd.company eq cocode and ~
+      fg-rctd.created-by eq userid(ldbname(1)) and ~
 fg-rctd.r-no ge lv-frst-rno and ~
 LOOKUP(fg-rctd.rita-code,"R,E") > 0 ~
 and ((lv-do-what = "delete" and fg-rctd.t-qty < 0) or  ~
@@ -461,6 +463,7 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = ", FIRST"
      _Where[1]         = "fg-rctd.company eq cocode and
+fg-rctd.created-by eq userid(ldbname(1)) and
 fg-rctd.r-no ge lv-frst-rno and
 LOOKUP(fg-rctd.rita-code,""R,E"") > 0
 and ((lv-do-what = ""delete"" and fg-rctd.t-qty < 0) or 

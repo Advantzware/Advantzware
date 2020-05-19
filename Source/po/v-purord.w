@@ -85,6 +85,9 @@ DEFINE NEW SHARED VARIABLE v-default-gl-cha    AS cha       NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-po-qty            AS LOG       INITIAL TRUE NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-po-msf            LIKE sys-ctrl.int-fld NO-UNDO.
 
+DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
 DEFINE TEMP-TABLE tt-ord-no 
     FIELD LINE   AS INTEGER
     FIELD ord-no AS INTEGER .
@@ -1011,9 +1014,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE change-page-logic V-table-Win 
 PROCEDURE change-page-logic :
 /*------------------------------------------------------------------------------
@@ -1059,7 +1059,13 @@ PROCEDURE close-reopen :
   RUN browse-rowid IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rowid).
 
   RUN po/d-clspo.w (ROWID(po-ord)).
-
+  
+  IF NOT po-ord.opened THEN
+      RUN pRunAPIOutboundTrigger (
+          BUFFER po-ord,
+          INPUT "ClosePurchaseOrder"
+          ).  
+          
   RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
 
 END PROCEDURE.
@@ -1227,13 +1233,26 @@ PROCEDURE hold-release :
      IF choice THEN DO:  
         DEFINE BUFFER bf-po-ord FOR po-ord.
         FIND bf-po-ord EXCLUSIVE-LOCK WHERE RECID(bf-po-ord) EQ recid(po-ord) NO-ERROR.
-        IF bf-po-ord.stat = "H" then
-           ASSIGN bf-po-ord.approved-date = today
-                  bf-po-ord.approved-id = userid('nosweat')
-                  bf-po-ord.approved-time = TIME. 
-        ELSE ASSIGN bf-po-ord.approved-date = ?
-                  bf-po-ord.approved-id = ""
-                  bf-po-ord.approved-time = 0.           
+        IF bf-po-ord.stat = "H" THEN DO:
+            RUN pRunAPIOutboundTrigger (
+                BUFFER po-ord,
+                INPUT "ReleasePurchaseOrder"
+                ).
+            ASSIGN bf-po-ord.approved-date = today
+                   bf-po-ord.approved-id = userid('nosweat')
+                   bf-po-ord.approved-time = TIME
+                   . 
+        END.
+        ELSE DO:
+            RUN pRunAPIOutboundTrigger (
+                BUFFER po-ord,
+                INPUT "HoldPurchaseOrder"
+                ).
+            ASSIGN bf-po-ord.approved-date = ?
+                   bf-po-ord.approved-id = ""
+                   bf-po-ord.approved-time = 0
+                   .    
+        END.       
         bf-po-ord.stat = IF bf-po-ord.stat EQ "H" AND trim(v-postatus-cha) EQ "Hold" THEN "N" ELSE IF bf-po-ord.stat EQ "H" THEN "O" ELSE "H".   
 
      END.
@@ -1888,6 +1907,7 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+    
   lv-rowid = ROWID(po-ord).
   lNewOrd = FALSE.
 
@@ -1945,7 +1965,12 @@ PROCEDURE local-update-record :
        copy-record         = NO
        lv-copy-from-po-num = 0.  /*clear variables for next operations*/
   END.
-
+  
+  RUN pRunAPIOutboundTrigger (
+      BUFFER po-ord,
+      INPUT "UpdatePurchaseOrder"
+      ).
+      
   /* ===  don't go item page yet. -> move page to 2 */
   IF ll-is-new-rec THEN DO:
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
@@ -2130,6 +2155,49 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunAPIOutboundTrigger V-table-Win 
+PROCEDURE pRunAPIOutboundTrigger :
+    /*------------------------------------------------------------------------------
+      Purpose:    Fires Outbound APIs for given purchase order header 
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-po-ord FOR po-ord.
+    DEFINE INPUT PARAMETER ipcTriggerID AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAPIID       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
+       
+    
+    IF AVAILABLE ipbf-po-ord THEN DO:
+        ASSIGN 
+            cAPIID = "SendPurchaseOrder"
+            cPrimaryID = STRING(ipbf-po-ord.po-no)
+            cDescription = cAPIID + " triggered by " + ipcTriggerID + " from v-purord.w for PO: " + cPrimaryID
+            . 
+        RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+            INPUT  ipbf-po-ord.company,         /* Company Code (Mandatory) */
+            INPUT  ipbf-po-ord.loc,             /* Location Code (Mandatory) */
+            INPUT  cAPIID,                      /* API ID (Mandatory) */
+            INPUT  "",                          /* Client ID (Optional) - Pass empty in case to make request for all clients */
+            INPUT  ipcTriggerID,                /* Trigger ID (Mandatory) */
+            INPUT  "po-ord",                    /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(ROWID(ipbf-po-ord)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  cPrimaryID,                  /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  cDescription,                /* Event's description (Optional) */
+            OUTPUT lSuccess,                    /* Success/Failure flag */
+            OUTPUT cMessage                     /* Status message */
+            ) NO-ERROR.
+        RUN Outbound_ResetContext IN hdOutboundProcs.
+    END. /*avail po-ord*/
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reopen-query1 V-table-Win 
 PROCEDURE reopen-query1 :
 /*------------------------------------------------------------------------------
@@ -2266,6 +2334,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE testAvail V-table-Win 
+PROCEDURE testAvail :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER oplAvail AS LOG NO-UNDO.
+FIND first po-ord WHERE 
+    po-ord.company = cocode and
+    po-ord.po-no =  int(po-ord.po-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}) 
+    NO-LOCK NO-ERROR.
+ASSIGN oplAvail = AVAIL po-ord.
+IF po-ord.vend-no:SCREEN-VALUE EQ "" THEN ASSIGN
+    oplAvail = false.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tax-gr V-table-Win 
 PROCEDURE valid-tax-gr :
 /*------------------------------------------------------------------------------
@@ -2358,27 +2447,6 @@ PROCEDURE valid-vend-no :
   {methods/lValidateError.i NO}
 
   {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE testAvail V-table-Win 
-PROCEDURE testAvail :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEFINE OUTPUT PARAMETER oplAvail AS LOG NO-UNDO.
-FIND first po-ord WHERE 
-    po-ord.company = cocode and
-    po-ord.po-no =  int(po-ord.po-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}) 
-    NO-LOCK NO-ERROR.
-ASSIGN oplAvail = AVAIL po-ord.
-IF po-ord.vend-no:SCREEN-VALUE EQ "" THEN ASSIGN
-    oplAvail = false.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

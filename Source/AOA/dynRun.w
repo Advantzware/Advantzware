@@ -908,6 +908,7 @@ PROCEDURE pPageFormat:
         ).
     IF lContinue THEN
     DO TRANSACTION:
+        RUN pSetDynParamValue (dynSubject.subjectID, USERID("ASI"), cPrgmName, 0).
         FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
         ASSIGN
             dynParamValue.pageFormat      = iPageFormat
@@ -937,7 +938,8 @@ PROCEDURE pSaveResults :
     DEFINE VARIABLE dSize      AS DECIMAL   NO-UNDO.
     
     DO TRANSACTION:
-        FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
+/*        /* rstark - remove when depricated */     */
+/*        FIND CURRENT dynParamValue EXCLUSIVE-LOCK.*/
         DO idx = 1 TO hQueryBrowse:NUM-COLUMNS:
             ASSIGN
                 cDBName    = hQueryBrowse:GET-BROWSE-COLUMN(idx):DBNAME
@@ -954,14 +956,29 @@ PROCEDURE pSaveResults :
                        + STRING(hQueryBrowse:GET-BROWSE-COLUMN(idx):INDEX)
                        + "]"
                        .
-            IF dynParamValue.colName[idx] NE cFieldName OR
-               dynParamValue.columnSize[idx] NE dSize THEN
-            ASSIGN 
-                dynParamValue.colName[idx]    = cFieldName
-                dynParamValue.columnSize[idx] = dSize
+            FIND FIRST dynValueColumn EXCLUSIVE-LOCK
+                 WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
+                   AND dynValueColumn.user-id      EQ dynParamValue.user-id
+                   AND dynValueColumn.prgmName     EQ dynParamValue.prgmName
+                   AND dynValueColumn.paramValueID EQ dynParamValue.paramValueID
+                   AND dynValueColumn.colName      EQ cFieldName
+                 NO-ERROR.
+            IF AVAILABLE dynValueColumn THEN
+            ASSIGN
+                dynValueColumn.sortOrder  = idx
+                dynValueColumn.columnSize = dSize
                 .
+            RELEASE dynValueColumn.
+/*            /* rstark - remove when depricated */         */
+/*            IF dynParamValue.colName[idx] NE cFieldName OR*/
+/*               dynParamValue.columnSize[idx] NE dSize THEN*/
+/*            ASSIGN                                        */
+/*                dynParamValue.colName[idx]    = cFieldName*/
+/*                dynParamValue.columnSize[idx] = dSize     */
+/*                .                                         */
         END. /* do idx */
-        FIND CURRENT dynParamValue NO-LOCK.
+/*        /* rstark - remove when depricated */*/
+/*        FIND CURRENT dynParamValue NO-LOCK.  */
     END. /* trans */
 
 END PROCEDURE.

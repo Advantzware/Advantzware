@@ -25,8 +25,10 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEFINE INPUT PARAMETER ipriInboundEvent AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER ipiApiInboundEventID AS INTEGER NO-UNDO.
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE hdInboundProcs AS HANDLE NO-UNDO.
+RUN api/InboundProcs.p PERSISTENT SET hdInboundProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -44,7 +46,7 @@ DEFINE INPUT PARAMETER ipriInboundEvent AS ROWID NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 edDescription edRequestData ~
-edResponseData edErrorMessage Btn_OK Btn_Cancel 
+edResponseData edErrorMessage Btn_Cancel 
 &Scoped-Define DISPLAYED-OBJECTS fiReqDataType fiRequestVerb fiCanBeQueued ~
 fiReqDataTypelb fiRequestVerblb ficanBeQueuedlbb fiapiRoute fiRecordSource ~
 fiReqAPIRoutelb fiRecordSourcelb fiExternalID fiExternalIDLabel ~
@@ -64,17 +66,21 @@ fiResponseDataLabel edResponseData fiErrorMessageLabel edErrorMessage
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
+DEFINE BUTTON Btn_Cancel 
      IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
      LABEL "Cancel" 
      SIZE 20 BY 2.62
      BGCOLOR 8 .
 
-DEFINE BUTTON Btn_OK AUTO-GO 
-     IMAGE-UP FILE "Graphics/32x32/check.ico":U NO-CONVERT-3D-COLORS
-     LABEL "OK" 
-     SIZE 20 BY 2.62
-     BGCOLOR 8 .
+DEFINE BUTTON btReTrigger 
+     LABEL "Re-Trigger Request" 
+     SIZE 31 BY 2.62
+     FONT 6.
+
+DEFINE BUTTON btUpdateRequestData  NO-CONVERT-3D-COLORS
+     LABEL "Update Request Data" 
+     SIZE 31 BY 2.62
+     BGCOLOR 8 FONT 6.
 
 DEFINE VARIABLE edDescription AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
@@ -208,8 +214,9 @@ DEFINE FRAME Dialog-Frame
      edResponseData AT ROW 20.52 COL 11 NO-LABEL WIDGET-ID 10
      fiErrorMessageLabel AT ROW 26.62 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 96
      edErrorMessage AT ROW 27.76 COL 11 NO-LABEL WIDGET-ID 94
-     Btn_OK AT ROW 31 COL 41
-     Btn_Cancel AT ROW 31 COL 81
+     btUpdateRequestData AT ROW 31 COL 13
+     btReTrigger AT ROW 31 COL 61.8 WIDGET-ID 134
+     Btn_Cancel AT ROW 31 COL 110
      RECT-1 AT ROW 1.48 COL 7 WIDGET-ID 84
      RECT-2 AT ROW 5.91 COL 7 WIDGET-ID 86
      SPACE(6.79) SKIP(3.03)
@@ -241,6 +248,10 @@ ASSIGN
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON btReTrigger IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btUpdateRequestData IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 ASSIGN 
        edDescription:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
@@ -346,7 +357,109 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Inbound Request/Response */
 DO:
-  APPLY "END-ERROR":U TO SELF.
+    IF btReTrigger:SENSITIVE THEN DO:
+        MESSAGE "Request data modified, but event is not re-triggered yet." SKIP
+            "Do you want to exit the screen without re-triggering the event?"
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE lAnswer AS LOGICAL.
+        IF NOT lAnswer THEN
+            RETURN.
+    END.
+
+    IF VALID-HANDLE(hdInboundProcs) THEN
+        DELETE PROCEDURE hdInboundProcs.
+
+    APPLY "END-ERROR":U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Cancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel Dialog-Frame
+ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
+DO:
+    IF btReTrigger:SENSITIVE THEN DO:
+        MESSAGE "Request data modified, but event is not re-triggered yet." SKIP
+            "Do you want to exit the screen without re-triggering the event?"
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+            UPDATE lAnswer AS LOGICAL.
+        IF NOT lAnswer THEN
+            RETURN.
+    END.
+    
+    IF VALID-HANDLE(hdInboundProcs) THEN
+        DELETE PROCEDURE hdInboundProcs.  
+
+    APPLY "END-ERROR":U TO SELF.        
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btReTrigger
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btReTrigger Dialog-Frame
+ON CHOOSE OF btReTrigger IN FRAME Dialog-Frame /* Re-Trigger Request */
+DO:
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    SELF:SENSITIVE = FALSE.
+    
+    RUN Inbound_ReTrigger IN hdInboundProcs (
+        INPUT  ipiAPIInboundEventID,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ) NO-ERROR.  
+    
+    RUN pInit.
+        
+    MESSAGE "Re-trigger complete"
+        VIEW-AS ALERT-BOX.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btUpdateRequestData
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btUpdateRequestData Dialog-Frame
+ON CHOOSE OF btUpdateRequestData IN FRAME Dialog-Frame /* Update Request Data */
+DO:
+    DEFINE VARIABLE lcRequestData       AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE lRequestDataChanged AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cRequestDataChanges AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess            AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
+
+    ASSIGN
+        edRequestData
+        fiReqDataType
+        .
+        
+    RUN api/APIInboundEventRequestViewer.w (
+        INPUT  edRequestData,
+        INPUT  fiReqDataType,
+        OUTPUT lcRequestData,
+        OUTPUT lRequestDataChanged,
+        OUTPUT cRequestDataChanges
+        ).
+
+    IF lRequestDataChanged THEN DO:
+        RUN Inbound_UpdateEventRequestData IN hdInboundProcs (
+            INPUT  ipiAPIInboundEventID,
+            INPUT  lcRequestData,
+            INPUT  cRequestDataChanges,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).
+        
+        RUN pInit.
+        
+        btReTrigger:SENSITIVE = TRUE.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -423,7 +536,7 @@ PROCEDURE enable_UI :
           fiResponseDataLabel edResponseData fiErrorMessageLabel edErrorMessage 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-1 RECT-2 edDescription edRequestData edResponseData 
-         edErrorMessage Btn_OK Btn_Cancel 
+         edErrorMessage Btn_Cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -444,7 +557,7 @@ PROCEDURE pInit :
     END.
     
     FIND FIRST APIInboundEvent NO-LOCK 
-         WHERE ROWID(APIInboundEvent) EQ ipriInboundEvent 
+         WHERE APIInboundEvent.apiInboundEventID EQ ipiApiInboundEventID
          NO-ERROR.
     IF AVAILABLE APIInboundEvent THEN DO:
         ASSIGN
@@ -472,6 +585,11 @@ PROCEDURE pInit :
                fiapiRoute:SCREEN-VALUE     = APIInbound.apiRoute
                fiCanBeQueued:SCREEN-VALUE  = STRING(APIInbound.canBeQueued,"YES/NO")
                NO-ERROR.
+        
+        /* Allow updating request data only if event is failed and 
+           api can be queued */
+        IF NOT APIInboundEvent.success AND APIInbound.canBeQueued THEN
+            btUpdateRequestData:SENSITIVE = TRUE.
     END.
 END PROCEDURE.
 

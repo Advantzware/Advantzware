@@ -40,6 +40,18 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE lSuperAdmin AS LOGICAL NO-UNDO.
+
+DEFINE VARIABLE hdPgmMstrSecur AS HANDLE NO-UNDO.
+RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmMstrSecur.
+
+RUN epCanAccess IN hdPgmMstrSecur (
+    INPUT  "viewers/APIOutboundTrigger.w", /* Program Name */
+    INPUT  "",                             /* Function */
+    OUTPUT lSuperAdmin
+    ).
+    
+DELETE PROCEDURE hdPgmMstrSecur.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -66,13 +78,13 @@ CREATE WIDGET-POOL.
 DEFINE QUERY external_tables FOR APIOutboundTrigger, APIOutbound.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS APIOutboundTrigger.triggerID ~
-APIOutboundTrigger.description APIOutboundTrigger.Inactive 
+APIOutboundTrigger.description APIOutboundTrigger.inActive 
 &Scoped-define ENABLED-TABLES APIOutboundTrigger
 &Scoped-define FIRST-ENABLED-TABLE APIOutboundTrigger
 &Scoped-Define ENABLED-OBJECTS RECT-6 
 &Scoped-Define DISPLAYED-FIELDS APIOutboundTrigger.apiID ~
 APIOutboundTrigger.clientID APIOutboundTrigger.triggerID ~
-APIOutboundTrigger.description APIOutboundTrigger.Inactive 
+APIOutboundTrigger.description APIOutboundTrigger.inActive 
 &Scoped-define DISPLAYED-TABLES APIOutboundTrigger
 &Scoped-define FIRST-DISPLAYED-TABLE APIOutboundTrigger
 
@@ -136,7 +148,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 102 BY 1
           BGCOLOR 15 
-     APIOutboundTrigger.Inactive AT ROW 6.76 COL 25 WIDGET-ID 4
+     APIOutboundTrigger.inActive AT ROW 6.76 COL 25 WIDGET-ID 4
           VIEW-AS TOGGLE-BOX
           SIZE 14 BY .81
           BGCOLOR 15 
@@ -352,6 +364,107 @@ PROCEDURE local-delete-record :
 
     /* Code placed here will execute AFTER standard behavior.    */
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields V-table-Win 
+PROCEDURE local-enable-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pEnableFields.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-row-available V-table-Win 
+PROCEDURE local-row-available :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.    
+    DEFINE VARIABLE cRowState AS CHARACTER NO-UNDO.
+    
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
+
+    RUN pGetRowState (
+        OUTPUT cRowState
+        ).
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    {methods/run_link.i "TABLEIO-SOURCE" "set-buttons" "(INPUT cRowState)"}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEnableFields V-table-Win 
+PROCEDURE pEnableFields PRIVATE :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cRowState AS CHARACTER NO-UNDO.
+
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    RUN pGetRowState (
+        OUTPUT cRowState
+        ).
+    
+    IF cRowState EQ "update-only" THEN
+        ASSIGN
+            apiOutboundTrigger.triggerID:SENSITIVE   = FALSE
+            apiOutboundTrigger.description:SENSITIVE = FALSE
+            .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetRowState V-table-Win 
+PROCEDURE pGetRowState :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcRowState AS CHARACTER NO-UNDO.
+        
+    IF AVAILABLE APIOutboundTrigger THEN DO:
+        IF APIOutboundTrigger.apiOutboundID GT 5000 THEN
+            opcRowState = "update-only".
+        ELSE
+            opcRowState = "disable-all".
+    END.
+    ELSE
+        opcRowState = "disable-all".
+
+    IF lSuperAdmin THEN DO:
+        IF AVAILABLE APIoutboundTrigger THEN
+            opcRowState = "initial".
+        ELSE
+            opcRowState = "add-only".
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

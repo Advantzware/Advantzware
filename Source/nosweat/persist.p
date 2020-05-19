@@ -185,7 +185,9 @@ PROCEDURE Get_Procedure :
         END.
         ELSE DO:
             IF buf-prgrms.track_usage OR g_track_usage THEN DO TRANSACTION:
-                IF fSuperRunning ("session.") THEN DO:
+                IF fSuperRunning ("session.") AND
+                  /* exclude programs that don't need tracking */
+                   NOT CAN-DO("primflds.", proc-name) THEN DO:
                     RUN spCreateAuditHdr (
                         "TRACK",             /* type  */
                         "ASI",               /* db    */

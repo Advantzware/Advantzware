@@ -20,7 +20,7 @@ DEFINE VARIABLE cSessionValue AS CHARACTER NO-UNDO.
 /* **********************  Internal Functions  ************************ */
 
 FUNCTION fErrorMsg RETURNS CHARACTER (iphWidget AS HANDLE):
-    RETURN "Invalid Entry for " + iphWidget:LABEL + " " + iphWidget:SCREEN-VALUE.
+    RETURN "Invalid Entry for " + iphWidget:LABEL + ": ~"" + iphWidget:SCREEN-VALUE + "~"".
 END FUNCTION.
 
 /* **********************  Internal Procedures  *********************** */
@@ -171,6 +171,15 @@ PROCEDURE dynValFGItem:
         ).
 END PROCEDURE.
 
+PROCEDURE dynValFileName:
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+    
+    IF iphWidget:READ-ONLY EQ NO AND SEARCH(iphWidget:SCREEN-VALUE) EQ ? THEN
+    RETURN iphWidget:LABEL + ": ~"" + iphWidget:SCREEN-VALUE + "~" File Not Found".
+    ELSE
+    RETURN "".
+END PROCEDURE.
+
 PROCEDURE dynValFlute:
     {&defInputParam}
     {&checkRange}
@@ -317,6 +326,14 @@ PROCEDURE dynValRMItem:
         CAN-FIND(FIRST item
                  WHERE item.company EQ cCompany
                    AND item.i-no    EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
+PROCEDURE dynValSalesGroup:
+    {&defInputParam}
+    {&checkRange}
+        CAN-FIND(FIRST usergrps
+                 WHERE usergrps.usergrps EQ iphWidget:SCREEN-VALUE)
         ).
 END PROCEDURE.
 

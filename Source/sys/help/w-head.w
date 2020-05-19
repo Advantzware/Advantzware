@@ -88,7 +88,7 @@ DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-head AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -324,6 +324,14 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_export ).
+       RUN set-position IN h_export ( 1.00 , 85.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sys/help/b-head.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -337,6 +345,9 @@ PROCEDURE adm-create-objects :
        /* Links to SmartNavBrowser h_b-head. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_b-head ).
        RUN add-link IN adm-broker-hdl ( h_b-head , 'Record':U , THIS-PROCEDURE ).
+       
+       /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_b-head , 'export-xl':U , h_export ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-head ,

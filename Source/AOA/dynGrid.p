@@ -20,12 +20,23 @@ IF rRowID NE ? THEN DO:
                 cParamName  = ENTRY(1,ENTRY(jdx,ipcParamValue,"|"),"^")
                 cParamValue = ENTRY(2,ENTRY(jdx,ipcParamValue,"|"),"^")
                 .
-            DO idx = 1 TO EXTENT(dynParamValue.paramName):
-                IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
-                IF dynParamValue.paramName[idx] NE cParamName THEN NEXT.
-                dynParamValue.paramValue[idx] = cParamValue.
-                LEAVE.
-            END. /* do idx */
+            FIND FIRST dynValueParam EXCLUSIVE-LOCK
+                 WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
+                   AND dynValueParam.user-id      EQ dynParamValue.user-id
+                   AND dynValueParam.prgmName     EQ dynParamValue.prgmName
+                   AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
+                   AND dynValueParam.paramName    EQ cParamName
+                 NO-ERROR.
+            IF AVAILABLE dynValueParam THEN
+            dynValueParam.paramValue = cParamValue.
+            RELEASE dynValueParam.
+/*            /* rstark - remove when depricated */                       */
+/*            DO idx = 1 TO EXTENT(dynParamValue.paramName):              */
+/*                IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.       */
+/*                IF dynParamValue.paramName[idx] NE cParamName THEN NEXT.*/
+/*                dynParamValue.paramValue[idx] = cParamValue.            */
+/*                LEAVE.                                                  */
+/*            END. /* do idx */                                           */
         END. /* do jdx */
         dynParamValue.lastRunDateTime = NOW.
         FIND CURRENT dynParamValue NO-LOCK.

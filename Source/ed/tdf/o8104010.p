@@ -604,8 +604,8 @@ VIEW STREAM s-out FRAME f-stats.
 HIDE STREAM s-out FRAME f-stats NO-PAUSE.
 PAGE STREAM s-out.
 
-IF ws_filetype EQ "EDI" THEN 
-  RUN ed/postProcessEDI.p (INPUT "810", ws_edi_path, ws_partner, ws_edi_path + ".edi").
+// IF ws_filetype EQ "EDI" THEN 
+// RUN ed/postProcessEDI.p (INPUT "810", ws_edi_path, ws_partner, ws_edi_path + ".edi").
   
 RETURN.
 {ed/tdf/writeseg.i}

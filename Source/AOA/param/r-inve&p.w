@@ -137,10 +137,10 @@ DEFINE VARIABLE svEndCustNo AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 15 BY 1.
 
-DEFINE VARIABLE svEndInvNo AS INTEGER FORMAT ">>>>>9" INITIAL 0 
+DEFINE VARIABLE svEndInvNo AS INTEGER FORMAT ">>>>>>9" INITIAL 0 
      LABEL "End Invoice" 
      VIEW-AS FILL-IN 
-     SIZE 11 BY 1.
+     SIZE 12 BY 1.
 
 DEFINE VARIABLE svEndInvoiceDate AS DATE FORMAT "99/99/9999" INITIAL 12/31/49 
      LABEL "End Invoice Date" 
@@ -162,10 +162,10 @@ DEFINE VARIABLE svStartCustNo AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 15 BY 1.
 
-DEFINE VARIABLE svStartInvNo AS INTEGER FORMAT ">>>>>9" INITIAL 0 
+DEFINE VARIABLE svStartInvNo AS INTEGER FORMAT ">>>>>>9" INITIAL 0 
      LABEL "Start Invoice" 
      VIEW-AS FILL-IN 
-     SIZE 11 BY 1.
+     SIZE 12 BY 1.
 
 DEFINE VARIABLE svStartInvoiceDate AS DATE FORMAT "99/99/9999" INITIAL 01/01/50 
      LABEL "Start Invoice Date" 
@@ -264,7 +264,7 @@ DEFINE FRAME F-Main
      svEndCustNo AT ROW 7.19 COL 94 COLON-ALIGNED HELP
           "Enter End Customer" WIDGET-ID 6
      endCustName AT ROW 7.19 COL 110 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     svInvoiceReportDetail AT ROW 9.57 COL 95 HELP
+     svInvoiceReportDetail AT ROW 9.57 COL 96 HELP
           "Select to Show Invoice Report Detail" WIDGET-ID 352
      svGLReportDetail AT ROW 9.57 COL 121 HELP
           "Select to Show GL Report Detail" WIDGET-ID 354

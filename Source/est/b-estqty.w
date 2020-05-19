@@ -412,7 +412,7 @@ PROCEDURE check-est-type :
 
   
   op-log = AVAIL est AND
-           ((est.est-type GE 2 AND est.est-type LE 4) OR est.est-type GT 6).
+           ((est.est-type GT 2 AND est.est-type LE 4) OR est.est-type GT 6).
 
   IF op-log THEN RUN hide-program-objects.
 
@@ -496,6 +496,8 @@ PROCEDURE local-assign-record :
     IF adm-adding-record THEN DO:
       IF xest.est-type EQ 1 THEN
         RUN ce/mach-seq.p (est-qty.eqty).
+      ELSE IF xest.est-type EQ 2 THEN
+        RUN ce/box/mach-seq.p (est-qty.eqty).  
       ELSE
         RUN cec/mach-seq.p (0, est-qty.eqty, xest.est-type EQ 8).
     END.
@@ -521,7 +523,7 @@ PROCEDURE local-assign-record :
         MESSAGE "New Standards?" VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
                 UPDATE ll.
         IF ll THEN
-          IF est.est-type EQ 1 THEN
+          IF (est.est-type EQ 1 OR est.est-type EQ 2)  THEN
             RUN ce/mach-rek.p (?).
           ELSE
             RUN cec/mach-rek.p (?).

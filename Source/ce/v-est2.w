@@ -3940,7 +3940,7 @@ FUNCTION fGetVendItemCostRollWidth RETURNS DECIMAL
                                      NO-ERROR .
     IF AVAIL vendItemCost THEN DO:
        IF ipdRollWidth = 0 THEN dResult = vendItemCost.validWidth[1].
-       ELSE DO i = 1 TO 30:            
+       ELSE DO iCount = 1 TO 30:            
            IF vendItemCost.validWidth[iCount] >= ipdRollWidth THEN DO:
               dResult = vendItemCost.validWidth[iCount].
               LEAVE. 

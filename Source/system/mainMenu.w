@@ -44,7 +44,7 @@ DO:
     RETURN.
 END.
 
-ON 'CTRL-ALT-P':U ANYWHERE 
+ON 'CTRL-ALT-P':U ANYWHERE
 DO: 
     RUN util/wPgmrToolbox.w.
 END.    
@@ -1562,29 +1562,53 @@ PROCEDURE pCheckUpgradeAdvantzware :
             ASSIGN
                 cThisVer     = "{&awversion}"
                 iThisVersion = fIntVer(cThisVer)
-                iLastVersion = fIntVer(cVersion)
-                .
+                iLastVersion = fIntVer(cVersion).
+                
             IF iLastVersion GT iThisVersion THEN DO:
-                RUN displayMessageQuestion ("31", OUTPUT lContinue).
+                MESSAGE 
+                    "Advantzware version " + cVersion + " is now available for download and " + 
+                    "installation.  Your current version is " + cThisVer + "." SKIP 
+                    "Would you like to begin the upgrade process now?"
+                    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lContinue.
                 IF NOT lContinue THEN RETURN.
-                RUN sys/ref/nk1look.p (
-                    g_company,"MENULINKUPGRADE","DS",NO,NO,"","",
-                    OUTPUT upgradeLink,OUTPUT lFound
-                    ).
                 OS-COMMAND NO-WAIT START VALUE(upgradeLink).
                 /* Same as window close, without the Exit? dialog box */
                 RUN pSetUserSettings (NO).
                 RUN system/userLogOut.p (NO, 0).
                 QUIT. /* kills all processes */
-            END. /* different version */
-            ELSE
-            RUN displayMessage ("24").
+            END.
+            ELSE IF iLastVersion EQ iThisVersion THEN DO:
+                MESSAGE 
+                    "Congratulations!  The latest release of the Advantzware system is " +
+                    "version " + cVersion + ".  Your system has already been upgraded " + 
+                    "to the latest version."
+                    VIEW-AS ALERT-BOX INFO.
+                RETURN.
+            END.
+            ELSE IF iLastVersion LT iThisVersion THEN DO:
+                MESSAGE 
+                    "Your current version is greater than the latest released Advantzware version." SKIP 
+                    "This may indicate a problem with your system, or with the ASI versioning " + 
+                    "process.  Please contact Advantzware Support for assistance with this issue."
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN.
+            END.
         END. /* if connected */
-        ELSE
-        RUN displayMessage ("24").
+        ELSE DO:
+            MESSAGE 
+                "Version checking is not currently available.  Please try again later." SKIP 
+                "If this problem persists, please contact Advantzware Support for assistance."
+                VIEW-AS ALERT-BOX ERROR.
+            RETURN.
+        END.
     END. /* if user admin */
-    ELSE
-    RUN displayMessage ("23").
+    ELSE DO:
+        MESSAGE 
+            "Your user ID does not have sufficient privileges to run this function." SKIP 
+            "Please contact your local System Administrator for assistance."
+            VIEW-AS ALERT-BOX WARNING.
+        RETURN.
+    END.
 
 END PROCEDURE.
 

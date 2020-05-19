@@ -50,7 +50,6 @@ PROCEDURE pInitDynParameters :
     DEFINE INPUT PARAMETER iphFrame AS HANDLE NO-UNDO.
     
     DEFINE VARIABLE hWidget AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
     
     ASSIGN 
         hWidget = iphFrame:HANDLE 
@@ -218,8 +217,8 @@ PROCEDURE pSaveDynParamValues :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcOutputFormat AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE hWidget AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE hWidget    AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE iSortOrder AS INTEGER NO-UNDO.
     
     DO TRANSACTION:
         EMPTY TEMP-TABLE ttParamOrder.
@@ -228,15 +227,17 @@ PROCEDURE pSaveDynParamValues :
             dynParamValue.outputFormat  = ipcOutputFormat
             dynParamValue.securityLevel = IF dynParamValue.user-id EQ "_default" THEN 0
                                           ELSE DYNAMIC-FUNCTION("sfUserSecurityLevel")
-            dynParamValue.paramName     = ""
-            dynParamValue.paramLabel    = ""
-            dynParamValue.paramValue    = ""
-            dynParamValue.paramDataType = ""
-            dynParamValue.paramFormat   = ""
+/*            /* rstark - remove when depricated */*/
+/*            dynParamValue.paramName     = ""     */
+/*            dynParamValue.paramLabel    = ""     */
+/*            dynParamValue.paramValue    = ""     */
+/*            dynParamValue.paramDataType = ""     */
+/*            dynParamValue.paramFormat   = ""     */
             hWidget = FRAME paramFrame:HANDLE
             hWidget = hWidget:FIRST-CHILD
             hWidget = hWidget:FIRST-CHILD
             .
+        FIND CURRENT dynParamValue NO-LOCK.
         DO WHILE VALID-HANDLE(hWidget):
             IF NOT CAN-DO("BUTTON,FRAME,RECTANGLE,TEXT",hWidget:TYPE) THEN DO:
                 CREATE ttParamOrder.
@@ -253,14 +254,34 @@ PROCEDURE pSaveDynParamValues :
             END. /* if type */
             hWidget = hWidget:NEXT-SIBLING.
         END. /* do while */
+        FOR EACH dynValueParam EXCLUSIVE-LOCK
+            WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
+              AND dynValueParam.user-id      EQ dynParamValue.user-id
+              AND dynValueParam.prgmName     EQ dynParamValue.prgmName
+              AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
+            :
+            DELETE dynValueParam.
+        END. /* each dynvalueparam */
         FOR EACH ttParamOrder:
+            CREATE dynValueParam.
             ASSIGN
-                idx = idx + 1
-                dynParamValue.paramName[idx]     = ttParamOrder.paramName
-                dynParamValue.paramLabel[idx]    = ttParamOrder.paramLabel
-                dynParamValue.paramValue[idx]    = ttParamOrder.paramValue
-                dynParamValue.paramDataType[idx] = ttParamOrder.paramdataType
-                dynParamValue.paramFormat[idx]   = ttParamOrder.paramFormat
+                iSortOrder                 = iSortOrder + 1
+                dynValueParam.subjectID    = dynParamValue.subjectID
+                dynValueParam.user-id      = dynParamValue.user-id
+                dynValueParam.prgmName     = dynParamValue.prgmName
+                dynValueParam.paramValueID = dynParamValue.paramValueID
+                dynValueParam.sortOrder    = iSortOrder
+                dynValueParam.paramName    = ttParamOrder.paramName
+                dynValueParam.paramLabel   = ttParamOrder.paramLabel
+                dynValueParam.paramValue   = ttParamOrder.paramValue
+                dynValueParam.dataType     = ttParamOrder.paramdataType
+                dynValueParam.paramFormat  = ttParamOrder.paramFormat
+/*                /* rstark - remove when depricated */                        */
+/*                dynParamValue.paramName[idx]     = ttParamOrder.paramName    */
+/*                dynParamValue.paramLabel[idx]    = ttParamOrder.paramLabel   */
+/*                dynParamValue.paramValue[idx]    = ttParamOrder.paramValue   */
+/*                dynParamValue.paramDataType[idx] = ttParamOrder.paramdataType*/
+/*                dynParamValue.paramFormat[idx]   = ttParamOrder.paramFormat  */
                 .
         END. /* each ttparamorder */
 &IF "{&program-id}" NE "dynBrowserParam." &THEN
@@ -270,18 +291,30 @@ PROCEDURE pSaveDynParamValues :
             hWidget = hWidget:FIRST-CHILD
             .
         DO WHILE VALID-HANDLE(hWidget):
-            IF CAN-DO("EDITOR,RADIO-SET,TOGGLE-BOX",hWidget:TYPE) THEN
-            ASSIGN
-                idx = idx + 1
-                dynParamValue.paramName[idx]     = hWidget:NAME
-                dynParamValue.paramLabel[idx]    = hWidget:LABEL
-                dynParamValue.paramValue[idx]    = hWidget:SCREEN-VALUE
-                dynParamValue.paramDataType[idx] = hWidget:DATA-TYPE
-                .
+            IF CAN-DO("EDITOR,RADIO-SET,TOGGLE-BOX",hWidget:TYPE) THEN DO:
+                CREATE dynValueParam.
+                ASSIGN
+                    iSortOrder                 = iSortOrder + 1
+                    dynValueParam.subjectID    = dynParamValue.subjectID
+                    dynValueParam.user-id      = dynParamValue.user-id
+                    dynValueParam.prgmName     = dynParamValue.prgmName
+                    dynValueParam.paramValueID = dynParamValue.paramValueID
+                    dynValueParam.sortOrder    = iSortOrder
+                    dynValueParam.paramName    = hWidget:NAME
+                    dynValueParam.paramLabel   = hWidget:LABEL
+                    dynValueParam.paramValue   = hWidget:SCREEN-VALUE
+                    dynValueParam.dataType     = hWidget:DATA-TYPE
+/*                    /* rstark - remove when depricated */                  */
+/*                    dynParamValue.paramName[idx]     = hWidget:NAME        */
+/*                    dynParamValue.paramLabel[idx]    = hWidget:LABEL       */
+/*                    dynParamValue.paramValue[idx]    = hWidget:SCREEN-VALUE*/
+/*                    dynParamValue.paramDataType[idx] = hWidget:DATA-TYPE   */
+                    .
+            END. /* if hwidget:type */
             hWidget = hWidget:NEXT-SIBLING.
         END. /* do while */
-&ENDIF
-        FIND CURRENT dynParamValue NO-LOCK.
+        RELEASE dynValueParam.
+&ENDIF        
     END. /* do trans */
 
 END PROCEDURE.

@@ -36,11 +36,10 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-
+{custom/globdefs.i}
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{custom/globdefs.i}
 
 DEFINE VARIABLE hdFileSysProcs       AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs      AS HANDLE    NO-UNDO.
@@ -49,9 +48,23 @@ DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRequestTypeList     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRequestVerbList     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRequestDataTypeList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCopyAPIOutbound     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iSourceAPIOutboundID AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lSuperAdmin          AS LOGICAL   NO-UNDO.
 
 RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
+DEFINE VARIABLE hdPgmMstrSecur AS HANDLE NO-UNDO.
+RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmMstrSecur.
+
+RUN epCanAccess IN hdPgmMstrSecur (
+    INPUT  "viewers/APIOutbound.w", /* Program Name */
+    INPUT  "",                     /* Function */
+    OUTPUT lSuperAdmin
+    ).
+    
+DELETE PROCEDURE hdPgmMstrSecur.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -535,6 +548,54 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win
+PROCEDURE local-cancel-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    ASSIGN            
+        lCopyAPIOutbound     = FALSE
+        iSourceAPIOutboundID = 0
+        .
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record V-table-Win 
+PROCEDURE local-copy-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+    
+    /* Code placed here will execute PRIOR to standard behavior. */
+    ASSIGN
+        lCopyAPIOutbound     = TRUE
+        iSourceAPIOutboundID = APIOutbound.apiOutboundID
+        .
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
+    
+    /* Code placed here will execute AFTER standard behavior.    */
+
+    APIOutbound.apiID:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win 
 PROCEDURE local-delete-record :
 /*------------------------------------------------------------------------------
@@ -646,6 +707,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-row-available V-table-Win 
+PROCEDURE local-row-available :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.    
+    DEFINE VARIABLE cRowState AS CHARACTER NO-UNDO.
+    
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
+
+    RUN pGetRowState (
+        OUTPUT cRowState
+        ).
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    {methods/run_link.i "TABLEIO-SOURCE" "set-buttons" "(INPUT cRowState)"}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -675,7 +762,23 @@ PROCEDURE local-update-record :
     
     IF RETURN-VALUE = "ADM-ERROR":U THEN 
         RETURN "ADM-ERROR":U.
-    
+
+    IF lCopyAPIOutbound THEN DO:
+        RUN Outbound_CopyAPIDependencies IN hdOutboundProcs (
+            INPUT iSourceAPIOutboundID,
+            INPUT APIOutbound.apiOutboundID
+            ).
+        
+        ASSIGN
+            lCopyAPIOutbound     = FALSE
+            iSourceAPIOutboundID = 0
+            .
+        
+        RUN dispatch (
+            INPUT "row-changed"
+            ).
+    END.
+            
     /* Code placed here will execute AFTER standard behavior.    */        
     cMessage = IF adm-new-record THEN 
                    "Record created successfully!"
@@ -782,7 +885,7 @@ PROCEDURE pEnableFields :
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
     END.
-
+            
     ASSIGN
         tgInactive:SENSITIVE        = TRUE
         cbRequestType:SENSITIVE     = TRUE
@@ -794,6 +897,14 @@ PROCEDURE pEnableFields :
         edRequestData:READ-ONLY     = FALSE
         edDescription:READ-ONLY     = FALSE
         .
+
+    /* Not a super user */
+    IF NOT lSuperAdmin THEN
+        ASSIGN
+            APIOutbound.requestHandler:SENSITIVE  = FALSE
+            APIOutbound.responseHandler:SENSITIVE = FALSE
+            cbRequestDataType:SENSITIVE           = FALSE
+            .        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -821,6 +932,16 @@ PROCEDURE pFieldValidations :
         opcMessage = "Client ID cannot be empty".
         RETURN.
     END.    
+
+    RUN Outbound_ValidateClientID IN hdOutboundProcs (
+        INPUT  g_company,
+        INPUT  APIOutbound.clientID:SCREEN-VALUE,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ).    
+   
+    IF NOT oplSuccess THEN
+        RETURN.
     
     IF cbRequestType:SCREEN-VALUE EQ ? OR cbRequestType:SCREEN-VALUE EQ "" THEN DO:
         opcMessage = "Request Type cannot be empty".
@@ -843,6 +964,35 @@ PROCEDURE pFieldValidations :
             RETURN.   
     END.             
     oplSuccess = TRUE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetRowState V-table-Win 
+PROCEDURE pGetRowState :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcRowState      AS CHARACTER NO-UNDO.
+
+    IF AVAILABLE APIOutbound THEN DO:
+        IF APIOutbound.apiOutboundID GT 5000 THEN
+            opcRowState = "no-add".
+        ELSE
+            opcRowState = "copy-only".
+    END.
+    ELSE
+        opcRowState = "disable-all".
+
+    IF lSuperAdmin THEN DO:
+        IF AVAILABLE APIoutbound THEN
+            opcRowState = "initial".
+        ELSE
+            opcRowState = "add-only".
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -976,6 +1126,63 @@ PROCEDURE pUpdateMessageText :
             fiMessage:SCREEN-VALUE = "**" + ipcMessage
             fiMessage:FGCOLOR      = 12  /* Red */
             .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SelectAndCopyAPIOutbound V-table-Win 
+PROCEDURE SelectAndCopyAPIOutbound :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
+    DEFINE VARIABLE cAPIID       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cClientID    AS CHARACTER NO-UNDO.
+
+    RUN system/openlookup.p (
+        g_company, 
+        "apiID", /* lookup field */
+        0,   /* Subject ID */
+        "",  /* User ID */
+        0,   /* Param value ID */
+        OUTPUT returnFields, 
+        OUTPUT lookupField, 
+        OUTPUT recVal
+        ). 
+
+    IF lookupField NE "" THEN DO:
+        ASSIGN
+            cAPIID    = IF NUM-ENTRIES(returnFields,"|") GE 2 THEN
+                            ENTRY(2, returnFields, "|")
+                        ELSE
+                            ""
+            cClientId = IF NUM-ENTRIES(returnFields, "|") GE 4 THEN
+                            ENTRY(4, returnFields, "|")
+                        ELSE
+                            ""           
+            .
+        
+        FIND FIRST APIOutbound NO-LOCK
+             WHERE APIOutbound.company  EQ g_company
+               AND APIOutbound.apiID    EQ cAPIID
+               AND APIOutbound.clientID EQ cClientID
+             NO-ERROR.
+        IF AVAILABLE APIOutbound THEN DO:           
+            RUN dispatch (
+                INPUT "row-changed"
+                ).
+
+            RUN dispatch (
+                INPUT "local-copy-record"
+                ).
+        END.
+    END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

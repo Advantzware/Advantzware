@@ -1,3 +1,3 @@
 /* custom/copy.i */
 
-company po-ord gl-rpt shipto account itemfg
+company po-ord gl-rpt shipto account itemfg soldto

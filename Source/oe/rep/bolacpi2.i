@@ -71,8 +71,11 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
           IF oe-ordl.part-dscr3 NE "" THEN 
               w2.dscr = oe-ordl.part-dscr3.
           ELSE w2.dscr = itemfg.part-dscr3.
+     ELSE IF i EQ 6 THEN          
+              w2.dscr = bf-ttboll.lot-no.
+              
   END.
-  IF i <= 5 THEN DO i = i TO 5:
+  IF i <= 6 THEN DO i = i TO 6:
       CREATE w2.
   END.
   i = 0.
@@ -102,39 +105,18 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
            IF oe-ordl.part-dscr3 NE "" THEN 
               w2.dscr = oe-ordl.part-dscr3.
           ELSE w2.dscr = itemfg.part-dscr3.
-    END.
+      ELSE IF i EQ 6 THEN              
+              w2.dscr = tt-boll.lot-no.            
+    END.    
     IF w2.qty = 0 AND w2.i-no = "" AND w2.dscr = "" AND w2.cas-cnt = 0 THEN DELETE w2.
   END.
   i = 0.  
-  FOR EACH w2  BREAK BY w2.cases DESCENDING:
+  FOR EACH w2  BREAK BY w2.cases DESCENDING:     
     FIND FIRST bf-ttboll NO-LOCK WHERE RECID(bf-ttboll) = w2.rec-id NO-ERROR.
     i = i + 1.
-    IF w2.rec-id = ? THEN DO:
-        FIND FIRST oe-ordl NO-LOCK WHERE oe-ordl.company EQ cocode
-         AND oe-ordl.ord-no  EQ tt-boll.ord-no
-         AND oe-ordl.i-no    EQ tt-boll.i-no
-         AND oe-ordl.line    EQ tt-boll.LINE NO-ERROR.
-       w2.i-no = "".
-       IF i = 2 THEN 
-          ASSIGN w2.job-po = IF oe-ordl.job-no EQ "" THEN "" ELSE
-                             (TRIM(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))
-                 w2.dscr = oe-ordl.i-name
-                 w2.i-no = oe-ordl.i-no.
-       ELSE IF i EQ 3 THEN 
-           IF oe-ordl.part-dscr1 NE "" THEN 
-              w2.dscr = oe-ordl.part-dscr1.
-          ELSE w2.dscr = itemfg.part-dscr1.
-       ELSE IF i EQ 4 THEN 
-           IF oe-ordl.part-dscr2 NE "" THEN 
-              w2.dscr = oe-ordl.part-dscr2.
-          ELSE w2.dscr = itemfg.part-dscr2.
-       ELSE IF i EQ 5 THEN 
-           IF oe-ordl.part-dscr3 NE "" THEN 
-              w2.dscr = oe-ordl.part-dscr3.
-          ELSE w2.dscr = itemfg.part-dscr3.
-    END.
+       
     IF w2.qty EQ 0 AND w2.i-no EQ "" AND w2.dscr EQ "" AND /*NOT last(w2.cases)*/ w2.cases EQ 0 THEN .
-    ELSE DO:    
+    ELSE DO:     
        ASSIGN icountpallet  = w2.cas-cnt.
        DISPLAY w2.i-no                       
            TRIM(STRING(w2.qty,"->>,>>>,>>>")) WHEN i = 1 @ w2.i-no
@@ -237,7 +219,7 @@ FIND FIRST oe-ordl NO-LOCK
       v-lines = v-lines + 1.
   END.
   
-  DO i = v-lines + 1 TO 5:
+  DO i = v-lines + 1 TO 6:
     ASSIGN
      v-part-dscr = ""
      v-job-po    = "".
@@ -271,7 +253,9 @@ FIND FIRST oe-ordl NO-LOCK
         IF oe-ordl.part-dscr3 NE "" THEN 
               v-part-dscr = oe-ordl.part-dscr3.
           ELSE v-part-dscr = itemfg.part-dscr3.
-        
+    ELSE IF i EQ 6 THEN         
+              v-part-dscr = tt-boll.lot-no.      
+  
     IF v-part-dscr NE "" OR v-job-po NE "" OR i LE 2 THEN v-lines = v-lines + 1.
   END.
   
@@ -312,7 +296,9 @@ FIND FIRST oe-ordl NO-LOCK
         IF oe-ordl.part-dscr3 NE "" THEN 
               v-part-dscr = oe-ordl.part-dscr3.
           ELSE v-part-dscr = itemfg.part-dscr3.
-
+    ELSE IF i EQ 6 THEN         
+              v-part-dscr = tt-boll.lot-no.      
+   
      ASSIGN icountpallet = w2.cas-cnt *  w2.cases .
     DISPLAY TRIM(STRING(oe-ordl.qty,"->>,>>>,>>>")) WHEN i EQ 1
                                                     @ oe-ordl.i-no
@@ -340,7 +326,7 @@ FIND FIRST oe-ordl NO-LOCK
     DELETE w2.
   END. /* each w2 */
 
-  DO i = i + 1 TO 5:
+  DO i = i + 1 TO 6:
     CLEAR FRAME bol-mid2 NO-PAUSE.
 
     ASSIGN
@@ -376,6 +362,9 @@ FIND FIRST oe-ordl NO-LOCK
         IF oe-ordl.part-dscr3 NE "" THEN 
               v-part-dscr = oe-ordl.part-dscr3.
           ELSE v-part-dscr = itemfg.part-dscr3.
+    IF i EQ 6 THEN          
+              v-part-dscr = tt-boll.lot-no.
+  
     IF i = 2 AND v-job-po = "" THEN
       v-job-po = IF tt-boll.job-no EQ "" THEN "" ELSE
                 (TRIM(tt-boll.job-no) + "-" + string(tt-boll.job-no2,"99"))                 .

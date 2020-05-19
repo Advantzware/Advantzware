@@ -86,6 +86,9 @@ DEFINE VARIABLE cCEMiscDefaultStackCode AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cStackCode AS CHARACTER NO-UNDO .
 DEFINE VARIABLE iOldQty AS INTEGER NO-UNDO .
 DEFINE VARIABLE lShowMessage AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lMiscEstimateSource AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMiscEstimateSource AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iMiscEstimateSource AS INTEGER NO-UNDO.
 DEFINE BUFFER bf-eb FOR eb.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "CEMiscDefaultStyle", "C" /* Logical */, NO /* check by cust */, 
@@ -102,6 +105,21 @@ RUN sys/ref/nk1look.p (INPUT cocode, "CEMiscDefaultStackCode", "C" /* Logical */
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound). 
   cCEMiscDefaultStackCode = cRtnChar NO-ERROR .
+  
+RUN sys/ref/nk1look.p (INPUT cocode, "MiscEstimateSource", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound). 
+  lMiscEstimateSource = logical(cRtnChar) NO-ERROR . 
+  
+RUN sys/ref/nk1look.p (INPUT cocode, "MiscEstimateSource", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound). 
+  cMiscEstimateSource = STRING(cRtnChar) NO-ERROR .
+  
+RUN sys/ref/nk1look.p (INPUT cocode, "MiscEstimateSource", "I" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound). 
+  iMiscEstimateSource = INTEGER(cRtnChar) NO-ERROR .  
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1454,14 +1472,20 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     /*{src/adm/template/dialogmn.i}*/
     RUN enable_UI.
     {methods/nowait.i}     
-    DO WITH FRAME {&frame-name}:
+    DO WITH FRAME {&frame-name}:  
         IF ipType EQ "Edit" THEN do:
             RUN pDisplayValue.
+            RUN pDisplayQty.
             DISABLE cSEst .
             APPLY "entry" TO quantity IN FRAME {&FRAME-NAME}.
         END.    
         ELSE do:
             RUN pDefaultValue. 
+            IF NOT lMiscEstimateSource THEN do:
+              DISABLE cSEst .
+              APPLY "entry" TO quantity IN FRAME {&FRAME-NAME}.
+            END.
+            ELSE
             APPLY "entry" TO cSEst IN FRAME {&FRAME-NAME}.
         END.
         
@@ -2039,9 +2063,104 @@ PROCEDURE pGetEstDetail :
         IF AVAILABLE bf-eb THEN do:           
           ipriRowid = ROWID(bf-eb) .        
           RUN pDisplayValue.
+          RUN pDisplayQty.
            Btn_OK:LABEL = "&Next" .                                         
         END.         
     END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayQty D-Dialog 
+PROCEDURE pDisplayQty :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-eb FOR eb .
+    DO WITH FRAME {&FRAME-NAME}:
+
+        FIND FIRST bf-eb NO-LOCK 
+            WHERE bf-eb.company EQ cocode
+              AND ROWID(bf-eb) EQ ipriRowid NO-ERROR .
+        
+        IF AVAIL bf-eb THEN DO:
+            FIND FIRST est-qty NO-LOCK
+                 WHERE est-qty.company EQ bf-eb.company
+                 AND est-qty.est-no EQ bf-eb.est-no
+                 AND est-qty.eqty EQ bf-eb.eqty NO-ERROR .
+                 
+           IF avail est-qty then do:  
+             ASSIGN
+              lv-copy-qty[2] = est-qty.qty[2]
+              lv-copy-qty[3] = est-qty.qty[3]
+              lv-copy-qty[4] = est-qty.qty[4]
+              lv-copy-qty[5] = est-qty.qty[5]
+              lv-copy-qty[6] = est-qty.qty[6]
+              lv-copy-qty[7] = est-qty.qty[7]
+              lv-copy-qty[8] = est-qty.qty[8]
+              lv-copy-qty[9] = est-qty.qty[9]
+              lv-copy-qty[10] = est-qty.qty[10]
+              lv-copy-qty[11] = est-qty.qty[11]
+              lv-copy-qty[12] = est-qty.qty[12]
+              lv-copy-qty[13] = est-qty.qty[13]
+              lv-copy-qty[14] = est-qty.qty[14]
+              lv-copy-qty[15] = est-qty.qty[15]
+              lv-copy-qty[16] = est-qty.qty[16]
+              lv-copy-qty[17] = est-qty.qty[17]
+              lv-copy-qty[18] = est-qty.qty[18]
+              lv-copy-qty[19] = est-qty.qty[19]
+              lv-copy-qty[20] = est-qty.qty[20].
+                     
+             ASSIGN 
+              lv-copy-rel[1]  = est-qty.qty[21]
+              lv-copy-rel[2]  = est-qty.qty[22]
+              lv-copy-rel[3]  = est-qty.qty[23]
+              lv-copy-rel[4]  = est-qty.qty[24]
+              lv-copy-rel[5]  = est-qty.qty[25]
+              lv-copy-rel[6]  = est-qty.qty[26]
+              lv-copy-rel[7]  = est-qty.qty[27]
+              lv-copy-rel[8]  = est-qty.qty[28]
+              lv-copy-rel[9]  = est-qty.qty[29]
+              lv-copy-rel[10] = est-qty.qty[30]
+              lv-copy-rel[11] = est-qty.qty[31]
+              lv-copy-rel[12] = est-qty.qty[32]
+              lv-copy-rel[13] = est-qty.qty[33]
+              lv-copy-rel[14] = est-qty.qty[34]
+              lv-copy-rel[15] = est-qty.qty[35]
+              lv-copy-rel[16] = est-qty.qty[36]
+              lv-copy-rel[17] = est-qty.qty[37]
+              lv-copy-rel[18] = est-qty.qty[38]
+              lv-copy-rel[19] = est-qty.qty[39]
+              lv-copy-rel[20] = est-qty.qty[40].
+             assign 
+              cLogicalRunShip[1] = STRING(est-qty.whsed[1])
+              cLogicalRunShip[2] = STRING(est-qty.whsed[2]) 
+              cLogicalRunShip[3] = STRING(est-qty.whsed[3])
+              cLogicalRunShip[4] = STRING(est-qty.whsed[4])
+              cLogicalRunShip[5] = STRING(est-qty.whsed[5])
+              cLogicalRunShip[6] = STRING(est-qty.whsed[6])
+              cLogicalRunShip[7] = STRING(est-qty.whsed[7])
+              cLogicalRunShip[8] = STRING(est-qty.whsed[8])
+              cLogicalRunShip[9] = STRING(est-qty.whsed[9])
+              cLogicalRunShip[10] = STRING(est-qty.whsed[10])
+              cLogicalRunShip[11] = STRING(est-qty.whsed[11])
+              cLogicalRunShip[12] = STRING(est-qty.whsed[12])
+              cLogicalRunShip[13] = STRING(est-qty.whsed[13])
+              cLogicalRunShip[14] = STRING(est-qty.whsed[14])
+              cLogicalRunShip[15] = STRING(est-qty.whsed[15])
+              cLogicalRunShip[16] = STRING(est-qty.whsed[16])
+              cLogicalRunShip[17] = STRING(est-qty.whsed[17])
+              cLogicalRunShip[18] = STRING(est-qty.whsed[18])
+              cLogicalRunShip[19] = STRING(est-qty.whsed[19])
+              cLogicalRunShip[20] = STRING(est-qty.whsed[20])  .
+
+           END.
+        END.
+    END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2414,7 +2533,7 @@ PROCEDURE valid-est-no :
     DEFINE BUFFER b-eb FOR eb.
     DEFINE BUFFER b-est FOR est.
     DO WITH FRAME {&FRAME-NAME}:
-        IF NOT CAN-FIND(FIRST b-eb
+        IF trim(cSEst:SCREEN-VALUE) NE "0" AND NOT CAN-FIND(FIRST b-eb
             WHERE b-eb.company  EQ gcompany
             AND b-eb.est-no    EQ cSEst:SCREEN-VALUE)  THEN 
         DO:
@@ -2422,7 +2541,7 @@ PROCEDURE valid-est-no :
             APPLY "entry" TO cSEst .
             oplOutError = YES .
         END.
-        IF CAN-FIND(FIRST b-est
+        IF lMiscEstimateSource AND iMiscEstimateSource EQ 1 AND CAN-FIND(FIRST b-est
             WHERE b-est.company  EQ gcompany
             AND b-est.est-no    EQ cSEst:SCREEN-VALUE
             AND b-est.estimateTypeID EQ "MISC")  THEN 
@@ -2431,6 +2550,18 @@ PROCEDURE valid-est-no :
             APPLY "entry" TO cSEst .
             oplOutError = YES .
         END.
+        IF trim(cSEst:SCREEN-VALUE) NE "0" AND  cMiscEstimateSource EQ "Quote" THEN
+        DO:
+          IF NOT CAN-FIND(FIRST quotehd
+            WHERE quotehd.company  EQ gcompany
+            AND quotehd.est-no    EQ cSEst:SCREEN-VALUE)  THEN 
+          DO:
+            MESSAGE "N-K-1 MiscEstimateSource is set to get prices from the quote, so without a quote you may not proceed." VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO cSEst .
+            oplOutError = YES .
+          END.        
+        END.
+        
     END.
 
 END PROCEDURE.
