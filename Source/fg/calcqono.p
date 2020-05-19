@@ -358,23 +358,26 @@ IF AVAIL itemfg THEN DO:
                 ASSIGN v-set-job-qty = job-hdr.qty
                        v-set-rcv-qty =  ld-qty.
          END. /* FOR EACH job-hdr */
-         
-         FOR EACH job NO-LOCK
-           WHERE job.company EQ itemfg.company
-             AND job.opened  EQ YES,
-          FIRST job-hdr NO-LOCK
-           WHERE job-hdr.company EQ job.company
-             AND job-hdr.i-no    EQ v-set-item
-             AND job-hdr.job     EQ job.job
-             AND job-hdr.job-no  EQ job.job-no
-             AND job-hdr.job-no2 EQ job.job-no2,
-          FIRST b-itemfg NO-LOCK
-           WHERE b-itemfg.company EQ job-hdr.company
-             AND b-itemfg.i-no    EQ job-hdr.i-no
-             AND b-itemfg.isaset  EQ YES:
+ 
+         FOR EACH job-hdr NO-LOCK
+             WHERE job-hdr.company EQ itemfg.company
+               AND job-hdr.i-no    EQ v-set-item,
+             FIRST job NO-LOCK
+             WHERE job.company EQ job-hdr.company
+               AND job.job     EQ job-hdr.job
+               AND job.job-no  EQ job-hdr.job-no
+               AND job.job-no2 EQ job-hdr.job-no2
+               AND job.opened  EQ YES,
+             FIRST b-itemfg NO-LOCK
+             WHERE b-itemfg.company EQ job-hdr.company
+               AND b-itemfg.i-no    EQ job-hdr.i-no
+               AND b-itemfg.isaset  EQ YES:
+                   
            RUN fg/fullset.p (ROWID(b-itemfg)).
            
-           FOR EACH fg-set WHERE fg-set.part-no EQ itemfg.i-no:
+           FOR EACH  fg-set NO-LOCK
+               WHERE fg-set.company EQ itemfg.company
+                 AND fg-set.part-no EQ itemfg.i-no:
                 {sys/inc/part-qty.i v-part-qty-dec fg-set}
                IF v-set-rcv-qty LT v-set-job-qty THEN
                   op-q-ono = op-q-ono + ((v-set-job-qty - v-set-rcv-qty) * v-part-qty-dec).               
