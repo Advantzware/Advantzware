@@ -37,6 +37,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE cEndUser          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dtEndDateTime     AS DATETIME  NO-UNDO.
     DEFINE VARIABLE dtStartDateTime   AS DATETIME  NO-UNDO.
+    DEFINE VARIABLE lDelete           AS LOGICAL   NO-UNDO.
     
     DEFINE BUFFER bAuditDtl FOR AuditDtl.
     
@@ -78,6 +79,10 @@ PROCEDURE pBusinessLogic:
           AND bAuditDtl.AuditAfterValue  GE cStartAfterValue
           AND bAuditDtl.AuditAfterValue  LE cEndAfterValue
         :
+        FIND FIRST AuditTbl NO-LOCK
+             WHERE AuditTbl.AuditTable EQ AuditHdr.AuditTable
+             NO-ERROR.
+        lDelete = NOT AVAILABLE AuditTbl OR DATETIME(TODAY - AuditTbl.expireDays + 1,0) GT AuditHdr.AuditDateTime.
         IF CAN-FIND(FIRST AuditDtl OF AuditHdr
                     WHERE AuditDtl.AuditField       GE cStartField
                       AND AuditDtl.AuditField       LE cEndField
@@ -108,7 +113,7 @@ PROCEDURE pBusinessLogic:
                 ttAuditHistory.AuditBeforeValue = AuditDtl.AuditBeforeValue
                 ttAuditHistory.AuditAfterValue  = AuditDtl.AuditAfterValue
                 .
-            IF lPurge THEN 
+            IF lPurge AND lDelete THEN
             DELETE AuditDtl.
         END. /* each auditdtl */
         ELSE DO: /* no audit detail records exist */
@@ -123,7 +128,7 @@ PROCEDURE pBusinessLogic:
                 ttAuditHistory.AuditKey         = AuditHdr.AuditKey
                 .
         END. /* else */
-        IF lPurge THEN DO:
+        IF lPurge AND lDelete THEN DO:
             FIND FIRST AuditStack EXCLUSIVE-LOCK
                  WHERE AuditStack.AuditStackID EQ AuditHdr.AuditStackID
                  NO-ERROR.
