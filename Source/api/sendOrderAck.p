@@ -64,7 +64,7 @@ DEFINE VARIABLE cLineNum              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cQtyOrdered           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cQtyAlloc             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cQtyShipped           AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cItemUom              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cQtyUOM              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cItemPrice            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cItemID               AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBuyerPart            AS CHARACTER NO-UNDO.
@@ -444,7 +444,7 @@ END.
         
 RUN system/formatProcs.p PERSISTENT SET hFormatProcs.
         
-dSELineCount = 3.
+
 IF AVAILABLE oe-ord THEN 
 DO:
             
@@ -495,7 +495,8 @@ FOR EACH oe-ordl
         lcLineData     = STRING(APIOutboundDetail.data)
         iLineCount     = iLineCount + 1
         cLineNum   = STRING(oe-ordl.line)                     
-        cQtyOrdered    = STRING(oe-ordl.qty)
+        cQtyOrdered    = IF oe-ordl.spare-dec-1 NE 0 THEN STRING(oe-ordl.spare-dec-1) + '"' ELSE STRING(oe-ordl.qty)
+        cQtyUOM        = STRING(IF oe-ordl.spare-char-2 NE '' THEN oe-ordl.spare-char-2 ELSE 'EA')
         cPriceUom      = STRING(oe-ordl.pr-uom)
         cItemPrice     = STRING(oe-ordl.price)
         cItemID        = STRING(oe-ordl.i-no)
@@ -555,7 +556,7 @@ FOR EACH oe-ordl
         cPromDate      = STRING(oe-ordl.prom-date) 
         cQLine         = STRING(oe-ordl.q-line)
         cQNo           = STRING(oe-ordl.q-no)
-        cOrdQty          = STRING(oe-ordl.q-qty)
+        cOrdQty        = STRING(oe-ordl.q-qty)
         cQRel          = STRING(oe-ordl.q-rel)
         cQtyOnBo       = STRING(oe-ordl.qty-on-bo)
         cRaInvNo       = STRING(oe-ordl.ra-inv-no)
@@ -633,12 +634,9 @@ FOR EACH oe-ordl
         cWhsed         = STRING(oe-ordl.whsed)
         .
 
-         
-    /* Detail section has 2 lines per iteration */
-    dSELineCount = dSELineCount + 2.
-    
+             
     RUN updateRequestData(INPUT-OUTPUT lcLineData, "LineNum", cLineNum).
-    RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemUOM", cItemUom).
+    RUN updateRequestData(INPUT-OUTPUT lcLineData, "QtyUOM", cQtyUOM).
     RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemPrice", cItemPrice).
     RUN updateRequestData(INPUT-OUTPUT lcLineData, "PartQualifier", cPartQualifier).
     RUN updateRequestData(INPUT-OUTPUT lcLineData, "BuyerPart", cBuyerPart).
@@ -693,7 +691,6 @@ FOR EACH oe-ordl
     RUN updateRequestData(INPUT-OUTPUT lcLineData,"PromCode", cPromCode).   
     RUN updateRequestData(INPUT-OUTPUT lcLineData,"PromDate", cPromDate).
     RUN updateRequestData(INPUT-OUTPUT lcLineData,"PriceUom", cPrUom).     
-    RUN updateRequestData(INPUT-OUTPUT lcLineData,"ItemPrice", cItemPrice).
     RUN updateRequestData(INPUT-OUTPUT lcLineData,"QLine", cQLine).   
     RUN updateRequestData(INPUT-OUTPUT lcLineData,"QNo", cQNo).    
     RUN updateRequestData(INPUT-OUTPUT lcLineData,"OrdQty", cQtyOrdered).      
@@ -1227,10 +1224,7 @@ RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Currency", "USD").
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalAmount", cTotalAmount).
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "OrderDateYMD", cEdiOrdDate).
 
-/* Add one for TDS segment - total amount, one for SE */
-dSELineCount = dSELineCount + 2.          
-cSELineCount = STRING(dSELineCount).
-RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SECount", cSELineCount).
+
           
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "invNotes", cInvNotes).
     
@@ -1244,7 +1238,13 @@ lcConcatLineMiscChargeData = TRIM(lcConcatLineMiscChargeData,"~n").
 ioplcRequestData = REPLACE(ioplcRequestData, "[$Detail$]", (IF lcConcatLineData NE "" THEN "~n" ELSE "") + lcConcatLineData).
                                                                  
 ioplcRequestData = REPLACE(ioplcRequestData, "[$MiscCharge$]", (IF lcConcatLineMiscChargeData NE "" THEN  "~n" ELSE "") + lcConcatLineMiscChargeData).
-
+ASSIGN 
+  dSELineCount = NUM-ENTRIES(ioplcRequestData, "~~") - 1  
+  /* Subtract lines before ST and after SE segments */
+  dSELineCount = dSELineCount - 4
+  cSELineCount = STRING(dSELineCount)
+  .
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SECount", STRING(cSELineCount)).
                            
 RELEASE bf-APIOutboundDetail2.
 
