@@ -66,7 +66,8 @@ FUNCTION fFormatNumber RETURNS CHARACTER PRIVATE
     (ipdNumber AS DECIMAL,
     ipiLeftDigits AS INTEGER,
     ipiRightDigits AS INTEGER,
-    iplComma AS LOGICAL) FORWARD.
+    iplComma AS LOGICAL,
+     iplAllowNegatives AS LOGICAL) FORWARD.
 
 FUNCTION fFormatString RETURNS CHARACTER PRIVATE
     (ipcString AS CHARACTER,
@@ -318,7 +319,7 @@ PROCEDURE pPrintItemInfoDetail PRIVATE:
     RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn3, ipbf-estCostItem.sizeDesc , 20, NO, NO, NO).
     RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn4, ipbf-estCostItem.styleDesc, 16, NO, NO, NO).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pWriteToCoordinates(iopiRowCount, iItemColumn1, fFormatNumber(ipbf-estCostBlank.formNo,2, 0, YES) + "-" + fFormatNumber(ipbf-estCostBlank.blankNo,2, 0, YES), NO, NO, NO).
+    RUN pWriteToCoordinates(iopiRowCount, iItemColumn1, fFormatNumber(ipbf-estCostBlank.formNo,2, 0, YES, NO) + "-" + fFormatNumber(ipbf-estCostBlank.blankNo,2, 0, YES, NO), NO, NO, NO).
     RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn2, ipbf-estCostItem.itemDescription1, 20 , NO, NO, NO).
     RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn3, ipbf-estCostItem.colorDesc, 20, NO, NO, NO).
     RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn4, ipbf-estCostItem.customerPart, 16, NO, NO, NO).
@@ -550,7 +551,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
     ASSIGN 
         iQtyCountTotal               = 1
         cScopeRecKey[iQtyCountTotal] = ipbf-estCostForm.rec_key
-        cQtyHeader[iQtyCountTotal]   = fFormatNumber(ipbf-estCostForm.quantityFGOnForm, 7, 0, YES)
+        cQtyHeader[iQtyCountTotal]   = fFormatNumber(ipbf-estCostForm.quantityFGOnForm, 7, 0, YES, NO)
         .
     IF iplPerQuantity THEN 
     DO:
@@ -565,7 +566,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
             ASSIGN 
                 iQtyCountTotal               = iQtyCountTotal + 1
                 cScopeRecKey[iQtyCountTotal] = estCostForm.rec_key
-                cQtyHeader[iQtyCountTotal]   = fFormatNumber(estCostForm.quantityFGOnForm, 7, 0, YES)
+                cQtyHeader[iQtyCountTotal]   = fFormatNumber(estCostForm.quantityFGOnForm, 7, 0, YES, NO)
                 .
             IF iQtyCountTotal EQ giQtyMaxColumn THEN LEAVE. 
         END.
@@ -578,7 +579,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
     END.
     ELSE 
     DO: 
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "*** Totals for Qty: " +  fFormatNumber(ipbf-estCostForm.quantityFGOnForm, 7, 0, YES), YES, YES, NO).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "*** Totals for Qty: " +  fFormatNumber(ipbf-estCostForm.quantityFGOnForm, 7, 0, YES, NO), YES, YES, NO).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[2] , "Per M" , YES, YES, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[2] + iColumnWidth, "Total", YES, YES, YES).
     END.    
@@ -607,7 +608,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
                                 RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
                                 RUN pWriteToCoordinates(iopiRowCount, iColumn[1], estCostGroup.costGroupLabel, NO, NO, NO).
                             END.                        
-                            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2] + (iQtyCount - 1) * iColumnWidth ,estCostSummary.costTotalPerMFinished , 6, 2, NO, YES, NO, NO, YES).
+                            RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + (iQtyCount - 1) * iColumnWidth ,estCostSummary.costTotalPerMFinished , 6, 2, NO, YES, NO, NO, YES).
                             dCostPerM[iQtyCount] = dCostPerM[iQtyCount] + estCostSummary.costTotalPerMFinished.
                         END.
                     END.
@@ -625,8 +626,8 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
                     DO:            
                         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
                         RUN pWriteToCoordinates(iopiRowCount, iColumn[1], estCostGroup.costGroupLabel, NO, NO, NO).
-                        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2] , estCostSummary.costTotalPerMFinished , 6, 2, NO, YES, NO, NO, YES).
-                        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2] + iColumnWidth, estCostSummary.costTotal , 6, 2, NO, YES, NO, NO, YES).
+                        RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] , estCostSummary.costTotalPerMFinished , 6, 2, NO, YES, NO, NO, YES).
+                        RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + iColumnWidth, estCostSummary.costTotal , 6, 2, NO, YES, NO, NO, YES).
                         ASSIGN 
                             dCostTotal     = dCostTotal + estCostSummary.costTotal
                             dCostTotalPerM = dCostTotalPerM + estCostSummary.costTotalPerMFinished
@@ -640,13 +641,13 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
         IF iplPerQuantity THEN
         DO: /*Print values for each quantity (per M)*/
             DO iQtyCount = 1 TO iQtyCountTotal:
-                RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2] + (iQtyCount - 1) * iColumnWidth , dCostPerM[iQtyCount] , 6, 2, NO, YES, YES, NO, YES).
+                RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + (iQtyCount - 1) * iColumnWidth , dCostPerM[iQtyCount] , 6, 2, NO, YES, YES, NO, YES).
             END.
         END.
         ELSE 
         DO:
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2] , dCostTotalPerM , 6, 2, NO, YES, YES, NO, YES).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2] + iColumnWidth, dCostTotal , 6, 2, NO, YES, YES, NO, YES).
+            RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] , dCostTotalPerM , 6, 2, NO, YES, YES, NO, YES).
+            RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + iColumnWidth, dCostTotal , 6, 2, NO, YES, YES, NO, YES).
         END.
     END.
     IF iplPrintProfitPercent THEN 
@@ -654,7 +655,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         dProfitPercent = 100 * (ipbf-estCostForm.sellPrice - ipbf-estCostForm.costTotalFull) / ipbf-estCostForm.sellPrice.
         RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Profit % ", YES, NO, NO).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2] , dProfitPercent , 6, 2, NO, YES, YES, NO, YES).
+        RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] , dProfitPercent , 6, 2, NO, YES, YES, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[2], "%", YES, NO, NO).
     END.
             
@@ -703,7 +704,7 @@ PROCEDURE pPrintFreightWarehousingAndHandlingForForm PRIVATE:
             RUN pWriteToCoordinates(iopiRowCount, iColumn[10], "Handling", NO, YES, YES).
         END.    
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], fFormatNumber(estRelease.formNo,2, 0, YES) + "-" + fFormatNumber(estRelease.blankNo,2, 0, YES), NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], fFormatNumber(estRelease.formNo,2, 0, YES, NO) + "-" + fFormatNumber(estRelease.blankNo,2, 0, YES, NO), NO, NO, YES).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[1] + 1, estRelease.quantityRelease, 6, 0, NO, YES, NO, NO, NO).
         RUN pWriteToCoordinatesString(iopiRowCount, iColumn[2], estRelease.shipFromLocationID, 8, NO, NO, NO).
         RUN pWriteToCoordinatesString(iopiRowCount, iColumn[3], estRelease.shipToID, 8, NO, NO, NO).
@@ -850,7 +851,7 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
             NEXT.
         
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], fFormatNumber(estCostMaterial.formNo,2, 0, YES) + "-" + fFormatNumber(estCostMaterial.blankNo,2, 0, YES), NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], fFormatNumber(estCostMaterial.formNo,2, 0, YES, NO) + "-" + fFormatNumber(estCostMaterial.blankNo,2, 0, YES, NO), NO, NO, YES).
         
         IF estCostMaterial.isPrimarySubstrate THEN 
         DO:
@@ -952,7 +953,7 @@ PROCEDURE pPrintMiscInfoForForm PRIVATE:
         END.    
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
        
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], fFormatNumber(estCostMisc.formNo,2, 0, YES) + "-" + fFormatNumber(estCostMisc.blankNo,2, 0, YES), NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], fFormatNumber(estCostMisc.formNo,2, 0, YES, NO) + "-" + fFormatNumber(estCostMisc.blankNo,2, 0, YES, NO), NO, NO, YES).
         RUN pWriteToCoordinatesString(iopiRowCount, iColumn[1] + 1, estCostMisc.costDescription, 20, NO, NO, NO).
         RUN pWriteToCoordinatesString(iopiRowCount, iColumn[2], estCostMisc.costType, 4, NO, NO, NO).
         IF ipcType EQ "Misc" THEN 
@@ -1010,7 +1011,7 @@ PROCEDURE pPrintOperationsInfoForForm PRIVATE:
         BY estCostOperation.sequenceOfOperation: 
    
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], fFormatNumber(estCostOperation.formNo,2, 0, YES) + "-" + fFormatNumber(estCostOperation.blankNo,2, 0, YES), NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], fFormatNumber(estCostOperation.formNo,2, 0, YES, NO) + "-" + fFormatNumber(estCostOperation.blankNo,2, 0, YES, NO), NO, NO, YES).
         RUN pWriteToCoordinatesString(iopiRowCount, iColumn[1] + 1, estCostOperation.operationName, 20, NO, NO, NO).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostOperation.hoursSetup, 7, 2, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostOperation.hoursRun, 7, 2, NO, YES, NO, NO, YES).
@@ -1160,8 +1161,8 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
         IF iplPrimary THEN RUN pWriteToCoordinates(iopiRowCount, iColumn[2] + 1, "*", NO, NO, NO).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], ipbf-estCostHeader.costTotalFactory / dQtyInM , 9, 2, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ipbf-estCostHeader.costTotalFull / dQtyInM , 9, 2, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], ipbf-estCostHeader.profitPctGross , 4, 2, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], ipbf-estCostHeader.profitPctNet , 4, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[5], ipbf-estCostHeader.profitPctGross , 4, 2, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[6], ipbf-estCostHeader.profitPctNet , 4, 2, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[7], ipbf-estCostHeader.sellPrice / dQtyInM , 9, 2, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[8], ipbf-estCostHeader.sellPrice / dMSFTotal, 9, 2, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[9], dSheetsTotal , 9, 0, NO, YES, NO, NO, YES).
@@ -1292,12 +1293,34 @@ PROCEDURE pWriteToCoordinatesNum PRIVATE:
     DEFINE INPUT PARAMETER iplRightJustified AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
-    cText = fFormatNumber(ipdNumber, ipiLeftDigits, ipiDecimalDigits, iplComma).
+    cText = fFormatNumber(ipdNumber, ipiLeftDigits, ipiDecimalDigits, iplComma, NO).
     IF iplTrim THEN cText = TRIM(cText).
     RUN Output_WriteToXprint(ipdR, ipdC, cText, iplBold, iplUnderline, NO, iplRightJustified).
 
 END PROCEDURE.
 
+PROCEDURE pWriteToCoordinatesNumNeg PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Wrapper on Write that prefixes Coordinates passed
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipdR AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdC AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdNumber AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipiLeftDigits AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiDecimalDigits AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iplComma AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplTrim AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplBold AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplUnderline AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplRightJustified AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
+    cText = fFormatNumber(ipdNumber, ipiLeftDigits, ipiDecimalDigits, iplComma, YES).
+    IF iplTrim THEN cText = TRIM(cText).
+    RUN Output_WriteToXprint(ipdR, ipdC, cText, iplBold, iplUnderline, NO, iplRightJustified).
+
+END PROCEDURE.
 PROCEDURE pWriteToCoordinatesString PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Wrapper on Write that prefixes Coordinates passed
@@ -1320,14 +1343,14 @@ END PROCEDURE.
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fFormatNumber RETURNS CHARACTER PRIVATE
-    ( ipdNumber AS DECIMAL , ipiLeftDigits AS INTEGER , ipiRightDigits AS INTEGER, iplComma AS LOGICAL):
+    ( ipdNumber AS DECIMAL , ipiLeftDigits AS INTEGER , ipiRightDigits AS INTEGER, iplComma AS LOGICAL, iplAllowNegatives AS LOGICAL):
     /*------------------------------------------------------------------------------
      Purpose: Formats a number with left and right digits.  Handles problem when 
      size of number doesn't fit
      Notes:
     ------------------------------------------------------------------------------*/	
     
-    RETURN DYNAMIC-FUNCTION("FormatNumber", ipdNumber, ipiLeftDigits, ipiRightDigits, iplComma, NO).
+    RETURN DYNAMIC-FUNCTION("FormatNumber", ipdNumber, ipiLeftDigits, ipiRightDigits, iplComma, iplAllowNegatives).
 		
 END FUNCTION.
 
