@@ -1586,9 +1586,10 @@ FUNCTION fCanCloseJob RETURNS LOGICAL
     DEFINE VARIABLE v-reduce-qty   AS INTEGER   NO-UNDO.   
     DEFINE VARIABLE ll-whs-item    AS LOG       NO-UNDO.       
     DEFINE BUFFER b-itemfg FOR itemfg.
-	FIND FIRST job
-	   WHERE RECID(job) EQ iprwJobRec
-	   NO-ERROR.
+    
+    FIND FIRST job NO-LOCK
+	     WHERE RECID(job) EQ iprwJobRec
+	     NO-ERROR.
 	IF NOT AVAIL job THEN 
 	 RETURN NO.
 

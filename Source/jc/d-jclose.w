@@ -246,19 +246,6 @@ DO:
 
   li-time = TIME.
 
-  FOR EACH w-file,
-      FIRST job-hdr NO-LOCK WHERE RECID(job-hdr) EQ w-file.rec-id,
-      FIRST job NO-LOCK
-      WHERE job.company EQ job-hdr.company
-        AND job.job     EQ job-hdr.job
-        AND job.job-no  EQ job-hdr.job-no
-        AND job.job-no2 EQ job-hdr.job-no2
-      USE-INDEX job:
-
-
-  END.
-
-
   v-process = CAN-FIND(FIRST w-file WHERE w-file.cloze EQ YES).
 
   IF v-process THEN DO:
@@ -268,10 +255,6 @@ DO:
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
 
     SESSION:SET-WAIT-STATE("general").
-
-    RELEASE w-file.
-    RELEASE job-hdr.
-    RELEASE job.
 
     close_date = TODAY.
 
@@ -285,14 +268,9 @@ DO:
             AND job.job-no2 EQ job-hdr.job-no2
           USE-INDEX job NO-ERROR.
 
-      IF AVAIL job THEN DO TRANSACTION:
-
-        IF v-process THEN DO:
-          FIND CURRENT job EXCLUSIVE.
+      IF AVAILABLE job AND v-process THEN DO TRANSACTION:
           {jc/job-clos.i}
-        END.
-
-      END.  
+      END. 
     END.
 
     SESSION:SET-WAIT-STATE("").
