@@ -269,6 +269,7 @@ DO:
           USE-INDEX job NO-ERROR.
 
       IF AVAILABLE job AND v-process THEN DO TRANSACTION:
+          FIND CURRENT job EXCLUSIVE-LOCK.
           {jc/job-clos.i}
       END. 
     END.
