@@ -1776,6 +1776,8 @@ FUNCTION fCalcWidgetValues RETURNS LOGICAL
         CASE ipcValue:
             WHEN "AND" THEN
             dCol = 11.
+            WHEN "BY" THEN
+            dCol = 12.
             WHEN "OR" THEN
             dCol = 12.
             WHEN "WHERE" THEN
