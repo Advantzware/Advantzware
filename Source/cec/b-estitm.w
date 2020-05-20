@@ -238,6 +238,10 @@ RUN methods/prgsecur.p
 	     OUTPUT lAccessClose, /* used in template/windows.i  */
 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
+DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.	     
+
+RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -5403,43 +5407,34 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDefaultShipID B-table-Win
 PROCEDURE pGetDefaultShipID:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcCustNo AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER opcShipID AS CHAR NO-UNDO.
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCustNo AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcShipID AS CHARACTER NO-UNDO.
     
-    FIND cust NO-LOCK WHERE 
-        cust.company EQ gcompany AND 
-        cust.cust-no EQ ipcCustNo
-        NO-ERROR.
-
-    IF AVAIL cust THEN 
-    DO:
-        FIND FIRST shipto NO-LOCK WHERE 
-            shipto.company EQ gcompany AND 
-            shipto.cust-no EQ cust.cust-no AND 
-            shipto.isDefault EQ TRUE  
-            NO-ERROR.
-        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
-                shipto.company EQ gcompany AND 
-                shipto.cust-no EQ cust.cust-no AND 
-                shipto.ship-id EQ cust.cust-no
-                NO-ERROR.
-        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
-                shipto.company EQ gcompany AND 
-                shipto.cust-no EQ cust.cust-no
-                NO-ERROR.
-        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
-                shipto.company EQ gcompany AND 
-                shipto.cust-no EQ cust.cust-no AND 
-                shipto.ship-no EQ 1
-                NO-ERROR.
-        IF AVAIL shipto THEN ASSIGN 
-                opcShipID = shipto.ship-id.
-    END.
-
+    DEFINE VARIABLE riShipto AS ROWID NO-UNDO.
+    
+    FIND FIRST cust NO-LOCK 
+         WHERE cust.company EQ cocode
+           AND cust.cust-no EQ ipcCustNo
+         NO-ERROR.
+         
+    IF AVAILABLE cust THEN DO:           
+        RUN Customer_GetDefaultShipTo IN hdCustomerProcs(
+            INPUT  cocode,
+            INPUT  cust.cust-no,
+            OUTPUT riShipTo
+            ).
+        FIND FIRST shipto NO-LOCK 
+             WHERE ROWID(shipto) EQ riShipTo
+             NO-ERROR.
+             
+        IF AVAILABLE shipto THEN 
+            opcShipID = shipto.ship-id.
+    END.  
+         
 END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */

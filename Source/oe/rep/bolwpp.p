@@ -51,6 +51,8 @@ def var v-terms like oe-ord.terms-d NO-UNDO.
 def var v-frt-terms as char format "x(10)" no-undo.
 def var v-zone like carr-mtx.del-zone no-undo.
 DEF VAR v-pal AS INT NO-UNDO.
+DEFINE VARIABLE iShipQty AS INTEGER NO-UNDO.
+DEFINE VARIABLE iIntValue AS INTEGER NO-UNDO.
 
 def workfile w2 no-undo
     field cases            as   int format ">9"
@@ -236,7 +238,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
       ASSIGN
       v-salesman = trim(v-salesman)
       v-po-no = oe-boll.po-no
-      /*v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>"))*/ .
+                /*v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>"))*/ .
       if v-salesman gt '' then
         if substr(v-salesman,length(trim(v-salesman)),1) eq "," then
           substr(v-salesman,length(trim(v-salesman)),1) = "".

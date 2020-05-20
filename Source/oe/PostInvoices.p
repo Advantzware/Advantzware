@@ -49,7 +49,8 @@ DEFINE TEMP-TABLE ttPostingMaster NO-UNDO
     FIELD consolidateCash    AS LOGICAL
     FIELD currencyCode       AS CHARACTER 
     FIELD currencyExRate     AS DECIMAL
-  
+    FIELD exportPath         AS CHARACTER
+    FIELD runID              AS INTEGER
     .
     
 DEFINE TEMP-TABLE ttInvoiceToPost NO-UNDO 
@@ -192,14 +193,17 @@ DEFINE TEMP-TABLE ttGLTransaction NO-UNDO
     .
 
 DEFINE TEMP-TABLE ttARLedgerTransaction NO-UNDO 
-    FIELD company       AS CHARACTER
-    FIELD customerID    AS CHARACTER
-    FIELD amount        AS DECIMAL 
-    FIELD referenceDesc AS CHARACTER
-    FIELD referenceDate AS DATE
-    FIELD runID         AS INTEGER
-    FIELD accountAR     AS CHARACTER 
-    FIELD postDate      AS DATE
+    FIELD company        AS CHARACTER
+    FIELD customerID     AS CHARACTER
+    FIELD amount         AS DECIMAL 
+    FIELD referenceDesc  AS CHARACTER
+    FIELD referenceDate  AS DATE
+    FIELD runID          AS INTEGER
+    FIELD accountAR      AS CHARACTER 
+    FIELD postDate       AS DATE
+    FIELD periodID       AS INTEGER
+    FIELD currencyCode   AS CHARACTER 
+    FIELD currencyExRate AS DECIMAL 
     .
     
 DEFINE TEMP-TABLE ttFGItemToUpdate NO-UNDO
@@ -307,6 +311,18 @@ DEFINE VARIABLE ghNotesProcs AS HANDLE NO-UNDO.
 /* ************************  Function Prototypes ********************** */
 
 
+FUNCTION fGetFilePath RETURNS CHARACTER PRIVATE
+    (ipcFolder AS CHARACTER,
+     ipcFileBase AS CHARACTER,
+     ipcFileUnique AS CHARACTER,
+     ipcFileExt AS CHARACTER) FORWARD.
+
+FUNCTION fGetGLTransactionHandle RETURNS HANDLE 
+    (  ) FORWARD.
+
+FUNCTION fGetInvoiceLineToPostHandle RETURNS HANDLE 
+    (  ) FORWARD.
+
 FUNCTION fGetInvoiceToPostHandle RETURNS HANDLE 
     (  ) FORWARD.
 
@@ -356,11 +372,15 @@ PROCEDURE pAddARLedgerTransaction PRIVATE:
     DO:
         CREATE ttARLedgerTransaction.
         ASSIGN 
-            ttARLedgerTransaction.company       = ipbf-ttInvoiceToPost.company
-            ttARLedgerTransaction.customerID    = ipbf-ttInvoiceToPost.customerID
-            ttARLedgerTransaction.referenceDate = ipbf-ttInvoiceToPost.invoiceDate
-            ttARLedgerTransaction.referenceDesc = cReferenceDesc
-            ttARLedgerTransaction.accountAR     = ipbf-ttInvoiceToPost.accountAR
+            ttARLedgerTransaction.company        = ipbf-ttInvoiceToPost.company
+            ttARLedgerTransaction.customerID     = ipbf-ttInvoiceToPost.customerID
+            ttARLedgerTransaction.referenceDate  = ipbf-ttInvoiceToPost.invoiceDate
+            ttARLedgerTransaction.referenceDesc  = cReferenceDesc
+            ttARLedgerTransaction.accountAR      = ipbf-ttInvoiceToPost.accountAR
+            ttARLedgerTransaction.currencyCode   = ipbf-ttInvoiceToPost.currencyCode
+            ttARLedgerTransaction.currencyExRate = ipbf-ttInvoiceToPost.currencyExRate
+            ttARLedgerTransaction.periodID       = ipbf-ttInvoiceToPost.periodID
+            ttARLedgerTransaction.postDate       = ipbf-ttInvoiceToPost.postDate
             .
     END.
     ttARLedgerTransaction.amount = ttARLedgerTransaction.amount - ipbf-ttInvoiceToPost.amountBilled.
@@ -601,6 +621,8 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
         ttInvoiceLineToPost.bolID             = ipbf-ttInvoiceToPost.bolID
         ttInvoiceLineToPost.customerID        = ipbf-ttInvoiceToPost.customerID
         ttInvoiceLineToPost.periodID          = ipbf-ttInvoiceToPost.periodID
+        ttInvoiceLineToPost.currencyCode      = ipbf-ttInvoiceToPost.currencyCode
+        ttInvoiceLineToPost.currencyExRate    = ipbf-ttInvoiceToPost.currencyExRate
         .
 
     /*FG Dependent fields*/
@@ -1499,24 +1521,29 @@ PROCEDURE pCreateEDI PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-inv-head FOR inv-head.
-      
-    RUN ed/asi/o810hook.p (RECID(ipbf-inv-head), NO, NO).     
-    FIND FIRST edmast NO-LOCK
-        WHERE edmast.cust EQ ipbf-inv-head.cust-no
+    
+    FIND FIRST edCode NO-LOCK
+        WHERE  edcode.setid EQ "810"
         NO-ERROR.
-    IF AVAILABLE edmast THEN 
+    IF AVAIL edCode THEN 
     DO: 
-        FIND FIRST edcode NO-LOCK
-            WHERE edcode.partner EQ edmast.partner
+        RUN ed/asi/o810hook.p (RECID(ipbf-inv-head), NO, NO).     
+        FIND FIRST edmast NO-LOCK
+            WHERE edmast.cust EQ ipbf-inv-head.cust-no
             NO-ERROR.
-        IF NOT AVAILABLE edcode THEN 
+        IF AVAILABLE edmast THEN 
+        DO: 
             FIND FIRST edcode NO-LOCK
-                WHERE edcode.partner EQ edmast.partnerGrp
+                WHERE edcode.partner EQ edmast.partner
                 NO-ERROR.
-        IF AVAILABLE edcode AND edcode.sendFileOnPrint THEN    
-            RUN ed/asi/write810.p (ipbf-inv-head.company, ipbf-inv-head.inv-no).    
-    END.  
-        
+            IF NOT AVAILABLE edcode THEN 
+                FIND FIRST edcode NO-LOCK
+                    WHERE edcode.partner EQ edmast.partnerGrp
+                    NO-ERROR.
+            IF AVAILABLE edcode AND edcode.sendFileOnPrint THEN    
+                RUN ed/asi/write810.p (ipbf-inv-head.company, ipbf-inv-head.inv-no).    
+        END.  /*ED master is available*/
+    END.  /*ED Code available*/
 
 END PROCEDURE.
 
@@ -1557,22 +1584,25 @@ PROCEDURE pCreateGLTrans PRIVATE:
      
     DEFINE BUFFER bf-gltrans FOR gltrans.
      
-    CREATE bf-gltrans.
-    ASSIGN
-        opriGLTrans          = ROWID(bf-gltrans)
-        bf-gltrans.company   = ipbf-ttPostingMaster.company
-        bf-gltrans.actnum    = ipcAccount
-        bf-gltrans.jrnl      = ipbf-ttPostingMaster.journalNote
-        bf-gltrans.tr-dscr   = ipcDescription
-        bf-gltrans.tr-amt    = ipdTransactionAmount
-        bf-gltrans.period    = IF ipiTransactionPeriod EQ 0 THEN ipbf-ttPostingMaster.periodID ELSE ipiTransactionPeriod
-        bf-gltrans.tr-date   = IF ipdtTransactionDate EQ ? THEN ipbf-ttPostingMaster.postDate ELSE ipdtTransactionDate
-        bf-gltrans.trnum     = ipiRun
-        bf-gltrans.curr-code = ipcCurrCode
-        bf-gltrans.ex-rate   = ipdExRate
-        .
+    IF ipdTransactionAmount NE 0 THEN 
+    DO:
+        CREATE bf-gltrans.
+        ASSIGN
+            opriGLTrans          = ROWID(bf-gltrans)
+            bf-gltrans.company   = ipbf-ttPostingMaster.company
+            bf-gltrans.actnum    = ipcAccount
+            bf-gltrans.jrnl      = ipbf-ttPostingMaster.journalNote
+            bf-gltrans.tr-dscr   = ipcDescription
+            bf-gltrans.tr-amt    = ipdTransactionAmount
+            bf-gltrans.period    = IF ipiTransactionPeriod EQ 0 THEN ipbf-ttPostingMaster.periodID ELSE ipiTransactionPeriod
+            bf-gltrans.tr-date   = IF ipdtTransactionDate EQ ? THEN ipbf-ttPostingMaster.postDate ELSE ipdtTransactionDate
+            bf-gltrans.trnum     = ipiRun
+            bf-gltrans.curr-code = ipcCurrCode
+            bf-gltrans.ex-rate   = ipdExRate
+            .
     
-    RELEASE bf-gltrans.
+        RELEASE bf-gltrans.
+    END.
     
 END PROCEDURE.
 
@@ -1582,29 +1612,69 @@ PROCEDURE pExportAllTempTables PRIVATE:
      Purpose:  Exports all TempTables to file
      Notes:
     ------------------------------------------------------------------------------*/
-
-    DEFINE VARIABLE hdOutput    AS HANDLE.
-    DEFINE VARIABLE cTempFolder AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdOutput    AS HANDLE NO-UNDO.
     DEFINE VARIABLE cFile       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdTempTable AS HANDLE NO-UNDO.
     
-    RUN system\OutputProcs.p PERSISTENT SET hdOutput.
-    THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdOutput).
+    FIND FIRST ttPostingMaster NO-ERROR.
+    IF AVAILABLE ttPostingMaster AND ttPostingMaster.exportPath NE "" THEN 
+    DO:
     
-    RUN FileSys_GetTempDirectory (OUTPUT cTempFolder).
+        RUN system\OutputProcs.p PERSISTENT SET hdOutput.
+        
+        ASSIGN 
+            cFile = fGetFilePath(ttPostingMaster.exportPath, "InvoiceHeaders", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+            hdTempTable = TEMP-TABLE ttInvoiceToPost:HANDLE.
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).
+        
+        ASSIGN 
+            cFile       = fGetFilePath(ttPostingMaster.exportPath, "InvoiceLines", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+            hdTempTable = TEMP-TABLE ttInvoiceLineToPost:HANDLE.
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).
+        
+        ASSIGN 
+            cFile       = fGetFilePath(ttPostingMaster.exportPath, "InvoiceMiscs", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+            hdTempTable = TEMP-TABLE ttInvoiceMiscToPost:HANDLE.
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).
+        
+        ASSIGN 
+            cFile       = fGetFilePath(ttPostingMaster.exportPath, "GLTransactions", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+            hdTempTable = TEMP-TABLE ttGLTransaction:HANDLE.
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).
+        
+        ASSIGN 
+            cFile       = fGetFilePath(ttPostingMaster.exportPath, "ARLedgerTransactions", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+            hdTempTable = TEMP-TABLE ttARLedgerTransaction:HANDLE.
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).
+        
+        ASSIGN 
+            cFile       = fGetFilePath(ttPostingMaster.exportPath, "Customers", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+            hdTempTable = TEMP-TABLE ttCustomerToUpdate:HANDLE.
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).
+        
+        ASSIGN 
+            cFile       = fGetFilePath(ttPostingMaster.exportPath, "OrderHeaders", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+            hdTempTable = TEMP-TABLE ttOrderToUpdate:HANDLE.
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).
+        
+        ASSIGN 
+            cFile       = fGetFilePath(ttPostingMaster.exportPath, "OrderLines", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+            hdTempTable = TEMP-TABLE ttOrderLineToUpdate:HANDLE.
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).
+        
+        ASSIGN 
+            cFile       = fGetFilePath(ttPostingMaster.exportPath, "BOLLines", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+            hdTempTable = TEMP-TABLE ttBOLLineToUpdate:HANDLE.
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).
+        
+        ASSIGN 
+            cFile       = fGetFilePath(ttPostingMaster.exportPath, "FGItems", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+            hdTempTable = TEMP-TABLE ttFGItemToUpdate:HANDLE.
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).        
+     
+        DELETE OBJECT hdOutput.
     
-    RUN Output_TempTableToCSV(TEMP-TABLE ttInvoiceToPost:HANDLE, cTempFolder + "\InvoiceHeaders.csv", YES).
-    RUN Output_TempTableToCSV(TEMP-TABLE ttInvoiceLineToPost:HANDLE, cTempFolder + "\InvoiceLines.csv", YES).
-    RUN Output_TempTableToCSV(TEMP-TABLE ttInvoiceMiscToPost:HANDLE, cTempFolder + "\InvoiceMiscs.csv", YES).
-    RUN Output_TempTableToCSV(TEMP-TABLE ttGLTransaction:HANDLE, cTempFolder + "\GLTransactions.csv", YES).
-    RUN Output_TempTableToCSV(TEMP-TABLE ttArLedgerTransaction:HANDLE, cTempFolder + "\ARLedgerTransactions.csv", YES).
-    RUN Output_TempTableToCSV(TEMP-TABLE ttCustomerToUpdate:HANDLE, cTempFolder + "\Customers.csv", YES).
-    RUN Output_TempTableToCSV(TEMP-TABLE ttOrderToUpdate:HANDLE, cTempFolder + "\OrderHeaders.csv", YES).
-    RUN Output_TempTableToCSV(TEMP-TABLE ttOrderLineToUpdate:HANDLE, cTempFolder + "\OrderLines.csv", YES).
-    RUN Output_TempTableToCSV(TEMP-TABLE ttBolLineToUpdate:HANDLE, cTempFolder + "\BOLLines.csv", YES).
-    RUN Output_TempTableToCSV(TEMP-TABLE ttFGItemToUpdate:HANDLE, cTempFolder + "\FGItems.csv", YES).
-    
-    
-    DELETE OBJECT hdOutput.
+    END. /*PostingMaster has export path*/
 
 END PROCEDURE.
 
@@ -1614,19 +1684,24 @@ PROCEDURE pExportExceptions PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
 
-    DEFINE VARIABLE hdOutput    AS HANDLE.
-    DEFINE VARIABLE cTempFolder AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdOutput    AS HANDLE NO-UNDO.
     DEFINE VARIABLE cFile       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdTempTable AS HANDLE NO-UNDO.
     
-    RUN system\OutputProcs.p PERSISTENT SET hdOutput.
-    THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdOutput).
+    FIND FIRST ttPostingMaster NO-ERROR.
+    IF AVAILABLE ttPostingMaster AND ttPostingMaster.exportPath NE "" THEN 
+    DO:
+        RUN system\OutputProcs.p PERSISTENT SET hdOutput.
     
-    RUN FileSys_GetTempDirectory (OUTPUT cTempFolder).
+        ASSIGN 
+            cFile       = fGetFilePath(ttPostingMaster.exportPath, "Exceptions", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+            hdTempTable = TEMP-TABLE ttException:HANDLE.
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).       
+        
+        DELETE OBJECT hdOutput.
+        
+    END. /*PostingMaster has export path*/
     
-    RUN Output_TempTableToCSV(TEMP-TABLE ttException:HANDLE, cTempFolder + "\Exceptions.csv", YES).
-    
-    DELETE OBJECT hdOutput.
-
 END PROCEDURE.
 
 PROCEDURE pGetAccountDefaults PRIVATE:
@@ -1949,7 +2024,7 @@ PROCEDURE pGetSettings PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttPostingMaster FOR ttPostingMaster.
-        
+    
     DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
 
@@ -1958,6 +2033,10 @@ PROCEDURE pGetSettings PRIVATE:
     
     RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "OEPREP", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound THEN ipbf-ttPostingMaster.deleteEstPrep = cReturn EQ "YES".
+    
+    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "UseNewInvoicePost", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN ipbf-ttPostingMaster.exportPath = cReturn.
+    
     
 END PROCEDURE.
 
@@ -1990,6 +2069,8 @@ PROCEDURE pInitialize PRIVATE:
     DEFINE BUFFER bf-period  FOR period.
     DEFINE BUFFER bf-company FOR company.
     
+    DEFINE VARIABLE lValid AS LOGICAL NO-UNDO.
+    
     EMPTY TEMP-TABLE ttPostingMaster.
     EMPTY TEMP-TABLE ttInvoiceToPost.
     EMPTY TEMP-TABLE ttInvoiceLineToPost.
@@ -2015,6 +2096,7 @@ PROCEDURE pInitialize PRIVATE:
         ttPostingMaster.consolidateCOGS    = NO
         ttPostingMaster.consolidateFG      = NO
         ttPostingMaster.journalNote        = "OEINV"
+        ttPostingMaster.runID              = fGetNextRun(ttPostingMaster.company, NO)
         .
     
     FIND FIRST bf-company NO-LOCK    
@@ -2032,6 +2114,15 @@ PROCEDURE pInitialize PRIVATE:
     END.        
     
     RUN pGetSettings(BUFFER ttPostingMaster).
+    
+    IF ttPostingMaster.exportPath NE "" THEN DO: 
+        RUN FileSys_GetFilePath(ttPostingMaster.exportPath, OUTPUT ttPostingMaster.exportPath, OUTPUT lValid, OUTPUT opcMessage). 
+        IF NOT lValid THEN DO:
+            ASSIGN 
+                oplError = YES.
+            RETURN.
+        END.
+    END.
     
     FIND FIRST bf-period NO-LOCK 
         WHERE bf-period.company EQ ipcCompany
@@ -2141,17 +2232,19 @@ PROCEDURE pPostARLedger PRIVATE:
             AND bf-ar-ledger.ref-date EQ ttARLedgerTransaction.referenceDate
             AND bf-ar-ledger.ref-num EQ ttARLedgerTransaction.referenceDesc
             NO-ERROR.
-        IF NOT AVAILABLE bf-ar-ledger THEN 
+        IF NOT AVAILABLE bf-ar-ledger THEN
         DO: 
             CREATE bf-ar-ledger.
             ASSIGN 
-                bf-ar-ledger.company  = ttARLedgerTransaction.company
-                bf-ar-ledger.cust-no  = ttARLedgerTransaction.customerID
-                bf-ar-ledger.amt      = ttArLedgerTransaction.amount
-                bf-ar-ledger.ref-num  = ttARLedgerTransaction.referenceDesc
-                bf-ar-ledger.ref-date = ttARLedgerTransaction.referenceDate
-                bf-ar-ledger.tr-num   = ipiRun
-                bf-ar-ledger.tr-date  = ttARLedgerTransaction.postDate
+                bf-ar-ledger.company   = ttARLedgerTransaction.company
+                bf-ar-ledger.cust-no   = ttARLedgerTransaction.customerID
+                bf-ar-ledger.amt       = ttArLedgerTransaction.amount
+                bf-ar-ledger.ref-num   = ttARLedgerTransaction.referenceDesc
+                bf-ar-ledger.ref-date  = ttARLedgerTransaction.referenceDate
+                bf-ar-ledger.tr-num    = ipiRun
+                bf-ar-ledger.tr-date   = ttARLedgerTransaction.postDate
+                bf-ar-ledger.curr-code = ttARLedgerTransaction.currencyCode
+                bf-ar-ledger.ex-rate   = ttARLedgerTransaction.currencyExRate
                 .
         END.
         ELSE 
@@ -2183,9 +2276,10 @@ PROCEDURE pPostGL PRIVATE:
     DEFINE VARIABLE lConsolidate        AS LOGICAL   NO-UNDO.
     
     ASSIGN 
-        iRunID              = fGetNextRun(ttPostingMaster.company, iplCreateGL)
-        dRunningBalance     = 0
-        cConsolidateMessage = "ORDER ENTRY INVOICE"
+        iRunID                     = fGetNextRun(ttPostingMaster.company, iplCreateGL)
+        ipbf-ttPostingMaster.runID = iRunID
+        dRunningBalance            = 0
+        cConsolidateMessage        = "ORDER ENTRY INVOICE"
         .
     
     
@@ -2483,7 +2577,7 @@ PROCEDURE pPostInvoices PRIVATE:
                 DELETE bf-child-inv-head.
             END.
         
-        RUN pCreateEDI(BUFFER bf-inv-head).
+        //REFACTOR TEMPORARY REMOVAL - RUN pCreateEDI(BUFFER bf-inv-head).
         
         DELETE bf-inv-head.
         DELETE ttInvoiceToPost.
@@ -2938,6 +3032,43 @@ PROCEDURE pUpdateOrders PRIVATE:
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
+
+FUNCTION fGetFilePath RETURNS CHARACTER PRIVATE
+    ( ipcFolder AS CHARACTER, ipcFileBase AS CHARACTER, ipcFileUnique AS CHARACTER, ipcFileExt AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given inputs, validate folder and build new file name.  Return complete path.
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cFullFilePath AS CHARACTER NO-UNDO.
+
+    IF ipcFolder EQ "" THEN 
+        RUN FileSys_GetTempDirectory (OUTPUT ipcFolder).
+    
+    cFullFilePath = ipcFolder + "\" + ipcFileBase + ipcFileUnique + "." + ipcFileExt.
+    
+    RETURN cFullFilePath.
+    		
+END FUNCTION.
+
+FUNCTION fGetGLTransactionHandle RETURNS HANDLE 
+    (  ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the handle to the ttInvoiceToPost
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN TEMP-TABLE ttGLTransaction:HANDLE.
+		
+END FUNCTION.
+
+FUNCTION fGetInvoiceLineToPostHandle RETURNS HANDLE 
+    (  ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the handle to the ttInvoiceLineToPost
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN TEMP-TABLE ttInvoiceLineToPost:HANDLE.
+		
+END FUNCTION.
 
 FUNCTION fGetInvoiceToPostHandle RETURNS HANDLE 
     (  ):

@@ -253,6 +253,10 @@ RUN sys/ref/nk1look.p (cocode, "OESHIPFROM", "L", NO, NO, "", "",
                           OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
    llOeShipFromLog = LOGICAL(cRtnChar) NO-ERROR.
+   
+DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.   
+
+RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3543,6 +3547,7 @@ PROCEDURE display-cust-detail :
   DEF VAR v-last-date LIKE oe-ord.last-date NO-UNDO.
   DEF VAR v-due-date  LIKE oe-ord.due-date  NO-UNDO.
   DEF VAR v-ord-date  LIKE oe-ord.ord-date  NO-UNDO.
+  DEFINE VARIABLE riShipTo AS ROWID NO-UNDO.
 
 
   DO :
@@ -3669,15 +3674,15 @@ PROCEDURE display-cust-detail :
                                                                soldto.sold-zip)
              .
 
-    FIND FIRST shipto NO-LOCK
-        WHERE shipto.company EQ cocode
-          AND shipto.cust-no EQ cust.cust-no
-          AND shipto.ship-id EQ cust.cust-no NO-ERROR.  
-
-    IF NOT AVAIL shipto THEN
-        FIND FIRST shipto NO-LOCK
-          WHERE shipto.company EQ cocode
-           AND shipto.cust-no EQ cust.cust-no NO-ERROR.
+    RUN Customer_GetDefaultShipTo IN hdCustomerProcs(
+        INPUT  cocode,
+        INPUT  cust.cust-no,
+        OUTPUT riShipTo
+        ).
+        
+    FIND FIRST shipto NO-LOCK 
+         WHERE ROWID(shipto) EQ riShipTo
+         NO-ERROR.
 
     IF AVAIL shipto THEN
        ASSIGN 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="FGExecutiveDetail" pageWidth="1311" pageHeight="612" orientation="Landscape" columnWidth="1271" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="6f824465-2eda-47e1-8104-9d0a850d3bfe">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="FGExecutiveDetail" pageWidth="1311" pageHeight="792" orientation="Landscape" columnWidth="1271" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="6f824465-2eda-47e1-8104-9d0a850d3bfe">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="DataAdapter.xml"/>
 	<style name="Zebra" mode="Transparent">
 		<conditionalStyle>
@@ -59,9 +59,13 @@
 		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__dQuantityOnHand"/>
 		<fieldDescription><![CDATA[ttJobItem__dQuantityOnHand]]></fieldDescription>
 	</field>
-	<field name="ttJobItem__dPricePerEA" class="java.lang.Double">
-		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__dPricePerEA"/>
-		<fieldDescription><![CDATA[ttJobItem__dPricePerEA]]></fieldDescription>
+	<field name="ttJobItem__dPricePerUOM" class="java.lang.Double">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__dPricePerUOM"/>
+		<fieldDescription><![CDATA[ttJobItem__dPricePerUOM]]></fieldDescription>
+	</field>
+	<field name="ttJobItem__cPriceUOM" class="java.lang.String">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__cPriceUOM"/>
+		<fieldDescription><![CDATA[ttJobItem__cPriceUOM]]></fieldDescription>
 	</field>
 	<field name="ttJobItem__dPriceTotalOnHand" class="java.lang.Double">
 		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__dPriceTotalOnHand"/>
@@ -138,7 +142,7 @@
 					<text><![CDATA[SUB-TOTAL >>>]]></text>
 				</staticText>
 				<textField pattern="#,###,##0.00" isBlankWhenNull="true">
-					<reportElement x="901" y="0" width="78" height="14" uuid="580d7bcf-1e94-403a-ab65-211166a3c9a0"/>
+					<reportElement x="915" y="0" width="78" height="14" uuid="580d7bcf-1e94-403a-ab65-211166a3c9a0"/>
 					<box>
 						<topPen lineWidth="1.0"/>
 					</box>
@@ -305,7 +309,7 @@
 				<text><![CDATA[PRICE PER]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="901" y="0" width="78" height="14" uuid="d902fca2-4c74-41db-a181-5c2781729b27"/>
+				<reportElement x="899" y="0" width="78" height="14" uuid="d902fca2-4c74-41db-a181-5c2781729b27"/>
 				<textElement textAlignment="Right">
 					<font isBold="true" isUnderline="true"/>
 				</textElement>
@@ -397,10 +401,17 @@
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
 				</reportElement>
 				<textElement textAlignment="Right"/>
-				<textFieldExpression><![CDATA[$F{ttJobItem__dPricePerEA}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{ttJobItem__dPricePerUOM}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="899" y="0" width="10" height="14" uuid="bcf75456-d858-453d-954c-d12ecaa54f49">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
+				</reportElement>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{ttJobItem__cPriceUOM}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,###,##0.00" isBlankWhenNull="true">
-				<reportElement x="901" y="0" width="78" height="14" uuid="164dbd6a-99db-48d8-beac-e942338a58c6">
+				<reportElement x="915" y="0" width="78" height="14" uuid="164dbd6a-99db-48d8-beac-e942338a58c6">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
 				</reportElement>
 				<textElement textAlignment="Right"/>
