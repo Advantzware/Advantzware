@@ -427,7 +427,7 @@ PROCEDURE farmoutComp:
     cJob = "".
     iJobNo2 = 0.   
 
-    IF (w-fg-rctd.job-no GT "" OR w-fg-rctd.po-no GT "") AND itemfg.pur-man THEN  
+    IF (w-fg-rctd.job-no GT "" OR w-fg-rctd.po-no GT "") AND itemfg.pur-man THEN 
     DO:
 
         /* Find a job for this po if this is a farmout */
@@ -517,7 +517,7 @@ PROCEDURE fg-post:
     DEFINE VARIABLE v-overrun-qty  LIKE fg-rctd.qty NO-UNDO. /*needed ? */
     DEFINE VARIABLE v-underrun-qty LIKE fg-rctd.qty NO-UNDO. /* needed ? */
     DEFINE VARIABLE v-reduce-qty   AS INTEGER   NO-UNDO. /* needed ? */
-    DEFINE VARIABLE v-est-no       AS CHAR      NO-UNDO.
+    DEFINE VARIABLE v-est-no       AS cha       NO-UNDO.
     DEFINE VARIABLE v-recid        AS RECID     NO-UNDO.
     DEFINE VARIABLE v-cost         AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE v-binqty       AS INTEGER   NO-UNDO.
@@ -647,7 +647,6 @@ PROCEDURE fg-post:
             itemfg.company EQ cocode AND
             itemfg.i-no    EQ w-fg-rctd.i-no) THEN
             NEXT.
-<<<<<<< Updated upstream
 
         loop1:
         REPEAT:
@@ -656,29 +655,6 @@ PROCEDURE fg-post:
                 itemfg.company EQ cocode AND
                 itemfg.i-no    EQ w-fg-rctd.i-no
                 EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
-=======
-        
-        FIND FIRST itemfg WHERE
-            itemfg.company EQ cocode AND
-            itemfg.i-no    EQ w-fg-rctd.i-no
-            NO-LOCK NO-ERROR.
-/*            EXCLUSIVE-LOCK NO-ERROR NO-WAIT.                                                         */
-/*        ASSIGN                                                                                       */
-/*            iCtr = 0.                                                                                */
-/*        DO WHILE NOT AVAIL itemfg:                                                                   */
-/*            PAUSE 1 NO-MESSAGE.                                                                      */
-/*            ASSIGN                                                                                   */
-/*                iCtr = iCtr + 1.                                                                     */
-/*            IF ictr MODULO 10 EQ 0 THEN MESSAGE                                                      */
-/*                "Item " + w-fg-rctd.i-no + " has been locked by another " +                          */
-/*                "process for " + STRING(iCtr,">>>>9") + " seconds.  Waiting for item to be released."*/
-/*                VIEW-AS ALERT-BOX INFO.                                                              */
-/*            FIND FIRST itemfg WHERE                                                                  */
-/*                itemfg.company EQ cocode AND                                                         */
-/*                itemfg.i-no    EQ w-fg-rctd.i-no                                                     */
-/*                EXCLUSIVE-LOCK NO-ERROR NO-WAIT.                                                     */
-/*        END.                                                                                         */
->>>>>>> Stashed changes
 
             IF AVAILABLE itemfg THEN
             DO:           
@@ -687,21 +663,12 @@ PROCEDURE fg-post:
                 IF gv-fgemail = YES AND (itemfg.q-onh = 0 AND itemfg.q-alloc > 0) THEN
                     RUN Process-FGemail-Data (INPUT itemfg.i-no, w-fg-rctd.t-qty,w-fg-rctd.po-no).
 
-<<<<<<< Updated upstream
           /* itemfg gets updated here. */
           /* w-job created here */
                     {fg/fg-post.i w-fg-rctd w-fg-rctd}
 
                 IF autofgissue-log THEN
                     RUN farmOutComp.
-=======
-        /* itemfg gets updated here. */
-        /* w-job created here */
-        {fg/fg-post.i w-fg-rctd w-fg-rctd}
-/* markt1 */
-        IF autofgissue-log THEN
-            RUN farmOutComp.
->>>>>>> Stashed changes
 
                 FIND CURRENT itemfg NO-LOCK NO-ERROR.
                 FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.

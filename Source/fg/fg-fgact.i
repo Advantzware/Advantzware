@@ -154,21 +154,21 @@ IF AVAIL job THEN DO:
     FIND FIRST job-hdr NO-LOCK WHERE ROWID(job-hdr) EQ lv-rowid.
 
     RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT job-hdr.loc).
-    FIND CURRENT itemfg EXCLUSIVE NO-ERROR.
-    IF AVAIL itemfg THEN ASSIGN 
-        itemfg.q-ono = MAXIMUM(0,itemfg.q-ono)        
-        itemfg.q-avail = itemfg.q-onh + itemfg.q-ono - itemfg.q-alloc.
-    FIND CURRENT itemfg NO-LOCK NO-ERROR.
-    
-    FIND FIRST itemfg-loc EXCLUSIVE WHERE 
-        itemfg-loc.company EQ itemfg.company AND 
-        itemfg-loc.i-no    EQ itemfg.i-no AND 
-        itemfg-loc.loc     EQ job-hdr.loc
-        NO-ERROR.
-    IF AVAIL itemfg-loc THEN ASSIGN 
-        itemfg-loc.q-ono = MAXIMUM(0,itemfg-loc.q-ono)
-        itemfg-loc.q-avail = itemfg-loc.q-onh + itemfg-loc.q-ono - itemfg-loc.q-alloc.
-    FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.      
+    FIND FIRST itemfg-loc 
+        WHERE itemfg-loc.company EQ itemfg.company
+          AND itemfg-loc.i-no    EQ itemfg.i-no
+          AND itemfg-loc.loc     EQ job-hdr.loc
+        EXCLUSIVE-LOCK NO-ERROR.
+
+    IF itemfg.q-ono LT 0 THEN do:
+        itemfg.q-ono = 0.
+        IF AVAIL itemfg-loc THEN
+            itemfg-loc.q-ono = 0.
+    END.
+
+    itemfg.q-avail = itemfg.q-onh + itemfg.q-ono - itemfg.q-alloc.
+    IF AVAIL itemfg-loc THEN    
+      itemfg-loc.q-avail = itemfg-loc.q-onh + itemfg-loc.q-ono - itemfg-loc.q-alloc.
 
     FIND FIRST fg-act EXCLUSIVE-LOCK
         WHERE fg-act.company EQ cocode
