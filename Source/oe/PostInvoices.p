@@ -888,7 +888,7 @@ PROCEDURE pAddInvoiceToPost PRIVATE:
         opbf-ttInvoiceToPost.amountCost                   = ipbf-inv-head.t-inv-cost
         opbf-ttInvoiceToPost.isFreightBillable            = ipbf-inv-head.f-bill
         opbf-ttInvoiceToPost.isCashTerms                  = ipbf-inv-head.terms EQ "CASH"
-        opbf-ttInvoiceToPost.accountAR                    = ipbf-ttPostingMaster.accountAR
+        opbf-ttInvoiceToPost.accountAR                    = string(DYNAMIC-FUNCTION("spfGetAccountAR", ipbf-inv-head.company, ipbf-inv-head.cust-no)) /*ipbf-ttPostingMaster.accountAR*/
         opbf-ttInvoiceToPost.accountARFreight             = ipbf-ttPostingMaster.accountARFreight
         opbf-ttInvoiceToPost.accountARSales               = ipbf-ttPostingMaster.accountARSales
         opbf-ttInvoiceToPost.accountARSalesTax            = ipbf-ttPostingMaster.accountARSalesTax
@@ -2086,7 +2086,7 @@ PROCEDURE pInitialize PRIVATE:
         ttPostingMaster.customerIDStart    = ipcCustomerIDStart
         ttPostingMaster.customerIDEnd      = ipcCustomerIDEnd
         ttPostingMaster.postDate           = ipdtPostDate 
-        ttPostingMaster.consolidateAR      = YES
+        ttPostingMaster.consolidateAR      = NO
         ttPostingMaster.consolidateDisc    = YES
         ttPostingMaster.consolidateFreight = YES
         ttPostingMaster.consolidateCash    = YES
@@ -2396,12 +2396,19 @@ PROCEDURE pPostGLAccumulateAndAdd PRIVATE:
             iopdRunningBalance = iopdRunningBalance + ttGLTransaction.amount
             .
         
-        IF LAST-OF(ttGlTransaction.invoiceID) AND NOT iplConsolidateOnly THEN 
+        IF LAST-OF(ttGlTransaction.invoiceID) AND NOT iplConsolidateOnly AND ipcTransactionType NE "AR"  THEN 
         DO:
             IF iplCreateGL THEN 
                 RUN pCreateGLTransFromTransaction(BUFFER ipbf-ttPostingMaster, BUFFER ttGLTransaction, dAmountToPost, ipiRunID, OUTPUT riGLTrans).
             dAmountToPost = 0.
-        END.                           
+        END.
+        
+        IF ipcTransactionType EQ "AR" AND  LAST-OF(ttGlTransaction.account) AND NOT iplConsolidateOnly THEN 
+        DO:
+            IF iplCreateGL THEN 
+                RUN pCreateGLTransFromTransaction(BUFFER ipbf-ttPostingMaster, BUFFER ttGLTransaction, dAmountToPost, ipiRunID, OUTPUT riGLTrans).
+            dAmountToPost = 0.
+        END. 
         
         IF iplCreateGL THEN DELETE ttGLTransaction.
     END. /* each ttGLTransaction */

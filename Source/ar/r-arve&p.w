@@ -1379,7 +1379,7 @@ IF cust.factored THEN
           AND currency.ar-ast-acct NE ""
           AND currency.ex-rate     GT 0
         NO-ERROR.        
-
+    xar-acct = string(DYNAMIC-FUNCTION("spfGetAccountAR", cust.company, cust.cust-no)).
     {sys/inc/gldstsum.i xar-acct "ar-inv.gross" YES "HEADER"}
 
     IF AVAIL currency THEN DO:
