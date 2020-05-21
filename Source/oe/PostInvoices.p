@@ -99,77 +99,77 @@ DEFINE TEMP-TABLE ttInvoiceToPost NO-UNDO
     
 DEFINE TEMP-TABLE ttInvoiceLineToPost NO-UNDO 
     FIELD riInvLine               AS ROWID
-    FIELD company                 AS CHARACTER COLUMN-LABEL "Company" FORMAT "x(3)"
-    FIELD invoiceID               AS INTEGER   COLUMN-LABEL "Invoice #" FORMAT ">>>>>>9"
-    FIELD invoiceLine             AS INTEGER   COLUMN-LABEL "Line" FORMAT ">>>9"
-    FIELD invoiceDate             AS DATE      COLUMN-LABEL "Invoice Date" FORMAT 99/99/9999
-    FIELD customerID              AS CHARACTER COLUMN-LABEL "Cust ID" FORMAT "x(10)"
-    FIELD customerName            AS CHARACTER COLUMN-LABEL "Cust Name" FORMAT "x(30)"
-    FIELD itemID                  AS CHARACTER COLUMN-LABEL "Item ID" FORMAT "x(15)"
-    FIELD itemName                AS CHARACTER COLUMN-LABEL "Item Name" FORMAT "x(30)"
-    FIELD quantityOrdered         AS DECIMAL   COLUMN-LABEL "Ordered Qty" FORMAT ">>,>>>,>>9"
-    FIELD quantityShipped         AS DECIMAL   COLUMN-LABEL "Shipped Qty" FORMAT ">>>,>>>,>>9"
-    FIELD quantityInvoiced        AS DECIMAL   COLUMN-LABEL "Invoiced Qty" FORMAT ">>>,>>>,>>9"
-    FIELD orderID                 AS INTEGER   COLUMN-LABEL "Order ID" FORMAT ">>>>>>9"
-    FIELD customerPO              AS CHARACTER COLUMN-LABEL "Customer PO" FORMAT "x(20)"
-    FIELD customerLot             AS CHARACTER COLUMN-LABEL "Customer Lot" FORMAT "x(20)"
-    FIELD salesGroup              AS CHARACTER COLUMN-LABEL "Sales Group" FORMAT "x(5)"
-    FIELD salesGroupName          AS CHARACTER COLUMN-LABEL "Sales Group Name" FORMAT "x(30)"
-    FIELD postDate                AS DATE      COLUMN-LABEL "Post Date" FORMAT 99/99/9999                                                                   
-    FIELD runID                   AS INTEGER   COLUMN-LABEL "Run" FORMAT ">>>>>>>>9"
-    FIELD isMisc                  AS LOGICAL   COLUMN-LABEL "Misc"
+    FIELD company                 AS CHARACTER LABEL "Company"                FORMAT "x(3)"
+    FIELD invoiceID               AS INTEGER   LABEL "Invoice #"              FORMAT ">>>>>>9"
+    FIELD invoiceLine             AS INTEGER   LABEL "Line"                   FORMAT ">>>9"
+    FIELD invoiceDate             AS DATE      LABEL "Invoice Date"           FORMAT 99/99/9999
+    FIELD customerID              AS CHARACTER LABEL "Cust ID"                FORMAT "x(10)"
+    FIELD customerName            AS CHARACTER LABEL "Cust Name"              FORMAT "x(30)"
+    FIELD itemID                  AS CHARACTER LABEL "Item ID"                FORMAT "x(15)"
+    FIELD itemName                AS CHARACTER LABEL "Item Name"              FORMAT "x(30)"
+    FIELD quantityOrdered         AS DECIMAL   LABEL "Ordered Qty"            FORMAT ">>,>>>,>>9"
+    FIELD quantityShipped         AS DECIMAL   LABEL "Shipped Qty"            FORMAT ">>>,>>>,>>9"
+    FIELD quantityInvoiced        AS DECIMAL   LABEL "Invoiced Qty"           FORMAT ">>>,>>>,>>9"
+    FIELD orderID                 AS INTEGER   LABEL "Order ID"               FORMAT ">>>>>>9"
+    FIELD customerPO              AS CHARACTER LABEL "Customer PO"            FORMAT "x(20)"
+    FIELD customerLot             AS CHARACTER LABEL "Customer Lot"           FORMAT "x(20)"
+    FIELD salesGroup              AS CHARACTER LABEL "Sales Group"            FORMAT "x(5)"
+    FIELD salesGroupName          AS CHARACTER LABEL "Sales Group Name"       FORMAT "x(30)"
+    FIELD postDate                AS DATE      LABEL "Post Date"              FORMAT 99/99/9999                                                                   
+    FIELD runID                   AS INTEGER   LABEL "Run"                    FORMAT ">>>>>>>>9"
+    FIELD isMisc                  AS LOGICAL   LABEL "Misc"
     FIELD rNo                     AS INTEGER 
     FIELD rNoOld                  AS INTEGER
-    FIELD isOKToPost              AS LOGICAL   COLUMN-LABEL "OK To Post"
-    FIELD problemMessage          AS CHARACTER COLUMN-LABEL "Problem Desc" FORMAT "x(40)"
-    FIELD pricePerUOM             AS DECIMAL   COLUMN-LABEL "Price Per UOM" FORMAT ">>>,>>>9.99"
-    FIELD priceUOM                AS CHARACTER COLUMN-LABEL "Price UOM" FORMAT "x(4)"
-    FIELD costPerUOM              AS DECIMAL   COLUMN-LABEL "Cost Per UOM" FORMAT ">>,>>>,>>9.99"
-    FIELD costUOM                 AS CHARACTER COLUMN-LABEL "Cost UOM" FORMAT "x(4)"
-    FIELD costTotal               AS DECIMAL   COLUMN-LABEL "Cost Total" FORMAT ">>,>>>,>>9.99"
-    FIELD costDirectLabor         AS DECIMAL   COLUMN-LABEL "Cost Direct Labor" FORMAT ">>,>>>,>>9.99"
-    FIELD costFixedOverhead       AS DECIMAL   COLUMN-LABEL "Cost Fixed Overhead" FORMAT ">>,>>>,>>9.99"
-    FIELD costVariableOverhead    AS DECIMAL   COLUMN-LABEL "Cost Variable Overhead" FORMAT ">>,>>>,>>9.99"
-    FIELD costDirectMaterial      AS DECIMAL   COLUMN-LABEL "Cost Direct Material" FORMAT ">>,>>>,>>9.99"
-    FIELD costSource              AS CHARACTER COLUMN-LABEL "Cost Source" FORMAT "x(30)"
-    FIELD costStdFreight          AS DECIMAL   COLUMN-LABEL "Cost Std Freight" FORMAT ">>,>>>,>>9.99"
-    FIELD costStdWarehouse        AS DECIMAL   COLUMN-LABEL "Cost Std Warehouse" FORMAT ">>,>>>,>>9.99"
-    FIELD costStdDeviation        AS DECIMAL   COLUMN-LABEL "Cost Std Deviation" FORMAT ">>,>>>,>>9.99"
-    FIELD costStdManufacture      AS DECIMAL   COLUMN-LABEL "Cost Std Manufacture" FORMAT ">>,>>>,>>9.99"
-    FIELD costFull                AS DECIMAL   COLUMN-LABEL "Cost Full" FORMAT ">>,>>>,>>9.99"
-    FIELD quantityInvoicedWeight  AS DECIMAL   COLUMN-LABEL "Invoiced Weight" FORMAT ">>,>>>,>>9.99"
-    FIELD quantityInvoicedMSF     AS DECIMAL   COLUMN-LABEL "Invoiced MSF" FORMAT ">>,>>>,>>9.99"
-    FIELD weightUOM               AS CHARACTER COLUMN-LABEL "Weight UOM" FORMAT "x(4)"
-    FIELD accountAR               AS CHARACTER COLUMN-LABEL "AR Account" FORMAT "x(20)"
-    FIELD accountARFreight        AS CHARACTER COLUMN-LABEL "Freight Account" FORMAT "x(20)"
-    FIELD accountARSales          AS CHARACTER COLUMN-LABEL "Sales Account" FORMAT "x(20)"
-    FIELD accountARSalesTax       AS CHARACTER COLUMN-LABEL "Sales Tax Account" FORMAT "x(20)"
-    FIELD accountARDiscount       AS CHARACTER COLUMN-LABEL "Discount Account" FORMAT "x(20)"
-    FIELD accountARCash           AS CHARACTER COLUMN-LABEL "Cash Account" FORMAT "x(20)"
-    FIELD accountDLCogs           AS CHARACTER COLUMN-LABEL "COGS DL Account" FORMAT "x(20)"
-    FIELD accountDLFG             AS CHARACTER COLUMN-LABEL "FG DL Account" FORMAT "x(20)"
-    FIELD accountVOCogs           AS CHARACTER COLUMN-LABEL "COGS VO Account" FORMAT "x(20)"
-    FIELD accountVOFG             AS CHARACTER COLUMN-LABEL "FG VO Account" FORMAT "x(20)"
-    FIELD accountFOCogs           AS CHARACTER COLUMN-LABEL "COGS FO Account" FORMAT "x(20)"
-    FIELD accountFOFG             AS CHARACTER COLUMN-LABEL "FG FOAR Account" FORMAT "x(20)"
-    FIELD accountDMCogs           AS CHARACTER COLUMN-LABEL "COGS DM Account" FORMAT "x(20)"
-    FIELD accountDMFG             AS CHARACTER COLUMN-LABEL "FG DM Account" FORMAT "x(20)"
-    FIELD quantityPerSubUnit      AS DECIMAL   COLUMN-LABEL "Case Count" FORMAT ">>,>>9"
-    FIELD amountDiscount          AS DECIMAL   COLUMN-LABEL "Discount" FORMAT ">>,>>>,>>9.99"
-    FIELD amountBilled            AS DECIMAL   COLUMN-LABEL "Billed" FORMAT ">>,>>>,>>9.99"
-    FIELD amountBilledIncDiscount AS DECIMAL   COLUMN-LABEL "Billed Inc. Discount" FORMAT ">>,>>>,>>9.99"
-    FIELD amountCommission        AS DECIMAL   COLUMN-LABEL "Commission" FORMAT ">>,>>>,>>9.99"
-    FIELD locationID              AS CHARACTER COLUMN-LABEL "Location" FORMAT ">>,>>>,>>9.99"
-    FIELD bolID                   AS INTEGER   COLUMN-LABEL "BOL" FORMAT ">>,>>>,>>9.99"
-    FIELD squareFeetPerEA         AS DECIMAL   COLUMN-LABEL "Sq Ft Per EA" FORMAT ">>,>>>,>>9.99"
-    FIELD productCategory         AS CHARACTER COLUMN-LABEL "Product Category" FORMAT "x(8)"
-    FIELD currencyCode            AS CHARACTER COLUMN-LABEL "Currency" FORMAT "x(8)"
-    FIELD currencyExRate          AS DECIMAL   COLUMN-LABEL "Exchange Rate" FORMAT ">>>,>>>9.99" 
-    FIELD periodID                AS INTEGER   COLUMN-LABEL "Period" FORMAT ">9"
-    FIELD isTaxable               AS LOGICAL   
-    FIELD shipID                  AS CHARACTER COLUMN-LABEL "Ship To" FORMAT "x(10)"
-    FIELD termsCode               AS CHARACTER COLUMN-LABEL "Terms" FORMAT "x(5)"
-    FIELD isFreightBillable       AS LOGICAL   COLUMN-LABEL "Bill Freight"
+    FIELD isOKToPost              AS LOGICAL   LABEL "OK To Post"
+    FIELD problemMessage          AS CHARACTER LABEL "Problem Desc"           FORMAT "x(40)"
+    FIELD pricePerUOM             AS DECIMAL   LABEL "Price Per UOM"          FORMAT ">>>,>>>9.99"
+    FIELD priceUOM                AS CHARACTER LABEL "Price UOM"              FORMAT "x(4)"
+    FIELD costPerUOM              AS DECIMAL   LABEL "Cost Per UOM"           FORMAT ">>,>>>,>>9.99"
+    FIELD costUOM                 AS CHARACTER LABEL "Cost UOM"               FORMAT "x(4)"
+    FIELD costTotal               AS DECIMAL   LABEL "Cost Total"             FORMAT ">>,>>>,>>9.99"
+    FIELD costDirectLabor         AS DECIMAL   LABEL "Cost Direct Labor"      FORMAT ">>,>>>,>>9.99"
+    FIELD costFixedOverhead       AS DECIMAL   LABEL "Cost Fixed Overhead"    FORMAT ">>,>>>,>>9.99"
+    FIELD costVariableOverhead    AS DECIMAL   LABEL "Cost Variable Overhead" FORMAT ">>,>>>,>>9.99"
+    FIELD costDirectMaterial      AS DECIMAL   LABEL "Cost Direct Material"   FORMAT ">>,>>>,>>9.99"
+    FIELD costSource              AS CHARACTER LABEL "Cost Source"            FORMAT "x(30)"
+    FIELD costStdFreight          AS DECIMAL   LABEL "Cost Std Freight"       FORMAT ">>,>>>,>>9.99"
+    FIELD costStdWarehouse        AS DECIMAL   LABEL "Cost Std Warehouse"     FORMAT ">>,>>>,>>9.99"
+    FIELD costStdDeviation        AS DECIMAL   LABEL "Cost Std Deviation"     FORMAT ">>,>>>,>>9.99"
+    FIELD costStdManufacture      AS DECIMAL   LABEL "Cost Std Manufacture"   FORMAT ">>,>>>,>>9.99"
+    FIELD costFull                AS DECIMAL   LABEL "Cost Full"              FORMAT ">>,>>>,>>9.99"
+    FIELD quantityInvoicedWeight  AS DECIMAL   LABEL "Invoiced Weight"        FORMAT ">>,>>>,>>9.99"
+    FIELD quantityInvoicedMSF     AS DECIMAL   LABEL "Invoiced MSF"           FORMAT ">>,>>>,>>9.99"
+    FIELD weightUOM               AS CHARACTER LABEL "Weight UOM"             FORMAT "x(4)"
+    FIELD accountAR               AS CHARACTER LABEL "AR Account"             FORMAT "x(20)"
+    FIELD accountARFreight        AS CHARACTER LABEL "Freight Account"        FORMAT "x(20)"
+    FIELD accountARSales          AS CHARACTER LABEL "Sales Account"          FORMAT "x(20)"
+    FIELD accountARSalesTax       AS CHARACTER LABEL "Sales Tax Account"      FORMAT "x(20)"
+    FIELD accountARDiscount       AS CHARACTER LABEL "Discount Account"       FORMAT "x(20)"
+    FIELD accountARCash           AS CHARACTER LABEL "Cash Account"           FORMAT "x(20)"
+    FIELD accountDLCogs           AS CHARACTER LABEL "COGS DL Account"        FORMAT "x(20)"
+    FIELD accountDLFG             AS CHARACTER LABEL "FG DL Account"          FORMAT "x(20)"
+    FIELD accountVOCogs           AS CHARACTER LABEL "COGS VO Account"        FORMAT "x(20)"
+    FIELD accountVOFG             AS CHARACTER LABEL "FG VO Account"          FORMAT "x(20)"
+    FIELD accountFOCogs           AS CHARACTER LABEL "COGS FO Account"        FORMAT "x(20)"
+    FIELD accountFOFG             AS CHARACTER LABEL "FG FOAR Account"        FORMAT "x(20)"
+    FIELD accountDMCogs           AS CHARACTER LABEL "COGS DM Account"        FORMAT "x(20)"
+    FIELD accountDMFG             AS CHARACTER LABEL "FG DM Account"          FORMAT "x(20)"
+    FIELD quantityPerSubUnit      AS DECIMAL   LABEL "Case Count"             FORMAT ">>,>>9"
+    FIELD amountDiscount          AS DECIMAL   LABEL "Discount"               FORMAT ">>,>>>,>>9.99"
+    FIELD amountBilled            AS DECIMAL   LABEL "Billed"                 FORMAT ">>,>>>,>>9.99"
+    FIELD amountBilledIncDiscount AS DECIMAL   LABEL "Billed Inc. Discount"   FORMAT ">>,>>>,>>9.99"
+    FIELD amountCommission        AS DECIMAL   LABEL "Commission"             FORMAT ">>,>>>,>>9.99"
+    FIELD locationID              AS CHARACTER LABEL "Location"               FORMAT ">>,>>>,>>9.99"
+    FIELD bolID                   AS INTEGER   LABEL "BOL"                    FORMAT ">>,>>>,>>9.99"
+    FIELD squareFeetPerEA         AS DECIMAL   LABEL "Sq Ft Per EA"           FORMAT ">>,>>>,>>9.99"
+    FIELD productCategory         AS CHARACTER LABEL "Product Category"       FORMAT "x(8)"
+    FIELD currencyCode            AS CHARACTER LABEL "Currency"               FORMAT "x(8)"
+    FIELD currencyExRate          AS DECIMAL   LABEL "Exchange Rate"          FORMAT ">>>,>>>9.99" 
+    FIELD periodID                AS INTEGER   LABEL "Period"                 FORMAT ">9"
+    FIELD isTaxable               AS LOGICAL   LABEL "Taxable"
+    FIELD shipID                  AS CHARACTER LABEL "Ship To"                FORMAT "x(10)"
+    FIELD termsCode               AS CHARACTER LABEL "Terms"                  FORMAT "x(5)"
+    FIELD isFreightBillable       AS LOGICAL   LABEL "Bill Freight"
     .    
     
 DEFINE TEMP-TABLE ttInvoiceMiscToPost NO-UNDO 
@@ -317,7 +317,6 @@ DEFINE VARIABLE ghNotesProcs AS HANDLE NO-UNDO.
 
 /* ************************  Function Prototypes ********************** */
 
-
 FUNCTION fGetFilePath RETURNS CHARACTER PRIVATE
     (ipcFolder AS CHARACTER,
     ipcFileBase AS CHARACTER,
@@ -354,7 +353,6 @@ FUNCTION fIsFactored RETURNS LOGICAL PRIVATE
 
 FUNCTION fIsWritable RETURNS LOGICAL PRIVATE
     (ipriInvHead AS ROWID) FORWARD.
-
 
 /* ***************************  Main Block  *************************** */
 /* Shared Vars needed for 810 invoices */
@@ -396,7 +394,6 @@ PROCEDURE pAddARLedgerTransaction PRIVATE:
     ttARLedgerTransaction.amount = ttARLedgerTransaction.amount - ipbf-ttInvoiceToPost.amountBilled.
     
 END PROCEDURE.
-
 
 PROCEDURE pAddException PRIVATE:
     /*------------------------------------------------------------------------------
@@ -501,8 +498,6 @@ PROCEDURE pAddGLTransaction PRIVATE:
         ttGLTransaction.currencyCode      = ipbf-ttInvoiceToPost.currencyCode
         ttGLTransaction.currencyExRate    = ipbf-ttInvoiceToPost.currencyExRate
         .
-    
-
 END PROCEDURE.
 
 PROCEDURE pAddGLTransactionsForFG PRIVATE:
@@ -533,7 +528,6 @@ PROCEDURE pAddGLTransactionsForFG PRIVATE:
         "COGS", ipbf-ttInvoiceLineToPost.accountDMCogs, ipbf-ttInvoiceLineToPost.costDirectMaterial, ipbf-ttInvoiceLineToPost.costUOM).
     RUN pAddGLTransactionsForFGDetail (BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceLineToPost,
         "FG", ipbf-ttInvoiceLineToPost.accountDMFG, - ipbf-ttInvoiceLineToPost.costDirectMaterial, ipbf-ttInvoiceLineToPost.costUOM).
-
 
 END PROCEDURE.
 
@@ -581,7 +575,6 @@ PROCEDURE pAddGLTransactionsForFGDetail PRIVATE:
         ttGLTransaction.currencyExRate    = ipbf-ttInvoiceLineToPost.currencyExRate
         .
 
-
 END PROCEDURE.
 
 PROCEDURE pAddInvoiceLineToPost PRIVATE:
@@ -593,9 +586,9 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttPostingMaster FOR ttPostingMaster.
     DEFINE PARAMETER BUFFER ipbf-ttInvoiceToPost FOR ttInvoiceToPost.
     DEFINE PARAMETER BUFFER ipbf-inv-line        FOR inv-line.
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiRNo AS INTEGER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiRNo      AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError   AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-itemfg FOR itemfg.
@@ -1041,8 +1034,6 @@ PROCEDURE pAlignMultiInvoiceLinesWithMaster PRIVATE:
                     .
                 NEXT headblock. 
             END.
-            
-            
         END.
 
         FOR EACH bf-child-inv-misc EXCLUSIVE-LOCK 
@@ -1064,8 +1055,6 @@ PROCEDURE pAlignMultiInvoiceLinesWithMaster PRIVATE:
                     .
                 NEXT headblock. 
             END.
-            
-               
         END.
     END.
     
@@ -1349,13 +1338,10 @@ PROCEDURE pCreateARInvHeader PRIVATE:
         bf-ar-inv.ord-date     = ipbf-ttInvoiceToPost.orderDate
         bf-ar-inv.inv-no       = ipbf-inv-head.inv-no
         bf-ar-inv.inv-date     = ipbf-inv-head.inv-date
-
         bf-ar-inv.prod-date    = ipbf-ttInvoiceToPost.postDate /* using prod-date as posted date #53205, pass in tran-date or dtPostDate */
-        bf-ar-inv.period       = ipbf-ttInvoiceToPost.periodID
-        
+        bf-ar-inv.period       = ipbf-ttInvoiceToPost.periodID        
         bf-ar-inv.posted       = YES 
-        bf-ar-inv.printed      = YES
-        
+        bf-ar-inv.printed      = YES        
         bf-ar-inv.cust-no      = ipbf-inv-head.cust-no
         bf-ar-inv.cust-name    = ipbf-inv-head.cust-name
         bf-ar-inv.ship-id      = ipbf-inv-head.sold-no /* RLL */
@@ -1394,13 +1380,11 @@ PROCEDURE pCreateARInvHeader PRIVATE:
         bf-ar-inv.freight      = ipbf-inv-head.t-inv-freight  /* total freight Invoiced */
         bf-ar-inv.tax-amt      = ipbf-inv-head.t-inv-tax      /* total tax Invoiced */
         bf-ar-inv.t-cost       = ipbf-inv-head.t-inv-cost     /* total cost invoiced */
-        bf-ar-inv.due          = IF ipbf-inv-head.terms EQ "CASH" THEN 0 ELSE ipbf-inv-head.t-inv-rev
-        
+        bf-ar-inv.due          = IF ipbf-inv-head.terms EQ "CASH" THEN 0 ELSE ipbf-inv-head.t-inv-rev        
         /* total invoiced amount */
         bf-ar-inv.gross        = ipbf-inv-head.t-inv-rev /*+ v-inv-disc   total invoiced + disc */ 
         bf-ar-inv.disc-taken   = 0
-        bf-ar-inv.paid         = 0
-        
+        bf-ar-inv.paid         = 0        
         /* total invoiced - freight - misc - tax */
         bf-ar-inv.t-sales      = ipbf-inv-head.t-inv-rev - ipbf-inv-head.t-inv-tax
         bf-ar-inv.net          = bf-ar-inv.t-sales
@@ -1585,13 +1569,11 @@ PROCEDURE pCreateARInvMisc PRIVATE:
         bf-ar-invl.inv-date       = ipbf-inv-head.inv-date
         bf-ar-invl.e-num          = ipbf-inv-misc.spare-int-4.
 
-    IF NOT bf-ar-invl.billable THEN bf-ar-invl.amt = 0.
-    
+    IF NOT bf-ar-invl.billable THEN bf-ar-invl.amt = 0.    
         
     opriArInvl = ROWID(bf-ar-invl).
 
 END PROCEDURE.
-
 
 PROCEDURE pCreateEDI PRIVATE:
     /*------------------------------------------------------------------------------
@@ -1678,12 +1660,10 @@ PROCEDURE pCreateGLTrans PRIVATE:
             bf-gltrans.curr-code = ipcCurrCode
             bf-gltrans.ex-rate   = ipdExRate
             .
-    
         RELEASE bf-gltrans.
     END.
     
 END PROCEDURE.
-
 
 PROCEDURE pExportAllTempTables PRIVATE:
     /*------------------------------------------------------------------------------
@@ -2167,7 +2147,6 @@ PROCEDURE pInitialize PRIVATE:
     EMPTY TEMP-TABLE ttBOLLineToUpdate.
     EMPTY TEMP-TABLE rpt.
     
-    
     CREATE ttPostingMaster.
     ASSIGN 
         ttPostingMaster.company            = ipcCompany
@@ -2252,7 +2231,6 @@ PROCEDURE pInitialize PRIVATE:
     RUN pGetCurrencyCodeAndRate(ipcCompany, "", "", ttPostingMaster.currencyCode, 
         OUTPUT ttPostingMaster.currencyCode, OUTPUT ttPostingMaster.currencyExRate, OUTPUT ttPostingMaster.accountARCurrency,
         OUTPUT oplError, OUTPUT opcMessage).
-        
 
 END PROCEDURE.
 
@@ -2553,9 +2531,7 @@ PROCEDURE pPostAll PRIVATE:
     
     RUN pBuildExceptions(OUTPUT oplExceptionsFound).
     
-/*REFACTOR - Add back AREXP and EDI processing*/
-    
-    
+/*REFACTOR - Add back AREXP and EDI processing*/    
     
 END PROCEDURE.
 
