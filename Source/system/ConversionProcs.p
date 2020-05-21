@@ -253,6 +253,61 @@ PROCEDURE Conv_GetValidOrderQtyUOMsForItem:
       
 END PROCEDURE.
 
+
+PROCEDURE Conv_ValueToEA:
+    /*------------------------------------------------------------------------------
+     Purpose:  Converts Value to EA, includes check for ItemUOM "switch" 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdValueInUOM AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcValueUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCountOverride AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdValueInEA AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE dMultiplier AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dValueInEA    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+        
+    lError = YES.
+    IF fUseItemUom(ipcCompany) THEN 
+    DO:
+        FIND FIRST bf-itemfg NO-LOCK 
+            WHERE bf-itemfg.company EQ ipcCompany
+            AND bf-itemfg.i-no EQ ipcItemID
+            NO-ERROR.
+        IF AVAILABLE bf-itemfg THEN 
+            RUN Conv_ValueFromUOMToUOMForItem(ROWID(bf-itemfg), ipdValueInUOM, ipcValueUOM, "EA", OUTPUT dValueInEA, OUTPUT lError, OUTPUT cMessage).        
+    END. 
+    IF lError THEN 
+    DO:
+        CASE ipcValueUOM:
+            WHEN "CS" THEN 
+                dMultiplier = ipdCountOverride. 
+            WHEN "PLT" THEN 
+                dMultiplier = ipdCountOverride. /*refactor?*/
+            WHEN "C" THEN 
+                dMultiplier = 100.  /*vestige of old logic. refactor to not hardcode?*/
+            OTHERWISE 
+            DO:
+                FIND FIRST uom NO-LOCK 
+                    WHERE uom.uom EQ ipcValueUOM NO-ERROR.
+                IF AVAILABLE uom AND uom.mult NE 0 AND uom.Other EQ "EA" THEN
+                    dMultiplier = uom.mult.
+                ELSE 
+                    dMultiplier = 1.
+            END.
+        END CASE.
+        dValueinEA =  ipdValueInUOM / dMultiplier.
+    END.
+    opdValueInEA = dValueInEa.
+
+END PROCEDURE.
+
 PROCEDURE Conv_QtyToEA:
     /*------------------------------------------------------------------------------
      Purpose:  Converts Qty to EA, includes check for ItemUOM "switch" 
