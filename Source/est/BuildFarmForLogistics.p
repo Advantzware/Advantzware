@@ -105,7 +105,7 @@ FOR EACH ttQuantityCost:
     END.
     bf-vendItemCostLevel.costPerUOM = ttQuantityCost.dCostPerEA.
 END.
-RUN RecalculateFromAndTo IN ghVendorCost (bf-vendItemCost.vendItemCostID, OUTPUT lError, OUTPUT cMessage).
+RUN RecalculateFromAndTo (bf-vendItemCost.vendItemCostID, OUTPUT lError, OUTPUT cMessage).
 
 RELEASE bf-vendItemCost.
 RELEASE bf-vendItemCostLevel.
