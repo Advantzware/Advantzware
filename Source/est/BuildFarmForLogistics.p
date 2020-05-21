@@ -110,8 +110,6 @@ RUN RecalculateFromAndTo (bf-vendItemCost.vendItemCostID, OUTPUT lError, OUTPUT 
 RELEASE bf-vendItemCost.
 RELEASE bf-vendItemCostLevel.
 
-DELETE OBJECT ghVendorCost.
-
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBuildQuantitiesAndCostsFromProbe PRIVATE:
