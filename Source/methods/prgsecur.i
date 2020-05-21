@@ -10,7 +10,7 @@ DEFINE VARIABLE period_pos              AS INTEGER             NO-UNDO.
 DEFINE VARIABLE num-groups              AS INTEGER             NO-UNDO.
 DEFINE VARIABLE group-ok                AS LOGICAL             NO-UNDO.
 DEFINE VARIABLE access-close            AS LOGICAL             NO-UNDO.
-DEFINE VARIABLE lRecFound               AS LOGICAL             NO-UNDO.
+DEFINE VARIABLE lNK1RecFound            AS LOGICAL             NO-UNDO.
 DEFINE VARIABLE cShowRestrictionMessage AS CHARACTER           NO-UNDO.
 
 RUN sys/ref/nk1look.p(
@@ -22,7 +22,8 @@ RUN sys/ref/nk1look.p(
      INPUT "",
      INPUT "",
      OUTPUT cShowRestrictionMessage,
-     OUTPUT lRecFound).
+     OUTPUT lNK1RecFound
+     ).
 
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
