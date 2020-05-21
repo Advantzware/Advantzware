@@ -129,12 +129,16 @@ PROCEDURE pBuildQuantitiesAndCosts PRIVATE:
         WHERE est.company EQ ipbf-eb.company
         AND est.est-no EQ cEstNo
         NO-ERROR.
-    IF AVAILABLE est THEN 
-    DO iCount = 1 TO EXTENT(est.est-qty):
-        IF est.est-qty[iCount] NE 0 THEN DO:
+    FIND FIRST est-qty NO-LOCK
+         WHERE est-qty.company EQ ipbf-eb.company
+         AND est-qty.est-no EQ cEstNo
+         NO-ERROR .    
+    IF AVAILABLE est-qty THEN 
+    DO iCount = 1 TO EXTENT(est-qty.qty):
+        IF est-qty.qty[iCount] NE 0 THEN DO:
             CREATE ttQuantityCost.
             ASSIGN 
-                ttQuantityCost.iQty = est.est-qty[iCount].
+                ttQuantityCost.iQty = est-qty.qty[iCount].
         END.
     END.
     FOR EACH ttQuantityCost:
@@ -186,12 +190,17 @@ PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
         WHERE est.company EQ ipbf-eb.company
         AND est.est-no EQ cEstNo
         NO-ERROR.
-    IF AVAILABLE est THEN 
-    DO iCount = 1 TO EXTENT(est.est-qty):
-        IF est.est-qty[iCount] NE 0 THEN DO:
+    FIND FIRST est-qty NO-LOCK
+         WHERE est-qty.company EQ ipbf-eb.company
+         AND est-qty.est-no EQ cEstNo
+         NO-ERROR .
+         
+    IF AVAILABLE est-qty THEN 
+    DO iCount = 1 TO EXTENT(est-qty.qty):   
+        IF est-qty.qty[iCount] NE 0 THEN DO:
             CREATE ttQuantityCost.
             ASSIGN 
-                ttQuantityCost.iQty = est.est-qty[iCount].
+                ttQuantityCost.iQty = est-qty.qty[iCount].
         END.
     END.
     

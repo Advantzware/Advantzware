@@ -2550,6 +2550,24 @@ PROCEDURE valid-est-no :
             APPLY "entry" TO cSEst .
             oplOutError = YES .
         END.
+        
+        FIND FIRST b-eb NO-LOCK
+            WHERE b-eb.company  EQ gcompany
+            AND b-eb.sourceEstimate   EQ cSEst:SCREEN-VALUE NO-ERROR.
+        
+        IF AVAIL b-eb AND CAN-FIND(FIRST b-est
+            WHERE b-est.company  EQ gcompany
+            AND b-est.est-no   EQ b-eb.est-no
+            AND b-est.estimateTypeID EQ "MISC")  THEN 
+        DO:
+            MESSAGE "Misc Estimates Exist for this Source Estimate.  Estimates #" trim(b-eb.est-no) "already exist,  Continue?" 
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
+            IF NOT ll-ans THEN do:  
+                APPLY "entry" TO cSEst .
+                oplOutError = YES .
+            END.
+        END.
+        
         IF trim(cSEst:SCREEN-VALUE) NE "0" AND  cMiscEstimateSource EQ "Quote" THEN
         DO:
           IF NOT CAN-FIND(FIRST quotehd
