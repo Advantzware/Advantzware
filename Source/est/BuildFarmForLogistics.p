@@ -35,7 +35,6 @@ DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
 
 /* ***************************  Main Block  ********************   ******* */
 RUN system\VendorCostProcs.p PERSISTENT SET ghVendorCost.
-SESSION:ADD-SUPER-PROCEDURE (ghVendorCost).
 
 FIND FIRST eb NO-LOCK
     WHERE ROWID(eb) EQ ipriEb
@@ -104,10 +103,12 @@ FOR EACH ttQuantityCost:
     END.
     bf-vendItemCostLevel.costPerUOM = ttQuantityCost.dCost.
 END.
-RUN RecalculateFromAndTo (bf-vendItemCost.vendItemCostID, OUTPUT lError, OUTPUT cMessage).
+RUN RecalculateFromAndTo IN ghVendorCost (bf-vendItemCost.vendItemCostID, OUTPUT lError, OUTPUT cMessage).
 
 RELEASE bf-vendItemCost.
 RELEASE bf-vendItemCostLevel.
+
+DELETE OBJECT ghVendorCost.
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -220,18 +221,18 @@ PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
     
     FOR EACH ttQuantityCost:
     
-       FIND FIRST quoteqty no-lock
+       FIND FIRST quoteqty NO-LOCK
             WHERE quoteqty.company EQ ipbf-eb.company
               AND quoteqty.q-no EQ iQuoteNo
               AND quoteqty.qty  EQ ttQuantityCost.iQty
               AND rowid(quoteqty) EQ rwRowid NO-ERROR .
        IF NOT AVAIL quoteqty THEN
-            FIND FIRST quoteqty no-lock
+            FIND FIRST quoteqty NO-LOCK
                  WHERE quoteqty.company EQ ipbf-eb.company
                  AND quoteqty.q-no EQ iQuoteNo
                  AND quoteqty.qty  EQ ttQuantityCost.iQty NO-ERROR .
        IF NOT AVAIL quoteqty THEN
-           FIND FIRST quoteqty no-lock
+           FIND FIRST quoteqty NO-LOCK
             WHERE quoteqty.company EQ ipbf-eb.company
               AND quoteqty.q-no EQ iQuoteNo NO-ERROR .
         IF AVAIL quoteqty THEN      

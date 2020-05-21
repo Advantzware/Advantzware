@@ -887,7 +887,7 @@ PROCEDURE post-gl :
              cust.hibal      = cust.acc-bal
              cust.hibal-date = tran-date.
              
-       xar-acct = string(DYNAMIC-FUNCTION("spfGetAccountAR", cust.company, cust.cust-no)).
+       xar-acct = string(DYNAMIC-FUNCTION("GL_GetAccountAR", cust.company, cust.cust-no)).
 
        IF t1 NE 0 THEN DO:
           FIND gltrans WHERE ROWID(gltrans) EQ lv-rowid NO-ERROR.
