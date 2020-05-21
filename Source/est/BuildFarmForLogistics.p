@@ -22,7 +22,6 @@ DEFINE TEMP-TABLE ttQuantityCost
 DEFINE VARIABLE cVendor AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cVendorItem AS CHARACTER NO-UNDO INITIAL "In-house Manufacture".
 DEFINE VARIABLE cCostUOM AS CHARACTER NO-UNDO INITIAL "EA".
-DEFINE VARIABLE ghVendorCost AS HANDLE.
 DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMiscEstimateSource AS CHARACTER NO-UNDO.
@@ -34,8 +33,6 @@ DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
 
 
 /* ***************************  Main Block  ********************   ******* */
-RUN system\VendorCostProcs.p PERSISTENT SET ghVendorCost.
-SESSION:ADD-SUPER-PROCEDURE (ghVendorCost).
 
 FIND FIRST eb NO-LOCK
     WHERE ROWID(eb) EQ ipriEb
