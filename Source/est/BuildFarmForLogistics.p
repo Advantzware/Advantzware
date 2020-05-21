@@ -105,10 +105,12 @@ FOR EACH ttQuantityCost:
     END.
     bf-vendItemCostLevel.costPerUOM = ttQuantityCost.dCostPerEA.
 END.
-RUN RecalculateFromAndTo (bf-vendItemCost.vendItemCostID, OUTPUT lError, OUTPUT cMessage).
+RUN RecalculateFromAndTo IN ghVendorCost (bf-vendItemCost.vendItemCostID, OUTPUT lError, OUTPUT cMessage).
 
 RELEASE bf-vendItemCost.
 RELEASE bf-vendItemCostLevel.
+
+DELETE OBJECT ghVendorCost.
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -211,7 +213,6 @@ PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
                 RUN Conv_ValueToEA(quoteqty.company, quoteitm.i-no, quoteqty.price, quoteqty.uom, 0, OUTPUT ttQuantityCost.dCostPerEA).
         END.               
     END.
-
 
 END PROCEDURE. 
           
