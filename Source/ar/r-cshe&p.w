@@ -1006,7 +1006,7 @@ PROCEDURE post-gl :
      xar-cashl = bank.actnum
      bank.bal  = bank.bal + tt-post.curr-amt
      t1        = 0.
-     xar-acct = string(DYNAMIC-FUNCTION("spfGetAccountAR", cust.company, cust.cust-no)).
+     xar-acct = string(DYNAMIC-FUNCTION("GL_GetAccountAR", cust.company, cust.cust-no)).
     FOR EACH ar-cashl WHERE ar-cashl.c-no EQ ar-cash.c-no:
       ar-cashl.posted = YES.
 

@@ -29,7 +29,7 @@ CREATE WIDGET-POOL.
 
 {sys/inc/var.i new shared}
 
-assign
+ASSIGN
  cocode = gcompany
  locode = gloc.
 
@@ -42,12 +42,12 @@ END.
 
 {oe/invwork.i NEW}
 
-def new shared var v-ar-acct like ar-ctrl.receivables.
-def new shared var v-ar-freight like ar-ctrl.freight.
-def new shared var v-ar-stax like ar-ctrl.stax.
-def new shared var v-ar-sales like ar-ctrl.sales.
-def new shared var v-ar-disc like ar-ctrl.discount.
-def new shared var v-return as log init no.
+DEF NEW SHARED VAR v-ar-acct LIKE ar-ctrl.receivables.
+DEF NEW SHARED VAR v-ar-freight LIKE ar-ctrl.freight.
+DEF NEW SHARED VAR v-ar-stax LIKE ar-ctrl.stax.
+DEF NEW SHARED VAR v-ar-sales LIKE ar-ctrl.sales.
+DEF NEW SHARED VAR v-ar-disc LIKE ar-ctrl.discount.
+DEF NEW SHARED VAR v-return AS LOG INIT NO.
 
 DEFINE VARIABLE dCostFreight AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dCostWarehouse AS DECIMAL NO-UNDO.
@@ -165,16 +165,16 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 160
          VIRTUAL-HEIGHT     = 26.62
          VIRTUAL-WIDTH      = 160
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
          FONT               = 6
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -219,7 +219,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN tran-period IN FRAME FRAME-A
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -260,7 +260,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_inv C-Win
 ON LEAVE OF begin_inv IN FRAME FRAME-A /* Beginning Invoice # */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -305,7 +305,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_inv C-Win
 ON LEAVE OF end_inv IN FRAME FRAME-A /* Ending Invoice# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -316,14 +316,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tran-date C-Win
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 
-  if lastkey ne -1 then do:
-    run check-date.
-    if v-invalid then return no-apply.
+  IF LASTKEY NE -1 THEN DO:
+    RUN check-date.
+    IF v-invalid THEN RETURN NO-APPLY.
     RUN valid-date NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  end.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -344,7 +344,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tran-period C-Win
 ON LEAVE OF tran-period IN FRAME FRAME-A /* Period */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -417,26 +417,26 @@ PROCEDURE check-date :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DO with frame {&frame-name}:
-    v-invalid = no.
+   DO WITH FRAME {&frame-name}:
+    v-invalid = NO.
 
-    find first period                   
-        where period.company eq cocode
-          and period.pst     le tran-date
-          and period.pend    ge tran-date
-        no-lock no-error.
-   if avail period then do:
+    FIND FIRST period                   
+        WHERE period.company EQ cocode
+          AND period.pst     LE tran-date
+          AND period.pend    GE tran-date
+        NO-LOCK NO-ERROR.
+   IF AVAIL period THEN DO:
        IF NOT period.pstat THEN DO:
           MESSAGE "Period Already Closed. " VIEW-AS ALERT-BOX ERROR.
           v-invalid = YES.
        END.
-        tran-period:SCREEN-VALUE = string(period.pnum).
+        tran-period:SCREEN-VALUE = STRING(period.pnum).
     END.
 
     ELSE DO:
-      message "No Defined Period Exists for" tran-date view-as alert-box error.
-      v-invalid = yes.
-    end.
+      MESSAGE "No Defined Period Exists for" tran-date VIEW-AS ALERT-BOX ERROR.
+      v-invalid = YES.
+    END.
   END.
 END PROCEDURE.
 
@@ -501,13 +501,13 @@ ASSIGN
 
 DEF VAR v-u-cost LIKE ar-invl.cost NO-UNDO.
 DEF VAR v-t-cost LIKE ar-invl.t-cost NO-UNDO.
-def var v-inv-disc as dec format "->>,>>9.99".
-def var v-line-tot like inv-line.t-price.
-def var v-misc-tot like ar-invl.amt.
-def var v-cas-cnt like itemfg.case-count.
-def var v-cost as dec extent 4.
-def var v-invl-pric as dec.
-def var v-tax-rate as dec extent 4.
+DEF VAR v-inv-disc AS DEC FORMAT "->>,>>9.99".
+DEF VAR v-line-tot LIKE inv-line.t-price.
+DEF VAR v-misc-tot LIKE ar-invl.amt.
+DEF VAR v-cas-cnt LIKE itemfg.case-count.
+DEF VAR v-cost AS DEC EXTENT 4.
+DEF VAR v-invl-pric AS DEC.
+DEF VAR v-tax-rate AS DEC EXTENT 4.
 DEFINE VARIABLE cCostUOM AS CHARACTER.
 DEFINE VARIABLE cCostSource AS CHARACTER.
 DEFINE VARIABLE cRecAccount AS CHARACTER NO-UNDO.
@@ -541,11 +541,8 @@ FOR EACH ar-inv
 
         RUN oe/getacct.p.
         
-     FIND FIRST cust
-      WHERE cust.company EQ cocode
-      AND cust.cust-no EQ ar-inv.cust-no
-      NO-LOCK NO-ERROR.   
-      cRecAccount = IF AVAIL cust THEN string(DYNAMIC-FUNCTION("spfGetAccountAR", cust.company, cust.cust-no)) ELSE v-ar-acct.          
+     
+      cRecAccount = STRING(DYNAMIC-FUNCTION("GL_GetAccountAR", ar-ledger.company, ar-ledger.cust-no)).      
 
         FIND FIRST ar-ctrl WHERE ar-ctrl.company EQ cocode NO-LOCK.
 
@@ -557,12 +554,12 @@ FOR EACH ar-inv
 
             FIRST itemfg
             {sys/look/itemfgrlW.i}
-              AND itemfg.i-no eq ar-invl.i-no
+              AND itemfg.i-no EQ ar-invl.i-no
             NO-LOCK,
 
             FIRST fgcat
             WHERE fgcat.company EQ cocode
-              and fgcat.procat  EQ itemfg.procat
+              AND fgcat.procat  EQ itemfg.procat
             NO-LOCK:
 
           FIND FIRST uom
@@ -577,47 +574,47 @@ FOR EACH ar-inv
                USE-INDEX ord-no NO-LOCK NO-ERROR.
 
           ASSIGN
-           v-cas-cnt = if ar-invl.cas-cnt ne 0 then
+           v-cas-cnt = IF ar-invl.cas-cnt NE 0 THEN
                          ar-invl.cas-cnt
-                       else
-                       if avail oe-ordl and oe-ordl.cas-cnt ne 0 then
+                       ELSE
+                       IF AVAIL oe-ordl AND oe-ordl.cas-cnt NE 0 THEN
                          oe-ordl.cas-cnt
-                       else
-                       if avail itemfg and itemfg.case-count ne 0 then
+                       ELSE
+                       IF AVAIL itemfg AND itemfg.case-count NE 0 THEN
                          itemfg.case-count
-                       else 1.
+                       ELSE 1.
 
-          run oe/GetCostInvl.p (ROWID(ar-invl),
-                             output v-cost[1], output v-cost[2],
-                             output v-cost[3], output v-cost[4],
-                             output v-u-cost, OUTPUT cCostUOM, 
-                             output v-t-cost, OUTPUT cCostSource,
+          RUN oe/GetCostInvl.p (ROWID(ar-invl),
+                             OUTPUT v-cost[1], OUTPUT v-cost[2],
+                             OUTPUT v-cost[3], OUTPUT v-cost[4],
+                             OUTPUT v-u-cost, OUTPUT cCostUOM, 
+                             OUTPUT v-t-cost, OUTPUT cCostSource,
                              OUTPUT dCostFreight, OUTPUT dCostWarehouse, OUTPUT dCostDeviation, OUTPUT dCostManufacture).
 
-          run oe/invposty.p (ar-inv.inv-no, ar-invl.i-no, ar-invl.inv-qty,
+          RUN oe/invposty.p (ar-inv.inv-no, ar-invl.i-no, ar-invl.inv-qty,
                              "M", v-cost[1], v-cost[2], v-cost[3], v-cost[4]).
 
-          create tt-report.
-          assign
+          CREATE tt-report.
+          ASSIGN
            tt-report.term-id = ""
            tt-report.key-01  = "work-line"
-           tt-report.key-02  = if avail fgcat and fgcat.glacc ne ""
-                               then fgcat.glacc else v-ar-sales
-           tt-report.key-03  = string(ar-inv.inv-no,"999999")
+           tt-report.key-02  = IF AVAIL fgcat AND fgcat.glacc NE ""
+                               THEN fgcat.glacc ELSE v-ar-sales
+           tt-report.key-03  = STRING(ar-inv.inv-no,"999999")
            tt-report.key-04  = ar-invl.i-no
            v-invl-pric       = ar-invl.amt.
 
           IF ar-invl.disc NE 0 THEN
             ASSIGN
-             v-invl-pric = ROUND((if ar-invl.pr-uom begins "L" then
-                                    if ar-invl.inv-qty lt 0 then -1 else 1
-                                  else
-                                  if ar-invl.pr-uom eq "CS" then
+             v-invl-pric = ROUND((IF ar-invl.pr-uom BEGINS "L" THEN
+                                    IF ar-invl.inv-qty LT 0 THEN -1 ELSE 1
+                                  ELSE
+                                  IF ar-invl.pr-uom EQ "CS" THEN
                                     ar-invl.inv-qty / v-cas-cnt
-                                  else
-                                  if avail uom then
+                                  ELSE
+                                  IF AVAIL uom THEN
                                     ar-invl.inv-qty / uom.mult
-                                  else
+                                  ELSE
                                     ar-invl.inv-qty / 1000) *
                                  ar-invl.unit-pr,2)
              v-inv-disc  = v-inv-disc + (v-invl-pric - ar-invl.amt).
@@ -636,15 +633,15 @@ FOR EACH ar-inv
               AND ar-invl.billable EQ YES
             NO-LOCK:
 
-          create tt-report.
-          assign
+          CREATE tt-report.
+          ASSIGN
            tt-report.term-id = ""
            tt-report.key-01  = "work-misc"
-           tt-report.key-02  = if ar-invl.actnum ne ""
-                               then ar-invl.actnum else v-ar-sales
-           tt-report.key-03  = string(ar-inv.inv-no,"999999")
+           tt-report.key-02  = IF ar-invl.actnum NE ""
+                               THEN ar-invl.actnum ELSE v-ar-sales
+           tt-report.key-03  = STRING(ar-inv.inv-no,"999999")
            tt-report.key-04  = ar-invl.prep-charge
-           tt-report.key-05  = string(ar-invl.amt).
+           tt-report.key-05  = STRING(ar-invl.amt).
 
           v-misc-tot = v-misc-tot + ar-invl.amt.
         END. /* each ar-invl */
@@ -652,184 +649,184 @@ FOR EACH ar-inv
         v-post-disc = v-post-disc + v-inv-disc.
 
   /******************* MISCELLANEOUS ITEMS ***********************************/
-        create tt-report.
-        assign
+        CREATE tt-report.
+        ASSIGN
          tt-report.term-id = ""
          tt-report.key-01  = "work-disc"
-         tt-report.key-02  = string(ar-inv.inv-no,"999999")
-         tt-report.key-05  = string(v-inv-disc).
+         tt-report.key-02  = STRING(ar-inv.inv-no,"999999")
+         tt-report.key-05  = STRING(v-inv-disc).
 
-        if ar-inv.tax-amt ne 0 then do:
-          if ar-inv.tax-code ne "" then do:
-            find first stax
+        IF ar-inv.tax-amt NE 0 THEN DO:
+          IF ar-inv.tax-code NE "" THEN DO:
+            FIND FIRST stax
                 {sys/ref/stax1W.i}
-                  and {sys/ref/taxgroup.i stax} eq ar-inv.tax-code
-                no-lock no-error.
-            if not avail stax then
-            find first stax
-                where stax.company = ar-inv.company AND
-                stax.tax-group eq ar-inv.tax-code
-                no-lock no-error.
+                  AND {sys/ref/taxgroup.i stax} EQ ar-inv.tax-code
+                NO-LOCK NO-ERROR.
+            IF NOT AVAIL stax THEN
+            FIND FIRST stax
+                WHERE stax.company = ar-inv.company AND
+                stax.tax-group EQ ar-inv.tax-code
+                NO-LOCK NO-ERROR.
 
-            if avail stax then do:
-              do i = 1 to 3:
+            IF AVAIL stax THEN DO:
+              DO i = 1 TO 3:
                 v-tax-rate[i] = stax.tax-rate[i].
 
-                if stax.company eq "yes" and i gt 1 then
-                do k = 1 to i - 1:
+                IF stax.company EQ "yes" AND i GT 1 THEN
+                DO k = 1 TO i - 1:
                   v-tax-rate[i] = v-tax-rate[i] +
                                   (v-tax-rate[i] * (stax.tax-rate[k] / 100)).
-                end.
-              end.
+                END.
+              END.
 
               v-tax-rate[4] = v-tax-rate[1] + v-tax-rate[2] + v-tax-rate[3].
 
-              do i = 1 to 3:
-                v-tax-rate[i] = round(v-tax-rate[i] / v-tax-rate[4] *
+              DO i = 1 TO 3:
+                v-tax-rate[i] = ROUND(v-tax-rate[i] / v-tax-rate[4] *
                                       ar-inv.tax-amt,2).
-              end.
+              END.
 
               v-tax-rate[4] = v-tax-rate[1] + v-tax-rate[2] + v-tax-rate[3].
 
-              if ar-inv.tax-amt ne v-tax-rate[4] then
+              IF ar-inv.tax-amt NE v-tax-rate[4] THEN
                 v-tax-rate[1] = v-tax-rate[1] +
                                 (ar-inv.tax-amt - v-tax-rate[4]).
 
-              do i = 1 to 3:
-                find first account
-                    where account.company eq cocode
-                      and account.actnum  eq stax.tax-acc[i]
-                    no-lock no-error.
+              DO i = 1 TO 3:
+                FIND FIRST account
+                    WHERE account.company EQ cocode
+                      AND account.actnum  EQ stax.tax-acc[i]
+                    NO-LOCK NO-ERROR.
 
-                if avail account then do:
-                  create tt-report.
-                  assign
+                IF AVAIL account THEN DO:
+                  CREATE tt-report.
+                  ASSIGN
                    tt-report.term-id = ""
                    tt-report.key-01  = "work-tax"
                    tt-report.key-02  = account.actnum
-                   tt-report.key-03  = string(ar-inv.inv-no,"999999")
+                   tt-report.key-03  = STRING(ar-inv.inv-no,"999999")
                    tt-report.key-04  = ar-inv.tax-code
-                   tt-report.key-05  = string(v-tax-rate[i]).
-                end. /* avail account */
+                   tt-report.key-05  = STRING(v-tax-rate[i]).
+                END. /* avail account */
 
 
-              end. /* 1 to 3 */
+              END. /* 1 to 3 */
 
-            end. /* avail stax */
-          end.
+            END. /* avail stax */
+          END.
 
-          else do:
-            find first account
-                where account.company eq cocode
-                  and account.actnum  eq v-ar-stax
-                no-lock no-error.
-            create tt-report.
-            assign
+          ELSE DO:
+            FIND FIRST account
+                WHERE account.company EQ cocode
+                  AND account.actnum  EQ v-ar-stax
+                NO-LOCK NO-ERROR.
+            CREATE tt-report.
+            ASSIGN
              tt-report.term-id = ""
              tt-report.key-01  = "work-tax"
              tt-report.key-02  = account.actnum
-             tt-report.key-03  = string(ar-inv.inv-no,"999999")
-             tt-report.key-05  = string(ar-inv.tax-amt).
-          end.
-        end.
+             tt-report.key-03  = STRING(ar-inv.inv-no,"999999")
+             tt-report.key-05  = STRING(ar-inv.tax-amt).
+          END.
+        END.
 
         v-post-total = v-post-total + ar-inv.gross.
 
         /** if Freight Is Billable then Post to GL **/
-        if ar-inv.f-bill then do:
+        IF ar-inv.f-bill THEN DO:
           v-post-freight = v-post-freight - ar-inv.freight.
 
-          create tt-report.
-          assign
+          CREATE tt-report.
+          ASSIGN
            tt-report.term-id = ""
            tt-report.key-01  = "work-freight"
-           tt-report.key-02  = string(ar-inv.inv-no,"999999")
-           tt-report.key-05  = string(- ar-inv.freight).
-        end.
+           tt-report.key-02  = STRING(ar-inv.inv-no,"999999")
+           tt-report.key-05  = STRING(- ar-inv.freight).
+        END.
 
-        if ar-inv.terms eq "CASH" then do:
-          assign
+        IF ar-inv.terms EQ "CASH" THEN DO:
+          ASSIGN
            v-post-cash  = v-post-cash  + ar-inv.gross
            v-post-total = v-post-total - ar-inv.gross.
 
-          create tt-report.
-          assign
+          CREATE tt-report.
+          ASSIGN
            tt-report.term-id = ""
            tt-report.key-01  = "work-cash"
-           tt-report.key-02  = string(ar-inv.inv-no,"999999")
-           tt-report.key-05  = string(ar-inv.gross).
-        end.
+           tt-report.key-02  = STRING(ar-inv.inv-no,"999999")
+           tt-report.key-05  = STRING(ar-inv.gross).
+        END.
 
   IF LAST-OF(tr-num) THEN DO:
-    for each tt-report
-        where tt-report.term-id eq ""
-          and tt-report.key-01  eq "work-line"
-        no-lock
-        break by tt-report.key-02:
+    FOR EACH tt-report
+        WHERE tt-report.term-id EQ ""
+          AND tt-report.key-01  EQ "work-line"
+        NO-LOCK
+        BREAK BY tt-report.key-02:
 
-      accumulate dec(tt-report.key-05) (total by tt-report.key-02).
+      ACCUMULATE dec(tt-report.key-05) (TOTAL BY tt-report.key-02).
 
-      if last-of(tt-report.key-02) then do:
-        create gltrans.
-        assign
+      IF LAST-OF(tt-report.key-02) THEN DO:
+        CREATE gltrans.
+        ASSIGN
          gltrans.company = cocode
          gltrans.actnum  = tt-report.key-02
          gltrans.jrnl    = "OEINV"
          gltrans.tr-dscr = "ORDER ENTRY INVOICE LINES"
          gltrans.tr-date = ar-ledger.tr-date
-         gltrans.tr-amt  = - (accumulate total by tt-report.key-02 dec(tt-report.key-05))
+         gltrans.tr-amt  = - (ACCUMULATE TOTAL BY tt-report.key-02 dec(tt-report.key-05))
          gltrans.period  = period.pnum
          gltrans.trnum   = ar-ledger.tr-num.
-      end. /* last actnum */
-    end. /* each work-line */
+      END. /* last actnum */
+    END. /* each work-line */
                                               /** POST MISC. TO G/L TRANS **/
-    for each tt-report
-        where tt-report.term-id eq ""
-          and tt-report.key-01  eq "work-misc"
-        no-lock
-        break by tt-report.key-02:
+    FOR EACH tt-report
+        WHERE tt-report.term-id EQ ""
+          AND tt-report.key-01  EQ "work-misc"
+        NO-LOCK
+        BREAK BY tt-report.key-02:
 
-      accumulate dec(tt-report.key-05) (total by tt-report.key-02).
+      ACCUMULATE dec(tt-report.key-05) (TOTAL BY tt-report.key-02).
 
-      if last-of(tt-report.key-02) then do:
-        create gltrans.
-        assign
+      IF LAST-OF(tt-report.key-02) THEN DO:
+        CREATE gltrans.
+        ASSIGN
          gltrans.company = cocode
          gltrans.jrnl    = "OEINV"
          gltrans.tr-dscr = "ORDER ENTRY INVOICE MISC."
          gltrans.tr-date = ar-ledger.tr-date
          gltrans.actnum  = tt-report.key-02
-         gltrans.tr-amt  = - (accumulate total by tt-report.key-02 dec(tt-report.key-05))
+         gltrans.tr-amt  = - (ACCUMULATE TOTAL BY tt-report.key-02 dec(tt-report.key-05))
          gltrans.period  = period.pnum
          gltrans.trnum   = ar-ledger.tr-num.
-      end. /* last actnum */
-    end. /* each work-misc */
+      END. /* last actnum */
+    END. /* each work-misc */
                                            /** POST SALES TAX TO G/L TRANS **/
-    for each tt-report
-        where tt-report.term-id eq ""
-          and tt-report.key-01  eq "work-tax"
-        no-lock
-        break by tt-report.key-02:
+    FOR EACH tt-report
+        WHERE tt-report.term-id EQ ""
+          AND tt-report.key-01  EQ "work-tax"
+        NO-LOCK
+        BREAK BY tt-report.key-02:
 
-      accumulate dec(tt-report.key-05) (total by tt-report.key-02).
+      ACCUMULATE dec(tt-report.key-05) (TOTAL BY tt-report.key-02).
 
-      if last-of(tt-report.key-02) then do:
-        create gltrans.
-        assign
+      IF LAST-OF(tt-report.key-02) THEN DO:
+        CREATE gltrans.
+        ASSIGN
          gltrans.company = cocode
          gltrans.actnum  = tt-report.key-02
          gltrans.jrnl    = "OEINV"
          gltrans.tr-dscr = "ORDER ENTRY INVOICE TAX"
          gltrans.tr-date = ar-ledger.tr-date
-         gltrans.tr-amt  = - (accumulate total by tt-report.key-02 dec(tt-report.key-05))
+         gltrans.tr-amt  = - (ACCUMULATE TOTAL BY tt-report.key-02 dec(tt-report.key-05))
          gltrans.period  = period.pnum
          gltrans.trnum   = ar-ledger.tr-num.
-      end. /* last actnum */
-    end. /* each work-tax */
+      END. /* last actnum */
+    END. /* each work-tax */
 
-    for each work-job break by work-job.actnum:
-      create gltrans.
-      assign
+    FOR EACH work-job BREAK BY work-job.actnum:
+      CREATE gltrans.
+      ASSIGN
        gltrans.company = cocode
        gltrans.actnum  = work-job.actnum
        gltrans.jrnl    = "OEINV"
@@ -837,19 +834,19 @@ FOR EACH ar-inv
        gltrans.period  = period.pnum
        gltrans.trnum   = ar-ledger.tr-num.
 
-      if work-job.fg then
-        assign
+      IF work-job.fg THEN
+        ASSIGN
          gltrans.tr-amt  = - work-job.amt
          gltrans.tr-dscr = "ORDER ENTRY INVOICE FG".
-      else
-        assign
+      ELSE
+        ASSIGN
          gltrans.tr-amt  = work-job.amt
          gltrans.tr-dscr = "ORDER ENTRY INVOICE COGS".
-    end. /* each work-job */
+    END. /* each work-job */
 
                                           /** POST FREIGHT TO G/L TRANS **/
-    create gltrans.
-    assign
+    CREATE gltrans.
+    ASSIGN
      gltrans.company = cocode
      gltrans.actnum  = v-ar-freight
      gltrans.jrnl    = "OEINV"
@@ -860,8 +857,8 @@ FOR EACH ar-inv
      gltrans.trnum   = ar-ledger.tr-num.
 
                                            /** POST DISCOUNT TO G/L TRANS **/
-    create gltrans.
-    assign
+    CREATE gltrans.
+    ASSIGN
      gltrans.company = cocode
      gltrans.actnum  = v-ar-disc
      gltrans.jrnl    = "OEINV"
@@ -871,9 +868,9 @@ FOR EACH ar-inv
      gltrans.period  = period.pnum
      gltrans.trnum   = ar-ledger.tr-num.
                                            /** POST CASH TO G/L TRANS **/
-    if v-post-cash ne 0 then do:
-      create gltrans.
-      assign
+    IF v-post-cash NE 0 THEN DO:
+      CREATE gltrans.
+      ASSIGN
        gltrans.company = cocode
        gltrans.actnum  = ar-ctrl.cash-act
        gltrans.jrnl    = "CASHR"
@@ -882,10 +879,10 @@ FOR EACH ar-inv
        gltrans.tr-amt  = v-post-cash
        gltrans.period  = period.pnum
        gltrans.trnum   = ar-ledger.tr-num.
-    end.
+    END.
                                                   /** OFFSET ENTRY TO G/L **/
-    create gltrans.
-    assign
+    CREATE gltrans.
+    ASSIGN
      gltrans.company = cocode
      gltrans.actnum  = cRecAccount
      gltrans.jrnl    = "OEINV"
@@ -906,8 +903,8 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
-run check-date.
-  if v-invalid then return no-apply.
+RUN check-date.
+  IF v-invalid THEN RETURN NO-APPLY.
 
   SESSION:SET-WAIT-STATE("GENERAL").
 
