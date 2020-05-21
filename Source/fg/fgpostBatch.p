@@ -676,6 +676,7 @@ PROCEDURE fg-post:
                 FIND CURRENT fg-bin NO-LOCK NO-ERROR.
                 LEAVE loop1.
             END. /* IF AVAIL itemfg */
+            PAUSE 1 NO-MESSAGE.  /* This limits the "thrash" of DB checks and network traffic to 1/sec rather than 12K/sec */ 
         END. /* loop1 REPEAT */
 
         IF w-fg-rctd.rita-code = "R" THEN 
