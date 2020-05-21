@@ -35,7 +35,6 @@ DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
 
 /* ***************************  Main Block  ********************   ******* */
 RUN system\VendorCostProcs.p PERSISTENT SET ghVendorCost.
-SESSION:ADD-SUPER-PROCEDURE (ghVendorCost).
 
 FIND FIRST eb NO-LOCK
     WHERE ROWID(eb) EQ ipriEb
@@ -104,10 +103,12 @@ FOR EACH ttQuantityCost:
     END.
     bf-vendItemCostLevel.costPerUOM = ttQuantityCost.dCost.
 END.
-RUN RecalculateFromAndTo (bf-vendItemCost.vendItemCostID, OUTPUT lError, OUTPUT cMessage).
+RUN RecalculateFromAndTo IN ghVendorCost (bf-vendItemCost.vendItemCostID, OUTPUT lError, OUTPUT cMessage).
 
 RELEASE bf-vendItemCost.
 RELEASE bf-vendItemCostLevel.
+
+DELETE OBJECT ghVendorCost.
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -129,12 +130,16 @@ PROCEDURE pBuildQuantitiesAndCosts PRIVATE:
         WHERE est.company EQ ipbf-eb.company
         AND est.est-no EQ cEstNo
         NO-ERROR.
-    IF AVAILABLE est THEN 
-    DO iCount = 1 TO EXTENT(est.est-qty):
-        IF est.est-qty[iCount] NE 0 THEN DO:
+    FIND FIRST est-qty NO-LOCK
+         WHERE est-qty.company EQ ipbf-eb.company
+         AND est-qty.est-no EQ cEstNo
+         NO-ERROR .    
+    IF AVAILABLE est-qty THEN 
+    DO iCount = 1 TO EXTENT(est-qty.qty):
+        IF est-qty.qty[iCount] NE 0 THEN DO:
             CREATE ttQuantityCost.
             ASSIGN 
-                ttQuantityCost.iQty = est.est-qty[iCount].
+                ttQuantityCost.iQty = est-qty.qty[iCount].
         END.
     END.
     FOR EACH ttQuantityCost:
@@ -186,12 +191,17 @@ PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
         WHERE est.company EQ ipbf-eb.company
         AND est.est-no EQ cEstNo
         NO-ERROR.
-    IF AVAILABLE est THEN 
-    DO iCount = 1 TO EXTENT(est.est-qty):
-        IF est.est-qty[iCount] NE 0 THEN DO:
+    FIND FIRST est-qty NO-LOCK
+         WHERE est-qty.company EQ ipbf-eb.company
+         AND est-qty.est-no EQ cEstNo
+         NO-ERROR .
+         
+    IF AVAILABLE est-qty THEN 
+    DO iCount = 1 TO EXTENT(est-qty.qty):   
+        IF est-qty.qty[iCount] NE 0 THEN DO:
             CREATE ttQuantityCost.
             ASSIGN 
-                ttQuantityCost.iQty = est.est-qty[iCount].
+                ttQuantityCost.iQty = est-qty.qty[iCount].
         END.
     END.
     
@@ -220,18 +230,18 @@ PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
     
     FOR EACH ttQuantityCost:
     
-       FIND FIRST quoteqty no-lock
+       FIND FIRST quoteqty NO-LOCK
             WHERE quoteqty.company EQ ipbf-eb.company
               AND quoteqty.q-no EQ iQuoteNo
               AND quoteqty.qty  EQ ttQuantityCost.iQty
               AND rowid(quoteqty) EQ rwRowid NO-ERROR .
        IF NOT AVAIL quoteqty THEN
-            FIND FIRST quoteqty no-lock
+            FIND FIRST quoteqty NO-LOCK
                  WHERE quoteqty.company EQ ipbf-eb.company
                  AND quoteqty.q-no EQ iQuoteNo
                  AND quoteqty.qty  EQ ttQuantityCost.iQty NO-ERROR .
        IF NOT AVAIL quoteqty THEN
-           FIND FIRST quoteqty no-lock
+           FIND FIRST quoteqty NO-LOCK
             WHERE quoteqty.company EQ ipbf-eb.company
               AND quoteqty.q-no EQ iQuoteNo NO-ERROR .
         IF AVAIL quoteqty THEN      

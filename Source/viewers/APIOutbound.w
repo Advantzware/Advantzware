@@ -548,9 +548,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win
-PROCEDURE local-cancel-record:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win 
+PROCEDURE local-cancel-record :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -566,11 +565,9 @@ PROCEDURE local-cancel-record:
         iSourceAPIOutboundID = 0
         .
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record V-table-Win 
 PROCEDURE local-copy-record :
@@ -940,8 +937,17 @@ PROCEDURE pFieldValidations :
         OUTPUT opcMessage
         ).    
    
-    IF NOT oplSuccess THEN
-        RETURN.
+    /* Prompt the user to create apiClient record only when apioutbound record is being created */
+    IF NOT oplSuccess and adm-new-record THEN DO:
+        MESSAGE "Client ID '" + APIOutbound.clientID:SCREEN-VALUE + "' is not created." SKIP
+            "Do you want to create the client record?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lContinue AS LOGICAL.
+        IF lContinue THEN
+            RUN Outbound_CreateAPIClient (
+                INPUT g_company,
+                INPUT APIOutbound.clientID:SCREEN-VALUE
+                ).
+    END.
     
     IF cbRequestType:SCREEN-VALUE EQ ? OR cbRequestType:SCREEN-VALUE EQ "" THEN DO:
         opcMessage = "Request Type cannot be empty".

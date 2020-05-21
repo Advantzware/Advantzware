@@ -25,7 +25,7 @@ END FUNCTION.
 /* Local Variable Definitions ---                                       */
 
 RUN oe/PostInvoices.p PERSISTENT SET hPostInvoices.
-hTempTable = DYNAMIC-FUNCTION("fGetInvoiceToPostHandle" IN hPostInvoices).
+hTempTable = DYNAMIC-FUNCTION("fGetRptHandle" IN hPostInvoices).
 
 /* **********************  Internal Procedures  *********************** */
 

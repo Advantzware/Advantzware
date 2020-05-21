@@ -54,6 +54,7 @@ DEF VAR v-cust-log AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cAccount AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cShift   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRouting AS INTEGER NO-UNDO.
+DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
 
 /* gdm - 05050903 */
 DEF BUFFER bf-cust FOR cust.
@@ -146,7 +147,7 @@ cust.tax-id cust.date-field[2] cust.frt-pay cust.fob-code cust.ship-part ~
 cust.loc cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
 cust.markup cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet ~
 cust.case-bundle cust.int-field[1] cust.po-mandatory cust.imported ~
-cust.show-set cust.nationalAcct cust.log-field[1] 
+cust.show-set cust.nationalAcct cust.log-field[1] cust.classID
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
 &Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-2 RECT-3 RECT-4 
@@ -162,7 +163,7 @@ cust.tax-id cust.date-field[2] cust.frt-pay cust.fob-code cust.ship-part ~
 cust.loc cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
 cust.markup cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet ~
 cust.case-bundle cust.int-field[1] cust.po-mandatory cust.imported ~
-cust.show-set cust.nationalAcct cust.log-field[1] 
+cust.show-set cust.nationalAcct cust.log-field[1] cust.classID 
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS fl_custemail custype_dscr faxAreaCode ~
@@ -568,7 +569,12 @@ DEFINE FRAME F-Main
           LABEL "Pallet Positions" FORMAT ">>>9"
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
-          FONT 4
+           BGCOLOR 15 FONT 4
+     cust.classID  AT ROW 18.96 COL 93 COLON-ALIGNED 
+          LABEL "AR ClassID" FORMAT ">>"
+          VIEW-AS FILL-IN 
+          SIZE 11 BY .80
+          BGCOLOR 15 FONT 4     
      cust.spare-int-1 AT ROW 13.43 COL 134 COLON-ALIGNED WIDGET-ID 12
           LABEL "Pallet ID" FORMAT ">>>>>>>>9"
           VIEW-AS FILL-IN 
@@ -610,7 +616,7 @@ DEFINE FRAME F-Main
      cust.nationalAcct AT ROW 18.14 COL 128
           LABEL "National Account"
           VIEW-AS TOGGLE-BOX
-          SIZE 23 BY .81
+          SIZE 23 BY .81          
      cust.log-field[1] AT ROW 18.86 COL 110 HELP
           "" WIDGET-ID 16
           LABEL "Paperless"
@@ -824,7 +830,9 @@ ASSIGN
 /* SETTINGS FOR FILL-IN cust.type IN FRAME F-Main
    4 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN cust.zip IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL                                                            */ 
+/* SETTINGS FOR FILL-IN cust.classID IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */   
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -850,6 +858,9 @@ ON HELP OF FRAME F-Main
 DO:
    def var lv-handle as handle no-undo.
    def var char-val as cha no-undo.
+   DEFINE VARIABLE cFieldsValue AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cFoundValue AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE recRecordID AS RECID    NO-UNDO.
 
    CASE Focus:name :
      when "del-zone" then do:
@@ -891,6 +902,21 @@ DO:
          run windows/l-users.w (cust.csrUser_id:SCREEN-VALUE in frame {&frame-name}, output char-val).
            if char-val <> "" then 
               assign cust.csrUser_id:screen-value in frame {&frame-name} = entry(1,char-val).
+           return no-apply.
+     end.
+     when "classId" then do:
+         RUN system/openLookup.p (
+            INPUT  gcompany, 
+            INPUT  "", /* Lookup ID */
+            INPUT  110,  /* Subject ID */
+            INPUT  "", /* User ID */
+            INPUT  0,  /* Param Value ID */
+            OUTPUT cFieldsValue, 
+            OUTPUT cFoundValue, 
+            OUTPUT recRecordID ).  
+       
+       IF cFoundValue NE "" THEN    
+         FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = cFoundValue.
            return no-apply.
      end.
 
@@ -1562,6 +1588,30 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME cust.classID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.classID V-table-Win
+ON LEAVE OF cust.classID IN FRAME F-Main /* classID */
+DO:
+  
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-ClassId NO-ERROR.
+     IF NOT v-valid THEN RETURN NO-APPLY.
+  END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+    
+&Scoped-define SELF-NAME cust.classID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.classID V-table-Win
+ON VALUE-CHANGED OF cust.classID IN FRAME F-Main /* classID */
+DO:
+  lCheckMessage = NO .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
 
 &UNDEFINE SELF-NAME
 
@@ -2442,6 +2492,9 @@ PROCEDURE local-update-record :
 
   RUN valid-markup.
   IF NOT v-valid THEN RETURN NO-APPLY.
+  
+  RUN valid-ClassId .
+  IF NOT v-valid THEN RETURN NO-APPLY.
 
 
   /* ============== end of validations ==================*/
@@ -2477,6 +2530,7 @@ PROCEDURE local-update-record :
     /* Reposition browse to new record so other tabs are refreshed */
     {methods/run_link.i "RECORD-SOURCE" "repo-query2" "(INPUT ROWID(cust))"} 
   END.
+  lCheckMessage = NO .
 
 END PROCEDURE.
 
@@ -3106,6 +3160,56 @@ PROCEDURE zip-carrier :
                                      ELSE cust.del-zone:SCREEN-VALUE.
       /* gdm - 10010913 end*/
    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-classId V-table-Win 
+PROCEDURE valid-classId :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+  v-valid = YES.
+
+  DO WITH FRAME {&frame-name}:
+     IF cust.classId:SCREEN-VALUE NE "" THEN do:
+       FIND FIRST arclass NO-LOCK
+            WHERE arclass.classID EQ INTEGER(cust.classId:SCREEN-VALUE) NO-ERROR.
+       IF AVAIL arclass AND arclass.inActive EQ YES THEN do:
+        MESSAGE "AR ClassId is inactive. Try Help." VIEW-AS ALERT-BOX INFO.  
+        ASSIGN
+          v-valid = NO  .         
+         APPLY "entry" TO cust.classId.
+       END.     
+            
+       IF NOT AVAIL arclass THEN do:
+        MESSAGE "Invalid AR ClassId. Try Help." VIEW-AS ALERT-BOX INFO.  
+        ASSIGN
+          v-valid = NO  .          
+         APPLY "entry" TO cust.classId.
+       END.
+     END. 
+     IF cust.classId:SCREEN-VALUE NE "" AND cust.acc-bal <> 0 AND NOT lCheckMessage THEN do:
+         RUN displayMessageQuestionLOG("35",OUTPUT lCheckError).          
+         
+       IF NOT lCheckError THEN do:         
+        ASSIGN
+          v-valid = NO  
+          lCheckMessage = NO.          
+          cust.classId:SCREEN-VALUE = "".
+         APPLY "entry" TO cust.classId.
+       END. 
+       ELSE
+         lCheckMessage = YES .
+     END.    
+  END.
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -93,7 +93,8 @@ PROCEDURE pSuperProcs:
                 + "system/FileSysProcs.p,"
                 + "system/OSProcs.p,"
                 + "system/FormatProcs.p,"
-                + "est/EstimateProcs.p,"     
+                + "est/EstimateProcs.p,"
+                + "system/GLProcs.p,"     
                 .
     cSuperProcs = TRIM(cSuperProcs,",").
     DO idx = 1 TO NUM-ENTRIES(cSuperProcs):

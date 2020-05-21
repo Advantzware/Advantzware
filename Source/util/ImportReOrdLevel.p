@@ -150,10 +150,10 @@ PROCEDURE pProcessRecord PRIVATE:
     END.
 
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
-    RUN pAssignValueI (ipbf-ttImportReOrdLevel.iReorderLevel, YES, INPUT-OUTPUT bf-itemfg-loc.ord-level).
-    RUN pAssignValueI (ipbf-ttImportReOrdLevel.iOrderMinimum, YES, INPUT-OUTPUT bf-itemfg-loc.ord-min).
-    RUN pAssignValueI (ipbf-ttImportReOrdLevel.iOrderMaximum, YES, INPUT-OUTPUT bf-itemfg-loc.ord-max).
-    RUN pAssignValueI (ipbf-ttImportReOrdLevel.iLeadTime, YES, INPUT-OUTPUT bf-itemfg-loc.lead-days).
+    RUN pAssignValueI (ipbf-ttImportReOrdLevel.iReorderLevel, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg-loc.ord-level).
+    RUN pAssignValueI (ipbf-ttImportReOrdLevel.iOrderMinimum, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg-loc.ord-min).
+    RUN pAssignValueI (ipbf-ttImportReOrdLevel.iOrderMaximum, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg-loc.ord-max).
+    RUN pAssignValueI (ipbf-ttImportReOrdLevel.iLeadTime, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg-loc.lead-days).
      
     RELEASE bf-itemfg-loc.
     

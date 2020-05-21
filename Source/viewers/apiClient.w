@@ -5,9 +5,15 @@
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
+/*********************************************************************
+* Copyright (C) 2000 by Progress Software Corporation. All rights    *
+* reserved. Prior versions of this work may contain portions         *
+* contributed by participants of Possenet.                           *
+*                                                                    *
+*********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: viewerid/<table>.w
+  File: viewers/apiClient.w
 
   Description: from VIEWER.W - Template for SmartViewer Objects
 
@@ -30,10 +36,18 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+{custom/globdefs.i}
+{sys/inc/var.i}
 
+ASSIGN
+    cocode = g_company
+    locode = g_loc
+    .
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE cAPIID    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cClientID AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -48,32 +62,30 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES est eb
-&Scoped-define FIRST-EXTERNAL-TABLE est
+&Scoped-define EXTERNAL-TABLES apiClient APIOutbound
+&Scoped-define FIRST-EXTERNAL-TABLE apiClient
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR est, eb.
+DEFINE QUERY external_tables FOR apiClient, APIOutbound.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS est.est-no est.est-date eb.form-no ~
-est.form-qty eb.blank-no eb.part-no 
-&Scoped-define ENABLED-TABLES est eb
-&Scoped-define FIRST-ENABLED-TABLE est
-&Scoped-define SECOND-ENABLED-TABLE eb
-&Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS est.est-no est.est-date eb.form-no ~
-est.form-qty eb.blank-no eb.part-no 
-&Scoped-define DISPLAYED-TABLES est eb
-&Scoped-define FIRST-DISPLAYED-TABLE est
-&Scoped-define SECOND-DISPLAYED-TABLE eb
-&Scoped-Define DISPLAYED-OBJECTS fi_blank-qty 
+&Scoped-Define ENABLED-FIELDS apiClient.clientDesc apiClient.sharedSecret 
+&Scoped-define ENABLED-TABLES apiClient
+&Scoped-define FIRST-ENABLED-TABLE apiClient
+&Scoped-Define ENABLED-OBJECTS RECT-3 
+&Scoped-Define DISPLAYED-FIELDS apiClient.clientID ~
+apiClient.transactionCounter apiClient.clientDesc apiClient.sharedSecret 
+&Scoped-define DISPLAYED-TABLES apiClient
+&Scoped-define FIRST-DISPLAYED-TABLE apiClient
+&Scoped-Define DISPLAYED-OBJECTS fiAPIID 
 
 /* Custom List Definitions                                              */
-/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,List-4,List-5,F1   */
+/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
+&Scoped-define ADM-ASSIGN-FIELDS apiClient.clientID 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -105,51 +117,43 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE fi_blank-qty AS INTEGER FORMAT ">>9" INITIAL 1 
+DEFINE VARIABLE fiAPIID AS CHARACTER FORMAT "X(256)":U 
+     LABEL "API ID" 
      VIEW-AS FILL-IN 
-     SIZE 7 BY 1.
+     SIZE 43 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 146 BY 1.67.
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 120.6 BY 4.76
+     BGCOLOR 15 .
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     est.est-no AT ROW 1.71 COL 14 COLON-ALIGNED FORMAT "x(8)"
+     fiAPIID AT ROW 1.14 COL 26 COLON-ALIGNED WIDGET-ID 16
+     apiClient.clientID AT ROW 2.29 COL 26 COLON-ALIGNED WIDGET-ID 4
+          LABEL "Client ID" FORMAT "x(32)"
           VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-     est.est-date AT ROW 1.71 COL 43 COLON-ALIGNED
+          SIZE 43 BY 1
+          BGCOLOR 15 FGCOLOR 1 FONT 6
+     apiClient.transactionCounter AT ROW 2.38 COL 103.4 COLON-ALIGNED WIDGET-ID 8
           VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-     eb.form-no AT ROW 1.71 COL 67 COLON-ALIGNED
-          LABEL "Frm" FORMAT ">>>"
+          SIZE 14 BY 1
+          BGCOLOR 15 
+     apiClient.clientDesc AT ROW 3.43 COL 26 COLON-ALIGNED WIDGET-ID 2
           VIEW-AS FILL-IN 
-          SIZE 7 BY 1
-     est.form-qty AT ROW 1.71 COL 77 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          SIZE 91.4 BY 1
+          BGCOLOR 15 FGCOLOR 1 FONT 6
+     apiClient.sharedSecret AT ROW 4.57 COL 2.6 WIDGET-ID 14
+          LABEL "Shared Secret/Token"
           VIEW-AS FILL-IN 
-          SIZE 7 BY 1
-     eb.blank-no AT ROW 1.71 COL 91 COLON-ALIGNED
-          LABEL "Blk" FORMAT ">>9"
-          VIEW-AS FILL-IN 
-          SIZE 7 BY 1
-     fi_blank-qty AT ROW 1.71 COL 101 COLON-ALIGNED NO-LABEL
-     eb.part-no AT ROW 1.71 COL 122 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 22 BY 1
-     RECT-1 AT ROW 1.24 COL 1
-     "Reference Information" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 1 COL 3
-          FONT 1
-     "of" VIEW-AS TEXT
-          SIZE 3 BY .95 AT ROW 1.71 COL 75
-     "of" VIEW-AS TEXT
-          SIZE 3 BY .95 AT ROW 1.71 COL 99
+          SIZE 91.4 BY 1
+     RECT-3 AT ROW 1 COL 1 WIDGET-ID 10
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+         BGCOLOR 15 FGCOLOR 1 FONT 6 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -157,7 +161,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: ASI.est,ASI.eb
+   External Tables: ASI.apiClient,ASI.APIOutbound
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -179,8 +183,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 1.91
-         WIDTH              = 147.6.
+         HEIGHT             = 4.76
+         WIDTH              = 120.6.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -202,21 +206,19 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN eb.blank-no IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN est.est-no IN FRAME F-Main
-   EXP-FORMAT                                                           */
-/* SETTINGS FOR FILL-IN fi_blank-qty IN FRAME F-Main
+/* SETTINGS FOR FILL-IN apiClient.clientID IN FRAME F-Main
+   NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
+/* SETTINGS FOR FILL-IN fiAPIID IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN eb.form-no IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN est.form-qty IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN apiClient.sharedSecret IN FRAME F-Main
+   ALIGN-L EXP-LABEL                                                    */
+/* SETTINGS FOR FILL-IN apiClient.transactionCounter IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -238,11 +240,11 @@ ASSIGN
 
 /* ***************************  Main Block  *************************** */
 
-&IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
-  RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
-&ENDIF         
+  &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
+    RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
+  &ENDIF         
   
-/************************ INTERNAL PROCEDURES ********************/
+  /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -264,15 +266,15 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-head.i}
 
   /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "est"}
-  {src/adm/template/row-list.i "eb"}
+  {src/adm/template/row-list.i "apiClient"}
+  {src/adm/template/row-list.i "APIOutbound"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "est"}
-  {src/adm/template/row-find.i "eb"}
+  {src/adm/template/row-find.i "apiClient"}
+  {src/adm/template/row-find.i "APIOutbound"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -301,63 +303,148 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
-PROCEDURE local-display-fields :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetAPIAndClientID V-table-Win 
+PROCEDURE GetAPIAndClientID :
+/*------------------------------------------------------------------------------
+  Purpose: Returns the apiID value for the current APIOutboud record
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcAPIID    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcClientID AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.    
+            
+    {methods/run_link.i "RECORD-SOURCE" "GetAPIAndClientID" "(OUTPUT opcAPIID, OUTPUT opcClientID)"}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE IsAPIClientRecordAvailable V-table-Win 
+PROCEDURE IsAPIClientRecordAvailable :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplIsAPIClientAvailable AS LOGICAL NO-UNDO.
+
+    oplIsAPIClientAvailable = AVAILABLE apiClient.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record V-table-Win 
+PROCEDURE local-add-record :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF BUFFER b-ef FOR ef.
-  DEF BUFFER b-eb FOR eb.
-
-  DEF VAR li AS INT NO-UNDO.
-
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  IF AVAIL est THEN DO TRANSACTION:
-    DISABLE TRIGGERS FOR LOAD OF est.
-    FOR EACH b-ef NO-LOCK
-        WHERE b-ef.company EQ est.company
-          AND b-ef.est-no  EQ est.est-no
-        BREAK BY b-ef.eqty:
-      IF FIRST-OF(b-ef.eqty) THEN li = 0.
-      li = li + 1.
+    DO WITH FRAME {&FRAME-NAME}:
     END.
-    IF li NE est.form-qty THEN DO:
-      FIND CURRENT est EXCLUSIVE NO-WAIT NO-ERROR.
-      IF AVAIL est THEN est.form-qty = li.
-      FIND CURRENT est NO-LOCK.
+    
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
+
+    RUN GetAPIAndClientID (
+        OUTPUT cAPIID,
+        OUTPUT cClientID
+        ).
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    IF cAPIID NE "" THEN
+        ASSIGN
+            fiAPIID:SCREEN-VALUE            = cAPIID
+            apiClient.clientID:SCREEN-VALUE = cClientID
+            .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-statement V-table-Win 
+PROCEDURE local-assign-statement :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    apiClient.company = cocode.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-row-available V-table-Win 
+PROCEDURE local-row-available :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.    
+    DEFINE VARIABLE cRowState AS CHARACTER NO-UNDO.
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
+
+    RUN GetAPIAndClientID (
+        OUTPUT cAPIID,
+        OUTPUT cClientID
+        ).
+    
+    IF AVAILABLE apiClient THEN
+        fiAPIID:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cAPIID.
+    
+    RUN pGetRowState (
+        OUTPUT cRowState
+        ).
+    
+    /* Code placed here will execute AFTER standard behavior.    */
+    {methods/run_link.i "TABLEIO-SOURCE" "set-buttons" "(INPUT cRowState)"}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetRowState V-table-Win 
+PROCEDURE pGetRowState :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcRowState AS CHARACTER NO-UNDO.
+    
+    RUN GetAPIAndClientID (
+        OUTPUT cAPIID,
+        OUTPUT cClientID
+        ).
+
+    /* cAPIID NE "" states that an APIOutbound record is available.
+       Allow user to create apiClient record only if APIOutbound record
+       for a client is available */
+    IF cAPIID NE "" THEN DO:
+        IF AVAILABLE apiClient THEN
+            opcRowState = "update-only".
+        ELSE
+            opcRowState = "add-only".
     END.
-
-    li = 0.
-    DISABLE TRIGGERS FOR LOAD OF ef.
-    FIND FIRST ef
-        WHERE ef.company EQ eb.company
-          AND ef.est-no  EQ eb.est-no
-          AND ef.form-no EQ eb.form-no
-        NO-LOCK NO-ERROR.
-    IF AVAIL ef THEN DO:
-      FOR EACH b-eb
-          WHERE b-eb.company EQ ef.company
-            AND b-eb.est-no  EQ ef.est-no
-            AND b-eb.form-no EQ ef.form-no
-          NO-LOCK:
-        li = li + 1.
-      END.
-      IF li NE ef.blank-qty THEN DO:
-        FIND CURRENT ef EXCLUSIVE NO-WAIT NO-ERROR.
-        IF AVAIL ef THEN ef.blank-qty = li.
-        FIND CURRENT ef NO-LOCK.
-      END.
-    END.
-    fi_blank-qty = li.
-  END.
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-
+    ELSE
+        opcRowState = "disable-all".
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -375,8 +462,8 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "est"}
-  {src/adm/template/snd-list.i "eb"}
+  {src/adm/template/snd-list.i "apiClient"}
+  {src/adm/template/snd-list.i "APIOutbound"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

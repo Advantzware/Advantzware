@@ -88,6 +88,9 @@ DEFINE QUERY external_tables FOR APIOutbound.
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
+DEFINE VARIABLE h_apiclient AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_apiclientxref1 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_apiclientxref1-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_apioutbound AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_apioutbound-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_apioutbounddetail AS HANDLE NO-UNDO.
@@ -101,6 +104,9 @@ DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updapi AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updapi-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updapi-3 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-updapi-4 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-updapi-5 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_q-apiclient AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
@@ -122,8 +128,8 @@ DEFINE FRAME F-Main
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 89.2 ROW 2.95
-         SIZE 71.8 BY 1.43
+         AT COL 111 ROW 2.95
+         SIZE 50 BY 1.43
          BGCOLOR 15  WIDGET-ID 200.
 
 
@@ -134,7 +140,7 @@ DEFINE FRAME message-frame
    Type: SmartWindow
    External Tables: ASI.APIOutbound
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 2
+   Design Page: 5
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -285,7 +291,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Outbound|View Outbound|Detail|Triggers' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Outbound|View Outbound|Detail|Triggers|ClientXref' + ',
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
@@ -314,7 +320,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME message-frame:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_smartmsg ).
-       RUN set-position IN h_smartmsg ( 1.10 , 39.80 ) NO-ERROR.
+       RUN set-position IN h_smartmsg ( 1.10 , 19.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -483,6 +489,88 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updapi-3 ,
              h_apioutboundtrigger-2 , 'AFTER':U ).
     END. /* Page 4 */
+    WHEN 5 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/apiclient.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_apiclient ).
+       RUN set-position IN h_apiclient ( 4.81 , 5.20 ) NO-ERROR.
+       /* Size in UIB:  ( 4.76 , 120.60 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'panels/p-updapi.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-updapi-4 ).
+       RUN set-position IN h_p-updapi-4 ( 4.81 , 126.20 ) NO-ERROR.
+       RUN set-size IN h_p-updapi-4 ( 4.76 , 32.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'browsers/apiclientxref1.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_apiclientxref1 ).
+       RUN set-position IN h_apiclientxref1 ( 9.86 , 20.40 ) NO-ERROR.
+       RUN set-size IN h_apiclientxref1 ( 12.86 , 123.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/apiclientxref1.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_apiclientxref1-2 ).
+       RUN set-position IN h_apiclientxref1-2 ( 23.00 , 20.40 ) NO-ERROR.
+       /* Size in UIB:  ( 4.76 , 88.20 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'panels/p-updapi.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-updapi-5 ).
+       RUN set-position IN h_p-updapi-5 ( 23.00 , 109.00 ) NO-ERROR.
+       RUN set-size IN h_p-updapi-5 ( 4.76 , 35.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/q-apiclient.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_q-apiclient ).
+       RUN set-position IN h_q-apiclient ( 9.86 , 147.60 ) NO-ERROR.
+       /* Size in UIB:  ( 1.86 , 10.80 ) */
+
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+
+       /* Links to SmartViewer h_apiclient. */
+       RUN add-link IN adm-broker-hdl ( h_p-updapi-4 , 'TableIO':U , h_apiclient ).
+       RUN add-link IN adm-broker-hdl ( h_q-apiclient , 'Record':U , h_apiclient ).
+
+       /* Links to SmartBrowser h_apiclientxref1. */
+       RUN add-link IN adm-broker-hdl ( h_apiclient , 'Record':U , h_apiclientxref1 ).
+
+       /* Links to SmartViewer h_apiclientxref1-2. */
+       RUN add-link IN adm-broker-hdl ( h_apiclientxref1 , 'Record':U , h_apiclientxref1-2 ).
+       RUN add-link IN adm-broker-hdl ( h_p-updapi-5 , 'TableIO':U , h_apiclientxref1-2 ).
+
+       /* Links to SmartQuery h_q-apiclient. */
+       RUN add-link IN adm-broker-hdl ( h_apioutbound , 'Record':U , h_q-apiclient ).
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_apiclient ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updapi-4 ,
+             h_apiclient , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_apiclientxref1 ,
+             h_p-updapi-4 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_apiclientxref1-2 ,
+             h_apiclientxref1 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updapi-5 ,
+             h_apiclientxref1-2 , 'AFTER':U ).
+    END. /* Page 5 */
 
   END CASE.
   /* Select a Startup page. */
