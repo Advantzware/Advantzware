@@ -134,6 +134,18 @@ PROCEDURE updateRequestData:
                     cTargetString = STRING(DECIMAL(ipcValue),cFormat)
                     cTargetString = TRIM(cTargetString)
                     NO-ERROR.
+            ELSE IF cFormatType EQ "TIME" THEN
+                RUN Format_Time IN hdFormatProcs (
+                    INPUT  INTEGER(ipcValue),
+                    INPUT  cFormat,
+                    OUTPUT cTargetString
+                    ) NO-ERROR.
+            ELSE IF cFormatType EQ "MTIME" THEN
+                RUN Format_MTime IN hdFormatProcs (
+                    INPUT  INTEGER(ipcValue),
+                    INPUT  cFormat,
+                    OUTPUT cTargetString
+                    ) NO-ERROR.
             ELSE IF cFormatType EQ "DATE" THEN
                 RUN Format_DateTimeTZ IN hdFormatProcs (
                     INPUT  DATETIME-TZ(ipcValue),
