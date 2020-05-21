@@ -52,8 +52,8 @@ DEFINE VARIABLE cRequestTypeAPI           AS CHARACTER NO-UNDO INITIAL "API".
 DEFINE VARIABLE cRequestTypeFTP           AS CHARACTER NO-UNDO INITIAL "FTP".
 DEFINE VARIABLE cRequestTypeSAVE          AS CHARACTER NO-UNDO INITIAL "SAVE".
 DEFINE VARIABLE cLocValidationExceptions  AS CHARACTER NO-UNDO INITIAL "SendAdvancedShipNotice,SendFinishedGood". /* Should be comma (,) separated. loc.isAPIEnabled will not be validated for APIs in the list */
-DEFINE VARIABLE cScopeTypeList            AS CHARACTER NO-UNDO INITIAL "Customer,Vendor,ShipTo".
-
+DEFINE VARIABLE cScopeTypeList            AS CHARACTER NO-UNDO INITIAL "_ANY_,Customer,Vendor,ShipTo".
+DEFINE VARIABLE cAPIClientXrefAny         AS CHARACTER NO-UNDO INITIAL "_ANY_".
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -134,6 +134,29 @@ PROCEDURE Outbound_CopyAPIDependencies:
                 bf-Target-APIOutboundTrigger.apiOutboundID = bf-Target-APIOutbound.apiOutboundID
                 .
         END.
+    END.
+END PROCEDURE.
+
+PROCEDURE Outbound_CreateAPIClient:
+/*------------------------------------------------------------------------------
+ Purpose: Creates an apiClient record for given inputs
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientID AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-apiClient FOR apiClient.
+    
+    FIND FIRST bf-apiClient NO-LOCK
+         WHERE bf-apiClient.company  EQ ipcCompany
+           AND bf-apiClient.clientID EQ ipcClientID
+         NO-ERROR.
+    IF NOT AVAILABLE bf-apiClient THEN DO:
+        CREATE bf-apiClient.
+        ASSIGN
+            bf-apiClient.company  = ipcCompany
+            bf-apiClient.clientID = ipcClientID
+            .
     END.
 END PROCEDURE.
 
@@ -237,38 +260,6 @@ PROCEDURE Outbound_GetAPITriggerID:
             .
 END PROCEDURE.
 
-PROCEDURE Outbound_GetClientIDForScope:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcScopeID   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcScopeType AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplFound     AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcClientID  AS CHARACTER NO-UNDO.
-    
-    DEFINE BUFFER bf-apiClientXref FOR apiClientXref.
-    DEFINE BUFFER bf-apiClient     FOR apiClient.
-     
-    FIND FIRST bf-apiClientXref NO-LOCK
-         WHERE bf-apiClientXref.company   EQ ipcCompany
-           AND bf-apiClientXref.scopeID   EQ ipcScopeID
-           AND bf-apiClientXref.scopeType EQ ipcScopeType
-         NO-ERROR.
-    IF AVAILABLE bf-apiClientXref THEN DO:
-        FIND FIRST bf-apiClient NO-LOCK
-             WHERE bf-apiClient.company  EQ bf-apiClientXref.company
-               AND bf-apiClient.clientID EQ bf-apiClientXref.clientID
-             NO-ERROR.
-        IF AVAILABLE bf-apiClient THEN
-            ASSIGN
-                oplFound    = TRUE
-                opcClientID = bf-apiClient.clientID
-                .
-    END.
-END PROCEDURE.
-
 PROCEDURE Outbound_GetRequestTypeList:
 /*------------------------------------------------------------------------------
  Purpose: Returns the comma separated list of outbound request types
@@ -328,40 +319,70 @@ PROCEDURE Outbound_PrepareAndExecuteForScope:
     DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER bf-apiClientXref FOR apiClientXref.
-    DEFINE BUFFER bf-apiClient     FOR apiClient.
-     
-    FOR EACH bf-apiClientXref NO-LOCK
-        WHERE bf-apiClientXref.company   EQ ipcCompany
-          AND bf-apiClientXref.scopeID   EQ ipcScopeID
-          AND bf-apiClientXref.scopeType EQ ipcScopeType:
+    DEFINE VARIABLE lScopeActive AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-APIOutbound        FOR APIOutbound.
+    DEFINE BUFFER bf-APIOutboundTrigger FOR APIOutboundTrigger.
+    DEFINE BUFFER bf-apiClient          FOR apiClient.
+    
+    /* The following code will be executed if it is a fresh (NOT re-triggered) API call */
+    FOR EACH bf-APIOutbound NO-LOCK
+       WHERE bf-APIOutbound.company EQ ipcCompany
+         AND bf-APIOutbound.apiID   EQ ipcAPIID:
+        IF bf-APIOutbound.Inactive THEN
+            NEXT.
+
+        FIND FIRST bf-APIOutboundTrigger NO-LOCK
+             WHERE bf-APIOutboundTrigger.apiOutboundID EQ bf-APIOutbound.apiOutboundID
+               AND bf-APIOutboundTrigger.triggerID     EQ ipcTriggerID
+               AND bf-APIOutboundtrigger.Inactive      EQ FALSE
+             NO-ERROR.
+        IF NOT AVAILABLE bf-APIOutboundTrigger THEN
+            NEXT.
+        
         FIND FIRST bf-apiClient NO-LOCK
-             WHERE bf-apiClient.company  EQ bf-apiClientXref.company
-               AND bf-apiClient.clientID EQ bf-apiClientXref.clientID
+             WHERE bf-apiClient.company  EQ bf-APIOutbound.company
+               AND bf-apiClient.clientID EQ bf-APIOutbound.clientID
              NO-ERROR.
         IF AVAILABLE bf-apiClient THEN DO:
-            RUN pPrepareAndExecute (
-                INPUT  ipcCompany,
+            RUN pIsScopeActive (
+                INPUT  bf-apiClient.company,
                 INPUT  ipcLocation,
                 INPUT  ipcAPIID,
                 INPUT  bf-apiClient.clientID,
                 INPUT  ipcTriggerID,
-                INPUT  ipcTableList,
-                INPUT  ipcROWIDList,
-                INPUT  ipcPrimaryID,
-                INPUT  ipcEventDescription,
-                INPUT  FALSE, /* Re-Trigger request */
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ) NO-ERROR.
-        
-            IF ERROR-STATUS:ERROR THEN DO:
-                ASSIGN
-                    oplSuccess = FALSE
-                    opcMessage = ERROR-STATUS:GET-MESSAGE(1)
-                    .
-                RETURN.
-            END.            
+                INPUT  ipcScopeID,
+                INPUT  ipcScopeType,
+                OUTPUT lScopeActive
+                ).
+
+            IF NOT lScopeActive THEN
+                NEXT.
+
+            IF AVAILABLE bf-apiClient THEN DO:
+                RUN pPrepareAndExecute (
+                    INPUT  ipcCompany,
+                    INPUT  ipcLocation,
+                    INPUT  ipcAPIID,
+                    INPUT  bf-apiClient.clientID,
+                    INPUT  ipcTriggerID,
+                    INPUT  ipcTableList,
+                    INPUT  ipcROWIDList,
+                    INPUT  ipcPrimaryID,
+                    INPUT  ipcEventDescription,
+                    INPUT  FALSE, /* Re-Trigger request */
+                    OUTPUT oplSuccess,
+                    OUTPUT opcMessage
+                    ) NO-ERROR.
+            
+                IF ERROR-STATUS:ERROR THEN DO:
+                    ASSIGN
+                        oplSuccess = FALSE
+                        opcMessage = ERROR-STATUS:GET-MESSAGE(1)
+                        .
+                    RETURN.
+                END.            
+            END.             
         END.
     END.
     
@@ -579,6 +600,43 @@ PROCEDURE Outbound_ValidateClientID:
             . 
 END PROCEDURE.
 
+PROCEDURE pGetApiClientXrefStatus PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Return apiClientXref records inactive flag status
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTriggerID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeType   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplRecFound    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplScopeActive AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-apiClientXref FOR apiClientXref.
+    
+    /* Verify if a record is available for just the given inputs
+       and return the inactive flag */
+    FIND FIRST bf-apiClientXref NO-LOCK
+         WHERE bf-apiClientXref.company   EQ ipcCompany
+           AND bf-apiClientXref.apiID     EQ ipcAPIID
+           AND bf-apiClientXref.clientID  EQ ipcClientID
+           AND bf-apiClientXref.scopeID   EQ ipcScopeID
+           AND bf-apiClientXref.scopeType EQ ipcScopeType
+           AND bf-apiClientXref.triggerID EQ ipcTriggerID
+         NO-ERROR.
+    IF AVAILABLE bf-apiClientXref THEN DO:
+        ASSIGN
+            oplRecFound    = TRUE
+            oplScopeActive = NOT bf-apiClientXref.inactive
+            .
+        RETURN.
+    END.
+
+END PROCEDURE.
+
 PROCEDURE pInitializeRequest PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Initial procedure to validate and save input data into temp-table
@@ -664,6 +722,117 @@ PROCEDURE pInitializeRequest PRIVATE:
         oplSuccess = TRUE
         opcMessage = "Success"
         .
+END PROCEDURE.
+
+PROCEDURE pIsScopeActive PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: For the given inputs, returns if a logical value to allow or skip
+          api call 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTriggerID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeType   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplScopeActive AS LOGICAL   NO-UNDO.
+
+    DEFINE VARIABLE cScopeID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScopeType AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTriggerID AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iRule      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iNumRules  AS INTEGER   NO-UNDO INITIAL 8.
+    
+    DO iRule = 1 TO iNumRules:
+        /* All the rules below are prioritized to find the record with 
+           most matching input values. Scope ID is given the top priority
+           and, then trigger and scopeType */
+        /* Verify if a record is available and return inactive flag status,
+           for just the given inputs */
+        IF iRule EQ 1 THEN
+            ASSIGN
+                cScopeID   = ipcScopeID
+                cScopeType = ipcScopeType
+                cTriggerID = ipcTriggerID
+                .
+        /* Verify if a record is available and return inactive flag status,
+           for given scopeID, scopeType and for all ("_ALL_") the triggers */
+        ELSE IF iRule EQ 2 THEN
+            ASSIGN
+                cScopeID   = ipcScopeID
+                cScopeType = ipcScopeType
+                cTriggerID = cAPIClientXrefAny
+                .
+        /* Verify if a record is available and return inactive flag status,
+           for given scopeID, triggerID, for all ("_ALL_") the scopeTypes */
+        ELSE IF iRule EQ 3 THEN
+            ASSIGN
+                cScopeID   = ipcScopeID
+                cScopeType = cAPIClientXrefAny
+                cTriggerID = ipcTriggerID
+                .
+        /* Verify if a record is available  and return inactive flag status,
+           for given scopeID, for all ("_ALL_")  the scopeTypes, and for all
+           the triggers */
+        ELSE IF iRule EQ 4 THEN
+            ASSIGN
+                cScopeID   = ipcScopeID
+                cScopeType = cAPIClientXrefAny
+                cTriggerID = cAPIClientXrefAny
+                .
+        /* Verify if a record is available  and return inactive flag status,
+           for all scopeIDs, input scopeType and input trigger ID*/
+        ELSE IF iRule EQ 5 THEN
+            ASSIGN
+                cScopeID   = cAPIClientXrefAny
+                cScopeType = ipcScopeType
+                cTriggerID = ipcTriggerID
+                .
+        /* Verify if a record is available and return inactive flag status
+           for all scopeIDs, and input scopeType and for all triggers*/
+        ELSE IF iRule EQ 6 THEN
+            ASSIGN
+                cScopeID   = cAPIClientXrefAny
+                cScopeType = ipcScopeType
+                cTriggerID = cAPIClientXrefAny
+                .
+        /* Verify if a record is available and return inactive flag status
+           for all scopeIDs, for all scopeType and input triggerID*/
+        ELSE IF iRule EQ 7 THEN
+            ASSIGN
+                cScopeID   = cAPIClientXrefAny
+                cScopeType = cAPIClientXrefAny
+                cTriggerID = ipcTriggerID
+                .
+        /* Verify if a record is available and return inactive flag status
+           for all scopeIDs, for all scopeType and for all triggers. If a 
+           record is not found at this point no api call should be made for
+           the input scope */
+        ELSE IF iRule EQ 8 THEN
+            ASSIGN
+                cScopeID   = cAPIClientXrefAny
+                cScopeType = cAPIClientXrefAny
+                cTriggerID = cAPIClientXrefAny
+                .
+
+        RUN pGetApiClientXrefStatus (
+            INPUT  ipcCompany,
+            INPUT  ipcLocation,
+            INPUT  ipcAPIID,
+            INPUT  ipcClientID,
+            INPUT  cTriggerID,
+            INPUT  cScopeID,
+            INPUT  cScopeType,
+            OUTPUT lRecFound,
+            OUTPUT oplScopeActive
+            ).
+
+        IF lRecFound THEN
+            RETURN.
+    END.  
 END PROCEDURE.
 
 PROCEDURE pPopulateRequestData PRIVATE:

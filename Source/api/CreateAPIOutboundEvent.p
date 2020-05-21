@@ -21,8 +21,6 @@ DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE gcRequestFile  AS CHARACTER NO-UNDO.
 
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
-
 FIND FIRST APIOutboundEvent EXCLUSIVE-LOCK
      WHERE APIOutboundEvent.apiOutboundEventID EQ ipiOutboundEventID
      NO-ERROR.
@@ -86,8 +84,11 @@ FIND FIRST APIOutbound NO-LOCK
        AND APIOutbound.clientID EQ ipcClientID
        AND NOT APIOutbound.Inactive
      NO-ERROR.
-IF AVAILABLE APIOutbound AND APIOutbound.SaveFile THEN DO:
-    RUN FileSys_CreateDirectory IN hdFileSysProcs (
+IF NOT AVAILABLE APIOutbound THEN
+    RETURN.
+
+IF APIOutbound.SaveFile THEN DO:
+    RUN FileSys_CreateDirectory (
         INPUT  APIOutbound.SaveFileFolder,
         OUTPUT lSuccess,
         OUTPUT cMessage
@@ -98,6 +99,16 @@ IF AVAILABLE APIOutbound AND APIOutbound.SaveFile THEN DO:
         OS-COPY VALUE (gcRequestFile) VALUE (APIOutbound.saveFileFolder).
         OS-DELETE VALUE(gcRequestFile).
     END.    
-END. 
-IF VALID-HANDLE(hdFileSysProcs) THEN
-    DELETE PROCEDURE hdFileSysProcs. 
+END.
+
+FIND CURRENT APIOutbound EXCLUSIVE-LOCK 
+    NO-ERROR.
+IF AVAILABLE APIOutbound THEN
+    APIOutbound.transactionCounter = APIOutbound.transactionCounter + 1.
+
+FIND FIRST apiClient EXCLUSIVE-LOCK
+     WHERE apiClient.company  EQ ipcCompany
+       AND apiClient.clientID EQ ipcClientID
+     NO-ERROR.
+IF AVAILABLE apiClient THEN
+     apiClient.transactionCounter = apiClient.transactionCounter + 1.
