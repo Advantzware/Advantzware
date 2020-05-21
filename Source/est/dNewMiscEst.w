@@ -2560,7 +2560,7 @@ PROCEDURE valid-est-no :
             AND b-est.est-no   EQ b-eb.est-no
             AND b-est.estimateTypeID EQ "MISC")  THEN 
         DO:
-            MESSAGE "Misc Estimates Exist for this Source Estimate.  Estimates #" trim(b-eb.est-no) "already exist,  Continue?" 
+            MESSAGE "Estimate #" trim(b-eb.est-no) " already exists for this source estimate,  Continue?" 
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
             IF NOT ll-ans THEN do:  
                 APPLY "entry" TO cSEst .
