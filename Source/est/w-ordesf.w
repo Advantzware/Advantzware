@@ -135,6 +135,8 @@ DEFINE VARIABLE h_vp-est AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-qtest AS HANDLE NO-UNDO.
 DEFINE VARIABLE sh_v-naveb-3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vendcostmtx AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_q-est3 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vi-est3 AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -454,11 +456,11 @@ PROCEDURE adm-create-objects :
     END. /* Page 4 */
     WHEN 5 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'est/vi-est-.w':U ,
+             INPUT  'est/vi-est3.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
-             OUTPUT h_vi-est-2 ).
-       RUN set-position IN h_vi-est-2 ( 2.67 , 3.00 ) NO-ERROR.
+             OUTPUT h_vi-est3 ).
+       RUN set-position IN h_vi-est3 ( 2.67 , 3.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 146.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -488,27 +490,27 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.43 , 42.00 ) */
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('12':U) NO-ERROR.
 
-       /* Links to SmartViewer h_vi-est-2. */
-       RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_vi-est-2 ).
+       /* Links to SmartViewer h_vi-est3. */
+       RUN add-link IN adm-broker-hdl ( h_q-est3 , 'Record':U , h_vi-est3 ).
 
        /* Links to SmartViewer h_v-est3. */
-       RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_v-est3 ).
        RUN add-link IN adm-broker-hdl ( h_p-inkpak , 'TableIO':U , h_v-est3 ).
+       RUN add-link IN adm-broker-hdl ( h_q-est3 , 'Record':U , h_v-est3 ).        
 
        /* Links to SmartViewer sh_v-naveb-3. */
-       RUN add-link IN adm-broker-hdl ( h_b-estitm , 'nav-itm':U , sh_v-naveb-3 ).
+       RUN add-link IN adm-broker-hdl ( h_q-est3 , 'nav-itm':U , sh_v-naveb-3 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_vi-est-2 ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_vi-est3 ,
              h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-est3 ,
-             h_vi-est-2 , 'AFTER':U ).
+             h_vi-est3 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-inkpak ,
              h_v-est3 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( sh_v-naveb-3 ,
-             h_p-inkpak , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-inkpak ,
+             sh_v-naveb-3 , 'AFTER':U ).
     END. /* Page 5 */
     WHEN 6 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -881,6 +883,24 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_pricechg ,
              h_p-updven , 'AFTER':U ).
     END. /* Page 11 */
+    WHEN 12 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'est/q-est3.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_q-est3 ).
+       RUN set-position IN h_q-est3 ( 5.52 , 7.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.86 , 10.80 ) */
+
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+
+       /* Links to SmartQuery h_q-est3. */
+       RUN add-link IN adm-broker-hdl ( h_b-estitm , 'form-blank':U , h_q-est3 ).
+       RUN add-link IN adm-broker-hdl ( h_q-ordest , 'Record':U , h_q-est3 ).
+
+       /* Adjust the tab order of the smart objects. */
+    END. /* Page 12 */
 
   END CASE.
   /* Select a Startup page. */
