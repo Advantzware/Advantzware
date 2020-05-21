@@ -135,9 +135,9 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
      fi_blank-qty AT ROW 1.71 COL 101 COLON-ALIGNED NO-LABEL
-     eb.part-no AT ROW 1.71 COL 124 COLON-ALIGNED
+     eb.part-no AT ROW 1.71 COL 122 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 20 BY 1
+          SIZE 22 BY 1
      RECT-1 AT ROW 1.24 COL 1
      "Reference Information" VIEW-AS TEXT
           SIZE 22 BY .62 AT ROW 1 COL 3
