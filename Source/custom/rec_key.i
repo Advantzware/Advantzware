@@ -15,3 +15,5 @@ ELSE DO:
                 .
     RUN custom/RecKeyLog.p ("{1}").
 END. /* else */
+/* Resolves hanging EXCLUSIVE lock issue whenever a record is created */
+FIND CURRENT rec_key NO-LOCK NO-ERROR.
