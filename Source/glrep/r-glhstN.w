@@ -62,7 +62,7 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 ASSIGN cTextListToSelect = "Account Number,Account Description,Run #,Journal," +
                            "Reference,AP Description,Date,Amount,Balance"
        cFieldListToSelect = "actnum,actdesc,run,jour," + "ref,ap-desc,date,amt,bal" 
-       cFieldLength = "14,40,8,8," + "52,30,10,15,19"
+       cFieldLength = "25,40,8,8," + "52,30,10,15,19"
        cFieldType   = "c,c,i,i," + "c,c,c,i,i"
        .
 ASSIGN cTextListToDefault  = "Account Number,Account Description,Run #,Journal," +
@@ -1505,7 +1505,7 @@ SESSION:SET-WAIT-STATE ("general").
        cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
 
             CASE cTmpField:               
-                 WHEN "actnum"  THEN cVarValue = STRING(account.actnum) . 
+                 WHEN "actnum"  THEN cVarValue = STRING(account.actnum,"x(25)") . 
                  WHEN "actdesc" THEN cVarValue = STRING(account.dscr) .
                  WHEN "ap-desc" THEN cVarValue =  "" .
                  WHEN "run"     THEN cVarValue = /*STRING(v-cust-no)*/ "".
