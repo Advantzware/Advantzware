@@ -584,7 +584,7 @@ PROCEDURE genOrderLines:
         oe-ordl.i-no      = itemManufacturerPartID
         oe-ordl.part-no   = TRIM(itemSupplierPartID)
         oe-ordl.qty       = DEC(itemQuantity)
-        oe-ordl.pr-uom    = itemUnitOfMeasure
+        oe-ordl.pr-uom    = TRIM(itemUnitOfMeasure)
         oe-ordl.price     = DEC(itemMoney)
         oe-ordl.est-no    = oe-ord.est-no
         oe-ordl.q-qty     = oe-ord.t-fuel
@@ -613,39 +613,17 @@ PROCEDURE genOrderLines:
         oe-ordl.part-dscr2 = itemfg.part-dscr2 
         .
 
-      IF oe-ordl.pr-uom NE "EA" THEN DO:
-        ASSIGN 
-          oe-ordl.spare-dec-1 = oe-ordl.qty
-          oe-ordl.spare-char-2 = oe-ordl.pr-uom
-          //oe-ordl.t-price = oe-ordl.spare-dec-1 * oe-ordl.price
-          //oe-ordl.pr-uom = (IF LOOKUP(oe-ordl.pr-uom, cCaseUOMList) GT 0 THEN "CS" ELSE oe-ordl.pr-uom)
-          .
-        RUN Conv_QtyToEA(oe-ordl.company, oe-ordl.i-no, oe-ordl.qty, oe-ordl.pr-uom, 0, OUTPUT oe-ordl.qty).
-        RUN Conv_CalcTotalPrice(oe-ordl.company, 
-                                oe-ordl.i-no,
-                                oe-ordl.qty,
-                                oe-ordl.price,
-                                oe-ordl.pr-uom,
-                                oe-ordl.disc,
-                                oe-ordl.cas-cnt,    
-                                OUTPUT oe-ordl.t-price).
-/*        IF oe-ordl.pr-uom EQ "CS" THEN                                     */
-/*            oe-ordl.qty = oe-ordl.qty * itemfg.case-count.                 */
-/*        ELSE IF oe-ordl.pr-uom EQ "C" THEN oe-ordl.qty = oe-ordl.qty * 100.*/
-/*        ELSE DO:                                                           */
-/*           FIND FIRST uom NO-LOCK                                          */
-/*            WHERE uom.uom EQ oe-ordl.pr-uom NO-ERROR.                      */
-/*            IF AVAILABLE uom AND uom.mult NE 0 AND uom.Other EQ "EA" THEN  */
-/*                dMultiplier = uom.mult.                                    */
-/*            ELSE                                                           */
-/*                dMultiplier = 1.                                           */
-/*            IF NOT AVAIL uom THEN                                          */
-/*                dMultiplier = 1000.  /* original default */                */
-/*            oe-ordl.qty = oe-ordl.qty * dMultiplier.                       */
-/*        END.                                                               */
-      END.
+      IF oe-ordl.pr-uom NE "EA" THEN DO:  /*This assumes the qty uom is the same as the price uom on imported orders*/
+            ASSIGN 
+                oe-ordl.spare-dec-1 = oe-ordl.qty
+                oe-ordl.spare-char-2 = oe-ordl.pr-uom
+                oe-ordl.t-price = oe-ordl.spare-dec-1 * oe-ordl.price
+                oe-ordl.pr-uom = (IF LOOKUP(oe-ordl.pr-uom, cCaseUOMList) GT 0 THEN "CS" ELSE oe-ordl.pr-uom)
+                .
+            RUN Conv_QtyToEA(oe-ordl.company, oe-ordl.i-no, oe-ordl.qty, oe-ordl.pr-uom, itemfg.case-count, OUTPUT oe-ordl.qty).
+      END. /*oe-ordl.pr-uom ne "EA"*/
       ELSE 
-      oe-ordl.t-price = oe-ordl.qty * oe-ordl.price.
+         oe-ordl.t-price = oe-ordl.qty * oe-ordl.price.
        
       oe-ordl.cas-cnt = IF oe-ordl.qty LT itemfg.case-count THEN oe-ordl.qty ELSE itemfg.case-count.
       /* {oe/defwhsed.i oe-ordl} */

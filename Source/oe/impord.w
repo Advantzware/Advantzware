@@ -143,8 +143,8 @@ v-create-job = IF AVAIL sys-ctrl THEN sys-ctrl.log-fld ELSE NO.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 RECT-19 fcFileName cXMLImport ~
-btn-process btn-cancel 
+&Scoped-Define ENABLED-OBJECTS RECT-17 RECT-19 fcFileName btn-process ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS fcFileName fcMessage 
 
 /* Custom List Definitions                                              */
@@ -261,6 +261,11 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+/* SETTINGS FOR BUTTON cXMLImport IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       cXMLImport:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 ASSIGN 
        fcFileName:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -1172,7 +1177,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fcFileName fcMessage 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 RECT-19 fcFileName cXMLImport btn-process btn-cancel 
+  ENABLE RECT-17 RECT-19 fcFileName btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1221,8 +1226,6 @@ PROCEDURE ImportOrder :
    END.
 
    RUN createOrder.
-
-   RUN cXMLOrder. /*05291402 */
 
 END PROCEDURE.
 
