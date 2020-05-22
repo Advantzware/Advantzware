@@ -75,7 +75,7 @@ ASSIGN cTextListToSelect = "Cust#,Name,BOL#,C/R,INV Date,Order#,Inv#," +
                            "QTY Shipped/M,Sq Ft,Total Sq Ft,$/MSF,Prod,Inv Amount,Order Item Name,Job#"
        cFieldListToSelect = "cust,name,bol,ct,inv-date,ord,inv," +
                             "qty-ship,sqft,tot-sqt,msf,prod-code,inv-amt,i-name,job-no"
-       cFieldLength = "8,30,6,3,8,7,7," + "13,9,11,10,5,14,30,9"
+       cFieldLength = "8,30,7,3,8,7,7," + "13,9,11,10,5,14,30,9"
        cFieldType = "c,c,i,c,c,i,i," + "i,i,i,i,c,i,c,c" 
     .
 
@@ -1645,7 +1645,7 @@ FOR EACH ttCustList
         assign
          v-amt    = ar-invl.amt
          v-qty    = ar-invl.inv-qty / 1000
-         v-sq-ft  = ar-invl.amt-msf * 1000 / ar-invl.ship-qty
+         v-sq-ft  = 0
          v-procat = "MISC"
          cItemName = ar-invl.i-name.
 
@@ -1658,8 +1658,8 @@ FOR EACH ttCustList
                 no-lock no-error.
           if avail itemfg then do:
             v-procat = itemfg.procat.
-            cItemName = itemfg.i-name.
-            if v-sq-ft eq 0 then v-sq-ft = itemfg.t-sqft.
+            cItemName = itemfg.i-name.            
+            RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT v-sq-ft).
           end.
 
           else do:
@@ -1713,9 +1713,12 @@ FOR EACH ttCustList
               where itemfg.company eq cocode
                 and itemfg.i-no    eq oe-retl.i-no
               no-lock no-error.
+              
+          IF AVAIL itemfg THEN
+           RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT v-sq-ft).
+          ELSE v-sq-ft = 0.
 
-          assign
-           v-sq-ft      = if avail itemfg then itemfg.t-sqft else 0
+          ASSIGN           
            v-qty        = oe-retl.tot-qty-return / 1000
            v-tot-sf-sht = oe-retl.tot-qty-return * v-sq-ft
 
@@ -1778,7 +1781,7 @@ FOR EACH ttCustList
                     CASE cTmpField:             
                          WHEN "cust"    THEN cVarValue = string(w-data.w-cust-no,"x(8)") .
                          WHEN "name"   THEN cVarValue = string(cust.name,"x(30)").
-                         WHEN "bol"   THEN cVarValue = STRING(w-data.w-bol-no,">>>>>>").
+                         WHEN "bol"   THEN cVarValue = STRING(w-data.w-bol-no,">>>>>>>").
                          WHEN "ct"  THEN cVarValue = STRING(cust.cr-rating,"x(3)") .
                          WHEN "inv-date"   THEN cVarValue = STRING(w-data.w-inv-date,"99/99/99") .
                          WHEN "ord"  THEN cVarValue = STRING(w-data.w-ord-no,">>>>>>>") .
