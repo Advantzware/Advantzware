@@ -1233,7 +1233,6 @@ PROCEDURE pAddInk PRIVATE:
         END.
         ASSIGN 
             ttInk.dCoveragePercent     = ttInk.dCoveragePercent + (ipdCoveragePercent / 100)
-            ttInk.dQtyRequiredPerBlank = ttInk.dCoveragePercent * ipbf-estCostBlank.blankAreaNetWindow / ttInk.dCoverageRate
             .             
         IF ttInk.cMaterialType EQ "I" THEN 
             ttInk.iCountInks = ttInk.iCountInks + 1.
@@ -2588,7 +2587,7 @@ PROCEDURE pConvertQuantityFromUOMToUOM PRIVATE:
     DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFromUOM AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcToUOM AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdBasisWeight AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdBasisWeightInLbsPerMSF AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipdLength AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipdWidth AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipdDepth AS DECIMAL NO-UNDO.
@@ -2599,12 +2598,12 @@ PROCEDURE pConvertQuantityFromUOMToUOM PRIVATE:
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
 
-    /*RUN Conv_QuantityFromUOMtoUOM(ipcCompany, ipcItemID, ipcItemType,                      */
-    /*                            ipdQuantityInFromUOM, ipcFromUOM, ipcToUOM,                */
-    /*                            ipdBasisWeight, ipdLength, ipdWidth, ipdDepth, 0,          */
-    /*                            OUTPUT opdQuantityInToUOM, OUTPUT lError, OUTPUT cMessage).*/
-    /*IF lError THEN                                                                         */
-    RUN custom/convquom.p (ipcCompany, ipcFromUOM, ipcToUOM, ipdBasisWeight, ipdLength, ipdWidth, ipdDepth, ipdQuantityInFromUOM, OUTPUT opdQuantityInToUOM).
+    RUN Conv_QuantityFromUOMtoUOM(ipcCompany, ipcItemID, ipcItemType,
+                                ipdQuantityInFromUOM, ipcFromUOM, ipcToUOM,
+                                ipdBasisWeightInLbsPerMSF, ipdLength, ipdWidth, ipdDepth, 0,
+                                OUTPUT opdQuantityInToUOM, OUTPUT lError, OUTPUT cMessage).
+    IF lError THEN
+        RUN custom/convquom.p (ipcCompany, ipcFromUOM, ipcToUOM, ipdBasisWeightInLbsPerMSF, ipdLength, ipdWidth, ipdDepth, ipdQuantityInFromUOM, OUTPUT opdQuantityInToUOM).
     
 END PROCEDURE.
 
@@ -3476,6 +3475,7 @@ PROCEDURE pProcessInk PRIVATE:
         
     ASSIGN    
         bf-estCostMaterial.addToWeightNet             = YES
+        ipbf-ttInk.dQtyRequiredPerBlank               = ipbf-ttInk.dCoveragePercent * ipbf-estCostBlank.blankAreaNetWindow / ipbf-ttInk.dCoverageRate
         dQtyRequiredPerForm                           = ipbf-estCostBlank.numOut * ipbf-ttInk.dQtyRequiredPerBlank
         bf-estCostMaterial.quantityRequiredNoWaste    = ipbf-estCostOperation.quantityInNoWaste * dQtyRequiredPerForm
         bf-estCostMaterial.quantityRequiredRunWaste   = ipbf-estCostOperation.quantityInRunWaste * dQtyRequiredPerForm
@@ -3514,6 +3514,7 @@ PROCEDURE pProcessLeaf PRIVATE:
         bf-estCostMaterial.quantityRequiredRunWaste   = ipbf-estCostOperation.quantityInRunWaste * ipdQtyRequiredPerFeed
         bf-estCostMaterial.quantityRequiredSetupWaste = ipbf-estCostOperation.quantityInSetupWaste * ipdQtyRequiredPerFeed
         bf-estCostMaterial.quantityUOM                = ipbf-ttLeaf.cQtyUOM
+        bf-estCostMaterial.basisWeight                = 144000 / ipbf-ttLeaf.dCoverageRate
         .             
 
     RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm).
