@@ -1,8 +1,0 @@
-main_program,main_program_val,sub_program,sub_program_val
-"Order Entry","order_estimate.aspx","List Order","order_estimate.aspx"
-"Corrugated Estimate","corrugated_brow.aspx","List Estimate","corrugated_brow.aspx"
-"Folding Estimate","fold_estimate.aspx","List Estimate","fold_estimate.aspx"
-"ArInvoice Inquiry","Arinvoice.aspx","List Invoice","Arinvoice.aspx"
-"ArBol","Arbol.aspx","Bol","Arbol.aspx"
-"Order Inquiry","order_inquiry.aspx","List Order","order_inquiry.aspx"
-"Purchase Order","Brwslist_po.aspx","List Purchase","Brwslist_po.aspx"

@@ -1,8 +1,0 @@
-&1 The name of the Control
-&2 The name of the BindingSource Column to bind to
-&3 The appearance variable name
-&4 The X coordinate of the Control
-&5 The Y coordinate of the Control
-&6 The TabIndex of the Control
-&7 The Numeric Type of the Control (Double/Integer)
-&8 Additional Settings

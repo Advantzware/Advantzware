@@ -1,4 +1,0 @@
-D:\webapps\projectasinet\projectasinet\bin\projectasinet.pdb
-D:\webapps\projectasinet\projectasinet\obj\Release\ResolveAssemblyReference.cache
-D:\webapps\projectasinet\projectasinet\obj\Release\projectasinet.dll
-D:\webapps\projectasinet\projectasinet\obj\Release\projectasinet.pdb

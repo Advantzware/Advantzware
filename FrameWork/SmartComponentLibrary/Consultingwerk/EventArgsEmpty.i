@@ -1,1 +1,0 @@
-CAST (Consultingwerk.EventArgs:Empty, Consultingwerk.EventArgs)

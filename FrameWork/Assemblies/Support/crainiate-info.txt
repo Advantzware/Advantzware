@@ -1,8 +1,0 @@
-The Crainiate assemblies are the foundation of the graphical business entity 
-designer of the SmartComponent Library. Crainiate is a 3rd party assembly 
-vendor. Please be aware that Consultingwerk provides these assemblies for 
-executing the business entity designer only. You are not licensed to build 
-and deploy you own applications based on the Crainiate assemblies unless you 
-otain the required license from Crainiate!
-
-For further information, please contact the vendor of the Crainiate controls.

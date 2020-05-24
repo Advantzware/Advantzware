@@ -1,3 +1,0 @@
-/* pDowntimeSpan.i */
-
-/* static version */
