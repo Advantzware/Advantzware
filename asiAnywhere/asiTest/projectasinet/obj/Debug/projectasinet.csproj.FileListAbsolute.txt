@@ -1,9 +1,0 @@
-D:\webapps\projectasinet\projectasinet\bin\projectasinet.pdb
-D:\webapps\projectasinet\projectasinet\obj\Debug\ResolveAssemblyReference.cache
-D:\webapps\projectasinet\projectasinet\obj\Debug\projectasinet.dll
-D:\webapps\projectasinet\projectasinet\obj\Debug\projectasinet.pdb
-D:\webapps\asitest\projectasinet\bin\projectasinet.pdb
-D:\webapps\asitest\projectasinet\obj\Debug\ResolveAssemblyReference.cache
-D:\webapps\asitest\projectasinet\obj\Debug\projectasinet.dll
-D:\webapps\asitest\projectasinet\obj\Debug\projectasinet.pdb
-D:\webapps\asitest\projectasinet\obj\Debug\projectasinet.csproj.ResolveComReference.cache
