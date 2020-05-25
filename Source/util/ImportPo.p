@@ -21,7 +21,7 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD PoNoGroup               AS CHARACTER
     FIELD vend-no                 AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Vendor #" HELP "Required - Size:1"
     FIELD po-no                   AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "PO #" HELP "Optional - Integer or <AUTO> to auto-number.  Use <AUTO>#### where # is a unique group number. " 
-    FIELD iline                   AS INTEGER FORMAT ">>>" COLUMN-LABEL "Po Line" HELP "Optional - Integer"
+    FIELD iline                   AS INTEGER FORMAT ">>>" COLUMN-LABEL "Po Line" HELP "Required - Integer"
     FIELD due-date                AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Due Date" HELP "Optional - Date"
     FIELD ship-id                 AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Ship ID" HELP "Optional - Size:8"
     FIELD ship-name               AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Ship Name" HELP "Optional - Size:30"
@@ -32,7 +32,7 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD ship-zip                AS CHARACTER FORMAT "xxxxx-xxxx" COLUMN-LABEL "Ship Zip" HELP "Optional - Size:9"
     FIELD carrier                 AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Shipping Carrier" HELP "Optional - Size:5"
     FIELD t-freight               AS DECIMAL FORMAT "->>,>>9.99" COLUMN-LABEL "Total Freight" HELP "Optional - Decimal"
-    FIELD frt-pay                 AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Freight Payment" HELP "Required - P,C or B"
+    FIELD frt-pay                 AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Freight Payment" HELP "Required - P C or B"
     FIELD fob-code                AS CHARACTER   FORMAT "X(10)" COLUMN-LABEL "FOB" HELP "Required - Dest or ORIG"  
     FIELD tax-gr                  AS CHARACTER   FORMAT "x(3)" COLUMN-LABEL "Tax Code" HELP "Optional - Size:3"
     FIELD tax                     AS DECIMAL FORMAT "->,>>>,>>9.99" COLUMN-LABEL "Tax" HELP "Optional - decimal"
@@ -61,7 +61,7 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD linestat                AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Item Status" HELP "Optional - Size:2"
     FIELD printed                 AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Printed" HELP "Optional - Yes Or No(Blank N)"
     FIELD opened                  AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Opened" HELP "Optional - Yes or No (Blank- No)"
-    FIELD type                    AS CHARACTER   FORMAT "x(10)" COLUMN-LABEL "Type" HELP "Required - R,D or S"
+    FIELD type                    AS CHARACTER   FORMAT "x(10)" COLUMN-LABEL "Type" HELP "Required - R D or S"
     FIELD contact                 AS CHARACTER   FORMAT "x(25)" COLUMN-LABEL "Contact" HELP "Optional - Size:25"
     FIELD po-date                 AS CHARACTER   FORMAT "x(10)" COLUMN-LABEL "PO Date" HELP "Optional - Date"
     FIELD last-ship-date          AS CHARACTER   FORMAT "x(10)" COLUMN-LABEL "Last Ship Date" HELP "Optional - Date"
@@ -307,6 +307,13 @@ PROCEDURE pValidate PRIVATE:
                 oplValid = NO
                 opcNote  = "Item Type is Blank(must be FG or RM)".
     END.
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportPo.iline EQ 0 THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Po Line must be greater than 0 ".
+    END.
     
     /*Determine if Add or Update*/ 
     IF oplValid THEN 
@@ -347,7 +354,7 @@ PROCEDURE pValidate PRIVATE:
             END.             
             ELSE
                 ASSIGN
-                    oplValid = NO
+                    oplValid = YES
                     opcNote = "Add record" .
             END. 
         END.
