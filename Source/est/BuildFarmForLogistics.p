@@ -180,6 +180,7 @@ PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
     
     FOR EACH quotehd NO-LOCK
         WHERE quotehd.company  EQ ipbf-eb.company
+        AND (quotehd.q-no EQ iQuoteNo OR iQuoteNo EQ 0) 
         AND quotehd.loc EQ ipbf-eb.loc
         AND quotehd.est-no    EQ cEstNo 
         AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
