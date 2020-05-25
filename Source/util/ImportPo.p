@@ -354,7 +354,7 @@ PROCEDURE pValidate PRIVATE:
             END.             
             ELSE
                 ASSIGN
-                    oplValid = NO
+                    oplValid = YES
                     opcNote = "Add record" .
             END. 
         END.
