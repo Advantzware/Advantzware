@@ -286,13 +286,20 @@ ASSIGN
               BY job-hdr.blank-no:
 
 IF est.est-type = 2 THEN
-    FOR EACH reftable NO-LOCK WHERE reftable.reftable EQ "jc/jc-calc.p"
-        AND reftable.company  EQ job-hdr.company
-        AND reftable.loc      EQ ""
-        AND reftable.code     EQ STRING(job-hdr.job,"999999999"):
+    FOR EACH eb NO-LOCK 
+                  WHERE eb.company EQ est.company
+                    AND eb.est-no EQ est.est-no 
+                    AND eb.form-no NE 0 :
         CREATE tt-reftable.
-        BUFFER-COPY reftable TO tt-reftable.
-        tt-reftable.est-type = est.est-type.
+        ASSIGN
+        tt-reftable.reftable = "jc/jc-calc.p"
+        tt-reftable.company  = job-hdr.company
+        tt-reftable.loc      = ""
+        tt-reftable.CODE     = STRING(job-hdr.job,"999999999")
+        tt-reftable.code2    = job-hdr.i-no
+        tt-reftable.val[12]  = eb.form-no
+        tt-reftable.val[13]  = eb.blank-no
+        tt-reftable.est-type = est.est-type .
     END.
 FIND FIRST tt-reftable WHERE tt-reftable.reftable EQ "jc/jc-calc.p"
     AND tt-reftable.company  EQ job-hdr.company
@@ -319,7 +326,7 @@ END.
 
 {cerep/jobkeyst.i NO-LOCK}
 ,
-EACH tt-reftable WHERE tt-reftable.val[12] EQ job-hdr.frm NO-LOCK
+EACH tt-reftable WHERE (tt-reftable.val[12] EQ job-hdr.frm OR est.est-type EQ 2) NO-LOCK
 BREAK BY job-hdr.job
 BY job-hdr.job-no
 BY job-hdr.job-no2
@@ -694,6 +701,7 @@ FOR EACH ef
                     wrk-ink.i-unit   = b-eb.unitNo[i] 
                     wrk-ink.i-per    = b-eb.i-%2[i]
                     wrk-ink.side     = b-eb.side[i]
+                    wrk-ink.i-seq    = i
                     wrk-ink.Iform    = 1 .
                   END.
                 END.                
@@ -938,7 +946,7 @@ FOR EACH ef
          RUN pPrintHeader(1) .
         
           PUT "<R5><C1><FGCOLOR=GREEN>CUSTOMER                          SHIP TO"            "<P12><C60>Job#: <FGCOLOR=BLACK>"  string(job-hdr.job-no + "-" + string(job-hdr.job-no2,"99")) FORM "x(10)" "<P10>" SKIP
-            v-cust-name            v-shipto[1] AT 35                    "<C60><FGCOLOR=GREEN> CUST PO: <FGCOLOR=BLACK>" (IF job-hdr.po-no NE "" THEN job-hdr.po-no ELSE if avail oe-ord THEN oe-ord.po-no ELSE "")  FORMAT "x(15)"   SKIP          
+            v-cust-name            v-shipto[1] AT 35                    "<C60><FGCOLOR=GREEN> CUST PO: <FGCOLOR=BLACK>" (if avail oe-ord THEN oe-ord.po-no ELSE "")  FORMAT "x(15)"   SKIP          
             v-cus[2]  v-shipto[2] AT 35                                 "<C60><FGCOLOR=GREEN>ORD DATE: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.ord-date) ELSE "")  FORMAT "x(10)"        SKIP
             v-cus[3]  v-shipto[3] AT 35                                 "<C60><FGCOLOR=GREEN>DUE DATE: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.due-date) ELSE "")  FORMAT "x(10)" SKIP
             v-cus[4]  v-shipto[4] AT 35                                 "<C60><FGCOLOR=GREEN>LAST JOB: <FGCOLOR=BLACK>"   v-last-order FORM "X(6)"        SKIP
@@ -1038,10 +1046,12 @@ FOR EACH ef
         FOR EACH wrk-ink WHERE wrk-ink.form-no = eb.form-no
              AND wrk-ink.Iform EQ 1 
             BREAK BY wrk-ink.i-code
+            BY wrk-ink.side
             BY wrk-ink.i-pass
             BY wrk-ink.i-unit
+            
             :
-             IF NOT FIRST-OF(wrk-ink.i-code) THEN 
+             IF NOT FIRST-OF(wrk-ink.side) THEN 
                  DELETE wrk-ink.
              ELSE IF wrk-ink.i-unit = 0 THEN wrk-ink.i-unit = 999 .
         END. /* each wrk-ink */
@@ -1054,7 +1064,7 @@ FOR EACH ef
               IF wrk-ink.i-unit = 999 THEN wrk-ink.i-unit = 0 .
               ASSIGN v-ink1[i] = STRING(wrk-ink.form-no,">9") + "  " + /*"1  " + */
                   STRING(wrk-ink.i-code,"X(11)") + " " + 
-                  string(wrk-ink.i-dscr,"x(30)") + " " + trim(string(wrk-ink.i-per,">>>>%")) + " " + STRING(wrk-ink.i-unit,">>>") + " " + STRING(wrk-ink.side)
+                  string(wrk-ink.i-dscr,"x(30)") + " " + string(wrk-ink.i-per,">>>%") + " " + STRING(wrk-ink.i-unit,">>>") + "  " + STRING(wrk-ink.side)
                   /*v-item[i]*/
                   /*+ (IF i = 1 THEN "  " + eb.plate-no ELSE "") */
                   i         = i + 1         . 
@@ -1064,11 +1074,11 @@ FOR EACH ef
             v-skip          = NO
             v-plate-printed = NO.
         iCount = 1 .
-        PUT "<R-1><FGCOLOR=GREEN>INKS: <FGCOLOR=BLACK>" string(i) FORMAT "x(3)" "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>" string(eb.i-pass) FORMAT "x(3)" "<FGCOLOR=GREEN>COATS: <FGCOLOR=BLACK>"  string(eb.i-coat) FORMAT "x(3)"
+        PUT "<R-1><FGCOLOR=GREEN>INKS: <FGCOLOR=BLACK>" string(i - 1) FORMAT "x(3)" "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>" string(eb.i-pass) FORMAT "x(3)" "<FGCOLOR=GREEN>COATS: <FGCOLOR=BLACK>"  string(eb.i-coat) FORMAT "x(3)"
              "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>"  string(eb.i-coat-p) FORMAT "x(3)"   SKIP
             "<FGCOLOR=GREEN>INK DESCRIPTION:<FGCOLOR=BLACK> "   eb.i-coldscr FORMAT "x(35)" SKIP.
         
-        PUT "<P9><#5>" "<FGCOLOR=GREEN> F  COLORS      DESCRIPTION <C36.2>Per<C40.7>U <C42.5>S <FGCOLOR=BLACK>" SKIP. 
+        PUT "<P9><#5>" "<FGCOLOR=GREEN> F  COLORS      DESCRIPTION <C37.3>Per<C42.2>U <C44.4>S <FGCOLOR=BLACK>" SKIP. 
         DO j = 1 TO 12:
             IF TRIM(v-ink1[j]) = "-" THEN v-ink1[j] = "".               
             IF v-ink1[j] <> "" THEN do:
@@ -1078,7 +1088,7 @@ FOR EACH ef
         END.
        
         PUT SKIP(12 - iCount ) "<R-14>" .
-        PUT "<P10><C44><From><R+14><C44><Line><||6><R-14>" .
+        PUT "<P10><C46><From><R+14><C46><Line><||6><R-14>" .
         v-skip = NO.
                 
              
@@ -1086,13 +1096,13 @@ FOR EACH ef
             WHERE prep.company EQ cocode
               AND prep.CODE EQ cDieNo AND cDieNo NE "" NO-ERROR .
         PUT  SKIP(1)
-            "<FGCOLOR=GREEN><C44> CAD#:<FGCOLOR=BLACK> " eb.cad-no FORM "x(25)"  SKIP
-            "<FGCOLOR=GREEN><C44> PLATES:<FGCOLOR=BLACK> " eb.plate-no FORM "x(25)" /*eb.plate-no*/ SKIP
-            "<FGCOLOR=GREEN><C44> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(2)                 
-            "<FGCOLOR=GREEN><C44> DIE<FGCOLOR=BLACK> " cDieNo FORM "x(25)" /*eb.die-no*/ SKIP
-            "<FGCOLOR=GREEN><C44> DIE DESCR:<FGCOLOR=BLACK> " (IF AVAIL prep THEN prep.dscr ELSE "")  FORMAT "x(35)"   SKIP
-            "<FGCOLOR=GREEN><C44> DIE SIZE:<FGCOLOR=BLACK> " string(ef.trim-w) + "x" + string(ef.trim-l) FORMAT "x(25)" SKIP
-            "<FGCOLOR=GREEN><C44> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(4)                
+            "<FGCOLOR=GREEN><C46> CAD#:<FGCOLOR=BLACK> " eb.cad-no FORM "x(25)"  SKIP
+            "<FGCOLOR=GREEN><C46> PLATES:<FGCOLOR=BLACK> " eb.plate-no FORM "x(25)" /*eb.plate-no*/ SKIP
+            "<FGCOLOR=GREEN><C46> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(2)                 
+            "<FGCOLOR=GREEN><C46> DIE<FGCOLOR=BLACK> " cDieNo FORM "x(25)" /*eb.die-no*/ SKIP
+            "<FGCOLOR=GREEN><C46> DIE DESCR:<FGCOLOR=BLACK> " (IF AVAIL prep THEN prep.dscr ELSE "")  FORMAT "x(35)"   SKIP
+            "<FGCOLOR=GREEN><C46> DIE SIZE:<FGCOLOR=BLACK> " string(ef.trim-w) + "x" + string(ef.trim-l) FORMAT "x(25)" SKIP
+            "<FGCOLOR=GREEN><C46> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(4)                
             "<R-1>" v-fill  SKIP.
          
             lv-line-chars = 80.
@@ -1278,17 +1288,20 @@ FOR EACH ef
             v-ink2 = "".
 
         FOR EACH wrk-ink WHERE wrk-ink.form-no = eb.form-no
+            AND wrk-ink.blank-no EQ eb.blank-no
             AND wrk-ink.Iform EQ 0
             BREAK BY wrk-ink.i-code
+            BY wrk-ink.side
             BY wrk-ink.i-pass
             BY wrk-ink.i-unit
             :
-             IF NOT FIRST-OF(wrk-ink.i-code) THEN 
+             IF NOT FIRST-OF(wrk-ink.side) THEN 
                  DELETE wrk-ink.
              ELSE IF wrk-ink.i-unit = 0 THEN wrk-ink.i-unit = 999 .
         END. /* each wrk-ink */
              
         FOR EACH wrk-ink WHERE wrk-ink.form-no = eb.form-no
+            AND wrk-ink.blank-no EQ eb.blank-no
             AND wrk-ink.Iform EQ 0
             BREAK BY wrk-ink.i-pass
             BY wrk-ink.i-unit
@@ -1296,7 +1309,7 @@ FOR EACH ef
               IF wrk-ink.i-unit = 999 THEN wrk-ink.i-unit = 0 .
               ASSIGN v-ink1[i] = STRING(wrk-ink.form-no,">9") + "  " + /*"1  " + */
                   STRING(wrk-ink.i-code,"X(11)") + " " + 
-                  string(wrk-ink.i-dscr,"x(30)") + " " + trim(string(wrk-ink.i-per,">>>>%")) + " " + STRING(wrk-ink.i-unit,">>>") + " " + STRING(wrk-ink.side)
+                  string(wrk-ink.i-dscr,"x(30)") + " " + string(wrk-ink.i-per,">>>%") + " " + STRING(wrk-ink.i-unit,">>>") + "  " + STRING(wrk-ink.side)
                   /*v-item[i]*/
                   /*+ (IF i = 1 THEN "  " + eb.plate-no ELSE "") */
                   i         = i + 1         . 
@@ -1310,7 +1323,7 @@ FOR EACH ef
              "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>"  string(eb.i-coat-p) FORMAT "x(3)"   SKIP
             "<FGCOLOR=GREEN>INK DESCRIPTION:<FGCOLOR=BLACK> "   eb.i-coldscr FORMAT "x(35)" SKIP.
         
-        PUT "<P9><#5>" "<FGCOLOR=GREEN> F  COLORS      DESCRIPTION <C36.2>Per<C40.7>U <C42.5>S <FGCOLOR=BLACK>" SKIP. 
+        PUT "<P9><#5>" "<FGCOLOR=GREEN> F  COLORS      DESCRIPTION <C37.3>Per<C42.2>U <C44.4>S <FGCOLOR=BLACK>" SKIP. 
         DO j = 1 TO 12:
             IF TRIM(v-ink1[j]) = "-" THEN v-ink1[j] = "".               
             IF v-ink1[j] <> "" THEN do:
@@ -1320,20 +1333,20 @@ FOR EACH ef
         END.
        
         PUT SKIP(12 - iCount ) "<R-14>" .
-        PUT "<P10><C44><From><R+14><C44><Line><||6><R-14>" .
+        PUT "<P10><C46><From><R+14><C46><Line><||6><R-14>" .
         v-skip = NO.
              
         FIND FIRST prep NO-LOCK
             WHERE prep.company EQ cocode
               AND prep.CODE EQ eb.die-no AND eb.die-no NE "" NO-ERROR .
         PUT  SKIP(1)
-            "<FGCOLOR=GREEN><C44> CAD#:<FGCOLOR=BLACK> " eb.cad-no FORM "x(25)"  SKIP
-            "<FGCOLOR=GREEN><C44> PLATES:<FGCOLOR=BLACK> " eb.plate-no FORM "x(25)" /*eb.plate-no*/ SKIP
-            "<FGCOLOR=GREEN><C44> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(2)                 
-            "<FGCOLOR=GREEN><C44> DIE<FGCOLOR=BLACK> " eb.die-no FORM "x(25)"  SKIP
-            "<FGCOLOR=GREEN><C44> DIE DESCR:<FGCOLOR=BLACK> " (IF AVAIL prep THEN prep.dscr ELSE "")  FORMAT "x(35)"   SKIP
-            "<FGCOLOR=GREEN><C44> DIE SIZE:<FGCOLOR=BLACK> " string(ef.trim-w) + "x" + string(ef.trim-l) FORMAT "x(25)" SKIP
-            "<FGCOLOR=GREEN><C44> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(4)                
+            "<FGCOLOR=GREEN><C46> CAD#:<FGCOLOR=BLACK> " eb.cad-no FORM "x(25)"  SKIP
+            "<FGCOLOR=GREEN><C46> PLATES:<FGCOLOR=BLACK> " eb.plate-no FORM "x(25)" /*eb.plate-no*/ SKIP
+            "<FGCOLOR=GREEN><C46> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(2)                 
+            "<FGCOLOR=GREEN><C46> DIE<FGCOLOR=BLACK> " eb.die-no FORM "x(25)"  SKIP
+            "<FGCOLOR=GREEN><C46> DIE DESCR:<FGCOLOR=BLACK> " (IF AVAIL prep THEN prep.dscr ELSE "")  FORMAT "x(35)"   SKIP
+            "<FGCOLOR=GREEN><C46> DIE SIZE:<FGCOLOR=BLACK> " string(ef.trim-w) + "x" + string(ef.trim-l) FORMAT "x(25)" SKIP
+            "<FGCOLOR=GREEN><C46> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(4)                
             "<R-1>" v-fill  SKIP.
         PUT "<C2>" v-cust-name FORMAT "x(30)" SKIP .     
         PUT "<C2><FGCOLOR=GREEN>---------------------------------------- LABEL INFO ----------------------------------------<FGCOLOR=BLACK>"  SKIP.
