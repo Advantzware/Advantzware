@@ -37,6 +37,7 @@ CREATE WIDGET-POOL.
 DEF VAR cUserList AS CHAR NO-UNDO.
 DEF VAR ictr AS INT NO-UNDO.
 DEF VAR jCtr AS INT NO-UNDO.
+DEF VAR aCtr AS INT NO-UNDO.
 DEF VAR lMonitor AS LOG NO-UNDO.
 DEF VAR hqRecKey AS HANDLE NO-UNDO.
 DEF VAR hbRecKey AS HANDLE NO-UNDO.
@@ -61,7 +62,8 @@ DEF VAR lExclusive AS LOG NO-UNDO.
 DEF VAR cMyUser AS CHAR NO-UNDO.
 DEF VAR iMyLevel AS INT NO-UNDO.
 DEF VAR lTraceOn AS LOG NO-UNDO.
-
+DEF VAR lAutoLog AS LOG NO-UNDO INITIAL FALSE.
+DEF VAR lAlreadyRun AS LOG NO-UNDO INITIAL FALSE.
 
 {src/adm2/widgetprto.i}
 
@@ -83,9 +85,19 @@ DEF TEMP-TABLE ttLocks
     FIELD ttfLockTime AS DATETIME-TZ LABEL "Lock Time"
     FIELD ttfDuration AS INT LABEL "Duration"
     FIELD ttfLock-Type AS CHAR LABEL "Lk Type"
+    
+    FIELD ttfLastActivity1 AS CHAR LABEL "Last Action" FORMAT "x(24)"
+    FIELD ttfLastActHotkey1 AS CHAR LABEL "Hotkey" FORMAT "x(3)"
+    FIELD ttfLastActDtTm1 AS DATETIME LABEL "Dt/Tm" 
+    FIELD ttfLastActivity2 AS CHAR LABEL "2d Last Action" FORMAT "x(24)"
+    FIELD ttfLastActHotkey2 AS CHAR LABEL "Hotkey" FORMAT "x(3)"
+    FIELD ttfLastActDtTm2 AS DATETIME LABEL "Dt/Tm" 
+    FIELD ttfLastActivity3 AS CHAR LABEL "3d Last Action" FORMAT "x(24)"
+    FIELD ttfLastActHotkey3 AS CHAR LABEL "Hotkey" FORMAT "x(3)"
+    FIELD ttfLastActDtTm3 AS DATETIME LABEL "Dt/Tm" 
     .
 DEF VAR cLabels AS CHAR INITIAL 
-    "Type,User ID,Name,Terminal,Table,Duration,Fields,Values,User ID,Lock ID,Lock User#,Table#,Recid,Lock Time,Duration,Lk Type".
+    "Type,User ID,Name,Terminal,Table,Duration,Fields,Values,User ID,Lock ID,Lock User#,Table#,Recid,Lock Time,Duration,Lk Type,Last Action,Hotkey,Date/Time,2d Last Action,Hotkey,Date/Time,3d Last ActionHotkey,Date/Time".
     
 DEF TEMP-TABLE ttLocks2
     LIKE ttLocks.
@@ -117,10 +129,11 @@ DEF TEMP-TABLE ttLockUsers
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS rLocks rTrans rStatus bStartStop bRefresh ~
 bGetFile bExport bInstructions bExit fiLK fiTX fiST eInstructions fiUserID ~
-fiDuration fiTable tbExclusive fiRefresh fiExportFile tbAutoRun 
+fiDuration fiTable tbExclusive fiRefresh fiStackDays fiExportFile tbAutoRun ~
+tbAppend 
 &Scoped-Define DISPLAYED-OBJECTS fiLK fiTX fiST fiLockCount fiTxnCount ~
 fiStatus fiInstructions eInstructions fiUserID fiDuration fiTable ~
-tbExclusive fiRefresh fiExportFile tbAutoRun 
+tbExclusive fiRefresh fiStackDays fiExportFile tbAutoRun tbAppend 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -191,7 +204,7 @@ DEFINE VARIABLE fiDuration AS INTEGER FORMAT ">>>>>9":U INITIAL 30
 DEFINE VARIABLE fiExportFile AS CHARACTER FORMAT "X(256)":U 
      LABEL "Export File Location" 
      VIEW-AS FILL-IN 
-     SIZE 75 BY 1 NO-UNDO.
+     SIZE 70 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiInstructions AS CHARACTER FORMAT "X(256)":U INITIAL "Instructions:" 
      VIEW-AS FILL-IN 
@@ -215,6 +228,11 @@ DEFINE VARIABLE fiST AS CHARACTER FORMAT "X(256)":U INITIAL "STS"
      VIEW-AS FILL-IN 
      SIZE 6 BY .81 TOOLTIP "Status"
      FONT 6 NO-UNDO.
+
+DEFINE VARIABLE fiStackDays AS INTEGER FORMAT ">9":U INITIAL 2 
+     LABEL "Stack Trace Days" 
+     VIEW-AS FILL-IN 
+     SIZE 6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiStatus AS CHARACTER FORMAT "X(256)":U INITIAL "Stopped" 
      VIEW-AS FILL-IN 
@@ -254,10 +272,15 @@ DEFINE RECTANGLE rTrans
      SIZE 8 BY 1.67 TOOLTIP "Transactions"
      BGCOLOR 10 .
 
-DEFINE VARIABLE tbAutoRun AS LOGICAL INITIAL yes 
-     LABEL "AutoRun" 
+DEFINE VARIABLE tbAppend AS LOGICAL INITIAL no 
+     LABEL "AutoLog Results" 
      VIEW-AS TOGGLE-BOX
-     SIZE 13.2 BY 1 TOOLTIP "Autorun  Excel when exported" NO-UNDO.
+     SIZE 26 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tbAutoRun AS LOGICAL INITIAL yes 
+     LABEL "Auto Open Excel" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY 1 TOOLTIP "Autorun  Excel when exported" NO-UNDO.
 
 DEFINE VARIABLE tbExclusive AS LOGICAL INITIAL no 
      LABEL "Exclusive locks only" 
@@ -287,15 +310,17 @@ DEFINE FRAME fMain
      fiTable AT ROW 11.95 COL 93 COLON-ALIGNED
      tbExclusive AT ROW 11.95 COL 117
      fiRefresh AT ROW 30.05 COL 27 COLON-ALIGNED
-     fiExportFile AT ROW 30.05 COL 63 COLON-ALIGNED
-     tbAutoRun AT ROW 30.05 COL 142
+     fiStackDays AT ROW 30.05 COL 59 COLON-ALIGNED
+     fiExportFile AT ROW 31.24 COL 27 COLON-ALIGNED
+     tbAutoRun AT ROW 31.24 COL 101
+     tbAppend AT ROW 31.24 COL 125
      rLocks AT ROW 1.48 COL 65
      rTrans AT ROW 1.48 COL 74
      rStatus AT ROW 1.48 COL 83.2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 159.8 BY 30.95.
+         SIZE 159.8 BY 32.1.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -316,7 +341,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW wWin ASSIGN
          HIDDEN             = YES
          TITLE              = "Lock Monitor"
-         HEIGHT             = 30.95
+         HEIGHT             = 32.1
          WIDTH              = 159.8
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 159.8
@@ -447,16 +472,34 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bExport wWin
 ON CHOOSE OF bExport IN FRAME fMain /* Export */
 DO:
+    ASSIGN
+        cExportFile = fiExportFile:SCREEN-VALUE IN FRAME {&frame-name}.
     DEF VARIABLE cLineOut AS CHAR.
-    OUTPUT TO VALUE(cExportFile).
-    PUT UNFORMATTED cLabels + CHR(10).
+    IF lAutoLog THEN 
+        OUTPUT TO VALUE(cExportFile) APPEND.
+    ELSE 
+        OUTPUT TO VALUE(cExportFile).
+    IF NOT lAlreadyRun THEN 
+        PUT UNFORMATTED cLabels + CHR(10).
     FOR EACH ttLocks2:
         EXPORT DELIMITER "," ttLocks2.
     END.
     OUTPUT CLOSE.
+    IF NOT lAutoLog THEN ASSIGN  
+        fiExportFile:SCREEN-VALUE = 
+            "c:\tmp\lockmonitor-" + 
+            STRING(YEAR(TODAY),"9999") + 
+            STRING(MONTH(TODAY),"99") + 
+            STRING(DAY(TODAY),"99") + "-" +
+            SUBSTRING(STRING(TIME,"HH:MM:SS"),1,2) + 
+            SUBSTRING(STRING(TIME,"HH:MM:SS"),4,2) + 
+            SUBSTRING(STRING(TIME,"HH:MM:SS"),7,2) + ".csv".
     IF tbAutoRun:CHECKED IN FRAME {&frame-name} THEN DO:
         OS-COMMAND SILENT VALUE (cExportFile).
     END.
+    ASSIGN 
+        lAlreadyRun = TRUE. 
+        
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -597,12 +640,30 @@ DO:
 ON CHOOSE OF MENU-ITEM m_Show_User_Stack_Trace /* Show User Stack Trace */
 DO:
     IF lTraceOn THEN 
-        RUN util/dStackTrace.w (cThisUser).
+        RUN util/dStackTrace.w (cThisUser,
+                                INT(fiStackDays:SCREEN-VALUE IN FRAME {&frame-name})).
     ELSE MESSAGE 
         "This function is not available for this user." SKIP 
         "To correct, turn on the Track Usage option in" SKIP 
         "User Maintenance (NU3)."
         VIEW-AS ALERT-BOX ERROR.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tbAppend
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbAppend wWin
+ON VALUE-CHANGED OF tbAppend IN FRAME fMain /* AutoLog Results */
+DO:
+    ASSIGN 
+        lAutoLog = SELF:CHECKED. 
+    IF lAutoLog THEN ASSIGN 
+       tbAutoRun:CHECKED = FALSE 
+       tbAutoRun:SENSITIVE = FALSE.
+    ELSE ASSIGN          
+        tbAutoRun:SENSITIVE = TRUE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -618,7 +679,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &UNDEFINE SELF-NAME
@@ -719,11 +779,12 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiLK fiTX fiST fiLockCount fiTxnCount fiStatus fiInstructions 
           eInstructions fiUserID fiDuration fiTable tbExclusive fiRefresh 
-          fiExportFile tbAutoRun 
+          fiStackDays fiExportFile tbAutoRun tbAppend 
       WITH FRAME fMain IN WINDOW wWin.
   ENABLE rLocks rTrans rStatus bStartStop bRefresh bGetFile bExport 
          bInstructions bExit fiLK fiTX fiST eInstructions fiUserID fiDuration 
-         fiTable tbExclusive fiRefresh fiExportFile tbAutoRun 
+         fiTable tbExclusive fiRefresh fiStackDays fiExportFile tbAutoRun 
+         tbAppend 
       WITH FRAME fMain IN WINDOW wWin.
   {&OPEN-BROWSERS-IN-QUERY-fMain}
   VIEW wWin.
@@ -775,7 +836,7 @@ PROCEDURE initializeObject :
     ASSIGN 
         fiExportFile:SCREEN-VALUE IN FRAME {&frame-name} = 
             "c:\tmp\lockmonitor-" + 
-            STRING(YEAR(TODAY),"9999") + 
+            STRING(YEAR(TODAY),"9999") +
             STRING(MONTH(TODAY),"99") + 
             STRING(DAY(TODAY),"99") + "-" +
             SUBSTRING(STRING(TIME,"HH:MM:SS"),1,2) + 
@@ -919,6 +980,33 @@ PROCEDURE pGetLockData :
                 ttLocks.ttfFields = cFieldString
                 ttLocks.ttfValues = cKeyString
                 .
+            ASSIGN 
+                aCtr = 1.
+            FOR EACH AuditHdr NO-LOCK WHERE 
+                AuditHdr.AuditUser = _user._userid AND  
+                auditHdr.auditDateTime GT DATETIME(TODAY - INT(fiStackDays:SCREEN-VALUE), MTIME) AND 
+                auditHdr.auditKey ne "", 
+                EACH prgrms NO-LOCK WHERE 
+                prgrms.prgmname = AuditHdr.AuditTable
+                BY AuditHdr.AuditDateTime DESCENDING:
+                IF aCtr = 1 THEN ASSIGN 
+                    ttLocks.ttfLastActivity1 = prgrms.prgtitle
+                    ttLocks.ttfLastActHotkey1 = AuditHdr.AuditKey
+                    ttLocks.ttfLastActDtTm1 = AuditHdr.auditDateTime.
+                ELSE IF aCtr = 2 THEN ASSIGN 
+                    ttLocks.ttfLastActivity2 = prgrms.prgtitle
+                    ttLocks.ttfLastActHotkey2 = AuditHdr.AuditKey
+                    ttLocks.ttfLastActDtTm2 = AuditHdr.auditDateTime.
+                ELSE IF aCtr = 3 THEN DO:
+                    ASSIGN 
+                        ttLocks.ttfLastActivity3 = prgrms.prgtitle
+                        ttLocks.ttfLastActHotkey3 = AuditHdr.AuditKey
+                        ttLocks.ttfLastActDtTm3 = AuditHdr.auditDateTime.
+                    LEAVE.
+                END.
+                aCtr = aCtr + 1.
+            END. 
+            
             DELETE OBJECT hqRecKey.
             DELETE OBJECT hbRecKey.            
         END.
@@ -926,7 +1014,9 @@ PROCEDURE pGetLockData :
     
     FOR EACH ttLocks:
         FIND FIRST ttLocks2 WHERE
-            ttLocks2.ttfLock-ID EQ ttLocks.ttfLock-ID
+            ttLocks2.ttfLock-ID EQ ttLocks.ttfLock-ID AND 
+            ttLocks2.ttfLock-Usr EQ ttLocks.ttfLock-Usr AND 
+            ttLocks2.ttfLock-table EQ ttLocks.ttfLock-table 
             NO-ERROR.
         IF NOT AVAIL ttLocks2 THEN 
         DO:
@@ -937,11 +1027,23 @@ PROCEDURE pGetLockData :
         DO:
             ASSIGN
                 ttLocks2.ttfDuration = (NOW - ttLocks2.ttfLockTime) / 1000
-                ttLocks2.ttfDispTime = STRING(ttLocks2.ttfDuration,"HH:MM:SS").
+                ttLocks2.ttfDispTime = STRING(ttLocks2.ttfDuration,"HH:MM:SS")
+                ttLocks2.ttfLastActivity1 = ttLocks.ttfLastActivity1
+                ttLocks2.ttfLastActHotkey1 = ttLocks.ttfLastActHotkey1
+                ttLocks2.ttfLastActDtTm1 = ttLocks.ttfLastActDtTm1
+                ttLocks2.ttfLastActivity2 = ttLocks.ttfLastActivity2
+                ttLocks2.ttfLastActHotkey2 = ttLocks.ttfLastActHotkey2
+                ttLocks2.ttfLastActDtTm2 = ttLocks.ttfLastActDtTm2
+                ttLocks2.ttfLastActivity3 = ttLocks.ttfLastActivity3
+                ttLocks2.ttfLastActHotkey3 = ttLocks.ttfLastActHotkey3
+                ttLocks2.ttfLastActDtTm3 = ttLocks.ttfLastActDtTm3
+                .
         END.
     END.
     FOR EACH ttLocks2 WHERE NOT CAN-FIND (FIRST ttLocks WHERE
-        ttLocks.ttfLock-ID = ttLocks2.ttfLock-ID):
+            ttLocks2.ttfLock-ID EQ ttLocks.ttfLock-ID AND 
+            ttLocks2.ttfLock-Usr EQ ttLocks.ttfLock-Usr AND 
+            ttLocks2.ttfLock-table EQ ttLocks.ttfLock-table):
         DELETE ttLocks2.
     END.
 
@@ -955,6 +1057,9 @@ PROCEDURE pGetLockData :
         ASSIGN 
             lExclusive = TRUE.
     END.
+    
+    IF lAutoLog THEN 
+        APPLY 'choose' TO bExport. 
 
 END PROCEDURE.
 
