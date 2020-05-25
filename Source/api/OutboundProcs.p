@@ -160,6 +160,25 @@ PROCEDURE Outbound_CreateAPIClient:
     END.
 END PROCEDURE.
 
+PROCEDURE Outbound_GetAPIClientTransCount:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the transaction count value of the apiClient record
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientID   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTransCount AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-apiClient FOR apiClient.
+
+    FIND FIRST bf-apiClient EXCLUSIVE-LOCK
+         WHERE bf-apiClient.company  EQ ipcCompany
+           AND bf-apiClient.clientID EQ ipcClientID
+         NO-ERROR.
+    IF AVAILABLE bf-apiClient THEN
+         opiTransCount = bf-apiClient.transactionCounter.
+END PROCEDURE.
+
 PROCEDURE Outbound_GetAPIID:
     /*------------------------------------------------------------------------------
      Purpose: Get Outbound API Sequence ID of given inputs
@@ -190,6 +209,27 @@ PROCEDURE Outbound_GetAPIID:
             opcMessage = "Outbound configuration for API ID ["
                        + ipcAPIID + "] is not available or inactive"
             .
+END PROCEDURE.
+
+PROCEDURE Outbound_GetAPITransCount:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the transaction count value of the APIOutbound record
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientID   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTransCount AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
+        
+    FIND FIRST bf-APIOutbound NO-LOCK
+         WHERE bf-APIOutbound.company  EQ ipcCompany
+           AND bf-APIOutbound.apiID    EQ ipcAPIID
+           AND bf-APIOutbound.clientID EQ ipcClientID 
+         NO-ERROR.
+    IF AVAILABLE bf-APIOutbound THEN
+        opiTransCount = bf-APIOutbound.transactionCounter.   
 END PROCEDURE.
 
 PROCEDURE Outbound_GetAPIRequestType:
@@ -298,6 +338,32 @@ PROCEDURE Outbound_GetScopeTypeList:
     DEFINE OUTPUT PARAMETER opcScopeTypeList AS CHARACTER NO-UNDO.
     
     opcScopeTypeList = cScopeTypeList.
+END PROCEDURE.
+
+PROCEDURE Outbound_IncrementAPITransactionCounter:
+/*------------------------------------------------------------------------------
+ Purpose: Increment the transaction counters of both APIOutbound and apiClient
+          records for the given input
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiAPIOutboundID AS INTEGER NO-UNDO.
+
+    DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
+    DEFINE BUFFER bf-apiClient   FOR apiClient.
+        
+    FIND FIRST bf-APIOutbound EXCLUSIVE-LOCK
+         WHERE bf-APIOutbound.apiOutboundID EQ ipiAPIOutboundID 
+         NO-ERROR.
+    IF AVAILABLE bf-APIOutbound THEN DO:
+        bf-APIOutbound.transactionCounter = bf-APIOutbound.transactionCounter + 1.
+    
+        FIND FIRST bf-apiClient EXCLUSIVE-LOCK
+             WHERE bf-apiClient.company  EQ bf-APIOutbound.company
+               AND bf-apiClient.clientID EQ bf-APIOutbound.clientID
+             NO-ERROR.
+        IF AVAILABLE bf-apiClient THEN
+             bf-apiClient.transactionCounter = bf-apiClient.transactionCounter + 1.
+    END.
 END PROCEDURE.
 
 PROCEDURE Outbound_PrepareAndExecuteForScope:

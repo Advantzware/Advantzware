@@ -100,15 +100,3 @@ IF APIOutbound.SaveFile THEN DO:
         OS-DELETE VALUE(gcRequestFile).
     END.    
 END.
-
-FIND CURRENT APIOutbound EXCLUSIVE-LOCK 
-    NO-ERROR.
-IF AVAILABLE APIOutbound THEN
-    APIOutbound.transactionCounter = APIOutbound.transactionCounter + 1.
-
-FIND FIRST apiClient EXCLUSIVE-LOCK
-     WHERE apiClient.company  EQ ipcCompany
-       AND apiClient.clientID EQ ipcClientID
-     NO-ERROR.
-IF AVAILABLE apiClient THEN
-     apiClient.transactionCounter = apiClient.transactionCounter + 1.
