@@ -55,7 +55,7 @@ DEFINE TEMP-TABLE ttImportShipTo
     FIELD ShipByCaseAllowed   AS CHARACTER FORMAT "X" COLUMN-LABEL "Ship By Case Allowed" HELP "Optional - Y or N"
     FIELD Broker              AS CHARACTER FORMAT "X" COLUMN-LABEL "Broker" HELP "Optional - Y or N"
     FIELD Billable            AS CHARACTER FORMAT "X" COLUMN-LABEL "Billable" HELP "Optional - Y or N"
-    FIELD cManTax            AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Mandatory Tax" HELP "Optional - Yes or N0"
+    FIELD cManTax            AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Taxable" HELP "Optional - Yes or N0"
     FIELD cInactive          AS CHARACTER FORMAT "X(1)" COLUMN-LABEL "Inactive" HELP "Optional - Yes or N0"
     FIELD siteID             AS CHARACTER FORMAT "X(16)" COLUMN-LABEL "Site ID" HELP "A unique ship to id site identifier"
     .

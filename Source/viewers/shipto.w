@@ -789,6 +789,21 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME shipto.ship-name
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL shipto.ship-name V-table-Win
+ON LEAVE OF shipto.ship-name IN FRAME F-Main /* Carrier */
+DO:
+  DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO.
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-ship-name(OUTPUT lCheckError) NO-ERROR.
+    IF lCheckError THEN RETURN NO-APPLY.
+  END.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME shipto.carrier
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL shipto.carrier V-table-Win
 ON ENTRY OF shipto.carrier IN FRAME F-Main /* Carrier */
@@ -1577,6 +1592,7 @@ DEFINE VARIABLE iOldvalueDock  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cOldShipnotes  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lUpdated       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCheckError    AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   
   
@@ -1595,7 +1611,10 @@ ASSIGN
     iOldvalueDock  = spare-int-2  .
 
   RUN valid-ship-id NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.      
+  
+  RUN valid-ship-name(OUTPUT lCheckError) NO-ERROR.
+  IF lCheckError THEN RETURN NO-APPLY.  
 
   RUN valid-ship-state NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -2122,10 +2141,39 @@ PROCEDURE valid-carrier :
     END.
 
     IF NOT AVAIL carrier THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+      MESSAGE "Carrier is not valid, enter a valid carrier or use F1 to see options..." VIEW-AS ALERT-BOX ERROR.
+      IF shipto.loc:SCREEN-VALUE EQ "" THEN do:
+        APPLY "entry" TO shipto.loc.
+        shipto.carrier:SCREEN-VALUE = "".
+      END.
+      ELSE
       APPLY "entry" TO shipto.carrier.
       RETURN ERROR.
     END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ship-name V-table-Win 
+PROCEDURE valid-ship-name :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+    IF shipto.ship-name:SCREEN-VALUE EQ "" THEN DO:      
+       MESSAGE "Must enter a Name..."
+            VIEW-AS ALERT-BOX INFO.
+       opReturnError = YES.       
+       APPLY "entry" TO shipto.ship-name.      
+    END.    
   END.
 
   {methods/lValidateError.i NO}
@@ -2151,8 +2199,12 @@ PROCEDURE valid-dest-code :
                       AND carr-mtx.loc      EQ shipto.loc:SCREEN-VALUE
                       AND carr-mtx.carrier  EQ shipto.carrier:SCREEN-VALUE
                       AND carr-mtx.del-zone EQ shipto.dest-code:SCREEN-VALUE) THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO shipto.dest-code.
+      MESSAGE "Zone is not valid, enter a valid zone or use F1 to see options..." VIEW-AS ALERT-BOX ERROR.
+      
+      IF shipto.carrier:SCREEN-VALUE EQ "" THEN do:
+       APPLY "entry" TO shipto.carrier.
+       shipto.dest-code:SCREEN-VALUE = "".
+      END.        
       RETURN ERROR.
     END.
   END.

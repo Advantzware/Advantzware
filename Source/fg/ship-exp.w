@@ -67,7 +67,7 @@ DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "Customer #,customer Name,Ship To #,Ship To Name,Address 1,Address 2,Contact,City,State,Zip,Phone,Fax,Tax Code,Warehouse,Bin,Carrier," +
                            "Zone,Pallet,Broker,Billable,Shipper ID,Member #,Dock #,Dock hours,Charge,Transit Days,Samples," +
-                           "Dock Appt,Earliest Allowed,Latest Allowed,Ship Method,Ship Notes 1,Ship Notes 2,Ship Notes 3,Ship Notes 4,Sales Rep (Ship to),Sales Rep (cust),Export ID#,Mandatory Tax," +
+                           "Dock Appt,Earliest Allowed,Latest Allowed,Ship Method,Ship Notes 1,Ship Notes 2,Ship Notes 3,Ship Notes 4,Sales Rep (Ship to),Sales Rep (cust),Export ID#,Taxable," +
                            "Area Code,Sales Rep Code (ShipTo),Inactive,Site ID"
 
       cFieldListToSelect = "cust-no,cust-name,ship-id,ship-name,ship-addr[1],ship-addr[2],contact,ship-city,ship-state,ship-zip,phone,fax,tax-code,loc,loc-bin,carrier," +
@@ -79,7 +79,7 @@ ASSIGN cTextListToSelect = "Customer #,customer Name,Ship To #,Ship To Name,Addr
     ASSIGN cTextListToDefault = "Customer #,Ship To #,Ship To Name,Address 1,Address 2,City,State,Zip,Contact,Area Code,Phone,Fax,Sales Rep Code (ShipTo),Tax Code," +
                                 "Ship Notes 1,Ship Notes 2,Ship Notes 3,Ship Notes 4," +
                                 "Warehouse,Bin,Carrier,Zone,Pallet,Shipper ID,Member #,Export ID#,Dock #,Dock hours,Charge," +
-                                "Transit Days,Samples,Dock Appt,Earliest Allowed,Latest Allowed,Ship Method,Broker,Billable,Mandatory Tax,Inactive, Site ID"
+                                "Transit Days,Samples,Dock Appt,Earliest Allowed,Latest Allowed,Ship Method,Broker,Billable,Taxable,Inactive, Site ID"
                                 .
                                 
 /* _UIB-CODE-BLOCK-END */
