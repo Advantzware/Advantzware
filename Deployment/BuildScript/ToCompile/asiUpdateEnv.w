@@ -3115,39 +3115,59 @@ PROCEDURE ipDataFix200110:
 
     /* Ticket #68616 Additional security to API Inbound and Outbound */
     &SCOPED-DEFINE cTable apiinbound
-    FIND LAST {&cTable} NO-LOCK.
-    IF {&cTable}.{&cTable}ID LT 5000 THEN ASSIGN 
-        CURRENT-VALUE({&cTable}ID_seq) = 5000.
+    FIND LAST {&cTable} NO-LOCK NO-ERROR.
+    IF AVAIL {&cTable} THEN DO:
+        IF {&cTable}.{&cTable}ID LT 5000 THEN ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = 5000.
+        ELSE ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = {&cTable}.{&cTable}ID.
+    END.
     ELSE ASSIGN 
-        CURRENT-VALUE({&cTable}ID_seq) = {&cTable}.{&cTable}ID.
+        CURRENT-VALUE({&cTable}ID_seq) = 5000.
             
     &SCOPED-DEFINE cTable apiinbounddetail
-    FIND LAST {&cTable} NO-LOCK.
-    IF {&cTable}.{&cTable}ID LT 5000 THEN ASSIGN 
-        CURRENT-VALUE({&cTable}ID_seq) = 5000.
+    FIND LAST {&cTable} NO-LOCK NO-ERROR.
+    IF AVAIL {&cTable} THEN DO:
+        IF {&cTable}.{&cTable}ID LT 5000 THEN ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = 5000.
+        ELSE ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = {&cTable}.{&cTable}ID.
+    END.
     ELSE ASSIGN 
-        CURRENT-VALUE({&cTable}ID_seq) = {&cTable}.{&cTable}ID.
+        CURRENT-VALUE({&cTable}ID_seq) = 5000.
             
     &SCOPED-DEFINE cTable apioutbound
-    FIND LAST {&cTable} NO-LOCK.
-    IF {&cTable}.{&cTable}ID LT 5000 THEN ASSIGN 
-        CURRENT-VALUE({&cTable}ID_seq) = 5000.
+    FIND LAST {&cTable} NO-LOCK NO-ERROR.
+    IF AVAIL {&cTable} THEN DO:
+        IF {&cTable}.{&cTable}ID LT 5000 THEN ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = 5000.
+        ELSE ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = {&cTable}.{&cTable}ID.
+    END.
     ELSE ASSIGN 
-        CURRENT-VALUE({&cTable}ID_seq) = {&cTable}.{&cTable}ID.
+        CURRENT-VALUE({&cTable}ID_seq) = 5000.
             
     &SCOPED-DEFINE cTable apioutbounddetail
-    FIND LAST {&cTable} NO-LOCK.
-    IF {&cTable}.{&cTable}ID LT 5000 THEN ASSIGN 
-        CURRENT-VALUE({&cTable}ID_seq) = 5000.
+    FIND LAST {&cTable} NO-LOCK NO-ERROR.
+    IF AVAIL {&cTable} THEN DO:
+        IF {&cTable}.{&cTable}ID LT 5000 THEN ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = 5000.
+        ELSE ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = {&cTable}.{&cTable}ID.
+    END.
     ELSE ASSIGN 
-        CURRENT-VALUE({&cTable}ID_seq) = {&cTable}.{&cTable}ID.
+        CURRENT-VALUE({&cTable}ID_seq) = 5000.
             
     &SCOPED-DEFINE cTable apioutboundtrigger
-    FIND LAST {&cTable} NO-LOCK.
-    IF {&cTable}.{&cTable}ID LT 5000 THEN ASSIGN 
-        CURRENT-VALUE({&cTable}ID_seq) = 5000.
+    FIND LAST {&cTable} NO-LOCK NO-ERROR.
+    IF AVAIL {&cTable} THEN DO:
+        IF {&cTable}.{&cTable}ID LT 5000 THEN ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = 5000.
+        ELSE ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = {&cTable}.{&cTable}ID.
+    END.
     ELSE ASSIGN 
-        CURRENT-VALUE({&cTable}ID_seq) = {&cTable}.{&cTable}ID.
+        CURRENT-VALUE({&cTable}ID_seq) = 5000.
             
             
 END PROCEDURE.
