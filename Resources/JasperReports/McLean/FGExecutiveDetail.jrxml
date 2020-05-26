@@ -55,6 +55,10 @@
 		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__dQuantityBalanceToRun"/>
 		<fieldDescription><![CDATA[ttJobItem__dQuantityBalanceToRun]]></fieldDescription>
 	</field>
+	<field name="ttJobItem__dDisplayBalanceToRun" class="java.lang.Double">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__dDisplayBalanceToRun"/>
+		<fieldDescription><![CDATA[ttJobItem__dDisplayBalanceToRun]]></fieldDescription>
+	</field>
 	<field name="ttJobItem__dQuantityOnHand" class="java.lang.Double">
 		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__dQuantityOnHand"/>
 		<fieldDescription><![CDATA[ttJobItem__dQuantityOnHand]]></fieldDescription>
@@ -387,7 +391,7 @@
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
 				</reportElement>
 				<textElement textAlignment="Right"/>
-				<textFieldExpression><![CDATA[$F{ttJobItem__dQuantityBalanceToRun}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{ttJobItem__dDisplayBalanceToRun}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,###,##0.00" isBlankWhenNull="true">
 				<reportElement x="735" y="0" width="78" height="14" uuid="44748782-79db-473f-a3b5-7ba54d6e045e">
