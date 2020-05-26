@@ -66,7 +66,26 @@ DEF TEMP-TABLE tt-post NO-UNDO FIELD row-id AS ROWID
                                FIELD ex-rate LIKE currency.ex-rate INIT 1
                                FIELD curr-amt LIKE ar-cash.check-amt
                                FIELD actnum LIKE account.actnum.
-
+                               
+DEFINE TEMP-TABLE ttGLTrans NO-UNDO 
+    FIELD company AS CHARACTER 
+    FIELD actnum  AS CHARACTER 
+    FIELD jrnl    AS CHARACTER 
+    FIELD tr-dscr AS CHARACTER 
+    FIELD tr-date AS DATE 
+    FIELD period  AS INTEGER 
+    FIELD trnum   AS INTEGER
+    FIELD tr-amt  AS DECIMAL.  
+    
+DEFINE TEMP-TABLE ttARLedger NO-UNDO
+    FIELD company  AS CHARACTER 
+    FIELD cust-no  AS CHARACTER 
+    FIELD amt      AS DECIMAL 
+    FIELD ref-num  AS CHARACTER 
+    FIELD ref-date AS DATE 
+    FIELD tr-date  AS DATE 
+    FIELD tr-num   AS INTEGER.     
+   
 DO TRANSACTION:
   {sys/inc/oecredit.i}
   {sys/inc/postdate.i}
@@ -965,6 +984,64 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateARLedger C-Win
+PROCEDURE pCreateARLedger PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: To create AR Ledger records from the temp-table
+ Notes:
+------------------------------------------------------------------------------*/
+    FOR EACH ttARLedger:
+        CREATE ar-ledger.
+        ASSIGN
+            ar-ledger.company  = ttARLedger.company  
+            ar-ledger.cust-no  = ttARLedger.cust-no  
+            ar-ledger.amt      = ttARLedger.amt      
+            ar-ledger.ref-num  = ttARLedger.ref-num                  
+            ar-ledger.ref-date = ttARLedger.ref-date               
+            ar-ledger.tr-date  = ttARLedger.tr-date               
+            ar-ledger.tr-num   = ttARLedger.tr-num
+            .
+            
+        DELETE ttARLedger.                       
+    END.   
+    RELEASE ar-ledger.                        
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateGLTrans C-Win
+PROCEDURE pCreateGLTrans PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: To create gltrans records from temp-table
+ Notes:
+------------------------------------------------------------------------------*/
+    FOR EACH ttGLTrans:
+        CREATE gltrans.
+        ASSIGN 
+           gltrans.company = ttGLTrans.company
+           gltrans.actnum  = ttGLTrans.actnum 
+           gltrans.jrnl    = ttGLTrans.jrnl   
+           gltrans.tr-dscr = ttGLTrans.tr-dscr                 
+           gltrans.tr-date = ttGLTrans.tr-date
+           gltrans.tr-amt  = ttGLTrans.tr-amt 
+           gltrans.period  = ttGLTrans.period 
+           gltrans.trnum   = ttGLTrans.trnum
+           .         
+        DELETE ttGLTrans.        
+    END.  
+    RELEASE gltrans.  
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-gl C-Win 
 PROCEDURE post-gl :
 /*------------------------------------------------------------------------------
@@ -972,223 +1049,288 @@ PROCEDURE post-gl :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR t1 AS DEC NO-UNDO.
-  DEF VAR xar-cashl AS CHAR NO-UNDO.
-  DEF VAR lv-rowid AS ROWID NO-UNDO.
-  DEF VAR li-iter AS INT NO-UNDO.
+    DEFINE VARIABLE t1             AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE xar-cashl      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lv-rowid       AS ROWID     NO-UNDO.
+    DEFINE VARIABLE li-iter        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dOnAccount     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dAccountBal    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dtLastPayDate  AS DATE      NO-UNDO.
+    DEFINE VARIABLE dLastPayment   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lUpdateHighBal AS LOGICAL   NO-UNDO.
+  
+    DEFINE BUFFER b-cashl   FOR ar-cashl.
+    DEFINE BUFFER ar-c-memo FOR reftable.
+    
+    DO WHILE CAN-FIND(FIRST tt-post) AND li-iter LE 100000:
+        li-iter = li-iter + 1.
+    
+        RELEASE tt-post.
+    
+        FOR EACH tt-post,
+            FIRST ar-cash EXCLUSIVE-LOCK
+            WHERE ROWID(ar-cash) EQ tt-post.row-id 
+            BREAK BY tt-post.actnum
+            TRANSACTION:
 
-  DEF BUFFER b-cashl FOR ar-cashl.
-  DEF BUFFER ar-c-memo FOR reftable.
+            FIND FIRST bank EXCLUSIVE-LOCK
+                 WHERE bank.company   EQ cocode
+                   AND bank.bank-code EQ ar-cash.bank-code
+                 NO-WAIT NO-ERROR.
+            IF NOT AVAILABLE bank THEN 
+                NEXT.
+    
+            FIND FIRST cust NO-LOCK
+                {sys/ref/custW.i}
+                 AND cust.cust-no EQ ar-cash.cust-no
+                 NO-ERROR.
+            IF NOT AVAILABLE cust THEN
+                NEXT.
+    
+            ASSIGN
+                xar-cashl      = bank.actnum
+                bank.bal       = bank.bal + tt-post.curr-amt
+                t1             = 0
+                dAccountBal    = 0.00
+                dOnAccount     = cust.on-account
+                dtLastPayDate  = ?
+                dLastPayment   = 0.00
+                lUpdateHighBal = NO 
+                .
+                
+            xar-acct = STRING(DYNAMIC-FUNCTION("GL_GetAccountAR", cust.company, cust.cust-no)).
+            
+            FOR EACH ar-cashl 
+                WHERE ar-cashl.c-no EQ ar-cash.c-no:
+                ar-cashl.posted = YES.
+    
+                RELEASE b-cashl.
+    
+                IF ar-cashl.inv-no NE 0 AND ar-cashl.on-account EQ NO THEN DO:
+                    FIND FIRST ar-inv
+                         WHERE ar-inv.company EQ cocode
+                           AND ar-inv.inv-no  EQ ar-cashl.inv-no
+                         NO-ERROR.
+                    IF AVAILABLE ar-inv THEN DO:
+                        ASSIGN
+                           ar-inv.disc-taken = ar-inv.disc-taken + ar-cashl.amt-disc
+                           ar-inv.paid       = ar-inv.paid + ar-cashl.amt-paid
+                           ar-inv.due        = ar-inv.due - ar-cashl.amt-paid
+                           ar-inv.pay-date   = ar-cash.check-date.
+        
+                        IF ar-inv.due LE 0 THEN DO:
+                            RUN sys/inc/daytopay.p (RECID(ar-cashl)).
+                            cust.num-inv = cust.num-inv + 1.
+                        END.
+        
+                        FIND CURRENT ar-inv NO-LOCK NO-ERROR.
+                    END.
+    
+                    FIND FIRST ar-c-memo NO-LOCK
+                         WHERE ar-c-memo.reftable EQ "ar-cashl.ar-cashl"
+                           AND ar-c-memo.company  EQ ar-cash.company
+                           AND ar-c-memo.loc      EQ ""
+                           AND ar-c-memo.code     EQ ar-cashl.rec_key
+                         NO-ERROR.
+        
+                    IF AVAILABLE ar-c-memo THEN
+                        FIND FIRST b-cashl
+                             WHERE b-cashl.c-no EQ INT(ar-c-memo.val[1])
+                               AND b-cashl.line EQ INT(ar-c-memo.val[2])
+                        NO-ERROR.
+                END.
+    
+                IF AVAIL b-cashl THEN DO:
+                    ASSIGN
+                         b-cashl.inv-no     = ar-cashl.inv-no
+                         b-cashl.inv-date   = ar-cashl.inv-date
+                         b-cashl.amt-due    = ar-cashl.amt-due
+                         b-cashl.on-account = NO
+                         .
+                    DELETE ar-cashl.
+                END.
+    
+                ELSE DO:
+                    IF ar-cashl.inv-no EQ 0 AND ar-cashl.on-account EQ YES THEN 
+                        dOnAccount = dOnAccount + ar-cashl.amt-paid.
+           
+                    CREATE ttGLTrans.
+                    ASSIGN
+                         t1 = t1 + ar-cashl.amt-paid
+                
+                         ttGLTrans.company   = cocode
+                         ttGLTrans.actnum    = ar-cashl.actnum
+                         ttGLTrans.jrnl      = "CASHR"
+                         ttGLTrans.tr-dscr   = cust.cust-no + " " +
+                                             STRING(ar-cash.check-no,"9999999999") +
+                                             " Inv# " + STRING(ar-cashl.inv-no)
+                         ttGLTrans.tr-date   = tran-date
+                         ttGLTrans.tr-amt    = ar-cashl.amt-paid - ar-cashl.amt-disc
+                         ttGLTrans.period    = tran-period
+                         ttGLTrans.trnum     = xtrnum
+                         ar-cashl.amt-paid = ar-cashl.amt-paid - ar-cashl.amt-disc
+                         .
+    
+                    IF ar-cashl.amt-disc NE 0 THEN DO:
+                        CREATE ttGLTrans.
+                        ASSIGN
+                            ttGLTrans.company = cocode
+                            ttGLTrans.actnum  = xdis-acct
+                            ttGLTrans.jrnl    = "CRDIS"
+                            ttGLTrans.tr-dscr = cust.cust-no + " " +
+                                           STRING(ar-cash.check-no,"9999999999") +
+                                           " Inv# " + STRING(ar-cashl.inv-no)
+                            ttGLTrans.tr-date = tran-date
+                            ttGLTrans.tr-amt  = ar-cashl.amt-disc
+                            ttGLTrans.period  = tran-period
+                            ttGLTrans.trnum   = xtrnum.
+                    
+                        CREATE ttArLedger.
+                        ASSIGN
+                            ttARLedger.company  = cocode
+                            ttARLedger.cust-no  = ar-cash.cust-no
+                            ttARLedger.amt      = ar-cashl.amt-disc
+                            ttARLedger.ref-num  = "DISC " +
+                                                 STRING(ar-cash.check-no,"9999999999") +
+                                                 "-" + STRING(ar-cashl.line,"9999999999")
+                            ttARLedger.ref-date = ar-cash.check-date
+                            ttARLedger.tr-date  = tran-date
+                            ttARLedger.tr-num   = xtrnum.
+                    END.
+                END.
+            END.  /* each line */
+    
+            ASSIGN
+                dAccountBal   = cust.acc-bal - t1
+                dLastPayment  = t1
+                dtLastPayDate = ar-cash.check-date
+                .
 
- DO WHILE CAN-FIND(FIRST tt-post) AND li-iter LE 100000:
-  li-iter = li-iter + 1.
+            IF dAccountBal GE cust.hibal THEN
+                lUpdateHighBal = YES.
+    
+            IF t1 NE 0 THEN DO:
+                FIND ttGLTrans 
+                     WHERE ROWID(gltrans) EQ lv-rowid 
+                     NO-ERROR.
+                IF NOT AVAIL ttGLTrans THEN DO:
+                    CREATE ttGLTrans.
+                    ASSIGN
+                        ttGlTrans.company = cocode
+                        ttGlTrans.actnum  = xar-acct
+                        ttGlTrans.jrnl    = "CASHR"
+                        ttGlTrans.tr-dscr = "CASH RECEIPTS"
+                        ttGlTrans.tr-date = tran-date
+                        ttGlTrans.period  = tran-period
+                        ttGlTrans.trnum   = xtrnum
+                        lv-rowid          = ROWID(ttGLTrans)
+                        .
+                END.
+                ttGLTrans.tr-amt = ttGLTrans.tr-amt - t1.
+            END.
+    
+            CREATE ttARLedger.
+            ASSIGN
+                ttARLedger.company  = cocode
+                ttARLedger.cust-no  = ar-cash.cust-no
+                ttARLedger.amt      = ar-cash.check-amt
+                ttARLedger.ref-num  = "CHK# " + STRING(ar-cash.check-no,"9999999999")
+                ttARLedger.ref-date = ar-cash.check-date
+                ttARLedger.tr-date  = tran-date
+                ttARLedger.tr-num   = xtrnum
+                ar-cash.posted     = YES.
+                
+            RELEASE bank.
+        
+            ACCUM tt-post.curr-amt - ar-cash.check-amt (TOTAL BY tt-post.actnum).
+        
+            IF LAST-OF(tt-post.actnum) AND tt-post.actnum NE "" THEN DO:
+                CREATE ttGLTrans.
+                    ASSIGN
+                     ttGLTrans.company = cocode
+                     ttGLTrans.actnum  = tt-post.actnum
+                     ttGLTrans.jrnl    = "CASHR"
+                     ttGLTrans.tr-dscr = "CASH RECEIPTS CURRENCY GAIN/LOSS"
+                     ttGLTrans.tr-date = tran-date
+                     ttGLTrans.period  = tran-period
+                     ttGLTrans.trnum   = xtrnum
+                     ttGLTrans.tr-amt  = (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-cash.check-amt)
+                     .
+        
+                CREATE ttGLTrans.
+                ASSIGN
+                    ttGLTrans.company = cocode
+                    ttGLTrans.actnum  = tt-post.actnum
+                    ttGLTrans.jrnl    = "CASHR"
+                    ttGLTrans.tr-dscr = "CASH RECEIPTS CURRENCY GAIN/LOSS"
+                    ttGLTrans.tr-date = tran-date
+                    ttGLTrans.period  = tran-period
+                    ttGLTrans.trnum   = xtrnum
+                    ttGLTrans.tr-amt  = - (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-cash.check-amt).
+            END.
 
-  RELEASE tt-post.
+            RUN pCreateARLedger.
+            
+            RUN pCreateGLTrans.
 
-  FOR EACH tt-post,
-      FIRST ar-cash WHERE ROWID(ar-cash) EQ tt-post.row-id EXCLUSIVE
-      BREAK BY tt-post.actnum
-      TRANSACTION:
+            RUN pUpdateCustomerAccount(
+                INPUT cocode,
+                INPUT cust.cust-no,
+                INPUT dOnAccount,
+                INPUT dAccountBal,
+                INPUT dLastPayment,
+                INPUT lUpdateHighBal,
+                INPUT dtLastPayDate
+                ).
 
-    FIND FIRST bank
-        WHERE bank.company   EQ cocode
-          AND bank.bank-code EQ ar-cash.bank-code
-        EXCLUSIVE NO-WAIT NO-ERROR.
-    IF NOT AVAIL bank THEN NEXT.
-
-    FIND FIRST cust
-        {sys/ref/custW.i}
-          AND cust.cust-no EQ ar-cash.cust-no
-        EXCLUSIVE NO-WAIT NO-ERROR.
-    IF NOT AVAIL cust THEN NEXT.
-
-    ASSIGN
-     xar-cashl = bank.actnum
-     bank.bal  = bank.bal + tt-post.curr-amt
-     t1        = 0.
-     xar-acct = string(DYNAMIC-FUNCTION("GL_GetAccountAR", cust.company, cust.cust-no)).
-    FOR EACH ar-cashl WHERE ar-cashl.c-no EQ ar-cash.c-no:
-      ar-cashl.posted = YES.
-
-      RELEASE b-cashl.
-
-      IF ar-cashl.inv-no NE 0 AND ar-cashl.on-account EQ NO THEN DO:
-        FIND FIRST ar-inv
-            WHERE ar-inv.company EQ cocode
-              AND ar-inv.inv-no  EQ ar-cashl.inv-no
-            NO-ERROR.
-        IF AVAIL ar-inv THEN DO:
-          ASSIGN
-           ar-inv.disc-taken = ar-inv.disc-taken + ar-cashl.amt-disc
-           ar-inv.paid       = ar-inv.paid + ar-cashl.amt-paid
-           ar-inv.due        = ar-inv.due - ar-cashl.amt-paid
-           ar-inv.pay-date   = ar-cash.check-date.
-
-          IF ar-inv.due LE 0 THEN DO:
-            RUN sys/inc/daytopay.p (RECID(ar-cashl)).
-            cust.num-inv = cust.num-inv + 1.
-          END.
-
-          FIND CURRENT ar-inv NO-LOCK NO-ERROR.
+            DELETE tt-post.
         END.
+    END.  /* DO WHILE */
 
-        FIND FIRST ar-c-memo NO-LOCK
-            WHERE ar-c-memo.reftable EQ "ar-cashl.ar-cashl"
-              AND ar-c-memo.company  EQ ar-cash.company
-              AND ar-c-memo.loc      EQ ""
-              AND ar-c-memo.code     EQ ar-cashl.rec_key
-            NO-ERROR.
-
-        IF AVAIL ar-c-memo THEN
-        FIND FIRST b-cashl
-            WHERE b-cashl.c-no EQ INT(ar-c-memo.val[1])
-              AND b-cashl.line EQ INT(ar-c-memo.val[2])
-            NO-ERROR.
-      END.
-
-      IF AVAIL b-cashl THEN DO:
-        ASSIGN
-         b-cashl.inv-no     = ar-cashl.inv-no
-         b-cashl.inv-date   = ar-cashl.inv-date
-         b-cashl.amt-due    = ar-cashl.amt-due
-         b-cashl.on-account = NO.
-        DELETE ar-cashl.
-      END.
-
-      ELSE DO:
-        IF ar-cashl.inv-no EQ 0 AND ar-cashl.on-account EQ YES THEN
-          cust.on-account = cust.on-account + ar-cashl.amt-paid.
-
-        CREATE gltrans.
-        ASSIGN
-         t1 = t1 + ar-cashl.amt-paid
-
-         gltrans.company   = cocode
-         gltrans.actnum    = ar-cashl.actnum
-         gltrans.jrnl      = "CASHR"
-         gltrans.tr-dscr   = cust.cust-no + " " +
-                             STRING(ar-cash.check-no,"9999999999") +
-                             " Inv# " + STRING(ar-cashl.inv-no)
-         gltrans.tr-date   = tran-date
-         gltrans.tr-amt    = ar-cashl.amt-paid - ar-cashl.amt-disc
-         gltrans.period    = tran-period
-         gltrans.trnum     = xtrnum
-         ar-cashl.amt-paid = ar-cashl.amt-paid - ar-cashl.amt-disc.
-
-        RELEASE gltrans.
-
-        IF ar-cashl.amt-disc NE 0 THEN DO:
-          CREATE gltrans.
-          ASSIGN
-           gltrans.company = cocode
-           gltrans.actnum  = xdis-acct
-           gltrans.jrnl    = "CRDIS"
-           gltrans.tr-dscr = cust.cust-no + " " +
-                             STRING(ar-cash.check-no,"9999999999") +
-                             " Inv# " + STRING(ar-cashl.inv-no)
-           gltrans.tr-date = tran-date
-           gltrans.tr-amt  = ar-cashl.amt-disc
-           gltrans.period  = tran-period
-           gltrans.trnum   = xtrnum.
-
-          RELEASE gltrans.
-
-          CREATE ar-ledger.
-          ASSIGN
-           ar-ledger.company  = cocode
-           ar-ledger.cust-no  = ar-cash.cust-no
-           ar-ledger.amt      = ar-cashl.amt-disc
-           ar-ledger.ref-num  = "DISC " +
-                                STRING(ar-cash.check-no,"9999999999") +
-                                "-" + STRING(ar-cashl.line,"9999999999")
-           ar-ledger.ref-date = ar-cash.check-date
-           ar-ledger.tr-date  = tran-date
-           ar-ledger.tr-num   = xtrnum.
-          RELEASE ar-ledger.
-        END.
-      END.
-    END.  /* each line */
-
-    ASSIGN
-     cust.acc-bal   = cust.acc-bal - t1
-     cust.lpay      = t1
-     cust.lpay-date = ar-cash.check-date.
-
-    IF cust.acc-bal GE cust.hibal THEN
-      ASSIGN
-       cust.hibal      = cust.acc-bal
-       cust.hibal-date = ar-cash.check-date.
-
-    IF t1 NE 0 THEN DO:
-      FIND gltrans WHERE ROWID(gltrans) EQ lv-rowid NO-ERROR.
-      IF NOT AVAIL gltrans THEN DO:
-        CREATE gltrans.
-        ASSIGN
-         gltrans.company = cocode
-         gltrans.actnum  = xar-acct
-         gltrans.jrnl    = "CASHR"
-         gltrans.tr-dscr = "CASH RECEIPTS"
-         gltrans.tr-date = tran-date
-         gltrans.period  = tran-period
-         gltrans.trnum   = xtrnum
-         lv-rowid        = ROWID(gltrans).
-      END.
-      gltrans.tr-amt = gltrans.tr-amt - t1.
-      RELEASE gltrans.
-    END.
-
-    CREATE ar-ledger.
-    ASSIGN
-     ar-ledger.company  = cocode
-     ar-ledger.cust-no  = ar-cash.cust-no
-     ar-ledger.amt      = ar-cash.check-amt
-     ar-ledger.ref-num  = "CHK# " + STRING(ar-cash.check-no,"9999999999")
-     ar-ledger.ref-date = ar-cash.check-date
-     ar-ledger.tr-date  = tran-date
-     ar-ledger.tr-num   = xtrnum
-     ar-cash.posted     = YES.
-    RELEASE ar-ledger.
-
-    RELEASE cust.
-    RELEASE bank.
-
-    ACCUM tt-post.curr-amt - ar-cash.check-amt (TOTAL BY tt-post.actnum).
-
-    IF LAST-OF(tt-post.actnum) AND tt-post.actnum NE "" THEN DO:
-      CREATE gltrans.
-      ASSIGN
-       gltrans.company = cocode
-       gltrans.actnum  = tt-post.actnum
-       gltrans.jrnl    = "CASHR"
-       gltrans.tr-dscr = "CASH RECEIPTS CURRENCY GAIN/LOSS"
-       gltrans.tr-date = tran-date
-       gltrans.period  = tran-period
-       gltrans.trnum   = xtrnum
-       gltrans.tr-amt  = (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-cash.check-amt).
-
-      RELEASE gltrans.
-
-      CREATE gltrans.
-      ASSIGN
-       gltrans.company = cocode
-       gltrans.actnum  = tt-post.actnum
-       gltrans.jrnl    = "CASHR"
-       gltrans.tr-dscr = "CASH RECEIPTS CURRENCY GAIN/LOSS"
-       gltrans.tr-date = tran-date
-       gltrans.period  = tran-period
-       gltrans.trnum   = xtrnum
-       gltrans.tr-amt  = - (ACCUM TOTAL BY tt-post.actnum tt-post.curr-amt - ar-cash.check-amt).
-      RELEASE gltrans.
-    END.
-
-    DELETE tt-post.
-  END.
- END.  /* DO WHILE */
-
- RELEASE ar-cash.
+RELEASE ar-cash.
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateCustomerAccount C-Win
+PROCEDURE pUpdateCustomerAccount PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: To Update the customer's account data 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustNo        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdOnAccount     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdAccountBal    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdLastPayment   AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iplUpdateHighBal AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtLastPaydate  AS DATE      NO-UNDO.
+    
+    FIND FIRST cust EXCLUSIVE-LOCK 
+         WHERE cust.company EQ ipcCompany
+           AND cust.cust-no EQ ipcCustNo
+         NO-ERROR.
+  
+    IF AVAILABLE cust THEN 
+        ASSIGN
+            cust.on-account = ipdOnAccount
+            cust.acc-bal    = ipdAccountBal
+            cust.lpay       = ipdLastPayment
+            cust.lpay-date  = ipdtLastPayDate
+            cust.hibal      = IF iplUpdateHighBal THEN ipdAccountBal   ELSE cust.hibal
+            cust.hibal-date = IF iplUpdateHighBal THEN ipdtLastPayDate ELSE cust.hibal-date 
+            .
+            
+    RELEASE cust.
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
