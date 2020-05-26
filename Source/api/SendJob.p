@@ -78,6 +78,7 @@
     DEFINE VARIABLE cOpened                       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPrinted                      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCSRID                        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEnteredBy                    AS CHARACTER NO-UNDO.
     
     /*Job Material variables*/
     
@@ -243,6 +244,7 @@
                     cOpened                       = STRING(job-hdr.opened)
                     cPrinted                      = STRING(job-hdr.ftick-prnt)
                     cCSRID                        = job.csrUser_id
+                    cEnteredBy                    = job.user-id
                     .
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "AverageCost",cAverageCost).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Blank",cBlank).
@@ -271,7 +273,7 @@
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Printed",cPrinted).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "SquareInchPercentage",cSquareInchPct).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "CSRID",cCSRID).                
-                       
+                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "EnteredBy",cEnteredBy).       
                 lcConcatJobHeaderData = lcConcatJobHeaderData + lcJobHeaderData.
             END.
         END. 
