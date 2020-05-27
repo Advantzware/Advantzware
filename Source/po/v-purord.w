@@ -1051,21 +1051,32 @@ PROCEDURE close-reopen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
-
-
+  DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
+  DEFINE VARIABLE lOpened  AS LOGICAL NO-UNDO.
+  
+  IF AVAILABLE po-ord THEN
+      lOpened = po-ord.opened.
+      
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
 
   RUN browse-rowid IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rowid).
 
   RUN po/d-clspo.w (ROWID(po-ord)).
   
-  IF NOT po-ord.opened THEN
-      RUN pRunAPIOutboundTrigger (
-          BUFFER po-ord,
-          INPUT "ClosePurchaseOrder"
-          ).  
-          
+  /* Verify if purchase order's opened flag is modified, if not do not trigger api */ 
+  IF lOpened NE po-ord.opened THEN DO:
+      IF NOT po-ord.opened THEN
+          RUN pRunAPIOutboundTrigger (
+              BUFFER po-ord,
+              INPUT "ClosePurchaseOrder"
+              ).
+      ELSE  
+          RUN pRunAPIOutboundTrigger (
+              BUFFER po-ord,
+              INPUT "UpdatePurchaseOrder"
+              ).
+  END.
+  
   RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
 
 END PROCEDURE.
