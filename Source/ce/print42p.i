@@ -418,7 +418,11 @@ for each xef NO-LOCK
            blk.qyld     = qty
            blk.yr$      = xeb.yrprice
            blk.stock-no = xeb.stock-no
-           blk.pur-man  = xeb.pur-man.
+           blk.pur-man  = xeb.pur-man
+           blk.comm     = xeb.comm
+           blk.sman     = xeb.sman
+           blk.procat   = xeb.procat
+           .
        end.
        xxx = xxx + (xeb.t-sqin * xeb.num-up).
        IF cerunf = "HOP" THEN DO:

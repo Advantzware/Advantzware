@@ -49,6 +49,9 @@ assign
        blk.bnum     = xeb2.blank-no
        blk.qreq     = xeb2.bl-qty
        blk.stock-no = xeb2.stock-no
+       blk.comm     = xeb2.comm
+       blk.sman     = xeb2.sman
+       blk.procat   = xeb2.procat       
        blk.fact     = (fac-tot / qm)
        blk.cost     = (tt-tot / qm)
        blk.fg-wt    = (qm * brd-wu[1]) * (xeb2.bl-qty / qty)
