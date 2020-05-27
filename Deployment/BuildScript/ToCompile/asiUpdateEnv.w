@@ -2609,7 +2609,7 @@ PROCEDURE ipDataFix :
         RUN ipDataFix161500.
     IF fIntVer(cThisEntry) LT 20010000 THEN  
         RUN ipDataFix200100.
-    IF fIntVer(cThisEntry) LT 20010100 THEN  
+    IF fIntVer(cThisEntry) LT 20011000 THEN  
         RUN ipDataFix200110.
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
