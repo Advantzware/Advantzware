@@ -883,3 +883,21 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckRecord V-table-Win 
+PROCEDURE pCheckRecord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DEFINE OUTPUT PARAMETE oplCheckRecord AS LOGICAL NO-UNDO.
+  
+  IF AVAILABLE inv-misc THEN oplCheckRecord = YES.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
