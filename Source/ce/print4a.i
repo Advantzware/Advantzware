@@ -31,4 +31,8 @@ def {1} workfile blk no-undo
    field cost as dec format ">>>>>9.99"
    field stock-no as char
    field pur-man like eb.pur-man
-   FIELD freight AS DECIMAL .
+   FIELD freight AS DECIMAL 
+   FIELD comm    AS DECIMAL
+   FIELD sman    AS CHARACTER
+   FIELD procat  AS CHARACTER
+   .

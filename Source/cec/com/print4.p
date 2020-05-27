@@ -513,7 +513,11 @@ for each xef where xef.company = xest.company
           blk.qyld     = xeb.yld-qty
           blk.yr$      = xeb.yrprice
           blk.stock-no = xeb.stock-no
-          blk.pur-man  = xeb.pur-man.
+          blk.pur-man  = xeb.pur-man
+          blk.comm     = xeb.comm
+          blk.sman     = xeb.sman
+          blk.procat   = xeb.procat
+          .
       end.
       xxx = xxx + (xeb.t-sqin * xeb.num-up).
    end.
