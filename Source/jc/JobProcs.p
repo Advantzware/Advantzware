@@ -412,7 +412,106 @@ PROCEDURE JobParser:
     END.
 
 END PROCEDURE.
+PROCEDURE GetRecalcJobCostForJobHdr:
+    /*------------------------------------------------------------------------------
+     Purpose: given a job-hdr rowid, return the new values for standard costs
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriJobHdr AS ROWID NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostMat AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostLab AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostVO AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostFO AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bf-blank-job-mat FOR job-mat.
+    DEFINE BUFFER bf-blank-job-mch FOR job-mch.
+    DEFINE VARIABLE dCostMat AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostLab AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostVO  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostFO  AS DECIMAL NO-UNDO.
+        
+    FIND FIRST job-hdr NO-LOCK
+        WHERE ROWID(job-hdr) EQ ipriJobHdr
+        NO-ERROR.
+    
+    IF NOT AVAILABLE job-hdr THEN RETURN.
+    
+    FOR EACH job-mat NO-LOCK 
+        WHERE job-mat.company EQ job-hdr.company
+        AND job-mat.job EQ job-hdr.job
+        AND job-mat.job-no EQ job-hdr.job-no
+        AND job-mat.job-no2 EQ job-hdr.job-no2
+        AND (job-mat.frm EQ job-hdr.frm OR job-hdr.frm EQ 0)
+        :
+        dCostMat = 0.
+        IF job-hdr.blank-no EQ job-mat.blank-no OR job-mat.blank-no EQ 0 THEN 
+        DO: 
+            dCostMat = job-mat.cost-m.
+            IF job-mat.blank-no EQ 0 THEN 
+                    
+        END.
+        opdCostMat = opdCostMat + dCostMat.
+    END.
+    
+    FOR EACH job-mch NO-LOCK
+        WHERE job-mch.company EQ job-hdr.company
+        AND job-mch.job EQ job-hdr.job
+        AND job-mch.job-no EQ job-hdr.job-no
+        AND job-mch.job-no2 EQ job-hdr.job-no2
+        AND (job-mch.frm EQ job-hdr.frm OR job-hdr.frm EQ 0)
+        :
+        ASSIGN 
+            dCostLab = (job-mch.run-hr * job-mch.run-rate  + job-mch.mr-hr * job-mch.mr-rate) / job-hdr.qty * 1000
+            dCostVO  = (job-mch.run-hr * job-mch.run-varoh + job-mch.mr-hr * job-mch.mr-varoh) / job-hdr.qty * 1000
+            dCostFO  = (job-mch.run-hr * job-mch.run-fixoh + job-mch.mr-hr * job-mch.mr-fixoh) / job-hdr.qty * 1000
+            .
+        ASSIGN 
+            opdCostLab = opdCostLab + dCostLab
+            opdCostVO  = opdCostVO + dCostVO
+            opdCostFO  = opdCostFO + dCostFO
+            .
+    END.
+    FOR EACH job-prep NO-LOCK
+        WHERE job-prep.company EQ job-hdr.company
+        AND job-prep.job EQ job-hdr.job
+        AND job-prep.job-no EQ job-hdr.job-no
+        AND job-prep.job-no2 EQ job-hdr.job-no2:
+        
+        IF job-prep.ml THEN 
+            opdCostLab = opdCostLab + job-prep.cost-m.
+        ELSE 
+            opdCostMat = opdCostMat + job-prep.cost-m.
+    END.
 
+END PROCEDURE.
+
+PROCEDURE RecalcJobCostForJob:
+    /*------------------------------------------------------------------------------
+     Purpose:  This will do a recalculation of the job costs based on the 
+     job-mat, job-mch, and job-prep calculations.
+     Notes:  
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriJob AS ROWID NO-UNDO.
+
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+
+    FIND FIRST job NO-LOCK
+        WHERE ROWID(job) EQ ipriJob NO-ERROR.
+    IF NOT AVAILABLE job THEN 
+    DO: 
+        FIND FIRST job-hdr NO-LOCK 
+            WHERE ROWID(job-hdr) EQ ipriJob NO-ERROR.
+        RUN RecalcJobCostForJobHdr(ROWID(job-hdr)).
+    END.
+    ELSE 
+        FOR EACH job-hdr NO-LOCK 
+            WHERE job-hdr.company EQ job.company
+            AND job-hdr.job EQ job.job
+            AND job-hdr.job-no EQ job.job-no
+            AND job-hdr.job-no2 EQ job.job-no2:
+            RUN RecalcJobCostForJobHdr(ROWID(job-hdr)).
+        END. 
+END PROCEDURE.
 PROCEDURE ValidateJob:
     /*------------------------------------------------------------------------------
      Purpose: Validate Job 
