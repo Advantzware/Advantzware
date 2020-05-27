@@ -66,17 +66,17 @@ DEF VAR iBaseLevel AS INT NO-UNDO.
 DEFINE QUERY external_tables FOR arclass.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS arClass.classID arClass.inActive ~
-arClass.description arClass.receivablesAcct 
+arClass.description arClass.receivablesAcct arClass.currencyCode 
 &Scoped-define ENABLED-TABLES arClass
 &Scoped-define FIRST-ENABLED-TABLE arClass
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS arClass.classID arClass.inActive ~
-arClass.description arClass.receivablesAcct arClass.updateDate ~
-arClass.createDate arClass.createTime arClass.updateTime arClass.createUser ~
-arClass.updateUser 
+arClass.description arClass.receivablesAcct arClass.currencyCode ~
+arClass.createTime arClass.createUser arClass.updateTime arClass.updateUser ~
+arClass.createDate arClass.updateDate 
 &Scoped-define DISPLAYED-TABLES arClass
 &Scoped-define FIRST-DISPLAYED-TABLE arClass
-&Scoped-Define DISPLAYED-OBJECTS cUpdateTime cCreateTime 
+&Scoped-Define DISPLAYED-OBJECTS cCurrDscr cCreateTime cUpdateTime 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -111,21 +111,24 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE cCreateTime AS CHARACTER FORMAT "x(11)" 
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1
+     BGCOLOR 15 .
+
+DEFINE VARIABLE cCurrDscr AS CHARACTER FORMAT "x(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 47 BY 1
+     BGCOLOR 15 .
+
+DEFINE VARIABLE cUpdateTime AS CHARACTER FORMAT "x(11)" 
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1
+     BGCOLOR 15 .
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 100 BY 9.05.
-     
-DEFINE VARIABLE cCreateTime AS CHARACTER FORMAT "x(11)" 
-     LABEL "Create Time" 
-     VIEW-AS FILL-IN 
-     SIZE 18 BY 1 
-     BGCOLOR 15.  
-     
-DEFINE VARIABLE cUpdateTime AS CHARACTER FORMAT "x(11)" 
-     LABEL "Update Time" 
-     VIEW-AS FILL-IN 
-     SIZE 18 BY 1 
-     BGCOLOR 15.          
+     SIZE 106 BY 9.05.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -134,54 +137,59 @@ DEFINE FRAME F-Main
      arClass.classID AT ROW 1.24 COL 27.4 COLON-ALIGNED FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-          BGCOLOR 15
+          BGCOLOR 15 
      arClass.inActive AT ROW 1.38 COL 75
           VIEW-AS TOGGLE-BOX
           SIZE 15 BY 1
-          BGCOLOR 15
+          BGCOLOR 15 
      arClass.description AT ROW 2.43 COL 27.4 COLON-ALIGNED
           LABEL "Class Description" FORMAT "x(60)"
           VIEW-AS FILL-IN 
           SIZE 44 BY 1
-          BGCOLOR 15
+          BGCOLOR 15 
      arClass.receivablesAcct AT ROW 3.62 COL 27.4 COLON-ALIGNED HELP
           ""
           LABEL "Receivables Account" FORMAT "x(25)"
           VIEW-AS FILL-IN 
           SIZE 44 BY 1
-          BGCOLOR 15
-     arClass.updateDate AT ROW 5.29 COL 73 COLON-ALIGNED
-          LABEL "Update Date" FORMAT "99/99/9999"
+          BGCOLOR 15 
+     arClass.currencyCode AT ROW 4.81 COL 27.4 COLON-ALIGNED
+          LABEL "Currency Code" FORMAT "x(3)"
           VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-          BGCOLOR 15
-     arClass.createDate AT ROW 5.33 COL 27.4 COLON-ALIGNED
-          LABEL "Create Date" FORMAT "99/99/9999"
+          SIZE 9.6 BY 1
+          BGCOLOR 15 
+     cCurrDscr AT ROW 4.86 COL 38 COLON-ALIGNED NO-LABEL
+     
+     arClass.createTime AT ROW 6.67 COL 23 COLON-ALIGNED NO-LABEL FORMAT "99999"
           VIEW-AS FILL-IN 
-          SIZE 18 BY 1
+          SIZE 12 BY 1
           BGCOLOR 15
-     arClass.createTime AT ROW 6.67 COL 27.4 COLON-ALIGNED
-          LABEL "Create Time" FORMAT "99999"
+     cCreateTime AT ROW 6.67 COL 23 COLON-ALIGNED NO-LABEL     
+     arClass.createUser AT ROW 6.67 COL 40 COLON-ALIGNED
+          LABEL "By" FORMAT "x(12)"
           VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-          BGCOLOR 15
-     arClass.updateTime AT ROW 6.67 COL 73 COLON-ALIGNED
-          LABEL "Update Time" FORMAT "99999"
+          SIZE 9.5 BY 1
+          BGCOLOR 15     
+     arClass.updateTime AT ROW 6.67 COL 76.5 COLON-ALIGNED NO-LABEL FORMAT "99999"
           VIEW-AS FILL-IN 
-          SIZE 18 BY 1
+          SIZE 12 BY 1
           BGCOLOR 15
-     arClass.createUser AT ROW 7.95 COL 27.4 COLON-ALIGNED
-          LABEL "Create User" FORMAT "x(12)"
+     cUpdateTime AT ROW 6.67 COL 76.5 COLON-ALIGNED NO-LABEL        
+     arClass.updateUser AT ROW 6.67 COL 93.5 COLON-ALIGNED
+          LABEL "By" FORMAT "x(12)"
           VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-          BGCOLOR 15
-     arClass.updateUser AT ROW 8 COL 73 COLON-ALIGNED
-          LABEL "Update User" FORMAT "x(12)"
+          SIZE 9.5 BY 1
+          BGCOLOR 15 
+     arClass.createDate AT ROW 6.71 COL 10.6 COLON-ALIGNED
+          LABEL "Created" FORMAT "99/99/99"
           VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-          BGCOLOR 15
-     cCreateTime  AT ROW 6.67 COL 27.4 COLON-ALIGNED      
-     cUpdateTime  AT ROW 6.67 COL 73 COLON-ALIGNED      
+          SIZE 12 BY 1
+          BGCOLOR 15 
+     arClass.updateDate AT ROW 6.71 COL 64 COLON-ALIGNED
+          LABEL "Updated" FORMAT "99/99/99"
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+          BGCOLOR 15 
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -217,7 +225,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
          HEIGHT             = 9.14
-         WIDTH              = 100.2.
+         WIDTH              = 106.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -245,6 +253,10 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN cCreateTime IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN cCurrDscr IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN arClass.classID IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN arClass.createDate IN FRAME F-Main
@@ -253,6 +265,10 @@ ASSIGN
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN arClass.createUser IN FRAME F-Main
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
+/* SETTINGS FOR FILL-IN cUpdateTime IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN arClass.currencyCode IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN arClass.description IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN arClass.receivablesAcct IN FRAME F-Main
@@ -263,10 +279,6 @@ ASSIGN
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN arClass.updateUser IN FRAME F-Main
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
-/* SETTINGS FOR FILL-IN cCreateTime IN FRAME F-Main
-   NO-ENABLE EXP-LABEL EXP-FORMAT                                      */  
-/* SETTINGS FOR FILL-IN cUpdateTime IN FRAME F-Main
-   NO-ENABLE EXP-LABEL EXP-FORMAT                                      */   
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -285,6 +297,7 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
 &Scoped-define SELF-NAME F-Main
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
 ON HELP OF FRAME F-Main
@@ -311,9 +324,28 @@ DO:
        OUTPUT cFoundValue, 
        OUTPUT recRecordID ).  
        
-       IF cFoundValue NE "" THEN    
-         FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = cFoundValue.
-    END.        
+       IF cFoundValue NE "" THEN do:    
+         arclass.receivablesAcct:SCREEN-VALUE IN FRAME {&frame-name} = cFoundValue.
+         APPLY 'entry' TO arclass.receivablesAcct.
+       END.
+    END.      
+    WHEN "currencyCode" THEN DO:        
+       RUN system/openLookup.p (
+       INPUT  g_company, 
+       INPUT  "", /* Lookup ID */
+       INPUT  118,  /* Subject ID */
+       INPUT  "", /* User ID */
+       INPUT  0,  /* Param Value ID */
+       OUTPUT cFieldsValue, 
+       OUTPUT cFoundValue, 
+       OUTPUT recRecordID ).  
+       
+       IF cFoundValue NE "" THEN do: 
+         arclass.currencyCode:SCREEN-VALUE IN FRAME {&frame-name} = cFoundValue.
+         APPLY "value-changed" TO arclass.currencyCode .
+         APPLY 'entry' TO arclass.currencyCode.
+       END.
+    END.    
   END CASE.  
   {&methods/lValidateError.i NO}
 END.
@@ -322,9 +354,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME arclass.classID
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL arclass.classID V-table-Win
-ON LEAVE OF arclass.classID IN FRAME F-Main /* Module */
+&Scoped-define SELF-NAME arClass.classID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL arClass.classID V-table-Win
+ON LEAVE OF arClass.classID IN FRAME F-Main /* AR Class ID */
 DO:
     DEFINE VARIABLE lCheckReturnError AS LOGICAL NO-UNDO.
     IF LASTKEY NE -1 THEN DO:
@@ -336,15 +368,45 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME arclass.receivablesAcct
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL arclass.receivablesAcct V-table-Win
-ON LEAVE OF arclass.receivablesAcct IN FRAME F-Main /* receivablesAcct */
+
+&Scoped-define SELF-NAME arClass.receivablesAcct
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL arClass.receivablesAcct V-table-Win
+ON LEAVE OF arClass.receivablesAcct IN FRAME F-Main /* Receivables Account */
 DO:
     DEFINE VARIABLE lCheckReturnError AS LOGICAL NO-UNDO.
     IF LASTKEY NE -1 THEN DO:
       RUN valid-glAccount(OUTPUT lCheckReturnError) NO-ERROR.
       IF lCheckReturnError THEN RETURN NO-APPLY.
     END.     
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME arClass.currencyCode
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL arClass.currencyCode V-table-Win
+ON LEAVE OF arClass.currencyCode IN FRAME F-Main /* currencyCode */
+DO:
+    DEFINE VARIABLE lCheckReturnError AS LOGICAL NO-UNDO.
+    IF LASTKEY NE -1 THEN DO:
+      RUN valid-currency(OUTPUT lCheckReturnError) NO-ERROR.
+      IF lCheckReturnError THEN RETURN NO-APPLY.
+    END.     
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL arClass.currencyCode V-table-Win
+ON VALUE-CHANGED OF arClass.currencyCode IN FRAME F-Main /* currencyCode */
+DO:
+   FIND FIRST currency  NO-LOCK
+          WHERE currency.company = g_company
+          AND currency.c-code = arclass.currencyCode:SCREEN-VALUE
+          NO-ERROR. 
+      IF avail currency THEN
+       cCurrDscr:SCREEN-VALUE =  currency.c-desc. 
+     
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -527,7 +589,7 @@ PROCEDURE local-create-record :
       arclass.createUser:SCREEN-VALUE = USERID(LDBNAME(1)).
       DISPLAY  arclass.createDate arclass.createTime arclass.createUser .
       
-       cCreateTime:SCREEN-VALUE =  STRING(arclass.createTime,'HH:MM:SS am') .
+       cCreateTime:SCREEN-VALUE =  STRING(arclass.createTime,'HH:MM am') .
        
     END.
 END PROCEDURE.
@@ -561,10 +623,19 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-    IF AVAIL arclass THEN
-    ASSIGN
-       cCreateTime =  STRING(arclass.createTime,'HH:MM:SS am')
-       cUpdateTime =  STRING(arclass.updatetime,'HH:MM:SS am').
+    IF AVAIL arclass THEN do:
+     ASSIGN
+       cCreateTime =  STRING(arclass.createTime,'HH:MM am')
+       cUpdateTime =  STRING(arclass.updatetime,'HH:MM am').
+       
+     FIND FIRST currency  NO-LOCK
+          WHERE currency.company = g_company
+          AND currency.c-code = arclass.currencyCode
+          NO-ERROR. 
+      IF avail currency THEN
+       cCurrDscr =  currency.c-desc.       
+    END.
+       
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ).
     
 END PROCEDURE.
@@ -603,14 +674,17 @@ PROCEDURE local-update-record :
     RUN valid-glAccount(OUTPUT lCheckReturnError) NO-ERROR.
       IF lCheckReturnError THEN RETURN NO-APPLY.
     
+     RUN valid-currency(OUTPUT lCheckReturnError) NO-ERROR.
+      IF lCheckReturnError THEN RETURN NO-APPLY.
+    
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
     
     ASSIGN
         lAddRecord = FALSE.
     DO WITH FRAME {&FRAME-NAME}:    
     ASSIGN
-       cCreateTime:SCREEN-VALUE =  STRING(arclass.createTime,'HH:MM:SS am')
-       cUpdateTime:SCREEN-VALUE =  STRING(arclass.updatetime,'HH:MM:SS am'). 
+       cCreateTime:SCREEN-VALUE =  STRING(arclass.createTime,'HH:MM am')
+       cUpdateTime:SCREEN-VALUE =  STRING(arclass.updatetime,'HH:MM am'). 
     END.    
 
 END PROCEDURE.
@@ -661,7 +735,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-classID V-table-Win 
 PROCEDURE valid-classID :
 /*------------------------------------------------------------------------------
@@ -675,7 +748,7 @@ PROCEDURE valid-classID :
 
   DO WITH FRAME {&FRAME-NAME}:
     IF arclass.classID:SCREEN-VALUE EQ "" OR arclass.classID:SCREEN-VALUE EQ "0" THEN DO:
-        MESSAGE "Please enter a vaild AR ClassId " VIEW-AS ALERT-BOX INFO .
+        MESSAGE "Enter valid Ar Class id = Must enter a unique number from 1-99" VIEW-AS ALERT-BOX INFO .
         opReturnError = YES .                 
     END.
     ELSE DO:
@@ -721,6 +794,30 @@ PROCEDURE valid-glAccount :
     END.         
   END.
   {&methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-currency V-table-Win 
+PROCEDURE valid-currency :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER opReturnError AS LOGICAL NO-UNDO .
+  {methods/lValidateError.i YES}
+ FIND FIRST currency WHERE currency.company = g_company
+                       AND currency.c-code = arclass.currencyCode:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+                       NO-LOCK NO-ERROR.
+ IF NOT AVAIL currency THEN DO:
+    MESSAGE "Please enter a vaild Currency Code. Try help" VIEW-AS ALERT-BOX ERROR.
+    APPLY "entry" TO arclass.currencyCode.
+    opReturnError = TRUE.
+ END.
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
