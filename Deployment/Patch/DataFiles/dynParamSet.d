@@ -1,4 +1,4 @@
-1 "System" "Company" 2.91 22 yes "" yes "201902265356602670009"
+1 "System" "Company" 3.1 21 yes "" yes "201902265356602670009"
 2 "System" "Transaction Date Range" 4.81 61.4 yes "Transactions" yes "201902265840802670016"
 3 "System" "Machine Range" 5.48 70 yes "Machines" yes "201902266060702670027"
 4 "System" "Shift Range" 5.48 60 yes "Shifts" yes "201902266131902670045"
@@ -97,3 +97,6 @@
 105 "System" "Release Range" 5.48 34 yes "Releases" yes "202004236064305124138"
 106 "System" "Import File Parameters" 5.48 68 yes "Import File" yes "202004236125705124150"
 107 "System" "Due Release Dates" 6.91 33 yes "Update Dates" yes "202004236252205124248"
+108 "System" "Sales Group Range" 5.48 71 yes "Sales Group" yes "202004287485305172005"
+109 "System" "ShipTo Range" 5.48 69 yes "ShipTo" yes "202005062079105231430"
+112 "System" "Code Range" 5.48 74 yes "Machine Charge" yes "202005201753905284213"
