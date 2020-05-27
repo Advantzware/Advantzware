@@ -15,8 +15,8 @@
 /* ***************************  Definitions  ************************** */
 
 DEFINE TEMP-TABLE ttUOM 
-    FIELD uom                 AS CHARACTER CASE-SENSITIVE
-    FIELD uomBase             AS CHARACTER CASE-SENSITIVE
+    FIELD uom                 AS CHARACTER
+    FIELD uomBase             AS CHARACTER
     FIELD multiplierToBase    AS DECIMAL
     FIELD uomDescription      AS CHARACTER
     FIELD canUseOrderQuantity AS LOGICAL 
