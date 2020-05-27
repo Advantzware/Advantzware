@@ -543,7 +543,15 @@ PROCEDURE genOrderLinesLocal:
   DEFINE VARIABLE cCaseUOMList AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
-  
+  DEFINE VARIABLE dCostPerUOMTotal AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dCostPerUOMDL AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dCostPerUOMFO AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dCostPerUOMVO AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dCostPerUOMDM AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE cCostUOM AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE hdCostProcs AS HANDLE.
+  RUN system\CostProcs.p PERSISTENT SET hdCostProcs.  
   oplSuccess = YES.
   
   FIND oe-ord WHERE ROWID(oe-ord) EQ iprOeOrd NO-LOCK NO-ERROR.
@@ -668,7 +676,12 @@ PROCEDURE genOrderLinesLocal:
         oe-ordl.part-dscr1 = itemfg.part-dscr1
         oe-ordl.part-dscr2 = itemfg.part-dscr2 
         .
-
+        
+      RUN GetCostForOrderLine IN hdCostProcs(rowid(oe-ordl), OUTPUT dCostPerUOMTotal, OUTPUT dCostPerUOMDL,OUTPUT dCostPerUOMFO,
+                                             OUTPUT dCostPerUOMVO,OUTPUT dCostPerUOMDM, OUTPUT cCostUOM , OUTPUT lFound) .
+       oe-ordl.cost = dCostPerUOMTotal .
+       oe-ordl.t-cost = oe-ordl.cost * oe-ordl.qty / 1000 .
+      
       IF oe-ordl.pr-uom NE "EA" THEN 
       DO:  /*This assumes the qty uom is the same as the price uom on imported orders*/
           ASSIGN 
@@ -718,6 +731,7 @@ PROCEDURE genOrderLinesLocal:
   
   RELEASE oe-ord.  
   RELEASE oe-ordl.
+  DELETE OBJECT hdCostProcs.
 END PROCEDURE.
 
 PROCEDURE GetItemAndPart:

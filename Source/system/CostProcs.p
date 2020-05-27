@@ -17,6 +17,14 @@
 DEFINE VARIABLE gdMultiplierForSquareFoot AS DECIMAL NO-UNDO.
 DEFINE VARIABLE glIncludeFreight          AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdEstimateCalcProcs       AS HANDLE  NO-UNDO.
+DEF NEW SHARED VAR qty AS INT NO-UNDO.
+DEF NEW SHARED VAR v-shared-rel AS INT NO-UNDO.
+
+DEF NEW SHARED BUFFER xest FOR est.
+DEF NEW SHARED BUFFER xeb FOR eb.
+DEF NEW SHARED BUFFER xef FOR ef.
+{ce/print4.i "new shared"}
+{ce/print42.i "new shared"}
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -1257,6 +1265,125 @@ PROCEDURE GetHeaderCostForCategory:
             opdCostPerM = opdCostTotal / (estCostHeader.quantityMaster / 1000).
         
     END.
+
+END PROCEDURE.
+
+PROCEDURE GetCostForOrderLine:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an order line, get the total cost 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMDL AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMFO AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMVO AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMDM AS DECIMAL NO-UNDO.  
+    DEFINE OUTPUT PARAMETER opcCostUOM AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplFound AS LOGICAL NO-UNDO.
+
+    FIND FIRST oe-ordl NO-LOCK 
+        WHERE ROWID(oe-ordl) EQ ipriRowid
+        NO-ERROR. 
+        
+    IF AVAILABLE oe-ordl THEN 
+    DO:
+       oplFound = YES.
+       IF oe-ordl.est-no NE "" THEN
+       DO:
+          RUN GetCostFromEstNo (oe-ordl.company,oe-ordl.est-no,oe-ordl.part-no,oe-ordl.qty,oe-ordl.rel,
+                                OUTPUT opdCostPerUOMTotal,OUTPUT oplFound).
+          IF opdCostPerUOMTotal EQ ? THEN opdCostPerUOMTotal = 0.                      
+       END.
+       ELSE IF opdCostPerUOMTotal EQ 0 THEN DO:
+         
+         RUN GetCostForFGItem(oe-ordl.company,
+                oe-ordl.i-no,
+                OUTPUT opdCostPerUOMTotal,
+                OUTPUT opdCostPerUOMDL,
+                OUTPUT opdCostPerUOMFO,
+                OUTPUT opdCostPerUOMVO,
+                OUTPUT opdCostPerUOMDM,
+                OUTPUT opcCostUOM,
+                OUTPUT oplFound).  
+         IF opdCostPerUOMTotal EQ ? THEN opdCostPerUOMTotal = 0.       
+       END.        
+    END.
+
+END PROCEDURE.
+
+PROCEDURE GetCostFromEstNo:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an estimate, get the est cost 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimate AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPartNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOrdQty AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOrdRel AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerUOMTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplFound AS LOGICAL NO-UNDO.     
+    DEFINE VARIABLE cRunList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iEbCnt AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFullCost AS LOGICAL NO-UNDO.
+
+    RUN sys/ref/nk1look.p (ipcCompany, "FGOECOST", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    lFullCost = lFound AND cReturn EQ "YES".
+    
+    IF ipcEstimate NE "" AND NOT AVAIL xest THEN
+        FIND FIRST xest NO-LOCK
+             WHERE xest.company EQ ipcCompany 
+             AND xest.est-no EQ ipcEstimate  NO-ERROR.
+    IF AVAIL xest THEN DO :
+     FIND FIRST xeb NO-LOCK
+          WHERE xeb.company = ipcCompany 
+          AND xeb.est-no = ipcEstimate
+          AND xeb.part-no = ipcPartNo
+          NO-ERROR.
+     IF NOT AVAIL xeb THEN DO:
+       iEbCnt = 0.
+       FOR EACH xeb 
+          WHERE xeb.company = ipcCompany 
+          AND xeb.est-no = ipcEstimate            
+          NO-LOCK:
+         iEbCnt = iEbCnt + 1.
+       END.
+       /* If there is only one record, use it 03191507 */
+       IF iEbCnt EQ 1 THEN
+         FIND FIRST xeb
+              WHERE xeb.company = ipcCompany 
+              AND xeb.est-no = ipcEstimate
+              NO-LOCK NO-ERROR.
+     END.
+     
+     IF AVAIL xeb THEN
+     FIND FIRST xef
+          WHERE xef.company = ipcCompany 
+          AND xef.est-no = ipcEstimate
+          AND (xef.form-no = xeb.form-no OR xeb.form-no = 0)
+          NO-LOCK NO-ERROR.
+
+     ASSIGN
+        cRunList = "ce/print4.p,ce/box/print42.p,ce/tan/print4.p," +
+                     "ce/com/print4.p,cec/print4.p,cec/box/print42.p," +
+                     "cec/tan/print4.p,cec/com/print4.p"
+        qty = INT(ipiOrdQty)
+        v-shared-rel = ipiOrdRel.
+
+     IF AVAIL xeb AND AVAIL xef  AND
+        xest.est-type NE 3       AND
+        xest.est-type NE 4       AND
+        xest.est-type NE 8       THEN DO:
+
+        RUN VALUE(ENTRY(xest.est-type,cRunList)).     
+
+        opdCostPerUOMTotal = IF lFullCost THEN tt-tot ELSE ord-cost .
+     END.
+   END.     
 
 END PROCEDURE.
 

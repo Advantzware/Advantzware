@@ -797,6 +797,15 @@ PROCEDURE CreateOrder :
   DEFINE VARIABLE hOrderProcs AS HANDLE NO-UNDO.
   DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE dCostPerUOMTotal AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dCostPerUOMDL AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dCostPerUOMFO AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dCostPerUOMVO AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dCostPerUOMDM AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE cCostUOM AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE hdCostProcs AS HANDLE.
+  RUN system\CostProcs.p PERSISTENT SET hdCostProcs. 
   
   FOR EACH ttHeader BY ttHeader.Order#:
       IF NOT ttHeader.CustomerValid THEN NEXT.
@@ -935,6 +944,10 @@ PROCEDURE CreateOrder :
                              oe-ordl.part-dscr1 =  itemfg.part-dscr1
                              oe-ordl.part-dscr2 =  itemfg.part-dscr2 
                             .
+                  RUN GetCostForOrderLine IN hdCostProcs(rowid(oe-ordl), OUTPUT dCostPerUOMTotal, OUTPUT dCostPerUOMDL,OUTPUT dCostPerUOMFO,
+                                             OUTPUT dCostPerUOMVO,OUTPUT dCostPerUOMDM, OUTPUT cCostUOM , OUTPUT lFound) .
+                  oe-ordl.cost = dCostPerUOMTotal .
+                  oe-ordl.t-cost = oe-ordl.cost * oe-ordl.qty / 1000 .          
 
                    
                   RUN pAutoCreateShipTo (INPUT cocode, 
@@ -991,6 +1004,7 @@ PROCEDURE CreateOrder :
       END.
         
   END. /* Each tt-header */
+  DELETE OBJECT hdCostProcs.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
