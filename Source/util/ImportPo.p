@@ -22,7 +22,7 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD vend-no                 AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Vendor #" HELP "Required - Size:1"
     FIELD po-no                   AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "PO #" HELP "Optional - Integer or <AUTO> to auto-number.  Use <AUTO>#### where # is a unique group number. " 
     FIELD iline                   AS INTEGER FORMAT ">>>" COLUMN-LABEL "Po Line" HELP "Required - Integer"
-    FIELD due-date                AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Due Date" HELP "Optional - Date"
+    FIELD due-date                AS DATE FORMAT "99/99/9999" COLUMN-LABEL "Due Date" HELP "Optional - Date"
     FIELD ship-id                 AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Ship ID" HELP "Optional - Size:8"
     FIELD ship-name               AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Ship Name" HELP "Optional - Size:30"
     FIELD ship-addr1              AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Ship Address 1" HELP "Optional - Size:30"
@@ -51,20 +51,20 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD dscr2                   AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Description 2" HELP "Optional - Size:30"
     FIELD vend-i-no               AS CHARACTER FORMAT "x(15)" COLUMN-LABEL "Vendor Item #" HELP "Optional - Size:15"
     FIELD ord-qty                 AS DECIMAL FORMAT "->>>,>>>,>>9.9<<<<<" COLUMN-LABEL "Order Qty" HELP "Optional - Decimal"
-    FIELD pr-qty-uom              AS CHARACTER   FORMAT "x(3)" COLUMN-LABEL "Order UOM" HELP "Optional - Size:3"
+    FIELD pr-qty-uom              AS CHARACTER   FORMAT "x(3)" COLUMN-LABEL "Order UOM" HELP "Required - Size:3"
     FIELD t-rec-qty               AS DECIMAL   FORMAT "->>>,>>>,>>9.9<<<<<" COLUMN-LABEL "Qty Received" HELP "Optional - Decimal"
     FIELD cons-uom                AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Rec. UOM" HELP "Optional - Size:3"   
     FIELD cost                    AS DECIMAL   FORMAT "->,>>>,>>9.99<<<<" COLUMN-LABEL "Item Cost" HELP "Optional - Decimal"
-    FIELD pr-uom                  AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "UOM" HELP "Optional - Size:3"
+    FIELD pr-uom                  AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "UOM" HELP "Required - Size:3"
     FIELD buyer                   AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Buyer" HELP "Optional - Size:10"
-    FIELD stat                    AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Status" HELP "Optional - Size:10"
-    FIELD linestat                AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Item Status" HELP "Optional - Size:2"
+    FIELD stat                    AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Status" HELP "Required - Size:10"
+    FIELD linestat                AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Item Status" HELP "Required - Size:2"
     FIELD printed                 AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Printed" HELP "Optional - Yes Or No(Blank N)"
     FIELD opened                  AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Opened" HELP "Optional - Yes or No (Blank- No)"
     FIELD type                    AS CHARACTER   FORMAT "x(10)" COLUMN-LABEL "Type" HELP "Required - R D or S"
     FIELD contact                 AS CHARACTER   FORMAT "x(25)" COLUMN-LABEL "Contact" HELP "Optional - Size:25"
-    FIELD po-date                 AS CHARACTER   FORMAT "x(10)" COLUMN-LABEL "PO Date" HELP "Optional - Date"
-    FIELD last-ship-date          AS CHARACTER   FORMAT "x(10)" COLUMN-LABEL "Last Ship Date" HELP "Optional - Date"
+    FIELD po-date                 AS DATE   FORMAT "99/99/9999" COLUMN-LABEL "PO Date" HELP "Optional - Date"
+    FIELD last-ship-date          AS DATE   FORMAT "99/99/9999" COLUMN-LABEL "Last Ship Date" HELP "Optional - Date"
     FIELD setup                   AS DECIMAL FORMAT ">>,>>9.99" COLUMN-LABEL "Setup" HELP "Optional - Decimal"
     FIELD disc                    AS DECIMAL FORMAT "->>>,>>9.99" COLUMN-LABEL "Discount" HELP "Optional - Decimal"
     FIELD actnum                  AS CHARACTER FORMAT "x(25)" COLUMN-LABEL "GL Number" HELP "Optional - Size:25"
@@ -190,8 +190,8 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportPo.stat, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.stat).                                      
     RUN pAssignValueC (ipbf-ttImportPo.type, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.type).                             
     RUN pAssignValueC (ipbf-ttImportPo.contact, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.contact).                                 
-    RUN pAssignValueCToDt (ipbf-ttImportPo.po-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.po-date).                                          
-    RUN pAssignValueCToDt (ipbf-ttImportPo.last-ship-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.last-ship-date).
+    RUN pAssignValueDate (ipbf-ttImportPo.po-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.po-date).                                          
+    RUN pAssignValueDate (ipbf-ttImportPo.last-ship-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.last-ship-date).
     RUN pAssignValueD (ipbf-ttImportPo.over-pct, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.over-pct).                                           
     RUN pAssignValueD (ipbf-ttImportPo.under-pct, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.under-pct).
     
@@ -223,7 +223,7 @@ PROCEDURE pProcessRecord PRIVATE:
 
     END.       
         
-    RUN pAssignValueCToDt (ipbf-ttImportPo.due-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.due-date).                         
+    RUN pAssignValueDate (ipbf-ttImportPo.due-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.due-date).                         
     RUN pAssignValueC (ipbf-ttImportPo.job-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.job-no).                                 
     RUN pAssignValueC (ipbf-ttImportPo.i-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.i-no).                                          
     RUN pAssignValueC (ipbf-ttImportPo.i-name, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.i-name).                                     
