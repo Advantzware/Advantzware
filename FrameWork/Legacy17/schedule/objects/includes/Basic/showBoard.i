@@ -1,3 +1,0 @@
-/* showBoard.i */
-
-/* static version */

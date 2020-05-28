@@ -466,10 +466,11 @@ DO:
         btnOutputFormat:LOAD-IMAGE("Graphics/32x32/" +
             ENTRY(LOOKUP(ttDynParamValue.outputFormat,cOutputFormat),cOutputImage)).
         ASSIGN
-            btnOutputFormat:HIDDEN = ttDynParamValue.user-id EQ "{&defaultUser}"
-            btnDeleteTask:HIDDEN   = btnOutputFormat:HIDDEN
-            btnSubjctAttr:HIDDEN   = btnOutputFormat:HIDDEN
             btnScheduleTask:HIDDEN = ttDynParamValue.paramValueID EQ 0
+            btnDeleteTask:HIDDEN   = ttDynParamValue.user-id EQ "{&defaultUser}"
+            btnSubjctAttr:HIDDEN   = btnDeleteTask:HIDDEN
+            btnOutputFormat:HIDDEN = btnDeleteTask:HIDDEN OR
+                                     ttDynParamValue.outputFormat EQ "Print -d"
             .
     END. /* if avail */
 END.

@@ -144,6 +144,8 @@ DEFINE VARIABLE ll-warned AS LOG NO-UNDO.
 DEFINE VARIABLE v-ttl-tax AS DECIMAL NO-UNDO.
 DEFINE VARIABLE v-ttl-rate AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cItemFgCat LIKE itemfg.procat NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
 DEFINE TEMP-TABLE w-report NO-UNDO LIKE report.
 
@@ -208,21 +210,20 @@ DO TRANSACTION:
 END.
 v-export = sys-ctrl.char-fld.
 
-FIND FIRST sys-ctrl
-    WHERE sys-ctrl.company EQ cocode
-    AND sys-ctrl.name    EQ "UseNewInvoicePost"
-    NO-LOCK NO-ERROR.
-IF NOT AVAILABLE sys-ctrl THEN 
-DO TRANSACTION:
-    CREATE sys-ctrl.
-    ASSIGN
-        sys-ctrl.company = cocode
-        sys-ctrl.name    = "UseNewInvoicePost"
-        sys-ctrl.char-fld = "./CustFiles/AOA".
-END.
-ASSIGN 
-    lUseNewInvoicePost = sys-ctrl.log-fld.
-
+RUN sys/ref/nk1look.p  (INPUT cocode, 
+                        "UseNewInvoicePost", 
+                        "L",     /* Logical */ 
+                        NO,     /* check by cust */ 
+                        YES,     /* use cust not vendor */ 
+                        "",     /* cust */
+                        "",      /* ship-to*/
+                        OUTPUT cRtnChar, 
+                        OUTPUT lRecFound).
+IF lRecFound THEN ASSIGN 
+    lUseNewInvoicePost = LOGICAL(cRtnChar) NO-ERROR.
+ELSE ASSIGN 
+    lUseNewInvoicePost = FALSE.
+    
 FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK.
 ASSIGN
     v-fr-tax = oe-ctrl.f-tax
@@ -1583,6 +1584,7 @@ PROCEDURE list-gl :
     DEFINE VARIABLE lv-label-ton AS CHARACTER FORMAT "x(22)" EXTENT 2 NO-UNDO.
     DEFINE VARIABLE v-recid AS RECID INIT ?.
     DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
+    DEFINE VARIABLE dRecTot AS DECIMAL NO-UNDO.
 
     DEFINE BUFFER b-tt-report FOR tt-report.
 
@@ -2048,55 +2050,72 @@ PROCEDURE list-gl :
 
             v-balance = v-balance + v-disp-amt.
         END.  
-        /** OFFSET ENTRY TO G/L **/
-        FIND FIRST account
-            WHERE account.company = cocode
-            AND account.actnum  = v-ar-acct
-            NO-LOCK NO-ERROR.
-        ASSIGN
-            v-dscr        = IF AVAILABLE account THEN account.dscr
-                     ELSE "ACCOUNT NOT FOUND - OFFSET"
-            v-disp-actnum = v-ar-acct
-            v-disp-amt    = v-post-total.
+        /** OFFSET ENTRY TO G/L **/         
+        FOR EACH tt-report
+            WHERE tt-report.term-id EQ ""
+            AND tt-report.key-01  EQ "act-rece"
+            NO-LOCK
+            BREAK BY tt-report.key-02:
+                       
+                FIND FIRST account
+                     WHERE account.company = cocode
+                     AND account.actnum  = tt-report.key-02
+                     NO-LOCK NO-ERROR.
+                     
+                  IF first-of(tt-report.key-02) THEN
+                   ASSIGN
+                    v-disp-amt = 0
+                    dRecTot    = 0.
+                     
+                     ASSIGN
+                      v-dscr        = IF AVAILABLE account THEN account.dscr
+                                       ELSE "ACCOUNT NOT FOUND - OFFSET"
+                      v-disp-actnum = tt-report.key-02
+                      v-disp-amt    = v-disp-amt + dec(tt-report.key-05)
+                      dRecTot       = dRecTot + dec(tt-report.key-06).                 
 
-        IF v-gldetail THEN 
-        DO:
-            ASSIGN
-                ld-t[1]       = v-post-total-w / 2000
-                ld-pton       = v-disp-amt / ld-t[1].
+                IF LAST-OF(tt-report.key-02) THEN 
+                DO:
+                    IF v-gldetail THEN 
+                    DO:
+                        ASSIGN
+                            ld-t[1]       = dRecTot / 2000
+                            ld-pton       = v-disp-amt / ld-t[1].
 
-            IF ld-pton EQ ? THEN ld-pton = 0.
+                        IF ld-pton EQ ? THEN ld-pton = 0.
 
-            DISPLAY v-ar-acct     @ account.actnum
-                v-dscr
-                v-disp-amt    @ v-tmp-amt
-                ld-pton FORMAT "->>>>>>9.999" 
-                WHEN tb_ton 
-                ld-t[1] 
-                WHEN tb_ton 
-                WITH FRAME gl-det.
-            DOWN WITH FRAME gl-det.
-        END.
+                        DISPLAY tt-report.key-02     @ account.actnum
+                            v-dscr
+                            v-disp-amt    @ v-tmp-amt
+                            ld-pton FORMAT "->>>>>>9.999" 
+                            WHEN tb_ton 
+                            ld-t[1] 
+                            WHEN tb_ton 
+                            WITH FRAME gl-det.
+                        DOWN WITH FRAME gl-det.
+                    END.
+                    ELSE 
+                    DO:
+                        ASSIGN
+                            ld-t[2]       = dRecTot / 2000
+                            ld-pton       = v-disp-amt / ld-t[2].
 
-        ELSE 
-        DO:
-            ASSIGN
-                ld-t[2]       = v-post-total-w / 2000
-                ld-pton       = v-disp-amt / ld-t[2].
+                        IF ld-pton EQ ? THEN ld-pton = 0.
 
-            IF ld-pton EQ ? THEN ld-pton = 0.
-
-            DISPLAY v-disp-actnum
-                v-dscr
-                tran-date
-                v-disp-amt
-                ld-pton FORMAT "->>>>>>9.999" 
-                WHEN tb_ton 
-                ld-t[2] 
-                WHEN tb_ton 
-                WITH FRAME gl-sum.
-            DOWN WITH FRAME gl-sum.
-        END.
+                        DISPLAY v-disp-actnum
+                            v-dscr
+                            tran-date
+                            v-disp-amt
+                            ld-pton FORMAT "->>>>>>9.999" 
+                            WHEN tb_ton 
+                            ld-t[2] 
+                            WHEN tb_ton 
+                            WITH FRAME gl-sum.
+                        DOWN WITH FRAME gl-sum.
+                    END.
+                    
+                END.
+            END.    /* for each "act-rece"*/       
 
         v-balance = v-balance + v-post-total.   
         IF v-gldetail THEN
@@ -2256,14 +2275,15 @@ PROCEDURE list-post-inv :
 
         BY w-report.key-01:
  
-        /* Create eddoc for invoice if required */
-        RUN ed/asi/o810hook.p (RECID(inv-head), NO, NO).    
-        
+           
         FIND FIRST edmast NO-LOCK
             WHERE edmast.cust EQ inv-head.cust-no
             NO-ERROR.
-        IF AVAILABLE edmast THEN 
-        DO: 
+        IF AVAILABLE edmast AND v-post THEN 
+        DO:             
+            /* Create eddoc for invoice if required */
+            RUN ed/asi/o810hook.p (RECID(inv-head), NO, NO). 
+            
             FIND FIRST edcode NO-LOCK
                 WHERE edcode.partner EQ edmast.partner
                 NO-ERROR.
@@ -2271,12 +2291,10 @@ PROCEDURE list-post-inv :
                 FIND FIRST edcode NO-LOCK
                     WHERE edcode.partner EQ edmast.partnerGrp
                     NO-ERROR.
+            IF AVAILABLE edcode AND edcode.sendFileOnPrint THEN    
+                RUN ed/asi/write810.p (INPUT cocode, INPUT inv-head.inv-no).                     
         END.  
-     
-        IF AVAILABLE edcode AND edcode.sendFileOnPrint THEN    
-            RUN ed/asi/write810.p (INPUT cocode, INPUT inv-head.inv-no).    
-              
-            {oe/r-inve&p.i}
+        {oe/r-inve&p.i}
     END.
 
     FIND CURRENT inv-head NO-LOCK NO-ERROR.
@@ -2563,20 +2581,33 @@ PROCEDURE post-gl :
                 v-post-cash = - v-post-cash.
             RELEASE gltrans.
         END.
-        /** OFFSET ENTRY TO G/L **/
-        CREATE tt-gl.
-        CREATE gltrans.
-        ASSIGN
-            tt-gl.row-id    = ROWID(gltrans)
-            gltrans.company = cocode
-            gltrans.actnum  = v-ar-acct
-            gltrans.jrnl    = "OEINV"
-            gltrans.tr-dscr = "ORDER ENTRY INVOICE"
-            gltrans.tr-date = tran-date
-            gltrans.tr-amt  = v-post-total
-            gltrans.period  = tran-period
-            gltrans.trnum   = v-trnum.
-        RELEASE gltrans.
+        /** OFFSET ENTRY TO G/L **/             
+        FOR EACH tt-report
+            WHERE tt-report.term-id EQ ""
+            AND tt-report.key-01  EQ "act-rece"
+            NO-LOCK
+            BREAK BY tt-report.key-02:
+
+            ACCUMULATE dec(tt-report.key-05) (TOTAL BY tt-report.key-02).
+
+            IF LAST-OF(tt-report.key-02) THEN 
+            DO:       
+                CREATE tt-gl.
+                CREATE gltrans.
+                ASSIGN
+                    tt-gl.row-id    = ROWID(gltrans)
+                    gltrans.company = cocode
+                    gltrans.actnum  = tt-report.key-02
+                    gltrans.jrnl    = "OEINV"
+                    gltrans.tr-dscr = "ORDER ENTRY INVOICE"
+                    gltrans.tr-date = tran-date
+                    gltrans.tr-amt  = - (ACCUMULATE TOTAL BY tt-report.key-02 dec(tt-report.key-05))
+                    gltrans.period  = tran-period
+                    gltrans.trnum   = v-trnum.
+
+                RELEASE gltrans.
+            END. /* last actnum */
+        END. /* each act-rece */
     END.
 
 END PROCEDURE.

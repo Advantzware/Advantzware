@@ -1,1 +1,0 @@
- STRING(job-hdr.job)

@@ -5,11 +5,25 @@
 
 DEFINE BUFFER b-prgrms FOR prgrms.
 
-DEFINE VARIABLE v-prgmname   LIKE b-prgrms.prgmname NO-UNDO.
-DEFINE VARIABLE period_pos   AS INTEGER NO-UNDO.
-DEFINE VARIABLE num-groups   AS INTEGER NO-UNDO.
-DEFINE VARIABLE group-ok     AS LOGICAL NO-UNDO.
-DEFINE VARIABLE access-close AS LOGICAL NO-UNDO.
+DEFINE VARIABLE v-prgmname              LIKE b-prgrms.prgmname NO-UNDO.
+DEFINE VARIABLE period_pos              AS INTEGER             NO-UNDO.
+DEFINE VARIABLE num-groups              AS INTEGER             NO-UNDO.
+DEFINE VARIABLE group-ok                AS LOGICAL             NO-UNDO.
+DEFINE VARIABLE access-close            AS LOGICAL             NO-UNDO.
+DEFINE VARIABLE lNK1RecFound            AS LOGICAL             NO-UNDO.
+DEFINE VARIABLE cShowRestrictionMessage AS CHARACTER           NO-UNDO.
+
+RUN sys/ref/nk1look.p(
+     INPUT g_company,
+     INPUT "ShowRestrictionMessage",
+     INPUT "L",
+     INPUT NO,
+     INPUT NO,
+     INPUT "",
+     INPUT "",
+     OUTPUT cShowRestrictionMessage,
+     OUTPUT lNK1RecFound
+     ).
 
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
@@ -39,11 +53,13 @@ IF AVAILABLE b-prgrms THEN DO:
        NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),USERID("ASI")) AND
        NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),USERID("ASI")) AND
        NOT group-ok THEN DO:
-        MESSAGE "Program :" PROGRAM-NAME(1) SKIP 
-            "Title :" b-prgrms.prgtitle SKIP(1)
-            "Access to this Program Denied - Contact Systems Manager"
-        VIEW-AS ALERT-BOX ERROR.
-        access-close = YES.    /* used later in methods/template/windows.i - local-initialize procedure */    
+        access-close = YES.    /* used later in methods/template/windows.i - local-initialize procedure */ 
+        IF LOGICAL(cShowRestrictionMessage) THEN
+             MESSAGE "Program :" PROGRAM-NAME(1) SKIP 
+                "Title :" b-prgrms.prgtitle SKIP(1)
+                "Access to this Program Denied - Contact Systems Manager"
+                VIEW-AS ALERT-BOX ERROR.
+           
         IF "{1}" NE "WIN" THEN DO:
             APPLY 'CLOSE' TO THIS-PROCEDURE. /*task 10020703*/
             RETURN.

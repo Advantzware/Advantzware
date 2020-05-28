@@ -4429,7 +4429,8 @@ PROCEDURE display-est-detail :
         NOT CAN-FIND(FIRST tt-item-qty-price WHERE
           tt-item-qty-price.tt-selected = YES AND
           (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
-           (tt-item-qty-price.part-no EQ oe-ordl.i-no:SCREEN-VALUE AND oe-ordl.i-no:SCREEN-VALUE NE ""))) THEN
+           (tt-item-qty-price.part-no EQ oe-ordl.i-no:SCREEN-VALUE AND oe-ordl.i-no:SCREEN-VALUE NE "")))
+           AND oe-ordl.sourceEstimateID:SCREEN-VALUE EQ "" THEN
         DO:
           FIND FIRST quotehd NO-LOCK 
               WHERE quotehd.company EQ est.company AND
@@ -4777,7 +4778,8 @@ DO WITH FRAME {&FRAME-NAME}:
               IF NOT CAN-FIND(FIRST tt-item-qty-price WHERE
                  tt-item-qty-price.tt-selected = YES AND
                  (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
-                 (tt-item-qty-price.part-no EQ v-tmp-part AND v-tmp-part EQ ""))) THEN
+                 (tt-item-qty-price.part-no EQ v-tmp-part AND v-tmp-part EQ ""))) 
+                 AND oe-ordl.sourceEstimateID:SCREEN-VALUE EQ "" THEN
                  DO:
                     RUN pGetQuoteRec(xest.est-no,oe-ordl.part-no:SCREEN-VALUE,
                                      v-tmp-part,
@@ -6399,7 +6401,7 @@ PROCEDURE leave-qty :
 
        RUN get-est-cost (lv-est-no).
 
-       IF AVAIL xest AND v-quo-price-log AND NOT ll-got-qtprice THEN DO:
+       IF AVAIL xest AND v-quo-price-log AND NOT ll-got-qtprice AND oe-ordl.sourceEstimateID:SCREEN-VALUE EQ "" THEN DO:
           ASSIGN lv-price = dec(oe-ordl.price:screen-value)
                  lv-pr-uom = oe-ordl.pr-uom:screen-value
                  lv-qty    = DEC(oe-ordl.qty:SCREEN-VALUE)
@@ -7594,6 +7596,7 @@ PROCEDURE prev-quote-proc :
              NOT(quoteqty.price EQ DEC(oe-ordl.price:SCREEN-VALUE) AND
                  quoteqty.uom EQ oe-ordl.pr-uom:SCREEN-VALUE)) 
                OR NOT AVAIL quoteqty 
+               AND oe-ordl.sourceEstimateID:SCREEN-VALUE EQ ""
               THEN
              DO WITH FRAME {&FRAME-NAME}:
                 RUN oe/d-quotedprices.w("",cocode,

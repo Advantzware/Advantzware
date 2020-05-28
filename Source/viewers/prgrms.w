@@ -94,7 +94,8 @@ prgrms.pageSubjectID[13] prgrms.pageSubjectID[14] prgrms.pageSubjectID[15] ~
 prgrms.pageSubjectID[16] prgrms.pageSubjectID[17] prgrms.pageSubjectID[18] ~
 prgrms.pageSubjectID[19] prgrms.pageSubjectID[20] prgrms.menu_item ~
 prgrms.securityLevelDefault prgrms.mnemonic prgrms.systemType ~
-prgrms.menuOrder prgrms.menuLevel prgrms.menuImage[1] prgrms.itemParent 
+prgrms.menuOrder prgrms.menuLevel prgrms.menuImage[1] prgrms.itemParent ~
+prgrms.customMenuTitle
 &Scoped-define ENABLED-TABLES prgrms
 &Scoped-define FIRST-ENABLED-TABLE prgrms
 &Scoped-Define DISPLAYED-FIELDS prgrms.prgmname prgrms.prgtitle ~
@@ -110,7 +111,7 @@ prgrms.pageSubjectID[15] prgrms.pageSubjectID[16] prgrms.pageSubjectID[17] ~
 prgrms.pageSubjectID[18] prgrms.pageSubjectID[19] prgrms.pageSubjectID[20] ~
 prgrms.menu_item prgrms.securityLevelDefault prgrms.mnemonic ~
 prgrms.systemType prgrms.menuOrder prgrms.menuLevel prgrms.menuImage[1] ~
-prgrms.itemParent 
+prgrms.itemParent prgrms.customMenuTitle
 &Scoped-define DISPLAYED-TABLES prgrms
 &Scoped-define FIRST-DISPLAYED-TABLE prgrms
 &Scoped-Define DISPLAYED-OBJECTS F1 F-2 parentPrgTitle 
@@ -259,7 +260,7 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 128 BY 3.76.
+     SIZE 128 BY 4.81.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -274,7 +275,7 @@ DEFINE FRAME F-Main
      prgrms.prgtitle AT ROW 1.24 COL 55 COLON-ALIGNED FORMAT "X(60)"
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
-          BGCOLOR 15 FONT 4
+          BGCOLOR 15 FONT 4          
      prgrms.dir_group AT ROW 2.43 COL 10 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
@@ -300,23 +301,23 @@ DEFINE FRAME F-Main
           SIZE 11 BY 1
      prgrms.can_run AT ROW 3.62 COL 12 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 118 BY 3.1
+          SIZE 118 BY 2.9
           BGCOLOR 15 
-     prgrms.can_create AT ROW 6.71 COL 12 NO-LABEL
+     prgrms.can_create AT ROW 6.52 COL 12 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 118 BY 3.1
+          SIZE 118 BY 2.9
           BGCOLOR 15 
-     prgrms.can_update AT ROW 9.81 COL 12 NO-LABEL
+     prgrms.can_update AT ROW 9.43 COL 12 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 118 BY 3.1
+          SIZE 118 BY 2.9
           BGCOLOR 15 
-     prgrms.can_delete AT ROW 12.91 COL 12 NO-LABEL
+     prgrms.can_delete AT ROW 12.33 COL 12 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 118 BY 3.1
+          SIZE 118 BY 2.9
           BGCOLOR 15 
-     prgrms.mfgroup AT ROW 16 COL 12 NO-LABEL
+     prgrms.mfgroup AT ROW 15.24 COL 12 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 118 BY 3.1
+          SIZE 118 BY 2.9
           BGCOLOR 15 
      prgrms.subjectID AT ROW 1.24 COL 133 COLON-ALIGNED WIDGET-ID 32
           LABEL "Menu Subject ID"
@@ -457,6 +458,10 @@ DEFINE FRAME F-Main
           SIZE 14.6 BY 1
           BGCOLOR 15 
      btnParam-19 AT ROW 22.38 COL 150 WIDGET-ID 252
+     prgrms.customMenuTitle AT ROW 18.81 COL 14 COLON-ALIGNED FORMAT "X(32)"
+          VIEW-AS FILL-IN 
+          SIZE 50 BY 1
+          BGCOLOR 15 FONT 4 
      prgrms.menu_item AT ROW 19.81 COL 16
           VIEW-AS TOGGLE-BOX
           SIZE 14 BY 1
@@ -505,12 +510,12 @@ DEFINE FRAME F-Main
      "View:" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 3.62 COL 6
      " Menu Fields" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 19.33 COL 4 WIDGET-ID 28
+          SIZE 12 BY .62 AT ROW 18.19 COL 3 WIDGET-ID 28
      "Page |   Subject ID   | Initialize" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 2.43 COL 129 WIDGET-ID 164
      RECT-1 AT ROW 1 COL 1
      cMenuImage AT ROW 21 COL 100 WIDGET-ID 18
-     RECT-2 AT ROW 19.57 COL 2 WIDGET-ID 26
+     RECT-2 AT ROW 18.52 COL 2 WIDGET-ID 26
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -693,6 +698,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR COMBO-BOX prgrms.systemType IN FRAME F-Main
    5 EXP-LABEL                                                          */
+/* SETTINGS FOR FILL-IN customMenuTitle IN FRAME F-Main
+   EXP-FORMAT                                                           */   
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 

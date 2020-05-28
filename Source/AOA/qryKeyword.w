@@ -41,6 +41,7 @@ DEFINE TEMP-TABLE ttKeyword NO-UNDO
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -70,7 +71,7 @@ DEFINE TEMP-TABLE ttKeyword NO-UNDO
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnOK BROWSE-1 btnCancel constantValue 
+&Scoped-Define ENABLED-OBJECTS BROWSE-1 btnOK btnCancel constantValue 
 &Scoped-Define DISPLAYED-OBJECTS constantValue 
 
 /* Custom List Definitions                                              */
@@ -78,6 +79,8 @@ DEFINE TEMP-TABLE ttKeyword NO-UNDO
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -117,23 +120,25 @@ DEFINE BROWSE BROWSE-1
       ttKeyword.keywordLabel
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-LABELS NO-ROW-MARKERS SEPARATORS SIZE 35 BY 23.57.
+    WITH NO-LABELS NO-ROW-MARKERS SEPARATORS SIZE 35 BY 24.05.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     btnOK AT ROW 27.19 COL 20 WIDGET-ID 6
      BROWSE-1 AT ROW 1.24 COL 2 WIDGET-ID 200
-     btnCancel AT ROW 27.19 COL 28 WIDGET-ID 4
-     constantValue AT ROW 25.76 COL 2 NO-LABEL WIDGET-ID 8
+     btnOK AT ROW 27.43 COL 20 WIDGET-ID 6
+     btnCancel AT ROW 27.43 COL 28 WIDGET-ID 4
+     constantValue AT ROW 26 COL 2 NO-LABEL WIDGET-ID 8
      "Constant:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 25.05 COL 2 WIDGET-ID 10
-     RECT-1 AT ROW 26.95 COL 19 WIDGET-ID 2
-     SPACE(0.20) SKIP(0.00)
+          SIZE 10 BY .62 AT ROW 25.29 COL 2 WIDGET-ID 10
+     RECT-1 AT ROW 27.19 COL 19 WIDGET-ID 2
+     SPACE(0.19) SKIP(0.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          BGCOLOR 15 FGCOLOR 1 
          TITLE "Keywords" WIDGET-ID 100.
+
 
 /* *********************** Procedure Settings ************************ */
 
@@ -144,6 +149,8 @@ DEFINE FRAME Dialog-Frame
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
+
+
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
@@ -162,6 +169,7 @@ ASSIGN
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
+
 /* Setting information for Queries and Browse Widgets fields            */
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
@@ -173,7 +181,11 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttKeyword.
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
 
- /* ************************  Control Triggers  ************************ */
+ 
+
+
+
+/* ************************  Control Triggers  ************************ */
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
@@ -185,6 +197,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define BROWSE-NAME BROWSE-1
 &Scoped-define SELF-NAME BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
@@ -195,6 +208,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON VALUE-CHANGED OF BROWSE-1 IN FRAME Dialog-Frame
@@ -209,6 +223,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME btnCancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel Dialog-Frame
 ON CHOOSE OF btnCancel IN FRAME Dialog-Frame /* Cancel */
@@ -218,6 +233,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btnOK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOK Dialog-Frame
@@ -233,11 +249,11 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
 
-/* ***************************  Main Block  *************************** */
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
@@ -271,6 +287,7 @@ RUN disable_UI.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* **********************  Internal Procedures  *********************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
@@ -303,7 +320,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY constantValue 
       WITH FRAME Dialog-Frame.
-  ENABLE btnOK BROWSE-1 btnCancel constantValue 
+  ENABLE BROWSE-1 btnOK btnCancel constantValue 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -323,10 +340,13 @@ PROCEDURE pCreateTtKeyword :
     DEFINE VARIABLE idx    AS INTEGER   NO-UNDO.
     
     ASSIGN
-        cLabel = "CHR (|"
+        cLabel = "ASCENDING|"
+               + "BY|"
+               + "CHR (|"
                + "DATE (|"
                + "DATETIME (|"
                + "DEC (|"
+               + "DESCENDING|"
                + "FALSE|"
                + "FILL (|"
                + "INT (|"
@@ -366,3 +386,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

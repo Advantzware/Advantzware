@@ -347,10 +347,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   ASSIGN
     PageFormat:SCREEN-VALUE   = STRING(iopiPageFormat)
     cOrientation:SCREEN-VALUE = iopcOrientation
+    .
+  APPLY "VALUE-CHANGED":U TO PageFormat.
+  APPLY "VALUE-CHANGED":U TO cOrientation.
+  ASSIGN
     iPageWidth:SCREEN-VALUE   = STRING(iopiPageWidth)
     iPageHeight:SCREEN-VALUE  = STRING(iopiPageHeight)
     .
-  APPLY "VALUE-CHANGED":U TO PageFormat.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.

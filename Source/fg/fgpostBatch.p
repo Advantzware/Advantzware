@@ -676,6 +676,7 @@ PROCEDURE fg-post:
                 FIND CURRENT fg-bin NO-LOCK NO-ERROR.
                 LEAVE loop1.
             END. /* IF AVAIL itemfg */
+            PAUSE 1 NO-MESSAGE.  /* This limits the "thrash" of DB checks and network traffic to 1/sec rather than 12K/sec */ 
         END. /* loop1 REPEAT */
 
         IF w-fg-rctd.rita-code = "R" THEN 
@@ -1586,9 +1587,10 @@ FUNCTION fCanCloseJob RETURNS LOGICAL
     DEFINE VARIABLE v-reduce-qty   AS INTEGER   NO-UNDO.   
     DEFINE VARIABLE ll-whs-item    AS LOG       NO-UNDO.       
     DEFINE BUFFER b-itemfg FOR itemfg.
-	FIND FIRST job
-	   WHERE RECID(job) EQ iprwJobRec
-	   NO-ERROR.
+    
+    FIND FIRST job NO-LOCK
+	     WHERE RECID(job) EQ iprwJobRec
+	     NO-ERROR.
 	IF NOT AVAIL job THEN 
 	 RETURN NO.
 

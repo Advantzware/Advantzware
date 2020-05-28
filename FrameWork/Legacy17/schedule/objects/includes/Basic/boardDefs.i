@@ -1,3 +1,0 @@
-/* boardDefs.i */
-
-/* static version */

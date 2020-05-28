@@ -963,25 +963,33 @@ PROCEDURE list-post-inv :
         TRANSACTION
       
         BY w-report.key-01:
-            
-        /* Create eddoc for invoice if required */
-        RUN ed/asi/o810hook.p (RECID(inv-head), NO, NO).     
-        FIND FIRST edmast NO-LOCK
-            WHERE edmast.cust EQ inv-head.cust-no
-            NO-ERROR.
-        IF AVAILABLE edmast THEN 
-        DO: 
-            FIND FIRST edcode NO-LOCK
-                WHERE edcode.partner EQ edmast.partner
-                NO-ERROR.
-            IF NOT AVAILABLE edcode THEN 
-                FIND FIRST edcode NO-LOCK
-                    WHERE edcode.partner EQ edmast.partnerGrp
-                    NO-ERROR.
-        END.  
         
-        IF AVAILABLE edcode AND edcode.sendFileOnPrint THEN    
-            RUN ed/asi/write810.p (INPUT cocode, INPUT inv-head.inv-no). 
+        FIND FIRST edCode NO-LOCK
+            WHERE  edcode.setid EQ "810"
+            NO-ERROR.
+        
+        IF AVAIL edCode THEN DO:
+            
+            /* Create eddoc for invoice if required */
+            RUN ed/asi/o810hook.p (RECID(inv-head), NO, NO).  
+               
+            FIND FIRST edmast NO-LOCK
+                WHERE edmast.cust EQ inv-head.cust-no
+                NO-ERROR.
+            IF AVAILABLE edmast THEN 
+            DO: 
+                FIND FIRST edcode NO-LOCK
+                    WHERE edcode.partner EQ edmast.partner
+                    NO-ERROR.
+                IF NOT AVAILABLE edcode THEN 
+                    FIND FIRST edcode NO-LOCK
+                        WHERE edcode.partner EQ edmast.partnerGrp
+                        NO-ERROR.
+                IF AVAILABLE edcode AND edcode.sendFileOnPrint THEN    
+                  RUN ed/asi/write810.p (INPUT cocode, INPUT inv-head.inv-no).           
+            END.  
+            
+        END. /* if edcode was found */
 
         /* {oe/r-inve&pb.i} */
         

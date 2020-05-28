@@ -40,9 +40,7 @@ FUNCTION fConvertCurrency RETURNS DECIMAL PRIVATE
 
 
 /* ***************************  Main Block  *************************** */
-RUN est\EstimateCalcProcs.p PERSISTENT SET hdEstimateCalcProcs. 
-THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdEstimateCalcProcs).
-    
+   
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -154,12 +152,12 @@ PROCEDURE GetCostForFGItemHist:
     END.
     IF opcCostUOM NE cCostUOMDef THEN 
     DO: 
-        opcCostUOM = cCostUOMDef.
         opdCostPerUOMTotal = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMTotal).
         opdCostPerUOMDL = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMDL).
         opdCostPerUOMFO = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMFO).
         opdCostPerUOMVO = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMVO).
         opdCostPerUOMDM = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMDM).
+        opcCostUOM = cCostUOMDef.
     END.
     
 END PROCEDURE.
@@ -321,10 +319,10 @@ PROCEDURE pCalculateCostsFromEstimate PRIVATE:
         AND oe-ordl.i-no EQ ipcFGItemID
         NO-ERROR.
     IF AVAILABLE oe-ordl AND oe-ordl.sourceEstimateID NE "" THEN DO:           
-        RUN EstCost_GetHeaderCostFreight(oe-ordl.company, oe-ordl.sourceEstimateID, oe-ordl.qty, OUTPUT dFreightTotal, OUTPUT dFreightPerM).
-        RUN EstCost_GetHeaderCostWarehouse(oe-ordl.company, oe-ordl.sourceEstimateID, oe-ordl.qty, OUTPUT dWarehouseTotal, OUTPUT dWarehousePerM).
-        RUN EstCost_GetHeaderCostDeviation(oe-ordl.company, oe-ordl.sourceEstimateID, oe-ordl.qty, OUTPUT dDeviationTotal, OUTPUT dDeviationPerM).
-        RUN EstCost_GetHeaderCostFarm(oe-ordl.company, oe-ordl.sourceEstimateID, oe-ordl.qty, OUTPUT dManufactureTotal, OUTPUT dManufacturePerM).
+        RUN GetHeaderCostFreight(oe-ordl.company, oe-ordl.sourceEstimateID, oe-ordl.qty, OUTPUT dFreightTotal, OUTPUT dFreightPerM).
+        RUN GetHeaderCostWarehouse(oe-ordl.company, oe-ordl.sourceEstimateID, oe-ordl.qty, OUTPUT dWarehouseTotal, OUTPUT dWarehousePerM).
+        RUN GetHeaderCostDeviation(oe-ordl.company, oe-ordl.sourceEstimateID, oe-ordl.qty, OUTPUT dDeviationTotal, OUTPUT dDeviationPerM).
+        RUN GetHeaderCostFarm(oe-ordl.company, oe-ordl.sourceEstimateID, oe-ordl.qty, OUTPUT dManufactureTotal, OUTPUT dManufacturePerM).
     END.
     ASSIGN 
         opdFreight = dFreightPerM
@@ -1171,7 +1169,96 @@ PROCEDURE pGetKeyCriteriaForInvl PRIVATE:
         RELEASE ar-invl.
     END.
 END PROCEDURE.
+PROCEDURE GetHeaderCostDeviation:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an estimate number, get the total cost for freight
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerM AS DECIMAL NO-UNDO.
 
+    RUN GetHeaderCostForCategory(ipcCompany, ipcEstimateNo, ipdQuantity, "deviation", OUTPUT opdCostTotal, OUTPUT opdCostPerM).
+
+END PROCEDURE.
+
+PROCEDURE GetHeaderCostFreight:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an estimate number, get the total cost for freight
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerM AS DECIMAL NO-UNDO.
+    
+    RUN GetHeaderCostForCategory(ipcCompany, ipcEstimateNo, ipdQuantity, "nfFreight", OUTPUT opdCostTotal, OUTPUT opdCostPerM).
+    
+END PROCEDURE.
+
+PROCEDURE GetHeaderCostFarm:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an estimate number, get the total cost for warehousing
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerM AS DECIMAL NO-UNDO.
+    
+    RUN GetHeaderCostForCategory(ipcCompany, ipcEstimateNo, ipdQuantity, "matNoWaste", OUTPUT opdCostTotal, OUTPUT opdCostPerM).
+    
+END PROCEDURE.
+
+PROCEDURE GetHeaderCostWarehouse:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an estimate number, get the total cost for warehousing
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerM AS DECIMAL NO-UNDO.
+    
+    RUN GetHeaderCostForCategory(ipcCompany, ipcEstimateNo, ipdQuantity, "nfWarehouse", OUTPUT opdCostTotal, OUTPUT opdCostPerM).
+    
+END PROCEDURE.
+
+PROCEDURE GetHeaderCostForCategory:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an estimate number, get the total cost for a given category
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCategory AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerM AS DECIMAL NO-UNDO.
+
+    FIND FIRST estCostHeader NO-LOCK 
+        WHERE estCostHeader.company EQ ipcCompany
+        AND estCostHeader.estimateNo EQ ipcEstimateNo
+        AND estCostHeader.quantityMaster GE ipdQuantity
+        NO-ERROR. 
+    IF AVAILABLE estCostHeader THEN 
+    DO:
+        FOR EACH estCostDetail NO-LOCK
+            WHERE estCostDetail.estCostHeaderID EQ estCostHeader.estCostHeaderID
+            AND estCostDetail.estCostCategoryID EQ ipcCategory:
+            opdCostTotal = opdCostTotal + estCostDetail.costTotal.    
+        END.
+        IF estCostHeader.quantityMaster NE 0 THEN 
+            opdCostPerM = opdCostTotal / (estCostHeader.quantityMaster / 1000).
+        
+    END.
+
+END PROCEDURE.
 
 
 /* ************************  Function Implementations ***************** */

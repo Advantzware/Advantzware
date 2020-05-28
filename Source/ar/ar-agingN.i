@@ -527,9 +527,9 @@ END.
        ELSE RELEASE terms .      
       
        ASSIGN
-        cust-t[v-int] = cust-t[v-int] + ag
+        cust-t[v-int] = cust-t[v-int] + ( IF dAmountDue NE 0 THEN ag ELSE 0)
         v-dec         = 0
-        v-dec[v-int]  = ag
+        v-dec[v-int]  = ( IF dAmountDue NE 0 THEN ag ELSE 0)
         cust-t[6] = cust-t[6] +  dAmountDue .
 
        IF v-sep-fc THEN

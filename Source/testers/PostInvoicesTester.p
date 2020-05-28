@@ -15,7 +15,7 @@
 /* ***************************  Definitions  ************************** */
 {custom/globdefs.i &NEW=NEW}
 {sys/inc/var.i NEW SHARED}
-DEFINE VARIABLE hdSession AS HANDLE.
+DEFINE VARIABLE hdSession      AS HANDLE.
 DEFINE VARIABLE hdPostInvoices AS HANDLE.
 RUN system\session.p PERSISTENT SET hdSession.
 SESSION:ADD-SUPER-PROCEDURE (hdSession).
@@ -30,8 +30,8 @@ DEFINE TEMP-TABLE ttGLTrans LIKE gltrans
     USE-INDEX rec_key AS PRIMARY.
 
 DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO INITIAL '001'.
-DEFINE VARIABLE iInvStart           AS INTEGER   NO-UNDO INITIAL 1000027.
-DEFINE VARIABLE iInvEnd             AS INTEGER   NO-UNDO INITIAL 1000043.
+DEFINE VARIABLE iInvStart           AS INTEGER   NO-UNDO INITIAL 1000054.
+DEFINE VARIABLE iInvEnd             AS INTEGER   NO-UNDO INITIAL 1000999.
 DEFINE VARIABLE dtStart             AS DATE      NO-UNDO INITIAL 1/1/2018.
 DEFINE VARIABLE dtEnd               AS DATE      NO-UNDO INITIAL 12/31/2020.
 DEFINE VARIABLE cCustStart          AS CHARACTER NO-UNDO INITIAL ''.
@@ -46,6 +46,11 @@ DEFINE VARIABLE lRunLegacyFilesOnly AS LOGICAL   NO-UNDO INITIAL NO.
 
 /* ***************************  Main Block  *************************** */
 RUN oe/PostInvoices.p PERSISTENT SET hdPostInvoices.
+FIND FIRST sys-ctrl EXCLUSIVE-LOCK 
+    WHERE sys-ctrl.company EQ cCompany
+    AND sys-ctrl.name EQ 'UseNewInvoicePost'
+    NO-ERROR.
+IF AVAILABLE sys-ctrl THEN sys-ctrl.char-fld = "C:\Temp\Export\".
 
 IF lRunLegacyFilesOnly THEN 
     RUN pBuildCompareFiles("Standard").    
@@ -155,7 +160,7 @@ PROCEDURE pBuildCompareFiles PRIVATE:
     END.
     FOR EACH gltrans NO-LOCK
         WHERE gltrans.company EQ '001'
-        AND gltrans.trnum EQ 60105:
+        AND gltrans.trnum EQ 60200:
         CREATE ttGlTrans.
         BUFFER-COPY gltrans TO ttGlTrans.
     END.

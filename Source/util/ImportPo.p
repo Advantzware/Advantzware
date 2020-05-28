@@ -17,11 +17,12 @@
 
 DEFINE TEMP-TABLE ttImportPo
     FIELD Company                 AS CHARACTER 
-    FIELD Location                AS CHARACTER    
+    FIELD Location                AS CHARACTER
+    FIELD PoNoGroup               AS CHARACTER
     FIELD vend-no                 AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Vendor #" HELP "Required - Size:1"
-    FIELD po-no                   AS INTEGER FORMAT ">>>>>>>" COLUMN-LABEL "PO #" HELP "Optional - Integer" 
-    FIELD iline                   AS INTEGER FORMAT ">>>" COLUMN-LABEL "Po Line" HELP "Optional - Integer"
-    FIELD due-date                AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Due Date" HELP "Optional - Date"
+    FIELD po-no                   AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "PO #" HELP "Optional - Integer or <AUTO> to auto-number.  Use <AUTO>#### where # is a unique group number. " 
+    FIELD iline                   AS INTEGER FORMAT ">>>" COLUMN-LABEL "Po Line" HELP "Required - Integer"
+    FIELD due-date                AS DATE FORMAT "99/99/9999" COLUMN-LABEL "Due Date" HELP "Required - Date"
     FIELD ship-id                 AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Ship ID" HELP "Optional - Size:8"
     FIELD ship-name               AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Ship Name" HELP "Optional - Size:30"
     FIELD ship-addr1              AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Ship Address 1" HELP "Optional - Size:30"
@@ -31,7 +32,7 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD ship-zip                AS CHARACTER FORMAT "xxxxx-xxxx" COLUMN-LABEL "Ship Zip" HELP "Optional - Size:9"
     FIELD carrier                 AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Shipping Carrier" HELP "Optional - Size:5"
     FIELD t-freight               AS DECIMAL FORMAT "->>,>>9.99" COLUMN-LABEL "Total Freight" HELP "Optional - Decimal"
-    FIELD frt-pay                 AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Freight Payment" HELP "Required - P,C or B"
+    FIELD frt-pay                 AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Freight Payment" HELP "Required - P C or B"
     FIELD fob-code                AS CHARACTER   FORMAT "X(10)" COLUMN-LABEL "FOB" HELP "Required - Dest or ORIG"  
     FIELD tax-gr                  AS CHARACTER   FORMAT "x(3)" COLUMN-LABEL "Tax Code" HELP "Optional - Size:3"
     FIELD tax                     AS DECIMAL FORMAT "->,>>>,>>9.99" COLUMN-LABEL "Tax" HELP "Optional - decimal"
@@ -50,31 +51,32 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD dscr2                   AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Description 2" HELP "Optional - Size:30"
     FIELD vend-i-no               AS CHARACTER FORMAT "x(15)" COLUMN-LABEL "Vendor Item #" HELP "Optional - Size:15"
     FIELD ord-qty                 AS DECIMAL FORMAT "->>>,>>>,>>9.9<<<<<" COLUMN-LABEL "Order Qty" HELP "Optional - Decimal"
-    FIELD pr-qty-uom              AS CHARACTER   FORMAT "x(3)" COLUMN-LABEL "Order UOM" HELP "Optional - Size:3"
+    FIELD pr-qty-uom              AS CHARACTER   FORMAT "x(3)" COLUMN-LABEL "Order UOM" HELP "Required - Size:3"
     FIELD t-rec-qty               AS DECIMAL   FORMAT "->>>,>>>,>>9.9<<<<<" COLUMN-LABEL "Qty Received" HELP "Optional - Decimal"
     FIELD cons-uom                AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Rec. UOM" HELP "Optional - Size:3"   
     FIELD cost                    AS DECIMAL   FORMAT "->,>>>,>>9.99<<<<" COLUMN-LABEL "Item Cost" HELP "Optional - Decimal"
-    FIELD pr-uom                  AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "UOM" HELP "Optional - Size:3"
+    FIELD pr-uom                  AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "UOM" HELP "Required - Size:3"
     FIELD buyer                   AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Buyer" HELP "Optional - Size:10"
-    FIELD stat                    AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Status" HELP "Optional - Size:10"
-    FIELD linestat                AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Item Status" HELP "Optional - Size:2"
+    FIELD stat                    AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Status" HELP "Required - Size:10"
+    FIELD linestat                AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Item Status" HELP "Required - Size:2"
     FIELD printed                 AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Printed" HELP "Optional - Yes Or No(Blank N)"
     FIELD opened                  AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Opened" HELP "Optional - Yes or No (Blank- No)"
-    FIELD type                    AS CHARACTER   FORMAT "x(10)" COLUMN-LABEL "Type" HELP "Required - R,D or S"
+    FIELD type                    AS CHARACTER   FORMAT "x(10)" COLUMN-LABEL "Type" HELP "Required - R D or S"
     FIELD contact                 AS CHARACTER   FORMAT "x(25)" COLUMN-LABEL "Contact" HELP "Optional - Size:25"
-    FIELD po-date                 AS CHARACTER   FORMAT "x(10)" COLUMN-LABEL "PO Date" HELP "Optional - Date"
-    FIELD last-ship-date          AS CHARACTER   FORMAT "x(10)" COLUMN-LABEL "Last Ship Date" HELP "Optional - Date"
+    FIELD po-date                 AS DATE   FORMAT "99/99/9999" COLUMN-LABEL "PO Date" HELP "Required - Date"
+    FIELD last-ship-date          AS DATE   FORMAT "99/99/9999" COLUMN-LABEL "Last Ship Date" HELP "Optional - Date"
     FIELD setup                   AS DECIMAL FORMAT ">>,>>9.99" COLUMN-LABEL "Setup" HELP "Optional - Decimal"
     FIELD disc                    AS DECIMAL FORMAT "->>>,>>9.99" COLUMN-LABEL "Discount" HELP "Optional - Decimal"
     FIELD actnum                  AS CHARACTER FORMAT "x(25)" COLUMN-LABEL "GL Number" HELP "Optional - Size:25"
     FIELD over-pct                AS DECIMAL FORMAT ">>9.99%" COLUMN-LABEL "Overrun" HELP "Optional - Decimal"
     FIELD under-pct               AS DECIMAL   FORMAT ">>9.99%" COLUMN-LABEL "Underrun" HELP "Optional - Decimal"
-    FIELD cust-no                 AS DECIMAL   FORMAT "->>,>>9.99<<<<" COLUMN-LABEL "Customer #" HELP "Optional - Decimal"
+    FIELD cust-no                 AS CHARACTER   FORMAT "x(8)" COLUMN-LABEL "Customer #" HELP "Optional - Size:8"
     FIELD ord-no                  AS INTEGER   FORMAT ">>>>>9" COLUMN-LABEL "Order #" HELP "Optional - Integer"
        
     
     .
-DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 2 to skip Company and Location field in temp-table since this will not be part of the import data*/
+DEFINE VARIABLE gcAutoIndicator AS CHARACTER NO-UNDO INITIAL "<AUTO>".    
+DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 3. /*Set to 3 to skip Company Location and PoNoGroup field in temp-table since this will not be part of the import data*/
  
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -99,13 +101,42 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
     
+    DEFINE VARIABLE cPoNumber AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoNoGroup AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAutoNumber AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lNewGroup AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dTotCost AS DECIMAL NO-UNDO .
+    
     DEFINE VARIABLE riNote AS ROWID NO-UNDO.
     DEFINE BUFFER bf-po-ord FOR po-ord.
     DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    
+    DEFINE BUFFER bf-ttImportPo FOR ttImportPo.
+    
+     ASSIGN 
+        cPoNoGroup = ""
+        lAutoNumber = NO
+        cPoNumber = ipbf-ttImportPo.po-no
+        .
+    IF cPoNumber BEGINS gcAutoIndicator THEN DO:
+        /*Auto numbering logic*/
+        
+        /*Get the PoNoGroup as string to the right of the indicator*/
+        IF LENGTH(cPoNumber) NE LENGTH(gcAutoIndicator) THEN 
+            cPoNoGroup = SUBSTRING(cPoNumber,LENGTH(gcAutoIndicator) + 1, LENGTH(cPoNumber) - LENGTH(gcAutoIndicator)).
+        IF cPoNoGroup NE "" THEN 
+            FIND FIRST bf-ttImportPo NO-LOCK
+                 WHERE bf-ttImportPo.PoNoGroup EQ cPoNoGroup
+                NO-ERROR.
+        IF AVAILABLE bf-ttImportPo THEN
+            cPoNumber = bf-ttImportPo.po-no.
+        ELSE 
+            lAutoNumber = YES.
+    END.    
 
     FIND FIRST bf-po-ord EXCLUSIVE-LOCK 
         WHERE bf-po-ord.company EQ ipbf-ttImportPo.Company
-        AND bf-po-ord.po-no EQ ipbf-ttImportPo.po-no
+        AND bf-po-ord.po-no EQ integer(cPoNumber)
         NO-ERROR.
 
     IF NOT AVAILABLE bf-po-ord THEN 
@@ -120,13 +151,22 @@ PROCEDURE pProcessRecord PRIVATE:
                bf-po-ord.po-no          = inextPO         
                bf-po-ord.po-date        = TODAY
                bf-po-ord.loc            = ipbf-ttImportPo.Location
-               bf-po-ord.buyer          = USERID("NOSWEAT")  /*global-uid*/
+               bf-po-ord.buyer          = USERID(LDBNAME(1))
                bf-po-ord.under-pct      = 10
                bf-po-ord.over-pct       = 10         
                bf-po-ord.due-date       = bf-po-ord.po-date + 
                                        IF WEEKDAY(bf-po-ord.po-date) EQ 6 THEN 3 ELSE 1
                bf-po-ord.last-ship-date = bf-po-ord.due-date                 
-               bf-po-ord.user-id        = USERID('nosweat') .        
+               bf-po-ord.user-id        = USERID(LDBNAME(1)) .  
+               
+               IF lAutoNumber AND cPoNoGroup NE "" THEN DO:
+                 FIND CURRENT ipbf-ttImportPo EXCLUSIVE-LOCK.
+                   ASSIGN 
+                ipbf-ttImportpo.PoNoGroup = cPoNoGroup
+                ipbf-ttImportpo.po-no = STRING(bf-po-ord.po-no)
+                .
+               FIND CURRENT ipbf-ttImportPo NO-LOCK.
+        END.
     END.
                                                                                                                                      
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */                                        
@@ -150,8 +190,8 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportPo.stat, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.stat).                                      
     RUN pAssignValueC (ipbf-ttImportPo.type, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.type).                             
     RUN pAssignValueC (ipbf-ttImportPo.contact, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.contact).                                 
-    RUN pAssignValueCToDt (ipbf-ttImportPo.po-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.po-date).                                          
-    RUN pAssignValueCToDt (ipbf-ttImportPo.last-ship-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.last-ship-date).
+    RUN pAssignValueDate (ipbf-ttImportPo.po-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.po-date).                                          
+    RUN pAssignValueDate (ipbf-ttImportPo.last-ship-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.last-ship-date).
     RUN pAssignValueD (ipbf-ttImportPo.over-pct, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.over-pct).                                           
     RUN pAssignValueD (ipbf-ttImportPo.under-pct, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.under-pct).
     
@@ -183,7 +223,7 @@ PROCEDURE pProcessRecord PRIVATE:
 
     END.       
         
-    RUN pAssignValueCToDt (ipbf-ttImportPo.due-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.due-date).                         
+    RUN pAssignValueDate (ipbf-ttImportPo.due-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.due-date).                         
     RUN pAssignValueC (ipbf-ttImportPo.job-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.job-no).                                 
     RUN pAssignValueC (ipbf-ttImportPo.i-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.i-no).                                          
     RUN pAssignValueC (ipbf-ttImportPo.i-name, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.i-name).                                     
@@ -258,7 +298,7 @@ PROCEDURE pValidate PRIVATE:
         IF ipbf-ttImportPo.terms EQ "" THEN 
             ASSIGN 
                 oplValid = NO
-                opcNote  = "Terms is Blank".
+                opcNote  = "Payment Terms is Blank".
     END.   
     IF oplValid THEN 
     DO:
@@ -267,47 +307,71 @@ PROCEDURE pValidate PRIVATE:
                 oplValid = NO
                 opcNote  = "Item Type is Blank(must be FG or RM)".
     END.
-    
-    /*Check for Duplicate Import Record and Ignore It*/ 
     IF oplValid THEN 
     DO:
-        FIND FIRST bf-ttImportPo NO-LOCK 
-            WHERE bf-ttImportPo.Company EQ ipbf-ttImportPo.Company
-            AND bf-ttImportPo.po-no EQ ipbf-ttImportPo.po-no
-            AND bf-ttImportPo.iline EQ ipbf-ttImportPo.iline
-            AND ROWID(bf-ttImportPo) NE ROWID(ipbf-ttImportPo)
-            NO-ERROR.
-        IF AVAILABLE bf-ttImportPo THEN 
+        IF ipbf-ttImportPo.iline EQ 0 THEN 
             ASSIGN 
+                oplValid = NO
+                opcNote  = "Po Line must be greater than 0 ".
+    END.
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportPo.due-date EQ ? THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Due Date is Blank ".
+    END.
+    IF oplValid THEN 
+    DO:   
+        IF ipbf-ttImportPo.po-date EQ ?  THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Po Date is Blank ".
+    END.
+    
+    /*Determine if Add or Update*/ 
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportPo.po-no BEGINS gcAutoIndicator THEN DO:
+            opcNote = "Add Record - Auto Increment Po#"
+            .
+        END.          
+        ELSE do:
+            FIND FIRST bf-ttImportPo NO-LOCK 
+                WHERE bf-ttImportPo.Company EQ ipbf-ttImportPo.Company
+                AND bf-ttImportPo.po-no EQ ipbf-ttImportPo.po-no 
+                AND bf-ttImportPo.iline EQ ipbf-ttImportPo.iline
+                AND ROWID(bf-ttImportPo) NE ROWID(ipbf-ttImportPo)
+                NO-ERROR.
+            IF AVAILABLE bf-ttImportPo THEN 
+              ASSIGN 
                 oplValid = NO 
                 opcNote  = "Duplicate Record in Import File"
                 .
-    END.
-    /*Determine if Add or Update*/
-    IF oplValid THEN 
-    DO:
-        FIND FIRST po-ord NO-LOCK 
-            WHERE po-ord.company EQ ipbf-ttImportPo.Company
-            AND po-ord.po-no EQ ipbf-ttImportPo.po-no
-            NO-ERROR .
-        IF AVAIL po-ord THEN
-        DO: 
-            IF NOT iplUpdateDuplicates THEN 
-                ASSIGN 
-                    oplValid = NO
-                    opcNote  = "Duplicate record exists"
-                    .
+        IF oplValid THEN do:
+            FIND FIRST po-ord NO-LOCK 
+                WHERE po-ord.company EQ ipbf-ttImportPo.Company
+                AND po-ord.po-no EQ integer(ipbf-ttImportPo.po-no)
+                NO-ERROR .
+            IF AVAIL po-ord THEN
+            DO: 
+                IF NOT iplUpdateDuplicates THEN 
+                    ASSIGN 
+                        oplValid = NO
+                        opcNote  = "Duplicate record exists"
+                        .
+                ELSE
+                    ASSIGN 
+                        oplValid = YES
+                        opcNote = "Update existing record"
+                        .        
+            END.             
             ELSE
-                ASSIGN 
+                ASSIGN
                     oplValid = YES
-                    opcNote = "Update existing record"
-                    .        
+                    opcNote = "Add record" .
+            END. 
         END.
-        ELSE 
-            ASSIGN 
-                oplValid = YES
-                opcNote = "Add record"
-                .            
     END.
     
     /*Field Level Validation*/
@@ -366,8 +430,11 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid THEN 
             RUN pIsValidUOM (ipbf-ttImportPo.pr-qty-uom, YES, OUTPUT oplValid, OUTPUT cValidNote).
 
-        IF oplValid THEN 
-            RUN pIsValidFromList ("UOM",ipbf-ttImportPo.pr-qty-uom,uom-list, OUTPUT oplValid, OUTPUT cValidNote).     
+        IF oplValid THEN DO:
+            RUN pIsValidFromList ("Order UOM",ipbf-ttImportPo.pr-qty-uom,uom-list, OUTPUT oplValid, OUTPUT cValidNote).
+            IF cValidNote EQ "UOM is required." THEN ASSIGN 
+                cValidNote = "Order UOM is required.".
+        END.     
             
         IF oplValid THEN 
             RUN pIsValidUOM (ipbf-ttImportPo.pr-uom, YES, OUTPUT oplValid, OUTPUT cValidNote).

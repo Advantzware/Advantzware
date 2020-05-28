@@ -54,6 +54,35 @@
                             <td>       </td></tr>
     </table>
   </div>
+  <div class="tbcol" >
+    <h2>Triggers</h2>
+    <table style="border-style:none;">
+      <tr>
+        <th>Event</th>
+        <th>Procedure</th>
+        <th>Overr</th>
+        <th>CRC</th>
+      </tr>
+      <tr class="shadedrow">
+        <td>CREATE</td>
+        <td>create.trg/apiClient.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+      <tr class="shadedrow">
+        <td>DELETE</td>
+        <td>delete.trg/apiClient.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+      <tr class="shadedrow">
+        <td>WRITE</td>
+        <td>write.trg/apiClient.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+      </tr>
+    </table>
+  </div>
 <div class="clearboth"></div>
 <hr style="margin-top:20px;">
 <h2>Fields</h2>
@@ -124,6 +153,17 @@
     <td></td>
   </tr>
   <tr class="oddrow">
+    <td>120</td>
+    <td>sharedSecret</td>
+    <td><a href="00-cross-s.html#sharedSecret"><small>X</small></a></td>
+    <td>Share Secret/OAuth Token</td>
+    <td>character</td>
+    <td>x(200)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
     <td>100</td>
     <td>transactionCounter</td>
     <td><a href="00-cross-t.html#transactionCounter"><small>X</small></a></td>
@@ -212,6 +252,17 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
+  <tr class="evenrow">
+    <td>120</td>
+    <td>sharedSecret</td>
+    <td><a href="00-cross-s.html#sharedSecret"><small>X</small></a></td>
+    <td>Share Secret/OAuth Token</td>
+    <td>character</td>
+    <td>x(200)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
 </table>
 </div>
 
@@ -226,10 +277,22 @@
     <th>Datatype</th>
   </tr>
   <tr class="oddrow">
-    <td>default</td>
-    <td>P       </td>
-    <td> &nbsp; </td>
-    <td> &nbsp; </td>
+    <td>apiClientId</td>
+    <td>P U     </td>
+    <td>company (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="oddrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>clientID (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="evenrow">
+    <td>rec_key</td>
+    <td>        </td>
+    <td>rec_key (+)</td>
+    <td>character</td>
   </tr>
 </table>
 <table style="width:100%; margin-top:10px;">
@@ -248,13 +311,13 @@
       <th>Parent tables</th>
     </tr>
     <tr class="shadedrow">
-      <td><a href="rm-ctrl.html">rm-ctrl</a>&nbsp;&nbsp; <a href="usersman.html">usersman</a>&nbsp;&nbsp; </td>
+      <td><a href="rec_key.html">rec_key</a>&nbsp;&nbsp; <a href="rm-ctrl.html">rm-ctrl</a>&nbsp;&nbsp; </td>
     </tr>
   </table>
 <hr style="clear:both">
 <hr>
 <table style="width:100%; margin-top:10px;">
-  <tr><td style="text-align:right;"><i><small>generated 28-4-2020 08:30</small></i></td></tr>
+  <tr><td style="text-align:right;"><i><small>generated 26-5-2020 17:52</small></i></td></tr>
 </table>
 </body>
 </html>

@@ -97,6 +97,7 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD parentCust    AS CHARACTER FORMAT "x(12)" COLUMN-LABEL "Parent Customer" HELP "Master customer account Optional - Size:12"
     FIELD marketSegment AS CHARACTER FORMAT "x(16)" COLUMN-LABEL "Market Segment" HELP "Market segment for sales reporting Optional - Size:16"
     FIELD naicsCode     AS CHARACTER FORMAT "999999" COLUMN-LABEL "NAICS" HELP "NAICS Code, link to NaicsTable, Default = 999999"
+    FIELD classId       AS INTEGER   FORMAT ">>" COLUMN-LABEL "AR ClassID" HELP "Optional - Integer  Default = blank or 0 "    
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
@@ -346,7 +347,9 @@ PROCEDURE pValidate PRIVATE:
         
         IF oplValid AND ipbf-ttImportCust.naicsCode NE "" THEN 
             RUN pIsValidNAICS IN hdValidator (ipbf-ttImportCust.naicsCode, YES, OUTPUT oplValid, OUTPUT cValidNote).
-        
+            
+        IF oplValid AND ipbf-ttImportCust.classId NE 0 THEN 
+            RUN pIsValidARClass IN hdValidator (string(ipbf-ttImportCust.classId), YES, OUTPUT oplValid, OUTPUT cValidNote).
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
     IF ipbf-ttImportCust.cFrtPay EQ "Collect" THEN 
@@ -482,6 +485,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCust.parentCust, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.parentCust).
     RUN pAssignValueC (ipbf-ttImportCust.marketSegment, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.marketSegment).
     RUN pAssignValueC (ipbf-ttImportCust.naicsCode, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.naicsCode).
+    RUN pAssignValueC (ipbf-ttImportCust.classId, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.classId).
 
     FIND FIRST bf-shipto EXCLUSIVE-LOCK 
         WHERE bf-shipto.company EQ bf-cust.company

@@ -43,7 +43,8 @@ PROCEDURE pRunNow:
             CREATE Task.
             ASSIGN
                 Task.subjectID    = {1}dynParamValue.subjectID
-                Task.user-id      = {1}dynParamValue.user-id
+                Task.user-id      = IF {1}dynParamValue.user-id NE "_default" THEN USERID("ASI")
+                                    ELSE {1}dynParamValue.user-id
                 Task.prgmName     = {1}dynParamValue.prgmName
                 Task.paramValueID = {1}dynParamValue.paramValueID
                 Task.module       = {1}dynParamValue.module

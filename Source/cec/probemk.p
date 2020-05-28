@@ -168,7 +168,11 @@ ASSIGN
     blk.fg-wt   = fg-wt
     blk.fg-wt$  = tt-tot
     blk.dscr    = xeb.part-dscr1
-    blk.pur-man = xeb.pur-man.
+    blk.pur-man = xeb.pur-man
+    blk.comm    = xeb.comm
+    blk.sman    = xeb.sman
+    blk.procat  = xeb.procat
+    .
 
 blk.sell = (IF ce-ctrl.sell-by = "G" THEN blk.fact ELSE blk.cost)
     / (1 - (v-pct / 100)).

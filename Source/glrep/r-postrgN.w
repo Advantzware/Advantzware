@@ -74,7 +74,7 @@ ASSIGN cTextListToSelect = "Run#,Account Number,Account Description,Journal,Refe
 
        cFieldListToSelect = "run,acc,acc-desc,jour,ref," +
                             "date,bal,acc-stat,period,out-per,trans"  
-       cFieldLength = "7,15,30,12,30," + "10,15,14,6,19,18" 
+       cFieldLength = "7,25,30,12,30," + "10,15,14,6,19,18" 
        cFieldType = "i,c,c,c,c," + "c,i,c,c,c,c" 
     .
 
@@ -1362,7 +1362,7 @@ FOR EACH glhist WHERE
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
                          WHEN "run"    THEN cVarValue = IF  FIRST-OF(glhist.tr-num) THEN string(glhist.tr-num,"9999999") ELSE "" .
-                         WHEN "acc"   THEN cVarValue = string(glhist.actnum,"x(15)").
+                         WHEN "acc"   THEN cVarValue = string(glhist.actnum,"x(25)").
                          WHEN "acc-desc"  THEN cVarValue = IF AVAIL account THEN  STRING(account.dscr,"x(30)") ELSE "" .
                          WHEN "jour"   THEN cVarValue = string(glhist.jrnl,"x(12)") .
                          WHEN "ref"   THEN cVarValue = STRING(glhist.tr-dscr,"x(30)").
@@ -1469,7 +1469,7 @@ FOR EACH gltrans WHERE
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
                          WHEN "run"    THEN cVarValue = IF  FIRST-OF(gltrans.trnum) THEN string(gltrans.trnum,"9999999") ELSE "" .
-                         WHEN "acc"   THEN cVarValue = string(gltrans.actnum,"x(15)").
+                         WHEN "acc"   THEN cVarValue = string(gltrans.actnum,"x(25)").
                          WHEN "acc-desc"  THEN cVarValue = STRING(account.dscr,"x(30)")  .
                          WHEN "jour"   THEN cVarValue = string(gltrans.jrnl,"x(12)") .
                          WHEN "ref"   THEN cVarValue = STRING(gltrans.tr-dscr,"x(30)").

@@ -1772,12 +1772,14 @@ FUNCTION fCalcWidgetValues RETURNS LOGICAL
         dCol = 1
         dRow = dRow + 1
         .
-    ELSE IF CAN-DO("AND,OR,WHERE",ipcValue) THEN DO:
+    ELSE IF CAN-DO("AND,BY,OR,WHERE",ipcValue) THEN DO:
         CASE ipcValue:
             WHEN "AND" THEN
             dCol = 11.
+            WHEN "BY" THEN
+            dCol = 12.5.
             WHEN "OR" THEN
-            dCol = 12.
+            dCol = 12.5.
             WHEN "WHERE" THEN
             dCol = 8.
         END CASE.

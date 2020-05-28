@@ -42,6 +42,7 @@ DEFINE INPUT PARAMETER ipcLink      AS CHARACTER NO-UNDO .
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSelectedList AS CHAR NO-UNDO.
 
 
 DEFINE VARIABLE v-prgmname AS CHARACTER NO-UNDO.
@@ -621,7 +622,6 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add Dialog-Frame
 ON CHOOSE OF Btn_Add IN FRAME Dialog-Frame /* Add >> */
 DO:
-  DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 
   APPLY "DEFAULT-ACTION" TO sl_avail.
 
@@ -646,7 +646,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def Dialog-Frame
 ON CHOOSE OF Btn_Def IN FRAME Dialog-Frame /* Default */
 DO:
-  DEF VAR cSelectedList AS cha NO-UNDO.
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
@@ -1064,7 +1063,7 @@ PROCEDURE GetSelectionList :
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
-           ttRptSelected.FieldLength = int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldLength))
+           ttRptSelected.FieldLength = int(ENTRY(LOOKUP(ENTRY(i,cTmpList),cTextListToSelect),cFieldLength))
            ttRptSelected.DisplayOrder = i
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
@@ -1145,7 +1144,6 @@ DEFINE VARIABLE cTmpField AS CHA NO-UNDO.
 DEFINE VARIABLE cVarValue AS cha NO-UNDO.
 DEFINE VARIABLE cExcelVarValue AS cha NO-UNDO.
 DEFINE VARIABLE cFieldName AS cha NO-UNDO.
-DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
 DEFINE VARIABLE lLineTotal AS LOGICAL NO-UNDO .
 DEFINE VARIABLE dvalue            AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
@@ -1188,24 +1186,50 @@ IF tb_excel THEN
 
    dvalue     = 0 .
     
-   FOR EACH ar-invl NO-LOCK 
-     WHERE ar-invl.company EQ cocode AND ar-invl.posted EQ YES
-       AND ar-invl.cust-no GE begin_cust-no
-       AND ar-invl.cust-no LE end_cust-no 
-       AND ar-invl.inv-no GE begin_inv-no
-       AND ar-invl.inv-no LE end_inv-no 
-       AND ar-invl.i-no GE begin_i-no
-       AND ar-invl.i-no LE end_i-no 
-       AND ar-invl.bol-no GE begin_bol-no
-       AND ar-invl.bol-no LE end_bol-no
-       AND ar-invl.po-no GE begin_po-no
-       AND ar-invl.po-no LE end_po-no
-       AND ar-invl.inv-no NE 0 AND ar-invl.inv-no <> ? , 
-       FIRST ar-inv NO-LOCK 
-       WHERE ar-inv.x-no = ar-invl.x-no 
-         AND ar-inv.inv-date GE begin_date
-         AND ar-inv.inv-date LE end_date
-         BREAK BY ar-invl.inv-no DESCENDING :
+    FOR EACH ar-inv NO-LOCK WHERE 
+        ar-inv.company EQ cocode AND 
+        ar-inv.cust-no GE begin_cust-no and
+        ar-inv.cust-no LE end_cust-no AND 
+        ar-inv.inv-no GE begin_inv-no AND 
+        ar-inv.inv-no LE end_inv-no AND 
+        ar-inv.inv-date GE begin_date AND 
+        ar-inv.inv-date LE end_date,
+        EACH ar-invl NO-LOCK WHERE 
+            ar-invl.company EQ ar-inv.company AND 
+            ar-invl.cust-no EQ ar-inv.cust-no AND 
+            ar-invl.inv-no EQ ar-inv.inv-no AND
+            ar-invl.x-no EQ ar-inv.x-no AND  
+            ar-invl.posted EQ TRUE AND 
+            ar-invl.i-no GE begin_i-no AND 
+            ar-invl.i-no LE end_i-no AND 
+            ar-invl.po-no GE begin_po-no AND 
+            ar-invl.po-no LE end_po-no AND 
+            ar-invl.bol-no GE begin_bol-no AND 
+            ar-invl.bol-no LE end_bol-no
+            BREAK BY ar-inv.inv-no DESCENDING 
+            BY ar-invl.line: 
+         
+        
+/*   FOR EACH ar-invl NO-LOCK                  */
+/*     WHERE ar-invl.company EQ cocode         */
+/*       AND ar-invl.posted EQ YES             */
+/*       AND ar-invl.cust-no GE begin_cust-no  */
+/*       AND ar-invl.cust-no LE end_cust-no    */
+/*       AND ar-invl.inv-no GE begin_inv-no    */
+/*       AND ar-invl.inv-no LE end_inv-no      */
+/*       AND ar-invl.i-no GE begin_i-no        */
+/*       AND ar-invl.i-no LE end_i-no          */
+/*       AND ar-invl.bol-no GE begin_bol-no    */
+/*       AND ar-invl.bol-no LE end_bol-no      */
+/*       AND ar-invl.po-no GE begin_po-no      */
+/*       AND ar-invl.po-no LE end_po-no        */
+/*       AND ar-invl.inv-no NE 0               */
+/*       AND ar-invl.inv-no <> ? ,             */
+/*       FIRST ar-inv NO-LOCK                  */
+/*       WHERE ar-inv.x-no = ar-invl.x-no      */
+/*         AND ar-inv.inv-date GE begin_date   */
+/*         AND ar-inv.inv-date LE end_date     */
+/*         BREAK BY ar-invl.inv-no DESCENDING :*/
 
       
          ASSIGN
@@ -1215,13 +1239,13 @@ IF tb_excel THEN
         
 
          IF lLineTotal THEN do:
-           IF FIRST-OF(ar-invl.inv-no) THEN
+           IF FIRST-OF(ar-inv.inv-no) THEN
             ASSIGN
             distot[2]    = 0 
             Amounttot[2] = 0
             costot[2]    = 0.
 
-           IF FIRST-OF(ar-invl.inv-no) THEN
+           IF FIRST-OF(ar-inv.inv-no) THEN
              FOR EACH bf-ar-invl WHERE bf-ar-invl.company = ar-invl.company 
                  AND bf-ar-invl.inv-no = ar-invl.inv-no NO-LOCK:
                  ASSIGN
@@ -1253,7 +1277,7 @@ IF tb_excel THEN
        costot[1] = (ar-invl.inv-qty * dvalue).
 
      DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-       cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+       cTmpField = ENTRY(LOOKUP(ENTRY(i,cSelectedList),cTextListToSelect),cFieldListToSelect).
         
              CASE cTmpField:
                   WHEN "ar-invl.inv-no"  THEN cVarValue   = STRING(ar-invl.inv-no,">>>>>>9" ).
@@ -1317,7 +1341,7 @@ IF tb_excel THEN
 
              cExcelVarValue = cVarValue.
              cDisplay = cDisplay + cVarValue +
-                                   FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                                   FILL(" ",int(ENTRY(LOOKUP(ENTRY(i,cSelectedList),cTextListToSelect),cFieldLength)) + 1 - LENGTH(cVarValue)). 
                        cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
         
       END.

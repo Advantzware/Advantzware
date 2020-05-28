@@ -53,6 +53,9 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE oeDateAuto-char AS CHARACTER NO-UNDO .
 DEFINE VARIABLE oeDateAuto-int AS INTEGER NO-UNDO .
 DEFINE VARIABLE oeDateAuto-log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lIsActiveShipToAvailable AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdCustomerProcs          AS HANDLE  NO-UNDO.
+ 
 {sys/inc/var.i NEW SHARED}
 
 &scoped-define copy-proc proc-copy
@@ -120,6 +123,7 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 /*    ShipNotesExpanded = LOGICAL(cRtnChar) NO-ERROR.                                                 */
     
 
+RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 &SCOPED-DEFINE enable-shipto enable-shipto
 
 /* _UIB-CODE-BLOCK-END */
@@ -146,21 +150,7 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR shipto, cust.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS shipto.ship-name shipto.ship-addr[1] ~
-shipto.ship-addr[2] shipto.ship-city shipto.ship-state shipto.ship-zip ~
-shipto.contact shipto.area-code shipto.phone shipto.spare-char-1 ~
-shipto.tax-code shipto.tax-mandatory shipto.notes[1] shipto.notes[2] ~
-shipto.notes[3] shipto.notes[4] shipto.loc shipto.loc-bin shipto.carrier ~
-shipto.dest-code shipto.pallet shipto.spare-char-4 shipto.spare-char-5 ~
-shipto.exportCustID shipto.dock-loc shipto.dock-hour shipto.del-chg ~
-shipto.del-time shipto.spare-int-1 shipto.spare-int-2 shipto.spare-int-3 ~
-shipto.spare-int-4 shipto.ship-meth shipto.broker shipto.bill ~
-shipto.overUnderEnabled shipto.oversPercent shipto.undersPercent shipto.spare-char-3 ~
-shipto.siteID 
-&Scoped-define ENABLED-TABLES shipto
-&Scoped-define FIRST-ENABLED-TABLE shipto
-&Scoped-Define ENABLED-OBJECTS ship_note RECT-1 RECT-2 RECT-3 
-&Scoped-Define DISPLAYED-FIELDS shipto.ship-id shipto.ship-name ~
+&Scoped-Define ENABLED-FIELDS shipto.isDefault shipto.ship-name ~
 shipto.ship-addr[1] shipto.ship-addr[2] shipto.ship-city shipto.ship-state ~
 shipto.ship-zip shipto.contact shipto.area-code shipto.phone ~
 shipto.spare-char-1 shipto.tax-code shipto.tax-mandatory shipto.notes[1] ~
@@ -169,8 +159,22 @@ shipto.carrier shipto.dest-code shipto.pallet shipto.spare-char-4 ~
 shipto.spare-char-5 shipto.exportCustID shipto.dock-loc shipto.dock-hour ~
 shipto.del-chg shipto.del-time shipto.spare-int-1 shipto.spare-int-2 ~
 shipto.spare-int-3 shipto.spare-int-4 shipto.ship-meth shipto.broker ~
-shipto.bill shipto.overUnderEnabled shipto.oversPercent shipto.undersPercent ~
-shipto.spare-char-3 shipto.siteID 
+shipto.bill shipto.overUnderEnabled shipto.oversPercent ~
+shipto.undersPercent shipto.spare-char-3 shipto.siteID 
+&Scoped-define ENABLED-TABLES shipto
+&Scoped-define FIRST-ENABLED-TABLE shipto
+&Scoped-Define ENABLED-OBJECTS ship_note RECT-1 RECT-2 RECT-3 
+&Scoped-Define DISPLAYED-FIELDS shipto.isDefault shipto.ship-id ~
+shipto.ship-name shipto.ship-addr[1] shipto.ship-addr[2] shipto.ship-city ~
+shipto.ship-state shipto.ship-zip shipto.contact shipto.area-code ~
+shipto.phone shipto.spare-char-1 shipto.tax-code shipto.tax-mandatory ~
+shipto.notes[1] shipto.notes[2] shipto.notes[3] shipto.notes[4] shipto.loc ~
+shipto.loc-bin shipto.carrier shipto.dest-code shipto.pallet ~
+shipto.spare-char-4 shipto.spare-char-5 shipto.exportCustID shipto.dock-loc ~
+shipto.dock-hour shipto.del-chg shipto.del-time shipto.spare-int-1 ~
+shipto.spare-int-2 shipto.spare-int-3 shipto.spare-int-4 shipto.ship-meth ~
+shipto.broker shipto.bill shipto.overUnderEnabled shipto.oversPercent ~
+shipto.undersPercent shipto.spare-char-3 shipto.siteID 
 &Scoped-define DISPLAYED-TABLES shipto
 &Scoped-define FIRST-DISPLAYED-TABLE shipto
 &Scoped-Define DISPLAYED-OBJECTS tg_inactive fi_sname faxAreaCode faxNumber ~
@@ -262,11 +266,14 @@ DEFINE VARIABLE tg_inactive AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     tg_inactive AT ROW 10.05 COL 42 WIDGET-ID 8
+     shipto.isDefault AT ROW 10.05 COL 49.6 WIDGET-ID 12
+          VIEW-AS TOGGLE-BOX
+          SIZE 12 BY .81
+     tg_inactive AT ROW 10.05 COL 35.2 WIDGET-ID 8
      fi_sname AT ROW 13 COL 80 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      shipto.ship-id AT ROW 10 COL 14.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 22 BY 1
+          SIZE 17.4 BY 1
           FONT 4
      shipto.ship-name AT ROW 11.24 COL 15 COLON-ALIGNED FORMAT "x(50)"
           VIEW-AS FILL-IN 
@@ -857,6 +864,21 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME shipto.isDefault
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL shipto.isDefault V-table-Win
+ON VALUE-CHANGED OF shipto.isDefault IN FRAME F-Main /* Default */
+DO:
+    IF shipto.isdefault:CHECKED AND tg_inactive:CHECKED THEN DO:
+        MESSAGE "Inactive shipto cannot be default"
+            VIEW-AS ALERT-BOX WARNING.
+        shipTo.isDefault:CHECKED = FALSE.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME shipto.loc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL shipto.loc V-table-Win
 ON LEAVE OF shipto.loc IN FRAME F-Main /* Warehouse */
@@ -1013,11 +1035,24 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tg_inactive V-table-Win
 ON VALUE-CHANGED OF tg_inactive IN FRAME F-Main /* Inactive */
 DO:
-   IF shipto.ship-id:SCREEN-VALUE EQ cust.cust-no THEN DO:
-       MESSAGE "The default ship to cannot be made inactive" VIEW-AS ALERT-BOX INFORMATION .
-       tg_inactive:SCREEN-VALUE = "No".
-   END.
-
+    IF tg_inactive:CHECKED AND shipto.isDefault:CHECKED THEN DO:
+        MESSAGE "Default shipto cannot be inactive"
+        VIEW-AS ALERT-BOX WARNING.
+        tg_inactive:CHECKED = FALSE.
+    END.  
+    ELSE DO:
+        RUN Customer_IsActiveShipToAvailable IN hdCustomerProcs(
+            INPUT  cocode,
+            INPUT  cust.cust-no,
+            INPUT  ship.ship-id,
+            OUTPUT lIsActiveShipToAvailable
+            ).
+        IF NOT lIsActiveShipToavailable THEN DO:
+            MESSAGE "There should be atleast one active shipto"
+                VIEW-AS ALERT-BOX WARNING.
+            tg_inactive:CHECKED = FALSE.
+        END. 
+    END.                  
   {methods/dispflds.i}
 END.
 
@@ -1316,7 +1351,7 @@ PROCEDURE local-assign-record :
   END.
   ELSE IF tg_inactive:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO" AND NOT DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN DO: 
      RUN ClearTagsInactive(shipto.rec_key).
-     shipto.statusCode = "".
+     shipto.statusCode = "A".
   END.
     
   disable tg_inactive faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
@@ -1439,17 +1474,19 @@ PROCEDURE local-delete-record :
 
       END. /* duplicate found */
       ELSE DO:
-            MESSAGE "This is the default ship to for this customer and " SKIP
-            "cannot be deleted."
-            VIEW-AS ALERT-BOX INFO BUTTONS OK.
-            RETURN.
+          RUN Customer_IsActiveShipToAvailable IN hdCustomerProcs(
+              INPUT  cocode,
+              INPUT  cust.cust-no,
+              INPUT  ship.ship-id,
+              OUTPUT lIsActiveShipToavailable
+              ).
+          IF NOT lIsActiveShipToAvailable THEN DO: 
+              MESSAGE "There should be atleast one active shipto"
+                  VIEW-AS ALERT-BOX ERROR. 
+                  RETURN.
+          END.                                                                 
       END. /* can't find duplicate ship-id */
-
-
     END. /* do with frame... */
-
-
-
   END. /* if cust-no eq ship-id */
 
 
@@ -1535,9 +1572,11 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 DEF VAR ip-shipnotes AS CHAR NO-UNDO.
 
-DEFINE VARIABLE iOldvalueTrans AS INTEGER NO-UNDO .
-DEFINE VARIABLE iOldvalueDock AS INTEGER NO-UNDO .
-DEFINE VARIABLE cOldShipnotes AS CHARACTER NO-UNDO .
+DEFINE VARIABLE iOldvalueTrans AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iOldvalueDock  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cOldShipnotes  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lUpdated       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   
   
@@ -1616,12 +1655,57 @@ ASSIGN
       iOldvalueTrans = iOldvalueTrans - integer(shipto.del-time)
       iOldvalueDock  = iOldvalueDock - shipto.spare-int-2.
 
-  RUN update-date (iOldvalueTrans,iOldvalueDock)  . 
+  RUN update-date (iOldvalueTrans,iOldvalueDock).
+  
+  IF shipto.isDefault:CHECKED THEN DO:
+      RUN pChangeDefaultShipTo(
+          OUTPUT lupdated,
+          OUTPUT cMessage
+          ).
+      IF lUpdated THEN 
+          MESSAGE cMessage 
+            VIEW-AS ALERT-BOX INFORMATION.    
+  END.        
   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeDefaultShipTo V-table-Win
+PROCEDURE pChangeDefaultShipTo PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplUpdated AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-ShipTo FOR shipto.
+    
+    FIND FIRST bf-shipto EXCLUSIVE-LOCK 
+         WHERE bf-shipto.company   EQ cocode
+           AND bf-shipto.cust-no   EQ cust.cust-no
+           AND bf-shipto.isDefault EQ YES
+           AND ROWID(bf-shipto)    NE ROWID(shipto)
+         NO-ERROR.
+         
+    IF AVAILABLE bf-shipto THEN DO:
+        ASSIGN 
+            bf-shipto.isDefault = NO
+            oplUpdated          = YES
+            opcMessage          =  "Default shipto changed from " + bf-shipto.ship-id + 
+                                   " to " + shipto.ship-id:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+            .
+    END.    
+ RELEASE bf-ShipTo.  
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeDupe V-table-Win 
 PROCEDURE pDeDupe :

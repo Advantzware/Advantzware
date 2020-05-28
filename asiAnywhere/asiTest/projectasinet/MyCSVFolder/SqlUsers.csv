@@ -1,7 +1,0 @@
-UserId,Username,Password, email, GroupId,UserId2,name
-"143","Admin","Admin123000","joe@advantzware.com","admin","","Admin"
-"144","ATT","att1000","ATT@ATT.com","Admin","","AT&T Corporation"
-"145","Hershey","Hershey123","Hershey@Hershey.com","External","",""
-"146","IBM","IBM123000","IBM@BigBlue.com","External","","IBM Corp"
-"147","joe","joe","Joe@Advantzware.com","External","","Joseph Hentz"
-"148","rob","sales","rob@advantzware.com","customer","","Rob sales"

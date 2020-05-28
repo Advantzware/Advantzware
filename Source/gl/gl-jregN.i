@@ -76,7 +76,7 @@ FOR EACH gl-jrn WHERE gl-jrn.company EQ cocode
                          WHEN "jur"    THEN cVarValue = string(TRIM(v-jrnal-2)) .
                          WHEN "descri"   THEN cVarValue = string(gl-jrnl.dscr,"x(28)").
                          WHEN "date"   THEN cVarValue = STRING(gl-jrn.tr-date).
-                         WHEN "acco"  THEN cVarValue = STRING(account.actnum,"x(22)") .
+                         WHEN "acco"  THEN cVarValue = STRING(account.actnum,"x(25)") .
                          WHEN "desc"   THEN cVarValue = STRING(account.dscr,"x(21)") .
                          WHEN "debi"  THEN cVarValue = IF deb NE 0 THEN STRING(deb,"->>,>>>,>>9.99") ELSE "" .
                          WHEN "credit"   THEN cVarValue = IF cred NE 0 THEN STRING(cred,"->>,>>>,>>9.99") ELSE ""  .
@@ -256,7 +256,7 @@ FOR EACH gl-jrn WHERE gl-jrn.company EQ cocode
                          WHEN "jur"    THEN cVarValue = string(TRIM(v-jrnal-2)) .
                          WHEN "descri"   THEN cVarValue = string(gl-jrnl.dscr,"x(28)").
                          WHEN "date"   THEN cVarValue = STRING(gl-jrn.tr-date).
-                         WHEN "acco"  THEN cVarValue = STRING(account.actnum,"x(22)") .
+                         WHEN "acco"  THEN cVarValue = STRING(account.actnum,"x(25)") .
                          WHEN "desc"   THEN cVarValue = STRING(account.dscr,"x(21)") .
                          WHEN "debi"  THEN cVarValue = IF deb NE 0 THEN STRING(deb,"->>,>>>,>>9.99") ELSE "" .
                          WHEN "credit"   THEN cVarValue = IF cred NE 0 THEN STRING(cred,"->>,>>>,>>9.99") ELSE ""  .

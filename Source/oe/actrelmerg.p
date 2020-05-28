@@ -55,6 +55,11 @@ DEFINE VARIABLE cMessageRelh         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lMergeable           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFobDscr2            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lPromptByItem        AS LOG       NO-UNDO.
+DEFINE VARIABLE hdOutboundProcs      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lReleaseCreated      AS LOGICAL   NO-UNDO.
+
+/* Procedure to prepare and execute API calls */
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 DEFINE BUFFER bf-notes        FOR notes.
 DEFINE BUFFER bf-oe-ordl      FOR oe-ordl.
@@ -316,6 +321,10 @@ DO:
             AND bf-oe-ordl.line    EQ oe-rel.line
             NO-ERROR.
         FIND bf-oe-relh WHERE RECID(bf-oe-relh) EQ relh-recid NO-LOCK.
+         /* Check to trigger createrelease when release header creates */
+        IF ipcAction EQ "CREATE" AND AVAILABLE bf-oe-relh THEN
+            lReleaseCreated = YES.
+
         IF AVAILABLE bf-oe-ordl THEN 
             FOR EACH notes NO-LOCK WHERE notes.rec_key = bf-oe-ordl.rec_key 
                 AND notes.note_type <> "S" AND notes.note_type <> "o"  :
@@ -347,7 +356,13 @@ DO:
             iocPrompt       = "NEVER"
             .
     END.
-
+    
+    /* calls sendrelease by triggering createrelease trigger */
+    IF lReleaseCreated THEN
+        RUN pRunAPIOutboundTrigger (
+            BUFFER bf-oe-relh,
+            INPUT  "CreateRelease"
+            ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1039,6 +1054,62 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+PROCEDURE pRunAPIOutboundTrigger:
+/*------------------------------------------------------------------------------
+ Purpose:  Fires Outbound APIs for given release header
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-oe-relh FOR oe-relh.
+    DEFINE INPUT PARAMETER ipcTriggerID AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAPIID       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
+       
+    DEFINE BUFFER bf-oe-rell FOR oe-rell.
+    DEFINE BUFFER bf-cust    FOR cust.
+    DEFINE BUFFER bf-itemfg  FOR itemfg.
+    
+    IF AVAILABLE ipbf-oe-relh THEN DO:
+        FOR EACH bf-oe-rell NO-LOCK 
+            WHERE bf-oe-rell.company EQ ipbf-oe-relh.company
+            AND bf-oe-rell.r-no EQ ipbf-oe-relh.r-no,
+            FIRST bf-itemfg NO-LOCK 
+            WHERE bf-itemfg.company EQ bf-oe-rell.company
+            AND bf-itemfg.i-no EQ bf-oe-rell.i-no
+            BREAK BY bf-oe-rell.r-no  /*In order to get .loc from first oe-rell as "shipFrom"*/
+            BY bf-oe-rell.i-no:
+            
+            IF FIRST-OF(bf-oe-rell.r-no) THEN DO:
+                ASSIGN 
+                    cAPIID       = "SendRelease"
+                    cPrimaryID   = STRING(ipbf-oe-relh.release#)
+                    cDescription = cAPIID + " triggered by " + ipcTriggerID 
+                                 + " from actrelmerg.p for Release: " + cPrimaryID
+                    . 
+
+                RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+                    INPUT  ipbf-oe-relh.company,                /* Company Code (Mandatory) */
+                    INPUT  bf-oe-rell.loc,               /* Location Code (Mandatory) */
+                    INPUT  cAPIID,                  /* API ID (Mandatory) */
+                    INPUT  "",               /* Client ID (Optional) - Pass empty in case to make request for all clients */
+                    INPUT  ipcTriggerID,              /* Trigger ID (Mandatory) */
+                    INPUT  "oe-relh",               /* Comma separated list of table names for which data being sent (Mandatory) */
+                    INPUT  STRING(ROWID(ipbf-oe-relh)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                    INPUT  cPrimaryID,              /* Primary ID for which API is called for (Mandatory) */   
+                    INPUT  cDescription,       /* Event's description (Optional) */
+                    OUTPUT lSuccess,                /* Success/Failure flag */
+                    OUTPUT cMessage                 /* Status message */
+                    ) NO-ERROR.
+            END.
+        END.               
+        /* Reset context at the end of API calls to clear temp-table 
+           data inside OutboundProcs */
+        RUN Outbound_ResetContext IN hdOutboundProcs.
+    END.
+END PROCEDURE.
 &ENDIF
 
 /* ************************  Function Implementations ***************** */

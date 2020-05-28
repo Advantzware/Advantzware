@@ -703,7 +703,7 @@ DO:
                                         lv-sell-by         = ce-ctrl.sell-by
                                         lv-sell-by-ce-ctrl = ce-ctrl.sell-by
                                         v-pct-2            = ce-ctrl.prof-mrkup
-                                        v-probe-comm       = eb.comm.
+                                        v-probe-comm       = blk.comm.
                 
                                     FIND FIRST cust WHERE
                                         cust.company EQ job-hdr.company AND
@@ -711,9 +711,9 @@ DO:
                                         NO-LOCK.
 
                                     RUN custom/combasis.p (cocode,
-                                        eb.sman,
+                                        blk.sman,
                                         cust.type,
-                                        eb.procat,
+                                        blk.procat,
                                         0,
                                         cust.cust-no,
                                         OUTPUT v-basis).
@@ -764,7 +764,7 @@ DO:
                                     IF ll-use-margin THEN
                                         v-pct-2 = v-mp.
                 
-                                    v-qty-2 = IF eb.yrprice THEN blk.qyld ELSE blk.qreq.
+                                    v-qty-2 = IF blk.yr$ THEN blk.qyld ELSE blk.qreq.
                 
                                     /*                   IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN DO:                                    */
                                     /*                      ASSIGN                                                                                      */
@@ -819,7 +819,7 @@ DO:
                                 IF ll-recalc-cost THEN
                                     oe-ordl.cost = oe-ordl.cost + blk.cost.
 
-                                IF eb.yrprice THEN
+                                IF blk.yr$ THEN
                                     v-blk-qty = v-blk-qty + blk.qyld.
                                 ELSE
                                     v-blk-qty = v-blk-qty + blk.qreq.
@@ -849,14 +849,15 @@ DO:
                             blk.snum EQ job-hdr.frm AND
                             blk.bnum EQ job-hdr.blank-no.
 
-                        ASSIGN
-                            blk-fact = 0
-                            v-qty-2  = IF eb.yrprice THEN blk.qyld ELSE blk.qreq.
+                        blk-fact = 0.
+                        
+                        IF AVAILABLE blk THEN
+                            v-qty-2  =  IF blk.yr$ THEN blk.qyld ELSE blk.qreq.
 
                         FOR EACH bf-blk:
                             blk-fact = blk-fact + bf-blk.fact.
                         END. 
-                        IF ll-recalc-cost THEN
+                        IF ll-recalc-cost AND AVAILABLE blk THEN
                             oe-ordl.cost = blk.fact * (fac-tot / blk-fact) / (v-qty-2 / 1000).
 
                         RELEASE blk.

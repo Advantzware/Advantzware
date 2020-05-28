@@ -1,5 +1,0 @@
-The contents of this package are required for Unit testing only.
-The contents are intended to the used on Windows and Unix platforms 
-and are designed to allow Unit testing integrated into ANT jobs and
-the Jenkins CI server, PCT is a prerequisite for running those 
-tests. 

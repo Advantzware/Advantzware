@@ -3983,7 +3983,7 @@ FIND FIRST bf-cust NO-LOCK
        AND bf-cust.cust-no EQ ipcCustID
      NO-ERROR.
      
-IF AVAILABLE bf-cust AND bf-cust.ASNClientID NE "" THEN DO: 
+IF AVAILABLE bf-cust THEN DO: 
     IF iplPrinted THEN 
         cTriggerID = "RePrintBillOfLading".
     ELSE 
@@ -3995,11 +3995,12 @@ IF AVAILABLE bf-cust AND bf-cust.ASNClientID NE "" THEN DO:
         cDescription = cAPIID + " triggered by " + cTriggerID + " from r-bolprt.w for BOL: " + cPrimaryID
         .
 
-    RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+    RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
         INPUT  ipcCompany,                 /* Company Code (Mandatory) */
         INPUT  ipcLocation,                /* Location Code (Mandatory) */
         INPUT  cAPIID,                     /* API ID (Mandatory) */
-        INPUT  bf-cust.ASNClientID,        /* Client ID (Optional) - Pass empty in case to make request for all clients */
+        INPUT  bf-cust.cust-no,            /* Scope ID (Mandatory) */
+        INPUT  "Customer",                 /* Scope  Type */
         INPUT  cTriggerID,                 /* Trigger ID (Mandatory) */
         INPUT  "oe-bolh",                  /* Comma separated list of table names for which data being sent (Mandatory) */
         INPUT  STRING(ipriOeBolh),         /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
@@ -4408,11 +4409,6 @@ PROCEDURE post-bol :
         
         /* Process EDI 856 and 814 */
         IF asnsps-log THEN RUN oe/oe856gen.p (RECID(oe-bolh), yes,yes).
-        FIND FIRST edcode NO-LOCK
-            WHERE edcode.setID EQ "214" 
-            NO-ERROR.
-        IF AVAIL edcode THEN 
-          RUN oe/oe214gen.p (Recid(oe-bolh), yes,yes).
       END. /* avail */
     END. /* do while not avail */
   END. /* do trans */

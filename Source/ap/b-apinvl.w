@@ -2966,7 +2966,7 @@ PROCEDURE valid-po-no :
             WHERE po-ordl.company EQ po-ord.company
               AND po-ordl.po-no   EQ po-ord.po-no:
               IF po-ordl.t-rec-qty EQ 0 THEN DO:
-                MESSAGE  "Do you want to varify receipt .. "
+                MESSAGE  "Do you want to verify receipt .. "
                           VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO                  
                 UPDATE lMessage.
                 IF lMessage THEN 
@@ -3002,7 +3002,7 @@ PROCEDURE valid-po-no :
     END.
 
     IF lv-msg NE "" THEN DO:
-      MESSAGE TRIM(lv-msg) + "..." VIEW-AS ALERT-BOX ERROR.
+      MESSAGE TRIM(lv-msg) VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO ap-invl.po-no.
       RETURN ERROR.
     END.

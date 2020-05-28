@@ -493,7 +493,11 @@ DEF BUFFER bf-est FOR est.
                             blk.qreq     = xeb.bl-qty
                             blk.qyld     = xeb.yld-qty
                             blk.yr$      = xeb.yrprice
-                            blk.stock-no = xeb.stock-no.
+                            blk.stock-no = xeb.stock-no
+                            blk.comm     = xeb.comm
+                            blk.sman     = xeb.sman
+                            blk.procat   = xeb.procat
+                            .
                     END.
                     xxx = xxx + (xeb.t-sqin * xeb.num-up).
                 END.

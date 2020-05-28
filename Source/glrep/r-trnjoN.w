@@ -62,7 +62,7 @@ ASSIGN cTextListToSelect = "Account,Account Description,Journal,Vendor,Name,Date
                            "Amt MSF,Discount,Amount,Currency Code,Created By,Created Date,Posted,Run#" 
        cFieldListToSelect = "account,acc-desc,jou,vend,name,date,inv,chk,ord,qty," +
                             "msf,dis,amt,curr-code,createdby,createddate,posted,run"
-       cFieldLength = "10,30,8,8,35,8,12,7,6,13," + "10,10,14,13,10,12,6,7"
+       cFieldLength = "25,30,8,8,35,8,12,7,6,13," + "10,10,14,13,10,12,6,7"
        cFieldType = "c,c,c,c,c,c,i,i,i,i," + "i,i,i,c,c,c,c,i" 
     .
 
@@ -1786,7 +1786,7 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "msf"  THEN cVarValue = "" .
                          WHEN "dis"   THEN cVarValue = "" .
                          WHEN "amt"  THEN cVarValue = STRING(gltrans.tr-amt,"->>,>>>,>>9.99") .
-                         WHEN "account"  THEN cVarValue = STRING(account.actnum,"x(10)") .
+                         WHEN "account"  THEN cVarValue = STRING(account.actnum,"x(25)") .
                          WHEN "acc-desc"  THEN cVarValue = STRING(account.dscr,"x(30)") .
                          WHEN "curr-code"  THEN cVarValue = STRING(gltrans.curr-code[1]) .
                          WHEN "createdby"  THEN cVarValue = STRING(gltrans.createdBy,"x(10)") .
@@ -1845,7 +1845,7 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "msf"  THEN cVarValue = "" .
                          WHEN "dis"   THEN cVarValue = "" .
                          WHEN "amt"  THEN cVarValue = STRING(glhist.tr-amt,"->>,>>>,>>9.99") .
-                         WHEN "account"  THEN cVarValue = STRING(account.actnum,"x(10)") .
+                         WHEN "account"  THEN cVarValue = STRING(account.actnum,"x(25)") .
                          WHEN "acc-desc"  THEN cVarValue = STRING(account.dscr,"x(30)") .
                          WHEN "curr-code"  THEN cVarValue = STRING(glhist.curr-code[1]) .
                          WHEN "createdby"  THEN cVarValue = STRING(glhist.createdBy,"x(10)") .
@@ -1962,7 +1962,7 @@ do:
                          WHEN "msf"  THEN cVarValue = IF ap-invl.amt-msf <> 0 THEN STRING(ap-invl.amt-msf,"->>,>>9.99") ELSE "" .
                          WHEN "dis"   THEN cVarValue = IF ws_disc <> 0 THEN STRING(ws_disc,"->>,>>9.99") ELSE "" .
                          WHEN "amt"  THEN cVarValue = STRING(ap-invl.amt,"->>,>>>,>>9.99") .
-                         WHEN "account"  THEN cVarValue = STRING(account.actnum,"x(10)") .
+                         WHEN "account"  THEN cVarValue = STRING(account.actnum,"x(25)") .
                          WHEN "acc-desc"  THEN cVarValue = STRING(account.dscr,"x(30)") .
                          WHEN "curr-code"  THEN cVarValue = STRING(ap-inv.curr-code[1]) .
                          WHEN "createdby"  THEN cVarValue = "" .

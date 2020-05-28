@@ -1,1 +1,0 @@
-'Cust. #: ' + cust.cust-no

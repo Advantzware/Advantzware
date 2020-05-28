@@ -59,7 +59,9 @@ for each report where report.term-id eq v-term-id,
             and oe-rel.i-no     eq oe-rell.i-no
           no-lock no-error.
   end.
-
+  IF FIRST-OF(report.key-02) THEN
+    iShipQty = 0.
+    iShipQty = iShipQty + oe-boll.qty .
   if last-of(report.key-02) then do:
     assign
      i = 0
@@ -215,6 +217,13 @@ for each report where report.term-id eq v-term-id,
           v-unit-qty AT 91 FORM "x(15)"  
           .
         v-printline = v-printline + 1.
+    END.
+    
+    IF cPrintFormat EQ "CCC" AND iIntValue EQ 1 THEN do:
+      PUT {1} SKIP.   
+      PUT "<C1>Quantity Ordered: "  trim(STRING(oe-ordl.qty,"->>,>>>,>>9")) FORMAT "x(12)"
+          "<C22> Quantity Shipped: " trim(STRING(iShipQty,"->>,>>>,>>9"))  FORMAT "x(12)"
+          "<C44> Balance Due: " trim(STRING(oe-ordl.qty - iShipQty,"->>,>>>,>>9")) FORMAT "x(12)" .        
     END.
 
     PUT {1} SKIP.

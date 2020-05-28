@@ -64,37 +64,7 @@ DO WHILE AVAIL w-r-no.
     LEAVE.
   END.
 END.
-
-FOR EACH w-b-no,
-    FIRST oe-bolh WHERE oe-bolh.b-no EQ w-b-no NO-LOCK,
-    EACH oe-boll
-    WHERE oe-boll.company EQ oe-bolh.company
-      AND oe-boll.b-no    EQ oe-bolh.b-no
-    USE-INDEX b-no NO-LOCK:
-
-  FOR EACH xoe-boll
-      WHERE xoe-boll.company    EQ oe-boll.company
-        AND xoe-boll.ord-no     EQ oe-boll.ord-no
-        AND ((xoe-boll.rel-no   EQ oe-boll.rel-no AND
-              xoe-boll.b-ord-no GT oe-boll.b-ord-no)    /*OR
-             (xoe-boll.i-no     EQ oe-boll.i-no   AND
-              xoe-boll.line     EQ oe-boll.line   AND
-              xoe-boll.rel-no   GT oe-boll.rel-no AND
-              xoe-boll.s-code   NE "B"            AND
-              oe-boll.s-code    NE "B")*/)
-        AND NOT CAN-FIND(FIRST xoe-bolh
-                         WHERE xoe-bolh.b-no   EQ xoe-boll.b-no
-                           AND xoe-bolh.posted EQ YES)
-      USE-INDEX ord-no NO-LOCK:
-    MESSAGE "Can not delete invoice until all subsequent " +
-            "invoices and bills of lading are deleted." SKIP 
-            "See BOL# " xoe-boll.bol-no SKIP
-            "for Order " xoe-boll.ord-no 
-        VIEW-AS ALERT-BOX ERROR.
-    RETURN ERROR.
-  END.
-END.
-
+     
 FOR EACH w-r-no:
   FOR EACH inv-line WHERE inv-line.r-no EQ w-r-no:
     /* oe/invpost4.p calls fg/fgcalca&b.p to get q-alloc, but if the posted flag */

@@ -214,95 +214,7 @@ PROCEDURE ChangeSellPrice:
 
 END PROCEDURE.
 
-PROCEDURE EstCost_GetHeaderCostDeviation:
-    /*------------------------------------------------------------------------------
-     Purpose:  Given an estimate number, get the total cost for freight
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdCostPerM AS DECIMAL NO-UNDO.
 
-    RUN EstCost_GetHeaderCostForCategory(ipcCompany, ipcEstimateNo, ipdQuantity, "deviation", OUTPUT opdCostTotal, OUTPUT opdCostPerM).
-
-END PROCEDURE.
-
-PROCEDURE EstCost_GetHeaderCostFreight:
-    /*------------------------------------------------------------------------------
-     Purpose:  Given an estimate number, get the total cost for freight
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdCostPerM AS DECIMAL NO-UNDO.
-    
-    RUN EstCost_GetHeaderCostForCategory(ipcCompany, ipcEstimateNo, ipdQuantity, "nfFreight", OUTPUT opdCostTotal, OUTPUT opdCostPerM).
-    
-END PROCEDURE.
-
-PROCEDURE EstCost_GetHeaderCostFarm:
-    /*------------------------------------------------------------------------------
-     Purpose:  Given an estimate number, get the total cost for warehousing
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdCostPerM AS DECIMAL NO-UNDO.
-    
-    RUN EstCost_GetHeaderCostForCategory(ipcCompany, ipcEstimateNo, ipdQuantity, "matNoWaste", OUTPUT opdCostTotal, OUTPUT opdCostPerM).
-    
-END PROCEDURE.
-
-PROCEDURE EstCost_GetHeaderCostWarehouse:
-    /*------------------------------------------------------------------------------
-     Purpose:  Given an estimate number, get the total cost for warehousing
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdCostPerM AS DECIMAL NO-UNDO.
-    
-    RUN EstCost_GetHeaderCostForCategory(ipcCompany, ipcEstimateNo, ipdQuantity, "nfWarehouse", OUTPUT opdCostTotal, OUTPUT opdCostPerM).
-    
-END PROCEDURE.
-
-PROCEDURE EstCost_GetHeaderCostForCategory:
-    /*------------------------------------------------------------------------------
-     Purpose:  Given an estimate number, get the total cost for a given category
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipcCategory AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdCostPerM AS DECIMAL NO-UNDO.
-
-    FIND FIRST estCostHeader NO-LOCK 
-        WHERE estCostHeader.company EQ ipcCompany
-        AND estCostHeader.estimateNo EQ ipcEstimateNo
-        AND estCostHeader.quantityMaster GE ipdQuantity
-        NO-ERROR. 
-    IF AVAILABLE estCostHeader THEN DO:
-        FOR EACH estCostDetail NO-LOCK
-            WHERE estCostDetail.estCostHeaderID EQ estCostHeader.estCostHeaderID
-            AND estCostDetail.estCostCategoryID EQ ipcCategory:
-            opdCostTotal = opdCostTotal + estCostDetail.costTotal.    
-        END.
-        IF estCostHeader.quantityMaster NE 0 THEN 
-            opdCostPerM = opdCostTotal / (estCostHeader.quantityMaster / 1000).
-        
-    END.
-
-END PROCEDURE.
 
 PROCEDURE pAddCostDetail PRIVATE:
     /*------------------------------------------------------------------------------
@@ -1321,7 +1233,6 @@ PROCEDURE pAddInk PRIVATE:
         END.
         ASSIGN 
             ttInk.dCoveragePercent     = ttInk.dCoveragePercent + (ipdCoveragePercent / 100)
-            ttInk.dQtyRequiredPerBlank = ttInk.dCoveragePercent * ipbf-estCostBlank.blankAreaNetWindow / ttInk.dCoverageRate
             .             
         IF ttInk.cMaterialType EQ "I" THEN 
             ttInk.iCountInks = ttInk.iCountInks + 1.
@@ -1393,6 +1304,8 @@ PROCEDURE pAddLeaf PRIVATE:
                 ttLeaf.dCoverageRate       = bf-item.sqin-lb
                 ttLeaf.cCoverageRateUOM    = "SQIN/LB"
                 ttLeaf.dQtyRequiredPerLeaf = ttLeaf.dAreaInSQIn / ttLeaf.dCoverageRate
+                ttLeaf.lIsSheetFed         = ipiBlankNo EQ 0
+                ttLeaf.lIsWindow           = CAN-DO(gcWindowMatTypes, bf-item.mat-type)
                 .
             
             FIND FIRST bf-estCostBlank EXCLUSIVE-LOCK 
@@ -1403,8 +1316,7 @@ PROCEDURE pAddLeaf PRIVATE:
             IF AVAILABLE bf-estCostBlank THEN 
                 ASSIGN
                     /*Only add Window Area if material is a Window - i.e. cut out*/ 
-                    bf-estCostBlank.blankAreaWindow    = IF CAN-DO(gcWindowMatTypes, bf-item.mat-type) THEN bf-estCostBlank.blankAreaWindow + ttLeaf.dAreaInSQIn ELSE 0
-                    //bf-estCostBlank.blankAreaWindow    = bf-estCostBlank.blankAreaWindow + ttLeaf.dAreaInSQIn
+                    bf-estCostBlank.blankAreaWindow    = bf-estCostBlank.blankAreaWindow + IF ttLeaf.lIsWindow THEN ttLeaf.dAreaInSQIn ELSE 0
                     bf-estCostBlank.blankAreaNetWindow = bf-estCostBlank.blankArea - bf-estCostBlank.blankAreaWindow
                     ttLeaf.estBlankID                  = bf-estCostBlank.estCostBlankID
                     .
@@ -2675,7 +2587,7 @@ PROCEDURE pConvertQuantityFromUOMToUOM PRIVATE:
     DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFromUOM AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcToUOM AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdBasisWeight AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdBasisWeightInLbsPerMSF AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipdLength AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipdWidth AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipdDepth AS DECIMAL NO-UNDO.
@@ -2686,12 +2598,12 @@ PROCEDURE pConvertQuantityFromUOMToUOM PRIVATE:
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
 
-    /*RUN Conv_QuantityFromUOMtoUOM(ipcCompany, ipcItemID, ipcItemType,                      */
-    /*                            ipdQuantityInFromUOM, ipcFromUOM, ipcToUOM,                */
-    /*                            ipdBasisWeight, ipdLength, ipdWidth, ipdDepth, 0,          */
-    /*                            OUTPUT opdQuantityInToUOM, OUTPUT lError, OUTPUT cMessage).*/
-    /*IF lError THEN                                                                         */
-    RUN custom/convquom.p (ipcCompany, ipcFromUOM, ipcToUOM, ipdBasisWeight, ipdLength, ipdWidth, ipdDepth, ipdQuantityInFromUOM, OUTPUT opdQuantityInToUOM).
+    RUN Conv_QuantityFromUOMtoUOM(ipcCompany, ipcItemID, ipcItemType,
+                                ipdQuantityInFromUOM, ipcFromUOM, ipcToUOM,
+                                ipdBasisWeightInLbsPerMSF, ipdLength, ipdWidth, ipdDepth, 0,
+                                OUTPUT opdQuantityInToUOM, OUTPUT lError, OUTPUT cMessage).
+    IF lError THEN
+        RUN custom/convquom.p (ipcCompany, ipcFromUOM, ipcToUOM, ipdBasisWeightInLbsPerMSF, ipdLength, ipdWidth, ipdDepth, ipdQuantityInFromUOM, OUTPUT opdQuantityInToUOM).
     
 END PROCEDURE.
 
@@ -3563,6 +3475,7 @@ PROCEDURE pProcessInk PRIVATE:
         
     ASSIGN    
         bf-estCostMaterial.addToWeightNet             = YES
+        ipbf-ttInk.dQtyRequiredPerBlank               = ipbf-ttInk.dCoveragePercent * ipbf-estCostBlank.blankAreaNetWindow / ipbf-ttInk.dCoverageRate
         dQtyRequiredPerForm                           = ipbf-estCostBlank.numOut * ipbf-ttInk.dQtyRequiredPerBlank
         bf-estCostMaterial.quantityRequiredNoWaste    = ipbf-estCostOperation.quantityInNoWaste * dQtyRequiredPerForm
         bf-estCostMaterial.quantityRequiredRunWaste   = ipbf-estCostOperation.quantityInRunWaste * dQtyRequiredPerForm
@@ -3587,7 +3500,7 @@ PROCEDURE pProcessLeaf PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostForm      FOR estCostForm.
     DEFINE PARAMETER BUFFER ipbf-estCostOperation FOR estCostOperation.
     DEFINE PARAMETER BUFFER ipbf-ttLeaf           FOR ttLeaf.
-    DEFINE INPUT PARAMETER ipdQtyRequiredPerForm AS DECIMAL NO-UNDO.    
+    DEFINE INPUT PARAMETER ipdQtyRequiredPerFeed AS DECIMAL NO-UNDO.    
  
     DEFINE BUFFER bf-estCostMaterial FOR estCostMaterial.
         
@@ -3597,10 +3510,11 @@ PROCEDURE pProcessLeaf PRIVATE:
         bf-estCostMaterial.addToWeightNet             = YES
         bf-estCostMaterial.dimLength                  = ipbf-ttLeaf.dDimLength
         bf-estCostMaterial.dimWidth                   = ipbf-ttLeaf.dDimWidth
-        bf-estCostMaterial.quantityRequiredNoWaste    = ipbf-estCostOperation.quantityInNoWaste * ipdQtyRequiredPerForm
-        bf-estCostMaterial.quantityRequiredRunWaste   = ipbf-estCostOperation.quantityInRunWaste * ipdQtyRequiredPerForm
-        bf-estCostMaterial.quantityRequiredSetupWaste = ipbf-estCostOperation.quantityInSetupWaste * ipdQtyRequiredPerForm
+        bf-estCostMaterial.quantityRequiredNoWaste    = ipbf-estCostOperation.quantityInNoWaste * ipdQtyRequiredPerFeed
+        bf-estCostMaterial.quantityRequiredRunWaste   = ipbf-estCostOperation.quantityInRunWaste * ipdQtyRequiredPerFeed
+        bf-estCostMaterial.quantityRequiredSetupWaste = ipbf-estCostOperation.quantityInSetupWaste * ipdQtyRequiredPerFeed
         bf-estCostMaterial.quantityUOM                = ipbf-ttLeaf.cQtyUOM
+        bf-estCostMaterial.basisWeight                = 144000 / ipbf-ttLeaf.dCoverageRate
         .             
 
     RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm).
@@ -3664,21 +3578,22 @@ PROCEDURE pProcessLeafs PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-estCostForm   FOR estCostForm.
 
-    DEFINE VARIABLE dQtyRequiredPerForm AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyRequiredPerFeed AS DECIMAL NO-UNDO.
     
     RUN pBuildLeafForEf(BUFFER ipbf-ef, BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm).
     
-    FOR FIRST estCostOperation NO-LOCK 
+    FOR EACH ttLeaf NO-LOCK
+        WHERE ttLeaf.estHeaderID EQ ipbf-estCostForm.estCostHeaderID
+        AND ttLeaf.estFormID EQ ipbf-estCostForm.estCostFormID
+        ,
+        FIRST estCostOperation NO-LOCK 
         WHERE estCostOperation.estCostHeaderID EQ ipbf-estCostForm.estCostHeaderID
         AND estCostOperation.estCostFormID EQ ipbf-estCostForm.estCostFormID
         AND estCostOperation.isLeafer
-        , 
-        EACH ttLeaf NO-LOCK
-        WHERE ttLeaf.estHeaderID EQ ipbf-estCostForm.estCostHeaderID
-        AND ttLeaf.estFormID EQ ipbf-estCostForm.estCostFormID
+        AND (estCostOperation.feedType EQ "S" AND ttLeaf.lIsSheetFed OR NOT ttLeaf.lIsSheetFed)  /*If leaf is not for a specific blank, must have a sheet fed leafer*/
         BY estCostOperation.sequenceOfOperation DESCENDING:
         
-        IF estCostOperation.feedType EQ "B" OR ttLeaf.iBlankNo NE 0 THEN 
+        IF estCostOperation.feedType NE "B" AND ttLeaf.iBlankNo NE 0 THEN  /*Allow blank specific leaf/window to be consumed by sheet fed machines*/
         DO:            
             FIND FIRST estCostBlank NO-LOCK 
                 WHERE estCostBlank.estCostHeaderID EQ ttLeaf.estHeaderID
@@ -3686,12 +3601,12 @@ PROCEDURE pProcessLeafs PRIVATE:
                 AND estCostBlank.blankNo EQ ttLeaf.iBlankNo
                 NO-ERROR.
             IF AVAILABLE estCostBlank THEN 
-                dQtyRequiredPerForm = estCostBlank.numOut * ttLeaf.dQtyRequiredPerLeaf.
+                dQtyRequiredPerFeed = estCostBlank.numOut * ttLeaf.dQtyRequiredPerLeaf.
         END.
         ELSE 
-            dQtyRequiredPerForm = ttLeaf.dQtyRequiredPerLeaf.
+            dQtyRequiredPerFeed = ttLeaf.dQtyRequiredPerLeaf.
             
-        RUN pProcessLeaf(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER estCostOperation, BUFFER ttLeaf, dQtyRequiredPerForm).    
+        RUN pProcessLeaf(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER estCostOperation, BUFFER ttLeaf, dQtyRequiredPerFeed).    
         
     END.
 

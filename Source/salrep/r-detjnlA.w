@@ -1222,7 +1222,7 @@ FOR EACH ttCustList
         assign
          v-amt    = ar-invl.amt
          v-qty    = ar-invl.inv-qty / 1000
-         v-sq-ft  = ar-invl.amt-msf * 1000 / ar-invl.ship-qty
+         v-sq-ft  = 0
          v-procat = "MISC".
 
         if v-sq-ft eq ? then v-sq-ft = 0.
@@ -1234,7 +1234,7 @@ FOR EACH ttCustList
                 no-lock no-error.
           if avail itemfg then do:
             v-procat = itemfg.procat.
-            if v-sq-ft eq 0 then v-sq-ft = itemfg.t-sqft.
+            RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT v-sq-ft).
           end.
 
           else do:
@@ -1288,9 +1288,12 @@ FOR EACH ttCustList
               where itemfg.company eq cocode
                 and itemfg.i-no    eq oe-retl.i-no
               no-lock no-error.
+              
+          IF AVAIL itemfg THEN
+           RUN fg/GetFGArea.p (ROWID(itemfg), "SF", OUTPUT v-sq-ft).
+          ELSE v-sq-ft = 0.    
 
-          assign
-           v-sq-ft      = if avail itemfg then itemfg.t-sqft else 0
+          ASSIGN            
            v-qty        = oe-retl.tot-qty-return / 1000
            v-tot-sf-sht = oe-retl.tot-qty-return * v-sq-ft
 
