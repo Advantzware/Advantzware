@@ -916,7 +916,7 @@ DO:
             OUTPUT recRecordID ).  
        
        IF cFoundValue NE "" THEN    
-         FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = cFoundValue.
+         cust.classId:SCREEN-VALUE IN FRAME {&frame-name} = cFoundValue.
            return no-apply.
      end.
 
@@ -3201,17 +3201,17 @@ PROCEDURE valid-classId :
         AND INTEGER(cust.classID:SCREEN-VALUE) NE cust.classID AND cust.acc-bal <> 0 THEN DO:
         FIND FIRST bf-arclass NO-LOCK
             WHERE bf-arclass.classID EQ INTEGER(cust.classId) NO-ERROR.
-        IF bf-arclass.receivablesAcct NE arclass.receivablesAcct THEN DO:
+        IF AVAIL arclass AND AVAIL bf-arclass AND bf-arclass.receivablesAcct NE arclass.receivablesAcct THEN DO:
           MESSAGE "A/R Class can only be changed with a customer with no balance or with the same G/L Account number"
                    VIEW-AS ALERT-BOX INFO.
            v-valid = NO  .
            lCheckAccount = TRUE .
          APPLY "entry" TO cust.classId.         
         END. 
-        IF bf-arclass.receivablesAcct EQ arclass.receivablesAcct THEN lCheckAccount = TRUE .          
+        IF AVAIL arclass AND AVAIL bf-arclass AND bf-arclass.receivablesAcct EQ arclass.receivablesAcct THEN lCheckAccount = TRUE .          
      END.
           
-     IF AVAIL cust AND NOT lCheckAccount AND cust.classId:SCREEN-VALUE NE "" AND cust.acc-bal <> 0 AND NOT lCheckMessage 
+     IF AVAIL arclass AND AVAIL cust AND NOT lCheckAccount AND cust.classId:SCREEN-VALUE NE "" AND cust.acc-bal <> 0 AND NOT lCheckMessage 
          AND integer(cust.classId:SCREEN-VALUE) NE cust.classId THEN do:
          RUN displayMessageQuestionLOG("35",OUTPUT lCheckError).          
          
