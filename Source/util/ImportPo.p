@@ -22,7 +22,7 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD vend-no                 AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Vendor #" HELP "Required - Size:1"
     FIELD po-no                   AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "PO #" HELP "Optional - Integer or <AUTO> to auto-number.  Use <AUTO>#### where # is a unique group number. " 
     FIELD iline                   AS INTEGER FORMAT ">>>" COLUMN-LABEL "Po Line" HELP "Required - Integer"
-    FIELD due-date                AS DATE FORMAT "99/99/9999" COLUMN-LABEL "Due Date" HELP "Optional - Date"
+    FIELD due-date                AS DATE FORMAT "99/99/9999" COLUMN-LABEL "Due Date" HELP "Required - Date"
     FIELD ship-id                 AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Ship ID" HELP "Optional - Size:8"
     FIELD ship-name               AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Ship Name" HELP "Optional - Size:30"
     FIELD ship-addr1              AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Ship Address 1" HELP "Optional - Size:30"
@@ -63,7 +63,7 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD opened                  AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Opened" HELP "Optional - Yes or No (Blank- No)"
     FIELD type                    AS CHARACTER   FORMAT "x(10)" COLUMN-LABEL "Type" HELP "Required - R D or S"
     FIELD contact                 AS CHARACTER   FORMAT "x(25)" COLUMN-LABEL "Contact" HELP "Optional - Size:25"
-    FIELD po-date                 AS DATE   FORMAT "99/99/9999" COLUMN-LABEL "PO Date" HELP "Optional - Date"
+    FIELD po-date                 AS DATE   FORMAT "99/99/9999" COLUMN-LABEL "PO Date" HELP "Required - Date"
     FIELD last-ship-date          AS DATE   FORMAT "99/99/9999" COLUMN-LABEL "Last Ship Date" HELP "Optional - Date"
     FIELD setup                   AS DECIMAL FORMAT ">>,>>9.99" COLUMN-LABEL "Setup" HELP "Optional - Decimal"
     FIELD disc                    AS DECIMAL FORMAT "->>>,>>9.99" COLUMN-LABEL "Discount" HELP "Optional - Decimal"
@@ -298,7 +298,7 @@ PROCEDURE pValidate PRIVATE:
         IF ipbf-ttImportPo.terms EQ "" THEN 
             ASSIGN 
                 oplValid = NO
-                opcNote  = "Terms is Blank".
+                opcNote  = "Payment Terms is Blank".
     END.   
     IF oplValid THEN 
     DO:
@@ -313,6 +313,20 @@ PROCEDURE pValidate PRIVATE:
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Po Line must be greater than 0 ".
+    END.
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportPo.due-date EQ ? THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Due Date is Blank ".
+    END.
+    IF oplValid THEN 
+    DO:   
+        IF ipbf-ttImportPo.po-date EQ ?  THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Po Date is Blank ".
     END.
     
     /*Determine if Add or Update*/ 
@@ -417,7 +431,7 @@ PROCEDURE pValidate PRIVATE:
             RUN pIsValidUOM (ipbf-ttImportPo.pr-qty-uom, YES, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid THEN 
-            RUN pIsValidFromList ("UOM",ipbf-ttImportPo.pr-qty-uom,uom-list, OUTPUT oplValid, OUTPUT cValidNote).     
+            RUN pIsValidFromList ("Order UOM",ipbf-ttImportPo.pr-qty-uom,uom-list, OUTPUT oplValid, OUTPUT cValidNote).     
             
         IF oplValid THEN 
             RUN pIsValidUOM (ipbf-ttImportPo.pr-uom, YES, OUTPUT oplValid, OUTPUT cValidNote).
