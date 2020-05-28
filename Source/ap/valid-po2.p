@@ -80,8 +80,8 @@ DO:
   RELEASE io-po-ordl.
    FIND FIRST ap-inv WHERE ap-inv.i-no EQ ap-invl.i-no NO-LOCK NO-ERROR.
    IF AVAIL ap-inv AND ap-inv.posted EQ YES THEN
-    opcOutError = "The PO has already been Invoiced   Invoice: " + STRING(ap-inv.inv-no) + "  Date: " + STRING(ap-inv.inv-date) . 
+    opcOutError = "The PO has already been Invoiced.                                       " + "Invoice: " + STRING(ap-inv.inv-no) + "    Date: " + STRING(ap-inv.inv-date) . 
    ELSE IF AVAIL ap-inv AND ap-inv.posted EQ NO THEN
-    opcOutError = "The PO receipt already added on   Invoice: " + STRING(ap-inv.inv-no) + "  Date: " + STRING(ap-inv.inv-date) .  
+    opcOutError = "The PO receipt already added on Invoiced.                           " + "Invoice: " + STRING(ap-inv.inv-no) + "    Date: " + STRING(ap-inv.inv-date) .  
 END.
       

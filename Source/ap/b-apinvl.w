@@ -3002,7 +3002,7 @@ PROCEDURE valid-po-no :
     END.
 
     IF lv-msg NE "" THEN DO:
-      MESSAGE TRIM(lv-msg) + "..." VIEW-AS ALERT-BOX ERROR.
+      MESSAGE TRIM(lv-msg) VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO ap-invl.po-no.
       RETURN ERROR.
     END.
