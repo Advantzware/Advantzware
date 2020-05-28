@@ -125,3 +125,4 @@
 115 2 "EACH" "job-mat" "Jab Materials" "" "ASI" "202005265709905318297"
 117 1 "EACH" "ar-inv" "A/R Manual Invoices" "" "ASI" "202005265730005318383"
 117 2 "EACH" "ar-invl" "A/R Manual Invoice Lines" "" "ASI" "202005265730005318384"
+118 1 "EACH" "currency" "Currency" "" "ASI" "202005271423805318958"

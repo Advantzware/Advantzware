@@ -427,8 +427,11 @@ PROCEDURE pValidate PRIVATE:
                 RUN sys/ref/uom-fg.p (NO, OUTPUT uom-list).
             END.
 
-        IF oplValid THEN 
+        IF oplValid THEN DO:
             RUN pIsValidUOM (ipbf-ttImportPo.pr-qty-uom, YES, OUTPUT oplValid, OUTPUT cValidNote).
+            IF cValidNote EQ "UOM is required." THEN ASSIGN 
+                cValidNote = "Order UOM is required.".
+        END.     
 
         IF oplValid THEN DO:
             RUN pIsValidFromList ("Order UOM",ipbf-ttImportPo.pr-qty-uom,uom-list, OUTPUT oplValid, OUTPUT cValidNote).

@@ -180,7 +180,7 @@ Sets the FG item purchase uom based on the last PO line that ordered the item." 
 "Show-Neg-Jobs.r" "JC" "JU1" "Find negative job quantity on Job Routing" "* Warning - No Prompt *
 
 Display all job material quantities that are less than zero." 900
-"unPostRel.r" "OP" "OT1" "Unpost Releases where the release post fails" "Allows user to enter a company and release, set it back to unposted." 900
+"unPostRel.r" "OP" "OT1" "Unpost Releases where the release post fails" "Allows user to enter a company and release, set it back to unposted." 1000
 "upd-box.r" "CE" "EB" "Update Box Design Disk Drive Letter" "Update the box design drive or path." 900
 "updappay.r" "AP" "" "Update check date of Posted Checks" "Update date of a posted AP check." 900
 "updarcal.r" "AR" "" "Update line item of OP/AR invoice" "Update invoice line details." 900

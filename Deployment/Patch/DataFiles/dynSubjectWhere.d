@@ -1886,3 +1886,7 @@
 117 47 "ar-invl" "ar-invl" "" "DESCENDING" "" no "" "" "202005265730105318459"
 117 48 "ar-invl" "ar-invl" "" "BY" "" no "" "" "202005265730105318460"
 117 49 "ar-invl" "ar-invl" "" "ar-invl.line" "integer" no "" "" "202005265730105318461"
+118 1 "currency" "currency" "" "WHERE" "" no "" "" "202005271423805318959"
+118 2 "currency" "currency" "Company" "currency.company" "character" no "" "" "202005271423805318960"
+118 3 "currency" "currency" "" "EQ" "" no "" "" "202005271423805318961"
+118 4 "currency" "currency" "Company" "[[company]]" "" no "" "" "202005271423805318962"

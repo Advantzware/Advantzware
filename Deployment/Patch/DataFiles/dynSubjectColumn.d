@@ -1548,3 +1548,5 @@
 117 yes 30 "ar-invl.sman[2]" "Salesman Code[2]" "x(3)" "ar-invl" 17.4 "STRING" "ASI" 0 no no "" "" no "" "" "202005262055405316523" no no no ""
 117 yes 33 "ar-invl.sman[3]" "Salesman Code[3]" "x(3)" "ar-invl" 17.4 "STRING" "ASI" 0 no no "" "" no "" "" "202005262055405316524" no no no ""
 117 yes 21 "ar-invl.unit-pr" "Price" ">>,>>>,>>9.99<<<<" "ar-invl" 14.4 "decimal" "ASI" 0 no no "" "" no "" "" "202005262055405316525" no no no ""
+118 yes 1 "currency.c-code" "Code" "X(3)" "currency" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202005271423805318963" yes yes yes ""
+118 yes 2 "currency.c-desc" "description" "x(30)" "currency" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202005271423805318964" yes yes yes ""
