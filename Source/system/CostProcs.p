@@ -152,12 +152,12 @@ PROCEDURE GetCostForFGItemHist:
     END.
     IF opcCostUOM NE cCostUOMDef THEN 
     DO: 
-        opcCostUOM = cCostUOMDef.
         opdCostPerUOMTotal = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMTotal).
         opdCostPerUOMDL = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMDL).
         opdCostPerUOMFO = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMFO).
         opdCostPerUOMVO = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMVO).
         opdCostPerUOMDM = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMDM).
+        opcCostUOM = cCostUOMDef.
     END.
     
 END PROCEDURE.
