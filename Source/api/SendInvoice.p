@@ -30,14 +30,14 @@ DEFINE VARIABLE lcLineAddonData       AS LONGCHAR  NO-UNDO.
 DEFINE VARIABLE lcConcatLineAddonData AS LONGCHAR  NO-UNDO.
     
 /* Variables to store invoice address data */
-DEFINE VARIABLE lcConcatAddressData   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lcAddressData         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lcAddress2Data        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lcConcatAddress2Data  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lcConcatAddressData   AS LONGCHAR NO-UNDO.
+DEFINE VARIABLE lcAddressData         AS LONGCHAR NO-UNDO.
+DEFINE VARIABLE lcAddress2Data        AS LONGCHAR NO-UNDO.
+DEFINE VARIABLE lcConcatAddress2Data  AS LONGCHAR NO-UNDO.
     
 /* Variables to store Tax request data */
-DEFINE VARIABLE lcConcatTaxData       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lcTaxData             AS CHARACTER NO-UNDO.         
+DEFINE VARIABLE lcConcatTaxData       AS LONGCHAR NO-UNDO.
+DEFINE VARIABLE lcTaxData             AS LONGCHAR NO-UNDO.         
        
 /* Invoice Header Variables */
 DEFINE VARIABLE cCompany              AS CHARACTER NO-UNDO.
@@ -52,6 +52,7 @@ DEFINE VARIABLE dInvoiceTotalAmt      AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dLineTotalAmt         AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cSELineCount          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dSELineCount          AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cFullDocument         AS LONGCHAR NO-UNDO.
     
 /* Invoice Line Variables */
 DEFINE VARIABLE cItemLineNum          AS CHARACTER NO-UNDO.
@@ -166,15 +167,6 @@ DO:
         AND APIOutboundDetail.detailID      EQ "detail"
         AND APIOutboundDetail.parentID      EQ "SendInvoice"
         NO-ERROR.
-        
-    IF NOT AVAILABLE APIOutboundDetail THEN 
-    DO:
-        ASSIGN
-            opcMessage = "No APIOutboundDetail record found for [ detail ]"
-            oplSuccess = FALSE
-            .
-        RETURN.
-    END.
    
     FIND FIRST bf-APIOutboundDetail1 NO-LOCK
         WHERE bf-APIOutboundDetail1.apiOutboundID EQ ipiAPIOutboundID
@@ -391,43 +383,44 @@ DO:
     //    'IL','60686', 'US' ).
                                
     /* Fetch Address Details for the invoice */
-    FOR EACH ttN1Address                                 
-        :          
-        /* Address section has 3 lines per iteration */        
-        ASSIGN  
-            lcAddressData = STRING(bf-APIOutboundDetail2.data)
-            cN1code       = ttN1Address.N1Code      
-            cCode         = ttN1Address.addressCode 
-            cName         = ttN1Address.addressName 
-            cAddress1     = ttN1Address.address1    
-            cAddress2     = ttN1Address.address2   
-            cState        = ttN1Address.state 
-            cCity         = ttN1Address.city        
-            cZip          = ttN1Address.zip         
-            cCountry      = ttN1Address.country
-            .    
-        IF cAddress1 EQ "" AND cAddress2 GT "" THEN 
-            ASSIGN cAddress1 = cAddress2
-                cAddress2 = ""
-                . 
-        IF AVAILABLE bf-APIOutboundDetail4 THEN 
-            lcAddress2Data = STRING(bf-APIOutboundDetail4.data).
-        RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N1Qual", cN1Code).
-        RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N1Name", cName).
-        RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N3Address1", cAddress1).                       
-        RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N4City", cCity).
-        RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N4State", cState).
-        RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N4Zip", cZip).
-        RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N4Country", cCountry).
-            
-        IF cAddress2 NE "" THEN 
-            RUN updateRequestData(INPUT-OUTPUT lcAddress2Data, "N3Address2", cAddress2).
-        ELSE 
-            lcAddress2Data = "".
-        RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N3Address2nd", lcAddress2Data). 
-        lcConcatAddressData = lcConcatAddressData + "" + lcAddressData.
+    IF AVAILABLE(bf-APIOutboundDetail2) THEN DO:
+        FOR EACH ttN1Address                                 
+            :          
+            /* Address section has 3 lines per iteration */        
+            ASSIGN  
+                lcAddressData = STRING(bf-APIOutboundDetail2.data)
+                cN1code       = ttN1Address.N1Code      
+                cCode         = ttN1Address.addressCode 
+                cName         = ttN1Address.addressName 
+                cAddress1     = ttN1Address.address1    
+                cAddress2     = ttN1Address.address2   
+                cState        = ttN1Address.state 
+                cCity         = ttN1Address.city        
+                cZip          = ttN1Address.zip         
+                cCountry      = ttN1Address.country
+                .    
+            IF cAddress1 EQ "" AND cAddress2 GT "" THEN 
+                ASSIGN cAddress1 = cAddress2
+                    cAddress2 = ""
+                    . 
+            IF AVAILABLE bf-APIOutboundDetail4 THEN 
+                lcAddress2Data = STRING(bf-APIOutboundDetail4.data).
+            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N1Qual", cN1Code).
+            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N1Name", cName).
+            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N3Address1", cAddress1).                       
+            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N4City", cCity).
+            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N4State", cState).
+            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N4Zip", cZip).
+            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N4Country", cCountry).
+                
+            IF cAddress2 NE "" THEN 
+                RUN updateRequestData(INPUT-OUTPUT lcAddress2Data, "N3Address2", cAddress2).
+            ELSE 
+                lcAddress2Data = "".
+            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N3Address2nd", lcAddress2Data). 
+            lcConcatAddressData = lcConcatAddressData + "" + lcAddressData.
+        END.
     END.
-        
     /* Fetch line details for the Invoice */         
     IF AVAIL inv-head THEN 
     DO:
@@ -460,6 +453,7 @@ DO:
                 ttLines.iLine          = IF AVAILABLE oe-ordl THEN oe-ordl.line ELSE iLineCounter
                 .                       
         END.             
+        
         FOR EACH ttLines,
             FIRST inv-line
             WHERE ROWID(inv-line) EQ ttLines.rLineDetailRow
@@ -484,33 +478,34 @@ DO:
                 INPUT-OUTPUT cUomCode,
                 INPUT-OUTPUT dQtyShipped,
                 INPUT-OUTPUT dUnitprice). 
-                                          
-            /* Line number from inbound 850 if available, otherwise incremented */
-            ASSIGN
-                lcLineData     = STRING(APIOutboundDetail.data)
-                cItemLineNum   = STRING(ttLInes.iLine)                     
-                cItemQty       = STRING(dQtyShipped)
-                cItemUom       = string(cUomCode)
-                cItemPrice     = STRING(dUnitPrice)
-                cItemID        = STRING(inv-line.i-no)
-                cItemBuyerPart = STRING(TRIM(inv-line.part-no))
-                cItemDesc      = STRING(inv-line.i-name)
-                cPoNum         = STRING(inv-line.po-no)
-                cPartQualifier = STRING(IF cItemBuyerPart NE "" THEN "BP" ELSE "")
-                .
-    
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemLineNum", cItemLineNum).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemQty", cItemQty).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemUOM", cItemUom).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemPrice", cItemPrice).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "PartQualifier", cPartQualifier).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "BuyerPart", cItemBuyerPart).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDescription", cItemDesc).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoNum", cPoNum).
-                // RUN updateRequestData(INPUT-OUTPUT lcLineData, "linefeed", "~n").  
-                // lcConcatLineData = lcConcatLineData +  lcLineData + "~n". 
-
-        END.      
+            IF AVAILABLE APIOutboundDetail THEN DO:                    
+                /* Line number from inbound 850 if available, otherwise incremented */
+                ASSIGN
+                    lcLineData     = APIOutboundDetail.data
+                    cItemLineNum   = STRING(ttLInes.iLine)                     
+                    cItemQty       = STRING(dQtyShipped)
+                    cItemUom       = string(cUomCode)
+                    cItemPrice     = STRING(dUnitPrice)
+                    cItemID        = STRING(inv-line.i-no)
+                    cItemBuyerPart = STRING(TRIM(inv-line.part-no))
+                    cItemDesc      = STRING(inv-line.i-name)
+                    cPoNum         = STRING(inv-line.po-no)
+                    cPartQualifier = STRING(IF cItemBuyerPart NE "" THEN "BP" ELSE "")
+                    .
+        
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemLineNum", cItemLineNum).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemQty", cItemQty).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemUOM", cItemUom).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemPrice", cItemPrice).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "PartQualifier", cPartQualifier).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "BuyerPart", cItemBuyerPart).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDescription", cItemDesc).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoNum", cPoNum).
+                    // RUN updateRequestData(INPUT-OUTPUT lcLineData, "linefeed", "~n").  
+                    // lcConcatLineData = lcConcatLineData +  lcLineData + "~n". 
+           END. /* If available APIOutboundDetail */
+        END. /* Each tt lines */
+      
     END. /* Process lines if using inv-head */
     ELSE 
     DO:
@@ -573,33 +568,33 @@ DO:
                 INPUT-OUTPUT dQtyShipped,
                 INPUT-OUTPUT dUnitprice). 
                           
-                
-            /* Line number from inbound 850 if available, otherwise incremented */
-            ASSIGN
-                lcLineData     = STRING(APIOutboundDetail.data)
-                cItemLineNum   = STRING(ttLines.iLine)                     
-                cItemQty       = STRING(dQtyShipped)
-                cItemUom       = string(cUomCode)
-                cItemPrice     = STRING(dUnitPrice)
-                cItemID        = STRING(ar-invl.i-no)
-                cItemBuyerPart = STRING(ar-invl.part-no)
-                cItemDesc      = STRING(ar-invl.i-name)
-                cPoNum         = STRING(ar-invl.po-no)
-                cPartQualifier = STRING(IF cItemBuyerPart NE "" THEN "BP" ELSE "")
-                .
-    
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemLineNum", cItemLineNum).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemQty", cItemQty).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemUOM", cItemUom).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemPrice", cItemPrice).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "PartQualifier", cPartQualifier).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoNum", cPoNum).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "BuyerPart", cItemBuyerPart).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDescription", cItemDesc).
-                // RUN updateRequestData(INPUT-OUTPUT lcLineData, "linefeed", "~n").
-                
-            lcConcatLineData = lcConcatLineData + "" + lcLineData.  
-
+            IF AVAILABLE APIOutboundDetail THEN DO:
+                /* Line number from inbound 850 if available, otherwise incremented */
+                ASSIGN
+                    lcLineData     = APIOutboundDetail.data
+                    cItemLineNum   = STRING(ttLines.iLine)                     
+                    cItemQty       = STRING(dQtyShipped)
+                    cItemUom       = string(cUomCode)
+                    cItemPrice     = STRING(dUnitPrice)
+                    cItemID        = STRING(ar-invl.i-no)
+                    cItemBuyerPart = STRING(ar-invl.part-no)
+                    cItemDesc      = STRING(ar-invl.i-name)
+                    cPoNum         = STRING(ar-invl.po-no)
+                    cPartQualifier = STRING(IF cItemBuyerPart NE "" THEN "BP" ELSE "")
+                    .
+        
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemLineNum", cItemLineNum).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemQty", cItemQty).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemUOM", cItemUom).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemPrice", cItemPrice).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "PartQualifier", cPartQualifier).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoNum", cPoNum).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "BuyerPart", cItemBuyerPart).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDescription", cItemDesc).
+                    // RUN updateRequestData(INPUT-OUTPUT lcLineData, "linefeed", "~n").
+                    
+                lcConcatLineData = lcConcatLineData + "" + lcLineData.  
+            END. /* If available APIOutboundDetail */
         END.                 
     END.
         
@@ -799,7 +794,8 @@ DO:
     ioplcRequestData = REPLACE(ioplcRequestData, "$Tax$", (IF lcConcatTaxData ne "" THEN  "~n" ELSE "") + lcConcatTaxData).
 
     ASSIGN 
-        dSELineCount = NUM-ENTRIES(ioplcRequestData, "~~") - 1   
+        cFullDocument = ioplcRequestData
+        dSELineCount = NUM-ENTRIES(cFullDocument, "~~") - 1   
         /* Subtract lines before ST and after SE segments */
         dSELineCount = dSELineCount - 4
         cSELineCount = STRING(dSELineCount)
