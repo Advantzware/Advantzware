@@ -96,6 +96,8 @@ planDate = CAN-FIND(FIRST sys-ctrl
 DEFINE VARIABLE lvReturnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvFound AS LOG NO-UNDO.
 DEFINE VARIABLE autofgissue-log AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdJobProcs      AS HANDLE    NO-UNDO.
+RUN jc/JobProcs.p   PERSISTENT SET hdJobProcs.
 
 RUN sys/ref/nk1look.p (cocode, "AUTOFGISSUE", "L", NO, NO, "", "", 
     OUTPUT lvReturnChar, OUTPUT lvFound).
@@ -166,6 +168,19 @@ job.due-date
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDoRecalcWithoutRebuild V-table-Win
+FUNCTION fDoRecalcWithoutRebuild RETURNS LOGICAL PRIVATE
+    (ipcCompany AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" V-table-Win _INLINE
@@ -1811,43 +1826,59 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE recalc-costs V-table-Win 
 PROCEDURE recalc-costs :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE hld-stat AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE ll AS LOG NO-UNDO.
-  DEF VAR iQty     AS INTEGER NO-UNDO .
-  DEF BUFFER bf-job-hdr FOR job-hdr .
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hld-stat AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE ll       AS LOG       NO-UNDO.
+    DEF    VAR      iQty     AS INTEGER   NO-UNDO .
+    DEF BUFFER bf-job-hdr FOR job-hdr .
 
-  IF AVAILABLE job AND job.est-no NE "" THEN DO:
-    MESSAGE "Recalculate Job Cost from estimate standards without updating Materials and Routing?"
-        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-        UPDATE ll.  
+    IF AVAILABLE job AND job.est-no NE "" THEN 
+    DO:
+        
+        IF fDoRecalcWithoutRebuild(job.company) THEN 
+        DO:
+            MESSAGE "Recalculate Job Cost from job standards with current Materials and Routing?"
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+                UPDATE ll.  
 
-    IF ll THEN DO:
-      ASSIGN
-       nufile   = NO
-       hld-stat = job.stat.
-       FOR EACH bf-job-hdr NO-LOCK 
-            WHERE bf-job-hdr.company EQ job.company 
-             AND bf-job-hdr.job     EQ job.job
-             AND bf-job-hdr.job-no  EQ job.job-no
-             AND bf-job-hdr.job-no2 EQ job.job-no2 :
-            iQty = iQty + bf-job-hdr.qty .
+            IF ll THEN 
+            DO:
+                RUN  RecalcJobCostForJob IN hdJobProcs (ROWID(job)).
+            END.
+        END.  /*Run "simple" recalc using only ju1 records*/
+        ELSE 
+        DO:  
+            MESSAGE "Recalculate Job Cost from estimate standards without updating Materials and Routing?"
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+                UPDATE ll.  
+
+            IF ll THEN 
+            DO:
+                ASSIGN
+                    nufile   = NO
+                    hld-stat = job.stat.
+                FOR EACH bf-job-hdr NO-LOCK 
+                    WHERE bf-job-hdr.company EQ job.company 
+                    AND bf-job-hdr.job     EQ job.job
+                    AND bf-job-hdr.job-no  EQ job.job-no
+                    AND bf-job-hdr.job-no2 EQ job.job-no2 :
+                    iQty = iQty + bf-job-hdr.qty .
+                END.
+                IF iQty EQ 0 THEN nufile = YES .
+
+                RUN jc/jc-calc.p (RECID(job), NO).
+
+                nufile = NO.
+
+                IF hld-stat NE "P" THEN job.stat = hld-stat.
+            END. /*run through jc-calc*/
         END.
-        IF iQty EQ 0 THEN nufile = YES .
-
-      RUN jc/jc-calc.p (RECID(job), NO).
-
-      nufile = NO.
-
-      IF hld-stat NE "P" THEN job.stat = hld-stat.
-
-      RUN refresh-browser.
+        RUN refresh-browser.
     END.
-  END.
 
 END PROCEDURE.
 
@@ -2701,6 +2732,31 @@ PROCEDURE view-user-id :
    END.
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fDoRecalcWithoutRebuild V-table-Win
+FUNCTION fDoRecalcWithoutRebuild RETURNS LOGICAL PRIVATE
+    ( ipcCompany AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns whether recalc should be done without running jc/calc to
+     rebuild.
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lRecalcWithoutRebuild AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturn               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound                AS LOGICAL   NO-UNDO.
+    
+    RUN sys/ref/nk1look.p (ipcCompany, "JobRecalc", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    lRecalcWithoutRebuild = lFound AND cReturn EQ "YES".
+    
+    RETURN lRecalcWithoutRebuild.
+
+END FUNCTION.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

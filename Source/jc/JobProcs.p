@@ -412,6 +412,7 @@ PROCEDURE JobParser:
     END.
 
 END PROCEDURE.
+
 PROCEDURE GetRecalcJobCostForJobHdr:
     /*------------------------------------------------------------------------------
      Purpose: given a job-hdr rowid, return the new values for standard costs
@@ -492,26 +493,59 @@ PROCEDURE RecalcJobCostForJob:
      Notes:  
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipriJob AS ROWID NO-UNDO.
-
+    
     DEFINE BUFFER bf-job-hdr FOR job-hdr.
-
+    
     FIND FIRST job NO-LOCK
         WHERE ROWID(job) EQ ipriJob NO-ERROR.
     IF NOT AVAILABLE job THEN 
     DO: 
-        FIND FIRST job-hdr NO-LOCK 
-            WHERE ROWID(job-hdr) EQ ipriJob NO-ERROR.
-        RUN RecalcJobCostForJobHdr(ROWID(job-hdr)).
+        FIND FIRST bf-job-hdr NO-LOCK 
+            WHERE ROWID(bf-job-hdr) EQ ipriJob NO-ERROR.
+        IF AVAILABLE bf-job-hdr THEN 
+            RUN RecalcJobCostForJobHdr(ROWID(bf-job-hdr)).
     END.
     ELSE 
-        FOR EACH job-hdr NO-LOCK 
-            WHERE job-hdr.company EQ job.company
-            AND job-hdr.job EQ job.job
-            AND job-hdr.job-no EQ job.job-no
-            AND job-hdr.job-no2 EQ job.job-no2:
-            RUN RecalcJobCostForJobHdr(ROWID(job-hdr)).
+        FOR EACH bf-job-hdr NO-LOCK 
+            WHERE bf-job-hdr.company EQ job.company
+            AND bf-job-hdr.job EQ job.job
+            AND bf-job-hdr.job-no EQ job.job-no
+            AND bf-job-hdr.job-no2 EQ job.job-no2:
+            RUN RecalcJobCostForJobHdr(ROWID(bf-job-hdr)).
         END. 
+        
 END PROCEDURE.
+
+PROCEDURE RecalcJobCostForJobHdr:
+/*------------------------------------------------------------------------------
+ Purpose:  Gets updated cost values for job-hdr and assigns them
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriJobHdr AS ROWID NO-UNDO.
+    
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    
+    DEFINE VARIABLE dCostMat AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostLab AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostVO  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostFO  AS DECIMAL NO-UNDO.
+    
+    FIND FIRST bf-job-hdr EXCLUSIVE-LOCK 
+        WHERE ROWID(bf-job-hdr) EQ ipriJobHdr NO-ERROR.
+    IF AVAILABLE bf-job-hdr THEN DO:
+        RUN GetRecalcJobCostForJobHdr (ROWID(bf-job-hdr), OUTPUT dCostMat, OUTPUT dCostLab, OUTPUT dCostVO, OUTPUT dCostFO).
+        ASSIGN 
+            bf-job-hdr.std-mat-cost = dCostMat
+            bf-job-hdr.std-lab-cost = dCostLab
+            bf-job-hdr.std-var-cost = dCostVO
+            bf-job-hdr.std-fix-cost = dCostFO
+            bf-job-hdr.std-tot-cost = dCostMat + dCostLab + dCostVO + dCostFO
+            .
+    END.
+    RELEASE bf-job-hdr.
+    
+END PROCEDURE.
+
 PROCEDURE ValidateJob:
     /*------------------------------------------------------------------------------
      Purpose: Validate Job 
