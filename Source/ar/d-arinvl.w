@@ -41,6 +41,8 @@ DEF {&NEW} SHARED VAR g_lookup-var AS cha NO-UNDO.
 DEFINE VARIABLE ll-inquiry AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdTaxProcs AS HANDLE  NO-UNDO.
 DEFINE VARIABLE lTaxable   AS LOGICAL NO-UNDO.   
+
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs. 
        
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1032,8 +1034,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         RUN display-item.
 
         ASSIGN ll-order-warned                     = NO.
-            btn_done:HIDDEN IN FRAME {&FRAME-NAME} = YES.
-        RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.      
+            btn_done:HIDDEN IN FRAME {&FRAME-NAME} = YES.      
     END.
     ELSE 
     DO:
