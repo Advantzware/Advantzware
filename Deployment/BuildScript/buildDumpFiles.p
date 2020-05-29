@@ -271,6 +271,21 @@ FOR EACH {&cFile}:
 END.
 OUTPUT CLOSE.
 
+&SCOPED-DEFINE cFile apiClient
+OUTPUT TO VALUE(cOutDir + "\APIData\{&cFile}.d").
+FOR EACH {&cFile} WHERE {&cFile}.clientID BEGINS "_default":
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile apiClientXref
+OUTPUT TO VALUE(cOutDir + "\APIData\{&cFile}.d").
+FOR EACH {&cFile} WHERE {&cFile}.clientID BEGINS "_default":
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+
 
 
 

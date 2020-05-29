@@ -3950,9 +3950,11 @@ PROCEDURE ipLoadAPIData:
     DISABLE TRIGGERS FOR LOAD OF APIOutbound.
     DISABLE TRIGGERS FOR LOAD OF APIOutboundDetail.
     DISABLE TRIGGERS FOR LOAD OF APIOutboundTrigger.
+    DISABLE TRIGGERS FOR LOAD OF APIClient.
+    DISABLE TRIGGERS FOR LOAD OF APIClientXref.
 
 &SCOPED-DEFINE tablename APIInbound
-    FOR EACH {&tablename}:
+    FOR EACH {&tablename} WHERE {&tablename}.{&tablename}ID LT 5000:
         DELETE {&tablename}.
     END.
     INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
@@ -3965,7 +3967,7 @@ PROCEDURE ipLoadAPIData:
     INPUT CLOSE.
 
 &SCOPED-DEFINE tablename APIInboundDetail
-    FOR EACH {&tablename}:
+    FOR EACH {&tablename} WHERE {&tablename}.{&tablename}ID LT 5000:
         DELETE {&tablename}.
     END.
     INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
@@ -3978,38 +3980,20 @@ PROCEDURE ipLoadAPIData:
     INPUT CLOSE.
 
 &SCOPED-DEFINE tablename APIOutbound
-    FOR EACH {&tablename}:
-        CREATE tt{&tablename}.
-        ASSIGN 
-            tt{&tablename}.apiOutboundID = {&tablename}.apiOutboundID
-            tt{&tablename}.endPoint = {&tablename}.endPoint
-            tt{&tablename}.userName = tt{&tablename}.userName
-            tt{&tablename}.password = {&tablename}.password.
+    FOR EACH {&tablename} WHERE {&tablename}.{&tablename}ID LT 5000:
         DELETE {&tablename}.
     END.
-    
     INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
         IMPORT {&tablename} NO-ERROR.
         IF ERROR-STATUS:ERROR THEN 
             DELETE {&tablename}.
-        FIND tt{&tablename} WHERE 
-            tt{&tablename}.apiOutboundID EQ {&tablename}.apiOutboundID
-            NO-ERROR.
-        IF AVAIL tt{&tablename} THEN ASSIGN 
-            {&tablename}.endPoint = tt{&tablename}.endPoint
-            {&tablename}.userName = tt{&tablename}.userName
-            {&tablename}.password = tt{&tablename}.password.
-        ELSE ASSIGN
-            {&tablename}.endPoint = ""
-            {&tablename}.userName = ""
-            {&tablename}.password = "".
     END.
     INPUT CLOSE.
         
 &SCOPED-DEFINE tablename APIOutboundDetail
-    FOR EACH {&tablename}:
+    FOR EACH {&tablename} WHERE {&tablename}.{&tablename}ID LT 5000:
         DELETE {&tablename}.
     END.
     INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
@@ -4022,7 +4006,33 @@ PROCEDURE ipLoadAPIData:
     INPUT CLOSE.
 
 &SCOPED-DEFINE tablename APIOutboundTrigger
-    FOR EACH {&tablename}:
+    FOR EACH {&tablename} WHERE {&tablename}.{&tablename}ID LT 5000:
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename APIClient
+    FOR EACH {&tablename} WHERE {&tableName}.clientID BEGINS "_default":
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename APIClientXref
+    FOR EACH {&tablename} WHERE {&tableName}.clientID BEGINS "_default":
         DELETE {&tablename}.
     END.
     INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
