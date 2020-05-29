@@ -127,6 +127,8 @@ PROCEDURE Outbound_CopyAPIDependencies:
                        bf-Source-APIOutboundTrigger.apiOutboundID 
                        bf-Source-APIOutboundTrigger.apiOutboundTriggerID
                        bf-Source-APIOutboundTrigger.rec_key
+                       bf-Source-APIOutboundTrigger.createBy
+                       bf-Source-APIOutboundTrigger.createTime
                 TO bf-Target-APIOutboundTrigger.
             ASSIGN
                 bf-Target-APIOutboundTrigger.apiID         = bf-Target-APIOutbound.apiID
