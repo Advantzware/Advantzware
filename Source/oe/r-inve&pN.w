@@ -2601,7 +2601,7 @@ PROCEDURE post-gl :
                     gltrans.jrnl    = "OEINV"
                     gltrans.tr-dscr = "ORDER ENTRY INVOICE"
                     gltrans.tr-date = tran-date
-                    gltrans.tr-amt  = - (ACCUMULATE TOTAL BY tt-report.key-02 dec(tt-report.key-05))
+                    gltrans.tr-amt  = (ACCUMULATE TOTAL BY tt-report.key-02 dec(tt-report.key-05))
                     gltrans.period  = tran-period
                     gltrans.trnum   = v-trnum.
 

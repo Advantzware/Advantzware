@@ -1211,7 +1211,13 @@ PROCEDURE post-gl :
     
             IF t1 NE 0 THEN DO:
                 FIND ttGLTrans 
-                     WHERE ROWID(gltrans) EQ lv-rowid 
+                    WHERE ttGlTrans.company EQ cocode
+                    AND ttGLTrans.actnum  EQ xar-acct
+                    AND ttGLTrans.jrnl    EQ "CASHR"
+                    AND ttGLTrans.tr-dscr EQ "CASH RECEIPTS"
+                    AND ttGLTrans.tr-date EQ tran-date
+                    AND ttGLTrans.period  EQ tran-period
+                    AND ttGLTrans.trnum   EQ xtrnum 
                      NO-ERROR.
                 IF NOT AVAIL ttGLTrans THEN DO:
                     CREATE ttGLTrans.
