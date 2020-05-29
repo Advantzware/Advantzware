@@ -1112,7 +1112,7 @@ PROCEDURE ipUpgradeDBs :
         cPrefix = SUBSTRING(fiDbName:{&SV},1,3)
         cPrefix2 = SUBSTRING(fiDbName:{&SV},length(fiDbName:{&SV}),1).
     ASSIGN 
-        cPrefix = IF cPrefix EQ "asi" OR (cPrefix NE "asi" AND cPrefix2 EQ "d") THEN "asi" ELSE "aud"            
+        cPrefix = IF cPrefix EQ "asi" OR (cPrefix NE "asi" AND cPrefix NE "aud" AND cPrefix2 EQ "d") THEN "asi" ELSE "aud"            
         iDbCtr = iDbCtr + 1
         iWaitCount = 0
         cDelta = REPLACE(cDeltaFile,"asi",cPrefix)
