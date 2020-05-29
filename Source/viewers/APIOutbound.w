@@ -586,8 +586,12 @@ PROCEDURE local-copy-record :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
     
     /* Code placed here will execute AFTER standard behavior.    */
-
-    APIOutbound.apiID:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.
+    /* APIs when copied should not allow a user to update the apiID
+       and empty the client id field for the user to enter */
+    ASSIGN
+        APIOutbound.apiID:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE
+        APIOutbound.clientID:SCREEN-VALUE                  = ""
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -943,7 +947,7 @@ PROCEDURE pFieldValidations :
             "Do you want to create the client record?"
             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lContinue AS LOGICAL.
         IF lContinue THEN
-            RUN Outbound_CreateAPIClient (
+            RUN Outbound_CreateAPIClient IN hdOutboundProcs (
                 INPUT g_company,
                 INPUT APIOutbound.clientID:SCREEN-VALUE
                 ).
