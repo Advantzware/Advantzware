@@ -321,38 +321,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                 w-bin.w-units = TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0)
                 w-bin.w-i-no = fg-bin.i-no
                 i        = i + 1.
-              
-               IF s-print-what-item NE "S" THEN
-                  FOR EACH fg-rcpth FIELDS(r-no trans-date) WHERE
-                      fg-rcpth.company eq fg-bin.company AND
-                      fg-rcpth.i-no    eq fg-bin.i-no AND
-                      fg-rcpth.job-no  eq fg-bin.job-no AND
-                      fg-rcpth.job-no2 eq fg-bin.job-no2
-                      NO-LOCK,
-                      first fg-rdtlh FIELDS(trans-time) where
-                      fg-rdtlh.r-no eq fg-rcpth.r-no AND
-                      fg-rdtlh.loc  eq fg-bin.loc AND
-                      fg-rdtlh.loc-bin eq fg-bin.loc-bin AND
-                      fg-rdtlh.tag     eq fg-bin.tag AND
-                      fg-rdtlh.cust-no EQ fg-bin.cust-no
-                      no-lock
-                      by fg-rcpth.trans-date
-                      BY fg-rdtlh.trans-time
-                      by fg-rcpth.r-no
-                      /*by fg-rcpth.job-no
-                      by fg-rcpth.job-no2
-                      by fg-bin.qty*/ :
-                 
-                      w-bin.w-date-time = STRING(YEAR(fg-rcpth.trans-date),"9999")
-                                        + STRING(MONTH(fg-rcpth.trans-date),"99")
-                                        + STRING(DAY(fg-rcpth.trans-date),"99")
-                                        + STRING(fg-rdtlh.trans-time,"999999").
-                 
-                      LEAVE.
-                  END.
-               ELSE
-                  w-bin.w-date-time = "29991201000000".
-
+                w-bin.w-date-time = fg-bin.rec_key.
+               
                RELEASE w-bin.
            end. /*each fg-bin*/
           
