@@ -64,7 +64,7 @@ DEFINE NEW SHARED BUFFER xjob-hdr FOR job-hdr.
 DEFINE            BUFFER b-eb     FOR eb.
 DEFINE            BUFFER bf-job-hdr FOR job-hdr.
 DEFINE            BUFFER bf-oe-ordl FOR oe-ordl.
-
+DEFINE            BUFFER bf-xeb FOR eb.
 DEFINE NEW SHARED WORKFILE wrk-op
     FIELD m-dscr LIKE est-op.m-dscr
     FIELD m-code LIKE est-op.m-code
@@ -239,6 +239,11 @@ DEFINE VARIABLE iCount AS INTEGER NO-UNDO .
 DEF VAR v-spec-cnt AS INT NO-UNDO.
 DEFINE VARIABLE iOrderNo AS INTEGER NO-UNDO . 
 DEFINE VARIABLE cCustNo AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lAssembled AS LOGICAL NO-UNDO . 
+DEFINE VARIABLE cSetFGItem AS CHARACTER NO-UNDO . 
+DEFINE VARIABLE dPerSetQty AS DECIMAL NO-UNDO .
+DEFINE VARIABLE lPrintSetHeader AS LOGICAL NO-UNDO.
+DEFINE BUFFER bff-eb FOR eb. 
 ASSIGN 
     ls-image1 = "images\ruffino.png"
     FILE-INFO:FILE-NAME = ls-image1
@@ -332,6 +337,10 @@ BY job-hdr.job-no
 BY job-hdr.job-no2
 BY tt-reftable.val[12]
 BY tt-reftable.val[13]:
+          
+IF first-of(job-hdr.job) THEN do:
+   lPrintSetHeader = FALSE.       
+END.
 
 FIND FIRST job
     WHERE job.company EQ cocode
@@ -603,7 +612,7 @@ FOR EACH ef
         AND xjob-hdr.job     EQ job-hdr.job
         AND xjob-hdr.job-no  EQ job-hdr.job-no
         AND xjob-hdr.job-no2 EQ job-hdr.job-no2
-        AND xjob-hdr.i-no    EQ job-hdr.i-no
+        AND (xjob-hdr.i-no    EQ job-hdr.i-no OR est.est-type EQ 2)
         NO-LOCK:
         v-job-qty = v-job-qty + xjob-hdr.qty.
     END.
@@ -639,7 +648,7 @@ FOR EACH ef
             AND eb.form-no     EQ ef.form-no
             NO-LOCK
             BREAK BY eb.form-no BY eb.blank-no.
-
+                   
             CREATE w-lo.
             FOR EACH b-eb
                 WHERE b-eb.company EQ eb.company
@@ -793,8 +802,8 @@ FOR EACH ef
             AND oe-ordl.ord-no  EQ job-hdr.ord-no
             AND oe-ordl.job-no  EQ job-hdr.job-no
             AND oe-ordl.job-no2 EQ job-hdr.job-no2
-            AND oe-ordl.i-no EQ eb.stock-no
-            AND oe-ordl.form-no = int(tt-reftable.val[12])
+            AND (oe-ordl.i-no EQ eb.stock-no OR est.est-type EQ 2)
+            AND (oe-ordl.form-no = int(tt-reftable.val[12]) OR est.est-type EQ 2)
             NO-LOCK .
             v-ord-qty = v-ord-qty + oe-ordl.qty .
         END.
@@ -939,10 +948,96 @@ FOR EACH ef
                 NO-LOCK NO-ERROR. 
 
         v-po-duedate = IF AVAILABLE po-ordl THEN po-ordl.due-date ELSE ?.
-
-
+             
+   IF NOT lPrintSetHeader THEN DO: 
+       FOR EACH bff-eb NO-LOCK
+           WHERE bff-eb.company EQ eb.company
+           AND bff-eb.est-no EQ eb.est-no
+           AND bff-eb.form-no EQ 0
+           AND bff-eb.est-type EQ 2 :
+                        
+           lAssembled = IF bff-eb.set-is-assembled EQ YES THEN YES ELSE NO .
+           cSetFGItem = bff-eb.stock-no  .
+           lPrintSetHeader = TRUE.
+           RUN pPrintData(ROWID(bff-eb)).
+           RUN pPrintDetail(ROWID(bff-eb)).
+           PAGE.
+       END.
+   END.
+      
     IF FIRST-OF(eb.form-no) THEN do:
-         ASSIGN cDieNo = eb.die-no.
+      RUN pPrintData(ROWID(eb)) . 
+                     
+    END.  /* first-of eb */
+    
+    RUN pPrintDetail(ROWID(eb)).           
+               
+        IF AVAILABLE tt-keyst THEN DELETE tt-keyst.
+   /* END. /* last-of(eb.form-no) */*/
+          
+END. /* each eb */
+END. /* each ef */
+END. /* first job-no */     
+
+/** PRINT MULT COPIES OF TICKETS **/
+save_id = RECID(job-hdr).
+IF LAST-OF(job-hdr.job-no2) THEN 
+DO:
+    FOR EACH wrk-op:
+        DELETE wrk-op.
+    END.
+    FOR EACH wrk-prep:
+        DELETE wrk-prep.
+    END.
+END.
+
+FOR EACH wrk-spec:
+    DELETE wrk-spec.
+END.
+FOR EACH wrk-film:
+    DELETE wrk-film.
+END.
+FOR EACH wrk-die:
+    DELETE wrk-die.
+END.
+FOR EACH wrk-sheet:
+    DELETE wrk-sheet.
+END.
+FOR EACH wrk-misc:
+    DELETE wrk-misc.
+END.
+FOR EACH wrk-inst:
+    DELETE wrk-inst.
+END.
+      
+v-first = NO.
+END. /* each job-hdr */
+
+
+
+PROCEDURE pPrintHeader : 
+
+    DEFINE INPUT PARAMETER ipiType AS INTEGER NO-UNDO .
+    IF ipiType EQ 0 THEN
+         cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(eb.form-no,"99") + "-" + STRING(eb.blank-no,"99") .
+    IF ipiType EQ 1 THEN
+         cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99")  .
+         PUT 
+            "<FGCOLOR=GREEN><LINECOLOR=GREEN><R5><C58.5><From><R11><C58.5><Line><||6>"
+            "<=1>" .
+
+    PUT
+    "<C1><R1><#1><R+3.5><C+25><IMAGE#1=" ls-full-img1  
+    "<R1.5><C27><P18><FGCOLOR=GREEN>Page <FGCOLOR=BLACK><C33>" string(PAGE-NUMBER - v-pg-num,">>") "<C35>  of <#PAGES> <P10>"      
+    "<C+4><R1.5><FROM><C80><R3.9><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" + cBarCodeVal + ">" FORMAT "x(150)" SKIP
+    v-fill .
+
+END PROCEDURE.
+
+PROCEDURE pPrintData:
+       DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO .
+       FIND FIRST bf-xeb WHERE ROWID(bf-xeb) EQ ipriRowid NO-LOCK NO-ERROR. 
+       ASSIGN cDieNo = bf-xeb.die-no.
          RUN pPrintHeader(1) .
         
           PUT "<R5><C1><FGCOLOR=GREEN>CUSTOMER                          SHIP TO"            "<P12><C60>Job#: <FGCOLOR=BLACK>"  string(job-hdr.job-no + "-" + string(job-hdr.job-no2,"99")) FORM "x(10)" "<P10>" SKIP
@@ -956,16 +1051,16 @@ FOR EACH ef
             "<C4><P9>ITEM#  <C16>CUST PART# <C28>DESCRIPTION  <C50>FORM <C54>BLANK <C59>#UP <C64>ORDER QTY <C72>OVERS <C77>UNDERS <FGCOLOR=BLACK>" SKIP .
             iCount = 1 .
             FOR EACH bf-eb NO-LOCK
-                WHERE bf-eb.company EQ eb.company
-                  AND bf-eb.est-no EQ eb.est-no 
-                  AND bf-eb.form-no EQ eb.form-no BREAK BY bf-eb.blank-no :
+                WHERE bf-eb.company EQ bf-xeb.company
+                  AND bf-eb.est-no EQ bf-xeb.est-no 
+                  AND bf-eb.form-no EQ bf-xeb.form-no BREAK BY bf-eb.blank-no :
 
                 FIND FIRST bf-oe-ordl NO-LOCK
                     WHERE bf-oe-ordl.company EQ job-hdr.company
                     AND bf-oe-ordl.ord-no  EQ job-hdr.ord-no
                     AND bf-oe-ordl.job-no  EQ job-hdr.job-no
                     AND bf-oe-ordl.job-no2 EQ job-hdr.job-no2
-                    AND bf-oe-ordl.i-no EQ bf-eb.stock-no
+                    AND bf-oe-ordl.i-no EQ bf-eb.stock-no 
                     AND bf-oe-ordl.form-no = int(tt-reftable.val[12])
                     NO-ERROR .
                 FIND FIRST bf-job-hdr  NO-LOCK
@@ -973,19 +1068,19 @@ FOR EACH ef
                     AND bf-job-hdr.ord-no  EQ job-hdr.ord-no
                     AND bf-job-hdr.job-no  EQ job-hdr.job-no
                     AND bf-job-hdr.job-no2 EQ job-hdr.job-no2
-                    AND bf-job-hdr.i-no EQ bf-eb.stock-no
-                    AND bf-job-hdr.frm = int(tt-reftable.val[12])
+                    AND bf-job-hdr.i-no EQ bf-eb.stock-no 
+                    AND bf-job-hdr.frm = int(tt-reftable.val[12]) 
                     NO-ERROR .
 
-               
+                      
                 PUT "<C1.5>" STRING(string(iCount) + "." ) FORMAT "x(2)" 
                     "<C4>"  bf-eb.stock-no FORMAT "x(15)"
                     "<C16>" bf-eb.part-no FORMAT "x(15)"
                     "<C28>" bf-eb.part-dscr1 FORMAT "x(30)"
-                    "<C51>" bf-eb.form-no FORMAT ">>"
-                    "<C55>" bf-eb.blank-no FORMAT ">>"
+                    "<C51>" bf-eb.form-no FORMAT ">9"
+                    "<C55>" bf-eb.blank-no FORMAT ">9"
                     "<C59>" bf-eb.num-up FORMAT ">>>"
-                    "<C64>" (IF AVAIL bf-oe-ordl THEN bf-oe-ordl.qty ELSE IF AVAIL bf-job-hdr THEN bf-job-hdr.qty ELSE 0) FORMAT ">>>>>>>>"
+                    "<C64>" (IF AVAIL bf-oe-ordl AND bf-oe-ordl.qty NE 0 THEN bf-oe-ordl.qty ELSE IF AVAIL bf-job-hdr AND bf-job-hdr.qty NE 0 THEN bf-job-hdr.qty ELSE v-ord-qty) FORMAT ">>>>>>>>"
                     "<C72>" (IF AVAIL bf-oe-ordl THEN bf-oe-ordl.over-pct ELSE v-over-pct) FORMAT ">>>>%"
                     "<C77>" (IF AVAIL bf-oe-ordl THEN bf-oe-ordl.under-pct ELSE dUnderPct) FORMAT ">>>>%" SKIP.
                 iCount = iCount + 1 .
@@ -1043,7 +1138,7 @@ FOR EACH ef
             v-ink1 = ""
             v-ink2 = "".
 
-        FOR EACH wrk-ink WHERE wrk-ink.form-no = eb.form-no
+        FOR EACH wrk-ink WHERE wrk-ink.form-no = bf-xeb.form-no
              AND wrk-ink.Iform EQ 1 
             BREAK BY wrk-ink.i-code
             BY wrk-ink.side
@@ -1056,7 +1151,7 @@ FOR EACH ef
              ELSE IF wrk-ink.i-unit = 0 THEN wrk-ink.i-unit = 999 .
         END. /* each wrk-ink */
              
-        FOR EACH wrk-ink WHERE wrk-ink.form-no = eb.form-no
+        FOR EACH wrk-ink WHERE wrk-ink.form-no = bf-xeb.form-no
              AND wrk-ink.Iform EQ 1
             BREAK BY wrk-ink.i-pass
             BY wrk-ink.i-unit
@@ -1074,9 +1169,9 @@ FOR EACH ef
             v-skip          = NO
             v-plate-printed = NO.
         iCount = 1 .
-        PUT "<R-1><FGCOLOR=GREEN>INKS: <FGCOLOR=BLACK>" string(i - 1) FORMAT "x(3)" "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>" string(eb.i-pass) FORMAT "x(3)" "<FGCOLOR=GREEN>COATS: <FGCOLOR=BLACK>"  string(eb.i-coat) FORMAT "x(3)"
-             "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>"  string(eb.i-coat-p) FORMAT "x(3)"   SKIP
-            "<FGCOLOR=GREEN>INK DESCRIPTION:<FGCOLOR=BLACK> "   eb.i-coldscr FORMAT "x(35)" SKIP.
+        PUT "<R-1><FGCOLOR=GREEN>INKS: <FGCOLOR=BLACK>" string(i - 1) FORMAT "x(3)" "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>" string(bf-xeb.i-pass) FORMAT "x(3)" "<FGCOLOR=GREEN>COATS: <FGCOLOR=BLACK>"  string(bf-xeb.i-coat) FORMAT "x(3)"
+             "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>"  string(bf-xeb.i-coat-p) FORMAT "x(3)"   SKIP
+            "<FGCOLOR=GREEN>INK DESCRIPTION:<FGCOLOR=BLACK> "   bf-xeb.i-coldscr FORMAT "x(35)" SKIP.
         
         PUT "<P9><#5>" "<FGCOLOR=GREEN> F  COLORS      DESCRIPTION <C37.3>Per<C42.2>U <C44.4>S <FGCOLOR=BLACK>" SKIP. 
         DO j = 1 TO 12:
@@ -1096,8 +1191,8 @@ FOR EACH ef
             WHERE prep.company EQ cocode
               AND prep.CODE EQ cDieNo AND cDieNo NE "" NO-ERROR .
         PUT  SKIP(1)
-            "<FGCOLOR=GREEN><C46> CAD#:<FGCOLOR=BLACK> " eb.cad-no FORM "x(25)"  SKIP
-            "<FGCOLOR=GREEN><C46> PLATES:<FGCOLOR=BLACK> " eb.plate-no FORM "x(25)" /*eb.plate-no*/ SKIP
+            "<FGCOLOR=GREEN><C46> CAD#:<FGCOLOR=BLACK> " bf-xeb.cad-no FORM "x(25)"  SKIP
+            "<FGCOLOR=GREEN><C46> PLATES:<FGCOLOR=BLACK> " bf-xeb.plate-no FORM "x(25)" /*eb.plate-no*/ SKIP
             "<FGCOLOR=GREEN><C46> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(2)                 
             "<FGCOLOR=GREEN><C46> DIE<FGCOLOR=BLACK> " cDieNo FORM "x(25)" /*eb.die-no*/ SKIP
             "<FGCOLOR=GREEN><C46> DIE DESCR:<FGCOLOR=BLACK> " (IF AVAIL prep THEN prep.dscr ELSE "")  FORMAT "x(35)"   SKIP
@@ -1179,7 +1274,7 @@ FOR EACH ef
                   "<C53><From><R+1><C53><Line><||6><R-1>" 
                   "<C68><From><R+1><C68><Line><||6><R-1><C1>" .
 
-             IF s-prt-mstandard THEN DO:                
+             IF s-prt-mstandard AND bf-xeb.form-no NE 0 THEN DO:                
                 /*IF s-run-speed THEN*/
                    PUT wrk-op.m-dscr   SPACE(2)
                        wrk-op.mr-waste[job-hdr.frm]   SPACE(2)
@@ -1190,26 +1285,30 @@ FOR EACH ef
                        
                      SKIP. 
              END.
-             ELSE PUT wrk-op.m-dscr   SPACE(5)
-                      SKIP.
+             ELSE IF bf-xeb.form-no NE 0 THEN
+                 PUT wrk-op.m-dscr   SPACE(5)   SKIP.
              IF PAGE-SIZE - LINE-COUNTER LE 5 THEN do:
                      PAGE.
                      RUN pPrintHeader(1) .
              END.
         end. /* each wrk-op*/
-         
-    END.  /* first-of eb */
-          
-    /*IF LAST-OF(eb.form-no) THEN 
-    DO:*/
-     PAGE.
+
+END PROCEDURE.
+
+
+PROCEDURE pPrintDetail:
+   DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO .
+   
+   FIND FIRST bf-xeb WHERE ROWID(bf-xeb) EQ ipriRowid NO-LOCK NO-ERROR.
+
+   PAGE.
      RUN pPrintHeader(0) .
 
      v-inst2 = "".
      v-spec-cnt = 0 .
      v-spec-inst = "" .
      FIND FIRST itemfg WHERE itemfg.company = job-hdr.company
-         AND itemfg.i-no = eb.stock-no NO-LOCK NO-ERROR.
+         AND itemfg.i-no = bf-xeb.stock-no NO-LOCK NO-ERROR.
      {custom/notespr2.i itemfg v-inst2 4
           "notes.rec_key = itemfg.rec_key and lookup(notes.note_code,spec-list) > 0 " }
          DO i = 1 TO 4:
@@ -1218,8 +1317,9 @@ FOR EACH ef
                  v-spec-inst[v-spec-cnt] = v-inst2[i].
              END.
          END.
+                  
 
-        PUT "<FGCOLOR=GREEN><C1>CUSTOMER                          SHIP TO"            "<P12><C60>Job#: <FGCOLOR=BLACK>"  string(job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") + "-" + STRING(eb.form-no,"99") + "-" + STRING(eb.blank-no,"99") ) FORM "x(16)" "<P10>" SKIP
+        PUT "<FGCOLOR=GREEN><C1>CUSTOMER                          SHIP TO"            "<P12><C60>Job#: <FGCOLOR=BLACK>"  string(job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") + "-" + STRING(bf-xeb.form-no,"99") + "-" + STRING(bf-xeb.blank-no,"99") ) FORM "x(16)" "<P10>" SKIP
             v-cust-name            v-shipto[1] AT 35                    "<C60><FGCOLOR=GREEN> Cust Po: <FGCOLOR=BLACK>"  (if avail oe-ordl THEN string(oe-ordl.po-no) ELSE "")  FORMAT "x(15)"         SKIP          
             v-cus[2]  v-shipto[2] AT 35                                 "<C60><FGCOLOR=GREEN>Ord Date: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.ord-date) ELSE "")  FORMAT "x(10)"         SKIP
             v-cus[3]  v-shipto[3] AT 35                                 "<C60><FGCOLOR=GREEN>Due Date: <FGCOLOR=BLACK>"   (if avail oe-ord THEN string(oe-ord.due-date) ELSE "")  FORMAT "x(10)"   SKIP
@@ -1228,8 +1328,8 @@ FOR EACH ef
             v-fill SKIP
             "<FGCOLOR=GREEN>ORDER QUANTITY:<FGCOLOR=BLACK>" v-ord-qty   "<C25><FGCOLOR=GREEN>OVER:<FGCOLOR=BLACK>" v-over-pct FORMAT ">>>>%" "<C36><FGCOLOR=GREEN>UNDER:<FGCOLOR=BLACK>" dUnderPct FORMAT ">>>>%" 
              "<C54><FGCOLOR=GREEN>PRINT #UP:<FGCOLOR=BLACK>"   v-prt-up FORM ">>9" "    <FGCOLOR=GREEN>DIE CUT #UP:<FGCOLOR=BLACK>" v-tot-up  FORM ">>9"  /*"<C51><FGCOLOR=GREEN>TOTAL COLORS<FGCOLOR=BLACK> "   eb.i-coldscr*/ SKIP
-            "<C1><FGCOLOR=GREEN>   FG ITEM: <FGCOLOR=BLACK>" eb.stock-no FORMAT "x(15)"      "<C25><FGCOLOR=GREEN>DESC:<FGCOLOR=BLACK>" eb.part-dscr1 FORMAT "x(30)"        "<C54><FGCOLOR=GREEN>STYLE: <FGCOLOR=BLACK>" v-stypart FORMAT "x(30)" SKIP
-            "<C1><FGCOLOR=GREEN> CUST PART: <FGCOLOR=BLACK>" eb.part-no FORMAT "x(15)"     "<C29>"    eb.part-dscr2 FORMAT "x(30)"          "<C54><FGCOLOR=GREEN> SIZE: <FGCOLOR=BLACK>" string(STRING(eb.len) + "x" + string(eb.wid) + "x" + string(eb.dep)) FORMAT "x(40)" SKIP
+            "<C1><FGCOLOR=GREEN>   FG ITEM: <FGCOLOR=BLACK>" bf-xeb.stock-no FORMAT "x(15)"      "<C25><FGCOLOR=GREEN>DESC:<FGCOLOR=BLACK>" bf-xeb.part-dscr1 FORMAT "x(30)"        "<C54><FGCOLOR=GREEN>STYLE: <FGCOLOR=BLACK>" v-stypart FORMAT "x(30)" SKIP
+            "<C1><FGCOLOR=GREEN> CUST PART: <FGCOLOR=BLACK>" bf-xeb.part-no FORMAT "x(15)"     "<C29>"    bf-xeb.part-dscr2 FORMAT "x(30)"          "<C54><FGCOLOR=GREEN> SIZE: <FGCOLOR=BLACK>" string(STRING(bf-xeb.len) + "x" + string(bf-xeb.wid) + "x" + string(bf-xeb.dep)) FORMAT "x(40)" SKIP
             "<C1><FGCOLOR=GREEN>SPEC NOTES: <FGCOLOR=BLACK>" v-spec-inst[1] FORM "x(128)" SKIP
             "<C11>" v-spec-inst[2] FORM "x(128)" SKIP
             "<C11>" v-spec-inst[3] FORM "x(128)" SKIP
@@ -1287,8 +1387,8 @@ FOR EACH ef
             v-ink1 = ""
             v-ink2 = "".
 
-        FOR EACH wrk-ink WHERE wrk-ink.form-no = eb.form-no
-            AND wrk-ink.blank-no EQ eb.blank-no
+        FOR EACH wrk-ink WHERE wrk-ink.form-no = bf-xeb.form-no
+            AND wrk-ink.blank-no EQ bf-xeb.blank-no
             AND wrk-ink.Iform EQ 0
             BREAK BY wrk-ink.i-code
             BY wrk-ink.side
@@ -1300,8 +1400,8 @@ FOR EACH ef
              ELSE IF wrk-ink.i-unit = 0 THEN wrk-ink.i-unit = 999 .
         END. /* each wrk-ink */
              
-        FOR EACH wrk-ink WHERE wrk-ink.form-no = eb.form-no
-            AND wrk-ink.blank-no EQ eb.blank-no
+        FOR EACH wrk-ink WHERE wrk-ink.form-no = bf-xeb.form-no
+            AND wrk-ink.blank-no EQ bf-xeb.blank-no
             AND wrk-ink.Iform EQ 0
             BREAK BY wrk-ink.i-pass
             BY wrk-ink.i-unit
@@ -1319,9 +1419,9 @@ FOR EACH ef
             v-skip          = NO
             v-plate-printed = NO.
         iCount = 1 .    
-        PUT "<R-1><FGCOLOR=GREEN>INKS: <FGCOLOR=BLACK>" string(eb.i-col) FORMAT "x(3)" "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>" string(eb.i-pass) FORMAT "x(3)" "<FGCOLOR=GREEN>COATS: <FGCOLOR=BLACK>"  string(eb.i-coat) FORMAT "x(3)"
-             "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>"  string(eb.i-coat-p) FORMAT "x(3)"   SKIP
-            "<FGCOLOR=GREEN>INK DESCRIPTION:<FGCOLOR=BLACK> "   eb.i-coldscr FORMAT "x(35)" SKIP.
+        PUT "<R-1><FGCOLOR=GREEN>INKS: <FGCOLOR=BLACK>" string(bf-xeb.i-col) FORMAT "x(3)" "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>" string(bf-xeb.i-pass) FORMAT "x(3)" "<FGCOLOR=GREEN>COATS: <FGCOLOR=BLACK>"  string(bf-xeb.i-coat) FORMAT "x(3)"
+             "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>"  string(bf-xeb.i-coat-p) FORMAT "x(3)"   SKIP
+            "<FGCOLOR=GREEN>INK DESCRIPTION:<FGCOLOR=BLACK> "   bf-xeb.i-coldscr FORMAT "x(35)" SKIP.
         
         PUT "<P9><#5>" "<FGCOLOR=GREEN> F  COLORS      DESCRIPTION <C37.3>Per<C42.2>U <C44.4>S <FGCOLOR=BLACK>" SKIP. 
         DO j = 1 TO 12:
@@ -1338,12 +1438,12 @@ FOR EACH ef
              
         FIND FIRST prep NO-LOCK
             WHERE prep.company EQ cocode
-              AND prep.CODE EQ eb.die-no AND eb.die-no NE "" NO-ERROR .
+              AND prep.CODE EQ bf-xeb.die-no AND bf-xeb.die-no NE "" NO-ERROR .
         PUT  SKIP(1)
-            "<FGCOLOR=GREEN><C46> CAD#:<FGCOLOR=BLACK> " eb.cad-no FORM "x(25)"  SKIP
-            "<FGCOLOR=GREEN><C46> PLATES:<FGCOLOR=BLACK> " eb.plate-no FORM "x(25)" /*eb.plate-no*/ SKIP
+            "<FGCOLOR=GREEN><C46> CAD#:<FGCOLOR=BLACK> " bf-xeb.cad-no FORM "x(25)"  SKIP
+            "<FGCOLOR=GREEN><C46> PLATES:<FGCOLOR=BLACK> " bf-xeb.plate-no FORM "x(25)" /*eb.plate-no*/ SKIP
             "<FGCOLOR=GREEN><C46> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(2)                 
-            "<FGCOLOR=GREEN><C46> DIE<FGCOLOR=BLACK> " eb.die-no FORM "x(25)"  SKIP
+            "<FGCOLOR=GREEN><C46> DIE<FGCOLOR=BLACK> " bf-xeb.die-no FORM "x(25)"  SKIP
             "<FGCOLOR=GREEN><C46> DIE DESCR:<FGCOLOR=BLACK> " (IF AVAIL prep THEN prep.dscr ELSE "")  FORMAT "x(35)"   SKIP
             "<FGCOLOR=GREEN><C46> DIE SIZE:<FGCOLOR=BLACK> " string(ef.trim-w) + "x" + string(ef.trim-l) FORMAT "x(25)" SKIP
             "<FGCOLOR=GREEN><C46> NOTES/COMMENTS:<FGCOLOR=BLACK> "  SKIP(4)                
@@ -1352,13 +1452,13 @@ FOR EACH ef
         PUT "<C2><FGCOLOR=GREEN>---------------------------------------- LABEL INFO ----------------------------------------<FGCOLOR=BLACK>"  SKIP.
         /* V-FILL78  SKIP. */
            
-        FOR EACH bf-eb WHERE bf-eb.company = eb.company
-            AND bf-eb.est-no = eb.est-no
-            AND bf-eb.form-no = eb.form-no 
-            AND bf-eb.blank-no = eb.blank-no 
+        FOR EACH bf-eb WHERE bf-eb.company = bf-xeb.company
+            AND bf-eb.est-no = bf-xeb.est-no
+            AND bf-eb.form-no = bf-xeb.form-no 
+            AND bf-eb.blank-no = bf-xeb.blank-no 
             NO-LOCK BY bf-eb.blank-no:
 
-            FIND FIRST style WHERE style.company EQ eb.company
+            FIND FIRST style WHERE style.company EQ bf-xeb.company
                 AND style.style   EQ bf-eb.style NO-LOCK NO-ERROR.
             IF AVAILABLE style THEN v-stypart = style.dscr.
             
@@ -1500,73 +1600,10 @@ FOR EACH ef
 
             
             PUT "<FGCOLOR=GREEN> " v-fill2 SKIP.
-                
-            IF AVAILABLE tt-key2 THEN DELETE tt-key2.
+            
+             IF AVAILABLE tt-key2 THEN DELETE tt-key2.
         END.    /* for each bf-eb*/
-               
-        IF AVAILABLE tt-keyst THEN DELETE tt-keyst.
-   /* END. /* last-of(eb.form-no) */*/
-          
-END. /* each eb */
-END. /* each ef */
-END. /* first job-no */     
 
-/** PRINT MULT COPIES OF TICKETS **/
-save_id = RECID(job-hdr).
-IF LAST-OF(job-hdr.job-no2) THEN 
-DO:
-    FOR EACH wrk-op:
-        DELETE wrk-op.
-    END.
-    FOR EACH wrk-prep:
-        DELETE wrk-prep.
-    END.
-END.
-
-FOR EACH wrk-spec:
-    DELETE wrk-spec.
-END.
-FOR EACH wrk-film:
-    DELETE wrk-film.
-END.
-FOR EACH wrk-die:
-    DELETE wrk-die.
-END.
-FOR EACH wrk-sheet:
-    DELETE wrk-sheet.
-END.
-FOR EACH wrk-misc:
-    DELETE wrk-misc.
-END.
-FOR EACH wrk-inst:
-    DELETE wrk-inst.
-END.
-      
-v-first = NO.
-END. /* each job-hdr */
-
-
-
-PROCEDURE pPrintHeader :
-    /*------------------------------------------------------------------------------
-      Purpose:     Print header
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiType AS INTEGER NO-UNDO .
-    IF ipiType EQ 0 THEN
-         cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(eb.form-no,"99") + "-" + STRING(eb.blank-no,"99") .
-    IF ipiType EQ 1 THEN
-         cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99")  .
-         PUT 
-            "<FGCOLOR=GREEN><LINECOLOR=GREEN><R5><C58.5><From><R11><C58.5><Line><||6>"
-            "<=1>" .
-
-    PUT
-    "<C1><R1><#1><R+3.5><C+25><IMAGE#1=" ls-full-img1  
-    "<R1.5><C27><P18><FGCOLOR=GREEN>Page <FGCOLOR=BLACK><C33>" string(PAGE-NUMBER - v-pg-num,">>") "<C35>  of <#PAGES> <P10>"      
-    "<C+4><R1.5><FROM><C80><R3.9><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" + cBarCodeVal + ">" FORMAT "x(150)" SKIP
-    v-fill .
 
 END PROCEDURE.
 
