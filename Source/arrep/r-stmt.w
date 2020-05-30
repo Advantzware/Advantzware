@@ -593,7 +593,7 @@ DO:
                        AND ttCustList.log-fld = YES NO-ERROR .
                IF NOT AVAIL ttCustList THEN NEXT .
 
-            IF v-stmt-char EQ "ASIExcel" THEN
+            IF v-stmt-char EQ "ASIExcel" OR v-stmt-char EQ "SouleExcel" THEN
             DO:
                v-excel = YES.
 
@@ -659,7 +659,7 @@ DO:
            if not avail ar-inv THEN next.*/
 
      v-stmt-char = vcDefaultForm.
-     IF v-stmt-char EQ "ASIExcel" THEN
+     IF v-stmt-char EQ "ASIExcel" OR v-stmt-char EQ "SouleExcel" THEN
      DO:
         v-excel = YES.
 
@@ -708,7 +708,7 @@ DO:
      ttCustList.cust-no NE "" AND ttCustList.log-fld = YES ) THEN
   DO: 
 
-     IF v-stmt-char EQ "ASIExcel" THEN
+     IF v-stmt-char EQ "ASIExcel" OR v-stmt-char EQ "SouleExcel" THEN
      DO:
         v-excel = YES.
 
@@ -1595,7 +1595,7 @@ do xx = 1 to v-inv-type-max:
     + v-inv-type-array[xx] + ' '.
 end.
 
-v-asi-excel = v-stmt-char EQ "ASIExcel".
+v-asi-excel = IF v-stmt-char EQ "ASIExcel" OR v-stmt-char EQ "SouleExcel" THEN TRUE ELSE FALSE.
 
 form
   ws_letterhead[1]    skip
@@ -2373,6 +2373,7 @@ FOR EACH ttCustList
 
          ASSIGN tt-cust-excel.cust-no = tt-inv.cust-no
                 tt-cust-excel.contact = cust.contact
+                tt-cust-excel.terms = cust.terms
                 tt-cust-excel.addr[1] = ws_addr[1]
                 tt-cust-excel.addr[2] = ws_addr[2]
                 tt-cust-excel.addr[3] = ws_addr[3]
@@ -2383,6 +2384,11 @@ FOR EACH ttCustList
                 tt-cust-excel.aged[3] = v-aged[3]
                 tt-cust-excel.aged[4] = v-aged[4]
                 tt-cust-excel.aged[5] = v-aged[5].
+         FIND FIRST terms NO-LOCK
+              WHERE terms.company = cust.company
+              AND terms.t-code EQ cust.terms NO-ERROR.
+         IF avail terms THEN
+          tt-cust-excel.terms =  terms.dscr .
          RELEASE tt-cust-excel.
       END.
     end.
@@ -2390,8 +2396,12 @@ FOR EACH ttCustList
 
 end. /* for each cust record */
 
-IF v-asi-excel THEN
+IF v-asi-excel THEN do:
+   IF v-stmt-char EQ "ASIExcel" THEN
    RUN arrep\asiexlstmt.p(INPUT v-stmt-date, INPUT v-msg).
+   ELSE IF v-stmt-char EQ "SouleExcel" THEN
+   RUN arrep\SouleExlStmt.p(INPUT v-stmt-date, INPUT v-msg).
+END.   
 
 SESSION:SET-WAIT-STATE ("").
 
@@ -3320,7 +3330,7 @@ do xx = 1 to v-inv-type-max:
     + v-inv-type-array[xx] + ' '.
 end.
 
-v-asi-excel = v-stmt-char EQ "ASIExcel".
+v-asi-excel = IF v-stmt-char EQ "ASIExcel" OR v-stmt-char EQ "SouleExcel" THEN TRUE ELSE FALSE.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -4202,8 +4212,12 @@ FIRST cust no-lock
 
 end. /* for each cust record */
 
-IF v-asi-excel THEN
+IF v-asi-excel THEN do:
+   IF v-stmt-char EQ "ASIExcel" THEN
    RUN arrep\asiexlstmt.p(INPUT v-stmt-date, INPUT v-msg).
+   ELSE IF v-stmt-char EQ "SouleExcel" THEN
+   RUN arrep\SouleExlStmt.p(INPUT v-stmt-date, INPUT v-msg).
+END.   
 
 IF NOT ipl-email THEN SESSION:SET-WAIT-STATE ("").
 
@@ -4221,7 +4235,7 @@ PROCEDURE run-report :
 DEFINE INPUT PARAMETER ip-cust-no AS CHAR NO-UNDO.
 DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
 
-IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,RFC,Premier,StmtPrint-Mex,ASIExcel,Loylang,Printers,Badger") > 0 THEN DO:
+IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,RFC,Premier,StmtPrint-Mex,ASIExcel,SouleExcel,Loylang,Printers,Badger") > 0 THEN DO:
    RUN run-asistmt(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
    RETURN.
 END.
@@ -5331,7 +5345,7 @@ PROCEDURE SendMail-1 :
   DEFINE VARIABLE vcMailBody  AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE vcErrorMsg  AS CHARACTER  NO-UNDO.
 
-  IF v-stmt-char EQ "ASIExcel" THEN
+  IF v-stmt-char EQ "ASIExcel" OR v-stmt-char EQ "SouleExcel" THEN
      ASSIGN icFileName =  v-dir + "\stmt.xls"      .
 
   ASSIGN vcSubject   = "STATEMENT" + '   ' + STRING (TODAY, '99/99/9999') + STRING (TIME, 'HH:MM:SS AM')

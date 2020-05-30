@@ -27,6 +27,7 @@ DEF {1} shared TEMP-TABLE tt-cust-excel NO-UNDO
     FIELD contact AS CHAR
     FIELD addr    AS CHAR EXTENT 5
     FIELD aged    AS DEC EXTENT 5
+    FIELD terms   AS CHARACTER 
     INDEX excel cust-no ASC.
 
 
