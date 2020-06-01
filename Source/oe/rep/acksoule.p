@@ -73,7 +73,7 @@ DEF VAR v-inst AS cha FORM "x(80)" EXTENT 4 NO-UNDO.
 DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
 DEF VAR lv-line-start AS INT INIT 20 NO-UNDO. /*line to start body*/
-DEF VAR lv-line-print AS INT INIT 46 NO-UNDO. /*# of lines in body*/
+DEF VAR lv-line-print AS INT INIT 44 NO-UNDO. /*# of lines in body*/
 DEF VAR v-ext-price AS DEC NO-UNDO.
 DEF VAR lv-pg-num AS INT NO-UNDO.
 DEF VAR lv-tot-pg AS INT INIT 1 NO-UNDO.
@@ -201,7 +201,7 @@ find first company where company.company eq cocode no-lock no-error.
           where cust.company eq cocode
             and cust.cust-no eq oe-ord.cust-no
           no-lock no-error.
-      if avail cust then v-cust-phone = cust.area-code + cust.phone.
+      
       /* get q-no for first item */
       v-q-no = 0.
       
@@ -340,6 +340,10 @@ ASSIGN lv-prt-sts = /*IF NOT oe-ord.ack-prnt THEN "ORIGINAL" ELSE "REVISED"*/
 /*         IF shipto.ship-addr[2] <> "" THEN ln-cnt = ln-cnt + 1. */
 /*         IF v-addr4 <> "" THEN ln-cnt = ln-cnt + 1.             */
       END.
+FIND FIRST users NO-LOCK
+     WHERE users.USER_ID EQ oe-ord.csrUser_id NO-ERROR.
+   v-cust-phone =  IF AVAIL users THEN substring(users.phone,1,3) + substring(users.phone,4) ELSE "" .      
+      
 PUT "[@startPage" oe-ord.ord-no "]".
 {oe/rep/acksoule.i}
 
@@ -957,6 +961,12 @@ PUT "[@startPage" oe-ord.ord-no "]".
          RUN addLines(1).
 /*          v-printline = v-printline + 1. */
       END.
+      /* print Tax*/
+      IF oe-ord.tax gt 0 THEN DO:
+         v-totord = v-totord + oe-ord.tax.
+         PUT "Tax:" AT 23 oe-ord.tax FORM "$->>>,>>9.99" AT 101.
+         RUN addLines(1).
+      END.
       /* print billing notes */
       ASSIGN v-billinst = "".
 
@@ -973,7 +983,9 @@ PUT "[@startPage" oe-ord.ord-no "]".
             assign v-printline = 20.          
       end.
 */
-      PUT "<R53><C1> A 10% underrun or overrun will constitute fulfillment of order.  " 
+      PUT "<R51><C1> Product held in stock X months beyond the order acknowledgement date will be billed for complete PO balance due."
+          "<R52><C1> Disposition of product will be determined upon agreement."
+          "<R53><C1> A 10% underrun or overrun will constitute fulfillment of order.  " 
           "<R54><C1> If any items are returned, a 15% restocking fee will be charged on all returned items. " 
           "<R55><C1> No return will be accepted for custom orders. " .
 

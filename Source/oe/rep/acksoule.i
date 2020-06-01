@@ -37,17 +37,17 @@ PUT "<R4><C50><FROM><R4><C80><LINE>"
     "<R6><C50><FROM><R6><C80><LINE>" 
     "<R8><C50><FROM><R8><C80><LINE>"
     "<R2><C61><FROM><R4><C61><LINE>" 
-    "<R4><C65><FROM><R10><C65><LINE>"
+    "<R6><C65><FROM><R10><C65><LINE>"
     .
 
 PUT "<=#3><P10>" 
     "<=#3> Customer ID          <B>ACKNOWLEDGEMENT</B>"
-    "<=#3><R+2> Telephone                    Fax" 
-    "<=#3><R+4> Contact                   Order Date "
+    "<=#3><R+2> Customer Service Representative" 
+    "<=#3><R+4> CSR Telephone               Order Date "
     "<=3><R+6> Status                Date and Time"
     "<=3><R+1> " oe-ord.cust-no  space(16) oe-ord.ord-no SPACE(5)
-    "<=3><R+3> " v-cust-phone  space(10) cust.fax
-    "<=3><R+5> " cust.contact FORM "x(15)" space(11) oe-ord.ord-date .
+    "<=3><R+3> " ( IF AVAIL users THEN users.user_name ELSE "") FORMAT "x(30)"  /*v-cust-phone  space(10) cust.fax*/
+    "<=3><R+5> " v-cust-phone  space(15) oe-ord.ord-date .
  IF LENGTH(lv-prt-sts) < 38 THEN /*revised*/
       PUT  "<=3><R+7> " lv-prt-sts FORM "x(38)" SPACE(12)
      lv-prt-date space(1) lv-prt-time.
