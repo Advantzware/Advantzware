@@ -48,6 +48,9 @@ DEF VAR cust-t-fc  as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
 def var sman-t     as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
 def var sman-t-pri as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
 def var sman-t-fc  as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
+def var arclass-t     as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
+def var arclass-t-pri as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
+def var arclass-t-fc  as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
 DEF VAR v-current-trend-days AS INT NO-UNDO FORMAT "->>9".
 def var curr-t     as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
 def var curr-t-pri as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
@@ -224,7 +227,7 @@ END.
        NO-LOCK,    
     EACH cust 
       FIELDS(company cust-no sman curr-code name area-code
-             phone terms fax cr-lim contact addr city state zip)
+             phone terms fax cr-lim contact addr city state zip classID)
       NO-LOCK
       WHERE cust.company EQ company.company
         AND cust.cust-no GE v-s-cust
@@ -233,8 +236,8 @@ END.
         AND ttCustList.log-fld no-lock) else true)
         AND cust.sman    GE v-s-sman
         AND cust.sman    LE v-e-sman
-        /*AND cust.terms    GE v-s-terms
-        AND cust.terms    LE v-e-terms*/ /* Ticket 23993 */
+        AND cust.classID GE v-s-class
+        AND cust.classID LE v-e-class
         AND (cust.ACTIVE NE "I" OR v-inactive-custs)
         AND ((cust.curr-code GE v-s-curr    AND
               cust.curr-code LE v-e-curr)       OR
@@ -269,7 +272,7 @@ END.
       ASSIGN
        tt-cust.curr-code = IF cust.curr-code EQ "" THEN company.curr-code
                                                    ELSE cust.curr-code
-       tt-cust.sorter    = {&sort-by}
+       tt-cust.sorter    = STRING({&sort-by})
        tt-cust.row-id    = ROWID(cust).
 
       IF tt-cust.curr-code NE company.curr-code THEN ll-mult-curr = YES.
@@ -587,6 +590,7 @@ END.
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                      WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  . 
                      WHEN "tot-due"  THEN cVarValue = STRING(dAmountDue,"->,>>>,>>>.99")  .
+                     WHEN "arclass"  THEN cVarValue = STRING(cust.classID,">>>>>>>>")  .
                      WHEN "inv-note"  THEN  NEXT  .
                      WHEN "coll-note" THEN  NEXT  .
                     
@@ -752,6 +756,7 @@ END.
                          WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
                          WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                          WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
+                         WHEN "arclass"   THEN cVarValue = STRING(cust.classID,">>>>>>>>")  .
                          WHEN "tot-due"  THEN cVarValue = "0"  .
                          WHEN "inv-note"  THEN NEXT .
                          WHEN "coll-note" THEN NEXT .
@@ -820,6 +825,7 @@ END.
                          WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
                          WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                          WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
+                         WHEN "arclass"  THEN cVarValue = STRING(cust.classID,">>>>>>>>")  .
                          WHEN "tot-due"  THEN cVarValue = "0"  .
                          WHEN "inv-note"  THEN NEXT .
                          WHEN "coll-note" THEN NEXT .
@@ -919,6 +925,7 @@ END.
                          WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                          WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
                          WHEN "tot-due"  THEN cVarValue = /*STRING(dAmountDue,"->,>>>,>>>.99")*/ ""  .
+                         WHEN "arclass"  THEN cVarValue = STRING(cust.classID,">>>>>>>>")  .
                          WHEN "inv-note"  THEN NEXT .
                          WHEN "coll-note" THEN NEXT .
                      END CASE.
@@ -1140,6 +1147,7 @@ END.
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                      WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
+                     WHEN "arclass"   THEN cVarValue = STRING(cust.classID,">>>>>>>>")  .
                      WHEN "tot-due"  THEN cVarValue = "0"  .
                      WHEN "inv-note"  THEN NEXT .
                      WHEN "coll-note" THEN NEXT .
@@ -1256,6 +1264,7 @@ END.
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                      WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
+                     WHEN "arclass"   THEN cVarValue = STRING(cust.classID,">>>>>>>>")  .
                      WHEN "tot-due"  THEN cVarValue = "0"  .
                      WHEN "inv-note"  THEN NEXT .
                      WHEN "coll-note" THEN NEXT .
@@ -1312,9 +1321,14 @@ END.
            RUN total-head("****** FINANCE CHARGES","",c1-fc,cust-t-fc[1],cust-t-fc[2],
                            cust-t-fc[3],cust-t-fc[4],cust-t-fc[5],0).
         END.
-
-        if not last-of(tt-cust.sorter) or "{&sort-by}" ne "cust.sman" then
-          put skip(1).
+        IF v-sort NE "arclass" THEN DO:        
+            if not last-of(tt-cust.sorter) or "{&sort-by}" ne "cust.sman" then
+              put skip(1).
+        END.
+        ELSE DO:
+          if not last-of(tt-cust.sorter) or "{&sort-by}" ne "cust.classID" THEN
+          PUT SKIP(1).
+        END.
       end.
       ELSE IF det-rpt = 2 THEN DO:
 
@@ -1338,77 +1352,57 @@ END.
       do i = 1 to 6:
          ASSIGN
             sman-t[i] = sman-t[i] + cust-t[i]
+            arclass-t[i] = arclass-t[i] + cust-t[i]
             cust-t[i] = 0.
 
          IF v-sep-fc THEN
             ASSIGN
                sman-t-pri[i] = sman-t-pri[i] + cust-t-pri[i]
                sman-t-fc[i] = sman-t-fc[i] + cust-t-fc[i]
+               arclass-t-pri[i] = arclass-t-pri[i] + cust-t-pri[i]
+               arclass-t-fc[i] = arclass-t-fc[i] + cust-t-fc[i]
                cust-t-pri[i] = 0
                cust-t-fc[i] = 0.
       end.
     end.
     
     if last-of(tt-cust.sorter) then do:
-      c1 = sman-t[1] + sman-t[2] + sman-t[3] + sman-t[4].
-          
-      if "{&sort-by}" eq "cust.sman" THEN DO:
-        IF det-rpt <> 3 THEN
-            RUN total-head("****** SALESREP TOTALS","",c1,sman-t[1],sman-t[2],
-                           sman-t[3],sman-t[4],0,sman-t[6]).
-        /*display v-sman                  at 4    format "x(33)"
-                "TOTALS: " + v-sman                  @ v-sman
-                "***** SALESREP TOTALS" when det-rpt = 1 @ v-sman
-                c1                      to 54
-                sman-t[1]               to 77
-                sman-t[2]               to 94
-                sman-t[3]               to 112
-                sman-t[4]               to 131
-                skip(2)
-            with frame slsmn no-labels no-box no-attr-space stream-io width 200.*/
-        IF v-export THEN DO:
-           IF det-rpt = 2 /* was if det-rpt was if not dep-rpt */THEN DO:
-              /*IF NOT v-prt-add THEN
-                 EXPORT STREAM s-temp DELIMITER ","
-                    " " 
-                    "TOTALS: " + v-sman 
-                    " "
-                    c1                                      
-                    sman-t[1]                                           
-                    sman-t[2]
-                    sman-t[3]
-                    sman-t[4]
-                    SKIP.
-              ELSE
-                 EXPORT STREAM s-temp DELIMITER ","
-                    " " 
-                    "TOTALS: " + v-sman 
-                    " "                                      
-                    " "                                      
-                    " "                                         
-                    " "                                        
-                    " "                                                         
-                    " "                      
-                    " "
-                    c1                                      
-                    sman-t[1]                                           
-                    sman-t[2]
-                    sman-t[3]
-                    sman-t[4]
-                    SKIP.  */
-           END.
-        END.
-      END.
+      IF v-sort EQ "SalesRep#" THEN do:          
+          c1 = sman-t[1] + sman-t[2] + sman-t[3] + sman-t[4].
+              
+          if "{&sort-by}" eq "cust.sman" THEN DO:
+            IF det-rpt <> 3 THEN
+                RUN total-head("****** SALESREP TOTALS","",c1,sman-t[1],sman-t[2],
+                               sman-t[3],sman-t[4],0,sman-t[6]).         
+          END.
 
-      do i = 1 to 6:
-        ASSIGN
-           curr-t[i] = curr-t[i] + sman-t[i]
-           sman-t[i] = 0
-           curr-t-pri[i] = curr-t-pri[i] + sman-t-pri[i]
-           curr-t-fc[i] = curr-t-fc[i] + sman-t-fc[i]
-           sman-t-pri[i] = 0
-           sman-t-fc[i] = 0.
-      end.
+          do i = 1 to 6:
+            ASSIGN
+               curr-t[i] = curr-t[i] + sman-t[i]
+               sman-t[i] = 0
+               curr-t-pri[i] = curr-t-pri[i] + sman-t-pri[i]
+               curr-t-fc[i] = curr-t-fc[i] + sman-t-fc[i]
+               sman-t-pri[i] = 0
+               sman-t-fc[i] = 0.
+          end.
+      END.
+      IF v-sort EQ "ArClass" THEN do:          
+          c1 = arclass-t[1] + arclass-t[2] + arclass-t[3] + arclass-t[4].               
+          
+            IF det-rpt <> 3 THEN
+                RUN total-head("****** AR CLASS TOTALS","",c1,arclass-t[1],arclass-t[2],
+                               arclass-t[3],arclass-t[4],0,arclass-t[6]).          
+                 PUT SKIP(1).
+          do i = 1 to 6:
+            ASSIGN
+               curr-t[i] = curr-t[i] + arclass-t[i]
+               arclass-t[i] = 0
+               curr-t-pri[i] = curr-t-pri[i] + arclass-t-pri[i]
+               curr-t-fc[i] = curr-t-fc[i] + arclass-t-fc[i]
+               arclass-t-pri[i] = 0
+               arclass-t-fc[i] = 0.
+          end.
+      END.
     end.
     
     if last-of(tt-cust.curr-code) then do:
@@ -1936,6 +1930,7 @@ END.
                      WHEN "tot-due"  THEN cVarValue = STRING(ipdAmountDue,"->,>>>,>>9.99")  .
                      WHEN "inv-note"  THEN cVarValue = "".
                      WHEN "coll-note" THEN cVarValue = "".
+                     WHEN "arclass"   THEN cVarValue = ""  .
                     
                 END CASE.
                   
