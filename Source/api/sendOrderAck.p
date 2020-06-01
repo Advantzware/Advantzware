@@ -35,9 +35,6 @@ DEFINE VARIABLE lcConcatLineMiscChargeData AS LONGCHAR  NO-UNDO.
 DEFINE VARIABLE cCompany              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCurrentDate              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCurrentTime              AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cIsaControlSeq        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cGsControlSeq         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cStControlSeq         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dtOrderDate           AS DATE      NO-UNDO.
            
 DEFINE VARIABLE cTotalAmount          AS CHARACTER NO-UNDO.
@@ -389,56 +386,34 @@ DO:
         RETURN.
     END.
     
-    IF AVAILABLE oe-ord THEN 
-    DO:
-        IF NOT CAN-FIND(FIRST oe-ordl
-            WHERE oe-ordl.company EQ oe-ord.company
-            and oe-ordl.ord-no  EQ oe-ord.ord-no) THEN 
-        DO:
-            ASSIGN
-                opcMessage = "No oe-ordl records available for Order [ " + STRING(oe-ord.ord-no) + " ]"
-                oplSuccess = FALSE
-                .
-            RETURN.
-        END.
-    END. 
 END.        
         
 ASSIGN
     cClientID        = APIOutbound.clientID
     cRequestDataType = APIOutbound.requestDataType 
     .
-IF AVAILABLE oe-ord THEN 
-DO:
             
-    cCompany = oe-ord.company.
-    FIND FIRST cust NO-LOCK 
-        WHERE cust.company EQ oe-ord.company
-        AND cust.cust-no EQ oe-ord.cust-no
-        NO-ERROR.
-    IF AVAILABLE cust AND cust.country GT "" THEN 
-        cCustCountry = cust.country.
-    ELSE 
-        cCustCountry = "US".
-              
-    FIND FIRST shipto NO-LOCK WHERE shipto.company EQ oe-ord.company
-        AND shipto.cust-no EQ oe-ord.cust-no
-        AND shipto.ship-id EQ oe-ord.ship-id
-        NO-ERROR.
-
-            
-    /* Fetch Order notes from notes table */    
-    FOR EACH notes NO-LOCK
-        WHERE notes.rec_key EQ oe-ord.rec_key:
-        cInvNotes = cInvNotes + STRING(notes.note_text).
-    END.
-END. /* end using oe-ord */
+cCompany = oe-ord.company.
+FIND FIRST cust NO-LOCK 
+    WHERE cust.company EQ oe-ord.company
+    AND cust.cust-no EQ oe-ord.cust-no
+    NO-ERROR.
+IF AVAILABLE cust AND cust.country GT "" THEN 
+    cCustCountry = cust.country.
+ELSE 
+    cCustCountry = "US".
+          
+FIND FIRST shipto NO-LOCK WHERE shipto.company EQ oe-ord.company
+    AND shipto.cust-no EQ oe-ord.cust-no
+    AND shipto.ship-id EQ oe-ord.ship-id
+    NO-ERROR.
 
         
-ASSIGN 
-    cStControlSeq  = STRING(1, "9999")   /* TBD */
-    .      
-
+/* Fetch Order notes from notes table */    
+FOR EACH notes NO-LOCK
+    WHERE notes.rec_key EQ oe-ord.rec_key:
+    cInvNotes = cInvNotes + STRING(notes.note_text).
+END.
             
 ASSIGN 
     lcConcatLineData = ""
@@ -1040,7 +1015,7 @@ ASSIGN
     cWhsed           = STRING(oe-ord.whsed)
     cZip             = STRING(oe-ord.zip ) 
     .       
-//    RUN format_date IN hFormatProcs (oe-ord.ord-date, "YYYYMMDD", OUTPUT cEdiOrdDate).
+
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "AckPrnt", cAckPrnt). 
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "AckPrntDate", cAckPrntDate). 
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Addr", cAddr). 
@@ -1192,10 +1167,10 @@ RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatLineData, cRequestDataType).
 RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatLineMiscChargeData, cRequestDataType).
 
 /* Newline is needed because $detail$ is on the previous line of the template in case it is blank */          
-ioplcRequestData = REPLACE(ioplcRequestData, "[$Detail$]", (IF lcConcatLineData NE "" THEN "~n" ELSE "") + lcConcatLineData).
+ioplcRequestData = REPLACE(ioplcRequestData, "$Detail$", (IF lcConcatLineData NE "" THEN "~n" ELSE "") + lcConcatLineData).
 
 /* Newline is needed because $MiscCharge$ is on the previous line of the template in case it is blank */                                                                 
-ioplcRequestData = REPLACE(ioplcRequestData, "[$MiscCharge$]", ( IF lcConcatLineMiscChargeData NE "" THEN  "~n" ELSE "") + lcConcatLineMiscChargeData).
+ioplcRequestData = REPLACE(ioplcRequestData, "$MiscCharge$", ( IF lcConcatLineMiscChargeData NE "" THEN  "~n" ELSE "") + lcConcatLineMiscChargeData).
 
 /* Needed for EDI format only in the SE segment */
 ASSIGN 

@@ -3084,10 +3084,13 @@ ELSE DO:
 END.
 
 OUTPUT CLOSE.
-  FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
-       FIRST po-ord WHERE RECID(po-ord) EQ report.rec-id NO-LOCK:       
-       RUN pRunAPIOutboundTrigger(BUFFER po-ord, v-reprint).
-  END.
+
+FOR EACH report NO-LOCK WHERE report.term-id EQ v-term-id,
+   FIRST oe-ord NO-LOCK WHERE RECID(oe-ord) EQ report.rec-id
+   :     
+       RUN pRunAPIOutboundTrigger(BUFFER oe-ord, v-reprint).
+END.
+
 FOR EACH report WHERE report.term-id EQ v-term-id:
    FIND oe-ord WHERE RECID(oe-ord) EQ report.rec-id.
    IF STRING(oe-ord.ack-prnt) <> report.key-01 AND oe-ord.ack-prnt THEN oe-ord.ack-prnt-date = TODAY.
