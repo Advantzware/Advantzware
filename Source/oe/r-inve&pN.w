@@ -2294,6 +2294,9 @@ PROCEDURE list-post-inv :
             IF AVAILABLE edcode AND edcode.sendFileOnPrint THEN    
                 RUN ed/asi/write810.p (INPUT cocode, INPUT inv-head.inv-no).                     
         END.  
+        FIND FIRST cust NO-LOCK 
+             WHERE cust.company EQ inv-head.company
+             AND cust.cust-no EQ inv-head.cust-no NO-ERROR.
         {oe/r-inve&p.i}
     END.
 
