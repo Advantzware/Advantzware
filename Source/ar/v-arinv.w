@@ -233,7 +233,7 @@ DEFINE FRAME F-Main
      ar-inv.carrier AT ROW 5.52 COL 56 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     ar-inv.f-bill AT ROW 2.91 COL 80
+     ar-inv.f-bill AT ROW 3.62 COL 80
           VIEW-AS TOGGLE-BOX
           SIZE 15 BY 1
      ar-inv.freight AT ROW 2.91 COL 105 COLON-ALIGNED
