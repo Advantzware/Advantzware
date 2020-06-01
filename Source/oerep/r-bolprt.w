@@ -5660,6 +5660,10 @@ PROCEDURE SetBOLForm :
               ASSIGN 
                 is-xprint-form = NO
                 v-program = "oe/rep/cocacpi.p".
+         WHEN "Soule" THEN
+              ASSIGN 
+                is-xprint-form = NO
+                v-program = "oe/rep/cocsoule.p".       
 
          WHEN "CCC" OR WHEN "CCCWPP" OR WHEN "CCC2" OR WHEN "CCC3" OR WHEN "CCC4" OR WHEN "CCC5" THEN
               ASSIGN 
