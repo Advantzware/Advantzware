@@ -321,7 +321,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                 w-bin.w-units = TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0)
                 w-bin.w-i-no = fg-bin.i-no
                 i        = i + 1.
-                w-bin.w-date-time = fg-bin.rec_key.
+                w-bin.w-date-time = fg-bin.tag.
                
                RELEASE w-bin.
            end. /*each fg-bin*/
@@ -362,9 +362,9 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               FOR EACH w-bin-cons:
 
                   CREATE w-bin.
-                  BUFFER-COPY w-bin-cons TO w-bin
+                  BUFFER-COPY w-bin-cons TO w-bin 
                      ASSIGN
-                        w-bin.w-date-time = "29991201000000".
+                        w-bin.w-date-time = "yyyyyyyyyyyyyy".
 
                   DELETE w-bin-cons.
                   i = i + 1.
@@ -403,7 +403,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                     w-bin.w-loc = b-ship.loc
                     w-bin.w-bin = b-ship.loc-bin
                     i     = i + 1
-                    w-bin.w-date-time = "29991201000000".
+                    w-bin.w-date-time = "yyyyyyyyyyyyyy".
                  end.   
               end.
            end.
@@ -411,7 +411,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
            
            do i = i to 7:
               create w-bin.
-              ASSIGN w-bin.w-date-time = "29991231000000".
+              ASSIGN w-bin.w-date-time = "zzzzzzzzzzzzzz".
               RELEASE w-bin.
            end.
           
