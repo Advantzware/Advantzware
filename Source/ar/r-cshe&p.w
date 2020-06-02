@@ -133,11 +133,11 @@ END.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tran-date begin_cust end_cust ~
-begin_date end_date rd_sort rd-dest lv-ornt lines-per-page lv-font-no ~
-td-show-parm btn-ok btn-cancel 
+begin_date end_date begin_check-no end_check-no rd_sort rd-dest lv-ornt ~
+lines-per-page lv-font-no td-show-parm btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tran-date tran-period begin_cust end_cust ~
-begin_date end_date lbl_sort rd_sort rd-dest lv-ornt lines-per-page ~
-lv-font-no lv-font-name td-show-parm 
+begin_date end_date begin_check-no end_check-no lbl_sort rd_sort rd-dest ~
+lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -161,6 +161,11 @@ DEFINE BUTTON btn-ok
      LABEL "&OK" 
      SIZE 15 BY 1.14.
 
+DEFINE VARIABLE begin_check-no AS INTEGER FORMAT ">>>>>>>>>" INITIAL 0 
+     LABEL "Beginning Check No" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
 DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Customer#" 
      VIEW-AS FILL-IN 
@@ -170,6 +175,11 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      LABEL "Beginning Receipt Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_check-no AS INTEGER FORMAT ">>>>>>>>9" INITIAL 999999999 
+     LABEL "Ending Check No" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
 DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Customer#" 
@@ -235,12 +245,12 @@ DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Customer"
      SIZE 31 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 94 BY 7.86.
 
 DEFINE RECTANGLE RECT-7
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 94 BY 8.81.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 94 BY 10.
 
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
@@ -261,22 +271,26 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Invoice Date"
      end_date AT ROW 6.24 COL 70 COLON-ALIGNED HELP
           "Enter Ending Invoice Date"
-     lbl_sort AT ROW 8.14 COL 34 COLON-ALIGNED NO-LABEL
-     rd_sort AT ROW 8.14 COL 46 NO-LABEL
-     rd-dest AT ROW 11 COL 5 NO-LABEL
-     lv-ornt AT ROW 11 COL 31 NO-LABEL
-     lines-per-page AT ROW 11 COL 84 COLON-ALIGNED
-     lv-font-no AT ROW 13.62 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 14.67 COL 28 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 16.48 COL 31
-     btn-ok AT ROW 19.33 COL 23
-     btn-cancel AT ROW 19.33 COL 58
+     begin_check-no AT ROW 7.19 COL 27 COLON-ALIGNED HELP
+          "Enter Beginning Check Number" WIDGET-ID 2
+     end_check-no AT ROW 7.19 COL 70 COLON-ALIGNED HELP
+          "Enter Ending Check Number" WIDGET-ID 4
+     lbl_sort AT ROW 9.1 COL 34 COLON-ALIGNED NO-LABEL
+     rd_sort AT ROW 9.1 COL 46 NO-LABEL
+     rd-dest AT ROW 11.86 COL 5 NO-LABEL
+     lv-ornt AT ROW 11.86 COL 31 NO-LABEL
+     lines-per-page AT ROW 11.86 COL 84 COLON-ALIGNED
+     lv-font-no AT ROW 14.48 COL 34 COLON-ALIGNED
+     lv-font-name AT ROW 15.52 COL 28 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 17.33 COL 31
+     btn-ok AT ROW 19.62 COL 23
+     btn-cancel AT ROW 19.62 COL 58
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 10.29 COL 2
-     RECT-6 AT ROW 10.05 COL 1
+          SIZE 18 BY .62 AT ROW 11.14 COL 2
+     RECT-6 AT ROW 10.91 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -334,15 +348,9 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
+ASSIGN 
+       begin_check-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
        begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -350,6 +358,18 @@ ASSIGN
 
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       end_check-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -397,7 +417,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -423,6 +443,17 @@ DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_check-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_check-no C-Win
+ON LEAVE OF begin_check-no IN FRAME FRAME-A /* Beginning Check No */
+DO:
+   assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -544,6 +575,17 @@ DO:
       MESSAGE "No Cash Receipts available for posting..." VIEW-AS ALERT-BOX ERROR.
       RUN undo-trnum.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_check-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_check-no C-Win
+ON LEAVE OF end_check-no IN FRAME FRAME-A /* Ending Check No */
+DO:
+     assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -849,13 +891,13 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tran-date tran-period begin_cust end_cust begin_date end_date lbl_sort 
-          rd_sort rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
-          td-show-parm 
+  DISPLAY tran-date tran-period begin_cust end_cust begin_date end_date 
+          begin_check-no end_check-no lbl_sort rd_sort rd-dest lv-ornt 
+          lines-per-page lv-font-no lv-font-name td-show-parm 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 tran-date begin_cust end_cust begin_date end_date 
-         rd_sort rd-dest lv-ornt lines-per-page lv-font-no td-show-parm btn-ok 
-         btn-cancel 
+         begin_check-no end_check-no rd_sort rd-dest lv-ornt lines-per-page 
+         lv-font-no td-show-parm btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -984,9 +1026,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateARLedger C-Win
-PROCEDURE pCreateARLedger PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateARLedger C-Win 
+PROCEDURE pCreateARLedger PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose: To create AR Ledger records from the temp-table
  Notes:
@@ -1007,15 +1048,12 @@ PROCEDURE pCreateARLedger PRIVATE:
     END.   
     RELEASE ar-ledger.                        
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateGLTrans C-Win
-PROCEDURE pCreateGLTrans PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateGLTrans C-Win 
+PROCEDURE pCreateGLTrans PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose: To create gltrans records from temp-table
  Notes:
@@ -1036,11 +1074,9 @@ PROCEDURE pCreateGLTrans PRIVATE:
     END.  
     RELEASE gltrans.  
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-gl C-Win 
 PROCEDURE post-gl :
@@ -1300,13 +1336,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateCustomerAccount C-Win
-PROCEDURE pUpdateCustomerAccount PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateCustomerAccount C-Win 
+PROCEDURE pUpdateCustomerAccount PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose: To Update the customer's account data 
  Notes:
