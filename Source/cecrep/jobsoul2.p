@@ -108,7 +108,7 @@ v-oecount = avail sys-ctrl and sys-ctrl.log-fld.
           "<P7>Packing:" AT 2  "Sheets Received/PO#" AT 57
           "No. of Bundles" AT 87
           "No. of Skids/Bags" AT 115
-          "Quantity Completed " AT 140 "Operator/QA" AT 170 "<P10>"SKIP
+          "Quantity Completed " AT 140 "Supervisor/QA" AT 167 "<P10>"SKIP
           "Pallet ID:" xeb.tr-no when avail xeb SKIP
           "# Per Bndl:"                 AT 4
           xoe-ordl.cas-cnt when avail xoe-ordl @ xeb.cas-cnt
@@ -117,7 +117,7 @@ v-oecount = avail sys-ctrl and sys-ctrl.log-fld.
           v-rec-alf[5]              at 55     format "x(21)"
           fill("_",13)              at 80    format "x(13)"
           fill("_",14)              at 96    format "x(14)"
-          "OP" + fill("_",10)      at 113    format "x(12)"
+          "SUP" + fill("_",10)      at 113    format "x(12)"
           SKIP
           "# Per Unit:" AT 4 xeb.tr-cnt when avail xeb
           /*xoe-ordl.cases-unit when avail xoe-ordl @ xeb.tr-cnt*/
