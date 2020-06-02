@@ -491,6 +491,15 @@ PROCEDURE genOrderLines:
   DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
   
   DEFINE VARIABLE lOEImportConsol AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE dCostPerUOMTotal AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dCostPerUOMDL AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dCostPerUOMFO AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dCostPerUOMVO AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dCostPerUOMDM AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE cCostUOM AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE hdCostProcs AS HANDLE.
+  RUN system\CostProcs.p PERSISTENT SET hdCostProcs.
   
   DEFINE BUFFER bf-ttOrdLines FOR ttOrdLines.
   
@@ -612,6 +621,10 @@ PROCEDURE genOrderLines:
         oe-ordl.part-dscr1 = itemfg.part-dscr1
         oe-ordl.part-dscr2 = itemfg.part-dscr2 
         .
+      RUN GetCostForFGItem IN hdCostProcs(oe-ordl.company,oe-ordl.i-no, OUTPUT dCostPerUOMTotal, OUTPUT dCostPerUOMDL,OUTPUT dCostPerUOMFO,
+                                             OUTPUT dCostPerUOMVO,OUTPUT dCostPerUOMDM, OUTPUT cCostUOM , OUTPUT lFound) .
+       oe-ordl.cost = dCostPerUOMTotal .
+       oe-ordl.t-cost = oe-ordl.cost * oe-ordl.qty / 1000 .  
 
       IF oe-ordl.pr-uom NE "EA" THEN DO:  /*This assumes the qty uom is the same as the price uom on imported orders*/
             ASSIGN 
@@ -638,7 +651,7 @@ PROCEDURE genOrderLines:
       RELEASE reftable.
       RELEASE oe-ord-whs-order.
       RELEASE oe-ordl-whs-item.
-
+      DELETE OBJECT hdCostProcs.
   END. /* for each  */
   
   RELEASE reftable.
