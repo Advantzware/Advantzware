@@ -196,7 +196,8 @@ IF cFGItemFormat NE "Manual" THEN
 
 CASE cFGItemFormat:
     WHEN "Manual" OR 
-    WHEN "" OR 
+    WHEN "" OR
+    WHEN "Hold" OR
     WHEN "None" THEN 
         RETURN.
     WHEN "Hughes" THEN 

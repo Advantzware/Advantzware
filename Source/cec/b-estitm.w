@@ -7461,7 +7461,7 @@ PROCEDURE set-auto-add-item :
   IF NOT AVAIL xeb AND avail(eb) THEN
     FIND xeb WHERE ROWID(xeb) = ROWID(eb) NO-LOCK NO-ERROR.
 
-  IF NOT AVAIL xest THEN
+  IF NOT AVAIL xest or v-est-fg1 EQ "Hold" THEN
       RETURN.
   
   IF v-est-fg1 EQ "Manual" THEN DO:
