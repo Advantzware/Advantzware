@@ -212,6 +212,7 @@ PROCEDURE exportSnapshot:
         /* Index is unique by stock id but we allow user to continue */
         FIND FIRST inventoryStockSnapshot EXCLUSIVE-LOCK
                     WHERE inventoryStockSnapshot.inventoryStockID EQ rm-bin.tag
+                      AND inventoryStockSnapshot.inventorySnapshotID EQ ipiSnapShotID 
                     NO-ERROR.
         IF NOT AVAIL inventoryStockSnapshot THEN DO:
         CREATE inventoryStockSnapshot.
