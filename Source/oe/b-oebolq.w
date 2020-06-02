@@ -1040,7 +1040,7 @@ PROCEDURE local-open-query :
                                            AND oe-bolh.deleted EQ NO 
                                            AND oe-bolh.cust-no BEGINS fi_cust-no 
                                          USE-INDEX cust)THEN DO:
-        MESSAGE "Invalid search criteria - Customer doesn't exist."
+        MESSAGE "No BOL exists for this customer."
             VIEW-AS ALERT-BOX ERROR.
         APPLY "ENTRY":U TO fi_cust-no IN FRAME {&FRAME-NAME}.
         RETURN.
