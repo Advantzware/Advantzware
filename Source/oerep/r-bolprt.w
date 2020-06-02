@@ -1505,11 +1505,11 @@ DO:
                                      AND bf-oe-boll.qty     NE 0)
                    THEN DO:
                        IF lSingleBOL THEN
-                           MESSAGE "Quantity is Zero for BOL # " STRING(oe-bolh.bol-no) 
+                           MESSAGE "Quantity is zero for all lines for BOL # " STRING(oe-bolh.bol-no) 
                                VIEW-AS ALERT-BOX ERROR.  
                        ELSE 
                            RUN pCreatettExceptionBOL(
-                               INPUT "BOL quantity is zero",
+                               INPUT "Quantity is zero for all lines",
                                INPUT  ROWID(oe-boll)
                                ).
                        DELETE tt-post.
