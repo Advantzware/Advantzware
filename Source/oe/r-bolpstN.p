@@ -1873,11 +1873,11 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
                           AND b-oe-boll.qty     NE 0)
         THEN DO:
           IF lSingleBOL THEN
-              MESSAGE "Quantity is Zero for BOL# " + STRING(w-bolh.bol-no) 
+              MESSAGE "Quantity is zero for all lines for BOL# " + STRING(w-bolh.bol-no) 
                   VIEW-AS ALERT-BOX ERROR.  
           ELSE 
               RUN create-nopost(
-                  INPUT "BOL Quantity is Zero"
+                  INPUT "Quantity is zero for all lines"
                   ).
           
           DELETE w-bolh.
