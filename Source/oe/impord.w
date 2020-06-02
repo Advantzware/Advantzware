@@ -944,7 +944,7 @@ PROCEDURE CreateOrder :
                              oe-ordl.part-dscr1 =  itemfg.part-dscr1
                              oe-ordl.part-dscr2 =  itemfg.part-dscr2 
                             .
-                  RUN GetCostForOrderLine IN hdCostProcs(rowid(oe-ordl), OUTPUT dCostPerUOMTotal, OUTPUT dCostPerUOMDL,OUTPUT dCostPerUOMFO,
+                  RUN GetCostForFGItem IN hdCostProcs(oe-ordl.company,oe-ordl.i-no, OUTPUT dCostPerUOMTotal, OUTPUT dCostPerUOMDL,OUTPUT dCostPerUOMFO,
                                              OUTPUT dCostPerUOMVO,OUTPUT dCostPerUOMDM, OUTPUT cCostUOM , OUTPUT lFound) .
                   oe-ordl.cost = dCostPerUOMTotal .
                   oe-ordl.t-cost = oe-ordl.cost * oe-ordl.qty / 1000 .          
