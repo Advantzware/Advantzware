@@ -7,7 +7,7 @@
 &SCOPED-DEFINE Fleetwood ASI/Fleetwood
 /* add new fields to procedures loadUserFieldLabelWidth & setUseFields below */
 /* add userField to rptFields.dat, see config.w definitions section to enable field */
-&SCOPED-DEFINE nextUserField 107
+&SCOPED-DEFINE nextUserField 109
 
 /* when expanding userFields mod the following:
    1. scopDir.i (userExtent)
@@ -29,6 +29,8 @@
 {{&includes}/configVars.i}
 /* configuration version procedures */
 {{&includes}/configVersion.i}
+
+{sys/inc/var.i NEW SHARED}
 
 RUN get{&version}.
 
@@ -183,6 +185,31 @@ FUNCTION setUserField RETURNS CHARACTER (ipIdx AS INTEGER, ipValue AS CHARACTER)
   RETURN IF useField[ipIdx] THEN ipValue ELSE ''.
 END FUNCTION.
 
+FUNCTION fScore RETURNS CHARACTER (iprRowID AS ROWID):
+    DEFINE VARIABLE len-score     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lv-val        AS DECIMAL   NO-UNDO EXTENT 20.
+    DEFINE VARIABLE lv-typ        AS CHARACTER NO-UNDO EXTENT 20.
+    DEFINE VARIABLE x             AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lv-int        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE v-lscore-c    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE v-score-types AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE v-space       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE v-test-scr    AS LOGICAL   NO-UNDO.
+
+    DEFINE BUFFER bPOOrdl FOR po-ordl.
+    DEFINE BUFFER b-ref1  FOR reftable.
+    DEFINE BUFFER b-ref2  FOR reftable.
+    
+    FIND FIRST bPOOrdl NO-LOCK
+         WHERE ROWID(bPOOrdl) EQ iprRowID
+         NO-ERROR. 
+    {po/poprints.i}
+                v-lscore-c = REPLACE(TRIM(v-lscore-c)," ","x").
+            END.
+        END.
+    END.
+END FUNCTION.
+
 {{&includes}/specialTime.i}
 
 FUNCTION statusCheckOff RETURNS LOGICAL
@@ -238,7 +265,7 @@ DEFINE VARIABLE dueDate AS DATE NO-UNDO.
 DEFINE VARIABLE endDate AS DATE NO-UNDO.
 DEFINE VARIABLE endEstType AS INTEGER NO-UNDO.
 DEFINE VARIABLE endTime AS INTEGER NO-UNDO.
-DEFINE VARIABLE i AS INTEGER NO-UNDO.
+/*DEFINE VARIABLE i AS INTEGER NO-UNDO.*/
 DEFINE VARIABLE itemDescription AS CHARACTER NO-UNDO.
 DEFINE VARIABLE jobBoard AS LOGICAL NO-UNDO.
 DEFINE VARIABLE jobDescription AS CHARACTER NO-UNDO.
@@ -397,6 +424,10 @@ IF VALID-HANDLE(ipContainerHandle) THEN DO:
 END.
 IF asiCompany  EQ '' THEN asiCompany  = '001'.
 IF asiLocation EQ '' THEN asiLocation = 'Main'.
+ASSIGN
+    cocode = asiCompany
+    locode = asiLocation
+    .
 
 RUN sys/ref/nk1look.p (
     asiCompany,"TSTIME","C",NO,NO,"","",
@@ -768,6 +799,14 @@ FOR EACH job-hdr NO-LOCK
                  AND po-ordl.job-no EQ job-mch.job-no
                  AND po-ordl.job-no2 EQ job-mch.job-no2
                  AND po-ordl.i-no EQ job-mch.i-no
+                 AND po-ordl.s-num EQ job-mch.frm NO-ERROR.
+          IF NOT AVAILABLE po-ordl THEN
+          FIND FIRST po-ordl NO-LOCK
+               WHERE po-ordl.company EQ po-ord.company
+                 AND po-ordl.po-no EQ po-ord.po-no
+                 AND po-ordl.job-no EQ job-mch.job-no
+                 AND po-ordl.job-no2 EQ job-mch.job-no2
+                 AND po-ordl.s-num EQ job-mch.frm
                  AND po-ordl.b-num EQ job-mch.blank-no NO-ERROR.
           IF NOT AVAILABLE po-ordl THEN
           FIND FIRST po-ordl NO-LOCK
@@ -775,7 +814,7 @@ FOR EACH job-hdr NO-LOCK
                  AND po-ordl.po-no EQ po-ord.po-no
                  AND po-ordl.job-no EQ job-mch.job-no
                  AND po-ordl.job-no2 EQ job-mch.job-no2
-                 AND po-ordl.b-num EQ job-mch.blank-no NO-ERROR.
+                 AND po-ordl.s-num EQ job-mch.frm NO-ERROR.
           IF NOT AVAILABLE po-ordl THEN
           FIND FIRST po-ordl NO-LOCK
                WHERE po-ordl.company EQ po-ord.company
@@ -803,13 +842,20 @@ FOR EACH job-hdr NO-LOCK
              AND po-ordl.job-no  EQ job-mch.job-no
              AND po-ordl.job-no2 EQ job-mch.job-no2
              AND po-ordl.i-no    EQ job-mch.i-no
+             AND po-ordl.s-num   EQ job-mch.frm NO-ERROR.
+      IF NOT AVAILABLE po-ordl THEN
+      FIND FIRST po-ordl NO-LOCK
+           WHERE po-ordl.company EQ job-mch.company
+             AND po-ordl.job-no  EQ job-mch.job-no
+             AND po-ordl.job-no2 EQ job-mch.job-no2
+             AND po-ordl.s-num   EQ job-mch.frm
              AND po-ordl.b-num   EQ job-mch.blank-no NO-ERROR.
       IF NOT AVAILABLE po-ordl THEN
       FIND FIRST po-ordl NO-LOCK
            WHERE po-ordl.company EQ job-mch.company
              AND po-ordl.job-no  EQ job-mch.job-no
              AND po-ordl.job-no2 EQ job-mch.job-no2
-             AND po-ordl.b-num   EQ job-mch.blank-no NO-ERROR.
+             AND po-ordl.s-num   EQ job-mch.frm NO-ERROR.
       IF NOT AVAILABLE po-ordl THEN
       FIND FIRST po-ordl NO-LOCK
            WHERE po-ordl.company EQ job-mch.company
@@ -820,6 +866,8 @@ FOR EACH job-hdr NO-LOCK
            WHERE po-ord.company EQ po-ordl.company
              AND po-ord.po-no   EQ po-ordl.po-no NO-ERROR.
     END. /* else avail oe-ordl */
+    IF AVAILABLE po-ordl THEN
+    RUN po/po-ordls.p (RECID(po-ordl)).
     
     IF ufEF THEN
     FIND FIRST ef NO-LOCK
@@ -1068,6 +1116,8 @@ FOR EACH job-hdr NO-LOCK
       userField[103] = setUserField(103,specialTime(INTEGER(TRUNCATE(job-mch.run-hr,0) * 3600 + (job-mch.run-hr - TRUNCATE(job-mch.run-hr,0)) * 3600)))
       userField[104] = setUserField(104,job-mch.job-no + '-' + STRING(job-mch.job-no2,'99'))
       userField[105] = setUserField(105,STRING(timeSpan / 3600,">>,>>9.99"))
+      userField[107] = setUserField(107,IF AVAILABLE po-ordl THEN fScore(ROWID(po-ordl)) ELSE 'none')
+      userField[108] = setUserField(108,STRING(job-hdr.qty,'>>,>>>,>>9'))
       jobDescription = jobText
       .
     IF AVAILABLE itemfg AND NOT job-mch.run-qty * itemfg.t-sqft / 1000 LT 1000000 THEN
@@ -1886,6 +1936,8 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[104] = 'Job-Run'        userWidth[104] = 12
     userLabel[105] = 'Tot. Time'      userWidth[105] = 8
     userLabel[106] = 'Ink LBS'        userWidth[106] = 12
+    userLabel[107] = 'Score'          userWidth[107] = 24
+    userLabel[108] = 'Job Qty'        userWidth[108] = 12
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */
@@ -1949,11 +2001,11 @@ PROCEDURE setUseFields:
     ufIPJobMatField = useField[29] OR useField[30] OR useField[31] OR useField[32] OR useField[33]
     ufIPJobSet = useField[65] OR useField[66] OR useField[67] OR useField[68]
     ufItemFG = useField[21] OR useField[34] OR useField[52] OR useField[54] OR useField[64] OR useField[98] OR useField[99]
-    ufJob = useField[89]
+    ufJob = useField[89] OR useField[108]
     ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20] OR useField[85] OR useField[88] OR useField[96] OR useField[97] OR useField[100] OR useField[101] OR useField[104] OR useField[105]
     ufOEOrdl = useField[82] OR useField[84] OR useField[86] OR useField[87]
     ufOERel = useField[37] OR useField[38] OR useField[39] OR useField[40] OR useField[52] OR useField[63]OR useField[91]
-    ufPOOrdl = useField[7] OR useField[16] OR useField[17] OR useField[35]
+    ufPOOrdl = useField[7] OR useField[16] OR useField[17] OR useField[35] OR useField[107]
     ufProdQty = useField[57]
     ufPrep = useField[80]
     ufDC = useField[90]
