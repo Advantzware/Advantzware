@@ -44,6 +44,7 @@ CREATE WIDGET-POOL.
 
 DEFINE TEMP-TABLE ttARInv NO-UNDO
     FIELD invoiceNo     AS INTEGER   
+    FIELD custID        AS CHARACTER
     FIELD invoiceDate   AS DATE      
     FIELD invoiceDue    AS DECIMAL   
     FIELD selected      AS LOGICAL   
@@ -80,7 +81,7 @@ DEFINE TEMP-TABLE ttARInv NO-UNDO
 &Scoped-define INTERNAL-TABLES ttARInv
 
 /* Definitions for BROWSE brInvoiceData                                 */
-&Scoped-define FIELDS-IN-QUERY-brInvoiceData ttARInv.selected ttARInv.invoiceNo ttARInv.invoiceDate ttARInv.checkDate ttARInv.payDate ttARInv.due ttARInv.balance   
+&Scoped-define FIELDS-IN-QUERY-brInvoiceData ttARInv.selected ttARInv.invoiceNo ttARInv.custID ttARInv.invoiceDate ttARInv.checkDate ttARInv.payDate ttARInv.invoiceDue ttARInv.CalculatedDue   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brInvoiceData ttARInv.selected   
 &Scoped-define ENABLED-TABLES-IN-QUERY-brInvoiceData ttARInv
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-brInvoiceData ttARInv
@@ -175,6 +176,7 @@ DEFINE BROWSE brInvoiceData
   QUERY brInvoiceData DISPLAY
       ttARInv.selected      FORMAT "YES/NO"         COLUMN-LABEL "Select"           WIDTH 09 VIEW-AS TOGGLE-BOX 
      ttARInv.invoiceNo     FORMAT ">>>>>>9"         COLUMN-LABEL "Invoice#"         WIDTH 11
+     ttARInv.custID        FORMAT "X(8)"            COLUMN-LABEL "Customer#"        WIDTH 15
      ttARInv.invoiceDate   FORMAT "99/99/9999"      COLUMN-LABEL "Invoice Date"     WIDTH 20
      ttARInv.checkDate     FORMAT "99/99/9999"      COLUMN-LABEL "Last Check Date"  WIDTH 20
      ttARInv.payDate       FORMAT "99/99/9999"      COLUMN-LABEL "Pay Date"         WIDTH 20
@@ -430,6 +432,10 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+   ASSIGN 
+      fiBeginDate = ADD-INTERVAL(TODAY, -1, "YEAR")  
+      fiEndDate   = TODAY
+      .
   RUN enable_UI.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -575,6 +581,7 @@ PROCEDURE pBuildttARInv PRIVATE :
             CREATE ttARInv.
             ASSIGN 
                 ttARInv.invoiceNo     = ar-inv.inv-no
+                ttARInv.custID        = ar-inv.cust-no
                 ttARInv.invoiceDate   = ar-inv.inv-date
                 ttARInv.CalculatedDue = dBalance
                 ttARInv.rowidARInq    = ROWID(ar-inv)
