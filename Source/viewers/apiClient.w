@@ -49,6 +49,10 @@ ASSIGN
 DEFINE VARIABLE cAPIID    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cClientID AS CHARACTER NO-UNDO.
 
+/* The below variables are used in run_link.i */
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -73,7 +77,8 @@ DEFINE VARIABLE cClientID AS CHARACTER NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR apiClient, APIOutbound.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS apiClient.clientDesc apiClient.sharedSecret 
+&Scoped-Define ENABLED-FIELDS apiClient.transactionCounter ~
+apiClient.clientDesc apiClient.sharedSecret 
 &Scoped-define ENABLED-TABLES apiClient
 &Scoped-define FIRST-ENABLED-TABLE apiClient
 &Scoped-Define ENABLED-OBJECTS RECT-3 
@@ -217,8 +222,6 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN apiClient.sharedSecret IN FRAME F-Main
    ALIGN-L EXP-LABEL                                                    */
-/* SETTINGS FOR FILL-IN apiClient.transactionCounter IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -381,6 +384,44 @@ PROCEDURE local-assign-statement :
 
     /* Code placed here will execute AFTER standard behavior.    */
     apiClient.company = cocode.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win 
+PROCEDURE local-disable-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields V-table-Win 
+PROCEDURE local-enable-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

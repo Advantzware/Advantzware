@@ -42,6 +42,10 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE lSuperAdmin AS LOGICAL NO-UNDO.
 
+/* The below variables are used in run_link.i */
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+
 DEFINE VARIABLE hdPgmMstrSecur AS HANDLE NO-UNDO.
 RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmMstrSecur.
 
@@ -518,6 +522,8 @@ PROCEDURE pDisableFields :
     END.
     
     edData:READ-ONLY = TRUE.
+    
+    {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -565,6 +571,8 @@ PROCEDURE pEnableFields :
             .
 
     edData:READ-ONLY = FALSE.
+
+    {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

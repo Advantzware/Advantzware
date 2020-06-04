@@ -342,6 +342,36 @@ PROCEDURE Outbound_GetScopeTypeList:
     opcScopeTypeList = cScopeTypeList.
 END PROCEDURE.
 
+PROCEDURE Outbound_GetAPITriggersList:
+/*------------------------------------------------------------------------------
+ Purpose: Procedure to return the list of available trigger for an api and client
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientID    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcTriggerList AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-APIOutbound        FOR APIOutbound.
+    DEFINE BUFFER bf-APIOutboundTrigger FOR APIOutboundTrigger.
+    
+    FIND FIRST bf-APIOutbound NO-LOCK
+         WHERE bf-APIOutbound.company  EQ ipcCompany
+           AND bf-APIOutbound.apiID    EQ ipcAPIID
+           AND bf-APIOutbound.clientID EQ ipcClientID
+           NO-ERROR.
+    IF NOT AVAILABLE bf-APIOutbound THEN
+        RETURN.
+
+    FOR EACH bf-APIOutboundTrigger NO-LOCK
+        WHERE bf-APIOutboundTrigger.apiOutboundID EQ bf-APIOutbound.apiOutboundID:
+        opcTriggerList = opcTriggerList + "," + bf-APIOutboundTrigger.triggerID.
+    END.
+    
+    opcTriggerList = TRIM(opcTriggerList,",").
+    
+END PROCEDURE.
+
 PROCEDURE Outbound_IncrementAPITransactionCounter:
 /*------------------------------------------------------------------------------
  Purpose: Increment the transaction counters of both APIOutbound and apiClient

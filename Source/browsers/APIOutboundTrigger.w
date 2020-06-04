@@ -152,7 +152,7 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       APIOutboundTrigger.triggerID FORMAT "x(32)":U
       APIOutboundTrigger.description FORMAT "x(80)":U
-      APIOutboundTrigger.Inactive FORMAT "YES/NO":U
+      APIOutboundTrigger.Inactive COLUMN-LABEL "Status" FORMAT "Inactive/Active":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 129 BY 6.71 FIT-LAST-COLUMN.
