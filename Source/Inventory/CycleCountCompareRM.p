@@ -859,7 +859,8 @@ PROCEDURE pCheckInvalidItems:
         
   
     FOR EACH rm-bin NO-LOCK
-        WHERE rm-bin.qty GT 0
+        WHERE rm-bin.company EQ ipcCompany
+          AND rm-bin.qty GT 0
           AND rm-bin.tag GT "" 
           AND rm-bin.i-no GE ipcFgItemStart
           AND rm-bin.i-no LE ipcFgItemEnd
