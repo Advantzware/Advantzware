@@ -48,9 +48,11 @@ ASSIGN
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE cScopeID   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cScopeType AS CHARACTER NO-UNDO INITIAL "ALL".
+DEFINE VARIABLE cTriggerID AS CHARACTER NO-UNDO INITIAL "ALL".
 DEFINE VARIABLE cAPIID     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cClientID  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cTriggerID AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE cAPIClientXrefAny AS CHARACTER NO-UNDO INITIAL "_ANY_".
 
 DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
@@ -86,11 +88,11 @@ DEFINE QUERY external_tables FOR apiClient.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table apiClientXref.scopeID apiClientXref.scopeType apiClientXref.triggerId apiClientXref.inactive   
+&Scoped-define FIELDS-IN-QUERY-br_table apiClientXref.scopeType apiClientXref.scopeID apiClientXref.triggerId apiClientXref.inactive   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH apiClientXref       WHERE apiClientXref.company  EQ cocode         AND apiClientXref.clientID EQ apiClient.clientID         AND apiClientXref.apiID    EQ cAPIID         AND apiClientXref.scopeID  BEGINS cScopeID         AND (cScopeType EQ "ALL" OR              apiClientXref.scopeType BEGINS cScopeType)         AND apiClientXref.triggerID BEGINS cTriggerID       BY apiClientXref.scopeID       BY apiClientXref.scopeType       BY apiClientXref.triggerID
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH apiClientXref       WHERE apiClientXref.company  EQ cocode         AND apiClientXref.clientID EQ apiClient.clientID         AND apiClientXref.apiID    EQ cAPIID         AND apiClientXref.scopeID  BEGINS cScopeID         AND (cScopeType EQ "ALL" OR              apiClientXref.scopeType BEGINS cScopeType)         AND apiClientXref.triggerID BEGINS cTriggerID       BY apiClientXref.scopeID       BY apiClientXref.scopeType       BY apiClientXref.triggerID       .
+&Scoped-define QUERY-STRING-br_table FOR EACH apiClientXref       WHERE apiClientXref.company  EQ cocode         AND apiClientXref.clientID EQ apiClient.clientID         AND apiClientXref.apiID    EQ cAPIID         AND apiClientXref.scopeID  BEGINS cScopeID         AND (cScopeType EQ "ALL" OR              apiClientXref.scopeType EQ cScopeType)         AND (cTriggerID EQ "ALL" OR              apiClientXref.triggerID EQ cTriggerID)       BY apiClientXref.scopeID       BY apiClientXref.scopeType       BY apiClientXref.triggerID
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH apiClientXref       WHERE apiClientXref.company  EQ cocode         AND apiClientXref.clientID EQ apiClient.clientID         AND apiClientXref.apiID    EQ cAPIID         AND apiClientXref.scopeID  BEGINS cScopeID         AND (cScopeType EQ "ALL" OR              apiClientXref.scopeType EQ cScopeType)         AND (cTriggerID EQ "ALL" OR              apiClientXref.triggerID EQ cTriggerID)       BY apiClientXref.scopeID       BY apiClientXref.scopeType       BY apiClientXref.triggerID       .
 &Scoped-define TABLES-IN-QUERY-br_table apiClientXref
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table apiClientXref
 
@@ -98,9 +100,9 @@ DEFINE QUERY external_tables FOR apiClient.
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fiScopeID cbScopeType fiTriggerID btGo ~
+&Scoped-Define ENABLED-OBJECTS cbTriggerID fiScopeID cbScopeType btGo ~
 RECT-4 br_table 
-&Scoped-Define DISPLAYED-OBJECTS fiScopeID cbScopeType fiTriggerID 
+&Scoped-Define DISPLAYED-OBJECTS cbTriggerID fiScopeID cbScopeType 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -166,15 +168,16 @@ DEFINE BUTTON btGo
 DEFINE VARIABLE cbScopeType AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      DROP-DOWN-LIST
-     SIZE 23 BY 1 NO-UNDO.
+     SIZE 28.2 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cbTriggerID AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     DROP-DOWN-LIST
+     SIZE 43 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiScopeID AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 23 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiTriggerID AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 34 BY 1 NO-UNDO.
+     SIZE 29.8 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
@@ -190,10 +193,10 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      apiClientXref.scopeID FORMAT "x(12)":U WIDTH 29.2 LABEL-BGCOLOR 14
       apiClientXref.scopeType FORMAT "x(32)":U WIDTH 27.2 LABEL-BGCOLOR 14
+      apiClientXref.scopeID FORMAT "x(12)":U WIDTH 29.2 LABEL-BGCOLOR 14
       apiClientXref.triggerId FORMAT "x(32)":U WIDTH 42.2
-      apiClientXref.inactive FORMAT "yes/no":U WIDTH 16.4
+      apiClientXref.inactive COLUMN-LABEL "Status" FORMAT "Inactive/Active":U WIDTH 16.4
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 122 BY 10.62
@@ -203,19 +206,19 @@ DEFINE BROWSE br_table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiScopeID AT ROW 1.86 COL 2.2 NO-LABEL WIDGET-ID 2
-     cbScopeType AT ROW 1.86 COL 23.6 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     fiTriggerID AT ROW 1.86 COL 47 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-     btGo AT ROW 1.76 COL 84.6 WIDGET-ID 12
+     cbTriggerID AT ROW 1.86 COL 58.6 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     fiScopeID AT ROW 1.86 COL 30.6 NO-LABEL WIDGET-ID 2
+     cbScopeType AT ROW 1.86 COL 2.2 NO-LABEL WIDGET-ID 8
+     btGo AT ROW 1.76 COL 104.8 WIDGET-ID 12
      br_table AT ROW 2.95 COL 2
      "Trigger ID" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.14 COL 49 WIDGET-ID 16
+          SIZE 13 BY .62 AT ROW 1.14 COL 61 WIDGET-ID 16
           FGCOLOR 1 
      "Scope Type" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 1.14 COL 25.6 WIDGET-ID 10
+          SIZE 14 BY .62 AT ROW 1.14 COL 2.6 WIDGET-ID 10
           FGCOLOR 1 
      "Scope ID" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 1.14 COL 2.6 WIDGET-ID 4
+          SIZE 11 BY .62 AT ROW 1.14 COL 31 WIDGET-ID 4
           FGCOLOR 1 FONT 6
      RECT-4 AT ROW 1 COL 1 WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -281,6 +284,8 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR COMBO-BOX cbScopeType IN FRAME F-Main
+   ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN fiScopeID IN FRAME F-Main
    ALIGN-L                                                              */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -298,8 +303,9 @@ OPEN QUERY {&SELF-NAME} FOR EACH apiClientXref
         AND apiClientXref.apiID    EQ cAPIID
         AND apiClientXref.scopeID  BEGINS cScopeID
         AND (cScopeType EQ "ALL" OR
-             apiClientXref.scopeType BEGINS cScopeType)
-        AND apiClientXref.triggerID BEGINS cTriggerID
+             apiClientXref.scopeType EQ cScopeType)
+        AND (cTriggerID EQ "ALL" OR
+             apiClientXref.triggerID EQ cTriggerID)
       BY apiClientXref.scopeID
       BY apiClientXref.scopeType
       BY apiClientXref.triggerID
@@ -385,6 +391,75 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fiScopeID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiScopeID B-table-Win
+ON HELP OF fiScopeID IN FRAME F-Main
+DO:
+    DEFINE VARIABLE cReturnFields AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLookupField  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE riRecVal      AS RECID     NO-UNDO.
+    DEFINE VARIABLE iSubjectID    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cCustomerID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cShipToID     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iIndex        AS INTEGER   NO-UNDO.
+    
+    IF cbScopeType:SCREEN-VALUE EQ "" OR cbScopeType:SCREEN-VALUE EQ ? OR
+       cbScopeType:SCREEN-VALUE EQ "ALL" OR
+       cbScopeType:SCREEN-VALUE EQ cAPIClientXrefAny THEN DO:
+        MESSAGE "Please select any of the following scope types in Scope Type field for help:" SKIP
+            TRIM(REPLACE(REPLACE(cbScopeType:LIST-ITEMS,cAPIClientXrefAny,""),"ALL",""),",")
+            VIEW-AS ALERT-BOX INFORMATION.
+        RETURN.
+    END.
+    
+    CASE cbScopeType:SCREEN-VALUE:
+        WHEN "Customer" THEN
+            iSubjectID = 23. /* Customer Lookup subject ID */
+        WHEN "Vendor" THEN
+            iSubjectID = 32. /* Vendor Lookup Subject ID */
+        WHEN "ShipTo" THEN
+            iSubjectID = 122. /* ShipTo lookup subject ID */
+        OTHERWISE
+            RETURN.            
+    END CASE.
+    
+    RUN system/openlookup.p (
+        INPUT  "", 
+        INPUT  "", /* lookup field */
+        INPUT  iSubjectID,   /* Subject ID */
+        INPUT  "",  /* User ID */
+        INPUT  0,   /* Param value ID */
+        OUTPUT cReturnFields, 
+        OUTPUT cLookupField, 
+        OUTPUT riRecVal
+        ). 
+                
+    IF cLookupField NE "" AND cReturnFields NE "" THEN DO:
+        ASSIGN
+            cCustomerID = ""
+            cShipToID   = ""
+            .
+            
+        IF cbScopeType:SCREEN-VALUE EQ "ShipTo" THEN DO:
+            DO iIndex = 1 TO NUM-ENTRIES(cReturnFields, "|"):
+                IF ENTRY(iIndex, cReturnFields, "|") EQ "ship-id" THEN
+                    cShipToID = ENTRY(iIndex + 1, cReturnFields, "|").
+                
+                IF ENTRY(iIndex, cReturnFields, "|") EQ "cust-no" THEN
+                    cCustomerID = ENTRY(iIndex + 1, cReturnFields, "|").
+                 
+            END.
+            SELF:SCREEN-VALUE = cCustomerID + "|" + cShipToID.
+        END.
+        ELSE
+            SELF:SCREEN-VALUE = cLookupField.
+    END.            
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
@@ -392,9 +467,13 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
+{methods/ctrl-a_browser.i}
+{sys/inc/f3help.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
-RUN dispatch IN THIS-PROCEDURE ('initialize':U).
+RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+{methods/winReSize.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -538,7 +617,7 @@ PROCEDURE local-open-query :
     ASSIGN
         cScopeID   = fiScopeID:SCREEN-VALUE
         cScopeType = cbScopeType:SCREEN-VALUE
-        cTriggerID = fiTriggerID:SCREEN-VALUE
+        cTriggerID = cbTriggerID:SCREEN-VALUE
         .
             
     RUN GetAPIAndClientID (
@@ -548,6 +627,26 @@ PROCEDURE local-open-query :
     
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-row-available B-table-Win 
+PROCEDURE local-row-available :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN pUpdateTriggerList.
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
 
@@ -577,6 +676,41 @@ PROCEDURE pInit PRIVATE :
     ASSIGN
         cbScopeType:LIST-ITEMS   = cScopeTypeList
         cbScopeType:SCREEN-VALUE = ENTRY(1,cScopeTypeList)
+        .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateTriggerList B-table-Win 
+PROCEDURE pUpdateTriggerList :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cTriggerList   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAPIID         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cClientID      AS CHARACTER NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    RUN GetAPIAndClientID (
+        OUTPUT cAPIID,
+        OUTPUT cClientID
+        ).
+    
+    RUN Outbound_GetAPITriggersList IN hdOutboundProcs (
+        INPUT  g_company,
+        INPUT  cAPIID,
+        INPUT  cClientID,
+        OUTPUT cTriggerList
+        ).
+        
+    ASSIGN
+        cbTriggerID:LIST-ITEMS   = "ALL" + "," + "_ANY_" + "," + cTriggerList
+        cbTriggerID:SCREEN-VALUE = "ALL"
         .
 END PROCEDURE.
 

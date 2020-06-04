@@ -187,12 +187,12 @@ DEFINE VARIABLE cbStatus AS CHARACTER FORMAT "X(256)":U INITIAL "All"
 
 DEFINE VARIABLE fiAPIId AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 25 BY 1
+     SIZE 32 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fiAPIIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API ID" 
      VIEW-AS FILL-IN 
-     SIZE 25 BY .81
+     SIZE 32 BY .81
      FGCOLOR 1 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiClientID AS CHARACTER FORMAT "X(256)":U 
@@ -212,7 +212,7 @@ DEFINE VARIABLE fiRequestDataTypeLabel AS CHARACTER FORMAT "X(256)":U INITIAL "R
 
 DEFINE VARIABLE fiRequestVerbLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Request Verb" 
      VIEW-AS FILL-IN 
-     SIZE 21 BY .81
+     SIZE 20.4 BY .81
      FGCOLOR 1 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiStatusLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Status" 
@@ -254,15 +254,15 @@ DEFINE BROWSE br_table
 
 DEFINE FRAME F-Main
      fiAPIIDLabel AT ROW 1 COL 3 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     fiClientIDLabel AT ROW 1 COL 34 COLON-ALIGNED NO-LABEL WIDGET-ID 20
-     fiRequestDataTypeLabel AT ROW 1 COL 62 COLON-ALIGNED NO-LABEL WIDGET-ID 18
-     fiRequestVerbLabel AT ROW 1 COL 96.8 COLON-ALIGNED NO-LABEL WIDGET-ID 16
-     fiStatusLabel AT ROW 1 COL 123.6 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     fiClientIDLabel AT ROW 1 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     fiRequestDataTypeLabel AT ROW 1 COL 58.8 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     fiRequestVerbLabel AT ROW 1 COL 86.6 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     fiStatusLabel AT ROW 1 COL 107.8 COLON-ALIGNED NO-LABEL WIDGET-ID 14
      fiAPIId AT ROW 1.95 COL 5 NO-LABEL WIDGET-ID 2
-     fiClientID AT ROW 1.95 COL 34.2 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     cbRequestDataType AT ROW 1.95 COL 62.2 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     cbRequestVerb AT ROW 1.95 COL 96.8 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     cbStatus AT ROW 1.95 COL 123.6 COLON-ALIGNED NO-LABEL WIDGET-ID 22
+     fiClientID AT ROW 1.95 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     cbRequestDataType AT ROW 1.95 COL 58.8 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     cbRequestVerb AT ROW 1.95 COL 86.6 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     cbStatus AT ROW 1.95 COL 107.8 COLON-ALIGNED NO-LABEL WIDGET-ID 22
      btGo AT ROW 3.14 COL 5 WIDGET-ID 24
      br_table AT ROW 4.33 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -650,6 +650,30 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cRequestDataTypeList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cRequestVerbList     AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    RUN Outbound_GetRequestDataTypeList IN hdOutboundProcs (
+        OUTPUT cRequestDataTypeList
+        ).
+    
+    RUN Outbound_GetRequestVerbList IN hdOutboundProcs (
+        OUTPUT cRequestVerbList
+        ).
+    
+    DELETE PROCEDURE hdOutboundProcs.
+    
+    ASSIGN
+        cbRequestDataType:LIST-ITEMS = "All" + "," + cRequestDataTypeList
+        cbRequestVerb:LIST-ITEMS     = "All" + "," + cRequestVerbList
+        .
+
     IF lSuperAdmin THEN
         iAPIOutboundIDFilter = 0.
     ELSE

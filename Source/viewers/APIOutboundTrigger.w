@@ -42,6 +42,10 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE lSuperAdmin AS LOGICAL NO-UNDO.
 
+/* The below variables are used in run_link.i */
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+
 DEFINE VARIABLE hdPgmMstrSecur AS HANDLE NO-UNDO.
 RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmMstrSecur.
 
@@ -240,6 +244,7 @@ ASSIGN
 
 
 /* ***************************  Main Block  *************************** */
+  {sys/inc/f3help.i}
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -369,6 +374,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win 
+PROCEDURE local-disable-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pDisableFields.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields V-table-Win 
 PROCEDURE local-enable-fields :
 /*------------------------------------------------------------------------------
@@ -415,6 +439,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisableFields V-table-Win 
+PROCEDURE pDisableFields :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEnableFields V-table-Win 
 PROCEDURE pEnableFields PRIVATE :
 /*------------------------------------------------------------------------------
@@ -436,6 +473,8 @@ PROCEDURE pEnableFields PRIVATE :
             apiOutboundTrigger.triggerID:SENSITIVE   = FALSE
             apiOutboundTrigger.description:SENSITIVE = FALSE
             .
+
+    {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}            
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

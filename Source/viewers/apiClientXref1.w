@@ -48,6 +48,10 @@ ASSIGN
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE cAPIClientXrefAny AS CHARACTER NO-UNDO INITIAL "_ANY_".
 
+/* The below variables are used in run_link.i */
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+
 DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
@@ -75,16 +79,15 @@ RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR apiClientXref, apiClient.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS apiClientXref.scopeID apiClientXref.triggerId ~
-apiClientXref.inactive 
+&Scoped-Define ENABLED-FIELDS apiClientXref.scopeID apiClientXref.inactive 
 &Scoped-define ENABLED-TABLES apiClientXref
 &Scoped-define FIRST-ENABLED-TABLE apiClientXref
 &Scoped-Define ENABLED-OBJECTS RECT-5 cbScopeType 
 &Scoped-Define DISPLAYED-FIELDS apiClientXref.scopeID ~
-apiClientXref.triggerId apiClientXref.inactive 
+apiClientXref.inactive 
 &Scoped-define DISPLAYED-TABLES apiClientXref
 &Scoped-define FIRST-DISPLAYED-TABLE apiClientXref
-&Scoped-Define DISPLAYED-OBJECTS cbScopeType 
+&Scoped-Define DISPLAYED-OBJECTS cbScopeType cbTriggerID 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -125,6 +128,12 @@ DEFINE VARIABLE cbScopeType AS CHARACTER FORMAT "X(256)":U
      DROP-DOWN-LIST
      SIZE 46 BY 1 NO-UNDO.
 
+DEFINE VARIABLE cbTriggerID AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Trigger ID" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     DROP-DOWN-LIST
+     SIZE 46 BY 1 NO-UNDO.
+
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 88.2 BY 4.76.
@@ -133,13 +142,11 @@ DEFINE RECTANGLE RECT-5
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     apiClientXref.scopeID AT ROW 1.24 COL 25 COLON-ALIGNED WIDGET-ID 4
+     cbScopeType AT ROW 1.24 COL 25 COLON-ALIGNED WIDGET-ID 8
+     apiClientXref.scopeID AT ROW 2.38 COL 25 COLON-ALIGNED WIDGET-ID 4
           VIEW-AS FILL-IN 
           SIZE 46 BY 1
-     cbScopeType AT ROW 2.38 COL 25 COLON-ALIGNED WIDGET-ID 8
-     apiClientXref.triggerId AT ROW 3.52 COL 25 COLON-ALIGNED WIDGET-ID 14
-          VIEW-AS FILL-IN 
-          SIZE 46 BY 1
+     cbTriggerID AT ROW 3.52 COL 25 COLON-ALIGNED WIDGET-ID 18
      apiClientXref.inactive AT ROW 4.76 COL 27 WIDGET-ID 16
           VIEW-AS TOGGLE-BOX
           SIZE 14.4 BY .81
@@ -205,6 +212,8 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR COMBO-BOX cbTriggerID IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -221,10 +230,84 @@ ASSIGN
  
 
 
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME apiClientXref.scopeID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL apiClientXref.scopeID V-table-Win
+ON HELP OF apiClientXref.scopeID IN FRAME F-Main /* Scope ID */
+DO:
+    DEFINE VARIABLE cReturnFields AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLookupField  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE riRecVal      AS RECID     NO-UNDO.
+    DEFINE VARIABLE iSubjectID    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cCustomerID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cShipToID     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iIndex        AS INTEGER   NO-UNDO.
+    
+    IF cbScopeType:SCREEN-VALUE EQ "" OR cbScopeType:SCREEN-VALUE EQ ? OR
+       cbScopeType:SCREEN-VALUE EQ cAPIClientXrefAny THEN DO:
+        MESSAGE "Please select any of the following scope types in Scope Type field for help:" SKIP
+            TRIM(REPLACE(cbScopeType:LIST-ITEMS,cAPIClientXrefAny,""),",")
+            VIEW-AS ALERT-BOX INFORMATION.
+        RETURN.
+    END.
+    
+    CASE cbScopeType:SCREEN-VALUE:
+        WHEN "Customer" THEN
+            iSubjectID = 23. /* Customer Lookup subject ID */
+        WHEN "Vendor" THEN
+            iSubjectID = 32. /* Vendor Lookup Subject ID */
+        WHEN "ShipTo" THEN
+            iSubjectID = 122. /* ShipTo lookup subject ID */
+        OTHERWISE
+            RETURN.            
+    END CASE.
+    
+    RUN system/openlookup.p (
+        INPUT  "", 
+        INPUT  "", /* lookup field */
+        INPUT  iSubjectID,   /* Subject ID */
+        INPUT  "",  /* User ID */
+        INPUT  0,   /* Param value ID */
+        OUTPUT cReturnFields, 
+        OUTPUT cLookupField, 
+        OUTPUT riRecVal
+        ). 
+                
+    IF cLookupField NE "" AND cReturnFields NE "" THEN DO:
+        ASSIGN
+            cCustomerID = ""
+            cShipToID   = ""
+            .
+            
+        IF cbScopeType:SCREEN-VALUE EQ "ShipTo" THEN DO:
+            DO iIndex = 1 TO NUM-ENTRIES(cReturnFields, "|"):
+                IF ENTRY(iIndex, cReturnFields, "|") EQ "ship-id" THEN
+                    cShipToID = ENTRY(iIndex + 1, cReturnFields, "|").
+                
+                IF ENTRY(iIndex, cReturnFields, "|") EQ "cust-no" THEN
+                    cCustomerID = ENTRY(iIndex + 1, cReturnFields, "|").
+                 
+            END.
+            SELF:SCREEN-VALUE = cCustomerID + "|" + cShipToID.
+        END.
+        ELSE
+            SELF:SCREEN-VALUE = cLookupField.
+    END.        
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
 
 /* ***************************  Main Block  *************************** */
+  {sys/inc/f3help.i}
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -318,7 +401,9 @@ PROCEDURE local-assign-statement :
     DEFINE VARIABLE cClientID AS CHARACTER NO-UNDO.
         
     /* Code placed here will execute PRIOR to standard behavior. */
-
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
 
@@ -328,23 +413,23 @@ PROCEDURE local-assign-statement :
         OUTPUT cAPIID,
         OUTPUT cClientID
         ).
-    
-    IF apiClientXref.scopeID EQ "" THEN
-        apiClientXref.scopeID = cAPIClientXrefAny.
 
-    IF apiClientXref.scopeType EQ "" THEN
-        apiClientXref.scopeType = cAPIClientXrefAny.
-
-    IF apiClientXref.triggerID EQ "" THEN
-        apiClientXref.triggerID = cAPIClientXrefAny.
-        
     ASSIGN
         apiClientXref.company   = cocode
         apiClientXref.apiID     = cAPIID
         apiClientXref.clientID  = cClientID
-        apiClientXref.scopeType = cbScopeType:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        apiClientXref.scopeType = cbScopeType:SCREEN-VALUE
+        apiClientXref.triggerID = cbTriggerID:SCREEN-VALUE
         .
-        
+
+    IF apiClientXref.scopeID EQ "" THEN
+        apiClientXref.scopeID = cAPIClientXrefAny.
+
+    IF cbScopeType:SCREEN-VALUE EQ "" OR cbScopeType:SCREEN-VALUE EQ ? THEN
+        apiClientXref.scopeType = cAPIClientXrefAny.
+
+    IF cbTriggerID:SCREEN-VALUE EQ "" OR cbTriggerID:SCREEN-VALUE EQ ? THEN
+        apiClientXref.triggerID = cAPIClientXrefAny.        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -358,12 +443,19 @@ PROCEDURE local-disable-fields :
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-    cbScopeType:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.
+    ASSIGN
+        cbScopeType:SENSITIVE = FALSE
+        cbTriggerID:SENSITIVE = FALSE.
+        .
+    
+    {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -377,13 +469,19 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
-
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-    IF AVAILABLE apiClientXref THEN
-        cbScopeType:SCREEN-VALUE IN FRAME {&FRAME-NAME} = apiClientXref.scopeType.
+    IF AVAILABLE apiClientXref THEN DO:
+        ASSIGN
+            cbScopeType:SCREEN-VALUE = apiClientXref.scopeType
+            cbTriggerID:SCREEN-VALUE = apiClientXref.triggerID
+            NO-ERROR.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -416,12 +514,19 @@ PROCEDURE local-enable-fields :
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-    cbScopeType:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE.
+    ASSIGN
+        cbScopeType:SENSITIVE = TRUE
+        cbTriggerID:SENSITIVE = TRUE
+        .
+
+    {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -438,7 +543,8 @@ PROCEDURE local-row-available :
     DEFINE VARIABLE cRowState AS CHARACTER NO-UNDO.
 
     /* Code placed here will execute PRIOR to standard behavior. */
-
+    RUN pUpdateTriggerList.
+    
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
 
@@ -475,7 +581,7 @@ PROCEDURE local-update-record :
     END.
   
     /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ).
 
     /* Code placed here will execute AFTER standard behavior.    */
 
@@ -494,22 +600,76 @@ PROCEDURE pFieldValidations :
     DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
+    DEFINE VARIABLE cCustomerID AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cShipToID   AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-cust   FOR cust.
+    DEFINE BUFFER bf-vend   FOR vend.
+    DEFINE BUFFER bf-shipTo FOR shipTo.
+        
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
     IF AVAILABLE apiClientXref THEN DO:
         /* If a scope ID is enetered, force the user to enter a valid scopeType */
         IF apiClientXref.scopeID:SCREEN-VALUE NE "" AND
-           apiClientXref.scopeID:SCREEN-VALUE NE cAPIClientXrefAny AND
-           (cbScopeType:SCREEN-VALUE EQ cAPIClientXrefAny OR
-            cbScopeType:SCREEN-VALUE EQ ? OR
-            cbScopeType:SCREEN-VALUE EQ "")  THEN DO:
-            ASSIGN
-                oplSuccess = FALSE
-                opcMessage = "Please specify a valid Scope Type for the given Scope ID"
-                .
-            RETURN.
-        END.
+           apiClientXref.scopeID:SCREEN-VALUE NE cAPIClientXrefAny THEN DO:
+            IF cbScopeType:SCREEN-VALUE EQ cAPIClientXrefAny OR
+               cbScopeType:SCREEN-VALUE EQ ? OR
+               cbScopeType:SCREEN-VALUE EQ "" THEN DO:
+                ASSIGN
+                    oplSuccess = FALSE
+                    opcMessage = "Please specify a valid Scope Type for the given Scope ID"
+                    .
+                RETURN.
+            END.
+            
+            IF cbScopeType:SCREEN-VALUE EQ "Customer" THEN DO:
+                FIND FIRST bf-cust NO-LOCK
+                     WHERE bf-cust.company EQ g_company
+                       AND bf-cust.cust-no EQ apiClientXref.scopeID:SCREEN-VALUE
+                     NO-ERROR.
+                IF NOT AVAILABLE bf-cust THEN DO:
+                    ASSIGN
+                        oplSuccess = FALSE
+                        opcMessage = "Invalid customer # entered in Scope ID"
+                        .
+                    RETURN.                
+                END.
+            END.
+            IF cbScopeType:SCREEN-VALUE EQ "Vendor" THEN DO:
+                FIND FIRST bf-vend NO-LOCK
+                     WHERE bf-vend.company EQ g_company
+                       AND bf-vend.vend-no EQ apiClientXref.scopeID:SCREEN-VALUE
+                     NO-ERROR.
+                IF NOT AVAILABLE bf-vend THEN DO:
+                    ASSIGN
+                        oplSuccess = FALSE
+                        opcMessage = "Invalid vendor # entered in Scope ID"
+                        .
+                    RETURN.                
+                END.
+            END.
+            IF cbScopeType:SCREEN-VALUE EQ "ShipTo" THEN DO:
+                IF NUM-ENTRIES(apiClientXref.scopeID:SCREEN-VALUE, "|") GE 2 THEN
+                    cShipToID = ENTRY(2, apiClientXref.scopeID:SCREEN-VALUE, "|").
+                
+                cCustomerID = ENTRY(1, apiClientXref.scopeID:SCREEN-VALUE, "|").
+
+                FIND FIRST bf-shipTo NO-LOCK
+                     WHERE bf-shipTo.company EQ g_company
+                       AND bf-shipTo.cust-no EQ cCustomerID
+                       AND bf-shipTo.ship-id EQ cShipToID
+                     NO-ERROR.
+                IF NOT AVAILABLE bf-shipTo THEN DO:
+                    ASSIGN
+                        oplSuccess = FALSE
+                        opcMessage = "Invalid ship to entered in Scope ID"
+                        .
+                    RETURN.                
+                END.
+            END.            
+        END.        
     END.
     
     ASSIGN
@@ -562,11 +722,48 @@ PROCEDURE pInit :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
+    RUN pUpdateTriggerList.
+    
     RUN Outbound_GetScopeTypeList IN hdOutboundProcs (
         OUTPUT cScopeTypeList    
         ).
-    
+            
     cbScopeType:LIST-ITEMS = cScopeTypeList.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateTriggerList V-table-Win 
+PROCEDURE pUpdateTriggerList :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cTriggerList   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAPIID         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cClientID      AS CHARACTER NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    RUN GetAPIAndClientID (
+        OUTPUT cAPIID,
+        OUTPUT cClientID
+        ).
+    
+    RUN Outbound_GetAPITriggersList IN hdOutboundProcs (
+        INPUT  g_company,
+        INPUT  cAPIID,
+        INPUT  cClientID,
+        OUTPUT cTriggerList
+        ).
+        
+    cbTriggerID:LIST-ITEMS = "_ANY_" + "," + cTriggerList.
+    
+    IF AVAILABLE apiClientXref THEN
+        cbTriggerID:SCREEN-VALUE = apiClientXref.triggerID NO-ERROR.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

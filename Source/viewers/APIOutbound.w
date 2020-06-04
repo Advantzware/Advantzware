@@ -52,6 +52,10 @@ DEFINE VARIABLE lCopyAPIOutbound     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iSourceAPIOutboundID AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lSuperAdmin          AS LOGICAL   NO-UNDO.
 
+/* The below variables are used in run_link.i */
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+
 RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
@@ -102,9 +106,9 @@ APIOutbound.saveFileFolder APIOutbound.saveFile APIOutbound.userName ~
 APIOutbound.password APIOutbound.requestHandler APIOutbound.responseHandler 
 &Scoped-define DISPLAYED-TABLES APIOutbound
 &Scoped-define FIRST-DISPLAYED-TABLE APIOutbound
-&Scoped-Define DISPLAYED-OBJECTS fiMessage tgInactive edDescription ~
-edEndPoint cbRequestType cbRequestVerb cbRequestDataType tgSSLEnabled ~
-cbAuthType edRequestData 
+&Scoped-Define DISPLAYED-OBJECTS tgInactive edDescription edEndPoint ~
+cbRequestType cbRequestVerb cbRequestDataType tgSSLEnabled cbAuthType ~
+edRequestData fiInactive 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -184,9 +188,10 @@ DEFINE VARIABLE edRequestData AS CHARACTER
      SIZE 132 BY 4
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
-DEFINE VARIABLE fiMessage AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 154.8 BY 1 NO-UNDO.
+DEFINE VARIABLE fiInactive AS CHARACTER FORMAT "X(256)":U INITIAL "Inactive" 
+      VIEW-AS TEXT 
+     SIZE 11 BY .81
+     BGCOLOR 10 FGCOLOR 0  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -209,10 +214,10 @@ DEFINE RECTANGLE RECT-7
      SIZE 157 BY 18.57.
 
 DEFINE VARIABLE tgInactive AS LOGICAL INITIAL no 
-     LABEL "Inactive" 
+     LABEL "" 
      VIEW-AS TOGGLE-BOX
-     SIZE 13.2 BY .81
-     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+     SIZE 3.4 BY .81
+     BGCOLOR 10 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE tgSSLEnabled AS LOGICAL INITIAL no 
      LABEL "Enable SSL" 
@@ -224,7 +229,6 @@ DEFINE VARIABLE tgSSLEnabled AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiMessage AT ROW 1.24 COL 2.2 NO-LABEL WIDGET-ID 52
      APIOutbound.apiID AT ROW 2.57 COL 21 COLON-ALIGNED WIDGET-ID 2
           LABEL "API ID"
           VIEW-AS FILL-IN 
@@ -272,12 +276,13 @@ DEFINE FRAME F-Main
           SIZE 55 BY 1
           BGCOLOR 15 FGCOLOR 0 
      edRequestData AT ROW 15 COL 23 NO-LABEL WIDGET-ID 48
+     fiInactive AT ROW 2.67 COL 128 COLON-ALIGNED NO-LABEL WIDGET-ID 72
      "Description:" VIEW-AS TEXT
           SIZE 14 BY .62 AT ROW 4.38 COL 8.8 WIDGET-ID 64
-     "End Point:" VIEW-AS TEXT
-          SIZE 11.6 BY .62 AT ROW 6.71 COL 11.2 WIDGET-ID 36
      "Request Data:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 16.52 COL 6 WIDGET-ID 50
+     "End Point:" VIEW-AS TEXT
+          SIZE 11.6 BY .62 AT ROW 6.71 COL 11.2 WIDGET-ID 36
      RECT-1 AT ROW 2.48 COL 2 WIDGET-ID 26
      RECT-2 AT ROW 10.81 COL 2 WIDGET-ID 30
      RECT-3 AT ROW 12.91 COL 2 WIDGET-ID 44
@@ -365,8 +370,8 @@ ASSIGN
 ASSIGN 
        edRequestData:READ-ONLY IN FRAME F-Main        = TRUE.
 
-/* SETTINGS FOR FILL-IN fiMessage IN FRAME F-Main
-   NO-ENABLE ALIGN-L                                                    */
+/* SETTINGS FOR FILL-IN fiInactive IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN APIOutbound.password IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR RECTANGLE RECT-7 IN FRAME F-Main
@@ -401,6 +406,42 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME APIOutbound.clientID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL APIOutbound.clientID V-table-Win
+ON LEAVE OF APIOutbound.clientID IN FRAME F-Main /* Client ID */
+DO:
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.    
+    
+    IF SELF:SCREEN-VALUE EQ "" THEN DO:
+        MESSAGE "Client ID cannot be empty"
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.        
+    END.
+        
+    RUN Outbound_ValidateClientID IN hdOutboundProcs (
+        INPUT  g_company,
+        INPUT  SELF:SCREEN-VALUE,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).    
+   
+    IF NOT lSuccess THEN DO:
+        MESSAGE "Client ID '" + APIOutbound.clientID:SCREEN-VALUE + "' is not available." SKIP
+            "Do you want to create the client record?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lContinue AS LOGICAL.
+        IF lContinue THEN
+            RUN Outbound_CreateAPIClient IN hdOutboundProcs (
+                INPUT g_company,
+                INPUT APIOutbound.clientID:SCREEN-VALUE
+                ).
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME APIOutbound.saveFile
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL APIOutbound.saveFile V-table-Win
@@ -441,13 +482,35 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tgInactive
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tgInactive V-table-Win
+ON VALUE-CHANGED OF tgInactive IN FRAME F-Main
+DO:
+    IF SELF:CHECKED THEN
+        ASSIGN
+            SELF:BGCOLOR       = 12
+            fiInactive:BGCOLOR = 12
+            fiInactive:FGCOLOR = 15
+            .
+    ELSE
+        ASSIGN
+            SELF:BGCOLOR       = 10
+            fiInactive:BGCOLOR = 10
+            fiInactive:FGCOLOR = 0
+            .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
 
 /* ***************************  Main Block  *************************** */
-
+  {sys/inc/f3help.i}
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
@@ -621,11 +684,6 @@ PROCEDURE local-delete-record :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
             
     /* Code placed here will execute AFTER standard behavior.    */
-    RUN pUpdateMessageText (
-        "Record deleted successfully!",    /* Message Text */
-        FALSE,       /* Error */
-        FALSE        /* Alert-box*/
-        ).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -696,7 +754,6 @@ PROCEDURE local-enable-fields :
 ------------------------------------------------------------------------------*/
 
     /* Code placed here will execute PRIOR to standard behavior. */
-    RUN pEmptyMessagetext.
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
@@ -750,11 +807,7 @@ PROCEDURE local-update-record :
         ).
 
     IF NOT lSuccess THEN DO:
-        RUN pUpdateMessageText (
-            cMessage,    /* Message Text */
-            TRUE,        /* Error */
-            FALSE        /* Alert-box*/
-            ).
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         RETURN.        
     END.
 
@@ -779,18 +832,6 @@ PROCEDURE local-update-record :
             INPUT "row-changed"
             ).
     END.
-            
-    /* Code placed here will execute AFTER standard behavior.    */        
-    cMessage = IF adm-new-record THEN 
-                   "Record created successfully!"
-               ELSE
-                   "Record updated successfully!".
-                   
-    RUN pUpdateMessageText (
-        cMessage,    /* Message Text */
-        FALSE,       /* Error */
-        FALSE        /* Alert-box*/
-        ).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -817,6 +858,8 @@ PROCEDURE pDisableFields :
         edDescription:READ-ONLY     = TRUE
         edRequestData:READ-ONLY     = TRUE
         .
+
+    {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}                            
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -856,22 +899,9 @@ PROCEDURE pDisplayFields :
             edDescription:SCREEN-VALUE     = ""
             edRequestData:SCREEN-VALUE     = ""
             .
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEmptyMessageText V-table-Win 
-PROCEDURE pEmptyMessageText :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DO WITH FRAME {&FRAME-NAME}:
-    END.
-
-    fiMessage:SCREEN-VALUE = "".
+    
+    /* Changes the background color of the toggle box depending on the value */
+    APPLY "VALUE-CHANGED" TO tgInactive.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -905,7 +935,9 @@ PROCEDURE pEnableFields :
             APIOutbound.requestHandler:SENSITIVE  = FALSE
             APIOutbound.responseHandler:SENSITIVE = FALSE
             cbRequestDataType:SENSITIVE           = FALSE
-            .        
+            .
+
+    {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}                    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -941,16 +973,15 @@ PROCEDURE pFieldValidations :
         OUTPUT opcMessage
         ).    
    
-    /* Prompt the user to create apiClient record only when apioutbound record is being created */
+    /* Alert the user that a new apiClient record will be created */
     IF NOT oplSuccess and adm-new-record THEN DO:
-        MESSAGE "Client ID '" + APIOutbound.clientID:SCREEN-VALUE + "' is not created." SKIP
-            "Do you want to create the client record?"
-            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lContinue AS LOGICAL.
-        IF lContinue THEN
-            RUN Outbound_CreateAPIClient IN hdOutboundProcs (
-                INPUT g_company,
-                INPUT APIOutbound.clientID:SCREEN-VALUE
-                ).
+        MESSAGE "Client ID '" + APIOutbound.clientID:SCREEN-VALUE + "' is not available." SKIP
+            "A new record with Client ID '" + APIOutbound.clientID:SCREEN-VALUE + "' will be created."
+            VIEW-AS ALERT-BOX INFORMATION.
+        RUN Outbound_CreateAPIClient IN hdOutboundProcs (
+            INPUT g_company,
+            INPUT APIOutbound.clientID:SCREEN-VALUE
+            ).
     END.
     
     IF cbRequestType:SCREEN-VALUE EQ ? OR cbRequestType:SCREEN-VALUE EQ "" THEN DO:
@@ -1098,43 +1129,6 @@ PROCEDURE pUpdateFields :
             APIOutbound.authType        = cbAuthType:SCREEN-VALUE
             APIOutbound.requestData     = edRequestData:SCREEN-VALUE
             APIOutbound.description     = edDescription:SCREEN-VALUE
-            .
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateMessageText V-table-Win 
-PROCEDURE pUpdateMessageText :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcMessage  AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER iplError    AS LOGICAL   NO-UNDO.
-    DEFINE INPUT PARAMETER iplAlertBox AS LOGICAL   NO-UNDO.
-
-    DO WITH FRAME {&FRAME-NAME}:
-    END.
-
-    fiMessage:SCREEN-VALUE = "".
-
-    IF iplAlertBox THEN DO:
-        MESSAGE ipcMessage
-            VIEW-AS ALERT-BOX ERROR.
-        RETURN.
-    END.
-
-    ASSIGN
-        fiMessage:SCREEN-VALUE = ipcMessage
-        fiMessage:FGCOLOR      = 2   /* Green */
-        .
-
-    IF iplError THEN
-        ASSIGN
-            fiMessage:SCREEN-VALUE = "**" + ipcMessage
-            fiMessage:FGCOLOR      = 12  /* Red */
             .
 END PROCEDURE.
 
