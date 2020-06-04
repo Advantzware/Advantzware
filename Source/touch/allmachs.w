@@ -259,27 +259,26 @@ PROCEDURE Get_Active_Machines :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
-  {methods/run_link.i "CONTAINER" "Get_Value" "('employee_code',OUTPUT employee_code)"}
-  itemlist = ''.
-  FOR EACH emplogin NO-LOCK WHERE emplogin.company = company_code
+    {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
+    {methods/run_link.i "CONTAINER" "Get_Value" "('employee_code',OUTPUT employee_code)"}
+    itemlist = ''.
+    FOR EACH emplogin NO-LOCK WHERE emplogin.company = company_code
                               AND emplogin.machine GT ''
                               AND emplogin.END_date = ?
                               AND emplogin.end_time = 0
                               AND emplogin.total_time = 0:
-    /*IF INDEX(itemlist,emplogin.machine) NE 0 THEN*/
-    IF LOOKUP(emplogin.machine,itemlist,"@") > 0 THEN
-    NEXT.
-    FIND FIRST mach NO-LOCK 
-         WHERE mach.company  EQ company_code
-           AND mach.m-code   EQ emplogin.machine
-           AND mach.obsolete EQ YES
-         NO-ERROR.
-    IF AVAILABLE mach THEN
-    NEXT.
-    itemlist = IF itemlist = '' THEN CAPS(mach.m-code) + ' (' + LC(mach.m-dscr) + ')'
-               ELSE itemlist + '@' + CAPS(mach.m-code) + ' (' + LC(mach.m-dscr) + ')'.
-  END.
+        /*IF INDEX(itemlist,emplogin.machine) NE 0 THEN*/
+        IF LOOKUP(emplogin.machine,itemlist,"@") > 0 THEN
+            NEXT.
+        FOR EACH mach NO-LOCK WHERE 
+            mach.company  EQ company_code AND 
+            mach.m-code   EQ emplogin.machine AND 
+            mach.obsolete EQ NO: 
+            ASSIGN 
+                itemlist = IF itemlist = '' THEN CAPS(mach.m-code) + ' (' + LC(mach.m-dscr) + ')'
+                   ELSE itemlist + '@' + CAPS(mach.m-code) + ' (' + LC(mach.m-dscr) + ')'.
+        END.
+    END.
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
       SL:DELIMITER = '@'
