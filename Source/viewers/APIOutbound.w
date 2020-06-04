@@ -279,10 +279,10 @@ DEFINE FRAME F-Main
      fiInactive AT ROW 2.67 COL 128 COLON-ALIGNED NO-LABEL WIDGET-ID 72
      "Description:" VIEW-AS TEXT
           SIZE 14 BY .62 AT ROW 4.38 COL 8.8 WIDGET-ID 64
-     "End Point:" VIEW-AS TEXT
-          SIZE 11.6 BY .62 AT ROW 6.71 COL 11.2 WIDGET-ID 36
      "Request Data:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 16.52 COL 6 WIDGET-ID 50
+     "End Point:" VIEW-AS TEXT
+          SIZE 11.6 BY .62 AT ROW 6.71 COL 11.2 WIDGET-ID 36
      RECT-1 AT ROW 2.48 COL 2 WIDGET-ID 26
      RECT-2 AT ROW 10.81 COL 2 WIDGET-ID 30
      RECT-3 AT ROW 12.91 COL 2 WIDGET-ID 44
@@ -510,7 +510,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+  {sys/inc/f3help.i}
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         

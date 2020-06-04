@@ -467,9 +467,13 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
+{methods/ctrl-a_browser.i}
+{sys/inc/f3help.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
-RUN dispatch IN THIS-PROCEDURE ('initialize':U).
+RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+{methods/winReSize.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
