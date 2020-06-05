@@ -143,7 +143,7 @@ DEFINE RECTANGLE RECT-5
 
 DEFINE FRAME F-Main
      cbScopeType AT ROW 1.24 COL 25 COLON-ALIGNED WIDGET-ID 8
-     apiClientXref.scopeID AT ROW 2.38 COL 25 COLON-ALIGNED WIDGET-ID 4
+     apiClientXref.scopeID AT ROW 2.38 COL 25 COLON-ALIGNED WIDGET-ID 4 FORMAT "x(256)"
           VIEW-AS FILL-IN 
           SIZE 46 BY 1
      cbTriggerID AT ROW 3.52 COL 25 COLON-ALIGNED WIDGET-ID 18
@@ -214,6 +214,8 @@ ASSIGN
 
 /* SETTINGS FOR COMBO-BOX cbTriggerID IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN apiClientXref.scopeID IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -232,6 +234,23 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME cbScopeType
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbScopeType V-table-Win
+ON VALUE-CHANGED OF cbScopeType IN FRAME F-Main /* Scope Type */
+DO:
+    IF cbScopeType:SCREEN-VALUE EQ cAPIClientXrefAny THEN 
+        ASSIGN 
+            scopeID:SCREEN-VALUE = cAPIClientXrefAny
+            scopeID:SENSITIVE    = FALSE
+            .
+    ELSE
+        scopeID:SENSITIVE = TRUE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME apiClientXref.scopeID
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL apiClientXref.scopeID V-table-Win
@@ -527,6 +546,27 @@ PROCEDURE local-enable-fields :
         .
 
     {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}
+    
+    APPLY "VALUE-CHANGED" TO cbScopeType.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record V-table-Win 
+PROCEDURE local-reset-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    APPLY "VALUE-CHANGED" TO cbScopeType IN FRAME {&FRAME-NAME}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
