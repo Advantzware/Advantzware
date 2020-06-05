@@ -5451,19 +5451,6 @@ PROCEDURE final-steps :
       fil_id = RECID(oe-ordl).
     END.
   END.
-    /*IF oe-ordl.job-no EQ "" THEN
-      MESSAGE " Since job number is blank, a purchase order will not be created "
-              VIEW-AS ALERT-BOX .
-    ELSE
-    IF (oe-ord.est-no EQ "" AND lv-add-mode)                      OR*/
-    IF lv-add-mode                                                OR
-       (NOT ll-new-record AND
-        (v-qty-mod OR oe-ordl.po-no-po EQ 0 OR
-         NOT CAN-FIND(FIRST po-ord
-                      WHERE po-ord.company EQ oe-ordl.company
-                        AND po-ord.po-no   EQ oe-ordl.po-no-po))) THEN
-      RUN po/do-po.p.
- 
     FIND CURRENT oe-ordl.
   /*END.*/
 

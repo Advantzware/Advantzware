@@ -1506,7 +1506,6 @@ PROCEDURE create-release :
          message " Since job number is blank, a purchase order will not be create~d "
                  view-as alert-box .
       end.  
-/*      else run po/do-po.p. */
       status default "".
  end.
 
