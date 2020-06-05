@@ -58,7 +58,7 @@ DEFINE VARIABLE hdPgmMstrSecur AS HANDLE NO-UNDO.
 RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmMstrSecur.
 
 RUN epCanAccess IN hdPgmMstrSecur (
-    INPUT  "viewers/APIInbound.w", /* Program Name */
+    INPUT  "browsers/APIOutbound.w", /* Program Name */
     INPUT  "",                     /* Function */
     OUTPUT lSuperAdmin
     ).
