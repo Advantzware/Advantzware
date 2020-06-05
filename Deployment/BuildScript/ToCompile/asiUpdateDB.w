@@ -1112,7 +1112,10 @@ PROCEDURE ipUpgradeDBs :
         cPrefix = SUBSTRING(fiDbName:{&SV},1,3)
         cPrefix2 = SUBSTRING(fiDbName:{&SV},length(fiDbName:{&SV}),1).
     ASSIGN 
-        cPrefix = IF cPrefix EQ "asi" OR (cPrefix NE "asi" AND cPrefix NE "aud" AND cPrefix2 EQ "d") THEN "asi" ELSE "aud"            
+        cPrefix = IF cPrefix EQ "asi" THEN "asi" ELSE 
+                  IF cPrefix EQ "aud" THEN "aud" ELSE
+                  IF cPrefix2 EQ "d" THEN "asi" ELSE
+                  IF cPrefix2 EQ "a" THEN "aud" ELSE ""
         iDbCtr = iDbCtr + 1
         iWaitCount = 0
         cDelta = REPLACE(cDeltaFile,"asi",cPrefix)
@@ -1121,19 +1124,14 @@ PROCEDURE ipUpgradeDBs :
         cMissingFilesDelta = REPLACE(cFullDelta,cDelta,"addlfiles.df")
         .
 
-    IF SUBSTRING(fiDbName:{&SV},1,3) = "asi" 
-        OR (SUBSTRING(fiDbName:{&SV},1,3) NE "asi"
-        AND LENGTH(fiDbName:{&SV}) EQ 11 
-        AND SUBSTRING(fiDbName:{&SV},length(fiDbName:{&SV}),1) = "d") THEN ASSIGN 
+    IF cPrefix EQ "asi" THEN ASSIGN 
         iListEntry = ipiEntry
         cThisDir = ENTRY(iListEntry,cDbDirList)
-        cThisPort = ENTRY(iListEntry,cDbPortList)
-        cPrefix = "asi".
+        cThisPort = ENTRY(iListEntry,cDbPortList).
     ELSE ASSIGN 
         iListEntry = ipiEntry
         cThisDir = ENTRY(iListEntry,cAudDirList)
-        cThisPort = ENTRY(iListEntry,cAudPortList)
-        cPrefix = "aud".
+        cThisPort = ENTRY(iListEntry,cAudPortList).
 
     IF cPrefix = "asi" 
     AND ipiPatchDbVer LE ipiCurrDbVer THEN DO:
