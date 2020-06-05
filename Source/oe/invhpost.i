@@ -30,11 +30,7 @@ assign
   ar-inv.cust-name      = inv-head.cust-name
   ar-inv.terms-d        = inv-head.terms-d
   ar-inv.sold-addr[1]   = inv-head.sold-addr[1]
-  ar-inv.sold-addr[2]   = inv-head.sold-addr[2]
-  ar-inv.bill-i[1]      = inv-head.bill-i[1]
-  ar-inv.bill-i[2]      = inv-head.bill-i[2]
-  ar-inv.bill-i[3]      = inv-head.bill-i[3]
-  ar-inv.bill-i[4]      = inv-head.bill-i[4]
+  ar-inv.sold-addr[2]   = inv-head.sold-addr[2]  
   ar-inv.f-bill         = inv-head.f-bill
   ar-inv.ship-i[1]      = inv-head.ship-i[1]
   ar-inv.ship-i[2]      = inv-head.ship-i[2]
@@ -60,6 +56,8 @@ assign
   ar-inv.net   = inv-head.t-inv-rev - inv-head.t-inv-tax
   ar-inv.prod-date = {1} /* using prod-date as posted date #53205, pass in tran-date or dtPostDate */
   .
+  
+  RUN GetBillNoteFromUnPostInvoice IN hNotesProcs (ROWID(inv-head),Output ar-inv.bill-i[1],Output ar-inv.bill-i[2],Output ar-inv.bill-i[3],Output ar-inv.bill-i[4]). 
   
   RUN CopyShipNote IN hNotesProcs (inv-head.rec_key, ar-inv.rec_key).
   

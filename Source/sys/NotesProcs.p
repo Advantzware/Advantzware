@@ -339,6 +339,48 @@ PROCEDURE UpdateShipNote:
 
 END PROCEDURE.
 
+PROCEDURE GetBillNoteFromUnPostInvoice:
+    /*------------------------------------------------------------------------------
+     Purpose: bill Notes
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcObjectRowid AS ROWID NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNote1 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNote2 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNote3 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNote4 AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-inv-head FOR inv-head. 
+    FIND FIRST inv-head NO-LOCK 
+         WHERE ROWID(inv-head) EQ ipcObjectRowid  NO-ERROR.
+
+    IF inv-head.multi-invoice THEN
+            FOR EACH bf-inv-head 
+                WHERE bf-inv-head.company EQ inv-head.company
+                  AND bf-inv-head.bol-no EQ inv-head.bol-no
+                  AND bf-inv-head.cust-no EQ inv-head.cust-no
+                  AND NOT bf-inv-head.multi-invoice
+                  AND bf-inv-head.stat NE "H"
+                NO-LOCK
+                BREAK BY bf-inv-head.inv-date DESC:
+                ASSIGN 
+                    opcNote1 = bf-inv-head.bill-i[1]
+                    opcNote2 = bf-inv-head.bill-i[2]
+                    opcNote3 = bf-inv-head.bill-i[3]
+                    opcNote4 = bf-inv-head.bill-i[4]
+                    .
+                LEAVE.
+            END.
+        ELSE 
+            ASSIGN
+                opcNote1 = inv-head.bill-i[1]
+                opcNote2 = inv-head.bill-i[2]
+                opcNote3 = inv-head.bill-i[3]
+                opcNote4 = inv-head.bill-i[4]
+                .   
+
+END PROCEDURE.
+
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fIsLineEnd RETURNS LOGICAL PRIVATE

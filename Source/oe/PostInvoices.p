@@ -1330,6 +1330,8 @@ PROCEDURE pCreateARInvHeader PRIVATE:
     DEFINE VARIABLE iDueOnDay   AS INTEGER NO-UNDO.
     DEFINE VARIABLE iNetDays    AS INTEGER NO-UNDO.
     DEFINE VARIABLE lError      AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
     
     iNextXNO = fGetNextXNo().
     
@@ -1367,11 +1369,7 @@ PROCEDURE pCreateARInvHeader PRIVATE:
         bf-ar-inv.frt-pay      = ipbf-inv-head.frt-pay
         bf-ar-inv.fob-code     = ipbf-inv-head.fob-code
         bf-ar-inv.carrier      = ipbf-inv-head.carrier
-        bf-ar-inv.terms-d      = ipbf-inv-head.terms-d
-        bf-ar-inv.bill-i[1]    = ipbf-inv-head.bill-i[1]
-        bf-ar-inv.bill-i[2]    = ipbf-inv-head.bill-i[2]
-        bf-ar-inv.bill-i[3]    = ipbf-inv-head.bill-i[3]
-        bf-ar-inv.bill-i[4]    = ipbf-inv-head.bill-i[4]
+        bf-ar-inv.terms-d      = ipbf-inv-head.terms-d         
         bf-ar-inv.ship-i[1]    = ipbf-inv-head.ship-i[1]
         bf-ar-inv.ship-i[2]    = ipbf-inv-head.ship-i[2]
         bf-ar-inv.ship-i[3]    = ipbf-inv-head.ship-i[3]
@@ -1395,6 +1393,8 @@ PROCEDURE pCreateARInvHeader PRIVATE:
         bf-ar-inv.curr-code[1] = ipbf-ttInvoiceToPost.currencyCode
         bf-ar-inv.ex-rate      = ipbf-ttInvoiceToPost.currencyExRate
         .
+        
+    RUN GetBillNoteFromUnPostInvoice IN hNotesProcs (ROWID(inv-head),output ar-inv.bill-i[1],OUTPUT ar-inv.bill-i[2],OUTPUT ar-inv.bill-i[3],OUTPUT ar-inv.bill-i[4]).     
     
     IF ipbf-inv-head.f-bill THEN /*Exclude Freight billed from total true sales*/ 
         ASSIGN 
@@ -1409,7 +1409,7 @@ PROCEDURE pCreateARInvHeader PRIVATE:
         bf-ar-inv.due-date  =  DYNAMIC-FUNCTION("GetInvDueDate", DATE(bf-ar-inv.inv-date), ipbf-inv-head.company, ipbf-inv-head.terms).  /*From CreditProcs*/
         
     opriArinv = ROWID(bf-ar-inv).
-
+    DELETE OBJECT hNotesProcs.
 END PROCEDURE.
 
 
