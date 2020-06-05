@@ -50,13 +50,15 @@ CREATE WIDGET-POOL.
 
 DEFINE VARIABLE iAPIOutboundIDFilter AS INTEGER NO-UNDO.
 
-DEFINE VARIABLE lSuperAdmin AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lSuperAdmin AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cApiType    AS CHARACTER NO-UNDO.
+
 
 DEFINE VARIABLE hdPgmMstrSecur AS HANDLE NO-UNDO.
 RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmMstrSecur.
 
 RUN epCanAccess IN hdPgmMstrSecur (
-    INPUT  "viewers/APIInbound.w", /* Program Name */
+    INPUT  "browsers/APIOutbound.w", /* Program Name */
     INPUT  "",                     /* Function */
     OUTPUT lSuperAdmin
     ).
@@ -87,7 +89,7 @@ DELETE PROCEDURE hdPgmMstrSecur.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table APIOutbound.apiID APIOutbound.clientID APIOutbound.authType APIOutbound.requestType APIOutbound.requestDataType APIOutbound.requestVerb APIOutbound.Inactive   
+&Scoped-define FIELDS-IN-QUERY-br_table APIOutbound.apiID APIOutbound.clientID APIOutbound.authType APIOutbound.requestType APIOutbound.requestDataType APIOutbound.requestVerb APIOutbound.Inactive fGetApiType() @ cApiType   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH APIOutbound WHERE (~{&KEY-PHRASE}) AND     APIOutbound.company EQ g_company AND     APIOutbound.apiOutboundID GT iAPIOutboundIDFilter AND     (IF fiAPIID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN         TRUE      ELSE         APIOutbound.apiID BEGINS fiAPIID:SCREEN-VALUE) AND     (IF fiClientID:SCREEN-VALUE EQ "" THEN         TRUE      ELSE         APIOutbound.clientID BEGINS fiClientID:SCREEN-VALUE) AND     (IF cbRequestDataType:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestDataType EQ cbRequestDataType:SCREEN-VALUE) AND     (IF cbRequestVerb:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestVerb EQ cbRequestVerb:SCREEN-VALUE) AND     (IF cbStatus:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE IF cbStatus:SCREEN-VALUE EQ "Active" THEN         APIOutbound.Inactive EQ NO      ELSE         APIOutbound.Inactive EQ YES)     NO-LOCK     ~{&SORTBY-PHRASE}
@@ -150,6 +152,15 @@ RUN set-attribute-list (
 </SORTBY-RUN-CODE> 
 <FILTER-ATTRIBUTES>
 </FILTER-ATTRIBUTES> */   
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetApiType B-table-Win 
+FUNCTION fGetApiType RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -234,16 +245,18 @@ DEFINE BROWSE br_table
             WIDTH 33.2
       APIOutbound.clientID COLUMN-LABEL "Client ID" FORMAT "x(16)":U
             WIDTH 23.6
-      APIOutbound.authType COLUMN-LABEL "Authentication Type" FORMAT "x(8)":U
-            WIDTH 23
+      APIOutbound.authType COLUMN-LABEL "Auth Type" FORMAT "x(8)":U
+            WIDTH 12
       APIOutbound.requestType COLUMN-LABEL "Request Type" FORMAT "x(8)":U
-            WIDTH 17
+            WIDTH 14
       APIOutbound.requestDataType COLUMN-LABEL "Request Data Type" FORMAT "x(8)":U
             WIDTH 19
       APIOutbound.requestVerb COLUMN-LABEL "Request Verb" FORMAT "x(8)":U
-            WIDTH 16
+            WIDTH 13
       APIOutbound.Inactive COLUMN-LABEL "Status" FORMAT "Inactive/Active":U
             WIDTH 20.8
+      fGetApiType() @ cApiType COLUMN-LABEL "Type" 
+            WIDTH 15
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 157.6 BY 20
@@ -449,7 +462,7 @@ ON DEFAULT-ACTION OF br_table IN FRAME F-Main
 DO:
     DEFINE VARIABLE phandle  AS HANDLE    NO-UNDO.
     DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-
+    
     {methods/run_link.i "CONTAINER-SOURCE" "SELECT-PAGE" "(2)"}.  
 END.
 
@@ -751,6 +764,26 @@ PROCEDURE value-changed-proc :
         APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
      END.
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetApiType B-table-Win 
+FUNCTION fGetApiType RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose: Returns the API record type(Custom/System) 
+    Notes:  
+------------------------------------------------------------------------------*/
+
+    IF (AVAILABLE APIOutbound AND APIOutbound.apiOutboundID GT 5000) THEN 
+        RETURN "Custom".
+    ELSE
+        RETURN "System".
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

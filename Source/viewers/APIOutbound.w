@@ -106,9 +106,9 @@ APIOutbound.saveFileFolder APIOutbound.saveFile APIOutbound.userName ~
 APIOutbound.password APIOutbound.requestHandler APIOutbound.responseHandler 
 &Scoped-define DISPLAYED-TABLES APIOutbound
 &Scoped-define FIRST-DISPLAYED-TABLE APIOutbound
-&Scoped-Define DISPLAYED-OBJECTS tgInactive edDescription edEndPoint ~
-cbRequestType cbRequestVerb cbRequestDataType tgSSLEnabled cbAuthType ~
-edRequestData fiInactive 
+&Scoped-Define DISPLAYED-OBJECTS fiAPIType tgInactive edDescription ~
+edEndPoint cbRequestType cbRequestVerb cbRequestDataType tgSSLEnabled ~
+cbAuthType edRequestData fiInactive 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -188,6 +188,11 @@ DEFINE VARIABLE edRequestData AS CHARACTER
      SIZE 132 BY 4
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
+DEFINE VARIABLE fiAPIType AS CHARACTER FORMAT "X(6)":U 
+     LABEL "Type" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fiInactive AS CHARACTER FORMAT "X(256)":U INITIAL "Inactive" 
       VIEW-AS TEXT 
      SIZE 11 BY .81
@@ -229,6 +234,7 @@ DEFINE VARIABLE tgSSLEnabled AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     fiAPIType AT ROW 1.24 COL 144.2 COLON-ALIGNED WIDGET-ID 74
      APIOutbound.apiID AT ROW 2.57 COL 21 COLON-ALIGNED WIDGET-ID 2
           LABEL "API ID"
           VIEW-AS FILL-IN 
@@ -370,6 +376,8 @@ ASSIGN
 ASSIGN 
        edRequestData:READ-ONLY IN FRAME F-Main        = TRUE.
 
+/* SETTINGS FOR FILL-IN fiAPIType IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiInactive IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN APIOutbound.password IN FRAME F-Main
@@ -654,6 +662,7 @@ PROCEDURE local-copy-record :
     ASSIGN
         APIOutbound.apiID:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE
         APIOutbound.clientID:SCREEN-VALUE                  = ""
+        fiAPIType:SCREEN-VALUE                             = "Custom"
         .
 END PROCEDURE.
 
@@ -892,12 +901,17 @@ PROCEDURE pDisplayFields :
             tgSSLEnabled:CHECKED           = APIOutbound.isSSLEnabled
             cbAuthType:SCREEN-VALUE        = APIOutbound.authType
             edRequestData:SCREEN-VALUE     = STRING(APIOutbound.requestData)
+            fiAPIType:SCREEN-VALUE         = IF APIOutbound.apiOutboundID GT 5000 THEN
+                                                 "Custom"
+                                             ELSE
+                                                 "System"            
             .
     ELSE
         ASSIGN
             edEndPoint:SCREEN-VALUE        = ""
             edDescription:SCREEN-VALUE     = ""
             edRequestData:SCREEN-VALUE     = ""
+            fiAPIType:SCREEN-VALUE         = ""
             .
     
     /* Changes the background color of the toggle box depending on the value */
@@ -928,6 +942,7 @@ PROCEDURE pEnableFields :
         edRequestData:READ-ONLY     = FALSE
         edDescription:READ-ONLY     = FALSE
         .
+
 
     /* Not a super user */
     IF NOT lSuperAdmin THEN
@@ -1092,6 +1107,7 @@ PROCEDURE pSetDefaults :
         edRequestData:SCREEN-VALUE     = ""
         saveFile:CHECKED               = FALSE
         edDescription:SCREEN-VALUE     = ""
+        fiAPIType:SCREEN-VALUE         = "Custom"
         .
 END PROCEDURE.
 
@@ -1149,9 +1165,9 @@ PROCEDURE SelectAndCopyAPIOutbound :
     DEFINE VARIABLE cClientID    AS CHARACTER NO-UNDO.
 
     RUN system/openlookup.p (
-        g_company, 
-        "apiID", /* lookup field */
-        0,   /* Subject ID */
+        "",  /* company */ 
+        "",  /* lookup field */
+        123,   /* Subject ID */
         "",  /* User ID */
         0,   /* Param value ID */
         OUTPUT returnFields, 
