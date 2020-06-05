@@ -28,7 +28,7 @@ DEF VAR v-type AS CHAR NO-UNDO.
 DEF VAR mypict AS COM-HANDLE.
 DEF VAR LvCtr as int no-undo.
 DEF VAR v-dir AS CHAR FORMAT "X(80)" NO-UNDO.
-
+DEFINE VARIABLE cLotNo AS CHARACTER NO-UNDO.
 
 DEFINE NEW SHARED TEMP-TABLE tt-filelist
        FIELD tt-FileCtr         AS INT
@@ -117,7 +117,7 @@ for each report where report.term-id eq v-term-id no-lock,
 
   /* accumulate bol quantity. */
   ASSIGN v-bol-qty = v-bol-qty + oe-boll.qty.
-
+  cLotNo = "" .
   /* If last of item */
   if LAST-OF(report.key-06) then do:
     
@@ -183,22 +183,22 @@ for each report where report.term-id eq v-term-id no-lock,
         /* Customer PO Number */
       chWorkSheet:Range("C26"):VALUE = oe-boll.po-no
         /* Quantity Shipped */
-      chWorkSheet:Range("C40"):VALUE = v-bol-qty.
+      chWorkSheet:Range("C41"):VALUE = v-bol-qty.
 
       /* ACP Manufacturing Lot Number */
      IF oe-boll.job-no <> "" THEN
-         chWorkSheet:Range("C38"):VALUE = oe-boll.job-no.
+         chWorkSheet:Range("C37"):VALUE = oe-boll.job-no.
      ELSE
-         chWorkSheet:Range("C38"):VALUE = v-fg-rctd-po-no.
+         chWorkSheet:Range("C37"):VALUE = v-fg-rctd-po-no.
+     /* Revision No */
+         chWorkSheet:Range("C35"):VALUE = itemfg.spare-char-1.    
 
 
     IF AVAIL oe-ordl THEN
     DO:
        ASSIGN
         /* Customer Part Number */
-         chWorkSheet:Range("C28"):VALUE = oe-ordl.part-no
-         /* ACP Order Number */
-         chWorkSheet:Range("C36"):VALUE = oe-ordl.ord-no.
+         chWorkSheet:Range("C28"):VALUE = oe-ordl.part-no .         
 
        FIND FIRST eb WHERE
             eb.company EQ cocode AND
@@ -240,13 +240,16 @@ for each report where report.term-id eq v-term-id no-lock,
            DO:
               IF oe-rel.rel-date LT v-rel-date THEN
                  v-rel-date = oe-rel.rel-date.
+                 cLotNo = oe-rel.lot-no .
            END.
        END.
 
 /*        IF v-rel-date NE 12/31/2999 THEN                  */
 /*           chWorkSheet:Range("C50"):VALUE =  v-rel-date.  */
     END.
-
+    IF cLotNo EQ "" THEN cLotNo = oe-boll.lot-no.
+    chWorkSheet:Range("C39"):VALUE = cLotNo  .
+    
     /* Signature image */
     IF SEARCH(FILE-INFO:FULL-PATHNAME) NE ? THEN DO:
        mypict = chExcelApplication:Range("B43"):Parent:Pictures:Insert(FILE-INFO:FULL-PATHNAME).
@@ -256,7 +259,7 @@ for each report where report.term-id eq v-term-id no-lock,
     END.
     
     FIND FIRST users WHERE users.user_id = USERID(ldbname(1)) NO-LOCK NO-ERROR.
-    chWorkSheet:Range("C46"):VALUE = STRING(USERID(ldbname(1))  +  "   " + (IF AVAIL users THEN users.department ELSE ""))   .
+    chWorkSheet:Range("C46"):VALUE = STRING(USERID(ldbname(1)) )   .
     
     ASSIGN
        v-bol-qty = 0
