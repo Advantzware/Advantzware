@@ -283,8 +283,11 @@ if v-zone-p then v-zone-hdr = "Route No.:".
            for each fg-bin
                where fg-bin.company  eq cocode
                  and fg-bin.i-no     eq w-oe-rell.i-no
+                 AND fg-bin.loc-bin  NE ""
                  and fg-bin.qty      gt 0
                no-lock:
+               
+               IF s-print-what-item EQ "I" AND fg-bin.tag EQ "" THEN NEXT.
           
                IF NOT(
                   ((s-print-what-item = "R") OR
