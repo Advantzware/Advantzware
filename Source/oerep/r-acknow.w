@@ -1288,7 +1288,7 @@ DO:
        tb_act-rel:SENSITIVE = NO
        tb_act-rel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".
 
-    IF v-print-fmt = "Dee" OR v-print-fmt = "Accord"  THEN
+    IF v-print-fmt = "Dee" OR v-print-fmt = "Accord" OR v-print-fmt = "Soule" THEN
       ASSIGN
          TG_whs-mths:SENSITIVE = YES. 
 
@@ -1846,7 +1846,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        tb_act-rel:SENSITIVE = NO
        tb_act-rel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".
 
-    IF v-print-fmt = "Dee" OR v-print-fmt = "Accord" THEN
+    IF v-print-fmt = "Dee" OR v-print-fmt = "Accord" OR v-print-fmt = "Soule" THEN
       ASSIGN
          TG_whs-mths:SENSITIVE = YES. 
 
