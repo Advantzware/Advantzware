@@ -2,7 +2,6 @@ DROP SEQUENCE "audit_seq"
 DROP SEQUENCE "stack_trace"
 DROP TABLE "AuditDtl"
 DROP TABLE "AuditHdr"
-DROP TABLE "AuditFld"
 DROP TABLE "AuditStack"
 DROP TABLE "AuditTbl"
 

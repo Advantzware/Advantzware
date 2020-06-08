@@ -1241,8 +1241,12 @@ PROCEDURE ipUpgradeDBs :
     END.
     
     IF CONNECTED("updDB2") 
-    AND lAuditLicensed EQ FALSE THEN ASSIGN 
-        cFullDelta = REPLACE(cFullDelta,cDelta,"audEmpty.df").
+    AND lAuditLicensed EQ FALSE THEN DO:
+        IF ipiCurrDbVer LT 20011000 THEN ASSIGN 
+            cFullDelta = REPLACE(cFullDelta,cDelta,"audEmptyOld.df").
+        ELSE ASSIGN
+            cFullDelta = REPLACE(cFullDelta,cDelta,"audEmpty.df").
+    END.
     
     /* If missing files, load the missing files delta */
     IF NOT lHasAllFiles THEN DO:
