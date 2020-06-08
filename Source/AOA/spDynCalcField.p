@@ -104,7 +104,17 @@ PROCEDURE calcTimeString:
     
     opcCalcValue = STRING(ipiTime,"hh:mm:ss").
 END PROCEDURE.
+
+PROCEDURE calcAPIType:
+    DEFINE INPUT  PARAMETER ipiAPIOutboundID AS INTEGER   NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opcCalcValue     AS CHARACTER NO-UNDO.
     
+    opcCalcValue = IF ipiAPIOutboundID GT 5000 THEN
+                       "Custom"
+                   ELSE
+                       "System".
+END PROCEDURE.
+
 PROCEDURE spDynCalcField:
     DEFINE INPUT  PARAMETER iphQuery     AS HANDLE    NO-UNDO.
     DEFINE INPUT  PARAMETER ipcCalcProc  AS CHARACTER NO-UNDO.
@@ -173,6 +183,10 @@ PROCEDURE spDynCalcField:
             INTEGER(ipcCalcParam),
             OUTPUT opcCalcValue).
         WHEN "calcTimeString" THEN
+        RUN VALUE(ipcCalcProc) (
+            INTEGER(ipcCalcParam),
+            OUTPUT opcCalcValue).
+        WHEN "calcAPIType" THEN
         RUN VALUE(ipcCalcProc) (
             INTEGER(ipcCalcParam),
             OUTPUT opcCalcValue).
