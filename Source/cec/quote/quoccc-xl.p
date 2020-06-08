@@ -387,7 +387,7 @@ IF AVAIL bf-quoteqty THEN
    
         IF iLine GT 1 THEN DO:
             gchWorkSheet = gchExcelApplication:Sheets:item(1).
-            RUN AddBorders(INPUT "B" + STRING(39 + iLine) + ":H" + STRING(39 + iLine)).
+            RUN AddBorders(INPUT "B" + STRING(37 + iLine) + ":H" + STRING(37 + iLine)).
             gchWorkSheet = gchExcelApplication:Sheets:item(2).                               
         END.
     END.
