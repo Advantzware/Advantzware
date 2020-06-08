@@ -2,8 +2,8 @@
 &ANALYZE-RESUME
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Procedure 
 /*------------------------------------------------------------------------
-    File        : oe/rep/cocccc.p
-    Purpose     : CCC BOL Cert
+    File        : cec/quote/quoccc-xl.p
+    Purpose     : CCC Quote format
 
     Syntax      :
 
@@ -387,7 +387,7 @@ IF AVAIL bf-quoteqty THEN
    
         IF iLine GT 1 THEN DO:
             gchWorkSheet = gchExcelApplication:Sheets:item(1).
-            RUN AddBorders(INPUT "B" + STRING(39 + iLine) + ":H" + STRING(39 + iLine)).
+            RUN AddBorders(INPUT "B" + STRING(37 + iLine) + ":H" + STRING(37 + iLine)).
             gchWorkSheet = gchExcelApplication:Sheets:item(2).                               
         END.
     END.
