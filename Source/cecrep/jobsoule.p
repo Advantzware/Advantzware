@@ -267,7 +267,8 @@ do v-local-loop = 1 to v-local-copies:
        "<C40>Production Specification </B><P10>Part item name:" lv-part-name SKIP
        "<#1><C1><FROM><C105><R+45><RECT><|3>" 
        "<=1><C32><FROM><R+19><C32><LINE><|3>"
-       "<=1><C66><FROM><R+19><C66><LINE><|3>"
+       "<=1><C66><FROM><R+10><C66><LINE><|3>"
+       "<=1><C63.5><R+10><FROM><R+9><C63.5><LINE><|3>"
        "<=1><C90><FROM><R+4><C90><LINE><|3>"
        "<=1><R+4><C1><FROM><C105><LINE><|3>"
        "<=#1><R+10><C1><FROM><C105><LINE><|3>"
@@ -379,50 +380,56 @@ do v-local-loop = 1 to v-local-copies:
               "Item Name: " AT 40 lv-fg-name FORM "x(26)"
               "Adders:" AT 80 v-adders FORM "x(23)"
               "<P7>"SKIP(1)
-              "Board:" AT 2 "Printing:" AT 55 "Die Cutting, Slit, & Saw" AT 115 "<P10>"SKIP
+              "Board:" AT 2 "Printing:" AT 55 "Die Cutting, Slit, & Saw" AT 111 "<P10>"SKIP
               "Shts Req'd:" AT 2 trim(string(v-sht-qty))   format "x(9)"
                 " Sq Ft:" trim(string(v-form-sqft)) format "x(7)"
               "PLATE #:" AT 39 xeb.plate-no FORM "X(15)" when avail xeb
               v-plate-loc WHEN AVAIL xeb
-              "Die #" AT 80 xeb.die-no when avail xeb " Loc:" v-die-loc SKIP
+              "Die #" AT 77 xeb.die-no when avail xeb " Loc:" v-die-loc SKIP
               "W:" + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
               "  " +
               "L:" + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))  format "x(22)" AT 2
               "MSF:"  + trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
                                                                 format "x(11)"
               "Ink 1:" AT 39 v-ink-1
-              "Gross:" AT 80  
+              "Gross:" AT 77  
               "W:" + trim(string({sys/inc/k16v.i xef.gsh-wid},">>>9.99")) +
-              "  " +
-              "L:" + trim(string({sys/inc/k16v.i xef.gsh-len},">>>9.99"))
-                                                                format "x(20)"
-              "Slit: W:" + string(v-outw) + " L:" + string(v-outl) FORM "x(15)"   
+              " " +
+              "L:" + trim(string({sys/inc/k16v.i xef.gsh-len},">>>9.99")) +
+              " " +
+              "D:" + trim(string({sys/inc/k16v.i xef.gsh-dep},">>9.99"))
+                                                                format "x(25)"
+              "Slit:W:" + string(v-outw) + " L:" + string(v-outl) + " D:" + STRING(xef.n-out-d)  FORM "x(17)"   
               SKIP
-              "Board:" AT 2 v-form-code FORM "x(30)" "Ink 2:" AT 39 v-ink-2 "Net  :" AT 80
+              "Board:" AT 2 v-form-code FORM "x(30)" "Ink 2:" AT 39 v-ink-2 "Net  :" AT 77
               "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>9.99")) +
-              "  " +
-              "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>9.99")) format "x(22)"
+              " " +
+              "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>9.99")) +
+              " " +
+              "D:" + trim(string({sys/inc/k16v.i xef.nsh-dep},">>9.99")) format "x(25)"
               SKIP
-              v-form-dscr AT 4 FORM "x(30)" "Ink 3:" AT 39 v-ink-3 "Die  :" AT 80
+              v-form-dscr AT 4 FORM "x(30)" "Ink 3:" AT 39 v-ink-3 "Die  :" AT 77
               "W:" + trim(string({sys/inc/k16v.i xef.trim-w},">>>9.99")) +
-              "  " +
-              "L:" + trim(string({sys/inc/k16v.i xef.trim-l},">>>9.99")) format "x(22)"
-              "Up:" "W:" + string(v-upl) + " L:" + string(v-upw) FORM "x(9)"
+              " " +
+              "L:" + trim(string({sys/inc/k16v.i xef.trim-l},">>>9.99")) +
+              " " +
+              "D:" + trim(string({sys/inc/k16v.i xef.trim-d},">>9.99")) format "x(25)"
+              "Up:" + "W:" + string(v-upl) + " L:" + string(v-upw) + " D:" + STRING(xeb.num-dep) FORM "x(15)"
               SKIP
                v-qty-or-sup AT 2 FORM "x(36)" 
-              "Ink 4:" AT 39 v-ink-4 "Blank:" AT 80 
+              "Ink 4:" AT 39 v-ink-4 "Blank:" AT 77 
               "W:" + trim(string({sys/inc/k16v.i xeb.t-wid},">>>9.99")) +
               "  " +
               "L:" + trim(string({sys/inc/k16v.i xeb.t-len},">>>9.99")) format "x(22)"
               SKIP
               "Score:" AT 2 substring(v-len-score,1,30) WHEN xstyle.TYPE <> "F" format "x(30)" 
               "Color Desc:" AT 39 xeb.i-coldscr when avail xeb
-              "Impressions: " AT 80 trim(string(v-dc-qty))    format "x(7)"
+              "Impressions: " AT 77 trim(string(v-dc-qty))    format "x(7)"
               SKIP
               SUBSTRING(v-len-score,31,40) AT 6 FORM "x(40)"
-              "D/C Style:" AT 80 SKIP(1)
+              "D/C Style:" AT 77 SKIP(1)
               WITH FRAME job1 NO-LABEL NO-BOX WIDTH 150 STREAM-IO.
-        
+              
         i = 0.
         for each w-m:
           i = i + 1.
@@ -434,7 +441,7 @@ do v-local-loop = 1 to v-local-copies:
             /* box for route */
         
         put skip
-            "<P7>   Machine Routing                    SU:      Start       Stop        Waste          RUN:     Hours      Start       Stop     QTY:  In        Out         Waste         Date <P10>" SKIP.
+            "<P7>   Machine Routing                    SU:      Start       Stop        Waste          RUN:     Hours      Start       Stop     QTY:  In        Out         Waste       Operator <P10>" SKIP.
         i = 0.
 
         for each w-m by w-m.dseq:
@@ -795,43 +802,12 @@ do v-local-loop = 1 to v-local-copies:
             v-tmp-line = v-tmp-line + 10.
 
             i = 0.
-            for each tt-wm WHERE lookup(tt-wm.m-code,tspostfg-char) > 0:
-                 i = i + 1.
-            END.
-            i = i + 2.
-            PUT /*"<C2>Machine Routing:  <C15> SU:    Start    Stop     Total    Run:   Start   Stop    total   qty   in   out  waste  date" SKIP*/
-                "<p9>  Machine Routing        SU:    Start    Stop    Total   RUN:  Start   Stop    Total   QTY:    In     Out     Waste     Date" SKIP
-                "<=1><R+" + string(v-tmp-line + 1) + "><C1><FROM><R+" + string(i) + "><C105><RECT><||3>" FORM "x(150)" SKIP
-                "<=1><R+" + string(v-tmp-line + 1) + ">" FORM "x(20)".
-                .
-
-            i = 0.
-            for each tt-wm WHERE lookup(tt-wm.m-code,tspostfg-char) > 0  by tt-wm.dseq:
-              i = i + 1.
-              display tt-wm.dscr AT 3
-                   tt-wm.s-hr when tt-wm.s-hr ne 0
-                   fill("_",7)  format "x(7)"    to 38   when tt-wm.dscr ne ""
-                   fill("_",7)  format "x(7)"    to 46   when tt-wm.dscr ne ""
-                   fill("_",7)  format "x(7)"    to 54   when tt-wm.dscr ne ""
-                   space(2)
-                   tt-wm.r-sp when tt-wm.r-sp ne 0
-                   fill("_",7)  format "x(7)"    to 69   when tt-wm.dscr ne ""
-                   fill("_",7)  format "x(7)"    to 77   when tt-wm.dscr ne ""
-                   fill("_",7)  format "x(7)"    to 85   when tt-wm.dscr ne ""
-                   fill("_",8)  format "x(8)"    to 99   when tt-wm.dscr ne ""
-                   fill("_",8)  format "x(8)"    to 108  when tt-wm.dscr ne ""
-                   fill("_",8)  format "x(8)"    to 117  when tt-wm.dscr ne ""
-                   fill("_",8)  format "x(8)"    to 129  when tt-wm.dscr ne ""
-                   /*chr(124) format "x"           at 131   */                  
-                   with no-box no-labels frame o21 width 132 no-attr-space down STREAM-IO.
-            end.
+            
             PUT "<p10>".
             FOR EACH tt-wm:
                 DELETE tt-wm.
             END.
-            ASSIGN
-            v-tmp-line = v-tmp-line + 3 + i /* 4 and add machine routing lines */
-
+           
             v-shipto = IF AVAIL xoe-rel THEN xoe-rel.ship-id 
                        ELSE IF avail xeb THEN xeb.ship-id
                        ELSE IF avail xoe-ord THEN xoe-ord.sold-id 
