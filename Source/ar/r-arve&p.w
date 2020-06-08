@@ -1240,25 +1240,26 @@ DEFINE VARIABLE cPrimaryID AS CHARACTER NO-UNDO.
 
 IF AVAILABLE ipbf-ar-inv THEN DO:
 
-    cTriggerID = "PostInvoice".
     
     ASSIGN 
-        cAPIID = "SendInvoice"
-        cPrimaryID = STRING(ipbf-ar-inv.inv-no)
-        cDescription = cAPIID + " triggered by " + cTriggerID + " from r-poprt.w for PO: " + cPrimaryID
+        cAPIID       = "SendInvoice"
+        cTriggerID   = "PostInvoice"
+        cPrimaryID   = STRING(ipbf-ar-inv.inv-no)
+        cDescription = cAPIID + " triggered by " + cTriggerID + " from r-arve&p.w for Invoice: " + cPrimaryID
         . 
-    RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
-        INPUT  ipbf-ar-inv.company,                /* Company Code (Mandatory) */
-        INPUT  locode,               /* Location Code (Mandatory) */
-        INPUT  cAPIID,                  /* API ID (Mandatory) */
-        INPUT  "",               /* Client ID (Optional) - Pass empty in case to make request for all clients */
-        INPUT  cTriggerID,              /* Trigger ID (Mandatory) */
-        INPUT  "ar-inv",               /* Comma separated list of table names for which data being sent (Mandatory) */
-        INPUT  STRING(ROWID(ipbf-ar-inv)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
-        INPUT  cPrimaryID,              /* Primary ID for which API is called for (Mandatory) */   
-        INPUT  cDescription,       /* Event's description (Optional) */
-        OUTPUT lSuccess,                /* Success/Failure flag */
-        OUTPUT cMessage                 /* Status message */
+    RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+        INPUT  ipbf-ar-inv.company,           /* Company Code (Mandatory) */
+        INPUT  locode,                        /* Location Code (Mandatory) */
+        INPUT  cAPIID,                        /* API ID (Mandatory) */
+        INPUT  ipbf-ar-inv.cust-no,           /* Scope ID */
+        INPUT  "Customer",                    /* Scope Type */
+        INPUT  cTriggerID,                    /* Trigger ID (Mandatory) */
+        INPUT  "ar-inv",                      /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  STRING(ROWID(ipbf-ar-inv)),    /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  cPrimaryID,                    /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  cDescription,                  /* Event's description (Optional) */
+        OUTPUT lSuccess,                      /* Success/Failure flag */
+        OUTPUT cMessage                       /* Status message */
         ) NO-ERROR.
 
 

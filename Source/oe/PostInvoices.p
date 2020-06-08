@@ -312,6 +312,9 @@ DEFINE TEMP-TABLE rpt NO-UNDO
 /*Program-level Handles for persistent procs*/
 
 DEFINE VARIABLE ghNotesProcs AS HANDLE NO-UNDO.
+
+DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
     
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -1605,6 +1608,11 @@ PROCEDURE pCreateEDI PRIVATE:
         END.  /*ED master is available*/
     END.  /*ED Code available*/
 
+    /* Generates request data and call the API */
+    RUN pRunAPIOutboundTrigger (
+        BUFFER ipbf-inv-head
+        ).
+
 END PROCEDURE.
 
 PROCEDURE pCreateGLTransFromTransaction PRIVATE:
@@ -2640,6 +2648,9 @@ PROCEDURE pPostInvoices PRIVATE:
         DELETE ttInvoiceToPost.
     END. /*each invoice to post*/
 
+    /* Resets the context of OutboundProcs. Will delete all the temp-table data for next
+       processing */
+    RUN Outbound_ResetContext IN hdOutboundProcs.
 END PROCEDURE.
 
 PROCEDURE pProcessInvoicesToPost PRIVATE:
@@ -2780,6 +2791,47 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
     
 /*REFACTOR - Need to process multi-currency - Manipulate GLTransactions and amounts and create CURR types for offsets*/
 
+END PROCEDURE.
+
+PROCEDURE pRunAPIOutboundTrigger PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Prepares the request data for the invoice to call the API
+     Notes:
+    ------------------------------------------------------------------------------*/
+    
+    DEFINE PARAMETER BUFFER ipbf-inv-head FOR inv-head.
+
+    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAPIID       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTriggerID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
+
+    IF AVAILABLE ipbf-inv-head THEN DO:
+    
+        ASSIGN 
+            cAPIID       = "SendInvoice"
+            cTriggerID   = "PostInvoice"
+            cPrimaryID   = STRING(ipbf-inv-head.inv-no)
+            cDescription = cAPIID + " triggered by " + cTriggerID + " from PostInvoices.p for invoice: " + cPrimaryID
+            .
+
+        RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+            INPUT  ipbf-inv-head.company,         /* Company Code (Mandatory) */
+            INPUT  locode,                        /* Location Code (Mandatory) */
+            INPUT  cAPIID,                        /* API ID (Mandatory) */
+            INPUT  ipbf-inv-head.cust-no,         /* Scope ID */
+            INPUT  "Customer",                    /* Scope Type */
+            INPUT  cTriggerID,                    /* Trigger ID (Mandatory) */
+            INPUT  "inv-head",                    /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(ROWID(ipbf-inv-head)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  cPrimaryID,                    /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  cDescription,                  /* Event's description (Optional) */
+            OUTPUT lSuccess,                      /* Success/Failure flag */
+            OUTPUT cMessage                       /* Status message */
+            ) NO-ERROR.    
+    END.
 END PROCEDURE.
 
 PROCEDURE pUpdateBOLs PRIVATE:
