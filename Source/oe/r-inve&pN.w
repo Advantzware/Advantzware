@@ -3,7 +3,6 @@
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
-
   File: oe\r-inve&p.w
 
   Description: Invoice Edit List & Posting
@@ -61,7 +60,10 @@ DEF VAR cMessage AS CHAR NO-UNDO.
 
 {sys/inc/VAR.i new shared}
 DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+
 RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 ASSIGN
     cocode = gcompany
@@ -592,11 +594,14 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Invoice Posting */
 DO:
-        /* This event will close the window and terminate the procedure.  */
-        DELETE OBJECT hNotesProcs.
-        APPLY "CLOSE":U TO THIS-PROCEDURE.
-        RETURN NO-APPLY.
-    END.
+  /* This event will close the window and terminate the procedure.  */
+  DELETE OBJECT hNotesProcs.
+  IF VALID-HANDLE(hdOutboundProcs) THEN
+    DELETE PROCEDURE hdOutboundProcs.
+  APPLY "CLOSE":U TO THIS-PROCEDURE.
+  RETURN NO-APPLY.
+END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -628,8 +633,10 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-        APPLY "close" TO THIS-PROCEDURE.
-    END.
+   IF VALID-HANDLE(hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.
+   APPLY "close" TO THIS-PROCEDURE.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2189,127 +2196,124 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE list-post-inv C-Win 
 PROCEDURE list-post-inv :
 /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ip-list-post AS CHARACTER NO-UNDO.
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ip-list-post AS CHARACTER NO-UNDO.
 
-    DEFINE BUFFER b-oe-boll FOR oe-boll.
+  DEFINE BUFFER b-oe-boll FOR oe-boll.
 
-    DEFINE VARIABLE ld-t AS DECIMAL FORMAT "->>>>9.99" EXTENT 3 NO-UNDO.
-    DEFINE VARIABLE ld-pton AS DECIMAL FORMAT "->>>>>>9.999" NO-UNDO.
-    DEFINE VARIABLE v-close-line-ok AS LOGICAL INITIAL NO.
-    DEFINE VARIABLE v-first AS LOG INIT YES.
-    DEFINE VARIABLE v-tot-frt AS DECIMAL NO-UNDO.
-    FORMAT
-        inv-head.inv-no FORMAT ">>>>>>9" AT 1
-        inv-head.inv-date AT 9 FORMAT "99/99/99"
-        inv-head.cust-no AT 18
-        inv-head.cust-name FORMAT "x(25)" AT 27
-        v-ord-no TO 60
-        v-inv-qty
-        inv-head.t-inv-freight FORMAT "->,>>9.99"
-        inv-head.t-inv-tax FORMAT "->,>>>,>>9.99"
-        v-misc-tot FORMAT "->>>>9.99"
-        v-line-tot FORMAT "->>>>>>9.99"
-        inv-head.t-inv-rev FORMAT "->>,>>>,>>9.999999" TO 139
-        ld-pton FORMAT "->>>>>>9.999"
-        ld-t[2]
-        WITH STREAM-IO WIDTH 180 NO-LABELS NO-BOX NO-UNDERLINE FRAME inv.
+  DEFINE VARIABLE ld-t AS DECIMAL FORMAT "->>>>9.99" EXTENT 3 NO-UNDO.
+  DEFINE VARIABLE ld-pton AS DECIMAL FORMAT "->>>>>>9.999" NO-UNDO.
+  DEFINE VARIABLE v-close-line-ok AS LOGICAL INITIAL NO.
+  DEFINE VARIABLE v-first AS LOG INIT YES.
+  DEFINE VARIABLE v-tot-frt AS DECIMAL NO-UNDO.
+  FORMAT
+    inv-head.inv-no FORMAT ">>>>>>9" AT 1
+    inv-head.inv-date AT 9 FORMAT "99/99/99"
+    inv-head.cust-no AT 18
+    inv-head.cust-name FORMAT "x(25)" AT 27
+    v-ord-no TO 60
+    v-inv-qty
+    inv-head.t-inv-freight FORMAT "->,>>9.99"
+    inv-head.t-inv-tax FORMAT "->,>>>,>>9.99"
+    v-misc-tot FORMAT "->>>>9.99"
+    v-line-tot FORMAT "->>>>>>9.99"
+    inv-head.t-inv-rev format "->>,>>>,>>9.999999" TO 139
+    ld-pton FORMAT "->>>>>>9.999"
+    ld-t[2]
+    WITH STREAM-IO WIDTH 180 NO-LABELS NO-BOX NO-UNDERLINE FRAME inv.
 
-    FORMAT
-        w-inv-line.i-no AT 10 LABEL "Item"
-        w-inv-line.i-name FORMAT "x(25)" LABEL "Description"
-        w-inv-line.qty FORMAT "->>,>>>,>>9" LABEL "Order"
-        w-inv-line.inv-qty FORMAT "->>,>>>,>>9" COLUMN-LABEL "Quantities!Invoiced "
-        w-inv-line.ship-qty FORMAT "->>,>>>,>>9" LABEL "Shipped"
-        w-inv-line.t-cost FORMAT "->>>,>>9.99<<<<" LABEL "Cost"
-        w-inv-line.price FORMAT "->>>,>>9.999999" LABEL "Price"
-        w-inv-line.uom LABEL "UOM"
-        w-inv-line.t-price FORMAT "->>,>>>,>>9.999999" COLUMN-LABEL "Extended! Price"
-        v-prof  FORMAT "->>>9.99%" COLUMN-LABEL "Profit"
-        WITH DOWN NO-BOX STREAM-IO WIDTH 180 FRAME invl.
+  FORMAT
+    w-inv-line.i-no AT 10 LABEL "Item"
+    w-inv-line.i-name FORMAT "x(25)" LABEL "Description"
+    w-inv-line.qty FORMAT "->>,>>>,>>9" LABEL "Order"
+    w-inv-line.inv-qty FORMAT "->>,>>>,>>9" COLUMN-LABEL "Quantities!Invoiced "
+    w-inv-line.ship-qty FORMAT "->>,>>>,>>9" LABEL "Shipped"
+    w-inv-line.t-cost FORMAT "->>>,>>9.99<<<<" LABEL "Cost"
+    w-inv-line.price FORMAT "->>>,>>9.999999" LABEL "Price"
+    w-inv-line.uom LABEL "UOM"
+    w-inv-line.t-price format "->>,>>>,>>9.999999" COLUMN-LABEL "Extended! Price"
+    v-prof  FORMAT "->>>9.99%" COLUMN-LABEL "Profit"
+    WITH DOWN NO-BOX STREAM-IO WIDTH 180 FRAME invl.
 
-    FORMAT
-        w-inv-line.i-no AT 10 LABEL "Item"
-        w-inv-line.i-name FORMAT "x(25)" LABEL "Description"
-        w-inv-line.qty FORMAT "->>,>>>,>>9" LABEL "Order"
-        w-inv-line.inv-qty FORMAT "->>,>>>,>>9" COLUMN-LABEL "Quantities!Invoiced "
-        w-inv-line.ship-qty FORMAT "->>,>>>,>>9" LABEL "Shipped"
-        w-inv-line.t-cost FORMAT "->>>,>>9.99<<<<" LABEL "Cost"
-        w-inv-line.price FORMAT "->>>,>>9.999999" LABEL "Price"
-        w-inv-line.uom LABEL "UOM"
-        w-inv-line.t-price FORMAT "->>,>>>,>>9.999999" COLUMN-LABEL "Extended! Price"
-        ld-pton FORMAT "->>>>>>9.999" COLUMN-LABEL "!     $/Ton"
-        ld-t[1] COLUMN-LABEL "!      Tons"
-        v-prof  FORMAT "->>>9.99%" COLUMN-LABEL "Profit"
-        WITH DOWN NO-BOX STREAM-IO WIDTH 180 FRAME invlt.
+  FORMAT
+    w-inv-line.i-no AT 10 LABEL "Item"
+    w-inv-line.i-name FORMAT "x(25)" LABEL "Description"
+    w-inv-line.qty FORMAT "->>,>>>,>>9" LABEL "Order"
+    w-inv-line.inv-qty FORMAT "->>,>>>,>>9" COLUMN-LABEL "Quantities!Invoiced "
+    w-inv-line.ship-qty FORMAT "->>,>>>,>>9" LABEL "Shipped"
+    w-inv-line.t-cost FORMAT "->>>,>>9.99<<<<" LABEL "Cost"
+    w-inv-line.price FORMAT "->>>,>>9.999999" LABEL "Price"
+    w-inv-line.uom LABEL "UOM"
+    w-inv-line.t-price format "->>,>>>,>>9.999999" COLUMN-LABEL "Extended! Price"
+    ld-pton FORMAT "->>>>>>9.999" COLUMN-LABEL "!     $/Ton"
+    ld-t[1] COLUMN-LABEL "!      Tons"
+    v-prof  FORMAT "->>>9.99%" COLUMN-LABEL "Profit"
+    WITH DOWN NO-BOX STREAM-IO WIDTH 180 FRAME invlt.
 
-    FORMAT
-        w-ord-misc.charge AT 10 LABEL "Charge"
-        w-ord-misc.dscr LABEL "Description"
-        w-ord-misc.amt FORMAT "->>>,>>9.999999" TO 71 LABEL "Price" SKIP
-        WITH STREAM-IO DOWN NO-BOX FRAME invm.
+  FORMAT
+    w-ord-misc.charge AT 10 LABEL "Charge"
+    w-ord-misc.dscr LABEL "Description"
+    w-ord-misc.amt FORMAT "->>>,>>9.999999" TO 71 LABEL "Price" SKIP
+    WITH STREAM-IO DOWN NO-BOX FRAME invm.
 
-    SESSION:SET-WAIT-STATE ("general").
+  SESSION:SET-WAIT-STATE ("general").
 
-    RUN oe/invpostd.p ("").
+  RUN oe/invpostd.p ("").
 
-    v-post = ip-list-post EQ "post".
+  v-post = ip-list-post EQ "post".
 
-    DISABLE TRIGGERS FOR LOAD OF inv-head.
-    DISABLE TRIGGERS FOR LOAD OF inv-line.
-    DISABLE TRIGGERS FOR LOAD OF oe-ord.
-    DISABLE TRIGGERS FOR LOAD OF oe-ordl.
-    DISABLE TRIGGERS FOR LOAD OF itemfg.
-    DISABLE TRIGGERS FOR LOAD OF oe-relh.
-    DISABLE TRIGGERS FOR LOAD OF oe-rell.
+  DISABLE TRIGGERS FOR LOAD OF inv-head.
+  DISABLE TRIGGERS FOR LOAD OF inv-line.
+  DISABLE TRIGGERS FOR LOAD OF oe-ord.
+  DISABLE TRIGGERS FOR LOAD OF oe-ordl.
+  DISABLE TRIGGERS FOR LOAD OF itemfg.
+  DISABLE TRIGGERS FOR LOAD OF oe-relh.
+  DISABLE TRIGGERS FOR LOAD OF oe-rell.
 
-    ordblock:
-    FOR EACH w-report WHERE w-report.term-id EQ "" NO-LOCK,
+  ordblock:
+  FOR EACH w-report WHERE w-report.term-id EQ "" NO-LOCK,
 
-        FIRST inv-head WHERE RECID(inv-head) EQ w-report.rec-id
+      FIRST inv-head WHERE RECID(inv-head) EQ w-report.rec-id
 
-        TRANSACTION
+      TRANSACTION
 
-        BY w-report.key-01:
- 
-           
-        FIND FIRST edmast NO-LOCK
-            WHERE edmast.cust EQ inv-head.cust-no
-            NO-ERROR.
-        IF AVAILABLE edmast AND v-post THEN 
-        DO:             
-            /* Create eddoc for invoice if required */
-            RUN ed/asi/o810hook.p (RECID(inv-head), NO, NO). 
-            
-            FIND FIRST edcode NO-LOCK
-                WHERE edcode.partner EQ edmast.partner
-                NO-ERROR.
-            IF NOT AVAILABLE edcode THEN 
-                FIND FIRST edcode NO-LOCK
-                    WHERE edcode.partner EQ edmast.partnerGrp
-                    NO-ERROR.
-            IF AVAILABLE edcode AND edcode.sendFileOnPrint THEN    
-                RUN ed/asi/write810.p (INPUT cocode, INPUT inv-head.inv-no).                     
-        END.  
-        FIND FIRST cust NO-LOCK 
-             WHERE cust.company EQ inv-head.company
-             AND cust.cust-no EQ inv-head.cust-no NO-ERROR.
-        {oe/r-inve&p.i}
-    END.
+      BY w-report.key-01:
+      
+      RUN pRunAPIOutboundTrigger(BUFFER inv-head).
+/*        /* Create eddoc for invoice if required */                      */
+/*        RUN ed/asi/o810hook.p (recid(inv-head), no, no).                */
+/*                                                                        */
+/*        FIND FIRST edmast NO-LOCK                                       */
+/*            WHERE edmast.cust EQ inv-head.cust-no                       */
+/*            NO-ERROR.                                                   */
+/*        IF AVAIL edmast THEN                                            */
+/*        DO:                                                             */
+/*            FIND FIRST edcode NO-LOCK                                   */
+/*                WHERE edcode.partner EQ edmast.partner                  */
+/*                NO-ERROR.                                               */
+/*            IF NOT AVAIL edcode THEN                                    */
+/*                FIND FIRST edcode NO-LOCK                               */
+/*                    WHERE edcode.partner EQ edmast.partnerGrp           */
+/*                    NO-ERROR.                                           */
+/*        END.                                                            */
+/*                                                                        */
+/*        IF AVAIL edcode AND edcode.sendFileOnPrint THEN                 */
+/*            RUN ed/asi/write810.p (INPUT cocode, INPUT inv-head.inv-no).*/
+    {oe/r-inve&p.i}
+  END.
 
-    FIND CURRENT inv-head NO-LOCK NO-ERROR.
-    FIND CURRENT inv-line NO-LOCK NO-ERROR.
-    FIND CURRENT itemfg NO-LOCK NO-ERROR.
-    FIND CURRENT oe-ordl NO-LOCK NO-ERROR.
-    FIND CURRENT ar-invl NO-LOCK NO-ERROR.
-    FIND CURRENT oe-ordm NO-LOCK NO-ERROR.
-    FIND CURRENT cust NO-LOCK NO-ERROR.
+  FIND CURRENT inv-head NO-LOCK NO-ERROR.
+  FIND CURRENT inv-line NO-LOCK NO-ERROR.
+  FIND CURRENT itemfg NO-LOCK NO-ERROR.
+  FIND CURRENT oe-ordl NO-LOCK NO-ERROR.
+  FIND CURRENT ar-invl NO-LOCK NO-ERROR.
+  FIND CURRENT oe-ordm NO-LOCK NO-ERROR.
+  FIND CURRENT cust NO-LOCK NO-ERROR.
 
-    SESSION:SET-WAIT-STATE ("").
-
+  SESSION:SET-WAIT-STATE ("").
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2617,6 +2621,58 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunApiOutboundTrigger C-Win
+PROCEDURE pRunApiOutboundTrigger:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE PARAMETER BUFFER ipbf-inv-head FOR inv-head.
+
+DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPIID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTriggerID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrimaryID AS CHARACTER NO-UNDO.
+   
+
+IF AVAILABLE ipbf-inv-head THEN DO:
+    
+    ASSIGN 
+        cAPIID       = "SendInvoice"
+        cTriggerID   = "PostInvoice"
+        cPrimaryID   = STRING(ipbf-inv-head.inv-no)
+        cDescription = cAPIID + " triggered by " + cTriggerID + " from r-inve&pN.w for Invoice: " + cPrimaryID
+        . 
+
+    RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+        INPUT  ipbf-inv-head.company,         /* Company Code (Mandatory) */
+        INPUT  locode,                        /* Location Code (Mandatory) */
+        INPUT  cAPIID,                        /* API ID (Mandatory) */
+        INPUT  ipbf-inv-head.cust-no,         /* Scope ID */
+        INPUT  "Customer",                    /* Scope Type */
+        INPUT  cTriggerID,                    /* Trigger ID (Mandatory) */
+        INPUT  "inv-head",                    /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  STRING(ROWID(ipbf-inv-head)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  cPrimaryID,                    /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  cDescription,                  /* Event's description (Optional) */
+        OUTPUT lSuccess,                      /* Success/Failure flag */
+        OUTPUT cMessage                       /* Status message */
+        ) NO-ERROR.
+
+    RUN Outbound_ResetContext IN hdOutboundProcs.
+END. /*avail inv-head*/
+
+END PROCEDURE.
+
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :

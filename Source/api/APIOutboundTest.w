@@ -850,7 +850,34 @@ DO:
                 INPUT "job",
                 INPUT STRING(ROWID(job))
                 ).                      
-        END.    
+        END.
+        WHEN "SendInvoice" THEN DO:
+            FIND FIRST inv-head NO-LOCK
+                 WHERE inv-head.company EQ cCompany
+                   AND inv-head.inv-no   EQ INTEGER(fiPrimaryKey:SCREEN-VALUE)
+                 NO-ERROR.
+            IF NOT AVAIL inv-head THEN
+              FIND FIRST ar-inv NO-LOCK
+                WHERE ar-inv.company EQ cCompany
+                  AND ar-inv.inv-no EQ INTEGER(fiPrimaryKey:SCREEN-VALUE)
+                  NO-ERROR. 
+            IF NOT AVAILABLE inv-head AND NOT AVAIL ar-inv THEN DO:    
+                MESSAGE "Invalid invoice Number" ccompany fiPrimaryKey:SCREEN-VALUE VIEW-AS ALERT-BOX ERROR.
+                RETURN.
+            END.
+            IF AVAIL inv-head THEN 
+                RUN pCreateArgs (
+                    INPUT "ROWID",
+                    INPUT "inv-head",
+                    INPUT STRING(ROWID(inv-head))
+                    ).
+            ELSE IF AVAIL ar-inv THEN 
+                RUN pCreateArgs (
+                    INPUT "ROWID",
+                    INPUT "ar-inv",
+                    INPUT STRING(ROWID(ar-inv))
+                    ).
+        END.
         WHEN "SendOrderAck"  THEN DO:
             FIND FIRST oe-ord NO-LOCK
                  WHERE oe-ord.company EQ cCompany
@@ -866,7 +893,7 @@ DO:
                 INPUT "oe-ord",
                 INPUT STRING(ROWID(oe-ord))
                 ).
-        END.        
+        END.
     END CASE.
     RUN api/PrepareOutboundRequest.p (
         INPUT TABLE ttArgs,

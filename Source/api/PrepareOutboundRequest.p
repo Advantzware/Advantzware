@@ -127,6 +127,16 @@ PROCEDURE pPrepareRequest PRIVATE:
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage
                 ).
+        WHEN "SendInvoice" THEN
+            RUN api/SendInvoice.p (
+                INPUT TABLE ttArgs,
+                INPUT ipiAPIOutboundID,
+                INPUT ipiAPIOutboundTriggerID,
+                INPUT ipcRequestHandler,
+                INPUT-OUTPUT oplcRequestData,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).            
         WHEN "SendRelease" THEN
             RUN api/SendRelease.p (
                 INPUT TABLE ttArgs,
