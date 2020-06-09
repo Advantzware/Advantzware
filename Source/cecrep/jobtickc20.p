@@ -807,7 +807,9 @@ DO v-local-loop = 1 TO v-local-copies:
        IF AVAILABLE xeb  THEN
            FIND FIRST stackPattern NO-LOCK 
             WHERE stackPattern.stackcode EQ xeb.stack-code NO-ERROR .
-
+            
+       dJobQty  = job-hdr.qty * (IF xeb.est-type EQ 6 AND xeb.quantityPerSet GT 0 THEN xeb.quantityPerSet ELSE 1) .     
+         
         PUT  "<C1><R1.2><#Start>"
               "<=Start><FROM><C108><R50><RECT><|1>  "
               "<=Start><#JobStart>"
@@ -861,12 +863,12 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=PackingStart><R+2><RIGHT=C+6>Size: "
               "<=PackingStart><R+2><C9>L: <#PalletLength>"
               "<=PackingStart><R+2><C15>W: <#PalletWidth> "
-              "<=PackingStart><R+3><C9>Per"
-              "<=PackingStart><R+3><C15>Job Total"
-              "<=PackingStart><R+4><RIGHT=C+6>Per Case:"
+              "<=PackingStart><R+3><C9>Count"
+              "<=PackingStart><R+3><C15>Req'd Qty"
+              "<=PackingStart><R+4><RIGHT=C+6>Bundle:"
               "<=PackingStart><R+4><C9><#CaseCount>"
               "<=PackingStart><R+4><C15><#JobCases>"
-              "<=PackingStart><R+5><RIGHT=C+6>Per Pallet:"
+              "<=PackingStart><R+5><RIGHT=C+6>Pallet:"
               "<=PackingStart><R+5><C9><#PalletCount>"
               "<=PackingStart><R+5><C15><#JobPallets>"
               "<=PackingStart><FROM><RECT#ShippingEnd><|1>"
@@ -908,11 +910,11 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=PalletLength>" IF AVAILABLE xeb THEN STRING(xeb.tr-len,">>9.99") ELSE "" FORMAT "x(6)"
               "<=PalletWidth>" IF AVAILABLE xeb THEN STRING(xeb.tr-wid,">>9.99") ELSE "" FORMAT "x(6)"
               "<B>"
-              "<=CaseCount>" IF AVAILABLE xeb THEN STRING(xeb.tr-cnt) ELSE "" FORMAT "x(5)" 
-              "<=PalletCount>" IF AVAILABLE xeb THEN STRING(xeb.cas-pal) ELSE "" FORMAT "x(6)" 
+              "<=CaseCount>" IF AVAILABLE xeb THEN STRING(xeb.cas-cnt) ELSE "" FORMAT "x(5)" 
+              "<=PalletCount>" IF AVAILABLE xeb THEN STRING(xeb.tr-cnt) ELSE "" FORMAT "x(6)" 
               "</B>"
-              "<=JobCases>" IF AVAILABLE xeb THEN STRING(xeb.tr-cnt) ELSE "" FORMAT "x(5)"
-              "<=JobPallets>" IF AVAILABLE xeb THEN STRING(xeb.cas-pal) ELSE "" FORMAT "x(6)"
+              "<=JobCases>" STRING(dJobQty / (IF AVAILABLE xeb THEN xeb.cas-cnt ELSE 1) ) FORMAT "x(7)"
+              "<=JobPallets>" STRING(dJobQty / (IF AVAILABLE xeb THEN xeb.tr-cnt ELSE 1)) FORMAT "x(6)"
               "<=Layers>" IF AVAILABLE xeb THEN STRING(xeb.tr-cas) ELSE "" FORMAT "x(4)"
               "<=Stacks>" IF AVAILABLE xeb THEN STRING(xeb.stacks) ELSE "" FORMAT "x(6)"
               "<=PatternCode>" IF AVAILABLE xeb THEN STRING(xeb.stack-code) ELSE "" FORMAT "x(3)"

@@ -190,12 +190,19 @@ PROCEDURE pValidate PRIVATE:
                 .
                 
         END.
-        IF oplValid AND ipbf-ttImportCash.InvoiceApplied GT ipbf-ttImportCash.CheckAmount THEN 
-        DO:
-            ASSIGN 
-                oplValid = NO 
-                opcNote  = "Applied > Check"
-                .
+        IF oplValid THEN DO:
+            IF ipbf-ttImportCash.InvoiceApplied LT 0 AND ipbf-ttImportCash.CheckAmount LT 0 THEN DO:
+               IF ipbf-ttImportCash.CheckAmount GT ipbf-ttImportCash.InvoiceApplied THEN 
+                ASSIGN 
+                    oplValid = NO 
+                    opcNote  = "Applied > Check"
+                    .
+             END.       
+             ELSE IF ipbf-ttImportCash.InvoiceApplied GT ipbf-ttImportCash.CheckAmount THEN 
+                ASSIGN 
+                    oplValid = NO
+                    opcNote = "Applied > Check"
+                    .
                 
         END.
     END.

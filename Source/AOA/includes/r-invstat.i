@@ -20,6 +20,7 @@ DEFINE TEMP-TABLE ttJobItem NO-UNDO
     FIELD dQuantityShipped           AS DECIMAL   LABEL "Qty Shipped" FORMAT "->,>>>,>>9.99"
     FIELD dQuantityInvoiced          AS DECIMAL   LABEL "Qty Invoiced" FORMAT "->,>>>,>>9.99"
     FIELD dQuantityOnHand            AS DECIMAL   LABEL "Qty On-Hand" FORMAT "->,>>>,>>9.99"
+    FIELD dDisplayBalanceToRun       AS DECIMAL   LABEL "Qty On-Hand" FORMAT "->,>>>,>>9.99"
     FIELD dQuantityBalanceToRun      AS DECIMAL   LABEL "Qty To Run" FORMAT "->,>>>,>>9.99"
     FIELD dPricePerEA                AS DECIMAL   LABEL "Price Per EA" FORMAT "->,>>>,>>9.99"
     FIELD dPriceTotalOnHand          AS DECIMAL   LABEL "Sell Value of On-Hand" FORMAT "->,>>>,>>9.99"
@@ -223,6 +224,7 @@ PROCEDURE pAddJobItem PRIVATE:
         opbf-ttJobItem.lNoMake                 = iplNoMake
         opbf-ttJobItem.lIsComponent            = iplIsComponent
         opbf-ttJobItem.lHasOrder               = iplHasOrder
+        opbf-ttJobItem.dDisplayBalanceToRun    = opbf-ttJobItem.dQuantityOrdered - opbf-ttJobItem.dQuantityProduced
         opbf-ttJobItem.dQuantityBalanceToRun   = IF iplNoMake THEN 0 ELSE MAX(0, opbf-ttJobItem.dQuantityOrdered - opbf-ttJobItem.dQuantityProduced)
         opbf-ttJobItem.dPriceTotalOnHand       = IF lLot AND opbf-ttJobItem.dQuantityOnHand GT 0 THEN dPricePerEA ELSE dPricePerEA * opbf-ttJobItem.dQuantityOnHand
         opbf-ttJobItem.dPriceTotalOrdered      = IF lLot AND opbf-ttJobItem.dQuantityOrdered GT 0 THEN dPricePerEA ELSE dPricePerEA * opbf-ttJobItem.dQuantityOrdered

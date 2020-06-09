@@ -15,8 +15,8 @@
 /* ***************************  Definitions  ************************** */
 
 DEFINE TEMP-TABLE ttUOM 
-    FIELD uom                 AS CHARACTER CASE-SENSITIVE
-    FIELD uomBase             AS CHARACTER CASE-SENSITIVE
+    FIELD uom                 AS CHARACTER
+    FIELD uomBase             AS CHARACTER
     FIELD multiplierToBase    AS DECIMAL
     FIELD uomDescription      AS CHARACTER
     FIELD canUseOrderQuantity AS LOGICAL 
@@ -40,10 +40,23 @@ FUNCTION Conv_IsEAUOM RETURNS LOGICAL
     ipcItemID AS CHARACTER,
     ipcUOM AS CHARACTER) FORWARD.
 
+FUNCTION fGetFeet RETURNS DECIMAL PRIVATE
+    (ipdDim AS DECIMAL,
+    ipcUOM AS CHARACTER) FORWARD.
+
+FUNCTION fGetInches RETURNS DECIMAL PRIVATE
+    (ipdDim AS DECIMAL,
+    ipcUOM AS CHARACTER) FORWARD.
+
 FUNCTION fGetSqft RETURNS DECIMAL PRIVATE
-	(ipdLength AS DECIMAL,
-	 ipdWidth AS DECIMAL,
-	 ipcDimUOM AS CHARACTER) FORWARD.
+    (ipdLength AS DECIMAL,
+    ipdWidth AS DECIMAL,
+    ipcDimUOM AS CHARACTER) FORWARD.
+
+FUNCTION fGetSqin RETURNS DECIMAL PRIVATE
+    (ipdLength AS DECIMAL,
+    ipdWidth AS DECIMAL,
+    ipcDimUOM AS CHARACTER) FORWARD.
 
 FUNCTION fUseItemUOM RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER) FORWARD.
@@ -253,6 +266,61 @@ PROCEDURE Conv_GetValidOrderQtyUOMsForItem:
       
 END PROCEDURE.
 
+
+PROCEDURE Conv_ValueToEA:
+    /*------------------------------------------------------------------------------
+     Purpose:  Converts Value to EA, includes check for ItemUOM "switch" 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdValueInUOM AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcValueUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdCountOverride AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdValueInEA AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE dMultiplier AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dValueInEA  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+        
+    lError = YES.
+    IF fUseItemUom(ipcCompany) THEN 
+    DO:
+        FIND FIRST bf-itemfg NO-LOCK 
+            WHERE bf-itemfg.company EQ ipcCompany
+            AND bf-itemfg.i-no EQ ipcItemID
+            NO-ERROR.
+        IF AVAILABLE bf-itemfg THEN 
+            RUN Conv_ValueFromUOMToUOMForItem(ROWID(bf-itemfg), ipdValueInUOM, ipcValueUOM, "EA", OUTPUT dValueInEA, OUTPUT lError, OUTPUT cMessage).        
+    END. 
+    IF lError THEN 
+    DO:
+        CASE ipcValueUOM:
+            WHEN "CS" THEN 
+                dMultiplier = ipdCountOverride. 
+            WHEN "PLT" THEN 
+                dMultiplier = ipdCountOverride. /*refactor?*/
+            WHEN "C" THEN 
+                dMultiplier = 100.  /*vestige of old logic. refactor to not hardcode?*/
+            OTHERWISE 
+            DO:
+                FIND FIRST uom NO-LOCK 
+                    WHERE uom.uom EQ ipcValueUOM NO-ERROR.
+                IF AVAILABLE uom AND uom.mult NE 0 AND uom.Other EQ "EA" THEN
+                    dMultiplier = uom.mult.
+                ELSE 
+                    dMultiplier = 1.
+            END.
+        END CASE.
+        dValueinEA =  ipdValueInUOM / dMultiplier.
+    END.
+    opdValueInEA = dValueInEa.
+
+END PROCEDURE.
+
 PROCEDURE Conv_QtyToEA:
     /*------------------------------------------------------------------------------
      Purpose:  Converts Qty to EA, includes check for ItemUOM "switch" 
@@ -333,27 +401,29 @@ PROCEDURE Conv_QuantityFromUOMtoUOM:
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER bf-itemfg FOR itemfg.
-    DEFINE BUFFER bf-item FOR item.
+    DEFINE BUFFER bf-item   FOR item.
     
     DEFINE VARIABLE dMultiplier AS DECIMAL NO-UNDO.
     
     RUN pGetBuffersByValues(ipcCompany, ipcItemID, ipcItemType, BUFFER bf-itemfg, BUFFER bf-item).
     
-    IF AVAILABLE bf-itemfg THEN DO:
+    IF AVAILABLE bf-itemfg THEN 
+    DO:
         RUN pBuildUOMs(ROWID(bf-itemfg)).
         RUN pBuildUOMsFromOverrides(ipcCompany, ipcItemType, 
-                                    ipdOverrideBasisWeightInLbsPerMSF, "LB/MSF", 
-                                    ipdOverrideDimLengthInInches, ipdOverrideDimWidthInInches, ipdOverrideDimDepthInInches, "IN",
-                                    ipdOverrideCount).
+            ipdOverrideBasisWeightInLbsPerMSF, "LB/MSF", 
+            ipdOverrideDimLengthInInches, ipdOverrideDimWidthInInches, ipdOverrideDimDepthInInches, "IN",
+            ipdOverrideCount).
     END.
-    ELSE IF AVAILABLE bf-item THEN DO:
-        RUN pBuildUOMs(ROWID(bf-item)).
-        RUN pBuildUOMsFromOverrides(ipcCompany, ipcItemType, 
-                                    ipdOverrideBasisWeightInLbsPerMSF, "LB/MSF", 
-                                    ipdOverrideDimLengthInInches, ipdOverrideDimWidthInInches, ipdOverrideDimDepthInInches, "IN",
-                                    ipdOverrideCount).
+    ELSE IF AVAILABLE bf-item THEN 
+        DO:
+            RUN pBuildUOMs(ROWID(bf-item)).
+            RUN pBuildUOMsFromOverrides(ipcCompany, ipcItemType, 
+                ipdOverrideBasisWeightInLbsPerMSF, "LB/MSF", 
+                ipdOverrideDimLengthInInches, ipdOverrideDimWidthInInches, ipdOverrideDimDepthInInches, "IN",
+                ipdOverrideCount).
                                 
-    END.
+        END.
     
     RUN pGetMultiplier(ipcFromUOM, ipcToUOM, OUTPUT dMultiplier, OUTPUT oplError, OUTPUT opcMessage).
     
@@ -426,25 +496,27 @@ PROCEDURE Conv_ValueFromUOMtoUOM:
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER bf-itemfg FOR itemfg.
-    DEFINE BUFFER bf-item FOR item.
+    DEFINE BUFFER bf-item   FOR item.
     
     DEFINE VARIABLE dMultiplier AS DECIMAL NO-UNDO.
     
     RUN pGetBuffersByValues(ipcCompany, ipcItemID, ipcItemType, BUFFER bf-itemfg, BUFFER bf-item).
     
-    IF AVAILABLE bf-itemfg THEN DO:
+    IF AVAILABLE bf-itemfg THEN 
+    DO:
         RUN pBuildUOMs(ROWID(bf-itemfg)).
 
     END.
-    ELSE IF AVAILABLE bf-item THEN DO:
-        RUN pBuildUOMs(ROWID(bf-item)).
+    ELSE IF AVAILABLE bf-item THEN 
+        DO:
+            RUN pBuildUOMs(ROWID(bf-item)).
 
-    END.
+        END.
 
     RUN pBuildUOMsFromOverrides(ipcCompany, ipcItemType, 
-                                    ipdOverrideBasisWeightInLbsPerMSF, "LB/MSF", 
-                                    ipdOverrideDimLengthInInches, ipdOverrideDimWidthInInches, ipdOverrideDimDepthInInches, "IN",
-                                    ipdOverrideCount).
+        ipdOverrideBasisWeightInLbsPerMSF, "LB/MSF", 
+        ipdOverrideDimLengthInInches, ipdOverrideDimWidthInInches, ipdOverrideDimDepthInInches, "IN",
+        ipdOverrideCount).
 
     RUN pGetMultiplier(ipcFromUOM, ipcToUOM, OUTPUT dMultiplier, OUTPUT oplError, OUTPUT opcMessage).
     
@@ -533,36 +605,31 @@ PROCEDURE pAddUOM PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pAddUOMsFromDimensions PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose: Given LWD dimensions, add UOM conversions to EA
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose: Given LWD dimensions, add UOM conversions to EA
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipdLength AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipdWidth AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipdDepth AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcDimUOM AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcSource AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE dAreaInSqFt AS DECIMAL NO-UNDO.
+    IF ipdLength GT 0 THEN 
+    DO:
+        RUN pAddUOM("LI", YES, "EA","Lineal Inches", 1 / fGetInches(ipdLength,ipcDimUOM), ipcSource, "Cost").
+        RUN pAddUOM("MLI", YES, "EA","Lineal Inches", 1000 / fGetInches(ipdLength, ipcDimUOM), ipcSource, "Cost").
+        RUN pAddUOM("IN", YES, "EA","Inches", 1 / fGetInches(ipdLength, ipcDimUOM), ipcSource, "Cost").
+        RUN pAddUOM("LF", YES, "EA","Lineal Feet", 1 / fGetFeet(ipdLength, ipcSource), ipcSource, "Cost").
+        IF ipdWidth GT 0 THEN 
+        DO:
+            RUN pAddUOM("SQIN", YES, "EA", "Square Inches", 1 / fGetSqin(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost").
+            RUN pAddUOM("MSI", YES, "EA", "Thousand Square Inches", 1000 / fGetSqin(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost").
+            RUN pAddUOM("MSF", YES, "EA", "Thousand Square Feet", 1000 / fGetSqft(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost").
+            RUN pAddUOM("SF", YES, "EA", "Square Feet", 1 / fGetSqft(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost").
+        END.  /*Width GT 0*/
+    END. /*Length GT 0*/
     
-    CASE ipcDimUOM:
-        WHEN "IN" THEN DO:
-            IF ipdLength GT 0 THEN DO:
-                RUN pAddUOM("LI", YES, "EA","Lineal Inches", 1 / ipdLength, ipcSource, "Cost").
-                RUN pAddUOM("MLI", YES, "EA","Lineal Inches", 1000 / ipdLength, ipcSource, "Cost").
-                RUN pAddUOM("IN", YES, "EA","Inches", 1 / ipdLength, ipcSource, "Cost").
-                RUN pAddUOM("LF", YES, "EA","Lineal Feet", 12 / ipdLength, ipcSource, "Cost").
-                IF ipdWidth GT 0 THEN DO:
-                    dAreaInSqFt = fGetSqft(ipdLength,ipdWidth,ipcDimUOM).
-                    RUN pAddUOM("SQIN", YES, "EA", "Square Inches", 1 / ipdLength * ipdWidth, ipcSource, "Cost").
-                    RUN pAddUOM("MSF", YES, "EA", "Thousand Square Feet", 1000 / dAreaInSqFt, ipcSource, "Cost").
-                    RUN pAddUOM("SF", YES, "EA", "Square Feet", 1 / dAreaInSqFt, ipcSource, "Cost").
-                END.  /*Width GT 0*/
-            END. /*Length GT 0*/
-        END.
-        WHEN "cm" THEN DO:
-        END.
-    END CASE.
 END PROCEDURE.
 
 PROCEDURE pAddUOMsFromItemUOM PRIVATE:
@@ -594,20 +661,21 @@ PROCEDURE pAddUOMsFromItemUOM PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pAddUOMsFromWeight PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose: Given weight per EA and weight units, add weight related UOMs
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose: Given weight per EA and weight units, add weight related UOMs
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipdWeightPerEA AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcWeightUOM AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcSource AS CHARACTER NO-UNDO.
     
     IF ipdWeightPerEA EQ 0 THEN ipdWeightPerEA = 1.
     CASE ipcWeightUOM:
-        WHEN "LB" THEN DO: 
-            RUN pAddUOM("LB", YES, "EA","Pounds", 1 / ipdWeightPerEA , ipcSource, "Price,POQty,Cost").
-            RUN pAddUOM("TON", YES, "EA","Tons", 2000 / ipdWeightPerEA , ipcSource, "Price,POQty,Cost").
-        END.
+        WHEN "LB" THEN 
+            DO: 
+                RUN pAddUOM("LB", YES, "EA","Pounds", 1 / ipdWeightPerEA , ipcSource, "Price,POQty,Cost").
+                RUN pAddUOM("TON", YES, "EA","Tons", 2000 / ipdWeightPerEA , ipcSource, "Price,POQty,Cost").
+            END.
     END CASE.
     
 
@@ -653,9 +721,9 @@ PROCEDURE pBuildUOMsForItemFG PRIVATE:
         END.    
         RUN pAddUOMsFromDimensions(ipbf-itemfg.t-len, ipbf-itemfg.t-wid, ipbf-itemfg.t-dep, "IN", cSourceItemMaster).
         RUN pAddUOMsFromWeight(ipbf-itemfg.weight-100 / 100, "LB", cSourceItemMaster).    
-/*            IF ipbf-itemfg.weight-100 GT 0 THEN DO:                                                                                  */
-/*                RUN pAddUOM("LB", YES, "EA","Pounds", 100 / ipbf-itemfg.weight-100 , cSourceItemMaster, "Price,OrderQty,POQty,Cost").*/
-/*            END.                                                                                                                     */
+        /*            IF ipbf-itemfg.weight-100 GT 0 THEN DO:                                                                                  */
+        /*                RUN pAddUOM("LB", YES, "EA","Pounds", 100 / ipbf-itemfg.weight-100 , cSourceItemMaster, "Price,OrderQty,POQty,Cost").*/
+        /*            END.                                                                                                                     */
         /*Add UOMs from itemUOM table*/
         RUN pAddUOMsFromItemUOM(ipbf-itemfg.company, ipbf-itemfg.i-no, "FG", YES).
     END.
@@ -671,25 +739,42 @@ PROCEDURE pBuildUOMsForItemRM PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-item FOR item.
     
     DEFINE VARIABLE cSourceItemMaster AS CHARACTER NO-UNDO INITIAL "Item Master".
-    DEFINE VARIABLE dLbsPerEa AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dLbsPerEa         AS DECIMAL   NO-UNDO.
     IF AVAILABLE ipbf-item THEN 
     DO:   
         /*Add UOMs from item Master*/
         RUN pAddUOMsFromDimensions(ipbf-item.s-len, ipbf-item.s-wid, ipbf-item.s-dep, "IN", cSourceItemMaster).
         
-        IF ipbf-item.cons-uom EQ "LB" THEN DO:
+        IF ipbf-item.cons-uom EQ "LB" THEN 
+        DO:
             dLbsPerEA = 1.
         END.
-        ELSE DO:
+        ELSE 
+        DO:
             CASE ipbf-item.mat-type:
-                WHEN "D" OR WHEN "C" OR WHEN "5" OR WHEN "6" THEN /*packing is per EA weight*/ 
+                WHEN "D" OR 
+                WHEN "C" OR 
+                WHEN "5" OR 
+                WHEN "6" THEN /*packing is per EA weight*/ 
                     dLbsPerEA = IF ipbf-item.basis-w NE 0 THEN ipbf-item.basis-w ELSE ipbf-item.weight-100 / 100.
-                WHEN "B" OR WHEN "P" OR WHEN "A" OR WHEN "1" OR WHEN "2" OR WHEN "3" OR WHEN "4" OR WHEN "R" THEN /*Board/Paper is Lbs per MSF basis-w*/         
+                WHEN "B" OR 
+                WHEN "P" OR 
+                WHEN "A" OR 
+                WHEN "1" OR 
+                WHEN "2" OR 
+                WHEN "3" OR 
+                WHEN "4" OR 
+                WHEN "R" THEN /*Board/Paper is Lbs per MSF basis-w*/         
                     dLbsPerEA = ipbf-item.basis-w * (fGetSqft(ipbf-item.s-len, ipbf-item.s-wid,"IN") / 1000).
-                WHEN "G" OR WHEN "I" OR WHEN "V" THEN  /*Glue cons uom assumed to be LB*/
+                WHEN "G" OR 
+                WHEN "I" OR 
+                WHEN "V" THEN  /*Glue cons uom assumed to be LB*/
                     dLbsPerEA = 1. 
+                WHEN "F" OR 
+                WHEN "W" THEN 
+                    dLbsPerEA = (ipbf-item.s-len * ipbf-item.s-wid) / ipbf-item.sqin-lb .
                 OTHERWISE 
-                    dLbsPerEA = ipbf-item.weight-100 / 100.
+                dLbsPerEA = ipbf-item.weight-100 / 100.
             END CASE.
         END.
         RUN pAddUOMsFromWeight(dLbsPerEA, "LB", cSourceItemMaster).    
@@ -745,10 +830,10 @@ PROCEDURE pBuildBaseUOMs PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pBuildUOMsFromOverrides PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO. 
     DEFINE INPUT PARAMETER ipdBasisWeight AS DECIMAL NO-UNDO.
@@ -760,12 +845,15 @@ PROCEDURE pBuildUOMsFromOverrides PRIVATE:
     DEFINE INPUT PARAMETER ipdOverrideCount AS DECIMAL NO-UNDO.
      
     DEFINE VARIABLE cSourceOverride AS CHARACTER NO-UNDO INITIAL "Override".
-    DEFINE VARIABLE dAreaOfEA AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dAreaOfEA       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dWeightPerEA    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cWeightUOM      AS CHARACTER NO-UNDO.
     
     IF ipcItemType EQ "FG" AND ipdOverrideCount GT 0 THEN 
         RUN pAddUOM("CS", YES, "EA","Case", ipdOverrideCount, cSourceOverride, "Price,OrderQty,POQty,Cost").
-    RUN pAddUOMsFromDimensions(ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM, cSourceOverride).   
-    RUN pAddUOMsFromWeight(ipdBasisWeight, ipcBasisWeightUOM, cSourceOverride).
+    RUN pAddUOMsFromDimensions(ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM, cSourceOverride).
+    RUN pGetWeightPerEA(ipdBasisWeight, ipcBasisWeightUOM, ipdDimLength, ipdDimWidth, ipcDimUOM, OUTPUT dWeightPerEA, OUTPUT cWeightUOM).   
+    RUN pAddUOMsFromWeight(dWeightPerEA, cWeightUOM, cSourceOverride).
     
 END PROCEDURE.
 
@@ -917,6 +1005,34 @@ PROCEDURE pGetValidUOMsForItem PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pGetWeightPerEA PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a basis weight, basis weight uom, and dimensions, convert
+        to a weight per EA. 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipdBasisWeight AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcBasisWeightUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdL AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdW AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDimUOM AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdWeightPerEA AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcWeightUOM AS CHARACTER NO-UNDO.
+    
+    CASE CAPS(ipcBasisWeightUOM):
+        WHEN "LBS/MSF" OR 
+        WHEN "LB/MSF" THEN 
+            ASSIGN 
+                opdWeightPerEA = ipdBasisWeight * (fGetSqft(ipdL, ipdW, ipcDimUOM) / 1000)
+                opcWeightUOM   = "LB". 
+        WHEN "SQIN/LB" OR 
+        WHEN "SI/LB" THEN 
+            ASSIGN 
+                opdWeightPerEA = fGetSqin(ipdL, ipdW, ipcDimUOM) / ipdBasisWeight
+                opcWeightUOM   = "LB".
+    END CASE.
+    
+END PROCEDURE.
 
 
 /* ************************  Function Implementations ***************** */
@@ -948,222 +1064,72 @@ FUNCTION Conv_IsEAUOM RETURNS LOGICAL
     
 END FUNCTION.
 
-/*FUNCTION fConvert RETURNS DECIMAL                                                          */
-/*    (ipcFromUOM AS CHARACTER , ipcToUOM AS CHARACTER,                                      */
-/*    ipdBasisWeightInPoundsPerSqInch AS DECIMAL,                                            */
-/*    ipdLengthInInches AS DECIMAL, ipdWidthInInches AS DECIMAL, ipdDepthInInches AS DECIMAL,*/
-/*    ipdQuantityOfLotInEA AS DECIMAL, ipdQuantityOfSubUnitInEA AS DECIMAL,                  */
-/*    ipdValueToConvert AS DECIMAL):                                                         */
-/*------------------------------------------------------------------------------
- Purpose: Replaces all conversion programs
- Notes:  modelled after rm\convcuom.p - should be able to replace all conversion programs
-------------------------------------------------------------------------------*/    
+FUNCTION fGetFeet RETURNS DECIMAL PRIVATE
+    ( ipdDim AS DECIMAL, ipcUOM AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose: Given a length dimension, convert to feet
+     Notes:
+    ------------------------------------------------------------------------------*/	
+   
+    RETURN fGetInches(ipdDim, ipcUOM) / 12.
+        
+END FUNCTION.
 
-/*    DEFINE VARIABLE dValueConverted   AS DECIMAL NO-UNDO.                                                                   */
-/*    DEFINE VARIABLE dSquareFootOfEach AS DECIMAL NO-UNDO.                                                                   */
-/*    DEFINE VARIABLE dLengthInFeet     AS DECIMAL NO-UNDO.                                                                   */
-/*                                                                                                                            */
-/*    IF ipdValueToConvert EQ 0 THEN                                                                                          */
-/*    DO:                                                                                                                     */
-/*        RETURN dValueConverted.                                                                                             */
-/*    END.                                                                                                                    */
-/*                                                                                                                            */
-/*    IF ipdLengthInInches EQ 0 AND                                                                                           */
-/*        (LOOKUP(ipcFromUOM,"LF,LI,MLF,MLI") NE 0  OR                                                                        */
-/*        LOOKUP(ipcToUOM,"LF,LI,MLF,MLI") NE 0) THEN ipdLengthInInches = 12.                                                 */
-/*                                                                                                                            */
-/*    IF ipdDepthInInches EQ 0 THEN ipdDepthInInches = 1.                                                                     */
-/*                                                                                                                            */
-/*    dSquareFootOfEach = ipdLengthInInches * ipdWidthInInches * gdMultiplierForSquareFoot.                                   */
-/*    dLengthInFeet = ipdLengthInInches / 12.                                                                                 */
-/*    /*Convert FromUOM To Each*/                                                                                             */
-/*    CASE ipcFromUOM:                                                                                                        */
-/*        WHEN "MSH" OR                                                                                                       */
-/*        WHEN "M" THEN                                                                                                       */
-/*            ipdValueToConvert = ipdValueToConvert / 1000.                                                                   */
-/*        WHEN "MSF" THEN                                                                                                     */
-/*            ipdValueToConvert = dSquareFootOfEach * ipdValueToConvert / 1000.                                               */
-/*        WHEN "TON" THEN                                                                                                     */
-/*            IF ipdWidthInInches NE 0 AND ipdLengthInInches NE 0 AND ipdBasisWeightInPoundsPerSqInch NE 0 THEN               */
-/*                ipdValueToConvert = dSquareFootOfEach * ipdValueToConvert / 1000 * ipdBasisWeightInPoundsPerSqInch / 2000.  */
-/*        WHEN "LB" THEN                                                                                                      */
-/*            IF ipdWidthInInches NE 0 AND ipdLengthInInches NE 0 AND ipdBasisWeightInPoundsPerSqInch NE 0 THEN               */
-/*                ipdValueToConvert = dSquareFootOfEach * ipdValueToConvert / 1000 * ipdBasisWeightInPoundsPerSqInch.         */
-/*        WHEN "SF" THEN                                                                                                      */
-/*            ipdValueToConvert = dSquareFootOfEach * ipdValueToConvert.                                                      */
-/*        WHEN "MLF" THEN                                                                                                     */
-/*            ipdValueToConvert = (dLengthInFeet * ipdValueToConvert) / 1000.                                                 */
-/*        WHEN "LF" THEN                                                                                                      */
-/*            ipdValueToConvert = dLengthInFeet * ipdValueToConvert.                                                          */
-/*        WHEN "MLI" THEN                                                                                                     */
-/*            ipdValueToConvert = (ipdLengthInInches  * ipdValueToConvert) / 1000.                                            */
-/*        WHEN "LI" THEN                                                                                                      */
-/*            ipdValueToConvert = ipdLengthInInches * ipdValueToConvert.                                                      */
-/*        WHEN "BF" OR                                                                                                        */
-/*        WHEN "BSF" THEN                                                                                                     */
-/*            ipdValueToConvert = ((ipdLengthInInches * ipdWidthInInches * ipdDepthInInches) / 144) * ipdValueToConvert.      */
-/*        WHEN "CAS" OR WHEN "C" THEN                                                                                         */
-/*            ipdValueToConvert = ipdValueToConvert / ipdQuantityOfSubUnitInEA.                                               */
-/*        WHEN "LOT" OR WHEN "L" THEN                                                                                         */
-/*            ipdValueToConvert = ipdValueToConvert / ipdQuantityOfLotInEA.                                                   */
-/*        OTHERWISE                                                                                                           */
-/*        DO:                                                                                                                 */
-/*            fromuom:                                                                                                        */
-/*            REPEAT:                                                                                                         */
-/*                /* put cost into an EA uom */                                                                               */
-/*                FIND FIRST uom NO-LOCK                                                                                      */
-/*                    WHERE uom.uom  EQ ipcFromUOM                                                                            */
-/*                    AND uom.mult NE 0                                                                                       */
-/*                    NO-ERROR.                                                                                               */
-/*                IF AVAILABLE uom THEN                                                                                       */
-/*                DO:                                                                                                         */
-/*                    ipdValueToConvert = (IF ipdValueToConvert EQ 0 THEN 1 ELSE ipdValueToConvert / uom.mult).               */
-/*                                                                                                                            */
-/*                    IF uom.other NE "" AND uom.other NE uom.uom THEN                                                        */
-/*                    DO:                                                                                                     */
-/*                        ipcFromUOM = uom.other.                                                                             */
-/*                        NEXT fromuom.                                                                                       */
-/*                    END.                                                                                                    */
-/*                END.                                                                                                        */
-/*                                                                                                                            */
-/*                ELSE ipdValueToConvert = (IF ipdValueToConvert EQ 0 THEN 1 ELSE ipdValueToConvert).                         */
-/*                                                                                                                            */
-/*                LEAVE fromuom.                                                                                              */
-/*            END.                                                                                                            */
-/*        END.                                                                                                                */
-/*    END CASE.                                                                                                               */
-/*                                                                                                                            */
-/*    /*Convert from Each to ToUOM*/                                                                                          */
-/*    CASE ipcToUOM:                                                                                                          */
-/*        WHEN "MSH" OR                                                                                                       */
-/*        WHEN "M" THEN                                                                                                       */
-/*            dValueConverted = ipdValueToConvert * 1000.                                                                     */
-/*        WHEN "MSF" THEN                                                                                                     */
-/*            IF dSquareFootOfEach NE 0 THEN                                                                                  */
-/*                dValueConverted = (1000 * ipdValueToConvert) / (dSquareFootOfEach).                                         */
-/*        WHEN "TON" THEN                                                                                                     */
-/*            IF dSquareFootOfEach NE 0 AND ipdBasisWeightInPoundsPerSqInch NE 0 THEN                                         */
-/*                dValueConverted = (2000 * 1000 * ipdValueToConvert) / (ipdBasisWeightInPoundsPerSqInch * dSquareFootOfEach).*/
-/*        WHEN "LB" THEN                                                                                                      */
-/*            IF dSquareFootOfEach NE 0 AND ipdBasisWeightInPoundsPerSqInch NE 0 THEN                                         */
-/*                dValueConverted = (1000 * ipdValueToConvert) / (ipdBasisWeightInPoundsPerSqInch * dSquareFootOfEach).       */
-/*        WHEN "SF" THEN                                                                                                      */
-/*            IF dSquareFootOfEach NE 0 THEN                                                                                  */
-/*                dValueConverted = ipdValueToConvert / dSquareFootOfEach.                                                    */
-/*        WHEN "MLF" THEN                                                                                                     */
-/*            IF dLengthInFeet NE 0 THEN                                                                                      */
-/*                dValueConverted = (1000 * ipdValueToConvert) / dLengthInFeet.                                               */
-/*        WHEN "LF" THEN                                                                                                      */
-/*            IF dLengthInFeet NE 0 THEN                                                                                      */
-/*                dValueConverted = ipdValueToConvert / dLengthInFeet.                                                        */
-/*        WHEN "MLI" THEN                                                                                                     */
-/*            IF ipdLengthInInches NE 0 THEN                                                                                  */
-/*                dValueConverted = (1000 * ipdValueToConvert) / ipdLengthInInches.                                           */
-/*        WHEN "LI" THEN                                                                                                      */
-/*            IF ipdLengthInInches NE 0 THEN                                                                                  */
-/*                dValueConverted = ipdValueToConvert / ipdLengthInInches.                                                    */
-/*        WHEN "BF" OR                                                                                                        */
-/*        WHEN "BSF" THEN                                                                                                     */
-/*            IF ipdLengthInInches NE 0 AND ipdWidthInInches NE 0 AND ipdDepthInInches NE 0 THEN                              */
-/*                dValueConverted = ipdValueToConvert / ((ipdLengthInInches * ipdWidthInInches * ipdDepthInInches) / 144).    */
-/*        WHEN "CAS" OR WHEN "C" THEN                                                                                         */
-/*            ipdValueToConvert = ipdValueToConvert * ipdQuantityOfSubUnitInEA.                                               */
-/*        WHEN "LOT" OR WHEN "L" THEN                                                                                         */
-/*            ipdValueToConvert = ipdValueToConvert * ipdQuantityOfLotInEA.                                                   */
-/*                                                                                                                            */
-/*        OTHERWISE                                                                                                           */
-/*        DO:                                                                                                                 */
-/*            touom:                                                                                                          */
-/*            REPEAT:                                                                                                         */
-/*                FIND FIRST uom NO-LOCK                                                                                      */
-/*                    WHERE uom.uom  EQ ipcToUOM                                                                              */
-/*                    AND uom.mult NE 0                                                                                       */
-/*                    NO-ERROR.                                                                                               */
-/*                IF AVAILABLE uom THEN                                                                                       */
-/*                DO:                                                                                                         */
-/*                    ipdValueToConvert = (IF ipdValueToConvert NE 0 THEN (ipdValueToConvert * uom.mult) ELSE 0).             */
-/*                    IF uom.other NE "" AND uom.other NE uom.uom THEN                                                        */
-/*                    DO:                                                                                                     */
-/*                        ipcToUOM = uom.other.                                                                               */
-/*                        NEXT touom.                                                                                         */
-/*                    END.                                                                                                    */
-/*                END.                                                                                                        */
-/*                                                                                                                            */
-/*                dValueConverted = ipdValueToConvert.                                                                        */
-/*                                                                                                                            */
-/*                LEAVE touom.                                                                                                */
-/*            END.                                                                                                            */
-/*        END.                                                                                                                */
-/*    END CASE.                                                                                                               */
-/*                                                                                                                            */
-/*    RETURN dValueConverted.                                                                                                 */
+FUNCTION fGetInches RETURNS DECIMAL PRIVATE
+    ( ipdDim AS DECIMAL, ipcUOM AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose: given a length dimension and uom, convert to inches
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE dInches  AS DECIMAL NO-UNDO.
     
-/*END FUNCTION.*/
-
-/*FUNCTION fConvertValueToEAFromUOM RETURNS DECIMAL                                                                                                               */
-/*    ( ipcCompany AS CHARACTER, ipcItemType AS CHARACTER, ipcItemID AS CHARACTER, ipdValueToConvert AS DECIMAL, ipcValueToConvertUom AS CHARACTER):              */
-/*                                                                                                                                                                */
-/*    /*------------------------------------------------------------------------------                                                                            */
-/*     Purpose: Given an item, quantity and UOM, return the quantity in EA UOM                                                                                    */
-/*     Notes:  Assumes EA UOM is EA                                                                                                                               */
-/*    ------------------------------------------------------------------------------*/                                                                            */
-/*                                                                                                                                                                */
-/*    DEFINE VARIABLE opdValueConverted AS DECIMAL   NO-UNDO.                                                                                                     */
-/*    DEFINE VARIABLE lError            AS LOGICAL   NO-UNDO.                                                                                                     */
-/*    DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.                                                                                                     */
-/*    DEFINE VARIABLE dConversionFactor AS DECIMAL   NO-UNDO.                                                                                                     */
-/*                                                                                                                                                                */
-/*    RUN pGetConversionFactorFromItemUOM(ipcCompany, ipcItemID, ipcItemType, "", ipcValueToConvertUOM, OUTPUT dConversionFactor, OUTPUT lError, OUTPUT cMessage).*/
-/*                                                                                                                                                                */
-/*    IF NOT lError AND dConversionFactor NE 0 THEN                                                                                                               */
-/*        opdValueConverted = ipdValueToConvert * dConversionFactor.                                                                                              */
-/*    ELSE                                                                                                                                                        */
-/*        opdValueConverted = ipdValueToConvert.                                                                                                                  */
-/*                                                                                                                                                                */
-/*    RETURN opdValueConverted.                                                                                                                                   */
-/*                                                                                                                                                                */
-/*END FUNCTION.                                                                                                                                                   */
-/*                                                                                                                                                                */
-/*FUNCTION fConvertValueFromEAToUOM RETURNS DECIMAL                                                                                                               */
-/*    ( ipcCompany AS CHARACTER, ipcItemType AS CHARACTER, ipcItemID AS CHARACTER, ipdValueInEA AS DECIMAL, ipcValueToConvertUom AS CHARACTER):                   */
-/*                                                                                                                                                                */
-/*    /*------------------------------------------------------------------------------                                                                            */
-/*     Purpose: Given an item, quantity and UOM, return the quantity in EA UOM                                                                                    */
-/*     Notes:  Assumes EA UOM is EA                                                                                                                               */
-/*    ------------------------------------------------------------------------------*/                                                                            */
-/*                                                                                                                                                                */
-/*    DEFINE VARIABLE opdValueConverted AS DECIMAL   NO-UNDO.                                                                                                     */
-/*    DEFINE VARIABLE lError            AS LOGICAL   NO-UNDO.                                                                                                     */
-/*    DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.                                                                                                     */
-/*    DEFINE VARIABLE dConversionFactor AS DECIMAL   NO-UNDO.                                                                                                     */
-/*                                                                                                                                                                */
-/*    RUN pGetConversionFactorFromItemUOM(ipcCompany, ipcItemID, ipcItemType, "", ipcValueToConvertUOM, OUTPUT dConversionFactor, OUTPUT lError, OUTPUT cMessage).*/
-/*                                                                                                                                                                */
-/*    IF NOT lError AND dConversionFactor NE 0 THEN                                                                                                               */
-/*        opdValueConverted = ipdValueInEA / dConversionFactor.                                                                                                   */
-/*    ELSE                                                                                                                                                        */
-/*        opdValueConverted = ipdValueInEA.                                                                                                                       */
-/*                                                                                                                                                                */
-/*    RETURN opdValueConverted.                                                                                                                                   */
-/*                                                                                                                                                                */
-/*END FUNCTION.                                                                                                                                                   */
+    DEFINE VARIABLE dCMPerIn AS DECIMAL NO-UNDO INITIAL 2.54. 
+    
+    CASE CAPS(ipcUOM):
+        WHEN "IN" OR WHEN "LI" THEN 
+            dInches = ipdDim.
+        WHEN "FT" OR WHEN "LF" THEN 
+            dInches = ipdDim * 12.
+        WHEN "CM" THEN 
+            dInches = ipdDim / dCMPerIn.
+        WHEN "MM" THEN 
+            dInches = ipdDim / (dCMPerIn * 10).
+        WHEN "MET" OR 
+        WHEN "M" THEN 
+            dInches = ipdDim / (dCMPerIn / 100).          
+        OTHERWISE 
+        dInches = ipdDim.
+ 
+    END CASE.     
+      
+    RETURN dInches.
+		
+END FUNCTION.
 
 FUNCTION fGetSqft RETURNS DECIMAL PRIVATE
-	(ipdLength AS DECIMAL, ipdWidth AS DECIMAL, ipcDimUOM AS CHARACTER):
-/*------------------------------------------------------------------------------
- Purpose:  Given length, width and dimension UOM, get Sqft
- Notes:
-------------------------------------------------------------------------------*/	
+    (ipdLength AS DECIMAL, ipdWidth AS DECIMAL, ipcDimUOM AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given length, width and dimension UOM, get Sqft
+     Notes:
+    ------------------------------------------------------------------------------*/	
     DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO.
     
-    CASE ipcDimUOM:
-        WHEN "IN" THEN
-            dSqft = ipdLength * ipdWidth / 144.
-        WHEN "FT" OR WHEN "LF" THEN 
-            dSqft = ipdLength * ipdWidth.
-    END CASE.
+    dSqft = fGetFeet(ipdLength, ipcDimUOM) * fGetFeet(ipdWidth, ipcDimUOM).
     RETURN dSqft.
     
+END FUNCTION.
+
+FUNCTION fGetSqin RETURNS DECIMAL PRIVATE
+    (ipdLength AS DECIMAL, ipdWidth AS DECIMAL, ipcDimUOM AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given length, width and dimension UOM, get Sqft
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE dSqin AS DECIMAL NO-UNDO.
+    
+    dSqin = fGetInches(ipdLength, ipcDimUOM) * fGetInches(ipdWidth, ipcDimUOM).
+    RETURN dSqin.
+		
 END FUNCTION.
 
 FUNCTION fUseItemUOM RETURNS LOGICAL PRIVATE

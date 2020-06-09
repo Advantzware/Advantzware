@@ -1,3 +1,0 @@
-/* btnRedo.i */
-
-/* static version */

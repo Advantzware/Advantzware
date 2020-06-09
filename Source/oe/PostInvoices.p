@@ -751,9 +751,11 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
         RUN pAddFGItemToUpdate(ROWID(bf-itemfg), ipbf-ttInvoiceToPost.isInvoiceDateInCurrentPeriod, BUFFER ttInvoiceLineToPost).
         RUN pAddBOLToUpdate(BUFFER ipbf-inv-line, ttInvoiceLineToPost.invoiceID, OUTPUT ttInvoiceLineToPost.bolID, OUTPUT ttInvoiceLineToPost.locationID, OUTPUT ttInvoiceLineToPost.shipID).
         RUN pAddOrderToUpdate(BUFFER ipbf-inv-line, OUTPUT ttInvoiceLineToPost.quantityPerSubUnit).
-
+        
         IF ipbf-inv-line.cas-cnt NE 0 THEN 
             ttInvoiceLineToPost.quantityPerSubUnit = ipbf-inv-line.cas-cnt.
+        
+        RUN pAddRptFromLine(BUFFER ttInvoiceLineToPost).
          
     END.
         
@@ -895,7 +897,8 @@ PROCEDURE pAddInvoiceMiscToPost PRIVATE:
                         
                     END.  /*Each bf-est-prep*/
             END. /*avail bf-oe-ordm*/
-        END.  /*avail bf-oe-ord*/                              
+        END.  /*avail bf-oe-ord*/     
+        RUN pAddRptFromMisc(BUFFER ttInvoiceMiscToPost).                         
     END. /*Not oplError*/    
             
 END PROCEDURE.
@@ -957,6 +960,7 @@ PROCEDURE pAddInvoiceToPost PRIVATE:
             opbf-ttInvoiceToPost.isOKToPost     = NO
             opbf-ttInvoiceToPost.problemMessage = opcMessage
             .
+    
     
 END PROCEDURE.
 
@@ -1737,6 +1741,11 @@ PROCEDURE pExportAllTempTables PRIVATE:
             cFile       = fGetFilePath(ttPostingMaster.exportPath, "FGItems", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
             hdTempTable = TEMP-TABLE ttFGItemToUpdate:HANDLE.
         RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).        
+        
+        ASSIGN 
+            cFile       = fGetFilePath(ttPostingMaster.exportPath, "PostingSummary", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+            hdTempTable = TEMP-TABLE rpt:HANDLE.
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES). 
      
         DELETE OBJECT hdOutput.
     
@@ -2642,7 +2651,7 @@ PROCEDURE pPostInvoices PRIVATE:
                 DELETE bf-child-inv-head.
             END.
         
-        //REFACTOR TEMPORARY REMOVAL - RUN pCreateEDI(BUFFER bf-inv-head).
+        RUN pCreateEDI(BUFFER bf-inv-head).
         
         DELETE bf-inv-head.
         DELETE ttInvoiceToPost.

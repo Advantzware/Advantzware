@@ -35,6 +35,8 @@ def var v-frt-tax-rate like v-tax-rate.
 DEF VAR ll-calc-disc-first AS LOG NO-UNDO.
 def var v-part-qty          as   dec.
 DEF SHARED VAR v-print-components AS LOG NO-UNDO.
+DEF SHARED VAR v-rs-whs-mths AS CHAR NO-UNDO.
+DEF SHARED VAR v-tg-whs-mths AS LOG NO-UNDO.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
@@ -73,7 +75,7 @@ DEF VAR v-inst AS cha FORM "x(80)" EXTENT 4 NO-UNDO.
 DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
 DEF VAR lv-line-start AS INT INIT 20 NO-UNDO. /*line to start body*/
-DEF VAR lv-line-print AS INT INIT 46 NO-UNDO. /*# of lines in body*/
+DEF VAR lv-line-print AS INT INIT 44 NO-UNDO. /*# of lines in body*/
 DEF VAR v-ext-price AS DEC NO-UNDO.
 DEF VAR lv-pg-num AS INT NO-UNDO.
 DEF VAR lv-tot-pg AS INT INIT 1 NO-UNDO.
@@ -201,7 +203,7 @@ find first company where company.company eq cocode no-lock no-error.
           where cust.company eq cocode
             and cust.cust-no eq oe-ord.cust-no
           no-lock no-error.
-      if avail cust then v-cust-phone = cust.area-code + cust.phone.
+      
       /* get q-no for first item */
       v-q-no = 0.
       
@@ -340,6 +342,10 @@ ASSIGN lv-prt-sts = /*IF NOT oe-ord.ack-prnt THEN "ORIGINAL" ELSE "REVISED"*/
 /*         IF shipto.ship-addr[2] <> "" THEN ln-cnt = ln-cnt + 1. */
 /*         IF v-addr4 <> "" THEN ln-cnt = ln-cnt + 1.             */
       END.
+FIND FIRST users NO-LOCK
+     WHERE users.USER_ID EQ oe-ord.csrUser_id NO-ERROR.
+   v-cust-phone =  IF AVAIL users THEN substring(users.phone,1,3) + substring(users.phone,4) ELSE "" .      
+      
 PUT "[@startPage" oe-ord.ord-no "]".
 {oe/rep/acksoule.i}
 
@@ -443,12 +449,12 @@ PUT "[@startPage" oe-ord.ord-no "]".
 
         END.
         RUN addLines(1).
-        put     oe-ordl.LINE AT 2  FORM ">99" SPACE(3)
+        put     oe-ordl.LINE AT 2  FORM ">99" SPACE(1)
                 v-part FORMAT "X(15)"              
-                vitem-name FORM "x(30)" SPACE(11)
-                oe-ordl.qty FORM "->>>>>>>>>>>>>9" 
-                oe-ordl.price  FORM "$->>>,>>9.99<<<<" SPACE(4)
-                oe-ordl.pr-uom SPACE(2) 
+                vitem-name FORM "x(30)" SPACE(1)
+                oe-ordl.qty FORM "->>>>>>>>>>>9" 
+                oe-ordl.price  FORM "$->>>,>>9.99<<<<" SPACE(2)
+                oe-ordl.pr-uom SPACE(1) 
                 v-ext-price FORM "$->>>,>>9.99"              
                 SKIP
                 .
@@ -504,8 +510,8 @@ PUT "[@startPage" oe-ord.ord-no "]".
 /*         end.                                                                                                     */
         
         RUN addLines(1).
-        PUT oe-ordl.po-no AT 8
-            v-color  /*v-pdscr1*/ FORM "x(30)" AT 23 SKIP.
+        PUT oe-ordl.po-no AT 6
+            v-color  /*v-pdscr1*/ FORM "x(30)" AT 21 SKIP.
 
 /*         v-printline = v-printline + 1. */
         
@@ -519,7 +525,7 @@ PUT "[@startPage" oe-ord.ord-no "]".
 /*              assign v-printline = 20.                                                                             */
 /*            end.                                                                                                   */
            RUN addLines(1).
-           PUT v-pdscr1 FORM "x(30)" AT 23  SKIP.
+           PUT v-pdscr1 FORM "x(30)" AT 21  SKIP.
 /*            v-printline = v-printline + 1. */
            
         END.
@@ -533,7 +539,7 @@ PUT "[@startPage" oe-ord.ord-no "]".
 /*              assign v-printline = 20.                                                                             */
 /*            end.                                                                                                   */
             RUN addLines(1).
-            PUT "FG#: " +  oe-ordl.i-no  FORM "x(30)" AT 23  SKIP.
+            PUT "FG#: " +  oe-ordl.i-no  FORM "x(30)" AT 21  SKIP.
 /*            v-printline = v-printline + 1. */
            
         END.
@@ -573,20 +579,20 @@ PUT "[@startPage" oe-ord.ord-no "]".
 /*                  end.                                                                                                    */
                      IF FIRST-OF(fg-set.set-no) THEN DO:
                         RUN addLines(1).
-                        PUT /*SKIP(1)*/ "Kit Includes:" AT 23 SKIP.
+                        PUT /*SKIP(1)*/ "Kit Includes:" AT 21 SKIP.
                      END.
 
                 RUN addLines(1).
                 put 
-                xitemfg.part-no FORMAT "x(15)" AT 8 
-                fg-set.part-no                  AT 23
+                xitemfg.part-no FORMAT "x(15)" AT 6 
+                fg-set.part-no                  AT 21
                 xitemfg.i-name                        FORMAT "x(30)"
                 oe-ordl.qty * v-part-qty        TO 78 FORMAT "->>>>>9"
                   .
                 
                 IF AVAIL xef AND xef.brd-dscr <> "" THEN do:
                     RUN addLines(1).
-                    PUT xef.brd-dscr AT 23 .
+                    PUT xef.brd-dscr AT 21 .
 /*                 v-printline = v-printline + 1. */
                 END.
 
@@ -684,7 +690,7 @@ PUT "[@startPage" oe-ord.ord-no "]".
 /*                  assign v-printline = 20.                                                                             */
 /*               end.                                                                                                    */
               RUN addLines(1).
-              put "Scheduled Releases:" at 23 SKIP .
+              put "Scheduled Releases:" at 21 SKIP .
 /*               v-printline = v-printline + 1. */
               
             end.
@@ -698,7 +704,7 @@ PUT "[@startPage" oe-ord.ord-no "]".
 /*                  assign v-printline = 20.                                                                             */
 /*               end.                                                                                                    */
               RUN addLines(1).
-              put "Actual Releases:" at 23 SKIP. 
+              put "Actual Releases:" at 21 SKIP. 
               
 /*               v-printline = v-printline + 1. */
             end.
@@ -716,7 +722,7 @@ PUT "[@startPage" oe-ord.ord-no "]".
        /*    v-printline = v-printline + 1 */
            lcnt        = lcnt + 1.
 
-          if v-shipto then do:
+          IF v-shipto then do:
             find first shipto
                 where shipto.company eq cocode
                   and shipto.cust-no eq oe-rel.cust-no
@@ -742,65 +748,24 @@ PUT "[@startPage" oe-ord.ord-no "]".
 /*             end.                                                                                                    */
             IF AVAIL shipto THEN DO:
                 RUN addLines(1).
-                put oe-rel.po-no AT 8 shipto.ship-name AT 23 FORM "x(28)" /*lcnt AT 55 FORM ">>9" SPACE(1)*/  ld-date AT 59 space(2) (IF oe-rel.link-no EQ 0 THEN oe-rel.tot-qty ELSE oe-rel.qty) FORM "->>>>>>>>9"
+                put oe-rel.po-no AT 6 shipto.ship-name AT 21 FORM "x(27)" /*lcnt AT 55 FORM ">>9" SPACE(1)*/  ld-date (IF oe-rel.link-no EQ 0 THEN oe-rel.tot-qty ELSE oe-rel.qty) FORM "->>>>>>>9"
                     SKIP .
                     IF  v-ship-name <> "" THEN DO:
                          RUN addLines(1).
-                        PUT v-ship-name AT 8 SKIP.
+                        PUT v-ship-name AT 6 SKIP.
                     END.
                     IF  v-ship-add <> "" THEN DO:
                          RUN addLines(1).
-                        PUT v-ship-add AT 8 SKIP.
+                        PUT v-ship-add AT 6 SKIP.
                     END.
                     IF  v-ship-add2 <> "" THEN DO:
                          RUN addLines(1).
-                        PUT v-ship-add2 AT 8 SKIP.
+                        PUT v-ship-add2 AT 6 SKIP.
                     END.
                     IF  v-addr4 <> "" THEN DO:
                          RUN addLines(1).
-                        PUT v-addr4 AT 8 SKIP.
-                    END.
-                    /* IF shipto.ship-addr[1] <> "" THEN DO:
-                   if v-printline ge lv-line-print then
-                   do:
-                     PUT "<R59><C65>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
-                     PAGE .
-                     {oe/rep/acksoule.i}
-                     assign v-printline = 20.          
-                   end.
-                   PUT shipto.ship-addr[1] AT 30  SKIP.
-                   v-printline = v-printline + 1.
-          
-                END.*/
-               /* IF shipto.ship-addr[2] <> "" THEN DO:
-                    if v-printline ge lv-line-print then
-                    do:
-                      PUT "<R59><C65>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
-                      PAGE .
-                      {oe/rep/acksoule.i}
-                      assign v-printline = 20.          
-                    end. 
-                    PUT shipto.ship-addr[2] AT 30 SKIP.
-                    v-printline = v-printline + 1.
-                    /*if v-printline ge lv-line-print then
-                    do:
-                        PUT "<R59><C65>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
-                        PAGE .
-                        {oe/rep/acksoule.i}
-                        assign v-printline = 20.          
-                    end. */
-                END.*/
-               /* IF v-addr4 <> "" THEN DO:
-                   if v-printline ge lv-line-print then
-                   do:
-                      PUT "<R59><C65>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
-                      PAGE .
-                      {oe/rep/acksoule.i}
-                      assign v-printline = 20.          
-                   end. 
-                   PUT v-addr4 AT 30  SKIP.
-                   v-printline = v-printline + 1.
-                END.*/
+                        PUT v-addr4 AT 6 SKIP.
+                    END.                       
             END.
           end.
           ELSE DO:
@@ -812,7 +777,7 @@ PUT "[@startPage" oe-ord.ord-no "]".
 /*                 assign v-printline = 20.                                                                             */
 /*               end.                                                                                                   */
               RUN addLines(1).
-              put oe-rel.po-no AT 8  ld-date AT 59 SPACE(2) (IF oe-rel.link-no EQ 0 THEN oe-rel.tot-qty ELSE oe-rel.qty) FORM "->>>>>>>>9"     SKIP .
+              put oe-rel.po-no AT 6  ld-date AT 45 SPACE(2) (IF oe-rel.link-no EQ 0 THEN oe-rel.tot-qty ELSE oe-rel.qty) FORM "->>>>>>>>9"     SKIP .
           END.
           PUT SKIP(1).
 /*           v-printline = v-printline + 1. */
@@ -920,7 +885,7 @@ PUT "[@startPage" oe-ord.ord-no "]".
         if first(oe-ordm.ord-no) then
         do:
           
-          put "** Miscellaneous Items **" at 25 .
+          put "** Miscellaneous Items **" at 21 .
           if v-print-fmt eq "HOP" then put "Taxable" at 62.
           put skip(1).
           RUN addLines(2).
@@ -935,12 +900,12 @@ PUT "[@startPage" oe-ord.ord-no "]".
 /*             assign v-printline = 20.                                                                             */
 /*         end.                                                                                                     */
         if oe-ordm.bill eq "N" then
-           PUT oe-ordm.po-no FORM "x(15)" AT 8 
-               oe-ordm.charge AT 23 oe-ordm.dscr FORM "x(30)" "      N/C" .          
+           PUT oe-ordm.po-no FORM "x(15)" AT 6 
+               oe-ordm.charge AT 21 oe-ordm.dscr FORM "x(30)" "      N/C" .          
         else
-         PUT oe-ordm.po-no FORM "x(15)" AT 8 
-             oe-ordm.charge AT 23 oe-ordm.dscr FORM "x(30)" /*SPACE(11)*/             
-             oe-ordm.amt FORM "$->>>>,>>9.99" AT 100 
+         PUT oe-ordm.po-no FORM "x(15)" AT 6 
+             oe-ordm.charge AT 21 oe-ordm.dscr FORM "x(30)" /*SPACE(11)*/             
+             oe-ordm.amt FORM "$->>>>,>>9.99" AT 83 
              .
         PUT SKIP.
         assign v-line = v-line + 1.
@@ -953,9 +918,15 @@ PUT "[@startPage" oe-ord.ord-no "]".
       /* print freight*/
       IF oe-ord.f-bill THEN DO:
          v-totord = v-totord + oe-ord.t-freight.
-         PUT "Freight:" AT 23 oe-ord.t-freight FORM "$->>>,>>9.99" AT 101.
+         PUT "Freight:" AT 21 oe-ord.t-freight FORM "$->>>,>>9.99" AT 84.
          RUN addLines(1).
 /*          v-printline = v-printline + 1. */
+      END.
+      /* print Tax*/
+      IF oe-ord.tax gt 0 THEN DO:
+         v-totord = v-totord + oe-ord.tax.
+         PUT "Tax:" AT 21 oe-ord.tax FORM "$->>>,>>9.99" AT 84.
+         RUN addLines(1).
       END.
       /* print billing notes */
       ASSIGN v-billinst = "".
@@ -972,8 +943,11 @@ PUT "[@startPage" oe-ord.ord-no "]".
             {oe/rep/acksoule.i}
             assign v-printline = 20.          
       end.
-*/
-      PUT "<R53><C1> A 10% underrun or overrun will constitute fulfillment of order.  " 
+*/    IF v-tg-whs-mths THEN
+      PUT "<R51><C1> Product held in stock " + string(v-rs-whs-mths) + " months beyond the order acknowledgement date will be billed for complete" FORMAT "x(300)"
+          "<R52><C1> PO balance due. Disposition of product will be determined upon agreement." .
+      PUT    
+          "<R53><C1> A 10% underrun or overrun will constitute fulfillment of order.  " 
           "<R54><C1> If any items are returned, a 15% restocking fee will be charged on all returned items. " 
           "<R55><C1> No return will be accepted for custom orders. " .
 
@@ -981,10 +955,10 @@ PUT "[@startPage" oe-ord.ord-no "]".
       PUT "<R56><C1><#10><P12><B> Comments </B> <P10> " 
         "<R57><C1>" v-billinst[1] 
         "<R58><C1>" v-billinst[2] 
-        "<R59><C1>" v-billinst[3]   "<P10>Order Total:" AT 90 "<U>"  v-totord FORM "$>>>>,>>9.99"  "</U><P9>"               
+        "<R59><C1>" v-billinst[3]   "<P10>Order Total:" AT 72 "<U>"  v-totord FORM "$>>>>,>>9.99"  "</U><P9>"               
         "<R60><C1>" v-billinst[4]   
         /*"<R61><C1>" " ______________________________________(Please sign and fax back) " */
-        "<R62><C1>" SPACE(32) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER,NOT AN INVOICE.</B>                   <P16><B> Thank You! <P10></B>" 
+        "<R62><C1>" SPACE(28) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER,NOT AN INVOICE.</B>     <P16><B> Thank You! <P10></B>" 
 /*         "<R64><C65>Page "  string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" */
         "[@endPage" oe-ord.ord-no "]"
         .

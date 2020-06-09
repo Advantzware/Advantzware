@@ -41,6 +41,10 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_APIOutBound
+&SCOPED-DEFINE EXCLUDE-select-page
+/* Do not edit/remove the below line. This is required to override the standard
+   select-page procudure */ 
+
 
 /* Parameters Definitions ---                                           */
 
@@ -140,7 +144,7 @@ DEFINE FRAME message-frame
    Type: SmartWindow
    External Tables: ASI.APIOutbound
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 5
+   Design Page: 1
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -174,6 +178,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 {src/adm/method/containr.i}
 {methods/template/windows.i}
+{methods/template/selectpage.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -661,13 +666,13 @@ PROCEDURE local-change-page :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
+    /* Code placed here will execute PRIOR to standard behavior. */
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  {methods/winReSizePgChg.i}
+    /* Code placed here will execute AFTER standard behavior.    */
+    {methods/winReSizePgChg.i}
 
 END PROCEDURE.
 

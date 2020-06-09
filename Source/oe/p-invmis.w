@@ -462,9 +462,17 @@ PROCEDURE set-buttons :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER panel-state AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecordFound AS LOGICAL NO-UNDO.
 
 DO WITH FRAME Panel-Frame:
-
+          
+  IF panel-state EQ 'add-only' THEN
+  DO:
+      run get-link-handle in adm-broker-hdl(this-procedure, "tableio-target", output lv-char-hdl).
+      run pCheckRecord in widget-handle(lv-char-hdl)(OUTPUT lRecordFound) .
+      IF  lRecordFound THEN  panel-state = "initial".
+  END.           
+    
   IF panel-state = 'disable-all':U THEN DO:
 
     /* All buttons are set to insensitive. This only should happen when */

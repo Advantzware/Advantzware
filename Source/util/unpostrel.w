@@ -35,7 +35,15 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-{src/adm2/widgetprto.i}
+{src/adm2/widgetprto.i}  
+ 
+DEF TEMP-TABLE tt-oe-rell LIKE oe-rell
+   FIELD availBol AS LOGICAL LABEL "Avail!BOL" 
+   FIELD availRel AS LOGICAL LABEL "Avail!Rel"
+   FIELD availRelh AS LOGICAL LABEL "Avail!Relh"
+   FIELD releaseNo LIKE oe-relh.release#
+   FIELD iSeq AS INTEGER  LABEL "Sequence"
+    .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -264,6 +272,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btGetInfo wWin
 ON CHOOSE OF btGetInfo IN FRAME fMain /* Show Release Info */
 DO:
+  EMPTY TEMP-TABLE tt-oe-rell. 
   RUN populate-browse.
 END.
 
@@ -295,80 +304,6 @@ DEFINE VARIABLE hBrowse AS HANDLE     NO-UNDO.
 DEFINE VARIABLE hColumn AS HANDLE     NO-UNDO.
 DEFINE FRAME BrowseFrame WITH SIZE 100 BY 10.
 
-CREATE TEMP-TABLE hTT.
-hTT:CREATE-LIKE("oe-rell","ord-no").
-hTT:ADD-FIELDS-FROM("oe-rell","posted").
-hTT:ADD-FIELDS-FROM("oe-rell","printed").
-hTT:ADD-FIELDS-FROM("oe-rell","rel-no").
-hTT:ADD-FIELDS-FROM("oe-rell","r-no").
-hTT:ADD-NEW-FIELD("release#", "INTEGER",0,"999999",0,"Rel","Rel#").
-hTT:ADD-NEW-FIELD("avail-bol", "LOGICAL",0,"YES/NO",NO,"Avil Bol","Avail!BOL").
-hTT:ADD-NEW-FIELD("avail-rel", "LOGICAL",0,"YES/NO",NO,"Avil Rel","Avail!Rel").
-hTT:ADD-NEW-FIELD("avail-relh", "LOGICAL",0,"YES/NO",NO,"Avil Relh","Avail!Relh").
-hTT:ADD-NEW-FIELD("Sequence", "INTEGER",0,"9999",1000).
-/* hTT:ADD-LIKE-INDEX("CustNum","CustNum","Customer"). */
-hTT:ADD-NEW-INDEX("SeqIndex", YES).  /* Yes, make it the primary index. */
-hTT:ADD-INDEX-FIELD("SeqIndex", "Sequence").
-hTT:TEMP-TABLE-PREPARE("CustSequence").
-hTTBuf = hTT:DEFAULT-BUFFER-HANDLE.
-
-/* Populate the temp-table with values from the database. */
-/*
-FOR EACH Customer WHERE State = "NH", SalesRep OF Customer:
-    hTTBuf:BUFFER-CREATE().
-    hTTBuf:BUFFER-COPY(BUFFER Customer:HANDLE).
-    hTTBuf:BUFFER-COPY(BUFFER SalesRep:HANDLE).
-    hTTBuf:BUFFER-FIELD("Sequence"):BUFFER-VALUE = iSeq.
-    iSeq = iSeq + 1.
-END.
-  */
-/*
-RUN CREATE-tt.
-/*
-FOR EACH oe-rell WHERE oe-rell.company = '001' 
-     AND oe-rell.r-no = 5637.
-    hTTBuf:BUFFER-CREATE().
-    hTTBuf:BUFFER-COPY(BUFFER oe-rell:HANDLE).    
-    hTTBuf:BUFFER-FIELD("Sequence"):BUFFER-VALUE = iSeq.
-    iSeq = iSeq + 1.
-END.
-*/
-/* Now create a query for the temp-table buffer and display values. */
-CREATE QUERY hQuery.
-hQuery:SET-BUFFERS(hTTBuf).
-hQuery:QUERY-PREPARE("FOR EACH CustSequence").
-
-CREATE BROWSE hBrowse
-    ASSIGN ROW = 5 COL = 1
-           WIDTH = 79 DOWN = 15
-           FRAME = FRAME fMain:HANDLE
-           QUERY = hQuery
-           SENSITIVE = YES 
-           SEPARATORS = YES
-           ROW-MARKERS = NO
-           VISIBLE = YES
-    TRIGGERS:
-
-    END.
-
-/* hBrowse:ADD-COLUMNS-FROM(hTTBuf, "SalesRep,Country,address,Address2,State").
-  */
-hBrowse:ADD-LIKE-COLUMN(hTTBuf:BUFFER-FIELD("ord-no")).
-hBrowse:ADD-LIKE-COLUMN(hTTBuf:BUFFER-FIELD("r-no")).
-hBrowse:ADD-LIKE-COLUMN(hTTBuf:BUFFER-FIELD("Sequence")).
-hBrowse:ADD-LIKE-COLUMN(hTTBuf:BUFFER-FIELD("Printed")).
-hBrowse:ADD-LIKE-COLUMN(hTTBuf:BUFFER-FIELD("Posted")).
-hBrowse:ADD-LIKE-COLUMN(hTTBuf:BUFFER-FIELD("rel-no")).
-/* hTTBuf:BUFFER-FIELD("SalesRep"):VALIDATE-EXPRESSION = "".           */
-/* hColumn = hBrowse:ADD-LIKE-COLUMN(hTTBuf:BUFFER-FIELD("SalesRep")). */
-/* hColumn = hBrowse:ADD-CALC-COLUMN("DECIMAL","ZZ,ZZZ,ZZ9.99",0,"Available",4). */
-
-hQuery:QUERY-OPEN().
-ENABLE ALL WITH FRAME fMain.
-/* WAIT-FOR CLOSE OF CURRENT-WINDOW. */
-
-
-*/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -401,7 +336,7 @@ DEF VAR iSeq AS INT INIT 1.
 
 for each oe-rell where oe-rell.company = fiCompany:SCREEN-VALUE IN FRAME fMain
     and oe-rell.r-no = INTEGER(fiOrder:SCREEN-VALUE IN FRAME fMain)  no-lock.
-
+          
     find first oe-relh where oe-relh.r-no = oe-rell.r-no no-error.
     find first oe-boll where oe-boll.company = oe-rell.company
      and oe-boll.ord-no = oe-rell.ord-no
@@ -415,19 +350,16 @@ for each oe-rell where oe-rell.company = fiCompany:SCREEN-VALUE IN FRAME fMain
     find oe-ordl where oe-ordl.company = oe-rell.company
       and oe-ordl.ord-no = oe-rell.ord-no
       and oe-ordl.line = oe-rell.line no-lock no-error.
-      
-      hTTBuf:BUFFER-CREATE().
-      hTTBuf:BUFFER-COPY(BUFFER oe-rell:HANDLE).    
-      hTTBuf:BUFFER-FIELD("avail-bol"):BUFFER-VALUE = AVAIL(oe-boll).
-      hTTBuf:BUFFER-FIELD("avail-rel"):BUFFER-VALUE = AVAIL(oe-rel).
-      hTTBuf:BUFFER-FIELD("avail-relh"):BUFFER-VALUE = AVAIL(oe-relh).
-      IF AVAIL(oe-relh) THEN
-          hTTBuf:BUFFER-FIELD("release#"):BUFFER-VALUE = oe-relh.release#.
-      hTTBuf:BUFFER-FIELD("Sequence"):BUFFER-VALUE = iSeq.
-      iSeq = iSeq + 1.
-
-      /*
-     run c:\temp\asi\oe\cleanrel.p (input rowid(oe-ordl)). */
+      CREATE tt-oe-rell .
+      BUFFER-COPY oe-rell TO tt-oe-rell.
+       ASSIGN             
+          tt-oe-rell.availBol = AVAIL(oe-boll)
+          tt-oe-rell.availRel = AVAIL(oe-rel)
+          tt-oe-rell.availRelh = AVAIL(oe-relh)
+          tt-oe-rell.releaseNo =  IF AVAIL oe-relh THEN oe-relh.release# ELSE 0
+          tt-oe-rell.iSeq  = iSeq .         
+    
+      iSeq = iSeq + 1.       
      
 END.
 
@@ -501,50 +433,38 @@ PROCEDURE populate-browse :
   Notes:       
 ------------------------------------------------------------------------------*/
 RUN CREATE-tt.
-/*
-FOR EACH oe-rell WHERE oe-rell.company = '001' 
-     AND oe-rell.r-no = 5637.
-    hTTBuf:BUFFER-CREATE().
-    hTTBuf:BUFFER-COPY(BUFFER oe-rell:HANDLE).    
-    hTTBuf:BUFFER-FIELD("Sequence"):BUFFER-VALUE = iSeq.
-    iSeq = iSeq + 1.
-END.
-*/
+
 /* Now create a query for the temp-table buffer and display values. */
 CREATE QUERY hQuery.
-hQuery:SET-BUFFERS(hTTBuf).
-hQuery:QUERY-PREPARE("FOR EACH CustSequence").
+/*hQuery:SET-BUFFERS(hTTBuf).  */
+hQuery:ADD-BUFFER (BUFFER tt-oe-rell:HANDLE).
+hQuery:QUERY-PREPARE("FOR EACH tt-oe-rell"). 
+
+hQuery:QUERY-OPEN().  
 
 CREATE BROWSE hBrowse
     ASSIGN ROW = 5 COL = 1
            WIDTH = 79 DOWN = 15
            FRAME = FRAME fMain:HANDLE
-           QUERY = hQuery
+           QUERY = hQuery:HANDLE
            SENSITIVE = YES 
            SEPARATORS = YES
            ROW-MARKERS = NO
            VISIBLE = YES
     TRIGGERS:
 
-    END.
+    END.       
+hBrowse:ADD-LIKE-COLUMN("tt-oe-rell.ord-no").
+hBrowse:ADD-LIKE-COLUMN("tt-oe-rell.r-no").
 
-/* hBrowse:ADD-COLUMNS-FROM(hTTBuf, "SalesRep,Country,address,Address2,State").
-  */
-hBrowse:ADD-LIKE-COLUMN(hTTBuf:BUFFER-FIELD("ord-no")).
-hBrowse:ADD-LIKE-COLUMN(hTTBuf:BUFFER-FIELD("r-no")).
+hBrowse:ADD-LIKE-COLUMN("tt-oe-rell.Printed").
+hBrowse:ADD-LIKE-COLUMN("tt-oe-rell.Posted").
+hBrowse:ADD-LIKE-COLUMN("tt-oe-rell.availBol").
+hBrowse:ADD-LIKE-COLUMN("tt-oe-rell.availRel").
+hBrowse:ADD-LIKE-COLUMN("tt-oe-rell.availRelh").
+hBrowse:ADD-LIKE-COLUMN("tt-oe-rell.releaseNo").
+hBrowse:ADD-LIKE-COLUMN("tt-oe-rell.iSeq").    
 
-hBrowse:ADD-LIKE-COLUMN(hTTBuf:BUFFER-FIELD("Printed")).
-hBrowse:ADD-LIKE-COLUMN(hTTBuf:BUFFER-FIELD("Posted")).
-hBrowse:ADD-LIKE-COLUMN(hTTBuf:BUFFER-FIELD("avail-bol")).
-hBrowse:ADD-LIKE-COLUMN(hTTBuf:BUFFER-FIELD("avail-rel")).
-hBrowse:ADD-LIKE-COLUMN(hTTBuf:BUFFER-FIELD("avail-relh")).
-hBrowse:ADD-LIKE-COLUMN(hTTBuf:BUFFER-FIELD("rel-no")).
-hBrowse:ADD-LIKE-COLUMN(hTTBuf:BUFFER-FIELD("Sequence")).
-/* hTTBuf:BUFFER-FIELD("SalesRep"):VALIDATE-EXPRESSION = "".           */
-/* hColumn = hBrowse:ADD-LIKE-COLUMN(hTTBuf:BUFFER-FIELD("SalesRep")). */
-/* hColumn = hBrowse:ADD-CALC-COLUMN("DECIMAL","ZZ,ZZZ,ZZ9.99",0,"Available",4). */
-
-hQuery:QUERY-OPEN().
 /* DISABLE ALL WITH FRAME fMain. */
 ENABLE ALL WITH FRAME fMain.
 /* WAIT-FOR CLOSE OF CURRENT-WINDOW. */

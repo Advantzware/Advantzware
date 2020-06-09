@@ -2,10 +2,10 @@
 &ANALYZE-RESUME
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Procedure 
 /*------------------------------------------------------------------------
-    File        : po/do-po.p 
+    File        : po/dopo.p 
     Purpose     :
                  Add PO from Order Entry Program - P/O Module                             
-                 Similar logic in do-po-best.p                                              
+                 Similar logic in dopo-best.p                                              
     Syntax      :
 
     Description :

@@ -121,6 +121,9 @@ DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+    
+DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 PROCEDURE mail EXTERNAL 'xpMail.dll' :
 
@@ -676,6 +679,8 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Print Order Acknowledgements */
 DO:
   /* This event will close the window and terminate the procedure.  */
+      IF VALID-HANDLE(hdOutboundProcs) THEN
+  DELETE PROCEDURE hdOutboundProcs.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -1283,7 +1288,7 @@ DO:
        tb_act-rel:SENSITIVE = NO
        tb_act-rel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".
 
-    IF v-print-fmt = "Dee" OR v-print-fmt = "Accord"  THEN
+    IF v-print-fmt = "Dee" OR v-print-fmt = "Accord" OR v-print-fmt = "Soule" THEN
       ASSIGN
          TG_whs-mths:SENSITIVE = YES. 
 
@@ -1841,7 +1846,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        tb_act-rel:SENSITIVE = NO
        tb_act-rel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".
 
-    IF v-print-fmt = "Dee" OR v-print-fmt = "Accord" THEN
+    IF v-print-fmt = "Dee" OR v-print-fmt = "Accord" OR v-print-fmt = "Soule" THEN
       ASSIGN
          TG_whs-mths:SENSITIVE = YES. 
 
@@ -2863,6 +2868,59 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunAPIOutboundTrigger C-Win
+PROCEDURE pRunAPIOutboundTrigger PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE PARAMETER BUFFER ipbf-oe-ord FOR oe-ord.
+DEFINE INPUT PARAMETER iplReprint AS LOGICAL NO-UNDO.
+
+DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPIID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTriggerID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrimaryID AS CHARACTER NO-UNDO.
+   
+
+IF AVAILABLE ipbf-oe-ord THEN DO:
+    IF iplReprint THEN 
+        cTriggerID = "ReprintOrderAck".
+    ELSE 
+        cTriggerID = "PrintOrderAck".
+    ASSIGN 
+        cAPIID = "SendOrderAck"
+        cPrimaryID = STRING(ipbf-oe-ord.ord-no)
+        cDescription = cAPIID + " triggered by " + cTriggerID + " from r-acknow.w for Order: " + cPrimaryID
+        . 
+    RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+        INPUT  ipbf-oe-ord.company,                /* Company Code (Mandatory) */
+        INPUT  ipbf-oe-ord.loc,               /* Location Code (Mandatory) */
+        INPUT  cAPIID,                  /* API ID (Mandatory) */
+        INPUT  "",               /* Client ID (Optional) - Pass empty in case to make request for all clients */
+        INPUT  cTriggerID,              /* Trigger ID (Mandatory) */
+        INPUT  "oe-ord",               /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  STRING(ROWID(ipbf-oe-ord)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  cPrimaryID,              /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  cDescription,       /* Event's description (Optional) */
+        OUTPUT lSuccess,                /* Success/Failure flag */
+        OUTPUT cMessage                 /* Status message */
+        ) NO-ERROR.
+
+
+    RUN Outbound_ResetContext IN hdOutboundProcs.
+END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
 /* --------------------------------------------------- po/po-print.p 10/94 rd */
@@ -3026,6 +3084,12 @@ ELSE DO:
 END.
 
 OUTPUT CLOSE.
+
+FOR EACH report NO-LOCK WHERE report.term-id EQ v-term-id,
+   FIRST oe-ord NO-LOCK WHERE RECID(oe-ord) EQ report.rec-id
+   :     
+       RUN pRunAPIOutboundTrigger(BUFFER oe-ord, v-reprint).
+END.
 
 FOR EACH report WHERE report.term-id EQ v-term-id:
    FIND oe-ord WHERE RECID(oe-ord) EQ report.rec-id.

@@ -400,7 +400,8 @@ FOR EACH quotehd FIELDS(q-no est-no company quo-date) NO-LOCK  WHERE
     EACH quoteitm NO-LOCK WHERE
         quoteitm.company EQ quotehd.company         
         AND quoteitm.loc     EQ ipxLoc 
-        AND quoteitm.q-no    EQ quotehd.q-no         
+        AND quoteitm.q-no    EQ quotehd.q-no
+        AND quoteitm.i-no    EQ ipxStock
     ,
     EACH quoteqty NO-LOCK WHERE
         quoteqty.company = quoteitm.company

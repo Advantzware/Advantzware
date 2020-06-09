@@ -143,8 +143,8 @@ v-create-job = IF AVAIL sys-ctrl THEN sys-ctrl.log-fld ELSE NO.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 RECT-19 fcFileName cXMLImport ~
-btn-process btn-cancel 
+&Scoped-Define ENABLED-OBJECTS RECT-17 RECT-19 fcFileName btn-process ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS fcFileName fcMessage 
 
 /* Custom List Definitions                                              */
@@ -261,6 +261,11 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+/* SETTINGS FOR BUTTON cXMLImport IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       cXMLImport:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 ASSIGN 
        fcFileName:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -792,6 +797,15 @@ PROCEDURE CreateOrder :
   DEFINE VARIABLE hOrderProcs AS HANDLE NO-UNDO.
   DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE dCostPerUOMTotal AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dCostPerUOMDL AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dCostPerUOMFO AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dCostPerUOMVO AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dCostPerUOMDM AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE cCostUOM AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE hdCostProcs AS HANDLE.
+  RUN system\CostProcs.p PERSISTENT SET hdCostProcs. 
   
   FOR EACH ttHeader BY ttHeader.Order#:
       IF NOT ttHeader.CustomerValid THEN NEXT.
@@ -930,6 +944,10 @@ PROCEDURE CreateOrder :
                              oe-ordl.part-dscr1 =  itemfg.part-dscr1
                              oe-ordl.part-dscr2 =  itemfg.part-dscr2 
                             .
+                  RUN GetCostForFGItem IN hdCostProcs(oe-ordl.company,oe-ordl.i-no, OUTPUT dCostPerUOMTotal, OUTPUT dCostPerUOMDL,OUTPUT dCostPerUOMFO,
+                                             OUTPUT dCostPerUOMVO,OUTPUT dCostPerUOMDM, OUTPUT cCostUOM , OUTPUT lFound) .
+                  oe-ordl.cost = dCostPerUOMTotal .
+                  oe-ordl.t-cost = oe-ordl.cost * oe-ordl.qty / 1000 .          
 
                    
                   RUN pAutoCreateShipTo (INPUT cocode, 
@@ -986,6 +1004,7 @@ PROCEDURE CreateOrder :
       END.
         
   END. /* Each tt-header */
+  DELETE OBJECT hdCostProcs.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1172,7 +1191,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fcFileName fcMessage 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 RECT-19 fcFileName cXMLImport btn-process btn-cancel 
+  ENABLE RECT-17 RECT-19 fcFileName btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1221,8 +1240,6 @@ PROCEDURE ImportOrder :
    END.
 
    RUN createOrder.
-
-   RUN cXMLOrder. /*05291402 */
 
 END PROCEDURE.
 

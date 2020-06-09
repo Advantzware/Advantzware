@@ -181,12 +181,6 @@ FOR EACH dynPrgrmsPage NO-LOCK :
 END. /* each dynParamValue */
 OUTPUT CLOSE.
 
-OUTPUT TO VALUE(cOutDir + "\dynPrgrmsPage.d").
-FOR EACH dynPrgrmsPage NO-LOCK :
-    EXPORT dynPrgrmsPage.
-END. /* each dynParamValue */
-OUTPUT CLOSE.
-
 OUTPUT TO VALUE(cOutDir + "\dynLookup.d").
 FOR EACH dynLookup NO-LOCK :
     EXPORT dynLookup.
@@ -276,6 +270,21 @@ FOR EACH {&cFile}:
     EXPORT {&cFile}.
 END.
 OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile apiClient
+OUTPUT TO VALUE(cOutDir + "\APIData\{&cFile}.d").
+FOR EACH {&cFile} WHERE {&cFile}.clientID BEGINS "_default":
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile apiClientXref
+OUTPUT TO VALUE(cOutDir + "\APIData\{&cFile}.d").
+FOR EACH {&cFile} WHERE {&cFile}.clientID BEGINS "_default":
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
 
 
 

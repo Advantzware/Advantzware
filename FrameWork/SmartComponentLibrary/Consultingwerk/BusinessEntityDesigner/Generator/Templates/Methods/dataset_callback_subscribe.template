@@ -1,2 +1,0 @@
-        &1 &2:SET-CALLBACK ("&3":U, "&4":U, THIS-OBJECT).
-

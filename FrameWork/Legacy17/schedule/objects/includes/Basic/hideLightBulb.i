@@ -1,3 +1,0 @@
-/* hideLightBulb.i */
-
-/* static version */

@@ -21,9 +21,9 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD PoNoGroup               AS CHARACTER
     FIELD vend-no                 AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Vendor #" HELP "Required - Size:1"
     FIELD po-no                   AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "PO #" HELP "Optional - Integer or <AUTO> to auto-number.  Use <AUTO>#### where # is a unique group number. " 
-    FIELD iline                   AS INTEGER FORMAT ">>>" COLUMN-LABEL "Po Line" HELP "Optional - Integer"
-    FIELD due-date                AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Due Date" HELP "Optional - Date"
-    FIELD ship-id                 AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Ship ID" HELP "Optional - Size:8"
+    FIELD iline                   AS INTEGER FORMAT ">>>" COLUMN-LABEL "Po Line" HELP "Required - Integer"
+    FIELD due-date                AS DATE FORMAT "99/99/9999" COLUMN-LABEL "Due Date" HELP "Required - Date"
+    FIELD ship-id                 AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Ship ID" HELP "(Vendor or Cust ShipId or Company depand on Po Type) Required - Size:8"
     FIELD ship-name               AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Ship Name" HELP "Optional - Size:30"
     FIELD ship-addr1              AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Ship Address 1" HELP "Optional - Size:30"
     FIELD ship-addr2              AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Ship Address 2" HELP "Optional - Size:30"
@@ -32,7 +32,7 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD ship-zip                AS CHARACTER FORMAT "xxxxx-xxxx" COLUMN-LABEL "Ship Zip" HELP "Optional - Size:9"
     FIELD carrier                 AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Shipping Carrier" HELP "Optional - Size:5"
     FIELD t-freight               AS DECIMAL FORMAT "->>,>>9.99" COLUMN-LABEL "Total Freight" HELP "Optional - Decimal"
-    FIELD frt-pay                 AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Freight Payment" HELP "Required - P,C or B"
+    FIELD frt-pay                 AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Freight Payment" HELP "Required - P C or B"
     FIELD fob-code                AS CHARACTER   FORMAT "X(10)" COLUMN-LABEL "FOB" HELP "Required - Dest or ORIG"  
     FIELD tax-gr                  AS CHARACTER   FORMAT "x(3)" COLUMN-LABEL "Tax Code" HELP "Optional - Size:3"
     FIELD tax                     AS DECIMAL FORMAT "->,>>>,>>9.99" COLUMN-LABEL "Tax" HELP "Optional - decimal"
@@ -51,20 +51,20 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD dscr2                   AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Description 2" HELP "Optional - Size:30"
     FIELD vend-i-no               AS CHARACTER FORMAT "x(15)" COLUMN-LABEL "Vendor Item #" HELP "Optional - Size:15"
     FIELD ord-qty                 AS DECIMAL FORMAT "->>>,>>>,>>9.9<<<<<" COLUMN-LABEL "Order Qty" HELP "Optional - Decimal"
-    FIELD pr-qty-uom              AS CHARACTER   FORMAT "x(3)" COLUMN-LABEL "Order UOM" HELP "Optional - Size:3"
+    FIELD pr-qty-uom              AS CHARACTER   FORMAT "x(3)" COLUMN-LABEL "Order UOM" HELP "Required - Size:3"
     FIELD t-rec-qty               AS DECIMAL   FORMAT "->>>,>>>,>>9.9<<<<<" COLUMN-LABEL "Qty Received" HELP "Optional - Decimal"
     FIELD cons-uom                AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Rec. UOM" HELP "Optional - Size:3"   
     FIELD cost                    AS DECIMAL   FORMAT "->,>>>,>>9.99<<<<" COLUMN-LABEL "Item Cost" HELP "Optional - Decimal"
-    FIELD pr-uom                  AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "UOM" HELP "Optional - Size:3"
+    FIELD pr-uom                  AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "UOM" HELP "Required - Size:3"
     FIELD buyer                   AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Buyer" HELP "Optional - Size:10"
-    FIELD stat                    AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Status" HELP "Optional - Size:10"
-    FIELD linestat                AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Item Status" HELP "Optional - Size:2"
+    FIELD stat                    AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Status" HELP "Required - Size:10"
+    FIELD linestat                AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Item Status" HELP "Required - Size:2"
     FIELD printed                 AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Printed" HELP "Optional - Yes Or No(Blank N)"
     FIELD opened                  AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Opened" HELP "Optional - Yes or No (Blank- No)"
-    FIELD type                    AS CHARACTER   FORMAT "x(10)" COLUMN-LABEL "Type" HELP "Required - R,D or S"
+    FIELD type                    AS CHARACTER   FORMAT "x(10)" COLUMN-LABEL "Type" HELP "Required - R D or S"
     FIELD contact                 AS CHARACTER   FORMAT "x(25)" COLUMN-LABEL "Contact" HELP "Optional - Size:25"
-    FIELD po-date                 AS CHARACTER   FORMAT "x(10)" COLUMN-LABEL "PO Date" HELP "Optional - Date"
-    FIELD last-ship-date          AS CHARACTER   FORMAT "x(10)" COLUMN-LABEL "Last Ship Date" HELP "Optional - Date"
+    FIELD po-date                 AS DATE   FORMAT "99/99/9999" COLUMN-LABEL "PO Date" HELP "Required - Date"
+    FIELD last-ship-date          AS DATE   FORMAT "99/99/9999" COLUMN-LABEL "Last Ship Date" HELP "Optional - Date"
     FIELD setup                   AS DECIMAL FORMAT ">>,>>9.99" COLUMN-LABEL "Setup" HELP "Optional - Decimal"
     FIELD disc                    AS DECIMAL FORMAT "->>>,>>9.99" COLUMN-LABEL "Discount" HELP "Optional - Decimal"
     FIELD actnum                  AS CHARACTER FORMAT "x(25)" COLUMN-LABEL "GL Number" HELP "Optional - Size:25"
@@ -72,6 +72,8 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD under-pct               AS DECIMAL   FORMAT ">>9.99%" COLUMN-LABEL "Underrun" HELP "Optional - Decimal"
     FIELD cust-no                 AS CHARACTER   FORMAT "x(8)" COLUMN-LABEL "Customer #" HELP "Optional - Size:8"
     FIELD ord-no                  AS INTEGER   FORMAT ">>>>>9" COLUMN-LABEL "Order #" HELP "Optional - Integer"
+    FIELD shipto-cust-no          AS CHARACTER   FORMAT "x(8)" COLUMN-LABEL "ShipTo Customer #" HELP "Required if Po type is drop shipment - Size:8"
+    FIELD drop-shipment           AS CHARACTER   FORMAT "X(8)" COLUMN-LABEL "Drop Shipment Type" HELP "Required if Po type is drop shipment - Customer or Vendor"
        
     
     .
@@ -190,10 +192,57 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportPo.stat, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.stat).                                      
     RUN pAssignValueC (ipbf-ttImportPo.type, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.type).                             
     RUN pAssignValueC (ipbf-ttImportPo.contact, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.contact).                                 
-    RUN pAssignValueCToDt (ipbf-ttImportPo.po-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.po-date).                                          
-    RUN pAssignValueCToDt (ipbf-ttImportPo.last-ship-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.last-ship-date).
+    RUN pAssignValueDate (ipbf-ttImportPo.po-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.po-date).                                          
+    RUN pAssignValueDate (ipbf-ttImportPo.last-ship-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.last-ship-date).
     RUN pAssignValueD (ipbf-ttImportPo.over-pct, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.over-pct).                                           
     RUN pAssignValueD (ipbf-ttImportPo.under-pct, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.under-pct).
+    RUN pAssignValueC (ipbf-ttImportPo.shipto-cust-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ord.cust-no).
+    
+    
+    IF bf-po-ord.ship-name EQ "" OR bf-po-ord.ship-addr[1] EQ "" THEN
+    DO:
+        IF ipbf-ttImportPo.TYPE NE "D" THEN
+        DO:
+           FIND FIRST company NO-LOCK WHERE company.company EQ ipbf-ttImportPo.Company NO-ERROR.
+             IF AVAILABLE company THEN
+               ASSIGN                    
+                 bf-po-ord.ship-name    = company.name
+                 bf-po-ord.ship-addr[1] = company.addr[1]
+                 bf-po-ord.ship-addr[2] = company.addr[2]
+                 bf-po-ord.ship-city    = company.city
+                 bf-po-ord.ship-state   = company.state
+                 bf-po-ord.ship-zip     = company.zip.             
+        END.
+        ELSE DO:
+           IF ipbf-ttImportPo.drop-shipment EQ "Customer"  THEN
+           DO:
+               FIND FIRST shipto NO-LOCK WHERE shipto.company EQ bf-po-ord.company
+                          AND shipto.cust-no EQ bf-po-ord.cust-no
+                          AND shipto.ship-id EQ bf-po-ord.ship-id
+                          NO-ERROR.
+                   IF AVAILABLE shipto THEN
+                     ASSIGN bf-po-ord.ship-name    = shipto.ship-name
+                            bf-po-ord.ship-addr[1] = shipto.ship-addr[1]
+                            bf-po-ord.ship-addr[2] = shipto.ship-addr[2]
+                            bf-po-ord.ship-city    = shipto.ship-city
+                            bf-po-ord.ship-state   = shipto.ship-state
+                            bf-po-ord.ship-zip     = shipto.ship-zip .               
+           END.
+           ELSE IF ipbf-ttImportPo.drop-shipment EQ "Vendor"  THEN
+           DO:
+              FIND FIRST vend NO-LOCK WHERE vend.company EQ bf-po-ord.company
+                          AND vend.vend-no EQ bf-po-ord.ship-id
+                        NO-ERROR .
+                 IF AVAILABLE vend THEN
+                    ASSIGN bf-po-ord.ship-name    = vend.name
+                           bf-po-ord.ship-addr[1] = vend.add1
+                           bf-po-ord.ship-addr[2] = vend.add2
+                           bf-po-ord.ship-city    = vend.city
+                           bf-po-ord.ship-state   = vend.state
+                           bf-po-ord.ship-zip     = vend.zip.               
+           END.         
+        END.        
+    END.
     
     FIND FIRST bf-po-ordl EXCLUSIVE-LOCK
          WHERE bf-po-ordl.company EQ ipbf-ttImportPo.Company AND
@@ -223,7 +272,7 @@ PROCEDURE pProcessRecord PRIVATE:
 
     END.       
         
-    RUN pAssignValueCToDt (ipbf-ttImportPo.due-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.due-date).                         
+    RUN pAssignValueDate (ipbf-ttImportPo.due-date, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.due-date).                         
     RUN pAssignValueC (ipbf-ttImportPo.job-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.job-no).                                 
     RUN pAssignValueC (ipbf-ttImportPo.i-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.i-no).                                          
     RUN pAssignValueC (ipbf-ttImportPo.i-name, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.i-name).                                     
@@ -248,9 +297,10 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueD (ipbf-ttImportPo.over-pct, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.over-pct).                                           
     RUN pAssignValueD (ipbf-ttImportPo.under-pct, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.under-pct).                         
     RUN pAssignValueC (ipbf-ttImportPo.cust-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.cust-no).                 
-    RUN pAssignValueI (ipbf-ttImportPo.ord-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.ord-no).                         
+    RUN pAssignValueI (ipbf-ttImportPo.ord-no, iplIgnoreBlanks, INPUT-OUTPUT bf-po-ordl.ord-no).   
     
     
+        
     IF ipbf-ttImportPo.printed EQ "Yes" THEN
         ASSIGN bf-po-ord.printed = YES.
     ELSE bf-po-ord.printed = NO .
@@ -260,6 +310,31 @@ PROCEDURE pProcessRecord PRIVATE:
     IF ipbf-ttImportPo.item-type EQ "RM" THEN
         ASSIGN bf-po-ordl.item-type = YES.
     ELSE bf-po-ordl.item-type = NO .
+    
+    IF ipbf-ttImportPo.item-type EQ "RM" THEN
+    DO:
+        FIND FIRST ITEM NO-LOCK
+             WHERE ITEM.company EQ po-ordl.company
+             AND ITEM.i-no EQ po-ordl.i-no NO-ERROR.
+        IF avail ITEM THEN
+        ASSIGN
+          bf-po-ordl.i-name  =  item.i-name
+          bf-po-ordl.dscr[1] =  item.i-dscr
+          bf-po-ordl.dscr[2] =  item.est-dscr .
+    END.
+    ELSE IF ipbf-ttImportPo.item-type EQ "FG" THEN
+    DO:
+        FIND FIRST itemfg NO-LOCK
+             WHERE itemfg.company EQ po-ordl.company
+             AND itemfg.i-no EQ po-ordl.i-no NO-ERROR .
+        IF avail itemfg THEN
+        ASSIGN
+          bf-po-ordl.i-name  =  itemfg.i-name
+          bf-po-ordl.dscr[1] =  itemfg.part-dscr1
+          bf-po-ordl.dscr[2] =  itemfg.part-dscr2 .
+    END.
+   IF bf-po-ordl.cost EQ 0 THEN
+     RUN vend-cost(ROWID(bf-po-ord),ROWID(bf-po-ordl)). 
 
 
    RELEASE bf-po-ord .
@@ -298,7 +373,7 @@ PROCEDURE pValidate PRIVATE:
         IF ipbf-ttImportPo.terms EQ "" THEN 
             ASSIGN 
                 oplValid = NO
-                opcNote  = "Terms is Blank".
+                opcNote  = "Payment Terms is Blank".
     END.   
     IF oplValid THEN 
     DO:
@@ -306,6 +381,27 @@ PROCEDURE pValidate PRIVATE:
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Item Type is Blank(must be FG or RM)".
+    END.
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportPo.iline EQ 0 THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Po Line must be greater than 0 ".
+    END.
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportPo.due-date EQ ? THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Due Date is Blank ".
+    END.
+    IF oplValid THEN 
+    DO:   
+        IF ipbf-ttImportPo.po-date EQ ?  THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Po Date is Blank ".
     END.
     
     /*Determine if Add or Update*/ 
@@ -347,7 +443,7 @@ PROCEDURE pValidate PRIVATE:
             END.             
             ELSE
                 ASSIGN
-                    oplValid = NO
+                    oplValid = YES
                     opcNote = "Add record" .
             END. 
         END.
@@ -406,21 +502,153 @@ PROCEDURE pValidate PRIVATE:
                 RUN sys/ref/uom-fg.p (NO, OUTPUT uom-list).
             END.
 
-        IF oplValid THEN 
+        IF oplValid THEN DO:
             RUN pIsValidUOM (ipbf-ttImportPo.pr-qty-uom, YES, OUTPUT oplValid, OUTPUT cValidNote).
+            IF cValidNote EQ "UOM is required." THEN ASSIGN 
+                cValidNote = "Order UOM is required.".
+        END.     
 
-        IF oplValid THEN 
-            RUN pIsValidFromList ("UOM",ipbf-ttImportPo.pr-qty-uom,uom-list, OUTPUT oplValid, OUTPUT cValidNote).     
+        IF oplValid THEN DO:
+            RUN pIsValidFromList ("Order UOM",ipbf-ttImportPo.pr-qty-uom,uom-list, OUTPUT oplValid, OUTPUT cValidNote).
+            IF cValidNote EQ "UOM is required." THEN ASSIGN 
+                cValidNote = "Order UOM is required.".
+        END.     
             
         IF oplValid THEN 
             RUN pIsValidUOM (ipbf-ttImportPo.pr-uom, YES, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid THEN 
-            RUN pIsValidFromList ("UOM",ipbf-ttImportPo.pr-uom,uom-list, OUTPUT oplValid, OUTPUT cValidNote).         
-
-                
+            RUN pIsValidFromList ("UOM",ipbf-ttImportPo.pr-uom,uom-list, OUTPUT oplValid, OUTPUT cValidNote).
+            
+        IF oplValid AND ipbf-ttImportPo.TYPE EQ "D" THEN 
+            RUN pIsValidFromList("Drop Shipment Type", ipbf-ttImportPo.drop-shipment, "Customer,Vendor", OUTPUT oplValid, OUTPUT cValidNote).      
+        
+        IF oplValid AND ipbf-ttImportPo.TYPE EQ "D" AND ipbf-ttImportPo.drop-shipment EQ "Customer"  THEN 
+           RUN pIsValidCustomerID (ipbf-ttImportPo.shipto-cust-no, NO, ipbf-ttImportPo.Company, OUTPUT oplValid, OUTPUT cValidNote).
+           
+        IF oplValid AND ipbf-ttImportPo.TYPE EQ "D" AND ipbf-ttImportPo.drop-shipment EQ "Customer"  THEN 
+           RUN pIsValidShiptoID (ipbf-ttImportPo.shipto-cust-no,ipbf-ttImportPo.ship-id, NO, ipbf-ttImportPo.Company, OUTPUT oplValid, OUTPUT cValidNote).   
+           
+        IF oplValid AND ipbf-ttImportPo.TYPE EQ "D" AND ipbf-ttImportPo.drop-shipment EQ "Vendor"  THEN do: 
+           RUN pIsValidVendor (ipbf-ttImportPo.ship-id, NO, ipbf-ttImportPo.Company, OUTPUT oplValid, OUTPUT cValidNote).
+           IF NOT oplValid THEN cValidNote = "ShipTo Vendor is not valid.".
+        END.   
+        
+        IF ipbf-ttImportPo.TYPE EQ "D" AND ipbf-ttImportPo.drop-shipment EQ "Vendor" THEN
+              ipbf-ttImportPo.shipto-cust-no = "".
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
 END PROCEDURE.
 
 
+PROCEDURE vend-cost PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: cost calculation 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER rwRowidPoOrd  AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER rwRowidPoOrdl AS ROWID NO-UNDO.
+    DEFINE VARIABLE dCostTotal      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerUOM     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostSetup      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cCostUOM        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMCons AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostGrandTotal AS DECIMAL   NO-UNDO.
+    
+    DEFINE BUFFER bff-po-ord FOR po-ord.
+    DEFINE BUFFER bff-po-ordl FOR po-ordl.
+    FIND FIRST bff-po-ord WHERE ROWID(bff-po-ord) EQ rwRowidPoOrd EXCLUSIVE-LOCK NO-ERROR.
+    FIND FIRST bff-po-ordl WHERE ROWID(bff-po-ordl) EQ rwRowidPoOrdl EXCLUSIVE-LOCK NO-ERROR.
+           
+        IF bff-po-ordl.item-type EQ TRUE THEN 
+        DO:
+         
+            FIND item NO-LOCK 
+                WHERE item.company EQ bff-po-ordl.company
+                AND item.i-no EQ bff-po-ordl.i-no 
+                NO-ERROR.
+            
+            /* call GetVendorCost in super procedure system/vendcostProc.p */
+            RUN GetVendorCost(bff-po-ordl.company, 
+                bff-po-ordl.i-no, 
+                "RM", 
+                bff-po-ord.vend-no, 
+                bff-po-ordl.cust-no, 
+                "", 0, 0, /*Estimate/F/B*/
+                DECIMAL(bff-po-ordl.ord-qty), 
+                bff-po-ordl.pr-qty-uom ,
+                DECIMAL(bff-po-ordl.s-len), 
+                DECIMAL(bff-po-ordl.s-wid), 
+                DECIMAL(bff-po-ordl.s-dep), 
+                "IN", 
+                IF AVAILABLE ITEM THEN item.basis-w ELSE 0, 
+                "LB/EA", 
+                NO,
+                OUTPUT dCostPerUOM, 
+                OUTPUT dCostSetup, 
+                OUTPUT cCostUOM,
+                OUTPUT dCostTotal, 
+                OUTPUT lError, 
+                OUTPUT cMessage).  
+            RUN Conv_ValueFromUOMtoUOM(bff-po-ordl.company, 
+                bff-po-ordl.i-no, "RM", 
+                dCostPerUOM, cCostUOM, IF AVAILABLE ITEM THEN item.cons-uom ELSE "M", 
+                0, DECIMAL(bff-po-ordl.s-len),DECIMAL(bff-po-ordl.s-wid),DECIMAL(bff-po-ordl.s-dep),0, 
+                OUTPUT dCostPerUOMCons, OUTPUT lError, OUTPUT cMessage).
+        END.  /* IF po-ordl.item-type EQ "RM" */
+        ELSE 
+        DO:  /* for "FG" */
+            FIND itemfg NO-LOCK 
+                WHERE itemfg.company EQ bff-po-ordl.company
+                AND itemfg.i-no EQ bff-po-ordl.i-no
+                NO-ERROR.
+            /* call GetVendorCost in super procedure system/vendcostProc.p */
+            RUN GetVendorCost(bff-po-ordl.company, 
+                bff-po-ordl.i-no, 
+                "FG", 
+                bff-po-ord.vend-no, 
+                bff-po-ordl.cust-no, 
+                "", 0, 0, /*Estimate/F/B*/
+                DECIMAL(bff-po-ordl.ord-qty), 
+                bff-po-ordl.pr-qty-uom ,
+                DECIMAL(bff-po-ordl.s-len), 
+                DECIMAL(bff-po-ordl.s-wid), 
+                DECIMAL(bff-po-ordl.s-dep), 
+                "IN", 
+                0, 
+                "LB/EA", 
+                NO,
+                OUTPUT dCostPerUOM, 
+                OUTPUT dCostSetup, 
+                OUTPUT cCostUOM,
+                OUTPUT dCostTotal, 
+                OUTPUT lError, 
+                OUTPUT cMessage).        
+            RUN Conv_ValueFromUOMtoUOM(bff-po-ordl.company, 
+                bff-po-ordl.i-no, "FG", 
+                dCostPerUOM, cCostUOM, bff-po-ordl.cons-uom, 
+                0, DECIMAL(bff-po-ordl.s-len),DECIMAL(bff-po-ordl.s-wid),DECIMAL(bff-po-ordl.s-dep),0, 
+                OUTPUT dCostPerUOMCons, OUTPUT lError, OUTPUT cMessage).
+             
+        END. /* if item-type ne RM */
+          
+            ASSIGN 
+                bff-po-ordl.cost      = DECIMAL(dCostPerUOM)
+                bff-po-ordl.setup     = DECIMAL(dCostSetup)
+                bff-po-ordl.cons-cost = DECIMAL(dCostPerUOMCons)
+                bff-po-ordl.pr-uom    = cCostUOM
+                dCostGrandTotal       = dCostTotal
+                .
+                    
+            IF DEC(bff-po-ordl.disc) NE 0 THEN
+                dCostGrandTotal = dCostGrandTotal * (1 - (DEC(bff-po-ordl.disc) / 100)).
+            bff-po-ordl.t-cost = DECIMAL(dCostGrandTotal).           
+                
+        RUN po\RecostBoardPO.p(INPUT ROWID(bff-po-ord),INPUT No).
+                
+      RELEASE bff-po-ord.
+      RELEASE bff-po-ordl.
+    
+END PROCEDURE.    

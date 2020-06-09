@@ -1,2 +1,0 @@
-
-DEF TEMP-TABLE tt-ss FIELD tt-val AS DEC DECIMALS 10 FIELD tt-seq AS INT.

@@ -102,10 +102,11 @@ def var v-billto-addr3 as char format "x(30)" NO-UNDO.
 def var v-billto-city as char format "x(15)" NO-UNDO.
 def var v-billto-state as char format "x(2)" NO-UNDO.
 def var v-billto-zip as char format "x(10)" NO-UNDO.
+DEF VAR cBillNotes LIKE inv-head.bill-i NO-UNDO.
 
 DEF BUFFER xinv-head FOR inv-head.
 DEF BUFFER xinv-line FOR inv-line.
-
+DEF BUFFER bf-inv-head FOR inv-head.
 DEF BUFFER b-oe-rel FOR oe-rel.
 DEF BUFFER b-oe-rell FOR oe-rell.
 DEF BUFFER ref-sell-price FOR reftable.
@@ -184,6 +185,36 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       IF inv-head.fob-code BEGINS "ORIG" 
         THEN ASSIGN v-fob = "Origin".
         ELSE ASSIGN v-fob = "Destination".
+        
+     ASSIGN 
+            cBillNotes[1] = ""
+            cBillNotes[2] = ""
+            cBillNotes[3] = ""
+            cBillNotes[4] = "".
+        IF xinv-head.multi-invoice THEN
+            FOR EACH bf-inv-head 
+                WHERE bf-inv-head.company EQ xinv-head.company
+                  AND bf-inv-head.bol-no EQ xinv-head.bol-no
+                  AND bf-inv-head.cust-no EQ xinv-head.cust-no
+                  AND NOT bf-inv-head.multi-invoice
+                  AND bf-inv-head.stat NE "H"
+                NO-LOCK
+                BREAK BY bf-inv-head.inv-date DESC:
+                ASSIGN 
+                    cBillNotes[1] = bf-inv-head.bill-i[1]
+                    cBillNotes[2] = bf-inv-head.bill-i[2]
+                    cBillNotes[3] = bf-inv-head.bill-i[3]
+                    cBillNotes[4] = bf-inv-head.bill-i[4]
+                    .
+                LEAVE.
+            END.
+        ELSE 
+            ASSIGN
+                cBillNotes[1] = xinv-head.bill-i[1]
+                cBillNotes[2] = xinv-head.bill-i[2]
+                cBillNotes[3] = xinv-head.bill-i[3]
+                cBillNotes[4] = xinv-head.bill-i[4]
+                .   
 
 
       FIND FIRST carrier NO-LOCK 
@@ -674,9 +705,9 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
         DO i = 1 TO 4:
 
-          IF inv-head.bill-i[i] NE "" THEN DO:
+          IF cBillNotes[i] NE "" THEN DO:
 
-            PUT inv-head.bill-i[i] AT 10 SKIP.
+            PUT cBillNotes[i] AT 10 SKIP.
             ASSIGN v-printline = v-printline + 1.
           END.
         END. /* 1 to 4 */

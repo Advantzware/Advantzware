@@ -528,7 +528,11 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
                         blk.qreq    = qty
                         blk.qyld    = qty
                         blk.yr$     = xeb.yrprice
-                        blk.pur-man = xeb.pur-man.
+                        blk.pur-man = xeb.pur-man
+                        blk.comm    = xeb.comm
+                        blk.sman    = xeb.sman
+                        blk.procat  = xeb.procat
+                        .
               end.
               xxx = xxx + (xeb.t-sqin * xeb.num-up * vn-out).
           end.  /* for each xeb */

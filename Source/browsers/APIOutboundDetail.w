@@ -151,7 +151,7 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
       APIOutboundDetail.apiID COLUMN-LABEL "API ID" FORMAT "x(32)":U
-      APIOutboundDetail.clientID COLUMN-LABEL "API ID" FORMAT "x(32)":U
+      APIOutboundDetail.clientID COLUMN-LABEL "Client ID" FORMAT "x(32)":U
       APIOutboundDetail.detailID COLUMN-LABEL "Detail ID" FORMAT "x(32)":U
       APIOutboundDetail.parentID COLUMN-LABEL "Parent ID" FORMAT "x(32)":U
 /* _UIB-CODE-BLOCK-END */
@@ -300,10 +300,12 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {methods/ctrl-a_browser.i}
-
+{sys/inc/f3help.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+{methods/winReSize.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -2609,6 +2609,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix161500.
     IF fIntVer(cThisEntry) LT 20010000 THEN  
         RUN ipDataFix200100.
+    IF fIntVer(cThisEntry) LT 20011000 THEN  
+        RUN ipDataFix200110.
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -2924,8 +2926,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160880 C-Win 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160880 C-Win 
 PROCEDURE ipDataFix160880 :
 /*------------------------------------------------------------------------------
  Purpose:
@@ -2941,6 +2941,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160890 C-Win 
 PROCEDURE ipDataFix160890 :
 /*------------------------------------------------------------------------------
  Purpose:
@@ -3057,7 +3058,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix200100 C-Win
 PROCEDURE ipDataFix200100:
 /*------------------------------------------------------------------------------
@@ -3105,6 +3105,75 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix200110 C-Win
+PROCEDURE ipDataFix200110:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 200110...").
+
+    /* Ticket #68616 Additional security to API Inbound and Outbound */
+    &SCOPED-DEFINE cTable apiinbound
+    FIND LAST {&cTable} NO-LOCK NO-ERROR.
+    IF AVAIL {&cTable} THEN DO:
+        IF {&cTable}.{&cTable}ID LT 5000 THEN ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = 5000.
+        ELSE ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = {&cTable}.{&cTable}ID.
+    END.
+    ELSE ASSIGN 
+        CURRENT-VALUE({&cTable}ID_seq) = 5000.
+            
+    &SCOPED-DEFINE cTable apiinbounddetail
+    FIND LAST {&cTable} NO-LOCK NO-ERROR.
+    IF AVAIL {&cTable} THEN DO:
+        IF {&cTable}.{&cTable}ID LT 5000 THEN ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = 5000.
+        ELSE ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = {&cTable}.{&cTable}ID.
+    END.
+    ELSE ASSIGN 
+        CURRENT-VALUE({&cTable}ID_seq) = 5000.
+            
+    &SCOPED-DEFINE cTable apioutbound
+    FIND LAST {&cTable} NO-LOCK NO-ERROR.
+    IF AVAIL {&cTable} THEN DO:
+        IF {&cTable}.{&cTable}ID LT 5000 THEN ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = 5000.
+        ELSE ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = {&cTable}.{&cTable}ID.
+    END.
+    ELSE ASSIGN 
+        CURRENT-VALUE({&cTable}ID_seq) = 5000.
+            
+    &SCOPED-DEFINE cTable apioutbounddetail
+    FIND LAST {&cTable} NO-LOCK NO-ERROR.
+    IF AVAIL {&cTable} THEN DO:
+        IF {&cTable}.{&cTable}ID LT 5000 THEN ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = 5000.
+        ELSE ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = {&cTable}.{&cTable}ID.
+    END.
+    ELSE ASSIGN 
+        CURRENT-VALUE({&cTable}ID_seq) = 5000.
+            
+    &SCOPED-DEFINE cTable apioutboundtrigger
+    FIND LAST {&cTable} NO-LOCK NO-ERROR.
+    IF AVAIL {&cTable} THEN DO:
+        IF {&cTable}.{&cTable}ID LT 5000 THEN ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = 5000.
+        ELSE ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = {&cTable}.{&cTable}ID.
+    END.
+    ELSE ASSIGN 
+        CURRENT-VALUE({&cTable}ID_seq) = 5000.
+            
+            
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
@@ -3878,14 +3947,14 @@ PROCEDURE ipLoadAPIData:
 
     DISABLE TRIGGERS FOR LOAD OF APIInbound.
     DISABLE TRIGGERS FOR LOAD OF APIInboundDetail.
-    DISABLE TRIGGERS FOR LOAD OF APIInboundEvent.
     DISABLE TRIGGERS FOR LOAD OF APIOutbound.
     DISABLE TRIGGERS FOR LOAD OF APIOutboundDetail.
-    DISABLE TRIGGERS FOR LOAD OF APIOutboundEvent.
     DISABLE TRIGGERS FOR LOAD OF APIOutboundTrigger.
+    DISABLE TRIGGERS FOR LOAD OF APIClient.
+    DISABLE TRIGGERS FOR LOAD OF APIClientXref.
 
 &SCOPED-DEFINE tablename APIInbound
-    FOR EACH {&tablename}:
+    FOR EACH {&tablename} WHERE {&tablename}.{&tablename}ID LT 5000:
         DELETE {&tablename}.
     END.
     INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
@@ -3898,7 +3967,7 @@ PROCEDURE ipLoadAPIData:
     INPUT CLOSE.
 
 &SCOPED-DEFINE tablename APIInboundDetail
-    FOR EACH {&tablename}:
+    FOR EACH {&tablename} WHERE {&tablename}.{&tablename}ID LT 5000:
         DELETE {&tablename}.
     END.
     INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
@@ -3911,38 +3980,20 @@ PROCEDURE ipLoadAPIData:
     INPUT CLOSE.
 
 &SCOPED-DEFINE tablename APIOutbound
-    FOR EACH {&tablename}:
-        CREATE tt{&tablename}.
-        ASSIGN 
-            tt{&tablename}.apiOutboundID = {&tablename}.apiOutboundID
-            tt{&tablename}.endPoint = {&tablename}.endPoint
-            tt{&tablename}.userName = tt{&tablename}.userName
-            tt{&tablename}.password = {&tablename}.password.
+    FOR EACH {&tablename} WHERE {&tablename}.{&tablename}ID LT 5000:
         DELETE {&tablename}.
     END.
-    
     INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
         IMPORT {&tablename} NO-ERROR.
         IF ERROR-STATUS:ERROR THEN 
             DELETE {&tablename}.
-        FIND tt{&tablename} WHERE 
-            tt{&tablename}.apiOutboundID EQ {&tablename}.apiOutboundID
-            NO-ERROR.
-        IF AVAIL tt{&tablename} THEN ASSIGN 
-            {&tablename}.endPoint = tt{&tablename}.endPoint
-            {&tablename}.userName = tt{&tablename}.userName
-            {&tablename}.password = tt{&tablename}.password.
-        ELSE ASSIGN
-            {&tablename}.endPoint = ""
-            {&tablename}.userName = ""
-            {&tablename}.password = "".
     END.
     INPUT CLOSE.
         
 &SCOPED-DEFINE tablename APIOutboundDetail
-    FOR EACH {&tablename}:
+    FOR EACH {&tablename} WHERE {&tablename}.{&tablename}ID LT 5000:
         DELETE {&tablename}.
     END.
     INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
@@ -3955,7 +4006,33 @@ PROCEDURE ipLoadAPIData:
     INPUT CLOSE.
 
 &SCOPED-DEFINE tablename APIOutboundTrigger
-    FOR EACH {&tablename}:
+    FOR EACH {&tablename} WHERE {&tablename}.{&tablename}ID LT 5000:
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename APIClient
+    FOR EACH {&tablename} WHERE {&tableName}.clientID BEGINS "_default":
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename APIClientXref
+    FOR EACH {&tablename} WHERE {&tableName}.clientID BEGINS "_default":
         DELETE {&tablename}.
     END.
     INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
@@ -4694,6 +4771,7 @@ PROCEDURE ipLoadOEAutoApproveNK1s:
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     DISABLE TRIGGERS FOR DUMP OF {&tablename}.
 
+    EMPTY TEMP-TABLE tt{&tablename}.
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE tt{&tablename}.
@@ -5925,7 +6003,7 @@ PROCEDURE ipSetMonitorPwd :
     DO:
         BUFFER-COPY _User EXCEPT _tenantID _User._Password TO tempUser.
         ASSIGN 
-            tempUser._Password = "laaEbPjiXlakhcq".
+            tempUser._Password = "laaEbPjiXlakhcql".
         DELETE _User.
         CREATE _User.
         BUFFER-COPY tempUser EXCEPT _tenantid TO _User.
@@ -5935,7 +6013,7 @@ PROCEDURE ipSetMonitorPwd :
         CREATE _User.
         ASSIGN
             _User._UserId = "monitor"
-            _User._Password = "laaEbPjiXlakhcq".
+            _User._Password = "laaEbPjiXlakhcql".
     END.
 
     RELEASE _user.

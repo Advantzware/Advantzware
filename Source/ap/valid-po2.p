@@ -71,7 +71,7 @@ IF AVAIL io-po-ordl                                             AND
 ELSE RELEASE io-po-ordl.
 
  FIND FIRST ap-invl no-lock
-      WHERE ap-invl.i-no EQ io-ap-invl.i-no
+      WHERE ap-invl.company EQ io-po-ordl.company
       AND ap-invl.po-no  EQ io-po-ordl.po-no
       AND {ap/invlline.i -1} EQ io-po-ordl.line
       AND ROWID(ap-invl)     NE ROWID(io-ap-invl) NO-ERROR .
@@ -79,6 +79,9 @@ IF AVAIL ap-invl THEN
 DO:
   RELEASE io-po-ordl.
    FIND FIRST ap-inv WHERE ap-inv.i-no EQ ap-invl.i-no NO-LOCK NO-ERROR.
-   opcOutError = "The PO has already been paid   Invoice:" + STRING(ap-inv.inv-no) + "  Date:" + STRING(ap-inv.inv-date) . 
+   IF AVAIL ap-inv AND ap-inv.posted EQ YES THEN
+    opcOutError = "The PO has already been Invoiced.                                       " + "Invoice: " + STRING(ap-inv.inv-no) + "    Date: " + STRING(ap-inv.inv-date) . 
+   ELSE IF AVAIL ap-inv AND ap-inv.posted EQ NO THEN
+    opcOutError = "The PO receipt already added on Invoiced.                           " + "Invoice: " + STRING(ap-inv.inv-no) + "    Date: " + STRING(ap-inv.inv-date) .  
 END.
       

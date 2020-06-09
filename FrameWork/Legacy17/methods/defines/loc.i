@@ -1,3 +1,0 @@
-/* loc.i */
-
-DEFINE {&NEW} SHARED VARIABLE s-company AS CHARACTER NO-UNDO.

@@ -1505,7 +1505,7 @@ PROCEDURE pBuildttMenuTree :
                 INDEX(prgrms.prgmname,".") EQ 0,
                 prgrms.itemParent,
                 prgrms.prgmname,
-                prgrms.prgtitle,
+                (IF prgrms.customMenuTitle NE "" THEN prgrms.customMenuTitle ELSE prgrms.prgTitle),
                 prgrms.menuImage[1],
                 prgrms.mnemonic,
                 cShowMnemonic,

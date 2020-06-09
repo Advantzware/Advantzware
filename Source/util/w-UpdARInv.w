@@ -44,6 +44,7 @@ CREATE WIDGET-POOL.
 
 DEFINE TEMP-TABLE ttARInv NO-UNDO
     FIELD invoiceNo     AS INTEGER   
+    FIELD custID        AS CHARACTER
     FIELD invoiceDate   AS DATE      
     FIELD invoiceDue    AS DECIMAL   
     FIELD selected      AS LOGICAL   
@@ -80,7 +81,7 @@ DEFINE TEMP-TABLE ttARInv NO-UNDO
 &Scoped-define INTERNAL-TABLES ttARInv
 
 /* Definitions for BROWSE brInvoiceData                                 */
-&Scoped-define FIELDS-IN-QUERY-brInvoiceData ttARInv.selected ttARInv.invoiceNo ttARInv.invoiceDate ttARInv.checkDate ttARInv.payDate ttARInv.due ttARInv.balance   
+&Scoped-define FIELDS-IN-QUERY-brInvoiceData ttARInv.selected ttARInv.invoiceNo ttARInv.custID ttARInv.invoiceDate ttARInv.checkDate ttARInv.payDate ttARInv.invoiceDue ttARInv.CalculatedDue   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brInvoiceData ttARInv.selected   
 &Scoped-define ENABLED-TABLES-IN-QUERY-brInvoiceData ttARInv
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-brInvoiceData ttARInv
@@ -175,6 +176,7 @@ DEFINE BROWSE brInvoiceData
   QUERY brInvoiceData DISPLAY
       ttARInv.selected      FORMAT "YES/NO"         COLUMN-LABEL "Select"           WIDTH 09 VIEW-AS TOGGLE-BOX 
      ttARInv.invoiceNo     FORMAT ">>>>>>9"         COLUMN-LABEL "Invoice#"         WIDTH 11
+     ttARInv.custID        FORMAT "X(8)"            COLUMN-LABEL "Customer#"        WIDTH 15
      ttARInv.invoiceDate   FORMAT "99/99/9999"      COLUMN-LABEL "Invoice Date"     WIDTH 20
      ttARInv.checkDate     FORMAT "99/99/9999"      COLUMN-LABEL "Last Check Date"  WIDTH 20
      ttARInv.payDate       FORMAT "99/99/9999"      COLUMN-LABEL "Pay Date"         WIDTH 20
@@ -185,7 +187,7 @@ DEFINE BROWSE brInvoiceData
        ttARInv.selected
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 136 BY 15.48
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 153 BY 15.48
          FONT 5 ROW-HEIGHT-CHARS .67 FIT-LAST-COLUMN.
 
 
@@ -197,17 +199,17 @@ DEFINE FRAME DEFAULT-FRAME
      fiBeginDate AT ROW 3.19 COL 28 COLON-ALIGNED WIDGET-ID 6
      fiEndDate AT ROW 3.14 COL 68.4 COLON-ALIGNED WIDGET-ID 8
      btnGo AT ROW 1.52 COL 90 WIDGET-ID 24
-     btnExit AT ROW 1.52 COL 125.2 WIDGET-ID 22
-     btnSelectAll AT ROW 21.38 COL 46.6 WIDGET-ID 14
-     btnDeselect AT ROW 21.38 COL 62.2 WIDGET-ID 16
-     btnUpdate AT ROW 21.38 COL 77.6 WIDGET-ID 18
+     btnExit AT ROW 1.52 COL 143 WIDGET-ID 22
+     btnSelectAll AT ROW 21.38 COL 56 WIDGET-ID 14
+     btnDeselect AT ROW 21.38 COL 71.6 WIDGET-ID 16
+     btnUpdate AT ROW 21.38 COL 87 WIDGET-ID 18
      brInvoiceData AT ROW 5.05 COL 2 WIDGET-ID 200
      RECT-1 AT ROW 1.24 COL 2.2 WIDGET-ID 12
-     RECT-2 AT ROW 20.91 COL 45 WIDGET-ID 20
+     RECT-2 AT ROW 20.91 COL 54.4 WIDGET-ID 20
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 137 BY 22.57
+         SIZE 155 BY 22.57
          BGCOLOR 15 FGCOLOR 1 FONT 6 WIDGET-ID 100.
 
 
@@ -229,7 +231,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Update AR Invoice Due"
          HEIGHT             = 22.57
-         WIDTH              = 137
+         WIDTH              = 155
          MAX-HEIGHT         = 33.57
          MAX-WIDTH          = 273.2
          VIRTUAL-HEIGHT     = 33.57
@@ -430,6 +432,10 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+   ASSIGN 
+      fiBeginDate = ADD-INTERVAL(TODAY, -1, "YEAR")  
+      fiEndDate   = TODAY
+      .
   RUN enable_UI.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -575,6 +581,7 @@ PROCEDURE pBuildttARInv PRIVATE :
             CREATE ttARInv.
             ASSIGN 
                 ttARInv.invoiceNo     = ar-inv.inv-no
+                ttARInv.custID        = ar-inv.cust-no
                 ttARInv.invoiceDate   = ar-inv.inv-date
                 ttARInv.CalculatedDue = dBalance
                 ttARInv.rowidARInq    = ROWID(ar-inv)

@@ -732,6 +732,7 @@ PROCEDURE pRunCommand :
         cParam = ENTRY(idx,SESSION:STARTUP-PARAMETERS).
         IF cParam BEGINS "-p " THEN NEXT.
         IF cParam BEGINS "-debugalert" THEN NEXT.
+        IF cParam BEGINS "-param " THEN LEAVE.
         IF lSkip EQ NO THEN DO:
             IF ENTRY(1,cParam," ") EQ "-ininame" OR
                ENTRY(2,cParam," ") EQ "advantzware.pf" THEN

@@ -96,15 +96,15 @@ DEFINE NEW SHARED VARIABLE iline AS INTEGER NO-UNDO .
 ASSIGN cTextListToSelect = "CUSTOMER,CUST NAME,CONTACT,SALES REP,TERMS,ADDRESS1,ADDRESS2,CITY,STATE,ZIP,CREDIT LIM,PHONE,FAX,CHECK/MEMO," +
                            "DAYS OLD,TYPE,INV#,INV DATE,AMOUNT,CURRENT,ADTP,TD,"
                          + "PERIOD DAY1,PERIOD DAY2,PERIOD DAY3,CUSTOMER PO#,JOB#,BOL#,INVOICE NOTE,COLLECTION NOTE,PERIOD DAY4,"
-                         + "CURRENCY,TOTAL DUE"
+                         + "CURRENCY,TOTAL DUE,AR CLASS"
 
        cFieldListToSelect = "cust,cust-name,cont,sman,term,add1,add2,city,stat,zip,cre-lim,phone,fax,chk-memo," +
                             "day-old,type,inv,inv-date,amount,current,adtp,td," +
                             "per-1,per-2,per-3,cust-po,job,bol,inv-note,coll-note,per-4," +
-                            "currency,tot-due"    
+                            "currency,tot-due,arclass"    
 
-       cFieldLength = "8,30,25,25,15,25,25,10,5,10,12,13,12,10," + "8,4,8,8,13,13,4,4," + "13,13,13,15,9,8,30,30,13," + "10,13" 
-       cFieldType = "c,c,c,c,c,c,c,c,c,c,c,c,c,c," + "i,c,i,c,i,i,i,i," + "i,i,i,c,c,c,c,c,i," + "c,i" 
+       cFieldLength = "8,30,25,25,15,25,25,10,5,10,12,13,12,10," + "8,4,8,8,13,13,4,4," + "13,13,13,15,9,8,30,30,13," + "10,13,8" 
+       cFieldType = "c,c,c,c,c,c,c,c,c,c,c,c,c,c," + "i,c,i,c,i,i,i,i," + "i,i,i,c,c,c,c,c,i," + "c,i,i" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -130,19 +130,20 @@ ASSIGN cTextListToDefault  = "CUSTOMER,CUST NAME,CONTACT,SALES REP,TERMS,ADDRESS
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_comp end_comp ~
 btnCustList tb_cust-list begin_cust-no end_cust-no begin_slsmn end_slsmn ~
-begin_curr end_curr begin_term end_term trend_days as-of-date period-days-1 ~
-period-days-2 period-days-3 period-days-4 rs_detail rd_sort rd_sort2 ~
-tb_paid tb_include-factored tb_fuel tb_separate-fc begin_inv-date ~
-end_inv-date tgInactiveCust btn_SelectColumns lv-ornt lines-per-page ~
-rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
-btn-cancel 
+begin_curr end_curr begin_term end_term begin_arclass end_arclass ~
+trend_days as-of-date period-days-1 period-days-2 period-days-3 ~
+period-days-4 rs_detail rd_sort rd_sort2 tb_paid tb_include-factored ~
+tb_fuel tb_separate-fc begin_inv-date end_inv-date tgInactiveCust ~
+btn_SelectColumns lv-ornt lines-per-page rd-dest lv-font-no td-show-parm ~
+tb_excel tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_comp end_comp tb_cust-list ~
 begin_cust-no end_cust-no begin_slsmn end_slsmn begin_curr end_curr ~
-begin_term end_term trend_days as-of-date period-days-1 period-days-2 ~
-period-days-3 period-days-4 rs_detail lbl_sort rd_sort lbl_sort2 rd_sort2 ~
-tb_paid tb_include-factored tb_fuel tb_separate-fc begin_inv-date ~
-end_inv-date tgInactiveCust lv-ornt lines-per-page rd-dest lv-font-no ~
-lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+begin_term end_term begin_arclass end_arclass trend_days as-of-date ~
+period-days-1 period-days-2 period-days-3 period-days-4 rs_detail lbl_sort ~
+rd_sort lbl_sort2 rd_sort2 tb_paid tb_include-factored tb_fuel ~
+tb_separate-fc begin_inv-date end_inv-date tgInactiveCust lv-ornt ~
+lines-per-page rd-dest lv-font-no lv-font-name td-show-parm tb_excel ~
+tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -188,6 +189,11 @@ DEFINE VARIABLE as-of-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/01
      VIEW-AS FILL-IN 
      SIZE 16 BY .95 NO-UNDO.
 
+DEFINE VARIABLE begin_arclass AS INTEGER FORMAT ">>":U INITIAL 0 
+     LABEL "Beginning AR Class" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
 DEFINE VARIABLE begin_comp AS CHARACTER FORMAT "X(3)":U 
      LABEL "Beginning Company#" 
      VIEW-AS FILL-IN 
@@ -215,6 +221,11 @@ DEFINE VARIABLE begin_slsmn AS CHARACTER FORMAT "XXX"
 
 DEFINE VARIABLE begin_term AS CHARACTER FORMAT "X(5)":U 
      LABEL "Beginning Terms" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_arclass AS INTEGER FORMAT ">>":U INITIAL 99 
+     LABEL "Ending AR Class" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -325,8 +336,9 @@ DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Name"
           "Customer#", "#Number",
 "Name", "Name",
 "SalesRep#", "SalesRep#",
-"Invoice#", "Invoice#"
-     SIZE 54.8 BY 1 NO-UNDO.
+"Invoice#", "Invoice#",
+"AR Class", "ArClass"
+     SIZE 66.8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE rd_sort2 AS CHARACTER INITIAL "InvDate" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -349,7 +361,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 97 BY 18.48.
+     SIZE 97 BY 18.95.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -430,47 +442,51 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Terms Code" WIDGET-ID 30
      end_term AT ROW 6.67 COL 70 COLON-ALIGNED HELP
           "Enter Ending Terms Code" WIDGET-ID 32
-     trend_days AT ROW 7.67 COL 70 COLON-ALIGNED WIDGET-ID 14
-     as-of-date AT ROW 7.86 COL 27 COLON-ALIGNED
-     period-days-1 AT ROW 9.05 COL 27 COLON-ALIGNED
-     period-days-2 AT ROW 9.05 COL 39 COLON-ALIGNED
-     period-days-3 AT ROW 9.05 COL 51 COLON-ALIGNED
-     period-days-4 AT ROW 9.05 COL 63 COLON-ALIGNED WIDGET-ID 34
-     rs_detail AT ROW 10 COL 29 NO-LABEL WIDGET-ID 6
-     lbl_sort AT ROW 11 COL 14 COLON-ALIGNED NO-LABEL
-     rd_sort AT ROW 11 COL 29 NO-LABEL
-     lbl_sort2 AT ROW 12.05 COL 15.2 COLON-ALIGNED NO-LABEL
-     rd_sort2 AT ROW 12.05 COL 29 NO-LABEL
-     tb_paid AT ROW 12.91 COL 29
-     tb_include-factored AT ROW 12.91 COL 59.6
-     tb_fuel AT ROW 13.86 COL 29
-     tb_separate-fc AT ROW 13.86 COL 59.6
-     begin_inv-date AT ROW 14.86 COL 27 COLON-ALIGNED HELP
+     begin_arclass AT ROW 7.62 COL 27 COLON-ALIGNED HELP
+          "Enter Beginning Terms Code" WIDGET-ID 36
+     end_arclass AT ROW 7.62 COL 70 COLON-ALIGNED HELP
+          "Enter Ending Terms Code" WIDGET-ID 38
+     trend_days AT ROW 8.57 COL 70 COLON-ALIGNED WIDGET-ID 14
+     as-of-date AT ROW 8.76 COL 27 COLON-ALIGNED
+     period-days-1 AT ROW 9.95 COL 27 COLON-ALIGNED
+     period-days-2 AT ROW 9.95 COL 39 COLON-ALIGNED
+     period-days-3 AT ROW 9.95 COL 51 COLON-ALIGNED
+     period-days-4 AT ROW 9.95 COL 63 COLON-ALIGNED WIDGET-ID 34
+     rs_detail AT ROW 10.91 COL 29 NO-LABEL WIDGET-ID 6
+     lbl_sort AT ROW 11.91 COL 14 COLON-ALIGNED NO-LABEL
+     rd_sort AT ROW 11.91 COL 29 NO-LABEL
+     lbl_sort2 AT ROW 12.95 COL 15.2 COLON-ALIGNED NO-LABEL
+     rd_sort2 AT ROW 12.95 COL 29 NO-LABEL
+     tb_paid AT ROW 13.81 COL 29
+     tb_include-factored AT ROW 13.81 COL 59.6
+     tb_fuel AT ROW 14.76 COL 29
+     tb_separate-fc AT ROW 14.76 COL 59.6
+     begin_inv-date AT ROW 15.76 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Invoice Date"
-     end_inv-date AT ROW 14.86 COL 70 COLON-ALIGNED HELP
+     end_inv-date AT ROW 15.76 COL 70 COLON-ALIGNED HELP
           "Enter Ending Invoice Date"
-     tgInactiveCust AT ROW 16.1 COL 29 WIDGET-ID 20
-     btn_SelectColumns AT ROW 17.38 COL 29 WIDGET-ID 10
-     sl_avail AT ROW 19.76 COL 3 NO-LABEL WIDGET-ID 26
-     lv-ornt AT ROW 20.19 COL 32 NO-LABEL
-     lines-per-page AT ROW 20.19 COL 84.8 COLON-ALIGNED
-     rd-dest AT ROW 20.62 COL 7 NO-LABEL
-     sl_selected AT ROW 21.33 COL 15.8 NO-LABEL WIDGET-ID 28
-     lv-font-no AT ROW 21.62 COL 35 COLON-ALIGNED
-     lv-font-name AT ROW 22.76 COL 29 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 23.95 COL 31
-     tb_excel AT ROW 25.33 COL 70 RIGHT-ALIGNED
-     tb_runExcel AT ROW 25.33 COL 93 RIGHT-ALIGNED
-     fi_file AT ROW 26.29 COL 48 COLON-ALIGNED HELP
+     tgInactiveCust AT ROW 17 COL 29 WIDGET-ID 20
+     btn_SelectColumns AT ROW 18.1 COL 29 WIDGET-ID 10
+     sl_avail AT ROW 20.1 COL 3 NO-LABEL WIDGET-ID 26
+     lv-ornt AT ROW 20.52 COL 32 NO-LABEL
+     lines-per-page AT ROW 20.52 COL 84.8 COLON-ALIGNED
+     rd-dest AT ROW 20.95 COL 7 NO-LABEL
+     sl_selected AT ROW 21.67 COL 15.8 NO-LABEL WIDGET-ID 28
+     lv-font-no AT ROW 21.95 COL 35 COLON-ALIGNED
+     lv-font-name AT ROW 23.1 COL 29 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 24.29 COL 31
+     tb_excel AT ROW 25.67 COL 70 RIGHT-ALIGNED
+     tb_runExcel AT ROW 25.67 COL 93 RIGHT-ALIGNED
+     fi_file AT ROW 26.62 COL 48 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 28.1 COL 22
-     btn-cancel AT ROW 28.1 COL 61
+     btn-ok AT ROW 28.33 COL 22
+     btn-cancel AT ROW 28.33 COL 61
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 3
           BGCOLOR 2 
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 19.76 COL 4
-     RECT-6 AT ROW 19.52 COL 2
+          SIZE 18 BY .62 AT ROW 20.1 COL 4
+     RECT-6 AT ROW 19.86 COL 2
      RECT-7 AT ROW 1.1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -534,6 +550,10 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       begin_arclass:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        begin_comp:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -564,6 +584,10 @@ ASSIGN
 ASSIGN 
        btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
+
+ASSIGN 
+       end_arclass:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
        end_comp:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -726,6 +750,41 @@ END.
 &Scoped-define SELF-NAME as-of-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL as-of-date C-Win
 ON LEAVE OF as-of-date IN FRAME FRAME-A /* As of */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_arclass
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_arclass C-Win
+ON HELP OF begin_arclass IN FRAME FRAME-A /* Beginning AR Class */
+DO:     
+    DEFINE VARIABLE cFieldsValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recRecordID AS RECID    NO-UNDO.
+     RUN system/openLookup.p (
+            INPUT  gcompany, 
+            INPUT  "", /* Lookup ID */
+            INPUT  110,  /* Subject ID */
+            INPUT  "", /* User ID */
+            INPUT  0,  /* Param Value ID */
+            OUTPUT cFieldsValue, 
+            OUTPUT cFoundValue, 
+            OUTPUT recRecordID ).  
+       
+       IF cFoundValue NE "" THEN    
+         begin_arclass:SCREEN-VALUE IN FRAME {&frame-name} = cFoundValue.   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_arclass C-Win
+ON LEAVE OF begin_arclass IN FRAME FRAME-A /* Beginning AR Class */
 DO:
   ASSIGN {&self-name}.
 END.
@@ -923,6 +982,42 @@ DO:
     ASSIGN sl_selected:LIST-ITEMS = cTextSelected
            sl_avail:LIST-ITEMS = cTextListed.
 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_arclass
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_arclass C-Win
+ON HELP OF end_arclass IN FRAME FRAME-A /* Ending AR Class */
+DO:
+   DEFINE VARIABLE cFieldsValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFoundValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recRecordID AS RECID    NO-UNDO.
+     RUN system/openLookup.p (
+            INPUT  gcompany, 
+            INPUT  "", /* Lookup ID */
+            INPUT  110,  /* Subject ID */
+            INPUT  "", /* User ID */
+            INPUT  0,  /* Param Value ID */
+            OUTPUT cFieldsValue, 
+            OUTPUT cFoundValue, 
+            OUTPUT recRecordID ).  
+       
+       IF cFoundValue NE "" THEN    
+         end_arclass:SCREEN-VALUE IN FRAME {&frame-name} = cFoundValue.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_arclass C-Win
+ON LEAVE OF end_arclass IN FRAME FRAME-A /* Ending AR Class */
+DO:
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1592,20 +1687,22 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_comp end_comp tb_cust-list begin_cust-no end_cust-no begin_slsmn 
-          end_slsmn begin_curr end_curr begin_term end_term trend_days 
-          as-of-date period-days-1 period-days-2 period-days-3 period-days-4 
-          rs_detail lbl_sort rd_sort lbl_sort2 rd_sort2 tb_paid 
-          tb_include-factored tb_fuel tb_separate-fc begin_inv-date end_inv-date 
-          tgInactiveCust lv-ornt lines-per-page rd-dest lv-font-no lv-font-name 
-          td-show-parm tb_excel tb_runExcel fi_file 
+          end_slsmn begin_curr end_curr begin_term end_term begin_arclass 
+          end_arclass trend_days as-of-date period-days-1 period-days-2 
+          period-days-3 period-days-4 rs_detail lbl_sort rd_sort lbl_sort2 
+          rd_sort2 tb_paid tb_include-factored tb_fuel tb_separate-fc 
+          begin_inv-date end_inv-date tgInactiveCust lv-ornt lines-per-page 
+          rd-dest lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel 
+          fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_comp end_comp btnCustList tb_cust-list 
          begin_cust-no end_cust-no begin_slsmn end_slsmn begin_curr end_curr 
-         begin_term end_term trend_days as-of-date period-days-1 period-days-2 
-         period-days-3 period-days-4 rs_detail rd_sort rd_sort2 tb_paid 
-         tb_include-factored tb_fuel tb_separate-fc begin_inv-date end_inv-date 
-         tgInactiveCust btn_SelectColumns lv-ornt lines-per-page rd-dest 
-         lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         begin_term end_term begin_arclass end_arclass trend_days as-of-date 
+         period-days-1 period-days-2 period-days-3 period-days-4 rs_detail 
+         rd_sort rd_sort2 tb_paid tb_include-factored tb_fuel tb_separate-fc 
+         begin_inv-date end_inv-date tgInactiveCust btn_SelectColumns lv-ornt 
+         lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel 
+         fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1839,7 +1936,9 @@ ASSIGN
  cstrtit2 = str-tit3 .
  iline    = lines-per-page .
  str-tit6 = "" .
- str-tit7 = "" .
+ str-tit7 = "" . 
+ v-s-class = begin_arclass.
+ v-e-class = end_arclass.
 SESSION:SET-WAIT-STATE ("general").
 
 DO WITH FRAME {&frame-name}:
@@ -1972,6 +2071,8 @@ ASSIGN grand-t = 0
        RUN ar/ar-agng2N.p.
     ELSE IF v-sort EQ "SalesRep#" THEN
       RUN ar/ar-agng7N.p.
+    ELSE IF v-sort EQ "ArClass" THEN
+      RUN ar/ar-agng9N.p.  
     ELSE
         RUN ar/ar-agng5N.p. 
   END.
@@ -1987,6 +2088,8 @@ ASSIGN grand-t = 0
 
     ELSE IF v-sort EQ "SalesRep#" THEN
       RUN ar/ar-agng8N.p.
+    ELSE IF v-sort EQ "ArClass" THEN
+      RUN ar/ar-agng10N.p.   
     ELSE
         RUN ar/ar-agng6N.p. 
   END.

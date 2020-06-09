@@ -16,8 +16,8 @@
 "ap-payl" 3207
 "ap-sel" 16193
 "aphist" 5964
-"apiClient" 29911
-"apiClientXref" 29465
+"apiClient" 13241
+"apiClientXref" 23081
 "APIInbound" 44022
 "APIInboundDetail" 28624
 "APIInboundEvent" 59572
@@ -33,6 +33,7 @@
 "ar-invm" 42447
 "ar-ledger" 61539
 "ar-mcash" 22004
+"arClass" 40584
 "asi" 54590
 "asi2corr" 44275
 "asinotes" 41014
@@ -63,7 +64,7 @@
 "cueCard" 25196
 "cueCardText" 63580
 "currency" 26953
-"cust" 3981
+"cust" 15035
 "cust-itm" 41665
 "cust-markup" 24644
 "cust-part" 3762
@@ -314,7 +315,7 @@
 "po-rcpts" 24775
 "prep" 57692
 "prgmxref" 29539
-"prgrms" 50522
+"prgrms" 19137
 "printer" 52836
 "probe" 23884
 "probeit" 15976

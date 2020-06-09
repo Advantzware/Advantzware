@@ -101,7 +101,7 @@ ASSIGN cTextListToSelect = "Journal,Description,Date,Account,Account Desc,DEBIT,
 
        cFieldListToSelect = "jur,descri,date,acco,desc,debi,credit,rev" 
 
-       cFieldLength = "7,28,10,22,21,14,14,3" 
+       cFieldLength = "7,28,8,25,21,14,14,3" 
        cFieldType = "i,c,c,c,c,i,i,C" 
     .
 

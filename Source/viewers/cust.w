@@ -916,7 +916,7 @@ DO:
             OUTPUT recRecordID ).  
        
        IF cFoundValue NE "" THEN    
-         FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = cFoundValue.
+         cust.classId:SCREEN-VALUE IN FRAME {&frame-name} = cFoundValue.
            return no-apply.
      end.
 
@@ -3173,6 +3173,8 @@ PROCEDURE valid-classId :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE lCheckAccount AS LOGICAL NO-UNDO.
+   DEFINE BUFFER bf-arclass FOR arclass.
   {methods/lValidateError.i YES}
   v-valid = YES.
 
@@ -3193,8 +3195,24 @@ PROCEDURE valid-classId :
           v-valid = NO  .          
          APPLY "entry" TO cust.classId.
        END.
-     END. 
-     IF cust.classId:SCREEN-VALUE NE "" AND cust.acc-bal <> 0 AND NOT lCheckMessage THEN do:
+     END.
+        
+     IF NOT adm-new-record AND cust.classID:SCREEN-VALUE NE ""
+        AND INTEGER(cust.classID:SCREEN-VALUE) NE cust.classID AND cust.acc-bal <> 0 THEN DO:
+        FIND FIRST bf-arclass NO-LOCK
+            WHERE bf-arclass.classID EQ INTEGER(cust.classId) NO-ERROR.
+        IF AVAIL arclass AND AVAIL bf-arclass AND bf-arclass.receivablesAcct NE arclass.receivablesAcct THEN DO:
+          MESSAGE "A/R Class can only be changed with a customer with no balance or with the same G/L Account number"
+                   VIEW-AS ALERT-BOX INFO.
+           v-valid = NO  .
+           lCheckAccount = TRUE .
+         APPLY "entry" TO cust.classId.         
+        END. 
+        IF AVAIL arclass AND AVAIL bf-arclass AND bf-arclass.receivablesAcct EQ arclass.receivablesAcct THEN lCheckAccount = TRUE .          
+     END.
+          
+     IF AVAIL arclass AND AVAIL cust AND NOT lCheckAccount AND cust.classId:SCREEN-VALUE NE "" AND cust.acc-bal <> 0 AND NOT lCheckMessage 
+         AND integer(cust.classId:SCREEN-VALUE) NE cust.classId THEN do:
          RUN displayMessageQuestionLOG("35",OUTPUT lCheckError).          
          
        IF NOT lCheckError THEN do:         

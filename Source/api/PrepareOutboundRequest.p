@@ -56,7 +56,16 @@ PROCEDURE pPrepareRequest PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER oplcRequestData         AS LONGCHAR  NO-UNDO.
     DEFINE OUTPUT       PARAMETER oplSuccess              AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER opcMessage              AS CHARACTER NO-UNDO.
- 
+    
+    DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+    
+    RUN Outbound_IncrementAPITransactionCounter IN hdOutboundProcs (
+        INPUT ipiAPIOutboundID
+        ).
+    
+    DELETE PROCEDURE hdOutboundProcs.
+    
     CASE ipcAPIID:
         WHEN "SendCustomer" THEN
             RUN api/SendCustomer.p (
@@ -168,6 +177,15 @@ PROCEDURE pPrepareRequest PRIVATE:
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage
                 ).
-                
+        WHEN "SendOrderAck" THEN
+            RUN api/SendOrderAck.p (
+                INPUT TABLE ttArgs,
+                INPUT ipiAPIOutboundID,
+                INPUT ipiAPIOutboundTriggerID,
+                INPUT ipcRequestHandler,
+                INPUT-OUTPUT oplcRequestData,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).                
     END CASE.   
 END PROCEDURE.

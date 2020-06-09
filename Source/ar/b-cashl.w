@@ -1353,6 +1353,7 @@ PROCEDURE validate-line :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lInvalidLine AS LOGICAL NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
      IF ar-cashl.inv-no:MODIFIED IN BROWSE {&browse-name} THEN DO:
@@ -1442,15 +1443,21 @@ PROCEDURE validate-line :
                                     AND ar-c-memo.code EQ bf-cashl.rec_key):
              lv-tot-pay = lv-tot-pay + bf-cashl.amt-paid - bf-cashl.amt-disc.
            END. 
-          
-           IF lv-tot-pay > ar-cash.check-amt THEN DO:
-              MESSAGE "Amount being applied may not exceed the check amount..."
-                 VIEW-AS ALERT-BOX ERROR.
-              APPLY "entry" TO ar-cashl.amt-paid IN BROWSE {&browse-name}.
-              RETURN "ValidationERROR".
-           END.
+           
+           IF (lv-tot-pay LT 0 AND ar-cash.check-amt LT 0) THEN DO: 
+               IF ar-cash.check-amt GT lv-tot-pay THEN 
+               lInvalidLine = TRUE.
+           END.    
+                   
+           ELSE IF lv-tot-pay GT ar-cash.check-amt THEN 
+               lInvalidLine = TRUE.
         END.
-       
+        IF lInvalidLine THEN DO:
+            MESSAGE "Amount being applied may not exceed the check amount..."
+                 VIEW-AS ALERT-BOX ERROR.
+            APPLY "ENTRY":U TO ar-cashl.amt-paid IN BROWSE {&BROWSE-NAME}.
+            RETURN "ValidationERROR".            
+        END.    
         IF INPUT ar-cashl.inv-no = 0 AND INPUT ar-cashl.amt-paid LT 0 THEN DO:
            MESSAGE "Total Applied cannot be negative." VIEW-AS ALERT-BOX ERROR.
            APPLY "entry" TO ar-cashl.amt-paid IN BROWSE {&browse-name}.
