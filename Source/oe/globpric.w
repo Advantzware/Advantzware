@@ -79,14 +79,15 @@ def var ctr             as INT NO-UNDO.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 begin_cust end_cust begin_cust-type ~
-end_cust-type begin_i-no end_i-no begin_cat end_cat begin_level end_level ~
-beg_eff_date end_eff_date tg_new_eff_date rd_basis rd_divide percent_chg ~
-rd_round td_imported btn-process btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_cust-type ~
-end_cust-type begin_i-no end_i-no begin_cat end_cat begin_level end_level ~
-beg_eff_date end_eff_date new_eff_date tg_new_eff_date tg_newmatrix ~
-lbl_price rd_basis rd_divide percent_chg lbl_rnd-meth rd_round td_imported
+&Scoped-Define ENABLED-OBJECTS RECT-17 tbPurge begin_cust end_cust ~
+begin_cust-type end_cust-type begin_i-no end_i-no begin_cat end_cat ~
+begin_level end_level beg_eff_date end_eff_date tg_new_eff_date td_imported ~
+rd_basis rd_divide percent_chg rd_round btn-process btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS tbPurge begin_cust end_cust ~
+begin_cust-type end_cust-type begin_i-no end_i-no begin_cat end_cat ~
+begin_level end_level beg_eff_date end_eff_date new_eff_date ~
+tg_new_eff_date tg_newmatrix td_imported lbl_price rd_basis rd_divide ~
+percent_chg lbl_rnd-meth rd_round 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -224,6 +225,16 @@ DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 89 BY 15.24.
 
+DEFINE VARIABLE tbPurge AS LOGICAL INITIAL no 
+     LABEL "Purge?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 13.2 BY 1 TOOLTIP "This option allows PURGING Price Matrix records" NO-UNDO.
+
+DEFINE VARIABLE td_imported AS LOGICAL INITIAL no 
+     LABEL "Include Contract Pricing Customers?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 40.8 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tg_newmatrix AS LOGICAL INITIAL no 
      LABEL "Create New Matrix?" 
      VIEW-AS TOGGLE-BOX
@@ -232,16 +243,13 @@ DEFINE VARIABLE tg_newmatrix AS LOGICAL INITIAL no
 DEFINE VARIABLE tg_new_eff_date AS LOGICAL INITIAL no 
      LABEL "Update Effective Date?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 26.8 BY .81 NO-UNDO. 
+     SIZE 26.8 BY .81 NO-UNDO.
 
-DEFINE VARIABLE td_imported AS LOGICAL INITIAL no 
-     LABEL "Include Contract Pricing Customers?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 40.8 BY .81 NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
+     tbPurge AT ROW 1.48 COL 67
      begin_cust AT ROW 2.67 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
      end_cust AT ROW 2.67 COL 65 COLON-ALIGNED HELP
@@ -343,15 +351,13 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
+ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
-
 
 /* SETTINGS FOR FILL-IN lbl_price IN FRAME FRAME-A
    NO-ENABLE                                                            */
@@ -383,7 +389,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -430,15 +436,52 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN {&displayed-objects}.
-  END.
+    DEF VAR iPurgeCount AS INT NO-UNDO.
+    DEF VAR cConfirmPurge AS CHAR NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN {&displayed-objects}.
+    END.
 
-  MESSAGE "Are you sure you want to change the Price Matrix(es) within the " +
-          "selection parameters?"
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-
-  IF v-process THEN RUN run-process.
+    IF NOT tbPurge:CHECKED IN FRAME {&frame-name} THEN DO:  /* 'Normal' processing */
+        MESSAGE 
+            "Are you sure you want to change the Price Matrix(es) within the selection parameters?"
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
+        IF v-process THEN RUN run-process.
+    END.
+    ELSE DO:  /* Purge confirmation and execution */
+        MESSAGE 
+            "You have chosen to PURGE the Price Matrix records for the selected criteria.  Are you sure you want to PURGE?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lPurge AS LOG.
+        IF NOT lPurge THEN DO:
+            MESSAGE 
+                "You did not choose to proceed with the PURGE operation."
+                VIEW-AS ALERT-BOX.
+            RETURN NO-APPLY.
+        END.
+        ELSE DO:
+            RUN pPurgePhase1.
+            ASSIGN iPurgeCount = 250.
+            DISPLAY
+                STRING(iPurgeCount) + " records will be purged.  Enter 'PURGE' to continue." FORMAT "x(60)"
+                SKIP 
+                WITH FRAME dPurge VIEW-AS DIALOG-BOX THREE-D
+                TITLE "Confirm Purge".
+            UPDATE 
+                cConfirmPurge FORMAT "x(5)" NO-LABEL 
+                WITH FRAME dPurge.
+            MESSAGE 
+                cConfirmPurge VIEW-AS ALERT-BOX.
+            IF cConfirmPurge EQ "PURGE" THEN 
+                RUN pPurgePhase2.
+            ELSE DO:
+                MESSAGE 
+                    "You chose to cancel the PURGE process."
+                    VIEW-AS ALERT-BOX.
+                RETURN NO-APPLY.
+            END.
+        END.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -583,15 +626,15 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_cust end_cust begin_cust-type end_cust-type begin_i-no end_i-no 
-          begin_cat end_cat begin_level end_level beg_eff_date end_eff_date 
-          new_eff_date tg_new_eff_date tg_newmatrix lbl_price rd_basis rd_divide 
-          percent_chg lbl_rnd-meth rd_round td_imported
+  DISPLAY tbPurge begin_cust end_cust begin_cust-type end_cust-type begin_i-no 
+          end_i-no begin_cat end_cat begin_level end_level beg_eff_date 
+          end_eff_date new_eff_date tg_new_eff_date tg_newmatrix td_imported 
+          lbl_price rd_basis rd_divide percent_chg lbl_rnd-meth rd_round 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 begin_cust end_cust begin_cust-type end_cust-type begin_i-no 
-         end_i-no begin_cat end_cat begin_level end_level beg_eff_date 
-         end_eff_date tg_new_eff_date rd_basis rd_divide percent_chg rd_round 
-         td_imported btn-process btn-cancel 
+  ENABLE RECT-17 tbPurge begin_cust end_cust begin_cust-type end_cust-type 
+         begin_i-no end_i-no begin_cat end_cat begin_level end_level 
+         beg_eff_date end_eff_date tg_new_eff_date td_imported rd_basis 
+         rd_divide percent_chg rd_round btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
