@@ -87,7 +87,8 @@ DEFINE QUERY external_tables FOR cust.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table shipto.ship-id ~
-shipto.ship-name shipto.ship-city shipto.ship-state shipto.ship-zip 
+shipto.ship-name shipto.ship-city shipto.ship-state shipto.ship-zip ~
+shipto.siteID 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH shipto OF cust WHERE ~{&KEY-PHRASE} ~
       AND ~{&KEY-PHRASE} NO-LOCK ~
@@ -151,7 +152,7 @@ DEFINE VARIABLE browse-order AS INTEGER
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "N/A", 1
-     SIZE 35 BY 1 NO-UNDO.
+     SIZE 41 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -165,7 +166,8 @@ DEFINE QUERY Browser-Table FOR
       shipto.ship-name
       shipto.ship-city
       shipto.ship-state
-      shipto.ship-zip) SCROLLING.
+      shipto.ship-zip
+      shipto.siteID) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -177,6 +179,7 @@ DEFINE BROWSE Browser-Table
       shipto.ship-city FORMAT "x(15)":U LABEL-BGCOLOR 14
       shipto.ship-state FORMAT "x(2)":U LABEL-BGCOLOR 14
       shipto.ship-zip FORMAT "x(10)":U LABEL-BGCOLOR 14
+      shipto.siteID FORMAT "x(16)":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 107 BY 5
@@ -191,11 +194,11 @@ DEFINE FRAME F-Main
      browse-order AT ROW 6.24 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
      fi_sortby AT ROW 6.24 COL 16 COLON-ALIGNED NO-LABEL
-     auto_find AT ROW 6.24 COL 50 COLON-ALIGNED HELP
+     auto_find AT ROW 6.24 COL 55.6 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 6.24 COL 80.2 HELP
+     Btn_Clear_Find AT ROW 6.24 COL 84.8 HELP
           "CLEAR AUTO FIND Value"
-     FI_moveCol AT ROW 6.24 COL 94 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     FI_moveCol AT ROW 6.24 COL 96.4 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      "By:" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 6.24 COL 2
      RECT-4 AT ROW 6 COL 1
@@ -299,6 +302,8 @@ ASSIGN
 "shipto.ship-state" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.shipto.ship-zip
 "shipto.ship-zip" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ASI.shipto.siteID
+"shipto.siteID" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
