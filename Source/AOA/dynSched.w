@@ -153,20 +153,20 @@ AND AuditHdr.AuditType EQ "Task" NO-LOCK, ~
 &Scoped-define FIELDS-IN-QUERY-viewFrame Task.taskID Task.taskName ~
 Task.user-id Task.securityLevel Task.scheduled Task.prgmName Task.frequency ~
 Task.subjectID Task.module Task.cTaskTime Task.cFromTime Task.cToTime ~
-Task.dayOfWeek1 Task.dayOfWeek2 Task.dayOfWeek3 Task.dayOfWeek4 ~
-Task.dayOfWeek5 Task.dayOfWeek6 Task.dayOfWeek7 Task.dayOfMonth[1] ~
-Task.dayOfMonth[2] Task.dayOfMonth[3] Task.dayOfMonth[4] Task.dayOfMonth[5] ~
-Task.dayOfMonth[6] Task.dayOfMonth[7] Task.dayOfMonth[8] Task.dayOfMonth[9] ~
-Task.dayOfMonth[10] Task.dayOfMonth[11] Task.dayOfMonth[12] ~
-Task.dayOfMonth[13] Task.dayOfMonth[14] Task.dayOfMonth[15] ~
-Task.dayOfMonth[16] Task.dayOfMonth[17] Task.dayOfMonth[18] ~
-Task.dayOfMonth[19] Task.dayOfMonth[20] Task.dayOfMonth[21] ~
-Task.dayOfMonth[22] Task.dayOfMonth[23] Task.dayOfMonth[24] ~
-Task.dayOfMonth[25] Task.dayOfMonth[26] Task.dayOfMonth[27] ~
-Task.dayOfMonth[28] Task.runNow Task.dayOfMonth[29] Task.dayOfMonth[30] ~
-Task.dayOfMonth[31] Task.lastOfMonth Task.startDate Task.endDate ~
-Task.taskFormat Task.nextDate Task.cNextTime Task.lastDate Task.cLastTime ~
-Task.recipients 
+Task.runSync Task.runNow Task.dayOfWeek1 Task.dayOfWeek2 Task.dayOfWeek3 ~
+Task.dayOfWeek4 Task.dayOfWeek5 Task.dayOfWeek6 Task.dayOfWeek7 ~
+Task.dayOfMonth[1] Task.dayOfMonth[2] Task.dayOfMonth[3] Task.dayOfMonth[4] ~
+Task.dayOfMonth[5] Task.dayOfMonth[6] Task.dayOfMonth[7] Task.dayOfMonth[8] ~
+Task.dayOfMonth[9] Task.dayOfMonth[10] Task.dayOfMonth[11] ~
+Task.dayOfMonth[12] Task.dayOfMonth[13] Task.dayOfMonth[14] ~
+Task.dayOfMonth[15] Task.dayOfMonth[16] Task.dayOfMonth[17] ~
+Task.dayOfMonth[18] Task.dayOfMonth[19] Task.dayOfMonth[20] ~
+Task.dayOfMonth[21] Task.dayOfMonth[22] Task.dayOfMonth[23] ~
+Task.dayOfMonth[24] Task.dayOfMonth[25] Task.dayOfMonth[26] ~
+Task.dayOfMonth[27] Task.dayOfMonth[28] Task.dayOfMonth[29] ~
+Task.dayOfMonth[30] Task.dayOfMonth[31] Task.lastOfMonth Task.startDate ~
+Task.endDate Task.taskFormat Task.nextDate Task.cNextTime Task.lastDate ~
+Task.cLastTime Task.recipients 
 &Scoped-define QUERY-STRING-viewFrame FOR EACH Task SHARE-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-viewFrame OPEN QUERY viewFrame FOR EACH Task SHARE-LOCK ~
@@ -189,22 +189,7 @@ btnPrev btnAdd btnCopy btnDelete btnUpdate
 &Scoped-define transUpdate btnAddEmail btnCancel btnReset btnUpdate 
 &Scoped-define displayFields Task.taskID Task.taskName Task.user-id ~
 Task.securityLevel Task.scheduled Task.prgmName Task.frequency Task.module ~
-Task.cTaskTime Task.cFromTime Task.cToTime Task.dayOfWeek1 Task.dayOfWeek2 ~
-Task.dayOfWeek3 Task.dayOfWeek4 Task.dayOfWeek5 Task.dayOfWeek6 ~
-Task.dayOfWeek7 Task.dayOfMonth[1] Task.dayOfMonth[2] Task.dayOfMonth[3] ~
-Task.dayOfMonth[4] Task.dayOfMonth[5] Task.dayOfMonth[6] Task.dayOfMonth[7] ~
-Task.dayOfMonth[8] Task.dayOfMonth[9] Task.dayOfMonth[10] ~
-Task.dayOfMonth[11] Task.dayOfMonth[12] Task.dayOfMonth[13] ~
-Task.dayOfMonth[14] Task.dayOfMonth[15] Task.dayOfMonth[16] ~
-Task.dayOfMonth[17] Task.dayOfMonth[18] Task.dayOfMonth[19] ~
-Task.dayOfMonth[20] Task.dayOfMonth[21] Task.dayOfMonth[22] ~
-Task.dayOfMonth[23] Task.dayOfMonth[24] Task.dayOfMonth[25] ~
-Task.dayOfMonth[26] Task.dayOfMonth[27] Task.dayOfMonth[28] Task.runNow ~
-Task.dayOfMonth[29] Task.dayOfMonth[30] Task.dayOfMonth[31] ~
-Task.lastOfMonth Task.startDate Task.endDate Task.taskFormat Task.nextDate ~
-Task.cNextTime Task.lastDate Task.cLastTime Task.recipients 
-&Scoped-define enabledFields Task.taskID Task.taskName Task.securityLevel ~
-Task.scheduled Task.frequency Task.cTaskTime Task.cFromTime Task.cToTime ~
+Task.cTaskTime Task.cFromTime Task.cToTime Task.runSync Task.runNow ~
 Task.dayOfWeek1 Task.dayOfWeek2 Task.dayOfWeek3 Task.dayOfWeek4 ~
 Task.dayOfWeek5 Task.dayOfWeek6 Task.dayOfWeek7 Task.dayOfMonth[1] ~
 Task.dayOfMonth[2] Task.dayOfMonth[3] Task.dayOfMonth[4] Task.dayOfMonth[5] ~
@@ -215,9 +200,25 @@ Task.dayOfMonth[16] Task.dayOfMonth[17] Task.dayOfMonth[18] ~
 Task.dayOfMonth[19] Task.dayOfMonth[20] Task.dayOfMonth[21] ~
 Task.dayOfMonth[22] Task.dayOfMonth[23] Task.dayOfMonth[24] ~
 Task.dayOfMonth[25] Task.dayOfMonth[26] Task.dayOfMonth[27] ~
-Task.dayOfMonth[28] Task.runNow Task.dayOfMonth[29] Task.dayOfMonth[30] ~
+Task.dayOfMonth[28] Task.dayOfMonth[29] Task.dayOfMonth[30] ~
 Task.dayOfMonth[31] Task.lastOfMonth Task.startDate Task.endDate ~
-Task.taskFormat Task.recipients 
+Task.taskFormat Task.nextDate Task.cNextTime Task.lastDate Task.cLastTime ~
+Task.recipients 
+&Scoped-define enabledFields Task.taskID Task.taskName Task.securityLevel ~
+Task.scheduled Task.frequency Task.cTaskTime Task.cFromTime Task.cToTime ~
+Task.runSync Task.runNow Task.dayOfWeek1 Task.dayOfWeek2 Task.dayOfWeek3 ~
+Task.dayOfWeek4 Task.dayOfWeek5 Task.dayOfWeek6 Task.dayOfWeek7 ~
+Task.dayOfMonth[1] Task.dayOfMonth[2] Task.dayOfMonth[3] Task.dayOfMonth[4] ~
+Task.dayOfMonth[5] Task.dayOfMonth[6] Task.dayOfMonth[7] Task.dayOfMonth[8] ~
+Task.dayOfMonth[9] Task.dayOfMonth[10] Task.dayOfMonth[11] ~
+Task.dayOfMonth[12] Task.dayOfMonth[13] Task.dayOfMonth[14] ~
+Task.dayOfMonth[15] Task.dayOfMonth[16] Task.dayOfMonth[17] ~
+Task.dayOfMonth[18] Task.dayOfMonth[19] Task.dayOfMonth[20] ~
+Task.dayOfMonth[21] Task.dayOfMonth[22] Task.dayOfMonth[23] ~
+Task.dayOfMonth[24] Task.dayOfMonth[25] Task.dayOfMonth[26] ~
+Task.dayOfMonth[27] Task.dayOfMonth[28] Task.dayOfMonth[29] ~
+Task.dayOfMonth[30] Task.dayOfMonth[31] Task.lastOfMonth Task.startDate ~
+Task.endDate Task.taskFormat Task.recipients 
 &Scoped-define timeRange Task.cFromTime Task.cToTime 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -473,6 +474,7 @@ Task.dayOfWeek5 VIEW-AS TOGGLE-BOX
 Task.dayOfWeek6 VIEW-AS TOGGLE-BOX
 Task.dayOfWeek7 VIEW-AS TOGGLE-BOX
 Task.lastOfMonth VIEW-AS TOGGLE-BOX
+Task.runSync
 Task.taskFormat LABEL-BGCOLOR 14
 Task.nextDate LABEL-BGCOLOR 14
 Task.cNextTime LABEL-BGCOLOR 14
@@ -528,23 +530,23 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
           BGCOLOR 15 
-     Task.user-id AT ROW 1.24 COL 91 COLON-ALIGNED WIDGET-ID 516
+     Task.user-id AT ROW 1.24 COL 92 COLON-ALIGNED WIDGET-ID 516
           VIEW-AS FILL-IN 
-          SIZE 16.2 BY 1
+          SIZE 15 BY 1
           BGCOLOR 15 
-     Task.securityLevel AT ROW 1.24 COL 124 COLON-ALIGNED WIDGET-ID 630
+     Task.securityLevel AT ROW 1.24 COL 122 COLON-ALIGNED WIDGET-ID 630
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
           BGCOLOR 15 
      Task.scheduled AT ROW 2.43 COL 28 WIDGET-ID 482
           VIEW-AS TOGGLE-BOX
-          SIZE 13 BY 1
+          SIZE 14 BY 1
      Task.prgmName AT ROW 2.43 COL 55 COLON-ALIGNED WIDGET-ID 512
           LABEL "Program"
           VIEW-AS FILL-IN 
           SIZE 22 BY 1
           BGCOLOR 15 
-     cPrgmTitle AT ROW 2.43 COL 91 COLON-ALIGNED WIDGET-ID 616
+     cPrgmTitle AT ROW 2.43 COL 92 COLON-ALIGNED WIDGET-ID 616
      Task.frequency AT ROW 3.62 COL 14 NO-LABEL WIDGET-ID 604
           VIEW-AS RADIO-SET VERTICAL
           RADIO-BUTTONS 
@@ -553,11 +555,13 @@ DEFINE FRAME viewFrame
 "Weekly -----", "Weekly":U,
 "Monthly ----", "Monthly":U
           SIZE 13 BY 4.52
-     Task.subjectID AT ROW 3.62 COL 91 COLON-ALIGNED WIDGET-ID 654
+     btnClose AT ROW 1 COL 136 HELP
+          "Close" WIDGET-ID 72
+     Task.subjectID AT ROW 3.62 COL 92 COLON-ALIGNED WIDGET-ID 654
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
-     Task.module AT ROW 3.62 COL 124 COLON-ALIGNED WIDGET-ID 160
+     Task.module AT ROW 3.62 COL 122 COLON-ALIGNED WIDGET-ID 160
           VIEW-AS COMBO-BOX INNER-LINES 20
           LIST-ITEMS "","AP","AR","DC","EQ","FG","GL","HS","JC","NS","OE","PO","RM","SB","TS" 
           DROP-DOWN-LIST
@@ -578,6 +582,12 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           BGCOLOR 15 
+     Task.runSync AT ROW 4.81 COL 94 WIDGET-ID 656
+          VIEW-AS TOGGLE-BOX
+          SIZE 21 BY .81
+     Task.runNow AT ROW 4.81 COL 124 WIDGET-ID 652
+          VIEW-AS TOGGLE-BOX
+          SIZE 13 BY .81
      Task.dayOfWeek1 AT ROW 6 COL 28 WIDGET-ID 488
           VIEW-AS TOGGLE-BOX
           SIZE 11 BY .81
@@ -593,18 +603,12 @@ DEFINE FRAME viewFrame
      Task.dayOfWeek5 AT ROW 6 COL 94 WIDGET-ID 496
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY .81
-     btnClose AT ROW 1 COL 136 HELP
-          "Close" WIDGET-ID 72
      Task.dayOfWeek6 AT ROW 6 COL 110 WIDGET-ID 498
           VIEW-AS TOGGLE-BOX
           SIZE 10 BY .81
      Task.dayOfWeek7 AT ROW 6 COL 124 WIDGET-ID 500
           VIEW-AS TOGGLE-BOX
           SIZE 12 BY .81
-     Task.dayOfMonth[1] AT ROW 7.43 COL 28 WIDGET-ID 524
-          LABEL "1"
-          VIEW-AS TOGGLE-BOX
-          SIZE 6 BY .81
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 21 ROW 7.43
@@ -613,6 +617,10 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
+     Task.dayOfMonth[1] AT ROW 7.43 COL 28 WIDGET-ID 524
+          LABEL "1"
+          VIEW-AS TOGGLE-BOX
+          SIZE 6 BY .81
      Task.dayOfMonth[2] AT ROW 7.43 COL 36 WIDGET-ID 526
           LABEL "2"
           VIEW-AS TOGGLE-BOX
@@ -645,6 +653,8 @@ DEFINE FRAME viewFrame
           LABEL "9"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnFirst AT ROW 19.81 COL 106 HELP
+          "First" WIDGET-ID 274
      Task.dayOfMonth[10] AT ROW 8.38 COL 44 WIDGET-ID 542
           LABEL "10"
           VIEW-AS TOGGLE-BOX
@@ -681,8 +691,6 @@ DEFINE FRAME viewFrame
           LABEL "18"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnFirst AT ROW 19.81 COL 106 HELP
-          "First" WIDGET-ID 274
      Task.dayOfMonth[19] AT ROW 9.33 COL 60 WIDGET-ID 554
           LABEL "19"
           VIEW-AS TOGGLE-BOX
@@ -699,10 +707,6 @@ DEFINE FRAME viewFrame
           LABEL "22"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     Task.dayOfMonth[23] AT ROW 10.29 COL 36 WIDGET-ID 576
-          LABEL "23"
-          VIEW-AS TOGGLE-BOX
-          SIZE 6 BY .81
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 21 ROW 7.43
@@ -711,6 +715,10 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
+     Task.dayOfMonth[23] AT ROW 10.29 COL 36 WIDGET-ID 576
+          LABEL "23"
+          VIEW-AS TOGGLE-BOX
+          SIZE 6 BY .81
      Task.dayOfMonth[24] AT ROW 10.29 COL 44 WIDGET-ID 578
           LABEL "24"
           VIEW-AS TOGGLE-BOX
@@ -731,9 +739,8 @@ DEFINE FRAME viewFrame
           LABEL "28"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     Task.runNow AT ROW 11.24 COL 14 WIDGET-ID 652
-          VIEW-AS TOGGLE-BOX
-          SIZE 12 BY .81
+     btnLast AT ROW 19.86 COL 130 HELP
+          "Last" WIDGET-ID 68
      Task.dayOfMonth[29] AT ROW 11.24 COL 28 WIDGET-ID 584
           LABEL "29"
           VIEW-AS TOGGLE-BOX
@@ -746,8 +753,6 @@ DEFINE FRAME viewFrame
           LABEL "31"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnLast AT ROW 19.86 COL 130 HELP
-          "Last" WIDGET-ID 68
      Task.lastOfMonth AT ROW 11.24 COL 76 WIDGET-ID 586
           VIEW-AS TOGGLE-BOX
           SIZE 21 BY .81
@@ -774,29 +779,29 @@ DEFINE FRAME viewFrame
 "PDF", "PDF":U,
 "HTML", "HTML":U
           SIZE 51 BY 1
+     btnNext AT ROW 19.81 COL 122 HELP
+          "Next" WIDGET-ID 276
      Task.nextDate AT ROW 14.81 COL 12 COLON-ALIGNED WIDGET-ID 510
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
+     btnPrev AT ROW 19.81 COL 114 HELP
+          "Previous" WIDGET-ID 278
      Task.cNextTime AT ROW 14.81 COL 36 COLON-ALIGNED WIDGET-ID 596
           LABEL "Time"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           BGCOLOR 15 
-     btnNext AT ROW 19.81 COL 122 HELP
-          "Next" WIDGET-ID 276
      Task.lastDate AT ROW 16 COL 12 COLON-ALIGNED WIDGET-ID 508
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
+     btnAdd AT ROW 19.86 COL 23 HELP
+          "Add" WIDGET-ID 20
      Task.cLastTime AT ROW 16 COL 36 COLON-ALIGNED WIDGET-ID 594
           LABEL "Time"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
-          BGCOLOR 15 
-     Task.recipients AT ROW 17.19 COL 14 NO-LABEL WIDGET-ID 600
-          VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 125 BY 2.14
           BGCOLOR 15 
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -806,26 +811,26 @@ DEFINE FRAME viewFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME viewFrame
-     btnPrev AT ROW 19.81 COL 114 HELP
-          "Previous" WIDGET-ID 278
-     btnAdd AT ROW 19.86 COL 23 HELP
-          "Add" WIDGET-ID 20
      btnCancel AT ROW 19.86 COL 55 HELP
           "Cancel" WIDGET-ID 28
      btnCopy AT ROW 19.86 COL 31 HELP
           "Copy" WIDGET-ID 24
+     Task.recipients AT ROW 17.19 COL 14 NO-LABEL WIDGET-ID 600
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 125 BY 2.14
+          BGCOLOR 15 
      btnDelete AT ROW 19.86 COL 39 HELP
           "Delete" WIDGET-ID 26
      btnReset AT ROW 19.86 COL 47 HELP
           "Reset" WIDGET-ID 22
      btnUpdate AT ROW 19.86 COL 15 HELP
           "Update/Save" WIDGET-ID 18
+     "Frequency:" VIEW-AS TEXT
+          SIZE 11 BY 1 AT ROW 3.62 COL 2 WIDGET-ID 618
      "Recipients:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 17.19 COL 3 WIDGET-ID 602
      "Format:" VIEW-AS TEXT
           SIZE 8 BY 1 AT ROW 13.62 COL 72 WIDGET-ID 614
-     "Frequency:" VIEW-AS TEXT
-          SIZE 11 BY 1 AT ROW 3.62 COL 2 WIDGET-ID 618
      transPanel AT ROW 19.57 COL 14 WIDGET-ID 16
      navPanel AT ROW 19.57 COL 105 WIDGET-ID 280
      RECT-2 AT ROW 5.76 COL 27 WIDGET-ID 620
@@ -1084,6 +1089,8 @@ ASSIGN
    NO-ENABLE 4 5                                                        */
 /* SETTINGS FOR RECTANGLE runNow-2 IN FRAME viewFrame
    NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX Task.runSync IN FRAME viewFrame
+   NO-ENABLE 4 5                                                        */
 /* SETTINGS FOR TOGGLE-BOX Task.scheduled IN FRAME viewFrame
    NO-ENABLE 4 5                                                        */
 /* SETTINGS FOR FILL-IN Task.securityLevel IN FRAME viewFrame
@@ -1731,6 +1738,7 @@ DO:
                 Task.user-id:SCREEN-VALUE   = bDynParamValue.user-id
                 Task.prgmName:SCREEN-VALUE  = bDynParamValue.prgmName
                 Task.module:SCREEN-VALUE    = bDynParamValue.module
+                Task.runSync:SCREEN-VALUE   = STRING(bDynParamValue.runSync)
                 .
             FIND FIRST prgrms NO-LOCK
                  WHERE prgrms.prgmName EQ bDynParamValue.prgmName
@@ -1892,18 +1900,18 @@ PROCEDURE enable_UI :
   IF AVAILABLE Task THEN 
     DISPLAY Task.taskID Task.taskName Task.user-id Task.securityLevel 
           Task.scheduled Task.prgmName Task.frequency Task.subjectID Task.module 
-          Task.cTaskTime Task.cFromTime Task.cToTime Task.dayOfWeek1 
-          Task.dayOfWeek2 Task.dayOfWeek3 Task.dayOfWeek4 Task.dayOfWeek5 
-          Task.dayOfWeek6 Task.dayOfWeek7 Task.dayOfMonth[1] Task.dayOfMonth[2] 
-          Task.dayOfMonth[3] Task.dayOfMonth[4] Task.dayOfMonth[5] 
-          Task.dayOfMonth[6] Task.dayOfMonth[7] Task.dayOfMonth[8] 
-          Task.dayOfMonth[9] Task.dayOfMonth[10] Task.dayOfMonth[11] 
-          Task.dayOfMonth[12] Task.dayOfMonth[13] Task.dayOfMonth[14] 
-          Task.dayOfMonth[15] Task.dayOfMonth[16] Task.dayOfMonth[17] 
-          Task.dayOfMonth[18] Task.dayOfMonth[19] Task.dayOfMonth[20] 
-          Task.dayOfMonth[21] Task.dayOfMonth[22] Task.dayOfMonth[23] 
-          Task.dayOfMonth[24] Task.dayOfMonth[25] Task.dayOfMonth[26] 
-          Task.dayOfMonth[27] Task.dayOfMonth[28] Task.runNow 
+          Task.cTaskTime Task.cFromTime Task.cToTime Task.runSync Task.runNow 
+          Task.dayOfWeek1 Task.dayOfWeek2 Task.dayOfWeek3 Task.dayOfWeek4 
+          Task.dayOfWeek5 Task.dayOfWeek6 Task.dayOfWeek7 Task.dayOfMonth[1] 
+          Task.dayOfMonth[2] Task.dayOfMonth[3] Task.dayOfMonth[4] 
+          Task.dayOfMonth[5] Task.dayOfMonth[6] Task.dayOfMonth[7] 
+          Task.dayOfMonth[8] Task.dayOfMonth[9] Task.dayOfMonth[10] 
+          Task.dayOfMonth[11] Task.dayOfMonth[12] Task.dayOfMonth[13] 
+          Task.dayOfMonth[14] Task.dayOfMonth[15] Task.dayOfMonth[16] 
+          Task.dayOfMonth[17] Task.dayOfMonth[18] Task.dayOfMonth[19] 
+          Task.dayOfMonth[20] Task.dayOfMonth[21] Task.dayOfMonth[22] 
+          Task.dayOfMonth[23] Task.dayOfMonth[24] Task.dayOfMonth[25] 
+          Task.dayOfMonth[26] Task.dayOfMonth[27] Task.dayOfMonth[28] 
           Task.dayOfMonth[29] Task.dayOfMonth[30] Task.dayOfMonth[31] 
           Task.lastOfMonth Task.startDate Task.endDate Task.taskFormat 
           Task.nextDate Task.cNextTime Task.lastDate Task.cLastTime 

@@ -50,6 +50,7 @@ PROCEDURE pSetDynParamValue:
             dynParamValue.securityLevel    = dynSubject.securityLevel
             dynParamValue.recordLimit      = dynSubject.recordLimit
             dynParamValue.isLookup         = dynSubject.isLookup
+            dynParamValue.runSync          = dynSubject.runSync
             .
         FOR EACH {1}SubjectParamSet NO-LOCK
             WHERE {1}SubjectParamSet.subjectID EQ ipiSubjectID,

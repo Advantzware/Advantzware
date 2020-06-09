@@ -247,7 +247,7 @@ PROCEDURE pSaveDynParamValues :
                     ttParamOrder.paramName     = hWidget:NAME
                     ttParamOrder.paramLabel    = hWidget:LABEL
                     ttParamOrder.paramValue    = hWidget:SCREEN-VALUE
-                    ttParamOrder.paramdataType = hWidget:DATA-TYPE
+                    ttParamOrder.paramDataType = hWidget:DATA-TYPE
                     .
                 IF CAN-DO("COMBO-BOX,FILL-IN",hWidget:TYPE) THEN
                 ttParamOrder.paramFormat = hWidget:FORMAT.

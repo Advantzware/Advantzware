@@ -1,4 +1,4 @@
-/* runTask.p - rstark - 12.14.2018 */
+/* runTaskU.p - rstark - 12.14.2018 */
 
 /* prowin.exe spawned by tasker.w monitor */
 
@@ -15,12 +15,16 @@ DEFINE VARIABLE hSession    AS HANDLE    NO-UNDO.
 
 {AOA/includes/pCalcNextRun.i}
 
+&IF DEFINED(runSync) EQ 0 &THEN
 ASSIGN
     PROPATH = ENTRY(1,SESSION:PARAMETER,"+")
     rRowID  = TO-ROWID(ENTRY(2,SESSION:PARAMETER,"+"))
     .
 RUN system/session.p PERSISTENT SET hSession.
 SESSION:ADD-SUPER-PROCEDURE (hSession).
+&ELSE
+rRowID = iprRowID.
+&ENDIF
 
 FIND FIRST emailConfig NO-LOCK
      WHERE emailConfig.configID EQ 1
@@ -153,6 +157,7 @@ ELSE DO:
         ).
 END. /* else user-print */
 
+IF VALID-HANDLE(hSession) THEN
 DELETE PROCEDURE hSession.
 IF VALID-HANDLE(hAppSrvBin) THEN
 DELETE PROCEDURE hAppSrvBin.
@@ -161,7 +166,9 @@ DELETE PROCEDURE hAppSrv.
 IF VALID-HANDLE(hJasper) THEN
 DELETE PROCEDURE hJasper.
 
+&IF DEFINED(runSync) EQ 0 &THEN
 QUIT.
+&ENDIF
 
 PROCEDURE pCreateAuditHdr:
     RUN spCreateAuditHdr (

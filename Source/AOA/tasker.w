@@ -106,7 +106,7 @@ taskEmail.recipients
 /* Definitions for BROWSE TaskBrowse                                    */
 &Scoped-define FIELDS-IN-QUERY-TaskBrowse Task.runNow Task.taskName ~
 Task.nextDate Task.cNextTime Task.lastDate Task.cLastTime Task.isRunning ~
-Task.taskID Task.prgmName Task.user-id 
+Task.taskID Task.prgmName Task.user-id Task.runSync 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-TaskBrowse 
 &Scoped-define QUERY-STRING-TaskBrowse FOR EACH Task ~
       WHERE Task.scheduled EQ YES OR Task.runNow EQ YES NO-LOCK ~
@@ -206,7 +206,7 @@ DEFINE BROWSE EmailBrowse
       taskEmail.recipients FORMAT "x(256)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 45 BY 14.29
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 40 BY 14.29
          TITLE "Pending Emails".
 
 DEFINE BROWSE TaskBrowse
@@ -222,9 +222,10 @@ DEFINE BROWSE TaskBrowse
       Task.taskID FORMAT "->,>>>,>>9":U
       Task.prgmName FORMAT "x(10)":U
       Task.user-id FORMAT "x(10)":U
+      Task.runSync FORMAT "yes/no":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 115 BY 14.29
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 120 BY 14.29
          TITLE "Tasks".
 
 
@@ -236,7 +237,7 @@ DEFINE FRAME DEFAULT-FRAME
      TaskBrowse AT ROW 1 COL 1 WIDGET-ID 200
      btnClearIsRunning AT ROW 1 COL 98 HELP
           "Click to Clear Is Running" WIDGET-ID 8
-     EmailBrowse AT ROW 1 COL 116 WIDGET-ID 300
+     EmailBrowse AT ROW 1 COL 121 WIDGET-ID 300
      btnClearPendingEmails AT ROW 1 COL 153 HELP
           "Click to Clear Pending Emails" WIDGET-ID 10
      AuditBrowse AT ROW 15.29 COL 1 WIDGET-ID 400
@@ -345,17 +346,18 @@ AuditHdr.AuditDateTime GE dttOpenDateTime"
      _OrdList          = "ASI.Task.runNow|no,ASI.Task.nextDate|yes,ASI.Task.nextTime|yes"
      _Where[1]         = "Task.scheduled EQ YES OR Task.runNow EQ YES"
      _FldNameList[1]   > ASI.Task.runNow
-"Task.runNow" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+"runNow" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
      _FldNameList[2]   = ASI.Task.taskName
      _FldNameList[3]   = ASI.Task.nextDate
      _FldNameList[4]   = ASI.Task.cNextTime
      _FldNameList[5]   = ASI.Task.lastDate
      _FldNameList[6]   = ASI.Task.cLastTime
      _FldNameList[7]   > ASI.Task.isRunning
-"Task.isRunning" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+"isRunning" ? ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
      _FldNameList[8]   = ASI.Task.taskID
      _FldNameList[9]   = ASI.Task.prgmName
      _FldNameList[10]   = ASI.Task.user-id
+     _FldNameList[11]   = ASI.Task.runSync
      _Query            is OPENED
 */  /* BROWSE TaskBrowse */
 &ANALYZE-RESUME
@@ -929,14 +931,23 @@ PROCEDURE pTasks :
                     bTask.isRunning = YES.
                     RELEASE bTask.
                 END. /* do trans */
-                OS-COMMAND NO-WAIT VALUE(
-                        SUBSTITUTE(
-                            cRun,
-                            cRunProgram,
-                            "~"" + PROPATH + "+" + STRING(ROWID(Task)) + "~""
-                            )
-                        ).
-                PAUSE 2 NO-MESSAGE.
+                IF Task.runSync THEN DO:
+                    cRunProgram = REPLACE(cRunProgram,".","Sync.").
+                    MESSAGE 
+                    "cRunProgram:" cRunProgram
+                    VIEW-AS ALERT-BOX.
+                    RUN VALUE(cRunProgram) (ROWID(Task)).
+                END. /* if runsync */
+                ELSE DO:
+                    OS-COMMAND NO-WAIT VALUE(
+                            SUBSTITUTE(
+                                cRun,
+                                cRunProgram,
+                                "~"" + PROPATH + "+" + STRING(ROWID(Task)) + "~""
+                                )
+                            ).
+                    PAUSE 2 NO-MESSAGE.
+                END. /* else */
             END. /* if ne ? */
         END.
         GET NEXT TaskBrowse.
