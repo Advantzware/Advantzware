@@ -28,7 +28,7 @@
 &Global-define IDXNAME2 
 &Global-define DESCRIP2 Name
 &Global-define FLDNAME3 shipto.siteID
-&Global-define FORMAT-3 X(8)
+&Global-define FORMAT-3 X(16)
 &Global-define SORTBY-3 
 &Global-define IDXNAME3 
 &Global-define DESCRIP3 Site ID
