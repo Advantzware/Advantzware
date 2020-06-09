@@ -62,19 +62,20 @@ DEFINE QUERY external_tables FOR userControl.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS userControl.maxAllowedUsers ~
 userControl.numUsersOverLimit userControl.maxSessionsPerUser ~
-userControl.autoLogoutTime userControl.adminEmailAddr userControl.notifyAutoLogout ~
-userControl.nofityLocked userControl.notifyDisable
+userControl.inactivityLockout userControl.autoLogoutTime ~
+userControl.adminEmailAddr userControl.nofityLocked ~
+userControl.notifyAutoLogout userControl.notifyDisable 
 &Scoped-define ENABLED-TABLES userControl
 &Scoped-define FIRST-ENABLED-TABLE userControl
-&Scoped-Define ENABLED-OBJECTS RECT-2 RECT-3 
-
+&Scoped-Define ENABLED-OBJECTS RECT-2 RECT-3 RECT-18 
 &Scoped-Define DISPLAYED-FIELDS userControl.maxAllowedUsers ~
 userControl.numUsersOverLimit userControl.maxSessionsPerUser ~
-userControl.autoLogoutTime userControl.adminEmailAddr userControl.notifyAutoLogout ~
-userControl.nofityLocked userControl.notifyDisable
+userControl.inactivityLockout userControl.autoLogoutTime ~
+userControl.adminEmailAddr userControl.nofityLocked ~
+userControl.notifyAutoLogout userControl.notifyDisable 
 &Scoped-define DISPLAYED-TABLES userControl
 &Scoped-define FIRST-DISPLAYED-TABLE userControl
-/*&Scoped-Define DISPLAYED-OBJECTS */ 
+
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -109,61 +110,67 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE RECTANGLE RECT-18
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 108 BY 2.38.
+
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 108 BY 5.71.
+     SIZE 108 BY 4.52.
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 108 BY 6.67.
+     SIZE 108 BY 6.43.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     userControl.maxAllowedUsers AT ROW 2.33 COL 46.6 COLON-ALIGNED WIDGET-ID 8
+     userControl.maxAllowedUsers AT ROW 2.43 COL 47 COLON-ALIGNED WIDGET-ID 8
           LABEL "Number Concurrent Users"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     userControl.numUsersOverLimit AT ROW 3.43 COL 46.6 COLON-ALIGNED WIDGET-ID 12
+     userControl.numUsersOverLimit AT ROW 3.62 COL 47 COLON-ALIGNED WIDGET-ID 12
           LABEL "Concurrent Users Allowed Over Limit"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     userControl.maxSessionsPerUser AT ROW 5.57 COL 46.6 COLON-ALIGNED WIDGET-ID 14
+     userControl.maxSessionsPerUser AT ROW 4.81 COL 47 COLON-ALIGNED WIDGET-ID 14
           LABEL "Max Sessions Per User"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     userControl.autoLogoutTime AT ROW 8.86 COL 31 COLON-ALIGNED WIDGET-ID 20
+     userControl.inactivityLockout AT ROW 7.19 COL 47 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     userControl.autoLogoutTime AT ROW 10.05 COL 31 COLON-ALIGNED WIDGET-ID 20
           LABEL "Max Session Time (hrs)"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     userControl.adminEmailAddr AT ROW 9.91 COL 31 COLON-ALIGNED WIDGET-ID 18
+     userControl.adminEmailAddr AT ROW 11.1 COL 31 COLON-ALIGNED WIDGET-ID 18
           LABEL "Notification Email List"
           VIEW-AS FILL-IN 
           SIZE 78 BY 1
-     userControl.nofityLocked AT ROW 11.24 COL 33
-          LABEL "Locked Accounts"
+     userControl.nofityLocked AT ROW 12.43 COL 33
           VIEW-AS TOGGLE-BOX
           SIZE 24 BY .81
-     
-     userControl.notifyAutoLogout AT ROW 12.19 COL 33
-          LABEL "Auto Logout"
+     userControl.notifyAutoLogout AT ROW 13.38 COL 33
           VIEW-AS TOGGLE-BOX
           SIZE 24 BY .81
-     userControl.notifyDisable AT ROW 13.14 COL 33
-          LABEL "Disable"
+     userControl.notifyDisable AT ROW 14.33 COL 33
           VIEW-AS TOGGLE-BOX
           SIZE 24 BY .81
      "Notification Types:" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 11.33 COL 10 WIDGET-ID 34
-     "Auto Logout Parameters" VIEW-AS TEXT
-          SIZE 28 BY .62 AT ROW 7.67 COL 6 WIDGET-ID 26
-     "License Counts" VIEW-AS TEXT
+          SIZE 22 BY .62 AT ROW 12.52 COL 10 WIDGET-ID 34
+     " Auto Logout Parameters" VIEW-AS TEXT
+          SIZE 30 BY .62 AT ROW 8.86 COL 6 WIDGET-ID 26
+     " License Counts" VIEW-AS TEXT
           SIZE 19 BY .62 AT ROW 1.48 COL 6 WIDGET-ID 24
      RECT-2 AT ROW 1.71 COL 4 WIDGET-ID 16
-     RECT-3 AT ROW 7.91 COL 4 WIDGET-ID 22
+     RECT-3 AT ROW 9.1 COL 4 WIDGET-ID 22
+     RECT-18 AT ROW 6.48 COL 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
+         AT COL 1 ROW 1
+         SIZE 117.2 BY 14.91
          FONT 6 WIDGET-ID 100.
 
 
@@ -218,9 +225,8 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   NOT-VISIBLE FRAME-NAME                                               */
 ASSIGN 
-       FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN userControl.adminEmailAddr IN FRAME F-Main
@@ -232,12 +238,6 @@ ASSIGN
 /* SETTINGS FOR FILL-IN userControl.maxSessionsPerUser IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN userControl.numUsersOverLimit IN FRAME F-Main
-   EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN userControl.notifyAutoLogout IN FRAME F-Main
-   EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN userControl.nofityLocked IN FRAME F-Main
-   EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN userControl.notifyDisable IN FRAME F-Main
    EXP-LABEL                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -321,6 +321,57 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
+PROCEDURE local-assign-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+ 
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+ 
+  /*assign
+   userControl.notifyAutoLogout   = logical(tgAutoLogout:SCREEN-VALUE IN FRAME {&FRAME-NAME}) .*/
+   
+  
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
+PROCEDURE local-display-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  /*IF AVAIL userControl AND NOT adm-new-record THEN DO:
+   ASSIGN 
+       tgAutoLogout = userControl.notifyAutoLogout 
+       tgAutoLogout:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(userControl.notifyAutoLogout) .
+  END.*/
+
+    /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
 PROCEDURE proc-enable :
 /*------------------------------------------------------------------------------
@@ -349,59 +400,6 @@ PROCEDURE proc-enable :
     ELSE ASSIGN
         userControl.maxSessionsPerUser:SENSITIVE IN FRAME {&FRAME-NAME} = NO  .
     
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
-PROCEDURE local-assign-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-  
-
-  /* Code placed here will execute PRIOR to standard behavior. */
- 
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
- 
-  /*assign
-   userControl.notifyAutoLogout   = logical(tgAutoLogout:SCREEN-VALUE IN FRAME {&FRAME-NAME}) .*/
-   
-  
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
-PROCEDURE local-display-fields :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  /*IF AVAIL userControl AND NOT adm-new-record THEN DO:
-   ASSIGN 
-       tgAutoLogout = userControl.notifyAutoLogout 
-       tgAutoLogout:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(userControl.notifyAutoLogout) .
-  END.*/
-
-    /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

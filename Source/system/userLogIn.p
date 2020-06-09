@@ -31,6 +31,9 @@ DEFINE VARIABLE ppid AS INTEGER NO-UNDO.
 DEFINE VARIABLE lStrongDisconnect AS LOG NO-UNDO.
 DEFINE VARIABLE iLoginUserSecLevel AS INT NO-UNDO.
 
+DEFINE BUFFER bf-users FOR users.
+DEFINE BUFFER bf-userlog FOR userLog.
+
 {methods/defines/hndldefs.i}
 {custom/gcompany.i}    
 {custom/getcmpny.i}
@@ -300,3 +303,22 @@ IF NOT oplExit THEN DO TRANSACTION:
         .
     FIND CURRENT userLog NO-LOCK NO-ERROR.
 END.  /* If not exiting */
+
+/* 66297 Request - Inactivate User Based on Activity */
+/* Run when any Admin logs in AND lockout days set to GT 0 (in NK5) */
+IF userControl.inactivityLockout GT 0
+AND iLoginUserSecLevel GE 900 THEN DO:
+    FOR EACH bf-users NO-LOCK:
+        FIND LAST bf-userLog NO-LOCK WHERE 
+            bf-userLog.user_id EQ bf-users.user_id
+            NO-ERROR.
+        IF AVAIL bf-userlog 
+        AND bf-userLog.loginDateTime LT ADD-INTERVAL(DATETIME(TODAY), (0 - userControl.inactivityLockout), "days") THEN DO:
+            FIND CURRENT bf-users EXCLUSIVE.
+            ASSIGN 
+                bf-users.isLocked = TRUE.
+            RELEASE bf-users.
+        END.
+    END.
+END.
+            
