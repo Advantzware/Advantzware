@@ -5555,6 +5555,9 @@ DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
     FIND CURRENT oe-ordl NO-LOCK.
   END.
           
+  ASSIGN 
+    lMsgResponse = TRUE.
+              
   /* This section is needed because previous calculations of component
      quantities were based on the quantity before it was updated */
     
