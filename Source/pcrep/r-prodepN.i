@@ -102,25 +102,34 @@
        END.
       
       
+       FIND FIRST job-hdr NO-LOCK 
+            WHERE job-hdr.company EQ mch-act.company
+              AND job-hdr.job-no  EQ mch-act.job-no
+              AND job-hdr.job-no2 EQ mch-act.job-no2
+              AND job-hdr.frm     EQ mch-act.frm 
+            NO-ERROR.
+       IF AVAILABLE job-hdr THEN 
+           ASSIGN tt-srt.i-no = job-hdr.i-no.
+                                         
        IF job-code.cat EQ "RUN" THEN DO:
 
           ASSIGN
              tt-srt.run-act-hr = tt-srt.run-act-hr + mch-act.hours
              tt-srt.qty-prod   = tt-srt.qty-prod +
                                  IF mch-act.qty EQ ? THEN 0 ELSE mch-act.qty
-                               .
+             .
 
-             IF tb_tonmsf AND mch-act.qty <> ? AND mch-act.qty <> 0 THEN DO:             
-                 FIND FIRST job-hdr WHERE job-hdr.company = mch-act.company
-                                         AND job-hdr.job-no = mch-act.job-no
-                                         AND job-hdr.job-no2 = mch-act.job-no2
-                                         AND job-hdr.frm = mch-act.frm NO-LOCK NO-ERROR.
-                 FIND eb WHERE eb.company = job-hdr.company
-                                 AND eb.est-no = job-hdr.est-no
-                                 AND eb.form-no = job-hdr.frm
-                                 AND eb.blank-no = job-hdr.blank-no NO-LOCK NO-ERROR.
-                 FIND ef OF eb NO-LOCK NO-ERROR.
-
+             IF tb_tonmsf AND mch-act.qty <> ? AND mch-act.qty <> 0 THEN DO:
+                 IF AVAILABLE job-hdr THEN                  
+                     FIND FIRST eb NO-LOCK 
+                          WHERE eb.company  EQ job-hdr.company
+                            AND eb.est-no   EQ job-hdr.est-no
+                            AND eb.form-no  EQ job-hdr.frm
+                            AND eb.blank-no EQ job-hdr.blank-no 
+                          NO-ERROR.
+                 IF AVAILABLE eb THEN                
+                     FIND FIRST ef OF eb NO-LOCK NO-ERROR.                 
+                 
                  IF AVAILABLE ef THEN
                  iTotalUP = IF ef.spare-int-1 = 0 THEN ef.n-out * ef.n-out-l * ef.n-out-d
                             ELSE ef.spare-int-1.
@@ -154,13 +163,16 @@
                                     .
                       END.
                       ELSE DO:
-                          
-                          FIND itemfg WHERE itemfg.company = job-hdr.company
-                                        AND itemfg.i-no = job-hdr.i-no NO-LOCK NO-ERROR.
+                          IF AVAILABLE job-hdr THEN
+                              FIND FIRST itemfg NO-LOCK 
+                                   WHERE itemfg.company EQ job-hdr.company
+                                     AND itemfg.i-no    EQ job-hdr.i-no 
+                                   NO-ERROR.
                           IF AVAILABLE itemfg THEN
-                              ASSIGN tt-srt.qty-msf = tt-srt.qty-msf + mch-act.qty * itemfg.t-sqin / 144000
-                              tt-srt.qty-ton = tt-srt.qty-ton + (mch-act.qty * itemfg.t-sqin / 144000 * ITEM.basis-w / 2000) 
-                              .               
+                              ASSIGN 
+                                  tt-srt.qty-msf = tt-srt.qty-msf + mch-act.qty * itemfg.t-sqin / 144000
+                                  tt-srt.qty-ton = tt-srt.qty-ton + (mch-act.qty * itemfg.t-sqin / 144000 * ITEM.basis-w / 2000) 
+                                  .                                         
                       END.                                   
                       LEAVE.
                   END.
@@ -346,6 +358,7 @@
                          WHEN "act-ton"          THEN cVarValue = STRING(tt-srt.qty-ton,"->>,>>9.99") .
                          WHEN "act-msf"          THEN cVarValue = STRING(tt-srt.qty-msf,"->>,>>9.99") .
                          WHEN "exp-qty"          THEN cVarValue = STRING(tt-srt.qty-expect,"->>>,>>>,>>9") .
+                         WHEN "i-no"             THEN cVarValue = STRING(tt-srt.i-no) .
                          
                     END CASE.
                     cExcelVarValue = cVarValue.
@@ -409,6 +422,7 @@
                          WHEN "act-ton"       THEN cVarValue = STRING(mch-qty-ton,"->>,>>9.99") .
                          WHEN "act-msf"       THEN cVarValue = STRING(mch-qty-msf,"->>,>>9.99") .
                          WHEN "exp-qty"       THEN cVarValue = STRING(mch-qty-expect,"->>>,>>>,>>9") .
+                         WHEN "i-no"          THEN cVarValue = STRING(tt-srt.i-no) .
                          
                     END CASE.
                     
@@ -486,6 +500,7 @@
                          WHEN "act-ton"           THEN cVarValue = STRING(shf-qty-ton,"->>,>>9.99") .
                          WHEN "act-msf"           THEN cVarValue = STRING(shf-qty-msf,"->>,>>9.99") .
                          WHEN "exp-qty"           THEN cVarValue = STRING(shf-qty-expect,"->>>,>>>,>>9") .
+                         WHEN "i-no"              THEN cVarValue = STRING(tt-srt.i-no) .                         
                          
                     END CASE.
                     
@@ -568,6 +583,7 @@
                          WHEN "act-ton"           THEN cVarValue = STRING(dpt-qty-ton,"->>,>>9.99") .
                          WHEN "act-msf"           THEN cVarValue = STRING(dpt-qty-msf,"->>,>>9.99") .
                          WHEN "exp-qty"           THEN cVarValue = STRING(dpt-qty-expect,"->>>,>>>,>>9") .
+                         WHEN "i-no"              THEN cVarValue = STRING(tt-srt.i-no) .
                          
                     END CASE.
                     
