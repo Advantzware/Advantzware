@@ -34,18 +34,47 @@ DEFINE     BUFFER bf-existing-eb FOR eb.
 
 /* ***************************  Main Block  *************************** */
 
-FOR EACH ttInputEst NO-LOCK:
-    FIND FIRST est NO-LOCK 
+FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
+                                  BY ttInputEst.iBlankNo:
+                                 
+    IF ttInputEst.cSetType EQ "" THEN
+    DO:
+        FIND FIRST est NO-LOCK 
         WHERE ROWID(est) EQ ttInputEst.riParentEst NO-ERROR.
-    IF NOT AVAILABLE est THEN 
-    DO:
-        RUN est/NewEstimate.p ('C', 5, OUTPUT opriEb).
-    END.
-    ELSE 
-    DO:
-        RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT opriEb).
-    END.
-
+        
+        IF NOT AVAILABLE est THEN 
+        DO:
+            RUN est/NewEstimate.p ('C', 5, OUTPUT opriEb).
+        END.
+        ELSE 
+        DO:
+            RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT opriEb).
+        END.          
+    END.  /* cSetType blank*/
+    ELSE IF ttInputEst.cSetType EQ "Set" THEN
+    DO:  
+        IF FIRST(ttInputEst.iFormNo) THEN DO:
+        RUN est/NewEstimate.p ('C', 6,OUTPUT opriEb).                                
+        END.
+        ELSE DO:                
+            IF FIRST-OF(ttInputEst.iFormNo) THEN DO:
+              FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
+              FIND FIRST ef OF eb NO-LOCK NO-ERROR.
+              FIND FIRST est OF ef NO-LOCK NO-ERROR.
+                          
+               RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT opriEb).
+                    
+            END.
+            ELSE IF FIRST-OF(ttInputEst.iBlankNo) THEN DO:
+              FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
+              FIND FIRST ef OF eb NO-LOCK NO-ERROR.
+         
+                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).
+                    
+            END.
+        END.        
+    END.  /* cSetType EQ "Set"*/    
+       
     FIND eb 
         WHERE ROWID(eb) EQ opriEb  
         NO-ERROR.
@@ -116,6 +145,7 @@ FOR EACH ttInputEst NO-LOCK:
         eb.chg-method   = IF ttInputEst.cFreightChargeMethod EQ "" THEN "P" ELSE ttInputEst.cFreightChargeMethod
         eb.quantityPartial = ttInputEst.iPartial
         eb.tr-cnt          = eb.cas-cnt * eb.cas-pal + eb.quantityPartial
+        eb.quantityPerSet  = ttInputEst.dQtyPerSet
         .
 
      IF AVAIL est-qty AND ttInputEst.iQuantity GT 0 THEN
@@ -327,11 +357,16 @@ FOR EACH ttInputEst NO-LOCK:
       RUN cec/mach-seq.p (eb.form-no, eb.eqty, NO).
     END.
     
+    IF ttInputEst.cEstType EQ "NewSetEstimate" THEN DO:
+      ASSIGN
+         est.estimateTypeID = "AAAA" .
+    END. 
+       
     RUN est/BuildDefaultPreps.p (BUFFER est,
         BUFFER ef,
         INPUT eb.form-no,
         INPUT 0).
-    
+            
 /*    REFACTOR ALL /* create set header record */                                                        */
 /*    IF iArtiosCount > 1 THEN                                                              */
 /*    DO:                                                                                   */
