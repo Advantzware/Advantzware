@@ -627,7 +627,7 @@ print-po-blok:
          ' ____________________Please initial & Fax to "Buyer" ' SKIP
         SKIP.
         
-      IF po-ord.ship-id  EQ "SOUCOM" THEN
+      IF po-ord.ship-id  EQ "003" THEN
        ASSIGN cPhone = "(256)998-9400" 
               cFax = "(256)998-9399".
        ELSE
