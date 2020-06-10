@@ -50,6 +50,7 @@ DEF VAR lr-rel-lib AS HANDLE NO-UNDO.
 {oe/closchk.i NEW}
 {custom/formtext.i NEW}
 {oerep/r-bolx.i NEW}
+{Inventory/ttInventory.i "NEW SHARED"}
 
 ASSIGN
   cocode = gcompany
@@ -125,10 +126,12 @@ DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
 
 DEFINE VARIABLE lValid AS LOGICAL NO-UNDO.
 
-DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdOutboundProcs  AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
 
 /* Procedure to prepare and execute API calls */
-RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+RUN api/OutboundProcs.p        PERSISTENT SET hdOutboundProcs.
+RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -902,6 +905,8 @@ ON WINDOW-CLOSE OF C-Win /* Print Bills of Lading */
 DO:
     IF VALID-HANDLE(hdOutboundProcs) THEN
         DELETE PROCEDURE hdOutboundProcs.
+    IF VALID-HANDLE(hdInventoryProcs) THEN 
+        DELETE PROCEDURE hdInventoryProcs.    
     /* This event will close the window and terminate the procedure.  */
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     RETURN NO-APPLY.
@@ -980,6 +985,7 @@ DO:
    DEF VAR ll          AS LOG NO-UNDO.
    DEF VAR v-format-str AS CHAR NO-UNDO.
    DEF VAR lv-exception AS LOG NO-UNDO.
+   DEFINE VARIABLE lValidBin AS LOGICAL NO-UNDO.
    /* Initilize temp-table */
    EMPTY TEMP-TABLE tt-filelist.
    EMPTY TEMP-TABLE tt-post.
@@ -1412,23 +1418,43 @@ DO:
                           AND cust.cust-no EQ oe-bolh.cust-no 
                         NO-ERROR.  
                    IF AVAILABLE cust AND oe-boll.s-code EQ "T" THEN DO:
-                           RUN oe/custxship.p(
-                               INPUT oe-bolh.company,
-                               INPUT oe-bolh.cust-no,
-                               INPUT oe-bolh.ship-id,
-                               BUFFER shipto
+                       RUN oe/custxship.p(
+                           INPUT oe-bolh.company,
+                           INPUT oe-bolh.cust-no,
+                           INPUT oe-bolh.ship-id,
+                           BUFFER shipto
+                           ).
+                       IF AVAILABLE shipto THEN DO: 
+                           IF oe-boll.loc EQ shipto.loc THEN DO:    
+                               IF lSingleBOL THEN     
+                                   MESSAGE "BOL" STRING(oe-bolh.bol-no) "Cannot Transfer to the Same Location" oe-boll.loc 
+                                       VIEW-AS ALERT-BOX ERROR.
+                               ELSE 
+                                   RUN pCreatettExceptionBOL(
+                                       INPUT "Cannot transfer to the same location",
+                                       INPUT ROWID(oe-boll)
+                                       ).
+                               DELETE tt-post.
+                               NEXT mainblock.
+                           END. 
+                           RUN ValidateBin IN hdInventoryProcs(
+                               INPUT cocode, 
+                               INPUT shipto.loc,
+                               INPUT shipto.loc-bin, 
+                               OUTPUT lValidBin
                                ).
-                       IF AVAILABLE shipto AND oe-boll.loc EQ shipto.loc THEN DO:      
-                           IF lSingleBOL THEN     
-                               MESSAGE "BOL" STRING(oe-bolh.bol-no) "Cannot Transfer to the Same Location" oe-boll.loc 
-                                   VIEW-AS ALERT-BOX ERROR.
-                           ELSE 
-                               RUN pCreatettExceptionBOL(
-                                   INPUT "Cannot transfer to the same location",
-                                   INPUT ROWID(oe-boll)
-                                   ).
-                           DELETE tt-post.
-                           NEXT mainblock.
+                           IF NOT lValidBin THEN DO:  
+                               IF lSingleBOL THEN 
+                                   MESSAGE "Ship To warehouse/bin location does not exist for BOL# " STRING(oe-bolh.bol-no)
+                                       VIEW-AS ALERT-BOX ERROR.
+                               ELSE 
+                                   RUN pCreatettExceptionBOL(
+                                       INPUT "Ship To warehouse/bin location does not exist",
+                                       INPUT ROWID(oe-boll)
+                                       ).
+                               DELETE tt-post.
+                               NEXT mainblock.                                                          
+                           END.    
                        END.    
                    END.
                
