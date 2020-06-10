@@ -5533,6 +5533,8 @@ DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
           NOT CAN-FIND(FIRST po-ord
                        WHERE po-ord.company EQ oe-ordl.company
                          AND po-ord.po-no   EQ oe-ordl.po-no-po)))) THEN DO:
+        ASSIGN 
+            lMsgResponse = TRUE.
         IF oe-ord.Pricehold THEN
             RUN displayMessageQuestionLog(
                 INPUT "33",
@@ -5555,6 +5557,7 @@ DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
     FIND CURRENT oe-ordl NO-LOCK.
   END.
           
+              
   /* This section is needed because previous calculations of component
      quantities were based on the quantity before it was updated */
     
