@@ -6554,7 +6554,6 @@ PROCEDURE vend-cost :
         END.  /* IF po-ordl.item-type:SCREEN-VALUE EQ "RM" */
         ELSE 
         DO:  /* for "FG" */
-        MESSAGE "ok" SKIP po-ordl.cust-no:SCREEN-VALUE VIEW-AS ALERT-BOX.
             FIND itemfg NO-LOCK 
                 WHERE itemfg.company EQ cocode
                 AND itemfg.i-no EQ po-ordl.i-no:SCREEN-VALUE
@@ -6581,18 +6580,15 @@ PROCEDURE vend-cost :
                 OUTPUT dCostTotal, 
                 OUTPUT lError, 
                 OUTPUT cMessage).        
-MESSAGE dCostPerUOM SKIP lerror SKIP cmessage VIEW-AS ALERT-BOX.
             RUN Conv_ValueFromUOMtoUOM(cocode, 
                 po-ordl.i-no:SCREEN-VALUE, "FG", 
                 dCostPerUOM, cCostUOM, po-ordl.cons-uom:SCREEN-VALUE, 
                 0, DECIMAL(po-ordl.s-len:SCREEN-VALUE),DECIMAL(po-ordl.s-wid:SCREEN-VALUE),DECIMAL(v-po-dep:SCREEN-VALUE),0, 
                 OUTPUT dCostPerUOMCons, OUTPUT lError, OUTPUT cMessage).
- MESSAGE dCostPerUOMCons SKIP lerror SKIP cmessage VIEW-AS ALERT-BOX.
              
         END. /* if item-type ne RM */
         IF ip-calc-cost THEN 
         DO:   
-MESSAGE "ip-calc-cost" VIEW-AS ALERT-BOX.            
             ASSIGN 
                 po-ordl.cost:SCREEN-VALUE      = STRING(dCostPerUOM,po-ordl.cost:FORMAT)
                 po-ordl.setup:SCREEN-VALUE     = STRING(dCostSetup,po-ordl.setup:FORMAT)
