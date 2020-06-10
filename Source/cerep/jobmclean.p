@@ -286,6 +286,7 @@ DEFINE VARIABLE cCaseItem AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCaseSize AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCaseCount AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCasePerPallet AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lPrintSetHeader AS LOGICAL NO-UNDO.
 
 IF reprint EQ NO THEN
     cNewOrderValue = CAPS("NEW ORDER") .
@@ -416,6 +417,9 @@ FOR EACH job-hdr NO-LOCK
     BY job-hdr.job-no
     BY job-hdr.job-no2
     BY job-hdr.frm:
+    
+    IF FIRST-OF(job-hdr.job) THEN
+    lPrintSetHeader = TRUE .
 
     FIND FIRST job
         WHERE job.company EQ cocode
@@ -1145,7 +1149,8 @@ FOR EACH job-hdr NO-LOCK
                                 WHERE ITEM.company EQ ef.company
                                 AND ITEM.i-no EQ ef.board NO-ERROR .
 
-                            IF FIRST(tt-reftable.val[12]) THEN DO: 
+                            IF lPrintSetHeader THEN DO: 
+                                lPrintSetHeader = FALSE.
                                 FOR EACH bff-eb NO-LOCK
                                     WHERE bff-eb.company EQ eb.company
                                     AND bff-eb.est-no EQ eb.est-no
