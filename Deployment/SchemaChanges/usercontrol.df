@@ -1,0 +1,14 @@
+ADD FIELD "inactivityLockout" OF "userControl" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Lock User After (n) Days Inactivity"
+  POSITION 22
+  MAX-WIDTH 4
+  COLUMN-LABEL "InactiveLockout"
+  ORDER 210
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000004435
