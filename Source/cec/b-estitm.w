@@ -7077,19 +7077,12 @@ PROCEDURE pCreateSetEstimate :
  Purpose: Processes ttInputEst temp-table, adding forms to the estimate in context
  Notes:
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-  DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.   
   DEFINE VARIABLE riEb AS ROWID NO-UNDO . 
-  DEFINE VARIABLE iEstReleaseID AS INTEGER NO-UNDO .
-  DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
-  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO .
-  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
-  DEFINE VARIABLE hftp            AS HANDLE    NO-UNDO.
+  
   DEFINE BUFFER bff-eb FOR eb.
   DEF BUFFER bf-eb FOR eb.
-  RUN system/FreightProcs.p PERSISTENT SET hftp.
-  THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftp).
-
+  
   ASSIGN
     ll-new-record = YES
     iCount = 0
@@ -7123,7 +7116,7 @@ PROCEDURE pCreateSetEstimate :
      RUN new_record IN WIDGET-HANDLE(char-hdl)  (riEb).
   END. 
   
-  THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hftp).
+  
   EMPTY TEMP-TABLE tt-eb-set.
 
 END PROCEDURE.
