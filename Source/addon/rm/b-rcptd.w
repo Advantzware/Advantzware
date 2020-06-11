@@ -798,9 +798,10 @@ DO:
         IF lv-do-what EQ 'Delete' THEN
         rm-rctd.qty:SCREEN-VALUE = STRING(DEC(rm-rctd.qty:SCREEN-VALUE) * -1).
         
-        IF v-ssrmscan THEN
-          APPLY "leave" TO rm-rctd.i-no IN BROWSE {&browse-name}.         
-        ELSE IF NOT v-ssrmscan THEN do:
+        
+          APPLY "leave" TO rm-rctd.i-no IN BROWSE {&browse-name}. 
+          
+         IF NOT v-ssrmscan THEN do:
           APPLY "row-leave" TO BROWSE {&browse-name}.    
           RETURN NO-APPLY.
         END.       
