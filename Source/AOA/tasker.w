@@ -913,17 +913,21 @@ PROCEDURE pTasks :
           (Task.endDate   EQ ?   OR Task.endDate   GE TODAY) AND
            dttDateTime    LE NOW)) THEN DO:
             REPOSITION TaskBrowse TO ROWID rRowID.
-            ASSIGN
-                FILE-INFO:FILE-NAME = IF Task.taskType EQ "Jasper" THEN "AOA\runTask.r"
-                                      ELSE "AOA/runTaskU.r" /* DataPA */
-                cRunProgram = FILE-INFO:FULL-PATHNAME
-                .
+            CASE Task.taskType:
+                WHEN "Jasper" THEN
+                FILE-INFO:FILE-NAME = IF Task.runSync THEN "AOA\runSync.r"  ELSE "AOA\runASync.r".
+                OTHERWISE /* Data PA */
+                FILE-INFO:FILE-NAME = IF Task.runSync THEN "AOA\runSyncU.r" ELSE "AOA\runASyncU.r".
+            END CASE.
+            cRunProgram = FILE-INFO:FULL-PATHNAME.
             IF cRunProgram EQ ? THEN
-            ASSIGN
-                FILE-INFO:FILE-NAME = IF Task.taskType EQ "Jasper" THEN "AOA\runTask.p"
-                                      ELSE "AOA/runTaskU.p" /* DataPA */
-                cRunProgram = FILE-INFO:FULL-PATHNAME
-                .
+            CASE Task.taskType:
+                WHEN "Jasper" THEN
+                FILE-INFO:FILE-NAME = IF Task.runSync THEN "AOA\runSync.p"  ELSE "AOA\runASync.p".
+                OTHERWISE /* Data PA */
+                FILE-INFO:FILE-NAME = IF Task.runSync THEN "AOA\runSyncU.p" ELSE "AOA\runASyncU.p".
+            END CASE.
+            cRunProgram = FILE-INFO:FULL-PATHNAME.
             IF cRunProgram NE ? THEN DO:
                 DO TRANSACTION:
                     FIND FIRST bTask EXCLUSIVE-LOCK
@@ -931,13 +935,8 @@ PROCEDURE pTasks :
                     bTask.isRunning = YES.
                     RELEASE bTask.
                 END. /* do trans */
-                IF Task.runSync THEN DO:
-                    cRunProgram = REPLACE(cRunProgram,".","Sync.").
-                    MESSAGE 
-                    "cRunProgram:" cRunProgram
-                    VIEW-AS ALERT-BOX.
-                    RUN VALUE(cRunProgram) (ROWID(Task)).
-                END. /* if runsync */
+                IF Task.runSync THEN
+                RUN VALUE(cRunProgram) (ROWID(Task)).
                 ELSE DO:
                     OS-COMMAND NO-WAIT VALUE(
                             SUBSTITUTE(
