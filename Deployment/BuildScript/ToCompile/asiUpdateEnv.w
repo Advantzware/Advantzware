@@ -3452,6 +3452,14 @@ PROCEDURE ipDeleteAudit :
                 AuditTbl.AuditUpdate = NO
                 AuditTbl.AuditStack  = NO.
         END.
+        IF SEARCH("c:\tmp\auditTbl.e") NE ? THEN DO:  /* Recover the auditTbl file dropped during updateDB audit check */
+            INPUT FROM c:\tmp\auditTbl.d.
+            REPEAT:
+                IMPORT AuditTbl.
+            END.
+            INPUT CLOSE.
+            OS-DELETE c:\tmp\auditTbl.d.
+        END.
     END.
     ELSE DO:
         RUN ipStatus ("    Deleting audit records older than 180 days...").
@@ -4091,6 +4099,23 @@ PROCEDURE ipLoadAuditRecs :
                 CREATE {&tablename}.
                 BUFFER-COPY tt{&tablename} TO {&tablename}.
             END.
+            /* Ensure OUR defaults are set */
+            ASSIGN 
+                {&tableName}.auditCreateDefault = tt{&tableName}.auditCreateDefault
+                {&tableName}.auditUpdateDefault = tt{&tableName}.auditUpdateDefault
+                {&tableName}.auditDeleteDefault = tt{&tableName}.auditDeleteDefault
+                {&tableName}.auditStackDefault = tt{&tableName}.auditStackDefault
+                {&tableName}.ExpireDaysDefault = tt{&tableName}.ExpireDaysDefault
+                .
+            /* and make sure THEIR activation is AT LEAST the default */
+            ASSIGN 
+                {&tableName}.auditCreate = IF {&tableName}.auditCreateDefault THEN TRUE ELSE {&tableName}.auditCreate
+                {&tableName}.auditUpdate = IF {&tableName}.auditUpdateDefault THEN TRUE ELSE {&tableName}.auditUpdate
+                {&tableName}.auditDelete = IF {&tableName}.auditDeleteDefault THEN TRUE ELSE {&tableName}.auditDelete
+                {&tableName}.auditStack = IF {&tableName}.auditStackDefault THEN TRUE ELSE {&tableName}.auditStack
+                {&tableName}.expireDays = IF {&tableName}.ExpireDaysDefault NE 0 THEN {&tableName}.ExpireDaysDefault ELSE {&tableName}.ExpireDays
+                . 
+            
         END.
     END.
     INPUT CLOSE.
