@@ -551,7 +551,8 @@ PROCEDURE pInit :
             .            
     
        FIND FIRST APIOutbound NO-LOCK 
-            WHERE APIOutbound.apiID EQ APIOutboundEvent.apiID 
+            WHERE APIOutbound.apiID    EQ APIOutboundEvent.apiID
+              AND APIOutbound.clientID EQ APIOutboundEvent.clientID		
             NO-ERROR.
        IF AVAILABLE APIOutbound THEN
            ASSIGN
