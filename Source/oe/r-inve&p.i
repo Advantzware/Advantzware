@@ -679,7 +679,7 @@
           ASSIGN
            tt-report.term-id = ""
            tt-report.key-01  = "act-rece"
-           tt-report.key-02  = IF avail cust THEN string(DYNAMIC-FUNCTION("GL_GetAccountAR", cust.company, cust.cust-no)) ELSE v-ar-acct
+           tt-report.key-02  = string(DYNAMIC-FUNCTION("GL_GetAccountAR", inv-head.company, inv-head.cust-no)) 
            tt-report.key-05  = string(inv-head.t-inv-rev - (IF inv-head.terms EQ "CASH" AND inv-head.t-inv-rev NE 0  then inv-head.t-inv-rev else 0))             
            tt-report.key-06  = string(v-line-tot-w - (IF inv-head.terms EQ "CASH" AND inv-head.t-inv-rev NE 0  then v-line-tot-w else 0)) .            
         
