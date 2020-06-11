@@ -1592,6 +1592,7 @@ PROCEDURE list-gl :
     DEFINE VARIABLE v-recid AS RECID INIT ?.
     DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
     DEFINE VARIABLE dRecTot AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTotOffSet AS DECIMAL NO-UNDO.
 
     DEFINE BUFFER b-tt-report FOR tt-report.
 
@@ -2057,7 +2058,8 @@ PROCEDURE list-gl :
 
             v-balance = v-balance + v-disp-amt.
         END.  
-        /** OFFSET ENTRY TO G/L **/         
+        /** OFFSET ENTRY TO G/L **/ 
+        dTotOffSet = 0.
         FOR EACH tt-report
             WHERE tt-report.term-id EQ ""
             AND tt-report.key-01  EQ "act-rece"
@@ -2080,7 +2082,7 @@ PROCEDURE list-gl :
                       v-disp-actnum = tt-report.key-02
                       v-disp-amt    = v-disp-amt + dec(tt-report.key-05)
                       dRecTot       = dRecTot + dec(tt-report.key-06).                 
-
+                      dTotOffSet    = dTotOffSet + dec(tt-report.key-05) . 
                 IF LAST-OF(tt-report.key-02) THEN 
                 DO:
                     IF v-gldetail THEN 
@@ -2126,7 +2128,7 @@ PROCEDURE list-gl :
 
         v-balance = v-balance + v-post-total.   
         IF v-gldetail THEN
-            PUT v-disp-amt TO 128 SKIP
+            PUT dTotOffSet TO 128 SKIP 
                 "---------------"  TO 128 SKIP
                 "Total:" AT 86 v-balance TO 128 SKIP.
         ELSE
