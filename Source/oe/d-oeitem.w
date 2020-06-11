@@ -824,7 +824,7 @@ DEFINE FRAME d-oeitem
           VIEW-AS FILL-IN 
           SIZE 5.8 BY 1
      oe-ordl.spare-dec-1 AT ROW 2.19 COL 51 COLON-ALIGNED WIDGET-ID 18
-          LABEL "Cust" FORMAT "->,>>>,>>9.99"
+          LABEL "Cust" FORMAT "->>,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
      oe-ordl.spare-char-2 AT ROW 2.19 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 16
@@ -1554,7 +1554,8 @@ DO:
           END.
 
           FIND FIRST eb WHERE eb.company = cocode AND
-                              eb.est-no = oe-ordl.est-no:screen-value
+                              eb.est-no = oe-ordl.est-no:screen-value AND
+                              eb.est-no NE ""
                           AND eb.cust-no = oe-ord.cust-no
                           AND ((eb.est-type = 1 AND eb.form-no <> 0) OR
                                (eb.est-type = 2 AND eb.form-no = 0) OR
