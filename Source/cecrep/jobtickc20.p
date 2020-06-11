@@ -689,7 +689,7 @@ DO v-local-loop = 1 TO v-local-copies:
       
          /* dept notes */
         ASSIGN
-           v-note-length   = 100
+           v-note-length   = 91
            v-tmp-lines     = 0
            j               = 0
            K               = 0
