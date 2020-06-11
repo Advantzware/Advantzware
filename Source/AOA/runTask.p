@@ -1,6 +1,6 @@
 /* runTask.p - rstark - 12.14.2018 */
 
-/* prowin.exe spawned by tasker.w monitor */
+DEFINE INPUT PARAMETER iprRowID AS ROWID NO-UNDO.
 
 DEFINE VARIABLE cAppSrv     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
@@ -10,24 +10,15 @@ DEFINE VARIABLE hAppSrv     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hAppSrvBin  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hJasper     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iAuditID    AS INTEGER   NO-UNDO.
-DEFINE VARIABLE rRowID      AS ROWID     NO-UNDO.
-DEFINE VARIABLE hSession    AS HANDLE    NO-UNDO.
 
 {AOA/includes/pCalcNextRun.i}
-
-ASSIGN
-    PROPATH = ENTRY(1,SESSION:PARAMETER,"+")
-    rRowID  = TO-ROWID(ENTRY(2,SESSION:PARAMETER,"+"))
-    .
-RUN system/session.p PERSISTENT SET hSession.
-SESSION:ADD-SUPER-PROCEDURE (hSession).
 
 FIND FIRST emailConfig NO-LOCK
      WHERE emailConfig.configID EQ 1
        AND emailConfig.isActive EQ YES
      NO-ERROR.
 FIND FIRST config NO-LOCK NO-ERROR.
-FIND FIRST Task NO-LOCK WHERE ROWID(Task) EQ rRowID.
+FIND FIRST Task NO-LOCK WHERE ROWID(Task) EQ iprRowID.
 
 FIND FIRST dynParamValue NO-LOCK
      WHERE dynParamValue.subjectID    EQ Task.subjectID
@@ -172,15 +163,12 @@ ELSE DO:
         ).
 END. /* else dynParamValue */
 
-DELETE PROCEDURE hSession.
 IF VALID-HANDLE(hAppSrvBin) THEN
 DELETE PROCEDURE hAppSrvBin.
 IF VALID-HANDLE(hAppSrv) THEN
 DELETE PROCEDURE hAppSrv.
 IF VALID-HANDLE(hJasper) THEN
 DELETE PROCEDURE hJasper.
-
-QUIT.
 
 PROCEDURE pCreateAuditHdr:
     RUN spCreateAuditHdr (
