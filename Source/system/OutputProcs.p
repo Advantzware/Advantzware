@@ -282,15 +282,31 @@ PROCEDURE TempTableToCSV:
     DEFINE VARIABLE iIndex  AS INTEGER   NO-UNDO. 
     DEFINE VARIABLE eIndex  AS INTEGER   NO-UNDO. 
     DEFINE VARIABLE cTTName AS CHARACTER NO-UNDO. 
+    
+    DEFINE VARIABLE cFullFilePath AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.     
         
     ASSIGN
         cTTName = iphTT:NAME
         hBuffer = iphTT:DEFAULT-BUFFER-HANDLE
         .
 
+    RUN FileSys_GetUniqueFileName (
+        INPUT  ipcFileName,    
+        OUTPUT cFullFilePath, 
+        OUTPUT lSuccess, 
+        OUTPUT cMessage  
+        ). 
+    IF NOT lSuccess THEN DO:
+        MESSAGE cMessage
+            VIEW-AS ALERT-BOX ERROR. 
+        RETURN.
+    END.
+    
     IF iplHeader THEN 
-    DO:
-        OUTPUT STREAM sOutput to VALUE(ipcFileName). 
+    DO:                     
+        OUTPUT STREAM sOutput to VALUE(cFullFilePath). 
         DO iIndex = 1 TO hBuffer:NUM-FIELDS: 
             IF hBuffer:BUFFER-FIELD(iIndex):EXTENT GT 0 THEN DO:
                 DO eIndex = 1 to hBuffer:BUFFER-FIELD(iIndex):EXTENT:
@@ -305,7 +321,7 @@ PROCEDURE TempTableToCSV:
         PUT STREAM sOutput UNFORMATTED SKIP. 
     END.
     ELSE 
-        OUTPUT STREAM sOutput to VALUE(ipcFileName) APPEND. 
+        OUTPUT STREAM sOutput to VALUE(cFullFilePath) APPEND. 
         
     CREATE QUERY hQuery. 
     hQuery:SET-BUFFERS (hBuffer). 
