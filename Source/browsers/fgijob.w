@@ -807,6 +807,7 @@ PROCEDURE build-table :
             w-job.tagStatusID          = w-jobs.tagStatusID
             w-job.tagStatusDescription = w-jobs.tagStatusDescription
             w-job.onHold               = w-jobs.onHold
+            w-job.ship-default         = w-jobs.ship-default
             .
 
         IF w-job.job-no-disp EQ "-00" THEN w-job.job-no-disp = "".
@@ -922,6 +923,7 @@ PROCEDURE createWJobs :
         w-jobs.tagStatusID          = fg-bin.statusID
         w-jobs.tagStatusDescription = cStatusDescription
         w-jobs.onHold               = fg-bin.onHold
+        w-jobs.ship-default         = fg-bin.ship-default
         .
       
     FIND FIRST job-hdr NO-LOCK
