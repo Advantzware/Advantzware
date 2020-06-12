@@ -25,6 +25,10 @@
         ipbf-{&TableName}.costTotalBoard = ipbf-{&TableName}.costTotalBoard + ipdCost.
     IF ipbf-estCostCategory.includeInLaborCost THEN 
         ipbf-{&TableName}.costTotalLabor = ipbf-{&TableName}.costTotalLabor + ipdCost.
+    IF ipbf-estCostCategory.includeInVariableOverheadCost THEN 
+        ipbf-{&TableName}.costTotalVariableOverhead = ipbf-{&TableName}.costTotalVariableOverhead + ipdCost.
+    IF ipbf-estCostCategory.includeInFixedOverheadCost THEN 
+        ipbf-{&TableName}.costTotalFixedOverhead = ipbf-{&TableName}.costTotalFixedOverhead + ipdCost.
     IF ipbf-estCostCategory.includeInMaterialCost THEN        
         ipbf-{&TableName}.costTotalMaterial = ipbf-{&TableName}.costTotalMaterial + ipdCost.
     IF ipbf-estCostCategory.includeInFactoryCost THEN 
