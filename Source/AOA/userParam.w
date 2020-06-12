@@ -596,7 +596,10 @@ PROCEDURE local-view :
   RUN pShowParameterSets.
   ENABLE {&outputObjects} WITH FRAME outputFrame.
   ASSIGN
-      btnSave:HIDDEN = NOT AVAILABLE dynParamValue OR dynParamValue.user-id EQ "_default"
+      btnSave:HIDDEN = NOT AVAILABLE dynParamValue OR
+                       dynParamValue.user-id EQ "_default" OR
+                      (DYNAMIC-FUNCTION("sfIsUserSuperAdmin") EQ NO AND
+                       dynParamValue.user-id NE USERID("ASI"))
       btnVisibleSets:HIDDEN = btnSave:HIDDEN
       .
 
