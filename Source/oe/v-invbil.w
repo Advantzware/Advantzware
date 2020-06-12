@@ -401,6 +401,7 @@ PROCEDURE local-update-record :
   DEFINE VARIABLE lUpdNotes AS LOGICAL NO-UNDO.
   DEFINE BUFFER bf-head FOR inv-head .
   
+  lUpdNotes = YES.
   FIND FIRST cust WHERE
             cust.company EQ inv-head.company AND
             cust.cust-no EQ inv-head.cust-no
