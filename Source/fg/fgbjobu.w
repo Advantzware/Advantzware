@@ -95,11 +95,12 @@ IF lRecFound THEN
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnCancel ld-v1 ld-v4 btnOK ld-v3 ld-v11 ~
-ld-v5 ld-v6 ld-v7 ld-v8 ld-v9 ld-v10 cb_reatype 
+&Scoped-Define ENABLED-OBJECTS btnCancel btnOK ld-v1 ld-v7 ld-v4 ld-v8 ~
+ld-v9 ld-v3 ld-v10 ld-v11 cb_reatype ld-v5 ld-v6  
 &Scoped-Define DISPLAYED-OBJECTS ld-job ld-cust-no ld-po ld-whse ld-bin ~
-ld-tag ld-v1 ld-v4 ld-sell-uom ld-v3 ld-v11 ld-v2 ld-v5 ld-v6 ld-tot-wt ~
-ld-v7 ld-v8 ld-v9 ld-v10 ld-v12 cb_reatype 
+ld-tag lbl_sort-2 ld-v1 ld-v7 ld-v4 ld-v8 ld-sell-uom ld-v9 ld-v3 ld-v10 ~
+ld-v11 ld-v12 lbl_sort tb_lock-cost ld-v2 cb_reatype ld-v5 ld-v6 ld-tot-wt ~
+fiStatusID ld-tag-status-desc lbl_sort-3 tb_onhold 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -127,11 +128,23 @@ DEFINE BUTTON btnOK AUTO-GO
      BGCOLOR 8 .
 
 DEFINE VARIABLE cb_reatype AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Adjustment Reason:" 
+     LABEL "Adjustment Reason" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      DROP-DOWN-LIST
      SIZE 30 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE lbl_sort AS CHARACTER FORMAT "X(256)":U INITIAL "Lock Cost:" 
+     VIEW-AS FILL-IN 
+     SIZE 13.6 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lbl_sort-2 AS CHARACTER FORMAT "X(256)":U INITIAL "Cost Details" 
+     VIEW-AS FILL-IN 
+     SIZE 19 BY .71 NO-UNDO.
+
+DEFINE VARIABLE lbl_sort-3 AS CHARACTER FORMAT "X(256)":U INITIAL "On Hold:" 
+     VIEW-AS FILL-IN 
+     SIZE 11 BY 1 NO-UNDO.
 
 DEFINE VARIABLE ld-bin AS CHARACTER FORMAT "X(8)":U 
      LABEL "Bin" 
@@ -167,6 +180,17 @@ DEFINE VARIABLE ld-tag AS CHARACTER FORMAT "X(20)":U
      LABEL "Tag" 
      VIEW-AS FILL-IN 
      SIZE 30 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE fiStatusID AS CHARACTER FORMAT "X(10)" 
+     LABEL "Tag Status" 
+     VIEW-AS FILL-IN 
+     SIZE 12.8 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE ld-tag-status-desc AS CHARACTER FORMAT "X(35)" 
+     VIEW-AS FILL-IN 
+     SIZE 32.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE ld-tot-wt AS DECIMAL FORMAT ">>,>>9.99" INITIAL 0 
@@ -255,12 +279,26 @@ DEFINE VARIABLE ld-whse AS CHARACTER FORMAT "X(5)":U
 
 DEFINE RECTANGLE RECT-27
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 57 BY 25.24.
+     SIZE 101 BY 20.95.
 
 DEFINE RECTANGLE RECT-28
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 19 BY 2.38
      BGCOLOR 15 .
+
+DEFINE RECTANGLE RECT-29
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE 37 BY 1.19.
+
+DEFINE VARIABLE tb_lock-cost AS LOGICAL INITIAL no 
+     LABEL "" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 4 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_onhold AS LOGICAL INITIAL no 
+     LABEL "" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 4 BY 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -272,7 +310,7 @@ DEFINE QUERY D-Dialog FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     btnCancel AT ROW 26.95 COL 50
+     btnCancel AT ROW 22.71 COL 50
      ld-job AT ROW 1.48 COL 26 COLON-ALIGNED
      ld-cust-no AT ROW 2.67 COL 26 COLON-ALIGNED HELP
           "Enter Customer Number" WIDGET-ID 16
@@ -280,26 +318,36 @@ DEFINE FRAME D-Dialog
      ld-whse AT ROW 5.05 COL 26 COLON-ALIGNED
      ld-bin AT ROW 6.24 COL 26 COLON-ALIGNED
      ld-tag AT ROW 7.43 COL 26 COLON-ALIGNED
+     lbl_sort-2 AT ROW 7.43 COL 70.2 COLON-ALIGNED NO-LABEL WIDGET-ID 28
+     btnOK AT ROW 22.71 COL 41
      ld-v1 AT ROW 8.62 COL 26 COLON-ALIGNED
+     ld-v7 AT ROW 8.62 COL 69 COLON-ALIGNED
      ld-v4 AT ROW 9.81 COL 26 COLON-ALIGNED
+     ld-v8 AT ROW 9.81 COL 69 COLON-ALIGNED
      ld-sell-uom AT ROW 11 COL 26 COLON-ALIGNED HELP
           "Enter Selling Unit Of Measure (Ea,M,TON,MSF,MSI,MLI,LBS)" WIDGET-ID 18
-     btnOK AT ROW 26.95 COL 41
+     ld-v9 AT ROW 11 COL 69 COLON-ALIGNED
      ld-v3 AT ROW 12.19 COL 26 COLON-ALIGNED
+     ld-v10 AT ROW 12.19 COL 69 COLON-ALIGNED
      ld-v11 AT ROW 13.38 COL 26 COLON-ALIGNED
+     ld-v12 AT ROW 13.38 COL 69 COLON-ALIGNED
+     lbl_sort AT ROW 14.38 COL 55.2 COLON-ALIGNED NO-LABEL WIDGET-ID 26
+     tb_lock-cost AT ROW 14.43 COL 73.2 WIDGET-ID 24
      ld-v2 AT ROW 14.57 COL 26 COLON-ALIGNED
+     cb_reatype AT ROW 15.62 COL 69 COLON-ALIGNED WIDGET-ID 12
      ld-v5 AT ROW 15.76 COL 26 COLON-ALIGNED
      ld-v6 AT ROW 16.95 COL 26 COLON-ALIGNED
      ld-tot-wt AT ROW 18.14 COL 26 COLON-ALIGNED HELP
           "Enter Total Weight" WIDGET-ID 20
-     ld-v7 AT ROW 19.33 COL 26 COLON-ALIGNED
-     ld-v8 AT ROW 20.52 COL 26 COLON-ALIGNED
-     ld-v9 AT ROW 21.71 COL 26 COLON-ALIGNED
-     ld-v10 AT ROW 22.91 COL 26 COLON-ALIGNED
-     ld-v12 AT ROW 24.1 COL 26 COLON-ALIGNED
-     cb_reatype AT ROW 25.29 COL 26 COLON-ALIGNED WIDGET-ID 12
+     fiStatusID AT ROW 19.38 COL 26 COLON-ALIGNED HELP
+          "Enter Tag Status" WIDGET-ID 30
+     ld-tag-status-desc AT ROW 19.43 COL 39.4 COLON-ALIGNED NO-LABEL WIDGET-ID 32
+     lbl_sort-3 AT ROW 20.71 COL 14 COLON-ALIGNED NO-LABEL WIDGET-ID 34
+     tb_onhold AT ROW 20.76 COL 30 WIDGET-ID 36
      RECT-27 AT ROW 1.24 COL 2
-     RECT-28 AT ROW 26.71 COL 40 WIDGET-ID 14
+     RECT-28 AT ROW 22.48 COL 40 WIDGET-ID 14
+     RECT-29 AT ROW 7.19 COL 63 WIDGET-ID 22
+     SPACE(5.79) SKIP(16.85)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -337,6 +385,16 @@ ASSIGN
        FRAME D-Dialog:SCROLLABLE       = FALSE
        FRAME D-Dialog:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN lbl_sort IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       lbl_sort:PRIVATE-DATA IN FRAME D-Dialog     = 
+                "rd_sort".
+
+/* SETTINGS FOR FILL-IN lbl_sort-2 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN lbl_sort-3 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ld-bin IN FRAME D-Dialog
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ld-cust-no IN FRAME D-Dialog
@@ -349,8 +407,16 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ld-tag IN FRAME D-Dialog
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN ld-tag-status-desc IN FRAME D-Dialog
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ld-tot-wt IN FRAME D-Dialog
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiStatusID IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN tb_lock-cost IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN tb_onhold IN FRAME D-Dialog
+   NO-ENABLE                                                            */   
 /* SETTINGS FOR FILL-IN ld-v12 IN FRAME D-Dialog
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ld-v2 IN FRAME D-Dialog
@@ -361,6 +427,16 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-28 IN FRAME D-Dialog
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-29 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       tb_lock-cost:PRIVATE-DATA IN FRAME D-Dialog     = 
+                "parm".
+
+ASSIGN 
+       tb_onhold:PRIVATE-DATA IN FRAME D-Dialog     = 
+                "parm".
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -413,6 +489,7 @@ DO:
     DEFINE VARIABLE lv-part     LIKE fg-bin.partial-count NO-UNDO.
     DEFINE VARIABLE ll-changed  AS LOG       NO-UNDO.
     DEFINE VARIABLE cReasonCode AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO.
 
     DEFINE BUFFER b-fg-bin FOR fg-bin.
 
@@ -425,10 +502,16 @@ DO:
             ld-cust-no
             ld-sell-uom
             ld-tot-wt
+            fiStatusID tb_onhold tb_lock-cost ld-tag-status-desc
             .
     END.
     ASSIGN 
         cReasonCode = cb_reatype:SCREEN-VALUE IN FRAME {&frame-name} .
+    IF fiStatusID NE ""  THEN DO: 
+         
+        RUN valid-status(OUTPUT lCheckError).
+        IF lCheckError THEN RETURN NO-APPLY.           
+    END.    
 
     IF NOT AVAILABLE w-job THEN RETURN.
 
@@ -456,7 +539,17 @@ DO:
         w-job.cust-no       = ld-cust-no
         w-job.sell-uom      = ld-sell-uom
         w-job.tot-wt        = ld-tot-wt
+        w-job.tagStatusID   = fiStatusID        
+        w-job.onHold        = tb_onhold
+        w-job.ship-default  = tb_lock-cost
+        w-job.tagStatusDescription = ld-tag-status-desc
         .
+        FIND FIRST inventoryStatusType NO-LOCK
+           WHERE inventoryStatusType.statusId EQ fiStatusID NO-ERROR.
+           IF AVAIL inventoryStatusType THEN
+           DO:
+             w-job.tagStatusDescription = ld-tag-status-desc . 
+           END.        
     FIND FIRST fg-bin
         WHERE fg-bin.company  EQ cocode
           AND fg-bin.i-no     EQ w-job.i-no
@@ -488,6 +581,9 @@ DO:
             fg-bin.avg-cost     = w-job.std-tot-cost
             fg-bin.last-cost    = w-job.std-tot-cost
             fg-bin.tot-wt       = w-job.tot-wt
+            fg-bin.statusID     = w-job.tagStatusID
+            fg-bin.onHold       = w-job.onHold
+            fg-bin.ship-default = w-job.ship-default
             .
         FOR EACH loadtag
             WHERE loadtag.company      EQ fg-bin.company
@@ -783,6 +879,43 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_lock-cost
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_lock-cost D-Dialog
+ON VALUE-CHANGED OF tb_lock-cost IN FRAME D-Dialog
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_onhold
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_onhold D-Dialog
+ON VALUE-CHANGED OF tb_onhold IN FRAME D-Dialog
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME fiStatusID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiStatusID D-Dialog
+ON LEAVE OF fiStatusID IN FRAME D-Dialog /* tag status description */
+DO:
+    DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO.
+    IF fiStatusID:SCREEN-VALUE NE ""  THEN DO: 
+         
+        RUN valid-status(OUTPUT lCheckError).
+        IF lCheckError THEN RETURN NO-APPLY.           
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK D-Dialog 
@@ -837,6 +970,13 @@ IF AVAILABLE w-job THEN DO:
         ld-cust-no:SENSITIVE  = lAccess1
         ld-sell-uom:SENSITIVE = NO 
         ld-tot-wt:SENSITIVE   = lAccess1 AND lAccess2
+        fiStatusID:SENSITIVE  = lAccess1 AND lAccess2
+        tb_onhold:SENSITIVE   = lAccess1 AND lAccess2
+        tb_lock-cost:SENSITIVE = lAccess1 AND lAccess2
+        fiStatusID   = w-job.tagStatusID       
+        tb_onhold       = w-job.onHold
+        tb_lock-cost  = w-job.ship-default
+        ld-tag-status-desc = w-job.tagStatusDescription 
         .
     RUN build-type-list .
 
@@ -987,12 +1127,13 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY ld-job ld-cust-no ld-po ld-whse ld-bin ld-tag ld-v1 ld-v4 ld-sell-uom 
-          ld-v3 ld-v11 ld-v2 ld-v5 ld-v6 ld-tot-wt ld-v7 ld-v8 ld-v9 ld-v10 
-          ld-v12 cb_reatype 
+  DISPLAY ld-job ld-cust-no ld-po ld-whse ld-bin ld-tag lbl_sort-2 ld-v1 ld-v7 
+          ld-v4 ld-v8 ld-sell-uom ld-v9 ld-v3 ld-v10 ld-v11 ld-v12 lbl_sort 
+          tb_lock-cost ld-v2 cb_reatype ld-v5 ld-v6 ld-tot-wt fiStatusID 
+          ld-tag-status-desc lbl_sort-3 tb_onhold 
       WITH FRAME D-Dialog.
-  ENABLE btnCancel ld-v1 ld-v4 btnOK ld-v3 ld-v11 ld-v5 ld-v6 ld-v7 ld-v8 ld-v9 
-         ld-v10 cb_reatype 
+  ENABLE btnCancel btnOK ld-v1 ld-v7 ld-v4 ld-v8 ld-v9 ld-v3 ld-v10 ld-v11 
+         cb_reatype ld-v5 ld-v6 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -1033,6 +1174,38 @@ PROCEDURE state-changed :
     -------------------------------------------------------------*/
     DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE NO-UNDO.
     DEFINE INPUT PARAMETER p-state AS CHARACTER NO-UNDO.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-status D-Dialog 
+PROCEDURE valid-status :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+  
+
+  DO WITH FRAME {&frame-name}:
+    FIND FIRST inventoryStatusType NO-LOCK
+         WHERE inventoryStatusType.statusId EQ fiStatusID:SCREEN-VALUE NO-ERROR.
+           IF AVAIL inventoryStatusType THEN
+           DO:
+             ld-tag-status-desc:SCREEN-VALUE = inventoryStatusType.DESCRIPTION . 
+           END.
+           IF NOT AVAIL inventoryStatusType THEN
+           DO:
+             MESSAGE "Invalid Tag Status. Try Help." VIEW-AS ALERT-BOX INFO.
+             oplReturnError = TRUE.
+             APPLY "entry" TO fiStatusID .
+           END.
+           
+  END.       
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

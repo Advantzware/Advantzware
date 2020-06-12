@@ -41,9 +41,10 @@ DEFINE {1} TEMP-TABLE w-job NO-UNDO
   FIELD bol-qty AS           INTEGER FORMAT "->>>,>>9"
   FIELD avl-qty AS           INTEGER FORMAT "->>>,>>9"
   FIELD tot-wt               LIKE fg-bin.tot-wt
-  FIELD tagStatusID          AS CHARACTER FORMAT "X(32)"
-  FIELD tagStatusDescription AS CHARACTER FORMAT "X(4)"
+  FIELD tagStatusID          AS CHARACTER FORMAT "X(4)"
+  FIELD tagStatusDescription AS CHARACTER FORMAT "X(32)"
   FIELD onHold               AS LOGICAL 
+  FIELD ship-default         AS LOGICAL
   INDEX w-job job-no job-no2 loc loc-bin tag.
 
 
