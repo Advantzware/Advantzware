@@ -5708,12 +5708,12 @@ PROCEDURE valid-eb-reckey :
                           RECID(bf-eb) <> RECID(eb) NO-LOCK NO-ERROR.
    IF AVAIL bf-eb OR eb.rec_key = "" THEN DO:
       ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey").
-      FIND CURRENT eb.
+      FIND CURRENT eb EXCLUSIVE-LOCK.
       eb.rec_key = ls-key.
       FIND CURRENT eb NO-LOCK.               
-      CREATE rec_key.
-      ASSIGN rec_key.rec_key = eb.rec_key
-             rec_key.table_name = "eb".
+/*      CREATE rec_key.                    */
+/*      ASSIGN rec_key.rec_key = eb.rec_key*/
+/*             rec_key.table_name = "eb".  */
 
    END.
  

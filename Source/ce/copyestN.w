@@ -1114,9 +1114,9 @@ PROCEDURE run-process :
       no-lock no-error.
 
   ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey").
-  create rec_key.
-  assign rec_key.rec_key = ls-key
-         rec_key.table_name = "EST".
+/*  create rec_key.                   */
+/*  assign rec_key.rec_key = ls-key   */
+/*         rec_key.table_name = "EST".*/
 
   create kest.
   buffer-copy est to kest

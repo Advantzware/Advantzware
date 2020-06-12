@@ -486,6 +486,7 @@ PROCEDURE local-create-record :
       LEAVE.
   END.
 
+  IF AVAILABLE shifts THEN
   ASSIGN shift_break.company = shifts.company
          shift_break.shift = shifts.shift
          shift_break.seq = lv-seq + 1

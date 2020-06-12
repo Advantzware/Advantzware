@@ -700,9 +700,9 @@ PROCEDURE local-assign-record :
          ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey")
          asi.rec_key = ls-key
          .               
-     create rec_key.
-     assign rec_key.rec_key = asi.rec_key
-            rec_key.table_name = "asi".
+/*     create rec_key.                     */
+/*     assign rec_key.rec_key = asi.rec_key*/
+/*            rec_key.table_name = "asi".  */
 
   END.
 
