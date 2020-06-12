@@ -59,15 +59,15 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR inv-head.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS inv-head.bill-i[1] inv-head.bill-i[2] ~
-inv-head.bill-i[3] inv-head.bill-i[4] inv-head.spare-char-5 
+&Scoped-Define ENABLED-FIELDS  inv-head.spare-char-5 
 &Scoped-define ENABLED-TABLES inv-head
 &Scoped-define FIRST-ENABLED-TABLE inv-head
-&Scoped-Define ENABLED-OBJECTS RECT-42 RECT-43 
-&Scoped-Define DISPLAYED-FIELDS inv-head.bill-i[1] inv-head.bill-i[2] ~
-inv-head.bill-i[3] inv-head.bill-i[4] inv-head.spare-char-5 
+&Scoped-Define ENABLED-OBJECTS RECT-42 RECT-43 cBillNotes1 cBillNotes2 ~
+cBillNotes3 cBillNotes4 
+&Scoped-Define DISPLAYED-FIELDS inv-head.spare-char-5 
 &Scoped-define DISPLAYED-TABLES inv-head
 &Scoped-define FIRST-DISPLAYED-TABLE inv-head
+&Scoped-Define DISPLAYED-OBJECTS cBillNotes1 cBillNotes2 cBillNotes3 cBillNotes4
 
 
 /* Custom List Definitions                                              */
@@ -110,23 +110,32 @@ DEFINE RECTANGLE RECT-42
 DEFINE RECTANGLE RECT-43
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 109 BY 2.19.
+     
+ 
+DEFINE VARIABLE cBillNotes1 AS CHARACTER FORMAT "x(60)" 
+     VIEW-AS FILL-IN 
+     SIZE 99 BY 1 .
+     
+DEFINE VARIABLE cBillNotes2 AS CHARACTER FORMAT "x(60)" 
+     VIEW-AS FILL-IN 
+     SIZE 99 BY 1 .
+     
+DEFINE VARIABLE cBillNotes3 AS CHARACTER FORMAT "x(60)" 
+     VIEW-AS FILL-IN 
+     SIZE 99 BY 1 .
+     
+DEFINE VARIABLE cBillNotes4 AS CHARACTER FORMAT "x(60)" 
+     VIEW-AS FILL-IN 
+     SIZE 99 BY 1 .     
 
 
 /* ************************  Frame Definitions  *********************** */
 
-DEFINE FRAME F-Main
-     inv-head.bill-i[1] AT ROW 1.95 COL 5 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 99 BY 1
-     inv-head.bill-i[2] AT ROW 2.91 COL 5 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 99 BY 1
-     inv-head.bill-i[3] AT ROW 3.95 COL 5 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 99 BY 1
-     inv-head.bill-i[4] AT ROW 4.95 COL 5 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 99 BY 1
+DEFINE FRAME F-Main     
+     cBillNotes1 AT ROW 1.95 COL 5 COLON-ALIGNED NO-LABEL     
+     cBillNotes2 AT ROW 2.91 COL 5 COLON-ALIGNED NO-LABEL
+     cBillNotes3 AT ROW 3.95 COL 5 COLON-ALIGNED NO-LABEL
+     cBillNotes4 AT ROW 4.95 COL 5 COLON-ALIGNED NO-LABEL
      inv-head.spare-char-5 AT ROW 7.14 COL 7.6 NO-LABEL WIDGET-ID 4 FORMAT "x(60)"
           VIEW-AS FILL-IN 
           SIZE 99 BY 1
@@ -211,7 +220,6 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -256,6 +264,209 @@ PROCEDURE adm-row-available :
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
+PROCEDURE local-assign-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE BUFFER bf-inv-head FOR inv-head.
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+ 
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  FIND FIRST cust NO-LOCK 
+         WHERE cust.company EQ inv-head.company
+         AND cust.cust-no EQ inv-head.cust-no NO-ERROR .
+         
+   IF AVAIL inv-head THEN DO:  
+       FIND CURRENT inv-head EXCLUSIVE-LOCK NO-ERROR .
+       ASSIGN 
+           inv-head.bill-i[1] = cBillNotes1
+           inv-head.bill-i[2] = cBillNotes2
+           inv-head.bill-i[3] = cBillNotes3
+           inv-head.bill-i[4] = cBillNotes4.    
+       FIND CURRENT inv-head NO-LOCK NO-ERROR .    
+    END.        
+         
+  IF AVAIL cust AND cust.inv-meth EQ ? THEN do:        
+     FIND FIRST bf-inv-head  EXCLUSIVE-LOCK
+         WHERE bf-inv-head.company EQ inv-head.company
+         AND bf-inv-head.bol-no EQ inv-head.bol-no
+         AND bf-inv-head.cust-no EQ inv-head.cust-no
+         AND bf-inv-head.multi-invoice NO-ERROR.
+         IF AVAIL bf-inv-head THEN
+         DO:   
+           ASSIGN 
+           bf-inv-head.bill-i[1] = cBillNotes1
+           bf-inv-head.bill-i[2] = cBillNotes2
+           bf-inv-head.bill-i[3] = cBillNotes3
+           bf-inv-head.bill-i[4] = cBillNotes4.             
+         END.  
+         RELEASE bf-inv-head .
+    END.
+    
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win 
+PROCEDURE local-cancel-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DO WITH FRAME {&FRAME-NAME}:
+    DISABLE  cBillNotes1 cBillNotes2 cBillNotes3 cBillNotes4.
+ END. 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
+PROCEDURE local-display-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE BUFFER bf-inv-head FOR inv-head.
+  /* Code placed here will execute PRIOR to standard behavior. */
+  
+    /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DO WITH FRAME {&FRAME-NAME}:
+    DISABLE  cBillNotes1 cBillNotes2 cBillNotes3 cBillNotes4.
+    FIND FIRST cust NO-LOCK 
+         WHERE cust.company EQ inv-head.company
+         AND cust.cust-no EQ inv-head.cust-no NO-ERROR .
+         
+    IF AVAIL inv-head AND AVAIL cust AND cust.inv-meth EQ ? THEN do:        
+     FIND FIRST bf-inv-head  NO-LOCK
+         WHERE bf-inv-head.company EQ inv-head.company
+         AND bf-inv-head.bol-no EQ inv-head.bol-no
+         AND bf-inv-head.cust-no EQ inv-head.cust-no
+         AND bf-inv-head.multi-invoice NO-ERROR.
+         IF AVAIL bf-inv-head THEN
+         DO:
+           ASSIGN 
+           cBillNotes1 = bf-inv-head.bill-i[1]
+           cBillNotes2 = bf-inv-head.bill-i[2]
+           cBillNotes3 = bf-inv-head.bill-i[3]
+           cBillNotes4 = bf-inv-head.bill-i[4] .             
+         END.                
+    END.
+    ELSE IF AVAIL inv-head THEN DO:  
+       ASSIGN 
+           cBillNotes1 = inv-head.bill-i[1]
+           cBillNotes2 = inv-head.bill-i[2]
+           cBillNotes3 = inv-head.bill-i[3]
+           cBillNotes4 = inv-head.bill-i[4] .      
+    END.
+    DISPLAY cBillNotes1 cBillNotes2 cBillNotes3 cBillNotes4.
+  END.      
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
+PROCEDURE local-update-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lUpdNotes AS LOGICAL NO-UNDO.
+  DEFINE BUFFER bf-head FOR inv-head .
+  
+  lUpdNotes = YES.
+  FIND FIRST cust WHERE
+            cust.company EQ inv-head.company AND
+            cust.cust-no EQ inv-head.cust-no
+            NO-LOCK NO-ERROR.
+            
+  IF AVAIL cust AND cust.inv-meth EQ ? AND AVAIL inv-head AND inv-head.inv-no EQ 0 THEN
+  DO:
+     MESSAGE "You are editing bill notes on an invoice for a customer that invoices per user selection."
+     "Editing these bill notes will change bill notes for all unprinted invoices for this customer.  Continue?"
+         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+         UPDATE lUpdNotes.  
+  END.
+  IF NOT lUpdNotes THEN RETURN .  
+  
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN  cBillNotes1 cBillNotes2 cBillNotes3 cBillNotes4.
+  END.
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  
+  IF lUpdNotes AND AVAIL cust AND cust.inv-meth EQ ? 
+     AND AVAIL inv-head AND inv-head.inv-no EQ 0 THEN
+  DO:
+     FOR EACH bf-head WHERE
+         bf-head.company EQ inv-head.company AND
+         bf-head.cust-no EQ inv-head.cust-no AND
+         ROWID(bf-head) NE ROWID(inv-head) AND
+         bf-head.inv-no EQ 0:           
+          ASSIGN 
+           bf-head.bill-i[1] = inv-head.bill-i[1]
+           bf-head.bill-i[1] = inv-head.bill-i[2]
+           bf-head.bill-i[1] = inv-head.bill-i[3]
+           bf-head.bill-i[1] = inv-head.bill-i[4] .              
+     END.  
+  END.
+
+ DO WITH FRAME {&FRAME-NAME}:
+    DISABLE  cBillNotes1 cBillNotes2 cBillNotes3 cBillNotes4.
+ END.   
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields V-table-Win 
+PROCEDURE local-enable-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */  
+  
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DO WITH FRAME {&FRAME-NAME}:
+    ENABLE  cBillNotes1 cBillNotes2 cBillNotes3 cBillNotes4.
+ END. 
+ 
 
 END PROCEDURE.
 
