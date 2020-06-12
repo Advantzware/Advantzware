@@ -1080,17 +1080,34 @@ ASSIGN
             "<=1><R+26><C33>" v-dept-note[18] FORM "x(39)" /*"  " /* v-dept-note[43]*/ */
             "<=1><R+27><C33>" v-dept-note[19] FORM "x(39)" /*"  " /*v-dept-note[44]*/   */
             "<=1><R+28><C33>" v-dept-note[20] FORM "x(39)" /*"  " /* v-dept-note[45] */  */
-            /*"<=1><R+29><C33>" v-dept-note[21] FORM "x(39)" 
-            "<=1><R+30><C33>" v-dept-note[22] FORM "x(39)" 
-            "<=1><R+31><C33>" v-dept-note[23] FORM "x(39)" 
-            "<=1><R+32><C33>" v-dept-note[24] FORM "x(39)" 
-            "<=1><R+33><C33>" v-dept-note[25] FORM "x(39)"
-            "<=1><R+34><C33>" v-dept-note[26] FORM "x(39)"
-            "<=1><R+35><C33>" v-dept-note[27] FORM "x(39)"
-            "<=1><R+36><C33>" v-dept-note[28] FORM "x(39)"
-            "<=1><R+37><C33>" v-dept-note[29] FORM "x(39)"
-            "<=1><R+38><C33>" v-dept-note[30] FORM "x(39)"
-            "<=1><R+4><C75>" v-dept-note[31] FORM "x(39)" */
+           
+            "<=1><R+29><C33><FROM><R+11><C65><RECT><||3>" 
+            "<=1><R+29><C33.5>Verifications   <C52> Press  <C59> Gluer"   
+            "<=1><R+30><C33.5>Board Caliper pre run" 
+            "<=1><R+31><C33.5>Board Caliper post run"  
+            "<=1><R+32><C52> Press"
+            "<=1><R+33><C33.5>Score Bend resistance" 
+            "<=1><R+34><C52> Press" 
+            "<=1><R+35><C33.5>Color Match Verified" 
+            "<=1><R+36><C52> Press" 
+            "<=1><R+37><C33.5>Regristration Verified" 
+            "<=1><R+38><C59> Glur" 
+            "<=1><R+39><C33.5>Glue Gap verified"
+            "<=1><R+29><C52><FROM><R+11><C52><LINE><||3>"
+            "<=1><R+29><C58><FROM><R+11><C58><LINE><||3>"
+            
+            
+            "<=1><R+30><C33><FROM><C65><LINE><||3>"
+            "<=1><R+31><C33><FROM><C65><LINE><||3>"
+            "<=1><R+32><C33><FROM><C65><LINE><||3>"
+            "<=1><R+33><C33><FROM><C65><LINE><||3>"
+            "<=1><R+34><C33><FROM><C65><LINE><||3>"
+            "<=1><R+35><C33><FROM><C65><LINE><||3>"
+            "<=1><R+36><C33><FROM><C65><LINE><||3>"
+            "<=1><R+37><C33><FROM><C65><LINE><||3>"
+            "<=1><R+38><C33><FROM><C65><LINE><||3>"
+            "<=1><R+39><C33><FROM><C65><LINE><||3>"
+            
             "<=1><R+40.8><C33><FROM><R+4.2><C65><RECT><||3>"
             "<=1><R+41><C33><P8>  Bundles: ________ @ _______          TOTAL"
             "<=1><R+42><C40> ________ @ _______"
