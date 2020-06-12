@@ -84,7 +84,7 @@ DEFINE VARIABLE v-ord-no AS INTEGER NO-UNDO.
 DEFINE NEW SHARED WORKFILE wrk-op
     FIELD m-dscr LIKE est-op.m-dscr
     FIELD m-code LIKE est-op.m-code
-    FIELD d-seq LIKE est-op.d-seq
+    FIELD i-line LIKE job-mch.LINE
     FIELD dept LIKE est-op.dept
     FIELD b-num LIKE est-op.b-num
     FIELD s-num LIKE est-op.s-num
@@ -774,7 +774,7 @@ FOR EACH job-hdr NO-LOCK
                         ASSIGN
                             wrk-op.m-code = job-mch.m-code
                             wrk-op.m-dscr = mach.m-dscr
-                            wrk-op.d-seq  = mach.d-seq
+                            wrk-op.i-line  = job-mch.LINE
                             wrk-op.dept   = job-mch.dept
                             wrk-op.s-num  = job-mch.frm
                             wrk-op.b-num  = job-mch.blank-no
@@ -1257,7 +1257,7 @@ FOR EACH job-hdr NO-LOCK
                                     END.
 
                                 i = 0.
-                                FOR EACH wrk-op WHERE wrk-op.s-num = tt-reftable.val[12] BREAK BY wrk-op.d-seq BY wrk-op.b-num:
+                                FOR EACH wrk-op WHERE wrk-op.s-num = tt-reftable.val[12] BREAK BY wrk-op.i-line BY wrk-op.b-num:
                                     v-mat-for-mach = "".
                                     IF LOOKUP(wrk-op.dept,lv-mat-dept-list) > 0 THEN 
                                     DO:
@@ -1279,7 +1279,7 @@ FOR EACH job-hdr NO-LOCK
                                         END.                            
                                     END.
 
-                                    IF FIRST(wrk-op.d-seq) THEN
+                                    IF FIRST(wrk-op.i-line) THEN
                                         PUT "<R-1>" .
 
                                     dMRWaste = 0.
