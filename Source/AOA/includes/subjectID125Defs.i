@@ -12,7 +12,6 @@ DEFINE VARIABLE cStartFGItem AS Character NO-UNDO.
 DEFINE VARIABLE cEndFGItem AS Character NO-UNDO.
 DEFINE VARIABLE cShipToStatus AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFGItemStatus AS CHARACTER NO-UNDO.
-
 DEFINE VARIABLE lAllPrepNo AS Logical NO-UNDO.
 DEFINE VARIABLE cStartPrepNo AS Character NO-UNDO.
 DEFINE VARIABLE cEndPrepNo AS Character NO-UNDO.
@@ -29,8 +28,7 @@ PROCEDURE pAssignParamVariables:
         cEndFGItem = DYNAMIC-FUNCTION("fGetDynParamValue","endFGItem")
         cShipToStatus = (DYNAMIC-FUNCTION("fGetDynParamValue","ShipToStatus"))
         cFGItemStatus = (DYNAMIC-FUNCTION("fGetDynParamValue","fgItemStatus"))
-
-	lAllPrepNo= DYNAMIC-FUNCTION("fGetDynParamValue","allPrepNo") EQ "YES"
+	    lAllPrepNo= DYNAMIC-FUNCTION("fGetDynParamValue","allPrepNo") EQ "YES"
         cStartPrepNo= DYNAMIC-FUNCTION("fGetDynParamValue","startPrepNo")
         cEndPrepNo = DYNAMIC-FUNCTION("fGetDynParamValue","endPrepNo")
         .
