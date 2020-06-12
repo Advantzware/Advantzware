@@ -1091,7 +1091,7 @@ ASSIGN
             "<=1><R+35><C33.5>Color Match Verified" 
             "<=1><R+36><C52> Press" 
             "<=1><R+37><C33.5>Regristration Verified" 
-            "<=1><R+38><C59> Glur" 
+            "<=1><R+38><C59> Gluer" 
             "<=1><R+39><C33.5>Glue Gap verified"
             "<=1><R+29><C52><FROM><R+11><C52><LINE><||3>"
             "<=1><R+29><C58><FROM><R+11><C58><LINE><||3>"
