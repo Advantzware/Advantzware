@@ -38,6 +38,7 @@ DEF INPUT PARAMETER ipiPatchDbVer AS INT NO-UNDO.
 DEF INPUT PARAMETER ipiCurrAudVer AS INT NO-UNDO.
 DEF INPUT PARAMETER ipiPatchAudVer AS INT NO-UNDO.
 DEF INPUT PARAMETER ipiLevel AS INT NO-UNDO.
+DEF INPUT PARAMETER iplMakeBackup AS LOG NO-UNDO.
 DEF OUTPUT PARAMETER oplSuccess AS LOG NO-UNDO.
 DEF INPUT-OUTPUT PARAMETER iopiStatus AS INT NO-UNDO.
 
@@ -906,13 +907,15 @@ PROCEDURE ipProcessRequest :
         RUN ipReadAdminSvcProps.    
 
     /* Process "regular" database (asixxxx.db OR XXXXXXd.db) */
-    RUN ipBackupDBs.
-    IF NOT lSuccess THEN 
-    DO:
-        ASSIGN 
-            oplSuccess = FALSE.
-        RUN ipStatus ("  Upgrade failed in ipBackupDBs for database " + fiDbName:{&SV}).
-        RETURN.
+    IF iplMakeBackup THEN DO:
+        RUN ipBackupDBs.
+        IF NOT lSuccess THEN 
+        DO:
+            ASSIGN 
+                oplSuccess = FALSE.
+            RUN ipStatus ("  Upgrade failed in ipBackupDBs for database " + fiDbName:{&SV}).
+            RETURN.
+        END.
     END.
     
     RUN ipUpgradeDBs.

@@ -26,7 +26,21 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-&SCOPED-DEFINE SV SCREEN-VALUE IN FRAME DEFAULT-FRAME
+&SCOPED-DEFINE FRAME-NAME DEFAULT-FRAME
+&SCOPED-DEFINE IN IN FRAME DEFAULT-FRAME
+&SCOPED-DEFINE SV SCREEN-VALUE {&IN}
+&SCOPED-DEFINE WOn SESSION:set-wait-state ("general").
+&SCOPED-DEFINE WOff SESSION:set-wait-state ("").
+&SCOPED-DEFINE loginProcedure nosweat/login.w
+&SCOPED-DEFINE checkUserRecord YES
+&SCOPED-DEFINE connectDatabases YES
+&SCOPED-DEFINE runAsiLoad YES
+&SCOPED-DEFINE createSingleUserPFs YES
+&SCOPED-DEFINE execProgram mainmenu.    
+&SCOPED-DEFINE checkExpiredLicense YES
+&GLOBAL-DEFINE checkUserCount YES
+&SCOPED-DEFINE WTRUE 1
+&SCOPED-DEFINE WFALSE 0
 
 {iniFileVars.i}
 
@@ -60,10 +74,18 @@ DEF NEW SHARED TEMP-TABLE ttUpdateHist
     FIELD user_id AS CHAR 
     FIELD success AS LOG INITIAL NO 
     FIELD updLog AS CHAR.     
+DEF TEMP-TABLE ttBackupSize
+    FIELD ttType AS CHAR 
+    FIELD ttID AS CHAR 
+    FIELD ttSize AS INT.
 
 DEFINE VARIABLE c7ZErrFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE c7ZOutputFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAsiDbLongName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAsiDbName AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cAsiDbVer AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAuditDbLongName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAuditDbName AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cAudDbVer AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBadDirList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCfgCfg AS CHARACTER NO-UNDO.
@@ -172,6 +194,14 @@ PROCEDURE GetLastError EXTERNAL "kernel32.dll":
     DEFINE RETURN PARAMETER iReturnValue AS LONG.
 END.
 
+PROCEDURE GetDiskFreeSpaceExA EXTERNAL "kernel32.dll" :
+    DEFINE  INPUT  PARAMETER  lpDirectoryName        AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT  PARAMETER  FreeBytesAvailable     AS MEMPTR    NO-UNDO.
+    DEFINE OUTPUT  PARAMETER  TotalNumberOfBytes     AS MEMPTR    NO-UNDO.
+    DEFINE OUTPUT  PARAMETER  TotalNumberOfFreeBytes AS MEMPTR    NO-UNDO.
+    DEFINE RETURN  PARAMETER  iReturnVal                 AS LONG      NO-UNDO.
+END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -190,7 +220,7 @@ END.
 &Scoped-Define ENABLED-OBJECTS RECT-2 RECT-4 RECT-6 fiUserID bCancel ~
 fiPassword slEnvList eStatus 
 &Scoped-Define DISPLAYED-OBJECTS fiUserID fiPassword slEnvList ~
-fiFromVersion fiToVersion eStatus 
+fiFromVersion fiToVersion fiStatus eStatus 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -204,6 +234,13 @@ fiFromVersion fiToVersion eStatus
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIntVer C-Win 
 FUNCTION fIntVer RETURNS INTEGER
     ( INPUT cVerString AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get64BitValue C-Win 
+FUNCTION get64BitValue RETURNS DECIMAL
+  ( INPUT m64 AS MEMPTR ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -227,6 +264,11 @@ DEFINE VARIABLE eStatus AS CHARACTER
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
      SIZE 75 BY 3.81 NO-UNDO.
 
+DEFINE VARIABLE fiBackupDisabled AS CHARACTER FORMAT "X(256)":U INITIAL " Backup is DISABLED" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1
+     FGCOLOR 12  NO-UNDO.
+
 DEFINE VARIABLE fiFromVersion AS CHARACTER FORMAT "X(256)":U 
      LABEL "From Version" 
      VIEW-AS FILL-IN 
@@ -236,6 +278,10 @@ DEFINE VARIABLE fiPassword AS CHARACTER FORMAT "X(256)":U
      LABEL "Password" 
      VIEW-AS FILL-IN 
      SIZE 30 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiStatus AS CHARACTER FORMAT "X(256)":U INITIAL "Status:" 
+     VIEW-AS FILL-IN 
+     SIZE 9 BY .81 NO-UNDO.
 
 DEFINE VARIABLE fiToVersion AS CHARACTER FORMAT "X(256)":U 
      LABEL "To Version" 
@@ -280,9 +326,9 @@ DEFINE FRAME DEFAULT-FRAME
      bUpdate AT ROW 9.1 COL 5 WIDGET-ID 14
      fiFromVersion AT ROW 9.1 COL 62 COLON-ALIGNED WIDGET-ID 38
      fiToVersion AT ROW 10.29 COL 62 COLON-ALIGNED
+     fiStatus AT ROW 11.48 COL 1 COLON-ALIGNED NO-LABEL
      eStatus AT ROW 12.43 COL 3 NO-LABEL WIDGET-ID 52
-     "Status:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 11.71 COL 3 WIDGET-ID 54
+     fiBackupDisabled AT ROW 18.38 COL 27 COLON-ALIGNED NO-LABEL
      RECT-2 AT ROW 1.48 COL 2 WIDGET-ID 44
      RECT-4 AT ROW 5.52 COL 2 WIDGET-ID 48
      rStatusBar AT ROW 16.71 COL 3
@@ -290,7 +336,7 @@ DEFINE FRAME DEFAULT-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 79.8 BY 17.86 WIDGET-ID 100.
+         SIZE 79.8 BY 18.48 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -310,9 +356,9 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Advantzware Update"
-         COLUMN             = 5
-         ROW                = 5
-         HEIGHT             = 17.86
+         COLUMN             = 3
+         ROW                = 1.48
+         HEIGHT             = 18.48
          WIDTH              = 79.8
          MAX-HEIGHT         = 26.67
          MAX-WIDTH          = 81
@@ -342,8 +388,18 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    FRAME-NAME                                                           */
 /* SETTINGS FOR BUTTON bUpdate IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiBackupDisabled IN FRAME DEFAULT-FRAME
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       fiBackupDisabled:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+
 /* SETTINGS FOR FILL-IN fiFromVersion IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiStatus IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiStatus:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+
 /* SETTINGS FOR FILL-IN fiToVersion IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE rStatusBar IN FRAME DEFAULT-FRAME
@@ -386,6 +442,22 @@ DO:
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME DEFAULT-FRAME
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL DEFAULT-FRAME C-Win
+ON ALT-B OF FRAME DEFAULT-FRAME ANYWHERE 
+DO:
+    ASSIGN 
+        lMakeBackup = NOT lMakeBackup
+        fiBackupDisabled:{&SV} = "Backup is disabled"
+        fiBackupDisabled:VISIBLE {&in} = NOT lMakeBackup.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &Scoped-define SELF-NAME bCancel
@@ -433,7 +505,15 @@ OR CHOOSE OF bUpdate
                         RUN ipStatus("User made invalid choices for application").
                         RETURN.
                     END.
-    
+                    
+                    RUN ipCheckDiskSpace (OUTPUT lOKtoProceed).
+                    IF NOT lOKtoProceed THEN 
+                    DO:
+                        RUN ipStatus("Insufficient disk space for backup files").
+                        APPLY 'close' TO THIS-PROCEDURE.
+                        QUIT.
+                    END.
+                    
                     RUN ipStatus(" ").
                     RUN ipStatus("UPGRADING ENVIRONMENT " + slEnvList:{&SV}).
                     RUN ipStatus("  from version " + fiFromVersion:{&SV} + " to version: " + fiToVersion:{&SV}).
@@ -461,6 +541,7 @@ OR CHOOSE OF bUpdate
                             "Please contact Advantzware Support."
                             VIEW-AS ALERT-BOX.
                         APPLY 'close' TO THIS-PROCEDURE.
+                        QUIT.
                     END.
                 END.
         END CASE.
@@ -661,7 +742,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF cIniLoc NE "" THEN 
         RUN ipReadIniFile.
     RUN ipExpandVarNames.
-    
+        
     ASSIGN
         lMakeBackup = TRUE 
         slEnvList:LIST-ITEMS = cEnvList
@@ -671,6 +752,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         iCurrEnvVer         = fIntVer(fiFromVersion:{&SV})
         iCurrDbVer          = fIntVer(ENTRY(iIndex,cDBVerList))
         iCurrAudVer         = fIntVer(ENTRY(iIndex,cAudVerList))
+        cAsiDbName          = ENTRY(iIndex,cDBList)
+        cAuditDbName        = ENTRY(iIndex,cAudDbList)
+        cAsiDbLongName      = cDbDir + "\" + ENTRY(iIndex,cDbDirList) + "\" + cAsiDbName
+        cAuditDbLongName      = cDbDir + "\" + ENTRY(iIndex,cAudDirList) + "\" + cAuditDbName
         iStatus             = 1
         rStatusBar:WIDTH    = MIN(75,(iStatus / 100) * 75).
 
@@ -705,19 +790,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ttUpdateHist.success = FALSE.
 
     RUN ipStatus("Initialize").
-    
-    IF fIntVer(fiToVersion:{&SV}) LE 16087000 THEN DO:
-        ASSIGN
-            fiUserID:{&SV} = "admin"
-            fiPassword:{&SV} = "installme".
-        IF NUM-ENTRIES(slEnvList:LIST-ITEMS) EQ 1 THEN
-            APPLY 'choose' TO bUpdate.
-        ELSE DO:
-            APPLY 'leave' TO fiUserID.
-            APPLY 'leave' TO fiPassword.
-            APPLY 'entry' TO slEnvList.
-        END.
-    END.
     
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -760,12 +832,59 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiUserID fiPassword slEnvList fiFromVersion fiToVersion eStatus 
+  DISPLAY fiUserID fiPassword slEnvList fiFromVersion fiToVersion fiStatus 
+          eStatus 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE RECT-2 RECT-4 RECT-6 fiUserID bCancel fiPassword slEnvList eStatus 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCheckDiskSpace C-Win 
+PROCEDURE ipCheckDiskSpace :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF OUTPUT PARAMETER oplOkToProceed AS LOG.
+    
+    DEF VAR iDiskFreeSpace AS INT NO-UNDO.
+    DEF VAR iDiskTotalSpace AS INT NO-UNDO.
+    DEF VAR iAsiBakSize AS INT NO-UNDO.
+    DEF VAR iAudBakSize AS INT NO-UNDO.
+    
+    RUN ipGetDiskSpace (cDrive,
+                       "MB",
+                       OUTPUT iDiskFreeSpace,
+                       OUTPUT iDiskTotalSpace).
+                       
+    IF NOT lMakeBackup THEN DO:
+        ASSIGN 
+            oplOKToProceed = TRUE.
+        RETURN.
+    END. 
+    
+    RUN ipStatus("  Calculating estimated DB Backup size").
+    RUN ipGetDbBakSize (cAsiDbName, cAsiDbLongName, OUTPUT iAsiBakSize).                       
+    RUN ipGetDbBakSize (cAuditDbName, cAuditDbLongName, OUTPUT iAudBakSize).
+    RUN ipStatus("  Estimated DB Backup size is " + STRING(iAsiBakSize + iAudBakSize,">>>,>>9.9<" ) + " MB").
+    
+    IF iDiskFreeSpace - iAsiBakSize - iAudBakSize - 2000 LT 0 THEN DO:
+        MESSAGE 
+            "There is a problem with disk space on this server.  " +
+            "Please provide a minimum of " + TRIM(STRING((2000 + iAsiBakSize + iAudBakSize) / 1024,">>>,>>9.9<")) + 
+            " GB of free space before continuing."
+            VIEW-AS ALERT-BOX ERROR.
+        ASSIGN  
+            oplOKToProceed = FALSE.
+    END.
+    ELSE ASSIGN
+        oplOKToProceed = TRUE.
+                           
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -819,6 +938,177 @@ PROCEDURE ipExpandVarNames :
                         AND ASC(cLockoutTries) LE 57 THEN INT(cLockoutTries) ELSE 0
         .
         
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipGetDbBakSize C-Win 
+PROCEDURE ipGetDbBakSize :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcDbName AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcDbLongName AS CHAR NO-UNDO.
+    DEF OUTPUT PARAMETER opiBakSize AS INT NO-UNDO.
+    
+    DEF VAR cCmdLine AS CHAR NO-UNDO.
+    DEF VAR cLine AS CHAR NO-UNDO.
+    DEF VAR iSize AS DECI NO-UNDO.
+    DEF VAR cUnit AS CHAR NO-UNDO.
+    DEF VAR lServed AS LOG NO-UNDO.
+    DEF VAR iSeed AS INT NO-UNDO.
+    DEF VAR cFile1 AS CHAR NO-UNDO.
+    DEF VAR cFile2 AS CHAR NO-UNDO.
+    
+    ASSIGN 
+        iSize = 0
+        lServed = FALSE 
+        iSeed = (TIME * 1000) + RANDOM(1,998)
+        cFile1 = "c:\tmp\bak" + STRING(iSeed,"99999999") + ".txt"
+        cFile2 = "c:\tmp\bak" + STRING ((iSeed + 1),"99999999") + ".txt".        
+
+    RUN ipStatus("    Calculating estimated " + ipcDbName + " Backup size").
+
+    ASSIGN 
+        cCmdLine = cDLCDir + "\bin\_dbutil probkup " + ipcDbLongName + " c:\tmp\dbname.bak -estimate > " + cFile1 + " && exit".
+
+    OS-COMMAND SILENT VALUE(cCmdLine).
+
+    {&Won}
+    DO WHILE iSize = 0 AND lServed = FALSE:
+        INPUT FROM VALUE(cFile1).
+        REPEAT:
+            IMPORT UNFORMATTED cLine.
+            IF INDEX(cLine,"multi-user") NE 0 
+            OR INDEX(cLine,"errno = 2") NE 0 THEN ASSIGN 
+                    lServed = TRUE. 
+            ELSE IF cLine BEGINS "Backup requires" THEN ASSIGN
+                        iSize = DECIMAL(ENTRY(5,cLine," "))
+                        cUnit = ENTRY(6,cLine," ").
+        END.
+        INPUT CLOSE.
+    END.
+    IF lServed THEN 
+    DO:
+        ASSIGN 
+            cCmdLine = cDLCDir + "\bin\_mprshut " + ipcDbLongName + " -C backup online NUL -verbose > " + cFile2.
+
+        OS-COMMAND SILENT VALUE(cCmdLine).
+        DO WHILE iSize = 0:
+            INPUT FROM VALUE(cFile2).
+            REPEAT:
+                IMPORT UNFORMATTED cLine.
+                IF INDEX(cLine,"errno = 2") NE 0 THEN 
+                    LEAVE. 
+                IF cLine BEGINS "Backup requires" THEN ASSIGN 
+                        iSize = DECIMAL(ENTRY(5,cLine," "))
+                        cUnit = ENTRY(6,cLine," ").
+            END.
+            INPUT CLOSE.
+        END.
+        {&Woff}
+    END.
+        
+    STATUS DEFAULT "".   
+
+    IF cUnit BEGINS "K" THEN ASSIGN 
+            iSize = iSize / 1024.
+    ELSE IF cUnit BEGINS "G" THEN ASSIGN 
+                iSize = iSize * 1024.
+        
+    CREATE ttBackupSize.
+    ASSIGN 
+        ttBackupSize.ttType = "DB" 
+        ttBackupSize.ttID = ipcDbName
+        ttBackupSize.ttSize = iSize.
+
+
+    {&Won}
+    DO WHILE SEARCH(cFile1) NE ?:
+        OS-DELETE VALUE(cFile1).
+        OS-DELETE VALUE(cFile2).
+    END.
+    {&Woff}
+    ASSIGN 
+        opiBakSize = iSize.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipGetDiskSpace C-Win 
+PROCEDURE ipGetDiskSpace :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ip_drive   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ip_unit    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdDiskFreeSpace    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdDiskTotalSpace   AS DECIMAL   NO-UNDO.
+    
+    DEF VAR cDivisor AS INT NO-UNDO.
+    DEF VAR iMem1 AS MEMPTR NO-UNDO.
+    DEF VAR iMem2 AS MEMPTR NO-UNDO.
+    DEF VAR iMem3 AS MEMPTR NO-UNDO.
+    DEF VAR iReturnVal AS INT NO-UNDO.
+    DEF VAR iDiskFreeSpace AS DECIMAL NO-UNDO.
+    DEF VAR iDiskTotalSpace AS DECIMAL NO-UNDO.
+
+    IF CAN-DO("KB,Kilo,Kilobyte,Kilobytes", ip_unit)
+        THEN cDivisor = 1024.
+    ELSE
+        IF CAN-DO("MB,Mega,Megabyte,Megabytes", ip_unit)
+            THEN cDivisor = 1024 * 1024.
+        ELSE
+            IF CAN-DO("GB,Giga,Gigabyte,Gigabytes", ip_unit)
+                THEN cDivisor = 1024 * 1024 * 1024.
+            ELSE cDivisor = 1.
+ 
+    /* No directory specified? Then use the current directory */
+    IF (ip_drive = "") OR (ip_drive=?) THEN 
+    DO:
+        FILE-INFO:FILE-NAME = ".".
+        ip_drive = FILE-INFO:FULL-PATHNAME.
+    END.
+ 
+    /* If a UNC name was specified, make sure it ends with a backslash ( \\drive\share\dir\ )
+       This won't hurt for a mapped drive too */
+    IF SUBSTR(ip_drive, LENGTH(ip_drive), 1) NE "\"
+        THEN ip_drive = ip_drive + "\".
+ 
+    SET-SIZE(iMem1) = 8.  /* 64 bit integer! */
+    SET-SIZE(iMem2) = 8.
+    SET-SIZE(iMem3) = 8.
+ 
+    RUN GetDiskFreeSpaceExA ( ip_drive + CHR(0),
+        OUTPUT iMem1,
+        OUTPUT iMem2,
+        OUTPUT iMem3,
+        OUTPUT iReturnVal  ).
+    IF iReturnVal NE {&WTRUE} THEN 
+    DO:
+        iDiskFreeSpace = ?.
+        iDiskTotalSpace = ?.
+    END.
+    ELSE 
+    DO:
+        ASSIGN
+            iDiskFreeSpace  = TRUNC( get64BitValue(iMem3) / cDivisor, 3)
+            iDiskTotalSpace = TRUNC( get64BitValue(iMem2) / cDivisor, 3)
+            opdDiskFreeSpace = iDiskFreeSpace
+            opdDiskTotalSpace = iDiskTotalSpace.
+    END.
+ 
+    SET-SIZE(iMem1) = 0.
+    SET-SIZE(iMem2) = 0.
+    SET-SIZE(iMem3) = 0.
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -926,6 +1216,7 @@ PROCEDURE ipProcess :
             iCurrAudVer,
             iPatchAudVer,
             iUserLevel,
+            lMakeBackup,
             OUTPUT lSuccess,
             INPUT-OUTPUT iStatus).
         ASSIGN
@@ -1237,7 +1528,7 @@ PROCEDURE ipValidateChoices :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER lOK AS LOG NO-UNDO.
-    
+ /*   
     IF iCurrEnvVer GT iPatchEnvVer THEN 
     DO:
         MESSAGE
@@ -1260,7 +1551,7 @@ PROCEDURE ipValidateChoices :
                 lOK = lSure.
             RETURN.
         END.
-        ELSE ASSIGN
+        ELSE */ ASSIGN
                 lOK = YES.
 END PROCEDURE.
 
@@ -1341,6 +1632,36 @@ FUNCTION fIntVer RETURNS INTEGER
     
     RETURN iIntVer.   /* Function return value. */
 
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get64BitValue C-Win 
+FUNCTION get64BitValue RETURNS DECIMAL
+  ( INPUT m64 AS MEMPTR ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* constant 2^32 */
+    &SCOPED-DEFINE BigInt 4294967296
+ 
+    DEFINE VARIABLE d1 AS DECIMAL    NO-UNDO.
+    DEFINE VARIABLE d2 AS DECIMAL    NO-UNDO.
+ 
+    d1 = GET-LONG(m64, 1).
+    IF d1 < 0 
+        THEN d1 = d1 + {&BigInt}.
+ 
+    d2 = GET-LONG(m64, 5).
+    IF d2 < 0 
+        THEN d2 = d2 + {&BigInt}.
+ 
+    IF d2 GT 0
+        THEN d1 = d1 + (d2 * {&BigInt}).
+ 
+    RETURN d1.
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
