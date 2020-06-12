@@ -824,7 +824,7 @@ DEFINE FRAME d-oeitem
           VIEW-AS FILL-IN 
           SIZE 5.8 BY 1
      oe-ordl.spare-dec-1 AT ROW 2.19 COL 51 COLON-ALIGNED WIDGET-ID 18
-          LABEL "Cust" FORMAT "->,>>>,>>9.99"
+          LABEL "Cust" FORMAT "->>,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
      oe-ordl.spare-char-2 AT ROW 2.19 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 16
@@ -1554,7 +1554,8 @@ DO:
           END.
 
           FIND FIRST eb WHERE eb.company = cocode AND
-                              eb.est-no = oe-ordl.est-no:screen-value
+                              eb.est-no = oe-ordl.est-no:screen-value AND
+                              eb.est-no NE ""
                           AND eb.cust-no = oe-ord.cust-no
                           AND ((eb.est-type = 1 AND eb.form-no <> 0) OR
                                (eb.est-type = 2 AND eb.form-no = 0) OR
@@ -5451,19 +5452,6 @@ PROCEDURE final-steps :
       fil_id = RECID(oe-ordl).
     END.
   END.
-    /*IF oe-ordl.job-no EQ "" THEN
-      MESSAGE " Since job number is blank, a purchase order will not be created "
-              VIEW-AS ALERT-BOX .
-    ELSE
-    IF (oe-ord.est-no EQ "" AND lv-add-mode)                      OR*/
-    IF lv-add-mode                                                OR
-       (NOT ll-new-record AND
-        (v-qty-mod OR oe-ordl.po-no-po EQ 0 OR
-         NOT CAN-FIND(FIRST po-ord
-                      WHERE po-ord.company EQ oe-ordl.company
-                        AND po-ord.po-no   EQ oe-ordl.po-no-po))) THEN
-      RUN po/do-po.p.
- 
     FIND CURRENT oe-ordl.
   /*END.*/
 
@@ -5546,6 +5534,8 @@ DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
           NOT CAN-FIND(FIRST po-ord
                        WHERE po-ord.company EQ oe-ordl.company
                          AND po-ord.po-no   EQ oe-ordl.po-no-po)))) THEN DO:
+        ASSIGN 
+            lMsgResponse = TRUE.
         IF oe-ord.Pricehold THEN
             RUN displayMessageQuestionLog(
                 INPUT "33",
@@ -5568,6 +5558,7 @@ DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
     FIND CURRENT oe-ordl NO-LOCK.
   END.
           
+              
   /* This section is needed because previous calculations of component
      quantities were based on the quantity before it was updated */
     

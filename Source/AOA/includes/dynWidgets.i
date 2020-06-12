@@ -799,6 +799,8 @@ PROCEDURE pPickList:
     DEFINE INPUT  PARAMETER iphCalendar  AS HANDLE    NO-UNDO.
 
     DEFINE VARIABLE hPickList AS HANDLE NO-UNDO.
+    
+    DEFINE BUFFER bDynValueParam FOR dynValueParam.
 
     CREATE COMBO-BOX hPickList IN WIDGET-POOL ipcPoolName
       ASSIGN
@@ -821,8 +823,16 @@ PROCEDURE pPickList:
             ).
     END TRIGGERS.
     fDateOptions(hPickList).
+    FIND FIRST bDynValueParam NO-LOCK
+         WHERE bDynValueParam.subjectID    EQ dynParamValue.subjectID
+           AND bDynValueParam.user-id      EQ dynParamValue.user-id
+           AND bDynValueParam.prgmName     EQ dynParamValue.prgmName
+           AND bDynValueParam.paramValueID EQ dynParamValue.paramValueID
+           AND bDynValueParam.paramName    EQ hPickList:NAME
+         NO-ERROR.
     ASSIGN
-        hPickList:SCREEN-VALUE = hPickList:ENTRY(1)
+        hPickList:SCREEN-VALUE = IF AVAILABLE bDynValueParam THEN bDynValueParam.paramValue
+                                 ELSE hPickList:ENTRY(1)
         iphWidget:PRIVATE-DATA = hPickList:SCREEN-VALUE
         .
 END PROCEDURE.

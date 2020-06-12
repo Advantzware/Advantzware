@@ -1,11 +1,3 @@
-DROP SEQUENCE "audit_seq"
-DROP SEQUENCE "stack_trace"
-DROP TABLE "AuditDtl"
-DROP TABLE "AuditHdr"
-DROP TABLE "AuditFld"
-DROP TABLE "AuditStack"
-DROP TABLE "AuditTbl"
-
 ADD SEQUENCE "audit_seq"
   INITIAL 0
   INCREMENT 1
@@ -456,6 +448,6 @@ ADD INDEX "AuditTbl" ON "AuditTbl"
 
 .
 PSC
-cpstream=IBM850
+cpstream=ISO8859-1
 .
 0000010024

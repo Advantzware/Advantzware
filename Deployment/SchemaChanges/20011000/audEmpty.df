@@ -2,7 +2,6 @@ DROP SEQUENCE "audit_seq"
 DROP SEQUENCE "stack_trace"
 DROP TABLE "AuditDtl"
 DROP TABLE "AuditHdr"
-DROP TABLE "AuditFld"
 DROP TABLE "AuditStack"
 DROP TABLE "AuditTbl"
 
@@ -105,58 +104,6 @@ ADD INDEX "AuditBeforeValue" ON "AuditDtl"
 ADD INDEX "AuditField" ON "AuditDtl" 
   AREA "Audit"
   DESCRIPTION "Secondary Index by Audit Field"
-  INDEX-FIELD "AuditField" ASCENDING 
-
-ADD TABLE "AuditFld"
-  AREA "Audit"
-  LABEL "Audit Field"
-  DESCRIPTION "Audit Field"
-  DUMP-NAME "auditfld"
-
-ADD FIELD "AuditTable" OF "AuditFld" AS character 
-  FORMAT "x(20)"
-  INITIAL ""
-  LABEL "Audit Table"
-  POSITION 2
-  MAX-WIDTH 40
-  COLUMN-LABEL "Table"
-  HELP "Enter Audit Table Name"
-  ORDER 10
-
-ADD FIELD "AuditField" OF "AuditFld" AS character 
-  FORMAT "x(30)"
-  INITIAL ""
-  LABEL "Audit Field"
-  POSITION 3
-  MAX-WIDTH 60
-  HELP "Enter Audit Field"
-  ORDER 20
-
-ADD FIELD "Audit" OF "AuditFld" AS logical 
-  FORMAT "yes/no"
-  INITIAL "yes"
-  LABEL "Audit"
-  POSITION 4
-  MAX-WIDTH 1
-  HELP "Set Audit Flag"
-  ORDER 30
-
-ADD FIELD "AuditDefault" OF "AuditFld" AS logical 
-  FORMAT "yes/no"
-  INITIAL "no"
-  LABEL "Audit Default"
-  POSITION 5
-  MAX-WIDTH 1
-  COLUMN-LABEL "Default"
-  HELP "Set Audit Default Flag"
-  ORDER 40
-
-ADD INDEX "AuditFld" ON "AuditFld" 
-  AREA "Audit"
-  UNIQUE
-  PRIMARY
-  DESCRIPTION "Primary Index Audit Table and Audit Field"
-  INDEX-FIELD "AuditTable" ASCENDING 
   INDEX-FIELD "AuditField" ASCENDING 
 
 ADD TABLE "AuditHdr"
@@ -387,66 +334,6 @@ ADD FIELD "AuditStack" OF "AuditTbl" AS logical
   HELP "Set Audit Stack Trace Flag"
   ORDER 50
 
-ADD FIELD "AuditCreateDefault" OF "AuditTbl" AS logical 
-  FORMAT "yes/no"
-  INITIAL "no"
-  LABEL "Audit Create Default"
-  POSITION 7
-  MAX-WIDTH 1
-  COLUMN-LABEL "Create"
-  HELP "Set Audit Create Default Flag"
-  ORDER 60
-
-ADD FIELD "AuditDeleteDefault" OF "AuditTbl" AS logical 
-  FORMAT "yes/no"
-  INITIAL "no"
-  LABEL "Audit Delete Default"
-  POSITION 8
-  MAX-WIDTH 1
-  COLUMN-LABEL "Delete"
-  HELP "Set Audit Delete Default Flag"
-  ORDER 70
-
-ADD FIELD "AuditUpdateDefault" OF "AuditTbl" AS logical 
-  FORMAT "yes/no"
-  INITIAL "no"
-  LABEL "Audit Update Default"
-  POSITION 9
-  MAX-WIDTH 1
-  COLUMN-LABEL "Update"
-  HELP "Set Audit Update Default Flag"
-  ORDER 80
-
-ADD FIELD "AuditStackDefault" OF "AuditTbl" AS logical 
-  FORMAT "yes/no"
-  INITIAL "no"
-  LABEL "Audit Stack Default Trace"
-  POSITION 10
-  MAX-WIDTH 1
-  COLUMN-LABEL "Stack Trace"
-  HELP "Set Audit Stack Trace Default Flag"
-  ORDER 90
-
-ADD FIELD "ExpireDays" OF "AuditTbl" AS integer 
-  FORMAT ">>>9"
-  INITIAL "0"
-  LABEL "Expire Days"
-  POSITION 11
-  MAX-WIDTH 4
-  COLUMN-LABEL "Expire"
-  HELP "Enter Number of Days Audit Records Expire to be Purged"
-  ORDER 100
-
-ADD FIELD "ExpireDaysDefault" OF "AuditTbl" AS integer 
-  FORMAT ">>>9"
-  INITIAL "0"
-  LABEL "Expire Days Default"
-  POSITION 12
-  MAX-WIDTH 4
-  COLUMN-LABEL "Expire Default"
-  HELP "Enter Number of Days Audit Records Expire to be Purged Default"
-  ORDER 110
-
 ADD INDEX "AuditTbl" ON "AuditTbl" 
   AREA "Audit"
   UNIQUE
@@ -456,6 +343,6 @@ ADD INDEX "AuditTbl" ON "AuditTbl"
 
 .
 PSC
-cpstream=IBM850
+cpstream=ISO8859-1
 .
-0000010024
+0000007470
