@@ -130,12 +130,12 @@ DEFINE FRAME DEFAULT-FRAME
      btnRun AT ROW 1.24 COL 111
      eInstructions AT ROW 1.48 COL 5 NO-LABEL NO-TAB-STOP 
      fiEndDate AT ROW 8.62 COL 42 COLON-ALIGNED
-     btnStop AT ROW 1.24 COL 121
      fiCurrDate AT ROW 8.62 COL 100 COLON-ALIGNED
+     btnStop AT ROW 1.24 COL 121
      fiTotHdr AT ROW 10.52 COL 42 COLON-ALIGNED
-     btnExit AT ROW 1.24 COL 131
      fiTotDtl AT ROW 10.52 COL 71 COLON-ALIGNED
      fiTotStk AT ROW 10.52 COL 100 COLON-ALIGNED
+     btnExit AT ROW 1.24 COL 131
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -231,7 +231,6 @@ ON WINDOW-CLOSE OF c-Win /* Purge Audit History */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
-  stop.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -241,6 +240,7 @@ END.
 &Scoped-define SELF-NAME btnExit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExit c-Win
 ON CHOOSE OF btnExit IN FRAME DEFAULT-FRAME
+OR mouse-select-down OF btnExit
 DO:
     ASSIGN 
         lStop = TRUE.
@@ -263,22 +263,24 @@ DO:
         btnRun:SENSITIVE = FALSE
         lStop = FALSE.
         
-    APPLY 'entry' TO btnStop.        
-    
     FOR EACH auditHdr WHERE 
         AuditHdr.AuditDateTime LT DATETIME(daTargetDate):
+        PROCESS EVENTS.    
         ASSIGN 
             fiCurrDate:SCREEN-VALUE = STRING(DATE(AuditHdr.AuditDateTime),"99/99/9999").
         FOR EACH auditDtl OF auditHdr:
+            PROCESS EVENTS.    
             DELETE auditDtl.
             ASSIGN 
                 fiTotDtl = fiTotDtl + 1.
         END.
         FOR EACH auditStack OF auditHdr:
+            PROCESS EVENTS.    
             DELETE auditStack.
             ASSIGN 
                 fiTotStk = fiTotStk + 1.
         END.
+        PROCESS EVENTS.    
         DELETE auditHdr.
         fiTotHdr = fiTotHdr + 1.
         DISPLAY 
@@ -288,6 +290,9 @@ DO:
             WITH FRAME {&frame-name}.
         PROCESS EVENTS.
         IF lStop THEN DO:
+            RELEASE auditHdr.
+            RELEASE auditDtl.
+            RELEASE auditStack.
             ASSIGN 
                 btnStop:SENSITIVE = FALSE 
                 btnRun:SENSITIVE = TRUE.
@@ -303,11 +308,10 @@ END.
 &Scoped-define SELF-NAME btnStop
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnStop c-Win
 ON CHOOSE OF btnStop IN FRAME DEFAULT-FRAME
+OR MOUSE-select-down OF btnStop 
 DO:
     ASSIGN 
         lStop = TRUE.
-    APPLY 'entry' TO btnRun.
-    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -332,7 +336,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &UNDEFINE SELF-NAME
@@ -368,19 +371,22 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             VIEW-AS ALERT-BOX INFO.
         RETURN.
     END.
+    
     ASSIGN 
         eInstructions:SCREEN-VALUE IN FRAME {&frame-name} = 
             "This function will purge (delete) all records in the AUDIT database prior to the date specified below." + CHR(10) + CHR(10) +
             "FOR LARGE DATABASES, OR IF A PURGE HAS NOT BEEN RUN RECENTLY, THIS PROCESS MAY TAKE SEVERAL HOURS." + CHR(10) + CHR(10) +
             "If you need to cancel this process while it is running, press the STOP (X) button at the top.  Records deleted at that " +
             "point will NOT be restored."
-        fiEndDate:SCREEN-VALUE = STRING(TODAY - 30,"99/99/9999")
+        fiEndDate:SCREEN-VALUE = STRING(TODAY - 183,"99/99/9999")
         fiCurrDate:SCREEN-VALUE = STRING(DATE(auditHdr.auditDateTime),"99/99/9999").  
         
+    RELEASE auditHdr.
+    
     APPLY 'entry' TO fiEndDate.
   
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CHOOSE OF btnExit.
+  /* IF NOT THIS-PROCEDURE:PERSISTENT THEN */
+    WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
