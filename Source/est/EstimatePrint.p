@@ -558,6 +558,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
         FOR EACH estCostHeader NO-LOCK
             WHERE estCostHeader.estimateNo EQ bf-PrimaryestCostHeader.estimateNo
             AND estCostHeader.estCostHeaderID NE bf-PrimaryestCostHeader.estCostHeaderID
+            AND estCostHeader.jobID EQ ""
             ,
             FIRST estCostForm NO-LOCK 
             WHERE estCostForm.estCostHeaderID EQ estCostHeader.estCostHeaderID
@@ -1088,6 +1089,7 @@ PROCEDURE pPrintAnalysis PRIVATE:
     FOR EACH estCostHeader NO-LOCK
         WHERE estCostHeader.estimateNo EQ bf-PrimaryestCostHeader.estimateNo
         AND estCostHeader.estCostHeaderID NE bf-PrimaryestCostHeader.estCostHeaderID
+        AND estCostHeader.jobID EQ ""
         :
         RUN pPrintAnalysisLine(BUFFER estCostHeader, NO, NO, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     END.
@@ -1208,6 +1210,7 @@ PROCEDURE pPrintSummary PRIVATE:
     FOR EACH estCostHeader NO-LOCK
         WHERE estCostHeader.estimateNo EQ bf-PrimaryestCostHeader.estimateNo
         AND estCostHeader.estCostHeaderID NE bf-PrimaryestCostHeader.estCostHeaderID
+        AND estCostHeader.jobID EQ ""
         :
         RUN pPrintSummaryCosts(BUFFER estCostHeader, ipcFormat, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     END.
