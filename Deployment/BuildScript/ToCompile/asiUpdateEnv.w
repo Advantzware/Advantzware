@@ -3191,6 +3191,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipSetCueCards.
     RUN ipDeleteAudit.
     RUN ipCleanTemplates.
+    RUN ipResetCostGroups.
 
 END PROCEDURE.
 
@@ -5840,6 +5841,36 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipResetCostGroups C-Win
+PROCEDURE ipResetCostGroups:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Reset Cost Groups and Categories").
+
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH = cNewPropath.
+        
+    RUN est/ResetCostGroupsAndCategories.   
+    
+    ASSIGN 
+        PROPATH = cOrigPropath.     
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetAdminPwd C-Win 
 PROCEDURE ipSetAdminPwd :
