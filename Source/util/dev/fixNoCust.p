@@ -73,8 +73,8 @@ ELSE
 
 cust.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey").
 
-CREATE rec_key.
-ASSIGN
- rec_key.rec_key    = cust.rec_key
- rec_key.table_name = "cust".
+/*CREATE rec_key.                   */
+/*ASSIGN                            */
+/* rec_key.rec_key    = cust.rec_key*/
+/* rec_key.table_name = "cust".     */
  MESSAGE "Customer record has been created."

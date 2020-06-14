@@ -1649,9 +1649,9 @@ PROCEDURE local-assign-record :
         ASSIGN
         ls-key         = DYNAMIC-FUNCTION("sfGetNextRecKey")
         po-ord.rec_key = ls-key.               
-        CREATE rec_key.
-        ASSIGN rec_key.rec_key    = po-ord.rec_key
-               rec_key.table_name = "PO".
+/*        CREATE rec_key.                           */
+/*        ASSIGN rec_key.rec_key    = po-ord.rec_key*/
+/*               rec_key.table_name = "PO".         */
      END.
 
      FOR EACH bx-notes WHERE bx-notes.rec_key = vend.rec_key

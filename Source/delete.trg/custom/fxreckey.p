@@ -1,3 +1,4 @@
+/*
 run account_rec_key.
 procedure account_rec_key:
   for each account exclusive:
@@ -2165,3 +2166,4 @@ procedure view-hdr_rec_key:
       rec_key.table_name = "view-hdr".
   end.
 end procedure.
+*/

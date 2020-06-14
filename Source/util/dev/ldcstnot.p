@@ -29,9 +29,9 @@ REPEAT:
           if cust.rec_key = '' THEN DO:
               ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey").             
  
-             create rec_key.
-             assign rec_key.rec_key = ls-key
-                    rec_key.table_name = "CUST".
+/*             create rec_key.                    */
+/*             assign rec_key.rec_key = ls-key    */
+/*                    rec_key.table_name = "CUST".*/
              cust.rec_key = ls-key.               
           END.
 
@@ -74,9 +74,9 @@ REPEAT:
            if cust.rec_key = '' THEN DO:
               ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey").             
  
-             create rec_key.
-             assign rec_key.rec_key = ls-key
-                    rec_key.table_name = "CUST".
+/*             create rec_key.                    */
+/*             assign rec_key.rec_key = ls-key    */
+/*                    rec_key.table_name = "CUST".*/
              cust.rec_key = ls-key.               
            END.
 

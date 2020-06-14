@@ -3433,10 +3433,10 @@ PROCEDURE pCRUD :
                                                ELSE IF cDataType:SCREEN-VALUE EQ "Logical"   THEN "log-fld"
                                                ELSE ""
                                                .
-                        CREATE rec_key.
-                        ASSIGN
-                            rec_key.rec_key    = sys-ctrl.rec_key
-                            rec_key.table_name = "sys-ctrl"
+/*                        CREATE rec_key.                          */
+/*                        ASSIGN                                   */
+/*                            rec_key.rec_key    = sys-ctrl.rec_key*/
+/*                            rec_key.table_name = "sys-ctrl"      */
                             .
                     END. /* if add/copy */
                     

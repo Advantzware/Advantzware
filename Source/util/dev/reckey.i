@@ -7,9 +7,9 @@ for each {1} where {1}.rec_key = "".
 ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey").
 
 {1}.rec_key = ls-key.               
-create rec_key.
-assign rec_key.rec_key = item.rec_key
-      rec_key.table_name = "item".
+/*create rec_key.                      */
+/*assign rec_key.rec_key = item.rec_key*/
+/*      rec_key.table_name = "item".   */
 
 DISP {1}.rec_key.
 PAUSE 0.

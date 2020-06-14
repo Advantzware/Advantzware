@@ -2,12 +2,12 @@
 
 {methods/audittrg.i}
 
-IF CAN-FIND(FIRST rec_key WHERE rec_key.rec_key EQ {&TABLENAME}.rec_key) THEN
-FOR EACH rec_key EXCLUSIVE-LOCK
-    WHERE rec_key.rec_key EQ {&TABLENAME}.rec_key
-    :
-    DELETE rec_key.
-END. /* each rec_key */
+/*IF CAN-FIND(FIRST rec_key WHERE rec_key.rec_key EQ {&TABLENAME}.rec_key) THEN*/
+/*FOR EACH rec_key EXCLUSIVE-LOCK                                              */
+/*    WHERE rec_key.rec_key EQ {&TABLENAME}.rec_key                            */
+/*    :                                                                        */
+/*    DELETE rec_key.                                                          */
+/*END. /* each rec_key */                                                      */
 
 IF CAN-FIND(FIRST notes WHERE notes.rec_key EQ {&TABLENAME}.rec_key) THEN
 FOR EACH notes EXCLUSIVE-LOCK
