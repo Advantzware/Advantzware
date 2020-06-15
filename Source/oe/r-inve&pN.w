@@ -46,6 +46,8 @@ DEFINE VARIABLE lUseNewInvoicePost AS LOG NO-UNDO.
 DEFINE VARIABLE hPostInvoices AS HANDLE NO-UNDO.
 DEF VAR iProcessed AS INT NO-UNDO.
 DEF VAR iValid AS INT NO-UNDO.
+DEFINE VARIABLE opcCreateEdiInvoice AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCreateLegacy810 AS LOGICAL NO-UNDO.
 DEF VAR iPosted AS INT NO-UNDO.
 DEF VAR lError AS LOG NO-UNDO.
 DEF VAR cMessage AS CHAR NO-UNDO.
@@ -2281,27 +2283,52 @@ PROCEDURE list-post-inv :
       TRANSACTION
 
       BY w-report.key-01:
-      
+
       RUN pRunAPIOutboundTrigger(BUFFER inv-head).
-/*        /* Create eddoc for invoice if required */                      */
-/*        RUN ed/asi/o810hook.p (recid(inv-head), no, no).                */
-/*                                                                        */
-/*        FIND FIRST edmast NO-LOCK                                       */
-/*            WHERE edmast.cust EQ inv-head.cust-no                       */
-/*            NO-ERROR.                                                   */
-/*        IF AVAIL edmast THEN                                            */
-/*        DO:                                                             */
-/*            FIND FIRST edcode NO-LOCK                                   */
-/*                WHERE edcode.partner EQ edmast.partner                  */
-/*                NO-ERROR.                                               */
-/*            IF NOT AVAIL edcode THEN                                    */
-/*                FIND FIRST edcode NO-LOCK                               */
-/*                    WHERE edcode.partner EQ edmast.partnerGrp           */
-/*                    NO-ERROR.                                           */
-/*        END.                                                            */
-/*                                                                        */
-/*        IF AVAIL edcode AND edcode.sendFileOnPrint THEN                 */
-/*            RUN ed/asi/write810.p (INPUT cocode, INPUT inv-head.inv-no).*/
+      
+      /* Determine whether legacy code will run via NK1 */
+        /* Create eddoc for invoice if required */
+      lCreateLegacy810 = YES.
+      FIND FIRST cust NO-LOCK 
+        WHERE cust.company EQ inv-head.company
+          AND cust.cust-no EQ inv-head.cust-no
+        NO-ERROR. 
+      IF AVAILABLE cust AND cust.ASNClientID NE "" THEN DO:
+        RUN sys/ref/nk1look.p (
+            INPUT  inv-head.company,      /* Company Code */
+            INPUT  "EdiInvoice",    /* sys-ctrl name */
+            INPUT  "L",             /* Output return value */
+            INPUT  YES,             /* Use ship-to */
+            INPUT  YES,             /* ship-to vendor */
+            INPUT  cust.AsnClientID, /* ship-to vendor value */
+            INPUT  "",              /* ship-id value */
+            OUTPUT opcCreateEdiInvoice, 
+            OUTPUT lRecFound
+            ).    
+            IF lRecFound THEN 
+              lCreateLegacy810 = LOGICAL(opcCreateEdiInvoice).
+
+        END.                       
+        
+        IF lCreateLegacy810 THEN DO:
+            RUN ed/asi/o810hook.p (recid(inv-head), no, no).
+            FIND FIRST edmast NO-LOCK
+                WHERE edmast.cust EQ inv-head.cust-no
+                NO-ERROR.
+            IF AVAIL edmast THEN
+            DO:
+                FIND FIRST edcode NO-LOCK
+                    WHERE edcode.partner EQ edmast.partner
+                    NO-ERROR.
+                IF NOT AVAIL edcode THEN
+                    FIND FIRST edcode NO-LOCK
+                        WHERE edcode.partner EQ edmast.partnerGrp
+                        NO-ERROR.
+            END.
+    
+            IF AVAIL edcode AND edcode.sendFileOnPrint THEN
+                RUN ed/asi/write810.p (INPUT cocode, INPUT inv-head.inv-no).
+        END.
     {oe/r-inve&p.i}
   END.
 
