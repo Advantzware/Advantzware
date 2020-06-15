@@ -13,10 +13,4 @@ IF AVAIL module THEN ASSIGN
 IF CAN-FIND(FIRST _file WHERE _file._file-name EQ "dep-table") THEN ASSIGN 
     oplHasTables = TRUE.
     
-OUTPUT TO c:\tmp\auditTbl.d.
-FOR EACH auditTbl:
-    EXPORT auditTbl.
-END.  
-OUTPUT CLOSE.
-
 

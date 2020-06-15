@@ -3452,14 +3452,6 @@ PROCEDURE ipDeleteAudit :
                 AuditTbl.AuditUpdate = NO
                 AuditTbl.AuditStack  = NO.
         END.
-        IF SEARCH("c:\tmp\auditTbl.e") NE ? THEN DO:  /* Recover the auditTbl file dropped during updateDB audit check */
-            INPUT FROM c:\tmp\auditTbl.d.
-            REPEAT:
-                IMPORT AuditTbl.
-            END.
-            INPUT CLOSE.
-            OS-DELETE c:\tmp\auditTbl.d.
-        END.
     END.
     ELSE DO:
         RUN ipStatus ("    Deleting audit records older than 180 days...").
