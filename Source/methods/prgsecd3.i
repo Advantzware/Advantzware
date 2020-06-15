@@ -70,13 +70,16 @@ IF AVAILABLE b-prgrms THEN DO:
         VIEW-AS ALERT-BOX ERROR.
             access-close = YES.  /* used later in methods/template/windows.i - local-initialize procedure */
     END.
-    ELSE 
-    ASSIGN
-        v-can-run    = NOT v-can-run    AND CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   USERID("ASI"))
-        v-can-update = NOT v-can-update AND CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),USERID("ASI"))
-        v-can-create = NOT v-can-create AND CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),USERID("ASI"))
-        v-can-delete = NOT v-can-delete AND CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),USERID("ASI"))
-        .
+    ELSE DO:
+        IF NOT v-can-run    AND CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   USERID("ASI")) THEN
+        v-can-run    = YES.
+        IF NOT v-can-update AND CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),USERID("ASI")) THEN
+        v-can-run    = YES.
+        IF NOT v-can-create AND CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),USERID("ASI")) THEN
+        v-can-create = YES.
+        IF NOT v-can-delete AND CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),USERID("ASI")) THEN
+        v-can-create = YES.
+    END. /* else */
 END. /* if avail */ 
 ELSE DO: 
     MESSAGE "Program :" PROGRAM-NAME(1) SKIP(1)
