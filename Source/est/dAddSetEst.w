@@ -252,7 +252,7 @@ DEFINE RECTANGLE RECT-4
     SIZE 124.2 BY 6.67
     BGCOLOR 15 .
 
-DEFINE VARIABLE tb_auto AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_auto AS LOGICAL INITIAL YES 
     LABEL "Auto No Component Part" 
     VIEW-AS TOGGLE-BOX
     SIZE 33.4 BY 1 NO-UNDO.
@@ -445,6 +445,7 @@ ON CHOOSE OF btn-add IN FRAME D-Dialog /* Add Component */
         RUN est/dAddEditComp.w (?,ROWID(eb),"Add",cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
             item-name:SCREEN-VALUE IN FRAME {&frame-name},
             cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
+            fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
             LOGICAL(tb_auto:SCREEN-VALUE IN FRAME {&frame-name}), OUTPUT lv-rowid) . 
         FIND FIRST bff-ttInputEst NO-LOCK
             WHERE bff-ttInputEst.cCompany EQ cocode
@@ -472,6 +473,7 @@ ON CHOOSE OF btn-copy IN FRAME D-Dialog /* Copy Selected */
             RUN est/dAddEditComp.w (RECID(ttInputEst),lv-rowid,"Copy",cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 item-name:SCREEN-VALUE IN FRAME {&frame-name},
                 cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
+                fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
                 LOGICAL(tb_auto:SCREEN-VALUE IN FRAME {&frame-name}), OUTPUT lv-rowid) . 
             
             RUN repo-query (lv-rowid).            
@@ -518,6 +520,7 @@ ON CHOOSE OF btn-update IN FRAME D-Dialog /* Update Selected */
             RUN est/dAddEditComp.w (RECID(ttInputEst),rwRowidEb,"Update",cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 item-name:SCREEN-VALUE IN FRAME {&frame-name},
                 cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
+                fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
                 LOGICAL(tb_auto:SCREEN-VALUE IN FRAME {&frame-name}),OUTPUT lv-rowid) . 
    
             RUN repo-query (ROWID(ttInputEst)).
