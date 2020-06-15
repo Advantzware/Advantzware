@@ -10,35 +10,39 @@ DEFINE VARIABLE num-groups   AS INTEGER NO-UNDO.
 DEFINE VARIABLE group-ok     AS LOGICAL NO-UNDO.
 DEFINE VARIABLE access-close AS LOGICAL NO-UNDO.
 
-v-prgmname = {&vprgmname}.
+{methods/fShowRestrictionMessage.i}
 
-FIND b-prgrms WHERE b-prgrms.prgmname = v-prgmname NO-LOCK NO-ERROR.
-IF AVAILABLE b-prgrms THEN
-DO:
+v-prgmname = {&vprgmname}.
+FIND FIRST b-prgrms NO-LOCK
+     WHERE b-prgrms.prgmname EQ v-prgmname
+     NO-ERROR.
+IF AVAILABLE b-prgrms THEN DO:
     DO num-groups = 1 TO NUM-ENTRIES(g_groups):
-        IF NOT CAN-DO(TRIM(b-prgrms.can_run),ENTRY(num-groups,g_groups)) AND
-            NOT CAN-DO(TRIM(b-prgrms.can_update),ENTRY(num-groups,g_groups)) AND
-            NOT CAN-DO(TRIM(b-prgrms.can_create),ENTRY(num-groups,g_groups)) AND
-            NOT CAN-DO(TRIM(b-prgrms.can_delete),ENTRY(num-groups,g_groups)) THEN
+        IF NOT CAN-DO(TRIM(b-prgrms.can_run),   ENTRY(num-groups,g_groups)) AND
+           NOT CAN-DO(TRIM(b-prgrms.can_update),ENTRY(num-groups,g_groups)) AND
+           NOT CAN-DO(TRIM(b-prgrms.can_create),ENTRY(num-groups,g_groups)) AND
+           NOT CAN-DO(TRIM(b-prgrms.can_delete),ENTRY(num-groups,g_groups)) THEN
             NEXT.
         group-ok = YES.
         LEAVE.
     END.
-    IF NOT CAN-DO(TRIM(b-prgrms.can_run),USERID("ASI")) AND
-        NOT CAN-DO(TRIM(b-prgrms.can_update),USERID("ASI")) AND
-        NOT CAN-DO(TRIM(b-prgrms.can_create),USERID("ASI")) AND
-        NOT CAN-DO(TRIM(b-prgrms.can_delete),USERID("ASI")) AND NOT group-ok THEN
-    DO:
-        MESSAGE "Program :" v-prgmname SKIP 
+    IF NOT CAN-DO(TRIM(b-prgrms.can_run),   USERID("ASI")) AND
+       NOT CAN-DO(TRIM(b-prgrms.can_update),USERID("ASI")) AND
+       NOT CAN-DO(TRIM(b-prgrms.can_create),USERID("ASI")) AND
+       NOT CAN-DO(TRIM(b-prgrms.can_delete),USERID("ASI")) AND
+       NOT group-ok THEN DO:
+        IF fShowRestrictionMessage(g_company) THEN
+        MESSAGE
+            "Program :" v-prgmname SKIP 
             "Title :" b-prgrms.prgtitle SKIP(1)
-            "Access to this Program Denied - Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
+            "Access to this Program Denied - Contact Systems Manager"
+        VIEW-AS ALERT-BOX ERROR.
         access-close = YES.    /* used later in methods/template/windows.i - local-initialize procedure */
     END.
 END. 
-ELSE
-DO: 
+ELSE DO: 
     MESSAGE "Program :" v-prgmname SKIP(1)
         "Program Master Record Does Not Exist - Contact Systems Manager" 
-        VIEW-AS ALERT-BOX ERROR.
+    VIEW-AS ALERT-BOX ERROR.
     RETURN.
 END.

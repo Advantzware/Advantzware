@@ -21,6 +21,7 @@ DEFINE INPUT PARAMETER ip-type   AS CHARACTER NO-UNDO.   /* add,update,view */
 DEFINE INPUT PARAMETER ipcSetPart  AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcSetPartName AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcPartNo AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcProCat AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER iplAutoPart  AS LOGICAL NO-UNDO.
 DEFINE OUTPUT PARAMETER op-rowid AS ROWID     NO-UNDO.
 
@@ -147,7 +148,7 @@ DEFINE VARIABLE dep           AS DECIMAL   FORMAT ">>>>9.99":U INITIAL 0
     SIZE 10.6 BY 1
     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dQtyPerSet    AS DECIMAL   FORMAT "->>,>>9.99":U INITIAL 0 
+DEFINE VARIABLE dQtyPerSet    AS DECIMAL   FORMAT "->>,>>9.99":U INITIAL 1 
     LABEL "Qty Per Set" 
     VIEW-AS FILL-IN 
     SIZE 8.4 BY 1
@@ -218,10 +219,10 @@ DEFINE VARIABLE wid           AS DECIMAL   FORMAT ">>>>9.99":U INITIAL 0
     SIZE 10.6 BY 1
     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE rd_show1      AS CHARACTER INITIAL "P" 
+DEFINE VARIABLE rd_show1      AS CHARACTER INITIAL "M" 
     VIEW-AS RADIO-SET VERTICAL
     RADIO-BUTTONS 
-    "Purchase", "P",
+    "Purchased", "P",
     "Manufactured", "M"
     SIZE 26 BY 2.14 NO-UNDO.
 
@@ -411,12 +412,28 @@ ON HELP OF board IN FRAME Dialog-Frame /* Board */
     DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
-   
-        RUN windows/l-board.w (cocode,"",FOCUS:SCREEN-VALUE,OUTPUT char-val).
-        IF char-val <> "" AND SELF:screen-value <> entry(1,char-val) THEN 
-            ASSIGN
-                SELF:screen-value = ENTRY(1,char-val)
-                .                                    
+        DEF VAR lv-rowid AS ROWID NO-UNDO.
+        DEF VAR lv-ind LIKE style.industry NO-UNDO.        
+        
+           FIND style WHERE style.company = cocode AND
+                            style.style = style-cod:SCREEN-VALUE 
+                            NO-LOCK NO-ERROR.   
+           IF AVAIL style THEN lv-ind = style.industry.
+           ELSE lv-ind = "".  
+           IF AVAIL style AND style.type = "f" THEN  DO: /* foam */    
+              RUN AOA/dynLookupSetParam.p (70, ROWID(style), OUTPUT char-val).
+              IF char-val NE "" AND ENTRY(1,char-val) NE board:SCREEN-VALUE THEN DO:
+                board:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "i-no", char-val).                
+                APPLY "ENTRY":U TO board.
+              END.
+           END.
+           ELSE DO:
+              RUN windows/l-board1.w (eb.company,lv-ind,board:SCREEN-VALUE, OUTPUT lv-rowid).
+              FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
+              IF AVAIL ITEM AND ITEM.i-no NE board:SCREEN-VALUE THEN DO:
+                board:SCREEN-VALUE = item.i-no.                
+              END.
+           END.         
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -429,8 +446,7 @@ ON LEAVE OF board IN FRAME Dialog-Frame /* Board */
         IF LASTKEY NE -1 THEN 
         DO:
             IF NOT CAN-FIND(item WHERE item.company = cocode
-                AND item.i-no = board:screen-value
-                AND LOOKUP(ITEM.mat-type,"P,R,B,F" ) GT 0)
+                AND item.i-no = board:SCREEN-VALUE)
                 THEN 
             DO:
                 MESSAGE "Invalid Board. Try Help. " VIEW-AS ALERT-BOX ERROR.
@@ -510,6 +526,9 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
             APPLY "go" TO FRAME {&FRAME-NAME}.
             RETURN.
         END.
+        
+        RUN valid-part-no(OUTPUT lValidateResult) NO-ERROR.
+        IF lValidateResult THEN RETURN NO-APPLY.
                 
         RUN valid-procat(OUTPUT lValidateResult) NO-ERROR.
         IF lValidateResult THEN RETURN NO-APPLY.
@@ -590,8 +609,8 @@ ON LEAVE OF cCustPart IN FRAME Dialog-Frame /* Cust Part# */
         IF LASTKEY NE -1 THEN 
         DO:
             ASSIGN {&self-name}.
-        /*RUN valid-part-no(OUTPUT lError) NO-ERROR.*/
-        /*IF lError THEN RETURN NO-APPLY.  */
+        RUN valid-part-no(OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.  
         END.
     END.
 
@@ -1077,7 +1096,8 @@ PROCEDURE display-item :
         IF iplAutoPart THEN 
         DO:
             cCustPart = SUBSTRING(ipcPartNo,1,12) + "-" + string(j + 1 ,"99").        
-        END.        
+        END.  
+        fg-cat = ipcProCat.
     END.
        
     FIND FIRST style NO-LOCK WHERE style.company = cocode
@@ -1265,6 +1285,29 @@ PROCEDURE valid-Form-Blank :
             oplOutError = YES .
         END.
     END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-part-no D-Dialog 
+PROCEDURE valid-part-no :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
+    DO WITH FRAME {&FRAME-NAME}:
+        IF cCustPart:SCREEN-VALUE  EQ "" THEN 
+        DO:
+            MESSAGE "Customer Part # required..." VIEW-AS ALERT-BOX INFORMATION.
+            APPLY "entry" TO cCustPart .
+            oplOutError = YES .
+        END.
+    END.
+
 
 END PROCEDURE.
 
