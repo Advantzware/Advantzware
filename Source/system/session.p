@@ -1075,34 +1075,14 @@ PROCEDURE spGetDynParamValue:
     DEFINE OUTPUT PARAMETER oprRowID     AS ROWID     NO-UNDO.
     DEFINE OUTPUT PARAMETER opcErrorMsg  AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER bDynParamValue FOR dynParamValue.
-    
-    FIND FIRST dynParamValue NO-LOCK
-         WHERE dynParamValue.subjectID    EQ ipiSubjectID
-           AND dynParamValue.user-id      EQ USERID("ASI")
-           AND dynParamValue.paramValueID EQ 0
-         NO-ERROR.
-    IF NOT AVAILABLE dynParamValue THEN DO:
-        FIND FIRST bDynParamValue NO-LOCK
-             WHERE bDynParamValue.subjectID    EQ ipiSubjectID
-               AND bDynParamValue.user-id      EQ "_default"
-               AND bDynParamValue.paramValueID EQ 0
-             NO-ERROR.
-        IF AVAILABLE bDynParamValue THEN
-        DO TRANSACTION:
-            CREATE dynParamValue.
-            BUFFER-COPY bDynParamValue TO dynParamValue
-                ASSIGN
-                    dynParamValue.user-id          = USERID("ASI")
-                    dynParamValue.paramDescription = "User Default"
-                    dynParamValue.outputFormat     = "Grid"
-                    oprRowID                       = ROWID(dynParamValue)
-                    .
-            FIND CURRENT dynParamValue NO-LOCK.
-        END. /* if avail */
-        ELSE
-        opcErrorMsg = "Default Dynamic Parameter Value for Audit Field Lookup Record does not Exist".
-    END. /* if not avail */
+    RUN pSetDynParamValue (
+        ipiSubjectID,
+        USERID("ASI"),
+        "",
+        0
+        ).    
+    IF NOT AVAILABLE dynParamValue THEN
+    opcErrorMsg = "Default Dynamic Parameter Value for Audit Field Lookup Record does not Exist".
     ELSE
     oprRowID = ROWID(dynParamValue).
 

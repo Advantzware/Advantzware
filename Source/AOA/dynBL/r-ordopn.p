@@ -494,10 +494,10 @@ PROCEDURE pBusinessLogic:
                              NO-ERROR.
                         IF AVAILABLE itemfg THEN DO:
                             IF itemfg.isaset AND itemfg.alloc THEN
-                            RUN fg/GetProductionQty.p (INPUT job-hdr.company,
-                                                       INPUT job-hdr.job-no,
-                                                       INPUT job-hdr.job-no2,
-                                                       INPUT job-hdr.i-no,
+                            RUN fg/GetProductionQty.p (INPUT job.company,
+                                                       INPUT job.job-no,
+                                                       INPUT job.job-no2,
+                                                       INPUT itemfg.i-no,
                                                        INPUT NO,
                                                        OUTPUT dRecQty).
     

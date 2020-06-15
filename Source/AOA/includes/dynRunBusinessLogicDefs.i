@@ -31,3 +31,8 @@ PROCEDURE pRunBusinessLogic:
     ophTempTable = fGetTableHandle().
     DELETE PROCEDURE hAppServerBin.
 END PROCEDURE.
+
+PROCEDURE pDeleteProcedure:
+    IF VALID-HANDLE(hAppServerBin) THEN
+    DELETE PROCEDURE hAppServerBin.
+END PROCEDURE.
