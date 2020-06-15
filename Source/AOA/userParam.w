@@ -77,9 +77,9 @@ RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynValProc.
 /* Custom List Definitions                                              */
 /* outputObjects,showFields,List-3,List-4,List-5,List-6                 */
 &Scoped-define outputObjects btnSave btnVisibleSets svRecipients ~
-svSetAlignment defaultOutputFormat svShowAll svShowReportHeader ~
-svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader ~
-svShowGroupFooter svShowParameters btnAddEmail 
+svSetAlignment defaultOutputFormat svRunSync svShowAll ~
+svShowReportHeader svShowReportFooter btnAddEmail svShowPageHeader ~
+svShowPageFooter svShowGroupHeader svShowGroupFooter svShowParameters 
 &Scoped-define showFields svShowAll svShowReportHeader svShowReportFooter ~
 svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter ~
 svShowParameters 
@@ -119,7 +119,7 @@ DEFINE BUTTON btnVisibleSets
 
 DEFINE VARIABLE svRecipients AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 69 BY 2.38
+     SIZE 69 BY 1.67
      BGCOLOR 15 .
 
 DEFINE VARIABLE defaultOutputFormat AS CHARACTER 
@@ -148,6 +148,11 @@ DEFINE RECTANGLE RECT-PANEL
 DEFINE RECTANGLE RECT-SHOW
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 156 BY 1.19.
+
+DEFINE VARIABLE svRunSync AS LOGICAL INITIAL no 
+     LABEL "Run Synchronous" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svShowAll AS LOGICAL INITIAL yes 
      LABEL "Show ALL" 
@@ -207,22 +212,24 @@ DEFINE FRAME outputFrame
      svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
      svSetAlignment AT ROW 1.71 COL 78 NO-LABEL WIDGET-ID 654
      defaultOutputFormat AT ROW 2.43 COL 93 NO-LABEL WIDGET-ID 644
+     svRunSync AT ROW 2.9 COL 8 HELP
+          "Toggle to Run Synchronous" WIDGET-ID 662
      svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
      svShowReportHeader AT ROW 4.1 COL 23 WIDGET-ID 2
      svShowReportFooter AT ROW 4.1 COL 44 WIDGET-ID 4
+     btnAddEmail AT ROW 1.95 COL 3 HELP
+          "Add Recipents" WIDGET-ID 636
      svShowPageHeader AT ROW 4.1 COL 65 WIDGET-ID 6
      svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
      svShowGroupHeader AT ROW 4.1 COL 103 WIDGET-ID 10
      svShowGroupFooter AT ROW 4.1 COL 123 WIDGET-ID 12
      svShowParameters AT ROW 4.1 COL 142 WIDGET-ID 16
-     btnAddEmail AT ROW 2.19 COL 3 HELP
-          "Add Recipents" WIDGET-ID 636
      "Set Alignment" VIEW-AS TEXT
           SIZE 13.6 BY .62 AT ROW 1 COL 78 WIDGET-ID 658
      "Default Output Format:" VIEW-AS TEXT
           SIZE 23 BY 1 AT ROW 1.48 COL 93 WIDGET-ID 652
      "Email:" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.48 COL 2 WIDGET-ID 640
+          SIZE 6 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 640
      RECT-PANEL AT ROW 1.24 COL 92 WIDGET-ID 256
      RECT-SHOW AT ROW 3.86 COL 2 WIDGET-ID 642
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -298,6 +305,8 @@ ASSIGN FRAME outputFrame:FRAME = FRAME paramFrame:HANDLE.
 /* SETTINGS FOR RECTANGLE RECT-SHOW IN FRAME outputFrame
    NO-ENABLE                                                            */
 /* SETTINGS FOR EDITOR svRecipients IN FRAME outputFrame
+   1                                                                    */
+/* SETTINGS FOR TOGGLE-BOX svRunSync IN FRAME outputFrame
    1                                                                    */
 /* SETTINGS FOR RADIO-SET svSetAlignment IN FRAME outputFrame
    1                                                                    */
@@ -587,7 +596,10 @@ PROCEDURE local-view :
   RUN pShowParameterSets.
   ENABLE {&outputObjects} WITH FRAME outputFrame.
   ASSIGN
-      btnSave:HIDDEN = NOT AVAILABLE dynParamValue OR dynParamValue.user-id EQ "_default"
+      btnSave:HIDDEN = NOT AVAILABLE dynParamValue OR
+                       dynParamValue.user-id EQ "_default" OR
+                      (DYNAMIC-FUNCTION("sfIsUserSuperAdmin") EQ NO AND
+                       dynParamValue.user-id NE USERID("ASI"))
       btnVisibleSets:HIDDEN = btnSave:HIDDEN
       .
 

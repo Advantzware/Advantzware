@@ -14,6 +14,7 @@ PROCEDURE pRunNow:
     DEFINE VARIABLE cRecipients       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTaskerNotRunning AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iConfigID         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lRunSync          AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lSubmit           AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lTaskerNotRunning AS LOGICAL   NO-UNDO.
     
@@ -53,6 +54,14 @@ PROCEDURE pRunNow:
                 Task.runNow       = YES
                 Task.recipients   = cRecipients
                 Task.taskType     = "Jasper"
+                Task.runSync      = CAN-FIND(FIRST dynValueParam
+                                             WHERE dynValueParam.subjectID    EQ {1}dynParamValue.subjectID
+                                               AND dynValueParam.user-id      EQ {1}dynParamValue.user-id
+                                               AND dynValueParam.prgmName     EQ {1}dynParamValue.prgmName
+                                               AND dynValueParam.paramValueID EQ {1}dynParamValue.paramValueID
+                                               AND dynValueParam.paramName    EQ "svRunSync"
+                                               AND dynValueParam.paramValue   EQ "YES")
+                
                 .
             RELEASE Task.
         END. /* do trans */

@@ -5,42 +5,30 @@
 
 DEFINE BUFFER b-prgrms FOR prgrms.
 
-DEFINE VARIABLE v-prgmname              LIKE b-prgrms.prgmname NO-UNDO.
-DEFINE VARIABLE period_pos              AS INTEGER             NO-UNDO.
-DEFINE VARIABLE num-groups              AS INTEGER             NO-UNDO.
-DEFINE VARIABLE group-ok                AS LOGICAL             NO-UNDO.
-DEFINE VARIABLE access-close            AS LOGICAL             NO-UNDO.
-DEFINE VARIABLE lNK1RecFound            AS LOGICAL             NO-UNDO.
-DEFINE VARIABLE cShowRestrictionMessage AS CHARACTER           NO-UNDO.
+DEFINE VARIABLE v-prgmname LIKE b-prgrms.prgmname NO-UNDO.
+DEFINE VARIABLE period_pos   AS INTEGER NO-UNDO.
+DEFINE VARIABLE num-groups   AS INTEGER NO-UNDO.
+DEFINE VARIABLE group-ok     AS LOGICAL NO-UNDO.
+DEFINE VARIABLE access-close AS LOGICAL NO-UNDO.
 
-RUN sys/ref/nk1look.p(
-     INPUT g_company,
-     INPUT "ShowRestrictionMessage",
-     INPUT "L",
-     INPUT NO,
-     INPUT NO,
-     INPUT "",
-     INPUT "",
-     OUTPUT cShowRestrictionMessage,
-     OUTPUT lNK1RecFound
-     ).
+{methods/fShowRestrictionMessage.i}
 
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
    INDEX(PROGRAM-NAME(1),".ped") NE 0 OR
    INDEX(PROGRAM-NAME(1),".cmp") NE 0 THEN
-    v-prgmname = USERID("ASI") + "..".
+v-prgmname = USERID("ASI") + "..".
 ELSE
 ASSIGN
     v-prgmname = SUBSTRING(PROGRAM-NAME(1), R-INDEX(PROGRAM-NAME(1), "/") + 1)
-    v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,"."))
+    v-prgmname = SUBSTRING(v-prgmname,1,INDEX(v-prgmname,"."))
     .
 FIND FIRST b-prgrms NO-LOCK
     WHERE b-prgrms.prgmname EQ v-prgmname
     NO-ERROR.
 IF AVAILABLE b-prgrms THEN DO:
     DO num-groups = 1 TO NUM-ENTRIES(g_groups):
-        IF NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),ENTRY(num-groups,g_groups)) AND
+        IF NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   ENTRY(num-groups,g_groups)) AND
            NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),ENTRY(num-groups,g_groups)) AND
            NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),ENTRY(num-groups,g_groups)) AND
            NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),ENTRY(num-groups,g_groups)) THEN
@@ -54,12 +42,12 @@ IF AVAILABLE b-prgrms THEN DO:
        NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),USERID("ASI")) AND
        NOT group-ok THEN DO:
         access-close = YES.    /* used later in methods/template/windows.i - local-initialize procedure */ 
-        IF LOGICAL(cShowRestrictionMessage) THEN
-             MESSAGE "Program :" PROGRAM-NAME(1) SKIP 
-                "Title :" b-prgrms.prgtitle SKIP(1)
-                "Access to this Program Denied - Contact Systems Manager"
-                VIEW-AS ALERT-BOX ERROR.
-           
+        IF fShowRestrictionMessage(g_company) THEN
+        MESSAGE
+            "Program :" PROGRAM-NAME(1) SKIP 
+            "Title :" b-prgrms.prgtitle SKIP(1)
+            "Access to this Program Denied - Contact Systems Manager"
+        VIEW-AS ALERT-BOX ERROR.           
         IF "{1}" NE "WIN" THEN DO:
             APPLY 'CLOSE' TO THIS-PROCEDURE. /*task 10020703*/
             RETURN.

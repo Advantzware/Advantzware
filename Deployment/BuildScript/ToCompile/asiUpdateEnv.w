@@ -3191,6 +3191,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipSetCueCards.
     RUN ipDeleteAudit.
     RUN ipCleanTemplates.
+    RUN ipResetCostGroups.
 
 END PROCEDURE.
 
@@ -4091,6 +4092,23 @@ PROCEDURE ipLoadAuditRecs :
                 CREATE {&tablename}.
                 BUFFER-COPY tt{&tablename} TO {&tablename}.
             END.
+            /* Ensure OUR defaults are set */
+            ASSIGN 
+                {&tableName}.auditCreateDefault = tt{&tableName}.auditCreateDefault
+                {&tableName}.auditUpdateDefault = tt{&tableName}.auditUpdateDefault
+                {&tableName}.auditDeleteDefault = tt{&tableName}.auditDeleteDefault
+                {&tableName}.auditStackDefault = tt{&tableName}.auditStackDefault
+                {&tableName}.ExpireDaysDefault = tt{&tableName}.ExpireDaysDefault
+                .
+            /* and make sure THEIR activation is AT LEAST the default */
+            ASSIGN 
+                {&tableName}.auditCreate = IF {&tableName}.auditCreateDefault THEN TRUE ELSE {&tableName}.auditCreate
+                {&tableName}.auditUpdate = IF {&tableName}.auditUpdateDefault THEN TRUE ELSE {&tableName}.auditUpdate
+                {&tableName}.auditDelete = IF {&tableName}.auditDeleteDefault THEN TRUE ELSE {&tableName}.auditDelete
+                {&tableName}.auditStack = IF {&tableName}.auditStackDefault THEN TRUE ELSE {&tableName}.auditStack
+                {&tableName}.expireDays = IF {&tableName}.ExpireDaysDefault NE 0 THEN {&tableName}.ExpireDaysDefault ELSE {&tableName}.ExpireDays
+                . 
+            
         END.
     END.
     INPUT CLOSE.
@@ -5840,6 +5858,36 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipResetCostGroups C-Win
+PROCEDURE ipResetCostGroups:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Reset Cost Groups and Categories").
+
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH = cNewPropath.
+        
+    RUN est/ResetCostGroupsAndCategories.p   
+    
+    ASSIGN 
+        PROPATH = cOrigPropath.     
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetAdminPwd C-Win 
 PROCEDURE ipSetAdminPwd :

@@ -1346,7 +1346,7 @@ display "" with frame r-top.
           IF AVAIL ITEM AND ITEM.mat-type EQ "B" THEN
             lBoard = YES .                            
        END.
-       IF i GE 1 THEN
+       IF i GT 1 THEN
         cRmItemName = "Kit".
       ASSIGN cDisplay = ""
                    cTmpField = ""

@@ -28,7 +28,6 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE yellowColumnsName b-reconc
 {methods/defines/winReSize.i}
 
-
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -45,6 +44,8 @@ DEFINE VARIABLE v-can-update            AS LOG       NO-UNDO.
 DEFINE VARIABLE v-called-setCellColumns AS LOG       NO-UNDO.
 DEFINE VARIABLE v-col-move              AS LOG       NO-UNDO INIT TRUE.
 DEFINE VARIABLE lv-save-char            AS CHARACTER INIT "" NO-UNDO.
+
+{methods/fShowRestrictionMessage.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -828,8 +829,8 @@ PROCEDURE get-security :
     ------------------------------------------------------------------------------*/
     DEFINE BUFFER b-prgrms FOR prgrms.
 
-    DEFINE VARIABLE v-prgmname   LIKE b-prgrms.prgmname NO-UNDO.
-    DEFINE VARIABLE v-dirname    LIKE b-prgrms.DIR_group NO-UNDO.
+    DEFINE VARIABLE v-prgmname   LIKE b-prgrms.prgmname  NO-UNDO.
+    DEFINE VARIABLE v-dirname    LIKE b-prgrms.dir_group NO-UNDO.
     DEFINE VARIABLE Audit_File   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE period_pos   AS INTEGER   NO-UNDO.
     DEFINE VARIABLE num-groups   AS INTEGER   NO-UNDO.
@@ -840,56 +841,49 @@ PROCEDURE get-security :
         v-prgmname = "w-reconl."
         v-dirname  = "ap".
 
-    FIND b-prgrms WHERE b-prgrms.prgmname = v-prgmname AND
-        b-prgrms.DIR_group = v-dirname NO-LOCK NO-ERROR.
-
-    IF NOT AVAILABLE b-prgrms THEN 
-        FIND b-prgrms WHERE b-prgrms.prgmname = v-prgmname NO-LOCK NO-ERROR.
-
-    IF AVAILABLE b-prgrms THEN 
-    DO:    
-
+    FIND FIRST b-prgrms NO-LOCK
+         WHERE b-prgrms.prgmname  EQ v-prgmname
+           AND b-prgrms.DIR_group EQ v-dirname
+         NO-ERROR.
+    IF NOT AVAILABLE b-prgrms THEN
+    FIND FIRST b-prgrms NO-LOCK
+         WHERE b-prgrms.prgmname EQ v-prgmname
+         NO-ERROR.
+    IF AVAILABLE b-prgrms THEN DO:    
         DO num-groups = 1 TO NUM-ENTRIES(g_groups):
-            IF NOT CAN-DO(TRIM(b-prgrms.can_run),ENTRY(num-groups,g_groups)) AND
-                NOT CAN-DO(TRIM(b-prgrms.can_update),ENTRY(num-groups,g_groups)) AND
-                NOT CAN-DO(TRIM(b-prgrms.can_create),ENTRY(num-groups,g_groups)) AND
-                NOT CAN-DO(TRIM(b-prgrms.can_delete),ENTRY(num-groups,g_groups)) THEN
+            IF NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   ENTRY(num-groups,g_groups)) AND
+               NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),ENTRY(num-groups,g_groups)) AND
+               NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),ENTRY(num-groups,g_groups)) AND
+               NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),ENTRY(num-groups,g_groups)) THEN
                 NEXT.
-
-    
-            IF NOT v-can-update AND CAN-DO(TRIM(b-prgrms.can_update),ENTRY(num-groups,g_groups))
-                THEN v-can-update = YES.
-    
-
-            group-ok = YES.
-        /*LEAVE. */
-        END.
-        IF NOT CAN-DO(TRIM(b-prgrms.can_run),USERID("ASI")) AND
-            NOT CAN-DO(TRIM(b-prgrms.can_update),USERID("ASI")) AND
-            NOT CAN-DO(TRIM(b-prgrms.can_create),USERID("ASI")) AND
-            NOT CAN-DO(TRIM(b-prgrms.can_delete),USERID("ASI")) AND NOT group-ok THEN
-        DO:
-            MESSAGE "Program :" PROGRAM-NAME(1) SKIP 
+        ASSIGN
+            v-can-update = NOT v-can-update AND CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),ENTRY(num-groups,g_groups))
+            group-ok     = YES
+            .
+        END. /* do num-groups */
+        IF NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   USERID("ASI")) AND
+           NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),USERID("ASI")) AND
+           NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),USERID("ASI")) AND
+           NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),USERID("ASI")) AND
+           NOT group-ok THEN DO:
+            IF fShowRestrictionMessage(g_company) THEN
+            MESSAGE
+                "Program :" PROGRAM-NAME(1) SKIP 
                 "Title :" b-prgrms.prgtitle SKIP(1)
-                "Access to this Program Denied - Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
-
+                "Access to this Program Denied - Contact Systems Manager"
+            VIEW-AS ALERT-BOX ERROR.
             access-close = YES.  /* used later in methods/template/windows.i - local-initialize procedure */
-
         END.
         ELSE 
-        DO:
-            IF NOT v-can-update AND CAN-DO(TRIM(b-prgrms.can_update),USERID("ASI"))
-                THEN v-can-update = YES.      
-        END.
+        v-can-update = NOT v-can-update AND CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),USERID("ASI")).
     END. 
-    ELSE
-    DO: 
-        MESSAGE "Program :" PROGRAM-NAME(1) SKIP(1)
+    ELSE DO: 
+        MESSAGE
+            "Program :" PROGRAM-NAME(1) SKIP(1)
             "Program Master Record Does Not Exist - Contact Systems Manager" 
-            VIEW-AS ALERT-BOX ERROR.
+        VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
-
 
 END PROCEDURE.
 

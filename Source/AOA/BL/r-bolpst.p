@@ -40,6 +40,7 @@ DEFINE VARIABLE cTransactionTime AS CHARACTER NO-UNDO LABEL "Time" FORMAT "x(20)
 {custom/gloc.i}
 {sys/inc/var.i NEW SHARED}
 {custom/globdefs.i &NEW=NEW}
+{Inventory/ttInventory.i "NEW SHARED"}
 
 /* subject business logic */
 ASSIGN
@@ -87,7 +88,10 @@ DEFINE VARIABLE cLogFolder AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdFileSysProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lValid    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cFilePath AS CHARACTER NO-UNDO.    
+DEFINE VARIABLE cFilePath AS CHARACTER NO-UNDO.  
+DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO. 
+
+RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs. 
 
 RUN sys/ref/nk1look.p (INPUT cocode, "OEBOLLOG", "L" /* Logical */, NO /* check by cust */, 
                    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -910,6 +914,8 @@ PROCEDURE pRunReport :
     DEFINE BUFFER b-oe-boll FOR oe-boll.
     DEFINE BUFFER bf-itemfg FOR itemfg.
     
+    DEFINE VARIABLE lValidBin AS LOGICAL NO-UNDO.
+    
     fDebugMsg("In Run Report").
     FIND FIRST period NO-LOCK                
          WHERE period.company EQ gcompany
@@ -1064,12 +1070,35 @@ PROCEDURE pRunReport :
                     WHERE cust.company EQ oe-bolh.company
                       AND cust.cust-no EQ oe-bolh.cust-no 
                     NO-ERROR.
-                IF AVAIL(cust) AND cust.ACTIVE EQ "X" AND oe-bolh.ship-id = oe-boll.loc THEN DO:
-                    IF lSingleBOL THEN
-                        RUN pCreateNoPostRec ("Cannot transfer to the same location for BOL " + STRING(w-bolh.bol-no)).
-                    ELSE 
-                        RUN pCreateNoPostRec ("Cannot transfer to the same location").
-                    NEXT mainblok.
+                IF AVAILABLE cust AND oe-boll.s-code EQ "T" THEN DO:
+                        RUN oe/custxship.p(
+                            INPUT oe-bolh.company,
+                            INPUT oe-bolh.cust-no,
+                            INPUT oe-bolh.ship-id,
+                            BUFFER shipto
+                            ).
+                    IF AVAILABLE shipto THEN DO:  
+                        IF oe-boll.loc EQ shipto.loc THEN DO:   
+                            IF lSingleBOL THEN     
+                                RUN pCreateNoPostRec ("Cannot tranfer to the same location for BOL " + STRING(w-bolh.bol-no)).
+                            ELSE 
+                                RUN pCreateNoPostRec ("Cannot tranfer to the same location").
+                            NEXT mainblok.
+                        END.
+                        RUN ValidateBin IN hdInventoryProcs(
+                            INPUT cocode, 
+                            INPUT shipto.loc,
+                            INPUT shipto.loc-bin, 
+                            OUTPUT lValidBin
+                            ).
+                        IF NOT lValidBin THEN DO:  
+                            IF lSingleBOL THEN 
+                                RUN pCreateNoPostRec ("Ship To warehouse/bin location does not exist for BOL " + STRING(w-bolh.bol-no)).
+                            ELSE 
+                                RUN pCreateNoPostRec ("Ship To warehouse/bin location does not exist").
+                            NEXT mainblok.
+                        END.                                                           
+                    END.    
                 END.
                 FIND FIRST oe-ordl NO-LOCK
                      WHERE oe-ordl.company = oe-boll.company

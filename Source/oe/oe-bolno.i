@@ -148,12 +148,12 @@ end.*/
   /*task 01121106 disable trigger oe-bolh preventing this from happening*/
   IF oe-bolh.rec_key EQ "" THEN
   DO:
-     CREATE rec_key.
-     ASSIGN
-        oe-bolh.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey")
-        rec_key.rec_key = oe-bolh.rec_key
-        rec_key.table_name = "oe-bolh".
-     RELEASE rec_key.
+/*     CREATE rec_key.*/
+/*     ASSIGN         */
+        oe-bolh.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey").
+/*        rec_key.rec_key = oe-bolh.rec_key*/
+/*        rec_key.table_name = "oe-bolh".  */
+/*     RELEASE rec_key.                    */
   END.
 
   IF vfob-code <> "" THEN DO:

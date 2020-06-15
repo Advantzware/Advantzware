@@ -226,7 +226,8 @@ PROCEDURE pSaveDynParamValues :
         ASSIGN
             dynParamValue.outputFormat  = ipcOutputFormat
             dynParamValue.securityLevel = IF dynParamValue.user-id EQ "_default" THEN 0
-                                          ELSE DYNAMIC-FUNCTION("sfUserSecurityLevel")
+                                          ELSE IF dynParamValue.securityLevel EQ 0 THEN DYNAMIC-FUNCTION("sfUserSecurityLevel")
+                                          ELSE dynParamValue.securityLevel
 /*            /* rstark - remove when depricated */*/
 /*            dynParamValue.paramName     = ""     */
 /*            dynParamValue.paramLabel    = ""     */
@@ -247,7 +248,7 @@ PROCEDURE pSaveDynParamValues :
                     ttParamOrder.paramName     = hWidget:NAME
                     ttParamOrder.paramLabel    = hWidget:LABEL
                     ttParamOrder.paramValue    = hWidget:SCREEN-VALUE
-                    ttParamOrder.paramdataType = hWidget:DATA-TYPE
+                    ttParamOrder.paramDataType = hWidget:DATA-TYPE
                     .
                 IF CAN-DO("COMBO-BOX,FILL-IN",hWidget:TYPE) THEN
                 ttParamOrder.paramFormat = hWidget:FORMAT.

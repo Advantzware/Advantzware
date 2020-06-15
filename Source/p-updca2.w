@@ -54,75 +54,70 @@ CREATE WIDGET-POOL.
 &Scoped-define adm-attribute-dlg adm/support/u-paneld.w
 
 
-DEFINE VARIABLE trans-commit AS LOGICAL NO-UNDO.  
+DEFINE VARIABLE trans-commit AS LOGICAL   NO-UNDO.  
 DEFINE VARIABLE panel-type   AS CHARACTER NO-UNDO INIT 'SAVE':U.
-DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
+DEFINE VARIABLE add-active   AS LOGICAL   NO-UNDO INIT NO.
 
 {methods/defines/hndldefs.i}
 {methods/defines/globdefs.i}
 
 DEFINE BUFFER b-prgrms FOR prgrms.
 
-DEFINE VARIABLE num-groups AS INTEGER NO-UNDO.
-DEFINE VARIABLE group-ok AS LOGICAL NO-UNDO.
+DEFINE VARIABLE num-groups   AS INTEGER NO-UNDO.
+DEFINE VARIABLE group-ok     AS LOGICAL NO-UNDO.
 DEFINE VARIABLE access-close AS LOGICAL NO-UNDO.
+DEFINE VARIABLE v-can-run    AS LOGICAL NO-UNDO.
+DEFINE VARIABLE v-can-update AS LOGICAL NO-UNDO.
+DEFINE VARIABLE v-can-create AS LOGICAL NO-UNDO.
+DEFINE VARIABLE v-can-delete AS LOGICAL NO-UNDO.
 
-DEF VAR v-can-run AS LOG NO-UNDO.
-DEF VAR v-can-update AS LOG NO-UNDO.
-DEF VAR v-can-create AS LOG NO-UNDO.
-DEF VAR v-can-delete AS LOG NO-UNDO.
+{methods/fShowRestrictionMessage.i}
 
-FIND b-prgrms WHERE b-prgrms.prgmname = "p-tchupd." NO-LOCK NO-ERROR.
-IF AVAILABLE b-prgrms THEN
-DO:
-
-  DO num-groups = 1 TO NUM-ENTRIES(g_groups):
-    IF NOT CAN-DO(TRIM(b-prgrms.can_run),ENTRY(num-groups,g_groups)) AND
-       NOT CAN-DO(TRIM(b-prgrms.can_update),ENTRY(num-groups,g_groups)) AND
-       NOT CAN-DO(TRIM(b-prgrms.can_create),ENTRY(num-groups,g_groups)) AND
-       NOT CAN-DO(TRIM(b-prgrms.can_delete),ENTRY(num-groups,g_groups)) THEN
-    NEXT.
-
-    IF NOT v-can-run AND CAN-DO(TRIM(b-prgrms.can_run),ENTRY(num-groups,g_groups))
-          THEN v-can-run = YES.
-    IF NOT v-can-update AND CAN-DO(TRIM(b-prgrms.can_update),ENTRY(num-groups,g_groups))
-          THEN v-can-update = YES.
-    IF NOT v-can-create AND CAN-DO(TRIM(b-prgrms.can_create),ENTRY(num-groups,g_groups))
-          THEN v-can-create = YES.
-    IF NOT v-can-delete AND CAN-DO(TRIM(b-prgrms.can_delete),ENTRY(num-groups,g_groups))
-          THEN v-can-delete = YES.
-
-    group-ok = yes.
-    /*LEAVE. */
-  END.
-  IF NOT CAN-DO(TRIM(b-prgrms.can_run),USERID(ldbname(1))) AND
-     NOT CAN-DO(TRIM(b-prgrms.can_update),USERID(ldbname(1))) AND
-     NOT CAN-DO(TRIM(b-prgrms.can_create),USERID(ldbname(1))) AND
-     NOT CAN-DO(TRIM(b-prgrms.can_delete),USERID(ldbname(1))) AND NOT group-ok THEN
-  DO:
-    MESSAGE "Program :" PROGRAM-NAME(1) SKIP "Title :" b-prgrms.prgtitle SKIP(1)
-        "Access to this Program Denied - Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
-
-    access-close = YES.  /* used later in methods/template/windows.i - local-initialize procedure */
-
-  END.
-  ELSE DO:
-      IF NOT v-can-run AND CAN-DO(TRIM(b-prgrms.can_run),USERID(ldbname(1)))
-            THEN v-can-run = YES.
-      IF NOT v-can-update AND CAN-DO(TRIM(b-prgrms.can_update),USERID(ldbname(1)))
-            THEN v-can-update = YES.
-      IF NOT v-can-create AND CAN-DO(TRIM(b-prgrms.can_create),USERID(ldbname(1)))
-            THEN v-can-create = YES.
-      IF NOT v-can-delete AND CAN-DO(TRIM(b-prgrms.can_delete),USERID(ldbname(1)))
-            THEN v-can-delete = YES.
-  END.
+FIND FIRST b-prgrms NO-LOCK
+     WHERE b-prgrms.prgmname EQ "p-tchupd."
+     NO-ERROR.
+IF AVAILABLE b-prgrms THEN DO:
+    DO num-groups = 1 TO NUM-ENTRIES(g_groups):
+        IF NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   ENTRY(num-groups,g_groups)) AND
+           NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),ENTRY(num-groups,g_groups)) AND
+           NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),ENTRY(num-groups,g_groups)) AND
+           NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),ENTRY(num-groups,g_groups)) THEN
+            NEXT.
+        ASSIGN
+            v-can-run    = NOT v-can-run    AND CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   ENTRY(num-groups,g_groups))
+            v-can-update = NOT v-can-update AND CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),ENTRY(num-groups,g_groups))
+            v-can-create = NOT v-can-create AND CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),ENTRY(num-groups,g_groups))
+            v-can-delete = NOT v-can-delete AND CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),ENTRY(num-groups,g_groups))
+            group-ok     = YES
+            .
+    END. /* do num-groups */
+    IF NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   USERID("ASI")) AND
+       NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),USERID("ASI")) AND
+       NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),USERID("ASI")) AND
+       NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),USERID("ASI")) AND
+       NOT group-ok THEN DO:
+        IF fShowRestrictionMessage(g_company) THEN
+        MESSAGE
+            "Program :" PROGRAM-NAME(1) SKIP 
+            "Title :" b-prgrms.prgtitle SKIP(1)
+            "Access to this Program Denied - Contact Systems Manager"
+        VIEW-AS ALERT-BOX ERROR.
+        access-close = YES.  /* used later in methods/template/windows.i - local-initialize procedure */
+    END.
+    ELSE 
+    ASSIGN
+        v-can-run    = NOT v-can-run    AND CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   USERID("ASI"))
+        v-can-update = NOT v-can-update AND CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),USERID("ASI"))
+        v-can-create = NOT v-can-create AND CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),USERID("ASI"))
+        v-can-delete = NOT v-can-delete AND CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),USERID("ASI"))
+        .
 END. 
-ELSE
-DO: 
-  MESSAGE "Program :" PROGRAM-NAME(1) SKIP(1)
-      "Program Master Record Does Not Exist - Contact Systems Manager" 
-          VIEW-AS ALERT-BOX ERROR.
-  RETURN.
+ELSE DO: 
+    MESSAGE
+        "Program :" PROGRAM-NAME(1) SKIP(1)
+        "Program Master Record Does Not Exist - Contact Systems Manager" 
+    VIEW-AS ALERT-BOX ERROR.
+    RETURN.
 END.
 
 /* _UIB-CODE-BLOCK-END */

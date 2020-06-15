@@ -553,11 +553,11 @@ PROCEDURE local-create-record :
    ar-mcashl.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey")
    .
 
-  CREATE rec_key.
-  ASSIGN
-     rec_key.rec_key    = ar-mcashl.rec_key
-     rec_key.table_name = "ar-mcash".
-  RELEASE rec_key.
+/*  CREATE rec_key.                          */
+/*  ASSIGN                                   */
+/*     rec_key.rec_key    = ar-mcashl.rec_key*/
+/*     rec_key.table_name = "ar-mcash".      */
+/*  RELEASE rec_key.                         */
 
   CREATE bf-mcash.
   BUFFER-COPY ar-mcashl TO bf-mcash.

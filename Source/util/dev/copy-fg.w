@@ -631,10 +631,10 @@ PROCEDURE run-process :
       NO-LOCK NO-ERROR.
 
   lv-rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey").
-  CREATE rec_key.
-  ASSIGN
-   rec_key.rec_key    = lv-rec_key
-   rec_key.table_name = "ITEMFG".
+/*  CREATE rec_key.                 */
+/*  ASSIGN                          */
+/*   rec_key.rec_key    = lv-rec_key*/
+/*   rec_key.table_name = "ITEMFG". */
 
   CREATE b-itemfg.
   BUFFER-COPY itemfg EXCEPT rec_key TO b-itemfg

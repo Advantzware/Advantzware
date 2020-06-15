@@ -46,11 +46,10 @@ DO TRANSACTION:
   
       iCount = iCount + 1.
   
-  
-      CREATE rec_key.
-      ASSIGN
-       rec_key.rec_key    = cNewRecKey
-       rec_key.table_name = ipcTableName.
+/*      CREATE rec_key.                    */
+/*      ASSIGN                             */
+/*       rec_key.rec_key    = cNewRecKey   */
+/*       rec_key.table_name = ipcTableName.*/
   
       lStatus = hQryHndl:GET-NEXT(EXCLUSIVE-LOCK).
     

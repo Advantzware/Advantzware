@@ -159,12 +159,9 @@ IF AVAIL job-code THEN
                        and (eb.blank-no eq job-hdr.blank-no or job-hdr.blank-no eq 0)
                      no-lock no-error.
 
-             IF AVAIL eb THEN
-                v-t-sqft = if v-corr then round(eb.t-sqin * 0.007,4) else round(eb.t-sqin / 144,4).
-             ELSE
-                v-t-sqft = itemfg.t-sqft.
+             RUN fg/GetFGArea.p (ROWID(itemfg), "MSF", OUTPUT v-t-sqft).
 
-             work-tmp.msf = work-tmp.msf + (mch-act.qty * v-t-sqft * v-on / 1000).
+             work-tmp.msf = work-tmp.msf + (mch-act.qty * v-t-sqft).
          END. /*each job-hdr*/
    END.
   

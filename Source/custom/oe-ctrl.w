@@ -74,9 +74,9 @@ sys-ctrl.char-fld
 &Scoped-define ENABLED-TABLES-IN-QUERY-brHoldTests sys-ctrl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-brHoldTests sys-ctrl
 &Scoped-define QUERY-STRING-brHoldTests FOR EACH sys-ctrl ~
-      WHERE sys-ctrl.module = "VAL" NO-LOCK INDEXED-REPOSITION
+      WHERE sys-ctrl.company EQ gcompany AND sys-ctrl.module = "VAL" NO-LOCK INDEXED-REPOSITION
 &Scoped-define OPEN-QUERY-brHoldTests OPEN QUERY brHoldTests FOR EACH sys-ctrl ~
-      WHERE sys-ctrl.module = "VAL" NO-LOCK INDEXED-REPOSITION.
+      WHERE sys-ctrl.company EQ gcompany AND sys-ctrl.module = "VAL" NO-LOCK INDEXED-REPOSITION.
 &Scoped-define TABLES-IN-QUERY-brHoldTests sys-ctrl
 &Scoped-define FIRST-TABLE-IN-QUERY-brHoldTests sys-ctrl
 
@@ -316,7 +316,7 @@ THEN C-Win:HIDDEN = no.
 /* Query rebuild information for BROWSE brHoldTests
      _TblList          = "asi.sys-ctrl"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
-     _Where[1]         = "asi.sys-ctrl.module = ""VAL"""
+     _Where[1]         = "sys-ctrl.company EQ gcompany AND sys-ctrl.module = ""VAL"""
      _FldNameList[1]   > asi.sys-ctrl.name
 "sys-ctrl.name" ? "x(16)" "character" ? ? ? ? ? ? no ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.sys-ctrl.descrip

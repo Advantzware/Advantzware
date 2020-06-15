@@ -508,6 +508,8 @@ PROCEDURE pCreateDynParameters :
             hWidget = hWidget:FIRST-CHILD
             .
         DO WHILE VALID-HANDLE(hWidget):
+            IF hWidget:NAME EQ "svRunSync" THEN
+            hWidget:SCREEN-VALUE = "NO".
             FIND FIRST dynValueParam NO-LOCK
                  WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
                    AND dynValueParam.user-id      EQ dynParamValue.user-id

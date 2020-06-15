@@ -27,7 +27,7 @@ SET backdate=%MyDate:~3,1%%MyDate:~4,2%%MyDate:~6,2%
 SET DLC=%DLCDir%
 ECHO Beginning PROD database backup >> %logFile%
 
-!Drive!
+!DbDrive!
 
 CD \!topDir!\!DbDir!\!dbProdDir!
 ECHO   Backing up !prodDbName! to !prodDbName!.bak >> %logFile%

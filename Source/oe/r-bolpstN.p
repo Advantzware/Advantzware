@@ -49,6 +49,7 @@ DEFINE VARIABLE lSingleBOL AS LOGICAL NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
+{Inventory/ttInventory.i "NEW SHARED"}
     
 assign
  cocode = gcompany
@@ -89,7 +90,9 @@ DEF VAR v-rec-found     AS LOG  NO-UNDO.
 DEF VAR invstatus-char  AS CHAR NO-UNDO.
 DEF VAR invstatus-log   AS LOG  NO-UNDO.
 DEF VAR v-invalid AS LOG NO-UNDO.
+DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
 
+RUN inventory/InventoryProcs PERSISTENT SET hdInventoryProcs.
 
 FORMAT
   oe-bolh.bol-date
@@ -468,6 +471,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* BOL Edit List  Posting */
 DO:
+    IF VALID-HANDLE(hdInventoryProcs) THEN 
+        DELETE PROCEDURE hdInventoryProcs.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -1600,6 +1605,8 @@ PROCEDURE run-report :
 DEFINE BUFFER b-oe-boll FOR oe-boll.
 DEFINE BUFFER bf-itemfg FOR itemfg.
 
+DEFINE VARIABLE lValidBin AS LOGICAL NO-UNDO.
+
 {sys/form/r-top3w.f}
 
 FORM HEADER SKIP(1) WITH FRAME r-top.
@@ -1772,16 +1779,35 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
                       INPUT oe-bolh.ship-id,
                       BUFFER shipto
                       ).
-              IF AVAILABLE shipto AND oe-boll.loc EQ shipto.loc THEN DO:     
-                  IF lSingleBOL THEN     
-                      MESSAGE "BOL" STRING(oe-bolh.bol-no) "Cannot Transfer to the Same Location" oe-boll.loc 
-                          VIEW-AS ALERT-BOX ERROR.
-                  ELSE 
-                      RUN create-nopost(
-                          INPUT "Cannot transfer to the same location"
-                          ).
-                  DELETE w-bolh.
-                  NEXT mainblok.
+              IF AVAILABLE shipto THEN DO:  
+                  IF oe-boll.loc EQ shipto.loc THEN DO:   
+                      IF lSingleBOL THEN     
+                          MESSAGE "BOL" STRING(oe-bolh.bol-no) "Cannot Transfer to the Same Location" oe-boll.loc 
+                              VIEW-AS ALERT-BOX ERROR.
+                      ELSE 
+                          RUN create-nopost(
+                              INPUT "Cannot transfer to the same location"
+                              ).
+                      DELETE w-bolh.
+                      NEXT mainblok.
+                  END.
+                  RUN ValidateBin IN hdInventoryProcs(
+                      INPUT cocode, 
+                      INPUT shipto.loc,
+                      INPUT shipto.loc-bin, 
+                      OUTPUT lValidBin
+                      ).
+                  IF NOT lValidBin THEN DO:  
+                      IF lSingleBOL THEN 
+                          MESSAGE "Ship To warehouse/bin location does not exist for BOL# " STRING(oe-bolh.bol-no)
+                              VIEW-AS ALERT-BOX ERROR.
+                      ELSE 
+                          RUN create-nopost(
+                              INPUT "Ship To warehouse/bin location does not exist"
+                              ).
+                      DELETE w-bolh.
+                      NEXT mainblok.
+                  END.                                                           
               END.    
           END.
         find first oe-ordl where oe-ordl.company = oe-boll.company  and

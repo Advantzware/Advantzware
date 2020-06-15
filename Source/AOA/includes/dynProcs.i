@@ -179,7 +179,7 @@ PROCEDURE pGetRecipients:
     
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
-    FIND FIRST dynValueParam EXCLUSIVE-LOCK
+    FIND FIRST dynValueParam NO-LOCK
          WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
            AND dynValueParam.user-id      EQ dynParamValue.user-id
            AND dynValueParam.prgmName     EQ dynParamValue.prgmName

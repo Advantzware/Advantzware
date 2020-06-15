@@ -73,6 +73,7 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     FIELD securityLevel    LIKE dynParamValue.securityLevel
     FIELD externalForm     LIKE dynParamValue.externalForm
     FIELD recordLimit      LIKE dynParamValue.recordLimit
+    FIELD runSync          LIKE dynParamValue.runSync
     FIELD lastRunDateTime  LIKE dynParamValue.lastRunDateTime
     FIELD paramValueRowID    AS ROWID
     FIELD allData            AS CHARACTER
@@ -225,6 +226,7 @@ ttDynParamValue.module LABEL-BGCOLOR 14
 ttDynParamValue.user-id LABEL-BGCOLOR 14
 ttDynParamValue.paramValueID
 ttDynParamValue.outputFormat
+ttDynParamValue.runSync
 ttDynParamValue.prgmName LABEL-BGCOLOR 14
 ttDynParamValue.securityLevel
 ttDynParamValue.mnemonic LABEL-BGCOLOR 14
@@ -934,6 +936,7 @@ PROCEDURE pGetParamValue :
             ttDynParamValue.securityLevel    = dynParamValue.securityLevel
             ttDynParamValue.externalForm     = dynParamValue.externalForm
             ttDynParamValue.lastRunDateTime  = dynParamValue.lastRunDateTime
+            ttDynParamValue.runSync          = dynParamValue.runSync
             ttDynParamValue.paramValueRowID  = ROWID(dynParamValue)
             ttDynParamValue.allData          = ttDynParamValue.mnemonic + "|"
                                              + ttDynParamValue.paramDescription + "|"

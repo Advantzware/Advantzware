@@ -6074,7 +6074,9 @@ PROCEDURE valid-ord-no :
         
             FIND FIRST oe-ord NO-LOCK
                 WHERE oe-ord.company EQ cocode
-                AND oe-ord.ord-no  EQ INT(po-ordl.ord-no:SCREEN-VALUE) NO-ERROR.
+                AND oe-ord.ord-no  EQ INT(po-ordl.ord-no:SCREEN-VALUE) 
+                AND oe-ord.ord-no NE 0
+                NO-ERROR.
             IF AVAILABLE oe-ord 
                 THEN
                 ASSIGN
