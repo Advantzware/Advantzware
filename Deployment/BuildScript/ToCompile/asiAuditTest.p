@@ -12,5 +12,5 @@ IF AVAIL module THEN ASSIGN
 
 IF CAN-FIND(FIRST _file WHERE _file._file-name EQ "dep-table") THEN ASSIGN 
     oplHasTables = TRUE.
-
+    
 
