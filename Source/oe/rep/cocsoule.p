@@ -251,16 +251,14 @@ for each report where report.term-id eq v-term-id no-lock,
     chWorkSheet:Range("C39"):VALUE = cLotNo  .
     
     /* Signature image */
-    IF SEARCH(FILE-INFO:FULL-PATHNAME) NE ? THEN DO:
-       mypict = chExcelApplication:Range("B43"):Parent:Pictures:Insert(FILE-INFO:FULL-PATHNAME).
-       mypict:TOP = chExcelApplication:Range("B43"):TOP.
-       mypict:LEFT = chExcelApplication:Range("B43"):LEFT.
-       RELEASE OBJECT mypict.
-    END.
-    
-    FIND FIRST users WHERE users.user_id = USERID(ldbname(1)) NO-LOCK NO-ERROR.
-    chWorkSheet:Range("C46"):VALUE = STRING(USERID(ldbname(1)) )   .
-    
+    /*IF SEARCH(FILE-INFO:FULL-PATHNAME) NE ? THEN DO:                                              */
+    /*   mypict = chExcelApplication:Range("B43"):Parent:Pictures:Insert(FILE-INFO:FULL-PATHNAME).  */
+    /*   mypict:TOP = chExcelApplication:Range("B43"):TOP.                                          */
+    /*   mypict:LEFT = chExcelApplication:Range("B43"):LEFT.                                        */
+    /*   RELEASE OBJECT mypict.                                                                     */
+    /*END.                                                                                          */
+                                                                                                    
+        
     ASSIGN
        v-bol-qty = 0
        v-rel-date = 12/31/2999
