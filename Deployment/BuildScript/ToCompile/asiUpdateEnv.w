@@ -5859,7 +5859,7 @@ PROCEDURE ipResetCostGroups:
         cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
         PROPATH = cNewPropath.
         
-    RUN est/ResetCostGroupsAndCategories.   
+    RUN est/ResetCostGroupsAndCategories.p   
     
     ASSIGN 
         PROPATH = cOrigPropath.     
