@@ -93,6 +93,185 @@ FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE Inventory_CheckPOUnderOver:
+/*------------------------------------------------------------------------------
+ Purpose: To Check under under/over quantities for PO
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2      AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItem        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPoNo        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiReceivedQty AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER lCopied        AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFGUnderOver AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFGUnderOver AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER iplFGUnderOver AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipriFGRctd     AS ROWID     NO-UNDO.
+    
+    DEFINE VARIABLE dReceivedQty AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lIsUOMEA     AS LOGICAL   NO-UNDO.
+    
+    
+    FOR EACH fg-rctd NO-LOCK
+        WHERE fg-rctd.company     EQ ipcCompany 
+          AND(fg-rctd.rita-code   EQ "R" OR fg-rctd.rita-code EQ "E")
+          AND TRIM(fg-rctd.job-no)EQ ipcJobNo
+          AND fg-rctd.job-no2     EQ ipiJobNo2
+          AND fg-rctd.i-no        EQ ipcItem
+          AND fg-rctd.po-no       EQ ipcPoNo
+          AND(ROWID(fg-rctd)      NE ipriFgRctd OR lCopied):
+        dReceivedQty = dReceivedQty + fg-rctd.t-qty.     
+    END.
+
+    dReceivedQty = dReceivedQty + ipiReceivedQty.
+    
+    FIND FIRST po-ordl NO-LOCK 
+         WHERE po-ordl.company  EQ ipcCompany
+          AND po-ordl.po-no     EQ INTEGER(ipcPoNo)
+          AND po-ordl.i-no      EQ ipcItem
+          AND po-ordl.job-no    EQ ipcJobNo
+          AND po-ordl.job-no2   EQ ipiJobNo2
+          AND po-ordl.item-type EQ NO
+        NO-ERROR.
+ 
+    IF AVAILABLE po-ordl THEN DO:
+        dReceivedQty = po-ordl.t-rec-qty + dReceivedQty.
+        RUN sys/ref/ea-um-fg.p(
+            INPUT  po-ordl.pr-qty-uom, 
+            OUTPUT lIsUOMEA
+            ).
+        IF NOT lIsUOMEA THEN
+            RUN sys/ref/convquom.p(
+                INPUT "EA",
+                INPUT po-ordl.pr-qty-uom,
+                INPUT 0,
+                INPUT 0,
+                INPUT 0,
+                INPUT 0,
+                INPUT-OUTPUT dReceivedQty
+                ).
+        IF iplFGUnderOver THEN DO:
+            IF(ipcFGUnderOver EQ "OverRuns Only" OR ipcFGUnderOver EQ "UnderRuns and OverRun") AND 
+                dReceivedQty GT po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100)) THEN DO:
+                IF ipiFGUnderOver EQ 1 THEN DO: 
+                   MESSAGE "The PO Quantity entered is more than the" STRING(po-ordl.over-pct,">>9.99%") SKIP 
+                      "Overrun allowed for this PO line Item, and excess overruns are not allowed."
+                      VIEW-AS ALERT-BOX ERROR. 
+                   RETURN ERROR.
+                END.           
+                ELSE 
+                   MESSAGE "The PO Quantity entered is more than the" STRING(po-ordl.over-pct,">>9.99%") SKIP 
+                       "Overrun allowed for this PO line Item..."
+                       VIEW-AS ALERT-BOX WARNING. 
+            END.  
+            ELSE IF(ipcFGUnderOver EQ "UnderRuns Only" OR ipcFGUnderOver EQ "UnderRuns and OverRun") AND 
+                     dReceivedQty LT po-ordl.ord-qty * (1 - (po-ordl.under-pct / 100)) THEN DO:
+                IF ipiFGUnderOver EQ 1 THEN DO:   
+                    MESSAGE "The PO Quantity entered is less than the" STRING(po-ordl.under-pct,">>9.99%") SKIP 
+                        "Underrun allowed for this PO line Item, and excess underruns are not allowed."
+                        VIEW-AS ALERT-BOX ERROR. 
+                    RETURN ERROR.        
+                END.         
+                ELSE 
+                   MESSAGE "The PO Quantity entered is less than the" STRING(po-ordl.under-pct,">>9.99%") SKIP 
+                       "Underrun allowed for this PO line Item..."
+                       VIEW-AS ALERT-BOX WARNING.             
+            END.                                 
+        END.                    
+    END.       
+END PROCEDURE.
+
+PROCEDURE Inventory_CheckJobUnderOver:
+/*------------------------------------------------------------------------------
+ Purpose: To Check under under/over quantities for PO
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo       AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2      AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItem        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPoNo        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiReceivedQty AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER lCopied        AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFGUnderOver AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFGUnderOver AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER iplFGUnderOver AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipriFGRctd     AS ROWID     NO-UNDO.
+   
+    DEFINE VARIABLE dReceivedQty   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dOverPct       AS DECIMAL  NO-UNDO.
+    DEFINE VARIABLE dUnderPct      AS DECIMAL  NO-UNDO.
+    
+    FOR EACH fg-rctd NO-LOCK
+        WHERE fg-rctd.company     EQ ipcCompany 
+          AND(fg-rctd.rita-code   EQ "R" OR fg-rctd.rita-code EQ "E")
+          AND TRIM(fg-rctd.job-no)EQ ipcJobNo
+          AND fg-rctd.job-no2     EQ ipiJobNo2
+          AND fg-rctd.i-no        EQ ipcItem
+          AND fg-rctd.po-no       EQ ipcPoNo
+          AND(ROWID(fg-rctd)      NE ipriFgRctd OR lCopied):
+        dReceivedQty = dReceivedQty + fg-rctd.t-qty.     
+    END.
+    dReceivedQty = dReceivedQty + ipiReceivedQty.
+    
+    FIND FIRST job-hdr NO-LOCK
+         WHERE job-hdr.company EQ ipcCompany                       
+           AND job-hdr.i-no    EQ ipcItem
+           AND job-hdr.job-no  EQ ipcJobNo
+           AND job-hdr.job-no2 EQ ipiJobNo2
+        NO-ERROR.
+    IF AVAILABLE job-hdr THEN DO: 
+        FIND FIRST oe-ordl NO-LOCK
+             WHERE oe-ordl.company EQ job-hdr.company
+               AND oe-ordl.ord-no  EQ job-hdr.ord-no
+               AND oe-ordl.i-no    EQ job-hdr.i-no
+            NO-ERROR.
+         FIND FIRST oe-ord NO-LOCK
+              WHERE oe-ord.company EQ job-hdr.company
+                AND oe-ord.ord-no  EQ job-hdr.ord-no
+             NO-ERROR.
+        ASSIGN     
+            dOverPct = (IF AVAILABLE oe-ordl     THEN oe-ordl.over-pct 
+                        ELSE IF AVAILABLE oe-ord THEN oe-ord.over-pct  
+                        ELSE 0)                     
+            dUnderPct = (IF AVAILABLE oe-ordl     THEN oe-ordl.under-pct 
+                         ELSE IF AVAILABLE oe-ord THEN oe-ord.under-pct  
+                         ELSE 0) 
+            .
+                        
+        IF iplFGUnderOver THEN DO:
+            IF (ipcFGUnderOver EQ "OverRuns Only" OR ipcFGUnderOver EQ "UnderRuns and OverRun") AND 
+                dReceivedQty GT job-hdr.qty * (1 + dOverPct / 100) THEN DO:
+                IF ipiFGUnderOver EQ 1 THEN DO:   
+                    MESSAGE "The Job Quantity entered is more than the" STRING(dOverPct,">>9.99%") SKIP 
+                          "Overrun allowed for this Job, and excess overruns are not allowed."
+                          VIEW-AS ALERT-BOX ERROR. 
+                          RETURN ERROR.
+               END.        
+               ELSE 
+                   MESSAGE "The Job Quantity entered is more than the" STRING(dOverPct,">>9.99%") SKIP 
+                       "Overrun allowed for this Job..."
+                       VIEW-AS ALERT-BOX WARNING. 
+            END.  
+            ELSE IF (ipcFGUnderOver EQ "UnderRuns Only" OR ipcFGUnderOver EQ "UnderRuns and OverRun") AND 
+                     dReceivedQty LT job-hdr.qty * (1 - dUnderPct / 100) THEN DO:
+                IF ipiFGUnderOver EQ 1 THEN DO:   
+                     MESSAGE "The Job Quantity entered is less than the" STRING(dUnderPct,">>9.99%") SKIP 
+                        "Underrun allowed for this Job, and excess underruns are not allowed."
+                        VIEW-AS ALERT-BOX ERROR.
+                        RETURN ERROR.
+                END.          
+                ELSE 
+                   MESSAGE "The Job Quantity entered is less than the" STRING(dUnderPct,">>9.99%") SKIP 
+                       "Underrun allowed for this Job..."
+                       VIEW-AS ALERT-BOX WARNING.             
+            END.                                 
+        END. 
+    END.           
+END PROCEDURE.
+
 PROCEDURE Inventory_GetDefaultBin:
 /*------------------------------------------------------------------------------
  Purpose: To get the default bin defined for a user in reftable

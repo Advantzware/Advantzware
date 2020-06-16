@@ -601,6 +601,29 @@ ASSIGN
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
+ON END-ERROR OF FRAME Dialog-Frame /* Warehouse Transaction(Finished Goods) Update */
+DO:
+    DISABLE TRIGGERS FOR LOAD OF fg-rctd .
+    IF AVAILABLE fg-rctd THEN
+        op-rowid = ROWID(fg-rctd) .
+
+    IF lv-item-recid NE ? THEN 
+    DO:
+        FIND FIRST fg-rctd EXCLUSIVE-LOCK
+            WHERE RECID(fg-rctd) EQ lv-item-recid  NO-ERROR.
+        IF AVAILABLE fg-rctd THEN DELETE fg-rctd .
+        op-rowid = ? .
+    END.
+    APPLY 'GO':U TO FRAME {&FRAME-NAME}.       
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON HELP OF FRAME Dialog-Frame /* Warehouse Transaction(Finished Goods) Update */
 DO:
         DEFINE VARIABLE ll-tag#   AS LOG     NO-UNDO.
@@ -2811,52 +2834,9 @@ PROCEDURE get-matrix :
     IF NOT AVAILABLE fg-rctd THEN RETURN.  /* no records */
 
     DO WITH FRAME {&FRAME-NAME}:
-        IF AVAILABLE fg-rctd AND fg-rctd.i-no:SCREEN-VALUE  <> "" THEN 
-        DO: /* in update mode - use screen-value */
-            IF INTEGER(fg-rctd.po-no:SCREEN-VALUE) NE 0 THEN 
-            DO:  
-                RUN pDisplayPO(ip-first-disp).
- 
-            END.
-           
-            ELSE IF fg-rctd.job-no:SCREEN-VALUE <> "" THEN 
-                DO:
-                    FIND FIRST job-hdr WHERE job-hdr.company = cocode                       
-                        AND job-hdr.i-no  = fg-rctd.i-no:screen-value
-                        AND job-hdr.job-no = (fg-rctd.job-no:screen-value)
-                        AND job-hdr.job-no2 = integer(fg-rctd.job-no2:screen-value)
-                        NO-LOCK NO-ERROR.
-                    IF AVAILABLE job-hdr THEN 
-                    DO: 
-                        FIND FIRST sys-ctrl WHERE sys-ctrl.company = cocode AND
-                            sys-ctrl.name = "JOB QTY" 
-                            NO-LOCK NO-ERROR.
-                        IF AVAILABLE sys-ctrl AND sys-ctrl.log-fld THEN v-rec-qty = job-hdr.qty                          .
-                        ELSE 
-                        DO:
-                            FIND FIRST oe-ordl NO-LOCK
-                                WHERE oe-ordl.company EQ job-hdr.company
-                                AND oe-ordl.ord-no  EQ job-hdr.ord-no
-                                AND oe-ordl.i-no    EQ job-hdr.i-no
-                                NO-ERROR.
-                            FIND FIRST oe-ord NO-LOCK
-                                WHERE oe-ord.company EQ job-hdr.company
-                                AND oe-ord.ord-no  EQ job-hdr.ord-no
-                                NO-ERROR.
-              
-                            v-rec-qty = (job-hdr.qty * (1 + (IF AVAILABLE oe-ordl THEN oe-ordl.over-pct ELSE
-                                IF AVAILABLE oe-ord  THEN oe-ord.over-pct  ELSE 0 / 100))).
-      
-                        END.
-                        IF v-rec-qty <  int(fg-rctd.t-qty:SCREEN-VALUE) AND NOT lv-overrun-checked THEN 
-                        DO:
-                            MESSAGE "Receipt quantity exceeds job quantity." VIEW-AS ALERT-BOX WARNING.
-                            lv-overrun-checked = YES.
-                        END.
-          
-                    END.
-                END.
-        END. 
+        IF AVAILABLE fg-rctd AND fg-rctd.i-no:SCREEN-VALUE NE ""  AND 
+            INTEGER(fg-rctd.po-no:SCREEN-VALUE) NE 0 THEN  /* in update mode - use screen-value */
+            RUN pDisplayPO(ip-first-disp).
     END. /*Do with Frame*/
 
 END PROCEDURE.
@@ -2872,99 +2852,51 @@ PROCEDURE get-matrix-all :
               Notes:       
             ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ip-first-disp AS LOG NO-UNDO.
-    DEFINE VARIABLE v-len       LIKE po-ordl.s-len NO-UNDO.
-    DEFINE VARIABLE v-wid       LIKE po-ordl.s-len NO-UNDO.
-    DEFINE VARIABLE v-dep       LIKE po-ordl.s-len NO-UNDO. 
-    DEFINE VARIABLE v-bwt       LIKE po-ordl.s-len NO-UNDO.
-    DEFINE VARIABLE lv-out-qty  AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE lv-out-cost AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE v-rec-qty   AS INTEGER NO-UNDO.
-    DEFINE VARIABLE ll-ea       AS LOG     NO-UNDO.
-
-    DEFINE BUFFER b-fg-rctd FOR fg-rctd.
-
 
     cocode = g_company.
-    DO WITH FRAME {&FRAME-NAME}:
-        lv-out-qty = 0.
-        FOR EACH b-fg-rctd WHERE b-fg-rctd.company EQ g_company AND
-            (b-fg-rctd.rita-code EQ "R" OR b-fg-rctd.rita-code EQ "E")
-            AND trim(b-fg-rctd.job-no) = trim(fg-rctd.job-no:SCREEN-VALUE )
-            AND b-fg-rctd.job-no2 = INT(fg-rctd.job-no2:SCREEN-VALUE)
-            AND b-fg-rctd.i-no = fg-rctd.i-no:SCREEN-VALUE 
-            AND (RECID(b-fg-rctd) <> recid(fg-rctd) 
-            OR (adm-new-record AND NOT adm-adding-record))
-            NO-LOCK :
+    
+    IF fg-rctd.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO: /* in update mode - use screen-value */
+        FIND FIRST po-ordl NO-LOCK 
+             WHERE po-ordl.company   EQ cocode
+               AND po-ordl.po-no     EQ INTEGER(fg-rctd.po-no:screen-value) 
+               AND po-ordl.i-no      EQ fg-rctd.i-no:screen-value
+               AND po-ordl.job-no    EQ (fg-rctd.job-no:screen-value)
+               AND po-ordl.job-no2   EQ INTEGER(fg-rctd.job-no2:screen-value)
+               AND po-ordl.item-type EQ NO
+             NO-ERROR.
+    
+        IF AVAIL po-ordl THEN
+           RUN Inventory_CheckPOUnderOver IN hInventoryProcs(
+                INPUT cocode,
+                INPUT TRIM(fg-rctd.job-no:SCREEN-VALUE ),
+                INPUT INTEGER(fg-rctd.job-no2:SCREEN-VALUE),
+                INPUT fg-rctd.i-no:SCREEN-VALUE,
+                INPUT fg-rctd.po-no:SCREEN-VALUE,
+                INPUT INTEGER(fg-rctd.t-qty:SCREEN-VALUE),
+                INPUT (adm-new-record AND NOT adm-adding-record), /* Copied Record */
+                INPUT gcFGUnderOver,
+                INPUT giFGUnderOver,
+                INPUT glFGUnderOver,
+                INPUT ROWID(fg-rctd)                              /* ROWID of current fg-rctd record */
+                )NO-ERROR.
 
-            lv-out-qty = lv-out-qty + b-fg-rctd.t-qty.     
-        END.
-  
-        lv-out-qty = lv-out-qty + int(fg-rctd.t-qty:SCREEN-VALUE).
-
-        IF fg-rctd.i-no:SCREEN-VALUE <> "" THEN 
-        DO: /* in update mode - use screen-value */
-            FIND itemfg  WHERE itemfg.company EQ cocode
-                AND itemfg.i-no  EQ fg-rctd.i-no:SCREEN-VALUE 
-                USE-INDEX i-no NO-LOCK NO-ERROR.
-            FIND FIRST po-ordl WHERE po-ordl.company = cocode
-                AND po-ordl.po-no = integer(fg-rctd.po-no:SCREEN-VALUE ) 
-                AND po-ordl.i-no  = fg-rctd.i-no:screen-value
-                AND po-ordl.job-no = (fg-rctd.job-no:screen-value)
-                AND po-ordl.job-no2 = integer(fg-rctd.job-no2:screen-value)
-                AND po-ordl.item-type = NO
-                NO-LOCK NO-ERROR.
-  
-            IF AVAILABLE po-ordl THEN 
-            DO:
-                v-rec-qty = po-ordl.t-rec-qty + lv-out-qty.
-                RUN sys/ref/ea-um-fg.p (po-ordl.pr-qty-uom, OUTPUT ll-ea).
-                IF NOT ll-ea THEN
-                    RUN sys/ref/convquom.p("EA", po-ordl.pr-qty-uom, 0, 0, 0, 0,
-                        v-rec-qty, OUTPUT v-rec-qty).
-                RUN valid-porec-qty(INPUT v-rec-qty).
-                IF lFatalQtyError THEN RETURN ERROR.
-            END.
-            ELSE IF fg-rctd.job-no:SCREEN-VALUE <> "" THEN 
-                DO:
-                    FIND FIRST job-hdr WHERE job-hdr.company = cocode                       
-                        AND job-hdr.i-no  = fg-rctd.i-no:screen-value
-                        AND job-hdr.job-no = (fg-rctd.job-no:screen-value)
-                        AND job-hdr.job-no2 = integer(fg-rctd.job-no2:screen-value)
-                        NO-LOCK NO-ERROR.
-                    IF AVAILABLE job-hdr THEN 
-                    DO: 
-                        FIND FIRST sys-ctrl WHERE sys-ctrl.company = g_company AND
-                            sys-ctrl.name = "JOB QTY" 
-                            NO-LOCK NO-ERROR.
-                        IF AVAILABLE sys-ctrl AND sys-ctrl.log-fld THEN v-rec-qty = job-hdr.qty                          .
-                        ELSE 
-                        DO:
-                            FIND FIRST oe-ordl NO-LOCK
-                                WHERE oe-ordl.company EQ job-hdr.company
-                                AND oe-ordl.ord-no  EQ job-hdr.ord-no
-                                AND oe-ordl.i-no    EQ job-hdr.i-no
-                                NO-ERROR.
-                            FIND FIRST oe-ord NO-LOCK
-                                WHERE oe-ord.company EQ job-hdr.company
-                                AND oe-ord.ord-no  EQ job-hdr.ord-no
-                                NO-ERROR.
-              
-                            v-rec-qty = (job-hdr.qty * (1 + ((IF AVAILABLE oe-ordl THEN oe-ordl.over-pct ELSE
-                                IF AVAILABLE oe-ord  THEN oe-ord.over-pct  ELSE 0) / 100))).
-                        END.
-                        IF v-rec-qty <  lv-out-qty AND NOT lv-overrun-checked THEN 
-                        DO:
-                            MESSAGE "Receipt Qty has exceeded Job Qty. " VIEW-AS ALERT-BOX WARNING.
-                            /*RETURN ERROR.*/
-                            lv-overrun-checked = YES.
-                        END.
-           
-                    END.
-                END.
-     
-        END. /* i-no <> ""*/
-    END.
-
+        ELSE IF fg-rctd.job-no:SCREEN-VALUE NE "" THEN
+            RUN Inventory_CheckJobUnderOver IN hInventoryProcs(
+                INPUT cocode,
+                INPUT TRIM(fg-rctd.job-no:SCREEN-VALUE ),
+                INPUT INTEGER(fg-rctd.job-no2:SCREEN-VALUE),
+                INPUT fg-rctd.i-no:SCREEN-VALUE,
+                INPUT fg-rctd.po-no:SCREEN-VALUE,
+                INPUT INTEGER(fg-rctd.t-qty:SCREEN-VALUE),
+                INPUT (adm-new-record AND NOT adm-adding-record), /* Copied Record */
+                INPUT gcFGUnderOver,
+                INPUT giFGUnderOver,
+                INPUT glFGUnderOver,
+                INPUT ROWID(fg-rctd)                             /* ROWID of current fg-rctd record */
+                )NO-ERROR.  
+    END. /* i-no <> ""*/
+    IF ERROR-STATUS:ERROR THEN  
+        RETURN ERROR.    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4363,49 +4295,6 @@ PROCEDURE valid-po-no :
             /*                RUN update-ttt.*/
             END.
         END.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-porec-qty Dialog-Frame 
-PROCEDURE valid-porec-qty :
-/*------------------------------------------------------------------------------
-              Purpose:     
-              Parameters:  <none>
-              Notes:       
-            ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipRecQty AS INTEGER NO-UNDO.
-    IF lAllowUserOverRun THEN ASSIGN giFGUnderOver = 0 .
-    IF glFGUnderOver 
-    AND (gcFGUnderOver EQ "OverRuns Only" OR gcFGUnderOver EQ "UnderRuns and OverRun")
-    AND ipRecQty GT po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100)) AND NOT lv-overrun2-checked  THEN DO:  
-        IF giFGUnderOver EQ 1 THEN DO:        
-            MESSAGE 
-                "The PO Quantity entered is more than the" STRING(po-ordl.over-pct,">>9.99%") SKIP 
-                "Overrun allowed for this PO line Item, and excess overruns are not allowed."
-                VIEW-AS ALERT-BOX WARNING .
-            lv-overrun2-checked = YES.
-            lFatalQtyError = YES.
-        END.
-        ELSE DO:
-            MESSAGE 
-                "The PO Quantity entered is more than the" STRING(po-ordl.over-pct,">>9.99%") SKIP 
-                "Overrun allowed for this PO line Item..."
-                VIEW-AS ALERT-BOX WARNING .
-            lv-overrun2-checked = YES.
-        END.
-    END.
-    ELSE IF glFGUnderOver 
-    AND (gcFGUnderOver EQ "UnderRuns Only" OR gcFGUnderOver EQ "UnderRuns and OverRun")
-    AND ipRecQty LT po-ordl.ord-qty - (po-ordl.ord-qty * po-ordl.under-pct / 100) AND NOT lv-overrun2-checked THEN DO:
-            MESSAGE 
-                "The PO Quantity entered is less than the" STRING(po-ordl.under-pct,">>9.99%") SKIP 
-                "Underrun allowed for this PO line Item..."
-                VIEW-AS ALERT-BOX WARNING .
-            lv-overrun2-checked = YES.
     END.
 
 END PROCEDURE.
