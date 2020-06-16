@@ -89,12 +89,3 @@ ELSE DO:
         VIEW-AS ALERT-BOX ERROR.
     RETURN.
 END. /* else */
-
-IF v-prgmname EQ "vp-oeitm." THEN
-MESSAGE 
-"v-can-run:" v-can-run SKIP
-"v-can-update:" v-can-update SKIP
-"v-can-create:" v-can-create SKIP
-"v-can-delete:" v-can-delete SKIP
-"group-ok:" group-ok
-VIEW-AS ALERT-BOX.
