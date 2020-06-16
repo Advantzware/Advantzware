@@ -486,13 +486,13 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      style_dscr AT ROW 10.52 COL 35 COLON-ALIGNED NO-LABEL
-     eb.flute AT ROW 10.52 COL 84 COLON-ALIGNED
+     eb.flute AT ROW 10.52 COL 89 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
-     eb.test AT ROW 10.52 COL 98 COLON-ALIGNED
+     eb.test AT ROW 10.52 COL 103 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.2 BY 1
-     tab-inout AT ROW 10.52 COL 117 COLON-ALIGNED
+     tab-inout AT ROW 10.52 COL 120 COLON-ALIGNED
      est.metric AT ROW 10.52 COL 137 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
@@ -3828,9 +3828,14 @@ END.
   ELSE IF AVAIL b-style AND b-style.TYPE = "C" THEN
       ef.board:LABEL      =  "PolyBag" .
   ELSE
-      ef.board:LABEL      =  "Board" .
-
-  btn_board:LABEL = " " + TRIM(ef.board:LABEL) + ": " /*+ TRIM(ef.board) */ .
+      ef.board:LABEL      =  "Board" . 
+ 
+  IF est.estimateTypeID eq "WOOD" THEN
+    ASSIGN  
+      ef.board:LABEL      =  "Wood"
+      eb.flute:LABEL      =  "Wood Code".
+      
+    btn_board:LABEL = " " + TRIM(ef.board:LABEL) + ": " /*+ TRIM(ef.board) */ .   
 
     IF ef.board = "" THEN
         btn_board:HIDDEN  = TRUE .

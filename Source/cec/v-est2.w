@@ -300,7 +300,7 @@ DEFINE FRAME Corr
           LABEL "Real"
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     ef.flute AT ROW 3.38 COL 12 COLON-ALIGNED
+     ef.flute AT ROW 3.38 COL 16 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
      ef.test AT ROW 3.38 COL 35 COLON-ALIGNED
@@ -325,21 +325,21 @@ DEFINE FRAME Corr
      ef.nc AT ROW 3.14 COL 140 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
-     ef.gsh-wid AT ROW 5.52 COL 17.6 COLON-ALIGNED
+     ef.gsh-wid AT ROW 5.52 COL 21.6 COLON-ALIGNED
           LABEL "Gross Sheet" FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     ef.gsh-len AT ROW 5.52 COL 33.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
+     ef.gsh-len AT ROW 5.52 COL 37.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
      ef.gsh-dep AT ROW 5.52 COL 48.4 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     ef.nsh-wid AT ROW 6.48 COL 17.6 COLON-ALIGNED
+     ef.nsh-wid AT ROW 6.48 COL 21.6 COLON-ALIGNED
           LABEL "Net Sheet" FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     ef.nsh-len AT ROW 6.48 COL 33.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
+     ef.nsh-len AT ROW 6.48 COL 37.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -352,11 +352,11 @@ DEFINE FRAME Corr
      ef.nsh-dep AT ROW 6.48 COL 48.4 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     ef.trim-w AT ROW 7.43 COL 17.6 COLON-ALIGNED
+     ef.trim-w AT ROW 7.43 COL 21.6 COLON-ALIGNED
           LABEL "Die Size" FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     ef.trim-l AT ROW 7.43 COL 33.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
+     ef.trim-l AT ROW 7.43 COL 37.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
      ef.trim-d AT ROW 7.43 COL 48.4 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
@@ -391,11 +391,11 @@ DEFINE FRAME Corr
      ef.die-in AT ROW 6.71 COL 129 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     eb.t-wid AT ROW 8.62 COL 17.6 COLON-ALIGNED
+     eb.t-wid AT ROW 8.62 COL 21.6 COLON-ALIGNED
           LABEL "Blank" FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     eb.t-len AT ROW 8.62 COL 33.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
+     eb.t-len AT ROW 8.62 COL 37.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
      eb.t-dep AT ROW 8.62 COL 48.4 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
@@ -550,7 +550,7 @@ DEFINE FRAME Corr
      "Freight/" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 3.62 COL 112 RIGHT-ALIGNED
      "Length" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 4.91 COL 37
+          SIZE 8 BY .62 AT ROW 4.91 COL 40
           FGCOLOR 1 
      "Width" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 10.29 COL 120.2
@@ -571,7 +571,7 @@ DEFINE FRAME Corr
           SIZE 8 BY .62 AT ROW 10.29 COL 132.8
           FGCOLOR 9 
      "Width" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 4.91 COL 21.8
+          SIZE 9 BY .62 AT ROW 4.91 COL 23.8
           FGCOLOR 1 
      "Cut" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 5.05 COL 99
@@ -3511,8 +3511,7 @@ PROCEDURE local-display-fields :
 
   assign lv-is-foam = no
          lv-industry = "".
-
-  btn_board:LABEL = " " + TRIM(ef.board:LABEL) + ": " /*+ TRIM(ef.board) */ .
+      
 
     IF ef.board = "" THEN
             btn_board:HIDDEN  = TRUE .
@@ -3615,7 +3614,7 @@ PROCEDURE local-display-fields :
     if li-n-cuts < 0 then li-n-cuts = 0.
     ef.n-cuts:screen-value = string(li-n-cuts,">>9").    
   end.*/
-
+    
   END. /*DO WITH FRAME {&FRAME-NAME}:*/
 
   FOR EACH bf-eb FIELDS(num-len num-wid num-up)
@@ -3710,6 +3709,21 @@ PROCEDURE local-display-fields :
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO: 
     RUN enable-auto-calc IN WIDGET-HANDLE(char-hdl) (ll-one-eb-on-ef OR ll-part-style).
     RUN enable-copy IN WIDGET-HANDLE(char-hdl) (ll-one-ef-on-est).
+  END.
+  do with frame {&frame-name} :  
+  IF est.estimateTypeID eq "WOOD" THEN
+    ASSIGN  
+      ef.board:LABEL      = "Wood"
+      ef.flute:LABEL      = "Wood Code"
+      ef.gsh-wid:LABEL    = "Raw Wood Size" 
+      ef.nsh-wid:LABEL    = "Process Size"
+      ef.trim-w:HIDDEN     = YES 
+      ef.trim-w:SENSITIVE  = NO 
+      ef.trim-l:HIDDEN     = YES 
+      ef.trim-l:SENSITIVE  = NO       
+      eb.t-wid:LABEL      = "Part Size".      
+
+  btn_board:LABEL = " " + TRIM(ef.board:LABEL) + ": " /*+ TRIM(ef.board) */ .
   END.
 
 END PROCEDURE.

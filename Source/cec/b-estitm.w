@@ -699,7 +699,7 @@ DO:
        RUN est/dNewMiscEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
-   ELSE IF AVAIL est AND  est.estimateTypeID = "AAAA"  THEN do:
+   ELSE IF AVAIL est AND  est.estimateTypeID = "WOOD"  THEN do:
        EMPTY TEMP-TABLE ttInputEst .
        EMPTY TEMP-TABLE tt-eb-set.
        RUN est/dAddSetEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
@@ -8173,8 +8173,16 @@ PROCEDURE update-set :
              bf-eb-header.form-no EQ 0 AND
              bf-eb-header.blank-no EQ 0
              NO-LOCK NO-ERROR.
-
-     IF NOT v-assem-partition OR (NOT AVAIL bf-eb-header) THEN DO:
+             
+     IF est.estimateTypeID eq "WOOD" then DO:
+     
+       EMPTY TEMP-TABLE ttInputEst .
+       EMPTY TEMP-TABLE tt-eb-set.
+       RUN est/dAddSetEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN local-open-query. 
+     
+     END.
+     ELSE IF NOT v-assem-partition OR (NOT AVAIL bf-eb-header) THEN DO:
 
          FIND xest WHERE RECID(xest) = RECID(est) NO-LOCK.
          FIND xef WHERE RECID(xef) = RECID(ef) NO-LOCK.
@@ -8625,7 +8633,7 @@ PROCEDURE pUpdateRecord :
        RUN est/dNewMiscEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
-   ELSE IF AVAIL est AND  est.estimateTypeID = "AAAA"  THEN do:
+   ELSE IF AVAIL est AND  est.estimateTypeID = "WOOD"  THEN do:
        EMPTY TEMP-TABLE ttInputEst .
        EMPTY TEMP-TABLE tt-eb-set.
        RUN est/dAddSetEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
