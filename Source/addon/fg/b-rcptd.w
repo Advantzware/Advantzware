@@ -1778,10 +1778,6 @@ PROCEDURE get-matrix-all :
     DEFINE INPUT PARAMETER ip-first-disp AS LOGICAL NO-UNDO.
 
     IF fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO: /* in update mode - use screen-value */
-        FIND FIRST itemfg NO-LOCK
-             WHERE itemfg.company EQ cocode
-               AND itemfg.i-no    EQ fg-rctd.i-no:screen-value IN BROWSE {&browse-name}
-             USE-INDEX i-no NO-ERROR.
         FIND FIRST po-ordl NO-LOCK 
              WHERE po-ordl.company   EQ cocode
                AND po-ordl.po-no     EQ INTEGER(fg-rctd.po-no:screen-value IN BROWSE {&browse-name}) 
