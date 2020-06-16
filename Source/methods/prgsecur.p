@@ -93,13 +93,15 @@ IF AVAILABLE b-prgrms THEN DO:
            NOT CAN-DO(REPLACE(b-prgrms.can_create," ",""),ENTRY(num-groups,v_groups)) AND
            NOT CAN-DO(REPLACE(b-prgrms.can_delete," ",""),ENTRY(num-groups,v_groups)) THEN
         NEXT.    
-        ASSIGN
-            v-can-run    = NOT v-can-run    AND CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   ENTRY(num-groups,g_groups))
-            v-can-update = NOT v-can-update AND CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),ENTRY(num-groups,g_groups))
-            v-can-create = NOT v-can-create AND CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),ENTRY(num-groups,g_groups))
-            v-can-delete = NOT v-can-delete AND CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),ENTRY(num-groups,g_groups))
-            group-ok     = YES
-            .
+        IF NOT v-can-run    AND CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   ENTRY(num-groups,g_groups)) THEN
+        v-can-run    = YES.
+        IF NOT v-can-update AND CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),ENTRY(num-groups,g_groups)) THEN
+        v-can-update = YES.
+        IF NOT v-can-create AND CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),ENTRY(num-groups,g_groups)) THEN
+        v-can-create = YES.
+        IF NOT v-can-delete AND CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),ENTRY(num-groups,g_groups)) THEN
+        v-can-delete = YES.
+        group-ok     = YES.
         CASE ip-basis:
             WHEN "ACCESS" THEN run-access = v-can-run.        
             WHEN "VIEW"   THEN run-access = v-can-run.
