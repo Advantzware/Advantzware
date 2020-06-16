@@ -50,11 +50,10 @@ DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
 
 DEFINE VARIABLE hPgmSecurity AS HANDLE  NO-UNDO.
 DEFINE VARIABLE lAccess1     AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lAccess2     AS LOGICAL NO-UNDO.
 
 RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
 RUN epCanAccess IN hPgmSecurity ("browsers/fgijob.w", "Access1", OUTPUT lAccess1).
-RUN epCanAccess IN hPgmSecurity ("browsers/fgijob.w", "Access2", OUTPUT lAccess2).
+
 DELETE OBJECT hPgmSecurity.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
