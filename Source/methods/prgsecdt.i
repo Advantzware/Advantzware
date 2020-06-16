@@ -36,7 +36,7 @@ END. /* else */
 
 FIND FIRST b-prgrms NO-LOCK
      WHERE b-prgrms.prgmname  EQ v-prgmname
-       AND b-prgrms.DIR_group EQ v-dirname
+       AND b-prgrms.dir_group EQ v-dirname
      NO-ERROR.
 IF NOT AVAILABLE b-prgrms THEN
 FIND FIRST b-prgrms NO-LOCK
@@ -49,13 +49,15 @@ IF AVAILABLE b-prgrms THEN DO:
            NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),ENTRY(num-groups,g_groups)) AND
            NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),ENTRY(num-groups,g_groups)) THEN
             NEXT.
-        ASSIGN
-            v-can-run    = NOT v-can-run    AND CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   ENTRY(num-groups,g_groups))
-            v-can-update = NOT v-can-update AND CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),ENTRY(num-groups,g_groups))
-            v-can-create = NOT v-can-create AND CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),ENTRY(num-groups,g_groups))
-            v-can-delete = NOT v-can-delete AND CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),ENTRY(num-groups,g_groups))
-            group-ok     = YES
-            .
+        IF NOT v-can-run    AND CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   ENTRY(num-groups,g_groups)) THEN
+        v-can-run    = YES.
+        IF NOT v-can-update AND CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),ENTRY(num-groups,g_groups)) THEN
+        v-can-update = YES.
+        IF NOT v-can-create AND CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),ENTRY(num-groups,g_groups)) THEN
+        v-can-create = YES.
+        IF NOT v-can-delete AND CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),ENTRY(num-groups,g_groups)) THEN
+        v-can-delete = YES.
+        group-ok     = YES.
     END. /* do num-groups */
     IF NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   USERID("ASI")) AND
        NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),USERID("ASI")) AND
@@ -87,3 +89,12 @@ ELSE DO:
         VIEW-AS ALERT-BOX ERROR.
     RETURN.
 END. /* else */
+
+IF v-prgmname EQ "vp-oeitm." THEN
+MESSAGE 
+"v-can-run:" v-can-run SKIP
+"v-can-update:" v-can-update SKIP
+"v-can-create:" v-can-create SKIP
+"v-can-delete:" v-can-delete SKIP
+"group-ok:" group-ok
+VIEW-AS ALERT-BOX.
