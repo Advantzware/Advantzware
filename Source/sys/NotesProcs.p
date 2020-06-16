@@ -186,7 +186,7 @@ PROCEDURE GetNotesArrayForObject:
         WHERE notes.rec_key EQ ipcObjectRecKey
         AND (ipcTypes EQ "" OR LOOKUP(notes.note_type,ipcTypes) GT 0)
         AND (ipcCodes EQ "" OR LOOKUP(notes.note_code,ipcCodes) GT 0)
-        AND (notes.note_form_no = ipiNotesForm OR notes.note_form_no = 0)
+        AND (notes.note_form_no EQ ipiNotesForm OR notes.note_form_no EQ 0)
         :
         IF iplIncludeTitles THEN 
             cFullText = cFullText + TRIM(CAPS(notes.note_title)) + CHR(13).
