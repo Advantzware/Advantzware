@@ -157,11 +157,10 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
         NO-ERROR.
     FIND est-qty 
         WHERE est-qty.company EQ ef.company
-        AND est-qty.est-no EQ ef.est-no
-        AND est-qty.eqty EQ ef.eqty 
+        AND est-qty.est-no EQ ef.est-no         
         NO-ERROR.
         
-
+     
     ASSIGN 
         est-qty.eqty   = ttInputEst.iQuantity
         est-qty.qty[1] = ttInputEst.iQuantity

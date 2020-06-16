@@ -55,8 +55,17 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 DEF VAR ect-label AS CHAR NO-UNDO.
 DEF VAR ect-help AS CHAR NO-UNDO.
 DEF VAR ect-format AS CHAR NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL  NO-UNDO.
+DEFINE VARIABLE lDisplayWood AS LOGICAL  NO-UNDO.
 
 {sys/inc/f16to32.i}
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CEWood", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lDisplayWood = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2181,14 +2190,24 @@ PROCEDURE local-display-fields :
        fi_flute:screen-value     = item.flute
        fi_reg-no:screen-value    = item.reg-no.
     END.
+        
   END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+  DO WITH FRAME {&FRAME-NAME}:
+      IF lDisplayWood AND INDEX("1234",fi_mat-type) GT 0 THEN DO:
+       ASSIGN
+          item.flute:LABEL       = "Lumber"              
+          item.s-dep:LABEL       = "Thickness"
+          fi_ect:LABEL           = "Board Grade"           
+            .        
+      END.
+  END.
 
   /* Code placed here will execute AFTER standard behavior.    */
   /* &Scoped-define mat-types-enable yes
-  DO WITH FRAME {&FRAME-NAME}:
+  
     {cec/mattypes.i}  /* folding - custom/mattypes.i enable fields group*/
   END.
 

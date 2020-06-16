@@ -80,7 +80,7 @@ DEFINE VARIABLE iOldQty          AS INTEGER   NO-UNDO .
 DEFINE VARIABLE lShowMessage     AS LOGICAL   NO-UNDO .  
 
 DEFINE SHARED TEMP-TABLE tt-eb-set NO-UNDO LIKE eb.
-DEFINE BUFFER bf-eb FOR eb.                        
+DEFINE BUFFER bf-eb FOR eb.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -103,7 +103,7 @@ DEFINE BUFFER bf-eb FOR eb.
 &Scoped-define INTERNAL-TABLES ttInputEst
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttInputEst.iFormNo ttInputEst.iBlankNo ttInputEst.cBoard ttInputEst.cStyle ttInputEst.dLength ttInputEst.dWidth ttInputEst.dDepth ttInputEst.cPartID ttInputEst.cPartName ttInputEst.cPartDescription ttInputEst.lPurchased ttInputEst.dQtyPerSet  
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttInputEst.iFormNo ttInputEst.iBlankNo ttInputEst.cPartID ttInputEst.dQtyPerSet ttInputEst.cBoard ttInputEst.cStyle ttInputEst.dLength ttInputEst.dWidth ttInputEst.dDepth ttInputEst.cPartName ttInputEst.cPartDescription ttInputEst.lPurchased   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttInputEst WHERE ttInputEst.cCompany = cocode ~         ~{&SORTBY-PHRASE}
@@ -117,11 +117,11 @@ DEFINE BUFFER bf-eb FOR eb.
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS quantity cCustNo ship-to cCustPart fg-no ~
-item-name item-dscr len wid dep fg-cat Btn_OK Btn_Cancel BROWSE-1 btn-add ~
-btn-copy btn-update btn-delete cType tb_auto 
-&Scoped-Define DISPLAYED-OBJECTS quantity cCustNo ship-to cCustPart fg-no ~
-item-name item-dscr len wid dep fg-cat cust-name ship-name cType tb_auto 
+&Scoped-Define ENABLED-OBJECTS cCustNo ship-to quantity cCustPart fg-no ~
+fg-cat item-name item-dscr cType len wid dep Btn_OK Btn_Cancel BROWSE-1 ~
+btn-add btn-copy btn-update btn-delete tb_auto 
+&Scoped-Define DISPLAYED-OBJECTS cCustNo ship-to quantity cCustPart fg-no ~
+fg-cat item-name item-dscr cType len wid dep cust-name ship-name tb_auto 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -137,137 +137,143 @@ item-name item-dscr len wid dep fg-cat cust-name ship-name cType tb_auto
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-add 
-    LABEL "Add Component" 
-    SIZE 21 BY 1.14.
+     LABEL "Add " 
+     SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn-copy 
-    LABEL "Copy Selected" 
-    SIZE 19 BY 1.14.
+     LABEL "Copy " 
+     SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn-delete 
-    LABEL "Delete Selected" 
-    SIZE 24.6 BY 1.14.
+     LABEL "Delete " 
+     SIZE 15 BY 1.14.
 
 DEFINE BUTTON btn-update 
-    LABEL "Update Selected" 
-    SIZE 21.6 BY 1.14.
+     LABEL "Update " 
+     SIZE 15 BY 1.14.
 
 DEFINE BUTTON Btn_Cancel 
-    LABEL "&Cancel" 
-    SIZE 15 BY 1.29
-    BGCOLOR 8 .
+     LABEL "&Cancel" 
+     SIZE 15 BY 1.29
+     BGCOLOR 8 .
 
 DEFINE BUTTON Btn_OK AUTO-GO 
-    LABEL "&Save" 
-    SIZE 15 BY 1.29
-    BGCOLOR 8 .
+     LABEL "&Save" 
+     SIZE 15 BY 1.29
+     BGCOLOR 8 .
 
-DEFINE VARIABLE cType     AS CHARACTER FORMAT "x(15)":U INITIAL 1 
-    LABEL "Type" 
-    VIEW-AS COMBO-BOX INNER-LINES 3
-    LIST-ITEM-PAIRS "Assembled","No",                      
-    "Unassembled","Yes",
-    "Unassembled (Unitized)","Q"
-    DROP-DOWN-LIST
-    SIZE 42 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cType AS CHARACTER FORMAT "x(15)":U INITIAL "1" 
+     LABEL "Type" 
+     VIEW-AS COMBO-BOX INNER-LINES 4
+     LIST-ITEM-PAIRS "Assembled","No",
+                     "Assembled (auto-receive components)","Auto",
+                     "Unassembled","Yes",
+                     "Unassembled (Unitized)","Q"
+     DROP-DOWN-LIST
+     SIZE 42 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE cCustNo   AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Customer ID#" 
-    VIEW-AS FILL-IN 
-    SIZE 17.4 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE cCustNo AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Customer ID#" 
+     VIEW-AS FILL-IN 
+     SIZE 17.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE cCustPart AS CHARACTER FORMAT "X(15)":U 
-    LABEL "Cust Part#" 
-    VIEW-AS FILL-IN 
-    SIZE 26 BY 1 NO-UNDO.
+     LABEL "Cust Part#" 
+     VIEW-AS FILL-IN 
+     SIZE 26 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cust-name AS CHARACTER FORMAT "X(25)":U 
-    VIEW-AS FILL-IN 
-    SIZE 29 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+     VIEW-AS FILL-IN 
+     SIZE 29 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dep       AS DECIMAL   FORMAT ">>>>9.99":U INITIAL 0 
-    LABEL "D" 
-    VIEW-AS FILL-IN 
-    SIZE 10.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE dep AS DECIMAL FORMAT ">>>>9.99":U INITIAL 0 
+     LABEL "D" 
+     VIEW-AS FILL-IN 
+     SIZE 10.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE fg-cat    AS CHARACTER FORMAT "X(5)":U 
-    LABEL "FG Category" 
-    VIEW-AS FILL-IN 
-    SIZE 14.4 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE fg-cat AS CHARACTER FORMAT "X(5)":U 
+     LABEL "FG Category" 
+     VIEW-AS FILL-IN 
+     SIZE 14.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE fg-no     AS CHARACTER FORMAT "X(15)":U 
-    LABEL "FG Item Code" 
-    VIEW-AS FILL-IN 
-    SIZE 26 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE fg-no AS CHARACTER FORMAT "X(15)":U 
+     LABEL "FG Item Code" 
+     VIEW-AS FILL-IN 
+     SIZE 26 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE item-dscr AS CHARACTER FORMAT "X(30)":U 
-    LABEL "Description" 
-    VIEW-AS FILL-IN 
-    SIZE 42 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+     LABEL "Description" 
+     VIEW-AS FILL-IN 
+     SIZE 42 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE item-name AS CHARACTER FORMAT "X(30)":U 
-    LABEL "Item Name" 
-    VIEW-AS FILL-IN 
-    SIZE 42 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+     LABEL "Item Name" 
+     VIEW-AS FILL-IN 
+     SIZE 42 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE len       AS DECIMAL   FORMAT ">>>>9.99":U INITIAL 0 
-    LABEL "L" 
-    VIEW-AS FILL-IN 
-    SIZE 10.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE len AS DECIMAL FORMAT ">>>>9.99":U INITIAL 0 
+     LABEL "L" 
+     VIEW-AS FILL-IN 
+     SIZE 10.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE quantity  AS INTEGER   FORMAT "->,>>>,>>9":U INITIAL 0 
-    LABEL "Quantity" 
-    VIEW-AS FILL-IN 
-    SIZE 14 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE quantity AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Quantity" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE ship-name AS CHARACTER FORMAT "X(25)":U 
-    VIEW-AS FILL-IN 
-    SIZE 29 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+     VIEW-AS FILL-IN 
+     SIZE 29 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE ship-to   AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Ship To" 
-    VIEW-AS FILL-IN 
-    SIZE 17.4 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE ship-to AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Ship To" 
+     VIEW-AS FILL-IN 
+     SIZE 17.4 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE wid       AS DECIMAL   FORMAT ">>>>9.99":U INITIAL 0 
-    LABEL "W" 
-    VIEW-AS FILL-IN 
-    SIZE 10.6 BY 1
-    BGCOLOR 15 FONT 1 NO-UNDO.
+DEFINE VARIABLE wid AS DECIMAL FORMAT ">>>>9.99":U INITIAL 0 
+     LABEL "W" 
+     VIEW-AS FILL-IN 
+     SIZE 10.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
-    EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-    SIZE 124.2 BY 6.67
-    BGCOLOR 15 .
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 126 BY 6.67
+     BGCOLOR 15 .
 
-DEFINE VARIABLE tb_auto AS LOGICAL INITIAL YES 
-    LABEL "Auto No Component Part" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 33.4 BY 1 NO-UNDO.
+DEFINE RECTANGLE RECT-5
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 126 BY 15.48
+     BGCOLOR 15 .
+
+DEFINE VARIABLE tb_auto AS LOGICAL INITIAL yes 
+     LABEL "Auto Number Component Part" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 43 BY 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
-    ttInputEst SCROLLING.
+      ttInputEst SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 D-Dialog _FREEFORM
-    QUERY BROWSE-1 DISPLAY
-    ttInputEst.iFormNo LABEL "F" WIDTH 3 LABEL-BGCOLOR 14 FORMAT ">9"
+  QUERY BROWSE-1 DISPLAY
+      ttInputEst.iFormNo LABEL "F" WIDTH 3 LABEL-BGCOLOR 14 FORMAT ">9"
     ttInputEst.iBlankNo LABEL "B" WIDTH 3 LABEL-BGCOLOR 14 FORMAT ">9"
     ttInputEst.cPartID LABEL "Part #" FORMAT "x(15)" WIDTH 21 LABEL-BGCOLOR 14
     ttInputEst.dQtyPerSet LABEL "Per Set" FORMAT ">>9.99" WIDTH 10 LABEL-BGCOLOR 14
@@ -281,46 +287,47 @@ DEFINE BROWSE BROWSE-1
     ttInputEst.lPurchased LABEL "P/M" WIDTH 8 FORMAT "P/M" LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 126.2 BY 13.05
-         BGCOLOR 8 FONT 0 .
+    WITH NO-ASSIGN SEPARATORS SIZE 124.2 BY 13.05
+         BGCOLOR 8 FONT 0.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     
-    cCustNo AT ROW 2.24 COL 19.6 COLON-ALIGNED WIDGET-ID 176
-    ship-to AT ROW 3.33 COL 19.4 COLON-ALIGNED WIDGET-ID 178
-    quantity AT ROW 4.48 COL 19.4 COLON-ALIGNED WIDGET-ID 198
-    cCustPart AT ROW 5.57 COL 19.4 COLON-ALIGNED WIDGET-ID 88
-    fg-no AT ROW 6.67 COL 19.4 COLON-ALIGNED WIDGET-ID 42
-    item-name AT ROW 4.48 COL 62.8 COLON-ALIGNED WIDGET-ID 208
-    item-dscr AT ROW 5.57 COL 62.8 COLON-ALIGNED WIDGET-ID 210
-    cType AT ROW 6.81 COL 63 COLON-ALIGNED WIDGET-ID 258
-    fg-cat AT ROW 2.24 COL 107.2 COLON-ALIGNED WIDGET-ID 196
-    len AT ROW 4.48 COL 110.8 COLON-ALIGNED WIDGET-ID 190
-    wid AT ROW 5.57 COL 111 COLON-ALIGNED WIDGET-ID 194
-    dep AT ROW 6.67 COL 111 COLON-ALIGNED WIDGET-ID 192       
-    Btn_OK AT ROW 23.81 COL 51
-    Btn_Cancel AT ROW 23.81 COL 67
-    cust-name AT ROW 2.24 COL 37.4 COLON-ALIGNED NO-LABELS WIDGET-ID 202
-    ship-name AT ROW 3.33 COL 37.4 COLON-ALIGNED NO-LABELS WIDGET-ID 204
-    BROWSE-1 AT ROW 10.05 COL 1.8
-    btn-add AT ROW 8.67 COL 3 WIDGET-ID 16
-    btn-copy AT ROW 8.67 COL 24.2 WIDGET-ID 252
-    btn-update AT ROW 8.67 COL 43.2 WIDGET-ID 256
-    btn-delete AT ROW 8.67 COL 65 WIDGET-ID 254
-     
-    tb_auto AT ROW 8.71 COL 90.6 WIDGET-ID 260
-    "Set Header" VIEW-AS TEXT
-    SIZE 14 BY .71 AT ROW 1.19 COL 5 WIDGET-ID 206
-    RECT-4 AT ROW 1.48 COL 2 WIDGET-ID 236
-    SPACE(2.99) SKIP(17.36)
+     cCustNo AT ROW 2.24 COL 19.6 COLON-ALIGNED WIDGET-ID 176
+     ship-to AT ROW 3.33 COL 19.4 COLON-ALIGNED WIDGET-ID 178
+     quantity AT ROW 4.48 COL 19.4 COLON-ALIGNED WIDGET-ID 198
+     cCustPart AT ROW 5.57 COL 19.4 COLON-ALIGNED WIDGET-ID 88
+     fg-no AT ROW 6.67 COL 19.4 COLON-ALIGNED WIDGET-ID 42
+     fg-cat AT ROW 2.24 COL 107.2 COLON-ALIGNED WIDGET-ID 196
+     item-name AT ROW 4.48 COL 62.8 COLON-ALIGNED WIDGET-ID 208
+     item-dscr AT ROW 5.57 COL 62.8 COLON-ALIGNED WIDGET-ID 210
+     cType AT ROW 6.81 COL 63 COLON-ALIGNED WIDGET-ID 258
+     len AT ROW 4.48 COL 110.8 COLON-ALIGNED WIDGET-ID 190
+     wid AT ROW 5.57 COL 111 COLON-ALIGNED WIDGET-ID 194
+     dep AT ROW 6.67 COL 111 COLON-ALIGNED WIDGET-ID 192
+     Btn_OK AT ROW 24.33 COL 51
+     Btn_Cancel AT ROW 24.33 COL 67
+     cust-name AT ROW 2.24 COL 37.4 COLON-ALIGNED NO-LABEL WIDGET-ID 202
+     ship-name AT ROW 3.33 COL 37.4 COLON-ALIGNED NO-LABEL WIDGET-ID 204
+     BROWSE-1 AT ROW 10.57 COL 2.8
+     btn-add AT ROW 9.19 COL 3 WIDGET-ID 16
+     btn-copy AT ROW 9.19 COL 18.6 WIDGET-ID 252
+     btn-update AT ROW 9.19 COL 34.2 WIDGET-ID 256
+     btn-delete AT ROW 9.19 COL 50.2 WIDGET-ID 254
+     tb_auto AT ROW 9.24 COL 81 WIDGET-ID 260
+     "Set Header" VIEW-AS TEXT
+          SIZE 14 BY .71 AT ROW 1.19 COL 5 WIDGET-ID 206
+     "Set Components" VIEW-AS TEXT
+          SIZE 19 BY .71 AT ROW 8.29 COL 5 WIDGET-ID 264
+     RECT-4 AT ROW 1.48 COL 2 WIDGET-ID 236
+     RECT-5 AT ROW 8.62 COL 2 WIDGET-ID 262
+     SPACE(1.19) SKIP(1.75)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    FGCOLOR 1 FONT 6
-    TITLE "Set Estimate"
-    CANCEL-BUTTON Btn_Cancel.
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         FGCOLOR 1 FONT 6
+         TITLE "Set Estimate"
+         CANCEL-BUTTON Btn_Cancel.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -351,17 +358,20 @@ DEFINE FRAME D-Dialog
    FRAME-NAME Custom                                                    */
 /* BROWSE-TAB BROWSE-1 ship-name D-Dialog */
 ASSIGN 
-    FRAME D-Dialog:SCROLLABLE = FALSE
-    FRAME D-Dialog:HIDDEN     = TRUE.
+       FRAME D-Dialog:SCROLLABLE       = FALSE
+       FRAME D-Dialog:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN cust-name IN FRAME D-Dialog
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-4 IN FRAME D-Dialog
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-5 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ship-name IN FRAME D-Dialog
    NO-ENABLE                                                            */
 ASSIGN 
-    tb_auto:PRIVATE-DATA IN FRAME D-Dialog = "parm".
+       tb_auto:PRIVATE-DATA IN FRAME D-Dialog     = 
+                "parm".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -394,8 +404,8 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttInputEst WHERE ttInputEst.cCompany = cocode ~
 
 &Scoped-define SELF-NAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL D-Dialog D-Dialog
-ON WINDOW-CLOSE OF FRAME D-Dialog /* Miscellaneous Product Estimate */
-    DO:             
+ON WINDOW-CLOSE OF FRAME D-Dialog /* Set Estimate */
+DO:             
         DEFINE VARIABLE lCheck AS LOGICAL NO-UNDO.
         IF ipType EQ "" THEN 
         DO:
@@ -421,8 +431,8 @@ ON WINDOW-CLOSE OF FRAME D-Dialog /* Miscellaneous Product Estimate */
 
 &Scoped-define SELF-NAME btn-add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-add D-Dialog
-ON CHOOSE OF btn-add IN FRAME D-Dialog /* Add Component */
-    DO:
+ON CHOOSE OF btn-add IN FRAME D-Dialog /* Add  */
+DO:
         DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
         DEFINE VARIABLE lError   AS LOGICAL NO-UNDO.
         DEFINE BUFFER bff-ttInputEst FOR ttInputEst .
@@ -461,8 +471,8 @@ ON CHOOSE OF btn-add IN FRAME D-Dialog /* Add Component */
 
 &Scoped-define SELF-NAME btn-copy
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-copy D-Dialog
-ON CHOOSE OF btn-copy IN FRAME D-Dialog /* Copy Selected */
-    DO:
+ON CHOOSE OF btn-copy IN FRAME D-Dialog /* Copy  */
+DO:
         DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
         DEFINE BUFFER bff-ttInputEst FOR ttInputEst.         
     
@@ -487,8 +497,8 @@ ON CHOOSE OF btn-copy IN FRAME D-Dialog /* Copy Selected */
 
 &Scoped-define SELF-NAME btn-delete
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-delete D-Dialog
-ON CHOOSE OF btn-delete IN FRAME D-Dialog /* Delete Selected */
-    DO:
+ON CHOOSE OF btn-delete IN FRAME D-Dialog /* Delete  */
+DO:
         DEFINE VARIABLE hftp     AS HANDLE NO-UNDO.
         DEFINE VARIABLE lv-rowid AS ROWID  NO-UNDO.
         IF AVAILABLE ttInputEst THEN 
@@ -510,8 +520,8 @@ ON CHOOSE OF btn-delete IN FRAME D-Dialog /* Delete Selected */
 
 &Scoped-define SELF-NAME btn-update
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-update D-Dialog
-ON CHOOSE OF btn-update IN FRAME D-Dialog /* Update Selected */
-    DO:
+ON CHOOSE OF btn-update IN FRAME D-Dialog /* Update  */
+DO:
         DEFINE VARIABLE lv-rowid  AS ROWID NO-UNDO. 
         DEFINE VARIABLE rwRowidEb AS ROWID NO-UNDO. 
         IF AVAILABLE ttInputEst THEN 
@@ -535,7 +545,7 @@ ON CHOOSE OF btn-update IN FRAME D-Dialog /* Update Selected */
 &Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel D-Dialog
 ON CHOOSE OF Btn_Cancel IN FRAME D-Dialog /* Cancel */
-    DO:
+DO:
         DEFINE VARIABLE lCheck AS LOGICAL NO-UNDO.
         IF ipType EQ "" THEN 
         DO:
@@ -559,8 +569,8 @@ ON CHOOSE OF Btn_Cancel IN FRAME D-Dialog /* Cancel */
 
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK D-Dialog
-ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
-    DO:
+ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* Save */
+DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
         iCount = 0.
@@ -623,7 +633,7 @@ ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
 &Scoped-define SELF-NAME cCustNo
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCustNo D-Dialog
 ON HELP OF cCustNo IN FRAME D-Dialog /* Customer ID# */
-    DO:
+DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
    
@@ -643,7 +653,7 @@ ON HELP OF cCustNo IN FRAME D-Dialog /* Customer ID# */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCustNo D-Dialog
 ON LEAVE OF cCustNo IN FRAME D-Dialog /* Customer ID# */
-    DO:
+DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
    
         IF LASTKEY NE -1 THEN 
@@ -667,7 +677,7 @@ ON LEAVE OF cCustNo IN FRAME D-Dialog /* Customer ID# */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCustNo D-Dialog
 ON VALUE-CHANGED OF cCustNo IN FRAME D-Dialog /* Customer ID# */
-    DO:     
+DO:     
         IF SELF:SCREEN-VALUE NE "" THEN 
         DO:
             FIND FIRST shipto NO-LOCK
@@ -688,7 +698,7 @@ ON VALUE-CHANGED OF cCustNo IN FRAME D-Dialog /* Customer ID# */
 &Scoped-define SELF-NAME cCustPart
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCustPart D-Dialog
 ON HELP OF cCustPart IN FRAME D-Dialog /* Cust Part# */
-    DO:
+DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
 
@@ -708,7 +718,7 @@ ON HELP OF cCustPart IN FRAME D-Dialog /* Cust Part# */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cCustPart D-Dialog
 ON LEAVE OF cCustPart IN FRAME D-Dialog /* Cust Part# */
-    DO: 
+DO: 
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 THEN 
         DO:
@@ -725,7 +735,7 @@ ON LEAVE OF cCustPart IN FRAME D-Dialog /* Cust Part# */
 &Scoped-define SELF-NAME dep
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dep D-Dialog
 ON HELP OF dep IN FRAME D-Dialog /* D */
-    DO:
+DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
  
@@ -737,7 +747,7 @@ ON HELP OF dep IN FRAME D-Dialog /* D */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dep D-Dialog
 ON LEAVE OF dep IN FRAME D-Dialog /* D */
-    DO:
+DO:
         DEFINE VARIABLE v-dec    AS DECIMAL DECIMALS 6 NO-UNDO.
         DEFINE VARIABLE op-dec   AS DECIMAL DECIMALS 6 NO-UNDO.
         DEFINE VARIABLE op-error AS LOG     NO-UNDO.
@@ -780,7 +790,7 @@ ON LEAVE OF dep IN FRAME D-Dialog /* D */
 &Scoped-define SELF-NAME fg-cat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-cat D-Dialog
 ON HELP OF fg-cat IN FRAME D-Dialog /* FG Category */
-    DO:
+DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
 
@@ -797,7 +807,7 @@ ON HELP OF fg-cat IN FRAME D-Dialog /* FG Category */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-cat D-Dialog
 ON LEAVE OF fg-cat IN FRAME D-Dialog /* FG Category */
-    DO:
+DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 THEN 
         DO:
@@ -815,7 +825,7 @@ ON LEAVE OF fg-cat IN FRAME D-Dialog /* FG Category */
 &Scoped-define SELF-NAME fg-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-no D-Dialog
 ON HELP OF fg-no IN FRAME D-Dialog /* FG Item Code */
-    DO:
+DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
 
@@ -838,7 +848,7 @@ ON HELP OF fg-no IN FRAME D-Dialog /* FG Item Code */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-no D-Dialog
 ON LEAVE OF fg-no IN FRAME D-Dialog /* FG Item Code */
-    DO:
+DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 THEN 
         DO:
@@ -854,7 +864,7 @@ ON LEAVE OF fg-no IN FRAME D-Dialog /* FG Item Code */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-no D-Dialog
 ON VALUE-CHANGED OF fg-no IN FRAME D-Dialog /* FG Item Code */
-    DO:
+DO:
         FIND FIRST itemfg NO-LOCK
             WHERE itemfg.company = cocode
             AND itemfg.i-no EQ fg-no:SCREEN-VALUE NO-ERROR.
@@ -874,7 +884,7 @@ ON VALUE-CHANGED OF fg-no IN FRAME D-Dialog /* FG Item Code */
 &Scoped-define SELF-NAME item-dscr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-dscr D-Dialog
 ON LEAVE OF item-dscr IN FRAME D-Dialog /* Description */
-    DO:
+DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO  .
         IF LASTKEY NE -1 THEN 
         DO:
@@ -890,7 +900,7 @@ ON LEAVE OF item-dscr IN FRAME D-Dialog /* Description */
 &Scoped-define SELF-NAME item-name
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-name D-Dialog
 ON LEAVE OF item-name IN FRAME D-Dialog /* Item Name */
-    DO:
+DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO  .
         IF LASTKEY NE -1 THEN 
         DO:
@@ -905,7 +915,7 @@ ON LEAVE OF item-name IN FRAME D-Dialog /* Item Name */
 &Scoped-define SELF-NAME len
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL len D-Dialog
 ON LEAVE OF len IN FRAME D-Dialog /* L */
-    DO:
+DO:
         DEFINE VARIABLE v-dec    AS DECIMAL DECIMALS 6 NO-UNDO.
         DEFINE VARIABLE op-dec   AS DECIMAL DECIMALS 6 NO-UNDO.
         DEFINE VARIABLE op-error AS LOG     NO-UNDO.
@@ -948,7 +958,7 @@ ON LEAVE OF len IN FRAME D-Dialog /* L */
 &Scoped-define SELF-NAME quantity
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL quantity D-Dialog
 ON HELP OF quantity IN FRAME D-Dialog /* Quantity */
-    DO:
+DO:
         DEFINE VARIABLE char-val    AS cha       NO-UNDO.
         DEFINE VARIABLE look-recid  AS RECID     NO-UNDO.
         DEFINE VARIABLE char-val2   AS cha       NO-UNDO.        
@@ -1031,10 +1041,21 @@ ON HELP OF quantity IN FRAME D-Dialog /* Quantity */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/*&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL quantity D-Dialog
+ON ENTRY OF quantity IN FRAME D-Dialog /* Quantity */
+DO:
+       
+    APPLY "choose" TO btn-update.
+            
+                                    
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL quantity D-Dialog
 ON LEAVE OF quantity IN FRAME D-Dialog /* Quantity */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             IF INTEGER(quantity:SCREEN-VALUE) LE 0 THEN 
@@ -1053,7 +1074,7 @@ ON LEAVE OF quantity IN FRAME D-Dialog /* Quantity */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL quantity D-Dialog
 ON VALUE-CHANGED OF quantity IN FRAME D-Dialog /* Quantity */
-    DO:
+DO:
         lShowMessage = NO .
     END.
 
@@ -1064,7 +1085,7 @@ ON VALUE-CHANGED OF quantity IN FRAME D-Dialog /* Quantity */
 &Scoped-define SELF-NAME ship-to
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ship-to D-Dialog
 ON HELP OF ship-to IN FRAME D-Dialog /* Ship To */
-    DO:
+DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
    
@@ -1083,7 +1104,7 @@ ON HELP OF ship-to IN FRAME D-Dialog /* Ship To */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ship-to D-Dialog
 ON LEAVE OF ship-to IN FRAME D-Dialog /* Ship To */
-    DO:
+DO:
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 THEN 
         DO:
@@ -1111,7 +1132,7 @@ ON LEAVE OF ship-to IN FRAME D-Dialog /* Ship To */
 &Scoped-define SELF-NAME wid
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wid D-Dialog
 ON LEAVE OF wid IN FRAME D-Dialog /* W */
-    DO:
+DO:
         DEFINE VARIABLE v-dec    AS DECIMAL DECIMALS 6 NO-UNDO.
         DEFINE VARIABLE op-dec   AS DECIMAL DECIMALS 6 NO-UNDO.
         DEFINE VARIABLE op-error AS LOG     NO-UNDO.
@@ -1170,21 +1191,22 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         IF ipType EQ "Edit" THEN 
         DO:
             RUN pDisplayValue.
-            RUN pDisplayQty.
+            RUN pDisplayQty.                                              
             
             APPLY "entry" TO quantity IN FRAME {&FRAME-NAME}.
+            
         END.    
         ELSE 
         DO:
             RUN pDefaultValue. 
             
-            APPLY "entry" TO cCustNo IN FRAME {&FRAME-NAME}.
+            APPLY "entry" TO cCustNo IN FRAME {&FRAME-NAME}.              
         END.
-    /*RUN repo-query.*/
-        
+    /*RUN repo-query.*/          
     END.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
-        WAIT-FOR CLOSE OF THIS-PROCEDURE.
+        WAIT-FOR CLOSE OF THIS-PROCEDURE.           
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1208,30 +1230,29 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available D-Dialog  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
-    /*------------------------------------------------------------------------------
-      Purpose:     Dispatched to this procedure when the Record-
-                   Source has a new row available.  This procedure
-                   tries to get the new row (or foriegn keys) from
-                   the Record-Source and process it.
-      Parameters:  <none>
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     Dispatched to this procedure when the Record-
+               Source has a new row available.  This procedure
+               tries to get the new row (or foriegn keys) from
+               the Record-Source and process it.
+  Parameters:  <none>
+------------------------------------------------------------------------------*/
 
-    /* Define variables needed by this internal procedure.             */
-    {src/adm/template/row-head.i}
+  /* Define variables needed by this internal procedure.             */
+  {src/adm/template/row-head.i}
 
-    /* Process the newly available records (i.e. display fields,
-       open queries, and/or pass records on to any RECORD-TARGETS).    */
-    {src/adm/template/row-end.i}
+  /* Process the newly available records (i.e. display fields,
+     open queries, and/or pass records on to any RECORD-TARGETS).    */
+  {src/adm/template/row-end.i}
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-ttfrmout D-Dialog 
 PROCEDURE create-ttfrmout :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -1253,10 +1274,24 @@ PROCEDURE create-ttfrmout :
         tt-eb-set.len              = len 
         tt-eb-set.wid              = wid 
         tt-eb-set.dep              = dep        
-        tt-eb-set.procat           = fg-cat              
-        tt-eb-set.set-is-assembled = IF cType EQ "No" THEN FALSE ELSE IF cType EQ "Yes" THEN TRUE ELSE ?
-        tt-eb-set.pur-man          = TRUE
-        .  
+        tt-eb-set.procat           = fg-cat .
+        IF cType EQ "No" THEN
+        ASSIGN 
+          tt-eb-set.set-is-assembled = FALSE
+          tt-eb-set.pur-man          = TRUE .
+        ELSE IF cType EQ "Auto" THEN
+        ASSIGN 
+          tt-eb-set.set-is-assembled = TRUE
+          tt-eb-set.pur-man          = TRUE .
+        ELSE IF cType EQ "Yes" THEN
+        ASSIGN 
+          tt-eb-set.set-is-assembled = FALSE
+          tt-eb-set.pur-man          = FALSE .
+        ELSE IF cType EQ "Q" THEN
+        ASSIGN 
+          tt-eb-set.set-is-assembled = TRUE
+          tt-eb-set.pur-man          = FALSE .
+                  
                      
     FOR EACH  bf-ttInputEst EXCLUSIVE-LOCK:
         ASSIGN
@@ -1380,16 +1415,16 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI D-Dialog  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME D-Dialog.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME D-Dialog.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1397,58 +1432,32 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI D-Dialog  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY quantity cCustNo ship-to cCustPart fg-no item-name item-dscr len wid 
-        dep fg-cat cust-name ship-name cType tb_auto 
-        WITH FRAME D-Dialog.
-    ENABLE quantity cCustNo ship-to cCustPart fg-no item-name item-dscr len wid 
-        dep fg-cat Btn_OK Btn_Cancel BROWSE-1 btn-add btn-copy btn-update 
-        btn-delete cType tb_auto 
-        WITH FRAME D-Dialog.
-    VIEW FRAME D-Dialog.
-    {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY cCustNo ship-to quantity cCustPart fg-no fg-cat item-name item-dscr 
+          cType len wid dep cust-name ship-name tb_auto 
+      WITH FRAME D-Dialog.
+  ENABLE cCustNo ship-to quantity cCustPart fg-no fg-cat item-name item-dscr 
+         cType len wid dep Btn_OK Btn_Cancel BROWSE-1 btn-add btn-copy 
+         btn-update btn-delete tb_auto 
+      WITH FRAME D-Dialog.
+  VIEW FRAME D-Dialog.
+  {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query D-Dialog 
-PROCEDURE repo-query :
-    /*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
-    
-    
-
-    CLOSE QUERY BROWSE-1.
-    DO WITH FRAME {&FRAME-NAME}:
-         
-        OPEN QUERY BROWSE-1 FOR EACH ttInputEst
-            NO-LOCK BY ttInputEst.iFormNo.              
-
-        REPOSITION {&browse-name} TO ROWID iprwRowid NO-ERROR.
-    END.
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDefaultValue D-Dialog 
 PROCEDURE pDefaultValue :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -1466,7 +1475,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayQty D-Dialog 
 PROCEDURE pDisplayQty :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -1562,7 +1571,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayValue D-Dialog 
 PROCEDURE pDisplayValue :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -1588,7 +1597,7 @@ PROCEDURE pDisplayValue :
                 AND bf-eb.est-no EQ eb.est-no
                 AND bf-eb.form-no EQ 0 NO-ERROR.
                  
-            IF AVAILABLE bf-eb THEN
+            IF AVAILABLE bf-eb THEN do:
                 ASSIGN
                     quantity:SCREEN-VALUE  = STRING(eb.eqty) 
                     cCustNo:SCREEN-VALUE   = eb.cust-no
@@ -1602,7 +1611,21 @@ PROCEDURE pDisplayValue :
                     dep:SCREEN-VALUE       = STRING(bf-eb.dep)              
                     fg-cat:SCREEN-VALUE    = bf-eb.procat  
                     cType:SCREEN-VALUE     = IF bf-eb.set-is-assembled EQ TRUE THEN "Yes" ELSE IF bf-eb.set-is-assembled EQ FALSE THEN "No" ELSE "Q".
-            
+                
+                IF bf-eb.set-is-assembled EQ FALSE AND bf-eb.pur-man THEN
+                ASSIGN 
+                    cType:SCREEN-VALUE = "No".                     
+                ELSE IF bf-eb.set-is-assembled EQ TRUE AND bf-eb.pur-man THEN
+                ASSIGN 
+                    cType:SCREEN-VALUE = "Auto".                    
+                ELSE IF bf-eb.set-is-assembled EQ FALSE AND NOT bf-eb.pur-man THEN
+                ASSIGN
+                    cType:SCREEN-VALUE = "Yes".                    
+                ELSE IF  bf-eb.set-is-assembled EQ TRUE AND NOT bf-eb.pur-man THEN
+                ASSIGN
+                    cType:SCREEN-VALUE = "Q".
+                     .
+            END.
 
             FIND FIRST cust NO-LOCK WHERE cust.company = cocode
                 AND cust.cust-no EQ cCustNo:SCREEN-VALUE NO-ERROR .
@@ -1657,23 +1680,48 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query D-Dialog 
+PROCEDURE repo-query :
+/*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+    
+    
+
+    CLOSE QUERY BROWSE-1.
+    DO WITH FRAME {&FRAME-NAME}:
+         
+        OPEN QUERY BROWSE-1 FOR EACH ttInputEst
+            NO-LOCK BY ttInputEst.iFormNo.              
+
+        REPOSITION {&browse-name} TO ROWID iprwRowid NO-ERROR.
+    END.
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records D-Dialog  _ADM-SEND-RECORDS
 PROCEDURE send-records :
-    /*------------------------------------------------------------------------------
-      Purpose:     Send record ROWID's for all tables used by
-                   this file.
-      Parameters:  see template/snd-head.i
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     Send record ROWID's for all tables used by
+               this file.
+  Parameters:  see template/snd-head.i
+------------------------------------------------------------------------------*/
 
-    /* Define variables needed by this internal procedure.               */
-    {src/adm/template/snd-head.i}
+  /* Define variables needed by this internal procedure.               */
+  {src/adm/template/snd-head.i}
 
-    /* For each requested table, put it's ROWID in the output list.      */
-    {src/adm/template/snd-list.i "ttInputEst"}
+  /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "ttInputEst"}
 
-    /* Deal with any unexpected table requests before closing.           */
-    {src/adm/template/snd-end.i}
+  /* Deal with any unexpected table requests before closing.           */
+  {src/adm/template/snd-end.i}
 
 END PROCEDURE.
 
@@ -1682,7 +1730,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-64-dec D-Dialog 
 PROCEDURE valid-64-dec :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -1702,35 +1750,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-/*&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-board D-Dialog 
-PROCEDURE valid-board :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
-
-    DO WITH FRAME {&FRAME-NAME}:
-        IF NOT CAN-FIND(item WHERE item.company = gcompany
-            AND item.i-no = board:screen-value
-            AND LOOKUP(ITEM.mat-type,"P,R,B,F" ) GT 0)
-            THEN 
-        DO:
-            MESSAGE "Invalid Board. Try Help. " VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO board.
-            oplOutError = YES .
-        END.
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME */
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-no D-Dialog 
 PROCEDURE valid-cust-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -1752,10 +1774,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-fgitem D-Dialog 
 PROCEDURE valid-fgitem :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -1792,7 +1813,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-item-dscr D-Dialog 
 PROCEDURE valid-item-dscr :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -1815,7 +1836,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-item-name D-Dialog 
 PROCEDURE valid-item-name :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -1836,10 +1857,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-part-no D-Dialog 
 PROCEDURE valid-part-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -1860,10 +1880,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-procat D-Dialog 
 PROCEDURE valid-procat :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -1890,7 +1909,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ship-id D-Dialog 
 PROCEDURE valid-ship-id :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
@@ -1914,5 +1933,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

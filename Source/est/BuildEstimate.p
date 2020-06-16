@@ -359,7 +359,7 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
     
     IF ttInputEst.cEstType EQ "NewSetEstimate" THEN DO:
       ASSIGN
-         est.estimateTypeID = "AAAA" .
+         est.estimateTypeID = "WOOD" .
     END. 
        
     RUN est/BuildDefaultPreps.p (BUFFER est,
