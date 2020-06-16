@@ -969,10 +969,10 @@ IF AVAILABLE w-job THEN DO:
         ld-tot-wt   = w-job.tot-wt
         ld-cust-no:SENSITIVE  = lAccess1
         ld-sell-uom:SENSITIVE = NO 
-        ld-tot-wt:SENSITIVE   = lAccess1 AND lAccess2
-        fiStatusID:SENSITIVE  = lAccess1 AND lAccess2
-        tb_onhold:SENSITIVE   = lAccess1 AND lAccess2
-        tb_lock-cost:SENSITIVE = lAccess1 AND lAccess2
+        ld-tot-wt:SENSITIVE    = YES
+        fiStatusID:SENSITIVE   = YES
+        tb_onhold:SENSITIVE    = YES
+        tb_lock-cost:SENSITIVE = YES
         fiStatusID   = w-job.tagStatusID       
         tb_onhold       = w-job.onHold
         tb_lock-cost  = w-job.ship-default
