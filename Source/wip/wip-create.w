@@ -1921,6 +1921,9 @@ PROCEDURE pPrintLabels PRIVATE :
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
     IF SEARCH(cPathTemplate) NE ? THEN 
     DO:
         RUN PrintLabelMatrixFile IN hdOutputProcs(ipcCompany, cPathTemplate, "WIPTAG").
@@ -1939,7 +1942,9 @@ PROCEDURE pPrintLabels PRIVATE :
     RUN TempTableToCSV IN hdOutputProcs ( 
         INPUT TEMP-TABLE ttPrintInventoryStock:HANDLE,
         INPUT cOutputFileName,
-        INPUT TRUE
+        INPUT TRUE,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
         ).
         
     RUN rebuildTempTable(

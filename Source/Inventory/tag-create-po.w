@@ -1626,6 +1626,9 @@ PROCEDURE pPrintLabels PRIVATE :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
@@ -1648,13 +1651,17 @@ PROCEDURE pPrintLabels PRIVATE :
         RUN TempTableToCSV IN hdOutputProcs (
             INPUT TEMP-TABLE ttPrintInventoryStockFG:HANDLE,
             INPUT cOutputFileName,
-            INPUT TRUE
+            INPUT TRUE,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
             ).
     ELSE IF cItemType EQ gcItemTypeRM THEN
         RUN TempTableToCSV IN hdOutputProcs (
             INPUT TEMP-TABLE ttPrintInventoryStockRM:HANDLE,
             INPUT cOutputFileName,
-            INPUT TRUE
+            INPUT TRUE,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
             ).
 
     RUN pRebuildBrowse (

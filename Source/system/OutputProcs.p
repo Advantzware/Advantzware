@@ -273,19 +273,19 @@ PROCEDURE TempTableToCSV:
  Purpose: Exports the contents of any temp-table into CSV    
  Notes: 
 ------------------------------------------------------------------------------*/ 
-    DEFINE INPUT PARAMETER iphTT AS HANDLE NO-UNDO. 
-    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO. 
-    DEFINE INPUT PARAMETER iplHeader AS LOGICAL NO-UNDO.
-  
+    DEFINE INPUT  PARAMETER iphTT       AS HANDLE    NO-UNDO. 
+    DEFINE INPUT  PARAMETER ipcFileName AS CHARACTER NO-UNDO. 
+    DEFINE INPUT  PARAMETER iplHeader   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
     DEFINE VARIABLE hQuery  AS HANDLE    NO-UNDO. 
     DEFINE VARIABLE hBuffer AS HANDLE    NO-UNDO.
     DEFINE VARIABLE iIndex  AS INTEGER   NO-UNDO. 
     DEFINE VARIABLE eIndex  AS INTEGER   NO-UNDO. 
     DEFINE VARIABLE cTTName AS CHARACTER NO-UNDO. 
     
-    DEFINE VARIABLE cFullFilePath AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.     
+    DEFINE VARIABLE cFullFilePath AS CHARACTER NO-UNDO.         
         
     ASSIGN
         cTTName = iphTT:NAME
@@ -295,15 +295,11 @@ PROCEDURE TempTableToCSV:
     RUN FileSys_GetUniqueFileName (
         INPUT  ipcFileName,    
         OUTPUT cFullFilePath, 
-        OUTPUT lSuccess, 
-        OUTPUT cMessage  
+        OUTPUT oplSuccess, 
+        OUTPUT opcMessage  
         ). 
-    IF NOT lSuccess THEN DO:
-        MESSAGE cMessage
-            VIEW-AS ALERT-BOX ERROR. 
-        RETURN.
-    END.
-    
+    IF NOT oplSuccess THEN              
+        RETURN.    
     IF iplHeader THEN 
     DO:                     
         OUTPUT STREAM sOutput to VALUE(cFullFilePath). 
@@ -359,11 +355,13 @@ PROCEDURE Output_TempTableToCSV:
      Purpose: Exports the contents of the temp-table to CSV
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iphTT AS HANDLE NO-UNDO. 
-    DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO. 
-    DEFINE INPUT PARAMETER iplHeader AS LOGICAL NO-UNDO.
+    DEFINE INPUT  PARAMETER iphTT       AS HANDLE    NO-UNDO. 
+    DEFINE INPUT  PARAMETER ipcFileName AS CHARACTER NO-UNDO. 
+    DEFINE INPUT  PARAMETER iplHeader   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
 
-    RUN TempTableToCSV(iphTT, ipcFileName, iplHeader).
+    RUN TempTableToCSV(iphTT, ipcFileName, iplHeader, OUTPUT oplSuccess, OUTPUT opcMessage).
         
 END PROCEDURE.
 

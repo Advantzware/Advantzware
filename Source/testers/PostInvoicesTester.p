@@ -135,10 +135,12 @@ PROCEDURE pBuildCompareFiles PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcResults AS CHARACTER NO-UNDO.
-    
+        
     DEFINE VARIABLE hdOutput    AS HANDLE.
     DEFINE VARIABLE cTempFolder AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFile       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
     
     RUN system\OutputProcs.p PERSISTENT SET hdOutput.
     THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdOutput).
@@ -165,9 +167,9 @@ PROCEDURE pBuildCompareFiles PRIVATE:
         BUFFER-COPY gltrans TO ttGlTrans.
     END.
     
-    RUN Output_TempTableToCSV(TEMP-TABLE ttArInv:HANDLE, cTempFolder + "\" + ipcResults + "ARInv.csv", YES).
-    RUN Output_TempTableToCSV(TEMP-TABLE ttArInvl:HANDLE, cTempFolder + "\" + ipcResults + "ARInvl.csv", YES).
-    RUN Output_TempTableToCSV(TEMP-TABLE ttGlTrans:HANDLE, cTempFolder + "\" + ipcResults + "GlTrans.csv", YES).
+    RUN Output_TempTableToCSV(TEMP-TABLE ttArInv:HANDLE, cTempFolder + "\" + ipcResults + "ARInv.csv", YES, OUTPUT lSuccess, OUTPUT cMessage).
+    RUN Output_TempTableToCSV(TEMP-TABLE ttArInvl:HANDLE, cTempFolder + "\" + ipcResults + "ARInvl.csv", YES, OUTPUT lSuccess, OUTPUT cMessage).
+    RUN Output_TempTableToCSV(TEMP-TABLE ttGlTrans:HANDLE, cTempFolder + "\" + ipcResults + "GlTrans.csv", YES, OUTPUT lSuccess, OUTPUT cMessage).
           
 
 END PROCEDURE.

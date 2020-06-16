@@ -70,7 +70,8 @@ PROCEDURE pBuildAndPrintFGLabels PRIVATE:
     DEFINE VARIABLE iCountRecords AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iCountLabels  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lContinue     AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
 
     RUN pGetSettings(ipcCompany, OUTPUT cPathDataFile, OUTPUT cPathTemplate, OUTPUT iCopies).
     RUN pBuildFGLabels(ipcCompany, ipcJobStart, ipcJobEnd, ipiJob2Start, ipiJob2End, ipcFGItemIDStart, ipcFGItemIDEnd, iCopies, OUTPUT iCountRecords, OUTPUT iCountLabels).
@@ -91,7 +92,11 @@ PROCEDURE pBuildAndPrintFGLabels PRIVATE:
     END.    
     IF lContinue THEN 
     DO:
-        RUN TempTableToCSV IN hdOutputProcs (TEMP-TABLE ttFGLabel:HANDLE, cPathDataFile, YES).
+        RUN TempTableToCSV IN hdOutputProcs (TEMP-TABLE ttFGLabel:HANDLE, 
+                                             cPathDataFile, 
+                                             YES,
+                                             OUTPUT lSuccess,
+                                             OUTPUT cMessage).
         IF iplAutoPrint THEN 
         DO:
             IF SEARCH(cPathTemplate) NE ? THEN DO:

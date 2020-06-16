@@ -116,7 +116,7 @@ PROCEDURE FileSys_GetUniqueFileName:
         ) NO-ERROR.
     
     /* Below code gets the file name from file path name */
-    cFileName = REPLACE(cFileName,cFilePath,""). 
+    cFileName = ENTRY(NUM-ENTRIES(cFileName,cBackwardSlash),cFileName,cBackwardSlash) NO-ERROR.     
             
     RUN pGetUniqueFileName (
         INPUT  cFilePath,

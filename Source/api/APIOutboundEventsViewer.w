@@ -589,6 +589,8 @@ DO:
     DEFINE VARIABLE cFilePath     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cSysCtrlName  AS CHARACTER NO-UNDO INITIAL "APIExport".
+    DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
     
     RUN sys/ref/nk1look.p (
         g_company,            /* Company Code */
@@ -630,7 +632,9 @@ DO:
     RUN TempTableToCSV IN hdOutputProcs (
         INPUT TEMP-TABLE ttPrintAPIOutboundEvent:HANDLE,
         INPUT cFullFilePath,
-        INPUT TRUE /* Export Header */
+        INPUT TRUE /* Export Header */,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
         ).
             
     MESSAGE "Export complete. File saved to " cFullFilePath SKIP

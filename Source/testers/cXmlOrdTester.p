@@ -81,6 +81,8 @@ PROCEDURE postMonitor:
     DEFINE VARIABLE cXMLProcessed AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cXMLResponse  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE returnValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
 
     FOR EACH cXMLDir:
         monitorImportDir = cXMLDir.cXMLDir.
@@ -136,9 +138,17 @@ PROCEDURE postMonitor:
             IF AVAILABLE ttOrdHead THEN 
             DO:
                 hTempTableHandle = TEMP-TABLE ttOrdHead:HANDLE.
-                RUN TempTableToCSV IN hOutputProcs (INPUT hTempTableHandle, INPUT cHeaderCSVFile, INPUT lFirstOrder).
+                RUN TempTableToCSV IN hOutputProcs (INPUT hTempTableHandle, 
+                                                    INPUT cHeaderCSVFile, 
+                                                    INPUT lFirstOrder,
+                                                    OUTPUT lSuccess,
+                                                    OUTPUT cMessage).
                 hTempTableHandle = TEMP-TABLE ttOrdLines:HANDLE.
-                RUN TempTableToCSV IN hOutputProcs (INPUT hTempTableHandle, INPUT cDetailCSVFile, INPUT lFirstOrder).   
+                RUN TempTableToCSV IN hOutputProcs (INPUT hTempTableHandle, 
+                                                    INPUT cDetailCSVFile, 
+                                                    INPUT lFirstOrder,
+                                                    OUTPUT lSuccess,
+                                                    OUTPUT cMessage).   
                 lFirstOrder = NO.
                 iNumOrders = iNumOrders + 1.             
             END.

@@ -166,7 +166,9 @@ PROCEDURE ConvertLegacyToNew:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE dTimer AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTimer   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
     EMPTY TEMP-TABLE ttProcessed.
     ASSIGN 
@@ -192,7 +194,11 @@ PROCEDURE ConvertLegacyToNew:
             .
   
 
-    RUN TempTableToCSV IN ghOutput (TEMP-TABLE ttProcessed:HANDLE, ipcOutputFile, TRUE /* Export Header */).
+    RUN TempTableToCSV IN ghOutput (TEMP-TABLE ttProcessed:HANDLE, 
+                                    ipcOutputFile, 
+                                    TRUE /* Export Header */,
+                                    OUTPUT lSuccess,
+                                    OUTPUT cMessage).
     DELETE OBJECT ghOutput.
     DELETE OBJECT ghVendorCost.
 
