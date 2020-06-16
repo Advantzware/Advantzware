@@ -14,8 +14,8 @@ DEFINE        VARIABLE v-ink-3          AS cha     FORM "X(30)" NO-UNDO.
 DEFINE        VARIABLE v-ink-4          AS cha     FORM "X(30)" NO-UNDO.
 DEFINE        VARIABLE v-ink-5          AS cha     FORM "X(30)" NO-UNDO.
 DEFINE        VARIABLE v-ink-6          AS cha     FORM "X(30)" NO-UNDO.
-DEFINE        VARIABLE v-dept-note      AS cha     FORM "x(124)" EXTENT 10 NO-UNDO.
-DEFINE        VARIABLE v-spec-note      AS cha     FORM "x(124)" EXTENT 10 NO-UNDO.
+DEFINE        VARIABLE v-dept-note      AS cha     FORM "x(124)" EXTENT 100 NO-UNDO.
+DEFINE        VARIABLE v-spec-note      AS cha     FORM "x(124)" EXTENT 100 NO-UNDO.
 DEFINE        VARIABLE v-deptnote       AS cha     NO-UNDO.
 DEFINE        VARIABLE v-dept-length    AS DECIMAL NO-UNDO.
 DEFINE        VARIABLE lv-under-run     AS cha     NO-UNDO.
@@ -80,6 +80,10 @@ DEFINE        VARIABLE dJobQty       AS DECIMAL   NO-UNDO .
 DEFINE VARIABLE lJobCardPrntScor-Log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE opiArraySize AS INTEGER NO-UNDO.
+Define Variable hNotesProc as Handle NO-UNDO.
+
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProc.
 
 DEFINE BUFFER bf-itemfg         FOR itemfg .
 
@@ -689,87 +693,16 @@ DO v-local-loop = 1 TO v-local-copies:
       
          /* dept notes */
         ASSIGN
-           v-note-length   = 91
-           v-tmp-lines     = 0
-           j               = 0
-           K               = 0
-           lv-got-return   = 0
-           v-dept-note     = "" 
-           v-prev-note-rec = ?.
-   
-        FOR EACH notes WHERE notes.rec_key = job.rec_key AND
-                    (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0) AND
-                    ((v-dept-log AND lookup(notes.note_code,v-dept-codes) NE 0) OR NOT v-dept-log)
-                 NO-LOCK:
-            IF v-prev-note-rec <> ? AND
-               v-prev-note-rec <> RECID(notes) THEN v-prev-extent = /*v-prev-extent +*/ k.
-
-            DO i = 1 TO LENGTH(notes.note_text):
-               IF i - j >= v-note-length THEN ASSIGN j             = i
-                                            lv-got-return = lv-got-return + 1.
-
-               v-tmp-lines = ( i - j ) / v-note-length.
-               {SYS/INC/ROUNDUP.I v-tmp-lines}
-
-               k = v-tmp-lines + lv-got-return + 
-                   IF (v-prev-note-rec <> RECID(notes) AND v-prev-note-rec <> ?) THEN v-prev-extent ELSE 0.
-               IF k < 7 THEN v-dept-note[k] = v-dept-note[k] + IF SUBSTRING(notes.note_text,i,1) <> CHR(10) THEN SUBSTRING(notes.note_text,i,1) 
-                             ELSE "" .              
-
-               IF SUBSTRING(note_text,i,1) = CHR(10) OR SUBSTRING(note_text,i,1) = CHR(13)                 
-               THEN DO:
-                  lv-got-return = lv-got-return + 1.
-                  j = i.
-               END.         
-            END.
-            
-            ASSIGN v-prev-note-rec = RECID(notes)
-                   j               = 0
-                   lv-got-return   = 0.
-
-
-        END.
-        
-        ASSIGN
-        v-inst        = ""
-        v-spec-note   = ""
-        v-tmp-lines   = 0
-        j             = 0
-        K             = 0
-        lv-got-return = 0
-        v-prev-note-rec = ?.
-
-        FOR EACH notes WHERE notes.rec_key = bf-itemfg.rec_key 
-                        AND lookup(notes.note_code,spec-list) NE 0 NO-LOCK.
-                        
-            IF v-prev-note-rec <> ? AND
-               v-prev-note-rec <> RECID(notes) THEN v-prev-extent = /*v-prev-extent +*/ k.                        
-               
-            DO i = 1 TO LENGTH(notes.note_text) :        
-               IF i - j >= v-note-length THEN ASSIGN j             = i
-                                              lv-got-return = lv-got-return + 1.
-                   
-               v-tmp-lines = ( i - j ) / v-note-length.
-               {SYS/INC/ROUNDUP.I v-tmp-lines}
-
-               k = v-tmp-lines + lv-got-return + 
-                   IF (v-prev-note-rec <> RECID(notes) AND v-prev-note-rec <> ?) THEN v-prev-extent ELSE 0.
-               
-               IF k < 7 THEN v-spec-note[k] = v-spec-note[k] + IF SUBSTRING(notes.note_text,i,1) <> CHR(10) THEN SUBSTRING(notes.note_text,i,1) 
-                                  ELSE "" .              
+           v-dept-note   = ""  .
            
-               IF SUBSTRING(note_text,i,1) = CHR(10) OR SUBSTRING(note_text,i,1) = CHR(13)                 
-               THEN DO:
-                  lv-got-return = lv-got-return + 1.
-                  j = i.
-               END.         
-            END.
-             ASSIGN v-prev-note-rec = RECID(notes)
-                   j               = 0
-                   lv-got-return   = 0.
-          
-         END.
-    
+        RUN GetNotesArrayForObject IN hNotesProc (INPUT job.rec_key, "", v-dept-codes, 100, NO, w-ef.frm , OUTPUT v-dept-note, OUTPUT opiArraySize).    
+                       
+        ASSIGN         
+        v-spec-note   = ""  .
+        
+        RUN GetNotesArrayForObject IN hNotesProc (INPUT bf-itemfg.rec_key, "", spec-list, 100, NO,0, OUTPUT v-spec-note, OUTPUT opiArraySize).
+
+           
 
          PUT  "<=NotesStart><FROM><C108><LINE><|1>"
               "<=NotesStart><C+1><R+1><B>Department Notes</B><#Notes>"
@@ -1125,7 +1058,9 @@ END.  /* end v-local-loop  */
  
 HIDE ALL NO-PAUSE.
 
-
+IF VALID-HANDLE(hNotesProc) THEN  
+  DELETE OBJECT hNotesProc.
+  
 PROCEDURE stackImage:
     DEFINE BUFFER pattern      FOR reftable.
     DEFINE BUFFER stackPattern FOR stackPattern.

@@ -176,6 +176,7 @@ PROCEDURE GetNotesArrayForObject:
     DEFINE INPUT PARAMETER ipcCodes AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiMaxCharCount AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER iplIncludeTitles AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipiNotesForm AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
     DEFINE OUTPUT PARAMETER opiArraySize AS INTEGER NO-UNDO.
 
@@ -185,6 +186,7 @@ PROCEDURE GetNotesArrayForObject:
         WHERE notes.rec_key EQ ipcObjectRecKey
         AND (ipcTypes EQ "" OR LOOKUP(notes.note_type,ipcTypes) GT 0)
         AND (ipcCodes EQ "" OR LOOKUP(notes.note_code,ipcCodes) GT 0)
+        AND (notes.note_form_no = ipiNotesForm OR notes.note_form_no = 0)
         :
         IF iplIncludeTitles THEN 
             cFullText = cFullText + TRIM(CAPS(notes.note_title)) + CHR(13).
