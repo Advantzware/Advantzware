@@ -2975,7 +2975,7 @@ PROCEDURE valid-po-no :
             END.                 
             RUN ap/valid-po2.p (BUFFER po-ordl, BUFFER b-ap-invl ,OUTPUT lv-msg2).
             IF lv-msg2 NE "" THEN DO:
-                MESSAGE TRIM(lv-msg2) VIEW-AS ALERT-BOX WARNING UPDATE lContinue AS LOG.
+                MESSAGE TRIM(lv-msg2) VIEW-AS ALERT-BOX WARNING buttons yes-no UPDATE lContinue AS LOG.
                 ASSIGN 
                     lv-msg2 = "".
                 IF NOT lContinue THEN DO:
