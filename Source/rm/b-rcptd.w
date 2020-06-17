@@ -2913,16 +2913,15 @@ PROCEDURE local-create-record :
     DO:
         BUFFER-COPY tt-rm-rctd EXCEPT rec_key TO rm-rctd.
         tt-rm-rctd.tt-rowid = ROWID(rm-rctd).
+        IF rm-rctd.loc EQ "" THEN 
+           rm-rctd.loc = locode .
     END.
 
     ASSIGN
         v-new-mode        = YES
         rm-rctd.company   = cocode
         rm-rctd.r-no      = lv-rno
-        rm-rctd.rita-code = "R".
-        
-        IF rm-rctd.loc EQ "" THEN 
-           rm-rctd.loc = locode .
+        rm-rctd.rita-code = "R".          
 
     IF adm-adding-record THEN 
     DO:
