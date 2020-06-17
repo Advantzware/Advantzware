@@ -5309,7 +5309,7 @@ PROCEDURE pEstimateCleanUp PRIVATE:
 
     RUN valid-eb-reckey.
 
-    IF adm-new-record AND ll-add-set-part = YES OR ll-add-set-part-2 = YES THEN DO:
+    IF ll-new-record AND ll-add-set-part = YES OR ll-add-set-part-2 = YES THEN DO:
         IF est.est-type NE 8 THEN
             FOR EACH bf-eb 
                 WHERE bf-eb.company EQ eb.company
@@ -5327,7 +5327,7 @@ PROCEDURE pEstimateCleanUp PRIVATE:
 
     END.
 
-    IF adm-new-record AND eb.pur-man THEN DO:
+    IF ll-new-record AND eb.pur-man THEN DO:
         RUN create-e-itemfg-vend.
         RUN CreateVendItemCost(
             INPUT cocode,    
@@ -5338,7 +5338,7 @@ PROCEDURE pEstimateCleanUp PRIVATE:
             ).
     END.        
 
-    ELSE IF NOT adm-new-record AND eb.pur-man THEN DO:      
+    ELSE IF NOT ll-new-record AND eb.pur-man THEN DO:      
         IF cOldFGItem NE eb.stock-no THEN DO:
       
             RUN update-e-itemfg-vend.
@@ -5363,7 +5363,7 @@ PROCEDURE pEstimateCleanUp PRIVATE:
     END.
 
     /* If unitized and form 1, blank 1, copy to form zero record. */
-    IF adm-new-record AND eb.pur-man = NO AND eb.form-no = 1 AND eb.blank-no = 1 THEN  /*Ticket - 34158 */
+    IF ll-new-record AND eb.pur-man = NO AND eb.form-no = 1 AND eb.blank-no = 1 THEN  /*Ticket - 34158 */
         RUN copy-2-form-zero.     
 
     IF is2PieceBox THEN DO:
