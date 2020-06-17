@@ -499,10 +499,11 @@ DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
     
         END. /* Each job, each job-hdr */
         
-        RUN TempTableToCSV IN hdOutputProcs ( 
+        RUN Output_TempTableToCSV IN hdOutputProcs ( 
             INPUT TEMP-TABLE ttSaveCosts:HANDLE,
             INPUT cOutputFileName,
             INPUT TRUE,
+            INPUT TRUE /* Auto increment File name */,
             OUTPUT lSuccess,
             OUTPUT cMessage
             ).

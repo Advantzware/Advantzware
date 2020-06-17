@@ -95,13 +95,14 @@ PROCEDURE FileSys_GetUniqueFileName:
  Purpose: Returns a unique file name in a given directory 
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcFullFilePath AS CHARACTER NO-UNDO. 
-    DEFINE OUTPUT PARAMETER opcFullFilePath AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess      AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFullFilePath          AS CHARACTER NO-UNDO. 
+    DEFINE INPUT  PARAMETER iplAutoIncrementFileName AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFullFilePath          AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess               AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage               AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFilePath AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFilePath AS CHARACTER NO-UNDO.    
     
     ASSIGN 
         cFileName = fFormatFilePath(ipcFullFilePath)
@@ -116,19 +117,23 @@ PROCEDURE FileSys_GetUniqueFileName:
         ) NO-ERROR.
     
     /* Below code gets the file name from file path name */
-    cFileName = ENTRY(NUM-ENTRIES(cFileName,cBackwardSlash),cFileName,cBackwardSlash) NO-ERROR.     
-            
-    RUN pGetUniqueFileName (
-        INPUT  cFilePath,
-        INPUT  cFileName,
-        INPUT  TRUE,    /* Create directory */
-        INPUT  FALSE,   /* Create file */  
-        INPUT  " (",    /* File count prefix */
-        INPUT  ")",     /* File count suffix */
-        OUTPUT opcFullFilePath,
-        OUTPUT oplSuccess,
-        OUTPUT opcMessage 
-        ).
+    cFileName = ENTRY(NUM-ENTRIES(cFileName,cBackwardSlash),cFileName,cBackwardSlash) NO-ERROR.
+         
+    IF NOT iplAutoIncrementFileName THEN    
+        opcFullFilePath = ipcFullFilePath.     
+    ELSE       
+        RUN pGetUniqueFileName (
+            INPUT  cFilePath,
+            INPUT  cFileName,
+            INPUT  TRUE,    /* Create directory */
+            INPUT  FALSE,   /* Create file */  
+            INPUT  " (",    /* File count prefix */
+            INPUT  ")",     /* File count suffix */
+            OUTPUT opcFullFilePath,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage 
+            ).
+
 END PROCEDURE.
 
 PROCEDURE FileSys_ValidateDirectory:

@@ -194,11 +194,12 @@ PROCEDURE ConvertLegacyToNew:
             .
   
 
-    RUN TempTableToCSV IN ghOutput (TEMP-TABLE ttProcessed:HANDLE, 
-                                    ipcOutputFile, 
-                                    TRUE /* Export Header */,
-                                    OUTPUT lSuccess,
-                                    OUTPUT cMessage).
+    RUN Output_TempTableToCSV IN ghOutput (TEMP-TABLE ttProcessed:HANDLE, 
+                                           INPUT ipcOutputFile, 
+                                           INPUT TRUE /* Export Header */,
+                                           INPUT TRUE /* Auto increment File name */,
+                                           OUTPUT lSuccess,
+                                           OUTPUT cMessage).
     DELETE OBJECT ghOutput.
     DELETE OBJECT ghVendorCost.
 

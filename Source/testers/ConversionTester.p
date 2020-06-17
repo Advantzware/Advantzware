@@ -133,11 +133,14 @@ PROCEDURE pTestAndCompareAllFGItems PRIVATE:
             END.
         END.
     END.
-    RUN Output_TempTableToCSV(TEMP-TABLE ttResults:HANDLE, 
-                              "C:\tmp\ConversionResultsItemfg.csv", 
-                              YES,
-                              OUTPUT lSuccess,
-                              OUTPUT cMessage).                              
+    RUN Output_TempTableToCSV(
+        INPUT TEMP-TABLE ttResults:HANDLE, 
+        INPUT "C:\tmp\ConversionResultsItemfg.csv", 
+        INPUT YES,
+        INPUT TRUE /* Auto increment File name */,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).                              
     
 END PROCEDURE.
 
@@ -220,11 +223,14 @@ PROCEDURE pTestAndCompareAllPOLines PRIVATE:
     END.
 
 
-    RUN Output_TempTableToCSV(TEMP-TABLE ttResults:HANDLE, 
-                              "C:\tmp\ConversionResultsPoLines.csv", 
-                              YES,
-                              OUTPUT lSuccess,
-                              OUTPUT cMessage).
+    RUN Output_TempTableToCSV(
+        INPUT TEMP-TABLE ttResults:HANDLE, 
+        INPUT "C:\tmp\ConversionResultsPoLines.csv", 
+        INPUT YES,
+        INPUT TRUE /* Auto increment File name */,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).
     
 END PROCEDURE.
 
@@ -305,11 +311,14 @@ PROCEDURE pTestAndCompareAllRMItems PRIVATE:
             END.
         END.
     END.
-    RUN Output_TempTableToCSV(TEMP-TABLE ttResults:HANDLE, 
-                              "C:\tmp\ConversionResultsItem.csv", 
-                              YES,
-                              OUTPUT lSuccess,
-                              OUTPUT cMessage).
+    RUN Output_TempTableToCSV(
+        INPUT TEMP-TABLE ttResults:HANDLE, 
+        INPUT "C:\tmp\ConversionResultsItem.csv", 
+        INPUT YES,
+        INPUT TRUE /* Auto increment File name */,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).
     
 END PROCEDURE.
 

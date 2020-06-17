@@ -1606,10 +1606,11 @@ PROCEDURE pPrintLabels PRIVATE :
             "     Template file: " cPathTemplate
             VIEW-AS ALERT-BOX TITLE "Invalid Template".
 
-    RUN TempTableToCSV IN hdOutputProcs ( 
+    RUN Output_TempTableToCSV IN hdOutputProcs ( 
         INPUT TEMP-TABLE ttPrintInventoryStockFG:HANDLE,
         INPUT cOutputFileName,
         INPUT TRUE,
+        INPUT FALSE, /* Auto increment File name */
         OUTPUT lSuccess,
         OUTPUT cMessage
         ).

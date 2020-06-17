@@ -138,17 +138,19 @@ PROCEDURE postMonitor:
             IF AVAILABLE ttOrdHead THEN 
             DO:
                 hTempTableHandle = TEMP-TABLE ttOrdHead:HANDLE.
-                RUN TempTableToCSV IN hOutputProcs (INPUT hTempTableHandle, 
-                                                    INPUT cHeaderCSVFile, 
-                                                    INPUT lFirstOrder,
-                                                    OUTPUT lSuccess,
-                                                    OUTPUT cMessage).
+                RUN Output_TempTableToCSV IN hOutputProcs (INPUT hTempTableHandle, 
+                                                           INPUT cHeaderCSVFile, 
+                                                           INPUT lFirstOrder,
+                                                           INPUT TRUE /* Auto increment File name */,
+                                                           OUTPUT lSuccess,
+                                                           OUTPUT cMessage).
                 hTempTableHandle = TEMP-TABLE ttOrdLines:HANDLE.
-                RUN TempTableToCSV IN hOutputProcs (INPUT hTempTableHandle, 
-                                                    INPUT cDetailCSVFile, 
-                                                    INPUT lFirstOrder,
-                                                    OUTPUT lSuccess,
-                                                    OUTPUT cMessage).   
+                RUN Output_TempTableToCSV IN hOutputProcs (INPUT hTempTableHandle, 
+                                                           INPUT cDetailCSVFile, 
+                                                           INPUT lFirstOrder,
+                                                           INPUT TRUE /* Auto increment File name */,
+                                                           OUTPUT lSuccess,
+                                                           OUTPUT cMessage).   
                 lFirstOrder = NO.
                 iNumOrders = iNumOrders + 1.             
             END.

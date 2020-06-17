@@ -167,9 +167,9 @@ PROCEDURE pBuildCompareFiles PRIVATE:
         BUFFER-COPY gltrans TO ttGlTrans.
     END.
     
-    RUN Output_TempTableToCSV(TEMP-TABLE ttArInv:HANDLE, cTempFolder + "\" + ipcResults + "ARInv.csv", YES, OUTPUT lSuccess, OUTPUT cMessage).
-    RUN Output_TempTableToCSV(TEMP-TABLE ttArInvl:HANDLE, cTempFolder + "\" + ipcResults + "ARInvl.csv", YES, OUTPUT lSuccess, OUTPUT cMessage).
-    RUN Output_TempTableToCSV(TEMP-TABLE ttGlTrans:HANDLE, cTempFolder + "\" + ipcResults + "GlTrans.csv", YES, OUTPUT lSuccess, OUTPUT cMessage).
+    RUN Output_TempTableToCSV(TEMP-TABLE ttArInv:HANDLE, cTempFolder + "\" + ipcResults + "ARInv.csv", YES,YES, OUTPUT lSuccess, OUTPUT cMessage).
+    RUN Output_TempTableToCSV(TEMP-TABLE ttArInvl:HANDLE, cTempFolder + "\" + ipcResults + "ARInvl.csv", YES,YES, OUTPUT lSuccess, OUTPUT cMessage).
+    RUN Output_TempTableToCSV(TEMP-TABLE ttGlTrans:HANDLE, cTempFolder + "\" + ipcResults + "GlTrans.csv", YES,YES, OUTPUT lSuccess, OUTPUT cMessage).
           
 
 END PROCEDURE.

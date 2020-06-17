@@ -268,16 +268,17 @@ PROCEDURE SetRowsPerPage:
 
 END PROCEDURE.
 
-PROCEDURE TempTableToCSV:
-/*------------------------------------------------------------------------------ 
- Purpose: Exports the contents of any temp-table into CSV    
- Notes: 
-------------------------------------------------------------------------------*/ 
-    DEFINE INPUT  PARAMETER iphTT       AS HANDLE    NO-UNDO. 
-    DEFINE INPUT  PARAMETER ipcFileName AS CHARACTER NO-UNDO. 
-    DEFINE INPUT  PARAMETER iplHeader   AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+PROCEDURE Output_TempTableToCSV:
+    /*------------------------------------------------------------------------------
+     Purpose: Exports the contents of the temp-table to CSV
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iphTT                    AS HANDLE    NO-UNDO. 
+    DEFINE INPUT  PARAMETER ipcFileName              AS CHARACTER NO-UNDO. 
+    DEFINE INPUT  PARAMETER iplHeader                AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplAutoIncrementFilename AS LOGICAL   NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplSuccess               AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage               AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE hQuery  AS HANDLE    NO-UNDO. 
     DEFINE VARIABLE hBuffer AS HANDLE    NO-UNDO.
@@ -293,13 +294,16 @@ PROCEDURE TempTableToCSV:
         .
 
     RUN FileSys_GetUniqueFileName (
-        INPUT  ipcFileName,    
+        INPUT  ipcFileName,
+        INPUT  iplAutoIncrementFileName,    
         OUTPUT cFullFilePath, 
         OUTPUT oplSuccess, 
         OUTPUT opcMessage  
         ). 
+        
     IF NOT oplSuccess THEN              
         RETURN.    
+            
     IF iplHeader THEN 
     DO:                     
         OUTPUT STREAM sOutput to VALUE(cFullFilePath). 
@@ -332,6 +336,7 @@ PROCEDURE TempTableToCSV:
                 PUT STREAM sOutput UNFORMATTED
                     '"' STRING(hBuffer:BUFFER-FIELD(iIndex):BUFFER-VALUE)
                     (IF iIndex NE hBuffer:NUM-FIELDS THEN '",' ELSE '"').
+     
             ELSE 
             IF hBuffer:BUFFER-FIELD(iIndex):EXTENT GT 0 THEN DO:
                 DO eIndex = 1 to hBuffer:BUFFER-FIELD(iIndex):EXTENT:
@@ -348,20 +353,6 @@ PROCEDURE TempTableToCSV:
         PUT STREAM sOutput UNFORMATTED SKIP. 
     END. 
     OUTPUT STREAM sOutput CLOSE.
-END PROCEDURE.
-
-PROCEDURE Output_TempTableToCSV:
-    /*------------------------------------------------------------------------------
-     Purpose: Exports the contents of the temp-table to CSV
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER iphTT       AS HANDLE    NO-UNDO. 
-    DEFINE INPUT  PARAMETER ipcFileName AS CHARACTER NO-UNDO. 
-    DEFINE INPUT  PARAMETER iplHeader   AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
-
-    RUN TempTableToCSV(iphTT, ipcFileName, iplHeader, OUTPUT oplSuccess, OUTPUT opcMessage).
         
 END PROCEDURE.
 
@@ -372,16 +363,29 @@ PROCEDURE Output_TempTableToJSON:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphTT AS HANDLE NO-UNDO. 
     DEFINE INPUT PARAMETER ipcFile AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplAutoIncrementFilename AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE cTargetType     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFormatted      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lRetOK          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cFullFilePath   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO. 
 
     ASSIGN
         cTargetType = "file"
         lFormatted  = TRUE
         .
-    lRetOK = iphTT:WRITE-JSON(cTargetType, ipcFile, lFormatted).
+        
+    RUN FileSys_GetUniqueFileName (
+        INPUT  ipcFile,
+        INPUT  iplAutoIncrementFilename,    
+        OUTPUT cFullFilePath, 
+        OUTPUT lSuccess, 
+        OUTPUT cMessage  
+        ).
+            
+    lRetOK = iphTT:WRITE-JSON(cTargetType, cFullFilePath, lFormatted).
     
 END PROCEDURE.
 
@@ -392,6 +396,7 @@ PROCEDURE Output_TempTableToXML:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphTT AS HANDLE NO-UNDO. 
     DEFINE INPUT PARAMETER ipcFile AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplAutoIncrementFilename AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE cTargetType     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFormatted      AS LOGICAL   NO-UNDO.
@@ -400,6 +405,9 @@ PROCEDURE Output_TempTableToXML:
     DEFINE VARIABLE lWriteSchema    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lMinSchema      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lRetOK          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cFullFilePath   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
 
     /* Code to populate the temp-table  */
     ASSIGN
@@ -410,7 +418,15 @@ PROCEDURE Output_TempTableToXML:
         lWriteSchema    = FALSE
         lMinSchema      = FALSE.
 
-    lRetOK = iphTT:WRITE-XML(cTargetType, ipcFile,lFormatted, cEncoding,
+    RUN FileSys_GetUniqueFileName (
+        INPUT  ipcFile,
+        INPUT  iplAutoIncrementFilename,    
+        OUTPUT cFullFilePath, 
+        OUTPUT lSuccess, 
+        OUTPUT cMessage  
+        ).
+        
+    lRetOK = iphTT:WRITE-XML(cTargetType, cFullFilePath,lFormatted, cEncoding,
         cSchemaLocation, lWriteSchema, lMinSchema).
 
 END PROCEDURE.

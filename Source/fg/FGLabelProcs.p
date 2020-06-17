@@ -92,11 +92,15 @@ PROCEDURE pBuildAndPrintFGLabels PRIVATE:
     END.    
     IF lContinue THEN 
     DO:
-        RUN TempTableToCSV IN hdOutputProcs (TEMP-TABLE ttFGLabel:HANDLE, 
-                                             cPathDataFile, 
-                                             YES,
-                                             OUTPUT lSuccess,
-                                             OUTPUT cMessage).
+        RUN Output_TempTableToCSV IN hdOutputProcs (
+            INPUT TEMP-TABLE ttFGLabel:HANDLE, 
+            INPUT cPathDataFile, 
+            INPUT YES,
+            INPUT TRUE, /* Auto increment File name */
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).
+        
         IF iplAutoPrint THEN 
         DO:
             IF SEARCH(cPathTemplate) NE ? THEN DO:

@@ -555,14 +555,14 @@ DO:
         BUFFER-COPY ttAPIInboundEvent TO ttPrintAPIInboundEvent.
     END.
  
-    RUN TempTableToCSV IN hdOutputProcs (
+    RUN Output_TempTableToCSV IN hdOutputProcs (
         INPUT TEMP-TABLE ttPrintAPIInboundEvent:HANDLE,
         INPUT cFullFilePath,
         INPUT TRUE, /* Export Header */
+        INPUT TRUE, /* Auto increment File name */
         OUTPUT lSuccess,
         OUTPUT cMessage
         ).
-    
                 
     MESSAGE "Export complete. File saved to " cFullFilePath SKIP
         "Open file?"
