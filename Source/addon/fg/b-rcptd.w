@@ -110,14 +110,16 @@ END.
 /* gdm - */
 {sys/inc/jobreopn.i}
 
-DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
-DEFINE VARIABLE lFGSetAssembly AS LOGICAL     NO-UNDO.
-DEFINE VARIABLE cFGSetAssembly AS CHARACTER   NO-UNDO.
-DEFINE VARIABLE lGetBin AS LOGICAL     NO-UNDO.
-DEFINE VARIABLE iFGUnderOver AS INTEGER NO-UNDO.
-DEFINE VARIABLE lAllowUserOverRun   AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lAccessClose        AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cAccessList         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFound            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lFGSetAssembly    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cFGSetAssembly    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lGetBin           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iFGUnderOver      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lAllowUserOverRun AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lAccessClose      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cAccessList       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFGUnderOver      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFGUnderOver      AS LOGICAL   NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "FGSetAssembly",
@@ -212,6 +214,29 @@ RUN Inventory_GetDefaultBin IN hInventoryProcs(
     INPUT  cocode,
     OUTPUT cFGDefBin
     ).  
+RUN sys/ref/nk1look.p(
+    INPUT  cocode,
+    INPUT  "FGUnderOver", 
+    input  "L",
+    INPUT  NO,
+    INPUT  NO, 
+    INPUT  "",
+    INPUT  "", 
+    OUTPUT lFGUnderOver,
+    OUTPUT lFound
+    ).  
+
+RUN sys/ref/nk1look.p(
+    INPUT  cocode,
+    INPUT  "FGUnderOver", 
+    input  "C",
+    INPUT  NO,
+    INPUT  NO, 
+    INPUT  "",
+    INPUT  "", 
+    OUTPUT cFGUnderOver,
+    OUTPUT lFound
+    ).      
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1026,20 +1051,10 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+
 &Scoped-define SELF-NAME fg-rctd.partial
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.partial Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF fg-rctd.partial IN BROWSE Browser-Table /* Partial */
-DO:
-  DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
-  RUN valid-over-qty(OUTPUT lCheckError).
-  IF lCheckError THEN RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 &Scoped-define SELF-NAME fg-rctd.partial
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.partial Browser-Table _BROWSE-COLUMN B-table-Win
 ON VALUE-CHANGED OF fg-rctd.partial IN BROWSE Browser-Table /* Partial */
@@ -1689,18 +1704,6 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
      v-wid = po-ordl.s-wid
      v-rec-qty = po-ordl.t-rec-qty + int(fg-rctd.t-qty:SCREEN-VALUE).
 
-    IF NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no, po-ordl.pr-qty-uom) THEN
-       RUN sys/ref/convquom.p("EA", po-ordl.pr-qty-uom, 0, 0, 0, 0,
-                              v-rec-qty, OUTPUT v-rec-qty).
-    IF iFGUnderOver EQ 0 AND v-rec-qty GT (po-ordl.ord-qty * 
-                    (1 + (po-ordl.over-pct / 100)))
-       AND NOT lv-overrun-checked
-    THEN DO:
-       MESSAGE "The PO Qty + overrun has been exceeded. "
-                  VIEW-AS ALERT-BOX WARNING .
-       lv-overrun-checked = YES.
-    END.
-
     DEF VAR lv-use-full-qty AS LOG.
     DEF VAR lv-full-qty AS DEC NO-UNDO.
 
@@ -1734,40 +1737,7 @@ IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode 
      lv-out-cost = DEC(fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name}).
 
   END.
-  ELSE IF fg-rctd.job-no:SCREEN-VALUE <> "" THEN DO:
-       FIND FIRST job-hdr WHERE job-hdr.company = cocode                       
-                       AND job-hdr.i-no  = fg-rctd.i-no:screen-value
-                       AND job-hdr.job-no = (fg-rctd.job-no:screen-value)
-                       AND job-hdr.job-no2 = integer(fg-rctd.job-no2:screen-value)
-                       NO-LOCK NO-ERROR.
-       IF AVAIL job-hdr THEN DO: 
-          FIND FIRST sys-ctrl WHERE sys-ctrl.company = cocode AND
-                                    sys-ctrl.name = "JOB QTY" 
-                                    NO-LOCK NO-ERROR.
-          IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN v-rec-qty = job-hdr.qty                          .
-          ELSE DO:
-              FIND FIRST oe-ordl NO-LOCK
-                  WHERE oe-ordl.company EQ job-hdr.company
-                    AND oe-ordl.ord-no  EQ job-hdr.ord-no
-                    AND oe-ordl.i-no    EQ job-hdr.i-no
-                  NO-ERROR.
-              FIND FIRST oe-ord NO-LOCK
-                  WHERE oe-ord.company EQ job-hdr.company
-                    AND oe-ord.ord-no  EQ job-hdr.ord-no
-                  NO-ERROR.
-              
-              v-rec-qty = (job-hdr.qty * (1 + (IF AVAIL oe-ordl THEN oe-ordl.over-pct ELSE
-                                               IF AVAIL oe-ord  THEN oe-ord.over-pct  ELSE 0 / 100))).
-      
-          END.
-          IF v-rec-qty <  int(fg-rctd.t-qty:SCREEN-VALUE) AND NOT lv-overrun-checked THEN DO:
-             MESSAGE "Receipt quantity exceeds job quantity." VIEW-AS ALERT-BOX WARNING.
-             lv-overrun-checked = YES.
-          END.
-          
-       END.
-  END.
-
+  
   lv-out-qty = DEC(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}). 
   
   IF fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ lv-cost-uom               OR
@@ -1800,103 +1770,57 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-matrix-all B-table-Win 
 PROCEDURE get-matrix-all :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF INPUT PARAMETER ip-first-disp AS LOG NO-UNDO.
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-first-disp AS LOGICAL NO-UNDO.
 
-  DEF VAR v-len LIKE po-ordl.s-len NO-UNDO.
-  DEF VAR v-wid LIKE po-ordl.s-len NO-UNDO.
-  DEF VAR v-dep LIKE po-ordl.s-len NO-UNDO. 
-  DEF VAR v-bwt LIKE po-ordl.s-len NO-UNDO.
-  DEF VAR lv-out-qty AS DEC NO-UNDO.
-  DEF VAR lv-out-cost AS DEC NO-UNDO.
-  DEF VAR v-rec-qty AS INT NO-UNDO.
-  DEF VAR ll-ea AS LOG NO-UNDO.
+    IF fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN DO: /* in update mode - use screen-value */
+        FIND FIRST po-ordl NO-LOCK 
+             WHERE po-ordl.company   EQ cocode
+               AND po-ordl.po-no     EQ INTEGER(fg-rctd.po-no:screen-value IN BROWSE {&browse-name}) 
+               AND po-ordl.i-no      EQ fg-rctd.i-no:screen-value
+               AND po-ordl.job-no    EQ (fg-rctd.job-no:screen-value)
+               AND po-ordl.job-no2   EQ INTEGER(fg-rctd.job-no2:screen-value)
+               AND po-ordl.item-type EQ NO
+             NO-ERROR.
+    
+        IF AVAIL po-ordl THEN
+           RUN Inventory_CheckPOUnderOver IN hInventoryProcs(
+               INPUT cocode,
+               INPUT TRIM(fg-rctd.job-no:SCREEN-VALUE ),
+               INPUT INT(fg-rctd.job-no2:SCREEN-VALUE),
+               INPUT fg-rctd.i-no:SCREEN-VALUE,
+               INPUT fg-rctd.po-no:SCREEN-VALUE,
+               INPUT INTEGER(fg-rctd.t-qty:SCREEN-VALUE),
+               INPUT (adm-new-record AND NOT adm-adding-record), /*Copied Record */
+               INPUT cFGUnderOver,
+               INPUT iFGUnderOver,
+               INPUT lFGUnderOver,
+               INPUT ROWID(fg-rctd)                              /* ROWID of current fg-rctd record */
+               )NO-ERROR.
 
-  DEF BUFFER b-fg-rctd FOR fg-rctd.
-  
-  FOR EACH b-fg-rctd WHERE
-      b-fg-rctd.company EQ cocode AND
-      LOOKUP(b-fg-rctd.rita-code,"R,E") > 0
-      AND trim(b-fg-rctd.job-no) = trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
-      AND b-fg-rctd.job-no2 = INT(fg-rctd.job-no2:SCREEN-VALUE)
-      AND b-fg-rctd.i-no = fg-rctd.i-no:SCREEN-VALUE
-      NO-LOCK :
-
-      IF NOT((RECID(b-fg-rctd) <> recid(fg-rctd) OR
-             (adm-new-record AND NOT adm-adding-record))) THEN
-         NEXT.
-      lv-out-qty = lv-out-qty + b-fg-rctd.t-qty.     
-  END.
-  
-  lv-out-qty = lv-out-qty + int(fg-rctd.t-qty:SCREEN-VALUE).
-
-  IF fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode - use screen-value */
-       FIND FIRST itemfg  WHERE itemfg.company EQ cocode
-                AND itemfg.i-no  EQ fg-rctd.i-no:screen-value IN BROWSE {&browse-name}
-                      USE-INDEX i-no NO-LOCK NO-ERROR.
-       FIND FIRST po-ordl WHERE po-ordl.company = cocode
-                       AND po-ordl.po-no = integer(fg-rctd.po-no:screen-value IN BROWSE {&browse-name}) 
-                       AND po-ordl.i-no  = fg-rctd.i-no:screen-value
-                       AND po-ordl.job-no = (fg-rctd.job-no:screen-value)
-                       AND po-ordl.job-no2 = integer(fg-rctd.job-no2:screen-value)
-                       AND po-ordl.item-type = NO
-                       NO-LOCK NO-ERROR.
-  
-       IF AVAIL po-ordl THEN DO:
-          v-rec-qty = po-ordl.t-rec-qty + lv-out-qty.
-          RUN sys/ref/ea-um-fg.p (po-ordl.pr-qty-uom, OUTPUT ll-ea).
-          IF NOT ll-ea THEN
-            RUN sys/ref/convquom.p("EA", po-ordl.pr-qty-uom, 0, 0, 0, 0,
-                                   v-rec-qty, OUTPUT v-rec-qty).  
-         IF iFGUnderOver EQ 0 AND v-rec-qty GT (po-ordl.ord-qty * 
-                    (1 + (po-ordl.over-pct / 100)))
-            AND NOT lv-overrun-checked
-          THEN DO:
-             MESSAGE "The PO Qty + overrun has been exceeded. "
-                     VIEW-AS ALERT-BOX WARNING .
-             lv-overrun-checked = YES.
-          END.
-       END.
-       ELSE IF fg-rctd.job-no:SCREEN-VALUE <> "" THEN DO:
-         FIND FIRST job-hdr WHERE job-hdr.company = cocode                       
-                       AND job-hdr.i-no  = fg-rctd.i-no:screen-value
-                       AND job-hdr.job-no = (fg-rctd.job-no:screen-value)
-                       AND job-hdr.job-no2 = integer(fg-rctd.job-no2:screen-value)
-                       NO-LOCK NO-ERROR.
-         IF AVAIL job-hdr THEN DO: 
-           FIND FIRST sys-ctrl WHERE sys-ctrl.company = cocode AND
-                                    sys-ctrl.name = "JOB QTY" 
-                                    NO-LOCK NO-ERROR.
-           IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN v-rec-qty = job-hdr.qty                          .
-           ELSE DO:
-              FIND FIRST oe-ordl NO-LOCK
-                  WHERE oe-ordl.company EQ job-hdr.company
-                    AND oe-ordl.ord-no  EQ job-hdr.ord-no
-                    AND oe-ordl.i-no    EQ job-hdr.i-no
-                  NO-ERROR.
-              FIND FIRST oe-ord NO-LOCK
-                  WHERE oe-ord.company EQ job-hdr.company
-                    AND oe-ord.ord-no  EQ job-hdr.ord-no
-                  NO-ERROR.
-              
-              v-rec-qty = (job-hdr.qty * (1 + (IF AVAIL oe-ordl THEN oe-ordl.over-pct ELSE
-                                               IF AVAIL oe-ord  THEN oe-ord.over-pct  ELSE 0 / 100))).
-      
-           END.
-           IF v-rec-qty <  lv-out-qty AND NOT lv-overrun-checked THEN DO:
-              MESSAGE "Receipt quantity exceeds job quantity." VIEW-AS ALERT-BOX WARNING.
-              lv-overrun-checked = YES.
-           END.
-           
-         END.
-       END.
-     
-  END. /* i-no <> ""*/
-
+        ELSE IF fg-rctd.job-no:SCREEN-VALUE NE "" THEN
+            RUN Inventory_CheckJobUnderOver IN hInventoryProcs(
+                INPUT cocode,
+                INPUT TRIM(fg-rctd.job-no:SCREEN-VALUE ),
+                INPUT INTEGER(fg-rctd.job-no2:SCREEN-VALUE),
+                INPUT fg-rctd.i-no:SCREEN-VALUE,
+                INPUT fg-rctd.po-no:SCREEN-VALUE,
+                INPUT INTEGER(fg-rctd.t-qty:SCREEN-VALUE),
+                INPUT (adm-new-record AND NOT adm-adding-record), /* Copied Record */
+                INPUT cFGUnderOver,
+                INPUT iFGUnderOver,
+                INPUT lFGUnderOver,
+                INPUT ROWID(fg-rctd)                            /* ROWID of current fg-rctd record */
+                )NO-ERROR.  
+        ELSE 
+            ERROR-STATUS:ERROR = NO. /* If po-ordl is not available */             
+    END. /* i-no <> ""*/
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN ERROR.   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2588,9 +2512,6 @@ PROCEDURE local-update-record :
      NOT lv-new-job-ran THEN RUN new-job-no.
 
   RUN validate-record(OUTPUT op-error).
-  IF op-error THEN RETURN NO-APPLY.
-
-  RUN valid-over-qty(OUTPUT op-error).
   IF op-error THEN RETURN NO-APPLY.
 
   /* Dispatch standard ADM method.                             */
@@ -3739,7 +3660,8 @@ PROCEDURE validate-record :
 
    RUN get-matrix (NO).
 
-   RUN get-matrix-all (FALSE).
+   RUN get-matrix-all (FALSE) NO-ERROR.
+   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
    
    IF INT(fg-rctd.cases-unit:SCREEN-VALUE) < 1 THEN DO:  /* task# 06200520*/
       MESSAGE "Unit/Pallet must be greater than or equal to 1." VIEW-AS ALERT-BOX.
@@ -3752,30 +3674,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-over-qty B-table-Win 
-PROCEDURE valid-over-qty :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR lv-uom-list AS cha NO-UNDO.
-  DEF VAR lv-uom AS CHAR NO-UNDO.
-  DEF VAR lv-uom-help AS CHAR NO-UNDO.
-
-  DEF OUTPUT PARAMETER op-error AS LOG NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-      IF iFGUnderOver EQ 1 AND fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} NE ""  THEN do:
-          {fg/chkporun.i}
-      END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loadtag-on-save B-table-Win 
 PROCEDURE valid-loadtag-on-save :
