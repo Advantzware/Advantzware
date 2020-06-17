@@ -128,13 +128,17 @@ fg-rctd.frt-cost fg-rctd.stack-code
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
       AND fg-rctd.company eq cocode and ~
 fg-rctd.r-no ge lv-frst-rno and ~
-(fg-rctd.rita-code eq "R" or fg-rctd.rita-code eq "E") ~
+(fg-rctd.rita-code eq "R" or fg-rctd.rita-code eq "E") AND ~
+(fg-rctd.SetHeaderRno GT 0 AND fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR  ~
+(NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0)) ~
 use-index fg-rctd NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
       AND fg-rctd.company eq cocode and ~
 fg-rctd.r-no ge lv-frst-rno and ~
-(fg-rctd.rita-code eq "R" or fg-rctd.rita-code eq "E") ~
+(fg-rctd.rita-code eq "R" or fg-rctd.rita-code eq "E") AND ~
+(fg-rctd.SetHeaderRno GT 0 AND fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR  ~
+(NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0)) ~
 use-index fg-rctd NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table fg-rctd
@@ -357,7 +361,9 @@ ASSIGN
      _TblOptList       = ", FIRST"
      _Where[1]         = "fg-rctd.company eq cocode and
 fg-rctd.r-no ge lv-frst-rno and
-(fg-rctd.rita-code eq ""R"" or fg-rctd.rita-code eq ""E"")
+(fg-rctd.rita-code eq ""R"" or fg-rctd.rita-code eq ""E"") AND
+(fg-rctd.SetHeaderRno GT 0 AND fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) OR 
+(NOT ll-set-parts AND fg-rctd.SetHeaderRno EQ 0))
 use-index fg-rctd"
      _FldNameList[1]   > ASI.fg-rctd.r-no
 "fg-rctd.r-no" "Seq#" ">>>>>>>>" "integer" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
@@ -1537,6 +1543,8 @@ PROCEDURE get-first-r-no :
       WHERE bq-fg-rctd.company   EQ cocode
         AND bq-fg-rctd.rita-code EQ "R"
         AND bq-fg-rctd.r-no      LT lv-frst-rno
+        AND (bq-fg-rctd.SetHeaderRno GT 0 AND bq-fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) 
+         OR (NOT ll-set-parts AND bq-fg-rctd.SetHeaderRno EQ 0))
       USE-INDEX rita-code NO-LOCK
       BY bq-fg-rctd.r-no:
     lv-frst-rno = bq-fg-rctd.r-no.
@@ -1548,6 +1556,8 @@ PROCEDURE get-first-r-no :
       WHERE bq-fg-rctd.company   EQ cocode
         AND bq-fg-rctd.rita-code EQ "E"
         AND bq-fg-rctd.r-no      LT lv-frst-rno
+        AND (bq-fg-rctd.SetHeaderRno GT 0 AND bq-fg-rctd.SetHeaderRno EQ INTEGER(SUBSTRING(lv-linker, 10, 10)) 
+         OR (NOT ll-set-parts AND bq-fg-rctd.SetHeaderRno EQ 0))
       USE-INDEX rita-code NO-LOCK
       BY bq-fg-rctd.r-no:
     lv-frst-rno = bq-fg-rctd.r-no.
