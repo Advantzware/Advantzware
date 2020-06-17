@@ -87,6 +87,9 @@ PROCEDURE pBestVendTest PRIVATE:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+        
     FIND FIRST eb NO-LOCK 
         WHERE eb.company EQ '001'
         AND eb.est-no EQ '   13579'
@@ -100,7 +103,12 @@ PROCEDURE pBestVendTest PRIVATE:
     END.
 
     RUN rm/bestvnd1.p (ROWID(eb)).  /* create temp-tables tt-ei, tt-eiv */
-    RUN Output_TempTableToCSV(TEMP-TABLE tt-eiv:HANDLE,"C:\tmp\tt-eivNew.csv",YES).
+    RUN Output_TempTableToCSV(TEMP-TABLE tt-eiv:HANDLE,
+                              "C:\tmp\tt-eivNew.csv",
+                              YES,
+                              INPUT TRUE /* Auto increment File name */,
+                              OUTPUT lSuccess,
+                              OUTPUT cMessage).
     DO TRANSACTION: 
         FIND FIRST sys-ctrl EXCLUSIVE-LOCK 
             WHERE sys-ctrl.company EQ ""
@@ -109,7 +117,12 @@ PROCEDURE pBestVendTest PRIVATE:
         IF AVAILABLE sys-ctrl THEN ASSIGN sys-ctrl.log-fld = NO.
     END.
     RUN rm/bestvnd1.p (ROWID(eb)).  /* create temp-tables tt-ei, tt-eiv */
-    RUN Output_TempTableToCSV(TEMP-TABLE tt-eiv:HANDLE,"C:\tmp\tt-eivOld.csv",YES).
+    RUN Output_TempTableToCSV(TEMP-TABLE tt-eiv:HANDLE,
+                              "C:\tmp\tt-eivOld.csv",
+                              YES,
+                              INPUT TRUE /* Auto increment File name */,
+                              OUTPUT lSuccess,
+                              OUTPUT cMessage).
 
 END PROCEDURE.
 
@@ -118,7 +131,10 @@ PROCEDURE pConvertLegacyToNew PRIVATE:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE dTimer AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTimer   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
     dTimer = TIME.
 
     RUN pProcessRM(gcCompany, gcItemIDRM).
@@ -129,7 +145,12 @@ PROCEDURE pConvertLegacyToNew PRIVATE:
         "Time " TIME - dTimer
         VIEW-AS ALERT-BOX.
 
-    RUN TempTableToCSV(TEMP-TABLE ttDuplicates:HANDLE, "C:\tmp\Duplicates.csv", TRUE /* Export Header */).
+    RUN Output_TempTableToCSV(TEMP-TABLE ttDuplicates:HANDLE, 
+                              "C:\tmp\Duplicates.csv", 
+                              TRUE /* Export Header */,
+                              INPUT TRUE /* Auto increment File name */,
+                              OUTPUT lSuccess,
+                              OUTPUT cMessage).
 
 END PROCEDURE.
 

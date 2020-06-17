@@ -1685,7 +1685,9 @@ PROCEDURE pExportAllTempTables PRIVATE:
     DEFINE VARIABLE hdOutput    AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cFile       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hdTempTable AS HANDLE    NO-UNDO.
-    
+    DEFINE VARIABLE lSuccess    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+            
     FIND FIRST ttPostingMaster NO-ERROR.
     IF AVAILABLE ttPostingMaster AND ttPostingMaster.exportPath NE "" THEN 
     DO:
@@ -1695,57 +1697,57 @@ PROCEDURE pExportAllTempTables PRIVATE:
         ASSIGN 
             cFile       = fGetFilePath(ttPostingMaster.exportPath, "InvoiceHeaders", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
             hdTempTable = TEMP-TABLE ttInvoiceToPost:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
         
         ASSIGN 
             cFile       = fGetFilePath(ttPostingMaster.exportPath, "InvoiceLines", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
             hdTempTable = TEMP-TABLE ttInvoiceLineToPost:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
         
         ASSIGN 
             cFile       = fGetFilePath(ttPostingMaster.exportPath, "InvoiceMiscs", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
             hdTempTable = TEMP-TABLE ttInvoiceMiscToPost:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
         
         ASSIGN 
             cFile       = fGetFilePath(ttPostingMaster.exportPath, "GLTransactions", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
             hdTempTable = TEMP-TABLE ttGLTransaction:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
         
         ASSIGN 
             cFile       = fGetFilePath(ttPostingMaster.exportPath, "ARLedgerTransactions", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
             hdTempTable = TEMP-TABLE ttARLedgerTransaction:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
         
         ASSIGN 
             cFile       = fGetFilePath(ttPostingMaster.exportPath, "Customers", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
             hdTempTable = TEMP-TABLE ttCustomerToUpdate:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES,INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
         
         ASSIGN 
             cFile       = fGetFilePath(ttPostingMaster.exportPath, "OrderHeaders", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
             hdTempTable = TEMP-TABLE ttOrderToUpdate:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
         
         ASSIGN 
             cFile       = fGetFilePath(ttPostingMaster.exportPath, "OrderLines", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
             hdTempTable = TEMP-TABLE ttOrderLineToUpdate:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
         
         ASSIGN 
             cFile       = fGetFilePath(ttPostingMaster.exportPath, "BOLLines", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
             hdTempTable = TEMP-TABLE ttBOLLineToUpdate:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
         
         ASSIGN 
             cFile       = fGetFilePath(ttPostingMaster.exportPath, "FGItems", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
             hdTempTable = TEMP-TABLE ttFGItemToUpdate:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).        
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).        
         
         ASSIGN 
             cFile       = fGetFilePath(ttPostingMaster.exportPath, "PostingSummary", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
             hdTempTable = TEMP-TABLE rpt:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES). 
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage). 
      
         DELETE OBJECT hdOutput.
     
@@ -1762,6 +1764,8 @@ PROCEDURE pExportExceptions PRIVATE:
     DEFINE VARIABLE hdOutput    AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cFile       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hdTempTable AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lSuccess    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
     
     FIND FIRST ttPostingMaster NO-ERROR.
     IF AVAILABLE ttPostingMaster AND ttPostingMaster.exportPath NE "" THEN 
@@ -1771,7 +1775,7 @@ PROCEDURE pExportExceptions PRIVATE:
         ASSIGN 
             cFile       = fGetFilePath(ttPostingMaster.exportPath, "Exceptions", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
             hdTempTable = TEMP-TABLE ttException:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES).       
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).       
         
         DELETE OBJECT hdOutput.
         

@@ -89,6 +89,8 @@ PROCEDURE pTestAndCompareAllFGItems PRIVATE:
     DEFINE VARIABLE cFromUOM   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cToUOM     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iIndexType AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lSuccess   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
     
     EMPTY TEMP-TABLE ttResults.
     
@@ -151,7 +153,14 @@ PROCEDURE pTestAndCompareAllFGItems PRIVATE:
             END.
         END.
     END.
-    RUN Output_TempTableToCSV(TEMP-TABLE ttResults:HANDLE, "C:\tmp\ConversionResultsItemfg.csv", YES).
+    RUN Output_TempTableToCSV(
+        INPUT TEMP-TABLE ttResults:HANDLE, 
+        INPUT "C:\tmp\ConversionResultsItemfg.csv", 
+        INPUT YES,
+        INPUT TRUE /* Auto increment File name */,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).                              
     
 END PROCEDURE.
 
@@ -160,7 +169,9 @@ PROCEDURE pTestAndCompareAllPOLines PRIVATE:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE dBasisWeight AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dBasisWeight AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
         
     EMPTY TEMP-TABLE ttResults.
     
@@ -232,7 +243,14 @@ PROCEDURE pTestAndCompareAllPOLines PRIVATE:
     END.
 
 
-    RUN Output_TempTableToCSV(TEMP-TABLE ttResults:HANDLE, "C:\tmp\ConversionResultsPoLines.csv", YES).
+    RUN Output_TempTableToCSV(
+        INPUT TEMP-TABLE ttResults:HANDLE, 
+        INPUT "C:\tmp\ConversionResultsPoLines.csv", 
+        INPUT YES,
+        INPUT TRUE /* Auto increment File name */,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).
     
 END PROCEDURE.
 
@@ -248,6 +266,8 @@ PROCEDURE pTestAndCompareAllRMItems PRIVATE:
     DEFINE VARIABLE cFromUOM   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cToUOM     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iIndexType AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lSuccess   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO. 
     
     EMPTY TEMP-TABLE ttResults.
     
@@ -311,7 +331,14 @@ PROCEDURE pTestAndCompareAllRMItems PRIVATE:
             END.
         END.
     END.
-    RUN Output_TempTableToCSV(TEMP-TABLE ttResults:HANDLE, "C:\tmp\ConversionResultsItem.csv", YES).
+    RUN Output_TempTableToCSV(
+        INPUT TEMP-TABLE ttResults:HANDLE, 
+        INPUT "C:\tmp\ConversionResultsItem.csv", 
+        INPUT YES,
+        INPUT TRUE /* Auto increment File name */,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).
     
 END PROCEDURE.
 

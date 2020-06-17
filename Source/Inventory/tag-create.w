@@ -1585,6 +1585,9 @@ PROCEDURE pPrintLabels PRIVATE :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
@@ -1603,10 +1606,13 @@ PROCEDURE pPrintLabels PRIVATE :
             "     Template file: " cPathTemplate
             VIEW-AS ALERT-BOX TITLE "Invalid Template".
 
-    RUN TempTableToCSV IN hdOutputProcs ( 
+    RUN Output_TempTableToCSV IN hdOutputProcs ( 
         INPUT TEMP-TABLE ttPrintInventoryStockFG:HANDLE,
         INPUT cOutputFileName,
-        INPUT TRUE
+        INPUT TRUE,
+        INPUT FALSE, /* Auto increment File name */
+        OUTPUT lSuccess,
+        OUTPUT cMessage
         ).
         
     RUN pRebuildBrowse (

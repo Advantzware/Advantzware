@@ -516,6 +516,8 @@ DO:
     DEFINE VARIABLE cFilePath     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cSysCtrlName  AS CHARACTER NO-UNDO INITIAL "APIExport".
+    DEFINE VARIABLE lSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
     
     RUN sys/ref/nk1look.p (
         g_company,            /* Company Code */
@@ -553,10 +555,13 @@ DO:
         BUFFER-COPY ttAPIInboundEvent TO ttPrintAPIInboundEvent.
     END.
  
-    RUN TempTableToCSV IN hdOutputProcs (
+    RUN Output_TempTableToCSV IN hdOutputProcs (
         INPUT TEMP-TABLE ttPrintAPIInboundEvent:HANDLE,
         INPUT cFullFilePath,
-        INPUT TRUE /* Export Header */
+        INPUT TRUE, /* Export Header */
+        INPUT TRUE, /* Auto increment File name */
+        OUTPUT lSuccess,
+        OUTPUT cMessage
         ).
                 
     MESSAGE "Export complete. File saved to " cFullFilePath SKIP
