@@ -1561,6 +1561,19 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME rm-rctd.tag
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.tag2 Browser-Table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF rm-rctd.tag2 IN BROWSE Browser-Table /* Tag# */
+DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
+           RUN local-update-record .        
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME   
+
 
 &UNDEFINE SELF-NAME
 
@@ -2907,6 +2920,9 @@ PROCEDURE local-create-record :
         rm-rctd.company   = cocode
         rm-rctd.r-no      = lv-rno
         rm-rctd.rita-code = "R".
+        
+        IF rm-rctd.loc EQ "" THEN 
+           rm-rctd.loc = locode .
 
     IF adm-adding-record THEN 
     DO:
@@ -3097,7 +3113,7 @@ PROCEDURE local-update-record :
         END.
     END.
     RUN valid-all NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
