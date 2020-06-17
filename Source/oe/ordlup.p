@@ -233,14 +233,15 @@ DO:
             RUN fg/fullset.p (ROWID(itemfg)).
 
         FOR EACH tt-fg-set BREAK BY tt-fg-set.set-no:
-            IF FIRST(tt-fg-set.set-no) THEN
+            IF FIRST(tt-fg-set.set-no) THEN DO:
                 ASSIGN
                     itemfg.t-len  = 0
                     itemfg.t-wid  = 0
                     itemfg.t-sqin = 0
                     itemfg.t-sqft = 0.
-            IF NOT itemfg.spare-int-1 EQ 1 THEN   /* freeze weight flag */
-                itemfg.weight-100 = 0.
+                IF NOT itemfg.spare-int-1 EQ 1 THEN   /* freeze weight flag */
+                    itemfg.weight-100 = 0.
+            END. 
 
             FIND FIRST xitemfg EXCLUSIVE-LOCK 
                 WHERE xitemfg.company EQ cocode
