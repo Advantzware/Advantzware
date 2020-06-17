@@ -58,33 +58,37 @@ CREATE WIDGET-POOL.
 {custom/gloc.i}
 /*  {custom/globdefs.i}  */
 
-DEF VAR cocode AS CHAR NO-UNDO.
-DEF VAR locode AS CHAR NO-UNDO.
-def var char-val as cha no-undo.
-def var ext-cost as decimal no-undo.
-def var lv-recid as recid no-undo.
-def var ls-prev-po as cha no-undo.
-def var hd-post as widget-handle no-undo.
-def var hd-post-child as widget-handle no-undo.
-def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
-DEF VAR ll-auto-add-active AS LOG NO-UNDO.
-
-DEFINE VARIABLE unitsOH LIKE fg-rctd.t-qty NO-UNDO.
-
-DEFINE VARIABLE trans-commit AS LOGICAL NO-UNDO.  
-DEFINE VARIABLE panel-type   AS CHARACTER NO-UNDO INIT 'SAVE':U.
-DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
+DEFINE VARIABLE cocode AS CHARACTER NO-UNDO.
+DEFINE VARIABLE locode AS CHARACTER NO-UNDO.
+DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ext-cost AS DECIMAL NO-UNDO.
+DEFINE VARIABLE lv-recid AS RECID NO-UNDO.
+DEFINE VARIABLE ls-prev-po AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hd-post AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE hd-post-child AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE ll-help-run AS LOG NO-UNDO.  /* set on browse help, reset row-entry */
+DEFINE VARIABLE ll-auto-add-active AS LOG NO-UNDO.
+DEFINE VARIABLE unitsOH     LIKE fg-rctd.t-qty NO-UNDO.
+DEFINE VARIABLE trans-commit  AS LOGICAL NO-UNDO.  
+DEFINE VARIABLE panel-type    AS CHARACTER NO-UNDO INIT 'SAVE':U.
+DEFINE VARIABLE add-active    AS LOGICAL NO-UNDO INIT NO.
+DEFINE VARIABLE cRtnChar      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound     AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lPostAuto-log AS LOGICAL NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecdt.i}
 
-
-
-
-cocode = g_company.
-locode = g_loc.
-
+ASSIGN
+    cocode = g_company
+    locode = g_loc
+    .
 {sys/inc/sspostfgcontags.i}
+RUN sys/ref/nk1look.p (INPUT cocode, "SSPostFGTransfer", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lPostAuto-log = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -103,8 +107,8 @@ locode = g_loc.
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Reset Btn-Add Btn-Copy ~
-Btn-Delete Btn-Cancel 
+&Scoped-Define ENABLED-OBJECTS btn-Save btn-Reset btn-Add btn-Copy ~
+btn-Delete btn-Cancel 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -119,32 +123,32 @@ Btn-Delete Btn-Cancel
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn-Add 
+DEFINE BUTTON btn-Add 
      LABEL "&Add" 
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-Cancel 
+DEFINE BUTTON btn-Cancel 
      LABEL "Ca&ncel" 
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-Copy 
+DEFINE BUTTON btn-Copy 
      LABEL "&Copy" 
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-Delete 
+DEFINE BUTTON btn-Delete 
      LABEL "&Delete" 
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-Reset 
+DEFINE BUTTON btn-Reset 
      LABEL "&Reset" 
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-Save 
+DEFINE BUTTON btn-Save 
      LABEL "&Save" 
      SIZE 9 BY 1.29
      FONT 4.
@@ -157,12 +161,12 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Panel-Frame
-     Btn-Save AT ROW 1.29 COL 2
-     Btn-Reset AT ROW 1.29 COL 11
-     Btn-Add AT ROW 1.29 COL 20
-     Btn-Copy AT ROW 1.29 COL 29
-     Btn-Delete AT ROW 1.29 COL 38
-     Btn-Cancel AT ROW 1.29 COL 47
+     btn-Save AT ROW 1.29 COL 2
+     btn-Reset AT ROW 1.29 COL 11
+     btn-Add AT ROW 1.29 COL 20
+     btn-Copy AT ROW 1.29 COL 29
+     btn-Delete AT ROW 1.29 COL 38
+     btn-Cancel AT ROW 1.29 COL 47
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -245,26 +249,24 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME Btn-Add
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Add C-WIn
-ON CHOOSE OF Btn-Add IN FRAME Panel-Frame /* Add */
+&Scoped-define SELF-NAME btn-Add
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-Add C-WIn
+ON CHOOSE OF btn-Add IN FRAME Panel-Frame /* Add */
 DO:
-  add-active = yes.
-
+  add-active = YES.
   RUN notify ('add-record':U).
-  
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn-Cancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Cancel C-WIn
-ON CHOOSE OF Btn-Cancel IN FRAME Panel-Frame /* Cancel */
+&Scoped-define SELF-NAME btn-Cancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-Cancel C-WIn
+ON CHOOSE OF btn-Cancel IN FRAME Panel-Frame /* Cancel */
 DO:
   DO WITH FRAME Panel-Frame:
-      add-active = no.
+      add-active = NO.
       RUN notify ('cancel-record':U).
    END.
 END.
@@ -273,9 +275,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn-Copy
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Copy C-WIn
-ON CHOOSE OF Btn-Copy IN FRAME Panel-Frame /* Copy */
+&Scoped-define SELF-NAME btn-Copy
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-Copy C-WIn
+ON CHOOSE OF btn-Copy IN FRAME Panel-Frame /* Copy */
 DO:
 
    RUN notify ('copy-record':U).
@@ -285,9 +287,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn-Delete
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Delete C-WIn
-ON CHOOSE OF Btn-Delete IN FRAME Panel-Frame /* Delete */
+&Scoped-define SELF-NAME btn-Delete
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-Delete C-WIn
+ON CHOOSE OF btn-Delete IN FRAME Panel-Frame /* Delete */
 DO:
    RUN notify ('delete-record':U).  
 END.
@@ -296,9 +298,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn-Reset
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Reset C-WIn
-ON CHOOSE OF Btn-Reset IN FRAME Panel-Frame /* Reset */
+&Scoped-define SELF-NAME btn-Reset
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-Reset C-WIn
+ON CHOOSE OF btn-Reset IN FRAME Panel-Frame /* Reset */
 DO:
   RUN notify ('reset-record':U).
 END.
@@ -307,11 +309,11 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn-Save
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Save C-WIn
-ON CHOOSE OF Btn-Save IN FRAME Panel-Frame /* Save */
+&Scoped-define SELF-NAME btn-Save
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-Save C-WIn
+ON CHOOSE OF btn-Save IN FRAME Panel-Frame /* Save */
 DO:
-&IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+&IF LOOKUP("btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
   /* If we're in a persistent add-mode then don't change any labels. Just make */
   /* a call to update the last record and then add another record.             */
   RUN get-attribute IN THIS-PROCEDURE ('AddFunction':U).
@@ -326,10 +328,10 @@ DO:
   DO:
      IF panel-type = 'UPDATE':U THEN
      DO WITH FRAME Panel-Frame:
-        IF Btn-Save:LABEL = '&Update' THEN 
+        IF btn-Save:LABEL = '&Update' THEN 
         DO:
            RUN new-state('update-begin':U).
-           ASSIGN add-active = no.
+           ASSIGN add-active = NO.
         END.
         ELSE 
         DO: /* Save */
@@ -370,10 +372,10 @@ END.
   /* If the application hasn't enabled the behavior that a RETURN in a frame = GO,
      then enable the usage of the Save button as the default button. (Note that in
      8.0, the Save button was *always* the default button.) */
-  IF SESSION:DATA-ENTRY-RETURN NE yes THEN 
+  IF SESSION:DATA-ENTRY-RETURN NE YES THEN 
   ASSIGN
-      Btn-Save:DEFAULT IN FRAME {&FRAME-NAME} = yes
-      FRAME {&FRAME-NAME}:DEFAULT-BUTTON = Btn-Save:HANDLE.
+      btn-Save:DEFAULT IN FRAME {&FRAME-NAME} = YES
+      FRAME {&FRAME-NAME}:DEFAULT-BUTTON = btn-Save:HANDLE.
   
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -392,17 +394,17 @@ PROCEDURE auto-add :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR char-hdl AS CHAR NO-UNDO.
-DEF VAR wid-hdl AS HANDLE NO-UNDO.
-DEF VAR lv-got-error AS LOG NO-UNDO.
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE wid-hdl AS HANDLE NO-UNDO.
+DEFINE VARIABLE lv-got-error AS LOG NO-UNDO.
 ll-auto-add-active = TRUE.
 
-/* Allow previous update to complete */
-/*    This appears TO be nonsense - MYT                    */
-/*    APPLY "choose" TO BTn-add IN FRAME {&FRAME-NAME} .   */
-/*    APPLY "choose" TO btn-cancel IN FRAME {&FRAME-NAME} .*/
-/*    APPLY "choose" TO btn-cancel IN FRAME {&FRAME-NAME} .*/
-
+IF lPostAuto-log THEN DO:
+    /* Allow previous update to complete */
+    APPLY "choose" TO btn-add IN FRAME {&FRAME-NAME} .
+    APPLY "choose" TO btn-cancel IN FRAME {&FRAME-NAME} .
+    APPLY "choose" TO btn-cancel IN FRAME {&FRAME-NAME} .
+END.
 /* Run auto-post */
 IF SSPostFGConTags-log THEN DO:
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-target",OUTPUT char-hdl).
@@ -422,15 +424,15 @@ IF SSPostFGConTags-log THEN DO:
 END.        
 
 IF NOT lv-got-error  THEN DO:
-/*        APPLY "choose" TO BTn-add IN FRAME {&FRAME-NAME} .   */
+/*        APPLY "choose" TO btn-add IN FRAME {&FRAME-NAME} .   */
 /*        APPLY "choose" TO btn-cancel IN FRAME {&FRAME-NAME} .*/
     ASSIGN 
         ll-auto-add-active = FALSE.
-    APPLY "choose" TO BTn-add IN FRAME {&FRAME-NAME} . 
+    APPLY "choose" TO btn-add IN FRAME {&FRAME-NAME} . 
 END.
 ELSE DO:
   MESSAGE "Could not post transfer automatically. Please post manually."
-      VIEW-AS ALERT-BOX INFO BUTTONS OK.
+      VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
 END.
 
 END PROCEDURE.
@@ -463,7 +465,7 @@ PROCEDURE do-cancel :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  APPLY "choose" TO BTn-cancel IN FRAME {&FRAME-NAME} .
+  APPLY "choose" TO btn-cancel IN FRAME {&FRAME-NAME} .
 
 END PROCEDURE.
 
@@ -506,7 +508,7 @@ PROCEDURE local-initialize :
   RUN get-attribute IN THIS-PROCEDURE ('UIB-MODE':U).
   IF RETURN-VALUE <> 'DESIGN':U THEN DO:
      IF VALID-HANDLE (adm-broker-hdl) THEN DO:
-       DEFINE VAR tab-target-link AS CHARACTER NO-UNDO.
+       DEFINE VARIABLE tab-target-link AS CHARACTER NO-UNDO.
        RUN get-link-handle IN adm-broker-hdl
            (INPUT THIS-PROCEDURE, 'TABLEIO-TARGET':U, OUTPUT tab-target-link).
        IF (tab-target-link EQ "":U) THEN
@@ -534,9 +536,7 @@ message "local-init query-pos:" query-position " panel:" adm-panel-state skip
     LOOKUP(query-position,'no-record-available,no-external-record-available':U) = 0
      THEN RUN notify ('enable-fields, TABLEIO-TARGET':U).
   /* otherwise disable in case they were already enabled during initialization*/
-  ELSE RUN notify('disable-fields, TABLEIO-TARGET':U). 
-
- 
+  ELSE RUN notify('disable-fields, TABLEIO-TARGET':U).  
 
 END PROCEDURE.
 
@@ -574,23 +574,23 @@ DO WITH FRAME Panel-Frame:
     /* All buttons are set to insensitive. This only should happen when */
     /* the link to the smartpanel is deactivated, but not destroyed.    */
 
-&IF LOOKUP("Btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Save:SENSITIVE = NO.
+&IF LOOKUP("btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Save:SENSITIVE = NO.
 &ENDIF
-&IF LOOKUP("Btn-Delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Delete:SENSITIVE = NO.
+&IF LOOKUP("btn-Delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Delete:SENSITIVE = NO.
 &ENDIF
-&IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Add:SENSITIVE = NO.
+&IF LOOKUP("btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Add:SENSITIVE = NO.
 &ENDIF
-&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Copy:SENSITIVE = NO.
+&IF LOOKUP("btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Copy:SENSITIVE = NO.
 &ENDIF
-&IF LOOKUP("Btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Reset:SENSITIVE = NO.
+&IF LOOKUP("btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Reset:SENSITIVE = NO.
 &ENDIF
-&IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Cancel:SENSITIVE = NO.
+&IF LOOKUP("btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Cancel:SENSITIVE = NO.
 &ENDIF
 
   END. /* panel-state = 'disable-all' */
@@ -599,28 +599,28 @@ DO WITH FRAME Panel-Frame:
   
     /* The panel is not actively changing any of its TABLEIO-TARGET(s). */
 
-&IF LOOKUP("Btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Save:SENSITIVE = YES.
+&IF LOOKUP("btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Save:SENSITIVE = YES.
              IF panel-type = 'UPDATE':U THEN
-                 Btn-Save:LABEL = "&Update".
+                 btn-Save:LABEL = "&Update".
 &ENDIF
-&IF LOOKUP("Btn-Delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Delete:SENSITIVE = YES.
+&IF LOOKUP("btn-Delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Delete:SENSITIVE = YES.
 &ENDIF
-&IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Add:SENSITIVE = YES.
+&IF LOOKUP("btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Add:SENSITIVE = YES.
 &ENDIF
-&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Copy:SENSITIVE = YES.
+&IF LOOKUP("btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Copy:SENSITIVE = YES.
 &ENDIF
-&IF LOOKUP("Btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+&IF LOOKUP("btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
        IF panel-type = 'Update':U THEN
-             Btn-Reset:SENSITIVE = NO.
+             btn-Reset:SENSITIVE = NO.
        ELSE
-             Btn-Reset:SENSITIVE = YES.
+             btn-Reset:SENSITIVE = YES.
 &ENDIF
-&IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Cancel:SENSITIVE = NO.
+&IF LOOKUP("btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Cancel:SENSITIVE = NO.
 &ENDIF
       
   END. /* panel-state = 'initial' */
@@ -631,23 +631,23 @@ DO WITH FRAME Panel-Frame:
     /* happen only when there are no records in the query and the only  */
     /* thing that can be done to it is add-record.                      */
 
-&IF LOOKUP("Btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Save:SENSITIVE = NO.
+&IF LOOKUP("btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Save:SENSITIVE = NO.
 &ENDIF
-&IF LOOKUP("Btn-Delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Delete:SENSITIVE = NO.
+&IF LOOKUP("btn-Delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Delete:SENSITIVE = NO.
 &ENDIF
-&IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Add:SENSITIVE = YES.
+&IF LOOKUP("btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Add:SENSITIVE = YES.
 &ENDIF
-&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Copy:SENSITIVE = NO.
+&IF LOOKUP("btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Copy:SENSITIVE = NO.
 &ENDIF
-&IF LOOKUP("Btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Reset:SENSITIVE = NO.
+&IF LOOKUP("btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Reset:SENSITIVE = NO.
 &ENDIF
-&IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Cancel:SENSITIVE = NO.
+&IF LOOKUP("btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Cancel:SENSITIVE = NO.
 &ENDIF
 
   END. /* panel-state = 'add-only' */
@@ -659,25 +659,25 @@ DO WITH FRAME Panel-Frame:
     /* the event that the smartpanel is disabled and later enabled prior to */
     /* the action being completed.                                          */
 
-&IF LOOKUP("Btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Save:SENSITIVE = YES.
+&IF LOOKUP("btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Save:SENSITIVE = YES.
              IF panel-type = 'UPDATE':U THEN
-               Btn-Save:LABEL = "&Save".
+               btn-Save:LABEL = "&Save".
 &ENDIF    
-&IF LOOKUP("Btn-Delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Delete:SENSITIVE = NO.
+&IF LOOKUP("btn-Delete":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Delete:SENSITIVE = NO.
 &ENDIF
-&IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Add:SENSITIVE = NO.
+&IF LOOKUP("btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Add:SENSITIVE = NO.
 &ENDIF
-&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Copy:SENSITIVE = NO.
+&IF LOOKUP("btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Copy:SENSITIVE = NO.
 &ENDIF
-&IF LOOKUP("Btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Reset:SENSITIVE = YES.
+&IF LOOKUP("btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Reset:SENSITIVE = YES.
 &ENDIF
-&IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-             Btn-Cancel:SENSITIVE = YES.
+&IF LOOKUP("btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+             btn-Cancel:SENSITIVE = YES.
 &ENDIF
 
   END. /* panel-state = action-chosen */
@@ -701,10 +701,10 @@ PROCEDURE set-label :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-DEFINE INPUT PARAMETER label-string as CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER label-string AS CHARACTER NO-UNDO.
 
 DO WITH FRAME panel-frame: 
-  Btn-Save:LABEL = label-string.
+  btn-Save:LABEL = label-string.
 END.
 END PROCEDURE.
 
@@ -721,8 +721,6 @@ PROCEDURE state-changed :
   DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE NO-UNDO.
   DEFINE INPUT PARAMETER p-state AS CHARACTER NO-UNDO.
 
-
-
   CASE p-state:
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
@@ -730,13 +728,13 @@ PROCEDURE state-changed :
   END CASE.
   
   /* change to force buttons after delete style record */
-  run get-attribute in adm-broker-hdl ('IS-DELETED').
-  if return-value = "yes" and p-state begins "link" then do: 
+  RUN get-attribute IN adm-broker-hdl ('IS-DELETED').
+  IF RETURN-VALUE = "yes" AND p-state BEGINS "link" THEN DO: 
     /* message "force to enable button ".
      run set-attribute-list in adm-broker-hdl ("IS-DELETED=no").  
     */
-     run set-buttons ('initial'). 
-  end.
+     RUN set-buttons ('initial'). 
+  END.
   /* =========== end of mods ========*/
 
 END PROCEDURE.
@@ -755,7 +753,7 @@ PROCEDURE use-smartpaneltype :
   Notes:       This replaces code in local-initialize which set panel-type,
                but which did not always get executed early enough.
 ------------------------------------------------------------------------------*/
-  define input parameter inval as character.
+  DEFINE INPUT PARAMETER inval AS CHARACTER.
   panel-type = inval.
   
 END PROCEDURE.
