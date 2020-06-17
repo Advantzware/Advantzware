@@ -2894,9 +2894,13 @@ PROCEDURE get-matrix-all :
                 INPUT glFGUnderOver,
                 INPUT ROWID(fg-rctd)                             /* ROWID of current fg-rctd record */
                 )NO-ERROR.  
+        ELSE 
+            ERROR-STATUS:ERROR = NO.  /* If po-ordl is not available */        
     END. /* i-no <> ""*/
-    IF ERROR-STATUS:ERROR THEN  
-        RETURN ERROR.    
+    IF ERROR-STATUS:ERROR THEN DO:
+        lFatalQtyError = YES.
+        RETURN ERROR. 
+    END.       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

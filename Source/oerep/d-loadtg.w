@@ -1185,7 +1185,9 @@ PROCEDURE pCheckPOFGUnderOver :
                 )NO-ERROR.
             IF ERROR-STATUS:ERROR THEN 
                 RETURN ERROR.        
-        END.            
+        END. 
+        ELSE 
+            ERROR-STATUS:ERROR = NO. /* If po-ordl is not available */          
     END.
 END PROCEDURE.
 

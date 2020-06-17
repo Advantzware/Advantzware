@@ -112,6 +112,7 @@ PROCEDURE Inventory_CheckPOUnderOver:
     
     DEFINE VARIABLE dReceivedQty AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lIsUOMEA     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE dPostedPOQty AS DECIMAL   NO-UNDO.
     
     
     FOR EACH fg-rctd NO-LOCK
@@ -137,7 +138,17 @@ PROCEDURE Inventory_CheckPOUnderOver:
         NO-ERROR.
  
     IF AVAILABLE po-ordl THEN DO:
-        dReceivedQty = po-ordl.t-rec-qty + dReceivedQty.
+        RUN Inventory_GetReceivedQuantityPO(
+            INPUT ipcCompany,
+            INPUT ipcJobNo,
+            INPUT ipiJobNo2,
+            INPUT ipcItem,
+            INPUT ipcPoNo,
+            OUTPUT dPostedPOQty
+            ).
+        
+        dReceivedQty = dReceivedQty + dPostedPOQty.
+  
         RUN sys/ref/ea-um-fg.p(
             INPUT  po-ordl.pr-qty-uom, 
             OUTPUT lIsUOMEA
@@ -200,9 +211,10 @@ PROCEDURE Inventory_CheckJobUnderOver:
     DEFINE INPUT PARAMETER iplFGUnderOver AS LOGICAL   NO-UNDO.
     DEFINE INPUT PARAMETER ipriFGRctd     AS ROWID     NO-UNDO.
    
-    DEFINE VARIABLE dReceivedQty   AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dOverPct       AS DECIMAL  NO-UNDO.
-    DEFINE VARIABLE dUnderPct      AS DECIMAL  NO-UNDO.
+    DEFINE VARIABLE dReceivedQty   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dPostedJobQty  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dOverPct       AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dUnderPct      AS DECIMAL NO-UNDO.
     
     FOR EACH fg-rctd NO-LOCK
         WHERE fg-rctd.company     EQ ipcCompany 
@@ -223,6 +235,16 @@ PROCEDURE Inventory_CheckJobUnderOver:
            AND job-hdr.job-no2 EQ ipiJobNo2
         NO-ERROR.
     IF AVAILABLE job-hdr THEN DO: 
+        
+        RUN Inventory_GetReceivedQuantityJob(
+            INPUT  ipcCompany,
+            INPUT  ipcJobNo,
+            INPUT  ipiJobNo2,
+            INPUT  ipcItem,
+            OUTPUT dPostedJobQty
+            ).
+        dReceivedQty = dReceivedQty + dPostedJobQty.
+            
         FIND FIRST oe-ordl NO-LOCK
              WHERE oe-ordl.company EQ job-hdr.company
                AND oe-ordl.ord-no  EQ job-hdr.ord-no
@@ -310,6 +332,56 @@ PROCEDURE Inventory_GetDefaultWhse:
     IF AVAILABLE reftable THEN
             opcFGDefBin = reftable.code2.
     
+END PROCEDURE.
+
+PROCEDURE Inventory_GetReceivedQuantityJob:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the Production Qty for a Given Job & Item
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobNo    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobNo2   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItem     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQuantity AS DECIMAL   NO-UNDO.
+
+    RUN fg/GetProductionQty.p(
+        INPUT  ipcCompany,
+        INPUT  ipcJobNo,
+        INPUT  ipiJobNo2,
+        INPUT  ipcItem,
+        INPUT  NO,
+        OUTPUT opdQuantity
+        ).
+
+END PROCEDURE.
+
+PROCEDURE Inventory_GetReceivedQuantityPO:
+/*------------------------------------------------------------------------------
+ Purpose:  Returns the Production Qty for a Given PO & Item
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobNo    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobNo2   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItem     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPoNo     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQuantity AS DECIMAL   NO-UNDO.
+    
+   FOR EACH fg-rcpth FIELDS(r-no rita-code) NO-LOCK 
+       WHERE fg-rcpth.company   EQ ipcCompany
+         AND fg-rcpth.job-no    EQ ipcJobNo
+         AND fg-rcpth.job-no2   EQ ipiJobNo2
+         AND fg-rcpth.po-no     EQ ipcPoNo
+         AND fg-rcpth.i-no      EQ ipcItem
+         AND fg-rcpth.rita-code EQ "R" 
+       USE-INDEX item-po,
+       EACH fg-rdtlh FIELDS(qty)NO-LOCK
+       WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
+         AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code:
+       opdQuantity = opdQuantity + fg-rdtlh.qty.
+    END.  /*each fg history*/    
+
 END PROCEDURE.
 
 PROCEDURE Inventory_GetStatusDescription:

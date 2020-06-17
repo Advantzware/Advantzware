@@ -1816,6 +1816,8 @@ PROCEDURE get-matrix-all :
                 INPUT lFGUnderOver,
                 INPUT ROWID(fg-rctd)                            /* ROWID of current fg-rctd record */
                 )NO-ERROR.  
+        ELSE 
+            ERROR-STATUS:ERROR = NO. /* If po-ordl is not available */             
     END. /* i-no <> ""*/
     IF ERROR-STATUS:ERROR THEN 
         RETURN ERROR.   
