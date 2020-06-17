@@ -13,7 +13,10 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEFINE            VARIABLE hdCostProcs AS HANDLE.
+DEFINE VARIABLE hdCostProcs AS HANDLE.
+DEFINE VARIABLE hdSession AS HANDLE.
+DEFINE VARIABLE hdConvProcs AS HANDLE.
+DEFINE VARIABLE gcProfilerFile AS CHARACTER INITIAL "C:\temp\CostTesterProfile.prof".
 DEFINE NEW SHARED VARIABLE cocode      AS CHARACTER NO-UNDO INIT '001'.
 
 DEFINE STREAM sOutput.
@@ -22,6 +25,10 @@ DEFINE STREAM sOutput.
 
 /* ***************************  Main Block  *************************** */
 RUN system\CostProcs.p PERSISTENT SET hdCostProcs.
+RUN system\ConversionProcs.p PERSISTENT SET hdConvProcs.
+SESSION:ADD-SUPER-PROCEDURE (hdConvProcs).
+/*RUN system\session.p PERSISTENT SET hdSession.*/
+/*SESSION:ADD-SUPER-PROCEDURE (hdSession).      */
 
 DEFINE VARIABLE dResultNew      AS DECIMAL.
 DEFINE VARIABLE dResultOld      AS DECIMAL.
@@ -43,61 +50,52 @@ DEFINE VARIABLE iTimer          AS INTEGER.
 DEFINE VARIABLE iCountTotal     AS INTEGER.
 DEFINE VARIABLE iCountDiff      AS INTEGER.
 DEFINE VARIABLE lFound          AS LOGICAL.
-
+RUN pOnOffProfiler.
 OUTPUT STREAM sOutput TO VALUE(cOutputFile).
 /*dResultNew = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs,cFromUOM,cToUOM,dBasis,dLen,dWid,dDep,dValueToConvert).*/
 /*RUN rm/convcuom.p(cFromUOM, cToUOM, dBasis, dLen, dWid, dDep, dValueToConvert, OUTPUT dResultOld).            */
 /*MESSAGE "New: " dResultNew SKIP                                                                               */
 /*"Old: " dResultOld                                                                                            */
 /*VIEW-AS ALERT-BOX.                                                                                            */
-
-/*RUN GetCostForPOLine IN hdCostProcs (cocode, 104012, 1, OUTPUT dCostPerUOM, OUTPUT cCostUOM, OUTPUT dCostFreight, OUTPUT lFound).*/
+/*FOR EACH po-ordl NO-LOCK                                                                                          */
+/*    WHERE po-ordl.company EQ cocode                                                                               */
+/*    AND po-ordl.po-no EQ 104012                                                                                   */
+/*    :                                                                                                             */
+/*    RUN GetCostForPOLine IN hdCostProcs (po-ordl.company, po-ordl.po-no, po-ordl.line, po-ordl.i-no,              */
+/*                                         OUTPUT dCostPerUOM, OUTPUT cCostUOM, OUTPUT dCostFreight, OUTPUT lFound).*/
 /*                                                                                                                  */
-/*MESSAGE 1 "Cost: " dCostPerUOM SKIP                                                                               */
+/*    MESSAGE po-ordl.line "Cost: " dCostPerUOM SKIP                                                                */
 /*    "UOM: " cCostUOM SKIP                                                                                         */
 /*    "Cost Per UOM Freight:" dCostFreight                                                                          */
 /*    VIEW-AS ALERT-BOX .                                                                                           */
-/*                                                                                                                  */
-/*RUN GetCostForPOLine IN hdCostProcs (cocode, 104012, 2, OUTPUT dCostPerUOM, OUTPUT cCostUOM, OUTPUT dCostFreight, OUTPUT lFound).*/
-/*                                                                                                                  */
-/*MESSAGE 2 "Cost: " dCostPerUOM SKIP                                                                               */
-/*    "UOM: " cCostUOM SKIP                                                                                         */
-/*    "Cost Per UOM Freight:" dCostFreight                                                                          */
-/*    VIEW-AS ALERT-BOX .                                                                                           */
-/*                                                                                                                  */
-/*RUN GetCostForPOLine IN hdCostProcs (cocode, 104012, 3, OUTPUT dCostPerUOM, OUTPUT cCostUOM, OUTPUT dCostFreight, OUTPUT lFound).*/
-/*                                                                                                                  */
-/*MESSAGE 3 "Cost: " dCostPerUOM SKIP                                                                               */
-/*    "UOM: " cCostUOM SKIP                                                                                         */
-/*    "Cost Per UOM Freight:" dCostFreight                                                                          */
-/*    VIEW-AS ALERT-BOX .                                                                                           */
-/*                                                                                                                  */
-FIND FIRST inv-head NO-LOCK
-    WHERE inv-head.company EQ '001'
-    AND inv-head.inv-no EQ 8418
-    NO-ERROR.
+/*END.                                                                                                              */
 
-FIND FIRST inv-line NO-LOCK
-    WHERE inv-line.company EQ inv-head.company
-    AND inv-line.r-no EQ inv-head.r-no
-    NO-ERROR.
-
-RUN oe/GetCostInvl.p (ROWID(inv-line),
-    OUTPUT dCost[1], OUTPUT dCost[2],
-    OUTPUT dCost[3], OUTPUT dCost[4],
-    OUTPUT dCost[5], OUTPUT cCostUOM,
-    OUTPUT dCost[6], OUTPUT cCostSource).
-
-MESSAGE 4 "Invoice Line Costs: " inv-head.inv-no SKIP
-    1 dCost[1] SKIP
-    2 dCost[2] SKIP
-    3 dCost[3] SKIP
-    4 dCost[4] SKIP
-    5 dCost[5] SKIP
-    6 dCost[6] SKIP
-    "UOM: " cCostUOM SKIP
-    "Source:" cCostSource
-    VIEW-AS ALERT-BOX .
+/*FIND FIRST inv-head NO-LOCK                          */
+/*    WHERE inv-head.company EQ '001'                  */
+/*    AND inv-head.inv-no EQ 8418                      */
+/*    NO-ERROR.                                        */
+/*                                                     */
+/*FIND FIRST inv-line NO-LOCK                          */
+/*    WHERE inv-line.company EQ inv-head.company       */
+/*    AND inv-line.r-no EQ inv-head.r-no               */
+/*    NO-ERROR.                                        */
+/*                                                     */
+/*RUN oe/GetCostInvl.p (ROWID(inv-line),               */
+/*    OUTPUT dCost[1], OUTPUT dCost[2],                */
+/*    OUTPUT dCost[3], OUTPUT dCost[4],                */
+/*    OUTPUT dCost[5], OUTPUT cCostUOM,                */
+/*    OUTPUT dCost[6], OUTPUT cCostSource).            */
+/*                                                     */
+/*MESSAGE 4 "Invoice Line Costs: " inv-head.inv-no SKIP*/
+/*    1 dCost[1] SKIP                                  */
+/*    2 dCost[2] SKIP                                  */
+/*    3 dCost[3] SKIP                                  */
+/*    4 dCost[4] SKIP                                  */
+/*    5 dCost[5] SKIP                                  */
+/*    6 dCost[6] SKIP                                  */
+/*    "UOM: " cCostUOM SKIP                            */
+/*    "Source:" cCostSource                            */
+/*    VIEW-AS ALERT-BOX .                              */
 
 EXPORT STREAM sOutput DELIMITER "," 
     "ItemID" 
@@ -119,8 +117,8 @@ EXPORT STREAM sOutput DELIMITER ","
 iTimer = TIME.
 FOR EACH itemfg NO-LOCK
     WHERE itemfg.company EQ '001'
-    AND itemfg.i-no    GE ''
-    AND itemfg.i-no    LE 'ZZZZZZZZZZZ'
+    AND itemfg.i-no    GE 'BRE70560SH-1'
+    AND itemfg.i-no    LE 'BRE70560SH-1'
     AND itemfg.stat EQ 'A' :
 
     FOR EACH fg-rcpth NO-LOCK
@@ -158,6 +156,7 @@ FOR EACH itemfg NO-LOCK
             IF ROUND(dCost[5],2) NE ROUND(fg-rdtlh.cost,2) THEN 
             DO:
                 iCountDiff = iCountDiff + 1.
+            END.
                 EXPORT STREAM sOutput DELIMITER ","
                     fg-rcpth.i-no
                     fg-rcpth.rita-code
@@ -174,7 +173,7 @@ FOR EACH itemfg NO-LOCK
                     dCost[5]
                     cCostUOM
                     cCostSource.
-            END.
+            //END.
         END.
     /*        MESSAGE 5 "History Costs: " itemfg.i-no SKIP*/
     /*            1 dCost[1] SKIP                         */
@@ -188,7 +187,42 @@ FOR EACH itemfg NO-LOCK
     /*            VIEW-AS ALERT-BOX .                     */
     END.
 END.
+RUN pOnOffProfiler.
 MESSAGE "Records: " iCountTotal SKIP 
     "Differences: " iCountDiff iCountDiff / iCountTotal * 100 "%" SKIP 
     "Total time" TIME - iTimer 
     VIEW-AS ALERT-BOX.
+    
+PROCEDURE pOnOffProfiler :
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
+    
+    DEFINE VARIABLE lProfile          AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE iProfileStartTime AS INTEGER NO-UNDO.
+    
+    IF PROFILER:ENABLED THEN 
+    DO:
+        ASSIGN 
+            PROFILER:PROFILING = FALSE                         
+            PROFILER:ENABLED   = FALSE
+            iProfileStartTime  = TIME                 
+            . 
+        PROFILER:WRITE-DATA().
+    END.
+    ELSE 
+    DO:
+        ASSIGN  
+            PROFILER:ENABLED      = TRUE
+            PROFILER:DESCRIPTION  = STRING(TODAY,"999999") + "_" + STRING(TIME, "HH:MM:SS")
+            PROFILER:FILE-NAME    = gcProfilerFile
+            PROFILER:PROFILING    = TRUE
+            PROFILER:TRACE-FILTER = "*"
+            iProfileStartTime     = TIME 
+            .
+    END. 
+   
+
+END PROCEDURE.
+
