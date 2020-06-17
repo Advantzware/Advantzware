@@ -173,7 +173,7 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       item.q-ono COLUMN-LABEL "Qty On Order" FORMAT "->>>,>>>,>>9.99":U
             LABEL-BGCOLOR 14
-      item.q-comm FORMAT ">>>,>>>,>>9.99":U LABEL-BGCOLOR 14
+      item.q-comm FORMAT "->>,>>>,>>9.99":U LABEL-BGCOLOR 14
       item.cons-uom COLUMN-LABEL "C-UOM" FORMAT "x(3)":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -302,7 +302,7 @@ ASSIGN
      _FldNameList[9]   > ASI.item.q-ono
 "item.q-ono" "Qty On Order" "->>>,>>>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.item.q-comm
-"item.q-comm" ? ">>>,>>>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"item.q-comm" ? "->>,>>>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.item.cons-uom
 "item.cons-uom" "C-UOM" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
