@@ -471,7 +471,6 @@ PROCEDURE pGetCostForPOLineInUOM PRIVATE:
         opdCostPerUOMExFreight = fConvertCostForItem(cCompany, cItemID, cItemType, opdCostPerUOMExFreight, cOrderQtyUOM, ipcTargetUOM, ipdBasisWeightInPoundsPerSqInch, ipdLengthInInches, ipdWidthInInches, ipdDepthInInches, 0, dOrderQty, cOrderQtyUOM).
         opdCostPerUOMFreight = fConvertCostForItem(cCompany, cItemID, cItemType, dFreightPortion / dOrderQty, cOrderQtyUOM, ipcTargetUOM, ipdBasisWeightInPoundsPerSqInch, ipdLengthInInches, ipdWidthInInches, ipdDepthInInches, 0, dOrderQty, cOrderQtyUOM).
     END.
-    ELSE 
         
 END PROCEDURE.
 
