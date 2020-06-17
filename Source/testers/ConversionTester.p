@@ -52,10 +52,30 @@ SESSION:ADD-SUPER-PROCEDURE (ghOutput).
 //RUN pTestExtendedCalc.
 //RUN pTestIsEAFunction.
 //RUN pTestAndCompareAllFGItems.
-//RUN pTestAndCompareAllRMItems.
-RUN pTestAndCompareAllPOLines.
+RUN pTestAndCompareAllRMItems.
+//RUN pTestAndCompareAllPOLines.
+//RUN pTestConversionWithLot.
 /* **********************  Internal Procedures  *********************** */
 
+
+PROCEDURE pTestConversionWithLot PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dNewValue AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cError AS CHARACTER NO-UNDO.
+    
+    RUN Conv_ValueFromUOMtoUOMWithLot("001", "", "FG", 
+        150.0, "LOT", "M", 
+        0, 0, 0, 0, 0, 150, "EA",
+        OUTPUT dNewValue, OUTPUT lError, OUTPUT cError).
+    MESSAGE dNewValue SKIP 
+    lError cError
+    VIEW-AS ALERT-BOX.
+    
+END PROCEDURE.
 
 PROCEDURE pTestAndCompareAllFGItems PRIVATE:
     /*------------------------------------------------------------------------------
@@ -170,12 +190,12 @@ PROCEDURE pTestAndCompareAllPOLines PRIVATE:
             ttResults.cConversionType = "Quantity"
             .
         RUN sys/ref/convquom.p(ttResults.cOldUOM, ttResults.cNewUOM, 
-            dBasisWeight, po-ordl.s-len, po-ordl.s-len, po-ordl.s-len,
+            dBasisWeight, po-ordl.s-len, po-ordl.s-wid, po-ordl.s-dep,
             ttResults.dOldValue,
             OUTPUT ttResults.dNewValueLegacy).
         RUN Conv_QuantityFromUOMtoUOM(po-ordl.company, po-ordl.i-no, ttResults.cItemType, 
             ttResults.dOldValue, ttResults.cOldUOM, ttResults.cNewUOM, 
-            dBasisWeight, po-ordl.s-len, po-ordl.s-len, po-ordl.s-len, 0,
+            dBasisWeight, po-ordl.s-len, po-ordl.s-wid, po-ordl.s-dep, 0,
             OUTPUT ttResults.dNewValueNewProc, OUTPUT ttResults.lError, OUTPUT ttResults.cMessage).
         ASSIGN 
             ttResults.dConvFactorLegacy  = ttResults.dOldValue / ttResults.dNewValueLegacy
@@ -195,12 +215,12 @@ PROCEDURE pTestAndCompareAllPOLines PRIVATE:
             ttResults.cConversionType = "Cost"
             .
         RUN sys/ref/convcuom.p(ttResults.cOldUOM, ttResults.cNewUOM, 
-            dBasisWeight, po-ordl.s-len, po-ordl.s-len, po-ordl.s-len,
+            dBasisWeight, po-ordl.s-len, po-ordl.s-wid, po-ordl.s-dep,
             ttResults.dOldValue,
             OUTPUT ttResults.dNewValueLegacy).
         RUN Conv_ValueFromUOMtoUOM(po-ordl.company, po-ordl.i-no, ttResults.cItemType, 
             ttResults.dOldValue, ttResults.cOldUOM, ttResults.cNewUOM, 
-            dBasisWeight, po-ordl.s-len, po-ordl.s-len, po-ordl.s-len, 0,
+            dBasisWeight, po-ordl.s-len, po-ordl.s-wid, po-ordl.s-dep, 0,
             OUTPUT ttResults.dNewValueNewProc, OUTPUT ttResults.lError, OUTPUT ttResults.cMessage).
         ASSIGN 
             ttResults.dConvFactorLegacy  = ttResults.dOldValue / ttResults.dNewValueLegacy
