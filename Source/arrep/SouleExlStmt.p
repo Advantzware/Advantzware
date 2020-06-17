@@ -290,10 +290,7 @@ PROCEDURE DisplayData :
     chWorkSheet:Range("G" + STRING(row-count)):value = STRING(tt-cust-excel.aged[5])
     chExcelApplication:activeSheet:PageSetup:PrintArea = "$A$1:$G$" + STRING(row-count).
     
-    IF NOT(LvOutputSelection = "PRINTER" OR 
-           LvOutputSelection = "EMAIL") THEN
-       chExcelApplication:ActiveSheet:Protect("advance4me").
-      
+          
   END.
     
 END PROCEDURE.
