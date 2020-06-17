@@ -4943,7 +4943,7 @@ PROCEDURE pEstimateCleanUp:
     END.
 
     IF cestyle-log AND (adm-adding-record OR lv-hld-style NE eb.style) THEN DO:
-        IF NOT adm-new-record THEN
+        IF NOT ll-new-record THEN
             MESSAGE "Do you wish to reset box design?"
                 VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2 AS LOG.
         ELSE 
@@ -4991,7 +4991,7 @@ PROCEDURE pEstimateCleanUp:
         
     lCheckPurMan = NO.
   
-    IF adm-new-record AND eb.pur-man THEN DO:
+    IF ll-new-record AND eb.pur-man THEN DO:
         RUN create-e-itemfg-vend.
         RUN CreateVendItemCost(
             INPUT cocode,    
@@ -5001,7 +5001,7 @@ PROCEDURE pEstimateCleanUp:
             INPUT eb.blank-no
             ).
     END.        
-    ELSE IF NOT adm-new-record AND eb.pur-man THEN DO:     
+    ELSE IF NOT ll-new-record AND eb.pur-man THEN DO:     
         IF cOldFGItem NE eb.stock-no THEN DO:
       
             RUN update-e-itemfg-vend.

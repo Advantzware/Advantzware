@@ -5185,63 +5185,44 @@ PROCEDURE pEstimateCleanUp PRIVATE:
         END.
     END.
     
-    IF cestyle-log AND
-       (adm-adding-record        OR
-        lv-hld-wid   NE eb.wid   OR
-        lv-hld-len   NE eb.len   OR
-        lv-hld-dep   NE eb.dep   OR
-        lv-hld-style NE eb.style) THEN DO:
-        IF NOT adm-new-record THEN
-            MESSAGE "Do you wish to reset box design?"
-                VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2 AS LOGICAL.
-        ELSE
-            ll-ans2 = YES.
-
-        IF ll-ans2 THEN 
-            lv-box-des = "B".
-        ELSE 
-            lv-box-des = "N".    
-    END.
-    ELSE DO:
-        FOR FIRST box-design-hdr NO-LOCK 
-            WHERE box-design-hdr.design-no EQ 0 
-              AND box-design-hdr.company   EQ eb.company 
-              AND box-design-hdr.est-no    EQ eb.est-no 
-              AND box-design-hdr.form-no   EQ eb.form-no 
-              AND box-design-hdr.blank-no  EQ eb.blank-no:
-            FOR EACH box-design-line FIELDS(wscore) OF box-design-hdr
-                NO-LOCK:
-                v-dec = DECIMAL(TRIM(box-design-line.wscore)) NO-ERROR.
-                IF NOT ERROR-STATUS:ERROR AND TRIM(box-design-line.wscore) NE "" THEN
-                    ASSIGN
-                        v-count            = v-count + 1
-                        v-w-array[v-count] = v-dec
-                        .
-            END.
-
-            RUN tokenize-proc(
-                INPUT box-design-hdr.lscore
-                ).
-
-            DO v-count = 1 TO 30:
+    FOR FIRST box-design-hdr NO-LOCK 
+        WHERE box-design-hdr.design-no EQ 0 
+          AND box-design-hdr.company   EQ eb.company 
+          AND box-design-hdr.est-no    EQ eb.est-no 
+          AND box-design-hdr.form-no   EQ eb.form-no 
+          AND box-design-hdr.blank-no  EQ eb.blank-no:
+        FOR EACH box-design-line FIELDS(wscore) OF box-design-hdr
+            NO-LOCK:
+            v-dec = DECIMAL(TRIM(box-design-line.wscore)) NO-ERROR.
+            IF NOT ERROR-STATUS:ERROR AND TRIM(box-design-line.wscore) NE "" THEN
                 ASSIGN
-                    v-dec  = {sys/inc/k16v.i eb.k-len-array2[v-count]}
-                    v-dec2 = {sys/inc/k16v.i eb.k-wid-array2[v-count]}
+                    v-count            = v-count + 1
+                    v-w-array[v-count] = v-dec
                     .
-               
-                IF v-l-array[v-count] NE v-dec OR v-w-array[v-count] NE v-dec2 THEN DO:
-                    MESSAGE "Do you wish to reset box design?"
-                        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans2.
-                    IF ll-ans2 THEN
-                        lv-box-des = "B".
-                    ELSE
-                        lv-box-des = "N".
-                    LEAVE.
-                END.
+        END.
+
+        RUN tokenize-proc(
+            INPUT box-design-hdr.lscore
+            ).
+
+        DO v-count = 1 TO 30:
+            ASSIGN
+                v-dec  = {sys/inc/k16v.i eb.k-len-array2[v-count]}
+                v-dec2 = {sys/inc/k16v.i eb.k-wid-array2[v-count]}
+                .
+           
+            IF v-l-array[v-count] NE v-dec OR v-w-array[v-count] NE v-dec2 THEN DO:
+                MESSAGE "Do you wish to reset box design?"
+                    VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans2 AS LOGICAL.
+                IF ll-ans2 THEN
+                    lv-box-des = "B".
+                ELSE
+                    lv-box-des = "N".
+                LEAVE.
             END.
         END.
     END.
-    
+
     DO li = 1 TO 2:
         RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"box-calc-target",OUTPUT char-hdl).
         IF VALID-HANDLE(WIDGET-HANDLE(ENTRY(1,char-hdl))) THEN DO:
