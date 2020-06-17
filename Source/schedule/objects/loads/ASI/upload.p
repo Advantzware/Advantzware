@@ -396,7 +396,7 @@ IF AVAILABLE module AND
    htmlPageLocation NE "" THEN
 RUN pHTMLPages.
 
-RUN pLoadSBJob.
+/*RUN pLoadSBJob.*/
 
 RUN pLogEntry ("SaveEnd", STRING(TODAY,"99.99.9999") + " @ " + STRING(TIME,"hh:mm:ss")).
 

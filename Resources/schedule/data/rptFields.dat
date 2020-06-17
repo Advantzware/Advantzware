@@ -154,6 +154,8 @@
 "ASI" "Job-Run" "userField104" "XXXXXXXXX" no "job-mch"
 "ASI" "Tot. Time" "userField105" "XXXXXXXXX" no "job-mch"
 "ASI" "Ink LBS" "userField106" "XXXXXXXXXXXX" no "ipJobMaterial"
+"ASI" "Score" "userField107" "XXXXXXXXXXXXXXXXXXXXXXXX" no  "po-ordl"
+"ASI" "Job Qty" "userField108" "XXXXXXXXXXXXX" no "Job"
 "Demo/Jobs" "User Field" "userField01" "XXXXXXXX" yes ""
 "Demo/Service" "User Field" "userField01" "XXXXXXXX" yes ""
 "MXP/SO" "Item" "userField01" "XXXXXXXXXXXXXXXXXXXXXXXX" no ""
