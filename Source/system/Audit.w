@@ -1954,6 +1954,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN pSetStartEndRange (svDB:HANDLE).
     RUN pSetStartEndRange (svTable:HANDLE).
     RUN pSetStartEndRange (svField:HANDLE).
+    RUN pSetStartEndRange (btnFilterAuditKey:HANDLE).
+    RUN pSetStartEndRange (svBeforeValueFilter:HANDLE).
+    RUN pSetStartEndRange (svAfterValueFilter:HANDLE).
     APPLY "VALUE-CHANGED":U TO svStartDateOption.
     APPLY "VALUE-CHANGED":U TO svEndDateOption.
     APPLY "VALUE-CHANGED":U TO svStartRecKeyDateOption.
@@ -2488,9 +2491,9 @@ PROCEDURE pSetStartEndRange :
             .
         WHEN "btnFilterAuditKey" THEN
         ASSIGN
-            cStartAuditKey = IF lAuditKeyFilter THEN iphSelf:SCREEN-VALUE
+            cStartAuditKey = IF lAuditKeyFilter THEN AuditHdr.AuditKey:SCREEN-VALUE IN FRAME AuditSearch
                              ELSE CHR(32)
-            cEndAuditKey   = IF lAuditKeyFilter THEN iphSelf:SCREEN-VALUE
+            cEndAuditKey   = IF lAuditKeyFilter THEN AuditHdr.AuditKey:SCREEN-VALUE
                              ELSE CHR(254)
             .
     END CASE.
