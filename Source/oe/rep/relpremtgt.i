@@ -743,7 +743,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                     v-cq = YES.
               END.
               IF AVAIL itemfg THEN DO:
-                  RUN GetNotesArrayForObject IN hNotesProc (INPUT itemfg.rec_key, "S", "PT", 80, NO, OUTPUT opcParsedText, OUTPUT opiArraySize).
+                  RUN GetNotesArrayForObject IN hNotesProc (INPUT itemfg.rec_key, "S", "PT", 80, NO,0, OUTPUT opcParsedText, OUTPUT opiArraySize).
                    DO i = 1 TO opiArraySize: 
                        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(13), "").
                        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 

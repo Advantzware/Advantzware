@@ -7389,8 +7389,38 @@ PROCEDURE pGetCostFromPO PRIVATE :
     DEFINE VARIABLE lFound            AS LOGICAL.
     
     RUN GetCostForPOLine IN hdCostProcs (ipcCompany, ipiPONumber, ipiPOLine, ipcFGItemID, OUTPUT opdCostPerUOM, OUTPUT opcCostUOM, OUTPUT dCostFreight, OUTPUT lFound).
-    dCostPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0,1,1, opdCostPerUOM).
-    dCostFreightPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0,1,1, dCostFreight).
+    //dCostPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0,1,1, opdCostPerUOM).
+    dCostPerEA = DYNAMIC-FUNCTION('fConvertCostForItem':U IN hdCostProcs,
+        ipcCompany, 
+        ipcFGItemID, 
+        "FG", 
+        opdCostPerUOM, 
+        opcCostUOM, 
+        "EA", 
+        0, /*BasisWeight*/
+        0, /*Length override - leave as 0 if not in UI or on Order/PO*/
+        0, /*Width override - leave as 0 if not in UI or on Order/PO*/
+        0, /*Depth override - leave as 0 if not in UI or on Order/PO*/
+        0, /*Case Count override - leave as 0 if not in UI or on Order/PO*/
+        ipdQty, /*Lot Quantity - leave as 0 if not in UI or on Order/PO*/
+        "EA" /*Lot Quantity UOM - leave as "" if not in UI or on PO*/
+        ).
+    //dCostFreightPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0,1,1, dCostFreight).
+    dCostFreightPerEA = DYNAMIC-FUNCTION('fConvertCostForItem':U IN hdCostProcs,
+        ipcCompany, 
+        ipcFGItemID, 
+        "FG", 
+        dCostFreight, 
+        opcCostUOM, 
+        "EA", 
+        0, /*BasisWeight*/
+        0, /*Length override - leave as 0 if not in UI or on Order/PO*/
+        0, /*Width override - leave as 0 if not in UI or on Order/PO*/
+        0, /*Depth override - leave as 0 if not in UI or on Order/PO*/
+        0, /*Case Count override - leave as 0 if not in UI or on Order/PO*/
+        ipdQty, /*Lot Quantity - leave as 0 if not in UI or on Order/PO*/
+        "EA" /*Lot Quantity UOM - leave as "" if not in UI or on PO*/
+        ).
     ASSIGN 
         opdCostTotal        = ipdQty * dCostPerEA
         opdCostTotalFreight = ipdQty * dCostFreightPerEA.

@@ -50,11 +50,10 @@ DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
 
 DEFINE VARIABLE hPgmSecurity AS HANDLE  NO-UNDO.
 DEFINE VARIABLE lAccess1     AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lAccess2     AS LOGICAL NO-UNDO.
 
 RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
 RUN epCanAccess IN hPgmSecurity ("browsers/fgijob.w", "Access1", OUTPUT lAccess1).
-RUN epCanAccess IN hPgmSecurity ("browsers/fgijob.w", "Access2", OUTPUT lAccess2).
+
 DELETE OBJECT hPgmSecurity.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
@@ -969,10 +968,10 @@ IF AVAILABLE w-job THEN DO:
         ld-tot-wt   = w-job.tot-wt
         ld-cust-no:SENSITIVE  = lAccess1
         ld-sell-uom:SENSITIVE = NO 
-        ld-tot-wt:SENSITIVE   = lAccess1 AND lAccess2
-        fiStatusID:SENSITIVE  = lAccess1 AND lAccess2
-        tb_onhold:SENSITIVE   = lAccess1 AND lAccess2
-        tb_lock-cost:SENSITIVE = lAccess1 AND lAccess2
+        ld-tot-wt:SENSITIVE    = YES
+        fiStatusID:SENSITIVE   = YES
+        tb_onhold:SENSITIVE    = YES
+        tb_lock-cost:SENSITIVE = YES
         fiStatusID   = w-job.tagStatusID       
         tb_onhold       = w-job.onHold
         tb_lock-cost  = w-job.ship-default

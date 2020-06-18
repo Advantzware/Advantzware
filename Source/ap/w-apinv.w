@@ -33,6 +33,12 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 &SCOPED-DEFINE asi-exit local-exit2
 
+/* Hardcoded for now. Should have a field where we can link the import with api */
+DEFINE VARIABLE cImportAPIRoute AS CHARACTER NO-UNDO INITIAL "/api/810APInvoice".
+
+DEFINE VARIABLE hdInboundProcs AS HANDLE    NO-UNDO.
+RUN api/InboundProcs.p PERSISTENT SET hdInboundProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -78,6 +84,8 @@ DEFINE VARIABLE h_b-apinvl AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_importapi AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-arinv AS HANDLE NO-UNDO.
@@ -97,18 +105,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 46 ROW 2.91
          SIZE 105 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -239,11 +247,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
 ON WINDOW-CLOSE OF W-Win /* Vendor Invoices */
 DO:
-  DEF VAR op-delete-choice AS LOG NO-UNDO.
+    DEF VAR op-delete-choice AS LOG NO-UNDO.
+    
+    IF VALID-HANDLE(hdInboundProcs) THEN
+        DELETE PROCEDURE hdInboundProcs.
 
-  /* This ADM code must be left here in order for the SmartWindow
-     and its descendents to terminate properly on exit. */
-  RUN exit-window(OUTPUT op-delete-choice).
+    /* This ADM code must be left here in order for the SmartWindow
+       and its descendents to terminate properly on exit. */
+    RUN exit-window(OUTPUT op-delete-choice).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -282,14 +293,6 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/attachvinv.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_attachvinv-2 ).
-       RUN set-position IN h_attachvinv-2 ( 1.00 , 61.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/smartmsg.w':U ,
              INPUT  FRAME message-frame:HANDLE ,
              INPUT  '':U ,
@@ -298,11 +301,11 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/f-add.w':U ,
+             INPUT  'smartobj/attachvinv.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_f-add ).
-       RUN set-position IN h_f-add ( 1.00 , 77.00 ) NO-ERROR.
+             OUTPUT h_attachvinv-2 ).
+       RUN set-position IN h_attachvinv-2 ( 1.00 , 61.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -313,6 +316,14 @@ PROCEDURE adm-create-objects :
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/f-add.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_f-add ).
+       RUN set-position IN h_f-add ( 1.00 , 77.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/options.w':U ,
@@ -340,10 +351,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_f-add ,
-             h_attachvinv-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
              FRAME message-frame:HANDLE , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_f-add ,
+             h_attachvinv-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_options ,
              h_f-add , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
@@ -351,11 +362,19 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/movecol.w':U ,
+             INPUT  'viewers/importapi.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_movecol ).
-       RUN set-position IN h_movecol ( 1.00 , 69.00 ) NO-ERROR.
+             INPUT  'Layout = ':U ,
+             OUTPUT h_importapi ).
+       RUN set-position IN h_importapi ( 1.00 , 45.40 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/import.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_import ).
+       RUN set-position IN h_import ( 1.00 , 53.20 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -366,17 +385,33 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_b-apinq2 ( 4.57 , 3.00 ) NO-ERROR.
        /* Size in UIB:  ( 19.52 , 145.00 ) */
 
-       /* Links to SmartObject h_movecol. */
-       RUN add-link IN adm-broker-hdl ( h_b-apinq2 , 'move-columns':U , h_movecol ).
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_movecol ).
+       RUN set-position IN h_movecol ( 1.00 , 69.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       /* Links to SmartViewer h_importapi. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import-api':U , h_importapi ).
+
+       /* Links to SmartViewer h_import. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
 
        /* Links to SmartNavBrowser h_b-apinq2. */
        RUN add-link IN adm-broker-hdl ( h_b-apinq2 , 'Record':U , THIS-PROCEDURE ).
 
+       /* Links to SmartObject h_movecol. */
+       RUN add-link IN adm-broker-hdl ( h_b-apinq2 , 'move-columns':U , h_movecol ).
+
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_movecol ,
-             h_attachvinv-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_import ,
+             h_importapi , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-apinq2 ,
              h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_movecol ,
+             h_attachvinv-2 , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -602,6 +637,141 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-api-file W-Win 
+PROCEDURE import-api-file :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lSuccess       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cImportPath    AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE cProcessedPath AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE cFailedPath    AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE cCharHdl       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFileName      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFullFileName  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lcRequestData  AS LONGCHAR  NO-UNDO.
+
+    MESSAGE "Do you want to import EDI invoices?"
+        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO 
+        UPDATE lAnswer AS LOGICAL.    
+
+    /* The below code should be moved to a utility where user will be prompted
+       to select the files from the API import path to process through API */
+    IF NOT lAnswer THEN
+        RETURN.
+
+    RUN Inbound_GetAPIRouteImportPath IN hdInboundProcs (
+        INPUT  g_company,
+        INPUT  cImportAPIRoute,
+        OUTPUT cImportPath,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).
+
+    IF NOT lSuccess THEN DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+    
+    RUN FileSys_ValidateDirectory (
+        INPUT  cImportPath,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).
+    IF NOT lSuccess THEN DO:
+        MESSAGE "Import path '" + cImportPath + "' does not exist!"
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+
+    FILE-INFO:FILE-NAME = cImportPath.
+
+    ASSIGN
+        cImportPath    = FILE-INFO:FULL-PATHNAME
+        cProcessedPath = cImportPath + "\" + "Processed"
+        cFailedPath    = cImportPath + "\" + "Failed"
+        .
+        
+    /* Validates and creates a Processed directory inside import path */
+    RUN FileSys_CreateDirectory (
+        INPUT  cProcessedPath,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    /* Validates and creates a Failed directory inside import path */
+    RUN FileSys_CreateDirectory (
+        INPUT  cFailedPath,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    SESSION:SET-WAIT-STATE("GENERAL").
+    
+    INPUT FROM OS-DIR(cImportPath).
+    REPEAT:
+        IMPORT cFileName.
+       
+        IF cFileName MATCHES "*.XML" THEN DO:
+            cFullFileName = cImportPath + "\" + cFileName.
+
+            COPY-LOB FROM FILE cFullFileName TO lcRequestData.
+
+            RUN Inbound_CreateAndProcessRequestForAPIRoute IN hdInboundProcs (
+                INPUT  g_company,
+                INPUT  cImportAPIRoute,
+                INPUT  lcRequestData,
+                OUTPUT lSuccess,
+                OUTPUT cMessage
+                ).
+
+            IF lSuccess THEN
+                OS-COPY VALUE(cFullFileName) VALUE(cProcessedPath + "\" + cFileName).
+            ELSE
+                OS-COPY VALUE(cFullFileName) VALUE(cFailedPath + "\" + cFileName).
+                
+            OS-DELETE VALUE(cFullFileName).
+        END.
+    END.    
+    INPUT CLOSE.
+    
+    SESSION:SET-WAIT-STATE("").
+    
+    MESSAGE "Import complete"
+        VIEW-AS ALERT-BOX INFORMATION.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
+PROCEDURE import-file :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cCharHdl AS CHARACTER NO-UNDO.
+    
+    RUN util/dev/ImpAP.p.
+    
+    RUN get-link-handle IN adm-broker-hdl (
+        THIS-PROCEDURE, 
+        'import-target':U, 
+        OUTPUT cCharHdl
+        ).
+
+    IF VALID-HANDLE(WIDGET-HANDLE(cCharHdl)) THEN
+        RUN local-open-query IN h_b-apinq2.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-change-page W-Win 
 PROCEDURE local-change-page :
 /*------------------------------------------------------------------------------
@@ -622,6 +792,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win 
+PROCEDURE local-enable :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pInit.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit2 W-Win 
 PROCEDURE local-exit2 :
 /*------------------------------------------------------------------------------
@@ -632,6 +821,39 @@ PROCEDURE local-exit2 :
 
   RUN exit-window(OUTPUT op-delete-value).
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win 
+PROCEDURE pInit :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lActive  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCharHdl AS CHARACTER NO-UNDO.   
+    
+    RUN Inbound_GetAPIRouteStatus IN hdInboundProcs (
+        INPUT  g_company,
+        INPUT  cImportAPIRoute,
+        OUTPUT lActive,
+        OUTPUT cMessage
+        ).
+
+    IF NOT lActive THEN DO:    
+        RUN get-link-handle IN adm-broker-hdl (
+            THIS-PROCEDURE, 
+            'import-api-target':U, 
+            OUTPUT cCharHdl
+            ).
+    
+        IF VALID-HANDLE(WIDGET-HANDLE(cCharHdl)) THEN  
+            RUN DisableImport IN WIDGET-HANDLE(cCharHdl).        
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

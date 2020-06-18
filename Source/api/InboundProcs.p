@@ -17,6 +17,171 @@
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE Inbound_CreateAndProcessRequestForAPIRoute:
+    /*------------------------------------------------------------------------------
+     Purpose: Creates an inbound request for processing
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIRoute     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcResponseData AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE rittInboundRequest AS ROWID NO-UNDO.
+    
+    DEFINE BUFFER bf-APIInbound FOR APIInbound.
+    
+    RUN Inbound_GetAPIRouteStatus (
+        INPUT  ipcCompany,
+        INPUT  ipcAPIRoute,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ).
+    IF NOT oplSuccess THEN
+        RETURN.
+    
+    FIND FIRST bf-APIInbound NO-LOCK
+         WHERE bf-APIInbound.company  EQ ipcCompany
+           AND bf-APIInbound.apiRoute EQ ipcAPIRoute
+         NO-ERROR.
+    IF NOT AVAILABLE bf-APIInbound THEN
+        RETURN.
+
+    RUN pCreateRequest (
+        INPUT  bf-APIInbound.apiRoute,
+        INPUT  bf-APIInbound.requestVerb,
+        INPUT  ipcResponseData,
+        INPUT  bf-APIInbound.requestDataType,
+        OUTPUT rittInboundRequest
+        ).
+
+    FIND FIRST _user NO-LOCK 
+         WHERE _user._userid = USERID("ASI")
+         NO-ERROR.
+    IF AVAILABLE _user THEN DO:    
+        RUN ProcessRequests (
+            INPUT-OUTPUT TABLE ttInboundRequest,
+            INPUT        _user._userid,
+            INPUT        _user._password      
+            ).
+    END.
+    
+    FIND FIRST ttInboundRequest
+         WHERE ROWID(ttInboundRequest) EQ rittInboundRequest
+         NO-ERROR.
+    IF AVAILABLE ttInboundRequest AND ttInboundRequest.processed THEN
+        ASSIGN
+            oplSuccess = ttInboundRequest.success
+            opcMessage = ttInboundRequest.exception
+            .
+    ELSE
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Failed"
+            .
+END PROCEDURE.
+
+PROCEDURE pCreateRequest PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Creates an inbound request for processing
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcAPIRoute        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRequestVerb     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRequestData     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRequestDataType AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER iprittRequest      AS ROWID     NO-UNDO.
+    
+    CREATE ttInboundRequest.
+    ASSIGN 
+        ttInboundRequest.APIRoute        = ipcAPIRoute
+        ttInboundRequest.RequestVerb     = ipcRequestVerb
+        ttInboundRequest.RequestData     = ipcRequestData
+        ttInboundRequest.RequestDataType = ipcRequestDataType
+        .
+    
+    iprittRequest = ROWID(ttInboundRequest).
+END PROCEDURE.
+
+PROCEDURE Inbound_GetAPIRouteImportPath:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns the import path of the Inbound API
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIRoute   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcImportPath AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-APIInbound FOR APIInbound.
+    
+    FIND FIRST bf-APIInbound NO-LOCK
+         WHERE bf-APIInbound.company  EQ ipcCompany
+           AND bf-APIInbound.apiRoute EQ ipcAPIRoute
+         NO-ERROR.
+    IF NOT AVAILABLE bf-APIInbound THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Configuration for Inbound API '" + ipcAPIRoute + "' does not exist"
+            .
+        RETURN.
+    END.
+
+    IF bf-APIInbound.importPath EQ "" THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Import path for Inbound API '" + ipcAPIRoute + "' is empty"
+            .
+        RETURN.
+    END.
+    
+    ASSIGN
+        opcImportPath = bf-APIInbound.importPath 
+        oplSuccess    = TRUE
+        opcMessage    = "Success"
+        .
+
+END PROCEDURE.
+
+PROCEDURE Inbound_GetAPIRouteStatus:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the status of the Inbound API
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIRoute AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplActive   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-APIInbound FOR APIInbound.
+    
+    FIND FIRST bf-APIInbound NO-LOCK
+         WHERE bf-APIInbound.company  EQ ipcCompany
+           AND bf-APIInbound.apiRoute EQ ipcAPIRoute
+         NO-ERROR.
+    IF NOT AVAILABLE bf-APIInbound THEN DO:
+        ASSIGN
+            oplActive  = FALSE
+            opcMessage = "Configuration for Inbound API '" + ipcAPIRoute + "' does not exist"
+            .
+        RETURN.
+    END.
+
+    IF bf-APIInbound.inactive THEN DO:
+        ASSIGN
+            oplActive  = FALSE
+            opcMessage = "Configuration for Inbound API '" + ipcAPIRoute + "' is in inactive status"
+            .
+        RETURN.
+    END.
+
+    ASSIGN
+        oplActive  = TRUE
+        opcMessage = "Success"
+        .
+END PROCEDURE.
 
 PROCEDURE Inbound_UpdateEventRequestData:
 /*------------------------------------------------------------------------------

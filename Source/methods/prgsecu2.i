@@ -40,7 +40,7 @@ IF AVAILABLE b-prgrms THEN DO:
         group-ok = YES.
         LEAVE.
     END.
-    IF NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),USERID("ASI"))    AND
+    IF NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   USERID("ASI")) AND
        NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),USERID("ASI")) AND
        NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),USERID("ASI")) AND
        NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),USERID("ASI")) AND

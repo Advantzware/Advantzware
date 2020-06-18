@@ -52,10 +52,30 @@ SESSION:ADD-SUPER-PROCEDURE (ghOutput).
 //RUN pTestExtendedCalc.
 //RUN pTestIsEAFunction.
 //RUN pTestAndCompareAllFGItems.
-//RUN pTestAndCompareAllRMItems.
-RUN pTestAndCompareAllPOLines.
+RUN pTestAndCompareAllRMItems.
+//RUN pTestAndCompareAllPOLines.
+//RUN pTestConversionWithLot.
 /* **********************  Internal Procedures  *********************** */
 
+
+PROCEDURE pTestConversionWithLot PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dNewValue AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cError AS CHARACTER NO-UNDO.
+    
+    RUN Conv_ValueFromUOMtoUOMWithLot("001", "", "FG", 
+        150.0, "LOT", "M", 
+        0, 0, 0, 0, 0, 150, "EA",
+        OUTPUT dNewValue, OUTPUT lError, OUTPUT cError).
+    MESSAGE dNewValue SKIP 
+    lError cError
+    VIEW-AS ALERT-BOX.
+    
+END PROCEDURE.
 
 PROCEDURE pTestAndCompareAllFGItems PRIVATE:
     /*------------------------------------------------------------------------------
@@ -69,6 +89,8 @@ PROCEDURE pTestAndCompareAllFGItems PRIVATE:
     DEFINE VARIABLE cFromUOM   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cToUOM     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iIndexType AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lSuccess   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
     
     EMPTY TEMP-TABLE ttResults.
     
@@ -131,7 +153,14 @@ PROCEDURE pTestAndCompareAllFGItems PRIVATE:
             END.
         END.
     END.
-    RUN Output_TempTableToCSV(TEMP-TABLE ttResults:HANDLE, "C:\tmp\ConversionResultsItemfg.csv", YES).
+    RUN Output_TempTableToCSV(
+        INPUT TEMP-TABLE ttResults:HANDLE, 
+        INPUT "C:\tmp\ConversionResultsItemfg.csv", 
+        INPUT YES,
+        INPUT TRUE /* Auto increment File name */,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).                              
     
 END PROCEDURE.
 
@@ -140,7 +169,9 @@ PROCEDURE pTestAndCompareAllPOLines PRIVATE:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE dBasisWeight AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dBasisWeight AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
         
     EMPTY TEMP-TABLE ttResults.
     
@@ -170,12 +201,12 @@ PROCEDURE pTestAndCompareAllPOLines PRIVATE:
             ttResults.cConversionType = "Quantity"
             .
         RUN sys/ref/convquom.p(ttResults.cOldUOM, ttResults.cNewUOM, 
-            dBasisWeight, po-ordl.s-len, po-ordl.s-len, po-ordl.s-len,
+            dBasisWeight, po-ordl.s-len, po-ordl.s-wid, po-ordl.s-dep,
             ttResults.dOldValue,
             OUTPUT ttResults.dNewValueLegacy).
         RUN Conv_QuantityFromUOMtoUOM(po-ordl.company, po-ordl.i-no, ttResults.cItemType, 
             ttResults.dOldValue, ttResults.cOldUOM, ttResults.cNewUOM, 
-            dBasisWeight, po-ordl.s-len, po-ordl.s-len, po-ordl.s-len, 0,
+            dBasisWeight, po-ordl.s-len, po-ordl.s-wid, po-ordl.s-dep, 0,
             OUTPUT ttResults.dNewValueNewProc, OUTPUT ttResults.lError, OUTPUT ttResults.cMessage).
         ASSIGN 
             ttResults.dConvFactorLegacy  = ttResults.dOldValue / ttResults.dNewValueLegacy
@@ -195,12 +226,12 @@ PROCEDURE pTestAndCompareAllPOLines PRIVATE:
             ttResults.cConversionType = "Cost"
             .
         RUN sys/ref/convcuom.p(ttResults.cOldUOM, ttResults.cNewUOM, 
-            dBasisWeight, po-ordl.s-len, po-ordl.s-len, po-ordl.s-len,
+            dBasisWeight, po-ordl.s-len, po-ordl.s-wid, po-ordl.s-dep,
             ttResults.dOldValue,
             OUTPUT ttResults.dNewValueLegacy).
         RUN Conv_ValueFromUOMtoUOM(po-ordl.company, po-ordl.i-no, ttResults.cItemType, 
             ttResults.dOldValue, ttResults.cOldUOM, ttResults.cNewUOM, 
-            dBasisWeight, po-ordl.s-len, po-ordl.s-len, po-ordl.s-len, 0,
+            dBasisWeight, po-ordl.s-len, po-ordl.s-wid, po-ordl.s-dep, 0,
             OUTPUT ttResults.dNewValueNewProc, OUTPUT ttResults.lError, OUTPUT ttResults.cMessage).
         ASSIGN 
             ttResults.dConvFactorLegacy  = ttResults.dOldValue / ttResults.dNewValueLegacy
@@ -212,7 +243,14 @@ PROCEDURE pTestAndCompareAllPOLines PRIVATE:
     END.
 
 
-    RUN Output_TempTableToCSV(TEMP-TABLE ttResults:HANDLE, "C:\tmp\ConversionResultsPoLines.csv", YES).
+    RUN Output_TempTableToCSV(
+        INPUT TEMP-TABLE ttResults:HANDLE, 
+        INPUT "C:\tmp\ConversionResultsPoLines.csv", 
+        INPUT YES,
+        INPUT TRUE /* Auto increment File name */,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).
     
 END PROCEDURE.
 
@@ -228,6 +266,8 @@ PROCEDURE pTestAndCompareAllRMItems PRIVATE:
     DEFINE VARIABLE cFromUOM   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cToUOM     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iIndexType AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lSuccess   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO. 
     
     EMPTY TEMP-TABLE ttResults.
     
@@ -291,7 +331,14 @@ PROCEDURE pTestAndCompareAllRMItems PRIVATE:
             END.
         END.
     END.
-    RUN Output_TempTableToCSV(TEMP-TABLE ttResults:HANDLE, "C:\tmp\ConversionResultsItem.csv", YES).
+    RUN Output_TempTableToCSV(
+        INPUT TEMP-TABLE ttResults:HANDLE, 
+        INPUT "C:\tmp\ConversionResultsItem.csv", 
+        INPUT YES,
+        INPUT TRUE /* Auto increment File name */,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).
     
 END PROCEDURE.
 

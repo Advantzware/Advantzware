@@ -43,8 +43,8 @@ CREATE WIDGET-POOL.
 
 DEFINE VARIABLE hFieldColumn AS HANDLE  NO-UNDO EXTENT 20.
 DEFINE VARIABLE hTableColumn AS HANDLE  NO-UNDO EXTENT 20.
-DEFINE VARIABLE lAdmin       AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lContinue    AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lSuperAdmin  AS LOGICAL NO-UNDO.
 
 DEFINE TEMP-TABLE ttTable NO-UNDO
     FIELD auditTable        AS CHARACTER FORMAT "x(20)" LABEL "Table"
@@ -119,10 +119,9 @@ DEFINE TEMP-TABLE ttField NO-UNDO
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btnResetField btnResetTable btnSaveField ~
-btnSaveTable ResetFromDefault SaveAsDefault svFilter ~
-btnBeforeValueFilterClear dbTables dbFields svToggleAuditCreate ~
-svToggleAuditDelete svToggleAuditUpdate svStackTrace toggleFields btnExit ~
-btnOK 
+btnSaveTable ResetFromDefault SaveAsDefault svFilter dbTables ~
+btnBeforeValueFilterClear dbFields svToggleAuditCreate svToggleAuditDelete ~
+svToggleAuditUpdate svStackTrace toggleFields btnExit btnOK 
 &Scoped-Define DISPLAYED-OBJECTS svFilter svToggleAuditCreate ~
 svToggleAuditDelete svToggleAuditUpdate svStackTrace toggleFields 
 
@@ -289,9 +288,9 @@ DEFINE FRAME DEFAULT-FRAME
           "Save As Defaults" WIDGET-ID 46
      svFilter AT ROW 2.43 COL 32 COLON-ALIGNED HELP
           "Enter Filter Value" WIDGET-ID 6
+     dbTables AT ROW 3.86 COL 2 WIDGET-ID 100
      btnBeforeValueFilterClear AT ROW 2.43 COL 66 HELP
           "Click to Clear Value Filter" WIDGET-ID 40
-     dbTables AT ROW 3.86 COL 2 WIDGET-ID 100
      dbFields AT ROW 3.86 COL 145 WIDGET-ID 200
      svToggleAuditCreate AT ROW 3.91 COL 83 HELP
           "Select to Toggle Audit Create" WIDGET-ID 4
@@ -310,15 +309,15 @@ DEFINE FRAME DEFAULT-FRAME
      " CYAN : Field Audit Overrides Exist" VIEW-AS TEXT
           SIZE 34 BY .62 AT ROW 2.91 COL 175 WIDGET-ID 56
           BGCOLOR 11 
-     " YELLOW : Default Overridden" VIEW-AS TEXT
-          SIZE 30 BY .62 AT ROW 2.91 COL 114 WIDGET-ID 54
-          BGCOLOR 14 
-     " RED : Default Value is OFF" VIEW-AS TEXT
-          SIZE 27 BY .62 AT ROW 2.91 COL 86 WIDGET-ID 50
-          BGCOLOR 12 FGCOLOR 15 
      " GREEN : Default Value is ON" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 2.91 COL 145 WIDGET-ID 52
           BGCOLOR 10 
+     " RED : Default Value is OFF" VIEW-AS TEXT
+          SIZE 27 BY .62 AT ROW 2.91 COL 86 WIDGET-ID 50
+          BGCOLOR 12 FGCOLOR 15 
+     " YELLOW : Default Overridden" VIEW-AS TEXT
+          SIZE 30 BY .62 AT ROW 2.91 COL 114 WIDGET-ID 54
+          BGCOLOR 14 
      RECT-11 AT ROW 1.24 COL 2 WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -372,8 +371,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB dbTables btnBeforeValueFilterClear DEFAULT-FRAME */
-/* BROWSE-TAB dbFields dbTables DEFAULT-FRAME */
+/* BROWSE-TAB dbTables svFilter DEFAULT-FRAME */
+/* BROWSE-TAB dbFields btnBeforeValueFilterClear DEFAULT-FRAME */
 /* SETTINGS FOR RECTANGLE RECT-11 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -636,6 +635,8 @@ DO:
     ASSIGN {&SELF-NAME}.
     {&OPEN-QUERY-dbTables}
     APPLY "VALUE-CHANGED":U TO BROWSE dbTables.
+    APPLY "ENTRY":U TO SELF.
+    APPLY "END":U TO SELF.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -748,10 +749,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       svStackTrace:MOVE-TO-TOP().
       toggleFields:MOVE-TO-TOP().
       ASSIGN
-        lAdmin               = DYNAMIC-FUNCTION("sfIsUserAdmin")
-        SaveAsDefault:HIDDEN = NOT lAdmin
-        btnSaveTable:HIDDEN  = NOT lAdmin
-        btnSaveField:HIDDEN  = NOT lAdmin
+        lSuperAdmin          = DYNAMIC-FUNCTION("sfIsUserSuperAdmin")
+        SaveAsDefault:HIDDEN = NOT lSuperAdmin
+        btnSaveTable:HIDDEN  = NOT lSuperAdmin
+        btnSaveField:HIDDEN  = NOT lSuperAdmin
         .
   END. /* if lcontinue */
   {methods/nowait.i}
@@ -801,7 +802,7 @@ PROCEDURE enable_UI :
           svStackTrace toggleFields 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE btnResetField btnResetTable btnSaveField btnSaveTable ResetFromDefault 
-         SaveAsDefault svFilter btnBeforeValueFilterClear dbTables dbFields 
+         SaveAsDefault svFilter dbTables btnBeforeValueFilterClear dbFields 
          svToggleAuditCreate svToggleAuditDelete svToggleAuditUpdate 
          svStackTrace toggleFields btnExit btnOK 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.

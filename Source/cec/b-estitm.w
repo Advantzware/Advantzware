@@ -699,7 +699,7 @@ DO:
        RUN est/dNewMiscEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
-   ELSE IF AVAIL est AND  est.estimateTypeID = "AAAA"  THEN do:
+   ELSE IF AVAIL est AND  est.estimateTypeID = "WOOD"  THEN do:
        EMPTY TEMP-TABLE ttInputEst .
        EMPTY TEMP-TABLE tt-eb-set.
        RUN est/dAddSetEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
@@ -5185,63 +5185,44 @@ PROCEDURE pEstimateCleanUp PRIVATE:
         END.
     END.
     
-    IF cestyle-log AND
-       (adm-adding-record        OR
-        lv-hld-wid   NE eb.wid   OR
-        lv-hld-len   NE eb.len   OR
-        lv-hld-dep   NE eb.dep   OR
-        lv-hld-style NE eb.style) THEN DO:
-        IF NOT adm-new-record THEN
-            MESSAGE "Do you wish to reset box design?"
-                VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2 AS LOGICAL.
-        ELSE
-            ll-ans2 = YES.
-
-        IF ll-ans2 THEN 
-            lv-box-des = "B".
-        ELSE 
-            lv-box-des = "N".    
-    END.
-    ELSE DO:
-        FOR FIRST box-design-hdr NO-LOCK 
-            WHERE box-design-hdr.design-no EQ 0 
-              AND box-design-hdr.company   EQ eb.company 
-              AND box-design-hdr.est-no    EQ eb.est-no 
-              AND box-design-hdr.form-no   EQ eb.form-no 
-              AND box-design-hdr.blank-no  EQ eb.blank-no:
-            FOR EACH box-design-line FIELDS(wscore) OF box-design-hdr
-                NO-LOCK:
-                v-dec = DECIMAL(TRIM(box-design-line.wscore)) NO-ERROR.
-                IF NOT ERROR-STATUS:ERROR AND TRIM(box-design-line.wscore) NE "" THEN
-                    ASSIGN
-                        v-count            = v-count + 1
-                        v-w-array[v-count] = v-dec
-                        .
-            END.
-
-            RUN tokenize-proc(
-                INPUT box-design-hdr.lscore
-                ).
-
-            DO v-count = 1 TO 30:
+    FOR FIRST box-design-hdr NO-LOCK 
+        WHERE box-design-hdr.design-no EQ 0 
+          AND box-design-hdr.company   EQ eb.company 
+          AND box-design-hdr.est-no    EQ eb.est-no 
+          AND box-design-hdr.form-no   EQ eb.form-no 
+          AND box-design-hdr.blank-no  EQ eb.blank-no:
+        FOR EACH box-design-line FIELDS(wscore) OF box-design-hdr
+            NO-LOCK:
+            v-dec = DECIMAL(TRIM(box-design-line.wscore)) NO-ERROR.
+            IF NOT ERROR-STATUS:ERROR AND TRIM(box-design-line.wscore) NE "" THEN
                 ASSIGN
-                    v-dec  = {sys/inc/k16v.i eb.k-len-array2[v-count]}
-                    v-dec2 = {sys/inc/k16v.i eb.k-wid-array2[v-count]}
+                    v-count            = v-count + 1
+                    v-w-array[v-count] = v-dec
                     .
-               
-                IF v-l-array[v-count] NE v-dec OR v-w-array[v-count] NE v-dec2 THEN DO:
-                    MESSAGE "Do you wish to reset box design?"
-                        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans2.
-                    IF ll-ans2 THEN
-                        lv-box-des = "B".
-                    ELSE
-                        lv-box-des = "N".
-                    LEAVE.
-                END.
+        END.
+
+        RUN tokenize-proc(
+            INPUT box-design-hdr.lscore
+            ).
+
+        DO v-count = 1 TO 30:
+            ASSIGN
+                v-dec  = {sys/inc/k16v.i eb.k-len-array2[v-count]}
+                v-dec2 = {sys/inc/k16v.i eb.k-wid-array2[v-count]}
+                .
+           
+            IF v-l-array[v-count] NE v-dec OR v-w-array[v-count] NE v-dec2 THEN DO:
+                MESSAGE "Do you wish to reset box design?"
+                    VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans2 AS LOGICAL.
+                IF ll-ans2 THEN
+                    lv-box-des = "B".
+                ELSE
+                    lv-box-des = "N".
+                LEAVE.
             END.
         END.
     END.
-    
+
     DO li = 1 TO 2:
         RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"box-calc-target",OUTPUT char-hdl).
         IF VALID-HANDLE(WIDGET-HANDLE(ENTRY(1,char-hdl))) THEN DO:
@@ -5328,7 +5309,7 @@ PROCEDURE pEstimateCleanUp PRIVATE:
 
     RUN valid-eb-reckey.
 
-    IF adm-new-record AND ll-add-set-part = YES OR ll-add-set-part-2 = YES THEN DO:
+    IF ll-new-record AND ll-add-set-part = YES OR ll-add-set-part-2 = YES THEN DO:
         IF est.est-type NE 8 THEN
             FOR EACH bf-eb 
                 WHERE bf-eb.company EQ eb.company
@@ -5346,7 +5327,7 @@ PROCEDURE pEstimateCleanUp PRIVATE:
 
     END.
 
-    IF adm-new-record AND eb.pur-man THEN DO:
+    IF ll-new-record AND eb.pur-man THEN DO:
         RUN create-e-itemfg-vend.
         RUN CreateVendItemCost(
             INPUT cocode,    
@@ -5357,7 +5338,7 @@ PROCEDURE pEstimateCleanUp PRIVATE:
             ).
     END.        
 
-    ELSE IF NOT adm-new-record AND eb.pur-man THEN DO:      
+    ELSE IF NOT ll-new-record AND eb.pur-man THEN DO:      
         IF cOldFGItem NE eb.stock-no THEN DO:
       
             RUN update-e-itemfg-vend.
@@ -5382,7 +5363,7 @@ PROCEDURE pEstimateCleanUp PRIVATE:
     END.
 
     /* If unitized and form 1, blank 1, copy to form zero record. */
-    IF adm-new-record AND eb.pur-man = NO AND eb.form-no = 1 AND eb.blank-no = 1 THEN  /*Ticket - 34158 */
+    IF ll-new-record AND eb.pur-man = NO AND eb.form-no = 1 AND eb.blank-no = 1 THEN  /*Ticket - 34158 */
         RUN copy-2-form-zero.     
 
     IF is2PieceBox THEN DO:
@@ -8173,8 +8154,16 @@ PROCEDURE update-set :
              bf-eb-header.form-no EQ 0 AND
              bf-eb-header.blank-no EQ 0
              NO-LOCK NO-ERROR.
-
-     IF NOT v-assem-partition OR (NOT AVAIL bf-eb-header) THEN DO:
+             
+     IF est.estimateTypeID eq "WOOD" then DO:
+     
+       EMPTY TEMP-TABLE ttInputEst .
+       EMPTY TEMP-TABLE tt-eb-set.
+       RUN est/dAddSetEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN local-open-query. 
+     
+     END.
+     ELSE IF NOT v-assem-partition OR (NOT AVAIL bf-eb-header) THEN DO:
 
          FIND xest WHERE RECID(xest) = RECID(est) NO-LOCK.
          FIND xef WHERE RECID(xef) = RECID(ef) NO-LOCK.
@@ -8625,7 +8614,7 @@ PROCEDURE pUpdateRecord :
        RUN est/dNewMiscEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
-   ELSE IF AVAIL est AND  est.estimateTypeID = "AAAA"  THEN do:
+   ELSE IF AVAIL est AND  est.estimateTypeID = "WOOD"  THEN do:
        EMPTY TEMP-TABLE ttInputEst .
        EMPTY TEMP-TABLE tt-eb-set.
        RUN est/dAddSetEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .

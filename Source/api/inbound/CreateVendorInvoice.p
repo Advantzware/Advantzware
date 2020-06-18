@@ -435,7 +435,7 @@ PROCEDURE pCreateNewInvoice:
                 ap-inv.disc-%    = terms.disc-rate
                 ap-inv.disc-days = terms.disc-days
                 .
-        ap-inv.due-date = IF ipcVendorInvoiceDueDate NE "" THEN
+        ap-inv.due-date = IF ipcVendorInvoiceDueDate NE "" AND ipcVendorinvoiceDueDate NE ? THEN
                               DATE(ipcVendorInvoiceDueDate)
                           ELSE IF AVAILABLE terms THEN 
                               terms.net-day + ap-inv.inv-date

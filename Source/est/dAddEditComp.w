@@ -537,7 +537,10 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
         IF lValidateResult THEN RETURN NO-APPLY.  
         
         RUN valid-Form-Blank(OUTPUT lValidateResult) NO-ERROR.
-        IF lValidateResult THEN RETURN NO-APPLY.  
+        IF lValidateResult THEN RETURN NO-APPLY. 
+        
+        RUN valid-QtyPerSet(OUTPUT lValidateResult) NO-ERROR.
+        IF lValidateResult THEN RETURN NO-APPLY. 
         
        
         DO TRANSACTION:           
@@ -795,6 +798,21 @@ ON LEAVE OF len IN FRAME Dialog-Frame /* Length */
 ON VALUE-CHANGED OF rd_show1 IN FRAME Dialog-Frame
     DO:
         ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME dQtyPerSet
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dQtyPerSet Dialog-Frame
+ON LEAVE OF dQtyPerSet IN FRAME Dialog-Frame /* Item Name */
+    DO:
+        DEFINE VARIABLE lError AS LOGICAL NO-UNDO  .
+        IF LASTKEY NE -1 THEN 
+        DO:
+         RUN valid-QtyPerSet(OUTPUT lError) NO-ERROR.
+         IF lError THEN RETURN NO-APPLY.           
+        END.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1308,6 +1326,28 @@ PROCEDURE valid-part-no :
         END.
     END.
 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-QtyPerSet D-Dialog 
+PROCEDURE valid-QtyPerSet :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
+    DO WITH FRAME {&FRAME-NAME}:
+        IF integer(dQtyPerSet:SCREEN-VALUE)  LE 0 THEN 
+        DO:
+            MESSAGE "Qty Per Set must be greater then 0..." VIEW-AS ALERT-BOX INFORMATION.
+            APPLY "entry" TO dQtyPerSet .
+            oplOutError = YES .
+        END.
+    END. 
 
 END PROCEDURE.
 

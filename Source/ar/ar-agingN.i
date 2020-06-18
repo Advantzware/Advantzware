@@ -1353,6 +1353,7 @@ END.
          ASSIGN
             sman-t[i] = sman-t[i] + cust-t[i]
             arclass-t[i] = arclass-t[i] + cust-t[i]
+            curr-t[i] = curr-t[i] + cust-t[i]
             cust-t[i] = 0.
 
          IF v-sep-fc THEN
@@ -1361,6 +1362,8 @@ END.
                sman-t-fc[i] = sman-t-fc[i] + cust-t-fc[i]
                arclass-t-pri[i] = arclass-t-pri[i] + cust-t-pri[i]
                arclass-t-fc[i] = arclass-t-fc[i] + cust-t-fc[i]
+               curr-t-pri[i] = curr-t-pri[i] + cust-t-pri[i]
+               curr-t-fc[i] = curr-t-fc[i] + cust-t-fc[i]
                cust-t-pri[i] = 0
                cust-t-fc[i] = 0.
       end.
@@ -1377,11 +1380,8 @@ END.
           END.
 
           do i = 1 to 6:
-            ASSIGN
-               curr-t[i] = curr-t[i] + sman-t[i]
-               sman-t[i] = 0
-               curr-t-pri[i] = curr-t-pri[i] + sman-t-pri[i]
-               curr-t-fc[i] = curr-t-fc[i] + sman-t-fc[i]
+            ASSIGN                 
+               sman-t[i] = 0                 
                sman-t-pri[i] = 0
                sman-t-fc[i] = 0.
           end.
@@ -1394,11 +1394,8 @@ END.
                                arclass-t[3],arclass-t[4],0,arclass-t[6]).          
                  PUT SKIP(1).
           do i = 1 to 6:
-            ASSIGN
-               curr-t[i] = curr-t[i] + arclass-t[i]
-               arclass-t[i] = 0
-               curr-t-pri[i] = curr-t-pri[i] + arclass-t-pri[i]
-               curr-t-fc[i] = curr-t-fc[i] + arclass-t-fc[i]
+            ASSIGN               
+               arclass-t[i] = 0              
                arclass-t-pri[i] = 0
                arclass-t-fc[i] = 0.
           end.

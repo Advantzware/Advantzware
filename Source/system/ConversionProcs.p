@@ -27,8 +27,8 @@ DEFINE TEMP-TABLE ttUOM
     FIELD isBaseConverter     AS LOGICAL
     FIELD isOverridden        AS LOGICAL
     FIELD uomSource           AS CHARACTER 
+    FIELD iSourceLevel        AS INTEGER
     . 
-
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -63,7 +63,7 @@ FUNCTION fUseItemUOM RETURNS LOGICAL PRIVATE
 
 
 /* ***************************  Main Block  *************************** */
-
+RUN pBuildBaseUOMs.
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -119,7 +119,7 @@ PROCEDURE Conv_CalcTotalPrice:
         AND itemfg.i-no EQ ipcItemID
         NO-ERROR.
         
-    IF fUseItemUOM(ipcCompany) AND AVAILABLE itemfg THEN 
+    IF AVAILABLE itemfg THEN 
     DO:
         IF CAN-DO("CS,CAS", ipcPriceUOM) AND ipdCaseCountOverride NE 0 THEN 
             ASSIGN 
@@ -166,7 +166,6 @@ PROCEDURE Conv_GetValidCostUOMs:
     ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER opcValidUOMs AS CHARACTER NO-UNDO.    
     
-    RUN pBuildBaseUOMs.
     RUN pGetValidUoms("Cost", OUTPUT opcValidUOMs).
       
 END PROCEDURE.
@@ -193,7 +192,6 @@ PROCEDURE Conv_GetValidPOQtyUOMs:
     ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER opcValidUOMs AS CHARACTER NO-UNDO.    
     
-    RUN pBuildBaseUOMs.
     RUN pGetValidUoms("POQty", OUTPUT opcValidUOMs).
       
 END PROCEDURE.
@@ -220,7 +218,6 @@ PROCEDURE Conv_GetValidPriceUOMs:
     ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER opcValidUOMs AS CHARACTER NO-UNDO.    
     
-    RUN pBuildBaseUOMs.
     RUN pGetValidUoms("Price", OUTPUT opcValidUOMs).
       
 END PROCEDURE.
@@ -247,7 +244,6 @@ PROCEDURE Conv_GetValidOrderQtyUOMs:
     ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER opcValidUOMs AS CHARACTER NO-UNDO.    
     
-    RUN pBuildBaseUOMs.
     RUN pGetValidUoms("OrderQty", OUTPUT opcValidUOMs).
       
 END PROCEDURE.
@@ -266,6 +262,55 @@ PROCEDURE Conv_GetValidOrderQtyUOMsForItem:
       
 END PROCEDURE.
 
+
+PROCEDURE Conv_ValueFromUOMToUOMWithLot:
+    /*------------------------------------------------------------------------------
+         Purpose:  Given all inputs for an item, run a conversion of quantity from one
+         value to another - includes handling for LOT uom
+         Notes: 
+             Conv_ValueFromUOMtoUOMWithLot(cCompany, cItemID, cItemType, /*Company/Item/ItemType*/
+                                    dValueToConvert, cOldUOM, cNewUOM,  /*OldValue/OldUOM/NewUOM*/
+                                    dBasisWeight, dDimLength, dDimWidth, dDimDepth, dCount, dLotQuantity, cLotQuantityUOM, /*Overrides - leave blank if not in ord/po */
+                                    OUTPUT dNewQty, OUTPUT lError, OUTPUT cMessage /*Outputs*/).
+        ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdValueInFromUOM AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFromUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcToUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdOverrideBasisWeightInLbsPerMSF AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdOverrideDimLengthInInches AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdOverrideDimWidthInInches AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdOverrideDimDepthInInches AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdOverrideCount AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdLotQuantity AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLotQuantityUOM AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdValueInToUOM AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE dValuePerEA AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dLotQuantityInEA AS DECIMAL NO-UNDO.
+    
+    IF ipcFromUOM EQ "LOT" OR ipcFromUOM EQ "L" THEN DO:
+        RUN Conv_QuantityFromUOMtoUOM(ipcCompany, ipcItemID, ipcItemType, 
+            ipdLotQuantity, ipcLotQuantityUOM, "EA", 
+            ipdOverrideBasisWeightinLbsPerMSF, ipdOverrideDimLengthInInches, ipdOverrideDimWidthInInches, ipdOverrideDimDepthInInches, ipdOverrideCount, 
+            OUTPUT dLotQuantityInEA, OUTPUT oplError, OUTPUT opcMessage).
+        dValuePerEA = ipdValueInFromUOM / dLotQuantityInEA.
+        RUN Conv_ValueFromUOMtoUOM(ipcCompany, ipcItemID, ipcItemType, 
+            dValuePerEA, "EA", ipcToUOM, 
+            ipdOverrideBasisWeightinLbsPerMSF, ipdOverrideDimLengthInInches, ipdOverrideDimWidthInInches, ipdOverrideDimDepthInInches, ipdOverrideCount, 
+            OUTPUT opdValueInToUOM, OUTPUT oplError, OUTPUT opcMessage).
+    END.
+    ELSE 
+        RUN Conv_ValueFromUOMtoUOM(ipcCompany, ipcItemID, ipcItemType, 
+            ipdValueInFromUOM, ipcFromUOM, ipcToUOM, 
+            ipdOverrideBasisWeightinLbsPerMSF, ipdOverrideDimLengthInInches, ipdOverrideDimWidthInInches, ipdOverrideDimDepthInInches, ipdOverrideCount, 
+            OUTPUT opdValueInToUOM, OUTPUT oplError, OUTPUT opcMessage).
+
+END PROCEDURE.
 
 PROCEDURE Conv_ValueToEA:
     /*------------------------------------------------------------------------------
@@ -579,14 +624,18 @@ PROCEDURE pAddUOM PRIVATE:
     DEFINE INPUT PARAMETER ipdMultiplier AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcSource AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcPurposes AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiSourceLevel AS INTEGER NO-UNDO.
 
     FIND FIRST ttUOM EXCLUSIVE-LOCK 
         WHERE ttUOM.uom EQ ipcUOM
         AND NOT ttUOM.isOverridden
         NO-ERROR.
-    IF AVAILABLE ttUOM THEN 
-        ttUOM.isOverridden = iplOverride.
-        
+    IF AVAILABLE ttUOM THEN DO:
+        IF ipiSourceLevel EQ 2 THEN 
+            DELETE ttUOM. 
+        ELSE 
+            ttUOM.isOverridden = iplOverride.
+    END.
     CREATE ttUOM.
     ASSIGN 
         ttUOM.uom                 = ipcUOM
@@ -594,6 +643,7 @@ PROCEDURE pAddUOM PRIVATE:
         ttUOM.uomDescription      = ipcUOMDesc
         ttUOM.multiplierToBase    = ipdMultiplier
         ttUOM.uomSource           = ipcSource
+        ttUOM.iSourcelevel        = ipiSourceLevel
         ttUOM.canUseCostPerUnit   = CAN-DO(ipcPurposes,"Cost")
         ttUOM.canUseOrderQuantity = CAN-DO(ipcPurposes,"OrderQty")
         ttUOM.canUsePOQuantity    = CAN-DO(ipcPurposes,"POQty")
@@ -614,19 +664,20 @@ PROCEDURE pAddUOMsFromDimensions PRIVATE:
     DEFINE INPUT PARAMETER ipdDepth AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcDimUOM AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcSource AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiSourceLevel AS INTEGER NO-UNDO.
     
     IF ipdLength GT 0 THEN 
     DO:
-        RUN pAddUOM("LI", YES, "EA","Lineal Inches", 1 / fGetInches(ipdLength,ipcDimUOM), ipcSource, "Cost").
-        RUN pAddUOM("MLI", YES, "EA","Lineal Inches", 1000 / fGetInches(ipdLength, ipcDimUOM), ipcSource, "Cost").
-        RUN pAddUOM("IN", YES, "EA","Inches", 1 / fGetInches(ipdLength, ipcDimUOM), ipcSource, "Cost").
-        RUN pAddUOM("LF", YES, "EA","Lineal Feet", 1 / fGetFeet(ipdLength, ipcSource), ipcSource, "Cost").
+        RUN pAddUOM("LI", YES, "EA","Lineal Inches", 1 / fGetInches(ipdLength,ipcDimUOM), ipcSource, "Cost", ipiSourceLevel).
+        RUN pAddUOM("MLI", YES, "EA","Lineal Inches", 1000 / fGetInches(ipdLength, ipcDimUOM), ipcSource, "Cost", ipiSourceLevel).
+        RUN pAddUOM("IN", YES, "EA","Inches", 1 / fGetInches(ipdLength, ipcDimUOM), ipcSource, "Cost", ipiSourceLevel).
+        RUN pAddUOM("LF", YES, "EA","Lineal Feet", 1 / fGetFeet(ipdLength, ipcSource), ipcSource, "Cost", ipiSourceLevel).
         IF ipdWidth GT 0 THEN 
         DO:
-            RUN pAddUOM("SQIN", YES, "EA", "Square Inches", 1 / fGetSqin(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost").
-            RUN pAddUOM("MSI", YES, "EA", "Thousand Square Inches", 1000 / fGetSqin(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost").
-            RUN pAddUOM("MSF", YES, "EA", "Thousand Square Feet", 1000 / fGetSqft(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost").
-            RUN pAddUOM("SF", YES, "EA", "Square Feet", 1 / fGetSqft(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost").
+            RUN pAddUOM("SQIN", YES, "EA", "Square Inches", 1 / fGetSqin(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost", ipiSourceLevel).
+            RUN pAddUOM("MSI", YES, "EA", "Thousand Square Inches", 1000 / fGetSqin(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost", ipiSourceLevel).
+            RUN pAddUOM("MSF", YES, "EA", "Thousand Square Feet", 1000 / fGetSqft(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost", ipiSourceLevel ).
+            RUN pAddUOM("SF", YES, "EA", "Square Feet", 1 / fGetSqft(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost", ipiSourceLevel).
         END.  /*Width GT 0*/
     END. /*Length GT 0*/
     
@@ -654,7 +705,7 @@ PROCEDURE pAddUOMsFromItemUOM PRIVATE:
         cPurposes = cPurposes + IF itemUoM.canSell THEN "OrderQty,POQty," ELSE "".
         cPurposes = TRIM(cPurposes,",").
 
-        RUN pAddUOM(itemUoM.uom, iplOverride, itemUoM.uomBase,itemUOM.descr, itemUoM.convFactor, "Item UOM", cPurposes).
+        RUN pAddUOM(itemUoM.uom, iplOverride, itemUoM.uomBase,itemUOM.descr, itemUoM.convFactor, "Item UOM", cPurposes, 4).
 
     END.  /*Each ttItem UOM*/
     
@@ -668,13 +719,14 @@ PROCEDURE pAddUOMsFromWeight PRIVATE:
     DEFINE INPUT PARAMETER ipdWeightPerEA AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcWeightUOM AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcSource AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiSourceLevel AS INTEGER NO-UNDO.
     
     IF ipdWeightPerEA EQ 0 THEN ipdWeightPerEA = 1.
     CASE ipcWeightUOM:
         WHEN "LB" THEN 
             DO: 
-                RUN pAddUOM("LB", YES, "EA","Pounds", 1 / ipdWeightPerEA , ipcSource, "Price,POQty,Cost").
-                RUN pAddUOM("TON", YES, "EA","Tons", 2000 / ipdWeightPerEA , ipcSource, "Price,POQty,Cost").
+                RUN pAddUOM("LB", YES, "EA","Pounds", 1 / ipdWeightPerEA , ipcSource, "Price,POQty,Cost", ipiSourceLevel).
+                RUN pAddUOM("TON", YES, "EA","Tons", 2000 / ipdWeightPerEA , ipcSource, "Price,POQty,Cost", ipiSourceLevel).
             END.
     END CASE.
     
@@ -692,10 +744,10 @@ PROCEDURE pBuildUOMS PRIVATE:
     DEFINE BUFFER bf-item   FOR ITEM.
     
     RUN pGetBuffersByRowid(ipriItem, BUFFER bf-itemfg, BUFFER bf-item).
-    RUN pBuildBaseUOMs.    
-    IF AVAILABLE bf-itemfg AND fUseItemUOM(bf-itemfg.company) THEN 
+    RUN pResetUOMsToBase.
+    IF AVAILABLE bf-itemfg THEN 
         RUN pBuildUOMsForItemFG(BUFFER bf-itemfg).           
-    ELSE IF AVAILABLE bf-item AND fUseItemUOM(bf-item.company) THEN 
+    ELSE IF AVAILABLE bf-item  THEN 
             RUN pBuildUOMsForItemRM(BUFFER bf-item).
 
 END PROCEDURE.
@@ -715,12 +767,12 @@ PROCEDURE pBuildUOMsForItemFG PRIVATE:
         /*Add UOMs from itemfg Master*/
         IF ipbf-itemfg.case-count NE 0 THEN 
         DO:
-            RUN pAddUOM("CS", YES, "EA","Case", ipbf-itemfg.case-count, cSourceItemMaster, "Price,OrderQty,POQty,Cost").
-            RUN pAddUOM("PLT", YES, "EA","Pallet", ipbf-itemfg.case-count * ipbf-itemfg.case-pall, cSourceItemMaster, "Price,OrderQty,POQty,Cost").
-            RUN pAddUOM("BDL", YES, "EA","Case", ipbf-itemfg.case-count, cSourceItemMaster, "Price,OrderQty").
+            RUN pAddUOM("CS", YES, "EA","Case", ipbf-itemfg.case-count, cSourceItemMaster, "Price,OrderQty,POQty,Cost", 3).
+            RUN pAddUOM("PLT", YES, "EA","Pallet", ipbf-itemfg.case-count * ipbf-itemfg.case-pall, cSourceItemMaster, "Price,OrderQty,POQty,Cost", 3).
+            RUN pAddUOM("BDL", YES, "EA","Case", ipbf-itemfg.case-count, cSourceItemMaster, "Price,OrderQty", 3).
         END.    
-        RUN pAddUOMsFromDimensions(ipbf-itemfg.t-len, ipbf-itemfg.t-wid, ipbf-itemfg.t-dep, "IN", cSourceItemMaster).
-        RUN pAddUOMsFromWeight(ipbf-itemfg.weight-100 / 100, "LB", cSourceItemMaster).    
+        RUN pAddUOMsFromDimensions(ipbf-itemfg.t-len, ipbf-itemfg.t-wid, ipbf-itemfg.t-dep, "IN", cSourceItemMaster, 3).
+        RUN pAddUOMsFromWeight(ipbf-itemfg.weight-100 / 100, "LB", cSourceItemMaster, 3).    
         /*            IF ipbf-itemfg.weight-100 GT 0 THEN DO:                                                                                  */
         /*                RUN pAddUOM("LB", YES, "EA","Pounds", 100 / ipbf-itemfg.weight-100 , cSourceItemMaster, "Price,OrderQty,POQty,Cost").*/
         /*            END.                                                                                                                     */
@@ -743,7 +795,7 @@ PROCEDURE pBuildUOMsForItemRM PRIVATE:
     IF AVAILABLE ipbf-item THEN 
     DO:   
         /*Add UOMs from item Master*/
-        RUN pAddUOMsFromDimensions(ipbf-item.s-len, ipbf-item.s-wid, ipbf-item.s-dep, "IN", cSourceItemMaster).
+        RUN pAddUOMsFromDimensions(ipbf-item.s-len, ipbf-item.s-wid, ipbf-item.s-dep, "IN", cSourceItemMaster, 3).
         
         IF ipbf-item.cons-uom EQ "LB" THEN 
         DO:
@@ -777,7 +829,7 @@ PROCEDURE pBuildUOMsForItemRM PRIVATE:
                 dLbsPerEA = ipbf-item.weight-100 / 100.
             END CASE.
         END.
-        RUN pAddUOMsFromWeight(dLbsPerEA, "LB", cSourceItemMaster).    
+        RUN pAddUOMsFromWeight(dLbsPerEA, "LB", cSourceItemMaster, 3).    
         
         /*Add UOMs from itemUOM table*/
         RUN pAddUOMsFromItemUOM(ipbf-item.company, ipbf-item.i-no, "RM", YES).
@@ -793,28 +845,28 @@ PROCEDURE pBuildBaseUOMs PRIVATE:
     DEFINE VARIABLE cPurposesForEA AS CHARACTER NO-UNDO INITIAL "Price,Cost,OrderQty,POQty,Stock" .
     DEFINE VARIABLE cSourceBase    AS CHARACTER NO-UNDO INITIAL "BaseDefault".
     DEFINE VARIABLE cSourceUOM     AS CHARACTER NO-UNDO INITIAL "UOM System Table".
-     
     DEFINE VARIABLE cPurposes      AS CHARACTER NO-UNDO.
+    
     EMPTY TEMP-TABLE ttUOM.
     
-    RUN pAddUOM("EA", YES, "EA","Each", 1, cSourceBase, cPurposesForEA).
-    RUN pAddUOM("M", YES, "EA","Thousand", 1000, cSourceBase, cPurposesForEA).
-    RUN pAddUOM("MSH", YES, "EA","Thousand Sheets", 1000, cSourceBase, cPurposesForEA).
-    RUN pAddUOM("DZ", YES, "EA","Dozen", 12, cSourceBase, cPurposesForEA).
-    RUN pAddUOM("DOZ", YES, "EA","Dozen", 12, cSourceBase, cPurposesForEA).
-    RUN pAddUOM("C", YES, "EA","Hundred", 100, cSourceBase, cPurposesForEA).
-    RUN pAddUOM("BDL", YES, "EA","Bundle", 1, cSourceBase, cPurposesForEA).
-    RUN pAddUOM("CAS", YES, "EA","Case", 1, cSourceBase, cPurposesForEA).
-    RUN pAddUOM("CS", YES, "EA","Case", 1, cSourceBase, cPurposesForEA).
-    RUN pAddUOM("SET", YES, "EA","Set", 1, cSourceBase, cPurposesForEA).
-    RUN pAddUOM("PKG", YES, "EA","Package", 1, cSourceBase, cPurposesForEA).
-    RUN pAddUOM("PLT", YES, "EA","Pallet", 1, cSourceBase, cPurposesForEA).
-    RUN pAddUOM("ROL", YES, "EA","Roll", 1, cSourceBase, cPurposesForEA).
-    RUN pAddUOM("ROLL", YES, "EA","Roll", 1, cSourceBase, cPurposesForEA).
-    RUN pAddUOM("DRM", YES, "EA","Drum", 1, cSourceBase, cPurposesForEA).
-    RUN pAddUOM("LB", YES, "EA","Pound (Weight)", 1, cSourceBase, cPurposesForEA).
-    RUN pAddUOM("LOT", YES, "EA","Lot", 1, cSourceBase,"Price,Cost").
-    RUN pAddUOM("L", YES, "EA","Lot", 1, cSourceBase, "Price,Cost").
+    RUN pAddUOM("EA", YES, "EA","Each", 1, cSourceBase, cPurposesForEA, 1).
+    RUN pAddUOM("M", YES, "EA","Thousand", 1000, cSourceBase, cPurposesForEA, 1).
+    RUN pAddUOM("MSH", YES, "EA","Thousand Sheets", 1000, cSourceBase, cPurposesForEA, 1).
+    RUN pAddUOM("DZ", YES, "EA","Dozen", 12, cSourceBase, cPurposesForEA, 1).
+    RUN pAddUOM("DOZ", YES, "EA","Dozen", 12, cSourceBase, cPurposesForEA, 1).
+    RUN pAddUOM("C", YES, "EA","Hundred", 100, cSourceBase, cPurposesForEA, 1).
+    RUN pAddUOM("BDL", YES, "EA","Bundle", 1, cSourceBase, cPurposesForEA, 1).
+    RUN pAddUOM("CAS", YES, "EA","Case", 1, cSourceBase, cPurposesForEA, 1).
+    RUN pAddUOM("CS", YES, "EA","Case", 1, cSourceBase, cPurposesForEA, 1).
+    RUN pAddUOM("SET", YES, "EA","Set", 1, cSourceBase, cPurposesForEA, 1).
+    RUN pAddUOM("PKG", YES, "EA","Package", 1, cSourceBase, cPurposesForEA, 1).
+    RUN pAddUOM("PLT", YES, "EA","Pallet", 1, cSourceBase, cPurposesForEA, 1).
+    RUN pAddUOM("ROL", YES, "EA","Roll", 1, cSourceBase, cPurposesForEA, 1).
+    RUN pAddUOM("ROLL", YES, "EA","Roll", 1, cSourceBase, cPurposesForEA, 1).
+    RUN pAddUOM("DRM", YES, "EA","Drum", 1, cSourceBase, cPurposesForEA, 1).
+    RUN pAddUOM("LB", YES, "EA","Pound (Weight)", 1, cSourceBase, cPurposesForEA, 1).
+    RUN pAddUOM("LOT", YES, "EA","Lot", 1, cSourceBase,"Price,Cost", 1).
+    RUN pAddUOM("L", YES, "EA","Lot", 1, cSourceBase, "Price,Cost", 1).
     
     FOR EACH uom NO-LOCK
         WHERE uom.Other NE ""
@@ -824,7 +876,7 @@ PROCEDURE pBuildBaseUOMs PRIVATE:
         ELSE 
             cPurposes = "".
             
-        RUN pAddUOM(uom.uom, YES, uom.other, uom.dscr, uom.mult, cSourceUOM, cPurposes).
+        RUN pAddUOM(uom.uom, YES, uom.other, uom.dscr, uom.mult, cSourceUOM, cPurposes, 2).
     END.
 
 END PROCEDURE.
@@ -850,10 +902,10 @@ PROCEDURE pBuildUOMsFromOverrides PRIVATE:
     DEFINE VARIABLE cWeightUOM      AS CHARACTER NO-UNDO.
     
     IF ipcItemType EQ "FG" AND ipdOverrideCount GT 0 THEN 
-        RUN pAddUOM("CS", YES, "EA","Case", ipdOverrideCount, cSourceOverride, "Price,OrderQty,POQty,Cost").
-    RUN pAddUOMsFromDimensions(ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM, cSourceOverride).
+        RUN pAddUOM("CS", YES, "EA","Case", ipdOverrideCount, cSourceOverride, "Price,OrderQty,POQty,Cost", 5).
+    RUN pAddUOMsFromDimensions(ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM, cSourceOverride, 5).
     RUN pGetWeightPerEA(ipdBasisWeight, ipcBasisWeightUOM, ipdDimLength, ipdDimWidth, ipcDimUOM, OUTPUT dWeightPerEA, OUTPUT cWeightUOM).   
-    RUN pAddUOMsFromWeight(dWeightPerEA, cWeightUOM, cSourceOverride).
+    RUN pAddUOMsFromWeight(dWeightPerEA, cWeightUOM, cSourceOverride, 5).
     
 END PROCEDURE.
 
@@ -1034,6 +1086,20 @@ PROCEDURE pGetWeightPerEA PRIVATE:
     
 END PROCEDURE.
 
+PROCEDURE pResetUOMsToBase PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Removes all ttUOM records gt 2 and sets all base back to isOverridden = NO.
+ Notes:
+------------------------------------------------------------------------------*/
+    FOR EACH ttUOM
+        BY iSourceLevel:
+        IF ttUOM.iSourceLevel GT 2 THEN 
+            DELETE ttUOM.
+        ELSE     
+            ttUom.isOverridden = NO.
+    END.
+
+END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
@@ -1049,8 +1115,7 @@ FUNCTION Conv_IsEAUOM RETURNS LOGICAL
         AND itemfg.i-no EQ ipcItemID
         NO-ERROR.
         
-    RUN pBuildBaseUOMs.        
-    IF fUseItemUOM(ipcCompany) AND AVAILABLE itemfg THEN
+    IF AVAILABLE itemfg THEN
         RUN pBuildUOMs(ROWID(itemfg)).
     
     FIND FIRST ttUOM NO-LOCK 
@@ -1141,6 +1206,7 @@ FUNCTION fUseItemUOM RETURNS LOGICAL PRIVATE
     DEFINE VARIABLE cReturn     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFound      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lUseItemUOM AS LOGICAL   NO-UNDO.
+    
     
     RUN sys/ref/nk1look.p (INPUT ipcCompany, "FGItemUoM", "L" /* Logical */, NO /* check by cust */, 
         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,

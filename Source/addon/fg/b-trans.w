@@ -61,6 +61,7 @@ DEFINE VARIABLE lFgEmails AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lPromptForClose AS LOGICAL NO-UNDO INITIAL YES.
+
 {pc/pcprdd4u.i NEW}
 {fg/invrecpt.i NEW}
 {jc/jcgl-sh.i  NEW}
@@ -143,12 +144,12 @@ fg-rctd.loc2 fg-rctd.loc-bin2 fg-rctd.i-name
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
       AND fg-rctd.company = gcompany and ~
 fg-rctd.rita-code = "T" and ~
-fg-rctd.created-by = USERID("NOSWEAT") NO-LOCK ~
+fg-rctd.created-by = USERID("ASI") NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
       AND fg-rctd.company = gcompany and ~
 fg-rctd.rita-code = "T" and ~
-fg-rctd.created-by = USERID("NOSWEAT") NO-LOCK ~
+fg-rctd.created-by = USERID("ASI") NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table fg-rctd
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table fg-rctd
@@ -223,7 +224,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       iLineCnt COLUMN-LABEL "#" FORMAT "99":U LABEL-BGCOLOR 14
       fg-rctd.tag COLUMN-LABEL "From!Tag" FORMAT "x(23)":U LABEL-BGCOLOR 14
-      fg-rctd.loc COLUMN-LABEL "From!Whse" FORMAT "x(13)":U WIDTH 8
+      fg-rctd.loc COLUMN-LABEL "From!Whse" FORMAT "x(13)":U WIDTH 7
             LABEL-BGCOLOR 14
       fg-rctd.loc-bin COLUMN-LABEL "From!Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
       fg-rctd.cases COLUMN-LABEL "Units" FORMAT ">>>,>>9":U WIDTH 9
@@ -360,7 +361,7 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "fg-rctd.company = gcompany and
 fg-rctd.rita-code = ""T"" and
-fg-rctd.created-by = USERID(""NOSWEAT"")"
+fg-rctd.created-by = USERID(""ASI"")"
      _FldNameList[1]   > "_<CALC>"
 "iLineCnt" "#" "99" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.fg-rctd.tag
@@ -994,10 +995,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE auto-post B-table-Win 
 PROCEDURE auto-post :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1025,12 +1025,11 @@ PROCEDURE auto-post :
           INPUT "R",         /* Receipts       */
           INPUT lFgEmails,   /* Send fg emails */
           INPUT YES,         /* Create work-gl */
-		  INPUT lPromptForClose, /* Executes .w closing orders logic */
+                  INPUT lPromptForClose, /* Executes .w closing orders logic */
           INPUT TABLE w-fg-rctd BY-reference,
           INPUT TABLE tt-fgemail BY-reference,
           INPUT TABLE tt-email BY-reference,
           INPUT TABLE tt-inv BY-reference).
-  
   END.
   ELSE ERROR-STATUS:ERROR = NO .
 
@@ -1156,9 +1155,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE is-in-update B-table-Win
-PROCEDURE is-in-update:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE is-in-update B-table-Win 
+PROCEDURE is-in-update :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1170,11 +1168,9 @@ PROCEDURE is-in-update:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE leave-tag B-table-Win 
 PROCEDURE leave-tag :
@@ -1211,7 +1207,7 @@ PROCEDURE leave-tag :
            AND b-fg-rctd.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} 
            AND b-fg-rctd.rita-code = "T" 
            AND ROWID(b-fg-rctd) NE ROWID (fg-rctd)
-           AND b-fg-rctd.created-by = USERID("nosweat")
+           AND b-fg-rctd.created-by = USERID("ASI")
          NO-LOCK:
         
         ASSIGN fg-rctd.loc2:SCREEN-VALUE = b-fg-rctd.loc2
@@ -1264,7 +1260,7 @@ DEF VAR wasmod AS LOG.
 /*        CREATE fg-rctd.                                                        */
 /*        ASSIGN fg-rctd.company = cocode                                        */
 /*               fg-rctd.rita-code = "T"                                         */
-/*               fg-rctd.created-by = USERID("NOSWEAT").                         */
+/*               fg-rctd.created-by = USERID("ASI").                         */
 /*        lv-recid = RECID(fg-rctd).                                             */
 /*        RUN dispatch ('open-query').                                           */
 /*                                                                               */
@@ -1484,7 +1480,7 @@ DEF BUFFER bf-reftable FOR reftable.
         AND b-fg-rctd.tag       EQ ""
         AND b-fg-rctd.loc       EQ ""
         AND b-fg-rctd.loc-bin   EQ ""
-        AND b-fg-rctd.created-by EQ USERID("NOSWEAT")
+        AND b-fg-rctd.created-by EQ USERID("ASI")
       NO-LOCK:
       FIND bf-fg-rctd WHERE ROWID(bf-fg-rctd) EQ ROWID(b-fg-rctd)
           EXCLUSIVE-LOCK NO-WAIT NO-ERROR.
@@ -1741,9 +1737,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win
-PROCEDURE local-exit:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit B-table-Win 
+PROCEDURE local-exit :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1760,11 +1755,9 @@ PROCEDURE local-exit:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record B-table-Win 
 PROCEDURE local-update-record :
@@ -1845,7 +1838,6 @@ v-progstack = (IF PROGRAM-NAME(1) NE ? THEN "," + PROGRAM-NAME(1) ELSE "")
   ELSE
       IF INDEX(v-progstack, "trnss") GT 0 THEN 
           RUN scan-next. /* Didn't work on the SS icon without this */
-
   v-dumb = NO NO-ERROR.
 END PROCEDURE.
 
@@ -1917,10 +1909,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-finish-goods B-table-Win
-PROCEDURE post-finish-goods:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-finish-goods B-table-Win 
+PROCEDURE post-finish-goods :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -1946,7 +1937,7 @@ PROCEDURE post-finish-goods:
         INPUT "T",         /* Receipts       */
         INPUT lFgEmails,   /* Send fg emails */
         INPUT YES,         /* create work-gl */
-		INPUT lPromptForClose,	/* Executes .w closing orders logic */
+                INPUT lPromptForClose,  /* Executes .w closing orders logic */
         INPUT TABLE w-fg-rctd BY-reference,
         INPUT TABLE tt-fgemail BY-reference,
         INPUT TABLE tt-email BY-reference,
@@ -1959,11 +1950,9 @@ PROCEDURE post-finish-goods:
 
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-record B-table-Win 
 PROCEDURE post-record :
@@ -2008,7 +1997,6 @@ PROCEDURE scan-next :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-source",OUTPUT char-hdl).
   RUN auto-add IN WIDGET-HANDLE(char-hdl).
 END PROCEDURE.
@@ -2455,8 +2443,6 @@ FUNCTION calc-ext-cost RETURNS DECIMAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-
-
   run get-matrix (true).
   return ext-cost.
   /* 

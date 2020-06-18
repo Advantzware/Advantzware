@@ -30,8 +30,17 @@ DEF INPUT PARAM ip-misc AS LOG NO-UNDO.
 def output param ls-add-what as cha no-undo.
 
 def SHARED var cocode     as   char  format "x(3)"  no-undo.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL  NO-UNDO.
+DEFINE VARIABLE lDisplayWood AS LOGICAL  NO-UNDO.
 
 {sys/inc/cadcam.i}
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CEWood", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lDisplayWood = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -128,7 +137,7 @@ DEFINE BUTTON Btn_itm-cad AUTO-GO
      BGCOLOR 8 .
 
 DEFINE BUTTON Btn_new-set AUTO-GO 
-     LABEL "&New Set Estimate" 
+     LABEL "&New Wood Set" 
      SIZE 26 BY 2.14
      BGCOLOR 8 .
 
@@ -438,7 +447,11 @@ IF fEnableMisc(cocode) THEN
         btn_est-rel:SENSITIVE = YES
         Btn_new-set:HIDDEN = NO
         Btn_new-set:SENSITIVE = YES
-        .    
+        . 
+ IF NOT lDisplayWood THEN
+ ASSIGN 
+    Btn_new-set:HIDDEN = YES
+    Btn_new-set:SENSITIVE = NO.
         
 IF fEnableImportForm(cocode) THEN 
     ASSIGN  

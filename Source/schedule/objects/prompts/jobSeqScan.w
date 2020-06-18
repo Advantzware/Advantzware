@@ -879,17 +879,11 @@ END.
 ON LEAVE OF svJob IN FRAME DEFAULT-FRAME /* Job */
 DO:
     ASSIGN {&SELF-NAME}.
-    RUN processScan.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svJob C-Win
-ON RETURN OF svJob IN FRAME DEFAULT-FRAME /* Job */
-DO:
-    APPLY "LEAVE":U TO SELF.
+    IF {&SELF-NAME} NE "" THEN DO:
+        RUN processScan.
+        APPLY "ENTRY":U TO {&SELF-NAME}.
+        RETURN NO-APPLY.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1838,7 +1832,6 @@ PROCEDURE processScan :
                     hJob = ?
                     .
             END. /* else */
-            APPLY "ENTRY":U TO svJob.
         END. /* not blank */
     END. /* with frame */
 

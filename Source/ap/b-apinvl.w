@@ -2941,6 +2941,7 @@ PROCEDURE valid-po-no :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR lv-msg AS CHAR NO-UNDO.
+  DEF VAR lv-msg2 AS CHAR NO-UNDO.
   DEFINE VARIABLE lMessage AS LOGICAL NO-UNDO.
   DEF BUFFER b-ap-invl FOR ap-invl.
   
@@ -2962,18 +2963,28 @@ PROCEDURE valid-po-no :
              ROWID(b-ap-invl) EQ ROWID(ap-invl)
              NO-LOCK NO-ERROR.
 
-        FOR EACH po-ordl NO-LOCK
-            WHERE po-ordl.company EQ po-ord.company
-              AND po-ordl.po-no   EQ po-ord.po-no:
-              IF po-ordl.t-rec-qty EQ 0 THEN DO:
+        FOR EACH po-ordl NO-LOCK WHERE 
+            po-ordl.company EQ po-ord.company AND 
+            po-ordl.po-no   EQ po-ord.po-no:
+            IF po-ordl.t-rec-qty EQ 0 THEN DO:
                 MESSAGE  "Do you want to verify receipt .. "
                           VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO                  
                 UPDATE lMessage.
                 IF lMessage THEN 
-                RUN pReCalculateRecQty.
-              END.                 
-          RUN ap/valid-po2.p (BUFFER po-ordl, BUFFER b-ap-invl ,OUTPUT lv-msg).
-          IF AVAIL po-ordl THEN LEAVE.
+                    RUN pReCalculateRecQty.
+            END.                 
+            RUN ap/valid-po2.p (BUFFER po-ordl, BUFFER b-ap-invl ,OUTPUT lv-msg2).
+            IF lv-msg2 NE "" THEN DO:
+                MESSAGE TRIM(lv-msg2) VIEW-AS ALERT-BOX WARNING buttons yes-no UPDATE lContinue AS LOG.
+                ASSIGN 
+                    lv-msg2 = "".
+                IF NOT lContinue THEN DO:
+                    APPLY "entry" TO ap-invl.po-no.
+                    RETURN ERROR.
+                END.
+            END.
+                
+            IF AVAIL po-ordl THEN LEAVE.
         END.
         IF NOT AVAIL po-ordl AND lv-msg EQ "" THEN lv-msg = "No Receipts exist for this PO".
       END.

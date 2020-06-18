@@ -115,7 +115,7 @@ FOR EACH ar-cash
                   WHEN "chk"    THEN cVarValue = IF v-header-chk = YES THEN STRING(ar-cash.check-no,">>>>>>>>>>") ELSE "".
                   WHEN "date"     THEN cVarValue = IF ar-cash.check-date <> ? AND v-header-chk = YES THEN STRING(ar-cash.check-date) ELSE "" .
                   WHEN "chs-rec"    THEN cVarValue = IF v-header-chk = YES THEN  STRING(tt-post.curr-amt,"->>>>>>9.99") ELSE "" .
-                  WHEN "inv"     THEN cVarValue = STRING(ar-cashl.inv-no,">>>>>9") .
+                  WHEN "inv"     THEN cVarValue = STRING(ar-cashl.inv-no,">>>>>>>>9") .
                   WHEN "org-amt"    THEN cVarValue = IF AVAIL ar-inv THEN string(ar-inv.net,"->>,>>>,>>9.99") ELSE "".
                   WHEN "amt-app"     THEN cVarValue = STRING((ar-cashl.amt-paid * tt-post.ex-rate )
                                                              + (ar-cashl.amt-disc * tt-post.ex-rate),"->,>>>,>>9.99" )  .

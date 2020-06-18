@@ -4676,6 +4676,7 @@ PROCEDURE pGetBusinessLogicTable :
             ttTable.tableDB       = "ASI"
             ttTable.businessLogic = YES
             .
+        RUN pDeleteProcedure IN hBusinessLogic.
     END. /* if search */
     ELSE DO:
         MESSAGE
