@@ -35,7 +35,12 @@
              v-program      = "oe/rep/bolpremx.p"
              is-xprint-form = YES
              lines-per-page = 72.
-      WHEN "PREMDSG" THEN
+      WHEN "PremCAN" THEN
+          ASSIGN
+             v-program      = "oe/rep/bolpremcan.p"
+             is-xprint-form = YES
+             lines-per-page = 72.
+       WHEN "PREMDSG" THEN
           ASSIGN
              v-program      = "oe/rep/bolpremdsc.p"
              is-xprint-form = YES
