@@ -2288,49 +2288,26 @@ PROCEDURE list-post-inv :
 
       RUN pRunAPIOutboundTrigger(BUFFER inv-head).
       
-      /* Determine whether legacy code will run via NK1 */
-        /* Create eddoc for invoice if required */
-      lCreateLegacy810 = YES.
-      FIND FIRST cust NO-LOCK 
-        WHERE cust.company EQ inv-head.company
-          AND cust.cust-no EQ inv-head.cust-no
-        NO-ERROR. 
-      IF AVAILABLE cust AND cust.ASNClientID NE "" THEN DO:
-        RUN sys/ref/nk1look.p (
-            INPUT  inv-head.company,      /* Company Code */
-            INPUT  "EdiInvoice",    /* sys-ctrl name */
-            INPUT  "L",             /* Output return value */
-            INPUT  YES,             /* Use ship-to */
-            INPUT  YES,             /* ship-to vendor */
-            INPUT  cust.AsnClientID, /* ship-to vendor value */
-            INPUT  "",              /* ship-id value */
-            OUTPUT opcCreateEdiInvoice, 
-            OUTPUT lRecFound
-            ).    
-            IF lRecFound THEN 
-              lCreateLegacy810 = LOGICAL(opcCreateEdiInvoice).
+      /* Create eddoc for invoice if required */
+       
+      RUN ed/asi/o810hook.p (recid(inv-head), no, no).
+      FIND FIRST edmast NO-LOCK
+          WHERE edmast.cust EQ inv-head.cust-no
+          NO-ERROR.
+      IF AVAIL edmast THEN
+      DO:
+          FIND FIRST edcode NO-LOCK
+              WHERE edcode.partner EQ edmast.partner
+              NO-ERROR.
+          IF NOT AVAIL edcode THEN
+              FIND FIRST edcode NO-LOCK
+                  WHERE edcode.partner EQ edmast.partnerGrp
+                  NO-ERROR.
+      END.
 
-        END.                       
-        
-        IF lCreateLegacy810 THEN DO:
-            RUN ed/asi/o810hook.p (recid(inv-head), no, no).
-            FIND FIRST edmast NO-LOCK
-                WHERE edmast.cust EQ inv-head.cust-no
-                NO-ERROR.
-            IF AVAIL edmast THEN
-            DO:
-                FIND FIRST edcode NO-LOCK
-                    WHERE edcode.partner EQ edmast.partner
-                    NO-ERROR.
-                IF NOT AVAIL edcode THEN
-                    FIND FIRST edcode NO-LOCK
-                        WHERE edcode.partner EQ edmast.partnerGrp
-                        NO-ERROR.
-            END.
-    
-            IF AVAIL edcode AND edcode.sendFileOnPrint THEN
-                RUN ed/asi/write810.p (INPUT cocode, INPUT inv-head.inv-no).
-        END.
+      IF AVAIL edcode AND edcode.sendFileOnPrint THEN
+          RUN ed/asi/write810.p (INPUT cocode, INPUT inv-head.inv-no).
+
     {oe/r-inve&p.i}
   END.
 
