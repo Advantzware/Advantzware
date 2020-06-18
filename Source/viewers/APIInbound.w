@@ -43,6 +43,9 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE lSuperAdmin AS LOGICAL NO-UNDO.
 
+DEFINE VARIABLE hdFileSysProcs AS HANDLE NO-UNDO.
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
+
 DEFINE VARIABLE hdPgmMstrSecur AS HANDLE NO-UNDO.
 RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmMstrSecur.
 
@@ -78,13 +81,14 @@ DELETE PROCEDURE hdPgmMstrSecur.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR APIInbound.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS APIInbound.apiRoute APIInbound.requestHandler 
+&Scoped-Define ENABLED-FIELDS APIInbound.apiRoute APIInbound.requestHandler ~
+APIInbound.importPath 
 &Scoped-define ENABLED-TABLES APIInbound
 &Scoped-define FIRST-ENABLED-TABLE APIInbound
 &Scoped-Define ENABLED-OBJECTS RECT-27 RECT-28 edDescription edRequestData ~
 edResponseData 
 &Scoped-Define DISPLAYED-FIELDS APIInbound.apiRoute ~
-APIInbound.requestHandler 
+APIInbound.requestHandler APIInbound.importPath 
 &Scoped-define DISPLAYED-TABLES APIInbound
 &Scoped-define FIRST-DISPLAYED-TABLE APIInbound
 &Scoped-Define DISPLAYED-OBJECTS fiMessage tgInactive edDescription ~
@@ -160,11 +164,11 @@ DEFINE VARIABLE fiMessage AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-27
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 143 BY 7.38.
+     SIZE 143 BY 7.62.
 
 DEFINE RECTANGLE RECT-28
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 143 BY 9.29.
+     SIZE 143 BY 9.05.
 
 DEFINE RECTANGLE RECT-29
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -193,25 +197,28 @@ DEFINE FRAME F-Main
           SIZE 87 BY 1
           BGCOLOR 15 
      tgInactive AT ROW 2.81 COL 115.4 WIDGET-ID 28
-     edDescription AT ROW 4.24 COL 23 NO-LABEL WIDGET-ID 34
-     cbRequestDataType AT ROW 6.95 COL 92.8 COLON-ALIGNED WIDGET-ID 40
-     cbRequestVerb AT ROW 7 COL 21 COLON-ALIGNED WIDGET-ID 42
-     tgCanBeQueued AT ROW 8.38 COL 115.4 WIDGET-ID 38
-     APIInbound.requestHandler AT ROW 8.43 COL 21 COLON-ALIGNED WIDGET-ID 12
+     edDescription AT ROW 3.81 COL 23 NO-LABEL WIDGET-ID 34
+     cbRequestDataType AT ROW 6.29 COL 92.8 COLON-ALIGNED WIDGET-ID 40
+     cbRequestVerb AT ROW 6.33 COL 21 COLON-ALIGNED WIDGET-ID 42
+     tgCanBeQueued AT ROW 7.43 COL 115.4 WIDGET-ID 38
+     APIInbound.requestHandler AT ROW 7.48 COL 21 COLON-ALIGNED WIDGET-ID 12
           LABEL "Request Handler" FORMAT "x(80)"
           VIEW-AS FILL-IN 
           SIZE 88 BY 1
           BGCOLOR 15 
-     edRequestData AT ROW 10.29 COL 23 NO-LABEL WIDGET-ID 48
+     APIInbound.importPath AT ROW 8.71 COL 21 COLON-ALIGNED WIDGET-ID 64
+          VIEW-AS FILL-IN 
+          SIZE 88 BY 1
+     edRequestData AT ROW 10.52 COL 23 NO-LABEL WIDGET-ID 48
      edResponseData AT ROW 14.95 COL 23 NO-LABEL WIDGET-ID 54
      "Response Data:" VIEW-AS TEXT
           SIZE 18.2 BY .62 AT ROW 15 COL 4 WIDGET-ID 56
-     "Request Data:" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 10.33 COL 6.2 WIDGET-ID 50
      "Description:" VIEW-AS TEXT
-          SIZE 14.2 BY .62 AT ROW 4.33 COL 8 WIDGET-ID 36
+          SIZE 14 BY .62 AT ROW 3.91 COL 9 WIDGET-ID 36
+     "Request Data:" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 10.57 COL 6.2 WIDGET-ID 50
      RECT-27 AT ROW 2.43 COL 2 WIDGET-ID 58
-     RECT-28 AT ROW 10.05 COL 2 WIDGET-ID 60
+     RECT-28 AT ROW 10.29 COL 2 WIDGET-ID 60
      RECT-29 AT ROW 1 COL 1 WIDGET-ID 62
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -314,6 +321,31 @@ ASSIGN
 
  
 
+
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME APIInbound.importPath
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL APIInbound.importPath V-table-Win
+ON HELP OF APIInbound.importPath IN FRAME F-Main /* Import Path */
+DO:
+    DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValid    AS LOGICAL  NO-UNDO.
+   
+    SYSTEM-DIALOG
+    GET-DIR cFileName 
+    TITLE "Select path to import files"
+    UPDATE lvalid.
+      
+    IF lValid THEN 
+        SELF:SCREEN-VALUE = cFileName.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
@@ -698,6 +730,17 @@ PROCEDURE pFieldValidations :
     IF APIInbound.apiRoute:SCREEN-VALUE EQ "" THEN DO:
         opcMessage = "API Route cannot be empty".
         RETURN.
+    END.
+
+    IF APIInbound.importPath:SCREEN-VALUE NE "" THEN DO:
+        RUN FileSys_CreateDirectory IN hdFileSysProcs (
+            INPUT  APIInbound.importPath:SCREEN-VALUE,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ) NO-ERROR.
+        
+        IF NOT oplSuccess THEN
+            RETURN.
     END.
     
     oplSuccess = TRUE.
