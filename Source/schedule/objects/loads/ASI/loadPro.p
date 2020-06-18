@@ -7,7 +7,7 @@
 &SCOPED-DEFINE Fleetwood ASI/Fleetwood
 /* add new fields to procedures loadUserFieldLabelWidth & setUseFields below */
 /* add userField to rptFields.dat, see config.w definitions section to enable field */
-&SCOPED-DEFINE nextUserField 109
+&SCOPED-DEFINE nextUserField 110
 
 /* when expanding userFields mod the following:
    1. scopDir.i (userExtent)
@@ -895,10 +895,16 @@ FOR EACH job-hdr NO-LOCK
             unitFound = YES
             .
       END. /* do i */
-      userField[107] = setUserField(107,STRING(eb.t-len) + " x "
-                     + STRING(eb.t-wid) + " x "
-                     + STRING(eb.dep)
-                     ).
+      DO i = 1 TO EXTENT(eb.k-wid-array2):
+          IF eb.k-wid-array2[i] NE 0 THEN
+          userField[108] = userField[108] + STRING(eb.k-wid-array2[i]) + "x".
+          IF eb.k-len-array2[i] NE 0 THEN
+          userField[109] = userField[109] + STRING(eb.k-len-array2[i]) + "x".
+      END. /* do i */
+      ASSIGN
+          userField[108] = TRIM(userField[108],"x")
+          userField[109] = TRIM(userField[109],"x")
+          .
     END. /* avail eb */
     
     IF ufCust THEN DO:
@@ -1095,7 +1101,7 @@ FOR EACH job-hdr NO-LOCK
       userField[103] = setUserField(103,specialTime(INTEGER(TRUNCATE(job-mch.run-hr,0) * 3600 + (job-mch.run-hr - TRUNCATE(job-mch.run-hr,0)) * 3600)))
       userField[104] = setUserField(104,job-mch.job-no + '-' + STRING(job-mch.job-no2,'99'))
       userField[105] = setUserField(105,STRING(timeSpan / 3600,">>,>>9.99"))
-      userField[108] = setUserField(108,STRING(job-hdr.qty,'>>,>>>,>>9'))
+      userField[107] = setUserField(107,STRING(job-hdr.qty,'>>,>>>,>>9'))
       jobDescription = jobText
       .
     IF AVAILABLE itemfg AND NOT job-mch.run-qty * itemfg.t-sqft / 1000 LT 1000000 THEN
@@ -1914,8 +1920,9 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[104] = 'Job-Run'           userWidth[104] = 12
     userLabel[105] = 'Tot. Time'         userWidth[105] = 8
     userLabel[106] = 'Ink LBS'           userWidth[106] = 12
-    userLabel[107] = 'Score (L x W x D)' userWidth[107] = 24
-    userLabel[108] = 'Job Qty'           userWidth[108] = 12
+    userLabel[107] = 'Job Qty'           userWidth[107] = 12
+    userLabel[108] = 'Score (on Width)'  userWidth[108] = 24
+    userLabel[109] = 'Score (on Length)' userWidth[109] = 24
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */
@@ -1971,19 +1978,23 @@ PROCEDURE setUseFields:
            useField[13] OR useField[14] OR useField[24] OR useField[25] OR useField[28] OR useField[35] OR
            useField[41] OR useField[42] OR useField[43] OR useField[44] OR useField[45] OR useField[46] OR
            useField[47] OR useField[48] OR useField[49] OR useField[50] OR useField[51] OR useField[53] OR
-           useField[60] OR useField[65] OR useField[66] OR useField[67] OR useField[68]
+           useField[60] OR useField[65] OR useField[66] OR useField[67] OR useField[68] OR useField[108] OR
+           useField[109]
     ufEF = useField[3] OR useField[22] OR useField[23] OR useField[58] OR useField[59]
     ufEst = useField[26] OR useField[27]
     ufGetSalesRep = useField[36]
-    ufIPJobMaterial = useField[3] OR useField[14] OR useField[55] OR useField[56] OR useField[61] OR useField[62] OR useField[70] OR useField[71] OR useField[78] OR useField[79] OR useField[81] OR useField[93] OR useField[94] OR useField[95] OR useField[106]
+    ufIPJobMaterial = useField[3] OR useField[14] OR useField[55] OR useField[56] OR useField[61] OR
+                      useField[62] OR useField[70] OR useField[71] OR useField[78] OR useField[79] OR
+                      useField[81] OR useField[93] OR useField[94] OR useField[95] OR useField[106]
     ufIPJobMatField = useField[29] OR useField[30] OR useField[31] OR useField[32] OR useField[33]
     ufIPJobSet = useField[65] OR useField[66] OR useField[67] OR useField[68]
     ufItemFG = useField[21] OR useField[34] OR useField[52] OR useField[54] OR useField[64] OR useField[98] OR useField[99]
-    ufJob = useField[89] OR useField[108]
-    ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20] OR useField[85] OR useField[88] OR useField[96] OR useField[97] OR useField[100] OR useField[101] OR useField[104] OR useField[105]
+    ufJob = useField[89] OR useField[107]
+    ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20] OR useField[85] OR useField[88] OR
+               useField[96] OR useField[97] OR useField[100] OR useField[101] OR useField[104] OR useField[105]
     ufOEOrdl = useField[82] OR useField[84] OR useField[86] OR useField[87]
     ufOERel = useField[37] OR useField[38] OR useField[39] OR useField[40] OR useField[52] OR useField[63]OR useField[91]
-    ufPOOrdl = useField[7] OR useField[16] OR useField[17] OR useField[35] OR useField[107]
+    ufPOOrdl = useField[7] OR useField[16] OR useField[17] OR useField[35]
     ufProdQty = useField[57]
     ufPrep = useField[80]
     ufDC = useField[90]
