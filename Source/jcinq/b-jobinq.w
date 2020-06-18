@@ -102,7 +102,7 @@ END.
           AND job-hdr.job-no    BEGINS fi_job-no    ~
           AND (job-hdr.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "") ~
           AND (job-hdr.due-date GE fiBeginDate OR fiBeginDate EQ ?) ~
-          AND  job-hdr.due-date LE fiEndDate
+          AND (job-hdr.due-date LE fiEndDate OR fiEndDate EQ ?)
 
 &SCOPED-DEFINE for-each1l                            ~
     FOR EACH job-hdr                                ~
@@ -1065,10 +1065,8 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
                             INPUT YES,OUTPUT lActive).
 {sys/inc/chblankcust.i "v-whereamI" }
 
-ASSIGN 
-    FI_moveCol = "Sort"
-    fiEndDate  = TODAY
-    .
+FI_moveCol = "Sort".
+ 
 DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
 
 /* _UIB-CODE-BLOCK-END */
