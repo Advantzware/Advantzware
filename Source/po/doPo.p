@@ -4777,11 +4777,15 @@ PROCEDURE wJobFromJobMat :
     DEFINE INPUT  PARAMETER iprJob    AS ROWID       NO-UNDO.
     DEFINE INPUT  PARAMETER iprOeOrdl AS ROWID       NO-UNDO.
 
-    DEFINE BUFFER bf-ordl FOR oe-ordl.
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
     DEFINE BUFFER bf-job  FOR job.
+    
+    DEFINE VARIABLE cFGItemID AS CHARACTER NO-UNDO.
+    
     FIND bf-job NO-LOCK WHERE ROWID(bf-job) EQ iprJob NO-ERROR.
-    FIND bf-ordl NO-LOCK WHERE ROWID(bf-ordl) EQ iprOeOrdl NO-ERROR.
-
+    FIND bf-oe-ordl NO-LOCK WHERE ROWID(bf-oe-ordl) EQ iprOeOrdl NO-ERROR.
+    IF AVAILABLE bf-ordl THEN 
+        cFGItemID = bf-oe-ordl.i-no.
 
     FOR EACH job-mat NO-LOCK
         WHERE job-mat.company EQ bf-job.company
@@ -4812,7 +4816,7 @@ PROCEDURE wJobFromJobMat :
             AND b-jc-calc.code     EQ STRING(bf-job.job,"999999999")
             AND b-jc-calc.val[12]  EQ job-mat.frm
             AND (b-jc-calc.val[13] EQ job-mat.blank-no OR job-mat.blank-no EQ 0)
-            AND b-jc-calc.code2    NE bf-ordl.i-no
+            AND b-jc-calc.code2    NE cFGItemID
             NO-ERROR.
         IF gvlDebug THEN             
             PUT STREAM sDebug UNFORMATTED "Create w-job-mat from job-mat " job-mat.i-no " f " job-mat.frm " b " job-mat.blank-no SKIP.
@@ -4825,7 +4829,7 @@ PROCEDURE wJobFromJobMat :
             w-job-mat.dep          = item.s-dep
             w-job-mat.basis-w      = item.basis-w
             w-job-mat.fg-i-no      = IF AVAILABLE b-jc-calc THEN b-jc-calc.code2
-                                               ELSE bf-ordl.i-no.
+                                               ELSE cFGItemID.
         IF w-job-mat.dep EQ 0 THEN w-job-mat.dep = job-mat.dep.
     END. /* each job-mat */
 
