@@ -976,7 +976,7 @@ CASE ip-nk1-value:
             INPUT 0,                                             /* Int value */
             INPUT NO,                                           /* Logical value */ 
             INPUT 0                                              /* dec value*/
-            ).
+            ).  
     WHEN "JobBuildVersion" THEN 
         RUN sys/inc/addnk1.p (
             INPUT cocode, 

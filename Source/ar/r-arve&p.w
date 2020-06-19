@@ -1125,32 +1125,38 @@ do transaction on error undo with width 255:
        run ar/sonoinv.p ("ar-inv", recid(ar-inv), output v-rec-written).
        assign t-rec-written = t-rec-written + v-rec-written.
      end.
-     IF ar-inv.EdiInvoice THEN 
-       RUN pRunAPIOutboundTrigger(BUFFER ar-inv).
-     
-/*      /* Create eddoc for invoice if required */                        */
-/*      FIND FIRST edmast NO-LOCK                                         */
-/*          WHERE edmast.cust EQ ar-inv.cust-no                           */
-/*          NO-ERROR.                                                     */
-/*      IF AVAILABLE edmast AND ar-inv.ediInvoice THEN DO:                */
-/*          FIND FIRST eddoc NO-LOCK                                      */
-/*            WHERE eddoc.setid EQ '810'                                  */
-/*              AND eddoc.partner EQ edmast.partner                       */
-/*              AND eddoc.docid = STRING(ar-inv.inv-no)                   */
-/*            NO-ERROR.                                                   */
-/*          IF NOT AVAILABLE eddoc THEN DO:                               */
-/*            RUN ed/asi/o810hook.p (recid(ar-inv), no, no).              */
-/*            FIND FIRST edcode NO-LOCK                                   */
-/*                WHERE edcode.partner EQ edmast.partner                  */
-/*                NO-ERROR.                                               */
-/*            IF NOT AVAIL edcode THEN                                    */
-/*               FIND FIRST edcode NO-LOCK                                */
-/*                  WHERE edcode.partner EQ edmast.partnerGrp             */
-/*                  NO-ERROR.                                             */
-/*            IF AVAIL edcode AND edcode.sendFileOnPrint THEN             */
-/*              RUN ed/asi/write810.p (INPUT cocode, INPUT ar-inv.inv-no).*/
-/*          END. /* If eddoc not available */                             */
-/*      END. /* If edi 810 customer */                                    */
+     IF ar-inv.EdiInvoice THEN DO: 
+    
+          RUN pRunAPIOutboundTrigger(BUFFER ar-inv).
+                     
+           
+          RUN ed/asi/o810hook.p (recid(inv-head), no, no).          
+          
+          /* Create eddoc for invoice if required */
+          FIND FIRST edmast NO-LOCK
+              WHERE edmast.cust EQ ar-inv.cust-no
+              NO-ERROR.
+          IF AVAILABLE edmast AND ar-inv.ediInvoice THEN DO:
+              FIND FIRST eddoc NO-LOCK
+                WHERE eddoc.setid EQ '810'
+                  AND eddoc.partner EQ edmast.partner
+                  AND eddoc.docid = STRING(ar-inv.inv-no)
+                NO-ERROR.
+              IF NOT AVAILABLE eddoc THEN DO:
+                RUN ed/asi/o810hook.p (recid(ar-inv), no, no).
+                FIND FIRST edcode NO-LOCK
+                    WHERE edcode.partner EQ edmast.partner
+                    NO-ERROR.
+                IF NOT AVAIL edcode THEN
+                   FIND FIRST edcode NO-LOCK
+                      WHERE edcode.partner EQ edmast.partnerGrp
+                      NO-ERROR.
+                IF AVAIL edcode AND edcode.sendFileOnPrint THEN
+                  RUN ed/asi/write810.p (INPUT cocode, INPUT ar-inv.inv-no).
+              END. /* If eddoc not available */
+          END. /* If edi 810 customer */
+           
+      END. /* If an edi invoice */
     find first cust
         {sys/ref/custW.i}
           and cust.cust-no eq ar-inv.cust-no
