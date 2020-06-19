@@ -23,7 +23,7 @@ DEFINE VARIABLE hdSession AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdOutputProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lNew AS LOGICAL NO-UNDO INITIAL YES.
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO INITIAL '001'.
-DEFINE VARIABLE cJobID AS CHARACTER NO-UNDO INITIAL 'W14301'.
+DEFINE VARIABLE cJobID AS CHARACTER NO-UNDO INITIAL 'W14347'.
 DEFINE VARIABLE iJobID2 AS INTEGER NO-UNDO INITIAL 0.
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -46,15 +46,17 @@ PROCEDURE pExport PRIVATE:
     DEFINE INPUT PARAMETER iphdTT AS HANDLE NO-UNDO.
     DEFINE INPUT PARAMETER ipcName AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTempFolder AS CHARACTER NO-UNDO.
     
     ASSIGN 
         cTempFolder = "C:\temp\"
         ipcName = (IF lNew THEN "New" ELSE "Old") + ipcName + TRIM(cJobID) + "-" + STRING(iJobID2,"99")
-        ipcName = ipcName + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")
+        //ipcName = ipcName + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")
         .
     
-    RUN Output_TempTableToCSV(iphdTT, cTempFolder + "\" + ipcName + ".csv", YES).
+    RUN Output_TempTableToCSV(iphdTT, cTempFolder + "\" + ipcName + ".csv", YES, NO, OUTPUT lError, OUTPUT cErrorMessage).
     
 END PROCEDURE.
 

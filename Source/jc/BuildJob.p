@@ -75,7 +75,7 @@ PROCEDURE pBuildFarm PRIVATE:
                 bf-job-farm.i-no     = estCostMaterial.itemID
                 .
         END.
-        CREATE ttJobMatToKeep.
+        CREATE ttJobFarmToKeep.
         ASSIGN 
             ttJobFarmToKeep.riJobFarm = ROWID(bf-job-farm)
             bf-job-farm.len           = estCostMaterial.dimLength
@@ -110,7 +110,8 @@ PROCEDURE pBuildJob PRIVATE:
     FIND FIRST bf-job NO-LOCK 
         WHERE ROWID(bf-job) EQ ipriJob
         NO-ERROR.
-    IF AVAILABLE bf-job THEN DO:
+    IF AVAILABLE bf-job THEN 
+    DO:
         RUN pCalcEstimateForJob(BUFFER bf-job, 0, OUTPUT iEstCostHeaderID).
         RUN pBuildHeaders(iEstCostHeaderID, BUFFER bf-job).
         RUN pBuildMaterials(iEstCostHeaderID, BUFFER bf-job).
@@ -121,7 +122,7 @@ PROCEDURE pBuildJob PRIVATE:
     END.
     ELSE 
         ASSIGN 
-            oplError = YES
+            oplError        = YES
             opcErrorMessage = "Invalid Job Row ID"
             .
 
@@ -134,17 +135,28 @@ PROCEDURE pBuildHeaders PRIVATE:
         Notes:
        ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
-    DEFINE PARAMETER BUFFER ipbf-job   FOR job.
+    DEFINE PARAMETER BUFFER ipbf-job    FOR job.
     
-    DEFINE           BUFFER bf-job-hdr FOR job-hdr.
+    DEFINE           BUFFER bf-job-hdr  FOR job-hdr.
+    DEFINE           BUFFER bf-reftable FOR reftable.
     
     DEFINE VARIABLE dQtyInM AS DECIMAL NO-UNDO.
     
+    FOR EACH bf-reftable
+        WHERE bf-reftable.reftable EQ "jc/jc-calc.p"
+        AND bf-reftable.company  EQ ipbf-job.company
+        AND bf-reftable.loc      EQ ""
+        AND bf-reftable.code     EQ STRING(ipbf-job.job,"999999999")
+        TRANSACTION:
+        DELETE bf-reftable.
+    END.
     FOR EACH estCostBlank NO-LOCK
         WHERE estCostBlank.estCostHeaderID EQ ipiEstCostHeaderID,
-            FIRST estCostItem NO-LOCK 
-            WHERE estCostItem.estCostHeaderID EQ estCostBlank.estCostHeaderID
-            AND estCostItem.estCostItemID EQ estCostBlank.estCostItemID:
+        FIRST estCostItem NO-LOCK 
+        WHERE estCostItem.estCostHeaderID EQ estCostBlank.estCostHeaderID
+        AND estCostItem.estCostItemID EQ estCostBlank.estCostItemID,
+        FIRST estCostHeader NO-LOCK 
+        WHERE estCostHeader.estCostHeaderID EQ estCostBlank.estCostHeaderID:
         FIND FIRST bf-job-hdr EXCLUSIVE-LOCK 
             WHERE bf-job-hdr.company EQ ipbf-job.company
             AND bf-job-hdr.job EQ ipbf-job.job
@@ -165,12 +177,14 @@ PROCEDURE pBuildHeaders PRIVATE:
                 bf-job-hdr.frm      = estCostBlank.formNo
                 bf-job-hdr.blank-no = estCostBlank.blankNo
                 bf-job-hdr.i-no     = estCostItem.itemID
-               
+                bf-job-hdr.qty      = estCostBlank.quantityRequired
+                bf-job-hdr.cust-no  = estCostItem.customerID
+                bf-job-hdr.est-no   = ipbf-job.est-no
                 .
         END.
         CREATE ttJobHdrToKeep.
         ASSIGN 
-            dQtyInM = bf-job-hdr.qty / 1000
+            dQtyInM                 = bf-job-hdr.qty / 1000
             ttJobHdrToKeep.riJobHdr = ROWID(bf-job-hdr)
             bf-job-hdr.std-tot-cost = estCostItem.costTotalFactory / dQtyInM
             bf-job-hdr.std-mat-cost = estCostItem.costTotalMaterial / dQtyInM
@@ -178,8 +192,42 @@ PROCEDURE pBuildHeaders PRIVATE:
             bf-job-hdr.std-var-cost = estCostItem.costTotalVariableOverhead / dQtyInM
             bf-job-hdr.std-fix-cost = estCostItem.costTotalFixedOverhead / dQtyInM
             .
+        IF estCostHeader.estType EQ "Set" AND NOT estCostItem.isSet THEN 
+        DO:
+            FIND FIRST bf-reftable
+                WHERE bf-reftable.reftable EQ "jc/jc-calc.p"
+                AND bf-reftable.company  EQ ipbf-job.company
+                AND bf-reftable.loc      EQ ""
+                AND bf-reftable.code     EQ STRING(ipbf-job.job,"999999999")
+                AND bf-reftable.code2    EQ estCostItem.itemID
+                AND bf-reftable.val[12]  EQ estCostBlank.formNo
+                AND bf-reftable.val[13]  EQ estCostBlank.blankNo
+                USE-INDEX reftable NO-ERROR.
+            IF NOT AVAILABLE bf-reftable THEN 
+            DO:
+                CREATE bf-reftable.
+                ASSIGN
+                    bf-reftable.reftable = "jc/jc-calc.p"
+                    bf-reftable.company  = ipbf-job.company
+                    bf-reftable.loc      = ""
+                    bf-reftable.code     = STRING(ipbf-job.job,"999999999")
+                    bf-reftable.code2    = estCostItem.itemID
+                    bf-reftable.val[12]  = estCostBlank.formNo
+                    bf-reftable.val[13]  = estCostBlank.blankNo
+                    bf-reftable.val[11]  = estCostBlank.numOut
+                    .
+            END.
+            ASSIGN
+                bf-reftable.val[1] = bf-reftable.val[1] + bf-job-hdr.std-lab-cost
+                bf-reftable.val[2] = bf-reftable.val[2] + bf-job-hdr.std-mat-cost
+                bf-reftable.val[3] = bf-reftable.val[3] + bf-job-hdr.std-var-cost
+                bf-reftable.val[4] = bf-reftable.val[4] + bf-job-hdr.std-fix-cost
+                bf-reftable.val[5] = bf-reftable.val[1] + bf-reftable.val[2] +
+                         bf-reftable.val[3] + bf-reftable.val[4].
+        END.
     END.
     RELEASE bf-job-hdr.
+    RELEASE bf-reftable.
     
 END PROCEDURE.
 
@@ -294,8 +342,50 @@ PROCEDURE pBuildMaterials PRIVATE:
             bf-job-mat.cost-m       = estCostMaterial.costTotalPerMFinished
             .
     END.
+    FOR EACH estCostMisc NO-LOCK 
+        WHERE estCostMisc.estCostHeaderID EQ ipiEstCostHeaderID
+        AND LOOKUP(estCostMisc.simon,"S,N,O") EQ 0
+        AND estCostMisc.costType EQ "Mat"
+        AND estCostMisc.itemID NE "",
+        FIRST ITEM NO-LOCK 
+            WHERE ITEM.company EQ estCostMisc.company
+            AND ITEM.i-no EQ estCostMisc.itemID:
+        
+        FIND FIRST bf-job-mat EXCLUSIVE-LOCK 
+            WHERE bf-job-mat.company EQ ipbf-job.company
+            AND bf-job-mat.job EQ ipbf-job.job
+            AND bf-job-mat.job-no EQ ipbf-job.job-no
+            AND bf-job-mat.job-no2 EQ ipbf-job.job-no2
+            AND bf-job-mat.frm EQ estCostMisc.formNo
+            AND bf-job-mat.blank-no EQ estCostMisc.blankNo
+            AND bf-job-mat.i-no EQ estCostMisc.itemID
+            NO-ERROR.
+        IF NOT AVAILABLE bf-job-mat THEN 
+        DO:
+            CREATE bf-job-mat.
+            ASSIGN 
+                bf-job-mat.company  = ipbf-job.company
+                bf-job-mat.job      = ipbf-job.job
+                bf-job-mat.job-no   = ipbf-job.job-no
+                bf-job-mat.job-no2  = ipbf-job.job-no2
+                bf-job-mat.frm      = estCostMisc.formNo
+                bf-job-mat.blank-no = estCostMisc.blankNo
+                bf-job-mat.i-no     = estCostMisc.itemID
+                bf-job-mat.rm-i-no  = estCostMisc.itemID
+                .
+        END.        
+        CREATE ttJobMatToKeep.
+        ASSIGN 
+            ttJobMatToKeep.riJobMat = ROWID(bf-job-mat)
+            bf-job-mat.qty          = estCostMisc.quantityRequiredTotal
+            bf-job-mat.qty-uom      = "EA"
+            bf-job-mat.std-cost     = estCostMisc.costPerUOM
+            bf-job-mat.sc-uom       = estCostMisc.costUOM
+            bf-job-mat.cost-m       = estCostMisc.costTotalPerMFinished
+            .
+    END.    
     RELEASE bf-job-mat.
-    
+        
 END PROCEDURE.
 
 PROCEDURE pBuildMisc PRIVATE:
@@ -310,7 +400,10 @@ PROCEDURE pBuildMisc PRIVATE:
     DEFINE           BUFFER bf-job-prep FOR job-prep.
     
     FOR EACH estCostMisc NO-LOCK
-        WHERE estCostMisc.estCostHeaderID EQ ipiEstCostHeaderID:
+        WHERE estCostMisc.estCostHeaderID EQ ipiEstCostHeaderID
+        AND LOOKUP(estCostMisc.simon,"S,N,O") EQ 0
+        AND (estCostMisc.itemID EQ "" 
+            OR NOT CAN-FIND(FIRST ITEM WHERE ITEM.company EQ estCostMisc.company AND ITEM.i-no EQ estCostMisc.itemID)):
         FIND FIRST bf-job-prep EXCLUSIVE-LOCK 
             WHERE bf-job-prep.company EQ ipbf-job.company
             AND bf-job-prep.job EQ ipbf-job.job
@@ -330,12 +423,18 @@ PROCEDURE pBuildMisc PRIVATE:
                 bf-job-prep.job-no2  = ipbf-job.job-no2
                 bf-job-prep.frm      = estCostMisc.formNo
                 bf-job-prep.blank-no = estCostMisc.blankNo
-                bf-job-prep.code     = estCostMisc.itemID
+                bf-job-prep.code     = estCostMisc.prepID
+                bf-job-prep.simon    = estCostMisc.simon
                 .
         END.
         CREATE ttJobPrepToKeep.
         ASSIGN 
             ttJobPrepToKeep.riJobPrep = ROWID(bf-job-prep)
+            bf-job-prep.cost-m = estCostMisc.costTotalPerMFinished
+            bf-job-prep.qty = estCostMisc.quantityRequiredTotal
+            bf-job-prep.ml = estCostMisc.costType EQ "Mat"
+            bf-job-prep.std-cost = estCostMisc.costPerUOM
+            bf-job-prep.sc-uom = estCostMisc.costUOM
             . 
             
     END.
@@ -354,17 +453,19 @@ PROCEDURE pCalcEstimateForJob PRIVATE:
     DEFINE OUTPUT PARAMETER opiEstCostHeader AS INT64 NO-UNDO.
     
     DEFINE BUFFER bf-job-hdr FOR job-hdr.
-    DEFINE BUFFER bf-est FOR est.
+    DEFINE BUFFER bf-est     FOR est.
     
-    DEFINE VARIABLE hdEstCalc AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hdEstCalc         AS HANDLE  NO-UNDO.
     DEFINE VARIABLE dQuantityOverride AS DECIMAL NO-UNDO.
     
-    IF ipdQuantityOverride EQ 0 THEN DO:
+    IF ipdQuantityOverride EQ 0 THEN 
+    DO:
         FIND FIRST bf-est NO-LOCK 
             WHERE bf-est.company EQ ipbf-job.company
             AND bf-est.est-no EQ ipbf-job.est-no
             NO-ERROR.
-        IF AVAILABLE bf-est AND LOOKUP(STRING(bf-est.est-type),"1,2,5,6") GT 0 THEN DO:  
+        IF AVAILABLE bf-est AND LOOKUP(STRING(bf-est.est-type),"1,2,5,6") GT 0 THEN 
+        DO:  
             FIND FIRST bf-job-hdr NO-LOCK 
                 WHERE bf-job-hdr.company EQ ipbf-job.company
                 AND bf-job-hdr.job-no EQ ipbf-job.job-no
@@ -384,16 +485,17 @@ PROCEDURE pCalcEstimateForJob PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pCleanJob PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose: Removes all uncalced or un-added job child records.
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-job FOR job.
+    /*------------------------------------------------------------------------------
+     Purpose: Removes all uncalced or un-added job child records.
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-job    FOR job.
     
-    DEFINE BUFFER bf-job-mat FOR job-mat.
-    DEFINE BUFFER bf-job-mch FOR job-mch.
-    DEFINE BUFFER bf-job-prep FOR job-prep.
-    DEFINE BUFFER bf-job-farm FOR job-farm.
+    DEFINE           BUFFER bf-job-mat  FOR job-mat.
+    DEFINE           BUFFER bf-job-mch  FOR job-mch.
+    DEFINE           BUFFER bf-job-prep FOR job-prep.
+    DEFINE           BUFFER bf-job-farm FOR job-farm.
+    DEFINE           BUFFER bf-job-hdr  FOR job-hdr.
     
     FOR EACH bf-job-mat EXCLUSIVE-LOCK
         WHERE bf-job-mat.company EQ ipbf-job.company
@@ -434,6 +536,16 @@ PROCEDURE pCleanJob PRIVATE:
         DELETE bf-job-farm.
     END.
     RELEASE bf-job-farm.
+    
+    FOR EACH bf-job-hdr EXCLUSIVE-LOCK
+        WHERE bf-job-hdr.company EQ ipbf-job.company
+        AND bf-job-hdr.job EQ ipbf-job.job
+        AND bf-job-hdr.job-no EQ ipbf-job.job-no
+        AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
+        AND NOT CAN-FIND(FIRST ttJobHdrToKeep WHERE ttJobHdrToKeep.riJobHdr EQ ROWID(bf-job-hdr)):
+        DELETE bf-job-hdr.
+    END.
+    RELEASE bf-job-hdr.
 
 END PROCEDURE.
 
