@@ -365,6 +365,7 @@ assign
     
                         /** Build Salesman Id String **/
         v-salesman = "".
+        v-rel-po-no = "".
         for each w-sman break by w-sman.sman:
           if first-of(w-sman.sman) then
             assign v-salesman = v-salesman + w-sman.sman.
