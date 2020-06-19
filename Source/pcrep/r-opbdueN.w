@@ -1333,21 +1333,21 @@ display "" with frame r-top.
           WHERE job-mat.company EQ job-hdr.company
           AND job-mat.job EQ job-hdr.job
           AND job-mat.job-no EQ job-hdr.job-no :
-          
           FIND FIRST item NO-LOCK
                WHERE item.company  EQ job-hdr.company
-               AND item.i-no     EQ job-mat.i-no
-               AND lookup(item.mat-type,"B,1,2,3,4") GT 0 NO-ERROR .
-          IF AVAIL ITEM THEN
-          ASSIGN
-            cRmItemName  = ITEM.i-name .
-          IF AVAIL ITEM AND ITEM.mat-type NE "B" THEN  
-            i = i + 1.
-          IF AVAIL ITEM AND ITEM.mat-type EQ "B" THEN
-            lBoard = YES .                            
-       END.
-       IF i GT 1 THEN
-        cRmItemName = "Kit".
+                 AND item.i-no     EQ job-mat.i-no
+                 AND LOOKUP(item.mat-type,"B,1,2,3,4") GT 0 
+               NO-ERROR .
+          IF AVAIL ITEM THEN DO:
+              ASSIGN
+                  cRmItemName  = ITEM.i-name            
+                  i = i + 1.
+              IF ITEM.mat-type EQ "B" THEN
+                  lBoard = YES.                  
+          END.          
+      END.
+      IF i GT 1 THEN
+          cRmItemName = "Kit".
       ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
