@@ -1360,14 +1360,10 @@ PROCEDURE local-assign-record :
   END.
 
   shipto.fax = faxAreaCode + faxNumber.
-    IF tg_inactive:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "YES" AND DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN DO:
-     RUN AddTagInactive(shipto.rec_key,"shipto").
+  IF tg_inactive:CHECKED THEN
      shipto.statusCode = "I".
-  END.
-  ELSE IF tg_inactive:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO" AND NOT DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN DO: 
-     RUN ClearTagsInactive(shipto.rec_key).
+  ELSE
      shipto.statusCode = "A".
-  END.
     
   disable tg_inactive faxareacode faxnumber WITH FRAME {&FRAME-NAME}.
 
@@ -1447,21 +1443,14 @@ PROCEDURE local-delete-record :
   {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   IF shipto.cust-no EQ shipto.ship-id THEN DO:
-
-
     /* Default shipto can be deleted if not used and if it is a duplicate */
     DO WITH FRAME {&FRAME-NAME}:
-
-
       IF CAN-FIND(FIRST b-shipto
                   WHERE b-shipto.company       EQ cocode
                     AND b-shipto.cust-no       EQ shipto.cust-no
                     AND TRIM(b-shipto.ship-id) EQ shipto.ship-id
                     AND ROWID(b-shipto)        NE ROWID(shipto))   THEN 
       DO:
-
-
-
          FIND FIRST eb WHERE eb.company EQ cocode
            AND eb.loc EQ locode
            AND eb.cust-no EQ shipto.cust-no
@@ -1475,35 +1464,27 @@ PROCEDURE local-delete-record :
            AND oe-relh.ship-id EQ shipto.ship-id
            AND oe-relh.ship-no EQ shipto.ship-no
            NO-LOCK NO-ERROR.
-
-
          IF AVAIL eb OR AVAIL oe-relh THEN DO:
-
             MESSAGE "This  ship to is in use for this customer and " SKIP
                     "cannot be deleted."
                     VIEW-AS ALERT-BOX INFO BUTTONS OK.
             RETURN.
-
-
          END. /* If this ship-to is in use, block the delete */
-
       END. /* duplicate found */
-      ELSE DO:
-          RUN Customer_IsActiveShipToAvailable IN hdCustomerProcs(
-              INPUT  cocode,
-              INPUT  cust.cust-no,
-              INPUT  ship.ship-id,
-              OUTPUT lIsActiveShipToavailable
-              ).
-          IF NOT lIsActiveShipToAvailable THEN DO: 
-              MESSAGE "There should be atleast one active shipto"
-                  VIEW-AS ALERT-BOX ERROR. 
-                  RETURN.
-          END.                                                                 
-      END. /* can't find duplicate ship-id */
     END. /* do with frame... */
   END. /* if cust-no eq ship-id */
 
+  RUN Customer_IsActiveShipToAvailable IN hdCustomerProcs(
+      INPUT  cocode,
+      INPUT  cust.cust-no,
+      INPUT  ship.ship-id,
+      OUTPUT lIsActiveShipToavailable
+      ).
+  IF NOT lIsActiveShipToAvailable THEN DO: 
+      MESSAGE "There should be at least one active shipto"
+          VIEW-AS ALERT-BOX ERROR. 
+          RETURN.
+  END.                                                                 
 
   IF NOT adm-new-record THEN DO:
     {custom/askdel.i}
@@ -1551,9 +1532,9 @@ PROCEDURE local-display-fields :
   DO:
       ASSIGN
         faxAreaCode = SUBSTR(shipto.fax,1,3)
-        faxNumber = SUBSTR(shipto.fax,4)
-        fi_sname = getSalesmanName(shipto.spare-char-1)
-            tg_inactive = DYNAMIC-FUNCTION("IsActive",shipto.rec_key) EQ NO
+        faxNumber   = SUBSTR(shipto.fax,4)
+        fi_sname    = getSalesmanName(shipto.spare-char-1)
+        tg_inactive = IF shipto.statusCode EQ "I" THEN YES ELSE NO
         .
 
       DISPLAY tg_inactive faxareacode faxnumber fi_sname WITH FRAME {&FRAME-NAME}.
@@ -2288,7 +2269,9 @@ PROCEDURE valid-ship-id :
                 WHERE b-shipto.company       EQ cocode
                   AND b-shipto.cust-no       EQ shipto.cust-no
                   AND TRIM(b-shipto.ship-id) EQ shipto.ship-id:SCREEN-VALUE
-                  AND ROWID(b-shipto)        NE ROWID(shipto)) OR
+                  AND(ROWID(b-shipto)        NE ROWID(shipto) OR
+                      adm-new-record AND NOT adm-adding-record)) OR
+                    
        shipto.ship-id:SCREEN-VALUE EQ ""                       THEN DO:
       IF shipto.ship-id:SCREEN-VALUE EQ "" THEN
         MESSAGE "ShipTo ID may not be blank..." VIEW-AS ALERT-BOX ERROR.
