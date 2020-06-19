@@ -949,7 +949,7 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
         END. /* if sent eq no */
     END. /* tasker not running */
     RELEASE emailConfig.
-    STATUS DEFAULT cStatusDefault IN WINDOW {&WINDOW-NAME}.
+/*    STATUS DEFAULT cStatusDefault IN WINDOW {&WINDOW-NAME}.*/
     IF PROFILER:ENABLED THEN 
     RUN pProcessProfiler.
     /* Set error status to saved value since it gets reset in this procedure */
