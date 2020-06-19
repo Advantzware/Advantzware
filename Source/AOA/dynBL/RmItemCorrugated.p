@@ -169,15 +169,14 @@ PROCEDURE pBusinessLogic:
             
         IF LOOKUP(ttRmItemCorrugated.mat-type,cTypelist[3]) > 0  THEN
             ASSIGN
-                ttRmItemCorrugated.flute = ITEM.flute .
+                ttRmItemCorrugated.flute = ITEM.flute
+                ttRmItemCorrugated.reg-no = ITEM.reg-no
+                ttRmItemCorrugated.basis-w = (ITEM.basis-w).
         ELSE  ASSIGN
                 ttRmItemCorrugated.flute = ""
-                .
-                
-        IF LOOKUP(ttRmItemCorrugated.mat-type,cTypelist[3]) > 0  THEN
-            ttRmItemCorrugated.reg-no = ITEM.reg-no.
-        ELSE
-            ttRmItemCorrugated.reg-no = "". 
+                ttRmItemCorrugated.reg-no = ""
+                ttRmItemCorrugated.basis-w = 0
+                .          
             
         IF LOOKUP(ttRmItemCorrugated.mat-type,cTypelist[13]) > 0  THEN
             ASSIGN
@@ -201,26 +200,19 @@ PROCEDURE pBusinessLogic:
                 ttRmItemCorrugated.cal   = (ITEM.cal)
                 ttRmItemCorrugated.s-len = (ITEM.s-len)
                 ttRmItemCorrugated.s-wid = (ITEM.s-wid)
-                ttRmItemCorrugated.r-wid = item.r-wid.
+                ttRmItemCorrugated.r-wid = item.r-wid
+                ttRmItemCorrugated.ect   = (ITEM.ect)
+                ttRmItemCorrugated.s-wid = (ITEM.s-wid).
         ELSE
             ASSIGN
                 ttRmItemCorrugated.cal   = 0
                 ttRmItemCorrugated.s-len = 0
                 ttRmItemCorrugated.s-wid = 0
-                ttRmItemCorrugated.r-wid = 0.  
-                
-        IF LOOKUP(ttRmItemCorrugated.mat-type,cTypelist[3]) > 0  THEN
-            ttRmItemCorrugated.basis-w = (ITEM.basis-w).
-        ELSE
-            ttRmItemCorrugated.basis-w  = 0. 
-                
-        IF LOOKUP(ttRmItemCorrugated.mat-type,cTypelist[6]) > 0  THEN
-            ASSIGN 
-                ttRmItemCorrugated.ect   = (ITEM.ect)
-                ttRmItemCorrugated.s-wid = (ITEM.s-wid).
-        ELSE ASSIGN
+                ttRmItemCorrugated.r-wid = 0
                 ttRmItemCorrugated.ect   = 0
-                ttRmItemCorrugated.s-wid = 0.
+                ttRmItemCorrugated.s-wid = 0.                
+                        
+       
                 
         IF LOOKUP(ttRmItemCorrugated.mat-type,cTypelist[10]) > 0  THEN
             ASSIGN
@@ -283,19 +275,14 @@ PROCEDURE pBusinessLogic:
         IF LOOKUP(ttRmItemCorrugated.mat-type,cTypelist[11]) > 0  THEN 
             ASSIGN
                 ttRmItemCorrugated.linin-lb = (ITEM.linin-lb)
-                ttRmItemCorrugated.sqin-lb  = ITEM.sqin-lb.
-        ELSE ASSIGN
-                ttRmItemCorrugated.linin-lb = 0
-                ttRmItemCorrugated.sqin-lb  = 0. 
-                
-        IF LOOKUP(ttRmItemCorrugated.mat-type,cTypelist[11]) > 0  THEN 
-            ASSIGN
+                ttRmItemCorrugated.sqin-lb  = ITEM.sqin-lb
                 ttRmItemCorrugated.density = (ITEM.density)
                 ttRmItemCorrugated.color-1 = ITEM.color-1.
         ELSE ASSIGN
-                ttRmItemCorrugated.density = 0
-                ttRmItemCorrugated.color-1 = "".    
-             
+                ttRmItemCorrugated.linin-lb = 0
+                ttRmItemCorrugated.sqin-lb  = 0
+                ttRmItemCorrugated.density  = 0
+                ttRmItemCorrugated.color-1  = "".               
         
     END. /* each item */
 END PROCEDURE.
