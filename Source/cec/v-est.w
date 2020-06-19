@@ -811,6 +811,7 @@ DO:
              if char-val <> "" and entry(1,char-val) ne lw-focus:screen-value then do:
                 lw-focus:screen-value = entry(1,char-val).
                 run new-sman.
+              APPLY "ENTRY":U TO eb.sman . 
              end.          
         end.
         when "req-date" or when "due-date" then do:
@@ -857,6 +858,7 @@ DO:
                         .
               */     
               RUN new-style.
+              APPLY "ENTRY":U TO eb.style .
            end.  
       end.
       when "procat" then do:
@@ -865,6 +867,7 @@ DO:
            if char-val ne "" and ls-cur-val ne entry(1,char-val) then do:
               eb.procat:screen-value in frame {&frame-name} = entry(1,char-val).
               RUN new-procat.
+              APPLY "ENTRY":U TO eb.procat .
            END.
        end.
        when "flute" then do:
@@ -872,12 +875,14 @@ DO:
            run windows/l-flute.w (cocode,output char-val).
            if char-val <> "" then
               lw-focus:screen-value =  entry(1,char-val).
+           APPLY "ENTRY":U TO eb.flute .   
        end.
        when "test" then do:
            ls-cur-val = eb.flute:screen-value.
            run windows/l-test.w (cocode,locode,ls-cur-val,output char-val).
            if char-val <> "" then
-              lw-focus:screen-value =  entry(1,char-val).       
+              lw-focus:screen-value =  entry(1,char-val).
+           APPLY "ENTRY":U TO eb.test .   
        end.
        when "Board" then do:
            DEF VAR lv-ind like style.industry no-undo.
@@ -902,7 +907,8 @@ DO:
              FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
              IF AVAIL ITEM THEN
                 assign ef.board:screen-value in frame {&frame-name} = item.i-no
-                       ef.brd-dscr:screen-value in frame {&frame-name} = item.i-name.  
+                       ef.brd-dscr:screen-value in frame {&frame-name} = item.i-name. 
+             APPLY "ENTRY":U TO ef.board .          
            END.
        end.
        when "cust-no" then do:
@@ -927,6 +933,7 @@ DO:
            RUN windows/l-diepl.w (cocode,lv-prep-type,lw-focus:screen-value, output char-val). 
            if char-val <> "" then 
               lw-focus:screen-value = entry(1,char-val).
+           APPLY "ENTRY":U TO lw-focus.   
        end.
        when "cad-no" then do:
            /*IF lv-cad-path <> "" THEN DO:
@@ -1003,10 +1010,10 @@ DO:
        when "csrUser_id" then do:
          run windows/l-users.w (est.csrUser_id:SCREEN-VALUE in frame {&frame-name}, output char-val).
            if char-val <> "" then 
-              assign est.csrUser_id:screen-value in frame {&frame-name} = entry(1,char-val).
-           return no-apply.
+              assign est.csrUser_id:screen-value in frame {&frame-name} = entry(1,char-val).           
        END.
   end case.
+  APPLY "ENTRY":U TO lw-focus.
   return no-apply.  
 END.
 

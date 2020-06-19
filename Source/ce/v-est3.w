@@ -1042,12 +1042,13 @@ DO:
     DEF VAR v-cnt3   AS INT NO-UNDO.
     DEF VAR v-loopct AS INT NO-UNDO.
     DEF VAR v-valhld AS CHAR NO-UNDO.
+    DEF VAR lw-focus AS WIDGET NO-UNDO.
 
 
     v-loopct = INT(eb.i-col:SCREEN-VALUE) + 
                INT(eb.i-coat:SCREEN-VALUE).
 
-
+     lw-focus = FOCUS.
     case focus:name :
          when "i-code2" then do:
              find style where style.company = eb.company and
@@ -1142,8 +1143,7 @@ DO:
                  END.
 
                  RUN getUnit# (FOCUS:INDEX).                                  
-             END.
-             return no-apply.
+             END.                 
          end.
          when "i-dscr2" then do:
              find style where style.company = eb.company and
@@ -1176,8 +1176,7 @@ DO:
                        when 19 then eb.i-code2[19]:SCREEN-VALUE IN FRAME {&FRAME-NAME} = entry(2,char-val).
                        when 20 then eb.i-code2[20]:SCREEN-VALUE IN FRAME {&FRAME-NAME} = entry(2,char-val).*/
                   end case.
-             end.         
-             return no-apply.
+             end.              
          end.
          when "cas-no" then do:
            find style where style.company = eb.company and
@@ -1189,8 +1188,7 @@ DO:
            if char-val <> "" AND eb.cas-no:SCREEN-VALUE NE entry(1,char-val) then do:
               eb.cas-no:SCREEN-VALUE = entry(1,char-val).
               APPLY "value-changed" TO eb.cas-no.
-           end.   
-           return no-apply.   
+           end.               
          end.   
          when "tr-no" then do:
            find style where style.company = eb.company and
@@ -1209,8 +1207,7 @@ DO:
                                         eb.tr-wid:Screen-value = string(item.case-w)
                                         eb.tr-dep:Screen-value = string(item.case-d)
                                         .
-           end.
-           return no-apply.   
+           end.             
         end.   
         when "carrier" then do:
              run windows/l-carrie.w  
@@ -1218,15 +1215,14 @@ DO:
              if char-val <> "" AND entry(1,char-val) NE focus:SCREEN-VALUE THEN DO:
                 eb.carrier:SCREEN-VALUE IN FRAME {&FRAME-NAME} = entry(1,char-val).
                 RUN new-carrier.
-             END.
-             return no-apply.
+             END.                
         end.
         when "dest-code" then do:
            run windows/l-delzon.w 
               (eb.company,eb.loc,eb.carrier:SCREEN-VALUE IN FRAME {&FRAME-NAME},focus:SCREEN-VALUE IN FRAME {&FRAME-NAME}, output char-val).
            if char-val <> "" then 
               assign focus:SCREEN-VALUE IN FRAME {&FRAME-NAME} = entry(1,char-val).
-           return no-apply.  
+             
         end.
         when "layer-pad" then do:
            find style where style.company = eb.company and
@@ -1238,8 +1234,7 @@ DO:
            if char-val <> "" AND eb.cas-no:SCREEN-VALUE NE entry(1,char-val) then do:
               eb.layer-pad:SCREEN-VALUE = entry(1,char-val).
               APPLY "value-changed" TO eb.layer-pad.
-           end.   
-           return no-apply.   
+           end.              
          end.   
          when "divider" then do:
            find style where style.company = eb.company and
@@ -1251,10 +1246,11 @@ DO:
            if char-val <> "" AND eb.cas-no:SCREEN-VALUE NE entry(1,char-val) then do:
               eb.divider:SCREEN-VALUE = entry(1,char-val).
               APPLY "value-changed" TO eb.divider.
-           end.   
-           return no-apply.   
+           end.               
          end.   
     end case.
+    APPLY "ENTRY":U TO lw-focus.
+    RETURN NO-APPLY.  
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -915,8 +915,7 @@ DO:
                  ef.board:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1,char-val).
                  RUN new-board. 
                END.
-           END.
-           return no-apply.   
+           END.               
      end.
      when "leaf" then do:
            find style where style.company = eb.company and
@@ -936,21 +935,18 @@ DO:
           IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN DO: 
              lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
              RUN new-m-code.
-          END.
-          return no-apply.          
+          END.                     
      end.
      when "flute" then do:
            run windows/l-flute.w (gcompany,output char-val).
            if char-val <> "" then
-              lw-focus:screen-value =  entry(1,char-val).
-           return no-apply.
+              lw-focus:screen-value =  entry(1,char-val).            
      end.
      when "test" then do:
            ls-cur-val = ef.flute:screen-value.
            run windows/l-test.w (gcompany,ef.loc,ls-cur-val,output char-val).
            if char-val <> "" then
-              lw-focus:screen-value  =  entry(1,char-val).
-           return no-apply.       
+              lw-focus:screen-value  =  entry(1,char-val).                 
      end.
      when "adder" then do:
           find style where style.company = eb.company and
@@ -962,8 +958,7 @@ DO:
           if char-val <> "" AND lw-focus:screen-value NE entry(1,char-val) then do:
               lw-focus:screen-value = entry(1,char-val).
               RUN new-adder (lw-focus).
-          end.    
-          return no-apply.       
+          end.                   
      end.
      when "cost-uom" then do:
           find first item where item.company = gcompany and
