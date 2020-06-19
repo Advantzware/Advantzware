@@ -1892,14 +1892,18 @@ DO:
     IF LASTKEY = -1 THEN RETURN.
     {&methods/lValidateError.i YES}
     IF oe-ord.terms:screen-value <> "" AND
-       NOT CAN-FIND(FIRST terms WHERE terms.t-code = oe-ord.terms:screen-value)
+       NOT CAN-FIND(FIRST terms WHERE terms.company EQ cocode 
+                                  AND terms.t-code  EQ oe-ord.terms:SCREEN-VALUE )
     THEN DO:
        MESSAGE "Invalid Terms Code. Try help. " VIEW-AS ALERT-BOX ERROR.
        oe-ord.terms-d:screen-value = "".
        RETURN NO-APPLY.
     END.
 
-    FIND FIRST terms WHERE terms.t-code = oe-ord.terms:screen-value NO-LOCK NO-ERROR.
+    FIND FIRST terms NO-LOCK 
+         WHERE terms.company EQ cocode
+           AND terms.t-code  EQ oe-ord.terms:SCREEN-VALUE 
+         NO-ERROR.
     IF AVAIL terms THEN oe-ord.terms-d:screen-value = terms.dscr.
     {&methods/lValidateError.i NO}
 END.
@@ -1913,8 +1917,10 @@ ON VALUE-CHANGED OF oe-ord.terms IN FRAME F-Main /* Pay Terms */
 DO:
   DEF VAR li AS INT NO-UNDO.
 
-
-  FIND terms WHERE terms.t-code EQ oe-ord.terms:SCREEN-VALUE NO-LOCK NO-ERROR.
+  FIND FIRST terms NO-LOCK 
+       WHERE terms.company EQ cocode 
+         AND terms.t-code  EQ oe-ord.terms:SCREEN-VALUE 
+       NO-ERROR.
   IF AVAIL terms THEN
     ASSIGN
      oe-ord.terms:SCREEN-VALUE   = terms.t-code
@@ -3652,9 +3658,10 @@ PROCEDURE display-cust-detail :
 
     IF oe-ord.carrier EQ "" THEN oe-ord.carrier:screen-value = cust.carrier.
 
-    FIND FIRST terms WHERE terms.company EQ cocode
-                        AND terms.t-code  EQ cust.terms
-               NO-LOCK NO-ERROR.
+    FIND FIRST terms NO-LOCK 
+         WHERE terms.company EQ cocode
+           AND terms.t-code  EQ cust.terms
+         NO-ERROR.
     IF AVAIL terms THEN  oe-ord.terms-d:screen-value = terms.dscr.
     ELSE oe-ord.terms-d:screen-value = "".
 
@@ -4096,9 +4103,10 @@ IF AVAIL xest THEN DO:
 
 
 
-      FIND FIRST terms WHERE terms.company EQ cocode
-                        AND terms.t-code  EQ cust.terms
-               NO-LOCK NO-ERROR.
+      FIND FIRST terms NO-LOCK
+           WHERE terms.company EQ cocode
+             AND terms.t-code  EQ cust.terms
+           NO-ERROR.
       IF AVAIL terms THEN  oe-ord.terms-d:screen-value = terms.dscr.
       ELSE oe-ord.terms-d:screen-value = "".
 
@@ -4715,7 +4723,10 @@ PROCEDURE local-assign-record :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-    FIND FIRST terms WHERE terms.t-code = oe-ord.terms NO-LOCK NO-ERROR.
+    FIND FIRST terms NO-LOCK 
+         WHERE terms.company EQ cocode
+           AND terms.t-code  EQ oe-ord.terms
+          NO-ERROR.
     IF AVAIL terms THEN oe-ord.terms-d = terms.dscr.
 
 
@@ -5600,7 +5611,8 @@ PROCEDURE local-update-record :
      {&methods/lValidateError.i YES}
          
      IF oe-ord.terms:screen-value <> "" AND
-        NOT CAN-FIND(FIRST terms WHERE terms.t-code = oe-ord.terms:screen-value)
+        NOT CAN-FIND(FIRST terms WHERE terms.company EQ cocode 
+                                   AND terms.t-code  EQ oe-ord.terms:screen-value)
      THEN DO:
         MESSAGE "Invalid Terms Code. Try help. " VIEW-AS ALERT-BOX ERROR.
         RETURN NO-APPLY.
