@@ -776,7 +776,7 @@ DO:
       END.
     END.
   END CASE.
-
+  apply "entry" to lw-focus.
   RETURN NO-APPLY.
 END.
 

@@ -571,16 +571,13 @@ DO:
 
      CASE lw-focus:NAME :
      WHEN "part-no" THEN DO:
-         RUN blank-cp (YES).
-         RETURN NO-APPLY.
+         RUN blank-cp (YES).         
       END.
       WHEN "part-dscr1" THEN DO:
-         RUN blank-cp (YES).
-         RETURN NO-APPLY.
+         RUN blank-cp (YES).         
       END.
       WHEN "stock-no" THEN DO:
-         RUN blank-cp (YES).
-         RETURN NO-APPLY.
+         RUN blank-cp (YES).          
       END.
       WHEN "style" THEN DO:
      
@@ -595,16 +592,14 @@ DO:
                 ef.board:SCREEN-VALUE IN BROWSE {&browse-name} = style.material[1].
                 RUN new-board.
               END.          
-           END.  
-           RETURN NO-APPLY.
+           END.              
       END.
       WHEN "procat" THEN DO:
            ls-cur-val = eb.procat:SCREEN-VALUE IN BROWSE {&browse-name}.
            RUN windows/l-fgcat.w (gcompany,ls-cur-val,OUTPUT char-val).
            IF char-val <> "" THEN
               eb.procat:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val).
-           RETURN NO-APPLY.
-
+          
        END.
        WHEN "Board" THEN DO:
            DEF VAR lv-ind LIKE style.industry NO-UNDO.
@@ -627,8 +622,7 @@ DO:
                  ef.board:SCREEN-VALUE IN BROWSE {&browse-name} = item.i-no.
                  RUN new-board.
                END.
-           END.
-           RETURN NO-APPLY.   
+           END.                
        END.
        WHEN "medium" THEN DO:
          RUN windows/l-paper.w (gcompany, "1",ef.medium:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).
@@ -646,8 +640,7 @@ DO:
            IF char-val NE "" AND ls-cur-val NE ENTRY(1,char-val) THEN DO:
               eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val).
               APPLY "value-changed" TO lw-focus.
-           END.
-           RETURN NO-APPLY.
+           END.             
        END.  /* cust-no */
        WHEN "ship-id" THEN DO:
            ls-cur-val = eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name}.
@@ -655,8 +648,7 @@ DO:
            IF char-val NE "" AND ls-cur-val NE ENTRY(1,char-val) THEN DO:
               eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val).
               APPLY "value-changed" TO lw-focus.
-           END.
-           RETURN NO-APPLY.
+           END.   
        END.  /* ship-id */
        WHEN "bl-qty" THEN DO:
              FIND FIRST est-qty WHERE est-qty.company = gcompany
@@ -747,8 +739,7 @@ DO:
                             lv-copy-date[18] = date(entry(8,date-val2))
                             lv-copy-date[19] = date(entry(9,date-val2))
                             lv-copy-date[20] = date(entry(1,date-val2))
-                            */.
-             RETURN NO-APPLY.
+                            */.             
        END.
        OTHERWISE DO:
         /* ==========================  
@@ -773,7 +764,9 @@ DO:
            =======================  */
            RETURN NO-APPLY.
         END.  /* otherwise */
-  END CASE.  
+  END CASE. 
+  APPLY "ENTRY":U TO lw-focus.
+  return no-apply.  
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -861,7 +861,8 @@ DO:
        END.
   end case. 
 
-  RETURN NO-APPLY.
+  APPLY "ENTRY":U TO lw-focus.
+  RETURN NO-APPLY.  
 END.
 
 /* _UIB-CODE-BLOCK-END */

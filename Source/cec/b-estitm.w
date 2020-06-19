@@ -759,14 +759,17 @@ DO:
       end.*/
       WHEN "part-no" THEN DO:
          RUN blank-cp (YES).
+         APPLY "ENTRY":U TO eb.part-no IN BROWSE {&browse-name}.
          RETURN NO-APPLY.
       END.
       WHEN "part-dscr1" THEN DO:
          RUN blank-cp (YES).
+         APPLY "ENTRY":U TO eb.part-dscr1 IN BROWSE {&browse-name}.
          RETURN NO-APPLY.
       END.
       WHEN "stock-no" THEN DO:
          RUN blank-cp (YES).
+         APPLY "ENTRY":U TO eb.stock-no IN BROWSE {&browse-name}.
          RETURN NO-APPLY.
       END.
       WHEN "style" THEN DO:
@@ -781,7 +784,8 @@ DO:
                 ef.board:SCREEN-VALUE IN BROWSE {&browse-name} = style.material[1].
                 RUN new-board.
               END.          
-           END.  
+           END. 
+           APPLY "ENTRY":U TO eb.style IN BROWSE {&browse-name}.
            RETURN NO-APPLY.
       END.
       WHEN "procat" THEN DO:
@@ -789,6 +793,7 @@ DO:
            RUN windows/l-fgcat.w (gcompany,ls-cur-val,OUTPUT char-val).
            IF char-val <> "" THEN
               lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+           APPLY "ENTRY":U TO eb.procat IN BROWSE {&browse-name}.   
            RETURN NO-APPLY.
 
        END.
@@ -797,6 +802,7 @@ DO:
            RUN windows/l-flute.w (gcompany,OUTPUT char-val).
            IF char-val <> "" THEN
               lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+           APPLY "ENTRY":U TO eb.flute IN BROWSE {&browse-name}.   
            RETURN NO-APPLY.
        END.
        WHEN "test" THEN DO:
@@ -804,6 +810,7 @@ DO:
            RUN windows/l-test.w (gcompany,gloc,ls-cur-val,OUTPUT char-val).
            IF char-val <> "" THEN
               lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+           APPLY "ENTRY":U TO eb.test IN BROWSE {&browse-name}.   
            RETURN NO-APPLY.       
        END.
        WHEN "Board" THEN DO:
@@ -827,6 +834,7 @@ DO:
               IF AVAIL ITEM AND ITEM.i-no NE lw-focus:SCREEN-VALUE THEN DO:
                 ef.board:SCREEN-VALUE IN BROWSE {&browse-name} = item.i-no.
                 RUN new-board.
+                APPLY "ENTRY":U TO ef.board IN BROWSE {&browse-name}.
               END.
            END.
            RETURN NO-APPLY.   
