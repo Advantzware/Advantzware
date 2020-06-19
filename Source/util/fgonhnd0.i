@@ -21,6 +21,8 @@ for each itemfg
         and fg-bin.i-no    eq itemfg.i-no
         and fg-bin.loc     ge begin_whse
         and fg-bin.loc     le end_whse
+        and fg-bin.loc-bin ge begin_loc-bin
+        and fg-bin.loc-bin le end_loc-bin
         AND fg-bin.tag     GE begin_tag
         AND fg-bin.tag     LE END_tag
       use-index co-ino:
