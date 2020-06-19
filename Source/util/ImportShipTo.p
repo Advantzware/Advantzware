@@ -269,14 +269,12 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportShipTo.Note3, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.notes[3]).
     RUN pAssignValueC (ipbf-ttImportShipTo.Note4, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.notes[4]).
     RUN pAssignValueC (ipbf-ttImportShipTo.cManTax, YES, INPUT-OUTPUT bf-shipto.tax-mandatory).
-    IF ipbf-ttImportShipTo.cInactive EQ "I" AND DYNAMIC-FUNCTION("IsActive",bf-shipto.rec_key) THEN DO:
-     RUN AddTagInactive(bf-shipto.rec_key,"shipto").
-     bf-shipto.statusCode = "I".
-    END.
-    ELSE IF ipbf-ttImportShipTo.cInactive EQ "" AND NOT DYNAMIC-FUNCTION("IsActive",bf-shipto.rec_key) THEN DO: 
-     RUN ClearTagsInactive(bf-shipto.rec_key).
-     bf-shipto.statusCode = "".
-    END.
+    
+    IF ipbf-ttImportShipTo.cInactive EQ "I" THEN 
+        bf-shipto.statusCode = "I".
+    ELSE
+        bf-shipto.statusCode = "A".
+        
     RUN pAssignValueC (ipbf-ttImportShipTo.siteID, YES, INPUT-OUTPUT bf-shipto.siteID).
     RELEASE bf-shipto.
 END PROCEDURE.

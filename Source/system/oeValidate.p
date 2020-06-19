@@ -364,7 +364,7 @@ PROCEDURE pValidShipTo PRIVATE:
         ELSE 
         DO:
             ASSIGN 
-                lActive = DYNAMIC-FUNCTION("isActive",bshipto.rec_key).
+                lActive = IF bshipto.statusCode NE "I" THEN YES ELSE NO.
             IF NOT lActive THEN ASSIGN 
                     oplHold    = TRUE 
                     opcMessage = "Specified shipto " + ipboe-ord.ship-id + "is INACTIVE for customer " + bcust.cust-no.

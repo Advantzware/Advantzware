@@ -3277,7 +3277,7 @@ PROCEDURE valid-ship-id :
         RETURN ERROR.
       END.
     END.
-    IF AVAIL shipto AND NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key) THEN DO:
+    IF AVAILABLE shipto AND shipto.statusCode EQ "I" THEN DO:
         MESSAGE "The Ship To is inactive and cannot be used on an Estimate." 
             VIEW-AS ALERT-BOX INFORMATION .
         APPLY "entry" TO eb.ship-id .
