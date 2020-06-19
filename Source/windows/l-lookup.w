@@ -99,6 +99,11 @@ DEFINE VARIABLE ll-filterFlag      AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE ll-ttLoaded        AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE ll-useMatches      AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE ll-continue        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE rDynValueColumn    AS ROWID     NO-UNDO EXTENT 1000.
+DEFINE VARIABLE hCalcColumn        AS HANDLE    NO-UNDO EXTENT 1000.
+DEFINE VARIABLE hDynCalcField      AS HANDLE    NO-UNDO.
+
+RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -288,27 +293,30 @@ ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Help Information */
 DO:     
     IF VALID-HANDLE(h_query) THEN DO:
         IF h_query:IS-OPEN THEN
-            h_query:QUERY-CLOSE().
+        h_query:QUERY-CLOSE().
         DELETE OBJECT h_query.
     END.    
     
     IF VALID-HANDLE(h_brquery) THEN DO:
         IF h_brquery:IS-OPEN THEN
-            h_brquery:QUERY-CLOSE().
+        h_brquery:QUERY-CLOSE().
         DELETE OBJECT h_brquery.
     END.    
 
     IF VALID-HANDLE(h_ttquery) THEN DO:
         IF h_ttquery:IS-OPEN THEN
-            h_ttquery:QUERY-CLOSE().
+        h_ttquery:QUERY-CLOSE().
         DELETE OBJECT h_ttquery.
     END.    
 
     IF VALID-HANDLE(h_tt) THEN
-        DELETE OBJECT h_tt.
+    DELETE OBJECT h_tt.
     
     IF VALID-HANDLE(h_brtt) THEN
-        DELETE OBJECT h_brtt.
+    DELETE OBJECT h_brtt.
+    
+    IF VALID-HANDLE(hDynCalcField) THEN
+    DELETE OBJECT hDynCalcField.
       
     APPLY "END-ERROR":U TO SELF.
 END.
@@ -384,8 +392,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-clear Dialog-Frame
 ON CHOOSE OF bt-clear IN FRAME Dialog-Frame /* Reset */
 DO:
-    ls-search:SCREEN-VALUE = "".
-  
+    ls-search:SCREEN-VALUE = "".  
     RUN openSearchQuery.
 END.
 
@@ -404,9 +411,7 @@ DO:
         
         RETURN NO-APPLY.    
     END.    
-    
-    RUN resizeFilterFrame.  
-    
+    RUN resizeFilterFrame. 
     IF ll-filterOpen THEN
         RUN openFilterQuery.
     ELSE
@@ -423,7 +428,6 @@ END.
 ON CHOOSE OF bt-next IN FRAME Dialog-Frame /* Next */
 DO:
     bt-prev:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE.
-
     IF ll-filterOpen THEN
         RUN nextPage(INPUT h_query,
                      INPUT h_buffer).    
@@ -559,20 +563,33 @@ PROCEDURE addBrowseCols :
     DO li-count = 1 TO NUM-ENTRIES(ip-displayList):
         h_browser:ADD-LIKE-COLUMN(h_brbuffer:NAME + "." + ENTRY(li-count, ip-displayList)).
         h_colHandle = h_browser:GET-BROWSE-COLUMN(li-count):HANDLE.
-        IF INDEX(ip-sortList, ENTRY(li-count, ip-displayList)) > 0 THEN
-           h_colHandle:LABEL-BGCOLOR = 14. 
-           
-        IF ip-widthList <> "" AND 
-           NUM-ENTRIES(ip-widthList) >= li-count AND
-           ENTRY(li-count, ip-widthList) <> "" THEN
-           h_colHandle:WIDTH-CHARS = INTEGER(ENTRY(li-count, ip-widthList)).
-        IF h_colHandle:DATA-TYPE = "DATE" AND
-           INDEX(ip-filterList, h_colHandle:NAME) > 0 AND 
-           (h_colHandle:WIDTH-CHARS < 20 OR
+        IF INDEX(ip-sortList, ENTRY(li-count, ip-displayList)) GT 0 THEN
+        h_colHandle:LABEL-BGCOLOR = 14.           
+        IF ip-widthList NE "" AND 
+           NUM-ENTRIES(ip-widthList) GE li-count AND
+           ENTRY(li-count, ip-widthList) NE "" THEN
+        h_colHandle:WIDTH-CHARS = INTEGER(ENTRY(li-count, ip-widthList)).
+        IF h_colHandle:DATA-TYPE EQ "DATE" AND
+           INDEX(ip-filterList, h_colHandle:NAME) GT 0 AND 
+           (h_colHandle:WIDTH-CHARS LT 20 OR
             h_colHandle:WIDTH-CHARS EQ ?) THEN
-           h_colHandle:WIDTH-CHARS = 20.
-           
-    END.
+        h_colHandle:WIDTH-CHARS = 20.           
+        IF ip-SubjectID NE 0 THEN DO:
+            FIND FIRST dynValueColumn NO-LOCK
+                 WHERE dynValueColumn.subjectID    EQ ip-subjectID
+                   AND dynValueColumn.user-id      EQ ip-userID
+                   AND dynValueColumn.paramValueID EQ ip-paramValueID
+                   AND dynValueColumn.colName      EQ h_colHandle:NAME
+                   AND dynValueColumn.isCalcField  EQ YES
+                   AND dynValueColumn.calcProc     NE ""
+                 NO-ERROR.
+            IF AVAILABLE dynValueColumn THEN
+            ASSIGN
+                hCalcColumn[li-count]     = h_colHandle
+                rDynValueColumn[li-count] = ROWID(dynValueColumn)
+                .
+        END. /* if ne 0 */
+    END. /* do li-count */
 
 END PROCEDURE.
 
@@ -593,8 +610,7 @@ PROCEDURE addFilterObjects :
     DEFINE VARIABLE h_browseCol    AS HANDLE    NO-UNDO.
     DEFINE VARIABLE h_calendar     AS HANDLE    NO-UNDO.
     DEFINE VARIABLE h_btnClear     AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE h_btnOK        AS HANDLE    NO-UNDO.
-      
+    DEFINE VARIABLE h_btnOK        AS HANDLE    NO-UNDO.      
     DEFINE VARIABLE h_colNum       AS INTEGER   NO-UNDO.
     
     IF ip-filterList <> "" THEN DO:
@@ -749,49 +765,42 @@ PROCEDURE buildTempTable :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE h_field       AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE ls-allData    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE h_field    AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE ls-allData AS CHARACTER NO-UNDO.
   
-    ls-queryString = "FOR EACH" + " " +
-                    h_buffer:NAME + " " +
-                    "NO-LOCK" + " " + 
-                    IF ip-queryString = "" THEN "" ELSE "WHERE" + " " + ip-queryString. 
+    ls-queryString = "FOR EACH " + h_buffer:NAME + " NO-LOCK" + " "
+                   + IF ip-queryString EQ "" THEN "" 
+                     ELSE "WHERE" + " " + ip-queryString. 
     h_query:QUERY-PREPARE (ls-queryString).
-    h_query:QUERY-OPEN().
-        
+    h_query:QUERY-OPEN().        
     h_query:GET-FIRST().
     IF NOT h_buffer:AVAILABLE THEN
-        MESSAGE "No records found for table " + h_buffer:NAME VIEW-AS ALERT-BOX.
-    
+    MESSAGE "No records found for table" h_buffer:NAME VIEW-AS ALERT-BOX.    
     SESSION:SET-WAIT-STATE("GENERAL").
     REPEAT:
-        IF h_query:QUERY-OFF-END THEN
-            LEAVE.
-
-        ASSIGN ls-allData = "".
-
+        IF h_query:QUERY-OFF-END THEN LEAVE.
+        ls-allData = "".
         h_ttbuffer:BUFFER-CREATE().
-        h_ttbuffer:BUFFER-COPY(h_buffer).
-        
+        h_ttbuffer:BUFFER-COPY(h_buffer).        
         DO li-count = 1 TO NUM-ENTRIES(ip-displayList):
-            h_field = h_buffer:BUFFER-FIELD(ENTRY(li-count, ip-displayList)):HANDLE.
-            
-                        IF h_field:DATA-TYPE = "LOGICAL" THEN 
-                        ls-allData = ls-allData + STRING(h_field:BUFFER-VALUE, h_field:FORMAT) + "|".
-                        ELSE IF h_field:DATA-TYPE = "DATE" THEN 
-                        ls-allData = ls-allData + STRING((IF h_field:BUFFER-VALUE = ? THEN '' ELSE h_field:BUFFER-VALUE), h_field:FORMAT) + "|".
-                        ELSE 
-                        ls-allData = ls-allData + STRING(h_field:BUFFER-VALUE) + "|".
-        END.
-        
+            h_field = h_buffer:BUFFER-FIELD(ENTRY(li-count, ip-displayList)):HANDLE NO-ERROR.
+            IF VALID-HANDLE(h_field) THEN DO:
+                IF h_field:DATA-TYPE = "LOGICAL" THEN 
+                ls-allData = ls-allData + STRING(h_field:BUFFER-VALUE, h_field:FORMAT) + "|".
+                ELSE IF h_field:DATA-TYPE = "DATE" THEN 
+                ls-allData = ls-allData + STRING((IF h_field:BUFFER-VALUE = ? THEN '' ELSE h_field:BUFFER-VALUE), h_field:FORMAT) + "|".
+                ELSE 
+                ls-allData = ls-allData + STRING(h_field:BUFFER-VALUE) + "|".
+            END.
+/*            RUN pCalcFields (h_ttbuffer).*/
+        END.        
         ASSIGN
             h_ttbuffer:BUFFER-FIELD("allData"):BUFFER-VALUE = ls-allData
-            h_ttbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE = h_buffer:RECID.
+            h_ttbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE   = h_buffer:RECID
+            .
         h_query:GET-NEXT().
-    END.
-    
-    SESSION:SET-WAIT-STATE("").
-    
+    END.    
+    SESSION:SET-WAIT-STATE("").    
     ll-ttLoaded = TRUE.
 
 END PROCEDURE.
@@ -836,8 +845,7 @@ PROCEDURE createTempTables :
   Purpose:     
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE h_field AS HANDLE NO-UNDO.
-
+    DEFINE VARIABLE h_field    AS HANDLE    NO-UNDO.
     DEFINE VARIABLE ls-label   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE ls-format  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE li-lookup  AS INTEGER   NO-UNDO.
@@ -847,44 +855,64 @@ PROCEDURE createTempTables :
     CREATE TEMP-TABLE h_brtt.
     
     DO li-count = 1 TO NUM-ENTRIES(ip-fieldList):
-        h_field = h_buffer:BUFFER-FIELD(ENTRY(li-count,ip-fieldList)).
+        h_field = h_buffer:BUFFER-FIELD(ENTRY(li-count,ip-fieldList)) NO-ERROR.
         
-        ASSIGN ls-label = h_field:LABEL
-               ls-format = h_field:FORMAT
-               li-lookup = 0.
-
-        li-lookup = LOOKUP(h_field:NAME, ip-displayList).
-
-        IF li-lookup > 0 THEN DO:
-            IF ip-labelList <> "" AND 
-               NUM-ENTRIES(ip-labelList) >= li-lookup AND
-               ENTRY(li-lookup,ip-labelList) <> "" THEN
-               ASSIGN ls-label = ENTRY(li-lookup,ip-labelList).
-
-            IF ip-formatList <> "" AND 
-               NUM-ENTRIES(ip-formatList) >= li-lookup AND
-               ENTRY(li-lookup,ip-formatList) <> "" THEN
-               ASSIGN ls-format = ENTRY(li-lookup,ip-formatList).
-
-        END.
-        
-        ll-success = h_tt:ADD-NEW-FIELD(h_field:NAME,
-                                        h_field:DATA-TYPE,
-                                        h_field:EXTENT,
-                                        ls-format,
-                                        h_field:DEFAULT-VALUE,
-                                        ls-label) NO-ERROR.
-
-        /* use default field format in case supplied format is incorrect */
-        IF NOT ll-success THEN
-            h_tt:ADD-NEW-FIELD(h_field:NAME,
-                               h_field:DATA-TYPE,
-                               h_field:EXTENT,
-                               h_field:FORMAT,
-                               h_field:DEFAULT-VALUE,
-                               ls-label) NO-ERROR.
-         
-    END.
+        IF VALID-HANDLE(h_field) THEN DO:
+            ASSIGN ls-label  = h_field:LABEL
+                   ls-format = h_field:FORMAT
+                   li-lookup = 0
+                   .    
+            li-lookup = LOOKUP(h_field:NAME, ip-displayList).
+    
+            IF li-lookup > 0 THEN DO:
+                IF ip-labelList <> "" AND 
+                   NUM-ENTRIES(ip-labelList) >= li-lookup AND
+                   ENTRY(li-lookup,ip-labelList) <> "" THEN
+                ls-label = ENTRY(li-lookup,ip-labelList).
+    
+                IF ip-formatList <> "" AND 
+                   NUM-ENTRIES(ip-formatList) >= li-lookup AND
+                   ENTRY(li-lookup,ip-formatList) <> "" THEN
+                ls-format = ENTRY(li-lookup,ip-formatList).
+    
+            END.
+            
+            ll-success = h_tt:ADD-NEW-FIELD(h_field:NAME,
+                                            h_field:DATA-TYPE,
+                                            h_field:EXTENT,
+                                            ls-format,
+                                            h_field:DEFAULT-VALUE,
+                                            ls-label) NO-ERROR.
+    
+            /* use default field format in case supplied format is incorrect */
+            IF NOT ll-success THEN
+                h_tt:ADD-NEW-FIELD(h_field:NAME,
+                                   h_field:DATA-TYPE,
+                                   h_field:EXTENT,
+                                   h_field:FORMAT,
+                                   h_field:DEFAULT-VALUE,
+                                   ls-label) NO-ERROR.
+        END. /* if valid-handle */
+        ELSE IF ip-SubjectID NE 0 THEN DO:
+            FIND FIRST dynValueColumn NO-LOCK
+                 WHERE dynValueColumn.subjectID    EQ ip-subjectID
+                   AND dynValueColumn.user-id      EQ ip-userID
+                   AND dynValueColumn.paramValueID EQ ip-paramValueID
+                   AND dynValueColumn.colName      EQ ENTRY(li-count,ip-fieldList)
+                   AND dynValueColumn.isCalcField  EQ YES
+                   AND dynValueColumn.calcProc     NE ""
+                 NO-ERROR.
+            IF NOT AVAILABLE dynValueColumn THEN NEXT.
+            h_tt:ADD-NEW-FIELD(
+                dynValueColumn.colName,
+                dynValueColumn.dataType,
+                0,
+                dynValueColumn.colFormat,
+                "",
+                dynValueColumn.colLabel
+                ) NO-ERROR.
+        END. /* else */
+    END. /* do li-count */
     
     h_tt:ADD-NEW-FIELD("allData", "CHARACTER").
     h_tt:ADD-NEW-FIELD("recid", "RECID").
@@ -1002,32 +1030,35 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE nextPage Dialog-Frame 
 PROCEDURE nextPage :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER h_ipquery  AS HANDLE NO-UNDO.
     DEFINE INPUT PARAMETER h_ipbuffer AS HANDLE NO-UNDO.
         
     h_brbuffer:EMPTY-TEMP-TABLE().
 
-    li-pageCount = li-pageCount + 1.
-    li-pageRecCount = li-maxBrRows.
-    
+    ASSIGN
+        li-pageCount    = li-pageCount + 1
+        li-pageRecCount = li-maxBrRows
+        .    
     bt-next:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE.   
     DO li-count = 1 TO li-maxBrRows:
-       h_ipquery:GET-NEXT().
-       IF h_ipquery:QUERY-OFF-END THEN DO:
-          bt-next:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.        
-          LEAVE.
-       END.
-       li-pageRecCount = li-pageRecCount - 1.
+        h_ipquery:GET-NEXT().
+        IF h_ipquery:QUERY-OFF-END THEN DO:
+            bt-next:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.        
+            LEAVE.
+        END.
+        li-pageRecCount = li-pageRecCount - 1.
          
-       h_brbuffer:BUFFER-CREATE().
-       h_brbuffer:BUFFER-COPY(h_ipbuffer).
+        h_brbuffer:BUFFER-CREATE().
+        h_brbuffer:BUFFER-COPY(h_ipbuffer).
 
-       IF ll-filterOpen THEN
-          h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE = h_ipbuffer:RECID.               
+        RUN pCalcFields (h_brbuffer).
+    
+        IF ll-filterOpen THEN
+        h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE = h_ipbuffer:RECID.               
     END.
     
     h_brquery:QUERY-OPEN().
@@ -1083,13 +1114,59 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCalcFields Dialog-Frame 
+PROCEDURE pCalcFields :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphBuffer AS HANDLE NO-UNDO.
+    
+    DEFINE VARIABLE cBufferValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCalcParam   AS CHARACTER NO-UNDO EXTENT 2.
+    DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE jdx          AS INTEGER   NO-UNDO.
+
+    DO idx = 1 TO h_brbuffer:NUM-FIELDS:
+        IF VALID-HANDLE(hCalcColumn[idx]) THEN DO:
+            FIND FIRST dynValueColumn NO-LOCK
+                 WHERE ROWID(dynValueColumn) EQ rDynValueColumn[idx]
+                 NO-ERROR.
+            IF NOT AVAILABLE dynValueColumn THEN NEXT.
+/*            cCalcParam = dynValueColumn.calcParam.*/
+            DO jdx = 1 TO NUM-ENTRIES(dynValueColumn.calcParam,"|"):
+                cCalcParam[1] = ENTRY(jdx,dynValueColumn.calcParam,"|").
+                IF NUM-ENTRIES(cCalcParam[1],".") GT 1 THEN
+                cCalcParam[2] = cCalcParam[2] + h_brbuffer:NAME + "." + ENTRY(2,cCalcParam[1],".") + "|".
+                ELSE
+                cCalcParam[2] = cCalcParam[2] + cCalcParam[1] + "|".
+/*                ENTRY(jdx,cCalcParam,"|") = REPLACE(ENTRY(jdx,cCalcParam,"|"),ENTRY(1,ENTRY(jdx,cCalcParam,"|"),"."),h_brbuffer:NAME).*/
+            END.
+            cCalcParam[2] = TRIM(cCalcParam[2],"|").
+            RUN spDynCalcField IN hDynCalcField (
+                h_brquery:HANDLE,
+                dynValueColumn.calcProc,
+                cCalcParam[2],
+                dynValueColumn.dataType,
+                dynValueColumn.colFormat,
+                OUTPUT cBufferValue
+                ).
+            iphBuffer:BUFFER-FIELD(dynValueColumn.colName):BUFFER-VALUE = cBufferValue.
+        END.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE prevPage Dialog-Frame 
 PROCEDURE prevPage :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER h_ipquery  AS HANDLE NO-UNDO.
     DEFINE INPUT PARAMETER h_ipbuffer AS HANDLE NO-UNDO.
         
@@ -1097,24 +1174,26 @@ PROCEDURE prevPage :
     
     h_ipquery:REPOSITION-BACKWARD ((li-maxBrRows * 2) - li-pageRecCount).
     DO li-count = 1 TO li-maxBrRows:
-       h_ipquery:GET-NEXT().
-       IF h_ipquery:QUERY-OFF-END THEN
-          LEAVE.
+        h_ipquery:GET-NEXT().
+        IF h_ipquery:QUERY-OFF-END THEN LEAVE.
          
-       h_brbuffer:BUFFER-CREATE().
-       h_brbuffer:BUFFER-COPY(h_ipbuffer).  
+        h_brbuffer:BUFFER-CREATE().
+        h_brbuffer:BUFFER-COPY(h_ipbuffer).  
 
-       IF ll-filterOpen THEN
-          h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE = h_ipbuffer:RECID.             
+        RUN pCalcFields (h_brbuffer).
+
+        IF ll-filterOpen THEN
+        h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE = h_ipbuffer:RECID.             
+
     END.
     h_brquery:QUERY-OPEN().
     
     ASSIGN
         li-pageRecCount = 0
-        li-pageCount = li-pageCount - 1.
-    
+        li-pageCount    = li-pageCount - 1
+        .    
     IF li-pageCount = 1 THEN
-        bt-prev:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.
+    bt-prev:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.
 
 END PROCEDURE.
 
@@ -1236,7 +1315,7 @@ PROCEDURE validateParameters :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE ls-fields   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE ls-fields AS CHARACTER NO-UNDO.
     
     /* check if table input parameter is empty */
     IF ip-table = "" THEN DO:
@@ -1265,6 +1344,7 @@ PROCEDURE validateParameters :
     /* check if fields supplied in the fields list are available in the table */
     ls-fields = ''.
     DO li-count = 1 TO NUM-ENTRIES(ip-fieldList):
+        IF ENTRY(li-count,ip-fieldList) BEGINS "Calc" THEN NEXT.
         FIND FIRST ASI._field NO-LOCK
              WHERE ASI._field._Field-Name = ENTRY(li-count,ip-fieldList)
                AND ASI._field._file-recid = RECID(_file) NO-ERROR.
@@ -1530,3 +1610,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
