@@ -5699,6 +5699,10 @@ PROCEDURE SetBOLForm :
             ASSIGN
                is-xprint-form = YES
                v-program = "oe/rep/cocbcert10.p".
+         WHEN "PackSlip" THEN
+            ASSIGN
+               is-xprint-form = YES
+               v-program = "oe/rep/cocpack.p".      
          WHEN "LancoYork" THEN
             ASSIGN
                is-xprint-form = YES
