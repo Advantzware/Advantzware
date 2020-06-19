@@ -66,10 +66,11 @@ assign
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-17 begin_cust end_cust begin_i-no ~
-end_i-no begin_whse end_whse begin_tag end_tag tg_exclude-set-parts ~
-btn-process btn-cancel 
+end_i-no begin_whse end_whse begin_loc-bin end_loc-bin begin_tag end_tag ~
+tg_exclude-set-parts btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_i-no end_i-no ~
-begin_whse end_whse begin_tag end_tag tg_exclude-set-parts 
+begin_whse end_whse begin_loc-bin end_loc-bin begin_tag end_tag ~
+tg_exclude-set-parts 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -93,6 +94,11 @@ DEFINE BUTTON btn-process
      LABEL "&Start Process" 
      SIZE 18 BY 1.14.
 
+DEFINE VARIABLE begin_loc-bin AS CHARACTER FORMAT "X(8)" 
+     LABEL "Beginning Bin" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
 DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)":U 
      LABEL "Beginning Customer#" 
      VIEW-AS FILL-IN 
@@ -110,6 +116,11 @@ DEFINE VARIABLE begin_tag AS CHARACTER FORMAT "X(20)"
 
 DEFINE VARIABLE begin_whse AS CHARACTER FORMAT "X(5)" 
      LABEL "Beginning Warehouse" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
+
+DEFINE VARIABLE end_loc-bin AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
+     LABEL "Ending Bin" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
@@ -135,7 +146,7 @@ DEFINE VARIABLE end_whse AS CHARACTER FORMAT "X(5)" INITIAL "zzz"
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 89 BY 9.05.
+     SIZE 89 BY 10.
 
 DEFINE VARIABLE tg_exclude-set-parts AS LOGICAL INITIAL no 
      LABEL "Exclude Set Parts" 
@@ -158,19 +169,23 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Warehouse"
      end_whse AT ROW 9.57 COL 61 COLON-ALIGNED HELP
           "Enter Ending Warehouse Number"
-     begin_tag AT ROW 10.76 COL 22.4 COLON-ALIGNED HELP
+     begin_loc-bin AT ROW 10.71 COL 22.4 COLON-ALIGNED HELP
+          "Enter Beginning Bin" WIDGET-ID 8
+     end_loc-bin AT ROW 10.71 COL 61 COLON-ALIGNED HELP
+          "Enter Ending bin Number" WIDGET-ID 10
+     begin_tag AT ROW 11.91 COL 22.4 COLON-ALIGNED HELP
           "Enter Beginning Warehouse" WIDGET-ID 2
-     end_tag AT ROW 10.76 COL 61 COLON-ALIGNED HELP
+     end_tag AT ROW 11.91 COL 61 COLON-ALIGNED HELP
           "Enter Ending Tag#" WIDGET-ID 4
-     tg_exclude-set-parts AT ROW 12.43 COL 24.2 WIDGET-ID 6
-     btn-process AT ROW 14.33 COL 21
-     btn-cancel AT ROW 14.33 COL 53
+     tg_exclude-set-parts AT ROW 13.43 COL 24.2 WIDGET-ID 6
+     btn-process AT ROW 15.33 COL 21
+     btn-cancel AT ROW 15.33 COL 53
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 5.29 COL 5
      "" VIEW-AS TEXT
           SIZE 2.2 BY .95 AT ROW 1.95 COL 88
           BGCOLOR 11 
-     RECT-17 AT ROW 4.81 COL 1
+     RECT-17 AT ROW 4.86 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -244,15 +259,9 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
+ASSIGN 
+       begin_loc-bin:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
        begin_tag:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -260,6 +269,18 @@ ASSIGN
 
 ASSIGN 
        begin_whse:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       end_loc-bin:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -278,7 +299,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -310,7 +331,33 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_loc-bin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_loc-bin C-Win
+ON LEAVE OF begin_loc-bin IN FRAME FRAME-A /* Beginning Bin */
+DO:
+     assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME begin_tag
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_tag C-Win
+ON HELP OF begin_tag IN FRAME FRAME-A /* Beginning Tag# */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE rec-val AS RECID NO-UNDO .
+
+    RUN addon/windows/l-ldtag5.w (gcompany,NO,begin_tag:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
+    IF char-val <> "" THEN ASSIGN begin_tag:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_tag C-Win
 ON LEAVE OF begin_tag IN FRAME FRAME-A /* Beginning Tag# */
 DO:
@@ -368,7 +415,33 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME end_loc-bin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_loc-bin C-Win
+ON LEAVE OF end_loc-bin IN FRAME FRAME-A /* Ending Bin */
+DO:
+     assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME end_tag
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_tag C-Win
+ON HELP OF end_tag IN FRAME FRAME-A /* Ending Tag# */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE rec-val AS RECID NO-UNDO .
+
+    RUN addon/windows/l-ldtag5.w (gcompany,NO,end_tag:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
+    IF char-val <> "" THEN ASSIGN end_tag:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_tag C-Win
 ON LEAVE OF end_tag IN FRAME FRAME-A /* Ending Tag# */
 DO:
@@ -384,37 +457,6 @@ END.
 ON LEAVE OF end_whse IN FRAME FRAME-A /* Ending Warehouse */
 DO:
      assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_tag
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_tag C-Win
-ON HELP OF end_tag IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-    DEFINE VARIABLE rec-val AS RECID NO-UNDO .
-
-    RUN addon/windows/l-ldtag5.w (gcompany,NO,end_tag:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
-    IF char-val <> "" THEN ASSIGN end_tag:SCREEN-VALUE = ENTRY(1,char-val) .
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME begin_tag
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_tag C-Win
-ON HELP OF begin_tag IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-    DEFINE VARIABLE rec-val AS RECID NO-UNDO .
-
-    RUN addon/windows/l-ldtag5.w (gcompany,NO,begin_tag:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
-    IF char-val <> "" THEN ASSIGN begin_tag:SCREEN-VALUE = ENTRY(1,char-val) .
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -503,11 +545,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_cust end_cust begin_i-no end_i-no begin_whse end_whse begin_tag 
-          end_tag tg_exclude-set-parts 
+  DISPLAY begin_cust end_cust begin_i-no end_i-no begin_whse end_whse begin_loc-bin 
+          end_loc-bin begin_tag end_tag tg_exclude-set-parts 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-17 begin_cust end_cust begin_i-no end_i-no begin_whse end_whse 
-         begin_tag end_tag tg_exclude-set-parts btn-process btn-cancel 
+         begin_loc-bin end_loc-bin begin_tag end_tag tg_exclude-set-parts btn-process 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
