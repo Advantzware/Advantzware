@@ -971,12 +971,11 @@ PROCEDURE fg-post:
             IF work-job.fg THEN
                 ASSIGN
                     gltrans.tr-amt  = - work-job.amt
-                    gltrans.tr-dscr = "ADJUSTMENT FG".
+                    gltrans.tr-dscr = "FG Adjustment entries FG".
             ELSE
                 ASSIGN
                     gltrans.tr-amt  = work-job.amt
-                    gltrans.tr-dscr = "ADJUSTMENT COGS".
-
+                    gltrans.tr-dscr = "FG Adjustment entries FG".
             RELEASE gltrans.
         END. /* each work-job */
     END.
