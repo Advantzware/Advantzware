@@ -48,6 +48,9 @@ DEF NEW SHARED VAR v-ship-no LIKE shipto.ship-no.
 DEF VAR v-cash-sale AS LOG NO-UNDO.
 DEFINE BUFFER bff-head FOR inv-head.
 
+DEFINE VARIABLE hdTaxProcs  AS HANDLE    NO-UNDO.
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
+
 &SCOPED-DEFINE other-enable enable-other
 
 /* _UIB-CODE-BLOCK-END */
@@ -1326,7 +1329,14 @@ PROCEDURE local-assign-record :
           ASSIGN ld-tax-amt = IF bf-inv-line.tax THEN bf-inv-line.t-price ELSE 0.
           IF inv-head.tax-gr <> "" AND avail stax AND bf-inv-line.tax THEN 
           DO:
-              RUN ar/calctax2.p (inv-head.tax-gr,NO,ld-tax-amt,inv-head.company,bf-inv-line.i-no,OUTPUT ld-tax-tmp).
+              RUN Tax_Calculate IN hdTaxProcs (
+                  INPUT  inv-head.company,
+                  INPUT  inv-head.tax-gr,
+                  INPUT  FALSE,   /* Is this freight */
+                  INPUT  ld-tax-amt,
+                  INPUT  bf-inv-line.i-no,
+                  OUTPUT ld-tax-tmp
+                  ).
               ASSIGN ld-tax-tot = ld-tax-tot + ld-tax-tmp.
 /*               /* Find itemfg. */                                                                    */
 /*               FIND FIRST itemfg NO-LOCK WHERE                                                       */
@@ -1364,7 +1374,14 @@ PROCEDURE local-assign-record :
            ASSIGN ld-inv-accum = ld-inv-accum + bf-inv-misc.amt.
            ASSIGN ld-tax-amt = bf-inv-misc.amt.
            IF inv-head.tax-gr <> "" AND bf-inv-misc.tax and avail stax THEN DO:
-               RUN ar/calctax2.p (inv-head.tax-gr,NO,ld-tax-amt,inv-head.company,bf-inv-misc.inv-i-no,OUTPUT ld-tax-tmp).
+              RUN Tax_Calculate IN hdTaxProcs (
+                  INPUT  inv-head.company,
+                  INPUT  inv-head.tax-gr,
+                  INPUT  FALSE,   /* Is this freight */
+                  INPUT  ld-tax-amt,
+                  INPUT  bf-inv-misc.inv-i-no,
+                  OUTPUT ld-tax-tmp
+                  ).
                ASSIGN ld-tax-tot = ld-tax-tot + ld-tax-tmp.
 /*               /* Find itemfg. */                                                                    */
 /*               FIND FIRST itemfg NO-LOCK WHERE                                                       */

@@ -115,6 +115,9 @@ DEF VAR lv-comp-name AS cha FORM "x(30)" NO-UNDO.
 DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
 
+DEFINE VARIABLE hdTaxProcs  AS HANDLE    NO-UNDO.
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
+
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "INVPRINT" no-lock no-error.
 IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN lv-display-comp = YES.
@@ -488,7 +491,14 @@ assign
 
                 do i = 1 to 3:
                    if stax.tax-code[i] ne "" then do:
-                      run ar/calctax2.p (stax.tax-code[i],no,ar-invl.amt,ar-invl.company,ar-invl.i-no, output v-tmp-tax).
+                        RUN Tax_Calculate IN hdTaxProcs (
+                            INPUT  ar-invl.company,
+                            INPUT  stax.tax-code[i],
+                            INPUT  FALSE,   /* Is this freight */
+                            INPUT  ar-invl.amt,
+                            INPUT  ar-invl.i-no,
+                            OUTPUT v-tmp-tax
+                            ).   
                       v-t-tax[i] = v-t-tax[i] + v-tmp-tax.                     
                    END.
                 end.
@@ -732,4 +742,6 @@ assign
 
     END. /* DO TRANSACTION avail ar-inv */ 
 END.
+IF VALID-HANDLE(hdTaxProcs) THEN
+    DELETE PROCEDURE hdTaxProcs.
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */

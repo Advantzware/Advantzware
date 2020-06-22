@@ -66,6 +66,9 @@ RUN methods/prgsecur.p
 	     OUTPUT lAccessClose, /* used in template/windows.i  */
 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
+DEFINE VARIABLE hdTaxProcs  AS HANDLE    NO-UNDO.
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
+
 &SCOPED-DEFINE sortby BY ar-invl.inv-no BY ar-invl.line
 
 /* _UIB-CODE-BLOCK-END */
@@ -1088,8 +1091,14 @@ PROCEDURE local-assign-record :
       b-ar-inv.t-sales = b-ar-inv.net + ld-diff.
     
      IF b-ar-invl.tax AND b-ar-inv.tax-code NE "" THEN DO:
-        RUN ar/calctax2.p (b-ar-inv.tax-code, NO, ld-diff, b-ar-inv.company, 
-                           b-ar-invl.i-no, OUTPUT ld-tax).
+        RUN Tax_Calculate IN hdTaxProcs (
+            INPUT  b-ar-inv.company,
+            INPUT  b-ar-inv.tax-code,
+            INPUT  FALSE,   /* Is this freight */
+            INPUT  ld-diff,
+            INPUT  b-ar-invl.i-no,
+            OUTPUT ld-tax
+            ).
     
         b-ar-inv.tax-amt = b-ar-inv.tax-amt + ld-tax.
      END.

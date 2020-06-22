@@ -123,7 +123,9 @@ DEFINE VARIABLE dFrtTaxRate           AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE lIsTaxRateSame        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE dTotalSalesTaxableAmt AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dTotalFrtTaxableAmt   AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE hdTaxProcs            AS HANDLE    NO-UNDO.
 
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 FUNCTION fRoundUp RETURNS DECIMAL ( ipdNum AS DECIMAL ):
@@ -821,15 +823,15 @@ END.
              IF AVAIL stax AND inv-line.tax THEN 
              DO:
                 dLineTaxableAmt = inv-line.t-price.
-                 
-                RUN ar/calctax2.p(
-                    INPUT  inv-head.tax-gr,
-                    INPUT  No,
-                    INPUT  dLineTaxableAmt,
+
+                RUN Tax_Calculate IN hdTaxProcs (
                     INPUT  inv-head.company,
+                    INPUT  inv-head.tax-gr,
+                    INPUT  FALSE,   /* Is this freight */
+                    INPUT  dLineTaxableAmt,
                     INPUT  inv-line.i-no,
                     OUTPUT dLineTaxAmt
-                    ).
+                    ).                   
                     
                 ASSIGN 
                     dLineTaxAmt           = fRoundUp(dLineTaxAmt)
@@ -840,14 +842,14 @@ END.
                     
                 IF inv-head.f-bill THEN DO:    
                     lIsFreightTaxable = YES.
-                    RUN ar/calctax2.p(
-                        INPUT inv-head.tax-gr,
-                        INPUT YES,
-                        INPUT inv-line.t-freight,
-                        INPUT inv-head.company,
-                        INPUT "",                  
+                    RUN Tax_Calculate IN hdTaxProcs (
+                        INPUT  inv-head.company,
+                        INPUT  inv-head.tax-gr,
+                        INPUT  TRUE,   /* Is this freight */
+                        INPUT  inv-line.t-freight,
+                        INPUT  "",
                         OUTPUT dFrtTaxAmt
-                        ). 
+                        ).
                     ASSIGN     
                         dFrtTaxAmt          = fRoundUp(dFrtTaxAmt)
                         dFrtTaxRate         = TRUNCATE(dFrtTaxAmt / inv-line.t-freight * 100, 2)
@@ -1270,6 +1272,9 @@ END.
     {XMLOutput/XMLOutput.i &c=c &XMLClose} /* rstark 05291402 */
 
 end. /* each xinv-head */
+
+IF VALID-HANDLE(hdTaxProcs) THEN
+    DELETE PROCEDURE hdTaxProcs.
 
 IF VALID-HANDLE(hdFileSysProcs) THEN
     DELETE PROCEDURE hdFileSysProcs.

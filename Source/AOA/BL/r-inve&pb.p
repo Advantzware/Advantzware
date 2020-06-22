@@ -36,8 +36,10 @@ DEFINE VARIABLE cCompCurr   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE oeprep-char AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dProfit     AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE hNotesProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdTaxProcs  AS HANDLE    NO-UNDO.
 
 RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 
 ASSIGN
     gcompany  = ipcCompany
@@ -267,6 +269,9 @@ RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
 
 /* Main procedure to print and post */
 RUN pPrintPost.
+
+IF VALID-HANDLE(hdTaxProcs) THEN
+    DELETE PROCEDURE hdTaxProcs.
 
 DELETE OBJECT Persistent-Handle.
 DELETE OBJECT ListLogic-Handle.
@@ -1197,13 +1202,15 @@ PROCEDURE list-post-inv :
                 FIND CURRENT oe-ordl NO-ERROR.
                 IF AVAILABLE oe-ordl THEN 
                 DO:
-                  
-                    RUN ar/calctax2.p (oe-ord.tax-gr,
-                        NO,
-                        oe-ordl.t-price,
-                        oe-ordl.company, 
-                        oe-ordl.i-no,
-                        OUTPUT dTax).
+
+                    RUN Tax_Calculate IN hdTaxProcs (
+                        INPUT  oe-ordl.company,
+                        INPUT  oe-ord.tax-gr,
+                        INPUT  FALSE,   /* Is this freight */
+                        INPUT  oe-ordl.t-price,
+                        INPUT  oe-ordl.i-no,
+                        OUTPUT dTax
+                        ).                  
 
                     dUninvOrdlAmt = oe-ordl.t-price +
                         (IF oe-ordl.tax THEN dTax ELSE 0).
@@ -1216,13 +1223,15 @@ PROCEDURE list-post-inv :
                         AND ar-invl.line    EQ inv-line.line
                         AND ar-invl.i-no    EQ inv-line.i-no
                         USE-INDEX inv-status :
-                  
-                        RUN ar/calctax2.p (ar-inv.tax-code, 
-                            NO,
-                            ar-invl.amt,
-                            ar-invl.company,
-                            ar-invl.i-no,
-                            OUTPUT dTax).
+
+                        RUN Tax_Calculate IN hdTaxProcs (
+                            INPUT  ar-invl.company,
+                            INPUT  ar-inv.tax-code,
+                            INPUT  FALSE,   /* Is this freight */
+                            INPUT  ar-invl.amt,
+                            INPUT  ar-invl.i-no,
+                            OUTPUT dTax
+                            ).                       
                 
                         dUninvOrdlAmt = dUninvOrdlAmt - ar-invl.amt -
                             (IF ar-invl.tax THEN dTax ELSE 0).
@@ -1234,12 +1243,14 @@ PROCEDURE list-post-inv :
 
                 dTax = 0.
                 IF inv-line.tax THEN
-                    RUN ar/calctax2.p (inv-head.tax-gr, 
-                        NO,
-                        inv-line.t-price, 
-                        inv-line.company,
-                        inv-line.i-no,
-                        OUTPUT dTax).
+                    RUN Tax_Calculate IN hdTaxProcs (
+                        INPUT  inv-line.company,
+                        INPUT  inv-head.tax-gr,
+                        INPUT  FALSE,   /* Is this freight */
+                        INPUT  inv-line.t-price,
+                        INPUT  inv-line.i-no,
+                        OUTPUT dTax
+                        ).     
                                   
                 IF inv-line.t-price + dTax LT dUninvOrdlAmt THEN
                     v-reduce-ord-bal = v-reduce-ord-bal + inv-line.t-price + dTax.
@@ -1399,12 +1410,14 @@ PROCEDURE list-post-inv :
 
                                 IF oe-ordl.tax THEN 
                                 DO:
-                                    RUN ar/calctax2.p (oe-ord.tax-gr, 
-                                        NO,
-                                        dDcrVal,
-                                        oe-ordl.company,
-                                        oe-ordl.i-no,
-                                        OUTPUT dTax).
+                                    RUN Tax_Calculate IN hdTaxProcs (
+                                        INPUT  oe-ordl.company,
+                                        INPUT  oe-ord.tax-gr,
+                                        INPUT  FALSE,   /* Is this freight */
+                                        INPUT  dDcrVal,
+                                        INPUT  oe-ordl.i-no,
+                                        OUTPUT dTax
+                                        ).                                         
                                       
                                     dDcrVal = dDcrVal + dTax.
                                 END.
@@ -1508,12 +1521,14 @@ PROCEDURE list-post-inv :
 
                 IF inv-misc.bill EQ "Y" THEN 
                 DO:
-                    RUN ar/calctax2.p (inv-head.tax-gr, 
-                        NO,
-                        inv-misc.amt,
-                        inv-misc.company,
-                        inv-misc.inv-i-no,
-                        OUTPUT dTax).
+                    RUN Tax_Calculate IN hdTaxProcs (
+                        INPUT  inv-misc.company,
+                        INPUT  inv-head.tax-gr,
+                        INPUT  FALSE,   /* Is this freight */
+                        INPUT  inv-misc.amt,
+                        INPUT  inv-misc.inv-i-no,
+                        OUTPUT dTax
+                        ).     
                 
                     v-reduce-ord-bal = v-reduce-ord-bal + inv-misc.amt +
                         (IF inv-misc.tax THEN dTax ELSE 0).
