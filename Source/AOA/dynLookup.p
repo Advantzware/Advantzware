@@ -80,25 +80,14 @@ FOR EACH dynValueColumn NO-LOCK
       AND dynValueColumn.paramValueID EQ dynParamValue.paramValueID
     BY dynValueColumn.sortOrder
     :
-    IF dynValueColumn.isCalcField THEN DO:
-        /* dynamic lookups cannot handle calculated fields */
-        /* future development logic to resolve added here  */
-/*        RUN spDynCalcField IN hDynCalcField (*/
-/*            ?,                               */
-/*            dynParamValue.calcProc[idx],     */
-/*            dynParamValue.calcParam[idx],    */
-/*            dynParamValue.dataType[idx],     */
-/*            dynParamValue.colFormat[idx],    */
-/*            OUTPUT cCalcFieldValue           */
-/*            ).                               */
-        NEXT.
-    END. /* if iscalcfield */
+    IF dynValueColumn.isCalcField THEN
+    cFieldName = dynValueColumn.colName.
     ELSE
     ASSIGN
         cTableName      = ENTRY(1,dynValueColumn.colName,".")
         cFieldName      = ENTRY(2,dynValueColumn.colName,".")
-        cRequiredFields = cRequiredFields + cFieldName + ","
         .
+    cRequiredFields = cRequiredFields + cFieldName + ",".
     IF dynValueColumn.sortOrder EQ 1 THEN
     ASSIGN
         cSourceTable = cTableName
