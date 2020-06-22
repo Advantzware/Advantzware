@@ -3192,6 +3192,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipDeleteAudit.
     RUN ipCleanTemplates.
     RUN ipResetCostGroups.
+    RUN ipOrphanPurge.
 
 END PROCEDURE.
 
@@ -5294,18 +5295,19 @@ PROCEDURE ipMoveUserMenusToDatabase :
         /* look for each menu option in the user's custom menu.lst */
         FOR EACH prgrms NO-LOCK
             WHERE prgrms.menu_item EQ YES
-              AND prgrms.menuOrder GT 0
-              AND prgrms.menuLevel GT 0
-              AND prgrms.mnemonic  NE ""
+            AND prgrms.menuOrder GT 0
+            AND prgrms.menuLevel GT 0
+            AND prgrms.mnemonic  NE ""
             :
             /* new additions, do not add to user's exceptions */
             IF CAN-DO("r-jcstdN.,translatn.,userLang.",prgrms.prgmname) THEN
-            NEXT.
+                NEXT.
             /* if found, skip to next menu option */
             IF CAN-FIND(FIRST ttUserMenu
-                        WHERE ttUserMenu.prgmname EQ prgrms.prgmname) THEN DO:
+                WHERE ttUserMenu.prgmname EQ prgrms.prgmname) THEN 
+            DO:
                 IF prgrms.itemParent NE "" THEN
-                RUN ipActivateParent (prgrms.itemParent, ENTRY(idx,cListUsers)).
+                    RUN ipActivateParent (prgrms.itemParent, ENTRY(idx,cListUsers)).
                 NEXT.
             END. /* if can-find */
             /* menu option not found in menu.lst, add as an exception */
@@ -5321,6 +5323,338 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipOrphanPurge C-Win
+PROCEDURE ipOrphanPurge:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR iElapsed AS INT NO-UNDO.
+    DEF VAR iDelCount AS INT NO-UNDO.
+    
+    MESSAGE 
+        "About to run a purge of old invalid or orphaned records.  This process is limited to one hour, and is strongly recommended. " +
+        "If you have run a recent purge, this section will take significantly less time than the total allotted.  Do you wish to continue?"
+        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lPurge AS LOG.
+    IF NOT lPurge THEN RETURN.
+        
+    RUN ipStatus ("    Purging invalid/orphan records...").
+
+    ASSIGN
+        iElapsed = etime(TRUE).
+        
+&scoped-define cFile fg-act
+    DISABLE TRIGGERS FOR LOAD OF {&cFile}.
+    RUN ipStatus ("      Purging " + "{&cFile}" + " records").
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.company EQ "" AND 
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.i-no EQ "" AND
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        ASSIGN 
+            iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    
+&scoped-define cFile fg-bin
+    DISABLE TRIGGERS FOR LOAD OF {&cFile}.
+    RUN ipStatus ("      Purging " + "{&cFile}" + " records").
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.company EQ "" AND 
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.loc EQ "" AND
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        ASSIGN 
+            iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    
+&scoped-define cFile fg-hist
+    DISABLE TRIGGERS FOR LOAD OF {&cFile}.
+    RUN ipStatus ("      Purging " + "{&cFile}" + " records").
+    FOR EACH {&cFile} EXCLUSIVE:
+        DELETE {&cFile}.
+        iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    
+&scoped-define cFile fg-rcpth
+    DISABLE TRIGGERS FOR LOAD OF {&cFile}.
+    RUN ipStatus ("      Purging " + "{&cFile}" + " records").
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.company EQ "" AND 
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.i-no EQ "" AND
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        ASSIGN 
+            iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    
+&scoped-define cFile fg-rcpts
+    DISABLE TRIGGERS FOR LOAD OF {&cFile}.
+    RUN ipStatus ("      Purging " + "{&cFile}" + " records").
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.company EQ "" AND 
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.i-no EQ "" AND
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        ASSIGN 
+            iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    
+&scoped-define cFile fg-rctd
+    DISABLE TRIGGERS FOR LOAD OF {&cFile}.
+    RUN ipStatus ("      Purging " + "{&cFile}" + " records").
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.company EQ "" AND 
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.i-no EQ "" AND
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        ASSIGN 
+            iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    
+&scoped-define cFile fg-rdtlh
+    DISABLE TRIGGERS FOR LOAD OF {&cFile}.
+    RUN ipStatus ("      Purging " + "{&cFile}" + " records").
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.company EQ "" AND 
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.i-no EQ "" AND
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        ASSIGN 
+            iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    
+&scoped-define cFile fg-set
+    DISABLE TRIGGERS FOR LOAD OF {&cFile}.
+    RUN ipStatus ("      Purging " + "{&cFile}" + " records").
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.company EQ "" AND 
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.set-no EQ "" AND
+        {&cFile}.part-no EQ "" AND 
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        ASSIGN 
+            iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    
+&scoped-define cFile fgcat
+    DISABLE TRIGGERS FOR LOAD OF {&cFile}.
+    RUN ipStatus ("      Purging " + "{&cFile}" + " records").
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.company EQ "" AND 
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.procat EQ "" AND
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        ASSIGN 
+            iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    
+&scoped-define cFile item
+    DISABLE TRIGGERS FOR LOAD OF {&cFile}.
+    RUN ipStatus ("      Purging " + "{&cFile}" + " records").
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.company EQ "" AND 
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.i-no EQ "" AND
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        ASSIGN 
+            iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    
+&scoped-define cFile itemfg
+    DISABLE TRIGGERS FOR LOAD OF {&cFile}.
+    RUN ipStatus ("      Purging " + "{&cFile}" + " records").
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.company EQ "" AND 
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.i-no EQ "" AND
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        ASSIGN 
+            iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    
+&scoped-define cFile itemfg-loc
+    DISABLE TRIGGERS FOR LOAD OF {&cFile}.
+    RUN ipStatus ("      Purging " + "{&cFile}" + " records").
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.company EQ "" AND 
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.i-no EQ "" AND
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        ASSIGN 
+            iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    
+&scoped-define cFile itemfgdtl
+    DISABLE TRIGGERS FOR LOAD OF {&cFile}.
+    RUN ipStatus ("      Purging " + "{&cFile}" + " records").
+    FOR EACH {&cFile} EXCLUSIVE:
+        DELETE {&cFile}.
+        iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    
+&scoped-define cFile rm-bin
+    DISABLE TRIGGERS FOR LOAD OF {&cFile}.
+    RUN ipStatus ("      Purging " + "{&cFile}" + " records").
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.company EQ "" AND 
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.loc EQ "" AND
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        ASSIGN 
+            iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    
+&scoped-define cFile rm-rcpt
+    DISABLE TRIGGERS FOR LOAD OF {&cFile}.
+    RUN ipStatus ("      Purging " + "{&cFile}" + " records").
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.company EQ "" AND 
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.i-no EQ "" AND
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        ASSIGN 
+            iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    
+&scoped-define cFile rm-rctd
+    DISABLE TRIGGERS FOR LOAD OF {&cFile}.
+    RUN ipStatus ("      Purging " + "{&cFile}" + " records").
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.company EQ "" AND 
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.i-no EQ "" AND
+        {&cFile}.rec_key LT STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99"):
+        DELETE {&cFile}.
+        ASSIGN 
+            iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    
+&scoped-define cFile usercomp
+    DISABLE TRIGGERS FOR LOAD OF {&cFile}.
+    RUN ipStatus ("      Purging " + "{&cFile}" + " records").
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.company EQ "" :
+        DELETE {&cFile}.
+        iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+    FOR EACH {&cFile} EXCLUSIVE WHERE 
+        {&cFile}.user_id EQ "":
+        DELETE {&cFile}.
+        ASSIGN 
+            iDelCount = iDelCount + 1.
+        IF etime GT 3600000 THEN LEAVE.
+    END. 
+
+    RUN ipStatus ("      Deleted " + STRING(iDelCount,">,>>>,>>>,>>9") + " orphan records in " + STRING(INTEGER(eTime / 1000)) + " seconds.").
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipProcessAll C-Win 
 PROCEDURE ipProcessAll :
@@ -5876,7 +6210,7 @@ PROCEDURE ipResetCostGroups:
         cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
         PROPATH = cNewPropath.
         
-    RUN est/ResetCostGroupsAndCategories.p   
+    RUN est/ResetCostGroupsAndCategories.p.   
     
     ASSIGN 
         PROPATH = cOrigPropath.     
