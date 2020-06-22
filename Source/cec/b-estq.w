@@ -839,24 +839,6 @@ and est-qty.eqty = eb.eqty
 
 &Scoped-define SELF-NAME begin_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
-ON HELP OF begin_cust-no IN FRAME F-Main
-DO:
-   DEF VAR char-val AS cha NO-UNDO.
-   RUN windows/l-cust2.w (INPUT g_company, INPUT FOCUS:SCREEN-VALUE,"", OUTPUT char-val).
-          IF char-val <> "" THEN
-          DO:
-            /* 11121503 Was moving to previous field for some reason */
-            APPLY 'entry' TO begin_cust-no IN FRAME F-MAIN.
-            FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-
-          END.
-          /* return no-apply. */
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
 ON VALUE-CHANGED OF begin_cust-no IN FRAME F-Main
 DO:
   /*IF LASTKEY NE -1 THEN DO:

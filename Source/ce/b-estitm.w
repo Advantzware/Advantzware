@@ -574,6 +574,8 @@ DO:
 
      DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
 
+     DEFINE VARIABLE cReturnFields AS CHARACTER NO-UNDO.
+     DEFINE VARIABLE riRecVal      AS RECID     NO-UNDO.
 
      lw-focus = FOCUS.
 
@@ -633,7 +635,16 @@ DO:
        END.
        WHEN "cust-no" THEN DO:
            ls-cur-val = eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}.
-           RUN windows/l-cust.w (gcompany,ls-cur-val, OUTPUT char-val).
+           RUN system/openlookup.p (
+               INPUT  "", 
+               INPUT  "", /* lookup field */
+               INPUT  127,   /* Subject ID */
+               INPUT  "",  /* User ID */
+               INPUT  0,   /* Param value ID */
+               OUTPUT cReturnFields, 
+               OUTPUT char-val, 
+               OUTPUT riRecVal
+               ).
            IF char-val NE "" AND ls-cur-val NE ENTRY(1,char-val) THEN DO:
               eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val).
               APPLY "value-changed" TO eb.cust-no.

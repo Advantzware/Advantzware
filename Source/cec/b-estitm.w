@@ -728,6 +728,9 @@ DO:
      DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
      DEF VAR look-recid AS RECID NO-UNDO.
 
+     DEFINE VARIABLE cReturnFields AS CHARACTER NO-UNDO.
+     DEFINE VARIABLE riRecVal      AS RECID     NO-UNDO.
+     
      lw-focus = FOCUS.
 
      CASE lw-focus:NAME :
@@ -842,7 +845,17 @@ DO:
        WHEN "cust-no" THEN DO:
            ls-cur-val = lw-focus:SCREEN-VALUE.
            /*RUN windows/l-custact.w (gcompany,ls-cur-val, OUTPUT char-val, OUTPUT look-recid).*/
-           RUN windows/l-cust2.w (INPUT g_company, ls-cur-val,"", OUTPUT char-val).
+    
+           RUN system/openlookup.p (
+               INPUT  "", 
+               INPUT  "", /* lookup field */
+               INPUT  127,   /* Subject ID */
+               INPUT  "",  /* User ID */
+               INPUT  0,   /* Param value ID */
+               OUTPUT cReturnFields, 
+               OUTPUT char-val, 
+               OUTPUT riRecVal
+               ).
            IF char-val NE "" AND ls-cur-val NE ENTRY(1,char-val) THEN DO:
               eb.cust-no:SCREEN-VALUE = ENTRY(1,char-val).
               APPLY "value-changed" TO eb.cust-no.
