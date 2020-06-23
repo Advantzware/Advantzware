@@ -307,6 +307,14 @@ DEFINE TEMP-TABLE rpt NO-UNDO
     LIKE ttInvoiceLineToPost
     .
     
+DEFINE TEMP-TABLE ttInvoiceError NO-UNDO 
+    FIELD riInvError AS ROWID
+    FIELD inv-no AS INTEGER 
+    FIELD cReason AS CHARACTER
+    FIELD isOKToPost AS LOGICAL 
+    .    
+        
+    
 {custom/globdefs.i}    
 {sys/inc/var.i SHARED}
 /*Program-level Handles for persistent procs*/
@@ -1073,6 +1081,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
      Notes:  Will process multi-invoices and "link-up" the inv-lines to one master
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplAutoApproved AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opiProcessed AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
@@ -1111,7 +1120,8 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
         AND bf-inv-head.inv-date GE ttPostingMaster.invoiceDateStart
         AND bf-inv-head.inv-date LE ttPostingMaster.invoiceDateEnd
         AND bf-inv-head.cust-no  GE ttPostingMaster.customerIDStart
-        AND bf-inv-head.cust-no  LE ttPostingMaster.customerIDEnd    
+        AND bf-inv-head.cust-no  LE ttPostingMaster.customerIDEnd 
+        AND ((iplAutoApproved AND bf-inv-head.AutoApproved) OR NOT iplAutoApproved)
         AND (CAN-FIND(FIRST bf-inv-line WHERE bf-inv-line.r-no EQ bf-inv-head.r-no)
         OR CAN-FIND(FIRST bf-inv-misc WHERE bf-inv-misc.r-no = bf-inv-head.r-no )
         OR bf-inv-head.multi-invoice)
@@ -2269,6 +2279,7 @@ PROCEDURE PostInvoices:
     DEFINE INPUT PARAMETER ipcCustomerIDEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdtPostDate AS DATE NO-UNDO.
     DEFINE INPUT PARAMETER ipcOptions AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipAutoApproved AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opiCountProcessed AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiCountValid AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiCountPosted AS INTEGER NO-UNDO.
@@ -2289,7 +2300,7 @@ PROCEDURE PostInvoices:
 
     IF NOT oplError THEN
         /*Build the master list of invoices based on ttPostingMaster*/
-        RUN pBuildInvoicesToPost(ipcCompany, OUTPUT opiCountProcessed, OUTPUT oplError, OUTPUT opcMessage).
+        RUN pBuildInvoicesToPost(ipcCompany,ipAutoApproved, OUTPUT opiCountProcessed, OUTPUT oplError, OUTPUT opcMessage).
 
     IF NOT oplError THEN
         /*Process the master list of invoices for reporting and/or posting*/
@@ -3153,8 +3164,293 @@ PROCEDURE pUpdateOrders PRIVATE:
     
 END PROCEDURE.
 
-/* ************************  Function Implementations ***************** */
+PROCEDURE pValidateInvoice :
+    /*------------------------------------------------------------------------------
+     Purpose: validate invoice 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiInvNoStart AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiInvNoEnd AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtInvDateStart AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtInvDateEnd AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomerIDStart AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomerIDEnd AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBolStart AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBolEnd AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtPostDate AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER iplDisplayMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiCountProcessed AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiCountValid AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiCountPosted AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
+    DEFINE VARIABLE lExceptions AS LOGICAL NO-UNDO.
+        
+    /*Create the ttPostingMaster record and fill it with initial values*/
+    RUN pInitialize(ipcCompany, 
+        ipiInvNoStart, ipiInvNoEnd, 
+        ipdtInvDateStart, ipdtInvDateEnd, 
+        ipcCustomerIDStart, ipcCustomerIDEnd, 
+        ipdtPostDate,
+        OUTPUT oplError, OUTPUT opcMessage).
+
+    IF NOT oplError THEN
+        /*Build the master list of invoices based on ttPostingMaster*/
+        RUN pCheckInvoicesToPost(ipcCompany,ipiBolStart,ipiBolEnd, OUTPUT opiCountProcessed, OUTPUT oplError, OUTPUT opcMessage).
+
+    
+    /*Process to create tag */
+    RUN pProcessCreateTag(OUTPUT oplError, OUTPUT opcMessage). 
+        
+    opcMessage = "Process Complete.".
+    
+END PROCEDURE.
+
+PROCEDURE pCheckInvoicesToPost PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given Criteria Range, build invoices to post
+     Notes:  Will process multi-invoices and "link-up" the inv-lines to one master
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.  
+    DEFINE INPUT PARAMETER ipiBolStart AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBolEnd AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiProcessed AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+        
+    DEFINE BUFFER bf-inv-head                   FOR inv-head.
+    DEFINE BUFFER bf-inv-line                   FOR inv-line.
+    DEFINE BUFFER bf-inv-misc                   FOR inv-misc.
+    DEFINE BUFFER bf-cust                       FOR cust.
+    DEFINE BUFFER bf-MultiInvoiceChild-inv-head FOR inv-head.
+    DEFINE BUFFER bf-ttInvoiceToPost            FOR ttInvoiceToPost.
+    DEFINE BUFFER bf-ttInvoiceLineToPost        FOR ttInvoiceLineToPost.
+    DEFINE BUFFER bf-ttInvoiceMiscToPost        FOR ttInvoiceMiscToPost.
+    
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO.
+    
+    FIND FIRST ttPostingMaster NO-LOCK NO-ERROR.
+    IF NOT AVAILABLE ttPostingMaster THEN 
+    DO: 
+        ASSIGN 
+            oplError   = YES
+            opcMessage = "Posting Master Not available"
+            .
+        RETURN.
+    END.    
+    ASSIGN 
+        oplError   = YES
+        opcMessage = "No Invoices Available for Posting"
+        .
+        
+    FOR EACH bf-inv-head NO-LOCK
+        WHERE bf-inv-head.company  EQ ttPostingMaster.company
+        AND bf-inv-head.printed   EQ YES
+        AND bf-inv-head.inv-no    GT 0
+        AND bf-inv-head.inv-no    GE ttPostingMaster.invoiceStart
+        AND bf-inv-head.inv-no    LE ttPostingMaster.invoiceEnd 
+        AND (bf-inv-head.inv-date GE ttPostingMaster.invoiceDateStart OR bf-inv-head.inv-date EQ ?)
+        AND (bf-inv-head.inv-date LE ttPostingMaster.invoiceDateEnd  OR bf-inv-head.inv-date EQ ?)
+        AND bf-inv-head.cust-no   GE ttPostingMaster.customerIDStart
+        AND bf-inv-head.cust-no   LE ttPostingMaster.customerIDEnd 
+        AND bf-inv-head.bol-no    GE ipiBolStart
+        AND bf-inv-head.bol-no    LE ipiBolEnd
+        AND NOT bf-inv-head.AutoApproved  
+        AND (CAN-FIND(FIRST bf-inv-line WHERE bf-inv-line.r-no EQ bf-inv-head.r-no)
+        OR CAN-FIND(FIRST bf-inv-misc WHERE bf-inv-misc.r-no = bf-inv-head.r-no )
+        OR bf-inv-head.multi-invoice)        
+        USE-INDEX prnt,
+        FIRST bf-cust NO-LOCK
+        WHERE bf-cust.company EQ bf-inv-head.company
+        AND bf-cust.cust-no EQ bf-inv-head.cust-no
+        AND ((bf-cust.inv-meth EQ ? AND bf-inv-head.multi-invoice) OR (bf-cust.inv-meth NE ? AND NOT bf-inv-head.multi-invoice))  /*Filter multi-invoices correctly based on customer*/
+        :
+        /*Add CustomerList Exclusions*/
+        /*TBD*/
+        lCheckError = NO.
+          
+        opiProcessed = opiProcessed + 1.
+        RUN pAddInvoiceToPost(BUFFER ttPostingMaster, BUFFER bf-inv-head, BUFFER bf-cust, OUTPUT lError, OUTPUT cMessage, BUFFER bf-ttInvoiceToPost).
+        IF fIsWritable(ROWID(bf-inv-head)) THEN 
+        DO:
+            ASSIGN 
+                oplError   = NO
+                opcMessage = ""
+                . 
+            IF lError THEN do:
+               lCheckError = TRUE.
+               RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,bf-ttInvoiceToPost.ProblemMessage,bf-ttInvoiceToPost.isOKToPost).           
+            END.    
+            
+            FOR EACH bf-inv-line NO-LOCK
+                WHERE bf-inv-line.r-no EQ bf-inv-head.r-no
+                USE-INDEX r-no :
+                
+                RUN pAddInvoiceLineToPost(BUFFER ttPostingMaster, BUFFER bf-ttInvoiceToPost, BUFFER bf-inv-line, ipcCompany, bf-inv-head.r-no, OUTPUT lError, OUTPUT cMessage). 
+                
+                FIND FIRST shipto NO-LOCK
+                     WHERE shipto.company EQ bf-inv-head.company 
+                     AND shipto.cust-no EQ bf-inv-head.cust-no 
+                     AND shipto.ship-id EQ bf-inv-head.sold-no NO-ERROR.
+                     
+                IF AVAIL shipto AND shipto.tax-mandatory AND NOT bf-inv-line.tax THEN
+                DO:
+                   lCheckError = TRUE.
+                   RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Taxable ship to with untaxed line item",NO). 
+                END.                 
+                
+            END. /*each bf-inv-line*/
+            IF lError THEN 
+            DO: 
+               lCheckError = TRUE.
+               RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,cMessage,NO).                                    
+            END.
+            
+            FOR EACH bf-inv-misc NO-LOCK
+                WHERE bf-inv-misc.r-no EQ bf-inv-head.r-no
+                USE-INDEX r-no:
+                RUN pAddInvoiceMiscToPost(BUFFER ttPostingMaster, BUFFER bf-ttInvoiceToPost, BUFFER bf-inv-misc, bf-inv-head.r-no, OUTPUT lError, OUTPUT cMessage). 
+            END. /*each bf-inv-misc*/
+            
+            IF lError THEN 
+            DO: 
+                 lCheckError = TRUE.
+                 RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,cMessage,NO).
+            END.
+                        
+            /*Manage Multi Invoices*/
+            IF bf-inv-head.multi-invoice THEN 
+            DO:             
+                RUN pAlignMultiInvoiceLinesWithMaster(BUFFER ttPostingMaster, BUFFER bf-inv-head, BUFFER bf-ttInvoiceToPost, ipcCompany, OUTPUT lError, OUTPUT cMessage).
+                IF lError THEN 
+                DO:
+                    lCheckError = TRUE.
+                    RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,cMessage,NO).
+                END.
+            END. /*Multi-invoice header*/
+            
+            FIND FIRST bf-ttInvoiceLineToPost NO-LOCK
+                WHERE bf-ttInvoiceLineToPost.rNo EQ bf-ttInvoiceToPost.rNo
+                AND NOT bf-ttInvoiceLineToPost.isOKToPost
+                NO-ERROR.
+            IF AVAILABLE bf-ttInvoiceLineToPost THEN 
+            DO:
+                lCheckError = TRUE.
+                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,bf-ttInvoiceLineToPost.problemMessage,NO).                           
+            END.
+            
+            FIND FIRST bf-ttInvoiceMiscToPost NO-LOCK
+                WHERE bf-ttInvoiceMiscToPost.rNo EQ bf-ttInvoiceToPost.rNo
+                AND NOT bf-ttInvoiceMiscToPost.isOKToPost
+                NO-ERROR.
+            IF AVAILABLE bf-ttInvoiceMiscToPost THEN 
+            DO:
+               lCheckError = TRUE.
+               RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,bf-ttInvoiceMiscToPost.problemMessage,NO).                       
+            END.                
+           
+         IF bf-inv-head.stat EQ "H" THEN
+         DO:
+            lCheckError = TRUE.
+            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invoice on Hold",NO).                             
+         END.
+         
+         IF bf-ttInvoiceToPost.isFreightBillable AND  bf-ttInvoiceToPost.amountBilledFreight LE 0 THEN
+         DO:
+            lCheckError = TRUE.
+            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billable freight without freight charge",NO).              
+         END.
+         
+         IF bf-inv-head.bill-i[1] NE "" OR bf-inv-head.bill-i[2] NE "" OR bf-inv-head.bill-i[3] NE "" OR bf-inv-head.bill-i[4] NE "" THEN
+         DO:
+            lCheckError = TRUE.
+            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billing notes exist",NO).              
+         END.          
+                             
+        END. /*inv-head is writable*/
+        
+        IF NOT lCheckError THEN
+         RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,bf-ttInvoiceToPost.ProblemMessage,bf-ttInvoiceToPost.isOKToPost).           
+    END.  /*Each Inv-head that meets range criteria*/
+    
+END PROCEDURE.
+
+PROCEDURE pAddValidationError PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  build error temp-table to auto approved 
+     Notes:  Will process multi-invoices and "link-up" the inv-lines to one master
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttInvoiceToPost FOR ttInvoiceToPost.
+    DEFINE INPUT PARAMETER ipcProblemMessage AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplIsOKToPost AS LOGICAL NO-UNDO.
+    CREATE ttInvoiceError.
+    ASSIGN
+      ttInvoiceError.riInvError = ipbf-ttInvoiceToPost.riInvHead
+      ttInvoiceError.inv-no     = ipbf-ttInvoiceToPost.invoiceID
+      ttInvoiceError.cReason    = ipcProblemMessage 
+      ttInvoiceError.isOKToPost = iplIsOKToPost  .    
+      RELEASE ttInvoiceError.
+END PROCEDURE.
+
+PROCEDURE pProcessCreateTag PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  set tag reason 
+     Notes:  Will process multi-invoices and "link-up" the inv-lines to one master
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER iplError AS LOGICAL NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-inv-head FOR inv-head.
+    DEFINE BUFFER b-inv-head FOR inv-head.
+    DEFINE VARIABLE hTagProcs AS HANDLE NO-UNDO.
+    
+    IF NOT VALID-HANDLE(hTagProcs) THEN 
+       RUN system/tagprocs.p PERSISTENT SET hTagProcs.
+                  
+    FOR EACH ttInvoiceError NO-LOCK ,
+        FIRST bf-inv-head EXCLUSIVE-LOCK 
+        WHERE ROWID(bf-inv-head) EQ ttInvoiceError.riInvError :
+                  
+                  
+        FIND FIRST b-inv-head EXCLUSIVE-LOCK
+                    WHERE b-inv-head.company     EQ bf-inv-head.company
+                    AND b-inv-head.cust-no       EQ bf-inv-head.cust-no
+                    AND b-inv-head.inv-no        EQ bf-inv-head.inv-no
+                    AND b-inv-head.multi-invoice EQ NO  NO-ERROR .
+                    
+        IF ttInvoiceError.isOKToPost THEN
+        DO:
+           bf-inv-head.AutoApproved = TRUE.
+           RUN ClearTagsRelease IN hTagProcs (bf-inv-head.rec_key).           
+           IF AVAIL b-inv-head THEN
+           DO:
+               b-inv-head.AutoApproved = TRUE.
+               RUN ClearTagsRelease IN hTagProcs (b-inv-head.rec_key). 
+           END.
+        END.
+        ELSE IF NOT ttInvoiceError.isOKToPost THEN
+        DO:               
+           IF AVAIL b-inv-head THEN
+           DO:                
+               b-inv-head.AutoApproved = FALSE.
+               RUN AddTagHold IN hTagProcs (b-inv-head.rec_key,"inv-head", ttInvoiceError.cReason). 
+           END.
+           ELSE DO:               
+              RUN AddTagHold IN hTagProcs (bf-inv-head.rec_key,"inv-head", ttInvoiceError.cReason).
+           END.
+           bf-inv-head.AutoApproved = FALSE.
+        END.          
+    END.
+     
+    DELETE OBJECT hTagProcs. 
+ END PROCEDURE.   
+    
+    
+/* ************************  Function Implementations ***************** */ 
 FUNCTION fGetFilePath RETURNS CHARACTER PRIVATE
     ( ipcFolder AS CHARACTER, ipcFileBase AS CHARACTER, ipcFileUnique AS CHARACTER, ipcFileExt AS CHARACTER ):
     /*------------------------------------------------------------------------------

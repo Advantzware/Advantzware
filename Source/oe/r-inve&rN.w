@@ -3,7 +3,7 @@
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
-  File: oe\r-inve&p.w
+  File: oe\r-inve&rN.w
 
   Description: Invoice Edit List & Posting
 
@@ -12,9 +12,9 @@
   Output Parameters:
       <none>
 
-  Author: JLF
+  Author: sewa.singh
 
-  Created: 05/07/02
+  Created: 06/23/20
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -474,7 +474,7 @@ DEFINE FRAME FRAME-A
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Invoice Posting"
+         TITLE              = "Invoice Register"
          HEIGHT             = 23.24
          WIDTH              = 95.8
          MAX-HEIGHT         = 33.29
@@ -614,6 +614,13 @@ END.
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Invoice Date */
 DO:
         ASSIGN {&self-name}.
+        IF LASTKEY NE -1 AND (MONTH(begin_date) NE MONTH(tran-date) OR
+                              YEAR(begin_date) NE YEAR(tran-date) ) THEN
+        DO:
+            RUN displayMessage("42").
+            APPLY "entry" TO  begin_date.
+            RETURN NO-APPLY.
+        END.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -659,6 +666,12 @@ DO:
 
         RUN check-date.
         IF v-invalid THEN RETURN NO-APPLY.
+        IF (MONTH(begin_date) NE MONTH(tran-date)) OR (MONTH(end_date) NE MONTH(tran-date)) THEN
+        DO:
+            RUN displayMessage("42").
+            APPLY "entry" TO  begin_date.
+            RETURN NO-APPLY.
+        END.
 
         SESSION:SET-WAIT-STATE ("general").   
 
@@ -673,19 +686,7 @@ DO:
                 FIND FIRST gl-ctrl EXCLUSIVE-LOCK
                     WHERE gl-ctrl.company EQ cocode NO-ERROR NO-WAIT.
                 IF AVAILABLE gl-ctrl THEN 
-                DO:
-
-                    /*
-                     FIND FIRST gl-ctrl WHERE gl-ctrl.company EQ cocode 
-                       EXCLUSIVE-LOCK NO-WAIT NO-ERROR.
-                     IF LOCKED(gl-ctrl) THEN
-                     DO:
-                      MESSAGE "The General Ledger Control File is Currently Locked" SKIP
-                              "by another user. Posting can NOT proceed at this Time!!"
-                            VIEW-AS ALERT-BOX ERROR.
-                      RETURN NO-APPLY.
-                     END.
-                    */
+                DO:                     
                     ASSIGN 
                         v-trnum       = gl-ctrl.trnum + 1 
                         gl-ctrl.trnum = v-trnum.
@@ -698,7 +699,7 @@ DO:
         END.
 
         RUN run-report.
-
+      
         CASE rd-dest:
             WHEN 1 THEN RUN output-to-printer.
             WHEN 2 THEN RUN output-to-screen.
@@ -742,119 +743,14 @@ DO:
         DO:
 
             lv-post = NO.
-
+              MESSAGE "v-balance " STRING(v-balance) VIEW-AS ALERT-BOX ERROR .
             IF v-balance = 0 THEN
                 MESSAGE "Post Invoices?"
                     VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
                     UPDATE lv-post.
 
             IF lv-post THEN 
-            DO:
-                /* If old, do this */  
-                IF NOT lUseNewInvoicePost THEN DO:
-                    RUN list-post-inv ("post").
-                    RUN post-gl.
-                    RUN copy-report-to-audit-dir.
-    
-                    FOR EACH tt-report:
-                        DELETE tt-report.
-                    END.
-    
-                    EMPTY TEMP-TABLE tt-gl.
-    
-                    IF v-export EQ "Sonoco" THEN
-                        RUN ar/sonoinv.p ("total", t-rec-written, OUTPUT v-rec-written).
-    
-                    FOR EACH w-ord BREAK BY w-ord.ord-no:
-                        IF NOT FIRST-OF(w-ord.ord-no) THEN DELETE w-ord.
-                    END.
-    
-                    order-close1:
-                    FOR EACH w-ord,
-                        FIRST oe-ord NO-LOCK
-                        WHERE oe-ord.company EQ cocode
-                        AND oe-ord.ord-no  EQ w-ord.ord-no
-                        BREAK BY oe-ord.cust-no:
-    
-                        RELEASE cust.
-                        RUN oe/calcordt.p (ROWID(oe-ord)).
-                        IF LAST-OF(oe-ord.cust-no) THEN 
-                        DO:
-    
-                            FIND FIRST tt-custbal WHERE tt-custbal.cust-no EQ oe-ord.cust-no
-                                NO-LOCK NO-ERROR.
-                            IF NOT AVAILABLE tt-custbal THEN 
-                            DO:
-                                CREATE tt-custbal.
-                                ASSIGN 
-                                    tt-custbal.cust-no = oe-ord.cust-no.
-                            END.
-    
-                            FIND FIRST cust /* EXCLUSIVE */
-                                WHERE cust.company EQ oe-ord.company
-                                AND cust.cust-no EQ oe-ord.cust-no
-                                NO-LOCK NO-ERROR.
-    
-                            IF AVAILABLE cust THEN 
-                            DO:
-                                RUN ar/updcust1.p (NO, BUFFER cust, OUTPUT tt-custbal.ord-bal).
-    
-                                /* IF cust.ord-bal LT 0 THEN cust.ord-bal = 0. */
-    
-                                FIND CURRENT cust NO-LOCK.
-                            END.
-                        END.
-                    END. /* Each w-ord */
-    
-                    cust-bal:
-                    FOR EACH tt-custbal,
-                        FIRST cust WHERE cust.company EQ cocode
-                        AND cust.cust-no EQ tt-custbal.cust-no
-                        EXCLUSIVE-LOCK.
-                        /* RUN ar/updcust1.p (BUFFER cust, OUTPUT cust.ord-bal). */
-                        cust.ord-bal = tt-custbal.ord-bal.         
-    
-                        IF cust.ord-bal LT 0 THEN cust.ord-bal = 0.
-    
-                    END.
-    
-                    order-close2:  /*Close all order lines that pass close criteria, regarless of prompt*/
-                    FOR EACH w-ord,
-                        FIRST oe-ord NO-LOCK
-                        WHERE oe-ord.company EQ cocode
-                        AND oe-ord.ord-no  EQ w-ord.ord-no
-                        BREAK BY oe-ord.cust-no:
-            
-                        RELEASE cust.
-            
-                        FOR EACH oe-ordl WHERE
-                            oe-ordl.company EQ oe-ord.company AND
-                            oe-ordl.ord-no  EQ oe-ord.ord-no AND
-                            oe-ordl.stat    NE "C"
-                            NO-LOCK:
-            
-                            RUN oe/CloseOrder.p(INPUT ROWID(oe-ordl),
-                                INPUT NO,
-                                OUTPUT cStatus,
-                                OUTPUT cReason).
-            
-                            IF cStatus EQ 'C' THEN
-                                RUN oe/closelin.p (INPUT ROWID(oe-ordl),YES).
-                        END.
-            
-                        RUN close-order (BUFFER oe-ord).
-                    END. /* Each w-ord */
-        
-                    MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
-    
-                    IF oeclose-log THEN
-                    DO:
-                        /*         RUN oe/closchkinv.p (0).  - removing this since orderlines already closed based on rules in the close-order2 block*/            
-                        IF CAN-FIND (FIRST w-ord) THEN
-                            RUN oe/d-close.w.
-                    END.
-                END.  /* Old posting */
-                ELSE DO:  /* Use NEW Invoice Post */
+            DO:                  
                     RUN oe/PostInvoices.p PERSISTENT SET hPostInvoices.
                     RUN PostInvoices IN hPostInvoices (
                         cocode,
@@ -866,15 +762,14 @@ DO:
                         end_cust,
                         DATE(tran-date),
                         "export,post",
-                        NO,
+                        YES,
                         OUTPUT iProcessed,
                         OUTPUT iValid,
                         OUTPUT iPosted,
                         OUTPUT lError,
                         OUTPUT cMessage
                         ).
-                    MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
-                END.
+                    MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.                 
             END.
         END.
 
@@ -915,6 +810,14 @@ DO:
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Invoice Date */
 DO:
         ASSIGN {&self-name}.
+        
+        IF LASTKEY NE -1 AND (MONTH(end_date) NE MONTH(tran-date) OR 
+                              YEAR(end_date) NE YEAR(tran-date)) THEN
+        DO:
+            RUN displayMessage("42").
+            APPLY "entry" TO  end_date.
+            RETURN NO-APPLY.
+        END.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1173,8 +1076,9 @@ APPLY "entry" TO tran-date.
 END.
 
   
-MESSAGE "This will ONLY post invoices that have been PRINTED!" SKIP(1)
-    VIEW-AS ALERT-BOX.
+/*MESSAGE "This will ONLY post invoices that have been PRINTED!" SKIP(1)
+    VIEW-AS ALERT-BOX.*/
+ RUN displayMessage("41").    
   
 
 IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -2753,6 +2657,7 @@ PROCEDURE run-report :
         AND inv-head.cust-no GE begin_cust 
         AND inv-head.cust-no LE end_cust 
         AND inv-head.stat     NE "H"
+        AND inv-head.AutoApproved
         AND ( CAN-FIND(FIRST inv-line WHERE inv-line.r-no = inv-head.r-no )
         OR CAN-FIND(FIRST inv-misc WHERE inv-misc.r-no = inv-head.r-no )
         OR inv-head.multi-invoice)
