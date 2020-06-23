@@ -569,22 +569,22 @@ END.
                      WHEN "city"      THEN cVarValue = STRING(cust.city,"x(10)") .
                      WHEN "stat"      THEN cVarValue = STRING(cust.state,"x(5)") .
                      WHEN "zip"       THEN cVarValue = STRING(cust.zip,"x(10)")  .
-                     WHEN "cre-lim"   THEN cVarValue = string(cust.cr-lim,">>>>>>>>9.99") .
+                     WHEN "cre-lim"   THEN cVarValue = string(cust.cr-lim,">>>,>>>,>>9.99") .
                      WHEN "phone"     THEN cVarValue = trim(string(cust.area-code,"(xxx)") + string(cust.phone,"xxx-xxxx")) .
                      WHEN "fax"       THEN cVarValue = trim(string(substr(cust.fax,1,3),"(xxx)") + string(substr(cust.fax,4,7),"xxx-xxxx")).
                      WHEN "chk-memo"  THEN cVarValue = STRING("0").
-                     WHEN "day-old"   THEN cVarValue = STRING(d,"->>>>>>>"). /*8*/
+                     WHEN "day-old"   THEN cVarValue = STRING(d,"->>>,>>>"). /*8*/
                      WHEN "type"      THEN cVarValue = string(v-type,"x(4)").
                      WHEN "inv"       THEN cVarValue = string(ar-inv.inv-no,">>>>>>>>") .
                      WHEN "inv-date"  THEN cVarValue = STRING(ar-inv.inv-date,"99/99/99") .
-                     WHEN "amount"    THEN cVarValue = STRING(amt,"->>>>>>>>9.99").
-                     WHEN "current"   THEN cVarValue = STRING(v-dec[1],"->>>>>>>>9.99").
+                     WHEN "amount"    THEN cVarValue = STRING(amt,"->>>,>>>,>>9.99").
+                     WHEN "current"   THEN cVarValue = STRING(v-dec[1],"->>>,>>>,>>9.99").
                      WHEN "adtp"      THEN cVarValue = STRING(cust.avg-pay,">>>9").
                      WHEN "td"        THEN cVarValue = STRING(v-current-trend-days,"->>9").
-                     WHEN "per-1"     THEN cVarValue = STRING(v-dec[2],"->>>>>>>>9.99") .
-                     WHEN "per-2"     THEN cVarValue = STRING(v-dec[3],"->>>>>>>>9.99").
-                     WHEN "per-3"     THEN cVarValue = STRING(v-dec[4],"->>>>>>>>9.99") .
-                     WHEN "per-4"     THEN cVarValue = STRING(v-dec[5],"->>>>>>>>9.99") .
+                     WHEN "per-1"     THEN cVarValue = STRING(v-dec[2],"->>>,>>>,>>9.99") .
+                     WHEN "per-2"     THEN cVarValue = STRING(v-dec[3],"->>>,>>>,>>9.99").
+                     WHEN "per-3"     THEN cVarValue = STRING(v-dec[4],"->>>,>>>,>>9.99") .
+                     WHEN "per-4"     THEN cVarValue = STRING(v-dec[5],"->>>,>>>,>>9.99") .
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(9)")  .
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
@@ -736,7 +736,7 @@ END.
                          WHEN "city"      THEN cVarValue = STRING(cust.city,"x(10)") .
                          WHEN "stat"      THEN cVarValue = STRING(cust.state,"x(5)") .
                          WHEN "zip"       THEN cVarValue = STRING(cust.zip,"x(10)")  .
-                         WHEN "cre-lim"   THEN cVarValue = string(cust.cr-lim,">>>>>>>>9.99") .
+                         WHEN "cre-lim"   THEN cVarValue = string(cust.cr-lim,">>>,>>>,>>9.99") .
                          WHEN "phone"     THEN cVarValue = trim(string(cust.area-code,"(xxx)") +  string(cust.phone,"xxx-xxxx")) .
                          WHEN "fax"       THEN cVarValue = trim(string(substr(cust.fax,1,3),"(xxx)") + string(substr(cust.fax,4,7),"xxx-xxxx")).
                          WHEN "chk-memo"  THEN cVarValue = STRING(ar-cashl.check-no).
@@ -744,7 +744,7 @@ END.
                          WHEN "type"      THEN cVarValue = string(v-type,"x(4)").
                          WHEN "inv"       THEN cVarValue = string(ar-cashl.inv-no,">>>>>>>>") .
                          WHEN "inv-date"  THEN cVarValue = STRING(ar-cash.check-date,"99/99/99") .
-                         WHEN "amount"    THEN cVarValue = STRING(v-cr-db-amt,"->>>>>>>>9.99").
+                         WHEN "amount"    THEN cVarValue = STRING(v-cr-db-amt,"->>>,>>>,>>9.99").
                          WHEN "current"   THEN cVarValue = /*STRING(v-dec[1],"->>>>>>>>9.99")*/ "".
                          WHEN "adtp"      THEN cVarValue = STRING(cust.avg-pay,">>>9").
                          WHEN "td"        THEN cVarValue = STRING(v-current-trend-days,"->>9").
@@ -805,7 +805,7 @@ END.
                          WHEN "city"      THEN cVarValue = STRING(cust.city,"x(10)") .
                          WHEN "stat"      THEN cVarValue = STRING(cust.state,"x(5)") .
                          WHEN "zip"       THEN cVarValue = STRING(cust.zip,"x(10)")  .
-                         WHEN "cre-lim"   THEN cVarValue = string(cust.cr-lim,">>>>>>>>9.99") .
+                         WHEN "cre-lim"   THEN cVarValue = string(cust.cr-lim,">>>,>>>,>>9.99") .
                          WHEN "phone"     THEN cVarValue = trim(string(cust.area-code,"(xxx)") +  string(cust.phone,"xxx-xxxx")) .
                          WHEN "fax"       THEN cVarValue = trim(string(substr(cust.fax,1,3),"(xxx)") + string(substr(cust.fax,4,7),"xxx-xxxx")).
                          WHEN "chk-memo"  THEN cVarValue = STRING(ar-cashl.check-no).
@@ -813,7 +813,7 @@ END.
                          WHEN "type"      THEN cVarValue = string(v-disc-type,"x(4)").
                          WHEN "inv"       THEN cVarValue = string(ar-cashl.inv-no,">>>>>>>>") .
                          WHEN "inv-date"  THEN cVarValue = STRING(ar-cash.check-date,"99/99/99") .
-                         WHEN "amount"    THEN cVarValue = STRING(v-disc-amt,"->>>>>>>>9.99").
+                         WHEN "amount"    THEN cVarValue = STRING(v-disc-amt,"->>>,>>>,>>9.99").
                          WHEN "current"   THEN cVarValue = /*STRING(v-dec[1],"->>>>>>>>9.99")*/ "".
                          WHEN "adtp"      THEN cVarValue = STRING(cust.avg-pay,">>>9").
                          WHEN "td"        THEN cVarValue = STRING(v-current-trend-days,"->>9").
@@ -904,7 +904,7 @@ END.
                          WHEN "city"      THEN cVarValue = STRING(cust.city,"x(10)") .
                          WHEN "stat"      THEN cVarValue = STRING(cust.state,"x(5)") .
                          WHEN "zip"       THEN cVarValue = STRING(cust.zip,"x(10)")  .
-                         WHEN "cre-lim"   THEN cVarValue = string(cust.cr-lim,">>>>>>>>9.99") .
+                         WHEN "cre-lim"   THEN cVarValue = string(cust.cr-lim,">>>,>>>,>>9.99") .
                          WHEN "phone"     THEN cVarValue = trim(string(cust.area-code,"(xxx)") +  string(cust.phone,"xxx-xxxx")) .
                          WHEN "fax"       THEN cVarValue = trim(string(substr(cust.fax,1,3),"(xxx)") + string(substr(cust.fax,4,7),"xxx-xxxx")).
                          WHEN "chk-memo"  THEN cVarValue = STRING(ar-cashl.check-no).
@@ -912,7 +912,7 @@ END.
                          WHEN "type"      THEN cVarValue = string(v-type,"x(4)").
                          WHEN "inv"       THEN cVarValue = string(ar-cashl.inv-no,">>>>>>>>") .
                          WHEN "inv-date"  THEN cVarValue = STRING(v-check-date,"99/99/99") .
-                         WHEN "amount"    THEN cVarValue = STRING(v-cr-db-amt,"->>>>>>>>9.99").
+                         WHEN "amount"    THEN cVarValue = STRING(v-cr-db-amt,"->>>,>>>,>>9.99").
                          WHEN "current"   THEN cVarValue = /*STRING(v-dec[1],"->>>>>>>>9.99")*/ "".
                          WHEN "adtp"      THEN cVarValue = STRING(cust.avg-pay,">>>9").
                          WHEN "td"        THEN cVarValue = STRING(v-current-trend-days,"->>9").
@@ -1127,7 +1127,7 @@ END.
                      WHEN "city"      THEN cVarValue = STRING(cust.city,"x(10)") .
                      WHEN "stat"      THEN cVarValue = STRING(cust.state,"x(5)") .
                      WHEN "zip"       THEN cVarValue = STRING(cust.zip,"x(10)")  .
-                     WHEN "cre-lim"   THEN cVarValue = string(cust.cr-lim,">>>>>>>>9.99") .
+                     WHEN "cre-lim"   THEN cVarValue = string(cust.cr-lim,">>>,>>>,>>9.99") .
                      WHEN "phone"     THEN cVarValue = trim(string(cust.area-code,"(xxx)") +  string(cust.phone,"xxx-xxxx")) .
                      WHEN "fax"       THEN cVarValue = trim(string(substr(cust.fax,1,3),"(xxx)") + string(substr(cust.fax,4,7),"xxx-xxxx")).
                      WHEN "chk-memo"  THEN cVarValue = STRING(ar-cashl.check-no).
@@ -1135,14 +1135,14 @@ END.
                      WHEN "type"      THEN cVarValue = string(v-type,"x(4)").
                      WHEN "inv"       THEN cVarValue = string(v-neg-text) .
                      WHEN "inv-date"  THEN cVarValue = STRING(v-check-date,"99/99/99") .
-                     WHEN "amount"    THEN cVarValue = STRING(v-cr-db-amt + v-disc-amt,"->>>>>>>>9.99").
-                     WHEN "current"   THEN cVarValue = STRING(unapp[1],"->>>>>>>>9.99").
+                     WHEN "amount"    THEN cVarValue = STRING(v-cr-db-amt + v-disc-amt,"->>>,>>>,>>9.99").
+                     WHEN "current"   THEN cVarValue = STRING(unapp[1],"->>>,>>>,>>9.99").
                      WHEN "adtp"      THEN cVarValue = STRING(cust.avg-pay,">>>9").
                      WHEN "td"        THEN cVarValue = STRING(v-current-trend-days,"->>9").
-                     WHEN "per-1"     THEN cVarValue = STRING(unapp[2],"->>>>>>>>9.99") .
-                     WHEN "per-2"     THEN cVarValue = STRING(unapp[3],"->>>>>>>>9.99").
-                     WHEN "per-3"     THEN cVarValue = STRING(unapp[4],"->>>>>>>>9.99") .
-                     WHEN "per-4"     THEN cVarValue = STRING(unapp[5],"->>>>>>>>9.99") .
+                     WHEN "per-1"     THEN cVarValue = STRING(unapp[2],"->>>,>>>,>>9.99") .
+                     WHEN "per-2"     THEN cVarValue = STRING(unapp[3],"->>>,>>>,>>9.99").
+                     WHEN "per-3"     THEN cVarValue = STRING(unapp[4],"->>>,>>>,>>9.99") .
+                     WHEN "per-4"     THEN cVarValue = STRING(unapp[5],"->>>,>>>,>>9.99") .
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
                      WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
@@ -1244,7 +1244,7 @@ END.
                      WHEN "city"      THEN cVarValue = STRING(cust.city,"x(10)") .
                      WHEN "stat"      THEN cVarValue = STRING(cust.state,"x(5)") .
                      WHEN "zip"       THEN cVarValue = STRING(cust.zip,"x(10)")  .
-                     WHEN "cre-lim"   THEN cVarValue = string(cust.cr-lim,">>>>>>>>9.99") .
+                     WHEN "cre-lim"   THEN cVarValue = string(cust.cr-lim,">>>,>>>,>>9.99") .
                      WHEN "phone"     THEN cVarValue = trim(string(cust.area-code,"(xxx)") + string(cust.phone,"xxx-xxxx")) .
                      WHEN "fax"       THEN cVarValue = trim(string(substr(cust.fax,1,3),"(xxx)") +  string(substr(cust.fax,4,7),"xxx-xxxx")).
                      WHEN "chk-memo"  THEN cVarValue = STRING(ar-cashl.check-no).
@@ -1252,7 +1252,7 @@ END.
                      WHEN "type"      THEN cVarValue = string(v-type,"x(4)").
                      WHEN "inv"       THEN cVarValue = string(v-neg-text) .
                      WHEN "inv-date"  THEN cVarValue = STRING(v-check-date,"99/99/99") .
-                     WHEN "amount"    THEN cVarValue = STRING(v-cr-db-amt + v-disc-amt,"->>>>>>>>9.99").
+                     WHEN "amount"    THEN cVarValue = STRING(v-cr-db-amt + v-disc-amt,"->>>,>>>,>>9.99").
                      WHEN "current"   THEN cVarValue = /*STRING(unapp[1],"->>>>>>>>9.99")*/ "".
                      WHEN "adtp"      THEN cVarValue = STRING(cust.avg-pay,">>>9").
                      WHEN "td"        THEN cVarValue = STRING(v-current-trend-days,"->>9").
@@ -1405,7 +1405,7 @@ END.
     if last-of(tt-cust.curr-code) then do:
       IF ll-mult-curr THEN DO:
         c1 = curr-t[1] + curr-t[2] + curr-t[3] + curr-t[4].
-        IF NOT det-rpt = 3 THEN
+        /*IF NOT det-rpt = 3 THEN*/
              RUN total-head("        CURRENCY TOTAL","",c1,curr-t[1],curr-t[2],
                            curr-t[3],curr-t[4],0,curr-t[6]).
         /*display fill("_",132) format "x(131)"
@@ -1704,7 +1704,7 @@ END.
         trim(cust.city)                                         
         trim(cust.state)                                        
         trim(cust.zip)                                          
-        trim(string(cust.cr-lim,">>>>>>>>9.99"))                
+        trim(string(cust.cr-lim,">>>,>>>,>>9.99"))                
         trim(string(cust.area-code,"(xxx)") + " " +
              string(cust.phone,"xxx-xxxx"))                     
         trim(string(substr(cust.fax,1,3),"(xxx)") + " " +
@@ -1714,13 +1714,13 @@ END.
         trim(v-field-03)                                        
         trim(v-field-04)                                        
         trim(string(v-field-05,"99/99/9999"))                   
-        trim(string(v-field-06,"->>>>>>>>9.99"))                
-        trim(string(v-field-07,"->>>>>>>>9.99"))  
+        trim(string(v-field-06,"->>>,>>>,>>9.99"))                
+        trim(string(v-field-07,"->>>,>>>,>>9.99"))  
         TRIM(STRING(cust.avg-pay,">>9"))                /*Task# 11151304*/
         TRIM(STRING(v-current-trend-days,"->>9"))       /*Task# 11151304*/ 
-        trim(string(v-field-08,"->>>>>>>>9.99"))                
-        trim(string(v-field-09,"->>>>>>>>9.99"))                
-        trim(string(v-field-10,"->>>>>>>>9.99"))
+        trim(string(v-field-08,"->>>,>>>,>>9.99"))                
+        trim(string(v-field-09,"->>>,>>>,>>9.99"))                
+        trim(string(v-field-10,"->>>,>>>,>>9.99"))
         TRIM(STRING(IF cPoNo NE "" AND v-print-cust-po THEN cPoNo ELSE "")).    /*Task# 02071402*/
 
         ASSIGN cPoNo = "" . 
@@ -1912,14 +1912,14 @@ END.
                      WHEN "type"      THEN cVarValue = "".
                      WHEN "inv"       THEN cVarValue = "" .
                      WHEN "inv-date"  THEN cVarValue = "" .
-                     WHEN "amount"    THEN cVarValue = STRING(amount,"->>>>>>>>9.99").
-                     WHEN "current"   THEN cVarValue = STRING(vCURRENT,"->>>>>>>>9.99").
+                     WHEN "amount"    THEN cVarValue = STRING(amount,"->>>,>>>,>>9.99").
+                     WHEN "current"   THEN cVarValue = STRING(vCURRENT,"->>>,>>>,>>9.99").
                      WHEN "adtp"      THEN cVarValue = "".
                      WHEN "td"        THEN cVarValue = "".
-                     WHEN "per-1"     THEN cVarValue = STRING(per-day1,"->>>>>>>>9.99") .
-                     WHEN "per-2"     THEN cVarValue = STRING(per-day2,"->>>>>>>>9.99") .
-                     WHEN "per-3"     THEN cVarValue = STRING(per-day3,"->>>>>>>>9.99")  .
-                     WHEN "per-4"     THEN cVarValue = STRING(per-day4,"->>>>>>>>9.99")  .
+                     WHEN "per-1"     THEN cVarValue = STRING(per-day1,"->>,>>>,>>>9.99") .
+                     WHEN "per-2"     THEN cVarValue = STRING(per-day2,"->>>,>>>,>>9.99") .
+                     WHEN "per-3"     THEN cVarValue = STRING(per-day3,"->>>,>>>,>>9.99")  .
+                     WHEN "per-4"     THEN cVarValue = STRING(per-day4,"->>>,>>>,>>9.99")  .
                      WHEN "cust-po"   THEN cVarValue = "" .
                      WHEN "job"       THEN cVarValue = ""  .
                      WHEN "bol"       THEN cVarValue = "" .
