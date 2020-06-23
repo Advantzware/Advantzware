@@ -196,13 +196,14 @@
                  customer's on order balance ***/
             FIND CURRENT oe-ordl NO-ERROR.
             if avail oe-ordl then do:
-                  
-              run ar/calctax2.p (oe-ord.tax-gr,
-                                 no,
-                                 oe-ordl.t-price,
-                                 oe-ordl.company, 
-                                 oe-ordl.i-no,
-                                 output v-tax).
+                RUN Tax_Calculate IN hdTaxProcs (
+                    INPUT  oe-ordl.company,
+                    INPUT  oe-ord.tax-gr,
+                    INPUT  FALSE,   /* Is this freight */
+                    INPUT  oe-ordl.t-price,
+                    INPUT  oe-ordl.i-no,
+                    OUTPUT v-tax
+                    ).                  
 
               v-uninv-ordl-amt = oe-ordl.t-price +
                                  (if oe-ordl.tax then v-tax else 0).
@@ -215,13 +216,15 @@
                     and ar-invl.line    eq inv-line.line
                     and ar-invl.i-no    eq inv-line.i-no
                   use-index inv-status no-lock:
-                  
-                run ar/calctax2.p (ar-inv.tax-code, 
-                                  no,
-                                  ar-invl.amt,
-                                  ar-invl.company,
-                                  ar-invl.i-no,
-                                  output v-tax).
+
+                RUN Tax_Calculate IN hdTaxProcs (
+                    INPUT  ar-invl.company,
+                    INPUT  ar-inv.tax-code,
+                    INPUT  FALSE,   /* Is this freight */
+                    INPUT  ar-invl.amt,
+                    INPUT  ar-invl.i-no,
+                    OUTPUT v-tax
+                    ).                   
                 
                 v-uninv-ordl-amt = v-uninv-ordl-amt - ar-invl.amt -
                                    (if ar-invl.tax then v-tax else 0).
@@ -233,12 +236,14 @@
 
             v-tax = 0.
             if inv-line.tax then
-            run ar/calctax2.p (inv-head.tax-gr, 
-                              no,
-                              inv-line.t-price, 
-                              inv-line.company,
-                              inv-line.i-no,
-                              output v-tax).
+                RUN Tax_Calculate IN hdTaxProcs (
+                    INPUT  inv-line.company,
+                    INPUT  inv-head.tax-gr,
+                    INPUT  FALSE,   /* Is this freight */
+                    INPUT  inv-line.t-price,
+                    INPUT  inv-line.i-no,
+                    OUTPUT v-tax
+                    ).             
                                   
             if inv-line.t-price + v-tax lt v-uninv-ordl-amt then
               v-reduce-ord-bal = v-reduce-ord-bal + inv-line.t-price + v-tax.
@@ -397,12 +402,14 @@
                    v-dcr-val  = v-dcr-val - (v-dcr-val * oe-ordl.disc / 100).
 
                   if oe-ordl.tax then do:
-                    run ar/calctax2.p (oe-ord.tax-gr, 
-                                       no,
-                                       v-dcr-val,
-                                       oe-ordl.company,
-                                       oe-ordl.i-no,
-                                       output v-tax).
+                    RUN Tax_Calculate IN hdTaxProcs (
+                        INPUT  oe-ordl.company,
+                        INPUT  oe-ord.tax-gr,
+                        INPUT  FALSE,   /* Is this freight */
+                        INPUT  v-dcr-val,
+                        INPUT  oe-ordl.i-no,
+                        OUTPUT v-tax
+                        ).  
                                       
                     v-dcr-val = v-dcr-val + v-tax.
                   end.
@@ -514,12 +521,14 @@
             end.
 
             if inv-misc.bill eq "Y" then do:
-              run ar/calctax2.p (inv-head.tax-gr, 
-                                 no,
-                                 inv-misc.amt,
-                                 inv-misc.company,
-                                 inv-misc.inv-i-no,
-                                 output v-tax).
+                RUN Tax_Calculate IN hdTaxProcs (
+                    INPUT  inv-misc.company,
+                    INPUT  inv-head.tax-gr,
+                    INPUT  FALSE,   /* Is this freight */
+                    INPUT  inv-misc.amt,
+                    INPUT  inv-misc.inv-i-no,
+                    OUTPUT v-tax
+                    ).
                 
               v-reduce-ord-bal = v-reduce-ord-bal + inv-misc.amt +
                                  (if inv-misc.tax then v-tax else 0).

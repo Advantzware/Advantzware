@@ -113,6 +113,9 @@ DEF VAR is-xprint-form AS LOGICAL.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
 DEF VAR v-last-shipid AS CHAR NO-UNDO.
 
+DEFINE VARIABLE hdTaxProcs  AS HANDLE NO-UNDO.
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
+
 DEFINE STREAM excel.
 
 /* _UIB-CODE-BLOCK-END */
@@ -392,8 +395,11 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Order Edit List  Posting */
 DO:
   /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
+    IF VALID-HANDLE(hdTaxProcs) THEN
+        DELETE PROCEDURE hdTaxProcs.
+  
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -404,7 +410,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   apply "close" to this-procedure.
+    IF VALID-HANDLE(hdTaxProcs) THEN
+        DELETE PROCEDURE hdTaxProcs.    
+    APPLY "CLOSE" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1107,12 +1115,14 @@ with down no-box STREAM-IO width 132 frame ordm.
 
           if oe-ordl.tax and v-tax-rate gt 0 THEN DO:
 
-              RUN ar/calctax2.p (xoe-ord.tax-gr,
-                                 NO,
-                                 oe-ordl.t-price,
-                                 xoe-ord.company,
-                                 oe-ordl.i-no,
-                                 OUTPUT v-tax-amt).
+              RUN Tax_Calculate IN hdTaxProcs (
+                  INPUT  xoe-ord.company,
+                  INPUT  xoe-ord.tax-gr,
+                  INPUT  FALSE,   /* Is this freight */
+                  INPUT  oe-ordl.t-price,
+                  INPUT  oe-ordl.i-no,
+                  OUTPUT v-tax-amt
+                  ).
 
               ASSIGN xoe-ord.tax = xoe-ord.tax + v-tax-amt.
           END.
@@ -1128,13 +1138,14 @@ with down no-box STREAM-IO width 132 frame ordm.
             xoe-ord.t-revenue = xoe-ord.t-revenue + oe-ordm.amt.
 
             if oe-ordm.tax and v-tax-rate gt 0 THEN DO:
-
-                RUN ar/calctax2.p (xoe-ord.tax-gr,
-                                   NO,
-                                 oe-ordm.amt,
-                                 xoe-ord.company,
-                                 oe-ordm.ord-i-no,
-                                 OUTPUT v-tax-amt).
+                RUN Tax_Calculate IN hdTaxProcs (
+                    INPUT  xoe-ord.company,
+                    INPUT  xoe-ord.tax-gr,
+                    INPUT  FALSE,   /* Is this freight */
+                    INPUT  oe-ordm.amt,
+                    INPUT  oe-ordm.ord-i-no,
+                    OUTPUT v-tax-amt
+                    ).
 
                 ASSIGN xoe-ord.tax = xoe-ord.tax + v-tax-amt.
             END.

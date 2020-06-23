@@ -24,7 +24,9 @@ def new shared temp-table tt-cost field tt-dscr as   char
                                   index tt-dscr tt-dscr.
                                   
 def stream s-jded.
-                              
+DEFINE VARIABLE hdTaxProcs  AS HANDLE    NO-UNDO.
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
+
 {sys/inc/jdedwdir.i}
 if not sys-ctrl.log-fld then leave.
          
@@ -75,7 +77,15 @@ for first ar-invl where recid(ar-invl) eq v-recid no-lock,
   /* Invoice Line Amount Gross Sales */
   v-dec = 0.
   if ar-invl.tax then
-  run ar/calctax2.p (ar-inv.tax-code,no,ar-invl.amt,ar-inv.company,ar-invl.i-no,output v-dec).
+    RUN Tax_Calculate IN hdTaxProcs (
+        INPUT  ar-inv.company,
+        INPUT  ar-inv.tax-code,
+        INPUT  FALSE,   /* Is this freight */
+        INPUT  ar-invl.amt,
+        INPUT  ar-invl.i-no,
+        OUTPUT v-dec
+        ). 
+
   v-jded = v-jded + string(ar-invl.amt +
                            ar-invl.t-freight +
                            v-dec,">>>>>>>9.99").
@@ -592,4 +602,6 @@ for first ar-invl where recid(ar-invl) eq v-recid no-lock,
   put stream s-jded unformatted v-jded skip.
 end.
 
+IF VALID-HANDLE(hdTaxProcs) THEN
+    DELETE PROCEDURE hdTaxProcs.
 /* end ---------------------------------- copr. 2002  advanced software, inc. */

@@ -6,6 +6,9 @@
  DEFINE VARIABLE dLinefTax AS DECIMAL NO-UNDO .
  DEFINE BUFFER bff-ar-invl FOR ar-invl .
 
+DEFINE VARIABLE hdTaxProcs  AS HANDLE    NO-UNDO.
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
+
  assign   
    {1}.net     = 0
    {1}.freight = 0
@@ -20,21 +23,27 @@ FOR EACH bff-ar-invl WHERE bff-ar-invl.x-no = {1}.x-no NO-LOCK :
     {1}.freight = {1}.freight + bff-ar-invl.t-freight
     . 
    if {1}.tax-code ne "" and bff-ar-invl.tax eq yes Then DO:
-     run ar/calctax2.p ({1}.tax-code,
-                       no,
-                       bff-ar-invl.amt,
-                       bff-ar-invl.company,
-                       "", /* item */
-                       OUTPUT dLineTax).
+    RUN Tax_Calculate IN hdTaxProcs (
+        INPUT  bff-ar-invl.company,
+        INPUT  {1}.tax-code,
+        INPUT  FALSE,   /* Is this freight */
+        INPUT  bff-ar-invl.amt,
+        INPUT  "",      /* item ID */
+        OUTPUT dLineTax
+        ). 
+
      tax = tax + dLineTax  .
 
      if {1}.f-bill Then do:
-     run ar/calctax2.p ({1}.tax-code, 
-                       yes,
-                       bff-ar-invl.t-freight, 
-                       bff-ar-invl.company,
-                       "", /* item */
-                       OUTPUT dLinefTax).
+        RUN Tax_Calculate IN hdTaxProcs (
+            INPUT  bff-ar-invl.company,
+            INPUT  {1}.tax-code,
+            INPUT  TRUE,   /* Is this freight */
+            INPUT  bff-ar-invl.t-freight,
+            INPUT  "",      /* item ID */
+            OUTPUT dLinefTax
+            ). 
+
        ftax = ftax + dLinefTax .
      END.
    END.
@@ -46,3 +55,6 @@ END.
    {1}.gross = {1}.net + {1}.tax-amt  
    {1}.due = {1}.gross - {1}.paid - {1}.disc-taken
    .
+
+IF VALID-HANDLE(hdTaxProcs) THEN
+    DELETE PROCEDURE hdTaxProcs.   

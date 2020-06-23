@@ -115,6 +115,9 @@ DEF VAR lv-comp-name AS cha FORM "x(30)" NO-UNDO.
 DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
 
+DEFINE VARIABLE hdTaxProcs  AS HANDLE    NO-UNDO.
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
+
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "INVPRINT" no-lock no-error.
 IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN lv-display-comp = YES.
@@ -476,7 +479,14 @@ assign
                 do i = 1 to 3:
                   if stax.tax-code[i] ne "" then do:
                     create w-tax.
-                    run ar/calctax2.p (inv-head.tax-gr,no,inv-line.t-price,inv-line.company,inv-line.i-no,output w-tax).
+                    RUN Tax_Calculate IN hdTaxProcs (
+                        INPUT  inv-line.company,
+                        INPUT  inv-head.tax-gr,
+                        INPUT  FALSE,   /* Is this freight */
+                        INPUT  inv-line.t-price,
+                        INPUT  inv-line.i-no,
+                        OUTPUT w-tax
+                        ).   
                     assign
                      w-dsc      = stax.tax-dscr[i]
                      /*w-tax      = round((if stax.company eq "yes" then v-t-price
@@ -593,7 +603,15 @@ assign
             do i = 1 to 3:
               if stax.tax-code[i] ne "" then do:
                 create w-tax.
-                run ar/calctax2.p (inv-head.tax-gr,no,inv-misc.amt,inv-head.company,inv-misc.inv-i-no,output w-tax).                      
+                RUN Tax_Calculate IN hdTaxProcs (
+                    INPUT  inv-head.company,
+                    INPUT  inv-head.tax-gr,
+                    INPUT  FALSE,   /* Is this freight */
+                    INPUT  inv-misc.amt,
+                    INPUT  inv-misc.inv-i-no,
+                    OUTPUT w-tax
+                    ).   
+                
                 assign
                  w-dsc      = stax.tax-dscr[i]
                  /*w-tax      = if stax.company eq "yes" then v-t-price
@@ -677,7 +695,15 @@ assign
 
            if stax.tax-code[i] ne "" AND stax.tax-frt[i] EQ YES then do:
                 create w-tax.
-                run ar/calctax2.p (inv-head.tax-gr,no,inv-head.t-inv-freight,inv-head.company,"",output w-tax).
+                RUN Tax_Calculate IN hdTaxProcs (
+                    INPUT  inv-head.company,
+                    INPUT  inv-head.tax-gr,
+                    INPUT  FALSE,   /* Is this freight */
+                    INPUT  inv-head.t-inv-freight,
+                    INPUT  "",
+                    OUTPUT w-tax
+                    ).   
+                
                 assign
                  w-dsc      = stax.tax-dscr[i]
                 /* w-tax      = round((if stax.company eq "yes" then v-frt-tax
@@ -727,4 +753,6 @@ assign
  
     end. /* each xinv-head */
 
+IF VALID-HANDLE(hdTaxProcs) THEN
+    DELETE PROCEDURE hdTaxProcs.
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */
