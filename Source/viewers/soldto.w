@@ -458,18 +458,18 @@ PROCEDURE local-update-record :
       MESSAGE "Blank values are not allowed for soldid" VIEW-AS ALERT-BOX INFORMATION .
       RETURN.
   END.
-  
-  FIND FIRST bf-soldto NO-LOCK
-       WHERE bf-soldto.company EQ soldto.company
-         AND bf-soldto.sold-id EQ soldto.cust-no
-       NO-ERROR.
-  IF AVAILABLE bf-soldto THEN DO:
-      IF bf-soldto.sold-id EQ soldto.sold-id:SCREEN-VALUE THEN DO:
-          MESSAGE "Default soldid already exists" VIEW-AS ALERT-BOX INFORMATION .
-          RETURN.
+  IF adm-new-record THEN DO:  
+      FIND FIRST bf-soldto NO-LOCK
+           WHERE bf-soldto.company EQ soldto.company
+             AND bf-soldto.sold-id EQ soldto.cust-no
+           NO-ERROR.
+      IF AVAILABLE bf-soldto THEN DO:
+          IF bf-soldto.sold-id EQ soldto.sold-id:SCREEN-VALUE THEN DO:
+              MESSAGE "Default soldid already exists" VIEW-AS ALERT-BOX INFORMATION .
+              RETURN.
+          END.
       END.
-  END.
-
+  END.  
   RUN sold-zip.
 
   /* Dispatch standard ADM method.                             */
