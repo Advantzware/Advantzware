@@ -299,7 +299,7 @@ END.
 ON HELP OF lines-per-page IN FRAME D-Dialog /* Lines Per Page */
 DO:
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-  open-mime-resource "text/plain" "file:///linesPerPage.txt" false.
+  open-mime-resource "text/plain" "file:///linesPerPage.txt" NOT-EMBEDDED.
 &ELSE
   OS-COMMAND NO-WAIT notepad linesPerPage.txt.
 &ENDIF

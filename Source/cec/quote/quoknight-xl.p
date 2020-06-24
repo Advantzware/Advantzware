@@ -450,7 +450,7 @@ os-command silent value(CommandString).
    open query qExcel for each ttQuoKnightXL.
    rptExcel:report-data-source = query qExcel:handle.
    rptExcel:export-report-xls(qFile).
-   open-mime-resource "application/excel" string("file://" + replace(v-dir, "\", "/") + "quote.xls") false.
+   open-mime-resource "application/excel" string("file://" + replace(v-dir, "\", "/") + "quote.xls") NOT-EMBEDDED.
    os-delete value(qFile).
 &ELSE
 

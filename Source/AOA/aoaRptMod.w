@@ -638,7 +638,7 @@ END.
 ON CHOOSE OF btnDetailOnFormat IN FRAME DEFAULT-FRAME /* Detail OnFormat */
 DO:
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-  open-mime-resource "text/plain" "file:///aoa/vbScript/Rpt.Detail.OnFormat.dat" false.
+  open-mime-resource "text/plain" "file:///aoa/vbScript/Rpt.Detail.OnFormat.dat" NOT-EMBEDDED.
 &ELSE
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.Detail.OnFormat.dat.
 &ENDIF
@@ -653,7 +653,7 @@ END.
 ON CHOOSE OF btnGroupFooterOnFormat IN FRAME DEFAULT-FRAME /* Group Footer OnFormat */
 DO:
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-  open-mime-resource "text/plain" "file:///aoa/vbScript/Rpt.GroupFooter.OnFormat.dat" false.
+  open-mime-resource "text/plain" "file:///aoa/vbScript/Rpt.GroupFooter.OnFormat.dat" NOT-EMBEDDED.
 &ELSE
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.GroupFooter.OnFormat.dat.
 &ENDIF
@@ -668,7 +668,7 @@ END.
 ON CHOOSE OF btnGroupHeaderOnFormat IN FRAME DEFAULT-FRAME /* Group Header OnFormat */
 DO:
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-  open-mime-resource "text/plain" "file:///aoa/vbScript/Rpt.GroupHeader.OnFormat.dat" false.
+  open-mime-resource "text/plain" "file:///aoa/vbScript/Rpt.GroupHeader.OnFormat.dat" NOT-EMBEDDED.
 &ELSE
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.GroupHeader.OnFormat.dat.
 &ENDIF
@@ -694,7 +694,7 @@ END.
 ON CHOOSE OF btnOnReportEnd IN FRAME DEFAULT-FRAME /* OnReportEnd */
 DO:
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-  open-mime-resource "text/plain" "file:///aoa/vbScript/Rpt.OnReportEnd.dat" false.
+  open-mime-resource "text/plain" "file:///aoa/vbScript/Rpt.OnReportEnd.dat" NOT-EMBEDDED.
 &ELSE
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.OnReportEnd.dat.
 &ENDIF
@@ -709,7 +709,7 @@ END.
 ON CHOOSE OF btnOnReportStart IN FRAME DEFAULT-FRAME /* OnReportStart */
 DO:
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-  open-mime-resource "text/plain" "file:///aoa/vbScript/Rpt.OnReportStart.dat" false.
+  open-mime-resource "text/plain" "file:///aoa/vbScript/Rpt.OnReportStart.dat" NOT-EMBEDDED.
 &ELSE
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.OnReportStart.dat.
 &ENDIF

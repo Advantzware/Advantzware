@@ -131,6 +131,7 @@ DEF VAR iEnvLevel AS INT NO-UNDO.
 DEF VAR iDbLevel AS INT NO-UNDO.
 DEF VAR iTruncLevel AS INT NO-UNDO.
 DEF VAR cSessionParam AS CHAR NO-UNDO.
+DEF VAR cPathSep AS CHAR INITIAL "\" NO-UNDO.
 
 {iniFileVars.i}
 
@@ -936,10 +937,15 @@ PROCEDURE ipClickOk :
     /* This is the normal operation for Mode choices */
     IF NOT cbMode = "Monitor Users" THEN DO: 
         /* Set current dir */
-        RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment). 
+        IF &IF DEFINED(FWD-VERSION) > 0 &THEN RT-OPSYS &ELSE OPSYS &ENDIF = "unix" THEN
+            cPathSep = "/".
+        RUN ipSetCurrentDir (cMapDir + cPathSep + cEnvDir + cPathSep + cbEnvironment).
         
         /* Run the mode program selected in the login dialog */
-        RUN VALUE(cRunPgm).
+        if FWD-EMBEDDED-MODE then 
+            RUN VALUE(cRunPgm) persistent.
+        else
+            RUN VALUE(cRunPgm).
         
         /* On exit of the run pgm, ensure the user is logged out and disconnected */
         RUN system/userLogout.p (YES, 0).
@@ -948,7 +954,7 @@ PROCEDURE ipClickOk :
         END.
         
         /* Close the dialog box and leave prowin */
-        QUIT.
+        if not FWD-EMBEDDED-MODE then QUIT.
     END.
     /* This is only used to monitor users */
     ELSE DO: 

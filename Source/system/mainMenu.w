@@ -120,7 +120,11 @@ END.
 cEulaFile = SEARCH("{&EulaFile}").
 
 &Scoped-define isActive YES
-{system/menuTree.i}
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+    {system/menuTree_FWD.i}
+&ELSE
+    {system/menuTree.i}
+&ENDIF
 {methods/lockWindowUpdate.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -1342,7 +1346,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "CHOOSE":U TO btnSearch.
     ASSIGN
       upgradeMsg:HIDDEN = YES
-      FRAME menuTreeFrame:VIRTUAL-HEIGHT = {&WINDOW-NAME}:VIRTUAL-HEIGHT
+&IF DEFINED(FWD-VERSION) = 0 &THEN
+    FRAME menuTreeFrame:VIRTUAL-HEIGHT = {&WINDOW-NAME}:VIRTUAL-HEIGHT
+&ELSE
+    FRAME menuTreeFrame:SCROLLABLE = FALSE.
+&ENDIF
       hFocus = svFocus:HANDLE
       .
     DISPLAY menuTreeMsg WITH FRAME menuTreeFrame.
@@ -2203,12 +2211,23 @@ PROCEDURE pProcessClick :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+&IF DEFINED(FWD-VERSION) > 0 &THEN
+    DEFINE INPUT PARAMETER hNode as HANDLE NO-UNDO.
+&ENDIF
+ 
     DEFINE VARIABLE lAccess AS LOGICAL NO-UNDO.
     
     /* return if in customize menu mode */
     IF lToggle THEN RETURN.
     
     IF AVAILABLE ttMenuTree THEN DO:
+        IF ttMenuTree.isMenu
+&IF DEFINED(FWD-VERSION) = 0 &THEN
+        AND NOT ttMenuTree.isOpen
+&ELSE
+        AND NOT hNode:NODE-EXPANDED
+&ENDIF
+        THEN
         IF ttMenuTree.isMenu AND NOT ttMenuTree.isOpen THEN
         ASSIGN
             ttMenuTree.hEditor:FONT    = iFont
@@ -2460,13 +2479,17 @@ PROCEDURE pWinReSize :
         {&WINDOW-NAME}:WIDTH  = 160.
         ASSIGN
             /* default frame */
+&IF DEFINED(FWD-VERSION) = 0 &THEN
             FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
+&ENDIF
             FRAME {&FRAME-NAME}:HEIGHT = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:WIDTH = {&WINDOW-NAME}:WIDTH
             /* filter frame */
+&IF DEFINED(FWD-VERSION) = 0 &THEN
             FRAME menuTreeFrame:VIRTUAL-HEIGHT = {&WINDOW-NAME}:VIRTUAL-HEIGHT
             FRAME menuTreeFrame:VIRTUAL-WIDTH  = FRAME {&FRAME-NAME}:WIDTH  - 105
+&ENDIF
             FRAME menuTreeFrame:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT - 2.62
             FRAME menuTreeFrame:WIDTH  = FRAME {&FRAME-NAME}:WIDTH  - 105
             /* menu links, images & rectangles */

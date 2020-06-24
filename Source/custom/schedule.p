@@ -509,7 +509,7 @@ PROCEDURE scheduleJob :
   DISPLAY opStartDate opDueDate WITH STREAM-IO SIDE-LABELS 1 COLUMN.
   OUTPUT CLOSE.
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-  open-mime-resource "text/plain" string("file:///" + value({&debugFile})) false.
+  open-mime-resource "text/plain" string("file:///" + value({&debugFile})) NOT-EMBEDDED.
 &ELSE
   OS-COMMAND NO-WAIT notepad.exe {&debugFile}.
 &ENDIF

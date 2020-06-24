@@ -347,7 +347,7 @@ DO:
         END. /* If WinScp */
         
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-        open-mime-resource "text/plain" "file:///po/doFtp.log" false.
+        open-mime-resource "text/plain" "file:///po/doFtp.log" NOT-EMBEDDED.
 &ELSE
         
         OS-COMMAND NO-WAIT notepad VALUE("po\doFtp.log").

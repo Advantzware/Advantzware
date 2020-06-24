@@ -572,7 +572,7 @@ PROCEDURE pLinkClick :
     
     IF iphLink:PRIVATE-DATA NE ? THEN
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-    open-mime-resource "text/html" string(iphLink:PRIVATE-DATA) false.
+    open-mime-resource "text/html" string(iphLink:PRIVATE-DATA) NOT-EMBEDDED.
 &ELSE
     OS-COMMAND NO-WAIT START VALUE(iphLink:PRIVATE-DATA).
 &ENDIF

@@ -544,7 +544,8 @@ PROCEDURE pGenerateInclude :
         UPDATE viewCode AS LOGICAL
         .
     IF viewCode THEN
-    OS-COMMAND NO-WAIT notepad.exe VALUE("AOA/includes/p" + REPLACE(aoaTitle," ","") + ".i").
+       OS-COMMAND NO-WAIT notepad.exe VALUE("AOA/includes/p" + REPLACE(aoaTitle," ","") + ".i").
+ 
 &ENDIF
 
 END PROCEDURE.

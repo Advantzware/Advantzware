@@ -296,7 +296,7 @@ IF notepad-log THEN
 DO:
     IF notepad-chr = "" THEN do: /* task 02101509 */
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-        open-mime-resource "text/plain" string("file:///" + list-name) false.
+        open-mime-resource "text/plain" string("file:///" + list-name) NOT-EMBEDDED.
 &ELSE
         OS-COMMAND NO-WAIT notepad VALUE(list-name).
 &ENDIF
@@ -307,7 +307,7 @@ DO:
             NO-LOCK NO-ERROR.
         IF AVAIL usergrps AND LOOKUP(string(USERID(ldbname(1))),usergrps.users) <> 0 THEN DO:
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-            open-mime-resource "text/plain" string("file:///" + list-name) false.
+            open-mime-resource "text/plain" string("file:///" + list-name) NOT-EMBEDDED.
 &ELSE
             OS-COMMAND NO-WAIT notepad VALUE(list-name).
 &ENDIF

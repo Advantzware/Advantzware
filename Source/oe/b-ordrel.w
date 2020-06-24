@@ -454,12 +454,14 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       tt-report.opened          COLUMN-LABEL "Prt"              FORMAT "Y/N":U                  WIDTH 5   
       oe-rel.s-code             COLUMN-LABEL "S/I"              FORMAT "X(12)":U                WIDTH 18 
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
         VIEW-AS COMBO-BOX INNER-LINES 4 
         LIST-ITEM-PAIRS "B-Both","B",
-                     "S-Ship","S",
+                        "S-Ship","S",
                      "I-Invoice","I",
                      "T-Transfer","T"
         DROP-DOWN-LIST
+ &ENDIF
       oe-rel.ship-id            COLUMN-LABEL "Ship To"          FORMAT "x(8)":U                 WIDTH 12            
       get-stat() @ cAbbrStatus  COLUMN-LABEL "S"                FORMAT "x(1)":U                 WIDTH 5
       oe-rel.carrier            COLUMN-LABEL "Via"              FORMAT "x(5)":U                 WIDTH 12            
@@ -489,6 +491,7 @@ DEFINE BROWSE br_table
       tt-report.prom-code       COLUMN-LABEL "Due Dt Chg Usr"   FORMAT "x(5)":U                 WIDTH 20
       tt-report.pr-uom          COLUMN-LABEL "Due Dt Chg Rsn"   FORMAT "x(4)":U                 WIDTH 20
       oe-rel.stat               COLUMN-LABEL "Rel. Status"      FORMAT "X(15)":U                WIDTH 28
+&IF DEFINED(FWD-VERSION) EQ 0 &THEN
         VIEW-AS COMBO-BOX INNER-LINES 8 
         LIST-ITEM-PAIRS "S-Scheduled","S",
                      "L-Late","L",
@@ -499,7 +502,7 @@ DEFINE BROWSE br_table
                      "Z-Posted BOL","Z",
                      "C-Completed","C"
         DROP-DOWN-LIST
-      
+&ENDIF      
   ENABLE
       oe-rel.s-code HELP "B=Bill and Ship, I=Invoice Only, S=Ship Only, T=Transfer"
       oe-rel.ship-id
