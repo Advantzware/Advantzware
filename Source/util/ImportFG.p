@@ -99,6 +99,7 @@ DEFINE TEMP-TABLE ttImportFG
     FIELD SpecNote5Group          AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Spec Note 5 Group [3]" HELP "Optional - Size:3"
     FIELD SpecNote5Title          AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Spec Note 5 Title [60]" HELP "Optional - Size:60" 
     FIELD SpecNote5Note           AS CHARACTER FORMAT "X(200)" COLUMN-LABEL "Spec Note 5 Note [Large]" HELP "Optional - Size:Large"
+    FIELD productTaxClass         AS CHARACTER FORMAT "X(18)" COLUMN-LABEL "Product Tax Class" HELP "Optional - Size:18" 
     .
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 2 to skip Company and Location field in temp-table since this will not be part of the import data*/
  
@@ -221,7 +222,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueD (ipbf-ttImportFG.PalletWid, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.unitWidth).
     RUN pAssignValueD (ipbf-ttImportFG.PalletDep, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.unitHeight).
     RUN pAssignValueD (ipbf-ttImportFG.StdPalletVol, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.palletVolume).
-    
+    RUN pAssignValueC (ipbf-ttImportFG.productTaxClass, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.productTaxClass).
     /*Recalculate derived values*/
     ASSIGN 
         bf-itemfg.std-tot-cost = bf-itemfg.std-mat-cost + bf-itemfg.std-lab-cost + bf-itemfg.std-var-cost + bf-itemfg.std-fix-cost
