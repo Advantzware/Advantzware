@@ -62,15 +62,18 @@
     DEFINE VARIABLE cPhoneNumber      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPhoneExtension   AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE dQuantity    AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE cQuantity    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUOM         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dQuantity        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dConsolidatedQty AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cQuantity        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUOM             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lConsolidate     AS LOG       NO-UNDO.
 
     /* ************************  Function Prototypes ********************** */
     FUNCTION GetPayLoadID RETURNS CHARACTER
     	( ipcProcessID AS CHARACTER ) FORWARD.
 
     /* ***************************  Main Block  *************************** */        
+
     
     IF ipcRequestHandler NE "" THEN
         RUN VALUE(ipcRequestHandler) (
@@ -102,7 +105,13 @@
                 .
             RETURN.
         END.
-
+        FIND FIRST sys-ctrl NO-LOCK     
+            WHERE sys-ctrl.company EQ oe-bolh.company
+              AND sys-ctrl.name    EQ "BOLFMT"  
+            NO-ERROR.
+        ASSIGN
+            lConsolidate = AVAILABLE sys-ctrl AND sys-ctrl.int-fld NE 0
+            .
         RUN GetCXMLIdentities (
             INPUT  oe-bolh.company,
             INPUT  oe-bolh.cust-no,
@@ -219,9 +228,26 @@
 
             cQuantity = TRIM(STRING(dQuantity, "->>>>>>>9")).
             
-            RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemLineID", STRING(oe-boll.line)).
-            RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantity", cQuantity).                            
-            RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantityUOM", cUOM).
+            IF FIRST-OF(oe-boll.line) THEN 
+              dConsolidatedQty = 0.
+              
+            dConsolidatedQty = dConsolidatedQty + dQuantity.
+              
+            IF lConsolidate  THEN DO:
+                IF LAST-OF(oe-boll.line) THEN DO:
+                    cQuantity = TRIM(STRING(dConsolidatedQty, "->>>>>>>9")).
+                    RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemLineID", STRING(oe-boll.line)).
+                    RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantity", cQuantity).                            
+                    RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantityUOM", cUOM).
+                    lcItemConcatData = lcItemConcatData + lcItemData.
+                END.
+            END.  
+            ELSE DO:
+                RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemLineID", STRING(oe-boll.line)).
+                RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantity", cQuantity).                            
+                RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantityUOM", cUOM).
+                lcItemConcatData = lcItemConcatData + lcItemData.
+            END.
             
             lcItemConcatData = lcItemConcatData + lcItemData.
         END.    
