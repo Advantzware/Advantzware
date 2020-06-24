@@ -45,7 +45,7 @@ ASSIGN
                 "Peachtreefgl3,Peachtree,DEE,CSC-GASummary,TrilakesBroker,Accord,NStock,LoylangBSF,PremierS,Printers," +
                 "Protagon,Protagon2,SoulePO,RFCX,Central,Bell,PrestigeLLB,Axis,Boss,CSCINStamp,PrystupExcel,Coburn," +
                 "invprint 1,invprint 2,invprint 10,invprint 20,Lovepac,invprint10-CAN,Shamrock,nStockLogo,LancoYork,InvPrint-Mex," +
-		        "invprint 21,CCCACH" 
+		        "invprint 21,CCCACH,Delta" 
  str-init[3]  = "ASI,Clevelnd,McLean,Suthrlnd,HOP,Brick,Peachtre"
  str-init[4]  = "Foldware,Corrware"
  str-init[5]  = "D Pallet,Z Trailr"
