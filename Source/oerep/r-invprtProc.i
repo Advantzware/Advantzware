@@ -2523,6 +2523,11 @@ PROCEDURE SetInvForm:
                 v-program      = "oe/rep/invxprnt10.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
+        WHEN "delta" THEN
+            ASSIGN
+                v-program      = "oe/rep/invdelta.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
         WHEN "invprint 21" THEN
             ASSIGN
                 v-program      = "oe/rep/invxprnt21.p"
@@ -3114,6 +3119,11 @@ PROCEDURE SetInvPostForm:
         WHEN "invprint 20" THEN
             ASSIGN
                 v-program      = "ar/rep/invxprnt10.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
+        WHEN "Delta" THEN
+            ASSIGN
+                v-program      = "ar/rep/invdelta.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "invprint 21" THEN
