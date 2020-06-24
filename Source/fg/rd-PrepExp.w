@@ -57,13 +57,13 @@ ASSIGN cTextListToSelect = "Code,Description,Mat'l Type,Mat'l Dscr,Markup,Cost,A
                            "Vendor #,Sales G/L #,Cost Type,Cost Type Dscr,Cust. #,Cust Name,Owner 1,Owner1 %," +
                            "Number Up,Impressions,Owner 2,Owner2 %,CAD No,Image,Width,Die Width," +
                            "Box Style,Prep Date,Time,Length,Die Length,Wood Type,Last Rec'd,Depth,Last Used," +
-                           "Disposal,Last Est.,Last Order,Job#,Job2" 
+                           "Disposal,Last Est.,Last Order,Job#,Job2,Prep Tax Class" 
             cFieldListToSelect = "code,dscr,mat-type,mat_dscr,mkup,cost,dfault,amtz," +
                                  "ml,uom,uom_dscr,simon,taxable,fgcat,price,commissionable,loc,loc-bin,i-no," +
                                  "vend-no,actnum,cost-type,costtype_descr,cust-no,cust-name,owner[1],owner-%[1]," +
                                  "number-up,no-of-impressions,owner[2],owner-%[2],cadNo,cad-image,carton-w,die-w," +
                                  "box-style,prep-date,ls-time,carton-l,die-l,wood-type,received-date,carton-d,last-date," +
-                                 "disposal-date,last-est-no,last-order,last-job-no,last-job-no2"
+                                 "disposal-date,last-est-no,last-order,last-job-no,last-job-no2,productTaxClass"
 
        .
 {sys/inc/ttRptSel.i}
@@ -73,7 +73,7 @@ ASSIGN cTextListToSelect = "Code,Description,Mat'l Type,Mat'l Dscr,Markup,Cost,A
                            "Vendor #,Sales G/L #,Cost Type,Cost Type Dscr,Cust. #,Cust Name,Owner 1,Owner1 %," +
                            "Number Up,Impressions,Owner 2,Owner2 %,CAD No,Image,Width,Die Width," +
                            "Box Style,Prep Date,Time,Length,Die Length,Wood Type,Last Rec'd,Depth,Last Used," +
-                           "Disposal,Last Est.,Last Order,Job#,Job2".
+                           "Disposal,Last Est.,Last Order,Job#,Job2,Prep Tax Class".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
