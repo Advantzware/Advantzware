@@ -98,7 +98,7 @@ prep.cust-name prep.owner[1] prep.owner-%[1] prep.number-up ~
 prep.no-of-impressions prep.owner[2] prep.owner-%[2] prep.cadNo ~
 prep.cad-image prep.carton-w prep.die-w prep.box-style prep.carton-l ~
 prep.die-l prep.wood-type prep.received-date prep.carton-d prep.last-date ~
-prep.disposal-date 
+prep.disposal-date prep.productTaxClass 
 &Scoped-define ENABLED-TABLES prep
 &Scoped-define FIRST-ENABLED-TABLE prep
 &Scoped-Define DISPLAYED-FIELDS prep.code prep.dscr prep.inactive prep.ml ~
@@ -110,7 +110,7 @@ prep.no-of-impressions prep.owner[2] prep.owner-%[2] prep.cadNo ~
 prep.cad-image prep.carton-w prep.die-w prep.box-style prep.prep-date ~
 prep.carton-l prep.die-l prep.wood-type prep.received-date prep.carton-d ~
 prep.last-date prep.disposal-date prep.last-est-no prep.last-order ~
-prep.last-job-no prep.last-job-no2 
+prep.last-job-no prep.last-job-no2 prep.productTaxClass
 &Scoped-define DISPLAYED-TABLES prep
 &Scoped-define FIRST-DISPLAYED-TABLE prep
 &Scoped-Define DISPLAYED-OBJECTS uom_dscr mat_dscr costtype_descr ls-time 
@@ -350,6 +350,10 @@ DEFINE FRAME F-Main
           LABEL "Last Used"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
+     prep.productTaxClass AT ROW 16.91 COL 23 COLON-ALIGNED
+          LABEL "Prep Tax Class"  FORMAT "x(18)"
+          VIEW-AS FILL-IN 
+          SIZE 25 BY 1        
      prep.disposal-date AT ROW 16.71 COL 88 COLON-ALIGNED
           LABEL "Disposal"
           VIEW-AS FILL-IN 
@@ -366,9 +370,9 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 16 BY .95
      prep.last-job-no2 AT ROW 17.91 COL 107 COLON-ALIGNED
-          LABEL "-"
+          LABEL "-"   
           VIEW-AS FILL-IN 
-          SIZE 6 BY 1
+          SIZE 6 BY 1        
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE NO-VALIDATE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -512,6 +516,8 @@ ASSIGN
    NO-ENABLE 4                                                          */
 /* SETTINGS FOR FILL-IN uom_dscr IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN prep.productTaxClass IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                  */   
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
