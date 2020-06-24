@@ -75,32 +75,36 @@ DEFINE TEMP-TABLE tt-accounts NO-UNDO
 DEFINE QUERY external_tables FOR stax.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS stax.tax-code1[1] stax.tax-dscr1[1] ~
-stax.tax-rate1[1] stax.tax-frt1[1] stax.tax-acc1[1] stax.tax-code1[2] ~
-stax.tax-dscr1[2] stax.tax-rate1[2] stax.tax-frt1[2] stax.tax-acc1[2] ~
-stax.tax-code1[3] stax.tax-dscr1[3] stax.tax-rate1[3] stax.tax-frt1[3] ~
-stax.tax-acc1[3] stax.tax-code1[4] stax.tax-dscr1[4] stax.tax-rate1[4] ~
-stax.tax-frt1[4] stax.tax-acc1[4] stax.tax-code1[5] stax.tax-dscr1[5] ~
-stax.tax-rate1[5] stax.tax-frt1[5] stax.tax-acc1[5] stax.accum-tax 
+stax.tax-rate1[1] stax.tax-frt1[1] stax.tax-acc1[1] stax.taxableLimit ~
+stax.tax-code1[2] stax.tax-dscr1[2] stax.tax-rate1[2] stax.tax-code1[3] ~
+stax.tax-dscr1[3] stax.tax-rate1[3] stax.tax-code1[4] stax.tax-dscr1[4] ~
+stax.tax-rate1[4] stax.tax-code1[5] stax.tax-dscr1[5] stax.tax-rate1[5] ~
+stax.tax-code1[6] stax.tax-dscr1[6] stax.tax-rate1[6] stax.tax-code1[7] ~
+stax.tax-dscr1[7] stax.tax-rate1[7] stax.tax-code1[8] stax.tax-dscr1[8] ~
+stax.tax-rate1[8] stax.tax-rate1[9] stax.tax-code1[9] stax.tax-dscr1[9] ~
+stax.tax-code1[10] stax.tax-dscr1[10] stax.tax-rate1[10] stax.accum-tax ~
+stax.inactive 
 &Scoped-define ENABLED-TABLES stax
 &Scoped-define FIRST-ENABLED-TABLE stax
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS stax.tax-group stax.tax-code1[1] ~
 stax.tax-dscr1[1] stax.tax-rate1[1] stax.tax-frt1[1] stax.tax-acc1[1] ~
-stax.tax-code1[2] stax.tax-dscr1[2] stax.tax-rate1[2] stax.tax-frt1[2] ~
-stax.tax-acc1[2] stax.tax-code1[3] stax.tax-dscr1[3] stax.tax-rate1[3] ~
-stax.tax-frt1[3] stax.tax-acc1[3] stax.tax-code1[4] stax.tax-dscr1[4] ~
-stax.tax-rate1[4] stax.tax-frt1[4] stax.tax-acc1[4] stax.tax-code1[5] ~
-stax.tax-dscr1[5] stax.tax-rate1[5] stax.tax-frt1[5] stax.tax-acc1[5] ~
-stax.accum-tax 
+stax.taxableLimit stax.tax-code1[2] stax.tax-dscr1[2] stax.tax-rate1[2] ~
+stax.tax-code1[3] stax.tax-dscr1[3] stax.tax-rate1[3] stax.tax-code1[4] ~
+stax.tax-dscr1[4] stax.tax-rate1[4] stax.tax-code1[5] stax.tax-dscr1[5] ~
+stax.tax-rate1[5] stax.tax-code1[6] stax.tax-dscr1[6] stax.tax-rate1[6] ~
+stax.tax-code1[7] stax.tax-dscr1[7] stax.tax-rate1[7] stax.tax-code1[8] ~
+stax.tax-dscr1[8] stax.tax-rate1[8] stax.tax-rate1[9] stax.tax-code1[9] ~
+stax.tax-dscr1[9] stax.tax-code1[10] stax.tax-dscr1[10] stax.tax-rate1[10] ~
+stax.accum-tax stax.inactive 
 &Scoped-define DISPLAYED-TABLES stax
 &Scoped-define FIRST-DISPLAYED-TABLE stax
-&Scoped-Define DISPLAYED-OBJECTS F1 F-2 F-3 F-5 F-4 
+
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-CREATE-FIELDS stax.tax-group 
 &Scoped-define ADM-ASSIGN-FIELDS stax.tax-group 
-&Scoped-define F1 F1 F-2 F-3 F-5 F-4 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -132,34 +136,9 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE F-2 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
-      VIEW-AS TEXT 
-     SIZE 2.2 BY .52
-     BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
-
-DEFINE VARIABLE F-3 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
-      VIEW-AS TEXT 
-     SIZE 2.2 BY .52
-     BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
-
-DEFINE VARIABLE F-4 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
-      VIEW-AS TEXT 
-     SIZE 2.2 BY .52
-     BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
-
-DEFINE VARIABLE F-5 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
-      VIEW-AS TEXT 
-     SIZE 2.2 BY .52
-     BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
-
-DEFINE VARIABLE F1 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
-      VIEW-AS TEXT 
-     SIZE 2.2 BY .52
-     BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
-
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 122 BY 9.52.
+     SIZE 142 BY 15.95.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -181,10 +160,13 @@ DEFINE FRAME F-Main
      stax.tax-frt1[1] AT ROW 2.91 COL 80 WIDGET-ID 34
           LABEL ""
           VIEW-AS TOGGLE-BOX
-          SIZE 3 BY .81
+          SIZE 4 BY .81
      stax.tax-acc1[1] AT ROW 2.91 COL 89 COLON-ALIGNED NO-LABEL WIDGET-ID 4
           VIEW-AS FILL-IN 
           SIZE 27.2 BY 1
+     stax.taxableLimit AT ROW 2.91 COL 121.2 COLON-ALIGNED NO-LABEL WIDGET-ID 62
+          VIEW-AS FILL-IN 
+          SIZE 17.6 BY 1
      stax.tax-code1[2] AT ROW 4.19 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 16 FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
@@ -194,13 +176,6 @@ DEFINE FRAME F-Main
      stax.tax-rate1[2] AT ROW 4.19 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 46
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     stax.tax-frt1[2] AT ROW 4.19 COL 80 WIDGET-ID 36
-          LABEL ""
-          VIEW-AS TOGGLE-BOX
-          SIZE 4 BY .81
-     stax.tax-acc1[2] AT ROW 4.19 COL 89 COLON-ALIGNED NO-LABEL WIDGET-ID 6
-          VIEW-AS FILL-IN 
-          SIZE 27.2 BY 1
      stax.tax-code1[3] AT ROW 5.62 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 18 FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
@@ -210,13 +185,6 @@ DEFINE FRAME F-Main
      stax.tax-rate1[3] AT ROW 5.62 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 48
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     stax.tax-frt1[3] AT ROW 5.62 COL 80 WIDGET-ID 38
-          LABEL ""
-          VIEW-AS TOGGLE-BOX
-          SIZE 2 BY .81
-     stax.tax-acc1[3] AT ROW 5.62 COL 89 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-          VIEW-AS FILL-IN 
-          SIZE 27.2 BY 1
      stax.tax-code1[4] AT ROW 6.86 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 20 FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
@@ -226,13 +194,6 @@ DEFINE FRAME F-Main
      stax.tax-rate1[4] AT ROW 6.86 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 50
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     stax.tax-frt1[4] AT ROW 6.86 COL 80 WIDGET-ID 40
-          LABEL ""
-          VIEW-AS TOGGLE-BOX
-          SIZE 2 BY .81
-     stax.tax-acc1[4] AT ROW 6.86 COL 89 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-          VIEW-AS FILL-IN 
-          SIZE 27.2 BY 1
      stax.tax-code1[5] AT ROW 8.14 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 22 FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
@@ -242,10 +203,24 @@ DEFINE FRAME F-Main
      stax.tax-rate1[5] AT ROW 8.14 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 52
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     stax.tax-frt1[5] AT ROW 8.14 COL 80 WIDGET-ID 42
-          LABEL ""
-          VIEW-AS TOGGLE-BOX
-          SIZE 2 BY .81
+     stax.tax-code1[6] AT ROW 9.38 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 68
+          VIEW-AS FILL-IN 
+          SIZE 10 BY 1
+     stax.tax-dscr1[6] AT ROW 9.43 COL 28.4 COLON-ALIGNED NO-LABEL WIDGET-ID 78
+          VIEW-AS FILL-IN 
+          SIZE 32 BY 1
+     stax.tax-rate1[6] AT ROW 9.43 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 88
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
+     stax.tax-code1[7] AT ROW 10.62 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 70
+          VIEW-AS FILL-IN 
+          SIZE 10 BY 1
+     stax.tax-dscr1[7] AT ROW 10.62 COL 28.6 COLON-ALIGNED NO-LABEL WIDGET-ID 80
+          VIEW-AS FILL-IN 
+          SIZE 32 BY 1
+     stax.tax-rate1[7] AT ROW 10.62 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 90
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -253,38 +228,62 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     stax.tax-acc1[5] AT ROW 8.14 COL 89 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     stax.tax-code1[8] AT ROW 11.86 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 72
           VIEW-AS FILL-IN 
-          SIZE 27.2 BY 1
-     stax.accum-tax AT ROW 9.57 COL 19
+          SIZE 10 BY 1
+     stax.tax-dscr1[8] AT ROW 11.86 COL 28.6 COLON-ALIGNED NO-LABEL WIDGET-ID 82
+          VIEW-AS FILL-IN 
+          SIZE 32 BY 1
+     stax.tax-rate1[8] AT ROW 11.86 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 92
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
+     stax.tax-rate1[9] AT ROW 13.05 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 94
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
+     stax.tax-code1[9] AT ROW 13.1 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 74
+          VIEW-AS FILL-IN 
+          SIZE 10 BY 1
+     stax.tax-dscr1[9] AT ROW 13.1 COL 28.6 COLON-ALIGNED NO-LABEL WIDGET-ID 84
+          VIEW-AS FILL-IN 
+          SIZE 32 BY 1
+     stax.tax-code1[10] AT ROW 14.29 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 66
+          VIEW-AS FILL-IN 
+          SIZE 10 BY 1
+     stax.tax-dscr1[10] AT ROW 14.33 COL 28.6 COLON-ALIGNED NO-LABEL WIDGET-ID 76
+          VIEW-AS FILL-IN 
+          SIZE 32 BY 1
+     stax.tax-rate1[10] AT ROW 14.33 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 86
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
+     stax.accum-tax AT ROW 15.71 COL 20
           LABEL "Tax on Tax?"
           VIEW-AS TOGGLE-BOX
           SIZE 20 BY .81
-     F1 AT ROW 2.91 COL 118 NO-LABEL
-     F-2 AT ROW 4.19 COL 118 NO-LABEL
-     F-3 AT ROW 5.62 COL 118 NO-LABEL
-     F-5 AT ROW 6.86 COL 118.2 NO-LABEL WIDGET-ID 56
-     F-4 AT ROW 8.14 COL 118 NO-LABEL WIDGET-ID 54
-     "Freight?" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 1.95 COL 78
-     "Tax Group" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 1.95 COL 4
-     "Sales Tax Account" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 1.48 COL 95
-     "Tax" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.24 COL 78
-     "Tax" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.24 COL 19
-     "Description" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 1.48 COL 42
-     "Sales" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.24 COL 4
+     stax.inactive AT ROW 15.71 COL 105.4 WIDGET-ID 60
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.2 BY .81
      "Code" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.95 COL 19
-     "Tax" VIEW-AS TEXT
-          SIZE 6 BY .71 AT ROW 1.24 COL 66
      "Rate" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.95 COL 66
+     "Freight?" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 1.95 COL 78
+     "$ Limit" VIEW-AS TEXT
+          SIZE 8.8 BY .62 AT ROW 1.48 COL 123.2 WIDGET-ID 64
+     "Sales" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.24 COL 4
+     "Description" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 1.48 COL 42
+     "Tax" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.24 COL 19
+     "Tax" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 1.24 COL 78
+     "Tax Group" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 1.95 COL 4
+     "GL Account" VIEW-AS TEXT
+          SIZE 14.8 BY .62 AT ROW 1.48 COL 96.2
+     "Tax" VIEW-AS TEXT
+          SIZE 6 BY .71 AT ROW 1.24 COL 66
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -319,8 +318,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 9.67
-         WIDTH              = 122.
+         HEIGHT             = 16.05
+         WIDTH              = 142.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -350,31 +349,6 @@ ASSIGN
 
 /* SETTINGS FOR TOGGLE-BOX stax.accum-tax IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN F-2 IN FRAME F-Main
-   NO-ENABLE ALIGN-L 6                                                  */
-ASSIGN 
-       F-2:HIDDEN IN FRAME F-Main           = TRUE.
-
-/* SETTINGS FOR FILL-IN F-3 IN FRAME F-Main
-   NO-ENABLE ALIGN-L 6                                                  */
-ASSIGN 
-       F-3:HIDDEN IN FRAME F-Main           = TRUE.
-
-/* SETTINGS FOR FILL-IN F-4 IN FRAME F-Main
-   NO-ENABLE ALIGN-L 6                                                  */
-ASSIGN 
-       F-4:HIDDEN IN FRAME F-Main           = TRUE.
-
-/* SETTINGS FOR FILL-IN F-5 IN FRAME F-Main
-   NO-ENABLE ALIGN-L 6                                                  */
-ASSIGN 
-       F-5:HIDDEN IN FRAME F-Main           = TRUE.
-
-/* SETTINGS FOR FILL-IN F1 IN FRAME F-Main
-   NO-ENABLE ALIGN-L 6                                                  */
-ASSIGN 
-       F1:HIDDEN IN FRAME F-Main           = TRUE.
-
 /* SETTINGS FOR FILL-IN stax.tax-code1[1] IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN stax.tax-code1[2] IN FRAME F-Main
@@ -386,14 +360,6 @@ ASSIGN
 /* SETTINGS FOR FILL-IN stax.tax-code1[5] IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR TOGGLE-BOX stax.tax-frt1[1] IN FRAME F-Main
-   EXP-LABEL                                                            */
-/* SETTINGS FOR TOGGLE-BOX stax.tax-frt1[2] IN FRAME F-Main
-   EXP-LABEL                                                            */
-/* SETTINGS FOR TOGGLE-BOX stax.tax-frt1[3] IN FRAME F-Main
-   EXP-LABEL                                                            */
-/* SETTINGS FOR TOGGLE-BOX stax.tax-frt1[4] IN FRAME F-Main
-   EXP-LABEL                                                            */
-/* SETTINGS FOR TOGGLE-BOX stax.tax-frt1[5] IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN stax.tax-group IN FRAME F-Main
    NO-ENABLE 1 2 EXP-LABEL EXP-FORMAT                                   */
@@ -410,7 +376,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -445,142 +411,39 @@ DO:
   {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME stax.tax-acc1[2]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[2] V-table-Win
-ON HELP OF stax.tax-acc1[2] IN FRAME F-Main /* Sales Tax Account[2] */
+&Scoped-define SELF-NAME stax.tax-code1[10]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[10] V-table-Win
+ON HELP OF stax.tax-code1[10] IN FRAME F-Main /* Tax Code[10] */
 DO:
-  def var char-val as cha no-undo.
-  run windows/l-acct.w (gcompany,"",self:screen-value,output char-val).
-  if char-val <> "" then self:screen-value = entry(1,char-val).
+  {viewers/stax2.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[2] V-table-Win
-ON LEAVE OF stax.tax-acc1[2] IN FRAME F-Main /* Sales Tax Account[2] */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[10] V-table-Win
+ON LEAVE OF stax.tax-code1[10] IN FRAME F-Main /* Tax Code[10] */
 DO:
-  {&methods/lValidateError.i YES}
-  if lastkey <> -1 and stax.tax-code1[2]:screen-value <> "" then do:
-     if not can-find(first account where account.company = gcompany and
-                                         account.type <> "T" and
-                                         account.actnum BEGINS self:screen-value)
-     then do:
-         message "Invalid Account. Account Type must not be 'T'. " view-as alert-box error.
-         return no-apply.
-     end.
-  end.
-  {&methods/lValidateError.i NO}
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME stax.tax-acc1[3]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[3] V-table-Win
-ON HELP OF stax.tax-acc1[3] IN FRAME F-Main /* Sales Tax Account[3] */
-DO:
-  def var char-val as cha no-undo.
-  run windows/l-acct.w (gcompany,"",self:screen-value,output char-val).
-  if char-val <> "" then self:screen-value = entry(1,char-val).
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-tax-code IN THIS-PROCEDURE (SELF:SCREEN-VALUE, SELF) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[3] V-table-Win
-ON LEAVE OF stax.tax-acc1[3] IN FRAME F-Main /* Sales Tax Account[3] */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[10] V-table-Win
+ON VALUE-CHANGED OF stax.tax-code1[10] IN FRAME F-Main /* Tax Code[10] */
 DO:
-  {&methods/lValidateError.i YES}
-  if lastkey <> -1 and stax.tax-code1[3]:screen-value <> "" then do:
-     if not can-find(first account where account.company = gcompany and
-                                         account.type <> "T" and
-                                         account.actnum BEGINS self:screen-value)
-     then do:
-         message "Invalid Account. Account Type must not be 'T'. " view-as alert-box error.
-         return no-apply.
-     end.
-  end.
-  {&methods/lValidateError.i NO}
+  {viewers/stax.i 10}
 END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME stax.tax-acc1[4]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[4] V-table-Win
-ON HELP OF stax.tax-acc1[4] IN FRAME F-Main /* Sales Tax Account[4] */
-DO:
-  def var char-val as cha no-undo.
-  run windows/l-acct.w (gcompany,"",self:screen-value,output char-val).
-  if char-val <> "" then self:screen-value = entry(1,char-val).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[4] V-table-Win
-ON LEAVE OF stax.tax-acc1[4] IN FRAME F-Main /* Sales Tax Account[4] */
-DO:
-  {&methods/lValidateError.i YES}
-  if lastkey <> -1 and stax.tax-code1[4]:screen-value <> "" then do:
-     if not can-find(first account where account.company = gcompany and
-                                         account.type <> "T" and
-                                         account.actnum BEGINS self:screen-value)
-     then do:
-         message "Invalid Account. Account Type must not be 'T'. " view-as alert-box error.
-         return no-apply.
-     end.
-  end.
-  {&methods/lValidateError.i NO}
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME stax.tax-acc1[5]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[5] V-table-Win
-ON HELP OF stax.tax-acc1[5] IN FRAME F-Main /* Sales Tax Account[5] */
-DO:
-  def var char-val as cha no-undo.
-  run windows/l-acct.w (gcompany,"",self:screen-value,output char-val).
-  if char-val <> "" then self:screen-value = entry(1,char-val).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[5] V-table-Win
-ON LEAVE OF stax.tax-acc1[5] IN FRAME F-Main /* Sales Tax Account[5] */
-DO:
-  {&methods/lValidateError.i YES}
-  if lastkey <> -1 and stax.tax-code1[5]:screen-value <> "" then do:
-     if not can-find(first account where account.company = gcompany and
-                                         account.type <> "T" and
-                                         account.actnum BEGINS self:screen-value)
-     then do:
-         message "Invalid Account. Account Type must not be 'T'. " view-as alert-box error.
-         return no-apply.
-     end.
-  end.
-  {&methods/lValidateError.i NO}
-END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -588,7 +451,7 @@ END.
 
 &Scoped-define SELF-NAME stax.tax-code1[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[1] V-table-Win
-ON HELP OF stax.tax-code1[1] IN FRAME F-Main /* Tax Code */
+ON HELP OF stax.tax-code1[1] IN FRAME F-Main /* Tax Code[1] */
 DO:
   {viewers/stax2.i}
 END.
@@ -598,7 +461,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[1] V-table-Win
-ON LEAVE OF stax.tax-code1[1] IN FRAME F-Main /* Tax Code */
+ON LEAVE OF stax.tax-code1[1] IN FRAME F-Main /* Tax Code[1] */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-tax-code IN THIS-PROCEDURE (SELF:SCREEN-VALUE, SELF) NO-ERROR.
@@ -611,7 +474,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[1] V-table-Win
-ON VALUE-CHANGED OF stax.tax-code1[1] IN FRAME F-Main /* Tax Code */
+ON VALUE-CHANGED OF stax.tax-code1[1] IN FRAME F-Main /* Tax Code[1] */
 DO:
   {viewers/stax.i 1}
 END.
@@ -622,7 +485,7 @@ END.
 
 &Scoped-define SELF-NAME stax.tax-code1[2]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[2] V-table-Win
-ON HELP OF stax.tax-code1[2] IN FRAME F-Main /* Tax Code */
+ON HELP OF stax.tax-code1[2] IN FRAME F-Main /* Tax Code[2] */
 DO:
   {viewers/stax2.i}
 END.
@@ -632,7 +495,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[2] V-table-Win
-ON LEAVE OF stax.tax-code1[2] IN FRAME F-Main /* Tax Code */
+ON LEAVE OF stax.tax-code1[2] IN FRAME F-Main /* Tax Code[2] */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-tax-code IN THIS-PROCEDURE (SELF:SCREEN-VALUE, SELF) NO-ERROR.
@@ -645,7 +508,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[2] V-table-Win
-ON VALUE-CHANGED OF stax.tax-code1[2] IN FRAME F-Main /* Tax Code */
+ON VALUE-CHANGED OF stax.tax-code1[2] IN FRAME F-Main /* Tax Code[2] */
 DO:
   {viewers/stax.i 2}
 END.
@@ -656,7 +519,7 @@ END.
 
 &Scoped-define SELF-NAME stax.tax-code1[3]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[3] V-table-Win
-ON HELP OF stax.tax-code1[3] IN FRAME F-Main /* Tax Code */
+ON HELP OF stax.tax-code1[3] IN FRAME F-Main /* Tax Code[3] */
 DO:
   {viewers/stax2.i}
 END.
@@ -666,7 +529,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[3] V-table-Win
-ON LEAVE OF stax.tax-code1[3] IN FRAME F-Main /* Tax Code */
+ON LEAVE OF stax.tax-code1[3] IN FRAME F-Main /* Tax Code[3] */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-tax-code IN THIS-PROCEDURE (SELF:SCREEN-VALUE, SELF) NO-ERROR.
@@ -679,7 +542,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[3] V-table-Win
-ON VALUE-CHANGED OF stax.tax-code1[3] IN FRAME F-Main /* Tax Code */
+ON VALUE-CHANGED OF stax.tax-code1[3] IN FRAME F-Main /* Tax Code[3] */
 DO:
   {viewers/stax.i 3}
 END.
@@ -690,7 +553,7 @@ END.
 
 &Scoped-define SELF-NAME stax.tax-code1[4]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[4] V-table-Win
-ON HELP OF stax.tax-code1[4] IN FRAME F-Main /* Tax Code */
+ON HELP OF stax.tax-code1[4] IN FRAME F-Main /* Tax Code[4] */
 DO:
   {viewers/stax2.i}
 END.
@@ -700,7 +563,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[4] V-table-Win
-ON LEAVE OF stax.tax-code1[4] IN FRAME F-Main /* Tax Code */
+ON LEAVE OF stax.tax-code1[4] IN FRAME F-Main /* Tax Code[4] */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-tax-code IN THIS-PROCEDURE (SELF:SCREEN-VALUE, SELF) NO-ERROR.
@@ -713,7 +576,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[4] V-table-Win
-ON VALUE-CHANGED OF stax.tax-code1[4] IN FRAME F-Main /* Tax Code */
+ON VALUE-CHANGED OF stax.tax-code1[4] IN FRAME F-Main /* Tax Code[4] */
 DO:
   {viewers/stax.i 4}
 END.
@@ -724,7 +587,7 @@ END.
 
 &Scoped-define SELF-NAME stax.tax-code1[5]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[5] V-table-Win
-ON HELP OF stax.tax-code1[5] IN FRAME F-Main /* Tax Code */
+ON HELP OF stax.tax-code1[5] IN FRAME F-Main /* Tax Code[5] */
 DO:
   {viewers/stax2.i}
 END.
@@ -734,7 +597,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[5] V-table-Win
-ON LEAVE OF stax.tax-code1[5] IN FRAME F-Main /* Tax Code */
+ON LEAVE OF stax.tax-code1[5] IN FRAME F-Main /* Tax Code[5] */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-tax-code IN THIS-PROCEDURE (SELF:SCREEN-VALUE, SELF) NO-ERROR.
@@ -747,9 +610,145 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[5] V-table-Win
-ON VALUE-CHANGED OF stax.tax-code1[5] IN FRAME F-Main /* Tax Code */
+ON VALUE-CHANGED OF stax.tax-code1[5] IN FRAME F-Main /* Tax Code[5] */
 DO:
   {viewers/stax.i 5}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME stax.tax-code1[6]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[6] V-table-Win
+ON HELP OF stax.tax-code1[6] IN FRAME F-Main /* Tax Code[6] */
+DO:
+  {viewers/stax2.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[6] V-table-Win
+ON LEAVE OF stax.tax-code1[6] IN FRAME F-Main /* Tax Code[6] */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-tax-code IN THIS-PROCEDURE (SELF:SCREEN-VALUE, SELF) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[6] V-table-Win
+ON VALUE-CHANGED OF stax.tax-code1[6] IN FRAME F-Main /* Tax Code[6] */
+DO:
+    {viewers/stax.i 6}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME stax.tax-code1[7]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[7] V-table-Win
+ON HELP OF stax.tax-code1[7] IN FRAME F-Main /* Tax Code[7] */
+DO:
+  {viewers/stax2.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[7] V-table-Win
+ON LEAVE OF stax.tax-code1[7] IN FRAME F-Main /* Tax Code[7] */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-tax-code IN THIS-PROCEDURE (SELF:SCREEN-VALUE, SELF) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[7] V-table-Win
+ON VALUE-CHANGED OF stax.tax-code1[7] IN FRAME F-Main /* Tax Code[7] */
+DO:
+  {viewers/stax.i 7}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME stax.tax-code1[8]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[8] V-table-Win
+ON HELP OF stax.tax-code1[8] IN FRAME F-Main /* Tax Code[8] */
+DO:
+  {viewers/stax2.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[8] V-table-Win
+ON LEAVE OF stax.tax-code1[8] IN FRAME F-Main /* Tax Code[8] */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-tax-code IN THIS-PROCEDURE (SELF:SCREEN-VALUE, SELF) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[8] V-table-Win
+ON VALUE-CHANGED OF stax.tax-code1[8] IN FRAME F-Main /* Tax Code[8] */
+DO:
+  {viewers/stax.i 8}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME stax.tax-code1[9]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[9] V-table-Win
+ON HELP OF stax.tax-code1[9] IN FRAME F-Main /* Tax Code[9] */
+DO:
+  {viewers/stax2.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[9] V-table-Win
+ON LEAVE OF stax.tax-code1[9] IN FRAME F-Main /* Tax Code[9] */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-tax-code IN THIS-PROCEDURE (SELF:SCREEN-VALUE, SELF) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-code1[9] V-table-Win
+ON VALUE-CHANGED OF stax.tax-code1[9] IN FRAME F-Main /* Tax Code[9] */
+DO:
+  {viewers/stax.i 9}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -970,7 +969,6 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
