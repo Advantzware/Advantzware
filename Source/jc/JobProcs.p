@@ -426,17 +426,23 @@ PROCEDURE GetRecalcJobCostForJobHdr:
     
     DEFINE BUFFER bf-blank-job-mat FOR job-mat.
     DEFINE BUFFER bf-blank-job-mch FOR job-mch.
-    DEFINE VARIABLE dCostMat AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dCostLab AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dCostVO  AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dCostFO  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostMat           AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostLab           AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostVO            AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostFO            AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dPercentage        AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyInM            AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dPercentageApplied AS DECIMAL NO-UNDO.
         
     FIND FIRST job-hdr NO-LOCK
         WHERE ROWID(job-hdr) EQ ipriJobHdr
         NO-ERROR.
     
     IF NOT AVAILABLE job-hdr THEN RETURN.
-    
+    ASSIGN 
+        dQtyInM = job-hdr.qty / 1000
+        dPercentage = IF job-hdr.sq-in NE 0 THEN job-hdr.sq-in / 100 ELSE  1
+        .
     FOR EACH job-mat NO-LOCK 
         WHERE job-mat.company EQ job-hdr.company
         AND job-mat.job EQ job-hdr.job
@@ -447,11 +453,12 @@ PROCEDURE GetRecalcJobCostForJobHdr:
         dCostMat = 0.
         IF job-hdr.blank-no EQ job-mat.blank-no OR job-mat.blank-no EQ 0 THEN 
         DO: 
-            dCostMat = job-mat.cost-m.
-            IF job-mat.blank-no EQ 0 THEN 
-                    
+            ASSIGN 
+                dCostMat   = job-mat.cost-m
+                opdCostMat = opdCostMat + dCostMat
+                .             
         END.
-        opdCostMat = opdCostMat + dCostMat.
+            .
     END.
     
     FOR EACH job-mch NO-LOCK
@@ -461,16 +468,22 @@ PROCEDURE GetRecalcJobCostForJobHdr:
         AND job-mch.job-no2 EQ job-hdr.job-no2
         AND (job-mch.frm EQ job-hdr.frm OR job-hdr.frm EQ 0)
         :
-        ASSIGN 
-            dCostLab = (job-mch.run-hr * job-mch.run-rate  + job-mch.mr-hr * job-mch.mr-rate) / job-hdr.qty * 1000
-            dCostVO  = (job-mch.run-hr * job-mch.run-varoh + job-mch.mr-hr * job-mch.mr-varoh) / job-hdr.qty * 1000
-            dCostFO  = (job-mch.run-hr * job-mch.run-fixoh + job-mch.mr-hr * job-mch.mr-fixoh) / job-hdr.qty * 1000
-            .
-        ASSIGN 
-            opdCostLab = opdCostLab + dCostLab
-            opdCostVO  = opdCostVO + dCostVO
-            opdCostFO  = opdCostFO + dCostFO
-            .
+        IF job-hdr.blank-no EQ job-mch.blank-no OR job-mch.blank-no EQ 0 THEN 
+        DO: 
+            IF job-mch.blank-no EQ 0 THEN 
+                dPercentageApplied = dPercentage.
+            ELSE 
+                dPercentageApplied = 1.
+            ASSIGN 
+                dCostLab   = ((job-mch.run-hr * job-mch.run-rate  + job-mch.mr-hr * job-mch.mr-rate) * dPercentageApplied ) / dQtyInM
+                dCostVO    = ((job-mch.run-hr * job-mch.run-varoh + job-mch.mr-hr * job-mch.mr-varoh) * dPercentageApplied )  / dQtyInM
+                dCostFO    = ((job-mch.run-hr * job-mch.run-fixoh + job-mch.mr-hr * job-mch.mr-fixoh) * dPercentageApplied )  / dQtyInM
+                opdCostLab = opdCostLab + dCostLab
+                opdCostVO  = opdCostVO + dCostVO
+                opdCostFO  = opdCostFO + dCostFO
+                .
+        END.
+        
     END.
     FOR EACH job-prep NO-LOCK
         WHERE job-prep.company EQ job-hdr.company
@@ -479,9 +492,9 @@ PROCEDURE GetRecalcJobCostForJobHdr:
         AND job-prep.job-no2 EQ job-hdr.job-no2:
         
         IF job-prep.ml THEN 
-            opdCostLab = opdCostLab + job-prep.cost-m.
-        ELSE 
             opdCostMat = opdCostMat + job-prep.cost-m.
+        ELSE 
+            opdCostLab = opdCostLab + job-prep.cost-m.
     END.
 
 END PROCEDURE.

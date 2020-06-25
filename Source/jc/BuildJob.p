@@ -225,9 +225,10 @@ PROCEDURE pBuildHeaders PRIVATE:
                 bf-reftable.val[5] = bf-reftable.val[1] + bf-reftable.val[2] +
                          bf-reftable.val[3] + bf-reftable.val[4].
         END.
+        RELEASE bf-job-hdr.
+        RELEASE bf-reftable.
     END.
-    RELEASE bf-job-hdr.
-    RELEASE bf-reftable.
+    
     
 END PROCEDURE.
 
@@ -286,9 +287,9 @@ PROCEDURE pBuildMachines PRIVATE:
             bf-job-mch.mr-waste     = estCostOperation.quantityInSetupWaste
             bf-job-mch.run-qty      = estCostOperation.quantityIn
             . 
-            
+        RELEASE bf-job-mch.
     END.
-    RELEASE bf-job-mch.
+    
     
 END PROCEDURE.
 
@@ -302,7 +303,7 @@ PROCEDURE pBuildMaterials PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-job   FOR job.
     
     DEFINE           BUFFER bf-job-mat FOR job-mat.
-    
+        
     FOR EACH estCostMaterial NO-LOCK
         WHERE estCostMaterial.estCostHeaderID EQ ipiEstCostHeaderID
         AND NOT estCostMaterial.isPurchasedFG:
@@ -341,50 +342,9 @@ PROCEDURE pBuildMaterials PRIVATE:
             bf-job-mat.sc-uom       = estCostMaterial.costUOM
             bf-job-mat.cost-m       = estCostMaterial.costTotalPerMFinished
             .
+        RELEASE bf-job-mat.    
     END.
-    FOR EACH estCostMisc NO-LOCK 
-        WHERE estCostMisc.estCostHeaderID EQ ipiEstCostHeaderID
-        AND LOOKUP(estCostMisc.simon,"S,N,O") EQ 0
-        AND estCostMisc.costType EQ "Mat"
-        AND estCostMisc.itemID NE "",
-        FIRST ITEM NO-LOCK 
-            WHERE ITEM.company EQ estCostMisc.company
-            AND ITEM.i-no EQ estCostMisc.itemID:
-        
-        FIND FIRST bf-job-mat EXCLUSIVE-LOCK 
-            WHERE bf-job-mat.company EQ ipbf-job.company
-            AND bf-job-mat.job EQ ipbf-job.job
-            AND bf-job-mat.job-no EQ ipbf-job.job-no
-            AND bf-job-mat.job-no2 EQ ipbf-job.job-no2
-            AND bf-job-mat.frm EQ estCostMisc.formNo
-            AND bf-job-mat.blank-no EQ estCostMisc.blankNo
-            AND bf-job-mat.i-no EQ estCostMisc.itemID
-            NO-ERROR.
-        IF NOT AVAILABLE bf-job-mat THEN 
-        DO:
-            CREATE bf-job-mat.
-            ASSIGN 
-                bf-job-mat.company  = ipbf-job.company
-                bf-job-mat.job      = ipbf-job.job
-                bf-job-mat.job-no   = ipbf-job.job-no
-                bf-job-mat.job-no2  = ipbf-job.job-no2
-                bf-job-mat.frm      = estCostMisc.formNo
-                bf-job-mat.blank-no = estCostMisc.blankNo
-                bf-job-mat.i-no     = estCostMisc.itemID
-                bf-job-mat.rm-i-no  = estCostMisc.itemID
-                .
-        END.        
-        CREATE ttJobMatToKeep.
-        ASSIGN 
-            ttJobMatToKeep.riJobMat = ROWID(bf-job-mat)
-            bf-job-mat.qty          = estCostMisc.quantityRequiredTotal
-            bf-job-mat.qty-uom      = "EA"
-            bf-job-mat.std-cost     = estCostMisc.costPerUOM
-            bf-job-mat.sc-uom       = estCostMisc.costUOM
-            bf-job-mat.cost-m       = estCostMisc.costTotalPerMFinished
-            .
-    END.    
-    RELEASE bf-job-mat.
+    
         
 END PROCEDURE.
 
@@ -398,48 +358,89 @@ PROCEDURE pBuildMisc PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-job    FOR job.
     
     DEFINE           BUFFER bf-job-prep FOR job-prep.
+    DEFINE           BUFFER bf-job-mat  FOR job-mat.
     
     FOR EACH estCostMisc NO-LOCK
         WHERE estCostMisc.estCostHeaderID EQ ipiEstCostHeaderID
-        AND LOOKUP(estCostMisc.simon,"S,N,O") EQ 0
-        AND (estCostMisc.itemID EQ "" 
-            OR NOT CAN-FIND(FIRST ITEM WHERE ITEM.company EQ estCostMisc.company AND ITEM.i-no EQ estCostMisc.itemID)):
-        FIND FIRST bf-job-prep EXCLUSIVE-LOCK 
-            WHERE bf-job-prep.company EQ ipbf-job.company
-            AND bf-job-prep.job EQ ipbf-job.job
-            AND bf-job-prep.job-no EQ ipbf-job.job-no
-            AND bf-job-prep.job-no2 EQ ipbf-job.job-no2
-            AND bf-job-prep.frm EQ estCostMisc.formNo
-            AND bf-job-prep.blank-no EQ estCostMisc.blankNo
-            AND bf-job-prep.code EQ estCostMisc.itemID
-            NO-ERROR.
-        IF NOT AVAILABLE bf-job-prep THEN 
-        DO:
-            CREATE bf-job-prep.
+        AND LOOKUP(estCostMisc.simon,"S,N,O") EQ 0:
+        IF estCostMisc.prepID NE "" AND estCostMisc.costType EQ "Mat" AND estCostMisc.itemID NE "" THEN 
+            FIND FIRST item NO-LOCK 
+                WHERE item.company EQ estCostMisc.company
+                AND item.i-no EQ estCostMisc.itemID
+                NO-ERROR.
+        IF AVAILABLE ITEM THEN DO: 
+            FIND FIRST bf-job-mat EXCLUSIVE-LOCK 
+                WHERE bf-job-mat.company EQ ipbf-job.company
+                AND bf-job-mat.job EQ ipbf-job.job
+                AND bf-job-mat.job-no EQ ipbf-job.job-no
+                AND bf-job-mat.job-no2 EQ ipbf-job.job-no2
+                AND bf-job-mat.frm EQ estCostMisc.formNo
+                AND bf-job-mat.blank-no EQ estCostMisc.blankNo
+                AND bf-job-mat.i-no EQ estCostMisc.itemID
+                NO-ERROR.
+            IF NOT AVAILABLE bf-job-mat THEN 
+            DO:
+                CREATE bf-job-mat.
+                ASSIGN 
+                    bf-job-mat.company  = ipbf-job.company
+                    bf-job-mat.job      = ipbf-job.job
+                    bf-job-mat.job-no   = ipbf-job.job-no
+                    bf-job-mat.job-no2  = ipbf-job.job-no2
+                    bf-job-mat.frm      = estCostMisc.formNo
+                    bf-job-mat.blank-no = estCostMisc.blankNo
+                    bf-job-mat.i-no     = estCostMisc.itemID
+                    bf-job-mat.rm-i-no  = estCostMisc.itemID
+                    .
+            END.        
+            CREATE ttJobMatToKeep.
             ASSIGN 
-                bf-job-prep.company  = ipbf-job.company
-                bf-job-prep.job      = ipbf-job.job
-                bf-job-prep.job-no   = ipbf-job.job-no
-                bf-job-prep.job-no2  = ipbf-job.job-no2
-                bf-job-prep.frm      = estCostMisc.formNo
-                bf-job-prep.blank-no = estCostMisc.blankNo
-                bf-job-prep.code     = estCostMisc.prepID
-                bf-job-prep.simon    = estCostMisc.simon
+                ttJobMatToKeep.riJobMat = ROWID(bf-job-mat)
+                bf-job-mat.qty          = estCostMisc.quantityRequiredTotal
+                bf-job-mat.qty-uom      = "EA"
+                bf-job-mat.std-cost     = estCostMisc.costPerUOM
+                bf-job-mat.sc-uom       = estCostMisc.costUOM
+                bf-job-mat.cost-m       = estCostMisc.costTotalPerMFinished
                 .
+            RELEASE bf-job-mat.
         END.
-        CREATE ttJobPrepToKeep.
-        ASSIGN 
-            ttJobPrepToKeep.riJobPrep = ROWID(bf-job-prep)
-            bf-job-prep.cost-m = estCostMisc.costTotalPerMFinished
-            bf-job-prep.qty = estCostMisc.quantityRequiredTotal
-            bf-job-prep.ml = estCostMisc.costType EQ "Mat"
-            bf-job-prep.std-cost = estCostMisc.costPerUOM
-            bf-job-prep.sc-uom = estCostMisc.costUOM
-            . 
-            
+        ELSE DO:
+            FIND FIRST bf-job-prep EXCLUSIVE-LOCK 
+                WHERE bf-job-prep.company EQ ipbf-job.company
+                AND bf-job-prep.job EQ ipbf-job.job
+                AND bf-job-prep.job-no EQ ipbf-job.job-no
+                AND bf-job-prep.job-no2 EQ ipbf-job.job-no2
+                AND bf-job-prep.frm EQ estCostMisc.formNo
+                AND bf-job-prep.blank-no EQ estCostMisc.blankNo
+                AND bf-job-prep.code EQ estCostMisc.prepID
+                NO-ERROR.
+            IF NOT AVAILABLE bf-job-prep THEN 
+            DO:
+                CREATE bf-job-prep.
+                ASSIGN 
+                    bf-job-prep.company  = ipbf-job.company
+                    bf-job-prep.job      = ipbf-job.job
+                    bf-job-prep.job-no   = ipbf-job.job-no
+                    bf-job-prep.job-no2  = ipbf-job.job-no2
+                    bf-job-prep.frm      = estCostMisc.formNo
+                    bf-job-prep.blank-no = estCostMisc.blankNo
+                    bf-job-prep.code     = estCostMisc.prepID
+                    bf-job-prep.simon    = estCostMisc.simon
+                    .
+            END.
+            CREATE ttJobPrepToKeep.
+            ASSIGN 
+                ttJobPrepToKeep.riJobPrep = ROWID(bf-job-prep)
+                bf-job-prep.cost-m = estCostMisc.costTotalPerMFinished
+                bf-job-prep.qty = estCostMisc.quantityRequiredTotal
+                bf-job-prep.ml = estCostMisc.costType EQ "Mat"
+                bf-job-prep.std-cost = estCostMisc.costPerUOM
+                bf-job-prep.sc-uom = estCostMisc.costUOM
+                . 
+        END.
+        RELEASE bf-job-prep.    
     END.
-    RELEASE bf-job-prep.
 
+    
 END PROCEDURE.
 
 PROCEDURE pCalcEstimateForJob PRIVATE:
