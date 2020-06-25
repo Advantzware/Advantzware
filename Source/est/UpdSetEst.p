@@ -17,7 +17,11 @@ DEFINE INPUT PARAMETER ipirRowid AS ROWID  NO-UNDO. /* eb rowid */
 {est\ttInputEst.i}
 
 DEFINE VARIABLE riEb AS ROWID NO-UNDO.
-
+DEFINE VARIABLE lNew AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lCheckPrompt AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lCalcLWD AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBoxDesign AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBuildFile AS LOGICAL NO-UNDO.
 
 /*Refactor - From B-estitm.w*/
 DEFINE SHARED BUFFER xest FOR est.
@@ -168,6 +172,18 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
         ef.eqty        = ttInputEst.iQuantity
         eb.eqty        = ttInputEst.iQuantity   
         .
+        lCalcLWD = NO.
+        IF NOT lCalcLWD AND eb.len NE ttInputEst.dLength OR eb.wid NE ttInputEst.dWidth 
+          OR eb.dep NE ttInputEst.dDepth THEN
+        DO:
+            lCalcLWD = YES.
+        END.
+        lBoxDesign = NO.
+        IF eb.style NE ttInputEst.cStyle  THEN
+        DO:
+           lBoxDesign = YES. 
+        END.
+         
           
     ASSIGN 
         eb.part-no         = ttInputEst.cPartID
@@ -268,17 +284,7 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
     /*    RUN fg/ce-addfg.p (xeb.stock-no).                                 */
     /* END.                                                                 */
     
-
-    IF eb.sman NE "" AND eb.comm EQ 0 THEN 
-    DO:
-        FIND FIRST sman NO-LOCK 
-            WHERE sman.company EQ eb.company
-            AND sman.sman EQ eb.sman
-            NO-ERROR.
-        IF AVAILABLE sman THEN 
-            eb.comm = sman.scomm.
-    END.
-   
+       
     IF ttInputEst.cCategory NE '' THEN 
         eb.procat       = ttInputEst.cCategory.
     IF ttInputEst.iQuantityYield GT 0 THEN 
@@ -325,6 +331,20 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
                 eb.ship-id   = cust.cust-no
                 eb.carrier   = cust.carrier
                 eb.dest-code = cust.del-zone.
+        IF eb.sman EQ "" THEN
+         ASSIGN eb.sman = cust.sman.
+        IF est.csrUser_id EQ "" THEN
+         ASSIGN est.csrUser_id = cust.csrUser_id. 
+    END.
+    
+    IF eb.sman NE "" AND eb.comm EQ 0 THEN 
+    DO:
+        FIND FIRST sman NO-LOCK 
+            WHERE sman.company EQ eb.company
+            AND sman.sman EQ eb.sman
+            NO-ERROR.
+        IF AVAILABLE sman THEN 
+            eb.comm = sman.scomm.
     END.
     
     IF ttInputEst.cTab EQ '' THEN 
@@ -359,15 +379,39 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
             eb.flute = item.flute
             eb.test  = item.reg-no
             .
-    RUN est/CalcLayout.p ("C",
-        ROWID(ef),
-        ROWID(eb),
-        YES,  /*New Layout vs. Recalculation*/
-        NO, /*Prompt to Reset*/
-        YES /*Recalc dimensions - Refactor - should be no if Style is foam*/).
+    IF NOT lCheckPrompt AND lCalcLWD THEN do:
+      MESSAGE "Do you wish to reset layout screen?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+            UPDATE lNew.
+      ASSIGN
+         lCheckPrompt = YES .          
+    END.
+    
+    IF lCalcLWD THEN 
+    DO: 
+        RUN est/CalcLayout.p ("C",
+            ROWID(ef),
+            ROWID(eb),
+            lNew ,  /*New Layout vs. Recalculation*/
+            NO, /*Prompt to Reset*/
+            YES /*Recalc dimensions - Refactor - should be no if Style is foam*/).   
+    END.   
+    
     RUN pCalcPacking(ROWID(eb)).
     IF ttInputEst.iStackCode NE "" THEN
         eb.stack-code = ttInputEst.iStackCode .
+        
+    IF lBoxDesign THEN
+    DO:
+        IF NOT lBuildFile THEN
+        MESSAGE "Do you wish to reset box design?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+            UPDATE lBuildFile.         
+    END.
+    IF lBuildFile AND lBoxDesign THEN
+    DO:
+       RUN est/BuildBoxDesign.p ("B", ROWID(eb)).        
+    END.         
         
 END. /*each ttInputEst*/
 RELEASE eb.

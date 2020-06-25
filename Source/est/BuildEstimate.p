@@ -148,101 +148,93 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
         eb.quantityPerSet  = ttInputEst.dQtyPerSet
         .
 
-     IF AVAIL est-qty AND ttInputEst.iQuantity GT 0 THEN
-         ASSIGN 
-          est-qty.eqty   = ttInputEst.iQuantity
-          est-qty.qty[1] = ttInputEst.iQuantity
-          est-qty.qty[2] = ttInputEst.copy-qty[2]
-          est-qty.qty[3] = ttInputEst.copy-qty[3]
-          est-qty.qty[4] = ttInputEst.copy-qty[4]
-          est-qty.qty[5] = ttInputEst.copy-qty[5]
-          est-qty.qty[6] = ttInputEst.copy-qty[6]
-          est-qty.qty[7] = ttInputEst.copy-qty[7]
-          est-qty.qty[8] = ttInputEst.copy-qty[8]
-          est-qty.qty[9] = ttInputEst.copy-qty[9]
-          est-qty.qty[10] = ttInputEst.copy-qty[10]
-          est-qty.qty[11] = ttInputEst.copy-qty[11]
-          est-qty.qty[12] = ttInputEst.copy-qty[12]
-          est-qty.qty[13] = ttInputEst.copy-qty[13]
-          est-qty.qty[14] = ttInputEst.copy-qty[14]
-          est-qty.qty[15] = ttInputEst.copy-qty[15]
-          est-qty.qty[16] = ttInputEst.copy-qty[16]
-          est-qty.qty[17] = ttInputEst.copy-qty[17]
-          est-qty.qty[18] = ttInputEst.copy-qty[18]
-          est-qty.qty[19] = ttInputEst.copy-qty[19]
-          est-qty.qty[20] = ttInputEst.copy-qty[20]
+    IF AVAIL est-qty AND ttInputEst.iQuantity GT 0 THEN
+        ASSIGN 
+            est-qty.eqty    = ttInputEst.iQuantity
+            est-qty.qty[1]  = ttInputEst.iQuantity
+            est-qty.qty[2]  = ttInputEst.copy-qty[2]
+            est-qty.qty[3]  = ttInputEst.copy-qty[3]
+            est-qty.qty[4]  = ttInputEst.copy-qty[4]
+            est-qty.qty[5]  = ttInputEst.copy-qty[5]
+            est-qty.qty[6]  = ttInputEst.copy-qty[6]
+            est-qty.qty[7]  = ttInputEst.copy-qty[7]
+            est-qty.qty[8]  = ttInputEst.copy-qty[8]
+            est-qty.qty[9]  = ttInputEst.copy-qty[9]
+            est-qty.qty[10] = ttInputEst.copy-qty[10]
+            est-qty.qty[11] = ttInputEst.copy-qty[11]
+            est-qty.qty[12] = ttInputEst.copy-qty[12]
+            est-qty.qty[13] = ttInputEst.copy-qty[13]
+            est-qty.qty[14] = ttInputEst.copy-qty[14]
+            est-qty.qty[15] = ttInputEst.copy-qty[15]
+            est-qty.qty[16] = ttInputEst.copy-qty[16]
+            est-qty.qty[17] = ttInputEst.copy-qty[17]
+            est-qty.qty[18] = ttInputEst.copy-qty[18]
+            est-qty.qty[19] = ttInputEst.copy-qty[19]
+            est-qty.qty[20] = ttInputEst.copy-qty[20]
           
-          est-qty.qty[21] = ttInputEst.copy-rel[1]
-          est-qty.qty[22] = ttInputEst.copy-rel[2] 
-          est-qty.qty[23] = ttInputEst.copy-rel[3] 
-          est-qty.qty[24] = ttInputEst.copy-rel[4] 
-          est-qty.qty[25] = ttInputEst.copy-rel[5] 
-          est-qty.qty[26] = ttInputEst.copy-rel[6] 
-          est-qty.qty[27] = ttInputEst.copy-rel[7] 
-          est-qty.qty[28] = ttInputEst.copy-rel[8] 
-          est-qty.qty[29] = ttInputEst.copy-rel[9] 
-          est-qty.qty[30] = ttInputEst.copy-rel[10]
-          est-qty.qty[31] = ttInputEst.copy-rel[11] 
-          est-qty.qty[32] = ttInputEst.copy-rel[12] 
-          est-qty.qty[33] = ttInputEst.copy-rel[13] 
-          est-qty.qty[34] = ttInputEst.copy-rel[14] 
-          est-qty.qty[35] = ttInputEst.copy-rel[15] 
-          est-qty.qty[36] = ttInputEst.copy-rel[16] 
-          est-qty.qty[37] = ttInputEst.copy-rel[17] 
-          est-qty.qty[38] = ttInputEst.copy-rel[18] 
-          est-qty.qty[39] = ttInputEst.copy-rel[19] 
-          est-qty.qty[40] = ttInputEst.copy-rel[20] .
+            est-qty.qty[21] = ttInputEst.copy-rel[1]
+            est-qty.qty[22] = ttInputEst.copy-rel[2] 
+            est-qty.qty[23] = ttInputEst.copy-rel[3] 
+            est-qty.qty[24] = ttInputEst.copy-rel[4] 
+            est-qty.qty[25] = ttInputEst.copy-rel[5] 
+            est-qty.qty[26] = ttInputEst.copy-rel[6] 
+            est-qty.qty[27] = ttInputEst.copy-rel[7] 
+            est-qty.qty[28] = ttInputEst.copy-rel[8] 
+            est-qty.qty[29] = ttInputEst.copy-rel[9] 
+            est-qty.qty[30] = ttInputEst.copy-rel[10]
+            est-qty.qty[31] = ttInputEst.copy-rel[11] 
+            est-qty.qty[32] = ttInputEst.copy-rel[12] 
+            est-qty.qty[33] = ttInputEst.copy-rel[13] 
+            est-qty.qty[34] = ttInputEst.copy-rel[14] 
+            est-qty.qty[35] = ttInputEst.copy-rel[15] 
+            est-qty.qty[36] = ttInputEst.copy-rel[16] 
+            est-qty.qty[37] = ttInputEst.copy-rel[17] 
+            est-qty.qty[38] = ttInputEst.copy-rel[18] 
+            est-qty.qty[39] = ttInputEst.copy-rel[19] 
+            est-qty.qty[40] = ttInputEst.copy-rel[20] .
           
-          IF ttInputEst.copy-runship[1] NE ? AND ttInputEst.copy-runship[1] NE "" THEN 
-            est-qty.whsed[1] = logical(ttInputEst.copy-runship[1]) NO-ERROR .
-          IF ttInputEst.copy-runship[2] NE ? AND ttInputEst.copy-runship[2] NE "" THEN   
-          est-qty.whsed[2] = logical(ttInputEst.copy-runship[2]) NO-ERROR .
-          IF ttInputEst.copy-runship[3] NE ? AND ttInputEst.copy-runship[3] NE "" THEN 
-          est-qty.whsed[3] = logical(ttInputEst.copy-runship[3]) NO-ERROR .
-          IF ttInputEst.copy-runship[4] NE ? AND ttInputEst.copy-runship[4] NE "" THEN 
-          est-qty.whsed[4] = logical(ttInputEst.copy-runship[4]) NO-ERROR .
-          IF ttInputEst.copy-runship[5] NE ? AND ttInputEst.copy-runship[5] NE "" THEN 
-          est-qty.whsed[5] = logical(ttInputEst.copy-runship[5]) NO-ERROR .
-          IF ttInputEst.copy-runship[6] NE ? AND ttInputEst.copy-runship[6] NE "" THEN 
-          est-qty.whsed[6] = logical(ttInputEst.copy-runship[6]) NO-ERROR .
-          IF ttInputEst.copy-runship[7] NE ? AND ttInputEst.copy-runship[7] NE "" THEN 
-          est-qty.whsed[7] = logical(ttInputEst.copy-runship[7]) NO-ERROR .
-          IF ttInputEst.copy-runship[8] NE ? AND ttInputEst.copy-runship[8] NE "" THEN 
-          est-qty.whsed[8] = logical(ttInputEst.copy-runship[8]) NO-ERROR .
-          IF ttInputEst.copy-runship[9] NE ? AND ttInputEst.copy-runship[9] NE "" THEN 
-          est-qty.whsed[9] = logical(ttInputEst.copy-runship[9]) NO-ERROR .
-          IF ttInputEst.copy-runship[10] NE ? AND ttInputEst.copy-runship[10] NE "" THEN 
-          est-qty.whsed[10] = logical(ttInputEst.copy-runship[10]) NO-ERROR .
-          IF ttInputEst.copy-runship[11] NE ? AND ttInputEst.copy-runship[11] NE "" THEN 
-          est-qty.whsed[11] = logical(ttInputEst.copy-runship[11]) NO-ERROR .
-          IF ttInputEst.copy-runship[12] NE ? AND ttInputEst.copy-runship[12] NE "" THEN 
-          est-qty.whsed[12] = logical(ttInputEst.copy-runship[12]) NO-ERROR .
-          IF ttInputEst.copy-runship[13] NE ? AND ttInputEst.copy-runship[13] NE "" THEN 
-          est-qty.whsed[13] = logical(ttInputEst.copy-runship[13]) NO-ERROR .
-          IF ttInputEst.copy-runship[14] NE ? AND ttInputEst.copy-runship[14] NE "" THEN 
-          est-qty.whsed[14] = logical(ttInputEst.copy-runship[14]) NO-ERROR .
-          IF ttInputEst.copy-runship[15] NE ? AND ttInputEst.copy-runship[15] NE "" THEN 
-          est-qty.whsed[15] = logical(ttInputEst.copy-runship[15]) NO-ERROR .
-          IF ttInputEst.copy-runship[16] NE ? AND ttInputEst.copy-runship[16] NE "" THEN 
-          est-qty.whsed[16] = logical(ttInputEst.copy-runship[16]) NO-ERROR .
-          IF ttInputEst.copy-runship[17] NE ? AND ttInputEst.copy-runship[17] NE "" THEN 
-          est-qty.whsed[17] = logical(ttInputEst.copy-runship[17]) NO-ERROR .
-          IF ttInputEst.copy-runship[18] NE ? AND ttInputEst.copy-runship[18] NE "" THEN 
-          est-qty.whsed[18] = logical(ttInputEst.copy-runship[18]) NO-ERROR .
-          IF ttInputEst.copy-runship[19] NE ? AND ttInputEst.copy-runship[19] NE "" THEN 
-          est-qty.whsed[19] = logical(ttInputEst.copy-runship[19]) NO-ERROR .
-          IF ttInputEst.copy-runship[20] NE ? AND ttInputEst.copy-runship[20] NE "" THEN 
-          est-qty.whsed[20] = logical(ttInputEst.copy-runship[20]) NO-ERROR .
+    IF ttInputEst.copy-runship[1] NE ? AND ttInputEst.copy-runship[1] NE "" THEN 
+        est-qty.whsed[1] = LOGICAL(ttInputEst.copy-runship[1]) NO-ERROR .
+    IF ttInputEst.copy-runship[2] NE ? AND ttInputEst.copy-runship[2] NE "" THEN   
+        est-qty.whsed[2] = LOGICAL(ttInputEst.copy-runship[2]) NO-ERROR .
+    IF ttInputEst.copy-runship[3] NE ? AND ttInputEst.copy-runship[3] NE "" THEN 
+        est-qty.whsed[3] = LOGICAL(ttInputEst.copy-runship[3]) NO-ERROR .
+    IF ttInputEst.copy-runship[4] NE ? AND ttInputEst.copy-runship[4] NE "" THEN 
+        est-qty.whsed[4] = LOGICAL(ttInputEst.copy-runship[4]) NO-ERROR .
+    IF ttInputEst.copy-runship[5] NE ? AND ttInputEst.copy-runship[5] NE "" THEN 
+        est-qty.whsed[5] = LOGICAL(ttInputEst.copy-runship[5]) NO-ERROR .
+    IF ttInputEst.copy-runship[6] NE ? AND ttInputEst.copy-runship[6] NE "" THEN 
+        est-qty.whsed[6] = LOGICAL(ttInputEst.copy-runship[6]) NO-ERROR .
+    IF ttInputEst.copy-runship[7] NE ? AND ttInputEst.copy-runship[7] NE "" THEN 
+        est-qty.whsed[7] = LOGICAL(ttInputEst.copy-runship[7]) NO-ERROR .
+    IF ttInputEst.copy-runship[8] NE ? AND ttInputEst.copy-runship[8] NE "" THEN 
+        est-qty.whsed[8] = LOGICAL(ttInputEst.copy-runship[8]) NO-ERROR .
+    IF ttInputEst.copy-runship[9] NE ? AND ttInputEst.copy-runship[9] NE "" THEN 
+        est-qty.whsed[9] = LOGICAL(ttInputEst.copy-runship[9]) NO-ERROR .
+    IF ttInputEst.copy-runship[10] NE ? AND ttInputEst.copy-runship[10] NE "" THEN 
+        est-qty.whsed[10] = LOGICAL(ttInputEst.copy-runship[10]) NO-ERROR .
+    IF ttInputEst.copy-runship[11] NE ? AND ttInputEst.copy-runship[11] NE "" THEN 
+        est-qty.whsed[11] = LOGICAL(ttInputEst.copy-runship[11]) NO-ERROR .
+    IF ttInputEst.copy-runship[12] NE ? AND ttInputEst.copy-runship[12] NE "" THEN 
+        est-qty.whsed[12] = LOGICAL(ttInputEst.copy-runship[12]) NO-ERROR .
+    IF ttInputEst.copy-runship[13] NE ? AND ttInputEst.copy-runship[13] NE "" THEN 
+        est-qty.whsed[13] = LOGICAL(ttInputEst.copy-runship[13]) NO-ERROR .
+    IF ttInputEst.copy-runship[14] NE ? AND ttInputEst.copy-runship[14] NE "" THEN 
+        est-qty.whsed[14] = LOGICAL(ttInputEst.copy-runship[14]) NO-ERROR .
+    IF ttInputEst.copy-runship[15] NE ? AND ttInputEst.copy-runship[15] NE "" THEN 
+        est-qty.whsed[15] = LOGICAL(ttInputEst.copy-runship[15]) NO-ERROR .
+    IF ttInputEst.copy-runship[16] NE ? AND ttInputEst.copy-runship[16] NE "" THEN 
+        est-qty.whsed[16] = LOGICAL(ttInputEst.copy-runship[16]) NO-ERROR .
+    IF ttInputEst.copy-runship[17] NE ? AND ttInputEst.copy-runship[17] NE "" THEN 
+        est-qty.whsed[17] = LOGICAL(ttInputEst.copy-runship[17]) NO-ERROR .
+    IF ttInputEst.copy-runship[18] NE ? AND ttInputEst.copy-runship[18] NE "" THEN 
+        est-qty.whsed[18] = LOGICAL(ttInputEst.copy-runship[18]) NO-ERROR .
+    IF ttInputEst.copy-runship[19] NE ? AND ttInputEst.copy-runship[19] NE "" THEN 
+        est-qty.whsed[19] = LOGICAL(ttInputEst.copy-runship[19]) NO-ERROR .
+    IF ttInputEst.copy-runship[20] NE ? AND ttInputEst.copy-runship[20] NE "" THEN 
+        est-qty.whsed[20] = LOGICAL(ttInputEst.copy-runship[20]) NO-ERROR .
         
-    IF eb.sman NE "" AND eb.comm EQ 0 THEN 
-    DO:
-        FIND FIRST sman NO-LOCK 
-            WHERE sman.company EQ eb.company
-            AND sman.sman EQ eb.sman
-            NO-ERROR.
-        IF AVAILABLE sman THEN 
-            eb.comm = sman.scomm.
-    END.
+
     IF eb.sman EQ "" AND AVAILABLE bf-existing-eb THEN 
         ASSIGN  
             eb.sman = bf-existing-eb.sman
@@ -294,6 +286,19 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
                 eb.ship-id   = cust.cust-no
                 eb.carrier   = cust.carrier
                 eb.dest-code = cust.del-zone.
+        IF eb.sman EQ "" THEN 
+            eb.sman = cust.sman.
+        est.csrUser_id = cust.csrUser_id.
+    END.
+    
+    IF eb.sman NE "" AND eb.comm EQ 0 THEN 
+    DO:
+        FIND FIRST sman NO-LOCK 
+            WHERE sman.company EQ eb.company
+            AND sman.sman EQ eb.sman
+            NO-ERROR.
+        IF AVAILABLE sman THEN 
+            eb.comm = sman.scomm.
     END.
     
     IF ttInputEst.cTab EQ '' THEN 
@@ -360,13 +365,15 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
     IF ttInputEst.cEstType EQ "NewSetEstimate" THEN DO:
       ASSIGN
          est.estimateTypeID = "WOOD" .
+         
     END. 
        
     RUN est/BuildDefaultPreps.p (BUFFER est,
         BUFFER ef,
         INPUT eb.form-no,
         INPUT 0).
-            
+
+                  
 /*    REFACTOR ALL /* create set header record */                                                        */
 /*    IF iArtiosCount > 1 THEN                                                              */
 /*    DO:                                                                                   */

@@ -1952,6 +1952,12 @@ PROCEDURE valid-mach :
             AND (xeb.blank-no EQ int(est-op.b-num:screen-value ) OR
             int(est-op.b-num:screen-value ) EQ 0)
             NO-LOCK NO-ERROR.
+            
+        IF LOOKUP(lv-dept,"RC,GU") NE 0 AND AVAILABLE xef                     AND
+                (adm-adding-record OR
+                INTEGER(est-op.n-out:SCREEN-VALUE ) EQ 0) THEN
+                est-op.n-out:SCREEN-VALUE  =
+                    IF lv-dept EQ "RC" THEN STRING(xef.n-out) ELSE STRING(xef.n-out-l).              
 
         FIND FIRST style
             {sys/ref/styleW.i}
