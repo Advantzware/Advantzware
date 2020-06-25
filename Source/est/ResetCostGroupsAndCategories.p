@@ -90,6 +90,8 @@ PROCEDURE pAddUpdateCategory PRIVATE:
             ttCategory.includeInFactoryCost = iplFactory
             ttCategory.includeInNonFactoryCost = iplNonFactory
             ttCategory.includeInNetProfit = iplProfit
+            ttCategory.includeInVariableOverheadCost = iplVariableOverhead
+            ttCategory.includeInFixedOverheadCost = iplFixedOverhead
             .
     END.
     ELSE DO:
@@ -113,7 +115,7 @@ PROCEDURE pAddUpdateCategory PRIVATE:
             estCostCategory.includeInMaterialCost = iplMat
             estCostCategory.includeInLaborCost = iplLabor
             estCostCategory.includeInVariableOverhead = iplVariableOverhead
-            estCostCategory.includeInfixedOverhead = iplFixedOverhead
+            estCostCategory.includeInFixedOverhead = iplFixedOverhead
             estCostCategory.includeInFactoryCost = iplFactory
             estCostCategory.includeInNonFactoryCost = iplNonFactory
             estCostCategory.includeInNetProfit = iplProfit
@@ -275,7 +277,7 @@ PROCEDURE pBuildCategories PRIVATE:
     RUN pAddUpdateCategory("opRunVO", "", "costGroup7", "Operation Run - Variable Overhead", "Operation Run - VOH", NO, NO, NO, YES, NO, YES, NO, NO). 
     
     RUN pAddUpdateCategory("opSetupDL", "", "costGroup4", "Operation Setup - Direct Labor", "Operation Setup - DL", NO, NO, YES, NO, NO, YES, NO, NO). 
-    RUN pAddUpdateCategory("opSetupFO", "", "costGroup8", "Operation Setup - Fixed Overhead", "Operation Setup - FOH", NO, NO, NO, YES, NO, YES, NO, NO). 
+    RUN pAddUpdateCategory("opSetupFO", "", "costGroup8", "Operation Setup - Fixed Overhead", "Operation Setup - FOH", NO, NO, NO, NO, YES, YES, NO, NO). 
     RUN pAddUpdateCategory("opSetupMinDiff", "", "costGroup4", "Operation Setup - Min Difference", "Operation Setup - Min Difference", NO, NO, YES, NO, NO, YES, NO, NO).
     RUN pAddUpdateCategory("opSetupVO", "", "costGroup7", "Operation Setup - Variable Overhead", "Operation Setup - VOH", NO, NO, NO, YES, NO, YES, NO, NO).
     
