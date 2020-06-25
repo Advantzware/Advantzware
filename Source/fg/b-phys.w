@@ -966,7 +966,9 @@ PROCEDURE crt-pcount :
                                      (IF fg-bin.pur-uom EQ "M" THEN 1000 ELSE 1) *
                                      fg-bin.std-tot-cost
                  b-fg-rctd.cost     = b-fg-rctd.ext-cost / b-fg-rctd.t-qty
-                 b-fg-rctd.cost-uom = fg-bin.pur-uom.
+                 b-fg-rctd.cost-uom = fg-bin.pur-uom
+                 b-fg-rctd.pur-uom  = fg-bin.pur-uom
+                 .
 
           IF b-fg-rctd.ext-cost EQ ? THEN b-fg-rctd.ext-cost = 0.
           IF b-fg-rctd.cost     EQ ? THEN b-fg-rctd.cost = 0.
