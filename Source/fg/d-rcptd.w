@@ -1084,9 +1084,6 @@ DO:
             ASSIGN 
                 lv-rct-date-checked = FALSE.
             RUN delete-tt.
-            IF lFatalQtyError THEN DO:
-                APPLY 'choose' TO btn_Cancel.
-            END.
             RETURN NO-APPLY. 
         END.
         
@@ -1765,6 +1762,16 @@ ON LEAVE OF fg-rctd.qty-case IN FRAME Dialog-Frame /* Unit Count */
 DO:
         RUN new-qty.
     END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.qty-case Dialog-Frame
+ON VALUE-CHANGED OF fg-rctd.qty-case IN FRAME Dialog-Frame /* Unit Count */
+DO:
+    RUN new-qty.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2897,10 +2904,8 @@ PROCEDURE get-matrix-all :
         ELSE 
             ERROR-STATUS:ERROR = NO.  /* If po-ordl is not available */        
     END. /* i-no <> ""*/
-    IF ERROR-STATUS:ERROR THEN DO:
-        lFatalQtyError = YES.
-        RETURN ERROR. 
-    END.       
+    IF ERROR-STATUS:ERROR THEN
+        RETURN ERROR.       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
