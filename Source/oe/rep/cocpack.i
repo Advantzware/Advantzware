@@ -28,7 +28,7 @@ PUT "<C1><#2><R1>"
                 "<R17><C50><FROM><R21><C50><LINE>"  
                 
                 "<FArial><=4><R+0.8><P10><ADJUST=LPI>          VENDOR ORDER                                   P.O. Number                                     DATE SHIPPED " SKIP 
-                "<FCourier New><=4><R+2.5> " space(3) oe-boll.ord-no SPACE(24)  string(iPurchaseOrder,">>>>>>>>9") FORMAT "x(15)" SPACE(18) string(oe-bolh.ship-date) FORMAT "x(15)"  SKIP
+                "<FCourier New><=4><R+2.5> " space(3) oe-boll.ord-no SPACE(24)  string(iPurchaseOrder,">>>>>>>>9") FORMAT "x(15)" SPACE(17) string(oe-bolh.bol-date) FORMAT "x(15)"  SKIP
                 "<|10><R22><C1><#5><FROM><R24><C81><RECT>"     
                 "<R22><C6><FROM><R24><C6><LINE>" 
                 "<R22><C23><FROM><R24><C23><LINE>" 
