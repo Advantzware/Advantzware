@@ -1299,10 +1299,6 @@ PROCEDURE create-ttfrmout :
             bf-ttInputEst.cCustomer = cCustNo
             bf-ttInputEst.cShipTo   = ship-to
             .
-            FIND FIRST cust NO-LOCK
-                 WHERE cust.company EQ cocode
-                 AND cust.cust-no EQ cCustNo NO-ERROR .
-            bf-ttInputEst.cSalesManID = IF AVAIL cust THEN cust.sman ELSE "" .     
         
         ASSIGN 
             bf-ttInputEst.copy-qty[2]  = lv-copy-qty[2] 

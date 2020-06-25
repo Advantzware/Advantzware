@@ -3840,7 +3840,9 @@ END.
   IF est.estimateTypeID eq "WOOD" THEN
     ASSIGN  
       ef.board:LABEL      =  "Wood"
-      eb.flute:LABEL      =  "Wood Code".
+      eb.flute:LABEL      =  "Wood Code"
+      eb.test:HIDDEN      = YES
+      eb.test:SENSITIVE   = NO.
       
     btn_board:LABEL = " " + TRIM(ef.board:LABEL) + ": " /*+ TRIM(ef.board) */ .   
 
