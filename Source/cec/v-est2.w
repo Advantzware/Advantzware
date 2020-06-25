@@ -302,8 +302,8 @@ DEFINE FRAME Corr
           SIZE 3.2 BY 1
      ef.flute AT ROW 3.38 COL 16 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 15 BY 1
-     ef.test AT ROW 3.38 COL 35 COLON-ALIGNED
+          SIZE 13 BY 1
+     ef.test AT ROW 3.38 COL 36.5 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      ef.cost-uom AT ROW 3.38 COL 60 NO-LABEL

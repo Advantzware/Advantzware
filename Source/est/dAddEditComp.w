@@ -428,7 +428,7 @@ ON HELP OF board IN FRAME Dialog-Frame /* Board */
               END.
            END.
            ELSE DO:
-              RUN windows/l-board1.w (eb.company,lv-ind,board:SCREEN-VALUE, OUTPUT lv-rowid).
+              RUN windows/l-board1.w (cocode,lv-ind,board:SCREEN-VALUE, OUTPUT lv-rowid).
               FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
               IF AVAIL ITEM AND ITEM.i-no NE board:SCREEN-VALUE THEN DO:
                 board:SCREEN-VALUE = item.i-no.                

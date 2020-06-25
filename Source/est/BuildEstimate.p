@@ -360,6 +360,7 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
     IF ttInputEst.cEstType EQ "NewSetEstimate" THEN DO:
       ASSIGN
          est.estimateTypeID = "WOOD" .
+         est.csrUser_id = IF AVAIL cust THEN cust.csrUser_id ELSE "". 
     END. 
        
     RUN est/BuildDefaultPreps.p (BUFFER est,
