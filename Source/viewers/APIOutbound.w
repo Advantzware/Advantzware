@@ -148,7 +148,7 @@ RUN set-attribute-list (
 DEFINE VARIABLE cbAuthType AS CHARACTER FORMAT "X(256)":U 
      LABEL "Authentication Type" 
      VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "none","basic" 
+     LIST-ITEMS "none","basic","bearer" 
      DROP-DOWN-LIST
      SIZE 16 BY 1
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
@@ -285,10 +285,10 @@ DEFINE FRAME F-Main
      fiInactive AT ROW 2.67 COL 128 COLON-ALIGNED NO-LABEL WIDGET-ID 72
      "Description:" VIEW-AS TEXT
           SIZE 14 BY .62 AT ROW 4.38 COL 8.8 WIDGET-ID 64
-     "Request Data:" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 16.52 COL 6 WIDGET-ID 50
      "End Point:" VIEW-AS TEXT
           SIZE 11.6 BY .62 AT ROW 6.71 COL 11.2 WIDGET-ID 36
+     "Request Data:" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 16.52 COL 6 WIDGET-ID 50
      RECT-1 AT ROW 2.48 COL 2 WIDGET-ID 26
      RECT-2 AT ROW 10.81 COL 2 WIDGET-ID 30
      RECT-3 AT ROW 12.91 COL 2 WIDGET-ID 44

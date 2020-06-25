@@ -125,7 +125,9 @@ IF SEARCH("curl.exe") EQ ? THEN DO:
 END.
         
 gcCommand = SEARCH("curl.exe") 
-          + (IF gcAuthType = "basic" THEN ' --user ' + gcUserName + ':' + gcPassword ELSE "") + ' ' 
+          + (IF gcAuthType = "basic" THEN ' --user ' + gcUserName + ':' + gcPassword 
+             ELSE IF gcAuthType = "bearer" THEN ' -H "Authorization: Bearer ' + gcPassword + '"' 
+             ELSE "") + ' ' 
           + (IF NOT glIsSSLEnabled THEN '--insecure' ELSE '') + ' '
           + '-H "Content-Type: application/' +  lc(gcRequestDataType + '"') /* handles XML or JSON only - not RAW */
           + (IF gcRequestVerb NE 'get' THEN ' -d "@' + gcRequestFile + '" ' ELSE '')
