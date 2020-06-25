@@ -905,9 +905,11 @@ form " " to 80
                    inv-head.t-inv-tax -
                    inv-head.t-inv-freight.
 
-          release terms.
-          find first terms where terms.t-code eq inv-head.terms no-lock no-error.
-
+          release terms.          
+          FIND FIRST terms NO-LOCK 
+               WHERE terms.company EQ cocode 
+                 AND terms.t-code  EQ inv-head.terms 
+               NO-ERROR.
           if avail terms then
             assign
              tmp1 = v-net * (round(terms.disc-rate / 100, 2))

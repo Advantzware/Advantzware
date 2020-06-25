@@ -723,7 +723,10 @@ FOR EACH report
   IF v-net2 <> ar-inv.gross THEN
      v-net = v-net2 - ar-inv.tax-amt.
 
-  FIND FIRST terms WHERE terms.t-code EQ ar-inv.terms NO-LOCK NO-ERROR.
+  FIND FIRST terms NO-LOCK 
+       WHERE terms.company EQ cocode 
+         AND terms.t-code  EQ ar-inv.terms 
+       NO-ERROR.
   IF AVAIL terms 
     THEN ASSIGN tmp1 = v-net * (ROUND(terms.disc-rate / 100, 2))
                 tmp2 = ar-inv.inv-date + terms.disc-days.

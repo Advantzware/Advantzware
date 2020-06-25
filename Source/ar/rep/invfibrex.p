@@ -80,7 +80,11 @@ FOR EACH report NO-LOCK
                         + carrier.dscr.
       ELSE ASSIGN v-shipvia = "".
 
-      FIND FIRST terms WHERE terms.t-code EQ ar-inv.terms NO-LOCK NO-ERROR.
+      FIND FIRST terms NO-LOCK 
+           WHERE terms.company EQ cocode 
+             AND terms.t-code  EQ ar-inv.terms 
+           NO-ERROR.
+      
       IF AVAIL terms THEN
         v-terms = FILL(" ",9 - INT(LENGTH(terms.dscr) / 2)) + terms.dscr .
       ELSE v-terms = "" .

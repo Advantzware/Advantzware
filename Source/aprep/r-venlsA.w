@@ -906,9 +906,11 @@ if td-show-parm then run show-param.
 
          if detailed then do with frame vend:
 
-
-            find first terms where terms.t-code = vend.terms no-lock no-error.
-
+            FIND FIRST terms NO-LOCK 
+                 WHERE terms.company EQ cocode 
+                   AND terms.t-code  EQ vend.terms 
+                 NO-ERROR.
+                
             display
                   vend.vend-no
                   vend.name

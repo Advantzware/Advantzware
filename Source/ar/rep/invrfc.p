@@ -712,7 +712,10 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
           v-net = ar-inv.net.
 
          release terms.
-         find first terms where terms.t-code eq ar-inv.terms no-lock no-error.
+         FIND FIRST terms NO-LOCK 
+              WHERE terms.company EQ cocode 
+                AND terms.t-code  EQ ar-inv.terms 
+              NO-ERROR.
 
          if avail terms then
            assign

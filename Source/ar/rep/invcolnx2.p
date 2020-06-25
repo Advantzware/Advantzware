@@ -653,7 +653,11 @@ FOR EACH report
          tmp2 = ?
          v-net = ar-inv.net.
   
-  FIND FIRST terms WHERE terms.t-code EQ ar-inv.terms NO-LOCK NO-ERROR.
+  FIND FIRST terms NO-LOCK 
+       WHERE terms.company EQ cocode 
+         AND terms.t-code  EQ ar-inv.terms 
+       NO-ERROR.
+  
   IF AVAIL terms 
     THEN ASSIGN tmp1 = v-net * (ROUND(terms.disc-rate / 100, 2))
                 tmp2 = TODAY + terms.disc-days.

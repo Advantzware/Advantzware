@@ -1337,7 +1337,10 @@ if td-show-parm then run show-param.
 
       {custom/statusMsg.i " 'Processing Vendor#  '  + string(vend.vend-no) "}
        
-      FIND FIRST terms no-lock WHERE terms.t-code = vend.terms  NO-ERROR.
+      FIND FIRST terms NO-LOCK 
+           WHERE terms.company EQ cocode 
+             AND terms.t-code  EQ vend.terms 
+           NO-ERROR.
 
       tel-phone = STRING(vend.area-code,"(999)") + " " + STRING(vend.phone,"999-9999") .
       fax-no = STRING(vend.fax-area,"(999)") + " " + STRING(vend.fax,"999-9999") .
