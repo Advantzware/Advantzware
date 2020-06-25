@@ -85,7 +85,6 @@ DEFINE VARIABLE h_brtt             AS HANDLE    NO-UNDO.
 DEFINE VARIABLE h_browser          AS HANDLE    NO-UNDO.
 DEFINE VARIABLE h_dialogFrame      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE h_filterFrame      AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_firstFilterField AS HANDLE    NO-UNDO. 
 DEFINE VARIABLE li-count           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE li-maxBrRows       AS INTEGER   NO-UNDO INITIAL 30.
 DEFINE VARIABLE li-pageCount       AS INTEGER   NO-UNDO INITIAL 0.
@@ -657,8 +656,6 @@ PROCEDURE addFilterObjects :
                        h_calendar:LOAD-IMAGE-UP("Graphics/16x16/calendar.bmp").          
                    END.
                    
-                   IF li-count = 1 THEN
-                       ASSIGN h_firstFilterField = h_fillin.
                 END.
                 ELSE IF h_field:DATA-TYPE = "LOGICAL" THEN DO:
                    CREATE COMBO-BOX h_combobox
@@ -1245,9 +1242,7 @@ PROCEDURE resizeFilterFrame :
             RUN addFilterObjects.
         END.
         
-        IF VALID-HANDLE(h_firstFilterField) THEN
-            APPLY 'ENTRY' TO h_firstFilterField.
-    END.
+   END.
     ELSE DO:
         ASSIGN
             h_filterFrame:BGCOLOR        = ?
