@@ -952,7 +952,7 @@ PROCEDURE local-update-record :
   END.
   {&methods/lValidateError.i YES}
   /* now check the accounts against the tax codes */
-  FOR EACH tt-accounts WHERE tt-accounts.c-code <> "":
+  FOR FIRST tt-accounts WHERE tt-accounts.i-extent = 1 AND tt-accounts.c-code <> "":
       if not can-find(first account where account.company = gcompany and
                                           account.type <> "T" and
                                           account.actnum = tt-accounts.c-acct)
