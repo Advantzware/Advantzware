@@ -824,9 +824,9 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
    
     DEFINE VARIABLE iColumn    AS INTEGER EXTENT 10 INITIAL [5,20,36,48,60,70,82].
-    DEFINE VARIABLE dTotalPerM AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dTotal     AS DECIMAL NO-UNDO.
-       
+    DEFINE VARIABLE dQuantityInM AS DECIMAL NO-UNDO.
+           
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[1] + 1, "Materials", NO, YES, NO).
@@ -836,9 +836,8 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
     RUN pWriteToCoordinates(iopiRowCount, iColumn[7], "Total Cost", NO, YES, YES).
     
     ASSIGN 
-        dTotalPerM = 0
         dTotal     = 0
-        . 
+        dQuantityInM = ipbf-estCostForm.quantityFGOnForm / 1000. 
     FOR EACH estCostMaterial NO-LOCK 
         WHERE estCostMaterial.estCostHeaderID EQ ipbf-estCostForm.estCostHeaderID 
         AND estCostMaterial.estCostFormID EQ ipbf-estCostForm.estCostFormID
@@ -877,13 +876,11 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[7], estCostMaterial.costTotalRunWaste, 7, 2, NO, YES, NO, NO, YES).
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             RUN pWriteToCoordinates(iopiRowCount, iColumn[1] + 1, "  Vendor Setup",NO, NO, NO).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostMaterial.costSetup / dQuantityInM, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[7], estCostMaterial.costSetup, 7, 2, NO, YES, NO, NO, YES).
             ASSIGN 
-                dTotalPerM = dTotalPerM + estCostMaterial.costTotalPerMFinishedNoWaste
                 dTotal     = dTotal + estCostMaterial.costTotalNoWaste
-                dTotalPerM = dTotalPerM + estCostMaterial.costTotalPerMFinishedSetupWaste
                 dTotal     = dTotal + estCostMaterial.costTotalSetupWaste
-                dTotalPerM = dTotalPerM + estCostMaterial.costTotalPerMFinishedRunWaste
                 dTotal     = dTotal + estCostMaterial.costTotalRunWaste
                 dTotal     = dTotal + estCostMaterial.costSetup
                 .
@@ -901,14 +898,13 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostMaterial.costTotalPerMFinished, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[7], estCostMaterial.costTotal, 7, 2, NO, YES, NO, NO, YES).
             ASSIGN 
-                dTotalPerM = dTotalPerM + estCostMaterial.costTotalPerMFinished
                 dTotal     = dTotal + estCostMaterial.costTotal
                 .
         END.
     END.
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[1] + 1, "Total Materials", YES, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], dTotalPerM, 7, 2, NO, YES, YES, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], dTotal / dQuantityInM, 7, 2, NO, YES, YES, NO, YES).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[7], dTotal, 7, 2, NO, YES, YES, NO, YES).
 
 END PROCEDURE.

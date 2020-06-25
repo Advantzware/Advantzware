@@ -891,14 +891,20 @@ PROCEDURE pAddEstMiscForPrep PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostForm FOR estCostForm.
     
     DEFINE           BUFFER bf-estCostMisc   FOR estCostMisc.
+    DEFINE           BUFFER bf-prep          FOR prep.
     
     RUN pAddEstMisc(BUFFER ipbf-estCostForm, BUFFER bf-estCostMisc).
-    
+    FIND FIRST bf-prep NO-LOCK 
+        WHERE bf-prep.company EQ ipbf-est-prep.company
+        AND bf-prep.code EQ ipbf-est-prep.code
+        NO-ERROR.
+        
     ASSIGN 
         bf-estCostMisc.estCostBlankID        = 0 /*REFACTOR - Get blank ID from form #?*/
         bf-estCostMisc.formNo                = ipbf-est-prep.s-num  
         bf-estCostMisc.blankNo               = ipbf-est-prep.b-num
         bf-estCostMisc.prepID                = ipbf-est-prep.code
+        bf-estCostMisc.itemID                = IF AVAILABLE bf-prep THEN bf-prep.i-no ELSE ipbf-est-prep.i-no
         bf-estCostMisc.costDescription       = ipbf-est-prep.dscr
         bf-estCostMisc.costType              = IF ipbf-est-prep.ml THEN "Mat" ELSE "Lab"
         bf-estCostMisc.profitPercentType     = (IF gcPrepMarkupOrMargin EQ "Profit" THEN "Margin" ELSE "Markup")
@@ -3198,7 +3204,10 @@ PROCEDURE pCalcEstMaterial PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostMaterial FOR estCostMaterial.
     DEFINE PARAMETER BUFFER ipbf-estCostForm     FOR estCostForm.
     
+    DEFINE BUFFER bf-estCostBlank FOR estCostBlank.
+    
     DEFINE VARIABLE dCostDeviation AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQuantityInM AS DECIMAL NO-UNDO.
 
     ipbf-estCostMaterial.quantityRequiredTotal    = ipbf-estCostMaterial.quantityRequiredNoWaste + ipbf-estCostMaterial.quantityRequiredSetupWaste + 
         ipbf-estCostMaterial.quantityRequiredRunWaste + ipbf-estCostMaterial.quantityRequiredMinDiff.
@@ -3248,7 +3257,7 @@ PROCEDURE pCalcEstMaterial PRIVATE:
         ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth, 
         ipbf-estCostMaterial.quantityRequiredNoWaste, OUTPUT ipbf-estCostMaterial.weightTotal).
                
-    IF NOT ipbf-estCostMaterial.noCharge THEN 
+    IF NOT ipbf-estCostMaterial.noCharge THEN DO:
         ASSIGN 
             ipbf-estCostMaterial.costTotalNoWaste                = ipbf-estCostMaterial.quantityRequiredNoWasteInCUOM * ipbf-estCostMaterial.costPerUOM
             ipbf-estCostMaterial.costTotalDeviation              = ipbf-estCostMaterial.quantityRequiredTotalInCUOM * ipbf-estCostMaterial.costPerUOMDeviation
@@ -3257,12 +3266,27 @@ PROCEDURE pCalcEstMaterial PRIVATE:
             ipbf-estCostMaterial.costTotalMinDiff                = ipbf-estCostMaterial.quantityRequiredMinDiffInCUOM * ipbf-estCostMaterial.costPerUOM
             ipbf-estCostMaterial.costTotal                       = ipbf-estCostMaterial.costTotalNoWaste + ipbf-estCostMaterial.costTotalSetupWaste + 
                                                                  ipbf-estCostMaterial.costTotalRunWaste + ipbf-estCostMaterial.costTotalMinDiff + 
-                                                                 ipbf-estCostMaterial.costSetup 
-            ipbf-estCostMaterial.costTotalPerMFinished           = ipbf-estCostMaterial.costTotal / (ipbf-estCostForm.quantityFGOnForm / 1000)
-            ipbf-estCostMaterial.costTotalPerMFinishedNoWaste    = ipbf-estCostMaterial.costTotalNoWaste / (ipbf-estCostForm.quantityFGOnForm / 1000)
-            ipbf-estCostMaterial.costTotalPerMFinishedSetupWaste = ipbf-estCostMaterial.costTotalSetupWaste  / (ipbf-estCostForm.quantityFGOnForm / 1000)
-            ipbf-estCostMaterial.costTotalPerMFinishedRunWaste   = ipbf-estCostMaterial.costTotalRunWaste / (ipbf-estCostForm.quantityFGOnForm / 1000)
+                                                                 ipbf-estCostMaterial.costSetup
             .
+        dQuantityInM = 0.
+        IF ipbf-estCostMaterial.blankNo NE 0 THEN DO:
+            FIND FIRST bf-estCostBlank NO-LOCK 
+                WHERE bf-estCostBlank.estCostBlankID EQ ipbf-estCostMaterial.estCostBlankID
+                NO-ERROR.
+            IF AVAILABLE bf-estCostBlank THEN 
+                dQuantityInM = bf-estCostBlank.quantityRequired / 1000.
+        END.
+        IF dQuantityInM EQ 0 THEN 
+            dQuantityInM = ipbf-estCostForm.quantityFGOnForm / 1000. 
+        IF dQuantityInM EQ 0 THEN 
+            dQuantityInM = 1.
+        ASSIGN  
+            ipbf-estCostMaterial.costTotalPerMFinished           = ipbf-estCostMaterial.costTotal / dQuantityInM
+            ipbf-estCostMaterial.costTotalPerMFinishedNoWaste    = ipbf-estCostMaterial.costTotalNoWaste / dQuantityInM
+            ipbf-estCostMaterial.costTotalPerMFinishedSetupWaste = ipbf-estCostMaterial.costTotalSetupWaste  / dQuantityInM
+            ipbf-estCostMaterial.costTotalPerMFinishedRunWaste   = ipbf-estCostMaterial.costTotalRunWaste / dQuantityInM
+            .
+    END.
     ELSE 
         ASSIGN 
             ipbf-estCostMaterial.costPerUOM = 0
