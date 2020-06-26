@@ -34,6 +34,7 @@ DEFINE VARIABLE pcsValue LIKE w-ord.pcs NO-UNDO.
 DEFINE VARIABLE bundleValue LIKE w-ord.bundle NO-UNDO.
 DEFINE VARIABLE glTotalTagsChanged AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE iTotalQty AS INTEGER NO-UNDO.
+DEFINE VARIABLE iGrandTotalQty AS INTEGER NO-UNDO.
 
 DEF var v-loadtag  AS char NO-UNDO INIT "ASI".  /* sys ctrl option */
 DEF var v-tags AS DEC NO-UNDO INIT 1.  /* sys ctrl option */
@@ -386,7 +387,9 @@ DO:
   IF NOT AVAIL w-ord THEN RETURN NO-APPLY.
   lcheckflgMsg = YES .
   RUN copy-word.
-  RUN pGrandTotal.
+  RUN pGrandTotal(
+      OUTPUT iGrandTotalQty
+      ).
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
   REPOSITION {&BROWSE-NAME} TO ROWID copyRowID.
 END.
@@ -421,7 +424,10 @@ DO:
    RUN pCheckTag NO-ERROR.
    IF ERROR-STATUS:ERROR THEN 
        RETURN NO-APPLY.
-
+       
+   RUN pGrandTotal(
+       OUTPUT iGrandTotalQty
+       ).
    RUN pCheckPOFGUnderOver NO-ERROR.
    IF ERROR-STATUS:ERROR THEN 
        RETURN NO-APPLY.
@@ -429,7 +435,7 @@ DO:
    RUN pCheckJobFGUnderOver NO-ERROR.
    IF ERROR-STATUS:ERROR THEN 
        RETURN NO-APPLY.
-
+       
   APPLY 'GO' TO FRAME {&FRAME-NAME}.
 END.
 
@@ -451,7 +457,9 @@ DO:
        APPLY "entry" TO w-ord.bundle.
        RETURN NO-APPLY.
    END.
-
+   RUN pGrandTotal(
+       OUTPUT iGrandTotalQty
+       ).
    RUN pCheckPOFGUnderOver NO-ERROR.
    IF ERROR-STATUS:ERROR THEN 
        RETURN NO-APPLY.
@@ -460,7 +468,6 @@ DO:
    IF ERROR-STATUS:ERROR THEN 
        RETURN NO-APPLY.
 
-   RUN pGrandTotal.
    RUN update-word.
 END.
 
@@ -638,7 +645,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     v-tags = sys-ctrl.dec-fld.    
 
   RUN enable_UI.
-  RUN pGrandTotal.
+  RUN pGrandTotal(
+      OUTPUT iGrandTotalQty
+      ).
   IF AVAIL w-ord AND w-ord.i-no NE '' THEN
         RUN displayUNNotes(INPUT g_company,
                            INPUT w-ord.i-no).
@@ -980,7 +989,7 @@ PROCEDURE pCheckJobFGUnderOver PRIVATE:
             INPUT INTEGER(w-ord.job-no2),
             INPUT w-ord.i-no,
             INPUT w-ord.po-no,
-            INPUT w-ord.total-unit * w-ord.total-tags,
+            INPUT iGrandTotalQty,
             INPUT NO,            /* Copied Record */
             INPUT gcFGUnderOver,
             INPUT giFGUnderOver,
@@ -1101,15 +1110,17 @@ PROCEDURE pGrandTotal :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE iGrandTotalQty LIKE w-ord.total-unit.
-  DEFINE BUFFER bf-w-ord FOR w-ord.
-      FOR EACH bf-w-ord NO-LOCK:
-          ASSIGN iGrandTotalQty = iGrandTotalQty + (bf-w-ord.total-unit * bf-w-ord.total-tags).
-      END.
-      DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN fi_total-qty:SCREEN-VALUE = string(iGrandTotalQty).
-      END.
-      
+    DEFINE OUTPUT PARAMETER opdTotalQty AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-w-ord FOR w-ord.
+    
+    FOR EACH bf-w-ord NO-LOCK:
+        opdTotalQty = opdTotalQty + (bf-w-ord.total-unit * bf-w-ord.total-tags).
+    END.   
+   
+    DO WITH FRAME {&FRAME-NAME}:
+        fi_total-Qty:SCREEN-VALUE = STRING(opdTotalQty).
+    END.          
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1176,7 +1187,7 @@ PROCEDURE pCheckPOFGUnderOver :
                 INPUT INT(w-ord.job-no2),
                 INPUT po-ordl.i-no,
                 INPUT po-ordl.po-no,
-                INPUT w-ord.total-unit * w-ord.total-tags,
+                INPUT iGrandTotalQty,
                 INPUT NO,
                 INPUT gcFGUnderOver,
                 INPUT giFGUnderOver,

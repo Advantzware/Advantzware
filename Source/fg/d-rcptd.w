@@ -68,7 +68,6 @@ DEFINE VARIABLE gvcCurrentItem      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hInventoryProcs     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lMultipleAdds       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUpdateRecords      AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lFatalQtyError      AS logical   NO-UNDO.
 
 DEFINE TEMP-TABLE tt-fg-rctd LIKE fg-rctd
     FIELD tt-rowid AS ROWID
@@ -891,9 +890,7 @@ DO:
         IF AVAILABLE fg-rctd THEN
             op-rowid = ROWID(fg-rctd) .
 
-        IF lv-item-recid NE ? 
-        OR lFatalQtyError THEN 
-        DO:
+        IF lv-item-recid NE ? THEN DO:
             IF AVAIL fg-rctd THEN DO:
                 FIND CURRENT fg-rctd EXCLUSIVE.
                 DELETE fg-rctd .
@@ -914,9 +911,7 @@ DO:
         IF AVAILABLE fg-rctd THEN
             ASSIGN op-rowid = ROWID(fg-rctd) .
         
-        IF lv-item-recid NE ? 
-        OR lFatalQtyError THEN 
-        DO:
+        IF lv-item-recid NE ?  THEN DO:
             IF AVAIL fg-rctd THEN 
             DO:
                 FIND CURRENT fg-rctd EXCLUSIVE.
