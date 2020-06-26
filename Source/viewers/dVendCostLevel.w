@@ -26,7 +26,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 DEFINE INPUT PARAMETER iprRowid AS ROWID NO-UNDO.
 DEFINE INPUT PARAMETER iprRowid2 AS ROWID NO-UNDO.
-DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO .
+DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER iplFirstRow AS LOGICAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opRowid AS ROWID NO-UNDO .
 
 /* Local Variable Definitions ---                                       */
@@ -72,16 +73,32 @@ DO:
     END.
 END.
 
-DEFINE VARIABLE uom-list         AS CHARACTER     INIT "C,CS,EA,L,M," NO-UNDO.
-DEFINE VARIABLE lVendItemUseDeviation AS LOGICAL NO-UNDO .
-DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
-DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE uom-list              AS CHARACTER INIT "C,CS,EA,L,M," NO-UNDO.
+DEFINE VARIABLE lVendItemUseDeviation AS LOGICAL   NO-UNDO .
+DEFINE VARIABLE lRecFound             AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cRtnChar              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lChangeUpTo           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hdVendorCostProcs     AS HANDLE    NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT g_company, "VendItemUseDeviation", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lVendItemUseDeviation = LOGICAL(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p(
+    INPUT g_company,
+    INPUT "VendCostMatrix",
+    INPUT "L",             /* Logical */
+    INPUT NO,              /* check by cust */ 
+    INPUT YES,             /* use cust not vendor */ 
+    INPUT "",              /* cust */
+    INPUT "",              /* ship-to*/
+    OUTPUT cRtnChar,
+    OUTPUT lRecFound
+    ).    
+lChangeUpTo = LOGICAL(cRtnChar). 
+RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -153,7 +170,7 @@ DEFINE VARIABLE cPriceUom AS CHARACTER FORMAT "x(3)":U
 
 DEFINE VARIABLE dDev1 AS DECIMAL FORMAT "->,>>>,>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 18.5 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dEaCost1 AS DECIMAL FORMAT ">>,>>>,>>9.9999":U INITIAL 0 
@@ -161,19 +178,19 @@ DEFINE VARIABLE dEaCost1 AS DECIMAL FORMAT ">>,>>>,>>9.9999":U INITIAL 0
      SIZE 16 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-2 AS DECIMAL FORMAT "->,>>>,>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-2 AS DECIMAL FORMAT "->,>>>,>>>,>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 18.5 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom1 AS DECIMAL FORMAT "->,>>>,>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom1 AS DECIMAL FORMAT "->,>>>,>>>,>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 18.5 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dSetup1 AS DECIMAL FORMAT "->,>>>,>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 18.5 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dToQty1 AS DECIMAL FORMAT ">>,>>>,>>9.9999":U INITIAL 0 
@@ -212,20 +229,20 @@ DEFINE QUERY D-Dialog FOR
 DEFINE FRAME D-Dialog
      tb_BestCost AT ROW 8.52 COL 21.2 WIDGET-ID 386
      Btn_OK AT ROW 10.14 COL 39
-     dFrom1 AT ROW 3.76 COL 20.2 COLON-ALIGNED NO-LABEL WIDGET-ID 218
+     dFrom1 AT ROW 3.76 COL 18.6 COLON-ALIGNED NO-LABEL WIDGET-ID 218
      dToQty1 AT ROW 3.76 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 254
      dEaCost1 AT ROW 6.19 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 266
-     dSetup1 AT ROW 6.19 COL 20.2 COLON-ALIGNED NO-LABEL WIDGET-ID 276
-     dDev1 AT ROW 6.19 COL 40.6 COLON-ALIGNED NO-LABEL WIDGET-ID 360
+     dSetup1 AT ROW 6.19 COL 18.6 COLON-ALIGNED NO-LABEL WIDGET-ID 276
+     dDev1 AT ROW 6.19 COL 38.2 COLON-ALIGNED NO-LABEL WIDGET-ID 360
      Btn_Cancel AT ROW 10.14 COL 49
-     dFrom-2 AT ROW 3.76 COL 40.6 COLON-ALIGNED NO-LABEL WIDGET-ID 380
-     cDevLabel AT ROW 5.19 COL 40.6 COLON-ALIGNED NO-LABEL WIDGET-ID 288
-     cPriceUom AT ROW 1.48 COL 40.6 COLON-ALIGNED
+     dFrom-2 AT ROW 3.76 COL 38.2 COLON-ALIGNED NO-LABEL WIDGET-ID 380
+     cDevLabel AT ROW 5.19 COL 38.2 COLON-ALIGNED NO-LABEL WIDGET-ID 288
+     cPriceUom AT ROW 1.48 COL 38.2 COLON-ALIGNED
      iLeadTime AT ROW 8.48 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 382
      "Quantity Range" VIEW-AS TEXT
-          SIZE 18 BY 1 AT ROW 2.76 COL 31.6 WIDGET-ID 242
+          SIZE 18 BY 1 AT ROW 2.76 COL 31.4 WIDGET-ID 242
      "Quantity Up To" VIEW-AS TEXT
-          SIZE 16.9 BY 1 AT ROW 2.76 COL 3 WIDGET-ID 252
+          SIZE 17 BY 1 AT ROW 2.76 COL 3 WIDGET-ID 252
      "Cost Per" VIEW-AS TEXT
           SIZE 12 BY 1 AT ROW 5.19 COL 3 WIDGET-ID 264
      "Setup" VIEW-AS TEXT
@@ -300,7 +317,8 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL D-Dialog D-Dialog
 ON WINDOW-CLOSE OF FRAME D-Dialog /* Update / Add Vendor Cost Level */
 DO: 
-    
+    IF VALID-HANDLE(hdVendorCostProcs) THEN
+        DELETE PROCEDURE hdVendorCostProcs.    
         /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
         APPLY "END-ERROR":U TO SELF.
 
@@ -544,11 +562,8 @@ PROCEDURE pAssignValues :
           Parameters:  <none>
           Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE hVendorCostProcs AS HANDLE NO-UNDO.
     DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO .
     DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO . 
-
-    RUN system\VendorCostProcs.p PERSISTENT SET hVendorCostProcs.
    
     FIND FIRST vendItemCost WHERE ROWID(vendItemCost) EQ iprRowid  NO-LOCK NO-ERROR.
 
@@ -566,10 +581,9 @@ PROCEDURE pAssignValues :
     END.
     opRowid = ROWID(vendItemCostLevel) .
     FIND CURRENT vendItemCostLevel NO-LOCK NO-ERROR .
-    RUN RecalculateFromAndTo IN hVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ) .
+    RUN RecalculateFromAndTo IN hdVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ) .
     
     RELEASE vendItemCostLevel.
-    DELETE OBJECT hVendorCostProcs.
     
 END PROCEDURE.
 
@@ -583,12 +597,9 @@ PROCEDURE pCreateValues :
           Parameters:  <none>
           Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE hVendorCostProcs AS HANDLE NO-UNDO.
     DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO .
     DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO .
-    
-     RUN system\VendorCostProcs.p PERSISTENT SET hVendorCostProcs.
-
+  
      FIND FIRST vendItemCost WHERE ROWID(vendItemCost) EQ iprRowid  NO-LOCK NO-ERROR.
      
     DO WITH FRAME {&frame-name}:        
@@ -607,10 +618,9 @@ PROCEDURE pCreateValues :
     FIND CURRENT vendItemCostLevel NO-LOCK NO-ERROR .
     opRowid = ROWID(vendItemCostLevel) .
     
-    RUN RecalculateFromAndTo IN hVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ) .
+    RUN RecalculateFromAndTo IN hdVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ) .
 
     RELEASE vendItemCostLevel.
-    DELETE OBJECT hVendorCostProcs. 
 
 END PROCEDURE.
 
@@ -624,6 +634,9 @@ PROCEDURE pDisplayValue :
           Parameters:  <none>
           Notes:       
         ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dQuantityFrom AS DECIMAL NO-UNDO. 
+    DEFINE VARIABLE dQuantityTo   AS DECIMAL NO-UNDO.
+      
    DO WITH FRAME {&frame-name}:
       
         APPLY "entry" TO dFrom1 IN FRAME {&FRAME-NAME}.
@@ -634,9 +647,39 @@ PROCEDURE pDisplayValue :
         FIND FIRST vendItemCost WHERE ROWID(vendItemCost) EQ iprRowid  NO-LOCK NO-ERROR.
         
         FIND FIRST vendItemCostLevel WHERE ROWID(vendItemCostLevel) EQ iprRowid2 NO-LOCK NO-ERROR  .
-        IF AVAIL vendItemCostLevel THEN
+        IF AVAIL vendItemCostLevel THEN DO:
+            IF vendItemcost.itemType EQ "FG" THEN DO:
+                IF iplFirstRow THEN DO:
+                    RUN VendCost_AdjustQuantityFrom IN hdVendorCostProcs (
+                        INPUT ROWID(vendItemCostLevel),
+                        INPUT NO,  /* Do not change the quantity */
+                        INPUT vendItemCost.vendorUOM,
+                        OUTPUT dQuantityFrom
+                        ).
+                END.
+                ELSE 
+                    RUN VendCost_AdjustQuantityFrom IN hdVendorCostProcs (
+                        INPUT ROWID(vendItemCostLevel),
+                        INPUT NOT lChangeUpTo,  /* If NK1=NO, change quantityFrom*/
+                        INPUT vendItemCost.vendorUOM,
+                        OUTPUT dQuantityFrom
+                        ).
+                         
+                 RUN VendCost_AdjustQuantityTo IN hdVendorCostProcs (
+                        INPUT  ROWID(vendItemCostLevel),
+                        INPUT  lChangeUpTo,  /* If NK1=Yes, change quantityTo*/
+                        INPUT  vendItemCost.vendorUOM,
+                        OUTPUT dQuantityTo
+                        ).                               
+            END.  
+            ELSE 
+                ASSIGN  
+                    dQuantityFrom = vendItemCostLevel.quantityFrom 
+                    dQuantityTo   = vendItemCostLevel.quantityTo
+                    . 
              ASSIGN 
-                dFrom1:SCREEN-VALUE   = string(vendItemCostLevel.quantityFrom)
+                dFrom1:SCREEN-VALUE    = STRING(dQuantityFrom)
+                dFrom-2:SCREEN-VALUE   = STRING(dQuantityTo)
                 dToQty1:SCREEN-VALUE  = string(vendItemCostLevel.quantityTo)
                 dEaCost1:SCREEN-VALUE = string(vendItemCostLevel.costPerUOM)
                 dSetup1:SCREEN-VALUE  = string(vendItemCostLevel.costSetup)
@@ -645,7 +688,7 @@ PROCEDURE pDisplayValue :
                 iLeadTime:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
                 tb_BestCost:SCREEN-VALUE = STRING(vendItemCostLevel.useForBestCost)
                 .
-                
+        END.        
         IF ipcType EQ "Copy" THEN
             dToQty1:SCREEN-VALUE  = "0" .
       DISABLE dFrom1 dFrom-2 cDevLabel.

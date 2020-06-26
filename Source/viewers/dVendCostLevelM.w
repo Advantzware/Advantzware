@@ -69,16 +69,37 @@ DO:
     END.
 END.
 
-DEFINE VARIABLE uom-list         AS CHARACTER     INIT "C,CS,EA,L,M," NO-UNDO.
-DEFINE VARIABLE lVendItemUseDeviation AS LOGICAL NO-UNDO .
-DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
-DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE uom-list              AS CHARACTER INIT "C,CS,EA,L,M," NO-UNDO.
+DEFINE VARIABLE lVendItemUseDeviation AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lRecFound             AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cRtnChar              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lChangeUpTo           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lFirst                AS LOGICAL   NO-UNDO INIT YES.
+DEFINE VARIABLE hdVendorCostProcs     AS HANDLE    NO-UNDO.
+
+DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
+
 
 RUN sys/ref/nk1look.p (INPUT g_company, "VendItemUseDeviation", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lVendItemUseDeviation = LOGICAL(cRtnChar) NO-ERROR.
+    
+RUN sys/ref/nk1look.p(
+    INPUT g_company,
+    INPUT "VendCostMatrix",
+    INPUT "L",             /* Logical */
+    INPUT NO,              /* check by cust */ 
+    INPUT YES,             /* use cust not vendor */ 
+    INPUT "",              /* cust */
+    INPUT "",              /* ship-to*/
+    OUTPUT cRtnChar,
+    OUTPUT lRecFound
+    ).    
+lChangeUpTo = LOGICAL(cRtnChar). 
+
+RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -97,11 +118,11 @@ IF lRecFound THEN
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS dToQty1 RECT-5 RECT-21 dToQty2 dToQty3 ~
+&Scoped-Define ENABLED-OBJECTS RECT-5 RECT-21 dToQty1 dToQty2 dToQty3 ~
 dToQty4 dToQty5 dToQty6 dToQty7 dToQty8 dToQty9 dToQty10 dToQty11 dToQty12 ~
-dToQty13 dToQty14 dToQty15 dToQty16 dToQty17 dToQty18 dToQty19 dToQty20 ~
-dFrom1 dFrom2 dFrom3 dFrom4 dFrom5 dFrom6 dFrom7 dFrom8 dFrom9 dFrom10 ~
-dFrom-11 dFrom-12 dFrom-13 Btn_OK Btn_Cancel dFrom-14 dFrom-15 dFrom-16 ~
+dToQty13 dToQty14 dToQty15 dToQty16 dToQty17 Btn_OK Btn_Cancel dToQty18 ~
+dToQty19 dToQty20 dFrom1 dFrom2 dFrom3 dFrom4 dFrom5 dFrom6 dFrom7 dFrom8 ~
+dFrom9 dFrom10 dFrom-11 dFrom-12 dFrom-13 dFrom-14 dFrom-15 dFrom-16 ~
 dFrom-17 dFrom-18 dFrom-19 dFrom-20 dFromTo1 dFromTo2 dFromTo3 dFromTo4 ~
 dFromTo5 dFromTo6 dFromTo7 dFromTo8 dFromTo9 dFromTo10 dFromTo-11 ~
 dFromTo-12 dFromTo-13 dFromTo-14 dFromTo-15 dFromTo-16 dFromTo-17 ~
@@ -143,6 +164,22 @@ dDev-14 dDev-15 dDev-16 dDev-17 dDev-18 dDev-19 dDev-20
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetQuantityFrom D-Dialog 
+FUNCTION pGetQuantityFrom RETURNS DECIMAL PRIVATE
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetQuantityTo D-Dialog 
+FUNCTION pGetQuantityTo RETURNS DECIMAL PRIVATE
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -367,204 +404,204 @@ DEFINE VARIABLE dEaCost9 AS DECIMAL FORMAT ">>>,>>9.9999":U INITIAL 0
      SIZE 14.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-11 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-11 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-12 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-12 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-13 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-13 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-14 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-14 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-15 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-15 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-16 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-16 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-17 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-17 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-18 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-18 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-19 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-19 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-20 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-20 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom1 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom1 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom10 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom10 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom2 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom2 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom3 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom3 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom4 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom4 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom5 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom5 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom6 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom6 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom7 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom7 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom8 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom8 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom9 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom9 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo-11 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo-11 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo-12 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo-12 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo-13 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo-13 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo-14 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo-14 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dFromTo-15 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo-16 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo-16 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo-17 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo-17 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo-18 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo-18 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo-19 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo-19 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo-20 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo-20 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo1 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo1 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo10 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo10 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo2 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo2 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo3 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo3 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo4 AS DECIMAL FORMAT ">>>>>,>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo4 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo5 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo5 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo6 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo6 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo7 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo7 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo8 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo8 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo9 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo9 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1
+     SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dSetup-11 AS DECIMAL FORMAT "->>>>9.9999":U INITIAL 0 
@@ -669,102 +706,102 @@ DEFINE VARIABLE dSetup9 AS DECIMAL FORMAT "->>>>9.9999":U INITIAL 0
 
 DEFINE VARIABLE dToQty1 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 14.6 BY 1
+     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dToQty10 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 14.6 BY 1
+     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dToQty11 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 14.6 BY 1
+     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dToQty12 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 14.6 BY 1
+     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dToQty13 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 14.6 BY 1
+     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dToQty14 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 14.6 BY 1
+     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dToQty15 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 14.6 BY 1
+     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dToQty16 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 14.6 BY 1
+     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dToQty17 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 14.6 BY 1
+     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dToQty18 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 14.6 BY 1
+     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dToQty19 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 14.6 BY 1
+     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dToQty2 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 14.6 BY 1
+     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dToQty20 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 14.6 BY 1
+     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dToQty3 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 14.6 BY 1
+     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dToQty4 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 14.6 BY 1
+     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dToQty5 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 14.6 BY 1
+     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dToQty6 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 14.6 BY 1
+     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dToQty7 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 14.6 BY 1
+     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dToQty8 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 14.6 BY 1
+     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dToQty9 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 14.6 BY 1
+     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE iLeadTime-1 AS INTEGER FORMAT ">,>>>,>>9":U INITIAL 0 
@@ -1117,6 +1154,9 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL D-Dialog D-Dialog
 ON WINDOW-CLOSE OF FRAME D-Dialog /* Update Multiple Vendor Cost Level  */
 DO:  
+    IF VALID-HANDLE(hdVendorCostProcs) THEN 
+        DELETE PROCEDURE hdVendorCostProcs.
+        
         /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
         APPLY "END-ERROR":U TO SELF.
 
@@ -2812,11 +2852,11 @@ PROCEDURE enable_UI :
           dDev-11 dDev-12 dDev-13 dDev-14 dDev-15 dDev-16 dDev-17 dDev-18 
           dDev-19 dDev-20 
       WITH FRAME D-Dialog.
-  ENABLE dToQty1 RECT-5 RECT-21 dToQty2 dToQty3 dToQty4 dToQty5 dToQty6 dToQty7 
+  ENABLE RECT-5 RECT-21 dToQty1 dToQty2 dToQty3 dToQty4 dToQty5 dToQty6 dToQty7 
          dToQty8 dToQty9 dToQty10 dToQty11 dToQty12 dToQty13 dToQty14 dToQty15 
-         dToQty16 dToQty17 dToQty18 dToQty19 dToQty20 dFrom1 dFrom2 dFrom3 
-         dFrom4 dFrom5 dFrom6 dFrom7 dFrom8 dFrom9 dFrom10 dFrom-11 dFrom-12 
-         dFrom-13 Btn_OK Btn_Cancel dFrom-14 dFrom-15 dFrom-16 dFrom-17 
+         dToQty16 dToQty17 Btn_OK Btn_Cancel dToQty18 dToQty19 dToQty20 dFrom1 
+         dFrom2 dFrom3 dFrom4 dFrom5 dFrom6 dFrom7 dFrom8 dFrom9 dFrom10 
+         dFrom-11 dFrom-12 dFrom-13 dFrom-14 dFrom-15 dFrom-16 dFrom-17 
          dFrom-18 dFrom-19 dFrom-20 dFromTo1 dFromTo2 dFromTo3 dFromTo4 
          dFromTo5 dFromTo6 dFromTo7 dFromTo8 dFromTo9 dFromTo10 dFromTo-11 
          dFromTo-12 dFromTo-13 dFromTo-14 dFromTo-15 dFromTo-16 dFromTo-17 
@@ -2850,9 +2890,6 @@ PROCEDURE pAssignValues :
         ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO .
     DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO .
-    DEFINE VARIABLE hVendorCostProcs AS HANDLE NO-UNDO.
-
-     RUN system\VendorCostProcs.p PERSISTENT SET hVendorCostProcs.
     
     FIND FIRST vendItemCost WHERE ROWID(vendItemCost) EQ iprRowid  NO-LOCK NO-ERROR.
 DO WITH FRAME {&frame-name}:   
@@ -3053,12 +3090,10 @@ DO WITH FRAME {&frame-name}:
    END.
 
    FIND CURRENT vendItemCostLevel NO-LOCK NO-ERROR .
-   RUN RecalculateFromAndTo IN hVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ) .
+   RUN RecalculateFromAndTo IN hdVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ) .
 END.
 
     RELEASE vendItemCostLevel.
-    DELETE OBJECT hVendorCostProcs.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3083,11 +3118,14 @@ PROCEDURE pDisplayValue :
         FOR EACH vendItemCostLevel NO-LOCK
             WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID 
             BY vendItemCostLevel.quantityBase:
-
+           FIND FIRST bf-vendItemCostLevel NO-LOCK
+                WHERE ROWID(bf-VendItemCostLevel) EQ ROWID(vendItemCostLevel)
+                NO-ERROR.
+                          
            IF i EQ 1 THEN
                 ASSIGN 
-                    dFromTo1:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)
-                    dFrom1:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)
+                    dFromTo1:SCREEN-VALUE    = STRING(pGetQuantityTo())
+                    dFrom1:SCREEN-VALUE      = STRING(pGetQuantityFrom())
                     dToQty1:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)
                     dEaCost1:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)
                     dSetup1:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)
@@ -3097,8 +3135,8 @@ PROCEDURE pDisplayValue :
                     .
             ELSE IF i EQ 2 THEN
                 ASSIGN 
-                    dFromTo2:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)
-                    dFrom2:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)    
+                    dFromTo2:SCREEN-VALUE    = STRING(pGetQuantityTo())
+                    dFrom2:SCREEN-VALUE      = STRING(pGetQuantityFrom())   
                     dToQty2:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
                     dEaCost2:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
                     dSetup2:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
@@ -3108,8 +3146,8 @@ PROCEDURE pDisplayValue :
                     . 
             ELSE IF i EQ 3 THEN
                 ASSIGN 
-                    dFromTo3:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)
-                    dFrom3:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)    
+                    dFromTo3:SCREEN-VALUE    = STRING(pGetQuantityTo())
+                    dFrom3:SCREEN-VALUE      = STRING(pGetQuantityFrom())     
                     dToQty3:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
                     dEaCost3:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
                     dSetup3:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
@@ -3119,8 +3157,8 @@ PROCEDURE pDisplayValue :
                     . 
             ELSE IF i EQ 4 THEN
                 ASSIGN 
-                    dFromTo4:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)
-                    dFrom4:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)    
+                    dFromTo4:SCREEN-VALUE    = STRING(pGetQuantityTo())
+                    dFrom4:SCREEN-VALUE      = STRING(pGetQuantityFrom())   
                     dToQty4:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
                     dEaCost4:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
                     dSetup4:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
@@ -3130,8 +3168,8 @@ PROCEDURE pDisplayValue :
                     . 
             ELSE IF i EQ 5 THEN
                 ASSIGN 
-                    dFromTo5:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo) 
-                    dFrom5:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)   
+                    dFromTo5:SCREEN-VALUE    = STRING(pGetQuantityTo()) 
+                    dFrom5:SCREEN-VALUE      =  STRING(pGetQuantityFrom())   
                     dToQty5:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
                     dEaCost5:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
                     dSetup5:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
@@ -3141,8 +3179,8 @@ PROCEDURE pDisplayValue :
                     . 
             ELSE IF  i EQ 6 THEN
                 ASSIGN 
-                    dFromTo6:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo) 
-                    dFrom6:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)   
+                    dFromTo6:SCREEN-VALUE    = STRING(pGetQuantityTo()) 
+                    dFrom6:SCREEN-VALUE      =  STRING(pGetQuantityFrom())   
                     dToQty6:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
                     dEaCost6:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
                     dSetup6:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
@@ -3152,8 +3190,8 @@ PROCEDURE pDisplayValue :
                     . 
             ELSE IF i EQ 7 THEN
                 ASSIGN 
-                    dFromTo7:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)
-                    dFrom7:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)    
+                    dFromTo7:SCREEN-VALUE    = STRING(pGetQuantityTo())
+                    dFrom7:SCREEN-VALUE      =  STRING(pGetQuantityFrom())    
                     dToQty7:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
                     dEaCost7:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
                     dSetup7:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
@@ -3163,8 +3201,8 @@ PROCEDURE pDisplayValue :
                     . 
             ELSE IF i EQ 8 THEN
                 ASSIGN 
-                    dFromTo8:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)   
-                    dFrom8:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom) 
+                    dFromTo8:SCREEN-VALUE    = STRING(pGetQuantityTo())   
+                    dFrom8:SCREEN-VALUE      = STRING(pGetQuantityFrom()) 
                     dToQty8:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
                     dEaCost8:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
                     dSetup8:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
@@ -3174,8 +3212,8 @@ PROCEDURE pDisplayValue :
                     . 
             ELSE IF i EQ 9 THEN
                 ASSIGN 
-                    dFromTo9:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)  
-                    dFrom9:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)  
+                    dFromTo9:SCREEN-VALUE    = STRING(pGetQuantityTo())  
+                    dFrom9:SCREEN-VALUE      = STRING(pGetQuantityFrom())  
                     dToQty9:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
                     dEaCost9:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
                     dSetup9:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
@@ -3185,8 +3223,8 @@ PROCEDURE pDisplayValue :
                     . 
             ELSE IF i EQ 10 THEN
                 ASSIGN 
-                    dFromTo10:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)
-                    dFrom10:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)    
+                    dFromTo10:SCREEN-VALUE    = STRING(pGetQuantityTo())
+                    dFrom10:SCREEN-VALUE      = STRING(pGetQuantityFrom())    
                     dToQty10:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
                     dEaCost10:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
                     dSetup10:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
@@ -3196,8 +3234,8 @@ PROCEDURE pDisplayValue :
                     . 
            ELSE IF i EQ 11 THEN
                 ASSIGN 
-                    dFromTo-11:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
-                    dFrom-11:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)
+                    dFromTo-11:SCREEN-VALUE   = STRING(pGetQuantityTo())
+                    dFrom-11:SCREEN-VALUE     = STRING(pGetQuantityFrom())
                     dToQty11:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)
                     dEaCost-11:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)
                     dSetup-11:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)
@@ -3207,8 +3245,8 @@ PROCEDURE pDisplayValue :
                     .
             ELSE IF i EQ 12 THEN
                 ASSIGN 
-                    dFromTo-12:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
-                    dFrom-12:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                    dFromTo-12:SCREEN-VALUE   = STRING(pGetQuantityTo())
+                    dFrom-12:SCREEN-VALUE     = STRING(pGetQuantityFrom())    
                     dToQty12:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
                     dEaCost-12:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
                     dSetup-12:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
@@ -3218,8 +3256,8 @@ PROCEDURE pDisplayValue :
                     . 
             ELSE IF i EQ 13 THEN
                 ASSIGN 
-                    dFromTo-13:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
-                    dFrom-13:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                    dFromTo-13:SCREEN-VALUE   = STRING(pGetQuantityTo())
+                    dFrom-13:SCREEN-VALUE     = STRING(pGetQuantityFrom())    
                     dToQty13:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
                     dEaCost-13:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
                     dSetup-13:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
@@ -3229,8 +3267,8 @@ PROCEDURE pDisplayValue :
                     . 
             ELSE IF i EQ 14 THEN
                 ASSIGN 
-                    dFromTo-14:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
-                    dFrom-14:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                    dFromTo-14:SCREEN-VALUE   = STRING(pGetQuantityTo())
+                    dFrom-14:SCREEN-VALUE     = STRING(pGetQuantityFrom())    
                     dToQty14:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
                     dEaCost-14:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
                     dSetup-14:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
@@ -3240,8 +3278,8 @@ PROCEDURE pDisplayValue :
                     . 
             ELSE IF i EQ 15 THEN
                 ASSIGN 
-                    dFromTo-15:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo) 
-                    dFrom-15:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)   
+                    dFromTo-15:SCREEN-VALUE   = STRING(pGetQuantityTo()) 
+                    dFrom-15:SCREEN-VALUE     = STRING(pGetQuantityFrom())   
                     dToQty15:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
                     dEaCost-15:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
                     dSetup-15:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
@@ -3251,8 +3289,8 @@ PROCEDURE pDisplayValue :
                     . 
             ELSE IF  i EQ 16 THEN
                 ASSIGN 
-                    dFromTo-16:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
-                    dFrom-16:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                    dFromTo-16:SCREEN-VALUE   = STRING(pGetQuantityTo())
+                    dFrom-16:SCREEN-VALUE     = STRING(pGetQuantityFrom())    
                     dToQty16:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
                     dEaCost-16:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
                     dSetup-16:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
@@ -3262,8 +3300,8 @@ PROCEDURE pDisplayValue :
                     . 
             ELSE IF i EQ 17 THEN
                 ASSIGN 
-                    dFromTo-17:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
-                    dFrom-17:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                    dFromTo-17:SCREEN-VALUE   = STRING(pGetQuantityTo())
+                    dFrom-17:SCREEN-VALUE     = STRING(pGetQuantityFrom())    
                     dToQty17:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
                     dEaCost-17:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
                     dSetup-17:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
@@ -3273,8 +3311,8 @@ PROCEDURE pDisplayValue :
                     . 
             ELSE IF i EQ 18 THEN
                 ASSIGN 
-                    dFromTo-18:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
-                    dFrom-18:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                    dFromTo-18:SCREEN-VALUE   = STRING(pGetQuantityTo())
+                    dFrom-18:SCREEN-VALUE     = STRING(pGetQuantityFrom())    
                     dToQty18:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
                     dEaCost-18:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
                     dSetup-18:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
@@ -3284,8 +3322,8 @@ PROCEDURE pDisplayValue :
                     . 
             ELSE IF i EQ 19 THEN
                 ASSIGN 
-                    dFromTo-19:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
-                    dFrom-19:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                    dFromTo-19:SCREEN-VALUE   = STRING(pGetQuantityTo())
+                    dFrom-19:SCREEN-VALUE     = STRING(pGetQuantityFrom())    
                     dToQty19:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
                     dEaCost-19:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
                     dSetup-19:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
@@ -3295,8 +3333,8 @@ PROCEDURE pDisplayValue :
                     . 
             ELSE IF i EQ 20 THEN
                 ASSIGN 
-                    dFromTo-20:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
-                    dFrom-20:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                    dFromTo-20:SCREEN-VALUE   = STRING(pGetQuantityTo())
+                    dFrom-20:SCREEN-VALUE     = STRING(pGetQuantityFrom())    
                     dToQty20:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
                     dEaCost-20:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
                     dSetup-20:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
@@ -3376,6 +3414,76 @@ DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
 
   {methods/lValidateError.i NO}
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetQuantityFrom D-Dialog 
+FUNCTION pGetQuantityFrom RETURNS DECIMAL PRIVATE
+  (  ):
+/*-----------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dQuantityFrom AS DECIMAL NO-UNDO.
+
+    IF AVAILABLE bf-vendItemCostLevel THEN DO:
+        IF vendItemCost.itemType EQ "FG" THEN DO:
+            IF lFirst THEN DO:
+                RUN VendCost_AdjustQuantityFrom IN hdVendorCostProcs (
+                       INPUT ROWID(bf-vendItemCostLevel),
+                       INPUT NO, /* For first row do not change quantityFrom */
+                       INPUT vendItemCost.vendorUOM,
+                       OUTPUT dQuantityFrom
+                       ).
+                lFirst = NO.           
+            END.              
+            ELSE
+                RUN VendCost_AdjustQuantityFrom IN hdVendorCostProcs (
+                    INPUT ROWID(bf-vendItemCostLevel),
+                    INPUT NOT lChangeUpTo, /* If NK1=NO then change quantity from*/
+                    INPUT vendItemCost.vendorUOM,
+                    OUTPUT dQuantityFrom
+                    ).
+            RETURN dQuantityFrom.   
+        END.                       
+        ELSE 
+            RETURN bf-vendItemCostLevel.QuantityFrom.
+        
+    END.
+
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetQuantityTo D-Dialog 
+FUNCTION pGetQuantityTo RETURNS DECIMAL PRIVATE
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dQuantityTo AS DECIMAL NO-UNDO.
+     
+    IF AVAILABLE bf-vendItemCostLevel THEN DO:
+
+        IF vendItemCost.itemType EQ "FG" THEN DO:
+            RUN VendCost_AdjustQuantityTo IN hdVendorCostProcs(
+                INPUT  ROWID(bf-vendItemCostLevel),
+                INPUT  lChangeUpTo, /* If NK1=YES then change quantityTo */
+                INPUT  vendItemCost.vendorUOM,
+                OUTPUT dQuantityTo
+                ).
+            RETURN dQuantityTo.      
+        END. 
+        ELSE 
+            RETURN bf-vendItemCostLevel.quantityTo.   
+    END.                
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

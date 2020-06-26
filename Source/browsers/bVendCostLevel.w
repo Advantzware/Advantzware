@@ -46,15 +46,35 @@ CREATE WIDGET-POOL.
 
 {custom/b-ebfgDefs.i}
 
-DEFINE VARIABLE lVendItemUseDeviation AS LOGICAL NO-UNDO .
-DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
-DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lVendItemUseDeviation AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lRecFound             AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cRtnChar              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lChangeUpTo           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lFirstRow             AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lFirst                AS LOGICAL   NO-UNDO INIT YES.
+DEFINE VARIABLE hdVendorCostProcs     AS HANDLE    NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT g_company, "VendItemUseDeviation", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lVendItemUseDeviation = LOGICAL(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p(
+    INPUT g_company,
+    INPUT "VendCostMatrix",
+    INPUT "L",             /* Logical */
+    INPUT NO,              /* check by cust */ 
+    INPUT YES,             /* use cust not vendor */ 
+    INPUT "",              /* cust */
+    INPUT "",              /* ship-to*/
+    OUTPUT cRtnChar,
+    OUTPUT lRecFound
+    ).
+
+lChangeUpTo = LOGICAL(cRtnChar).  
+
+RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -110,6 +130,27 @@ DEFINE QUERY external_tables FOR vendItemCost.
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetQuantityFrom B-table-Win
+FUNCTION pGetQuantityFrom RETURNS DECIMAL PRIVATE
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetQuantityTo B-table-Win
+FUNCTION pGetQuantityTo RETURNS DECIMAL PRIVATE
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -128,14 +169,13 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _FREEFORM
   QUERY Browser-Table NO-LOCK DISPLAY
-      vendItemCostLevel.quantityFrom COLUMN-LABEL "From" FORMAT "->>>>>>9.9<":U WIDTH 15
-      vendItemCostLevel.quantityTo COLUMN-LABEL "Up To*" FORMAT "->>>>>>9.9<":U WIDTH 15
-      vendItemCostLevel.costPerUom COLUMN-LABEL "Cost Per" FORMAT "->>>>>>9.99":U WIDTH 15
-      vendItemCostLevel.costSetup COLUMN-LABEL "Setup" FORMAT "->>>>>>9.9<":U WIDTH 15
-      vendItemCostLevel.costDeviation COLUMN-LABEL "Devi" FORMAT "->>>>>>9.9<":U WIDTH 15
-      vendItemCostLevel.leadTimeDays COLUMN-LABEL "Lead" FORMAT "->>>>>>9.9<":U WIDTH 15
-      vendItemCostLevel.useForBestCost COLUMN-LABEL "Sel" FORMAT "Y/N":U WIDTH 5
-  
+      pGetQuantityFrom() @ vendItemCostLevel.quantityFrom COLUMN-LABEL "From"     FORMAT "->>>>>>>>>9":U WIDTH 15
+      pGetQuantityTo()   @ vendItemCostLevel.quantityTo   COLUMN-LABEL "Up To*"   FORMAT "->>>>>>>>>9":U WIDTH 15
+      vendItemCostLevel.costPerUom                        COLUMN-LABEL "Cost Per" FORMAT "->>>>>>9.99":U WIDTH 15
+      vendItemCostLevel.costSetup                         COLUMN-LABEL "Setup"    FORMAT "->>>>>>9.9<":U WIDTH 15
+      vendItemCostLevel.costDeviation                     COLUMN-LABEL "Devi"     FORMAT "->>>>>>9.9<":U WIDTH 15
+      vendItemCostLevel.leadTimeDays                      COLUMN-LABEL "Lead"     FORMAT "->>>>>>9.9<":U WIDTH 15
+      vendItemCostLevel.useForBestCost                    COLUMN-LABEL "Sel"      FORMAT "Y/N":U         WIDTH 5
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN NO-ROW-MARKERS SEPARATORS SIZE 86 BY 10.91
@@ -277,7 +317,15 @@ DO:
 
    IF NOT lAllowUpdate THEN
    IF AVAIL vendItemCost AND AVAIL vendItemCostLevel THEN do:
-       RUN viewers/dVendCostLevel.w (ROWID(vendItemCost),ROWID(vendItemCostLevel),"update",OUTPUT lv-rowid) .
+       lFirstRow = BROWSE {&BROWSE-NAME}:FOCUSED-ROW EQ 1.
+       
+       RUN viewers/dVendCostLevel.w(
+       INPUT  ROWID(vendItemCost),
+       INPUT  ROWID(vendItemCostLevel),
+       INPUT  "UPDATE",
+       INPUT  lFirstRow, /* IF YES do not change quantityFrom */
+       OUTPUT lv-Rowid
+       ). 
        
        RUN reopen-query (ROWID(vendItemCost),ROWID(vendItemCostLevel)).
    END.
@@ -418,6 +466,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view B-table-Win
+PROCEDURE local-view:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  lFirst = YES.
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reopen-query B-table-Win 
 PROCEDURE reopen-query :
 /*------------------------------------------------------------------------------
@@ -431,8 +504,9 @@ PROCEDURE reopen-query :
   FIND FIRST vendItemCost NO-LOCK
       WHERE vendItemCost.company EQ cocode 
         AND rowid(vendItemCost) EQ ip-rowid NO-ERROR .
-
-  RUN dispatch ('open-query').
+  lFirst = YES.
+  
+  {&OPEN-QUERY-Browser-Table}
 
   IF ipRowidLevel NE ? THEN
   DO WITH FRAME {&FRAME-NAME}:
@@ -472,7 +546,6 @@ PROCEDURE local-delete-record :
 ------------------------------------------------------------------------------*/
 DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO .
-DEFINE VARIABLE hVendorCostProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE rwRowidLevel AS ROWID NO-UNDO .
 
 DEFINE VARIABLE lAllowUpdate AS LOGICAL NO-UNDO .
@@ -487,8 +560,6 @@ IF NOT lAllowUpdate THEN do:
   IF NOT adm-new-record THEN DO:
     {custom/askdel.i}
   END.
-
-     RUN system\VendorCostProcs.p PERSISTENT SET hVendorCostProcs.
   /* Code placed here will execute PRIOR to standard behavior. */
   
   /* Dispatch standard ADM method.                             */
@@ -496,9 +567,8 @@ IF NOT lAllowUpdate THEN do:
 
   /* Code placed here will execute AFTER standard behavior.    */
  IF AVAIL vendItemCost THEN
-     RUN RecalculateFromAndTo IN hVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ) .
+     RUN RecalculateFromAndTo IN hdVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage ) .
 
- DELETE OBJECT hVendorCostProcs.
 IF AVAIL vendItemCost THEN
     RUN reopen-query (ROWID(vendItemCost),rwRowidLevel).
 END. /* NOT lAllowUpdate*/
@@ -568,9 +638,15 @@ PROCEDURE pCopyRecord :
 
     IF NOT lAllowUpdate THEN
     IF AVAIL vendItemCost AND AVAIL vendItemCostLevel THEN do:
-
-       RUN viewers/dVendCostLevel.w (ROWID(vendItemCost),ROWID(vendItemCostLevel),"Copy",OUTPUT rwRowid) .
+       lFirstRow = BROWSE {&BROWSE-NAME}:FOCUSED-ROW EQ 1.
        
+       RUN viewers/dVendCostLevel.w(
+       INPUT  ROWID(vendItemCost),
+       INPUT  ROWID(vendItemCostLevel),
+       INPUT  "Copy",
+       INPUT  lFirstRow, /* IF YES do not change quantityFrom */
+       OUTPUT rwRowid
+       ).
        RUN reopen-query (ROWID(vendItemCost),rwRowid).
    END.
   
@@ -597,7 +673,12 @@ PROCEDURE pAddRecord :
 
     IF NOT lAllowUpdate THEN
     IF AVAIL vendItemCost  THEN do:
-       RUN viewers/dVendCostLevel.w (ROWID(vendItemCost),lv-rowid,"Create", OUTPUT rwRowid) .
+       RUN viewers/dVendCostLevel.w(
+           INPUT  ROWID(vendItemCost),
+           INPUT  lv-rowid,
+           INPUT  "Create", 
+           INPUT  NO,  /* Do not change quantity From for add record */
+           OUTPUT rwRowid) .
        
        RUN reopen-query (ROWID(vendItemCost),rwRowid).
    END.
@@ -624,8 +705,16 @@ PROCEDURE pUpdateRecord :
        RUN vendcost-newitem IN WIDGET-HANDLE(char-hdl) (OUTPUT lAllowUpdate).
 
     IF NOT lAllowUpdate THEN
-    IF AVAIL vendItemCost AND AVAIL vendItemCostLevel THEN do:
-       RUN viewers/dVendCostLevel.w (ROWID(vendItemCost),ROWID(vendItemCostLevel),"Update",OUTPUT rwRowid) .
+    IF AVAIL vendItemCost AND AVAIL vendItemCostLevel THEN DO:
+       lFirstRow = BROWSE {&BROWSE-NAME}:FOCUSED-ROW EQ 1.
+       
+       RUN viewers/dVendCostLevel.w(
+           INPUT  ROWID(vendItemCost),
+           INPUT  ROWID(vendItemCostLevel),
+           INPUT  "UPDATE",
+           INPUT  lFirstRow, /* If yes, Dont change the quantityFrom */
+           OUTPUT rwRowid
+           ).
        
        RUN reopen-query (ROWID(vendItemCost),rwRowid).
    END.
@@ -651,9 +740,17 @@ PROCEDURE pViewRecord :
        RUN vendcost-newitem IN WIDGET-HANDLE(char-hdl) (OUTPUT lAllowUpdate).
 
     IF NOT lAllowUpdate THEN
-    IF AVAIL vendItemCost THEN do:
-       RUN viewers/dVendCostLevel.w (ROWID(vendItemCost),ROWID(vendItemCostLevel),"view",OUTPUT rwRowid) .
+    IF AVAIL vendItemCost THEN DO:
+       lFirstRow = BROWSE {&BROWSE-NAME}:FOCUSED-ROW EQ 1.
        
+       RUN viewers/dVendCostLevel.w(
+           INPUT  ROWID(vendItemCost),
+           INPUT  ROWID(vendItemCostLevel),
+           INPUT  "view",
+           INPUT  lFirstRow, /* If yes, Dont change the quantityFrom */
+           OUTPUT rwRowid
+           ).
+
        /*RUN reopen-query (ROWID(vendItemCost)).*/
    END.
   
@@ -661,5 +758,76 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetQuantityFrom B-table-Win
+FUNCTION pGetQuantityFrom RETURNS DECIMAL PRIVATE
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dQuantityFrom AS DECIMAL NO-UNDO.
+
+    IF AVAILABLE vendItemCostLevel THEN DO:
+        IF vendItemCost.itemType EQ "FG" THEN DO:
+            IF lFirst THEN DO:
+                RUN VendCost_AdjustQuantityFrom IN hdVendorCostProcs (
+                    INPUT ROWID(vendItemCostLevel),
+                    INPUT NO,  /* Do not change the quantity */
+                    INPUT vendItemCost.vendorUOM,
+                    OUTPUT dQuantityFrom
+                    ).
+                lFirst = NO.        
+            END.  
+            ELSE
+                RUN VendCost_AdjustQuantityFrom IN hdVendorCostProcs (
+                    INPUT ROWID(vendItemCostLevel),
+                    INPUT NOT lChangeUpTo,  /* If yes, it will return the updated quantityFrom*/
+                    INPUT vendItemCost.vendorUOM,
+                    OUTPUT dQuantityFrom
+                    ).
+            RETURN dQuantityFrom.   
+        END.                       
+        ELSE 
+            RETURN vendItemCostLevel.QuantityFrom.      
+    END. 
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetQuantityTo B-table-Win
+FUNCTION pGetQuantityTo RETURNS DECIMAL PRIVATE
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dQuantityTo AS DECIMAL NO-UNDO.
+     
+    IF AVAILABLE vendItemCostLevel THEN DO:
+        IF vendItemCost.itemType EQ "FG" THEN DO:
+            RUN VendCost_AdjustQuantityTo IN hdVendorCostProcs(
+                INPUT  ROWID(vendItemCostLevel),
+                INPUT  lChangeUpTo,  /* If yes, it will change the Upto quantity*/
+                INPUT  vendItemCost.vendorUOM,
+                OUTPUT dQuantityTo
+                ).      
+            RETURN dQuantityTo.            
+        END. 
+    ELSE 
+        RETURN vendItemCostLevel.quantityTo.   
+    END.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 

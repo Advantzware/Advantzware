@@ -1927,6 +1927,70 @@ PROCEDURE RecalculateFromAndTo:
 
 END PROCEDURE.
 
+PROCEDURE VendCost_AdjustQuantityFrom:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriVendItemCostLevel AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER iplChangeQtyFrom      AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcVendorUOM          AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQuantityFrom       AS DECIMAL   NO-UNDO.
+    
+    
+    FIND FIRST vendItemCostLevel NO-LOCK
+         WHERE ROWID(VendItemCostLevel) EQ ipriVendItemCostLevel
+         NO-ERROR.
+         
+    IF AVAILABLE vendItemCostLevel THEN DO:
+        IF ipcVendorUOM EQ "M" THEN DO:
+            IF iplChangeQtyFrom THEN
+                opdQuantityFrom = vendItemCostLevel.quantityFrom * 1000 + 1.
+            ELSE 
+                opdQuantityFrom = vendItemCostLevel.quantityFrom * 1000.    
+            END.    
+        ELSE DO:
+            IF iplChangeQtyFrom THEN
+                opdQuantityFrom = vendItemCostLevel.quantityFrom + 1.
+            ELSE 
+                opdQuantityFrom = vendItemCostLevel.quantityFrom.                             
+        END.                        
+    END.    
+               
+END PROCEDURE.
+
+PROCEDURE VendCost_AdjustQuantityTo:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriVendItemCostLevel AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER iplChangeQtyTo        AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcVendorUOM          AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQuantityTo         AS DECIMAL   NO-UNDO.
+    
+    
+    FIND FIRST vendItemCostLevel NO-LOCK
+         WHERE ROWID(VendItemCostLevel) EQ ipriVendItemCostLevel
+         NO-ERROR.
+         
+    IF AVAILABLE vendItemCostLevel THEN DO:
+        IF ipcVendorUOM EQ "M" THEN DO:
+            IF iplChangeQtyTo THEN
+                opdQuantityTo = vendItemCostLevel.quantityTo * 1000 - 1.
+            ELSE 
+                opdQuantityTo = vendItemCostLevel.quantityTo * 1000.    
+            END.    
+        ELSE DO:
+            IF iplChangeQtyTo THEN
+                opdQuantityTo = vendItemCostLevel.quantityTo - 1.
+            ELSE 
+                opdQuantityTo = vendItemCostLevel.quantityTo. 
+        END.                                    
+    END.  
+
+END PROCEDURE.
+
 PROCEDURE VendCost_GetBestCost:
     /*------------------------------------------------------------------------------
      Purpose:  Given all inputs, determine the best cost per UOM, Setup and VendorID
