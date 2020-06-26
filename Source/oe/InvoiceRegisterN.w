@@ -1904,7 +1904,7 @@ PROCEDURE list-gl :
                     
             END.
         END.    /* for each "act-rece"*/         
-        MESSAGE " v-balance " STRING(v-balance) STRING(v-post-total) VIEW-AS ALERT-BOX ERROR .
+        
         v-balance =  (v-balance * -1 ) + v-post-total.   
         IF v-gldetail THEN
             PUT dTotOffSet FORMAT "->>,>>>,>>9.99" TO 126 SKIP 
@@ -1938,10 +1938,7 @@ PROCEDURE list-gl :
 
     SESSION:SET-WAIT-STATE ("general").
 
-    FOR EACH tt-report WHERE RECID(tt-report) NE v-recid:
-        DELETE tt-report.
-    END.
-
+    
     SESSION:SET-WAIT-STATE ("").
 
 END PROCEDURE.
