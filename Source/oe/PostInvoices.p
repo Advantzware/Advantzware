@@ -2267,6 +2267,7 @@ PROCEDURE pInitialize PRIVATE:
     EMPTY TEMP-TABLE ttException.
     EMPTY TEMP-TABLE ttBOLLineToUpdate.
     EMPTY TEMP-TABLE rpt.
+    EMPTY TEMP-TABLE ttInvoiceTaxDetail.
     
     CREATE ttPostingMaster.
     ASSIGN 
