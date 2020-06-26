@@ -146,6 +146,9 @@ ttSubjectColumn.groupLabel
 ttSubjectColumn.fieldName
 ttSubjectColumn.isCalcField VIEW-AS TOGGLE-BOX
 ttSubjectColumn.fieldFormat
+ttSubjectColumn.isStatusField VIEW-AS TOGGLE-BOX
+ttSubjectColumn.statusCompare
+ttSubjectColumn.compareValue
 ttSubjectColumn.calcProc
 ttSubjectColumn.calcParam
 ttSubjectColumn.groupCalc
@@ -496,13 +499,15 @@ PROCEDURE pSave :
                 dynValueColumn.prgmName       = dynParamValue.prgmName
                 dynValueColumn.paramValueID   = dynParamValue.paramValueID
                 dynValueColumn.sortOrder      = ttSubjectColumn.sortOrder
+                dynValueColumn.calcFormula    = ttSubjectColumn.calcFormula
                 dynValueColumn.calcParam      = ttSubjectColumn.calcParam
                 dynValueColumn.calcProc       = ttSubjectColumn.calcProc
-                dynValueColumn.calcFormula    = ttSubjectColumn.calcFormula
+                dynValueColumn.cellColor      = ttSubjectColumn.cellColor
                 dynValueColumn.colFormat      = ttSubjectColumn.fieldFormat
                 dynValueColumn.colLabel       = ttSubjectColumn.fieldLabel
                 dynValueColumn.colName        = ttSubjectColumn.fieldName
                 dynValueColumn.columnSize     = ttSubjectColumn.columnSize
+                dynValueColumn.compareValue   = ttSubjectColumn.compareValue
                 dynValueColumn.dataType       = ttSubjectColumn.dataType
                 dynValueColumn.groupCalc      = ttSubjectColumn.groupCalc
                 dynValueColumn.groupLabel     = ttSubjectColumn.groupLabel
@@ -512,8 +517,12 @@ PROCEDURE pSave :
                 dynValueColumn.isReturnValue  = ttSubjectColumn.isReturnValue
                 dynValueColumn.isSearchable   = ttSubjectColumn.isSearchable
                 dynValueColumn.isSortable     = ttSubjectColumn.isSortable
+                dynValueColumn.isStatusField  = ttSubjectColumn.isStatusField
                 dynValueColumn.sortCol        = ttSubjectColumn.sortCol
                 dynValueColumn.sortDescending = ttSubjectColumn.sortDescending
+                dynValueColumn.statusAction   = ttSubjectColumn.statusAction
+                dynValueColumn.statusCompare  = ttSubjectColumn.statusCompare
+                dynValueColumn.textColor      = ttSubjectColumn.textColor
                 .
         END. /* each ttSubjectColumn */
 
@@ -604,14 +613,16 @@ PROCEDURE pUserColumns :
         ASSIGN
             ttSubjectColumn.subjectID      = dynValueColumn.subjectID     
             ttSubjectColumn.sortOrder      = dynValueColumn.sortOrder     
-            ttSubjectColumn.calcParam      = dynValueColumn.calcParam     
-            ttSubjectColumn.calcProc       = dynValueColumn.calcProc      
             ttSubjectColumn.calcFormula    = dynValueColumn.calcFormula   
+            ttSubjectColumn.calcParam      = dynValueColumn.calcParam     
+            ttSubjectColumn.calcProc       = dynValueColumn.calcProc
+            ttSubjectColumn.cellColor      = dynValueColumn.cellColor      
+            ttSubjectColumn.columnSize     = dynValueColumn.columnSize    
+            ttSubjectColumn.compareValue   = dynValueColumn.compareValue
+            ttSubjectColumn.dataType       = dynValueColumn.dataType      
             ttSubjectColumn.fieldFormat    = dynValueColumn.colFormat     
             ttSubjectColumn.fieldLabel     = dynValueColumn.colLabel      
             ttSubjectColumn.fieldName      = dynValueColumn.colName       
-            ttSubjectColumn.columnSize     = dynValueColumn.columnSize    
-            ttSubjectColumn.dataType       = dynValueColumn.dataType      
             ttSubjectColumn.groupCalc      = dynValueColumn.groupCalc     
             ttSubjectColumn.groupLabel     = dynValueColumn.groupLabel    
             ttSubjectColumn.isActive       = dynValueColumn.isActive      
@@ -620,8 +631,12 @@ PROCEDURE pUserColumns :
             ttSubjectColumn.isReturnValue  = dynValueColumn.isReturnValue 
             ttSubjectColumn.isSearchable   = dynValueColumn.isSearchable  
             ttSubjectColumn.isSortable     = dynValueColumn.isSortable    
+            ttSubjectColumn.isStatusField  = dynValueColumn.isStatusField
             ttSubjectColumn.sortCol        = dynValueColumn.sortCol       
             ttSubjectColumn.sortDescending = dynValueColumn.sortDescending
+            ttSubjectColumn.statusAction   = dynValueColumn.statusAction
+            ttSubjectColumn.statusCompare  = dynValueColumn.statusCompare
+            ttSubjectColumn.textColor      = dynValueColumn.textColor
             .
         IF ttSubjectColumn.groupCalc NE "" THEN
         DO jdx = 1 TO NUM-ENTRIES(ttSubjectColumn.groupCalc) BY 2:

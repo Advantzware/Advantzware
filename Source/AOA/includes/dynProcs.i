@@ -30,6 +30,7 @@ DEFINE VARIABLE hDynValProc     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hQuery          AS HANDLE    NO-UNDO.
 DEFINE VARIABLE idx             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iFGColor        AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iNumColumns     AS INTEGER   NO-UNDO.
 
 RUN AOA/spDynDescriptionProc.p PERSISTENT SET hDynDescripProc.
 RUN AOA/spDynInitializeProc.p  PERSISTENT SET hDynInitProc.
@@ -117,6 +118,27 @@ ON ROW-DISPLAY OF hQueryBrowse DO:
             hBrowseColumn[dynValueColumn.sortOrder]:FORMAT  = dynValueColumn.colFormat
             hBrowseColumn[dynValueColumn.sortOrder]:FGCOLOR = iFGColor
             .
+        IF dynValueColumn.isStatusField AND
+           dynValueColumn.textColor NE dynValueColumn.cellColor AND
+           DYNAMIC-FUNCTION("fDynStatusField" IN hDynCalcField,
+               hBrowseQuery:HANDLE,
+               dynValueColumn.colName,
+               dynValueColumn.statusCompare,
+               dynValueColumn.compareValue) THEN DO:
+            IF dynValueColumn.statusAction BEGINS "Row" THEN
+            DO idx = 1 TO iNumColumns:
+                IF VALID-HANDLE(hBrowseColumn[idx]) THEN
+                ASSIGN
+                    hBrowseColumn[idx]:FGCOLOR = dynValueColumn.textColor
+                    hBrowseColumn[idx]:BGCOLOR = dynValueColumn.cellColor
+                    .
+            END. /* else */
+            ELSE IF dynValueColumn.statusAction BEGINS "Cell" THEN
+            ASSIGN
+                hBrowseColumn[dynValueColumn.sortOrder]:FGCOLOR = dynValueColumn.textColor
+                hBrowseColumn[dynValueColumn.sortOrder]:BGCOLOR = dynValueColumn.cellColor
+                .
+        END. /* if begins */
     END. /* each dynvaluecolumn */
 
 /*    /* rstark - remove when depricated */                                   */
@@ -241,6 +263,7 @@ PROCEDURE pResultsBrowser :
         hQueryBrowse:TITLE   = dynSubject.subjectTitle
         hQueryBrowse:QUERY   = iphQuery
         hQueryBrowse:VISIBLE = TRUE
+        iNumColumns          = 0
         .
     FOR EACH dynValueColumn NO-LOCK
         WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
@@ -287,6 +310,7 @@ PROCEDURE pResultsBrowser :
 /*        IF idx MOD 2 EQ 0 THEN hColumn:COLUMN-BGCOLOR = 11.*/
         IF dynValueColumn.columnSize NE 0 THEN
         hColumn:WIDTH-CHARS = dynValueColumn.columnSize.
+        iNumColumns = iNumColumns + 1.
     END. /* each dynvaluecolumn */
 
 /*    /* rstark - remove when depricated */                                     */
