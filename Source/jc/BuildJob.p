@@ -186,6 +186,7 @@ PROCEDURE pBuildHeaders PRIVATE:
         ASSIGN 
             dQtyInM                 = bf-job-hdr.qty / 1000
             ttJobHdrToKeep.riJobHdr = ROWID(bf-job-hdr)
+            bf-job-hdr.sq-in        = estCostBlank.pctOfForm  * 100
             bf-job-hdr.std-tot-cost = estCostItem.costTotalFactory / dQtyInM
             bf-job-hdr.std-mat-cost = estCostItem.costTotalMaterial / dQtyInM
             bf-job-hdr.std-lab-cost = estCostItem.costTotalLabor / dQtyInM
