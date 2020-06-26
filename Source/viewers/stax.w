@@ -75,28 +75,32 @@ DEFINE TEMP-TABLE tt-accounts NO-UNDO
 DEFINE QUERY external_tables FOR stax.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS stax.tax-code1[1] stax.tax-dscr1[1] ~
-stax.tax-rate1[1] stax.tax-frt1[1] stax.tax-acc1[1] stax.taxableLimit ~
-stax.tax-code1[2] stax.tax-dscr1[2] stax.tax-rate1[2] stax.tax-code1[3] ~
-stax.tax-dscr1[3] stax.tax-rate1[3] stax.tax-code1[4] stax.tax-dscr1[4] ~
-stax.tax-rate1[4] stax.tax-code1[5] stax.tax-dscr1[5] stax.tax-rate1[5] ~
-stax.tax-code1[6] stax.tax-dscr1[6] stax.tax-rate1[6] stax.tax-code1[7] ~
-stax.tax-dscr1[7] stax.tax-rate1[7] stax.tax-code1[8] stax.tax-dscr1[8] ~
-stax.tax-rate1[8] stax.tax-rate1[9] stax.tax-code1[9] stax.tax-dscr1[9] ~
-stax.tax-code1[10] stax.tax-dscr1[10] stax.tax-rate1[10] stax.accum-tax ~
-stax.inactive 
+stax.tax-rate1[1] stax.tax-acc1[1] stax.taxableLimit stax.tax-frt1[1] ~
+stax.tax-code1[2] stax.tax-dscr1[2] stax.tax-rate1[2] stax.tax-acc1[2] ~
+stax.tax-code1[3] stax.tax-dscr1[3] stax.tax-rate1[3] stax.tax-acc1[3] ~
+stax.tax-code1[4] stax.tax-dscr1[4] stax.tax-rate1[4] stax.tax-acc1[4] ~
+stax.tax-code1[5] stax.tax-dscr1[5] stax.tax-rate1[5] stax.tax-acc1[5] ~
+stax.tax-code1[6] stax.tax-dscr1[6] stax.tax-rate1[6] stax.tax-acc1[6] ~
+stax.tax-code1[7] stax.tax-dscr1[7] stax.tax-rate1[7] stax.tax-acc1[7] ~
+stax.tax-code1[8] stax.tax-dscr1[8] stax.tax-rate1[8] stax.tax-acc1[8] ~
+stax.tax-rate1[9] stax.tax-code1[9] stax.tax-dscr1[9] stax.tax-acc1[9] ~
+stax.tax-code1[10] stax.tax-dscr1[10] stax.tax-rate1[10] stax.tax-acc1[10] ~
+stax.accum-tax stax.inactive 
 &Scoped-define ENABLED-TABLES stax
 &Scoped-define FIRST-ENABLED-TABLE stax
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS stax.tax-group stax.tax-code1[1] ~
-stax.tax-dscr1[1] stax.tax-rate1[1] stax.tax-frt1[1] stax.tax-acc1[1] ~
-stax.taxableLimit stax.tax-code1[2] stax.tax-dscr1[2] stax.tax-rate1[2] ~
-stax.tax-code1[3] stax.tax-dscr1[3] stax.tax-rate1[3] stax.tax-code1[4] ~
-stax.tax-dscr1[4] stax.tax-rate1[4] stax.tax-code1[5] stax.tax-dscr1[5] ~
-stax.tax-rate1[5] stax.tax-code1[6] stax.tax-dscr1[6] stax.tax-rate1[6] ~
-stax.tax-code1[7] stax.tax-dscr1[7] stax.tax-rate1[7] stax.tax-code1[8] ~
-stax.tax-dscr1[8] stax.tax-rate1[8] stax.tax-rate1[9] stax.tax-code1[9] ~
-stax.tax-dscr1[9] stax.tax-code1[10] stax.tax-dscr1[10] stax.tax-rate1[10] ~
-stax.accum-tax stax.inactive 
+stax.tax-dscr1[1] stax.tax-rate1[1] stax.tax-acc1[1] stax.taxableLimit ~
+stax.tax-frt1[1] stax.tax-code1[2] stax.tax-dscr1[2] stax.tax-rate1[2] ~
+stax.tax-acc1[2] stax.tax-code1[3] stax.tax-dscr1[3] stax.tax-rate1[3] ~
+stax.tax-acc1[3] stax.tax-code1[4] stax.tax-dscr1[4] stax.tax-rate1[4] ~
+stax.tax-acc1[4] stax.tax-code1[5] stax.tax-dscr1[5] stax.tax-rate1[5] ~
+stax.tax-acc1[5] stax.tax-code1[6] stax.tax-dscr1[6] stax.tax-rate1[6] ~
+stax.tax-acc1[6] stax.tax-code1[7] stax.tax-dscr1[7] stax.tax-rate1[7] ~
+stax.tax-acc1[7] stax.tax-code1[8] stax.tax-dscr1[8] stax.tax-rate1[8] ~
+stax.tax-acc1[8] stax.tax-rate1[9] stax.tax-code1[9] stax.tax-dscr1[9] ~
+stax.tax-acc1[9] stax.tax-code1[10] stax.tax-dscr1[10] stax.tax-rate1[10] ~
+stax.tax-acc1[10] stax.accum-tax stax.inactive 
 &Scoped-define DISPLAYED-TABLES stax
 &Scoped-define FIRST-DISPLAYED-TABLE stax
 
@@ -157,16 +161,16 @@ DEFINE FRAME F-Main
      stax.tax-rate1[1] AT ROW 2.91 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 44
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     stax.tax-frt1[1] AT ROW 2.91 COL 80 WIDGET-ID 34
-          LABEL ""
-          VIEW-AS TOGGLE-BOX
-          SIZE 4 BY .81
-     stax.tax-acc1[1] AT ROW 2.91 COL 89 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     stax.tax-acc1[1] AT ROW 2.91 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 4
           VIEW-AS FILL-IN 
           SIZE 27.2 BY 1
      stax.taxableLimit AT ROW 2.91 COL 121.2 COLON-ALIGNED NO-LABEL WIDGET-ID 62
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
+     stax.tax-frt1[1] AT ROW 3 COL 114 WIDGET-ID 34
+          LABEL ""
+          VIEW-AS TOGGLE-BOX
+          SIZE 4 BY .81
      stax.tax-code1[2] AT ROW 4.19 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 16 FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
@@ -176,6 +180,9 @@ DEFINE FRAME F-Main
      stax.tax-rate1[2] AT ROW 4.19 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 46
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
+     stax.tax-acc1[2] AT ROW 4.19 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 96
+          VIEW-AS FILL-IN 
+          SIZE 27.2 BY 1
      stax.tax-code1[3] AT ROW 5.62 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 18 FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
@@ -185,6 +192,9 @@ DEFINE FRAME F-Main
      stax.tax-rate1[3] AT ROW 5.62 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 48
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
+     stax.tax-acc1[3] AT ROW 5.62 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 98
+          VIEW-AS FILL-IN 
+          SIZE 27.2 BY 1
      stax.tax-code1[4] AT ROW 6.86 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 20 FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
@@ -194,6 +204,9 @@ DEFINE FRAME F-Main
      stax.tax-rate1[4] AT ROW 6.86 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 50
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
+     stax.tax-acc1[4] AT ROW 6.86 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 100
+          VIEW-AS FILL-IN 
+          SIZE 27.2 BY 1
      stax.tax-code1[5] AT ROW 8.14 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 22 FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
@@ -203,15 +216,28 @@ DEFINE FRAME F-Main
      stax.tax-rate1[5] AT ROW 8.14 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 52
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
+     stax.tax-acc1[5] AT ROW 8.14 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 102
+          VIEW-AS FILL-IN 
+          SIZE 27.2 BY 1
      stax.tax-code1[6] AT ROW 9.38 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 68
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
      stax.tax-dscr1[6] AT ROW 9.43 COL 28.4 COLON-ALIGNED NO-LABEL WIDGET-ID 78
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      stax.tax-rate1[6] AT ROW 9.43 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 88
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
+     stax.tax-acc1[6] AT ROW 9.43 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 104
+          VIEW-AS FILL-IN 
+          SIZE 27.2 BY 1
      stax.tax-code1[7] AT ROW 10.62 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 70
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
@@ -221,13 +247,9 @@ DEFINE FRAME F-Main
      stax.tax-rate1[7] AT ROW 10.62 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 90
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
+     stax.tax-acc1[7] AT ROW 10.62 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+          VIEW-AS FILL-IN 
+          SIZE 27.2 BY 1
      stax.tax-code1[8] AT ROW 11.86 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 72
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
@@ -237,6 +259,9 @@ DEFINE FRAME F-Main
      stax.tax-rate1[8] AT ROW 11.86 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 92
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
+     stax.tax-acc1[8] AT ROW 11.86 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 108
+          VIEW-AS FILL-IN 
+          SIZE 27.2 BY 1
      stax.tax-rate1[9] AT ROW 13.05 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 94
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
@@ -246,6 +271,9 @@ DEFINE FRAME F-Main
      stax.tax-dscr1[9] AT ROW 13.1 COL 28.6 COLON-ALIGNED NO-LABEL WIDGET-ID 84
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
+     stax.tax-acc1[9] AT ROW 13.1 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 110
+          VIEW-AS FILL-IN 
+          SIZE 27.2 BY 1
      stax.tax-code1[10] AT ROW 14.29 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 66
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
@@ -255,6 +283,9 @@ DEFINE FRAME F-Main
      stax.tax-rate1[10] AT ROW 14.33 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 86
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
+     stax.tax-acc1[10] AT ROW 14.33 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 112
+          VIEW-AS FILL-IN 
+          SIZE 27.2 BY 1
      stax.accum-tax AT ROW 15.71 COL 20
           LABEL "Tax on Tax?"
           VIEW-AS TOGGLE-BOX
@@ -262,28 +293,35 @@ DEFINE FRAME F-Main
      stax.inactive AT ROW 15.71 COL 105.4 WIDGET-ID 60
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY .81
+     "Tax Group" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 1.95 COL 4
+     "Tax" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.24 COL 19
+     "Description" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 1.48 COL 42
+     "GL Account" VIEW-AS TEXT
+          SIZE 14.8 BY .62 AT ROW 1.48 COL 83.2
+     "Tax" VIEW-AS TEXT
+          SIZE 6 BY .71 AT ROW 1.24 COL 66
      "Code" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.95 COL 19
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     "Sales" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.24 COL 4
      "Rate" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.95 COL 66
      "Freight?" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 1.95 COL 78
+          SIZE 10 BY .62 AT ROW 2.05 COL 112
      "$ Limit" VIEW-AS TEXT
           SIZE 8.8 BY .62 AT ROW 1.48 COL 123.2 WIDGET-ID 64
-     "Sales" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.24 COL 4
-     "Description" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 1.48 COL 42
      "Tax" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.24 COL 19
-     "Tax" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.24 COL 78
-     "Tax Group" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 1.95 COL 4
-     "GL Account" VIEW-AS TEXT
-          SIZE 14.8 BY .62 AT ROW 1.48 COL 96.2
-     "Tax" VIEW-AS TEXT
-          SIZE 6 BY .71 AT ROW 1.24 COL 66
+          SIZE 7 BY .62 AT ROW 1.33 COL 112
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 

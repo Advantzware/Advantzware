@@ -13,6 +13,9 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+{system\TaxProcs.i}
+DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
+
 DEFINE TEMP-TABLE ttPostingMaster NO-UNDO 
     FIELD company              AS CHARACTER
     FIELD blockZeroCost        AS LOGICAL
@@ -95,6 +98,7 @@ DEFINE TEMP-TABLE ttInvoiceToPost NO-UNDO
     FIELD isInvoiceDateInCurrentPeriod AS LOGICAL     
     FIELD bolID                        AS INTEGER
     FIELD termsCode                    AS CHARACTER
+    FIELD taxGroup                     AS CHARACTER
     .
     
 DEFINE TEMP-TABLE ttInvoiceLineToPost NO-UNDO 
@@ -307,13 +311,17 @@ DEFINE TEMP-TABLE rpt NO-UNDO
     LIKE ttInvoiceLineToPost
     .
     
+DEFINE TEMP-TABLE ttInvoiceTaxDetail NO-UNDO LIKE ttTaxDetail
+    FIELD riInvHead  AS ROWID
+    .
+
 DEFINE TEMP-TABLE ttInvoiceError NO-UNDO 
     FIELD riInvError AS ROWID
     FIELD invoiceID AS INTEGER 
     FIELD problemMessage AS CHARACTER
     FIELD isOKToPost AS LOGICAL 
     .    
-        
+
     
 {custom/globdefs.i}    
 {sys/inc/var.i SHARED}
@@ -371,6 +379,8 @@ FUNCTION fIsWritable RETURNS LOGICAL PRIVATE
 /* ***************************  Main Block  *************************** */
 /* Shared Vars needed for 810 invoices */
 RUN rc/genrcvar.p.
+RUN system\TaxProcs.p PERSISTENT SET hdTaxProcs.
+
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -589,6 +599,37 @@ PROCEDURE pAddGLTransactionsForFGDetail PRIVATE:
         ttGLTransaction.currencyExRate    = ipbf-ttInvoiceLineToPost.currencyExRate
         .
 
+END PROCEDURE.
+
+PROCEDURE pAddGLTransactionsForTax PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  PRocesses the whole invoice, adding GL Transactions for each municipality
+        and gl account
+     Notes:  Replaces calc-tax-gr from old posting program.
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttPostingMaster FOR ttPostingMaster.   
+    DEFINE PARAMETER BUFFER ipbf-ttInvoiceToPost FOR ttInvoiceToPost.
+    
+    DEFINE VARIABLE dTaxAmount AS DECIMAL NO-UNDO. 
+    DEFINE VARIABLE lDetailAvailable AS LOGICAL NO-UNDO.
+    
+    lDetailAvailable = NO.    
+    FOR EACH ttInvoiceTaxDetail NO-LOCK
+        WHERE ttInvoiceTaxDetail.riInvHead EQ ipbf-ttInvoiceToPost.riInvHead
+        BREAK BY ttInvoiceTaxDetail.taxCodeAccount:
+        ASSIGN 
+            lDetailAvailable = YES
+            dTaxAmount = dTaxAmount + ttInvoiceTaxDetail.taxCodeTaxAmount
+            .
+        IF LAST-OF(ttInvoiceTaxDetail.taxCodeAccount) THEN DO:
+            RUN pAddGLTransaction(BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceToPost, "TAX", ttInvoiceTaxDetail.taxCodeAccount, - dTaxAmount, "").
+            dTaxAmount = 0.
+        END.
+    END.
+    IF NOT lDetailAvailable THEN 
+        RUN pAddGLTransaction(BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceToPost, "TAX", ipbf-ttInvoiceToPost.accountARSalesTax, - ipbf-ttInvoiceToPost.amountBilledTax, "").
+    
+    
 END PROCEDURE.
 
 PROCEDURE pAddInvoiceLineToPost PRIVATE:
@@ -958,6 +999,7 @@ PROCEDURE pAddInvoiceToPost PRIVATE:
                                                         AND opbf-ttInvoiceToPost.invoiceDate LE ipbf-ttPostingMaster.periodDateEnd)  
         opbf-ttInvoiceToPost.bolID                        = ipbf-inv-head.bol-no
         opbf-ttInvoiceToPost.termsCode                    = ipbf-inv-head.terms
+        opbf-ttInvoiceToPost.taxGroup                     = ipbf-inv-head.tax-gr
         .
     IF opbf-ttInvoiceToPost.isFreightBillable THEN 
         opbf-ttInvoiceToPost.amountBilledFreight = ipbf-inv-head.t-inv-freight.
@@ -965,12 +1007,15 @@ PROCEDURE pAddInvoiceToPost PRIVATE:
     RUN pGetCurrencyCodeAndRate(ipbf-inv-head.company, ipbf-inv-head.curr-code[1], ipbf-cust.curr-code, ipbf-ttPostingMaster.currencyCode, 
         OUTPUT opbf-ttInvoiceToPost.currencyCode, OUTPUT opbf-ttInvoiceToPost.currencyExRate, OUTPUT opbf-ttInvoiceToPost.accountARCurrency,
         OUTPUT oplError, OUTPUT opcMessage).
-        
+    
+    RUN pBuildInvoiceTaxDetail(BUFFER opbf-ttInvoiceToPost, OUTPUT oplError, OUTPUT opcMessage).
+    
     IF oplError THEN 
         ASSIGN 
             opbf-ttInvoiceToPost.isOKToPost     = NO
             opbf-ttInvoiceToPost.problemMessage = opcMessage
             .
+    
     
     
 END PROCEDURE.
@@ -2139,6 +2184,61 @@ PROCEDURE pGetSettings PRIVATE:
     
 END PROCEDURE.
 
+PROCEDURE pBuildInvoiceTaxDetail PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  GIven an invoice header, create the lines of tax details
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttInvoiceToPost FOR ttInvoiceToPost.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcErrorMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iLine AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cAccountSource AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dTotalTax AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTax AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTaxableAmount AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lHasLimit AS LOGICAL NO-UNDO.
+    
+    IF ipbf-ttInvoiceToPost.taxGroup NE "" AND ipbf-ttInvoiceToPost.amountBilledTax NE 0 THEN DO:
+        ASSIGN 
+            cAccountSource = "Tax Group: " + ipbf-ttInvoiceToPost.taxGroup
+            dTaxableAmount = ipbf-ttInvoiceToPost.amountBilledExTax - ipbf-ttInvoiceToPost.amountBilledFreight
+            .
+        RUN Tax_CalculateWithDetail IN hdTaxProcs (ipbf-ttInvoiceToPost.company, ipbf-ttInvoiceToPost.taxGroup, NO, dTaxableAmount, OUTPUT dTax, OUTPUT TABLE ttTaxDetail).
+        FOR EACH ttTaxDetail:
+            RUN pCheckAccount(ttTaxDetail.company,  ttTaxDetail.taxCodeAccount, cAccountSource + " Code: " + ttTaxDetail.taxCode, "Tax Account", 
+                    OUTPUT oplError, OUTPUT opcErrorMessage).
+            IF oplError THEN RETURN.
+            CREATE ttInvoiceTaxDetail.
+            BUFFER-COPY ttTaxDetail TO ttInvoiceTaxDetail.
+            ttInvoiceTaxDetail.riInvHead = ipbf-ttInvoiceToPost.riInvHead.
+        END.         
+        dTotalTax = dTax.
+        dTaxableAmount = ipbf-ttInvoiceToPost.amountBilledFreight.
+        RUN Tax_CalculateWithDetail IN hdTaxProcs (ipbf-ttInvoiceToPost.company, ipbf-ttInvoiceToPost.taxGroup, YES, dTaxableAmount, OUTPUT dTax, OUTPUT TABLE ttTaxDetail).
+        FOR EACH ttTaxDetail:
+            RUN pCheckAccount(ttTaxDetail.company,  ttTaxDetail.taxCodeAccount, cAccountSource + " Code: " + ttTaxDetail.taxCode, "Tax Account", 
+                OUTPUT oplError, OUTPUT opcErrorMessage).
+            IF oplError THEN RETURN.
+            CREATE ttInvoiceTaxDetail.
+            BUFFER-COPY ttTaxDetail TO ttInvoiceTaxDetail.
+            ttInvoiceTaxDetail.riInvHead = ipbf-ttInvoiceToPost.riInvHead.
+        END.             
+        dTotalTax = dTotalTax + dTax.
+        IF dTotalTax NE ipbf-ttInvoiceToPost.amountBilledTax THEN DO:
+            FIND FIRST ttInvoiceTaxDetail
+                WHERE ttInvoiceTaxDetail.riInvHead EQ ipbf-ttInvoiceToPost.riInvHead
+                AND NOT ttInvoiceTaxDetail.isFreight
+                NO-ERROR.
+            IF AVAILABLE ttInvoiceTaxDetail THEN 
+                ttInvoiceTaxDetail.taxCodeTaxAmount = ttInvoiceTaxDetail.taxCodeTaxAmount + ipbf-ttInvoiceToPost.amountBilledTax - dTotalTax . 
+        END.
+    END. /*Billable tax and tax group is not blank*/
+    
+END PROCEDURE.
+
 PROCEDURE pInitialize PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Initializes the post
@@ -2185,6 +2285,7 @@ PROCEDURE pInitialize PRIVATE:
     EMPTY TEMP-TABLE ttException.
     EMPTY TEMP-TABLE ttBOLLineToUpdate.
     EMPTY TEMP-TABLE rpt.
+    EMPTY TEMP-TABLE ttInvoiceTaxDetail.
     EMPTY TEMP-TABLE ttInvoiceError.
     
     CREATE ttPostingMaster.
@@ -2809,7 +2910,7 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
             RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "FREIGHT", ttInvoiceToPost.accountARFreight, - ttInvoiceToPost.amountBilledFreight, "").
 
         IF ttInvoiceToPost.amountBilledTax NE 0 THEN 
-            RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "TAX", ttInvoiceToPost.accountARSalesTax, - ttInvoiceToPost.amountBilledTax, "").
+            RUN pAddGLTransactionsForTax(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost).
         
         IF ttInvoiceToPost.isCashTerms AND ttInvoiceToPost.amountBilled NE 0 THEN 
             RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "CASH", ttInvoiceToPost.accountARCash, ttInvoiceToPost.amountBilled, "").
