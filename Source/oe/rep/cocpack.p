@@ -44,8 +44,9 @@ DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdFileSysProcs  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iOrderTotal     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iShippedTotal   AS INTEGER   NO-UNDO.
-DEFINE VARIABLE iPurchaseOrder  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cCustomerPo     AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE iLineCount      AS INTEGER   NO-UNDO.
+DEFINE BUFFER bf-oe-boll FOR oe-boll .
 
 
 {sa/sa-sls01.i}
@@ -107,7 +108,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         oe-ordl.line    EQ oe-boll.line
         NO-LOCK NO-ERROR.    
           
-    iPurchaseOrder = IF AVAILABLE oe-ordl THEN oe-ordl.po-no-po ELSE 0.  
+    cCustomerPo = oe-boll.po-no .  
           
     RUN oe/custxship.p (oe-bolh.company,
         oe-bolh.cust-no,
@@ -158,7 +159,11 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         oe-ordl.i-no    EQ oe-boll.i-no AND
         oe-ordl.line    EQ oe-boll.line
         NO-LOCK NO-ERROR.
-    iPurchaseOrder = IF AVAILABLE oe-ordl THEN oe-ordl.po-no-po ELSE 0.     
+     FIND FIRST bf-oe-boll NO-LOCK
+          WHERE bf-oe-boll.company EQ oe-boll.company
+          AND bf-oe-boll.b-no EQ oe-boll.b-no 
+          AND bf-oe-boll.po-no NE "" NO-ERROR .
+    cCustomerPo = IF AVAILABLE bf-oe-boll THEN bf-oe-boll.po-no ELSE "".     
 
     RUN oe/custxship.p (oe-bolh.company,
         oe-bolh.cust-no,
