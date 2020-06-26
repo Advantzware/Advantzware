@@ -1074,7 +1074,13 @@ PROCEDURE local-update-record :
   RUN set-panel (0).
 
   IF lNewRecord THEN DO:
-      RUN viewers/dVendCostLevel.w(ROWID(vendItemCost),lv-rowid,"Create",OUTPUT rdRowidLevel) .
+      RUN viewers/dVendCostLevel.w(
+          INPUT ROWID(vendItemCost),
+          INPUT lv-rowid,
+          INPUT "Create",
+          INPUT NO, /* Do not Change quantityFrom */
+          OUTPUT rdRowidLevel
+          ) .
       RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
       IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
             RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost), rdRowidLevel).

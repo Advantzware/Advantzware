@@ -98,9 +98,13 @@ DEFINE VARIABLE ll-filterFlag      AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE ll-ttLoaded        AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE ll-useMatches      AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE ll-continue        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lRowSelectable     AS LOGICAL   NO-UNDO EXTENT 1000 INITIAL YES.
 DEFINE VARIABLE rDynValueColumn    AS ROWID     NO-UNDO EXTENT 1000.
 DEFINE VARIABLE hCalcColumn        AS HANDLE    NO-UNDO EXTENT 1000.
+DEFINE VARIABLE hColumn            AS HANDLE    NO-UNDO EXTENT 1000.
 DEFINE VARIABLE hDynCalcField      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hStatusField       AS HANDLE    NO-UNDO EXTENT 1000.
+DEFINE VARIABLE iRowCount          AS INTEGER   NO-UNDO.
 
 RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
 
@@ -367,6 +371,50 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-table Dialog-Frame
+ON ROW-DISPLAY OF br-table IN FRAME Dialog-Frame
+DO:
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+    DEFINE VARIABLE jdx AS INTEGER NO-UNDO.
+
+    iRowCount = iRowCount + 1.
+    /* if a status field, run status field comparison */
+    DO idx = 1 TO h_brbuffer:NUM-FIELDS:
+        IF VALID-HANDLE(hStatusField[idx]) THEN DO:
+            FIND FIRST dynValueColumn NO-LOCK
+                 WHERE ROWID(dynValueColumn) EQ rDynValueColumn[idx]
+                 NO-ERROR.
+            IF NOT AVAILABLE dynValueColumn THEN NEXT.
+            IF dynValueColumn.isStatusField AND
+               dynValueColumn.textColor NE dynValueColumn.cellColor AND
+               DYNAMIC-FUNCTION("fDynStatusField" IN hDynCalcField,
+                   h_brquery:HANDLE,
+                   h_brbuffer:NAME + "." + ENTRY(2,dynValueColumn.colName,"."),
+                   dynValueColumn.statusCompare,
+                   dynValueColumn.compareValue) THEN DO:
+                lRowSelectable[iRowCount] = INDEX(dynValueColumn.statusAction,"Unselectable") EQ 0.
+                IF dynValueColumn.statusAction BEGINS "Row" THEN
+                DO jdx = 1 TO h_brbuffer:NUM-FIELDS:
+                    IF VALID-HANDLE(hColumn[jdx]) THEN
+                    ASSIGN
+                        hColumn[jdx]:FGCOLOR = dynValueColumn.textColor
+                        hColumn[jdx]:BGCOLOR = dynValueColumn.cellColor
+                        .
+                END. /* else */
+                ELSE IF dynValueColumn.statusAction BEGINS "Cell" THEN
+                ASSIGN
+                    hStatusField[dynValueColumn.sortOrder]:FGCOLOR = dynValueColumn.textColor
+                    hStatusField[dynValueColumn.sortOrder]:BGCOLOR = dynValueColumn.cellColor
+                    .
+            END. /* if fDynStatusField */
+        END. /* if valid-handle */
+    END. /* do idx */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-table Dialog-Frame
 ON START-SEARCH OF br-table IN FRAME Dialog-Frame
 DO:
    IF INDEX(ip-sortList, h_browser:CURRENT-COLUMN:NAME) > 0 THEN DO:
@@ -446,21 +494,29 @@ DO:
     DEFINE VARIABLE h_lfield AS HANDLE NO-UNDO.
     
     IF h_browser:NUM-SELECTED-ROWS GT 0 AND h_brBuffer:AVAILABLE THEN DO:
-       DO li-count = 1 TO NUM-ENTRIES(ip-outList):
-           ASSIGN
-               h_lfield        = h_brbuffer:BUFFER-FIELD(ENTRY(li-count,ip-outList)):HANDLE
-               op-returnFields = op-returnFields + h_lfield:NAME + "|"
-                               + (IF h_lfield:DATA-TYPE EQ "DATE" THEN
-                                     (IF h_lfield:BUFFER-VALUE EQ ? THEN "" 
-                                      ELSE h_lfield:BUFFER-VALUE)
-                                  ELSE h_lfield:BUFFER-VALUE)
-                               + "|"
-                               .
-       END.
-       ASSIGN
-          op-lookupField = h_brbuffer:BUFFER-FIELD(ip-lookupField):BUFFER-VALUE
-          op-recVal      = h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE
-          .
+        IF lRowSelectable[h_browser:FOCUSED-ROW] THEN DO:
+            DO li-count = 1 TO NUM-ENTRIES(ip-outList):
+                ASSIGN
+                    h_lfield        = h_brbuffer:BUFFER-FIELD(ENTRY(li-count,ip-outList)):HANDLE
+                    op-returnFields = op-returnFields + h_lfield:NAME + "|"
+                                    + (IF h_lfield:DATA-TYPE EQ "DATE" THEN
+                                          (IF h_lfield:BUFFER-VALUE EQ ? THEN "" 
+                                           ELSE h_lfield:BUFFER-VALUE)
+                                       ELSE h_lfield:BUFFER-VALUE)
+                                    + "|"
+                                    .
+            END.
+            ASSIGN
+                op-lookupField = h_brbuffer:BUFFER-FIELD(ip-lookupField):BUFFER-VALUE
+                op-recVal      = h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE
+                .
+        END. /* if lrowselectable */
+        ELSE DO:
+            MESSAGE
+                "Selection of this Record is not allowed"
+            VIEW-AS ALERT-BOX.
+            RETURN NO-APPLY.
+        END. /* else */
     END.  
 END.
 
@@ -574,6 +630,7 @@ PROCEDURE addBrowseCols :
             h_colHandle:WIDTH-CHARS EQ ?) THEN
         h_colHandle:WIDTH-CHARS = 20.           
         IF ip-SubjectID NE 0 THEN DO:
+            hColumn[li-count] = h_colHandle.
             FIND FIRST dynValueColumn NO-LOCK
                  WHERE dynValueColumn.subjectID    EQ ip-subjectID
                    AND dynValueColumn.user-id      EQ ip-userID
@@ -585,6 +642,18 @@ PROCEDURE addBrowseCols :
             IF AVAILABLE dynValueColumn THEN
             ASSIGN
                 hCalcColumn[li-count]     = h_colHandle
+                rDynValueColumn[li-count] = ROWID(dynValueColumn)
+                .
+            FIND FIRST dynValueColumn NO-LOCK
+                 WHERE dynValueColumn.subjectID     EQ ip-subjectID
+                   AND dynValueColumn.user-id       EQ ip-userID
+                   AND dynValueColumn.paramValueID  EQ ip-paramValueID
+                   AND dynValueColumn.isStatusField EQ YES
+                   AND LOOKUP(h_colHandle:NAME,dynValueColumn.colName,".") EQ 2
+                 NO-ERROR.
+            IF AVAILABLE dynValueColumn THEN
+            ASSIGN
+                hStatusField[li-count]    = h_colHandle
                 rDynValueColumn[li-count] = ROWID(dynValueColumn)
                 .
         END. /* if ne 0 */
@@ -655,7 +724,6 @@ PROCEDURE addFilterObjects :
                            
                        h_calendar:LOAD-IMAGE-UP("Graphics/16x16/calendar.bmp").          
                    END.
-                   
                 END.
                 ELSE IF h_field:DATA-TYPE = "LOGICAL" THEN DO:
                    CREATE COMBO-BOX h_combobox
@@ -789,7 +857,7 @@ PROCEDURE buildTempTable :
                 ELSE 
                 ls-allData = ls-allData + STRING(h_field:BUFFER-VALUE) + "|".
             END.
-/*            RUN pCalcFields (h_ttbuffer).*/
+/*            RUN pCalcFields (h_brtt, h_ttbuffer).*/
         END.        
         ASSIGN
             h_ttbuffer:BUFFER-FIELD("allData"):BUFFER-VALUE = ls-allData
@@ -1039,6 +1107,8 @@ PROCEDURE nextPage :
     ASSIGN
         li-pageCount    = li-pageCount + 1
         li-pageRecCount = li-maxBrRows
+        iRowCount       = 0
+        lRowSelectable  = YES
         .    
     bt-next:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE.   
     DO li-count = 1 TO li-maxBrRows:
@@ -1052,7 +1122,7 @@ PROCEDURE nextPage :
         h_brbuffer:BUFFER-CREATE().
         h_brbuffer:BUFFER-COPY(h_ipbuffer).
 
-        RUN pCalcFields (h_brbuffer).
+        RUN pCalcFields (h_brquery, h_brbuffer).
     
         IF ll-filterOpen THEN
         h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE = h_ipbuffer:RECID.               
@@ -1117,6 +1187,7 @@ PROCEDURE pCalcFields :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphQuery  AS HANDLE NO-UNDO.
     DEFINE INPUT PARAMETER iphBuffer AS HANDLE NO-UNDO.
     
     DEFINE VARIABLE cBufferValue AS CHARACTER NO-UNDO.
@@ -1125,23 +1196,22 @@ PROCEDURE pCalcFields :
     DEFINE VARIABLE jdx          AS INTEGER   NO-UNDO.
 
     DO idx = 1 TO h_brbuffer:NUM-FIELDS:
+        /* if a calculated field, run calculation */
         IF VALID-HANDLE(hCalcColumn[idx]) THEN DO:
             FIND FIRST dynValueColumn NO-LOCK
                  WHERE ROWID(dynValueColumn) EQ rDynValueColumn[idx]
                  NO-ERROR.
             IF NOT AVAILABLE dynValueColumn THEN NEXT.
-/*            cCalcParam = dynValueColumn.calcParam.*/
             DO jdx = 1 TO NUM-ENTRIES(dynValueColumn.calcParam,"|"):
                 cCalcParam[1] = ENTRY(jdx,dynValueColumn.calcParam,"|").
                 IF NUM-ENTRIES(cCalcParam[1],".") GT 1 THEN
                 cCalcParam[2] = cCalcParam[2] + h_brbuffer:NAME + "." + ENTRY(2,cCalcParam[1],".") + "|".
                 ELSE
                 cCalcParam[2] = cCalcParam[2] + cCalcParam[1] + "|".
-/*                ENTRY(jdx,cCalcParam,"|") = REPLACE(ENTRY(jdx,cCalcParam,"|"),ENTRY(1,ENTRY(jdx,cCalcParam,"|"),"."),h_brbuffer:NAME).*/
             END.
             cCalcParam[2] = TRIM(cCalcParam[2],"|").
             RUN spDynCalcField IN hDynCalcField (
-                h_brquery:HANDLE,
+                iphQuery:HANDLE,
                 dynValueColumn.calcProc,
                 cCalcParam[2],
                 dynValueColumn.dataType,
@@ -1149,8 +1219,8 @@ PROCEDURE pCalcFields :
                 OUTPUT cBufferValue
                 ).
             iphBuffer:BUFFER-FIELD(dynValueColumn.colName):BUFFER-VALUE = cBufferValue.
-        END.
-    END.
+        END. /* if valid-handle */
+    END. /* do idx */
 
 END PROCEDURE.
 
@@ -1169,6 +1239,10 @@ PROCEDURE prevPage :
         
     h_brbuffer:EMPTY-TEMP-TABLE().
     
+    ASSIGN
+        iRowCount      = 0
+        lRowSelectable = YES
+        .
     h_ipquery:REPOSITION-BACKWARD ((li-maxBrRows * 2) - li-pageRecCount).
     DO li-count = 1 TO li-maxBrRows:
         h_ipquery:GET-NEXT().
@@ -1177,7 +1251,7 @@ PROCEDURE prevPage :
         h_brbuffer:BUFFER-CREATE().
         h_brbuffer:BUFFER-COPY(h_ipbuffer).  
 
-        RUN pCalcFields (h_brbuffer).
+        RUN pCalcFields (h_brquery, h_brbuffer).
 
         IF ll-filterOpen THEN
         h_brbuffer:BUFFER-FIELD("recid"):BUFFER-VALUE = h_ipbuffer:RECID.             
@@ -1241,8 +1315,7 @@ PROCEDURE resizeFilterFrame :
             ll-filterFlag = TRUE.
             RUN addFilterObjects.
         END.
-        
-   END.
+    END.
     ELSE DO:
         ASSIGN
             h_filterFrame:BGCOLOR        = ?

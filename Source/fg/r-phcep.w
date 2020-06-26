@@ -415,6 +415,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
+  
+  FOR EACH work-job:
+      DELETE work-job.
+  END.
+  
   DEF VAR lv-post AS LOG NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:

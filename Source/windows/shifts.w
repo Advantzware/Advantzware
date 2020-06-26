@@ -86,7 +86,7 @@ DEFINE VARIABLE h_p-updsav-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_shifts AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_shifts-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_v-sftbrk AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_shift_break AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vi-sifht AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
@@ -405,15 +405,15 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_b-sftbrk ( 8.10 , 18.60 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'touch/v-sftbrk.w':U ,
+             INPUT  'viewers/shift_break.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Initial-Lock = NO-LOCK,
                      Hide-on-Init = no,
                      Disable-on-Init = no,
                      Layout = ,
                      Create-On-Add = Yes':U ,
-             OUTPUT h_v-sftbrk ).
-       RUN set-position IN h_v-sftbrk ( 7.67 , 31.00 ) NO-ERROR.
+             OUTPUT h_shift_break ).
+       RUN set-position IN h_shift_break ( 7.67 , 31.00 ) NO-ERROR.
        /* Size in UIB:  ( 5.71 , 60.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -435,19 +435,19 @@ PROCEDURE adm-create-objects :
        /* Links to SmartBrowser h_b-sftbrk. */
        RUN add-link IN adm-broker-hdl ( h_shifts , 'Record':U , h_b-sftbrk ).
 
-       /* Links to SmartViewer h_v-sftbrk. */
-       RUN add-link IN adm-broker-hdl ( h_b-sftbrk , 'Record':U , h_v-sftbrk ).
-       RUN add-link IN adm-broker-hdl ( h_p-updsav-2 , 'TableIO':U , h_v-sftbrk ).
+       /* Links to SmartViewer h_shift_break. */
+       RUN add-link IN adm-broker-hdl ( h_b-sftbrk , 'Record':U , h_shift_break ).
+       RUN add-link IN adm-broker-hdl ( h_p-updsav-2 , 'TableIO':U , h_shift_break ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_vi-sifht ,
              h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-sftbrk ,
              h_vi-sifht , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_v-sftbrk ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_shift_break ,
              h_b-sftbrk , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav-2 ,
-             h_v-sftbrk , 'AFTER':U ).
+             h_shift_break , 'AFTER':U ).
     END. /* Page 3 */
 
   END CASE.

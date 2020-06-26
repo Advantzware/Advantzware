@@ -6,6 +6,8 @@
 /* break ipcCalcParam apart which is pipe "|" delimited  and */
 /* include output parameter opcCalcValue                     */
 
+/* **********************  Internal Functions  ************************ */
+
 FUNCTION fCalcTime RETURNS INTEGER (ipcTime AS CHARACTER):
     DEFINE VARIABLE iHours   AS INTEGER NO-UNDO.
     DEFINE VARIABLE iMinutes AS INTEGER NO-UNDO.
@@ -18,6 +20,55 @@ FUNCTION fCalcTime RETURNS INTEGER (ipcTime AS CHARACTER):
         .
     RETURN iTime.
 END FUNCTION.
+
+FUNCTION fDynStatusField RETURNS LOGICAL
+    (iphQuery         AS HANDLE,
+     ipcFieldName     AS CHARACTER,
+     ipcStatusCompare AS CHARACTER,
+     ipcCompareValue  AS CHARACTER):
+
+    DEFINE VARIABLE cField  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStr    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTable  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hTable  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iExtent AS INTEGER   NO-UNDO.
+
+    ASSIGN
+        cTable  = ENTRY(1,ipcFieldName,".")
+        cField  = ENTRY(2,ipcFieldName,".")
+        iExtent = 0
+        .
+    IF INDEX(cField,"[") NE 0 THEN
+    ASSIGN
+        cStr    = SUBSTRING(cField,INDEX(cField,"[") + 1)
+        cStr    = REPLACE(cStr,"]","")
+        iExtent = INTEGER(cStr)
+        cField  = SUBSTRING(cField,1,INDEX(cField,"[") - 1)
+        .
+    ASSIGN 
+        hTable = iphQuery:GET-BUFFER-HANDLE(cTable)
+        cValue = hTable:BUFFER-FIELD(cField):BUFFER-VALUE(iExtent)
+        .
+    CASE ipcStatusCompare:
+        WHEN "EQ" THEN
+        RETURN cValue EQ ipcCompareValue.
+        WHEN "NE" THEN
+        RETURN cValue NE ipcCompareValue.
+        WHEN "LT" THEN
+        RETURN cValue LT ipcCompareValue.
+        WHEN "LE" THEN
+        RETURN cValue LE ipcCompareValue.
+        WHEN "GT" THEN
+        RETURN cValue GT ipcCompareValue.
+        WHEN "GE" THEN
+        RETURN cValue GE ipcCompareValue.
+        WHEN "BEGINS" THEN
+        RETURN cValue BEGINS ipcCompareValue.
+    END CASE.
+END FUNCTION.
+
+/* **********************  Internal Procedures  *********************** */
 
 PROCEDURE calcAPIType:
     DEFINE INPUT  PARAMETER ipiAPIOutboundID AS INTEGER   NO-UNDO.    

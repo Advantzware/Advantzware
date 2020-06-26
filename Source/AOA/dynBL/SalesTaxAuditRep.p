@@ -11,7 +11,7 @@
 
 &Scoped-define ttTempTable ttSalesTaxAuditRep
 DEFINE TEMP-TABLE ttSalesTaxAuditRep NO-UNDO
-    FIELD cust-no        AS CHARACTER FORMAT "x(8)"       LABEL "Cuatomer Code"
+    FIELD cust-no        AS CHARACTER FORMAT "x(8)"       LABEL "Customer Code"
     FIELD cust-name      AS CHARACTER FORMAT "x(30)"      LABEL "Customer Name"
     FIELD cust-city      AS CHARACTER FORMAT "x(15)"      LABEL "Customer City"
     FIELD cust-state     AS CHARACTER FORMAT "x(2)"       LABEL "Customer State"
@@ -69,12 +69,12 @@ PROCEDURE pBusinessLogic:
                 CREATE ttSalesTaxAuditRep.
                 ASSIGN
                     ttSalesTaxAuditRep.cust-no      = cust.cust-no
-                    ttSalesTaxAuditRep.cust-name    = cust.cust-no
+                    ttSalesTaxAuditRep.cust-name    = cust.name
                     ttSalesTaxAuditRep.cust-city    = cust.city
                     ttSalesTaxAuditRep.cust-state   = cust.state
                     ttSalesTaxAuditRep.cust-zip     = cust.zip
                     ttSalesTaxAuditRep.cust-taxcode = cust.tax-gr
-                    ttSalesTaxAuditRep.cust-taxable = cust.SORT
+                    ttSalesTaxAuditRep.cust-taxable = cust.sort
                     ttSalesTaxAuditRep.ship-id      = shipto.ship-id
                     ttSalesTaxAuditRep.ship-name    = shipto.ship-name
                     ttSalesTaxAuditRep.ship-city    = shipto.ship-city
@@ -101,19 +101,19 @@ PROCEDURE pBusinessLogic:
               AND itemfg.i-no    GE cStartFGItem
               AND itemfg.i-no    LE cEndFGItem
               AND (itemfg.stat   EQ "A"
-               OR cFGItemStatus EQ "2")
+               OR  cFGItemStatus EQ "2")
             :
             CREATE ttSalesTaxAuditRep.
             ASSIGN
                 ttSalesTaxAuditRep.cust-no        = cust.cust-no
-                ttSalesTaxAuditRep.cust-name      = cust.cust-no
+                ttSalesTaxAuditRep.cust-name      = cust.name
                 ttSalesTaxAuditRep.cust-city      = cust.city
                 ttSalesTaxAuditRep.cust-state     = cust.state
                 ttSalesTaxAuditRep.cust-zip       = cust.zip
                 ttSalesTaxAuditRep.cust-taxcode   = cust.tax-gr
-                ttSalesTaxAuditRep.cust-taxable   = cust.SORT
+                ttSalesTaxAuditRep.cust-taxable   = cust.sort
                 ttSalesTaxAuditRep.tax-Resale     = cust.tax-id
-                ttSalesTaxAuditRep.resale-date    = DATE(cust.char-field[1])
+                ttSalesTaxAuditRep.resale-date    = cust.date-field[2]
                 ttSalesTaxAuditRep.fgitem         = itemfg.i-no
                 ttSalesTaxAuditRep.fgdesc         = itemfg.i-dscr
                 ttSalesTaxAuditRep.fgitem-cust    = itemfg.cust-no
@@ -124,8 +124,8 @@ PROCEDURE pBusinessLogic:
         FOR EACH prep NO-LOCK
             WHERE prep.company EQ cCompany
               AND prep.cust-no EQ cust.cust-no
-              AND prep.CODE    GE cStartPrepNo
-              AND prep.CODE    LE cEndPrepNo
+              AND prep.code    GE cStartPrepNo
+              AND prep.code    LE cEndPrepNo
             :
             CREATE ttSalesTaxAuditRep.
             ASSIGN
@@ -135,9 +135,9 @@ PROCEDURE pBusinessLogic:
                 ttSalesTaxAuditRep.cust-state   = cust.state
                 ttSalesTaxAuditRep.cust-zip     = cust.zip
                 ttSalesTaxAuditRep.cust-taxcode = cust.tax-gr
-                ttSalesTaxAuditRep.cust-taxable = cust.SORT
+                ttSalesTaxAuditRep.cust-taxable = cust.sort
                 ttSalesTaxAuditRep.tax-Resale   = cust.tax-id
-                ttSalesTaxAuditRep.resale-date  = DATE(cust.date-field[1])
+                ttSalesTaxAuditRep.resale-date  = cust.date-field[2]
                 ttSalesTaxAuditRep.prepitem     = prep.i-no
                 ttSalesTaxAuditRep.prep-desc    = prep.dscr
                 ttSalesTaxAuditRep.prep-cust    = prep.cust-no
