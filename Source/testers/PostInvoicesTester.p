@@ -30,7 +30,7 @@ DEFINE TEMP-TABLE ttGLTrans LIKE gltrans
     USE-INDEX rec_key AS PRIMARY.
 
 DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO INITIAL '001'.
-DEFINE VARIABLE iInvStart           AS INTEGER   NO-UNDO INITIAL 1000054.
+DEFINE VARIABLE iInvStart           AS INTEGER   NO-UNDO INITIAL 0.
 DEFINE VARIABLE iInvEnd             AS INTEGER   NO-UNDO INITIAL 1000999.
 DEFINE VARIABLE dtStart             AS DATE      NO-UNDO INITIAL 1/1/2018.
 DEFINE VARIABLE dtEnd               AS DATE      NO-UNDO INITIAL 12/31/2020.
@@ -39,6 +39,7 @@ DEFINE VARIABLE cCustEnd            AS CHARACTER NO-UNDO INITIAL 'ZZZZZZ'.
 DEFINE VARIABLE dtPost              AS DATE      NO-UNDO INITIAL TODAY.
 DEFINE VARIABLE lPost               AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE lRunLegacyFilesOnly AS LOGICAL   NO-UNDO INITIAL NO.
+DEFINE VARIABLE lValidateOnly       AS LOGICAL   NO-UNDO INITIAL YES.
 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -55,7 +56,7 @@ IF AVAILABLE sys-ctrl THEN sys-ctrl.char-fld = "C:\Temp\Export\".
 IF lRunLegacyFilesOnly THEN 
     RUN pBuildCompareFiles("Standard").    
 ELSE 
-    RUN pBuildAndDisplay.
+    RUN pBuildAndDisplay(lValidateOnly).
 
 
 
@@ -66,7 +67,7 @@ PROCEDURE pBuildAndDisplay PRIVATE:
      Purpose:  Just process the invoices and export all related temp-tables for review
      Notes:
     ------------------------------------------------------------------------------*/
-    
+    DEFINE INPUT PARAMETER iplValidateOnly AS LOGICAL NO-UNDO.
 
     DEFINE VARIABLE lError     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
@@ -108,14 +109,23 @@ PROCEDURE pBuildAndDisplay PRIVATE:
 //        DISPLAY inv-head.inv-no FORMAT ">>>>>>>9" inv-head.t-inv-rev inv-head.t-inv-freight inv-head.t-inv-tax.
     END.
     iTimer = TIME.    
-    RUN PostInvoices(cCompany,
-        iInvStart, iInvEnd,
-        dtStart, dtEnd,
-        cCustStart, cCustEnd,
-        dtPost,
-        cOptions,
-        OUTPUT iProcessed, OUTPUT iValid, OUTPUT iPosted,
-        OUTPUT lError, OUTPUT cMessage).
+    IF iplValidateOnly THEN
+        RUN ValidateInvoices(cCompany,
+            iInvStart, iInvEnd,
+            dtStart, dtEnd,
+            cCustStart, cCustEnd,
+            dtPost,
+            OUTPUT iProcessed, OUTPUT iValid, OUTPUT iPosted,
+            OUTPUT lError, OUTPUT cMessage). 
+    ELSE 
+        RUN PostInvoices(cCompany,
+            iInvStart, iInvEnd,
+            dtStart, dtEnd,
+            cCustStart, cCustEnd,
+            dtPost,
+            cOptions,
+            OUTPUT iProcessed, OUTPUT iValid, OUTPUT iPosted,
+            OUTPUT lError, OUTPUT cMessage).
 
     MESSAGE  "Should be processed = " iCount SKIP
         "Processed = " iProcessed SKIP 

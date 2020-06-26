@@ -83,16 +83,17 @@ inv-head.carrier inv-head.frt-pay inv-head.fob-code inv-head.t-inv-weight ~
 inv-head.t-inv-freight inv-head.t-comm 
 &Scoped-define ENABLED-TABLES inv-head
 &Scoped-define FIRST-ENABLED-TABLE inv-head
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-41 btnCalendar-1 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-41 imgHoldRsn btnCalendar-1 
 &Scoped-Define DISPLAYED-FIELDS inv-head.printed inv-head.inv-no ~
 inv-head.inv-date inv-head.bol-no inv-head.r-no inv-head.cust-no ~
-inv-head.sold-no inv-head.cust-name inv-head.sold-name inv-head.addr[1] ~
-inv-head.sold-addr[1] inv-head.addr[2] inv-head.sold-addr[2] inv-head.city ~
-inv-head.state inv-head.zip inv-head.sold-city inv-head.sold-state ~
-inv-head.sold-zip inv-head.contact inv-head.tax-gr inv-head.terms ~
-inv-head.terms-d inv-head.carrier inv-head.frt-pay inv-head.fob-code ~
-inv-head.t-inv-weight inv-head.t-inv-tax inv-head.t-inv-freight ~
-inv-head.t-inv-rev inv-head.t-comm inv-head.t-inv-cost 
+inv-head.sold-no inv-head.cust-name inv-head.sold-name ~
+inv-head.autoApproved inv-head.addr[1] inv-head.sold-addr[1] ~
+inv-head.addr[2] inv-head.sold-addr[2] inv-head.city inv-head.state ~
+inv-head.zip inv-head.sold-city inv-head.sold-state inv-head.sold-zip ~
+inv-head.contact inv-head.tax-gr inv-head.terms inv-head.terms-d ~
+inv-head.carrier inv-head.frt-pay inv-head.fob-code inv-head.t-inv-weight ~
+inv-head.t-inv-tax inv-head.t-inv-freight inv-head.t-inv-rev ~
+inv-head.t-comm inv-head.t-inv-cost 
 &Scoped-define DISPLAYED-TABLES inv-head
 &Scoped-define FIRST-DISPLAYED-TABLE inv-head
 &Scoped-Define DISPLAYED-OBJECTS inv-status fi_PO 
@@ -169,6 +170,10 @@ DEFINE VARIABLE inv-status AS CHARACTER FORMAT "X(8)":U
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
+DEFINE IMAGE imgHoldRsn
+     FILENAME "graphics/16x16/question.png":U
+     SIZE 4 BY .95.
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 144 BY 16.43.
@@ -202,72 +207,72 @@ DEFINE FRAME F-Main
           LABEL "Seq"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY .95
-     inv-head.cust-no AT ROW 3.38 COL 16 COLON-ALIGNED
+     inv-head.cust-no AT ROW 3.38 COL 14.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     inv-head.sold-no AT ROW 3.38 COL 83 COLON-ALIGNED
+     inv-head.sold-no AT ROW 3.38 COL 74.2 COLON-ALIGNED
           LABEL "Ship to"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     inv-head.cust-name AT ROW 4.33 COL 16 COLON-ALIGNED NO-LABEL
+     inv-head.cust-name AT ROW 4.33 COL 14.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 49 BY 1
-     inv-head.sold-name AT ROW 4.33 COL 83 COLON-ALIGNED NO-LABEL
+     inv-head.sold-name AT ROW 4.33 COL 74.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 41.8 BY 1
+     inv-head.autoApproved AT ROW 4.33 COL 118.6
+          VIEW-AS TOGGLE-BOX
+          SIZE 20 BY 1
+     inv-head.addr[1] AT ROW 5.29 COL 14.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 49 BY 1
-     inv-head.addr[1] AT ROW 5.29 COL 16 COLON-ALIGNED NO-LABEL
+     inv-head.sold-addr[1] AT ROW 5.29 COL 74.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 48.8 BY 1
+     inv-head.addr[2] AT ROW 6.24 COL 14.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 49 BY 1
-     inv-head.sold-addr[1] AT ROW 5.29 COL 83 COLON-ALIGNED NO-LABEL
+     inv-head.sold-addr[2] AT ROW 6.24 COL 74.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 49 BY 1
-     inv-head.addr[2] AT ROW 6.24 COL 16 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 49 BY 1
-     inv-head.sold-addr[2] AT ROW 6.24 COL 83 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 49 BY 1
-     inv-head.city AT ROW 7.19 COL 16 COLON-ALIGNED NO-LABEL
+     inv-head.city AT ROW 7.19 COL 14.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
-     inv-head.state AT ROW 7.19 COL 41 COLON-ALIGNED NO-LABEL
+     inv-head.state AT ROW 7.19 COL 39.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
-     inv-head.zip AT ROW 7.19 COL 47 COLON-ALIGNED NO-LABEL
+     inv-head.zip AT ROW 7.19 COL 45.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     inv-head.sold-city AT ROW 7.19 COL 83 COLON-ALIGNED NO-LABEL
+     inv-head.sold-city AT ROW 7.19 COL 74.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
-     inv-head.sold-state AT ROW 7.19 COL 108 COLON-ALIGNED NO-LABEL
+     inv-head.sold-state AT ROW 7.19 COL 99.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
-     inv-head.sold-zip AT ROW 7.19 COL 114 COLON-ALIGNED NO-LABEL
+     inv-head.sold-zip AT ROW 7.19 COL 105.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     inv-head.contact AT ROW 8.14 COL 16 COLON-ALIGNED WIDGET-ID 2
+     inv-head.contact AT ROW 8.14 COL 14.6 COLON-ALIGNED WIDGET-ID 2
           LABEL "Contact"
           VIEW-AS FILL-IN 
           SIZE 49 BY 1
-     inv-head.tax-gr AT ROW 9.33 COL 27 COLON-ALIGNED
+     inv-head.tax-gr AT ROW 9.33 COL 25.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
      fi_PO AT ROW 9.33 COL 113 COLON-ALIGNED WIDGET-ID 4
-     inv-head.terms AT ROW 10.29 COL 27 COLON-ALIGNED
+     inv-head.terms AT ROW 10.29 COL 25.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     inv-head.terms-d AT ROW 10.29 COL 37 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     inv-head.terms-d AT ROW 10.29 COL 35.6 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 44 BY 1
      inv-head.carrier AT ROW 10.29 COL 113 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     inv-head.frt-pay AT ROW 11.24 COL 27 COLON-ALIGNED
+     inv-head.frt-pay AT ROW 11.24 COL 25.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
-     inv-head.fob-code AT ROW 11.24 COL 113 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 10 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -275,6 +280,9 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     inv-head.fob-code AT ROW 11.24 COL 113 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 10 BY 1
      inv-head.t-inv-weight AT ROW 13.38 COL 41 COLON-ALIGNED
           LABEL "Total Weight"
           VIEW-AS FILL-IN 
@@ -300,6 +308,7 @@ DEFINE FRAME F-Main
           FGCOLOR 9 
      RECT-1 AT ROW 1.19 COL 1
      RECT-41 AT ROW 12.43 COL 9
+     imgHoldRsn AT ROW 4.48 COL 139.2 WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -366,6 +375,8 @@ ASSIGN
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN inv-head.addr[2] IN FRAME F-Main
    NO-ENABLE 2                                                          */
+/* SETTINGS FOR TOGGLE-BOX inv-head.autoApproved IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN inv-head.bol-no IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
@@ -587,6 +598,17 @@ DO:
    IF LASTKEY = -1  THEN RETURN.
    RUN valid-fob NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME imgHoldRsn
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imgHoldRsn V-table-Win
+ON MOUSE-SELECT-CLICK OF imgHoldRsn IN FRAME F-Main
+DO:
+    RUN sys/ref/dlgTagVwr.w (inv-head.rec_key,"","").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1639,6 +1661,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInvHead V-table-Win 
+PROCEDURE pGetInvHead :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplCheckData AS LOGICAL NO-UNDO .
+  IF AVAIL inv-head THEN
+  ASSIGN oplCheckData = TRUE .
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE refresh-value V-table-Win 
 PROCEDURE refresh-value :
 /*------------------------------------------------------------------------------
@@ -2025,21 +2063,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInvHead V-table-Win 
-PROCEDURE pGetInvHead :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER oplCheckData AS LOGICAL NO-UNDO .
-  IF AVAIL inv-head THEN
-  ASSIGN oplCheckData = TRUE .
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
 

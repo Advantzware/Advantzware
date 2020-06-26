@@ -865,7 +865,7 @@ DO:
                         begin_cust,
                         end_cust,
                         DATE(tran-date),
-                        "export,post",
+                        "export,post",                        
                         OUTPUT iProcessed,
                         OUTPUT iValid,
                         OUTPUT iPosted,
@@ -2130,7 +2130,7 @@ PROCEDURE list-gl :
 
         v-balance = v-balance + v-post-total.   
         IF v-gldetail THEN
-            PUT dTotOffSet TO 128 SKIP 
+            PUT dTotOffSet FORMAT "->>,>>>,>>9.99" TO 126 SKIP 
                 "---------------"  TO 128 SKIP
                 "Total:" AT 86 v-balance TO 128 SKIP.
         ELSE
