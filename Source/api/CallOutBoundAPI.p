@@ -185,7 +185,7 @@ PROCEDURE pReadResponse PRIVATE:
     Notes:
     ------------------------------------------------------------------------------*/
     
-    DEFINE INPUT  PARAMETER iplcReponseData     AS LONGCHAR  NO-UNDO.
+    DEFINE INPUT  PARAMETER iplcResponseData    AS LONGCHAR  NO-UNDO.
     DEFINE INPUT  PARAMETER ipcReponseDataType  AS CHARACTER  NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
@@ -207,15 +207,11 @@ PROCEDURE pReadResponse PRIVATE:
                 opcMessage  = "Could not get any response"
                 .
             
-            IF iplcReponseData EQ "" THEN
-                RETURN.
-
-            lRetValue = hdttJSON:READ-JSON(cSourceType, iplcReponseData, cReadMode) NO-ERROR.
-            IF NOT lRetValue THEN
+            IF iplcResponseData EQ "" THEN
                 RETURN.
 
             RUN VALUE(gcResponseHandler) (
-                hdttJSON,
+                INPUT  iplcResponseData,
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage
                 ).  
@@ -224,7 +220,7 @@ PROCEDURE pReadResponse PRIVATE:
         WHEN "XML" THEN DO:
             /* XML processing goes here */
             RUN VALUE(gcResponseHandler) (
-                INPUT  iplcReponseData,
+                INPUT  iplcResponseData,
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage
                 ).  

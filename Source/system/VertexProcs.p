@@ -46,7 +46,7 @@ oModelParser = NEW ObjectModelParser().
 
 PROCEDURE pCallOutboundAPI PRIVATE:
 /*------------------------------------------------------------------------------
- Purpose:
+ Purpose: Procedure to call the Outbound API
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
@@ -97,7 +97,7 @@ END PROCEDURE.
 
 PROCEDURE pUpdateAccessToken PRIVATE:
 /*------------------------------------------------------------------------------
- Purpose:
+ Purpose: Updates the access token in sys-ctrl and Outbound API 
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
@@ -235,8 +235,8 @@ END PROCEDURE.
 
 PROCEDURE pGetClientID PRIVATE:
 /*------------------------------------------------------------------------------
- Purpose:
- Notes:
+ Purpose: Returns the client ID from sys-ctrl 
+ Notes: 
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcClientID AS CHARACTER NO-UNDO.
@@ -258,7 +258,7 @@ END PROCEDURE.
 
 PROCEDURE pGetClientSecret PRIVATE:
 /*------------------------------------------------------------------------------
- Purpose:
+ Purpose: Returns the client secret from sys-ctrl
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
@@ -281,7 +281,7 @@ END PROCEDURE.
 
 PROCEDURE pGetAPIKey PRIVATE:
 /*------------------------------------------------------------------------------
- Purpose:
+ Purpose: Returns the api key from sys-ctrl
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
@@ -304,7 +304,7 @@ END PROCEDURE.
 
 PROCEDURE pGetAPIPassword PRIVATE:
 /*------------------------------------------------------------------------------
- Purpose:
+ Purpose: Returns the api password from sys-ctrl
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
@@ -327,7 +327,7 @@ END PROCEDURE.
 
 PROCEDURE pGetTaxAmounts PRIVATE:
 /*------------------------------------------------------------------------------
- Purpose:
+ Purpose: Reads the response and returns the tax amounts 
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER iplcResponseData   AS LONGCHAR  NO-UNDO.
@@ -386,13 +386,17 @@ PROCEDURE Vertex_CalculateTaxForInvHead:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipriInvHead        AS ROWID     NO-UNDO.
     DEFINE INPUT  PARAMETER ipcLocation        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMessageType     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPostToJournal   AS LOGICAL   NO-UNDO.    
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE lcResponseData AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE lcResponseData   AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE cInputListValues AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cInputListKeys   AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-inv-head FOR inv-head.
     DEFINE BUFFER bf-APIOutboundEvent FOR APIOutboundEvent.
@@ -410,6 +414,11 @@ PROCEDURE Vertex_CalculateTaxForInvHead:
         RETURN.
     END.
     
+    ASSIGN
+        cInputListKeys   = "inv-head" + "," + "MessageType" + "," + "PostToJournal"
+        cInputListValues = STRING(ROWID(bf-inv-head)) + "," + "INVOICE" + "," + STRING(iplPostToJournal,"true/false")
+        .
+
     RUN pCallOutboundAPI (
         INPUT  bf-inv-head.company,           /* Company Code (Mandatory) */
         INPUT  ipcLocation,                   /* Location Code (Mandatory) */
@@ -417,8 +426,8 @@ PROCEDURE Vertex_CalculateTaxForInvHead:
         INPUT  bf-inv-head.cust-no,           /* Scope ID */
         INPUT  "Customer",                    /* Scope Type */
         INPUT  "GetTaxAmount",                /* Trigger ID (Mandatory) */
-        INPUT  "inv-head",                    /* Comma separated list of table names for which data being sent (Mandatory) */
-        INPUT  STRING(ROWID(bf-inv-head)),    /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  cInputListKeys,                /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  cInputListValues,              /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
         INPUT  bf-inv-head.inv-no,            /* Primary ID for which API is called for (Mandatory) */   
         INPUT  "Called from Vertex Procs",    /* Event's description (Optional) */
         OUTPUT oplSuccess,
@@ -463,13 +472,17 @@ PROCEDURE Vertex_CalculateTaxForArInv:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipriArInv          AS ROWID     NO-UNDO.
     DEFINE INPUT  PARAMETER ipcLocation        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMessageType     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPostToJournal   AS LOGICAL   NO-UNDO.    
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE lcResponseData AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE lcResponseData   AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE cInputListValues AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cInputListKeys   AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-ar-inv FOR ar-inv.
     DEFINE BUFFER bf-APIOutboundEvent FOR APIOutboundEvent.
@@ -486,6 +499,11 @@ PROCEDURE Vertex_CalculateTaxForArInv:
             .
         RETURN.
     END.
+
+    ASSIGN
+        cInputListKeys   = "ar-inv" + "," + "MessageType" + "," + "PostToJournal"
+        cInputListValues = STRING(ROWID(bf-ar-inv)) + "," + "INVOICE" + "," + STRING(iplPostToJournal,"true/false")
+        .
     
     RUN pCallOutboundAPI (
         INPUT  bf-ar-inv.company,             /* Company Code (Mandatory) */
@@ -494,8 +512,8 @@ PROCEDURE Vertex_CalculateTaxForArInv:
         INPUT  bf-ar-inv.cust-no,             /* Scope ID */
         INPUT  "Customer",                    /* Scope Type */
         INPUT  "GetTaxAmount",                /* Trigger ID (Mandatory) */
-        INPUT  "ar-inv",                      /* Comma separated list of table names for which data being sent (Mandatory) */
-        INPUT  STRING(ROWID(bf-ar-inv)),      /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  cInputListKeys,                /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  cInputListValues,              /* Primary ID for which API is called for (Mandatory) */   
         INPUT  bf-ar-inv.inv-no,              /* Primary ID for which API is called for (Mandatory) */   
         INPUT  "Called from Vertex Procs",    /* Event's description (Optional) */
         OUTPUT oplSuccess,

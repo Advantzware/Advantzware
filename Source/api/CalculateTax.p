@@ -37,10 +37,11 @@ DEFINE VARIABLE lcConcatFlexiNumericData AS LONGCHAR  NO-UNDO.
 DEFINE VARIABLE lcFlexiDateData       AS LONGCHAR  NO-UNDO.
 DEFINE VARIABLE lcConcatFlexiDateData AS LONGCHAR  NO-UNDO.
 
-DEFINE VARIABLE cDocumentNo   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cDocumentDate AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDocumentNo    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDocumentDate  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cMessageType   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPostToJournal AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE cTaxAreaID     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCustClassCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCustomerID    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cShipToAddr1   AS CHARACTER NO-UNDO.
@@ -125,7 +126,37 @@ ELSE DO:
         END.
     END.
 
+    FIND FIRST ttArgs
+         WHERE ttArgs.argType  = "ROWID"
+           AND ttArgs.argKey   = "MessageType"
+         NO-ERROR.
+    IF NOT AVAILABLE ttArgs THEN DO:
+        ASSIGN
+            opcMessage = "No valid message type value passed to handler"
+            oplSuccess = FALSE
+            .
+        RETURN.    
+    END.
     
+    IF ttArgs.argValue NE "QUOTATION" AND ttArgs.argValue NE "INVOICE" THEN DO:
+        ASSIGN
+            opcMessage = "No valid message type value passed to handler. Valid message types are 'QUOTATION' and 'INVOICE'"
+            oplSuccess = FALSE
+            .
+        RETURN.        
+    END.
+    
+    cMessageType = ttArgs.argValue.
+
+    FIND FIRST ttArgs
+         WHERE ttArgs.argType  = "ROWID"
+           AND ttArgs.argKey   = "PostToJournal"
+         NO-ERROR.
+    IF NOT AVAILABLE ttArgs OR (AVAILABLE ttArgs AND ttArgs.argValue NE "TRUE" AND ttArgs.argValue NE "FALSE") THEN        
+        cPostToJournal = "false".
+    ELSE
+        cPostToJournal = ttArgs.argValue.
+        
     FIND FIRST bf-APIOutboundDetail1 NO-LOCK
          WHERE bf-APIOutboundDetail1.apiOutboundID EQ ipiAPIOutboundID
            AND bf-APIOutboundDetail1.detailID      EQ "LineItems"
@@ -152,26 +183,43 @@ ELSE DO:
     
     IF AVAILABLE inv-head THEN DO:
         IF AVAILABLE bf-APIOutboundDetail1 THEN DO:
+            RUN oe/custxship.p (
+                INPUT  inv-head.company,
+                INPUT  inv-head.cust-no,
+                INPUT  inv-head.sold-no,
+                BUFFER shipto
+                ).
+
+            FIND FIRST cust NO-LOCK
+                 WHERE cust.company EQ inv-head.company
+                   AND cust.cust-no EQ inv-head.cust-no
+                 NO-ERROR.                    
+
+            ASSIGN
+                cShipToAddr1    = inv-head.sold-addr[1]
+                cShipToAddr2    = inv-head.sold-addr[2]
+                cShipToCity     = inv-head.sold-city
+                cShipToState    = inv-head.sold-state
+                cShipToZip      = inv-head.sold-zip
+                cShipToCountry  = "" /* Not available in inv-head */
+                cCustomerID     = inv-head.cust-no
+                .
+
             FOR EACH inv-line NO-LOCK 
                 WHERE inv-line.r-no EQ inv-head.r-no:
-                ASSIGN
-                    lcLineItemsData = bf-APIOutboundDetail1.data
-                    cTaxAreaID      = STRING(0)   /* TBD */                       
-                    cShipToAddr1    = inv-head.sold-addr[1]
-                    cShipToAddr2    = inv-head.sold-addr[2]
-                    cShipToCity     = inv-head.sold-city
-                    cShipToState    = inv-head.sold-state
-                    cShipToZip      = inv-head.sold-zip
-                    cShipToCountry  = "" /* Not available in inv-head */
-                    cItemID         = inv-line.i-no
-                    cCustomerID     = inv-head.cust-no
-                    cItemQuantity   = STRING(inv-line.inv-qty, "->>>>>>>9.9<<")
-                    cItemPrice      = STRING(inv-line.t-price, ">>>>>>>9.99<<<<") 
-                    cLineID         = STRING(inv-line.line)
-                    cTermsCode      = inv-head.terms
+                ASSIGN                    
+                    lcLineItemsData          = bf-APIOutboundDetail1.data
+                    cItemID                  = inv-line.i-no
+                    cItemQuantity            = STRING(inv-line.inv-qty, "->>>>>>>9.9<<")
+                    cItemPrice               = STRING(inv-line.t-price, ">>>>>>>9.99<<<<") 
+                    cLineID                  = STRING(inv-line.line)
+                    lcConcatFlexiCodeData    = ""
+                    lcConcatFlexiNumericData = ""
+                    lcConcatFlexiDateData    = ""
                     .
+
                 
-                RUN pGetProductClass (
+                RUN pGetProductClassForItem (
                     INPUT  inv-line.company,
                     INPUT  inv-line.i-no,
                     OUTPUT cItemClassCode
@@ -183,7 +231,63 @@ ELSE DO:
                     OUTPUT cCustClassCode
                     ). 
                 
-                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "TaxAreaID", cTaxAreaID).
+                IF AVAILABLE bf-APIOutboundDetail2 THEN DO:
+                    /* Send BOL No in flexible field 1 */
+                    lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                    
+                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "1").
+                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(inv-line.bol-no)).
+                    
+                    lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+                    
+                    /* Send Order No in flexible field 2 */
+                    lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                    
+                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "2").
+                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(inv-line.ord-no)).
+                    
+                    lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+
+                    FIND FIRST itemfg NO-LOCK
+                         WHERE itemfg.company EQ inv-line.company
+                           AND itemfg.i-no    EQ inv-line.i-no
+                         NO-ERROR.
+                    IF AVAILABLE itemfg THEN DO:
+                        /* Send Itemfg taxable in flexible field 3 */
+                        lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                        
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "3").
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(itemfg.taxable,"YES/NO")).
+                        
+                        lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+                    END.
+                    
+                    IF AVAILABLE cust THEN DO:
+                        /* Send customer taxable in flexible field 4 */
+                        lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                        
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "4").
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(cust.sort EQ "Y", "YES/NO")).
+                        
+                        lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+                    END.
+
+                    IF AVAILABLE shipTo THEN DO:
+                        /* Send shipTo taxable in flexible field 5 */
+                        lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                        
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "5").
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(shipto.tax-mandatory)).
+                        
+                        lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+                    END.
+                END.
+                
+                RUN pUpdateDelimiter(
+                    INPUT-OUTPUT lcConcatFlexiCodeData,
+                    INPUT        cRequestDataType
+                    ).                
+                
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress1", cShipToAddr1).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress2", cShipToAddr1).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToCity", cShipToCity).
@@ -197,7 +301,108 @@ ELSE DO:
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemQuantity", cItemQuantity).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemPrice", cItemPrice).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "LineID", cLineID).
-                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "TermsCode", "FOB").
+                
+                lcLineItemsData = REPLACE(lcLineItemsData, "$FlexibleCodeFields$", lcConcatFlexiCodeData).
+                lcLineItemsData = REPLACE(lcLineItemsData, "$FlexibleNumericFields$", lcConcatFlexiNumericData).
+                lcLineItemsData = REPLACE(lcLineItemsData, "$FlexibleDateFields$", lcConcatFlexiDateData).
+                
+                lcConcatLineItemsData = lcConcatLineItemsData + lcLineItemsData.
+            END.
+
+            FOR EACH inv-misc NO-LOCK 
+                WHERE inv-misc.r-no EQ inv-head.r-no:
+                ASSIGN
+                    lcLineItemsData          = bf-APIOutboundDetail1.data
+                    cItemID                  = inv-misc.inv-i-no
+                    cItemQuantity            = "1" 
+                    cItemPrice               = STRING(inv-misc.amt, ">>>>>>>9.99<<<<") 
+                    cLineID                  = STRING(inv-misc.line)
+                    lcConcatFlexiCodeData    = ""
+                    lcConcatFlexiNumericData = ""
+                    lcConcatFlexiDateData    = ""
+                    .
+
+                IF inv-misc.inv-i-no NE "" THEN
+                    RUN pGetProductClassForItem (
+                        INPUT  inv-misc.company,
+                        INPUT  inv-misc.inv-i-no,
+                        OUTPUT cItemClassCode
+                        ).
+                ELSE                
+                    RUN pGetProductClassForPrep (
+                        INPUT  inv-misc.company,
+                        INPUT  inv-misc.charge,
+                        OUTPUT cItemClassCode
+                        ).
+                      
+                RUN pGetCustClassCode(
+                    INPUT  inv-misc.company,
+                    INPUT  inv-head.cust-no,
+                    OUTPUT cCustClassCode
+                    ). 
+
+                IF AVAILABLE bf-APIOutboundDetail2 THEN DO:
+                    /* Send Order No in flexible field 2 */
+                    lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                    
+                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "2").
+                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(inv-misc.ord-no)).
+                    
+                    lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+
+                    FIND FIRST itemfg NO-LOCK
+                         WHERE itemfg.company EQ inv-misc.company
+                           AND itemfg.i-no    EQ inv-misc.inv-i-no
+                         NO-ERROR.
+                    IF AVAILABLE itemfg THEN DO:
+                        /* Send Itemfg taxable in flexible field 3 */
+                        lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                        
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "3").
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(itemfg.taxable,"YES/NO")).
+                        
+                        lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+                    END.
+                    
+                    IF AVAILABLE cust THEN DO:
+                        /* Send customer taxable in flexible field 4 */
+                        lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                        
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "4").
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(cust.sort EQ "Y", "YES/NO")).
+                        
+                        lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+                    END.
+
+                    IF AVAILABLE shipTo THEN DO:
+                        /* Send shipTo taxable in flexible field 5 */
+                        lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                        
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "5").
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(shipto.tax-mandatory, "YES/NO")).
+                        
+                        lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+                    END.
+                END.
+
+                RUN pUpdateDelimiter(
+                    INPUT-OUTPUT lcConcatFlexiCodeData,
+                    INPUT        cRequestDataType
+                    ).     
+
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress1", cShipToAddr1).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress2", cShipToAddr1).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToCity", cShipToCity).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToState", cShipToState).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToZip", cShipToZip).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToCountry", cShipToCountry).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemClassCode", cItemClassCode).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemID", cItemID).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "CustomerClassCode", cCustClassCode).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "CustomerID", cCustomerID).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemQuantity", cItemQuantity).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemPrice", cItemPrice).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "LineID", cLineID).
                 
                 lcLineItemsData = REPLACE(lcLineItemsData, "$FlexibleCodeFields$", lcConcatFlexiCodeData).
                 lcLineItemsData = REPLACE(lcLineItemsData, "$FlexibleNumericFields$", lcConcatFlexiNumericData).
@@ -228,22 +433,34 @@ ELSE DO:
                 cShipToZip      = shipto.ship-zip
                 cShipToCountry  = shipto.country
                 .
+
+        FIND FIRST cust NO-LOCK
+             WHERE cust.company EQ ar-inv.company
+               AND cust.cust-no EQ ar-inv.cust-no
+             NO-ERROR.                    
         
         IF AVAILABLE bf-APIOutboundDetail1 THEN DO:
             FOR EACH ar-invl NO-LOCK 
                 WHERE ar-invl.x-no EQ ar-inv.x-no:
                 ASSIGN
                     lcLineItemsData = bf-APIOutboundDetail1.data
-                    cTaxAreaID      = STRING(0)   /* TBD */                       
                     cItemID         = ar-invl.i-no
                     cCustomerID     = ar-inv.cust-no
-                    cItemQuantity   = STRING(ar-invl.inv-qty, "->>>>>>>9.9<<")
-                    cItemPrice      = STRING(ar-invl.unit-pr, ">>>>>>>9.99<<<<") 
                     cLineID         = STRING(ar-invl.line)
-                    cTermsCode      = ar-inv.terms
                     .
                 
-                RUN pGetProductClass (
+                IF ar-invl.misc THEN
+                    ASSIGN
+                        cItemQuantity   = STRING(ar-invl.inv-qty, "->>>>>>>9.9<<")
+                        cItemPrice      = STRING(ar-invl.unit-pr, ">>>>>>>9.99<<<<")
+                        . 
+                ELSE
+                    ASSIGN
+                        cItemQuantity   = "1"
+                        cItemPrice      = STRING(ar-invl.amt, ">>>>>>>9.99<<<<") 
+                        .
+
+                RUN pGetProductClassForItem (
                     INPUT  ar-invl.company,
                     INPUT  ar-invl.i-no,
                     OUTPUT cItemClassCode
@@ -254,8 +471,64 @@ ELSE DO:
                     INPUT  ar-inv.cust-no,
                     OUTPUT cCustClassCode
                     ). 
+
+                IF AVAILABLE bf-APIOutboundDetail2 THEN DO:
+                    /* Send BOL No in flexible field 1 */
+                    lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                    
+                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "1").
+                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(ar-invl.bol-no)).
+                    
+                    lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+                    
+                    /* Send Order No in flexible field 2 */
+                    lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                    
+                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "2").
+                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(ar-invl.ord-no)).
+                    
+                    lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+
+                    FIND FIRST itemfg NO-LOCK
+                         WHERE itemfg.company EQ ar-invl.company
+                           AND itemfg.i-no    EQ ar-invl.i-no
+                         NO-ERROR.
+                    IF AVAILABLE itemfg THEN DO:
+                        /* Send Itemfg taxable in flexible field 3 */
+                        lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                        
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "3").
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(itemfg.taxable,"YES/NO")).
+                        
+                        lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+                    END.
+                    
+                    IF AVAILABLE cust THEN DO:
+                        /* Send customer taxable in flexible field 4 */
+                        lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                        
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "4").
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(cust.sort EQ "Y", "YES/NO")).
+                        
+                        lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+                    END.
+
+                    IF AVAILABLE shipTo THEN DO:
+                        /* Send shipTo taxable in flexible field 5 */
+                        lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                        
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "5").
+                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(shipto.tax-mandatory, "YES/NO")).
+                        
+                        lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+                    END.
+                END.
+
+                RUN pUpdateDelimiter(
+                    INPUT-OUTPUT lcConcatFlexiCodeData,
+                    INPUT        cRequestDataType
+                    ).     
                 
-                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "TaxAreaID", cTaxAreaID).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress1", cShipToAddr1).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress2", cShipToAddr1).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToCity", cShipToCity).
@@ -269,7 +542,6 @@ ELSE DO:
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemQuantity", cItemQuantity).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemPrice", cItemPrice).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "LineID", cLineID).
-                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "TermsCode", "FOB").
                 
                 lcLineItemsData = REPLACE(lcLineItemsData, "$FlexibleCodeFields$", lcConcatFlexiCodeData).
                 lcLineItemsData = REPLACE(lcLineItemsData, "$FlexibleNumericFields$", lcConcatFlexiNumericData).
@@ -282,14 +554,16 @@ ELSE DO:
                 INPUT-OUTPUT lcConcatLineItemsData,
                 INPUT        cRequestDataType
                 ).                
-        END.    
+        END.
     END.    
     
-    ASSIGN
+    ASSIGN        
         cDocumentNo   = STRING(fGetAPITransactionCounter(ipiAPIOutboundID))
         cDocumentDate = STRING(TODAY)
         .
-            
+          
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData,"MessageType",cMessageType).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData,"PostToJournal",cPostToJournal).  
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData,"DocumentNo",cDocumentNo).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData,"DocumentDate",cDocumentDate).
     
@@ -313,16 +587,18 @@ PROCEDURE pGetCustClassCode PRIVATE:
     DEFINE INPUT  PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcCustomerID    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcCustClassCode AS CHARACTER NO-UNDO.
-
-    FIND FIRST cust NO-LOCK
-         WHERE cust.company EQ ipcCompany 
-           AND cust.cust-no EQ ipcCustomerID
+    
+    DEFINE BUFFER bf-cust FOR cust.
+          
+    FIND FIRST bf-cust NO-LOCK
+         WHERE bf-cust.company EQ ipcCompany 
+           AND bf-cust.cust-no EQ ipcCustomerID
          NO-ERROR.
-    IF AVAILABLE cust THEN
-        opcCustClassCode = cust.spare-char-2.
+    IF AVAILABLE bf-cust THEN
+        opcCustClassCode = bf-cust.spare-char-2.
 END PROCEDURE.
 
-PROCEDURE pGetProductClass PRIVATE:
+PROCEDURE pGetProductClassForItem PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -331,11 +607,39 @@ PROCEDURE pGetProductClass PRIVATE:
     DEFINE INPUT  PARAMETER ipcItemID        AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcItemClassCode AS CHARACTER NO-UNDO.
     
-    FIND FIRST itemfg NO-LOCK
-         WHERE itemfg.company EQ ipcCompany 
-           AND itemfg.i-no    EQ ipcItemID
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+    
+    FIND FIRST bf-itemfg NO-LOCK
+         WHERE bf-itemfg.company EQ ipcCompany 
+           AND bf-itemfg.i-no    EQ ipcItemID
          NO-ERROR.
-    IF AVAILABLE itemfg THEN
-        opcItemClassCode = itemfg.productTaxClass.
+    IF AVAILABLE bf-itemfg THEN
+        opcItemClassCode = bf-itemfg.productTaxClass.
+    
+    IF opcItemClassCode EQ "" THEN
+        opcItemClassCode = "MISC".
 END PROCEDURE.
+
+PROCEDURE pGetProductClassForPrep PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPrepCode      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcPrepClassCode AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-prep FOR prep.
+    
+    FIND FIRST bf-prep NO-LOCK
+         WHERE bf-prep.company EQ ipcCompany
+           AND bf-prep.code    EQ ipcPrepCode
+         NO-ERROR.
+    IF AVAILABLE bf-prep THEN
+        opcPrepClassCode = bf-prep.productTaxClass.
+    
+    IF opcPrepClassCode EQ "" THEN
+        opcPrepClassCode = "MISC".
+END PROCEDURE.
+
 

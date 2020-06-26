@@ -10,36 +10,34 @@
     Created     : Tue Jun 13 07:33:22 EDT 2019
     Notes       :
   ----------------------------------------------------------------------*/
-DEFINE INPUT  PARAMETER hdttJSON   AS HANDLE    NO-UNDO.
-DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO.
-DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
-       
-DEFINE VARIABLE hdttBuffer AS HANDLE   NO-UNDO.
-DEFINE VARIABLE hdttQuery  AS HANDLE   NO-UNDO.
-DEFINE VARIABLE iFldCount  AS INTEGER  NO-UNDO.
+    USING Progress.Json.ObjectModel.*.
+    
+    DEFINE INPUT  PARAMETER iplcResponseData AS LONGCHAR  NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage       AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE oModelParser   AS ObjectModelParser NO-UNDO.
+    DEFINE VARIABLE oObject        AS JsonObject        NO-UNDO.
+    DEFINE VARIABLE cResultCode    AS CHARACTER         NO-UNDO.
+    DEFINE VARIABLE lcResponseData AS LONGCHAR          NO-UNDO.
 
-CREATE QUERY hdttQuery.
-hdttBuffer = hdttJSON:DEFAULT-BUFFER-HANDLE.
-hdttQuery:SET-BUFFERS(hdttBuffer).
-hdttQuery:QUERY-PREPARE("FOR EACH NewTable").
-hdttQuery:QUERY-OPEN.
-hdttQuery:GET-FIRST.
+    oModelParser = NEW ObjectModelParser().
 
-IF hdttBuffer:AVAILABLE THEN DO:
-    DO iFldCount = 1 TO hdttBuffer:NUM-FIELDS:
-        IF hdttBuffer:BUFFER-FIELD(iFldCount):DATA-TYPE EQ "DECIMAL" THEN
-            oplSuccess = (hdttBuffer:BUFFER-FIELD(iFldCount):BUFFER-VALUE = 1). /* 1 = success, 0 = failure */    
-        ELSE
-            opcMessage = hdttBuffer:BUFFER-FIELD(iFldCount):BUFFER-VALUE.
-    END.
-END.        
-ELSE
+    FIX-CODEPAGE(lcResponseData) = 'utf-8'.
+        
     ASSIGN
-        oplSuccess = NO
-        opcMessage = "Unrecognised Response Data - please verify in the APIOutboundEventsViewer"
+        lcResponseData = iplcResponseData
+        oObject        = CAST(oModelParser:Parse(INPUT lcResponseData),JsonObject)
+        cResultCode    = oObject:GetJsonText("result_code")
+        opcMessage     = oObject:GetJsonText("result_text")
         .
+    
+    IF opcMessage = "" THEN
+        opcMessage = oObject:GetJsonText("Message").
 
-hdttQuery:QUERY-CLOSE.
+    IF ERROR-STATUS:ERROR OR cResultCode EQ "0" THEN DO:
+        oplSuccess = FALSE.
+        RETURN.
+    END.
 
-IF VALID-HANDLE(hdttQuery) THEN
-   DELETE OBJECT hdttQuery.
+    oplSuccess = TRUE.
