@@ -1933,6 +1933,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         cAuditKeyFilter = fAuditKey(iphTable,cIdxFlds)
         cStartAuditKey  = cAuditKeyFilter
         cEndAuditKey    = cAuditKeyFilter
+        AuditHdr.AuditKey:SCREEN-VALUE = cAuditKeyFilter
         AuditHdr.AuditKey:BGCOLOR = 14
         {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
                              + " [Key: "
