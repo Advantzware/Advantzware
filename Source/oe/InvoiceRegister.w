@@ -18,6 +18,6 @@ DO TRANSACTION:
    {sys/inc/runAOAVer.i "OB6"}
 END.
 
-cAOAFile = SEARCH("AOA/r-inve&r.r").
-IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/r-inve&r.p.
-ELSE RUN oe/r-inve&rN.w PERSISTENT.
+cAOAFile = SEARCH("AOA/InvoiceRegister.r").
+IF RunAOAVersion1-log EQ ? AND cAOAFile NE ? THEN RUN AOA/InvoiceRegister.p.
+ELSE RUN oe/InvoiceRegisterN.w PERSISTENT.

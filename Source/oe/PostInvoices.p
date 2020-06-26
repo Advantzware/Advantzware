@@ -342,6 +342,9 @@ FUNCTION fGetInvoiceLineToPostHandle RETURNS HANDLE
 
 FUNCTION fGetInvoiceToPostHandle RETURNS HANDLE 
     (  ) FORWARD.
+    
+FUNCTION fGetInvoiceMiscToPostHandle RETURNS HANDLE 
+    (  ) FORWARD.    
 
 FUNCTION fGetNextRun RETURNS INTEGER PRIVATE
     (ipcCompany AS CHARACTER,
@@ -3340,6 +3343,16 @@ FUNCTION fGetInvoiceToPostHandle RETURNS HANDLE
      Notes:
     ------------------------------------------------------------------------------*/	
     RETURN TEMP-TABLE ttInvoiceToPost:HANDLE.
+		
+END FUNCTION.
+
+FUNCTION fGetInvoiceMiscToPostHandle RETURNS HANDLE 
+    (  ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the handle to the ttInvoiceToPost
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    RETURN TEMP-TABLE ttInvoiceMiscToPost:HANDLE.
 		
 END FUNCTION.
 
