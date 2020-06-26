@@ -1089,11 +1089,6 @@ PROCEDURE post-gl :
     DEFINE VARIABLE xar-cashl      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lv-rowid       AS ROWID     NO-UNDO.
     DEFINE VARIABLE li-iter        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE dOnAccount     AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dAccountBal    AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dtLastPayDate  AS DATE      NO-UNDO.
-    DEFINE VARIABLE dLastPayment   AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lUpdateHighBal AS LOGICAL   NO-UNDO.
   
     DEFINE BUFFER b-cashl   FOR ar-cashl.
     DEFINE BUFFER ar-c-memo FOR reftable.
@@ -1116,22 +1111,17 @@ PROCEDURE post-gl :
             IF NOT AVAILABLE bank THEN 
                 NEXT.
     
-            FIND FIRST cust NO-LOCK
+            FIND FIRST cust EXCLUSIVE-LOCK
                 {sys/ref/custW.i}
                  AND cust.cust-no EQ ar-cash.cust-no
-                 NO-ERROR.
+                 NO-ERROR NO-WAIT.
             IF NOT AVAILABLE cust THEN
                 NEXT.
     
             ASSIGN
                 xar-cashl      = bank.actnum
                 bank.bal       = bank.bal + tt-post.curr-amt
-                t1             = 0
-                dAccountBal    = 0.00
-                dOnAccount     = cust.on-account
-                dtLastPayDate  = ?
-                dLastPayment   = 0.00
-                lUpdateHighBal = NO 
+                t1             = 0 
                 .
                 
             xar-acct = STRING(DYNAMIC-FUNCTION("GL_GetAccountAR", cust.company, cust.cust-no)).
@@ -1155,7 +1145,10 @@ PROCEDURE post-gl :
                            ar-inv.pay-date   = ar-cash.check-date.
         
                         IF ar-inv.due LE 0 THEN DO:
-                            RUN sys/inc/daytopay.p (RECID(ar-cashl)).
+                            IF cust.avg-pay LT 1 OR cust.avg-pay EQ ? THEN 
+                                cust.avg-pay = 1.
+                            cust.avg-pay = ((cust.num-inv * cust.avg-pay) +
+                                            (ar-cash.check-date - ar-inv.inv-date)) / (cust.num-inv + 1).
                             cust.num-inv = cust.num-inv + 1.
                         END.
         
@@ -1188,7 +1181,7 @@ PROCEDURE post-gl :
     
                 ELSE DO:
                     IF ar-cashl.inv-no EQ 0 AND ar-cashl.on-account EQ YES THEN 
-                        dOnAccount = dOnAccount + ar-cashl.amt-paid.
+                        cust.on-account = cust.on-account + ar-cashl.amt-paid.
            
                     CREATE ttGLTrans.
                     ASSIGN
@@ -1237,13 +1230,15 @@ PROCEDURE post-gl :
             END.  /* each line */
     
             ASSIGN
-                dAccountBal   = cust.acc-bal - t1
-                dLastPayment  = t1
-                dtLastPayDate = ar-cash.check-date
-                .
-
-            IF dAccountBal GE cust.hibal THEN
-                lUpdateHighBal = YES.
+                cust.acc-bal   = cust.acc-bal - t1
+                cust.lpay      = t1
+                cust.lpay-date = ar-cash.check-date.
+    
+            IF cust.acc-bal GE cust.hibal THEN
+                ASSIGN
+                    cust.hibal      = cust.acc-bal
+                    cust.hibal-date = ar-cash.check-date
+                    .
     
             IF t1 NE 0 THEN DO:
                 FIND ttGLTrans 
@@ -1280,8 +1275,9 @@ PROCEDURE post-gl :
                 ttARLedger.ref-date = ar-cash.check-date
                 ttARLedger.tr-date  = tran-date
                 ttARLedger.tr-num   = xtrnum
-                ar-cash.posted     = YES.
-                
+                ar-cash.posted      = YES.
+            
+            RELEASE cust.    
             RELEASE bank.
         
             ACCUM tt-post.curr-amt - ar-cash.check-amt (TOTAL BY tt-post.actnum).
@@ -1315,16 +1311,6 @@ PROCEDURE post-gl :
             
             RUN pCreateGLTrans.
 
-            RUN pUpdateCustomerAccount(
-                INPUT cocode,
-                INPUT cust.cust-no,
-                INPUT dOnAccount,
-                INPUT dAccountBal,
-                INPUT dLastPayment,
-                INPUT lUpdateHighBal,
-                INPUT dtLastPayDate
-                ).
-
             DELETE tt-post.
         END.
     END.  /* DO WHILE */
@@ -1333,41 +1319,6 @@ RELEASE ar-cash.
 
 END PROCEDURE.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateCustomerAccount C-Win 
-PROCEDURE pUpdateCustomerAccount PRIVATE :
-/*------------------------------------------------------------------------------
- Purpose: To Update the customer's account data 
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcCustNo        AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdOnAccount     AS DECIMAL   NO-UNDO.
-    DEFINE INPUT PARAMETER ipdAccountBal    AS DECIMAL   NO-UNDO.
-    DEFINE INPUT PARAMETER ipdLastPayment   AS DECIMAL   NO-UNDO.
-    DEFINE INPUT PARAMETER iplUpdateHighBal AS LOGICAL   NO-UNDO.
-    DEFINE INPUT PARAMETER ipdtLastPaydate  AS DATE      NO-UNDO.
-    
-    FIND FIRST cust EXCLUSIVE-LOCK 
-         WHERE cust.company EQ ipcCompany
-           AND cust.cust-no EQ ipcCustNo
-         NO-ERROR.
-  
-    IF AVAILABLE cust THEN 
-        ASSIGN
-            cust.on-account = ipdOnAccount
-            cust.acc-bal    = ipdAccountBal
-            cust.lpay       = ipdLastPayment
-            cust.lpay-date  = ipdtLastPayDate
-            cust.hibal      = IF iplUpdateHighBal THEN ipdAccountBal   ELSE cust.hibal
-            cust.hibal-date = IF iplUpdateHighBal THEN ipdtLastPayDate ELSE cust.hibal-date 
-            .
-            
-    RELEASE cust.
-END PROCEDURE.
-	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
