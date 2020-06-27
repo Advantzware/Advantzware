@@ -1415,9 +1415,9 @@ FOR EACH stax
             DO iLevel = 1 to EXTENT(stax.tax-code1):
                 IF stax.tax-code1[iLevel] EQ stax.tax-group THEN DO:
                     cTaxDescription = stax.tax-dscr1[iLevel].
-                END. /* primary tax code line */
+                END. /* primary tax code line */       
                 dRateTotal = dRateTotal + stax.tax-rate1[iLevel].
-                IF stax.tax-frt1[iLevel] THEN 
+                IF stax.tax-frt1[1] THEN 
                     dRateFreightTotal = dRateFreightTotal + stax.tax-rate1[iLevel].
             END. /* iLevel = 1 to extent of stax*/
             IF cTaxDescription EQ '' THEN
@@ -1448,11 +1448,11 @@ FOR EACH stax
             END. /*each ar-invl*/
             ASSIGN
                 dAmountFreight = dAmountFreight + 
-                     (IF ar-inv.f-bill THEN ar-inv.freight ELSE 0)
+                     (IF ar-inv.f-bill THEN ar-inv.freight ELSE 0)                                      
                 dAmountFreightTaxable = dAmountFreightTaxable + 
-                    (IF ar-inv.f-bill AND dRateFreightTotal GT 0 THEN ar-inv.freight ELSE 0)
-                dAmountTax = dAmountTax + ar-inv.tax-amt
-                .
+                    (IF ar-inv.f-bill AND dRateFreightTotal GT 0 THEN (ar-inv.freight * dRateFreightTotal / 100) ELSE 0)
+                dAmountTax = dAmountTax + ar-inv.tax-amt + (IF ar-inv.f-bill AND dRateFreightTotal GT 0 THEN (ar-inv.freight * dRateFreightTotal / 100) ELSE 0).
+               
         END.  /*avail ar-inv*/
         ELSE DO: /*cash receipts*/ 
             FIND ar-cashl 
@@ -1589,7 +1589,7 @@ DEFINE VARIABLE dAmountFreightTaxableTotal AS DECIMAL FORMAT "->>,>>>,>>9.99" NO
 DEFINE VARIABLE dAmountTax AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
 DEFINE VARIABLE dAmountTaxTotal AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
 DEFINE VARIABLE dAmountTaxSub AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
-
+DEFINE VARIABLE dAmountFreightTax AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
 DEFINE VARIABLE dRateTotal AS DECIMAL     NO-UNDO.
 DEFINE VARIABLE dRateFreightTotal AS DECIMAL     NO-UNDO.
 DEFINE VARIABLE iLevel AS INTEGER     NO-UNDO.
@@ -1767,10 +1767,8 @@ FOR EACH stax
             END. /*each ar-invl*/
             ASSIGN
                 dAmountFreight = dAmountFreight + 
-                     (IF ar-inv.f-bill THEN ar-inv.freight ELSE 0)
-                dAmountFreightTaxable = dAmountFreightTaxable + 
-                    (IF ar-inv.f-bill AND dRateFreightTotal GT 0 THEN ar-inv.freight ELSE 0)
-                dAmountTax = dAmountTax + ar-inv.tax-amt
+                     (IF ar-inv.f-bill THEN ar-inv.freight ELSE 0)                      
+                dAmountTax = dAmountTax + ar-inv.tax-amt .
                 .
         END.  /*avail ar-inv*/
         ELSE DO: /*cash receipts*/ 
@@ -1794,7 +1792,15 @@ FOR EACH stax
                 v-t-price  = v-t-price + dAmountTaxSub .
                 cTaxDescription = stax.tax-dscr1[iLevel].
                 dRateTotal = dRateTotal + stax.tax-rate1[iLevel] .
-                
+                                 
+                dAmountFreightTax  = IF stax.tax-frt1[1] THEN (dAmountFreight * stax.tax-rate1[iLevel] / 100) ELSE 0 .
+                dAmountFreightTaxable = dAmountFreightTaxable + dAmountFreightTax.
+               
+               IF dAmountFreightTax NE 0 THEN
+                ASSIGN
+                  dAmountTax    =  dAmountTax + dAmountFreightTax
+                  dAmountTaxSub =  dAmountTaxSub  + dAmountFreightTax .
+                  
                  ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -1811,7 +1817,7 @@ FOR EACH stax
                          WHEN "sal-tax"   THEN cVarValue = STRING(dAmountSalesTaxable,"->>,>>>,>>9.99") .
                          WHEN "sal-exe"  THEN cVarValue = STRING(dAmountSales - dAmountSalesTaxable,"->>,>>>,>>9.99") .
                          WHEN "fright"   THEN cVarValue = STRING(dAmountFreight,"->>,>>>,>>9.99") .
-                         WHEN "fri-tax"  THEN cVarValue = STRING(dAmountFreightTaxable,"->>>>,>>>,>>9.99") .
+                         WHEN "fri-tax"  THEN cVarValue = STRING(dAmountFreightTax,"->>>>,>>>,>>9.99") .
                          WHEN "fri-exe"   THEN cVarValue = STRING(dAmountFreight - dAmountFreightTaxable,"->>>>,>>>,>>9.99") .
                          WHEN "tax"  THEN cVarValue = STRING(dAmountTaxSub,"->>,>>>,>>9.99") .
                          WHEN "gross-freight"  THEN cVarValue = STRING(dAmountSales + dAmountFreight,"->>,>>>,>>9.99") .
