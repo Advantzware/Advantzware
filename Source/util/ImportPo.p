@@ -204,14 +204,16 @@ PROCEDURE pProcessRecord PRIVATE:
         IF ipbf-ttImportPo.TYPE NE "D" THEN
         DO:
            FIND FIRST company NO-LOCK WHERE company.company EQ ipbf-ttImportPo.Company NO-ERROR.
-             IF AVAILABLE company THEN
+             IF AVAILABLE company THEN 
                ASSIGN                    
                  bf-po-ord.ship-name    = company.name
                  bf-po-ord.ship-addr[1] = company.addr[1]
                  bf-po-ord.ship-addr[2] = company.addr[2]
                  bf-po-ord.ship-city    = company.city
                  bf-po-ord.ship-state   = company.state
-                 bf-po-ord.ship-zip     = company.zip.             
+                 bf-po-ord.ship-zip     = company.zip 
+                 bf-po-ord.ship-id      = company.company .
+               
         END.
         ELSE DO:
            IF ipbf-ttImportPo.drop-shipment EQ "Customer"  THEN
@@ -536,6 +538,12 @@ PROCEDURE pValidate PRIVATE:
         
         IF ipbf-ttImportPo.TYPE EQ "D" AND ipbf-ttImportPo.drop-shipment EQ "Vendor" THEN
               ipbf-ttImportPo.shipto-cust-no = "".
+              
+        IF oplValid AND ipbf-ttImportPo.TYPE NE "D" THEN do: 
+           IF ipbf-ttImportPo.ship-id NE ipbf-ttImportPo.Company THEN
+               oplValid = NO.
+               cValidNote = "ShipID - ShipTo Company is not valid." .         
+        END.      
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
 END PROCEDURE.

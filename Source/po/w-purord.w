@@ -671,6 +671,7 @@ PROCEDURE import-file :
 ------------------------------------------------------------------------------*/
 
  RUN util/dev/impPo.p .
+ IF VALID-HANDLE(h_b-po-inq) THEN
  RUN local-open-query IN h_b-po-inq .
 
 END PROCEDURE.
