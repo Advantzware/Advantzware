@@ -758,8 +758,10 @@ DO:
         IF LASTKEY NE -1 THEN 
         DO:
             cEstNo = cSEst:SCREEN-VALUE.
-            RUN util/rjust.p (INPUT-OUTPUT cEstNo,8).
-            cSEst:SCREEN-VALUE = cEstNo.
+            IF cEstNo NE "" THEN do:
+                RUN util/rjust.p (INPUT-OUTPUT cEstNo,8).
+                cSEst:SCREEN-VALUE = cEstNo.
+            END.
             RUN valid-est-no(OUTPUT lError) NO-ERROR.
             IF lError THEN RETURN NO-APPLY.
         END.
