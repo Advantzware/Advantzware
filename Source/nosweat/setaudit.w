@@ -44,6 +44,7 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE hFieldColumn AS HANDLE  NO-UNDO EXTENT 20.
 DEFINE VARIABLE hTableColumn AS HANDLE  NO-UNDO EXTENT 20.
 DEFINE VARIABLE lContinue    AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lSave        AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lSuperAdmin  AS LOGICAL NO-UNDO.
 
 DEFINE TEMP-TABLE ttTable NO-UNDO
@@ -119,9 +120,9 @@ DEFINE TEMP-TABLE ttField NO-UNDO
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btnResetField btnResetTable btnSaveField ~
-btnSaveTable ResetFromDefault SaveAsDefault svFilter dbTables ~
-btnBeforeValueFilterClear dbFields svToggleAuditCreate svToggleAuditDelete ~
-svToggleAuditUpdate svStackTrace toggleFields btnExit btnOK 
+btnSaveTable svFilter ResetFromDefault dbTables dbFields ~
+svToggleAuditCreate svToggleAuditDelete btnBeforeValueFilterClear ~
+svToggleAuditUpdate svStackTrace toggleFields btnExit 
 &Scoped-Define DISPLAYED-OBJECTS svFilter svToggleAuditCreate ~
 svToggleAuditDelete svToggleAuditUpdate svStackTrace toggleFields 
 
@@ -130,6 +131,19 @@ svToggleAuditDelete svToggleAuditUpdate svStackTrace toggleFields
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fSetSaveButton C-Win
+FUNCTION fSetSaveButton RETURNS LOGICAL 
+  (iplSave AS LOGICAL) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 
@@ -166,6 +180,11 @@ DEFINE BUTTON btnResetTable
      LABEL "" 
      SIZE 4.4 BY 1.05 TOOLTIP "Reset From Default".
 
+DEFINE BUTTON btnSaveAsDefault 
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Save As Defaults" 
+     SIZE 8 BY 1.91 TOOLTIP "Save As Defaults".
+
 DEFINE BUTTON btnSaveField 
      IMAGE-UP FILE "Graphics/16x16/floppy_disk.gif":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
@@ -180,11 +199,6 @@ DEFINE BUTTON ResetFromDefault
      IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Reset ALL From Defaults" 
      SIZE 8 BY 1.91.
-
-DEFINE BUTTON SaveAsDefault 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "Save As Defaults" 
-     SIZE 8 BY 1.91 TOOLTIP "Save As Defaults".
 
 DEFINE VARIABLE svFilter AS CHARACTER FORMAT "X(256)":U 
      LABEL "Filter" 
@@ -278,24 +292,26 @@ ttTable.audit[4]
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     btnOK AT ROW 1.48 COL 221 HELP
+          "Use this function to ACCEPT selected field"
+     btnSaveAsDefault AT ROW 1.48 COL 11 HELP
+          "Save As Defaults" WIDGET-ID 46
      btnResetField AT ROW 1.48 COL 151 WIDGET-ID 62
      btnResetTable AT ROW 2.91 COL 8 WIDGET-ID 60
      btnSaveField AT ROW 1.48 COL 146 WIDGET-ID 64
      btnSaveTable AT ROW 2.91 COL 3 WIDGET-ID 58
-     ResetFromDefault AT ROW 1.48 COL 3 HELP
-          "Reset From Defaults" WIDGET-ID 48
-     SaveAsDefault AT ROW 1.48 COL 11 HELP
-          "Save As Defaults" WIDGET-ID 46
      svFilter AT ROW 2.43 COL 32 COLON-ALIGNED HELP
           "Enter Filter Value" WIDGET-ID 6
+     ResetFromDefault AT ROW 1.48 COL 3 HELP
+          "Reset From Defaults" WIDGET-ID 48
      dbTables AT ROW 3.86 COL 2 WIDGET-ID 100
-     btnBeforeValueFilterClear AT ROW 2.43 COL 66 HELP
-          "Click to Clear Value Filter" WIDGET-ID 40
      dbFields AT ROW 3.86 COL 145 WIDGET-ID 200
      svToggleAuditCreate AT ROW 3.91 COL 83 HELP
           "Select to Toggle Audit Create" WIDGET-ID 4
      svToggleAuditDelete AT ROW 3.91 COL 98 HELP
           "Select to Toggle Audit Delete" WIDGET-ID 8
+     btnBeforeValueFilterClear AT ROW 2.43 COL 66 HELP
+          "Click to Clear Value Filter" WIDGET-ID 40
      svToggleAuditUpdate AT ROW 3.91 COL 113 HELP
           "Select to Toggle Audit Update" WIDGET-ID 10
      svStackTrace AT ROW 3.91 COL 128 HELP
@@ -304,8 +320,6 @@ DEFINE FRAME DEFAULT-FRAME
           "Toggle ON/OFF" WIDGET-ID 44
      btnExit AT ROW 1.48 COL 229 HELP
           "Use this function to CANCEL field selecition"
-     btnOK AT ROW 1.48 COL 221 HELP
-          "Use this function to ACCEPT selected field"
      " CYAN : Field Audit Overrides Exist" VIEW-AS TEXT
           SIZE 34 BY .62 AT ROW 2.91 COL 175 WIDGET-ID 56
           BGCOLOR 11 
@@ -371,8 +385,18 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB dbTables svFilter DEFAULT-FRAME */
-/* BROWSE-TAB dbFields btnBeforeValueFilterClear DEFAULT-FRAME */
+/* BROWSE-TAB dbTables ResetFromDefault DEFAULT-FRAME */
+/* BROWSE-TAB dbFields dbTables DEFAULT-FRAME */
+/* SETTINGS FOR BUTTON btnOK IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+ASSIGN 
+       btnOK:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
+
+/* SETTINGS FOR BUTTON btnSaveAsDefault IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+ASSIGN 
+       btnSaveAsDefault:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
+
 /* SETTINGS FOR RECTANGLE RECT-11 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -496,6 +520,27 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnSaveAsDefault
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSaveAsDefault C-Win
+ON CHOOSE OF btnSaveAsDefault IN FRAME DEFAULT-FRAME /* Save As Defaults */
+DO:
+    RUN pSaveAsDefault.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSaveAsDefault C-Win
+ON RIGHT-MOUSE-CLICK OF btnSaveAsDefault IN FRAME DEFAULT-FRAME /* Save As Defaults */
+DO:
+    RUN pUpdateAuditTables.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnSaveField
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSaveField C-Win
 ON CHOOSE OF btnSaveField IN FRAME DEFAULT-FRAME
@@ -580,6 +625,18 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dbTables C-Win
+ON ROW-LEAVE OF dbTables IN FRAME DEFAULT-FRAME /* Database Tables */
+DO:
+    IF BROWSE {&SELF-NAME}:MODIFIED THEN
+    fSetSaveButton (YES).
+/*    fSetSaveButton (YES).*/
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dbTables C-Win
 ON VALUE-CHANGED OF dbTables IN FRAME DEFAULT-FRAME /* Database Tables */
 DO:
     {&OPEN-QUERY-dbFields}
@@ -601,27 +658,6 @@ END.
 ON CHOOSE OF ResetFromDefault IN FRAME DEFAULT-FRAME /* Reset ALL From Defaults */
 DO:
     RUN pResetFromDefault.  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME SaveAsDefault
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL SaveAsDefault C-Win
-ON CHOOSE OF SaveAsDefault IN FRAME DEFAULT-FRAME /* Save As Defaults */
-DO:
-    RUN pSaveAsDefault.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL SaveAsDefault C-Win
-ON RIGHT-MOUSE-CLICK OF SaveAsDefault IN FRAME DEFAULT-FRAME /* Save As Defaults */
-DO:
-    RUN pUpdateAuditTables.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -749,10 +785,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       svStackTrace:MOVE-TO-TOP().
       toggleFields:MOVE-TO-TOP().
       ASSIGN
-        lSuperAdmin          = DYNAMIC-FUNCTION("sfIsUserSuperAdmin")
-        SaveAsDefault:HIDDEN = NOT lSuperAdmin
-        btnSaveTable:HIDDEN  = NOT lSuperAdmin
-        btnSaveField:HIDDEN  = NOT lSuperAdmin
+        lSuperAdmin              = DYNAMIC-FUNCTION("sfIsUserSuperAdmin")
+/*        btnSaveAsDefault:HIDDEN  = NOT lSuperAdmin*/
+        btnSaveTable:HIDDEN      = NOT lSuperAdmin
+        btnSaveField:HIDDEN      = NOT lSuperAdmin
+        BROWSE dbtables:MODIFIED = NO
         .
   END. /* if lcontinue */
   {methods/nowait.i}
@@ -801,10 +838,10 @@ PROCEDURE enable_UI :
   DISPLAY svFilter svToggleAuditCreate svToggleAuditDelete svToggleAuditUpdate 
           svStackTrace toggleFields 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnResetField btnResetTable btnSaveField btnSaveTable ResetFromDefault 
-         SaveAsDefault svFilter dbTables btnBeforeValueFilterClear dbFields 
-         svToggleAuditCreate svToggleAuditDelete svToggleAuditUpdate 
-         svStackTrace toggleFields btnExit btnOK 
+  ENABLE btnResetField btnResetTable btnSaveField btnSaveTable svFilter 
+         ResetFromDefault dbTables dbFields svToggleAuditCreate 
+         svToggleAuditDelete btnBeforeValueFilterClear svToggleAuditUpdate 
+         svStackTrace toggleFields btnExit 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -1012,6 +1049,8 @@ PROCEDURE pSave :
     BROWSE dbFields:REFRESH().
     RELEASE AuditTbl.
     RELEASE AuditFld.
+    fSetSaveButton (NO).
+    BROWSE dbTables:MODIFIED = NO.
     SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.
@@ -1063,6 +1102,8 @@ PROCEDURE pSaveAsDefault :
     RELEASE AuditTbl.
     RELEASE AuditFld.
     {&OPEN-QUERY-dbTables}
+    fSetSaveButton (NO).
+    BROWSE dbTables:MODIFIED = NO.
     APPLY "VALUE-CHANGED":U TO BROWSE dbTables.
     SESSION:SET-WAIT-STATE("").
     MESSAGE 
@@ -1296,3 +1337,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fSetSaveButton C-Win
+FUNCTION fSetSaveButton RETURNS LOGICAL 
+  (iplSave AS LOGICAL):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            lSave                      = iplSave
+            btnOK:HIDDEN               = NOT lSave
+            btnOK:SENSITIVE            = lSave
+            .
+        IF lSuperAdmin THEN
+        ASSIGN
+            btnSaveAsDefault:HIDDEN    = btnOK:HIDDEN
+            btnSaveAsDefault:SENSITIVE = btnOK:SENSITIVE
+            .
+    END. /* with frame */
+    RETURN lSave.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
