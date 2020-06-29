@@ -1119,8 +1119,7 @@ PROCEDURE gl-from-work:
 
     DEF VAR credits AS DEC INIT 0 NO-UNDO.
     DEF VAR debits  AS DEC INIT 0 NO-UNDO. 
-MESSAGE TRANS 
-VIEW-AS ALERT-BOX.
+
     FIND FIRST period
         WHERE period.company EQ cocode
         AND period.pst     LE v-post-date
