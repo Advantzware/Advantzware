@@ -2653,6 +2653,30 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnResults C-Win
+ON RIGHT-MOUSE-CLICK OF btnResults IN FRAME DEFAULT-FRAME /* Results */
+DO:
+    MESSAGE 
+        "Delete Non-Default Lookups?"
+    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+    UPDATE lDeleteLookups AS LOGICAL.
+    IF lDeleteLookups THEN DO TRANSACTION:
+        FOR EACH dynParamValue EXCLUSIVE-LOCK
+            WHERE dynParamValue.user-id NE "_default"
+              AND dynParamValue.isLookup EQ YES
+            :
+            DELETE dynParamValue.
+        END. /* each dynparamvalue */
+        MESSAGE 
+            "Done."
+        VIEW-AS ALERT-BOX.
+    END. /* do trans */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define FRAME-NAME outputFrame
 &Scoped-define SELF-NAME btnRunResults
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRunResults C-Win
@@ -4449,7 +4473,13 @@ PROCEDURE pErrorCheck :
     DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
     DEFINE VARIABLE lErrors AS LOGICAL NO-UNDO.
     
-    OUTPUT TO c:\tmp\DynSubjectErrors.txt.
+    RUN AOA/dynSubjectCheck.p (OUTPUT lErrors).
+
+    OUTPUT TO c:\tmp\DynSubjectErrors.txt APPEND.
+    PUT UNFORMATTED
+        "*** Dynamic Subject Sanity Check Report ***" SKIP
+        "-------------------------------------------" SKIP
+        .
     FOR EACH dynsubject NO-LOCK:
         DISPLAY
             dynsubject.subjectid
