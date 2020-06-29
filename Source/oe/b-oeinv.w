@@ -1047,7 +1047,7 @@ DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
  RUN oe/PostInvoices.p PERSISTENT SET hPostInvoices.
          
- RUN ValidateInvoice IN hPostInvoices (cocode,
+ RUN ValidateInvoices IN hPostInvoices (cocode,
                                         0,
                                         9999999,
                                         DATE(01/01/0001),

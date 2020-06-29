@@ -238,6 +238,7 @@ DEFINE TEMP-TABLE ttInvoiceToPost NO-UNDO
     FIELD isInvoiceDateInCurrentPeriod AS LOGICAL     
     FIELD bolID                        AS INTEGER
     FIELD termsCode                    AS CHARACTER
+    FIELD taxGroup                     AS CHARACTER
     .
     
 DEFINE TEMP-TABLE ttInvoiceLineToPost NO-UNDO 
