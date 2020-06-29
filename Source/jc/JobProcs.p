@@ -432,7 +432,9 @@ PROCEDURE GetRecalcJobCostForJobHdr:
     DEFINE VARIABLE dCostFO            AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dPercentage        AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyInM            AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyInMComponent   AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dPercentageApplied AS DECIMAL NO-UNDO.
+    DEFINE BUFFER bf-component-job-hdr FOR job-hdr.
         
     FIND FIRST job-hdr NO-LOCK
         WHERE ROWID(job-hdr) EQ ipriJobHdr
@@ -448,17 +450,38 @@ PROCEDURE GetRecalcJobCostForJobHdr:
         AND job-mat.job EQ job-hdr.job
         AND job-mat.job-no EQ job-hdr.job-no
         AND job-mat.job-no2 EQ job-hdr.job-no2
-        AND (job-mat.frm EQ job-hdr.frm OR job-hdr.frm EQ 0)
+        AND (job-mat.frm EQ job-hdr.frm OR job-hdr.frm EQ 0 OR (job-mat.frm EQ 0 AND job-hdr.frm EQ 1))
         :
         dCostMat = 0.
-        IF job-hdr.blank-no EQ job-mat.blank-no OR job-mat.blank-no EQ 0 THEN 
+        IF job-hdr.blank-no EQ job-mat.blank-no 
+            OR job-mat.blank-no EQ 0 
+            OR job-hdr.frm EQ 0 THEN 
         DO: 
-            ASSIGN 
-                dCostMat   = job-mat.cost-m
-                opdCostMat = opdCostMat + dCostMat
-                .             
+            IF job-hdr.frm EQ 0 THEN DO:
+                dQtyInMComponent = 0.
+                FOR EACH bf-component-job-hdr NO-LOCK
+                    WHERE bf-component-job-hdr.company EQ job-mat.company
+                    AND bf-component-job-hdr.job EQ job-mat.job
+                    AND bf-component-job-hdr.job-no EQ job-mat.job-no
+                    AND bf-component-job-hdr.job-no2 EQ job-mat.job-no2
+                    AND bf-component-job-hdr.frm EQ job-mat.frm
+                    AND (bf-component-job-hdr.blank-no EQ job-mat.blank-no OR job-mat.blank-no EQ 0):
+                        dQtyInMComponent = dQtyInMComponent + bf-component-job-hdr.qty / 1000.
+                END.
+                ASSIGN 
+                    dCostMat   = job-mat.cost-m * (dQtyInMComponent / dQtyInM)
+                    opdCostMat = opdCostMat + dCostMat
+                    .
+            END.
+            ELSE DO:
+                IF job-mat.frm NE 0 OR (job-mat.frm EQ 0 AND job-hdr.frm EQ 1) THEN 
+                    ASSIGN 
+                        dCostMat   = job-mat.cost-m
+                        opdCostMat = opdCostMat + dCostMat
+                        .
+            END.             
         END.
-            .
+            
     END.
     
     FOR EACH job-mch NO-LOCK
@@ -468,7 +491,7 @@ PROCEDURE GetRecalcJobCostForJobHdr:
         AND job-mch.job-no2 EQ job-hdr.job-no2
         AND (job-mch.frm EQ job-hdr.frm OR job-hdr.frm EQ 0)
         :
-        IF job-hdr.blank-no EQ job-mch.blank-no OR job-mch.blank-no EQ 0 THEN 
+        IF job-hdr.blank-no EQ job-mch.blank-no OR job-mch.blank-no EQ 0 OR job-hdr.frm EQ 0 THEN 
         DO: 
             IF job-mch.blank-no EQ 0 THEN 
                 dPercentageApplied = dPercentage.
