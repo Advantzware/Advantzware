@@ -645,18 +645,6 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.job-no Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF fg-rctd.job-no IN BROWSE Browser-Table /* Job# */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-job-no NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END. 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME fg-rctd.job-no2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.job-no2 Browser-Table _BROWSE-COLUMN B-table-Win
@@ -674,9 +662,6 @@ END.
 ON LEAVE OF fg-rctd.job-no2 IN BROWSE Browser-Table
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-job-no2 NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
     IF lv-prev-job2 NE fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} THEN DO:
        RUN new-job-no.
     END.
@@ -722,20 +707,34 @@ END.
 ON LEAVE OF fg-rctd.tag IN BROWSE Browser-Table /* Tag# */
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-tag NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    FIND FIRST loadtag WHERE loadtag.company = g_company
-                    AND loadtag.ITEM-type = NO
-                    AND loadtag.tag-no = fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
-        NO-LOCK NO-ERROR.
-    IF AVAIL loadtag AND loadtag.po-no GT 0 THEN
-        fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(loadtag.po-no).
+   
+    RUN valid-job-no NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
+        
+    RUN valid-job-no2 NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.  
     
+    RUN pValidateTag(
+        INPUT fg-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+        ) NO-ERROR. 
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
+          
+    RUN pValidateJobFromTag(
+        INPUT fg-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+        ) NO-ERROR.
+  
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN NO-APPLY.
+                       
     RUN validate-tag(0) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    RUN validate-count .
-
+    RUN validate-count.
+    
+    SELF:MODIFIED = FALSE.
   END.
 END.
 
@@ -928,6 +927,21 @@ PROCEDURE crt-pcount :
       FIRST fg-bin WHERE rowid(fg-bin) = tt-selected.tt-rowid NO-LOCK:
       FIND FIRST itemfg WHERE itemfg.company = fg-bin.company
                           AND itemfg.i-no = fg-bin.i-no NO-LOCK NO-ERROR.
+      
+      RUN pValidateTag(
+        INPUT fg-bin.tag
+        ) NO-ERROR. 
+        
+      IF ERROR-STATUS:ERROR THEN 
+          NEXT.
+            
+      RUN pValidateJobFromTag(
+          INPUT fg-bin.tag
+          ) NO-ERROR.
+      
+      IF ERROR-STATUS:ERROR THEN 
+         NEXT. 
+                            
       CREATE b-fg-rctd.
       ASSIGN b-fg-rctd.r-no = lv-rno
              b-fg-rctd.loc = fg-bin.loc
@@ -1742,7 +1756,19 @@ PROCEDURE local-update-record :
   RUN valid-loc-bin(OUTPUT lCheckError) NO-ERROR.
   IF lCheckError THEN RETURN NO-APPLY.
 
- 
+  RUN pValidateTag(
+      INPUT fg-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+      ) NO-ERROR. 
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
+            
+  RUN pValidateJobFromTag(
+      INPUT fg-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+      ) NO-ERROR.
+  
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
+                        
   RUN validate-tag(1) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
  
@@ -1889,6 +1915,134 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetBinValues B-table-Win
+PROCEDURE pGetBinValues PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    FIND FIRST fg-bin NO-LOCK 
+        WHERE fg-bin.company EQ cocode
+          AND fg-bin.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+          AND fg-bin.tag     EQ fg-rctd.tag :SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+          AND fg-bin.job-no  EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+          AND fg-bin.job-no2 EQ INTEGER(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+        NO-ERROR.
+    IF AVAILABLE fg-bin THEN DO:
+        ASSIGN 
+            fg-rctd.cases:SCREEN-VALUE      = STRING(TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0))
+            fg-rctd.qty-case:SCREEN-VALUE   = STRING(fg-bin.case-count)
+            fg-rctd.cases-unit:SCREEN-VALUE = STRING(fg-bin.cases-unit)
+            fg-rctd.partial:SCREEN-VALUE    = STRING(fg-bin.partial-count)
+            fg-rctd.t-qty:SCREEN-VALUE      = STRING(fg-bin.qty)
+            .            
+    END. 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetValuesFromTag B-table-Win
+PROCEDURE pGetValuesFromTag PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+ IF AVAILABLE loadtag THEN DO:
+     ASSIGN
+         fg-rctd.job-no:SCREEN-VALUE  IN BROWSE {&BROWSE-NAME} = loadtag.job-no
+         fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(loadtag.job-no2)
+         fg-rctd.po-no:SCREEN-VALUE   IN BROWSE {&BROWSE-NAME} = STRING(loadtag.po-no)
+         fg-rctd.loc:SCREEN-VALUE     IN BROWSE {&BROWSE-NAME} = loadtag.loc
+         fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = loadtag.loc-bin
+         .
+ END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateJobFromTag B-table-Win
+PROCEDURE pValidateJobFromTag PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcTag AS CHARACTER NO-UNDO.
+    
+    IF ipcTag NE "" AND fg-rctd.tag:MODIFIED IN BROWSE {&BROWSE-NAME} THEN DO:
+
+        FIND FIRST job-hdr NO-LOCK
+             WHERE job-hdr.company  EQ cocode
+               AND job-hdr.job-no   EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+               AND job-hdr.job-no2  EQ INTEGER(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) 
+             NO-ERROR.
+            IF NOT AVAILABLE job-hdr THEN
+                MESSAGE "Item# - " fg-rctd.i-no:SCREEN-VALUE " is not on Job# - " fg-rctd.job-no:SCREEN-VALUE "-" fg-rctd.job-no2:SCREEN-VALUE  
+                    VIEW-AS ALERT-BOX WARNING.
+              
+        FIND FIRST loadtag NO-LOCK 
+             WHERE loadtag.company   EQ cocode
+               AND loadtag.tag-no    EQ ipcTag
+               AND loadtag.item-Type EQ NO
+               AND loadtag.job-no    EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
+               AND loadtag.job-no2   EQ INTEGER(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+             NO-ERROR.
+        IF NOT AVAILABLE loadtag THEN DO:
+            MESSAGE "Job#" + fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} + " doesnot exist on tag"
+            VIEW-AS ALERT-BOX.
+        END.
+    END.         
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateTag B-table-Win
+PROCEDURE pValidateTag PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcTag  AS CHARACTER NO-UNDO.
+    
+    IF ipcTag NE ""  AND fg-rctd.tag:MODIFIED IN BROWSE {&BROWSE-NAME} THEN DO:
+        FIND FIRST loadtag NO-LOCK 
+             WHERE loadtag.company   EQ cocode
+               AND loadtag.tag-no    EQ ipcTag
+               AND loadtag.item-Type EQ NO
+             NO-ERROR.
+        IF NOT AVAILABLE loadtag THEN DO:
+            MESSAGE "Tag# " + ipcTag + " doesnot exist"
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY "ENTRY" TO fg-rctd.tag IN BROWSE {&BROWSE-NAME}.    
+            RETURN ERROR.
+        END. 
+        ELSE DO:
+            RUN pGetValuesFromTag.
+            RUN pGetBinValues.
+        END.    
+    END.     
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
 PROCEDURE repo-query :
@@ -2153,6 +2307,9 @@ PROCEDURE valid-job-no :
 ------------------------------------------------------------------------------*/
   
   DO WITH FRAME {&frame-name}:
+    IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN
+        RETURN.
+            
     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
         FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
         TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
@@ -2211,6 +2368,8 @@ PROCEDURE valid-job-no2 :
 ------------------------------------------------------------------------------*/
                                                          
   DO WITH FRAME {&frame-name}:
+    IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} NE "" THEN 
+        RETURN.
     IF TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE TRIM(lv-job-no)  OR
        DEC(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) NE DEC(lv-job-no2) THEN
       RUN new-job-no.
