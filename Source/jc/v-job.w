@@ -1288,8 +1288,8 @@ PROCEDURE local-enable-fields :
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
-
+  IF AVAIL job THEN
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .   
   /* Code placed here will execute AFTER standard behavior.    */
   /* do it when scheduling is ready
      IF NOT adm-new-record THEN DISABLE job.start-date WITH FRAME {&FRAME-NAME}.
