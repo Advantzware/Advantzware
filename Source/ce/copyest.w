@@ -1059,6 +1059,7 @@ PROCEDURE run-process :
   DEF BUFFER knot  FOR notes.
   DEF BUFFER b-itemfg FOR itemfg.
   DEF BUFFER b-attach FOR ATTACH .
+  DEF BUFFER bf-estPacking FOR estPacking.
 
   DEF VAR txno AS INT.
 
@@ -1491,6 +1492,18 @@ PROCEDURE run-process :
          END.
     end.
   end.
+  
+  FOR EACH estPacking NO-LOCK
+         WHERE estPacking.company = est.company 
+         AND estPacking.estimateNo = est.est-no :
+                 
+          CREATE bf-estPacking .
+          BUFFER-COPY estPacking EXCEPT rec_key company estimateNo TO bf-estPacking .
+             ASSIGN 
+                 bf-estPacking.company    = kest.company
+                 bf-estPacking.estimateNo = kest.est-no . 
+       
+  END.  /* FOR EACH estPacking*/
 
   IF tb_dept-notes THEN
   FOR EACH notes where notes.rec_key eq est.rec_key NO-LOCK:
