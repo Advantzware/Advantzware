@@ -1237,7 +1237,7 @@ RUN BatchMail (begin_cust, end_cust).
         RELEASE inv-misc .
         
       
-        RUN ValidateInvoice IN hPostInvoices (cocode,
+        RUN ValidateInvoices IN hPostInvoices (cocode,
                                                begin_inv,
                                                (IF end_inv NE 0 THEN end_inv ELSE 9999999) ,
                                                begin_date,
