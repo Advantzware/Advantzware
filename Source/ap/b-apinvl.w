@@ -1993,6 +1993,7 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN auto-add-tt.
+  adm-adding-record = NO .
 
 END PROCEDURE.
 
@@ -2258,8 +2259,10 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   /* === validation ---- */
-  RUN valid-po-no NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  IF adm-adding-record THEN do:
+      RUN valid-po-no NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
   
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ap-invl.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 AND
