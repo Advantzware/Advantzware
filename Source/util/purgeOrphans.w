@@ -300,12 +300,13 @@ DO:
                     (IF tbEstimating:CHECKED THEN "" ELSE "") +  
                     (IF tbInventory:CHECKED THEN  
                         "fg-act,fg-bin,fg-hist,fg-rcpth,fg-rcpts,fg-rctd,fg-rdtl,fg-rdtlh,fg-set,fgcat," +     
-                        "item,itemfg,itemfg-loc,itemfgdtl," +
+                        "item,itemfg,itemfg-loc,itemfgdtl," + 
                         "rm-bin,rm-rcpt,rm-rctd,"
                         ELSE "") +    
                     (IF tbOrders:CHECKED THEN 
                         "oe-bolh,oe-boll,oe-boll-qty," +
-                        "oe-ordl,oe-ordm,oe-rel,oe-relh,oe-rell,oe-ship,"
+                        "oe-ordl,oe-ordm," + 
+                        "oe-rel,oe-relh,oe-rell,oe-ship,"
                         ELSE "") + 
                     (IF tbPurchasing:CHECKED THEN "" ELSE "")
         cFileList = REPLACE(cFileList,",,",",")

@@ -762,7 +762,7 @@ PROCEDURE purgeComplete:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    OUTPUT STREAM sReport TO VALUE (cOutputDir + "\" + "_PurgeReport.csv") APPEND.
+    OUTPUT STREAM sReport TO VALUE (cOutputDir + "\" + "_PurgeReport.csv").
     
     PUT STREAM sReport UNFORMATTED 
         "Table Name,Purged?,Rec Key,Rule,Value,Rule,Value,Rule,Value" + CHR(10).
@@ -822,6 +822,26 @@ END PROCEDURE.
 &ENDIF
 
 
+&IF DEFINED(EXCLUDE-purgeJobs) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE purgeJobs Procedure
+PROCEDURE purgeJobs:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcMode AS CHAR NO-UNDO.
+    
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-purgeOrphans) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE purgeOrphans Procedure
@@ -868,7 +888,8 @@ PROCEDURE purgeOrphans:
                                OUTPUT oplError,
                                OUTPUT opcMessage).
     
-    IF CAN-DO(cFieldNameList,"loc") THEN 
+    IF CAN-DO(cFieldNameList,"loc")  
+    AND NOT CAN-DO("item,itemfg",ipcFileName) THEN 
         RUN pRuleBlankLoc (ipcFileName,
                            cRecKeyPrefix,
                            OUTPUT oplError,
