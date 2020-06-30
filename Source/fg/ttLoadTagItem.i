@@ -1,0 +1,10 @@
+
+DEFINE {1} {2} TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd
+    FIELD row-id   AS ROWID
+    FIELD has-rec  AS LOG INIT NO
+    FIELD invoiced AS LOG INIT NO
+    FIELD old-tag AS CHARACTER
+    FIELD ret-loc AS CHARACTER
+    FIELD ret-loc-bin AS CHARACTER 
+    FIELD blank-cust AS CHARACTER
+    FIELD IS-SELECTED AS LOG       COLUMN-LABEL "" VIEW-AS TOGGLE-BOX .

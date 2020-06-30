@@ -102,14 +102,7 @@ DEFINE VARIABLE v-tmp-lines AS DECIMAL NO-UNDO.
 DEFINE VARIABLE v-print-barTag AS LOG NO-UNDO.
 
 DEFINE SHARED VARIABLE cShipTO AS CHARACTER NO-UNDO .
-DEFINE SHARED TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd
-    FIELD row-id   AS ROWID
-    FIELD has-rec  AS LOG INIT NO
-    FIELD invoiced AS LOG INIT NO
-    FIELD old-tag AS CHARACTER
-    FIELD ret-loc AS CHARACTER
-    FIELD ret-loc-bin AS CHARACTER
-    FIELD blank-cust AS CHARACTER.
+{fg/ttLoadTagItem.i shared}  
 
 DEFINE VARIABLE ls-image1 AS cha NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
