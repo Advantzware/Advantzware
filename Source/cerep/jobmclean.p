@@ -1541,12 +1541,14 @@ FOR EACH bf-jobhdr NO-LOCK WHERE bf-jobhdr.company = job-hdr.company
             lv-note-cnt   = 0.
         IF FIRST(bf-jobhdr.frm) THEN 
         DO: 
-            FIND FIRST oe-ord WHERE oe-ord.company EQ job-hdr.company
-                AND oe-ord.ord-no  EQ job-hdr.ord-no NO-LOCK NO-ERROR.
+            FIND FIRST oe-ordl WHERE oe-ordl.company EQ job-hdr.company
+                AND oe-ordl.ord-no  EQ job-hdr.ord-no 
+                AND oe-ordl.i-no EQ job-hdr.i-no 
+                NO-LOCK NO-ERROR.
 
             PUT "<C5><B>Special instructions - "  (IF cRdOptionMclean EQ "M" THEN "Moorestown" ELSE "Nazareth") FORMAT "x(12)" SKIP
-                "<C5>Over:" (IF AVAILABLE oe-ord THEN STRING(oe-ordl.over-pct,">>9.99%") ELSE "0") 
-                "<C28>Under:" (IF AVAILABLE oe-ord THEN STRING(oe-ordl.under-pct,">>9.99%") ELSE "0")  SKIP .
+                "<C5>Over:" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.over-pct,">>9.99%") ELSE "0") 
+                "<C28>Under:" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.under-pct,">>9.99%") ELSE "0")  SKIP .
             PUT "<B><C5>FORM  <C9>DEPARTMENT      INSTRUCTION NOTES</B>" SKIP.
 
         END.

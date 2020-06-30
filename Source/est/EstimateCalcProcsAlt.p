@@ -299,9 +299,9 @@ PROCEDURE pBuildBlankAndFormQuantities PRIVATE:
         IF FIRST-OF (ttEstimateBlank.estimateFormID) THEN DO:
             CREATE ttEstimateFormQuantity.
             ASSIGN 
-                ttEstimateFormQuantity.estimateFormID = ttEstimateBlank.estimate
+                ttEstimateFormQuantity.estimateFormID = ttEstimateBlank.estimateFormID
+                .
         END.
-        CREATE ttEstimateBlank    
         
     END.
 
@@ -321,15 +321,15 @@ PROCEDURE pBuildItemQuantities PRIVATE:
         EACH ttEstimateItem
         WHERE ttEstimateItem.estimateID EQ ttEstimateQuantity.estimateID:
         CREATE ttEstimateItemQuantity.
-        ASSIGN 
-            ttEstimateItemQuantity.estimateItemQuantityID = fGetNextID()
-            ttEstimateItemQuantity.estimateItemID = ttEstimateItem.estimateItemID
-            ttEstimateItemQuantity.estimateQuantityID = ttEstimateQuantity.estimateQuantityID
-            ttEstimateItemQuantity.quantityRequested = IF ttEstimateItem.quantityRequested NE 0 THEN ttEstimateItem.quantityRequested 
-                                                        ELSE ttEstimateItem.quantityPerSet * ttEstimateQuantity.quantityMaster
-            ttEstimateItemQuantity.quantityYielded = = IF ttEstimateItem.quantityYielded NE 0 THEN ttEstimateItem.quantityYielded
-                                                        ELSE ttEstimateItem.quantityPerSet * ttEstimateQuantity.quantityMaster
-            ttEstimateQuantity.quantityTotal = ttEstimateItemQuantity.q
+/*        ASSIGN                                                                                                                 */
+/*            ttEstimateItemQuantity.estimateItemQuantityID = fGetNextID()                                                       */
+/*            ttEstimateItemQuantity.estimateItemID = ttEstimateItem.estimateItemID                                              */
+/*            ttEstimateItemQuantity.estimateQuantityID = ttEstimateQuantity.estimateQuantityID                                  */
+/*            ttEstimateItemQuantity.quantityRequested = IF ttEstimateItem NE 0 THEN ttEstimateItem.quantityRequested            */
+/*                                                        ELSE ttEstimateItem.quantityPerSet * ttEstimateQuantity.quantityMaster */
+/*            ttEstimateItemQuantity.quantityYielded = IF ttEstimateItem.quantityYielded NE 0 THEN ttEstimateItem.quantityYielded*/
+/*                                                        ELSE ttEstimateItem.quantityPerSet * ttEstimateQuantity.quantityMaster */
+/*            .                                                                                                                  */
     END.
 
 END PROCEDURE.
