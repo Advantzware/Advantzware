@@ -192,6 +192,7 @@ PROCEDURE pBuildHeaders PRIVATE:
             bf-job-hdr.std-lab-cost = estCostItem.costTotalLabor / dQtyInM
             bf-job-hdr.std-var-cost = estCostItem.costTotalVariableOverhead / dQtyInM
             bf-job-hdr.std-fix-cost = estCostItem.costTotalFixedOverhead / dQtyInM
+            bf-job-hdr.n-on         = estCostBlank.numOut
             .
         IF estCostHeader.estType EQ "Set" AND NOT estCostItem.isSet THEN 
         DO:
@@ -307,7 +308,10 @@ PROCEDURE pBuildMaterials PRIVATE:
         
     FOR EACH estCostMaterial NO-LOCK
         WHERE estCostMaterial.estCostHeaderID EQ ipiEstCostHeaderID
-        AND NOT estCostMaterial.isPurchasedFG:
+        AND NOT estCostMaterial.isPurchasedFG
+        ,
+        FIRST estCostForm NO-LOCK 
+        WHERE estCostForm.estCostFormID EQ estCostMaterial.estCostFormID:
         FIND FIRST bf-job-mat EXCLUSIVE-LOCK 
             WHERE bf-job-mat.company EQ ipbf-job.company
             AND bf-job-mat.job EQ ipbf-job.job
@@ -342,7 +346,10 @@ PROCEDURE pBuildMaterials PRIVATE:
             bf-job-mat.std-cost     = estCostMaterial.costPerUOM
             bf-job-mat.sc-uom       = estCostMaterial.costUOM
             bf-job-mat.cost-m       = estCostMaterial.costTotalPerMFinished
+            bf-job-mat.n-up         = estCostForm.numOut
+            bf-job-mat.basis-w      = estCostForm.basisWeight
             .
+        
         RELEASE bf-job-mat.    
     END.
     
