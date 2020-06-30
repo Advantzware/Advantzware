@@ -241,11 +241,11 @@ ON VALUE-CHANGED OF cbScopeType IN FRAME F-Main /* Scope Type */
 DO:
     IF cbScopeType:SCREEN-VALUE EQ cAPIClientXrefAny THEN 
         ASSIGN 
-            scopeID:SCREEN-VALUE = cAPIClientXrefAny
-            scopeID:SENSITIVE    = FALSE
+            apiClientXref.scopeID:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cAPIClientXrefAny
+            apiClientXref.scopeID:SENSITIVE    = FALSE
             .
     ELSE
-        scopeID:SENSITIVE = TRUE.
+        apiClientXref.scopeID:SENSITIVE = TRUE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
