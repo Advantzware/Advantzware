@@ -13,6 +13,7 @@
                   procedure only
   ----------------------------------------------------------------------*/
 {api/ttArgs.i}
+{api/ttScopes.i}
 
 DEFINE TEMP-TABLE ttRequestData NO-UNDO
     FIELD company              AS CHARACTER
@@ -53,6 +54,9 @@ DEFINE VARIABLE cRequestTypeFTP           AS CHARACTER NO-UNDO INITIAL "FTP".
 DEFINE VARIABLE cRequestTypeSAVE          AS CHARACTER NO-UNDO INITIAL "SAVE".
 DEFINE VARIABLE cLocValidationExceptions  AS CHARACTER NO-UNDO INITIAL "SendAdvancedShipNotice,SendFinishedGood". /* Should be comma (,) separated. loc.isAPIEnabled will not be validated for APIs in the list */
 DEFINE VARIABLE cScopeTypeList            AS CHARACTER NO-UNDO INITIAL "_ANY_,Customer,Vendor,ShipTo".
+DEFINE VARIABLE cScopeTypeCustomer        AS CHARACTER NO-UNDO INITIAL "Customer".
+DEFINE VARIABLE cScopeTypeVendor          AS CHARACTER NO-UNDO INITIAL "Vendor".
+DEFINE VARIABLE cScopeTypeShipTo          AS CHARACTER NO-UNDO INITIAL "ShipTo".
 DEFINE VARIABLE cAPIClientXrefAny         AS CHARACTER NO-UNDO INITIAL "_ANY_".
 
 /* **********************  Internal Procedures  *********************** */
@@ -733,6 +737,95 @@ PROCEDURE pGetApiClientXrefStatus PRIVATE:
         RETURN.
     END.
 
+END PROCEDURE.
+
+PROCEDURE Outbound_GetAPIsForScopeID:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the temp-table with list of api's active for the given scope
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeType AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeID   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttScopes.
+    
+    DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
+    DEFINE BUFFER bf-apiClientXref FOR apiClientXref.
+    
+    FOR EACH bf-APIOutbound NO-LOCK
+        WHERE bf-APIOutbound.company  EQ ipcCompany
+          AND bf-APIOutbound.inactive EQ FALSE:
+        FOR EACH bf-apiClientXref NO-LOCK
+            WHERE bf-apiClientXref.company  EQ bf-APIOutbound.company
+              AND bf-apiClientXref.apiID    EQ bf-APIOutbound.apiID
+              AND bf-apiClientXref.clientID EQ bf-APIOutbound.clientID:
+            IF ipcScopeType EQ cScopeTypeVendor THEN DO: 
+                IF bf-apiClientXref.scopeType NE cScopeTypeVendor AND
+                   bf-apiClientXref.scopeType NE cAPIClientXrefAny THEN
+                NEXT.
+                
+                IF bf-apiClientXref.scopeID NE cAPIClientXrefAny AND 
+                   bf-apiClientXref.scopeID NE ipcScopeID THEN
+                NEXT.
+            END.
+            
+            IF ipcScopeType EQ cScopeTypeCustomer THEN DO: 
+                IF bf-apiClientXref.scopeType NE cScopeTypeCustomer AND
+                   bf-apiClientXref.scopeType NE cScopeTypeShipTo AND
+                   bf-apiClientXref.scopeType NE cAPIClientXrefAny THEN
+                    NEXT.
+                
+                IF bf-apiClientXref.scopeID NE cAPIClientXrefAny AND 
+                   NOT bf-apiClientXref.scopeID BEGINS ipcScopeID THEN
+                NEXT.                
+            END.
+            
+            CREATE ttScopes.
+            ASSIGN
+                ttScopes.company         = bf-apiClientXref.company
+                ttScopes.apiID           = bf-apiClientXref.apiID
+                ttScopes.clientID        = bf-apiClientXref.clientID
+                ttScopes.scopeID         = IF bf-apiClientXref.scopeID EQ cAPIClientXrefAny THEN
+                                               "ANY"
+                                           ELSE
+                                               bf-apiClientXref.scopeID
+                ttScopes.scopeType       = IF bf-apiClientXref.scopeType EQ cAPIClientXrefAny THEN
+                                               "ANY"
+                                           ELSE
+                                               bf-apiClientXref.scopeType
+                ttScopes.triggerID       = IF bf-apiClientXref.triggerID EQ cAPIClientXrefAny THEN
+                                               "ANY"
+                                           ELSE
+                                               bf-apiClientXref.triggerID
+                ttScopes.inactive        = bf-apiClientXref.inactive
+                ttScopes.riApiClientXref = ROWID(bf-apiClientXref)
+                .
+
+            IF bf-apiClientXref.scopeType EQ cScopeTypeCustomer THEN
+                ttScopes.customerID = IF bf-apiClientXref.scopeID EQ cAPIClientXrefAny THEN
+                                          "ANY"
+                                      ELSE
+                                          bf-apiClientXref.scopeID.
+
+            IF bf-apiClientXref.scopeType EQ cScopeTypeShipTo THEN
+                ASSIGN
+                    ttScopes.customerID = IF bf-apiClientXref.scopeID EQ cAPIClientXrefAny THEN
+                                              "ANY"
+                                          ELSE
+                                              ENTRY(1, bf-apiClientXref.scopeID, "|")
+                    ttScopes.shipToiD   = IF bf-apiClientXref.scopeID EQ cAPIClientXrefAny THEN
+                                              "ANY"
+                                          ELSE
+                                              ENTRY(2, bf-apiClientXref.scopeID, "|")
+                    NO-ERROR.
+
+            IF bf-apiClientXref.scopeType EQ cScopeTypeVendor THEN
+                ttScopes.vendorID = IF bf-apiClientXref.scopeID EQ cAPIClientXrefAny THEN
+                                        "ANY"
+                                    ELSE
+                                        bf-apiClientXref.scopeID.
+        END.
+    END.
 END PROCEDURE.
 
 PROCEDURE pInitializeRequest PRIVATE:
