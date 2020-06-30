@@ -134,6 +134,11 @@ DEF            VAR dBillAmt       AS DECIMAL NO-UNDO.
 DEF            VAR lEmailBol      AS LOG     NO-UNDO.
 DEF            VAR ll             AS LOG     NO-UNDO.
 DEFINE VARIABLE li AS INTEGER NO-UNDO.
+DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cReturnValue     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFGTagValidation AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cFGTagValidation AS CHARACTER NO-UNDO.
+
 {fg/fgPostProc.i}
 {sys/form/r-top.i}
 
@@ -413,7 +418,44 @@ DO li-loop = 1 TO NUM-ENTRIES(v-postlst):
         AND fg-rctd.created-by LE end_created))
         AND fg-rctd.setHeaderRNo EQ 0
         USE-INDEX rita-code:
+        
+        FIND FIRST itemfg NO-LOCK
+             WHERE itemfg.company EQ cocode
+               AND itemfg.i-no    EQ fg-rctd.i-no
+             NO-ERROR.  
+                     
+        RUN sys/ref/nk1look.p(
+           INPUT cocode,
+           INPUT "FGTagValidation",
+           INPUT "L",
+           INPUT YES,
+           INPUT YES,
+           INPUT IF AVAILABLE itemfg THEN itemfg.cust-no ELSE "",
+           INPUT "",
+           OUTPUT cReturnValue,
+           OUTPUT lRecFound
+           ).
+        lFGTagValidation = LOGICAL(cReturnValue).
 
+        RUN sys/ref/nk1look.p(
+            INPUT cocode,
+            INPUT "FGTagValidation",
+            INPUT "C",
+            INPUT YES,
+            INPUT YES,
+            INPUT IF AVAILABLE itemfg THEN itemfg.cust-no ELSE "",
+            INPUT "",
+            OUTPUT cReturnValue,
+            OUTPUT lRecFound
+            ).
+        cFGTagValidation = cReturnValue.
+        
+        IF cFGTagValidation EQ "ItemMatch" THEN DO:
+            IF lFGTagValidation AND fg-rctd.tag EQ "" THEN 
+                NEXT.
+            ELSE IF fg-rctd.tag NE "" AND NOT fg-rctd.tag BEGINS fg-rctd.i-no THEN 
+                NEXT.
+        END. 
         RUN build-tables.
 
     END.
