@@ -1615,9 +1615,9 @@ PROCEDURE list-gl :
 
                     IF ld-pton EQ ? THEN ld-pton = 0.
 
-                    DISPLAY v-ar-freight          @ account.actnum
+                    DISPLAY ttGLTransaction.account  @ account.actnum
                         v-dscr
-                        int(ttGLTransaction.account) @ inv-head.inv-no FORMAT ">>>>>>9"
+                        int(ttGLTransaction.invoiceID) @ inv-head.inv-no FORMAT ">>>>>>9"
                         "FREIGHT"             @ inv-line.i-no
                         dec(ttGLTransaction.amount) @ v-tmp-amt
                         ld-pton FORMAT "->>>>>>9.999" 
@@ -1698,9 +1698,9 @@ PROCEDURE list-gl :
 
                     IF ld-pton EQ ? THEN ld-pton = 0.
 
-                    DISPLAY v-ar-disc             @ account.actnum
+                    DISPLAY ttGLTransaction.account             @ account.actnum
                         v-dscr
-                        int(ttGLTransaction.account) @ inv-head.inv-no FORMAT ">>>>>>9"
+                        int(ttGLTransaction.invoiceID) @ inv-head.inv-no FORMAT ">>>>>>9"
                         "DISCOUNT"            @ inv-line.i-no
                         dec(ttGLTransaction.amount) @ v-tmp-amt
                         ld-pton FORMAT "->>>>>>9.999" 
@@ -1784,9 +1784,9 @@ PROCEDURE list-gl :
 
                         IF ld-pton EQ ? THEN ld-pton = 0.
 
-                        DISPLAY ar-ctrl.cash-act    @ account.actnum
+                        DISPLAY ttGLTransaction.account    @ account.actnum
                             v-dscr
-                            int(ttGLTransaction.account)  @ inv-head.inv-no FORMAT ">>>>>>9"
+                            int(ttGLTransaction.invoiceID)  @ inv-head.inv-no FORMAT ">>>>>>9"
                             "CASH INVOICE"      @ inv-line.i-no
                             dec(ttGLTransaction.amount)  @ v-tmp-amt
                             ld-pton FORMAT "->>>>>>9.999" 
@@ -1980,7 +1980,7 @@ PROCEDURE list-post-inv :
         inv-head.t-inv-tax FORMAT "->,>>>,>>9.99"
         dMiscTot FORMAT "->>>>9.99"
         v-line-tot FORMAT "->>>>>>9.99"
-        inv-head.t-inv-rev FORMAT "->>,>>>,>>9.999999" TO 139
+        inv-head.t-inv-rev FORMAT "->>,>>>,>>9.99" TO 139
         ld-pton FORMAT "->>>>>>9.999"
         ld-t[2]
         WITH STREAM-IO WIDTH 180 NO-LABELS NO-BOX NO-UNDERLINE FRAME inv.
@@ -1995,7 +1995,7 @@ PROCEDURE list-post-inv :
         bf-inv-line.price FORMAT "->>>,>>9.999999" LABEL "Price"
         bf-inv-line.pr-uom LABEL "UOM"
         bf-inv-line.t-price FORMAT "->>,>>>,>>9.999999" COLUMN-LABEL "Extended! Price"
-        v-prof  FORMAT "->>>9.99%" COLUMN-LABEL "Profit"
+        v-prof  FORMAT "->>>>>9.99%" COLUMN-LABEL "Profit"
         WITH DOWN NO-BOX STREAM-IO WIDTH 180 FRAME invl.
 
     FORMAT
@@ -2010,7 +2010,7 @@ PROCEDURE list-post-inv :
         bf-inv-line.t-price FORMAT "->>,>>>,>>9.999999" COLUMN-LABEL "Extended! Price"
         ld-pton FORMAT "->>>>>>9.999" COLUMN-LABEL "!     $/Ton"
         ld-t[1] COLUMN-LABEL "!      Tons"
-        v-prof  FORMAT "->>>9.99%" COLUMN-LABEL "Profit"
+        v-prof  FORMAT "->>>>>9.99%" COLUMN-LABEL "Profit"
         WITH DOWN NO-BOX STREAM-IO WIDTH 180 FRAME invlt.
 
     FORMAT

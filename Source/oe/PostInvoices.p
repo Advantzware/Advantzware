@@ -3310,8 +3310,8 @@ PROCEDURE ValidateInvoices:
     
     IF NOT oplError THEN
         /*Process the list of invoices built for additional validations*/
-        RUN pValidateInvoicesToPost.
-
+        RUN pValidateInvoicesToPost(OUTPUT opiCountProcessed, OUTPUT opiCountValid).
+         
     /*Process to create hold tags from the ttInvoiceError table */
     RUN pCreateValidationTags. 
         
@@ -3323,6 +3323,8 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Process ttInvoicesToPost and check for additional validations
     ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opiCountProcessed AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiCountValid AS INTEGER NO-UNDO.
     DEFINE BUFFER bf-ttInvoiceToPost            FOR ttInvoiceToPost.
     DEFINE BUFFER bf-inv-head FOR inv-head.
     
@@ -3332,7 +3334,8 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
     FOR EACH bf-ttInvoiceToPost,
         FIRST bf-inv-head NO-LOCK 
         WHERE ROWID(bf-inv-head) EQ bf-ttInvoiceToPost.riInvHead:
-        lAutoApprove = YES.       
+        lAutoApprove = YES.   
+        opiCountProcessed = opiCountProcessed + 1.
          IF bf-inv-head.stat EQ "H" THEN
          DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invoice on Hold",NO).
@@ -3355,6 +3358,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             ASSIGN 
                 bf-inv-head.autoApprove = YES.
             FIND CURRENT bf-inv-head NO-LOCK.
+            opiCountValid = opiCountValid + 1.
          END.
     END.  /*Each Inv-head*/
     
