@@ -20,6 +20,12 @@
 DEFINE VARIABLE cRoundMethod     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRoundMethodUp   AS CHARACTER NO-UNDO INITIAL "ROUNDUP".
 DEFINE VARIABLE cRoundMethodDown AS CHARACTER NO-UNDO INITIAL "ROUNDDOWN".
+DEFINE VARIABLE cCalcMethod      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCalcMethodAPI   AS CHARACTER NO-UNDO INITIAL "API".
+DEFINE VARIABLE hdVertexProcs    AS HANDLE    NO-UNDO.
+
+RUN system/VertexProcs.p PERSISTENT SET hdVertexProcs.
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -424,6 +430,36 @@ PROCEDURE pGetRoundMethod PRIVATE:
         opcRoundMethod = cRoundMethod.  
 END PROCEDURE.
 
+PROCEDURE pGetCalcMethod PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns the calculation method from NK1 setting SalesTaxCalcMethod
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCalcMethod AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+    
+    IF cCalcMethod NE "" THEN DO:
+        opcCalcMethod = cCalcMethod.
+        RETURN.
+    END.
+    
+    RUN sys/ref/nk1look.p (
+        INPUT  ipcCompany,           /* Company Code */
+        INPUT  "SalesTaxCalcMethod", /* sys-ctrl name */
+        INPUT  "C",                  /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
+        INPUT  FALSE,                /* Use ship-to */
+        INPUT  FALSE,                /* ship-to vendor */
+        INPUT  "",                   /* ship-to vendor value */
+        INPUT  "",                   /* shi-id value */
+        OUTPUT cCalcMethod,
+        OUTPUT lRecFound
+        ). 
+
+    opcCalcMethod = cCalcMethod.  
+END PROCEDURE.
+
 PROCEDURE Tax_Calculate:
     /*------------------------------------------------------------------------------
      Purpose: Calculate tax amount for given inputs 
@@ -452,6 +488,123 @@ PROCEDURE Tax_Calculate:
         OUTPUT cMessage
         ).
         
+END PROCEDURE.
+
+PROCEDURE Tax_APICalculateForInvHead:
+/*------------------------------------------------------------------------------
+ Purpose: Calculate tax through API for a given ar-inv rowid
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriInvHead AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTaxTotal AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dInvoiceSubTotal AS DECIMAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-inv-head FOR inv-head.
+    
+    FIND FIRST bf-inv-head NO-LOCK 
+         WHERE ROWID(bf-inv-head) EQ ipriInvHead
+         NO-ERROR.
+    IF NOT AVAILABLE bf-inv-head THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid inv-head row id"
+            .
+        RETURN.
+    END.    
+
+    IF cCalcMethod EQ "" THEN
+        RUN pGetCalcMethod (
+            INPUT  bf-inv-head.company,
+            OUTPUT cCalcMethod
+            ).
+    
+    IF cCalcMethod NE cCalcMethodAPI THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "NK1 setting SalesTaxCalcMethod is not set to 'API'"
+            .
+        RETURN.
+    END.
+
+    RUN Vertex_CalculateTaxForInvHead IN hdVertexProcs (
+        INPUT  ROWID(bf-inv-head),
+        INPUT  ipcLocation,
+        INPUT  "INVOICE",        /*  Message Type "INVOICE" or "QUOTATION" */
+        INPUT  TRUE,             /* Post To journal */
+        OUTPUT dInvoiceTotal,
+        OUTPUT dInvoiceSubTotal,
+        OUTPUT opdTaxTotal,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage    
+        ).
+
+    IF NOT oplSuccess THEN
+        RETURN.
+    
+    /* Save the total tax */
+    bf-inv-head.t-inv-tax = opdTaxTotal.
+END PROCEDURE.
+
+PROCEDURE Tax_APICalculateForArInv:
+/*------------------------------------------------------------------------------
+ Purpose: Calculate tax through API for a given ar-inv rowid
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriArInv   AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTaxTotal AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dInvoiceSubTotal AS DECIMAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-ar-inv FOR ar-inv.
+    
+    FIND FIRST bf-ar-inv NO-LOCK 
+         WHERE ROWID(bf-ar-inv) EQ ipriArInv
+         NO-ERROR.
+    IF NOT AVAILABLE bf-ar-inv THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid ar-inv row id"
+            .
+        RETURN.
+    END.    
+
+    IF cCalcMethod EQ "" THEN
+        RUN pGetCalcMethod (
+            INPUT  bf-ar-inv.company,
+            OUTPUT cCalcMethod
+            ).
+                
+    IF cCalcMethod NE cCalcMethodAPI THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "NK1 setting SalesTaxCalcMethod is not set to 'API'"
+            .
+        RETURN.
+    END.
+    
+    RUN Vertex_CalculateTaxForArInv IN hdVertexProcs (
+        INPUT  ROWID(bf-ar-inv),
+        INPUT  ipcLocation,
+        INPUT  "INVOICE",        /*  Message Type "INVOICE" or "QUOTATION" */
+        INPUT  TRUE,             /* Post To journal */
+        OUTPUT dInvoiceTotal,
+        OUTPUT dInvoiceSubTotal,
+        OUTPUT opdTaxTotal,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage    
+        ).
+
+    IF NOT oplSuccess THEN
+        RETURN.    
 END PROCEDURE.
 
 PROCEDURE Tax_CalculateWithDetail:

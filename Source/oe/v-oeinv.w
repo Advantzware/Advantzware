@@ -1318,6 +1318,9 @@ PROCEDURE local-assign-record :
   DEF VAR ld-tax-amt AS DEC NO-UNDO.
   DEF VAR ld-inv-accum AS DEC NO-UNDO.
 
+    DEFINE VARIABLE dTotalTax AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN ld-prev-frt-tot = IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0 .
@@ -1463,6 +1466,18 @@ PROCEDURE local-assign-record :
   ASSIGN inv-head.t-inv-tax = ld-tax-tot.
 
   ASSIGN inv-head.t-inv-rev = ld-inv-accum + inv-head.t-inv-tax.
+
+  /* Call API to get the tax amount */
+  RUN Tax_APICalculateForInvHead IN hdTaxProcs (
+      INPUT  ROWID(inv-head),
+      INPUT  locode,
+      OUTPUT dTotalTax,
+      OUTPUT lSuccess,
+      OUTPUT cMessage
+      ).
+
+  IF lSuccess THEN 
+      inv-head.t-inv-tax = dTotalTax.
 
   RUN dispatch ('display-fields').
 
