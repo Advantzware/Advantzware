@@ -6502,16 +6502,6 @@ PROCEDURE ipUpdateUserControl :
                                  STRING(month(today),"99") +
                                  STRING(day(today),"99") +
                                  timeString.
-        FIND FIRST rec_key WHERE
-            rec_key.table_name = "usercontrol" AND
-            rec_key.rec_key = usercontrol.rec_key
-            NO-LOCK NO-ERROR.
-        IF NOT AVAIL rec_key THEN DO:
-            CREATE rec_key.
-            ASSIGN
-                rec_key.table_name = "usercontrol"
-                rec_key.rec_key = usercontrol.rec_key.
-        END.
     END.
     ELSE DO:
         ASSIGN

@@ -32,7 +32,7 @@
 33 "ShowHistory" "System" "Show History" "Logical" "yes/no" "Toggle-Box" "" "no" 1 17 0 "" "" "" ? "" "202002066526704654728"
 34 "AsOfDateOption" "System" "As Of Date Option" "Character" "x(8)" "Radio-Set" "Current,Current,Prior Month,Prior Month,Prior Year,Prior Year" "Current" 1 41 0 "" "" "" "HORIZONTAL" "" "202003095686704702280"
 35 "IncludeZeroPricePer" "System" "Include Zero Price Per" "Logical" "yes/no" "Toggle-Box" "" "yes" 1 24 0 "" "" "" ? "" "202003257004304706946"
-36 "EstTypeID" "System" "Estimate Type ID" "Character" "x(30)" "Combo-Box" "," "" 1 30 0 "dynInitEstTypeID" "" "" "LIST-ITEM-PAIRS" "" "202004095310904708491"
+36 "EstTypeID" "System" "Estimate Type ID" "Character" "x(30)" "Combo-Box" "" "" 1 30 0 "dynInitEstTypeID" "" "" "LIST-ITEM-PAIRS" "" "202004095310904708491"
 37 "EstType" "System" "Estimate Type" "Integer" "9" "Combo-Box" "," "5" 1 30 5 "dynInitEstTypeCorr" "" "" "LIST-ITEM-PAIRS" "" "202004095318404708492"
 38 "release" "System" "Release" "Integer" ">>>>>>9" "Fill-In" "" "" 1 14 0 "" "" "" ? "" "202004236061005124137"
 39 "UseImportFile" "System" "Use Import File" "Logical" "yes/no" "Toggle-Box" "" "no" 1 18 0 "" "" "" ? "" "202004236099005124147"

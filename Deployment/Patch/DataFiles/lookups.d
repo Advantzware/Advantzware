@@ -25,7 +25,6 @@
 "" "" "begin_costtype_descr" "costtyp_." "0119200000002869"
 "" "" "begin_ctrl-no" "venditm." "0807200300101679"
 "" "" "begin_cust" "cust." "0120200300055642"
-"" "" "begin_cust-no" "cust." "0127200300056059"
 "" "" "begin_cust-po" "oepo." "0806200300101658"
 "" "" "begin_cust-type" "custype." "0807200300101870"
 "" "" "begin_custype" "custype." "0117200000002725"

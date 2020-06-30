@@ -1,0 +1,652 @@
+DROP TABLE "rec_key"
+
+ADD TABLE "arClass"
+  AREA "Data"
+  DUMP-NAME "arclass"
+
+ADD FIELD "classID" OF "arClass" AS integer 
+  FORMAT "99"
+  INITIAL "0"
+  LABEL "AR Class ID"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Enter the AR Class ID"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "description" OF "arClass" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Class Description"
+  POSITION 3
+  MAX-WIDTH 120
+  HELP "Enter the description for the AR Class"
+  ORDER 20
+
+ADD FIELD "receivablesAcct" OF "arClass" AS character 
+  FORMAT "x(25)"
+  INITIAL ""
+  LABEL "Receivables Account"
+  POSITION 4
+  MAX-WIDTH 50
+  HELP "Enter the Receivables account number for this class"
+  ORDER 30
+  MANDATORY
+
+ADD FIELD "inActive" OF "arClass" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Inactive"
+  POSITION 5
+  MAX-WIDTH 1
+  HELP "Is this class inactive?"
+  ORDER 40
+
+ADD FIELD "rec_key" OF "arClass" AS character 
+  FORMAT "X(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 6
+  MAX-WIDTH 42
+  HELP "Enter Record Key Value"
+  ORDER 50
+
+ADD FIELD "createDate" OF "arClass" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  LABEL "Create Date"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 60
+
+ADD FIELD "createTime" OF "arClass" AS integer 
+  FORMAT "99999"
+  INITIAL "0"
+  LABEL "Create Time"
+  POSITION 8
+  MAX-WIDTH 4
+  ORDER 70
+
+ADD FIELD "createUser" OF "arClass" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Create User"
+  POSITION 9
+  MAX-WIDTH 24
+  ORDER 80
+
+ADD FIELD "updateDate" OF "arClass" AS date 
+  FORMAT "99/99/99"
+  INITIAL ?
+  LABEL "Update Date"
+  POSITION 10
+  MAX-WIDTH 4
+  ORDER 90
+
+ADD FIELD "updateTime" OF "arClass" AS integer 
+  FORMAT "99999"
+  INITIAL "0"
+  LABEL "Update Time"
+  POSITION 11
+  MAX-WIDTH 4
+  ORDER 100
+
+ADD FIELD "updateUser" OF "arClass" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  LABEL "Update User"
+  POSITION 12
+  MAX-WIDTH 24
+  ORDER 110
+
+ADD FIELD "currencyCode" OF "arClass" AS character 
+  DESCRIPTION "Currency Code"
+  FORMAT "X(3)"
+  INITIAL ""
+  LABEL "Currency Code"
+  POSITION 13
+  MAX-WIDTH 6
+  ORDER 120
+
+ADD INDEX "iClassID" ON "arClass" 
+  AREA "Data"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "classID" ASCENDING 
+
+ADD TABLE "dateRules"
+  AREA "Data"
+  LABEL "Rules for Date Manipulation"
+  DUMP-NAME "daterules"
+
+ADD FIELD "dateRuleID" OF "dateRules" AS integer 
+  FORMAT ">>>>>>>>9"
+  INITIAL "0"
+  LABEL "Rule ID"
+  POSITION 2
+  MAX-WIDTH 4
+  ORDER 10
+
+ADD FIELD "scope" OF "dateRules" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  LABEL "Scope"
+  POSITION 3
+  MAX-WIDTH 32
+  ORDER 20
+
+ADD FIELD "scopeID" OF "dateRules" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Scope ID"
+  POSITION 4
+  MAX-WIDTH 64
+  ORDER 30
+
+ADD FIELD "baseTable" OF "dateRules" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Base Table"
+  POSITION 5
+  MAX-WIDTH 64
+  ORDER 40
+
+ADD FIELD "baseField" OF "dateRules" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Base Field"
+  POSITION 6
+  MAX-WIDTH 64
+  ORDER 50
+
+ADD FIELD "days" OF "dateRules" AS integer 
+  FORMAT ">>>9"
+  INITIAL "0"
+  LABEL "Days from Base"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 60
+
+ADD FIELD "skipTime" OF "dateRules" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Time of Entry to Add Day"
+  POSITION 8
+  MAX-WIDTH 16
+  ORDER 70
+
+ADD FIELD "skipDays" OF "dateRules" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Days to Skip"
+  POSITION 9
+  MAX-WIDTH 16
+  ORDER 80
+
+ADD FIELD "resultTable" OF "dateRules" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Result Table"
+  POSITION 10
+  MAX-WIDTH 64
+  ORDER 90
+
+ADD FIELD "resultField" OF "dateRules" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Result Field"
+  POSITION 11
+  MAX-WIDTH 64
+  ORDER 100
+
+ADD INDEX "iDateRuleID" ON "dateRules" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "dateRuleID" ASCENDING 
+
+ADD INDEX "iBase" ON "dateRules" 
+  AREA "Index"
+  INDEX-FIELD "baseTable" ASCENDING 
+  INDEX-FIELD "baseField" ASCENDING 
+
+ADD INDEX "iResult" ON "dateRules" 
+  AREA "Index"
+  INDEX-FIELD "resultTable" ASCENDING 
+  INDEX-FIELD "resultField" ASCENDING 
+
+ADD INDEX "iScope" ON "dateRules" 
+  AREA "Index"
+  INDEX-FIELD "scope" ASCENDING 
+
+ADD INDEX "iScopeID" ON "dateRules" 
+  AREA "Index"
+  INDEX-FIELD "scopeID" ASCENDING 
+
+UPDATE TABLE "apiClient"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg/apiClient.p" CRC "?"
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg/apiClient.p" CRC "?"
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg/apiClient.p" CRC "?"
+
+ADD FIELD "sharedSecret" OF "apiClient" AS character
+  FORMAT "x(200)"
+  POSITION 8
+  INITIAL ""
+  LABEL "Share Secret/OAuth Token"
+  COLUMN-LABEL "Share Secret/OAuth Token"
+  ORDER 120
+  MAX-WIDTH 400
+
+ADD INDEX "apiClientId" ON "apiClient"
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "clientID" ASCENDING
+
+ADD INDEX "rec_key" ON "apiClient"
+  AREA "Index"
+  INDEX-FIELD "rec_key" ASCENDING
+
+UPDATE PRIMARY INDEX "apiClientId" ON "apiClient"
+
+UPDATE TABLE "apiClientXref"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg/apiClientXref.p" CRC "?"
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg/apiClientXref.p" CRC "?"
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg/apiClientXref.p" CRC "?"
+
+ADD FIELD "apiId" OF "apiClientXref" AS character
+  FORMAT "x(32)"
+  POSITION 7
+  INITIAL ""
+  LABEL "API ID"
+  COLUMN-LABEL "API ID"
+  ORDER 90
+  MAX-WIDTH 64
+
+ADD FIELD "triggerId" OF "apiClientXref" AS character
+  FORMAT "x(32)"
+  POSITION 8
+  INITIAL ""
+  LABEL "Trigger ID"
+  COLUMN-LABEL "Trigger ID"
+  ORDER 100
+  MAX-WIDTH 64
+
+ADD FIELD "inactive" OF "apiClientXref" AS logical
+  FORMAT "yes/no"
+  POSITION 9
+  INITIAL "no"
+  LABEL "Inactive"
+  COLUMN-LABEL "Inactive"
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+  ORDER 110
+  MAX-WIDTH 1
+
+ADD INDEX "apiClientID" ON "apiClientXref"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "apiId" ASCENDING
+  INDEX-FIELD "clientID" ASCENDING
+
+ADD INDEX "rec_key" ON "apiClientXref"
+  AREA "Index"
+  INDEX-FIELD "rec_key" ASCENDING
+
+ADD INDEX "scopeID" ON "apiClientXref"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "scopeID" ASCENDING
+  INDEX-FIELD "scopeType" ASCENDING
+
+ADD INDEX "scopeTrigger" ON "apiClientXref"
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "apiId" ASCENDING
+  INDEX-FIELD "clientID" ASCENDING
+  INDEX-FIELD "scopeID" ASCENDING
+  INDEX-FIELD "scopeType" ASCENDING
+  INDEX-FIELD "triggerId" ASCENDING
+
+UPDATE PRIMARY INDEX "scopeTrigger" ON "apiClientXref"
+
+ADD FIELD "importPath" OF "APIInbound" AS character
+  DESCRIPTION "Path to import request data files through API framework"
+  FORMAT "x(60)"
+  POSITION 19
+  INITIAL ""
+  LABEL "Import Path"
+  COLUMN-LABEL "Import Path"
+  ORDER 190
+  MAX-WIDTH 120
+
+ADD FIELD "classID" OF "cust" AS integer
+  FORMAT "99"
+  POSITION 169
+  INITIAL "0"
+  HELP "Enter the AR Class ID for this customer"
+  LABEL "AR Class ID"
+  ORDER 1670
+  MAX-WIDTH 4
+
+UPDATE FIELD "calcFormula" OF "dynParamValue"
+  MAX-WIDTH 102800
+
+ADD FIELD "runSync" OF "dynParamValue" AS logical
+  FORMAT "yes/no"
+  POSITION 54
+  INITIAL "no"
+  HELP "Check to Run Synchronous"
+  LABEL "Run Synchronous"
+  COLUMN-LABEL "Sync"
+  ORDER 460
+  MAX-WIDTH 1
+
+ADD FIELD "runSync" OF "dynSubject" AS logical
+  FORMAT "yes/no"
+  POSITION 26
+  INITIAL "no"
+  HELP "Check to Run Synchronous"
+  LABEL "Run Synchronouse"
+  COLUMN-LABEL "Sync"
+  ORDER 220
+  MAX-WIDTH 1
+
+UPDATE FIELD "groupCalc" OF "dynSubjectColumn"
+  MAX-WIDTH 80
+
+UPDATE FIELD "calcFormula" OF "dynSubjectColumn"
+  MAX-WIDTH 80
+
+ADD FIELD "statusCompare" OF "dynSubjectColumn" AS character
+  FORMAT "x(8)"
+  POSITION 26
+  INITIAL ""
+  HELP "Enter Status Compare"
+  LABEL "Status Compare"
+  COLUMN-LABEL "Compare"
+  ORDER 250
+  MAX-WIDTH 16
+
+ADD FIELD "compareValue" OF "dynSubjectColumn" AS character
+  FORMAT "x(20)"
+  POSITION 27
+  INITIAL ""
+  HELP "Enter Status Compare Value"
+  LABEL "Status Compare Value"
+  ORDER 260
+  MAX-WIDTH 40
+
+ADD FIELD "isStatusField" OF "dynSubjectColumn" AS logical
+  FORMAT "yes/no"
+  POSITION 28
+  INITIAL "no"
+  HELP "Select if Is Status Field"
+  LABEL "Status Field"
+  ORDER 240
+  MAX-WIDTH 1
+
+ADD FIELD "cellColor" OF "dynSubjectColumn" AS integer
+  FORMAT ">9"
+  POSITION 29
+  INITIAL "0"
+  HELP "Enter Cell Color (Background Color)"
+  LABEL "Background"
+  ORDER 280
+  MAX-WIDTH 4
+
+ADD FIELD "textColor" OF "dynSubjectColumn" AS integer
+  FORMAT ">9"
+  POSITION 30
+  INITIAL "0"
+  HELP "Enter Text Color (Foreground Color)"
+  LABEL "Foreground"
+  ORDER 270
+  MAX-WIDTH 4
+
+ADD FIELD "statusAction" OF "dynSubjectColumn" AS character
+  FORMAT "x(30)"
+  POSITION 31
+  INITIAL ""
+  HELP "Enter Status Field Action"
+  LABEL "Status Field Action"
+  ORDER 290
+  MAX-WIDTH 60
+
+ADD FIELD "isStatusField" OF "dynValueColumn" AS logical
+  FORMAT "yes/no"
+  POSITION 26
+  INITIAL "no"
+  HELP "Select if Is Status Field"
+  LABEL "Status Field"
+  ORDER 250
+  MAX-WIDTH 1
+
+ADD FIELD "statusCompare" OF "dynValueColumn" AS character
+  FORMAT "x(8)"
+  POSITION 27
+  INITIAL ""
+  HELP "Enter Status Compare"
+  LABEL "Status Compare"
+  COLUMN-LABEL "Compare"
+  ORDER 260
+  MAX-WIDTH 16
+
+ADD FIELD "compareValue" OF "dynValueColumn" AS character
+  FORMAT "x(20)"
+  POSITION 28
+  INITIAL ""
+  HELP "Enter Status Compare Value"
+  LABEL "Status Compare Value"
+  ORDER 270
+  MAX-WIDTH 40
+
+ADD FIELD "textColor" OF "dynValueColumn" AS integer
+  FORMAT ">9"
+  POSITION 29
+  INITIAL "0"
+  HELP "Enter Text Color (Foreground Color)"
+  LABEL "Foreground"
+  ORDER 280
+  MAX-WIDTH 4
+
+ADD FIELD "cellColor" OF "dynValueColumn" AS integer
+  FORMAT ">9"
+  POSITION 30
+  INITIAL "0"
+  HELP "Enter Cell Color (Background Color)"
+  LABEL "Backgroun"
+  ORDER 290
+  MAX-WIDTH 4
+
+ADD FIELD "statusAction" OF "dynValueColumn" AS character
+  FORMAT "x(30)"
+  POSITION 31
+  INITIAL ""
+  HELP "Enter Status Field Action"
+  LABEL "Status Field Action"
+  ORDER 300
+  MAX-WIDTH 60
+
+ADD FIELD "includeInVariableOverheadCost" OF "estCostCategory" AS logical
+  DESCRIPTION "Flag to determine if cost gets included in Variable Overhead Cost Total"
+  FORMAT "yes/no"
+  POSITION 14
+  INITIAL "no"
+  HELP "Does cost get included in Variable Overhead Cost Total?"
+  LABEL "In VO Cost"
+  COLUMN-LABEL "In VO Cost"
+  ORDER 130
+  MAX-WIDTH 1
+
+ADD FIELD "includeInFixedOverheadCost" OF "estCostCategory" AS logical
+  DESCRIPTION "Flag to determine if cost gets included in Fixed Overhead Cost Total"
+  FORMAT "yes/no"
+  POSITION 15
+  INITIAL "no"
+  HELP "Does cost get included in Fixed Overhead Cost Total?"
+  LABEL "In FO Cost"
+  COLUMN-LABEL "In FO Cost"
+  ORDER 140
+  MAX-WIDTH 1
+
+ADD FIELD "costTotalVariableOverhead" OF "estCostForm" AS decimal
+  DESCRIPTION "Total Variable Overhead Cost"
+  FORMAT "->,>>>,>>9.99"
+  POSITION 60
+  INITIAL "0"
+  HELP "Enter Total Variable Overhead Cost"
+  LABEL "Cost VO"
+  COLUMN-LABEL "Cost VO"
+  DECIMALS 6
+  ORDER 620
+  MAX-WIDTH 21
+
+ADD FIELD "costTotalFixedOverhead" OF "estCostForm" AS decimal
+  DESCRIPTION "Total Fixed Overhead Cost"
+  FORMAT "->,>>>,>>9.99"
+  POSITION 61
+  INITIAL "0"
+  HELP "Enter Total Fixed Overhead Cost"
+  LABEL "Cost FO"
+  COLUMN-LABEL "Cost FO"
+  DECIMALS 6
+  ORDER 630
+  MAX-WIDTH 21
+
+ADD FIELD "costTotalVariableOverhead" OF "estCostHeader" AS decimal
+  DESCRIPTION "Total Variable Overhead Cost"
+  FORMAT "->,>>>,>>9.99"
+  POSITION 63
+  INITIAL "0"
+  HELP "Enter Total Variable Overhead Cost"
+  LABEL "Cost VO"
+  COLUMN-LABEL "Cost VO"
+  DECIMALS 6
+  ORDER 1080
+  MAX-WIDTH 21
+
+ADD FIELD "costTotalFixedOverhead" OF "estCostHeader" AS decimal
+  DESCRIPTION "Total Fixed Overhead Cost"
+  FORMAT "->,>>>,>>9.99"
+  POSITION 64
+  INITIAL "0"
+  HELP "Enter Total Fixed Overhead Cost"
+  LABEL "Cost FO"
+  COLUMN-LABEL "Cost FO"
+  DECIMALS 6
+  ORDER 1090
+  MAX-WIDTH 21
+
+ADD FIELD "costTotalVariableOverhead" OF "estCostItem" AS decimal
+  DESCRIPTION "Total Variable Overhead Cost"
+  FORMAT "->,>>>,>>9.99"
+  POSITION 73
+  INITIAL "0"
+  HELP "Enter Total Variable Overhead Cost"
+  LABEL "Cost VO"
+  COLUMN-LABEL "Cost VO"
+  DECIMALS 6
+  ORDER 960
+  MAX-WIDTH 21
+
+ADD FIELD "costTotalFixedOverhead" OF "estCostItem" AS decimal
+  DESCRIPTION "Total Fixed Overhead Cost"
+  FORMAT "->,>>>,>>9.99"
+  POSITION 74
+  INITIAL "0"
+  HELP "Enter Total Fixed Overhead Cost"
+  LABEL "Cost FO"
+  COLUMN-LABEL "Cost FO"
+  DECIMALS 6
+  ORDER 970
+  MAX-WIDTH 21
+
+ADD FIELD "autoApproved" OF "inv-head" AS logical
+  FORMAT "yes/no"
+  POSITION 78
+  INITIAL "no"
+  HELP "Was this invoice Auto Approved?"
+  LABEL "AutoApproved"
+  ORDER 770
+  MAX-WIDTH 1
+
+RENAME INDEX "inventoryStockID" TO "temp-30828" ON "inventoryStockSnapshot"
+
+ADD INDEX "inventoryStockID" ON "inventoryStockSnapshot"
+  AREA "Data"
+  INDEX-FIELD "inventoryStockID" ASCENDING
+
+DROP INDEX "temp-30828" ON "inventoryStockSnapshot"
+
+ADD FIELD "productTaxClass" OF "itemfg" AS character
+  FORMAT "x(18)"
+  POSITION 226
+  INITIAL ""
+  HELP "Enter the item's Tax Class here"
+  LABEL "Product Tax Class"
+  ORDER 2220
+  MAX-WIDTH 36
+
+ADD FIELD "productTaxClass" OF "prep" AS character
+  FORMAT "x(18)"
+  POSITION 76
+  INITIAL ""
+  HELP "Enter the item's Tax Class here"
+  LABEL "Product Tax Class"
+  ORDER 760
+  MAX-WIDTH 36
+
+ADD FIELD "customMenuTitle" OF "prgrms" AS character
+  FORMAT "x(32)"
+  POSITION 39
+  INITIAL ""
+  HELP "(Optional) Enter an Alternate Program Title"
+  LABEL "Custom Title"
+  ORDER 360
+  MAX-WIDTH 64
+
+ADD FIELD "taxableLimit" OF "stax" AS decimal
+  FORMAT "->,>>>,>>9.99"
+  POSITION 31
+  INITIAL "0"
+  HELP "Limit for taxability for this item"
+  LABEL "Taxable Limnit"
+  COLUMN-LABEL "Taxable Limit"
+  DECIMALS 2
+  ORDER 300
+  MAX-WIDTH 17
+
+ADD FIELD "inactive" OF "stax" AS logical
+  FORMAT "yes/no"
+  POSITION 32
+  INITIAL "no"
+  LABEL "Inactive"
+  COLUMN-LABEL "Inactive"
+  ORDER 310
+  MAX-WIDTH 1
+
+ADD FIELD "runSync" OF "Task" AS logical
+  FORMAT "yes/no"
+  POSITION 53
+  INITIAL "no"
+  HELP "Check to Run Synchronous"
+  LABEL "Run Synchronous"
+  COLUMN-LABEL "Sync"
+  ORDER 490
+  MAX-WIDTH 1
+
+ADD FIELD "inactivityLockout" OF "userControl" AS integer
+  FORMAT ">>>>9"
+  POSITION 22
+  INITIAL "0"
+  LABEL "Lock User After (n) Days Inactivity"
+  COLUMN-LABEL "InactiveLockout"
+  ORDER 210
+  MAX-WIDTH 4
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000014783

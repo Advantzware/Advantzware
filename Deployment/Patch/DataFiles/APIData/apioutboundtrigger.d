@@ -51,3 +51,26 @@
 "001" "202005142461105162371" "SendAdvancedShipNotice" "ReprintRelease" "SendCustomer when Release is Reprinted" no 2019-11-26T09:02:48.895 "user1" "_default1" 51 15
 "001" "202005225605905311655" "SendOrderAck" "PrintOrderAck" "" no 2020-05-22T15:34:19.739 "wade" "_default" 52 16
 "001" "202005225607305311683" "SendOrderAck" "RePrintOrderAck" "" no 2020-05-22T15:34:33.533 "wade" "_default" 53 16
+"001" "202006242742105369560" "CalculateTax" "GetTaxAmount" "Fetch Tax Amount" no 2020-06-29T03:30:34.738 "user1" "Vertex" 71 22
+"001" "202005312751105329006" "SendAdvancedShipNotice" "ReprintBillOfLading" "Triggers when BOL is re-printed" no 2020-05-31T07:38:31.905 "jay" "Test" 5023 5007
+"001" "202005312751105329007" "SendAdvancedShipNotice" "PrintBillOfLading" "Triggers when BOL is printed" no 2020-05-31T07:38:31.925 "jay" "Test" 5024 5007
+"001" "202005312751105329008" "SendAdvancedShipNotice" "AddCustomer" "Adds a customer" yes 2020-05-31T07:38:31.931 "jay" "Test" 5025 5007
+"001" "202005312751105329009" "SendAdvancedShipNotice" "PrintRelease" "SendCustomer when Release is Printed First Time" no 2020-05-31T07:38:31.938 "jay" "Test" 5026 5007
+"001" "202005312751105329010" "SendAdvancedShipNotice" "ReprintRelease" "SendCustomer when Release is Reprinted" no 2020-05-31T07:38:31.945 "jay" "Test" 5027 5007
+"001" "202006046350005336864" "CheckTransfer" "TransmitBankFile" "Transmit Bank File" no 2020-06-04T17:38:20.965 "asi" "8" 5028 5008
+"001" "202006053258705337046" "SendRelease" "PrintRelease" "Sends Release when Release is printed" no 2020-06-05T09:03:07.088 "jay" "eWMS" 5029 5009
+"001" "202006053258705337047" "SendRelease" "ReprintRelease" "Sends Release when Release is reprinted" no 2020-06-05T09:03:07.105 "jay" "eWMS" 5030 5009
+"001" "202006053258705337048" "SendRelease" "UpdateRelease" "Sends Release when Release is updated" no 2020-06-05T09:03:07.112 "jay" "eWMS" 5031 5009
+"001" "202006053258705337049" "SendRelease" "DeleteRelease" "Sends Release when Release is deleted" no 2020-06-05T09:03:07.119 "jay" "eWMS" 5032 5009
+"001" "202006053258705337050" "SendRelease" "CreateRelease" "Sends Release when Release is created" no 2020-06-05T09:03:07.125 "jay" "eWMS" 5033 5009
+"001" "202006053258705337051" "SendRelease" "ApproveRelease" "Sends Release when Release is approved" no 2020-06-05T09:03:07.132 "jay" "eWMS" 5034 5009
+"001" "202006053258705337052" "SendRelease" "HoldRelease" "Sends Release when Release is hold" no 2020-06-05T09:03:07.139 "jay" "eWMS" 5035 5009
+"001" "202006053267605337059" "SendJob" "PrintJob" "Triggers when Job printed flag is NO" no 2020-06-05T09:04:36.014 "jay" "eWMS" 5036 5010
+"001" "202006053267605337060" "SendJob" "ReprintJob" "Triggers when Job printed flag is YES" no 2020-06-05T09:04:36.021 "jay" "eWMS" 5037 5010
+"001" "202006258075805408466" "SendOrderAck" "PrintOrderAck" "" no 2020-06-25T22:25:58.705 "matt" "test" 5039 5013
+"001" "202006258075805408467" "SendOrderAck" "RePrintOrderAck" "" no 2020-06-25T22:25:58.724 "matt" "test" 5040 5013
+"001" "202006294318505415375" "SendAdvancedShipNotice" "ReprintBillOfLading" "Triggers when BOL is re-printed" no 2020-06-29T11:59:45.991 "wade" "DSG" 5041 5014
+"001" "202006294318605415376" "SendAdvancedShipNotice" "PrintBillOfLading" "Triggers when BOL is printed" no 2020-06-29T11:59:46.005 "wade" "DSG" 5042 5014
+"001" "202006294318605415377" "SendAdvancedShipNotice" "AddCustomer" "Adds a customer" yes 2020-06-29T11:59:46.012 "wade" "DSG" 5043 5014
+"001" "202006294318605415378" "SendAdvancedShipNotice" "PrintRelease" "SendCustomer when Release is Printed First Time" no 2020-06-29T11:59:46.018 "wade" "DSG" 5044 5014
+"001" "202006294318605415379" "SendAdvancedShipNotice" "ReprintRelease" "SendCustomer when Release is Reprinted" no 2020-06-29T11:59:46.024 "wade" "DSG" 5045 5014
