@@ -152,11 +152,11 @@ FOR EACH fg-rcpth NO-LOCK
      tt-fg-bin.po-no        = fg-rcpth.po-no
      tt-fg-bin.aging-date   = fg-rcpth.trans-date
      tt-fg-bin.pur-uom      = io-itemfg.prod-uom
-     tt-fg-bin.std-tot-cost = io-itemfg.total-std-cost
-     tt-fg-bin.std-mat-cost = io-itemfg.std-mat-cost
-     tt-fg-bin.std-lab-cost = io-itemfg.std-lab-cost
-     tt-fg-bin.std-var-cost = io-itemfg.std-var-cost
-     tt-fg-bin.std-fix-cost = io-itemfg.std-fix-cost.
+     tt-fg-bin.std-tot-cost = fg-rdtlh.std-tot-cost
+     tt-fg-bin.std-mat-cost = fg-rdtlh.std-mat-cost
+     tt-fg-bin.std-lab-cost = fg-rdtlh.std-lab-cost
+     tt-fg-bin.std-var-cost = fg-rdtlh.std-var-cost
+     tt-fg-bin.std-fix-cost = fg-rdtlh.std-fix-cost.
 
     FIND FIRST fg-bin NO-LOCK
         WHERE fg-bin.company      EQ tt-fg-bin.company
