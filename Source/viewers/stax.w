@@ -88,7 +88,6 @@ stax.tax-code1[10] stax.tax-dscr1[10] stax.tax-rate1[10] stax.tax-acc1[10] ~
 stax.accum-tax stax.inactive 
 &Scoped-define ENABLED-TABLES stax
 &Scoped-define FIRST-ENABLED-TABLE stax
-&Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS stax.tax-group stax.tax-code1[1] ~
 stax.tax-dscr1[1] stax.tax-rate1[1] stax.tax-acc1[1] stax.taxableLimit ~
 stax.tax-frt1[1] stax.tax-code1[2] stax.tax-dscr1[2] stax.tax-rate1[2] ~
@@ -141,8 +140,8 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 142 BY 15.95.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 142 BY 15.24.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -155,18 +154,23 @@ DEFINE FRAME F-Main
      stax.tax-code1[1] AT ROW 2.91 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 14 FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
+          BGCOLOR 15 
      stax.tax-dscr1[1] AT ROW 2.91 COL 28.4 COLON-ALIGNED NO-LABEL WIDGET-ID 24
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
+          BGCOLOR 15 
      stax.tax-rate1[1] AT ROW 2.91 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 44
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
+          BGCOLOR 15 
      stax.tax-acc1[1] AT ROW 2.91 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 4
           VIEW-AS FILL-IN 
           SIZE 27.2 BY 1
+          BGCOLOR 15 
      stax.taxableLimit AT ROW 2.91 COL 121.2 COLON-ALIGNED NO-LABEL WIDGET-ID 62
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
+          BGCOLOR 15 
      stax.tax-frt1[1] AT ROW 3 COL 114 WIDGET-ID 34
           LABEL ""
           VIEW-AS TOGGLE-BOX
@@ -174,57 +178,59 @@ DEFINE FRAME F-Main
      stax.tax-code1[2] AT ROW 4.19 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 16 FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
+          BGCOLOR 15 
      stax.tax-dscr1[2] AT ROW 4.19 COL 28.4 COLON-ALIGNED NO-LABEL WIDGET-ID 26
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
+          BGCOLOR 15 
      stax.tax-rate1[2] AT ROW 4.19 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 46
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
+          BGCOLOR 15 
      stax.tax-acc1[2] AT ROW 4.19 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 96
           VIEW-AS FILL-IN 
           SIZE 27.2 BY 1
-     stax.tax-code1[3] AT ROW 5.62 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 18 FORMAT "x(3)"
+          BGCOLOR 15 
+     stax.tax-code1[3] AT ROW 5.29 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 18 FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     stax.tax-dscr1[3] AT ROW 5.62 COL 28.4 COLON-ALIGNED NO-LABEL WIDGET-ID 28
+          BGCOLOR 15 
+     stax.tax-dscr1[3] AT ROW 5.29 COL 28.4 COLON-ALIGNED NO-LABEL WIDGET-ID 28
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
-     stax.tax-rate1[3] AT ROW 5.62 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 48
+          BGCOLOR 15 
+     stax.tax-rate1[3] AT ROW 5.29 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 48
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     stax.tax-acc1[3] AT ROW 5.62 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 98
+          BGCOLOR 15 
+     stax.tax-acc1[3] AT ROW 5.29 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 98
           VIEW-AS FILL-IN 
           SIZE 27.2 BY 1
-     stax.tax-code1[4] AT ROW 6.86 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 20 FORMAT "x(3)"
+          BGCOLOR 15 
+     stax.tax-code1[4] AT ROW 6.52 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 20 FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     stax.tax-dscr1[4] AT ROW 6.86 COL 28.4 COLON-ALIGNED NO-LABEL WIDGET-ID 30
+          BGCOLOR 15 
+     stax.tax-dscr1[4] AT ROW 6.52 COL 28.4 COLON-ALIGNED NO-LABEL WIDGET-ID 30
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
-     stax.tax-rate1[4] AT ROW 6.86 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+          BGCOLOR 15 
+     stax.tax-rate1[4] AT ROW 6.52 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 50
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     stax.tax-acc1[4] AT ROW 6.86 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 100
+          BGCOLOR 15 
+     stax.tax-acc1[4] AT ROW 6.52 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 100
           VIEW-AS FILL-IN 
           SIZE 27.2 BY 1
-     stax.tax-code1[5] AT ROW 8.14 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 22 FORMAT "x(3)"
+          BGCOLOR 15 
+     stax.tax-code1[5] AT ROW 7.81 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 22 FORMAT "x(3)"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     stax.tax-dscr1[5] AT ROW 8.14 COL 28.4 COLON-ALIGNED NO-LABEL WIDGET-ID 32
+          BGCOLOR 15 
+     stax.tax-dscr1[5] AT ROW 7.81 COL 28.4 COLON-ALIGNED NO-LABEL WIDGET-ID 32
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
-     stax.tax-rate1[5] AT ROW 8.14 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 52
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-     stax.tax-acc1[5] AT ROW 8.14 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 102
-          VIEW-AS FILL-IN 
-          SIZE 27.2 BY 1
-     stax.tax-code1[6] AT ROW 9.38 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 68
-          VIEW-AS FILL-IN 
-          SIZE 10 BY 1
-     stax.tax-dscr1[6] AT ROW 9.43 COL 28.4 COLON-ALIGNED NO-LABEL WIDGET-ID 78
-          VIEW-AS FILL-IN 
-          SIZE 32 BY 1
+          BGCOLOR 15 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -232,67 +238,116 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     stax.tax-rate1[6] AT ROW 9.43 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 88
+     stax.tax-rate1[5] AT ROW 7.81 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 52
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     stax.tax-acc1[6] AT ROW 9.43 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 104
+          BGCOLOR 15 
+     stax.tax-acc1[5] AT ROW 7.81 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 102
           VIEW-AS FILL-IN 
           SIZE 27.2 BY 1
-     stax.tax-code1[7] AT ROW 10.62 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 70
+          BGCOLOR 15 
+     stax.tax-code1[6] AT ROW 9.05 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 68
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     stax.tax-dscr1[7] AT ROW 10.62 COL 28.6 COLON-ALIGNED NO-LABEL WIDGET-ID 80
+          BGCOLOR 15 
+     stax.tax-dscr1[6] AT ROW 9.1 COL 28.4 COLON-ALIGNED NO-LABEL WIDGET-ID 78
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
-     stax.tax-rate1[7] AT ROW 10.62 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 90
+          BGCOLOR 15 
+     stax.tax-rate1[6] AT ROW 9.1 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 88
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     stax.tax-acc1[7] AT ROW 10.62 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+          BGCOLOR 15 
+     stax.tax-acc1[6] AT ROW 9.1 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 104
           VIEW-AS FILL-IN 
           SIZE 27.2 BY 1
-     stax.tax-code1[8] AT ROW 11.86 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 72
+          BGCOLOR 15 
+     stax.tax-code1[7] AT ROW 10.29 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 70
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     stax.tax-dscr1[8] AT ROW 11.86 COL 28.6 COLON-ALIGNED NO-LABEL WIDGET-ID 82
+          BGCOLOR 15 
+     stax.tax-dscr1[7] AT ROW 10.29 COL 28.6 COLON-ALIGNED NO-LABEL WIDGET-ID 80
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
-     stax.tax-rate1[8] AT ROW 11.86 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 92
+          BGCOLOR 15 
+     stax.tax-rate1[7] AT ROW 10.29 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 90
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     stax.tax-acc1[8] AT ROW 11.86 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 108
+          BGCOLOR 15 
+     stax.tax-acc1[7] AT ROW 10.29 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 106
           VIEW-AS FILL-IN 
           SIZE 27.2 BY 1
-     stax.tax-rate1[9] AT ROW 13.05 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 94
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-     stax.tax-code1[9] AT ROW 13.1 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 74
+          BGCOLOR 15 
+     stax.tax-code1[8] AT ROW 11.52 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 72
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     stax.tax-dscr1[9] AT ROW 13.1 COL 28.6 COLON-ALIGNED NO-LABEL WIDGET-ID 84
+          BGCOLOR 15 
+     stax.tax-dscr1[8] AT ROW 11.52 COL 28.6 COLON-ALIGNED NO-LABEL WIDGET-ID 82
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
-     stax.tax-acc1[9] AT ROW 13.1 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 110
-          VIEW-AS FILL-IN 
-          SIZE 27.2 BY 1
-     stax.tax-code1[10] AT ROW 14.29 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 66
-          VIEW-AS FILL-IN 
-          SIZE 10 BY 1
-     stax.tax-dscr1[10] AT ROW 14.33 COL 28.6 COLON-ALIGNED NO-LABEL WIDGET-ID 76
-          VIEW-AS FILL-IN 
-          SIZE 32 BY 1
-     stax.tax-rate1[10] AT ROW 14.33 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 86
+          BGCOLOR 15 
+     stax.tax-rate1[8] AT ROW 11.52 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 92
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     stax.tax-acc1[10] AT ROW 14.33 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 112
+          BGCOLOR 15 
+     stax.tax-acc1[8] AT ROW 11.52 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 108
           VIEW-AS FILL-IN 
           SIZE 27.2 BY 1
-     stax.accum-tax AT ROW 15.71 COL 20
+          BGCOLOR 15 
+     stax.tax-rate1[9] AT ROW 12.71 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 94
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
+          BGCOLOR 15 
+     stax.tax-code1[9] AT ROW 12.76 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 74
+          VIEW-AS FILL-IN 
+          SIZE 10 BY 1
+          BGCOLOR 15 
+     stax.tax-dscr1[9] AT ROW 12.76 COL 28.6 COLON-ALIGNED NO-LABEL WIDGET-ID 84
+          VIEW-AS FILL-IN 
+          SIZE 32 BY 1
+          BGCOLOR 15 
+     stax.tax-acc1[9] AT ROW 12.76 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 110
+          VIEW-AS FILL-IN 
+          SIZE 27.2 BY 1
+          BGCOLOR 15 
+     stax.tax-code1[10] AT ROW 13.95 COL 17 COLON-ALIGNED NO-LABEL WIDGET-ID 66
+          VIEW-AS FILL-IN 
+          SIZE 10 BY 1
+          BGCOLOR 15 
+     stax.tax-dscr1[10] AT ROW 14 COL 28.6 COLON-ALIGNED NO-LABEL WIDGET-ID 76
+          VIEW-AS FILL-IN 
+          SIZE 32 BY 1
+          BGCOLOR 15 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     stax.tax-rate1[10] AT ROW 14 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 86
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
+          BGCOLOR 15 
+     stax.tax-acc1[10] AT ROW 14 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 112
+          VIEW-AS FILL-IN 
+          SIZE 27.2 BY 1
+          BGCOLOR 15 
+     stax.accum-tax AT ROW 15.29 COL 19
           LABEL "Tax on Tax?"
           VIEW-AS TOGGLE-BOX
           SIZE 20 BY .81
-     stax.inactive AT ROW 15.71 COL 105.4 WIDGET-ID 60
+     stax.inactive AT ROW 15.29 COL 78 WIDGET-ID 60
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY .81
+     "Freight?" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 2.05 COL 112
+     "Sales" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.24 COL 4
+     "Tax" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 1.33 COL 112
+     "$ Limit" VIEW-AS TEXT
+          SIZE 8.8 BY .62 AT ROW 1.48 COL 123.2 WIDGET-ID 64
      "Tax Group" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 1.95 COL 4
      "Tax" VIEW-AS TEXT
@@ -305,23 +360,8 @@ DEFINE FRAME F-Main
           SIZE 6 BY .71 AT ROW 1.24 COL 66
      "Code" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.95 COL 19
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
-     "Sales" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.24 COL 4
      "Rate" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.95 COL 66
-     "Freight?" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 2.05 COL 112
-     "$ Limit" VIEW-AS TEXT
-          SIZE 8.8 BY .62 AT ROW 1.48 COL 123.2 WIDGET-ID 64
-     "Tax" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.33 COL 112
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -356,7 +396,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 16.05
+         HEIGHT             = 15.24
          WIDTH              = 142.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -387,6 +427,8 @@ ASSIGN
 
 /* SETTINGS FOR TOGGLE-BOX stax.accum-tax IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN stax.tax-code1[1] IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN stax.tax-code1[2] IN FRAME F-Main
@@ -414,25 +456,9 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
-
-
-
 /* ************************  Control Triggers  ************************ */
 
 &Scoped-define SELF-NAME stax.tax-acc1[1]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[1] V-table-Win
-ON HELP OF stax.tax-acc1[1] IN FRAME F-Main /* Sales Tax Account[1] */
-DO:
-  def var char-val as cha no-undo.
-  run windows/l-acct.w (gcompany,"",self:screen-value,output char-val).
-  if char-val <> "" then self:screen-value = entry(1,char-val).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[1] V-table-Win
 ON LEAVE OF stax.tax-acc1[1] IN FRAME F-Main /* Sales Tax Account[1] */
 DO:
