@@ -675,7 +675,7 @@ ASSIGN
                     "Sold To: " oe-ord.sold-id when avail oe-ord
                     "Order#: " oe-ord.ord-no when avail oe-ord
                     space(3)
-                    "Cust Part#: " oe-ordl.part-no when avail oe-ord
+                    "Cust Part#: " oe-ordl.part-no when avail oe-ordl
                     eb.part-no when not avail oe-ordl @ oe-ordl.part-no
                     skip
                     "Plate#: "  eb.plate-no
