@@ -7487,12 +7487,11 @@ FOR EACH tt-fgrctd-created:
        
    cFGTagValidation = cReturnValue.
    
-   IF cFGTagValidation EQ "ItemMatch" THEN DO:
-       IF lFGTagValidation AND fg-rctd.tag EQ "" THEN 
-           NEXT.
-       ELSE IF fg-rctd.tag NE "" AND NOT fg-rctd.tag BEGINS fg-rctd.i-no THEN 
-           NEXT.
-   END.   
+   IF lFGTagValidation AND fg-rctd.tag EQ "" THEN 
+       NEXT.
+        
+   IF cFGTagValidation EQ "ItemMatch" AND NOT fg-rctd.tag BEGINS fg-rctd.i-no THEN 
+       NEXT. 
 
   IF AVAIL fg-rctd THEN DO:
     IF SSPostFG-log AND
