@@ -1318,9 +1318,11 @@ PROCEDURE local-assign-record :
   DEF VAR ld-tax-amt AS DEC NO-UNDO.
   DEF VAR ld-inv-accum AS DEC NO-UNDO.
 
-    DEFINE VARIABLE dTotalTax AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dInvoiceSubTotal AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dTotalTax        AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cmessage         AS CHARACTER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN ld-prev-frt-tot = IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0 .
@@ -1338,117 +1340,18 @@ PROCEDURE local-assign-record :
   IF inv-status EQ "ON HOLD" AND inv-head.stat NE "H" THEN inv-head.stat = "H".
   inv-head.f-bill = inv-head.frt-pay eq "B" /* OR inv-head.frt-pay eq "P" */.
 
+  RUN Tax_CalculateForInvHead IN hdTaxProcs (
+      INPUT ROWID(inv-head),
+      INPUT locode,
+      INPUT "INVOICE", /*  Message Type "INVOICE" or "QUOTATION" */
+      INPUT TRUE, /* Post To journal */
+      OUTPUT dTotalTax,
+      OUTPUT dInvoiceTotal,
+      OUTPUT dinvoiceSubTotal,
+      OUTPUT lSuccess,
+      OUTPUT cMessage
+      ).
 
-  /* recalc tax */
-  /*if inv-head.tax-gr <> "" THEN DO: */
-      FIND FIRST stax WHERE stax.company = cocode AND
-                      stax.tax-group = inv-head.tax-gr NO-LOCK NO-ERROR.
-
-      ASSIGN ld-tax-tmp = 0
-             ld-tax-tot = 0
-             ld-tax-amt = 0
-             ld-inv-accum = 0.
-
-      FOR EACH bf-inv-line no-lock where bf-inv-line.r-no = inv-head.r-no:
-          ASSIGN ld-inv-accum = ld-inv-accum + bf-inv-line.t-price.
-          ASSIGN ld-tax-amt = IF bf-inv-line.tax THEN bf-inv-line.t-price ELSE 0.
-          IF inv-head.tax-gr <> "" AND avail stax AND bf-inv-line.tax THEN 
-          DO:
-              RUN Tax_Calculate IN hdTaxProcs (
-                  INPUT  inv-head.company,
-                  INPUT  inv-head.tax-gr,
-                  INPUT  FALSE,   /* Is this freight */
-                  INPUT  ld-tax-amt,
-                  INPUT  bf-inv-line.i-no,
-                  OUTPUT ld-tax-tmp
-                  ).
-              ASSIGN ld-tax-tot = ld-tax-tot + ld-tax-tmp.
-/*               /* Find itemfg. */                                                                    */
-/*               FIND FIRST itemfg NO-LOCK WHERE                                                       */
-/*                          itemfg.company = bf-inv-line.company AND                                   */
-/*                          itemfg.i-no = bf-inv-line.i-no NO-ERROR.                                   */
-/*               /* Determine which tax program to run (standard or varied tax calculation). */        */
-/*               /* If the itemfg varied tax flag is set... */                                         */
-/*               IF AVAIL itemfg AND itemfg.spare-char-2 = "YES" AND                                   */
-/*                   /* And the dollar limit is setup in tax code 5... */                              */
-/*                   AVAIL stax AND stax.tax-code1[5] = "" AND stax.tax-dscr1[5] = "Dollar Limit" AND  */
-/*                   stax.tax-rate1[5] > 0 AND                                                         */
-/*                   /* and the invoice price exceeds the dollar limit... */                           */
-/*                    bf-inv-line.t-price > stax.tax-rate1[5] THEN                                     */
-/*                   /* then run the varied tax rate calculation program. */                           */
-/*                   RUN ar/calcvtax.p (inv-head.tax-gr, no,ld-tax-amt, output ld-tax-tot).            */
-/*               /* Else run the standard tax rate calculation program. */                             */
-/*               ELSE                                                                                  */
-/*               /* original calculation */                                                            */
-/*               DO i = 1 to 5: /* gdm - 07160902*/                                                    */
-/*                     if stax.tax-code1[i] ne "" then do:                                             */
-/*                        ld-tax-tmp  = round((if stax.accum-tax then ld-tax-amt                       */
-/*                                         ELSE bf-inv-line.t-price) * stax.tax-rate1[i] / 100,2).     */
-/*                        ld-tax-amt = ld-tax-amt + ld-tax-tmp.                                        */
-/*                        ld-tax-tot = ld-tax-tot + ld-tax-tmp.                                        */
-/*                                                                                                     */
-/*                     end.                                                                            */
-/*               END. /* DO i = 1 to 5 */                                                              */
-
-          END. /* IF inv-head.tax-gr <> "" AND avail stax AND bf-inv-line.tax */
-      END. /* FOR EACH bf-inv-line */
-
-      FOR each bf-inv-misc no-lock where bf-inv-misc.company = inv-head.company and
-                                          bf-inv-misc.r-no = inv-head.r-no and
-                                          bf-inv-misc.bill = "Y" :     
-           ASSIGN ld-inv-accum = ld-inv-accum + bf-inv-misc.amt.
-           ASSIGN ld-tax-amt = bf-inv-misc.amt.
-           IF inv-head.tax-gr <> "" AND bf-inv-misc.tax and avail stax THEN DO:
-              RUN Tax_Calculate IN hdTaxProcs (
-                  INPUT  inv-head.company,
-                  INPUT  inv-head.tax-gr,
-                  INPUT  FALSE,   /* Is this freight */
-                  INPUT  ld-tax-amt,
-                  INPUT  bf-inv-misc.inv-i-no,
-                  OUTPUT ld-tax-tmp
-                  ).
-               ASSIGN ld-tax-tot = ld-tax-tot + ld-tax-tmp.
-/*               /* Find itemfg. */                                                                    */
-/*               FIND FIRST itemfg NO-LOCK WHERE                                                       */
-/*                          itemfg.company = bf-inv-misc.company AND                                   */
-/*                          itemfg.i-no = bf-inv-misc.inv-i-no NO-ERROR.                               */
-/*               /* Determine which tax program to run (standard or varied tax calculation). */        */
-/*               /* If the itemfg varied tax flag is set... */                                         */
-/*               IF AVAIL itemfg AND itemfg.spare-char-2 = "YES" AND                                   */
-/*                   /* And the dollar limit is setup in tax code 5... */                              */
-/*                   AVAIL stax AND stax.tax-code1[5] = "" AND stax.tax-dscr1[5] = "Dollar Limit" AND  */
-/*                   stax.tax-rate1[5] > 0 AND                                                         */
-/*                   /* and the invoice price exceeds the dollar limit... */                           */
-/*                    bf-inv-misc.amt > stax.tax-rate1[5] THEN                                         */
-/*                   /* then run the varied tax rate calculation program. */                           */
-/*                   RUN ar/calcvtax.p (inv-head.tax-gr, no,ld-tax-amt, output ld-tax-tot).            */
-/*               /* Else run the standard tax rate calculation program. */                             */
-/*               ELSE                                                                                  */
-/*                do i = 1 to 5: /* gdm - 07160902*/                                                   */
-/*                   if stax.tax-code1[i] ne "" then do:                                               */
-/*                        ld-tax-tmp  = round((if stax.accum-tax then ld-tax-amt                       */
-/*                                         ELSE bf-inv-misc.amt) * stax.tax-rate1[i] / 100,2).         */
-/*                        ld-tax-amt = ld-tax-amt + ld-tax-tmp.                                        */
-/*                        ld-tax-tot = ld-tax-tot + ld-tax-tmp.                                        */
-/*                   end.                                                                              */
-/*                end.                                                                                 */
-           END. /* IF inv-head.tax-gr <> "" AND bf-inv-misc.tax and avail stax */
-      END.
-      ld-inv-accum = ld-inv-accum + 
-                     IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
-      ld-tax-amt = inv-head.t-inv-freight.
-      IF inv-head.tax-gr <> "" and
-         inv-head.f-bill AND inv-head.t-inv-freight <> 0 AND AVAIL stax THEN
-      do i = 1 to 5: /* gdm - 07160902 */
-              if stax.tax-code1[i] ne "" AND stax.tax-frt1[i] then do:
-                   ld-tax-tmp  = round((if stax.accum-tax then ld-tax-amt
-                                                         ELSE inv-head.t-inv-freight) *
-                                        stax.tax-rate1[i] / 100,2).
-                   ld-tax-amt = ld-tax-amt + ld-tax-tmp.
-                   ld-tax-tot = ld-tax-tot + ld-tax-tmp.
-
-              end.
-      end.      
   IF inv-head.cust-no NE '' AND inv-head.sman[1] EQ '' THEN DO:
       FIND FIRST cust 
           WHERE cust.company EQ inv-head.company
@@ -1460,24 +1363,10 @@ PROCEDURE local-assign-record :
             inv-head.s-pct[1] = 100.
   END.
 
-
-  IF inv-head.tax-gr = "" THEN ld-tax-tot = 0.
-
-  ASSIGN inv-head.t-inv-tax = ld-tax-tot.
-
-  ASSIGN inv-head.t-inv-rev = ld-inv-accum + inv-head.t-inv-tax.
-
-  /* Call API to get the tax amount */
-  RUN Tax_APICalculateForInvHead IN hdTaxProcs (
-      INPUT  ROWID(inv-head),
-      INPUT  locode,
-      OUTPUT dTotalTax,
-      OUTPUT lSuccess,
-      OUTPUT cMessage
-      ).
-
-  IF lSuccess THEN 
-      inv-head.t-inv-tax = dTotalTax.
+  ASSIGN 
+      inv-head.t-inv-tax = dTotalTax
+      inv-head.t-inv-rev = dInvoiceTotal
+      .
 
   RUN dispatch ('display-fields').
 

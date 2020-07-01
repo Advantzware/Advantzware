@@ -207,11 +207,14 @@ ELSE DO:
 
             FOR EACH inv-line NO-LOCK 
                 WHERE inv-line.r-no EQ inv-head.r-no:
+                IF inv-line.inv-qty EQ 0 OR inv-line.t-price EQ 0 THEN
+                    NEXT.
+
                 ASSIGN                    
                     lcLineItemsData          = bf-APIOutboundDetail1.data
                     cItemID                  = inv-line.i-no
                     cItemQuantity            = STRING(inv-line.inv-qty, "->>>>>>>9.9<<")
-                    cItemPrice               = STRING(inv-line.t-price, ">>>>>>>9.99<<<<") 
+                    cItemPrice               = STRING(inv-line.t-price / inv-line.inv-qty, ">>>>>>>9.99<<<<") 
                     cLineID                  = STRING(inv-line.line)
                     lcConcatFlexiCodeData    = ""
                     lcConcatFlexiNumericData = ""
@@ -289,7 +292,7 @@ ELSE DO:
                     ).                
                 
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress1", cShipToAddr1).
-                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress2", cShipToAddr1).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress2", cShipToAddr2).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToCity", cShipToCity).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToState", cShipToState).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToZip", cShipToZip).
@@ -391,7 +394,7 @@ ELSE DO:
                     ).     
 
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress1", cShipToAddr1).
-                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress2", cShipToAddr1).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress2", cShipToAddr2).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToCity", cShipToCity).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToState", cShipToState).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToZip", cShipToZip).
@@ -422,8 +425,12 @@ ELSE DO:
                     lcConcatFlexiCodeData    = ""
                     lcConcatFlexiNumericData = ""
                     lcConcatFlexiDateData    = ""
+                    cCustomerID              = ""
+                    cCustClassCode           = ""
+                    cItemClassCode           = ""
                     .
 
+                                  
                 IF AVAILABLE bf-APIOutboundDetail2 THEN DO:
                     /* Send if freight in flexible field 6 */
                     lcFlexiCodeData = bf-APIOutboundDetail2.data.
@@ -440,7 +447,7 @@ ELSE DO:
                     ).                
                 
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress1", cShipToAddr1).
-                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress2", cShipToAddr1).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress2", cShipToAddr2).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToCity", cShipToCity).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToState", cShipToState).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToZip", cShipToZip).
@@ -501,18 +508,24 @@ ELSE DO:
                     lcConcatFlexiDateData    = ""
                     .
                 
+                IF NOT ar-invl.misc AND (ar-invl.inv-qty EQ 0 OR ar-invl.amt EQ 0) THEN
+                    NEXT.
+                    
                 IF ar-invl.misc THEN
                     ASSIGN
                         cItemQuantity   = IF ar-invl.inv-qty EQ 0 THEN
                                               "1"
                                           ELSE
                                               STRING(ar-invl.inv-qty, "->>>>>>>9.9<<")
-                        cItemPrice      = STRING(ar-invl.unit-pr, ">>>>>>>9.99<<<<") 
+                        cItemPrice      = IF ar-invl.inv-qty EQ 0 THEN 
+                                              STRING(ar-invl.amt, ">>>>>>>9.99<<<<")
+                                          ELSE
+                                              STRING(ar-invl.amt / ar-invl.inv-qty, ">>>>>>>9.99<<<<")
                         .
                 ELSE
                     ASSIGN
                         cItemQuantity   = STRING(ar-invl.inv-qty, "->>>>>>>9.9<<")
-                        cItemPrice      = STRING(ar-invl.unit-pr, ">>>>>>>9.99<<<<")
+                        cItemPrice      = STRING(ar-invl.amt / ar-invl.inv-qty, ">>>>>>>9.99<<<<")
                         . 
 
                 RUN pGetProductClassForItem (
@@ -585,7 +598,7 @@ ELSE DO:
                     ).     
                 
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress1", cShipToAddr1).
-                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress2", cShipToAddr1).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress2", cShipToAddr2).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToCity", cShipToCity).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToState", cShipToState).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToZip", cShipToZip).
@@ -655,7 +668,7 @@ ELSE DO:
                     ).     
                 
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress1", cShipToAddr1).
-                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress2", cShipToAddr1).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToStreetAddress2", cShipToAddr2).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToCity", cShipToCity).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToState", cShipToState).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToZip", cShipToZip).
