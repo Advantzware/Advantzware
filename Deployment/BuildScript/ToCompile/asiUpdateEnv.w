@@ -3192,8 +3192,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipDeleteAudit.
     RUN ipCleanTemplates.
     RUN ipResetCostGroups.
-    RUN ipOrphanPurge.
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5324,37 +5323,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipOrphanPurge C-Win
-PROCEDURE ipOrphanPurge:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEF VAR iElapsed AS INT NO-UNDO.
-    DEF VAR iDelCount AS INT NO-UNDO.
-    DEF VAR cOrigPropath AS CHAR NO-UNDO.
-    DEF VAR cNewPropath AS CHAR NO-UNDO.
-    
-    RUN ipStatus ("    Purging invalid/orphan records...").
-
-    ASSIGN
-        cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
-        PROPATH = cNewPropath
-        iElapsed = etime(TRUE).
-        
-    RUN util/purgeOrphans.w.
-    
-    ASSIGN 
-        PROPATH = cOrigPropath.        
-        
-    RUN ipStatus ("      Orphan purge complete").
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 
