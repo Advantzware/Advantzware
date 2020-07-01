@@ -279,7 +279,7 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     vendItemCost.dimWidthUnderCharge AT ROW 8.4 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 54 FORMAT "->>,>>9.9999"
+     vendItemCost.dimWidthUnderCharge AT ROW 8.38 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 54 FORMAT "->>,>>9.9999"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 
@@ -296,7 +296,7 @@ DEFINE FRAME F-Main
           SIZE 14 BY 1
           BGCOLOR 15 
      vendItemCost.quantityMaximumOrder AT ROW 12.71 COL 68 COLON-ALIGNED WIDGET-ID 44
-          LABEL "Max Order Qty"
+          LABEL "Max Order Qty" FORMAT ">>>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 
@@ -476,6 +476,10 @@ DEFINE FRAME F-Main
           BGCOLOR 15 
      "Upcharge" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 7.62 COL 71.2 WIDGET-ID 14
+     "L:" VIEW-AS TEXT
+          SIZE 4 BY .62 AT ROW 5.48 COL 53 WIDGET-ID 22
+     "Under" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 7.62 COL 58.2 WIDGET-ID 12
      "Valid Roll Widths" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 3.57 COL 90 WIDGET-ID 50
      " Restrictions" VIEW-AS TEXT
@@ -492,10 +496,6 @@ DEFINE FRAME F-Main
           SIZE 9 BY .62 AT ROW 3.57 COL 72 WIDGET-ID 26
      "W:" VIEW-AS TEXT
           SIZE 4 BY .62 AT ROW 4.52 COL 52.8 WIDGET-ID 20
-     "L:" VIEW-AS TEXT
-          SIZE 4 BY .62 AT ROW 5.48 COL 53 WIDGET-ID 22
-     "Under" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 7.62 COL 58.2 WIDGET-ID 12
      RECT-1 AT ROW 1 COL 1
      RECT-5 AT ROW 1.48 COL 2
      RECT-6 AT ROW 2.05 COL 49.2 WIDGET-ID 4
@@ -598,7 +598,7 @@ ASSIGN
 /* SETTINGS FOR COMBO-BOX vendItemCost.itemType IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN vendItemCost.quantityMaximumOrder IN FRAME F-Main
-   2 EXP-LABEL                                                          */
+   2 EXP-LABEL EXP-FORMAT                                               */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-5 IN FRAME F-Main

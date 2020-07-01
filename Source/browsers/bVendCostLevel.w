@@ -49,7 +49,6 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE lVendItemUseDeviation AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lRecFound             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cRtnChar              AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lChangeUpTo           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lFirstRow             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lFirst                AS LOGICAL   NO-UNDO INIT YES.
 DEFINE VARIABLE hdVendorCostProcs     AS HANDLE    NO-UNDO.
@@ -60,19 +59,6 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lVendItemUseDeviation = LOGICAL(cRtnChar) NO-ERROR.
 
-RUN sys/ref/nk1look.p(
-    INPUT g_company,
-    INPUT "VendCostMatrix",
-    INPUT "L",             /* Logical */
-    INPUT NO,              /* check by cust */ 
-    INPUT YES,             /* use cust not vendor */ 
-    INPUT "",              /* cust */
-    INPUT "",              /* ship-to*/
-    OUTPUT cRtnChar,
-    OUTPUT lRecFound
-    ).
-
-lChangeUpTo = LOGICAL(cRtnChar).  
 
 RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.    
 
@@ -134,20 +120,6 @@ DEFINE QUERY external_tables FOR vendItemCost.
 
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetQuantityFrom B-table-Win
-FUNCTION pGetQuantityFrom RETURNS DECIMAL PRIVATE
-  (  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetQuantityTo B-table-Win
-FUNCTION pGetQuantityTo RETURNS DECIMAL PRIVATE
-  (  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 
@@ -169,8 +141,8 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _FREEFORM
   QUERY Browser-Table NO-LOCK DISPLAY
-      pGetQuantityFrom() @ vendItemCostLevel.quantityFrom COLUMN-LABEL "From"     FORMAT "->>>>>>>>>9":U WIDTH 15
-      pGetQuantityTo()   @ vendItemCostLevel.quantityTo   COLUMN-LABEL "Up To*"   FORMAT "->>>>>>>>>9":U WIDTH 15
+      vendItemCostLevel.quantityFrom COLUMN-LABEL "From"     FORMAT "->>>>>>>>>9.999999":U WIDTH 20
+      vendItemCostLevel.quantityTo   COLUMN-LABEL "Up To"   FORMAT "->>>>>>>>>9.999999":U WIDTH 20
       vendItemCostLevel.costPerUom                        COLUMN-LABEL "Cost Per" FORMAT "->>>>>>9.99":U WIDTH 15
       vendItemCostLevel.costSetup                         COLUMN-LABEL "Setup"    FORMAT "->>>>>>9.9<":U WIDTH 15
       vendItemCostLevel.costDeviation                     COLUMN-LABEL "Devi"     FORMAT "->>>>>>9.9<":U WIDTH 15
@@ -761,72 +733,6 @@ END PROCEDURE.
 
 
 /* ************************  Function Implementations ***************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetQuantityFrom B-table-Win
-FUNCTION pGetQuantityFrom RETURNS DECIMAL PRIVATE
-  (  ):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE dQuantityFrom AS DECIMAL NO-UNDO.
-
-    IF AVAILABLE vendItemCostLevel THEN DO:
-        IF vendItemCost.itemType EQ "FG" THEN DO:
-            IF lFirst THEN DO:
-                RUN VendCost_AdjustQuantityFrom IN hdVendorCostProcs (
-                    INPUT ROWID(vendItemCostLevel),
-                    INPUT NO,  /* Do not change the quantity */
-                    INPUT vendItemCost.vendorUOM,
-                    OUTPUT dQuantityFrom
-                    ).
-                lFirst = NO.        
-            END.  
-            ELSE
-                RUN VendCost_AdjustQuantityFrom IN hdVendorCostProcs (
-                    INPUT ROWID(vendItemCostLevel),
-                    INPUT NOT lChangeUpTo,  /* If yes, it will return the updated quantityFrom*/
-                    INPUT vendItemCost.vendorUOM,
-                    OUTPUT dQuantityFrom
-                    ).
-            RETURN dQuantityFrom.   
-        END.                       
-        ELSE 
-            RETURN vendItemCostLevel.QuantityFrom.      
-    END. 
-
-END FUNCTION.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetQuantityTo B-table-Win
-FUNCTION pGetQuantityTo RETURNS DECIMAL PRIVATE
-  (  ):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE dQuantityTo AS DECIMAL NO-UNDO.
-     
-    IF AVAILABLE vendItemCostLevel THEN DO:
-        IF vendItemCost.itemType EQ "FG" THEN DO:
-            RUN VendCost_AdjustQuantityTo IN hdVendorCostProcs(
-                INPUT  ROWID(vendItemCostLevel),
-                INPUT  lChangeUpTo,  /* If yes, it will change the Upto quantity*/
-                INPUT  vendItemCost.vendorUOM,
-                OUTPUT dQuantityTo
-                ).      
-            RETURN dQuantityTo.            
-        END. 
-    ELSE 
-        RETURN vendItemCostLevel.quantityTo.   
-    END.
-
-END FUNCTION.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 
