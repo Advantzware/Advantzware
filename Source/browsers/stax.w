@@ -89,7 +89,7 @@ stax.tax-dscr1[5] stax.tax-rate1[5] stax.tax-acc1[5] stax.tax-frt1[5]
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-4 Browser-Table browse-order auto_find ~
+&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
 Btn_Clear_Find 
 &Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
@@ -122,7 +122,7 @@ DEFINE BUTTON Btn_Clear_Find
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 
      VIEW-AS FILL-IN 
-     SIZE 58 BY 1 NO-UNDO.
+     SIZE 36 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -137,7 +137,7 @@ DEFINE VARIABLE browse-order AS INTEGER
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 143 BY 1.43.
+     SIZE 158 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -208,29 +208,29 @@ DEFINE BROWSE Browser-Table
             WIDTH 5.2 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 143 BY 16.43
+    WITH NO-ASSIGN SEPARATORS SIZE 158 BY 23.57
          FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Browser-Table AT ROW 2.43 COL 1 HELP
+     Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     fi_sortby AT ROW 19.24 COL 34 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     browse-order AT ROW 19.33 COL 6 HELP
+     fi_sortby AT ROW 24.71 COL 34 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     browse-order AT ROW 24.81 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 19.33 COL 70 COLON-ALIGNED HELP
+     auto_find AT ROW 24.81 COL 106 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 19.33 COL 130.8 HELP
+     Btn_Clear_Find AT ROW 24.81 COL 144.8 HELP
           "CLEAR AUTO FIND Value"
      "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 19.33 COL 2
-     RECT-4 AT ROW 19.1 COL 1
+          SIZE 4 BY 1 AT ROW 24.81 COL 2
+     RECT-4 AT ROW 24.57 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 0 .
+         BGCOLOR 15 FGCOLOR 1 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -259,8 +259,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 22
-         WIDTH              = 145.4.
+         HEIGHT             = 25
+         WIDTH              = 158.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -285,7 +285,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE Size-to-Fit                                              */
-/* BROWSE-TAB Browser-Table RECT-4 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
