@@ -2611,6 +2611,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix200100.
     IF fIntVer(cThisEntry) LT 20011000 THEN  
         RUN ipDataFix200110.
+    IF fIntVer(cThisEntry) LT 20020000 THEN  
+        RUN ipDataFix200200.
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3170,6 +3172,35 @@ PROCEDURE ipDataFix200110:
         CURRENT-VALUE({&cTable}ID_seq) = 5000.
             
             
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix200200 C-Win
+PROCEDURE ipDataFix200200:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 200200...").
+
+    /* Conversion program for ticket #69261 */
+    /* The field stax.tax-rate[5] value will be moved to new field 
+       stax.taxableLimit, when the stax.tax-dscr1[5] field's value is "Dollor Limit" */
+    DO TRANSACTION:
+        FOR EACH stax EXCLUSIVE-LOCK:
+            IF stax.tax-dscr1[5] EQ "Dollar Limit" THEN
+                ASSIGN
+                    stax.taxableLimit = stax.tax-rate1[5]
+                    stax.tax-rate1[5] = 0
+                    stax.tax-dscr1[5] = ""
+                    stax.tax-code1[5] = ""
+                    stax.tax-frt1[5]  = FALSE
+                    .
+        END.
+    END.
 END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */
