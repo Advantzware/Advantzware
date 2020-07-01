@@ -67,12 +67,11 @@ FOR EACH fg-rctd NO-LOCK
         ).
     cFGTagValidation = cReturnValue.
    
-    IF cFGTagValidation EQ "ItemMatch" THEN DO:
-        IF lFGTagValidation AND fg-rctd.tag EQ "" THEN 
-            NEXT.
-        ELSE IF fg-rctd.tag NE "" AND NOT fg-rctd.tag BEGINS fg-rctd.i-no THEN 
-            NEXT.
-    END. 
+    IF lFGTagValidation AND fg-rctd.tag EQ "" THEN 
+        NEXT.
+        
+    IF cFGTagValidation EQ "ItemMatch" AND NOT fg-rctd.tag BEGINS fg-rctd.i-no THEN 
+        NEXT.
          
     CREATE w-fg-rctd.
     BUFFER-COPY fg-rctd TO w-fg-rctd
