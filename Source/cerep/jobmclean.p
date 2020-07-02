@@ -343,14 +343,14 @@ FOR EACH job-hdr NO-LOCK
     BY job-hdr.job-no2
     BY job-hdr.frm:
 
-    FOR EACH reftable NO-LOCK WHERE reftable.reftable EQ "jc/jc-calc.p"
-        AND reftable.company  EQ job-hdr.company
-        AND reftable.loc      EQ ""
-        AND reftable.code     EQ STRING(job-hdr.job,"999999999"):
-        CREATE tt-reftable.
-        BUFFER-COPY reftable TO tt-reftable.
-        tt-reftable.est-type = est.est-type.
-    END.
+/*    FOR EACH reftable NO-LOCK WHERE reftable.reftable EQ "jc/jc-calc.p"*/
+/*        AND reftable.company  EQ job-hdr.company                       */
+/*        AND reftable.loc      EQ ""                                    */
+/*        AND reftable.code     EQ STRING(job-hdr.job,"999999999"):      */
+/*        CREATE tt-reftable.                                            */
+/*        BUFFER-COPY reftable TO tt-reftable.                           */
+/*        tt-reftable.est-type = est.est-type.                           */
+/*    END.                                                               */
     FIND FIRST tt-reftable WHERE tt-reftable.reftable EQ "jc/jc-calc.p"
         AND tt-reftable.company  EQ job-hdr.company
         AND tt-reftable.loc      EQ ""
@@ -685,8 +685,9 @@ FOR EACH job-hdr NO-LOCK
                     AND tt-reftable.code     EQ STRING(job-hdr.job,"999999999")
                     AND (tt-reftable.est-type <> 4 OR
                     tt-reftable.val[12] = bf-jobhdr.frm)
+                    AND tt-reftable.spare-int-1 EQ 0
                     BREAK BY tt-reftable.val[12].
-                    
+                    tt-reftable.spare-int-1 = 1.
                     IF est.est-type NE 1 AND NOT CAN-FIND(FIRST ttSoule NO-LOCK
                         WHERE  ttSoule.frm EQ tt-reftable.val[12]
                          AND   ttSoule.runForm EQ YES ) THEN NEXT MAIN-FORM.
@@ -1438,6 +1439,7 @@ FOR EACH job-hdr NO-LOCK
                                     FIRST bf-ttSoule WHERE  bf-ttSoule.frm EQ bff-eb.form-no
                                      AND  bf-ttSoule.blank-no EQ bff-eb.blank-no 
                                     AND  bf-ttSoule.runForm EQ YES NO-LOCK :
+                                    bf-ttSoule.runForm = NO.
                                      IF LINE-COUNTER > 70 THEN DO: 
                                         PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
                                          PAGE.
@@ -1710,7 +1712,10 @@ IF lIncludeLastPage THEN
 DO:          
     FOR EACH bf-jobhdr NO-LOCK WHERE bf-jobhdr.company = job-hdr.company
         AND bf-jobhdr.job-no = job-hdr.job-no
-        AND bf-jobhdr.job-no2 = job-hdr.job-no2
+        AND bf-jobhdr.job-no2 = job-hdr.job-no2,
+        FIRST itemfg NO-LOCK 
+        WHERE itemfg.company EQ bf-jobhdr.company
+        AND itemfg.i-no EQ bf-jobhdr.i-no
         BREAK BY bf-jobhdr.i-no:
 
         FIND FIRST oe-ord WHERE oe-ord.company EQ job-hdr.company
@@ -1807,9 +1812,9 @@ DO:
 
         PUT UNFORMATTED 
             "<C2><b>Order Qty: </b><C11>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.qty) ELSE "0") FORMAT "x(10)"
-            "<C25><b>FG #: </b>"  (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.i-no) ELSE "") FORMAT "x(15)" 
+            "<C25><b>FG #: </b>"  (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.i-no) ELSE itemfg.i-no) FORMAT "x(15)" 
             "<C60><b> Price:</b>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.price) ELSE "0") SKIP
-            "<C2><b>Material: </b><C11>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.i-name) ELSE "") FORMAT "x(30)" SKIP
+            "<C2><b>Material: </b><C11>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.i-name) ELSE itemfg.i-name) FORMAT "x(30)" SKIP
             "<C11>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.part-dscr1) ELSE "") FORMAT "x(30)" SKIP
             "<C2><b>Estimate:</b> <C11>" (IF AVAILABLE oe-ordl THEN TRIM(STRING(oe-ordl.est-no)) ELSE "") FORMAT "x(10)" 
             "<C25><b>Quantity:</b>" (IF AVAIL b-eb THEN b-eb.bl-qty ELSE 0) FORMAT ">>>>>>9.99<<"
@@ -1821,43 +1826,43 @@ DO:
             PAGE.
         END.
 
-       IF LAST(bf-jobhdr.i-no) AND AVAILABLE est AND est.est-type EQ 2 THEN DO:
-        FIND FIRST bff-eb NO-LOCK
-             WHERE bff-eb.company = bf-jobhdr.company
-                AND bff-eb.est-no = bf-jobhdr.est-no
-                AND bff-eb.blank-no EQ 0   NO-ERROR.
-
-        FOR EACH b-eb WHERE b-eb.company = bf-jobhdr.company
-                AND b-eb.est-no = bf-jobhdr.est-no
-                AND b-eb.form-no NE 0 NO-LOCK :
-     
-            IF AVAIL bff-eb AND  bff-eb.set-is-assembled EQ NO THEN
-                FIND FIRST oe-ordl NO-LOCK
-                WHERE oe-ordl.company EQ job-hdr.company
-                AND oe-ordl.ord-no  EQ bf-jobhdr.ord-no
-                AND oe-ordl.job-no  EQ bf-jobhdr.job-no
-                AND oe-ordl.job-no2 EQ bf-jobhdr.job-no2
-                AND oe-ordl.est-no  EQ b-eb.est-no
-                AND oe-ordl.i-no    EQ b-eb.stock-no
-                NO-ERROR.
-    
-            PUT UNFORMATTED 
-            "<C2><b>Order Qty: </b><C11>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.qty) ELSE "0") FORMAT "x(10)"
-            "<C25><b>FG #: </b>"  b-eb.stock-no FORMAT "x(15)" 
-            /*"<C60><b>xPrice:</b>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.price) ELSE "0")*/ SKIP
-            "<C2><b>Material: </b><C11>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.i-name) ELSE "") FORMAT "x(30)" SKIP
-            "<C11>" b-eb.part-dscr1 FORMAT "x(30)" SKIP
-            "<C2><b>Estimate:</b> <C11>" (IF AVAILABLE oe-ordl THEN TRIM(STRING(oe-ordl.est-no)) ELSE "") FORMAT "x(10)" 
-            "<C25><b>Quantity:</b>" (IF AVAIL b-eb THEN b-eb.bl-qty ELSE 0) FORMAT ">>>>>>9.99<<"
-            /*"<C60> <b>UOM:</b>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.pr-uom) ELSE "")*/ SKIP 
-            "<C1.5><FROM><C84><LINE><||3>" SKIP.
-
-            IF LINE-COUNTER > 68 THEN do:
-                PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" . 
-                PAGE.
-            END.
-        END. /* FOR EACH b-eb*/
-       END. /* last bf-jobhdr.i-no*/
+/*       IF LAST(bf-jobhdr.i-no) AND AVAILABLE est AND est.est-type EQ 2 THEN DO:                                         */
+/*        FIND FIRST bff-eb NO-LOCK                                                                                       */
+/*             WHERE bff-eb.company = bf-jobhdr.company                                                                   */
+/*                AND bff-eb.est-no = bf-jobhdr.est-no                                                                    */
+/*                AND bff-eb.blank-no EQ 0   NO-ERROR.                                                                    */
+/*                                                                                                                        */
+/*        FOR EACH b-eb WHERE b-eb.company = bf-jobhdr.company                                                            */
+/*                AND b-eb.est-no = bf-jobhdr.est-no                                                                      */
+/*                AND b-eb.form-no NE 0 NO-LOCK :                                                                         */
+/*                                                                                                                        */
+/*            IF AVAIL bff-eb AND  bff-eb.set-is-assembled EQ NO THEN                                                     */
+/*                FIND FIRST oe-ordl NO-LOCK                                                                              */
+/*                WHERE oe-ordl.company EQ job-hdr.company                                                                */
+/*                AND oe-ordl.ord-no  EQ bf-jobhdr.ord-no                                                                 */
+/*                AND oe-ordl.job-no  EQ bf-jobhdr.job-no                                                                 */
+/*                AND oe-ordl.job-no2 EQ bf-jobhdr.job-no2                                                                */
+/*                AND oe-ordl.est-no  EQ b-eb.est-no                                                                      */
+/*                AND oe-ordl.i-no    EQ b-eb.stock-no                                                                    */
+/*                NO-ERROR.                                                                                               */
+/*                                                                                                                        */
+/*            PUT UNFORMATTED                                                                                             */
+/*            "<C2><b>Order Qty: </b><C11>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.qty) ELSE "0") FORMAT "x(10)"       */
+/*            "<C25><b>FG #: </b>"  b-eb.stock-no FORMAT "x(15)"                                                          */
+/*            /*"<C60><b>xPrice:</b>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.price) ELSE "0")*/ SKIP                   */
+/*            "<C2><b>Material: </b><C11>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.i-name) ELSE "") FORMAT "x(30)" SKIP */
+/*            "<C11>" b-eb.part-dscr1 FORMAT "x(30)" SKIP                                                                 */
+/*            "<C2><b>Estimate:</b> <C11>" (IF AVAILABLE oe-ordl THEN TRIM(STRING(oe-ordl.est-no)) ELSE "") FORMAT "x(10)"*/
+/*            "<C25><b>Quantity:</b>" (IF AVAIL b-eb THEN b-eb.bl-qty ELSE 0) FORMAT ">>>>>>9.99<<"                       */
+/*            /*"<C60> <b>UOM:</b>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.pr-uom) ELSE "")*/ SKIP                     */
+/*            "<C1.5><FROM><C84><LINE><||3>" SKIP.                                                                        */
+/*                                                                                                                        */
+/*            IF LINE-COUNTER > 68 THEN do:                                                                               */
+/*                PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .              */
+/*                PAGE.                                                                                                   */
+/*            END.                                                                                                        */
+/*        END. /* FOR EACH b-eb*/                                                                                         */
+/*       END. /* last bf-jobhdr.i-no*/                                                                                    */
         IF LAST(bf-jobhdr.i-no) THEN
             PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" . 
     END.

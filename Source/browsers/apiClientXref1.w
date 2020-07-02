@@ -194,7 +194,7 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
       apiClientXref.scopeType FORMAT "x(32)":U WIDTH 27.2 LABEL-BGCOLOR 14
-      apiClientXref.scopeID FORMAT "x(12)":U WIDTH 29.2 LABEL-BGCOLOR 14
+      apiClientXref.scopeID FORMAT "x(32)":U WIDTH 29.2 LABEL-BGCOLOR 14
       apiClientXref.triggerId FORMAT "x(32)":U WIDTH 42.2
       apiClientXref.inactive COLUMN-LABEL "Status" FORMAT "Inactive/Active":U WIDTH 16.4
 /* _UIB-CODE-BLOCK-END */

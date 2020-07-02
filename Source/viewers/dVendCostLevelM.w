@@ -73,7 +73,6 @@ DEFINE VARIABLE uom-list              AS CHARACTER INIT "C,CS,EA,L,M," NO-UNDO.
 DEFINE VARIABLE lVendItemUseDeviation AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lRecFound             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cRtnChar              AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lChangeUpTo           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lFirst                AS LOGICAL   NO-UNDO INIT YES.
 DEFINE VARIABLE hdVendorCostProcs     AS HANDLE    NO-UNDO.
 
@@ -86,19 +85,6 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lVendItemUseDeviation = LOGICAL(cRtnChar) NO-ERROR.
     
-RUN sys/ref/nk1look.p(
-    INPUT g_company,
-    INPUT "VendCostMatrix",
-    INPUT "L",             /* Logical */
-    INPUT NO,              /* check by cust */ 
-    INPUT YES,             /* use cust not vendor */ 
-    INPUT "",              /* cust */
-    INPUT "",              /* ship-to*/
-    OUTPUT cRtnChar,
-    OUTPUT lRecFound
-    ).    
-lChangeUpTo = LOGICAL(cRtnChar). 
-
 RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.
 
 /* _UIB-CODE-BLOCK-END */
@@ -118,16 +104,35 @@ RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-5 RECT-21 dToQty1 dToQty2 dToQty3 ~
-dToQty4 dToQty5 dToQty6 dToQty7 dToQty8 dToQty9 dToQty10 dToQty11 dToQty12 ~
-dToQty13 dToQty14 dToQty15 dToQty16 dToQty17 Btn_OK Btn_Cancel dToQty18 ~
-dToQty19 dToQty20 dFrom1 dFrom2 dFrom3 dFrom4 dFrom5 dFrom6 dFrom7 dFrom8 ~
-dFrom9 dFrom10 dFrom-11 dFrom-12 dFrom-13 dFrom-14 dFrom-15 dFrom-16 ~
-dFrom-17 dFrom-18 dFrom-19 dFrom-20 dFromTo1 dFromTo2 dFromTo3 dFromTo4 ~
-dFromTo5 dFromTo6 dFromTo7 dFromTo8 dFromTo9 dFromTo10 dFromTo-11 ~
-dFromTo-12 dFromTo-13 dFromTo-14 dFromTo-15 dFromTo-16 dFromTo-17 ~
-dFromTo-18 dFromTo-19 dFromTo-20 dEaCost1 dEaCost2 dEaCost3 dEaCost4 ~
-dEaCost5 dEaCost6 dEaCost7 dEaCost8 dEaCost9 dEaCost10 dEaCost-11 ~
+&Scoped-Define ENABLED-OBJECTS dBase1 RECT-5 RECT-21 dBase2 dBase3 Btn_OK ~
+dBase4 dBase5 dBase6 Btn_Cancel dBase7 dBase8 dBase9 dBase10 dBase11 ~
+dBase12 dBase13 dBase14 dBase15 dBase16 dBase17 dBase18 dBase19 dBase20 ~
+dFrom1 dFrom2 dFrom3 dFrom4 dFrom5 dFrom6 dFrom7 dFrom8 dFrom9 dFrom10 ~
+dFrom-11 dFrom-12 dFrom-13 dFrom-14 dFrom-15 dFrom-16 dFrom-17 dFrom-18 ~
+dFrom-19 dFrom-20 dFromTo1 dFromTo2 dFromTo3 dFromTo4 dFromTo5 dFromTo6 ~
+dFromTo7 dFromTo8 dFromTo9 dFromTo10 dFromTo-11 dFromTo-12 dFromTo-13 ~
+dFromTo-14 dFromTo-15 dFromTo-16 dFromTo-17 dFromTo-18 dFromTo-19 ~
+dFromTo-20 dEaCost1 dEaCost2 dEaCost3 dEaCost4 dEaCost5 dEaCost6 dEaCost7 ~
+dEaCost8 dEaCost9 dEaCost10 dEaCost-11 dEaCost-12 dEaCost-13 dEaCost-14 ~
+dEaCost-15 dEaCost-16 dEaCost-17 dEaCost-18 dEaCost-19 dEaCost-20 dSetup1 ~
+dSetup2 dSetup3 dSetup4 dSetup5 dSetup6 dSetup7 dSetup8 dSetup9 dSetup10 ~
+dSetup-11 dSetup-12 dSetup-13 dSetup-14 dSetup-15 dSetup-16 dSetup-17 ~
+dSetup-18 dSetup-19 dSetup-20 iLeadTime-1 iLeadTime-2 iLeadTime-3 ~
+iLeadTime-4 iLeadTime-5 iLeadTime-6 iLeadTime-7 iLeadTime-8 iLeadTime-9 ~
+iLeadTime-10 iLeadTime-11 iLeadTime-12 iLeadTime-13 iLeadTime-14 ~
+iLeadTime-15 iLeadTime-16 iLeadTime-17 iLeadTime-18 iLeadTime-19 ~
+iLeadTime-20 cDevLabel dDev1 dDev2 dDev3 dDev4 dDev5 dDev6 dDev7 dDev8 ~
+dDev9 dDev10 dDev-11 dDev-12 dDev-13 dDev-14 dDev-15 dDev-16 dDev-17 ~
+dDev-18 dDev-19 dDev-20 
+&Scoped-Define DISPLAYED-OBJECTS dBase1 dBase2 dBase3 dBase4 dBase5 dBase6 ~
+dBase7 dBase8 dBase9 dBase10 dBase11 dBase12 dBase13 dBase14 dBase15 ~
+dBase16 dBase17 dBase18 dBase19 dBase20 dFrom1 dFrom2 dFrom3 dFrom4 dFrom5 ~
+dFrom6 dFrom7 dFrom8 dFrom9 dFrom10 dFrom-11 dFrom-12 dFrom-13 dFrom-14 ~
+dFrom-15 dFrom-16 dFrom-17 dFrom-18 dFrom-19 dFrom-20 dFromTo1 dFromTo2 ~
+dFromTo3 dFromTo4 dFromTo5 dFromTo6 dFromTo7 dFromTo8 dFromTo9 dFromTo10 ~
+dFromTo-11 dFromTo-12 dFromTo-13 dFromTo-14 dFromTo-15 dFromTo-16 ~
+dFromTo-17 dFromTo-18 dFromTo-19 dFromTo-20 dEaCost1 dEaCost2 dEaCost3 ~
+dEaCost4 dEaCost5 dEaCost6 dEaCost7 dEaCost8 dEaCost9 dEaCost10 dEaCost-11 ~
 dEaCost-12 dEaCost-13 dEaCost-14 dEaCost-15 dEaCost-16 dEaCost-17 ~
 dEaCost-18 dEaCost-19 dEaCost-20 dSetup1 dSetup2 dSetup3 dSetup4 dSetup5 ~
 dSetup6 dSetup7 dSetup8 dSetup9 dSetup10 dSetup-11 dSetup-12 dSetup-13 ~
@@ -137,26 +142,7 @@ iLeadTime-7 iLeadTime-8 iLeadTime-9 iLeadTime-10 iLeadTime-11 iLeadTime-12 ~
 iLeadTime-13 iLeadTime-14 iLeadTime-15 iLeadTime-16 iLeadTime-17 ~
 iLeadTime-18 iLeadTime-19 iLeadTime-20 cDevLabel dDev1 dDev2 dDev3 dDev4 ~
 dDev5 dDev6 dDev7 dDev8 dDev9 dDev10 dDev-11 dDev-12 dDev-13 dDev-14 ~
-dDev-15 dDev-16 dDev-17 dDev-18 dDev-19 dDev-20 
-&Scoped-Define DISPLAYED-OBJECTS dToQty1 dToQty2 dToQty3 dToQty4 dToQty5 ~
-dToQty6 dToQty7 dToQty8 dToQty9 dToQty10 dToQty11 dToQty12 dToQty13 ~
-dToQty14 dToQty15 dToQty16 dToQty17 dToQty18 dToQty19 dToQty20 dFrom1 ~
-dFrom2 dFrom3 dFrom4 dFrom5 dFrom6 dFrom7 dFrom8 dFrom9 dFrom10 dFrom-11 ~
-dFrom-12 dFrom-13 dFrom-14 dFrom-15 dFrom-16 dFrom-17 dFrom-18 dFrom-19 ~
-dFrom-20 dFromTo1 dFromTo2 dFromTo3 dFromTo4 dFromTo5 dFromTo6 dFromTo7 ~
-dFromTo8 dFromTo9 dFromTo10 dFromTo-11 dFromTo-12 dFromTo-13 dFromTo-14 ~
-dFromTo-15 dFromTo-16 dFromTo-17 dFromTo-18 dFromTo-19 dFromTo-20 dEaCost1 ~
-dEaCost2 dEaCost3 dEaCost4 dEaCost5 dEaCost6 dEaCost7 dEaCost8 dEaCost9 ~
-dEaCost10 dEaCost-11 dEaCost-12 dEaCost-13 dEaCost-14 dEaCost-15 dEaCost-16 ~
-dEaCost-17 dEaCost-18 dEaCost-19 dEaCost-20 dSetup1 dSetup2 dSetup3 dSetup4 ~
-dSetup5 dSetup6 dSetup7 dSetup8 dSetup9 dSetup10 dSetup-11 dSetup-12 ~
-dSetup-13 dSetup-14 dSetup-15 dSetup-16 dSetup-17 dSetup-18 dSetup-19 ~
-dSetup-20 iLeadTime-1 iLeadTime-2 iLeadTime-3 iLeadTime-4 iLeadTime-5 ~
-iLeadTime-6 iLeadTime-7 iLeadTime-8 iLeadTime-9 iLeadTime-10 iLeadTime-11 ~
-iLeadTime-12 iLeadTime-13 iLeadTime-14 iLeadTime-15 iLeadTime-16 ~
-iLeadTime-17 iLeadTime-18 iLeadTime-19 iLeadTime-20 cDevLabel dDev1 dDev2 ~
-dDev3 dDev4 dDev5 dDev6 dDev7 dDev8 dDev9 dDev10 dDev-11 dDev-12 dDev-13 ~
-dDev-14 dDev-15 dDev-16 dDev-17 dDev-18 dDev-19 dDev-20 
+dDev-15 dDev-16 dDev-17 dDev-18 dDev-19 dDev-20 cQtyBaseLabel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -166,20 +152,6 @@ dDev-14 dDev-15 dDev-16 dDev-17 dDev-18 dDev-19 dDev-20
 
 
 /* ************************  Function Prototypes ********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetQuantityFrom D-Dialog 
-FUNCTION pGetQuantityFrom RETURNS DECIMAL PRIVATE
-  (  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetQuantityTo D-Dialog 
-FUNCTION pGetQuantityTo RETURNS DECIMAL PRIVATE
-  (  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -203,6 +175,110 @@ DEFINE VARIABLE cDevLabel AS CHARACTER FORMAT "x(9)":U INITIAL "Deviation"
      VIEW-AS FILL-IN 
      SIZE 12.6 BY 1
      FONT 6 NO-UNDO.
+
+DEFINE VARIABLE cQtyBaseLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Quantity Up To" 
+      VIEW-AS TEXT 
+     SIZE 17.8 BY .62 NO-UNDO.
+
+DEFINE VARIABLE dBase1 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE dBase10 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE dBase11 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE dBase12 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE dBase13 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE dBase14 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE dBase15 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE dBase16 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE dBase17 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE dBase18 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE dBase19 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE dBase2 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE dBase20 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE dBase3 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE dBase4 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE dBase5 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE dBase6 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE dBase7 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE dBase8 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE dBase9 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dDev-11 AS DECIMAL FORMAT "->,>>>,>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
@@ -404,202 +480,202 @@ DEFINE VARIABLE dEaCost9 AS DECIMAL FORMAT ">>>,>>9.9999":U INITIAL 0
      SIZE 14.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-11 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-11 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-12 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-12 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-13 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-13 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-14 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-14 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-15 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-15 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-16 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-16 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-17 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-17 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-18 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-18 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-19 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-19 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom-20 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom-20 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom1 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom1 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom10 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom10 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom2 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom2 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom3 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom3 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom4 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom4 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom5 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom5 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom6 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom6 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom7 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom7 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom8 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom8 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFrom9 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFrom9 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo-11 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo-11 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo-12 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo-12 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo-13 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo-13 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo-14 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo-14 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo-15 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo-15 AS DECIMAL FORMAT ">>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo-16 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo-16 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo-17 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo-17 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo-18 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo-18 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo-19 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo-19 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo-20 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo-20 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo1 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo1 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo10 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo10 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo2 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo2 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo3 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo3 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo4 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo4 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo5 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo5 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo6 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo6 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo7 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo7 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo8 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo8 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE dFromTo9 AS DECIMAL FORMAT ">>>>>>>>>>9.9999":U INITIAL 0 
+DEFINE VARIABLE dFromTo9 AS DECIMAL FORMAT ">>>>>>>>>>9.999999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 17.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
@@ -702,106 +778,6 @@ DEFINE VARIABLE dSetup8 AS DECIMAL FORMAT "->>>>9.9999":U INITIAL 0
 DEFINE VARIABLE dSetup9 AS DECIMAL FORMAT "->>>>9.9999":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 14.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE dToQty1 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE dToQty10 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE dToQty11 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE dToQty12 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE dToQty13 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE dToQty14 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE dToQty15 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE dToQty16 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE dToQty17 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE dToQty18 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE dToQty19 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE dToQty2 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE dToQty20 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE dToQty3 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE dToQty4 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE dToQty5 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE dToQty6 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE dToQty7 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE dToQty8 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
-DEFINE VARIABLE dToQty9 AS DECIMAL FORMAT ">>>>>>>9.9999":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 15.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE iLeadTime-1 AS INTEGER FORMAT ">,>>>,>>9":U INITIAL 0 
@@ -917,26 +893,28 @@ DEFINE RECTANGLE RECT-5
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     dToQty1 AT ROW 2.48 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 254
-     dToQty2 AT ROW 3.52 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 256
-     dToQty3 AT ROW 4.57 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 258
-     dToQty4 AT ROW 5.62 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 260
-     dToQty5 AT ROW 6.67 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 262
-     dToQty6 AT ROW 7.71 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 330
-     dToQty7 AT ROW 8.76 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 332
-     dToQty8 AT ROW 9.81 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 334
-     dToQty9 AT ROW 10.86 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 336
-     dToQty10 AT ROW 11.91 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 338
-     dToQty11 AT ROW 12.95 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 410
-     dToQty12 AT ROW 14 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 424
-     dToQty13 AT ROW 15.05 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 436
-     dToQty14 AT ROW 16.1 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 448
-     dToQty15 AT ROW 17.19 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 460
-     dToQty16 AT ROW 18.29 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 472
-     dToQty17 AT ROW 19.33 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 484
-     dToQty18 AT ROW 20.38 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 496
-     dToQty19 AT ROW 21.43 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 508
-     dToQty20 AT ROW 22.48 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 520
+     dBase1 AT ROW 2.48 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 254
+     dBase2 AT ROW 3.52 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 256
+     dBase3 AT ROW 4.57 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 258
+     Btn_OK AT ROW 24.1 COL 107
+     dBase4 AT ROW 5.62 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 260
+     dBase5 AT ROW 6.67 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 262
+     dBase6 AT ROW 7.71 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 330
+     Btn_Cancel AT ROW 24.1 COL 117
+     dBase7 AT ROW 8.76 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 332
+     dBase8 AT ROW 9.81 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 334
+     dBase9 AT ROW 10.86 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 336
+     dBase10 AT ROW 11.91 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 338
+     dBase11 AT ROW 12.95 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 410
+     dBase12 AT ROW 14 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 424
+     dBase13 AT ROW 15.05 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 436
+     dBase14 AT ROW 16.1 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 448
+     dBase15 AT ROW 17.19 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 460
+     dBase16 AT ROW 18.29 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 472
+     dBase17 AT ROW 19.33 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 484
+     dBase18 AT ROW 20.38 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 496
+     dBase19 AT ROW 21.43 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 508
+     dBase20 AT ROW 22.48 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 520
      dFrom1 AT ROW 2.48 COL 18.4 COLON-ALIGNED NO-LABEL WIDGET-ID 218
      dFrom2 AT ROW 3.52 COL 18.4 COLON-ALIGNED NO-LABEL WIDGET-ID 244
      dFrom3 AT ROW 4.57 COL 18.4 COLON-ALIGNED NO-LABEL WIDGET-ID 246
@@ -950,8 +928,6 @@ DEFINE FRAME D-Dialog
      dFrom-11 AT ROW 12.95 COL 18.4 COLON-ALIGNED NO-LABEL WIDGET-ID 404
      dFrom-12 AT ROW 14 COL 18.4 COLON-ALIGNED NO-LABEL WIDGET-ID 418
      dFrom-13 AT ROW 15.05 COL 18.4 COLON-ALIGNED NO-LABEL WIDGET-ID 430
-     Btn_OK AT ROW 24.1 COL 107
-     Btn_Cancel AT ROW 24.1 COL 117
      dFrom-14 AT ROW 16.1 COL 18.4 COLON-ALIGNED NO-LABEL WIDGET-ID 442
      dFrom-15 AT ROW 17.19 COL 18.4 COLON-ALIGNED NO-LABEL WIDGET-ID 454
      dFrom-16 AT ROW 18.29 COL 18.4 COLON-ALIGNED NO-LABEL WIDGET-ID 466
@@ -964,6 +940,7 @@ DEFINE FRAME D-Dialog
      dFromTo3 AT ROW 4.57 COL 37.4 COLON-ALIGNED NO-LABEL WIDGET-ID 386
      dFromTo4 AT ROW 5.62 COL 37.4 COLON-ALIGNED NO-LABEL WIDGET-ID 388
      dFromTo5 AT ROW 6.67 COL 37.4 COLON-ALIGNED NO-LABEL WIDGET-ID 390
+     dFromTo6 AT ROW 7.71 COL 37.4 COLON-ALIGNED NO-LABEL WIDGET-ID 392
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -971,7 +948,6 @@ DEFINE FRAME D-Dialog
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME D-Dialog
-     dFromTo6 AT ROW 7.71 COL 37.4 COLON-ALIGNED NO-LABEL WIDGET-ID 392
      dFromTo7 AT ROW 8.76 COL 37.4 COLON-ALIGNED NO-LABEL WIDGET-ID 394
      dFromTo8 AT ROW 9.81 COL 37.4 COLON-ALIGNED NO-LABEL WIDGET-ID 396
      dFromTo9 AT ROW 10.86 COL 37.4 COLON-ALIGNED NO-LABEL WIDGET-ID 398
@@ -1012,6 +988,7 @@ DEFINE FRAME D-Dialog
      dSetup4 AT ROW 5.62 COL 74.8 COLON-ALIGNED NO-LABEL WIDGET-ID 284
      dSetup5 AT ROW 6.67 COL 74.8 COLON-ALIGNED NO-LABEL WIDGET-ID 286
      dSetup6 AT ROW 7.71 COL 74.8 COLON-ALIGNED NO-LABEL WIDGET-ID 350
+     dSetup7 AT ROW 8.76 COL 74.8 COLON-ALIGNED NO-LABEL WIDGET-ID 352
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -1019,7 +996,6 @@ DEFINE FRAME D-Dialog
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME D-Dialog
-     dSetup7 AT ROW 8.76 COL 74.8 COLON-ALIGNED NO-LABEL WIDGET-ID 352
      dSetup8 AT ROW 9.81 COL 74.8 COLON-ALIGNED NO-LABEL WIDGET-ID 354
      dSetup9 AT ROW 10.86 COL 74.8 COLON-ALIGNED NO-LABEL WIDGET-ID 356
      dSetup10 AT ROW 11.91 COL 74.8 COLON-ALIGNED NO-LABEL WIDGET-ID 358
@@ -1061,6 +1037,7 @@ DEFINE FRAME D-Dialog
      dDev5 AT ROW 6.67 COL 111 COLON-ALIGNED NO-LABEL WIDGET-ID 370
      dDev6 AT ROW 7.71 COL 111 COLON-ALIGNED NO-LABEL WIDGET-ID 372
      dDev7 AT ROW 8.76 COL 111 COLON-ALIGNED NO-LABEL WIDGET-ID 374
+     dDev8 AT ROW 9.81 COL 111 COLON-ALIGNED NO-LABEL WIDGET-ID 376
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -1068,7 +1045,6 @@ DEFINE FRAME D-Dialog
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME D-Dialog
-     dDev8 AT ROW 9.81 COL 111 COLON-ALIGNED NO-LABEL WIDGET-ID 376
      dDev9 AT ROW 10.86 COL 111 COLON-ALIGNED NO-LABEL WIDGET-ID 378
      dDev10 AT ROW 11.91 COL 111 COLON-ALIGNED NO-LABEL WIDGET-ID 362
      dDev-11 AT ROW 12.95 COL 111 COLON-ALIGNED NO-LABEL WIDGET-ID 400
@@ -1081,16 +1057,17 @@ DEFINE FRAME D-Dialog
      dDev-18 AT ROW 20.38 COL 111 COLON-ALIGNED NO-LABEL WIDGET-ID 486
      dDev-19 AT ROW 21.43 COL 111 COLON-ALIGNED NO-LABEL WIDGET-ID 498
      dDev-20 AT ROW 22.48 COL 111 COLON-ALIGNED NO-LABEL WIDGET-ID 510
-     "Lead Time" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 1.48 COL 95.2 WIDGET-ID 562
+     cQtyBaseLabel AT ROW 1.62 COL 1.2 COLON-ALIGNED NO-LABEL WIDGET-ID 564
+     "Quantity Base" VIEW-AS TEXT
+          SIZE 18 BY 1 AT ROW 1.48 COL 3 WIDGET-ID 252
      "Quantity Range" VIEW-AS TEXT
           SIZE 21.6 BY 1 AT ROW 1.48 COL 27.6 WIDGET-ID 242
      "Cost Per" VIEW-AS TEXT
           SIZE 12 BY 1 AT ROW 1.48 COL 59 WIDGET-ID 264
      "Setup" VIEW-AS TEXT
           SIZE 12 BY 1 AT ROW 1.48 COL 77 WIDGET-ID 278
-     "Quantity Up To" VIEW-AS TEXT
-          SIZE 17 BY 1 AT ROW 1.48 COL 3 WIDGET-ID 252
+     "Lead Time" VIEW-AS TEXT
+          SIZE 12 BY 1 AT ROW 1.48 COL 95.2 WIDGET-ID 562
      RECT-5 AT ROW 1.24 COL 2 WIDGET-ID 312
      RECT-21 AT ROW 23.86 COL 106
      SPACE(1.59) SKIP(0.00)
@@ -1130,6 +1107,11 @@ DEFINE FRAME D-Dialog
 ASSIGN 
        FRAME D-Dialog:SCROLLABLE       = FALSE
        FRAME D-Dialog:HIDDEN           = TRUE.
+
+/* SETTINGS FOR FILL-IN cQtyBaseLabel IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       cQtyBaseLabel:READ-ONLY IN FRAME D-Dialog        = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -2830,43 +2812,43 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY dToQty1 dToQty2 dToQty3 dToQty4 dToQty5 dToQty6 dToQty7 dToQty8 
-          dToQty9 dToQty10 dToQty11 dToQty12 dToQty13 dToQty14 dToQty15 dToQty16 
-          dToQty17 dToQty18 dToQty19 dToQty20 dFrom1 dFrom2 dFrom3 dFrom4 dFrom5 
-          dFrom6 dFrom7 dFrom8 dFrom9 dFrom10 dFrom-11 dFrom-12 dFrom-13 
-          dFrom-14 dFrom-15 dFrom-16 dFrom-17 dFrom-18 dFrom-19 dFrom-20 
-          dFromTo1 dFromTo2 dFromTo3 dFromTo4 dFromTo5 dFromTo6 dFromTo7 
-          dFromTo8 dFromTo9 dFromTo10 dFromTo-11 dFromTo-12 dFromTo-13 
-          dFromTo-14 dFromTo-15 dFromTo-16 dFromTo-17 dFromTo-18 dFromTo-19 
-          dFromTo-20 dEaCost1 dEaCost2 dEaCost3 dEaCost4 dEaCost5 dEaCost6 
-          dEaCost7 dEaCost8 dEaCost9 dEaCost10 dEaCost-11 dEaCost-12 dEaCost-13 
-          dEaCost-14 dEaCost-15 dEaCost-16 dEaCost-17 dEaCost-18 dEaCost-19 
-          dEaCost-20 dSetup1 dSetup2 dSetup3 dSetup4 dSetup5 dSetup6 dSetup7 
-          dSetup8 dSetup9 dSetup10 dSetup-11 dSetup-12 dSetup-13 dSetup-14 
-          dSetup-15 dSetup-16 dSetup-17 dSetup-18 dSetup-19 dSetup-20 
-          iLeadTime-1 iLeadTime-2 iLeadTime-3 iLeadTime-4 iLeadTime-5 
-          iLeadTime-6 iLeadTime-7 iLeadTime-8 iLeadTime-9 iLeadTime-10 
-          iLeadTime-11 iLeadTime-12 iLeadTime-13 iLeadTime-14 iLeadTime-15 
-          iLeadTime-16 iLeadTime-17 iLeadTime-18 iLeadTime-19 iLeadTime-20 
-          cDevLabel dDev1 dDev2 dDev3 dDev4 dDev5 dDev6 dDev7 dDev8 dDev9 dDev10 
-          dDev-11 dDev-12 dDev-13 dDev-14 dDev-15 dDev-16 dDev-17 dDev-18 
-          dDev-19 dDev-20 
+  DISPLAY dBase1 dBase2 dBase3 dBase4 dBase5 dBase6 dBase7 dBase8 dBase9 dBase10 
+          dBase11 dBase12 dBase13 dBase14 dBase15 dBase16 dBase17 dBase18 
+          dBase19 dBase20 dFrom1 dFrom2 dFrom3 dFrom4 dFrom5 dFrom6 dFrom7 
+          dFrom8 dFrom9 dFrom10 dFrom-11 dFrom-12 dFrom-13 dFrom-14 dFrom-15 
+          dFrom-16 dFrom-17 dFrom-18 dFrom-19 dFrom-20 dFromTo1 dFromTo2 
+          dFromTo3 dFromTo4 dFromTo5 dFromTo6 dFromTo7 dFromTo8 dFromTo9 
+          dFromTo10 dFromTo-11 dFromTo-12 dFromTo-13 dFromTo-14 dFromTo-15 
+          dFromTo-16 dFromTo-17 dFromTo-18 dFromTo-19 dFromTo-20 dEaCost1 
+          dEaCost2 dEaCost3 dEaCost4 dEaCost5 dEaCost6 dEaCost7 dEaCost8 
+          dEaCost9 dEaCost10 dEaCost-11 dEaCost-12 dEaCost-13 dEaCost-14 
+          dEaCost-15 dEaCost-16 dEaCost-17 dEaCost-18 dEaCost-19 dEaCost-20 
+          dSetup1 dSetup2 dSetup3 dSetup4 dSetup5 dSetup6 dSetup7 dSetup8 
+          dSetup9 dSetup10 dSetup-11 dSetup-12 dSetup-13 dSetup-14 dSetup-15 
+          dSetup-16 dSetup-17 dSetup-18 dSetup-19 dSetup-20 iLeadTime-1 
+          iLeadTime-2 iLeadTime-3 iLeadTime-4 iLeadTime-5 iLeadTime-6 
+          iLeadTime-7 iLeadTime-8 iLeadTime-9 iLeadTime-10 iLeadTime-11 
+          iLeadTime-12 iLeadTime-13 iLeadTime-14 iLeadTime-15 iLeadTime-16 
+          iLeadTime-17 iLeadTime-18 iLeadTime-19 iLeadTime-20 cDevLabel dDev1 
+          dDev2 dDev3 dDev4 dDev5 dDev6 dDev7 dDev8 dDev9 dDev10 dDev-11 dDev-12 
+          dDev-13 dDev-14 dDev-15 dDev-16 dDev-17 dDev-18 dDev-19 dDev-20 
+          cQtyBaseLabel 
       WITH FRAME D-Dialog.
-  ENABLE RECT-5 RECT-21 dToQty1 dToQty2 dToQty3 dToQty4 dToQty5 dToQty6 dToQty7 
-         dToQty8 dToQty9 dToQty10 dToQty11 dToQty12 dToQty13 dToQty14 dToQty15 
-         dToQty16 dToQty17 Btn_OK Btn_Cancel dToQty18 dToQty19 dToQty20 dFrom1 
-         dFrom2 dFrom3 dFrom4 dFrom5 dFrom6 dFrom7 dFrom8 dFrom9 dFrom10 
-         dFrom-11 dFrom-12 dFrom-13 dFrom-14 dFrom-15 dFrom-16 dFrom-17 
-         dFrom-18 dFrom-19 dFrom-20 dFromTo1 dFromTo2 dFromTo3 dFromTo4 
-         dFromTo5 dFromTo6 dFromTo7 dFromTo8 dFromTo9 dFromTo10 dFromTo-11 
-         dFromTo-12 dFromTo-13 dFromTo-14 dFromTo-15 dFromTo-16 dFromTo-17 
-         dFromTo-18 dFromTo-19 dFromTo-20 dEaCost1 dEaCost2 dEaCost3 dEaCost4 
-         dEaCost5 dEaCost6 dEaCost7 dEaCost8 dEaCost9 dEaCost10 dEaCost-11 
-         dEaCost-12 dEaCost-13 dEaCost-14 dEaCost-15 dEaCost-16 dEaCost-17 
-         dEaCost-18 dEaCost-19 dEaCost-20 dSetup1 dSetup2 dSetup3 dSetup4 
-         dSetup5 dSetup6 dSetup7 dSetup8 dSetup9 dSetup10 dSetup-11 dSetup-12 
-         dSetup-13 dSetup-14 dSetup-15 dSetup-16 dSetup-17 dSetup-18 dSetup-19 
-         dSetup-20 iLeadTime-1 iLeadTime-2 iLeadTime-3 iLeadTime-4 iLeadTime-5 
+  ENABLE dBase1 RECT-5 RECT-21 dBase2 dBase3 Btn_OK dBase4 dBase5 dBase6 
+         Btn_Cancel dBase7 dBase8 dBase9 dBase10 dBase11 dBase12 dBase13 
+         dBase14 dBase15 dBase16 dBase17 dBase18 dBase19 dBase20 dFrom1 dFrom2 
+         dFrom3 dFrom4 dFrom5 dFrom6 dFrom7 dFrom8 dFrom9 dFrom10 dFrom-11 
+         dFrom-12 dFrom-13 dFrom-14 dFrom-15 dFrom-16 dFrom-17 dFrom-18 
+         dFrom-19 dFrom-20 dFromTo1 dFromTo2 dFromTo3 dFromTo4 dFromTo5 
+         dFromTo6 dFromTo7 dFromTo8 dFromTo9 dFromTo10 dFromTo-11 dFromTo-12 
+         dFromTo-13 dFromTo-14 dFromTo-15 dFromTo-16 dFromTo-17 dFromTo-18 
+         dFromTo-19 dFromTo-20 dEaCost1 dEaCost2 dEaCost3 dEaCost4 dEaCost5 
+         dEaCost6 dEaCost7 dEaCost8 dEaCost9 dEaCost10 dEaCost-11 dEaCost-12 
+         dEaCost-13 dEaCost-14 dEaCost-15 dEaCost-16 dEaCost-17 dEaCost-18 
+         dEaCost-19 dEaCost-20 dSetup1 dSetup2 dSetup3 dSetup4 dSetup5 dSetup6 
+         dSetup7 dSetup8 dSetup9 dSetup10 dSetup-11 dSetup-12 dSetup-13 
+         dSetup-14 dSetup-15 dSetup-16 dSetup-17 dSetup-18 dSetup-19 dSetup-20 
+         iLeadTime-1 iLeadTime-2 iLeadTime-3 iLeadTime-4 iLeadTime-5 
          iLeadTime-6 iLeadTime-7 iLeadTime-8 iLeadTime-9 iLeadTime-10 
          iLeadTime-11 iLeadTime-12 iLeadTime-13 iLeadTime-14 iLeadTime-15 
          iLeadTime-16 iLeadTime-17 iLeadTime-18 iLeadTime-19 iLeadTime-20 
@@ -2908,180 +2890,180 @@ DO WITH FRAME {&frame-name}:
       IF i EQ 1 THEN do:
 
            ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dToQty1:SCREEN-VALUE)  
+           vendItemCostLevel.quantityBase  = decimal(dBase1:SCREEN-VALUE)  
            vendItemCostLevel.costPerUOM    = decimal(dEaCost1:SCREEN-VALUE) 
            vendItemCostLevel.costSetup     = decimal(dSetup1:SCREEN-VALUE)
            vendItemCostLevel.costDeviation = decimal(dDev1:SCREEN-VALUE)  
            vendItemCostLevel.leadTimeDays = integer(iLeadTime-1:SCREEN-VALUE).
-           IF decimal(dToQty2:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+           IF decimal(dBase2:SCREEN-VALUE) EQ 0 THEN   LEAVE .
 
        END.
        ELSE IF i EQ 2 THEN do:
            ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dToQty2:SCREEN-VALUE)  
+           vendItemCostLevel.quantityBase  = decimal(dBase2:SCREEN-VALUE)  
            vendItemCostLevel.costPerUOM    = decimal(dEaCost2:SCREEN-VALUE) 
            vendItemCostLevel.costSetup     = decimal(dSetup2:SCREEN-VALUE)
            vendItemCostLevel.costDeviation = decimal(dDev2:SCREEN-VALUE) 
            vendItemCostLevel.leadTimeDays = integer(iLeadTime-2:SCREEN-VALUE).
-           IF decimal(dToQty3:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+           IF decimal(dBase3:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
        ELSE IF  i EQ 3 THEN do:
            ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dToQty3:SCREEN-VALUE)  
+           vendItemCostLevel.quantityBase  = decimal(dBase3:SCREEN-VALUE)  
            vendItemCostLevel.costPerUOM    = decimal(dEaCost3:SCREEN-VALUE) 
            vendItemCostLevel.costSetup     = decimal(dSetup3:SCREEN-VALUE)
            vendItemCostLevel.costDeviation = decimal(dDev3:SCREEN-VALUE) 
            vendItemCostLevel.leadTimeDays = integer(iLeadTime-3:SCREEN-VALUE).
-           IF decimal(dToQty4:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+           IF decimal(dBase4:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
        ELSE IF  i EQ 4 THEN do:
            ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dToQty4:SCREEN-VALUE)  
+           vendItemCostLevel.quantityBase  = decimal(dBase4:SCREEN-VALUE)  
            vendItemCostLevel.costPerUOM    = decimal(dEaCost4:SCREEN-VALUE) 
            vendItemCostLevel.costSetup     = decimal(dSetup4:SCREEN-VALUE)
            vendItemCostLevel.costDeviation = decimal(dDev4:SCREEN-VALUE) 
            vendItemCostLevel.leadTimeDays = integer(iLeadTime-4:SCREEN-VALUE).
-           IF decimal(dToQty5:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+           IF decimal(dBase5:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
        ELSE IF  i EQ 5 THEN do:
            ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dToQty5:SCREEN-VALUE)  
+           vendItemCostLevel.quantityBase  = decimal(dBase5:SCREEN-VALUE)  
            vendItemCostLevel.costPerUOM    = decimal(dEaCost5:SCREEN-VALUE) 
            vendItemCostLevel.costSetup     = decimal(dSetup5:SCREEN-VALUE)
            vendItemCostLevel.costDeviation = decimal(dDev5:SCREEN-VALUE) 
            vendItemCostLevel.leadTimeDays = integer(iLeadTime-5:SCREEN-VALUE).
-           IF decimal(dToQty6:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+           IF decimal(dBase6:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
        ELSE IF  i EQ 6 THEN do:
            ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dToQty6:SCREEN-VALUE)  
+           vendItemCostLevel.quantityBase  = decimal(dBase6:SCREEN-VALUE)  
            vendItemCostLevel.costPerUOM    = decimal(dEaCost6:SCREEN-VALUE) 
            vendItemCostLevel.costSetup     = decimal(dSetup6:SCREEN-VALUE)
            vendItemCostLevel.costDeviation = decimal(dDev6:SCREEN-VALUE) 
            vendItemCostLevel.leadTimeDays = integer(iLeadTime-6:SCREEN-VALUE).
-           IF decimal(dToQty7:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+           IF decimal(dBase7:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
        ELSE IF  i EQ 7 THEN do:
            ASSIGN 
-           vendItemCostLevel.quantityBase    = decimal(dToQty7:SCREEN-VALUE)  
+           vendItemCostLevel.quantityBase    = decimal(dBase7:SCREEN-VALUE)  
            vendItemCostLevel.costPerUOM    = decimal(dEaCost7:SCREEN-VALUE) 
            vendItemCostLevel.costSetup     = decimal(dSetup7:SCREEN-VALUE)
            vendItemCostLevel.costDeviation = decimal(dDev7:SCREEN-VALUE) 
            vendItemCostLevel.leadTimeDays = integer(iLeadTime-7:SCREEN-VALUE).
-           IF decimal(dToQty8:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+           IF decimal(dBase8:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
        ELSE IF  i EQ 8 THEN do:
            ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dToQty8:SCREEN-VALUE)  
+           vendItemCostLevel.quantityBase  = decimal(dBase8:SCREEN-VALUE)  
            vendItemCostLevel.costPerUOM    = decimal(dEaCost8:SCREEN-VALUE) 
            vendItemCostLevel.costSetup     = decimal(dSetup8:SCREEN-VALUE)
            vendItemCostLevel.costDeviation = decimal(dDev8:SCREEN-VALUE) 
            vendItemCostLevel.leadTimeDays = integer(iLeadTime-8:SCREEN-VALUE).
-           IF decimal(dToQty9:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+           IF decimal(dBase9:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
        ELSE IF  i EQ 9 THEN do:
            ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dToQty9:SCREEN-VALUE)  
+           vendItemCostLevel.quantityBase  = decimal(dBase9:SCREEN-VALUE)  
            vendItemCostLevel.costPerUOM    = decimal(dEaCost9:SCREEN-VALUE) 
            vendItemCostLevel.costSetup     = decimal(dSetup9:SCREEN-VALUE)
            vendItemCostLevel.costDeviation = decimal(dDev9:SCREEN-VALUE) 
            vendItemCostLevel.leadTimeDays = integer(iLeadTime-9:SCREEN-VALUE).
-           IF decimal(dToQty10:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+           IF decimal(dBase10:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
        ELSE IF  i EQ 10 THEN do:
            ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dToQty10:SCREEN-VALUE)  
+           vendItemCostLevel.quantityBase  = decimal(dBase10:SCREEN-VALUE)  
            vendItemCostLevel.costPerUOM    = decimal(dEaCost10:SCREEN-VALUE) 
            vendItemCostLevel.costSetup     = decimal(dSetup10:SCREEN-VALUE)
            vendItemCostLevel.costDeviation = decimal(dDev10:SCREEN-VALUE) 
            vendItemCostLevel.leadTimeDays = integer(iLeadTime-10:SCREEN-VALUE).
-           IF decimal(dToQty11:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+           IF decimal(dBase11:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
        ELSE IF i EQ 11 THEN do:
 
            ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dToQty11:SCREEN-VALUE)  
+           vendItemCostLevel.quantityBase  = decimal(dBase11:SCREEN-VALUE)  
            vendItemCostLevel.costPerUOM    = decimal(dEaCost-11:SCREEN-VALUE) 
            vendItemCostLevel.costSetup     = decimal(dSetup-11:SCREEN-VALUE)
            vendItemCostLevel.costDeviation = decimal(dDev-11:SCREEN-VALUE) 
            vendItemCostLevel.leadTimeDays = integer(iLeadTime-11:SCREEN-VALUE).
-           IF decimal(dToQty12:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+           IF decimal(dBase12:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
        ELSE IF i EQ 12 THEN do:
            ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dToQty12:SCREEN-VALUE)  
+           vendItemCostLevel.quantityBase  = decimal(dBase12:SCREEN-VALUE)  
            vendItemCostLevel.costPerUOM    = decimal(dEaCost-12:SCREEN-VALUE) 
            vendItemCostLevel.costSetup     = decimal(dSetup-12:SCREEN-VALUE)
            vendItemCostLevel.costDeviation = decimal(dDev-12:SCREEN-VALUE) 
            vendItemCostLevel.leadTimeDays = integer(iLeadTime-12:SCREEN-VALUE).
-           IF decimal(dToQty13:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+           IF decimal(dBase13:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
        ELSE IF  i EQ 13 THEN do:
            ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dToQty13:SCREEN-VALUE)  
+           vendItemCostLevel.quantityBase  = decimal(dBase13:SCREEN-VALUE)  
            vendItemCostLevel.costPerUOM    = decimal(dEaCost-13:SCREEN-VALUE) 
            vendItemCostLevel.costSetup     = decimal(dSetup-13:SCREEN-VALUE)
            vendItemCostLevel.costDeviation = decimal(dDev-13:SCREEN-VALUE) 
            vendItemCostLevel.leadTimeDays = integer(iLeadTime-13:SCREEN-VALUE).
-           IF decimal(dToQty14:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+           IF decimal(dBase14:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
        ELSE IF  i EQ 14 THEN do:
            ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dToQty14:SCREEN-VALUE)  
+           vendItemCostLevel.quantityBase  = decimal(dBase14:SCREEN-VALUE)  
            vendItemCostLevel.costPerUOM    = decimal(dEaCost-14:SCREEN-VALUE) 
            vendItemCostLevel.costSetup     = decimal(dSetup-14:SCREEN-VALUE)
            vendItemCostLevel.costDeviation = decimal(dDev-14:SCREEN-VALUE) 
            vendItemCostLevel.leadTimeDays = integer(iLeadTime-14:SCREEN-VALUE).
-           IF decimal(dToQty15:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+           IF decimal(dBase15:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
        ELSE IF  i EQ 15 THEN do:
            ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dToQty15:SCREEN-VALUE)  
+           vendItemCostLevel.quantityBase  = decimal(dBase15:SCREEN-VALUE)  
            vendItemCostLevel.costPerUOM    = decimal(dEaCost-15:SCREEN-VALUE) 
            vendItemCostLevel.costSetup     = decimal(dSetup-15:SCREEN-VALUE)
            vendItemCostLevel.costDeviation = decimal(dDev-15:SCREEN-VALUE) 
            vendItemCostLevel.leadTimeDays = integer(iLeadTime-15:SCREEN-VALUE).
-           IF decimal(dToQty16:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+           IF decimal(dBase16:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
        ELSE IF  i EQ 16 THEN do:
            ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dToQty16:SCREEN-VALUE)  
+           vendItemCostLevel.quantityBase  = decimal(dBase16:SCREEN-VALUE)  
            vendItemCostLevel.costPerUOM    = decimal(dEaCost-16:SCREEN-VALUE) 
            vendItemCostLevel.costSetup     = decimal(dSetup-16:SCREEN-VALUE)
            vendItemCostLevel.costDeviation = decimal(dDev-16:SCREEN-VALUE) 
            vendItemCostLevel.leadTimeDays = integer(iLeadTime-16:SCREEN-VALUE).
-           IF decimal(dToQty17:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+           IF decimal(dBase17:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
        ELSE IF  i EQ 17 THEN do:
            ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dToQty17:SCREEN-VALUE)  
+           vendItemCostLevel.quantityBase  = decimal(dBase17:SCREEN-VALUE)  
            vendItemCostLevel.costPerUOM    = decimal(dEaCost-17:SCREEN-VALUE) 
            vendItemCostLevel.costSetup     = decimal(dSetup-17:SCREEN-VALUE)
            vendItemCostLevel.costDeviation = decimal(dDev-17:SCREEN-VALUE) 
            vendItemCostLevel.leadTimeDays = integer(iLeadTime-17:SCREEN-VALUE).
-           IF decimal(dToQty18:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+           IF decimal(dBase18:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
        ELSE IF  i EQ 18 THEN do:
            ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dToQty18:SCREEN-VALUE)  
+           vendItemCostLevel.quantityBase  = decimal(dBase18:SCREEN-VALUE)  
            vendItemCostLevel.costPerUOM    = decimal(dEaCost-18:SCREEN-VALUE) 
            vendItemCostLevel.costSetup     = decimal(dSetup-18:SCREEN-VALUE)
            vendItemCostLevel.costDeviation = decimal(dDev-18:SCREEN-VALUE) 
            vendItemCostLevel.leadTimeDays = integer(iLeadTime-18:SCREEN-VALUE).
-           IF decimal(dToQty19:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+           IF decimal(dBase19:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
        ELSE IF  i EQ 19 THEN do:
            ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dToQty19:SCREEN-VALUE)  
+           vendItemCostLevel.quantityBase  = decimal(dBase19:SCREEN-VALUE)  
            vendItemCostLevel.costPerUOM    = decimal(dEaCost-19:SCREEN-VALUE) 
            vendItemCostLevel.costSetup     = decimal(dSetup-19:SCREEN-VALUE)
            vendItemCostLevel.costDeviation = decimal(dDev-19:SCREEN-VALUE) 
            vendItemCostLevel.leadTimeDays = integer(iLeadTime-19:SCREEN-VALUE).
-           IF decimal(dToQty20:SCREEN-VALUE) EQ 0 THEN   LEAVE .
+           IF decimal(dBase20:SCREEN-VALUE) EQ 0 THEN   LEAVE .
        END.
        ELSE IF  i EQ 20 THEN do:
            ASSIGN 
-           vendItemCostLevel.quantityBase  = decimal(dToQty20:SCREEN-VALUE)  
+           vendItemCostLevel.quantityBase  = decimal(dBase20:SCREEN-VALUE)  
            vendItemCostLevel.costPerUOM    = decimal(dEaCost-20:SCREEN-VALUE) 
            vendItemCostLevel.costSetup     = decimal(dSetup-20:SCREEN-VALUE)
            vendItemCostLevel.costDeviation = decimal(dDev-20:SCREEN-VALUE) 
@@ -3114,238 +3096,238 @@ PROCEDURE pDisplayValue :
         FIND FIRST vendItemCost WHERE ROWID(vendItemCost) EQ iprRowid  NO-LOCK NO-ERROR.
            
         i = 1 .
-        IF AVAILABLE vendItemCost THEN 
-        FOR EACH vendItemCostLevel NO-LOCK
-            WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID 
-            BY vendItemCostLevel.quantityBase:
-           FIND FIRST bf-vendItemCostLevel NO-LOCK
-                WHERE ROWID(bf-VendItemCostLevel) EQ ROWID(vendItemCostLevel)
-                NO-ERROR.
-                          
-           IF i EQ 1 THEN
-                ASSIGN 
-                    dFromTo1:SCREEN-VALUE    = STRING(pGetQuantityTo())
-                    dFrom1:SCREEN-VALUE      = STRING(pGetQuantityFrom())
-                    dToQty1:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)
-                    dEaCost1:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)
-                    dSetup1:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)
-                    dDev1:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
-                    iLeadTime-1:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                    rwRowid[1]               = ROWID(vendItemCostLevel)  
-                    .
-            ELSE IF i EQ 2 THEN
-                ASSIGN 
-                    dFromTo2:SCREEN-VALUE    = STRING(pGetQuantityTo())
-                    dFrom2:SCREEN-VALUE      = STRING(pGetQuantityFrom())   
-                    dToQty2:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
-                    dEaCost2:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
-                    dSetup2:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
-                    dDev2:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
-                    iLeadTime-2:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                    rwRowid[2]               = ROWID(vendItemCostLevel) 
-                    . 
-            ELSE IF i EQ 3 THEN
-                ASSIGN 
-                    dFromTo3:SCREEN-VALUE    = STRING(pGetQuantityTo())
-                    dFrom3:SCREEN-VALUE      = STRING(pGetQuantityFrom())     
-                    dToQty3:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
-                    dEaCost3:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
-                    dSetup3:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
-                    dDev3:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
-                    iLeadTime-3:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                    rwRowid[3]               = ROWID(vendItemCostLevel)  
-                    . 
-            ELSE IF i EQ 4 THEN
-                ASSIGN 
-                    dFromTo4:SCREEN-VALUE    = STRING(pGetQuantityTo())
-                    dFrom4:SCREEN-VALUE      = STRING(pGetQuantityFrom())   
-                    dToQty4:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
-                    dEaCost4:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
-                    dSetup4:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
-                    dDev4:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
-                    iLeadTime-4:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                    rwRowid[4]               = ROWID(vendItemCostLevel) 
-                    . 
-            ELSE IF i EQ 5 THEN
-                ASSIGN 
-                    dFromTo5:SCREEN-VALUE    = STRING(pGetQuantityTo()) 
-                    dFrom5:SCREEN-VALUE      =  STRING(pGetQuantityFrom())   
-                    dToQty5:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
-                    dEaCost5:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
-                    dSetup5:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
-                    dDev5:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
-                    iLeadTime-5:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                    rwRowid[5]               = ROWID(vendItemCostLevel)  
-                    . 
-            ELSE IF  i EQ 6 THEN
-                ASSIGN 
-                    dFromTo6:SCREEN-VALUE    = STRING(pGetQuantityTo()) 
-                    dFrom6:SCREEN-VALUE      =  STRING(pGetQuantityFrom())   
-                    dToQty6:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
-                    dEaCost6:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
-                    dSetup6:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
-                    dDev6:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
-                    iLeadTime-6:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                    rwRowid[6]               = ROWID(vendItemCostLevel)  
-                    . 
-            ELSE IF i EQ 7 THEN
-                ASSIGN 
-                    dFromTo7:SCREEN-VALUE    = STRING(pGetQuantityTo())
-                    dFrom7:SCREEN-VALUE      =  STRING(pGetQuantityFrom())    
-                    dToQty7:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
-                    dEaCost7:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
-                    dSetup7:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
-                    dDev7:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
-                    iLeadTime-7:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                    rwRowid[7]               = ROWID(vendItemCostLevel)  
-                    . 
-            ELSE IF i EQ 8 THEN
-                ASSIGN 
-                    dFromTo8:SCREEN-VALUE    = STRING(pGetQuantityTo())   
-                    dFrom8:SCREEN-VALUE      = STRING(pGetQuantityFrom()) 
-                    dToQty8:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
-                    dEaCost8:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
-                    dSetup8:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
-                    dDev8:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
-                    iLeadTime-8:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                    rwRowid[8]               = ROWID(vendItemCostLevel)  
-                    . 
-            ELSE IF i EQ 9 THEN
-                ASSIGN 
-                    dFromTo9:SCREEN-VALUE    = STRING(pGetQuantityTo())  
-                    dFrom9:SCREEN-VALUE      = STRING(pGetQuantityFrom())  
-                    dToQty9:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
-                    dEaCost9:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
-                    dSetup9:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
-                    dDev9:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
-                    iLeadTime-9:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                    rwRowid[9]               = ROWID(vendItemCostLevel)  
-                    . 
-            ELSE IF i EQ 10 THEN
-                ASSIGN 
-                    dFromTo10:SCREEN-VALUE    = STRING(pGetQuantityTo())
-                    dFrom10:SCREEN-VALUE      = STRING(pGetQuantityFrom())    
-                    dToQty10:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
-                    dEaCost10:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
-                    dSetup10:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
-                    dDev10:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
-                    iLeadTime-10:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                    rwRowid[10]               = ROWID(vendItemCostLevel)  
-                    . 
-           ELSE IF i EQ 11 THEN
-                ASSIGN 
-                    dFromTo-11:SCREEN-VALUE   = STRING(pGetQuantityTo())
-                    dFrom-11:SCREEN-VALUE     = STRING(pGetQuantityFrom())
-                    dToQty11:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)
-                    dEaCost-11:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)
-                    dSetup-11:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)
-                    dDev-11:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
-                    iLeadTime-11:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                    rwRowid[11]               = ROWID(vendItemCostLevel) 
-                    .
-            ELSE IF i EQ 12 THEN
-                ASSIGN 
-                    dFromTo-12:SCREEN-VALUE   = STRING(pGetQuantityTo())
-                    dFrom-12:SCREEN-VALUE     = STRING(pGetQuantityFrom())    
-                    dToQty12:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
-                    dEaCost-12:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
-                    dSetup-12:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
-                    dDev-12:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
-                    iLeadTime-12:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                    rwRowid[12]               = ROWID(vendItemCostLevel)  
-                    . 
-            ELSE IF i EQ 13 THEN
-                ASSIGN 
-                    dFromTo-13:SCREEN-VALUE   = STRING(pGetQuantityTo())
-                    dFrom-13:SCREEN-VALUE     = STRING(pGetQuantityFrom())    
-                    dToQty13:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
-                    dEaCost-13:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
-                    dSetup-13:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
-                    dDev-13:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
-                    iLeadTime-13:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)                
-                    rwRowid[13]               = ROWID(vendItemCostLevel)  
-                    . 
-            ELSE IF i EQ 14 THEN
-                ASSIGN 
-                    dFromTo-14:SCREEN-VALUE   = STRING(pGetQuantityTo())
-                    dFrom-14:SCREEN-VALUE     = STRING(pGetQuantityFrom())    
-                    dToQty14:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
-                    dEaCost-14:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
-                    dSetup-14:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
-                    dDev-14:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
-                    iLeadTime-14:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                    rwRowid[14]               = ROWID(vendItemCostLevel) 
-                    . 
-            ELSE IF i EQ 15 THEN
-                ASSIGN 
-                    dFromTo-15:SCREEN-VALUE   = STRING(pGetQuantityTo()) 
-                    dFrom-15:SCREEN-VALUE     = STRING(pGetQuantityFrom())   
-                    dToQty15:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
-                    dEaCost-15:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
-                    dSetup-15:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
-                    dDev-15:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation) 
-                    iLeadTime-15:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                    rwRowid[15]               = ROWID(vendItemCostLevel)
-                    . 
-            ELSE IF  i EQ 16 THEN
-                ASSIGN 
-                    dFromTo-16:SCREEN-VALUE   = STRING(pGetQuantityTo())
-                    dFrom-16:SCREEN-VALUE     = STRING(pGetQuantityFrom())    
-                    dToQty16:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
-                    dEaCost-16:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
-                    dSetup-16:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
-                    dDev-16:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation) 
-                    iLeadTime-16:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                    rwRowid[16]               = ROWID(vendItemCostLevel) 
-                    . 
-            ELSE IF i EQ 17 THEN
-                ASSIGN 
-                    dFromTo-17:SCREEN-VALUE   = STRING(pGetQuantityTo())
-                    dFrom-17:SCREEN-VALUE     = STRING(pGetQuantityFrom())    
-                    dToQty17:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
-                    dEaCost-17:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
-                    dSetup-17:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
-                    dDev-17:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
-                    iLeadTime-17:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                    rwRowid[17]               = ROWID(vendItemCostLevel)  
-                    . 
-            ELSE IF i EQ 18 THEN
-                ASSIGN 
-                    dFromTo-18:SCREEN-VALUE   = STRING(pGetQuantityTo())
-                    dFrom-18:SCREEN-VALUE     = STRING(pGetQuantityFrom())    
-                    dToQty18:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
-                    dEaCost-18:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
-                    dSetup-18:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
-                    dDev-18:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
-                    iLeadTime-18:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                    rwRowid[18]               = ROWID(vendItemCostLevel)  
-                    . 
-            ELSE IF i EQ 19 THEN
-                ASSIGN 
-                    dFromTo-19:SCREEN-VALUE   = STRING(pGetQuantityTo())
-                    dFrom-19:SCREEN-VALUE     = STRING(pGetQuantityFrom())    
-                    dToQty19:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
-                    dEaCost-19:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
-                    dSetup-19:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
-                    dDev-19:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
-                    iLeadTime-19:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                    rwRowid[19]               = ROWID(vendItemCostLevel)  
-                    . 
-            ELSE IF i EQ 20 THEN
-                ASSIGN 
-                    dFromTo-20:SCREEN-VALUE   = STRING(pGetQuantityTo())
-                    dFrom-20:SCREEN-VALUE     = STRING(pGetQuantityFrom())    
-                    dToQty20:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityTo)      
-                    dEaCost-20:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
-                    dSetup-20:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
-                    dDev-20:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
-                    iLeadTime-20:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
-                    rwRowid[20]               = ROWID(vendItemCostLevel) 
-                    . 
-            i = i + 1 .
-            IF i GT 20 THEN LEAVE .
-        END.
-
+        IF AVAILABLE vendItemCost THEN DO: 
+            FOR EACH vendItemCostLevel NO-LOCK
+                WHERE vendItemCostLevel.vendItemCostID EQ vendItemCost.vendItemCostID 
+                BY vendItemCostLevel.quantityBase:
+               FIND FIRST bf-vendItemCostLevel NO-LOCK
+                    WHERE ROWID(bf-VendItemCostLevel) EQ ROWID(vendItemCostLevel)
+                    NO-ERROR.
+                              
+               IF i EQ 1 THEN
+                    ASSIGN 
+                        dFromTo1:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)
+                        dFrom1:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)
+                        dBase1:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityBase)
+                        dEaCost1:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)
+                        dSetup1:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)
+                        dDev1:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                        iLeadTime-1:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                        rwRowid[1]               = ROWID(vendItemCostLevel)  
+                        .
+                ELSE IF i EQ 2 THEN
+                    ASSIGN 
+                        dFromTo2:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)
+                        dFrom2:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)   
+                        dBase2:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityBase)      
+                        dEaCost2:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
+                        dSetup2:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
+                        dDev2:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                        iLeadTime-2:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                        rwRowid[2]               = ROWID(vendItemCostLevel) 
+                        . 
+                ELSE IF i EQ 3 THEN
+                    ASSIGN 
+                        dFromTo3:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)
+                        dFrom3:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)     
+                        dBase3:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityBase)      
+                        dEaCost3:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
+                        dSetup3:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
+                        dDev3:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                        iLeadTime-3:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                        rwRowid[3]               = ROWID(vendItemCostLevel)  
+                        . 
+                ELSE IF i EQ 4 THEN
+                    ASSIGN 
+                        dFromTo4:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)
+                        dFrom4:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)   
+                        dBase4:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityBase)      
+                        dEaCost4:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
+                        dSetup4:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
+                        dDev4:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                        iLeadTime-4:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                        rwRowid[4]               = ROWID(vendItemCostLevel) 
+                        . 
+                ELSE IF i EQ 5 THEN
+                    ASSIGN 
+                        dFromTo5:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo) 
+                        dFrom5:SCREEN-VALUE      =  STRING(vendItemCostLevel.quantityFrom)   
+                        dBase5:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityBase)      
+                        dEaCost5:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
+                        dSetup5:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
+                        dDev5:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                        iLeadTime-5:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                        rwRowid[5]               = ROWID(vendItemCostLevel)  
+                        . 
+                ELSE IF  i EQ 6 THEN
+                    ASSIGN 
+                        dFromTo6:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo) 
+                        dFrom6:SCREEN-VALUE      =  STRING(vendItemCostLevel.quantityFrom)   
+                        dBase6:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityBase)      
+                        dEaCost6:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
+                        dSetup6:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
+                        dDev6:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                        iLeadTime-6:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                        rwRowid[6]               = ROWID(vendItemCostLevel)  
+                        . 
+                ELSE IF i EQ 7 THEN
+                    ASSIGN 
+                        dFromTo7:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)
+                        dFrom7:SCREEN-VALUE      =  STRING(vendItemCostLevel.quantityFrom)    
+                        dBase7:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityBase)      
+                        dEaCost7:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
+                        dSetup7:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
+                        dDev7:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                        iLeadTime-7:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                        rwRowid[7]               = ROWID(vendItemCostLevel)  
+                        . 
+                ELSE IF i EQ 8 THEN
+                    ASSIGN 
+                        dFromTo8:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)   
+                        dFrom8:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom) 
+                        dBase8:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityBase)      
+                        dEaCost8:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
+                        dSetup8:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
+                        dDev8:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                        iLeadTime-8:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                        rwRowid[8]               = ROWID(vendItemCostLevel)  
+                        . 
+                ELSE IF i EQ 9 THEN
+                    ASSIGN 
+                        dFromTo9:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)  
+                        dFrom9:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)  
+                        dBase9:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityBase)      
+                        dEaCost9:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
+                        dSetup9:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
+                        dDev9:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                        iLeadTime-9:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                        rwRowid[9]               = ROWID(vendItemCostLevel)  
+                        . 
+                ELSE IF i EQ 10 THEN
+                    ASSIGN 
+                        dFromTo10:SCREEN-VALUE    = STRING(vendItemCostLevel.quantityTo)
+                        dFrom10:SCREEN-VALUE      = STRING(vendItemCostLevel.quantityFrom)    
+                        dBase10:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityBase)      
+                        dEaCost10:SCREEN-VALUE    = STRING(vendItemCostLevel.costPerUOM)      
+                        dSetup10:SCREEN-VALUE     = STRING(vendItemCostLevel.costSetup)       
+                        dDev10:SCREEN-VALUE       = STRING(vendItemCostLevel.costDeviation)
+                        iLeadTime-10:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                        rwRowid[10]               = ROWID(vendItemCostLevel)  
+                        . 
+               ELSE IF i EQ 11 THEN
+                    ASSIGN 
+                        dFromTo-11:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
+                        dFrom-11:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)
+                        dBase11:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityBase)
+                        dEaCost-11:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)
+                        dSetup-11:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)
+                        dDev-11:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
+                        iLeadTime-11:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                        rwRowid[11]               = ROWID(vendItemCostLevel) 
+                        .
+                ELSE IF i EQ 12 THEN
+                    ASSIGN 
+                        dFromTo-12:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
+                        dFrom-12:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                        dBase12:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityBase)      
+                        dEaCost-12:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
+                        dSetup-12:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
+                        dDev-12:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
+                        iLeadTime-12:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                        rwRowid[12]               = ROWID(vendItemCostLevel)  
+                        . 
+                ELSE IF i EQ 13 THEN
+                    ASSIGN 
+                        dFromTo-13:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
+                        dFrom-13:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                        dBase13:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityBase)      
+                        dEaCost-13:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
+                        dSetup-13:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
+                        dDev-13:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
+                        iLeadTime-13:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)                
+                        rwRowid[13]               = ROWID(vendItemCostLevel)  
+                        . 
+                ELSE IF i EQ 14 THEN
+                    ASSIGN 
+                        dFromTo-14:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
+                        dFrom-14:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                        dBase14:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityBase)      
+                        dEaCost-14:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
+                        dSetup-14:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
+                        dDev-14:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
+                        iLeadTime-14:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                        rwRowid[14]               = ROWID(vendItemCostLevel) 
+                        . 
+                ELSE IF i EQ 15 THEN
+                    ASSIGN 
+                        dFromTo-15:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo) 
+                        dFrom-15:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)   
+                        dBase15:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityBase)      
+                        dEaCost-15:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
+                        dSetup-15:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
+                        dDev-15:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation) 
+                        iLeadTime-15:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                        rwRowid[15]               = ROWID(vendItemCostLevel)
+                        . 
+                ELSE IF  i EQ 16 THEN
+                    ASSIGN 
+                        dFromTo-16:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
+                        dFrom-16:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                        dBase16:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityBase)      
+                        dEaCost-16:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
+                        dSetup-16:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
+                        dDev-16:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation) 
+                        iLeadTime-16:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                        rwRowid[16]               = ROWID(vendItemCostLevel) 
+                        . 
+                ELSE IF i EQ 17 THEN
+                    ASSIGN 
+                        dFromTo-17:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
+                        dFrom-17:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                        dBase17:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityBase)      
+                        dEaCost-17:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
+                        dSetup-17:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
+                        dDev-17:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
+                        iLeadTime-17:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                        rwRowid[17]               = ROWID(vendItemCostLevel)  
+                        . 
+                ELSE IF i EQ 18 THEN
+                    ASSIGN 
+                        dFromTo-18:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
+                        dFrom-18:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                        dBase18:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityBase)      
+                        dEaCost-18:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
+                        dSetup-18:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
+                        dDev-18:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
+                        iLeadTime-18:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                        rwRowid[18]               = ROWID(vendItemCostLevel)  
+                        . 
+                ELSE IF i EQ 19 THEN
+                    ASSIGN 
+                        dFromTo-19:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
+                        dFrom-19:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                        dBase19:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityBase)      
+                        dEaCost-19:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
+                        dSetup-19:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
+                        dDev-19:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
+                        iLeadTime-19:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                        rwRowid[19]               = ROWID(vendItemCostLevel)  
+                        . 
+                ELSE IF i EQ 20 THEN
+                    ASSIGN 
+                        dFromTo-20:SCREEN-VALUE   = STRING(vendItemCostLevel.quantityTo)
+                        dFrom-20:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityFrom)    
+                        dBase20:SCREEN-VALUE     = STRING(vendItemCostLevel.quantityBase)      
+                        dEaCost-20:SCREEN-VALUE   = STRING(vendItemCostLevel.costPerUOM)      
+                        dSetup-20:SCREEN-VALUE    = STRING(vendItemCostLevel.costSetup)       
+                        dDev-20:SCREEN-VALUE      = STRING(vendItemCostLevel.costDeviation)
+                        iLeadTime-20:SCREEN-VALUE = STRING(vendItemCostLevel.leadTimeDays)
+                        rwRowid[20]               = ROWID(vendItemCostLevel) 
+                        . 
+                i = i + 1 .
+                IF i GT 20 THEN LEAVE .
+            END. /*For each vendItemCostLevel*/
+        END. /*Avail vendItemCost*/
         DISABLE dFrom1 dFrom2 dFrom3 dFrom4 dFrom5 dFrom6 dFrom7 dFrom8 dFrom9 dFrom10 
             dFrom-11 dFrom-12 dFrom-13 dFrom-14 dFrom-15 dFrom-16 dFrom-17 dFrom-18 dFrom-19 dFrom-20
             dFromTo1 dFromTo2 dFromTo3 dFromTo4 dFromTo5 dFromTo6 dFromTo7 dFromTo8 dFromTo9 dFromTo10 
@@ -3419,72 +3401,4 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetQuantityFrom D-Dialog 
-FUNCTION pGetQuantityFrom RETURNS DECIMAL PRIVATE
-  (  ):
-/*-----------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE dQuantityFrom AS DECIMAL NO-UNDO.
-
-    IF AVAILABLE bf-vendItemCostLevel THEN DO:
-        IF vendItemCost.itemType EQ "FG" THEN DO:
-            IF lFirst THEN DO:
-                RUN VendCost_AdjustQuantityFrom IN hdVendorCostProcs (
-                       INPUT ROWID(bf-vendItemCostLevel),
-                       INPUT NO, /* For first row do not change quantityFrom */
-                       INPUT vendItemCost.vendorUOM,
-                       OUTPUT dQuantityFrom
-                       ).
-                lFirst = NO.           
-            END.              
-            ELSE
-                RUN VendCost_AdjustQuantityFrom IN hdVendorCostProcs (
-                    INPUT ROWID(bf-vendItemCostLevel),
-                    INPUT NOT lChangeUpTo, /* If NK1=NO then change quantity from*/
-                    INPUT vendItemCost.vendorUOM,
-                    OUTPUT dQuantityFrom
-                    ).
-            RETURN dQuantityFrom.   
-        END.                       
-        ELSE 
-            RETURN bf-vendItemCostLevel.QuantityFrom.
-        
-    END.
-
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetQuantityTo D-Dialog 
-FUNCTION pGetQuantityTo RETURNS DECIMAL PRIVATE
-  (  ):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE dQuantityTo AS DECIMAL NO-UNDO.
-     
-    IF AVAILABLE bf-vendItemCostLevel THEN DO:
-
-        IF vendItemCost.itemType EQ "FG" THEN DO:
-            RUN VendCost_AdjustQuantityTo IN hdVendorCostProcs(
-                INPUT  ROWID(bf-vendItemCostLevel),
-                INPUT  lChangeUpTo, /* If NK1=YES then change quantityTo */
-                INPUT  vendItemCost.vendorUOM,
-                OUTPUT dQuantityTo
-                ).
-            RETURN dQuantityTo.      
-        END. 
-        ELSE 
-            RETURN bf-vendItemCostLevel.quantityTo.   
-    END.                
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 

@@ -525,7 +525,6 @@ DEF    VAR      lv-po-no       AS INT       NO-UNDO.
             AND (fg-rdtlh.cost EQ 0                           OR
             fg-rdtlh.cost EQ ?                           OR
             NOT tb_0)
-            AND INDEX("A",fg-rdtlh.rita-code) EQ 0
             USE-INDEX rm-rdtl
 
             BREAK BY INT(fg-rcpth.rita-code NE "R")

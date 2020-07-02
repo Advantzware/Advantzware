@@ -87,8 +87,7 @@ FOR EACH ap-invl NO-LOCK WHERE
 END.
 
 /* If the invoiced total qty plus this (input) qty GT PO line qty, show a warning */
-IF tInvoicedQty + io-ap-invl.qty GT io-po-ordl.ord-qty THEN DO:
-    RELEASE io-po-ordl.
+IF tInvoicedQty + io-ap-invl.qty GT io-po-ordl.ord-qty THEN DO:    
     ASSIGN 
         opcOutError = "There are already " + STRING(iCtr) + " AP invoices for this PO line totalling " +
                       STRING(tInvoicedQty) + " units (" + cUoM + "). Do you want to continue?". 

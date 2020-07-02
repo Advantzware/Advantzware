@@ -3012,9 +3012,10 @@ FOR EACH oe-ord
 
 END.
 
-IF NOT AVAILABLE report THEN
+IF NOT AVAILABLE report THEN DO:
+    SESSION:SET-WAIT-STATE("").
     RETURN.
-    
+END.    
  {sys/inc/outprint.i VALUE(lines-per-page)}
 
 IF td-show-parm THEN RUN show-param.
@@ -3109,6 +3110,8 @@ END.
 
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+
+FIND CURRENT oe-ord NO-LOCK NO-ERROR.
 
 SESSION:SET-WAIT-STATE("").
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */

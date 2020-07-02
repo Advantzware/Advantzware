@@ -734,7 +734,6 @@ DO:
 
     RUN validate-count.
     
-    SELF:MODIFIED = FALSE.
   END.
 END.
 

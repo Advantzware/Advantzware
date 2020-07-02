@@ -209,6 +209,9 @@ DEFINE VARIABLE i-bardir-int AS INTEGER NO-UNDO .
 DEFINE VARIABLE i-xprint-int AS INTEGER NO-UNDO .
 DEFINE VARIABLE hdOutputProcs AS HANDLE.
 
+DEFINE VARIABLE lFGTagValidation AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cFGTagValidation AS CHARACTER NO-UNDO.
+
 RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "FGSetAssembly",
                        INPUT "L",
@@ -7443,14 +7446,52 @@ PROCEDURE post-all :
 DEF BUFFER bf-fg-rctd FOR fg-rctd.
 
 
-FOR EACH  tt-fgrctd-created:
+FOR EACH tt-fgrctd-created:
 
   FIND fg-rctd WHERE ROWID(fg-rctd) = tt-fgrctd-created.fg-rctd-rowid
   EXCLUSIVE-LOCK NO-ERROR.
 
   IF NOT AVAIL fg-rctd THEN
   NEXT.
-
+  
+  FIND FIRST itemfg NO-LOCK 
+       WHERE itemfg.company EQ cocode
+         AND itemfg.i-no    EQ fg-rctd.i-no
+       NO-ERROR.
+       
+  RUN sys/ref/nk1look.p(
+      INPUT cocode,
+      INPUT "FGTagValidation",
+      INPUT "L",
+      INPUT YES,
+      INPUT YES,
+      INPUT IF AVAILABLE itemfg THEN itemfg.cust-no ELSE "",
+      INPUT "",
+      OUTPUT cReturnValue,
+      OUTPUT lRecFound
+      ).
+      
+   lFGTagValidation = LOGICAL(cReturnValue).
+   
+   RUN sys/ref/nk1look.p(
+       INPUT cocode,
+       INPUT "FGTagValidation",
+       INPUT "C",
+       INPUT YES,
+       INPUT YES,
+       INPUT IF AVAILABLE itemfg THEN itemfg.cust-no ELSE "",
+       INPUT "",
+       OUTPUT cReturnValue,
+       OUTPUT lRecFound
+       ).
+       
+   cFGTagValidation = cReturnValue.
+   
+   IF lFGTagValidation AND fg-rctd.tag EQ "" THEN 
+       NEXT.
+        
+   IF cFGTagValidation EQ "ItemMatch" AND NOT fg-rctd.tag BEGINS fg-rctd.i-no THEN 
+       NEXT. 
 
   IF AVAIL fg-rctd THEN DO:
     IF SSPostFG-log AND

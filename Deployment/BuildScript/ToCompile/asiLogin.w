@@ -803,20 +803,20 @@ PROCEDURE ipChangeEnvironment :
         CASE cbEnvironment:SCREEN-VALUE IN FRAME {&FRAME-NAME}:
             WHEN "Prod" THEN DO:
                 DO iCtr = 1 TO NUM-ENTRIES(cDatabaseList):
-                    IF ENTRY(iCtr,cDatabaseList) EQ "Prod" AND cSessionParam EQ "" THEN DO:
+                    IF INDEX(ENTRY(iCtr,cDatabaseList),"Prod") <> 0 AND cSessionParam EQ "" THEN DO:
                         ASSIGN
                             cbDatabase:LIST-ITEMS = ENTRY(iCtr,cDatabaseList)
-                            cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cDatabaseList).
+                            cbDatabase:SCREEN-VALUE = ENTRY(1,cDatabaseList).
                         LEAVE.
                     END.
                 END.
             END.
             WHEN "Test" THEN DO:
                 DO iCtr = 1 TO NUM-ENTRIES(cDatabaseList):
-                    IF ENTRY(iCtr,cDatabaseList) EQ "Test" AND cSessionParam EQ "" THEN DO:
+                    IF INDEX(ENTRY(iCtr,cDatabaseList),"Test") <> 0 AND cSessionParam EQ "" THEN DO:
                         ASSIGN
                             cbDatabase:LIST-ITEMS = ENTRY(iCtr,cDatabaseList)
-                            cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cDatabaseList).
+                            cbDatabase:SCREEN-VALUE = ENTRY(1,cDatabaseList).
                         LEAVE.
                     END.
                 END.

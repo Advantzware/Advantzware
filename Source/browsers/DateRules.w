@@ -7,7 +7,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
-  File:  browsers/stax.w
+  File:  browsers/DateRules.w - RStark - 6.30.2020
 
   Description: from BROWSER.W - Basic SmartBrowser Object Template
 
@@ -30,19 +30,24 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-&SCOPED-DEFINE yellowColumnsName stax
-&SCOPED-DEFINE setBrowseFocus
+
 &SCOPED-DEFINE winReSize
+&SCOPED-DEFINE sizeOption HEIGHT
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
 
-{custom/gcompany.i}
 {custom/globdefs.i}
-{sys/inc/var.i new shared}
-{sys/inc/varasgn.i}
+{sys/inc/var.i NEW SHARED}
+
+DEFINE VARIABLE cSkipTime AS CHARACTER NO-UNDO.
+
+ASSIGN
+    cocode = g_company
+    locode = g_loc
+    .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -57,39 +62,34 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES stax
+&Scoped-define INTERNAL-TABLES DateRules
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table tax-group stax.tax-code1[1] ~
-stax.tax-dscr1[1] stax.tax-rate1[1] stax.tax-acc1[1] stax.tax-frt1[1] ~
-stax.tax-code1[2] stax.tax-dscr1[2] stax.tax-rate1[2] stax.tax-acc1[2] ~
-stax.tax-frt1[2] stax.tax-code1[3] stax.tax-dscr1[3] stax.tax-rate1[3] ~
-stax.tax-acc1[3] stax.tax-frt1[3] stax.tax-code1[4] stax.tax-dscr1[4] ~
-stax.tax-rate1[4] stax.tax-acc1[4] stax.tax-frt1[4] stax.tax-code1[5] ~
-stax.tax-dscr1[5] stax.tax-rate1[5] stax.tax-acc1[5] stax.tax-frt1[5] 
+&Scoped-define FIELDS-IN-QUERY-Browser-Table DateRules.dateRuleID ~
+DateRules.scope DateRules.scopeID DateRules.baseTable DateRules.baseField ~
+DateRules.days DateRules.skipDays ~
+DateRules.resultTable DateRules.resultField 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH stax WHERE ~{&KEY-PHRASE} ~
-      AND stax.company = g_company NO-LOCK ~
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH DateRules WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH stax WHERE ~{&KEY-PHRASE} ~
-      AND stax.company = g_company NO-LOCK ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH DateRules WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-Browser-Table stax
-&Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table stax
+&Scoped-define TABLES-IN-QUERY-Browser-Table DateRules
+&Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table DateRules
 
 
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
+&Scoped-Define ENABLED-OBJECTS Browser-Table browse-order auto_find ~
 Btn_Clear_Find 
 &Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
@@ -99,15 +99,19 @@ Btn_Clear_Find
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Prototypes ********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD f-tax-group B-table-Win 
-FUNCTION f-tax-group RETURNS CHARACTER
-  ( input ip-tax-group as character  )  FORWARD.
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fSkipTime B-table-Win
+FUNCTION fSkipTime RETURNS CHARACTER 
+  (ipiSkipTime AS INTEGER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -122,94 +126,51 @@ DEFINE BUTTON Btn_Clear_Find
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 
      VIEW-AS FILL-IN 
-     SIZE 36 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 61 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     SIZE 34 BY 1 NO-UNDO.
 
 DEFINE VARIABLE browse-order AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "N/A", 1
-     SIZE 55 BY 1 NO-UNDO.
+     SIZE 93 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 158 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
-      stax
-    FIELDS(tax-group
-      stax.tax-code1[1]
-      stax.tax-dscr1[1]
-      stax.tax-rate1[1]
-      stax.tax-acc1[1]
-      stax.tax-frt1[1]
-      stax.tax-code1[2]
-      stax.tax-dscr1[2]
-      stax.tax-rate1[2]
-      stax.tax-acc1[2]
-      stax.tax-frt1[2]
-      stax.tax-code1[3]
-      stax.tax-dscr1[3]
-      stax.tax-rate1[3]
-      stax.tax-acc1[3]
-      stax.tax-frt1[3]
-      stax.tax-code1[4]
-      stax.tax-dscr1[4]
-      stax.tax-rate1[4]
-      stax.tax-acc1[4]
-      stax.tax-frt1[4]
-      stax.tax-code1[5]
-      stax.tax-dscr1[5]
-      stax.tax-rate1[5]
-      stax.tax-acc1[5]
-      stax.tax-frt1[5]) SCROLLING.
+      DateRules
+    FIELDS(DateRules.dateRuleID
+      DateRules.scope
+      DateRules.scopeID
+      DateRules.baseTable
+      DateRules.baseField
+      DateRules.days
+      DateRules.skipDays
+      DateRules.skipTime
+      DateRules.resultTable
+      DateRules.resultField) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      tax-group COLUMN-LABEL "Tax Group" FORMAT "x(4)":U LABEL-BGCOLOR 14
-      stax.tax-code1[1] FORMAT "x(4)":U LABEL-BGCOLOR 14
-      stax.tax-dscr1[1] FORMAT "x(25)":U LABEL-BGCOLOR 14
-      stax.tax-rate1[1] FORMAT ">>>9.99<<<":U LABEL-BGCOLOR 14
-      stax.tax-acc1[1] FORMAT "x(21)":U LABEL-BGCOLOR 14
-      stax.tax-frt1[1] COLUMN-LABEL "Tax!Frt?[1]" FORMAT "yes/no":U
-            WIDTH 5.2 LABEL-BGCOLOR 14
-      stax.tax-code1[2] FORMAT "x(4)":U LABEL-BGCOLOR 14
-      stax.tax-dscr1[2] FORMAT "x(25)":U LABEL-BGCOLOR 14
-      stax.tax-rate1[2] FORMAT ">>>9.99<<<":U LABEL-BGCOLOR 14
-      stax.tax-acc1[2] FORMAT "x(21)":U LABEL-BGCOLOR 14
-      stax.tax-frt1[2] COLUMN-LABEL "Tax!Frt?[2]" FORMAT "yes/no":U
-            WIDTH 5.2 LABEL-BGCOLOR 14
-      stax.tax-code1[3] FORMAT "x(4)":U LABEL-BGCOLOR 14
-      stax.tax-dscr1[3] FORMAT "x(25)":U LABEL-BGCOLOR 14
-      stax.tax-rate1[3] FORMAT ">>>9.99<<<":U LABEL-BGCOLOR 14
-      stax.tax-acc1[3] FORMAT "x(21)":U LABEL-BGCOLOR 14
-      stax.tax-frt1[3] COLUMN-LABEL "Tax!Frt?[3]" FORMAT "yes/no":U
-            WIDTH 5.2 LABEL-BGCOLOR 14
-      stax.tax-code1[4] FORMAT "x(4)":U LABEL-BGCOLOR 14
-      stax.tax-dscr1[4] FORMAT "x(25)":U LABEL-BGCOLOR 14
-      stax.tax-rate1[4] FORMAT ">>>9.99<<<":U LABEL-BGCOLOR 14
-      stax.tax-acc1[4] FORMAT "x(21)":U LABEL-BGCOLOR 14
-      stax.tax-frt1[4] COLUMN-LABEL "Tax!Frt?[4]" FORMAT "yes/no":U
-            WIDTH 5.2 LABEL-BGCOLOR 14
-      stax.tax-code1[5] FORMAT "x(4)":U LABEL-BGCOLOR 14
-      stax.tax-dscr1[5] FORMAT "x(25)":U LABEL-BGCOLOR 14
-      stax.tax-rate1[5] FORMAT ">>>9.99<<<":U LABEL-BGCOLOR 14
-      stax.tax-acc1[5] FORMAT "x(21)":U LABEL-BGCOLOR 14
-      stax.tax-frt1[5] COLUMN-LABEL "Tax!Frt?[5]" FORMAT "yes/no":U
-            WIDTH 5.2 LABEL-BGCOLOR 14
+      DateRules.dateRuleID FORMAT ">>>>>>>>9":U
+      DateRules.scope FORMAT "x(16)":U
+      DateRules.scopeID FORMAT "x(32)":U
+      DateRules.baseTable FORMAT "x(32)":U
+      DateRules.baseField FORMAT "x(32)":U
+      DateRules.days FORMAT ">>>9":U
+      DateRules.skipDays FORMAT "x(8)":U
+      fSkipTime(DateRules.skipTime) @ cSkipTime COLUMN-LABEL "Skip After" FORMAT "X(5)":U
+      DateRules.resultTable FORMAT "x(32)":U
+      DateRules.resultField FORMAT "x(32)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 158 BY 23.57
-         FONT 2.
+    WITH NO-ASSIGN SEPARATORS SIZE 158 BY 24.76.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -217,16 +178,15 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     fi_sortby AT ROW 24.71 COL 34 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     browse-order AT ROW 24.81 COL 6 HELP
+     browse-order AT ROW 26 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 24.81 COL 106 COLON-ALIGNED HELP
+     auto_find AT ROW 26 COL 108 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 24.81 COL 144.8 HELP
+     Btn_Clear_Find AT ROW 26 COL 145 HELP
           "CLEAR AUTO FIND Value"
      "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 24.81 COL 2
-     RECT-4 AT ROW 24.57 COL 1
+          SIZE 4 BY 1 AT ROW 26 COL 2
+     RECT-1 AT ROW 25.76 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -259,7 +219,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 25
+         HEIGHT             = 26.19
          WIDTH              = 158.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -284,7 +244,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -292,15 +252,10 @@ ASSIGN
 
 ASSIGN 
        Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
-                "2"
-       Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
+                "2".
 
-/* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
-   NO-DISPLAY NO-ENABLE                                                 */
-ASSIGN 
-       fi_sortby:HIDDEN IN FRAME F-Main           = TRUE
-       fi_sortby:READ-ONLY IN FRAME F-Main        = TRUE.
-
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -309,62 +264,20 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.stax"
+     _TblList          = "ASI.DateRules"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _Where[1]         = "stax.company = g_company"
-     _FldNameList[1]   > "_<CALC>"
-"tax-group" "Tax Group" "x(4)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > ASI.stax.tax-code1[1]
-"stax.tax-code1[1]" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > ASI.stax.tax-dscr1[1]
-"stax.tax-dscr1[1]" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.stax.tax-rate1[1]
-"stax.tax-rate1[1]" ? ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.stax.tax-acc1[1]
-"stax.tax-acc1[1]" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > ASI.stax.tax-frt1[1]
-"stax.tax-frt1[1]" "Tax!Frt?[1]" ? "logical" ? ? ? 14 ? ? no ? no no "5.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > ASI.stax.tax-code1[2]
-"stax.tax-code1[2]" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > ASI.stax.tax-dscr1[2]
-"stax.tax-dscr1[2]" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > ASI.stax.tax-rate1[2]
-"stax.tax-rate1[2]" ? ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > ASI.stax.tax-acc1[2]
-"stax.tax-acc1[2]" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > ASI.stax.tax-frt1[2]
-"stax.tax-frt1[2]" "Tax!Frt?[2]" ? "logical" ? ? ? 14 ? ? no ? no no "5.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > ASI.stax.tax-code1[3]
-"stax.tax-code1[3]" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > ASI.stax.tax-dscr1[3]
-"stax.tax-dscr1[3]" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > ASI.stax.tax-rate1[3]
-"stax.tax-rate1[3]" ? ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > ASI.stax.tax-acc1[3]
-"stax.tax-acc1[3]" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > ASI.stax.tax-frt1[3]
-"stax.tax-frt1[3]" "Tax!Frt?[3]" ? "logical" ? ? ? 14 ? ? no ? no no "5.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[17]   > ASI.stax.tax-code1[4]
-"stax.tax-code1[4]" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[18]   > ASI.stax.tax-dscr1[4]
-"stax.tax-dscr1[4]" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[19]   > ASI.stax.tax-rate1[4]
-"stax.tax-rate1[4]" ? ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[20]   > ASI.stax.tax-acc1[4]
-"stax.tax-acc1[4]" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[21]   > ASI.stax.tax-frt1[4]
-"stax.tax-frt1[4]" "Tax!Frt?[4]" ? "logical" ? ? ? 14 ? ? no ? no no "5.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[22]   > ASI.stax.tax-code1[5]
-"stax.tax-code1[5]" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[23]   > ASI.stax.tax-dscr1[5]
-"stax.tax-dscr1[5]" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[24]   > ASI.stax.tax-rate1[5]
-"stax.tax-rate1[5]" ? ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[25]   > ASI.stax.tax-acc1[5]
-"stax.tax-acc1[5]" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[26]   > ASI.stax.tax-frt1[5]
-"stax.tax-frt1[5]" "Tax!Frt?[5]" ? "logical" ? ? ? 14 ? ? no ? no no "5.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[1]   = ASI.DateRules.dateRuleID
+     _FldNameList[2]   = ASI.DateRules.scope
+     _FldNameList[3]   = ASI.DateRules.scopeID
+     _FldNameList[4]   = ASI.DateRules.baseTable
+     _FldNameList[5]   = ASI.DateRules.baseField
+     _FldNameList[6]   = ASI.DateRules.days
+     _FldNameList[7]   = ASI.DateRules.skipDays
+     _FldNameList[8]   > "_<CALC>"
+"fSkipTime(DateRules.skipTime) @ cSkipTime" "Skip After" "X(5)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   = ASI.DateRules.resultTable
+     _FldNameList[10]   = ASI.DateRules.resultField
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -408,16 +321,6 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON START-SEARCH OF Browser-Table IN FRAME F-Main
-DO:
-   RUN startSearch.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
 DO:
   /* This ADM trigger code must be preserved in order to notify other
@@ -436,8 +339,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-{sys/inc/f3help.i}
-{custom/yellowColumns.i}
+
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
@@ -502,24 +404,10 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "stax"}
+  {src/adm/template/snd-list.i "DateRules"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setBrowseFocus B-table-Win 
-PROCEDURE setBrowseFocus :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  APPLY 'ENTRY':U TO BROWSE {&BROWSE-NAME}.
 
 END PROCEDURE.
 
@@ -546,23 +434,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION f-tax-group B-table-Win 
-FUNCTION f-tax-group RETURNS CHARACTER
-  ( input ip-tax-group as character  ) :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fSkipTime B-table-Win
+FUNCTION fSkipTime RETURNS CHARACTER 
+  (ipiSkipTime AS INTEGER):
 /*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
+ Purpose:
+ Notes:
 ------------------------------------------------------------------------------*/
-  def var v-tax-group as cha no-undo.
-
-  v-tax-group = substring(ip-tax-group,11,length(trim(ip-tax-group)) - 10 ).
-
-  RETURN v-tax-group.   /* Function return value. */
+    RETURN STRING(ipiSkipTime,"HH:MM").
 
 END FUNCTION.
-
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 

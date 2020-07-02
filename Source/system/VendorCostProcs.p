@@ -31,7 +31,7 @@ DEFINE VARIABLE gcScopeList         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcScopeDefault      AS CHARACTER NO-UNDO.
 
 /*Settings Variables*/
-DEFINE VARIABLE glUseQtyFrom        AS LOGICAL   NO-UNDO.
+
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -1894,8 +1894,6 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
 
-    RUN sys/ref/nk1look.p (ipcCompany, "VendCostMatrix", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    IF lFound THEN glUseQtyFrom = cReturn EQ "YES".
     
 END PROCEDURE.
 
@@ -1924,70 +1922,6 @@ PROCEDURE RecalculateFromAndTo:
             oplError   = YES
             opcMessage = "Invalid VendItemCostID: " + STRING(ipiVendItemCostID)
             . 
-
-END PROCEDURE.
-
-PROCEDURE VendCost_AdjustQuantityFrom:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipriVendItemCostLevel AS ROWID     NO-UNDO.
-    DEFINE INPUT  PARAMETER iplChangeQtyFrom      AS LOGICAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcVendorUOM          AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdQuantityFrom       AS DECIMAL   NO-UNDO.
-    
-    
-    FIND FIRST vendItemCostLevel NO-LOCK
-         WHERE ROWID(VendItemCostLevel) EQ ipriVendItemCostLevel
-         NO-ERROR.
-         
-    IF AVAILABLE vendItemCostLevel THEN DO:
-        IF ipcVendorUOM EQ "M" THEN DO:
-            IF iplChangeQtyFrom THEN
-                opdQuantityFrom = vendItemCostLevel.quantityFrom * 1000 + 1.
-            ELSE 
-                opdQuantityFrom = vendItemCostLevel.quantityFrom * 1000.    
-            END.    
-        ELSE DO:
-            IF iplChangeQtyFrom THEN
-                opdQuantityFrom = vendItemCostLevel.quantityFrom + 1.
-            ELSE 
-                opdQuantityFrom = vendItemCostLevel.quantityFrom.                             
-        END.                        
-    END.    
-               
-END PROCEDURE.
-
-PROCEDURE VendCost_AdjustQuantityTo:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipriVendItemCostLevel AS ROWID     NO-UNDO.
-    DEFINE INPUT  PARAMETER iplChangeQtyTo        AS LOGICAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcVendorUOM          AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdQuantityTo         AS DECIMAL   NO-UNDO.
-    
-    
-    FIND FIRST vendItemCostLevel NO-LOCK
-         WHERE ROWID(VendItemCostLevel) EQ ipriVendItemCostLevel
-         NO-ERROR.
-         
-    IF AVAILABLE vendItemCostLevel THEN DO:
-        IF ipcVendorUOM EQ "M" THEN DO:
-            IF iplChangeQtyTo THEN
-                opdQuantityTo = vendItemCostLevel.quantityTo * 1000 - 1.
-            ELSE 
-                opdQuantityTo = vendItemCostLevel.quantityTo * 1000.    
-            END.    
-        ELSE DO:
-            IF iplChangeQtyTo THEN
-                opdQuantityTo = vendItemCostLevel.quantityTo - 1.
-            ELSE 
-                opdQuantityTo = vendItemCostLevel.quantityTo. 
-        END.                                    
-    END.  
 
 END PROCEDURE.
 

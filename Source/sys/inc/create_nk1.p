@@ -43,7 +43,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "JobCardPrintScores,POChangeDueDate,VendItemCost,RMCountDefaultPath,FGCountDefaultPath,CERequestYield,JobCompleteEmail,RMIssueWIP,"
            + "TaskerNotRunning,OEBOLLOG,BOLPartialFlag,FGForceCommission,VendItemUseDeviation,FGItemUOM,LMReanalyze,ChkFmtConfig,VendItemBrowse,FreightCalculation,"
            + "RMReceiptRules,FGReceiptRules,POLoadtag,SSCycleCountReset,OEImportConsol,AutoCreateHelp,SSVendTagOnly,ShowRestrictionMessage,UseNewInvoicePost,MiscEstimateSource,"
-           + "JobRecalc,JobBuildVersion,CEWood,SalesTaxRoundingMethod,SalesTaxCalcMethod"
+           + "JobRecalc,JobBuildVersion,CEWood,SalesTaxRoundingMethod,SalesTaxCalcMethod,FGTagValidation"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -1021,6 +1021,17 @@ CASE ip-nk1-value:
             INPUT NO,                                            /* Logical value */ 
             INPUT 0                                              /* Dec value*/
             ).          
+    WHEN "FGTagValidation" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "Tag validation required"  ,                   /* Description */
+            INPUT "NoMatch",                                     /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT NO,                                            /* Logical value */ 
+            INPUT 0                                              /* Dec value*/
+            ).                      
 END CASE.
 ELSE
 CASE ip-nk1-value:

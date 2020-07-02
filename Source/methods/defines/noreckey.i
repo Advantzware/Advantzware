@@ -1,3 +1,17 @@
 /* noreckey.i */
 
-&Global-define NORECKEY mfvalues notes prgmxref hlp-head job-sch acctcost quoteitm itemfg item rm-bin e-item reconcile ar-mcashl emailcod
+&Global-define NORECKEY ~
+acctcost ~
+ar-mcashl ~
+e-item ~
+emailcod ~
+hlp-head ~
+item ~
+itemfg ~
+job-sch ~
+mfvalues ~
+notes ~
+prgmxref ~
+quoteitm ~
+reconcile ~
+rm-bin
