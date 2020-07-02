@@ -3,7 +3,7 @@
 "acctcost" no no no no no no no no 0 0
 "address" no no no no no no no no 0 0
 "addrPhone" no no no no no no no no 0 0
-"ap-buy" yes no no no no no no no 0 0
+"ap-buy" yes no no no yes no no no 0 0
 "ap-chk" no no no no no no no no 0 0
 "ap-ctrl" no no no no no no no no 0 0
 "ap-dis" no no no no no no no no 0 0
@@ -67,6 +67,7 @@
 "cust-part" no no no no no no no no 0 0
 "cust-prod-sales" no no no no no no no no 0 0
 "custype" no yes yes yes no yes yes yes 0 0
+"DateRules" no no no no no no no no 0 0
 "db-ctrl" no no no no no no no no 0 0
 "dep-table" no no no no no no no no 0 0
 "dept" no no no no no no no no 0 0
@@ -262,9 +263,9 @@
 "oe-ordl" no no no no no no no no 0 0
 "oe-ordm" no no no no no no no no 0 0
 "oe-prmtx" no no no no no no no no 0 0
-"oe-rel" no no no no no no no no 0 0
-"oe-relh" no no no no no no no no 0 0
-"oe-rell" no no no no no no no no 0 0
+"oe-rel" no yes yes no yes yes yes yes 0 0
+"oe-relh" no yes yes no yes yes no yes 0 0
+"oe-rell" no yes yes no yes yes no yes 0 0
 "oe-reth" no no no no no no no no 0 0
 "oe-retl" no no no no no no no no 0 0
 "oe-ship" no no no no no no no no 0 0
@@ -308,7 +309,6 @@
 "quoteqty" no no no no no no no no 0 0
 "rate" no no no no no no no no 0 0
 "RCErr" no no no no no no no no 0 0
-"rec_key" no no no no no no no no 0 0
 "reftable" no no no no no no no no 0 0
 "reftable1" no no no no no no no no 0 0
 "rejct-cd" no no no no no no no no 0 0

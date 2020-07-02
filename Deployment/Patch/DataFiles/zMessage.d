@@ -36,7 +36,7 @@ Press No to cancel the upgrade and return to the main menu." "" "" ? 0 900 no no
 "37" "SS" 0 "BB" "" "Unplanned Item on Release" "Unplanned item on this release" "" "This release does not contain the item being scanned.  Do you want to add this to the release?" "" "" ? 0 900 yes no "MESSAGE-ACTION" "No" ""
 "38" "ALL" 0 "" "" "Save Before Leaving Panel" "Save your changes before leaving screen" "" "You are in update mode and must save or cancel your changes before leaving screen." "" "" ? 0 900 no no "WARNING" "" ""
 "39" "FG" 0 "" "" "Transfer Confirmation Message" "Transferconfirmation" "" "Transfer complete." "" "" ? 0 900 no no "INFO" "" ""
-"40" "CE" 0 "" "" "Reset Box Design" "Do you wish to reset box design?" "" "The style or size may have changed, do you wish to reset the box design?" "" "" ? 0 900 no no "MESSAGE-ACTION" "Ask" ""
+"40" "CE" 0 "" "" "Reset Box Design" "Do you wish to reset box design?" "" "The style or size may have changed, do you wish to reset the box design- TEST?" "" "" ? 0 900 no no "MESSAGE-ACTION" "Ask" ""
 "41" "OE" 0 "OB4" "" "Warn about invoice posting" "Printed and approved invoices only" "" "Only printed and approved invoices will be posted." "" "" ? 0 900 no no "INFO" "" ""
 "42" "OE" 0 "OB4" "" "Invoice Date Problem" "Invoice Date Range Exception" "" "Only invoices in the period specified can be posted.  Select a date range within the period specified or change the period." "" "" ? 0 900 no no "WARNING" "" ""
 "43" "OE" 0 "OB4" "" "Post Invoices Prompt" "Posting Invoices" "" "Do you want to post the invoices listed?" "" "" ? 0 900 no no "MESSAGE-ACTION" "Ask" ""

@@ -70,7 +70,7 @@
 "cust-part" 3762
 "cust-prod-sales" 40942
 "custype" 36392
-"dateRules" 1335
+"dateRules" 15570
 "db-ctrl" 41344
 "dep-table" 38369
 "dept" 63154

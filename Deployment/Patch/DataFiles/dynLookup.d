@@ -58,6 +58,7 @@
 "" "ASI" "mach" "sch-m-code" 30 "_default" 0 "201907175540703622659"
 "" "ASI" "prgrms" "pageSubjectID" 52 "_default" 0 "201910276332404354859"
 "" "ASI" "prgrms" "subjectID" 52 "_default" 0 "201910276307104354858"
+"" "ASI" "stax" "tax-acc1" 107 "_default" 0 "202006308632005423131"
 "" "ASI" "Task" "taskID" 57 "_default" 0 "201911223998504359371"
 "" "ASI" "vendItemCost" "vendorID" 32 "_default" 0 "201910025907304351069"
 "system/mainmenu." "" "" "begin_cust-no" 127 "_default" 0 "202006224839705369849"

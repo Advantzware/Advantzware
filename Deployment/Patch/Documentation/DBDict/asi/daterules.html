@@ -54,6 +54,35 @@
                             <td>       </td></tr>
     </table>
   </div>
+  <div class="tbcol" >
+    <h2>Triggers</h2>
+    <table style="border-style:none;">
+      <tr>
+        <th>Event</th>
+        <th>Procedure</th>
+        <th>Overr</th>
+        <th>CRC</th>
+      </tr>
+      <tr class="shadedrow">
+        <td>CREATE</td>
+        <td>create.trg/dateRules.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+      </tr>
+      <tr class="shadedrow">
+        <td>DELETE</td>
+        <td>delete.trg\dateRules.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+      </tr>
+      <tr class="shadedrow">
+        <td>WRITE</td>
+        <td>write.trg\dateRules.p</td>
+        <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+        <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
+      </tr>
+    </table>
+  </div>
 <div class="clearboth"></div>
 <hr style="margin-top:20px;">
 <h2>Fields</h2>
@@ -124,6 +153,17 @@
     <td></td>
   </tr>
   <tr class="oddrow">
+    <td>110</td>
+    <td><a href="addrphone.html">rec_key</a></td>
+    <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
+    <td>Record Key</td>
+    <td>character</td>
+    <td>X(21)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
     <td>100</td>
     <td>resultField</td>
     <td><a href="00-cross-r.html#resultField"><small>X</small></a></td>
@@ -134,7 +174,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>90</td>
     <td>resultTable</td>
     <td><a href="00-cross-r.html#resultTable"><small>X</small></a></td>
@@ -145,7 +185,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>20</td>
     <td>scope</td>
     <td><a href="00-cross-s.html#scope"><small>X</small></a></td>
@@ -156,7 +196,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>30</td>
     <td>scopeID</td>
     <td><a href="00-cross-s.html#scopeID"><small>X</small></a></td>
@@ -167,7 +207,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>80</td>
     <td>skipDays</td>
     <td><a href="00-cross-s.html#skipDays"><small>X</small></a></td>
@@ -178,14 +218,14 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>70</td>
     <td>skipTime</td>
     <td><a href="00-cross-s.html#skipTime"><small>X</small></a></td>
-    <td>Time of Entry to Add Day</td>
-    <td>character</td>
-    <td>x(8)</td>
-    <td></td>
+    <td>Skip Time</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
@@ -282,10 +322,10 @@
     <td>70</td>
     <td>skipTime</td>
     <td><a href="00-cross-s.html#skipTime"><small>X</small></a></td>
-    <td>Time of Entry to Add Day</td>
-    <td>character</td>
-    <td>x(8)</td>
-    <td></td>
+    <td>Skip Time</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
@@ -322,6 +362,17 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
+  <tr class="oddrow">
+    <td>110</td>
+    <td><a href="addrphone.html">rec_key</a></td>
+    <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
+    <td>Record Key</td>
+    <td>character</td>
+    <td>X(21)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
 </table>
 </div>
 
@@ -354,24 +405,30 @@
     <td>character</td>
   </tr>
   <tr class="oddrow">
+    <td>iRecKey</td>
+    <td>        </td>
+    <td>rec_key (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="evenrow">
     <td>iResult</td>
     <td>        </td>
     <td>resultTable (+)</td>
     <td>character</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     <td>resultField (+)</td>
     <td>character</td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>iScope</td>
     <td>        </td>
     <td>scope (+)</td>
     <td>character</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>iScopeID</td>
     <td>        </td>
     <td>scopeID (+)</td>
@@ -388,9 +445,19 @@
     <td>W = Wordindex</td>
   </tr>
 </table> 
+  <h2>Related tables</h2>
+  <table style="width:50%; float:left;">
+    <tr>
+      <th>Parent tables</th>
+    </tr>
+    <tr class="shadedrow">
+      <td><a href="costHeader.html">costHeader</a>&nbsp;&nbsp; </td>
+    </tr>
+  </table>
+<hr style="clear:both">
 <hr>
 <table style="width:100%; margin-top:10px;">
-  <tr><td style="text-align:right;"><i><small>generated 29-6-2020 20:09</small></i></td></tr>
+  <tr><td style="text-align:right;"><i><small>generated 1-7-2020 20:23</small></i></td></tr>
 </table>
 </body>
 </html>

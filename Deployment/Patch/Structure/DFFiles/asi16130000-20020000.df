@@ -307,6 +307,9 @@ ADD TABLE "dateRules"
   AREA "Data"
   LABEL "Rules for Date Manipulation"
   DUMP-NAME "daterules"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg/dateRules.p" CRC "10435" 
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\dateRules.p" CRC "11113" 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\dateRules.p" CRC "56114" 
 
 ADD FIELD "dateRuleID" OF "dateRules" AS integer 
   FORMAT ">>>>>>>>9"
@@ -356,14 +359,6 @@ ADD FIELD "days" OF "dateRules" AS integer
   MAX-WIDTH 4
   ORDER 60
 
-ADD FIELD "skipTime" OF "dateRules" AS character 
-  FORMAT "x(8)"
-  INITIAL ""
-  LABEL "Time of Entry to Add Day"
-  POSITION 8
-  MAX-WIDTH 16
-  ORDER 70
-
 ADD FIELD "skipDays" OF "dateRules" AS character 
   FORMAT "x(8)"
   INITIAL ""
@@ -388,6 +383,24 @@ ADD FIELD "resultField" OF "dateRules" AS character
   MAX-WIDTH 64
   ORDER 100
 
+ADD FIELD "rec_key" OF "dateRules" AS character 
+  FORMAT "X(21)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 12
+  MAX-WIDTH 42
+  HELP "Enter Record Key Value"
+  ORDER 110
+
+ADD FIELD "skipTime" OF "dateRules" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Skip Time"
+  POSITION 13
+  MAX-WIDTH 4
+  COLUMN-LABEL ""
+  ORDER 70
+
 ADD INDEX "iDateRuleID" ON "dateRules" 
   AREA "Index"
   UNIQUE
@@ -398,6 +411,10 @@ ADD INDEX "iBase" ON "dateRules"
   AREA "Index"
   INDEX-FIELD "baseTable" ASCENDING 
   INDEX-FIELD "baseField" ASCENDING 
+
+ADD INDEX "iRecKey" ON "dateRules" 
+  AREA "Data"
+  INDEX-FIELD "rec_key" ASCENDING 
 
 ADD INDEX "iResult" ON "dateRules" 
   AREA "Index"
@@ -2531,7 +2548,7 @@ ADD FIELD "calcFormula" OF "dynParamValue" AS character
   LABEL "Calc Formula"
   EXTENT 200
   ORDER 400
-  MAX-WIDTH 102800
+  MAX-WIDTH 2048
 
 ADD FIELD "pageFormat" OF "dynParamValue" AS integer
   FORMAT ">9"
@@ -4323,6 +4340,13 @@ UPDATE TABLE "wiptag-mch"
 
 DROP SEQUENCE "invaliasid_seq"
 
+ADD SEQUENCE "dateRules_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+  MIN-VAL ?
+  MAX-VAL ?
+
 ADD SEQUENCE "panelheaderID_seq"
   INITIAL 0
   INCREMENT 1
@@ -4341,4 +4365,4 @@ ADD SEQUENCE "queryNr"
 PSC
 cpstream=ISO8859-1
 .
-0000098149
+0000098787
