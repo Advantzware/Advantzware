@@ -602,7 +602,9 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN
       skipHour skipMinute skipampm lSunday lMonday lTuesday lWednesday lThursday lFriday lSaturday lHoliday
-      skipHour = STRING(INTEGER(skipHour) + (IF iHourMax EQ 12 AND skipampm EQ "PM" AND INTEGER(skipHour) LT 12 THEN 12 ELSE 0)) 
+      skipHour = STRING(INTEGER(skipHour) + (IF iHourMax EQ 12 AND skipampm EQ "PM" AND INTEGER(skipHour) LT 12 THEN 12
+                                             ELSE IF skipampm EQ "AM" AND INTEGER(skipHour) EQ 12 THEN -12
+                                             ELSE 0)) 
       DateRules.skipTime = INTEGER(skipHour) * 3600 + INTEGER(skipMinute) * 60
       DateRules.skipDays = STRING(lSunday,"Y/N")
                          + STRING(lMonday,"Y/N")
