@@ -1137,16 +1137,20 @@ PROCEDURE CreateRelease :
                 ?,
                 "_ANY_",
                 "_ANY_",
-                ROWID(oe-ordl),
+                oe-ordl.req-date,
+                ?,
                 ?,
                 OUTPUT dtDateRule
                 ).
+            IF dtDateRule NE ? THEN
             oe-rel.rel-date = dtDateRule.
-/*            oe-rel.rel-date = oe-ordl.req-date + 1.       */
-/*            IF WEEKDAY(oe-rel.rel-date) EQ 7 THEN         */
-/*                oe-rel.rel-date = oe-rel.rel-date + 2.    */
-/*            ELSE IF WEEKDAY(oe-rel.rel-date) EQ 1 THEN    */
-/*                    oe-rel.rel-date = oe-rel.rel-date + 1.*/
+            ELSE DO:
+                oe-rel.rel-date = oe-ordl.req-date + 1.
+                IF WEEKDAY(oe-rel.rel-date) EQ 7 THEN
+                    oe-rel.rel-date = oe-rel.rel-date + 2.
+                ELSE IF WEEKDAY(oe-rel.rel-date) EQ 1 THEN
+                        oe-rel.rel-date = oe-rel.rel-date + 1.
+            END. /* else */
         END.
 
       if avail shipto THEN DO:

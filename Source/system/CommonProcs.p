@@ -189,6 +189,7 @@ PROCEDURE spCommon_DateRule:
     DEFINE INPUT  PARAMETER ipiDateRuleID  AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcScope       AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcScopeID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtBaseDate   AS DATE      NO-UNDO.
     DEFINE INPUT  PARAMETER iprBaseRowID   AS ROWID     NO-UNDO.
     DEFINE INPUT  PARAMETER iprResultRowID AS ROWID     NO-UNDO.    
     DEFINE OUTPUT PARAMETER opdtDate       AS DATE      NO-UNDO.
@@ -202,48 +203,52 @@ PROCEDURE spCommon_DateRule:
     DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lSkipDay   AS LOGICAL   NO-UNDO EXTENT 7.
 
-    /* get the date rule record */
-    IF ipiDateRuleID NE ? AND ipiDateRuleID NE 0 THEN
-    FIND FIRST DateRules NO-LOCK
-         WHERE DateRules.dateRuleID EQ ipiDateRuleID
-         NO-ERROR.
+    IF iprBaseRowID NE ? THEN DO:
+        /* get the date rule record */
+        IF ipiDateRuleID NE ? AND ipiDateRuleID NE 0 THEN
+        FIND FIRST DateRules NO-LOCK
+             WHERE DateRules.dateRuleID EQ ipiDateRuleID
+             NO-ERROR.
+        ELSE
+        FIND FIRST DateRules NO-LOCK
+             WHERE DateRules.Scope   EQ ipcScope
+               AND DateRules.ScopeID EQ ipcScopeID
+             NO-ERROR.
+        IF NOT AVAILABLE DateRules THEN RETURN.
+        IF DateRules.baseTable EQ "" THEN RETURN.
+        IF DateRules.baseField EQ "" THEN RETURN.
+        FIND FIRST ASI._file NO-LOCK
+             WHERE ASI._file._file-name EQ DateRules.baseTable
+             NO-ERROR.
+        IF NOT AVAILABLE ASI._file THEN RETURN.
+        FIND FIRST ASI._field OF ASI._file NO-LOCK
+             WHERE ASI._field._field-name EQ DateRules.baseField
+             NO-ERROR.
+        IF NOT AVAILABLE ASI._field THEN RETURN.
+        IF ASI._field._data-type NE "DATE" THEN RETURN.
+    
+        /* obtain the base table's field value */
+        CREATE QUERY hQuery.
+        CREATE BUFFER hBuffer FOR TABLE DateRules.baseTable.
+        hQuery:ADD-BUFFER(hBuffer).
+        hQuery:QUERY-PREPARE(
+            "FOR EACH " + DateRules.baseTable + " NO-LOCK " +
+            "WHERE ROWID(" + DateRules.baseTable + ") = TO-ROWID(~"" +
+            STRING(iprBaseRowID) + "~")"
+            ).
+        hQuery:QUERY-OPEN().
+        hTable = hQuery:GET-BUFFER-HANDLE(DateRules.baseTable).
+        hQuery:GET-FIRST().
+        cBaseField = hTable:BUFFER-FIELD(DateRules.baseField):BUFFER-VALUE() NO-ERROR.
+        DELETE OBJECT hBuffer.
+        DELETE OBJECT hQuery.
+        dtDate = DATE(cBaseField) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN.
+    END.
     ELSE
-    FIND FIRST DateRules NO-LOCK
-         WHERE DateRules.Scope   EQ ipcScope
-           AND DateRules.ScopeID EQ ipcScopeID
-         NO-ERROR.
-    IF NOT AVAILABLE DateRules THEN RETURN.
-    IF DateRules.baseTable EQ "" THEN RETURN.
-    IF DateRules.baseField EQ "" THEN RETURN.
-    FIND FIRST ASI._file NO-LOCK
-         WHERE ASI._file._file-name EQ DateRules.baseTable
-         NO-ERROR.
-    IF NOT AVAILABLE ASI._file THEN RETURN.
-    FIND FIRST ASI._field OF ASI._file NO-LOCK
-         WHERE ASI._field._field-name EQ DateRules.baseField
-         NO-ERROR.
-    IF NOT AVAILABLE ASI._field THEN RETURN.
-    IF ASI._field._data-type NE "DATE" THEN RETURN.
-
-    /* obtain the base table's field value */
-    CREATE QUERY hQuery.
-    CREATE BUFFER hBuffer FOR TABLE DateRules.baseTable.
-    hQuery:ADD-BUFFER(hBuffer).
-    hQuery:QUERY-PREPARE(
-        "FOR EACH " + DateRules.baseTable + " NO-LOCK " +
-        "WHERE ROWID(" + DateRules.baseTable + ") = TO-ROWID(~"" +
-        STRING(iprBaseRowID) + "~")"
-        ).
-    hQuery:QUERY-OPEN().
-    hTable = hQuery:GET-BUFFER-HANDLE(DateRules.baseTable).
-    hQuery:GET-FIRST().
-    cBaseField = hTable:BUFFER-FIELD(DateRules.baseField):BUFFER-VALUE() NO-ERROR.
-    DELETE OBJECT hBuffer.
-    DELETE OBJECT hQuery.
+    dtDate = ipdtBaseDate.
 
     /* calculate date based on date rules */
-    dtDate = DATE(cBaseField) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN.
     /* which week days to skip */
     DO idx = 1 TO 7:
         lSkipDay[idx] = SUBSTRING(DateRules.skipDays,idx,1) EQ "Y".

@@ -620,6 +620,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win
+PROCEDURE local-display-fields:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  {methods/viewers/rowAvail/DateRules.i}
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize V-table-Win 
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
@@ -659,6 +679,7 @@ PROCEDURE pGetDBFields :
              NO-ERROR.
         IF AVAILABLE ASI._file THEN
         FOR EACH ASI._field OF ASI._file NO-LOCK
+            WHERE ASI._field._data-type EQ "DATE"
             :
             dbFields:ADD-LAST((IF ASI._field._label NE ? THEN ASI._field._label + " "
                                ELSE "") + "(" + ASI._field._field-name + ")",ASI._field._field-name).
@@ -679,7 +700,9 @@ PROCEDURE pGetDBTables :
     DO WITH FRAME {&FRAME-NAME}:
         dbTables:LIST-ITEM-PAIRS = ?.
         FOR EACH ASI._file NO-LOCK
-            WHERE ASI._file._tbl-type EQ "T"
+            WHERE ASI._file._tbl-type EQ "T",
+            FIRST ASI._field OF ASI._file NO-LOCK
+            WHERE ASI._field._data-type EQ "DATE"
             :
             dbTables:ADD-LAST((IF ASI._file._file-label NE ? THEN ASI._file._file-label + " "
                                ELSE "") + "(" + ASI._file._file-name + ")",ASI._file._file-name).
@@ -752,4 +775,3 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
