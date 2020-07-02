@@ -76,6 +76,7 @@ ASSIGN
 &Scoped-define FIELDS-IN-QUERY-Browser-Table DateRules.dateRuleID ~
 DateRules.scope DateRules.scopeID DateRules.baseTable DateRules.baseField ~
 DateRules.days DateRules.skipDays ~
+DYNAMIC-FUNCTION('sfCommon_TimeDisplay', DateRules.skipTime, YES, NO) @ cSkipTime ~
 DateRules.resultTable DateRules.resultField 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH DateRules WHERE ~{&KEY-PHRASE} NO-LOCK ~
@@ -99,19 +100,15 @@ Btn_Clear_Find
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* ************************  Function Prototypes ********************** */
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fSkipTime B-table-Win
-FUNCTION fSkipTime RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fSkipTime B-table-Win 
+FUNCTION fSkipTime RETURNS CHARACTER
   (ipiSkipTime AS INTEGER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -165,7 +162,7 @@ DEFINE BROWSE Browser-Table
       DateRules.baseField FORMAT "x(32)":U
       DateRules.days FORMAT ">>>9":U
       DateRules.skipDays FORMAT "x(8)":U
-      fSkipTime(DateRules.skipTime) @ cSkipTime COLUMN-LABEL "Skip After" FORMAT "X(5)":U
+      DYNAMIC-FUNCTION('sfCommon_TimeDisplay', DateRules.skipTime, YES, NO) @ cSkipTime COLUMN-LABEL "Skip After" FORMAT "X(8)":U
       DateRules.resultTable FORMAT "x(32)":U
       DateRules.resultField FORMAT "x(32)":U
 /* _UIB-CODE-BLOCK-END */
@@ -275,7 +272,7 @@ ASSIGN
      _FldNameList[6]   = ASI.DateRules.days
      _FldNameList[7]   = ASI.DateRules.skipDays
      _FldNameList[8]   > "_<CALC>"
-"fSkipTime(DateRules.skipTime) @ cSkipTime" "Skip After" "X(5)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"DYNAMIC-FUNCTION('sfCommon_TimeDisplay', DateRules.skipTime, YES, NO) @ cSkipTime" "Skip After" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   = ASI.DateRules.resultTable
      _FldNameList[10]   = ASI.DateRules.resultField
      _Query            is NOT OPENED
@@ -434,11 +431,10 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fSkipTime B-table-Win
-FUNCTION fSkipTime RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fSkipTime B-table-Win 
+FUNCTION fSkipTime RETURNS CHARACTER
   (ipiSkipTime AS INTEGER):
 /*------------------------------------------------------------------------------
  Purpose:
@@ -447,8 +443,7 @@ FUNCTION fSkipTime RETURNS CHARACTER
     RETURN STRING(ipiSkipTime,"HH:MM").
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

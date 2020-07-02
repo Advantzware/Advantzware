@@ -186,10 +186,12 @@ PROCEDURE spCommon_DateRule:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipiDateRuleID  AS INTEGER NO-UNDO.
-    DEFINE INPUT  PARAMETER iprBaseRowID   AS ROWID   NO-UNDO.
-    DEFINE INPUT  PARAMETER iprResultRowID AS ROWID   NO-UNDO.    
-    DEFINE OUTPUT PARAMETER opdtDate       AS DATE    NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiDateRuleID  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScope       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iprBaseRowID   AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER iprResultRowID AS ROWID     NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opdtDate       AS DATE      NO-UNDO.
 
     DEFINE VARIABLE cBaseField AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dtDate     AS DATE      NO-UNDO.
@@ -200,9 +202,15 @@ PROCEDURE spCommon_DateRule:
     DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lSkipDay   AS LOGICAL   NO-UNDO EXTENT 7.
 
-    /* get the date rult record */
+    /* get the date rule record */
+    IF ipiDateRuleID NE ? AND ipiDateRuleID NE 0 THEN
     FIND FIRST DateRules NO-LOCK
          WHERE DateRules.dateRuleID EQ ipiDateRuleID
+         NO-ERROR.
+    ELSE
+    FIND FIRST DateRules NO-LOCK
+         WHERE DateRules.Scope   EQ ipcScope
+           AND DateRules.ScopeID EQ ipcScopeID
          NO-ERROR.
     IF NOT AVAILABLE DateRules THEN RETURN.
     IF DateRules.baseTable EQ "" THEN RETURN.

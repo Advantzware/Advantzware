@@ -35,8 +35,15 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE hTable AS HANDLE NO-UNDO.
-DEFINE VARIABLE hField AS HANDLE NO-UNDO.
+DEFINE VARIABLE hTable        AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hField        AS HANDLE  NO-UNDO.
+DEFINE VARIABLE iHourMax      AS INTEGER NO-UNDO.
+DEFINE VARIABLE iHourMin      AS INTEGER NO-UNDO.
+
+ASSIGN
+    iHourMax = DYNAMIC-FUNCTION("sfCommon_HourMax")
+    iHourMin = DYNAMIC-FUNCTION("sfCommon_HourMin")
+    .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -73,11 +80,13 @@ dateRules.resultTable dateRules.resultField
 &Scoped-define DISPLAYED-TABLES dateRules
 &Scoped-define FIRST-DISPLAYED-TABLE dateRules
 &Scoped-Define DISPLAYED-OBJECTS dbTables dbFields lSunday lMonday lTuesday ~
-lWednesday lThursday lFriday lSaturday lHoliday iSkipHour iSkipMinute 
+lWednesday lThursday lFriday lSaturday lHoliday skipHour skipMinute ~
+skipampm 
 
 /* Custom List Definitions                                              */
-/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
+/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,SKIP-TIME,F1 */
 &Scoped-define ADM-ASSIGN-FIELDS dateRules.dateRuleID 
+&Scoped-define SKIP-TIME skipHour skipMinute skipampm 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -109,29 +118,37 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE iSkipHour AS INTEGER FORMAT ">9":U INITIAL 0 
+DEFINE VARIABLE skipampm AS CHARACTER FORMAT "X(2)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 2
+     LIST-ITEMS "PM","AM" 
+     DROP-DOWN-LIST
+     SIZE 8 BY 1
+     BGCOLOR 15 FONT 4 NO-UNDO.
+
+DEFINE VARIABLE skipHour AS CHARACTER FORMAT "X(2)":U 
      LABEL "Skip After Time" 
      VIEW-AS FILL-IN 
      SIZE 4 BY 1
-     BGCOLOR 15  NO-UNDO.
+     BGCOLOR 15 FONT 4 NO-UNDO.
 
-DEFINE VARIABLE iSkipMinute AS INTEGER FORMAT ">9":U INITIAL 0 
+DEFINE VARIABLE skipMinute AS CHARACTER FORMAT "X(2)":U 
+     LABEL "" 
      VIEW-AS FILL-IN 
      SIZE 4 BY 1
-     BGCOLOR 15  NO-UNDO.
+     BGCOLOR 15 FONT 4 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 138 BY 18.57.
+     SIZE 156 BY 18.57.
 
 DEFINE VARIABLE dbFields AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
-     SIZE 37 BY 17.38
+     SIZE 46 BY 17.38
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE dbTables AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
-     SIZE 38 BY 17.38
+     SIZE 47 BY 17.38
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE lFriday AS LOGICAL INITIAL no 
@@ -183,7 +200,7 @@ DEFINE FRAME F-Main
           SIZE 14 BY 1
           BGCOLOR 15 
      dbTables AT ROW 1.95 COL 62 NO-LABEL WIDGET-ID 56
-     dbFields AT ROW 1.95 COL 101 NO-LABEL WIDGET-ID 58
+     dbFields AT ROW 1.95 COL 110 NO-LABEL WIDGET-ID 58
      dateRules.scope AT ROW 2.43 COL 25 COLON-ALIGNED WIDGET-ID 46
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
@@ -212,8 +229,11 @@ DEFINE FRAME F-Main
      lFriday AT ROW 13.14 COL 27 WIDGET-ID 74
      lSaturday AT ROW 14.1 COL 27 WIDGET-ID 76
      lHoliday AT ROW 15.05 COL 27 WIDGET-ID 78
-     iSkipHour AT ROW 16 COL 25 COLON-ALIGNED WIDGET-ID 52
-     iSkipMinute AT ROW 16 COL 30 COLON-ALIGNED NO-LABEL WIDGET-ID 54
+     skipHour AT ROW 16 COL 25 COLON-ALIGNED HELP
+          "Enter Starting Hour" WIDGET-ID 92
+     skipMinute AT ROW 16 COL 31 COLON-ALIGNED HELP
+          "Enter Starting Minute" WIDGET-ID 94
+     skipampm AT ROW 16 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 90
      dateRules.resultTable AT ROW 17.19 COL 25 COLON-ALIGNED WIDGET-ID 44
           VIEW-AS FILL-IN 
           SIZE 34 BY 1
@@ -224,10 +244,10 @@ DEFINE FRAME F-Main
           BGCOLOR 15 
      "Days to Skip:" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 8.38 COL 13 WIDGET-ID 80
-     "Tables" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.24 COL 62 WIDGET-ID 60
-     "Fields" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.24 COL 101 WIDGET-ID 62
+     "Tables (double-click to select)" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 1.24 COL 62 WIDGET-ID 60
+     "Fields (double-click to select)" VIEW-AS TEXT
+          SIZE 28 BY .62 AT ROW 1.24 COL 110 WIDGET-ID 62
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -263,7 +283,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
          HEIGHT             = 18.57
-         WIDTH              = 138.
+         WIDTH              = 156.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -303,10 +323,6 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR SELECTION-LIST dbTables IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN iSkipHour IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN iSkipMinute IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX lFriday IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX lHoliday IN FRAME F-Main
@@ -331,6 +347,12 @@ ASSIGN
 ASSIGN 
        dateRules.resultTable:READ-ONLY IN FRAME F-Main        = TRUE.
 
+/* SETTINGS FOR COMBO-BOX skipampm IN FRAME F-Main
+   NO-ENABLE 5                                                          */
+/* SETTINGS FOR FILL-IN skipHour IN FRAME F-Main
+   NO-ENABLE 5                                                          */
+/* SETTINGS FOR FILL-IN skipMinute IN FRAME F-Main
+   NO-ENABLE 5                                                          */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -358,6 +380,7 @@ DO:
         hTable = dateRules.baseTable:HANDLE
         hField = dateRules.baseField:HANDLE
         .
+    RUN pSetTableField.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -372,6 +395,7 @@ DO:
         hTable = dateRules.baseTable:HANDLE
         hField = dateRules.baseField:HANDLE
         .
+    RUN pSetTableField.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -410,44 +434,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME iSkipHour
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iSkipHour V-table-Win
-ON LEAVE OF iSkipHour IN FRAME F-Main /* Skip After Time */
-DO:
-    ASSIGN {&SELF-NAME}.
-    IF {&SELF-NAME} GT 24 THEN DO:
-        MESSAGE
-            "Invalid Hour, please enter between 0 and 24"
-        VIEW-AS ALERT-BOX ERROR.
-        RETURN NO-APPLY.
-    END.
-    IF {&SELF-NAME} EQ 24 THEN
-    iSkipMinute:SCREEN-VALUE = "0".
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME iSkipMinute
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iSkipMinute V-table-Win
-ON LEAVE OF iSkipMinute IN FRAME F-Main
-DO:
-    ASSIGN {&SELF-NAME}.
-    IF {&SELF-NAME} GT 59 THEN DO:
-        MESSAGE
-            "Invalid Minute, please enter between 0 and 59"
-        VIEW-AS ALERT-BOX ERROR.
-        RETURN NO-APPLY.
-    END.
-    IF iSkipHour EQ 24 THEN
-    {&SELF-NAME}:SCREEN-VALUE = "0".
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME dateRules.resultField
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dateRules.resultField V-table-Win
 ON ENTRY OF dateRules.resultField IN FRAME F-Main /* Result Field */
@@ -456,6 +442,7 @@ DO:
         hTable = dateRules.resultTable:HANDLE
         hField = dateRules.resultField:HANDLE
         .
+    RUN pSetTableField.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -470,6 +457,51 @@ DO:
         hTable = dateRules.resultTable:HANDLE
         hField = dateRules.resultField:HANDLE
         .
+    RUN pSetTableField.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME skipHour
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL skipHour V-table-Win
+ON LEAVE OF skipHour IN FRAME F-Main /* Skip After Time */
+DO:
+    correct-error = INTEGER(SELF:SCREEN-VALUE) LT iHourMin OR
+                    INTEGER(SELF:SCREEN-VALUE) GT iHourMax.
+    {methods/entryerr.i &error-message="Invalid Hour Entered"}
+/*    ASSIGN {&SELF-NAME}.                                 */
+/*    IF {&SELF-NAME} GT 24 THEN DO:                       */
+/*        MESSAGE                                          */
+/*            "Invalid Hour, please enter between 0 and 24"*/
+/*        VIEW-AS ALERT-BOX ERROR.                         */
+/*        RETURN NO-APPLY.                                 */
+/*    END.                                                 */
+/*    IF {&SELF-NAME} EQ 24 THEN                           */
+/*    iSkipMinute:SCREEN-VALUE = "0".                      */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME skipMinute
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL skipMinute V-table-Win
+ON LEAVE OF skipMinute IN FRAME F-Main
+DO:
+    correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR
+                    INTEGER(SELF:SCREEN-VALUE) GT 59.
+    {methods/entryerr.i &error-message="Invalid Minute Entered"}
+/*    ASSIGN {&SELF-NAME}.                                   */
+/*    IF {&SELF-NAME} GT 59 THEN DO:                         */
+/*        MESSAGE                                            */
+/*            "Invalid Minute, please enter between 0 and 59"*/
+/*        VIEW-AS ALERT-BOX ERROR.                           */
+/*        RETURN NO-APPLY.                                   */
+/*    END.                                                   */
+/*    IF iSkipHour EQ 24 THEN                                */
+/*    {&SELF-NAME}:SCREEN-VALUE = "0".                       */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -569,8 +601,9 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN
-      lSunday lMonday lTuesday lWednesday lThursday lFriday lSaturday lHoliday
-      DateRules.skipTime = iSkipHour * 3600 + iSkipMinute * 60
+      skipHour skipMinute skipampm lSunday lMonday lTuesday lWednesday lThursday lFriday lSaturday lHoliday
+      skipHour = STRING(INTEGER(skipHour) + (IF iHourMax EQ 12 AND skipampm EQ "PM" AND INTEGER(skipHour) LT 12 THEN 12 ELSE 0)) 
+      DateRules.skipTime = INTEGER(skipHour) * 3600 + INTEGER(skipMinute) * 60
       DateRules.skipDays = STRING(lSunday,"Y/N")
                          + STRING(lMonday,"Y/N")
                          + STRING(lTuesday,"Y/N")
@@ -578,8 +611,8 @@ PROCEDURE local-assign-record :
                          + STRING(lThursday,"Y/N")
                          + STRING(lFriday,"Y/N")
                          + STRING(lSaturday,"Y/N")
-                         + STRING(lHoliday,"Y/N").
-
+                         + STRING(lHoliday,"Y/N")
+                         .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -602,7 +635,9 @@ PROCEDURE local-initialize :
   ASSIGN
       hTable = dateRules.baseTable:HANDLE IN FRAME {&FRAME-NAME}
       hField = dateRules.baseField:HANDLE
+      skipampm:HIDDEN = iHourMax EQ 24
       .
+  RUN pSetTableField.
 
 END PROCEDURE.
 
@@ -616,14 +651,15 @@ PROCEDURE pGetDBFields :
  Notes:
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
-        dbFields:LIST-ITEMS = ?.
+        dbFields:LIST-ITEM-PAIRS = ?.
         FIND FIRST ASI._file NO-LOCK
              WHERE ASI._file._file-name EQ dbTables:SCREEN-VALUE
              NO-ERROR.
         IF AVAILABLE ASI._file THEN
         FOR EACH ASI._field OF ASI._file NO-LOCK
             :
-            dbFields:ADD-LAST(ASI._field._field-name).
+            dbFields:ADD-LAST((IF ASI._field._label NE ? THEN ASI._field._label + " "
+                               ELSE "") + "(" + ASI._field._field-name + ")",ASI._field._field-name).
         END. /* each _file */
     END. /* do with */
 
@@ -639,13 +675,34 @@ PROCEDURE pGetDBTables :
  Notes:
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
-        dbTables:LIST-ITEMS = ?.
+        dbTables:LIST-ITEM-PAIRS = ?.
         FOR EACH ASI._file NO-LOCK
             WHERE ASI._file._tbl-type EQ "T"
             :
-            dbTables:ADD-LAST(ASI._file._file-name).
+            dbTables:ADD-LAST((IF ASI._file._file-label NE ? THEN ASI._file._file-label + " "
+                               ELSE "") + "(" + ASI._file._file-name + ")",ASI._file._file-name).
         END. /* each _file */
     END. /* do with */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetTableField V-table-Win 
+PROCEDURE pSetTableField :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF hTable:SCREEN-VALUE NE "" THEN DO:
+            dbTables:SCREEN-VALUE = hTable:SCREEN-VALUE.
+            APPLY "VALUE-CHANGED":U TO dbTables.
+            IF hField:SCREEN-VALUE NE "" THEN
+            dbFields:SCREEN-VALUE = hField:SCREEN-VALUE.
+        END. /* if */
+    END. /* do frame */
 
 END PROCEDURE.
 

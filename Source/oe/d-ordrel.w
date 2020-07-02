@@ -2093,11 +2093,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateNewRel Dialog-Frame 
 PROCEDURE pCreateNewRel :
-    /*------------------------------------------------------------------------------
-          Purpose:     
-          PARAMs:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     
+  PARAMs:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
     
     DEFINE VARIABLE v-qty-sum    AS INTEGER NO-UNDO.
     DEFINE VARIABLE v-nxt-r-no   AS INTEGER NO-UNDO.
@@ -2116,6 +2116,7 @@ PROCEDURE pCreateNewRel :
     DEFINE VARIABLE lFirstReleaseOfItem AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cShipNote   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+    DEFINE VARIABLE dtDateRule AS DATE NO-UNDO.
 
      IF glShipNotesExpanded THEN do:
          RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
@@ -2256,19 +2257,25 @@ PROCEDURE pCreateNewRel :
             oe-rel.r-no         = v-nxt-r-no
             oe-rel.spare-char-1 = v-shipfrom.                                                                                                              .
 
-        IF oereleas-cha EQ "LastShip" THEN
-            oe-rel.rel-date = oe-ord.last-date.
-        ELSE IF oereleas-cha EQ "Due Date" THEN
-                oe-rel.rel-date = oe-ordl.req-date.
-            ELSE /*DueDate+1Day*/
-            DO:
-                oe-rel.rel-date = oe-ordl.req-date + 1.
-                IF WEEKDAY(oe-rel.rel-date) EQ 7 THEN
-                    oe-rel.rel-date = oe-rel.rel-date + 2.
-                ELSE
-                    IF WEEKDAY(oe-rel.rel-date) EQ 1 THEN
-                        oe-rel.rel-date = oe-rel.rel-date + 1.
-            END.
+    IF oereleas-cha EQ "LastShip" THEN
+        oe-rel.rel-date = oe-ord.last-date.
+    ELSE IF oereleas-cha EQ "Due Date" THEN
+            oe-rel.rel-date = oe-ordl.req-date.
+        ELSE /*DueDate+1Day*/ DO:
+            RUN spCommon_DateRule (
+                ?,
+                "_ANY_",
+                "_ANY_",
+                ROWID(oe-ordl),
+                ROWID(oe-rel),
+                OUTPUT dtDateRule
+                ).
+/*            oe-rel.rel-date = oe-ordl.req-date + 1.       */
+/*            IF WEEKDAY(oe-rel.rel-date) EQ 7 THEN         */
+/*                oe-rel.rel-date = oe-rel.rel-date + 2.    */
+/*            ELSE IF WEEKDAY(oe-rel.rel-date) EQ 1 THEN    */
+/*                    oe-rel.rel-date = oe-rel.rel-date + 1.*/
+        END.
             
         IF NOT (oeDateAuto-log AND OeDateAuto-Char EQ "Colonial") THEN 
         DO:
