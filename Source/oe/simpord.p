@@ -1138,9 +1138,10 @@ PROCEDURE CreateRelease :
                 "_ANY_",
                 "_ANY_",
                 ROWID(oe-ordl),
-                ROWID(oe-rel),
+                ?,
                 OUTPUT dtDateRule
                 ).
+            oe-rel.rel-date = dtDateRule.
 /*            oe-rel.rel-date = oe-ordl.req-date + 1.       */
 /*            IF WEEKDAY(oe-rel.rel-date) EQ 7 THEN         */
 /*                oe-rel.rel-date = oe-rel.rel-date + 2.    */
