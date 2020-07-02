@@ -33,9 +33,9 @@
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
 
-{fg/ttLoadTagItem.i shared}
+{fg/ttTransBins.i shared} 
 
-DEFINE VARIABLE ll-secure AS LOGICAL NO-UNDO.
+DEFINE VARIABLE ll-secure    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cColumnLabel AS CHARACTER NO-UNDO .
 ASSIGN 
     cocode = g_company
@@ -57,17 +57,17 @@ ASSIGN
 &Scoped-define BROWSE-NAME BROWSE-3
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES w-fg-rctd
+&Scoped-define INTERNAL-TABLES ttTransBin
 
 /* Definitions for BROWSE BROWSE-3                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-3 w-fg-rctd.IS-SELECTED w-fg-rctd.i-no w-fg-rctd.tag w-fg-rctd.cases w-fg-rctd.qty-case w-fg-rctd.partial w-fg-rctd.t-qty
-&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-3 w-fg-rctd.IS-SELECTED  
-&Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-3 w-fg-rctd
-&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-3 w-fg-rctd
-&Scoped-define QUERY-STRING-BROWSE-3 FOR EACH w-fg-rctd NO-LOCK w-fg-rctd.frm
-&Scoped-define OPEN-QUERY-BROWSE-3 OPEN QUERY BROWSE-3 FOR EACH w-fg-rctd NO-LOCK w-fg-rctd.frm .
-&Scoped-define TABLES-IN-QUERY-BROWSE-3 w-fg-rctd
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-3 w-fg-rctd
+&Scoped-define FIELDS-IN-QUERY-BROWSE-3 ttTransBin.IS-SELECTED ttTransBin.i-no ttTransBin.tag ttTransBin.cases ttTransBin.case-count ttTransBin.partial-count ttTransBin.qty
+&Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-3 ttTransBin.IS-SELECTED  
+&Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-3 ttTransBin
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-3 ttTransBin
+&Scoped-define QUERY-STRING-BROWSE-3 FOR EACH ttTransBin NO-LOCK   
+&Scoped-define OPEN-QUERY-BROWSE-3 OPEN QUERY BROWSE-3 FOR EACH ttTransBin NO-LOCK .
+&Scoped-define TABLES-IN-QUERY-BROWSE-3 ttTransBin
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-3 ttTransBin
 
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
@@ -108,12 +108,12 @@ DEFINE BUTTON btn-reset
     BGCOLOR 8 .
 
 DEFINE BUTTON btn-Deselect-all 
-     LABEL "Deselect All" 
-     SIZE 12.5 BY 1.14.
+    LABEL "Deselect All" 
+    SIZE 12.5 BY 1.14.
 
 DEFINE BUTTON btn-Select-all 
-     LABEL "Select All" 
-     SIZE 11 BY 1.14.
+    LABEL "Select All" 
+    SIZE 11 BY 1.14.
 
 DEFINE RECTANGLE RECT-17
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -122,22 +122,22 @@ DEFINE RECTANGLE RECT-17
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-3 FOR 
-    w-fg-rctd SCROLLING.
+    ttTransBin SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-3 Dialog-Frame _STRUCTURED
     QUERY BROWSE-3 NO-LOCK DISPLAY
-      w-fg-rctd.IS-SELECTED VIEW-AS TOGGLE-BOX
-      w-fg-rctd.i-no COLUMN-LABEL "Item" FORMAT "x(15)":U WIDTH 18
-      w-fg-rctd.tag COLUMN-LABEL "Tag" FORMAT "x(20)":U WIDTH 27
-      w-fg-rctd.cases COLUMN-LABEL "Units" FORMAT ">>>,>>9":U WIDTH 8.8
-      w-fg-rctd.qty-case COLUMN-LABEL "Qty/Unit" FORMAT ">>>,>>9":U
-      w-fg-rctd.partial COLUMN-LABEL "Partial" FORMAT ">>>,>>9":U
-      w-fg-rctd.t-qty COLUMN-LABEL "Total Qty" FORMAT "->>,>>>,>>9":U
+    ttTransBin.IS-SELECTED VIEW-AS TOGGLE-BOX
+    ttTransBin.i-no COLUMN-LABEL "Item" FORMAT "x(15)":U WIDTH 18
+    ttTransBin.tag COLUMN-LABEL "Tag" FORMAT "x(20)":U WIDTH 27
+    ttTransBin.cases COLUMN-LABEL "Units" FORMAT ">>>,>>9":U WIDTH 8.8
+    ttTransBin.case-count COLUMN-LABEL "Qty/Unit" FORMAT ">>>,>>9":U
+    ttTransBin.partial-count COLUMN-LABEL "Partial" FORMAT ">>>,>>9":U
+    ttTransBin.qty COLUMN-LABEL "Total Qty" FORMAT "->>,>>>,>>9":U
     
-      ENABLE w-fg-rctd.IS-SELECTED
+      ENABLE ttTransBin.IS-SELECTED
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 98 BY 10.05
@@ -192,22 +192,22 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-3
 /* Query rebuild information for BROWSE BROWSE-3
-     _TblList          = "asi.w-fg-rctd"
+     _TblList          = "asi.ttTransBin"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
-     _FldNameList[1]   >  w-fg-rctd.IS-SELECTED
-" w-fg-rctd.IS-SELECTED" ? ? "logical" ? ? ? ? ? ? no ? no no "7.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > w-fg-rctd.i-no
-"w-fg-rctd.i-no" "Item" "x(15)" "character" ? ? ? ? ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > w-fg-rctd.tag
-"w-fg-rctd.tag" "Tag" "x(20)" "character" ? ? ? ? ? ? no ? no no "27" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > w-fg-rctd.cases
-"w-fg-rctd.cases" "Units" ">>>,>>9" "integer" ? ? ? ? ? ? no ? no no "8.8" no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > w-fg-rctd.qty-case
-"w-fg-rctd.qty-case" "Qty/Unit" ">>>,>>9" "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > w-fg-rctd.partail
-"w-fg-rctd.partial" "Partial" ">>>,>>9" "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
- _FldNameList[7]   > w-fg-rctd.t-qty
-"w-fg-rctd.t-qty" "Total Qty" "->>,>>>,>>9" "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[1]   >  ttTransBin.IS-SELECTED
+" ttTransBin.IS-SELECTED" ? ? "logical" ? ? ? ? ? ? no ? no no "7.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > ttTransBin.i-no
+"ttTransBin.i-no" "Item" "x(15)" "character" ? ? ? ? ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ttTransBin.tag
+"ttTransBin.tag" "Tag" "x(20)" "character" ? ? ? ? ? ? no ? no no "27" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ttTransBin.cases
+"ttTransBin.cases" "Units" ">>>,>>9" "integer" ? ? ? ? ? ? no ? no no "8.8" no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > ttTransBin.case-count
+"ttTransBin.case-count" "Qty/Unit" ">>>,>>9" "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ttTransBin.partial-count
+"ttTransBin.partial-count" "Partial" ">>>,>>9" "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+ _FldNameList[7]   > ttTransBin.qty
+"ttTransBin.qty" "Total Qty" "->>,>>>,>>9" "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-3 */
 &ANALYZE-RESUME 
@@ -222,11 +222,11 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Utility: Restore deleted orders */
     DO:
-       FOR EACH w-fg-rctd:
-        w-fg-rctd.IS-SELECTED = TRUE.
-       END.
+        FOR EACH ttTransBin:
+            ttTransBin.IS-SELECTED = TRUE.
+        END.
 
-       APPLY "END-ERROR":U TO SELF.
+        APPLY "END-ERROR":U TO SELF.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -258,11 +258,12 @@ ON ROW-LEAVE OF BROWSE-3 IN FRAME Dialog-Frame
 &Scoped-define SELF-NAME BROWSE-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-3 Dialog-Frame
 ON ROW-DISPLAY OF BROWSE-3 IN FRAME Dialog-Frame
-DO:   
-    IF AVAIL w-fg-rctd THEN DO:
+    DO:   
+        IF AVAILABLE ttTransBin THEN 
+        DO:
                 
+        END.
     END.
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -272,15 +273,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process Dialog-Frame
 ON CHOOSE OF btn-process IN FRAME Dialog-Frame /* Delete */
     DO:
-        DEFINE VARIABLE v-process AS LOG NO-UNDO.
-        DEFINE VARIABLE lAskComm AS LOGICAL NO-UNDO.
+        DEFINE VARIABLE v-process AS LOG     NO-UNDO.
+        DEFINE VARIABLE lAskComm  AS LOGICAL NO-UNDO.
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
         END.
   
         
         i = 0 .
-        FOR EACH w-fg-rctd WHERE w-fg-rctd.IS-SELECTED:
+        FOR EACH ttTransBin WHERE ttTransBin.IS-SELECTED:
             i = i + 1.          
         END. 
 
@@ -302,11 +303,11 @@ ON CHOOSE OF btn-process IN FRAME Dialog-Frame /* Delete */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-reset Dialog-Frame
 ON CHOOSE OF btn-reset IN FRAME Dialog-Frame /* Reset */
     DO:
-       FOR EACH w-fg-rctd:
-        w-fg-rctd.IS-SELECTED = TRUE.
-       END.
+        FOR EACH ttTransBin:
+            ttTransBin.IS-SELECTED = TRUE.
+        END.
 
-       RUN open-query .
+        RUN open-query .
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -316,9 +317,9 @@ ON CHOOSE OF btn-reset IN FRAME Dialog-Frame /* Reset */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel Dialog-Frame
 ON CHOOSE OF btn-cancel IN FRAME Dialog-Frame /* Delete */
     DO:
-       FOR EACH w-fg-rctd:
-        w-fg-rctd.IS-SELECTED = TRUE.
-       END.
+        FOR EACH ttTransBin:
+            ttTransBin.IS-SELECTED = TRUE.
+        END.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -327,12 +328,12 @@ ON CHOOSE OF btn-cancel IN FRAME Dialog-Frame /* Delete */
 &Scoped-define SELF-NAME btn-Deselect-all
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-Deselect-all Dialog-Frame
 ON CHOOSE OF btn-Deselect-all IN FRAME Dialog-Frame /* Deselect All */
-DO:
-       FOR EACH w-fg-rctd:
-        w-fg-rctd.IS-SELECTED = FALSE.
-       END.
+    DO:
+        FOR EACH ttTransBin:
+            ttTransBin.IS-SELECTED = FALSE.
+        END.
 
-       RUN open-query .
+        RUN open-query .
        
     END.
 
@@ -342,12 +343,12 @@ DO:
 &Scoped-define SELF-NAME btn-Select-all
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-Select-all Dialog-Frame
 ON CHOOSE OF btn-Select-all IN FRAME Dialog-Frame /* Select All */
-DO:
-       FOR EACH w-fg-rctd:
-        w-fg-rctd.IS-SELECTED = TRUE.
-       END.
+    DO:
+        FOR EACH ttTransBin:
+            ttTransBin.IS-SELECTED = TRUE.
+        END.
 
-       RUN open-query .
+        RUN open-query .
       
     END.
 
@@ -379,8 +380,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     CLOSE QUERY BROWSE-3.      
     DO WITH FRAME {&FRAME-NAME}:           
          
-        OPEN QUERY BROWSE-3 FOR EACH w-fg-rctd
-            NO-LOCK BY w-fg-rctd.i-no BY w-fg-rctd.tag.        
+        OPEN QUERY BROWSE-3 FOR EACH ttTransBin
+            NO-LOCK BY ttTransBin.i-no BY ttTransBin.tag.        
     END. 
 
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -434,15 +435,15 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE open-query Dialog-Frame 
 PROCEDURE open-query :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+              Purpose:     
+              Parameters:  <none>
+              Notes:       
+    ------------------------------------------------------------------------------*/
     
     CLOSE QUERY BROWSE-3.
-    OPEN QUERY BROWSE-3 FOR EACH w-fg-rctd
-        NO-LOCK BY w-fg-rctd.i-no BY w-fg-rctd.tag.
+    OPEN QUERY BROWSE-3 FOR EACH ttTransBin
+        NO-LOCK BY ttTransBin.i-no BY ttTransBin.tag.
 
 END PROCEDURE.
 

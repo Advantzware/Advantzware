@@ -71,7 +71,14 @@ IF lRecFound THEN
     lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
 
 
-{fg/ttLoadTagItem.i new shared} 
+DEFINE NEW SHARED TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd
+    FIELD row-id   AS ROWID
+    FIELD has-rec  AS LOG INIT NO
+    FIELD invoiced AS LOG INIT NO
+    FIELD old-tag AS CHARACTER
+    FIELD ret-loc AS CHARACTER
+    FIELD ret-loc-bin AS CHARACTER 
+    FIELD blank-cust AS CHARACTER .
 
 DEFINE TEMP-TABLE tt-email NO-UNDO 
     FIELD tt-recid AS RECID
