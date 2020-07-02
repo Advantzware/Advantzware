@@ -36,7 +36,6 @@ def var v-tax-rate as dec format "->>>.99" NO-UNDO.
 def var v-tax-code like stax.tax-code NO-UNDO.
 def var v-tx-rate like stax.tax-rate NO-UNDO.
 def var v-ans as logical initial no NO-UNDO.
-def var v-date-ship as date initial today NO-UNDO.
 def var v-del-no as int format ">>>>>>" NO-UNDO.
 def var v-bol-cases LIKE oe-boll.cases NO-UNDO.
 def var v-set-qty AS DECIMAL NO-UNDO.
@@ -322,7 +321,7 @@ find first company where company.company eq cocode NO-LOCK.
                 RUN oe/pallcalc.p (ROWID(oe-boll), OUTPUT v-int).
                 v-tot-pallets = v-tot-pallets + v-int.
            END. /* each oe-boll */
-           assign v-date-ship = oe-bolh.bol-date.
+           
 
          END. /* each oe-bolh */
          if last-of(xinv-line.i-no) then do:
