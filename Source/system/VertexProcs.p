@@ -387,7 +387,8 @@ PROCEDURE Vertex_CalculateTaxForInvHead:
     DEFINE INPUT  PARAMETER ipriInvHead        AS ROWID     NO-UNDO.
     DEFINE INPUT  PARAMETER ipcLocation        AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcMessageType     AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER iplPostToJournal   AS LOGICAL   NO-UNDO.    
+    DEFINE INPUT  PARAMETER iplPostToJournal   AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTriggerID       AS CHARACTER NO-UNDO.    
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
@@ -425,7 +426,7 @@ PROCEDURE Vertex_CalculateTaxForInvHead:
         INPUT  "Calculatetax",                /* API ID (Mandatory) */
         INPUT  bf-inv-head.cust-no,           /* Scope ID */
         INPUT  "Customer",                    /* Scope Type */
-        INPUT  "GetTaxAmount",                /* Trigger ID (Mandatory) */
+        INPUT  ipcTriggerID,                  /* Trigger ID (Mandatory) */
         INPUT  cInputListKeys,                /* Comma separated list of table names for which data being sent (Mandatory) */
         INPUT  cInputListValues,              /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
         INPUT  bf-inv-head.inv-no,            /* Primary ID for which API is called for (Mandatory) */   
@@ -474,6 +475,7 @@ PROCEDURE Vertex_CalculateTaxForArInv:
     DEFINE INPUT  PARAMETER ipcLocation        AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcMessageType     AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplPostToJournal   AS LOGICAL   NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcTriggerID       AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
@@ -511,7 +513,7 @@ PROCEDURE Vertex_CalculateTaxForArInv:
         INPUT  "Calculatetax",                /* API ID (Mandatory) */
         INPUT  bf-ar-inv.cust-no,             /* Scope ID */
         INPUT  "Customer",                    /* Scope Type */
-        INPUT  "GetTaxAmount",                /* Trigger ID (Mandatory) */
+        INPUT  ipcTriggerID,                  /* Trigger ID (Mandatory) */
         INPUT  cInputListKeys,                /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
         INPUT  cInputListValues,              /* Primary ID for which API is called for (Mandatory) */   
         INPUT  bf-ar-inv.inv-no,              /* Primary ID for which API is called for (Mandatory) */   
