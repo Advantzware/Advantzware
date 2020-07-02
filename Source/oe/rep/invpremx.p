@@ -74,14 +74,7 @@ def var v-ship-i as char format "x(25)" no-undo.
 def var v-rel-po-no like oe-rel.po-no no-undo.
 def var v-price-head as char format "x(5)" no-undo.
 DEF VAR v-subtot-lines AS DEC NO-UNDO.
-def TEMP-TABLE w-tax NO-UNDO
-    field w-dsc as   char
-    field w-tax as   dec.
-def var v-t-tax      as   dec extent 3 NO-UNDO.
-def var v-bot-lab    as   char format "x(63)" extent 3 NO-UNDO.
-DEF VAR v-lines AS INT NO-UNDO.
 DEF VAR v-inv-freight LIKE inv-head.t-inv-freight NO-UNDO.
-DEF VAR v-frt-tax AS DEC NO-UNDO.
 
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
@@ -618,9 +611,7 @@ END.
 
         {oe/rep/invpremx.i}  /* xprint form */
 
-        ASSIGN
-        v-subtot-lines = 0
-        v-t-tax = 0.
+        v-subtot-lines = 0.
         for each inv-line no-lock where inv-line.r-no = inv-head.r-no:
 
           IF NOT s-print-zero-qty AND
@@ -709,29 +700,6 @@ END.
                    v-subtot-lines = v-subtot-lines + inv-line.t-price.
             /* PremierS switch*/
             IF ip-print-s THEN v-inv-qtys = inv-line.inv-qty / inv-line.cas-cnt.
-
-                if inv-line.tax and avail stax then
-                do i = 1 to 3:
-                  if stax.tax-code[i] ne "" then do:
-                    create w-tax.
-                    assign
-                     w-dsc      = stax.tax-dscr[i]
-                     w-tax      = round((if stax.company eq "yes" then v-t-price
-                                                                  else inv-line.t-price) *
-                                        stax.tax-rate[i] / 100,2)
-                     v-t-price  = v-t-price + w-tax
-                     v-t-tax[i] = v-t-tax[i] + w-tax
-                     v-lines    = v-lines + 1.
-                  end.
-                end.
-
-                if v-t-price ne inv-line.t-price then do:
-                  create w-tax.
-                  assign
-                   w-dsc     = "******ITEM TOTAL:"
-                   w-tax     = v-t-price
-                   v-lines   = v-lines + 1.
-                end.
             
             ASSIGN v-po-no  = inv-line.po-no
                    v-ord-no = inv-line.ord-no
@@ -1061,28 +1029,6 @@ END.
             ASSIGN
             v-subtot-lines = v-subtot-lines + inv-misc.amt
             v-printline = v-printline + 1.
-            if inv-misc.tax and avail stax then
-            do i = 1 to 3:
-              if stax.tax-code[i] ne "" then do:
-                create w-tax.
-                assign
-                 w-dsc      = stax.tax-dscr[i]
-                 w-tax      = if stax.company eq "yes" then v-t-price
-                              else inv-misc.amt
-                 w-tax      = round(w-tax * (1 + (stax.tax-rate[i] / 100)),2) - w-tax
-                 v-t-price  = v-t-price + w-tax
-                 v-t-tax[i] = v-t-tax[i] + w-tax
-                 v-lines    = v-lines + 1.
-              end.
-            end.
-
-            if v-t-price ne inv-misc.amt then do:
-              create w-tax.
-              assign
-               w-dsc     = "******ITEM TOTAL:"
-               w-tax     = v-t-price
-               v-lines   = v-lines + 1.
-            end.
 
         end. /* each inv-misc */
 
@@ -1119,33 +1065,8 @@ END.
             END.
          
         end.
-
-        v-frt-tax = inv-head.t-inv-freight.
-        IF inv-head.tax-gr <> "" and
-           inv-head.f-bill AND inv-head.t-inv-freight <> 0 AND AVAIL stax THEN
-        do i = 1 to 3:
-
-           if stax.tax-code[i] ne "" then do:
-                create w-tax.
-                assign
-                 w-dsc      = stax.tax-dscr[i]
-                 w-tax      = round((if stax.company eq "yes" then v-frt-tax
-                                                         ELSE inv-head.t-inv-freight) *
-                                        stax.tax-rate[i] / 100,2)                 
-                 v-frt-tax  = v-frt-tax + w-tax
-                 v-t-tax[i] = v-t-tax[i] + w-tax
-                 v-lines    = v-lines + 1.
-           END.
-        end.
       end. /* DO TRANSACTION */
 
-    do i = 1 to 3:
-       v-bot-lab[i] = if v-t-tax[i] ne 0 then
-                        ((IF AVAIL stax THEN string(CAPS(stax.tax-code[i]),"x(5)") 
-                           ELSE FILL(" ",5) ) +
-                       fill(" ",6) + ":" +
-                       string(v-t-tax[i],"->>>>>9.99")) else "".
-    end.
     v-inv-freight = 0.
     FOR EACH b-inv-head WHERE b-inv-head.company = inv-head.company
                           AND b-inv-head.inv-no  = inv-head.inv-no
