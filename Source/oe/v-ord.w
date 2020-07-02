@@ -4662,6 +4662,9 @@ PROCEDURE local-assign-record :
     DEF    VAR      dCalcPromDate     AS DATE    NO-UNDO.
     DEFINE VARIABLE cOldShipTo AS CHARACTER NO-UNDO .
     DEFINE VARIABLE lcheckflg AS LOGICAL NO-UNDO .
+    DEFINE VARIABLE cOldCarrier AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lUpdateCarrier AS LOGICAL NO-UNDO.
+    
     DEF BUFFER b-oe-rel    FOR oe-rel.
     DEF BUFFER due-job-hdr FOR job-hdr.
     DEF BUFFER bf-oe-ordl  FOR oe-ordl.
@@ -4717,7 +4720,8 @@ PROCEDURE local-assign-record :
     ASSIGN
         lv-date   = oe-ord.due-date
         lv-ord-no = oe-ord.ord-no
-        cOldShipTo = oe-ord.ship-id .
+        cOldShipTo = oe-ord.ship-id 
+        cOldCarrier =  oe-ord.carrier.
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -4829,6 +4833,12 @@ PROCEDURE local-assign-record :
 
         END. /* avail job */
     END. /* if job-no ne '' */
+    
+    IF NOT adm-new-record AND cOldCarrier NE oe-ord.carrier THEN DO:
+      RUN displayMessageQuestion("44", OUTPUT lUpdateCarrier).
+      IF lUpdateCarrier THEN
+        RUN pUpdateReleaseCarrier.
+    END.
 
     /*BV-Update order line job start dates*/
     FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ oe-ord.company
@@ -5663,7 +5673,7 @@ PROCEDURE local-update-record :
   DO WITH FRAME {&FRAME-NAME}:
     IF DATE(oe-ord.due-date:SCREEN-VALUE) GT
        DATE(oe-ord.last-date:SCREEN-VALUE)THEN  
-      oe-ord.last-date:SCREEN-VALUE = oe-ord.due-date:SCREEN-VALUE.
+      oe-ord.last-date:SCREEN-VALUE = oe-ord.due-date:SCREEN-VALUE.        
   END.
 
   FOR EACH old-oe-ord:
@@ -6375,6 +6385,35 @@ DEFINE BUFFER bf-oe-rel FOR oe-rel .
                   bf-oe-rel.ship-i[4] = shipto.notes[4]
                   bf-oe-rel.spare-char-1 = shipto.loc.
               RUN CopyShipNote (shipto.rec_key, bf-oe-rel.rec_key).
+          END.
+
+          FIND CURRENT bf-oe-rel NO-LOCK.
+          RELEASE bf-oe-rel.
+      END.
+  END. /* each oe-rel **/
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateReleaseCarrier V-table-Win 
+PROCEDURE pUpdateReleaseCarrier :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE BUFFER bf-oe-rel FOR oe-rel .
+  FOR EACH oe-rel NO-LOCK
+      WHERE oe-rel.company EQ oe-ord.company
+      AND oe-rel.ord-no  EQ oe-ord.ord-no      
+      BY oe-rel.rel-date: 
+      IF LOOKUP(oe-rel.stat, 'A,C,P,Z' ) EQ 0 THEN 
+          DO:
+          FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ rowid(oe-rel) EXCLUSIVE-LOCK.
+                   
+          IF AVAIL bf-oe-rel THEN do:
+              ASSIGN bf-oe-rel.carrier = oe-ord.carrier.             
           END.
 
           FIND CURRENT bf-oe-rel NO-LOCK.
