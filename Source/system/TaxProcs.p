@@ -20,6 +20,12 @@
 DEFINE VARIABLE cRoundMethod     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRoundMethodUp   AS CHARACTER NO-UNDO INITIAL "ROUNDUP".
 DEFINE VARIABLE cRoundMethodDown AS CHARACTER NO-UNDO INITIAL "ROUNDDOWN".
+DEFINE VARIABLE cCalcMethod      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCalcMethodAPI   AS CHARACTER NO-UNDO INITIAL "API".
+DEFINE VARIABLE hdVertexProcs    AS HANDLE    NO-UNDO.
+
+RUN system/VertexProcs.p PERSISTENT SET hdVertexProcs.
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -424,6 +430,36 @@ PROCEDURE pGetRoundMethod PRIVATE:
         opcRoundMethod = cRoundMethod.  
 END PROCEDURE.
 
+PROCEDURE pGetCalcMethod PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns the calculation method from NK1 setting SalesTaxCalcMethod
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCalcMethod AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+    
+    IF cCalcMethod NE "" THEN DO:
+        opcCalcMethod = cCalcMethod.
+        RETURN.
+    END.
+    
+    RUN sys/ref/nk1look.p (
+        INPUT  ipcCompany,           /* Company Code */
+        INPUT  "SalesTaxCalcMethod", /* sys-ctrl name */
+        INPUT  "C",                  /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
+        INPUT  FALSE,                /* Use ship-to */
+        INPUT  FALSE,                /* ship-to vendor */
+        INPUT  "",                   /* ship-to vendor value */
+        INPUT  "",                   /* shi-id value */
+        OUTPUT cCalcMethod,
+        OUTPUT lRecFound
+        ). 
+
+    opcCalcMethod = cCalcMethod.  
+END PROCEDURE.
+
 PROCEDURE Tax_Calculate:
     /*------------------------------------------------------------------------------
      Purpose: Calculate tax amount for given inputs 
@@ -452,6 +488,347 @@ PROCEDURE Tax_Calculate:
         OUTPUT cMessage
         ).
         
+END PROCEDURE.
+
+PROCEDURE pAPICalculateForInvHead PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Calculate tax through API for a given ar-inv rowid
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriInvHead        AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMessageType     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPostToJournal   AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTriggerID       AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-inv-head FOR inv-head.
+    
+    FIND FIRST bf-inv-head NO-LOCK 
+         WHERE ROWID(bf-inv-head) EQ ipriInvHead
+         NO-ERROR.
+    IF NOT AVAILABLE bf-inv-head THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid inv-head row id"
+            .
+        RETURN.
+    END.    
+
+    IF cCalcMethod EQ "" THEN
+        RUN pGetCalcMethod (
+            INPUT  bf-inv-head.company,
+            OUTPUT cCalcMethod
+            ).
+    
+    IF cCalcMethod NE cCalcMethodAPI THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "NK1 setting SalesTaxCalcMethod is not set to 'API'"
+            .
+        RETURN.
+    END.
+
+    RUN Vertex_CalculateTaxForInvHead IN hdVertexProcs (
+        INPUT  ROWID(bf-inv-head),
+        INPUT  ipcLocation,
+        INPUT  ipcMessageType,        /*  Message Type "INVOICE" or "QUOTATION" */
+        INPUT  iplPostToJournal,      /* Post To journal */
+        INPUT  ipcTriggerID,
+        OUTPUT opdInvoiceTotal,
+        OUTPUT opdInvoiceSubTotal,
+        OUTPUT opdTaxTotal,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage    
+        ).
+
+    IF NOT oplSuccess THEN
+        RETURN.
+END PROCEDURE.
+
+PROCEDURE pAPICalculateForArInv PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Calculate tax through API for a given ar-inv rowid
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriArInv          AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMessageType     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPostToJournal   AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTriggerID       AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-ar-inv FOR ar-inv.
+    
+    FIND FIRST bf-ar-inv NO-LOCK 
+         WHERE ROWID(bf-ar-inv) EQ ipriArInv
+         NO-ERROR.
+    IF NOT AVAILABLE bf-ar-inv THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid ar-inv row id"
+            .
+        RETURN.
+    END.    
+
+    IF cCalcMethod EQ "" THEN
+        RUN pGetCalcMethod (
+            INPUT  bf-ar-inv.company,
+            OUTPUT cCalcMethod
+            ).
+                
+    IF cCalcMethod NE cCalcMethodAPI THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "NK1 setting SalesTaxCalcMethod is not set to 'API'"
+            .
+        RETURN.
+    END.
+    
+    RUN Vertex_CalculateTaxForArInv IN hdVertexProcs (
+        INPUT  ROWID(bf-ar-inv),
+        INPUT  ipcLocation,
+        INPUT  ipcMessageType,        /*  Message Type "INVOICE" or "QUOTATION" */
+        INPUT  iplPostToJournal,      /* Post To journal */
+        INPUT  ipcTriggerID,
+        OUTPUT opdInvoiceTotal,
+        OUTPUT opdInvoiceSubTotal,
+        OUTPUT opdTaxTotal,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage    
+        ).
+
+    IF NOT oplSuccess THEN
+        RETURN.    
+END PROCEDURE.
+
+PROCEDURE Tax_CalculateForInvHead:
+/*------------------------------------------------------------------------------
+ Purpose: Calculates tax for a given ar-inv row id
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriInvHead        AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMessageType     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPostToJournal   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE dTax                AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dAPITaxTotal        AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dAPIInvoiceTotal    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dAPIInvoiceSubTotal AS DECIMAL NO-UNDO.    
+        
+    DEFINE BUFFER bf-inv-head FOR inv-head.
+    DEFINE BUFFER bf-inv-line FOR inv-line.
+    DEFINE BUFFER bf-inv-misc FOR inv-misc.
+    
+    FIND FIRST bf-inv-head NO-LOCK 
+         WHERE ROWID(bf-inv-head) EQ ipriInvHead
+         NO-ERROR.
+    IF NOT AVAILABLE bf-inv-head THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid inv-head row id"
+            .
+        RETURN.
+    END.    
+
+    EMPTY TEMP-TABLE ttTaxDetail.
+
+    FOR EACH bf-inv-line NO-LOCK 
+        WHERE bf-inv-line.r-no EQ bf-inv-head.r-no:
+        opdInvoiceSubTotal = opdInvoiceSubTotal + bf-inv-line.t-price.
+
+        IF bf-inv-head.tax-gr NE "" AND bf-inv-line.tax THEN DO:
+            RUN pCalculate (
+                INPUT  bf-inv-head.company,
+                INPUT  bf-inv-head.tax-gr,
+                INPUT  FALSE,   /* Is this freight */
+                INPUT  bf-inv-line.t-price,
+                OUTPUT dTax,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).
+
+            opdTaxTotal = opdTaxTotal + dTax.
+        END.
+    END.
+
+    FOR EACH bf-inv-misc NO-LOCK 
+        WHERE bf-inv-misc.company EQ bf-inv-head.company 
+          AND bf-inv-misc.r-no    EQ bf-inv-head.r-no 
+          AND bf-inv-misc.bill    EQ "Y":     
+        opdInvoiceSubTotal = opdInvoiceSubTotal + bf-inv-misc.amt.
+
+        IF bf-inv-head.tax-gr NE "" AND bf-inv-misc.tax THEN DO:
+            RUN pCalculate (
+                INPUT  bf-inv-head.company,
+                INPUT  bf-inv-head.tax-gr,
+                INPUT  FALSE,   /* Is this freight */
+                INPUT  bf-inv-misc.amt,
+                OUTPUT dTax,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).
+
+            opdTaxTotal = opdTaxTotal + dTax.
+        END.
+    END.
+
+    IF bf-inv-head.f-bill THEN
+        opdInvoiceSubTotal = opdInvoiceSubTotal + bf-inv-head.t-inv-freight.
+
+    IF bf-inv-head.tax-gr NE "" AND bf-inv-head.f-bill AND bf-inv-head.t-inv-freight NE 0 THEN DO:        
+        RUN pCalculate (
+            INPUT  bf-inv-head.company,
+            INPUT  bf-inv-head.tax-gr,
+            INPUT  TRUE,               /* Is this freight */
+            INPUT  bf-inv-head.t-inv-freight,
+            OUTPUT dTax,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ).
+        
+        opdTaxTotal = opdTaxTotal + dTax.
+    END.      
+    
+    opdInvoiceTotal = opdInvoiceSubTotal + opdTaxTotal.
+
+    IF cCalcMethod EQ "" THEN
+        RUN pGetCalcMethod (
+            INPUT  bf-inv-head.company,
+            OUTPUT cCalcMethod
+            ).
+    
+    IF cCalcMethod EQ cCalcMethodAPI THEN DO:    
+        RUN pAPICalculateForInvHead (
+            INPUT  ipriInvHead,
+            INPUT  ipcLocation,
+            INPUT  ipcMessageType,
+            INPUT  iplPostToJournal,
+            INPUT  "GetTaxAmount", /* Trigger ID */
+            OUTPUT dAPITaxTotal,
+            OUTPUT dAPIInvoiceTotal,
+            OUTPUT dAPIInvoiceSubTotal,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ).
+        IF oplSuccess THEN
+            ASSIGN
+                opdTaxTotal        = dAPITaxTotal
+                opdInvoiceTotal    = dAPIInvoiceTotal
+                opdInvoiceSubTotal = dAPIInvoiceSubTotal
+                .     
+    END.   
+END PROCEDURE.
+
+PROCEDURE Tax_CalculateForArInv:
+/*------------------------------------------------------------------------------
+ Purpose: Calculates tax for a given ar-inv row id
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriArInv          AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMessageType     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPostToJournal   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE dTax                AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dAPITaxTotal        AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dAPIInvoiceTotal    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dAPIInvoiceSubTotal AS DECIMAL NO-UNDO.    
+        
+    DEFINE BUFFER bf-ar-inv  FOR ar-inv.
+    DEFINE BUFFER bf-ar-invl FOR ar-invl.
+    
+    FIND FIRST bf-ar-inv NO-LOCK 
+         WHERE ROWID(bf-ar-inv) EQ ipriArInv
+         NO-ERROR.
+    IF NOT AVAILABLE bf-ar-inv THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid ar-inv row id"
+            .
+        RETURN.
+    END.    
+
+    EMPTY TEMP-TABLE ttTaxDetail.
+
+    FOR EACH bf-ar-invl NO-LOCK 
+        WHERE bf-ar-invl.x-no EQ bf-ar-inv.x-no:
+        opdInvoiceSubTotal = opdInvoiceSubTotal + bf-ar-invl.amt.
+
+        IF bf-ar-inv.tax-code NE "" AND bf-ar-invl.tax THEN DO:
+            RUN pCalculate (
+                INPUT  bf-ar-inv.company,
+                INPUT  bf-ar-inv.tax-code,
+                INPUT  FALSE,   /* Is this freight */
+                INPUT  bf-ar-invl.amt,
+                OUTPUT dTax,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).
+
+            opdTaxTotal = opdTaxTotal + dTax.
+        
+            IF bf-ar-inv.f-bill THEN DO:
+                RUN pCalculate (
+                    INPUT  bf-ar-invl.company,
+                    INPUT  bf-ar-inv.tax-code,
+                    INPUT  TRUE,   /* Is this freight */
+                    INPUT  bf-ar-invl.t-freight,
+                    OUTPUT dTax,
+                    OUTPUT oplSuccess,
+                    OUTPUT opcMessage
+                    ). 
+        
+                opdTaxTotal = opdTaxTotal + dTax.
+            END.
+        END.        
+    END.
+
+    IF cCalcMethod EQ "" THEN
+        RUN pGetCalcMethod (
+            INPUT  bf-ar-inv.company,
+            OUTPUT cCalcMethod
+            ).
+    
+    IF cCalcMethod EQ cCalcMethodAPI THEN DO:    
+        RUN pAPICalculateForArInv (
+            INPUT  ipriArInv,
+            INPUT  ipcLocation,
+            INPUT  ipcMessageType,
+            INPUT  iplPostToJournal,
+            INPUT  "GetTaxAmount", /* Trigger ID */
+            OUTPUT dAPITaxTotal,
+            OUTPUT dAPIInvoiceTotal,
+            OUTPUT dAPIInvoiceSubTotal,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ).
+        IF oplSuccess THEN
+            ASSIGN
+                opdTaxTotal        = dAPITaxTotal
+                opdInvoiceTotal    = dAPIInvoiceTotal
+                opdInvoiceSubTotal = dAPIInvoiceSubTotal
+                .     
+    END.   
 END PROCEDURE.
 
 PROCEDURE Tax_CalculateWithDetail:
