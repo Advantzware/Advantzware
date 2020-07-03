@@ -89,7 +89,8 @@ DEFINE VARIABLE hdFileSysProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lValid    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFilePath AS CHARACTER NO-UNDO.  
-DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO. 
+DEFINE VARIABLE hdInventoryProcs AS HANDLE  NO-UNDO.
+DEFINE VARIABLE lInsufficientQty AS LOGICAL NO-UNDO. 
 
 RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs. 
 
@@ -446,19 +447,8 @@ PROCEDURE pAutoSelectTags:
     fDebugMsg("selected qty " + STRING(li-selected-qty) + " bol " + string(xoe-boll.bol-no) + " " + xoe-boll.i-no).
     /* Was not able to assign full quantity from tagged inventory */
     IF li-selected-qty LT xoe-boll.qty THEN DO:
-        fDebugMsg("create w-nopost for bol-no " + string(xoe-boll.bol-no) + " item " + xoe-boll.i-no ).
-        CREATE w-nopost.
-        ASSIGN
-            w-nopost.ord-no   = xoe-boll.ord-no
-            w-nopost.i-no     = xoe-boll.i-no
-            w-nopost.bol-no   = xoe-boll.BOL-no
-            w-nopost.rel-no   = xoe-boll.REL-no
-            w-nopost.b-ord-no = xoe-boll.b-ord-no
-            w-nopost.cust-no  = xoe-boll.cust-no
-            w-nopost.po-no    = xoe-boll.PO-NO
-            w-nopost.reason   = "Insufficient Inventory"
-            .        
-      RETURN.
+        fDebugMsg("Inside li-selected-qty LT xoe-boll.qty").              
+        RETURN.
     END.
       
     /* If full quantity was selected, then process creation of oe-boll lines */
@@ -723,6 +713,7 @@ PROCEDURE pPostBols :
                   BY bf-oe-bolh.ord-no
                   BY bf-oe-bolh.rel-no
             :
+            lInsufficientQty = NO.    
             /* Create tt-fg-bin */
 /*            IF FIRST-OF(bf-oe-bolh.bol-no) AND lPrintInvoice AND lCheckQty THEN*/
 /*                RUN oe/bolcheck.p (ROWID(bf-oe-bolh)).                         */
@@ -761,20 +752,35 @@ PROCEDURE pPostBols :
                       :
                       DELETE w-except.
                     END. /* each w-except */
-                    fDebugMsg("before bol check " + string(avail(bf-oe-bolh)) ).
-                    /* check if suffient inventory again after selecting tags */
-                    RUN oe/bolcheck.p (ROWID(bf-oe-bolh)).
                 END. /* if avail w-except */
             END. /* if lautoselectshipfrom */
-            
-            fDebugMsg("before each w-except after bolcheck " + string(avail(bf-oe-bolh))).
-            FIND FIRST w-except WHERE w-except.bol-no EQ bf-oe-bolh.bol-no NO-ERROR.
-            IF AVAILABLE w-except THEN 
-            DO:
-              fDebugMsg("w-exception found no qty avail " + string(bf-oe-bolh.bol-no)  ).
-              NEXT bolh.
-            END. /* if avail w-except */
-
+            IF FIRST-OF(bf-oe-bolh.bol-no) AND lPrintInvoice AND lCheckQty THEN DO:
+                fDebugMsg("before bol check " + string(avail(bf-oe-bolh)) ).
+                /* check if suffient inventory again after selecting tags */
+                RUN oe/bolcheck.p (ROWID(bf-oe-bolh)).
+                fDebugMsg("before each w-except after bolcheck " + string(avail(bf-oe-bolh))).
+                FOR EACH w-except 
+                    WHERE w-except.bol-no EQ bf-oe-bolh.bol-no:
+                    IF NOT lInsufficientQty THEN 
+                        lInsufficientQty = YES. 
+                    fDebugMsg("Create w-nopost for BOL " + STRING(w-except.bol-no) + " item " + w-except.i-no).            
+                    CREATE w-nopost.
+                    ASSIGN
+                        w-nopost.ord-no   = w-except.ord-no
+                        w-nopost.i-no     = w-except.i-no
+                        w-nopost.bol-no   = w-except.BOL-no
+                        w-nopost.rel-no   = w-except.REL-no
+                        w-nopost.b-ord-no = w-except.b-ord-no
+                        w-nopost.cust-no  = w-except.cust-no
+                        w-nopost.po-no    = w-except.PO-NO
+                        w-nopost.reason   = "Insufficient Inventory"
+                        .  
+                END.               
+                IF lInsufficientQty THEN DO:
+                  fDebugMsg("w-exception found no qty avail " + string(bf-oe-bolh.bol-no)  ).
+                  NEXT bolh.
+                END. /* if avail w-except */
+            END.
             iLineCount = iLineCount + 1.
 
             IF AVAILABLE sys-ctrl AND sys-ctrl.log-fld THEN DO:
