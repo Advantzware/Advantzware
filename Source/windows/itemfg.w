@@ -689,7 +689,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.33 , 113.20 ) */
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1,3':U) NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('1,3,14':U) NO-ERROR.
 
        /* Links to SmartObject h_export-2. */
        RUN add-link IN adm-broker-hdl ( h_locw , 'export-xl':U , h_export-2 ).
