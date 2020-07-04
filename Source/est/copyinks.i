@@ -76,9 +76,11 @@
        b-eb.i-code2[li] = eb.i-code2[li]
        b-eb.i-dscr2[li] = eb.i-dscr2[li]
        b-eb.i-%2[li]    = eb.i-%2[li].
-    END.
-
-    {ce/updunit#.i b-eb}
+       IF li LE 20 THEN
+       ASSIGN
+       b-eb.unitNo[li]  = eb.unitNo[li]
+       b-eb.side[li]    = eb.side[li].
+    END.        
 
     ASSIGN
      b-eb.i-col      = eb.i-col
