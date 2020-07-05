@@ -14,7 +14,7 @@
 
 /* ***************************  Definitions  ************************** */
 DEFINE INPUT PARAMETER ipriJob AS ROWID NO-UNDO.
-DEFINE INPUT PARAMETER iplNew AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER ipiOrderID AS INTEGER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opcErrorMessage AS CHARACTER NO-UNDO.
 
@@ -36,7 +36,7 @@ DEFINE TEMP-TABLE ttJobFarmToKeep
     
 /* ***************************  Main Block  *************************** */
 
-RUN pBuildJob(ipriJob, iplNew, OUTPUT oplError, OUTPUT opcErrorMessage).
+RUN pBuildJob(ipriJob, ipiOrderID, OUTPUT oplError, OUTPUT opcErrorMessage).
 
 /* **********************  Internal Procedures  *********************** */
 PROCEDURE pBuildFarm PRIVATE:
@@ -99,7 +99,7 @@ PROCEDURE pBuildJob PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipriJob AS ROWID NO-UNDO.
-    DEFINE INPUT PARAMETER iplNew AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOrderID AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcErrorMessage AS CHARACTER NO-UNDO.
     
@@ -113,7 +113,7 @@ PROCEDURE pBuildJob PRIVATE:
     IF AVAILABLE bf-job THEN 
     DO:
         RUN pCalcEstimateForJob(BUFFER bf-job, 0, OUTPUT iEstCostHeaderID).
-        RUN pBuildHeaders(iEstCostHeaderID, BUFFER bf-job).
+        RUN pBuildHeaders(iEstCostHeaderID, ipiOrderID, BUFFER bf-job).
         RUN pBuildMaterials(iEstCostHeaderID, BUFFER bf-job).
         RUN pBuildMachines(iEstCostHeaderID, BUFFER bf-job).
         RUN pBuildMisc(iEstCostHeaderID, BUFFER bf-job).
@@ -135,7 +135,9 @@ PROCEDURE pBuildHeaders PRIVATE:
         Notes:
        ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOrderID AS INTEGER NO-UNDO.
     DEFINE PARAMETER BUFFER ipbf-job    FOR job.
+    
     
     DEFINE           BUFFER bf-job-hdr  FOR job-hdr.
     DEFINE           BUFFER bf-reftable FOR reftable.
@@ -180,6 +182,7 @@ PROCEDURE pBuildHeaders PRIVATE:
                 bf-job-hdr.qty      = estCostBlank.quantityRequired
                 bf-job-hdr.cust-no  = estCostItem.customerID
                 bf-job-hdr.est-no   = ipbf-job.est-no
+                bf-job-hdr.ord-no   = IF bf-job-hdr.ord-no EQ 0 THEN ipiOrderID ELSE bf-job-hdr.ord-no
                 .
         END.
         CREATE ttJobHdrToKeep.
