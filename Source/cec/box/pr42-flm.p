@@ -328,7 +328,27 @@ for each flm,
     FIRST w-flm WHERE w-flm.flm-rowid EQ ROWID(flm)
     by flm.snum by flm.bnum
     with no-labels NO-BOX stream-io:
-
+    find first brd where brd.form-no = flm.snum and
+        brd.blank-no = flm.bnum and
+        brd.i-no    = flm.id
+        no-error.
+    if not avail brd then 
+    do:
+        create brd.
+        assign 
+            brd.form-no  = flm.snum
+            brd.blank-no = flm.bnum
+            brd.i-no     = flm.i-no
+            brd.dscr     = flm.dscr
+            brd.basis-w  = item.basis-w.
+    end.
+    ASSIGN
+        brd.qty     = brd.qty + flm.qty
+        brd.qty-uom = flm.uom
+        brd.sc-uom  = flm.uom
+        brd.cost    = flm.cost / flm.qty
+        brd.cost-m  = flm.cosm.
+        
   DISPLAY flm.snum format "99" space(0) "-" space(0) flm.bnum format "9"
           flm.dscr flm.qty to 50
           flm.uom at 52 when flm.uom = "MSI"
