@@ -1526,7 +1526,6 @@ PROCEDURE pPostCounts:
     DEFINE VARIABLE begin_userid  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE end_userid    AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER b2-fg-rctd FOR fg-rctd.
     DEFINE BUFFER b-fg-rctd FOR fg-rctd.
     DEFINE BUFFER b-itemfg  FOR itemfg.
     DEFINE BUFFER b-fg-bin  FOR fg-bin.
@@ -1543,12 +1542,13 @@ PROCEDURE pPostCounts:
     postit:
     DO TRANSACTION ON ERROR UNDO postit, LEAVE postit:
         /* Need to loop through first to set the date so can sort by it */
-        FOR EACH fg-rctd NO-LOCK
+        FOR EACH fg-rctd EXCLUSIVE-LOCK
             WHERE fg-rctd.company EQ cocode
             AND fg-rctd.rita-code EQ "C"   
             AND fg-rctd.tag NE ""
             AND fg-rctd.i-no GE ipcFGItemStart
             AND fg-rctd.i-no LE ipcFGItemEnd
+            AND LOOKUP(fg-rctd.loc, ipcWhseList) > 0
             AND fg-rctd.loc-bin GE ipcBinStart
             AND fg-rctd.loc-bin LE ipcBinEnd
             AND fg-rctd.qty NE 0 
@@ -1558,21 +1558,10 @@ PROCEDURE pPostCounts:
                                AND itemfg.cc-code GE ipcFromCycleCode
                                AND itemfg.cc-code LE ipcToCycleCode
                                ):
-
-            IF LOOKUP(fg-rctd.loc, ipcWhseList) EQ 0 THEN NEXT.
                 
             /* Allow user to force transactions to be on a different date */
-            /* Make this an atomic lock to avoid lock table overflow */
-            IF ipdtTransDate NE ? AND fg-rctd.rct-date NE ipdtTransDate THEN DO:
-                FIND FIRST b2-fg-rctd EXCLUSIVE WHERE 
-                    ROWID(b2-fg-rctd) EQ ROWID(fg-rctd)
-                    NO-ERROR.
-                IF AVAIL b2-fg-rctd THEN DO:
-                    ASSIGN  
-                        b2-fg-rctd.rct-date = ipdtTransDate.
-                    FIND CURRENT b2-fg-rctd NO-LOCK.
-                END.
-            END. 
+            IF ipdtTransDate NE ? AND fg-rctd.rct-date NE ipdtTransDate THEN 
+                fg-rctd.rct-date = ipdtTransDate. 
             FIND FIRST ttToPost
                 WHERE ttToPost.rFgRctd EQ ROWID(fg-rctd)  
                 NO-ERROR.
@@ -1586,7 +1575,7 @@ PROCEDURE pPostCounts:
         END.      
         
         FOR EACH ttToPost,
-            EACH fg-rctd NO-LOCK
+            EACH fg-rctd EXCLUSIVE-LOCK
             WHERE ROWID(fg-rctd) EQ ttToPost.rFgRctd
             ,  
             FIRST itemfg
