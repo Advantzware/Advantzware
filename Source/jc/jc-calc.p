@@ -445,7 +445,7 @@ DO:
         MESSAGE "Build Job With New Calculation?" VIEW-AS ALERT-BOX BUTTONS YES-NO UPDATE lUseNewCalc.
 
     IF lUseNewCalc THEN 
-        RUN jc\BuildJob.p(ROWID(job), nufile, OUTPUT lBuildError, OUTPUT cBuildErrorMessage).
+        RUN jc\BuildJob.p(ROWID(job), IF AVAILABLE oe-ordl THEN oe-ordl.ord-no ELSE 0, OUTPUT lBuildError, OUTPUT cBuildErrorMessage).
     ELSE 
     DO: 
         /* calc-est.p calls print4.p or print42.p to create op temp-table */
