@@ -1,8 +1,8 @@
 /*------------------------------------------------------------------------
-  File:         AOA/dynBL/RmItemCorrugated.p
+  File:         AOA/dynBL/FinishedGoods.p
   Description:  Business Logic
   Author:       Sewa Singh
-  Date Created: 6.15.2020
+  Date Created: 7.06.2020
 ------------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
