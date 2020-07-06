@@ -970,7 +970,7 @@ PROCEDURE rmbin-help :
 
 
     DO WITH FRAME {&FRAME-NAME}:
-        RUN windows/l-rmibn2.w (rm-rctd.company, rm-rctd.i-no:SCREEN-VALUE , rm-rctd.loc:SCREEN-VALUE , rm-rctd.loc-bin:SCREEN-VALUE , rm-rctd.tag:SCREEN-VALUE , OUTPUT lv-rowid).
+        RUN windows/l-rmibn2.w (rm-rctd.company, rm-rctd.i-no:SCREEN-VALUE , rm-rctd.loc:SCREEN-VALUE , rm-rctd.loc-bin:SCREEN-VALUE , rm-rctd.tag:SCREEN-VALUE ,0, OUTPUT lv-rowid).
 
         FOR EACH tt-selected WHERE tt-rowid EQ lv-rowid,
             FIRST rm-bin WHERE ROWID(rm-bin) EQ tt-rowid:

@@ -91,6 +91,7 @@ DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_v-multi AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -359,10 +360,19 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_p-updsav-2 ( 22.67 , 29.00 ) NO-ERROR.
        RUN set-size IN h_p-updsav-2 ( 1.76 , 56.00 ) NO-ERROR.
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'panels/p-multi.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_v-multi ).
+       RUN set-position IN h_v-multi ( 22.67 , 100.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.14 , 15.00 ) */
+
        /* Links to SmartNavBrowser h_b-trans. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav-2 , 'TableIO':U , h_b-trans ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_b-trans ).
        RUN add-link IN adm-broker-hdl ( h_b-trans , 'Record':U , THIS-PROCEDURE ).
+       RUN add-link IN adm-broker-hdl ( h_v-multi , 'multi-trans':U , h_b-trans ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-trans ,

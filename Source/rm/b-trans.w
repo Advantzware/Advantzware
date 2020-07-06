@@ -61,6 +61,8 @@ DO TRANSACTION:
   {sys/inc/rmrecpt.i}
 END.
 
+{rm/ttRmRctd.i new shared}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -717,6 +719,54 @@ PROCEDURE pCopyRecord :
        IF lv-rowid NE ? THEN
            RUN repo-query (lv-rowid).
     END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMultiTrans B-table-Win 
+PROCEDURE pMultiTrans :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE lv-rno LIKE rm-rctd.r-no NO-UNDO.
+   DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
+   
+   RUN rm/dMultiTrans.w .
+   
+    FOR EACH tt-rm-rctd NO-LOCK:
+     RUN sys/ref/asiseq.p (INPUT cocode, INPUT "rm_rcpt_seq", OUTPUT lv-rno) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN
+            MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
+                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
+     
+     CREATE bf-rm-rctd.
+        ASSIGN 
+            bf-rm-rctd.company   = cocode
+            bf-rm-rctd.r-no      = lv-rno
+            bf-rm-rctd.rita-code = "T"
+            bf-rm-rctd.s-num     = 0
+            bf-rm-rctd.rct-date  = TODAY
+            bf-rm-rctd.i-no      = tt-rm-rctd.i-no
+            bf-rm-rctd.loc       = tt-rm-rctd.loc
+            bf-rm-rctd.loc-bin   = tt-rm-rctd.loc-bin
+            bf-rm-rctd.tag       = tt-rm-rctd.tag 
+            bf-rm-rctd.tag2      = tt-rm-rctd.tag2
+            bf-rm-rctd.qty       = tt-rm-rctd.qty             
+            bf-rm-rctd.rct-date  = tt-rm-rctd.rct-date
+            bf-rm-rctd.i-name    = tt-rm-rctd.i-name               
+            bf-rm-rctd.pur-uom   = tt-rm-rctd.pur-uom 
+            bf-rm-rctd.loc2      = tt-rm-rctd.loc2
+            bf-rm-rctd.loc-bin2  = tt-rm-rctd.loc-bin2
+            bf-rm-rctd.USER-ID   = USERID(LDBNAME(1))  
+            .      
+    END.
+     RUN repo-query (ROWID(bf-rm-rctd)).
+  
 
 END PROCEDURE.
 
