@@ -157,7 +157,7 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       ttScopes.apiID COLUMN-LABEL "API ID" WIDTH 35 FORMAT "X(32)"
       ttScopes.clientID COLUMN-LABEL "Client ID" WIDTH 15 FORMAT "X(32)"
-      ttScopes.customerID COLUMN-LABEL "Cusotmer ID" WIDTH 20 FORMAT "X(32)"
+      ttScopes.customerID COLUMN-LABEL "Customer ID" WIDTH 20 FORMAT "X(32)"
       ttScopes.shipToID COLUMN-LABEL "ShipTo ID" WIDTH 20 FORMAT "X(32)"
       ttScopes.triggerID COLUMN-LABEL "Trigger ID" WIDTH 30 FORMAT "X(32)"
       ttScopes.inactive COLUMN-LABEL "Status" FORMAT "Inactive/Active"
