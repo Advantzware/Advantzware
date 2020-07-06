@@ -486,7 +486,7 @@ PROCEDURE btnGenerateChoose :
   do with frame {&frame-name}:
   
     /* Make a list of selected databases */
-    do iDb = 1 to num-entries(slDatabase:list-items):
+    do iDb = 2 to num-entries(slDatabase:list-items):
       if slDatabase:is-selected( iDb ) then
         assign 
           cDatabaseList = cDatabaseList + cSep + entry(iDb,slDatabase:list-items)
@@ -519,6 +519,9 @@ PROCEDURE btnGenerateChoose :
       run ShellExecuteA(0, "open", cMainPage, "", "", 0, output iReturnResult).
     end.
   end.
+
+  quit.
+
 end procedure. /* btnGenerateChoose */
 
 /* _UIB-CODE-BLOCK-END */
