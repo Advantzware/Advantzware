@@ -1042,7 +1042,7 @@ PROCEDURE crt-transfer :
                       AND fg-bin.job-no = fg-rctd.job-no
                       AND fg-bin.job-no2 = fg-rctd.job-no2 
                       AND fg-bin.tag     EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
-        /*AND fg-bin.qty > 0*/  NO-LOCK:
+                      AND fg-bin.qty  NE 0 NO-LOCK:
 
      IF fg-bin.loc NE fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
         OR  fg-bin.loc-bin NE fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1800,7 +1800,7 @@ PROCEDURE local-update-record :
                       AND fg-bin.job-no2 EQ fg-rctd.job-no2
                       AND (fg-bin.loc     NE fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
                            OR  fg-bin.loc-bin NE fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name})
-                      /*AND fg-bin.qty > 0*/
+                      AND fg-bin.qty NE 0
                     USE-INDEX tag)
        THEN MESSAGE "Reduce All Existing Bin Location To Zero Qty?"
                  VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE ll-crt-transfer.
