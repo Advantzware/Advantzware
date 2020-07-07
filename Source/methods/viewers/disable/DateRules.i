@@ -2,17 +2,19 @@
 
 DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
-        iSkipHour:SENSITIVE   = NO
-        iSkipMinute:SENSITIVE = NO
-        dbTables:SENSITIVE    = NO
-        dbFields:SENSITIVE    = NO
-        lSunday:SENSITIVE     = NO
-        lMonday:SENSITIVE     = NO
-        lTuesday:SENSITIVE    = NO
-        lWednesday:SENSITIVE  = NO
-        lThursday:SENSITIVE   = NO
-        lFriday:SENSITIVE     = NO
-        lSaturday:SENSITIVE   = NO
-        lHoliday:SENSITIVE    = NO
+        skipHour:SENSITIVE   = NO
+        skipMinute:SENSITIVE = NO
+        skipampm:SENSITIVE   = NO
+        dbTables:SENSITIVE   = NO
+        dbFields:SENSITIVE   = NO
+        lSunday:SENSITIVE    = NO
+        lMonday:SENSITIVE    = NO
+        lTuesday:SENSITIVE   = NO
+        lWednesday:SENSITIVE = NO
+        lThursday:SENSITIVE  = NO
+        lFriday:SENSITIVE    = NO
+        lSaturday:SENSITIVE  = NO
+        lHoliday:SENSITIVE   = NO
+        skipampm:HIDDEN      = iHourMax EQ 24
         .
 END.

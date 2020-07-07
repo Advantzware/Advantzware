@@ -1106,7 +1106,7 @@ PROCEDURE rmbin-help :
 
 
   DO WITH FRAME {&FRAME-NAME}:
-    RUN windows/l-rmibn2.w (rm-rctd.company, rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}, rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, rm-rctd.loc-bin:screen-value in browse {&browse-name}, rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lv-rowid).
+    RUN windows/l-rmibn2.w (rm-rctd.company, rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}, rm-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}, rm-rctd.loc-bin:screen-value in browse {&browse-name}, rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name},0, OUTPUT lv-rowid).
 
     FOR FIRST tt-selected WHERE tt-rowid EQ lv-rowid,
         FIRST rm-bin WHERE ROWID(rm-bin) EQ tt-rowid:
