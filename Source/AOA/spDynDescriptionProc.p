@@ -122,6 +122,15 @@ PROCEDURE dynDescripFlute:
     iphWidgetTo:SCREEN-VALUE = flute.dscr .
 END PROCEDURE.
 
+PROCEDURE dynDescripJobCode:
+    {&defInputParam}
+    FIND FIRST job-code NO-LOCK
+         WHERE job-code.CODE EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE job-code THEN
+    iphWidgetTo:SCREEN-VALUE = job-code.dscr .
+END PROCEDURE.
+
 PROCEDURE dynDescripLoc:
     {&defInputParam}
     FIND FIRST loc NO-LOCK
