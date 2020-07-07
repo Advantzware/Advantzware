@@ -1642,12 +1642,10 @@ END PROCEDURE.
            AND terms.t-code  = cust.terms NO-ERROR.
      
      IF cust.cr-hold THEN do:
-         ld-ord-bal      = cust.ord-bal.
-
-         IF oecredit-cha EQ "" THEN
-             RUN ar/updcust1.p (YES, BUFFER cust, OUTPUT ld-ord-bal).
-
-          lRelHold = NO.
+        ASSIGN 
+            ld-ord-bal = cust.ord-bal
+            lRelHold   = NO
+            .
          IF ld-ord-bal + cust.acc-bal LT cust.cr-lim 
              AND ld-ord-bal LT cust.ord-lim THEN
              ASSIGN lRelHold = YES . 
