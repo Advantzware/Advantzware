@@ -86,7 +86,6 @@
 82 2 "EACH" "cust" "Customer Master" "" "ASI" "202006125527505355547"
 82 1 "EACH" "item-comm" "Raw Material Commission" "" "ASI" "202006125527505355546"
 83 1 "EACH" "APIInboundEvent" "API Inbound Events" "" "ASI" "202002076563604657210"
-84 1 "EACH" "itemfg" "FG Item Master" "" "ASI" "202001243591804612232"
 86 1 "EACH" "sman" "Salesman Master" "" "ASI" "202006100045105348593"
 87 1 "EACH" "account" "G/L Accounts" "" "ASI" "202006100045105348594"
 88 1 "EACH" "employee" "Employee Master" "" "ASI" "202002045461204638404"

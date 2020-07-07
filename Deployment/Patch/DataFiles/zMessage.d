@@ -40,3 +40,4 @@ Press No to cancel the upgrade and return to the main menu." "" "" ? 0 900 no no
 "41" "OE" 0 "OB4" "" "Warn about invoice posting" "Printed and approved invoices only" "" "Only printed and approved invoices will be posted." "" "" ? 0 900 no no "INFO" "" ""
 "42" "OE" 0 "OB4" "" "Invoice Date Problem" "Invoice Date Range Exception" "" "Only invoices in the period specified can be posted.  Select a date range within the period specified or change the period." "" "" ? 0 900 no no "WARNING" "" ""
 "43" "OE" 0 "OB4" "" "Post Invoices Prompt" "Posting Invoices" "" "Do you want to post the invoices listed?" "" "" ? 0 900 no no "MESSAGE-ACTION" "Ask" ""
+"44" "OE" 0 "OU1" "" "Update Carrier Release" "Update Carrier on Release" "" "Do you want to update the carrier on all planned releases?" "" "" ? 0 900 no no "MESSAGE-ACTION" "Ask" ""

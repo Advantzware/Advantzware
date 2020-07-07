@@ -16,6 +16,8 @@
 "ap-payl" no no no no no no no no 0 0
 "ap-sel" no no no no no no no no 0 0
 "aphist" no no no no no no no no 0 0
+"apiClient" no no no no no no no no 0 0
+"apiClientXref" no no no no no no no no 0 0
 "APIInbound" no no no no no no no no 0 0
 "APIInboundDetail" no no no no no no no no 0 0
 "APIInboundEvent" no no no no no no no no 0 0

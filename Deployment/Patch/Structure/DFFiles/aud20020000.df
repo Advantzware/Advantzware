@@ -448,6 +448,6 @@ ADD INDEX "AuditTbl" ON "AuditTbl"
 
 .
 PSC
-cpstream=ISO8859-1
+cpstream=IBM850
 .
 0000010024

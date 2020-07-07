@@ -82,7 +82,7 @@
 88 "System" "Stack Pattern Range" 5.48 74 yes "Stack Patterns" yes "202001224316804605699"
 89 "System" "Machine Attachment Range" 5.71 83 yes "Machine Attachments" yes "202001225635704605988"
 90 "System" "Customer Type Range" 5.48 77 yes "Customer Types" yes "202001233652604608655"
-91 "System" "Cust Part Range" 5.71 44 yes "Cust Part Range" yes "202001235709304609430"
+91 "System" "Cust Part Range" 5.48 44 yes "Cust Parts" yes "202001235709304609430"
 94 "System" "G/L Account Range" 5.48 70 yes "G/L Accounts" yes "202002035617004634909"
 93 "System" "API Status" 4.29 74 yes "" yes "202001234551504610543"
 96 "System" "GL Type Range" 5.48 59 yes "GL Types" yes "202002035874404635017"
@@ -103,3 +103,4 @@
 113 "System" "Ship to Status" 3.33 49 yes "Ship to Status" yes "202006042136305335230"
 114 "System" "FG Item Status" 3.33 29 yes "FG Item Status" yes "202006042156105335232"
 115 "System" "Printer ID" 3.1 56 yes "" yes "202006156807805359288"
+116 "System" "Print Spec Notes" 3.33 59 yes "Print Spec Notes" yes "202007060586105434102"
