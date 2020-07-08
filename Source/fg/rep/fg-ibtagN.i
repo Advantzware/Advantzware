@@ -545,8 +545,8 @@
                 WHEN "lab-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-costl,"->>>,>>9.99") ELSE "") .
                 WHEN "mat-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-costm,"->>>,>>9.99") ELSE "") .
                 WHEN "sale-rep" THEN cVarValue = string(v-sales-rep,"x(3)").
-                WHEN "sell-value-ord" THEN cVarValue = STRING(lv-sell-value-ord-s,"->>,>>>,>>9.99") .    
-                WHEN "sell-value-fg" THEN cVarValue = STRING(lv-sell-value-fg-s,"->>,>>>,>>9.99") .           /*Task# 01101401*/
+                WHEN "sell-value-ord" THEN cVarValue = STRING(lv-sell-value-ord-s,"->>,>>>,>>9.9999") .    
+                WHEN "sell-value-fg" THEN cVarValue = STRING(lv-sell-value-fg-s,"->>,>>>,>>9.9999") .           /*Task# 01101401*/
                 WHEN "custno" THEN cVarValue = STRING(tt-fg-bin.cust-no,"x(8)") .   
                 WHEN "set-header" THEN cVarValue = IF AVAIL fg-set AND v-job-no <> "" THEN STRING(fg-set.set-no,"X(15)") ELSE "" .
                 WHEN "qty-per-set" THEN cVarValue = IF AVAIL fg-set AND v-job-no <> "" THEN STRING(fg-set.qtyPerSet) ELSE "" .
@@ -619,8 +619,8 @@
                 WHEN "lab-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-costl,"->>>,>>9.99") ELSE "") .
                 WHEN "mat-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-costm,"->>>,>>9.99") ELSE "") .
                 WHEN "sale-rep" THEN cVarValue = string(v-sales-rep,"x(3)").
-                WHEN "sell-value-ord" THEN cVarValue = STRING(lv-sell-value-ord,"->>,>>>,>>9.99") .    
-                WHEN "sell-value-fg" THEN cVarValue = STRING(lv-sell-value-fg,"->>,>>>,>>9.99") .
+                WHEN "sell-value-ord" THEN cVarValue = STRING(lv-sell-value-ord,"->>,>>>,>>9.9999") .    
+                WHEN "sell-value-fg" THEN cVarValue = STRING(lv-sell-value-fg,"->>,>>>,>>9.9999") .
                 WHEN "custno" THEN cVarValue = STRING(tt-fg-bin.cust-no,"x(8)") .
                 WHEN "set-header" THEN cVarValue = IF AVAIL fg-set AND v-job-no <> "" THEN STRING(fg-set.set-no,"X(15)") ELSE "" .
                 WHEN "qty-per-set" THEN cVarValue = IF AVAIL fg-set AND v-job-no <> "" THEN STRING(fg-set.qtyPerSet) ELSE "" .
@@ -797,8 +797,8 @@
                 WHEN "lab-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-tot-lab[1],"->>>,>>9.99") ELSE "") .
                 WHEN "mat-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-tot-mat[1],"->>>,>>9.99") ELSE "") .
                 WHEN "sale-rep" THEN cVarValue = "" .           /*Task# 01101401*/
-                WHEN "sell-value-ord" THEN cVarValue = STRING(lv-sell-value-ord,"->>,>>>,>>9.99") .    
-                WHEN "sell-value-fg" THEN cVarValue = STRING(lv-sell-value-fg,"->>,>>>,>>9.99") .
+                WHEN "sell-value-ord" THEN cVarValue = STRING(lv-sell-value-ord,"->>,>>>,>>9.9999") .    
+                WHEN "sell-value-fg" THEN cVarValue = STRING(lv-sell-value-fg,"->>,>>>,>>9.9999") .
                 WHEN "custno" THEN cVarValue = "" .
                 WHEN "set-header" THEN cVarValue = "" .
                 WHEN "qty-per-set" THEN cVarValue = "" .
@@ -911,8 +911,8 @@
                 WHEN "lab-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-tot-lab[2],"->>>,>>9.99") ELSE "") .
                 WHEN "mat-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-tot-mat[2],"->>>,>>9.99") ELSE "") .
                 WHEN "sale-rep" THEN cVarValue = "" .
-                WHEN "sell-value-ord" THEN cVarValue = STRING(v-tot-ordsell[2],"->>,>>>,>>9.99") .    
-                WHEN "sell-value-fg" THEN cVarValue = STRING(v-tot-fgsell[2],"->>,>>>,>>9.99") .
+                WHEN "sell-value-ord" THEN cVarValue = STRING(v-tot-ordsell[2],"->>,>>>,>>9.9999") .    
+                WHEN "sell-value-fg" THEN cVarValue = STRING(v-tot-fgsell[2],"->>,>>>,>>9.9999") .
                 WHEN "custno" THEN cVarValue = "" .
                 WHEN "set-header" THEN cVarValue = "" .
                 WHEN "qty-per-set" THEN cVarValue = "" .
