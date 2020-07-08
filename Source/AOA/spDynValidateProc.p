@@ -189,6 +189,14 @@ PROCEDURE dynValFlute:
         ).
 END PROCEDURE.
 
+PROCEDURE dynValJobCode:
+    {&defInputParam}
+    {&checkRange}
+        CAN-FIND(FIRST job-code
+                 WHERE job-code.code     EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
 PROCEDURE dynValLoc:
     {&defInputParam}
     {&checkRange}

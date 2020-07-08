@@ -78,6 +78,19 @@ PROCEDURE calcAPIType:
                    ELSE "System".
 END PROCEDURE.
 
+PROCEDURE calcDropShipment:
+    DEFINE INPUT  PARAMETER ipcPoType      AS CHARACTER   NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcPoCust      AS CHARACTER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
+    
+   IF ipcPoType EQ "D" THEN
+   DO:
+     IF ipcPoCust NE "" THEN opcCalcValue = "Customer" .
+     ELSE opcCalcValue = "Vendor" .        
+   END.
+   
+END PROCEDURE.
+
 PROCEDURE calcShiftEndTime:
     DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplUseTime    AS LOGICAL   NO-UNDO.
@@ -211,6 +224,11 @@ PROCEDURE spDynCalcField:
         RUN VALUE(ipcCalcProc) (
             INTEGER(ipcCalcParam),
             OUTPUT opcCalcValue).
+        WHEN "calcDropShipment" THEN
+        RUN VALUE(ipcCalcProc) (
+            ENTRY(1,ipcCalcParam,"|"),
+            ENTRY(2,ipcCalcParam,"|"),
+            OUTPUT opcCalcValue).    
         WHEN "calcShiftEndTime" THEN
         RUN VALUE(ipcCalcProc) (
             ENTRY(1,ipcCalcParam,"|"),
