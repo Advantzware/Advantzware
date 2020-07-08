@@ -259,7 +259,7 @@ PROCEDURE pValidateInputs PRIVATE:
     END.
 
     IF ipcShipToID NE "" THEN DO:
-        RUN ValidateShipTo IN hdInventoryProcs (
+        RUN Inventory_ValidateShipTo IN hdInventoryProcs (
             INPUT  ipcCompany,
             INPUT  ipcCustID,
             INPUT  ipcShipToID,

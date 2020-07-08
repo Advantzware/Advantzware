@@ -30,7 +30,7 @@ DEFINE VARIABLE cCompany      AS CHARACTER NO-UNDO.
 
 {api/inbound/ttRequest.i}
 
-{api/inbound/ttPriceMatrix.i}
+{system/ttPriceMatrix.i}
 
 RUN api/JSONProcs.p PERSISTENT SET hdJSONProcs.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdJSONProcs).

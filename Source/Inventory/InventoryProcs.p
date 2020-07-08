@@ -3689,7 +3689,7 @@ PROCEDURE ValidateCust:
         opcMessage = "Invalid Customer '" + ipcCustID + "'".
 END PROCEDURE.
 
-PROCEDURE ValidateShipTo:
+PROCEDURE Inventory_ValidateShipTo:
     /*------------------------------------------------------------------------------
      Purpose: Validate shipTo number
      Notes:

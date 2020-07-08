@@ -29,8 +29,10 @@ DEFINE VARIABLE iResponseCode AS INTEGER NO-UNDO.
 DEFINE VARIABLE cCompany      AS CHARACTER NO-UNDO.
 
 {api/inbound/ttRequest.i}
+{system/ttPriceMatrix.i}
 
-{api/inbound/ttPriceMatrix.i}
+DEFINE TEMP-TABLE ttInputs NO-UNDO
+    LIKE ttPriceMatrix.
 
 RUN api/JSONProcs.p PERSISTENT SET hdJSONProcs.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdJSONProcs).
@@ -91,7 +93,7 @@ PROCEDURE pPrepareInputs PRIVATE:
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE cItemID      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCustID      AS CHARACTER NO-UNDo.
+    DEFINE VARIABLE cCustID      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipToID    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQuantity    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQuantityUOM AS CHARACTER NO-UNDO.
@@ -193,12 +195,12 @@ PROCEDURE pPrepareInputs PRIVATE:
             OUTPUT cShipToID
             ) NO-ERROR.
         
-        CREATE ttPriceMatrix.
+        CREATE ttInputs.
         ASSIGN
-            ttPriceMatrix.company     = opcCompany
-            ttPriceMatrix.itemID      = cItemID
-            ttPriceMatrix.custID      = cCustID
-            ttPriceMatrix.shipToID    = cShipToID
+            ttInputs.company  = opcCompany
+            ttInputs.itemID   = cItemID
+            ttInputs.custID   = cCustID
+            ttInputs.shipToID = cShipToID
             .
     END.
 
@@ -218,15 +220,15 @@ PROCEDURE pProcessInputs PRIVATE:
     
     DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
     
-    FOR EACH ttPriceMatrix:
+    FOR EACH ttInputs:
         RUN api/inbound/GetPriceMatrix.p (
-            INPUT  ttPriceMatrix.company,
-            INPUT  ttPriceMatrix.custID,
-            INPUT  ttPriceMatrix.shipToID,
-            INPUT  ttPriceMatrix.itemID,
-            OUTPUT ttPriceMatrix.riOePrmtx,
-            OUTPUT oplSuccess,
-            OUTPUT opcMessage
+            INPUT        ttInputs.company,
+            INPUT        ttInputs.custID,
+            INPUT        ttInputs.shipToID,
+            INPUT        ttInputs.itemID,
+            INPUT-OUTPUT TABLE ttPriceMatrix,
+            OUTPUT       oplSuccess,
+            OUTPUT       opcMessage
             ) NO-ERROR.
 
         IF ERROR-STATUS:ERROR THEN
@@ -237,14 +239,6 @@ PROCEDURE pProcessInputs PRIVATE:
 
         IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN
             LEAVE.
-            
-        FIND FIRST bf-oe-prmtx NO-LOCK
-             WHERE ROWID(bf-oe-prmtx) EQ ttPriceMatrix.riOePrmtx
-             NO-ERROR.
-        IF NOT AVAILABLE bf-oe-prmtx THEN DO:
-            oplSuccess = FALSE.
-            LEAVE.            
-        END.
     END.
 END PROCEDURE.
 
@@ -286,41 +280,35 @@ PROCEDURE pGenerateResponseData PRIVATE:
          NO-ERROR.
 
     IF AVAILABLE bfPrice-APIInboundDetail THEN DO:       
-        FOR EACH ttPriceMatrix:
-            ASSIGN
-                lcPriceResponseData        = bfPrice-APIInboundDetail.data
-                lcConcatMatrixResponseData = ""
-                .
-            
+        FOR EACH ttInputs:
+            lcPriceResponseData = bfPrice-APIInboundDetail.data.
             IF AVAILABLE bfMatrix-APIInboundDetail THEN DO:
-                FIND FIRST bf-oe-prmtx NO-LOCK
-                     WHERE ROWID(bf-oe-prmtx) EQ ttPriceMatrix.riOePrmtx
-                     NO-ERROR.
-                IF AVAILABLE bf-oe-prmtx THEN DO:
-                    DO iIndex = 1 TO EXTENT(bf-oe-prmtx.price):
-                        IF bf-oe-prmtx.price[iIndex] EQ 0 THEN
-                            NEXT.
-                            
-                        lcMatrixResponseData = bfMatrix-APIInboundDetail.data.
-                        
-                        RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcMatrixResponseData, "Level", iIndex) NO-ERROR.
-                        RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcMatrixResponseData, "Quantity", TRIM(STRING(bf-oe-prmtx.qty[iIndex], ">>>>>>>>9.99<<<<"))) NO-ERROR.
-                        RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcMatrixResponseData, "Price", TRIM(STRING(bf-oe-prmtx.price[iIndex], ">>>>>>>>9.99<<<<"))) NO-ERROR.
-                        RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcMatrixResponseData, "PriceUOM", bf-oe-prmtx.uom[iIndex]) NO-ERROR.
+                lcConcatMatrixResponseData = "".
+                FOR EACH ttPriceMatrix
+                    WHERE ttPriceMatrix.company  EQ ttInputs.company
+                      AND ttPriceMatrix.itemID   EQ ttInputs.itemID
+                      AND ttPriceMatrix.custID   EQ ttInputs.custID
+                      AND ttPriceMatrix.shiptoID EQ ttInputs.shiptoID:
+                    lcMatrixResponseData = bfMatrix-APIInboundDetail.data.
+                    
+                    RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcMatrixResponseData, "Level", ttPriceMatrix.level) NO-ERROR.
+                    RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcMatrixResponseData, "Quantity", TRIM(STRING(ttPriceMatrix.quantity, ">>>>>>>>9.99<<<<"))) NO-ERROR.
+                    RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcMatrixResponseData, "QuantityUOM", ttPriceMatrix.quantityUOM) NO-ERROR.
+                    RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcMatrixResponseData, "Price", TRIM(STRING(ttPriceMatrix.price, ">>>>>>>>9.99<<<<"))) NO-ERROR.
+                    RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcMatrixResponseData, "PriceUOM", ttPriceMatrix.priceUOM) NO-ERROR.
 
-                        lcConcatMatrixResponseData = lcConcatMatrixResponseData + "," + lcMatrixResponseData.                    
-                    END.
+                    lcConcatMatrixResponseData = lcConcatMatrixResponseData + "," + lcMatrixResponseData.                    
                 END.
             END.
-
+                
             lcConcatMatrixResponseData = TRIM(lcConcatMatrixResponseData, ",").
             
             lcPriceResponseData = REPLACE(lcPriceResponseData, "$matrix$", lcConcatMatrixResponseData).
             
-            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcPriceResponseData, "Company", ttPriceMatrix.company) NO-ERROR.
-            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcPriceResponseData, "CustomerID", ttPriceMatrix.custID) NO-ERROR.
-            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcPriceResponseData, "ShipToID", ttPriceMatrix.shipTOID) NO-ERROR.
-            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcPriceResponseData, "ItemID", ttPriceMatrix.itemID) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcPriceResponseData, "Company", ttInputs.company) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcPriceResponseData, "CustomerID", ttInputs.custID) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcPriceResponseData, "ShipToID", ttInputs.shipTOID) NO-ERROR.
+            RUN JSON_UpdateFieldValue (INPUT-OUTPUT lcPriceResponseData, "ItemID", ttInputs.itemID) NO-ERROR.
             
             lcConcatPriceResponseData = lcConcatPriceResponseData + "," + lcPriceResponseData.
         END.

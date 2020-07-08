@@ -10,15 +10,16 @@
     Created     : Mon Jul 06 07:33:22 EDT 2020
     Notes       :
   ----------------------------------------------------------------------*/
-DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipcCustID   AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipcShipToID AS CHARACTER NO-UNDO.
-DEFINE INPUT  PARAMETER ipcItemID   AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER opriOePrmtx AS ROWID     NO-UNDO.
-DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
-DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
-
 {Inventory/ttInventory.i "NEW SHARED"}
+{system/ttPriceMatrix.i}
+
+DEFINE INPUT        PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcCustID   AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcShipToID AS CHARACTER NO-UNDO.
+DEFINE INPUT        PARAMETER ipcItemID   AS CHARACTER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPriceMatrix.
+DEFINE OUTPUT       PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
+DEFINE OUTPUT       PARAMETER opcMessage  AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE hdPriceProcs      AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdInventoryProcs  AS HANDLE NO-UNDO.
@@ -42,13 +43,13 @@ IF ERROR-STATUS:ERROR THEN
 /* Input processing */
 IF oplSuccess THEN DO: 
     RUN pProcessInputs (
-        INPUT  ipcCompany,
-        INPUT  ipcCustID,
-        INPUT  ipcShipToID,
-        INPUT  ipcItemID,
-        OUTPUT opriOePrmtx,
-        OUTPUT oplSuccess,
-        OUTPUT opcMessage
+        INPUT        ipcCompany,
+        INPUT        ipcCustID,
+        INPUT        ipcShipToID,
+        INPUT        ipcItemID,
+        INPUT-OUTPUT TABLE ttPriceMatrix,
+        OUTPUT       oplSuccess,
+        OUTPUT       opcMessage
         ) NO-ERROR.
 
     IF ERROR-STATUS:ERROR THEN
@@ -65,13 +66,13 @@ PROCEDURE pProcessInputs PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcCustID         AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcShipToID       AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcItemID         AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opriOePrmtx       AS ROWID     NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess        AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage        AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcCustID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcShipToID AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcItemID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPriceMatrix.
+    DEFINE OUTPUT       PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcMessage  AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE dQuantityInEA          AS DECIMAL NO-UNDO.
     DEFINE VARIABLE lPriceMatrixMatchFound AS LOGICAL NO-UNDO.
@@ -93,13 +94,13 @@ PROCEDURE pProcessInputs PRIVATE:
     END.
 
     RUN GetPriceMatrix IN hdPriceProcs (
-        INPUT  ipcCompany,
-        INPUT  ipcItemID,
-        INPUT  ipcCustID,
-        INPUT  ipcShipToID,
-        OUTPUT opriOePrmtx,
-        OUTPUT oplSuccess,
-        OUTPUT opcMessage
+        INPUT        ipcCompany,
+        INPUT        ipcItemID,
+        INPUT        ipcCustID,
+        INPUT        ipcShipToID,
+        INPUT-OUTPUT TABLE ttPriceMatrix,
+        OUTPUT       oplSuccess,
+        OUTPUT       opcMessage
         ).
 END PROCEDURE.
 
@@ -173,7 +174,7 @@ PROCEDURE pValidateInputs PRIVATE:
     END.
 
     IF ipcShipToID NE "" THEN DO:
-        RUN ValidateShipTo IN hdInventoryProcs (
+        RUN Inventory_ValidateShipTo IN hdInventoryProcs (
             INPUT  ipcCompany,
             INPUT  ipcCustID,
             INPUT  ipcShipToID,
