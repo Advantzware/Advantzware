@@ -4924,7 +4924,9 @@ PROCEDURE run-report :
             NO-ERROR.
         IF AVAIL sys-ctrl-shipto THEN 
                 lGeneratecXML = YES.
-      END. /* avail sys-ctrl */
+        ELSE 
+                lGeneratecXML = NO.        
+    END. /* avail sys-ctrl */
     /* key-10 set in oerep/r-bolprt.w (build-work) */
     IF lGeneratecXML AND 
         ((tb_reprint EQ NO AND report.key-10 EQ 'no') 
@@ -4934,6 +4936,7 @@ PROCEDURE run-report :
     ELSE lGeneratecXML = NO.
 
      IF lGeneratecXML THEN DO:
+        clXmlOutput = TRUE. 
         FOR EACH oe-boll 
             WHERE oe-boll.company EQ oe-bolh.company 
               AND oe-boll.b-no eq oe-bolh.b-no
