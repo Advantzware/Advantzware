@@ -658,8 +658,6 @@ PROCEDURE create-misc :
          IF PrepTax-log THEN 
             ASSIGN oe-ordm.spare-char-1 = oe-ord.tax-gr.
                    .  
-         //RUN ar/cctaxrt.p (INPUT g_company, oe-ord.tax-gr,
-         //                   OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
 
          IF AVAIL cust THEN DO:
            FIND CURRENT cust.
@@ -715,9 +713,6 @@ PROCEDURE create-misc :
                                   ((ef.mis-labm[i] + ef.mis-matm[i]) * (lv-qty / 1000)))
                    oe-ordm.form-no = ef.form-no 
                    oe-ordm.blank-no = bf-eb.blank-no  .
-
-            //RUN ar/cctaxrt.p (INPUT g_company, oe-ord.tax-gr,
-            //                  OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
 
             IF AVAIL cust THEN DO:
               FIND CURRENT cust.

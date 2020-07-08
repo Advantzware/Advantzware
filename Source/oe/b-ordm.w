@@ -527,7 +527,6 @@ RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
  
  IF NOT v-oecomm-log THEN RUN show-comm (NO).
 
-//FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.    
 
 FIND FIRST cust
       WHERE cust.company EQ oe-ord.company
