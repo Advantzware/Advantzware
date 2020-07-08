@@ -2275,7 +2275,7 @@ PROCEDURE pPrintPost:
                 BREAK BY oe-ord.cust-no:
 
                 RELEASE cust.
-                RUN oe/calcordt.p (ROWID(oe-ord)).
+                //RUN oe/calcordt.p (ROWID(oe-ord)).
                 IF LAST-OF(oe-ord.cust-no) THEN 
                 DO:
                     FIND FIRST tt-custbal NO-LOCK WHERE tt-custbal.cust-no EQ oe-ord.cust-no

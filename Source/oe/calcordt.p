@@ -5,14 +5,13 @@ DEFINE INPUT PARAMETER ipriOeOrd AS ROWID NO-UNDO.
 
 DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
 DEFINE BUFFER bf-oe-ord FOR oe-ord.
-
-DEFINE VARIABLE dTaxRate            AS DECIMAL NO-UNDO.
-DEFINE VARIABLE dTaxRateFreight     AS DECIMAL NO-UNDO.
-DEFINE VARIABLE lTaxOnFreight       LIKE oe-ctrl.f-tax INIT NO NO-UNDO.
+//DEFINE VARIABLE dTaxRate            AS DECIMAL NO-UNDO.
+//DEFINE VARIABLE dTaxRateFreight     AS DECIMAL NO-UNDO.
+//DEFINE VARIABLE lTaxOnFreight       LIKE oe-ctrl.f-tax INIT NO NO-UNDO.
 DEFINE VARIABLE lCalledFromJC       AS LOG     NO-UNDO.
 DEFINE VARIABLE lLockFirst          AS LOG     INIT TRUE NO-UNDO.
-DEFINE VARIABLE dTaxRatePrep        AS DECIMAL NO-UNDO.
-DEFINE VARIABLE dTaxRatePrepFreight AS DECIMAL NO-UNDO.
+//DEFINE VARIABLE dTaxRatePrep        AS DECIMAL NO-UNDO.
+//DEFINE VARIABLE dTaxRatePrepFreight AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dTaxCalculated      AS DECIMAL NO-UNDO INIT 0.
 DEFINE VARIABLE dOrderCostNew       LIKE oe-ord.t-cost NO-UNDO.
 DEFINE VARIABLE dOrderRevenueNew    LIKE oe-ord.t-revenue NO-UNDO.
@@ -47,9 +46,9 @@ DO:
     IF AVAILABLE oe-ctrl THEN 
         lTaxOnFreight = oe-ctrl.f-tax.  */
 
-    RUN oe/FrtTaxAvail.p(oe-ord.company,oe-ord.tax-gr,OUTPUT lTaxOnFreight) .
+    //RUN oe/FrtTaxAvail.p(oe-ord.company,oe-ord.tax-gr,OUTPUT lTaxOnFreight) .
 
-    RUN ar/cctaxrt.p (oe-ord.company, oe-ord.tax-gr, OUTPUT dTaxRate, OUTPUT dTaxRateFreight).
+    //RUN ar/cctaxrt.p (oe-ord.company, oe-ord.tax-gr, OUTPUT dTaxRate, OUTPUT dTaxRateFreight).
 
     ASSIGN
         dOrderCostNew    = 0
@@ -84,7 +83,7 @@ DO:
             dOrderWeightNew  = dOrderWeightNew  + oe-ordl.t-weight
             dOrderFreightNew = dOrderFreightNew + oe-ordl.t-freight.
 
-        IF oe-ordl.tax AND dTaxRate GT 0 THEN 
+        IF oe-ordl.tax /*AND dTaxRate GT 0*/ THEN 
         DO:
             RUN Tax_Calculate IN hdTaxProcs (
                 INPUT  oe-ord.company,
@@ -94,7 +93,6 @@ DO:
                 INPUT  oe-ordl.i-no,
                 OUTPUT dTaxCalculated
                 ). 
-
             ASSIGN 
                 dOrderTaxNew = dOrderTaxNew + dTaxCalculated.
         END.
@@ -109,10 +107,10 @@ DO:
             dOrderRevenueNew = dOrderRevenueNew + oe-ordm.amt
             dOrderCostNew    = dOrderCostNew + oe-ordm.cost.
 
-        RUN ar/cctaxrt.p (oe-ord.company, oe-ordm.spare-char-1,
-            OUTPUT dTaxRatePrep, OUTPUT dTaxRatePrepFreight).
+        /*RUN ar/cctaxrt.p (oe-ord.company, oe-ordm.spare-char-1,
+            OUTPUT dTaxRatePrep, OUTPUT dTaxRatePrepFreight).*/
 
-        IF oe-ordm.tax AND (dTaxRate > 0 OR dTaxRatePrep > 0) THEN 
+        IF oe-ordm.tax /*AND (dTaxRate > 0 OR dTaxRatePrep > 0)*/ THEN 
         DO:
             RUN Tax_Calculate IN hdTaxProcs (
                 INPUT  oe-ord.company,
@@ -139,9 +137,10 @@ DO:
     DO:
         dOrderRevenueNew = dOrderRevenueNew + dOrderFreightNew.
 
-        IF lTaxOnFreight THEN
+        /*IF lTaxOnFreight THEN
             dOrderTaxNew = dOrderTaxNew +
                 ROUND((dOrderFreightNew * dTaxRateFreight) / 100,2).
+        */        
     END.
 
     /*Assign new order totals*/    
