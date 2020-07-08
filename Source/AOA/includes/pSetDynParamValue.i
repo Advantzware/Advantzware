@@ -52,41 +52,6 @@ PROCEDURE pSetDynParamValue:
             dynParamValue.isLookup         = dynSubject.isLookup
             dynParamValue.runSync          = dynSubject.runSync
             .
-        FOR EACH {1}SubjectParamSet NO-LOCK
-            WHERE {1}SubjectParamSet.subjectID EQ ipiSubjectID,
-            EACH dynParamSetDtl NO-LOCK
-            WHERE dynParamSetDtl.paramSetID EQ {1}SubjectParamSet.paramSetID,
-            FIRST dynParam NO-LOCK
-            WHERE dynParam.paramID EQ dynParamSetDtl.paramID
-               BY {1}SubjectParamSet.setRow
-               BY {1}SubjectParamSet.setCol
-               BY dynParamSetDtl.paramRow
-               BY dynParamSetDtl.paramCol
-            :
-            CREATE dynValueParam.
-            ASSIGN
-                iSortOrder                 = iSortOrder + 1
-                dynValueParam.subjectID    = ipiSubjectID
-                dynValueParam.user-id      = ipcUserID
-                dynValueParam.prgmName     = ipcPrgmName
-                dynValueParam.paramValueID = ipiParamValueID
-                dynValueParam.sortOrder    = iSortOrder
-                dynValueParam.paramName    = dynParamSetDtl.paramName
-                dynValueParam.paramLabel   = dynParamSetDtl.paramLabel
-                dynValueParam.paramValue   = dynParamSetDtl.initialValue
-                dynValueParam.dataType     = dynParam.dataType
-                dynValueParam.paramFormat  = dynParam.paramFormat
-                .
-/*                /* rstark - remove when depricated */                         */
-/*                dynParamValue.paramName[idx]     = dynParamSetDtl.paramName   */
-/*                dynParamValue.paramLabel[idx]    = dynParamSetDtl.paramLabel  */
-/*                dynParamValue.paramValue[idx]    = dynParamSetDtl.initialValue*/
-/*                dynParamValue.paramDataType[idx] = dynParam.dataType          */
-/*                dynParamValue.paramFormat[idx]   = dynParam.paramFormat       */
-/*                .                                                             */
-/*            IF idx GE EXTENT(dynParamValue.paramName) THEN LEAVE.             */
-        END. /* each dynsubjectparamset */
-        iSortOrder = 0.
         FOR EACH dynValueColumn EXCLUSIVE-LOCK
             WHERE dynValueColumn.subjectID    EQ ipiSubjectID
               AND dynValueColumn.user-id      EQ ipcUserID
@@ -185,5 +150,39 @@ PROCEDURE pSetDynParamValue:
         END. /* each {1}SubjectParamSet */
         FIND CURRENT dynParamValue NO-LOCK.
     END. /* not avail */
+    FOR EACH {1}SubjectParamSet NO-LOCK
+        WHERE {1}SubjectParamSet.subjectID EQ ipiSubjectID,
+        EACH dynParamSetDtl NO-LOCK
+        WHERE dynParamSetDtl.paramSetID EQ {1}SubjectParamSet.paramSetID,
+        FIRST dynParam NO-LOCK
+        WHERE dynParam.paramID EQ dynParamSetDtl.paramID
+           BY {1}SubjectParamSet.setRow
+           BY {1}SubjectParamSet.setCol
+           BY dynParamSetDtl.paramRow
+           BY dynParamSetDtl.paramCol
+        :
+        CREATE dynValueParam.
+        ASSIGN
+            iSortOrder                 = iSortOrder + 1
+            dynValueParam.subjectID    = ipiSubjectID
+            dynValueParam.user-id      = ipcUserID
+            dynValueParam.prgmName     = ipcPrgmName
+            dynValueParam.paramValueID = ipiParamValueID
+            dynValueParam.sortOrder    = iSortOrder
+            dynValueParam.paramName    = dynParamSetDtl.paramName
+            dynValueParam.paramLabel   = dynParamSetDtl.paramLabel
+            dynValueParam.paramValue   = dynParamSetDtl.initialValue
+            dynValueParam.dataType     = dynParam.dataType
+            dynValueParam.paramFormat  = dynParam.paramFormat
+            .
+/*                /* rstark - remove when depricated */                         */
+/*                dynParamValue.paramName[idx]     = dynParamSetDtl.paramName   */
+/*                dynParamValue.paramLabel[idx]    = dynParamSetDtl.paramLabel  */
+/*                dynParamValue.paramValue[idx]    = dynParamSetDtl.initialValue*/
+/*                dynParamValue.paramDataType[idx] = dynParam.dataType          */
+/*                dynParamValue.paramFormat[idx]   = dynParam.paramFormat       */
+/*                .                                                             */
+/*            IF idx GE EXTENT(dynParamValue.paramName) THEN LEAVE.             */
+    END. /* each dynsubjectparamset */
 
 END PROCEDURE.
