@@ -1630,7 +1630,6 @@ END PROCEDURE.
    Notes:       
  ------------------------------------------------------------------------------*/
  
- DEFINE VARIABLE ld-ord-bal      LIKE cust.ord-bal NO-UNDO.
  DEFINE VARIABLE lRelHold AS LOGICAL NO-UNDO .
   
  FOR EACH cust NO-LOCK
@@ -1642,13 +1641,11 @@ END PROCEDURE.
          WHERE terms.company = cust.company
            AND terms.t-code  = cust.terms NO-ERROR.
      
-     IF cust.cr-hold THEN do:
-        ASSIGN 
-            ld-ord-bal = cust.ord-bal
-            lRelHold   = NO
-            .
-         IF ld-ord-bal + cust.acc-bal LT cust.cr-lim 
-             AND ld-ord-bal LT cust.ord-lim THEN
+     IF cust.cr-hold THEN DO:
+         lRelHold   = NO
+         .
+         IF cust.ord-bal + cust.acc-bal LT cust.cr-lim 
+             AND cust.ord-bal LT cust.ord-lim THEN
              ASSIGN lRelHold = YES . 
          
 
