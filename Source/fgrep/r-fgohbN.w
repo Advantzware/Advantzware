@@ -98,7 +98,7 @@ ASSIGN cTextListToSelect = "CUSTOMER,CUST NAME,ITEM #,TAG#,FULL TAG#,FG LOT#,CUS
                                 "loc,bin,msf-on-hand,cost-uom,rel-qty,qty-on-hand,last-sale,itemfg.procat," +
                                 "view-po,line-po,rel-po,sell-price,ord-pr,uom-cost,v-tot-cost,mat-cost,lab-cost,sale-rep," + 
                                 "sell-value-fg,sell-value-ord,days-old,custno,set-header,qty-per-set,units,unit-count,partial"
-           cFieldLength = "8,30,15,6,24,20,15,30,10,8," + "5,8,8,5,11,11,9,7," + "11,11,11,11,11,11,11,11,11,3," + "14,14,8,8,15,14,8,10,7"
+           cFieldLength = "8,30,15,6,24,20,15,30,10,8," + "5,8,8,5,11,11,9,7," + "11,11,11,11,11,11,11,11,11,3," + "16,16,8,8,15,14,8,10,7"
            cFieldType = "c,c,c,c,c,c,c,c,c,c,c," + "c,c,i,c,i,i,c,c," + "c,c,c,i,i,i,i,i,i,c," + "i,i,i,c,c,i,i,i,i"
            .
 
@@ -2488,8 +2488,8 @@ display "" with frame r-top.
                 WHEN "lab-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-tot-lab[3],"->>>,>>9.99") ELSE "") .
                 WHEN "mat-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-tot-mat[3],"->>>,>>9.99") ELSE "") .
                 WHEN "sale-rep" THEN cVarValue = "" .
-                WHEN "sell-value-ord" THEN cVarValue = STRING(v-tot-ordsell[3],"->>,>>>,>>9.99") .    
-                WHEN "sell-value-fg" THEN cVarValue = STRING(v-tot-fgsell[3],"->>,>>>,>>9.99") .
+                WHEN "sell-value-ord" THEN cVarValue = STRING(v-tot-ordsell[3],"->>,>>>,>>9.9999") .    
+                WHEN "sell-value-fg" THEN cVarValue = STRING(v-tot-fgsell[3],"->>,>>>,>>9.9999") .
                 WHEN "custno" THEN cVarValue = "" .
                 WHEN "set-header" THEN cVarValue = "" .
                 WHEN "qty-per-set" THEN cVarValue = "" .                 
