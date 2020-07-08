@@ -230,21 +230,30 @@ PROCEDURE pOnHandInventory PRIVATE:
         boe-ordl.company EQ ipboe-ord.company AND 
         boe-ordl.ord-no EQ ipboe-ord.ord-no AND 
         boe-ordl.line NE 0:
-            
+
+        iOnHand = 0.
+
         FIND FIRST bshipto NO-LOCK WHERE 
             bshipto.company EQ ipboe-ord.company AND 
             bshipto.cust-no EQ ipboe-ord.cust-no AND 
             bshipto.ship-id EQ boe-ordl.ship-id
             NO-ERROR.
-
-        FOR EACH itemfg-loc NO-LOCK WHERE 
-            itemfg-loc.company EQ boe-ordl.company AND 
-            itemfg-loc.i-no    EQ boe-ordl.i-no AND 
-            itemfg-loc.loc     EQ bshipto.loc:
-            ASSIGN 
-                iOnHand = iOnHand + itemfg-loc.q-onh.
+        IF NOT AVAILABLE bshipto THEN
+            RUN oe/custxship.p(
+                INPUT ipboe-ord.company,
+                INPUT ipboe-ord.cust-no,
+                INPUT ipboe-ord.ship-id,
+                BUFFER bshipto
+                ).        
+        IF AVAILABLE bshipto THEN DO:
+            FOR EACH itemfg-loc NO-LOCK WHERE 
+                itemfg-loc.company EQ boe-ordl.company AND 
+                itemfg-loc.i-no    EQ boe-ordl.i-no AND 
+                itemfg-loc.loc     EQ bshipto.loc:
+                iOnHand = iOnHand + itemfg-loc.q-onh - itemfg-loc.q-alloc.
+            END.
         END.
-                 
+        
         IF iOnHand LT boe-ordl.qty THEN ASSIGN              
                 cBadLines = cBadLines + STRING(boe-ordl.line) + ",".
     END. 
@@ -252,7 +261,7 @@ PROCEDURE pOnHandInventory PRIVATE:
     IF cBadLines NE "" THEN ASSIGN 
             cBadLines  = TRIM(cBadLines,",")
             oplHold    = TRUE 
-            opcMessage = "Insufficient OH Inventory for line" + 
+            opcMessage = "Insufficient Avail Inventory for line" + 
                      IF NUM-ENTRIES(cBadLines) GT 1 THEN ("s " + cBadLines)
                      ELSE (" " + cBadLines).
 
