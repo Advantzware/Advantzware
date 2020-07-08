@@ -3686,7 +3686,29 @@ PROCEDURE ValidateCust:
     IF oplValid THEN
         opcMessage = "Success".
     ELSE
-        opcMessage = "Invalid Customer".
+        opcMessage = "Invalid Customer '" + ipcCustID + "'".
+END PROCEDURE.
+
+PROCEDURE ValidateShipTo:
+    /*------------------------------------------------------------------------------
+     Purpose: Validate shipTo number
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcShipToID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValid    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    oplValid = CAN-FIND(FIRST shipto NO-LOCK 
+                        WHERE shipto.company EQ ipcCompany  
+                          AND shipto.cust-no EQ ipcCustID
+                          AND shipto.ship-id EQ ipcShipToID).
+    
+    IF oplValid THEN
+        opcMessage = "Success".
+    ELSE
+        opcMessage = "Invalid ShipTo '" + ipcShipToID + "' for customer '" + ipcCustID.
 END PROCEDURE.
 
 PROCEDURE ValidatePOLine:

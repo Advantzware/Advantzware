@@ -101,4 +101,19 @@ router.post('/deletebilloflading', (req,res) => {
     lib.handleRouteJSON(req, res);
 });
 
+//This get the price and price UOM 
+router.post('/getprice', (req,res) => {
+    lib.handleRouteJSON(req, res);
+});
+
+//This get the price in target UOM 
+router.post('/getpriceinuom', (req,res) => {
+    lib.handleRouteJSON(req, res);
+});
+
+//This get the price matrix
+router.post('/getpricematrix', (req,res) => {
+    lib.handleRouteJSON(req, res);
+});
+
 module.exports = router;

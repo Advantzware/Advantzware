@@ -561,8 +561,10 @@ PROCEDURE pUpdateFields :
 
     IF AVAILABLE APIInboundDetail THEN        
         ASSIGN
-            APIInboundDetail.data       = edRequestData:SCREEN-VALUE
-            APIINboundDetail.detailType = cbDetailType:SCREEN-VALUE
+            APIInboundDetail.company      = APIInbound.company
+			APIInboundDetail.apiInboundID = APIInbound.apiInboundID
+            APIInboundDetail.data         = edRequestData:SCREEN-VALUE
+            APIInboundDetail.detailType   = cbDetailType:SCREEN-VALUE
             .  
 END PROCEDURE.
 
