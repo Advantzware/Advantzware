@@ -48,6 +48,9 @@ DEF NEW SHARED VAR v-ship-no LIKE shipto.ship-no.
 DEF VAR v-cash-sale AS LOG NO-UNDO.
 DEFINE BUFFER bff-head FOR inv-head.
 
+DEFINE VARIABLE hdTaxProcs  AS HANDLE    NO-UNDO.
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
+
 &SCOPED-DEFINE other-enable enable-other
 
 /* _UIB-CODE-BLOCK-END */
@@ -80,16 +83,17 @@ inv-head.carrier inv-head.frt-pay inv-head.fob-code inv-head.t-inv-weight ~
 inv-head.t-inv-freight inv-head.t-comm 
 &Scoped-define ENABLED-TABLES inv-head
 &Scoped-define FIRST-ENABLED-TABLE inv-head
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-41 btnCalendar-1 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-41 imgHoldRsn btnCalendar-1 
 &Scoped-Define DISPLAYED-FIELDS inv-head.printed inv-head.inv-no ~
 inv-head.inv-date inv-head.bol-no inv-head.r-no inv-head.cust-no ~
-inv-head.sold-no inv-head.cust-name inv-head.sold-name inv-head.addr[1] ~
-inv-head.sold-addr[1] inv-head.addr[2] inv-head.sold-addr[2] inv-head.city ~
-inv-head.state inv-head.zip inv-head.sold-city inv-head.sold-state ~
-inv-head.sold-zip inv-head.contact inv-head.tax-gr inv-head.terms ~
-inv-head.terms-d inv-head.carrier inv-head.frt-pay inv-head.fob-code ~
-inv-head.t-inv-weight inv-head.t-inv-tax inv-head.t-inv-freight ~
-inv-head.t-inv-rev inv-head.t-comm inv-head.t-inv-cost 
+inv-head.sold-no inv-head.cust-name inv-head.sold-name ~
+inv-head.autoApproved inv-head.addr[1] inv-head.sold-addr[1] ~
+inv-head.addr[2] inv-head.sold-addr[2] inv-head.city inv-head.state ~
+inv-head.zip inv-head.sold-city inv-head.sold-state inv-head.sold-zip ~
+inv-head.contact inv-head.tax-gr inv-head.terms inv-head.terms-d ~
+inv-head.carrier inv-head.frt-pay inv-head.fob-code inv-head.t-inv-weight ~
+inv-head.t-inv-tax inv-head.t-inv-freight inv-head.t-inv-rev ~
+inv-head.t-comm inv-head.t-inv-cost 
 &Scoped-define DISPLAYED-TABLES inv-head
 &Scoped-define FIRST-DISPLAYED-TABLE inv-head
 &Scoped-Define DISPLAYED-OBJECTS inv-status fi_PO 
@@ -166,6 +170,10 @@ DEFINE VARIABLE inv-status AS CHARACTER FORMAT "X(8)":U
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
+DEFINE IMAGE imgHoldRsn
+     FILENAME "graphics/16x16/question.png":U
+     SIZE 4 BY .95.
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 144 BY 16.43.
@@ -199,72 +207,72 @@ DEFINE FRAME F-Main
           LABEL "Seq"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY .95
-     inv-head.cust-no AT ROW 3.38 COL 16 COLON-ALIGNED
+     inv-head.cust-no AT ROW 3.38 COL 14.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     inv-head.sold-no AT ROW 3.38 COL 83 COLON-ALIGNED
+     inv-head.sold-no AT ROW 3.38 COL 74.2 COLON-ALIGNED
           LABEL "Ship to"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     inv-head.cust-name AT ROW 4.33 COL 16 COLON-ALIGNED NO-LABEL
+     inv-head.cust-name AT ROW 4.33 COL 14.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 49 BY 1
-     inv-head.sold-name AT ROW 4.33 COL 83 COLON-ALIGNED NO-LABEL
+     inv-head.sold-name AT ROW 4.33 COL 74.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 41.8 BY 1
+     inv-head.autoApproved AT ROW 4.33 COL 118.6
+          VIEW-AS TOGGLE-BOX
+          SIZE 20 BY 1
+     inv-head.addr[1] AT ROW 5.29 COL 14.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 49 BY 1
-     inv-head.addr[1] AT ROW 5.29 COL 16 COLON-ALIGNED NO-LABEL
+     inv-head.sold-addr[1] AT ROW 5.29 COL 74.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 48.8 BY 1
+     inv-head.addr[2] AT ROW 6.24 COL 14.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 49 BY 1
-     inv-head.sold-addr[1] AT ROW 5.29 COL 83 COLON-ALIGNED NO-LABEL
+     inv-head.sold-addr[2] AT ROW 6.24 COL 74.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 49 BY 1
-     inv-head.addr[2] AT ROW 6.24 COL 16 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 49 BY 1
-     inv-head.sold-addr[2] AT ROW 6.24 COL 83 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 49 BY 1
-     inv-head.city AT ROW 7.19 COL 16 COLON-ALIGNED NO-LABEL
+     inv-head.city AT ROW 7.19 COL 14.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
-     inv-head.state AT ROW 7.19 COL 41 COLON-ALIGNED NO-LABEL
+     inv-head.state AT ROW 7.19 COL 39.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
-     inv-head.zip AT ROW 7.19 COL 47 COLON-ALIGNED NO-LABEL
+     inv-head.zip AT ROW 7.19 COL 45.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     inv-head.sold-city AT ROW 7.19 COL 83 COLON-ALIGNED NO-LABEL
+     inv-head.sold-city AT ROW 7.19 COL 74.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 25 BY 1
-     inv-head.sold-state AT ROW 7.19 COL 108 COLON-ALIGNED NO-LABEL
+     inv-head.sold-state AT ROW 7.19 COL 99.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
-     inv-head.sold-zip AT ROW 7.19 COL 114 COLON-ALIGNED NO-LABEL
+     inv-head.sold-zip AT ROW 7.19 COL 105.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     inv-head.contact AT ROW 8.14 COL 16 COLON-ALIGNED WIDGET-ID 2
+     inv-head.contact AT ROW 8.14 COL 14.6 COLON-ALIGNED WIDGET-ID 2
           LABEL "Contact"
           VIEW-AS FILL-IN 
           SIZE 49 BY 1
-     inv-head.tax-gr AT ROW 9.33 COL 27 COLON-ALIGNED
+     inv-head.tax-gr AT ROW 9.33 COL 25.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
      fi_PO AT ROW 9.33 COL 113 COLON-ALIGNED WIDGET-ID 4
-     inv-head.terms AT ROW 10.29 COL 27 COLON-ALIGNED
+     inv-head.terms AT ROW 10.29 COL 25.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     inv-head.terms-d AT ROW 10.29 COL 37 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     inv-head.terms-d AT ROW 10.29 COL 35.6 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 44 BY 1
      inv-head.carrier AT ROW 10.29 COL 113 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     inv-head.frt-pay AT ROW 11.24 COL 27 COLON-ALIGNED
+     inv-head.frt-pay AT ROW 11.24 COL 25.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
-     inv-head.fob-code AT ROW 11.24 COL 113 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 10 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -272,6 +280,9 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     inv-head.fob-code AT ROW 11.24 COL 113 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 10 BY 1
      inv-head.t-inv-weight AT ROW 13.38 COL 41 COLON-ALIGNED
           LABEL "Total Weight"
           VIEW-AS FILL-IN 
@@ -297,6 +308,7 @@ DEFINE FRAME F-Main
           FGCOLOR 9 
      RECT-1 AT ROW 1.19 COL 1
      RECT-41 AT ROW 12.43 COL 9
+     imgHoldRsn AT ROW 4.48 COL 139.2 WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -363,6 +375,8 @@ ASSIGN
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN inv-head.addr[2] IN FRAME F-Main
    NO-ENABLE 2                                                          */
+/* SETTINGS FOR TOGGLE-BOX inv-head.autoApproved IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN inv-head.bol-no IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
@@ -584,6 +598,17 @@ DO:
    IF LASTKEY = -1  THEN RETURN.
    RUN valid-fob NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME imgHoldRsn
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imgHoldRsn V-table-Win
+ON MOUSE-SELECT-CLICK OF imgHoldRsn IN FRAME F-Main
+DO:
+    RUN sys/ref/dlgTagVwr.w (inv-head.rec_key,"","").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1293,6 +1318,11 @@ PROCEDURE local-assign-record :
   DEF VAR ld-tax-amt AS DEC NO-UNDO.
   DEF VAR ld-inv-accum AS DEC NO-UNDO.
 
+DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dInvoiceSubTotal AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dTotalTax        AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cmessage         AS CHARACTER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN ld-prev-frt-tot = IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0 .
@@ -1310,103 +1340,18 @@ PROCEDURE local-assign-record :
   IF inv-status EQ "ON HOLD" AND inv-head.stat NE "H" THEN inv-head.stat = "H".
   inv-head.f-bill = inv-head.frt-pay eq "B" /* OR inv-head.frt-pay eq "P" */.
 
+  RUN Tax_CalculateForInvHead IN hdTaxProcs (
+      INPUT ROWID(inv-head),
+      INPUT locode,
+      INPUT "INVOICE", /*  Message Type "INVOICE" or "QUOTATION" */
+      INPUT TRUE, /* Post To journal */
+      OUTPUT dTotalTax,
+      OUTPUT dInvoiceTotal,
+      OUTPUT dinvoiceSubTotal,
+      OUTPUT lSuccess,
+      OUTPUT cMessage
+      ).
 
-  /* recalc tax */
-  /*if inv-head.tax-gr <> "" THEN DO: */
-      FIND FIRST stax WHERE stax.company = cocode AND
-                      stax.tax-group = inv-head.tax-gr NO-LOCK NO-ERROR.
-
-      ASSIGN ld-tax-tmp = 0
-             ld-tax-tot = 0
-             ld-tax-amt = 0
-             ld-inv-accum = 0.
-
-      FOR EACH bf-inv-line no-lock where bf-inv-line.r-no = inv-head.r-no:
-          ASSIGN ld-inv-accum = ld-inv-accum + bf-inv-line.t-price.
-          ASSIGN ld-tax-amt = IF bf-inv-line.tax THEN bf-inv-line.t-price ELSE 0.
-          IF inv-head.tax-gr <> "" AND avail stax AND bf-inv-line.tax THEN 
-          DO:
-              RUN ar/calctax2.p (inv-head.tax-gr,NO,ld-tax-amt,inv-head.company,bf-inv-line.i-no,OUTPUT ld-tax-tmp).
-              ASSIGN ld-tax-tot = ld-tax-tot + ld-tax-tmp.
-/*               /* Find itemfg. */                                                                    */
-/*               FIND FIRST itemfg NO-LOCK WHERE                                                       */
-/*                          itemfg.company = bf-inv-line.company AND                                   */
-/*                          itemfg.i-no = bf-inv-line.i-no NO-ERROR.                                   */
-/*               /* Determine which tax program to run (standard or varied tax calculation). */        */
-/*               /* If the itemfg varied tax flag is set... */                                         */
-/*               IF AVAIL itemfg AND itemfg.spare-char-2 = "YES" AND                                   */
-/*                   /* And the dollar limit is setup in tax code 5... */                              */
-/*                   AVAIL stax AND stax.tax-code1[5] = "" AND stax.tax-dscr1[5] = "Dollar Limit" AND  */
-/*                   stax.tax-rate1[5] > 0 AND                                                         */
-/*                   /* and the invoice price exceeds the dollar limit... */                           */
-/*                    bf-inv-line.t-price > stax.tax-rate1[5] THEN                                     */
-/*                   /* then run the varied tax rate calculation program. */                           */
-/*                   RUN ar/calcvtax.p (inv-head.tax-gr, no,ld-tax-amt, output ld-tax-tot).            */
-/*               /* Else run the standard tax rate calculation program. */                             */
-/*               ELSE                                                                                  */
-/*               /* original calculation */                                                            */
-/*               DO i = 1 to 5: /* gdm - 07160902*/                                                    */
-/*                     if stax.tax-code1[i] ne "" then do:                                             */
-/*                        ld-tax-tmp  = round((if stax.accum-tax then ld-tax-amt                       */
-/*                                         ELSE bf-inv-line.t-price) * stax.tax-rate1[i] / 100,2).     */
-/*                        ld-tax-amt = ld-tax-amt + ld-tax-tmp.                                        */
-/*                        ld-tax-tot = ld-tax-tot + ld-tax-tmp.                                        */
-/*                                                                                                     */
-/*                     end.                                                                            */
-/*               END. /* DO i = 1 to 5 */                                                              */
-
-          END. /* IF inv-head.tax-gr <> "" AND avail stax AND bf-inv-line.tax */
-      END. /* FOR EACH bf-inv-line */
-
-      FOR each bf-inv-misc no-lock where bf-inv-misc.company = inv-head.company and
-                                          bf-inv-misc.r-no = inv-head.r-no and
-                                          bf-inv-misc.bill = "Y" :     
-           ASSIGN ld-inv-accum = ld-inv-accum + bf-inv-misc.amt.
-           ASSIGN ld-tax-amt = bf-inv-misc.amt.
-           IF inv-head.tax-gr <> "" AND bf-inv-misc.tax and avail stax THEN DO:
-               RUN ar/calctax2.p (inv-head.tax-gr,NO,ld-tax-amt,inv-head.company,bf-inv-misc.inv-i-no,OUTPUT ld-tax-tmp).
-               ASSIGN ld-tax-tot = ld-tax-tot + ld-tax-tmp.
-/*               /* Find itemfg. */                                                                    */
-/*               FIND FIRST itemfg NO-LOCK WHERE                                                       */
-/*                          itemfg.company = bf-inv-misc.company AND                                   */
-/*                          itemfg.i-no = bf-inv-misc.inv-i-no NO-ERROR.                               */
-/*               /* Determine which tax program to run (standard or varied tax calculation). */        */
-/*               /* If the itemfg varied tax flag is set... */                                         */
-/*               IF AVAIL itemfg AND itemfg.spare-char-2 = "YES" AND                                   */
-/*                   /* And the dollar limit is setup in tax code 5... */                              */
-/*                   AVAIL stax AND stax.tax-code1[5] = "" AND stax.tax-dscr1[5] = "Dollar Limit" AND  */
-/*                   stax.tax-rate1[5] > 0 AND                                                         */
-/*                   /* and the invoice price exceeds the dollar limit... */                           */
-/*                    bf-inv-misc.amt > stax.tax-rate1[5] THEN                                         */
-/*                   /* then run the varied tax rate calculation program. */                           */
-/*                   RUN ar/calcvtax.p (inv-head.tax-gr, no,ld-tax-amt, output ld-tax-tot).            */
-/*               /* Else run the standard tax rate calculation program. */                             */
-/*               ELSE                                                                                  */
-/*                do i = 1 to 5: /* gdm - 07160902*/                                                   */
-/*                   if stax.tax-code1[i] ne "" then do:                                               */
-/*                        ld-tax-tmp  = round((if stax.accum-tax then ld-tax-amt                       */
-/*                                         ELSE bf-inv-misc.amt) * stax.tax-rate1[i] / 100,2).         */
-/*                        ld-tax-amt = ld-tax-amt + ld-tax-tmp.                                        */
-/*                        ld-tax-tot = ld-tax-tot + ld-tax-tmp.                                        */
-/*                   end.                                                                              */
-/*                end.                                                                                 */
-           END. /* IF inv-head.tax-gr <> "" AND bf-inv-misc.tax and avail stax */
-      END.
-      ld-inv-accum = ld-inv-accum + 
-                     IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
-      ld-tax-amt = inv-head.t-inv-freight.
-      IF inv-head.tax-gr <> "" and
-         inv-head.f-bill AND inv-head.t-inv-freight <> 0 AND AVAIL stax THEN
-      do i = 1 to 5: /* gdm - 07160902 */
-              if stax.tax-code1[i] ne "" AND stax.tax-frt1[i] then do:
-                   ld-tax-tmp  = round((if stax.accum-tax then ld-tax-amt
-                                                         ELSE inv-head.t-inv-freight) *
-                                        stax.tax-rate1[i] / 100,2).
-                   ld-tax-amt = ld-tax-amt + ld-tax-tmp.
-                   ld-tax-tot = ld-tax-tot + ld-tax-tmp.
-
-              end.
-      end.      
   IF inv-head.cust-no NE '' AND inv-head.sman[1] EQ '' THEN DO:
       FIND FIRST cust 
           WHERE cust.company EQ inv-head.company
@@ -1418,12 +1363,10 @@ PROCEDURE local-assign-record :
             inv-head.s-pct[1] = 100.
   END.
 
-
-  IF inv-head.tax-gr = "" THEN ld-tax-tot = 0.
-
-  ASSIGN inv-head.t-inv-tax = ld-tax-tot.
-
-  ASSIGN inv-head.t-inv-rev = ld-inv-accum + inv-head.t-inv-tax.
+  ASSIGN 
+      inv-head.t-inv-tax = dTotalTax
+      inv-head.t-inv-rev = dInvoiceTotal
+      .
 
   RUN dispatch ('display-fields').
 
@@ -1617,6 +1560,22 @@ PROCEDURE local-update-record :
    adm-adding-record = NO
    adm-new-record    = NO.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInvHead V-table-Win 
+PROCEDURE pGetInvHead :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplCheckData AS LOGICAL NO-UNDO .
+  IF AVAIL inv-head THEN
+  ASSIGN oplCheckData = TRUE .
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1894,7 +1853,7 @@ PROCEDURE valid-sold-no :
              shipto.ship-id EQ inv-head.sold-no:SCREEN-VALUE
              NO-LOCK NO-ERROR.
 
-        IF AVAIL shipto AND NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key)  THEN do:
+        IF AVAIL shipto AND shipto.statusCode EQ "I" THEN do:
             MESSAGE "The Ship To is inactive and cannot be used on an Invoice. "
                   VIEW-AS ALERT-BOX ERROR BUTTONS OK.
               APPLY "entry" TO inv-head.sold-no.
@@ -2008,21 +1967,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInvHead V-table-Win 
-PROCEDURE pGetInvHead :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER oplCheckData AS LOGICAL NO-UNDO .
-  IF AVAIL inv-head THEN
-  ASSIGN oplCheckData = TRUE .
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
 

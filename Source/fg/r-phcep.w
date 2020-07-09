@@ -44,30 +44,32 @@ assign
  cocode = gcompany
  locode = gloc.
 
-def buffer b-fg-rctd   for fg-rctd.
-def buffer b-itemfg     for itemfg.
-def buffer b-fg-bin     for fg-bin.
+DEFINE BUFFER b-fg-rctd FOR fg-rctd.
+DEFINE BUFFER b-itemfg  FOR itemfg.
+DEFINE BUFFER b-fg-bin  FOR fg-bin.
 
-def var v-post-date     as   date init today.
-def var v-gl            as   log init no.
+DEFINE VARIABLE v-post-date   AS DATE      INIT TODAY.
+DEFINE VARIABLE v-gl          AS LOG       INIT NO.
 
-def var save_id         as   recid.
-def var v-qty-onh       as   dec.
-def var v-temp-cost     as   dec format "->>>>>9.99".
-def var time_stamp      as   char.
-def var v-cum-qty       as   dec format "->>>>>>9".
-def var v-tot-value     as   dec format "->>>,>>>,>>9.99".
-DEF VAR v-sell-price    LIKE itemfg.sell-price .
-def var v-tot-price     as   dec format "->>>,>>>,>>9.99".
-def var v-item-tot      as   dec format "->>>,>>>,>>9.99".
-def var v-std-cost      as   dec format ">>>,>>9.99<<".
-def var v-q-adj-ytd     as   int.
-def var v-adj-qty       as   int.
-def var v-dscr          like account.dscr.
-def var v-disp-actnum   like account.actnum.
-def var v-disp-amt      as   dec format ">>,>>>,>>9.99cr".
-def var v-cost          like itemfg.std-tot-cost extent 4.
-def var v-uom           like itemfg.prod-uom.
+DEFINE VARIABLE save_id       AS RECID.
+DEFINE VARIABLE v-qty-onh     AS DECIMAL.
+DEFINE VARIABLE v-temp-cost   AS DECIMAL   FORMAT "->>>>>9.99".
+DEFINE VARIABLE time_stamp    AS CHARACTER.
+DEFINE VARIABLE v-cum-qty     AS DECIMAL   FORMAT "->>>>>>9".
+DEFINE VARIABLE v-tot-value   AS DECIMAL   FORMAT "->>>,>>>,>>9.99".
+DEFINE VARIABLE v-sell-price  LIKE itemfg.sell-price .
+DEFINE VARIABLE v-tot-price   AS DECIMAL   FORMAT "->>>,>>>,>>9.99".
+DEFINE VARIABLE v-item-tot    AS DECIMAL   FORMAT "->>>,>>>,>>9.99".
+DEFINE VARIABLE v-std-cost    AS DECIMAL   FORMAT ">>>,>>9.99<<".
+DEFINE VARIABLE v-q-adj-ytd   AS INTEGER.
+DEFINE VARIABLE v-adj-qty     AS INTEGER.
+DEFINE VARIABLE v-dscr        LIKE account.dscr.
+DEFINE VARIABLE v-disp-actnum LIKE account.actnum.
+DEFINE VARIABLE v-disp-amt    AS DECIMAL   FORMAT ">>,>>>,>>9.99cr".
+DEFINE VARIABLE v-cost        LIKE itemfg.std-tot-cost EXTENT 4.
+DEFINE VARIABLE v-uom         LIKE itemfg.prod-uom.
+DEFINE VARIABLE cCreateGL     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound     AS LOGICAL   NO-UNDO.
 
 def new shared var v-trnum as int.
 
@@ -102,6 +104,18 @@ DEF TEMP-TABLE tt-fg-bin NO-UNDO
 
 {fg/fullset.i NEW}
 
+RUN sys/ref/nk1look.p (
+    INPUT cocode,           /* Company Code */ 
+    INPUT "ADJUSTGL",       /* sys-ctrl name */
+    INPUT "L",              /* Output return value */
+    INPUT NO,               /* Use ship-to */
+    INPUT NO,               /* ship-to vendor */
+    INPUT "",               /* ship-to vendor value */
+    INPUT "",               /* shi-id value */
+    OUTPUT cCreateGL, 
+    OUTPUT lRecFound
+    ).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -118,8 +132,8 @@ DEF TEMP-TABLE tt-fg-bin NO-UNDO
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 post-date FI_beg-tag-no ~
-FI_end-tag-no begin_userid end_userid tg_account tg_show-inv rd-dest ~
-lv-ornt lines-per-page td-show-parm lv-font-no btn-ok btn-cancel 
+FI_end-tag-no begin_userid end_userid tg_show-inv rd-dest lv-ornt ~
+lines-per-page td-show-parm lv-font-no btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS post-date FI_beg-tag-no FI_end-tag-no ~
 begin_userid end_userid tg_account tg_show-inv rd-dest lv-ornt ~
 lines-per-page td-show-parm lv-font-no lv-font-name 
@@ -326,6 +340,8 @@ ASSIGN
        post-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR TOGGLE-BOX tg_account IN FRAME FRAME-A
+   NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -399,6 +415,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
+  
+  FOR EACH work-job:
+      DELETE work-job.
+  END.
+  
   DEF VAR lv-post AS LOG NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -603,7 +624,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      FI_end-tag-no = "zzzzzzzzzzzzzzzzzzzzzz"
      begin_userid    = USERID("ASI")
      end_userid      = USERID("ASI")
-     post-date = TODAY.
+     post-date = TODAY
+     tg_account = LOGICAL(cCreateGL)
+     .
 
   RUN enable_UI.
 
@@ -732,7 +755,7 @@ postit:
         assign
          gltrans.company = cocode
          gltrans.actnum  = work-job.actnum
-         gltrans.jrnl    = "OEINV"
+         gltrans.jrnl    = "ADJUST"
          gltrans.tr-date = udate
          gltrans.period  = uperiod
          gltrans.trnum   = v-trnum.
@@ -740,11 +763,11 @@ postit:
         if work-job.fg then
           assign
            gltrans.tr-amt  = - work-job.amt
-           gltrans.tr-dscr = "ORDER ENTRY INVOICE FG".
+           gltrans.tr-dscr = "FG Adjustment entries FG".
         else
           assign
            gltrans.tr-amt  = work-job.amt
-           gltrans.tr-dscr = "ORDER ENTRY INVOICE COGS".
+           gltrans.tr-dscr = "FG Adjustment entries COGS".
       end. /* each work-job */
     end.
   end. /* postit */
@@ -791,8 +814,8 @@ PROCEDURE enable_UI :
           lv-font-no lv-font-name 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 post-date FI_beg-tag-no FI_end-tag-no begin_userid 
-         end_userid tg_account tg_show-inv rd-dest lv-ornt lines-per-page 
-         td-show-parm lv-font-no btn-ok btn-cancel 
+         end_userid tg_show-inv rd-dest lv-ornt lines-per-page td-show-parm 
+         lv-font-no btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

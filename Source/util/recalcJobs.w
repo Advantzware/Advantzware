@@ -389,8 +389,12 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
-DEFINE VARIABLE dQty AS DECIMAL NO-UNDO.    
-    DEFINE VARIABLE cOutputFileName AS CHARACTER NO-UNDO.
+    
+DEFINE VARIABLE dQty            AS DECIMAL NO-UNDO.    
+DEFINE VARIABLE cOutputFileName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+    
     RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
     DO WITH FRAME {&FRAME-NAME}:
     
@@ -495,10 +499,13 @@ DEFINE VARIABLE dQty AS DECIMAL NO-UNDO.
     
         END. /* Each job, each job-hdr */
         
-        RUN TempTableToCSV IN hdOutputProcs ( 
+        RUN Output_TempTableToCSV IN hdOutputProcs ( 
             INPUT TEMP-TABLE ttSaveCosts:HANDLE,
             INPUT cOutputFileName,
-            INPUT TRUE
+            INPUT TRUE,
+            INPUT TRUE /* Auto increment File name */,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
             ).
 
         SESSION:SET-WAIT-STATE("").

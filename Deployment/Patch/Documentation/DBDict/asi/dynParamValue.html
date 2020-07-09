@@ -65,19 +65,19 @@
       </tr>
       <tr class="shadedrow">
         <td>CREATE</td>
-        <td><a href="trg/dynparamvalue_create.html">create.trg/dynParamValue.p</a></td>
+        <td>create.trg/dynParamValue.p</td>
         <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
       </tr>
       <tr class="shadedrow">
         <td>DELETE</td>
-        <td><a href="trg/dynparamvalue_delete.html">delete.trg/dynParamValue.p</a></td>
+        <td>delete.trg/dynParamValue.p</td>
         <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
       </tr>
       <tr class="shadedrow">
         <td>WRITE</td>
-        <td><a href="trg/dynparamvalue_write.html">write.trg/dynParamValue.p</a></td>
+        <td>write.trg/dynParamValue.p</td>
         <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
       </tr>
@@ -538,6 +538,17 @@
     <td></td>
   </tr>
   <tr class="evenrow">
+    <td>460</td>
+    <td>runSync</td>
+    <td><a href="00-cross-r.html#runSync"><small>X</small></a></td>
+    <td>Run Synchronous</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
     <td>90</td>
     <td>securityLevel</td>
     <td><a href="00-cross-s.html#securityLevel"><small>X</small></a></td>
@@ -548,7 +559,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>450</td>
     <td>showParameters</td>
     <td><a href="00-cross-s.html#showParameters"><small>X</small></a></td>
@@ -559,7 +570,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>230</td>
     <td>sortCol</td>
     <td><a href="00-cross-s.html#sortCol"><small>X</small></a></td>
@@ -570,7 +581,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>240</td>
     <td>sortDescending</td>
     <td><a href="00-cross-s.html#sortDescending"><small>X</small></a></td>
@@ -581,7 +592,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>10</td>
     <td><a href="dynsubject.html">subjectID</a></td>
     <td><a href="00-cross-s.html#subjectID"><small>X</small></a></td>
@@ -592,7 +603,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>20</td>
     <td>user-id</td>
     <td><a href="00-cross-u.html#user-id"><small>X</small></a></td>
@@ -1121,6 +1132,17 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
+  <tr class="evenrow">
+    <td>460</td>
+    <td>runSync</td>
+    <td><a href="00-cross-r.html#runSync"><small>X</small></a></td>
+    <td>Run Synchronous</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
 </table>
 </div>
 
@@ -1199,7 +1221,7 @@
       <th>Parent tables</th>
     </tr>
     <tr class="shadedrow">
-      <td><a href="costHeader.html">costHeader</a>&nbsp;&nbsp; <a href="dynparamset.html">dynParamSet</a>&nbsp;&nbsp; <a href="dynsubject.html">dynSubject</a>&nbsp;&nbsp; <a href="ef-nsh.html">ef-nsh</a>&nbsp;&nbsp; <a href="prgrms.html">prgrms</a>&nbsp;&nbsp; <a href="rec_key.html">rec_key</a>&nbsp;&nbsp; <a href="resource.html">serverResource</a>&nbsp;&nbsp; <a href="systemconfigusage.html">systemConfigUsage</a>&nbsp;&nbsp; <a href="usercontrol.html">userControl</a>&nbsp;&nbsp; <a href="usersman.html">usersman</a>&nbsp;&nbsp; </td>
+      <td><a href="costHeader.html">costHeader</a>&nbsp;&nbsp; <a href="dynparamset.html">dynParamSet</a>&nbsp;&nbsp; <a href="dynsubject.html">dynSubject</a>&nbsp;&nbsp; <a href="prgrms.html">prgrms</a>&nbsp;&nbsp; </td>
     </tr>
   </table>
   <table style="width:50%; float:left;">
@@ -1207,13 +1229,13 @@
       <th>Child tables</th>
     </tr>
     <tr class="shadedrow">
-      <td><a href="task.html">Task</a>&nbsp;&nbsp; </td>
+      <td><a href="dynvalueparam.html">dynValueParam</a>&nbsp;&nbsp; <a href="task.html">Task</a>&nbsp;&nbsp; </td>
     </tr>
   </table>
 <hr style="clear:both">
 <hr>
 <table style="width:100%; margin-top:10px;">
-  <tr><td style="text-align:right;"><i><small>generated 28-4-2020 08:30</small></i></td></tr>
+  <tr><td style="text-align:right;"><i><small>generated 1-7-2020 20:23</small></i></td></tr>
 </table>
 </body>
 </html>

@@ -10,6 +10,7 @@ company ~
 contact ~
 cust ~
 cust-markup ~
+dateRules ~
 e-item-vend ~
 e-itemfg-vend ~
 eb ~
@@ -47,6 +48,7 @@ prgrms ~
 quotehd ~
 rm-rdtl ~
 shifts ~
+shift_break ~
 shipto ~
 stack-flute ~
 style ~

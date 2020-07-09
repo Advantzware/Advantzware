@@ -34,6 +34,7 @@ DEF VAR ld-qty-rec AS DEC FORMAT ">>>,>>>,>>9" NO-UNDO.
 DEF VAR ll-po AS LOG NO-UNDO.
 DEF VAR lv-text AS CHAR NO-UNDO.
 DEF VAR v-qty-opt AS CHAR NO-UNDO.
+DEFINE VARIABLE lPrinted AS LOGICAL NO-UNDO.
 
 def temp-table w-ord
   field ord-no like oe-ord.ord-no
@@ -82,7 +83,8 @@ def temp-table w-ord
   FIELD csrUser_id as CHARACTER
   FIELD entered-id as CHARACTER 
   FIELD ord-due-date AS CHARACTER
-  FIELD rel-due-date AS CHARACTER.
+  FIELD rel-due-date AS CHARACTER
+  FIELD Printed AS LOGICAL.
 
 def buffer b-w-ord for w-ord.
 

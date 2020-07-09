@@ -2523,6 +2523,11 @@ PROCEDURE SetInvForm:
                 v-program      = "oe/rep/invxprnt10.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
+        WHEN "delta" THEN
+            ASSIGN
+                v-program      = "oe/rep/invdelta.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
         WHEN "invprint 21" THEN
             ASSIGN
                 v-program      = "oe/rep/invxprnt21.p"
@@ -3116,6 +3121,11 @@ PROCEDURE SetInvPostForm:
                 v-program      = "ar/rep/invxprnt10.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
+        WHEN "Delta" THEN
+            ASSIGN
+                v-program      = "ar/rep/invdelta.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
         WHEN "invprint 21" THEN
             ASSIGN
                 v-program      = "ar/rep/invxprnt21.p"
@@ -3557,19 +3567,27 @@ PROCEDURE undo-save-line :
     DISABLE TRIGGERS FOR LOAD OF inv-line.
     DISABLE TRIGGERS FOR LOAD OF inv-misc.
 
+    DEFINE BUFFER bf-inv-line FOR inv-line.
+    DEFINE BUFFER bf-inv-misc FOR inv-misc.
 
-    RELEASE inv-line.
-    RELEASE inv-misc.
+    FIND FIRST bf-inv-line EXCLUSIVE-LOCK
+         WHERE ROWID(bf-inv-line) EQ ttSaveLine.invRowID 
+         NO-ERROR.
 
-    FIND FIRST inv-line WHERE ROWID(inv-line) EQ ttSaveLine.invRowID NO-ERROR.
-
-    IF AVAILABLE inv-line THEN inv-line.r-no = ttSaveLine.invLineRNo.
+    IF AVAILABLE bf-inv-line THEN 
+        bf-inv-line.r-no = ttSaveLine.invLineRNo.
 
     ELSE
-        FIND FIRST inv-misc WHERE ROWID(inv-misc) EQ ttSaveLine.invRowID NO-ERROR.
+        FIND FIRST bf-inv-misc EXCLUSIVE-LOCK
+             WHERE ROWID(bf-inv-misc) EQ ttSaveLine.invRowID 
+             NO-ERROR.
 
-    IF AVAILABLE inv-misc THEN inv-misc.r-no = ttSaveLine.invMiscRNo.
+    IF AVAILABLE bf-inv-misc THEN 
+        bf-inv-misc.r-no = ttSaveLine.invMiscRNo.
 
     DELETE ttSaveLine.
-
+    
+    RELEASE bf-inv-line.
+    RELEASE bf-inv-misc.
+    
 END PROCEDURE.    

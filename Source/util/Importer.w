@@ -871,11 +871,13 @@ PROCEDURE pRunProcess :
     DEFINE INPUT PARAMETER iplLogErrorsOnly AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
     
-    DEFINE VARIABLE cLogFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lProcess AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE iUpdated AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iAdded   AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE hdValidator AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cLogFile         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lProcess         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iUpdated         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iAdded           AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE hdValidator      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cSummaryMessage  AS CHARACTER NO-UNDO.
+    
     RUN util/Validate.p PERSISTENT SET hdValidator.
     SESSION:ADD-SUPER-PROCEDURE (hdValidator).
     
@@ -894,12 +896,16 @@ PROCEDURE pRunProcess :
             IF NOT iplGenerateLogOnly THEN 
             DO:
                 RUN pProcessImport IN ghdImportProcs(iplIgnoreBlanks, OUTPUT iUpdated, OUTPUT iAdded).
+                RUN GetSummaryMessage IN ghdImportProcs(
+                    OUTPUT cSummaryMessage
+                    ).
             END.
             MESSAGE "Import process completed." SKIP 
-                iUpdated " records updated" SKIP 
-                iAdded " records added" SKIP 
+                iUpdated " records updated"     SKIP 
+                iAdded   " records added"       SKIP    
+                cSummaryMessage                 SKIP       
                 "View log file for details: " cLogFile
-                VIEW-AS ALERT-BOX.
+                VIEW-AS ALERT-BOX.   
             EMPTY TEMP-TABLE ttImportData.
             RUN pShowPreview.
         END.

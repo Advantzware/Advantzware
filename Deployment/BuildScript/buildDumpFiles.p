@@ -124,8 +124,6 @@ OUTPUT STREAM s2 TO VALUE(cOutDir + "\dynSubjectWhere.d").
 OUTPUT STREAM s3 TO VALUE(cOutDir + "\dynSubjectColumn.d").
 OUTPUT STREAM s4 TO VALUE(cOutDir + "\dynSubjectParamSet.d").
 FOR EACH dynSubject NO-LOCK WHERE 
-    dynSubject.subjecttype EQ "system" AND 
-    dynSubject.user-id EQ "_default" AND 
     dynSubject.subjectID LT 5000
     BY dynSubject.subjectid:
     EXPORT STREAM s0 dynSubject.
@@ -181,6 +179,12 @@ OUTPUT TO VALUE(cOutDir + "\dynPrgrmsPage.d").
 FOR EACH dynPrgrmsPage NO-LOCK :
     EXPORT dynPrgrmsPage.
 END. /* each dynParamValue */
+OUTPUT CLOSE.
+
+OUTPUT TO VALUE(cOutDir + "\dynLookup.d").
+FOR EACH dynLookup NO-LOCK :
+    EXPORT dynLookup.
+END. /* each dynLookup */
 OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile estCostCategory
@@ -266,6 +270,21 @@ FOR EACH {&cFile}:
     EXPORT {&cFile}.
 END.
 OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile apiClient
+OUTPUT TO VALUE(cOutDir + "\APIData\{&cFile}.d").
+FOR EACH {&cFile} WHERE {&cFile}.clientID BEGINS "_default":
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile apiClientXref
+OUTPUT TO VALUE(cOutDir + "\APIData\{&cFile}.d").
+FOR EACH {&cFile} WHERE {&cFile}.clientID BEGINS "_default":
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
 
 
 

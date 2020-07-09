@@ -10,44 +10,43 @@
 /* op-access-list    = list of 1's and 0's indicating can-run, etc in case this is needed  */
 /*                     (position 1 = can-run, 2 = update, 3 = create, 4 = delete)          */
 
-DEF INPUT PARAMETER ip-program AS CHAR NO-UNDO.
-DEF INPUT PARAMETER ip-basis   AS CHAR NO-UNDO.
+DEFINE INPUT  PARAMETER ip-program         AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ip-basis           AS CHARACTER NO-UNDO.
 /* ip-basis can be access, view, add, update, delete or all */
-DEF INPUT PARAMETER ip-directory-check AS LOG NO-UNDO.
-DEF INPUT PARAMETER ip-show-messages AS LOG NO-UNDO.
-DEF INPUT PARAMETER ip-group-override AS LOG NO-UNDO.
-DEF OUTPUT PARAMETER op-run-access   AS LOG NO-UNDO.
-DEF OUTPUT PARAMETER op-access-close AS LOG NO-UNDO.
-DEF OUTPUT PARAMETER op-access-list AS CHAR NO-UNDO. /* list of 0 = no, 1 = yes */
+DEFINE INPUT  PARAMETER ip-directory-check AS LOGICAL   NO-UNDO.
+DEFINE INPUT  PARAMETER ip-show-messages   AS LOGICAL   NO-UNDO.
+DEFINE INPUT  PARAMETER ip-group-override  AS LOGICAL   NO-UNDO.
+DEFINE OUTPUT PARAMETER op-run-access      AS LOGICAL   NO-UNDO.
+DEFINE OUTPUT PARAMETER op-access-close    AS LOGICAL   NO-UNDO.
+DEFINE OUTPUT PARAMETER op-access-list     AS CHARACTER NO-UNDO. /* list of 0 = no, 1 = yes */
 
 {methods/defines/globdefs.i}
 
 DEFINE BUFFER b-prgrms FOR prgrms.
 
-DEFINE VARIABLE v-prgmname LIKE b-prgrms.prgmname NO-UNDO.
-DEFINE VARIABLE v-dirname LIKE b-prgrms.DIR_group NO-UNDO.
+DEFINE VARIABLE v-prgmname LIKE b-prgrms.prgmname  NO-UNDO.
+DEFINE VARIABLE v-dirname  LIKE b-prgrms.dir_group NO-UNDO.
+DEFINE VARIABLE period_pos   AS INTEGER   NO-UNDO.
+DEFINE VARIABLE num-groups   AS INTEGER   NO-UNDO.
+DEFINE VARIABLE group-ok     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE access-close AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE run-access   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE v_groups     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-can-run    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE v-can-view   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE v-can-update AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE v-can-create AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE v-can-delete AS LOGICAL   NO-UNDO.
 
-DEFINE VARIABLE period_pos AS INTEGER NO-UNDO.
-DEFINE VARIABLE num-groups AS INTEGER NO-UNDO.
-DEFINE VARIABLE group-ok AS LOGICAL NO-UNDO.
-DEFINE VARIABLE access-close AS LOGICAL NO-UNDO .
-DEFINE VARIABLE run-access AS LOGICAL NO-UNDO.
-DEF VAR v_groups AS cha NO-UNDO.
-DEF VAR v-can-run AS LOG NO-UNDO.
-DEF VAR v-can-view AS LOG NO-UNDO.
-DEF VAR v-can-update AS LOG NO-UNDO.
-DEF VAR v-can-create AS LOG NO-UNDO.
-DEF VAR v-can-delete AS LOG NO-UNDO.
+{methods/fShowRestrictionMessage.i}
 
-FUNCTION get-char-log RETURNS CHAR
+FUNCTION get-char-log RETURNS CHARACTER
   ( ip-log-val AS LOG ) :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-
   RETURN (IF ip-log-val THEN "1" ELSE "0").
-
 END FUNCTION.
 
 IF ip-group-override THEN DO:
@@ -58,133 +57,122 @@ IF ip-group-override THEN DO:
     END.
 END.
 ELSE
-    v_groups = g_groups.
+v_groups = g_groups.
 
 IF INDEX(ip-program,".uib") NE 0 OR
    INDEX(ip-program,".ab")  NE 0 OR
-   INDEX(ip-program,".ped") NE 0 THEN v-prgmname = USERID("NOSWEAT") + "..".
+   INDEX(ip-program,".ped") NE 0 THEN
+v-prgmname = USERID("NOSWEAT") + "..".
 ELSE DO:
-   v-prgmname = ip-program.
-
-   IF INDEX(v-prgmname,"\") > 0 THEN v-prgmname = REPLACE(v-prgmname,"\","/").
-
-  ASSIGN
-  period_pos = INDEX(ip-program,".")
-  v-dirname = IF INDEX(v-prgmname,"/") > 0 THEN SUBSTRING(v-prgmname,1,INDEX(v-prgmname,"/") - 1) ELSE ""
-  v-prgmname = IF INDEX(v-prgmname,"/") > 0 THEN SUBSTR(v-prgmname,INDEX(v-prgmname,"/") + 1) ELSE v-prgmname
-  
-  /*v-prgmname = substring(ip-program,1,period_pos)*/
-  period_pos = INDEX(v-prgmname,".").
-  IF period_pos GT 0 THEN
-    v-prgmname = substring(v-prgmname,1,period_pos).
-
+    v-prgmname = ip-program.
+    IF INDEX(v-prgmname,"\") GT 0 THEN
+    v-prgmname = REPLACE(v-prgmname,"\","/").
+    ASSIGN
+        period_pos = INDEX(ip-program,".")
+        v-dirname  = IF INDEX(v-prgmname,"/") GT 0 THEN SUBSTRING(v-prgmname,1,INDEX(v-prgmname,"/") - 1) ELSE ""
+        v-prgmname = IF INDEX(v-prgmname,"/") GT 0 THEN SUBSTRING(v-prgmname,INDEX(v-prgmname,"/") + 1) ELSE v-prgmname
+        period_pos = INDEX(v-prgmname,".")
+        .
+    IF period_pos GT 0 THEN
+    v-prgmname = SUBSTRING(v-prgmname,1,period_pos).
 END.
-
-
-
 run-access = NO.
-FIND b-prgrms WHERE b-prgrms.prgmname = v-prgmname AND
-                    (b-prgrms.DIR_group = v-dirname 
-                     OR 
-                     NOT ip-directory-check)
-
-                     NO-LOCK NO-ERROR.
-
-IF NOT AVAIL b-prgrms THEN FIND b-prgrms WHERE b-prgrms.prgmname = v-prgmname NO-LOCK NO-ERROR.
-
-
-IF AVAILABLE b-prgrms THEN
-DO:
-  DO num-groups = 1 TO NUM-ENTRIES(v_groups):
-    
-    IF NOT CAN-DO(REPLACE(b-prgrms.can_run," ",""),ENTRY(num-groups,v_groups)) AND       
-       NOT CAN-DO(REPLACE(b-prgrms.can_update," ",""),ENTRY(num-groups,v_groups)) AND
-       NOT CAN-DO(REPLACE(b-prgrms.can_create," ",""),ENTRY(num-groups,v_groups)) AND
-       NOT CAN-DO(REPLACE(b-prgrms.can_delete," ",""),ENTRY(num-groups,v_groups)) THEN
-    NEXT.
-    
-    IF NOT v-can-run AND CAN-DO(REPLACE(b-prgrms.can_run," ",""),ENTRY(num-groups,v_groups))
-          THEN v-can-run = YES.
-    IF NOT v-can-update AND CAN-DO(REPLACE(b-prgrms.can_update," ",""),ENTRY(num-groups,v_groups))
-          THEN v-can-update = YES.
-    IF NOT v-can-create AND CAN-DO(REPLACE(b-prgrms.can_create," ",""),ENTRY(num-groups,v_groups))
-          THEN v-can-create = YES.
-    IF NOT v-can-delete AND CAN-DO(REPLACE(b-prgrms.can_delete," ",""),ENTRY(num-groups,v_groups))
-          THEN v-can-delete = YES.
-        
-    group-ok = yes.
-    CASE ip-basis:
-        WHEN "ACCESS" THEN run-access = v-can-run.        
-        WHEN "VIEW"   THEN run-access = v-can-run.
-        WHEN "CREATE" THEN run-access = v-can-create.
-        WHEN "UPDATE" THEN run-access = v-can-update.
-        WHEN "DELETE" THEN run-access = v-can-delete.
-        WHEN "ALL" THEN run-access = v-can-run AND v-can-create AND v-can-update
-                                     AND v-can-delete.
-    END CASE.
-    
-    /* LEAVE.  */
-  END.
-
-  IF NOT CAN-DO(REPLACE(b-prgrms.can_run," ",""),USERID("ASI")) AND
-     NOT CAN-DO(REPLACE(b-prgrms.can_update," ",""),USERID("ASI")) AND
-     NOT CAN-DO(REPLACE(b-prgrms.can_create," ",""),USERID("ASI")) AND
-     NOT CAN-DO(REPLACE(b-prgrms.can_delete," ",""),USERID("ASI")) AND NOT group-ok THEN
-  DO:
-    IF ip-show-messages THEN
-    MESSAGE "Program :" ip-program SKIP "Title :" b-prgrms.prgtitle SKIP(1)
-        "Access to this Program Denied - Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
-
-    access-close = YES.  /* used later in methods/template/windows.i - local-initialize procedure */
-    run-access = NO.
-    CASE ip-basis:
-        WHEN "ACCESS" THEN run-access = v-can-run.        
-        WHEN "VIEW"   THEN run-access = v-can-run.
-        WHEN "CREATE" THEN run-access = v-can-create.
-        WHEN "UPDATE" THEN run-access = v-can-update.
-        WHEN "DELETE" THEN run-access = v-can-delete.
-        WHEN "ALL" THEN run-access = v-can-run AND v-can-create AND v-can-update
-                                     AND v-can-delete.
-    END CASE.
-  
-  END.
-  ELSE DO:
-      IF NOT v-can-run AND CAN-DO(REPLACE(b-prgrms.can_run," ",""),USERID("NOSWEAT"))
-            THEN v-can-run = YES.
-      IF NOT v-can-update AND CAN-DO(REPLACE(b-prgrms.can_update," ",""),USERID("NOSWEAT"))
-            THEN v-can-update = YES.
-      IF NOT v-can-create AND CAN-DO(REPLACE(b-prgrms.can_create," ",""),USERID("NOSWEAT"))
-            THEN v-can-create = YES.
-      IF NOT v-can-delete AND CAN-DO(REPLACE(b-prgrms.can_delete," ",""),USERID("NOSWEAT"))
-            THEN v-can-delete = YES.
-      IF v-can-run THEN
-          run-access = NO.
-
-      CASE ip-basis:
-          WHEN "ACCESS" THEN run-access = v-can-run.        
-          WHEN "VIEW"   THEN run-access = v-can-run.
-          WHEN "CREATE" THEN run-access = v-can-create.
-          WHEN "UPDATE" THEN run-access = v-can-update.
-          WHEN "DELETE" THEN run-access = v-can-delete.
-          WHEN "ALL" THEN run-access = v-can-run AND v-can-create AND v-can-update
-                                       AND v-can-delete.
-      END CASE.
-
-  END.
+FIND FIRST b-prgrms NO-LOCK
+     WHERE b-prgrms.prgmname   EQ v-prgmname
+       AND (b-prgrms.DIR_group EQ v-dirname
+        OR NOT ip-directory-check)
+     NO-ERROR.
+IF NOT AVAILABLE b-prgrms THEN
+FIND FIRST b-prgrms NO-LOCK
+     WHERE b-prgrms.prgmname EQ v-prgmname
+     NO-ERROR.
+IF AVAILABLE b-prgrms THEN DO:
+    DO num-groups = 1 TO NUM-ENTRIES(v_groups):    
+        IF NOT CAN-DO(REPLACE(b-prgrms.can_run," ",""),   ENTRY(num-groups,v_groups)) AND       
+           NOT CAN-DO(REPLACE(b-prgrms.can_update," ",""),ENTRY(num-groups,v_groups)) AND
+           NOT CAN-DO(REPLACE(b-prgrms.can_create," ",""),ENTRY(num-groups,v_groups)) AND
+           NOT CAN-DO(REPLACE(b-prgrms.can_delete," ",""),ENTRY(num-groups,v_groups)) THEN
+        NEXT.    
+        IF NOT v-can-run    AND CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   ENTRY(num-groups,g_groups)) THEN
+        v-can-run    = YES.
+        IF NOT v-can-update AND CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),ENTRY(num-groups,g_groups)) THEN
+        v-can-update = YES.
+        IF NOT v-can-create AND CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),ENTRY(num-groups,g_groups)) THEN
+        v-can-create = YES.
+        IF NOT v-can-delete AND CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),ENTRY(num-groups,g_groups)) THEN
+        v-can-delete = YES.
+        group-ok     = YES.
+        CASE ip-basis:
+            WHEN "ACCESS" THEN run-access = v-can-run.        
+            WHEN "VIEW"   THEN run-access = v-can-run.
+            WHEN "CREATE" THEN run-access = v-can-create.
+            WHEN "UPDATE" THEN run-access = v-can-update.
+            WHEN "DELETE" THEN run-access = v-can-delete.
+            WHEN "ALL" THEN run-access = v-can-run AND v-can-create AND v-can-update
+                                         AND v-can-delete.
+        END CASE.
+    END.
+    IF NOT CAN-DO(REPLACE(b-prgrms.can_run," ",""),   USERID("ASI")) AND
+       NOT CAN-DO(REPLACE(b-prgrms.can_update," ",""),USERID("ASI")) AND
+       NOT CAN-DO(REPLACE(b-prgrms.can_create," ",""),USERID("ASI")) AND
+       NOT CAN-DO(REPLACE(b-prgrms.can_delete," ",""),USERID("ASI")) AND
+       NOT group-ok THEN DO:
+        IF ip-show-messages AND fShowRestrictionMessage(g_company) THEN
+        MESSAGE
+            "Program :" ip-program SKIP
+            "Title :" b-prgrms.prgtitle SKIP(1)
+            "Access to this Program Denied - Contact Systems Manager"
+        VIEW-AS ALERT-BOX ERROR.
+        ASSIGN
+            access-close = YES  /* used later in methods/template/windows.i - local-initialize procedure */
+            run-access   = NO
+            .
+        CASE ip-basis:
+            WHEN "ACCESS" THEN run-access = v-can-run.        
+            WHEN "VIEW"   THEN run-access = v-can-run.
+            WHEN "CREATE" THEN run-access = v-can-create.
+            WHEN "UPDATE" THEN run-access = v-can-update.
+            WHEN "DELETE" THEN run-access = v-can-delete.
+            WHEN "ALL" THEN run-access = v-can-run AND v-can-create AND v-can-update
+                                         AND v-can-delete.
+        END CASE.
+    END.
+    ELSE DO:
+        IF NOT v-can-run    AND CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   USERID("ASI")) THEN
+        v-can-run    = YES.
+        IF NOT v-can-update AND CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),USERID("ASI")) THEN
+        v-can-run    = YES.
+        IF NOT v-can-create AND CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),USERID("ASI")) THEN
+        v-can-create = YES.
+        IF NOT v-can-delete AND CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),USERID("ASI")) THEN
+        v-can-create = YES.
+        IF v-can-run THEN
+        run-access = NO.
+        CASE ip-basis:
+            WHEN "ACCESS" THEN run-access = v-can-run.        
+            WHEN "VIEW"   THEN run-access = v-can-run.
+            WHEN "CREATE" THEN run-access = v-can-create.
+            WHEN "UPDATE" THEN run-access = v-can-update.
+            WHEN "DELETE" THEN run-access = v-can-delete.
+            WHEN "ALL" THEN run-access = v-can-run AND v-can-create AND v-can-update
+                                           AND v-can-delete.
+        END CASE.
+    END.
 END. 
-ELSE
-DO: 
-  IF ip-show-messages THEN
-  MESSAGE "Program :" ip-program SKIP(1)
-      "Program Master Record Does Not Exist - Contact Systems Manager" 
-          VIEW-AS ALERT-BOX ERROR.
-  run-access = NO.
+ELSE DO: 
+    IF ip-show-messages THEN
+    MESSAGE
+        "Program :" ip-program SKIP(1)
+        "Program Master Record Does Not Exist - Contact Systems Manager" 
+    VIEW-AS ALERT-BOX ERROR.
+    run-access = NO.
 END.
 
-op-access-close = access-close.
-op-run-access   = run-access.
-
-SUBSTRING(op-access-list, 1, 1) = get-char-log(v-can-run).
-SUBSTRING(op-access-list, 2, 1) = get-char-log(v-can-update).
-SUBSTRING(op-access-list, 3, 1) = get-char-log(v-can-create).
-SUBSTRING(op-access-list, 4, 1) = get-char-log(v-can-delete).
+ASSIGN
+    op-access-close = access-close
+    op-run-access   = run-access
+    SUBSTRING(op-access-list, 1, 1) = get-char-log(v-can-run)
+    SUBSTRING(op-access-list, 2, 1) = get-char-log(v-can-update)
+    SUBSTRING(op-access-list, 3, 1) = get-char-log(v-can-create)
+    SUBSTRING(op-access-list, 4, 1) = get-char-log(v-can-delete)
+    .

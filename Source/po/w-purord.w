@@ -104,7 +104,7 @@ DEFINE VARIABLE h_v-pohold AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-purord AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vi-poord AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-poord AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -379,6 +379,14 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/import.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_import ).
+       RUN set-position IN h_import ( 1.00 , 9.50 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/export.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -405,6 +413,9 @@ PROCEDURE adm-create-objects :
              OUTPUT h_b-po-inq ).
        RUN set-position IN h_b-po-inq ( 4.57 , 3.00 ) NO-ERROR.
        /* Size in UIB:  ( 20.00 , 148.00 ) */
+       
+       /* Links to SmartViewer h_import. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
 
        /* Links to SmartViewer h_export. */
        RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'export-xl':U , h_export ).
@@ -646,6 +657,23 @@ PROCEDURE enable_UI :
   VIEW FRAME message-frame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-message-frame}
   VIEW W-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
+PROCEDURE import-file :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+ RUN util/dev/impPo.p .
+ IF VALID-HANDLE(h_b-po-inq) THEN
+ RUN local-open-query IN h_b-po-inq .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

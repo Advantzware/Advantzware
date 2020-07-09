@@ -30,6 +30,7 @@
 
 /* Parameters Definitions ---                                           */
 DEF INPUT PARAMETER ipcUserID AS CHAR NO-UNDO.
+DEF INPUT PARAMETER ipiStackDays AS INT NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 DEF VAR iCtr AS INT NO-UNDO.
@@ -59,13 +60,13 @@ AuditHdr.AuditDateTime AuditHdr.AuditKey prgrms.prgtitle
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2 
 &Scoped-define QUERY-STRING-BROWSE-2 FOR EACH AuditHdr ~
       WHERE AuditHdr.AuditUser = ipcUserID and  ~
-date(auditHdr.auditDateTime) GT (today - 7) and ~
+auditHdr.auditDateTime GT datetime(today - ipiStackDays) and ~
 auditHdr.auditKey ne "" NO-LOCK, ~
       EACH prgrms WHERE prgrms.prgmname = AuditHdr.AuditTable NO-LOCK ~
     BY AuditHdr.AuditDateTime DESCENDING INDEXED-REPOSITION
 &Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY BROWSE-2 FOR EACH AuditHdr ~
       WHERE AuditHdr.AuditUser = ipcUserID and  ~
-date(auditHdr.auditDateTime) GT (today - 7) and ~
+auditHdr.auditDateTime GT datetime(today - ipiStackDays) and ~
 auditHdr.auditKey ne "" NO-LOCK, ~
       EACH prgrms WHERE prgrms.prgmname = AuditHdr.AuditTable NO-LOCK ~
     BY AuditHdr.AuditDateTime DESCENDING INDEXED-REPOSITION.

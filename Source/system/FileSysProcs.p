@@ -21,6 +21,11 @@ DEFINE VARIABLE cForwardSlash      AS CHARACTER NO-UNDO INITIAL "/".
 FUNCTION fFormatFilePath RETURNS CHARACTER
     ( ipcFilePath AS CHARACTER ) FORWARD.
 
+
+
+/* **********************  Internal Procedures  *********************** */
+
+
 PROCEDURE FileSys_GetTempDirectory:
     /*------------------------------------------------------------------------------
      Purpose: Public wrapper procedure to fetch the temporary directory
@@ -85,6 +90,52 @@ PROCEDURE FileSys_CreateDirectory:
         ) NO-ERROR.
 END PROCEDURE.
 
+PROCEDURE FileSys_GetUniqueFileName:
+/*------------------------------------------------------------------------------
+ Purpose: Returns a unique file name in a given directory 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcFullFilePath          AS CHARACTER NO-UNDO. 
+    DEFINE INPUT  PARAMETER iplAutoIncrementFileName AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFullFilePath          AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess               AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage               AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFilePath AS CHARACTER NO-UNDO.    
+    
+    ASSIGN 
+        cFileName = fFormatFilePath(ipcFullFilePath)
+        cFilePath = cFileName
+        .
+    
+    RUN pGetFilePath (
+        INPUT  ipcFullFilePath,
+        OUTPUT cFilePath,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ) NO-ERROR.
+    
+    /* Below code gets the file name from file path name */
+    cFileName = ENTRY(NUM-ENTRIES(cFileName,cBackwardSlash),cFileName,cBackwardSlash) NO-ERROR.
+         
+    IF NOT iplAutoIncrementFileName THEN    
+        opcFullFilePath = ipcFullFilePath.     
+    ELSE       
+        RUN pGetUniqueFileName (
+            INPUT  cFilePath,
+            INPUT  cFileName,
+            INPUT  TRUE,    /* Create directory */
+            INPUT  FALSE,   /* Create file */  
+            INPUT  " (",    /* File count prefix */
+            INPUT  ")",     /* File count suffix */
+            OUTPUT opcFullFilePath,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage 
+            ).
+
+END PROCEDURE.
+
 PROCEDURE FileSys_ValidateDirectory:
     /*------------------------------------------------------------------------------
      Purpose: Public wrapper procedure to validate the input directory
@@ -145,6 +196,132 @@ PROCEDURE pGetSessionTempDirectory PRIVATE:
 
     opcPath = fFormatFilePath (SESSION:TEMP-DIRECTORY).
 END.
+
+PROCEDURE pGetUniqueFileName:
+/*------------------------------------------------------------------------------
+ Purpose: Returns a unique file name 
+ Notes:
+    INPUT  ipcFilePath        - Path of the file name. Mandatory. Non-empty
+    INPUT  ipcFileName        - File name. Mandatory. Non-empty
+    INPUT  iplCreateDir       - Create directory? TRUE/FALSE
+    INPUT  iplCreateFile      - Create file? TRUE/FALSE
+    INPUT  ipcFileCountPrefix - Prefix to the file count, if an input file already exists
+    INPUT  ipcFileCountSuffix - Suffix to the file count, if an input file already exists
+    OUTPUT opcFullFilePath    - Full file path
+    OUTPUT oplSuccess         - Success flag
+    OUTPUT opcMessage         - Error messages
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcFilePath        AS CHARACTER NO-UNDO. 
+    DEFINE INPUT  PARAMETER ipcFileName        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplCreateDir       AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplCreateFile      AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFileCountPrefix AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFileCountSuffix AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFullFilePath    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cFilePath     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFileName     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFileNameExt  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFullFilePath AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iFileCount    AS INTEGER   NO-UNDO INITIAL 1.
+    
+    /* Validate empty file path */
+    IF ipcFilePath EQ "" THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Empty file path"
+            .
+        RETURN.     
+    END.
+
+    /* Validate empty file name */
+    IF ipcFileName EQ "" THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Empty file name"
+            .
+        RETURN.     
+    END.    
+
+    /* If iplCreateDir is false and file path does not exist return with error */
+    IF NOT iplCreateDir THEN DO:
+        RUN pValidateDirectory (
+            INPUT  ipcFilePath,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ).
+        
+        IF NOT oplSuccess THEN
+            RETURN.
+    END.
+
+    ASSIGN
+        cFilePath = IF SUBSTRING(ipcFilePath, LENGTH(ipcFilePath), 1) EQ "/" OR
+                       SUBSTRING(ipcFilePath, LENGTH(ipcFilePath), 1) EQ "\" THEN
+                        SUBSTRING(ipcFilePath, 1, LENGTH(ipcFilePath) - 1)
+                    ELSE
+                        ipcFilePath
+        cFileName = ipcFileName
+        .
+
+    /* No file exists with given file name in file path */
+    IF SEARCH(cFilePath + "\" + cFileName) EQ ? THEN
+        cFullFilePath = cFilePath + "\" + cFileName.
+    ELSE DO:
+        /* Extract the file name extension */
+        IF INDEX(ipcFileName, ".") GT 0 THEN
+            cFileNameExt = "." + ENTRY(NUM-ENTRIES(ipcFileName, "."), ipcFileName, ".").
+        
+        /* Remove the file name extension from file name. Will be appended later */
+        IF cFileNameExt NE "" THEN
+            cFileName = REPLACE(cFileName, cFileNameExt, "").
+
+        cFullFilePath = cFilePath + "\" + cFileName 
+                      + ipcFileCountPrefix + STRING(iFileCount) + ipcFileCountSuffix
+                      + cFileNameExt.
+
+        /* Search if the given file exists, if already available increment the file count */
+        DO WHILE SEARCH(cFullFilePath) NE ?:
+            ASSIGN
+                iFileCount    = iFileCount + 1
+                cFullFilePath = cFilePath + "\" + cFileName 
+                              + ipcFileCountPrefix + STRING(iFileCount) + ipcFileCountSuffix
+                              + cFileNameExt
+                .            
+        END.
+    END.
+
+    opcFullFilePath = cFullFilePath.
+    
+    /* pCreateFile procedure will automatically create the directory with file,
+       so verify if iplCreateFile is false to avoid a procedure call */
+    IF iplCreateDir AND NOT iplCreateFile THEN DO:
+        RUN pCreateDirectory (
+            INPUT  cFilePath,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ).
+        
+        IF NOT oplSuccess THEN
+            RETURN.
+    END.
+
+    /* Create file. This will reserve the file for use as well */
+    IF iplCreateFile THEN
+        RUN pCreateFile (
+            INPUT  opcFullFilePath,
+            INPUT  TRUE,            /* Create directory */
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ).
+    ELSE
+        ASSIGN
+            oplSuccess = TRUE
+            opcMessage = "Success"
+            .
+END PROCEDURE.
 
 PROCEDURE pGetUserReportDirectory PRIVATE:
     /*------------------------------------------------------------------------------

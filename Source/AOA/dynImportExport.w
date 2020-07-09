@@ -1,6 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
@@ -38,9 +39,19 @@ DEFINE OUTPUT PARAMETER oplRefresh AS LOGICAL NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
+DEFINE VARIABLE cBrowseName     AS CHARACTER NO-UNDO INITIAL "subjectBrowse".
 DEFINE VARIABLE cDynamicParam   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cDynamicSubject AS CHARACTER NO-UNDO INITIAL
-    "dynSubject,dynSubjectTable,dynSubjectWhere,dynSubjectColumn,dynSubjectParamSet,dynParamValue".
+DEFINE VARIABLE cDynamicSubject AS CHARACTER NO-UNDO INITIAL "~
+dynSubject,~
+dynSubjectTable,~
+dynSubjectWhere,~
+dynSubjectColumn,~
+dynSubjectParamSet,~
+dynParamValue,~
+dynValueColumn,~
+dynValueParam,~
+dynValueParamSet~
+".
 DEFINE VARIABLE cFolder         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE idx             AS INTEGER NO-UNDO.
 
@@ -57,6 +68,9 @@ DEFINE TEMP-TABLE ttDynSubjectColumn   NO-UNDO LIKE dynSubjectColumn.
 DEFINE TEMP-TABLE ttDynSubjectParamSet NO-UNDO LIKE dynSubjectParamSet.
 DEFINE TEMP-TABLE ttDynSubjectTable    NO-UNDO LIKE dynSubjectTable.
 DEFINE TEMP-TABLE ttDynSubjectWhere    NO-UNDO LIKE dynSubjectWhere.
+DEFINE TEMP-TABLE ttDynValueColumn     NO-UNDO LIKE dynValueColumn.
+DEFINE TEMP-TABLE ttDynValueParam      NO-UNDO LIKE dynValueParam.
+DEFINE TEMP-TABLE ttDynValueParamSet   NO-UNDO LIKE dynValueParamSet.
 DEFINE TEMP-TABLE ttPrgrms             NO-UNDO
     FIELD prgmName      LIKE prgrms.prgmName
     FIELD subjectID     LIKE prgrms.subjectID
@@ -79,10 +93,22 @@ DEFINE TEMP-TABLE ttPrgrms             NO-UNDO
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
-&Scoped-define BROWSE-NAME paramSetBrowse
+&Scoped-define BROWSE-NAME lookupBrowse
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ttDynParamSet ttDynSubject
+&Scoped-define INTERNAL-TABLES dynLookup ttDynParamSet ttDynSubject
+
+/* Definitions for BROWSE lookupBrowse                                  */
+&Scoped-define FIELDS-IN-QUERY-lookupBrowse dynLookup.fieldName ~
+dynLookup.tableName dynLookup.subjectID dynLookup.prgmName 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-lookupBrowse 
+&Scoped-define QUERY-STRING-lookupBrowse FOR EACH dynLookup NO-LOCK ~
+    ~{&SORTBY-PHRASE} INDEXED-REPOSITION
+&Scoped-define OPEN-QUERY-lookupBrowse OPEN QUERY lookupBrowse FOR EACH dynLookup NO-LOCK ~
+    ~{&SORTBY-PHRASE} INDEXED-REPOSITION.
+&Scoped-define TABLES-IN-QUERY-lookupBrowse dynLookup
+&Scoped-define FIRST-TABLE-IN-QUERY-lookupBrowse dynLookup
+
 
 /* Definitions for BROWSE paramSetBrowse                                */
 &Scoped-define FIELDS-IN-QUERY-paramSetBrowse ttDynParamSet.setName ttDynParamSet.paramSetID ttDynParamSet.paramSetType ttDynParamSet.exportParamSet   
@@ -110,13 +136,14 @@ DEFINE TEMP-TABLE ttPrgrms             NO-UNDO
 
 /* Definitions for FRAME DEFAULT-FRAME                                  */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME ~
+    ~{&OPEN-QUERY-lookupBrowse}~
     ~{&OPEN-QUERY-paramSetBrowse}~
     ~{&OPEN-QUERY-subjectBrowse}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS subjectBrowse btnExit paramSetBrowse ~
-lExportSubject btnExport lExportParamSet cImportExportFolder lDefaultOnly ~
-lExportDynLookup lExportDynPageParams btnImport 
+&Scoped-Define ENABLED-OBJECTS subjectBrowse paramSetBrowse lookupBrowse ~
+btnExit lExportSubject lExportParamSet cImportExportFolder btnExport ~
+lDefaultOnly lExportDynLookup lExportDynPageParams btnImport 
 &Scoped-Define DISPLAYED-OBJECTS lExportSubject lExportParamSet ~
 cImportExportFolder lDefaultOnly lExportDynLookup lExportDynPageParams 
 
@@ -155,11 +182,11 @@ DEFINE BUTTON btnImport
 DEFINE VARIABLE cImportExportFolder AS CHARACTER FORMAT "X(256)":U INITIAL "C:~\tmp" 
      LABEL "Import/Export Folder" 
      VIEW-AS FILL-IN 
-     SIZE 22 BY 1 NO-UNDO.
+     SIZE 35 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE portRect
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 62 BY 3.57
+     SIZE 75 BY 3.57
      BGCOLOR 8 .
 
 DEFINE VARIABLE lDefaultOnly AS LOGICAL INITIAL yes 
@@ -189,6 +216,9 @@ DEFINE VARIABLE lExportSubject AS LOGICAL INITIAL no
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
+DEFINE QUERY lookupBrowse FOR 
+      dynLookup SCROLLING.
+
 DEFINE QUERY paramSetBrowse FOR 
       ttDynParamSet SCROLLING.
 
@@ -197,6 +227,18 @@ DEFINE QUERY subjectBrowse FOR
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
+DEFINE BROWSE lookupBrowse
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS lookupBrowse C-Win _STRUCTURED
+  QUERY lookupBrowse NO-LOCK DISPLAY
+      dynLookup.fieldName FORMAT "x(20)":U LABEL-BGCOLOR 14
+      dynLookup.tableName FORMAT "x(20)":U LABEL-BGCOLOR 14
+      dynLookup.subjectID FORMAT ">,>>>,>>9":U LABEL-BGCOLOR 14
+      dynLookup.prgmName FORMAT "x(40)":U LABEL-BGCOLOR 14
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 75 BY 24.76
+         TITLE "Dynamic Lookups" FIT-LAST-COLUMN.
+
 DEFINE BROWSE paramSetBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS paramSetBrowse C-Win _FREEFORM
   QUERY paramSetBrowse DISPLAY
@@ -208,7 +250,7 @@ ENABLE
 ttDynParamSet.exportParamSet
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 62 BY 24.76
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 62 BY 28.57
          TITLE "Dynamic Parameter Sets".
 
 DEFINE BROWSE subjectBrowse
@@ -230,25 +272,26 @@ ttDynSubject.exportSubject
 
 DEFINE FRAME DEFAULT-FRAME
      subjectBrowse AT ROW 1 COL 2 WIDGET-ID 200
-     btnExit AT ROW 27.43 COL 118 HELP
-          "Exit Design Layout Window" WIDGET-ID 32
      paramSetBrowse AT ROW 1 COL 65 WIDGET-ID 300
+     lookupBrowse AT ROW 1 COL 128 WIDGET-ID 400
+     btnExit AT ROW 27.43 COL 194 HELP
+          "Exit Design Layout Window" WIDGET-ID 32
      lExportSubject AT ROW 1.24 COL 55 WIDGET-ID 2
-     btnExport AT ROW 27.43 COL 102 HELP
-          "Export" WIDGET-ID 26
      lExportParamSet AT ROW 1.24 COL 118 WIDGET-ID 38
-     cImportExportFolder AT ROW 26.24 COL 86 COLON-ALIGNED HELP
+     cImportExportFolder AT ROW 26.24 COL 149 COLON-ALIGNED HELP
           "Enter Import~\Export Folder" WIDGET-ID 4
-     lDefaultOnly AT ROW 26.24 COL 111 WIDGET-ID 42
-     lExportDynLookup AT ROW 27.43 COL 66 WIDGET-ID 36
-     lExportDynPageParams AT ROW 28.38 COL 66 WIDGET-ID 40
-     btnImport AT ROW 27.43 COL 110 HELP
+     btnExport AT ROW 27.43 COL 170 HELP
+          "Export" WIDGET-ID 26
+     lDefaultOnly AT ROW 26.24 COL 187 WIDGET-ID 42
+     lExportDynLookup AT ROW 27.43 COL 133 WIDGET-ID 36
+     lExportDynPageParams AT ROW 28.38 COL 133 WIDGET-ID 40
+     btnImport AT ROW 27.43 COL 178 HELP
           "Import" WIDGET-ID 24
-     portRect AT ROW 26 COL 65 WIDGET-ID 20
+     portRect AT ROW 26 COL 128 WIDGET-ID 20
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 127 BY 28.57
+         SIZE 202.8 BY 28.57
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 
@@ -270,11 +313,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Dynamics Import/Export"
          HEIGHT             = 28.57
-         WIDTH              = 127
+         WIDTH              = 202.8
          MAX-HEIGHT         = 28.57
-         MAX-WIDTH          = 127
+         MAX-WIDTH          = 202.8
          VIRTUAL-HEIGHT     = 28.57
-         VIRTUAL-WIDTH      = 127
+         VIRTUAL-WIDTH      = 202.8
          MAX-BUTTON         = no
          RESIZE             = no
          SCROLL-BARS        = no
@@ -304,8 +347,12 @@ IF NOT C-Win:LOAD-ICON("Graphics/32x32/jss_icon_32.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB subjectBrowse 1 DEFAULT-FRAME */
-/* BROWSE-TAB paramSetBrowse btnExit DEFAULT-FRAME */
+/* BROWSE-TAB subjectBrowse portRect DEFAULT-FRAME */
+/* BROWSE-TAB paramSetBrowse subjectBrowse DEFAULT-FRAME */
+/* BROWSE-TAB lookupBrowse paramSetBrowse DEFAULT-FRAME */
+ASSIGN 
+       lookupBrowse:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
+
 ASSIGN 
        paramSetBrowse:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
 
@@ -322,6 +369,22 @@ THEN C-Win:HIDDEN = no.
 
 
 /* Setting information for Queries and Browse Widgets fields            */
+
+&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE lookupBrowse
+/* Query rebuild information for BROWSE lookupBrowse
+     _TblList          = "ASI.dynLookup"
+     _Options          = "NO-LOCK INDEXED-REPOSITION SORTBY-PHRASE"
+     _FldNameList[1]   > ASI.dynLookup.fieldName
+"dynLookup.fieldName" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > ASI.dynLookup.tableName
+"dynLookup.tableName" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.dynLookup.subjectID
+"dynLookup.subjectID" ? ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.dynLookup.prgmName
+"dynLookup.prgmName" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _Query            is OPENED
+*/  /* BROWSE lookupBrowse */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE paramSetBrowse
 /* Query rebuild information for BROWSE paramSetBrowse
@@ -473,13 +536,37 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define BROWSE-NAME lookupBrowse
+&Scoped-define SELF-NAME lookupBrowse
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lookupBrowse C-Win
+ON START-SEARCH OF lookupBrowse IN FRAME DEFAULT-FRAME /* Dynamic Lookups */
+DO:
+    IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
+        ASSIGN
+            cColumnLabel = SELF:CURRENT-COLUMN:NAME
+            cBrowseName  = "{&BROWSE-NAME}"
+            .
+        IF cColumnLabel EQ cSaveLabel THEN
+        lAscending = NOT lAscending.
+        cSaveLabel = cColumnLabel.
+        RUN pReopenBrowse.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define BROWSE-NAME paramSetBrowse
 &Scoped-define SELF-NAME paramSetBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL paramSetBrowse C-Win
 ON START-SEARCH OF paramSetBrowse IN FRAME DEFAULT-FRAME /* Dynamic Parameter Sets */
 DO:
     IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = SELF:CURRENT-COLUMN:NAME.
+        ASSIGN
+            cColumnLabel = SELF:CURRENT-COLUMN:NAME
+            cBrowseName  = "{&BROWSE-NAME}"
+            .
         IF cColumnLabel EQ cSaveLabel THEN
         lAscending = NOT lAscending.
         cSaveLabel = cColumnLabel.
@@ -497,7 +584,10 @@ END.
 ON START-SEARCH OF subjectBrowse IN FRAME DEFAULT-FRAME /* Dynamic Subjects */
 DO:
     IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = SELF:CURRENT-COLUMN:NAME.
+        ASSIGN
+            cColumnLabel = SELF:CURRENT-COLUMN:NAME
+            cBrowseName  = "{&BROWSE-NAME}"
+            .
         IF cColumnLabel EQ cSaveLabel THEN
         lAscending = NOT lAscending.
         cSaveLabel = cColumnLabel.
@@ -509,15 +599,12 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define BROWSE-NAME paramSetBrowse
+&Scoped-define BROWSE-NAME lookupBrowse
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
 
 
-/* ***************************  Main Block  *************************** */
-
-/* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
 
@@ -551,6 +638,12 @@ END.
 {methods/sortByProc.i "pByParamSetID" "ttDynParamSet.paramSetID"}
 {methods/sortByProc.i "pBySetName" "ttDynParamSet.setName"}
 {methods/sortByProc.i "pByParamSetType" "ttDynParamSet.paramSetType"}
+
+&Scoped-define sdBrowseName lookupBrowse
+{methods/sortByProc.i "pByTableName" "dynLookup.tableName"}
+{methods/sortByProc.i "pByFieldName" "dynLookup.fieldName"}
+{methods/sortByProc.i "pBySubject" "dynLookup.subjectID"}
+{methods/sortByProc.i "pByPrgmName" "dynLookup.prgmName"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -591,9 +684,9 @@ PROCEDURE enable_UI :
   DISPLAY lExportSubject lExportParamSet cImportExportFolder lDefaultOnly 
           lExportDynLookup lExportDynPageParams 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE subjectBrowse btnExit paramSetBrowse lExportSubject btnExport 
-         lExportParamSet cImportExportFolder lDefaultOnly lExportDynLookup 
-         lExportDynPageParams btnImport 
+  ENABLE subjectBrowse paramSetBrowse lookupBrowse btnExit lExportSubject 
+         lExportParamSet cImportExportFolder btnExport lDefaultOnly 
+         lExportDynLookup lExportDynPageParams btnImport 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -628,33 +721,33 @@ PROCEDURE pExport :
                 WHEN "dynSubjectTable" THEN
                 FOR EACH dynSubjectTable NO-LOCK
                     WHERE dynSubjectTable.subjectID EQ bDynSubject.subjectID
-                    BY dynSubjectTable.subjectID
-                    BY dynSubjectTable.sortOrder
+                       BY dynSubjectTable.subjectID
+                       BY dynSubjectTable.sortOrder
                     :
                     EXPORT dynSubjectTable.
                 END. /* each dynsubjecttable */
                 WHEN "dynSubjectWhere" THEN
                 FOR EACH dynSubjectWhere NO-LOCK
                     WHERE dynSubjectWhere.subjectID EQ bDynSubject.subjectID
-                    BY dynSubjectWhere.subjectID
-                    BY dynSubjectWhere.whereTable
-                    BY dynSubjectWhere.sortOrder
+                       BY dynSubjectWhere.subjectID
+                       BY dynSubjectWhere.whereTable
+                       BY dynSubjectWhere.sortOrder
                     :
                     EXPORT dynSubjectWhere.
                 END. /* each dynsubjectWhere */
                 WHEN "dynSubjectColumn" THEN
                 FOR EACH dynSubjectColumn NO-LOCK
                     WHERE dynSubjectColumn.subjectID EQ bDynSubject.subjectID
-                    BY dynSubjectColumn.subjectID
-                    BY dynSubjectColumn.sortOrder
+                       BY dynSubjectColumn.subjectID
+                       BY dynSubjectColumn.sortOrder
                     :
                     EXPORT dynSubjectColumn.
                 END. /* each dynsubjectColumn */
                 WHEN "dynSubjectParamSet" THEN
                 FOR EACH dynSubjectParamSet NO-LOCK
                     WHERE dynSubjectParamSet.subjectID EQ bDynSubject.subjectID
-                    BY dynSubjectParamSet.subjectID
-                    BY dynSubjectParamSet.sortOrder
+                       BY dynSubjectParamSet.subjectID
+                       BY dynSubjectParamSet.sortOrder
                     :
                     EXPORT dynSubjectParamSet.
                 END. /* each dynsubjectParamSet */
@@ -666,6 +759,30 @@ PROCEDURE pExport :
                     NEXT.
                     EXPORT dynParamValue.
                 END. /* each dynParamValue */
+                WHEN "dynValueColumn" THEN
+                FOR EACH dynValueColumn NO-LOCK
+                    WHERE dynValueColumn.subjectID EQ bDynSubject.subjectID
+                    :
+                    IF lDefaultOnly AND dynValueColumn.user-id NE "_default" THEN
+                    NEXT.
+                    EXPORT dynValueColumn.
+                END. /* each dynValueColumn */
+                WHEN "dynValueParam" THEN
+                FOR EACH dynValueParam NO-LOCK
+                    WHERE dynValueParam.subjectID EQ bDynSubject.subjectID
+                    :
+                    IF lDefaultOnly AND dynValueParam.user-id NE "_default" THEN
+                    NEXT.
+                    EXPORT dynValueParam.
+                END. /* each dynValueParam */
+                WHEN "dynValueParamSet" THEN
+                FOR EACH dynValueParamSet NO-LOCK
+                    WHERE dynValueParamSet.subjectID EQ bDynSubject.subjectID
+                    :
+                    IF lDefaultOnly AND dynValueParamSet.user-id NE "_default" THEN
+                    NEXT.
+                    EXPORT dynValueParamSet.
+                END. /* each dynValueParamSet */
             END CASE.
         END. /* each ttdynsubject */
         OUTPUT CLOSE.
@@ -833,6 +950,12 @@ PROCEDURE pImport :
     CREATE ttDynSubjectTable.
     EMPTY TEMP-TABLE ttDynSubjectWhere.
     CREATE ttDynSubjectWhere.
+    EMPTY TEMP-TABLE ttDynValueColumn.
+    CREATE ttDynValueColumn.
+    EMPTY TEMP-TABLE ttDynValueParam.
+    CREATE ttDynValueParam.
+    EMPTY TEMP-TABLE ttDynValueParamSet.
+    CREATE ttDynValueParamSet.
     
     DO idx = 1 TO NUM-ENTRIES(cDynamicTable):
         FIND FIRST ASI._file NO-LOCK
@@ -907,6 +1030,30 @@ PROCEDURE pImport :
                     IF NOT AVAILABLE dynParamValue THEN
                     CREATE dynParamValue.
                     BUFFER-COPY ttDynParamValue TO dynParamValue.
+                    FOR EACH dynValueColumn EXCLUSIVE-LOCK
+                        WHERE dynValueColumn.subjectID    EQ ttDynParamValue.subjectID   
+                          AND dynValueColumn.user-id      EQ ttDynParamValue.user-id     
+                          AND dynValueColumn.prgmName     EQ ttDynParamValue.prgmName    
+                          AND dynValueColumn.paramValueID EQ ttDynParamValue.paramValueID
+                        :
+                        DELETE dynValueColumn.
+                    END. /* each dynvaluecolumn */
+                    FOR EACH dynValueParam EXCLUSIVE-LOCK
+                        WHERE dynValueParam.subjectID    EQ ttDynParamValue.subjectID   
+                          AND dynValueParam.user-id      EQ ttDynParamValue.user-id     
+                          AND dynValueParam.prgmName     EQ ttDynParamValue.prgmName    
+                          AND dynValueParam.paramValueID EQ ttDynParamValue.paramValueID
+                        :
+                        DELETE dynValueParam.
+                    END. /* each dynvalueparam */
+                    FOR EACH dynValueParamSet EXCLUSIVE-LOCK
+                        WHERE dynValueParamSet.subjectID    EQ ttDynParamValue.subjectID   
+                          AND dynValueParamSet.user-id      EQ ttDynParamValue.user-id     
+                          AND dynValueParamSet.prgmName     EQ ttDynParamValue.prgmName    
+                          AND dynValueParamSet.paramValueID EQ ttDynParamValue.paramValueID
+                        :
+                        DELETE dynValueParamSet.
+                    END. /* each dynvalueparamset */
                     RELEASE dynParamValue.
                 END. /* dynParamValue */
                 WHEN "dynPrgrmsPage" THEN DO:
@@ -1009,6 +1156,33 @@ PROCEDURE pImport :
                     BUFFER-COPY ttDynSubjectWhere TO dynSubjectWhere.
                     RELEASE dynSubjectWhere.
                 END. /* dynSubjectWhere */
+                WHEN "dynValueColumn" THEN DO:
+                    IMPORT ttDynValueColumn.
+                    IF NOT CAN-FIND(FIRST dynSubject
+                                    WHERE dynSubject.subjectID EQ ttDynValueColumn.subjectID) THEN
+                    NEXT.
+                    CREATE dynValueColumn.
+                    BUFFER-COPY ttDynValueColumn TO dynValueColumn.
+                    RELEASE dynValueColumn.
+                END. /* dynValueColumn */
+                WHEN "dynValueParam" THEN DO:
+                    IMPORT ttDynValueParam.
+                    IF NOT CAN-FIND(FIRST dynSubject
+                                    WHERE dynSubject.subjectID EQ ttDynValueParam.subjectID) THEN
+                    NEXT.
+                    CREATE dynValueParam.
+                    BUFFER-COPY ttDynValueParam TO dynValueParam.
+                    RELEASE dynValueParam.
+                END. /* dynValueParam */
+                WHEN "dynValueParamSet" THEN DO:
+                    IMPORT ttDynValueParamSet.
+                    IF NOT CAN-FIND(FIRST dynSubject
+                                    WHERE dynSubject.subjectID EQ ttDynValueParamSet.subjectID) THEN
+                    NEXT.
+                    CREATE dynValueParamSet.
+                    BUFFER-COPY ttDynValueParamSet TO dynValueParamSet.
+                    RELEASE dynValueParamSet.
+                END. /* dynValueParamSet */
                 WHEN "prgrms" THEN DO:
                     IMPORT ttPrgrms.
                     FIND FIRST prgrms EXCLUSIVE-LOCK
@@ -1053,9 +1227,20 @@ PROCEDURE pInit :
 ------------------------------------------------------------------------------*/
     RUN pGetDynSubject.
     RUN pGetDynParamSet.
-    cColumnLabel = "setName".
+    ASSIGN
+        cBrowseName  = "subjectBrowse"
+        cColumnLabel = "subjectTitle"
+        .
     RUN pReopenBrowse.
-    cColumnLabel = "subjectTitle".
+    ASSIGN
+        cBrowseName  = "paramSetBrowse"
+        cColumnLabel = "setName"
+        .
+    RUN pReopenBrowse.
+    ASSIGN
+        cBrowseName  = "lookupBrowse"
+        cColumnLabel = "fieldName"
+        .
     RUN pReopenBrowse.
 
 END PROCEDURE.
@@ -1071,27 +1256,42 @@ PROCEDURE pReopenBrowse :
   Notes:       
 ------------------------------------------------------------------------------*/
     SESSION:SET-WAIT-STATE("General").
-    IF cColumnLabel BEGINS "subject" THEN
-    CASE cColumnLabel:
-        WHEN "subjectID" THEN
-        RUN pBySubjectID.
-        WHEN "subjectTitle" THEN
-        RUN pBySubjectTitle.
-        WHEN "subjectType" THEN
-        RUN pBySubjectType.
-        OTHERWISE
-        {&OPEN-QUERY-subjectBrowse}
-    END CASE.
-    ELSE
-    CASE cColumnLabel:
-        WHEN "paramSetID" THEN
-        RUN pByParamSetID.
-        WHEN "setName" THEN
-        RUN pBySetName.
-        WHEN "paramSetType" THEN
-        RUN pByParamSetType.
-        OTHERWISE
-        {&OPEN-QUERY-paramSetBrowse}
+    CASE cBrowseName:
+        WHEN "subjectBrowse" THEN
+        CASE cColumnLabel:
+            WHEN "subjectID" THEN
+            RUN pBySubjectID.
+            WHEN "subjectTitle" THEN
+            RUN pBySubjectTitle.
+            WHEN "subjectType" THEN
+            RUN pBySubjectType.
+            OTHERWISE
+            {&OPEN-QUERY-subjectBrowse}
+        END CASE.
+        WHEN "paramSetBrowse" THEN
+        CASE cColumnLabel:
+            WHEN "paramSetID" THEN
+            RUN pByParamSetID.
+            WHEN "setName" THEN
+            RUN pBySetName.
+            WHEN "paramSetType" THEN
+            RUN pByParamSetType.
+            OTHERWISE
+            {&OPEN-QUERY-paramSetBrowse}
+        END CASE.
+        WHEN "lookupBrowse" THEN
+        CASE cColumnLabel:
+            WHEN "tableName" THEN
+            RUN pByTableName.
+            WHEN "fieldName" THEN
+            RUN pByFieldName.
+            WHEN "subjectID" THEN
+            RUN pBySubject.
+            WHEN "prgmName" THEN
+            RUN pByPrgmName.
+            OTHERWISE
+            {&OPEN-QUERY-lookupBrowse}
+        END CASE.
     END CASE.
     SESSION:SET-WAIT-STATE("").
 

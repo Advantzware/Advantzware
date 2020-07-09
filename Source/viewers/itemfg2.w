@@ -79,14 +79,16 @@ DEFINE QUERY external_tables FOR itemfg.
 &Scoped-Define ENABLED-FIELDS itemfg.i-dscr itemfg.pur-uom itemfg.beg-date ~
 itemfg.vend-no itemfg.vend-item itemfg.vend2-no itemfg.vend2-item ~
 itemfg.ord-policy itemfg.stocked itemfg.repeatItem itemfg.alloc ~
-itemfg.ord-level itemfg.ord-min itemfg.ord-max itemfg.pur-uom itemfg.lead-days
+itemfg.ord-level itemfg.ord-min itemfg.ord-max itemfg.pur-uom itemfg.lead-days ~
+itemfg.productTaxClass
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1
 &Scoped-Define DISPLAYED-FIELDS itemfg.i-no itemfg.i-name itemfg.pur-uom ~
 itemfg.i-dscr itemfg.vend-no itemfg.vend-item itemfg.vend2-no itemfg.vend2-item ~
 itemfg.ord-policy itemfg.stocked itemfg.repeatItem itemfg.alloc ~
-itemfg.ord-level itemfg.ord-min itemfg.ord-max itemfg.lead-days itemfg.beg-date
+itemfg.ord-level itemfg.ord-min itemfg.ord-max itemfg.lead-days itemfg.beg-date ~
+itemfg.productTaxClass
 &Scoped-define DISPLAYED-TABLES itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg
 &Scoped-define calendarPopup btnCalendar-1
@@ -157,7 +159,7 @@ DEFINE FRAME F-Main
      itemfg.beg-date AT ROW 1.24 COL 124 COLON-ALIGNED 
           LABEL "Beg Bal Date"
           VIEW-AS FILL-IN 
-          SIZE 16 BY 1*/
+          SIZE 16 BY 1*/          
      itemfg.vend-no AT ROW 2.91 COL 14 COLON-ALIGNED
           LABEL "Vendor 1"
           VIEW-AS FILL-IN 
@@ -192,6 +194,11 @@ DEFINE FRAME F-Main
           LABEL "Repeat Item"
           VIEW-AS TOGGLE-BOX
           SIZE 20 BY .95
+     itemfg.productTaxClass AT ROW 2.71 COL 115 COLON-ALIGNED
+          LABEL "Product Tax Class" FORMAT "x(18)"
+          VIEW-AS FILL-IN 
+          SIZE 27 BY 1
+          BGCOLOR 15      
      itemfg.alloc AT ROW 3.86 COL 106 NO-LABEL
           VIEW-AS RADIO-SET VERTICAL
           RADIO-BUTTONS 
@@ -335,6 +342,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN itemfg.vend2-item IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN itemfg.productTaxClass IN FRAME F-Main
+   EXP-LABEL                                                            */    
 /* SETTINGS FOR FILL-IN itemfg.vend2-no IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main

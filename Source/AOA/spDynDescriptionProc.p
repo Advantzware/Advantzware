@@ -122,6 +122,15 @@ PROCEDURE dynDescripFlute:
     iphWidgetTo:SCREEN-VALUE = flute.dscr .
 END PROCEDURE.
 
+PROCEDURE dynDescripJobCode:
+    {&defInputParam}
+    FIND FIRST job-code NO-LOCK
+         WHERE job-code.CODE EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE job-code THEN
+    iphWidgetTo:SCREEN-VALUE = job-code.dscr .
+END PROCEDURE.
+
 PROCEDURE dynDescripLoc:
     {&defInputParam}
     FIND FIRST loc NO-LOCK
@@ -189,7 +198,6 @@ PROCEDURE dynDescripRouting:
     iphWidgetTo:SCREEN-VALUE = routing.dscr .
 END PROCEDURE.
 
-
 PROCEDURE dynDescripRMItem:
     {&defInputParam}
     FIND FIRST item NO-LOCK
@@ -198,6 +206,15 @@ PROCEDURE dynDescripRMItem:
          NO-ERROR.
     IF AVAILABLE item THEN
     iphWidgetTo:SCREEN-VALUE = item.i-name.       
+END PROCEDURE.
+
+PROCEDURE dynDescripSalesGroup:
+    {&defInputParam}
+    FIND FIRST usergrps NO-LOCK
+         WHERE usergrps.usergrps EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE usergrps THEN
+    iphWidgetTo:SCREEN-VALUE = usergrps.dscr.
 END PROCEDURE.
 
 PROCEDURE dynDescripSalesRep:

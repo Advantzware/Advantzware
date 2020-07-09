@@ -97,6 +97,8 @@ DEF VAR v-fglist     AS CHAR NO-UNDO.
 DEF VAR v-inolist    AS CHAR NO-UNDO.
 DEF VAR v-cnt        AS INT  NO-UNDO.
 DEF VAR v-totflg     AS LOG  NO-UNDO.
+DEFINE VARIABLE cPhone AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFax AS CHARACTER NO-UNDO.
 
 v-dash-line = fill ("_",80).
 
@@ -624,11 +626,18 @@ print-po-blok:
          "<R64>"
          ' ____________________Please initial & Fax to "Buyer" ' SKIP
         SKIP.
+        
+      IF po-ord.ship-id  EQ "003" THEN
+       ASSIGN cPhone = "(256)998-9400" 
+              cFax = "(256)998-9399".
+       ELSE
+       ASSIGN cPhone = "(813)907-6031" 
+              cFax = "(813)907-6092".
 
      PUT "<FArial><R59.5><C1>*Deliveries accepted <B>7:00a.m - 2:30p.m</B>." SKIP      
          " <R60.5><C1>*Mark all units with purchase order number and quantity." SKIP 
-         " <R61.5><C1>*If delivery date cannot be met call <B>(813)907-6031</B>." SKIP
-         " <R62.5><C1>*or Fax <B>(813)907-6092</B>." SKIP                             
+         " <R61.5><C1>*If delivery date cannot be met call <B>" cPhone FORMAT "x(15)" "</B>." SKIP
+         " <R62.5><C1>*or Fax <B>" cFax FORMAT "x(15)" "</B>." SKIP                             
         SKIP.
 
 

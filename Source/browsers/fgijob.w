@@ -297,11 +297,11 @@ DEFINE BROWSE br_table
     w-job.cases                LABEL "Units"                                                  LABEL-BGCOLOR 14
     w-job.case-count           LABEL "Unit Count"             FORMAT ">>>,>>9"                LABEL-BGCOLOR 14
     w-job.cases-unit           COLUMN-LABEL "Units/!Pallet"   FORMAT ">>>,>>9"                LABEL-BGCOLOR 14
-    w-job.partial-count        LABEL "Partial"                FORMAT "->>,>>9"                LABEL-BGCOLOR 14
-    w-job.qty                  LABEL "Total Qty"              FORMAT "->>>,>>9"               LABEL-BGCOLOR 14
-    w-job.rel-qty              LABEL "Releases"               FORMAT "->>>,>>9"               LABEL-BGCOLOR 14
-    w-job.bol-qty              LABEL "BOL Qty"                FORMAT "->>>,>>9"               LABEL-BGCOLOR 14
-    w-job.avl-qty              LABEL "Avail to Release"       FORMAT "->>>,>>9"               LABEL-BGCOLOR 14
+    w-job.partial-count        LABEL "Partial"                FORMAT "->>>,>>9"                LABEL-BGCOLOR 14
+    w-job.qty                  LABEL "Total Qty"              FORMAT "->,>>>,>>9"               LABEL-BGCOLOR 14
+    w-job.rel-qty              LABEL "Releases"               FORMAT "->,>>>,>>9"               LABEL-BGCOLOR 14
+    w-job.bol-qty              LABEL "BOL Qty"                FORMAT "->,>>>,>>9"               LABEL-BGCOLOR 14
+    w-job.avl-qty              LABEL "Avail to Release"       FORMAT "->,>>>,>>9"               LABEL-BGCOLOR 14
     w-job.std-tot-cost         COLUMN-LABEL "Standard!Cost"                                   LABEL-BGCOLOR 14
     w-job.sell-uom             LABEL "UOM"                                                    LABEL-BGCOLOR 14
     w-job.std-mat-cost         LABEL "Material"               FORMAT "->>>,>>9.9999"          LABEL-BGCOLOR 14
@@ -309,7 +309,7 @@ DEFINE BROWSE br_table
     w-job.std-var-cost         LABEL "Variable O/H"           FORMAT "->>>,>>9.9999"          LABEL-BGCOLOR 14
     w-job.std-fix-cost         LABEL "Fixed O/H"              FORMAT "->>>,>>9.9999"          LABEL-BGCOLOR 14
     w-job.cust-no              LABEL "Cust#"                  FORMAT "x(8)"        WIDTH 13   LABEL-BGCOLOR 14  
-    w-job.tot-wt               LABEL "Lbs / 100"              FORMAT "->>>,>>9.99" WIDTH 16   LABEL-BGCOLOR 14
+    w-job.tot-wt               LABEL "Lbs / 100"              FORMAT "->,>>>,>>9.99" WIDTH 16   LABEL-BGCOLOR 14
     w-job.tagStatusID          LABEL "Tag Status ID "         FORMAT "X(4)"        WIDTH 18.3 LABEL-BGCOLOR 14
     w-job.tagStatusDescription LABEL "Tag Status Description" FORMAT "X(32)"                  LABEL-BGCOLOR 14
     w-job.onHold               LABEL "On Hold"                FORMAT "Yes/No"                 LABEL-BGCOLOR 14
@@ -807,6 +807,7 @@ PROCEDURE build-table :
             w-job.tagStatusID          = w-jobs.tagStatusID
             w-job.tagStatusDescription = w-jobs.tagStatusDescription
             w-job.onHold               = w-jobs.onHold
+            w-job.ship-default         = w-jobs.ship-default
             .
 
         IF w-job.job-no-disp EQ "-00" THEN w-job.job-no-disp = "".
@@ -922,6 +923,7 @@ PROCEDURE createWJobs :
         w-jobs.tagStatusID          = fg-bin.statusID
         w-jobs.tagStatusDescription = cStatusDescription
         w-jobs.onHold               = fg-bin.onHold
+        w-jobs.ship-default         = fg-bin.ship-default
         .
       
     FIND FIRST job-hdr NO-LOCK

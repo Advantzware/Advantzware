@@ -282,10 +282,10 @@ PROCEDURE copyCust :
       IF AVAIL cust THEN DO:
       
         lv-rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey").
-        CREATE rec_key.
-         ASSIGN
-          rec_key.rec_key    = lv-rec_key
-          rec_key.table_name = "CUST".
+/*        CREATE rec_key.                  */
+/*         ASSIGN                          */
+/*          rec_key.rec_key    = lv-rec_key*/
+/*          rec_key.table_name = "CUST".   */
            
          CREATE b-cust.
          BUFFER-COPY cust EXCEPT rec_key TO b-cust
@@ -418,10 +418,10 @@ PROCEDURE copyEst :
             ASSIGN
                 n-est-no   = v-est-no
                 lv-rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey").
-            CREATE rec_key.
-            ASSIGN
-                rec_key.rec_key    = lv-rec_key
-                rec_key.table_name = "EST".                   
+/*            CREATE rec_key.                    */
+/*            ASSIGN                             */
+/*                rec_key.rec_key    = lv-rec_key*/
+/*                rec_key.table_name = "EST".    */
         
             CREATE b-est.
             BUFFER-COPY est EXCEPT rec_key est-no ord-no TO b-est
@@ -635,10 +635,10 @@ PROCEDURE copyFG :
     IF AVAIL itemfg THEN DO:    
 
         lv-rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey").
-        CREATE rec_key.
-        ASSIGN
-            rec_key.rec_key    = lv-rec_key
-            rec_key.table_name = "ITEMFG".
+/*        CREATE rec_key.                    */
+/*        ASSIGN                             */
+/*            rec_key.rec_key    = lv-rec_key*/
+/*            rec_key.table_name = "ITEMFG". */
       
         CREATE b-itemfg.
         BUFFER-COPY itemfg EXCEPT rec_key est-no TO b-itemfg
@@ -986,10 +986,10 @@ PROCEDURE copyOrder :
       NO-LOCK NO-ERROR.
 
   lv-rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey").
-  CREATE rec_key.
-  ASSIGN
-   rec_key.rec_key    = lv-rec_key
-   rec_key.table_name = "oe-ord".
+/*  CREATE rec_key.                 */
+/*  ASSIGN                          */
+/*   rec_key.rec_key    = lv-rec_key*/
+/*   rec_key.table_name = "oe-ord". */
       
 /*   FIND b-oe-ord                                         */
 /*     WHERE b-oe-ord.company EQ ipToCompany               */

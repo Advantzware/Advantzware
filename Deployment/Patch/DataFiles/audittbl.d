@@ -1,437 +1,430 @@
-"acclrtrs" yes yes yes yes
-"account" yes yes yes yes
-"acctcost" yes yes yes yes
-"address" yes yes yes yes
-"addrPhone" yes yes yes yes
-"ap-buy" yes yes yes yes
-"ap-chk" yes yes yes yes
-"ap-ctrl" yes yes yes yes
-"ap-dis" yes yes yes yes
-"ap-disl" yes yes yes yes
-"ap-inv" yes yes yes yes
-"ap-invl" yes yes yes yes
-"ap-invlr" yes yes yes yes
-"ap-ledger" yes yes yes yes
-"ap-pay" yes yes yes yes
-"ap-payl" yes yes yes yes
-"ap-sel" yes yes yes yes
-"aphist" yes yes yes yes
-"APIInbound" yes yes yes yes
-"APIInboundDetail" yes yes yes yes
-"APIInboundEvent" yes yes yes yes
-"APIOutbound" yes yes yes yes
-"APIOutboundDetail" yes yes yes yes
-"APIOutboundEvent" yes yes yes yes
-"APIOutboundTrigger" yes yes yes yes
-"ar-cash" yes yes yes yes
-"ar-cashl" yes yes yes yes
-"ar-ctrl" yes yes yes yes
-"ar-inv" yes yes yes yes
-"ar-invl" yes yes yes yes
-"ar-invm" yes yes yes yes
-"ar-ledger" yes yes yes yes
-"ar-mcash" yes yes yes yes
-"asi" yes yes yes yes
-"asi2corr" yes yes yes yes
-"asinotes" yes yes yes yes
-"attach" yes yes yes yes
-"audit" yes yes yes yes
-"bank" yes yes yes yes
-"bolh" yes yes yes yes
-"boll" yes yes yes yes
-"box-design-hdr" yes yes yes yes
-"box-design-line" yes yes yes yes
-"buyer" yes yes yes yes
-"carr-mtx" yes yes yes yes
-"carrier" yes yes yes yes
-"ce-ctrl" yes yes yes yes
-"clientid" yes yes yes yes
-"cmpltjob" yes yes yes yes
-"company" yes yes yes yes
-"config" yes yes yes yes
-"contact" yes yes yes yes
-"corr2asi" yes yes yes yes
-"corrxref" yes yes yes yes
-"costHeader" yes yes yes yes
-"costtype" yes yes yes yes
-"country" yes yes yes yes
-"countrySublevel" yes yes yes yes
-"credit-hold-type" yes yes yes yes
-"crew" yes yes yes yes
-"cueCard" yes yes yes yes
-"cueCardText" yes yes yes yes
-"currency" yes yes yes yes
-"cust" yes yes yes yes
-"cust-itm" yes yes yes yes
-"cust-markup" yes yes yes yes
-"cust-part" yes yes yes yes
-"cust-prod-sales" yes yes yes yes
-"custype" yes yes yes yes
-"cxml" no no no no
-"db-ctrl" yes yes yes yes
-"dep-table" yes yes yes yes
-"dept" yes yes yes yes
-"down-type" yes yes yes yes
-"dynParam" no no no no
-"dynParamSet" no no no no
-"dynParamSetDtl" no no no no
-"dynParamValue" no no no no
-"dynSubject" no no no no
-"dynSubjectColumn" no no no no
-"dynSubjectParamSet" no no no no
-"dynSubjectTable" no no no no
-"dynSubjectWhere" no no no no
-"dynValueColumn" no no no no
-"dynValueParam" no no no no
-"dynValueParamSet" no no no no
-"e-item" yes yes yes yes
-"e-item-cust" yes yes yes yes
-"e-item-vend" yes yes yes yes
-"e-itemfg" yes yes yes yes
-"e-itemfg-vend" yes yes yes yes
-"eb" yes yes yes yes
-"ed" yes yes yes yes
-"EDAPCheck" yes yes yes yes
-"EDCat" yes yes yes yes
-"EDCatline" yes yes yes yes
-"EDCatPrice" yes yes yes yes
-"EDCo" yes yes yes yes
-"EDCode" yes yes yes yes
-"EDDoc" yes yes yes yes
-"EDICXref" yes yes yes yes
-"EdiPartnerSegment" yes yes yes yes
-"EDIVAddon" yes yes yes yes
-"EDIVLine" yes yes yes yes
-"EDIVTran" yes yes yes yes
-"EdiX12Segment" yes yes yes yes
-"EDMast" yes yes yes yes
-"edPartnerGrp" yes yes yes yes
-"EDPD" yes yes yes yes
-"EDPOAddon" yes yes yes yes
-"EDPOLine" yes yes yes yes
-"EDPOTran" yes yes yes yes
-"edSetID" yes yes yes yes
-"EDShipto" yes yes yes yes
-"EDShipVia" yes yes yes yes
-"EDSHLine" yes yes yes yes
-"EDSHOrd" yes yes yes yes
-"EDSHPack" yes yes yes yes
-"EDSHTare" yes yes yes yes
-"EDSHTran" yes yes yes yes
-"ef" yes yes yes yes
-"ef-nsh" yes yes yes yes
-"emailcod" yes yes yes yes
-"emailConfig" yes yes yes yes
-"emaildtl" yes yes yes yes
-"emailntf" yes yes yes yes
-"emp" yes yes yes yes
-"empalert" yes yes yes yes
-"emplogin" yes yes yes yes
-"employee" yes yes yes yes
-"empmach" yes yes yes yes
-"emp_type" yes yes yes yes
-"er" yes yes yes yes
-"est" yes yes yes yes
-"est-flm" yes yes yes yes
-"est-inst" yes yes yes yes
-"est-op" yes yes yes yes
-"est-pf" yes yes yes yes
-"est-prep" yes yes yes yes
-"est-qty" yes yes yes yes
-"est-summ" yes yes yes yes
-"exchange" yes yes yes yes
-"expiration" yes yes yes yes
-"fa-control" yes yes yes yes
-"fa-control-d" yes yes yes yes
-"fa-entry" yes yes yes yes
-"fa-gl-post" no no no no
-"fa-jrnl" yes yes yes yes
-"fa-mast" yes yes yes yes
-"fa-mast-rep" yes yes yes yes
-"fa-tags" yes yes yes yes
-"fg-act" yes yes yes yes
-"fg-bin" yes yes yes yes
-"fg-ctrl" yes yes yes yes
-"fg-hist" yes yes yes yes
-"fg-rcpth" yes yes yes yes
-"fg-rcpts" yes yes yes yes
-"fg-rctd" yes yes yes yes
-"fg-rdtl" yes yes yes yes
-"fg-rdtlh" yes yes yes yes
-"fg-set" yes yes yes yes
-"fgcat" yes yes yes yes
-"file" yes yes yes yes
-"flute" yes yes yes yes
-"formParms" yes yes yes yes
-"fraction" yes yes yes yes
-"freight-class" yes yes yes yes
-"frt-class-desc-trans" yes yes yes yes
-"ftpConfig" yes yes yes yes
-"gl-ctrl" yes yes yes yes
-"gl-freq" no no no no
-"gl-jrn" yes yes yes yes
-"gl-jrnl" yes yes yes yes
-"gl-mast" no no no no
-"gl-rpt" yes yes yes yes
-"gl-rptd" no no no no
-"glhist" yes yes yes yes
-"gltrans" yes yes yes yes
-"help-msg" yes yes yes yes
-"hlp-head" yes yes yes yes
-"inv-head" yes yes yes yes
-"inv-line" yes yes yes yes
-"inv-misc" yes yes yes yes
-"inventorySnapshot" yes yes yes yes
-"inventoryStock" yes yes yes yes
-"inventoryStockAlias" no no no no
-"inventoryStockSnapshot" yes yes yes yes
-"inventoryTransaction" yes yes yes yes
-"InvoiceLines" yes yes yes yes
-"item" yes yes yes yes
-"item-bom" yes yes yes yes
-"item-comm" yes yes yes yes
-"item-spec" yes yes yes yes
-"itemfg" yes yes yes yes
-"itemfg-bom" yes yes yes yes
-"itemfg-ink" yes yes yes yes
-"itemfg-loc" yes yes yes yes
-"itemfgdtl" yes yes yes yes
-"itemUom" no no no no
-"jc-ctrl" yes yes yes yes
-"job" yes yes yes yes
-"job-all" yes yes yes yes
-"job-brd" yes yes yes yes
-"job-cat" yes yes yes yes
-"job-code" yes yes yes yes
-"job-farm" yes yes yes yes
-"job-farm-rctd" yes yes yes yes
-"job-hdr" yes yes yes yes
-"job-mat" yes yes yes yes
-"job-mch" yes yes yes yes
-"job-prep" yes yes yes yes
-"job-sch" yes yes yes yes
-"job-set" no no no no
-"jobcad" yes yes yes yes
-"jobitems" yes yes yes yes
-"jobmach" yes yes yes yes
-"jobmatl" yes yes yes yes
-"jobnotes" yes yes yes yes
-"jobprep" yes yes yes yes
-"jobs" yes yes yes yes
-"jobseq" yes yes yes yes
-"jobsheet" yes yes yes yes
-"jobstack" yes yes yes yes
-"Links" yes yes yes yes
-"loadtag" yes yes yes yes
-"loc" yes yes yes yes
-"location" yes yes yes yes
-"lookups" yes yes yes yes
-"mach" yes yes yes yes
-"mach-adder" yes yes yes yes
-"mach-attach" yes yes yes yes
-"mach-attach-pat" yes yes yes yes
-"mach-calendar" yes yes yes yes
-"mach-panel" yes yes yes yes
-"mach-part" yes yes yes yes
-"machchrg" yes yes yes yes
-"machemp" yes yes yes yes
-"machseq" yes yes yes yes
-"machshft" yes yes yes yes
-"machtran" yes yes yes yes
-"mailcont" yes yes yes yes
-"maillist" yes yes yes yes
-"mat" yes yes yes yes
-"mat-act" yes yes yes yes
-"matprep" yes yes yes yes
-"mch-act" yes yes yes yes
-"mch-srt" yes yes yes yes
-"mfdata" yes yes yes yes
-"mfgroup" yes yes yes yes
-"mfvalues" yes yes yes yes
-"misc-act" yes yes yes yes
-"mkt-ref" yes yes yes yes
-"mmtx" yes yes yes yes
-"mmtx2" yes yes yes yes
-"mmty" yes yes yes yes
-"mnu-item" yes yes yes yes
-"module" yes yes yes yes
-"monthly" yes yes yes yes
-"mstd" yes yes yes yes
-"noteLink" yes yes yes yes
-"notes" yes yes yes yes
-"nrf-color" yes yes yes yes
-"nrf-size" yes yes yes yes
-"oe-bolh" yes yes yes yes
-"oe-boll" yes yes yes yes
-"oe-boll-qty" yes yes yes yes
-"oe-ctrl" yes yes yes yes
-"oe-ord" yes yes yes yes
-"oe-ordl" yes yes yes yes
-"oe-ordm" yes yes yes yes
-"oe-prmtx" yes yes yes yes
-"oe-rel" yes yes yes yes
-"oe-relh" yes yes yes yes
-"oe-rell" yes yes yes yes
-"oe-reth" yes yes yes yes
-"oe-retl" yes yes yes yes
-"oe-ship" yes yes yes yes
-"optconfg" yes yes yes yes
-"panelDetail" yes yes yes no
-"panelHeader" yes yes yes no
-"parmfile" yes yes yes yes
-"patchhst" no no no no
-"payment-type" yes yes yes yes
-"pc-misc" yes yes yes yes
-"pc-prdd" yes yes yes yes
-"pc-prdd-wip" yes yes yes yes
-"pc-prdh" yes yes yes yes
-"pdd" yes yes yes yes
-"pdh" yes yes yes yes
-"period" yes yes yes yes
-"perm" yes yes yes yes
-"permg" yes yes yes yes
-"permx" yes yes yes yes
-"phone" yes yes yes yes
-"po-all" yes yes yes yes
-"po-ctrl" yes yes yes yes
-"po-ord" yes yes yes yes
-"po-ordl" yes yes yes yes
-"po-ordl-add" yes yes yes yes
-"po-rcpts" yes yes yes yes
-"prep" yes yes yes yes
-"prgmxref" yes yes yes yes
-"prgrms" yes yes yes yes
-"printer" yes yes yes yes
-"probe" yes yes yes yes
-"probeit" yes yes yes yes
-"probeit-price" yes yes yes yes
-"procat" yes yes yes yes
-"prod" yes yes yes yes
-"prodl" yes yes yes yes
-"quote" yes yes yes yes
-"quotechg" yes yes yes yes
-"quotehd" yes yes yes yes
-"quoteit" yes yes yes yes
-"quoteitm" yes yes yes yes
-"quoteqty" yes yes yes yes
-"rate" yes yes yes yes
-"RCErr" yes yes yes yes
-"rec_key" yes yes yes yes
-"reftable" yes yes yes yes
-"reftable1" yes yes yes yes
-"rejct-cd" yes yes yes yes
-"releases" yes yes yes yes
-"release_detail" yes yes yes yes
-"report" yes yes yes yes
-"rfidtag" yes yes yes yes
-"rfq" yes yes yes yes
-"rfq-ctrl" yes yes yes yes
-"rfqitem" yes yes yes yes
-"rm-bin" yes yes yes yes
-"rm-ctrl" yes yes yes yes
-"rm-rcpt" yes yes yes yes
-"rm-rcpth" yes yes yes yes
-"rm-rctd" yes yes yes yes
-"rm-rcth" yes yes yes yes
-"rm-rdtl" yes yes yes yes
-"rm-rdtlh" yes yes yes yes
-"rm-receipts" yes yes yes yes
-"routing" yes yes yes yes
-"routing-mtx" yes yes yes yes
-"salesgrpMember" yes yes yes yes
-"sbNote" yes yes yes yes
-"sbStatus" yes yes yes yes
-"scores" yes yes yes yes
-"scoreType" yes yes yes yes
-"serverResource" yes yes yes yes
-"shift" yes yes yes yes
-"shifts" yes yes yes yes
-"shift_break" yes yes yes yes
-"shipto" yes yes yes yes
-"sman" yes yes yes yes
-"sman-mtx" yes yes yes yes
-"smanbcat" yes yes yes yes
-"smanbcst" yes yes yes yes
-"smanbugt" yes yes yes yes
-"smanmtrx" yes yes yes yes
-"soldto" yes yes yes yes
-"sort1" yes yes yes yes
-"sort2" yes yes yes yes
-"ssrelbol" yes yes yes yes
-"stack-flute" yes yes yes yes
-"stack-size" yes yes yes yes
-"stackPattern" yes yes yes yes
-"state" no no no no
-"statecod" yes yes yes yes
-"statusCode" yes yes yes yes
-"stax" yes yes yes yes
-"stax-group" yes yes yes yes
-"std-code" yes yes yes yes
-"style" yes yes yes yes
-"style-score" yes yes yes yes
-"styleFluteXref" yes yes yes yes
-"styleScoreXref" yes yes yes yes
-"surcharge" yes yes yes yes
-"susptype" yes yes yes yes
-"sys-ctrl" yes yes yes yes
-"sys-ctrl-shipto" yes yes yes yes
-"systemConfigSetting" yes yes yes yes
-"systemConfigUsage" yes yes yes yes
-"tag" yes yes yes yes
-"Task" yes yes yes yes
-"taskEmail" yes yes yes yes
-"taskExecution" yes yes yes yes
-"taskExecutionResults" yes yes yes yes
-"taskResult" yes yes yes yes
-"tax-table" yes yes yes yes
-"terms" yes yes yes yes
-"terr" yes yes yes yes
-"test-red" yes yes yes yes
-"TimeSheet" yes yes yes yes
-"titlcode" yes yes yes yes
-"translation" yes yes yes yes
-"truck" yes yes yes yes
-"truck-run-print" yes yes yes yes
-"uom" yes yes yes yes
-"user-batch" yes yes yes yes
-"user-print" yes yes yes yes
-"usercomp" yes yes yes yes
-"userControl" yes yes yes yes
-"usercust" yes yes yes yes
-"userEula" yes yes yes yes
-"usergrps" yes yes yes yes
-"userLanguage" yes yes yes yes
-"userLog" yes yes yes yes
-"userPwdHist" yes yes yes yes
-"users" yes yes yes yes
-"usersman" yes yes yes yes
-"uservend" yes yes yes yes
-"usr" no no no no
-"usr-grp" yes yes yes yes
-"usr-menu" yes yes yes yes
-"usrx" yes yes yes yes
-"utilities" yes yes yes yes
-"vend" yes yes yes yes
-"vend-code-cust-xref" yes yes yes yes
-"vend-plant" yes yes yes yes
-"vend-whse-item" yes yes yes yes
-"vend-whse-trans" yes yes yes yes
-"vend-whse-trans-hist" yes yes yes yes
-"vendItemCost" yes yes yes yes
-"vendItemCostLevel" yes yes yes yes
-"ventype" yes yes yes yes
-"view-dtl" yes yes yes yes
-"view-hdr" yes yes yes yes
-"waste-type" yes yes yes yes
-"wip-bin" yes yes yes yes
-"wiptag" yes yes yes yes
-"wiptag-mch" yes yes yes yes
-"xCueCard" yes yes yes yes
-"XMLLayouts" yes yes yes yes
-"XMLLayoutsForm" yes yes yes yes
-"XMLLayoutsFormDesign" yes yes yes yes
-"XMLProject" yes yes yes yes
-"XMLProjectInfo" yes yes yes yes
-"xUserMenu" yes yes yes yes
-"zipcode" yes yes yes yes
-"zMessage" yes yes yes yes
+"acclrtrs" no no no no no no no no 0 0
+"account" no no no no no no no no 0 0
+"acctcost" no no no no no no no no 0 0
+"address" no no no no no no no no 0 0
+"addrPhone" no no no no no no no no 0 0
+"ap-buy" yes no no no yes no no no 0 0
+"ap-chk" no no no no no no no no 0 0
+"ap-ctrl" no no no no no no no no 0 0
+"ap-dis" no no no no no no no no 0 0
+"ap-disl" no no no no no no no no 0 0
+"ap-inv" no no no no no no no no 0 0
+"ap-invl" no no no no no no no no 0 0
+"ap-invlr" no no no no no no no no 0 0
+"ap-ledger" no no no no no no no no 0 0
+"ap-pay" no no no no no no no no 0 0
+"ap-payl" no no no no no no no no 0 0
+"ap-sel" no no no no no no no no 0 0
+"aphist" no no no no no no no no 0 0
+"apiClient" no no no no no no no no 0 0
+"apiClientXref" no no no no no no no no 0 0
+"APIInbound" no no no no no no no no 0 0
+"APIInboundDetail" no no no no no no no no 0 0
+"APIInboundEvent" no no no no no no no no 0 0
+"APIOutbound" no no no no no no no no 0 0
+"APIOutboundDetail" no no no no no no no no 0 0
+"APIOutboundEvent" no no no no no no no no 0 0
+"APIOutboundTrigger" no no no no no no no no 0 0
+"ar-cash" no no no no no no no no 0 0
+"ar-cashl" no no no no no no no no 0 0
+"ar-ctrl" no no no no no no no no 0 0
+"ar-inv" no no no no no no no no 0 0
+"ar-invl" no no no no no no no no 0 0
+"ar-invm" no no no no no no no no 0 0
+"ar-ledger" no no no no no no no no 0 0
+"ar-mcash" no no no no no no no no 0 0
+"asi" no no no no no no no no 0 0
+"asi2corr" no no no no no no no no 0 0
+"asinotes" no no no no no no no no 0 0
+"attach" no no no no no no no no 0 0
+"audit" no no no no no no no no 0 0
+"bank" no no no no no no no no 0 0
+"bolh" no no no no no no no no 0 0
+"boll" no no no no no no no no 0 0
+"box-design-hdr" no no no no no no no no 0 0
+"box-design-line" no no no no no no no no 0 0
+"buyer" no no no no no no no no 0 0
+"carr-mtx" no no no no no no no no 0 0
+"carrier" no no no no no no no no 0 0
+"ce-ctrl" no no no no no no no no 0 0
+"clientid" no no no no no no no no 0 0
+"cmpltjob" no no no no no no no no 0 0
+"company" no no no no no no no no 0 0
+"config" yes yes yes yes yes yes yes yes 0 0
+"contact" no no no no no no no no 0 0
+"corr2asi" no no no no no no no no 0 0
+"corrxref" no no no no no no no no 0 0
+"costHeader" no no no no no no no no 0 0
+"costtype" no no no no no no no no 0 0
+"country" no no no no no no no no 0 0
+"countrySublevel" no no no no no no no no 0 0
+"credit-hold-type" no no no no no no no no 0 0
+"crew" no no no no no no no no 0 0
+"cueCard" no no no no no no no no 0 0
+"cueCardText" no no no no no no no no 0 0
+"currency" no no no no no no no no 0 0
+"cust" yes yes yes yes yes yes yes yes 0 0
+"cust-itm" no no no no no no no no 0 0
+"cust-markup" no no no no no no no no 0 0
+"cust-part" no no no no no no no no 0 0
+"cust-prod-sales" no no no no no no no no 0 0
+"custype" no yes yes yes no yes yes yes 0 0
+"DateRules" no no no no no no no no 0 0
+"db-ctrl" no no no no no no no no 0 0
+"dep-table" no no no no no no no no 0 0
+"dept" no no no no no no no no 0 0
+"down-type" no no no no no no no no 0 0
+"dynParam" no no no no no no no no 0 0
+"dynParamSet" no no no no no no no no 0 0
+"dynParamSetDtl" no no no no no no no no 0 0
+"dynParamValue" no no no no no no no no 0 0
+"dynSubject" no no no no no no no no 0 0
+"dynSubjectColumn" no no no no no no no no 0 0
+"dynSubjectParamSet" no no no no no no no no 0 0
+"dynSubjectTable" no no no no no no no no 0 0
+"dynSubjectWhere" no no no no no no no no 0 0
+"dynValueColumn" no no no no no no no no 0 0
+"dynValueParam" no no no no no no no no 0 0
+"dynValueParamSet" no no no no no no no no 0 0
+"e-item" no no no no no no no no 0 0
+"e-item-cust" no no no no no no no no 0 0
+"e-item-vend" no no no no no no no no 0 0
+"e-itemfg" no no no no no no no no 0 0
+"e-itemfg-vend" no no no no no no no no 0 0
+"eb" no no no no no no no no 0 0
+"ed" no no no no no no no no 0 0
+"EDAPCheck" no no no no no no no no 0 0
+"EDCat" no no no no no no no no 0 0
+"EDCatline" no no no no no no no no 0 0
+"EDCatPrice" no no no no no no no no 0 0
+"EDCo" no no no no no no no no 0 0
+"EDCode" no no no no no no no no 0 0
+"EDDoc" no no no no no no no no 0 0
+"EDICXref" no no no no no no no no 0 0
+"EdiPartnerSegment" no no no no no no no no 0 0
+"EDIVAddon" no no no no no no no no 0 0
+"EDIVLine" no no no no no no no no 0 0
+"EDIVTran" no no no no no no no no 0 0
+"EdiX12Segment" no no no no no no no no 0 0
+"EDMast" no no no no no no no no 0 0
+"edPartnerGrp" no no no no no no no no 0 0
+"EDPD" no no no no no no no no 0 0
+"EDPOAddon" no no no no no no no no 0 0
+"EDPOLine" no no no no no no no no 0 0
+"EDPOTran" no no no no no no no no 0 0
+"edSetID" no no no no no no no no 0 0
+"EDShipto" no no no no no no no no 0 0
+"EDShipVia" no no no no no no no no 0 0
+"EDSHLine" no no no no no no no no 0 0
+"EDSHOrd" no no no no no no no no 0 0
+"EDSHPack" no no no no no no no no 0 0
+"EDSHTare" no no no no no no no no 0 0
+"EDSHTran" no no no no no no no no 0 0
+"ef" no no no no no no no no 0 0
+"ef-nsh" no no no no no no no no 0 0
+"emailcod" no no no no no no no no 0 0
+"emailConfig" yes yes yes yes yes yes yes yes 0 0
+"emaildtl" no no no no no no no no 0 0
+"emailntf" no no no no no no no no 0 0
+"emp" no no no no no no no no 0 0
+"empalert" no no no no no no no no 0 0
+"emplogin" no no no no no no no no 0 0
+"employee" no no no no no no no no 0 0
+"empmach" no no no no no no no no 0 0
+"emp_type" no no no no no no no no 0 0
+"er" no no no no no no no no 0 0
+"est" no no no no no no no no 0 0
+"est-flm" no no no no no no no no 0 0
+"est-inst" no no no no no no no no 0 0
+"est-op" no no no no no no no no 0 0
+"est-pf" no no no no no no no no 0 0
+"est-prep" no no no no no no no no 0 0
+"est-qty" no no no no no no no no 0 0
+"est-summ" no no no no no no no no 0 0
+"exchange" no no no no no no no no 0 0
+"expiration" no no no no no no no no 0 0
+"fa-control" no no no no no no no no 0 0
+"fa-control-d" no no no no no no no no 0 0
+"fa-entry" no no no no no no no no 0 0
+"fa-jrnl" no no no no no no no no 0 0
+"fa-mast" no no no no no no no no 0 0
+"fa-mast-rep" no no no no no no no no 0 0
+"fa-tags" no no no no no no no no 0 0
+"fg-act" no no no no no no no no 0 0
+"fg-bin" no no no no no no no no 0 0
+"fg-ctrl" no no no no no no no no 0 0
+"fg-hist" no no no no no no no no 0 0
+"fg-rcpth" no no no no no no no no 0 0
+"fg-rcpts" no no no no no no no no 0 0
+"fg-rctd" no no no no no no no no 0 0
+"fg-rdtl" no no no no no no no no 0 0
+"fg-rdtlh" no no no no no no no no 0 0
+"fg-set" no no no no no no no no 0 0
+"fgcat" no no no no no no no no 0 0
+"file" no no no no no no no no 0 0
+"flute" no no no no no no no no 0 0
+"formParms" no no no no no no no no 0 0
+"fraction" no no no no no no no no 0 0
+"freight-class" no no no no no no no no 0 0
+"frt-class-desc-trans" no no no no no no no no 0 0
+"ftpConfig" no no no no no no no no 0 0
+"gl-ctrl" no no no no no no no no 0 0
+"gl-jrn" no no no no no no no no 0 0
+"gl-jrnl" no no no no no no no no 0 0
+"gl-rpt" no no no no no no no no 0 0
+"glhist" no no no no no no no no 0 0
+"gltrans" no no no no no no no no 0 0
+"help-msg" no no no no no no no no 0 0
+"hlp-head" no no no no no no no no 0 0
+"inv-head" yes yes yes yes yes yes yes yes 0 0
+"inv-line" yes no yes no yes no yes no 0 0
+"inv-misc" yes yes no no yes yes no no 0 0
+"inventorySnapshot" no no no no no no no no 0 0
+"inventoryStock" no no no no no no no no 0 0
+"inventoryStockSnapshot" no no no no no no no no 0 0
+"inventoryTransaction" no no no no no no no no 0 0
+"InvoiceLines" no no no no no no no no 0 0
+"item" no no no no no no no no 0 0
+"item-bom" no no no no no no no no 0 0
+"item-comm" no no no no no no no no 0 0
+"item-spec" no no no no no no no no 0 0
+"itemfg" no no no no no no no no 0 0
+"itemfg-bom" no no no no no no no no 0 0
+"itemfg-ink" no no no no no no no no 0 0
+"itemfg-loc" no no no no no no no no 0 0
+"itemfgdtl" no no no no no no no no 0 0
+"itemUom" no no no no no no no no 0 0
+"jc-ctrl" no no no no no no no no 0 0
+"job" no no no no no no no no 0 0
+"job-all" no no no no no no no no 0 0
+"job-brd" no no no no no no no no 0 0
+"job-cat" no no no no no no no no 0 0
+"job-code" no no no no no no no no 0 0
+"job-farm" no no no no no no no no 0 0
+"job-farm-rctd" no no no no no no no no 0 0
+"job-hdr" no no no no no no no no 0 0
+"job-mat" no no no no no no no no 0 0
+"job-mch" no no no no no no no no 0 0
+"job-prep" no no no no no no no no 0 0
+"job-sch" no no no no no no no no 0 0
+"jobcad" no no no no no no no no 0 0
+"jobitems" no no no no no no no no 0 0
+"jobmach" no no no no no no no no 0 0
+"jobmatl" no no no no no no no no 0 0
+"jobnotes" no no no no no no no no 0 0
+"jobprep" no no no no no no no no 0 0
+"jobs" no no no no no no no no 0 0
+"jobseq" no no no no no no no no 0 0
+"jobsheet" no no no no no no no no 0 0
+"jobstack" no no no no no no no no 0 0
+"Links" no no no no no no no no 0 0
+"loadtag" no no no no no no no no 0 0
+"loc" no no no no no no no no 0 0
+"location" no no no no no no no no 0 0
+"lookups" no no no no no no no no 0 0
+"mach" no no no no no no no no 0 0
+"mach-adder" no no no no no no no no 0 0
+"mach-attach" no no no no no no no no 0 0
+"mach-attach-pat" no no no no no no no no 0 0
+"mach-calendar" no no no no no no no no 0 0
+"mach-panel" no no no no no no no no 0 0
+"mach-part" no no no no no no no no 0 0
+"machchrg" no no no no no no no no 0 0
+"machemp" no no no no no no no no 0 0
+"machseq" no no no no no no no no 0 0
+"machshft" no no no no no no no no 0 0
+"machtran" no no no no no no no no 0 0
+"mailcont" no no no no no no no no 0 0
+"maillist" no no no no no no no no 0 0
+"mat" no no no no no no no no 0 0
+"mat-act" no no no no no no no no 0 0
+"matprep" no no no no no no no no 0 0
+"mch-act" no no no no no no no no 0 0
+"mch-srt" no no no no no no no no 0 0
+"mfdata" no no no no no no no no 0 0
+"mfgroup" no no no no no no no no 0 0
+"mfvalues" no no no no no no no no 0 0
+"misc-act" no no no no no no no no 0 0
+"mkt-ref" no no no no no no no no 0 0
+"mmtx" no no no no no no no no 0 0
+"mmtx2" no no no no no no no no 0 0
+"mmty" no no no no no no no no 0 0
+"mnu-item" no no no no no no no no 0 0
+"module" no no no no no no no no 0 0
+"monthly" no no no no no no no no 0 0
+"mstd" no no no no no no no no 0 0
+"noteLink" no no no no no no no no 0 0
+"notes" no no no no no no no no 0 0
+"nrf-color" no no no no no no no no 0 0
+"nrf-size" no no no no no no no no 0 0
+"oe-bolh" yes yes yes yes yes yes yes yes 0 0
+"oe-boll" yes yes yes yes yes yes yes yes 0 0
+"oe-boll-qty" no no no no no no no no 0 0
+"oe-ctrl" no no no no no no no no 0 0
+"oe-ord" no no no no no no no no 0 0
+"oe-ordl" no no no no no no no no 0 0
+"oe-ordm" no no no no no no no no 0 0
+"oe-prmtx" no no no no no no no no 0 0
+"oe-rel" no yes yes no yes yes yes yes 0 0
+"oe-relh" no yes yes no yes yes no yes 0 0
+"oe-rell" no yes yes no yes yes no yes 0 0
+"oe-reth" no no no no no no no no 0 0
+"oe-retl" no no no no no no no no 0 0
+"oe-ship" no no no no no no no no 0 0
+"optconfg" no no no no no no no no 0 0
+"panelDetail" no no no no no no no no 0 0
+"panelHeader" no no no no no no no no 0 0
+"parmfile" no no no no no no no no 0 0
+"payment-type" no no no no no no no no 0 0
+"pc-misc" no no no no no no no no 0 0
+"pc-prdd" no no no no no no no no 0 0
+"pc-prdd-wip" no no no no no no no no 0 0
+"pc-prdh" no no no no no no no no 0 0
+"pdd" no no no no no no no no 0 0
+"pdh" no no no no no no no no 0 0
+"period" no no no no no no no no 0 0
+"perm" no no no no no no no no 0 0
+"permg" no no no no no no no no 0 0
+"permx" no no no no no no no no 0 0
+"phone" no no no no no no no no 0 0
+"po-all" no no no no no no no no 0 0
+"po-ctrl" no no no no no no no no 0 0
+"po-ord" no no no no no no no no 0 0
+"po-ordl" no no no no no no no no 0 0
+"po-ordl-add" no no no no no no no no 0 0
+"po-rcpts" no no no no no no no no 0 0
+"prep" no no no no no no no no 0 0
+"prgmxref" no no no no no no no no 0 0
+"prgrms" no no no no no no no no 0 0
+"printer" no no no no no no no no 0 0
+"probe" no no no no no no no no 0 0
+"probeit" no no no no no no no no 0 0
+"probeit-price" no no no no no no no no 0 0
+"procat" no no no no no no no no 0 0
+"prod" no no no no no no no no 0 0
+"prodl" no no no no no no no no 0 0
+"quote" no no no no no no no no 0 0
+"quotechg" no no no no no no no no 0 0
+"quotehd" no no no no no no no no 0 0
+"quoteit" no no no no no no no no 0 0
+"quoteitm" no no no no no no no no 0 0
+"quoteqty" no no no no no no no no 0 0
+"rate" no no no no no no no no 0 0
+"RCErr" no no no no no no no no 0 0
+"reftable" no no no no no no no no 0 0
+"reftable1" no no no no no no no no 0 0
+"rejct-cd" no no no no no no no no 0 0
+"releases" no no no no no no no no 0 0
+"release_detail" no no no no no no no no 0 0
+"report" no no no no no no no no 0 0
+"rfidtag" no no no no no no no no 0 0
+"rfq" no no no no no no no no 0 0
+"rfq-ctrl" no no no no no no no no 0 0
+"rfqitem" no no no no no no no no 0 0
+"rm-bin" no no no no no no no no 0 0
+"rm-ctrl" no no no no no no no no 0 0
+"rm-rcpt" no no no no no no no no 0 0
+"rm-rcpth" no no no no no no no no 0 0
+"rm-rctd" no no no no no no no no 0 0
+"rm-rcth" no no no no no no no no 0 0
+"rm-rdtl" no no no no no no no no 0 0
+"rm-rdtlh" no no no no no no no no 0 0
+"rm-receipts" no no no no no no no no 0 0
+"routing" no no no no no no no no 0 0
+"routing-mtx" no no no no no no no no 0 0
+"salesgrpMember" no no no no no no no no 0 0
+"sbNote" no no no no no no no no 0 0
+"sbStatus" no no no no no no no no 0 0
+"scores" no no no no no no no no 0 0
+"scoreType" no no no no no no no no 0 0
+"serverResource" no no no no no no no no 0 0
+"shift" no no no no no no no no 0 0
+"shifts" no no no no no no no no 0 0
+"shift_break" no no no no no no no no 0 0
+"shipto" no no no no no no no no 0 0
+"sman" no no no no no no no no 0 0
+"sman-mtx" no no no no no no no no 0 0
+"smanbcat" no no no no no no no no 0 0
+"smanbcst" no no no no no no no no 0 0
+"smanbugt" no no no no no no no no 0 0
+"smanmtrx" no no no no no no no no 0 0
+"soldto" no no no no no no no no 0 0
+"sort1" no no no no no no no no 0 0
+"sort2" no no no no no no no no 0 0
+"ssrelbol" no no no no no no no no 0 0
+"stack-flute" no no no no no no no no 0 0
+"stack-size" no no no no no no no no 0 0
+"stackPattern" no no no no no no no no 0 0
+"statecod" no no no no no no no no 0 0
+"statusCode" no no no no no no no no 0 0
+"stax" no no no no no no no no 0 0
+"stax-group" no no no no no no no no 0 0
+"std-code" no no no no no no no no 0 0
+"style" no no no no no no no no 0 0
+"style-score" no no no no no no no no 0 0
+"styleFluteXref" no no no no no no no no 0 0
+"styleScoreXref" no no no no no no no no 0 0
+"surcharge" no no no no no no no no 0 0
+"susptype" no no no no no no no no 0 0
+"sys-ctrl" no no no no no no no no 0 0
+"sys-ctrl-shipto" no no no no no no no no 0 0
+"systemConfigSetting" yes yes yes yes yes yes yes yes 0 0
+"systemConfigUsage" yes yes yes yes yes yes yes yes 0 0
+"tag" no no no no no no no no 0 0
+"Task" no no no no no no no no 0 0
+"taskEmail" no no no no no no no no 0 0
+"taskExecution" no no no no no no no no 0 0
+"taskExecutionResults" no no no no no no no no 0 0
+"taskResult" no no no no no no no no 0 0
+"tax-table" no no no no no no no no 0 0
+"terms" no no no no no no no no 0 0
+"terr" no no no no no no no no 0 0
+"test-red" no no no no no no no no 0 0
+"TimeSheet" no no no no no no no no 0 0
+"titlcode" no no no no no no no no 0 0
+"translation" no no no no no no no no 0 0
+"truck" no no no no no no no no 0 0
+"truck-run-print" no no no no no no no no 0 0
+"uom" no no no no no no no no 0 0
+"user-batch" no no no no no no no no 0 0
+"user-print" no no no no no no no no 0 0
+"usercomp" no no no no no no no no 0 0
+"userControl" no no no no no no no no 0 0
+"usercust" no no no no no no no no 0 0
+"userEula" no no no no no no no no 0 0
+"usergrps" no no no no no no no no 0 0
+"userLanguage" no no no no no no no no 0 0
+"userLog" no no no no no no no no 0 0
+"userPwdHist" no no no no no no no no 0 0
+"users" no no no no no no no no 0 0
+"usersman" no no no no no no no no 0 0
+"uservend" no no no no no no no no 0 0
+"usr" no no no no no no no no 0 0
+"usr-grp" no no no no no no no no 0 0
+"usr-menu" no no no no no no no no 0 0
+"usrx" no no no no no no no no 0 0
+"utilities" no no no no no no no no 0 0
+"vend" no no no no no no no no 0 0
+"vend-code-cust-xref" no no no no no no no no 0 0
+"vend-plant" no no no no no no no no 0 0
+"vend-whse-item" no no no no no no no no 0 0
+"vend-whse-trans" no no no no no no no no 0 0
+"vend-whse-trans-hist" no no no no no no no no 0 0
+"vendItemCost" no no no no no no no no 0 0
+"vendItemCostLevel" no no no no no no no no 0 0
+"ventype" no no no no no no no no 0 0
+"view-dtl" no no no no no no no no 0 0
+"view-hdr" no no no no no no no no 0 0
+"waste-type" no no no no no no no no 0 0
+"wip-bin" no no no no no no no no 0 0
+"wiptag" no no no no no no no no 0 0
+"wiptag-mch" no no no no no no no no 0 0
+"xCueCard" no no no no no no no no 0 0
+"XMLLayouts" no no no no no no no no 0 0
+"XMLLayoutsForm" no no no no no no no no 0 0
+"XMLLayoutsFormDesign" no no no no no no no no 0 0
+"XMLProject" no no no no no no no no 0 0
+"XMLProjectInfo" no no no no no no no no 0 0
+"xUserMenu" no no no no no no no no 0 0
+"zipcode" no no no no no no no no 0 0
+"zMessage" no no no no no no no no 0 0

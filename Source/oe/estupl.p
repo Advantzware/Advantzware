@@ -109,7 +109,9 @@ if v-create-job and oe-ordl.job-no ne "" then do:
          nufile     = yes.
 
         run jc/jc-calc.p(recid(job), NO).
-
+        fil_id = RECID(job).
+        RUN po/doPo.p (YES) /* Yes Indicates to prompt for RM */.
+        
         assign
          fil_id   = hld-id
          nufile   = hld-nufile.

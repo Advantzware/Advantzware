@@ -134,6 +134,11 @@ DEF            VAR dBillAmt       AS DECIMAL NO-UNDO.
 DEF            VAR lEmailBol      AS LOG     NO-UNDO.
 DEF            VAR ll             AS LOG     NO-UNDO.
 DEFINE VARIABLE li AS INTEGER NO-UNDO.
+DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cReturnValue     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFGTagValidation AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cFGTagValidation AS CHARACTER NO-UNDO.
+
 {fg/fgPostProc.i}
 {sys/form/r-top.i}
 
@@ -142,10 +147,6 @@ DEFINE VARIABLE li AS INTEGER NO-UNDO.
 {sys/form/r-top3w1.f "Before"}
 
 {sys/form/r-top3w1.f "After"}
-
-DEF TEMP-TABLE tt-set
-    FIELD part-no LIKE fg-set.part-no
-    INDEX i1 part-no.
 
 {oerep/r-loadtg.i NEW}  /*w-ord for loadtag reprint */
 
@@ -392,21 +393,14 @@ OUTPUT STREAM after  TO VALUE(lv-list-name[2]) PAGE-SIZE VALUE(lines-per-page).
 
 IF td-show-parm THEN RUN show-param.
 
-EMPTY TEMP-TABLE tt-set.
-/* If not running for all items, check these items for components that must */
-/* be included                                                              */
-IF NOT (begin_i-no EQ "" AND end_i-no BEGINS "zzzzzzzzzzz")
-    THEN RUN createComponentList.
-
 DO li-loop = 1 TO NUM-ENTRIES(v-postlst):
     FOR EACH fg-rctd
         WHERE fg-rctd.company   EQ gcompany
         AND fg-rctd.rita-code EQ ENTRY(li-loop,v-postlst)
         AND fg-rctd.r-no      GE begin_fg-r-no
         AND fg-rctd.r-no      LE end_fg-r-no
-        AND ((fg-rctd.i-no      GE begin_i-no
-        AND fg-rctd.i-no      LE end_i-no)
-        OR CAN-FIND(FIRST tt-set WHERE tt-set.part-no EQ fg-rctd.i-no))
+        AND fg-rctd.i-no      GE begin_i-no
+        AND fg-rctd.i-no      LE end_i-no
         AND fg-rctd.rct-date  GE ldt-from
         AND fg-rctd.rct-date  LE ldt-to
         AND fg-rctd.job-no    GE begin_job-no
@@ -422,8 +416,46 @@ DO li-loop = 1 TO NUM-ENTRIES(v-postlst):
         end_created      GE "") OR
         (fg-rctd.created-by GE begin_created
         AND fg-rctd.created-by LE end_created))
+        AND fg-rctd.setHeaderRNo EQ 0
         USE-INDEX rita-code:
+        
+        FIND FIRST itemfg NO-LOCK
+             WHERE itemfg.company EQ cocode
+               AND itemfg.i-no    EQ fg-rctd.i-no
+             NO-ERROR.  
+                     
+        RUN sys/ref/nk1look.p(
+           INPUT cocode,
+           INPUT "FGTagValidation",
+           INPUT "L",
+           INPUT YES,
+           INPUT YES,
+           INPUT IF AVAILABLE itemfg THEN itemfg.cust-no ELSE "",
+           INPUT "",
+           OUTPUT cReturnValue,
+           OUTPUT lRecFound
+           ).
+        lFGTagValidation = LOGICAL(cReturnValue).
 
+        RUN sys/ref/nk1look.p(
+            INPUT cocode,
+            INPUT "FGTagValidation",
+            INPUT "C",
+            INPUT YES,
+            INPUT YES,
+            INPUT IF AVAILABLE itemfg THEN itemfg.cust-no ELSE "",
+            INPUT "",
+            OUTPUT cReturnValue,
+            OUTPUT lRecFound
+            ).
+        cFGTagValidation = cReturnValue.
+        
+        IF lFGTagValidation AND fg-rctd.tag EQ "" THEN 
+            NEXT.
+        
+        IF cFGTagValidation EQ "ItemMatch" AND NOT fg-rctd.tag BEGINS fg-rctd.i-no THEN 
+            NEXT.
+            
         RUN build-tables.
 
     END.
@@ -713,38 +745,6 @@ PROCEDURE build-tables:
                     w-fg-rctd.ret-loc     = fg-rctd.loc
                     w-fg-rctd.ret-loc-bin = fg-rctd.loc-bin.
         END.
-    END.
-
-
-END PROCEDURE.
-
-PROCEDURE createComponentList:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE BUFFER bf-itemfg FOR itemfg.
-    DEFINE BUFFER bf-fg-set FOR fg-set.
-
-    FOR EACH bf-itemfg 
-        WHERE bf-itemfg.company EQ cocode
-        AND bf-itemfg.i-no GE begin_i-no
-        AND bf-itemfg.i-no LE end_i-no
-        AND bf-itemfg.isaset
-        NO-LOCK,
-        EACH bf-fg-set 
-        WHERE bf-fg-set.company EQ bf-itemfg.company
-        AND bf-fg-set.set-no EQ bf-itemfg.i-no
-        NO-LOCK:
-
-        FIND FIRST tt-set WHERE tt-set.part-no = bf-fg-set.part-no NO-ERROR.
-        IF NOT AVAIL tt-set THEN 
-        DO:
-            CREATE tt-set.
-            ASSIGN 
-                tt-set.part-no = bf-fg-set.part-no.
-        END.
-
     END.
 
 

@@ -627,10 +627,10 @@ DEF BUFFER b-cust        FOR cust.
       NO-LOCK NO-ERROR.
 
   lv-rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey").
-  CREATE rec_key.
-  ASSIGN
-   rec_key.rec_key    = lv-rec_key
-   rec_key.table_name = "CUST".
+/*  CREATE rec_key.                 */
+/*  ASSIGN                          */
+/*   rec_key.rec_key    = lv-rec_key*/
+/*   rec_key.table_name = "CUST".   */
 
   CREATE b-cust.
   BUFFER-COPY cust EXCEPT rec_key TO b-cust

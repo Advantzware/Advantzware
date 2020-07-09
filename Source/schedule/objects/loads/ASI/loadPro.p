@@ -7,7 +7,7 @@
 &SCOPED-DEFINE Fleetwood ASI/Fleetwood
 /* add new fields to procedures loadUserFieldLabelWidth & setUseFields below */
 /* add userField to rptFields.dat, see config.w definitions section to enable field */
-&SCOPED-DEFINE nextUserField 107
+&SCOPED-DEFINE nextUserField 110
 
 /* when expanding userFields mod the following:
    1. scopDir.i (userExtent)
@@ -29,6 +29,8 @@
 {{&includes}/configVars.i}
 /* configuration version procedures */
 {{&includes}/configVersion.i}
+
+{sys/inc/var.i NEW SHARED}
 
 RUN get{&version}.
 
@@ -238,7 +240,7 @@ DEFINE VARIABLE dueDate AS DATE NO-UNDO.
 DEFINE VARIABLE endDate AS DATE NO-UNDO.
 DEFINE VARIABLE endEstType AS INTEGER NO-UNDO.
 DEFINE VARIABLE endTime AS INTEGER NO-UNDO.
-DEFINE VARIABLE i AS INTEGER NO-UNDO.
+/*DEFINE VARIABLE i AS INTEGER NO-UNDO.*/
 DEFINE VARIABLE itemDescription AS CHARACTER NO-UNDO.
 DEFINE VARIABLE jobBoard AS LOGICAL NO-UNDO.
 DEFINE VARIABLE jobDescription AS CHARACTER NO-UNDO.
@@ -397,6 +399,10 @@ IF VALID-HANDLE(ipContainerHandle) THEN DO:
 END.
 IF asiCompany  EQ '' THEN asiCompany  = '001'.
 IF asiLocation EQ '' THEN asiLocation = 'Main'.
+ASSIGN
+    cocode = asiCompany
+    locode = asiLocation
+    .
 
 RUN sys/ref/nk1look.p (
     asiCompany,"TSTIME","C",NO,NO,"","",
@@ -768,6 +774,14 @@ FOR EACH job-hdr NO-LOCK
                  AND po-ordl.job-no EQ job-mch.job-no
                  AND po-ordl.job-no2 EQ job-mch.job-no2
                  AND po-ordl.i-no EQ job-mch.i-no
+                 AND po-ordl.s-num EQ job-mch.frm NO-ERROR.
+          IF NOT AVAILABLE po-ordl THEN
+          FIND FIRST po-ordl NO-LOCK
+               WHERE po-ordl.company EQ po-ord.company
+                 AND po-ordl.po-no EQ po-ord.po-no
+                 AND po-ordl.job-no EQ job-mch.job-no
+                 AND po-ordl.job-no2 EQ job-mch.job-no2
+                 AND po-ordl.s-num EQ job-mch.frm
                  AND po-ordl.b-num EQ job-mch.blank-no NO-ERROR.
           IF NOT AVAILABLE po-ordl THEN
           FIND FIRST po-ordl NO-LOCK
@@ -775,7 +789,7 @@ FOR EACH job-hdr NO-LOCK
                  AND po-ordl.po-no EQ po-ord.po-no
                  AND po-ordl.job-no EQ job-mch.job-no
                  AND po-ordl.job-no2 EQ job-mch.job-no2
-                 AND po-ordl.b-num EQ job-mch.blank-no NO-ERROR.
+                 AND po-ordl.s-num EQ job-mch.frm NO-ERROR.
           IF NOT AVAILABLE po-ordl THEN
           FIND FIRST po-ordl NO-LOCK
                WHERE po-ordl.company EQ po-ord.company
@@ -803,13 +817,20 @@ FOR EACH job-hdr NO-LOCK
              AND po-ordl.job-no  EQ job-mch.job-no
              AND po-ordl.job-no2 EQ job-mch.job-no2
              AND po-ordl.i-no    EQ job-mch.i-no
+             AND po-ordl.s-num   EQ job-mch.frm NO-ERROR.
+      IF NOT AVAILABLE po-ordl THEN
+      FIND FIRST po-ordl NO-LOCK
+           WHERE po-ordl.company EQ job-mch.company
+             AND po-ordl.job-no  EQ job-mch.job-no
+             AND po-ordl.job-no2 EQ job-mch.job-no2
+             AND po-ordl.s-num   EQ job-mch.frm
              AND po-ordl.b-num   EQ job-mch.blank-no NO-ERROR.
       IF NOT AVAILABLE po-ordl THEN
       FIND FIRST po-ordl NO-LOCK
            WHERE po-ordl.company EQ job-mch.company
              AND po-ordl.job-no  EQ job-mch.job-no
              AND po-ordl.job-no2 EQ job-mch.job-no2
-             AND po-ordl.b-num   EQ job-mch.blank-no NO-ERROR.
+             AND po-ordl.s-num   EQ job-mch.frm NO-ERROR.
       IF NOT AVAILABLE po-ordl THEN
       FIND FIRST po-ordl NO-LOCK
            WHERE po-ordl.company EQ job-mch.company
@@ -820,6 +841,8 @@ FOR EACH job-hdr NO-LOCK
            WHERE po-ord.company EQ po-ordl.company
              AND po-ord.po-no   EQ po-ordl.po-no NO-ERROR.
     END. /* else avail oe-ordl */
+    IF AVAILABLE po-ordl THEN
+    RUN po/po-ordls.p (RECID(po-ordl)).
     
     IF ufEF THEN
     FIND FIRST ef NO-LOCK
@@ -872,6 +895,16 @@ FOR EACH job-hdr NO-LOCK
             unitFound = YES
             .
       END. /* do i */
+      DO i = 1 TO EXTENT(eb.k-wid-array2):
+          IF eb.k-wid-array2[i] NE 0 THEN
+          userField[108] = userField[108] + STRING(eb.k-wid-array2[i]) + "x".
+          IF eb.k-len-array2[i] NE 0 THEN
+          userField[109] = userField[109] + STRING(eb.k-len-array2[i]) + "x".
+      END. /* do i */
+      ASSIGN
+          userField[108] = TRIM(userField[108],"x")
+          userField[109] = TRIM(userField[109],"x")
+          .
     END. /* avail eb */
     
     IF ufCust THEN DO:
@@ -1068,6 +1101,7 @@ FOR EACH job-hdr NO-LOCK
       userField[103] = setUserField(103,specialTime(INTEGER(TRUNCATE(job-mch.run-hr,0) * 3600 + (job-mch.run-hr - TRUNCATE(job-mch.run-hr,0)) * 3600)))
       userField[104] = setUserField(104,job-mch.job-no + '-' + STRING(job-mch.job-no2,'99'))
       userField[105] = setUserField(105,STRING(timeSpan / 3600,">>,>>9.99"))
+      userField[107] = setUserField(107,STRING(job-hdr.qty,'>>,>>>,>>9'))
       jobDescription = jobText
       .
     IF AVAILABLE itemfg AND NOT job-mch.run-qty * itemfg.t-sqft / 1000 LT 1000000 THEN
@@ -1782,46 +1816,46 @@ PROCEDURE loadUserFieldLabelWidth:
     statusObject[3] = 'Machine Run,Completed/Pending'
     /* calc width by multiplying length by 1.5 */
     /* add userField to rptFields.dat */
-    userLabel[1] = 'Customer'         userWidth[1] = 15
-    userLabel[2] = 'Name'             userWidth[2] = 45
-    userLabel[3] = 'Board'            userWidth[3] = 15
-    userLabel[4] = 'Board Name'       userWidth[4] = 45
-    userLabel[5] = 'Die'              userWidth[5] = 23
-    userLabel[6] = 'Plate'            userWidth[6] = 23
-    userLabel[7] = 'PO'               userWidth[7] = 9
-    userLabel[8] = 'FG Item'          userWidth[8] = 23
-    userLabel[9] = 'Item Name'        userWidth[9] = 45
-    userLabel[10] = 'Length'          userWidth[10] = 12
-    userLabel[11] = 'Width'           userWidth[11] = 12
-    userLabel[12] = 'Depth'           userWidth[12] = 12
-    userLabel[13] = 'Style'           userWidth[13] = 9
-    userLabel[14] = 'Color'           userWidth[14] = 100
-    userLabel[15] = 'Run Qty'         userWidth[15] = 12
-    userLabel[16] = 'PO Due'          userWidth[16] = 15
-    userLabel[17] = 'Vendor'          userWidth[17] = 12
-    userLabel[18] = 'Form'            userWidth[18] = 5
-    userLabel[19] = 'Blank'           userWidth[19] = 6
-    userLabel[20] = 'Pass'            userWidth[20] = 5
-    userLabel[21] = 'Category'        userWidth[21] = 9
-    userLabel[22] = 'Caliper'         userWidth[22] = 8
-    userLabel[23] = 'Sheet Qty'       userWidth[23] = 12
-    userLabel[24] = 'Adhesive'        userWidth[24] = 12
-    userLabel[25] = 'Coats'           userWidth[25] = 6
-    userLabel[26] = 'Board L.'        userWidth[26] = 12
-    userLabel[27] = 'Board W.'        userWidth[27] = 12
-    userLabel[28] = 'Color Desc'      userWidth[28] = 60
-    userLabel[29] = 'Total MRP'       userWidth[29] = 13
-    userLabel[30] = 'Mat Length'      userWidth[30] = 12
-    userLabel[31] = '#Up'             userWidth[31] = 5
-    userLabel[32] = 'Linear Feet'     userWidth[32] = 13
-    userLabel[33] = 'Total Pieces'    userWidth[33] = 13
-    userLabel[34] = 'CAD'             userWidth[34] = 12
-    userLabel[35] = 'PO Qty Recd'     userWidth[35] = 20
-    userLabel[36] = 'Sales Rep'       userWidth[36] = 30
-    userLabel[37] = 'Release Qty'     userWidth[37] = 12
-    userLabel[38] = 'Release Date'    userWidth[38] = 15
-    userLabel[39] = 'Ship To Addr'    userWidth[39] = 30
-    userLabel[40] = 'Ship To City'    userWidth[40] = 30
+    userLabel[1] = 'Customer'      userWidth[1] = 15
+    userLabel[2] = 'Name'          userWidth[2] = 45
+    userLabel[3] = 'Board'         userWidth[3] = 15
+    userLabel[4] = 'Board Name'    userWidth[4] = 45
+    userLabel[5] = 'Die'           userWidth[5] = 23
+    userLabel[6] = 'Plate'         userWidth[6] = 23
+    userLabel[7] = 'PO'            userWidth[7] = 9
+    userLabel[8] = 'FG Item'       userWidth[8] = 23
+    userLabel[9] = 'Item Name'     userWidth[9] = 45
+    userLabel[10] = 'Length'       userWidth[10] = 12
+    userLabel[11] = 'Width'        userWidth[11] = 12
+    userLabel[12] = 'Depth'        userWidth[12] = 12
+    userLabel[13] = 'Style'        userWidth[13] = 9
+    userLabel[14] = 'Color'        userWidth[14] = 100
+    userLabel[15] = 'Run Qty'      userWidth[15] = 12
+    userLabel[16] = 'PO Due'       userWidth[16] = 15
+    userLabel[17] = 'Vendor'       userWidth[17] = 12
+    userLabel[18] = 'Form'         userWidth[18] = 5
+    userLabel[19] = 'Blank'        userWidth[19] = 6
+    userLabel[20] = 'Pass'         userWidth[20] = 5
+    userLabel[21] = 'Category'     userWidth[21] = 9
+    userLabel[22] = 'Caliper'      userWidth[22] = 8
+    userLabel[23] = 'Sheet Qty'    userWidth[23] = 12
+    userLabel[24] = 'Adhesive'     userWidth[24] = 12
+    userLabel[25] = 'Coats'        userWidth[25] = 6
+    userLabel[26] = 'Board L.'     userWidth[26] = 12
+    userLabel[27] = 'Board W.'     userWidth[27] = 12
+    userLabel[28] = 'Color Desc'   userWidth[28] = 60
+    userLabel[29] = 'Total MRP'    userWidth[29] = 13
+    userLabel[30] = 'Mat Length'   userWidth[30] = 12
+    userLabel[31] = '#Up'          userWidth[31] = 5
+    userLabel[32] = 'Linear Feet'  userWidth[32] = 13
+    userLabel[33] = 'Total Pieces' userWidth[33] = 13
+    userLabel[34] = 'CAD'          userWidth[34] = 12
+    userLabel[35] = 'PO Qty Recd'  userWidth[35] = 20
+    userLabel[36] = 'Sales Rep'    userWidth[36] = 30
+    userLabel[37] = 'Release Qty'  userWidth[37] = 12
+    userLabel[38] = 'Release Date' userWidth[38] = 15
+    userLabel[39] = 'Ship To Addr' userWidth[39] = 30
+    userLabel[40] = 'Ship To City' userWidth[40] = 30
     .
   DO idx = 41 TO 50:
     ASSIGN
@@ -1830,62 +1864,65 @@ PROCEDURE loadUserFieldLabelWidth:
   END. /* do idx */
 
   ASSIGN  
-    userLabel[51] = 'Pallet/Unit'     userWidth[51] = 12
-    userLabel[52] = 'Rel MSF'         userWidth[52] = 9
-    userLabel[53] = 'Tab'             userWidth[53] = 5
-    userLabel[54] = 'Run MSF'         userWidth[54] = 9
-    userLabel[55] = 'Pallet Name'     userWidth[55] = 45
-    userLabel[56] = 'Pallet MRP'      userWidth[56] = 13
-    userLabel[57] = 'Prod Qty'        userWidth[57] = 12
-    userLabel[58] = 'Gross Sht L.'    userWidth[58] = 12
-    userLabel[59] = 'Gross Sht W.'    userWidth[59] = 12
-    userLabel[60] = 'Pack Code'       userWidth[60] = 15
-    userLabel[61] = 'Mat Type5 Item#' userWidth[61] = 20
-    userLabel[62] = 'Mat Type6 Item#' userWidth[62] = 20
-    userLabel[63] = 'Cust PO#'        userWidth[63] = 20
-    userLabel[64] = 'Cust Part#'      userWidth[64] = 15
-    userLabel[65] = 'Internal L.'     userWidth[65] = 12
-    userLabel[66] = 'End Cell L.'     userWidth[66] = 12
-    userLabel[67] = 'Internal W.'     userWidth[67] = 12
-    userLabel[68] = 'End Cell W.'     userWidth[68] = 12
-    userLabel[69] = 'Current Qty'     userWidth[69] = 12
-    userLabel[70] = 'Varnish'         userWidth[70] = 100
-    userLabel[71] = 'Adders'          userWidth[71] = 100
-    userLabel[72] = 'Adder 1'         userWidth[72] = 20
-    userLabel[73] = 'Adder 2'         userWidth[73] = 20
-    userLabel[74] = 'Adder 3'         userWidth[74] = 20
-    userLabel[75] = 'Adder 4'         userWidth[75] = 20
-    userLabel[76] = 'Adder 5'         userWidth[76] = 20
-    userLabel[77] = 'Adder 6'         userWidth[77] = 20
-    userLabel[78] = 'No. of Cases'    userWidth[78] = 12
-    userLabel[79] = 'Cases Name'      userWidth[79] = 45
-    userLabel[80] = 'Die Bin'         userWidth[80] = 15
-    userLabel[81] = 'Film Name'       userWidth[81] = 45
-    userLabel[82] = 'Mfg Date'        userWidth[82] = 15
-    userLabel[83] = 'Job Status'      userWidth[83] = 12
-    userLabel[84] = 'Total Price'     userWidth[84] = 20
-    userLabel[85] = 'Due Qty'         userWidth[85] = 12
-    userLabel[86] = 'UnderRun%'       userWidth[86] = 10
-    userLabel[87] = 'OverRun%'        userWidth[87] = 10
-    userLabel[88] = 'Speed'           userWidth[88] = 10
-    userLabel[89] = 'Created'         userWidth[89] = 15
-    userLabel[90] = 'DC Prod Qty'     userWidth[90] = 12
-    userLabel[91] = 'First Release'   userWidth[91] = 15
-    userLabel[92] = 'EmpAlert CSR'    userWidth[92] = 30
-    userLabel[93] = 'MatType5 Qty'    userWidth[93] = 12
-    userLabel[94] = 'MatType6 Qty'    userWidth[94] = 12
-    userLabel[95] = 'Required Qty'    userWidth[95] = 12  
-    userLabel[96] = 'MR Std Hrs'      userWidth[96] = 8
-    userLabel[97] = 'Run Std Hrs'     userWidth[97] = 8
-    userLabel[98] = 'MSF'             userWidth[98] = 9
-    userLabel[99] = 'SqFt'            userWidth[99] = 10
-    userLabel[100] = 'MR Waste'       userWidth[100] = 9
-    userLabel[101] = 'Run Waste'      userWidth[101] = 9
-    userLabel[102] = 'MR Time'        userWidth[102] = 15
-    userLabel[103] = 'Run Time'       userWidth[103] = 15
-    userLabel[104] = 'Job-Run'        userWidth[104] = 12
-    userLabel[105] = 'Tot. Time'      userWidth[105] = 8
-    userLabel[106] = 'Ink LBS'        userWidth[106] = 12
+    userLabel[51] = 'Pallet/Unit'        userWidth[51] = 12
+    userLabel[52] = 'Rel MSF'            userWidth[52] = 9
+    userLabel[53] = 'Tab'                userWidth[53] = 5
+    userLabel[54] = 'Run MSF'            userWidth[54] = 9
+    userLabel[55] = 'Pallet Name'        userWidth[55] = 45
+    userLabel[56] = 'Pallet MRP'         userWidth[56] = 13
+    userLabel[57] = 'Prod Qty'           userWidth[57] = 12
+    userLabel[58] = 'Gross Sht L.'       userWidth[58] = 12
+    userLabel[59] = 'Gross Sht W.'       userWidth[59] = 12
+    userLabel[60] = 'Pack Code'          userWidth[60] = 15
+    userLabel[61] = 'Mat Type5 Item#'    userWidth[61] = 20
+    userLabel[62] = 'Mat Type6 Item#'    userWidth[62] = 20
+    userLabel[63] = 'Cust PO#'           userWidth[63] = 20
+    userLabel[64] = 'Cust Part#'         userWidth[64] = 15
+    userLabel[65] = 'Internal L.'        userWidth[65] = 12
+    userLabel[66] = 'End Cell L.'        userWidth[66] = 12
+    userLabel[67] = 'Internal W.'        userWidth[67] = 12
+    userLabel[68] = 'End Cell W.'        userWidth[68] = 12
+    userLabel[69] = 'Current Qty'        userWidth[69] = 12
+    userLabel[70] = 'Varnish'            userWidth[70] = 100
+    userLabel[71] = 'Adders'             userWidth[71] = 100
+    userLabel[72] = 'Adder 1'            userWidth[72] = 20
+    userLabel[73] = 'Adder 2'            userWidth[73] = 20
+    userLabel[74] = 'Adder 3'            userWidth[74] = 20
+    userLabel[75] = 'Adder 4'            userWidth[75] = 20
+    userLabel[76] = 'Adder 5'            userWidth[76] = 20
+    userLabel[77] = 'Adder 6'            userWidth[77] = 20
+    userLabel[78] = 'No. of Cases'       userWidth[78] = 12
+    userLabel[79] = 'Cases Name'         userWidth[79] = 45
+    userLabel[80] = 'Die Bin'            userWidth[80] = 15
+    userLabel[81] = 'Film Name'          userWidth[81] = 45
+    userLabel[82] = 'Mfg Date'           userWidth[82] = 15
+    userLabel[83] = 'Job Status'         userWidth[83] = 12
+    userLabel[84] = 'Total Price'        userWidth[84] = 20
+    userLabel[85] = 'Due Qty'            userWidth[85] = 12
+    userLabel[86] = 'UnderRun%'          userWidth[86] = 10
+    userLabel[87] = 'OverRun%'           userWidth[87] = 10
+    userLabel[88] = 'Speed'              userWidth[88] = 10
+    userLabel[89] = 'Created'            userWidth[89] = 15
+    userLabel[90] = 'DC Prod Qty'        userWidth[90] = 12
+    userLabel[91] = 'First Release'      userWidth[91] = 15
+    userLabel[92] = 'EmpAlert CSR'       userWidth[92] = 30
+    userLabel[93] = 'MatType5 Qty'       userWidth[93] = 12
+    userLabel[94] = 'MatType6 Qty'       userWidth[94] = 12
+    userLabel[95] = 'Required Qty'       userWidth[95] = 12  
+    userLabel[96] = 'MR Std Hrs'         userWidth[96] = 8
+    userLabel[97] = 'Run Std Hrs'        userWidth[97] = 8
+    userLabel[98] = 'MSF'                userWidth[98] = 9
+    userLabel[99] = 'SqFt'               userWidth[99] = 10
+    userLabel[100] = 'MR Waste'          userWidth[100] = 9
+    userLabel[101] = 'Run Waste'         userWidth[101] = 9
+    userLabel[102] = 'MR Time'           userWidth[102] = 15
+    userLabel[103] = 'Run Time'          userWidth[103] = 15
+    userLabel[104] = 'Job-Run'           userWidth[104] = 12
+    userLabel[105] = 'Tot. Time'         userWidth[105] = 8
+    userLabel[106] = 'Ink LBS'           userWidth[106] = 12
+    userLabel[107] = 'Job Qty'           userWidth[107] = 12
+    userLabel[108] = 'Score (on Width)'  userWidth[108] = 24
+    userLabel[109] = 'Score (on Length)' userWidth[109] = 24
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */
@@ -1941,16 +1978,20 @@ PROCEDURE setUseFields:
            useField[13] OR useField[14] OR useField[24] OR useField[25] OR useField[28] OR useField[35] OR
            useField[41] OR useField[42] OR useField[43] OR useField[44] OR useField[45] OR useField[46] OR
            useField[47] OR useField[48] OR useField[49] OR useField[50] OR useField[51] OR useField[53] OR
-           useField[60] OR useField[65] OR useField[66] OR useField[67] OR useField[68]
+           useField[60] OR useField[65] OR useField[66] OR useField[67] OR useField[68] OR useField[108] OR
+           useField[109]
     ufEF = useField[3] OR useField[22] OR useField[23] OR useField[58] OR useField[59]
     ufEst = useField[26] OR useField[27]
     ufGetSalesRep = useField[36]
-    ufIPJobMaterial = useField[3] OR useField[14] OR useField[55] OR useField[56] OR useField[61] OR useField[62] OR useField[70] OR useField[71] OR useField[78] OR useField[79] OR useField[81] OR useField[93] OR useField[94] OR useField[95] OR useField[106]
+    ufIPJobMaterial = useField[3] OR useField[14] OR useField[55] OR useField[56] OR useField[61] OR
+                      useField[62] OR useField[70] OR useField[71] OR useField[78] OR useField[79] OR
+                      useField[81] OR useField[93] OR useField[94] OR useField[95] OR useField[106]
     ufIPJobMatField = useField[29] OR useField[30] OR useField[31] OR useField[32] OR useField[33]
     ufIPJobSet = useField[65] OR useField[66] OR useField[67] OR useField[68]
     ufItemFG = useField[21] OR useField[34] OR useField[52] OR useField[54] OR useField[64] OR useField[98] OR useField[99]
-    ufJob = useField[89]
-    ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20] OR useField[85] OR useField[88] OR useField[96] OR useField[97] OR useField[100] OR useField[101] OR useField[104] OR useField[105]
+    ufJob = useField[89] OR useField[107]
+    ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20] OR useField[85] OR useField[88] OR
+               useField[96] OR useField[97] OR useField[100] OR useField[101] OR useField[104] OR useField[105]
     ufOEOrdl = useField[82] OR useField[84] OR useField[86] OR useField[87]
     ufOERel = useField[37] OR useField[38] OR useField[39] OR useField[40] OR useField[52] OR useField[63]OR useField[91]
     ufPOOrdl = useField[7] OR useField[16] OR useField[17] OR useField[35]

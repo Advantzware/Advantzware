@@ -201,10 +201,10 @@ PROCEDURE createRecKey :
   DEFINE INPUT PARAMETER ipRecKey AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER ipTableName AS CHARACTER NO-UNDO.
 
-  CREATE rec_key.
-  ASSIGN
-    rec_key.rec_key = ipRecKey
-    rec_key.table_name = ipTableName.
+/*  CREATE rec_key.                    */
+/*  ASSIGN                             */
+/*    rec_key.rec_key = ipRecKey       */
+/*    rec_key.table_name = ipTableName.*/
 
 END PROCEDURE.
 
@@ -257,17 +257,17 @@ PROCEDURE fixNotes :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DISABLE TRIGGERS FOR LOAD OF notes.
-
-  FOR EACH notes EXCLUSIVE-LOCK WHERE notes.note_date EQ ?:
-    FIND rec_key NO-LOCK WHERE rec_key.rec_key EQ notes.rec_key NO-ERROR.
-    IF rec_key.table_name EQ 'cust' THEN
-    FIND FIRST cust NO-LOCK WHERE cust.rec_key EQ rec_key.rec_key NO-ERROR.
-    notes.note_date = IF AVAILABLE rec_key AND 
-                         rec_key.table_name EQ 'cust' AND
-                         AVAILABLE cust THEN cust.date-field[1]
-                      ELSE 1.1.2006.
-  END. /* each notes */
+/*  DISABLE TRIGGERS FOR LOAD OF notes.                                      */
+/*                                                                           */
+/*  FOR EACH notes EXCLUSIVE-LOCK WHERE notes.note_date EQ ?:                */
+/*    FIND rec_key NO-LOCK WHERE rec_key.rec_key EQ notes.rec_key NO-ERROR.  */
+/*    IF rec_key.table_name EQ 'cust' THEN                                   */
+/*    FIND FIRST cust NO-LOCK WHERE cust.rec_key EQ rec_key.rec_key NO-ERROR.*/
+/*    notes.note_date = IF AVAILABLE rec_key AND                             */
+/*                         rec_key.table_name EQ 'cust' AND                  */
+/*                         AVAILABLE cust THEN cust.date-field[1]            */
+/*                      ELSE 1.1.2006.                                       */
+/*  END. /* each notes */                                                    */
 
 END PROCEDURE.
 

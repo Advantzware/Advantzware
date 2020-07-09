@@ -646,65 +646,65 @@ PROCEDURE fg-post:
         IF NOT CAN-FIND(FIRST itemfg WHERE
             itemfg.company EQ cocode AND
             itemfg.i-no    EQ w-fg-rctd.i-no) THEN
-            NEXT.
-
-        loop1:
-        REPEAT:
-
-            FIND FIRST itemfg WHERE
-                itemfg.company EQ cocode AND
-                itemfg.i-no    EQ w-fg-rctd.i-no
-                EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
-
-            IF AVAILABLE itemfg THEN
-            DO:           
-                /* If FGEMAIL is active and quantity on hand is zero and item is allocated,
-                   then process user data into a temp-table for processing emails later. */
-                IF gv-fgemail = YES AND (itemfg.q-onh = 0 AND itemfg.q-alloc > 0) THEN
-                    RUN Process-FGemail-Data (INPUT itemfg.i-no, w-fg-rctd.t-qty,w-fg-rctd.po-no).
-
-          /* itemfg gets updated here. */
-          /* w-job created here */
-                    {fg/fg-post.i w-fg-rctd w-fg-rctd}
-
-                IF autofgissue-log THEN
-                    RUN farmOutComp.
-
-                FIND CURRENT itemfg NO-LOCK NO-ERROR.
-                FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
-                FIND CURRENT po-ordl NO-LOCK NO-ERROR.
-                FIND CURRENT fg-bin NO-LOCK NO-ERROR.
-                LEAVE loop1.
-            END. /* IF AVAIL itemfg */
-        END. /* loop1 REPEAT */
-
-        IF w-fg-rctd.rita-code = "R" THEN 
-        DO:
-            /* Creates tt-email records */
-        {fg/fgemails.i}
-        END.
-
-        FIND FIRST fg-rctd EXCLUSIVE-LOCK 
-                     WHERE ROWID(fg-rctd) EQ w-fg-rctd.row-id NO-ERROR.
-
-        IF AVAILABLE fg-rctd THEN 
-        DO:
-            ASSIGN
-                fg-rctd.rita-code  = "P"  /* posted */
-                fg-rctd.post-date  = v-post-date
-                fg-rctd.trans-time = TIME
-                fg-rctd.tag2       = w-fg-rctd.tag2.
-
-            FOR EACH fg-rcpts EXCLUSIVE-LOCK
-                WHERE fg-rcpts.company EQ fg-rctd.company
-                  AND fg-rcpts.r-no    EQ fg-rctd.r-no:
-                ASSIGN 
-                    fg-rcpts.rita-code = fg-rctd.rita-code.
+            NEXT.  
+        DO TRANSACTION:
+            loop1:
+            REPEAT:
+    
+                FIND FIRST itemfg WHERE
+                    itemfg.company EQ cocode AND
+                    itemfg.i-no    EQ w-fg-rctd.i-no
+                    EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
+    
+                IF AVAILABLE itemfg THEN
+                DO:           
+                    /* If FGEMAIL is active and quantity on hand is zero and item is allocated,
+                       then process user data into a temp-table for processing emails later. */
+                    IF gv-fgemail = YES AND (itemfg.q-onh = 0 AND itemfg.q-alloc > 0) THEN
+                        RUN Process-FGemail-Data (INPUT itemfg.i-no, w-fg-rctd.t-qty,w-fg-rctd.po-no).
+    
+              /* itemfg gets updated here. */
+              /* w-job created here */
+                        {fg/fg-post.i w-fg-rctd w-fg-rctd}
+    
+                    IF autofgissue-log THEN
+                        RUN farmOutComp.
+    
+                    FIND CURRENT itemfg NO-LOCK NO-ERROR.
+                    FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
+                    FIND CURRENT po-ordl NO-LOCK NO-ERROR.
+                    FIND CURRENT fg-bin NO-LOCK NO-ERROR.
+                    LEAVE loop1.
+                END. /* IF AVAIL itemfg */
+                PAUSE 1 NO-MESSAGE.  /* This limits the "thrash" of DB checks and network traffic to 1/sec rather than 12K/sec */ 
+            END. /* loop1 REPEAT */
+        
+            FIND FIRST fg-rctd EXCLUSIVE-LOCK 
+                         WHERE ROWID(fg-rctd) EQ w-fg-rctd.row-id NO-ERROR.
+    
+            IF AVAILABLE fg-rctd THEN 
+            DO:
+                ASSIGN
+                    fg-rctd.rita-code  = "P"  /* posted */
+                    fg-rctd.post-date  = v-post-date
+                    fg-rctd.trans-time = TIME
+                    fg-rctd.tag2       = w-fg-rctd.tag2.
+    
+                FOR EACH fg-rcpts EXCLUSIVE-LOCK
+                    WHERE fg-rcpts.company EQ fg-rctd.company
+                      AND fg-rcpts.r-no    EQ fg-rctd.r-no:
+                    ASSIGN 
+                        fg-rcpts.rita-code = fg-rctd.rita-code.
+                END.
+    
+                
             END.
-
-            
+            FIND CURRENT fg-rctd NO-LOCK NO-ERROR.
         END.
-        FIND CURRENT fg-rctd NO-LOCK NO-ERROR.
+        
+        IF w-fg-rctd.rita-code = "R" THEN DO: /* Creates tt-email records */
+            {fg/fgemails.i}
+        END.             
     END.  /* for each w-fg-rctd */
 
         
@@ -941,8 +941,7 @@ PROCEDURE fg-post:
             RUN pCloseJobs.
     END.
 
-    IF v-adjustgl THEN 
-    DO TRANSACTION:
+    IF v-adjustgl THEN DO TRANSACTION:
         /** GET next G/L TRANS. POSTING # **/
         REPEAT:
             FIND FIRST gl-ctrl WHERE gl-ctrl.company EQ cocode EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
@@ -970,12 +969,11 @@ PROCEDURE fg-post:
             IF work-job.fg THEN
                 ASSIGN
                     gltrans.tr-amt  = - work-job.amt
-                    gltrans.tr-dscr = "ADJUSTMENT FG".
+                    gltrans.tr-dscr = "FG Adjustment entries FG".
             ELSE
                 ASSIGN
                     gltrans.tr-amt  = work-job.amt
-                    gltrans.tr-dscr = "ADJUSTMENT COGS".
-
+                    gltrans.tr-dscr = "FG Adjustment entries COGS".
             RELEASE gltrans.
         END. /* each work-job */
     END.
@@ -1121,7 +1119,6 @@ PROCEDURE gl-from-work:
 
     DEF VAR credits AS DEC INIT 0 NO-UNDO.
     DEF VAR debits  AS DEC INIT 0 NO-UNDO. 
-
 
     FIND FIRST period
         WHERE period.company EQ cocode
@@ -1586,9 +1583,10 @@ FUNCTION fCanCloseJob RETURNS LOGICAL
     DEFINE VARIABLE v-reduce-qty   AS INTEGER   NO-UNDO.   
     DEFINE VARIABLE ll-whs-item    AS LOG       NO-UNDO.       
     DEFINE BUFFER b-itemfg FOR itemfg.
-	FIND FIRST job
-	   WHERE RECID(job) EQ iprwJobRec
-	   NO-ERROR.
+    
+    FIND FIRST job NO-LOCK
+	     WHERE RECID(job) EQ iprwJobRec
+	     NO-ERROR.
 	IF NOT AVAIL job THEN 
 	 RETURN NO.
 

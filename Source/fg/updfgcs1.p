@@ -569,7 +569,7 @@ end.
     
 PROCEDURE cost-when-zero-qty:    
     DEFINE VARIABLE hCostProcs       AS HANDLE    NO-UNDO.
-DEF VAR lv-uom AS CHAR NO-UNDO.
+    DEF VAR lv-uom AS CHAR NO-UNDO.
     DEFINE VARIABLE dCostPerUOMTotal LIKE itemfg.avg-cost NO-UNDO.
     DEFINE VARIABLE dCostPerUOMDL    LIKE itemfg.avg-cost NO-UNDO.
     DEFINE VARIABLE dCostPerUOMFO    LIKE itemfg.avg-cost NO-UNDO.
@@ -607,62 +607,82 @@ DEF VAR lv-uom AS CHAR NO-UNDO.
             itemfg.std-mat-cost = dCostPerUOMDM
             .
       ELSE DO:
-          ASSIGN itemfg.avg-cost = DYNAMIC-FUNCTION('fConvert':U in hCostProcs,
-                cCostUom,
-                lv-uom,
-                itemfg.weight-100,
-                itemfg.t-len,
-                itemfg.t-wid,
-                itemfg.t-dep,
-                1,
-                1,
-                dCostPerUOMTotal
-                )            
-            itemfg.std-lab-cost = DYNAMIC-FUNCTION('fConvert':U IN hCostProcs,
-                cCostUom,
-                lv-uom,
-                itemfg.weight-100,
-                itemfg.t-len,
-                itemfg.t-wid,
-                itemfg.t-dep,
-                1,
-                1,
-                dCostPerUOMDL
-                ) 
-            itemfg.std-fix-cost = DYNAMIC-FUNCTION('fConvert':U IN hCostProcs,
-                cCostUom,
-                lv-uom,
-                itemfg.weight-100,
-                itemfg.t-len,
-                itemfg.t-wid,
-                itemfg.t-dep,
-                1,
-                1,
-                dCostPerUOMFO
-                ) 
-            itemfg.std-var-cost = DYNAMIC-FUNCTION('fConvert':U IN hCostProcs,
-                cCostUom,
-                lv-uom,
-                itemfg.weight-100,
-                itemfg.t-len,
-                itemfg.t-wid,
-                itemfg.t-dep,
-                1,
-                1,
-                dCostPerUOMVO
-                ) 
-            itemfg.std-mat-cost = DYNAMIC-FUNCTION('fConvert':U IN hCostProcs,
-                cCostUom,
-                lv-uom,
-                itemfg.weight-100,
-                itemfg.t-len,
-                itemfg.t-wid,
-                itemfg.t-dep,
-                1,
-                1,
-                dCostPerUOMDM
-                )                                 
-            .
+          ASSIGN 
+            itemfg.avg-cost = DYNAMIC-FUNCTION('fConvertCostForItem' IN hCostProcs,
+                                itemfg.company, 
+                                itemfg.i-no, 
+                                "FG", 
+                                dCostPerUOMTotal, 
+                                cCostUOM, 
+                                lv-uom, 
+                                0, /*BasisWeight*/
+                                itemfg.t-len, /*Length override - leave as 0 if not in UI or on Order/PO*/
+                                itemfg.t-wid, /*Width override - leave as 0 if not in UI or on Order/PO*/
+                                itemfg.t-dep, /*Depth override - leave as 0 if not in UI or on Order/PO*/
+                                0, /*Case Count override - leave as 0 if not in UI or on Order/PO*/
+                                0, /*Lot Quantity - leave as 0 if not in UI or on Order/PO*/
+                                "" /*Lot Quantity UOM - leave as "" if not in UI or on PO*/
+                                )
+          itemfg.std-lab-cost = DYNAMIC-FUNCTION('fConvertCostForItem' IN hCostProcs,
+                                itemfg.company, 
+                                itemfg.i-no, 
+                                "FG", 
+                                dCostPerUOMDL, 
+                                cCostUOM, 
+                                lv-uom, 
+                                0, /*BasisWeight*/
+                                itemfg.t-len, /*Length override - leave as 0 if not in UI or on Order/PO*/
+                                itemfg.t-wid, /*Width override - leave as 0 if not in UI or on Order/PO*/
+                                itemfg.t-dep, /*Depth override - leave as 0 if not in UI or on Order/PO*/
+                                0, /*Case Count override - leave as 0 if not in UI or on Order/PO*/
+                                0, /*Lot Quantity - leave as 0 if not in UI or on Order/PO*/
+                                "" /*Lot Quantity UOM - leave as "" if not in UI or on PO*/
+                                )
+          itemfg.std-fix-cost = DYNAMIC-FUNCTION('fConvertCostForItem' IN hCostProcs,
+                                itemfg.company, 
+                                itemfg.i-no, 
+                                "FG", 
+                                dCostPerUOMFO, 
+                                cCostUOM, 
+                                lv-uom, 
+                                0, /*BasisWeight*/
+                                itemfg.t-len, /*Length override - leave as 0 if not in UI or on Order/PO*/
+                                itemfg.t-wid, /*Width override - leave as 0 if not in UI or on Order/PO*/
+                                itemfg.t-dep, /*Depth override - leave as 0 if not in UI or on Order/PO*/
+                                0, /*Case Count override - leave as 0 if not in UI or on Order/PO*/
+                                0, /*Lot Quantity - leave as 0 if not in UI or on Order/PO*/
+                                "" /*Lot Quantity UOM - leave as "" if not in UI or on PO*/
+                                )
+          itemfg.std-var-cost = DYNAMIC-FUNCTION('fConvertCostForItem' IN hCostProcs,
+                                itemfg.company, 
+                                itemfg.i-no, 
+                                "FG", 
+                                dCostPerUOMVO, 
+                                cCostUOM, 
+                                lv-uom, 
+                                0, /*BasisWeight*/
+                                itemfg.t-len, /*Length override - leave as 0 if not in UI or on Order/PO*/
+                                itemfg.t-wid, /*Width override - leave as 0 if not in UI or on Order/PO*/
+                                itemfg.t-dep, /*Depth override - leave as 0 if not in UI or on Order/PO*/
+                                0, /*Case Count override - leave as 0 if not in UI or on Order/PO*/
+                                0, /*Lot Quantity - leave as 0 if not in UI or on Order/PO*/
+                                "" /*Lot Quantity UOM - leave as "" if not in UI or on PO*/
+                                )
+          itemfg.std-mat-cost = DYNAMIC-FUNCTION('fConvertCostForItem' IN hCostProcs,
+                                itemfg.company, 
+                                itemfg.i-no, 
+                                "FG", 
+                                dCostPerUOMDM, 
+                                cCostUOM, 
+                                lv-uom, 
+                                0, /*BasisWeight*/
+                                itemfg.t-len, /*Length override - leave as 0 if not in UI or on Order/PO*/
+                                itemfg.t-wid, /*Width override - leave as 0 if not in UI or on Order/PO*/
+                                itemfg.t-dep, /*Depth override - leave as 0 if not in UI or on Order/PO*/
+                                0, /*Case Count override - leave as 0 if not in UI or on Order/PO*/
+                                0, /*Lot Quantity - leave as 0 if not in UI or on Order/PO*/
+                                "" /*Lot Quantity UOM - leave as "" if not in UI or on PO*/
+                                )            .
     END. /* UOM conversions */
        
       ASSIGN itemfg.total-std-cost = itemfg.avg-cost

@@ -1042,12 +1042,13 @@ DO:
     DEF VAR v-cnt3   AS INT NO-UNDO.
     DEF VAR v-loopct AS INT NO-UNDO.
     DEF VAR v-valhld AS CHAR NO-UNDO.
+    DEF VAR lw-focus AS WIDGET NO-UNDO.
 
 
     v-loopct = INT(eb.i-col:SCREEN-VALUE) + 
                INT(eb.i-coat:SCREEN-VALUE).
 
-
+     lw-focus = FOCUS.
     case focus:name :
          when "i-code2" then do:
              find style where style.company = eb.company and
@@ -1142,8 +1143,7 @@ DO:
                  END.
 
                  RUN getUnit# (FOCUS:INDEX).                                  
-             END.
-             return no-apply.
+             END.                 
          end.
          when "i-dscr2" then do:
              find style where style.company = eb.company and
@@ -1176,8 +1176,7 @@ DO:
                        when 19 then eb.i-code2[19]:SCREEN-VALUE IN FRAME {&FRAME-NAME} = entry(2,char-val).
                        when 20 then eb.i-code2[20]:SCREEN-VALUE IN FRAME {&FRAME-NAME} = entry(2,char-val).*/
                   end case.
-             end.         
-             return no-apply.
+             end.              
          end.
          when "cas-no" then do:
            find style where style.company = eb.company and
@@ -1189,8 +1188,7 @@ DO:
            if char-val <> "" AND eb.cas-no:SCREEN-VALUE NE entry(1,char-val) then do:
               eb.cas-no:SCREEN-VALUE = entry(1,char-val).
               APPLY "value-changed" TO eb.cas-no.
-           end.   
-           return no-apply.   
+           end.               
          end.   
          when "tr-no" then do:
            find style where style.company = eb.company and
@@ -1209,8 +1207,7 @@ DO:
                                         eb.tr-wid:Screen-value = string(item.case-w)
                                         eb.tr-dep:Screen-value = string(item.case-d)
                                         .
-           end.
-           return no-apply.   
+           end.             
         end.   
         when "carrier" then do:
              run windows/l-carrie.w  
@@ -1218,15 +1215,14 @@ DO:
              if char-val <> "" AND entry(1,char-val) NE focus:SCREEN-VALUE THEN DO:
                 eb.carrier:SCREEN-VALUE IN FRAME {&FRAME-NAME} = entry(1,char-val).
                 RUN new-carrier.
-             END.
-             return no-apply.
+             END.                
         end.
         when "dest-code" then do:
            run windows/l-delzon.w 
               (eb.company,eb.loc,eb.carrier:SCREEN-VALUE IN FRAME {&FRAME-NAME},focus:SCREEN-VALUE IN FRAME {&FRAME-NAME}, output char-val).
            if char-val <> "" then 
               assign focus:SCREEN-VALUE IN FRAME {&FRAME-NAME} = entry(1,char-val).
-           return no-apply.  
+             
         end.
         when "layer-pad" then do:
            find style where style.company = eb.company and
@@ -1238,8 +1234,7 @@ DO:
            if char-val <> "" AND eb.cas-no:SCREEN-VALUE NE entry(1,char-val) then do:
               eb.layer-pad:SCREEN-VALUE = entry(1,char-val).
               APPLY "value-changed" TO eb.layer-pad.
-           end.   
-           return no-apply.   
+           end.              
          end.   
          when "divider" then do:
            find style where style.company = eb.company and
@@ -1251,10 +1246,11 @@ DO:
            if char-val <> "" AND eb.cas-no:SCREEN-VALUE NE entry(1,char-val) then do:
               eb.divider:SCREEN-VALUE = entry(1,char-val).
               APPLY "value-changed" TO eb.divider.
-           end.   
-           return no-apply.   
+           end.               
          end.   
     end case.
+    APPLY "ENTRY":U TO lw-focus.
+    RETURN NO-APPLY.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2371,15 +2367,15 @@ PROCEDURE copy-frat :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ipUpdateOtherEst AS LOGICAL NO-UNDO.
   DEF BUFFER b-eb FOR eb.
 
   IF eb.form-no NE 0                                      AND
      CAN-FIND(FIRST b-eb WHERE b-eb.company EQ eb.company
                            AND b-eb.est-no  EQ eb.est-no
                            AND b-eb.eqty    EQ eb.eqty
-                           AND b-eb.form-no NE 0
-                           AND ROWID(b-eb)  NE ROWID(eb)) THEN
-    RUN est/copyfrat.p (ROWID(eb)).
+                           AND b-eb.form-no NE 0) THEN
+    RUN est/copyfrat.p (ROWID(eb),ipUpdateOtherEst).
 
 END PROCEDURE.
 
@@ -2393,6 +2389,7 @@ PROCEDURE copy-inks :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ipUpdateOtherEst AS LOGICAL NO-UNDO.
   DEF BUFFER b-eb FOR eb.
 
 
@@ -2400,9 +2397,8 @@ PROCEDURE copy-inks :
      CAN-FIND(FIRST b-eb WHERE b-eb.company EQ eb.company
                            AND b-eb.est-no  EQ eb.est-no
                            AND b-eb.eqty    EQ eb.eqty
-                           AND b-eb.form-no NE 0
-                           AND ROWID(b-eb)  NE ROWID(eb)) THEN
-    RUN est/copyinks.p (ROWID(eb)).
+                           AND b-eb.form-no NE 0) THEN
+    RUN est/copyinks.p (ROWID(eb),ipUpdateOtherEst).
 
 END PROCEDURE.
 
@@ -2416,16 +2412,15 @@ PROCEDURE copy-pack :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipUpdateOtherEst AS LOGICAL NO-UNDO.
   DEF BUFFER b-eb FOR eb.
-
-
+      
   IF eb.form-no NE 0                                      AND
      CAN-FIND(FIRST b-eb WHERE b-eb.company EQ eb.company
                            AND b-eb.est-no  EQ eb.est-no
                            AND b-eb.eqty    EQ eb.eqty
-                           AND b-eb.form-no NE 0
-                           AND ROWID(b-eb)  NE ROWID(eb)) THEN
-    RUN est/copypack.p (ROWID(eb)).
+                           AND b-eb.form-no NE 0) THEN 
+    RUN est/copypack.p (ROWID(eb), ipUpdateOtherEst).
 
 END PROCEDURE.
 
@@ -3229,8 +3224,8 @@ PROCEDURE local-update-record :
 
   RUN custom/framechk.p (2, FRAME {&FRAME-NAME}:HANDLE).
   
-  IF framechk-i-changed AND (ll-update-pack OR ll-unit-calc) THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 3).
-  ELSE IF framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 2).
+  IF framechk-i-changed AND (ll-update-pack OR ll-unit-calc) THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 3,YES).
+  ELSE IF framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 2,YES).
 
   ASSIGN
    ll-unit-calc   = NO
@@ -3339,7 +3334,7 @@ IF eb.form-no NE 0 THEN DO:
 
   RUN custom/framechk.p (2, FRAME {&FRAME-NAME}:HANDLE).
 
-  IF framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 1).
+  IF framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 1,YES).
 END.
 
 END PROCEDURE.

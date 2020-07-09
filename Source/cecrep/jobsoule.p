@@ -79,6 +79,8 @@ DEF VAR v-inst2 AS cha EXTENT 6 NO-UNDO.
 DEF BUFFER b-eb FOR eb.
 DEF VAR v-job-cust AS LOG NO-UNDO.
 DEF VAR xJobQty LIKE job-hdr.qty NO-UNDO.
+DEFINE VARIABLE cFgBin AS CHARACTER EXTENT 10 NO-UNDO.
+DEFINE VARIABLE iFgBinQty AS INTEGER EXTENT 10 NO-UNDO.
 DEFINE BUFFER bf-itemfg FOR itemfg.
 
 DO TRANSACTION:
@@ -265,7 +267,8 @@ do v-local-loop = 1 to v-local-copies:
        "<C40>Production Specification </B><P10>Part item name:" lv-part-name SKIP
        "<#1><C1><FROM><C105><R+45><RECT><|3>" 
        "<=1><C32><FROM><R+19><C32><LINE><|3>"
-       "<=1><C66><FROM><R+19><C66><LINE><|3>"
+       "<=1><C66><FROM><R+10><C66><LINE><|3>"
+       "<=1><C63.5><R+10><FROM><R+9><C63.5><LINE><|3>"
        "<=1><C90><FROM><R+4><C90><LINE><|3>"
        "<=1><R+4><C1><FROM><C105><LINE><|3>"
        "<=#1><R+10><C1><FROM><C105><LINE><|3>"
@@ -377,50 +380,56 @@ do v-local-loop = 1 to v-local-copies:
               "Item Name: " AT 40 lv-fg-name FORM "x(26)"
               "Adders:" AT 80 v-adders FORM "x(23)"
               "<P7>"SKIP(1)
-              "Board:" AT 2 "Printing:" AT 55 "Die Cutting, Slit, & Saw" AT 115 "<P10>"SKIP
+              "Board:" AT 2 "Printing:" AT 55 "Die Cutting, Slit, & Saw" AT 111 "<P10>"SKIP
               "Shts Req'd:" AT 2 trim(string(v-sht-qty))   format "x(9)"
                 " Sq Ft:" trim(string(v-form-sqft)) format "x(7)"
               "PLATE #:" AT 39 xeb.plate-no FORM "X(15)" when avail xeb
               v-plate-loc WHEN AVAIL xeb
-              "Die #" AT 80 xeb.die-no when avail xeb " Loc:" v-die-loc SKIP
+              "Die #" AT 77 xeb.die-no when avail xeb " Loc:" v-die-loc SKIP
               "W:" + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
               "  " +
               "L:" + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))  format "x(22)" AT 2
               "MSF:"  + trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
                                                                 format "x(11)"
               "Ink 1:" AT 39 v-ink-1
-              "Gross Size:" AT 80  
-              "W:" + trim(string({sys/inc/k16v.i xef.gsh-wid},">>>9.99")) +
-              "  " +
-              "L:" + trim(string({sys/inc/k16v.i xef.gsh-len},">>>9.99"))
-                                                                format "x(20)"
-              "Slit: W:" + string(v-outw) + " L:" + string(v-outl) FORM "x(15)"   
+              "Grs:" +  
+              "W:" + trim(string({sys/inc/k16v.i xef.gsh-wid},">>9.99")) +
+              " " +
+              "L:" + trim(string({sys/inc/k16v.i xef.gsh-len},">>9.99")) +
+              " " +
+              "D:" + trim(string({sys/inc/k16v.i xef.gsh-dep},">>9.99"))
+                                                                format "x(28)" AT 77
+              "Slit:W:" + string(v-outw) + " L:" + string(v-outl) + " D:" + STRING(xef.n-out-d)  FORM "x(20)"   
               SKIP
-              "Board:" AT 2 v-form-code FORM "x(30)" "Ink 2:" AT 39 v-ink-2 "Net   Size:" AT 80
-              "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>9.99")) +
-              "  " +
-              "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>9.99")) format "x(22)"
+              "Board:" AT 2 v-form-code FORM "x(30)" "Ink 2:" AT 39 v-ink-2 "Net:" +
+              "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>9.99")) +
+              " " +
+              "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>9.99")) +
+              " " +
+              "D:" + trim(string({sys/inc/k16v.i xef.nsh-dep},">>9.99")) AT 77 format "x(29)"
               SKIP
-              v-form-dscr AT 4 FORM "x(30)" "Ink 3:" AT 39 v-ink-3 "Die   Size:" AT 80
-              "W:" + trim(string({sys/inc/k16v.i xef.trim-w},">>>9.99")) +
-              "  " +
-              "L:" + trim(string({sys/inc/k16v.i xef.trim-l},">>>9.99")) format "x(22)"
-              "Up:" "W:" + string(v-upl) + " L:" + string(v-upw) FORM "x(9)"
+              v-form-dscr AT 4 FORM "x(30)" "Ink 3:" AT 39 v-ink-3 "Die:" +
+              "W:" + trim(string({sys/inc/k16v.i xef.trim-w},">>9.99")) +
+              " " +
+              "L:" + trim(string({sys/inc/k16v.i xef.trim-l},">>9.99")) +
+              " " +
+              "D:" + trim(string({sys/inc/k16v.i xef.trim-d},">>9.99")) AT 77 format "x(28)"
+              "Up:" + "W:" + string(v-upl) + " L:" + string(v-upw) + " D:" + STRING(xeb.num-dep) FORM "x(20)"
               SKIP
                v-qty-or-sup AT 2 FORM "x(36)" 
-              "Ink 4:" AT 39 v-ink-4 "Blank Size:" AT 80 
+              "Ink 4:" AT 39 v-ink-4 "Blk:" + 
               "W:" + trim(string({sys/inc/k16v.i xeb.t-wid},">>>9.99")) +
-              "  " +
-              "L:" + trim(string({sys/inc/k16v.i xeb.t-len},">>>9.99")) format "x(22)"
+              " " +
+              "L:" + trim(string({sys/inc/k16v.i xeb.t-len},">>>9.99")) AT 77 format "x(28)"
               SKIP
               "Score:" AT 2 substring(v-len-score,1,30) WHEN xstyle.TYPE <> "F" format "x(30)" 
               "Color Desc:" AT 39 xeb.i-coldscr when avail xeb
-              "Impressions: " AT 80 trim(string(v-dc-qty))    format "x(7)"
+              "Impressions: " AT 77 trim(string(v-dc-qty))    format "x(7)"
               SKIP
               SUBSTRING(v-len-score,31,40) AT 6 FORM "x(40)"
-              "D/C Style:" AT 80 SKIP(1)
+              "D/C Style:" AT 77 SKIP(1)
               WITH FRAME job1 NO-LABEL NO-BOX WIDTH 150 STREAM-IO.
-        
+              
         i = 0.
         for each w-m:
           i = i + 1.
@@ -432,7 +441,7 @@ do v-local-loop = 1 to v-local-copies:
             /* box for route */
         
         put skip
-            "<P7>   Machine Routing                    SU:      Start       Stop        Total          RUN:     Hours      Start       Stop       Total       QTY:  In        Out         Waste <P10>" SKIP.
+            "<P7>   Machine Routing                    SU:      Start       Stop        Waste          RUN:     Hours      Start       Stop     QTY:  In        Out         Waste       Operator <P10>" SKIP.
         i = 0.
 
         for each w-m by w-m.dseq:
@@ -484,6 +493,17 @@ do v-local-loop = 1 to v-local-copies:
                CREATE tt-wm.
                BUFFER-COPY w-m TO tt-wm.
         END.
+        j = 1 .
+        MAIN-FG-BIN:
+        FOR EACH fg-bin NO-LOCK
+            where fg-bin.company  eq cocode
+            and fg-bin.i-no     eq xeb.stock-no
+            and fg-bin.qty      gt 0 BY fg-bin.tag :
+            ASSIGN cFgBin[j] = fg-bin.loc-bin
+                   iFgBinQty[j] = fg-bin.qty.
+                   j = j + 1.
+               IF j GE 6 THEN LEAVE MAIN-FG-BIN.    
+        END.
 
         PUT "<#6><C1><FROM><C105><LINE><|3>" .
             
@@ -512,12 +532,12 @@ do v-local-loop = 1 to v-local-copies:
                 "____________________________________________________" AT 35 v-shp[3] AT 90 SKIP
                 "____________________________________________________" AT 35 v-shp[4] AT 90 SKIP
                 "____________________________________________________" AT 35 "Item PO #:" AT 90 xoe-ordl.po-no when avail xoe-ordl
-                "____________________________________________________" AT 35 SKIP
-                "____________________________________________________" AT 35 SKIP
-                "____________________________________________________" AT 35 SKIP
-                "____________________________________________________" AT 35 SKIP
-                "____________________________________________________" AT 35 SKIP
-                "____________________________________________________" AT 35 SKIP
+                "Bin              Bin Qty      " AT 35 SKIP
+                cFgBin[1] AT 35 FORMAT "x(10)" SPACE(2) iFgBinQty[1] FORMAT ">>>,>>>,>>>" SKIP
+                cFgBin[2] AT 35 FORMAT "x(10)" SPACE(2) iFgBinQty[2] FORMAT ">>>,>>>,>>>" SKIP
+                cFgBin[3] AT 35 FORMAT "x(10)" SPACE(2) iFgBinQty[3] FORMAT ">>>,>>>,>>>" SKIP
+                cFgBin[4] AT 35 FORMAT "x(10)" SPACE(2) iFgBinQty[4] FORMAT ">>>,>>>,>>>" SKIP
+                cFgBin[5] AT 35 FORMAT "x(10)" SPACE(2) iFgBinQty[5] FORMAT ">>>,>>>,>>>" SKIP
                 /*"____________________________________________________________________________" SKIP */
                with no-box no-labels frame m8 width 170 no-attr-space STREAM-IO.
 
@@ -679,7 +699,7 @@ do v-local-loop = 1 to v-local-copies:
                 " Underrun:" format "x(7)"
                 "Adders:" v-adders FORM "x(36)" v-i-line[5] AT 86 SKIP
                 "<=1><R+9><C30><P10><B>Set Components<P10></B> <C50>Set item: " v-fg-set SKIP
-                "<P10><C2>FINISHED GOOD #  DESCRIPTION                     SAMPLES REQ'D  RATIO PER SET     DIE #      CAD#        STYLE" SKIP.
+                "<P10><C2>FINISHED GOOD #  DESCRIPTION                     RATIO PER SET     DIE #           CAD#       STYLE" SKIP.
             /* each components */                                                    
 
             DEF VAR v-shipto AS cha NO-UNDO.
@@ -717,13 +737,12 @@ do v-local-loop = 1 to v-local-copies:
                 END.
 
                 PUT xeb.stock-no   AT 3  
-                    xeb.part-dscr1 AT 20 
-                    v-sampreq      AT 52.
+                    xeb.part-dscr1 FORMAT "x(30)" AT 20 .
 
                 IF xeb.quantityPerSet LT 0 THEN
-                  PUT -1 / xeb.quantityPerSet FORMAT ">>>>>>9.9<<<<<<" AT 67.
+                  PUT -1 / xeb.quantityPerSet FORMAT ">>>>>>9.9<<<<<<" AT 52 .
                 ELSE
-                  PUT xeb.quantityPerSet FORMAT ">>>>>>9.9<<<<<<" AT 67.
+                  PUT xeb.quantityPerSet FORMAT ">>>>>>9.9<<<<<<" AT 52 .
 
                 FIND FIRST xstyle NO-LOCK
                    WHERE xstyle.company  EQ xeb.company
@@ -731,9 +750,9 @@ do v-local-loop = 1 to v-local-copies:
                      AND xstyle.industry EQ "2" NO-ERROR.
 
                 PUT 
-                   xeb.die-no FORMAT "x(10)" AT 85
-                   xeb.cad-no FORMAT "x(10)" AT 96
-                   if avail xstyle then xstyle.dscr else "" FORMAT "x(30)" AT 108. 
+                   xeb.die-no FORMAT "x(10)" AT 69 
+                   xeb.cad-no FORMAT "x(10)" AT 85 
+                   if avail xstyle then xstyle.dscr else "" FORMAT "x(30)" AT 96. 
 
                 PUT SKIP.
                 v-tmp-line = v-tmp-line + 1.
@@ -764,7 +783,7 @@ do v-local-loop = 1 to v-local-copies:
                 " Underrun:" format "x(7)"  
                 "Adders:" v-adders FORM "x(36)" v-i-line[5] AT 86 SKIP
                 "<=1><R+9><C30><P10><B>Set Components<P10></B> <C50>Set item: " v-fg-set SKIP
-                "<P10><C2>FINISHED GOOD #  DESCRIPTION                     SAMPLES REQ'D  RATIO PER SET     DIE #      CAD#        STYLE" SKIP.             
+                "<P10><C2>FINISHED GOOD #  DESCRIPTION                     RATIO PER SET     DIE #      CAD#        STYLE" SKIP.             
                 END.
             END.
             v-tmp-line = v-tmp-line + 1.
@@ -783,43 +802,12 @@ do v-local-loop = 1 to v-local-copies:
             v-tmp-line = v-tmp-line + 10.
 
             i = 0.
-            for each tt-wm WHERE lookup(tt-wm.m-code,tspostfg-char) > 0:
-                 i = i + 1.
-            END.
-            i = i + 2.
-            PUT /*"<C2>Machine Routing:  <C15> SU:    Start    Stop     Total    Run:   Start   Stop    total   qty   in   out  waste  date" SKIP*/
-                "<p9>  Machine Routing        SU:    Start    Stop    Total   RUN:  Start   Stop    Total   QTY:    In     Out     Waste     Date" SKIP
-                "<=1><R+" + string(v-tmp-line + 1) + "><C1><FROM><R+" + string(i) + "><C105><RECT><||3>" FORM "x(150)" SKIP
-                "<=1><R+" + string(v-tmp-line + 1) + ">" FORM "x(20)".
-                .
-
-            i = 0.
-            for each tt-wm WHERE lookup(tt-wm.m-code,tspostfg-char) > 0  by tt-wm.dseq:
-              i = i + 1.
-              display tt-wm.dscr AT 3
-                   tt-wm.s-hr when tt-wm.s-hr ne 0
-                   fill("_",7)  format "x(7)"    to 38   when tt-wm.dscr ne ""
-                   fill("_",7)  format "x(7)"    to 46   when tt-wm.dscr ne ""
-                   fill("_",7)  format "x(7)"    to 54   when tt-wm.dscr ne ""
-                   space(2)
-                   tt-wm.r-sp when tt-wm.r-sp ne 0
-                   fill("_",7)  format "x(7)"    to 69   when tt-wm.dscr ne ""
-                   fill("_",7)  format "x(7)"    to 77   when tt-wm.dscr ne ""
-                   fill("_",7)  format "x(7)"    to 85   when tt-wm.dscr ne ""
-                   fill("_",8)  format "x(8)"    to 99   when tt-wm.dscr ne ""
-                   fill("_",8)  format "x(8)"    to 108  when tt-wm.dscr ne ""
-                   fill("_",8)  format "x(8)"    to 117  when tt-wm.dscr ne ""
-                   fill("_",8)  format "x(8)"    to 129  when tt-wm.dscr ne ""
-                   /*chr(124) format "x"           at 131   */                  
-                   with no-box no-labels frame o21 width 132 no-attr-space down STREAM-IO.
-            end.
+            
             PUT "<p10>".
             FOR EACH tt-wm:
                 DELETE tt-wm.
             END.
-            ASSIGN
-            v-tmp-line = v-tmp-line + 3 + i /* 4 and add machine routing lines */
-
+           
             v-shipto = IF AVAIL xoe-rel THEN xoe-rel.ship-id 
                        ELSE IF avail xeb THEN xeb.ship-id
                        ELSE IF avail xoe-ord THEN xoe-ord.sold-id 
@@ -830,13 +818,14 @@ do v-local-loop = 1 to v-local-copies:
                FIND FIRST bf-eb WHERE bf-eb.company = est.company
                                   AND bf-eb.est-no = est.est-no
                                   AND bf-eb.form-no = 0
-                                  AND bf-eb.blank-no = 0 NO-LOCK NO-ERROR.
+                                  AND bf-eb.blank-no = 0 NO-LOCK NO-ERROR.    
                CREATE tt-prem.
                IF AVAIL bf-eb THEN 
                   ASSIGN tt-prem.tt-#-bundle = string(bf-eb.cas-cnt)
                          tt-prem.tt-#-unit = string(bf-eb.tr-cnt)
                          tt-prem.tt-pattern = bf-eb.tr-no
-                         tt-prem.tt-pallet = bf-eb.cas-no.
+                         tt-prem.tt-pallet = bf-eb.cas-no 
+                         tt-prem.tt-pattern-code = bf-eb.stack-code .
             END.
         /*    
             ASSIGN v-tmp-lines = 0
@@ -879,11 +868,13 @@ do v-local-loop = 1 to v-local-copies:
             IF v-ship <> "" THEN v-dept-inst[15] = v-ship.  /* shipto notes */
             PUT "<=1><R+" + string(v-tmp-line) + ">" form "X(20)".
             v-tmp-line = v-tmp-line + 1.
-            PUT "Unitizing Bale <C24>Date <C44>Units <C62>Complete <C79>OP <C93>QA" AT 3 SKIP
-                "# Per Bndl: " AT 3 tt-prem.tt-#-bundle "<C20>_____________________ <C40>____________________  <C60>________________  <C75>________________  <C90>________________" skip
-                "# Per Unit: " AT 3 tt-prem.tt-#-unit "<C20>_____________________ <C40>____________________  <C62>Partial  <C75>________________  <C90>________________" skip
-                "Pattern: " AT 3 tt-prem.tt-pattern FORM "x(10)" "<C20>_____________________ <C40>____________________  <C60>________________  <C75>________________  <C90>________________" skip
-                "Pallet: " AT 3 tt-prem.tt-pallet FORM "x(10)"  "<C20>_____________________ <C40>____________________  <C75>________________  <C90>________________" skip
+            PUT "Unitizing Bale <C44>Date <C62>Units <C79>Complete <C93>QA" AT 3 SKIP
+                "# Per Bndl: " AT 3 tt-prem.tt-#-bundle .
+            RUN stackImageSet(tt-prem.tt-pattern-code).    
+            PUT                                                      "<C38>_____________________ <C57>____________________  <C75>________________   <C90>________________" skip
+                "# Per Unit: " AT 3 tt-prem.tt-#-unit                "<C38>_____________________ <C57>____________________  <C77>Partial   <C90>________________" skip
+                "Pattern: " AT 3 tt-prem.tt-pattern FORM "x(10)"     "<C38>_____________________ <C57>____________________  <C75>________________   <C90>________________" skip
+                "Pallet: " AT 3 tt-prem.tt-pallet FORM "x(10)"       "<C38>_____________________ <C57>____________________    <C90>________________" skip
                 "<=1><R+" + string(v-tmp-line) + "><C1><FROM><R+6><C105><RECT><||3>" FORM "x(150)" SKIP
                 "<=1><R+" + string(v-tmp-line + 7) + "><C1><FROM><R+15><C105><RECT><||3>" FORM "x(150)" SKIP
 
@@ -926,6 +917,20 @@ PROCEDURE stackImage:
     "<#71><C27><R+1><FROM><C2><R+12>"
     "<IMAGE#71=" stackPattern.stackImage ">"
     "<R-13>".
+END PROCEDURE.
+
+PROCEDURE stackImageSet:
+  DEFINE INPUT PARAMETER ipcStackPatt AS CHARACTER NO-UNDO.
+  DEFINE BUFFER pattern FOR reftable.
+  DEFINE BUFFER stackPattern FOR stackPattern. 
+  IF ipcStackPatt EQ '' THEN RETURN.
+  FIND FIRST stackPattern NO-LOCK
+       WHERE stackPattern.stackCode EQ ipcStackPatt NO-ERROR.
+  IF AVAILABLE stackPattern AND SEARCH(stackPattern.stackImage) NE ? THEN
+  PUT UNFORMATTED
+    "<#71><R-1><C40><R+1><FROM><C27><R+5>"
+    "<IMAGE#71=" stackPattern.stackImage ">"
+    "<R-5>".
 END PROCEDURE.
 
 /* end ---------------------------------- copr. 1997  advanced software, inc. */

@@ -21,42 +21,82 @@
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBusinessLogic:
-    DEFINE VARIABLE dtStartDateTime AS DATETIME  NO-UNDO.
-    DEFINE VARIABLE dtEndDateTime   AS DATETIME  NO-UNDO.
+    DEFINE VARIABLE cStartAfterValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStartBeforeValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStartDB          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStartField       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStartTable       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStartType        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStartUser        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEndAfterValue    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEndBeforeValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEndDB            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEndField         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEndTable         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEndType          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEndUser          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dtEndDateTime     AS DATETIME  NO-UNDO.
+    DEFINE VARIABLE dtStartDateTime   AS DATETIME  NO-UNDO.
+    DEFINE VARIABLE lDelete           AS LOGICAL   NO-UNDO.
     
     DEFINE BUFFER bAuditDtl FOR AuditDtl.
     
     /* subject business logic */
     ASSIGN
-        dtStartDateTime = DATETIME(STRING(dtStartTransDate,"99/99/9999") + " 00:00:00") 
-        dtEndDateTime   = DATETIME(STRING(dtEndTransDate,"99/99/9999")   + " 23:59:59")
+        cStartType        = IF cTypes EQ "ALL" THEN cTypes ELSE CHR(32)
+        cEndType          = IF cTypes EQ "ALL" THEN cTypes ELSE CHR(254)
+        cStartUser        = IF cUsers EQ "ALL" THEN cUsers ELSE CHR(32)
+        cEndUser          = IF cUsers EQ "ALL" THEN cUsers ELSE CHR(254)
+        cStartDB          = IF cDBs EQ "ALL" THEN cDBs ELSE CHR(32)
+        cEndDB            = IF cDBs EQ "ALL" THEN cDBs ELSE CHR(254)
+        cStartTable       = IF cTables EQ "ALL" THEN cTables ELSE CHR(32)
+        cEndTable         = IF cTables EQ "ALL" THEN cTables ELSE CHR(254)
+        cStartField       = IF cFields EQ "ALL" THEN cFields ELSE CHR(32)
+        cEndField         = IF cFields EQ "ALL" THEN cFields ELSE CHR(254)
+        cStartBeforeValue = IF cBeforeValueFilter NE "" THEN cBeforeValueFilter ELSE CHR(32)
+        cEndBeforeValue   = IF cBeforeValueFilter NE "" THEN cBeforeValueFilter ELSE CHR(254)
+        cStartAfterValue  = IF cAfterValueFilter  NE "" THEN cAfterValueFilter  ELSE CHR(32)
+        cEndAfterValue    = IF cAfterValueFilter  NE "" THEN cAfterValueFilter  ELSE CHR(254)
+        dtStartDateTime   = DATETIME(STRING(dtStartTransDate,"99/99/9999") + " 00:00:00") 
+        dtEndDateTime     = DATETIME(STRING(dtEndTransDate,"99/99/9999")   + " 23:59:59")
         .
     FOR EACH AuditHdr
-        WHERE  AuditHdr.AuditDateTime  GE dtStartDateTime
-          AND  AuditHdr.AuditDateTime  LE dtEndDateTime
-          AND (AuditHdr.AuditType      EQ cTypes  OR cTypes  EQ "ALL")
-          AND (AuditHdr.AuditUser      EQ cUsers  OR cUsers  EQ "ALL")
-          AND (AuditHdr.AuditDB        EQ cDBs    OR cDBs    EQ "ALL")
-          AND (AuditHdr.AuditTable     EQ cTables OR cTables EQ "ALL"),
-        FIRST  bAuditDtl OF AuditHdr NO-LOCK
-        WHERE (bAuditDtl.AuditField  EQ cFields   OR cFields EQ "ALL")
-          AND (bAuditDtl.AuditBeforeValue BEGINS cBeforeValueFilter
-           OR  cBeforeValueFilter EQ "")
-          AND (bAuditDtl.AuditAfterValue  BEGINS cAfterValueFilter
-           OR  cAfterValueFilter  EQ "")
+        WHERE AuditHdr.AuditDateTime GE dtStartDateTime
+          AND AuditHdr.AuditDateTime LE dtEndDateTime
+          AND AuditHdr.AuditType     GE cStartType
+          AND AuditHdr.AuditType     LE cEndType
+          AND AuditHdr.AuditUser     GE cStartUser
+          AND AuditHdr.AuditUser     LE cEndUser
+          AND AuditHdr.AuditDB       GE cStartDB
+          AND AuditHdr.AuditDB       LE cEndDB
+          AND AuditHdr.AuditTable    GE cStartTable
+          AND AuditHdr.AuditTable    LE cEndTable,
+        FIRST bAuditDtl OF AuditHdr NO-LOCK
+        WHERE bAuditDtl.AuditField       GE cStartField
+          AND bAuditDtl.AuditField       LE cEndField
+          AND bAuditDtl.AuditBeforeValue GE cStartBeforeValue
+          AND bAuditDtl.AuditBeforeValue LE cEndBeforeValue
+          AND bAuditDtl.AuditAfterValue  GE cStartAfterValue
+          AND bAuditDtl.AuditAfterValue  LE cEndAfterValue
         :
+        FIND FIRST AuditTbl NO-LOCK
+             WHERE AuditTbl.AuditTable EQ AuditHdr.AuditTable
+             NO-ERROR.
+        lDelete = NOT AVAILABLE AuditTbl OR DATETIME(TODAY - AuditTbl.expireDays + 1,0) GT AuditHdr.AuditDateTime.
         IF CAN-FIND(FIRST AuditDtl OF AuditHdr
-                    WHERE (AuditDtl.AuditField EQ cFields OR cFields EQ "ALL")
-                      AND (AuditDtl.AuditBeforeValue   EQ cBeforeValueFilter
-                       OR  cBeforeValueFilter  EQ "")
-                      AND (AuditDtl.AuditAfterValue    EQ cAfterValueFilter
-                       OR  cAfterValueFilter   EQ "")) THEN
+                    WHERE AuditDtl.AuditField       GE cStartField
+                      AND AuditDtl.AuditField       LE cEndField
+                      AND AuditDtl.AuditBeforeValue GE cStartBeforeValue
+                      AND AuditDtl.AuditBeforeValue LE cEndBeforeValue
+                      AND AuditDtl.AuditAfterValue  GE cStartAfterValue
+                      AND AuditDtl.AuditAfterValue  LE cEndAfterValue) THEN
         FOR EACH AuditDtl OF AuditHdr
-            WHERE (AuditDtl.AuditField EQ cFields OR cFields EQ "ALL")
-              AND (AuditDtl.AuditBeforeValue EQ cBeforeValueFilter
-               OR  cBeforeValueFilter  EQ "")
-              AND (AuditDtl.AuditAfterValue  EQ cAfterValueFilter
-               OR  cAfterValueFilter   EQ "")
+            WHERE AuditDtl.AuditField       GE cStartField
+              AND AuditDtl.AuditField       LE cEndField
+              AND AuditDtl.AuditBeforeValue GE cStartBeforeValue
+              AND AuditDtl.AuditBeforeValue LE cEndBeforeValue
+              AND AuditDtl.AuditAfterValue  GE cStartAfterValue
+              AND AuditDtl.AuditAfterValue  LE cEndAfterValue
             :
             CREATE ttAuditHistory.
             ASSIGN 
@@ -73,7 +113,7 @@ PROCEDURE pBusinessLogic:
                 ttAuditHistory.AuditBeforeValue = AuditDtl.AuditBeforeValue
                 ttAuditHistory.AuditAfterValue  = AuditDtl.AuditAfterValue
                 .
-            IF lPurge THEN 
+            IF lPurge AND lDelete THEN
             DELETE AuditDtl.
         END. /* each auditdtl */
         ELSE DO: /* no audit detail records exist */
@@ -88,7 +128,7 @@ PROCEDURE pBusinessLogic:
                 ttAuditHistory.AuditKey         = AuditHdr.AuditKey
                 .
         END. /* else */
-        IF lPurge THEN DO:
+        IF lPurge AND lDelete THEN DO:
             FIND FIRST AuditStack EXCLUSIVE-LOCK
                  WHERE AuditStack.AuditStackID EQ AuditHdr.AuditStackID
                  NO-ERROR.

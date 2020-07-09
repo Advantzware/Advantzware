@@ -569,6 +569,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
+  FOR EACH work-job:
+      DELETE work-job.
+  END.
+      
   DEF VAR lv-post AS LOG NO-UNDO.
 
   assign /*rd-dest
@@ -1058,7 +1062,7 @@ postit:
         assign
          gltrans.company = cocode
          gltrans.actnum  = work-job.actnum
-         gltrans.jrnl    = "OEINV"
+         gltrans.jrnl    = "ADJUST"
          gltrans.tr-date = udate
          gltrans.period  = uperiod
          gltrans.trnum   = v-trnum.
@@ -1066,11 +1070,11 @@ postit:
         if work-job.fg then
           assign
            gltrans.tr-amt  = - work-job.amt
-           gltrans.tr-dscr = "ORDER ENTRY INVOICE FG".
+           gltrans.tr-dscr = "FG Adjustment entries FG".
         else
           assign
            gltrans.tr-amt  = work-job.amt
-           gltrans.tr-dscr = "ORDER ENTRY INVOICE COGS".
+           gltrans.tr-dscr = "FG Adjustment entries COGS".
       end. /* each work-job */
     end.
   end. /* postit */

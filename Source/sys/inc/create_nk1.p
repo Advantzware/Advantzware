@@ -42,8 +42,8 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "PickTicketValidation,CEMiscDefaultStyle,CEMiscDefaultBoard,CEMiscDefaultStackCode,OeAutoApproval,CEOpRates,SSVersion,ARAutoReleaseCreditHold,"
            + "JobCardPrintScores,POChangeDueDate,VendItemCost,RMCountDefaultPath,FGCountDefaultPath,CERequestYield,JobCompleteEmail,RMIssueWIP,"
            + "TaskerNotRunning,OEBOLLOG,BOLPartialFlag,FGForceCommission,VendItemUseDeviation,FGItemUOM,LMReanalyze,ChkFmtConfig,VendItemBrowse,FreightCalculation,"
-           + "RMReceiptRules,FGReceiptRules,POLoadtag,SSCycleCountReset,OEImportConsol"
-
+           + "RMReceiptRules,FGReceiptRules,POLoadtag,SSCycleCountReset,OEImportConsol,AutoCreateHelp,SSVendTagOnly,ShowRestrictionMessage,UseNewInvoicePost,MiscEstimateSource,"
+           + "JobRecalc,JobBuildVersion,CEWood,SalesTaxRoundingMethod,SalesTaxCalcMethod,FGTagValidation"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -909,7 +909,129 @@ CASE ip-nk1-value:
             INPUT 0,                  /* Int value */
             INPUT NO,                 /* Logical value */ 
             INPUT 0                   /* dec value*/
-            ).               
+            ).   
+    WHEN "AutoCreateHelp" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                 /* Prompt? */
+            INPUT "Auto Create Help ", /* Description */
+            INPUT "",                 /* Char Value */
+            INPUT 0,                  /* Int value */
+            INPUT NO,                 /* Logical value */ 
+            INPUT 0                   /* dec value*/
+            ). 
+       
+    WHEN "SSVendTagOnly" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                        /* Prompt? */
+            INPUT "Scan vendor tag only for the vendor tag", /* Description */
+            INPUT "",                                        /* Char Value */
+            INPUT 0,                                         /* Int value */
+            INPUT NO,                                        /* Logical value */ 
+            INPUT 0                                          /* dec value*/
+            ).
+    WHEN "MiscEstimateSource" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                        /* Prompt? */
+            INPUT "Misc Estimate Source",                    /* Description */
+            INPUT "Estimate",                                /* Char Value */
+            INPUT 0,                                         /* Int value */
+            INPUT NO,                                        /* Logical value */ 
+            INPUT 0                                          /* dec value*/
+            ).
+    WHEN "UseNewInvoicePost" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                       /* Prompt? */
+            INPUT "Use New Invoice Posting Process",        /* Description */
+            INPUT ".\CustFiles\AOA",                        /* Char Value */
+            INPUT 0,                                        /* Int value */
+            INPUT NO,                                      /* Logical value */ 
+            INPUT 0                                         /* dec value*/
+            ).          
+    WHEN "ShowRestrictionMessage" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "To show or suppress the restriction message", /* Description */
+            INPUT "",                                            /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT YES,                                           /* Logical value */ 
+            INPUT 0                                              /* dec value*/
+            ).            
+    WHEN "JobRecalc" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "Recalc Job Option - Calc only using Mat, Ops and Prep in JU1", /* Description */
+            INPUT "",                                            /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT NO,                                           /* Logical value */ 
+            INPUT 0                                              /* dec value*/
+            ).  
+    WHEN "JobBuildVersion" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "Version of Job Build Calculation", /* Description */
+            INPUT "",                                            /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT NO,                                           /* Logical value */ 
+            INPUT 0                                              /* dec value*/
+            ).   
+    WHEN "CEWood" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "New Wood Set allowed", /* Description */
+            INPUT "",                                            /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT NO,                                           /* Logical value */ 
+            INPUT 0                                              /* dec value*/
+            ).          
+    WHEN "SalesTaxRoundingMethod" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "Sales Tax Rounding Method",                   /* Description */
+            INPUT "ROUNDUP",                                     /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT NO,                                            /* Logical value */ 
+            INPUT 0                                              /* Dec value*/
+            ).          
+    WHEN "SalesTaxCalcMethod" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "Sales Tax Calculation Method",                /* Description */
+            INPUT "",                                            /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT NO,                                            /* Logical value */ 
+            INPUT 0                                              /* Dec value*/
+            ).          
+    WHEN "FGTagValidation" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "Tag validation required"  ,                   /* Description */
+            INPUT "NoMatch",                                     /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT NO,                                            /* Logical value */ 
+            INPUT 0                                              /* Dec value*/
+            ).                      
 END CASE.
 ELSE
 CASE ip-nk1-value:

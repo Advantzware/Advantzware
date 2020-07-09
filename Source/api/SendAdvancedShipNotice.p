@@ -34,10 +34,26 @@
     DEFINE VARIABLE cReturn    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound  AS LOGICAL   NO-UNDO.
     
+    DEFINE VARIABLE cLocationID             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEstimatedTimeOfArrival AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cShipID                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cInStoreDate            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTotalPallets           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTotalWeight            AS CHARACTER NO-UNDO.
+    
     DEFINE VARIABLE cCompanyIdentity AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPartnerIdentity AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSharedSecret    AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE cNoticeDate   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBOLPrintDate AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBOLShipDate  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBOLRelDate   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOrderDate    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDelivDate    AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cPostalID      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPostalName    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPostalStreet  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPostalCity    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPostalState   AS CHARACTER NO-UNDO.
@@ -50,18 +66,18 @@
     DEFINE VARIABLE cPhoneNumber      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPhoneExtension   AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE dQuantity    AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE cQuantity    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUOM         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dQuantity        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dConsolidatedQty AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cQuantity        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUOM             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lConsolidate     AS LOG       NO-UNDO.
 
     /* ************************  Function Prototypes ********************** */
-    FUNCTION FormatDateForCXML RETURNS CHARACTER 
-        ( ipdtDate AS DATE, ipiTime AS INTEGER ) FORWARD.
-
     FUNCTION GetPayLoadID RETURNS CHARACTER
     	( ipcProcessID AS CHARACTER ) FORWARD.
 
     /* ***************************  Main Block  *************************** */        
+
     
     IF ipcRequestHandler NE "" THEN
         RUN VALUE(ipcRequestHandler) (
@@ -93,13 +109,22 @@
                 .
             RETURN.
         END.
-
+        FIND FIRST sys-ctrl NO-LOCK     
+            WHERE sys-ctrl.company EQ oe-bolh.company
+              AND sys-ctrl.name    EQ "BOLFMT"  
+            NO-ERROR.
+        ASSIGN
+            lConsolidate = AVAILABLE sys-ctrl AND sys-ctrl.int-fld NE 0
+            .            
+            
         RUN GetCXMLIdentities (
             INPUT  oe-bolh.company,
             INPUT  oe-bolh.cust-no,
+            INPUT  oe-bolh.ship-id,
             OUTPUT cCompanyIdentity,
             OUTPUT cPartnerIdentity,
-            OUTPUT cSharedSecret
+            OUTPUT cSharedSecret,
+            OUTPUT cPostalID
             ) NO-ERROR.
 
         RUN oe/custxship.p (
@@ -110,6 +135,7 @@
             ).
         IF AVAILABLE shipTo THEN
             ASSIGN
+                cPostalName       = shipto.ship-name
                 cPostalStreet     = shipto.ship-addr[1] + shipto.ship-addr[2]
                 cPostalCity       = shipto.ship-city
                 cPostalState      = shipto.ship-state
@@ -121,17 +147,35 @@
                 cPhoneNumber      = shipto.phone
                 cPhoneExtension   = shipto.phone-prefix
                 .
-
+        
+        ASSIGN
+            cEstimatedTimeOfArrival = STRING(oe-bolh.bol-date + 2)
+            cShipID                 = STRING(oe-bolh.ship-id)
+            cInStoreDate            = STRING(oe-bolh.bol-date + 4)
+            cTotalPallets           = STRING(oe-bolh.tot-pallets,">>>9")
+            cTotalWeight            = STRING(INTEGER(oe-bolh.tot-wt))
+            cNoticeDate             = STRING(TODAY)
+            cBOLPrintDate           = STRING(oe-bolh.prt-date) + " " + STRING(oe-bolh.prt-time,"hh:mm:ss")
+            cBOLRelDate             = STRING(oe-bolh.rel-date)
+            cDelivDate              = STRING(oe-bolh.bol-date + 2)
+            .
+            
+            IF oe-bolh.ship-date EQ ? THEN 
+              cBOLShipDate          = STRING(today) + " " + STRING(TIME, "hh:mm:ss").
+            ELSE 
+              cBOLPrintDate         = STRING(oe-bolh.prt-date) + " " + STRING(oe-bolh.prt-time,"hh:mm:ss").
+        
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PayloadID", GetPayLoadID("")).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "NoticeDate", FormatDateForCXML(oe-bolh.bol-date, 0)).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "NoticeDate", cNoticeDate).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyIdentity", cCompanyIdentity).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PartnerIdentity", cPartnerIdentity).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyIdentity", cCompanyIdentity).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SharedSecret", cSharedSecret).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BOLID", STRING(oe-bolh.bol-no)).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BOLPrintDate", FormatDateForCXML(oe-bolh.prt-date, oe-bolh.prt-time)).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BOLShipDate", FormatDateForCXML(oe-bolh.ship-date, oe-bolh.ship-time)).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BOLRelDate", FormatDateForCXML(oe-bolh.rel-date, 0)).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BOLPrintDate", cBOLPrintDate).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BOLShipDate", cBOLShipDate).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BOLRelDate", cBOLRelDate).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToName", cPostalName).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPostalAddressStreet", cPostalStreet).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPostalAddressCity", cPostalCity).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPostalAddressState", cPostalState).
@@ -143,7 +187,13 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPhoneNumber", cPhoneNumber).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPhoneExtension", cPhoneExtension).            
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CarrierName", oe-bolh.carrier).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TrailerID", oe-bolh.trailer).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TrailerID", oe-bolh.trailer).      
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "EstimatedTimeOfArrival", cEstimatedTimeOfArrival).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipID", cShipID).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PostalID", cPostalID).     
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "InStoreDate", cInStoreDate).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalPallets", cTotalPallets).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalWeight", cTotalWeight).
 
         FIND FIRST APIOutboundDetail NO-LOCK
              WHERE APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
@@ -167,15 +217,18 @@
             BREAK BY oe-boll.ord-no
                   BY oe-boll.line:
             IF FIRST-OF(oe-boll.ord-no) THEN DO:
+                cLocationID = oe-boll.loc.
+                
                 FIND FIRST oe-ord NO-LOCK
                      WHERE oe-ord.company EQ oe-boll.company
                        AND oe-ord.ord-no  EQ oe-boll.ord-no
                      NO-ERROR.
                 IF AVAILABLE oe-ord THEN DO:
                     lcOrderData = lcOrderTempData.
-                    
+                    cOrderDate = STRING(oe-ord.ord-date).
                     RUN updateRequestData(INPUT-OUTPUT lcOrderData, "OrderReferenceID", oe-ord.po-no).
                     RUN updateRequestData(INPUT-OUTPUT lcOrderData, "OrderPayloadID", oe-ord.spare-char-3).
+                    RUN updateRequestData(INPUT-OUTPUT lcOrderData, "OrderDate", cOrderDate).
                     
                     lcOrderConcatData = lcOrderConcatData + lcOrderData.                
                 END.
@@ -191,12 +244,31 @@
 
             cQuantity = TRIM(STRING(dQuantity, "->>>>>>>9")).
             
-            RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemLineID", STRING(oe-boll.line)).
-            RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantity", cQuantity).                            
-            RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantityUOM", cUOM).
+            IF FIRST-OF(oe-boll.line) THEN 
+              dConsolidatedQty = 0.
+              
+            dConsolidatedQty = dConsolidatedQty + dQuantity.
+              
+            IF lConsolidate  THEN DO:
+                IF LAST-OF(oe-boll.line) THEN DO:
+                    cQuantity = TRIM(STRING(dConsolidatedQty, "->>>>>>>9")).
+                    RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemLineID", STRING(oe-boll.line)).
+                    RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantity", cQuantity).                            
+                    RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantityUOM", cUOM).
+                    lcItemConcatData = lcItemConcatData + lcItemData.
+                END.
+            END.  
+            ELSE DO:
+                RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemLineID", STRING(oe-boll.line)).
+                RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantity", cQuantity).                            
+                RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantityUOM", cUOM).
+                lcItemConcatData = lcItemConcatData + lcItemData.
+            END.
             
             lcItemConcatData = lcItemConcatData + lcItemData.
         END.    
+
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "LocationID", cLocationID).
             
         ioplcRequestData = REPLACE(ioplcRequestData,"$ItemDetailID$",lcItemConcatData).                
         ioplcRequestData = REPLACE(ioplcRequestData,"$OrderDetailID$",lcOrderConcatData).
@@ -217,12 +289,14 @@ PROCEDURE GetCXMLIdentities:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcCustNo          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcShipID          AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcCompanyIdentity AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcPartnerIdentity AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcSharedSecret    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcShipToID        AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
-
+    DEFINE VARIABLE cShipToPrefix AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-cust FOR cust.
     
     FIND FIRST bf-cust NO-LOCK
@@ -269,6 +343,22 @@ PROCEDURE GetCXMLIdentities:
             OUTPUT opcSharedSecret, 
             OUTPUT lRecFound
             ).       
+            
+        RUN sys/ref/nk1look.p (
+            INPUT  ipcCompany,      /* Company Code */
+            INPUT  "cXMLShipToPrefix",  /* sys-ctrl name */
+            INPUT  "C",             /* Output return value */
+            INPUT  YES,             /* Use ship-to */
+            INPUT  YES,             /* ship-to vendor */
+            INPUT  bf-cust.cust-no, /* ship-to vendor value */
+            INPUT  "",              /* ship-id value */
+            OUTPUT cShipToPrefix, 
+            OUTPUT lRecFound
+            ).           
+            
+            opcShipToID = TRIM(cShipToPrefix) + ipcShipID.
+  
+                        
     END.
 
     IF opcSharedSecret EQ "" THEN DO:
@@ -352,26 +442,6 @@ PROCEDURE GetOriginalQuantity:
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
-
-FUNCTION FormatDateForCXML RETURNS CHARACTER 
-	( ipdtDate AS DATE, ipiTime AS INTEGER ):
-/*------------------------------------------------------------------------------
- Purpose: Formats a given date and time to cXML formatted date
- Notes:
-------------------------------------------------------------------------------*/	
-    DEFINE VARIABLE cFormattedDate AS CHARACTER NO-UNDO.
-    
-    IF ipdtDate EQ ? THEN
-        cFormattedDate = "".
-    ELSE
-        cFormattedDate = STRING(YEAR(ipdtDate),"9999") + "-" 
-                       + STRING(MONTH(ipdtDate),"99") + "-" 
-                       + STRING(DAY(ipdtDate),"99")
-                       + 'T'
-                       + STRING(ipiTime,'hh:mm:ss')
-                       + '-05:00'.
-    RETURN cFormattedDate.
-END FUNCTION.
 
 FUNCTION GetPayLoadID RETURNS CHARACTER
 	(ipcProcessID AS CHARACTER):

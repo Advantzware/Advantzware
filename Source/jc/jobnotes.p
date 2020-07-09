@@ -22,10 +22,10 @@ IF AVAIL est THEN DO:
      v-old-job-rec_key = io-job.rec_key
      io-job.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey").
 
-  CREATE rec_key.
-  ASSIGN
-   rec_key.rec_key    = io-job.rec_key
-   rec_key.table_name = "JobNotes".
+/*  CREATE rec_key.                     */
+/*  ASSIGN                              */
+/*   rec_key.rec_key    = io-job.rec_key*/
+/*   rec_key.table_name = "JobNotes".   */
 
   FOR EACH notes NO-LOCK WHERE notes.rec_key EQ est.rec_key:
     CREATE b-notes.

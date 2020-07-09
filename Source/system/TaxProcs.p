@@ -15,8 +15,24 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+{system\TaxProcs.i}
+
+DEFINE VARIABLE cRoundMethod     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRoundMethodUp   AS CHARACTER NO-UNDO INITIAL "ROUNDUP".
+DEFINE VARIABLE cRoundMethodDown AS CHARACTER NO-UNDO INITIAL "ROUNDDOWN".
+DEFINE VARIABLE cCalcMethod      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCalcMethodAPI   AS CHARACTER NO-UNDO INITIAL "API".
+DEFINE VARIABLE hdVertexProcs    AS HANDLE    NO-UNDO.
+
+RUN system/VertexProcs.p PERSISTENT SET hdVertexProcs.
 
 /* ********************  Preprocessor Definitions  ******************** */
+
+/* ************************  Function Prototypes ********************** */
+
+
+FUNCTION fRoundValue RETURNS DECIMAL PRIVATE
+    ( INPUT ipdValue AS DECIMAL, INPUT ipcRoundMethod AS CHARACTER, INPUT ipiDecimals AS INTEGER ) FORWARD.
 
 
 /* ***************************  Main Block  *************************** */
@@ -25,58 +41,12 @@
 
 /* **********************  Internal Procedures  *********************** */
 
-PROCEDURE CalculateTaxStandard:
-    /*------------------------------------------------------------------------------
-     Purpose: Calculates Tax based on inputs, standard method
-     Notes:  Replaces calctax.p but does not round
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcTaxCode AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER iplIsThisFreight AS LOGICAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipdTaxableAmount AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdTax AS DECIMAL NO-UNDO INIT 0.
-
-    DEFINE BUFFER bf-stax FOR stax.
-
-    DEFINE VARIABLE dTaxTemp AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iCount   AS INTEGER NO-UNDO.
-
-    RUN pSetStaxBuffer(ipcCompany, ipcTaxCode, BUFFER bf-stax).
-    IF NOT AVAILABLE bf-stax THEN RETURN.
-
-    RUN pCalculateTaxStandard(BUFFER bf-stax, iplIsThisFreight, ipdTaxableAmount, OUTPUT opdTax).
-
-END PROCEDURE.
-
-PROCEDURE CalculateTaxVaried:
-    /*------------------------------------------------------------------------------
-     Purpose: Calculates Tax using varied method based on inputs
-     Notes: Replaces calctax2.p but does not round
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcTaxCode AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER iplIsThisFreight AS LOGICAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipdTaxableAmount AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdTax AS DECIMAL NO-UNDO INIT 0.
-
-    DEFINE BUFFER bf-stax FOR stax.
-
-    DEFINE VARIABLE dTaxTemp AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iCount   AS INTEGER NO-UNDO.
-
-    RUN pSetStaxBuffer(ipcCompany, ipcTaxCode, BUFFER bf-stax).
-    IF NOT AVAILABLE bf-stax THEN RETURN.
-
-    RUN pCalculateTaxVaried(BUFFER bf-stax, iplIsThisFreight, ipdTaxableAmount, OUTPUT opdTax).
-
-END PROCEDURE.
-
 PROCEDURE GetTaxableMisc:
-/*------------------------------------------------------------------------------
- Purpose: Determines if a given combination of customer, shipto and control file
- should result in taxable misc
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose: Determines if a given combination of customer, shipto and control file
+     should result in taxable misc
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCustID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcShipID AS CHARACTER NO-UNDO.
@@ -131,115 +101,106 @@ PROCEDURE GetTaxableAR:
 
 END PROCEDURE.
 
-PROCEDURE pCalculateTaxStandard PRIVATE:
+PROCEDURE pCalculate PRIVATE :
     /*------------------------------------------------------------------------------
-     Purpose:  Calculate Standard Tax based on stax buffer
-     Notes:
+     Purpose: Calculates tax amount for the given inputs
+     Notes: Replaces ar/calctax.p and ar/calctax2.p
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-stax FOR stax.
-    DEFINE INPUT PARAMETER iplIsFreight AS LOGICAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipdTaxableAmount AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdTax AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTaxCode       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplIsThisFreight AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdTaxableAmount AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTax           AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage       AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iCount         AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iLine          AS INTEGER NO-UNDO.    
+    DEFINE VARIABLE dTax           AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTaxableAmount AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lIsNegative    AS LOGICAL NO-UNDO.
 
-    DEFINE VARIABLE dTaxTemp AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iCount   AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-stax   FOR stax.
+     
+    RUN pSetStaxBuffer(
+        INPUT  ipcCompany, 
+        INPUT  ipcTaxCode, 
+        BUFFER bf-stax
+        ).
+    IF NOT AVAILABLE bf-stax THEN 
+    DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Sales tax does not exist for tax code '" + ipcTaxCode + "'"
+            .
+        RETURN. 
+    END.
 
+    IF iplIsThisFreight AND NOT bf-stax.tax-frt1[1] THEN RETURN.
 
+    /* Fetch Rounding method (Round Up or Round Down) */
+    IF cRoundMethod EQ "" THEN
+        RUN pGetRoundMethod (
+            INPUT  bf-stax.company,
+            OUTPUT cRoundMethod
+            ).
 
     ASSIGN 
-        opdTax = 0.
-
-    DO iCount = 1 TO EXTENT(ipbf-stax.tax-rate1):
+        dTaxableAmount = ABS(ipdTaxableAmount)
+        lIsNegative = ipdTaxableAmount LT 0.
+    
+    DO iCount = 1 TO EXTENT(bf-stax.tax-rate1):
         /* Skip if tax code is blank. */
-        IF ipbf-stax.tax-code1[iCount] = "" THEN NEXT.
-        IF NOT iplIsFreight /*Not Freight*/ 
-            OR ipbf-stax.tax-frt1[iCount] /*It freight and the tax freight is checked for this code*/ THEN 
-        DO:
+        IF bf-stax.tax-code1[iCount] EQ "" THEN
+            NEXT.
+
+        /*Apply the Dollar Limit*/
+        IF iCount EQ 1 AND bf-stax.taxableLimit GT 0 AND NOT iplIsThisFreight THEN 
+            dTaxableAmount = MIN(ABS(bf-stax.taxableLimit), ABS(ipdTaxableAmount)).  /*ABS required for credit processing*/
+        ELSE IF iCount NE 1 AND NOT bf-stax.accum-tax THEN
+            dTaxableAmount = ABS(ipdTaxableAmount). 
         
-            dTaxTemp = ipdTaxableAmount * ipbf-stax.tax-rate1[iCount] / 100.  /*Calculate the tax based on taxable amount*/   
+        ASSIGN 
+            dTax = (dTaxableAmount * bf-stax.tax-rate1[iCount]) / 100
+            dTax = fRoundValue (dTax, cRoundMethod, 2)
+            .
         
-            /*if ipbf-stax.company eq "yes" then v-in = v-in + v-amt. */
-            IF ipbf-stax.accum-tax THEN /*If tax on tax - Accumulate the taxable amount for next tax calculation*/
-                ASSIGN ipdTaxableAmount = (ipdTaxableAmount + dTaxTemp).
-    
-            /* Accumulate total amount out. */
-            ASSIGN 
-                opdTax = (opdTax + dTaxTemp).
-        END.
+        CREATE ttTaxDetail.
+        ASSIGN 
+            iLine = iLine + 1
+            ttTaxDetail.company =  bf-stax.company
+            ttTaxDetail.isFreight = iplIsThisFreight
+            ttTaxDetail.isTaxOnFreight = bf-stax.tax-frt1[1]
+            ttTaxDetail.isTaxOnTax = bf-stax.accum-tax
+            ttTaxDetail.taxCode = bf-stax.tax-code1[iCount]
+            ttTaxDetail.taxCodeAccount = bf-stax.tax-acc1[iCount]
+            ttTaxDetail.taxCodeDescription = bf-stax.tax-dscr1[iCount]
+            ttTaxDetail.taxCodeRate = bf-stax.tax-rate1[iCount]
+            ttTaxDetail.taxCodeTaxableAmount = IF lIsNegative THEN - dTaxableAmount ELSE dTaxableAmount
+            ttTaxDetail.taxCodeTaxAmount = IF lIsNegative THEN - dTax ELSE dTax
+            ttTaxDetail.taxGroup = bf-stax.tax-group
+            ttTaxDetail.taxGroupLine = iLine
+            ttTaxDetail.taxGroupTaxAmountLimit = bf-stax.taxableLimit
+            .
+
+        /* Tax on tax - Build up taxable Amount with last tax calculation*/
+        IF bf-stax.accum-tax THEN
+            dTaxableAmount = MAX(dTaxableAmount,ABS(ipdTaxableAmount)) + dTax.
+
+
+        /* Accumulate total tax amount for output */
+        opdTax = opdTax + dTax.
     END.
 
-END PROCEDURE.
-
-PROCEDURE pCalculateTaxVaried PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: Calculate Tax using Varied method based on buffer
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-stax FOR stax.
-    DEFINE INPUT PARAMETER iplIsFreight AS LOGICAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipdTaxableAmount AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdTax AS DECIMAL NO-UNDO.
-
-    DEFINE VARIABLE dTaxTemp                AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iCount                  AS INTEGER NO-UNDO.
-    
-    DEFINE VARIABLE dDollarLimit            AS DECIMAL NO-UNDO. /* Dollar limit amount */
-    DEFINE VARIABLE dDollarLimitExceeded    AS DECIMAL NO-UNDO. /* Exceeded amount */
-    DEFINE VARIABLE dDollarLimitTax         AS DECIMAL NO-UNDO INIT 0. /* Tax amount for dollar limit */
-    DEFINE VARIABLE dDollarLimitExceededTax AS DECIMAL NO-UNDO INIT 0. /* Tax amount for exceeded. */
-    
-    /* Separate the dollar limit amt from the exceeded amount. */
-    ASSIGN 
-        dDollarLimit         = ipbf-stax.tax-rate1[5] /* Set to dollar limit. */
-        dDollarLimitExceeded = (ipdTaxableAmount - dDollarLimit). /* exceeded amt */
-        
-    IF ipbf-stax.tax-code1[5] EQ "" 
-        AND ipbf-stax.tax-dscr1[5] EQ "Dollar Limit"  /* Special configuration in tax group*/
-        AND dDollarLimit GT 0 
-        AND dDollarLimitExceeded GT 0 THEN 
-    DO: /* and the invoice price exceeds the dollar limit... */  
-        
-        /*Varied Tax Calculation*/
-        /* Dollar limit amt taxed with all taxes (first 4). */
-        DO iCount = 1 TO 4:
-            /* Skip if tax code is blank. */
-            IF ipbf-stax.tax-code1[iCount] = "" THEN NEXT.
-            
-            /* If freight that should be taxed */
-            IF NOT iplIsFreight OR ipbf-stax.tax-frt1[iCount] THEN 
-            DO:
-                /* Calculate the tax amount. */
-                ASSIGN 
-                    dDollarLimitTax = dDollarLimit * ipbf-stax.tax-rate1[iCount] / 100.
-
-                /* if stax.accum-tax eq "yes" then add tax amount to item total price. */
-                IF ipbf-stax.accum-tax THEN 
-                    ASSIGN ipdTaxableAmount = (dDollarLimit + dDollarLimitTax).
-
-                /* Accumulate total amount out. */
-                ASSIGN 
-                    opdTax = opdTax + dDollarLimitTax.
-            END.
-        END.
-
-        /* Tax the exceeded amount at first rate. */
-        ASSIGN 
-            dDollarLimitExceededTax = dDollarLimitExceeded * ipbf-stax.tax-rate1[1] / 100.
-
-        /* Accumulate total tax amount out. */
-        ASSIGN 
-            opdTax = opdTax + dDollarLimitExceededTax.
-        
-    END.
-    ELSE RUN pCalculateTaxStandard(BUFFER ipbf-stax, iplIsFreight, ipdTaxableAmount, OUTPUT opdTax).
-  
+    opdTax = IF lIsNegative THEN - opdTax ELSE opdTax. 
+         
 END PROCEDURE.
 
 PROCEDURE pGetTaxableMisc PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose: Given record buffers determine taxable flag for misc items
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose: Given record buffers determine taxable flag for misc items
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-cust   FOR cust.
     DEFINE PARAMETER BUFFER ipbf-shipto FOR shipto.
     DEFINE INPUT PARAMETER ipcPrepCode AS CHARACTER NO-UNDO.
@@ -306,10 +267,10 @@ PROCEDURE pGetTaxable PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-itemfg FOR itemfg.
     DEFINE OUTPUT PARAMETER oplTaxable AS LOGICAL NO-UNDO.
     
-    DEFINE VARIABLE lTaxableCust   AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lTaxableShipTo AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lTaxableFGItem AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE cTaxGroup AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lTaxableCust   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lTaxableShipTo AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lTaxableFGItem AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cTaxGroup      AS CHARACTER NO-UNDO.
     
     IF AVAILABLE ipbf-cust THEN
         ASSIGN 
@@ -328,19 +289,19 @@ PROCEDURE pGetTaxable PRIVATE:
     RUN pGetTaxGroup(BUFFER ipbf-cust, BUFFER ipbf-shipto, OUTPUT cTaxGroup).
     
     /*old logic*/    
-/*    oplTaxable = lTaxableCust AND cTaxGroup NE "" AND lTaxableFGItem.*/
-/*    IF NOT oplTaxable THEN                                           */
-/*        oplTaxable = lTaxableShipTo.                                 */
+    /*    oplTaxable = lTaxableCust AND cTaxGroup NE "" AND lTaxableFGItem.*/
+    /*    IF NOT oplTaxable THEN                                           */
+    /*        oplTaxable = lTaxableShipTo.                                 */
     
     /*new logic - 35645*/
     IF AVAILABLE ipbf-itemfg AND AVAILABLE ipbf-shipto THEN 
         oplTaxable = lTaxableFGItem AND lTaxableShipTo.
     ELSE IF AVAILABLE ipbf-itemfg AND NOT AVAILABLE ipbf-shipto THEN
-        oplTaxable = lTaxableFGItem AND lTaxableCust.
-    ELSE IF AVAILABLE ipbf-shipto AND NOT AVAILABLE ipbf-itemfg THEN  
-        oplTaxable = lTaxableShipto.
-    ELSE 
-        oplTaxable = lTaxableCust.
+            oplTaxable = lTaxableFGItem AND lTaxableCust.
+        ELSE IF AVAILABLE ipbf-shipto AND NOT AVAILABLE ipbf-itemfg THEN  
+                oplTaxable = lTaxableShipto.
+            ELSE 
+                oplTaxable = lTaxableCust.
                     
 
 END PROCEDURE.
@@ -432,4 +393,491 @@ PROCEDURE pSetStaxBuffer PRIVATE:
         NO-ERROR.
 
 END PROCEDURE.
+
+PROCEDURE pGetRoundMethod PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns the rounding method from NK1 setting SalesTaxRoundingMethod
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcRoundMethod AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+    
+    IF cRoundMethod NE "" THEN 
+    DO:
+        opcRoundMethod = cRoundMethod.
+        RETURN.
+    END.
+    
+    RUN sys/ref/nk1look.p (
+        INPUT  ipcCompany,           /* Company Code */
+        INPUT  "SalesTaxRoundingMethod", /* sys-ctrl name */
+        INPUT  "C",                  /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
+        INPUT  FALSE,                /* Use ship-to */
+        INPUT  FALSE,                /* ship-to vendor */
+        INPUT  "",                   /* ship-to vendor value */
+        INPUT  "",                   /* shi-id value */
+        OUTPUT cRoundMethod,
+        OUTPUT lRecFound
+        ). 
+    IF NOT lRecFound OR cRoundMethod EQ "" THEN
+        ASSIGN
+            cRoundMethod   = cRoundMethodUp
+            opcRoundMethod = cRoundMethod
+            .
+    ELSE
+        opcRoundMethod = cRoundMethod.  
+END PROCEDURE.
+
+PROCEDURE pGetCalcMethod PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns the calculation method from NK1 setting SalesTaxCalcMethod
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCalcMethod AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+    
+    IF cCalcMethod NE "" THEN DO:
+        opcCalcMethod = cCalcMethod.
+        RETURN.
+    END.
+    
+    RUN sys/ref/nk1look.p (
+        INPUT  ipcCompany,           /* Company Code */
+        INPUT  "SalesTaxCalcMethod", /* sys-ctrl name */
+        INPUT  "C",                  /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
+        INPUT  FALSE,                /* Use ship-to */
+        INPUT  FALSE,                /* ship-to vendor */
+        INPUT  "",                   /* ship-to vendor value */
+        INPUT  "",                   /* shi-id value */
+        OUTPUT cCalcMethod,
+        OUTPUT lRecFound
+        ). 
+
+    opcCalcMethod = cCalcMethod.  
+END PROCEDURE.
+
+PROCEDURE Tax_Calculate:
+    /*------------------------------------------------------------------------------
+     Purpose: Calculate tax amount for given inputs 
+     Notes: This replaces ar/calctax2.p
+     Syntax:  RUN Tax_Calculate(ipcCompany, ipcTaxCode, iplIsThisFreight, ipdTaxableAmount, ipcItemID, OUTPUT opdTax).
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTaxCode       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplIsThisFreight AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdTaxableAmount AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID        AS CHARACTER NO-UNDO.  /*Deprecate*/
+    DEFINE OUTPUT PARAMETER opdTax           AS DECIMAL   NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttTaxDetail.
+    
+    RUN pCalculate (
+        INPUT  ipcCompany,
+        INPUT  ipcTaxCode,
+        INPUT  iplIsThisFreight,
+        INPUT  ipdTaxableAmount,
+        OUTPUT opdTax,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).
+        
+END PROCEDURE.
+
+PROCEDURE pAPICalculateForInvHead PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Calculate tax through API for a given ar-inv rowid
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriInvHead        AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMessageType     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPostToJournal   AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTriggerID       AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-inv-head FOR inv-head.
+    
+    FIND FIRST bf-inv-head NO-LOCK 
+         WHERE ROWID(bf-inv-head) EQ ipriInvHead
+         NO-ERROR.
+    IF NOT AVAILABLE bf-inv-head THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid inv-head row id"
+            .
+        RETURN.
+    END.    
+
+    IF cCalcMethod EQ "" THEN
+        RUN pGetCalcMethod (
+            INPUT  bf-inv-head.company,
+            OUTPUT cCalcMethod
+            ).
+    
+    IF cCalcMethod NE cCalcMethodAPI THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "NK1 setting SalesTaxCalcMethod is not set to 'API'"
+            .
+        RETURN.
+    END.
+
+    RUN Vertex_CalculateTaxForInvHead IN hdVertexProcs (
+        INPUT  ROWID(bf-inv-head),
+        INPUT  ipcLocation,
+        INPUT  ipcMessageType,        /*  Message Type "INVOICE" or "QUOTATION" */
+        INPUT  iplPostToJournal,      /* Post To journal */
+        INPUT  ipcTriggerID,
+        OUTPUT opdInvoiceTotal,
+        OUTPUT opdInvoiceSubTotal,
+        OUTPUT opdTaxTotal,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage    
+        ).
+
+    IF NOT oplSuccess THEN
+        RETURN.
+END PROCEDURE.
+
+PROCEDURE pAPICalculateForArInv PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Calculate tax through API for a given ar-inv rowid
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriArInv          AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMessageType     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPostToJournal   AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTriggerID       AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-ar-inv FOR ar-inv.
+    
+    FIND FIRST bf-ar-inv NO-LOCK 
+         WHERE ROWID(bf-ar-inv) EQ ipriArInv
+         NO-ERROR.
+    IF NOT AVAILABLE bf-ar-inv THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid ar-inv row id"
+            .
+        RETURN.
+    END.    
+
+    IF cCalcMethod EQ "" THEN
+        RUN pGetCalcMethod (
+            INPUT  bf-ar-inv.company,
+            OUTPUT cCalcMethod
+            ).
+                
+    IF cCalcMethod NE cCalcMethodAPI THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "NK1 setting SalesTaxCalcMethod is not set to 'API'"
+            .
+        RETURN.
+    END.
+    
+    RUN Vertex_CalculateTaxForArInv IN hdVertexProcs (
+        INPUT  ROWID(bf-ar-inv),
+        INPUT  ipcLocation,
+        INPUT  ipcMessageType,        /*  Message Type "INVOICE" or "QUOTATION" */
+        INPUT  iplPostToJournal,      /* Post To journal */
+        INPUT  ipcTriggerID,
+        OUTPUT opdInvoiceTotal,
+        OUTPUT opdInvoiceSubTotal,
+        OUTPUT opdTaxTotal,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage    
+        ).
+
+    IF NOT oplSuccess THEN
+        RETURN.    
+END PROCEDURE.
+
+PROCEDURE Tax_CalculateForInvHead:
+/*------------------------------------------------------------------------------
+ Purpose: Calculates tax for a given ar-inv row id
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriInvHead        AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMessageType     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPostToJournal   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE dTax                AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dAPITaxTotal        AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dAPIInvoiceTotal    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dAPIInvoiceSubTotal AS DECIMAL NO-UNDO.    
+        
+    DEFINE BUFFER bf-inv-head FOR inv-head.
+    DEFINE BUFFER bf-inv-line FOR inv-line.
+    DEFINE BUFFER bf-inv-misc FOR inv-misc.
+    
+    FIND FIRST bf-inv-head NO-LOCK 
+         WHERE ROWID(bf-inv-head) EQ ipriInvHead
+         NO-ERROR.
+    IF NOT AVAILABLE bf-inv-head THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid inv-head row id"
+            .
+        RETURN.
+    END.    
+
+    EMPTY TEMP-TABLE ttTaxDetail.
+
+    FOR EACH bf-inv-line NO-LOCK 
+        WHERE bf-inv-line.r-no EQ bf-inv-head.r-no:
+        opdInvoiceSubTotal = opdInvoiceSubTotal + bf-inv-line.t-price.
+
+        IF bf-inv-head.tax-gr NE "" AND bf-inv-line.tax THEN DO:
+            RUN pCalculate (
+                INPUT  bf-inv-head.company,
+                INPUT  bf-inv-head.tax-gr,
+                INPUT  FALSE,   /* Is this freight */
+                INPUT  bf-inv-line.t-price,
+                OUTPUT dTax,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).
+
+            opdTaxTotal = opdTaxTotal + dTax.
+        END.
+    END.
+
+    FOR EACH bf-inv-misc NO-LOCK 
+        WHERE bf-inv-misc.company EQ bf-inv-head.company 
+          AND bf-inv-misc.r-no    EQ bf-inv-head.r-no 
+          AND bf-inv-misc.bill    EQ "Y":     
+        opdInvoiceSubTotal = opdInvoiceSubTotal + bf-inv-misc.amt.
+
+        IF bf-inv-head.tax-gr NE "" AND bf-inv-misc.tax THEN DO:
+            RUN pCalculate (
+                INPUT  bf-inv-head.company,
+                INPUT  bf-inv-head.tax-gr,
+                INPUT  FALSE,   /* Is this freight */
+                INPUT  bf-inv-misc.amt,
+                OUTPUT dTax,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).
+
+            opdTaxTotal = opdTaxTotal + dTax.
+        END.
+    END.
+
+    IF bf-inv-head.f-bill THEN
+        opdInvoiceSubTotal = opdInvoiceSubTotal + bf-inv-head.t-inv-freight.
+
+    IF bf-inv-head.tax-gr NE "" AND bf-inv-head.f-bill AND bf-inv-head.t-inv-freight NE 0 THEN DO:        
+        RUN pCalculate (
+            INPUT  bf-inv-head.company,
+            INPUT  bf-inv-head.tax-gr,
+            INPUT  TRUE,               /* Is this freight */
+            INPUT  bf-inv-head.t-inv-freight,
+            OUTPUT dTax,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ).
+        
+        opdTaxTotal = opdTaxTotal + dTax.
+    END.      
+    
+    opdInvoiceTotal = opdInvoiceSubTotal + opdTaxTotal.
+
+    IF cCalcMethod EQ "" THEN
+        RUN pGetCalcMethod (
+            INPUT  bf-inv-head.company,
+            OUTPUT cCalcMethod
+            ).
+    
+    IF cCalcMethod EQ cCalcMethodAPI THEN DO:    
+        RUN pAPICalculateForInvHead (
+            INPUT  ipriInvHead,
+            INPUT  ipcLocation,
+            INPUT  ipcMessageType,
+            INPUT  iplPostToJournal,
+            INPUT  "GetTaxAmount", /* Trigger ID */
+            OUTPUT dAPITaxTotal,
+            OUTPUT dAPIInvoiceTotal,
+            OUTPUT dAPIInvoiceSubTotal,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ).
+        IF oplSuccess THEN
+            ASSIGN
+                opdTaxTotal        = dAPITaxTotal
+                opdInvoiceTotal    = dAPIInvoiceTotal
+                opdInvoiceSubTotal = dAPIInvoiceSubTotal
+                .     
+    END.   
+END PROCEDURE.
+
+PROCEDURE Tax_CalculateForArInv:
+/*------------------------------------------------------------------------------
+ Purpose: Calculates tax for a given ar-inv row id
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriArInv          AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMessageType     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPostToJournal   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE dTax                AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dAPITaxTotal        AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dAPIInvoiceTotal    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dAPIInvoiceSubTotal AS DECIMAL NO-UNDO.    
+        
+    DEFINE BUFFER bf-ar-inv  FOR ar-inv.
+    DEFINE BUFFER bf-ar-invl FOR ar-invl.
+    
+    FIND FIRST bf-ar-inv NO-LOCK 
+         WHERE ROWID(bf-ar-inv) EQ ipriArInv
+         NO-ERROR.
+    IF NOT AVAILABLE bf-ar-inv THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid ar-inv row id"
+            .
+        RETURN.
+    END.    
+
+    EMPTY TEMP-TABLE ttTaxDetail.
+
+    FOR EACH bf-ar-invl NO-LOCK 
+        WHERE bf-ar-invl.x-no EQ bf-ar-inv.x-no:
+        opdInvoiceSubTotal = opdInvoiceSubTotal + bf-ar-invl.amt.
+
+        IF bf-ar-inv.tax-code NE "" AND bf-ar-invl.tax THEN DO:
+            RUN pCalculate (
+                INPUT  bf-ar-inv.company,
+                INPUT  bf-ar-inv.tax-code,
+                INPUT  FALSE,   /* Is this freight */
+                INPUT  bf-ar-invl.amt,
+                OUTPUT dTax,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).
+
+            opdTaxTotal = opdTaxTotal + dTax.
+        
+            IF bf-ar-inv.f-bill THEN DO:
+                RUN pCalculate (
+                    INPUT  bf-ar-invl.company,
+                    INPUT  bf-ar-inv.tax-code,
+                    INPUT  TRUE,   /* Is this freight */
+                    INPUT  bf-ar-invl.t-freight,
+                    OUTPUT dTax,
+                    OUTPUT oplSuccess,
+                    OUTPUT opcMessage
+                    ). 
+        
+                opdTaxTotal = opdTaxTotal + dTax.
+            END.
+        END.        
+    END.
+
+    IF cCalcMethod EQ "" THEN
+        RUN pGetCalcMethod (
+            INPUT  bf-ar-inv.company,
+            OUTPUT cCalcMethod
+            ).
+    
+    IF cCalcMethod EQ cCalcMethodAPI THEN DO:    
+        RUN pAPICalculateForArInv (
+            INPUT  ipriArInv,
+            INPUT  ipcLocation,
+            INPUT  ipcMessageType,
+            INPUT  iplPostToJournal,
+            INPUT  "GetTaxAmount", /* Trigger ID */
+            OUTPUT dAPITaxTotal,
+            OUTPUT dAPIInvoiceTotal,
+            OUTPUT dAPIInvoiceSubTotal,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ).
+        IF oplSuccess THEN
+            ASSIGN
+                opdTaxTotal        = dAPITaxTotal
+                opdInvoiceTotal    = dAPIInvoiceTotal
+                opdInvoiceSubTotal = dAPIInvoiceSubTotal
+                .     
+    END.   
+END PROCEDURE.
+
+PROCEDURE Tax_CalculateWithDetail:
+    /*------------------------------------------------------------------------------
+     Purpose: Calculate tax amount for given inputs 
+     Notes: This replaces ar/calctax2.p
+     Syntax:  RUN Tax_Calculate(ipcCompany, ipcTaxCode, iplIsThisFreight, ipdTaxableAmount, ipcItemID, OUTPUT opdTax).
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTaxCode       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplIsThisFreight AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdTaxableAmount AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTax           AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttTaxDetail.
+    
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttTaxDetail.
+    
+    RUN pCalculate (
+        INPUT  ipcCompany,
+        INPUT  ipcTaxCode,
+        INPUT  iplIsThisFreight,
+        INPUT  ipdTaxableAmount,
+        OUTPUT opdTax,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).
+        
+END PROCEDURE.
+
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fRoundValue RETURNS DECIMAL PRIVATE
+    ( INPUT ipdValue AS DECIMAL, INPUT ipcRoundMethod AS CHARACTER, INPUT ipiDecimals AS INTEGER ):
+    /*------------------------------------------------------------------------------
+     Purpose: Rounds/Truncates the given value using the rounding method
+     Notes:
+    ------------------------------------------------------------------------------*/	
+
+    DEFINE VARIABLE dValue AS DECIMAL NO-UNDO.
+    
+    IF ipcRoundMethod EQ cRoundMethodDown THEN
+        dValue = TRUNCATE( ipdValue, ipiDecimals ).
+    ELSE
+        dValue = ROUND( ipdValue, ipiDecimals ).
+        
+    RETURN dValue.
+END FUNCTION.
 

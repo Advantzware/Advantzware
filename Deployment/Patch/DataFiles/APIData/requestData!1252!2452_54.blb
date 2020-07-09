@@ -1,0 +1,64 @@
+<cXML payloadID="$PayloadID$" timestamp="$NoticeDate$" xml:lang="en-US" version="1.2.024">
+<Header>
+  <From>
+    <Credential domain="NetworkID">
+      <Identity>$CompanyIdentity$</Identity> 
+      <SharedSecret>$SharedSecret$</SharedSecret>
+    </Credential>
+  </From>
+  <To>
+    <Credential domain="NetworkID">
+      <Identity>$CompanyIdentity$</Identity>
+    </Credential>
+  </To>
+  <Sender>
+    <Credential domain="NetworkID">
+      <Identity>$CompanyIdentity$</Identity>
+      <SharedSecret>$SharedSecret$</SharedSecret>
+    </Credential>
+    <UserAgent>Supplier</UserAgent>
+  </Sender>
+  </Header>
+    <Request deploymentMode="production">
+    <ShipNoticeRequest>
+      <ShipNoticeHeader shipmentType="actual" shipmentDate="$BOLShipDate$" deliveryDate="$BOLRelDate$" noticeDate="$BOLPrintDate$" operation="new"   shipmentID="$BOLID$">
+    <Contact role="shipFrom">
+      <Name xml:lang="en">Premier Packaging</Name>
+      <PostalAddress>
+      <Street>3900 Produce Road</Street>
+      <City>Louisville</City>
+      <State>KY</State>
+      <PostalCode>40218</PostalCode>
+      <Country isoCountryCode="US">United States</Country>
+      </PostalAddress>
+     </Contact>
+    <Contact addressID="DICKS:01417" role="shipTo">
+      <Name xml:lang="en">DICKS SPORTING GOODS #1417</Name>
+      <PostalAddress>
+        <Street>$ShipToPostalAddressStreet$</Street>
+        <Street>14500 W Colfax Avenue</Street>
+        <City>$ShipToPostalAddressCity$</City>
+        <State>$ShipToPostalAddressState$</State>
+        <PostalCode>$ShipToPostalAddressPostalCode$</PostalCode>
+        <Country isoCountryCode="$ShipToPostalAddressCountryCode$">United States</Country>
+      </PostalAddress>
+    </Contact>
+  </ShipNoticeHeader>
+  <ShipControl>
+    <CarrierIdentifier domain="companyName">UTS</CarrierIdentifier>
+    <ShipmentIdentifier>$TrailerID$</ShipmentIdentifier>
+  </ShipControl>
+   <ShipNoticePortion>
+    <OrderReference orderDate="2020-06-17T00:00:00-05:00" orderID="PO1024254">
+    <DocumentReference payloadID="$PayloadID$"/>
+    </OrderReference>
+     <ShipNoticeItem lineNumber="2" quantity="3">
+      <UnitOfMeasure>CS</UnitOfMeasure>
+      </ShipNoticeItem>
+           <ShipNoticeItem lineNumber="1" quantity="6">
+           <UnitOfMeasure>CS</UnitOfMeasure>
+         </ShipNoticeItem>
+      </ShipNoticePortion> 
+    </ShipNoticeRequest>
+  </Request>
+</cXML>

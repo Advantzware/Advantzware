@@ -20,9 +20,9 @@
 
 DEFINE VARIABLE cBufferValue    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFormula        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hBrowseColumn   AS HANDLE    NO-UNDO EXTENT 200.
+DEFINE VARIABLE hBrowseColumn   AS HANDLE    NO-UNDO EXTENT 1000.
 DEFINE VARIABLE hBrowseQuery    AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hCalcColumn     AS HANDLE    NO-UNDO EXTENT 200.
+DEFINE VARIABLE hCalcColumn     AS HANDLE    NO-UNDO EXTENT 1000.
 DEFINE VARIABLE hDynCalcField   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hDynDescripProc AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hDynInitProc    AS HANDLE    NO-UNDO.
@@ -30,6 +30,7 @@ DEFINE VARIABLE hDynValProc     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hQuery          AS HANDLE    NO-UNDO.
 DEFINE VARIABLE idx             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iFGColor        AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iNumColumns     AS INTEGER   NO-UNDO.
 
 RUN AOA/spDynDescriptionProc.p PERSISTENT SET hDynDescripProc.
 RUN AOA/spDynInitializeProc.p  PERSISTENT SET hDynInitProc.
@@ -79,41 +80,103 @@ CREATE BROWSE hQueryBrowse
         .
 ON ROW-DISPLAY OF hQueryBrowse DO:
     iFGColor = IF iFGColor NE 9 THEN 9 ELSE 1.
-    DO idx = 1 TO EXTENT(hCalcColumn):
-        IF VALID-HANDLE(hCalcColumn[idx]) AND
-           dynParamValue.isCalcField[idx] THEN DO:
+    FOR EACH dynValueColumn NO-LOCK
+        WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
+          AND dynValueColumn.user-id      EQ dynParamValue.user-id
+          AND dynValueColumn.prgmName     EQ dynParamValue.prgmName
+          AND dynValueColumn.paramValueID EQ dynParamValue.paramValueID
+           BY dynValueColumn.sortOrder
+        :
+        IF VALID-HANDLE(hCalcColumn[dynValueColumn.sortOrder]) AND
+           dynValueColumn.isCalcField EQ YES THEN DO:
             ASSIGN
-                cFormula = REPLACE(dynParamValue.calcFormula[idx],"$F~{","")
+                cFormula = REPLACE(dynValueColumn.calcFormula,"$F~{","")
                 cFormula = REPLACE(cFormula,"}","")
                 cFormula = REPLACE(cFormula,"__",".")
                 cBufferValue = ""
                 .
-            IF dynParamValue.calcProc[idx] NE "" THEN
+            IF dynValueColumn.calcProc NE "" THEN
             RUN spDynCalcField IN hDynCalcField (
                 hBrowseQuery:HANDLE,
-                dynParamValue.calcProc[idx],
-                dynParamValue.calcParam[idx],
-                dynParamValue.dataType[idx],
-                dynParamValue.colFormat[idx],
+                dynValueColumn.calcProc,
+                dynValueColumn.calcParam,
+                dynValueColumn.dataType,
+                dynValueColumn.colFormat,
                 OUTPUT cBufferValue
                 ).
             ELSE
-            IF dynParamValue.calcFormula[idx] NE "" THEN
+            IF dynValueColumn.calcFormula NE "" THEN
             cBufferValue = cFormula.
             ASSIGN
-                hCalcColumn[idx]:SCREEN-VALUE = cBufferValue
-                hCalcColumn[idx]:FGCOLOR      = iFGColor
+                hCalcColumn[dynValueColumn.sortOrder]:SCREEN-VALUE = cBufferValue
+                hCalcColumn[dynValueColumn.sortOrder]:FGCOLOR      = iFGColor
                 .
         END. /* if valid handle */
-    END. /* do idx */
-    DO idx = 1 TO EXTENT(hBrowseColumn):
-        IF VALID-HANDLE(hBrowseColumn[idx]) AND
-           dynParamValue.isCalcField[idx] EQ NO THEN
+        IF VALID-HANDLE(hBrowseColumn[dynValueColumn.sortOrder]) AND
+           dynValueColumn.isCalcField EQ NO THEN
         ASSIGN
-            hBrowseColumn[idx]:FORMAT  = dynParamValue.colFormat[idx]
-            hBrowseColumn[idx]:FGCOLOR = iFGColor
+            hBrowseColumn[dynValueColumn.sortOrder]:FORMAT  = dynValueColumn.colFormat
+            hBrowseColumn[dynValueColumn.sortOrder]:FGCOLOR = iFGColor
             .
-    END. /* do idx */
+        IF dynValueColumn.isStatusField AND
+           dynValueColumn.textColor NE dynValueColumn.cellColor AND
+           DYNAMIC-FUNCTION("fDynStatusField" IN hDynCalcField,
+               hBrowseQuery:HANDLE,
+               dynValueColumn.colName,
+               dynValueColumn.statusCompare,
+               dynValueColumn.compareValue) THEN DO:
+            IF dynValueColumn.statusAction BEGINS "Row" THEN
+            DO idx = 1 TO iNumColumns:
+                IF VALID-HANDLE(hBrowseColumn[idx]) THEN
+                ASSIGN
+                    hBrowseColumn[idx]:FGCOLOR = dynValueColumn.textColor
+                    hBrowseColumn[idx]:BGCOLOR = dynValueColumn.cellColor
+                    .
+            END. /* else */
+            ELSE IF dynValueColumn.statusAction BEGINS "Cell" THEN
+            ASSIGN
+                hBrowseColumn[dynValueColumn.sortOrder]:FGCOLOR = dynValueColumn.textColor
+                hBrowseColumn[dynValueColumn.sortOrder]:BGCOLOR = dynValueColumn.cellColor
+                .
+        END. /* if begins */
+    END. /* each dynvaluecolumn */
+
+/*    /* rstark - remove when depricated */                                   */
+/*    DO idx = 1 TO EXTENT(hCalcColumn):                                      */
+/*        IF VALID-HANDLE(hCalcColumn[idx]) AND                               */
+/*           dynParamValue.isCalcField[idx] THEN DO:                          */
+/*            ASSIGN                                                          */
+/*                cFormula = REPLACE(dynParamValue.calcFormula[idx],"$F~{","")*/
+/*                cFormula = REPLACE(cFormula,"}","")                         */
+/*                cFormula = REPLACE(cFormula,"__",".")                       */
+/*                cBufferValue = ""                                           */
+/*                .                                                           */
+/*            IF dynParamValue.calcProc[idx] NE "" THEN                       */
+/*            RUN spDynCalcField IN hDynCalcField (                           */
+/*                hBrowseQuery:HANDLE,                                        */
+/*                dynParamValue.calcProc[idx],                                */
+/*                dynParamValue.calcParam[idx],                               */
+/*                dynParamValue.dataType[idx],                                */
+/*                dynParamValue.colFormat[idx],                               */
+/*                OUTPUT cBufferValue                                         */
+/*                ).                                                          */
+/*            ELSE                                                            */
+/*            IF dynParamValue.calcFormula[idx] NE "" THEN                    */
+/*            cBufferValue = cFormula.                                        */
+/*            ASSIGN                                                          */
+/*                hCalcColumn[idx]:SCREEN-VALUE = cBufferValue                */
+/*                hCalcColumn[idx]:FGCOLOR      = iFGColor                    */
+/*                .                                                           */
+/*        END. /* if valid handle */                                          */
+/*    END. /* do idx */                                                       */
+/*    DO idx = 1 TO EXTENT(hBrowseColumn):                                    */
+/*        IF VALID-HANDLE(hBrowseColumn[idx]) AND                             */
+/*           dynParamValue.isCalcField[idx] EQ NO THEN                        */
+/*        ASSIGN                                                              */
+/*            hBrowseColumn[idx]:FORMAT  = dynParamValue.colFormat[idx]       */
+/*            hBrowseColumn[idx]:FGCOLOR = iFGColor                           */
+/*            .                                                               */
+/*    END. /* do idx */                                                       */
 END. /* row-display */
 &ENDIF
 
@@ -138,13 +201,24 @@ PROCEDURE pGetRecipients:
     
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.
     
-    DO idx = 1 TO EXTENT(dynParamValue.paramName):
-        IF dynParamValue.paramName[idx]  EQ "svRecipients" AND
-           dynParamValue.paramValue[idx] NE "" THEN DO:
-            opcRecipients = dynParamValue.paramValue[idx].
-            LEAVE.
-        END. /* if */
-    END. /* do idx */
+    FIND FIRST dynValueParam NO-LOCK
+         WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
+           AND dynValueParam.user-id      EQ dynParamValue.user-id
+           AND dynValueParam.prgmName     EQ dynParamValue.prgmName
+           AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
+           AND dynValueParam.paramName    EQ "svRecipients"
+         NO-ERROR.
+    IF AVAILABLE dynValueParam THEN
+    opcRecipients = dynValueParam.paramValue.
+
+/*    /* rstark - remove when depricated */                     */
+/*    DO idx = 1 TO EXTENT(dynParamValue.paramName):            */
+/*        IF dynParamValue.paramName[idx]  EQ "svRecipients" AND*/
+/*           dynParamValue.paramValue[idx] NE "" THEN DO:       */
+/*            opcRecipients = dynParamValue.paramValue[idx].    */
+/*            LEAVE.                                            */
+/*        END. /* if */                                         */
+/*    END. /* do idx */                                         */
     IF opcRecipients NE "" THEN DO:
         MESSAGE
             "Recipients:" opcRecipients SKIP(1)
@@ -189,48 +263,98 @@ PROCEDURE pResultsBrowser :
         hQueryBrowse:TITLE   = dynSubject.subjectTitle
         hQueryBrowse:QUERY   = iphQuery
         hQueryBrowse:VISIBLE = TRUE
+        iNumColumns          = 0
         .
-    DO idx = 1 TO EXTENT(dynParamValue.colName):
+    FOR EACH dynValueColumn NO-LOCK
+        WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
+          AND dynValueColumn.user-id      EQ dynParamValue.user-id
+          AND dynValueColumn.prgmName     EQ dynParamValue.prgmName
+          AND dynValueColumn.paramValueID EQ dynParamValue.paramValueID
+          AND dynValueColumn.isActive     EQ YES
+           BY dynValueColumn.sortOrder
+        :
         hColumn = ?.
-        IF dynParamValue.colName[idx]  EQ "" THEN LEAVE.
-        IF dynParamValue.isActive[idx] EQ NO THEN NEXT.
-        IF dynParamValue.isCalcField[idx] THEN DO:
-            IF dynParamValue.calcProc[idx] NE "" THEN
+        IF dynValueColumn.isCalcField THEN DO:
+            IF dynValueColumn.calcProc NE "" THEN
             ASSIGN
-                hCalcColumn[idx] = hQueryBrowse:ADD-CALC-COLUMN(
-                    dynParamValue.dataType[idx],
-                    dynParamValue.colFormat[idx],
+                hCalcColumn[dynValueColumn.sortOrder] = hQueryBrowse:ADD-CALC-COLUMN(
+                    dynValueColumn.dataType,
+                    dynValueColumn.colFormat,
                     "",
-                    dynParamValue.colLabel[idx]
+                    dynValueColumn.colLabel
                     )
-                hColumn = hCalcColumn[idx]
+                hColumn = hCalcColumn[dynValueColumn.sortOrder]
                 .
             ELSE
-            IF dynParamValue.calcFormula[idx] NE "" THEN
+            IF dynValueColumn.calcFormula NE "" THEN
             ASSIGN
-                cFormula = REPLACE(dynParamValue.calcFormula[idx],"$F~{","")
+                cFormula = REPLACE(dynValueColumn.calcFormula,"$F~{","")
                 cFormula = REPLACE(cFormula,"}","")
                 cFormula = REPLACE(cFormula,"__",".")
-                hCalcColumn[idx] = hQueryBrowse:ADD-CALC-COLUMN(
+                hCalcColumn[dynValueColumn.sortOrder] = hQueryBrowse:ADD-CALC-COLUMN(
                     "Character",
                     "x(" + STRING(LENGTH(cFormula)) + ")",
                     "",
-                    dynParamValue.colLabel[idx] + "[Calc]"
+                    dynValueColumn.colLabel + "[Calc]"
                     )
-                hColumn = hCalcColumn[idx]
+                hColumn = hCalcColumn[dynValueColumn.sortOrder]
                 .
         END. /* if calc field */
         ELSE
         ASSIGN
-            hColumn = hQueryBrowse:ADD-LIKE-COLUMN(dynParamValue.colName[idx])
-            hColumn:LABEL = dynParamValue.colLabel[idx]
-            hBrowseColumn[idx] = hColumn
+            hColumn = hQueryBrowse:ADD-LIKE-COLUMN(dynValueColumn.colName)
+            hColumn:LABEL = dynValueColumn.colLabel
+            hBrowseColumn[dynValueColumn.sortOrder] = hColumn
             .
         IF NOT VALID-HANDLE(hColumn) THEN NEXT.
 /*        IF idx MOD 2 EQ 0 THEN hColumn:COLUMN-BGCOLOR = 11.*/
-        IF dynParamValue.columnSize[idx] NE 0 THEN
-        hColumn:WIDTH-CHARS = dynParamValue.columnSize[idx].
-    END. /* do idx */
+        IF dynValueColumn.columnSize NE 0 THEN
+        hColumn:WIDTH-CHARS = dynValueColumn.columnSize.
+        iNumColumns = iNumColumns + 1.
+    END. /* each dynvaluecolumn */
+
+/*    /* rstark - remove when depricated */                                     */
+/*    DO idx = 1 TO EXTENT(dynParamValue.colName):                              */
+/*        hColumn = ?.                                                          */
+/*        IF dynParamValue.colName[idx]  EQ "" THEN LEAVE.                      */
+/*        IF dynParamValue.isActive[idx] EQ NO THEN NEXT.                       */
+/*        IF dynParamValue.isCalcField[idx] THEN DO:                            */
+/*            IF dynParamValue.calcProc[idx] NE "" THEN                         */
+/*            ASSIGN                                                            */
+/*                hCalcColumn[idx] = hQueryBrowse:ADD-CALC-COLUMN(              */
+/*                    dynParamValue.dataType[idx],                              */
+/*                    dynParamValue.colFormat[idx],                             */
+/*                    "",                                                       */
+/*                    dynParamValue.colLabel[idx]                               */
+/*                    )                                                         */
+/*                hColumn = hCalcColumn[idx]                                    */
+/*                .                                                             */
+/*            ELSE                                                              */
+/*            IF dynParamValue.calcFormula[idx] NE "" THEN                      */
+/*            ASSIGN                                                            */
+/*                cFormula = REPLACE(dynParamValue.calcFormula[idx],"$F~{","")  */
+/*                cFormula = REPLACE(cFormula,"}","")                           */
+/*                cFormula = REPLACE(cFormula,"__",".")                         */
+/*                hCalcColumn[idx] = hQueryBrowse:ADD-CALC-COLUMN(              */
+/*                    "Character",                                              */
+/*                    "x(" + STRING(LENGTH(cFormula)) + ")",                    */
+/*                    "",                                                       */
+/*                    dynParamValue.colLabel[idx] + "[Calc]"                    */
+/*                    )                                                         */
+/*                hColumn = hCalcColumn[idx]                                    */
+/*                .                                                             */
+/*        END. /* if calc field */                                              */
+/*        ELSE                                                                  */
+/*        ASSIGN                                                                */
+/*            hColumn = hQueryBrowse:ADD-LIKE-COLUMN(dynParamValue.colName[idx])*/
+/*            hColumn:LABEL = dynParamValue.colLabel[idx]                       */
+/*            hBrowseColumn[idx] = hColumn                                      */
+/*            .                                                                 */
+/*        IF NOT VALID-HANDLE(hColumn) THEN NEXT.                               */
+/*/*        IF idx MOD 2 EQ 0 THEN hColumn:COLUMN-BGCOLOR = 11.*/               */
+/*        IF dynParamValue.columnSize[idx] NE 0 THEN                            */
+/*        hColumn:WIDTH-CHARS = dynParamValue.columnSize[idx].                  */
+/*    END. /* do idx */                                                         */
     hBrowseQuery = iphQuery:HANDLE.
     iphQuery:QUERY-OPEN.
     IF iphQuery:NUM-RESULTS GT 0 THEN
@@ -339,11 +463,12 @@ PROCEDURE pRunQuery:
                 RUN pResultsBrowser (hQuery).
                 WHEN "Print -d" OR WHEN "View" THEN
                 RUN pResultsJasper (ipcType, ipcUserID, ipcTaskRecKey).
-                OTHERWISE
-                IF dynParamValue.user-id NE "_default" THEN
-                RUN pRunNow (ipcType, dynSubject.subjectTitle, YES).
-                ELSE
-                RUN pResultsJasper (ipcType, ipcUserID, ipcTaskRecKey).
+                OTHERWISE DO:
+                    IF dynParamValue.user-id NE "_default" THEN
+                    RUN pRunNow (ipcType, dynSubject.subjectTitle, YES).
+                    ELSE
+                    RUN pResultsJasper (ipcType, ipcUserID, ipcTaskRecKey).
+                END. /* otherwise */
             END CASE.
         END. /* if run */
         ELSE
@@ -371,13 +496,17 @@ PROCEDURE pRunSubject :
     DEFINE INPUT PARAMETER ipcPrgmName AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cTaskRecKey AS CHARACTER NO-UNDO.
-    
+
     SESSION:SET-WAIT-STATE("General").
     IF AVAILABLE dynParamValue THEN
     DO TRANSACTION:
         FIND CURRENT dynSubject EXCLUSIVE-LOCK.
         FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
         ASSIGN
+            dynParamValue.pageFormat      = dynSubject.pageFormat
+            dynParamValue.pageOrientation = dynSubject.pageOrientation
+            dynParamValue.pageWidth       = dynSubject.pageWidth
+            dynParamValue.pageHeight      = dynSubject.pageHeight
             dynParamValue.outputFormat    = ipcType
             dynParamValue.lastRunDateTime = NOW
             dynSubject.lastRunDateTime    = NOW
@@ -403,8 +532,14 @@ PROCEDURE pSetParamValueDefault:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE BUFFER bDynParamValue FOR dynParamValue.
+    DEFINE VARIABLE cUserID AS CHARACTER NO-UNDO.
 
+    DEFINE BUFFER bDynParamValue    FOR dynParamValue.
+    DEFINE BUFFER bDynValueColumn   FOR dynValueColumn.
+    DEFINE BUFFER bDynValueParam    FOR dynValueParam.
+    DEFINE BUFFER bDynValueParamSet FOR dynValueParamSet.
+
+    cUserID = dynParamValue.user-id.
     DO TRANSACTION:
         FIND FIRST bDynParamValue EXCLUSIVE-LOCK
              WHERE bDynParamValue.subjectID    EQ dynParamValue.subjectID
@@ -416,9 +551,99 @@ PROCEDURE pSetParamValueDefault:
             CREATE bDynParamValue.
             bDynParamValue.paramDescription = "User Default".
         END. /* if not avail */
-        BUFFER-COPY dynParamValue EXCEPT paramValueID paramDescription TO bDynParamValue.
+        BUFFER-COPY dynParamValue
+             EXCEPT paramValueID paramDescription
+                 TO bDynParamValue.
+
+/*        FOR EACH dynValueColumn EXCLUSIVE-LOCK                          */
+/*            WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID*/
+/*              AND dynValueColumn.user-id      EQ dynParamValue.user-id  */
+/*              AND dynValueColumn.prgmName     EQ dynParamValue.prgmName */
+/*              AND dynValueColumn.paramValueID EQ 0                      */
+/*            :                                                           */
+/*            DELETE dynValueColumn.                                      */
+/*        END. /* each dynvaluecolumn */                                  */
+        FOR EACH dynValueColumn NO-LOCK
+            WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
+              AND dynValueColumn.user-id      EQ dynParamValue.user-id
+              AND dynValueColumn.prgmName     EQ dynParamValue.prgmName
+              AND dynValueColumn.paramValueID EQ dynParamValue.paramValueID
+               BY dynValueColumn.sortOrder
+            :
+            FIND FIRST bDynValueColumn EXCLUSIVE-LOCK
+                 WHERE bDynValueColumn.subjectID    EQ dynValueColumn.subjectID
+                   AND bDynValueColumn.user-id      EQ dynValueColumn.user-id
+                   AND bDynValueColumn.prgmName     EQ dynValueColumn.prgmName
+                   AND bDynValueColumn.paramValueID EQ 0
+                   AND bDynValueColumn.sortOrder    EQ dynValueColumn.sortOrder
+                 NO-ERROR.
+            IF NOT AVAILABLE bDynValueColumn THEN
+            CREATE bDynValueColumn.
+            BUFFER-COPY dynValueColumn
+                 EXCEPT paramValueID
+                     TO bDynValueColumn.
+        END. /* each dynvaluecolumn */
+/*        FOR EACH dynValueParam EXCLUSIVE-LOCK                          */
+/*            WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID*/
+/*              AND dynValueParam.user-id      EQ dynParamValue.user-id  */
+/*              AND dynValueParam.prgmName     EQ dynParamValue.prgmName */
+/*              AND dynValueParam.paramValueID EQ 0                      */
+/*            :                                                          */
+/*            DELETE dynValueParam.                                      */
+/*        END. /* each dynValueParam */                                  */
+        FOR EACH dynValueParam NO-LOCK
+            WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
+              AND dynValueParam.user-id      EQ dynParamValue.user-id
+              AND dynValueParam.prgmName     EQ dynParamValue.prgmName
+              AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
+               BY dynValueParam.sortOrder
+            :
+            FIND FIRST bDynValueParam EXCLUSIVE-LOCK
+                 WHERE bDynValueParam.subjectID    EQ dynValueParam.subjectID
+                   AND bDynValueParam.user-id      EQ dynValueParam.user-id
+                   AND bDynValueParam.prgmName     EQ dynValueParam.prgmName
+                   AND bDynValueParam.paramValueID EQ 0
+                   AND bDynValueParam.sortOrder    EQ dynValueParam.sortOrder
+                 NO-ERROR.
+            IF NOT AVAILABLE bDynValueParam THEN
+            CREATE bDynValueParam.
+            BUFFER-COPY dynValueParam
+                 EXCEPT paramValueID
+                     TO bDynValueParam.
+        END. /* each dynValueParam */
+/*        FOR EACH dynValueParamSet EXCLUSIVE-LOCK                          */
+/*            WHERE dynValueParamSet.subjectID    EQ dynParamValue.subjectID*/
+/*              AND dynValueParamSet.user-id      EQ dynParamValue.user-id  */
+/*              AND dynValueParamSet.prgmName     EQ dynParamValue.prgmName */
+/*              AND dynValueParamSet.paramValueID EQ 0                      */
+/*            :                                                             */
+/*            DELETE dynValueParamSet.                                      */
+/*        END. /* each dynValueParamSet */                                  */
+        FOR EACH dynValueParamSet NO-LOCK
+            WHERE dynValueParamSet.subjectID    EQ dynParamValue.subjectID
+              AND dynValueParamSet.user-id      EQ dynParamValue.user-id
+              AND dynValueParamSet.prgmName     EQ dynParamValue.prgmName
+              AND dynValueParamSet.paramValueID EQ dynParamValue.paramValueID
+               BY dynValueParamSet.sortOrder
+            :
+            FIND FIRST bDynValueParamSet EXCLUSIVE-LOCK
+                 WHERE bDynValueParamSet.subjectID    EQ dynValueParamSet.subjectID
+                   AND bDynValueParamSet.user-id      EQ dynValueParamSet.user-id
+                   AND bDynValueParamSet.prgmName     EQ dynValueParamSet.prgmName
+                   AND bDynValueParamSet.paramValueID EQ 0
+                   AND bDynValueParamSet.sortOrder    EQ dynValueParamSet.sortOrder
+                 NO-ERROR.
+            IF NOT AVAILABLE bDynValueParamSet THEN
+            CREATE bDynValueParamSet.
+            BUFFER-COPY dynValueParamSet
+                 EXCEPT paramValueID
+                    TO bDynValueParamSet.
+        END. /* each dynValueParamSet */
     END. /* do trans */
     RELEASE bDynParamValue.
+    RELEASE bDynValueColumn.
+    RELEASE bDynValueParam.
+    RELEASE bDynValueParamSet.
 
 END PROCEDURE.
 	

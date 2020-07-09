@@ -7,10 +7,11 @@ for each item where item.rec_key = "".
 ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey").
 
 item.rec_key = ls-key.               
+/*
 create rec_key.
 assign rec_key.rec_key = item.rec_key
       rec_key.table_name = "item".
-
+*/
 DISP item.rec_key.
 PAUSE 0.
 
@@ -25,9 +26,9 @@ FOR EACH ITEM:
         FIND FIRST bf-item WHERE bf-item.rec_key = ls-key NO-LOCK NO-ERROR.
 
         item.rec_key = ls-key.               
-        create rec_key.
-        assign rec_key.rec_key = item.rec_key
-               rec_key.table_name = "item".
+/*        create rec_key.                      */
+/*        assign rec_key.rec_key = item.rec_key*/
+/*               rec_key.table_name = "item".  */
 
    END.
 END.

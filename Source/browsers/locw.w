@@ -696,8 +696,6 @@ PROCEDURE build-table :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE iAlloc      AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iBack       AS INTEGER NO-UNDO.
     DEFINE VARIABLE iTotOnHand  AS INTEGER NO-UNDO.
     DEFINE VARIABLE iTotOnOrder AS INTEGER NO-UNDO.
     DEFINE VARIABLE iTotAlloc   AS INTEGER NO-UNDO.
@@ -722,7 +720,6 @@ PROCEDURE build-table :
         WHERE loc.company EQ itemfg-loc.company
           AND loc.loc     EQ itemfg-loc.loc
         :
-        RUN fg/calcqabl.p (ROWID(itemfg), itemfg-loc.loc, OUTPUT iAlloc, OUTPUT iBack). 
         CREATE w-jobs.
         ASSIGN 
             w-jobs.i-no         = itemfg.i-no
@@ -733,8 +730,8 @@ PROCEDURE build-table :
             w-jobs.ord-min      = itemfg-loc.ord-min
             w-jobs.onHand       = itemfg-loc.q-onh
             w-jobs.onOrder      = itemfg-loc.q-ono
-            w-jobs.allocated    = iAlloc
-            w-jobs.backOrder    = iBack
+            w-jobs.allocated    = itemfg-loc.q-alloc
+            w-jobs.backOrder    = itemfg-loc.q-back
             w-jobs.qtyAvailable = w-jobs.onHand
                                 + w-jobs.onOrder
                                 - w-jobs.allocated
@@ -920,11 +917,9 @@ PROCEDURE local-initialize :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-  
+
     w-jobs.loc:READ-ONLY IN BROWSE {&browse-name} = YES .
     
-    RUN local-open-query.
-
     IF QUERY br_table:NUM-RESULTS NE ? THEN DO:  
         BROWSE br_table:MOVE-TO-TOP() NO-ERROR.
         BROWSE br_table:SELECT-FOCUSED-ROW() NO-ERROR.

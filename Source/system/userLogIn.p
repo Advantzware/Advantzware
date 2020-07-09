@@ -29,6 +29,11 @@ DEFINE VARIABLE lLogMeIn        AS LOG NO-UNDO.
 DEFINE VARIABLE iLoginCnt AS INTEGER NO-UNDO.
 DEFINE VARIABLE ppid AS INTEGER NO-UNDO.
 DEFINE VARIABLE lStrongDisconnect AS LOG NO-UNDO.
+DEFINE VARIABLE iLoginUserSecLevel AS INT NO-UNDO.
+DEFINE VARIABLE dtTestDateTime AS DATETIME NO-UNDO.
+
+DEFINE BUFFER bf-users FOR users.
+DEFINE BUFFER bf-userlog FOR userLog.
 
 {methods/defines/hndldefs.i}
 {custom/gcompany.i}    
@@ -128,7 +133,8 @@ ASSIGN
 /*        RETURN.                                                  */
 /*    END.                                                         */
     ELSE ASSIGN  
-        cUserName = users.user_name.
+        cUserName = users.user_name
+        iLoginUserSecLevel = users.securityLevel.
 
 /* Verify user has "signed" the EULA agreement */
     cEulaFile = SEARCH("{&EulaFile}").
@@ -177,10 +183,12 @@ ASSIGN
     IF iLoginCnt GT 0 
     AND lPromptMultiSession THEN DO:
         /* user 'monitor' gets a free pass for multiple connections; everybody else counts */
-        IF cCurrentUserID NE "monitor" THEN 
-            RUN system/wSession.w (INPUT iLoginCnt, INPUT userControl.maxSessionsPerUser, OUTPUT cResponse).
-        ELSE ASSIGN 
+        IF cCurrentUserID EQ "monitor" 
+        OR iLoginUserSecLevel GE 1000 THEN ASSIGN 
             cResponse = "".
+        ELSE  
+            RUN system/wSession.w (INPUT iLoginCnt, INPUT userControl.maxSessionsPerUser, OUTPUT cResponse).
+
         CASE cResponse:
             WHEN "" THEN ASSIGN     /* First time, or user wants multiple sessions */ 
                 lLogMeIn = TRUE.
@@ -239,7 +247,7 @@ ASSIGN
         /* ASI and Monitor can log in no matter what count is; otherwise exceeding the grace count prevents login */
         IF iAllUserCount + 1 GT userControl.maxAllowedUsers + userControl.numUsersOverLimit 
         AND cCurrentUserID NE "Monitor" 
-        AND cCurrentUserID NE "ASI" THEN DO:            
+        AND iLoginUserSecLevel LT 1000 THEN DO:            
             MESSAGE 
                 "The maximum number of connections has been reached.  Exiting the application."
                 VIEW-AS ALERT-BOX WARNING .
@@ -296,3 +304,25 @@ IF NOT oplExit THEN DO TRANSACTION:
         .
     FIND CURRENT userLog NO-LOCK NO-ERROR.
 END.  /* If not exiting */
+
+/* 66297 Request - Inactivate User Based on Activity */
+/* Run when any Admin logs in AND lockout days set to GT 0 (in NK5) */
+IF userControl.inactivityLockout GT 0
+AND iLoginUserSecLevel GE 900 THEN DO:
+    ASSIGN 
+        dtTestDateTime = ADD-INTERVAL(DATETIME(TODAY), (0 - userControl.inactivityLockout), "days").
+    FOR EACH bf-users NO-LOCK:
+        FIND LAST bf-userLog NO-LOCK WHERE 
+            bf-userLog.user_id EQ bf-users.user_id
+            USE-INDEX loginDateTime
+            NO-ERROR.
+        IF AVAIL bf-userlog 
+        AND bf-userLog.loginDateTime LT dtTestDateTime THEN DO:
+            FIND CURRENT bf-users EXCLUSIVE.
+            ASSIGN 
+                bf-users.isLocked = TRUE.
+            RELEASE bf-users.
+        END.
+    END.
+END.
+            

@@ -86,11 +86,14 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_address AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_apivend AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_attach AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
@@ -101,11 +104,9 @@ DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vend AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vend-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vend-3 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vend-4 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vend-tot AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_apiClientXref AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_apiClientXref-2 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-cstsld AS HANDLE NO-UNDO.
+
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -115,18 +116,18 @@ DEFINE FRAME F-Main
          SIZE 160.4 BY 24.1
          BGCOLOR 15 .
 
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 152 BY 1.91
+         BGCOLOR 15 .
+
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 90 ROW 2.91
          SIZE 84 BY 1.43
-         BGCOLOR 15 .
-
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 168 BY 1.91
          BGCOLOR 15 .
 
 
@@ -306,14 +307,6 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/attach.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_attach ).
-       RUN set-position IN h_attach ( 1.00 , 46.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'FOLDER-LABELS = ':U + 'BrowseVendors|View Vendor|Totals|API/EDI' + ',
@@ -321,6 +314,14 @@ PROCEDURE adm-create-objects :
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 21.67 , 150.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/attach.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_attach ).
+       RUN set-position IN h_attach ( 1.00 , 46.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/f-add.w':U ,
@@ -365,11 +366,11 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to SmartObject h_attach. */
-       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'attach':U , h_attach ).
-
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
+
+       /* Links to SmartObject h_attach. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'attach':U , h_attach ).
 
        /* Links to SmartObject h_options. */
        RUN add-link IN adm-broker-hdl ( h_vend , 'attachvend':U , h_options ).
@@ -399,14 +400,6 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/movecol.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_movecol ).
-       RUN set-position IN h_movecol ( 1.00 , 53.60 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/vend.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -414,24 +407,32 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_vend ( 4.52 , 1.00 ) NO-ERROR.
        /* Size in UIB:  ( 20.48 , 151.00 ) */
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_movecol ).
+       RUN set-position IN h_movecol ( 1.00 , 53.60 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
        /* Links to SmartObject h_export. */
        RUN add-link IN adm-broker-hdl ( h_vend , 'export-xl':U , h_export ).
 
-       /* Links to SmartObject h_movecol. */
-       RUN add-link IN adm-broker-hdl ( h_vend , 'move-columns':U , h_movecol ).
-
        /* Links to SmartNavBrowser h_vend. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_vend ).
        RUN add-link IN adm-broker-hdl ( h_vend , 'Record':U , THIS-PROCEDURE ).
 
+       /* Links to SmartObject h_movecol. */
+       RUN add-link IN adm-broker-hdl ( h_vend , 'move-columns':U , h_movecol ).
+
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_movecol ,
-             h_attach , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_vend ,
              h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_movecol ,
+             h_attach , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -525,69 +526,62 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-vndtot ,
              h_vend-tot , 'AFTER':U ).
     END. /* Page 3 */
-     WHEN 4 THEN DO:
+    WHEN 4 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_export-2 ).
+       RUN set-position IN h_export-2 ( 1.00 , 30.40 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/import.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_import ).
-       RUN set-position IN h_import ( 1.00 , 37.80 ) NO-ERROR.
+       RUN set-position IN h_import ( 1.00 , 38.20 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
-    
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/export.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 30.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'browsers/apiClientXref.w':U ,
+             INPUT  'viewerid/vend.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
-             OUTPUT h_apiClientXref ).
-       RUN set-position IN h_apiClientXref ( 4.71 , 23.00 ) NO-ERROR.
-       RUN set-size IN h_apiClientXref ( 11.19 , 107.00 ) NO-ERROR.
+             OUTPUT h_vend-4 ).
+       RUN set-position IN h_vend-4 ( 4.81 , 41.40 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 71.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/apiClientXref.w':U ,
+             INPUT  'browsers/apivend.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Initial-Lock = NO-LOCK,
-                     Hide-on-Init = no,
-                     Disable-on-Init = no,
-                     Layout = ,
-                     Create-On-Add = Yes':U ,
-             OUTPUT h_apiClientXref-2 ).
-       RUN set-position IN h_apiClientXref-2 ( 16.14 , 23.00 ) NO-ERROR.
-       /* Size in UIB:  ( 6.19 , 71.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'panels/p-cstsld.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
-             OUTPUT h_p-cstsld ).
-       RUN set-position IN h_p-cstsld ( 16.14 , 110.00 ) NO-ERROR.
-       RUN set-size IN h_p-cstsld ( 6.29 , 20.00 ) NO-ERROR.
+             INPUT  'Layout = ':U ,
+             OUTPUT h_apivend ).
+       RUN set-position IN h_apivend ( 6.95 , 6.00 ) NO-ERROR.
+       RUN set-size IN h_apivend ( 11.91 , 140.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.  
-       
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+
+       /* Links to SmartObject h_export-2. */
+       RUN add-link IN adm-broker-hdl ( h_apivend , 'export-xl':U , h_export-2 ).
+
        /* Links to SmartViewer h_import. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
-       
-       /* Links to SmartObject h_export. */
-       RUN add-link IN adm-broker-hdl ( h_apiClientXref , 'export-xl':U , h_export ).
 
-       /* Links to SmartViewer h_apiClientXref-2. */
-       RUN add-link IN adm-broker-hdl ( h_p-cstsld , 'TableIO':U , h_apiClientXref-2 ).
-       RUN add-link IN adm-broker-hdl ( h_apiClientXref , 'Record':U , h_apiClientXref-2 ).
+       /* Links to SmartViewer h_vend-4. */
+       RUN add-link IN adm-broker-hdl ( h_vend , 'Record':U , h_vend-4 ).
 
-       /*RUN add-link IN adm-broker-hdl ( h_apiClientXref , 'attachcustsold':U , h_options ). */
-       
-    END. /* Page 8 */
-    
+       /* Links to SmartBrowser h_apivend. */
+       RUN add-link IN adm-broker-hdl ( h_vend , 'Record':U , h_apivend ).
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_import ,
+             h_export-2 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_vend-4 ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_apivend ,
+             h_vend-4 , 'AFTER':U ).
+    END. /* Page 4 */
 
   END CASE.
   /* Select a Startup page. */
@@ -697,6 +691,21 @@ PROCEDURE image-change-note :
   def output parameter op-need-note as log no-undo.
   
   op-need-note = no.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
+PROCEDURE import-file :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+ RUN util/dev/ImpApiClientXref.p .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -911,18 +920,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
-PROCEDURE import-file :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
- RUN util/dev/ImpApiClientXref.p .
- RUN local-open-query IN h_apiClientXref .
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

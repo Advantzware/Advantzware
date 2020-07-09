@@ -38,19 +38,29 @@ DEFINE BUFFER b-eb FOR eb .
 /* ***************************  Main Block  *************************** */
 
   IF lPackCodeCopy THEN DO:
+      FOR EACH bf-estPacking EXCLUSIVE-LOCK 
+              WHERE bf-estPacking.company EQ b-eb.company
+              AND bf-estPacking.estimateNo EQ b-eb.est-no
+              AND bf-estPacking.FormNo EQ b-eb.form-no
+              AND bf-estPacking.BlankNo EQ b-eb.blank-No :
+          DELETE bf-estPacking .
+      END.    
+              
       FOR EACH estPacking NO-LOCK 
           WHERE estPacking.company EQ eb.company 
            AND estPacking.estimateNo EQ eb.est-no 
            AND estPacking.FormNo  EQ eb.form-no 
-           AND estPacking.BlankNo  EQ eb.blank-No :
-
-         CREATE bf-estPacking .
-         ASSIGN
-            bf-estPacking.company      = eb.company 
-            bf-estPacking.estimateNo   = eb.est-no
-            bf-estPacking.FormNo       = b-eb.form-no
-            bf-estPacking.BlankNo      = b-eb.blank-No .
-         BUFFER-COPY estPacking EXCEPT company estimateNo FormNo  BlankNo estPackingID TO bf-estPacking.
+           AND estPacking.BlankNo  EQ eb.blank-No :          
+              
+             CREATE bf-estPacking .
+             ASSIGN
+                bf-estPacking.company      = eb.company 
+                bf-estPacking.estimateNo   = b-eb.est-no
+                bf-estPacking.FormNo       = b-eb.form-no
+                bf-estPacking.BlankNo      = b-eb.blank-No 
+                bf-estPacking.rmItemID     = estPacking.rmItemID.
+         
+         BUFFER-COPY estPacking EXCEPT company estimateNo FormNo  BlankNo estPackingID rmItemID rec_key TO bf-estPacking.
       END.
       RELEASE bf-estPacking NO-ERROR .
   END.

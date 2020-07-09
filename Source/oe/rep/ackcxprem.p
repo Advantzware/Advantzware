@@ -12,7 +12,7 @@ def var v-fob as char format "x(27)" NO-UNDO.
 def var v-shipvia like carrier.dscr NO-UNDO.
 def var v-addr3 as char format "x(30)" NO-UNDO.
 def var v-addr4 as char format "x(30)" NO-UNDO.
-def var v-sold-addr3 as char format "x(30)" NO-UNDO.
+def var cShipAdd3 as char format "x(30)" NO-UNDO.
 def var v-line as INT NO-UNDO.
 def var v-printline as int NO-UNDO.
 def var v-ackhead as char format "x(32)" init
@@ -73,6 +73,7 @@ DEF SHARED VAR v-print-tot AS LOG NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
+DEFINE BUFFER bf-shipto FOR shipto.
 
 RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
@@ -158,6 +159,15 @@ ASSIGN v-comp-add1 = ""
   
   FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       FIRST oe-ord WHERE RECID(oe-ord) EQ report.rec-id:
+      
+      find first bf-shipto no-lock
+               where bf-shipto.company eq cocode
+               and bf-shipto.cust-no eq oe-ord.cust-no
+               and bf-shipto.ship-id eq oe-ord.ship-id
+               no-error.
+          IF AVAIL bf-shipto THEN     
+          cShipAdd3 = bf-shipto.ship-city + ", " + bf-shipto.ship-state +
+                      "  " + bf-shipto.ship-zip .
 
       if oe-ord.sman[2] eq "" and oe-ord.sman[3] eq "" then
         v-salesman = oe-ord.sman[1].
@@ -179,12 +189,9 @@ ASSIGN v-comp-add1 = ""
         v-shipvia = "".
       v-printline = 0.
       assign
-       v-addr3 = oe-ord.city + ", " + oe-ord.state + "  " + oe-ord.zip
-       v-sold-addr3 = oe-ord.sold-city + ", " + oe-ord.sold-state +
-                      "  " + oe-ord.sold-zip
+       v-addr3 = oe-ord.city + ", " + oe-ord.state + "  " + oe-ord.zip        
        v-line = 1.
-      IF oe-ord.sold-city = "" AND oe-ord.sold-state = ""
-         AND oe-ord.sold-zip = "" THEN v-sold-addr3 = v-addr3.
+      IF cShipAdd3 = "" THEN cShipAdd3 = v-addr3.
 
       find first cust
           where cust.company eq cocode

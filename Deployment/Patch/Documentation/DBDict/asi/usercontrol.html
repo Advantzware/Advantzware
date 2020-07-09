@@ -65,19 +65,19 @@
       </tr>
       <tr class="shadedrow">
         <td>CREATE</td>
-        <td><a href="trg/usercontrol_create.html">create.trg/userControl.p</a></td>
+        <td>create.trg/userControl.p</td>
         <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
       </tr>
       <tr class="shadedrow">
         <td>DELETE</td>
-        <td><a href="trg/usercontrol_delete.html">delete.trg/userControl.p</a></td>
+        <td>delete.trg/userControl.p</td>
         <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
       </tr>
       <tr class="shadedrow">
         <td>WRITE</td>
-        <td><a href="trg/usercontrol_write.html">write.trg/userControl.p</a></td>
+        <td>write.trg/userControl.p</td>
         <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
       </tr>
@@ -142,6 +142,17 @@
     <td></td>
   </tr>
   <tr class="evenrow">
+    <td>210</td>
+    <td>inactivityLockout</td>
+    <td><a href="00-cross-i.html#inactivityLockout"><small>X</small></a></td>
+    <td>Lock User After (n) Days Inactivity</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
     <td>60</td>
     <td>loginTimeDirective</td>
     <td><a href="00-cross-l.html#loginTimeDirective"><small>X</small></a></td>
@@ -152,7 +163,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>20</td>
     <td>maxAllowedUsers</td>
     <td><a href="00-cross-m.html#maxAllowedUsers"><small>X</small></a></td>
@@ -163,7 +174,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>100</td>
     <td>maxSessionsPerUser</td>
     <td><a href="00-cross-m.html#maxSessionsPerUser"><small>X</small></a></td>
@@ -174,7 +185,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>150</td>
     <td>minLC</td>
     <td><a href="00-cross-m.html#minLC"><small>X</small></a></td>
@@ -185,7 +196,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>170</td>
     <td>minNC</td>
     <td><a href="00-cross-m.html#minNC"><small>X</small></a></td>
@@ -196,7 +207,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>110</td>
     <td>minPasswordLen</td>
     <td><a href="00-cross-m.html#minPasswordLen"><small>X</small></a></td>
@@ -207,7 +218,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>160</td>
     <td>minSC</td>
     <td><a href="00-cross-m.html#minSC"><small>X</small></a></td>
@@ -218,7 +229,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>140</td>
     <td>minUC</td>
     <td><a href="00-cross-m.html#minUC"><small>X</small></a></td>
@@ -229,7 +240,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>180</td>
     <td>nofityLocked</td>
     <td><a href="00-cross-n.html#nofityLocked"><small>X</small></a></td>
@@ -240,7 +251,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: Email notification of locked out user due to too many tries</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>190</td>
     <td>notifyAutoLogout</td>
     <td><a href="00-cross-n.html#notifyAutoLogout"><small>X</small></a></td>
@@ -251,7 +262,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: Send an email notification of a user auto logged out?</td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>200</td>
     <td>notifyDisable</td>
     <td><a href="00-cross-n.html#notifyDisable"><small>X</small></a></td>
@@ -262,7 +273,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>10</td>
     <td>numLicensedUsers</td>
     <td><a href="00-cross-n.html#numLicensedUsers"><small>X</small></a></td>
@@ -273,7 +284,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>30</td>
     <td>numUsersOverLimit</td>
     <td><a href="00-cross-n.html#numUsersOverLimit"><small>X</small></a></td>
@@ -284,7 +295,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>120</td>
     <td>pwdChgLen</td>
     <td><a href="00-cross-p.html#pwdChgLen"><small>X</small></a></td>
@@ -295,7 +306,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>90</td>
     <td><a href="addrphone.html">rec_key</a></td>
     <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
@@ -306,7 +317,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>70</td>
     <td>secondAdminEmail</td>
     <td><a href="00-cross-s.html#secondAdminEmail"><small>X</small></a></td>
@@ -317,7 +328,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>40</td>
     <td>userAdminEmail</td>
     <td><a href="00-cross-u.html#userAdminEmail"><small>X</small></a></td>
@@ -571,6 +582,17 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
+  <tr class="oddrow">
+    <td>210</td>
+    <td>inactivityLockout</td>
+    <td><a href="00-cross-i.html#inactivityLockout"><small>X</small></a></td>
+    <td>Lock User After (n) Days Inactivity</td>
+    <td>integer</td>
+    <td>&gt;&gt;&gt;&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
 </table>
 </div>
 
@@ -607,7 +629,7 @@
       <th>Parent tables</th>
     </tr>
     <tr class="shadedrow">
-      <td><a href="costHeader.html">costHeader</a>&nbsp;&nbsp; <a href="rec_key.html">rec_key</a>&nbsp;&nbsp; <a href="resource.html">serverResource</a>&nbsp;&nbsp; <a href="systemconfigusage.html">systemConfigUsage</a>&nbsp;&nbsp; <a href="usersman.html">usersman</a>&nbsp;&nbsp; </td>
+      <td><a href="costHeader.html">costHeader</a>&nbsp;&nbsp; </td>
     </tr>
   </table>
   <table style="width:50%; float:left;">
@@ -615,13 +637,13 @@
       <th>Child tables</th>
     </tr>
     <tr class="shadedrow">
-      <td><a href="acclrtrs.html">acclrtrs</a>&nbsp;&nbsp; <a href="account.html">account</a>&nbsp;&nbsp; <a href="address.html">address</a>&nbsp;&nbsp; <a href="ap-buy.html">ap-buy</a>&nbsp;&nbsp; <a href="ap-chk.html">ap-chk</a>&nbsp;&nbsp; <a href="ap-ctrl.html">ap-ctrl</a>&nbsp;&nbsp; <a href="ap-dis.html">ap-dis</a>&nbsp;&nbsp; <a href="ap-disl.html">ap-disl</a>&nbsp;&nbsp; <a href="ap-inv.html">ap-inv</a>&nbsp;&nbsp; <a href="ap-invl.html">ap-invl</a>&nbsp;&nbsp; <a href="ap-invlr.html">ap-invlr</a>&nbsp;&nbsp; <a href="ap-ledge.html">ap-ledger</a>&nbsp;&nbsp; <a href="ap-pay.html">ap-pay</a>&nbsp;&nbsp; <a href="ap-payl.html">ap-payl</a>&nbsp;&nbsp; <a href="ap-sel.html">ap-sel</a>&nbsp;&nbsp; <a href="aphist.html">aphist</a>&nbsp;&nbsp; <a href="ar-cash.html">ar-cash</a>&nbsp;&nbsp; <a href="ar-cashl.html">ar-cashl</a>&nbsp;&nbsp; <a href="ar-ctrl.html">ar-ctrl</a>&nbsp;&nbsp; <a href="ar-inv.html">ar-inv</a>&nbsp;&nbsp; <a href="ar-invl.html">ar-invl</a>&nbsp;&nbsp; <a href="ar-invm.html">ar-invm</a>&nbsp;&nbsp; <a href="ar-ledge.html">ar-ledger</a>&nbsp;&nbsp; <a href="ar-mcash.html">ar-mcash</a>&nbsp;&nbsp; <a href="asi.html">asi</a>&nbsp;&nbsp; <a href="asinotes.html">asinotes</a>&nbsp;&nbsp; <a href="attach.html">attach</a>&nbsp;&nbsp; <a href="bank.html">bank</a>&nbsp;&nbsp; <a href="bolh.html">bolh</a>&nbsp;&nbsp; <a href="boll.html">boll</a>&nbsp;&nbsp; <a href="boxheadr.html">box-design-hdr</a>&nbsp;&nbsp; <a href="boxline.html">box-design-line</a>&nbsp;&nbsp; <a href="buyer.html">buyer</a>&nbsp;&nbsp; <a href="carr-mtx.html">carr-mtx</a>&nbsp;&nbsp; <a href="carrier.html">carrier</a>&nbsp;&nbsp; <a href="ce-ctrl.html">ce-ctrl</a>&nbsp;&nbsp; <a href="cmpltjob.html">cmpltjob</a>&nbsp;&nbsp; <a href="company.html">company</a>&nbsp;&nbsp; <a href="contact.html">contact</a>&nbsp;&nbsp; <a href="costtype.html">costtype</a>&nbsp;&nbsp; <a href="country.html">country</a>&nbsp;&nbsp; <a href="credit-h.html">credit-hold-type</a>&nbsp;&nbsp; <a href="crew.html">crew</a>&nbsp;&nbsp; <a href="cuecard.html">cueCard</a>&nbsp;&nbsp; <a href="cuecardtext.html">cueCardText</a>&nbsp;&nbsp; <a href="currency.html">currency</a>&nbsp;&nbsp; <a href="cust.html">cust</a>&nbsp;&nbsp; <a href="cust-itm.html">cust-itm</a>&nbsp;&nbsp; <a href="cust-mar.html">cust-markup</a>&nbsp;&nbsp; <a href="cust-pro.html">cust-prod-sales</a>&nbsp;&nbsp; <a href="custype.html">custype</a>&nbsp;&nbsp; <a href="db-ctrl.html">db-ctrl</a>&nbsp;&nbsp; <a href="dept.html">dept</a>&nbsp;&nbsp; <a href="dmijobstatus.html">dmiJobStatus</a>&nbsp;&nbsp; <a href="dmitrans.html">dmiTrans</a>&nbsp;&nbsp; <a href="dynlookup.html">dynLookup</a>&nbsp;&nbsp; <a href="dynparam.html">dynParam</a>&nbsp;&nbsp; <a href="dynparamset.html">dynParamSet</a>&nbsp;&nbsp; <a href="dynparamsetdtl.html">dynParamSetDtl</a>&nbsp;&nbsp; <a href="dynParamValue.html">dynParamValue</a>&nbsp;&nbsp; <a href="dynprgrmspage.html">dynPrgrmsPage</a>&nbsp;&nbsp; <a href="dynsubject.html">dynSubject</a>&nbsp;&nbsp; <a href="dynsubjectcolumn.html">dynSubjectColumn</a>&nbsp;&nbsp; <a href="dynsubjectparam.html">dynSubjectParamSet</a>&nbsp;&nbsp; <a href="dynsubjecttable.html">dynSubjectTable</a>&nbsp;&nbsp; <a href="dynsubjectwhere.html">dynSubjectWhere</a>&nbsp;&nbsp; <a href="dynvaluecolumn.html">dynValueColumn</a>&nbsp;&nbsp; <a href="dynvalueparam.html">dynValueParam</a>&nbsp;&nbsp; <a href="dynvalueparamset.html">dynValueParamSet</a>&nbsp;&nbsp; <a href="e-item.html">e-item</a>&nbsp;&nbsp; <a href="e-item-c.html">e-item-cust</a>&nbsp;&nbsp; <a href="eitmvend.html">e-item-vend</a>&nbsp;&nbsp; <a href="e-itemfg.html">e-itemfg</a>&nbsp;&nbsp; <a href="e-itemfv.html">e-itemfg-vend</a>&nbsp;&nbsp; <a href="eb.html">eb</a>&nbsp;&nbsp; <a href="edi-payr.html">EDAPCheck</a>&nbsp;&nbsp; <a href="edcat.html">EDCat</a>&nbsp;&nbsp; <a href="edcatlin.html">EDCatline</a>&nbsp;&nbsp; <a href="edcatpri.html">EDCatPrice</a>&nbsp;&nbsp; <a href="edco.html">EDCo</a>&nbsp;&nbsp; <a href="edcode.html">EDCode</a>&nbsp;&nbsp; <a href="eddoc.html">EDDoc</a>&nbsp;&nbsp; <a href="edicxref.html">EDICXref</a>&nbsp;&nbsp; <a href="edipartnersegment.html">EdiPartnerSegment</a>&nbsp;&nbsp; <a href="edivaddo.html">EDIVAddon</a>&nbsp;&nbsp; <a href="edivline.html">EDIVLine</a>&nbsp;&nbsp; <a href="edivtran.html">EDIVTran</a>&nbsp;&nbsp; <a href="edix12segment.html">EdiX12Segment</a>&nbsp;&nbsp; <a href="edmast.html">EDMast</a>&nbsp;&nbsp; <a href="edpartnergrp.html">edPartnerGrp</a>&nbsp;&nbsp; <a href="edpd.html">EDPD</a>&nbsp;&nbsp; <a href="edi-addo.html">EDPOAddon</a>&nbsp;&nbsp; <a href="edi-ordl.html">EDPOLine</a>&nbsp;&nbsp; <a href="eepotran.html">EDPOTran</a>&nbsp;&nbsp; <a href="edsetid.html">edSetID</a>&nbsp;&nbsp; <a href="edshipto.html">EDShipto</a>&nbsp;&nbsp; <a href="edshipvi.html">EDShipVia</a>&nbsp;&nbsp; <a href="edshline.html">EDSHLine</a>&nbsp;&nbsp; <a href="edshord.html">EDSHOrd</a>&nbsp;&nbsp; <a href="edshpack.html">EDSHPack</a>&nbsp;&nbsp; <a href="edshtar.html">EDSHTare</a>&nbsp;&nbsp; <a href="edshtran.html">EDSHTran</a>&nbsp;&nbsp; <a href="ef.html">ef</a>&nbsp;&nbsp; <a href="ef-nsh.html">ef-nsh</a>&nbsp;&nbsp; <a href="emailcod.html">emailcod</a>&nbsp;&nbsp; <a href="emaildtl.html">emaildtl</a>&nbsp;&nbsp; <a href="emailntf.html">emailntf</a>&nbsp;&nbsp; <a href="emp.html">emp</a>&nbsp;&nbsp; <a href="empalert.html">empalert</a>&nbsp;&nbsp; <a href="emplogin.html">emplogin</a>&nbsp;&nbsp; <a href="employee.html">employee</a>&nbsp;&nbsp; <a href="empmach.html">empmach</a>&nbsp;&nbsp; <a href="emp_type.html">emp_type</a>&nbsp;&nbsp; <a href="est.html">est</a>&nbsp;&nbsp; <a href="est-flm.html">est-flm</a>&nbsp;&nbsp; <a href="est-inst.html">est-inst</a>&nbsp;&nbsp; <a href="est-op.html">est-op</a>&nbsp;&nbsp; <a href="est-prep.html">est-prep</a>&nbsp;&nbsp; <a href="estsumm.html">est-summ</a>&nbsp;&nbsp; <a href="estcostoperation.html">estCostOperation</a>&nbsp;&nbsp; <a href="estrelease.html">estRelease</a>&nbsp;&nbsp; <a href="expiratn.html">expiration</a>&nbsp;&nbsp; <a href="fa-contr.html">fa-control</a>&nbsp;&nbsp; <a href="factrold.html">fa-control-d</a>&nbsp;&nbsp; <a href="fa-entry.html">fa-entry</a>&nbsp;&nbsp; <a href="fa-jrnl.html">fa-jrnl</a>&nbsp;&nbsp; <a href="fa-mast.html">fa-mast</a>&nbsp;&nbsp; <a href="famstrep.html">fa-mast-rep</a>&nbsp;&nbsp; <a href="fa-tags.html">fa-tags</a>&nbsp;&nbsp; <a href="fg-act.html">fg-act</a>&nbsp;&nbsp; <a href="fg-bin.html">fg-bin</a>&nbsp;&nbsp; <a href="fg-ctrl.html">fg-ctrl</a>&nbsp;&nbsp; <a href="fg-hist.html">fg-hist</a>&nbsp;&nbsp; <a href="fg-rcpth.html">fg-rcpth</a>&nbsp;&nbsp; <a href="fg-rcpts.html">fg-rcpts</a>&nbsp;&nbsp; <a href="fg-rdtl.html">fg-rdtl</a>&nbsp;&nbsp; <a href="fg-rdtlh.html">fg-rdtlh</a>&nbsp;&nbsp; <a href="fg-set.html">fg-set</a>&nbsp;&nbsp; <a href="fgcat.html">fgcat</a>&nbsp;&nbsp; <a href="file.html">file</a>&nbsp;&nbsp; <a href="fraction.html">fraction</a>&nbsp;&nbsp; <a href="frt-clas.html">freight-class</a>&nbsp;&nbsp; <a href="frt-tran.html">frt-class-desc-trans</a>&nbsp;&nbsp; <a href="gl-ctrl.html">gl-ctrl</a>&nbsp;&nbsp; <a href="gl-jrn.html">gl-jrn</a>&nbsp;&nbsp; <a href="gl-jrnl.html">gl-jrnl</a>&nbsp;&nbsp; <a href="gl-rpt.html">gl-rpt</a>&nbsp;&nbsp; <a href="glhist.html">glhist</a>&nbsp;&nbsp; <a href="gltrans.html">gltrans</a>&nbsp;&nbsp; <a href="inv-head.html">inv-head</a>&nbsp;&nbsp; <a href="inv-line.html">inv-line</a>&nbsp;&nbsp; <a href="inv-misc.html">inv-misc</a>&nbsp;&nbsp; <a href="inventoryStock.html">inventoryStock</a>&nbsp;&nbsp; <a href="inventoryStockSnapshot.html">inventoryStockSnapshot</a>&nbsp;&nbsp; <a href="inventoryTransaction.html">inventoryTransaction</a>&nbsp;&nbsp; <a href="item.html">item</a>&nbsp;&nbsp; <a href="item-bom.html">item-bom</a>&nbsp;&nbsp; <a href="item-com.html">item-comm</a>&nbsp;&nbsp; <a href="itemspec.html">item-spec</a>&nbsp;&nbsp; <a href="itemfg.html">itemfg</a>&nbsp;&nbsp; <a href="itemfg-b.html">itemfg-bom</a>&nbsp;&nbsp; <a href="itemfg-i.html">itemfg-ink</a>&nbsp;&nbsp; <a href="itemfg-l.html">itemfg-loc</a>&nbsp;&nbsp; <a href="itemfgdt.html">itemfgdtl</a>&nbsp;&nbsp; <a href="jc-ctrl.html">jc-ctrl</a>&nbsp;&nbsp; <a href="job.html">job</a>&nbsp;&nbsp; <a href="job-all.html">job-all</a>&nbsp;&nbsp; <a href="job-brd.html">job-brd</a>&nbsp;&nbsp; <a href="job-cat.html">job-cat</a>&nbsp;&nbsp; <a href="job-code.html">job-code</a>&nbsp;&nbsp; <a href="job-farm.html">job-farm</a>&nbsp;&nbsp; <a href="job-hdr.html">job-hdr</a>&nbsp;&nbsp; <a href="job-mat.html">job-mat</a>&nbsp;&nbsp; <a href="job-mch.html">job-mch</a>&nbsp;&nbsp; <a href="job-prep.html">job-prep</a>&nbsp;&nbsp; <a href="job-sch.html">job-sch</a>&nbsp;&nbsp; <a href="jobcad.html">jobcad</a>&nbsp;&nbsp; <a href="jobitems.html">jobitems</a>&nbsp;&nbsp; <a href="jobmach.html">jobmach</a>&nbsp;&nbsp; <a href="jobmatl.html">jobmatl</a>&nbsp;&nbsp; <a href="jobnotes.html">jobnotes</a>&nbsp;&nbsp; <a href="jobs.html">jobs</a>&nbsp;&nbsp; <a href="jobseq.html">jobseq</a>&nbsp;&nbsp; <a href="jobsheet.html">jobsheet</a>&nbsp;&nbsp; <a href="jobstack.html">jobstack</a>&nbsp;&nbsp; <a href="loc.html">loc</a>&nbsp;&nbsp; <a href="address1.html">location</a>&nbsp;&nbsp; <a href="lookups.html">lookups</a>&nbsp;&nbsp; <a href="mach.html">mach</a>&nbsp;&nbsp; <a href="machaddr.html">mach-adder</a>&nbsp;&nbsp; <a href="mach-attach-pat.html">mach-attach-pat</a>&nbsp;&nbsp; <a href="m-calend.html">mach-calendar</a>&nbsp;&nbsp; <a href="m-panel.html">mach-panel</a>&nbsp;&nbsp; <a href="mach-par.html">mach-part</a>&nbsp;&nbsp; <a href="machchrg.html">machchrg</a>&nbsp;&nbsp; <a href="machemp.html">machemp</a>&nbsp;&nbsp; <a href="machseq.html">machseq</a>&nbsp;&nbsp; <a href="machshft.html">machshft</a>&nbsp;&nbsp; <a href="machtran.html">machtran</a>&nbsp;&nbsp; <a href="maillist.html">maillist</a>&nbsp;&nbsp; <a href="mat.html">mat</a>&nbsp;&nbsp; <a href="mat-act.html">mat-act</a>&nbsp;&nbsp; <a href="matprep.html">matprep</a>&nbsp;&nbsp; <a href="mch-act.html">mch-act</a>&nbsp;&nbsp; <a href="mch-srt.html">mch-srt</a>&nbsp;&nbsp; <a href="misc-act.html">misc-act</a>&nbsp;&nbsp; <a href="mmtx.html">mmtx</a>&nbsp;&nbsp; <a href="mmtx2.html">mmtx2</a>&nbsp;&nbsp; <a href="mmty.html">mmty</a>&nbsp;&nbsp; <a href="mnu-item.html">mnu-item</a>&nbsp;&nbsp; <a href="monthly.html">monthly</a>&nbsp;&nbsp; <a href="mstd.html">mstd</a>&nbsp;&nbsp; <a href="notelink.html">noteLink</a>&nbsp;&nbsp; <a href="nrf-colo.html">nrf-color</a>&nbsp;&nbsp; <a href="nrf-size.html">nrf-size</a>&nbsp;&nbsp; <a href="oe-bolh.html">oe-bolh</a>&nbsp;&nbsp; <a href="oe-boll.html">oe-boll</a>&nbsp;&nbsp; <a href="oebollq.html">oe-boll-qty</a>&nbsp;&nbsp; <a href="oe-ctrl.html">oe-ctrl</a>&nbsp;&nbsp; <a href="oe-ord.html">oe-ord</a>&nbsp;&nbsp; <a href="oe-ordl.html">oe-ordl</a>&nbsp;&nbsp; <a href="oe-ordm.html">oe-ordm</a>&nbsp;&nbsp; <a href="oe-prmtx.html">oe-prmtx</a>&nbsp;&nbsp; <a href="oe-rel.html">oe-rel</a>&nbsp;&nbsp; <a href="oe-relh.html">oe-relh</a>&nbsp;&nbsp; <a href="oe-rell.html">oe-rell</a>&nbsp;&nbsp; <a href="oe-reth.html">oe-reth</a>&nbsp;&nbsp; <a href="oe-retl.html">oe-retl</a>&nbsp;&nbsp; <a href="oe-ship.html">oe-ship</a>&nbsp;&nbsp; <a href="optconfg.html">optconfg</a>&nbsp;&nbsp; <a href="paneldetail.html">panelDetail</a>&nbsp;&nbsp; <a href="parmfile.html">parmfile</a>&nbsp;&nbsp; <a href="pc-misc.html">pc-misc</a>&nbsp;&nbsp; <a href="pc-prdd.html">pc-prdd</a>&nbsp;&nbsp; <a href="pc-prdd-wip.html">pc-prdd-wip</a>&nbsp;&nbsp; <a href="pc-prdh.html">pc-prdh</a>&nbsp;&nbsp; <a href="pdd.html">pdd</a>&nbsp;&nbsp; <a href="pdh.html">pdh</a>&nbsp;&nbsp; <a href="period.html">period</a>&nbsp;&nbsp; <a href="perm.html">perm</a>&nbsp;&nbsp; <a href="permg.html">permg</a>&nbsp;&nbsp; <a href="permx.html">permx</a>&nbsp;&nbsp; <a href="phone.html">phone</a>&nbsp;&nbsp; <a href="po-all.html">po-all</a>&nbsp;&nbsp; <a href="po-ctrl.html">po-ctrl</a>&nbsp;&nbsp; <a href="po-ord.html">po-ord</a>&nbsp;&nbsp; <a href="po-ordl.html">po-ordl</a>&nbsp;&nbsp; <a href="po-rcpts.html">po-rcpts</a>&nbsp;&nbsp; <a href="prep.html">prep</a>&nbsp;&nbsp; <a href="prgrms.html">prgrms</a>&nbsp;&nbsp; <a href="printer.html">printer</a>&nbsp;&nbsp; <a href="probe.html">probe</a>&nbsp;&nbsp; <a href="probeit.html">probeit</a>&nbsp;&nbsp; <a href="pro-it-p.html">probeit-price</a>&nbsp;&nbsp; <a href="procat.html">procat</a>&nbsp;&nbsp; <a href="prod.html">prod</a>&nbsp;&nbsp; <a href="prodl.html">prodl</a>&nbsp;&nbsp; <a href="quote.html">quote</a>&nbsp;&nbsp; <a href="quotehd.html">quotehd</a>&nbsp;&nbsp; <a href="quoteit.html">quoteit</a>&nbsp;&nbsp; <a href="quoteitm.html">quoteitm</a>&nbsp;&nbsp; <a href="quoteqty.html">quoteqty</a>&nbsp;&nbsp; <a href="rate.html">rate</a>&nbsp;&nbsp; <a href="rcerr.html">RCErr</a>&nbsp;&nbsp; <a href="reftable.html">reftable</a>&nbsp;&nbsp; <a href="reftable1.html">reftable1</a>&nbsp;&nbsp; <a href="rejct-cd.html">rejct-cd</a>&nbsp;&nbsp; <a href="report.html">report</a>&nbsp;&nbsp; <a href="rm-bin.html">rm-bin</a>&nbsp;&nbsp; <a href="rm-ctrl.html">rm-ctrl</a>&nbsp;&nbsp; <a href="rm-rcpt.html">rm-rcpt</a>&nbsp;&nbsp; <a href="rm-rcpth.html">rm-rcpth</a>&nbsp;&nbsp; <a href="rm-rdtl.html">rm-rdtl</a>&nbsp;&nbsp; <a href="rm-rdtlh.html">rm-rdtlh</a>&nbsp;&nbsp; <a href="rm-recei.html">rm-receipts</a>&nbsp;&nbsp; <a href="routing.html">routing</a>&nbsp;&nbsp; <a href="rout-mtx.html">routing-mtx</a>&nbsp;&nbsp; <a href="salesgrpmember.html">salesgrpMember</a>&nbsp;&nbsp; <a href="sbjob.html">sbJob</a>&nbsp;&nbsp; <a href="sbnote.html">sbNote</a>&nbsp;&nbsp; <a href="sbstatus.html">sbStatus</a>&nbsp;&nbsp; <a href="scores.html">scores</a>&nbsp;&nbsp; <a href="scoretype.html">scoreType</a>&nbsp;&nbsp; <a href="shift.html">shift</a>&nbsp;&nbsp; <a href="shifts.html">shifts</a>&nbsp;&nbsp; <a href="shift_br.html">shift_break</a>&nbsp;&nbsp; <a href="shipto.html">shipto</a>&nbsp;&nbsp; <a href="sman.html">sman</a>&nbsp;&nbsp; <a href="sman-mtx.html">sman-mtx</a>&nbsp;&nbsp; <a href="smanbcat.html">smanbcat</a>&nbsp;&nbsp; <a href="smanbcst.html">smanbcst</a>&nbsp;&nbsp; <a href="smanbugt.html">smanbugt</a>&nbsp;&nbsp; <a href="smanmtrx.html">smanmtrx</a>&nbsp;&nbsp; <a href="soldto.html">soldto</a>&nbsp;&nbsp; <a href="ssrelbol.html">ssrelbol</a>&nbsp;&nbsp; <a href="stack-fl.html">stack-flute</a>&nbsp;&nbsp; <a href="stack-si.html">stack-size</a>&nbsp;&nbsp; <a href="statecod.html">statecod</a>&nbsp;&nbsp; <a href="stax.html">stax</a>&nbsp;&nbsp; <a href="stax-grp.html">stax-group</a>&nbsp;&nbsp; <a href="std-code.html">std-code</a>&nbsp;&nbsp; <a href="style.html">style</a>&nbsp;&nbsp; <a href="sys-ctrl.html">sys-ctrl</a>&nbsp;&nbsp; <a href="task.html">Task</a>&nbsp;&nbsp; <a href="taskemail.html">taskEmail</a>&nbsp;&nbsp; <a href="taskresult.html">taskResult</a>&nbsp;&nbsp; <a href="terms.html">terms</a>&nbsp;&nbsp; <a href="terr.html">terr</a>&nbsp;&nbsp; <a href="test-red.html">test-red</a>&nbsp;&nbsp; <a href="titlcode.html">titlcode</a>&nbsp;&nbsp; <a href="translation.html">translation</a>&nbsp;&nbsp; <a href="truck.html">truck</a>&nbsp;&nbsp; <a href="truck-ru.html">truck-run-print</a>&nbsp;&nbsp; <a href="uom.html">uom</a>&nbsp;&nbsp; <a href="user-pri.html">user-print</a>&nbsp;&nbsp; <a href="usercomp.html">usercomp</a>&nbsp;&nbsp; <a href="wiptag-mch.html">wiptag-mch</a>&nbsp;&nbsp; <a href="xcuecard.html">xCueCard</a>&nbsp;&nbsp; <a href="xusermenu.html">xUserMenu</a>&nbsp;&nbsp; <a href="zipcode.html">zipcode</a>&nbsp;&nbsp; </td>
+      <td><a href="systemconfigusage.html">systemConfigUsage</a>&nbsp;&nbsp; </td>
     </tr>
   </table>
 <hr style="clear:both">
 <hr>
 <table style="width:100%; margin-top:10px;">
-  <tr><td style="text-align:right;"><i><small>generated 28-4-2020 08:31</small></i></td></tr>
+  <tr><td style="text-align:right;"><i><small>generated 1-7-2020 20:23</small></i></td></tr>
 </table>
 </body>
 </html>

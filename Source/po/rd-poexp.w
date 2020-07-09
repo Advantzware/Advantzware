@@ -65,11 +65,11 @@ DEF VAR ldummy AS LOG NO-UNDO.
 DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
-ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID,Ship Name," +
+ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID(Vendor or Cust ShipId or Company),Ship Name," +
                             "Ship Address 1,Ship Address 2,Ship City,Ship State,Ship Zip," +
                             "Shipping Carrier,Total Freight,Freight Payment,FOB," +
                             "Tax Code,Tax,Taxable,Payment Terms,Total Cost," +
-                            "Job #,Item #,Item Name,Width,Length," +
+                            "Job #,Item Type,Item #,Item Name,Width,Length," +
                             "Sheet #,Blank #,Description 1,Description 2," +
                             "Vendor Item #,Order Qty,Order UOM," +
                             "Qty Received,Rec. UOM,Item Cost,UOM,Buyer," +
@@ -78,12 +78,13 @@ ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID,Ship Name," +
                             "Vendor Name,Vendor Address 1,Vendor Address 2,Vendor City,Vendor State,Vendor Zip," +
                             "Setup,Discount,GL Number,Overrun,Underrun," +
                             "Customer #,Order #,Customer # From Order,FG Item # From Job,Cust Part#,Adder," +
-                            "RM Item Code,FG Item Code,Style from Job,Buyer ID,User ID,Po Line"
+                            "RM Item Code,FG Item Code,Style from Job,Buyer ID,User ID,Po Line," +
+                            "ShipTo Customer,Drop Shipment Type".
        cFieldListToSelect = "po-ordl.po-no,po-ord.vend-no,po-ordl.due-date,po-ord.ship-id,po-ord.ship-name," +
                             "po-ord.ship-addr[1],po-ord.ship-addr[2],po-ord.ship-city,po-ord.ship-state,po-ord.ship-zip," +
                             "po-ord.carrier,po-ord.t-freight,po-ord.frt-pay,po-ord.fob-code," +
                             "po-ord.tax-gr,po-ord.tax,po-ordl.tax,po-ord.terms,po-ord.t-cost," +
-                            "po-ordl.job-no,po-ordl.i-no,po-ordl.i-name,po-ordl.s-wid,po-ordl.s-len," +
+                            "po-ordl.job-no,po-ordl.item-type,po-ordl.i-no,po-ordl.i-name,po-ordl.s-wid,po-ordl.s-len," +
                             "po-ordl.s-num,po-ordl.b-num,po-ordl.dscr[1],po-ordl.dscr[2]," +
                             "po-ordl.vend-i-no,po-ordl.ord-qty,po-ordl.pr-qty-uom," +
                             "po-ordl.t-rec-qty,po-ordl.cons-uom,po-ordl.cost,po-ordl.pr-uom,po-ord.buyer," +
@@ -92,8 +93,8 @@ ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID,Ship Name," +
                             "vend.name,vend.add1,vend.add2,vend.city,vend.state,vend.zip," +
                             "po-ordl.setup,po-ordl.disc,po-ordl.actnum,po-ordl.over-pct,po-ordl.under-pct," +
                             "po-ordl.cust-no,po-ordl.ord-no,po-ordl.dfuncCustfromOrder,po-ordl.dfuncFGFromJob,cust-part,adders," +
-                            "rm-item,fg-item,style-job,po-ord.buyer,po-ord.user-id,po-ordl.line"
-    .
+                            "rm-item,fg-item,style-job,po-ord.buyer,po-ord.user-id,po-ordl.line," +
+                            "shipto-cust,dropshipment"  .
 
 /*vend.name
        lv_vend-add1:SCREEN-VALUE  = vend.add1
@@ -103,20 +104,18 @@ ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID,Ship Name," +
        lv_vend-zip:SCREEN-VALUE   = vend.zip.*/
 {sys/inc/ttRptSel.i}
 
-    ASSIGN cTextListToDefault  = "PO #,Po Line,Vendor #,Due Date,Ship ID,Ship Name," +
+    ASSIGN cTextListToDefault  = "Vendor #,PO #,Po Line,Due Date,Ship ID(Vendor or Cust ShipId or Company),Ship Name," +
                             "Ship Address 1,Ship Address 2,Ship City,Ship State,Ship Zip," +
                             "Shipping Carrier,Total Freight,Freight Payment,FOB," +
                             "Tax Code,Tax,Taxable,Payment Terms,Total Cost," +
-                            "Job #,Item #,Item Name,Width,Length," +
+                            "Job #,Item Type,Item #,Item Name,Width,Length," +
                             "Sheet #,Blank #,Description 1,Description 2," +
                             "Vendor Item #,Order Qty,Order UOM," +
                             "Qty Received,Rec. UOM,Item Cost,UOM,Buyer," +
                             "Status,Item Status,Printed,Opened,Type,Contact," +
-                            "PO Date,Last Ship Date," +
-                            "Vendor Name,Vendor Address 1,Vendor Address 2,Vendor City,Vendor State,Vendor Zip," +
+                            "PO Date,Last Ship Date," +                             
                             "Setup,Discount,GL Number,Overrun,Underrun," +
-                            "Customer #,Order #,Customer # From Order,FG Item # From Job,Cust Part#,Adder," +
-                            "RM Item Code,FG Item Code".
+                            "Customer #,Order #,ShipTo Customer,Drop Shipment Type".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1373,12 +1372,23 @@ FOR EACH po-ordl WHERE po-ordl.company = cocode
 /* "po-ord.stat,po-ord.printed,po-ordl.opened"                                        */
     FOR EACH ttRptSelected:
 
-        IF lookup(ttRptSelected.FieldList,"cust-part,adders,rm-item,fg-item,style-job") EQ 0 THEN do:
+        IF lookup(ttRptSelected.FieldList,"cust-part,adders,rm-item,fg-item,style-job,shipto-cust,dropshipment") EQ 0 THEN do:
         v-excel-detail-lines = v-excel-detail-lines + 
             appendXLLine(getValue(BUFFER po-ordl,BUFFER po-ord,BUFFER vend,ttRptSelected.FieldList)).
         END.
         ELSE do:
-         CASE ttRptSelected.FieldList:                                                                                       
+         CASE ttRptSelected.FieldList:
+             WHEN "shipto-cust" THEN do:
+                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(po-ord.cust-no)).
+             END.
+             WHEN "dropshipment" THEN do:
+               IF po-ord.TYPE EQ "D" THEN do:
+                 IF po-ord.cust-no NE "" THEN
+                  v-excel-detail-lines = v-excel-detail-lines + appendXLLine("Customer").
+                 ELSE v-excel-detail-lines = v-excel-detail-lines + appendXLLine("Vendor").
+               END.
+               ELSE  v-excel-detail-lines = v-excel-detail-lines + appendXLLine("").
+             END.
              WHEN "cust-part" THEN do:
                  FIND FIRST itemfg
                  WHERE itemfg.company = po-ordl.company
@@ -1780,6 +1790,9 @@ FUNCTION getValue-po-ordl RETURNS CHARACTER
                 IF AVAIL lb-oe-ord THEN
                     lc-return = lb-oe-ord.cust-no.
             END.
+        END. 
+        WHEN "item-type"  THEN DO:
+            lc-return = IF ipb-buffer.item-type EQ YES THEN "RM" ELSE "FG".            
         END.
         OTHERWISE DO:
             IF INDEX(ipc-field,"[") > 0 THEN DO:

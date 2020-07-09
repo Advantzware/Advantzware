@@ -18,11 +18,22 @@ PROCEDURE pInitDynParamValue:
     DO TRANSACTION:
         FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
         DO idx = 1 TO NUM-ENTRIES(ipcParamList,"|"):
-            DO jdx = 1 TO EXTENT(dynParamValue.paramName):
-                IF dynParamValue.paramName[jdx] EQ "" THEN LEAVE.
-                IF dynParamValue.paramName[jdx] EQ ENTRY(idx,ipcParamList,"|") THEN
-                dynParamValue.paramValue[jdx] = ENTRY(idx,ipcParamValue,"|").
-            END. /* do jdx */
+            FIND FIRST dynValueParam EXCLUSIVE-LOCK
+                 WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
+                   AND dynValueParam.user-id      EQ dynParamValue.user-id
+                   AND dynValueParam.prgmName     EQ dynParamValue.prgmName
+                   AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
+                   AND dynValueParam.paramName    EQ ENTRY(idx,ipcParamList,"|")
+                 NO-ERROR.
+            IF AVAILABLE dynValueParam THEN
+            dynValueParam.paramValue = ENTRY(idx,ipcParamValue,"|").
+            RELEASE dynValueParam.
+/*            /* rstark - remove when depricated */                                  */
+/*            DO jdx = 1 TO EXTENT(dynParamValue.paramName):                         */
+/*                IF dynParamValue.paramName[jdx] EQ "" THEN LEAVE.                  */
+/*                IF dynParamValue.paramName[jdx] EQ ENTRY(idx,ipcParamList,"|") THEN*/
+/*                dynParamValue.paramValue[jdx] = ENTRY(idx,ipcParamValue,"|").      */
+/*            END. /* do jdx */                                                      */
         END. /* do idx */
         RELEASE dynParamValue.
     END. /* do trans */

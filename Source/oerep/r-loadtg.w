@@ -209,6 +209,9 @@ DEFINE VARIABLE i-bardir-int AS INTEGER NO-UNDO .
 DEFINE VARIABLE i-xprint-int AS INTEGER NO-UNDO .
 DEFINE VARIABLE hdOutputProcs AS HANDLE.
 
+DEFINE VARIABLE lFGTagValidation AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cFGTagValidation AS CHARACTER NO-UNDO.
+
 RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "FGSetAssembly",
                        INPUT "L",
@@ -7389,8 +7392,38 @@ PROCEDURE pGetCostFromPO PRIVATE :
     DEFINE VARIABLE lFound            AS LOGICAL.
     
     RUN GetCostForPOLine IN hdCostProcs (ipcCompany, ipiPONumber, ipiPOLine, ipcFGItemID, OUTPUT opdCostPerUOM, OUTPUT opcCostUOM, OUTPUT dCostFreight, OUTPUT lFound).
-    dCostPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0,1,1, opdCostPerUOM).
-    dCostFreightPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0,1,1, dCostFreight).
+    //dCostPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0,1,1, opdCostPerUOM).
+    dCostPerEA = DYNAMIC-FUNCTION('fConvertCostForItem':U IN hdCostProcs,
+        ipcCompany, 
+        ipcFGItemID, 
+        "FG", 
+        opdCostPerUOM, 
+        opcCostUOM, 
+        "EA", 
+        0, /*BasisWeight*/
+        0, /*Length override - leave as 0 if not in UI or on Order/PO*/
+        0, /*Width override - leave as 0 if not in UI or on Order/PO*/
+        0, /*Depth override - leave as 0 if not in UI or on Order/PO*/
+        0, /*Case Count override - leave as 0 if not in UI or on Order/PO*/
+        ipdQty, /*Lot Quantity - leave as 0 if not in UI or on Order/PO*/
+        "EA" /*Lot Quantity UOM - leave as "" if not in UI or on PO*/
+        ).
+    //dCostFreightPerEA = DYNAMIC-FUNCTION('fConvert' IN hdCostProcs, opcCostUOM, "EA",0,0,0,0,1,1, dCostFreight).
+    dCostFreightPerEA = DYNAMIC-FUNCTION('fConvertCostForItem':U IN hdCostProcs,
+        ipcCompany, 
+        ipcFGItemID, 
+        "FG", 
+        dCostFreight, 
+        opcCostUOM, 
+        "EA", 
+        0, /*BasisWeight*/
+        0, /*Length override - leave as 0 if not in UI or on Order/PO*/
+        0, /*Width override - leave as 0 if not in UI or on Order/PO*/
+        0, /*Depth override - leave as 0 if not in UI or on Order/PO*/
+        0, /*Case Count override - leave as 0 if not in UI or on Order/PO*/
+        ipdQty, /*Lot Quantity - leave as 0 if not in UI or on Order/PO*/
+        "EA" /*Lot Quantity UOM - leave as "" if not in UI or on PO*/
+        ).
     ASSIGN 
         opdCostTotal        = ipdQty * dCostPerEA
         opdCostTotalFreight = ipdQty * dCostFreightPerEA.
@@ -7413,14 +7446,52 @@ PROCEDURE post-all :
 DEF BUFFER bf-fg-rctd FOR fg-rctd.
 
 
-FOR EACH  tt-fgrctd-created:
+FOR EACH tt-fgrctd-created:
 
   FIND fg-rctd WHERE ROWID(fg-rctd) = tt-fgrctd-created.fg-rctd-rowid
   EXCLUSIVE-LOCK NO-ERROR.
 
   IF NOT AVAIL fg-rctd THEN
   NEXT.
-
+  
+  FIND FIRST itemfg NO-LOCK 
+       WHERE itemfg.company EQ cocode
+         AND itemfg.i-no    EQ fg-rctd.i-no
+       NO-ERROR.
+       
+  RUN sys/ref/nk1look.p(
+      INPUT cocode,
+      INPUT "FGTagValidation",
+      INPUT "L",
+      INPUT YES,
+      INPUT YES,
+      INPUT IF AVAILABLE itemfg THEN itemfg.cust-no ELSE "",
+      INPUT "",
+      OUTPUT cReturnValue,
+      OUTPUT lRecFound
+      ).
+      
+   lFGTagValidation = LOGICAL(cReturnValue).
+   
+   RUN sys/ref/nk1look.p(
+       INPUT cocode,
+       INPUT "FGTagValidation",
+       INPUT "C",
+       INPUT YES,
+       INPUT YES,
+       INPUT IF AVAILABLE itemfg THEN itemfg.cust-no ELSE "",
+       INPUT "",
+       OUTPUT cReturnValue,
+       OUTPUT lRecFound
+       ).
+       
+   cFGTagValidation = cReturnValue.
+   
+   IF lFGTagValidation AND fg-rctd.tag EQ "" THEN 
+       NEXT.
+        
+   IF cFGTagValidation EQ "ItemMatch" AND NOT fg-rctd.tag BEGINS fg-rctd.i-no THEN 
+       NEXT. 
 
   IF AVAIL fg-rctd THEN DO:
     IF SSPostFG-log AND

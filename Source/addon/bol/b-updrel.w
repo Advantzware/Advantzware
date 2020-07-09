@@ -848,11 +848,8 @@ DO:
                      AND oe-rell.i-no    EQ loadtag.i-no
                    USE-INDEX r-no) THEN DO:
      ll = NO.
-     IF ssbol-log OR ssbol-log = ? THEN  DO:
-       MESSAGE "This Order# " + TRIM(STRING(v-ord-no),">>>>>>>>") + " FG# " 
-                + TRIM(loadtag.i-no) +
-                " is not on release, do you want to ADD TO RELEASE? "
-               VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll. 
+     IF ssbol-log OR ssbol-log = ? THEN  DO:       
+        RUN displayMessageQuestionLOG ("37", OUTPUT ll).       
      END.
      ELSE DO:
         MESSAGE "Invalid Tag# for the Release#. Try again..." VIEW-AS ALERT-BOX ERROR.

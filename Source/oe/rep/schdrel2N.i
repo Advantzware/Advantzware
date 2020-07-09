@@ -329,7 +329,7 @@ form header
 
       if index("AB",v-type) gt 0 then next.
     
-      if index(v-types,v-type) gt 0 then do:
+      if index(v-types,v-type) gt 0 then do:    
         create tt-report.
         assign
          tt-report.term-id = ""
@@ -358,6 +358,7 @@ form header
                              string(oe-ord.ord-no,"9999999999")
          tt-report.key-05  = string(index(v-types,v-type),"99")
          tt-report.key-06  = v-type
+         tt-report.key-07  = "No"
          tt-report.rec-id  = recid(oe-rel).
       end.
     end.
@@ -395,7 +396,7 @@ form header
 
     lv-qty = lv-qty + oe-rell.qty.
   
-    IF LAST-OF(oe-rell.po-no) THEN DO:
+    IF LAST-OF(oe-rell.po-no) THEN DO:  
       create tt-report.
       assign
        tt-report.term-id = ""
@@ -425,7 +426,8 @@ form header
        tt-report.key-05  = string(index(v-types,v-type),"99")
        tt-report.key-06  = if oe-rell.b-ord-no eq 0 then "A" else "B"
        tt-report.qty     = lv-qty
-       tt-report.rec-id  = recid(oe-rell).
+       tt-report.rec-id  = recid(oe-rell)
+       tt-report.key-07  = IF oe-relh.printed THEN "Yes" ELSE "No" .
     END.
 
     /* new start */
@@ -438,6 +440,8 @@ form header
   RELEASE tt-report.
 
   for each tt-report where tt-report.term-id eq ""
+      AND ((tt-report.key-07 EQ "Yes" AND rd_printed EQ "Yes") OR
+          (tt-report.key-07 EQ "No" AND rd_printed EQ "No") OR  rd_printed EQ "All")
       break by tt-report.key-01
             by tt-report.key-02
             by tt-report.key-03
@@ -539,8 +543,8 @@ form header
        v-date    = oe-relh.rel-date 
        v-po-no   = oe-rell.po-no
        v-ship-id = oe-relh.ship-id
-       v-carrier = oe-relh.carrier.
-      
+       v-carrier = oe-relh.carrier
+       lPrinted  = oe-relh.printed.
     END.
     else
     if avail oe-rel then
@@ -549,7 +553,8 @@ form header
        v-date    = oe-rel.rel-date
        v-po-no   = oe-rel.po-no
        v-ship-id = oe-rel.ship-id
-       v-carrier = oe-rel.carrier.
+       v-carrier = oe-rel.carrier
+       lPrinted  = NO.
        
        cRelDueDate = IF AVAIL oe-rel THEN STRING(ENTRY(1, oe-rel.spare-char-4)) ELSE "".
 
@@ -603,7 +608,8 @@ form header
        w-ord.csrUser_id        = oe-ord.csrUser_id
        w-ord.entered-id        = oe-ord.entered-id 
        w-ord.ord-due-date      = IF oe-ord.due-date NE ? THEN string(oe-ord.due-date) ELSE ""  
-       w-ord.rel-due-date      = IF cRelDueDate NE ? THEN cRelDueDate ELSE "" .
+       w-ord.rel-due-date      = IF cRelDueDate NE ? THEN cRelDueDate ELSE "" 
+       w-ord.Printed           = lPrinted .
 
       {sys/inc/roundup.i ld-palls}
 

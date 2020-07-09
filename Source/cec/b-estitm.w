@@ -238,6 +238,10 @@ RUN methods/prgsecur.p
 	     OUTPUT lAccessClose, /* used in template/windows.i  */
 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
+DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.	     
+
+RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -695,6 +699,12 @@ DO:
        RUN est/dNewMiscEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
+   ELSE IF AVAIL est AND  est.estimateTypeID = "WOOD"  THEN do:
+       EMPTY TEMP-TABLE ttInputEst .
+       EMPTY TEMP-TABLE tt-eb-set.
+       RUN est/dAddSetEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN local-open-query.
+   END.
    ELSE
        RUN new-state IN phandle ('update-begin':U).
 
@@ -718,6 +728,9 @@ DO:
      DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
      DEF VAR look-recid AS RECID NO-UNDO.
 
+     DEFINE VARIABLE cReturnFields AS CHARACTER NO-UNDO.
+     DEFINE VARIABLE riRecVal      AS RECID     NO-UNDO.
+     
      lw-focus = FOCUS.
 
      CASE lw-focus:NAME :
@@ -749,14 +762,17 @@ DO:
       end.*/
       WHEN "part-no" THEN DO:
          RUN blank-cp (YES).
+         APPLY "ENTRY":U TO eb.part-no IN BROWSE {&browse-name}.
          RETURN NO-APPLY.
       END.
       WHEN "part-dscr1" THEN DO:
          RUN blank-cp (YES).
+         APPLY "ENTRY":U TO eb.part-dscr1 IN BROWSE {&browse-name}.
          RETURN NO-APPLY.
       END.
       WHEN "stock-no" THEN DO:
          RUN blank-cp (YES).
+         APPLY "ENTRY":U TO eb.stock-no IN BROWSE {&browse-name}.
          RETURN NO-APPLY.
       END.
       WHEN "style" THEN DO:
@@ -771,7 +787,8 @@ DO:
                 ef.board:SCREEN-VALUE IN BROWSE {&browse-name} = style.material[1].
                 RUN new-board.
               END.          
-           END.  
+           END. 
+           APPLY "ENTRY":U TO eb.style IN BROWSE {&browse-name}.
            RETURN NO-APPLY.
       END.
       WHEN "procat" THEN DO:
@@ -779,6 +796,7 @@ DO:
            RUN windows/l-fgcat.w (gcompany,ls-cur-val,OUTPUT char-val).
            IF char-val <> "" THEN
               lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+           APPLY "ENTRY":U TO eb.procat IN BROWSE {&browse-name}.   
            RETURN NO-APPLY.
 
        END.
@@ -787,6 +805,7 @@ DO:
            RUN windows/l-flute.w (gcompany,OUTPUT char-val).
            IF char-val <> "" THEN
               lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+           APPLY "ENTRY":U TO eb.flute IN BROWSE {&browse-name}.   
            RETURN NO-APPLY.
        END.
        WHEN "test" THEN DO:
@@ -794,6 +813,7 @@ DO:
            RUN windows/l-test.w (gcompany,gloc,ls-cur-val,OUTPUT char-val).
            IF char-val <> "" THEN
               lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
+           APPLY "ENTRY":U TO eb.test IN BROWSE {&browse-name}.   
            RETURN NO-APPLY.       
        END.
        WHEN "Board" THEN DO:
@@ -817,6 +837,7 @@ DO:
               IF AVAIL ITEM AND ITEM.i-no NE lw-focus:SCREEN-VALUE THEN DO:
                 ef.board:SCREEN-VALUE IN BROWSE {&browse-name} = item.i-no.
                 RUN new-board.
+                APPLY "ENTRY":U TO ef.board IN BROWSE {&browse-name}.
               END.
            END.
            RETURN NO-APPLY.   
@@ -824,7 +845,17 @@ DO:
        WHEN "cust-no" THEN DO:
            ls-cur-val = lw-focus:SCREEN-VALUE.
            /*RUN windows/l-custact.w (gcompany,ls-cur-val, OUTPUT char-val, OUTPUT look-recid).*/
-           RUN windows/l-cust2.w (INPUT g_company, ls-cur-val,"", OUTPUT char-val).
+    
+           RUN system/openlookup.p (
+               INPUT  "", 
+               INPUT  "", /* lookup field */
+               INPUT  127,   /* Subject ID */
+               INPUT  "",  /* User ID */
+               INPUT  0,   /* Param value ID */
+               OUTPUT cReturnFields, 
+               OUTPUT char-val, 
+               OUTPUT riRecVal
+               ).
            IF char-val NE "" AND ls-cur-val NE ENTRY(1,char-val) THEN DO:
               eb.cust-no:SCREEN-VALUE = ENTRY(1,char-val).
               APPLY "value-changed" TO eb.cust-no.
@@ -5175,63 +5206,44 @@ PROCEDURE pEstimateCleanUp PRIVATE:
         END.
     END.
     
-    IF cestyle-log AND
-       (adm-adding-record        OR
-        lv-hld-wid   NE eb.wid   OR
-        lv-hld-len   NE eb.len   OR
-        lv-hld-dep   NE eb.dep   OR
-        lv-hld-style NE eb.style) THEN DO:
-        IF NOT adm-new-record THEN
-            MESSAGE "Do you wish to reset box design?"
-                VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2 AS LOGICAL.
-        ELSE
-            ll-ans2 = YES.
-
-        IF ll-ans2 THEN 
-            lv-box-des = "B".
-        ELSE 
-            lv-box-des = "N".    
-    END.
-    ELSE DO:
-        FOR FIRST box-design-hdr NO-LOCK 
-            WHERE box-design-hdr.design-no EQ 0 
-              AND box-design-hdr.company   EQ eb.company 
-              AND box-design-hdr.est-no    EQ eb.est-no 
-              AND box-design-hdr.form-no   EQ eb.form-no 
-              AND box-design-hdr.blank-no  EQ eb.blank-no:
-            FOR EACH box-design-line FIELDS(wscore) OF box-design-hdr
-                NO-LOCK:
-                v-dec = DECIMAL(TRIM(box-design-line.wscore)) NO-ERROR.
-                IF NOT ERROR-STATUS:ERROR AND TRIM(box-design-line.wscore) NE "" THEN
-                    ASSIGN
-                        v-count            = v-count + 1
-                        v-w-array[v-count] = v-dec
-                        .
-            END.
-
-            RUN tokenize-proc(
-                INPUT box-design-hdr.lscore
-                ).
-
-            DO v-count = 1 TO 30:
+    FOR FIRST box-design-hdr NO-LOCK 
+        WHERE box-design-hdr.design-no EQ 0 
+          AND box-design-hdr.company   EQ eb.company 
+          AND box-design-hdr.est-no    EQ eb.est-no 
+          AND box-design-hdr.form-no   EQ eb.form-no 
+          AND box-design-hdr.blank-no  EQ eb.blank-no:
+        FOR EACH box-design-line FIELDS(wscore) OF box-design-hdr
+            NO-LOCK:
+            v-dec = DECIMAL(TRIM(box-design-line.wscore)) NO-ERROR.
+            IF NOT ERROR-STATUS:ERROR AND TRIM(box-design-line.wscore) NE "" THEN
                 ASSIGN
-                    v-dec  = {sys/inc/k16v.i eb.k-len-array2[v-count]}
-                    v-dec2 = {sys/inc/k16v.i eb.k-wid-array2[v-count]}
+                    v-count            = v-count + 1
+                    v-w-array[v-count] = v-dec
                     .
-               
-                IF v-l-array[v-count] NE v-dec OR v-w-array[v-count] NE v-dec2 THEN DO:
-                    MESSAGE "Do you wish to reset box design?"
-                        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans2.
-                    IF ll-ans2 THEN
-                        lv-box-des = "B".
-                    ELSE
-                        lv-box-des = "N".
-                    LEAVE.
-                END.
+        END.
+
+        RUN tokenize-proc(
+            INPUT box-design-hdr.lscore
+            ).
+
+        DO v-count = 1 TO 30:
+            ASSIGN
+                v-dec  = {sys/inc/k16v.i eb.k-len-array2[v-count]}
+                v-dec2 = {sys/inc/k16v.i eb.k-wid-array2[v-count]}
+                .
+           
+            IF v-l-array[v-count] NE v-dec OR v-w-array[v-count] NE v-dec2 THEN DO:
+                MESSAGE "Do you wish to reset box design?"
+                    VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans2 AS LOGICAL.
+                IF ll-ans2 THEN
+                    lv-box-des = "B".
+                ELSE
+                    lv-box-des = "N".
+                LEAVE.
             END.
         END.
     END.
-    
+
     DO li = 1 TO 2:
         RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"box-calc-target",OUTPUT char-hdl).
         IF VALID-HANDLE(WIDGET-HANDLE(ENTRY(1,char-hdl))) THEN DO:
@@ -5318,7 +5330,7 @@ PROCEDURE pEstimateCleanUp PRIVATE:
 
     RUN valid-eb-reckey.
 
-    IF adm-new-record AND ll-add-set-part = YES OR ll-add-set-part-2 = YES THEN DO:
+    IF ll-new-record AND ll-add-set-part = YES OR ll-add-set-part-2 = YES THEN DO:
         IF est.est-type NE 8 THEN
             FOR EACH bf-eb 
                 WHERE bf-eb.company EQ eb.company
@@ -5336,7 +5348,7 @@ PROCEDURE pEstimateCleanUp PRIVATE:
 
     END.
 
-    IF adm-new-record AND eb.pur-man THEN DO:
+    IF ll-new-record AND eb.pur-man THEN DO:
         RUN create-e-itemfg-vend.
         RUN CreateVendItemCost(
             INPUT cocode,    
@@ -5347,7 +5359,7 @@ PROCEDURE pEstimateCleanUp PRIVATE:
             ).
     END.        
 
-    ELSE IF NOT adm-new-record AND eb.pur-man THEN DO:      
+    ELSE IF NOT ll-new-record AND eb.pur-man THEN DO:      
         IF cOldFGItem NE eb.stock-no THEN DO:
       
             RUN update-e-itemfg-vend.
@@ -5372,7 +5384,7 @@ PROCEDURE pEstimateCleanUp PRIVATE:
     END.
 
     /* If unitized and form 1, blank 1, copy to form zero record. */
-    IF adm-new-record AND eb.pur-man = NO AND eb.form-no = 1 AND eb.blank-no = 1 THEN  /*Ticket - 34158 */
+    IF ll-new-record AND eb.pur-man = NO AND eb.form-no = 1 AND eb.blank-no = 1 THEN  /*Ticket - 34158 */
         RUN copy-2-form-zero.     
 
     IF is2PieceBox THEN DO:
@@ -5403,43 +5415,34 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDefaultShipID B-table-Win
 PROCEDURE pGetDefaultShipID:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcCustNo AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER opcShipID AS CHAR NO-UNDO.
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER  ipcCustNo AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcShipID AS CHARACTER NO-UNDO.
     
-    FIND cust NO-LOCK WHERE 
-        cust.company EQ gcompany AND 
-        cust.cust-no EQ ipcCustNo
-        NO-ERROR.
-
-    IF AVAIL cust THEN 
-    DO:
-        FIND FIRST shipto NO-LOCK WHERE 
-            shipto.company EQ gcompany AND 
-            shipto.cust-no EQ cust.cust-no AND 
-            shipto.isDefault EQ TRUE  
-            NO-ERROR.
-        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
-                shipto.company EQ gcompany AND 
-                shipto.cust-no EQ cust.cust-no AND 
-                shipto.ship-id EQ cust.cust-no
-                NO-ERROR.
-        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
-                shipto.company EQ gcompany AND 
-                shipto.cust-no EQ cust.cust-no
-                NO-ERROR.
-        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
-                shipto.company EQ gcompany AND 
-                shipto.cust-no EQ cust.cust-no AND 
-                shipto.ship-no EQ 1
-                NO-ERROR.
-        IF AVAIL shipto THEN ASSIGN 
-                opcShipID = shipto.ship-id.
-    END.
-
+    DEFINE VARIABLE riShipto AS ROWID NO-UNDO.
+    
+    FIND FIRST cust NO-LOCK 
+         WHERE cust.company EQ cocode
+           AND cust.cust-no EQ ipcCustNo
+         NO-ERROR.
+         
+    IF AVAILABLE cust THEN DO:           
+        RUN Customer_GetDefaultShipTo IN hdCustomerProcs(
+            INPUT  cocode,
+            INPUT  cust.cust-no,
+            OUTPUT riShipTo
+            ).
+        FIND FIRST shipto NO-LOCK 
+             WHERE ROWID(shipto) EQ riShipTo
+             NO-ERROR.
+             
+        IF AVAILABLE shipto THEN 
+            opcShipID = shipto.ship-id.
+    END.  
+         
 END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */
@@ -5534,6 +5537,12 @@ PROCEDURE local-add-record :
       EMPTY TEMP-TABLE ttInputEst .
       RUN est/dNewMiscEst.w("",riRowidEbNew) .
       RUN pCreateMiscEstimate.
+  END.
+  ELSE IF ls-add-what = "NewSetEst" THEN DO:
+      EMPTY TEMP-TABLE ttInputEst .
+      EMPTY TEMP-TABLE tt-eb-set.
+      RUN est/dAddSetEst.w("",riRowidEbNew) .
+      RUN pCreateSetEstimate.
   END.
   ELSE DO:
     {est/d-cadcamrun.i}
@@ -7064,6 +7073,59 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateSetEstimate B-table-Win 
+PROCEDURE pCreateSetEstimate :
+/*------------------------------------------------------------------------------
+ Purpose: Processes ttInputEst temp-table, adding forms to the estimate in context
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.   
+  DEFINE VARIABLE riEb AS ROWID NO-UNDO . 
+  
+  DEFINE BUFFER bff-eb FOR eb.
+  DEF BUFFER bf-eb FOR eb.
+  
+  ASSIGN
+    ll-new-record = YES
+    iCount = 0
+    .
+
+  FOR EACH ttInputEst:
+      iCount = iCount + 1.
+  END.
+  
+  RUN est/BuildEstimate.p ("C", OUTPUT riEb).
+
+  FIND FIRST bff-eb NO-LOCK
+      WHERE bff-eb.company EQ cocode
+        AND ROWID(bff-eb) EQ riEb NO-ERROR .
+        
+  IF AVAIL bff-eb THEN
+  FOR EACH tt-eb-set BREAK BY tt-eb-set.company:
+      IF FIRST(tt-eb-set.company) THEN DO:  
+         CREATE bf-eb.
+         BUFFER-COPY tt-eb-set TO bf-eb
+         ASSIGN
+            bf-eb.est-no  = bff-eb.est-no 
+            bf-eb.form-no = 0
+            bf-eb.company = cocode
+            bf-eb.cust-no = bff-eb.cust-no.
+       END.
+  END.    
+  
+  IF iCount > 0 THEN DO:
+     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+     RUN new_record IN WIDGET-HANDLE(char-hdl)  (riEb).
+  END. 
+  
+  
+  EMPTY TEMP-TABLE tt-eb-set.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE redisplay-blanks B-table-Win 
 PROCEDURE redisplay-blanks :
@@ -7466,7 +7528,7 @@ PROCEDURE set-auto-add-item :
   IF NOT AVAIL xeb AND avail(eb) THEN
     FIND xeb WHERE ROWID(xeb) = ROWID(eb) NO-LOCK NO-ERROR.
 
-  IF NOT AVAIL xest THEN
+  IF NOT AVAIL xest or v-est-fg1 EQ "Hold" THEN
       RETURN.
   
   IF v-est-fg1 EQ "Manual" THEN DO:
@@ -8113,8 +8175,16 @@ PROCEDURE update-set :
              bf-eb-header.form-no EQ 0 AND
              bf-eb-header.blank-no EQ 0
              NO-LOCK NO-ERROR.
-
-     IF NOT v-assem-partition OR (NOT AVAIL bf-eb-header) THEN DO:
+             
+     IF est.estimateTypeID eq "WOOD" then DO:
+     
+       EMPTY TEMP-TABLE ttInputEst .
+       EMPTY TEMP-TABLE tt-eb-set.
+       RUN est/dAddSetEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN local-open-query. 
+     
+     END.
+     ELSE IF NOT v-assem-partition OR (NOT AVAIL bf-eb-header) THEN DO:
 
          FIND xest WHERE RECID(xest) = RECID(est) NO-LOCK.
          FIND xef WHERE RECID(xef) = RECID(ef) NO-LOCK.
@@ -8211,12 +8281,12 @@ PROCEDURE valid-eb-reckey :
                           RECID(bf-eb) <> RECID(eb) NO-LOCK NO-ERROR.
    IF AVAIL bf-eb OR eb.rec_key = "" THEN DO:
       ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey").
-      FIND CURRENT eb.
+      FIND CURRENT eb EXCLUSIVE-LOCK.
       eb.rec_key = ls-key.
       FIND CURRENT eb NO-LOCK.               
-      CREATE rec_key.
-      ASSIGN rec_key.rec_key = eb.rec_key
-             rec_key.table_name = "eb".
+/*      CREATE rec_key.                    */
+/*      ASSIGN rec_key.rec_key = eb.rec_key*/
+/*             rec_key.table_name = "eb".  */
 
    END.
 
@@ -8563,6 +8633,12 @@ PROCEDURE pUpdateRecord :
    IF AVAIL est AND  est.estimateTypeID = "MISC"  THEN do:
        EMPTY TEMP-TABLE ttInputEst .
        RUN est/dNewMiscEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN local-open-query.
+   END.
+   ELSE IF AVAIL est AND  est.estimateTypeID = "WOOD"  THEN do:
+       EMPTY TEMP-TABLE ttInputEst .
+       EMPTY TEMP-TABLE tt-eb-set.
+       RUN est/dAddSetEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
    ELSE

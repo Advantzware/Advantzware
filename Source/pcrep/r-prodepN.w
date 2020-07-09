@@ -47,7 +47,8 @@ DEFINE TEMP-TABLE tt-srt NO-UNDO LIKE mch-srt
                               FIELD qty-Ton AS DECIMAL FORMAT ">>,>>9.99"
                               FIELD qty-msf AS DECIMAL FORM ">>,>>9.99"
                               FIELD start-time AS INTEGER 
-                              FIELD start-date AS DATE 
+                              FIELD start-date AS DATE
+                              FIELD i-no       AS CHARACTER FORMAT "X(15)" 
 
     INDEX dept-idx dept m-code job-no job-no2 frm blank-no
     INDEX job-idx job-no job-no2.
@@ -69,15 +70,14 @@ DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 ASSIGN cTextListToSelect = "M Code,Job#,##,Shift,MR Std,MR Act,MR Eff%," + 
                                                "Run Std,Run Act,Run Eff%," +
                                                "MR+Run Std,MR+Run Act,MR+Run Eff%," +
-                                               "DT Act,DT Eff%,Act Qty,Act Tons,Act MSF,EXPECTED QTY"
+                                               "DT Act,DT Eff%,Act Qty,Act Tons,Act MSF,EXPECTED QTY,FG Item #"
        cFieldListToSelect = "mch-cod,job,job2,shift,mr-stnd,mr-act,mr-eff," +
                                         "run-hrs-std,run-hrs-act,run-hrs-eff," +
                                         "mr-rn-hrs-std,mr-rn-hrs-act,mr-rn-hrs-eff," +
-                                        "dt-hrs-act,dt-hrs-eff,act-qty,act-ton,act-msf,exp-qty"
-       cFieldLength = "6,6,2,5,8,8,8," + "8,8,8," + "10,10,11," + "7,7,10,10,10,12" 
-       cFieldType = "c,c,c,c,i,i,i," + "i,i,i," + "i,i,i," + "i,i,i,i,i,i"
+                                        "dt-hrs-act,dt-hrs-eff,act-qty,act-ton,act-msf,exp-qty,i-no"
+       cFieldLength = "6,6,2,5,8,8,8," + "8,8,8," + "10,10,11," + "7,7,10,10,10,12,15" 
+       cFieldType = "c,c,c,c,i,i,i," + "i,i,i," + "i,i,i," + "i,i,i,i,i,i,c"
     .
-
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  =  "M Code,Job#,##,Shift,MR Std,MR Act,MR Eff%," + 
                                                "Run Std,Run Act,Run Eff%," +
@@ -1452,7 +1452,7 @@ DEFINE VARIABLE cslist AS cha NO-UNDO.
           IF LOOKUP(ttRptSelected.TextList, "Job#,##,Shift,MR Std,MR Act,MR Eff%," + 
                                            "Run Std,Run Act,Run Eff%," +
                                            "MR+Run Std,MR+Run Act,MR+Run Eff%," +
-                                           "DT Act,DT Eff%,Act Qty,Act Tons,Act MSF,EXPECTED QTY") <> 0    THEN
+                                           "DT Act,DT Eff%,Act Qty,Act Tons,Act MSF,EXPECTED QTY,FG Item #") <> 0    THEN
          ASSIGN
          str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE

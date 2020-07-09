@@ -9,14 +9,13 @@
             WHERE job.company EQ company_code
               AND job.stat    GT lv-stat[1]
               AND job.stat    LT lv-stat[2]  
-              AND CAN-FIND(FIRST job-hdr
-                           WHERE job-hdr.company EQ job.company 
-                             AND job-hdr.job     EQ job.job
-                             AND job-hdr.job-no  EQ job.job-no
-                             AND job-hdr.job-no2 EQ job.job-no2)
             BREAK {&sortBy} BY job.job-no BY job.job-no2
             :         
-            IF FIRST-OF(job.job-no2) THEN DO:
+            IF FIRST-OF(job.job-no2) AND CAN-FIND(FIRST job-hdr
+                                                  WHERE job-hdr.company EQ job.company 
+                                                    AND job-hdr.job     EQ job.job
+                                                    AND job-hdr.job-no  EQ job.job-no
+                                                    AND job-hdr.job-no2 EQ job.job-no2) THEN DO:
                 FOR EACH job-mch NO-LOCK
                     WHERE job-mch.company EQ job.company
                       AND job-mch.job EQ job.job

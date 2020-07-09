@@ -544,6 +544,7 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'City' THEN shipto.ship-city ELSE ~
   IF sortColumn EQ 'State' THEN shipto.ship-state ELSE ~
   IF sortColumn EQ 'Zip' THEN shipto.ship-zip ELSE ~
+  IF sortColumn EQ 'Site ID' THEN shipto.siteID ELSE ~
   STRING(shipto.ship-no,">>>>9") ~{&SORTED}
 
 &ELSEIF '{&yellowColumnsName}' EQ 'vend' &THEN

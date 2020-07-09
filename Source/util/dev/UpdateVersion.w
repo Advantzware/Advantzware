@@ -19,19 +19,13 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{methods/defines/hndldefs.i}
-/*{methods/prgsecur.i}*/
-
-{custom/gcompany.i}
-{custom/getcmpny.i}
-{custom/gloc.i}
-{custom/getloc.i}
-
-{sys/inc/var.i new shared}
-
-assign
- cocode = gcompany
- locode = gloc.
+DEFINE VARIABLE cConnectString AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE vhWebService AS HANDLE NO-UNDO.
+DEFINE VARIABLE vhSalesSoap AS HANDLE NO-UNDO.
+DEFINE VARIABLE parameters1 AS LONGCHAR NO-UNDO.
+DEFINE VARIABLE fr-title  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iCurrentVersion AS INTEGER NO-UNDO.
+DEFINE VARIABLE iNewVersion AS INTEGER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -48,9 +42,9 @@ assign
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 RECT-18 RECT-19 pre-version ~
-curr-version btn-process btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS pre-version curr-version 
+&Scoped-Define ENABLED-OBJECTS eInstructions currentVersion newVersion ~
+btn-process btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS eInstructions currentVersion newVersion 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -71,49 +65,39 @@ DEFINE BUTTON btn-cancel
      SIZE 18 BY 1.14.
 
 DEFINE BUTTON btn-process 
-     LABEL "&Save" 
-     SIZE 18 BY 1.14.
+     LABEL "Update" 
+     SIZE 18 BY 1.14
+     FONT 6.
 
-DEFINE VARIABLE curr-version AS CHARACTER FORMAT "X(10)"  
-     LABEL "Current Version" 
-     VIEW-AS FILL-IN 
-     SIZE 38.2 BY 1.
+DEFINE VARIABLE eInstructions AS CHARACTER 
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 91 BY 4.52 NO-UNDO.
 
-DEFINE VARIABLE pre-version AS CHARACTER FORMAT "X(10)"  
-     LABEL "Previous Version" 
+DEFINE VARIABLE currentVersion AS CHARACTER FORMAT "X(10)" 
+     LABEL "Current Release Version" 
      VIEW-AS FILL-IN 
      SIZE 37 BY 1.
 
-DEFINE RECTANGLE RECT-17
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 96 BY 9.05.
-
-DEFINE RECTANGLE RECT-18
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 3.57.
-
-DEFINE RECTANGLE RECT-19
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 3.1.
+DEFINE VARIABLE newVersion AS CHARACTER FORMAT "X(10)" 
+     LABEL "New Release Version" 
+     VIEW-AS FILL-IN 
+     SIZE 37.2 BY 1.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     pre-version AT ROW 3.14 COL 30.8 COLON-ALIGNED HELP
-          "Previous Version"
-     curr-version AT ROW 7.19 COL 30.8 COLON-ALIGNED HELP
-          "Current Version"
+     eInstructions AT ROW 1.48 COL 4 NO-LABEL NO-TAB-STOP 
+     currentVersion AT ROW 6.71 COL 36 COLON-ALIGNED HELP
+          "Current Version" NO-TAB-STOP 
+     newVersion AT ROW 8.38 COL 36 COLON-ALIGNED HELP
+          "New Version"
      btn-process AT ROW 11 COL 26
      btn-cancel AT ROW 11 COL 57
-     RECT-17 AT ROW 1 COL 1
-     RECT-18 AT ROW 2.19 COL 2
-     RECT-19 AT ROW 6.48 COL 2
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 96.8 BY 12.14
-         FONT 6.
+         SIZE 96.8 BY 12.14.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -139,14 +123,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 160
          VIRTUAL-HEIGHT     = 26.62
          VIRTUAL-WIDTH      = 160
-         RESIZE             = yes
+         RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
          KEEP-FRAME-Z-ORDER = yes
          THREE-D            = yes
-         FONT               = 6
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
@@ -177,11 +160,15 @@ ASSIGN
                 "ribbon-button".
 
 ASSIGN 
-       curr-version:PRIVATE-DATA IN FRAME FRAME-A     = 
+       currentVersion:READ-ONLY IN FRAME FRAME-A        = TRUE
+       currentVersion:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
-       pre-version:PRIVATE-DATA IN FRAME FRAME-A     = 
+       eInstructions:READ-ONLY IN FRAME FRAME-A        = TRUE.
+
+ASSIGN 
+       newVersion:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -198,7 +185,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Copy Customer */
+ON END-ERROR OF C-Win /* Update Version */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -211,7 +198,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Copy Customer */
+ON WINDOW-CLOSE OF C-Win /* Update Version */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -226,7 +213,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-  APPLY "close" TO THIS-PROCEDURE.
+    APPLY "close" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -235,87 +222,38 @@ END.
 
 &Scoped-define SELF-NAME btn-process
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
-ON CHOOSE OF btn-process IN FRAME FRAME-A /* Save */
+ON CHOOSE OF btn-process IN FRAME FRAME-A /* Update */
 DO:
-  DEF VAR v-process AS LOG INIT NO NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
+    DEF VAR lProcess AS LOG INITIAL TRUE. 
     
-    ASSIGN {&DISPLAYED-OBJECTS}.
-  END.
-
-  MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) 
-          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE v-process.
-
-  IF v-process THEN RUN run-process.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME curr-version
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL curr-version C-Win
-ON HELP OF curr-version IN FRAME FRAME-A /* Current Version */
-DO:
-  
-  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL curr-version C-Win
-ON LEAVE OF curr-version IN FRAME FRAME-A /* Current Version */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-   
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL curr-version C-Win
-ON VALUE-CHANGED OF curr-version IN FRAME FRAME-A /* Current Version */
-DO:
- 
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME pre-version
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL pre-version C-Win
-ON HELP OF pre-version IN FRAME FRAME-A /* Previous Version */
-DO:
-  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL pre-version C-Win
-ON LEAVE OF pre-version IN FRAME FRAME-A /* Previous Version */
-DO:
-  IF LASTKEY NE -1 THEN DO:
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN {&DISPLAYED-OBJECTS}.
+    END.
     
-  END.
-END.
+    IF newVersion:SCREEN-VALUE = "" THEN DO:
+        MESSAGE 
+            "You must enter a value for New Version."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN NO-APPLY.
+    END.
+    
+    IF newVersion:SCREEN-VALUE LT currentVersion:SCREEN-VALUE THEN DO:
+        ASSIGN 
+            lProcess = FALSE.
+        MESSAGE 
+            "You are trying to set the version LESS THAN the existing version.  Are you sure?"
+            VIEW-AS ALERT-BOX WARNING BUTTONS YES-NO UPDATE lProcess.
+    END.
+    ELSE DO:
+        MESSAGE 
+            "About to update the current released ASI version from" SKIP 
+            currentVersion:SCREEN-VALUE + " to " + newVersion:SCREEN-VALUE SKIP 
+            "Are you sure?"  
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE lProcess.
+    END.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL pre-version C-Win
-ON VALUE-CHANGED OF pre-version IN FRAME FRAME-A /* Previous Version */
-DO:
-  
+    IF lProcess THEN RUN pUpdateVersion.
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -347,42 +285,53 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-   DEF VAR vconn AS CHAR  NO-UNDO.
-    DEFINE VARIABLE vhWebService AS HANDLE NO-UNDO.
-    DEFINE VARIABLE vhSalesSoap AS HANDLE NO-UNDO.
-    DEFINE VARIABLE parameters1 AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE fr-title  AS CHARACTER NO-UNDO.
-   
-  RUN enable_UI.
+    RUN enable_UI.
 
-  {methods/nowait.i}
+    ASSIGN 
+        eInstructions:SCREEN-VALUE = 
+            "Use this function to update the currently published version of the 'ASI Latest Release'." + CHR(10) + 
+            "This value is used when a customer is attempting to upgrade their system from any " +
+            "existing release to the latest published version.".
+            
+    FIND FIRST sys-ctrl NO-LOCK WHERE
+        sys-ctrl.company EQ "001" AND  
+        sys-ctrl.name EQ "AsiHelpService"
+        NO-ERROR.
+    IF NOT AVAIL sys-ctrl THEN DO:
+        MESSAGE 
+            "Unable to locate the 'AsiHelpService' NK1." SKIP 
+            "Please correct and try again."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+    ELSE ASSIGN 
+        cConnectString = sys-ctrl.char-fld.
 
-  find first sys-ctrl NO-LOCK
-     WHERE sys-ctrl.name    eq "AsiHelpService"
-       AND sys-ctrl.company EQ cocode NO-ERROR.
-  IF AVAIL sys-ctrl THEN
-      ASSIGN vconn = sys-ctrl.char-fld .
-  ELSE
-      vconn = "".
+    CREATE SERVER vhWebService.
+    vhWebService:CONNECT(cConnectString) NO-ERROR.
+    
+    IF NOT vhWebService:CONNECTED() THEN DO:
+        MESSAGE 
+            "Unable to connect to the Help Service with string " SKIP 
+            cConnectString SKIP 
+            "Please correct and try again."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
 
-      CREATE SERVER vhWebService.
-      vhWebService:CONNECT(vconn) NO-ERROR.
-IF vhWebService:CONNECTED() THEN
-DO:
-  RUN Service1Soap SET vhSalesSoap ON vhWebService .
-  RUN HelpVersion IN vhSalesSoap( OUTPUT parameters1).
+    RUN Service1Soap SET vhSalesSoap ON vhWebService .
+    RUN HelpVersion IN vhSalesSoap( OUTPUT parameters1).
 
-  DO WITH FRAME {&frame-name}:
-    ASSIGN pre-version:SCREEN-VALUE = parameters1
-           pre-version = parameters1 .
-          pre-version:SENSITIVE = NO .
-    APPLY "entry" TO curr-version.
-   
-  END.
-END.
+    DO WITH FRAME {&frame-name}:
+        ASSIGN 
+            currentVersion:SCREEN-VALUE = parameters1
+            currentVersion = parameters1
+            currentVersion:SENSITIVE = NO .
+        APPLY "entry" TO newVersion.
+    END.
 
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
+    IF NOT THIS-PROCEDURE:PERSISTENT THEN
+        WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -421,10 +370,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY pre-version curr-version 
+  DISPLAY eInstructions currentVersion newVersion 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 RECT-18 RECT-19 pre-version curr-version btn-process 
-         btn-cancel 
+  ENABLE eInstructions currentVersion newVersion btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -433,39 +381,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
-PROCEDURE run-process :
-    DEF VAR vconn AS CHAR  NO-UNDO.
-    DEFINE VARIABLE vhWebService AS HANDLE NO-UNDO.
-    DEFINE VARIABLE vhSalesSoap AS HANDLE NO-UNDO.
-    DEFINE VARIABLE parameters1 AS LONGCHAR NO-UNDO.
-
-    find first sys-ctrl NO-LOCK
-           WHERE sys-ctrl.name    eq "AsiHelpService"
-             AND sys-ctrl.company EQ cocode NO-ERROR.
-      IF AVAIL sys-ctrl THEN
-         ASSIGN vconn = sys-ctrl.char-fld .
-      ELSE
-         vconn = "".
-
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateVersion C-Win 
+PROCEDURE pUpdateVersion :
 DO TRANSACTION WITH FRAME {&FRAME-NAME}:
-    CREATE SERVER vhWebService.
-      vhWebService:CONNECT(vconn) NO-ERROR.
+        RUN Service1Soap SET vhSalesSoap ON vhWebService .
+        RUN VersionUpdate  IN vhSalesSoap("",INPUT STRING(currentVersion:SCREEN-VALUE),INPUT STRING(newVersion:SCREEN-VALUE),  OUTPUT parameters1).
+        ASSIGN 
+            currentVersion:SCREEN-VALUE = newVersion:SCREEN-VALUE 
+            newVersion:SCREEN-VALUE = ""
+            currentVersion
+            newVersion.
+        MESSAGE
+            "Latest release updated to " + newVersion:SCREEN-VALUE
+            VIEW-AS ALERT-BOX.
+    END.
 
-
-      IF NOT vhWebService:CONNECTED() THEN
-          DO:
-          STOP.
-      END.
-
-      RUN Service1Soap SET vhSalesSoap ON vhWebService .
-      RUN VersionUpdate  IN vhSalesSoap("",INPUT STRING(pre-version:SCREEN-VALUE),INPUT STRING(curr-version:SCREEN-VALUE),  OUTPUT parameters1).
-      
-
-  MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
-END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

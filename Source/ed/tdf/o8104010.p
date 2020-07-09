@@ -38,7 +38,7 @@ ws_filetype = "EDI".
 
 ASSIGN
   header_segment_list =
-  "000,000,BIG,002,CUR,003,REF,004,PER,005,N1,006,N2,007,N3,008,N4,009,ITD,010,DTM,011,FOB,012,PID,017"
+  "000,000,BIG,002,CUR,003,REF,004,PER,005,N1,006,N2,007,N3,008,N4,009,ITD,010,DTM,011,FOB,012"
   detail_segment_list =
   "IT1,013,PID,014,IT3,015,CTP,016,MEA,017,MEA,019,PO4,020,REF,021,SDQ,022,SAC,023,SLN,024,TC2,025"
   trailer_segment_list =
@@ -604,8 +604,8 @@ VIEW STREAM s-out FRAME f-stats.
 HIDE STREAM s-out FRAME f-stats NO-PAUSE.
 PAGE STREAM s-out.
 
-IF ws_filetype EQ "EDI" THEN 
-  RUN ed/postProcessEDI.p (INPUT "810", ws_edi_path, ws_partner, ws_edi_path + ".edi").
+// IF ws_filetype EQ "EDI" THEN 
+// RUN ed/postProcessEDI.p (INPUT "810", ws_edi_path, ws_partner, ws_edi_path + ".edi").
   
 RETURN.
 {ed/tdf/writeseg.i}

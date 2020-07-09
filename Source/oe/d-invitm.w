@@ -689,7 +689,7 @@ DO:
   
   RUN Conv_CalcTotalPrice(g_company, 
                         inv-line.i-no:SCREEN-VALUE,
-                        DECIMAL(inv-line.qty:SCREEN-VALUE),
+                        DECIMAL(inv-line.inv-qty:SCREEN-VALUE),
                         DECIMAL(inv-line.price:SCREEN-VALUE),
                         inv-line.pr-uom:SCREEN-VALUE,
                         DECIMAL(TRIM(inv-line.disc:SCREEN-VALUE,"%")),
@@ -817,7 +817,7 @@ DO:
     
     RUN Conv_CalcTotalPrice(g_company, 
                         inv-line.i-no:SCREEN-VALUE,
-                        DECIMAL(inv-line.qty:SCREEN-VALUE),
+                        DECIMAL(inv-line.inv-qty:SCREEN-VALUE),
                         DECIMAL(inv-line.price:SCREEN-VALUE),
                         inv-line.pr-uom:SCREEN-VALUE,
                         DECIMAL(TRIM(inv-line.disc:SCREEN-VALUE,"%")),
@@ -898,7 +898,7 @@ DO:
   
   RUN Conv_CalcTotalPrice(g_company, 
                         inv-line.i-no:SCREEN-VALUE,
-                        DECIMAL(inv-line.qty:SCREEN-VALUE),
+                        DECIMAL(inv-line.inv-qty:SCREEN-VALUE),
                         DECIMAL(inv-line.price:SCREEN-VALUE),
                         inv-line.pr-uom:SCREEN-VALUE,
                         DECIMAL(TRIM(inv-line.disc:SCREEN-VALUE,"%")),
@@ -934,7 +934,7 @@ DO:
   
   RUN Conv_CalcTotalPrice(g_company, 
                         inv-line.i-no:SCREEN-VALUE,
-                        DECIMAL(inv-line.qty:SCREEN-VALUE),
+                        DECIMAL(inv-line.inv-qty:SCREEN-VALUE),
                         DECIMAL(inv-line.price:SCREEN-VALUE),
                         inv-line.pr-uom:SCREEN-VALUE,
                         DECIMAL(TRIM(inv-line.disc:SCREEN-VALUE,"%")),
@@ -957,7 +957,7 @@ DO:
   
   RUN Conv_CalcTotalPrice(g_company, 
                         inv-line.i-no:SCREEN-VALUE,
-                        DECIMAL(inv-line.qty:SCREEN-VALUE),
+                        DECIMAL(inv-line.inv-qty:SCREEN-VALUE),
                         DECIMAL(inv-line.price:SCREEN-VALUE),
                         inv-line.pr-uom:SCREEN-VALUE,
                         DECIMAL(TRIM(inv-line.disc:SCREEN-VALUE,"%")),
@@ -1103,7 +1103,7 @@ DO:
  
     RUN Conv_CalcTotalPrice(g_company, 
                         inv-line.i-no:SCREEN-VALUE,
-                        DECIMAL(inv-line.qty:SCREEN-VALUE),
+                        DECIMAL(inv-line.inv-qty:SCREEN-VALUE),
                         DECIMAL(inv-line.price:SCREEN-VALUE),
                         inv-line.pr-uom:SCREEN-VALUE,
                         DECIMAL(TRIM(inv-line.disc:SCREEN-VALUE,"%")),

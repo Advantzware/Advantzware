@@ -68,12 +68,12 @@ FOR EACH oe-rell
     /*task 01121106 disable trigger oe-bolh preventing this from happening*/
   IF oe-boll.rec_key EQ "" THEN
   DO:
-     CREATE rec_key.
-     ASSIGN
-        oe-boll.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey")
-        rec_key.rec_key = oe-boll.rec_key
-        rec_key.table_name = "oe-boll".
-     RELEASE rec_key.
+/*     CREATE rec_key.*/
+/*     ASSIGN         */
+        oe-boll.rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey").
+/*        rec_key.rec_key = oe-boll.rec_key*/
+/*        rec_key.table_name = "oe-boll".  */
+/*     RELEASE rec_key.                    */
   END.
 
 

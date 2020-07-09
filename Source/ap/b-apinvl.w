@@ -1993,6 +1993,7 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN auto-add-tt.
+  adm-adding-record = NO .
 
 END PROCEDURE.
 
@@ -2258,8 +2259,10 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   /* === validation ---- */
-  RUN valid-po-no NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  IF adm-adding-record THEN do:
+      RUN valid-po-no NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
   
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ap-invl.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 AND
@@ -2941,7 +2944,10 @@ PROCEDURE valid-po-no :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR lv-msg AS CHAR NO-UNDO.
+  DEF VAR lv-msg2 AS CHAR NO-UNDO.
+  DEFINE VARIABLE lMessage AS LOGICAL NO-UNDO.
   DEF BUFFER b-ap-invl FOR ap-invl.
+  
 
   DO WITH FRAME {&FRAME-NAME}:
     IF INT(ap-invl.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0              AND
@@ -2960,14 +2966,30 @@ PROCEDURE valid-po-no :
              ROWID(b-ap-invl) EQ ROWID(ap-invl)
              NO-LOCK NO-ERROR.
 
-        FOR EACH po-ordl NO-LOCK
-            WHERE po-ordl.company EQ po-ord.company
-              AND po-ordl.po-no   EQ po-ord.po-no:
-
-          RUN ap/valid-po2.p (BUFFER po-ordl, BUFFER b-ap-invl).
-          IF AVAIL po-ordl THEN LEAVE.
+        FOR EACH po-ordl NO-LOCK WHERE 
+            po-ordl.company EQ po-ord.company AND 
+            po-ordl.po-no   EQ po-ord.po-no:
+            IF po-ordl.t-rec-qty EQ 0 THEN DO:
+                MESSAGE  "Do you want to verify receipt .. "
+                          VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO                  
+                UPDATE lMessage.
+                IF lMessage THEN 
+                    RUN pReCalculateRecQty.
+            END.                 
+            RUN ap/valid-po2.p (BUFFER po-ordl, BUFFER b-ap-invl ,OUTPUT lv-msg2).
+            IF lv-msg2 NE "" THEN DO:
+                MESSAGE TRIM(lv-msg2) VIEW-AS ALERT-BOX WARNING buttons yes-no UPDATE lContinue AS LOG.
+                ASSIGN 
+                    lv-msg2 = "".
+                IF NOT lContinue THEN DO:
+                    APPLY "entry" TO ap-invl.po-no.
+                    RETURN ERROR.
+                END.
+            END.
+                
+            IF AVAIL po-ordl THEN LEAVE.
         END.
-        IF NOT AVAIL po-ordl THEN lv-msg = "No Receipts exist for this PO".
+        IF NOT AVAIL po-ordl AND lv-msg EQ "" THEN lv-msg = "No Receipts exist for this PO".
       END.
 
       IF lv-msg EQ ""                                                        AND
@@ -2994,7 +3016,7 @@ PROCEDURE valid-po-no :
     END.
 
     IF lv-msg NE "" THEN DO:
-      MESSAGE TRIM(lv-msg) + "..." VIEW-AS ALERT-BOX ERROR.
+      MESSAGE TRIM(lv-msg) VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO ap-invl.po-no.
       RETURN ERROR.
     END.
@@ -3382,6 +3404,108 @@ PROCEDURE valid-qty-uom :
 
   END.
   DELETE OBJECT hdValidator.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReCalculateRecQty B-table-Win 
+PROCEDURE pReCalculateRecQty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lCheckRec AS LOGICAL NO-UNDO.
+  
+  DEFINE VARIABLE v-wid AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE v-len AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE v-dep AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE v-bwt AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE v-qty AS DECIMAL NO-UNDO.      
+  DEFINE VARIABLE lv-uom LIKE po-ordl.pr-qty-uom NO-UNDO.  
+  DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+  
+  IF po-ordl.item-type THEN DO:   
+    ASSIGN
+     v-bwt = 0
+     v-len = po-ordl.s-len
+     v-wid = po-ordl.s-wid
+     v-dep = 0.
+
+    FIND FIRST item
+        WHERE item.company EQ cocode
+          AND item.i-no    EQ po-ordl.i-no
+        NO-LOCK NO-ERROR.
+
+    IF AVAIL item THEN DO:
+      v-dep = item.s-dep.          
+      {po/pol-dims.i}
+    END.
+      
+    FOR EACH rm-rcpth
+        WHERE rm-rcpth.company   EQ cocode
+          AND rm-rcpth.i-no      EQ po-ordl.i-no
+          AND rm-rcpth.po-no     EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
+          AND rm-rcpth.job-no    EQ po-ordl.job-no
+          AND rm-rcpth.job-no2   EQ po-ordl.job-no2
+          AND rm-rcpth.rita-code EQ "R"
+        USE-INDEX item-po NO-LOCK,  
+        EACH rm-rdtlh
+        WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no
+          AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code
+          AND (rm-rdtlh.s-num    EQ po-ordl.s-num OR po-ordl.s-num EQ 0)          
+        NO-LOCK:  
+              
+        lv-uom = po-ordl.pr-qty-uom.
+
+        IF lv-uom EQ "ROLL" THEN
+          ASSIGN
+            v-len  = 12
+            lv-uom = "LF".
+
+        IF po-ordl.item-type AND appaper-chr NE "PO UOM" AND
+            CAN-FIND(FIRST item
+                     WHERE item.company EQ cocode
+                       AND item.i-no    EQ po-ordl.i-no
+                       AND item.mat-type EQ "P")          THEN
+        lv-uom = appaper-chr.
+                  
+        ASSIGN         
+          v-qty = rm-rdtlh.qty.
+                 
+        IF rm-rcpth.pur-uom NE lv-uom THEN
+        RUN sys/ref/convquom.p (rm-rcpth.pur-uom, lv-uom,
+                                v-bwt, v-len, v-wid, v-dep,
+                                v-qty, OUTPUT v-qty).
+        FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR .                           
+         ASSIGN                            
+          lCheckRec     = SUBSTR(rm-rdtlh.receiver-no,1,10) EQ
+                                 STRING(ap-inv.i-no,"9999999999")                           
+          po-ordl.t-rec-qty    = po-ordl.t-rec-qty + (IF lCheckRec THEN DEC(SUBSTR(rm-rdtlh.receiver-no,11,17)) ELSE v-qty)  .  
+        FIND CURRENT po-ordl NO-LOCK NO-ERROR .
+    END.                                  
+  END.
+  ELSE DO:
+    FOR EACH fg-rcpth
+      WHERE fg-rcpth.company   EQ cocode
+        AND fg-rcpth.i-no      EQ po-ordl.i-no
+        AND fg-rcpth.po-no     EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
+        AND fg-rcpth.rita-code EQ "R"
+      USE-INDEX item-po NO-LOCK, 
+      EACH fg-rdtlh
+      WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
+        AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code        
+      NO-LOCK:    
+         ASSIGN
+         lCheckRec     = SUBSTR(fg-rdtlh.receiver-no,1,10) EQ
+                             STRING(ap-inv.i-no,"9999999999")          
+         po-ordl.t-rec-qty    = po-ordl.t-rec-qty + ( IF lCheckRec THEN DEC(SUBSTR(fg-rdtlh.receiver-no,11,17))
+                                              ELSE fg-rdtlh.qty ).    
+    END.
+  END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

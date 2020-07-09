@@ -26,4 +26,5 @@ PROCEDURE pRunBusinessLogic:
     DO idx = 1 TO ERROR-STATUS:NUM-MESSAGES:
         opcError = opcError + ERROR-STATUS:GET-MESSAGE(idx) + CHR(10).
     END. /* do idx */
+    RUN pDeleteProcedure IN hBusinessLogic.
 END PROCEDURE.

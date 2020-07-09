@@ -2862,12 +2862,13 @@ PROCEDURE fg-post :
       INPUT tg-recalc-cost,
       INPUT ip-run-what,
       INPUT gv-fgemail,
-      INPUT NO,   /* don't create work-gl since already created by fgPostReport*/
+      INPUT YES,   /* No Will not create work-gl since already created by fgPostReport*/
 	  INPUT lPromptForClose,  /* Executes .w closing orders logic */
-      INPUT TABLE w-fg-rctd BY-reference,
-      INPUT TABLE tt-fgemail BY-reference,
-      INPUT TABLE tt-email BY-reference,
-      INPUT TABLE tt-inv BY-reference).
+      INPUT TABLE w-fg-rctd  BY-REFERENCE,
+      INPUT TABLE tt-fgemail BY-REFERENCE,
+      INPUT TABLE tt-email   BY-REFERENCE,
+      INPUT TABLE tt-inv     BY-REFERENCE
+      ).
 
   IF v-got-fgemail THEN 
     DO:        

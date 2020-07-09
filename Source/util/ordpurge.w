@@ -92,10 +92,10 @@ DEF STREAM sfg-bin.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS purge_date begin_order end_order rsClosed ~
-tbInvoices tbArchive btn-Simulate btn-process btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS purge_date begin_order end_order rsClosed ~
-tbInvoices tbArchive fiDumpLoc fiDumpLoc2 
+&Scoped-Define ENABLED-OBJECTS purge_date begin_cust end_cust begin_order ~
+end_order rsClosed tbInvoices tbArchive btn-Simulate btn-process btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS purge_date begin_cust end_cust begin_order ~
+end_order rsClosed tbInvoices tbArchive fiDumpLoc fiDumpLoc2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -123,8 +123,18 @@ DEFINE BUTTON btn-Simulate
      LABEL "Simulate Purge" 
      SIZE 18 BY 1.14.
 
+DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Beginning CustNo" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
 DEFINE VARIABLE begin_order AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
      LABEL "Beginning Order#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzzzz" 
+     LABEL "Ending CustNo" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -168,18 +178,22 @@ DEFINE VARIABLE tbInvoices AS LOGICAL INITIAL no
 
 DEFINE FRAME FRAME-A
      purge_date AT ROW 6.24 COL 27 COLON-ALIGNED
-     begin_order AT ROW 7.67 COL 27 COLON-ALIGNED HELP
+     begin_cust AT ROW 7.91 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Order Number"
-     end_order AT ROW 7.67 COL 63 COLON-ALIGNED HELP
+     end_cust AT ROW 7.91 COL 63 COLON-ALIGNED HELP
+          "Enter Beginning Order Number"
+     begin_order AT ROW 9.33 COL 27 COLON-ALIGNED HELP
+          "Enter Beginning Order Number"
+     end_order AT ROW 9.33 COL 63 COLON-ALIGNED HELP
           "Enter Ending Order Number"
-     rsClosed AT ROW 9.1 COL 29 NO-LABEL
-     tbInvoices AT ROW 10.29 COL 29
-     tbArchive AT ROW 11.48 COL 29
-     btn-Simulate AT ROW 16 COL 7
-     btn-process AT ROW 16 COL 34
-     btn-cancel AT ROW 16 COL 63
-     fiDumpLoc AT ROW 12.91 COL 2 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     fiDumpLoc2 AT ROW 13.62 COL 4 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     rsClosed AT ROW 10.76 COL 29 NO-LABEL
+     tbInvoices AT ROW 11.95 COL 29
+     tbArchive AT ROW 13.14 COL 29
+     btn-Simulate AT ROW 17.67 COL 7
+     btn-process AT ROW 17.67 COL 34
+     btn-cancel AT ROW 17.67 COL 63
+     fiDumpLoc AT ROW 14.57 COL 2 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     fiDumpLoc2 AT ROW 15.29 COL 4 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      "Selection Parameters:" VIEW-AS TEXT
           SIZE 21 BY .62 AT ROW 5.29 COL 5
      "" VIEW-AS TEXT
@@ -188,7 +202,7 @@ DEFINE FRAME FRAME-A
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 89.6 BY 17.52.
+         SIZE 89.6 BY 19.43.
 
 DEFINE FRAME FRAME-B
      "You MUST perform a database backup before running this procedure!" VIEW-AS TEXT
@@ -221,7 +235,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Purge Orders"
-         HEIGHT             = 17.71
+         HEIGHT             = 19.43
          WIDTH              = 90.2
          MAX-HEIGHT         = 19.76
          MAX-WIDTH          = 98.2
@@ -544,11 +558,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY purge_date begin_order end_order rsClosed tbInvoices tbArchive 
-          fiDumpLoc fiDumpLoc2 
+  DISPLAY purge_date begin_cust end_cust begin_order end_order rsClosed 
+          tbInvoices tbArchive fiDumpLoc fiDumpLoc2 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE purge_date begin_order end_order rsClosed tbInvoices tbArchive 
-         btn-Simulate btn-process btn-cancel 
+  ENABLE purge_date begin_cust end_cust begin_order end_order rsClosed 
+         tbInvoices tbArchive btn-Simulate btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -654,6 +668,8 @@ DEFINE VARIABLE v-post-date AS DATE INIT TODAY NO-UNDO.
             AND oe-ord.ord-date LT v-post-date
             AND oe-ord.ord-no   GE v-first-ord
             AND oe-ord.ord-no   LE v-last-ord
+            AND oe-ord.cust-no GE begin_cust:SCREEN-VALUE
+            AND oe-ord.cust-no LE end_cust:SCREEN-VALUE
             TRANSACTION:
                 
             IF rsClosed:SCREEN-VALUE EQ "C" 

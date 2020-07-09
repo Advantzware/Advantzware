@@ -413,6 +413,175 @@ PROCEDURE JobParser:
 
 END PROCEDURE.
 
+PROCEDURE GetRecalcJobCostForJobHdr:
+    /*------------------------------------------------------------------------------
+     Purpose: given a job-hdr rowid, return the new values for standard costs
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriJobHdr AS ROWID NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostMat AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostLab AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostVO AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostFO AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bf-blank-job-mat FOR job-mat.
+    DEFINE BUFFER bf-blank-job-mch FOR job-mch.
+    DEFINE VARIABLE dCostMat           AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostLab           AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostVO            AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostFO            AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dPercentage        AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyInM            AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyInMComponent   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dPercentageApplied AS DECIMAL NO-UNDO.
+    DEFINE BUFFER bf-component-job-hdr FOR job-hdr.
+        
+    FIND FIRST job-hdr NO-LOCK
+        WHERE ROWID(job-hdr) EQ ipriJobHdr
+        NO-ERROR.
+    
+    IF NOT AVAILABLE job-hdr THEN RETURN.
+    ASSIGN 
+        dQtyInM = job-hdr.qty / 1000
+        dPercentage = IF job-hdr.sq-in NE 0 THEN job-hdr.sq-in / 100 ELSE  1
+        .
+    FOR EACH job-mat NO-LOCK 
+        WHERE job-mat.company EQ job-hdr.company
+        AND job-mat.job EQ job-hdr.job
+        AND job-mat.job-no EQ job-hdr.job-no
+        AND job-mat.job-no2 EQ job-hdr.job-no2
+        AND (job-mat.frm EQ job-hdr.frm OR job-hdr.frm EQ 0 OR (job-mat.frm EQ 0 AND job-hdr.frm EQ 1))
+        :
+        dCostMat = 0.
+        IF job-hdr.blank-no EQ job-mat.blank-no 
+            OR job-mat.blank-no EQ 0 
+            OR job-hdr.frm EQ 0 THEN 
+        DO: 
+            IF job-hdr.frm EQ 0 THEN DO:
+                dQtyInMComponent = 0.
+                FOR EACH bf-component-job-hdr NO-LOCK
+                    WHERE bf-component-job-hdr.company EQ job-mat.company
+                    AND bf-component-job-hdr.job EQ job-mat.job
+                    AND bf-component-job-hdr.job-no EQ job-mat.job-no
+                    AND bf-component-job-hdr.job-no2 EQ job-mat.job-no2
+                    AND bf-component-job-hdr.frm EQ job-mat.frm
+                    AND (bf-component-job-hdr.blank-no EQ job-mat.blank-no OR job-mat.blank-no EQ 0):
+                        dQtyInMComponent = dQtyInMComponent + bf-component-job-hdr.qty / 1000.
+                END.
+                ASSIGN 
+                    dCostMat   = job-mat.cost-m * (dQtyInMComponent / dQtyInM)
+                    opdCostMat = opdCostMat + dCostMat
+                    .
+            END.
+            ELSE DO:
+                IF job-mat.frm NE 0 OR (job-mat.frm EQ 0 AND job-hdr.frm EQ 1) THEN 
+                    ASSIGN 
+                        dCostMat   = job-mat.cost-m
+                        opdCostMat = opdCostMat + dCostMat
+                        .
+            END.             
+        END.
+            
+    END.
+    
+    FOR EACH job-mch NO-LOCK
+        WHERE job-mch.company EQ job-hdr.company
+        AND job-mch.job EQ job-hdr.job
+        AND job-mch.job-no EQ job-hdr.job-no
+        AND job-mch.job-no2 EQ job-hdr.job-no2
+        AND (job-mch.frm EQ job-hdr.frm OR job-hdr.frm EQ 0)
+        :
+        IF job-hdr.blank-no EQ job-mch.blank-no OR job-mch.blank-no EQ 0 OR job-hdr.frm EQ 0 THEN 
+        DO: 
+            IF job-mch.blank-no EQ 0 THEN 
+                dPercentageApplied = dPercentage.
+            ELSE 
+                dPercentageApplied = 1.
+            ASSIGN 
+                dCostLab   = ((job-mch.run-hr * job-mch.run-rate  + job-mch.mr-hr * job-mch.mr-rate) * dPercentageApplied ) / dQtyInM
+                dCostVO    = ((job-mch.run-hr * job-mch.run-varoh + job-mch.mr-hr * job-mch.mr-varoh) * dPercentageApplied )  / dQtyInM
+                dCostFO    = ((job-mch.run-hr * job-mch.run-fixoh + job-mch.mr-hr * job-mch.mr-fixoh) * dPercentageApplied )  / dQtyInM
+                opdCostLab = opdCostLab + dCostLab
+                opdCostVO  = opdCostVO + dCostVO
+                opdCostFO  = opdCostFO + dCostFO
+                .
+        END.
+        
+    END.
+    FOR EACH job-prep NO-LOCK
+        WHERE job-prep.company EQ job-hdr.company
+        AND job-prep.job EQ job-hdr.job
+        AND job-prep.job-no EQ job-hdr.job-no
+        AND job-prep.job-no2 EQ job-hdr.job-no2:
+        
+        IF job-prep.ml THEN 
+            opdCostMat = opdCostMat + job-prep.cost-m.
+        ELSE 
+            opdCostLab = opdCostLab + job-prep.cost-m.
+    END.
+
+END PROCEDURE.
+
+PROCEDURE RecalcJobCostForJob:
+    /*------------------------------------------------------------------------------
+     Purpose:  This will do a recalculation of the job costs based on the 
+     job-mat, job-mch, and job-prep calculations.
+     Notes:  
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriJob AS ROWID NO-UNDO.
+    
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    
+    FIND FIRST job NO-LOCK
+        WHERE ROWID(job) EQ ipriJob NO-ERROR.
+    IF NOT AVAILABLE job THEN 
+    DO: 
+        FIND FIRST bf-job-hdr NO-LOCK 
+            WHERE ROWID(bf-job-hdr) EQ ipriJob NO-ERROR.
+        IF AVAILABLE bf-job-hdr THEN 
+            RUN RecalcJobCostForJobHdr(ROWID(bf-job-hdr)).
+    END.
+    ELSE 
+        FOR EACH bf-job-hdr NO-LOCK 
+            WHERE bf-job-hdr.company EQ job.company
+            AND bf-job-hdr.job EQ job.job
+            AND bf-job-hdr.job-no EQ job.job-no
+            AND bf-job-hdr.job-no2 EQ job.job-no2:
+            RUN RecalcJobCostForJobHdr(ROWID(bf-job-hdr)).
+        END. 
+        
+END PROCEDURE.
+
+PROCEDURE RecalcJobCostForJobHdr:
+/*------------------------------------------------------------------------------
+ Purpose:  Gets updated cost values for job-hdr and assigns them
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriJobHdr AS ROWID NO-UNDO.
+    
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    
+    DEFINE VARIABLE dCostMat AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostLab AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostVO  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostFO  AS DECIMAL NO-UNDO.
+    
+    FIND FIRST bf-job-hdr EXCLUSIVE-LOCK 
+        WHERE ROWID(bf-job-hdr) EQ ipriJobHdr NO-ERROR.
+    IF AVAILABLE bf-job-hdr THEN DO:
+        RUN GetRecalcJobCostForJobHdr (ROWID(bf-job-hdr), OUTPUT dCostMat, OUTPUT dCostLab, OUTPUT dCostVO, OUTPUT dCostFO).
+        ASSIGN 
+            bf-job-hdr.std-mat-cost = dCostMat
+            bf-job-hdr.std-lab-cost = dCostLab
+            bf-job-hdr.std-var-cost = dCostVO
+            bf-job-hdr.std-fix-cost = dCostFO
+            bf-job-hdr.std-tot-cost = dCostMat + dCostLab + dCostVO + dCostFO
+            .
+    END.
+    RELEASE bf-job-hdr.
+    
+END PROCEDURE.
+
 PROCEDURE ValidateJob:
     /*------------------------------------------------------------------------------
      Purpose: Validate Job 

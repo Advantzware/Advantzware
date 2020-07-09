@@ -1077,6 +1077,7 @@ PROCEDURE CreateRelease :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+   DEFINE VARIABLE dtDateRule AS DATE NO-UNDO.
    DEF VAR iNextRelNo AS INT NO-UNDO.
   
    find first sys-ctrl where sys-ctrl.company eq cocode
@@ -1127,19 +1128,30 @@ PROCEDURE CreateRelease :
            oe-rel.frt-pay   = oe-ordl.frt-pay
            oe-rel.fob-code  = oe-ord.fob-code.
            
-          IF oereleas-cha eq "LastShip" then
-                               oe-rel.rel-date = oe-ord.last-date.
-           ELSE IF oereleas-cha EQ "Due Date" THEN
-                               oe-rel.rel-date = oe-ordl.req-date.
-          ELSE /*DueDate+1Day*/
-                            DO:
-                               oe-rel.rel-date =oe-ordl.req-date + 1.
-                              IF WEEKDAY(oe-rel.rel-date) EQ 7 THEN
-                                  oe-rel.rel-date = oe-rel.rel-date + 2.
-                               ELSE
-                                  IF WEEKDAY(oe-rel.rel-date) EQ 1 THEN
-                                     oe-rel.rel-date = oe-rel.rel-date + 1.
-                            END.
+    IF oereleas-cha EQ "LastShip" THEN
+        oe-rel.rel-date = oe-ord.last-date.
+    ELSE IF oereleas-cha EQ "Due Date" THEN
+            oe-rel.rel-date = oe-ordl.req-date.
+        ELSE /*DueDate+1Day*/ DO:
+            RUN spCommon_DateRule (
+                ?,
+                "_ANY_",
+                "_ANY_",
+                oe-ordl.req-date,
+                ?,
+                ?,
+                OUTPUT dtDateRule
+                ).
+            IF dtDateRule NE ? THEN
+            oe-rel.rel-date = dtDateRule.
+            ELSE DO:
+                oe-rel.rel-date = oe-ordl.req-date + 1.
+                IF WEEKDAY(oe-rel.rel-date) EQ 7 THEN
+                    oe-rel.rel-date = oe-rel.rel-date + 2.
+                ELSE IF WEEKDAY(oe-rel.rel-date) EQ 1 THEN
+                        oe-rel.rel-date = oe-rel.rel-date + 1.
+            END. /* else */
+        END.
 
       if avail shipto THEN DO:
        assign oe-rel.ship-addr[1] = shipto.ship-addr[1]

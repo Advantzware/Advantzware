@@ -118,6 +118,8 @@ DEFINE VARIABLE opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
 DEFINE VARIABLE opiArraySize AS INTEGER NO-UNDO.
 Define Variable hNotesProc as Handle NO-UNDO.
 DEFINE VARIABLE iTotalQty AS INTEGER NO-UNDO.
+DEFINE VARIABLE iShipQty AS INTEGER NO-UNDO.
+DEFINE VARIABLE iIntValue AS INTEGER NO-UNDO.
 
 RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProc.
 
@@ -134,7 +136,10 @@ FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company = cocode
 
 IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "CCCWPP" THEN lv-print-img = YES.
     ELSE lv-print-img = NO.
-IF AVAIL sys-ctrl THEN cPrintFormat = sys-ctrl.char-fld .
+IF AVAIL sys-ctrl THEN 
+       ASSIGN 
+       cPrintFormat = sys-ctrl.char-fld
+       iIntValue = sys-ctrl.int-fld .
 
 FIND FIRST company NO-LOCK WHERE company.company EQ cocode .
 FIND FIRST oe-ctrl NO-LOCK WHERE oe-ctrl.company EQ cocode .
@@ -166,10 +171,13 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
             WHERE sys-ctrl-shipto.company EQ cocode
             AND sys-ctrl-shipto.NAME EQ "BOLFMT"
             AND sys-ctrl-shipto.cust-vend-no = cust.cust-no NO-ERROR.
-        IF AVAIL sys-ctrl-shipto THEN
+        IF AVAIL sys-ctrl-shipto THEN do:
             IF sys-ctrl-shipto.char-fld = "CCCWPP" THEN
                 lv-print-img = YES.
             ELSE lv-print-img = NO.
+            cPrintFormat = sys-ctrl-shipto.char-fld .
+            iIntValue = sys-ctrl-shipto.int-fld .
+        END.    
     END. /*end of Do block to test for CCCWPP per customer*/
 
     RUN oe/custxship.p (oe-bolh.company,
@@ -393,7 +401,7 @@ PUT "<R35.5><C47><#7>Initial"
 v-printline = v-printline + 4.
 
 /*PUT "<R39><C30>" SKIP.*/
-RUN GetNotesArrayForObject IN hNotesProc (INPUT oe-bolh.rec_key, "ES", "", 130, NO, OUTPUT opcParsedText, OUTPUT opiArraySize).
+RUN GetNotesArrayForObject IN hNotesProc (INPUT oe-bolh.rec_key, "ES", "", 130, NO,0, OUTPUT opcParsedText, OUTPUT opiArraySize).
 
 IF opiArraySize <= 4 THEN DO:
     PUT "<FBook Antiqua><R39.5><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.

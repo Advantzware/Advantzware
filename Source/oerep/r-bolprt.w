@@ -50,6 +50,7 @@ DEF VAR lr-rel-lib AS HANDLE NO-UNDO.
 {oe/closchk.i NEW}
 {custom/formtext.i NEW}
 {oerep/r-bolx.i NEW}
+{Inventory/ttInventory.i "NEW SHARED"}
 
 ASSIGN
   cocode = gcompany
@@ -125,10 +126,12 @@ DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
 
 DEFINE VARIABLE lValid AS LOGICAL NO-UNDO.
 
-DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdOutboundProcs  AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
 
 /* Procedure to prepare and execute API calls */
-RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+RUN api/OutboundProcs.p        PERSISTENT SET hdOutboundProcs.
+RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -902,6 +905,8 @@ ON WINDOW-CLOSE OF C-Win /* Print Bills of Lading */
 DO:
     IF VALID-HANDLE(hdOutboundProcs) THEN
         DELETE PROCEDURE hdOutboundProcs.
+    IF VALID-HANDLE(hdInventoryProcs) THEN 
+        DELETE PROCEDURE hdInventoryProcs.    
     /* This event will close the window and terminate the procedure.  */
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     RETURN NO-APPLY.
@@ -980,6 +985,7 @@ DO:
    DEF VAR ll          AS LOG NO-UNDO.
    DEF VAR v-format-str AS CHAR NO-UNDO.
    DEF VAR lv-exception AS LOG NO-UNDO.
+   DEFINE VARIABLE lValidBin AS LOGICAL NO-UNDO.
    /* Initilize temp-table */
    EMPTY TEMP-TABLE tt-filelist.
    EMPTY TEMP-TABLE tt-post.
@@ -1412,23 +1418,43 @@ DO:
                           AND cust.cust-no EQ oe-bolh.cust-no 
                         NO-ERROR.  
                    IF AVAILABLE cust AND oe-boll.s-code EQ "T" THEN DO:
-                           RUN oe/custxship.p(
-                               INPUT oe-bolh.company,
-                               INPUT oe-bolh.cust-no,
-                               INPUT oe-bolh.ship-id,
-                               BUFFER shipto
+                       RUN oe/custxship.p(
+                           INPUT oe-bolh.company,
+                           INPUT oe-bolh.cust-no,
+                           INPUT oe-bolh.ship-id,
+                           BUFFER shipto
+                           ).
+                       IF AVAILABLE shipto THEN DO: 
+                           IF oe-boll.loc EQ shipto.loc THEN DO:    
+                               IF lSingleBOL THEN     
+                                   MESSAGE "BOL" STRING(oe-bolh.bol-no) "Cannot Transfer to the Same Location" oe-boll.loc 
+                                       VIEW-AS ALERT-BOX ERROR.
+                               ELSE 
+                                   RUN pCreatettExceptionBOL(
+                                       INPUT "Cannot transfer to the same location",
+                                       INPUT ROWID(oe-boll)
+                                       ).
+                               DELETE tt-post.
+                               NEXT mainblock.
+                           END. 
+                           RUN ValidateBin IN hdInventoryProcs(
+                               INPUT cocode, 
+                               INPUT shipto.loc,
+                               INPUT shipto.loc-bin, 
+                               OUTPUT lValidBin
                                ).
-                       IF AVAILABLE shipto AND oe-boll.loc EQ shipto.loc THEN DO:      
-                           IF lSingleBOL THEN     
-                               MESSAGE "BOL" STRING(oe-bolh.bol-no) "Cannot Transfer to the Same Location" oe-boll.loc 
-                                   VIEW-AS ALERT-BOX ERROR.
-                           ELSE 
-                               RUN pCreatettExceptionBOL(
-                                   INPUT "Cannot transfer to the same location",
-                                   INPUT ROWID(oe-boll)
-                                   ).
-                           DELETE tt-post.
-                           NEXT mainblock.
+                           IF NOT lValidBin THEN DO:  
+                               IF lSingleBOL THEN 
+                                   MESSAGE "Ship To warehouse/bin location does not exist for BOL# " STRING(oe-bolh.bol-no)
+                                       VIEW-AS ALERT-BOX ERROR.
+                               ELSE 
+                                   RUN pCreatettExceptionBOL(
+                                       INPUT "Ship To warehouse/bin location does not exist",
+                                       INPUT ROWID(oe-boll)
+                                       ).
+                               DELETE tt-post.
+                               NEXT mainblock.                                                          
+                           END.    
                        END.    
                    END.
                
@@ -1505,11 +1531,11 @@ DO:
                                      AND bf-oe-boll.qty     NE 0)
                    THEN DO:
                        IF lSingleBOL THEN
-                           MESSAGE "Quantity is Zero for BOL # " STRING(oe-bolh.bol-no) 
+                           MESSAGE "Quantity is zero for all lines for BOL # " STRING(oe-bolh.bol-no) 
                                VIEW-AS ALERT-BOX ERROR.  
                        ELSE 
                            RUN pCreatettExceptionBOL(
-                               INPUT "BOL quantity is zero",
+                               INPUT "Quantity is zero for all lines",
                                INPUT  ROWID(oe-boll)
                                ).
                        DELETE tt-post.
@@ -2906,7 +2932,7 @@ PROCEDURE build-work :
       NEXT build-work.
     END.
 
-    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX" OR v-print-fmt = "PremierCX" OR 
+    IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX" OR v-print-fmt = "PremierCX" OR 
        v-print-fmt = "PremierPX" OR v-print-fmt =  "PremierBroker"  THEN DO:
        IF AVAIL oe-bolh THEN do:
            IF oe-bolh.frt-pay EQ "B" AND oe-bolh.freight EQ 0 THEN
@@ -3535,7 +3561,7 @@ PROCEDURE GenerateReport :
    DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
 
    IF (v-print-bol AND v-print-fmt <> "SouthPak-XL" AND v-print-fmt <> "Prystup-Excel") OR
-      (NOT v-print-bol AND v-coc-fmt <> "Unipak-XL" AND v-coc-fmt <> "ACPI" AND v-coc-fmt <> "CCC" AND v-coc-fmt <> "CCCWPP" AND v-coc-fmt <> "CCC3" AND v-coc-fmt <> "CCC2" AND v-coc-fmt <> "CCC4" AND v-coc-fmt <> "CCC5") THEN
+      (NOT v-print-bol AND v-print-fmt <> "Unipak-XL" AND v-print-fmt <> "ACPI" AND v-print-fmt <> "Soule" AND v-print-fmt <> "CCC" AND v-print-fmt <> "CCCWPP" AND v-print-fmt <> "CCC3" AND v-print-fmt <> "CCC2" AND v-print-fmt <> "CCC4" AND v-print-fmt <> "CCC5") THEN
       case rd-dest:
          when 1 then run output-to-printer(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
          when 2 then run output-to-screen(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
@@ -3983,7 +4009,7 @@ FIND FIRST bf-cust NO-LOCK
        AND bf-cust.cust-no EQ ipcCustID
      NO-ERROR.
      
-IF AVAILABLE bf-cust AND bf-cust.ASNClientID NE "" THEN DO: 
+IF AVAILABLE bf-cust THEN DO: 
     IF iplPrinted THEN 
         cTriggerID = "RePrintBillOfLading".
     ELSE 
@@ -3995,11 +4021,12 @@ IF AVAILABLE bf-cust AND bf-cust.ASNClientID NE "" THEN DO:
         cDescription = cAPIID + " triggered by " + cTriggerID + " from r-bolprt.w for BOL: " + cPrimaryID
         .
 
-    RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+    RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
         INPUT  ipcCompany,                 /* Company Code (Mandatory) */
         INPUT  ipcLocation,                /* Location Code (Mandatory) */
         INPUT  cAPIID,                     /* API ID (Mandatory) */
-        INPUT  bf-cust.ASNClientID,        /* Client ID (Optional) - Pass empty in case to make request for all clients */
+        INPUT  bf-cust.cust-no,            /* Scope ID (Mandatory) */
+        INPUT  "Customer",                 /* Scope  Type */
         INPUT  cTriggerID,                 /* Trigger ID (Mandatory) */
         INPUT  "oe-bolh",                  /* Comma separated list of table names for which data being sent (Mandatory) */
         INPUT  STRING(ipriOeBolh),         /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
@@ -4408,11 +4435,6 @@ PROCEDURE post-bol :
         
         /* Process EDI 856 and 814 */
         IF asnsps-log THEN RUN oe/oe856gen.p (RECID(oe-bolh), yes,yes).
-        FIND FIRST edcode NO-LOCK
-            WHERE edcode.setID EQ "214" 
-            NO-ERROR.
-        IF AVAIL edcode THEN 
-          RUN oe/oe214gen.p (Recid(oe-bolh), yes,yes).
       END. /* avail */
     END. /* do while not avail */
   END. /* do trans */
@@ -4727,7 +4749,7 @@ PROCEDURE run-packing-list :
           WHEN 5 THEN do:
               IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                    PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2.5 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-              ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+              ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCCW" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "Carded" OR v-print-fmt = "GPI2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
@@ -4902,7 +4924,9 @@ PROCEDURE run-report :
             NO-ERROR.
         IF AVAIL sys-ctrl-shipto THEN 
                 lGeneratecXML = YES.
-      END. /* avail sys-ctrl */
+        ELSE 
+                lGeneratecXML = NO.        
+    END. /* avail sys-ctrl */
     /* key-10 set in oerep/r-bolprt.w (build-work) */
     IF lGeneratecXML AND 
         ((tb_reprint EQ NO AND report.key-10 EQ 'no') 
@@ -4912,6 +4936,7 @@ PROCEDURE run-report :
     ELSE lGeneratecXML = NO.
 
      IF lGeneratecXML THEN DO:
+        clXmlOutput = TRUE. 
         FOR EACH oe-boll 
             WHERE oe-boll.company EQ oe-bolh.company 
               AND oe-boll.b-no eq oe-bolh.b-no
@@ -4972,7 +4997,7 @@ PROCEDURE run-report :
           WHEN 5 THEN do:
               IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                    PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2.5 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-              ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+              ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCCW" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "Carded" OR v-print-fmt = "GPI2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
@@ -5248,7 +5273,7 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
         WHEN 5 THEN do:
             IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                  PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2.5 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-                 ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+                 ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCCW" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE IF v-print-fmt EQ "Carded" OR v-print-fmt = "GPI2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
@@ -5408,7 +5433,7 @@ PROCEDURE run-report-mail :
     IF IS-xprint-form THEN DO:
       IF v-print-fmt = "Century"                     /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
         THEN PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2.5 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
-        ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+        ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
         ELSE IF v-print-fmt EQ "Prystup-Excel" THEN PUT "<PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
         ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
@@ -5664,6 +5689,10 @@ PROCEDURE SetBOLForm :
               ASSIGN 
                 is-xprint-form = NO
                 v-program = "oe/rep/cocacpi.p".
+         WHEN "Soule" THEN
+              ASSIGN 
+                is-xprint-form = NO
+                v-program = "oe/rep/cocsoule.p".       
 
          WHEN "CCC" OR WHEN "CCCWPP" OR WHEN "CCC2" OR WHEN "CCC3" OR WHEN "CCC4" OR WHEN "CCC5" THEN
               ASSIGN 
@@ -5673,6 +5702,10 @@ PROCEDURE SetBOLForm :
             ASSIGN
                is-xprint-form = YES
                v-program = "oe/rep/cocbcert10.p".
+         WHEN "PackSlip" THEN
+            ASSIGN
+               is-xprint-form = YES
+               v-program = "oe/rep/cocpack.p".      
          WHEN "LancoYork" THEN
             ASSIGN
                is-xprint-form = YES

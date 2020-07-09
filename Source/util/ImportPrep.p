@@ -69,6 +69,7 @@ DEFINE TEMP-TABLE ttImportPrep
     FIELD last-order              AS INTEGER   FORMAT "->,>>>,>>9" COLUMN-LABEL "Last Order" HELP "Optional - integer"
     FIELD last-job-no             AS CHARACTER   FORMAT "x(6)" COLUMN-LABEL "Job#" HELP "Optional - Size:6"
     FIELD last-job-no2            AS INTEGER   FORMAT ">9" COLUMN-LABEL "Job2" HELP "Optional - Integer"
+    FIELD productTaxClass         AS CHARACTER FORMAT "x(18)" COLUMN-LABEL "Prep Tax Class" HELP "Optional - Size:18"
     
     .
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 2 to skip Company and Location field in temp-table since this will not be part of the import data*/
@@ -158,7 +159,9 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueI (ipbf-ttImportPrep.last-order, YES, INPUT-OUTPUT bf-prep.last-order).                                       
     RUN pAssignValueC (ipbf-ttImportPrep.last-job-no, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.last-job-no).                         
     RUN pAssignValueI (ipbf-ttImportPrep.last-job-no2, YES, INPUT-OUTPUT bf-prep.last-job-no2).                                 
-    RUN pAssignValueC (ipbf-ttImportPrep.dfault, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.dfault).                                   
+    RUN pAssignValueC (ipbf-ttImportPrep.dfault, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.dfault).
+    RUN pAssignValueC (ipbf-ttImportPrep.productTaxClass, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.productTaxClass).
+    
     IF ipbf-ttImportPrep.ml EQ "M" THEN
         ASSIGN bf-prep.ml = YES.
     ELSE bf-prep.ml = NO .

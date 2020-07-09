@@ -31,7 +31,7 @@ DEFINE VARIABLE gcScopeList         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcScopeDefault      AS CHARACTER NO-UNDO.
 
 /*Settings Variables*/
-DEFINE VARIABLE glUseQtyFrom        AS LOGICAL   NO-UNDO.
+
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -1894,8 +1894,6 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
 
-    RUN sys/ref/nk1look.p (ipcCompany, "VendCostMatrix", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    IF lFound THEN glUseQtyFrom = cReturn EQ "YES".
     
 END PROCEDURE.
 

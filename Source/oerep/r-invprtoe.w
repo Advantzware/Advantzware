@@ -165,6 +165,9 @@ DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
 DEF VAR vSoldToNo AS CHAR NO-UNDO.  /* to hold soldto# for email */
 DEF VAR vShipToNo AS CHAR NO-UNDO.  /* to hold shipto# for email */
+DEFINE VARIABLE hPostInvoices AS HANDLE NO-UNDO.
+RUN oe/PostInvoices.p PERSISTENT SET hPostInvoices.
+
 /* Allows for other names besides r-invprt. */
 v-prgmname = ipcPrgmnameOverride.
 
@@ -789,6 +792,8 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
            application would exit. */
+        IF VALID-HANDLE(hPostInvoices) THEN   
+        DELETE OBJECT hPostInvoices.   
         IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
     END.
 
@@ -801,6 +806,8 @@ ON WINDOW-CLOSE OF C-Win /* Invoicing */
 DO:
         /* Used by calling procedure (e.g. v-oeinv.w to refresh values) */
         PUBLISH "eventInvoicePrinted".
+        IF VALID-HANDLE(hPostInvoices) THEN   
+        DELETE OBJECT hPostInvoices. 
         
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -883,6 +890,11 @@ DO:
         DEFINE    VARIABLE      lCheckHoldStat    AS LOGICAL NO-UNDO .
         DEFINE    VARIABLE      lselected         AS LOGICAL NO-UNDO .
         DEFINE    VARIABLE      cCustNo           AS CHARACTER NO-UNDO .
+        DEFINE    VARIABLE      iCountProcess     AS INTEGER NO-UNDO.
+        DEFINE    VARIABLE      iCountValid       AS INTEGER NO-UNDO.
+        DEFINE    VARIABLE      iCountPost        AS INTEGER NO-UNDO.
+        DEFINE    VARIABLE      lError            AS LOGICAL NO-UNDO.
+        DEFINE    VARIABLE      cMessage          AS CHARACTER NO-UNDO.
         DEFINE BUFFER bf-cust FOR cust.
         DEFINE BUFFER bf-ar-inv FOR ar-inv .
         DEFINE BUFFER bf-inv-head FOR inv-head .
@@ -1224,7 +1236,22 @@ RUN BatchMail (begin_cust, end_cust).
         */
         RELEASE inv-misc .
         
+      
+        RUN ValidateInvoices IN hPostInvoices (cocode,
+                                               begin_inv,
+                                               (IF end_inv NE 0 THEN end_inv ELSE 9999999) ,
+                                               begin_date,
+                                               end_date,
+                                               begin_cust,
+                                               end_cust,
+                                               date(TODAY),
+                                               OUTPUT iCountProcess,
+                                               OUTPUT iCountValid,
+                                               OUTPUT iCountPost,
+                                               OUTPUT lError,
+                                               OUTPUT cMessage) . 
  /*   END. */
+  
     
 END.
 

@@ -37,6 +37,7 @@ DEFINE TEMP-TABLE ttParamSet NO-UNDO
     FIELD setName    LIKE dynParamSet.setName
     FIELD setTitle   LIKE dynParamSet.setTitle
     FIELD isVisible    AS LOGICAL LABEL "Visible"
+    FIELD rRowID       AS ROWID
         INDEX sortOrder IS PRIMARY sortOrder
         .
 FIND FIRST dynParamValue NO-LOCK
@@ -317,19 +318,42 @@ PROCEDURE pParameterSets :
     DEFINE VARIABLE idx AS INTEGER NO-UNDO.
 
     EMPTY TEMP-TABLE ttParamSet.
-    DO idx = 1 TO EXTENT(dynParamValue.paramSetID):
+    FOR EACH dynValueParamSet NO-LOCK
+        WHERE dynValueParamSet.subjectID    EQ dynParamValue.subjectID
+          AND dynValueParamSet.user-id      EQ dynParamValue.user-id
+          AND dynValueParamSet.prgmName     EQ dynParamValue.prgmName
+          AND dynValueParamSet.paramValueID EQ dynParamValue.paramValueID
+           BY dynValueParamSet.sortOrder
+        :
         FIND FIRST dynParamSet NO-LOCK
-             WHERE dynParamSet.paramSetID EQ dynParamValue.paramSetID[idx]
+             WHERE dynParamSet.paramSetID EQ dynValueParamSet.paramSetID
              NO-ERROR.
         IF NOT AVAILABLE dynParamSet THEN NEXT.
         CREATE ttParamSet.
         ASSIGN
-            ttParamSet.sortOrder = idx
+            ttParamSet.sortOrder = dynValueParamSet.sortOrder
             ttParamSet.setName   = dynParamSet.setName
             ttParamSet.setTitle  = dynParamSet.setTitle
-            ttParamSet.isVisible = dynParamValue.isVisible[idx]
+            ttParamSet.isVisible = dynValueParamSet.isVisible
+            ttParamSet.rRowID    = ROWID(dynValueParamSet)
             .
-    END. /* do idx */
+    END. /* each dynvalueparamset */
+
+/*    /* rstark - remove when depricated */                                 */
+/*    EMPTY TEMP-TABLE ttParamSet.                                          */
+/*    DO idx = 1 TO EXTENT(dynParamValue.paramSetID):                       */
+/*        FIND FIRST dynParamSet NO-LOCK                                    */
+/*             WHERE dynParamSet.paramSetID EQ dynParamValue.paramSetID[idx]*/
+/*             NO-ERROR.                                                    */
+/*        IF NOT AVAILABLE dynParamSet THEN NEXT.                           */
+/*        CREATE ttParamSet.                                                */
+/*        ASSIGN                                                            */
+/*            ttParamSet.sortOrder = idx                                    */
+/*            ttParamSet.setName   = dynParamSet.setName                    */
+/*            ttParamSet.setTitle  = dynParamSet.setTitle                   */
+/*            ttParamSet.isVisible = dynParamValue.isVisible[idx]           */
+/*            .                                                             */
+/*    END. /* do idx */                                                     */
 
 END PROCEDURE.
 
@@ -344,11 +368,19 @@ PROCEDURE pSave :
   Notes:       
 ------------------------------------------------------------------------------*/
     DO TRANSACTION:
-        FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
+/*        /* rstark - remove when depricated */     */
+/*        FIND CURRENT dynParamValue EXCLUSIVE-LOCK.*/
         FOR EACH ttParamSet:
-            dynParamValue.isVisible[ttParamSet.sortOrder] = ttParamSet.isVisible.
+            FIND FIRST dynValueParamSet EXCLUSIVE-LOCK
+                 WHERE ROWID(dynValueParamSet) EQ ttParamSet.rRowID
+                 NO-ERROR.
+            IF AVAILABLE dynValueParamSet THEN
+            dynValueParamSet.isVisible = ttParamSet.isVisible.
+/*            /* rstark - remove when depricated */                                */
+/*            dynParamValue.isVisible[ttParamSet.sortOrder] = ttParamSet.isVisible.*/
         END. /* each ttparamset */
-        FIND CURRENT dynParamValue NO-LOCK.
+/*        /* rstark - remove when depricated */*/
+/*        FIND CURRENT dynParamValue NO-LOCK.  */
     END. /* do trans */
 
 END PROCEDURE.

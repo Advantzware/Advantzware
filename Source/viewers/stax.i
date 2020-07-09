@@ -11,6 +11,7 @@ IF stax.tax-group:SCREEN-VALUE NE stax.tax-code1[{1}]:SCREEN-VALUE THEN DO:
      stax.tax-code1[{1}]:SCREEN-VALUE = CAPS(b-stax.tax-code1[1])
      stax.tax-dscr1[{1}]:SCREEN-VALUE = b-stax.tax-dscr1[1]
      stax.tax-rate1[{1}]:SCREEN-VALUE = STRING(b-stax.tax-rate1[1])
-     stax.tax-frt1[{1}]:SCREEN-VALUE  = STRING(b-stax.tax-frt1[1])
-     stax.tax-acc1[{1}]:SCREEN-VALUE  = b-stax.tax-acc1[1].
+     stax.tax-frt1[1]:SCREEN-VALUE    = STRING(b-stax.tax-frt1[1])
+     stax.tax-acc1[1]:SCREEN-VALUE    = b-stax.tax-acc1[1] 
+     .
 END.

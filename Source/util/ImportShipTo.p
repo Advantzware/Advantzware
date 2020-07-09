@@ -55,7 +55,7 @@ DEFINE TEMP-TABLE ttImportShipTo
     FIELD ShipByCaseAllowed   AS CHARACTER FORMAT "X" COLUMN-LABEL "Ship By Case Allowed" HELP "Optional - Y or N"
     FIELD Broker              AS CHARACTER FORMAT "X" COLUMN-LABEL "Broker" HELP "Optional - Y or N"
     FIELD Billable            AS CHARACTER FORMAT "X" COLUMN-LABEL "Billable" HELP "Optional - Y or N"
-    FIELD cManTax            AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Mandatory Tax" HELP "Optional - Yes or N0"
+    FIELD cManTax            AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Taxable" HELP "Optional - Yes or N0"
     FIELD cInactive          AS CHARACTER FORMAT "X(1)" COLUMN-LABEL "Inactive" HELP "Optional - Yes or N0"
     FIELD siteID             AS CHARACTER FORMAT "X(16)" COLUMN-LABEL "Site ID" HELP "A unique ship to id site identifier"
     .
@@ -269,14 +269,12 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportShipTo.Note3, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.notes[3]).
     RUN pAssignValueC (ipbf-ttImportShipTo.Note4, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.notes[4]).
     RUN pAssignValueC (ipbf-ttImportShipTo.cManTax, YES, INPUT-OUTPUT bf-shipto.tax-mandatory).
-    IF ipbf-ttImportShipTo.cInactive EQ "I" AND DYNAMIC-FUNCTION("IsActive",bf-shipto.rec_key) THEN DO:
-     RUN AddTagInactive(bf-shipto.rec_key,"shipto").
-     bf-shipto.statusCode = "I".
-    END.
-    ELSE IF ipbf-ttImportShipTo.cInactive EQ "" AND NOT DYNAMIC-FUNCTION("IsActive",bf-shipto.rec_key) THEN DO: 
-     RUN ClearTagsInactive(bf-shipto.rec_key).
-     bf-shipto.statusCode = "".
-    END.
+    
+    IF ipbf-ttImportShipTo.cInactive EQ "I" THEN 
+        bf-shipto.statusCode = "I".
+    ELSE
+        bf-shipto.statusCode = "A".
+        
     RUN pAssignValueC (ipbf-ttImportShipTo.siteID, YES, INPUT-OUTPUT bf-shipto.siteID).
     RELEASE bf-shipto.
 END PROCEDURE.

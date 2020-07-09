@@ -12,10 +12,13 @@
     Created     : Tue August 8th 10:01:22 EDT 2019
     Notes       :
   ----------------------------------------------------------------------*/
-DEFINE VARIABLE hdFormatProcs AS HANDLE NO-UNDO.
-RUN system/FormatProcs.p PERSISTENT SET hdFormatProcs.
 
+/* ************************  Function Prototypes ********************** */
+FUNCTION fGetAPITransactionCounter RETURNS INTEGER PRIVATE
+	( INPUT ipiAPIOutboundID AS INTEGER ) FORWARD.
 
+FUNCTION fGetClientTransactionCounter RETURNS INTEGER PRIVATE
+	( INPUT ipiAPIOutboundID AS INTEGER ) FORWARD.
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -128,18 +131,30 @@ PROCEDURE updateRequestData:
                 ASSIGN
                     cTargetString = STRING(INTEGER(ipcValue),cFormat)
                     cTargetString = TRIM(cTargetString)
-                    .
+                    NO-ERROR.
             ELSE IF cFormatType BEGINS "DEC" THEN
                 ASSIGN
                     cTargetString = STRING(DECIMAL(ipcValue),cFormat)
                     cTargetString = TRIM(cTargetString)
-                    .
-            ELSE IF cFormatType EQ "DATE" THEN
-                RUN Format_Date IN hdFormatProcs (
-                    INPUT  DATE(ipcValue),
+                    NO-ERROR.
+            ELSE IF cFormatType EQ "TIME" THEN
+                RUN Format_Time (
+                    INPUT  INTEGER(ipcValue),
                     INPUT  cFormat,
                     OUTPUT cTargetString
-                    ).
+                    ) NO-ERROR.
+            ELSE IF cFormatType EQ "MTIME" THEN
+                RUN Format_MTime (
+                    INPUT  INTEGER(ipcValue),
+                    INPUT  cFormat,
+                    OUTPUT cTargetString
+                    ) NO-ERROR.
+            ELSE IF cFormatType EQ "DATE" THEN
+                RUN Format_DateTimeTZ (
+                    INPUT  DATETIME-TZ(ipcValue),
+                    INPUT  cFormat,
+                    OUTPUT cTargetString
+                    ) NO-ERROR.
         END.
         ELSE
             cTargetString = STRING(ipcValue,cFormat).
@@ -154,4 +169,47 @@ PROCEDURE updateRequestData:
             ioplcRequestData = REPLACE(ioplcRequestData,cSourceString, cTargetString).    
     END.    
 END PROCEDURE.
+
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fGetAPITransactionCounter RETURNS INTEGER PRIVATE
+	( INPUT ipiAPIOutboundID AS INTEGER ):
+/*------------------------------------------------------------------------------
+ Purpose: Returns the next transaction counter value of APIInbound record
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
+    
+    FIND FIRST bf-APIOutbound NO-LOCK
+         WHERE bf-APIOutbound.apiOutboundID EQ ipiAPIOutboundID
+         NO-ERROR.
+    IF AVAILABLE bf-APIOutbound THEN
+        RETURN bf-APIOutbound.transactionCounter.
+END FUNCTION.
+
+FUNCTION fGetClientTransactionCounter RETURNS INTEGER PRIVATE
+	( INPUT ipiAPIOutboundID AS INTEGER ):
+/*------------------------------------------------------------------------------
+ Purpose: Returns the next transaction counter value of apiClient record
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
+    DEFINE BUFFER bf-apiClient   FOR apiClient.
+    
+    FIND FIRST bf-APIOutbound NO-LOCK
+         WHERE bf-APIOutbound.apiOutboundID EQ ipiAPIOutboundID 
+         NO-ERROR.
+    IF AVAILABLE bf-APIOutbound THEN DO:
+        FIND FIRST bf-apiClient NO-LOCK
+             WHERE bf-apiClient.company  EQ bf-APIOutbound.company
+               AND bf-apiClient.clientID EQ bf-APIOutbound.clientID
+             NO-ERROR.
+        IF AVAILABLE bf-apiClient THEN
+            RETURN bf-apiClient.transactionCounter.
+    END.
+    
+    /* If apiClient record not found */
+    RETURN 0.
+END FUNCTION.
 

@@ -34,6 +34,7 @@ IF {&TABLENAME}.line LT 500 THEN DO:
     IF AVAIL eb THEN DO:
 
       IF est.est-type EQ 1 OR
+         est.est-type EQ 2 OR
          est.est-type EQ 5 OR
          est.est-type EQ 6 THEN DO:
         IF {&TABLENAME}.qty EQ 0 THEN {&TABLENAME}.qty = eb.eqty.

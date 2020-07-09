@@ -10,6 +10,8 @@
         AND ar-cash.cust-no    LE END_cust
         AND ar-cash.check-date GE v-from-date 
         AND ar-cash.check-date LE v-to-date 
+        AND ar-cash.check-no   GE begin_check-no
+        AND ar-cash.check-no   LE end_check-no  
         AND CAN-FIND(FIRST cust
                      {sys/ref/custW.i}
                        AND cust.cust-no EQ ar-cash.cust-no)

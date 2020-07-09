@@ -152,8 +152,24 @@ CASE fi_mat-type:SCREEN-VALUE:
     ENABLE {&group{&group#}-fields}.
     &ENDIF
   END.
+
   
 END CASE.
 &UNDEFINE group#
+
+    IF lDisplayWood AND INDEX("1234",fi_mat-type) GT 0 THEN DO:
+       ASSIGN
+          item.flute:LABEL       = "Lumber"              
+          item.s-dep:LABEL       = "Thickness"
+          fi_ect:LABEL           = "Board Grade"
+          item.color-1:HIDDEN    = YES
+          item.color-1:SENSITIVE = NO
+          item.reg-no:HIDDEN       = YES
+          item.reg-no:SENSITIVE    = NO
+          item.cal:HIDDEN        = YES
+          item.cal:SENSITIVE     = NO
+            .        
+      END.
+
 
 end. /* do with frame */

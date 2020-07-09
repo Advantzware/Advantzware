@@ -13,7 +13,7 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File:
+  File: viewers/APIOutboundDetail.w
 
   Description: from VIEWER.W - Template for SmartViewer Objects
 
@@ -40,6 +40,22 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE lSuperAdmin AS LOGICAL NO-UNDO.
+
+/* The below variables are used in run_link.i */
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+
+DEFINE VARIABLE hdPgmMstrSecur AS HANDLE NO-UNDO.
+RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmMstrSecur.
+
+RUN epCanAccess IN hdPgmMstrSecur (
+    INPUT  "viewers/APIOutboundDetail.w", /* Program Name */
+    INPUT  "",                            /* Function */
+    OUTPUT lSuperAdmin
+    ).
+    
+DELETE PROCEDURE hdPgmMstrSecur.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -245,6 +261,7 @@ ASSIGN
 
 
 /* ***************************  Main Block  *************************** */
+  {sys/inc/f3help.i}
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -425,6 +442,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-row-available V-table-Win 
+PROCEDURE local-row-available :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.    
+    DEFINE VARIABLE cRowState AS CHARACTER NO-UNDO.
+    
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
+  
+    RUN pGetRowState (
+        OUTPUT cRowState
+        ).
+  
+    /* Code placed here will execute AFTER standard behavior.    */
+    {methods/run_link.i "TABLEIO-SOURCE" "set-buttons" "(INPUT cRowState)"}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -479,6 +523,8 @@ PROCEDURE pDisableFields :
     END.
     
     edData:READ-ONLY = TRUE.
+    
+    {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -510,10 +556,53 @@ PROCEDURE pEnableFields :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cRowState AS CHARACTER NO-UNDO.
+
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
+    RUN pGetRowState (
+        OUTPUT cRowState
+        ).
+    
+    IF cRowState EQ "update-only" THEN
+        ASSIGN
+            apiOutboundDetail.detailID:SENSITIVE = FALSE
+            apiOutboundDetail.parentID:SENSITIVE = FALSE
+            .
+
     edData:READ-ONLY = FALSE.
+
+    {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetRowState V-table-Win 
+PROCEDURE pGetRowState PRIVATE :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcRowState AS CHARACTER NO-UNDO.
+
+    IF AVAILABLE APIOutboundDetail THEN DO:
+        IF APIOutboundDetail.apiOutboundID GT 5000 THEN
+            opcRowState = "update-only".
+        ELSE
+            opcRowState = "disable-all".
+    END.
+    ELSE
+        opcRowState = "disable-all".
+        
+    IF lSuperAdmin THEN DO:
+        IF AVAILABLE APIoutboundDetail THEN
+            opcRowState = "initial".
+        ELSE
+            opcRowState = "add-only".
+    END.        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

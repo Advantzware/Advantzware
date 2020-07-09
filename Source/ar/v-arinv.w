@@ -53,6 +53,8 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE lEDI810Visible AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lEDI810NewValue AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.
+
 {sys/inc/VAR.i "new shared"}
 ASSIGN cocode = g_company
        locode = g_loc.
@@ -64,6 +66,8 @@ IF lRecFound THEN
     oeInvAddDate-Int = INTEGER(cRtnChar) NO-ERROR.
 
 RUN util/checkModule.p (INPUT "", INPUT "EdIvTran.", INPUT NO, OUTPUT lEDI810Visible).
+
+RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -229,7 +233,7 @@ DEFINE FRAME F-Main
      ar-inv.carrier AT ROW 5.52 COL 56 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     ar-inv.f-bill AT ROW 2.91 COL 80
+     ar-inv.f-bill AT ROW 3.62 COL 80
           VIEW-AS TOGGLE-BOX
           SIZE 15 BY 1
      ar-inv.freight AT ROW 2.91 COL 105 COLON-ALIGNED
@@ -1213,6 +1217,7 @@ PROCEDURE new-cust-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE riShipTo AS ROWID NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST cust
@@ -1230,11 +1235,23 @@ PROCEDURE new-cust-no :
          FIND company WHERE company.company = g_company NO-LOCK NO-ERROR.
          IF AVAIL company THEN ar-inv.curr-code[1]:SCREEN-VALUE = company.curr-code.
       END.
-      FIND FIRST shipto WHERE shipto.company = g_company 
-                       AND shipto.cust-no = cust.cust-no
-                       NO-LOCK NO-ERROR.
-      IF AVAIL shipto THEN ASSIGN ar-inv.ship-id:SCREEN-VALUE = shipto.ship-id
-                               ship_name:SCREEN-VALUE = shipto.ship-name.
+      
+      RUN Customer_GetDefaultShipTo IN hdCustomerProcs(
+          INPUT  g_company,
+          INPUT  cust.cust-no,
+          OUTPUT riShipTo
+          ).
+          
+      FIND FIRST shipto NO-LOCK 
+           WHERE ROWID(shipto) EQ riShipTo
+           NO-ERROR.
+        
+        IF AVAILABLE shipto THEN 
+            ASSIGN  
+                ar-inv.ship-id:SCREEN-VALUE = shipto.ship-id
+                ship_name:SCREEN-VALUE      = shipto.ship-name
+                .   
+            
       FIND currency WHERE currency.company = g_company
                    AND currency.c-code = cust.curr-code NO-LOCK NO-ERROR.
       IF AVAIL currency THEN DISPLAY currency.ex-rate @ ar-inv.ex-rate WITH FRAME {&FRAME-NAME}.

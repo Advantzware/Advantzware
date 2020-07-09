@@ -48,6 +48,23 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i NEW SHARED}
 {sys/inc/varasgn.i}
 
+DEFINE VARIABLE iAPIOutboundIDFilter AS INTEGER NO-UNDO.
+
+DEFINE VARIABLE lSuperAdmin AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cApiType    AS CHARACTER NO-UNDO.
+
+
+DEFINE VARIABLE hdPgmMstrSecur AS HANDLE NO-UNDO.
+RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmMstrSecur.
+
+RUN epCanAccess IN hdPgmMstrSecur (
+    INPUT  "browsers/APIOutbound.w", /* Program Name */
+    INPUT  "",                     /* Function */
+    OUTPUT lSuperAdmin
+    ).
+    
+DELETE PROCEDURE hdPgmMstrSecur.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -72,11 +89,11 @@ CREATE WIDGET-POOL.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table APIOutbound.apiID APIOutbound.clientID APIOutbound.authType APIOutbound.requestDataType APIOutbound.requestVerb APIOutbound.Inactive   
+&Scoped-define FIELDS-IN-QUERY-br_table APIOutbound.apiID APIOutbound.clientID APIOutbound.authType APIOutbound.requestType APIOutbound.requestDataType APIOutbound.requestVerb APIOutbound.Inactive fGetApiType() @ cApiType   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH APIOutbound WHERE (~{&KEY-PHRASE}) AND     APIOutbound.company EQ g_company AND     (IF fiAPIID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN         TRUE      ELSE         APIOutbound.apiID BEGINS fiAPIID:SCREEN-VALUE) AND     (IF fiClientID:SCREEN-VALUE EQ "" THEN         TRUE      ELSE         APIOutbound.clientID BEGINS fiClientID:SCREEN-VALUE) AND     (IF cbRequestDataType:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestDataType EQ cbRequestDataType:SCREEN-VALUE) AND     (IF cbRequestVerb:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestVerb EQ cbRequestVerb:SCREEN-VALUE) AND     (IF cbStatus:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE IF cbStatus:SCREEN-VALUE EQ "Active" THEN         APIOutbound.Inactive EQ NO      ELSE         APIOutbound.Inactive EQ ELSE)     NO-LOCK     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH APIOutbound WHERE (~{&KEY-PHRASE}) AND     APIOutbound.company EQ g_company AND     (IF fiAPIID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN         TRUE      ELSE         APIOutbound.apiID BEGINS fiAPIID:SCREEN-VALUE) AND     (IF fiClientID:SCREEN-VALUE EQ "" THEN         TRUE      ELSE         APIOutbound.clientID BEGINS fiClientID:SCREEN-VALUE) AND     (IF cbRequestDataType:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestDataType EQ cbRequestDataType:SCREEN-VALUE) AND     (IF cbRequestVerb:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestVerb EQ cbRequestVerb:SCREEN-VALUE) AND     (IF cbStatus:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE IF cbStatus:SCREEN-VALUE EQ "Active" THEN         APIOutbound.Inactive EQ NO      ELSE         APIOutbound.Inactive EQ YES)     NO-LOCK     ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-br_table FOR EACH APIOutbound WHERE (~{&KEY-PHRASE}) AND     APIOutbound.company EQ g_company AND     APIOutbound.apiOutboundID GT iAPIOutboundIDFilter AND     (IF fiAPIID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN         TRUE      ELSE         APIOutbound.apiID BEGINS fiAPIID:SCREEN-VALUE) AND     (IF fiClientID:SCREEN-VALUE EQ "" THEN         TRUE      ELSE         APIOutbound.clientID BEGINS fiClientID:SCREEN-VALUE) AND     (IF cbRequestDataType:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestDataType EQ cbRequestDataType:SCREEN-VALUE) AND     (IF cbRequestVerb:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestVerb EQ cbRequestVerb:SCREEN-VALUE) AND     (IF cbStatus:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE IF cbStatus:SCREEN-VALUE EQ "Active" THEN         APIOutbound.Inactive EQ NO      ELSE         APIOutbound.Inactive EQ YES)     NO-LOCK     ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH APIOutbound WHERE (~{&KEY-PHRASE}) AND     APIOutbound.company EQ g_company AND     APIOutbound.apiOutboundID GT iAPIOutboundIDFilter AND     (IF fiAPIID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN         TRUE      ELSE         APIOutbound.apiID BEGINS fiAPIID:SCREEN-VALUE) AND     (IF fiClientID:SCREEN-VALUE EQ "" THEN         TRUE      ELSE         APIOutbound.clientID BEGINS fiClientID:SCREEN-VALUE) AND     (IF cbRequestDataType:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestDataType EQ cbRequestDataType:SCREEN-VALUE) AND     (IF cbRequestVerb:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE         APIOutbound.requestVerb EQ cbRequestVerb:SCREEN-VALUE) AND     (IF cbStatus:SCREEN-VALUE EQ "All" THEN         TRUE      ELSE IF cbStatus:SCREEN-VALUE EQ "Active" THEN         APIOutbound.Inactive EQ NO      ELSE         APIOutbound.Inactive EQ YES)     NO-LOCK     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br_table APIOutbound
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table APIOutbound
 
@@ -139,6 +156,15 @@ RUN set-attribute-list (
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetApiType B-table-Win 
+FUNCTION fGetApiType RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -172,12 +198,12 @@ DEFINE VARIABLE cbStatus AS CHARACTER FORMAT "X(256)":U INITIAL "All"
 
 DEFINE VARIABLE fiAPIId AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 25 BY 1
+     SIZE 32 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fiAPIIDLabel AS CHARACTER FORMAT "X(256)":U INITIAL "API ID" 
      VIEW-AS FILL-IN 
-     SIZE 25 BY .81
+     SIZE 32 BY .81
      FGCOLOR 1 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiClientID AS CHARACTER FORMAT "X(256)":U 
@@ -197,7 +223,7 @@ DEFINE VARIABLE fiRequestDataTypeLabel AS CHARACTER FORMAT "X(256)":U INITIAL "R
 
 DEFINE VARIABLE fiRequestVerbLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Request Verb" 
      VIEW-AS FILL-IN 
-     SIZE 21 BY .81
+     SIZE 20.4 BY .81
      FGCOLOR 1 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fiStatusLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Status" 
@@ -219,16 +245,18 @@ DEFINE BROWSE br_table
             WIDTH 33.2
       APIOutbound.clientID COLUMN-LABEL "Client ID" FORMAT "x(16)":U
             WIDTH 23.6
-      APIOutbound.authType COLUMN-LABEL "Authentication Type" FORMAT "x(8)":U
-            WIDTH 23
+      APIOutbound.authType COLUMN-LABEL "Auth Type" FORMAT "x(8)":U
+            WIDTH 12
       APIOutbound.requestType COLUMN-LABEL "Request Type" FORMAT "x(8)":U
-            WIDTH 17
+            WIDTH 14
       APIOutbound.requestDataType COLUMN-LABEL "Request Data Type" FORMAT "x(8)":U
             WIDTH 19
       APIOutbound.requestVerb COLUMN-LABEL "Request Verb" FORMAT "x(8)":U
-            WIDTH 16
+            WIDTH 13
       APIOutbound.Inactive COLUMN-LABEL "Status" FORMAT "Inactive/Active":U
             WIDTH 20.8
+      fGetApiType() @ cApiType COLUMN-LABEL "Type" 
+            WIDTH 15
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 157.6 BY 20
@@ -239,15 +267,15 @@ DEFINE BROWSE br_table
 
 DEFINE FRAME F-Main
      fiAPIIDLabel AT ROW 1 COL 3 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     fiClientIDLabel AT ROW 1 COL 34 COLON-ALIGNED NO-LABEL WIDGET-ID 20
-     fiRequestDataTypeLabel AT ROW 1 COL 62 COLON-ALIGNED NO-LABEL WIDGET-ID 18
-     fiRequestVerbLabel AT ROW 1 COL 96.8 COLON-ALIGNED NO-LABEL WIDGET-ID 16
-     fiStatusLabel AT ROW 1 COL 123.6 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     fiClientIDLabel AT ROW 1 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     fiRequestDataTypeLabel AT ROW 1 COL 58.8 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     fiRequestVerbLabel AT ROW 1 COL 86.6 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     fiStatusLabel AT ROW 1 COL 107.8 COLON-ALIGNED NO-LABEL WIDGET-ID 14
      fiAPIId AT ROW 1.95 COL 5 NO-LABEL WIDGET-ID 2
-     fiClientID AT ROW 1.95 COL 34.2 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     cbRequestDataType AT ROW 1.95 COL 62.2 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     cbRequestVerb AT ROW 1.95 COL 96.8 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     cbStatus AT ROW 1.95 COL 123.6 COLON-ALIGNED NO-LABEL WIDGET-ID 22
+     fiClientID AT ROW 1.95 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     cbRequestDataType AT ROW 1.95 COL 58.8 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     cbRequestVerb AT ROW 1.95 COL 86.6 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     cbStatus AT ROW 1.95 COL 107.8 COLON-ALIGNED NO-LABEL WIDGET-ID 22
      btGo AT ROW 3.14 COL 5 WIDGET-ID 24
      br_table AT ROW 4.33 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -383,6 +411,7 @@ ASSIGN
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH APIOutbound WHERE (~{&KEY-PHRASE}) AND
     APIOutbound.company EQ g_company AND
+    APIOutbound.apiOutboundID GT iAPIOutboundIDFilter AND
     (IF fiAPIID:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN
         TRUE
      ELSE
@@ -433,7 +462,7 @@ ON DEFAULT-ACTION OF br_table IN FRAME F-Main
 DO:
     DEFINE VARIABLE phandle  AS HANDLE    NO-UNDO.
     DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-
+    
     {methods/run_link.i "CONTAINER-SOURCE" "SELECT-PAGE" "(2)"}.  
 END.
 
@@ -634,6 +663,35 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cRequestDataTypeList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cRequestVerbList     AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    RUN Outbound_GetRequestDataTypeList IN hdOutboundProcs (
+        OUTPUT cRequestDataTypeList
+        ).
+    
+    RUN Outbound_GetRequestVerbList IN hdOutboundProcs (
+        OUTPUT cRequestVerbList
+        ).
+    
+    DELETE PROCEDURE hdOutboundProcs.
+    
+    ASSIGN
+        cbRequestDataType:LIST-ITEMS = "All" + "," + cRequestDataTypeList
+        cbRequestVerb:LIST-ITEMS     = "All" + "," + cRequestVerbList
+        .
+
+    IF lSuperAdmin THEN
+        iAPIOutboundIDFilter = 0.
+    ELSE
+        iAPIOutboundIDFilter = 5000.
+
     RUN dispatch ('open-query').
 END PROCEDURE.
 
@@ -706,6 +764,26 @@ PROCEDURE value-changed-proc :
         APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
      END.
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetApiType B-table-Win 
+FUNCTION fGetApiType RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose: Returns the API record type(Custom/System) 
+    Notes:  
+------------------------------------------------------------------------------*/
+
+    IF (AVAILABLE APIOutbound AND APIOutbound.apiOutboundID GT 5000) THEN 
+        RETURN "Custom".
+    ELSE
+        RETURN "System".
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

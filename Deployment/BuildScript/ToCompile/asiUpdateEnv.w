@@ -1340,7 +1340,7 @@ PROCEDURE ipBackupDataFiles :
     END.
     OUTPUT CLOSE.
 
-&SCOPED-DEFINE cFile dynSubjectParamSEt
+&SCOPED-DEFINE cFile dynSubjectParamSet
     OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
@@ -1355,6 +1355,20 @@ PROCEDURE ipBackupDataFiles :
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile dynSubjectWhere
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile dynPrgrmsPage
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile dynLookup
     OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
@@ -2595,6 +2609,10 @@ PROCEDURE ipDataFix :
         RUN ipDataFix161500.
     IF fIntVer(cThisEntry) LT 20010000 THEN  
         RUN ipDataFix200100.
+    IF fIntVer(cThisEntry) LT 20011000 THEN  
+        RUN ipDataFix200110.
+    IF fIntVer(cThisEntry) LT 20020000 THEN  
+        RUN ipDataFix200200.
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -2910,8 +2928,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160880 C-Win 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160880 C-Win 
 PROCEDURE ipDataFix160880 :
 /*------------------------------------------------------------------------------
  Purpose:
@@ -2927,6 +2943,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix160890 C-Win 
 PROCEDURE ipDataFix160890 :
 /*------------------------------------------------------------------------------
  Purpose:
@@ -3043,7 +3060,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix200100 C-Win
 PROCEDURE ipDataFix200100:
 /*------------------------------------------------------------------------------
@@ -3091,6 +3107,104 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix200110 C-Win
+PROCEDURE ipDataFix200110:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 200110...").
+
+    /* Ticket #68616 Additional security to API Inbound and Outbound */
+    &SCOPED-DEFINE cTable apiinbound
+    FIND LAST {&cTable} NO-LOCK NO-ERROR.
+    IF AVAIL {&cTable} THEN DO:
+        IF {&cTable}.{&cTable}ID LT 5000 THEN ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = 5000.
+        ELSE ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = {&cTable}.{&cTable}ID.
+    END.
+    ELSE ASSIGN 
+        CURRENT-VALUE({&cTable}ID_seq) = 5000.
+            
+    &SCOPED-DEFINE cTable apiinbounddetail
+    FIND LAST {&cTable} NO-LOCK NO-ERROR.
+    IF AVAIL {&cTable} THEN DO:
+        IF {&cTable}.{&cTable}ID LT 5000 THEN ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = 5000.
+        ELSE ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = {&cTable}.{&cTable}ID.
+    END.
+    ELSE ASSIGN 
+        CURRENT-VALUE({&cTable}ID_seq) = 5000.
+            
+    &SCOPED-DEFINE cTable apioutbound
+    FIND LAST {&cTable} NO-LOCK NO-ERROR.
+    IF AVAIL {&cTable} THEN DO:
+        IF {&cTable}.{&cTable}ID LT 5000 THEN ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = 5000.
+        ELSE ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = {&cTable}.{&cTable}ID.
+    END.
+    ELSE ASSIGN 
+        CURRENT-VALUE({&cTable}ID_seq) = 5000.
+            
+    &SCOPED-DEFINE cTable apioutbounddetail
+    FIND LAST {&cTable} NO-LOCK NO-ERROR.
+    IF AVAIL {&cTable} THEN DO:
+        IF {&cTable}.{&cTable}ID LT 5000 THEN ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = 5000.
+        ELSE ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = {&cTable}.{&cTable}ID.
+    END.
+    ELSE ASSIGN 
+        CURRENT-VALUE({&cTable}ID_seq) = 5000.
+            
+    &SCOPED-DEFINE cTable apioutboundtrigger
+    FIND LAST {&cTable} NO-LOCK NO-ERROR.
+    IF AVAIL {&cTable} THEN DO:
+        IF {&cTable}.{&cTable}ID LT 5000 THEN ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = 5000.
+        ELSE ASSIGN 
+            CURRENT-VALUE({&cTable}ID_seq) = {&cTable}.{&cTable}ID.
+    END.
+    ELSE ASSIGN 
+        CURRENT-VALUE({&cTable}ID_seq) = 5000.
+            
+            
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix200200 C-Win
+PROCEDURE ipDataFix200200:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 200200...").
+
+    /* Conversion program for ticket #69261 */
+    /* The field stax.tax-rate[5] value will be moved to new field 
+       stax.taxableLimit, when the stax.tax-dscr1[5] field's value is "Dollor Limit" */
+    DO TRANSACTION:
+        FOR EACH stax EXCLUSIVE-LOCK:
+            IF stax.tax-dscr1[5] EQ "Dollar Limit" THEN
+                ASSIGN
+                    stax.taxableLimit = stax.tax-rate1[5]
+                    stax.tax-rate1[5] = 0
+                    stax.tax-dscr1[5] = ""
+                    stax.tax-code1[5] = ""
+                    stax.tax-frt1[5]  = FALSE
+                    .
+        END.
+    END.
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
@@ -3103,12 +3217,13 @@ PROCEDURE ipDataFix999999 :
 
     RUN ipUseOldNK1.
     RUN ipAuditSysCtrl.
-    RUN ipLoadJasperData.
+    RUN ipLoadDAOAData.
     RUN ipLoadAPIData.
     RUN ipSetCueCards.
     RUN ipDeleteAudit.
     RUN ipCleanTemplates.
-
+    RUN ipResetCostGroups.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3864,14 +3979,14 @@ PROCEDURE ipLoadAPIData:
 
     DISABLE TRIGGERS FOR LOAD OF APIInbound.
     DISABLE TRIGGERS FOR LOAD OF APIInboundDetail.
-    DISABLE TRIGGERS FOR LOAD OF APIInboundEvent.
     DISABLE TRIGGERS FOR LOAD OF APIOutbound.
     DISABLE TRIGGERS FOR LOAD OF APIOutboundDetail.
-    DISABLE TRIGGERS FOR LOAD OF APIOutboundEvent.
     DISABLE TRIGGERS FOR LOAD OF APIOutboundTrigger.
+    DISABLE TRIGGERS FOR LOAD OF APIClient.
+    DISABLE TRIGGERS FOR LOAD OF APIClientXref.
 
 &SCOPED-DEFINE tablename APIInbound
-    FOR EACH {&tablename}:
+    FOR EACH {&tablename} WHERE {&tablename}.{&tablename}ID LT 5000:
         DELETE {&tablename}.
     END.
     INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
@@ -3884,7 +3999,7 @@ PROCEDURE ipLoadAPIData:
     INPUT CLOSE.
 
 &SCOPED-DEFINE tablename APIInboundDetail
-    FOR EACH {&tablename}:
+    FOR EACH {&tablename} WHERE {&tablename}.{&tablename}ID LT 5000:
         DELETE {&tablename}.
     END.
     INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
@@ -3897,38 +4012,20 @@ PROCEDURE ipLoadAPIData:
     INPUT CLOSE.
 
 &SCOPED-DEFINE tablename APIOutbound
-    FOR EACH {&tablename}:
-        CREATE tt{&tablename}.
-        ASSIGN 
-            tt{&tablename}.apiOutboundID = {&tablename}.apiOutboundID
-            tt{&tablename}.endPoint = {&tablename}.endPoint
-            tt{&tablename}.userName = tt{&tablename}.userName
-            tt{&tablename}.password = {&tablename}.password.
+    FOR EACH {&tablename} WHERE {&tablename}.{&tablename}ID LT 5000:
         DELETE {&tablename}.
     END.
-    
     INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE {&tablename}.
         IMPORT {&tablename} NO-ERROR.
         IF ERROR-STATUS:ERROR THEN 
             DELETE {&tablename}.
-        FIND tt{&tablename} WHERE 
-            tt{&tablename}.apiOutboundID EQ {&tablename}.apiOutboundID
-            NO-ERROR.
-        IF AVAIL tt{&tablename} THEN ASSIGN 
-            {&tablename}.endPoint = tt{&tablename}.endPoint
-            {&tablename}.userName = tt{&tablename}.userName
-            {&tablename}.password = tt{&tablename}.password.
-        ELSE ASSIGN
-            {&tablename}.endPoint = ""
-            {&tablename}.userName = ""
-            {&tablename}.password = "".
     END.
     INPUT CLOSE.
         
 &SCOPED-DEFINE tablename APIOutboundDetail
-    FOR EACH {&tablename}:
+    FOR EACH {&tablename} WHERE {&tablename}.{&tablename}ID LT 5000:
         DELETE {&tablename}.
     END.
     INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
@@ -3941,7 +4038,33 @@ PROCEDURE ipLoadAPIData:
     INPUT CLOSE.
 
 &SCOPED-DEFINE tablename APIOutboundTrigger
-    FOR EACH {&tablename}:
+    FOR EACH {&tablename} WHERE {&tablename}.{&tablename}ID LT 5000:
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename APIClient
+    FOR EACH {&tablename} WHERE {&tableName}.clientID BEGINS "_default":
+        DELETE {&tablename}.
+    END.
+    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename APIClientXref
+    FOR EACH {&tablename} WHERE {&tableName}.clientID BEGINS "_default":
         DELETE {&tablename}.
     END.
     INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
@@ -4000,6 +4123,23 @@ PROCEDURE ipLoadAuditRecs :
                 CREATE {&tablename}.
                 BUFFER-COPY tt{&tablename} TO {&tablename}.
             END.
+            /* Ensure OUR defaults are set */
+            ASSIGN 
+                {&tableName}.auditCreateDefault = tt{&tableName}.auditCreateDefault
+                {&tableName}.auditUpdateDefault = tt{&tableName}.auditUpdateDefault
+                {&tableName}.auditDeleteDefault = tt{&tableName}.auditDeleteDefault
+                {&tableName}.auditStackDefault = tt{&tableName}.auditStackDefault
+                {&tableName}.ExpireDaysDefault = tt{&tableName}.ExpireDaysDefault
+                .
+            /* and make sure THEIR activation is AT LEAST the default */
+            ASSIGN 
+                {&tableName}.auditCreate = IF {&tableName}.auditCreateDefault THEN TRUE ELSE {&tableName}.auditCreate
+                {&tableName}.auditUpdate = IF {&tableName}.auditUpdateDefault THEN TRUE ELSE {&tableName}.auditUpdate
+                {&tableName}.auditDelete = IF {&tableName}.auditDeleteDefault THEN TRUE ELSE {&tableName}.auditDelete
+                {&tableName}.auditStack = IF {&tableName}.auditStackDefault THEN TRUE ELSE {&tableName}.auditStack
+                {&tableName}.expireDays = IF {&tableName}.ExpireDaysDefault NE 0 THEN {&tableName}.ExpireDaysDefault ELSE {&tableName}.ExpireDays
+                . 
+            
         END.
     END.
     INPUT CLOSE.
@@ -4115,37 +4255,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadDynPrgrmsPage C-Win
-PROCEDURE ipLoadDynPrgrmsPage:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    RUN ipStatus ("  Loading dynPrgrmsPage Records").
-
-    &SCOPED-DEFINE tablename dynPrgrmsPage
-    
-    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
-    
-    FOR EACH {&tablename} EXCLUSIVE:
-        DELETE {&tablename}.
-    END.
-    
-    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
-    REPEAT:
-        CREATE {&tablename}.
-        IMPORT {&tablename}.
-    END.
-    INPUT CLOSE.
-
-    EMPTY TEMP-TABLE tt{&tablename}.
-
-END PROCEDURE.
-    
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadEmailCodes C-Win 
 PROCEDURE ipLoadEmailCodes :
     /*------------------------------------------------------------------------------
@@ -4252,8 +4361,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadJasperData C-Win 
-PROCEDURE ipLoadJasperData :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadDAOAData C-Win 
+PROCEDURE ipLoadDAOAData :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -4269,12 +4378,12 @@ PROCEDURE ipLoadJasperData :
     DISABLE TRIGGERS FOR LOAD OF dynParamSet.
     DISABLE TRIGGERS FOR LOAD OF dynParamValue.
     DISABLE TRIGGERS FOR LOAD OF dynParamSetDtl.
+    DISABLE TRIGGERS FOR LOAD OF dynPrgrmsPage.
+    DISABLE TRIGGERS FOR LOAD OF dynLookup.
     
     /* Remove all records that we plan to replace */
     FOR EACH dynSubject EXCLUSIVE WHERE 
-        dynSubject.subjecttype EQ "system" AND 
-        dynSubject.user-id EQ "_default"
-        BY dynSubject.subjectid:
+        dynSubject.subjectid LT 5000:
         FOR EACH dynSubjectTable OF dynSubject EXCLUSIVE:
             DELETE dynSubjectTable.
         END.
@@ -4306,6 +4415,14 @@ PROCEDURE ipLoadJasperData :
     FOR EACH dynParamValue EXCLUSIVE WHERE 
         dynParamValue.user-id EQ "_default":
         DELETE dynParamValue.
+    END.
+
+    FOR EACH dynPrgrmsPage EXCLUSIVE:
+        DELETE dynPrgrmsPage.
+    END.
+
+    FOR EACH dynLookup:
+        DELETE dynLookup.
     END.
 
 &SCOPED-DEFINE tablename dynSubject
@@ -4397,6 +4514,28 @@ PROCEDURE ipLoadJasperData :
     INPUT CLOSE.
 
 &SCOPED-DEFINE tablename dynParamValue
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename dynPrgrmsPage
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename dynLookup
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
@@ -4681,6 +4820,7 @@ PROCEDURE ipLoadOEAutoApproveNK1s:
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     DISABLE TRIGGERS FOR DUMP OF {&tablename}.
 
+    EMPTY TEMP-TABLE tt{&tablename}.
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
         CREATE tt{&tablename}.
@@ -5185,18 +5325,19 @@ PROCEDURE ipMoveUserMenusToDatabase :
         /* look for each menu option in the user's custom menu.lst */
         FOR EACH prgrms NO-LOCK
             WHERE prgrms.menu_item EQ YES
-              AND prgrms.menuOrder GT 0
-              AND prgrms.menuLevel GT 0
-              AND prgrms.mnemonic  NE ""
+            AND prgrms.menuOrder GT 0
+            AND prgrms.menuLevel GT 0
+            AND prgrms.mnemonic  NE ""
             :
             /* new additions, do not add to user's exceptions */
             IF CAN-DO("r-jcstdN.,translatn.,userLang.",prgrms.prgmname) THEN
-            NEXT.
+                NEXT.
             /* if found, skip to next menu option */
             IF CAN-FIND(FIRST ttUserMenu
-                        WHERE ttUserMenu.prgmname EQ prgrms.prgmname) THEN DO:
+                WHERE ttUserMenu.prgmname EQ prgrms.prgmname) THEN 
+            DO:
                 IF prgrms.itemParent NE "" THEN
-                RUN ipActivateParent (prgrms.itemParent, ENTRY(idx,cListUsers)).
+                    RUN ipActivateParent (prgrms.itemParent, ENTRY(idx,cListUsers)).
                 NEXT.
             END. /* if can-find */
             /* menu option not found in menu.lst, add as an exception */
@@ -5212,6 +5353,9 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipProcessAll C-Win 
 PROCEDURE ipProcessAll :
@@ -5750,6 +5894,36 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipResetCostGroups C-Win
+PROCEDURE ipResetCostGroups:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Reset Cost Groups and Categories").
+
+    DEF VAR cOrigPropath AS CHAR NO-UNDO.
+    DEF VAR cNewPropath AS CHAR NO-UNDO.
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
+        PROPATH = cNewPropath.
+        
+    RUN est/ResetCostGroupsAndCategories.p.   
+    
+    ASSIGN 
+        PROPATH = cOrigPropath.     
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetAdminPwd C-Win 
 PROCEDURE ipSetAdminPwd :
 /*------------------------------------------------------------------------------
@@ -5912,7 +6086,7 @@ PROCEDURE ipSetMonitorPwd :
     DO:
         BUFFER-COPY _User EXCEPT _tenantID _User._Password TO tempUser.
         ASSIGN 
-            tempUser._Password = "laaEbPjiXlakhcq".
+            tempUser._Password = "laaEbPjiXlakhcql".
         DELETE _User.
         CREATE _User.
         BUFFER-COPY tempUser EXCEPT _tenantid TO _User.
@@ -5922,7 +6096,7 @@ PROCEDURE ipSetMonitorPwd :
         CREATE _User.
         ASSIGN
             _User._UserId = "monitor"
-            _User._Password = "laaEbPjiXlakhcq".
+            _User._Password = "laaEbPjiXlakhcql".
     END.
 
     RELEASE _user.
@@ -6125,8 +6299,6 @@ PROCEDURE ipUpdateMaster :
         RUN ipLoadCueCardText IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\zMessage.d") <> ? THEN
         RUN ipLoadZmessage IN THIS-PROCEDURE.
-    IF SEARCH(cUpdDataDir + "\dynPrgrmsPage.d") <> ? THEN
-        RUN ipLoadDynPrgrmsPage IN THIS-PROCEDURE.
     IF SEARCH(cUpdDataDir + "\naics.d") <> ? THEN
         RUN ipLoadNaicsData IN THIS-PROCEDURE.
 
@@ -6329,16 +6501,6 @@ PROCEDURE ipUpdateUserControl :
                                  STRING(month(today),"99") +
                                  STRING(day(today),"99") +
                                  timeString.
-        FIND FIRST rec_key WHERE
-            rec_key.table_name = "usercontrol" AND
-            rec_key.rec_key = usercontrol.rec_key
-            NO-LOCK NO-ERROR.
-        IF NOT AVAIL rec_key THEN DO:
-            CREATE rec_key.
-            ASSIGN
-                rec_key.table_name = "usercontrol"
-                rec_key.rec_key = usercontrol.rec_key.
-        END.
     END.
     ELSE DO:
         ASSIGN

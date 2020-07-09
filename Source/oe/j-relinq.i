@@ -91,13 +91,7 @@ ELSE DO:
 
   IF fi_cust-no EQ "" AND fi_i-no EQ "" AND fi_po-no EQ "" AND
      fi_job-no EQ "" THEN
-  DO:
-     &SCOPED-DEFINE open-query              ~
-        OPEN QUERY {&browse-name}          ~
-            {&for-each1blank}              ~
-                USE-INDEX delpost NO-LOCK, ~
-                {&for-each2blank}
-  END.
+     RUN FIRST-QUERY.
   ELSE
   DO:
     &SCOPED-DEFINE open-query              ~
@@ -105,7 +99,7 @@ ELSE DO:
             {&for-each1}                   ~
                 USE-INDEX delpost NO-LOCK, ~
                 {&for-each2}
+      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                     ELSE {&open-query} {&sortby-phrase-desc}.                 
   END.
-  IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                 ELSE {&open-query} {&sortby-phrase-desc}. 
 END.

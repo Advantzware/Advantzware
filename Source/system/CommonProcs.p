@@ -177,6 +177,141 @@ lUserAMPM = AVAILABLE users AND users.AMPM.
 &ANALYZE-RESUME
 
 /* **********************  Internal Procedures  *********************** */
+
+&IF DEFINED(EXCLUDE-spCommon_DateRule) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_DateRule Procedure
+PROCEDURE spCommon_DateRule:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiDateRuleID  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScope       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtBaseDate   AS DATE      NO-UNDO.
+    DEFINE INPUT  PARAMETER iprBaseRowID   AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER iprResultRowID AS ROWID     NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opdtDate       AS DATE      NO-UNDO.
+
+    DEFINE VARIABLE cBaseField AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dtDate     AS DATE      NO-UNDO.
+    DEFINE VARIABLE hBuffer    AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hQuery     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hTable     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iDayOfWeek AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lSkipDay   AS LOGICAL   NO-UNDO EXTENT 7.
+
+    IF iprBaseRowID NE ? THEN DO:
+        /* get the date rule record */
+        IF ipiDateRuleID NE ? AND ipiDateRuleID NE 0 THEN
+        FIND FIRST DateRules NO-LOCK
+             WHERE DateRules.dateRuleID EQ ipiDateRuleID
+             NO-ERROR.
+        ELSE
+        FIND FIRST DateRules NO-LOCK
+             WHERE DateRules.Scope   EQ ipcScope
+               AND DateRules.ScopeID EQ ipcScopeID
+             NO-ERROR.
+        IF NOT AVAILABLE DateRules THEN RETURN.
+        IF DateRules.baseTable EQ "" THEN RETURN.
+        IF DateRules.baseField EQ "" THEN RETURN.
+        FIND FIRST ASI._file NO-LOCK
+             WHERE ASI._file._file-name EQ DateRules.baseTable
+             NO-ERROR.
+        IF NOT AVAILABLE ASI._file THEN RETURN.
+        FIND FIRST ASI._field OF ASI._file NO-LOCK
+             WHERE ASI._field._field-name EQ DateRules.baseField
+             NO-ERROR.
+        IF NOT AVAILABLE ASI._field THEN RETURN.
+        IF ASI._field._data-type NE "DATE" THEN RETURN.
+    
+        /* obtain the base table's field value */
+        CREATE QUERY hQuery.
+        CREATE BUFFER hBuffer FOR TABLE DateRules.baseTable.
+        hQuery:ADD-BUFFER(hBuffer).
+        hQuery:QUERY-PREPARE(
+            "FOR EACH " + DateRules.baseTable + " NO-LOCK " +
+            "WHERE ROWID(" + DateRules.baseTable + ") = TO-ROWID(~"" +
+            STRING(iprBaseRowID) + "~")"
+            ).
+        hQuery:QUERY-OPEN().
+        hTable = hQuery:GET-BUFFER-HANDLE(DateRules.baseTable).
+        hQuery:GET-FIRST().
+        cBaseField = hTable:BUFFER-FIELD(DateRules.baseField):BUFFER-VALUE() NO-ERROR.
+        DELETE OBJECT hBuffer.
+        DELETE OBJECT hQuery.
+        dtDate = DATE(cBaseField) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN.
+    END.
+    ELSE
+    dtDate = ipdtBaseDate.
+
+    /* calculate date based on date rules */
+    /* which week days to skip */
+    DO idx = 1 TO 7:
+        lSkipDay[idx] = SUBSTRING(DateRules.skipDays,idx,1) EQ "Y".
+    END. /* do idx */
+    /* calculate ending date based on above week days to skip */
+    DO idx = 1 TO DateRules.days:
+        DO WHILE TRUE:
+            dtDate = dtDate + 1.
+            /* check if a holiday */
+            IF SUBSTRING(DateRules.skipDays,8,1) EQ "Y" THEN
+            IF CAN-FIND(FIRST reftable
+                        WHERE reftable.reftable  EQ "Holiday"
+                          AND DATE(reftable.loc) EQ dtDate) THEN
+            NEXT.
+            /* check day of week to see if should be skipped */
+            IF NOT lSkipDay[WEEKDAY(dtDate)] THEN
+            LEAVE.
+        END. /* while */
+    END. /* do idx */
+    /* add extra day if past the time limit */
+    IF DateRules.skipTime GT 0 AND DateRules.skipTime GE TIME THEN
+    dtDate = dtDate + 1.
+    opdtDate = dtDate.
+
+    /* check if result table should be updated */
+    IF iprResultRowID EQ ? THEN RETURN.
+    IF DateRules.resultTable EQ "" THEN RETURN.
+    IF DateRules.resultField EQ "" THEN RETURN.
+    FIND FIRST ASI._file NO-LOCK
+         WHERE ASI._file._file-name EQ DateRules.resultTable
+         NO-ERROR.
+    IF NOT AVAILABLE ASI._file THEN RETURN.
+    FIND FIRST ASI._field OF ASI._file NO-LOCK
+         WHERE ASI._field._field-name EQ DateRules.resultField
+         NO-ERROR.
+    IF NOT AVAILABLE ASI._field THEN RETURN.
+    IF ASI._field._data-type NE "DATE" THEN RETURN.
+
+    /* obtain the result table's field to be updated with result date */
+    CREATE QUERY hQuery.
+    CREATE BUFFER hBuffer FOR TABLE DateRules.resultTable.
+    hQuery:ADD-BUFFER(hBuffer).
+    hQuery:QUERY-PREPARE(
+        "FOR EACH " + DateRules.resultTable + " EXCLUSIVE-LOCK " +
+        "WHERE ROWID(" + DateRules.resultTable + ") = TO-ROWID(~"" +
+        STRING(iprBaseRowID) + "~")"
+        ).
+    hQuery:QUERY-OPEN().
+    hTable = hQuery:GET-BUFFER-HANDLE(DateRules.resultTable).
+    DO TRANSACTION:
+        hQuery:GET-FIRST().
+        hTable:BUFFER-FIELD(DateRules.resultField):BUFFER-VALUE() = STRING(opdtDate).
+    END. /* do trans */
+    DELETE OBJECT hBuffer.
+    DELETE OBJECT hQuery.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-spCommon_ParseTime) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_ParseTime Procedure

@@ -100,7 +100,9 @@ END.
           AND {system/brMatches.i  job-hdr.i-no fi_i-no}   ~
           AND job-hdr.est-no    BEGINS fi_est-no    ~
           AND job-hdr.job-no    BEGINS fi_job-no    ~
-          AND (job-hdr.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
+          AND (job-hdr.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "") ~
+          AND (job-hdr.due-date GE fiBeginDate OR fiBeginDate EQ ?) ~
+          AND (job-hdr.due-date LE fiEndDate OR fiEndDate EQ ?)
 
 &SCOPED-DEFINE for-each1l                            ~
     FOR EACH job-hdr                                ~
@@ -194,10 +196,12 @@ job.start-date job.close-date job.stat
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&SCOPED-DEFINE ENABLED-OBJECTS fi_job-no fi_job-no2 fi_i-no fi_cust-no ~
-fi_est-no fi_ord-no tb_open tb_closed btn_go btn_prev Browser-Table RECT-1 
-&SCOPED-DEFINE DISPLAYED-OBJECTS fi_job-no fi_job-no2 fi_i-no fi_cust-no ~
-fi_est-no fi_ord-no tb_open tb_closed fi_sort-by FI_moveCol
+&Scoped-Define ENABLED-OBJECTS fibeginDate fiEndDate fi_job-no fi_job-no2 ~
+fi_i-no fi_cust-no fi_est-no fi_ord-no tb_open tb_closed btn_go btn_prev ~
+Browser-Table RECT-1 
+&Scoped-Define DISPLAYED-OBJECTS fibeginDate fiEndDate fi_job-no fi_job-no2 ~
+fi_i-no fi_cust-no fi_est-no fi_ord-no tb_open tb_closed fi_sort-by ~
+FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -291,10 +295,15 @@ DEFINE BUTTON btn_prev
      SIZE 20 BY 1
      FONT 6.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+DEFINE VARIABLE fibeginDate AS DATE FORMAT "99/99/9999":U 
      VIEW-AS FILL-IN 
-     SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     SIZE 16.4 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiEndDate AS DATE FORMAT "99/99/9999":U 
+     VIEW-AS FILL-IN 
+     SIZE 16.4 BY 1
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_cust-no AS CHARACTER FORMAT "X(8)":U 
      VIEW-AS FILL-IN 
@@ -322,6 +331,11 @@ DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0
      SIZE 7 BY 1
      BGCOLOR 15  NO-UNDO.
 
+DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+     VIEW-AS FILL-IN 
+     SIZE 9 BY 1
+     BGCOLOR 14 FONT 6 NO-UNDO.
+
 DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
@@ -335,18 +349,18 @@ DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 148 BY 4.05.
+     SIZE 148 BY 4.29.
 
 DEFINE VARIABLE tb_closed AS LOGICAL INITIAL yes 
      LABEL "Closed Jobs" 
      VIEW-AS TOGGLE-BOX
-     SIZE 19 BY 1
+     SIZE 19 BY .91
      FGCOLOR 12 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE tb_open AS LOGICAL INITIAL yes 
      LABEL "Open Jobs" 
      VIEW-AS TOGGLE-BOX
-     SIZE 17 BY 1
+     SIZE 17 BY .91
      FONT 6 NO-UNDO.
 
 /* Query definitions                                                    */
@@ -395,45 +409,53 @@ DEFINE BROWSE Browser-Table
       job.stat
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 148 BY 15.71
+    WITH NO-ASSIGN SEPARATORS SIZE 148 BY 15.48
          FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fi_job-no AT ROW 2.19 COLUMN 6 COLON-ALIGNED NO-LABEL
-     fi_job-no2 AT ROW 2.19 COLUMN 21 COLON-ALIGNED
-     fi_i-no AT ROW 2.19 COLUMN 30 COLON-ALIGNED NO-LABEL
-     fi_cust-no AT ROW 2.19 COLUMN 59 COLON-ALIGNED NO-LABEL
-     fi_est-no AT ROW 2.19 COLUMN 82 COLON-ALIGNED NO-LABEL
-     fi_ord-no AT ROW 2.19 COLUMN 105 COLON-ALIGNED NO-LABEL
-     tb_open AT ROW 1.24 COLUMN 129
-     tb_closed AT ROW 2.43 COLUMN 129
-     btn_go AT ROW 3.62 COLUMN 3
-     btn_prev AT ROW 3.62 COLUMN 17
-     btn_next AT ROW 3.62 COLUMN 38
-     fi_sort-by AT ROW 3.62 COLUMN 66 COLON-ALIGNED
-    FI_moveCol AT ROW 3.62 COLUMN 122 COLON-ALIGNED NO-LABEL WIDGET-ID 46
-     Browser-Table AT ROW 5.05 COLUMN 1 HELP
+     fibeginDate AT ROW 1.91 COL 105.8 COLON-ALIGNED NO-LABEL WIDGET-ID 48
+     fiEndDate AT ROW 1.91 COL 125 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     fi_job-no AT ROW 1.91 COL 2.6 NO-LABEL
+     fi_job-no2 AT ROW 1.91 COL 16.8 COLON-ALIGNED
+     fi_i-no AT ROW 1.95 COL 25 COLON-ALIGNED NO-LABEL
+     fi_cust-no AT ROW 1.91 COL 51.8 COLON-ALIGNED NO-LABEL
+     fi_est-no AT ROW 1.95 COL 71 COLON-ALIGNED NO-LABEL
+     fi_ord-no AT ROW 1.91 COL 89 COLON-ALIGNED NO-LABEL
+     tb_open AT ROW 2.95 COL 108
+     tb_closed AT ROW 2.95 COL 127.2
+     btn_go AT ROW 3.86 COL 2.6
+     btn_prev AT ROW 3.86 COL 16.6
+     btn_next AT ROW 3.86 COL 38
+     fi_sort-by AT ROW 3.86 COL 66 COLON-ALIGNED
+     FI_moveCol AT ROW 3.86 COL 122 COLON-ALIGNED NO-LABEL WIDGET-ID 46
+     Browser-Table AT ROW 5.29 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      "Job#" VIEW-AS TEXT
-          SIZE 8 BY .71 AT ROW 1.24 COLUMN 12
+          SIZE 8 BY .71 AT ROW 1.14 COL 5.8
           FGCOLOR 9 FONT 6
      "FG Item#" VIEW-AS TEXT
-          SIZE 14 BY .71 AT ROW 1.24 COLUMN 38
+          SIZE 14 BY .71 AT ROW 1.14 COL 31.4
           FGCOLOR 9 FONT 6
      "Customer#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COLUMN 63
+          SIZE 13 BY .71 AT ROW 1.14 COL 54.8
           FGCOLOR 9 FONT 6
      "Estimate#" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COLUMN 86
+          SIZE 12 BY .71 AT ROW 1.14 COL 74.8
           FGCOLOR 9 FONT 6
      "Order#" VIEW-AS TEXT
-          SIZE 10 BY .71 AT ROW 1.24 COLUMN 110
+          SIZE 10 BY .71 AT ROW 1.14 COL 92.8
           FGCOLOR 9 FONT 6
      "Click on Yellow Field to" VIEW-AS TEXT
-          SIZE 27 BY 1.19 AT ROW 3.62 COL 96
+          SIZE 27 BY 1.19 AT ROW 3.86 COL 96
+     "Begin Due Date" VIEW-AS TEXT
+          SIZE 18.4 BY .71 AT ROW 1.14 COL 107.4 WIDGET-ID 52
+          FGCOLOR 9 FONT 6
+     "End Due Date" VIEW-AS TEXT
+          SIZE 15 BY .71 AT ROW 1.14 COL 127.8 WIDGET-ID 54
+          FGCOLOR 9 FONT 6
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -720,7 +742,10 @@ DO:
      fi_ord-no
      fi_est-no
      fi_job-no
-     fi_job-no2.
+     fi_job-no2
+     fiBeginDate
+     fiEndDate
+     .
 
     RUN dispatch ("open-query").
 
@@ -1041,6 +1066,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 {sys/inc/chblankcust.i "v-whereamI" }
 
 FI_moveCol = "Sort".
+ 
 DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
 
 /* _UIB-CODE-BLOCK-END */

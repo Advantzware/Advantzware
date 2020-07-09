@@ -13,7 +13,7 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File:
+  File: viewers/APIInbound.w
 
   Description: from VIEWER.W - Template for SmartViewer Objects
 
@@ -36,10 +36,26 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+{custom/globdefs.i}
 
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE lSuperAdmin AS LOGICAL NO-UNDO.
+
+DEFINE VARIABLE hdFileSysProcs AS HANDLE NO-UNDO.
+RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
+
+DEFINE VARIABLE hdPgmMstrSecur AS HANDLE NO-UNDO.
+RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmMstrSecur.
+
+RUN epCanAccess IN hdPgmMstrSecur (
+    INPUT  "viewers/APIInbound.w", /* Program Name */
+    INPUT  "",                     /* Function */
+    OUTPUT lSuperAdmin
+    ).
+    
+DELETE PROCEDURE hdPgmMstrSecur.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -65,13 +81,14 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR APIInbound.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS APIInbound.apiRoute APIInbound.requestHandler 
+&Scoped-Define ENABLED-FIELDS APIInbound.apiRoute APIInbound.requestHandler ~
+APIInbound.importPath 
 &Scoped-define ENABLED-TABLES APIInbound
 &Scoped-define FIRST-ENABLED-TABLE APIInbound
 &Scoped-Define ENABLED-OBJECTS RECT-27 RECT-28 edDescription edRequestData ~
 edResponseData 
 &Scoped-Define DISPLAYED-FIELDS APIInbound.apiRoute ~
-APIInbound.requestHandler 
+APIInbound.requestHandler APIInbound.importPath 
 &Scoped-define DISPLAYED-TABLES APIInbound
 &Scoped-define FIRST-DISPLAYED-TABLE APIInbound
 &Scoped-Define DISPLAYED-OBJECTS fiMessage tgInactive edDescription ~
@@ -147,11 +164,11 @@ DEFINE VARIABLE fiMessage AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-27
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 143 BY 7.38.
+     SIZE 143 BY 7.62.
 
 DEFINE RECTANGLE RECT-28
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 143 BY 9.29.
+     SIZE 143 BY 9.05.
 
 DEFINE RECTANGLE RECT-29
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -180,25 +197,28 @@ DEFINE FRAME F-Main
           SIZE 87 BY 1
           BGCOLOR 15 
      tgInactive AT ROW 2.81 COL 115.4 WIDGET-ID 28
-     edDescription AT ROW 4.24 COL 23 NO-LABEL WIDGET-ID 34
-     cbRequestDataType AT ROW 6.95 COL 92.8 COLON-ALIGNED WIDGET-ID 40
-     cbRequestVerb AT ROW 7 COL 21 COLON-ALIGNED WIDGET-ID 42
-     tgCanBeQueued AT ROW 8.38 COL 115.4 WIDGET-ID 38
-     APIInbound.requestHandler AT ROW 8.43 COL 21 COLON-ALIGNED WIDGET-ID 12
+     edDescription AT ROW 3.81 COL 23 NO-LABEL WIDGET-ID 34
+     cbRequestDataType AT ROW 6.29 COL 92.8 COLON-ALIGNED WIDGET-ID 40
+     cbRequestVerb AT ROW 6.33 COL 21 COLON-ALIGNED WIDGET-ID 42
+     tgCanBeQueued AT ROW 7.43 COL 115.4 WIDGET-ID 38
+     APIInbound.requestHandler AT ROW 7.48 COL 21 COLON-ALIGNED WIDGET-ID 12
           LABEL "Request Handler" FORMAT "x(80)"
           VIEW-AS FILL-IN 
           SIZE 88 BY 1
           BGCOLOR 15 
-     edRequestData AT ROW 10.29 COL 23 NO-LABEL WIDGET-ID 48
+     APIInbound.importPath AT ROW 8.71 COL 21 COLON-ALIGNED WIDGET-ID 64
+          VIEW-AS FILL-IN 
+          SIZE 88 BY 1
+     edRequestData AT ROW 10.52 COL 23 NO-LABEL WIDGET-ID 48
      edResponseData AT ROW 14.95 COL 23 NO-LABEL WIDGET-ID 54
      "Response Data:" VIEW-AS TEXT
           SIZE 18.2 BY .62 AT ROW 15 COL 4 WIDGET-ID 56
-     "Request Data:" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 10.33 COL 6.2 WIDGET-ID 50
      "Description:" VIEW-AS TEXT
-          SIZE 14.2 BY .62 AT ROW 4.33 COL 8 WIDGET-ID 36
+          SIZE 14 BY .62 AT ROW 3.91 COL 9 WIDGET-ID 36
+     "Request Data:" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 10.57 COL 6.2 WIDGET-ID 50
      RECT-27 AT ROW 2.43 COL 2 WIDGET-ID 58
-     RECT-28 AT ROW 10.05 COL 2 WIDGET-ID 60
+     RECT-28 AT ROW 10.29 COL 2 WIDGET-ID 60
      RECT-29 AT ROW 1 COL 1 WIDGET-ID 62
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -301,6 +321,31 @@ ASSIGN
 
  
 
+
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME APIInbound.importPath
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL APIInbound.importPath V-table-Win
+ON HELP OF APIInbound.importPath IN FRAME F-Main /* Import Path */
+DO:
+    DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValid    AS LOGICAL  NO-UNDO.
+   
+    SYSTEM-DIALOG
+    GET-DIR cFileName 
+    TITLE "Select path to import files"
+    UPDATE lvalid.
+      
+    IF lValid THEN 
+        SELF:SCREEN-VALUE = cFileName.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
@@ -493,6 +538,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-row-available V-table-Win 
+PROCEDURE local-row-available :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.    
+    DEFINE VARIABLE cRowState AS CHARACTER NO-UNDO.
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
+
+    RUN pGetRowState (
+        OUTPUT cRowState
+        ).
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    {methods/run_link.i "TABLEIO-SOURCE" "set-buttons" "(INPUT cRowState)"}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
 /*------------------------------------------------------------------------------
@@ -618,15 +689,26 @@ PROCEDURE pEnableFields :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
+    /* Enable only Inactive and Can Be queued for normal users */
+    
     ASSIGN
         tgInactive:SENSITIVE        = TRUE
-        cbRequestVerb:SENSITIVE     = TRUE
-        cbRequestDataType:SENSITIVE = TRUE
         tgCanBeQueued:SENSITIVE     = TRUE
-        edRequestData:READ-ONLY     = FALSE
-        edResponseData:READ-ONLY    = FALSE
-        edDescription:READ-ONLY     = FALSE
         .
+
+    IF lSuperAdmin THEN
+        ASSIGN        
+            cbRequestVerb:SENSITIVE     = TRUE
+            cbRequestDataType:SENSITIVE = TRUE
+            edRequestData:READ-ONLY     = FALSE
+            edResponseData:READ-ONLY    = FALSE
+            edDescription:READ-ONLY     = FALSE
+            .
+    ELSE
+        ASSIGN
+            APIInbound.apiRoute:SENSITIVE       = FALSE
+            APIInbound.requestHandler:SENSITIVE = FALSE            
+            .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -649,8 +731,44 @@ PROCEDURE pFieldValidations :
         opcMessage = "API Route cannot be empty".
         RETURN.
     END.
+
+    IF APIInbound.importPath:SCREEN-VALUE NE "" THEN DO:
+        RUN FileSys_CreateDirectory IN hdFileSysProcs (
+            INPUT  APIInbound.importPath:SCREEN-VALUE,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ) NO-ERROR.
+        
+        IF NOT oplSuccess THEN
+            RETURN.
+    END.
     
     oplSuccess = TRUE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetRowState V-table-Win 
+PROCEDURE pGetRowState :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcRowState AS CHARACTER NO-UNDO.
+    
+    IF AVAILABLE APIInbound THEN
+        opcRowState = "update-only".
+    ELSE
+        opcRowState = "disable-all".
+    
+    IF lSuperAdmin THEN DO:
+        IF AVAILABLE APIInbound THEN
+            opcRowState = "initial".
+        ELSE
+            opcRowState = "add-only".
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -692,6 +810,7 @@ PROCEDURE pUpdateFields :
 
     IF AVAILABLE APIInbound THEN    
         ASSIGN
+            APIInbound.company         = g_company
             APIInbound.Inactive        = tgInactive:CHECKED
             APIInbound.description     = edDescription:SCREEN-VALUE
             APIInbound.requestVerb     = cbRequestVerb:SCREEN-VALUE

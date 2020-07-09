@@ -824,7 +824,7 @@ DEFINE FRAME d-oeitem
           VIEW-AS FILL-IN 
           SIZE 5.8 BY 1
      oe-ordl.spare-dec-1 AT ROW 2.19 COL 51 COLON-ALIGNED WIDGET-ID 18
-          LABEL "Cust" FORMAT "->,>>>,>>9.99"
+          LABEL "Cust" FORMAT "->>,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
      oe-ordl.spare-char-2 AT ROW 2.19 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 16
@@ -1554,7 +1554,8 @@ DO:
           END.
 
           FIND FIRST eb WHERE eb.company = cocode AND
-                              eb.est-no = oe-ordl.est-no:screen-value
+                              eb.est-no = oe-ordl.est-no:screen-value AND
+                              eb.est-no NE ""
                           AND eb.cust-no = oe-ord.cust-no
                           AND ((eb.est-type = 1 AND eb.form-no <> 0) OR
                                (eb.est-type = 2 AND eb.form-no = 0) OR
@@ -4429,7 +4430,8 @@ PROCEDURE display-est-detail :
         NOT CAN-FIND(FIRST tt-item-qty-price WHERE
           tt-item-qty-price.tt-selected = YES AND
           (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
-           (tt-item-qty-price.part-no EQ oe-ordl.i-no:SCREEN-VALUE AND oe-ordl.i-no:SCREEN-VALUE NE ""))) THEN
+           (tt-item-qty-price.part-no EQ oe-ordl.i-no:SCREEN-VALUE AND oe-ordl.i-no:SCREEN-VALUE NE "")))
+           AND oe-ordl.sourceEstimateID:SCREEN-VALUE EQ "" THEN
         DO:
           FIND FIRST quotehd NO-LOCK 
               WHERE quotehd.company EQ est.company AND
@@ -4777,7 +4779,8 @@ DO WITH FRAME {&FRAME-NAME}:
               IF NOT CAN-FIND(FIRST tt-item-qty-price WHERE
                  tt-item-qty-price.tt-selected = YES AND
                  (tt-item-qty-price.part-no EQ oe-ordl.part-no:SCREEN-VALUE OR
-                 (tt-item-qty-price.part-no EQ v-tmp-part AND v-tmp-part EQ ""))) THEN
+                 (tt-item-qty-price.part-no EQ v-tmp-part AND v-tmp-part EQ ""))) 
+                 AND oe-ordl.sourceEstimateID:SCREEN-VALUE EQ "" THEN
                  DO:
                     RUN pGetQuoteRec(xest.est-no,oe-ordl.part-no:SCREEN-VALUE,
                                      v-tmp-part,
@@ -5449,19 +5452,6 @@ PROCEDURE final-steps :
       fil_id = RECID(oe-ordl).
     END.
   END.
-    /*IF oe-ordl.job-no EQ "" THEN
-      MESSAGE " Since job number is blank, a purchase order will not be created "
-              VIEW-AS ALERT-BOX .
-    ELSE
-    IF (oe-ord.est-no EQ "" AND lv-add-mode)                      OR*/
-    IF lv-add-mode                                                OR
-       (NOT ll-new-record AND
-        (v-qty-mod OR oe-ordl.po-no-po EQ 0 OR
-         NOT CAN-FIND(FIRST po-ord
-                      WHERE po-ord.company EQ oe-ordl.company
-                        AND po-ord.po-no   EQ oe-ordl.po-no-po))) THEN
-      RUN po/do-po.p.
- 
     FIND CURRENT oe-ordl.
   /*END.*/
 
@@ -5496,11 +5486,14 @@ PROCEDURE final-steps2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF BUFFER bf-oe-ordl FOR oe-ordl.
-DEF BUFFER bf-itemfg FOR itemfg.
-DEF BUFFER temp-itemfg FOR itemfg.
-DEF VAR v-q-back AS INT NO-UNDO.
-DEF VAR v-q-backl AS INT NO-UNDO.
+DEFINE BUFFER bf-oe-ordl  FOR oe-ordl.
+DEFINE BUFFER bf-itemfg   FOR itemfg.
+DEFINE BUFFER temp-itemfg FOR itemfg.
+
+DEFINE VARIABLE v-q-back     AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-q-backl    AS INTEGER NO-UNDO.
+DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
+
   IF NOT AVAIL oe-ord THEN
       FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
                             AND oe-ord.ord-no  EQ oe-ordl.ord-no
@@ -5534,15 +5527,24 @@ DEF VAR v-q-backl AS INT NO-UNDO.
   END.
 
   DO TRANSACTION:     
-
-    IF oe-ord.type NE "T"                                                 AND
-       (lv-add-mode                                                   OR
+    IF oe-ord.type NE "T" AND
+       (lv-add-mode OR
         (NOT ip-type BEGINS "update-" AND
          (v-qty-mod OR oe-ordl.po-no-po EQ 0 OR lv-new-tandem NE ? OR
           NOT CAN-FIND(FIRST po-ord
                        WHERE po-ord.company EQ oe-ordl.company
-                         AND po-ord.po-no   EQ oe-ordl.po-no-po))))       THEN
-      RUN po/doPo.p (YES).
+                         AND po-ord.po-no   EQ oe-ordl.po-no-po)))) THEN DO:
+        ASSIGN 
+            lMsgResponse = TRUE.
+        IF oe-ord.Pricehold THEN
+            RUN displayMessageQuestionLog(
+                INPUT "33",
+                OUTPUT lMsgResponse 
+                ).
+                           
+        IF lMsgResponse THEN
+            RUN po/doPo.p(YES).
+    END.
 
     FIND CURRENT oe-ordl.    
 
@@ -5556,6 +5558,7 @@ DEF VAR v-q-backl AS INT NO-UNDO.
     FIND CURRENT oe-ordl NO-LOCK.
   END.
           
+              
   /* This section is needed because previous calculations of component
      quantities were based on the quantity before it was updated */
     
@@ -6389,7 +6392,7 @@ PROCEDURE leave-qty :
 
        RUN get-est-cost (lv-est-no).
 
-       IF AVAIL xest AND v-quo-price-log AND NOT ll-got-qtprice THEN DO:
+       IF AVAIL xest AND v-quo-price-log AND NOT ll-got-qtprice AND oe-ordl.sourceEstimateID:SCREEN-VALUE EQ "" THEN DO:
           ASSIGN lv-price = dec(oe-ordl.price:screen-value)
                  lv-pr-uom = oe-ordl.pr-uom:screen-value
                  lv-qty    = DEC(oe-ordl.qty:SCREEN-VALUE)
@@ -7584,6 +7587,7 @@ PROCEDURE prev-quote-proc :
              NOT(quoteqty.price EQ DEC(oe-ordl.price:SCREEN-VALUE) AND
                  quoteqty.uom EQ oe-ordl.pr-uom:SCREEN-VALUE)) 
                OR NOT AVAIL quoteqty 
+               AND oe-ordl.sourceEstimateID:SCREEN-VALUE EQ ""
               THEN
              DO WITH FRAME {&FRAME-NAME}:
                 RUN oe/d-quotedprices.w("",cocode,

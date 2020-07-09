@@ -66,6 +66,7 @@ DEFINE VARIABLE hPgmReason AS HANDLE NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE dtDateChar AS DATE NO-UNDO .
+DEFINE VARIABLE lFirst AS LOGICAL NO-UNDO INIT YES.
 
 RUN methods/prgsecur.p
     (INPUT "FGHstUpd",
@@ -97,6 +98,14 @@ ll-sort-asc = NOT oeinq.
     WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no      ~
       AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code ~
       AND fg-rdtlh.tag MATCHES fi_tag#
+      
+&SCOPED-DEFINE for-each3                               ~
+    FOR EACH fg-rcpth OF itemfg  NO-LOCK               ~
+        WHERE {&key-phrase}                            ~
+          AND fg-rcpth.trans-date GE fi_date           ~
+          AND fg-rcpth.i-no       BEGINS fi_i-no,      ~
+        EACH fg-rdtlh NO-LOCK                          ~
+        WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no 
 
 &SCOPED-DEFINE sortby-log                                                                                   ~
     IF lv-sort-by EQ "i-no"        THEN fg-rcpth.i-no                                                  ELSE ~
@@ -1563,10 +1572,24 @@ PROCEDURE local-open-query :
 
   /* Code placed here will execute AFTER standard behavior.    */
   IF AVAIL itemfg THEN fi_i-no = itemfg.i-no.
+ 
+  IF lFirst THEN DO:
+      lFirst = NO.
+      &SCOPED-DEFINE open-query         ~
+        OPEN QUERY {&browse-name}       ~
+            {&for-each3}                           
+  
+      IF ll-sort-asc THEN 
+          {&open-query} {&sortby-phrase-asc}.
+      ELSE 
+          {&open-query} {&sortby-phrase-desc}.  
 
-  fi_tag# = fi_tag# + '*'.
-  {fginq/j-fgiinq.i}
-  fi_tag# = SUBSTR(fi_tag#,1,LENGTH(fi_tag#) - 1).
+  END.    
+  ELSE DO:    
+      fi_tag# = fi_tag# + '*'.
+      {fginq/j-fgiinq.i}
+      fi_tag# = SUBSTR(fi_tag#,1,LENGTH(fi_tag#) - 1).
+  END.
 
   RUN build-type-list .
   

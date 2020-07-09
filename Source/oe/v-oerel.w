@@ -46,6 +46,10 @@ DEF VAR v-access-close AS LOG.
 DEF VAR v-access-list AS CHAR.
 DEFINE VARIABLE  ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
 DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
+DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+
+/* Procedure to prepare and execute API calls */
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 RUN methods/prgsecur.p
     (INPUT "OEDateMod",
@@ -108,7 +112,8 @@ oe-relh.rel-date oe-relh.spare-char-1 oe-relh.spare-char-2 oe-relh.trailer
 &Scoped-define FIRST-DISPLAYED-TABLE oe-relh
 &Scoped-Define DISPLAYED-OBJECTS fi_hold cust_name ship_name cust_addr1 ~
 ship_addr1 cust_addr2 ship_addr2 cust_city cust_state cust_zip ship_city ~
-ship_state ship_zip line_i-no freight_term qty-ordered qty-rel qty-ship qty-oh 
+ship_state ship_zip line_i-no freight_term qty-ordered qty-rel qty-ship ~
+qty-oh 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -179,6 +184,11 @@ DEFINE VARIABLE fi_hold AS CHARACTER FORMAT "X(10)":U
      VIEW-AS FILL-IN 
      SIZE 15 BY 1 NO-UNDO.
 
+DEFINE VARIABLE freight_term AS CHARACTER FORMAT "x(15)" 
+     LABEL "Freight Terms" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1.
+
 DEFINE VARIABLE line_i-no AS CHARACTER FORMAT "x(15)" 
      LABEL "FG Item #" 
      VIEW-AS FILL-IN 
@@ -227,10 +237,6 @@ DEFINE VARIABLE ship_state AS CHARACTER FORMAT "x(2)"
 DEFINE VARIABLE ship_zip AS CHARACTER FORMAT "x(10)" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1.
-DEFINE VARIABLE freight_term AS CHARACTER FORMAT "x(15)" 
-     LABEL "Freight Terms"
-     VIEW-AS FILL-IN 
-     SIZE 20 BY 1.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -393,9 +399,9 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_hold IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN line_i-no IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN freight_term IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN line_i-no IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN oe-relh.printed IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -446,7 +452,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -519,6 +525,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME oe-relh.carrier
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-relh.carrier V-table-Win
+ON LEAVE OF oe-relh.carrier IN FRAME F-Main /* Carrier */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-carrier NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME oe-relh.cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-relh.cust-no V-table-Win
 ON LEAVE OF oe-relh.cust-no IN FRAME F-Main /* Customer */
@@ -527,19 +547,6 @@ DO:
     RUN valid-cust-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     RUN valid-cust-user NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME oe-relh.carrier
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-relh.carrier V-table-Win
-ON LEAVE OF oe-relh.carrier IN FRAME F-Main /* carrier */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-carrier NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
@@ -581,7 +588,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &Scoped-define SELF-NAME oe-relh.ship-id
@@ -659,33 +665,6 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-rel-date V-table-Win
-PROCEDURE valid-rel-date:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lValid    AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE ldDate    AS DATE    NO-UNDO.
-  {methods/lValidateError.i YES}
-    DO WITH FRAME {&FRAME-NAME}:
-        ldDate = DATE(oe-relh.rel-date:SCREEN-VALUE).
-        RUN oe/dateFuture.p (INPUT cocode, INPUT ldDate, INPUT YES /* prompt */, OUTPUT lValid, OUTPUT lContinue).
-        IF NOT lValid AND  NOT lContinue THEN 
-        DO:      
-            RETURN ERROR.
-        END. 
-    END.
-  {methods/lValidateError.i NO}
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE addPlusButton V-table-Win 
 PROCEDURE addPlusButton :
@@ -896,6 +875,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote V-table-Win 
+PROCEDURE CopyShipNote PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+    
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+    DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-relhold V-table-Win 
 PROCEDURE create-relhold :
 /*------------------------------------------------------------------------------
@@ -1100,7 +1101,12 @@ PROCEDURE hold-release :
        ASSIGN
            oe-relh.w-ord = NO
            fi_hold = "Approved".
-
+           
+       RUN pRunAPIOutboundTrigger (
+           BUFFER oe-relh,
+           INPUT "ApproveRelease"
+           ).
+           
        RUN get-link-handle IN adm-broker-hdl
            (THIS-PROCEDURE,"hold-rel-source",OUTPUT char-hdl).
        IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
@@ -1113,8 +1119,13 @@ PROCEDURE hold-release :
    ELSE DO: /* HOLD */
        ASSIGN
            oe-relh.w-ord = YES
-           fi_hold = "On Hold".                    
-
+           fi_hold = "On Hold".
+                               
+       RUN pRunAPIOutboundTrigger (
+           BUFFER oe-relh,
+           INPUT "HoldRelease"
+           ).
+           
        RUN get-link-handle IN adm-broker-hdl
            (THIS-PROCEDURE,"hold-rel-source",OUTPUT char-hdl).
        IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
@@ -1280,6 +1291,28 @@ PROCEDURE local-assign-record :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win 
+PROCEDURE local-cancel-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+   
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Buttons were made not sensitive during add, so reverse that here */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  adm-adding-record = NO.
+  
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1496,7 +1529,12 @@ PROCEDURE local-update-record :
         oe-relh.printed = NO /* task 05211304 */
         oe-relh.spare-char-3 = "". 
   END.
-
+  
+  RUN pRunAPIOutboundTrigger (
+      BUFFER oe-relh,
+      INPUT "UpdateRelease"
+      ).
+      
   /*run dispatch ('row-changed').*/
   ll-got-ship-id = no.
   IF lv-adding-record THEN DO:
@@ -1507,30 +1545,7 @@ PROCEDURE local-update-record :
      adm-adding-record = NO .
   END.
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win 
-PROCEDURE local-cancel-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-   
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Buttons were made not sensitive during add, so reverse that here */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  adm-adding-record = NO.
-  
+      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1608,6 +1623,71 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunAPIOutboundTrigger V-table-Win 
+PROCEDURE pRunAPIOutboundTrigger :
+    /*------------------------------------------------------------------------------
+      Purpose:   Fires Outbound APIs for given release header  
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-oe-relh FOR oe-relh.
+    
+    DEFINE INPUT PARAMETER  ipcTriggerID AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAPIID       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
+       
+    DEFINE BUFFER bf-oe-rell FOR oe-rell.
+    DEFINE BUFFER bf-itemfg  FOR itemfg.
+    
+    IF AVAILABLE ipbf-oe-relh THEN DO:
+
+        FOR EACH bf-oe-rell NO-LOCK 
+            WHERE bf-oe-rell.company EQ ipbf-oe-relh.company
+            AND bf-oe-rell.r-no EQ ipbf-oe-relh.r-no,
+            FIRST bf-itemfg NO-LOCK 
+            WHERE bf-itemfg.company EQ bf-oe-rell.company
+            AND bf-itemfg.i-no EQ bf-oe-rell.i-no
+            BREAK BY bf-oe-rell.r-no  /*In order to get .loc from first oe-rell as "shipFrom"*/
+            BY bf-oe-rell.i-no:
+            
+            IF FIRST-OF(bf-oe-rell.r-no) THEN DO:
+                ASSIGN 
+                    cAPIID       = "SendRelease"
+                    cPrimaryID   = STRING(ipbf-oe-relh.release#)
+                    cDescription = cAPIID + " triggered by " + ipcTriggerID 
+                                 + " from v-oerel.w for Release: " + cPrimaryID
+                    . 
+
+                RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+                    INPUT  ipbf-oe-relh.company,                /* Company Code (Mandatory) */
+                    INPUT  bf-oe-rell.loc,               /* Location Code (Mandatory) */
+                    INPUT  cAPIID,                  /* API ID (Mandatory) */
+                    INPUT  "",               /* Client ID (Optional) - Pass empty in case to make request for all clients */
+                    INPUT  ipcTriggerID,              /* Trigger ID (Mandatory) */
+                    INPUT  "oe-relh",               /* Comma separated list of table names for which data being sent (Mandatory) */
+                    INPUT  STRING(ROWID(ipbf-oe-relh)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                    INPUT  cPrimaryID,              /* Primary ID for which API is called for (Mandatory) */   
+                    INPUT  cDescription,       /* Event's description (Optional) */
+                    OUTPUT lSuccess,                /* Success/Failure flag */
+                    OUTPUT cMessage                 /* Status message */
+                    ) NO-ERROR.
+            END.
+        END.    
+                   
+        /* Reset context at the end of API calls to clear temp-table 
+           data inside OutboundProcs */
+        RUN Outbound_ResetContext IN hdOutboundProcs.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE security V-table-Win 
 PROCEDURE security :
 /*------------------------------------------------------------------------------
@@ -1632,7 +1712,6 @@ IF v-secureflg THEN
    RUN hold-release.
 {&methods/lValidateError.i NO}
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1718,6 +1797,51 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-carrier V-table-Win 
+PROCEDURE valid-carrier :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+    oe-relh.carrier:SCREEN-VALUE = CAPS(oe-relh.carrier:SCREEN-VALUE).
+    FIND FIRST shipto NO-LOCK 
+        WHERE shipto.company EQ g_company 
+        AND shipto.cust-no EQ oe-relh.cust-no:SCREEN-VALUE
+        AND TRIM(shipto.ship-id) = TRIM(oe-relh.ship-id:SCREEN-VALUE)
+        NO-ERROR.
+   IF AVAIL shipto THEN do:
+    FIND FIRST carrier  
+        WHERE carrier.company EQ g_company 
+        AND carrier.loc = shipto.loc
+        AND carrier.carrier EQ oe-relh.carrier:SCREEN-VALUE
+        NO-LOCK NO-ERROR.
+    IF AVAIL carrier THEN DO:
+        IF NOT DYNAMIC-FUNCTION("IsActive", carrier.rec_key) THEN do: 
+            MESSAGE "Please note: Carrier " oe-relh.carrier:SCREEN-VALUE " is valid but currently inactive"
+            VIEW-AS ALERT-BOX INFO.
+            APPLY "entry" TO oe-relh.carrier.
+            RETURN ERROR.
+        END.
+    END.
+
+    IF NOT AVAIL carrier THEN DO:
+      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO oe-relh.carrier.
+      RETURN ERROR.
+    END.
+   END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-no V-table-Win 
 PROCEDURE valid-cust-no :
 /*------------------------------------------------------------------------------
@@ -1753,7 +1877,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-user B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust-user V-table-Win 
 PROCEDURE valid-cust-user :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -1815,6 +1939,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-rel-date V-table-Win 
+PROCEDURE valid-rel-date :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lValid    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE ldDate    AS DATE    NO-UNDO.
+  {methods/lValidateError.i YES}
+    DO WITH FRAME {&FRAME-NAME}:
+        ldDate = DATE(oe-relh.rel-date:SCREEN-VALUE).
+        RUN oe/dateFuture.p (INPUT cocode, INPUT ldDate, INPUT YES /* prompt */, OUTPUT lValid, OUTPUT lContinue).
+        IF NOT lValid AND  NOT lContinue THEN 
+        DO:      
+            RETURN ERROR.
+        END. 
+    END.
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ship-id V-table-Win 
 PROCEDURE valid-ship-id :
 /*------------------------------------------------------------------------------
@@ -1845,69 +1993,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
-PROCEDURE CopyShipNote PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose: Copies Ship Note from rec_key to rec_key
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
-
-DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-    
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-    DELETE OBJECT hNotesProcs.   
-
-END PROCEDURE.
-    
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-carrier V-table-Win 
-PROCEDURE valid-carrier :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  {methods/lValidateError.i YES}
-  DO WITH FRAME {&FRAME-NAME}:
-    oe-relh.carrier:SCREEN-VALUE = CAPS(oe-relh.carrier:SCREEN-VALUE).
-    FIND FIRST shipto NO-LOCK 
-        WHERE shipto.company EQ g_company 
-        AND shipto.cust-no EQ oe-relh.cust-no:SCREEN-VALUE
-        AND TRIM(shipto.ship-id) = TRIM(oe-relh.ship-id:SCREEN-VALUE)
-        NO-ERROR.
-   IF AVAIL shipto THEN do:
-    FIND FIRST carrier  
-        WHERE carrier.company EQ g_company 
-        AND carrier.loc = shipto.loc
-        AND carrier.carrier EQ oe-relh.carrier:SCREEN-VALUE
-        NO-LOCK NO-ERROR.
-    IF AVAIL carrier THEN DO:
-        IF NOT DYNAMIC-FUNCTION("IsActive", carrier.rec_key) THEN do: 
-            MESSAGE "Please note: Carrier " oe-relh.carrier:SCREEN-VALUE " is valid but currently inactive"
-            VIEW-AS ALERT-BOX INFO.
-            APPLY "entry" TO oe-relh.carrier.
-            RETURN ERROR.
-        END.
-    END.
-
-    IF NOT AVAIL carrier THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO oe-relh.carrier.
-      RETURN ERROR.
-    END.
-   END.
-  END.
-
-  {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

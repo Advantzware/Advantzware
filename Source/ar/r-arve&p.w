@@ -83,7 +83,9 @@ DEF NEW SHARED VAR v-term-id AS cha NO-UNDO.
 DEF VAR v-print-fmt AS cha NO-UNDO.
 DEF VAR v-ftp-done AS LOG NO-UNDO.
 DEF VAR v-sort AS LOGICAL INIT YES FORMAT "Y/N" NO-UNDO.
+DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
 
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 find first sys-ctrl
       where sys-ctrl.company eq cocode
         and sys-ctrl.name    eq "INVPRINT"
@@ -409,6 +411,8 @@ ON WINDOW-CLOSE OF C-Win /* A/R Invoice Edit/Posting Register */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
+  IF VALID-HANDLE(hdOutboundProcs) THEN
+    DELETE PROCEDURE hdOutboundProcs.
   RETURN NO-APPLY.
 END.
 
@@ -442,6 +446,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   IF VALID-HANDLE(hdOutboundProcs) THEN
+     DELETE PROCEDURE hdOutboundProcs.
    apply "close" to this-procedure.
 END.
 
@@ -1119,30 +1125,38 @@ do transaction on error undo with width 255:
        run ar/sonoinv.p ("ar-inv", recid(ar-inv), output v-rec-written).
        assign t-rec-written = t-rec-written + v-rec-written.
      end.
-     
-      /* Create eddoc for invoice if required */
-      FIND FIRST edmast NO-LOCK
-          WHERE edmast.cust EQ ar-inv.cust-no
-          NO-ERROR.      
-      IF AVAILABLE edmast AND ar-inv.ediInvoice THEN DO:   
-          FIND FIRST eddoc NO-LOCK 
-            WHERE eddoc.setid EQ '810'
-              AND eddoc.partner EQ edmast.partner
-              AND eddoc.docid = STRING(ar-inv.inv-no) 
-            NO-ERROR.
-          IF NOT AVAILABLE eddoc THEN DO:   
-            RUN ed/asi/o810hook.p (recid(ar-inv), no, no).     
-            FIND FIRST edcode NO-LOCK
-                WHERE edcode.partner EQ edmast.partner
+     IF ar-inv.EdiInvoice THEN DO: 
+    
+          RUN pRunAPIOutboundTrigger(BUFFER ar-inv).
+                     
+           
+          RUN ed/asi/o810hook.p (recid(inv-head), no, no).          
+          
+          /* Create eddoc for invoice if required */
+          FIND FIRST edmast NO-LOCK
+              WHERE edmast.cust EQ ar-inv.cust-no
+              NO-ERROR.
+          IF AVAILABLE edmast AND ar-inv.ediInvoice THEN DO:
+              FIND FIRST eddoc NO-LOCK
+                WHERE eddoc.setid EQ '810'
+                  AND eddoc.partner EQ edmast.partner
+                  AND eddoc.docid = STRING(ar-inv.inv-no)
                 NO-ERROR.
-            IF NOT AVAIL edcode THEN 
-               FIND FIRST edcode NO-LOCK
-                  WHERE edcode.partner EQ edmast.partnerGrp
-                  NO-ERROR.
-            IF AVAIL edcode AND edcode.sendFileOnPrint THEN    
-              RUN ed/asi/write810.p (INPUT cocode, INPUT ar-inv.inv-no).
-          END. /* If eddoc not available */    
-      END. /* If edi 810 customer */
+              IF NOT AVAILABLE eddoc THEN DO:
+                RUN ed/asi/o810hook.p (recid(ar-inv), no, no).
+                FIND FIRST edcode NO-LOCK
+                    WHERE edcode.partner EQ edmast.partner
+                    NO-ERROR.
+                IF NOT AVAIL edcode THEN
+                   FIND FIRST edcode NO-LOCK
+                      WHERE edcode.partner EQ edmast.partnerGrp
+                      NO-ERROR.
+                IF AVAIL edcode AND edcode.sendFileOnPrint THEN
+                  RUN ed/asi/write810.p (INPUT cocode, INPUT ar-inv.inv-no).
+              END. /* If eddoc not available */
+          END. /* If edi 810 customer */
+           
+      END. /* If an edi invoice */
     find first cust
         {sys/ref/custW.i}
           and cust.cust-no eq ar-inv.cust-no
@@ -1212,6 +1226,59 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunApiOutboundTrigger C-Win
+PROCEDURE pRunApiOutboundTrigger:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE PARAMETER BUFFER ipbf-ar-inv FOR ar-inv.
+
+DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPIID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTriggerID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPrimaryID AS CHARACTER NO-UNDO.
+   
+
+IF AVAILABLE ipbf-ar-inv THEN DO:
+
+    
+    ASSIGN 
+        cAPIID       = "SendInvoice"
+        cTriggerID   = "PostInvoice"
+        cPrimaryID   = STRING(ipbf-ar-inv.inv-no)
+        cDescription = cAPIID + " triggered by " + cTriggerID + " from r-arve&p.w for Invoice: " + cPrimaryID
+        . 
+    RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+        INPUT  ipbf-ar-inv.company,           /* Company Code (Mandatory) */
+        INPUT  locode,                        /* Location Code (Mandatory) */
+        INPUT  cAPIID,                        /* API ID (Mandatory) */
+        INPUT  ipbf-ar-inv.cust-no,           /* Scope ID */
+        INPUT  "Customer",                    /* Scope Type */
+        INPUT  cTriggerID,                    /* Trigger ID (Mandatory) */
+        INPUT  "ar-inv",                      /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  STRING(ROWID(ipbf-ar-inv)),    /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  cPrimaryID,                    /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  cDescription,                  /* Event's description (Optional) */
+        OUTPUT lSuccess,                      /* Success/Failure flag */
+        OUTPUT cMessage                       /* Status message */
+        ) NO-ERROR.
+
+
+    RUN Outbound_ResetContext IN hdOutboundProcs.
+END. /*avail ar-inv*/
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
@@ -1379,7 +1446,7 @@ IF cust.factored THEN
           AND currency.ar-ast-acct NE ""
           AND currency.ex-rate     GT 0
         NO-ERROR.        
-
+    xar-acct = string(DYNAMIC-FUNCTION("GL_GetAccountAR", cust.company, cust.cust-no)).
     {sys/inc/gldstsum.i xar-acct "ar-inv.gross" YES "HEADER"}
 
     IF AVAIL currency THEN DO:

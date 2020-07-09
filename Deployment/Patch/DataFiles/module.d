@@ -151,7 +151,7 @@
 "" "impAR." "Import AR Invoices" yes 12/31/2099 "ASI"
 "" "impCash." "Import Cash Receipts" yes 12/31/2099 "ASI"
 "" "impjobs." "CorrTrim Uploading Program" yes 12/31/2099 "ASI"
-"" "impMaster." "Import Master" yes 12/31/2099 "ASI"
+"" "impMaster." "Import Master" no 12/31/2099 "ASI"
 "" "ImpPMtx." "Import Price Matrix" yes 12/31/2099 "ASI"
 "" "impShipTo." "Import ShipTo" yes 12/31/2099 "ASI"
 "" "invdatef." "Fix A/R Invoice Date" yes 12/31/2099 "ASI"

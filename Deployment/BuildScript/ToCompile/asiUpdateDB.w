@@ -38,6 +38,7 @@ DEF INPUT PARAMETER ipiPatchDbVer AS INT NO-UNDO.
 DEF INPUT PARAMETER ipiCurrAudVer AS INT NO-UNDO.
 DEF INPUT PARAMETER ipiPatchAudVer AS INT NO-UNDO.
 DEF INPUT PARAMETER ipiLevel AS INT NO-UNDO.
+DEF INPUT PARAMETER iplMakeBackup AS LOG NO-UNDO.
 DEF OUTPUT PARAMETER oplSuccess AS LOG NO-UNDO.
 DEF INPUT-OUTPUT PARAMETER iopiStatus AS INT NO-UNDO.
 
@@ -906,13 +907,15 @@ PROCEDURE ipProcessRequest :
         RUN ipReadAdminSvcProps.    
 
     /* Process "regular" database (asixxxx.db OR XXXXXXd.db) */
-    RUN ipBackupDBs.
-    IF NOT lSuccess THEN 
-    DO:
-        ASSIGN 
-            oplSuccess = FALSE.
-        RUN ipStatus ("  Upgrade failed in ipBackupDBs for database " + fiDbName:{&SV}).
-        RETURN.
+    IF iplMakeBackup THEN DO:
+        RUN ipBackupDBs.
+        IF NOT lSuccess THEN 
+        DO:
+            ASSIGN 
+                oplSuccess = FALSE.
+            RUN ipStatus ("  Upgrade failed in ipBackupDBs for database " + fiDbName:{&SV}).
+            RETURN.
+        END.
     END.
     
     RUN ipUpgradeDBs.
@@ -1112,7 +1115,10 @@ PROCEDURE ipUpgradeDBs :
         cPrefix = SUBSTRING(fiDbName:{&SV},1,3)
         cPrefix2 = SUBSTRING(fiDbName:{&SV},length(fiDbName:{&SV}),1).
     ASSIGN 
-        cPrefix = IF cPrefix EQ "asi" OR (cPrefix NE "asi" AND cPrefix2 EQ "d") THEN "asi" ELSE "aud"            
+        cPrefix = IF cPrefix EQ "asi" THEN "asi" ELSE 
+                  IF cPrefix EQ "aud" THEN "aud" ELSE
+                  IF cPrefix2 EQ "d" THEN "asi" ELSE
+                  IF cPrefix2 EQ "a" THEN "aud" ELSE ""
         iDbCtr = iDbCtr + 1
         iWaitCount = 0
         cDelta = REPLACE(cDeltaFile,"asi",cPrefix)
@@ -1121,19 +1127,14 @@ PROCEDURE ipUpgradeDBs :
         cMissingFilesDelta = REPLACE(cFullDelta,cDelta,"addlfiles.df")
         .
 
-    IF SUBSTRING(fiDbName:{&SV},1,3) = "asi" 
-        OR (SUBSTRING(fiDbName:{&SV},1,3) NE "asi"
-        AND LENGTH(fiDbName:{&SV}) EQ 11 
-        AND SUBSTRING(fiDbName:{&SV},length(fiDbName:{&SV}),1) = "d") THEN ASSIGN 
+    IF cPrefix EQ "asi" THEN ASSIGN 
         iListEntry = ipiEntry
         cThisDir = ENTRY(iListEntry,cDbDirList)
-        cThisPort = ENTRY(iListEntry,cDbPortList)
-        cPrefix = "asi".
+        cThisPort = ENTRY(iListEntry,cDbPortList).
     ELSE ASSIGN 
         iListEntry = ipiEntry
         cThisDir = ENTRY(iListEntry,cAudDirList)
-        cThisPort = ENTRY(iListEntry,cAudPortList)
-        cPrefix = "aud".
+        cThisPort = ENTRY(iListEntry,cAudPortList).
 
     IF cPrefix = "asi" 
     AND ipiPatchDbVer LE ipiCurrDbVer THEN DO:
@@ -1243,8 +1244,12 @@ PROCEDURE ipUpgradeDBs :
     END.
     
     IF CONNECTED("updDB2") 
-    AND lAuditLicensed EQ FALSE THEN ASSIGN 
-        cFullDelta = REPLACE(cFullDelta,cDelta,"audEmpty.df").
+    AND lAuditLicensed EQ FALSE THEN DO:
+        IF ipiCurrDbVer LT 20011000 THEN ASSIGN 
+            cFullDelta = REPLACE(cFullDelta,cDelta,"audEmptyOld.df").
+        ELSE ASSIGN
+            cFullDelta = REPLACE(cFullDelta,cDelta,"audEmpty.df").
+    END.
     
     /* If missing files, load the missing files delta */
     IF NOT lHasAllFiles THEN DO:

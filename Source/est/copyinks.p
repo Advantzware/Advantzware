@@ -3,6 +3,7 @@
 /* -------------------------------------------------------------------------- */
 
 DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
+DEF INPUT PARAM iplUpdateOtherEst AS LOGICAL NO-UNDO.
                       
 {sys/inc/var.i SHARED}
 
@@ -25,8 +26,9 @@ IF AVAIL eb THEN DO:
     MESSAGE "Update Units along with Inks?"
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
         UPDATE ll.
-
-  RUN est/updest3.p (ROWID(eb), ROWID(eb), 1 + INT(ll)).
+        
+  IF iplUpdateOtherEst THEN
+  RUN est/updest3.p (ROWID(eb), ROWID(eb), 1 + INT(ll),NO).
 
   RUN est/d-selblk.w (ip-rowid, "Copy Inks" + IF ll THEN " & Units" ELSE "").
 
@@ -36,8 +38,8 @@ IF AVAIL eb THEN DO:
 
     {est/copyinks.i}
 
-    IF LAST-OF(b-eb.stock-no) THEN
-      RUN est/updest3.p (ROWID(b-eb), ROWID(eb), 1 + INT(ll)).
+    IF LAST-OF(b-eb.stock-no) AND iplUpdateOtherEst THEN
+      RUN est/updest3.p (ROWID(b-eb), ROWID(eb), 1 + INT(ll),NO).
   END.
 END.
 

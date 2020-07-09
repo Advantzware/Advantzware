@@ -13,6 +13,7 @@
                   procedure only
   ----------------------------------------------------------------------*/
 {api/ttArgs.i}
+{api/ttScopes.i}
 
 DEFINE TEMP-TABLE ttRequestData NO-UNDO
     FIELD company              AS CHARACTER
@@ -52,11 +53,137 @@ DEFINE VARIABLE cRequestTypeAPI           AS CHARACTER NO-UNDO INITIAL "API".
 DEFINE VARIABLE cRequestTypeFTP           AS CHARACTER NO-UNDO INITIAL "FTP".
 DEFINE VARIABLE cRequestTypeSAVE          AS CHARACTER NO-UNDO INITIAL "SAVE".
 DEFINE VARIABLE cLocValidationExceptions  AS CHARACTER NO-UNDO INITIAL "SendAdvancedShipNotice,SendFinishedGood". /* Should be comma (,) separated. loc.isAPIEnabled will not be validated for APIs in the list */
-
-
+DEFINE VARIABLE cScopeTypeList            AS CHARACTER NO-UNDO INITIAL "_ANY_,Customer,Vendor,ShipTo".
+DEFINE VARIABLE cScopeTypeCustomer        AS CHARACTER NO-UNDO INITIAL "Customer".
+DEFINE VARIABLE cScopeTypeVendor          AS CHARACTER NO-UNDO INITIAL "Vendor".
+DEFINE VARIABLE cScopeTypeShipTo          AS CHARACTER NO-UNDO INITIAL "ShipTo".
+DEFINE VARIABLE cAPIClientXrefAny         AS CHARACTER NO-UNDO INITIAL "_ANY_".
 
 /* **********************  Internal Procedures  *********************** */
 
+
+PROCEDURE Outbound_CopyAPIDependencies:
+/*------------------------------------------------------------------------------
+ Purpose: Copies all API dependent table records and links to target API Outbound
+          table
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiSourceAPIOutboundID AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiTargetAPIOutboundID AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-Source-APIOutbound        FOR APIOutbound.
+    DEFINE BUFFER bf-Target-APIOutbound        FOR APIOutbound.
+    DEFINE BUFFER bf-Source-APIOutboundDetail  FOR APIOutboundDetail.
+    DEFINE BUFFER bf-Target-APIOutboundDetail  FOR APIOutboundDetail.
+    DEFINE BUFFER bf-Source-APIOutboundTrigger FOR APIOutboundTrigger.
+    DEFINE BUFFER bf-Target-APIOutboundTrigger FOR APIOutboundTrigger.
+      
+    FIND FIRST bf-Source-APIOutbound NO-LOCK
+         WHERE bf-Source-APIOutbound.apiOutboundID EQ ipiSourceAPIOutboundID
+           NO-ERROR.
+    IF NOT AVAILABLE bf-Source-APIOutbound THEN
+        RETURN.
+        
+    FIND FIRST bf-Target-APIOutbound NO-LOCK
+         WHERE bf-Target-APIOutbound.apiOutboundID EQ ipiTargetAPIOutboundID
+           NO-ERROR.
+    IF NOT AVAILABLE bf-Target-APIOutbound THEN
+        RETURN.
+
+    FOR EACH bf-Source-APIOutboundDetail NO-LOCK
+        WHERE bf-Source-APIOutboundDetail.apiOutboundID EQ bf-Source-APIOutbound.apiOutboundID:
+        FIND FIRST bf-Target-APIOutboundDetail NO-LOCK
+             WHERE bf-Target-APIOutboundDetail.company  EQ bf-Target-APIOutbound.company
+               AND bf-Target-APIOutboundDetail.apiID    EQ bf-Target-APIOutbound.apiID
+               AND bf-Target-APIOutboundDetail.clientID EQ bf-Target-APIOutbound.clientID
+               AND bf-Target-APIOutboundDetail.detailID EQ bf-Source-APIOutboundDetail.detailID
+             NO-ERROR.
+        IF NOT AVAILABLE bf-Target-APIOutboundDetail THEN DO:
+            CREATE bf-Target-APIOutboundDetail.
+            BUFFER-COPY bf-Source-APIOutboundDetail 
+                EXCEPT bf-Source-APIOutboundDetail.apiID 
+                       bf-Source-APIOutboundDetail.clientID 
+                       bf-Source-APIOutboundDetail.apiOutboundID 
+                       bf-Source-APIOutboundDetail.apiOutboundDetailID
+                       bf-Source-APIOutboundDetail.rec_key
+                TO bf-Target-APIOutboundDetail.
+            ASSIGN
+                bf-Target-APIOutboundDetail.apiID         = bf-Target-APIOutbound.apiID
+                bf-Target-APIOutboundDetail.clientID      = bf-Target-APIOutbound.clientID
+                bf-Target-APIOutboundDetail.apiOutboundID = bf-Target-APIOutbound.apiOutboundID
+                .
+        END.
+    END.
+
+    FOR EACH bf-Source-APIOutboundTrigger NO-LOCK
+        WHERE bf-Source-APIOutboundTrigger.apiOutboundID EQ bf-Source-APIOutbound.apiOutboundID:
+        FIND FIRST bf-Target-APIOutboundTrigger NO-LOCK
+             WHERE bf-Target-APIOutboundTrigger.company   EQ bf-Target-APIOutbound.company
+               AND bf-Target-APIOutboundTrigger.apiID     EQ bf-Target-APIOutbound.apiID
+               AND bf-Target-APIOutboundTrigger.clientID  EQ bf-Target-APIOutbound.clientID
+               AND bf-Target-APIOutboundTrigger.triggerID EQ bf-Source-APIOutboundTrigger.triggerID
+             NO-ERROR.        
+        IF NOT AVAILABLE bf-Target-APIOutboundTrigger THEN DO:
+            CREATE bf-Target-APIOutboundTrigger.
+            BUFFER-COPY bf-Source-APIOutboundTrigger 
+                EXCEPT bf-Source-APIOutboundTrigger.apiID 
+                       bf-Source-APIOutboundTrigger.clientID 
+                       bf-Source-APIOutboundTrigger.apiOutboundID 
+                       bf-Source-APIOutboundTrigger.apiOutboundTriggerID
+                       bf-Source-APIOutboundTrigger.rec_key
+                       bf-Source-APIOutboundTrigger.createBy
+                       bf-Source-APIOutboundTrigger.createTime
+                TO bf-Target-APIOutboundTrigger.
+            ASSIGN
+                bf-Target-APIOutboundTrigger.apiID         = bf-Target-APIOutbound.apiID
+                bf-Target-APIOutboundTrigger.clientID      = bf-Target-APIOutbound.clientID
+                bf-Target-APIOutboundTrigger.apiOutboundID = bf-Target-APIOutbound.apiOutboundID
+                .
+        END.
+    END.
+END PROCEDURE.
+
+PROCEDURE Outbound_CreateAPIClient:
+/*------------------------------------------------------------------------------
+ Purpose: Creates an apiClient record for given inputs
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientID AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-apiClient FOR apiClient.
+    
+    FIND FIRST bf-apiClient NO-LOCK
+         WHERE bf-apiClient.company  EQ ipcCompany
+           AND bf-apiClient.clientID EQ ipcClientID
+         NO-ERROR.
+    IF NOT AVAILABLE bf-apiClient THEN DO:
+        CREATE bf-apiClient.
+        ASSIGN
+            bf-apiClient.company  = ipcCompany
+            bf-apiClient.clientID = ipcClientID
+            .
+    END.
+END PROCEDURE.
+
+PROCEDURE Outbound_GetAPIClientTransCount:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the transaction count value of the apiClient record
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientID   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTransCount AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-apiClient FOR apiClient.
+
+    FIND FIRST bf-apiClient EXCLUSIVE-LOCK
+         WHERE bf-apiClient.company  EQ ipcCompany
+           AND bf-apiClient.clientID EQ ipcClientID
+         NO-ERROR.
+    IF AVAILABLE bf-apiClient THEN
+         opiTransCount = bf-apiClient.transactionCounter.
+END PROCEDURE.
 
 PROCEDURE Outbound_GetAPIID:
     /*------------------------------------------------------------------------------
@@ -88,6 +215,27 @@ PROCEDURE Outbound_GetAPIID:
             opcMessage = "Outbound configuration for API ID ["
                        + ipcAPIID + "] is not available or inactive"
             .
+END PROCEDURE.
+
+PROCEDURE Outbound_GetAPITransCount:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the transaction count value of the APIOutbound record
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientID   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTransCount AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
+        
+    FIND FIRST bf-APIOutbound NO-LOCK
+         WHERE bf-APIOutbound.company  EQ ipcCompany
+           AND bf-APIOutbound.apiID    EQ ipcAPIID
+           AND bf-APIOutbound.clientID EQ ipcClientID 
+         NO-ERROR.
+    IF AVAILABLE bf-APIOutbound THEN
+        opiTransCount = bf-APIOutbound.transactionCounter.   
 END PROCEDURE.
 
 PROCEDURE Outbound_GetAPIRequestType:
@@ -186,6 +334,164 @@ PROCEDURE Outbound_GetRequestVerbList:
     DEFINE OUTPUT PARAMETER opcRequestVerbList AS CHARACTER NO-UNDO.
     
     opcRequestVerbList = cRequestVerbList.
+END PROCEDURE.
+
+PROCEDURE Outbound_GetScopeTypeList:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcScopeTypeList AS CHARACTER NO-UNDO.
+    
+    opcScopeTypeList = cScopeTypeList.
+END PROCEDURE.
+
+PROCEDURE Outbound_GetAPITriggersList:
+/*------------------------------------------------------------------------------
+ Purpose: Procedure to return the list of available trigger for an api and client
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientID    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcTriggerList AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-APIOutbound        FOR APIOutbound.
+    DEFINE BUFFER bf-APIOutboundTrigger FOR APIOutboundTrigger.
+    
+    FIND FIRST bf-APIOutbound NO-LOCK
+         WHERE bf-APIOutbound.company  EQ ipcCompany
+           AND bf-APIOutbound.apiID    EQ ipcAPIID
+           AND bf-APIOutbound.clientID EQ ipcClientID
+           NO-ERROR.
+    IF NOT AVAILABLE bf-APIOutbound THEN
+        RETURN.
+
+    FOR EACH bf-APIOutboundTrigger NO-LOCK
+        WHERE bf-APIOutboundTrigger.apiOutboundID EQ bf-APIOutbound.apiOutboundID:
+        opcTriggerList = opcTriggerList + "," + bf-APIOutboundTrigger.triggerID.
+    END.
+    
+    opcTriggerList = TRIM(opcTriggerList,",").
+    
+END PROCEDURE.
+
+PROCEDURE Outbound_IncrementAPITransactionCounter:
+/*------------------------------------------------------------------------------
+ Purpose: Increment the transaction counters of both APIOutbound and apiClient
+          records for the given input
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiAPIOutboundID AS INTEGER NO-UNDO.
+
+    DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
+    DEFINE BUFFER bf-apiClient   FOR apiClient.
+        
+    FIND FIRST bf-APIOutbound EXCLUSIVE-LOCK
+         WHERE bf-APIOutbound.apiOutboundID EQ ipiAPIOutboundID 
+         NO-ERROR.
+    IF AVAILABLE bf-APIOutbound THEN DO:
+        bf-APIOutbound.transactionCounter = bf-APIOutbound.transactionCounter + 1.
+    
+        FIND FIRST bf-apiClient EXCLUSIVE-LOCK
+             WHERE bf-apiClient.company  EQ bf-APIOutbound.company
+               AND bf-apiClient.clientID EQ bf-APIOutbound.clientID
+             NO-ERROR.
+        IF AVAILABLE bf-apiClient THEN
+             bf-apiClient.transactionCounter = bf-apiClient.transactionCounter + 1.
+    END.
+END PROCEDURE.
+
+PROCEDURE Outbound_PrepareAndExecuteForScope:
+    /*----------------------------------------------------------vi--------------------
+     Purpose: Public wrapper procedure to prepare request data and call Outbound API
+              for a given scope id and scope Type
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID            AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcScopeID          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeType        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTriggerID        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTableList        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcROWIDList        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPrimaryID        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEventDescription AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lScopeActive AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-APIOutbound        FOR APIOutbound.
+    DEFINE BUFFER bf-APIOutboundTrigger FOR APIOutboundTrigger.
+    DEFINE BUFFER bf-apiClient          FOR apiClient.
+    
+    /* The following code will be executed if it is a fresh (NOT re-triggered) API call */
+    FOR EACH bf-APIOutbound NO-LOCK
+       WHERE bf-APIOutbound.company EQ ipcCompany
+         AND bf-APIOutbound.apiID   EQ ipcAPIID:
+        IF bf-APIOutbound.Inactive THEN
+            NEXT.
+
+        FIND FIRST bf-APIOutboundTrigger NO-LOCK
+             WHERE bf-APIOutboundTrigger.apiOutboundID EQ bf-APIOutbound.apiOutboundID
+               AND bf-APIOutboundTrigger.triggerID     EQ ipcTriggerID
+               AND bf-APIOutboundtrigger.Inactive      EQ FALSE
+             NO-ERROR.
+        IF NOT AVAILABLE bf-APIOutboundTrigger THEN
+            NEXT.
+        
+        FIND FIRST bf-apiClient NO-LOCK
+             WHERE bf-apiClient.company  EQ bf-APIOutbound.company
+               AND bf-apiClient.clientID EQ bf-APIOutbound.clientID
+             NO-ERROR.
+        IF AVAILABLE bf-apiClient THEN DO:
+            RUN pIsScopeActive (
+                INPUT  bf-apiClient.company,
+                INPUT  ipcLocation,
+                INPUT  ipcAPIID,
+                INPUT  bf-apiClient.clientID,
+                INPUT  ipcTriggerID,
+                INPUT  ipcScopeID,
+                INPUT  ipcScopeType,
+                OUTPUT lScopeActive
+                ).
+
+            IF NOT lScopeActive THEN
+                NEXT.
+
+            IF AVAILABLE bf-apiClient THEN DO:
+                RUN pPrepareAndExecute (
+                    INPUT  ipcCompany,
+                    INPUT  ipcLocation,
+                    INPUT  ipcAPIID,
+                    INPUT  bf-apiClient.clientID,
+                    INPUT  ipcTriggerID,
+                    INPUT  ipcTableList,
+                    INPUT  ipcROWIDList,
+                    INPUT  ipcPrimaryID,
+                    INPUT  ipcEventDescription,
+                    INPUT  FALSE, /* Re-Trigger request */
+                    OUTPUT oplSuccess,
+                    OUTPUT opcMessage
+                    ) NO-ERROR.
+            
+                IF ERROR-STATUS:ERROR THEN DO:
+                    ASSIGN
+                        oplSuccess = FALSE
+                        opcMessage = ERROR-STATUS:GET-MESSAGE(1)
+                        .
+                    RETURN.
+                END.            
+            END.             
+        END.
+    END.
+    
+    ASSIGN
+        oplSuccess = TRUE
+        opcMessage = "Success"
+        .   
 END PROCEDURE.
 
 PROCEDURE Outbound_ReTrigger:
@@ -368,6 +674,160 @@ PROCEDURE Outbound_ResetContext:
     EMPTY TEMP-TABLE ttRequestData.
 END.
 
+PROCEDURE Outbound_ValidateClientID:
+/*------------------------------------------------------------------------------
+ Purpose: Validate clientID from apiClient table
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValid    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-apiClient FOR apiClient.
+    
+    FIND FIRST bf-apiClient NO-LOCK
+         WHERE bf-apiClient.company  EQ ipcCompany
+           AND bf-apiClient.clientID EQ ipcClientID
+         NO-ERROR.
+    IF AVAILABLE bf-apiClient THEN
+        ASSIGN
+            oplValid   = TRUE
+            opcMessage = "Success"
+            .
+    ELSE
+        ASSIGN
+            oplValid   = FALSE
+            opcMessage = "Invalid clientID '" + ipcClientID + "'"
+            . 
+END PROCEDURE.
+
+PROCEDURE pGetApiClientXrefStatus PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Return apiClientXref records inactive flag status
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTriggerID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeType   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplRecFound    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplScopeActive AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-apiClientXref FOR apiClientXref.
+    
+    /* Verify if a record is available for just the given inputs
+       and return the inactive flag */
+    FIND FIRST bf-apiClientXref NO-LOCK
+         WHERE bf-apiClientXref.company   EQ ipcCompany
+           AND bf-apiClientXref.apiID     EQ ipcAPIID
+           AND bf-apiClientXref.clientID  EQ ipcClientID
+           AND bf-apiClientXref.scopeID   EQ ipcScopeID
+           AND bf-apiClientXref.scopeType EQ ipcScopeType
+           AND bf-apiClientXref.triggerID EQ ipcTriggerID
+         NO-ERROR.
+    IF AVAILABLE bf-apiClientXref THEN DO:
+        ASSIGN
+            oplRecFound    = TRUE
+            oplScopeActive = NOT bf-apiClientXref.inactive
+            .
+        RETURN.
+    END.
+
+END PROCEDURE.
+
+PROCEDURE Outbound_GetAPIsForScopeID:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the temp-table with list of api's active for the given scope
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeType AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeID   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE FOR ttScopes.
+    
+    DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
+    DEFINE BUFFER bf-apiClientXref FOR apiClientXref.
+    
+    FOR EACH bf-APIOutbound NO-LOCK
+        WHERE bf-APIOutbound.company  EQ ipcCompany
+          AND bf-APIOutbound.inactive EQ FALSE:
+        FOR EACH bf-apiClientXref NO-LOCK
+            WHERE bf-apiClientXref.company  EQ bf-APIOutbound.company
+              AND bf-apiClientXref.apiID    EQ bf-APIOutbound.apiID
+              AND bf-apiClientXref.clientID EQ bf-APIOutbound.clientID:
+            IF ipcScopeType EQ cScopeTypeVendor THEN DO: 
+                IF bf-apiClientXref.scopeType NE cScopeTypeVendor AND
+                   bf-apiClientXref.scopeType NE cAPIClientXrefAny THEN
+                NEXT.
+                
+                IF bf-apiClientXref.scopeID NE cAPIClientXrefAny AND 
+                   bf-apiClientXref.scopeID NE ipcScopeID THEN
+                NEXT.
+            END.
+            
+            IF ipcScopeType EQ cScopeTypeCustomer THEN DO: 
+                IF bf-apiClientXref.scopeType NE cScopeTypeCustomer AND
+                   bf-apiClientXref.scopeType NE cScopeTypeShipTo AND
+                   bf-apiClientXref.scopeType NE cAPIClientXrefAny THEN
+                    NEXT.
+                
+                IF bf-apiClientXref.scopeID NE cAPIClientXrefAny AND 
+                   NOT bf-apiClientXref.scopeID BEGINS ipcScopeID THEN
+                NEXT.                
+            END.
+            
+            CREATE ttScopes.
+            ASSIGN
+                ttScopes.company         = bf-apiClientXref.company
+                ttScopes.apiID           = bf-apiClientXref.apiID
+                ttScopes.clientID        = bf-apiClientXref.clientID
+                ttScopes.scopeID         = IF bf-apiClientXref.scopeID EQ cAPIClientXrefAny THEN
+                                               "ANY"
+                                           ELSE
+                                               bf-apiClientXref.scopeID
+                ttScopes.scopeType       = IF bf-apiClientXref.scopeType EQ cAPIClientXrefAny THEN
+                                               "ANY"
+                                           ELSE
+                                               bf-apiClientXref.scopeType
+                ttScopes.triggerID       = IF bf-apiClientXref.triggerID EQ cAPIClientXrefAny THEN
+                                               "ANY"
+                                           ELSE
+                                               bf-apiClientXref.triggerID
+                ttScopes.inactive        = bf-apiClientXref.inactive
+                ttScopes.riApiClientXref = ROWID(bf-apiClientXref)
+                .
+
+            IF bf-apiClientXref.scopeType EQ cScopeTypeCustomer THEN
+                ttScopes.customerID = IF bf-apiClientXref.scopeID EQ cAPIClientXrefAny THEN
+                                          "ANY"
+                                      ELSE
+                                          bf-apiClientXref.scopeID.
+
+            IF bf-apiClientXref.scopeType EQ cScopeTypeShipTo THEN
+                ASSIGN
+                    ttScopes.customerID = IF bf-apiClientXref.scopeID EQ cAPIClientXrefAny THEN
+                                              "ANY"
+                                          ELSE
+                                              ENTRY(1, bf-apiClientXref.scopeID, "|")
+                    ttScopes.shipToiD   = IF bf-apiClientXref.scopeID EQ cAPIClientXrefAny THEN
+                                              "ANY"
+                                          ELSE
+                                              ENTRY(2, bf-apiClientXref.scopeID, "|")
+                    NO-ERROR.
+
+            IF bf-apiClientXref.scopeType EQ cScopeTypeVendor THEN
+                ttScopes.vendorID = IF bf-apiClientXref.scopeID EQ cAPIClientXrefAny THEN
+                                        "ANY"
+                                    ELSE
+                                        bf-apiClientXref.scopeID.
+        END.
+    END.
+END PROCEDURE.
+
 PROCEDURE pInitializeRequest PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Initial procedure to validate and save input data into temp-table
@@ -453,6 +913,117 @@ PROCEDURE pInitializeRequest PRIVATE:
         oplSuccess = TRUE
         opcMessage = "Success"
         .
+END PROCEDURE.
+
+PROCEDURE pIsScopeActive PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: For the given inputs, returns if a logical value to allow or skip
+          api call 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTriggerID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeType   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplScopeActive AS LOGICAL   NO-UNDO.
+
+    DEFINE VARIABLE cScopeID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScopeType AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTriggerID AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iRule      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iNumRules  AS INTEGER   NO-UNDO INITIAL 8.
+    
+    DO iRule = 1 TO iNumRules:
+        /* All the rules below are prioritized to find the record with 
+           most matching input values. Scope ID is given the top priority
+           and, then trigger and scopeType */
+        /* Verify if a record is available and return inactive flag status,
+           for just the given inputs */
+        IF iRule EQ 1 THEN
+            ASSIGN
+                cScopeID   = ipcScopeID
+                cScopeType = ipcScopeType
+                cTriggerID = ipcTriggerID
+                .
+        /* Verify if a record is available and return inactive flag status,
+           for given scopeID, scopeType and for all ("_ALL_") the triggers */
+        ELSE IF iRule EQ 2 THEN
+            ASSIGN
+                cScopeID   = ipcScopeID
+                cScopeType = ipcScopeType
+                cTriggerID = cAPIClientXrefAny
+                .
+        /* Verify if a record is available and return inactive flag status,
+           for given scopeID, triggerID, for all ("_ALL_") the scopeTypes */
+        ELSE IF iRule EQ 3 THEN
+            ASSIGN
+                cScopeID   = ipcScopeID
+                cScopeType = cAPIClientXrefAny
+                cTriggerID = ipcTriggerID
+                .
+        /* Verify if a record is available  and return inactive flag status,
+           for given scopeID, for all ("_ALL_")  the scopeTypes, and for all
+           the triggers */
+        ELSE IF iRule EQ 4 THEN
+            ASSIGN
+                cScopeID   = ipcScopeID
+                cScopeType = cAPIClientXrefAny
+                cTriggerID = cAPIClientXrefAny
+                .
+        /* Verify if a record is available  and return inactive flag status,
+           for all scopeIDs, input scopeType and input trigger ID*/
+        ELSE IF iRule EQ 5 THEN
+            ASSIGN
+                cScopeID   = cAPIClientXrefAny
+                cScopeType = ipcScopeType
+                cTriggerID = ipcTriggerID
+                .
+        /* Verify if a record is available and return inactive flag status
+           for all scopeIDs, and input scopeType and for all triggers*/
+        ELSE IF iRule EQ 6 THEN
+            ASSIGN
+                cScopeID   = cAPIClientXrefAny
+                cScopeType = ipcScopeType
+                cTriggerID = cAPIClientXrefAny
+                .
+        /* Verify if a record is available and return inactive flag status
+           for all scopeIDs, for all scopeType and input triggerID*/
+        ELSE IF iRule EQ 7 THEN
+            ASSIGN
+                cScopeID   = cAPIClientXrefAny
+                cScopeType = cAPIClientXrefAny
+                cTriggerID = ipcTriggerID
+                .
+        /* Verify if a record is available and return inactive flag status
+           for all scopeIDs, for all scopeType and for all triggers. If a 
+           record is not found at this point no api call should be made for
+           the input scope */
+        ELSE IF iRule EQ 8 THEN
+            ASSIGN
+                cScopeID   = cAPIClientXrefAny
+                cScopeType = cAPIClientXrefAny
+                cTriggerID = cAPIClientXrefAny
+                .
+
+        RUN pGetApiClientXrefStatus (
+            INPUT  ipcCompany,
+            INPUT  ipcLocation,
+            INPUT  ipcAPIID,
+            INPUT  ipcClientID,
+            INPUT  cTriggerID,
+            INPUT  cScopeID,
+            INPUT  cScopeType,
+            OUTPUT lRecFound,
+            OUTPUT oplScopeActive
+            ).
+
+        IF lRecFound THEN
+            RETURN.
+    END.  
 END PROCEDURE.
 
 PROCEDURE pPopulateRequestData PRIVATE:

@@ -1030,6 +1030,45 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-inv-file V-table-Win 
+PROCEDURE check-inv-file :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE hPostInvoices AS HANDLE NO-UNDO.
+DEFINE VARIABLE iCountProcess AS INTEGER NO-UNDO.
+DEFINE VARIABLE iCountValid AS INTEGER NO-UNDO.
+DEFINE VARIABLE iCountPost AS INTEGER NO-UNDO.
+DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+
+ RUN oe/PostInvoices.p PERSISTENT SET hPostInvoices.
+         
+ RUN ValidateInvoices IN hPostInvoices (cocode,
+                                        0,
+                                        9999999,
+                                        DATE(01/01/0001),
+                                        date(12/31/2099),
+                                        "",
+                                        "zzzzzzzz",
+                                        date(TODAY),
+                                        OUTPUT iCountProcess,
+                                        OUTPUT iCountValid,
+                                        OUTPUT iCountPost,
+                                        OUTPUT lError,
+                                        OUTPUT cMessage) .    
+    MESSAGE cMessage STRING(iCountProcess) "Invoices processed," STRING(iCountValid) "Approved," STRING(iCountProcess - iCountValid) "Problems."  VIEW-AS ALERT-BOX INFO .
+    
+    IF VALID-HANDLE(hPostInvoices) THEN
+    DELETE OBJECT hPostInvoices.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION f-cust-Po B-table-Win 

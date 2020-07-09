@@ -6,7 +6,7 @@ DEFINE INPUT PARAMETER ipiType  AS INTEGER NO-UNDO.  /* 1 is inks,
                                               3 is packing
                                               4 is freight
                                               ? is all */
-
+DEFINE INPUT PARAMETER iplPrompt  AS LOGICAL NO-UNDO.
 DEFINE BUFFER b-eb  FOR eb.
 DEFINE BUFFER b-eb1 FOR eb.
 DEFINE BUFFER b-ef  FOR ef.
@@ -68,8 +68,9 @@ DO:
             AND ROWID(b-eb)   NE ip-rowid2
             NO-ERROR.
         
-    IF AVAILABLE b-eb THEN DO:                
-            RUN est\dUpdEst.w (cCriteria, INPUT-OUTPUT lUpdInks, INPUT-OUTPUT lUpdPack, INPUT-OUTPUT lUpdFreight). 
+    IF AVAILABLE b-eb THEN DO: 
+            IF iplPrompt THEN
+            RUN est\dUpdEst.w (cCriteria, INPUT-OUTPUT lUpdInks, INPUT-OUTPUT lUpdPack, INPUT-OUTPUT lUpdFreight).               
         IF lUpdInks OR lUpdPack OR lUpdFreight THEN 
             FOR EACH b-eb 
                 WHERE b-eb.company EQ eb.company
@@ -82,8 +83,9 @@ DO:
                 IF lUpdInks THEN DO:
                     {est/copyinks.i}
                 END.
-                IF lUpdPack THEN DO:
+                IF lUpdPack THEN DO:  
                     {est/copypack.i}
+                    RUN est/CopyEnhancedPack.p(ROWID(eb),ROWID(b-eb)) .
                 END.            
                 IF lUpdFreight THEN DO:
                     {est/copyfrat.i}

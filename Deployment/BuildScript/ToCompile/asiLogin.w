@@ -805,7 +805,8 @@ PROCEDURE ipChangeEnvironment :
                 DO iCtr = 1 TO NUM-ENTRIES(cDatabaseList):
                     IF INDEX(ENTRY(iCtr,cDatabaseList),"Prod") <> 0 AND cSessionParam EQ "" THEN DO:
                         ASSIGN
-                            cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cDatabaseList).
+                            cbDatabase:LIST-ITEMS = ENTRY(iCtr,cDatabaseList)
+                            cbDatabase:SCREEN-VALUE = ENTRY(1,cDatabaseList).
                         LEAVE.
                     END.
                 END.
@@ -814,7 +815,8 @@ PROCEDURE ipChangeEnvironment :
                 DO iCtr = 1 TO NUM-ENTRIES(cDatabaseList):
                     IF INDEX(ENTRY(iCtr,cDatabaseList),"Test") <> 0 AND cSessionParam EQ "" THEN DO:
                         ASSIGN
-                            cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cDatabaseList).
+                            cbDatabase:LIST-ITEMS = ENTRY(iCtr,cDatabaseList)
+                            cbDatabase:SCREEN-VALUE = ENTRY(1,cDatabaseList).
                         LEAVE.
                     END.
                 END.

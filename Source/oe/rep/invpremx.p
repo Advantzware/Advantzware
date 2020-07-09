@@ -74,15 +74,7 @@ def var v-ship-i as char format "x(25)" no-undo.
 def var v-rel-po-no like oe-rel.po-no no-undo.
 def var v-price-head as char format "x(5)" no-undo.
 DEF VAR v-subtot-lines AS DEC NO-UNDO.
-def TEMP-TABLE w-tax NO-UNDO
-    field w-dsc as   char
-    field w-tax as   dec.
-def var v-t-tax      as   dec extent 3 NO-UNDO.
-def var v-bot-lab    as   char format "x(63)" extent 3 NO-UNDO.
-DEF VAR v-lines AS INT NO-UNDO.
 DEF VAR v-inv-freight LIKE inv-head.t-inv-freight NO-UNDO.
-DEF VAR v-frt-tax AS DEC NO-UNDO.
-DEFINE VARIABLE lFirstLine AS LOGICAL     NO-UNDO.
 
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
@@ -107,16 +99,26 @@ DEF VAR dOrigQty AS DEC NO-UNDO.
 DEFINE VARIABLE cOrigUOM AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE cXMLShipTo AS CHARACTER   NO-UNDO.
 
-DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
-DEFINE VARIABLE lChkImage AS LOGICAL NO-UNDO. 
-DEFINE VARIABLE cTaxCode AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCurCode AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCompanyID AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cRtnChar              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound             AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lChkImage             AS LOGICAL   NO-UNDO. 
+DEFINE VARIABLE cTaxCode              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCurCode              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompanyID            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lValid                AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFileSysProcs        AS HANDLE    NO-UNDO.
+DEFINE VARIABLE dFrtTaxAmt            AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE lIsfreightTaxable     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE dTotalSalesTax        AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dTotalFrtTax          AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dFrtTaxRate           AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE lIsTaxRateSame        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE dTotalSalesTaxableAmt AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dTotalFrtTaxableAmt   AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE hdTaxProcs            AS HANDLE    NO-UNDO.
 
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 FUNCTION fRoundUp RETURNS DECIMAL ( ipdNum AS DECIMAL ):
@@ -217,7 +219,13 @@ END.
         break by report.key-01
               by (IF v-sort THEN "" ELSE report.key-02)
               BY report.key-03:
-
+      ASSIGN 
+        dTotalFrtTax          = 0.00
+        dTotalSalesTax        = 0.00
+        dTotalSalesTaxableAmt = 0.00
+        dTotalFrtTaxableAmt   = 0.00
+        lIsTaxRateSame        = NO
+        .
       FIND FIRST cust WHERE cust.company = xinv-head.company
                         AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
 
@@ -603,10 +611,7 @@ END.
 
         {oe/rep/invpremx.i}  /* xprint form */
 
-        ASSIGN
-        v-subtot-lines = 0
-        v-t-tax = 0.
-        lFirstLine = YES.
+        v-subtot-lines = 0.
         for each inv-line no-lock where inv-line.r-no = inv-head.r-no:
 
           IF NOT s-print-zero-qty AND
@@ -695,29 +700,6 @@ END.
                    v-subtot-lines = v-subtot-lines + inv-line.t-price.
             /* PremierS switch*/
             IF ip-print-s THEN v-inv-qtys = inv-line.inv-qty / inv-line.cas-cnt.
-
-                if inv-line.tax and avail stax then
-                do i = 1 to 3:
-                  if stax.tax-code[i] ne "" then do:
-                    create w-tax.
-                    assign
-                     w-dsc      = stax.tax-dscr[i]
-                     w-tax      = round((if stax.company eq "yes" then v-t-price
-                                                                  else inv-line.t-price) *
-                                        stax.tax-rate[i] / 100,2)
-                     v-t-price  = v-t-price + w-tax
-                     v-t-tax[i] = v-t-tax[i] + w-tax
-                     v-lines    = v-lines + 1.
-                  end.
-                end.
-
-                if v-t-price ne inv-line.t-price then do:
-                  create w-tax.
-                  assign
-                   w-dsc     = "******ITEM TOTAL:"
-                   w-tax     = v-t-price
-                   v-lines   = v-lines + 1.
-                end.
             
             ASSIGN v-po-no  = inv-line.po-no
                    v-ord-no = inv-line.ord-no
@@ -806,22 +788,61 @@ END.
              RUN cXMLOutput (clXMLOutput,'',STRING(inv-line.t-price),'Col').
              RUN cXMLOutput (clXMLOutput,'/Money','','Row').
              RUN cXMLOutput (clXMLOutput,'/SubtotalAmount','','Row'). 
-             ASSIGN dLineTaxableAmt = IF inv-line.tax THEN inv-line.t-price ELSE 0
-                    .
-
              IF AVAIL stax AND inv-line.tax THEN 
              DO:
-                RUN ar/calctax2.p (inv-head.tax-gr,NO,dLineTaxableAmt,inv-head.company,inv-line.i-no,OUTPUT dLineTaxAmt).
+                dLineTaxableAmt = inv-line.t-price.
+
+                RUN Tax_Calculate IN hdTaxProcs (
+                    INPUT  inv-head.company,
+                    INPUT  inv-head.tax-gr,
+                    INPUT  FALSE,   /* Is this freight */
+                    INPUT  dLineTaxableAmt,
+                    INPUT  inv-line.i-no,
+                    OUTPUT dLineTaxAmt
+                    ).                   
+                    
                 ASSIGN 
-                    dLineTaxAmt = fRoundUp(dLineTaxAmt)
-                    dLineTaxRate = TRUNC(dLineTaxAmt / dLineTaxableAmt * 100, 2)
+                    dLineTaxAmt           = fRoundUp(dLineTaxAmt)
+                    dLineTaxRate          = TRUNCATE(dLineTaxAmt / dLineTaxableAmt * 100, 2)
+                    dTotalSalesTax        = dTotalSalesTax + dLineTaxAmt
+                    dTotalSalesTaxableAmt = dTotalSalesTaxableAmt + dLineTaxableAmt
                     .
+                    
+                IF inv-head.f-bill THEN DO:    
+                    lIsFreightTaxable = YES.
+                    RUN Tax_Calculate IN hdTaxProcs (
+                        INPUT  inv-head.company,
+                        INPUT  inv-head.tax-gr,
+                        INPUT  TRUE,   /* Is this freight */
+                        INPUT  inv-line.t-freight,
+                        INPUT  "",
+                        OUTPUT dFrtTaxAmt
+                        ).
+                    ASSIGN     
+                        dFrtTaxAmt          = fRoundUp(dFrtTaxAmt)
+                        dFrtTaxRate         = TRUNCATE(dFrtTaxAmt / inv-line.t-freight * 100, 2)
+                        dTotalFrtTax        = dTotalFrtTax + dFrtTaxAmt
+                        dTotalFrtTaxableAmt = dTotalFrtTaxableAmt + inv-line.t-freight
+                        .
+                 IF NOT lIsTaxRateSame THEN 
+                    lIsTaxRateSame = dLineTaxRate EQ dFrtTaxRate. 
+                END.  
+                ELSE 
+                    ASSIGN 
+                        lIsfreightTaxable = NO
+                        dFrtTaxAmt        = 0
+                        dFrtTaxRate       = 0
+                        .     
              END.
              ELSE 
-               ASSIGN dLineTaxableAmt = 0
-                      dLineTaxAmt     = 0
-                      dLineTaxRate    = 0
-                      . 
+                ASSIGN 
+                    dLineTaxableAmt   = 0
+                    dLineTaxAmt       = 0
+                    dLineTaxRate      = 0
+                    dFrtTaxAmt        = 0
+                    lIsFreightTaxable = NO
+                    dFrtTaxRate       = 0
+                    . 
 
              RUN cXMLOutput (clXMLOutput,'Tax','','Row'). 
              RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
@@ -881,15 +902,76 @@ END.
              RUN cXMLOutput (clXMLOutput,'/Contact','','Row').
              RUN cXMLOutput (clXMLOutput,'/InvoiceDetailShipping','','Row').
              RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
-             IF lFirstLine THEN DO: 
-                 RUN cXMLOutput (clXMLOutput,'',STRING(inv-head.t-inv-freight),'Col').
-                 lFirstLine = NO.
-             END.
-             ELSE
-                RUN cXMLOutput (clXMLOutput,'','0','Col').
+             RUN cXMLOutput (clXMLOutput,'','0','Col').
              RUN cXMLOutput (clXMLOutput,'/Money','','Row').
              RUN cXMLOutput (clXMLOutput,'/InvoiceDetailLineShipping','','Row').
              RUN cXMLOutput (clXMLOutput,'/InvoiceDetailItem','','Row'). 
+             
+             RUN cXMLOutput(clXMLOutput,'InvoiceDetailServiceItem invoiceLineNumber="' + STRING(inv-line.line)
+                                      + '" quantity="' + STRING(IF dOrigQty NE 0 THEN dOrigQty ELSE inv-line.inv-qty) + '"','','Row').
+             
+             RUN cXMLOutput (clXMLOutput,'InvoiceDetailServiceItemReference lineNumber="' + STRING(inv-line.line) + '"','','Row').
+             RUN cXMLOutput (clXMLOutput,'Classification domain="unspsc"','','Row').
+             RUN cXMLOutput (clXMLOutput,'','78100000','Col').
+             RUN cXMLOutput (clXMLOutput,'/Classification','','Row').
+             RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
+             RUN cXMLOutput (clXMLOutput,'','Shipping Cost','Col').
+             RUN cXMLOutput (clXMLOutput,'/Description','','Row').
+             RUN cXMLOutput (clXMLOutput,'/InvoiceDetailServiceItemReference','','Row').
+             RUN cXMLOutput (clXMLOutput,'SubtotalAmount','','Row').
+             RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
+             RUN cXMLOutput (clXMLOutput,'',STRING(inv-line.t-price),'Col').
+             RUN cXMLOutput (clXMLOutput,'/Money','','Row').
+             RUN cXMLOutput (clXMLOutput,'/SubtotalAmount','','Row').
+             RUN cXMLOutput (clXMLOutput,'UnitOfMeasure',(IF cOrigUom EQ "" THEN inv-line.pr-uom ELSE cOrigUOM),'Col').
+             RUN cXMLOutput (clXMLOutput,'UnitPrice','','Row').
+             RUN cXMLOutput (clXMLOutput,'Money Currency="USD"','','Row').
+             RUN cXMLOutput (clXMLOutput,'',STRING(v-price),'Col').
+             RUN cXMLOutput (clXMLOutput,'/Money','','Row').
+             RUN cXMLOutput (clXMLOutput,'/UnitPrice','','Row').
+             RUN cXMLOutput (clXMLOutput,'Tax','','Row').
+             RUN cXMLOutput (clXMLOutput,'Money Currency="USD"','','Row').
+             RUN cXMLOutput (clXMLOutput,'',STRING(dLineTaxAmt + dFrtTaxAmt),'Col').
+             RUN cXMLOutput (clXMLOutput,'/Money','','Row').
+             RUN cXMLOutput (clXMLOutput,'TaxDetail category="Sales"'+
+                                         ' percentageRate="' + STRING(dLineTaxRate) + '"' +  ' purpose="ShippingTax"','','Row').
+             RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').
+             RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
+             RUN cXMLOutput (clXMLOutput,'',STRING(dLineTaxableAmt + IF lIsFreightTaxable THEN inv-line.t-freight ELSE 0.00),'Col').
+             RUN cXMLOutput (clXMLOutput,'/Money','','Row').
+             RUN cXMLOutput (clXMLOutput,'/TaxableAmount','','Row').
+             RUN cXMLOutput (clXMLOutput,'TaxAmount','','Row').
+             RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
+             RUN cXMLOutput (clXMLOutput,'',STRING(dLineTaxAmt + dFrtTaxAmt),'Col').
+             RUN cXMLOutput (clXMLOutput,'/Money','','Row').
+             RUN cXMLOutput (clXMLOutput,'/TaxAmount','','Row').
+             RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
+             RUN cXMLOutput (clXMLOutput,'','Sales','Col').
+             RUN cXMLOutput (clXMLOutput,'/Description','','Row').
+             RUN cXMLOutput (clXMLOutput,'/TaxDetail','','Row').
+             RUN cXMLOutput (clXMLOutput,'/Tax','','Row').
+             RUN cXMLOutput (clXMLOutput,'GrossAmount','','Row').
+             RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
+             RUN cXMLOutput (clXMLOutput,'',STRING(dLineTaxableAmt + inv-line.t-freight + dLineTaxAmt + dFrtTaxAmt),'Col').
+             RUN cXMLOutput (clXMLOutput,'/Money','','Row').
+             RUN cXMLOutput (clXMLOutput,'/GrossAmount','','Row').
+             RUN cXMLOutput (clXMLOutput,'TotalAmountWithoutTax','','Row').
+             RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
+             RUN cXMLOutput (clXMLOutput,'',STRING(dLineTaxableAmt + inv-line.t-freight),'Col').
+             RUN cXMLOutput (clXMLOutput,'/Money','','Row').
+             RUN cXMLOutput (clXMLOutput,'/TotalAmountWithoutTax','','Row').
+             RUN cXMLOutput (clXMLOutput,'NetAmount','','Row').
+             RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
+             RUN cXMLOutput (clXMLOutput,'',STRING(dLineTaxableAmt + inv-line.t-freight + dLineTaxAmt + dFrtTaxAmt),'Col').
+             RUN cXMLOutput (clXMLOutput,'/Money','','Row').
+             RUN cXMLOutput (clXMLOutput,'/NetAmount','','Row').
+             RUN cXMLOutput (clXMLOutput,'Extrinsic name="punchinItemFromCatalog"','','Row').
+             RUN cXMLOutput (clXMLOutput,'','no','Col').
+             RUN cXMLOutput (clXMLOutput,'/Extrinsic','','Row').
+             RUN cXMLOutput (clXMLOutput,'Extrinsic name="IsShippingServiceItem"','','Row').
+             RUN cXMLOutput (clXMLOutput,'','Yes','Col').
+             RUN cXMLOutput (clXMLOutput,'/Extrinsic','','Row').
+             RUN cXMLOutput (clXMLOutput,'/InvoiceDetailServiceItem','','Row').
             
              /* rstark 05291402 */
             
@@ -947,28 +1029,6 @@ END.
             ASSIGN
             v-subtot-lines = v-subtot-lines + inv-misc.amt
             v-printline = v-printline + 1.
-            if inv-misc.tax and avail stax then
-            do i = 1 to 3:
-              if stax.tax-code[i] ne "" then do:
-                create w-tax.
-                assign
-                 w-dsc      = stax.tax-dscr[i]
-                 w-tax      = if stax.company eq "yes" then v-t-price
-                              else inv-misc.amt
-                 w-tax      = round(w-tax * (1 + (stax.tax-rate[i] / 100)),2) - w-tax
-                 v-t-price  = v-t-price + w-tax
-                 v-t-tax[i] = v-t-tax[i] + w-tax
-                 v-lines    = v-lines + 1.
-              end.
-            end.
-
-            if v-t-price ne inv-misc.amt then do:
-              create w-tax.
-              assign
-               w-dsc     = "******ITEM TOTAL:"
-               w-tax     = v-t-price
-               v-lines   = v-lines + 1.
-            end.
 
         end. /* each inv-misc */
 
@@ -1005,33 +1065,8 @@ END.
             END.
          
         end.
-
-        v-frt-tax = inv-head.t-inv-freight.
-        IF inv-head.tax-gr <> "" and
-           inv-head.f-bill AND inv-head.t-inv-freight <> 0 AND AVAIL stax THEN
-        do i = 1 to 3:
-
-           if stax.tax-code[i] ne "" then do:
-                create w-tax.
-                assign
-                 w-dsc      = stax.tax-dscr[i]
-                 w-tax      = round((if stax.company eq "yes" then v-frt-tax
-                                                         ELSE inv-head.t-inv-freight) *
-                                        stax.tax-rate[i] / 100,2)                 
-                 v-frt-tax  = v-frt-tax + w-tax
-                 v-t-tax[i] = v-t-tax[i] + w-tax
-                 v-lines    = v-lines + 1.
-           END.
-        end.
       end. /* DO TRANSACTION */
 
-    do i = 1 to 3:
-       v-bot-lab[i] = if v-t-tax[i] ne 0 then
-                        ((IF AVAIL stax THEN string(CAPS(stax.tax-code[i]),"x(5)") 
-                           ELSE FILL(" ",5) ) +
-                       fill(" ",6) + ":" +
-                       string(v-t-tax[i],"->>>>>9.99")) else "".
-    end.
     v-inv-freight = 0.
     FOR EACH b-inv-head WHERE b-inv-head.company = inv-head.company
                           AND b-inv-head.inv-no  = inv-head.inv-no
@@ -1080,21 +1115,53 @@ END.
     RUN cXMLOutput (clXMLOutput,'',STRING(inv-head.t-inv-tax),'Col').
     RUN cXMLOutput (clXMLOutput,'/Money','','Row').
     RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
-    RUN cXMLOutput (clXMLOutput,'','Sales Tax','Col').
     RUN cXMLOutput (clXMLOutput,'/Description','','Row').
-    RUN cXMLOutput (clXMLOutput,'TaxDetail category="SalesTax" '+
-                                'percentageRate="0"','','Row').
-    RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').    
-    RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
-    RUN cXMLOutput (clXMLOutput,'',STRING(v-subtot-lines),'Col').
-    RUN cXMLOutput (clXMLOutput,'/Money','','Row').
-    RUN cXMLOutput (clXMLOutput,'/TaxableAmount','','Row').    
-    RUN cXMLOutput (clXMLOutput,'TaxAmount','','Row').    
-    RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
-    RUN cXMLOutput (clXMLOutput,'',STRING(inv-head.t-inv-tax),'Col').
-    RUN cXMLOutput (clXMLOutput,'/Money','','Row').
-    RUN cXMLOutput (clXMLOutput,'/TaxAmount','','Row').    
-    RUN cXMLOutput (clXMLOutput,'/TaxDetail','','Row').    
+    IF lIsTaxRateSame THEN DO:
+        RUN cXMLOutput (clXMLOutput,'TaxDetail category="Shipping Tax and Sales Tax" '+
+                                    'percentageRate="0"','','Row').
+        RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').    
+        RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
+        RUN cXMLOutput (clXMLOutput,'',STRING(dTotalSalesTaxableAmt + dTotalFrtTaxableAmt),'Col').
+        RUN cXMLOutput (clXMLOutput,'/Money','','Row').
+        RUN cXMLOutput (clXMLOutput,'/TaxableAmount','','Row').    
+        RUN cXMLOutput (clXMLOutput,'TaxAmount','','Row').    
+        RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
+        RUN cXMLOutput (clXMLOutput,'',STRING(inv-head.t-inv-tax),'Col').
+        RUN cXMLOutput (clXMLOutput,'/Money','','Row').
+        RUN cXMLOutput (clXMLOutput,'/TaxAmount','','Row').    
+        RUN cXMLOutput (clXMLOutput,'/TaxDetail','','Row'). 
+    END.
+    ELSE DO:
+        IF  dTotalFrtTax NE 0 OR dTotalFrtTaxableAmt NE 0 THEN DO:
+            RUN cXMLOutput (clXMLOutput,'TaxDetail category="Shipping Tax percentageRate"'+
+                                        ' percentageRate="0"','','Row').
+            RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').    
+            RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
+            RUN cXMLOutput (clXMLOutput,'',STRING(dTotalFrtTaxableAmt),'Col').
+            RUN cXMLOutput (clXMLOutput,'/Money','','Row').
+            RUN cXMLOutput (clXMLOutput,'/TaxableAmount','','Row').    
+            RUN cXMLOutput (clXMLOutput,'TaxAmount','','Row').    
+            RUN cXMLOutput (clXMLOutput,'Money alternateAmount="' + STRING(dTotalFrtTax) + '"' + ' alternateCurrency="USD" currency="USD"','','Row').
+            RUN cXMLOutput (clXMLOutput,'',STRING(dTotalFrtTax),'Col').
+            RUN cXMLOutput (clXMLOutput,'/Money','','Row').
+            RUN cXMLOutput (clXMLOutput,'/TaxAmount','','Row').    
+            RUN cXMLOutput (clXMLOutput,'/TaxDetail','','Row'). 
+        END.    
+        
+        RUN cXMLOutput (clXMLOutput,'TaxDetail category="Sales Tax"'+
+                                    ' percentageRate="0"','','Row').
+        RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').    
+        RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
+        RUN cXMLOutput (clXMLOutput,'',STRING(dTotalSalesTaxableAmt),'Col').
+        RUN cXMLOutput (clXMLOutput,'/Money','','Row').
+        RUN cXMLOutput (clXMLOutput,'/TaxableAmount','','Row').    
+        RUN cXMLOutput (clXMLOutput,'TaxAmount','','Row').    
+        RUN cXMLOutput (clXMLOutput,'Money alternateAmount="' + STRING(dTotalSalesTax) + '"' + ' alternateCurrency="USD" currency="USD"','','Row').
+        RUN cXMLOutput (clXMLOutput,'',STRING(dTotalSalesTax),'Col').
+        RUN cXMLOutput (clXMLOutput,'/Money','','Row').
+        RUN cXMLOutput (clXMLOutput,'/TaxAmount','','Row').    
+        RUN cXMLOutput (clXMLOutput,'/TaxDetail','','Row').     
+    END.           
     RUN cXMLOutput (clXMLOutput,'/Tax','','Row').
     RUN cXMLOutput (clXMLOutput,'SpecialHandlingAmount','','Row').
     RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
@@ -1126,6 +1193,9 @@ END.
     {XMLOutput/XMLOutput.i &c=c &XMLClose} /* rstark 05291402 */
 
 end. /* each xinv-head */
+
+IF VALID-HANDLE(hdTaxProcs) THEN
+    DELETE PROCEDURE hdTaxProcs.
 
 IF VALID-HANDLE(hdFileSysProcs) THEN
     DELETE PROCEDURE hdFileSysProcs.

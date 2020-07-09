@@ -64,6 +64,12 @@ DEF VAR li-factor       AS INT NO-UNDO.
 
 def var ctr             as INT NO-UNDO.
 
+DEF VAR iPurgeCount AS INT NO-UNDO.
+DEF VAR cFileName AS CHAR FORMAT "x(30)" NO-UNDO .
+DEF TEMP-TABLE ttRowidsToPurge
+    FIELD ttRowid AS ROWID.
+DEF STREAM excel.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -79,14 +85,15 @@ def var ctr             as INT NO-UNDO.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 begin_cust end_cust begin_cust-type ~
-end_cust-type begin_i-no end_i-no begin_cat end_cat begin_level end_level ~
-beg_eff_date end_eff_date tg_new_eff_date rd_basis rd_divide percent_chg ~
-rd_round td_imported btn-process btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_cust-type ~
-end_cust-type begin_i-no end_i-no begin_cat end_cat begin_level end_level ~
-beg_eff_date end_eff_date new_eff_date tg_new_eff_date tg_newmatrix ~
-lbl_price rd_basis rd_divide percent_chg lbl_rnd-meth rd_round td_imported
+&Scoped-Define ENABLED-OBJECTS RECT-17 tbPurge begin_cust end_cust ~
+begin_cust-type end_cust-type begin_i-no end_i-no begin_cat end_cat ~
+begin_level end_level beg_eff_date end_eff_date tg_new_eff_date td_imported ~
+rd_basis rd_divide percent_chg rd_round btn-process btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS tbPurge begin_cust end_cust ~
+begin_cust-type end_cust-type begin_i-no end_i-no begin_cat end_cat ~
+begin_level end_level beg_eff_date end_eff_date new_eff_date ~
+tg_new_eff_date tg_newmatrix td_imported lbl_price rd_basis rd_divide ~
+percent_chg lbl_rnd-meth rd_round 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -100,6 +107,13 @@ lbl_price rd_basis rd_divide percent_chg lbl_rnd-meth rd_round td_imported
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD isLatestEffDate C-Win 
 FUNCTION isLatestEffDate RETURNS LOGICAL
   ( BUFFER ipbf-oe-prmtx FOR oe-prmtx)  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD appendXLLine Dialog-Frame 
+FUNCTION appendXLLine RETURNS CHARACTER
+    ( ipc-append AS CHAR )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -224,6 +238,16 @@ DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 89 BY 15.24.
 
+DEFINE VARIABLE tbPurge AS LOGICAL INITIAL no 
+     LABEL "Purge?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 13.2 BY 1 TOOLTIP "This option allows PURGING Price Matrix records" NO-UNDO.
+
+DEFINE VARIABLE td_imported AS LOGICAL INITIAL no 
+     LABEL "Include Contract Pricing Customers?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 40.8 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tg_newmatrix AS LOGICAL INITIAL no 
      LABEL "Create New Matrix?" 
      VIEW-AS TOGGLE-BOX
@@ -232,16 +256,13 @@ DEFINE VARIABLE tg_newmatrix AS LOGICAL INITIAL no
 DEFINE VARIABLE tg_new_eff_date AS LOGICAL INITIAL no 
      LABEL "Update Effective Date?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 26.8 BY .81 NO-UNDO. 
+     SIZE 26.8 BY .81 NO-UNDO.
 
-DEFINE VARIABLE td_imported AS LOGICAL INITIAL no 
-     LABEL "Include Contract Pricing Customers?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 40.8 BY .81 NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
+     tbPurge AT ROW 1.48 COL 67
      begin_cust AT ROW 2.67 COL 25 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
      end_cust AT ROW 2.67 COL 65 COLON-ALIGNED HELP
@@ -343,15 +364,13 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
+ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
-
 
 /* SETTINGS FOR FILL-IN lbl_price IN FRAME FRAME-A
    NO-ENABLE                                                            */
@@ -383,7 +402,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -430,15 +449,49 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN {&displayed-objects}.
-  END.
+    DEF VAR cConfirmPurge AS CHAR NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN {&displayed-objects}.
+    END.
 
-  MESSAGE "Are you sure you want to change the Price Matrix(es) within the " +
-          "selection parameters?"
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
+    IF NOT tbPurge:CHECKED IN FRAME {&frame-name} THEN DO:  /* 'Normal' processing */
+        MESSAGE 
+            "Are you sure you want to change the Price Matrix(es) within the selection parameters?"
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
+        IF v-process THEN RUN run-process.
+    END.
+    ELSE DO:  /* Purge confirmation and execution */
+        MESSAGE 
+            "You have chosen to PURGE the Price Matrix records for the selected criteria.  Are you sure you want to PURGE?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lPurge AS LOG.
+        IF NOT lPurge THEN DO:
+            MESSAGE 
+                "You did not choose to proceed with the PURGE operation."
+                VIEW-AS ALERT-BOX.
+            RETURN NO-APPLY.
+        END.
+        ELSE DO:
+            RUN pPurgePhase1.
 
-  IF v-process THEN RUN run-process.
+            DISPLAY
+                STRING(iPurgeCount) + " records will be purged." FORMAT "x(30)" SKIP 
+                "An export file is stored in location " + cFileName + ".csv" FORMAT "x(75)" SKIP 
+                WITH FRAME dPurge VIEW-AS DIALOG-BOX THREE-D SIDE-LABELS 
+                TITLE "Confirm Purge".
+            UPDATE 
+                cConfirmPurge FORMAT "x(5)" LABEL " Enter 'PURGE' to continue" 
+                WITH FRAME dPurge.
+            IF cConfirmPurge EQ "PURGE" THEN 
+                RUN pPurgePhase2.
+            ELSE DO:
+                MESSAGE 
+                    "You chose to cancel the PURGE process."
+                    VIEW-AS ALERT-BOX.
+                RETURN NO-APPLY.
+            END.
+        END.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -583,15 +636,15 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_cust end_cust begin_cust-type end_cust-type begin_i-no end_i-no 
-          begin_cat end_cat begin_level end_level beg_eff_date end_eff_date 
-          new_eff_date tg_new_eff_date tg_newmatrix lbl_price rd_basis rd_divide 
-          percent_chg lbl_rnd-meth rd_round td_imported
+  DISPLAY tbPurge begin_cust end_cust begin_cust-type end_cust-type begin_i-no 
+          end_i-no begin_cat end_cat begin_level end_level beg_eff_date 
+          end_eff_date new_eff_date tg_new_eff_date tg_newmatrix td_imported 
+          lbl_price rd_basis rd_divide percent_chg lbl_rnd-meth rd_round 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 begin_cust end_cust begin_cust-type end_cust-type begin_i-no 
-         end_i-no begin_cat end_cat begin_level end_level beg_eff_date 
-         end_eff_date tg_new_eff_date rd_basis rd_divide percent_chg rd_round 
-         td_imported btn-process btn-cancel 
+  ENABLE RECT-17 tbPurge begin_cust end_cust begin_cust-type end_cust-type 
+         begin_i-no end_i-no begin_cat end_cat begin_level end_level 
+         beg_eff_date end_eff_date tg_new_eff_date td_imported rd_basis 
+         rd_divide percent_chg rd_round btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -666,6 +719,182 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPurgePhase1 C-Win
+PROCEDURE pPurgePhase1:
+/*------------------------------------------------------------------------------
+ Purpose: create temp-table for every record to be purged; write export file
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF BUFFER b-oe-prmtx FOR oe-prmtx.
+
+    DEF VAR v-excelheader AS CHAR NO-UNDO.
+    DEF VAR v-excel-detail-lines AS CHAR NO-UNDO.
+    DEF VAR ino AS CHAR FORMAT "x(15)" NO-UNDO.
+    DEF VAR pricbas AS CHAR NO-UNDO.
+    DEFINE VARIABLE cIName AS CHARACTER   NO-UNDO.
+    DEFINE VARIABLE cCustPart AS CHARACTER   NO-UNDO.
+    DEFINE VARIABLE cIDesc1 AS CHARACTER   NO-UNDO.
+
+    RUN sys/ref/ExcelNameExt.p (INPUT "c:\tmp\PriceMtxPurge.csv", OUTPUT cFileName) .
+
+    ASSIGN 
+        v-excelheader = "Eff. Date,Customer,Type,Category,Item Code,Price Basis,Qty1,Price1,Dsc1,UOM1,Qty2,Price2,Dsc2,UOM2,"+
+                        "Qty3,Price3,Dsc3,UOM3,Qty4,Price4,Dsc4,UOM4,Qty5,Price5,Dsc5,UOM5,Qty6,Price6,Dsc6,UOM6," + 
+                        "Qty7,Price7,Dsc7,UOM7,Qty8,Price8,Dsc8,UOM8,Qty9,Price9,Dsc9,UOM9,Qty10,Price10,Dsc10,UOM10," +
+                        "Exp Date,ShipTo,Online,Customer Part #,Item Name,Item Description 1"
+        start-cust-no   = begin_cust
+        end-cust-no     = end_cust
+        start-cust-type = begin_cust-type
+        end-cust-type   = end_cust-type
+        start-item-no   = begin_i-no
+        end-item-no     = end_i-no
+        start-prod-cat  = begin_cat
+        end-prod-cat    = end_cat
+        start-level     = begin_level
+        end-level       = end_level
+        price-basis     = SUBSTR(rd_basis,1,1)
+        pct-divide      = SUBSTR(rd_divide,1,1)
+        percent-change  = percent_chg / 100
+        li-factor       = 1
+        iPurgeCount     = 0.
+        
+    EMPTY TEMP-TABLE ttRowidsToPurge.
+
+    SESSION:SET-WAIT-STATE ("general").
+
+    OUTPUT STREAM excel TO VALUE(cFileName).
+    PUT STREAM excel UNFORMATTED v-excelheader SKIP.
+    
+    FOR EACH b-oe-prmtx WHERE b-oe-prmtx.company = cocode 
+        AND b-oe-prmtx.cust-no GE begin_cust
+        AND b-oe-prmtx.cust-no LE end_cust 
+        AND b-oe-prmtx.procat GE begin_cat
+        AND b-oe-prmtx.procat LE end_cat 
+        AND b-oe-prmtx.i-no GE begin_i-no 
+        AND b-oe-prmtx.i-no LE end_i-no
+        AND b-oe-prmtx.custype GE begin_cust-type
+        AND b-oe-prmtx.custype LE end_cust-type 
+        AND b-oe-prmtx.eff-date GE beg_eff_date
+        AND b-oe-prmtx.eff-date LE end_eff_date 
+        NO-LOCK:
+
+        CREATE ttRowidsToPurge.
+        ASSIGN 
+            ttRowidsToPurge.ttRowid = ROWID(b-oe-prmtx)
+            iPurgeCount = iPurgeCount + 1.
+
+        ASSIGN 
+            ino = substring(b-oe-prmtx.i-no,01,15)
+            cIName = ''
+            cCustPart = ''
+            cIDesc1 = ''
+            .
+        FIND FIRST itemfg
+            WHERE itemfg.company EQ b-oe-prmtx.company
+            AND itemfg.i-no EQ ino
+            NO-LOCK NO-ERROR.
+        IF AVAIL itemfg THEN
+            ASSIGN
+                cIName = itemfg.i-name
+                cCustPart = itemfg.part-no
+                cIDesc1 = itemfg.part-dscr1
+                .
+        ASSIGN
+            pricbas = (IF b-oe-prmtx.meth EQ YES THEN "Price" ELSE "Discount")
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.eff-date,"99/99/9999"))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.cust-no))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(b-oe-prmtx.custype)
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.procat))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(ino)                      
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(pricbas))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.qty[1]      ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[1]    ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[1] ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[1]      ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.qty[2]      ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[2]    ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[2] ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[2]      ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.qty[3]      ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[3]    )) 
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[3] ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[3]      ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.qty[4]      ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[4]    ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[4] ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[4]      ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.qty[5]      ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[5]    ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[5] ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[5]      ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.qty[6]      ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[6]    ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[6] ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[6]      ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.qty[7]      ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[7]    ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[7] ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[7]      ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.qty[8]      ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[8]    ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[8] ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[8]      ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.qty[9]      ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[9]    ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[9] ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[9]      ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.qty[10]     ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.price[10]   ))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.discount[10]))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.uom[10]     )) 
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(IF b-oe-prmtx.exp-date NE ? THEN  STRING(b-oe-prmtx.exp-date,"99/99/9999") ELSE "")
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(b-oe-prmtx.custShipID))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(b-oe-prmtx.online)) 
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cCustPart) 
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cIName) 
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(cIDesc1)
+            .
+
+        PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
+        v-excel-detail-lines = "".
+    END.
+
+    OUTPUT STREAM excel CLOSE.
+
+    SESSION:SET-WAIT-STATE ("").
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPurgePhase2 C-Win
+PROCEDURE pPurgePhase2:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF BUFFER b-oe-prmtx FOR oe-prmtx.
+    FOR EACH ttRowidsToPurge:
+        FIND b-oe-prmtx WHERE 
+            ROWID(b-oe-prmtx) EQ ttRowidsToPurge.ttRowid
+            EXCLUSIVE NO-ERROR.
+        IF AVAIL b-oe-prmtx THEN DO:
+            DELETE b-oe-prmtx.
+        END.
+    END. 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE rounding C-Win 
 PROCEDURE rounding :
@@ -797,6 +1026,26 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION appendXLLine Dialog-Frame 
+FUNCTION appendXLLine RETURNS CHARACTER
+    ( ipc-append AS CHAR ) :
+    /*------------------------------------------------------------------------------
+      Purpose:  
+        Notes:  
+    ------------------------------------------------------------------------------*/
+
+    DEF VAR lc-line AS CHAR NO-UNDO.
+
+    ipc-append = REPLACE(ipc-append, '"', '').
+    ipc-append = REPLACE(ipc-append, ',', ' ').
+    lc-line = lc-line + '"' + ipc-append + '",'.
+    RETURN lc-line.   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION isLatestEffDate C-Win 
 FUNCTION isLatestEffDate RETURNS LOGICAL

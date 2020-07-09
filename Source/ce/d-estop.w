@@ -771,16 +771,7 @@ DO:
             RUN valid-mach NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-            ll-import-all = NO.
-            IF ll-import-selected AND NOT est-op.isLocked THEN 
-            DO WITH FRAME {&FRAME-NAME}:
-                MESSAGE
-                    "NO = Import Standards for Only Machine Imported?" SKIP
-                    "YES = Import Standards for All Machines on Routing?"
-                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO TITLE "Import Standards"
-                UPDATE ll-import-all.
-            END. /* with frame */
-
+            ll-import-all = NO.   
             IF ll-import-stds AND NOT CAN-DO("RC,GU",lv-dept) THEN
                 IF CAN-DO("PR,CT",lv-dept) THEN 
                 DO:
@@ -1151,7 +1142,7 @@ PROCEDURE create-item :
             est-op.s-num   = 1
             est-op.b-num   = 0
             est-op.op-pass = 1
-            est-op.qty     = IF est.est-type EQ 1 THEN est-qty.eqty ELSE lv-eqty.
+            est-op.qty     = IF est.est-type NE 4 THEN est-qty.eqty ELSE lv-eqty.
 
         FIND CURRENT est-op NO-LOCK NO-ERROR.
     END. /* avail oe-relh */
@@ -1326,7 +1317,7 @@ PROCEDURE pGetQty :
     lv-eqty = 0.
 
     IF AVAILABLE est THEN
-        IF est.est-type EQ 1 THEN lv-eqty = est-qty.eqty.
+        IF est.est-type NE 4 THEN lv-eqty = est-qty.eqty.
 
         ELSE
             FOR EACH xop NO-LOCK

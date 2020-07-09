@@ -65,19 +65,19 @@
       </tr>
       <tr class="shadedrow">
         <td>CREATE</td>
-        <td><a href="trg/dynsubjectcolumn_create.html">create.trg/dynSubjectColumn.p</a></td>
+        <td>create.trg/dynSubjectColumn.p</td>
         <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
       </tr>
       <tr class="shadedrow">
         <td>DELETE</td>
-        <td><a href="trg/dynsubjectcolumn_delete.html">delete.trg/dynSubjectColumn.p</a></td>
+        <td>delete.trg/dynSubjectColumn.p</td>
         <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
       </tr>
       <tr class="shadedrow">
         <td>WRITE</td>
-        <td><a href="trg/dynsubjectcolumn_write.html">write.trg/dynSubjectColumn.p</a></td>
+        <td>write.trg/dynSubjectColumn.p</td>
         <td style="text-align: center;"> <input type="checkbox" disabled checked /> </td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
       </tr>
@@ -142,6 +142,17 @@
     <td></td>
   </tr>
   <tr class="evenrow">
+    <td>280</td>
+    <td>cellColor</td>
+    <td><a href="00-cross-c.html#cellColor"><small>X</small></a></td>
+    <td>Background</td>
+    <td>integer</td>
+    <td>&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
     <td>80</td>
     <td>columnSize</td>
     <td><a href="00-cross-c.html#columnSize"><small>X</small></a></td>
@@ -149,6 +160,17 @@
     <td>decimal-2</td>
     <td>&gt;&gt;9.99</td>
     <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>260</td>
+    <td>compareValue</td>
+    <td><a href="00-cross-c.html#compareValue"><small>X</small></a></td>
+    <td>Status Compare Value</td>
+    <td>character</td>
+    <td>x(20)</td>
+    <td></td>
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
@@ -285,6 +307,17 @@
     <td></td>
   </tr>
   <tr class="oddrow">
+    <td>240</td>
+    <td>isStatusField</td>
+    <td><a href="00-cross-i.html#isStatusField"><small>X</small></a></td>
+    <td>Status Field</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
     <td>190</td>
     <td><a href="addrphone.html">rec_key</a></td>
     <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
@@ -295,7 +328,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>110</td>
     <td>sortCol</td>
     <td><a href="00-cross-s.html#sortCol"><small>X</small></a></td>
@@ -306,7 +339,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>120</td>
     <td>sortDescending</td>
     <td><a href="00-cross-s.html#sortDescending"><small>X</small></a></td>
@@ -317,7 +350,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>30</td>
     <td>sortOrder</td>
     <td><a href="00-cross-s.html#sortOrder"><small>X</small></a></td>
@@ -328,7 +361,29 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
+  <tr class="evenrow">
+    <td>290</td>
+    <td>statusAction</td>
+    <td><a href="00-cross-s.html#statusAction"><small>X</small></a></td>
+    <td>Status Field Action</td>
+    <td>character</td>
+    <td>x(30)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
   <tr class="oddrow">
+    <td>250</td>
+    <td>statusCompare</td>
+    <td><a href="00-cross-s.html#statusCompare"><small>X</small></a></td>
+    <td>Status Compare</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
     <td>10</td>
     <td><a href="dynsubject.html">subjectID</a></td>
     <td><a href="00-cross-s.html#subjectID"><small>X</small></a></td>
@@ -339,7 +394,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>100</td>
     <td>tableDB</td>
     <td><a href="00-cross-t.html#tableDB"><small>X</small></a></td>
@@ -350,7 +405,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>70</td>
     <td>tableName</td>
     <td><a href="00-cross-t.html#tableName"><small>X</small></a></td>
@@ -358,6 +413,17 @@
     <td>character</td>
     <td>x(20)</td>
     <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>270</td>
+    <td>textColor</td>
+    <td><a href="00-cross-t.html#textColor"><small>X</small></a></td>
+    <td>Foreground</td>
+    <td>integer</td>
+    <td>&gt;9</td>
+    <td>0</td>
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
@@ -637,6 +703,72 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
+  <tr class="evenrow">
+    <td>240</td>
+    <td>isStatusField</td>
+    <td><a href="00-cross-i.html#isStatusField"><small>X</small></a></td>
+    <td>Status Field</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>250</td>
+    <td>statusCompare</td>
+    <td><a href="00-cross-s.html#statusCompare"><small>X</small></a></td>
+    <td>Status Compare</td>
+    <td>character</td>
+    <td>x(8)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>260</td>
+    <td>compareValue</td>
+    <td><a href="00-cross-c.html#compareValue"><small>X</small></a></td>
+    <td>Status Compare Value</td>
+    <td>character</td>
+    <td>x(20)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>270</td>
+    <td>textColor</td>
+    <td><a href="00-cross-t.html#textColor"><small>X</small></a></td>
+    <td>Foreground</td>
+    <td>integer</td>
+    <td>&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>280</td>
+    <td>cellColor</td>
+    <td><a href="00-cross-c.html#cellColor"><small>X</small></a></td>
+    <td>Background</td>
+    <td>integer</td>
+    <td>&gt;9</td>
+    <td>0</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>290</td>
+    <td>statusAction</td>
+    <td><a href="00-cross-s.html#statusAction"><small>X</small></a></td>
+    <td>Status Field Action</td>
+    <td>character</td>
+    <td>x(30)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
 </table>
 </div>
 
@@ -685,13 +817,13 @@
       <th>Parent tables</th>
     </tr>
     <tr class="shadedrow">
-      <td><a href="costHeader.html">costHeader</a>&nbsp;&nbsp; <a href="dynsubject.html">dynSubject</a>&nbsp;&nbsp; <a href="ef-nsh.html">ef-nsh</a>&nbsp;&nbsp; <a href="rec_key.html">rec_key</a>&nbsp;&nbsp; <a href="resource.html">serverResource</a>&nbsp;&nbsp; <a href="systemconfigusage.html">systemConfigUsage</a>&nbsp;&nbsp; <a href="usercontrol.html">userControl</a>&nbsp;&nbsp; <a href="usersman.html">usersman</a>&nbsp;&nbsp; </td>
+      <td><a href="costHeader.html">costHeader</a>&nbsp;&nbsp; <a href="dynsubject.html">dynSubject</a>&nbsp;&nbsp; </td>
     </tr>
   </table>
 <hr style="clear:both">
 <hr>
 <table style="width:100%; margin-top:10px;">
-  <tr><td style="text-align:right;"><i><small>generated 28-4-2020 08:30</small></i></td></tr>
+  <tr><td style="text-align:right;"><i><small>generated 1-7-2020 20:23</small></i></td></tr>
 </table>
 </body>
 </html>

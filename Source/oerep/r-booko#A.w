@@ -35,7 +35,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
+DEF VAR list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
@@ -50,15 +50,15 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdPriceProcs  AS HANDLE.
 
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
-assign
+ASSIGN
  cocode = gcompany
  locode = gloc.
 
 DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
 DEF VAR is-xprint-form AS LOGICAL.
-def new shared var v-fr-tax like oe-ctrl.f-tax.
+DEF NEW SHARED VAR v-fr-tax LIKE oe-ctrl.f-tax.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
-def var security-flag as log no-undo.
+DEF VAR security-flag AS LOG NO-UNDO.
 
 DEF STREAM excel.
 
@@ -221,24 +221,24 @@ DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 94 BY 9.76.
 
-DEFINE VARIABLE tb_contr AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_contr AS LOGICAL INITIAL NO 
      LABEL "Print Contribution?" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -314,15 +314,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -417,7 +417,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -458,7 +458,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
 ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -469,7 +469,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_i-no C-Win
 ON LEAVE OF begin_i-no IN FRAME FRAME-A /* Beginning Item# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -480,7 +480,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_ord-date C-Win
 ON LEAVE OF begin_ord-date IN FRAME FRAME-A /* Beginning Order Date */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -491,7 +491,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_ord-no C-Win
 ON LEAVE OF begin_ord-no IN FRAME FRAME-A /* Beginning Order# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -502,7 +502,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   apply "close" to this-procedure.
+   APPLY "close" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -517,13 +517,13 @@ DO:
     ASSIGN {&displayed-objects}.
   END.
 
-  run run-report.
+  RUN run-report.
   STATUS DEFAULT "Processing Complete". 
-  case rd-dest:
-       when 1 then run output-to-printer.
-       when 2 then run output-to-screen.
-       when 3 then run output-to-file.
-       when 4 then do:
+  CASE rd-dest:
+       WHEN 1 THEN RUN output-to-printer.
+       WHEN 2 THEN RUN output-to-screen.
+       WHEN 3 THEN RUN output-to-file.
+       WHEN 4 THEN DO:
            /*run output-to-fax.*/
            {custom/asifax.i &type= "Customer"
                             &begin_cust=begin_cust-no
@@ -532,7 +532,7 @@ DO:
                             &fax-body=c-win:title
                             &fax-file=list-name }
        END. 
-       when 5 then do:
+       WHEN 5 THEN DO:
            IF is-xprint-form THEN DO:
               {custom/asimail.i &TYPE = "Customer"
                              &begin_cust= begin_cust-no
@@ -552,7 +552,7 @@ DO:
            END.
        END. 
       WHEN 6 THEN RUN output-to=port.
-  end case.
+  END CASE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -563,7 +563,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -574,7 +574,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_i-no C-Win
 ON LEAVE OF end_i-no IN FRAME FRAME-A /* Ending Item# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -585,7 +585,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_ord-date C-Win
 ON LEAVE OF end_ord-date IN FRAME FRAME-A /* Ending Order Date */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -596,7 +596,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_ord-no C-Win
 ON LEAVE OF end_ord-no IN FRAME FRAME-A /* Ending Order# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -607,7 +607,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -618,7 +618,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -676,7 +676,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -687,7 +687,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_qty C-Win
 ON VALUE-CHANGED OF rd_qty IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -698,7 +698,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_contr C-Win
 ON VALUE-CHANGED OF tb_contr IN FRAME FRAME-A /* Print Contribution? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -709,7 +709,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -720,7 +720,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -731,7 +731,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 DO:
-    assign {&self-name}.
+    ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -769,9 +769,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN .
   END.
 
-  assign
-   begin_ord-date = today
-   end_ord-date   = today.
+  ASSIGN
+   begin_ord-date = TODAY
+   end_ord-date   = TODAY.
 
   RUN enable_UI.
 
@@ -918,7 +918,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  run scr-rpt.w (list-name,c-win:title,INT(lv-font-no),lv-ornt). /* open file-name, title */ 
+  RUN scr-rpt.w (list-name,c-win:TITLE,INT(lv-font-no),lv-ornt). /* open file-name, title */ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -932,83 +932,83 @@ PROCEDURE run-report :
 
 {sys/form/r-topw.f}
 
-def buffer b-oe-ordl for oe-ordl.
+DEF BUFFER b-oe-ordl FOR oe-ordl.
 
-def var v-cust like oe-ord.cust-no extent 2 init ["","zzzzzzzz"].
-def var v-ord-no as int format ">>>>>>" extent 2 init [0,999999].
-def var v-date as date format "99/99/9999" extent 2 init [today,today].
-def var v-item as char format "x(15)" extent 2 init ["","zzzzzzzzzzzzzzz"].
-def var v-ord-qty as log format "Ordered/Remaining" init yes.
+DEF VAR v-cust LIKE oe-ord.cust-no EXTENT 2 INIT ["","zzzzzzzz"].
+DEF VAR v-ord-no AS INT FORMAT ">>>>>>" EXTENT 2 INIT [0,999999].
+DEF VAR v-date AS DATE FORMAT "99/99/9999" EXTENT 2 INIT [TODAY,TODAY].
+DEF VAR v-item AS CHAR FORMAT "x(15)" EXTENT 2 INIT ["","zzzzzzzzzzzzzzz"].
+DEF VAR v-ord-qty AS LOG FORMAT "Ordered/Remaining" INIT YES.
 
-def var v-unline as char format "x(80)" init
+DEF VAR v-unline AS CHAR FORMAT "x(80)" INIT
   "--------------- ------------------------- ------- ----------- ---".
-def var v-tot-ord as dec format "->,>>>,>>9.99" extent 2.
-def var v-tax-rate     as dec format ">,>>9.99<<<".
-def var v-inv as log init no.
-def var v-ship as log init no.
-def var v-tot-tax like oe-ord.tax.
-def var v-tot-freight like oe-ord.t-freight.
-def var v-qty-lft like oe-ordl.qty.
-def var v-ext-price like oe-ordl.t-price.
-def var v-prt-cont as log init no.
-def var v-margin as dec.
-def var v-margin-tot as dec format "->>>,>>>,>>>,>>9.99".
-def var v-password like sys-ctrl.char-fld label "Please Enter Password".
-def var v-ext-cost as dec.
+DEF VAR v-tot-ord AS DEC FORMAT "->,>>>,>>9.99" EXTENT 2.
+DEF VAR v-tax-rate     AS DEC FORMAT ">,>>9.99<<<".
+DEF VAR v-inv AS LOG INIT NO.
+DEF VAR v-ship AS LOG INIT NO.
+DEF VAR v-tot-tax LIKE oe-ord.tax.
+DEF VAR v-tot-freight LIKE oe-ord.t-freight.
+DEF VAR v-qty-lft LIKE oe-ordl.qty.
+DEF VAR v-ext-price LIKE oe-ordl.t-price.
+DEF VAR v-prt-cont AS LOG INIT NO.
+DEF VAR v-margin AS DEC.
+DEF VAR v-margin-tot AS DEC FORMAT "->>>,>>>,>>>,>>9.99".
+DEF VAR v-password LIKE sys-ctrl.char-fld LABEL "Please Enter Password".
+DEF VAR v-ext-cost AS DEC.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
-format header
-  "Order#  Est#         Job#     Date       Cust#    Name" skip
-  fill("-",105) format "x(105)"
-  with frame r-top .
+FORMAT HEADER
+  "Order#  Est#         Job#     Date       Cust#    Name" SKIP
+  FILL("-",105) FORMAT "x(105)"
+  WITH FRAME r-top .
 
-format  /* frame ord */
+FORMAT  /* frame ord */
    oe-ord.ord-no
-   oe-ord.est-no format "x(8)"
-   oe-ord.job-no space(0) "-" space(0)
-   oe-ord.job-no2 format "99"
-   space(3) 
+   oe-ord.est-no FORMAT "x(8)"
+   oe-ord.job-no SPACE(0) "-" SPACE(0)
+   oe-ord.job-no2 FORMAT "99"
+   SPACE(3) 
    oe-ord.ord-date
-   space(3) 
+   SPACE(3) 
    oe-ord.cust-no 
-   oe-ord.cust-name skip
-  WITH frame ord no-labels no-box no-underline stream-io width 132.
+   oe-ord.cust-name SKIP
+  WITH FRAME ord NO-LABELS NO-BOX NO-UNDERLINE STREAM-IO WIDTH 132.
 
 FORMAT  /* frame ord1 */
-    oe-ordl.i-no                          label "Item"  at 10
-    oe-ordl.i-name format "x(25)"         label "Description"
-    v-qty-lft      format "->>>,>>9"      label "Quantity"
-    oe-ordl.cost   format "->>>,>>9.99"   label "Cost/M"
-    oe-ordl.price  format "->>>,>>9.99"   label "Price"
-    oe-ordl.pr-uom                        label "UOM"
-    v-ext-price    format "->,>>>,>>9.99" label "Ext Price"
-    v-margin       format "->,>>>,>>9.99" label "Margin$"
-  WITH frame ordl no-labels no-box down stream-io width 132.
+    oe-ordl.i-no                          LABEL "Item"  AT 10
+    oe-ordl.i-name FORMAT "x(25)"         LABEL "Description"
+    v-qty-lft      FORMAT "->>>,>>9"      LABEL "Quantity"
+    oe-ordl.cost   FORMAT "->>>,>>9.99"   LABEL "Cost/M"
+    oe-ordl.price  FORMAT "->>>,>>9.99"   LABEL "Price"
+    oe-ordl.pr-uom                        LABEL "UOM"
+    v-ext-price    FORMAT "->,>>>,>>9.99" LABEL "Ext Price"
+    v-margin       FORMAT "->,>>>,>>9.99" LABEL "Margin$"
+  WITH FRAME ordl NO-LABELS NO-BOX DOWN STREAM-IO WIDTH 132.
 
-format /* frame ordl2 */
-    oe-ordl.i-no                          label "Item"  at 10
-    oe-ordl.i-name format "x(25)"         label "Description"
-    v-qty-lft      format "->>>,>>9"      label "Quantity"
-    oe-ordl.cost   format "->>>,>>9.99"   label "Cost/M"
-    oe-ordl.price  format "->>>,>>9.99"   label "Price"
-    oe-ordl.pr-uom                        label "UOM"
-    v-ext-price    format "->,>>>,>>9.99" label "Ext Price"
-  WITH frame ordl2  no-labels no-box down stream-io width 132.
+FORMAT /* frame ordl2 */
+    oe-ordl.i-no                          LABEL "Item"  AT 10
+    oe-ordl.i-name FORMAT "x(25)"         LABEL "Description"
+    v-qty-lft      FORMAT "->>>,>>9"      LABEL "Quantity"
+    oe-ordl.cost   FORMAT "->>>,>>9.99"   LABEL "Cost/M"
+    oe-ordl.price  FORMAT "->>>,>>9.99"   LABEL "Price"
+    oe-ordl.pr-uom                        LABEL "UOM"
+    v-ext-price    FORMAT "->,>>>,>>9.99" LABEL "Ext Price"
+  WITH FRAME ordl2  NO-LABELS NO-BOX DOWN STREAM-IO WIDTH 132.
 
-format /* frame ordm */
-    oe-ordm.charge                       label "Charge"      at 10
-    oe-ordm.dscr                         label "Description"
-    oe-ordm.amt    format "->>>,>>9.99"  label "Price"       to 102 skip
-  WITH frame ordm no-labels no-box down stream-io width 132.
+FORMAT /* frame ordm */
+    oe-ordm.charge                       LABEL "Charge"      AT 10
+    oe-ordm.dscr                         LABEL "Description"
+    oe-ordm.amt    FORMAT "->>>,>>9.99"  LABEL "Price"       TO 102 SKIP
+  WITH FRAME ordm NO-LABELS NO-BOX DOWN STREAM-IO WIDTH 132.
 
-find first oe-ctrl where oe-ctrl.company eq cocode no-lock.
+FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK.
 v-fr-tax = oe-ctrl.f-tax.
 
-assign
- str-tit2 = c-win:title
+ASSIGN
+ str-tit2 = c-win:TITLE
  {sys/inc/ctrtext.i str-tit2 112}
 
  v-ord-no[1] = begin_ord-no
@@ -1019,7 +1019,7 @@ assign
  v-item[2]   = end_i-no
  v-date[1]   = begin_ord-date
  v-date[2]   = end_ord-date
- v-ord-qty   = rd_qty eq "Ordered"
+ v-ord-qty   = rd_qty EQ "Ordered"
  v-prt-cont  = tb_contr.
 
 IF v-prt-cont AND NOT security-flag THEN DO:
@@ -1031,7 +1031,7 @@ END.
 
 {sys/inc/outprint.i value(lines-per-page)}
 
-if td-show-parm then run show-param.
+IF td-show-parm THEN RUN show-param.
 
 IF tb_excel THEN 
 DO:
@@ -1048,93 +1048,93 @@ END.
 
 SESSION:SET-WAIT-STATE ("general").
 
-display "" with frame r-top.
+DISPLAY "" WITH FRAME r-top.
 
 EMPTY TEMP-TABLE ExtList.
 
-for each oe-ord
-    where oe-ord.company  eq cocode
-      and oe-ord.ord-no   ge v-ord-no[1]
-      and oe-ord.ord-no   le v-ord-no[2]
-      and oe-ord.cust-no  ge v-cust[1]
-      and oe-ord.cust-no  le v-cust[2]
-      and oe-ord.ord-date ge v-date[1]
-      and oe-ord.ord-date le v-date[2]
-      and oe-ord.stat     ne "D"
-      and oe-ord.type     ne "T"
-    use-index ord-no no-lock,
+FOR EACH oe-ord
+    WHERE oe-ord.company  EQ cocode
+      AND oe-ord.ord-no   GE v-ord-no[1]
+      AND oe-ord.ord-no   LE v-ord-no[2]
+      AND oe-ord.cust-no  GE v-cust[1]
+      AND oe-ord.cust-no  LE v-cust[2]
+      AND oe-ord.ord-date GE v-date[1]
+      AND oe-ord.ord-date LE v-date[2]
+      AND oe-ord.stat     NE "D"
+      AND oe-ord.type     NE "T"
+    USE-INDEX ord-no NO-LOCK,
 
-    first b-oe-ordl
-    where b-oe-ordl.company eq cocode
-      and b-oe-ordl.ord-no  eq oe-ord.ord-no
-      and b-oe-ordl.i-no    ge v-item[1]
-      and b-oe-ordl.i-no    le v-item[2]
-    no-lock,
+    FIRST b-oe-ordl
+    WHERE b-oe-ordl.company EQ cocode
+      AND b-oe-ordl.ord-no  EQ oe-ord.ord-no
+      AND b-oe-ordl.i-no    GE v-item[1]
+      AND b-oe-ordl.i-no    LE v-item[2]
+    NO-LOCK,
 
-    first cust
+    FIRST cust
     {sys/ref/custW.i}
-      and cust.cust-no eq oe-ord.cust-no
-    no-lock
+      AND cust.cust-no EQ oe-ord.cust-no
+    NO-LOCK
 
-    break by oe-ord.ord-no:
+    BREAK BY oe-ord.ord-no:
      {custom/statusMsg.i "'Processing Order # ' + string(b-oe-ordl.ord-no)"} 
-    display 
+    DISPLAY 
         oe-ord.ord-no
-        trim(oe-ord.est-no)   @ oe-ord.est-no
+        TRIM(oe-ord.est-no)   @ oe-ord.est-no
         oe-ord.job-no
         oe-ord.job-no2
-        oe-ord.ord-date       format "99/99/9999"
+        oe-ord.ord-date       FORMAT "99/99/9999"
         oe-ord.cust-no
         oe-ord.cust-name
-      with frame ord.
+      WITH FRAME ord.
 
     v-tot-ord[1] = 0.
 
-    for each oe-ordl
-       where oe-ordl.company eq oe-ord.company
-         and oe-ordl.ord-no  eq oe-ord.ord-no
-         and oe-ordl.i-no    ge v-item[1]
-         and oe-ordl.i-no    le v-item[2]
-      no-lock
-      break by oe-ordl.ord-no:
+    FOR EACH oe-ordl
+       WHERE oe-ordl.company EQ oe-ord.company
+         AND oe-ordl.ord-no  EQ oe-ord.ord-no
+         AND oe-ordl.i-no    GE v-item[1]
+         AND oe-ordl.i-no    LE v-item[2]
+      NO-LOCK
+      BREAK BY oe-ordl.ord-no:
 
-        if first-of(oe-ordl.ord-no) then put skip(1).
+        IF FIRST-OF(oe-ordl.ord-no) THEN PUT SKIP(1).
 
-        assign
-          v-ship      = oe-ordl.stat ne "I" and oe-ordl.stat ne "B"
-          v-qty-lft   = oe-ordl.qty - (if v-ord-qty then 0 else oe-ordl.inv-qty)
+        ASSIGN
+          v-ship      = oe-ordl.stat NE "I" AND oe-ordl.stat NE "B"
+          v-qty-lft   = oe-ordl.qty - (IF v-ord-qty THEN 0 ELSE oe-ordl.inv-qty)
           v-ext-price = 0.
 
-        if v-qty-lft lt 0 then v-qty-lft = 0.  
+        IF v-qty-lft LT 0 THEN v-qty-lft = 0.  
 
-         find first itemfg {sys/look/itemfgrlW.i} 
-                   and itemfg.i-no eq oe-ordl.i-no no-lock no-error.
+         FIND FIRST itemfg {sys/look/itemfgrlW.i} 
+                   AND itemfg.i-no EQ oe-ordl.i-no NO-LOCK NO-ERROR.
 
         RUN Conv_CalcTotalPrice (oe-ordl.company,
                                  oe-ordl.i-no,
                                  oe-ordl.qty,
                                  oe-ordl.price,
                                  oe-ordl.pr-uom,
-                                 itemfg.case-count,
                                  oe-ordl.disc,
+                                 itemfg.case-count,
                                  OUTPUT v-ext-price).
 
        /** CALCULATE FREIGHT CHARGES **/
         v-tot-freight = v-tot-freight +
-                    (round(oe-ordl.t-freight / oe-ordl.qty, 2) * v-qty-lft).
+                    (ROUND(oe-ordl.t-freight / oe-ordl.qty, 2) * v-qty-lft).
 
        /** CALCULATE TAX CHARGES **/
-        if oe-ordl.tax and v-tax-rate gt 0 then
+        IF oe-ordl.tax AND v-tax-rate GT 0 THEN
           v-tot-tax = v-tot-tax + round((v-ext-price * v-tax-rate) / 100,2).
 
-        if v-prt-cont then 
-          assign
+        IF v-prt-cont THEN 
+          ASSIGN
             v-ext-cost = (oe-ordl.cost * oe-ordl.qty) / 1000
             v-margin = v-ext-price - v-ext-cost.
 
-        if v-prt-cont then 
-        do:
-            display 
+        IF v-prt-cont THEN 
+        DO:
+            DISPLAY 
                 oe-ordl.i-no
                 oe-ordl.i-name
                 v-qty-lft
@@ -1143,8 +1143,8 @@ for each oe-ord
                 oe-ordl.pr-uom
                 v-ext-price
                 v-margin 
-              with frame ordl.
-            down with frame ordl.
+              WITH FRAME ordl.
+            DOWN WITH FRAME ordl.
 
             IF tb_excel THEN
             DO:
@@ -1167,10 +1167,10 @@ for each oe-ord
                  ExtList.ext-price = TRIM(STRING(v-ext-price))
                  ExtList.margin    = TRIM(STRING(v-margin)).
             END.
-        end.
-        else 
-        do:
-            display 
+        END.
+        ELSE 
+        DO:
+            DISPLAY 
                 oe-ordl.i-no
                 oe-ordl.i-name
                 v-qty-lft
@@ -1178,8 +1178,8 @@ for each oe-ord
                 oe-ordl.price
                 oe-ordl.pr-uom
                 v-ext-price
-              with frame ordl2.
-            down with frame ordl2.
+              WITH FRAME ordl2.
+            DOWN WITH FRAME ordl2.
 
             IF tb_excel THEN
             DO:
@@ -1200,33 +1200,33 @@ for each oe-ord
                  ExtList.pr-uom    = oe-ordl.pr-uom
                  ExtList.ext-price = TRIM(STRING(v-ext-price)).
             END.
-        end.     
+        END.     
 
-        if v-prt-cont then 
-        do:
-            if v-margin ne ? then 
+        IF v-prt-cont THEN 
+        DO:
+            IF v-margin NE ? THEN 
               v-margin-tot = v-margin-tot + v-margin.
-        end.
+        END.
 
         v-tot-ord[1] = v-tot-ord[1] + v-ext-price.
-    end. /* each oe-ordl */
+    END. /* each oe-ordl */
 
-    for each oe-ordm
-       where oe-ordm.company eq oe-ord.company
-         and oe-ordm.ord-no  eq oe-ord.ord-no
-       no-lock
-      break by oe-ordm.ord-no:
+    FOR EACH oe-ordm
+       WHERE oe-ordm.company EQ oe-ord.company
+         AND oe-ordm.ord-no  EQ oe-ord.ord-no
+       NO-LOCK
+      BREAK BY oe-ordm.ord-no:
 
-        if first-of(oe-ordm.ord-no) then put skip(1) "Miscellaneous" at 10 skip.
+        IF FIRST-OF(oe-ordm.ord-no) THEN PUT SKIP(1) "Miscellaneous" AT 10 SKIP.
 
-        display 
+        DISPLAY 
             oe-ordm.charge oe-ordm.dscr oe-ordm.amt
-          with frame ordm.
+          WITH FRAME ordm.
 
-        if oe-ordm.bill eq "N" then
-          display "       N/C" @ oe-ordm.amt with frame ordm.
+        IF oe-ordm.bill EQ "N" THEN
+          DISPLAY "       N/C" @ oe-ordm.amt WITH FRAME ordm.
 
-        down with frame ordm.
+        DOWN WITH FRAME ordm.
 
         IF tb_excel THEN
         DO:
@@ -1241,30 +1241,30 @@ for each oe-ord
               ExtList.cust-name = oe-ord.cust-name
               ExtList.i-no      = oe-ordm.charge
               ExtList.i-name    = oe-ordm.dscr
-              ExtList.ext-price = IF oe-ordm.bill eq "N"
+              ExtList.ext-price = IF oe-ordm.bill EQ "N"
                                   THEN "N/C"  
                                   ELSE TRIM(STRING(oe-ordm.amt)).
         END.
 
-        if oe-ordm.bill eq "Y" then 
-        do:
+        IF oe-ordm.bill EQ "Y" THEN 
+        DO:
             v-tot-ord[1] = v-tot-ord[1] + oe-ordm.amt.
 
-            if oe-ordm.tax and v-tax-rate eq 0 then
+            IF oe-ordm.tax AND v-tax-rate EQ 0 THEN
               v-tot-tax = v-tot-tax + round((oe-ordm.amt * v-tax-rate) / 100,2).
-        end.
-    end. /* each oe-ordm */
+        END.
+    END. /* each oe-ordm */
 
-    put skip "------------" to 102 skip.
+    PUT SKIP "------------" TO 102 SKIP.
 
-    if oe-ord.stat eq "H" then
-      put "** THIS ORDER IS ON CREDIT HOLD **" to 50 .
-    else if oe-ord.priceHold then
-      put "** THIS ORDER IS ON PRICE HOLD **" to 50 .
-    else if oe-ord.stat eq "D" then
-      put "** THIS ORDER IS DELETED **" to 50 .
-    else if oe-ord.stat eq "C" then
-      put "** THIS ORDER IS CLOSED **" to 50 .
+    IF oe-ord.stat EQ "H" THEN
+      PUT "** THIS ORDER IS ON CREDIT HOLD **" TO 50 .
+    ELSE IF oe-ord.priceHold THEN
+      PUT "** THIS ORDER IS ON PRICE HOLD **" TO 50 .
+    ELSE IF oe-ord.stat EQ "D" THEN
+      PUT "** THIS ORDER IS DELETED **" TO 50 .
+    ELSE IF oe-ord.stat EQ "C" THEN
+      PUT "** THIS ORDER IS CLOSED **" TO 50 .
 
     IF tb_excel AND LOOKUP(oe-ord.stat, "H,D,C") NE 0 OR oe-ord.priceHold THEN
     DO:
@@ -1291,23 +1291,23 @@ for each oe-ord
             END CASE.
     END.
 
-    put "Total Order" at 75 v-tot-ord[1] to 102 skip(1).
+    PUT "Total Order" AT 75 v-tot-ord[1] TO 102 SKIP(1).
 
     v-tot-ord[2] = v-tot-ord[2] + v-tot-ord[1].
 
-    if last(oe-ord.ord-no) then 
-    do:
-        if v-prt-cont then 
-        do:
-            put skip(2) "Grand Total" at 75 v-tot-ord[2] to 112 skip.
-            put "Grand Total Contribution" at 62 v-margin-tot to 112 skip(1).
-        end.
-        else 
-        do:
-            put skip(2) "Grand Total" at 75 v-tot-ord[2] to 102 skip(1).
-        end.
-    end.
-end. /* each oe-ord */
+    IF LAST(oe-ord.ord-no) THEN 
+    DO:
+        IF v-prt-cont THEN 
+        DO:
+            PUT SKIP(2) "Grand Total" AT 75 v-tot-ord[2] TO 112 SKIP.
+            PUT "Grand Total Contribution" AT 62 v-margin-tot TO 112 SKIP(1).
+        END.
+        ELSE 
+        DO:
+            PUT SKIP(2) "Grand Total" AT 75 v-tot-ord[2] TO 102 SKIP(1).
+        END.
+    END.
+END. /* each oe-ord */
 
 /* if they're not here, they don't go.. */
 FOR EACH ExtList:
@@ -1328,7 +1328,7 @@ SESSION:SET-WAIT-STATE ("").
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
-end procedure.
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1340,62 +1340,62 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha.
+  DEF VAR lv-frame-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-group-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-field-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-field2-hdl AS HANDLE NO-UNDO.
+  DEF VAR parm-fld-list AS cha NO-UNDO.
+  DEF VAR parm-lbl-list AS cha NO-UNDO.
+  DEF VAR i AS INT NO-UNDO.
+  DEF VAR lv-label AS cha.
 
-  lv-frame-hdl = frame {&frame-name}:handle.
-  lv-group-hdl = lv-frame-hdl:first-child.
-  lv-field-hdl = lv-group-hdl:first-child .
+  lv-frame-hdl = FRAME {&frame-name}:handle.
+  lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
+  lv-field-hdl = lv-group-hdl:FIRST-CHILD .
 
-  do while true:
-     if not valid-handle(lv-field-hdl) then leave.
-     if lookup(lv-field-hdl:private-data,"parm") > 0
-        then do:
-           if lv-field-hdl:label <> ? then 
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:label + "," 
+  DO WHILE TRUE:
+     IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
+     IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
+        THEN DO:
+           IF lv-field-hdl:LABEL <> ? THEN 
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                     parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + "," 
                      .
-           else do:  /* radio set */
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
+           ELSE DO:  /* radio set */
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
                      .
-              lv-field2-hdl = lv-group-hdl:first-child.
-              repeat:
-                  if not valid-handle(lv-field2-hdl) then leave. 
-                  if lv-field2-hdl:private-data = lv-field-hdl:name then do:
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  end.
-                  lv-field2-hdl = lv-field2-hdl:next-sibling.                 
-              end.       
-           end.                 
-        end.            
-     lv-field-hdl = lv-field-hdl:next-sibling.   
-  end.
+              lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
+              REPEAT:
+                  IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
+                  IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN DO:
+                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
+                  END.
+                  lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
+              END.       
+           END.                 
+        END.            
+     lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
+  END.
 
-  put space(28)
+  PUT SPACE(28)
       "< Selection Parameters >"
-      skip(1).
+      SKIP(1).
 
-  do i = 1 to num-entries(parm-fld-list,","):
-    if entry(i,parm-fld-list) ne "" or
-       entry(i,parm-lbl-list) ne "" then do:
+  DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
+    IF ENTRY(i,parm-fld-list) NE "" OR
+       entry(i,parm-lbl-list) NE "" THEN DO:
 
-      lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
-                 trim(entry(i,parm-lbl-list)) + ":".
+      lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
+                 trim(ENTRY(i,parm-lbl-list)) + ":".
 
-      put lv-label format "x(35)" at 5
-          space(1)
-          trim(entry(i,parm-fld-list)) format "x(40)"
-          skip.              
-    end.
-  end.
+      PUT lv-label FORMAT "x(35)" AT 5
+          SPACE(1)
+          TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
+          SKIP.              
+    END.
+  END.
 
-  put fill("-",80) format "x(80)" skip.
+  PUT FILL("-",80) FORMAT "x(80)" SKIP.
 
 END PROCEDURE.
 

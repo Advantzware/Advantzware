@@ -203,6 +203,12 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Update V-table-Win
 ON CHOOSE OF Btn-Update IN FRAME F-Main /* Select Bin/Tags */
 DO:
+    IF AVAILABLE oe-bolh AND oe-bolh.posted THEN DO:
+        MESSAGE "The BOL has been posted and cannot be edited"
+            VIEW-AS ALERT-BOX ERROR.
+       RETURN NO-APPLY.
+    END.    
+   
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"selbin-target",OUTPUT char-hdl).
    RUN select-bin IN WIDGET-HANDLE(char-hdl). 
 END.

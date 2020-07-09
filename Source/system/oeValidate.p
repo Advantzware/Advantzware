@@ -55,10 +55,10 @@ PROCEDURE pBuildValidationsToRun PRIVATE:
     /* Create/setup NK1s if not already there */
     /* I know there is a "standard" for this, but we're pulling two values from eight records,
        This is much more compact. */
-    DEFINE VARIABLE cTestList AS CHARACTER INITIAL "CreditHold,CustomerPN,CustomerPO,PriceGtCost,PriceHold,UniquePO,ValidShipTo,ValidUom,OnHandInventory" NO-UNDO.    
-    DEFINE VARIABLE cReqdList AS CHARACTER INITIAL "TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE" NO-UNDO.    
-    DEFINE VARIABLE cTypeList AS CHARACTER INITIAL "HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD" NO-UNDO.
-    DEFINE VARIABLE cDescList AS CHARACTER INITIAL "Credit check fails,Customer Part # invalid,PO number is blank,Extended Sell < Extended Cost,Order is on Price Hold,Customer PO number is not unique,Shipto is invalid,Price UOM is invalid,Sufficient Inventory OH" NO-UNDO.    
+    DEFINE VARIABLE cTestList AS CHARACTER INITIAL "CreditHold,CustomerPN,CustomerPO,PriceGtCost,PriceHold,UniquePO,ValidShipTo,ValidUom,OnHandInventory,ItemHold,DuplicateItem,EstimateExists" NO-UNDO.    
+    DEFINE VARIABLE cReqdList AS CHARACTER INITIAL "TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE" NO-UNDO.    
+    DEFINE VARIABLE cTypeList AS CHARACTER INITIAL "HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,HOLD,INFO" NO-UNDO.
+    DEFINE VARIABLE cDescList AS CHARACTER INITIAL "Credit check fails,Customer Part # invalid,PO number is blank,Extended Sell < Extended Cost,Order is on Price Hold,Customer PO number is not unique,Shipto is invalid,Price UOM is invalid,Sufficient Inventory OH,Items review hold,Duplicate line item Hold,Estimate Exists" NO-UNDO.    
     
     EMPTY TEMP-TABLE ttValidation.
     DO iCtr = 1 TO NUM-ENTRIES(cTestList):
@@ -205,6 +205,118 @@ PROCEDURE pCustomerPO PRIVATE:
 END PROCEDURE.
 
 
+PROCEDURE pItemHold PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Verifies if an item in the order needs review prior approval
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-oe-ord FOR oe-ord.
+    DEFINE OUTPUT PARAMETER oplHold AS LOG NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    DEFINE BUFFER bf-sys-ctrl-shipto FOR sys-ctrl-shipto.
+    
+    DEFINE VARIABLE cBadLines AS CHARACTER NO-UNDO.
+
+    FOR EACH bf-oe-ordl NO-LOCK 
+        WHERE bf-oe-ordl.company EQ ipbf-oe-ord.company
+          AND bf-oe-ordl.ord-no  EQ ipbf-oe-ord.ord-no
+          AND bf-oe-ordl.line    NE 0:
+        
+        FIND FIRST bf-sys-ctrl-shipto NO-LOCK
+             WHERE bf-sys-ctrl-shipto.company      EQ bf-oe-ordl.company
+               AND bf-sys-ctrl-shipto.name         EQ "ItemHold"
+               AND bf-sys-ctrl-shipto.cust-vend    EQ TRUE
+               AND bf-sys-ctrl-shipto.cust-vend-no EQ ""
+               AND bf-sys-ctrl-shipto.ship-id      EQ ""
+               AND bf-sys-ctrl-shipto.char-fld     EQ bf-oe-ordl.i-no 
+             NO-ERROR.
+        IF AVAILABLE bf-sys-ctrl-shipto THEN
+            cBadLines = cBadLines + "Item:" + STRING(bf-oe-ordl.i-no) + " in " 
+                      + "Line:" + STRING(bf-oe-ordl.line) + ",".
+    END. 
+                    
+    IF cBadLines NE "" THEN 
+        ASSIGN 
+            cBadLines  = TRIM(cBadLines,",")
+            oplHold    = TRUE 
+            opcMessage = cBadLines + " need review prior approval"
+            .
+END PROCEDURE.
+
+PROCEDURE pDuplicateItem PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Verifies if a duplicate item exists in the order
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-oe-ord FOR oe-ord.
+    DEFINE OUTPUT PARAMETER oplHold AS LOG NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    DEFINE BUFFER bfDuplicate-oe-ordl FOR oe-ordl.
+    
+    DEFINE VARIABLE cBadLines AS CHARACTER NO-UNDO.
+
+    FOR EACH bf-oe-ordl NO-LOCK 
+        WHERE bf-oe-ordl.company EQ ipbf-oe-ord.company
+          AND bf-oe-ordl.ord-no  EQ ipbf-oe-ord.ord-no
+          AND bf-oe-ordl.line    NE 0:
+
+        FIND FIRST bfDuplicate-oe-ordl NO-LOCK 
+             WHERE bfDuplicate-oe-ordl.company EQ bf-oe-ordl.company
+               AND bfDuplicate-oe-ordl.ord-no  EQ bf-oe-ordl.ord-no
+               AND bfDuplicate-oe-ordl.line    NE 0
+               AND bfDuplicate-oe-ordl.i-no    EQ bf-oe-ordl.i-no
+               AND ROWID(bfDuplicate-oe-ordl)  NE ROWID(bf-oe-ordl)
+             NO-ERROR.
+        IF AVAILABLE bfDuplicate-oe-ordl THEN
+            cBadLines = cBadLines + "Item: " + STRING(bf-oe-ordl.i-no) + " in " 
+                      + "Line: " + STRING(bf-oe-ordl.line) + ",".
+    END. 
+                    
+    IF cBadLines NE "" THEN 
+        ASSIGN 
+            cBadLines  = TRIM(cBadLines,",")
+            oplHold    = TRUE 
+            opcMessage = "Duplicate items exists for " + cBadLines
+            .
+END PROCEDURE.
+
+PROCEDURE pEstimateExists PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Verifies if an estimate exists in an order
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-oe-ord FOR oe-ord.
+    DEFINE OUTPUT PARAMETER oplHold AS LOG NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    
+    DEFINE VARIABLE cBadLines AS CHARACTER NO-UNDO.
+
+    FOR EACH bf-oe-ordl NO-LOCK 
+        WHERE bf-oe-ordl.company EQ ipbf-oe-ord.company
+          AND bf-oe-ordl.ord-no  EQ ipbf-oe-ord.ord-no
+          AND bf-oe-ordl.line    NE 0:
+        IF bf-oe-ordl.est-no NE "" THEN
+            cBadLines = cBadLines + STRING(bf-oe-ordl.line) + ",".
+    END.
+                    
+    IF cBadLines NE "" THEN 
+        ASSIGN 
+            cBadLines  = TRIM(cBadLines,",")
+            oplHold    = TRUE 
+            opcMessage = "Estimate exists for line" + 
+                         IF NUM-ENTRIES(cBadLines) GT 1 THEN 
+                             ("s " + cBadLines)
+                         ELSE
+                             (" " + cBadLines).
+            .
+END PROCEDURE.
+
 PROCEDURE pOnHandInventory PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:
@@ -230,21 +342,30 @@ PROCEDURE pOnHandInventory PRIVATE:
         boe-ordl.company EQ ipboe-ord.company AND 
         boe-ordl.ord-no EQ ipboe-ord.ord-no AND 
         boe-ordl.line NE 0:
-            
+
+        iOnHand = 0.
+
         FIND FIRST bshipto NO-LOCK WHERE 
             bshipto.company EQ ipboe-ord.company AND 
             bshipto.cust-no EQ ipboe-ord.cust-no AND 
             bshipto.ship-id EQ boe-ordl.ship-id
             NO-ERROR.
-
-        FOR EACH itemfg-loc NO-LOCK WHERE 
-            itemfg-loc.company EQ boe-ordl.company AND 
-            itemfg-loc.i-no    EQ boe-ordl.i-no AND 
-            itemfg-loc.loc     EQ bshipto.loc:
-            ASSIGN 
-                iOnHand = iOnHand + itemfg-loc.q-onh.
+        IF NOT AVAILABLE bshipto THEN
+            RUN oe/custxship.p(
+                INPUT ipboe-ord.company,
+                INPUT ipboe-ord.cust-no,
+                INPUT ipboe-ord.ship-id,
+                BUFFER bshipto
+                ).        
+        IF AVAILABLE bshipto THEN DO:
+            FOR EACH itemfg-loc NO-LOCK WHERE 
+                itemfg-loc.company EQ boe-ordl.company AND 
+                itemfg-loc.i-no    EQ boe-ordl.i-no AND 
+                itemfg-loc.loc     EQ bshipto.loc:
+                iOnHand = iOnHand + itemfg-loc.q-onh - itemfg-loc.q-alloc.
+            END.
         END.
-                 
+        
         IF iOnHand LT boe-ordl.qty THEN ASSIGN              
                 cBadLines = cBadLines + STRING(boe-ordl.line) + ",".
     END. 
@@ -252,7 +373,7 @@ PROCEDURE pOnHandInventory PRIVATE:
     IF cBadLines NE "" THEN ASSIGN 
             cBadLines  = TRIM(cBadLines,",")
             oplHold    = TRUE 
-            opcMessage = "Insufficient OH Inventory for line" + 
+            opcMessage = "Insufficient Avail Inventory for line" + 
                      IF NUM-ENTRIES(cBadLines) GT 1 THEN ("s " + cBadLines)
                      ELSE (" " + cBadLines).
 
@@ -364,7 +485,7 @@ PROCEDURE pValidShipTo PRIVATE:
         ELSE 
         DO:
             ASSIGN 
-                lActive = DYNAMIC-FUNCTION("isActive",bshipto.rec_key).
+                lActive = IF bshipto.statusCode NE "I" THEN YES ELSE NO.
             IF NOT lActive THEN ASSIGN 
                     oplHold    = TRUE 
                     opcMessage = "Specified shipto " + ipboe-ord.ship-id + "is INACTIVE for customer " + bcust.cust-no.

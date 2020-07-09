@@ -36,6 +36,7 @@ DEFINE VARIABLE cTransactionTime AS CHARACTER NO-UNDO LABEL "Time" FORMAT "x(20)
 {custom/gloc.i}
 {sys/inc/var.i NEW SHARED}
 {custom/globdefs.i &NEW=NEW}
+{Inventory/ttInventory.i "NEW SHARED"}
 
 {oe/oe-bolp1.i NEW}
 {oe/d-selbin.i NEW} /* w-bin definition */
@@ -65,11 +66,15 @@ DEFINE VARIABLE cLogFile            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cDebugLog           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lUseLogs            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSingleBOL          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hdInventoryProcs    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lInsufficientQty    AS LOGICAL   NO-UNDO.
 /* for sel-bins */
 DEFINE NEW SHARED VARIABLE out-recid AS RECID NO-UNDO.
 DEFINE BUFFER xoe-boll FOR oe-boll.
 DEFINE BUFFER bf-oe-boll FOR oe-boll.
 DEFINE STREAM sDebug.
+
+RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 DEFINE TEMP-TABLE tt-email NO-UNDO
     FIELD tt-recid AS RECID
@@ -463,18 +468,7 @@ PROCEDURE pAutoSelectTags:
     fDebugMsg("selected qty " + STRING(li-selected-qty) + " bol " + string(xoe-boll.bol-no) + " " + xoe-boll.i-no).
     /* Was not able to assign full quantity from tagged inventory */
     IF li-selected-qty LT xoe-boll.qty THEN DO:
-        fDebugMsg("create w-nopost for bol-no " + string(xoe-boll.bol-no) + " item " + xoe-boll.i-no ).
-        CREATE w-nopost.
-        ASSIGN
-            w-nopost.ord-no   = xoe-boll.ord-no
-            w-nopost.i-no     = xoe-boll.i-no
-            w-nopost.bol-no   = xoe-boll.BOL-no
-            w-nopost.rel-no   = xoe-boll.REL-no
-            w-nopost.b-ord-no = xoe-boll.b-ord-no
-            w-nopost.cust-no  = xoe-boll.cust-no
-            w-nopost.po-no    = xoe-boll.PO-NO
-            w-nopost.reason   = "Insufficient Inventory"
-            .        
+        fDebugMsg("Inside li-selected-qty LT xoe-boll.qty").      
       RETURN.
     END.
       
@@ -742,6 +736,8 @@ PROCEDURE pPostBols :
                   BY bf-oe-bolh.ord-no
                   BY bf-oe-bolh.rel-no
             :
+            
+            lInsufficientQty = NO.
             /* Create tt-fg-bin */
 /*            IF FIRST-OF(bf-oe-bolh.bol-no) AND lPrintInvoice AND lCheckQty THEN*/
 /*                RUN oe/bolcheck.p (ROWID(bf-oe-bolh)).                         */
@@ -781,18 +777,35 @@ PROCEDURE pPostBols :
                     END. /* each w-except */
                     fDebugMsg("before bol check " + string(avail(bf-oe-bolh)) ).
                     /* check if suffient inventory again after selecting tags */
-                    RUN oe/bolcheck.p (ROWID(bf-oe-bolh)).
                 END. /* if avail w-except */
             END. /* if lautoselectshipfrom */
-            
-            fDebugMsg("before each w-except after bolcheck " + string(avail(bf-oe-bolh))).
-            FIND FIRST w-except WHERE w-except.bol-no EQ bf-oe-bolh.bol-no NO-ERROR.
-            IF AVAILABLE w-except THEN 
-            DO:
-              fDebugMsg("w-exception found no qty avail " + string(bf-oe-bolh.bol-no)  ).
-              NEXT bolh.
-            END. /* if avail w-except */
-
+            IF FIRST-OF(bf-oe-bolh.bol-no) AND lPrintInvoice AND lCheckQty THEN DO:
+                fDebugMsg("before bol check " + string(avail(bf-oe-bolh)) ).
+                /* check if suffient inventory again after selecting tags */
+                RUN oe/bolcheck.p (ROWID(bf-oe-bolh)).
+                fDebugMsg("before each w-except after bolcheck " + string(avail(bf-oe-bolh))).
+                FOR EACH w-except 
+                    WHERE w-except.bol-no EQ bf-oe-bolh.bol-no:
+                    IF NOT lInsufficientQty THEN 
+                        lInsufficientQty = YES.
+                    fDebugMsg("Create w-nopost for BOL " + STRING(w-except.bol-no) + " item " + w-except.i-no).             
+                    CREATE w-nopost.
+                    ASSIGN
+                        w-nopost.ord-no   = w-except.ord-no
+                        w-nopost.i-no     = w-except.i-no
+                        w-nopost.bol-no   = w-except.BOL-no
+                        w-nopost.rel-no   = w-except.REL-no
+                        w-nopost.b-ord-no = w-except.b-ord-no
+                        w-nopost.cust-no  = w-except.cust-no
+                        w-nopost.po-no    = w-except.PO-NO
+                        w-nopost.reason   = "Insufficient Inventory"
+                        .  
+                END.               
+                IF lInsufficientQty THEN DO:
+                  fDebugMsg("w-exception found no qty avail " + string(bf-oe-bolh.bol-no)  ).
+                  NEXT bolh.
+                END. /* if avail w-except */
+            END.
             iLineCount = iLineCount + 1.
 
             IF AVAILABLE sys-ctrl AND sys-ctrl.log-fld THEN DO:
@@ -931,6 +944,8 @@ PROCEDURE pRunReport :
     /* -------------------------------------------------------------------------- */
     DEFINE BUFFER b-oe-boll FOR oe-boll.
     DEFINE BUFFER bf-itemfg FOR itemfg.
+    
+    DEFINE VARIABLE lValidBin AS LOGICAL NO-UNDO.
     
     fDebugMsg("In Run Report").
     FIND FIRST period NO-LOCK                
@@ -1086,12 +1101,35 @@ PROCEDURE pRunReport :
                     WHERE cust.company EQ oe-bolh.company
                       AND cust.cust-no EQ oe-bolh.cust-no 
                     NO-ERROR.
-                IF AVAIL(cust) AND cust.ACTIVE EQ "X" AND oe-bolh.ship-id = oe-boll.loc THEN DO:
-                    IF lSingleBOL THEN
-                        RUN pCreateNoPostRec ("Cannot transfer to the same location for BOL " + STRING(w-bolh.bol-no)).
-                    ELSE 
-                        RUN pCreateNoPostRec ("Cannot transfer to the same location").
-                    NEXT mainblok.
+                IF AVAILABLE cust AND oe-boll.s-code EQ "T" THEN DO:
+                        RUN oe/custxship.p(
+                            INPUT oe-bolh.company,
+                            INPUT oe-bolh.cust-no,
+                            INPUT oe-bolh.ship-id,
+                            BUFFER shipto
+                            ).
+                    IF AVAILABLE shipto THEN DO:  
+                        IF oe-boll.loc EQ shipto.loc THEN DO:   
+                            IF lSingleBOL THEN     
+                                RUN pCreateNoPostRec ("Cannot tranfer to the same location for BOL " + STRING(w-bolh.bol-no)).
+                            ELSE 
+                                RUN pCreateNoPostRec ("Cannot tranfer to the same location").
+                            NEXT mainblok.
+                        END.
+                        RUN ValidateBin IN hdInventoryProcs(
+                            INPUT cocode, 
+                            INPUT shipto.loc,
+                            INPUT shipto.loc-bin, 
+                            OUTPUT lValidBin
+                            ).
+                        IF NOT lValidBin THEN DO:  
+                            IF lSingleBOL THEN 
+                                RUN pCreateNoPostRec ("Ship To warehouse/bin location does not exist for BOL " + STRING(w-bolh.bol-no)).
+                            ELSE 
+                                RUN pCreateNoPostRec ("Ship To warehouse/bin location does not exist").
+                            NEXT mainblok.
+                        END.                                                           
+                    END.    
                 END.
                 FIND FIRST oe-ordl NO-LOCK
                      WHERE oe-ordl.company = oe-boll.company

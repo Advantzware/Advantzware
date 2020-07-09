@@ -61,7 +61,8 @@ ASSIGN
                     + "system/FileSysProcs.p,"
                     + "system/OSProcs.p,"
                     + "system/FormatProcs.p,"
-                    + "est/EstimateProcs.p,"                                                                
+                    + "est/EstimateProcs.p,"
+                    + "system/GLProcs.p,"
     cSuperProcedure = TRIM(cSuperProcedure,",")
     .
 DEFINE TEMP-TABLE ttSessionParam NO-UNDO
@@ -981,7 +982,8 @@ PROCEDURE spDynAuditField:
                     IF AVAILABLE dynParamValue THEN DO:
                         IF lResults THEN
                         DO TRANSACTION:
-                            FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
+/*                            /* rstark - remove when depricated */     */
+/*                            FIND CURRENT dynParamValue EXCLUSIVE-LOCK.*/
                             ASSIGN
                                 oplRunAudit  = YES
                                 cLookupTitle = "Audit Field History for Database: " + ipcFrameDB
@@ -989,20 +991,41 @@ PROCEDURE spDynAuditField:
                                              + " - Field: " + ipcFrameField
                                              + " - Audit Key: " + ipcAuditKey
                                              .
-                            DO idx = 1 TO EXTENT(dynParamValue.paramName):
-                                IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.
-                                CASE dynParamValue.paramName[idx]:
+                            FOR EACH dynValueParam EXCLUSIVE-LOCK
+                                WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
+                                  AND dynValueParam.user-id      EQ dynParamValue.user-id
+                                  AND dynValueParam.prgmName     EQ dynParamValue.prgmName
+                                  AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
+                                   BY dynValueParam.sortOrder
+                                :
+                                CASE dynValueParam.paramName:
                                     WHEN "AuditDB" THEN
-                                    dynParamValue.paramValue[idx] = ipcFrameDB.
+                                    dynValueParam.paramValue = ipcFrameDB.
                                     WHEN "AuditTable" THEN
-                                    dynParamValue.paramValue[idx] = ipcFrameFile.
+                                    dynValueParam.paramValue = ipcFrameFile.
                                     WHEN "AuditField" THEN
-                                    dynParamValue.paramValue[idx] = ipcFrameField.
+                                    dynValueParam.paramValue = ipcFrameField.
                                     WHEN "AuditKey" THEN
-                                    dynParamValue.paramValue[idx] = ipcAuditKey.
+                                    dynValueParam.paramValue = ipcAuditKey.
                                 END CASE.
-                            END. /* do idx */
-                            FIND CURRENT dynParamValue NO-LOCK.
+                            END. /* each dynvalueparam */
+                            RELEASE dynValueParam.
+/*                            /* rstark - remove when depricated */                 */
+/*                            DO idx = 1 TO EXTENT(dynParamValue.paramName):        */
+/*                                IF dynParamValue.paramName[idx] EQ "" THEN LEAVE. */
+/*                                CASE dynParamValue.paramName[idx]:                */
+/*                                    WHEN "AuditDB" THEN                           */
+/*                                    dynParamValue.paramValue[idx] = ipcFrameDB.   */
+/*                                    WHEN "AuditTable" THEN                        */
+/*                                    dynParamValue.paramValue[idx] = ipcFrameFile. */
+/*                                    WHEN "AuditField" THEN                        */
+/*                                    dynParamValue.paramValue[idx] = ipcFrameField.*/
+/*                                    WHEN "AuditKey" THEN                          */
+/*                                    dynParamValue.paramValue[idx] = ipcAuditKey.  */
+/*                                END CASE.                                         */
+/*                            END. /* do idx */                                     */
+/*                            /* rstark - remove when depricated */                 */
+/*                            FIND CURRENT dynParamValue NO-LOCK.                   */
                         END. /* if results exist */
                         ELSE
                         opcErrorMsg = "No Audit Field History Exists".
@@ -1052,34 +1075,14 @@ PROCEDURE spGetDynParamValue:
     DEFINE OUTPUT PARAMETER oprRowID     AS ROWID     NO-UNDO.
     DEFINE OUTPUT PARAMETER opcErrorMsg  AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER bDynParamValue FOR dynParamValue.
-    
-    FIND FIRST dynParamValue NO-LOCK
-         WHERE dynParamValue.subjectID    EQ ipiSubjectID
-           AND dynParamValue.user-id      EQ USERID("ASI")
-           AND dynParamValue.paramValueID EQ 0
-         NO-ERROR.
-    IF NOT AVAILABLE dynParamValue THEN DO:
-        FIND FIRST bDynParamValue NO-LOCK
-             WHERE bDynParamValue.subjectID    EQ ipiSubjectID
-               AND bDynParamValue.user-id      EQ "_default"
-               AND bDynParamValue.paramValueID EQ 0
-             NO-ERROR.
-        IF AVAILABLE bDynParamValue THEN
-        DO TRANSACTION:
-            CREATE dynParamValue.
-            BUFFER-COPY bDynParamValue TO dynParamValue
-                ASSIGN
-                    dynParamValue.user-id          = USERID("ASI")
-                    dynParamValue.paramDescription = "User Default"
-                    dynParamValue.outputFormat     = "Grid"
-                    oprRowID                       = ROWID(dynParamValue)
-                    .
-            FIND CURRENT dynParamValue NO-LOCK.
-        END. /* if avail */
-        ELSE
-        opcErrorMsg = "Default Dynamic Parameter Value for Audit Field Lookup Record does not Exist".
-    END. /* if not avail */
+    RUN pSetDynParamValue (
+        ipiSubjectID,
+        USERID("ASI"),
+        "",
+        0
+        ).    
+    IF NOT AVAILABLE dynParamValue THEN
+    opcErrorMsg = "Default Dynamic Parameter Value for Audit Field Lookup Record does not Exist".
     ELSE
     oprRowID = ROWID(dynParamValue).
 

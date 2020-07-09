@@ -14,8 +14,8 @@ DEFINE        VARIABLE v-ink-3          AS cha     FORM "X(30)" NO-UNDO.
 DEFINE        VARIABLE v-ink-4          AS cha     FORM "X(30)" NO-UNDO.
 DEFINE        VARIABLE v-ink-5          AS cha     FORM "X(30)" NO-UNDO.
 DEFINE        VARIABLE v-ink-6          AS cha     FORM "X(30)" NO-UNDO.
-DEFINE        VARIABLE v-dept-note      AS cha     FORM "x(124)" EXTENT 10 NO-UNDO.
-DEFINE        VARIABLE v-spec-note      AS cha     FORM "x(124)" EXTENT 10 NO-UNDO.
+DEFINE        VARIABLE v-dept-note      AS cha     FORM "x(124)" EXTENT 100 NO-UNDO.
+DEFINE        VARIABLE v-spec-note      AS cha     FORM "x(124)" EXTENT 100 NO-UNDO.
 DEFINE        VARIABLE v-deptnote       AS cha     NO-UNDO.
 DEFINE        VARIABLE v-dept-length    AS DECIMAL NO-UNDO.
 DEFINE        VARIABLE lv-under-run     AS cha     NO-UNDO.
@@ -80,6 +80,10 @@ DEFINE        VARIABLE dJobQty       AS DECIMAL   NO-UNDO .
 DEFINE VARIABLE lJobCardPrntScor-Log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE opiArraySize AS INTEGER NO-UNDO.
+DEFINE VARIABLE hNotesProc AS HANDLE NO-UNDO.
+
+RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProc.
 
 DEFINE BUFFER bf-itemfg         FOR itemfg .
 
@@ -690,78 +694,16 @@ DO v-local-loop = 1 TO v-local-copies:
       
          /* dept notes */
         ASSIGN
-           v-note-length   = 100
-           v-tmp-lines     = 0
-           j               = 0
-           K               = 0
-           lv-got-return   = 0
-           v-dept-note     = "" 
-           v-prev-note-rec = ?.
-   
-        FOR EACH notes WHERE notes.rec_key = job.rec_key AND
-                    (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0) AND
-                    ((v-dept-log AND lookup(notes.note_code,v-dept-codes) NE 0) OR NOT v-dept-log)
-                 NO-LOCK:
-            IF v-prev-note-rec <> ? AND
-               v-prev-note-rec <> RECID(notes) THEN v-prev-extent = /*v-prev-extent +*/ k.
-
-            DO i = 1 TO LENGTH(notes.note_text):
-               IF i - j >= v-note-length THEN ASSIGN j             = i
-                                            lv-got-return = lv-got-return + 1.
-
-               v-tmp-lines = ( i - j ) / v-note-length.
-               {SYS/INC/ROUNDUP.I v-tmp-lines}
-
-               k = v-tmp-lines + lv-got-return + 
-                   IF (v-prev-note-rec <> RECID(notes) AND v-prev-note-rec <> ?) THEN v-prev-extent ELSE 0.
-               IF k < 7 THEN v-dept-note[k] = v-dept-note[k] + IF SUBSTRING(notes.note_text,i,1) <> CHR(10) THEN SUBSTRING(notes.note_text,i,1) 
-                             ELSE "" .              
-
-               IF SUBSTRING(note_text,i,1) = CHR(10) OR SUBSTRING(note_text,i,1) = CHR(13)                 
-               THEN DO:
-                  lv-got-return = lv-got-return + 1.
-                  j = i.
-               END.         
-            END.
-            
-            ASSIGN v-prev-note-rec = RECID(notes)
-                   j               = 0
-                   lv-got-return   = 0.
-
-
-        END.
+           v-dept-note     = "" .
+        IF NOT v-dept-log THEN v-dept-codes = "".   
         
-        ASSIGN
-        v-inst        = ""
-        v-spec-note   = ""
-        v-tmp-lines   = 0
-        j             = 0
-        K             = 0
-        lv-got-return = 0.
-
-        FOR EACH notes WHERE notes.rec_key = bf-itemfg.rec_key 
-                        AND lookup(notes.note_code,spec-list) NE 0 NO-LOCK.
-         
-            DO i = 1 TO LENGTH(notes.note_text) :        
-               IF i - j >= v-note-length THEN ASSIGN j             = i
-                                              lv-got-return = lv-got-return + 1.
-                   
-               v-tmp-lines = ( i - j ) / v-note-length.
-               {SYS/INC/ROUNDUP.I v-tmp-lines}
-
-               k = v-tmp-lines + lv-got-return.
-               IF k < 9 THEN v-spec-note[k] = v-spec-note[k] + IF SUBSTRING(notes.note_text,i,1) <> CHR(10) THEN SUBSTRING(notes.note_text,i,1) 
-                                  ELSE "" .              
-           
-               IF SUBSTRING(note_text,i,1) = CHR(10) OR SUBSTRING(note_text,i,1) = CHR(13)                 
-               THEN DO:
-                  lv-got-return = lv-got-return + 1.
-                  j = i.
-               END.         
-            END.
-         END.
-    
-
+        RUN GetNotesArrayForObject IN hNotesProc (INPUT job.rec_key, "", v-dept-codes, 100, NO, w-ef.frm , OUTPUT v-dept-note, OUTPUT opiArraySize).   
+                        
+        ASSIGN          
+        v-spec-note   = "" .
+        
+        RUN GetNotesArrayForObject IN hNotesProc (INPUT bf-itemfg.rec_key, "", spec-list, 100, NO,0, OUTPUT v-spec-note, OUTPUT opiArraySize).
+                
          PUT  "<=NotesStart><FROM><C108><LINE><|1>"
               "<=NotesStart><C+1><R+1><B>Department Notes</B><#Notes>"
               "<=NotesStart><C+1><R+2><#Notes1>"
@@ -778,7 +720,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=NotesStart><C+1><R+13><#SpecNotes5>"
               "<=NotesStart><C+1><R+14><#SpecNotes6>"
              
-              "<P8><=Notes1>" v-dept-note[1] FORMAT "x(100)" SKIP
+              "<P7><=Notes1>" v-dept-note[1] FORMAT "x(100)" SKIP
               "<=Notes2>" v-dept-note[2] FORMAT "x(100)" SKIP
               "<=Notes3>" v-dept-note[3] FORMAT "x(100)"  SKIP 
               "<=Notes4>" v-dept-note[4] FORMAT "x(100)" SKIP
@@ -788,9 +730,9 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=SpecNotes1>" v-spec-note[1] FORMAT "x(100)" SKIP
               "<=SpecNotes2>" v-spec-note[2] FORMAT "x(100)" SKIP
               "<=SpecNotes3>" v-spec-note[3] FORMAT "x(100)"  SKIP
-              "<=SpecNotes1>" v-spec-note[4] FORMAT "x(100)" SKIP
-              "<=SpecNotes2>" v-spec-note[5] FORMAT "x(100)" SKIP
-              "<=SpecNotes3>" v-spec-note[6] FORMAT "x(100)"  SKIP
+              "<=SpecNotes4>" v-spec-note[4] FORMAT "x(100)" SKIP
+              "<=SpecNotes5>" v-spec-note[5] FORMAT "x(100)" SKIP
+              "<=SpecNotes6>" v-spec-note[6] FORMAT "x(100)"  SKIP
               .
              v-shipto = IF AVAILABLE xoe-rel THEN xoe-rel.ship-id 
                         ELSE IF AVAILABLE xeb THEN xeb.ship-id
@@ -817,11 +759,11 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=PackingStart><R+2><C+9>L: <#PalletLength>"
               "<=PackingStart><R+2><C+15>W: <#PalletWidth> "
               "<=PackingStart><R+3><C+9>Per"
-              "<=PackingStart><R+3><C+15>Job Total"
-              "<=PackingStart><R+4><RIGHT=C+6>Per Case:"
+              "<=PackingStart><R+3><C+15> "
+              "<=PackingStart><R+4><RIGHT=C+6>Per Case/Bundle:"
               "<=PackingStart><R+4><C+9><#CaseCount>"
               "<=PackingStart><R+4><C+15><#JobCases>"
-              "<=PackingStart><R+5><RIGHT=C+6>Per Pallet:"
+              "<=PackingStart><R+5><RIGHT=C+6>Total Count:"
               "<=PackingStart><R+5><C+9><#PalletCount>"
               "<=PackingStart><R+5><C+15><#JobPallets>"
               /*"<=PackingStart><FROM><RECT#ShippingEnd><|1>"*/
@@ -840,11 +782,11 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=PalletLength>" IF AVAILABLE xeb THEN STRING(xeb.tr-len,">>9.99") ELSE "" FORMAT "x(6)"
               "<=PalletWidth>" IF AVAILABLE xeb THEN STRING(xeb.tr-wid,">>9.99") ELSE "" FORMAT "x(6)"
               "<B>"
-              "<=CaseCount>" IF AVAILABLE xeb THEN STRING(xeb.tr-cnt) ELSE "" FORMAT "x(5)" 
-              "<=PalletCount>" IF AVAILABLE xeb THEN STRING(xeb.cas-pal) ELSE "" FORMAT "x(6)" 
+              "<=CaseCount>" IF AVAILABLE xeb THEN STRING(xeb.cas-cnt) ELSE "" FORMAT "x(7)" 
+              "<=PalletCount>" IF AVAILABLE xeb THEN STRING(xeb.tr-cnt) ELSE "" FORMAT "x(6)" 
               "</B>"
-              "<=JobCases>" IF AVAILABLE xeb THEN STRING(xeb.tr-cnt) ELSE "" FORMAT "x(5)"
-              "<=JobPallets>" IF AVAILABLE xeb THEN STRING(xeb.cas-pal) ELSE "" FORMAT "x(6)"
+              "<=JobCases>" /*STRING(dJobQty / (IF AVAILABLE xeb THEN xeb.cas-cnt ELSE 1) ) FORMAT "x(7)"*/
+              "<=JobPallets>" /*STRING(dJobQty / (IF AVAILABLE xeb THEN xeb.tr-cnt ELSE 1)) FORMAT "x(6)"*/
               "<=Layers>" IF AVAILABLE xeb THEN STRING(xeb.tr-cas) ELSE "" FORMAT "x(4)"
               "<=Stacks>" IF AVAILABLE xeb THEN STRING(xeb.stacks) ELSE "" FORMAT "x(6)"
               "<=PatternCode>" IF AVAILABLE xeb THEN STRING(xeb.stack-code) ELSE "" FORMAT "x(3)"
@@ -853,7 +795,17 @@ DO v-local-loop = 1 TO v-local-copies:
                 .
         
         PAGE.
+        
+         IF s-prt-fgimage THEN DO:        
+            ls-fgitem-img = IF AVAIL bf-itemfg THEN bf-itemfg.box-image ELSE "".
 
+            PUT UNFORMATTED "<#12><C1><FROM><C106><R+47><RECT><||3><C80>" /*v-qa-text*/ SKIP
+                "<=12><R+1><C5>FG Item: " (IF AVAIL bf-itemfg THEN bf-itemfg.i-no ELSE "") " " ( IF AVAIL bf-itemfg THEN bf-itemfg.i-name ELSE "")
+                "<=12><R+3><C1><FROM><C106><LINE><||3>"
+                "<=12><R+5><C5><#21><R+40><C+90><IMAGE#21=" ls-fgitem-img ">" SKIP. 
+            PAGE.
+         END.
+         
         /*v-shipto = IF AVAILABLE xoe-rel THEN xoe-rel.ship-id 
                         ELSE IF AVAILABLE xeb THEN xeb.ship-id
                         ELSE IF AVAILABLE xoe-ord THEN xoe-ord.sold-id 
@@ -1175,6 +1127,8 @@ END.  /* end v-local-loop  */
  
 HIDE ALL NO-PAUSE.
 
+IF VALID-HANDLE(hNotesProc) THEN  
+  DELETE OBJECT hNotesProc.
 
 PROCEDURE stackImage:
     DEFINE BUFFER pattern      FOR reftable.

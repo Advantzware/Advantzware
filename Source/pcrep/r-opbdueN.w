@@ -73,11 +73,11 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Due Date,Ord Date,Job #,Ord #,Customer Name,FG Item #,"
-                           + "FG Item Name,Job Qty,MSF"
+                           + "FG Item Name,Job Qty,MSF,RM Item Name,Job Has Board"
        cFieldListToSelect = "due-date,ord-date,job,ord,cust-name,fgitem," +
-                            "item-name,job-qty,msf"
-       cFieldLength = "8,8,9,6,30,15," + "30,10,8"
-       cFieldType = "c,c,c,i,c,c," + "c,i,i" 
+                            "item-name,job-qty,msf,rm-item-name,job-board"
+       cFieldLength = "8,8,9,6,30,15," + "30,10,8,30,13"
+       cFieldType = "c,c,c,i,c,c," + "c,i,i,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1189,6 +1189,8 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE cRmItemName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lBoard AS LOGICAL NO-UNDO.
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1324,7 +1326,28 @@ display "" with frame r-top.
                                 format ">>>9.9"
 
           with no-box STREAM-IO width 132 no-attr-space.*/
-
+      i = 0.
+      lBoard = NO.
+      cRmItemName = "".
+      FOR EACH job-mat NO-LOCK
+          WHERE job-mat.company EQ job-hdr.company
+          AND job-mat.job EQ job-hdr.job
+          AND job-mat.job-no EQ job-hdr.job-no :
+          FIND FIRST item NO-LOCK
+               WHERE item.company  EQ job-hdr.company
+                 AND item.i-no     EQ job-mat.i-no
+                 AND LOOKUP(item.mat-type,"B,1,2,3,4") GT 0 
+               NO-ERROR .
+          IF AVAIL ITEM THEN DO:
+              ASSIGN
+                  cRmItemName  = ITEM.i-name            
+                  i = i + 1.
+              IF ITEM.mat-type EQ "B" THEN
+                  lBoard = YES.                  
+          END.          
+      END.
+      IF i GT 1 THEN
+          cRmItemName = "Kit".
       ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -1343,6 +1366,8 @@ display "" with frame r-top.
                          WHEN "item-name"   THEN cVarValue = STRING(itemfg.i-name,"x(30)") .
                          WHEN "job-qty"  THEN cVarValue = STRING(job-hdr.qty,">>,>>>,>>9") .
                          WHEN "msf"  THEN cVarValue = STRING(v-msf,">>>>9.9") .
+                         WHEN "rm-item-name"  THEN cVarValue = STRING(cRmItemName,"x(30)") .
+                         WHEN "job-board"  THEN cVarValue = STRING(lBoard) .                         
 
                     END CASE.
 
@@ -1387,6 +1412,8 @@ display "" with frame r-top.
                          WHEN "item-name"   THEN cVarValue = "".
                          WHEN "job-qty"  THEN cVarValue = STRING(v-tot-qty,">>,>>>,>>9") .
                          WHEN "msf"  THEN cVarValue = STRING(v-tot-msf,">>>>9.9") .
+                         WHEN "rm-item-name"  THEN cVarValue = "" .
+                         WHEN "job-board"  THEN cVarValue = "" .
 
                     END CASE.
 

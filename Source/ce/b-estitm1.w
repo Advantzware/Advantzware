@@ -160,6 +160,10 @@ RUN methods/prgsecur.p
 	     OUTPUT lAccessCreateFG, /* Allowed? Yes/NO */
 	     OUTPUT lAccessClose, /* used in template/windows.i  */
 	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+	    
+DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.
+
+RUN system/customerProcs.p PERSISTENT SET hdCustomerProcs.	     
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -567,16 +571,13 @@ DO:
 
      CASE lw-focus:NAME :
      WHEN "part-no" THEN DO:
-         RUN blank-cp (YES).
-         RETURN NO-APPLY.
+         RUN blank-cp (YES).         
       END.
       WHEN "part-dscr1" THEN DO:
-         RUN blank-cp (YES).
-         RETURN NO-APPLY.
+         RUN blank-cp (YES).         
       END.
       WHEN "stock-no" THEN DO:
-         RUN blank-cp (YES).
-         RETURN NO-APPLY.
+         RUN blank-cp (YES).          
       END.
       WHEN "style" THEN DO:
      
@@ -591,16 +592,14 @@ DO:
                 ef.board:SCREEN-VALUE IN BROWSE {&browse-name} = style.material[1].
                 RUN new-board.
               END.          
-           END.  
-           RETURN NO-APPLY.
+           END.              
       END.
       WHEN "procat" THEN DO:
            ls-cur-val = eb.procat:SCREEN-VALUE IN BROWSE {&browse-name}.
            RUN windows/l-fgcat.w (gcompany,ls-cur-val,OUTPUT char-val).
            IF char-val <> "" THEN
               eb.procat:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val).
-           RETURN NO-APPLY.
-
+          
        END.
        WHEN "Board" THEN DO:
            DEF VAR lv-ind LIKE style.industry NO-UNDO.
@@ -623,8 +622,7 @@ DO:
                  ef.board:SCREEN-VALUE IN BROWSE {&browse-name} = item.i-no.
                  RUN new-board.
                END.
-           END.
-           RETURN NO-APPLY.   
+           END.                
        END.
        WHEN "medium" THEN DO:
          RUN windows/l-paper.w (gcompany, "1",ef.medium:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).
@@ -642,8 +640,7 @@ DO:
            IF char-val NE "" AND ls-cur-val NE ENTRY(1,char-val) THEN DO:
               eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val).
               APPLY "value-changed" TO lw-focus.
-           END.
-           RETURN NO-APPLY.
+           END.             
        END.  /* cust-no */
        WHEN "ship-id" THEN DO:
            ls-cur-val = eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name}.
@@ -651,8 +648,7 @@ DO:
            IF char-val NE "" AND ls-cur-val NE ENTRY(1,char-val) THEN DO:
               eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val).
               APPLY "value-changed" TO lw-focus.
-           END.
-           RETURN NO-APPLY.
+           END.   
        END.  /* ship-id */
        WHEN "bl-qty" THEN DO:
              FIND FIRST est-qty WHERE est-qty.company = gcompany
@@ -743,8 +739,7 @@ DO:
                             lv-copy-date[18] = date(entry(8,date-val2))
                             lv-copy-date[19] = date(entry(9,date-val2))
                             lv-copy-date[20] = date(entry(1,date-val2))
-                            */.
-             RETURN NO-APPLY.
+                            */.             
        END.
        OTHERWISE DO:
         /* ==========================  
@@ -769,7 +764,9 @@ DO:
            =======================  */
            RETURN NO-APPLY.
         END.  /* otherwise */
-  END CASE.  
+  END CASE. 
+  APPLY "ENTRY":U TO lw-focus.
+  return no-apply.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -944,7 +941,6 @@ DO:
     DEF VAR cShipID AS CHAR NO-UNDO.
 
     IF LASTKEY NE -1 THEN DO: /*eb.cust-no:screen-value in browse {&browse-name} <> "" and */
-        IF SELF:MODIFIED THEN RUN new-cust-no.
 
         IF NOT CAN-FIND(cust WHERE cust.company = gcompany AND cust.cust-no = eb.cust-no:screen-value IN BROWSE {&browse-name} )
         THEN DO:
@@ -972,9 +968,11 @@ DO:
         RUN valid-cust-user NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-        IF ls-add-what EQ "Est" 
-        AND eb.ship-id:SCREEN-VALUE EQ "" THEN DO:
-            RUN pGetDefaultShipID (INPUT eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT cShipID).      
+        IF SELF:MODIFIED THEN DO:
+            RUN pGetDefaultShipID(
+                INPUT  eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}, 
+                OUTPUT cShipID
+                ).      
             ASSIGN 
                 eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name} = cShipID.
         END.
@@ -3388,43 +3386,34 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDefaultShipID B-table-Win
 PROCEDURE pGetDefaultShipID:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcCustNo AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER opcShipID AS CHAR NO-UNDO.
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCustNo AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcShipID AS CHARACTER NO-UNDO.
     
-    FIND cust NO-LOCK WHERE 
-        cust.company EQ gcompany AND 
-        cust.cust-no EQ ipcCustNo
-        NO-ERROR.
-
-    IF AVAIL cust THEN 
-    DO:
-        FIND FIRST shipto NO-LOCK WHERE 
-            shipto.company EQ gcompany AND 
-            shipto.cust-no EQ cust.cust-no AND 
-            shipto.isDefault EQ TRUE  
-            NO-ERROR.
-        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
-                shipto.company EQ gcompany AND 
-                shipto.cust-no EQ cust.cust-no AND 
-                shipto.ship-id EQ cust.cust-no
-                NO-ERROR.
-        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
-                shipto.company EQ gcompany AND 
-                shipto.cust-no EQ cust.cust-no
-                NO-ERROR.
-        IF NOT AVAIL shipto THEN FIND FIRST shipto NO-LOCK WHERE 
-                shipto.company EQ gcompany AND 
-                shipto.cust-no EQ cust.cust-no AND 
-                shipto.ship-no EQ 1
-                NO-ERROR.
-        IF AVAIL shipto THEN ASSIGN 
-                opcShipID = shipto.ship-id.
-    END.
-
+    DEFINE VARIABLE riShipto AS ROWID NO-UNDO.
+    
+    FIND FIRST cust NO-LOCK 
+         WHERE cust.company EQ cocode
+           AND cust.cust-no EQ ipcCustNo
+         NO-ERROR.
+         
+    IF AVAILABLE cust THEN DO:          
+        RUN Customer_GetDefaultShipTo IN hdCustomerProcs(
+            INPUT  cocode,
+            INPUT  cust.cust-no,
+            OUTPUT riShipTo
+            ).
+        FIND FIRST shipto NO-LOCK 
+             WHERE ROWID(shipto) EQ riShipTo
+             NO-ERROR.
+             
+        IF AVAILABLE shipto THEN 
+            opcShipID = shipto.ship-id.
+    END.  
+        
 END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */
@@ -4974,45 +4963,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-cust-no B-table-Win 
-PROCEDURE new-cust-no :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  
-  DO WITH FRAME {&FRAME-NAME}:
-    FIND cust
-        WHERE cust.company EQ gcompany
-          AND cust.cust-no BEGINS eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}
-        NO-LOCK NO-ERROR.
-
-    IF AVAIL cust THEN DO:
-      eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} = cust.cust-no.
-
-      FIND FIRST shipto
-          WHERE shipto.company EQ cust.company
-            AND shipto.cust-no EQ cust.cust-no
-            AND shipto.ship-id EQ cust.cust-no
-          NO-LOCK NO-ERROR.
-
-      IF NOT AVAIL shipto THEN
-      FIND FIRST shipto
-          WHERE shipto.company EQ cust.company
-            AND shipto.cust-no EQ cust.cust-no
-            AND shipto.ship-no EQ 1
-          NO-LOCK NO-ERROR.
-
-      IF AVAIL shipto THEN eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name} = shipto.ship-id.
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-ship-id B-table-Win 
 PROCEDURE new-ship-id :
 /*------------------------------------------------------------------------------
@@ -5643,12 +5593,12 @@ PROCEDURE valid-eb-reckey :
                           RECID(bf-eb) <> RECID(eb) NO-LOCK NO-ERROR.
    IF AVAIL bf-eb OR eb.rec_key = "" THEN DO:
       ls-key = DYNAMIC-FUNCTION("sfGetNextRecKey").
-      FIND CURRENT eb.
+      FIND CURRENT eb EXCLUSIVE-LOCK.
       eb.rec_key = ls-key.
       FIND CURRENT eb NO-LOCK.                
-      CREATE rec_key.
-      ASSIGN rec_key.rec_key = eb.rec_key
-             rec_key.table_name = "eb".
+/*      CREATE rec_key.                    */
+/*      ASSIGN rec_key.rec_key = eb.rec_key*/
+/*             rec_key.table_name = "eb".  */
 
    END.
  

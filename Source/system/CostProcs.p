@@ -21,17 +21,19 @@ DEFINE VARIABLE hdEstimateCalcProcs       AS HANDLE  NO-UNDO.
 
 /* ************************  Function Prototypes ********************** */
 
+FUNCTION fConvertCostForItem RETURNS DECIMAL 
+    (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER , ipcItemType AS CHARACTER, 
+     ipdCostInFromUOM AS DECIMAL, ipcFromUOM AS CHARACTER, ipcToUOM AS CHARACTER,
+     ipdBasisWeightOverride AS DECIMAL, ipdDimLengthOverride AS DECIMAL, ipdDimWidthOverride AS DECIMAL, ipdDimDepthOverride AS DECIMAL, 
+    ipdCountOverride AS DECIMAL,
+     ipdLotQuantity AS DECIMAL,
+     ipcLotQuantityUOM AS CHARACTER) FORWARD.
 
-FUNCTION fConvert RETURNS DECIMAL 
-    (ipcFromUOM AS CHARACTER,
-    ipcToUOM AS CHARACTER,
-    ipdBasisWeightInPoundsPerSqInch AS DECIMAL,
-    ipdLengthInInches AS DECIMAL,
-    ipdWidthInInches AS DECIMAL,
-    ipdDepthInInches AS DECIMAL,
-    ipdQuantityOfLotInEA AS DECIMAL,
-     ipdQuantityOfSubUnitInEA AS DECIMAL,
-     ipdValueToConvert AS DECIMAL) FORWARD.
+FUNCTION fConvertQuantityForItem RETURNS DECIMAL
+    (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER , ipcItemType AS CHARACTER, 
+    ipdQuantityInFromUOM AS DECIMAL, ipcFromUOM AS CHARACTER, ipcToUOM AS CHARACTER,
+     ipdBasisWeightOverride AS DECIMAL, ipdDimLengthOverride AS DECIMAL, ipdDimWidthOverride AS DECIMAL, ipdDimDepthOverride AS DECIMAL, 
+     ipdCountOverride AS DECIMAL) FORWARD.
 
 FUNCTION fConvertCurrency RETURNS DECIMAL PRIVATE
     (ipdValue AS DECIMAL,
@@ -40,9 +42,7 @@ FUNCTION fConvertCurrency RETURNS DECIMAL PRIVATE
 
 
 /* ***************************  Main Block  *************************** */
-RUN est\EstimateCalcProcs.p PERSISTENT SET hdEstimateCalcProcs. 
-THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdEstimateCalcProcs).
-    
+   
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -91,7 +91,7 @@ PROCEDURE GetCostForFGItemHist:
         opcCostSource = "Invalid Item: " + ipcFGItemID.
         RETURN.
     END. 
-    IF ipcJobNo NE "" THEN 
+    IF opdCostPerUOMTotal EQ 0 AND ipcJobNo NE "" THEN 
     DO:
         RUN GetCostForJob(ipcCompany, ipcFGItemID, ipcJobNo, ipiJobNo2, 
             OUTPUT opdCostPerUOMTotal, OUTPUT opdCostPerUOMDL, OUTPUT opdCostPerUOMFO, OUTPUT opdCostPerUOMVO, OUTPUT opdCostPerUOMDM, OUTPUT opcCostUOM, OUTPUT oplSourceFound).
@@ -115,11 +115,12 @@ PROCEDURE GetCostForFGItemHist:
             IF glIncludeFreight AND opdCostPerUOMTotal NE 0 THEN 
             DO:  /*NK1 POFRT - find original receipt where freight override exists and add it to cost uom*/
                 RUN pGetReceiptBuffers(ipcCompany, ipcFGItemID, ipcTag, ipcJobNo, ipiJobNo2, BUFFER bfrcpt-fg-rcpth, BUFFER bfrcpt-fg-rdtlh).
-                IF AVAILABLE bfrcpt-fg-rdtlh AND AVAILABLE bfrcpt-fg-rcpth THEN DO:
+                IF AVAILABLE bfrcpt-fg-rdtlh AND AVAILABLE bfrcpt-fg-rcpth THEN 
+                DO:
                     /*Calculate Freight in EA*/
                     dCostFreightRct = bfrcpt-fg-rdtlh.frt-cost / bfrcpt-fg-rdtlh.qty.  
-                     /*Convert EA cost of freight to cost UOM*/
-                    dCostFreightRct = fConvert("EA", opcCostUOM, 0, 0, 0, 0, 0, 0, dCostFreightRct) .
+                    /*Convert EA cost of freight to cost UOM*/
+                    dCostFreightRct = fConvertCostForItem(ipcCompany, ipcFGItemID, "FG", dCostFreightRct, "EA", opcCostUOM, 0, 0, 0, 0, 0, 0,"") .
                     /*Add Freight in like UOM cost*/
                     opdCostPerUOMTotal = opdCostPerUOMTotal + dCostFreightRct.                        .  
                 END.
@@ -154,12 +155,12 @@ PROCEDURE GetCostForFGItemHist:
     END.
     IF opcCostUOM NE cCostUOMDef THEN 
     DO: 
+        opdCostPerUOMTotal = fConvertCostForItem(ipcCompany, ipcFGItemID, "FG", opdCostPerUOMTotal, opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 0, 0,"").
+        opdCostPerUOMDL = fConvertCostForItem(ipcCompany, ipcFGItemID, "FG", opdCostPerUOMDL, opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 0, 0,"").
+        opdCostPerUOMFO = fConvertCostForItem(ipcCompany, ipcFGItemID, "FG", opdCostPerUOMFO, opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 0, 0,"").
+        opdCostPerUOMVO = fConvertCostForItem(ipcCompany, ipcFGItemID, "FG", opdCostPerUOMVO, opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 0, 0,"").
+        opdCostPerUOMDM = fConvertCostForItem(ipcCompany, ipcFGItemID, "FG", opdCostPerUOMDM, opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 0, 0,"").
         opcCostUOM = cCostUOMDef.
-        opdCostPerUOMTotal = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMTotal).
-        opdCostPerUOMDL = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMDL).
-        opdCostPerUOMFO = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMFO).
-        opdCostPerUOMVO = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMVO).
-        opdCostPerUOMDM = fConvert(opcCostUOM, cCostUOMDef, 0, 0, 0, 0, 1, 1, opdCostPerUOMDM).
     END.
     
 END PROCEDURE.
@@ -220,6 +221,7 @@ END PROCEDURE.
 PROCEDURE GetCostForPOLine:
     /*------------------------------------------------------------------------------
      Purpose: Returns a Per UOM Cost based on total cost of the po.
+        Always returns UOM in ConsUOM for the Item
      Includes Setup and Discounts in EffectiveCost.
      Notes:
     ------------------------------------------------------------------------------*/
@@ -277,9 +279,8 @@ PROCEDURE GetCostForPOLine:
             dLengthInInches = bf-po-ordl.s-len
             dWidthInInches  = bf-po-ordl.s-wid
             dDepthInInches  = bf-po-ordl.s-dep
-            opcCostUOM      = bf-po-ordl.pr-uom  
             .
-            
+                        
         RUN pGetCostForPOLineInUOM(BUFFER bf-po-ord, BUFFER bf-po-ordl, opcCostUOM,
             dLengthInInches, dWidthInInches, dDepthInInches, dBasisWeight,
             OUTPUT opdCostPerUOMExFreight, OUTPUT opdCostPerUOMFreight).
@@ -321,10 +322,10 @@ PROCEDURE pCalculateCostsFromEstimate PRIVATE:
         AND oe-ordl.i-no EQ ipcFGItemID
         NO-ERROR.
     IF AVAILABLE oe-ordl AND oe-ordl.sourceEstimateID NE "" THEN DO:           
-        RUN EstCost_GetHeaderCostFreight(oe-ordl.company, oe-ordl.sourceEstimateID, oe-ordl.qty, OUTPUT dFreightTotal, OUTPUT dFreightPerM).
-        RUN EstCost_GetHeaderCostWarehouse(oe-ordl.company, oe-ordl.sourceEstimateID, oe-ordl.qty, OUTPUT dWarehouseTotal, OUTPUT dWarehousePerM).
-        RUN EstCost_GetHeaderCostDeviation(oe-ordl.company, oe-ordl.sourceEstimateID, oe-ordl.qty, OUTPUT dDeviationTotal, OUTPUT dDeviationPerM).
-        RUN EstCost_GetHeaderCostFarm(oe-ordl.company, oe-ordl.sourceEstimateID, oe-ordl.qty, OUTPUT dManufactureTotal, OUTPUT dManufacturePerM).
+        RUN GetHeaderCostFreight(oe-ordl.company, oe-ordl.sourceEstimateID, oe-ordl.qty, OUTPUT dFreightTotal, OUTPUT dFreightPerM).
+        RUN GetHeaderCostWarehouse(oe-ordl.company, oe-ordl.sourceEstimateID, oe-ordl.qty, OUTPUT dWarehouseTotal, OUTPUT dWarehousePerM).
+        RUN GetHeaderCostDeviation(oe-ordl.company, oe-ordl.sourceEstimateID, oe-ordl.qty, OUTPUT dDeviationTotal, OUTPUT dDeviationPerM).
+        RUN GetHeaderCostFarm(oe-ordl.company, oe-ordl.sourceEstimateID, oe-ordl.qty, OUTPUT dManufactureTotal, OUTPUT dManufacturePerM).
     END.
     ASSIGN 
         opdFreight = dFreightPerM
@@ -417,7 +418,10 @@ PROCEDURE pGetCostForPOLineInUOM PRIVATE:
     DEFINE VARIABLE dCostSetup          AS DECIMAL.
     DEFINE VARIABLE dDiscountPercentage AS DECIMAL.
     DEFINE VARIABLE dFreightPortion     AS DECIMAL.
-    DEFINE VARIABLE dLotQtyInEA         AS DECIMAL. 
+    //DEFINE VARIABLE dLotQtyInEA         AS DECIMAL. 
+    DEFINE VARIABLE cCompany            AS CHARACTER.
+    DEFINE VARIABLE cItemID             AS CHARACTER.
+    DEFINE VARIABLE cItemType           AS CHARACTER.
 
 
     IF AVAILABLE ipbf-po-ordl THEN 
@@ -428,19 +432,27 @@ PROCEDURE pGetCostForPOLineInUOM PRIVATE:
             cCostUOM            = ipbf-po-ordl.pr-uom
             dCostSetup          = ipbf-po-ordl.setup
             dDiscountPercentage = ipbf-po-ordl.disc
+            cCompany            = ipbf-po-ordl.company
+            cItemID             = ipbf-po-ordl.i-no
+            cItemType           = IF ipbf-po-ordl.item-type THEN "RM" ELSE "FG"
             .
         
     IF dOrderQty EQ 0 THEN RETURN.
-    dLotQtyInEA = fConvert(cOrderQtyUOM, "EA",
-        ipdBasisWeightInPoundsPerSqInch,
-        ipdLengthInInches, ipdWidthInInches, ipdDepthInInches,
-        dOrderQty, 0 /*Refactor to support CAS*/,
-        dOrderQty).
-    dCostInOrderQtyUOM = fConvert(cCostUOM, cOrderQtyUOM,
-        ipdBasisWeightInPoundsPerSqInch,
-        ipdLengthInInches, ipdWidthInInches, ipdDepthInInches,
-        dLotQtyInEA, 0 /*Refactor to support CAS*/, 
-        dCostPerUOM).
+    dCostInOrderQtyUOM = dCostPerUOM.
+    IF cCostUOM NE cOrderQtyUOM THEN 
+        dCostInOrderQtyUOM = fConvertCostForItem(cCompany, cItemID, cItemType, dCostInOrderQtyUOM, cCostUOM, cOrderQtyUOM, 
+                        ipdBasisWeightInPoundsPerSqInch, ipdLengthInInches, ipdWidthInInches, ipdDepthInInches, 0, dOrderQty, cOrderQtyUOM).
+    
+/*    dLotQtyInEA = fConvert(cOrderQtyUOM, "EA",                */
+/*        ipdBasisWeightInPoundsPerSqInch,                      */
+/*        ipdLengthInInches, ipdWidthInInches, ipdDepthInInches,*/
+/*        dOrderQty, 0 /*Refactor to support CAS*/,             */
+/*        dOrderQty).                                           */
+/*    dCostInOrderQtyUOM = fConvert(cCostUOM, cOrderQtyUOM,     */
+/*        ipdBasisWeightInPoundsPerSqInch,                      */
+/*        ipdLengthInInches, ipdWidthInInches, ipdDepthInInches,*/
+/*        dLotQtyInEA, 0 /*Refactor to support CAS*/,           */
+/*        dCostPerUOM).                                         */
 
     /*Apply discount to Per UOM Cost Only*/
     dCostInOrderQtyUOM = dCostInOrderQtyUOM * (1 - dDiscountPercentage / 100).
@@ -450,20 +462,16 @@ PROCEDURE pGetCostForPOLineInUOM PRIVATE:
 
     /*Calculate Freight Costs*/
     RUN pGetFreightPortion(BUFFER ipbf-po-ord, BUFFER ipbf-po-ordl, OUTPUT dFreightPortion).
+    ASSIGN 
+        opdCostPerUOMExFreight = dCostTotal / dOrderQty
+        opdCostPerUOMFreight = dFreightPortion / dOrderQty
+        .
+    IF cOrderQtyUOM NE ipcTargetUOM THEN DO:    
+        /*Convert Cost from Order UOM into Target UOM*/
+        opdCostPerUOMExFreight = fConvertCostForItem(cCompany, cItemID, cItemType, opdCostPerUOMExFreight, cOrderQtyUOM, ipcTargetUOM, ipdBasisWeightInPoundsPerSqInch, ipdLengthInInches, ipdWidthInInches, ipdDepthInInches, 0, dOrderQty, cOrderQtyUOM).
+        opdCostPerUOMFreight = fConvertCostForItem(cCompany, cItemID, cItemType, dFreightPortion / dOrderQty, cOrderQtyUOM, ipcTargetUOM, ipdBasisWeightInPoundsPerSqInch, ipdLengthInInches, ipdWidthInInches, ipdDepthInInches, 0, dOrderQty, cOrderQtyUOM).
+    END.
         
-    /*Convert Cost from Order UOM into Target UOM*/
-    opdCostPerUOMExFreight = fConvert(cOrderQtyUOM, ipcTargetUOM,
-        ipdBasisWeightInPoundsPerSqInch,
-        ipdLengthInInches, ipdWidthInInches, ipdDepthInInches,
-        dLotQtyInEA, 0 /*Refactor to support CAS*/, 
-        dCostTotal / dOrderQty).
-    
-    opdCostPerUOMFreight = fConvert(cOrderQtyUOM, ipcTargetUOM,
-        ipdBasisWeightInPoundsPerSqInch,
-        ipdLengthInInches, ipdWidthInInches, ipdDepthInInches,
-        dLotQtyInEA, 0 /*Refactor to support CAS*/, 
-        dFreightPortion / dOrderQty).
-    
 END PROCEDURE.
 
 PROCEDURE pGetFreightPortion PRIVATE:
@@ -480,72 +488,37 @@ PROCEDURE pGetFreightPortion PRIVATE:
 
     DEFINE BUFFER bf-po-ordl FOR po-ordl.
     DEFINE BUFFER bf-po-ord  FOR po-ord.
-    DEFINE VARIABLE dQtyInEach          AS DECIMAL.
-    DEFINE VARIABLE dWeightTargetPOLine AS DECIMAL.
-    DEFINE VARIABLE dWeightTotal        AS DECIMAL.
-    DEFINE VARIABLE lIsEachUOM          AS LOGICAL.
-    DEFINE VARIABLE cEachUOMListFG      AS CHARACTER.
-    DEFINE VARIABLE cEachUOMListRM      AS CHARACTER.
+    DEFINE VARIABLE dWeightInLbsPOline       AS DECIMAL.
+    DEFINE VARIABLE dWeightinLbsTargetPOLine AS DECIMAL.
+    DEFINE VARIABLE dWeightInLbsTotal        AS DECIMAL.
+    DEFINE VARIABLE cItemType                AS CHARACTER. 
+
 
     IF AVAILABLE ipbf-po-ordl THEN 
     DO:
-
+        
         IF AVAILABLE ipbf-po-ord AND ipbf-po-ord.t-freight GT 0 THEN 
         DO:
+            ASSIGN 
+                cItemType                = IF ipbf-po-ordl.item-type THEN "RM" ELSE "FG"
+                dWeightInLbsTargetPOLine = fConvertQuantityForItem(ipbf-po-ordl.company, ipbf-po-ordl.i-no, cItemType, 
+                                        ipbf-po-ordl.ord-qty, ipbf-po-ordl.pr-qty-uom, "LB", 
+                                        0, ipbf-po-ordl.s-len, ipbf-po-ordl.s-wid, ipbf-po-ordl.s-dep, 0)
+                .
             FOR EACH bf-po-ordl WHERE
                 bf-po-ordl.company EQ ipbf-po-ord.company AND
                 bf-po-ordl.po-no EQ ipbf-po-ord.po-no NO-LOCK:
-                IF NOT bf-po-ordl.item-type THEN 
-                DO:
-                    
-                    FIND FIRST itemfg NO-LOCK
-                        WHERE itemfg.company EQ bf-po-ordl.company
-                        AND itemfg.i-no    EQ bf-po-ordl.i-no
-                        NO-ERROR.
-
-                    dQtyInEach = bf-po-ordl.ord-qty.
-                    
-                    /*Get List of UOMs equivalent to EA and convert to EA if not on list*/
-                    RUN sys/ref/uom-fg.p (?, OUTPUT cEachUOMListFG).
-                    IF LOOKUP(bf-po-ordl.pr-qty-uom,cEachUOMListFG) EQ 0 THEN
-                        dQtyInEach = fConvert(bf-po-ordl.pr-qty-uom, "EA",
-                            0, bf-po-ordl.s-len, bf-po-ordl.s-wid, bf-po-ordl.s-dep,
-                            1, 1,
-                            dQtyInEach).
-                                  
-                    dWeightTotal = dWeightTotal + (dQtyInEach / 100 * itemfg.weight-100).
-
-                    IF ROWID(bf-po-ordl) EQ ROWID(ipbf-po-ordl) THEN
-                        dWeightTargetPOLine = dQtyInEach / 100 * itemfg.weight-100.
-                END.
-                ELSE 
-                DO:
-
-                    FIND FIRST ITEM NO-LOCK
-                        WHERE item.company EQ bf-po-ordl.company
-                        AND item.i-no    EQ bf-po-ordl.i-no
-                        NO-ERROR.
-                    
-                    dQtyInEach = bf-po-ordl.ord-qty.
-                    
-                    /*Get List of UOMs equivalent to EA and convert to EA if not on list*/
-                    RUN sys/ref/uom-rm.p  (item.mat-type, OUTPUT cEachUOMListRM).
-                    IF LOOKUP(bf-po-ordl.pr-qty-uom,cEachUOMListRM) EQ 0 THEN
-                        dQtyInEach = fConvert(bf-po-ordl.pr-qty-uom, "EA",
-                            ITEM.basis-w, bf-po-ordl.s-len, bf-po-ordl.s-wid, bf-po-ordl.s-dep,
-                            1, 1,
-                            dQtyInEach).
-      
-                    dWeightTotal = dWeightTotal + (dQtyInEach / 100 * item.weight-100).
-
-                    IF ROWID(bf-po-ordl) EQ ROWID(ipbf-po-ordl) THEN
-                        dWeightTargetPOLine = dQtyInEach / 100 * item.weight-100.
-                END.
+                ASSIGN                     
+                    cItemType =  IF ipbf-po-ordl.item-type THEN "RM" ELSE "FG"
+                    dWeightInLbsPOline = fConvertQuantityForItem(bf-po-ordl.company, bf-po-ordl.i-no, cItemType, 
+                                        bf-po-ordl.ord-qty, bf-po-ordl.pr-qty-uom, "LB", 
+                                        0, bf-po-ordl.s-len, bf-po-ordl.s-wid, bf-po-ordl.s-dep, 0)
+                    dWeightInLbsTotal = dWeightInLbsTotal + dWeightInLbsPOLine.
             END.
 
-            IF dWeightTargetPOLine NE 0 AND dWeightTargetPOLine NE ? AND
-                dWeightTotal NE 0 AND dWeightTotal NE ? THEN
-                opdCostFreightPortion = ipbf-po-ord.t-freight * (dWeightTargetPOLine / dWeightTotal).
+            IF dWeightInLBsTargetPOLine NE 0 AND dWeightInLbsTargetPOLine NE ? AND
+                dWeightInLbsTotal NE 0 AND dWeightInLbsTotal NE ? THEN
+                opdCostFreightPortion = ipbf-po-ord.t-freight * (dWeightInLbsTargetPOLine / dWeightInLbsTotal).
         END.
     END.
 
@@ -615,6 +588,12 @@ PROCEDURE pSetBuffersPO PRIVATE:
             AND opbf-po-ordl.po-no EQ opbf-po-ord.po-no
             AND opbf-po-ordl.line EQ ipiPOLine
             AND opbf-po-ordl.i-no EQ ipcItemID
+            NO-ERROR.
+    IF NOT AVAILABLE opbf-po-ordl THEN
+        FIND FIRST opbf-po-ordl NO-LOCK
+            WHERE opbf-po-ordl.company EQ opbf-po-ord.company
+            AND opbf-po-ordl.po-no EQ opbf-po-ord.po-no
+            AND opbf-po-ordl.line EQ ipiPOLine
             NO-ERROR.
     IF NOT AVAILABLE opbf-po-ordl THEN
         FIND FIRST opbf-po-ordl NO-LOCK
@@ -793,11 +772,11 @@ PROCEDURE pCalculateCostPerUOMForBOL PRIVATE:
         IF cCostUOMLine EQ "" THEN cCostUOMLine = cCostUOMLineDef.
         IF cCostUOMLine NE "M" THEN /*convert all to per M*/
         DO:
-            RUN pConvertCostToM(cCostUOMLine, dCostPerUOMTotalLine, OUTPUT dCostPerUOMTotalLine).
-            RUN pConvertCostToM(cCostUOMLine, dCostPerUOMDLLine, OUTPUT dCostPerUOMDLLine).
-            RUN pConvertCostToM(cCostUOMLine, dCostPerUOMFOLine, OUTPUT dCostPerUOMFOLine).
-            RUN pConvertCostToM(cCostUOMLine, dCostPerUOMVOLine, OUTPUT dCostPerUOMVOLine).
-            RUN pConvertCostToM(cCostUOMLine, dCostPerUOMDMLine, OUTPUT dCostPerUOMDMLine).
+            RUN pConvertCostToM(ipcCompany, ipcFGItemID, cCostUOMLine, dCostPerUOMTotalLine, OUTPUT dCostPerUOMTotalLine).
+            RUN pConvertCostToM(ipcCompany, ipcFGItemID, cCostUOMLine, dCostPerUOMDLLine, OUTPUT dCostPerUOMDLLine).
+            RUN pConvertCostToM(ipcCompany, ipcFGItemID, cCostUOMLine, dCostPerUOMFOLine, OUTPUT dCostPerUOMFOLine).
+            RUN pConvertCostToM(ipcCompany, ipcFGItemID, cCostUOMLine, dCostPerUOMVOLine, OUTPUT dCostPerUOMVOLine).
+            RUN pConvertCostToM(ipcCompany, ipcFGItemID, cCostUOMLine, dCostPerUOMDMLine, OUTPUT dCostPerUOMDMLine).
         END.         
         
         /*sum the total costs in order to calculate average cost per M*/
@@ -829,11 +808,14 @@ PROCEDURE pConvertCostToM PRIVATE:
      Purpose: Converts cost to UOM
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcUOM AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdCost AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdCost AS DECIMAL NO-UNDO.
     
-    opdCost = fConvert(ipcUOM, "M", 0, 0, 0, 0, 1, 1, ipdCost).
+    opdCost = fConvertCostForItem(ipcCompany, ipcItemID, "FG", ipdCost, ipcUOM, "M", 0, 0, 0, 0, 0, 0, "").
+    //opdCost = fConvert(ipcUOM, "M", 0, 0, 0, 0, 1, 1, ipdCost).
 
 END PROCEDURE.
 
@@ -986,6 +968,21 @@ PROCEDURE GetCostForJob:
                 opdCostPerUOMVO    = reftable.val[3]
                 opdCostPerUOMFO    = reftable.val[4].
     END.
+    FIND FIRST itemfg NO-LOCK 
+        WHERE itemfg.company EQ ipcCompany
+        AND itemfg.i-no EQ ipcFGItemID
+        NO-ERROR.
+    IF AVAILABLE itemfg THEN DO:
+        IF itemfg.pur-uom NE "M" THEN 
+            ASSIGN 
+                opdCostPerUOMTotal = fConvertCostForItem(ipcCompany, ipcFGItemID, "FG", opdCostPerUOMTotal, opcCostUOM, itemfg.pur-uom, 0, 0, 0, 0, 0, 0,"")
+                opdCostPerUOMDL = fConvertCostForItem(ipcCompany, ipcFGItemID, "FG", opdCostPerUOMDL, opcCostUOM, itemfg.pur-uom, 0, 0, 0, 0, 0, 0,"")
+                opdCostPerUOMDM = fConvertCostForItem(ipcCompany, ipcFGItemID, "FG", opdCostPerUOMDM, opcCostUOM, itemfg.pur-uom, 0, 0, 0, 0, 0, 0,"")
+                opdCostPerUOMVO = fConvertCostForItem(ipcCompany, ipcFGItemID, "FG", opdCostPerUOMVO, opcCostUOM, itemfg.pur-uom, 0, 0, 0, 0, 0, 0,"")
+                opdCostPerUOMFO = fConvertCostForItem(ipcCompany, ipcFGItemID, "FG", opdCostPerUOMFO, opcCostUOM, itemfg.pur-uom, 0, 0, 0, 0, 0, 0,"")
+                opcCostUOM = itemfg.pur-uom
+                .
+    END.
 
 END PROCEDURE.
 
@@ -1095,11 +1092,11 @@ PROCEDURE GetCostForInvoiceLine:
         END.
         IF opcCostUOM NE "M" THEN 
         DO: 
-            RUN pConvertCostToM(opcCostUOM, opdCostPerUOMTotal, OUTPUT opdCostPerUOMTotal).
-            RUN pConvertCostToM(opcCostUOM, opdCostPerUOMDL, OUTPUT opdCostPerUOMDL).
-            RUN pConvertCostToM(opcCostUOM, opdCostPerUOMFO, OUTPUT opdCostPerUOMFO).
-            RUN pConvertCostToM(opcCostUOM, opdCostPerUOMVO, OUTPUT opdCostPerUOMVO).
-            RUN pConvertCostToM(opcCostUOM, opdCostPerUOMDM, OUTPUT opdCostPerUOMDM).
+            RUN pConvertCostToM(cCompany, cFGItemID, opcCostUOM, opdCostPerUOMTotal, OUTPUT opdCostPerUOMTotal).
+            RUN pConvertCostToM(cCompany, cFGItemID, opcCostUOM, opdCostPerUOMDL, OUTPUT opdCostPerUOMDL).
+            RUN pConvertCostToM(cCompany, cFGItemID, opcCostUOM, opdCostPerUOMFO, OUTPUT opdCostPerUOMFO).
+            RUN pConvertCostToM(cCompany, cFGItemID, opcCostUOM, opdCostPerUOMVO, OUTPUT opdCostPerUOMVO).
+            RUN pConvertCostToM(cCompany, cFGItemID, opcCostUOM, opdCostPerUOMDM, OUTPUT opdCostPerUOMDM).
             opcCostUOM = "M".
         END.
         IF opdCostPerUOMTotal EQ ? THEN opdCostPerUOMTotal = 0.
@@ -1107,7 +1104,7 @@ PROCEDURE GetCostForInvoiceLine:
         IF opdCostPerUOMFO EQ ? THEN opdCostPerUOMFO = 0.
         IF opdCostPerUOMVO EQ ? THEN opdCostPerUOMVO = 0.
         IF opdCostPerUOMDM EQ ? THEN opdCostPerUOMDM = 0.
-        opdCostTotalExtended = opdCostPerUOMTotal * dQtyInvoiced / 1000.
+        opdCostTotalExtended = ROUND(opdCostPerUOMTotal * dQtyInvoiced / 1000, 2).
         
         RUN pCalculateCostsFromEstimate(cCompany, iOrderNo, cFGItemID, OUTPUT opdCostFreight, OUTPUT opdCostWarehouse, OUTPUT opdCostDeviation, OUTPUT opdCostManufacture).
     
@@ -1171,162 +1168,155 @@ PROCEDURE pGetKeyCriteriaForInvl PRIVATE:
         RELEASE ar-invl.
     END.
 END PROCEDURE.
+PROCEDURE GetHeaderCostDeviation:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an estimate number, get the total cost for freight
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerM AS DECIMAL NO-UNDO.
 
+    RUN GetHeaderCostForCategory(ipcCompany, ipcEstimateNo, ipdQuantity, "deviation", OUTPUT opdCostTotal, OUTPUT opdCostPerM).
+
+END PROCEDURE.
+
+PROCEDURE GetHeaderCostFreight:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an estimate number, get the total cost for freight
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerM AS DECIMAL NO-UNDO.
+    
+    RUN GetHeaderCostForCategory(ipcCompany, ipcEstimateNo, ipdQuantity, "nfFreight", OUTPUT opdCostTotal, OUTPUT opdCostPerM).
+    
+END PROCEDURE.
+
+PROCEDURE GetHeaderCostFarm:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an estimate number, get the total cost for warehousing
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerM AS DECIMAL NO-UNDO.
+    
+    RUN GetHeaderCostForCategory(ipcCompany, ipcEstimateNo, ipdQuantity, "matNoWaste", OUTPUT opdCostTotal, OUTPUT opdCostPerM).
+    
+END PROCEDURE.
+
+PROCEDURE GetHeaderCostWarehouse:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an estimate number, get the total cost for warehousing
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerM AS DECIMAL NO-UNDO.
+    
+    RUN GetHeaderCostForCategory(ipcCompany, ipcEstimateNo, ipdQuantity, "nfWarehouse", OUTPUT opdCostTotal, OUTPUT opdCostPerM).
+    
+END PROCEDURE.
+
+PROCEDURE GetHeaderCostForCategory:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an estimate number, get the total cost for a given category
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCategory AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCostPerM AS DECIMAL NO-UNDO.
+
+    FIND FIRST estCostHeader NO-LOCK 
+        WHERE estCostHeader.company EQ ipcCompany
+        AND estCostHeader.estimateNo EQ ipcEstimateNo
+        AND estCostHeader.quantityMaster GE ipdQuantity
+        NO-ERROR. 
+    IF AVAILABLE estCostHeader THEN 
+    DO:
+        FOR EACH estCostDetail NO-LOCK
+            WHERE estCostDetail.estCostHeaderID EQ estCostHeader.estCostHeaderID
+            AND estCostDetail.estCostCategoryID EQ ipcCategory:
+            opdCostTotal = opdCostTotal + estCostDetail.costTotal.    
+        END.
+        IF estCostHeader.quantityMaster NE 0 THEN 
+            opdCostPerM = opdCostTotal / (estCostHeader.quantityMaster / 1000).
+        
+    END.
+
+END PROCEDURE.
 
 
 /* ************************  Function Implementations ***************** */
 
-FUNCTION fConvert RETURNS DECIMAL 
-    (ipcFromUOM AS CHARACTER , ipcToUOM AS CHARACTER, 
-    ipdBasisWeightInPoundsPerSqInch AS DECIMAL, 
-    ipdLengthInInches AS DECIMAL, ipdWidthInInches AS DECIMAL, ipdDepthInInches AS DECIMAL, 
-    ipdQuantityOfLotInEA AS DECIMAL, ipdQuantityOfSubUnitInEA AS DECIMAL, 
-    ipdValueToConvert AS DECIMAL):
+
+
+FUNCTION fConvertCostForItem RETURNS DECIMAL
+	(ipcCompany AS CHARACTER, ipcItemID AS CHARACTER , ipcItemType AS CHARACTER, 
+	 ipdCostInFromUOM AS DECIMAL, ipcFromUOM AS CHARACTER, ipcToUOM AS CHARACTER,
+	 ipdBasisWeightOverride AS DECIMAL, ipdDimLengthOverride AS DECIMAL, ipdDimWidthOverride AS DECIMAL, ipdDimDepthOverride AS DECIMAL, 
+	 ipdCountOverride AS DECIMAL, ipdLotQuantity AS DECIMAL, ipcLotQuantityUOM AS CHARACTER):
     /*------------------------------------------------------------------------------
-     Purpose: Replaces all conversion programs
-     Notes:  modelled after rm\convcuom.p - should be able to replace all conversion programs
+     Purpose:
+     Notes: fConvertCostForItem(cCompany, 
+                                cItemID, 
+                                cItemType, 
+                                dCostToConvert, 
+                                cCostUOMFrom, 
+                                cCostUOMTo, 
+                                dBasisWeightOverride,
+                                dDimLengthOverride,
+                                dDimWidthOverride,
+                                dDimDepthOverride,
+                                dCaseCountOverride,
+                                dLotQty, 
+                                cLotQtyUOM).
     ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dCostInToUOM AS DECIMAL NO-UNDO.
+    
+    RUN Conv_ValueFromUOMtoUOMWithLot(ipcCompany, ipcItemID, ipcItemType, 
+        ipdCostInFromUOM, ipcFromUOM, ipcToUOM, 
+        ipdBasisWeightOverride, ipdDimLengthOverride, ipdDimWidthOverride, ipdDimDepthOverride, ipdCountOverride, ipdLotQuantity, ipcLotQuantityUOM,         
+        OUTPUT dCostInToUOM, OUTPUT lError, OUTPUT cErrorMessage).
 
-    DEFINE VARIABLE dValueConverted   AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dSquareFootOfEach AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dLengthInFeet     AS DECIMAL NO-UNDO.
-    
-    
-    IF ipdValueToConvert EQ 0 THEN 
-    DO:
-        RETURN dValueConverted.
-    END.
+    RETURN dCostInToUOM.
+		
+END FUNCTION.
 
-    IF ipdLengthInInches EQ 0 AND
-        (LOOKUP(ipcFromUOM,"LF,LI,MLF,MLI") NE 0  OR
-        LOOKUP(ipcToUOM,"LF,LI,MLF,MLI") NE 0) THEN ipdLengthInInches = 12.
-
-    IF ipdDepthInInches EQ 0 THEN ipdDepthInInches = 1.
+FUNCTION fConvertQuantityForItem RETURNS DECIMAL 
+    (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER , ipcItemType AS CHARACTER, 
+     ipdQuantityInFromUOM AS DECIMAL, ipcFromUOM AS CHARACTER, ipcToUOM AS CHARACTER,
+     ipdBasisWeightOverride AS DECIMAL, ipdDimLengthOverride AS DECIMAL, ipdDimWidthOverride AS DECIMAL, ipdDimDepthOverride AS DECIMAL, 
+     ipdCountOverride AS DECIMAL):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE lError        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dQuantityInToUOM  AS DECIMAL   NO-UNDO.
     
-    dSquareFootOfEach = ipdLengthInInches * ipdWidthInInches * gdMultiplierForSquareFoot.
-    dLengthInFeet = ipdLengthInInches / 12.
-    /*Convert FromUOM To Each*/
-    CASE ipcFromUOM:
-        WHEN "MSH" OR 
-        WHEN "M" THEN 
-            ipdValueToConvert = ipdValueToConvert / 1000.
-        WHEN "MSF" THEN
-            ipdValueToConvert = dSquareFootOfEach * ipdValueToConvert / 1000.
-        WHEN "TON" THEN
-            IF ipdWidthInInches NE 0 AND ipdLengthInInches NE 0 AND ipdBasisWeightInPoundsPerSqInch NE 0 THEN
-                ipdValueToConvert = dSquareFootOfEach * ipdValueToConvert / 1000 * ipdBasisWeightInPoundsPerSqInch / 2000.
-        WHEN "LB" THEN
-            IF ipdWidthInInches NE 0 AND ipdLengthInInches NE 0 AND ipdBasisWeightInPoundsPerSqInch NE 0 THEN
-                ipdValueToConvert = dSquareFootOfEach * ipdValueToConvert / 1000 * ipdBasisWeightInPoundsPerSqInch.
-        WHEN "SF" THEN
-            ipdValueToConvert = dSquareFootOfEach * ipdValueToConvert.
-        WHEN "MLF" THEN
-            ipdValueToConvert = (dLengthInFeet * ipdValueToConvert) / 1000.
-        WHEN "LF" THEN
-            ipdValueToConvert = dLengthInFeet * ipdValueToConvert.
-        WHEN "MLI" THEN
-            ipdValueToConvert = (ipdLengthInInches  * ipdValueToConvert) / 1000.
-        WHEN "LI" THEN
-            ipdValueToConvert = ipdLengthInInches * ipdValueToConvert.
-        WHEN "BF" OR 
-        WHEN "BSF" THEN
-            ipdValueToConvert = ((ipdLengthInInches * ipdWidthInInches * ipdDepthInInches) / 144) * ipdValueToConvert.
-        WHEN "CAS" OR WHEN "C" THEN 
-            ipdValueToConvert = ipdValueToConvert / ipdQuantityOfSubUnitInEA.
-        WHEN "LOT" OR WHEN "L" THEN
-            ipdValueToConvert = ipdValueToConvert / ipdQuantityOfLotInEA.
-        OTHERWISE 
-        DO:
-            fromuom:
-            REPEAT:
-                /* put cost into an EA uom */
-                FIND FIRST uom NO-LOCK
-                    WHERE uom.uom  EQ ipcFromUOM
-                    AND uom.mult NE 0
-                    NO-ERROR.
-                IF AVAILABLE uom THEN 
-                DO:
-                    ipdValueToConvert = (IF ipdValueToConvert EQ 0 THEN 1 ELSE ipdValueToConvert / uom.mult).
-     
-                    IF uom.other NE "" AND uom.other NE uom.uom THEN 
-                    DO:
-                        ipcFromUOM = uom.other.
-                        NEXT fromuom.
-                    END.
-                END.
-    
-                ELSE ipdValueToConvert = (IF ipdValueToConvert EQ 0 THEN 1 ELSE ipdValueToConvert).
-    
-                LEAVE fromuom.
-            END.
-        END.
-    END CASE.
-    
-    /*Convert from Each to ToUOM*/
-    CASE ipcToUOM:
-        WHEN "MSH" OR 
-        WHEN "M" THEN 
-            dValueConverted = ipdValueToConvert * 1000.
-        WHEN "MSF" THEN 
-            IF dSquareFootOfEach NE 0 THEN 
-                dValueConverted = (1000 * ipdValueToConvert) / (dSquareFootOfEach).
-        WHEN "TON" THEN
-            IF dSquareFootOfEach NE 0 AND ipdBasisWeightInPoundsPerSqInch NE 0 THEN 
-                dValueConverted = (2000 * 1000 * ipdValueToConvert) / (ipdBasisWeightInPoundsPerSqInch * dSquareFootOfEach).
-        WHEN "LB" THEN
-            IF dSquareFootOfEach NE 0 AND ipdBasisWeightInPoundsPerSqInch NE 0 THEN
-                dValueConverted = (1000 * ipdValueToConvert) / (ipdBasisWeightInPoundsPerSqInch * dSquareFootOfEach).
-        WHEN "SF" THEN
-            IF dSquareFootOfEach NE 0 THEN
-                dValueConverted = ipdValueToConvert / dSquareFootOfEach.
-        WHEN "MLF" THEN
-            IF dLengthInFeet NE 0 THEN 
-                dValueConverted = (1000 * ipdValueToConvert) / dLengthInFeet.
-        WHEN "LF" THEN 
-            IF dLengthInFeet NE 0 THEN 
-                dValueConverted = ipdValueToConvert / dLengthInFeet.
-        WHEN "MLI" THEN
-            IF ipdLengthInInches NE 0 THEN 
-                dValueConverted = (1000 * ipdValueToConvert) / ipdLengthInInches.
-        WHEN "LI" THEN
-            IF ipdLengthInInches NE 0 THEN 
-                dValueConverted = ipdValueToConvert / ipdLengthInInches.
-        WHEN "BF" OR 
-        WHEN "BSF" THEN 
-            IF ipdLengthInInches NE 0 AND ipdWidthInInches NE 0 AND ipdDepthInInches NE 0 THEN 
-                dValueConverted = ipdValueToConvert / ((ipdLengthInInches * ipdWidthInInches * ipdDepthInInches) / 144).
-        WHEN "CAS" OR WHEN "C" THEN 
-            ipdValueToConvert = ipdValueToConvert * ipdQuantityOfSubUnitInEA.
-        WHEN "LOT" OR WHEN "L" THEN
-            ipdValueToConvert = ipdValueToConvert * ipdQuantityOfLotInEA.
-            
-        OTHERWISE 
-        DO:
-            touom:
-            REPEAT:
-                FIND FIRST uom NO-LOCK
-                    WHERE uom.uom  EQ ipcToUOM
-                    AND uom.mult NE 0
-                    NO-ERROR.
-                IF AVAILABLE uom THEN 
-                DO:
-                    ipdValueToConvert = (IF ipdValueToConvert NE 0 THEN (ipdValueToConvert * uom.mult) ELSE 0).
-                    IF uom.other NE "" AND uom.other NE uom.uom THEN 
-                    DO:
-                        ipcToUOM = uom.other.
-                        NEXT touom.
-                    END.
-                END.
-    
-                dValueConverted = ipdValueToConvert.
-    
-                LEAVE touom.
-            END.
-        END.
-    END CASE.
-
-    RETURN dValueConverted.
-	
+    RUN Conv_QuantityFromUOMtoUOM(ipcCompany, ipcItemID, ipcItemType, 
+        ipdQuantityInFromUOM, ipcFromUOM, ipcToUOM, 
+        ipdBasisWeightOverride, ipdDimLengthOverride, ipdDimWidthOverride, ipdDimDepthOverride, ipdCountOverride, 
+        OUTPUT dQuantityInToUOM, OUTPUT lError, OUTPUT cErrorMessage).
+    RETURN dQuantityInToUOM.
+        
 END FUNCTION.
 
 FUNCTION fConvertCurrency RETURNS DECIMAL PRIVATE

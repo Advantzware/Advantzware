@@ -56,13 +56,16 @@ DEFINE TEMP-TABLE ttDynSync NO-UNDO
     FIELD colName          AS CHARACTER FORMAT "x(20)" LABEL "Column"
     FIELD sync             AS LOGICAL                  LABEL ""
     FIELD user-id          LIKE dynParamValue.user-id
+    FIELD prgmName         LIKE dynParamValue.prgmName
     FIELD paramValueID     LIKE dynParamValue.paramValueID
-    FIELD extentIdx        AS INTEGER   FORMAT ">>9"   LABEL "Order"
+    FIELD sortOrder        AS INTEGER   FORMAT ">>9"   LABEL "Order"
+    FIELD rRowID           AS ROWID
         INDEX ttDynSync IS PRIMARY
             subjectID
             paramValueID
+            sortOrder
+            valueAction DESCENDING
             colName
-            valueAction
             .
 DEFINE TEMP-TABLE ttDefaultValue NO-UNDO
     FIELD colName       AS CHARACTER
@@ -71,7 +74,7 @@ DEFINE TEMP-TABLE ttDefaultValue NO-UNDO
     FIELD isReturnValue AS CHARACTER
     FIELD isSearchable  AS CHARACTER
     FIELD isSortable    AS CHARACTER
-    FIELD extentIdx     AS INTEGER
+    FIELD sortOrder     AS INTEGER
     FIELD found         AS LOGICAL
     .
 {methods/lockWindowUpdate.i}
@@ -168,7 +171,7 @@ ttDynSync.defaultValue LABEL-BGCOLOR 14
 ttDynSync.currentValue LABEL-BGCOLOR 14
 ttDynSync.user-id LABEL-BGCOLOR 14
 ttDynSync.paramValueID
-ttDynSync.extentIdx
+ttDynSync.sortOrder
 ENABLE
 ttDynSync.sync
 /* _UIB-CODE-BLOCK-END */
@@ -463,13 +466,15 @@ PROCEDURE pCreateTTDynSync :
     DEFINE INPUT PARAMETER ipcSubjectTitle     AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcParamDescription AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcUserID           AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPrgmName         AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiParamValueID     AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipcValueType        AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcValueAction      AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcDefaultValue     AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCurrentValue     AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcColName          AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiExtentIdx        AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiSortOrder        AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER iprRowID            AS ROWID     NO-UNDO.
 
     CREATE ttDynSync.
     ASSIGN
@@ -477,13 +482,15 @@ PROCEDURE pCreateTTDynSync :
         ttDynSync.subjectTitle     = ipcSubjectTitle
         ttDynSync.paramDescription = ipcParamDescription
         ttDynSync.user-id          = ipcUserID
+        ttDynSync.prgmName         = ipcPrgmName
         ttDynSync.paramValueID     = ipiParamValueID
         ttDynSync.valueType        = ipcValueType
         ttDynSync.valueAction      = ipcValueAction
         ttDynSync.defaultValue     = ipcDefaultValue
         ttDynSync.currentValue     = ipcCurrentValue
         ttDynSync.colName          = ipcColName
-        ttDynSync.extentIdx        = ipiExtentIdx
+        ttDynSync.sortOrder        = ipiSortOrder
+        ttDynSync.rRowID           = iprRowID
         .
 
 END PROCEDURE.
@@ -544,7 +551,6 @@ PROCEDURE pGetSync :
     DEFINE VARIABLE cValueAction  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cValueType    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE jdx           AS INTEGER   NO-UNDO.
 
     DEFINE BUFFER bDynParamValue FOR dynParamValue.
 
@@ -557,27 +563,35 @@ PROCEDURE pGetSync :
                     WHERE bDynParamValue.subjectID EQ dynParamValue.subjectID
                       AND bDynParamValue.user-id   NE dynParamValue.user-id) THEN DO:
             EMPTY TEMP-TABLE ttDefaultValue.
-            DO idx = 1 TO EXTENT(dynParamValue.colName):
-                IF dynParamValue.colName[idx] EQ "" THEN
-                LEAVE.
+            FOR EACH dynValueColumn NO-LOCK
+                WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
+                  AND dynValueColumn.user-id      EQ dynParamValue.user-id
+                  AND dynValueColumn.prgmName     EQ dynParamValue.prgmName
+                  AND dynValueColumn.paramValueID EQ dynParamValue.paramValueID
+                   BY dynValueColumn.sortOrder
+                :
                 CREATE ttDefaultValue.
                 ASSIGN
-                    ttDefaultValue.colName       = dynParamValue.colName[idx]
-                    ttDefaultValue.colLabel      = dynParamValue.colLabel[idx]
-                    ttDefaultValue.colFormat     = dynParamValue.colFormat[idx]
-                    ttDefaultValue.isReturnValue = STRING(dynParamValue.isReturnValue[idx])
-                    ttDefaultValue.isSearchable  = STRING(dynParamValue.isSearchable[idx])
-                    ttDefaultValue.isSortable    = STRING(dynParamValue.isSortable[idx])
-                    ttDefaultValue.extentIdx     = idx
+                    ttDefaultValue.colName       = dynValueColumn.colName
+                    ttDefaultValue.colLabel      = dynValueColumn.colLabel
+                    ttDefaultValue.colFormat     = dynValueColumn.colFormat
+                    ttDefaultValue.isReturnValue = STRING(dynValueColumn.isReturnValue)
+                    ttDefaultValue.isSearchable  = STRING(dynValueColumn.isSearchable)
+                    ttDefaultValue.isSortable    = STRING(dynValueColumn.isSortable)
+                    ttDefaultValue.sortOrder     = dynValueColumn.sortOrder
                     .
-            END. /* do idx */
+            END. /* each dynValueColumn */
             FOR EACH bDynParamValue NO-LOCK
                 WHERE bDynParamValue.subjectID EQ dynParamValue.subjectID
                   AND bDynParamValue.user-id   NE dynParamValue.user-id
                 :
-                DO idx = 1 TO EXTENT(bDynParamValue.colName):
-                    IF bDynParamValue.colName[idx] EQ "" THEN
-                    LEAVE.
+                FOR EACH dynValueColumn NO-LOCK
+                    WHERE dynValueColumn.subjectID    EQ bDynParamValue.subjectID
+                      AND dynValueColumn.user-id      EQ bDynParamValue.user-id
+                      AND dynValueColumn.prgmName     EQ bDynParamValue.prgmName
+                      AND dynValueColumn.paramValueID EQ bDynParamValue.paramValueID
+                       BY dynValueColumn.sortOrder
+                    :
                     ASSIGN
                         cValueType    = ""
                         cValueAction  = ""
@@ -585,17 +599,17 @@ PROCEDURE pGetSync :
                         cCurrentValue = ""
                         .
                     FIND FIRST ttDefaultValue
-                         WHERE ttDefaultValue.colName EQ bDynParamValue.colName[idx]
+                         WHERE ttDefaultValue.colName EQ dynValueColumn.colName
                          NO-ERROR.
                     IF AVAILABLE ttDefaultValue THEN
                     ttDefaultValue.found = YES.
-                    DO jdx = 1 TO 6:
-                        CASE jdx:
+                    DO idx = 1 TO 6:
+                        CASE idx:
                             WHEN 1 THEN DO:
                                 IF AVAILABLE ttDefaultValue THEN
                                 cDefaultValue = ttDefaultValue.colName.
                                 ASSIGN
-                                    cCurrentValue = bDynParamValue.colName[idx]
+                                    cCurrentValue = dynValueColumn.colName
                                     cValueType    = ""
                                     .
                             END.
@@ -603,7 +617,7 @@ PROCEDURE pGetSync :
                                 IF AVAILABLE ttDefaultValue THEN
                                 cDefaultValue = ttDefaultValue.colLabel.
                                 ASSIGN
-                                    cCurrentValue = bDynParamValue.colLabel[idx]
+                                    cCurrentValue = dynValueColumn.colLabel
                                     cValueType    = "Label"
                                     .
                             END.
@@ -611,7 +625,7 @@ PROCEDURE pGetSync :
                                 IF AVAILABLE ttDefaultValue THEN
                                 cDefaultValue = ttDefaultValue.colFormat.
                                 ASSIGN
-                                    cCurrentValue = bDynParamValue.colFormat[idx]
+                                    cCurrentValue = dynValueColumn.colFormat
                                     cValueType    = "Format"
                                     .
                             END.
@@ -619,7 +633,7 @@ PROCEDURE pGetSync :
                                 IF AVAILABLE ttDefaultValue THEN
                                 cDefaultValue = ttDefaultValue.isReturnValue.
                                 ASSIGN
-                                    cCurrentValue = STRING(bDynParamValue.isReturnValue[idx])
+                                    cCurrentValue = STRING(dynValueColumn.isReturnValue)
                                     cValueType    = "ReturnValue"
                                     .
                             END.
@@ -627,7 +641,7 @@ PROCEDURE pGetSync :
                                 IF AVAILABLE ttDefaultValue THEN
                                 cDefaultValue = ttDefaultValue.isSearchable.
                                 ASSIGN
-                                    cCurrentValue = STRING(bDynParamValue.isSearchable[idx])
+                                    cCurrentValue = STRING(dynValueColumn.isSearchable)
                                     cValueType    = "Searchable"
                                     .
                             END.
@@ -635,7 +649,7 @@ PROCEDURE pGetSync :
                                 IF AVAILABLE ttDefaultValue THEN
                                 cDefaultValue = ttDefaultValue.isSortable.
                                 ASSIGN
-                                    cCurrentValue = STRING(bDynParamValue.isSortable[idx])
+                                    cCurrentValue = STRING(dynValueColumn.isSortable)
                                     cValueType    = "Sortable"
                                     .
                             END.
@@ -645,23 +659,25 @@ PROCEDURE pGetSync :
                                   ELSE IF cDefaultValue NE cCurrentValue THEN "Update"
                                   ELSE "".
                         IF cValueAction EQ "" OR
-                          (cValueAction EQ "Delete" AND jdx GT 1) THEN
+                          (cValueAction EQ "Delete" AND idx GT 1) THEN
                         NEXT.
                         RUN pCreateTTDynSync (
                             dynParamValue.subjectID,
                             dynSubject.subjectTitle,
                             bDynParamValue.paramDescription,
                             bDynParamValue.user-id,
+                            bDynParamValue.prgmName,
                             bDynParamValue.paramValueID,
                             cValueType,
                             cValueAction,
                             cDefaultValue,
                             cCurrentValue,
-                            bDynParamValue.colName[idx],
-                            idx
+                            dynValueColumn.colName,
+                            dynValueColumn.sortOrder,
+                            ROWID(dynValueColumn)
                             ).
-                    END. /* do jdx */
-                END. /* do idx */
+                    END. /* do idx */
+                END. /* each dynValueColumn */
                 FOR EACH ttDefaultValue:
                     IF ttDefaultValue.found EQ NO THEN
                     RUN pCreateTTDynSync (
@@ -669,13 +685,15 @@ PROCEDURE pGetSync :
                         dynSubject.subjectTitle,
                         bDynParamValue.paramDescription,
                         bDynParamValue.user-id,
+                        bDynParamValue.prgmName,
                         bDynParamValue.paramValueID,
                         "",
                         "Add",
                         ttDefaultValue.colName,
                         "",
                         ttDefaultValue.colName,
-                        ttDefaultValue.extentIdx
+                        ttDefaultValue.sortOrder,
+                        ?
                         ).
                     ttDefaultValue.found = NO.
                 END. /* each ttdefaultvalue */
@@ -803,111 +821,80 @@ PROCEDURE pSync :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
-    DEFINE VARIABLE jdx AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iSortOrder AS INTEGER NO-UNDO.
 
-    DEFINE BUFFER bDynParamValue FOR dynParamValue.
+    DEFINE BUFFER bDynParamValue  FOR dynParamValue.
+    DEFINE BUFFER bDynValueColumn FOR dynValueColumn.
 
     FOR EACH ttDynSync
-        WHERE ttDynSync.sync EQ YES,
-        FIRST dynParamValue EXCLUSIVE-LOCK
-        WHERE dynParamValue.subjectID    EQ ttDynSync.subjectID
-          AND dynParamValue.user-id      EQ ttDynSync.user-id
-          AND dynParamValue.paramValueID EQ ttDynSync.paramValueID
+        WHERE ttDynSync.sync EQ YES
         :
         CASE ttDynSync.valueAction:
-            WHEN "Add" THEN
-            DO idx = 1 TO EXTENT(dynParamValue.colName):
-                IF dynParamValue.colName[idx] NE "" THEN
-                NEXT.
-                FIND FIRST bDynParamValue NO-LOCK
-                     WHERE bDynParamValue.subjectID    EQ ttDynSync.subjectID
-                       AND bDynParamValue.user-id      EQ "{&defaultUser}"
-                       AND bDynParamValue.paramValueID EQ 0
+            WHEN "Add" THEN DO TRANSACTION:
+                FIND LAST dynValueColumn NO-LOCK
+                     WHERE dynValueColumn.subjectID    EQ ttDynSync.subjectID
+                       AND dynValueColumn.user-id      EQ ttDynSync.user-id
+                       AND dynValueColumn.prgmName     EQ ttDynSync.prgmName
+                       AND dynValueColumn.paramValueID EQ ttDynSync.paramValueID
                      NO-ERROR.
-                IF AVAILABLE bDynParamValue THEN
-                ASSIGN
-                    dynParamValue.calcFormula[idx]    = bDynParamValue.calcFormula[ttDynSync.extentIdx]
-                    dynParamValue.calcParam[idx]      = bDynParamValue.calcParam[ttDynSync.extentIdx]
-                    dynParamValue.calcProc[idx]       = bDynParamValue.calcProc[ttDynSync.extentIdx]
-                    dynParamValue.colFormat[idx]      = bDynParamValue.colFormat[ttDynSync.extentIdx]
-                    dynParamValue.colLabel[idx]       = bDynParamValue.colLabel[ttDynSync.extentIdx]
-                    dynParamValue.colName[idx]        = bDynParamValue.colName[ttDynSync.extentIdx]
-                    dynParamValue.columnSize[idx]     = bDynParamValue.columnSize[ttDynSync.extentIdx]
-                    dynParamValue.dataType[idx]       = bDynParamValue.dataType[ttDynSync.extentIdx]
-                    dynParamValue.groupCalc[idx]      = bDynParamValue.groupCalc[ttDynSync.extentIdx]
-                    dynParamValue.groupLabel[idx]     = bDynParamValue.groupLabel[ttDynSync.extentIdx]
-                    dynParamValue.isActive[idx]       = NO
-                    dynParamValue.isCalcField[idx]    = bDynParamValue.isCalcField[ttDynSync.extentIdx]
-                    dynParamValue.isGroup[idx]        = bDynParamValue.isGroup[ttDynSync.extentIdx]
-                    dynParamValue.isReturnValue[jdx]  = bDynParamValue.isReturnValue[ttDynSync.extentIdx]
-                    dynParamValue.isSearchable[jdx]   = bDynParamValue.isSearchable[ttDynSync.extentIdx]
-                    dynParamValue.isSortable[jdx]     = bDynParamValue.isSortable[ttDynSync.extentIdx]
-                    dynParamValue.isVisible[idx]      = bDynParamValue.isVisible[ttDynSync.extentIdx]
-                    dynParamValue.paramDataType[idx]  = bDynParamValue.paramDataType[ttDynSync.extentIdx]
-                    dynParamValue.paramFormat[idx]    = bDynParamValue.paramFormat[ttDynSync.extentIdx]
-                    dynParamValue.paramLabel[idx]     = bDynParamValue.paramLabel[ttDynSync.extentIdx]
-                    dynParamValue.paramName[idx]      = bDynParamValue.paramName[ttDynSync.extentIdx]
-                    dynParamValue.paramSetID[idx]     = bDynParamValue.paramSetID[ttDynSync.extentIdx]
-                    dynParamValue.paramValue[idx]     = bDynParamValue.paramValue[ttDynSync.extentIdx]
-                    dynParamValue.sortCol[idx]        = 0
-                    dynParamValue.sortDescending[idx] = NO
-                    .
-                LEAVE.
-            END. /* do idx */
-            WHEN "Delete" THEN
-            DO idx = 1 TO EXTENT(dynParamValue.colName):
-                IF dynParamValue.colName[idx] EQ "" THEN
-                LEAVE.
-                IF dynParamValue.colName[idx] EQ ttDynSync.colName THEN
-                DO jdx = idx TO EXTENT(dynParamValue.colName) - 1:
-                    ASSIGN
-                        dynParamValue.calcFormula[jdx]    = bDynParamValue.calcFormula[jdx + 1]
-                        dynParamValue.calcParam[jdx]      = dynParamValue.calcParam[jdx + 1]
-                        dynParamValue.calcProc[jdx]       = dynParamValue.calcProc[jdx + 1]
-                        dynParamValue.colFormat[jdx]      = dynParamValue.colFormat[jdx + 1]
-                        dynParamValue.colLabel[jdx]       = dynParamValue.colLabel[jdx + 1]
-                        dynParamValue.colName[jdx]        = dynParamValue.colName[jdx + 1]
-                        dynParamValue.columnSize[jdx]     = dynParamValue.columnSize[jdx + 1]
-                        dynParamValue.dataType[jdx]       = dynParamValue.dataType[jdx + 1]
-                        dynParamValue.groupCalc[jdx]      = dynParamValue.groupCalc[jdx + 1]
-                        dynParamValue.groupLabel[jdx]     = dynParamValue.groupLabel[jdx + 1]
-                        dynParamValue.isActive[jdx]       = dynParamValue.isActive[jdx + 1]
-                        dynParamValue.isCalcField[jdx]    = dynParamValue.isCalcField[jdx + 1]
-                        dynParamValue.isGroup[jdx]        = dynParamValue.isGroup[jdx + 1]
-                        dynParamValue.isReturnValue[jdx]  = dynParamValue.isReturnValue[jdx + 1]
-                        dynParamValue.isSearchable[jdx]   = dynParamValue.isSearchable[jdx + 1]
-                        dynParamValue.isSortable[jdx]     = dynParamValue.isSortable[jdx + 1]
-                        dynParamValue.isVisible[jdx]      = dynParamValue.isVisible[jdx + 1]
-                        dynParamValue.paramDataType[jdx]  = dynParamValue.paramDataType[jdx + 1]
-                        dynParamValue.paramFormat[jdx]    = dynParamValue.paramFormat[jdx + 1]
-                        dynParamValue.paramLabel[jdx]     = dynParamValue.paramLabel[jdx + 1]
-                        dynParamValue.paramName[jdx]      = dynParamValue.paramName[jdx + 1]
-                        dynParamValue.paramSetID[jdx]     = dynParamValue.paramSetID[jdx + 1]
-                        dynParamValue.paramValue[jdx]     = dynParamValue.paramValue[jdx + 1]
-                        dynParamValue.sortCol[jdx]        = dynParamValue.sortCol[jdx + 1]
-                        dynParamValue.sortDescending[jdx] = dynParamValue.sortDescending[jdx + 1]
-                        .
-                END. /* do jdx */
-            END. /* do idx */
-            WHEN "Update" THEN
-            DO idx = 1 TO EXTENT(dynParamValue.colName):
-                IF dynParamValue.colName[idx] EQ "" THEN
-                LEAVE.
-                IF dynParamValue.colName[idx] EQ ttDynSync.colName THEN
+                iSortOrder = IF AVAILABLE dynValueColumn THEN dynValueColumn.sortOrder
+                             ELSE 0.
+                FIND FIRST bDynValueColumn NO-LOCK
+                     WHERE bDynValueColumn.subjectID    EQ ttDynSync.subjectID
+                       AND bDynValueColumn.user-id      EQ "{&defaultUser}"
+                       AND bDynValueColumn.prgmName     EQ ttDynSync.prgmName
+                       AND bDynValueColumn.paramValueID EQ 0
+                       AND bDynValueColumn.colName      EQ ttDynSync.colName
+                       AND bDynValueColumn.sortOrder    EQ ttDynSync.sortOrder
+                     NO-ERROR.
+                IF NOT AVAILABLE bDynValueColumn THEN NEXT.
+                CREATE dynValueColumn.
+                BUFFER-COPY bDynValueColumn
+                     EXCEPT user-id sortOrder isActive sortCol sortDescending
+                         TO dynValueColumn
+                     ASSIGN
+                         dynValueColumn.user-id        = ttDynSync.user-id
+                         dynValueColumn.sortOrder      = iSortOrder + 1
+                         dynValueColumn.isActive       = NO
+                         dynValueColumn.sortCol        = 0
+                         dynValueColumn.sortDescending = NO
+                         .
+            END. /* add */
+            WHEN "Delete" THEN DO TRANSACTION:
+                FIND FIRST dynValueColumn EXCLUSIVE-LOCK
+                     WHERE dynValueColumn.subjectID    EQ ttDynSync.subjectID
+                       AND dynValueColumn.user-id      EQ ttDynSync.user-id
+                       AND dynValueColumn.prgmName     EQ ttDynSync.prgmName
+                       AND dynValueColumn.paramValueID EQ ttDynSync.paramValueID
+                       AND dynValueColumn.colName      EQ ttDynSync.colName
+                       AND dynValueColumn.sortOrder    EQ ttDynSync.sortOrder
+                     NO-ERROR.
+                IF NOT AVAILABLE dynValueColumn THEN NEXT.
+                DELETE dynValueColumn.
+            END. /* delete */
+            WHEN "Update" THEN DO TRANSACTION:
+                FIND FIRST dynValueColumn EXCLUSIVE-LOCK
+                     WHERE dynValueColumn.subjectID    EQ ttDynSync.subjectID
+                       AND dynValueColumn.user-id      EQ ttDynSync.user-id
+                       AND dynValueColumn.prgmName     EQ ttDynSync.prgmName
+                       AND dynValueColumn.paramValueID EQ ttDynSync.paramValueID
+                       AND dynValueColumn.colName      EQ ttDynSync.colName
+                       AND dynValueColumn.sortOrder    EQ ttDynSync.sortOrder
+                     NO-ERROR.
+                IF NOT AVAILABLE dynValueColumn THEN NEXT.
                 CASE ttDynSync.valueType:
                     WHEN "Format" THEN
-                    dynParamValue.colFormat[idx]     = ttDynSync.defaultValue.
+                    dynValueColumn.colFormat     = ttDynSync.defaultValue.
                     WHEN "Label" THEN
-                    dynParamValue.colLabel[idx]      = ttDynSync.defaultValue.
+                    dynValueColumn.colLabel      = ttDynSync.defaultValue.
                     WHEN "ReturnValue" THEN
-                    dynParamValue.isReturnValue[idx] = ttDynSync.defaultValue EQ "YES".
+                    dynValueColumn.isReturnValue = ttDynSync.defaultValue EQ "YES".
                     WHEN "Searchable" THEN
-                    dynParamValue.isSearchable[idx]  = ttDynSync.defaultValue EQ "YES".
+                    dynValueColumn.isSearchable  = ttDynSync.defaultValue EQ "YES".
                     WHEN "Sortable" THEN
-                    dynParamValue.isSortable[idx]    = ttDynSync.defaultValue EQ "YES".
+                    dynValueColumn.isSortable    = ttDynSync.defaultValue EQ "YES".
                 END CASE.
-            END. /* do idx */
+            END. /* update */
         END CASE.
     END. /* each ttdynsync */
     RUN pGetSync.

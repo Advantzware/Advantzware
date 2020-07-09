@@ -253,6 +253,10 @@ RUN sys/ref/nk1look.p (cocode, "OESHIPFROM", "L", NO, NO, "", "",
                           OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
    llOeShipFromLog = LOGICAL(cRtnChar) NO-ERROR.
+   
+DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.   
+
+RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1888,14 +1892,18 @@ DO:
     IF LASTKEY = -1 THEN RETURN.
     {&methods/lValidateError.i YES}
     IF oe-ord.terms:screen-value <> "" AND
-       NOT CAN-FIND(FIRST terms WHERE terms.t-code = oe-ord.terms:screen-value)
+       NOT CAN-FIND(FIRST terms WHERE terms.company EQ cocode 
+                                  AND terms.t-code  EQ oe-ord.terms:SCREEN-VALUE )
     THEN DO:
        MESSAGE "Invalid Terms Code. Try help. " VIEW-AS ALERT-BOX ERROR.
        oe-ord.terms-d:screen-value = "".
        RETURN NO-APPLY.
     END.
 
-    FIND FIRST terms WHERE terms.t-code = oe-ord.terms:screen-value NO-LOCK NO-ERROR.
+    FIND FIRST terms NO-LOCK 
+         WHERE terms.company EQ cocode
+           AND terms.t-code  EQ oe-ord.terms:SCREEN-VALUE 
+         NO-ERROR.
     IF AVAIL terms THEN oe-ord.terms-d:screen-value = terms.dscr.
     {&methods/lValidateError.i NO}
 END.
@@ -1909,8 +1917,10 @@ ON VALUE-CHANGED OF oe-ord.terms IN FRAME F-Main /* Pay Terms */
 DO:
   DEF VAR li AS INT NO-UNDO.
 
-
-  FIND terms WHERE terms.t-code EQ oe-ord.terms:SCREEN-VALUE NO-LOCK NO-ERROR.
+  FIND FIRST terms NO-LOCK 
+       WHERE terms.company EQ cocode 
+         AND terms.t-code  EQ oe-ord.terms:SCREEN-VALUE 
+       NO-ERROR.
   IF AVAIL terms THEN
     ASSIGN
      oe-ord.terms:SCREEN-VALUE   = terms.t-code
@@ -3543,6 +3553,7 @@ PROCEDURE display-cust-detail :
   DEF VAR v-last-date LIKE oe-ord.last-date NO-UNDO.
   DEF VAR v-due-date  LIKE oe-ord.due-date  NO-UNDO.
   DEF VAR v-ord-date  LIKE oe-ord.ord-date  NO-UNDO.
+  DEFINE VARIABLE riShipTo AS ROWID NO-UNDO.
 
 
   DO :
@@ -3647,9 +3658,10 @@ PROCEDURE display-cust-detail :
 
     IF oe-ord.carrier EQ "" THEN oe-ord.carrier:screen-value = cust.carrier.
 
-    FIND FIRST terms WHERE terms.company EQ cocode
-                        AND terms.t-code  EQ cust.terms
-               NO-LOCK NO-ERROR.
+    FIND FIRST terms NO-LOCK 
+         WHERE terms.company EQ cocode
+           AND terms.t-code  EQ cust.terms
+         NO-ERROR.
     IF AVAIL terms THEN  oe-ord.terms-d:screen-value = terms.dscr.
     ELSE oe-ord.terms-d:screen-value = "".
 
@@ -3669,15 +3681,15 @@ PROCEDURE display-cust-detail :
                                                                soldto.sold-zip)
              .
 
-    FIND FIRST shipto NO-LOCK
-        WHERE shipto.company EQ cocode
-          AND shipto.cust-no EQ cust.cust-no
-          AND shipto.ship-id EQ cust.cust-no NO-ERROR.  
-
-    IF NOT AVAIL shipto THEN
-        FIND FIRST shipto NO-LOCK
-          WHERE shipto.company EQ cocode
-           AND shipto.cust-no EQ cust.cust-no NO-ERROR.
+    RUN Customer_GetDefaultShipTo IN hdCustomerProcs(
+        INPUT  cocode,
+        INPUT  cust.cust-no,
+        OUTPUT riShipTo
+        ).
+        
+    FIND FIRST shipto NO-LOCK 
+         WHERE ROWID(shipto) EQ riShipTo
+         NO-ERROR.
 
     IF AVAIL shipto THEN
        ASSIGN 
@@ -4091,9 +4103,10 @@ IF AVAIL xest THEN DO:
 
 
 
-      FIND FIRST terms WHERE terms.company EQ cocode
-                        AND terms.t-code  EQ cust.terms
-               NO-LOCK NO-ERROR.
+      FIND FIRST terms NO-LOCK
+           WHERE terms.company EQ cocode
+             AND terms.t-code  EQ cust.terms
+           NO-ERROR.
       IF AVAIL terms THEN  oe-ord.terms-d:screen-value = terms.dscr.
       ELSE oe-ord.terms-d:screen-value = "".
 
@@ -4649,6 +4662,9 @@ PROCEDURE local-assign-record :
     DEF    VAR      dCalcPromDate     AS DATE    NO-UNDO.
     DEFINE VARIABLE cOldShipTo AS CHARACTER NO-UNDO .
     DEFINE VARIABLE lcheckflg AS LOGICAL NO-UNDO .
+    DEFINE VARIABLE cOldCarrier AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lUpdateCarrier AS LOGICAL NO-UNDO.
+    
     DEF BUFFER b-oe-rel    FOR oe-rel.
     DEF BUFFER due-job-hdr FOR job-hdr.
     DEF BUFFER bf-oe-ordl  FOR oe-ordl.
@@ -4704,13 +4720,17 @@ PROCEDURE local-assign-record :
     ASSIGN
         lv-date   = oe-ord.due-date
         lv-ord-no = oe-ord.ord-no
-        cOldShipTo = oe-ord.ship-id .
+        cOldShipTo = oe-ord.ship-id 
+        cOldCarrier =  oe-ord.carrier.
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-    FIND FIRST terms WHERE terms.t-code = oe-ord.terms NO-LOCK NO-ERROR.
+    FIND FIRST terms NO-LOCK 
+         WHERE terms.company EQ cocode
+           AND terms.t-code  EQ oe-ord.terms
+          NO-ERROR.
     IF AVAIL terms THEN oe-ord.terms-d = terms.dscr.
 
 
@@ -4813,6 +4833,12 @@ PROCEDURE local-assign-record :
 
         END. /* avail job */
     END. /* if job-no ne '' */
+    
+    IF NOT adm-new-record AND cOldCarrier NE oe-ord.carrier THEN DO:
+      RUN displayMessageQuestion("44", OUTPUT lUpdateCarrier).
+      IF lUpdateCarrier THEN
+        RUN pUpdateReleaseCarrier.
+    END.
 
     /*BV-Update order line job start dates*/
     FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ oe-ord.company
@@ -5595,7 +5621,8 @@ PROCEDURE local-update-record :
      {&methods/lValidateError.i YES}
          
      IF oe-ord.terms:screen-value <> "" AND
-        NOT CAN-FIND(FIRST terms WHERE terms.t-code = oe-ord.terms:screen-value)
+        NOT CAN-FIND(FIRST terms WHERE terms.company EQ cocode 
+                                   AND terms.t-code  EQ oe-ord.terms:screen-value)
      THEN DO:
         MESSAGE "Invalid Terms Code. Try help. " VIEW-AS ALERT-BOX ERROR.
         RETURN NO-APPLY.
@@ -5646,7 +5673,7 @@ PROCEDURE local-update-record :
   DO WITH FRAME {&FRAME-NAME}:
     IF DATE(oe-ord.due-date:SCREEN-VALUE) GT
        DATE(oe-ord.last-date:SCREEN-VALUE)THEN  
-      oe-ord.last-date:SCREEN-VALUE = oe-ord.due-date:SCREEN-VALUE.
+      oe-ord.last-date:SCREEN-VALUE = oe-ord.due-date:SCREEN-VALUE.        
   END.
 
   FOR EACH old-oe-ord:
@@ -6358,6 +6385,35 @@ DEFINE BUFFER bf-oe-rel FOR oe-rel .
                   bf-oe-rel.ship-i[4] = shipto.notes[4]
                   bf-oe-rel.spare-char-1 = shipto.loc.
               RUN CopyShipNote (shipto.rec_key, bf-oe-rel.rec_key).
+          END.
+
+          FIND CURRENT bf-oe-rel NO-LOCK.
+          RELEASE bf-oe-rel.
+      END.
+  END. /* each oe-rel **/
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateReleaseCarrier V-table-Win 
+PROCEDURE pUpdateReleaseCarrier :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE BUFFER bf-oe-rel FOR oe-rel .
+  FOR EACH oe-rel NO-LOCK
+      WHERE oe-rel.company EQ oe-ord.company
+      AND oe-rel.ord-no  EQ oe-ord.ord-no      
+      BY oe-rel.rel-date: 
+      IF LOOKUP(oe-rel.stat, 'A,C,P,Z' ) EQ 0 THEN 
+          DO:
+          FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ rowid(oe-rel) EXCLUSIVE-LOCK.
+                   
+          IF AVAIL bf-oe-rel THEN do:
+              ASSIGN bf-oe-rel.carrier = oe-ord.carrier.             
           END.
 
           FIND CURRENT bf-oe-rel NO-LOCK.

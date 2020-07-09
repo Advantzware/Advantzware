@@ -38,8 +38,12 @@ DEF VAR lv-uom-list AS cha INIT "EA,MSF,M" NO-UNDO.
 DEF {&NEW} SHARED VAR g_lookup-var AS cha NO-UNDO.
 {oe/oe-sysct1.i NEW}
 
-DEF VAR ll-inquiry AS LOG NO-UNDO.
+DEFINE VARIABLE ll-inquiry AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdTaxProcs AS HANDLE  NO-UNDO.
+DEFINE VARIABLE lTaxable   AS LOGICAL NO-UNDO.   
 
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs. 
+       
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -684,21 +688,29 @@ DO:
       END.
     END.
 
- ASSIGN dOldAmount = IF AVAIL ar-invl THEN ar-invl.amt ELSE 0 .
- ASSIGN dOldFreight = IF AVAIL ar-invl THEN ar-invl.t-freight ELSE 0 .
-  DO TRANSACTION:
-      FIND CURRENT ar-invl EXCLUSIVE-LOCK NO-ERROR.
+    ASSIGN 
+        dOldAmount  = IF AVAIL ar-invl THEN ar-invl.amt ELSE 0 
+        dOldFreight = IF AVAIL ar-invl THEN ar-invl.t-freight ELSE 0 
+        .
+    DO TRANSACTION:
+        FIND CURRENT ar-invl EXCLUSIVE-LOCK NO-ERROR.
       
-      DO WITH FRAME {&FRAME-NAME}:
-          ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}} .
-      END.
-      RUN update-ar-invl(dOldAmount,dOldFreight) .
-  END.
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}} .
+        END.
+        RUN update-ar-invl(
+            INPUT dOldAmount,
+            INPUT dOldFreight
+            ) .
+    END.
 
- FIND CURRENT ar-invl NO-LOCK NO-ERROR.
-  ip-rowid = ROWID(ar-invl).
+    FIND CURRENT ar-invl NO-LOCK NO-ERROR.
+    ip-rowid = ROWID(ar-invl).
 
-APPLY "go" TO FRAME {&FRAME-NAME}.
+    IF VALID-HANDLE(hdTaxProcs) THEN 
+        DELETE PROCEDURE hdTaxProcs.
+    
+    APPLY "GO":U TO FRAME {&FRAME-NAME}.
 
 END.
 
@@ -782,6 +794,15 @@ DO:
            
            IF DECIMAL(ar-invl.inv-qty:SCREEN-VALUE) NE 0.00 THEN 
                RUN pCalcAmtMsf.
+               
+           RUN GetTaxableAR IN hdTaxProcs (
+                INPUT  ar-inv.company,
+                INPUT  ar-inv.cust-no,
+                INPUT  ar-inv.ship-id,
+                INPUT  itemfg.i-no,
+                OUTPUT lTaxable
+                ).
+           ar-invl.tax:CHECKED = lTaxable.     
        END.
     
 END.
@@ -1013,7 +1034,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         RUN display-item.
 
         ASSIGN ll-order-warned                     = NO.
-            btn_done:HIDDEN IN FRAME {&FRAME-NAME} = YES.
+            btn_done:HIDDEN IN FRAME {&FRAME-NAME} = YES.      
     END.
     ELSE 
     DO:
@@ -1102,10 +1123,6 @@ PROCEDURE create-item :
         IF AVAILABLE account THEN
             ASSIGN fi_acc-desc = account.dscr .
         
-        find first cust where cust.company eq g_company
-            and cust.cust-no eq ar-inv.cust-no no-lock no-error.
-        ar-invl.tax = if ar-inv.tax-code ne "" and cust.sort eq "Y" then YES ELSE NO.
-
         ASSIGN lv-item-recid = RECID(ar-invl).
             ll-new-record = YES.
             FIND CURRENT ar-invl NO-LOCK NO-ERROR .
@@ -1252,7 +1269,16 @@ PROCEDURE get-iteminfo :
            
            IF DECIMAL(ar-invl.inv-qty:SCREEN-VALUE) NE 0.00 THEN 
                RUN pCalcAmtMsf.
-           
+                    
+           RUN GetTaxableAR IN hdTaxProcs (
+                INPUT  ar-inv.company,
+                INPUT  ar-inv.cust-no,
+                INPUT  ar-inv.ship-id,
+                INPUT  itemfg.i-no,
+                OUTPUT lTaxable
+                ).
+           ar-invl.tax:CHECKED = lTaxable.     
+        
        END.
   END.
 

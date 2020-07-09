@@ -949,26 +949,8 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_open
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_open B-table-Win
-ON VALUE-CHANGED OF tb_open IN FRAME F-Main /* Open Invoices */
-DO:
-  APPLY "choose" TO btn_go.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_paid
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_paid B-table-Win
-ON VALUE-CHANGED OF tb_paid IN FRAME F-Main /* Paid Invoices */
-DO:
-  APPLY "choose" TO btn_go.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 &UNDEFINE SELF-NAME

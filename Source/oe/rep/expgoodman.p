@@ -19,6 +19,9 @@ DEF VAR v-tax AS DEC NO-UNDO.
 DEF VAR v-tax-tot AS DEC NO-UNDO.
 DEF VAR v-misc-tax-tot AS DEC NO-UNDO.
 
+DEFINE VARIABLE hdTaxProcs  AS HANDLE    NO-UNDO.
+RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
+
 for each tt-report NO-LOCK where tt-report.term-id eq "",
     first inv-head where recid(inv-head) eq tt-report.rec-id no-lock,
     FIRST cust WHERE cust.company = inv-head.company
@@ -53,12 +56,15 @@ for each tt-report NO-LOCK where tt-report.term-id eq "",
         inv-misc.dscr NE "Freight":
 
         IF inv-misc.tax THEN DO:
-           RUN ar/calctax2.p (inv-head.tax-gr, 
-                             NO,
-                             inv-misc.amt,
-                             inv-misc.company,
-                             inv-misc.inv-i-no,
-                             OUTPUT v-tax).
+            RUN Tax_Calculate IN hdTaxProcs (
+                INPUT  inv-misc.company,
+                INPUT  inv-head.tax-gr,
+                INPUT  FALSE,   /* Is this freight */
+                INPUT  inv-misc.amt,
+                INPUT  inv-misc.inv-i-no,
+                OUTPUT v-tax
+                ).                 
+
            v-misc-tax-tot = v-misc-tax-tot + v-tax.
         END.
 
@@ -162,12 +168,14 @@ for each tt-report NO-LOCK where tt-report.term-id eq "",
                  FILL(" ",40) /*other charges description*/ "|".
        
         IF inv-line.tax THEN DO:
-           RUN ar/calctax2.p (inv-head.tax-gr, 
-                              NO,
-                              inv-line.t-price, 
-                              inv-line.company,
-                              inv-line.i-no,
-                              OUTPUT v-tax).
+            RUN Tax_Calculate IN hdTaxProcs (
+                INPUT  inv-line.company,
+                INPUT  inv-head.tax-gr,
+                INPUT  FALSE,   /* Is this freight */
+                INPUT  inv-line.t-price,
+                INPUT  inv-line.i-no,
+                OUTPUT v-tax
+                ).             
            
            v-tax-tot = v-tax-tot + v-tax.
        
@@ -178,4 +186,5 @@ for each tt-report NO-LOCK where tt-report.term-id eq "",
     END.
 end. /* each tt-report */
 
-
+IF VALID-HANDLE(hdTaxProcs) THEN
+    DELETE PROCEDURE hdTaxProcs.

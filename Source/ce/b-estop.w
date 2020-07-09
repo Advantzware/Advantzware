@@ -123,15 +123,15 @@ est-op.n_out_div
 &Scoped-define QUERY-STRING-br_table FOR EACH est-op WHERE est-op.company = est-qty.company ~
   AND est-op.est-no = est-qty.est-no ~
   AND est-op.line < 500 ~
-      AND ((ASI.est-op.qty eq est-qty.eqty and est.est-type eq 1) or ~
- (ASI.est-op.qty eq lv-eqty and est.est-type ne 1))  ~
+      AND ((ASI.est-op.qty eq est-qty.eqty and est.est-type ne 4) or ~
+ (ASI.est-op.qty eq lv-eqty and est.est-type ge 3))  ~
    NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH est-op WHERE est-op.company = est-qty.company ~
   AND est-op.est-no = est-qty.est-no ~
   AND est-op.line < 500 ~
-      AND ((ASI.est-op.qty eq est-qty.eqty and est.est-type eq 1) or ~
- (ASI.est-op.qty eq lv-eqty and est.est-type ne 1))  ~
+      AND ((ASI.est-op.qty eq est-qty.eqty and est.est-type ne 4) or ~
+ (ASI.est-op.qty eq lv-eqty and est.est-type ge 3))  ~
    NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br_table est-op
@@ -349,8 +349,8 @@ ASSIGN
      _JoinCode[1]      = "ASI.est-op.company = ASI.est-qty.company
   AND ASI.est-op.est-no = ASI.est-qty.est-no
   AND ASI.est-op.line < 500"
-     _Where[1]         = "((ASI.est-op.qty eq est-qty.eqty and est.est-type eq 1) or
- (ASI.est-op.qty eq lv-eqty and est.est-type ne 1)) 
+     _Where[1]         = "((ASI.est-op.qty eq est-qty.eqty and est.est-type ne 4) or
+ (ASI.est-op.qty eq lv-eqty and est.est-type ge 3)) 
   "
      _FldNameList[1]   > ASI.est-op.s-num
 "est-op.s-num" "S" ">>>" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
@@ -575,7 +575,7 @@ PROCEDURE build-route :
   
   FIND xest WHERE RECID(xest) EQ RECID(est).
 
-  IF xest.est-type EQ 1 THEN DO:
+  IF xest.est-type LE 2 THEN DO:
     ll = NO.
 
     FOR EACH b-est-qty NO-LOCK 
@@ -605,8 +605,9 @@ PROCEDURE build-route :
         FIND FIRST xeb  NO-LOCK WHERE xeb.company EQ b-est-qty.company 
                          AND xeb.est-no EQ b-est-qty.est-no
                          AND xeb.form-no EQ xef.form-no
-                       NO-ERROR.
-
+                       NO-ERROR.   
+        IF xest.est-type EQ 2 THEN RUN ce/box/mach-seq.p(b-est-qty.eqty).
+        ELSE  IF xest.est-type EQ 1 THEN
         RUN ce/mach-seq.p (b-est-qty.eqty).
       END.
     END.
@@ -627,10 +628,7 @@ PROCEDURE build-route :
                      AND xeb.est-no EQ est-qty.est-no
                      AND xeb.form-no EQ xef.form-no
                    NO-ERROR.
-
-    IF xest.est-type EQ 2 THEN RUN ce/box/mach-seq.p.
-
-    ELSE
+                                 
     IF xest.est-type EQ 3 THEN RUN ce/tan/mach-seq.p. 
 
     ELSE                       RUN ce/com/mach-seq.p (0).
@@ -812,7 +810,7 @@ PROCEDURE local-delete-record :
   RUN pCheckMultiRecord(OUTPUT lMultiRecords) .
   
   IF lMultiRecords THEN do:
-      RUN est/delRouteMulti.w(ROWID(est),RECID(est-op),ROWID(est-qty)) . 
+      RUN est/delRouteMulti.w(ROWID(est),RECID(est-op),ROWID(est-qty),"Delete") . 
       RUN local-open-query .
   END.
   ELSE do: 
@@ -829,7 +827,7 @@ PROCEDURE local-delete-record :
   END.
 
   /* Code placed here will execute AFTER standard behavior.    */
-  IF est.est-type EQ 1                              AND
+  IF est.est-type NE 4                              AND
      NOT CAN-FIND(FIRST eb
                   WHERE eb.company EQ est-qty.company
                     AND eb.est-no  EQ est-qty.est-no
@@ -846,6 +844,29 @@ PROCEDURE local-delete-record :
   END.
 
   RUN release-shared-buffers.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pImportRoute B-table-Win 
+PROCEDURE pImportRoute :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER ipRowid AS ROWID NO-UNDO.
+  DEFINE VARIABLE lMultiRecords AS LOGICAL NO-UNDO .
+   
+
+  RUN pCheckMultiRecord(OUTPUT lMultiRecords) .
+  IF lMultiRecords THEN do:
+     RUN est/delRouteMulti.w(ROWID(est),RECID(est-op),ROWID(est-qty),"Import") .      
+  END.
+  ELSE do:     
+     RUN ce/d-estop.w (RECID(est-op),RECID(est),RECID(est-qty), "import", OUTPUT ipRowid) .
+  END.     
 
 END PROCEDURE.
 
@@ -905,7 +926,7 @@ PROCEDURE local-open-query :
   lv-eqty = 0.
 
   IF AVAIL est THEN
-    IF est.est-type EQ 1 THEN lv-eqty = est-qty.eqty.
+    IF est.est-type NE 4 THEN lv-eqty = est-qty.eqty.
 
     ELSE
     FOR EACH xop NO-LOCK
@@ -1156,8 +1177,8 @@ PROCEDURE pCheckMultiRecord :
       FOR EACH bff-est-op WHERE bff-est-op.company = est-qty.company 
           AND bff-est-op.est-no = est-qty.est-no 
           AND bff-est-op.line < 500 
-          AND ((ASI.bff-est-op.qty eq est-qty.eqty and est.est-type eq 1) or 
-               (ASI.bff-est-op.qty eq lv-eqty and est.est-type ne 1))  :
+          AND ((ASI.bff-est-op.qty eq est-qty.eqty and est.est-type NE 4) or 
+               (ASI.bff-est-op.qty eq lv-eqty and est.est-type GE 3))  :
             i = i + 1 .
             IF i GE 2 THEN LEAVE Main-look .
       END.

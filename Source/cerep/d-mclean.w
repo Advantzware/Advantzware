@@ -331,23 +331,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           and bf-job-hdr.job-no  EQ job-hdr.job-no
           and bf-job-hdr.job-no2 EQ job-hdr.job-no2:
 
-         FIND first est NO-LOCK
-             where est.company  eq job-hdr.company
-             AND est.est-no   EQ job-hdr.est-no
-             and est.est-type le 4  NO-ERROR .
-
-          IF AVAIL est AND est.est-type EQ 2 THEN DO:
-              FOR EACH eb NO-LOCK 
-                  WHERE eb.company EQ est.company
-                    AND eb.est-no EQ est.est-no 
-                    AND eb.form-no NE 0 :
-
-                  RUN pCreateTempTable(eb.stock-no,eb.form-no,eb.blank-no) .
-              END.
-          END.
-          ELSE DO:
-            RUN pCreateTempTable(bf-job-hdr.i-no,bf-job-hdr.frm,bf-job-hdr.blank-no ) .
-          END.
+        RUN pCreateTempTable(bf-job-hdr.i-no,bf-job-hdr.frm,bf-job-hdr.blank-no ) .
           
         fi_job-no = TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99").
       END.

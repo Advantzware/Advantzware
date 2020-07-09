@@ -133,7 +133,7 @@ DEFINE BUTTON btnHTML
 DEFINE BUTTON btnPageFormat 
      IMAGE-UP FILE "Graphics/32x32/document_gear.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 8 BY 1.9 TOOLTIP "Page Format".
+     SIZE 8 BY 1.91 TOOLTIP "Page Format".
 
 DEFINE BUTTON btnPDF 
      IMAGE-UP FILE "Graphics/32x32/pdf.jpg":U NO-FOCUS FLAT-BUTTON
@@ -162,7 +162,7 @@ DEFINE BUTTON btnXLS
 
 DEFINE VARIABLE svRecipients AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 63 BY 2.38
+     SIZE 63 BY 1.67
      BGCOLOR 15 .
 
 DEFINE VARIABLE svSetAlignment AS CHARACTER INITIAL "Custom" 
@@ -180,6 +180,11 @@ DEFINE RECTANGLE RECT-PANEL
 DEFINE RECTANGLE RECT-SHOW
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 158 BY 1.19.
+
+DEFINE VARIABLE svRunSync AS LOGICAL INITIAL no 
+     LABEL "Run Synchronous" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svShowAll AS LOGICAL INITIAL yes 
      LABEL "Show ALL" 
@@ -241,6 +246,17 @@ DEFINE FRAME paramFrame
          SIZE 160 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
 
+DEFINE FRAME resultsFrame
+     btnSaveResults AT ROW 1 COL 2 HELP
+          "Jasper Viewer" WIDGET-ID 254
+     btnCloseResults AT ROW 1 COL 6 HELP
+          "Jasper Viewer" WIDGET-ID 252
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 6.48
+         SIZE 10 BY 2.38
+         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
+
 DEFINE FRAME outputFrame
      btnPageFormat AT ROW 1.48 COL 143 HELP
           "Page Format" WIDGET-ID 652
@@ -252,6 +268,8 @@ DEFINE FRAME outputFrame
           "HTML" WIDGET-ID 144
      svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
      svSetAlignment AT ROW 1.71 COL 72 NO-LABEL WIDGET-ID 646
+     svRunSync AT ROW 2.91 COL 8 HELP
+          "Toggle to Run Synchronous" WIDGET-ID 654
      svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
      svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
      btnView AT ROW 1.48 COL 151 HELP
@@ -262,7 +280,7 @@ DEFINE FRAME outputFrame
      svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
      svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
      svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
-     btnAddEmail AT ROW 2.19 COL 3 HELP
+     btnAddEmail AT ROW 1.95 COL 3 HELP
           "Add Recipents" WIDGET-ID 636
      btnPrint AT ROW 1.48 COL 135 HELP
           "Printer" WIDGET-ID 644
@@ -275,7 +293,7 @@ DEFINE FRAME outputFrame
      "Set Alignment" VIEW-AS TEXT
           SIZE 13.6 BY .62 AT ROW 1 COL 72 WIDGET-ID 650
      "Email:" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.48 COL 2 WIDGET-ID 640
+          SIZE 6 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 640
      RECT-PANEL AT ROW 1.24 COL 86 WIDGET-ID 256
      RECT-SHOW AT ROW 3.86 COL 2 WIDGET-ID 642
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -284,17 +302,6 @@ DEFINE FRAME outputFrame
          SIZE 160 BY 5.24
          BGCOLOR 15 
          TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1300.
-
-DEFINE FRAME resultsFrame
-     btnSaveResults AT ROW 1 COL 2 HELP
-          "Jasper Viewer" WIDGET-ID 254
-     btnCloseResults AT ROW 1 COL 6 HELP
-          "Jasper Viewer" WIDGET-ID 252
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 6.48
-         SIZE 10 BY 2.38
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -712,7 +719,7 @@ END.
 /* ***************************  Main Block  *************************** */
 
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
-ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
+ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
@@ -778,14 +785,15 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY svRecipients svSetAlignment svShowAll svShowReportHeader 
-          svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
-          svShowGroupFooter svShowParameters 
+  DISPLAY svRecipients svSetAlignment svRunSync svShowAll 
+          svShowReportHeader svShowReportFooter svShowPageHeader 
+          svShowPageFooter svShowGroupHeader svShowGroupFooter svShowParameters 
       WITH FRAME outputFrame IN WINDOW C-Win.
   ENABLE btnPageFormat btnRunResults btnCSV btnHTML svRecipients svSetAlignment 
-         svShowAll svShowReportHeader btnView svShowReportFooter 
-         svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter 
-         svShowParameters btnAddEmail btnPrint btnDOCX btnPDF btnXLS 
+         svRunSync svShowAll svShowReportHeader btnView 
+         svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
+         svShowGroupFooter svShowParameters btnAddEmail btnPrint btnDOCX btnPDF 
+         btnXLS 
       WITH FRAME outputFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-outputFrame}
   VIEW FRAME paramFrame IN WINDOW C-Win.
@@ -881,8 +889,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPageFormat C-Win
-PROCEDURE pPageFormat:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPageFormat C-Win 
+PROCEDURE pPageFormat :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -908,6 +916,7 @@ PROCEDURE pPageFormat:
         ).
     IF lContinue THEN
     DO TRANSACTION:
+        RUN pSetDynParamValue (dynSubject.subjectID, USERID("ASI"), cPrgmName, 0).
         FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
         ASSIGN
             dynParamValue.pageFormat      = iPageFormat
@@ -919,7 +928,7 @@ PROCEDURE pPageFormat:
     END. /* do trans */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -937,7 +946,8 @@ PROCEDURE pSaveResults :
     DEFINE VARIABLE dSize      AS DECIMAL   NO-UNDO.
     
     DO TRANSACTION:
-        FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
+/*        /* rstark - remove when depricated */     */
+/*        FIND CURRENT dynParamValue EXCLUSIVE-LOCK.*/
         DO idx = 1 TO hQueryBrowse:NUM-COLUMNS:
             ASSIGN
                 cDBName    = hQueryBrowse:GET-BROWSE-COLUMN(idx):DBNAME
@@ -954,14 +964,29 @@ PROCEDURE pSaveResults :
                        + STRING(hQueryBrowse:GET-BROWSE-COLUMN(idx):INDEX)
                        + "]"
                        .
-            IF dynParamValue.colName[idx] NE cFieldName OR
-               dynParamValue.columnSize[idx] NE dSize THEN
-            ASSIGN 
-                dynParamValue.colName[idx]    = cFieldName
-                dynParamValue.columnSize[idx] = dSize
+            FIND FIRST dynValueColumn EXCLUSIVE-LOCK
+                 WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
+                   AND dynValueColumn.user-id      EQ dynParamValue.user-id
+                   AND dynValueColumn.prgmName     EQ dynParamValue.prgmName
+                   AND dynValueColumn.paramValueID EQ dynParamValue.paramValueID
+                   AND dynValueColumn.colName      EQ cFieldName
+                 NO-ERROR.
+            IF AVAILABLE dynValueColumn THEN
+            ASSIGN
+                dynValueColumn.sortOrder  = idx
+                dynValueColumn.columnSize = dSize
                 .
+            RELEASE dynValueColumn.
+/*            /* rstark - remove when depricated */         */
+/*            IF dynParamValue.colName[idx] NE cFieldName OR*/
+/*               dynParamValue.columnSize[idx] NE dSize THEN*/
+/*            ASSIGN                                        */
+/*                dynParamValue.colName[idx]    = cFieldName*/
+/*                dynParamValue.columnSize[idx] = dSize     */
+/*                .                                         */
         END. /* do idx */
-        FIND CURRENT dynParamValue NO-LOCK.
+/*        /* rstark - remove when depricated */*/
+/*        FIND CURRENT dynParamValue NO-LOCK.  */
     END. /* trans */
 
 END PROCEDURE.

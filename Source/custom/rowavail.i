@@ -1,1 +1,17 @@
-cust cust-markup item notes usercomp vend shifts machshft emplogin machemp machtran rate loadtag users prgrms
+cust ~
+cust-markup ~
+dateRules ~
+emplogin ~
+item ~
+loadtag ~
+machemp ~
+machshft ~
+machtran ~
+notes ~
+prgrms ~
+rate ~
+shifts ~
+shift_break ~
+usercomp ~
+users ~
+vend

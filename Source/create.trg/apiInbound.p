@@ -4,4 +4,8 @@ TRIGGER PROCEDURE FOR CREATE OF {&TABLENAME}.
 
 {methods/triggers/create.i}
 
-{&TABLENAME}.apiInboundID = NEXT-VALUE(apiInboundID_seq).
+ASSIGN 
+    {&TABLENAME}.apiInboundID = NEXT-VALUE(apiInboundID_seq)
+    {&TABLENAME}.createBy     = USERID("ASI")
+    {&TABLENAME}.createTime   = NOW      
+    .

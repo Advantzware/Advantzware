@@ -45,6 +45,9 @@ END.
 ASSIGN
  shipto.tax-code = cust.tax-gr
  shipto.tax-mandatory = IF cust.sort EQ "Y" THEN TRUE ELSE FALSE 
- shipto.spare-char-1 = cust.sman .
+ shipto.spare-char-1 = cust.sman
+ shipto.carrier = cust.carrier 
+ shipto.dest-code = cust.del-zone 
+ .
 
 

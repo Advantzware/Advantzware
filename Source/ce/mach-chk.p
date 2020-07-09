@@ -290,6 +290,7 @@ for each est-op
       and est-op.est-no   eq xest.est-no
       and (est-op.qty     eq qty or 
            (xest.est-type ne 1 and
+            xest.est-type ne 2 and  
             xest.est-type ne 5 and
             xest.est-type ne 6))
       and (est-op.auto or est-op.line ge 500):

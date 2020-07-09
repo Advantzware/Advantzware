@@ -631,14 +631,15 @@ PROCEDURE build-table :
             DO:
                 CREATE tt-oe-shipto.
                 ASSIGN 
-                    tt-oe-shipto.tt-recid  = RECID(shipto)
-                    tt-oe-shipto.ship-id   = shipto.ship-id  
-                    tt-oe-shipto.ship-name = shipto.ship-name
-                    tt-oe-shipto.ship-add  = shipto.ship-add[1]
-                    tt-oe-shipto.ship-city = shipto.ship-city  
+                    tt-oe-shipto.tt-recid   = RECID(shipto)
+                    tt-oe-shipto.ship-id    = shipto.ship-id  
+                    tt-oe-shipto.ship-name  = shipto.ship-name
+                    tt-oe-shipto.ship-add   = shipto.ship-add[1]
+                    tt-oe-shipto.ship-city  = shipto.ship-city  
                     tt-oe-shipto.ship-state = shipto.ship-state
                     tt-oe-shipto.ship-zip   = shipto.ship-zip 
-                    tt-oe-shipto.ship-stat =  DYNAMIC-FUNCTION("IsActive",shipto.rec_key) EQ NO .
+                    tt-oe-shipto.ship-stat  = IF shipto.statusCode EQ "I" THEN YES ELSE NO
+                    .
             END.
         END.
     END.
@@ -910,11 +911,8 @@ PROCEDURE run-process :
 
             
                 DO TRANSACTION:
-                    IF rd_active EQ "I" AND DYNAMIC-FUNCTION("IsActive",shipto.rec_key) THEN 
-                    DO:
-                        RUN AddTagInactive(shipto.rec_key,"shipto").
+                    IF rd_active EQ "I" THEN
                         shipto.statusCode = "I".
-                    END.
                     ELSE IF rd_active EQ "D" THEN 
                         DO:
                             DELETE shipto .

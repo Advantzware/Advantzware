@@ -65,19 +65,19 @@
       </tr>
       <tr class="shadedrow">
         <td>CREATE</td>
-        <td><a href="trg/estcostcategory_create.html">create.trg\estCostCategory.p</a></td>
+        <td>create.trg\estCostCategory.p</td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
       </tr>
       <tr class="shadedrow">
         <td>DELETE</td>
-        <td><a href="trg/estcostcategory_delete.html">delete.trg\estCostCategory.p</a></td>
+        <td>delete.trg\estCostCategory.p</td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
       </tr>
       <tr class="shadedrow">
         <td>WRITE</td>
-        <td><a href="trg/estcostcategory_write.html">write.trg\estCostCategory.p</a></td>
+        <td>write.trg\estCostCategory.p</td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
         <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
       </tr>
@@ -186,6 +186,17 @@
     <td>D: Flag to determine if cost gets included in Factory Cost Total</td>
   </tr>
   <tr class="evenrow">
+    <td>140</td>
+    <td>includeInFixedOverheadCost</td>
+    <td><a href="00-cross-i.html#includeInFixedOverheadCost"><small>X</small></a></td>
+    <td>In FO Cost</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Flag to determine if cost gets included in Fixed Overhead Cost Total</td>
+  </tr>
+  <tr class="oddrow">
     <td>80</td>
     <td>includeInLaborCost</td>
     <td><a href="00-cross-i.html#includeInLaborCost"><small>X</small></a></td>
@@ -196,7 +207,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: Flag to determine if cost gets included in Labor Cost Total</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>70</td>
     <td>includeInMaterialCost</td>
     <td><a href="00-cross-i.html#includeInMaterialCost"><small>X</small></a></td>
@@ -207,7 +218,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: Flag to determine if cost gets included in Material (Non-Board) Cost Total</td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>120</td>
     <td>includeInNetProfit</td>
     <td><a href="00-cross-i.html#includeInNetProfit"><small>X</small></a></td>
@@ -218,7 +229,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: Flag to determine if cost gets included in Profit Total</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>100</td>
     <td>includeInNonFactoryCost</td>
     <td><a href="00-cross-i.html#includeInNonFactoryCost"><small>X</small></a></td>
@@ -228,6 +239,17 @@
     <td>no</td>
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: Flag to determine if cost gets included in Non Factory Cost Total</td>
+  </tr>
+  <tr class="oddrow">
+    <td>130</td>
+    <td>includeInVariableOverheadCost</td>
+    <td><a href="00-cross-i.html#includeInVariableOverheadCost"><small>X</small></a></td>
+    <td>In VO Cost</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Flag to determine if cost gets included in Variable Overhead Cost Total</td>
   </tr>
   <tr class="evenrow">
     <td>10</td>
@@ -395,6 +417,28 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td>D: Flag to determine if cost gets included in Profit Total</td>
   </tr>
+  <tr class="oddrow">
+    <td>130</td>
+    <td>includeInVariableOverheadCost</td>
+    <td><a href="00-cross-i.html#includeInVariableOverheadCost"><small>X</small></a></td>
+    <td>In VO Cost</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Flag to determine if cost gets included in Variable Overhead Cost Total</td>
+  </tr>
+  <tr class="evenrow">
+    <td>140</td>
+    <td>includeInFixedOverheadCost</td>
+    <td><a href="00-cross-i.html#includeInFixedOverheadCost"><small>X</small></a></td>
+    <td>In FO Cost</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Flag to determine if cost gets included in Fixed Overhead Cost Total</td>
+  </tr>
 </table>
 </div>
 
@@ -437,7 +481,7 @@
       <th>Parent tables</th>
     </tr>
     <tr class="shadedrow">
-      <td><a href="estcostgroup.html">estCostGroup</a>&nbsp;&nbsp; <a href="rm-ctrl.html">rm-ctrl</a>&nbsp;&nbsp; <a href="usersman.html">usersman</a>&nbsp;&nbsp; </td>
+      <td><a href="costHeader.html">costHeader</a>&nbsp;&nbsp; <a href="estcostgroup.html">estCostGroup</a>&nbsp;&nbsp; <a href="rm-ctrl.html">rm-ctrl</a>&nbsp;&nbsp; </td>
     </tr>
   </table>
   <table style="width:50%; float:left;">
@@ -451,7 +495,7 @@
 <hr style="clear:both">
 <hr>
 <table style="width:100%; margin-top:10px;">
-  <tr><td style="text-align:right;"><i><small>generated 28-4-2020 08:30</small></i></td></tr>
+  <tr><td style="text-align:right;"><i><small>generated 1-7-2020 20:23</small></i></td></tr>
 </table>
 </body>
 </html>

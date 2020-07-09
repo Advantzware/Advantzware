@@ -41,7 +41,7 @@ IF iplRequire AND ipcInputValue EQ "" THEN
         .
 IF oplIsValid THEN DO:
     FIND FIRST {&ValidateTable} NO-LOCK 
-        WHERE {&ValidateTable}.{&ValidateField} EQ ipcInputValue
+        WHERE string({&ValidateTable}.{&ValidateField}) EQ ipcInputValue
         NO-ERROR.
     IF NOT AVAILABLE {&ValidateTable} THEN 
         ASSIGN 

@@ -34,6 +34,7 @@ DEFINE VARIABLE pcsValue LIKE w-ord.pcs NO-UNDO.
 DEFINE VARIABLE bundleValue LIKE w-ord.bundle NO-UNDO.
 DEFINE VARIABLE glTotalTagsChanged AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE iTotalQty AS INTEGER NO-UNDO.
+DEFINE VARIABLE iGrandTotalQty AS INTEGER NO-UNDO.
 
 DEF var v-loadtag  AS char NO-UNDO INIT "ASI".  /* sys ctrl option */
 DEF var v-tags AS DEC NO-UNDO INIT 1.  /* sys ctrl option */
@@ -49,7 +50,11 @@ DEFINE VARIABLE lAllowUserOverRun   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAccessClose        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cAccessList         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-overrun2-checked AS LOG       NO-UNDO.
-DEFINE VARIABLE gcFGRecpt           AS CHARACTER NO-UNDO .
+DEFINE VARIABLE gcFGRecpt           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdInventoryProcs    AS HANDLE    NO-UNDO.
+
+RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+
 /* gdm - 07170905*/
 {sys\inc\BOLWeight.i}
 
@@ -382,7 +387,9 @@ DO:
   IF NOT AVAIL w-ord THEN RETURN NO-APPLY.
   lcheckflgMsg = YES .
   RUN copy-word.
-  RUN pGrandTotal.
+  RUN pGrandTotal(
+      OUTPUT iGrandTotalQty
+      ).
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
   REPOSITION {&BROWSE-NAME} TO ROWID copyRowID.
 END.
@@ -409,15 +416,26 @@ END.
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Create Tags */
 DO: 
    DEFINE VARIABLE lOpReturnError AS LOGICAL NO-UNDO .
+   
    RUN pCheckPoLine NO-ERROR.
-   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+   IF ERROR-STATUS:ERROR THEN
+       RETURN NO-APPLY.
 
    RUN pCheckTag NO-ERROR.
-   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-   RUN pCheckPOFGUnderOver(OUTPUT lOpReturnError) NO-ERROR.
-   IF lOpReturnError THEN RETURN NO-APPLY.
-
+   IF ERROR-STATUS:ERROR THEN 
+       RETURN NO-APPLY.
+       
+   RUN pGrandTotal(
+       OUTPUT iGrandTotalQty
+       ).
+   RUN pCheckPOFGUnderOver NO-ERROR.
+   IF ERROR-STATUS:ERROR THEN 
+       RETURN NO-APPLY.
+   
+   RUN pCheckJobFGUnderOver NO-ERROR.
+   IF ERROR-STATUS:ERROR THEN 
+       RETURN NO-APPLY.
+       
   APPLY 'GO' TO FRAME {&FRAME-NAME}.
 END.
 
@@ -439,11 +457,17 @@ DO:
        APPLY "entry" TO w-ord.bundle.
        RETURN NO-APPLY.
    END.
+   RUN pGrandTotal(
+       OUTPUT iGrandTotalQty
+       ).
+   RUN pCheckPOFGUnderOver NO-ERROR.
+   IF ERROR-STATUS:ERROR THEN 
+       RETURN NO-APPLY.
+   
+   RUN pCheckJobFGUnderOver NO-ERROR.
+   IF ERROR-STATUS:ERROR THEN 
+       RETURN NO-APPLY.
 
-   RUN pCheckPOFGUnderOver(OUTPUT lOpReturnError) NO-ERROR.
-   IF lOpReturnError THEN RETURN NO-APPLY.
-
-   RUN pGrandTotal.
    RUN update-word.
 END.
 
@@ -621,7 +645,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     v-tags = sys-ctrl.dec-fld.    
 
   RUN enable_UI.
-  RUN pGrandTotal.
+  RUN pGrandTotal(
+      OUTPUT iGrandTotalQty
+      ).
   IF AVAIL w-ord AND w-ord.i-no NE '' THEN
         RUN displayUNNotes(INPUT g_company,
                            INPUT w-ord.i-no).
@@ -949,6 +975,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckJobFGUnderOver Dialog-Frame
+PROCEDURE pCheckJobFGUnderOver PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: To Check under under/over quantities for Job
+ Notes:
+------------------------------------------------------------------------------*/
+    IF w-ord.job-no NE "" AND NOT w-ord.ipReturn AND gcFGRecpt EQ "LoadTag" THEN DO:
+        RUN Inventory_CheckJobUnderOver IN hdInventoryProcs(
+            INPUT g_company,
+            INPUT TRIM(w-ord.job-no),
+            INPUT INTEGER(w-ord.job-no2),
+            INPUT w-ord.i-no,
+            INPUT w-ord.po-no,
+            INPUT iGrandTotalQty,
+            INPUT NO,            /* Copied Record */
+            INPUT gcFGUnderOver,
+            INPUT giFGUnderOver,
+            INPUT glFGUnderOver,
+            INPUT ?              /* ROWID*/
+            ) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN  
+        RETURN ERROR.            
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resetValues Dialog-Frame 
 PROCEDURE resetValues :
 /*------------------------------------------------------------------------------
@@ -1053,15 +1110,17 @@ PROCEDURE pGrandTotal :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE iGrandTotalQty LIKE w-ord.total-unit.
-  DEFINE BUFFER bf-w-ord FOR w-ord.
-      FOR EACH bf-w-ord NO-LOCK:
-          ASSIGN iGrandTotalQty = iGrandTotalQty + (bf-w-ord.total-unit * bf-w-ord.total-tags).
-      END.
-      DO WITH FRAME {&FRAME-NAME}:
-      ASSIGN fi_total-qty:SCREEN-VALUE = string(iGrandTotalQty).
-      END.
-      
+    DEFINE OUTPUT PARAMETER opdTotalQty AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-w-ord FOR w-ord.
+    
+    FOR EACH bf-w-ord NO-LOCK:
+        opdTotalQty = opdTotalQty + (bf-w-ord.total-unit * bf-w-ord.total-tags).
+    END.   
+   
+    DO WITH FRAME {&FRAME-NAME}:
+        fi_total-Qty:SCREEN-VALUE = STRING(opdTotalQty).
+    END.          
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1114,71 +1173,32 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPOFGUnderOver Dialog-Frame 
 PROCEDURE pCheckPOFGUnderOver :
-    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
-
-    DEFINE VARIABLE dOutQty AS DECIMAL NO-UNDO .
-    DEFINE VARIABLE dRecQty AS DECIMAL NO-UNDO .
-    DEFINE VARIABLE ll-ea   AS LOG     NO-UNDO.
-
    /* w-ord.ipReturn - input toggle box return */
-    IF  w-ord.po-no NE 0 AND NOT w-ord.ipReturn AND gcFGRecpt EQ "LoadTag" THEN DO:
+    IF w-ord.po-no NE 0 AND NOT w-ord.ipReturn AND gcFGRecpt EQ "LoadTag" THEN DO:
         FIND FIRST po-ordl NO-LOCK 
             WHERE po-ordl.company EQ g_company
-              AND po-ordl.po-no EQ w-ord.po-no 
-              AND po-ordl.LINE EQ INTEGER(w-ord.po-line:SCREEN-VALUE IN BROWSE {&browse-NAME})
+              AND po-ordl.po-no   EQ w-ord.po-no 
+              AND po-ordl.LINE    EQ INTEGER(w-ord.po-line:SCREEN-VALUE IN BROWSE {&browse-NAME})
             NO-ERROR .
         IF AVAIL po-ordl THEN DO:
-            dOutQty = 0.
-            FOR EACH fg-rctd WHERE fg-rctd.company EQ g_company AND
-                (fg-rctd.rita-code EQ "R" OR fg-rctd.rita-code EQ "E")
-                AND trim(fg-rctd.job-no) = trim(w-ord.job-no )
-                AND fg-rctd.job-no2 = INT(w-ord.job-no2)
-                AND fg-rctd.i-no = po-ordl.i-no
-                AND int(fg-rctd.po-no) = po-ordl.po-no
-                AND fg-rctd.po-line = po-ordl.LINE
-                NO-LOCK :
-                dOutQty = dOutQty + fg-rctd.t-qty.     
-            END.
-
-            dOutQty = dOutQty + w-ord.total-unit * w-ord.total-tags .
-           
-            dRecQty = po-ordl.t-rec-qty + dOutQty.
-                RUN sys/ref/ea-um-fg.p (po-ordl.pr-qty-uom, OUTPUT ll-ea).
-                IF NOT ll-ea THEN
-                    RUN sys/ref/convquom.p("EA", po-ordl.pr-qty-uom, 0, 0, 0, 0,
-                        dRecQty, OUTPUT dRecQty).
-
-            IF lAllowUserOverRun THEN ASSIGN giFGUnderOver = 0 .
-            IF glFGUnderOver 
-                AND (gcFGUnderOver EQ "OverRuns Only" OR gcFGUnderOver EQ "UnderRuns and OverRun")
-                AND dRecQty GT po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100)) AND NOT lv-overrun2-checked  THEN DO:  
-                IF giFGUnderOver EQ 1 THEN DO:        
-                    MESSAGE 
-                        "The PO Quantity entered is more than the" STRING(po-ordl.over-pct,">>9.99%") SKIP 
-                        "Overrun allowed for this PO line Item, and excess overruns are not allowed."
-                        VIEW-AS ALERT-BOX WARNING .
-                    oplReturnError = YES.
-                END.
-                ELSE DO:
-                    MESSAGE 
-                        "The PO Quantity entered is more than the" STRING(po-ordl.over-pct,">>9.99%") SKIP 
-                        "Overrun allowed for this PO line Item..."
-                        VIEW-AS ALERT-BOX WARNING .
-                    lv-overrun2-checked = YES.
-                END.
-            END.
-            ELSE IF glFGUnderOver 
-                AND (gcFGUnderOver EQ "UnderRuns Only" OR gcFGUnderOver EQ "UnderRuns and OverRun")
-                AND dRecQty LT po-ordl.ord-qty - (po-ordl.ord-qty * po-ordl.under-pct / 100) AND NOT lv-overrun2-checked THEN DO:
-                MESSAGE 
-                    "The PO Quantity entered is less than the" STRING(po-ordl.under-pct,">>9.99%") SKIP 
-                    "Underrun allowed for this PO line Item..."
-                    VIEW-AS ALERT-BOX WARNING .
-                lv-overrun2-checked = YES.
-            END.
-
-            
-        END.
+            RUN Inventory_CheckPOUnderOver IN hdInventoryProcs(
+                INPUT g_company,
+                INPUT TRIM(w-ord.job-no),
+                INPUT INT(w-ord.job-no2),
+                INPUT po-ordl.i-no,
+                INPUT po-ordl.po-no,
+                INPUT iGrandTotalQty,
+                INPUT NO,
+                INPUT gcFGUnderOver,
+                INPUT giFGUnderOver,
+                INPUT glFGUnderOver,
+                INPUT ?
+                )NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN 
+                RETURN ERROR.        
+        END. 
+        ELSE 
+            ERROR-STATUS:ERROR = NO. /* If po-ordl is not available */          
     END.
 END PROCEDURE.
 

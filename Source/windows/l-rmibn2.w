@@ -38,6 +38,7 @@ def input parameter ip-i-no like rm-bin.i-no no-undo.
 def input parameter ip-loc like rm-bin.loc no-undo.
 def input parameter ip-loc-bin like rm-bin.loc-bin no-undo.
 def input parameter ip-tag like rm-bin.tag no-undo.
+DEF INPUT PARAM ip-PoNo like rm-bin.po-no no-undo.
 def output parameter op-rowid-val AS ROWID no-undo.
 
 /* Local Variable Definitions ---                                       */
@@ -84,11 +85,13 @@ rm-bin.tag rm-bin.qty
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH rm-bin WHERE ~{&KEY-PHRASE} ~
       AND rm-bin.company = ip-company ~
 AND rm-bin.i-no = ip-i-no  ~
+and (rm-bin.po-no eq ip-PoNo or ip-PoNo eq 0) ~
 AND ((rm-bin.qty > 0 AND NOT tb_qty) OR tb_qty = YES)  NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH rm-bin WHERE ~{&KEY-PHRASE} ~
       AND rm-bin.company = ip-company ~
 AND rm-bin.i-no = ip-i-no  ~
+and (rm-bin.po-no eq ip-PoNo or ip-PoNo eq 0) ~
 AND ((rm-bin.qty > 0 AND NOT tb_qty) OR tb_qty = YES)  NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 rm-bin
@@ -245,7 +248,7 @@ ASSIGN
      _TblList          = "ASI.rm-bin"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "ASI.rm-bin.company = ip-company
-AND ASI.rm-bin.i-no = ip-i-no"
+AND ASI.rm-bin.i-no = ip-i-no AND (ASI.rm-bin.po-no = ip-PoNo or ip-PoNo eq 0)"
      _FldNameList[1]   = ASI.rm-bin.loc
      _FldNameList[2]   > ASI.rm-bin.loc-bin
 "rm-bin.loc-bin" "Bin" ? "character" ? ? ? ? ? ? no ? no no "11.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
@@ -483,6 +486,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     FOR EACH b-rm-bin
         WHERE b-rm-bin.company EQ ip-company
           AND b-rm-bin.i-no    EQ ip-i-no
+          AND (b-rm-bin.po-no  EQ ip-PoNo OR ip-PoNo EQ 0)
           AND STRING(b-rm-bin.loc,"x(20)")     +
               STRING(b-rm-bin.loc-bin,"x(20)") +
               STRING(b-rm-bin.tag,"x(20)")     GE STRING(ip-loc,"x(20)")     +
@@ -566,7 +570,7 @@ PROCEDURE set-output :
 
 
   DO WITH FRAME {&FRAME-NAME}:
-    DO li = 1 TO {&browse-name}:NUM-SELECTED-ROWS:
+    DO li = 1 TO {&browse-name}:NUM-SELECTED-ROWS: 
       {&browse-name}:FETCH-SELECTED-ROW(li) NO-ERROR.
       IF AVAIL rm-bin THEN DO:
         CREATE tt-selected.

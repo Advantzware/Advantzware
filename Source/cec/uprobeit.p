@@ -92,7 +92,11 @@ DO:
                 blk.bnum = eb.blank-no
                 blk.qreq = IF eb.est-type GE 7 THEN probeit.bl-qty ELSE probeit.yld-qty
                 blk.qyld = probeit.yld-qty
-                blk.yr$  = eb.yrprice.
+                blk.yr$  = eb.yrprice
+                blk.comm   = eb.comm
+                blk.sman   = eb.sman
+                blk.procat = eb.procat
+                .
         END.
 
     ASSIGN

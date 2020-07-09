@@ -1,9 +1,13 @@
 DEF PARAM BUFFER io-po-ordl FOR po-ordl.
 DEF PARAM BUFFER io-ap-invl FOR ap-invl.
+DEFINE OUTPUT PARAMETER opcOutError AS CHARACTER NO-UNDO .
 
 DEF BUFFER b-po-ord FOR po-ord.
 DEF VAR v-negative-receipt AS LOG NO-UNDO.
 DEF VAR v-po-no AS CHAR NO-UNDO.
+DEF VAR iCtr AS INT NO-UNDO.
+DEF VAR tInvoicedQty AS DEC NO-UNDO.
+DEF VAR cUoM AS CHAR NO-UNDO.
 
 IF AVAIL io-po-ordl AND io-po-ordl.t-rec-qty EQ 0 AND
    NOT(io-po-ordl.item-type AND
@@ -56,23 +60,36 @@ DO:
       END.
 END.
 
-IF AVAIL io-po-ordl                                             AND
-   (NOT AVAIL io-ap-invl OR
-    NOT CAN-FIND(FIRST ap-invl
-                 WHERE ap-invl.i-no       EQ io-ap-invl.i-no
-                   AND ap-invl.po-no      EQ io-po-ordl.po-no
-                   AND {ap/invlline.i -1} EQ io-po-ordl.line
-                   AND ROWID(ap-invl)     NE ROWID(io-ap-invl)
-                 USE-INDEX i-no))                               AND
-                               
-  io-po-ordl.stat      NE "X"   /* not deleted or cancelled */  AND            
-  io-po-ordl.stat      NE "F"   /* not deleted or cancelled */  AND            
-  (io-po-ordl.t-rec-qty NE 0 OR v-negative-receipt OR
-   (io-po-ordl.item-type AND
-    CAN-FIND(FIRST item
-             WHERE item.company EQ io-po-ordl.company
-               AND item.i-no    EQ io-po-ordl.i-no
-               AND item.i-code  EQ "R"
-               AND item.stocked EQ NO
-             USE-INDEX i-no)))                                  THEN.
+IF AVAIL io-po-ordl 
+AND io-po-ordl.stat NE "X"   /* not deleted or cancelled */  
+AND io-po-ordl.stat NE "F"   /* not deleted or cancelled */  
+AND (io-po-ordl.t-rec-qty NE 0 
+    OR v-negative-receipt 
+    OR (io-po-ordl.item-type AND CAN-FIND(FIRST item WHERE 
+        item.company EQ io-po-ordl.company AND 
+        item.i-no    EQ io-po-ordl.i-no AND 
+        item.i-code  EQ "R" AND 
+        item.stocked EQ NO
+        USE-INDEX i-no)))
+        THEN.
 ELSE RELEASE io-po-ordl.
+
+/* Scan for existing invoice lines for this PO line */
+FOR EACH ap-invl NO-LOCK WHERE
+    ap-invl.company EQ io-po-ordl.company AND 
+    ap-invl.po-no EQ io-po-ordl.po-no AND 
+    {ap/invlline.i -1} EQ io-po-ordl.line AND 
+    ROWID(ap-invl) NE ROWID(io-ap-invl):
+    ASSIGN 
+        iCtr = iCtr + 1
+        tInvoicedQty = tInvoicedQty + ap-invl.qty
+        cUoM = ap-invl.pr-qty-uom.
+END.
+
+/* If the invoiced total qty plus this (input) qty GT PO line qty, show a warning */
+IF tInvoicedQty + io-ap-invl.qty GT io-po-ordl.ord-qty THEN DO:    
+    ASSIGN 
+        opcOutError = "There are already " + STRING(iCtr) + " AP invoices for this PO line totalling " +
+                      STRING(tInvoicedQty) + " units (" + cUoM + "). Do you want to continue?". 
+END.
+      

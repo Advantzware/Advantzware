@@ -95,6 +95,7 @@ DISPLAY SKIP(1) 'Loading Schedule Board Jobs' SKIP(1)
 PROCESS EVENTS.
 
 RUN getScenario.
+RUN getNotes.
 
 HIDE FRAME fMsg2 NO-PAUSE.
 
@@ -170,6 +171,10 @@ PROCEDURE buildBoard:
   
 END PROCEDURE.
 
+PROCEDURE getNotes:
+    {{&includes}/{&Board}/getJobNotes.i}
+END PROCEDURE.
+
 PROCEDURE getScenario:
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
@@ -183,4 +188,8 @@ PROCEDURE getConfiguration:
   IMPORT version.
   INPUT CLOSE.
   RUN VALUE('get' + version).
+END PROCEDURE.
+
+PROCEDURE msgFrame:
+    DEFINE INPUT PARAMETER ipcMsg AS CHARACTER NO-UNDO.
 END PROCEDURE.
