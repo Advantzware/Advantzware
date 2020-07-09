@@ -22,15 +22,13 @@ DEFINE OUTPUT PARAMETER opcPriceUOM       AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess        AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage        AS CHARACTER NO-UNDO.
 
-{Inventory/ttInventory.i "NEW SHARED"}
-
 DEFINE VARIABLE hdPriceProcs      AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdConversionProcs AS HANDLE NO-UNDO.
-DEFINE VARIABLE hdInventoryProcs  AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdValidateProcs   AS HANDLE NO-UNDO.
 
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 RUN system/ConversionProcs.p PERSISTENT SET hdConversionProcs.
-RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+RUN util/Validate.p PERSISTENT SET hdValidateProcs.
 
 /* Input validation */
 RUN pValidateInputs (
@@ -70,7 +68,7 @@ END.
 
 DELETE PROCEDURE hdPriceProcs.
 DELETE PROCEDURE hdConversionProcs.
-DELETE PROCEDURE hdInventoryProcs.
+DELETE PROCEDURE hdValidateProcs.
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -244,9 +242,10 @@ PROCEDURE pValidateInputs PRIVATE:
     END.
     
     IF ipcCustID NE "" THEN DO:
-        RUN ValidateCust IN hdInventoryProcs (
-            INPUT  ipcCompany,
+        RUN pIsValidCustomerID IN hdValidateProcs (
             INPUT  ipcCustID,
+            INPUT  TRUE,     /* Is required */
+            INPUT  ipcCompany,
             OUTPUT oplSuccess,
             OUTPUT opcMessage
             ) NO-ERROR.
@@ -259,10 +258,11 @@ PROCEDURE pValidateInputs PRIVATE:
     END.
 
     IF ipcShipToID NE "" THEN DO:
-        RUN Inventory_ValidateShipTo IN hdInventoryProcs (
-            INPUT  ipcCompany,
+        RUN pIsValidShiptoID IN hdValidateProcs (
             INPUT  ipcCustID,
             INPUT  ipcShipToID,
+            INPUT  TRUE, /* Is required */
+            INPUT  ipcCompany,
             OUTPUT oplSuccess,
             OUTPUT opcMessage
             ) NO-ERROR.

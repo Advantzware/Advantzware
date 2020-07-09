@@ -10,7 +10,6 @@
     Created     : Mon Jul 06 07:33:22 EDT 2020
     Notes       :
   ----------------------------------------------------------------------*/
-{Inventory/ttInventory.i "NEW SHARED"}
 {system/ttPriceMatrix.i}
 
 DEFINE INPUT        PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
@@ -21,11 +20,11 @@ DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPriceMatrix.
 DEFINE OUTPUT       PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT       PARAMETER opcMessage  AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hdPriceProcs      AS HANDLE NO-UNDO.
-DEFINE VARIABLE hdInventoryProcs  AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdPriceProcs    AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdValidateProcs AS HANDLE NO-UNDO.
 
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
-RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+RUN util/Validate.p PERSISTENT SET hdValidateProcs.
 
 /* Input validation */
 RUN pValidateInputs (
@@ -57,7 +56,7 @@ IF oplSuccess THEN DO:
 END.
     
 DELETE PROCEDURE hdPriceProcs.
-DELETE PROCEDURE hdInventoryProcs.
+DELETE PROCEDURE hdValidateProcs.
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -159,9 +158,10 @@ PROCEDURE pValidateInputs PRIVATE:
     END.
         
     IF ipcCustID NE "" THEN DO:
-        RUN ValidateCust IN hdInventoryProcs (
-            INPUT  ipcCompany,
+        RUN pIsValidCustomerID IN hdValidateProcs (
             INPUT  ipcCustID,
+            INPUT  TRUE,     /* Is required */
+            INPUT  ipcCompany,
             OUTPUT oplSuccess,
             OUTPUT opcMessage
             ) NO-ERROR.
@@ -174,10 +174,11 @@ PROCEDURE pValidateInputs PRIVATE:
     END.
 
     IF ipcShipToID NE "" THEN DO:
-        RUN Inventory_ValidateShipTo IN hdInventoryProcs (
-            INPUT  ipcCompany,
+        RUN pIsValidShiptoID IN hdValidateProcs (
             INPUT  ipcCustID,
             INPUT  ipcShipToID,
+            INPUT  TRUE, /* Is required */
+            INPUT  ipcCompany,
             OUTPUT oplSuccess,
             OUTPUT opcMessage
             ) NO-ERROR.
