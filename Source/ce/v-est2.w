@@ -76,6 +76,8 @@ DEF VAR cRtnChar AS CHARACTER NO-UNDO.
 DEF VAR lRecFound AS LOGICAL NO-UNDO .
 DEF VAR lShtcalcWarm-log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE dCelayoutDec AS DECIMAL NO-UNDO.
+DEFINE VARIABLE lVendItemCost AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cCEVersion AS CHARACTER NO-UNDO.
 
 {cec/bestfitc.i NEW SHARED}
 
@@ -114,7 +116,7 @@ ef.leaf-dscr[4] ef.leaf-bnum[4] ef.leaf-w[4] ef.leaf-l[4]
 &Scoped-define ENABLED-TABLES ef eb
 &Scoped-define FIRST-ENABLED-TABLE ef
 &Scoped-define SECOND-ENABLED-TABLE eb
-&Scoped-Define ENABLED-OBJECTS btn_board RECT-20 RECT-21 RECT-9 
+&Scoped-Define ENABLED-OBJECTS btn_board btn_cost RECT-20 RECT-21 RECT-9 
 &Scoped-Define DISPLAYED-FIELDS ef.m-code ef.m-dscr ef.lsh-wid ef.lsh-len ~
 ef.xgrain ef.board ef.brd-dscr ef.i-code ef.cal ef.cost-uom ef.cost-msh ~
 ef.weight ef.fr-uom ef.fr-msh ef.nc ef.roll ef.roll-wid ef.gsh-wid ~
@@ -203,6 +205,10 @@ RUN set-attribute-list (
 DEFINE BUTTON btn_board
      LABEL "" 
      SIZE 10 BY 1.
+     
+DEFINE BUTTON btn_cost
+     LABEL "" 
+     SIZE 20 BY 1.       
 
 DEFINE RECTANGLE RECT-20
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -461,6 +467,7 @@ DEFINE FRAME fold
           SIZE 9 BY .62 AT ROW 5.05 COL 20
           FGCOLOR 1 
      btn_board AT ROW 2.43 COL 3 WIDGET-ID 16
+     btn_cost AT ROW 15.29 COL 100  WIDGET-ID 150
      RECT-20 AT ROW 1 COL 1
      RECT-21 AT ROW 4.57 COL 3
      RECT-9 AT ROW 10.76 COL 3
@@ -1655,6 +1662,32 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME btn_cost
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_cost V-table-Win
+ON CHOOSE OF btn_cost IN FRAME fold
+DO:
+  IF AVAIL eb THEN
+   FIND FIRST ITEM WHERE ITEM.company  = cocode
+       AND ITEM.i-no = ef.board NO-LOCK NO-ERROR.
+
+   IF AVAIL ITEM THEN do:
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "MF"' ).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + est.est-no).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "RM" ' ).      
+      /*RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).*/
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = ""').  
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = ' + ( IF AVAIL eb THEN string(eb.form-no) ELSE "" ) ).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = ' + ( IF AVAIL eb THEN string(eb.blank-no) ELSE "" ) ).
+      
+      RUN windows/vendcostmtx.w .
+   
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &UNDEFINE SELF-NAME
@@ -1673,6 +1706,18 @@ RUN sys/ref/nk1look.p (INPUT cocode, "CELAYOUT", "D" /* Logical */, NO /* check 
                        OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     dCelayoutDec = decimal(cRtnChar) NO-ERROR. 
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "VendItemCost", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lVendItemCost = logical(cRtnChar) NO-ERROR.
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "CEVersion", "C" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cCEVersion = cRtnChar NO-ERROR.    
   
 {sys/inc/vendItemCost.i}
 SESSION:DATA-ENTRY-RETURN = YES.
@@ -2493,11 +2538,15 @@ PROCEDURE local-display-fields :
   /* Code placed here will execute AFTER standard behavior.    */
 
    btn_board:LABEL = " " + TRIM(ef.board:LABEL) + ":" /*+ TRIM(ef.board)*/ .
-
+   btn_cost:LABEL = "Override Cost" .
     IF ef.board = "" THEN
             btn_board:HIDDEN  = TRUE .
     ELSE 
          btn_board:HIDDEN  = FALSE .
+         
+    IF lVendItemCost AND cCEVersion EQ "New" AND ef.board NE "" THEN
+        btn_cost:HIDDEN  = FALSE .     
+    ELSE btn_cost:HIDDEN  = TRUE . 
 
   RUN one-eb-on-ef (ROWID(ef), OUTPUT ll-one-eb-on-ef).
   RUN one-ef-on-est (ROWID(est), OUTPUT ll-one-ef-on-est).
@@ -2933,6 +2982,7 @@ PROCEDURE proc-enable :
 ------------------------------------------------------------------------------*/
   DO WITH FRAME {&FRAME-NAME}:
       btn_board:HIDDEN = TRUE .
+      btn_cost:HIDDEN = TRUE .
   END.
 
 END PROCEDURE.
