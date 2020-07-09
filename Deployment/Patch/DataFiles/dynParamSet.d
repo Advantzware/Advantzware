@@ -104,3 +104,7 @@
 114 "System" "FG Item Status" 3.33 29 yes "FG Item Status" yes "202006042156105335232"
 115 "System" "Printer ID" 3.1 56 yes "" yes "202006156807805359288"
 116 "System" "Print Spec Notes" 3.33 59 yes "Print Spec Notes" yes "202007060586105434102"
+117 "System" "PO Date Range" 4.52 62 yes "PO Dates" yes "202007070705805439379"
+118 "System" "PO Item Status" 3.33 38 yes "PO Item Status" yes "202007070740005439382"
+119 "System" "PO Printed Status" 3.33 40 yes "PO Printed Status" yes "202007070757005439384"
+120 "System" "Job Status" 3.33 29 yes "Job Status" yes "202007071787405442979"

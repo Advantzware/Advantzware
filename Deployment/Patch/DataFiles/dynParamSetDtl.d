@@ -324,3 +324,8 @@
 115 9 "PrinterID" "Printer ID" "" "" "" "" "" 1 40 15 1.71 yes ? "" "202006156814805359289"
 116 5 "allSpecNotes" "Print Spec Notes" "" "" "" "" "no" 1 20 4 1.95 yes ? "" "202007060595705434103"
 116 9 "specCode" "" "" "" "" "" "" 1 32 26 1.95 yes ? "" "202007060613005434104"
+117 2 "startPoDate" "Start Date" "" "" "" "" "01/01/1950" 1 16 14 1.95 yes "CALENDAR,DATEPICKLIST" "" "202007070705805439380"
+117 2 "endPoDate" "To" "" "" "" "" "12/31/2049" 1 16 14 3.14 yes "CALENDAR,DATEPICKLIST" "" "202007070705805439381"
+118 11 "PoItemStatus" "" "" "" "" "Open,1,Close,2,Both,3" "1" 1 27 9 1.95 yes "HORIZONTAL" "" "202007070740105439383"
+119 11 "PoPrintedStatus" "" "" "" "" "Printed,1,Not Printed,2,Both,3" "1" 1 33 5 1.95 yes "HORIZONTAL" "" "202007070757005439385"
+120 11 "jobStatus" "Include" "" "" "" "Open,1,Close,2" "1" 1 17 11 1.95 yes "HORIZONTAL" "" "202007071787405442980"

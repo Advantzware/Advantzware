@@ -1,0 +1,11 @@
+{
+  "saleMessageType": "$MessageType$",
+  "seller": {
+    "company": "Company"
+  },
+  "postToJournal": "$PostToJournal$",
+  "lineItems": [$LineItems$],
+  "documentNumber": "$DocumentNo$",
+  "documentDate": "$DocumentDate|YYYY-MM-DD|DATE|$",
+  "transactionType": "SALE"
+}
