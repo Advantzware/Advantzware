@@ -32,7 +32,6 @@ ECHO Starting at %time% on %date%
 ECHO Starting at %time% on %date% > %blog%
 ECHO Starting at %time% on %date% > %vlog%
 ECHO Starting at %time% on %date% > %elog%
-
 :: Testing - UNcomment to jump to specific section
 ::GOTO :UpdateRepo
 
@@ -61,6 +60,13 @@ ECHO Starting at %time% on %date% > %elog%
 ECHO Creating New PATCH directories from repository
 ECHO Creating New PATCH directories from repository >> %blog%
 ECHO Creating New PATCH directories from repository >> %vlog%
+:: Test for existence of patch
+IF EXIST C:\asigui\upgrades\PATCH%cNewVer%\ (GOTO :PROMPT) ELSE (GOTO :NEXT)
+:PROMPT
+ECHO The version you are about to create already exists.
+SET /p lProceed="Are you sure?: " 
+IF /I %lProceed%==Y (GOTO :NEXT) ELSE (GOTO :END)
+:NEXT
 DEL /S /Q C:%patchDir%\* >> %vlog% 2>> %elog%
 DEL /S /Q C:%patchDir%\patch.mft >> %vlog% 2>> %elog%
 RMDIR /S /Q C:%patchDir% >> %vlog% 2>> %elog%
@@ -392,7 +398,6 @@ ECHO . >> %vlog%
 
 :Cleanup
 CD %buildDir%
-DEL /Q newVer.txt >> %vlog%
 
 :END
 
