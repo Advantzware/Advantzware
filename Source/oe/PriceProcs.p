@@ -46,7 +46,7 @@ DEFINE TEMP-TABLE ttItemLines
     .
 
 {oe/ttPriceHold.i} 
-    
+{system/ttPriceMatrix.i}
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -395,25 +395,22 @@ PROCEDURE GetPriceMatrix:
                                         OUTPUT riMatrix, OUTPUT lFound, OUTPUT cMessage).
         
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.  /*Company*/
-    DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.  /*FG Item ID*/
-    DEFINE INPUT PARAMETER ipcCustID AS CHARACTER NO-UNDO.  /*Customer Scope of FG Item*/
-    DEFINE INPUT PARAMETER ipcShipID AS CHARACTER NO-UNDO.  /*Ship to Scope of Customer  - optional*/
-    DEFINE OUTPUT PARAMETER opriOePrmtx AS ROWID NO-UNDO.  /*Outputs the rowid for the price matrix that matches*/
-    DEFINE OUTPUT PARAMETER oplMatchFound AS LOGICAL NO-UNDO.  /*Logical that can determine if find on rowid should be done*/
-    DEFINE OUTPUT PARAMETER opcMatchDetail AS CHARACTER NO-UNDO.  /*Clarifies the match criteria or failure to match*/
-
+    DEFINE INPUT        PARAMETER ipcCompany     AS CHARACTER NO-UNDO.  /*Company*/
+    DEFINE INPUT        PARAMETER ipcFGItemID    AS CHARACTER NO-UNDO.  /*FG Item ID*/
+    DEFINE INPUT        PARAMETER ipcCustID      AS CHARACTER NO-UNDO.  /*Customer Scope of FG Item*/
+    DEFINE INPUT        PARAMETER ipcShipID      AS CHARACTER NO-UNDO.  /*Ship to Scope of Customer  - optional*/
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPriceMatrix.              /*Outputs the rowid for the price matrix that matches*/
+    DEFINE OUTPUT       PARAMETER oplMatchFound  AS LOGICAL NO-UNDO.    /*Logical that can determine if find on rowid should be done*/
+    DEFINE OUTPUT       PARAMETER opcMatchDetail AS CHARACTER NO-UNDO.  /*Clarifies the match criteria or failure to match*/
+    
     DEFINE BUFFER bf-itemfg   FOR itemfg.
     DEFINE BUFFER bf-cust     FOR cust.
     DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
 
-
     RUN pSetBuffers(ipcCompany, ipcFGItemId, ipcCustID, BUFFER bf-itemfg, BUFFER bf-cust).
-            
+
     /*Find match given buffers */  
     RUN pGetPriceMatrix(BUFFER bf-itemfg, BUFFER bf-cust, BUFFER bf-oe-prmtx, ipcShipID, OUTPUT oplMatchFound, OUTPUT opcMatchDetail).
-    IF oplMatchFound AND AVAILABLE bf-oe-prmtx THEN 
-        opriOePrmtx = ROWID(bf-oe-prmtx).
 
 END PROCEDURE.
 
@@ -775,6 +772,44 @@ PROCEDURE pBuildLineTable PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pAddPriceMatrix PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: creates ttPriceMatrix records
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipToID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiLevel       AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcQuantityUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdPrice       AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPriceUOM    AS CHARACTER NO-UNDO.
+            
+    FIND FIRST ttPriceMatrix
+         WHERE ttPriceMatrix.company  = ipcCompany
+           AND ttPriceMatrix.itemID   = ipcItemID
+           AND ttPriceMatrix.custID   = ipcCustID
+           AND ttPriceMatrix.shiptoID = ipcShipToID
+           AND ttPriceMatrix.level    = ipiLevel
+         NO-ERROR.
+    IF NOT AVAILABLE ttPriceMatrix THEN DO:
+        CREATE ttPriceMatrix.
+        ASSIGN
+            ttPriceMatrix.company     = ipcCompany
+            ttPriceMatrix.itemID      = ipcItemID
+            ttPriceMatrix.custID      = ipcCustID
+            ttPriceMatrix.shipToID    = ipcShipToID
+            ttPriceMatrix.level       = ipiLevel
+            ttPriceMatrix.quantity    = ipdQuantity
+            ttPriceMatrix.quantityUOM = ipcQuantityUOM
+            ttPriceMatrix.price       = ipdPrice
+            ttPriceMatrix.priceUOM    = ipcPriceUOM
+            .
+    END. 
+END PROCEDURE.
+
 PROCEDURE pFindQuoteForQuantity PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given an item and quantity, validate that a quote exists
@@ -999,6 +1034,7 @@ PROCEDURE pGetPriceMatrix PRIVATE:
     DEFINE VARIABLE cMsgCustID     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMsgCustType   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMsgShipID     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iIndex         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cMsgBlankInd   AS CHARACTER NO-UNDO INIT "[blank]".
     
     IF NOT AVAILABLE ipbf-itemfg THEN 
@@ -1114,6 +1150,23 @@ PROCEDURE pGetPriceMatrix PRIVATE:
             cMsgCustType   = IF opbf-oe-prmtx.custype EQ "" THEN cMsgCustType + cMsgBlankInd ELSE cMsgCustType + opbf-oe-prmtx.custype 
             cMsgShipID     = IF opbf-oe-prmtx.custShipID EQ "" THEN cMsgShipID + cMsgBlankInd ELSE cMsgShipID + opbf-oe-prmtx.custShipID
             .
+
+        DO iIndex = 1 TO EXTENT(opbf-oe-prmtx.qty):
+            IF opbf-oe-prmtx.qty[iIndex] EQ 0 THEN
+                NEXT.
+            
+            RUN pAddPricematrix (
+                INPUT ipbf-itemfg.company,
+                INPUT ipbf-itemfg.i-no,
+                INPUT ipbf-cust.cust-no,
+                INPUT ipcShipID,
+                INPUT iIndex,   /* Level */
+                INPUT opbf-oe-prmtx.qty[iIndex],
+                INPUT "EA",     /* Quantity UOM */
+                INPUT opbf-oe-prmtx.price[iIndex],
+                INPUT opbf-oe-prmtx.uom[iIndex]
+                ).
+        END.
     END.    
     ELSE 
         ASSIGN 

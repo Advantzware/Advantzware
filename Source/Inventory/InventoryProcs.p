@@ -3686,7 +3686,7 @@ PROCEDURE ValidateCust:
     IF oplValid THEN
         opcMessage = "Success".
     ELSE
-        opcMessage = "Invalid Customer".
+        opcMessage = "Invalid Customer '" + ipcCustID + "'".
 END PROCEDURE.
 
 PROCEDURE ValidatePOLine:
