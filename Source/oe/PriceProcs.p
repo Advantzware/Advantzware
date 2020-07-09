@@ -407,30 +407,11 @@ PROCEDURE GetPriceMatrix:
     DEFINE BUFFER bf-cust     FOR cust.
     DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
 
-    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
-
     RUN pSetBuffers(ipcCompany, ipcFGItemId, ipcCustID, BUFFER bf-itemfg, BUFFER bf-cust).
 
     /*Find match given buffers */  
     RUN pGetPriceMatrix(BUFFER bf-itemfg, BUFFER bf-cust, BUFFER bf-oe-prmtx, ipcShipID, OUTPUT oplMatchFound, OUTPUT opcMatchDetail).
-    IF oplMatchFound AND AVAILABLE bf-oe-prmtx THEN DO:
-        DO iIndex = 1 TO EXTENT(bf-oe-prmtx.qty):
-            IF bf-oe-prmtx.qty[iIndex] EQ 0 THEN
-                NEXT.
-            
-            RUN pAddPricematrix (
-                INPUT ipcCompany,
-                INPUT ipcFGItemID,
-                INPUT ipcCustID,
-                INPUT ipcShipID,
-                INPUT iIndex,   /* Level */
-                INPUT bf-oe-prmtx.qty[iIndex],
-                INPUT "EA",     /* Quantity UOM */
-                INPUT bf-oe-prmtx.price[iIndex],
-                INPUT bf-oe-prmtx.uom[iIndex]
-                ).
-        END.
-    END.
+
 END PROCEDURE.
 
 PROCEDURE GetPriceMatrixLevel:
@@ -1053,6 +1034,7 @@ PROCEDURE pGetPriceMatrix PRIVATE:
     DEFINE VARIABLE cMsgCustID     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMsgCustType   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMsgShipID     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iIndex         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cMsgBlankInd   AS CHARACTER NO-UNDO INIT "[blank]".
     
     IF NOT AVAILABLE ipbf-itemfg THEN 
@@ -1168,6 +1150,23 @@ PROCEDURE pGetPriceMatrix PRIVATE:
             cMsgCustType   = IF opbf-oe-prmtx.custype EQ "" THEN cMsgCustType + cMsgBlankInd ELSE cMsgCustType + opbf-oe-prmtx.custype 
             cMsgShipID     = IF opbf-oe-prmtx.custShipID EQ "" THEN cMsgShipID + cMsgBlankInd ELSE cMsgShipID + opbf-oe-prmtx.custShipID
             .
+
+        DO iIndex = 1 TO EXTENT(opbf-oe-prmtx.qty):
+            IF opbf-oe-prmtx.qty[iIndex] EQ 0 THEN
+                NEXT.
+            
+            RUN pAddPricematrix (
+                INPUT ipbf-itemfg.company,
+                INPUT ipbf-itemfg.i-no,
+                INPUT ipbf-cust.cust-no,
+                INPUT ipcShipID,
+                INPUT iIndex,   /* Level */
+                INPUT opbf-oe-prmtx.qty[iIndex],
+                INPUT "EA",     /* Quantity UOM */
+                INPUT opbf-oe-prmtx.price[iIndex],
+                INPUT opbf-oe-prmtx.uom[iIndex]
+                ).
+        END.
     END.    
     ELSE 
         ASSIGN 
