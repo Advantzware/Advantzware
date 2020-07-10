@@ -1724,6 +1724,13 @@ PROCEDURE pGetVendItemCostBuffer PRIVATE:
                 ELSE 
                 DO: /*Fall back options for PO*/
                     cMsgInputs = cMsgFGInputs.
+                    FIND FIRST opbf-vendItemCost NO-LOCK /*Match with blank est and non-blank customer*/
+                        {&RequiredCriteria}
+                        AND opbf-vendItemCost.estimateNo EQ ""
+                        AND opbf-vendItemCost.vendorID EQ ipcVendorID
+                        AND opbf-vendItemCost.customerID EQ ipcCustomerID
+                        NO-ERROR.
+                    IF NOT AVAILABLE opbf-vendItemCost THEN 
                     FIND FIRST opbf-vendItemCost NO-LOCK /*Match with blank customer*/
                         {&RequiredCriteria}
                         AND opbf-vendItemCost.estimateNo EQ ""
