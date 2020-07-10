@@ -644,7 +644,7 @@ END.
 ON LEAVE OF ar-inv.terms IN FRAME F-Main /* Terms Code */
 DO:
     {&methods/lValidateError.i YES}
-    FIND FIRST terms WHERE terms.t-code = ar-inv.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME} NO-LOCK NO-ERROR.
+    FIND FIRST terms WHERE terms.company = cocode AND terms.t-code = ar-inv.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME} NO-LOCK NO-ERROR.
     IF NOT AVAIL terms THEN DO:
        MESSAGE "Invalid Terms. Try Help. " VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.

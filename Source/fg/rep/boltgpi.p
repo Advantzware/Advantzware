@@ -305,7 +305,7 @@ FOR EACH w-fg-rctd
              
       IF v-terms NE "" THEN
       DO:
-        FIND FIRST terms WHERE terms.t-code EQ cust.terms NO-LOCK NO-ERROR.
+        FIND FIRST terms WHERE terms.company EQ cocode AND terms.t-code EQ cust.terms NO-LOCK NO-ERROR.
         IF AVAILABLE terms THEN
           ASSIGN v-terms = terms.dscr.
       END.

@@ -1368,7 +1368,7 @@ SESSION:SET-WAIT-STATE ("general").
 
       {custom/statusMsg.i " 'Processing Customer#  '  + string(tt-report.key-02) "}
 
-    FIND FIRST terms WHERE terms.t-code EQ ar-inv.terms NO-LOCK NO-ERROR.
+    FIND FIRST terms WHERE terms.company EQ cocode AND terms.t-code EQ ar-inv.terms NO-LOCK NO-ERROR.
 
     FIND FIRST cust
         WHERE cust.company EQ cocode

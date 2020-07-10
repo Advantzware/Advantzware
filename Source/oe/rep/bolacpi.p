@@ -293,7 +293,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
              
       IF v-terms EQ "" THEN
       DO:
-        FIND FIRST terms NO-LOCK WHERE terms.t-code EQ oe-ord.terms  NO-ERROR.
+        FIND FIRST terms NO-LOCK WHERE terms.company EQ cocode AND terms.t-code EQ oe-ord.terms  NO-ERROR.
         IF AVAILABLE terms THEN
           ASSIGN v-terms = terms.dscr.
       END.

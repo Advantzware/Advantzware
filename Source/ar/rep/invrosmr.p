@@ -603,7 +603,7 @@ def var v-sh-addr3 as char format "x(30)" NO-UNDO.
          tmp2 = ?
          v-net = ar-inv.net .
 
-    find first terms where terms.t-code eq ar-inv.terms no-lock no-error.
+    find first terms where terms.company = cocode AND terms.t-code eq ar-inv.terms no-lock no-error.
     if avail terms then
             assign
              tmp1 = v-net * (round(terms.disc-rate / 100, 2))

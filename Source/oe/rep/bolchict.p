@@ -291,7 +291,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
              
       if v-terms eq "" then
       do:
-        find first terms where terms.t-code eq oe-ord.terms no-lock no-error.
+        find first terms where terms.company EQ cocode AND terms.t-code eq oe-ord.terms no-lock no-error.
         if avail terms then
           assign v-terms = terms.dscr.
       end.
