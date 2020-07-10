@@ -266,7 +266,7 @@ DEFINE FRAME F-Main
           SIZE 30.8 BY 1
           BGCOLOR 15 FGCOLOR 0 
      APIOutbound.password AT ROW 11.24 COL 78 COLON-ALIGNED WIDGET-ID 14 PASSWORD-FIELD 
-          LABEL "Password"
+          LABEL "Password" FORMAT "x(256)"
           VIEW-AS FILL-IN 
           SIZE 30.8 BY 1
           BGCOLOR 15 FGCOLOR 0 
@@ -381,7 +381,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN fiInactive IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN APIOutbound.password IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR RECTANGLE RECT-7 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN APIOutbound.requestHandler IN FRAME F-Main
