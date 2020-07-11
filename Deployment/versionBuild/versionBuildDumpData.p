@@ -188,6 +188,30 @@ FOR EACH dynParamValue NO-LOCK WHERE
 END. /* each dynParamValue */
 OUTPUT CLOSE.
 
+OUTPUT TO VALUE(cOutDir + "\dynValueParam.d").
+FOR EACH dynParamValue NO-LOCK WHERE 
+    dynParamValue.user-id EQ "_default" AND 
+    dynParamValue.subjectID LT 5000:
+    EXPORT dynParamValue.
+END. /* each dynParamValue */
+OUTPUT CLOSE.
+
+OUTPUT TO VALUE(cOutDir + "\dynValueColumn.d").
+FOR EACH dynParamValue NO-LOCK WHERE 
+    dynParamValue.user-id EQ "_default" AND 
+    dynParamValue.subjectID LT 5000:
+    EXPORT dynParamValue.
+END. /* each dynParamValue */
+OUTPUT CLOSE.
+
+OUTPUT TO VALUE(cOutDir + "\dynValueParamSet.d").
+FOR EACH dynParamValue NO-LOCK WHERE 
+    dynParamValue.user-id EQ "_default" AND 
+    dynParamValue.subjectID LT 5000:
+    EXPORT dynParamValue.
+END. /* each dynParamValue */
+OUTPUT CLOSE.
+
 OUTPUT TO VALUE(cOutDir + "\dynPrgrmsPage.d").
 FOR EACH dynPrgrmsPage NO-LOCK :
     EXPORT dynPrgrmsPage.

@@ -1375,6 +1375,27 @@ PROCEDURE ipBackupDataFiles :
     END.
     OUTPUT CLOSE.
 
+&SCOPED-DEFINE cFile dynValueParam
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile dynValueColumn
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile dynValueParamSet
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
 &SCOPED-DEFINE cFile Utilities
     OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
@@ -4380,6 +4401,9 @@ PROCEDURE ipLoadDAOAData :
     DISABLE TRIGGERS FOR LOAD OF dynParamSetDtl.
     DISABLE TRIGGERS FOR LOAD OF dynPrgrmsPage.
     DISABLE TRIGGERS FOR LOAD OF dynLookup.
+    DISABLE TRIGGERS FOR LOAD OF dynValueParam.
+    DISABLE TRIGGERS FOR LOAD OF dynValueColumn.
+    DISABLE TRIGGERS FOR LOAD OF dynValueParamSet.
     
     /* Remove all records that we plan to replace */
     FOR EACH dynSubject EXCLUSIVE WHERE 
@@ -4423,6 +4447,24 @@ PROCEDURE ipLoadDAOAData :
 
     FOR EACH dynLookup:
         DELETE dynLookup.
+    END.
+
+    FOR EACH dynValueParam EXCLUSIVE WHERE 
+        dynValueParam.user-id EQ "_default" AND
+        dynValueParam.subjectID LT 5000:
+        DELETE dynValueParam.
+    END.
+
+    FOR EACH dynValueColumn EXCLUSIVE WHERE 
+        dynValueColumn.user-id EQ "_default" AND
+        dynValueColumn.subjectID LT 5000:
+        DELETE dynValueColumn.
+    END.
+
+    FOR EACH dynValueParamSet EXCLUSIVE WHERE 
+        dynValueParamSet.user-id EQ "_default" AND
+        dynValueParamSet.subjectID LT 5000:
+        DELETE dynValueParamSet.
     END.
 
 &SCOPED-DEFINE tablename dynSubject
@@ -4536,6 +4578,39 @@ PROCEDURE ipLoadDAOAData :
     INPUT CLOSE.
 
 &SCOPED-DEFINE tablename dynLookup
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename dynValueParam
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename dynValueColumn
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename dynValueParamSet
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
