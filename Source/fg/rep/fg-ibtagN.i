@@ -538,8 +538,8 @@
                 WHEN "view-po" THEN cVarValue = STRING(v-po-ord,"x(10)") .
                 WHEN "line-po" THEN cVarValue = STRING(v-po-no,"x(10)") .
                 WHEN "rel-po" THEN cVarValue = STRING(v-po-rel,"x(11)") .
-                WHEN "ord-pr" THEN cVarValue = STRING(lv-sell-price-ord,"->>>,>>9.99").
-                WHEN "sell-price" THEN cVarValue = STRING(itemfg.sell-price,"->>>,>>9.99").
+                WHEN "ord-pr" THEN cVarValue = STRING(lv-sell-price-ord,"->>>,>>9.9999").
+                WHEN "sell-price" THEN cVarValue = STRING(itemfg.sell-price,"->>>,>>9.9999").
                 WHEN "uom-cost" THEN cVarValue = /*(IF ll-secure THEN STRING(v-tot-bin-sum,"->>>>>9.999") ELSE*/ "" . /*Task# 01271402 */
                 WHEN "v-tot-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-ext-bin-sum,"->>>,>>9.99") ELSE "").
                 WHEN "lab-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-costl,"->>>,>>9.99") ELSE "") .
@@ -612,8 +612,8 @@
                 WHEN "view-po" THEN cVarValue = STRING(v-po-ord,"x(10)") .
                 WHEN "line-po" THEN cVarValue = STRING(v-po-no,"x(10)") .
                 WHEN "rel-po" THEN cVarValue = STRING(v-po-rel,"x(11)") .
-                WHEN "ord-pr" THEN cVarValue = STRING(lv-sell-price-ord,"->>>,>>9.99").
-                WHEN "sell-price" THEN cVarValue = STRING(itemfg.sell-price,"->>>,>>9.99").
+                WHEN "ord-pr" THEN cVarValue = STRING(lv-sell-price-ord,"->>>,>>9.9999").
+                WHEN "sell-price" THEN cVarValue = STRING(itemfg.sell-price,"->>>,>>9.9999").
                 WHEN "uom-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-cost1,"->>>>>9.999") ELSE "") . /*Task# 01271402 */
                 WHEN "v-tot-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-cost,"->>>,>>9.99") ELSE "").
                 WHEN "lab-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-costl,"->>>,>>9.99") ELSE "") .
