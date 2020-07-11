@@ -108,64 +108,6 @@ FOR EACH dynValueColumn NO-LOCK
         cSortFields   = cSortFields   + cFieldName + ",".
     END. /* if isactive */
 END. /* each dynvaluecolumn */
-
-/*/* rstark - remove when depricated */                                                                           */
-/*ASSIGN                                                                                                          */
-/*    cTableName      = ""                                                                                        */
-/*    cFieldName      = ""                                                                                        */
-/*    cRequiredFields = ""                                                                                        */
-/*    cSourceTable    = ""                                                                                        */
-/*    cSourceField    = ""                                                                                        */
-/*    cDisplayFields  = ""                                                                                        */
-/*    cFormats        = ""                                                                                        */
-/*    cLabels         = ""                                                                                        */
-/*    cWidths         = ""                                                                                        */
-/*    cReturnFields   = ""                                                                                        */
-/*    cSearchFields   = ""                                                                                        */
-/*    cSortFields     = ""                                                                                        */
-/*    .                                                                                                           */
-/*DO idx = 1 TO EXTENT(dynParamValue.colName):                                                                    */
-/*    IF dynParamValue.colName[idx] EQ "" THEN LEAVE.                                                             */
-/*    IF dynParamValue.isCalcField[idx] THEN DO:                                                                  */
-/*        /* dynamic lookups cannot handle calculated fields */                                                   */
-/*        /* future development logic to resolve added here  */                                                   */
-/*/*        RUN spDynCalcField IN hDynCalcField (*/                                                               */
-/*/*            ?,                               */                                                               */
-/*/*            dynParamValue.calcProc[idx],     */                                                               */
-/*/*            dynParamValue.calcParam[idx],    */                                                               */
-/*/*            dynParamValue.dataType[idx],     */                                                               */
-/*/*            dynParamValue.colFormat[idx],    */                                                               */
-/*/*            OUTPUT cCalcFieldValue           */                                                               */
-/*/*            ).                               */                                                               */
-/*        NEXT.                                                                                                   */
-/*    END. /* if iscalcfield */                                                                                   */
-/*    ELSE                                                                                                        */
-/*    ASSIGN                                                                                                      */
-/*        cTableName      = ENTRY(1,dynParamValue.colName[idx],".")                                               */
-/*        cFieldName      = ENTRY(2,dynParamValue.colName[idx],".")                                               */
-/*        cRequiredFields = cRequiredFields + cFieldName + ","                                                    */
-/*        .                                                                                                       */
-/*    IF idx EQ 1 THEN                                                                                            */
-/*    ASSIGN                                                                                                      */
-/*        cSourceTable = cTableName                                                                               */
-/*        cSourceField = cFieldName                                                                               */
-/*        .                                                                                                       */
-/*    IF dynParamValue.isActive[idx] THEN DO:                                                                     */
-/*        ASSIGN                                                                                                  */
-/*            cDisplayFields = cDisplayFields + cFieldName + ","                                                  */
-/*            cFormats       = cFormats       + REPLACE(dynParamValue.colFormat[idx],",","") + ","                */
-/*            cLabels        = cLabels        + dynParamValue.colLabel[idx] + ","                                 */
-/*            cWidths        = cWidths        + (IF dynParamValue.dataType[idx] EQ "Date" THEN "20" ELSE "") + ","*/
-/*            .                                                                                                   */
-/*        IF dynParamValue.isReturnValue[idx] THEN                                                                */
-/*        cReturnFields = cReturnFields + cFieldName + ",".                                                       */
-/*        IF dynParamValue.isSearchable[idx] THEN                                                                 */
-/*        cSearchFields = cSearchFields + cFieldName + ",".                                                       */
-/*        IF dynParamValue.isSortable[idx] THEN                                                                   */
-/*        cSortFields   = cSortFields   + cFieldName + ",".                                                       */
-/*    END. /* if isactive */                                                                                      */
-/*END. /* do idx */                                                                                               */
-
 IF cSourceTable BEGINS "tt" THEN DO:
     FIND FIRST dynSubject NO-LOCK
          WHERE dynSubject.subjectID     EQ ipiSubjectID

@@ -90,14 +90,6 @@ PROCEDURE pGetWhereCalcFields:
                  NO-ERROR.
             IF NOT AVAILABLE dynValueParam THEN NEXT.
             ENTRY(jdx,cParamValue,"|") = dynValueParam.paramValue.
-/*            /* rstark - remove when depricated */                              */
-/*            DO idx = 1 TO EXTENT(dynParamValue.paramName):                     */
-/*                IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.              */
-/*                IF dynParamValue.paramName[idx] EQ cParamField THEN DO:        */
-/*                    ENTRY(jdx,cParamValue,"|") = dynParamValue.paramValue[idx].*/
-/*                    LEAVE.                                                     */
-/*                END. /* if cparamfield */                                      */
-/*            END. /* do idx */                                                  */
         END. /* do jdx */
         RUN spDynCalcField IN hDynCalcField (
             ?,

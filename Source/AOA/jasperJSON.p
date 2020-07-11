@@ -91,43 +91,6 @@ REPEAT:
             "~""
             .
     END. /* each dynvaluecolumn */
-
-/*    /* rstark - remove when depricated */                                                     */
-/*    DO idx = 1 TO EXTENT(dynParamValue.colName):                                              */
-/*        IF dynParamValue.colName[idx] EQ "" THEN LEAVE.                                       */
-/*        IF dynParamValue.isCalcField[idx] THEN DO:                                            */
-/*            cFullName = dynParamValue.colName[idx].                                           */
-/*            IF dynParamValue.calcProc[idx] NE "" THEN                                         */
-/*            RUN spDynCalcField IN hDynCalcField (                                             */
-/*                iphQuery:HANDLE,                                                              */
-/*                dynParamValue.calcProc[idx],                                                  */
-/*                dynParamValue.calcParam[idx],                                                 */
-/*                dynParamValue.dataType[idx],                                                  */
-/*                dynParamValue.colFormat[idx],                                                 */
-/*                OUTPUT cBufferValue                                                           */
-/*                ).                                                                            */
-/*            ELSE                                                                              */
-/*            IF dynParamValue.calcFormula[idx] NE "" THEN NEXT.                                */
-/*        END. /* if calc field */                                                              */
-/*        ELSE                                                                                  */
-/*        ASSIGN                                                                                */
-/*            hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynParamValue.colName[idx],"."))*/
-/*            cFieldName   = ENTRY(2,dynParamValue.colName[idx],".")                            */
-/*            cBufferValue = fFormatValue(hQueryBuf, cFieldName)                                */
-/*            cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "Web")        */
-/*            cFullName    = REPLACE(dynParamValue.colName[idx],".","__")                       */
-/*            cFullName    = REPLACE(cFullName,"[","")                                          */
-/*            cFullName    = REPLACE(cFullName,"]","")                                          */
-/*            .                                                                                 */
-/*        IF idx GT 1 THEN                                                                      */
-/*        PUT UNFORMATTED "," SKIP.                                                             */
-/*        PUT UNFORMATTED                                                                       */
-/*            FILL(" ",8)                                                                       */
-/*            "~"" cFullName "~": ~""                                                           */
-/*            IF cBufferValue NE "" THEN cBufferValue ELSE " "                                  */
-/*            "~""                                                                              */
-/*            .                                                                                 */
-/*    END. /* do idx */                                                                         */
     PUT UNFORMATTED SKIP FILL(" ",6) "}".
     iphQuery:GET-NEXT().
     IF iphQuery:QUERY-OFF-END THEN LEAVE.

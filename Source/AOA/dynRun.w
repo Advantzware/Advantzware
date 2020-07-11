@@ -130,6 +130,11 @@ DEFINE BUTTON btnHTML
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "HTML".
 
+DEFINE BUTTON btnLocalCSV 
+     IMAGE-UP FILE "Graphics/32x32/excel.bmp":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8 BY 1.9 TOOLTIP "Local Excel CSV".
+
 DEFINE BUTTON btnPageFormat 
      IMAGE-UP FILE "Graphics/32x32/document_gear.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
@@ -162,7 +167,7 @@ DEFINE BUTTON btnXLS
 
 DEFINE VARIABLE svRecipients AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 63 BY 1.67
+     SIZE 55 BY 1.67
      BGCOLOR 15 .
 
 DEFINE VARIABLE svSetAlignment AS CHARACTER INITIAL "Custom" 
@@ -175,7 +180,7 @@ DEFINE VARIABLE svSetAlignment AS CHARACTER INITIAL "Custom"
 
 DEFINE RECTANGLE RECT-PANEL
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 74 BY 2.38.
+     SIZE 82 BY 2.38.
 
 DEFINE RECTANGLE RECT-SHOW
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -246,6 +251,54 @@ DEFINE FRAME paramFrame
          SIZE 160 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
 
+DEFINE FRAME outputFrame
+     btnLocalCSV AT ROW 1.48 COL 151 HELP
+          "Local Excel CSV" WIDGET-ID 656
+     btnPageFormat AT ROW 1.48 COL 135 HELP
+          "Page Format" WIDGET-ID 652
+     svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
+     btnRunResults AT ROW 1.48 COL 79 HELP
+          "Results Grid" WIDGET-ID 254
+     btnCSV AT ROW 1.48 COL 87 HELP
+          "Excel CSV" WIDGET-ID 140
+     svSetAlignment AT ROW 1.95 COL 64 NO-LABEL WIDGET-ID 646
+     svRunSync AT ROW 2.91 COL 8 HELP
+          "Toggle to Run Synchronous" WIDGET-ID 654
+     svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
+     btnHTML AT ROW 1.48 COL 119 HELP
+          "HTML" WIDGET-ID 144
+     svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
+     svShowReportFooter AT ROW 4.1 COL 45 WIDGET-ID 4
+     svShowPageHeader AT ROW 4.1 COL 66 WIDGET-ID 6
+     svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
+     svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
+     svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
+     svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
+     btnView AT ROW 1.48 COL 143 HELP
+          "Jasper Viewer" WIDGET-ID 148
+     btnAddEmail AT ROW 1.95 COL 3 HELP
+          "Add Recipents" WIDGET-ID 636
+     btnPrint AT ROW 1.48 COL 127 HELP
+          "Printer" WIDGET-ID 644
+     btnDOCX AT ROW 1.48 COL 103 HELP
+          "Word DOCX" WIDGET-ID 142
+     btnPDF AT ROW 1.48 COL 111 HELP
+          "PDF" WIDGET-ID 146
+     btnXLS AT ROW 1.48 COL 95 HELP
+          "Excel XLS" WIDGET-ID 150
+     "Set Alignment" VIEW-AS TEXT
+          SIZE 13.6 BY .62 AT ROW 1.24 COL 64 WIDGET-ID 650
+     "Email:" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 640
+     RECT-PANEL AT ROW 1.24 COL 78 WIDGET-ID 256
+     RECT-SHOW AT ROW 3.86 COL 2 WIDGET-ID 642
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 160 BY 5.24
+         BGCOLOR 15 
+         TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1300.
+
 DEFINE FRAME resultsFrame
      btnSaveResults AT ROW 1 COL 2 HELP
           "Jasper Viewer" WIDGET-ID 254
@@ -256,52 +309,6 @@ DEFINE FRAME resultsFrame
          AT COL 1 ROW 6.48
          SIZE 10 BY 2.38
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
-
-DEFINE FRAME outputFrame
-     btnPageFormat AT ROW 1.48 COL 143 HELP
-          "Page Format" WIDGET-ID 652
-     btnRunResults AT ROW 1.48 COL 87 HELP
-          "Results Grid" WIDGET-ID 254
-     btnCSV AT ROW 1.48 COL 95 HELP
-          "Excel CSV" WIDGET-ID 140
-     btnHTML AT ROW 1.48 COL 127 HELP
-          "HTML" WIDGET-ID 144
-     svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
-     svSetAlignment AT ROW 1.71 COL 72 NO-LABEL WIDGET-ID 646
-     svRunSync AT ROW 2.91 COL 8 HELP
-          "Toggle to Run Synchronous" WIDGET-ID 654
-     svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
-     svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
-     btnView AT ROW 1.48 COL 151 HELP
-          "Jasper Viewer" WIDGET-ID 148
-     svShowReportFooter AT ROW 4.1 COL 45 WIDGET-ID 4
-     svShowPageHeader AT ROW 4.1 COL 66 WIDGET-ID 6
-     svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
-     svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
-     svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
-     svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
-     btnAddEmail AT ROW 1.95 COL 3 HELP
-          "Add Recipents" WIDGET-ID 636
-     btnPrint AT ROW 1.48 COL 135 HELP
-          "Printer" WIDGET-ID 644
-     btnDOCX AT ROW 1.48 COL 111 HELP
-          "Word DOCX" WIDGET-ID 142
-     btnPDF AT ROW 1.48 COL 119 HELP
-          "PDF" WIDGET-ID 146
-     btnXLS AT ROW 1.48 COL 103 HELP
-          "Excel XLS" WIDGET-ID 150
-     "Set Alignment" VIEW-AS TEXT
-          SIZE 13.6 BY .62 AT ROW 1 COL 72 WIDGET-ID 650
-     "Email:" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 640
-     RECT-PANEL AT ROW 1.24 COL 86 WIDGET-ID 256
-     RECT-SHOW AT ROW 3.86 COL 2 WIDGET-ID 642
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 160 BY 5.24
-         BGCOLOR 15 
-         TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -527,6 +534,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnLocalCSV
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLocalCSV C-Win
+ON CHOOSE OF btnLocalCSV IN FRAME outputFrame
+DO:
+    RUN pRunSubject (YES, "LocalCSV", USERID("ASI"), cPrgmName).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnPageFormat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPageFormat C-Win
 ON CHOOSE OF btnPageFormat IN FRAME outputFrame
@@ -743,8 +761,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN pGetSettings.
   RUN enable_UI.
   RUN pCreateDynParameters (FRAME paramFrame:HANDLE, YES).
-  IF iplParameters EQ NO THEN
-  APPLY "CHOOSE":U TO btnRunResults.
+  IF iplParameters EQ NO THEN DO:
+    IF dynParamValue.outputFormat EQ "LocalCSV" THEN
+    APPLY "CHOOSE":U TO btnLocalCSV.
+    ELSE
+    APPLY "CHOOSE":U TO btnRunResults.
+  END. /* if no */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -785,15 +807,15 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY svRecipients svSetAlignment svRunSync svShowAll 
-          svShowReportHeader svShowReportFooter svShowPageHeader 
-          svShowPageFooter svShowGroupHeader svShowGroupFooter svShowParameters 
+  DISPLAY svRecipients svSetAlignment svRunSync svShowAll svShowReportHeader 
+          svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
+          svShowGroupFooter svShowParameters 
       WITH FRAME outputFrame IN WINDOW C-Win.
-  ENABLE btnPageFormat btnRunResults btnCSV btnHTML svRecipients svSetAlignment 
-         svRunSync svShowAll svShowReportHeader btnView 
+  ENABLE btnLocalCSV btnPageFormat svRecipients btnRunResults btnCSV 
+         svSetAlignment svRunSync svShowAll btnHTML svShowReportHeader 
          svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
-         svShowGroupFooter svShowParameters btnAddEmail btnPrint btnDOCX btnPDF 
-         btnXLS 
+         svShowGroupFooter svShowParameters btnView btnAddEmail btnPrint 
+         btnDOCX btnPDF btnXLS 
       WITH FRAME outputFrame IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-outputFrame}
   VIEW FRAME paramFrame IN WINDOW C-Win.
@@ -946,8 +968,6 @@ PROCEDURE pSaveResults :
     DEFINE VARIABLE dSize      AS DECIMAL   NO-UNDO.
     
     DO TRANSACTION:
-/*        /* rstark - remove when depricated */     */
-/*        FIND CURRENT dynParamValue EXCLUSIVE-LOCK.*/
         DO idx = 1 TO hQueryBrowse:NUM-COLUMNS:
             ASSIGN
                 cDBName    = hQueryBrowse:GET-BROWSE-COLUMN(idx):DBNAME
@@ -977,16 +997,7 @@ PROCEDURE pSaveResults :
                 dynValueColumn.columnSize = dSize
                 .
             RELEASE dynValueColumn.
-/*            /* rstark - remove when depricated */         */
-/*            IF dynParamValue.colName[idx] NE cFieldName OR*/
-/*               dynParamValue.columnSize[idx] NE dSize THEN*/
-/*            ASSIGN                                        */
-/*                dynParamValue.colName[idx]    = cFieldName*/
-/*                dynParamValue.columnSize[idx] = dSize     */
-/*                .                                         */
         END. /* do idx */
-/*        /* rstark - remove when depricated */*/
-/*        FIND CURRENT dynParamValue NO-LOCK.  */
     END. /* trans */
 
 END PROCEDURE.
