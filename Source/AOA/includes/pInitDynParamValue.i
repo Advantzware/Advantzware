@@ -28,14 +28,7 @@ PROCEDURE pInitDynParamValue:
             IF AVAILABLE dynValueParam THEN
             dynValueParam.paramValue = ENTRY(idx,ipcParamValue,"|").
             RELEASE dynValueParam.
-/*            /* rstark - remove when depricated */                                  */
-/*            DO jdx = 1 TO EXTENT(dynParamValue.paramName):                         */
-/*                IF dynParamValue.paramName[jdx] EQ "" THEN LEAVE.                  */
-/*                IF dynParamValue.paramName[jdx] EQ ENTRY(idx,ipcParamList,"|") THEN*/
-/*                dynParamValue.paramValue[jdx] = ENTRY(idx,ipcParamValue,"|").      */
-/*            END. /* do jdx */                                                      */
         END. /* do idx */
         RELEASE dynParamValue.
     END. /* do trans */
-
 END PROCEDURE.

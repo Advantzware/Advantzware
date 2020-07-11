@@ -29,18 +29,6 @@ FOR EACH dynValueColumn NO-LOCK
         .
 END. /* each dynvaluecolumn */
 
-/*/* rstark - remove when depricated */                            */
-/*DO idx = 1 TO EXTENT(dynParamValue.colName):                     */
-/*    IF dynParamValue.colName[idx] EQ "" THEN LEAVE.              */
-/*    IF dynParamValue.sortCol[idx] EQ 0  THEN NEXT.               */
-/*    CREATE ttSortBy.                                             */
-/*    ASSIGN                                                       */
-/*        ttSortBy.ttOrder      = dynParamValue.sortCol[idx]       */
-/*        ttSortBy.ttSortBy     = dynParamValue.colName[idx]       */
-/*        ttSortBy.ttDescending = dynParamValue.sortDescending[idx]*/
-/*        .                                                        */
-/*END. /* do idx */                                                */
-
 FOR EACH ttSortBy BY ttSortBy.ttOrder:
     iopcQueryStr = iopcQueryStr + " BY " + ttSortBy.ttSortBy
                  + IF ttSortBy.ttDescending THEN " DESCENDING" ELSE ""

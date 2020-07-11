@@ -228,12 +228,6 @@ PROCEDURE pSaveDynParamValues :
             dynParamValue.securityLevel = IF dynParamValue.user-id EQ "_default" THEN 0
                                           ELSE IF dynParamValue.securityLevel EQ 0 THEN DYNAMIC-FUNCTION("sfUserSecurityLevel")
                                           ELSE dynParamValue.securityLevel
-/*            /* rstark - remove when depricated */*/
-/*            dynParamValue.paramName     = ""     */
-/*            dynParamValue.paramLabel    = ""     */
-/*            dynParamValue.paramValue    = ""     */
-/*            dynParamValue.paramDataType = ""     */
-/*            dynParamValue.paramFormat   = ""     */
             hWidget = FRAME paramFrame:HANDLE
             hWidget = hWidget:FIRST-CHILD
             hWidget = hWidget:FIRST-CHILD
@@ -277,12 +271,6 @@ PROCEDURE pSaveDynParamValues :
                 dynValueParam.paramValue   = ttParamOrder.paramValue
                 dynValueParam.dataType     = ttParamOrder.paramdataType
                 dynValueParam.paramFormat  = ttParamOrder.paramFormat
-/*                /* rstark - remove when depricated */                        */
-/*                dynParamValue.paramName[idx]     = ttParamOrder.paramName    */
-/*                dynParamValue.paramLabel[idx]    = ttParamOrder.paramLabel   */
-/*                dynParamValue.paramValue[idx]    = ttParamOrder.paramValue   */
-/*                dynParamValue.paramDataType[idx] = ttParamOrder.paramdataType*/
-/*                dynParamValue.paramFormat[idx]   = ttParamOrder.paramFormat  */
                 .
         END. /* each ttparamorder */
 &IF "{&program-id}" NE "dynBrowserParam." &THEN
@@ -305,11 +293,6 @@ PROCEDURE pSaveDynParamValues :
                     dynValueParam.paramLabel   = hWidget:LABEL
                     dynValueParam.paramValue   = hWidget:SCREEN-VALUE
                     dynValueParam.dataType     = hWidget:DATA-TYPE
-/*                    /* rstark - remove when depricated */                  */
-/*                    dynParamValue.paramName[idx]     = hWidget:NAME        */
-/*                    dynParamValue.paramLabel[idx]    = hWidget:LABEL       */
-/*                    dynParamValue.paramValue[idx]    = hWidget:SCREEN-VALUE*/
-/*                    dynParamValue.paramDataType[idx] = hWidget:DATA-TYPE   */
                     .
             END. /* if hwidget:type */
             hWidget = hWidget:NEXT-SIBLING.

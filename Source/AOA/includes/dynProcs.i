@@ -140,43 +140,6 @@ ON ROW-DISPLAY OF hQueryBrowse DO:
                 .
         END. /* if begins */
     END. /* each dynvaluecolumn */
-
-/*    /* rstark - remove when depricated */                                   */
-/*    DO idx = 1 TO EXTENT(hCalcColumn):                                      */
-/*        IF VALID-HANDLE(hCalcColumn[idx]) AND                               */
-/*           dynParamValue.isCalcField[idx] THEN DO:                          */
-/*            ASSIGN                                                          */
-/*                cFormula = REPLACE(dynParamValue.calcFormula[idx],"$F~{","")*/
-/*                cFormula = REPLACE(cFormula,"}","")                         */
-/*                cFormula = REPLACE(cFormula,"__",".")                       */
-/*                cBufferValue = ""                                           */
-/*                .                                                           */
-/*            IF dynParamValue.calcProc[idx] NE "" THEN                       */
-/*            RUN spDynCalcField IN hDynCalcField (                           */
-/*                hBrowseQuery:HANDLE,                                        */
-/*                dynParamValue.calcProc[idx],                                */
-/*                dynParamValue.calcParam[idx],                               */
-/*                dynParamValue.dataType[idx],                                */
-/*                dynParamValue.colFormat[idx],                               */
-/*                OUTPUT cBufferValue                                         */
-/*                ).                                                          */
-/*            ELSE                                                            */
-/*            IF dynParamValue.calcFormula[idx] NE "" THEN                    */
-/*            cBufferValue = cFormula.                                        */
-/*            ASSIGN                                                          */
-/*                hCalcColumn[idx]:SCREEN-VALUE = cBufferValue                */
-/*                hCalcColumn[idx]:FGCOLOR      = iFGColor                    */
-/*                .                                                           */
-/*        END. /* if valid handle */                                          */
-/*    END. /* do idx */                                                       */
-/*    DO idx = 1 TO EXTENT(hBrowseColumn):                                    */
-/*        IF VALID-HANDLE(hBrowseColumn[idx]) AND                             */
-/*           dynParamValue.isCalcField[idx] EQ NO THEN                        */
-/*        ASSIGN                                                              */
-/*            hBrowseColumn[idx]:FORMAT  = dynParamValue.colFormat[idx]       */
-/*            hBrowseColumn[idx]:FGCOLOR = iFGColor                           */
-/*            .                                                               */
-/*    END. /* do idx */                                                       */
 END. /* row-display */
 &ENDIF
 
@@ -210,15 +173,6 @@ PROCEDURE pGetRecipients:
          NO-ERROR.
     IF AVAILABLE dynValueParam THEN
     opcRecipients = dynValueParam.paramValue.
-
-/*    /* rstark - remove when depricated */                     */
-/*    DO idx = 1 TO EXTENT(dynParamValue.paramName):            */
-/*        IF dynParamValue.paramName[idx]  EQ "svRecipients" AND*/
-/*           dynParamValue.paramValue[idx] NE "" THEN DO:       */
-/*            opcRecipients = dynParamValue.paramValue[idx].    */
-/*            LEAVE.                                            */
-/*        END. /* if */                                         */
-/*    END. /* do idx */                                         */
     IF opcRecipients NE "" THEN DO:
         MESSAGE
             "Recipients:" opcRecipients SKIP(1)
@@ -312,49 +266,6 @@ PROCEDURE pResultsBrowser :
         hColumn:WIDTH-CHARS = dynValueColumn.columnSize.
         iNumColumns = iNumColumns + 1.
     END. /* each dynvaluecolumn */
-
-/*    /* rstark - remove when depricated */                                     */
-/*    DO idx = 1 TO EXTENT(dynParamValue.colName):                              */
-/*        hColumn = ?.                                                          */
-/*        IF dynParamValue.colName[idx]  EQ "" THEN LEAVE.                      */
-/*        IF dynParamValue.isActive[idx] EQ NO THEN NEXT.                       */
-/*        IF dynParamValue.isCalcField[idx] THEN DO:                            */
-/*            IF dynParamValue.calcProc[idx] NE "" THEN                         */
-/*            ASSIGN                                                            */
-/*                hCalcColumn[idx] = hQueryBrowse:ADD-CALC-COLUMN(              */
-/*                    dynParamValue.dataType[idx],                              */
-/*                    dynParamValue.colFormat[idx],                             */
-/*                    "",                                                       */
-/*                    dynParamValue.colLabel[idx]                               */
-/*                    )                                                         */
-/*                hColumn = hCalcColumn[idx]                                    */
-/*                .                                                             */
-/*            ELSE                                                              */
-/*            IF dynParamValue.calcFormula[idx] NE "" THEN                      */
-/*            ASSIGN                                                            */
-/*                cFormula = REPLACE(dynParamValue.calcFormula[idx],"$F~{","")  */
-/*                cFormula = REPLACE(cFormula,"}","")                           */
-/*                cFormula = REPLACE(cFormula,"__",".")                         */
-/*                hCalcColumn[idx] = hQueryBrowse:ADD-CALC-COLUMN(              */
-/*                    "Character",                                              */
-/*                    "x(" + STRING(LENGTH(cFormula)) + ")",                    */
-/*                    "",                                                       */
-/*                    dynParamValue.colLabel[idx] + "[Calc]"                    */
-/*                    )                                                         */
-/*                hColumn = hCalcColumn[idx]                                    */
-/*                .                                                             */
-/*        END. /* if calc field */                                              */
-/*        ELSE                                                                  */
-/*        ASSIGN                                                                */
-/*            hColumn = hQueryBrowse:ADD-LIKE-COLUMN(dynParamValue.colName[idx])*/
-/*            hColumn:LABEL = dynParamValue.colLabel[idx]                       */
-/*            hBrowseColumn[idx] = hColumn                                      */
-/*            .                                                                 */
-/*        IF NOT VALID-HANDLE(hColumn) THEN NEXT.                               */
-/*/*        IF idx MOD 2 EQ 0 THEN hColumn:COLUMN-BGCOLOR = 11.*/               */
-/*        IF dynParamValue.columnSize[idx] NE 0 THEN                            */
-/*        hColumn:WIDTH-CHARS = dynParamValue.columnSize[idx].                  */
-/*    END. /* do idx */                                                         */
     hBrowseQuery = iphQuery:HANDLE.
     iphQuery:QUERY-OPEN.
     IF iphQuery:NUM-RESULTS GT 0 THEN
@@ -461,7 +372,7 @@ PROCEDURE pRunQuery:
             CASE ipcType:
                 WHEN "Grid" THEN
                 RUN pResultsBrowser (hQuery).
-                WHEN "Print -d" OR WHEN "View" THEN
+                WHEN "LocalCSV" OR WHEN "Print -d" OR WHEN "View" THEN
                 RUN pResultsJasper (ipcType, ipcUserID, ipcTaskRecKey).
                 OTHERWISE DO:
                     IF dynParamValue.user-id NE "_default" THEN

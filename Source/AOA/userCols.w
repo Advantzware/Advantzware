@@ -525,55 +525,6 @@ PROCEDURE pSave :
                 dynValueColumn.textColor      = ttSubjectColumn.textColor
                 .
         END. /* each ttSubjectColumn */
-
-/*        /* rstark - remove when depricated */                                     */
-/*        FIND CURRENT dynParamValue EXCLUSIVE-LOCK.                                */
-/*        ASSIGN                                                                    */
-/*            dynParamValue.isActive       = NO                                     */
-/*            dynParamValue.colName        = ""                                     */
-/*            dynParamValue.colLabel       = ""                                     */
-/*            dynParamValue.colFormat      = ""                                     */
-/*            dynParamValue.columnSize     = 0                                      */
-/*            dynParamValue.dataType       = ""                                     */
-/*            dynParamValue.sortCol        = 0                                      */
-/*            dynParamValue.sortDescending = NO                                     */
-/*            dynParamValue.isGroup        = NO                                     */
-/*            dynParamValue.isReturnValue  = NO                                     */
-/*            dynParamValue.isSearchable   = NO                                     */
-/*            dynParamValue.isSortable     = NO                                     */
-/*            dynParamValue.groupLabel     = ""                                     */
-/*            dynParamValue.groupCalc      = ""                                     */
-/*            dynParamValue.isCalcField    = NO                                     */
-/*            dynParamValue.calcProc       = ""                                     */
-/*            dynParamValue.calcParam      = ""                                     */
-/*            dynParamValue.calcFormula    = ""                                     */
-/*            .                                                                     */
-/*        FOR EACH ttSubjectColumn                                                  */
-/*              BY ttSubjectColumn.sortOrder                                        */
-/*            :                                                                     */
-/*            ASSIGN                                                                */
-/*                idx                               = ttSubjectColumn.sortOrder     */
-/*                dynParamValue.isActive[idx]       = ttSubjectColumn.isActive      */
-/*                dynParamValue.colName[idx]        = ttSubjectColumn.fieldName     */
-/*                dynParamValue.colLabel[idx]       = ttSubjectColumn.fieldLabel    */
-/*                dynParamValue.colFormat[idx]      = ttSubjectColumn.fieldFormat   */
-/*                dynParamValue.columnSize[idx]     = ttSubjectColumn.columnSize    */
-/*                dynParamValue.dataType[idx]       = ttSubjectColumn.dataType      */
-/*                dynParamValue.sortCol[idx]        = ttSubjectColumn.sortCol       */
-/*                dynParamValue.sortDescending[idx] = ttSubjectColumn.sortDescending*/
-/*                dynParamValue.isGroup[idx]        = ttSubjectColumn.isGroup       */
-/*                dynParamValue.isReturnValue[idx]  = ttSubjectColumn.isReturnValue */
-/*                dynParamValue.isSearchable[idx]   = ttSubjectColumn.isSearchable  */
-/*                dynParamValue.isSortable[idx]     = ttSubjectColumn.isSortable    */
-/*                dynParamValue.groupLabel[idx]     = ttSubjectColumn.groupLabel    */
-/*                dynParamValue.groupCalc[idx]      = ttSubjectColumn.groupCalc     */
-/*                dynParamValue.isCalcField[idx]    = ttSubjectColumn.isCalcField   */
-/*                dynParamValue.calcProc[idx]       = ttSubjectColumn.calcProc      */
-/*                dynParamValue.calcParam[idx]      = ttSubjectColumn.calcParam     */
-/*                dynParamValue.calcFormula[idx]    = ttSubjectColumn.calcFormula   */
-/*                .                                                                 */
-/*        END. /* each ttSubjectColumn */                                           */
-/*        FIND CURRENT dynParamValue NO-LOCK.                                       */
     END. /* do trans */
     BROWSE subjectColumnBrowse:MODIFIED = NO.
     fSetSaveButton (NO).
@@ -649,39 +600,6 @@ PROCEDURE pUserColumns :
                 .
         END. /* do idx */
     END. /* each dynvaluecolumn */
-/*    /* rstark - remove when depricated */                                       */
-/*    DO idx = 1 TO EXTENT(dynParamValue.colName):                                */
-/*        IF dynParamValue.colName[idx] EQ "" THEN LEAVE.                         */
-/*        CREATE ttSubjectColumn.                                                 */
-/*        ASSIGN                                                                  */
-/*            ttSubjectColumn.subjectID      = dynParamValue.subjectID            */
-/*            ttSubjectColumn.sortOrder      = idx                                */
-/*            ttSubjectColumn.isActive       = dynParamValue.isActive[idx]        */
-/*            ttSubjectColumn.fieldName      = dynParamValue.colName[idx]         */
-/*            ttSubjectColumn.fieldLabel     = dynParamValue.colLabel[idx]        */
-/*            ttSubjectColumn.fieldFormat    = dynParamValue.colFormat[idx]       */
-/*            ttSubjectColumn.dataType       = dynParamValue.dataType[idx]        */
-/*            ttSubjectColumn.sortCol        = dynParamValue.sortCol[idx]         */
-/*            ttSubjectColumn.sortDescending = dynParamValue.sortDescending[idx]  */
-/*            ttSubjectColumn.isGroup        = dynParamValue.isGroup[idx]         */
-/*            ttSubjectColumn.groupLabel     = dynParamValue.groupLabel[idx]      */
-/*            ttSubjectColumn.groupCalc      = dynParamValue.groupCalc[idx]       */
-/*            ttSubjectColumn.isCalcField    = dynParamValue.isCalcField[idx]     */
-/*            ttSubjectColumn.calcProc       = dynParamValue.calcProc[idx]        */
-/*            ttSubjectColumn.calcParam      = dynParamValue.calcParam[idx]       */
-/*            ttSubjectColumn.calcFormula    = dynParamValue.calcFormula[idx]     */
-/*            .                                                                   */
-/*        IF ttSubjectColumn.groupCalc NE "" THEN                                 */
-/*        DO jdx = 1 TO NUM-ENTRIES(ttSubjectColumn.groupCalc) BY 2:              */
-/*            CREATE ttGroupCalc.                                                 */
-/*            ASSIGN                                                              */
-/*                ttGroupCalc.subjectID = ttSubjectColumn.subjectID               */
-/*                ttGroupCalc.fieldName = ttSubjectColumn.fieldName               */
-/*                ttGroupCalc.groupName = ENTRY(jdx,ttSubjectColumn.groupCalc)    */
-/*                ttGroupCalc.calcType  = ENTRY(jdx + 1,ttSubjectColumn.groupCalc)*/
-/*                .                                                               */
-/*        END. /* do idx */                                                       */
-/*    END. /* do idx */                                                           */
     {&OPEN-QUERY-subjectColumnBrowse}
 
 END PROCEDURE.
