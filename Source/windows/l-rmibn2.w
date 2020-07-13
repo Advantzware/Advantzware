@@ -46,16 +46,23 @@ DEF SHARED TEMP-TABLE tt-selected FIELD tt-rowid AS ROWID.
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
+DEFINE VARIABLE lDisplayAllBins AS LOGICAL INIT YES NO-UNDO.
 &scoped-define SORTBY-1 BY rm-bin.loc BY rm-bin.loc-bin BY rm-bin.tag
 &scoped-define SORTBY-2 BY rm-bin.loc-bin
 &scoped-define SORTBY-3 BY rm-bin.tag
 &scoped-define SORTBY-4 BY rm-bin.qty DESC
+&scoped-define SORTBY-5 BY rm-bin.po-no 
 &scoped-define fld-name-1 rm-bin.loc
 &scoped-define fld-name-2 rm-bin.loc-bin
 &scoped-define fld-name-3 rm-bin.tag
-&scoped-define fld-name-4 rm-bin.qty 
-&SCOPED-DEFINE datatype-4 INT
+&scoped-define fld-name-4 rm-bin.qty
+&scoped-define fld-name-5 rm-bin.po-no
+&SCOPED-DEFINE datatype-4 INT 
+&SCOPED-DEFINE datatype-5 INT
 &scoped-define IAMWHAT LOOKUP
+
+IF  PROGRAM-NAME(2) MATCHES "*dMultiTrans.w*" THEN
+    lDisplayAllBins = NO .  
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -80,18 +87,22 @@ def var lv-first-time as log init yes no-undo.
 
 /* Definitions for BROWSE BROWSE-1                                      */
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 rm-bin.loc rm-bin.loc-bin ~
-rm-bin.tag rm-bin.qty 
+rm-bin.tag rm-bin.qty rm-bin.po-no
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH rm-bin WHERE ~{&KEY-PHRASE} ~
       AND rm-bin.company = ip-company ~
 AND rm-bin.i-no = ip-i-no  ~
 and (rm-bin.po-no eq ip-PoNo or ip-PoNo eq 0) ~
+and (rm-bin.loc  EQ ip-loc OR ip-loc EQ "") ~
+and (rm-bin.loc-bin  EQ ip-loc-bin OR ip-loc-bin EQ "") ~
 AND ((rm-bin.qty > 0 AND NOT tb_qty) OR tb_qty = YES)  NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH rm-bin WHERE ~{&KEY-PHRASE} ~
       AND rm-bin.company = ip-company ~
 AND rm-bin.i-no = ip-i-no  ~
 and (rm-bin.po-no eq ip-PoNo or ip-PoNo eq 0) ~
+and (rm-bin.loc  EQ ip-loc OR ip-loc EQ "") ~
+and (rm-bin.loc-bin  EQ ip-loc-bin OR ip-loc-bin EQ "") ~
 AND ((rm-bin.qty > 0 AND NOT tb_qty) OR tb_qty = YES)  NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 rm-bin
@@ -150,8 +161,9 @@ DEFINE VARIABLE rd-sort AS INTEGER
      RADIO-BUTTONS 
           "Warehouse", 1,
 "Bin", 2,
-"Tag", 3
-     SIZE 30.8 BY .95 NO-UNDO.
+"Tag", 3,
+"PO", 5
+     SIZE 33.8 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -160,7 +172,7 @@ DEFINE RECTANGLE RECT-1
 DEFINE VARIABLE tb_qty AS LOGICAL INITIAL NO 
      LABEL "Display All Bins?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 19.2 BY .81 NO-UNDO.
+     SIZE 19.0 BY .81 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -175,7 +187,8 @@ DEFINE BROWSE BROWSE-1
       rm-bin.loc FORMAT "x(5)":U
       rm-bin.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U WIDTH 11.4
       rm-bin.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U WIDTH 27.2
-      rm-bin.qty FORMAT "->>>,>>9.9<<":U WIDTH 13.2
+      rm-bin.qty FORMAT "->>>,>>9.9<<":U WIDTH 13.2      
+      rm-bin.po-no FORMAT ">>>>>>>":U WIDTH 13.2
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 92 BY 11.19
@@ -189,7 +202,7 @@ DEFINE FRAME Dialog-Frame
      Btn_Select AT ROW 12.43 COL 66
      Btn_Deselect AT ROW 12.43 COL 79
      rd-sort AT ROW 12.67 COL 11.2 NO-LABEL
-     tb_qty AT ROW 12.76 COL 44.4
+     tb_qty AT ROW 12.76 COL 46.4
      bt-clear AT ROW 14.1 COL 2
      lv-search AT ROW 14.1 COL 21 COLON-ALIGNED
      bt-ok AT ROW 14.1 COL 69
@@ -248,7 +261,10 @@ ASSIGN
      _TblList          = "ASI.rm-bin"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "ASI.rm-bin.company = ip-company
-AND ASI.rm-bin.i-no = ip-i-no AND (ASI.rm-bin.po-no = ip-PoNo or ip-PoNo eq 0)"
+AND ASI.rm-bin.i-no = ip-i-no AND (ASI.rm-bin.po-no = ip-PoNo or ip-PoNo eq 0)
+and (rm-bin.loc  EQ ip-loc OR ip-loc EQ '') 
+and (rm-bin.loc-bin  EQ ip-loc-bin OR ip-loc-bin EQ '') 
+AND ((rm-bin.qty > 0 AND NOT tb_qty) OR tb_qty = YES) "
      _FldNameList[1]   = ASI.rm-bin.loc
      _FldNameList[2]   > ASI.rm-bin.loc-bin
 "rm-bin.loc-bin" "Bin" ? "character" ? ? ? ? ? ? no ? no no "11.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
@@ -256,6 +272,7 @@ AND ASI.rm-bin.i-no = ip-i-no AND (ASI.rm-bin.po-no = ip-PoNo or ip-PoNo eq 0)"
 "rm-bin.tag" "Tag#" "x(20)" "character" ? ? ? ? ? ? no ? no no "27.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.rm-bin.qty
 "rm-bin.qty" ? "->>>,>>9.9<<" "decimal" ? ? ? ? ? ? no ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   = ASI.rm-bin.po-no
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
@@ -346,6 +363,7 @@ DO:
         {srtord2.i 2}
         {srtord2.i 3}
         {srtord2.i 4}
+        {srtord2.i 5}
     end.
     apply "entry" to {&browse-name}.
 END.
@@ -403,6 +421,7 @@ DO:
         {srtord2.i 2}
         {srtord2.i 3}
         {srtord2.i 4}
+        {srtord.i 5}
     end.      
     apply "entry" to {&browse-name}.
 END.
@@ -422,6 +441,7 @@ DO:
         {srtord2.i 2}
         {srtord2.i 3}
         {srtord2.i 4}
+        {srtord.i 5}
     end.    
     apply "entry" to {&browse-name}.
 END.
@@ -442,6 +462,7 @@ DO:
         {srtord2.i 2}
         {srtord2.i 3}
         {srtord2.i 4}
+        {srtord.i 5}
     end.    
     apply "entry" to {&browse-name}.
 END.
@@ -487,6 +508,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         WHERE b-rm-bin.company EQ ip-company
           AND b-rm-bin.i-no    EQ ip-i-no
           AND (b-rm-bin.po-no  EQ ip-PoNo OR ip-PoNo EQ 0)
+          AND (b-rm-bin.loc  EQ ip-loc OR ip-loc EQ "")
+          AND (b-rm-bin.loc-bin  EQ ip-loc-bin OR ip-loc-bin EQ "")
           AND STRING(b-rm-bin.loc,"x(20)")     +
               STRING(b-rm-bin.loc-bin,"x(20)") +
               STRING(b-rm-bin.tag,"x(20)")     GE STRING(ip-loc,"x(20)")     +
@@ -505,6 +528,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
      
 
+  END.
+  
+  IF NOT lDisplayAllBins THEN
+  DO:
+     tb_qty:HIDDEN IN FRAME {&frame-name} = TRUE .  
   END.
 
   APPLY "entry" TO BROWSE {&browse-name}.

@@ -343,8 +343,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
 
   &scoped-define key-phrase loc.company EQ ip-company
+  
+  IF ip-cur-val NE "" THEN
   {custom/lookpos.i &lookup-file = "loc" &lookup-field = "loc"}
-
+    
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
