@@ -937,7 +937,6 @@ PROCEDURE local-create-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel .
-  DEFINE VARIABLE hVendorCostProcs AS HANDLE NO-UNDO.
   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO .
   DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO .
     
@@ -1067,7 +1066,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
   RUN set-panel (0).
 
-  IF lNewRecord THEN DO:
+  IF lNewRecord THEN
       RUN viewers/dVendCostLevel.w(
           INPUT ROWID(vendItemCost),
           INPUT lv-rowid,
@@ -1075,12 +1074,12 @@ PROCEDURE local-update-record :
           INPUT NO, /* Do not Change quantityFrom */
           OUTPUT rdRowidLevel
           ) .
-      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
-      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-            RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost), rdRowidLevel).
-  END.
   
   RUN RecalculateFromAndTo IN hVendorCostProcs (vendItemCost.vendItemCostID, OUTPUT lReturnError ,OUTPUT cReturnMessage).
+       
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-target",OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost), rdRowidLevel).
   
   adm-adding-record = NO .
   adm-new-record = NO .
@@ -1192,7 +1191,9 @@ PROCEDURE pSetUomList PRIVATE :
         IF AVAILABLE itemfg THEN
             RUN Conv_GetValidCostUOMsForItem(ROWID(itemfg), OUTPUT uom-list, OUTPUT lError, OUTPUT cMessage).
         IF lError THEN  
-            RUN Conv_GetValidCostUOMs(ROWID(itemfg), OUTPUT uom-list).
+            RUN Conv_GetValidCostUOMs(
+                OUTPUT uom-list
+                ).
     END.
     
 END PROCEDURE.
