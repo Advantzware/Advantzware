@@ -76,8 +76,8 @@ RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynValProc.
 
 /* Custom List Definitions                                              */
 /* outputObjects,showFields,List-3,List-4,List-5,List-6                 */
-&Scoped-define outputObjects btnSave btnVisibleSets svRecipients ~
-btnAddEmail svSetAlignment defaultOutputFormat svRunSync svShowAll ~
+&Scoped-define outputObjects btnSave btnVisibleSets btnAddEmail ~
+svRecipients svSetAlignment defaultOutputFormat svRunSync svShowAll ~
 svShowReportHeader svShowReportFooter svShowPageHeader svShowPageFooter ~
 svShowGroupHeader svShowGroupFooter svShowParameters 
 &Scoped-define showFields svShowAll svShowReportHeader svShowReportFooter ~
@@ -126,12 +126,12 @@ DEFINE VARIABLE defaultOutputFormat AS CHARACTER
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Grid", "Grid":U,
+"Local CSV", "LocalCSV":U,
 "CSV", "CSV":U,
 "XLS", "XLS":U,
 "DocX", "DOCX":U,
 "PDF", "PDF":U,
-"HTML", "HTML":U,
-"Local CSV", "LocalCSV":U
+"HTML", "HTML":U
      SIZE 64 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svSetAlignment AS CHARACTER INITIAL "Custom" 
@@ -210,9 +210,9 @@ DEFINE FRAME outputFrame
           "Update/Save" WIDGET-ID 248
      btnVisibleSets AT ROW 1.48 COL 141 HELP
           "Show/Hide Parameter Sets" WIDGET-ID 660
-     svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
      btnAddEmail AT ROW 1.95 COL 3 HELP
           "Add Recipents" WIDGET-ID 636
+     svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
      svSetAlignment AT ROW 1.71 COL 62 NO-LABEL WIDGET-ID 654
      defaultOutputFormat AT ROW 2.43 COL 77 NO-LABEL WIDGET-ID 644
      svRunSync AT ROW 2.91 COL 8 HELP
@@ -227,10 +227,10 @@ DEFINE FRAME outputFrame
      svShowParameters AT ROW 4.1 COL 142 WIDGET-ID 16
      "Set Alignment" VIEW-AS TEXT
           SIZE 13.6 BY .62 AT ROW 1 COL 62 WIDGET-ID 658
-     "Email:" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 640
      "Default Output Format:" VIEW-AS TEXT
           SIZE 23 BY 1 AT ROW 1.48 COL 77 WIDGET-ID 652
+     "Email:" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 640
      RECT-PANEL AT ROW 1.24 COL 76 WIDGET-ID 256
      RECT-SHOW AT ROW 3.86 COL 2 WIDGET-ID 642
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 

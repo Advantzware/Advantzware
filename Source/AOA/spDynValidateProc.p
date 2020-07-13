@@ -7,21 +7,41 @@
 &Scoped-define defInputParam ~
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.~
 ~
+    IF lDynParamValidation EQ NO THEN RETURN "".~
     RUN spGetSessionParam ("Company", OUTPUT cCompany).
 &Scoped-define checkRange ~
     RUN dynValReturn (iphWidget,~
         iphWidget:SCREEN-VALUE EQ CHR(32)  OR~
         iphWidget:SCREEN-VALUE EQ CHR(254) OR
 
-DEFINE VARIABLE cCompany      AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cSessionParam AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cSessionValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDynParamValidation AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSessionParam       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSessionValue       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lDynParamValidation AS LOGICAL   NO-UNDO.
 
 /* **********************  Internal Functions  ************************ */
 
 FUNCTION fErrorMsg RETURNS CHARACTER (iphWidget AS HANDLE):
     RETURN "Invalid Entry for " + iphWidget:LABEL + ": ~"" + iphWidget:SCREEN-VALUE + "~"".
 END FUNCTION.
+
+/* **********************  Main Block  ******************************** */
+
+RUN spGetSessionParam ("Company", OUTPUT cCompany).
+/* check if dynamic parameter validation turned off */
+RUN sys/ref/nk1look.p (
+    cCompany,
+    "DynParamValidation",
+    "L",
+    NO,
+    NO,
+    "",
+    "",
+    OUTPUT cDynParamValidation,
+    OUTPUT lDynParamValidation
+    ).
+lDynParamValidation = cDynParamValidation EQ "YES".
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -386,7 +406,7 @@ PROCEDURE dynValStackPatterns:
     {&defInputParam}
     {&checkRange}
         CAN-FIND(FIRST stackPattern
-                 WHERE  stackPattern.stackCode     EQ iphWidget:SCREEN-VALUE)
+                 WHERE  stackPattern.stackCode EQ iphWidget:SCREEN-VALUE)
         ).
 END PROCEDURE.
 

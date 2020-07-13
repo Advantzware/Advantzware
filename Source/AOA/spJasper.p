@@ -1715,7 +1715,7 @@ PROCEDURE pLocalCSV:
                 hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynValueColumn.colName,"."))
                 cFieldName   = ENTRY(2,dynValueColumn.colName,".")
                 cBufferValue = fFormatValue(hQueryBuf, cFieldName)
-                cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "Web")
+                cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "")
                 .
             PUT UNFORMATTED cBufferValue + ",".
         END. /* each dynvaluecolumn */
