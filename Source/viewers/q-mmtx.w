@@ -316,14 +316,14 @@ PROCEDURE proc-down :
    DEF BUFFER bf-mmtx FOR mmtx .
    DEF BUFFER bf2-mmtx FOR mmtx.
    DEF VAR i AS INT NO-UNDO.
-   
+   IF NOT avail mmtx THEN RETURN.
    ASSIGN li-cur-page = mmtx.page-no
           li-cur-across = mmtx.across-no.
           
     /*get next {&query-name}.
     run dispatch ('row-available').
     */
-   
+    
     FIND FIRST bf-mmtx OF mstd WHERE bf-mmtx.page-no > mmtx.page-no AND
                                    bf-mmtx.across-no = mmtx.across-no AND
                                    bf-mmtx.mr-run = FALSE
@@ -420,7 +420,8 @@ PROCEDURE proc-left :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  ASSIGN li-cur-page = mmtx.page-no
+ IF avail mmtx THEN 
+ ASSIGN li-cur-page = mmtx.page-no
          li-cur-across = mmtx.across-no.
 
   
@@ -443,7 +444,8 @@ PROCEDURE proc-right :
   DEF BUFFER bf-mmtx FOR mmtx.
   DEF BUFFER bf2-mmtx FOR mmtx.
   DEF VAR i AS INT NO-UNDO.
-
+  
+  IF NOT avail mmtx THEN RETURN.
   ASSIGN li-cur-page = mmtx.page-no
          li-cur-across = mmtx.across-no.
 
@@ -517,6 +519,7 @@ PROCEDURE proc-up :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  IF avail mmtx THEN 
   ASSIGN li-cur-page = mmtx.page-no
          li-cur-across = mmtx.across-no.
 
