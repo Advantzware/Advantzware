@@ -52,7 +52,7 @@ END FUNCTION.
 IF ip-group-override THEN DO:
     v_groups = "". /* YSK need to reset */
     FOR EACH usergrps NO-LOCK:
-        IF CAN-DO(usergrps.users,USERID("NOSWEAT")) THEN
+        IF CAN-DO(usergrps.users,USERID("ASI")) THEN
         v_groups = v_groups + usergrps.usergrps + ",".  /* YSK "," added  */
     END.
 END.
@@ -62,7 +62,7 @@ v_groups = g_groups.
 IF INDEX(ip-program,".uib") NE 0 OR
    INDEX(ip-program,".ab")  NE 0 OR
    INDEX(ip-program,".ped") NE 0 THEN
-v-prgmname = USERID("NOSWEAT") + "..".
+v-prgmname = USERID("ASI") + "..".
 ELSE DO:
     v-prgmname = ip-program.
     IF INDEX(v-prgmname,"\") GT 0 THEN
@@ -141,11 +141,11 @@ IF AVAILABLE b-prgrms THEN DO:
         IF NOT v-can-run    AND CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   USERID("ASI")) THEN
         v-can-run    = YES.
         IF NOT v-can-update AND CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),USERID("ASI")) THEN
-        v-can-run    = YES.
+        v-can-update = YES.
         IF NOT v-can-create AND CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),USERID("ASI")) THEN
         v-can-create = YES.
         IF NOT v-can-delete AND CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),USERID("ASI")) THEN
-        v-can-create = YES.
+        v-can-delete = YES.
         IF v-can-run THEN
         run-access = NO.
         CASE ip-basis:
