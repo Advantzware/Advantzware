@@ -1303,7 +1303,7 @@ END. /* avail mmtx*/
 
      if sp-x ne 0 then do:
         find std-code where std-code.code = string(sp-x,"99") no-lock no-error.
-        mmtx.c-title = caps(std-code.dscr).
+        mmtx.c-title = IF AVAIL std-code THEN caps(std-code.dscr) ELSE "". 
         do i = 1 to length(mmtx.c-title):
            tmpstore = tmpstore + substring(mmtx.c-title,i,1) + " ".
         end.
@@ -1311,7 +1311,7 @@ END. /* avail mmtx*/
      end.
      if sp-y ne 0 then do:
         find std-code where std-code.code = string(sp-y,"99") no-lock no-error.
-        mmtx.r-title = caps(std-code.dscr).
+        mmtx.r-title = IF AVAIL std-code THEN caps(std-code.dscr) ELSE "" .
         tmpstore = "".
         do i = 1 to 15:
            mmtx.rtit[i] = substring(mmtx.r-title,i,1).
