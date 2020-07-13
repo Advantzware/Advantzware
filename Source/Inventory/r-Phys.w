@@ -807,7 +807,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     BY inventorySnapshot.inventorySnapshotID DESCENDING
     iSnapshotCount = 1 TO 29:        
 
-     cbSnapshot:ADD-LAST(inventorySnapshot.snapshotDesc, STRING(inventorySnapshot.inventorySnapshotID)).
+     cbSnapshot:ADD-LAST(inventorySnapshot.snapshotDesc, STRING(inventorySnapshot.inventorySnapshotID)) NO-ERROR.
   END.
   
    v-prgmname = IF ipcInventoryType EQ "RM" then "r-fgPhys." ELSE "r-rmPhys.".
