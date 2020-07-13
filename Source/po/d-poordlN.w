@@ -865,7 +865,9 @@ DO:
                         RUN Conv_GetValidPOQtyUOMsForItem(ROWID(itemfg), OUTPUT uom-list, OUTPUT lError, OUTPUT cMessage).
                 IF lError THEN  
                     IF lw-focus:NAME EQ "pr-uom" THEN
-                        RUN Conv_GetValidCostUOMs(ROWID(itemfg), OUTPUT uom-list).
+                        RUN Conv_GetValidCostUOMs(
+                            OUTPUT uom-list
+                            ).
                     ELSE  
                         RUN Conv_GetValidPOQtyUOMs(ROWID(itemfg), OUTPUT uom-list).
                 RUN windows/l-stduom.w (g_company,uom-list, lw-focus:SCREEN-VALUE, OUTPUT char-val).              
@@ -6249,7 +6251,9 @@ PROCEDURE valid-uom :
                         RUN Conv_GetValidPOQtyUOMsForItem(ROWID(itemfg), OUTPUT uom-list, OUTPUT lError, OUTPUT cMessage).
                 IF lError THEN  
                     IF ip-field EQ "pr-uom" THEN
-                        RUN Conv_GetValidCostUOMs(ROWID(itemfg), OUTPUT uom-list).
+                        RUN Conv_GetValidCostUOMs(
+                            OUTPUT uom-list
+                            ).
                     ELSE  
                         RUN Conv_GetValidPOQtyUOMs(ROWID(itemfg), OUTPUT uom-list).
         END.  
