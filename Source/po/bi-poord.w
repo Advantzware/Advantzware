@@ -507,7 +507,7 @@ PROCEDURE delete_item :
   DEF VAR lv-loc LIKE rm-rctd.loc NO-UNDO.
   DEF VAR ll-renumber AS LOG NO-UNDO.
   DEF BUFFER b-po-ordl FOR po-ordl.
-
+  DEFINE BUFFER bf-itemfg FOR itemfg .
 
   /*RELEASE rm-rdtlh.
   RELEASE rm-rctd.
@@ -568,6 +568,13 @@ PROCEDURE delete_item :
   SESSION:SET-WAIT-STATE("general").
 
   FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.
+  
+  IF AVAIL po-ordl AND NOT po-ordl.item-type THEN
+  DO:
+     FIND FIRST bf-itemfg NO-LOCK
+          WHERE bf-itemfg.company EQ po-ordl.company
+          AND bf-itemfg.i-no EQ po-ordl.i-no NO-ERROR .
+  END.
 
   IF AVAIL po-ordl THEN DO:
     IF CAN-FIND(FIRST b-po-ordl
@@ -609,6 +616,12 @@ PROCEDURE delete_item :
       RUN dispatch ('row-changed').
     END.
   END.
+  
+  IF AVAIL bf-itemfg THEN 
+  DO:
+     RUN fg/fg-reset.p(INPUT RECID(bf-itemfg)).     
+  END.
+  
   FIND CURRENT po-ordl NO-LOCK NO-ERROR.
   
   SESSION:SET-WAIT-STATE("").
