@@ -57,33 +57,37 @@ PROCEDURE pBusinessLogic:
           AND cust.cust-no LE cEndCustNo
         :
         lCustTaxAble = cust.sort EQ "Y".
+        IF cFGItemStatus NE "None" THEN
         FOR EACH itemfg NO-LOCK
             WHERE itemfg.company EQ cCompany
               AND itemfg.cust-no EQ cust.cust-no
               AND itemfg.i-no    GE cStartFGItem
               AND itemfg.i-no    LE cEndFGItem
-              AND (itemfg.stat   EQ "A"
-               OR  cFGItemStatus EQ "2")
             :
+            IF cFGItemStatus EQ "Active" AND itemfg.stat NE "A" THEN
+            NEXT. 
             IF itemfg.taxable NE lCustTaxAble THEN
             RUN pLogProblem ("FGItem", "FG Item Taxable <> Customer Taxable").
-        END.  
+        END.
+        IF cPrepStatus NE "None" THEN
         FOR EACH prep NO-LOCK
             WHERE prep.company EQ cCompany
               AND prep.cust-no EQ cust.cust-no
               AND prep.code    GE cStartPrepNo
               AND prep.code    LE cEndPrepNo
             :
+            IF cPrepStatus EQ "Active" AND prep.inactive EQ YES THEN
+            NEXT.
             IF prep.taxable NE lCustTaxAble THEN
             RUN pLogProblem ("Prep", "Prep Item Taxable <> Customer Taxable").
         END.    
-        IF cShipToStatus EQ "2" OR cShipToStatus EQ "3" THEN DO:
+        IF cShipToStatus NE "None" THEN DO:
             FOR EACH shipto NO-LOCK
                 WHERE shipto.company EQ cCompany
                   AND shipto.cust-no EQ cust.cust-no
                 :
                 IF DYNAMIC-FUNCTION("IsActive",shipto.rec_key) EQ NO AND
-                   cShipToStatus EQ "2" THEN
+                   cShipToStatus EQ "Active" THEN
                 NEXT.
                 FIND FIRST stax-group NO-LOCK
                      WHERE stax-group.tax-group EQ shipto.tax-code
@@ -97,29 +101,28 @@ PROCEDURE pBusinessLogic:
                 IF NOT lCustTaxAble AND cust.date-field[2] LT TODAY + 30 AND AVAILABLE ttSalesTaxAuditRep THEN
                 RUN pLogProblem ("ShipTo", "Resale expiration date issue").    
             END.
-        END.       
-        FIND FIRST stax-group NO-LOCK
-             WHERE stax-group.tax-group EQ cust.tax-gr
-             NO-ERROR.
-        IF NOT AVAILABLE stax-group AND AVAILABLE ttSalesTaxAuditRep AND cust.tax-gr NE "" THEN
-        RUN pLogProblem ("Cust", "Tax Group Defined is not valid").
-        IF cust.tax-gr EQ "" AND lCustTaxAble AND AVAILABLE ttSalesTaxAuditRep THEN
-        RUN pLogProblem ("Cust", "Taxable customer without tax code").
-        IF NOT lCustTaxAble AND Cust.tax-id EQ "" AND AVAILABLE ttSalesTaxAuditRep THEN
-        RUN pLogProblem ("Cust", "Non Taxable customer without Resale certificate"). 
-        IF NOT lCustTaxAble AND cust.date-field[2] LT TODAY + 30 AND AVAILABLE ttSalesTaxAuditRep THEN
-        RUN pLogProblem ("Cust", "Resale expiration date issue").       
+        END.
+        IF cCustomerStatus NE "None" THEN DO:
+            IF cCustomerStatus EQ "Active" AND cust.active NE "A" THEN
+            NEXT.
+            FIND FIRST stax-group NO-LOCK
+                 WHERE stax-group.tax-group EQ cust.tax-gr
+                 NO-ERROR.
+            IF NOT AVAILABLE stax-group AND AVAILABLE ttSalesTaxAuditRep AND cust.tax-gr NE "" THEN
+            RUN pLogProblem ("Cust", "Tax Group Defined is not valid").
+            IF cust.tax-gr EQ "" AND lCustTaxAble AND AVAILABLE ttSalesTaxAuditRep THEN
+            RUN pLogProblem ("Cust", "Taxable customer without tax code").
+            IF NOT lCustTaxAble AND Cust.tax-id EQ "" AND AVAILABLE ttSalesTaxAuditRep THEN
+            RUN pLogProblem ("Cust", "Non Taxable customer without Resale certificate"). 
+            IF NOT lCustTaxAble AND cust.date-field[2] LT TODAY + 30 AND AVAILABLE ttSalesTaxAuditRep THEN
+            RUN pLogProblem ("Cust", "Resale expiration date issue").
+        END. /* if ccustomerstatus */       
     END. /* each cust */
 END PROCEDURE.
 
 PROCEDURE pCreateSalesTaxAudit:
     DEFINE INPUT PARAMETER ipcProblem AS CHARACTER NO-UNDO.
 
-/*    FIND FIRST ttSalesTaxAuditRep                        */
-/*         WHERE ttSalesTaxAuditRep.cust-no EQ cust.cust-no*/
-/*         NO-ERROR.                                       */
-/*    IF AVAILABLE ttSalesTaxAuditRep THEN                 */
-/*    RETURN.                                              */
     CREATE ttSalesTaxAuditRep.
     ASSIGN
         ttSalesTaxAuditRep.cust-no      = cust.cust-no
