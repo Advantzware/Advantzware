@@ -436,7 +436,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
 
             IF ll-consol-bolls THEN 
             DO:
-                IF FIRST-OF(tt-boll.i-no) THEN do:
+                IF FIRST-OF(tt-boll.ord-no) THEN do:
                     ln-cnt = ln-cnt + 3.
                     IF AVAILABLE oe-ordl AND oe-ordl.i-name <> "" THEN ln-cnt = ln-cnt + 1.
                     IF AVAILABLE oe-ordl AND oe-ordl.part-dscr1 <> "" THEN ln-cnt = ln-cnt + 1.
