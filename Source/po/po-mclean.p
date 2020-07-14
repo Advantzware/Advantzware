@@ -123,6 +123,12 @@ DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cEmailId AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cVendorName LIKE vend.name NO-UNDO.  
+DEFINE VARIABLE cVendorAdd1 LIKE vend.Add1 NO-UNDO.
+DEFINE VARIABLE cVendorAdd2 LIKE vend.Add2 NO-UNDO.
+DEFINE VARIABLE cVendorCity LIKE vend.city NO-UNDO.
+DEFINE VARIABLE cVendorState LIKE vend.state NO-UNDO.
+DEFINE VARIABLE cVendorZip LIKE vend.zip NO-UNDO.
 
 RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
@@ -251,6 +257,32 @@ END FUNCTION.
       find first terms where terms.t-code eq po-ord.terms no-lock no-error.
       find first carrier where carrier.company eq po-ord.company 
                            and carrier.carrier eq po-ord.carrier no-lock no-error.
+      IF avail vend THEN
+      ASSIGN
+      cVendorName =  vend.name
+      cVendorAdd1 = vend.add1
+      cVendorAdd2 = vend.add2
+      cVendorCity = vend.city
+      cVendorState = vend.state
+      cVendorZip = vend.zip .
+      IF AVAIL vend AND vend.loc NE "" THEN
+      DO:
+        FIND FIRST loc NO-LOCK
+             WHERE loc.company EQ vend.company
+             AND loc.loc EQ vend.loc NO-ERROR .
+        IF avail loc THEN     
+        FIND FIRST location NO-LOCK
+             WHERE location.locationCode = loc.loc 
+             AND location.rec_key = loc.addrRecKey NO-ERROR.    
+        IF avail loc AND AVAIL location THEN
+        ASSIGN
+        cVendorName =  loc.dscr
+        cVendorAdd1 = location.streetAddr[1]
+        cVendorAdd2 = location.streetAddr[2]
+        cVendorCity = location.subCode3
+        cVendorState = location.subCode1
+        cVendorZip = location.subCode4 .           
+      END.
 
       IF ip-multi-faxout AND AVAIL vend AND FIRST-OF(po-ord.vend-no) THEN DO:
          OUTPUT CLOSE.
