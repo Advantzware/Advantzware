@@ -83,18 +83,18 @@ ASSIGN cTextListToSelect  = "Invoice#,Customer#,Customer Name,Invoice Date,Bol#,
                                                 "Name,Cust Part#,Qty Order,Item Dscr1,Item Dscr2," +
                                                 "Qty Ship,Qty Invoice,UOM,Rep1,Rep Name1,Rep2,Rep Name2,Rep3,Rep Name3," +
                                                 "Comm1,Comm2,Comm3,Cost,Case,Discount,Taxable,Ext. Price," +
-                                                "CSR,Line Item Tax,OrderHeader ShipTo State,Order Line No,Billing Note"
+                                                "CSR,Line Item Tax,OrderHeader ShipTo State,Order Line No,Billing Note,Auto Approval,Tag"
        cFieldListToSelect = "inv-head.inv-no,inv-head.cust-no,inv-head.cust-name,inv-head.inv-date,inv-head.bol-no,ord-no,inv-head.printed,inv-head.t-inv-rev," +
                                         "stat,inv-head.sold-no,inv-head.sold-name,inv-head.contact,inv-head.tax-gr,inv-head.terms,inv-head.frt-pay," +
                                         "po-no,inv-head.carrier,inv-head.fob-code,job-no,job-no2,est-no,i-no," +
                                         "i-name,part-no,qty,part-dscr1,part-dscr2," +
                                         "ship-qty,inv-qty,pr-uom,sman1,sname1,sman2,sname2,sman3,sname3," +
                                         "comm1,comm2,comm3,cost,cas-cnt,disc,tax,t-price," +
-                                        "csr,line-sales-tax,ord-head-ship-stat,ord-line,bill-note"
+                                        "csr,line-sales-tax,ord-head-ship-stat,ord-line,bill-note,Auto,reason"
         cFieldLength = "15,15,15,20,15,30,15,15," + "15,15,15,20,15,30,15," + "15,15,15,8,2,6,15," +
-                       "30,15,10,30,30," + "15,15,5,4,25,4,25,4,25," + "7,7,7,10,10,10,10,10," + "15,15,15,15,15"
+                       "30,15,10,30,30," + "15,15,5,4,25,4,25,4,25," + "7,7,7,10,10,10,10,10," + "15,15,15,15,15,10,100"
            cFieldType = "c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c," + "c,c,c,c,i,c,c," +
-                        "c,c,i,c,c," + "i,i,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,i," + "c,c,c,i,c"     
+                        "c,c,i,c,c," + "i,i,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,i," + "c,c,c,i,c,c,c"     
        .
 
 {sys/inc/ttRptSel.i}
@@ -1291,6 +1291,17 @@ IF tb_print-del  THEN do:
                   WHEN "bill-note"          THEN DO:
                      cVarValue =  inv-head.bill-i[1] + " "  + inv-head.bill-i[2] + " " + inv-head.bill-i[3] + "  " + inv-head.bill-i[4] .
                   END.
+                  WHEN "auto" THEN cVarValue = STRING(inv-head.autoApproved) .
+                  WHEN "reason" THEN
+                  DO:
+                     FIND FIRST tag NO-LOCK 
+                          WHERE tag.linkRecKey  EQ inv-head.rec_key
+                          AND tag.tagType     EQ "Hold" 
+                          AND tag.linkTable   EQ "inv-head"                          
+                          NO-ERROR. 
+                      IF avail tag AND NOT inv-head.autoApproved THEN cVarValue = STRING(tag.description) .
+                      ELSE  cVarValue = "".                      
+                  END.
                   
              END CASE.
 
@@ -1441,6 +1452,17 @@ ELSE DO:
                   WHEN "disc" THEN cVarValue = "". 
                   WHEN "tax" THEN cVarValue = "".
                   WHEN "t-price" THEN cVarValue = "".
+                  WHEN "auto" THEN cVarValue = STRING(inv-head.autoApproved) .
+                  WHEN "reason" THEN
+                  DO:
+                     FIND FIRST tag NO-LOCK 
+                          WHERE tag.linkRecKey  EQ inv-head.rec_key
+                          AND tag.tagType     EQ "Hold" 
+                          AND tag.linkTable   EQ "inv-head"                          
+                          NO-ERROR. 
+                      IF avail tag AND NOT inv-head.autoApproved THEN cVarValue = STRING(tag.description) .
+                      ELSE  cVarValue = "".                      
+                  END.
              END CASE.
 
              cExcelVarValue = cVarValue.
