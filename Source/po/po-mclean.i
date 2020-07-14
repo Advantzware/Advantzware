@@ -9,10 +9,10 @@ PUT
      "Purchase Order To:" AT 4 SPACE(43) "Ship To:"  SKIP.
 
 IF AVAIL vend THEN
-         PUT SPACE(3) vend.name "Phone#:" AT 38 "(" + vend.area-code + ")" + string(vend.phone,"xxx-xxxx") FORM "x(14)" v-sname AT 65 skip
-         SPACE(3) vend.add1     "Fax#  :" AT 38 "(" + vend.fax-area + ")" + string(vend.fax,"xxx-xxxx") FORM "x(14)" v-saddr[1] AT 65 SKIP
-         SPACE(3) vend.add2 v-saddr[2] AT 65 SKIP
-         SPACE(3) vend.city + " " + vend.state + " " + vend.zip FORM "x(35)"
+         PUT SPACE(3) cVendorName "Phone#:" AT 38 "(" + vend.area-code + ")" + string(vend.phone,"xxx-xxxx") FORM "x(14)" v-sname AT 65 skip
+         SPACE(3) cVendorAdd1     "Fax#  :" AT 38 "(" + vend.fax-area + ")" + string(vend.fax,"xxx-xxxx") FORM "x(14)" v-saddr[1] AT 65 SKIP
+         SPACE(3) cVendorAdd2 v-saddr[2] AT 65 SKIP
+         SPACE(3) cVendorCity + " " + cVendorState + " " + cVendorZip FORM "x(35)"
                   v-scity + " " + v-sstate + " " + v-szip FORM "x(35)" AT 65 SKIP.
 ELSE PUT v-sname AT 65 skip
          v-saddr[1] AT 65 SKIP
