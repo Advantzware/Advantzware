@@ -133,7 +133,7 @@ DEFINE BUTTON btnHTML
 DEFINE BUTTON btnLocalCSV 
      IMAGE-UP FILE "Graphics/32x32/excel.bmp":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 8 BY 1.9 TOOLTIP "Local Excel CSV".
+     SIZE 8 BY 1.91 TOOLTIP "Local Excel CSV".
 
 DEFINE BUTTON btnPageFormat 
      IMAGE-UP FILE "Graphics/32x32/document_gear.ico":U NO-FOCUS FLAT-BUTTON
@@ -251,21 +251,32 @@ DEFINE FRAME paramFrame
          SIZE 160 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
 
+DEFINE FRAME resultsFrame
+     btnSaveResults AT ROW 1 COL 2 HELP
+          "Jasper Viewer" WIDGET-ID 254
+     btnCloseResults AT ROW 1 COL 6 HELP
+          "Jasper Viewer" WIDGET-ID 252
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 6.48
+         SIZE 10 BY 2.38
+         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
+
 DEFINE FRAME outputFrame
-     btnLocalCSV AT ROW 1.48 COL 151 HELP
+     btnLocalCSV AT ROW 1.48 COL 87 HELP
           "Local Excel CSV" WIDGET-ID 656
-     btnPageFormat AT ROW 1.48 COL 135 HELP
+     btnPageFormat AT ROW 1.48 COL 143 HELP
           "Page Format" WIDGET-ID 652
-     svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
      btnRunResults AT ROW 1.48 COL 79 HELP
           "Results Grid" WIDGET-ID 254
-     btnCSV AT ROW 1.48 COL 87 HELP
+     svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
+     btnCSV AT ROW 1.48 COL 95 HELP
           "Excel CSV" WIDGET-ID 140
      svSetAlignment AT ROW 1.95 COL 64 NO-LABEL WIDGET-ID 646
      svRunSync AT ROW 2.91 COL 8 HELP
           "Toggle to Run Synchronous" WIDGET-ID 654
      svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
-     btnHTML AT ROW 1.48 COL 119 HELP
+     btnHTML AT ROW 1.48 COL 127 HELP
           "HTML" WIDGET-ID 144
      svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
      svShowReportFooter AT ROW 4.1 COL 45 WIDGET-ID 4
@@ -274,17 +285,17 @@ DEFINE FRAME outputFrame
      svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
      svShowGroupFooter AT ROW 4.1 COL 124 WIDGET-ID 12
      svShowParameters AT ROW 4.1 COL 143 WIDGET-ID 16
-     btnView AT ROW 1.48 COL 143 HELP
+     btnView AT ROW 1.48 COL 151 HELP
           "Jasper Viewer" WIDGET-ID 148
      btnAddEmail AT ROW 1.95 COL 3 HELP
           "Add Recipents" WIDGET-ID 636
-     btnPrint AT ROW 1.48 COL 127 HELP
+     btnPrint AT ROW 1.48 COL 135 HELP
           "Printer" WIDGET-ID 644
-     btnDOCX AT ROW 1.48 COL 103 HELP
+     btnDOCX AT ROW 1.48 COL 111 HELP
           "Word DOCX" WIDGET-ID 142
-     btnPDF AT ROW 1.48 COL 111 HELP
+     btnPDF AT ROW 1.48 COL 119 HELP
           "PDF" WIDGET-ID 146
-     btnXLS AT ROW 1.48 COL 95 HELP
+     btnXLS AT ROW 1.48 COL 103 HELP
           "Excel XLS" WIDGET-ID 150
      "Set Alignment" VIEW-AS TEXT
           SIZE 13.6 BY .62 AT ROW 1.24 COL 64 WIDGET-ID 650
@@ -298,17 +309,6 @@ DEFINE FRAME outputFrame
          SIZE 160 BY 5.24
          BGCOLOR 15 
          TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1300.
-
-DEFINE FRAME resultsFrame
-     btnSaveResults AT ROW 1 COL 2 HELP
-          "Jasper Viewer" WIDGET-ID 254
-     btnCloseResults AT ROW 1 COL 6 HELP
-          "Jasper Viewer" WIDGET-ID 252
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 6.48
-         SIZE 10 BY 2.38
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -811,7 +811,7 @@ PROCEDURE enable_UI :
           svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
           svShowGroupFooter svShowParameters 
       WITH FRAME outputFrame IN WINDOW C-Win.
-  ENABLE btnLocalCSV btnPageFormat svRecipients btnRunResults btnCSV 
+  ENABLE btnLocalCSV btnPageFormat btnRunResults svRecipients btnCSV 
          svSetAlignment svRunSync svShowAll btnHTML svShowReportHeader 
          svShowReportFooter svShowPageHeader svShowPageFooter svShowGroupHeader 
          svShowGroupFooter svShowParameters btnView btnAddEmail btnPrint 
