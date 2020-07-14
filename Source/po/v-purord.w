@@ -1412,13 +1412,15 @@ PROCEDURE local-assign-record :
   DEFINE VARIABLE lv-due-date  AS DATE      NO-UNDO.
   DEFINE VARIABLE v-new-orders AS CHARACTER NO-UNDO.
   DEFINE VARIABLE vi           AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE cOldLoc      AS CHARACTER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   EMPTY TEMP-TABLE tt-ord-no.
   ASSIGN
   iv-copy-from-rec = IF AVAILABLE po-ord THEN RECID(po-ord) ELSE ?
   lv-prev-vend-no  = IF AVAILABLE po-ord THEN po-ord.vend-no ELSE ""
-  lv-due-date      = po-ord.due-date.
+  lv-due-date      = po-ord.due-date
+  cOldLoc          = po-ord.loc .
      FIND bx-poord WHERE RECID(bx-poord) = iv-copy-from-rec NO-LOCK NO-ERROR.
      IF AVAILABLE bx-poord THEN DO:
          ASSIGN ip-company    = bx-poord.company
@@ -1457,12 +1459,12 @@ PROCEDURE local-assign-record :
   END.
 
   /* 10021210 */
-  IF po-ord.TYPE NE "D" THEN do:
+  IF rd_drop-shipment EQ "S" THEN do:
       FIND FIRST cust NO-LOCK
            WHERE cust.company EQ cocode
              AND cust.active = "X" NO-ERROR.
       IF AVAIL cust AND cust.loc NE "" THEN
-          ASSIGN po-ord.loc = cust.loc .
+          ASSIGN po-ord.loc = cust.loc .    
   END.
   ELSE do:
       IF ls-drop-custno NE "" THEN do:
@@ -1478,17 +1480,22 @@ PROCEDURE local-assign-record :
                     AND cust.cust-no = ls-drop-custno NO-ERROR.
               IF AVAIL cust AND cust.loc NE "" THEN
                   po-ord.loc = cust.loc.
-          END.
+          END.     
       END.
       ELSE do:
           FIND FIRST vend NO-LOCK WHERE vend.company EQ cocode
               AND vend.vend-no EQ INPUT po-ord.ship-id
               NO-ERROR.
           IF AVAILABLE vend AND vend.loc NE "" THEN 
-              po-ord.loc = vend.loc.
+              po-ord.loc = vend.loc.   
       END.
   END.
-
+  
+  IF cOldLoc NE po-ord.loc THEN
+  DO:
+     RUN pRunResetFGQty .
+  END.
+   
   IF adm-new-record AND NOT adm-adding-record THEN DO: /* copy*/
      po-ord.opened = YES.
      ROWID(po-ord). /* force a buffer flush */
@@ -2315,6 +2322,34 @@ PROCEDURE setTypeDescr :
     ASSIGN
       shipAreaCode:SCREEN-VALUE = IF AVAILABLE cust THEN cust.area-code ELSE ''
       shipPhone:SCREEN-VALUE    = IF AVAILABLE cust THEN cust.phone ELSE ''.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunResetFGQty V-table-Win 
+PROCEDURE pRunResetFGQty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/     
+  DEFINE BUFFER bf-itemfg FOR itemfg.
+  DEFINE BUFFER bf-po-ordl FOR po-ordl.
+  
+  IF AVAIL po-ord THEN
+  DO:
+     FOR EACH bf-po-ordl NO-LOCK
+         WHERE bf-po-ordl.company EQ po-ord.company
+         AND bf-po-ordl.po-no EQ po-ord.po-no :
+         FIND FIRST bf-itemfg NO-LOCK
+              WHERE bf-itemfg.company EQ po-ord.company 
+              AND bf-itemfg.i-no EQ bf-po-ordl.i-no NO-ERROR .
+         IF AVAIL bf-itemfg AND NOT bf-po-ordl.item-type THEN
+          RUN fg/fg-reset.p(INPUT RECID(bf-itemfg)).         
+     END.     
   END.
 
 END PROCEDURE.
