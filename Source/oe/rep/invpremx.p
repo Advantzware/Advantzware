@@ -4,7 +4,7 @@
 DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
 DEF INPUT PARAM ip-print-s AS LOG NO-UNDO. /* for PremierS */
 {sys/inc/var.i shared}
-
+{system/TaxProcs.i}
 {oe/rep/invoice.i}
 
 def var v-salesman as char format "x(14)" NO-UNDO.
@@ -791,36 +791,45 @@ END.
              IF AVAIL stax AND inv-line.tax THEN 
              DO:
                 dLineTaxableAmt = inv-line.t-price.
-
-                RUN Tax_Calculate IN hdTaxProcs (
+                
+                EMPTY TEMP-TABLE ttTaxDetail.
+                
+                RUN Tax_CalculateWithDetail IN hdTaxProcs (
                     INPUT  inv-head.company,
                     INPUT  inv-head.tax-gr,
                     INPUT  FALSE,   /* Is this freight */
                     INPUT  dLineTaxableAmt,
-                    INPUT  inv-line.i-no,
-                    OUTPUT dLineTaxAmt
-                    ).                   
+                    OUTPUT dLineTaxAmt,
+                    OUTPUT TABLE ttTaxDetail
+                    ). 
                     
                 ASSIGN 
-                    dLineTaxAmt           = fRoundUp(dLineTaxAmt)
-                    dLineTaxRate          = TRUNCATE(dLineTaxAmt / dLineTaxableAmt * 100, 2)
+                    dLineTaxRate = 0
+                    dFrtTaxRate  = 0
+                    .
+                        
+                FOR EACH ttTaxDetail:
+                    dLineTaxRate  = dLineTaxRate + ttTaxDetail.taxCodeRate.
+                    IF ttTaxDetail.isTaxOnFreight THEN 
+                        dFrtTaxRate = dFrtTaxRate + ttTaxDetail.taxCodeRate.
+                END.   
+                    
+                ASSIGN 
                     dTotalSalesTax        = dTotalSalesTax + dLineTaxAmt
                     dTotalSalesTaxableAmt = dTotalSalesTaxableAmt + dLineTaxableAmt
                     .
-                    
-                IF inv-head.f-bill THEN DO:    
+                IF inv-head.f-bill THEN DO: 
+                    EMPTY TEMP-TABLE ttTaxDetail.                     
                     lIsFreightTaxable = YES.
-                    RUN Tax_Calculate IN hdTaxProcs (
+                    RUN Tax_CalculateWithDetail IN hdTaxProcs (
                         INPUT  inv-head.company,
                         INPUT  inv-head.tax-gr,
                         INPUT  TRUE,   /* Is this freight */
                         INPUT  inv-line.t-freight,
-                        INPUT  "",
-                        OUTPUT dFrtTaxAmt
+                        OUTPUT dFrtTaxAmt,
+                        OUTPUT TABLE ttTaxDetail
                         ).
                     ASSIGN     
-                        dFrtTaxAmt          = fRoundUp(dFrtTaxAmt)
-                        dFrtTaxRate         = TRUNCATE(dFrtTaxAmt / inv-line.t-freight * 100, 2)
                         dTotalFrtTax        = dTotalFrtTax + dFrtTaxAmt
                         dTotalFrtTaxableAmt = dTotalFrtTaxableAmt + inv-line.t-freight
                         .
