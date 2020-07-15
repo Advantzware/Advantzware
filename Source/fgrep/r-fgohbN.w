@@ -1901,20 +1901,21 @@ DEF VAR cVarValue AS cha NO-UNDO.
 DEF VAR cExcelVarValue AS cha NO-UNDO.
 DEF VAR cSelectedList AS cha NO-UNDO.
 DEF VAR cFieldName AS cha NO-UNDO.
-DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEF VAR str-tit4 AS cha FORM "x(300)" NO-UNDO.
+DEF VAR str-tit5 AS cha FORM "x(300)" NO-UNDO.
+DEF VAR str-line AS cha FORM "x(520)" NO-UNDO.
 DEF VAR v-page AS LOGICAL NO-UNDO.
 DEF VAR lProcessRel AS LOGICAL NO-UNDO.
 DEF VAR lProcessLastSale AS LOGICAL NO-UNDO.
 DEF VAR v-tot-fgsell AS DEC EXTENT 4 NO-UNDO.
 DEF VAR v-tot-ordsell AS DEC EXTENT 4 NO-UNDO.
 
-{sys/form/r-top5DL.f} 
+{sys/form/r-topl.f}
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE iLineCount       AS INTEGER   NO-UNDO .
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
@@ -2132,7 +2133,7 @@ IF NOT rd_sort BEGINS "W" THEN tb_subt = YES.
 
 assign
  str-tit2 = c-win:title
- {sys/inc/ctrtext.i str-tit2 112}
+ {sys/inc/ctrtext.i str-tit2 160}
 
  vdat           = as-of-date
  fcus           = begin_cust-no
@@ -2348,6 +2349,10 @@ ELSE
   IF v-prt-cpn THEN VIEW FRAME r-top2.
                ELSE VIEW FRAME r-top1.*/
 display "" with frame r-top.
+PUT  str-tit4 FORMAT "x(520)"
+     SKIP
+     str-tit5 FORMAT "x(520)"
+     SKIP .
 
 
     STATUS DEFAULT "Processing...".
@@ -2415,7 +2420,7 @@ display "" with frame r-top.
     END.
 
     v-cust-name = "" .
-
+    iLineCount = 0 .
    if v-sort-by-cust eq "Cu" THEN do:
         for each tt-itemfg use-index cust-no no-lock,
         {fg/rep/fg-ibtagn.i tt-itemfg.cust-no tt-itemfg.i-no}
@@ -2449,6 +2454,16 @@ display "" with frame r-top.
 
 
     put skip(1).
+    iLineCount = iLineCount + 1.
+    IF iLineCount GE (lines-per-page - 10)  THEN 
+    DO:
+            PAGE.
+            PUT str-tit4 FORMAT "x(520)"
+                SKIP
+                str-tit5 FORMAT "x(520)"
+                SKIP .
+            iLineCount = 0 .
+    END.
 
     PUT    SKIP  str-line SKIP .
           ASSIGN cDisplay = ""
@@ -2507,49 +2522,11 @@ display "" with frame r-top.
      IF tb_excel THEN DO:
          PUT STREAM excel UNFORMATTED  
               "GRAND TOTALS " + substring(cExcelDisplay,3,300) SKIP.
-     END.
-
-
-
-
-    /* PUT "GRAND TOTALS" TO 20.
-
-
-        PUT v-tot-qty[3] FORMAT "->>>,>>>,>>9.999" TO 42.
-        PUT "MSF  " TO 55 .
-        PUT v-tot-msf[3] TO 70.
-
-      if v-prt-c THEN do:
-           PUT "COST" AT 82 .
-           put v-tot-cst[3] to 100.
-      if v-prt-p then PUT "     MAT COST" v-tot-mat[3] to 130 "     LAB COST   " v-tot-lab[3] .
-      END.*/
-
+     END. 
+    
     STATUS DEFAULT "".
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-
- /*IF v-excel = TRUE THEN DO:
-
-      EXPORT STREAM excel DELIMITER ","
-         " "
-         "GRAND TOTALS"
-         ""
-         "QTY "
-         v-tot-qty[3] FORMAT "->>>,>>>,>>9.99"
-         ""
-         "MSF "
-         v-tot-msf[3] FORMAT "->>>,>>9.99"
-         ""
-         (IF v-prt-c THEN "COST " ELSE "")
-         (if v-prt-c then v-tot-cst[3] ELSE 0)
-          ""
-         (IF v-prt-p THEN "MAT Cost " ELSE "")
-         (if v-prt-p then v-tot-mat[3] ELSE 0)
-         (IF v-prt-p THEN "LAB Cost " ELSE "")
-         (if v-prt-p then v-tot-lab[3] ELSE 0)
-        /* (if v-prt-p THEN v-tot-ext[3] ELSE 0)*/.
-    end.*/
 
 
  IF tb_excel THEN DO:
