@@ -124,8 +124,8 @@ PROCEDURE local-add-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
 
-    /* Code placed here will execute AFTER standard behavior.    */
-   {methods/template/local/createAfter.i}
+  /* Code placed here will execute AFTER standard behavior.    */
+  {methods/template/local/createAfter.i}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -582,7 +582,7 @@ PROCEDURE local-assign-record :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE iDateRuleID AS INTEGER NO-UNDO.
+  DEFINE VARIABLE iDateRuleID AS INTEGER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WHILE TRUE WITH FRAME {&FRAME-NAME}:
@@ -600,25 +600,35 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN
-      skipHour skipMinute skipampm lSunday lMonday lTuesday lWednesday lThursday lFriday lSaturday lHoliday
-      skipHour = STRING(INTEGER(skipHour) + (IF iHourMax EQ 12 AND skipampm EQ "PM" AND INTEGER(skipHour) LT 12 THEN 12
-                                             ELSE IF skipampm EQ "AM" AND INTEGER(skipHour) EQ 12 THEN -12
-                                             ELSE 0)) 
-      DateRules.skipTime = INTEGER(skipHour) * 3600 + INTEGER(skipMinute) * 60
-      DateRules.skipDays = STRING(lSunday,"Y/N")
-                         + STRING(lMonday,"Y/N")
-                         + STRING(lTuesday,"Y/N")
-                         + STRING(lWednesday,"Y/N")
-                         + STRING(lThursday,"Y/N")
-                         + STRING(lFriday,"Y/N")
-                         + STRING(lSaturday,"Y/N")
-                         + STRING(lHoliday,"Y/N")
-                         .
+  RUN pUpdateDateRules.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-statement V-table-Win
+PROCEDURE local-assign-statement:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  RUN pUpdateDateRules.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win
 PROCEDURE local-display-fields:
@@ -733,6 +743,39 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateDateRules V-table-Win
+PROCEDURE pUpdateDateRules:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF AVAILABLE DateRules THEN
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            skipHour skipMinute skipampm lSunday lMonday lTuesday lWednesday lThursday lFriday lSaturday lHoliday
+            skipHour = STRING(INTEGER(skipHour) + (IF iHourMax EQ 12 AND skipampm EQ "PM" AND INTEGER(skipHour) LT 12 THEN 12
+                                                   ELSE IF skipampm EQ "AM" AND INTEGER(skipHour) EQ 12 THEN -12
+                                                   ELSE 0)) 
+            DateRules.skipTime = INTEGER(skipHour) * 3600 + INTEGER(skipMinute) * 60
+            DateRules.skipDays = STRING(lSunday,"Y/N")
+                               + STRING(lMonday,"Y/N")
+                               + STRING(lTuesday,"Y/N")
+                               + STRING(lWednesday,"Y/N")
+                               + STRING(lThursday,"Y/N")
+                               + STRING(lFriday,"Y/N")
+                               + STRING(lSaturday,"Y/N")
+                               + STRING(lHoliday,"Y/N")
+                               .
+    END. /* do with */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
