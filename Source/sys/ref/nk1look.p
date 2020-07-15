@@ -43,7 +43,7 @@ CASE ip-return-type:
     WHEN "DS" THEN 
         op-char-value = sys-ctrl.descrip.
     WHEN "L" THEN 
-        op-char-value = IF sys-ctrl.log-fld THEN "YES" ELSE "NO".
+        op-char-value = CAPS(STRING(sys-ctrl.log-fld)).
     OTHERWISE 
     op-char-value = "".
 END CASE.
