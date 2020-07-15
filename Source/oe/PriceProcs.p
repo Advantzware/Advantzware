@@ -1036,6 +1036,7 @@ PROCEDURE pGetPriceMatrix PRIVATE:
     DEFINE VARIABLE cMsgShipID     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iIndex         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cMsgBlankInd   AS CHARACTER NO-UNDO INIT "[blank]".
+    DEFINE VARIABLE lMatrixFound   AS LOGICAL   NO-UNDO.
     
     IF NOT AVAILABLE ipbf-itemfg THEN 
     DO:
@@ -1086,11 +1087,14 @@ PROCEDURE pGetPriceMatrix PRIVATE:
             RETURN.
         END.
     END.
+
+    /* To improve performance of the query, the query to find the matrix is split into two queries.
+       The first one will run the query with item match and the other one with blank item # */    
     /*Find match */  
     FOR EACH opbf-oe-prmtx NO-LOCK 
         WHERE opbf-oe-prmtx.company EQ ipbf-itemfg.company
-        /*Match on item # or match matrix with blank item #*/
-        AND (opbf-oe-prmtx.i-no EQ ipbf-itemfg.i-no OR opbf-oe-prmtx.i-no EQ "" )
+        /*Match on item # */
+        AND opbf-oe-prmtx.i-no EQ ipbf-itemfg.i-no
         /*Match on cust-no or match matrix with blank cust-no*/
         AND (opbf-oe-prmtx.cust-no EQ ipbf-cust.cust-no OR opbf-oe-prmtx.cust-no EQ "")
         /*Match on customer type or match on blank customer type - disregard this criteria if the matrix has a customer number at which
@@ -1111,16 +1115,52 @@ PROCEDURE pGetPriceMatrix PRIVATE:
         AND NOT (opbf-oe-prmtx.cust-no EQ "" AND opbf-oe-prmtx.i-no EQ "" AND opbf-oe-prmtx.procat EQ "" AND opbf-oe-prmtx.custype EQ "" 
         AND opbf-oe-prmtx.custShipID EQ "")
     /*Sort the resulting data set so that actual matches take priority over blank matches*/
-        BY opbf-oe-prmtx.i-no DESCENDING
         BY opbf-oe-prmtx.cust-no DESCENDING 
         BY opbf-oe-prmtx.procat DESCENDING 
         BY opbf-oe-prmtx.custype DESCENDING 
         BY opbf-oe-prmtx.custShipID DESCENDING
         BY opbf-oe-prmtx.eff-date DESCENDING 
         :
+        lMatrixFound = TRUE.
         LEAVE.  /*After first/best match, leave*/
     END.
-
+    
+    /* Find the matrix only if the above query failed to return a record */
+    IF NOT lMatrixFound THEN DO:
+        FOR EACH opbf-oe-prmtx NO-LOCK 
+            WHERE opbf-oe-prmtx.company EQ ipbf-itemfg.company
+            /* Match matrix with blank item #*/
+            AND opbf-oe-prmtx.i-no EQ ""
+            /*Match on cust-no or match matrix with blank cust-no*/
+            AND (opbf-oe-prmtx.cust-no EQ ipbf-cust.cust-no OR opbf-oe-prmtx.cust-no EQ "")
+            /*Match on customer type or match on blank customer type - disregard this criteria if the matrix has a customer number at which
+            point only the customer number match matters.  Cust Type only applicable when customer number is blank.
+            This allows for customer type to change in AF1 without having to update the Price Matrix type for that customer.*/
+            AND (opbf-oe-prmtx.custype EQ ipbf-cust.type OR opbf-oe-prmtx.custype EQ "" OR opbf-oe-prmtx.cust-no NE "")
+            /*Match on product category or match on blank product category - disregard this criteria if the matrix has a FG Item # at which
+            point only the FG Item # match matters.  Product Category only applicable when customer number is blank.
+            This allows for Product Category to change in IF1 without having to update the Price Matrix for that item.*/
+            AND (opbf-oe-prmtx.procat EQ ipbf-itemfg.procat OR opbf-oe-prmtx.procat EQ "" OR opbf-oe-prmtx.i-no NE "")
+            /*Match on ship ID or match matrix with blank ship ID*/
+            AND (opbf-oe-prmtx.custShipID EQ ipcShipID OR opbf-oe-prmtx.custShipID EQ "")
+            /*Must be effecitve*/
+            AND (opbf-oe-prmtx.eff-date LE TODAY)
+            /*must not be expired*/
+            AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ? OR opbf-oe-prmtx.exp-date EQ 01/01/0001)
+            /* Can't be all blank */
+            AND NOT (opbf-oe-prmtx.cust-no EQ "" AND opbf-oe-prmtx.i-no EQ "" AND opbf-oe-prmtx.procat EQ "" AND opbf-oe-prmtx.custype EQ "" 
+            AND opbf-oe-prmtx.custShipID EQ "")
+            /*Sort the resulting data set so that actual matches take priority over blank matches*/
+            BY opbf-oe-prmtx.cust-no DESCENDING 
+            BY opbf-oe-prmtx.procat DESCENDING 
+            BY opbf-oe-prmtx.custype DESCENDING 
+            BY opbf-oe-prmtx.custShipID DESCENDING
+            BY opbf-oe-prmtx.eff-date DESCENDING 
+            :
+            LEAVE.  /*After first/best match, leave*/
+        END.
+    END.
+    
     /*Initialize return message for match*/
     ASSIGN 
         opcMatchDetail = "Match "
