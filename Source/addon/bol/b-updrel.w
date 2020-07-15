@@ -191,7 +191,7 @@ RUN sys/ref/nk1look.p (INPUT cocode, "SSBOLPassword", "C" /* Logical */, NO /* c
 OUTPUT cRtnChar, OUTPUT lRecFound). 
   cSSBOLPassword = cRtnChar NO-ERROR .
 
-IF NOT lSSBOLPassword THEN
+IF NOT lSSBOLPassword OR cSSBOLPassword EQ ""  THEN
  lsecurity-flag = YES .
  
 RUN sys/ref/nk1look.p (INPUT g_company, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
@@ -239,13 +239,7 @@ DO TRANSACTION:
   END.
 
   ssupdrelpmpt-log = sys-ctrl.log-fld.
-  
-  FIND FIRST sys-ctrl
-        WHERE sys-ctrl.company EQ cocode
-          AND sys-ctrl.name    EQ "SSBOLPassword"
-        NO-LOCK NO-ERROR.  /* to get ? in output */
-  IF AVAIL sys-ctrl THEN
-  ASSIGN lSSBOLPassword = IF sys-ctrl.log-fld EQ ? THEN ? ELSE LOGICAL(sys-ctrl.log-fld) NO-ERROR .
+
 
 END.
 /* Check if hold status will be checked on order */
@@ -744,13 +738,13 @@ DO:
    END.
   IF lPickTicketValidation AND AVAIL oe-relh THEN do:
       IF LOOKUP(tt-relbol.tag:SCREEN-VALUE,cTagList) EQ 0 THEN do:
-        /*IF NOT lsecurityTag THEN  RUN sys/ref/d-psswrd.w ("PickTicketValidation","", OUTPUT lsecurityTag). */
+        IF NOT lsecurityTag THEN  RUN sys/ref/d-psswrd.w ("PickTicketValidation","", OUTPUT lsecurityTag).
           
-        /*  IF NOT lsecurityTag THEN do:                                                        */
-        /*      MESSAGE "Enter a password to override or You must use the tags assigned - '"    */
-        /*          cTagList "' selected for the pick ticket. " VIEW-AS ALERT-BOX INFO .        */
-        /*      RETURN NO-APPLY .                                                               */
-        /*  END.                                                                                */
+          IF NOT lsecurityTag THEN do:
+              MESSAGE "Enter a password to override or You must use the tags assigned - '"
+                  cTagList "' selected for the pick ticket. " VIEW-AS ALERT-BOX INFO .
+              RETURN NO-APPLY .
+          END.
       END.
   END.
 /*    IF AVAIL oe-relh THEN                                                                                               */
@@ -1431,20 +1425,11 @@ END.
   LOAD "l-font.ini" DIR cDir BASE-KEY "INI".
   USE "l-font.ini".
 
-
-IF lSSBOLPassword EQ ? THEN
-DO:
-    MESSAGE "This tag is not on this release and cannot be added here." VIEW-AS ALERT-BOX INFO .
-    op-values =  "DEFAULT" + "," + "Cancel". 
-END.
-ELSE DO:
-    RUN custom/d-prompt.w (INPUT ipcButtonList, ip-parms, "", OUTPUT op-values). /* New Logic */
-    
-    IF lSSBOLPassword AND NOT lsecurity-flag THEN RUN sys/ref/d-passwd.w (9, OUTPUT lsecurity-flag).
-            
-    IF NOT lsecurity-flag THEN
-    op-values =  "DEFAULT" + "," + "Cancel".          
-END.  
+IF NOT lsecurity-flag THEN RUN sys/ref/d-passwd.w (9, OUTPUT lsecurity-flag).
+        
+IF lsecurity-flag THEN
+RUN custom/d-prompt.w (INPUT ipcButtonList, ip-parms, "", OUTPUT op-values).
+ELSE  op-values =  "DEFAULT" + "," + "No" .
 
 /* Load original ini for original font set */
 UNLOAD "l-font.ini" NO-ERROR.
@@ -2105,20 +2090,12 @@ END. /* Loadtag order number is zero */
           USE "l-font.ini".
 
                       END.
-                  
-        IF lSSBOLPassword EQ ? THEN
-        DO:
-           MESSAGE "This tag is not on this release and cannot be added here." VIEW-AS ALERT-BOX INFO .
-           op-values =  "DEFAULT" + "," + "Cancel". 
-        END.
-        ELSE DO:
-            RUN custom/d-prompt.w (INPUT "yes-no-cancel", ip-parms, "", OUTPUT op-values). /* New Logic */
-           
-            IF lSSBOLPassword AND NOT lsecurity-flag THEN RUN sys/ref/d-passwd.w (9, OUTPUT lsecurity-flag).
-            
-            IF NOT lsecurity-flag THEN
-            op-values =  "DEFAULT" + "," + "Cancel".          
-        END.     
+        
+         IF NOT lsecurity-flag THEN RUN sys/ref/d-passwd.w (9, OUTPUT lsecurity-flag).
+        
+        IF lsecurity-flag THEN
+        RUN custom/d-prompt.w (INPUT "yes-no-cancel", ip-parms, "", OUTPUT op-values). /* New Logic */
+        ELSE  op-values =  "DEFAULT" + "," + "No" .
 
        
         /* Load original ini for original font set */
