@@ -90,6 +90,7 @@ DEF NEW SHARED TEMP-TABLE ttUpdateHist
     FIELD updLog AS CHAR.     
 
 DEF TEMP-TABLE ttAuditTbl LIKE AuditTbl.
+DEF TEMP-TABLE ttAuditFld LIKE AuditFld.
 DEF TEMP-TABLE ttCueCard LIKE cueCard.
 DEF TEMP-TABLE ttCueCardText LIKE cueCardText.
 DEF TEMP-TABLE ttPrgrms LIKE prgrms.
@@ -1207,6 +1208,14 @@ PROCEDURE ipBackupDataFiles :
     DISABLE TRIGGERS FOR DUMP OF sys-ctrl-shipto.
 
 &SCOPED-DEFINE cFile AuditTbl
+
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile AuditFld
 
     OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
@@ -3462,6 +3471,7 @@ PROCEDURE ipDeleteAudit :
     DISABLE TRIGGERS FOR LOAD OF auditDtl.
     DISABLE TRIGGERS FOR LOAD OF auditStack.
     DISABLE TRIGGERS FOR LOAD OF auditTbl.
+    DISABLE TRIGGERS FOR LOAD OF auditFld.
     
     FIND FIRST module NO-LOCK WHERE 
         module.module EQ "Audit." OR
@@ -3504,6 +3514,10 @@ PROCEDURE ipDeleteAudit :
                 AuditTbl.AuditDelete = NO
                 AuditTbl.AuditUpdate = NO
                 AuditTbl.AuditStack  = NO.
+        END.
+        FOR EACH AuditFld:
+            ASSIGN
+                AuditFld.Audit = NO.
         END.
     END.
     ELSE DO:
@@ -4197,6 +4211,51 @@ PROCEDURE ipLoadAuditRecs :
             .
     END.
             
+    EMPTY TEMP-TABLE tt{&tablename}.
+    
+    RUN ipStatus ("  Loading AuditFld Records").
+
+    &SCOPED-DEFINE tablename auditfld
+    
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    /* First section reads the .d and creates records that aren't already there 
+        (unless they're in the exception lis) */
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        /* Otherwise create the base record from the .d */
+        ELSE DO:
+            FIND {&tablename} EXCLUSIVE WHERE 
+                {&tablename}.auditTable EQ tt{&tablename}.auditTable AND
+                {&tablename}.auditField EQ tt{&tablename}.auditField
+                NO-ERROR.
+            IF NOT AVAIL {&tablename} THEN DO:
+                CREATE {&tablename}.
+                BUFFER-COPY tt{&tablename} TO {&tablename}.
+            END.
+            /* Ensure OUR defaults are set */
+            ASSIGN 
+                {&tableName}.auditDefault = tt{&tableName}.auditDefault
+                .
+            /* and make sure THEIR activation is AT LEAST the default */
+            ASSIGN 
+                {&tableName}.audit = IF {&tableName}.audit THEN TRUE ELSE {&tableName}.audit
+                . 
+            
+        END.
+    END.
+    INPUT CLOSE.
+
+    /* Now remove any base records that are not in the tt */
+    FOR EACH {&tablename} EXCLUSIVE WHERE
+        NOT CAN-FIND(FIRST tt{&tablename} WHERE 
+                        tt{&tablename}.auditTable = {&tablename}.auditTable AND
+                        tt{&tablename}.auditField = {&tablename}.auditField):
+        DELETE {&tablename}.
+    END.
+    
     EMPTY TEMP-TABLE tt{&tablename}.
     
 END PROCEDURE.

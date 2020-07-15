@@ -38,6 +38,14 @@ FOR EACH {&cFile}:
 END.
 OUTPUT CLOSE.
 
+&SCOPED-DEFINE cFile auditFld
+
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
 &SCOPED-DEFINE cFile emailcod
 OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
 FOR EACH {&cFile}:
