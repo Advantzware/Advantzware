@@ -174,15 +174,15 @@ lPickTicketValidation = LOGICAL(cRtnChar) NO-ERROR .
 
 RUN sys/ref/nk1look.p (INPUT cocode, "SSBOLPassword", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound). 
+OUTPUT cRtnChar, OUTPUT lRecFound).
 lSSBOLPassword = LOGICAL(cRtnChar) NO-ERROR .
 RUN sys/ref/nk1look.p (INPUT cocode, "SSBOLPassword", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound). 
   cSSBOLPassword = cRtnChar NO-ERROR .
-
-IF NOT lSSBOLPassword OR cSSBOLPassword EQ ""  THEN
- lsecurity-flag = YES .
+      
+IF not lSSBOLPassword THEN
+ lsecurity-flag = YES .  
  
 RUN sys/ref/nk1look.p (INPUT g_company, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -232,8 +232,14 @@ DO TRANSACTION:
   END.
 
   ssupdrelpmpt-log = sys-ctrl.log-fld.
-
-
+  
+  FIND FIRST sys-ctrl
+        WHERE sys-ctrl.company EQ cocode
+          AND sys-ctrl.name    EQ "SSBOLPassword"
+        NO-LOCK NO-ERROR.  /* to get ? in output */
+  IF AVAIL sys-ctrl THEN
+  ASSIGN lSSBOLPassword = IF sys-ctrl.log-fld EQ ? THEN ? ELSE LOGICAL(sys-ctrl.log-fld) NO-ERROR . 
+  
 END.
 
 /* Check if hold status will be checked on order */
@@ -777,13 +783,13 @@ DO:
       RUN addon/bol/GetTagList.p(INPUT cocode,INPUT oe-relh.release#, OUTPUT cTagList) .
       
       IF LOOKUP(tt-relbol.tag:SCREEN-VALUE,cTagList) EQ 0 THEN do:
-        IF NOT lsecurityTag THEN  RUN sys/ref/d-psswrd.w ("PickTicketValidation","", OUTPUT lsecurityTag).
+        /*IF NOT lsecurityTag THEN  RUN sys/ref/d-psswrd.w ("PickTicketValidation","", OUTPUT lsecurityTag).*/
           
-          IF NOT lsecurityTag THEN do:
-              MESSAGE "Enter a password to override or You must use the tags assigned - '"
-                  cTagList "' selected for the pick ticket. " VIEW-AS ALERT-BOX INFO .
-              RETURN NO-APPLY .
-          END.
+        /*IF NOT lsecurityTag THEN do:                                                        */
+        /*      MESSAGE "Enter a password to override or You must use the tags assigned - '"  */
+        /*          cTagList "' selected for the pick ticket. " VIEW-AS ALERT-BOX INFO .      */
+        /*      RETURN NO-APPLY .                                                             */
+        /*  END. */
       END.
   END.
 /*    IF AVAIL oe-relh THEN                                                                                               */
@@ -1447,12 +1453,20 @@ END.
   cDir = SUBSTRING(cDir, 1, INDEX(cDir, "custom") + 5).
   LOAD "l-font.ini" DIR cDir BASE-KEY "INI".
   USE "l-font.ini".
-
-IF NOT lsecurity-flag THEN RUN sys/ref/d-passwd.w (9, OUTPUT lsecurity-flag).
-        
-IF lsecurity-flag THEN
-RUN custom/d-prompt.w (INPUT ipcButtonList, ip-parms, "", OUTPUT op-values).
-ELSE  op-values =  "DEFAULT" + "," + "No" .
+           
+IF lSSBOLPassword EQ ? THEN
+DO:
+    MESSAGE "This tag is not on this release and cannot be added here." VIEW-AS ALERT-BOX INFO .
+    op-values =  "DEFAULT" + "," + "Cancel". 
+END.
+ELSE DO:
+    RUN custom/d-prompt.w (INPUT ipcButtonList, ip-parms, "", OUTPUT op-values). /* New Logic */
+    
+    IF lSSBOLPassword AND NOT lsecurity-flag THEN RUN sys/ref/d-passwd.w (9, OUTPUT lsecurity-flag).
+            
+    IF NOT lsecurity-flag THEN
+    op-values =  "DEFAULT" + "," + "Cancel".          
+END.  
 
 /* Load original ini for original font set */
 UNLOAD "l-font.ini" NO-ERROR.
@@ -2062,14 +2076,22 @@ ELSE DO:
           LOAD "l-font.ini" DIR cDir BASE-KEY "INI".
           USE "l-font.ini".
 
+        END.   
+                 
+        IF lSSBOLPassword EQ ? THEN
+        DO:
+           MESSAGE "This tag is not on this release and cannot be added here." VIEW-AS ALERT-BOX INFO .
+           op-values =  "DEFAULT" + "," + "Cancel". 
         END.
-
-        IF NOT lsecurity-flag THEN RUN sys/ref/d-passwd.w (9, OUTPUT lsecurity-flag).
-        
-        IF lsecurity-flag THEN
-        RUN custom/d-prompt.w (INPUT "yes-no-cancel", ip-parms, "", OUTPUT op-values). /* New Logic */
-        ELSE  op-values =  "DEFAULT" + "," + "No" .
-        
+        ELSE DO:
+            RUN custom/d-prompt.w (INPUT "yes-no-cancel", ip-parms, "", OUTPUT op-values). /* New Logic */
+           
+            IF lSSBOLPassword AND NOT lsecurity-flag THEN RUN sys/ref/d-passwd.w (9, OUTPUT lsecurity-flag).
+            
+            IF NOT lsecurity-flag THEN
+            op-values =  "DEFAULT" + "," + "Cancel".          
+        END.          
+         
         /* Load original ini for original font set */
         UNLOAD "l-font.ini" NO-ERROR.
 
@@ -2842,8 +2864,7 @@ ASSIGN
  lcUserPrompt4 = "press CANCEL to scan new tag:".
 
 
-
-
+    
 ip-parms = 
    /* Box Title */
    "type=literal,name=fi4,row=2,col=28,enable=false,width=52,scrval=" + lcUserPrompt1 + ",FORMAT=X(52)"
