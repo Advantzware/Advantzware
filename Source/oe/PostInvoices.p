@@ -1169,7 +1169,6 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
         AND bf-inv-head.inv-date LE ttPostingMaster.invoiceDateEnd
         AND bf-inv-head.cust-no  GE ttPostingMaster.customerIDStart
         AND bf-inv-head.cust-no  LE ttPostingMaster.customerIDEnd 
-        AND ((iplValidateOnly AND NOT bf-inv-head.AutoApproved) OR NOT iplValidateOnly)
         AND (CAN-FIND(FIRST bf-inv-line WHERE bf-inv-line.r-no EQ bf-inv-head.r-no)
         OR CAN-FIND(FIRST bf-inv-misc WHERE bf-inv-misc.r-no = bf-inv-head.r-no )
         OR bf-inv-head.multi-invoice)
@@ -1178,8 +1177,10 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
         FIRST bf-cust NO-LOCK
         WHERE bf-cust.company EQ bf-inv-head.company
         AND bf-cust.cust-no EQ bf-inv-head.cust-no
-        AND ((bf-cust.inv-meth EQ ? AND bf-inv-head.multi-invoice) OR (bf-cust.inv-meth NE ? AND NOT bf-inv-head.multi-invoice))  /*Filter multi-invoices correctly based on customer*/
+        AND ((bf-cust.inv-meth EQ ? AND bf-inv-head.multi-invoice) OR (bf-cust.inv-meth NE ? AND NOT bf-inv-head.multi-invoice) OR iplValidateOnly )   /*Filter multi-invoices correctly based on customer*/
         :
+        IF iplValidateOnly AND (bf-inv-head.autoApproved OR bf-inv-head.multi-invoice) THEN NEXT.
+
         /*Add CustomerList Exclusions*/
         /*TBD*/
         opiProcessed = opiProcessed + 1.
@@ -1223,7 +1224,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
             END.
             
             /*Manage Multi Invoices*/
-            IF bf-inv-head.multi-invoice THEN 
+            IF bf-inv-head.multi-invoice AND NOT iplValidateOnly THEN 
             DO:             
                 RUN pAlignMultiInvoiceLinesWithMaster(BUFFER ttPostingMaster, BUFFER bf-inv-head, BUFFER bf-ttInvoiceToPost, ipcCompany, OUTPUT lError, OUTPUT cMessage).
                 IF lError THEN 
