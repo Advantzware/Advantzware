@@ -186,6 +186,7 @@ PROCEDURE spCommon_DateRule:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiDateRuleID  AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcScope       AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcScopeID     AS CHARACTER NO-UNDO.
@@ -194,27 +195,64 @@ PROCEDURE spCommon_DateRule:
     DEFINE INPUT  PARAMETER iprResultRowID AS ROWID     NO-UNDO.    
     DEFINE OUTPUT PARAMETER opdtDate       AS DATE      NO-UNDO.
 
-    DEFINE VARIABLE cBaseField AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dtDate     AS DATE      NO-UNDO.
-    DEFINE VARIABLE hBuffer    AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hQuery     AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hTable     AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE iDayOfWeek AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lSkipDay   AS LOGICAL   NO-UNDO EXTENT 7.
+    DEFINE VARIABLE cBaseField  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNK1Value   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dtDate      AS DATE      NO-UNDO.
+    DEFINE VARIABLE hBuffer     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hQuery      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hTable      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iDateRuleID AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iDayOfWeek  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lFound      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lSkipDay    AS LOGICAL   NO-UNDO EXTENT 7.
 
+    /* attempt to derive date rule id via nk1 */
+    IF ipiDateRuleID EQ ? THEN DO:
+        RUN sys/ref/nk1look.p (
+            ipcCompany, "DateRule", "L", NO, NO, "", "",
+            OUTPUT cNK1Value, OUTPUT lFound
+            ).
+        IF lFound AND cNK1Value EQ "YES" THEN DO:
+            RUN sys/ref/nk1look.p (
+                ipcCompany, "DateRule", "I", NO, NO, "", "",
+                OUTPUT cNK1Value, OUTPUT lFound
+                ).
+            /* default date rule id for all customers */
+            iDateRuleID = INTEGER(cNK1Value).
+            RUN sys/ref/nk1look.p (
+                ipcCompany, "DateRule", "L", YES, YES, ipcScope, ipcScopeID,
+                OUTPUT cNK1Value, OUTPUT lFound
+                ).
+            IF lFound AND cNK1Value EQ "YES" THEN DO:
+                RUN sys/ref/nk1look.p (
+                    ipcCompany, "DateRule", "I", YES, YES, ipcScope, ipcScopeID,
+                    OUTPUT cNK1Value, OUTPUT lFound
+                    ).
+                /* date rule id for specific customer & ship to */
+                iDateRuleID = INTEGER(cNK1Value).
+            END. /* if found */
+        END. /* if yes */
+    END. /* if ne ? */
+    ELSE
+    iDateRuleID = ipiDateRuleID.
+
+    /* attempt to locate date rule using id */
+    IF iDateRuleID NE 0 THEN
+    FIND FIRST DateRules NO-LOCK
+         WHERE DateRules.dateRuleID EQ iDateRuleID
+         NO-ERROR.
+    IF NOT AVAILABLE DateRules THEN
+    /* attempt to locate date rule using scope values */
+    FIND FIRST DateRules NO-LOCK
+         WHERE DateRules.Scope   EQ ipcScope
+           AND DateRules.ScopeID EQ ipcScopeID
+         NO-ERROR.
+    /* not date rule record, bail */
+    IF NOT AVAILABLE DateRules THEN RETURN.
+
+    /* if base row id provided, get date value from database */
     IF iprBaseRowID NE ? THEN DO:
-        /* get the date rule record */
-        IF ipiDateRuleID NE ? AND ipiDateRuleID NE 0 THEN
-        FIND FIRST DateRules NO-LOCK
-             WHERE DateRules.dateRuleID EQ ipiDateRuleID
-             NO-ERROR.
-        ELSE
-        FIND FIRST DateRules NO-LOCK
-             WHERE DateRules.Scope   EQ ipcScope
-               AND DateRules.ScopeID EQ ipcScopeID
-             NO-ERROR.
-        IF NOT AVAILABLE DateRules THEN RETURN.
         IF DateRules.baseTable EQ "" THEN RETURN.
         IF DateRules.baseField EQ "" THEN RETURN.
         FIND FIRST ASI._file NO-LOCK

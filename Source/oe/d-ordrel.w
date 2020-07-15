@@ -2263,9 +2263,10 @@ PROCEDURE pCreateNewRel :
             oe-rel.rel-date = oe-ordl.req-date.
         ELSE /*DueDate+1Day*/ DO:
             RUN spCommon_DateRule (
+                oe-ord.company,
                 ?,
-                "_ANY_",
-                "_ANY_",
+                oe-ord.cust-no,
+                IF AVAILABLE shipto THEN shipto.ship-id ELSE "",
                 oe-ordl.req-date,
                 ?,
                 ?,
