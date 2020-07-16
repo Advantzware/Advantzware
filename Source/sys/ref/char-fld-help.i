@@ -9,6 +9,10 @@ DEFINE VARIABLE lv-loc-bin LIKE fg-bin.loc-bin NO-UNDO.
 DEF VAR ip-chrfld AS CHAR NO-UNDO.
 DEF VAR v_chrfld  AS CHAR NO-UNDO.
 
+DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+
 ls-cur-val = {&nameField}.
 
 IF LOOKUP(ls-cur-val, gvcMultiSelect) GT 0 AND LOOKUP(ls-cur-val,name-fld-list) GT 0 THEN DO:
@@ -122,6 +126,21 @@ ELSE IF ls-cur-val = 'JobCardPrintScores' THEN DO:
   RUN windows/l-style.w (gcompany,"",OUTPUT char-val).
   IF char-val NE '' THEN
   {&tableName}.char-fld:SCREEN-VALUE = ENTRY(1,char-val).
+  RETURN NO-APPLY.
+END.
+ELSE IF ls-cur-val = 'DateRule' THEN DO:
+    RUN system/openLookup.p (
+        gcompany,
+        {&tableName}.char-fld:SCREEN-VALUE,
+        133,
+        "",
+        0,
+        OUTPUT cFieldsValue,
+        OUTPUT cFoundValue,
+        OUTPUT recFoundRecID
+        ).
+  IF cFoundValue NE '' THEN
+  {&tableName}.char-fld:SCREEN-VALUE = cFoundValue.
   RETURN NO-APPLY.
 END.
 ELSE DO:

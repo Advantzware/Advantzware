@@ -187,9 +187,9 @@ PROCEDURE spCommon_DateRule:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiDateRuleID  AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcScope       AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcScopeID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcDateRuleID  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustNo      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcShipTo      AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdtBaseDate   AS DATE      NO-UNDO.
     DEFINE INPUT  PARAMETER iprBaseRowID   AS ROWID     NO-UNDO.
     DEFINE INPUT  PARAMETER iprResultRowID AS ROWID     NO-UNDO.    
@@ -197,56 +197,48 @@ PROCEDURE spCommon_DateRule:
 
     DEFINE VARIABLE cBaseField  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cNK1Value   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDateRuleID AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dtDate      AS DATE      NO-UNDO.
     DEFINE VARIABLE hBuffer     AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hQuery      AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hTable      AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE iDateRuleID AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iDayOfWeek  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lFound      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lSkipDay    AS LOGICAL   NO-UNDO EXTENT 7.
 
     /* attempt to derive date rule id via nk1 */
-    IF ipiDateRuleID EQ ? THEN DO:
+    IF ipcDateRuleID EQ ? OR ipcDateRuleID EQ "" THEN DO:
         RUN sys/ref/nk1look.p (
             ipcCompany, "DateRule", "L", NO, NO, "", "",
             OUTPUT cNK1Value, OUTPUT lFound
             ).
         IF lFound AND cNK1Value EQ "YES" THEN DO:
-            RUN sys/ref/nk1look.p (
-                ipcCompany, "DateRule", "I", NO, NO, "", "",
-                OUTPUT cNK1Value, OUTPUT lFound
-                ).
             /* default date rule id for all customers */
-            iDateRuleID = INTEGER(cNK1Value).
             RUN sys/ref/nk1look.p (
-                ipcCompany, "DateRule", "L", YES, YES, ipcScope, ipcScopeID,
+                ipcCompany, "DateRule", "C", NO, NO, "", "",
+                OUTPUT cDateRuleID, OUTPUT lFound
+                ).
+            RUN sys/ref/nk1look.p (
+                ipcCompany, "DateRule", "L", YES, YES, ipcCustNo, ipcShipTo,
                 OUTPUT cNK1Value, OUTPUT lFound
                 ).
             IF lFound AND cNK1Value EQ "YES" THEN DO:
-                RUN sys/ref/nk1look.p (
-                    ipcCompany, "DateRule", "I", YES, YES, ipcScope, ipcScopeID,
-                    OUTPUT cNK1Value, OUTPUT lFound
-                    ).
                 /* date rule id for specific customer & ship to */
-                iDateRuleID = INTEGER(cNK1Value).
+                RUN sys/ref/nk1look.p (
+                    ipcCompany, "DateRule", "C", YES, YES, ipcCustNo, ipcShipTo,
+                    OUTPUT cDateRuleID, OUTPUT lFound
+                    ).
             END. /* if found */
         END. /* if yes */
     END. /* if ne ? */
     ELSE
-    iDateRuleID = ipiDateRuleID.
+    cDateRuleID = ipcDateRuleID.
 
     /* attempt to locate date rule using id */
-    IF iDateRuleID NE 0 THEN
+    IF cDateRuleID NE ? AND cDateRuleID NE "" THEN
     FIND FIRST DateRules NO-LOCK
-         WHERE DateRules.dateRuleID EQ iDateRuleID
-         NO-ERROR.
-    IF NOT AVAILABLE DateRules THEN
-    /* attempt to locate date rule using scope values */
-    FIND FIRST DateRules NO-LOCK
-         WHERE DateRules.Scope   EQ ipcScope
-           AND DateRules.ScopeID EQ ipcScopeID
+         WHERE DateRules.dateRuleID EQ cDateRuleID
          NO-ERROR.
     /* not date rule record, bail */
     IF NOT AVAILABLE DateRules THEN RETURN.
