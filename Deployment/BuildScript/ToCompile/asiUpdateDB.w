@@ -934,14 +934,15 @@ PROCEDURE ipProcessRequest :
         fiDbDir:{&SV} = ENTRY(iLookup,cAudDirList)
         fiPortNo:{&SV} = ENTRY(iLookup,cAudPortList). 
     
-    RUN ipBackupDBs.
-    IF NOT lSuccess THEN 
-    DO:
-        ASSIGN 
-            oplSuccess = FALSE.
-        RUN ipStatus ("  Upgrade failed in ipBackupDBs for database " + fiDbName:{&SV}).
-        RETURN.
-    END.
+    IF iplMakeBackup THEN DO:
+        RUN ipBackupDBs.
+        IF NOT lSuccess THEN DO:
+            ASSIGN 
+                oplSuccess = FALSE.
+            RUN ipStatus ("  Upgrade failed in ipBackupDBs for database " + fiDbName:{&SV}).
+            RETURN.
+        END.
+    END.    
     
     RUN ipUpgradeDBs.
     IF NOT lSuccess THEN 
