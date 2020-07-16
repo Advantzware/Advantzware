@@ -1448,11 +1448,20 @@ END.
   LOAD "l-font.ini" DIR cDir BASE-KEY "INI".
   USE "l-font.ini".
 
-IF NOT lsecurity-flag THEN RUN sys/ref/d-passwd.w (9, OUTPUT lsecurity-flag).
-        
-IF lsecurity-flag THEN
-RUN custom/d-prompt.w (INPUT ipcButtonList, ip-parms, "", OUTPUT op-values).
-ELSE  op-values =  "DEFAULT" + "," + "No" .
+    IF lSSBOLPassword EQ ? THEN
+    DO:
+        MESSAGE "This tag is not on this release and cannot be added here." VIEW-AS ALERT-BOX INFO .
+        op-values =  "DEFAULT" + "," + "Cancel". 
+    END.
+    ELSE 
+    DO:
+        RUN custom/d-prompt.w (INPUT ipcButtonList, ip-parms, "", OUTPUT op-values). /* New Logic */
+
+        IF lSSBOLPassword AND NOT lsecurity-flag THEN RUN sys/ref/d-passwd.w (9, OUTPUT lsecurity-flag).
+
+        IF NOT lsecurity-flag THEN
+            op-values =  "DEFAULT" + "," + "Cancel".          
+    END.  
 
 /* Load original ini for original font set */
 UNLOAD "l-font.ini" NO-ERROR.
@@ -2063,12 +2072,22 @@ ELSE DO:
           USE "l-font.ini".
 
         END.
-
-        IF NOT lsecurity-flag THEN RUN sys/ref/d-passwd.w (9, OUTPUT lsecurity-flag).
         
-        IF lsecurity-flag THEN
-        RUN custom/d-prompt.w (INPUT "yes-no-cancel", ip-parms, "", OUTPUT op-values). /* New Logic */
-        ELSE  op-values =  "DEFAULT" + "," + "No" .
+          IF lSSBOLPassword EQ ? THEN
+          DO:
+              MESSAGE "This tag is not on this release and cannot be added here." VIEW-AS ALERT-BOX INFO .
+              op-values =  "DEFAULT" + "," + "Cancel". 
+          END.
+          ELSE 
+          DO:
+              RUN custom/d-prompt.w (INPUT "yes-no-cancel", ip-parms, "", OUTPUT op-values). /* New Logic */
+
+              IF lSSBOLPassword AND NOT lsecurity-flag THEN RUN sys/ref/d-passwd.w (9, OUTPUT lsecurity-flag).
+
+              IF NOT lsecurity-flag THEN
+                  op-values =  "DEFAULT" + "," + "Cancel".          
+          END.          
+
         
         /* Load original ini for original font set */
         UNLOAD "l-font.ini" NO-ERROR.
