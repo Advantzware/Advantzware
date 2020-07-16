@@ -4226,7 +4226,7 @@ PROCEDURE ipLoadAuditRecs :
         CREATE tt{&tablename}.
         IMPORT tt{&tablename}.
         /* Otherwise create the base record from the .d */
-        ELSE DO:
+        DO:
             FIND {&tablename} EXCLUSIVE WHERE 
                 {&tablename}.auditTable EQ tt{&tablename}.auditTable AND
                 {&tablename}.auditField EQ tt{&tablename}.auditField
