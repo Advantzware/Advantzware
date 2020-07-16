@@ -17,18 +17,14 @@ USING Progress.Json.ObjectModel.*.
 
 DEFINE VARIABLE oModelParser    AS ObjectModelParser NO-UNDO.
 DEFINE VARIABLE oObject         AS JsonObject        NO-UNDO.
-DEFINE VARIABLE hdFileSysProcs  AS HANDLE            NO-UNDO.
-DEFINE VARIABLE hdOSProcs       AS HANDLE            NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs AS HANDLE            NO-UNDO.
 DEFINE VARIABLE cTempDir        AS CHARACTER         NO-UNDO.
 
 {api/ttAPIOutboundEvent.i}
 
-RUN system/OSProcs.p PERSISTENT SET hdOSProcs.
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
-RUN FileSys_GetTempDirectory IN hdFileSysProcs(
+RUN FileSys_GetTempDirectory (
     OUTPUT cTempDir
     ).
     
@@ -187,7 +183,7 @@ PROCEDURE pUpdateAccessToken PRIVATE:
         .
 
     /* execute CURL command with required parameters to call the API */
-    RUN OS_RunCommand IN hdOSProcs (
+    RUN OS_RunCommand (
         INPUT  cCommand,             /* Command string to run */
         INPUT  cResponseFile,        /* File name to write the command output */
         INPUT  TRUE,                 /* Run with SILENT option */
