@@ -439,7 +439,9 @@ DO:
      IF tran-date = ? THEN RETURN NO-APPLY.
   END.
   ASSIGN post-date = tran-date
-         v-post-date = tran-date.
+         v-post-date = tran-date
+         uperiod = tran-period
+         udate   = tran-date.
 
   /* gdm - 12050809*/
   ASSIGN
