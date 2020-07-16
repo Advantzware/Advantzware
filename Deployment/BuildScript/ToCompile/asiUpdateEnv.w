@@ -6040,6 +6040,20 @@ PROCEDURE ipResetCostGroups:
     DEF VAR cOrigPropath AS CHAR NO-UNDO.
     DEF VAR cNewPropath AS CHAR NO-UNDO.
 
+    DISABLE TRIGGERS FOR LOAD OF estCostCategory.
+    DISABLE TRIGGERS FOR LOAD OF estCostGroup.
+    DISABLE TRIGGERS FOR LOAD OF estCostGroupLevel.
+    
+    FOR EACH estCostCategory:
+        DELETE estCostCategory.
+    END.
+    FOR EACH estCostGroup:
+        DELETE estCostGroup.
+    END.
+    FOR EACH estCostGroupLevel:
+        DELETE estCostGroupLevel.
+    END.
+    
     ASSIGN
         cOrigPropath = PROPATH
         cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
