@@ -873,7 +873,7 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "custCityState", cCustCityState).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SPACE", " ").
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToCompanyName", cShipToCompanyName).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrentDate",STRING(TODAY,"99/99/9999")).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrentDate",STRING(TODAY)).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalCost",cTotalCost).   
         
         
