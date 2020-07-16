@@ -32,7 +32,7 @@ DEFINE VARIABLE gcSIMONListInclude  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcSIMONListSeparate AS CHARACTER NO-UNDO.
 
 ASSIGN 
-    giQtyMaxColumn      = 5
+    giQtyMaxColumn      = 8
     gcNumError          = "#"
     gcContinue          = CHR(187)
     giRowsPerPage       = 64
@@ -526,8 +526,8 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
     DEFINE BUFFER bf-estCostForm          FOR estCostForm.
 
     DEFINE VARIABLE iRowStart      AS INTEGER.
-    DEFINE VARIABLE iColumn        AS INTEGER   EXTENT 10 INITIAL [2,36].
-    DEFINE VARIABLE iColumnWidth   AS INTEGER   INITIAL 10.
+    DEFINE VARIABLE iColumn        AS INTEGER   EXTENT 10 INITIAL [2,30].
+    DEFINE VARIABLE dColumnWidth   AS DECIMAL   INITIAL 7.5.
     
     DEFINE VARIABLE iQtyCount      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iQtyCountTotal AS INTEGER   NO-UNDO.
@@ -573,7 +573,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
         END.
         RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "*** Totals Per M ", YES, YES, NO).
         DO iQtyCount = 1 TO iQtyCountTotal:
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2] + (iQtyCount - 1) * iColumnWidth, cQtyHeader[iQtyCount], 7, 0, YES, YES, YES, YES, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2] + (iQtyCount - 1) * dColumnWidth, cQtyHeader[iQtyCount], 7, 0, YES, YES, YES, YES, YES).
             IF iQtyCount EQ 1 THEN 
                 RUN pWriteToCoordinates(iopiRowCount, iColumn[2], gcQtyMasterInd, YES, NO, NO).
         END.
@@ -582,7 +582,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
     DO: 
         RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "*** Totals for Qty: " +  fFormatNumber(ipbf-estCostForm.quantityFGOnForm, 7, 0, YES, NO), YES, YES, NO).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[2] , "Per M" , YES, YES, YES).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[2] + iColumnWidth, "Total", YES, YES, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[2] + dColumnWidth, "Total", YES, YES, YES).
     END.    
     
     FOR EACH estCostGroupLevel NO-LOCK
@@ -609,7 +609,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
                                 RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
                                 RUN pWriteToCoordinates(iopiRowCount, iColumn[1], estCostGroup.costGroupLabel, NO, NO, NO).
                             END.                        
-                            RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + (iQtyCount - 1) * iColumnWidth ,estCostSummary.costTotalPerMFinished , 6, 2, NO, YES, NO, NO, YES).
+                            RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + (iQtyCount - 1) * dColumnWidth ,estCostSummary.costTotalPerMFinished , 6, 2, NO, YES, NO, NO, YES).
                             dCostPerM[iQtyCount] = dCostPerM[iQtyCount] + estCostSummary.costTotalPerMFinished.
                         END.
                     END.
@@ -628,7 +628,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
                         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
                         RUN pWriteToCoordinates(iopiRowCount, iColumn[1], estCostGroup.costGroupLabel, NO, NO, NO).
                         RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] , estCostSummary.costTotalPerMFinished , 6, 2, NO, YES, NO, NO, YES).
-                        RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + iColumnWidth, estCostSummary.costTotal , 6, 2, NO, YES, NO, NO, YES).
+                        RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + dColumnWidth, estCostSummary.costTotal , 6, 2, NO, YES, NO, NO, YES).
                         ASSIGN 
                             dCostTotal     = dCostTotal + estCostSummary.costTotal
                             dCostTotalPerM = dCostTotalPerM + estCostSummary.costTotalPerMFinished
@@ -642,13 +642,13 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
         IF iplPerQuantity THEN
         DO: /*Print values for each quantity (per M)*/
             DO iQtyCount = 1 TO iQtyCountTotal:
-                RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + (iQtyCount - 1) * iColumnWidth , dCostPerM[iQtyCount] , 6, 2, NO, YES, YES, NO, YES).
+                RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + (iQtyCount - 1) * dColumnWidth , dCostPerM[iQtyCount] , 6, 2, NO, YES, YES, NO, YES).
             END.
         END.
         ELSE 
         DO:
             RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] , dCostTotalPerM , 6, 2, NO, YES, YES, NO, YES).
-            RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + iColumnWidth, dCostTotal , 6, 2, NO, YES, YES, NO, YES).
+            RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + dColumnWidth, dCostTotal , 6, 2, NO, YES, YES, NO, YES).
         END.
     END.
     IF iplPrintProfitPercent THEN 
