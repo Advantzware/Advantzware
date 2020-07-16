@@ -14,7 +14,6 @@
 
 /* ***************************  Definitions  ************************** */
 {system\TaxProcs.i}
-DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 
 DEFINE TEMP-TABLE ttPostingMaster NO-UNDO 
     FIELD company              AS CHARACTER
@@ -379,7 +378,6 @@ FUNCTION fIsWritable RETURNS LOGICAL PRIVATE
 /* ***************************  Main Block  *************************** */
 /* Shared Vars needed for 810 invoices */
 RUN rc/genrcvar.p.
-RUN system\TaxProcs.p PERSISTENT SET hdTaxProcs.
 
 
 /* **********************  Internal Procedures  *********************** */
@@ -2207,7 +2205,7 @@ PROCEDURE pBuildInvoiceTaxDetail PRIVATE:
             cAccountSource = "Tax Group: " + ipbf-ttInvoiceToPost.taxGroup
             dTaxableAmount = ipbf-ttInvoiceToPost.amountBilledExTax - ipbf-ttInvoiceToPost.amountBilledFreight
             .
-        RUN Tax_CalculateWithDetail IN hdTaxProcs (ipbf-ttInvoiceToPost.company, ipbf-ttInvoiceToPost.taxGroup, NO, dTaxableAmount, OUTPUT dTax, OUTPUT TABLE ttTaxDetail).
+        RUN Tax_CalculateWithDetail  (ipbf-ttInvoiceToPost.company, ipbf-ttInvoiceToPost.taxGroup, NO, dTaxableAmount, OUTPUT dTax, OUTPUT TABLE ttTaxDetail).
         FOR EACH ttTaxDetail:
             RUN pCheckAccount(ttTaxDetail.company,  ttTaxDetail.taxCodeAccount, cAccountSource + " Code: " + ttTaxDetail.taxCode, "Tax Account", 
                     OUTPUT oplError, OUTPUT opcErrorMessage).
@@ -2218,7 +2216,7 @@ PROCEDURE pBuildInvoiceTaxDetail PRIVATE:
         END.         
         dTotalTax = dTax.
         dTaxableAmount = ipbf-ttInvoiceToPost.amountBilledFreight.
-        RUN Tax_CalculateWithDetail IN hdTaxProcs (ipbf-ttInvoiceToPost.company, ipbf-ttInvoiceToPost.taxGroup, YES, dTaxableAmount, OUTPUT dTax, OUTPUT TABLE ttTaxDetail).
+        RUN Tax_CalculateWithDetail  (ipbf-ttInvoiceToPost.company, ipbf-ttInvoiceToPost.taxGroup, YES, dTaxableAmount, OUTPUT dTax, OUTPUT TABLE ttTaxDetail).
         FOR EACH ttTaxDetail:
             RUN pCheckAccount(ttTaxDetail.company,  ttTaxDetail.taxCodeAccount, cAccountSource + " Code: " + ttTaxDetail.taxCode, "Tax Account", 
                 OUTPUT oplError, OUTPUT opcErrorMessage).

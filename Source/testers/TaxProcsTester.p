@@ -14,14 +14,11 @@
 
 /* ***************************  Definitions  ************************** */
 {system\TaxProcs.i}
-DEFINE VARIABLE hdTaxProcs AS HANDLE.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
 
 /* ***************************  Main Block  *************************** */
-RUN system\TaxProcs.p PERSISTENT SET hdTaxProcs.
-THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdTaxProcs).
 
 //RUN pTestCalculateTax.
 RUN pTestCalculateTaxWithDetail.

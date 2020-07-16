@@ -46,10 +46,7 @@ ASSIGN
     cocode = gcompany
     locode = gloc
     .
-DEFINE VARIABLE hTaxProcs     AS HANDLE  NO-UNDO.
 DEFINE VARIABLE lOrderChanged AS LOGICAL NO-UNDO.
-
-RUN system/TaxProcs.p PERSISTENT SET hTaxProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -345,8 +342,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel C-Win
 ON CHOOSE OF btnCancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
-    IF VALID-HANDLE(hTaxProcs) THEN
-    DELETE OBJECT hTaxProcs.
     APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
 
@@ -579,7 +574,7 @@ PROCEDURE pSetTaxable :
                                 :
                                 IF lOrderTaxable THEN DO:
                                     cOrder:SCREEN-VALUE = STRING(oe-ordl.ord-no) + " - " + STRING(oe-ordl.line).
-                                    RUN GetTaxableAR IN hTaxProcs (
+                                    RUN Tax_GetTaxableAR (
                                         oe-ord.company,
                                         oe-ord.cust-no,
                                         oe-ord.ship-id,
@@ -601,7 +596,7 @@ PROCEDURE pSetTaxable :
                                 IF cTaxGroup NE "" THEN
                                 oe-ordm.spare-char-1 = cTaxGroup.
                                 IF lOrderTaxable THEN DO:
-                                    RUN GetTaxableMisc IN hTaxProcs (
+                                    RUN Tax_GetTaxableMisc (
                                         oe-ord.company,
                                         oe-ord.cust-no,
                                         oe-ord.ship-id,
@@ -638,7 +633,7 @@ PROCEDURE pSetTaxable :
                                 WHERE inv-line.r-no EQ inv-head.r-no
                                 :
                                 cInvoice:SCREEN-VALUE = STRING(inv-line.ord-no) + " - " + STRING(inv-line.line).
-                                RUN GetTaxableAR IN hTaxProcs (
+                                RUN Tax_GetTaxableAR (
                                     inv-head.company,
                                     inv-head.cust-no,
                                     inv-head.sold-no,

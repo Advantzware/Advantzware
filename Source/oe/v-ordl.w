@@ -71,12 +71,9 @@ DEF VAR lv-q-no LIKE quotehd.q-no NO-UNDO.
 DEF VAR v-rel AS INT NO-UNDO.
 DEF VAR v-margin AS DEC NO-UNDO.
 DEF VAR v-ship-from AS CHAR NO-UNDO.
-DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
-
-RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 
 RUN sys/ref/nk1look.p (cocode, "OESHIPFROM", "L", NO, NO, "", "", 
                           OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -2504,7 +2501,7 @@ FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
 ------------------------------------------------------------------------------*/
 DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+RUN Tax_GetTaxableAR  (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
 RETURN lTaxable.
 
 END FUNCTION.

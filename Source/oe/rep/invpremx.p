@@ -116,9 +116,7 @@ DEFINE VARIABLE dFrtTaxRate           AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE lIsTaxRateSame        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE dTotalSalesTaxableAmt AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dTotalFrtTaxableAmt   AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE hdTaxProcs            AS HANDLE    NO-UNDO.
 
-RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 FUNCTION fRoundUp RETURNS DECIMAL ( ipdNum AS DECIMAL ):
@@ -794,7 +792,7 @@ END.
                 
                 EMPTY TEMP-TABLE ttTaxDetail.
                 
-                RUN Tax_CalculateWithDetail IN hdTaxProcs (
+                RUN Tax_CalculateWithDetail  (
                     INPUT  inv-head.company,
                     INPUT  inv-head.tax-gr,
                     INPUT  FALSE,   /* Is this freight */
@@ -821,7 +819,7 @@ END.
                 IF inv-head.f-bill THEN DO: 
                     EMPTY TEMP-TABLE ttTaxDetail.                     
                     lIsFreightTaxable = YES.
-                    RUN Tax_CalculateWithDetail IN hdTaxProcs (
+                    RUN Tax_CalculateWithDetail  (
                         INPUT  inv-head.company,
                         INPUT  inv-head.tax-gr,
                         INPUT  TRUE,   /* Is this freight */
@@ -1202,9 +1200,6 @@ END.
     {XMLOutput/XMLOutput.i &c=c &XMLClose} /* rstark 05291402 */
 
 end. /* each xinv-head */
-
-IF VALID-HANDLE(hdTaxProcs) THEN
-    DELETE PROCEDURE hdTaxProcs.
 
 IF VALID-HANDLE(hdFileSysProcs) THEN
     DELETE PROCEDURE hdFileSysProcs.

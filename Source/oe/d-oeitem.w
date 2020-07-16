@@ -162,10 +162,8 @@ DEFINE VARIABLE oeDateChange-log AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE oeDateChange-chr AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcLastDateChange AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
-DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
-RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 
 cocode = g_company.
 
@@ -10027,7 +10025,7 @@ FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
 ------------------------------------------------------------------------------*/
 DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+RUN Tax_GetTaxableAR  (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
 RETURN lTaxable.
 
 

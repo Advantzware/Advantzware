@@ -22,9 +22,6 @@ DEFINE VARIABLE dOrderFreightNew    LIKE oe-ord.t-freight NO-UNDO.
 DEFINE VARIABLE dOrderRevenueOld    LIKE dOrderRevenueNew NO-UNDO.
 DEFINE VARIABLE dOrderTaxOld        LIKE dOrderTaxNew NO-UNDO.
 DEFINE VARIABLE dOrderBalanceChange AS DECIMAL NO-UNDO.
-DEFINE VARIABLE hdTaxProcs          AS HANDLE    NO-UNDO.
-
-RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 
 FIND oe-ord WHERE ROWID(oe-ord) EQ ipriOeOrd NO-LOCK NO-ERROR.
 
@@ -86,7 +83,7 @@ DO:
 
         IF oe-ordl.tax AND dTaxRate GT 0 THEN 
         DO:
-            RUN Tax_Calculate IN hdTaxProcs (
+            RUN Tax_Calculate  (
                 INPUT  oe-ord.company,
                 INPUT  oe-ord.tax-gr,
                 INPUT  FALSE,   /* Is this freight */
@@ -114,7 +111,7 @@ DO:
 
         IF oe-ordm.tax AND (dTaxRate > 0 OR dTaxRatePrep > 0) THEN 
         DO:
-            RUN Tax_Calculate IN hdTaxProcs (
+            RUN Tax_Calculate  (
                 INPUT  oe-ord.company,
                 INPUT  oe-ord.tax-gr,
                 INPUT  FALSE,   /* Is this freight */
@@ -184,6 +181,3 @@ DO:
         END.
     END. /* avail cust */
 END. /* if avail oe-ord */
-
-IF VALID-HANDLE(hdTaxProcs) THEN
-    DELETE PROCEDURE hdTaxProcs.

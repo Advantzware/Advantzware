@@ -120,7 +120,6 @@ DEF NEW SHARED BUFFER xeb FOR eb.
 DEF NEW SHARED BUFFER xef FOR ef.
 DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lCreditAccSec AS LOGICAL NO-UNDO .
-DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lErrorValid AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cOeShipChar AS CHARACTER NO-UNDO.
@@ -128,7 +127,6 @@ DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMisEstimate AS CHARACTER NO-UNDO .
 
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
-RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 &Scoped-define sman-fields oe-ord.sman oe-ord.s-pct oe-ord.s-comm
 
 DEF NEW SHARED TEMP-TABLE w-ord NO-UNDO FIELD w-ord-no LIKE oe-ord.ord-no.
@@ -5498,7 +5496,6 @@ PROCEDURE local-exit :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  DELETE OBJECT hdTaxProcs.
 
 
 END PROCEDURE.
@@ -7542,7 +7539,7 @@ FUNCTION fGetTaxable RETURNS LOGICAL
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
+    RUN Tax_GetTaxableMisc  (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
     RETURN lTaxable.
 
 END FUNCTION.

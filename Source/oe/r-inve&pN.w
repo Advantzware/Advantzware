@@ -2214,9 +2214,6 @@ PROCEDURE list-post-inv :
   DEFINE VARIABLE v-first AS LOG INIT YES.
   DEFINE VARIABLE v-tot-frt AS DECIMAL NO-UNDO.
 
-  DEFINE VARIABLE hdTaxProcs AS HANDLE    NO-UNDO.
-  RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
-
   FORMAT
     inv-head.inv-no FORMAT ">>>>>>9" AT 1
     inv-head.inv-date AT 9 FORMAT "99/99/99"
@@ -2322,9 +2319,6 @@ PROCEDURE list-post-inv :
   FIND CURRENT ar-invl NO-LOCK NO-ERROR.
   FIND CURRENT oe-ordm NO-LOCK NO-ERROR.
   FIND CURRENT cust NO-LOCK NO-ERROR.
-
-  IF VALID-HANDLE(hdTaxProcs) THEN
-      DELETE PROCEDURE hdTaxProcs.
 
   SESSION:SET-WAIT-STATE ("").
 END PROCEDURE.
