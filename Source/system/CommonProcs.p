@@ -283,9 +283,10 @@ PROCEDURE spCommon_DateRule:
     DO idx = 1 TO 7:
         lSkipDay[idx] = SUBSTRING(DateRules.skipDays,idx,1) EQ "Y".
     END. /* do idx */
-    /* calculate ending date based on above week days to skip */
+    /* add extra day if past the time limit */
     IF DateRules.skipTime GT 0 AND DateRules.skipTime LE TIME THEN
     dtDate = dtDate + 1.
+    /* calculate ending date based on above week days to skip */
     DO idx = 1 TO DateRules.days:
         DO WHILE TRUE:
             dtDate = dtDate + 1.
@@ -300,7 +301,6 @@ PROCEDURE spCommon_DateRule:
             LEAVE.
         END. /* while */
     END. /* do idx */
-    /* add extra day if past the time limit */
     opdtDate = dtDate.
 
     /* check if result table should be updated */
