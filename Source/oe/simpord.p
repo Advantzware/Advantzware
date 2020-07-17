@@ -1137,7 +1137,7 @@ PROCEDURE CreateRelease :
                 oe-ord.company,
                 ?,
                 oe-ord.cust-no,
-                IF AVAILABLE shipto THEN shipto.ship-id ELSE "",
+                IF AVAILABLE shipto THEN shipto.ship-id ELSE oe-ord.sold-id,
                 oe-ordl.req-date,
                 ?,
                 ?,
