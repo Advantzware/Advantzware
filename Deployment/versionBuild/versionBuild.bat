@@ -26,6 +26,8 @@ SET DUMP_INC_DEBUG=0
 SET blog=C:\tmp\VERBUILD-%iNewVer%-%date:~12,2%%date:~4,2%%date:~7,2%-%time:~0,2%%time:~3,2%%time:~6,2%-BASIC.log
 SET vlog=C:\tmp\VERBUILD-%iNewVer%-%date:~12,2%%date:~4,2%%date:~7,2%-%time:~0,2%%time:~3,2%%time:~6,2%-VERBOSE.log
 SET elog=C:\tmp\VERBUILD-%iNewVer%-%date:~12,2%%date:~4,2%%date:~7,2%-%time:~0,2%%time:~3,2%%time:~6,2%-ERRORS.log
+C:
+CD %buildDir%
 ECHO %cNewVer% > newVer.txt
 ECHO .
 ECHO Starting at %time% on %date%

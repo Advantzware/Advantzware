@@ -74,10 +74,10 @@ ASSIGN
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table DateRules.dateRuleID ~
-DateRules.scope DateRules.scopeID DateRules.baseTable DateRules.baseField ~
-DateRules.days DateRules.skipDays ~
+DateRules.dateRuleName DateRules.days DateRules.skipDays ~
 DYNAMIC-FUNCTION('sfCommon_TimeDisplay', DateRules.skipTime, YES, NO) @ cSkipTime ~
-DateRules.resultTable DateRules.resultField 
+DateRules.baseTable DateRules.baseField DateRules.resultTable ~
+DateRules.resultField 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH DateRules WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -140,13 +140,12 @@ DEFINE RECTANGLE RECT-1
 DEFINE QUERY Browser-Table FOR 
       DateRules
     FIELDS(DateRules.dateRuleID
-      DateRules.scope
-      DateRules.scopeID
-      DateRules.baseTable
-      DateRules.baseField
+      DateRules.dateRuleName
       DateRules.days
       DateRules.skipDays
       DateRules.skipTime
+      DateRules.baseTable
+      DateRules.baseField
       DateRules.resultTable
       DateRules.resultField) SCROLLING.
 &ANALYZE-RESUME
@@ -155,14 +154,13 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      DateRules.dateRuleID FORMAT ">>>>>>>>9":U
-      DateRules.scope FORMAT "x(16)":U
-      DateRules.scopeID FORMAT "x(32)":U
-      DateRules.baseTable FORMAT "x(32)":U
-      DateRules.baseField FORMAT "x(32)":U
+      DateRules.dateRuleID FORMAT "x(16)":U
+      DateRules.dateRuleName FORMAT "x(32)":U
       DateRules.days FORMAT ">>>9":U
       DateRules.skipDays FORMAT "x(8)":U
       DYNAMIC-FUNCTION('sfCommon_TimeDisplay', DateRules.skipTime, YES, NO) @ cSkipTime COLUMN-LABEL "Skip After" FORMAT "X(8)":U
+      DateRules.baseTable FORMAT "x(32)":U
+      DateRules.baseField FORMAT "x(32)":U
       DateRules.resultTable FORMAT "x(32)":U
       DateRules.resultField FORMAT "x(32)":U
 /* _UIB-CODE-BLOCK-END */
@@ -242,7 +240,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -265,16 +263,15 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _FldNameList[1]   = ASI.DateRules.dateRuleID
-     _FldNameList[2]   = ASI.DateRules.scope
-     _FldNameList[3]   = ASI.DateRules.scopeID
-     _FldNameList[4]   = ASI.DateRules.baseTable
-     _FldNameList[5]   = ASI.DateRules.baseField
-     _FldNameList[6]   = ASI.DateRules.days
-     _FldNameList[7]   = ASI.DateRules.skipDays
-     _FldNameList[8]   > "_<CALC>"
+     _FldNameList[2]   = ASI.DateRules.dateRuleName
+     _FldNameList[3]   = ASI.DateRules.days
+     _FldNameList[4]   = ASI.DateRules.skipDays
+     _FldNameList[5]   > "_<CALC>"
 "DYNAMIC-FUNCTION('sfCommon_TimeDisplay', DateRules.skipTime, YES, NO) @ cSkipTime" "Skip After" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   = ASI.DateRules.resultTable
-     _FldNameList[10]   = ASI.DateRules.resultField
+     _FldNameList[6]   = ASI.DateRules.baseTable
+     _FldNameList[7]   = ASI.DateRules.baseField
+     _FldNameList[8]   = ASI.DateRules.resultTable
+     _FldNameList[9]   = ASI.DateRules.resultField
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

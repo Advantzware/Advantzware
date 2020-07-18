@@ -52,17 +52,17 @@ DEFINE VARIABLE dtmMsgRtn           AS DATETIME  NO-UNDO.
 
 /* alphabetical list of super-procedures comma delimited */
 ASSIGN 
-    cSuperProcedure = "system/CommonProcs.p,"
+    cSuperProcedure = "est/EstimateProcs.p,"
+                    + "system/CommonProcs.p,"
+                    + "system/ConversionProcs.p,"
                     + "system/CreditProcs.p,"
+                    + "system/FileSysProcs.p,"
+                    + "system/FormatProcs.p,"
+                    + "system/GLProcs.p,"
+                    + "system/OSProcs.p,"
                     + "system/PurgeProcs.p,"
                     + "system/TagProcs.p,"
                     + "system/VendorCostProcs.p,"
-                    + "system/ConversionProcs.p,"
-                    + "system/FileSysProcs.p,"
-                    + "system/OSProcs.p,"
-                    + "system/FormatProcs.p,"
-                    + "est/EstimateProcs.p,"
-                    + "system/GLProcs.p,"
     cSuperProcedure = TRIM(cSuperProcedure,",")
     .
 DEFINE TEMP-TABLE ttSessionParam NO-UNDO
@@ -436,7 +436,7 @@ PROCEDURE displayMessageQuestion:
         MESSAGE 
             "Unable to locate message ID " + ipcMessageID + " in the zMessage table." SKIP 
             "Please correct this using function NZ@ or contact ASI Support"
-            VIEW-AS ALERT-BOX ERROR.
+        VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.  
     ELSE IF zMessage.userSuppress AND LOOKUP(zMessage.rtnValue,"YES,NO") NE 0 THEN
@@ -447,13 +447,11 @@ PROCEDURE displayMessageQuestion:
             MESSAGE "Message # " + zMessage.msgID + " requires an answer that is not defined, " +
                 "so please respond here with the desired response."  SKIP   
                 fMessageText(ipcMessageID)
-                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  
-                TITLE fMessageTitle()
-                UPDATE lMessage.
-                opcOutput = STRING(lMessage).
-                       
-    END. 
-    
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  
+            TITLE fMessageTitle()
+            UPDATE lMessage.
+            opcOutput = STRING(lMessage).                       
+    END.    
     ELSE IF zMessage.msgType NE "QUESTION-YN" AND zMessage.msgType NE "Message-Action" AND LOOKUP(zMessage.rtnValue,"YES,NO") NE 0 THEN DO:
         IF zMessage.userSuppress THEN 
             opcOutput = zMessage.rtnValue.
@@ -461,10 +459,10 @@ PROCEDURE displayMessageQuestion:
             MESSAGE "User must enter a valid response, " +
                 "so please respond here with the desired response."  SKIP   
                 fMessageText(ipcMessageID)
-                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  
-                TITLE fMessageTitle()
-                UPDATE lMessage.
-                opcOutput = STRING(lMessage).
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  
+            TITLE fMessageTitle()
+            UPDATE lMessage.
+            opcOutput = STRING(lMessage).
         END.                          
     END.                  
     ELSE DO:
@@ -479,8 +477,7 @@ PROCEDURE displayMessageQuestion:
             END.
             /* Deal with these options in next phase */
             WHEN "Message-Action" THEN DO:                      
-              IF zMessage.rtnValue EQ "ASK" THEN
-              DO:
+              IF zMessage.rtnValue EQ "ASK" THEN DO:
                  MESSAGE 
                     fMessageText(ipcMessageID)
                 VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO  
@@ -488,12 +485,12 @@ PROCEDURE displayMessageQuestion:
                 UPDATE lMessage.
                 opcOutput = STRING(lMessage).                  
               END.
-              ELSE do:
+              ELSE DO:
                  MESSAGE 
                     fMessageText(ipcMessageID)
-                  VIEW-AS ALERT-BOX MESSAGE 
-                  TITLE fMessageTitle().
-                  opcOutput = STRING(zMessage.rtnValue).
+                 VIEW-AS ALERT-BOX MESSAGE 
+                 TITLE fMessageTitle().
+                 opcOutput = STRING(zMessage.rtnValue).
               END.            
             END.
             WHEN "QUESTION-INT" THEN DO:
@@ -982,8 +979,6 @@ PROCEDURE spDynAuditField:
                     IF AVAILABLE dynParamValue THEN DO:
                         IF lResults THEN
                         DO TRANSACTION:
-/*                            /* rstark - remove when depricated */     */
-/*                            FIND CURRENT dynParamValue EXCLUSIVE-LOCK.*/
                             ASSIGN
                                 oplRunAudit  = YES
                                 cLookupTitle = "Audit Field History for Database: " + ipcFrameDB
@@ -1010,22 +1005,6 @@ PROCEDURE spDynAuditField:
                                 END CASE.
                             END. /* each dynvalueparam */
                             RELEASE dynValueParam.
-/*                            /* rstark - remove when depricated */                 */
-/*                            DO idx = 1 TO EXTENT(dynParamValue.paramName):        */
-/*                                IF dynParamValue.paramName[idx] EQ "" THEN LEAVE. */
-/*                                CASE dynParamValue.paramName[idx]:                */
-/*                                    WHEN "AuditDB" THEN                           */
-/*                                    dynParamValue.paramValue[idx] = ipcFrameDB.   */
-/*                                    WHEN "AuditTable" THEN                        */
-/*                                    dynParamValue.paramValue[idx] = ipcFrameFile. */
-/*                                    WHEN "AuditField" THEN                        */
-/*                                    dynParamValue.paramValue[idx] = ipcFrameField.*/
-/*                                    WHEN "AuditKey" THEN                          */
-/*                                    dynParamValue.paramValue[idx] = ipcAuditKey.  */
-/*                                END CASE.                                         */
-/*                            END. /* do idx */                                     */
-/*                            /* rstark - remove when depricated */                 */
-/*                            FIND CURRENT dynParamValue NO-LOCK.                   */
                         END. /* if results exist */
                         ELSE
                         opcErrorMsg = "No Audit Field History Exists".
@@ -1236,10 +1215,10 @@ PROCEDURE spSendEmail:
     ASSIGN 
         oplSuccess = YES
         opcMessage = "Success"
-        FILE-INFO:FILE-NAME  = SEARCH("CMail.exe")
-        cMail                = FILE-INFO:FULL-PATHNAME
-        FILE-INFO:FILE-NAME  = ipcAttachment
-        ipcAttachment        = FILE-INFO:FULL-PATHNAME
+        FILE-INFO:FILE-NAME = SEARCH("CMail.exe")
+        cMail               = FILE-INFO:FULL-PATHNAME
+        FILE-INFO:FILE-NAME = ipcAttachment
+        ipcAttachment       = FILE-INFO:FULL-PATHNAME
         . 
 
     FIND FIRST emailConfig NO-LOCK
@@ -1462,8 +1441,7 @@ PROCEDURE spNextCue :
     ASSIGN
         iCueOrder = iCueOrder + 1
         lNext     = YES 
-        .
-    
+        .    
     APPLY "U1":U TO iphWidget.
 
 END PROCEDURE.
@@ -1488,8 +1466,7 @@ PROCEDURE spPrevCue :
         lNext     = NO
         .
     IF iCueOrder LT 1 THEN
-    iCueOrder = ?.
-    
+    iCueOrder = ?.    
     APPLY "U1":U TO iphWidget.
 
 END PROCEDURE.
@@ -2045,7 +2022,6 @@ FUNCTION sfGetBeginSearch RETURNS CHARACTER
      cResult = SUBSTRING(ipcString, 1, iAstPos - 1).
   ELSE
      cResult = ipcString.
-
   RETURN cResult.
 
 END FUNCTION.

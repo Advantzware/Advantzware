@@ -1,1 +1,1 @@
-'Rule ID: ' + STRING(DateRules.dateRuleID) + ' - Scope: ' + DateRules.scope + ' - Scope ID: ' + DateRules.scopeID
+'Rule ID: ' + DateRules.dateRuleID + ' - Name: ' + DateRules.dateRuleName

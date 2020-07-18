@@ -64,6 +64,7 @@ DEFINE TEMP-TABLE hold-job LIKE w-job.
 DEF TEMP-TABLE tt-ids 
     FIELD tt-type AS CHAR 
     FIELD tt-rowid AS ROWID
+    FIELD tt-tagno AS CHAR 
     FIELD tt-jobno LIKE oe-boll.job-no
     FIELD tt-jobno2 LIKE oe-boll.job-no2
     FIELD tt-qty LIKE oe-boll.qty.
@@ -737,6 +738,7 @@ PROCEDURE build-table :
                 tt-rowid = ROWID(oe-rell)
                 tt-jobno = oe-rell.job-no
                 tt-jobno2 = oe-rell.job-no2
+                tt-tagno = oe-rell.tag
                 tt-qty = oe-rell.qty.
         END.
 
@@ -755,6 +757,7 @@ PROCEDURE build-table :
                     tt-rowid = ROWID(oe-boll)
                     tt-jobno = oe-boll.job-no
                     tt-jobno2 = oe-boll.job-no2
+                    tt-tagno = oe-boll.tag
                     tt-qty = oe-boll.qty.
         END.
   
@@ -774,6 +777,7 @@ PROCEDURE build-table :
                 tt-rowid = ROWID(oe-boll)
                 tt-jobno = oe-boll.job-no
                 tt-jobno2 = oe-boll.job-no2
+                tt-tagno = oe-boll.tag
                 tt-qty = oe-boll.qty.
         END.
     END.
@@ -819,10 +823,12 @@ PROCEDURE build-table :
             about 500,000 reads */
         FOR EACH tt-ids WHERE 
             tt-jobno EQ w-job.job-no AND 
-            tt-jobno2 EQ w-job.job-no2
+            tt-jobno2 EQ w-job.job-no2 AND 
+            tt-tagno EQ w-job.tag
             BY tt-ids.tt-type
             BY tt-ids.tt-jobno 
-            BY tt-ids.tt-jobno2:
+            BY tt-ids.tt-jobno2 
+            BY tt-ids.tt-tagno:
             IF tt-ids.tt-type EQ "REL" THEN ASSIGN 
                 w-job.rel-qty = w-job.rel-qty + tt-ids.tt-qty.
             ELSE ASSIGN 

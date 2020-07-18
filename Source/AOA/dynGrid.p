@@ -30,13 +30,6 @@ IF rRowID NE ? THEN DO:
             IF AVAILABLE dynValueParam THEN
             dynValueParam.paramValue = cParamValue.
             RELEASE dynValueParam.
-/*            /* rstark - remove when depricated */                       */
-/*            DO idx = 1 TO EXTENT(dynParamValue.paramName):              */
-/*                IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.       */
-/*                IF dynParamValue.paramName[idx] NE cParamName THEN NEXT.*/
-/*                dynParamValue.paramValue[idx] = cParamValue.            */
-/*                LEAVE.                                                  */
-/*            END. /* do idx */                                           */
         END. /* do jdx */
         dynParamValue.lastRunDateTime = NOW.
         FIND CURRENT dynParamValue NO-LOCK.

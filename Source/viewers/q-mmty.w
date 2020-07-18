@@ -329,7 +329,7 @@ PROCEDURE proc-down :
    def buffer bf-mmty for mmty .
    def buffer bf2-mmty for mmty.
    def var i as int no-undo.
-   
+   IF NOT avail mmty THEN RETURN.
    assign li-cur-page = mmty.page-no
           li-cur-across = mmty.across-no.
           
@@ -424,6 +424,7 @@ PROCEDURE proc-left :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  IF avail mmty THEN 
   assign li-cur-page = mmty.page-no
          li-cur-across = mmty.across-no.
 
@@ -447,7 +448,7 @@ PROCEDURE proc-right :
   def buffer bf-mmty for mmty.
   def buffer bf2-mmty for mmty.
   def var i as int no-undo.
-
+  IF NOT avail mmty THEN RETURN.
   assign li-cur-page = mmty.page-no
          li-cur-across = mmty.across-no.
 
@@ -514,6 +515,7 @@ PROCEDURE proc-up :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  IF avail mmty THEN 
   assign li-cur-page = mmty.page-no
          li-cur-across = mmty.across-no.
 

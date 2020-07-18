@@ -251,7 +251,27 @@ END FUNCTION.
       find first terms where terms.t-code eq po-ord.terms no-lock no-error.
       find first carrier where carrier.company eq po-ord.company 
                            and carrier.carrier eq po-ord.carrier no-lock no-error.
-
+                           
+      FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
+      IF po-ord.ship-id EQ company.company AND AVAIL vend AND vend.loc NE "" THEN                           
+      DO:
+         FIND FIRST loc NO-LOCK
+              WHERE loc.company EQ vend.company
+              AND loc.loc EQ vend.loc NO-ERROR .
+         IF avail loc THEN     
+         FIND FIRST location NO-LOCK
+              WHERE location.locationCode = loc.loc 
+              AND location.rec_key = loc.addrRecKey NO-ERROR.    
+         IF avail loc AND AVAIL location THEN
+         ASSIGN
+         v-sname =  loc.dscr
+         v-saddr[1] = location.streetAddr[1]
+         v-saddr[2] = location.streetAddr[2]
+         v-scity = location.subCode3
+         v-sstate = location.subCode1
+         v-szip = location.subCode4 .      
+      END.
+      
       IF ip-multi-faxout AND AVAIL vend AND FIRST-OF(po-ord.vend-no) THEN DO:
          OUTPUT CLOSE.
          OUTPUT STREAM st-fax CLOSE.

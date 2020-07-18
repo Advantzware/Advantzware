@@ -237,8 +237,8 @@ PROCEDURE pBusinessLogic:
           AND itemfg.procat  LE cEndProCat
           AND (((itemfg.stat EQ "A"
            OR itemfg.stat    EQ "")
-          AND cFGItemStatus  EQ "1") 
-           OR cFGItemStatus  EQ "2")
+          AND cFGItemStatus  EQ "All") 
+           OR cFGItemStatus  EQ "Active")
         :
         CREATE ttFinishGoods.
         BUFFER-COPY itemfg TO ttFinishGoods.

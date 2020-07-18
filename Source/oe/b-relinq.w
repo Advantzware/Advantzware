@@ -95,7 +95,7 @@ END.
         WHERE {&key-phrase}       ~
           AND ( (lookup(oe-relh.cust-no,custcount) <> 0 AND oe-relh.cust-no <> "")  OR custcount = "")             ~
           AND oe-relh.deleted EQ NO              ~
-          AND oe-relh.posted LE tb_posted 
+          AND oe-relh.posted EQ tb_posted 
 
 &SCOPED-DEFINE for-each1blank                       ~
     FOR EACH {&where1blank}
@@ -1101,11 +1101,13 @@ PROCEDURE first-query :
             sys-ctrl.char-fld = "RE"
             sys-ctrl.int-fld = 30.
   end.
-
-  {&for-each1blank} USE-INDEX delpost NO-LOCK BREAK BY oe-relh.release# DESC:
-    IF FIRST-OF(oe-relh.release#) THEN li = li + 1.
-    lv-rel-no = oe-relh.release#.
-    IF li GE sys-ctrl.int-fld THEN LEAVE.
+  {&for-each1blank} 
+     USE-INDEX r-no NO-LOCK  
+     BY oe-relh.r-no DESC:
+     li = li + 1.
+     lv-rel-no = oe-relh.release#.
+     IF li GE sys-ctrl.int-fld THEN 
+        LEAVE.
   END.
 
   &SCOPED-DEFINE open-query                     ~

@@ -90,6 +90,7 @@ DEF NEW SHARED TEMP-TABLE ttUpdateHist
     FIELD updLog AS CHAR.     
 
 DEF TEMP-TABLE ttAuditTbl LIKE AuditTbl.
+DEF TEMP-TABLE ttAuditFld LIKE AuditFld.
 DEF TEMP-TABLE ttCueCard LIKE cueCard.
 DEF TEMP-TABLE ttCueCardText LIKE cueCardText.
 DEF TEMP-TABLE ttPrgrms LIKE prgrms.
@@ -1214,6 +1215,14 @@ PROCEDURE ipBackupDataFiles :
     END.
     OUTPUT CLOSE.
 
+&SCOPED-DEFINE cFile AuditFld
+
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
 &SCOPED-DEFINE cFile sys-ctrl
     OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
@@ -1369,6 +1378,27 @@ PROCEDURE ipBackupDataFiles :
     OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile dynLookup
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile dynValueParam
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile dynValueColumn
+    OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
+    FOR EACH {&cFile}:
+        EXPORT {&cFile}.
+    END.
+    OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile dynValueParamSet
     OUTPUT TO VALUE(cUpdDataDir + "\" + "{&cFile}." + ipcType) NO-ECHO.
     FOR EACH {&cFile}:
         EXPORT {&cFile}.
@@ -3052,7 +3082,6 @@ PROCEDURE ipDataFix161500:
     ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Data Fix 161500...").
     
-    RUN ipLoadEstCostData.
 
 END PROCEDURE.
     
@@ -3189,6 +3218,7 @@ PROCEDURE ipDataFix200200:
     /* Conversion program for ticket #69261 */
     /* The field stax.tax-rate[5] value will be moved to new field 
        stax.taxableLimit, when the stax.tax-dscr1[5] field's value is "Dollor Limit" */
+    DISABLE TRIGGERS FOR LOAD OF stax.
     DO TRANSACTION:
         FOR EACH stax EXCLUSIVE-LOCK:
             IF stax.tax-dscr1[5] EQ "Dollar Limit" THEN
@@ -3222,7 +3252,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipSetCueCards.
     RUN ipDeleteAudit.
     RUN ipCleanTemplates.
-    RUN ipResetCostGroups.
+    RUN ipLoadEstCostData.
     
 END PROCEDURE.
 
@@ -3441,6 +3471,7 @@ PROCEDURE ipDeleteAudit :
     DISABLE TRIGGERS FOR LOAD OF auditDtl.
     DISABLE TRIGGERS FOR LOAD OF auditStack.
     DISABLE TRIGGERS FOR LOAD OF auditTbl.
+    DISABLE TRIGGERS FOR LOAD OF auditFld.
     
     FIND FIRST module NO-LOCK WHERE 
         module.module EQ "Audit." OR
@@ -3483,6 +3514,10 @@ PROCEDURE ipDeleteAudit :
                 AuditTbl.AuditDelete = NO
                 AuditTbl.AuditUpdate = NO
                 AuditTbl.AuditStack  = NO.
+        END.
+        FOR EACH AuditFld:
+            ASSIGN
+                AuditFld.Audit = NO.
         END.
     END.
     ELSE DO:
@@ -4178,6 +4213,51 @@ PROCEDURE ipLoadAuditRecs :
             
     EMPTY TEMP-TABLE tt{&tablename}.
     
+    RUN ipStatus ("  Loading AuditFld Records").
+
+    &SCOPED-DEFINE tablename auditfld
+    
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    
+    /* First section reads the .d and creates records that aren't already there 
+        (unless they're in the exception lis) */
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        /* Otherwise create the base record from the .d */
+        DO:
+            FIND {&tablename} EXCLUSIVE WHERE 
+                {&tablename}.auditTable EQ tt{&tablename}.auditTable AND
+                {&tablename}.auditField EQ tt{&tablename}.auditField
+                NO-ERROR.
+            IF NOT AVAIL {&tablename} THEN DO:
+                CREATE {&tablename}.
+                BUFFER-COPY tt{&tablename} TO {&tablename}.
+            END.
+            /* Ensure OUR defaults are set */
+            ASSIGN 
+                {&tableName}.auditDefault = tt{&tableName}.auditDefault
+                .
+            /* and make sure THEIR activation is AT LEAST the default */
+            ASSIGN 
+                {&tableName}.audit = IF {&tableName}.audit THEN TRUE ELSE {&tableName}.audit
+                . 
+            
+        END.
+    END.
+    INPUT CLOSE.
+
+    /* Now remove any base records that are not in the tt */
+    FOR EACH {&tablename} EXCLUSIVE WHERE
+        NOT CAN-FIND(FIRST tt{&tablename} WHERE 
+                        tt{&tablename}.auditTable = {&tablename}.auditTable AND
+                        tt{&tablename}.auditField = {&tablename}.auditField):
+        DELETE {&tablename}.
+    END.
+    
+    EMPTY TEMP-TABLE tt{&tablename}.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4380,6 +4460,9 @@ PROCEDURE ipLoadDAOAData :
     DISABLE TRIGGERS FOR LOAD OF dynParamSetDtl.
     DISABLE TRIGGERS FOR LOAD OF dynPrgrmsPage.
     DISABLE TRIGGERS FOR LOAD OF dynLookup.
+    DISABLE TRIGGERS FOR LOAD OF dynValueParam.
+    DISABLE TRIGGERS FOR LOAD OF dynValueColumn.
+    DISABLE TRIGGERS FOR LOAD OF dynValueParamSet.
     
     /* Remove all records that we plan to replace */
     FOR EACH dynSubject EXCLUSIVE WHERE 
@@ -4423,6 +4506,24 @@ PROCEDURE ipLoadDAOAData :
 
     FOR EACH dynLookup:
         DELETE dynLookup.
+    END.
+
+    FOR EACH dynValueParam EXCLUSIVE WHERE 
+        dynValueParam.user-id EQ "_default" AND
+        dynValueParam.subjectID LT 5000:
+        DELETE dynValueParam.
+    END.
+
+    FOR EACH dynValueColumn EXCLUSIVE WHERE 
+        dynValueColumn.user-id EQ "_default" AND
+        dynValueColumn.subjectID LT 5000:
+        DELETE dynValueColumn.
+    END.
+
+    FOR EACH dynValueParamSet EXCLUSIVE WHERE 
+        dynValueParamSet.user-id EQ "_default" AND
+        dynValueParamSet.subjectID LT 5000:
+        DELETE dynValueParamSet.
     END.
 
 &SCOPED-DEFINE tablename dynSubject
@@ -4536,6 +4637,39 @@ PROCEDURE ipLoadDAOAData :
     INPUT CLOSE.
 
 &SCOPED-DEFINE tablename dynLookup
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename dynValueParam
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename dynValueColumn
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE {&tablename}.
+        IMPORT {&tablename} NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+            DELETE {&tablename}.
+    END.
+    INPUT CLOSE.
+
+&SCOPED-DEFINE tablename dynValueParamSet
     DISABLE TRIGGERS FOR LOAD OF {&tablename}.
     INPUT FROM VALUE(cUpdDataDir + "\{&tablename}.d") NO-ECHO.
     REPEAT:
@@ -5906,6 +6040,20 @@ PROCEDURE ipResetCostGroups:
     DEF VAR cOrigPropath AS CHAR NO-UNDO.
     DEF VAR cNewPropath AS CHAR NO-UNDO.
 
+    DISABLE TRIGGERS FOR LOAD OF estCostCategory.
+    DISABLE TRIGGERS FOR LOAD OF estCostGroup.
+    DISABLE TRIGGERS FOR LOAD OF estCostGroupLevel.
+    
+    FOR EACH estCostCategory:
+        DELETE estCostCategory.
+    END.
+    FOR EACH estCostGroup:
+        DELETE estCostGroup.
+    END.
+    FOR EACH estCostGroupLevel:
+        DELETE estCostGroupLevel.
+    END.
+    
     ASSIGN
         cOrigPropath = PROPATH
         cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + PROPATH
@@ -6688,7 +6836,7 @@ FUNCTION fIntVer RETURNS INTEGER
         cStrVal[4] = IF NUM-ENTRIES(cVerString,".") GT 3 THEN ENTRY(4,cVerString,".") ELSE "0"
         iIntVal[1] = INT(cStrVal[1])
         iIntVal[2] = INT(cStrVal[2])
-        iIntVal[3] = IF LENGTH(cStrVal[3]) EQ 1 THEN INT(cStrVal[3]) * 10 ELSE INT(cStrVal[3])
+        iIntVal[3] = INT(cStrVal[3])
         iIntVal[4] = INT(cStrVal[4])
         iIntVer = (iIntVal[1] * 1000000) + (iIntVal[2] * 10000) + (iIntVal[3] * 100) + iIntVal[4]
         NO-ERROR.

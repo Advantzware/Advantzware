@@ -339,22 +339,6 @@ PROCEDURE pParameterSets :
             .
     END. /* each dynvalueparamset */
 
-/*    /* rstark - remove when depricated */                                 */
-/*    EMPTY TEMP-TABLE ttParamSet.                                          */
-/*    DO idx = 1 TO EXTENT(dynParamValue.paramSetID):                       */
-/*        FIND FIRST dynParamSet NO-LOCK                                    */
-/*             WHERE dynParamSet.paramSetID EQ dynParamValue.paramSetID[idx]*/
-/*             NO-ERROR.                                                    */
-/*        IF NOT AVAILABLE dynParamSet THEN NEXT.                           */
-/*        CREATE ttParamSet.                                                */
-/*        ASSIGN                                                            */
-/*            ttParamSet.sortOrder = idx                                    */
-/*            ttParamSet.setName   = dynParamSet.setName                    */
-/*            ttParamSet.setTitle  = dynParamSet.setTitle                   */
-/*            ttParamSet.isVisible = dynParamValue.isVisible[idx]           */
-/*            .                                                             */
-/*    END. /* do idx */                                                     */
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -368,19 +352,13 @@ PROCEDURE pSave :
   Notes:       
 ------------------------------------------------------------------------------*/
     DO TRANSACTION:
-/*        /* rstark - remove when depricated */     */
-/*        FIND CURRENT dynParamValue EXCLUSIVE-LOCK.*/
         FOR EACH ttParamSet:
             FIND FIRST dynValueParamSet EXCLUSIVE-LOCK
                  WHERE ROWID(dynValueParamSet) EQ ttParamSet.rRowID
                  NO-ERROR.
             IF AVAILABLE dynValueParamSet THEN
             dynValueParamSet.isVisible = ttParamSet.isVisible.
-/*            /* rstark - remove when depricated */                                */
-/*            dynParamValue.isVisible[ttParamSet.sortOrder] = ttParamSet.isVisible.*/
         END. /* each ttparamset */
-/*        /* rstark - remove when depricated */*/
-/*        FIND CURRENT dynParamValue NO-LOCK.  */
     END. /* do trans */
 
 END PROCEDURE.

@@ -77,6 +77,7 @@ DEFINE VARIABLE lSortAsc AS LOGICAL   NO-UNDO.
           AND (inv-head.bol-no   EQ     fiBol      OR fiBol EQ 0)     ~
           AND (IF cbStatus = "A" THEN YES ELSE IF cbStatus = '' THEN inv-head.stat = cbStatus or inv-head.stat = "X" ELSE IF cbStatus = "H" THEN inv-head.stat = "H" ELSE inv-head.stat = "W")~
           AND (IF cbPrinted = "All" THEN YES ELSE inv-head.printed = LOGICAL(cbPrinted)) ~
+          and (if cbAutoApproved = "All" then YES ELSE inv-head.autoApproved EQ LOGICAL(cbAutoApproved)) ~
           AND inv-head.multi-invoice = NO
  
   &SCOPED-DEFINE sortby-log  BY ~
@@ -138,7 +139,7 @@ getStatus() @ ls-status inv-head.r-no inv-head.company ~
 f-cust-Po() @ li-cust-Po inv-head.t-inv-tax inv-head.t-inv-freight ~
 inv-head.fob-code pGetFreightTerms() @ cFreight inv-head.multi-invoice ~
 inv-head.multi-inv-no inv-head.ediInvoice inv-head.spare-char-5 ~
-pGetMargin() @ dMargin 
+pGetMargin() @ dMargin inv-head.autoApproved 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH inv-head WHERE ~{&KEY-PHRASE} ~
       AND inv-head.company = cocode and ~
@@ -156,9 +157,9 @@ ASI.inv-head.multi-invoice = no NO-LOCK ~
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-4 RECT-7 fiCustNumber btGo btShow ~
-fiInvoice fiBol cbPrinted fiCustName cbStatus Browser-Table 
+fiInvoice fiBol cbPrinted cbAutoApproved fiCustName cbStatus Browser-Table 
 &Scoped-Define DISPLAYED-OBJECTS fiCustNumber fiInvoice fiBol cbPrinted ~
-fiCustName cbStatus 
+cbAutoApproved fiCustName cbStatus 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -228,7 +229,14 @@ DEFINE VARIABLE cbPrinted AS CHARACTER FORMAT "X(256)" INITIAL "All"
      LIST-ITEMS "All","Yes","No" 
      DROP-DOWN-LIST
      SIZE 16 BY 1 NO-UNDO.
-
+ 
+DEFINE VARIABLE cbAutoApproved AS CHARACTER FORMAT "X(256)" INITIAL "All" 
+     LABEL "Auto Approved" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "All","Yes","No" 
+     DROP-DOWN-LIST
+     SIZE 15 BY 1 NO-UNDO.
+     
 DEFINE VARIABLE cbStatus AS CHARACTER FORMAT "X(256)":U INITIAL "A" 
      LABEL "Status" 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -323,6 +331,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 16.6 LABEL-BGCOLOR 14
       getStatus() @ ls-status COLUMN-LABEL "Status" FORMAT "x(8)":U
             WIDTH 11.6 LABEL-BGCOLOR 14
+      inv-head.autoApproved COLUMN-LABEL "Auto" FORMAT "Yes/No":U WIDTH 9.6 LABEL-BGCOLOR 14      
       inv-head.r-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       inv-head.company FORMAT "x(3)":U
       f-cust-Po() @ li-cust-Po COLUMN-LABEL "PO#" LABEL-BGCOLOR 14
@@ -355,9 +364,10 @@ DEFINE FRAME F-Main
      btShow AT ROW 1.19 COL 128.2 WIDGET-ID 36
      fiInvoice AT ROW 1.24 COL 10.2 COLON-ALIGNED WIDGET-ID 30
      fiBol AT ROW 1.24 COL 61.8 COLON-ALIGNED WIDGET-ID 32
-     cbPrinted AT ROW 1.24 COL 87.2 COLON-ALIGNED WIDGET-ID 46
+     cbPrinted AT ROW 1.24 COL 87.2 COLON-ALIGNED WIDGET-ID 46      
      fiCustName AT ROW 2.38 COL 39.2 COLON-ALIGNED WIDGET-ID 28
      cbStatus AT ROW 2.48 COL 87 COLON-ALIGNED WIDGET-ID 50
+     cbAutoApproved AT ROW 2.48 COL 126 COLON-ALIGNED WIDGET-ID 150
      Browser-Table AT ROW 3.86 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      browse-order AT ROW 19.33 COL 6 HELP
@@ -507,29 +517,31 @@ ASI.inv-head.multi-invoice = no"
 "inv-head.t-inv-rev" "Invoice Amt" ? "decimal" ? ? ? 14 ? ? no ? no no "16.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > "_<CALC>"
 "getStatus() @ ls-status" "Status" "x(8)" ? ? ? ? 14 ? ? no ? no no "11.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > ASI.inv-head.r-no
+     _FldNameList[10]   > ASI.inv-head.autoApproved
+"inv-head.autoApproved" "Auto" "Yes/No" "logical" ? ? ? 14 ? ? no ? no no "9.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[11]   > ASI.inv-head.r-no
 "inv-head.r-no" ? ? "integer" ? ? ? 14 ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > ASI.inv-head.company
+     _FldNameList[12]   > ASI.inv-head.company
 "inv-head.company" ? ? "character" ? ? ? ? ? ? no "" no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > "_<CALC>"
+     _FldNameList[13]   > "_<CALC>"
 "f-cust-Po() @ li-cust-Po" "PO#" ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > ASI.inv-head.t-inv-tax
+     _FldNameList[14]   > ASI.inv-head.t-inv-tax
 "inv-head.t-inv-tax" "Tax Amt" "->>,>>>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > ASI.inv-head.t-inv-freight
+     _FldNameList[15]   > ASI.inv-head.t-inv-freight
 "inv-head.t-inv-freight" "Freight Amt" ? "decimal" ? ? ? 14 ? ? no ? no no "15.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > ASI.inv-head.fob-code
+     _FldNameList[16]   > ASI.inv-head.fob-code
 "inv-head.fob-code" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > "_<CALC>"
+     _FldNameList[17]   > "_<CALC>"
 "pGetFreightTerms() @ cFreight" "Freight Terms" "x(12)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[17]   > ASI.inv-head.multi-invoice
+     _FldNameList[18]   > ASI.inv-head.multi-invoice
 "inv-head.multi-invoice" "Grouped" ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[18]   > ASI.inv-head.multi-inv-no
+     _FldNameList[19]   > ASI.inv-head.multi-inv-no
 "inv-head.multi-inv-no" "Group #" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "FILL-IN" "," ? ? 5 no 0 no no
-     _FldNameList[19]   > ASI.inv-head.ediInvoice
+     _FldNameList[20]   > ASI.inv-head.ediInvoice
 "inv-head.ediInvoice" ? ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[20]   > ASI.inv-head.spare-char-5
+     _FldNameList[21]   > ASI.inv-head.spare-char-5
 "inv-head.spare-char-5" "Comment" "x(60)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[21]   > "_<CALC>"
+     _FldNameList[22]   > "_<CALC>"
 "pGetMargin() @ dMargin" "Margin%" ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
@@ -644,7 +656,8 @@ DO:
             ficustName
             ficustNumber
             cbprinted
-            cbstatus      
+            cbstatus
+            cbAutoApproved
             lFirst = NO
             .
             
@@ -675,6 +688,7 @@ DO:
             fiinvoice:SCREEN-VALUE     = ""
             cbstatus:SCREEN-VALUE      = "A"
             cbprinted:SCREEN-VALUE     = "All"
+            cbAutoApproved:SCREEN-VALUE = "All"
             .    
     END.  
     APPLY "CHOOSE" TO btGo.  
@@ -1038,32 +1052,9 @@ PROCEDURE check-inv-file :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE hPostInvoices AS HANDLE NO-UNDO.
-DEFINE VARIABLE iCountProcess AS INTEGER NO-UNDO.
-DEFINE VARIABLE iCountValid AS INTEGER NO-UNDO.
-DEFINE VARIABLE iCountPost AS INTEGER NO-UNDO.
-DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
- RUN oe/PostInvoices.p PERSISTENT SET hPostInvoices.
-         
- RUN ValidateInvoices IN hPostInvoices (cocode,
-                                        0,
-                                        9999999,
-                                        DATE(01/01/0001),
-                                        date(12/31/2099),
-                                        "",
-                                        "zzzzzzzz",
-                                        date(TODAY),
-                                        OUTPUT iCountProcess,
-                                        OUTPUT iCountValid,
-                                        OUTPUT iCountPost,
-                                        OUTPUT lError,
-                                        OUTPUT cMessage) .    
-    MESSAGE cMessage STRING(iCountProcess) "Invoices processed," STRING(iCountValid) "Approved," STRING(iCountProcess - iCountValid) "Problems."  VIEW-AS ALERT-BOX INFO .
-    
-    IF VALID-HANDLE(hPostInvoices) THEN
-    DELETE OBJECT hPostInvoices.
+   RUN oe/CheckRegister.w .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

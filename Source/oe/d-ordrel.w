@@ -2263,9 +2263,10 @@ PROCEDURE pCreateNewRel :
             oe-rel.rel-date = oe-ordl.req-date.
         ELSE /*DueDate+1Day*/ DO:
             RUN spCommon_DateRule (
+                oe-ord.company,
                 ?,
-                "_ANY_",
-                "_ANY_",
+                oe-ord.cust-no,
+                IF v-first-ship-id NE "" THEN v-first-ship-id ELSE oe-ord.ship-id,
                 oe-ordl.req-date,
                 ?,
                 ?,
@@ -2288,8 +2289,7 @@ PROCEDURE pCreateNewRel :
             FIND shipto WHERE ROWID(shipto) EQ rShipTo NO-LOCK NO-ERROR.
             
             IF AVAILABLE shipto THEN 
-                oe-rel.rel-date = get-date(oe-ordl.req-date, INT(shipto.del-time), "-").
-            
+                oe-rel.rel-date = get-date(oe-ordl.req-date, INT(shipto.del-time), "-").            
         END.
         
         /* stores oe-rel due date */

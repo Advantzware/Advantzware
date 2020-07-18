@@ -38,6 +38,14 @@ FOR EACH {&cFile}:
 END.
 OUTPUT CLOSE.
 
+&SCOPED-DEFINE cFile auditFld
+
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile}:
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
 &SCOPED-DEFINE cFile emailcod
 OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
 FOR EACH {&cFile}:
@@ -181,6 +189,30 @@ OUTPUT STREAM s0 CLOSE.
 OUTPUT STREAM s1 CLOSE.
 
 OUTPUT TO VALUE(cOutDir + "\dynParamValue.d").
+FOR EACH dynParamValue NO-LOCK WHERE 
+    dynParamValue.user-id EQ "_default" AND 
+    dynParamValue.subjectID LT 5000:
+    EXPORT dynParamValue.
+END. /* each dynParamValue */
+OUTPUT CLOSE.
+
+OUTPUT TO VALUE(cOutDir + "\dynValueParam.d").
+FOR EACH dynParamValue NO-LOCK WHERE 
+    dynParamValue.user-id EQ "_default" AND 
+    dynParamValue.subjectID LT 5000:
+    EXPORT dynParamValue.
+END. /* each dynParamValue */
+OUTPUT CLOSE.
+
+OUTPUT TO VALUE(cOutDir + "\dynValueColumn.d").
+FOR EACH dynParamValue NO-LOCK WHERE 
+    dynParamValue.user-id EQ "_default" AND 
+    dynParamValue.subjectID LT 5000:
+    EXPORT dynParamValue.
+END. /* each dynParamValue */
+OUTPUT CLOSE.
+
+OUTPUT TO VALUE(cOutDir + "\dynValueParamSet.d").
 FOR EACH dynParamValue NO-LOCK WHERE 
     dynParamValue.user-id EQ "_default" AND 
     dynParamValue.subjectID LT 5000:

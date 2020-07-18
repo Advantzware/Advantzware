@@ -76,10 +76,10 @@ RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynValProc.
 
 /* Custom List Definitions                                              */
 /* outputObjects,showFields,List-3,List-4,List-5,List-6                 */
-&Scoped-define outputObjects btnSave btnVisibleSets svRecipients ~
-svSetAlignment defaultOutputFormat svRunSync svShowAll ~
-svShowReportHeader svShowReportFooter btnAddEmail svShowPageHeader ~
-svShowPageFooter svShowGroupHeader svShowGroupFooter svShowParameters 
+&Scoped-define outputObjects btnSave btnVisibleSets btnAddEmail ~
+svRecipients svSetAlignment defaultOutputFormat svRunSync svShowAll ~
+svShowReportHeader svShowReportFooter svShowPageHeader svShowPageFooter ~
+svShowGroupHeader svShowGroupFooter svShowParameters 
 &Scoped-define showFields svShowAll svShowReportHeader svShowReportFooter ~
 svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter ~
 svShowParameters 
@@ -119,19 +119,20 @@ DEFINE BUTTON btnVisibleSets
 
 DEFINE VARIABLE svRecipients AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 69 BY 1.67
+     SIZE 53 BY 1.67
      BGCOLOR 15 .
 
 DEFINE VARIABLE defaultOutputFormat AS CHARACTER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
-          "Grid", "Grid",
-"CSV", "CSV",
-"XLS", "XLS",
-"DocX", "DOCX",
-"PDF", "PDF",
-"HTML", "HTML"
-     SIZE 48 BY 1 NO-UNDO.
+          "Grid", "Grid":U,
+"Local CSV", "LocalCSV":U,
+"CSV", "CSV":U,
+"XLS", "XLS":U,
+"DocX", "DOCX":U,
+"PDF", "PDF":U,
+"HTML", "HTML":U
+     SIZE 64 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svSetAlignment AS CHARACTER INITIAL "Custom" 
      VIEW-AS RADIO-SET VERTICAL
@@ -143,7 +144,7 @@ DEFINE VARIABLE svSetAlignment AS CHARACTER INITIAL "Custom"
 
 DEFINE RECTANGLE RECT-PANEL
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 66 BY 2.38.
+     SIZE 82 BY 2.38.
 
 DEFINE RECTANGLE RECT-SHOW
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -209,28 +210,28 @@ DEFINE FRAME outputFrame
           "Update/Save" WIDGET-ID 248
      btnVisibleSets AT ROW 1.48 COL 141 HELP
           "Show/Hide Parameter Sets" WIDGET-ID 660
+     btnAddEmail AT ROW 1.95 COL 3 HELP
+          "Add Recipents" WIDGET-ID 636
      svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
-     svSetAlignment AT ROW 1.71 COL 78 NO-LABEL WIDGET-ID 654
-     defaultOutputFormat AT ROW 2.43 COL 93 NO-LABEL WIDGET-ID 644
-     svRunSync AT ROW 2.9 COL 8 HELP
+     svSetAlignment AT ROW 1.71 COL 62 NO-LABEL WIDGET-ID 654
+     defaultOutputFormat AT ROW 2.43 COL 77 NO-LABEL WIDGET-ID 644
+     svRunSync AT ROW 2.91 COL 8 HELP
           "Toggle to Run Synchronous" WIDGET-ID 662
      svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
      svShowReportHeader AT ROW 4.1 COL 23 WIDGET-ID 2
      svShowReportFooter AT ROW 4.1 COL 44 WIDGET-ID 4
-     btnAddEmail AT ROW 1.95 COL 3 HELP
-          "Add Recipents" WIDGET-ID 636
      svShowPageHeader AT ROW 4.1 COL 65 WIDGET-ID 6
      svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
      svShowGroupHeader AT ROW 4.1 COL 103 WIDGET-ID 10
      svShowGroupFooter AT ROW 4.1 COL 123 WIDGET-ID 12
      svShowParameters AT ROW 4.1 COL 142 WIDGET-ID 16
      "Set Alignment" VIEW-AS TEXT
-          SIZE 13.6 BY .62 AT ROW 1 COL 78 WIDGET-ID 658
+          SIZE 13.6 BY .62 AT ROW 1 COL 62 WIDGET-ID 658
      "Default Output Format:" VIEW-AS TEXT
-          SIZE 23 BY 1 AT ROW 1.48 COL 93 WIDGET-ID 652
+          SIZE 23 BY 1 AT ROW 1.48 COL 77 WIDGET-ID 652
      "Email:" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 640
-     RECT-PANEL AT ROW 1.24 COL 92 WIDGET-ID 256
+     RECT-PANEL AT ROW 1.24 COL 76 WIDGET-ID 256
      RECT-SHOW AT ROW 3.86 COL 2 WIDGET-ID 642
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 

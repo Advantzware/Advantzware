@@ -499,6 +499,18 @@
         ASSIGN v-bin-arq = v-bin-arq + v-arq.
         
   IF  v-summ-bin AND  LAST-OF(tt-itemfg.job-no2) THEN do:
+  
+      IF iLineCount GE (lines-per-page - 10)  THEN 
+      DO:
+            PAGE.
+            PUT str-tit4 FORMAT "x(520)"
+                SKIP
+                str-tit5 FORMAT "x(520)"
+                SKIP .
+            iLineCount = 0 .
+      END.
+      iLineCount = iLineCount + 1.
+      
         ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
@@ -538,8 +550,8 @@
                 WHEN "view-po" THEN cVarValue = STRING(v-po-ord,"x(10)") .
                 WHEN "line-po" THEN cVarValue = STRING(v-po-no,"x(10)") .
                 WHEN "rel-po" THEN cVarValue = STRING(v-po-rel,"x(11)") .
-                WHEN "ord-pr" THEN cVarValue = STRING(lv-sell-price-ord,"->>>,>>9.99").
-                WHEN "sell-price" THEN cVarValue = STRING(itemfg.sell-price,"->>>,>>9.99").
+                WHEN "ord-pr" THEN cVarValue = STRING(lv-sell-price-ord,"->>>,>>9.9999").
+                WHEN "sell-price" THEN cVarValue = STRING(itemfg.sell-price,"->>>,>>9.9999").
                 WHEN "uom-cost" THEN cVarValue = /*(IF ll-secure THEN STRING(v-tot-bin-sum,"->>>>>9.999") ELSE*/ "" . /*Task# 01271402 */
                 WHEN "v-tot-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-ext-bin-sum,"->>>,>>9.99") ELSE "").
                 WHEN "lab-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-costl,"->>>,>>9.99") ELSE "") .
@@ -573,6 +585,16 @@
  END.
 
  ELSE IF NOT v-summ-bin THEN DO:
+     IF iLineCount GE (lines-per-page - 10)  THEN 
+      DO:
+            PAGE.
+            PUT str-tit4 FORMAT "x(520)"
+                SKIP
+                str-tit5 FORMAT "x(520)"
+                SKIP .
+            iLineCount = 0 .
+      END.
+      iLineCount = iLineCount + 1.
      ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
@@ -612,8 +634,8 @@
                 WHEN "view-po" THEN cVarValue = STRING(v-po-ord,"x(10)") .
                 WHEN "line-po" THEN cVarValue = STRING(v-po-no,"x(10)") .
                 WHEN "rel-po" THEN cVarValue = STRING(v-po-rel,"x(11)") .
-                WHEN "ord-pr" THEN cVarValue = STRING(lv-sell-price-ord,"->>>,>>9.99").
-                WHEN "sell-price" THEN cVarValue = STRING(itemfg.sell-price,"->>>,>>9.99").
+                WHEN "ord-pr" THEN cVarValue = STRING(lv-sell-price-ord,"->>>,>>9.9999").
+                WHEN "sell-price" THEN cVarValue = STRING(itemfg.sell-price,"->>>,>>9.9999").
                 WHEN "uom-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-cost1,"->>>>>9.999") ELSE "") . /*Task# 01271402 */
                 WHEN "v-tot-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-cost,"->>>,>>9.99") ELSE "").
                 WHEN "lab-cost" THEN cVarValue = (IF ll-secure THEN STRING(v-costl,"->>>,>>9.99") ELSE "") .
@@ -740,25 +762,19 @@
       if "{2}" ne "1" and v-sort-by-cust ne "PA" and
          v-prnt[1] and v-subt                    then do:
         
-       
-         /* put "----------------" to 43.
-           put "---------------" to 70.
-          if v-prt-c then put "----------------" to 100 .
-          if v-prt-p then put "----------------" to 130 .
-          if v-prt-p then put "----------------" to 160 skip.
-
-          put "ITEM TOTALS " to 20.
-
-          PUT " QTY  " v-tot-qty[1] FORMAT "->>>,>>>,>>9.999" TO 42.
-          PUT "MSF  " TO 55 .
-          PUT v-tot-msf[1] TO 70.
-
-          if v-prt-c THEN do:
-           PUT "COST " TO 85 .
-           put v-tot-cst[1] to 100.
-          if v-prt-p then PUT "     MAT COST" v-tot-mat[1] to 130 "     LAB COST   " v-tot-lab[1] .
-          END. */
+        IF iLineCount GE (lines-per-page - 10)  THEN 
+        DO:
+            PAGE.
+            PUT str-tit4 FORMAT "x(520)"
+                SKIP
+                str-tit5 FORMAT "x(520)"
+                SKIP .
+            iLineCount = 0 .
+        END.
+        iLineCount = iLineCount + 1.
+         
         PUT    SKIP  str-line SKIP .
+        iLineCount = iLineCount + 1.
           ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
@@ -813,7 +829,7 @@
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
     END.
-    PUT UNFORMATTED  "        ITEM TOTALS" substring(cDisplay,20,300) SKIP.
+    PUT UNFORMATTED  "        ITEM TOTALS" substring(cDisplay,20,520) SKIP.
     
      IF tb_excel THEN DO:
          PUT STREAM excel UNFORMATTED  
@@ -822,29 +838,7 @@
         
         end.  /*  v-prnt[1] and v-subt*/
         put skip(1).
-      /*end.*/
-
-      /*IF v-excel = TRUE /*AND v-subt*/ THEN DO:
-       
-         EXPORT STREAM excel DELIMITER ","
-         ""
-         "ITEM TOTALS"
-         ""
-         "QTY"
-         v-tot-qty[1] FORMAT "->>>,>>>,>>9.99"
-         ""
-         "MSF "
-         v-tot-msf[1] FORMAT "->>>,>>9.99"
-         ""
-         (IF v-prt-c THEN "COST " ELSE "")
-         (if v-prt-c then v-tot-cst[1] ELSE 0)
-         ""
-         (IF v-prt-p THEN "MAT Cost " ELSE "")
-         (if v-prt-p then v-tot-mat[1] ELSE 0)
-         (IF v-prt-p THEN "LAB Cost " ELSE "")
-         (if v-prt-p then v-tot-lab[1] ELSE 0)
-         "" .
-        end.*/
+        iLineCount = iLineCount + 1.
 
       assign
        v-tot-qty[2] = v-tot-qty[2] + v-tot-qty[1]
@@ -871,8 +865,20 @@
     if last-of({1}) then do: 
         
       if v-prnt[2] and v-subt then do:
+      
+          IF iLineCount GE (lines-per-page - 10)  THEN 
+          DO:
+            PAGE.
+            PUT str-tit4 FORMAT "x(520)"
+                SKIP
+                str-tit5 FORMAT "x(520)"
+                SKIP .
+            iLineCount = 0 .
+          END.
+          iLineCount = iLineCount + 1. 
         
           PUT    SKIP  str-line SKIP .
+          iLineCount = iLineCount + 1.
           ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
@@ -930,45 +936,46 @@
      IF tb_excel THEN DO:
          if v-sort-by-cust eq "Cu" then
          PUT STREAM excel UNFORMATTED  
-               "CUST TOTALS " + substring(cExcelDisplay,3,300) SKIP.
+               "CUST TOTALS " + substring(cExcelDisplay,3,520) SKIP.
          ELSE if v-sort-by-cust eq "FG" then
              PUT STREAM excel UNFORMATTED  
-             "ITEM TOTALS " + substring(cExcelDisplay,3,300) SKIP.
+             "ITEM TOTALS " + substring(cExcelDisplay,3,520) SKIP.
          ELSE if v-sort-by-cust eq "Pa" then
              PUT STREAM excel UNFORMATTED  
-             "PART TOTALS " + substring(cExcelDisplay,3,300) SKIP .
+             "PART TOTALS " + substring(cExcelDisplay,3,520) SKIP .
          ELSE if v-sort-by-cust eq "Pr" then
              PUT STREAM excel UNFORMATTED  
-             "PROD CAT TOTALS " + substring(cExcelDisplay,3,300) SKIP .
+             "PROD CAT TOTALS " + substring(cExcelDisplay,3,520) SKIP .
          ELSE
              PUT STREAM excel UNFORMATTED  
-             "WHS/BIN TOTALS"  + substring(cExcelDisplay,3,300) SKIP.
+             "WHS/BIN TOTALS"  + substring(cExcelDisplay,3,520) SKIP.
 
      END.
    
           if v-sort-by-cust eq "Cu" then
-            PUT UNFORMATTED  "        CUST TOTALS" substring(cDisplay,20,300) SKIP.
+            PUT UNFORMATTED  "        CUST TOTALS" substring(cDisplay,20,520) SKIP.
            
           else
           if v-sort-by-cust eq "FG" then
-            PUT UNFORMATTED  "        ITEM TOTALS" substring(cDisplay,20,300) SKIP.
+            PUT UNFORMATTED  "        ITEM TOTALS" substring(cDisplay,20,520) SKIP.
             
           else
           if v-sort-by-cust eq "Pa" then
-            PUT UNFORMATTED  "        PART TOTALS" substring(cDisplay,20,300) SKIP.
+            PUT UNFORMATTED  "        PART TOTALS" substring(cDisplay,20,520) SKIP.
           
           else
           if v-sort-by-cust eq "Pr" then
-              PUT UNFORMATTED  "  "  v-procat FORMAT "x(5)"  " PROD CAT TOTALS" substring(cDisplay,24,300) SKIP.
+              PUT UNFORMATTED  "  "  v-procat FORMAT "x(5)"  " PROD CAT TOTALS" substring(cDisplay,24,520) SKIP.
            
           ELSE
-            PUT UNFORMATTED  "     WHS/BIN TOTALS" substring(cDisplay,20,300) SKIP.
+            PUT UNFORMATTED  "     WHS/BIN TOTALS" substring(cDisplay,20,520) SKIP.
            
 
           
          /* END.*/
                 
           put skip(1).
+          iLineCount = iLineCount + 1.
       
        /*END.*/
       END.

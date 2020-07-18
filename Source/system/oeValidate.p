@@ -436,17 +436,15 @@ PROCEDURE pUniquePO PRIVATE:
 
     DEFINE BUFFER coe-ord FOR oe-ord.
     
-    FOR EACH coe-ord NO-LOCK WHERE 
-        coe-ord.company EQ ipboe-ord.company AND 
-        coe-ord.cust-no EQ ipboe-ord.cust-no:
-        IF coe-ord.po-no EQ ipboe-ord.po-no 
-            AND coe-ord.ord-no NE ipboe-ord.ord-no THEN 
-        DO:
-            ASSIGN 
-                oplHold    = TRUE
-                opcMessage = "Not a unique PO number for this customer.".
-            RETURN.
-        END.
+    FOR EACH coe-ord NO-LOCK 
+        WHERE coe-ord.company EQ ipboe-ord.company 
+          AND coe-ord.cust-no EQ ipboe-ord.cust-no 
+          AND coe-ord.ord-no  NE ipboe-ord.ord-no  
+          AND coe-ord.po-no   EQ ipboe-ord.po-no:
+        ASSIGN 
+            oplHold    = TRUE
+            opcMessage = "Not a unique PO number for this customer.".
+        RETURN.
     END. 
 
 END PROCEDURE.

@@ -16,15 +16,5 @@ FUNCTION fGetDynParamValue RETURNS CHARACTER (ipcField AS CHARACTER):
         cReturnValue = dynValueParam.paramValue.
         RELEASE dynValueParam.
     END. /* if avail */
-/*    /* rstark - remove when depricated */                         */
-/*    IF AVAILABLE dynParamValue THEN                               */
-/*    DO idx = 1 TO EXTENT(dynParamValue.paramName):                */
-/*        IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.         */
-/*        IF TRIM(dynParamValue.paramName[idx]) EQ ipcField THEN DO:*/
-/*            cReturnValue = dynParamValue.paramValue[idx].         */
-/*            LEAVE.                                                */
-/*        END. /* found parameter */                                */
-/*    END. /* do idx */                                             */
-
     RETURN cReturnValue.
 END FUNCTION.

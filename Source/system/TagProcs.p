@@ -15,7 +15,7 @@
 /* ***************************  Definitions  ************************** */
 DEFINE VARIABLE gcTypeInactive AS CHARACTER NO-UNDO INITIAL "INACTIVE".
 DEFINE VARIABLE gcTypeHold AS CHARACTER NO-UNDO INITIAL "HOLD".
-DEFINE VARIABLE gcTypeHoldInfo AS CHARACTER NO-UNDO INITIAL "HOLDINFO".
+DEFINE VARIABLE gcTypeInfo AS CHARACTER NO-UNDO INITIAL "INFO".
 DEFINE VARIABLE gcTypeRelease AS CHARACTER NO-UNDO INITIAL "RELEASE".
 
 DEFINE VARIABLE iCtr AS INTEGER NO-UNDO.
@@ -68,12 +68,12 @@ PROCEDURE AddTagHoldInfo:
 
     FIND FIRST tag NO-LOCK 
         WHERE tag.linkRecKey  EQ ipcLinkRecKey
-        AND tag.tagType     EQ gcTypeHoldInfo 
+        AND tag.tagType     EQ gcTypeInfo 
         AND tag.linkTable   EQ ipcLinkTable
         AND tag.description EQ ipcDescription
         NO-ERROR.
     IF NOT AVAILABLE  tag THEN 
-        RUN pAddTag (ipcLinkRecKey, gcTypeHoldInfo, ipcLinkTable, ipcDescription).
+        RUN pAddTag (ipcLinkRecKey, gcTypeInfo, ipcLinkTable, ipcDescription).
         
 END PROCEDURE.
 
@@ -148,7 +148,7 @@ PROCEDURE ClearTagsHold:
 
     RUN pDeleteTags (ipcLinkRecKey,
                      "TagType",
-                     gcTypeHoldInfo).
+                     gcTypeInfo).
     
 END PROCEDURE.
 

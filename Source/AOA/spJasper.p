@@ -325,81 +325,6 @@ PROCEDURE pGetUserParamValue:
             ttColumn.ttGroupCalc = fJasperGroupCalc(ttColumn.ttField).
         END. /* if field-value */
     END. /* each dynvaluecolumn */
-
-/*    /* rstark - remove when depricated */                                                             */
-/*    DO idx = 1 TO EXTENT(dynParamValue.paramName):                                                    */
-/*        IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.                                             */
-/*        CASE dynParamValue.paramName[idx]:                                                            */
-/*            WHEN "svShowParameters" THEN                                                              */
-/*            svShowParameters   = dynParamValue.paramValue[idx] EQ "yes".                              */
-/*            WHEN "svShowReportHeader" THEN                                                            */
-/*            svShowReportHeader = dynParamValue.paramValue[idx] EQ "yes".                              */
-/*            WHEN "svShowReportFooter" THEN                                                            */
-/*            svShowReportFooter = dynParamValue.paramValue[idx] EQ "yes".                              */
-/*            WHEN "svShowPageHeader" THEN                                                              */
-/*            svShowPageHeader   = dynParamValue.paramValue[idx] EQ "yes".                              */
-/*            WHEN "svShowPageFooter" THEN                                                              */
-/*            svShowPageFooter   = dynParamValue.paramValue[idx] EQ "yes".                              */
-/*            WHEN "svShowGroupHeader" THEN                                                             */
-/*            svShowGroupHeader  = dynParamValue.paramValue[idx] EQ "yes".                              */
-/*            WHEN "svShowGroupFooter" THEN                                                             */
-/*            svShowGroupFooter  = dynParamValue.paramValue[idx] EQ "yes".                              */
-/*        END CASE.                                                                                     */
-/*    END. /* do idx */                                                                                 */
-/*    EMPTY TEMP-TABLE ttColumn.                                                                        */
-/*    EMPTY TEMP-TABLE ttGroupCalc.                                                                     */
-/*    DO idx = 1 TO EXTENT(dynParamValue.colName):                                                      */
-/*        IF dynParamValue.colName[idx] EQ "" THEN LEAVE.                                               */
-/*        dWidth = 10.                                                                                  */
-/*        IF NUM-ENTRIES(dynParamValue.colName[idx],".") EQ 2 THEN DO:                                  */
-/*            ASSIGN                                                                                    */
-/*                cTable = ENTRY(1,dynParamValue.colName[idx],".")                                      */
-/*                cField = ENTRY(2,dynParamValue.colName[idx],".")                                      */
-/*                .                                                                                     */
-/*            IF dynSubject.businessLogic EQ "" THEN DO:                                                */
-/*                cTemp = cField.                                                                       */
-/*                IF INDEX(cTemp,"[") NE 0 THEN                                                         */
-/*                cTemp = SUBSTRING(cTemp,1,INDEX(cTemp,"[") - 1).                                      */
-/*                CREATE BUFFER hTable FOR TABLE cTable.                                                */
-/*                dWidth = hTable:BUFFER-FIELD(cTemp):WIDTH.                                            */
-/*            END. /* if not business logic */                                                          */
-/*            ELSE                                                                                      */
-/*            IF VALID-HANDLE(hTable) THEN                                                              */
-/*            dWidth = hTable:BUFFER-FIELD(cField):WIDTH.                                               */
-/*        END. /* if table.field */                                                                     */
-/*        ELSE                                                                                          */
-/*        cField = dynParamValue.colName[idx].                                                          */
-/*        IF dynParamValue.dataType[idx] EQ "String" THEN                                               */
-/*        dSize = FONT-TABLE:GET-TEXT-WIDTH-CHARS(STRING(FILL("X",256),dynParamValue.colFormat[idx]),0).*/
-/*        ELSE                                                                                          */
-/*        dSize = MAX(dWidth,LENGTH(dynParamValue.colLabel[idx])).                                      */
-/*        RUN pCreatettColumn (                                                                         */
-/*            cTable,                                                                                   */
-/*            cField,                                                                                   */
-/*            idx,                                                                                      */
-/*            dynParamValue.isActive[idx],                                                              */
-/*            dynParamValue.colLabel[idx],                                                              */
-/*            dynParamValue.dataType[idx],                                                              */
-/*            dynParamValue.colFormat[idx],                                                             */
-/*            dWidth,                                                                                   */
-/*            dSize,                                                                                    */
-/*            dynParamValue.calcFormula[idx]                                                            */
-/*            ).                                                                                        */
-/*        ttColumn.isGroup = dynParamValue.isGroup[idx].                                                */
-/*        IF dynParamValue.groupCalc[idx] NE "" THEN DO:                                                */
-/*            DO jdx = 1 TO NUM-ENTRIES(dynParamValue.groupCalc[idx]) BY 2:                             */
-/*                IF dynParamValue.groupLabel[idx] NE "" THEN                                           */
-/*                ttColumn.ttGroupLabel = dynParamValue.groupLabel[idx].                                */
-/*                CREATE ttGroupCalc.                                                                   */
-/*                ASSIGN                                                                                */
-/*                    ttGroupCalc.ttField    = cField                                                   */
-/*                    ttGroupCalc.ttGroup    = ENTRY(jdx,dynParamValue.groupCalc[idx])                  */
-/*                    ttGroupCalc.ttCalcType = ENTRY(jdx + 1,dynParamValue.groupCalc[idx])              */
-/*                    .                                                                                 */
-/*            END. /* do jdx */                                                                         */
-/*            ttColumn.ttGroupCalc = fJasperGroupCalc(ttColumn.ttField).                                */
-/*        END. /* if field-value */                                                                     */
-/*    END. /* do idx */                                                                                 */
     RELEASE dynSubject.
    
 END PROCEDURE.
@@ -972,9 +897,6 @@ PROCEDURE pJasperJSON:
     DEFINE VARIABLE lFirstRow    AS LOGICAL   NO-UNDO INITIAL YES.
     
     DEFINE BUFFER ttColumn FOR ttColumn.
-    MESSAGE 
-    "pJasperJSON"
-    VIEW-AS ALERT-BOX.
     IF VALID-HANDLE(hAppSrv) THEN DO WITH FRAME frameColumns:
         hTable = DYNAMIC-FUNCTION('fGetTableHandle' IN hAppSrv, aoaProgramID).
         IF NOT VALID-HANDLE(hTable) THEN RETURN.
@@ -1166,38 +1088,6 @@ PROCEDURE pJasperLastPageFooter :
                     iParameterRow = iParameterRow + 1
                     .
             END. /* each dynvalueparam */
-
-/*            /* rstark - remove when depricated */                                                                                                 */
-/*            iParameterRow = 1.                                                                                                                    */
-/*            IF AVAILABLE dynParamValue THEN                                                                                                       */
-/*            DO idx = 1 TO EXTENT(dynParamValue.paramName):                                                                                        */
-/*                IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.                                                                                 */
-/*                IF dynParamValue.paramName[idx] BEGINS "svS" THEN NEXT.                                                                           */
-/*                ASSIGN                                                                                                                            */
-/*                    cParameter[iParameterRow] = IF dynParamValue.paramLabel[idx] EQ ? THEN REPLACE(dynParamValue.paramName[idx],"sv","")          */
-/*                                                ELSE REPLACE(dynParamValue.paramLabel[idx],":","")                                                */
-/*                    cParameter[iParameterRow] = cParameter[iParameterRow] + ": @@@"                                                               */
-/*                    cValue = IF dynParamValue.paramValue[idx] NE ? AND                                                                            */
-/*                                dynParamValue.paramValue[idx] NE CHR(254) THEN dynParamValue.paramValue[idx] ELSE ""                              */
-/*                    .                                                                                                                             */
-/*                IF dynParamValue.paramLabel[idx + 1] EQ ? AND                                                                                     */
-/*                   INDEX(dynParamValue.paramName[idx + 1],"DatePickList") NE 0 THEN DO:                                                           */
-/*                    dtDate = DATE(dynParamValue.paramValue[idx]) NO-ERROR.                                                                        */
-/*                    IF ERROR-STATUS:ERROR THEN                                                                                                    */
-/*                    dtDate = ?.                                                                                                                   */
-/*                    ASSIGN                                                                                                                        */
-/*                        cParameter[iParameterRow] = cParameter[iParameterRow] + " (" + dynParamValue.paramValue[idx + 1] + ")"                    */
-/*                        cValue = STRING(DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin, dynParamValue.paramValue[idx + 1], dtDate),"99/99/9999")*/
-/*                        idx = idx + 1                                                                                                             */
-/*                        .                                                                                                                         */
-/*                END.                                                                                                                              */
-/*                IF cValue EQ ? THEN                                                                                                               */
-/*                cValue = "".                                                                                                                      */
-/*                ASSIGN                                                                                                                            */
-/*                    cParameter[iParameterRow] = REPLACE(cParameter[iParameterRow],"@@@",cValue)                                                   */
-/*                    iParameterRow = iParameterRow + 1                                                                                             */
-/*                    .                                                                                                                             */
-/*            END. /* do idx */                                                                                                                     */
         END. /* dynparamvalue */
     END CASE.
     
@@ -1711,19 +1601,6 @@ PROCEDURE pJasterTitleBand :
             .
         IF cParamValue EQ CHR(254) THEN
         cParamValue = "".
-
-/*        /* rstark - remove when depricated */                                     */
-/*        DO idx = 1 TO EXTENT(dynParamValue.paramName):                            */
-/*            IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.                     */
-/*            IF dynParamValue.paramName[idx] NE dynParamSetDtl.paramName THEN NEXT.*/
-/*            ASSIGN                                                                */
-/*                cParamValue = dynParamValue.paramValue[idx]                       */
-/*                lParamFound = YES                                                 */
-/*                .                                                                 */
-/*            IF cParamValue EQ CHR(254) THEN                                       */
-/*            cParamValue = "".                                                     */
-/*            LEAVE.                                                                */
-/*        END. /* do idx */                                                         */
         IF lParamFound THEN
         cSubTitle = cSubTitle + dynParamSetDtl.paramLabel + ": "
                   + cParamValue
@@ -1763,6 +1640,105 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-pLocalCSV) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLocalCSV Procedure
+PROCEDURE pLocalCSV:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphQuery      AS HANDLE    NO-UNDO.
+
+    DEFINE VARIABLE cBufferValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cExcelFile    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFieldName    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hDynCalcField AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hTable        AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iColumn       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE hQuery        AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hQueryBuf     AS HANDLE    NO-UNDO.
+
+    RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
+
+    SESSION:SET-WAIT-STATE("General").
+    cExcelFile = "users\" + aoaUserID + "\"
+               + REPLACE(aoaTitle," ","") + "."
+               + STRING(TODAY,"99999999") + "."
+               + STRING(TIME,"99999")
+               + ".csv"
+               .
+    IF SEARCH(cExcelFile) NE ? THEN
+    OS-DELETE VALUE(SEARCH(cExcelFile)).        
+    OUTPUT TO VALUE(cExcelFile).
+    IF svShowPageHeader THEN DO:
+        FOR EACH dynValueColumn NO-LOCK
+            WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
+              AND dynValueColumn.user-id      EQ dynParamValue.user-id
+              AND dynValueColumn.prgmName     EQ dynParamValue.prgmName
+              AND dynValueColumn.paramValueID EQ dynParamValue.paramValueID
+              AND dynValueColumn.isActive     EQ YES
+               BY dynValueColumn.sortOrder
+            :
+            PUT UNFORMATTED dynValueColumn.colLabel + ",".
+        END. /* each dynvaluecolumn */
+        PUT UNFORMATTED SKIP.
+    END. /* show page header */
+    iphQuery:QUERY-OPEN.
+    iphQuery:GET-FIRST().
+    IF NOT iphQuery:QUERY-OFF-END THEN
+    REPEAT:
+        FOR EACH dynValueColumn NO-LOCK
+            WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
+              AND dynValueColumn.user-id      EQ dynParamValue.user-id
+              AND dynValueColumn.prgmName     EQ dynParamValue.prgmName
+              AND dynValueColumn.paramValueID EQ dynParamValue.paramValueID
+              AND dynValueColumn.isActive     EQ YES
+               BY dynValueColumn.sortOrder
+            :
+            IF dynValueColumn.isCalcField THEN DO:
+                IF dynValueColumn.calcProc NE "" THEN
+                RUN spDynCalcField IN hDynCalcField (
+                    iphQuery:HANDLE,
+                    dynValueColumn.calcProc,
+                    dynValueColumn.calcParam,
+                    dynValueColumn.dataType,
+                    dynValueColumn.colFormat,
+                    OUTPUT cBufferValue
+                    ).
+                ELSE
+                IF dynValueColumn.calcFormula NE "" THEN NEXT.
+            END. /* if calc field */
+            ELSE
+            ASSIGN
+                hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynValueColumn.colName,"."))
+                cFieldName   = ENTRY(2,dynValueColumn.colName,".")
+                cBufferValue = fFormatValue(hQueryBuf, cFieldName)
+                cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "")
+                .
+            PUT UNFORMATTED cBufferValue + ",".
+        END. /* each dynvaluecolumn */
+        PUT UNFORMATTED SKIP.
+        iphQuery:GET-NEXT().
+        IF iphQuery:QUERY-OFF-END THEN LEAVE.
+    END. /* repeat */
+    iphQuery:QUERY-CLOSE().
+    DELETE OBJECT iphQuery.
+    OUTPUT CLOSE.
+    DELETE PROCEDURE hDynCalcField.
+    OS-COMMAND NO-WAIT START excel.exe VALUE("~"" + cExcelFile + "~"").
+    SESSION:SET-WAIT-STATE("").
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-pSetColumnOrder) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetColumnOrder Procedure 
@@ -1884,16 +1860,16 @@ PROCEDURE spJasperQuery:
     DEFINE INPUT  PARAMETER ipcTaskRecKey AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcJasperFile AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE cError        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJasperFile   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cjrxml        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTableName    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUserFolder   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hQuery        AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iSize         AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lOK           AS LOGICAL   NO-UNDO.
-    
+    DEFINE VARIABLE cError      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cjrxml      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTableName  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUserFolder AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hQuery      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iSize       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lOK         AS LOGICAL   NO-UNDO.
+
     ASSIGN
         aoaTitle   = ipcTitle
         aoaUserID  = ipcUserID
@@ -1904,53 +1880,56 @@ PROCEDURE spJasperQuery:
     RUN pGetUserParamValue (iprRowID).
     /* set columns for selected report columns */
     RUN pGetSelectedColumns.
-    /* check if using external form */
-    IF dynParamValue.externalForm NE "" AND
-       SEARCH(dynParamValue.externalForm) NE ? THEN DO:
-        RUN pCreateDir (OUTPUT cUserFolder).
-        OS-COPY
-            VALUE(dynParamValue.externalForm)
-            VALUE(cUserFolder + cjrxml + ".jrxml")
-            .
-        cJasperFile = SEARCH(cUserFolder + cjrxml + ".jrxml").
-    END. /* if external form */
-    ELSE DO: /* dynamically create jasper report */
-        /* calculate width of jasper report */
-        iSize = fJasperReportSize().
-        /* if no active columns, done */
-        IF iSize EQ ? THEN RETURN.    
-        /* create jasper jrxml file */
-        cJasperFile = "users\" + aoaUserID + "\" + cjrxml + ".jrxml".    
-        OUTPUT TO VALUE(cJasperFile).    
-        RUN pJasperReport ("Open", ipcType, iSize).
-        RUN pJasperStyles.
-        RUN pJasperQueryString.
-        RUN pJasperFieldDeclarations.
-        RUN pJasperVariableDeclarations.
-        IF svShowGroupHeader OR svShowGroupFooter THEN
-        RUN pJasperGroupDeclarations.
-        RUN pJasperBackgroundBand.    
-        IF svShowReportHeader THEN
-        RUN pJasterTitleBand (iSize).    
-        IF svShowPageHeader THEN DO:
-            RUN pJasperPageHeaderBand.    
-            RUN pJasperColumnHeaderBand.
-        END. /* show page header */
-        /*IF svShowGroupHeader THEN*/    
-        RUN pJasperDetailBand (iSize).    
-        IF svShowGroupFooter THEN
-        RUN pJasperColumnFooterBand.    
-        IF svShowPageFooter THEN
-        RUN pJasperPageFooterBand.    
-        IF svShowParameters THEN
-        RUN pJasperLastPageFooter ("dynParamValue").
-        IF svShowReportFooter THEN 
-        RUN pJasperSummaryBand.    
-        RUN pJasperReport ("Close", ipcType, iSize).    
-        OUTPUT CLOSE.    
-    END. /* else if not using external form */
-    /* copy local jasper files to jasper studio workspace */
-    RUN pJasperCopy (cJasperFile).
+    /* if not local csv */
+    IF ipcType NE "LocalCSV" THEN DO:
+        /* check if using external form */
+        IF dynParamValue.externalForm NE "" AND
+           SEARCH(dynParamValue.externalForm) NE ? THEN DO:
+            RUN pCreateDir (OUTPUT cUserFolder).
+            OS-COPY
+                VALUE(dynParamValue.externalForm)
+                VALUE(cUserFolder + cjrxml + ".jrxml")
+                .
+            cJasperFile = SEARCH(cUserFolder + cjrxml + ".jrxml").
+        END. /* if external form */
+        ELSE DO: /* dynamically create jasper report */
+            /* calculate width of jasper report */
+            iSize = fJasperReportSize().
+            /* if no active columns, done */
+            IF iSize EQ ? THEN RETURN.    
+            /* create jasper jrxml file */
+            cJasperFile = "users\" + aoaUserID + "\" + cjrxml + ".jrxml".
+            OUTPUT TO VALUE(cJasperFile).    
+            RUN pJasperReport ("Open", ipcType, iSize).
+            RUN pJasperStyles.
+            RUN pJasperQueryString.
+            RUN pJasperFieldDeclarations.
+            RUN pJasperVariableDeclarations.
+            IF svShowGroupHeader OR svShowGroupFooter THEN
+            RUN pJasperGroupDeclarations.
+            RUN pJasperBackgroundBand.    
+            IF svShowReportHeader THEN
+            RUN pJasterTitleBand (iSize).    
+            IF svShowPageHeader THEN DO:
+                RUN pJasperPageHeaderBand.    
+                RUN pJasperColumnHeaderBand.
+            END. /* show page header */
+            /*IF svShowGroupHeader THEN*/    
+            RUN pJasperDetailBand (iSize).    
+            IF svShowGroupFooter THEN
+            RUN pJasperColumnFooterBand.    
+            IF svShowPageFooter THEN
+            RUN pJasperPageFooterBand.    
+            IF svShowParameters THEN
+            RUN pJasperLastPageFooter ("dynParamValue").
+            IF svShowReportFooter THEN 
+            RUN pJasperSummaryBand.    
+            RUN pJasperReport ("Close", ipcType, iSize).    
+            OUTPUT CLOSE.    
+        END. /* else if not using external form */
+        /* copy local jasper files to jasper studio workspace */
+        RUN pJasperCopy (cJasperFile).
+    END. /* if not local csv */
     /* get dynamic subject tables */
     FOR EACH dynSubjectTable
         WHERE dynSubjectTable.subjectID EQ dynParamValue.subjectID
@@ -1982,21 +1961,26 @@ PROCEDURE spJasperQuery:
             OUTPUT cError
             ).
         IF lOK THEN DO:
-            RUN AOA/jasperJSON.p (
-                ROWID(dynParamValue),
-                hQuery,
-                ipcUserID,
-                dynSubject.subjectTitle,
-                ipcTaskRecKey,
-                OUTPUT cJasperFile,
-                OUTPUT lOK
-                ).
-            IF lOK THEN DO:
-                /* copy local jasper files to jasper studio workspace */
-                RUN pJasperCopy (cJasperFile).
-                /* command line call to jasperstarter script */
-                RUN pJasperStarter (ipcType, ipcTaskRecKey, OUTPUT opcJasperFile).
-            END. /* if lok */
+            IF ipcType NE "LocalCSV" THEN DO:
+                RUN AOA/jasperJSON.p (
+                    ROWID(dynParamValue),
+                    hQuery,
+                    ipcUserID,
+                    dynSubject.subjectTitle,
+                    ipcTaskRecKey,
+                    OUTPUT cJasperFile,
+                    OUTPUT lOK
+                    ).
+                IF lOK THEN DO:
+                    /* copy local jasper files to jasper studio workspace */
+                    RUN pJasperCopy (cJasperFile).
+                    /* command line call to jasperstarter script */
+                    RUN pJasperStarter (ipcType, ipcTaskRecKey, OUTPUT opcJasperFile).
+                END. /* if lok */
+            END. /* if not local csv */
+            ELSE DO:
+                RUN pLocalCSV (hQuery).
+            END. /* else local csv */
         END. /* if lok */
     END. /* avail dynsubject */
 
