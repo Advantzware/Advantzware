@@ -3219,6 +3219,7 @@ PROCEDURE ipDataFix200200:
     /* Conversion program for ticket #69261 */
     /* The field stax.tax-rate[5] value will be moved to new field 
        stax.taxableLimit, when the stax.tax-dscr1[5] field's value is "Dollor Limit" */
+    DISABLE TRIGGERS FOR LOAD OF stax.
     DO TRANSACTION:
         FOR EACH stax EXCLUSIVE-LOCK:
             IF stax.tax-dscr1[5] EQ "Dollar Limit" THEN
