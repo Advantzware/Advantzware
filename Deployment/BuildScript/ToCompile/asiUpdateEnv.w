@@ -3082,7 +3082,6 @@ PROCEDURE ipDataFix161500:
     ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Data Fix 161500...").
     
-    RUN ipLoadEstCostData.
 
 END PROCEDURE.
     
@@ -3253,7 +3252,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipSetCueCards.
     RUN ipDeleteAudit.
     RUN ipCleanTemplates.
-    RUN ipResetCostGroups.
+    RUN ipLoadEstCostData.
     
 END PROCEDURE.
 
