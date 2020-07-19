@@ -719,7 +719,6 @@ PROCEDURE ipChangeDatabase :
     END.
 
     /* Highlight for new password */    
-
     ASSIGN
         iPos = LOOKUP(cbEnvironment:SCREEN-VALUE IN FRAME {&FRAME-NAME},cEnvironmentList)
         iEnvLevel = intVer(ENTRY(iPos,cEnvVerList))
@@ -805,8 +804,7 @@ PROCEDURE ipChangeEnvironment :
                 DO iCtr = 1 TO NUM-ENTRIES(cDatabaseList):
                     IF INDEX(ENTRY(iCtr,cDatabaseList),"Prod") <> 0 AND cSessionParam EQ "" THEN DO:
                         ASSIGN
-                            cbDatabase:LIST-ITEMS = ENTRY(iCtr,cDatabaseList)
-                            cbDatabase:SCREEN-VALUE = ENTRY(1,cDatabaseList).
+                            cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cDatabaseList).
                         LEAVE.
                     END.
                 END.
@@ -815,8 +813,7 @@ PROCEDURE ipChangeEnvironment :
                 DO iCtr = 1 TO NUM-ENTRIES(cDatabaseList):
                     IF INDEX(ENTRY(iCtr,cDatabaseList),"Test") <> 0 AND cSessionParam EQ "" THEN DO:
                         ASSIGN
-                            cbDatabase:LIST-ITEMS = ENTRY(iCtr,cDatabaseList)
-                            cbDatabase:SCREEN-VALUE = ENTRY(1,cDatabaseList).
+                            cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cDatabaseList).
                         LEAVE.
                     END.
                 END.
