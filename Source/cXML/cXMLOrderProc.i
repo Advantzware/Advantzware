@@ -651,9 +651,9 @@ PROCEDURE genOrderLines:
       RELEASE reftable.
       RELEASE oe-ord-whs-order.
       RELEASE oe-ordl-whs-item.
-      DELETE OBJECT hdCostProcs.
   END. /* for each  */
   
+  DELETE OBJECT hdCostProcs.
   RELEASE reftable.
   RELEASE oe-ord-whs-order.
   RELEASE oe-ordl-whs-item.
