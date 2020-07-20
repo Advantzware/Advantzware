@@ -904,6 +904,9 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 
         RUN valid-date-change NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        
+        RUN pValid-Release-Date(OUTPUT lErrorMsg) .
+        IF lErrorMsg THEN RETURN NO-APPLY.
   
   
         /* Task 11041309 */
@@ -1456,6 +1459,7 @@ ON HELP OF tt-report.prom-date IN FRAME Dialog-Frame /* due Date */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.stat Dialog-Frame
 ON LEAVE OF tt-report.stat IN FRAME Dialog-Frame /* Rel Date */
     DO:
+        DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
         IF NOT ll-skip THEN 
         DO:
 
@@ -1476,6 +1480,9 @@ ON LEAVE OF tt-report.stat IN FRAME Dialog-Frame /* Rel Date */
 
             IF LASTKEY NE -1 THEN 
             DO:
+               RUN pValid-Release-Date(OUTPUT lReturnError) .
+               IF lReturnError THEN RETURN NO-APPLY.
+              
     {custom/pastDatePrompt.i SELF:SCREEN-VALUE}
 
                 RUN valid-key-02 NO-ERROR.
@@ -3416,6 +3423,33 @@ PROCEDURE valid-date-change :
                 ", try help..." VIEW-AS ALERT-BOX.
             APPLY "entry" TO oe-rel.spare-char-2 IN FRAME {&FRAME-NAME}.
             RETURN ERROR.
+        END.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValid-Release-Date Dialog-Frame 
+PROCEDURE pValid-Release-Date :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:          
+        IF NOT AVAILABLE oe-ord THEN
+        FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
+            AND oe-ord.ord-no  EQ oe-ordl.ord-no
+            NO-ERROR.
+             
+        IF AVAIL oe-ord AND date(tt-report.stat:SCREEN-VALUE) < (date(oe-ord.ord-date))  THEN 
+        DO:
+            MESSAGE "Release Date cannot be entered for a date before the order date." VIEW-AS ALERT-BOX INFO.
+            APPLY "entry" TO tt-report.stat IN FRAME {&FRAME-NAME}.
+            oplReturnError = YES.
         END.
     END.
 END PROCEDURE.
