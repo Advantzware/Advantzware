@@ -2266,7 +2266,7 @@ PROCEDURE pCreateNewRel :
                 oe-ord.company,
                 ?,
                 oe-ord.cust-no,
-                IF AVAILABLE shipto THEN shipto.ship-id ELSE "",
+                IF v-first-ship-id NE "" THEN v-first-ship-id ELSE oe-ord.ship-id,
                 oe-ordl.req-date,
                 ?,
                 ?,
@@ -2289,8 +2289,7 @@ PROCEDURE pCreateNewRel :
             FIND shipto WHERE ROWID(shipto) EQ rShipTo NO-LOCK NO-ERROR.
             
             IF AVAILABLE shipto THEN 
-                oe-rel.rel-date = get-date(oe-ordl.req-date, INT(shipto.del-time), "-").
-            
+                oe-rel.rel-date = get-date(oe-ordl.req-date, INT(shipto.del-time), "-").            
         END.
         
         /* stores oe-rel due date */

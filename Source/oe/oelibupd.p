@@ -600,10 +600,12 @@ PROCEDURE create-misc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-recid AS RECID NO-UNDO.
-  DEF VAR li-line AS INT NO-UNDO.
-  DEF VAR v-tax-rate AS DEC FORM ">,>>9.99<<<" NO-UNDO.
-  DEF VAR v-frt-tax-rate LIKE v-tax-rate NO-UNDO.
+  DEFINE INPUT PARAMETER ip-recid AS RECID NO-UNDO.
+  
+  DEFINE VARIABLE li-line         AS INTEGER NO-UNDO.
+  DEFINE VARIABLE v-tax-rate      AS DECIMAL FORM ">,>>9.99<<<" NO-UNDO.
+  DEFINE VARIABLE v-frt-tax-rate  LIKE v-tax-rate NO-UNDO.
+  DEFINE VARIABLE dTaxCalculated  AS DECIMAL NO-UNDO INIT 0.
   DEF BUFFER bf-eb FOR eb .
   
   FIND bf-eb WHERE RECID(bf-eb) = ip-recid NO-LOCK NO-ERROR.
@@ -654,19 +656,26 @@ PROCEDURE create-misc :
          IF PrepTax-log THEN 
             ASSIGN oe-ordm.spare-char-1 = oe-ord.tax-gr.
                    .  
-         RUN ar/cctaxrt.p (INPUT g_company, oe-ord.tax-gr,
-                            OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
 
          IF AVAIL cust THEN DO:
            FIND CURRENT cust.
-           cust.ord-bal = cust.ord-bal + oe-ordm.amt +
-                          (IF oe-ordm.tax THEN (oe-ordm.amt * v-tax-rate / 100) ELSE 0).            
+           RUN Tax_Calculate IN hdTaxProcs (
+                INPUT  oe-ord.company,
+                INPUT  oe-ord.tax-gr,
+                INPUT  FALSE,   /* Is this freight */
+                INPUT  oe-ordm.amt,
+                INPUT  "",
+                OUTPUT dTaxCalculated
+                ).
+           cust.ord-bal = cust.ord-bal + oe-ordm.amt + dTaxCalculated
+                          /*(IF oe-ordm.tax THEN (oe-ordm.amt * v-tax-rate / 100) ELSE 0)*/.            
            FIND CURRENT cust NO-LOCK.
          END.
       END.
 
       FIND CURRENT oe-ordm NO-LOCK.
   END.
+  
   FOR EACH ef OF bf-eb /*where ef.company = g_company and
                     ef.est-no = oe-ord.est-no */
                     NO-LOCK:
@@ -703,20 +712,26 @@ PROCEDURE create-misc :
                    oe-ordm.form-no = ef.form-no 
                    oe-ordm.blank-no = bf-eb.blank-no  .
 
-            RUN ar/cctaxrt.p (INPUT g_company, oe-ord.tax-gr,
-                              OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
-
             IF AVAIL cust THEN DO:
               FIND CURRENT cust.
-              cust.ord-bal = cust.ord-bal + oe-ordm.amt +
-                             (IF oe-ordm.tax THEN (oe-ordm.amt * v-tax-rate / 100) ELSE 0).
+              RUN Tax_Calculate IN hdTaxProcs (
+                  INPUT  oe-ord.company,
+                  INPUT  oe-ord.tax-gr,
+                  INPUT  FALSE,   /* Is this freight */
+                  INPUT  oe-ordm.amt,
+                  INPUT  "",
+                  OUTPUT dTaxCalculated
+                  ).
+              cust.ord-bal = cust.ord-bal + oe-ordm.amt + dTaxCalculated
+                             /*(IF oe-ordm.tax THEN (oe-ordm.amt * v-tax-rate / 100) ELSE 0)*/.
               FIND CURRENT cust NO-LOCK.
             END.
 
             FIND CURRENT oe-ordm NO-LOCK.            
          END.  /* simon = "S" */
       END.  /* do */              
-  END.  
+  END.
+DELETE OBJECT hdTaxProcs.  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
