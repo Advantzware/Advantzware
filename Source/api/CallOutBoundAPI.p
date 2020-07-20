@@ -47,10 +47,6 @@ DEFINE VARIABLE gcParentProgram   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hdOSProcs  AS HANDLE    NO-UNDO.
-
-RUN system/OSProcs.p       PERSISTENT SET hdOSProcs.
-
 ASSIGN
     gcParentProgram = ipcParentProgram
     glcRequestData  = iplcRequestData
@@ -138,7 +134,7 @@ gcCommand = SEARCH("curl.exe")
 COPY-LOB glcRequestData TO FILE gcRequestFile.
    
 /* execute CURL command with requiredif  parameters to call the API */
-RUN OS_RunCommand IN hdOSProcs (
+RUN OS_RunCommand (
     INPUT  gcCommand,             /* Command string to run */
     INPUT  gcResponseFile,        /* File name to write the command output */
     INPUT  TRUE,                  /* Run with SILENT option */
@@ -176,9 +172,6 @@ RUN pReadResponse (
 OS-DELETE VALUE(gcRequestFile).
 OS-DELETE VALUE(gcResponseFile).
 
-IF VALID-HANDLE(hdOSProcs) THEN
-    DELETE PROCEDURE hdOSProcs.
-    
 PROCEDURE pReadResponse PRIVATE:
     /*------------------------------------------------------------------------------
     Purpose: Reads outbound response data based on data type
