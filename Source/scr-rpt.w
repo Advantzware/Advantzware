@@ -21,27 +21,28 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&Scoped-define program-id scr-rpt.
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
 
-def input parameter list-name as cha no-undo.
-def input parameter title-name as cha no-undo.
-DEF INPUT PARAMETER ip-font-no AS INT NO-UNDO.
-DEF INPUT PARAM ip-orient AS cha NO-UNDO.
+DEFINE INPUT PARAMETER list-name  AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER title-name AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ip-font-no AS INTEGER   NO-UNDO.
+DEFINE INPUT PARAMETER ip-orient  AS CHARACTER NO-UNDO.
 
-def var ll-log as log no-undo.
-
-DEF VAR li-font-no AS INT INIT 10 NO-UNDO.
-DEF VAR lv-ornt AS cha INIT "P" NO-UNDO.
-DEF VAR gcompany AS CHAR NO-UNDO.
+DEFINE VARIABLE li-font-no AS INTEGER   NO-UNDO INITIAL 10.
+DEFINE VARIABLE lv-ornt    AS CHARACTER NO-UNDO INITIAL "P".
+DEFINE VARIABLE gcompany   AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {custom/getcmpny.i}
 
-ASSIGN li-font-no = ip-font-no
-       lv-ornt = ip-orient.
-
+ASSIGN
+    li-font-no = ip-font-no
+    lv-ornt = ip-orient
+    .
 DO TRANSACTION:
    {sys/inc/notepad.i}
 END.
@@ -59,13 +60,13 @@ END.
 
 &Scoped-define ADM-CONTAINER DIALOG-BOX
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS ed-scr-view btn-print btn-save btn-font ~
-btn-close 
-&Scoped-Define DISPLAYED-OBJECTS ed-scr-view 
+&Scoped-Define ENABLED-OBJECTS btnSetSize btn-close ed-scr-view widthSize ~
+heightSize btn-font btn-print btn-save 
+&Scoped-Define DISPLAYED-OBJECTS ed-scr-view widthSize heightSize 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -80,37 +81,64 @@ btn-close
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-close AUTO-END-KEY 
-     LABEL "&Close" 
-     SIZE 15 BY 1.14.
+DEFINE BUTTON btn-close AUTO-GO 
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8 BY 1.91 TOOLTIP "Exit".
 
 DEFINE BUTTON btn-font 
-     LABEL "&Font" 
-     SIZE 15 BY 1.14.
+     IMAGE-UP FILE "Graphics/32x32/font.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8 BY 1.91 TOOLTIP "Font".
 
 DEFINE BUTTON btn-print 
-     LABEL "&Print" 
-     SIZE 15 BY 1.14.
+     IMAGE-UP FILE "Graphics/32x32/printer.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8 BY 1.91 TOOLTIP "Print".
 
 DEFINE BUTTON btn-save 
-     LABEL "&Save As" 
-     SIZE 15 BY 1.14.
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8 BY 1.91 TOOLTIP "Save As".
+
+DEFINE BUTTON btnSetSize 
+     IMAGE-UP FILE "Graphics/32x32/arrow_spread.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8 BY 1.91 TOOLTIP "Set Size".
 
 DEFINE VARIABLE ed-scr-view AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
-     SIZE 143.8 BY 21.43
+     SIZE 159 BY 26.19
      FONT 9 NO-UNDO.
+
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 34 BY 2.33.
+
+DEFINE VARIABLE heightSize AS INTEGER INITIAL 0 
+     VIEW-AS SLIDER MIN-VALUE 29 MAX-VALUE 48 HORIZONTAL 
+     TIC-MARKS BOTH FREQUENCY 1
+     SIZE 38 BY 1.91 TOOLTIP "Set Width" NO-UNDO.
+
+DEFINE VARIABLE widthSize AS INTEGER INITIAL 0 
+     VIEW-AS SLIDER MIN-VALUE 160 MAX-VALUE 380 HORIZONTAL 
+     TIC-MARKS BOTH FREQUENCY 10
+     SIZE 38 BY 1.91 TOOLTIP "Width Size" NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     ed-scr-view AT ROW 1 COL 1 NO-LABEL
-     btn-print AT ROW 22.91 COL 14
-     btn-save AT ROW 22.91 COL 47
-     btn-font AT ROW 22.91 COL 76
-     btn-close AT ROW 22.91 COL 111
-     SPACE(18.80) SKIP(0.89)
+     btnSetSize AT ROW 27.43 COL 40 WIDGET-ID 18
+     btn-close AT ROW 27.43 COL 152
+     ed-scr-view AT ROW 1 COL 2 NO-LABEL
+     widthSize AT ROW 27.43 COL 2 NO-LABEL WIDGET-ID 14
+     heightSize AT ROW 27.43 COL 49 NO-LABEL WIDGET-ID 16
+     btn-font AT ROW 27.43 COL 144
+     btn-print AT ROW 27.43 COL 128
+     btn-save AT ROW 27.43 COL 136
+     RECT-1 AT ROW 27.19 COL 127 WIDGET-ID 2
+     SPACE(0.00) SKIP(0.05)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Screen Viewer".
@@ -141,11 +169,13 @@ DEFINE FRAME D-Dialog
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX D-Dialog
-                                                                        */
+   FRAME-NAME                                                           */
 ASSIGN 
        FRAME D-Dialog:SCROLLABLE       = FALSE
        FRAME D-Dialog:HIDDEN           = TRUE.
 
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME D-Dialog
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -170,7 +200,8 @@ ASSIGN
 ON WINDOW-CLOSE OF FRAME D-Dialog /* Screen Viewer */
 DO:  
   /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
-  APPLY "END-ERROR":U TO SELF.
+  RUN pSaveSettings.
+  APPLY "GO":U TO SELF.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -179,9 +210,10 @@ END.
 
 &Scoped-define SELF-NAME btn-close
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-close D-Dialog
-ON CHOOSE OF btn-close IN FRAME D-Dialog /* Close */
+ON CHOOSE OF btn-close IN FRAME D-Dialog
 DO:
-  APPLY "CLOSE" TO THIS-PROCEDURE.
+    RUN pSaveSettings.
+    APPLY "CLOSE" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -190,11 +222,10 @@ END.
 
 &Scoped-define SELF-NAME btn-font
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-font D-Dialog
-ON CHOOSE OF btn-font IN FRAME D-Dialog /* Font */
+ON CHOOSE OF btn-font IN FRAME D-Dialog
 DO:
   FONT-TABLE:NUM-ENTRIES = 99.
   SYSTEM-DIALOG FONT 9 FIXED-ONLY.
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -203,46 +234,9 @@ END.
 
 &Scoped-define SELF-NAME btn-print
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-print D-Dialog
-ON CHOOSE OF btn-print IN FRAME D-Dialog /* Print */
+ON CHOOSE OF btn-print IN FRAME D-Dialog
 DO:
-  DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
-  DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
-  /*SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
-  IF NOT printok THEN
-  RETURN NO-APPLY.
-  */
-  /* Use Progress Print. Always use Font#9 in Registry (set above) */
-  /*RUN 'adecomm/_osprint.p' (INPUT ?, INPUT list-name,
-                            INPUT 3, INPUT 1, INPUT 0, INPUT 0, OUTPUT result).
-                            */
-
-  
-   RUN custom/prntproc.p (list-name, li-font-no, lv-ornt).
-  
-
-
-  
-/*
-  OUTPUT TO PRINTER.
-  INPUT FROM VALUE(list-name) NO-ECHO.
-  REPEAT:
-    IMPORT UNFORMATTED list-text.
-    IF ASC(SUBSTR(list-text,1,1)) = 12 THEN
-    DO:
-      PAGE.
-      list-text = SUBSTR(list-text,2).
-    END.
-    IF list-text NE "" THEN
-    PUT UNFORMATTED list-text SKIP.
-    ELSE
-    PUT UNFORMATTED SKIP(1).
-    list-text = "".
-  END.
-  INPUT CLOSE.
-  OUTPUT CLOSE.
-*/
+    RUN custom/prntproc.p (list-name, li-font-no, lv-ornt).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -251,34 +245,57 @@ END.
 
 &Scoped-define SELF-NAME btn-save
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-save D-Dialog
-ON CHOOSE OF btn-save IN FRAME D-Dialog /* Save As */
+ON CHOOSE OF btn-save IN FRAME D-Dialog
 DO:
-  DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE OKpressed AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
 
-  ASSIGN
-   /* list-name = screen-file-name + IF screen-file-name NE "" THEN "rpt" ELSE ""
-      init-dir = "users\" + USERID(ldbname(1)).
-   */
     init-dir = "c:\temp\" .
-  SYSTEM-DIALOG GET-FILE list-name
-      TITLE      "Enter Listing Name to SAVE AS ..."
-      FILTERS    "Listing Files (*.rpt)" "*.rpt",
-                 "All Files (*.*)" "*.*"
-      INITIAL-DIR init-dir
-      ASK-OVERWRITE
-      CREATE-TEST-FILE
-      SAVE-AS
-      USE-FILENAME
-      UPDATE OKpressed.
-  IF NOT OKpressed THEN
-  RETURN NO-APPLY.
-  /*ASSIGN
-    screen-file-name = SUBSTR(list-name,R-INDEX(list-name,"\") + 1,
-        R-INDEX(list-name,".") - R-INDEX(list-name,"\"))
-    ldummy = screen-report:SAVE-FILE(list-name)
-    {&WINDOW-NAME}:TITLE = "Screen Viewer - '" + screen-file-name + "'".
-  */  
+    SYSTEM-DIALOG GET-FILE list-name
+        TITLE   "Enter Listing Name to SAVE AS ..."
+        FILTERS "Listing Files (*.rpt)" "*.rpt",
+                "All Files (*.*)" "*.*"
+        INITIAL-DIR init-dir
+        ASK-OVERWRITE
+        CREATE-TEST-FILE
+        SAVE-AS
+        USE-FILENAME
+        UPDATE OKpressed.
+    IF NOT OKpressed THEN
+    RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnSetSize
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSetSize D-Dialog
+ON CHOOSE OF btnSetSize IN FRAME D-Dialog
+DO:
+    RUN pWinReSize (heightSize, widthSize).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME heightSize
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL heightSize D-Dialog
+ON VALUE-CHANGED OF heightSize IN FRAME D-Dialog
+DO:
+    ASSIGN {&SELF-NAME}.    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME widthSize
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL widthSize D-Dialog
+ON VALUE-CHANGED OF widthSize IN FRAME D-Dialog
+DO:
+    ASSIGN {&SELF-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -292,40 +309,40 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
-IF notepad-log THEN
-DO:
-    IF notepad-chr = "" THEN do: /* task 02101509 */
+IF notepad-log THEN DO:
+    IF notepad-chr EQ "" THEN DO: /* task 02101509 */
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-        open-mime-resource "text/plain" string("file:///" + list-name) false.
+        open-mime-resource "text/plain" STRING("file:///" + list-name) FALSE.
 &ELSE
         OS-COMMAND NO-WAIT notepad VALUE(list-name).
 &ENDIF
         RETURN.
     END.
-    ELSE do:
-        FIND FIRST usergrps WHERE usergrps.usergrps = "Notepad" 
-            NO-LOCK NO-ERROR.
-        IF AVAIL usergrps AND LOOKUP(string(USERID(ldbname(1))),usergrps.users) <> 0 THEN DO:
+    ELSE DO:
+        FIND FIRST usergrps NO-LOCK
+             WHERE usergrps.usergrps EQ "Notepad" 
+             NO-ERROR.
+        IF AVAILABLE usergrps AND LOOKUP(STRING(USERID(LDBNAME(1))),usergrps.users) <> 0 THEN DO:
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-            open-mime-resource "text/plain" string("file:///" + list-name) false.
+            open-mime-resource "text/plain" STRING("file:///" + list-name) FALSE.
 &ELSE
             OS-COMMAND NO-WAIT notepad VALUE(list-name).
 &ENDIF
             RETURN.
         END.
-
         ELSE DO:
-            IF NOT AVAIL usergrps THEN do:
-                CREATE usergrps .
+            IF NOT AVAILABLE usergrps THEN DO:
+                CREATE usergrps.
                 ASSIGN
                     usergrps.usergrps = "Notepad"
-                    usergrps.dscr = "NOTEPAD USERS" .
-            END.
+                    usergrps.dscr     = "NOTEPAD USERS"
+                    .
+            END. /* if not avail */
         END.  /* not avail usergrps */
     END. /* else do  notepad-chr = "" */
 END.  /* if notepad-log */
-
-ll-log = ed-scr-view:read-file(list-name).
+RUN pGetSettings.
+ed-scr-view:READ-FILE(list-name).
 
 {src/adm/template/dialogmn.i}
 
@@ -398,9 +415,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY ed-scr-view 
+  DISPLAY ed-scr-view widthSize heightSize 
       WITH FRAME D-Dialog.
-  ENABLE ed-scr-view btn-print btn-save btn-font btn-close 
+  ENABLE btnSetSize btn-close ed-scr-view widthSize heightSize btn-font 
+         btn-print btn-save 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -422,8 +440,138 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  ll-log = ed-scr-view:read-file(list-name) in frame {&frame-name}.
-  frame {&frame-name}:title = title-name.
+  ed-scr-view:READ-FILE(list-name) IN FRAME {&frame-name}.
+  FRAME {&frame-name}:title = title-name.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSettings D-Dialog 
+PROCEDURE pGetSettings :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE idx     AS INTEGER NO-UNDO.
+    
+    FIND FIRST user-print NO-LOCK
+         WHERE user-print.program-id EQ "{&program-id}"
+           AND user-print.user-id    EQ USERID("ASI")
+         NO-ERROR.
+    IF AVAILABLE user-print THEN DO:
+        DO idx = 1 TO EXTENT(user-print.field-name):
+            IF user-print.field-name[idx] EQ "" THEN LEAVE.
+            CASE user-print.field-name[idx]:
+                WHEN "WindowHeight" THEN
+                heightSize = DECIMAL(user-print.field-value[idx]).
+                WHEN "WindowWidth" THEN
+                widthSize  = DECIMAL(user-print.field-value[idx]).
+            END CASE.
+        END. /* do idx */
+    END. /* if avail */
+    RUN pWinReSize (heightSize, widthSize).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveSettings D-Dialog 
+PROCEDURE pSaveSettings :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+    
+    DO TRANSACTION:
+        FIND FIRST user-print EXCLUSIVE-LOCK
+             WHERE user-print.program-id EQ "{&program-id}"
+               AND user-print.user-id    EQ USERID("ASI")
+             NO-ERROR.
+        IF NOT AVAILABLE user-print THEN DO:
+            CREATE user-print.
+            ASSIGN
+                user-print.program-id = "{&program-id}"
+                user-print.user-id    = USERID("ASI")
+                .
+        END. /* not avail */
+        ASSIGN
+            user-print.field-name  = ""
+            user-print.field-value = ""
+            user-print.field-label = ""
+            .
+        ASSIGN
+            idx = idx + 1
+            user-print.field-name[idx]  = "WindowWidth"
+            user-print.field-label[idx] = "WindowWidth"
+            user-print.field-value[idx] = STRING(FRAME {&FRAME-NAME}:WIDTH)
+            idx = idx + 1
+            user-print.field-name[idx]  = "WindowHeight"
+            user-print.field-label[idx] = "WindowHeight"
+            user-print.field-value[idx] = STRING(FRAME {&FRAME-NAME}:HEIGHT)
+            .
+        FIND CURRENT user-print NO-LOCK.
+    END. /* do trans */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pWinReSize D-Dialog 
+PROCEDURE pWinReSize :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipdHeight AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdWidth  AS DECIMAL NO-UNDO.
+
+    SESSION:SET-WAIT-STATE("General").
+    IF ipdHeight LT 28.57 THEN
+    ipdHeight = 28.57.
+    IF ipdWidth  LT 160   THEN
+    ipdWidth  = 160.
+    DO WITH FRAME {&FRAME-NAME}:
+        HIDE FRAME {&FRAME-NAME}.
+        ASSIGN
+            RECT-1:HIDDEN              = YES
+            btn-print:HIDDEN           = YES
+            btn-save:HIDDEN            = YES
+            btn-font:HIDDEN            = YES
+            btn-close:HIDDEN           = YES
+            FRAME {&FRAME-NAME}:HEIGHT = ipdHeight
+            FRAME {&FRAME-NAME}:WIDTH  = ipdWidth
+            ed-scr-view:HEIGHT         = FRAME {&FRAME-NAME}:HEIGHT - 4.2
+            ed-scr-view:WIDTH          = FRAME {&FRAME-NAME}:WIDTH  - 3
+            btnSetSize:ROW             = FRAME {&FRAME-NAME}:HEIGHT - 3
+            heightSize:ROW             = btnSetSize:ROW
+            widthSize:ROW              = btnSetSize:ROW
+            RECT-1:ROW                 = FRAME {&FRAME-NAME}:HEIGHT - 2.94
+            btn-print:ROW              = RECT-1:ROW    + .24
+            btn-save:ROW               = btn-print:ROW
+            btn-font:ROW               = btn-save:ROW
+            btn-close:ROW              = btn-font:ROW
+            RECT-1:COL                 = FRAME {&FRAME-NAME}:WIDTH  - 35
+            btn-print:COL              = RECT-1:COL    + 1
+            btn-save:COL               = btn-print:COL + btn-print:WIDTH
+            btn-font:COL               = btn-save:COL  + btn-save:WIDTH
+            btn-close:COL              = btn-font:COL  + btn-font:WIDTH
+            .
+        VIEW FRAME {&FRAME-NAME}.
+        ASSIGN
+            RECT-1:HIDDEN    = NO
+            btn-print:HIDDEN = NO
+            btn-save:HIDDEN  = NO
+            btn-font:HIDDEN  = NO
+            btn-close:HIDDEN = NO
+            .
+    END. /* do with */
+    SESSION:SET-WAIT-STATE("").
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -455,6 +603,7 @@ PROCEDURE state-changed :
 -------------------------------------------------------------*/
   DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE NO-UNDO.
   DEFINE INPUT PARAMETER p-state AS CHARACTER NO-UNDO.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
