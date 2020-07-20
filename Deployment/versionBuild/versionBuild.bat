@@ -78,7 +78,10 @@ DEL /S /Q C:%patchDir%\Documentation\DBDict\* >> %vlog%
 RMDIR /S /Q C:%patchDir%\Documentation\DBDict >> %vlog%
 MKDIR C:%patchDir%\Documentation\DBDict >> %vlog%
 DEL /S /Q C:%patchDir%\DataFiles\* >> %vlog%
+XCOPY C:%patchDir%\Structure\DFFiles\audEmp* C:%patchDir%\Structure /E /S /H /C /I >> %vlog%
 DEL /S /Q C:%patchDir%\Structure\DFFiles\* >> %vlog%
+XCOPY C:%patchDir%\Structure\audEmp* C:%patchDir%\Structure\DFFiles /E /S /H /C /I >> %vlog%
+DEL /S /Q C:%patchDir%\Structure\audEmp* >> %vlog%
 DEL /Q C:%patchDir%\patch.mft >> %vlog%
 ECHO patchVer=%cNewVer% > C:%patchDir%\patch.mft
 ECHO asiDbVer=%cNewVer% >> C:%patchDir%\patch.mft
