@@ -10,9 +10,6 @@ DEFINE VARIABLE dTotalTax        AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cmessage         AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hdTaxProcs  AS HANDLE    NO-UNDO.
-RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
-
  assign   
    {1}.net     = 0
    {1}.freight = 0
@@ -26,7 +23,7 @@ FOR EACH bff-ar-invl WHERE bff-ar-invl.x-no = {1}.x-no NO-LOCK :
     . 
 END.
 
-RUN Tax_CalculateForArInv IN hdTaxProcs (
+RUN Tax_CalculateForArInv  (
     INPUT  ROWID({1}),
     INPUT  locode,
     INPUT  "INVOICE", /*  Message Type "INVOICE" or "QUOTATION" */
@@ -44,6 +41,3 @@ ASSIGN
    {1}.gross   = {1}.net + {1}.tax-amt  
    {1}.due     = {1}.gross - {1}.paid - {1}.disc-taken
    .
-    
-IF VALID-HANDLE(hdTaxProcs) THEN
-    DELETE PROCEDURE hdTaxProcs.   

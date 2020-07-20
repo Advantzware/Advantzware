@@ -17,13 +17,11 @@ USING Progress.Json.ObjectModel.*.
 {CRM/ttCRMContacts.i}
 {CRM/ttCRMCustomers.i}
 
-DEFINE VARIABLE hdOSProcs      AS HANDLE            NO-UNDO.
 DEFINE VARIABLE oModelParser   AS ObjectModelParser NO-UNDO.
 DEFINE VARIABLE oObject        AS JsonObject        NO-UNDO.
 DEFINE VARIABLE hdFileSysProcs AS HANDLE            NO-UNDO.
 DEFINE VARIABLE cTempDir       AS CHARACTER         NO-UNDO.
 
-RUN system/OSProcs.p PERSISTENT SET hdOSProcs.
 RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 RUN FileSys_GetTempDirectory IN hdFileSysProcs(
@@ -71,7 +69,7 @@ PROCEDURE Zoho_UpdateRefreshToken:
         .
 
     /* execute CURL command with required parameters to call the API */
-    RUN OS_RunCommand IN hdOSProcs (
+    RUN OS_RunCommand (
         INPUT  cCommand,             /* Command string to run */
         INPUT  cResponseFile,        /* File name to write the command output */
         INPUT  TRUE,                 /* Run with SILENT option */
@@ -227,7 +225,7 @@ PROCEDURE Zoho_GetAccessToken:
         .
 
     /* execute CURL command with required parameters to call the API */
-    RUN OS_RunCommand IN hdOSProcs (
+    RUN OS_RunCommand (
         INPUT  cCommand,             /* Command string to run */
         INPUT  cResponseFile,        /* File name to write the command output */
         INPUT  TRUE,                 /* Run with SILENT option */
@@ -291,7 +289,7 @@ PROCEDURE Zoho_GetCustomers:
         .
 
     /* execute CURL command with required parameters to call the API */
-    RUN OS_RunCommand IN hdOSProcs (
+    RUN OS_RunCommand (
         INPUT  cCommand,             /* Command string to run */
         INPUT  cResponseCustomersFile, /* File name to write the command output */
         INPUT  TRUE,                  /* Run with SILENT option */
@@ -395,7 +393,7 @@ PROCEDURE Zoho_GetContacts:
         .
 
     /* execute CURL command with required parameters to call the API */
-    RUN OS_RunCommand IN hdOSProcs (
+    RUN OS_RunCommand (
         INPUT  cCommand,             /* Command string to run */
         INPUT  cResponseContactsFile, /* File name to write the command output */
         INPUT  TRUE,                  /* Run with SILENT option */
@@ -493,7 +491,7 @@ PROCEDURE Zoho_GetAccounts:
                  + ipcAccessToken + '"'.
         
     /* execute CURL command with required parameters to call the API */
-    RUN OS_RunCommand IN hdOSProcs (
+    RUN OS_RunCommand (
         INPUT  cCommand,             /* Command string to run */
         INPUT  cResponseAccountsFile, /* File name to write the command output */
         INPUT  TRUE,                  /* Run with SILENT option */

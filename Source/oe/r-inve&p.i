@@ -196,7 +196,7 @@
                  customer's on order balance ***/
             FIND CURRENT oe-ordl NO-ERROR.
             if avail oe-ordl then do:
-                RUN Tax_Calculate IN hdTaxProcs (
+                RUN Tax_Calculate  (
                     INPUT  oe-ordl.company,
                     INPUT  oe-ord.tax-gr,
                     INPUT  FALSE,   /* Is this freight */
@@ -217,7 +217,7 @@
                     and ar-invl.i-no    eq inv-line.i-no
                   use-index inv-status no-lock:
 
-                RUN Tax_Calculate IN hdTaxProcs (
+                RUN Tax_Calculate  (
                     INPUT  ar-invl.company,
                     INPUT  ar-inv.tax-code,
                     INPUT  FALSE,   /* Is this freight */
@@ -236,7 +236,7 @@
 
             v-tax = 0.
             if inv-line.tax then
-                RUN Tax_Calculate IN hdTaxProcs (
+                RUN Tax_Calculate  (
                     INPUT  inv-line.company,
                     INPUT  inv-head.tax-gr,
                     INPUT  FALSE,   /* Is this freight */
@@ -402,7 +402,7 @@
                    v-dcr-val  = v-dcr-val - (v-dcr-val * oe-ordl.disc / 100).
 
                   if oe-ordl.tax then do:
-                    RUN Tax_Calculate IN hdTaxProcs (
+                    RUN Tax_Calculate  (
                         INPUT  oe-ordl.company,
                         INPUT  oe-ord.tax-gr,
                         INPUT  FALSE,   /* Is this freight */
@@ -521,7 +521,7 @@
             end.
 
             if inv-misc.bill eq "Y" then do:
-                RUN Tax_Calculate IN hdTaxProcs (
+                RUN Tax_Calculate  (
                     INPUT  inv-misc.company,
                     INPUT  inv-head.tax-gr,
                     INPUT  FALSE,   /* Is this freight */

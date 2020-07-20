@@ -113,9 +113,6 @@ DEF VAR is-xprint-form AS LOGICAL.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
 DEF VAR v-last-shipid AS CHAR NO-UNDO.
 
-DEFINE VARIABLE hdTaxProcs  AS HANDLE NO-UNDO.
-RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
-
 DEFINE STREAM excel.
 
 /* _UIB-CODE-BLOCK-END */
@@ -395,8 +392,6 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Order Edit List  Posting */
 DO:
   /* This event will close the window and terminate the procedure.  */
-    IF VALID-HANDLE(hdTaxProcs) THEN
-        DELETE PROCEDURE hdTaxProcs.
   
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     RETURN NO-APPLY.
@@ -410,8 +405,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-    IF VALID-HANDLE(hdTaxProcs) THEN
-        DELETE PROCEDURE hdTaxProcs.    
     APPLY "CLOSE" TO THIS-PROCEDURE.
 END.
 
@@ -1115,7 +1108,7 @@ with down no-box STREAM-IO width 132 frame ordm.
 
           if oe-ordl.tax and v-tax-rate gt 0 THEN DO:
 
-              RUN Tax_Calculate IN hdTaxProcs (
+              RUN Tax_Calculate  (
                   INPUT  xoe-ord.company,
                   INPUT  xoe-ord.tax-gr,
                   INPUT  FALSE,   /* Is this freight */
@@ -1138,7 +1131,7 @@ with down no-box STREAM-IO width 132 frame ordm.
             xoe-ord.t-revenue = xoe-ord.t-revenue + oe-ordm.amt.
 
             if oe-ordm.tax and v-tax-rate gt 0 THEN DO:
-                RUN Tax_Calculate IN hdTaxProcs (
+                RUN Tax_Calculate  (
                     INPUT  xoe-ord.company,
                     INPUT  xoe-ord.tax-gr,
                     INPUT  FALSE,   /* Is this freight */

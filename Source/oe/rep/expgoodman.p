@@ -19,9 +19,6 @@ DEF VAR v-tax AS DEC NO-UNDO.
 DEF VAR v-tax-tot AS DEC NO-UNDO.
 DEF VAR v-misc-tax-tot AS DEC NO-UNDO.
 
-DEFINE VARIABLE hdTaxProcs  AS HANDLE    NO-UNDO.
-RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
-
 for each tt-report NO-LOCK where tt-report.term-id eq "",
     first inv-head where recid(inv-head) eq tt-report.rec-id no-lock,
     FIRST cust WHERE cust.company = inv-head.company
@@ -56,7 +53,7 @@ for each tt-report NO-LOCK where tt-report.term-id eq "",
         inv-misc.dscr NE "Freight":
 
         IF inv-misc.tax THEN DO:
-            RUN Tax_Calculate IN hdTaxProcs (
+            RUN Tax_Calculate  (
                 INPUT  inv-misc.company,
                 INPUT  inv-head.tax-gr,
                 INPUT  FALSE,   /* Is this freight */
@@ -168,7 +165,7 @@ for each tt-report NO-LOCK where tt-report.term-id eq "",
                  FILL(" ",40) /*other charges description*/ "|".
        
         IF inv-line.tax THEN DO:
-            RUN Tax_Calculate IN hdTaxProcs (
+            RUN Tax_Calculate  (
                 INPUT  inv-line.company,
                 INPUT  inv-head.tax-gr,
                 INPUT  FALSE,   /* Is this freight */
@@ -185,6 +182,3 @@ for each tt-report NO-LOCK where tt-report.term-id eq "",
            PUT v-tax-tot FORM "->>>>>>>>>>>>>9.9999" "|" SKIP.
     END.
 end. /* each tt-report */
-
-IF VALID-HANDLE(hdTaxProcs) THEN
-    DELETE PROCEDURE hdTaxProcs.

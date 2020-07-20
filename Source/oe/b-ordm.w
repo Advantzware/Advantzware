@@ -44,7 +44,6 @@ assign cocode = g_company
 DEFINE VARIABLE lv-new-recid AS RECID NO-UNDO.
 DEFINE VARIABLE lv-valid-charge AS LOGICAL NO-UNDO.
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lUpdateMiscItem AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
@@ -523,7 +522,6 @@ END.
 /* ***************************  Main Block  *************************** */
 
 RUN oe/oe-sysct.p.
-RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
  
  IF NOT v-oecomm-log THEN RUN show-comm (NO).
 
@@ -1151,8 +1149,6 @@ PROCEDURE local-exit:
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-    DELETE OBJECT hdTaxProcs.
-
 
 END PROCEDURE.
 	
@@ -1571,7 +1567,7 @@ FUNCTION fGetTaxable RETURNS LOGICAL
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
+    RUN Tax_GetTaxableMisc  (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
     RETURN lTaxable.
 
 END FUNCTION.

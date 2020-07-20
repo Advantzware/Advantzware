@@ -58,7 +58,6 @@ DEFINE VARIABLE cResourceName             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResourceType             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cModeList                 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMachineIPAddress         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdOSProcs                 AS HANDLE    NO-UNDO.
 
 DEF TEMP-TABLE ttIniFile
     FIELD iPos      AS INTEGER
@@ -71,9 +70,8 @@ DEF TEMP-TABLE ttIniFile
 RUN pFetchAPIElements.
 
 RUN api/AdvantzwareMonitorProcs.p PERSISTENT SET hdAdvantzwareMonitorProcs.
-RUN system/OSProcs.p              PERSISTENT SET hdOSProcs.
 
-RUN OS_GetIPAddress IN hdOSProcs (
+RUN OS_GetIPAddress (
     OUTPUT cMachineIPAddress
     ).
 
@@ -392,9 +390,6 @@ DO:
     IF VALID-HANDLE(hdAdvantzwareMonitorProcs) THEN
         DELETE PROCEDURE hdAdvantzwareMonitorProcs.
 
-    IF VALID-HANDLE(hdOSProcs) THEN
-        DELETE PROCEDURE hdOSProcs.
-
     /* This event will close the window and terminate the procedure.  */
     APPLY "CLOSE" TO THIS-PROCEDURE.    
     RETURN NO-APPLY.
@@ -455,9 +450,6 @@ DO:
     IF VALID-HANDLE(hdAdvantzwareMonitorProcs) THEN
         DELETE PROCEDURE hdAdvantzwareMonitorProcs.
     
-    IF VALID-HANDLE(hdOSProcs) THEN
-        DELETE PROCEDURE hdOSProcs.
-
     APPLY "CLOSE" TO THIS-PROCEDURE.
     
     RETURN NO-APPLY.
@@ -535,7 +527,7 @@ DO:
                     lNoWait = TRUE
                     .
             /* Re-starts AdminServer,AppServer, Node, ASI Monitors and NameServer */                                                     
-            RUN OS_RunCommand IN hdOSProcs (
+            RUN OS_RunCommand (
                 INPUT  cCommand,             /* Command string to run */
                 INPUT  "",                   /* File name to write the command output */
                 INPUT  lSilent,              /* Run with SILENT option */
@@ -606,7 +598,7 @@ DO:
                     lNoWait = FALSE
                     .
             
-            RUN OS_RunCommand IN hdOSProcs (
+            RUN OS_RunCommand (
                 INPUT  cCommand,             /* Command string to run */
                 INPUT  "",                   /* File name to write the command output */
                 INPUT  lSilent,              /* Run with SILENT option */

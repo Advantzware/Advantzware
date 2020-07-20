@@ -126,8 +126,6 @@ DEF VAR     ip-type AS cha NO-UNDO .   /* add,update,view */
   DEF VAR r-current-ord AS ROWID NO-UNDO.
   DEF VAR r-current-ordl AS ROWID NO-UNDO.
   DEF VAR h_callproc AS HANDLE NO-UNDO.
-  DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
-  RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
   
   DEF TEMP-TABLE tt-qty-price
   FIELD oeordl-rowid AS ROWID
@@ -5936,7 +5934,7 @@ FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
 ------------------------------------------------------------------------------*/
 DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+RUN Tax_GetTaxableAR  (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
 RETURN lTaxable.
 
 END FUNCTION.

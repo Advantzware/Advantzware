@@ -81,7 +81,6 @@ DEF VAR ll-new-due AS LOG NO-UNDO.
 DEF VAR lv-type-codes AS CHAR NO-UNDO.
 DEF VAR lv-type-dscrs AS CHAR NO-UNDO.
 DEF VAR K_FRAC AS DEC INIT 6.25 NO-UNDO.
-DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 
 DEFINE VARIABLE prodDateChanged AS LOGICAL NO-UNDO.
 DEFINE VARIABLE dueDateChanged AS LOGICAL NO-UNDO.
@@ -618,7 +617,6 @@ PROCEDURE create-misc :
         AND cust.cust-no = oe-ord.cust-no
       NO-ERROR.
       
-  RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
   FOR EACH est-prep WHERE est-prep.company = g_company
                       AND est-prep.est-no = bf-eb.est-no
                       AND est-prep.simon = "S" 
@@ -3111,7 +3109,7 @@ FUNCTION fGetTaxable RETURNS LOGICAL
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
+    RUN Tax_GetTaxableMisc  (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
     FIND FIRST prep NO-LOCK WHERE 
         prep.company EQ oe-ordm.company AND 
         prep.code    EQ oe-ordm.charge
