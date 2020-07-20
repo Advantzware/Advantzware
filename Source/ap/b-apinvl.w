@@ -611,9 +611,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ap-invl.po-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF ap-invl.po-no IN BROWSE Browser-Table /* PO Number */
 DO:
+   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-po-no NO-ERROR.    
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-po-no(OUTPUT lReturnError) NO-ERROR.    
+    IF lReturnError THEN RETURN NO-APPLY.
 
     IF INT({&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN DO:
       APPLY "row-leave" TO BROWSE {&browse-name}.
@@ -630,9 +631,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ap-invl.actnum Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF ap-invl.actnum IN BROWSE Browser-Table /* Account Number */
 DO:
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO. 
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-actnum NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-actnum(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -662,9 +664,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ap-invl.qty Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF ap-invl.qty IN BROWSE Browser-Table /* Quantity */
 DO:
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO. 
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-qty NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-qty(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -701,9 +704,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ap-invl.unit-pr Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF ap-invl.unit-pr IN BROWSE Browser-Table /* Price */
 DO:
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-unit-pr NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-unit-pr(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -725,9 +729,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ap-invl.pr-qty-uom Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF ap-invl.pr-qty-uom IN BROWSE Browser-Table /* UOM Price */
 DO:
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-pr-qty-uom NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-pr-qty-uom(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
     RUN calc-amt.
   END.
 END.
@@ -2260,8 +2265,8 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   /* === validation ---- */
   IF adm-adding-record THEN do:
-      RUN valid-po-no NO-ERROR.
-      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+      RUN valid-po-no(OUTPUT lReturnError) NO-ERROR.
+      IF lReturnError THEN RETURN NO-APPLY.
   END.
   
   DO WITH FRAME {&FRAME-NAME}:
@@ -2280,20 +2285,20 @@ PROCEDURE local-update-record :
   IF NOT CAN-FIND(FIRST tt-ap-invl WHERE tt-rowid EQ ROWID(ap-invl))
   THEN RUN update-ttt.
 
-  RUN valid-actnum NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-actnum(OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
 
-  RUN valid-qty NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-qty(OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
 
-  RUN valid-unit-pr NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-unit-pr(OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
 
   RUN valid-qty-uom(OUTPUT lReturnError) NO-ERROR.
     IF lReturnError THEN RETURN NO-APPLY.
 
-  RUN valid-pr-qty-uom NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-pr-qty-uom(OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
 
    /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -2916,6 +2921,7 @@ PROCEDURE valid-actnum :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST account
         WHERE account.company EQ g_company
@@ -2925,8 +2931,9 @@ PROCEDURE valid-actnum :
     IF NOT AVAIL account THEN DO:
       MESSAGE "Invalid Account Number..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO ap-invl.actnum IN BROWSE {&browse-name}.
-      RETURN ERROR.
+      oplReturnError = YES.
     END.
+    ELSE
     v-actdscr:SCREEN-VALUE IN BROWSE {&browse-name} = account.dscr.
   END.
 
@@ -2943,6 +2950,7 @@ PROCEDURE valid-po-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DEF VAR lv-msg AS CHAR NO-UNDO.
   DEF VAR lv-msg2 AS CHAR NO-UNDO.
   DEFINE VARIABLE lMessage AS LOGICAL NO-UNDO.
@@ -2983,7 +2991,7 @@ PROCEDURE valid-po-no :
                     lv-msg2 = "".
                 IF NOT lContinue THEN DO:
                     APPLY "entry" TO ap-invl.po-no.
-                    RETURN ERROR.
+                    oplReturnError = YES.
                 END.
             END.
                 
@@ -3018,7 +3026,7 @@ PROCEDURE valid-po-no :
     IF lv-msg NE "" THEN DO:
       MESSAGE TRIM(lv-msg) VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO ap-invl.po-no.
-      RETURN ERROR.
+      oplReturnError = YES.
     END.
   END.
 
@@ -3034,6 +3042,7 @@ PROCEDURE valid-pr-qty-uom :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DEF VAR uom-list AS CHAR INIT "" NO-UNDO.
 
 
@@ -3048,7 +3057,7 @@ PROCEDURE valid-pr-qty-uom :
       IF NOT AVAIL uom THEN DO:
         MESSAGE "Invalid Unit Of Measure..." VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO ap-invl.pr-qty-uom IN BROWSE {&browse-name}.
-        RETURN ERROR.
+        oplReturnError = YES.
       END.
     END.
   END.
@@ -3065,13 +3074,13 @@ PROCEDURE valid-qty :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ap-invl.qty:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:
       MESSAGE "The QUANTITY you enter must be greater than 0, please re-enter..."
               VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO ap-invl.qty IN BROWSE {&browse-name}.
-      RETURN ERROR.
+      oplReturnError = YES.
     END.
   END.
 
@@ -3087,13 +3096,13 @@ PROCEDURE valid-unit-pr :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ap-invl.unit-pr:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:
       MESSAGE "The UNIT PRICE you enter must be greater than 0, please re-enter..."
               VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO ap-invl.unit-pr IN BROWSE {&browse-name}.
-      RETURN ERROR.
+      oplReturnError = YES.
     END.
   END.
 
