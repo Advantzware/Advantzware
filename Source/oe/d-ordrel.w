@@ -3445,7 +3445,7 @@ PROCEDURE pValid-Release-Date :
             AND oe-ord.ord-no  EQ oe-ordl.ord-no
             NO-ERROR.
              
-        IF AVAIL oe-ord AND date(tt-report.stat:SCREEN-VALUE) < (date(oe-ord.ord-date))  THEN 
+        IF AVAIL oe-ord AND date(tt-report.stat:SCREEN-VALUE) < (date(oe-ord.ord-date) + 1 )  THEN 
         DO:
             MESSAGE "Release Date cannot be entered for a date before the order date." VIEW-AS ALERT-BOX INFO.
             APPLY "entry" TO tt-report.stat IN FRAME {&FRAME-NAME}.
