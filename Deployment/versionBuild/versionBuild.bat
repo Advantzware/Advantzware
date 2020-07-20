@@ -385,7 +385,7 @@ ECHO Updating repository files
 ECHO Updating repository files >> %blog%
 ECHO Updating repository files >> %vlog%
 MKDIR C:\asigui\Repositories\Advantzware\Deployment\SchemaChanges\%iCurVer%00 >> %vlog% 2>> %elog%
-XCOPY C:\asigui\Repositories\Advantzware\Deployment\Patch\Structure\DFFiles\* C:\asigui\Repositories\Deployment\SchemaChanges\%iCurVer%00 /E /S /H /C /I /Y >> %vlog%
+XCOPY C:\asigui\Repositories\Advantzware\Deployment\Patch\Structure\DFFiles\* C:\asigui\Repositories\Advantzware\Deployment\SchemaChanges\%iCurVer%00 /E /S /H /C /I /Y >> %vlog%
 DEL /S /Q C:\Asigui\Repositories\Advantzware\Deployment\Patch\Structure\DFFiles\*.* >> %vlog%
 XCOPY C:%patchDir%\Admin\* C:\asigui\Repositories\Advantzware\Deployment\Patch\Admin /E /S /H /C /I /Y >> %vlog%
 XCOPY C:%patchDir%\DataFiles\* C:\asigui\Repositories\Advantzware\Deployment\Patch\DataFiles /E /S /H /C /I /Y >> %vlog%
