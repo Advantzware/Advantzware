@@ -777,7 +777,6 @@ DO:
                         BREAK BY oe-ord.cust-no:
     
                         RELEASE cust.
-                        RUN oe/calcordt.p (ROWID(oe-ord)).
                         IF LAST-OF(oe-ord.cust-no) THEN 
                         DO:
     
