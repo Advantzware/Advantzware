@@ -2034,14 +2034,18 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDynValue C-Win 
-PROCEDURE ipDynValue :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertDynParam C-Win 
+PROCEDURE ipConvertDynParam :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("    Converting dynValue tables...").
+
+    DISABLE TRIGGERS FOR LOAD OF dynValueParam.
+    DISABLE TRIGGERS FOR LOAD OF dynValueParamSet.
+    DISABLE TRIGGERS FOR LOAD OF dynValueColumn.
 
     DEFINE VARIABLE hSession AS HANDLE  NO-UNDO.
     DEFINE VARIABLE idx      AS INTEGER NO-UNDO.
