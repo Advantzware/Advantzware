@@ -41,7 +41,7 @@ FUNCTION fRoundValue RETURNS DECIMAL PRIVATE
 
 /* **********************  Internal Procedures  *********************** */
 
-PROCEDURE GetTaxableMisc:
+PROCEDURE Tax_GetTaxableMisc:
     /*------------------------------------------------------------------------------
      Purpose: Determines if a given combination of customer, shipto and control file
      should result in taxable misc
@@ -62,7 +62,7 @@ PROCEDURE GetTaxableMisc:
     
 END PROCEDURE.
 
-PROCEDURE GetTaxGroupAR:
+PROCEDURE Tax_GetTaxGroupAR:
     /*------------------------------------------------------------------------------
      Purpose: Returns Taxable Y/N and Sales Group given customer, shipto, and FG item inputs
      Notes:
@@ -81,7 +81,7 @@ PROCEDURE GetTaxGroupAR:
   
 END PROCEDURE.
 
-PROCEDURE GetTaxableAR:
+PROCEDURE Tax_GetTaxableAR:
     /*------------------------------------------------------------------------------
      Purpose: Determines if a given combination of customer, shipto and FG should
      Notes:

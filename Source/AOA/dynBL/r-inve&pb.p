@@ -35,9 +35,7 @@ DEFINE VARIABLE cCompCurr   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE oeprep-char AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dProfit     AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE hNotesProcs AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hdTaxProcs  AS HANDLE    NO-UNDO.
 
-RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
 
 DEFINE NEW SHARED BUFFER xoe-relh    FOR oe-relh.
@@ -272,9 +270,6 @@ PROCEDURE pBusinessLogic:
     /* Main procedure to print and post */
     RUN pPrintPost (oeprep-log).
     
-    IF VALID-HANDLE(hdTaxProcs) THEN
-        DELETE PROCEDURE hdTaxProcs.
-
     DELETE OBJECT Persistent-Handle.
     DELETE OBJECT ListLogic-Handle.
     DELETE OBJECT hNotesProcs.
@@ -1205,7 +1200,7 @@ PROCEDURE list-post-inv :
                 IF AVAILABLE oe-ordl THEN 
                 DO:
 
-                    RUN Tax_Calculate IN hdTaxProcs (
+                    RUN Tax_Calculate  (
                         INPUT  oe-ordl.company,
                         INPUT  oe-ord.tax-gr,
                         INPUT  FALSE,   /* Is this freight */
@@ -1225,7 +1220,7 @@ PROCEDURE list-post-inv :
                         AND ar-invl.line    EQ inv-line.line
                         AND ar-invl.i-no    EQ inv-line.i-no
                         USE-INDEX inv-status :
-                        RUN Tax_Calculate IN hdTaxProcs (
+                        RUN Tax_Calculate  (
                             INPUT  ar-invl.company,
                             INPUT  ar-inv.tax-code,
                             INPUT  FALSE,   /* Is this freight */
@@ -1244,7 +1239,7 @@ PROCEDURE list-post-inv :
 
                 dTax = 0.
                 IF inv-line.tax THEN
-                    RUN Tax_Calculate IN hdTaxProcs (
+                    RUN Tax_Calculate  (
                         INPUT  inv-line.company,
                         INPUT  inv-head.tax-gr,
                         INPUT  FALSE,   /* Is this freight */
@@ -1411,7 +1406,7 @@ PROCEDURE list-post-inv :
 
                                 IF oe-ordl.tax THEN 
                                 DO:
-                                    RUN Tax_Calculate IN hdTaxProcs (
+                                    RUN Tax_Calculate  (
                                         INPUT  oe-ordl.company,
                                         INPUT  oe-ord.tax-gr,
                                         INPUT  FALSE,   /* Is this freight */
@@ -1522,7 +1517,7 @@ PROCEDURE list-post-inv :
 
                 IF inv-misc.bill EQ "Y" THEN 
                 DO:
-                    RUN Tax_Calculate IN hdTaxProcs (
+                    RUN Tax_Calculate  (
                         INPUT  inv-misc.company,
                         INPUT  inv-head.tax-gr,
                         INPUT  FALSE,   /* Is this freight */

@@ -63,6 +63,7 @@ ASSIGN
                     + "system/PurgeProcs.p,"
                     + "system/TagProcs.p,"
                     + "system/VendorCostProcs.p,"
+                    + "system/TaxProcs.p,"
     cSuperProcedure = TRIM(cSuperProcedure,",")
     .
 DEFINE TEMP-TABLE ttSessionParam NO-UNDO
