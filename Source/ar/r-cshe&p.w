@@ -1630,9 +1630,9 @@ END PROCEDURE.
    Notes:       
  ------------------------------------------------------------------------------*/
  
- DEFINE VARIABLE ld-ord-bal      LIKE cust.ord-bal NO-UNDO.
  DEFINE VARIABLE lRelHold AS LOGICAL NO-UNDO .
- FOR EACH cust EXCLUSIVE-LOCK
+  
+ FOR EACH cust NO-LOCK
      WHERE cust.company EQ cocode
        AND LOOKUP(cust.cust-no,cCustStatCheck) NE 0
        AND cust.cust-no NE "" :
@@ -1641,20 +1641,17 @@ END PROCEDURE.
          WHERE terms.company = cust.company
            AND terms.t-code  = cust.terms NO-ERROR.
      
-     IF cust.cr-hold THEN do:
-         ld-ord-bal      = cust.ord-bal.
-
-         IF oecredit-cha EQ "" THEN
-             RUN ar/updcust1.p (YES, BUFFER cust, OUTPUT ld-ord-bal).
-
-          lRelHold = NO.
-         IF ld-ord-bal + cust.acc-bal LT cust.cr-lim 
-             AND ld-ord-bal LT cust.ord-lim THEN
+     IF cust.cr-hold THEN DO:
+         lRelHold   = NO
+         .
+         IF cust.ord-bal + cust.acc-bal LT cust.cr-lim 
+             AND cust.ord-bal LT cust.ord-lim THEN
              ASSIGN lRelHold = YES . 
          
 
               IF lRelHold AND lARAutoReleaseCreditHold THEN  DO:  
-                  ASSIGN cust.cr-hold = NO .
+                  FIND CURRENT cust EXCLUSIVE-LOCK NO-ERROR.
+                      cust.cr-hold = NO.
                   
                   FOR EACH oe-ord EXCLUSIVE-LOCK
                      WHERE oe-ord.company             EQ cocode
