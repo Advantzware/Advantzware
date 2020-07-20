@@ -4033,7 +4033,7 @@ PROCEDURE RevCreateTtEivVend:
             .        
     END.
     v-index = 0.    
-    FOR EACH vendItemCost NO-LOCK  WHERE vendItemCost.company EQ itemfg.company
+    FOR EACH vendItemCost NO-LOCK  WHERE vendItemCost.company EQ ITEM.company
                     AND vendItemCost.ItemID    EQ item.i-no
                     AND vendItemCost.ItemType EQ "RM" 
                     AND v-wid GE venditemCost.dimWidthMinimum AND v-wid LE venditemCost.dimWidthMaximum
