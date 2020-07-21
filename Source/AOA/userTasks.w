@@ -101,11 +101,11 @@ iSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
 &Scoped-define INTERNAL-TABLES ttDynParamValue
 
 /* Definitions for BROWSE browseParamValue                              */
-&Scoped-define FIELDS-IN-QUERY-browseParamValue ttDynParamValue.paramTitle ttDynParamValue.paramDescription ttDynParamValue.module ttDynParamValue.user-id ttDynParamValue.paramValueID ttDynParamValue.outputFormat ttDynParamValue.prgmName ttDynParamValue.securityLevel ttDynParamValue.mnemonic ttDynParamValue.lastRunDateTime ttDynParamValue.externalForm   
+&Scoped-define FIELDS-IN-QUERY-browseParamValue ttDynParamValue.paramTitle ttDynParamValue.paramDescription ttDynParamValue.module ttDynParamValue.user-id ttDynParamValue.paramValueID ttDynParamValue.outputFormat ttDynParamValue.runSync ttDynParamValue.prgmName ttDynParamValue.securityLevel ttDynParamValue.mnemonic ttDynParamValue.lastRunDateTime ttDynParamValue.externalForm   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseParamValue   
 &Scoped-define SELF-NAME browseParamValue
-&Scoped-define QUERY-STRING-browseParamValue FOR EACH ttDynParamValue WHERE ttDynParamValue.securityLevel LE iSecurityLevel   AND ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"   ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-browseParamValue OPEN QUERY {&SELF-NAME} FOR EACH ttDynParamValue WHERE ttDynParamValue.securityLevel LE iSecurityLevel   AND ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"   ~{&SORTBY-PHRASE}.
+&Scoped-define QUERY-STRING-browseParamValue FOR EACH ttDynParamValue WHERE ttDynParamValue.securityLevel LE iSecurityLevel   AND ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-browseParamValue OPEN QUERY {&SELF-NAME} FOR EACH ttDynParamValue WHERE ttDynParamValue.securityLevel LE iSecurityLevel   AND ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-browseParamValue ttDynParamValue
 &Scoped-define FIRST-TABLE-IN-QUERY-browseParamValue ttDynParamValue
 
@@ -210,6 +210,15 @@ DEFINE VARIABLE filterUser AS CHARACTER FORMAT "X(256)":U INITIAL "<All>"
      DROP-DOWN-LIST
      SIZE 32 BY 1 TOOLTIP "Select User" NO-UNDO.
 
+DEFINE VARIABLE filterTasks AS INTEGER INITIAL 1 
+     VIEW-AS RADIO-SET VERTICAL
+     RADIO-BUTTONS 
+          "My Tasks", 1,
+"My Scheduled Tasks", 2,
+"Default Tasks", 3,
+"All Tasks", 4
+     SIZE 32 BY 4.76 NO-UNDO.
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY browseParamValue FOR 
@@ -243,50 +252,51 @@ ttDynParamValue.externalForm
 DEFINE FRAME F-Main
      searchBar AT ROW 1 COL 52 COLON-ALIGNED HELP
           "Search" WIDGET-ID 6
-     btnRunTask AT ROW 13.86 COL 27 HELP
+     btnRunTask AT ROW 16 COL 27 HELP
           "Run Task" WIDGET-ID 250
-     btnSubjctAttr AT ROW 21.48 COL 27 HELP
+     btnSubjctAttr AT ROW 23.62 COL 27 HELP
           "Set Subject Attributes" WIDGET-ID 286
      browseParamValue AT ROW 1.95 COL 37 WIDGET-ID 500
-     btnOutputFormat AT ROW 19.57 COL 27 HELP
+     btnOutputFormat AT ROW 21.71 COL 27 HELP
           "Run Now" WIDGET-ID 256
-     btnScheduleTask AT ROW 23.38 COL 27 HELP
+     btnScheduleTask AT ROW 25.52 COL 27 HELP
           "Schedule Task" WIDGET-ID 252
-     btnCopyTask AT ROW 15.76 COL 27 HELP
+     btnCopyTask AT ROW 17.91 COL 27 HELP
           "Copy Task" WIDGET-ID 258
-     btnDeleteTask AT ROW 17.67 COL 27 HELP
+     btnDeleteTask AT ROW 19.81 COL 27 HELP
           "Delete Task" WIDGET-ID 260
      btnRestoreDefaults AT ROW 1 COL 37 HELP
           "Restore Defaults" WIDGET-ID 42
      btnSortMove AT ROW 1 COL 41 HELP
           "Toggle Sort/Move Columns" WIDGET-ID 48
-     RECT-1 AT ROW 13.62 COL 26 WIDGET-ID 254
+     RECT-1 AT ROW 15.76 COL 26 WIDGET-ID 254
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
 DEFINE FRAME filterFrame
-     filterDescrip AT ROW 1.95 COL 2 HELP
+     filterTasks AT ROW 1.24 COL 2 NO-LABEL WIDGET-ID 66
+     filterDescrip AT ROW 6.71 COL 2 HELP
           "Select Report" NO-LABEL WIDGET-ID 50
-     filterModule AT ROW 4.1 COL 2 HELP
+     filterModule AT ROW 8.62 COL 2 HELP
           "Select Module" NO-LABEL WIDGET-ID 54
-     filterUser AT ROW 6.24 COL 2 HELP
+     filterUser AT ROW 10.52 COL 2 HELP
           "Select User" NO-LABEL WIDGET-ID 58
-     filterPrgmName AT ROW 8.38 COL 2 HELP
+     filterPrgmName AT ROW 12.43 COL 2 HELP
           "Select Module" NO-LABEL WIDGET-ID 64
      "Program:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 7.67 COL 2 WIDGET-ID 62
+          SIZE 9 BY .62 AT ROW 11.71 COL 2 WIDGET-ID 62
      "Module:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 3.38 COL 2 WIDGET-ID 56
+          SIZE 8 BY .62 AT ROW 7.91 COL 2 WIDGET-ID 56
      "User:" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 5.52 COL 2 WIDGET-ID 60
+          SIZE 6 BY .62 AT ROW 9.81 COL 2 WIDGET-ID 60
      "Description:" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 52
+          SIZE 12 BY .62 AT ROW 6 COL 2 WIDGET-ID 52
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1.95
-         SIZE 34 BY 9.76
+         SIZE 34 BY 13.57
          BGCOLOR 15 FGCOLOR 1 
          TITLE BGCOLOR 15 FGCOLOR 1 "Filters" WIDGET-ID 600.
 
@@ -657,6 +667,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME filterTasks
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL filterTasks s-object
+ON VALUE-CHANGED OF filterTasks IN FRAME filterFrame
+DO:
+    ASSIGN {&SELF-NAME}.
+    RUN pGetParamValue.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME filterUser
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL filterUser s-object
 ON VALUE-CHANGED OF filterUser IN FRAME filterFrame
@@ -751,6 +773,7 @@ PROCEDURE local-initialize :
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME filterFrame:
     ASSIGN
+        filterTasks:SENSITIVE       = YES
         filterDescrip:SENSITIVE     = YES
         filterModule:SENSITIVE      = YES
         filterUser:SENSITIVE        = YES
@@ -922,6 +945,18 @@ PROCEDURE pGetParamValue :
           AND dynParamValue.isLookup      EQ NO
           AND dynParamValue.prgmName      LT "["
         WITH FRAME filterFrame:
+        CASE filterTasks:
+            /* my tasks */
+            WHEN 1 THEN
+            IF dynParamValue.user-id NE USERID("ASI") THEN NEXT.
+            /* my scheduled tasks */
+            WHEN 2 THEN
+            IF dynParamValue.user-id NE USERID("ASI") OR
+               dynParamValue.paramValueID EQ 0 THEN NEXT.
+            /* default tasks */
+            WHEN 3 THEN
+            IF dynParamValue.user-id NE "{&defaultUser}" THEN NEXT.
+        END CASE.
         CREATE ttDynParamValue.
         ASSIGN
             ttDynParamValue.subjectID        = dynParamValue.subjectID
