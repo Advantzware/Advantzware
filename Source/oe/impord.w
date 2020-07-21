@@ -1387,7 +1387,6 @@ PROCEDURE runProcess :
     DEFINE VARIABLE cImportCompleted AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cImportErrored   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE attrList         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hdFileSys        AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cCompanyMask     AS CHARACTER NO-UNDO INITIAL "$company$". /* Mask character */
     DEFINE VARIABLE lValidateCompany AS LOGICAL   NO-UNDO. 
     DEFINE VARIABLE cImportDir       AS CHARACTER NO-UNDO.
@@ -1401,8 +1400,6 @@ PROCEDURE runProcess :
     
     IF NOT llBatchMode THEN 
         SESSION:SET-WAIT-STATE("general").    
-    
-    RUN system\FileSysProcs.p PERSISTENT SET hdFileSys.
     
     /* Special to impord */
     IF NOT llBatchMode THEN DO:  /* single file improt */
@@ -1446,7 +1443,7 @@ PROCEDURE runProcess :
                 .  
 
             /* Checks whether import dir exists */    
-            RUN FileSys_ValidateDirectory IN hdFileSys (
+            RUN FileSys_ValidateDirectory(
                 INPUT  cImportDir,
                 OUTPUT lValidPath,
                 OUTPUT cMessage
@@ -1454,7 +1451,7 @@ PROCEDURE runProcess :
                    
             /* Creates import dir if it does not exists */ 
             IF NOT lValidPath THEN 
-                RUN FileSys_CreateDirectory IN hdFileSys (
+                RUN FileSys_CreateDirectory(
                     INPUT  cImportDir,
                     OUTPUT lCreated,
                     OUTPUT cMessage
@@ -1475,7 +1472,7 @@ PROCEDURE runProcess :
                     .
 	    
             /* Checks whether completed dir exists */
-            RUN FileSys_ValidateDirectory IN hdFileSys (
+            RUN FileSys_ValidateDirectory(
                 INPUT  cImportCompleted,
                 OUTPUT lValidPath,
                 OUTPUT cMessage
@@ -1483,14 +1480,14 @@ PROCEDURE runProcess :
                    
             /* Creates completed dir if it does not exists */    
             IF NOT lValidPath THEN    
-               RUN FileSys_CreateDirectory IN hdFileSys (
+               RUN FileSys_CreateDirectory(
                    INPUT  cImportCompleted,
                    OUTPUT lCreated,
                    OUTPUT cMessage
                    ) NO-ERROR.
                            
             /* Checks whether errored dir exists */
-            RUN FileSys_ValidateDirectory IN hdFileSys (
+            RUN FileSys_ValidateDirectory(
                 INPUT  cImportErrored,
                 OUTPUT lValidPath,
                 OUTPUT cMessage
@@ -1498,7 +1495,7 @@ PROCEDURE runProcess :
                 
             /* Creates errored dir if it does not exists */    
             IF NOT lValidPath THEN    
-                RUN FileSys_CreateDirectory IN hdFileSys (
+                RUN FileSys_CreateDirectory(
                     INPUT  cImportErrored,
                     OUTPUT lCreated,
                     OUTPUT cMessage
@@ -1553,7 +1550,6 @@ PROCEDURE runProcess :
         IF gcImportError = "" THEN
             MESSAGE TRIM(c-win:TITLE) + " Process Is Completed.   Order#: "   iNextOrder#  VIEW-AS ALERT-BOX.    
     END.
-    DELETE OBJECT hdFileSys.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

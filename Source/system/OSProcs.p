@@ -10,11 +10,6 @@
     Created     : Fri November 15 07:33:22 EDT 2019
     Notes       :
   ----------------------------------------------------------------------*/
-DEFINE VARIABLE hdFileSysProcs AS HANDLE NO-UNDO.
-
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
-
-
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -31,7 +26,7 @@ PROCEDURE OS_GetIPAddress:
     DEFINE VARIABLE cLine       AS CHARACTER NO-UNDO.
 
     /* Code to fetch the temporary directory */    
-    RUN FileSys_GetTempDirectory IN hdFileSysProcs (
+    RUN FileSys_GetTempDirectory(
         OUTPUT cOutputFile
         ) NO-ERROR.
 
@@ -83,7 +78,7 @@ PROCEDURE OS_RunCommand:
     END.
 
     /* Output file validation */
-    RUN FileSys_GetFilePath IN hdFileSysProcs (
+    RUN FileSys_GetFilePath(
         INPUT  ipcOutputFile,
         OUTPUT cOutputFilePath,
         OUTPUT lValidPath,
@@ -99,7 +94,7 @@ PROCEDURE OS_RunCommand:
              + (IF ipcOutputFile NE "" THEN " > " + ipcOutputFile ELSE "").
 
     /* Temporary file to suppress the output from OS-COMMAND */
-    RUN FileSys_GetTempDirectory IN hdFileSysProcs (
+    RUN FileSys_GetTempDirectory(
         OUTPUT cOutputSuppressFile
         ) NO-ERROR.
 
@@ -167,7 +162,7 @@ PROCEDURE OS_RunFile:
     ipcFile = TRIM(ipcFile, ' ').
     ipcFile = TRIM(ipcFile, '"').
     
-    RUN FileSys_ValidateFile IN hdFileSysProcs (
+    RUN FileSys_ValidateFile(
         INPUT  ipcFile,
         OUTPUT oplSuccess,
         OUTPUT opcMessage
@@ -177,7 +172,7 @@ PROCEDURE OS_RunFile:
         RETURN.
     
     ipcFile = DYNAMIC-FUNCTION (
-                  "fFormatFilePath" IN hdFileSysProcs,
+                  "fFormatFilePath",
                   INPUT ipcFile
                   ).
     
