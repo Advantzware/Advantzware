@@ -932,14 +932,16 @@ END.
              RUN cXMLOutput (clXMLOutput,'/SubtotalAmount','','Row').
              RUN cXMLOutput (clXMLOutput,'UnitOfMeasure',(IF cOrigUom EQ "" THEN inv-line.pr-uom ELSE cOrigUOM),'Col').
              RUN cXMLOutput (clXMLOutput,'UnitPrice','','Row').
-             RUN cXMLOutput (clXMLOutput,'Money Currency="USD"','','Row').
+             RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
              RUN cXMLOutput (clXMLOutput,'',STRING(v-price),'Col').
              RUN cXMLOutput (clXMLOutput,'/Money','','Row').
              RUN cXMLOutput (clXMLOutput,'/UnitPrice','','Row').
              RUN cXMLOutput (clXMLOutput,'Tax','','Row').
-             RUN cXMLOutput (clXMLOutput,'Money Currency="USD"','','Row').
+             RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
              RUN cXMLOutput (clXMLOutput,'',STRING(dLineTaxAmt + dFrtTaxAmt),'Col').
              RUN cXMLOutput (clXMLOutput,'/Money','','Row').
+             RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
+             RUN cXMLOutput (clXMLOutput,'/Description','','Row').
              RUN cXMLOutput (clXMLOutput,'TaxDetail category="Sales"'+
                                          ' percentageRate="' + STRING(dLineTaxRate) + '"' +  ' purpose="ShippingTax"','','Row').
              RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').
