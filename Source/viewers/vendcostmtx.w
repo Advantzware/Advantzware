@@ -936,7 +936,7 @@ PROCEDURE local-create-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel .
+  DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel .   
   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO .
   DEFINE VARIABLE cReturnMessage AS CHARACTER NO-UNDO .
     

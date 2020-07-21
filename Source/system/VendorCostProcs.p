@@ -39,6 +39,12 @@ DEFINE VARIABLE gcScopeDefault      AS CHARACTER NO-UNDO.
 
 FUNCTION VendCost_GetValidScopes RETURNS CHARACTER 
     (ipcContext AS CHARACTER) FORWARD.
+    
+FUNCTION fVendCostHasEstimateOverride RETURNS LOGICAL 
+    (ipcCompany AS CHARACTER,
+     ipcEstimateID AS CHARACTER,
+     ipiFormNo AS INTEGER,
+     ipcItemID AS CHARACTER) FORWARD.    
 
 
 
@@ -2175,4 +2181,24 @@ FUNCTION VendCost_GetValidScopes RETURNS CHARACTER
     END CASE.
 		
 END FUNCTION.
+
+FUNCTION fVendCostHasEstimateOverride RETURNS LOGICAL 
+    ( ipcCompany AS CHARACTER, ipcEstimateID AS CHARACTER ,ipiFormNo AS INTEGER,ipcItemID AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose: returns the global property of valid scopes
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE lReturn     AS LOGICAL NO-UNDO.
+    FIND FIRST vendItemCost NO-LOCK
+        WHERE vendItemCost.company  EQ ipcCompany
+        AND vendItemCost.estimate EQ ipcEstimateID 
+        AND vendItemCost.formNo   EQ ipiFormNo        
+        AND vendItemCost.itemID   EQ ipcItemID NO-ERROR.
+        
+        lReturn = IF AVAIL vendItemCost THEN TRUE ELSE FALSE .
+        RETURN lReturn.
+		
+END FUNCTION.
+
+
 

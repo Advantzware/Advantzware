@@ -76,6 +76,8 @@ DEF VAR cRtnChar AS CHARACTER NO-UNDO.
 DEF VAR lRecFound AS LOGICAL NO-UNDO .
 DEF VAR lShtcalcWarm-log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE dCelayoutDec AS DECIMAL NO-UNDO.
+DEFINE VARIABLE lVendItemCost AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cCEVersion AS CHARACTER NO-UNDO.
 
 {cec/bestfitc.i NEW SHARED}
 
@@ -114,7 +116,7 @@ ef.leaf-dscr[4] ef.leaf-bnum[4] ef.leaf-w[4] ef.leaf-l[4]
 &Scoped-define ENABLED-TABLES ef eb
 &Scoped-define FIRST-ENABLED-TABLE ef
 &Scoped-define SECOND-ENABLED-TABLE eb
-&Scoped-Define ENABLED-OBJECTS btn_board RECT-20 RECT-21 RECT-9 
+&Scoped-Define ENABLED-OBJECTS btn_board btn_cost RECT-20 RECT-21 RECT-9 
 &Scoped-Define DISPLAYED-FIELDS ef.m-code ef.m-dscr ef.lsh-wid ef.lsh-len ~
 ef.xgrain ef.board ef.brd-dscr ef.i-code ef.cal ef.cost-uom ef.cost-msh ~
 ef.weight ef.fr-uom ef.fr-msh ef.nc ef.roll ef.roll-wid ef.gsh-wid ~
@@ -128,7 +130,7 @@ ef.leaf-dscr[4] ef.leaf-snum[4] ef.leaf-bnum[4] ef.leaf-w[4] ef.leaf-l[4]
 &Scoped-define DISPLAYED-TABLES ef eb
 &Scoped-define FIRST-DISPLAYED-TABLE ef
 &Scoped-define SECOND-DISPLAYED-TABLE eb
-
+&Scoped-Define DISPLAYED-OBJECTS dtCost OverrideExist 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -142,35 +144,6 @@ ef.n-out ef.n-cuts ef.nsh-wid ef.nsh-len ef.trim-w ef.trim-l ef.die-in
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
-
-/* ************************  Function Prototypes ********************** */
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fAvailVendItemCost V-table-Win
-FUNCTION fAvailVendItemCost RETURNS LOGICAL  
-  (ipCompany AS CHARACTER, ipItemID AS CHARACTER  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetVendItemCostRollWidth V-table-Win
-FUNCTION fGetVendItemCostRollWidth RETURNS DECIMAL  
-  (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER, ipdRollWidth AS DECIMAL ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetVendItemCostUOM V-table-Win
-FUNCTION fGetVendItemCostUOM RETURNS CHARACTER 
-    (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" V-table-Win _INLINE
@@ -194,15 +167,49 @@ RUN set-attribute-list (
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fAvailVendItemCost V-table-Win 
+FUNCTION fAvailVendItemCost RETURNS LOGICAL
+  (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetVendItemCostRollWidth V-table-Win 
+FUNCTION fGetVendItemCostRollWidth RETURNS DECIMAL
+    (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER, ipdRollWidth AS DECIMAL ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetVendItemCostUOM V-table-Win 
+FUNCTION fGetVendItemCostUOM RETURNS CHARACTER
+    (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER   ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
 
 /* Definitions of the field level widgets                               */
-
-DEFINE BUTTON btn_board
+DEFINE BUTTON btn_board 
      LABEL "" 
      SIZE 10 BY 1.
+
+DEFINE BUTTON btn_cost 
+     LABEL "Cost By Qty" 
+     SIZE 15 BY 1.
+
+DEFINE VARIABLE dtCost AS CHARACTER FORMAT "X(8)":U INITIAL "Cost/" 
+     VIEW-AS FILL-IN 
+     SIZE 7.4 BY 1 NO-UNDO.
+
+DEFINE VARIABLE OverrideExist AS CHARACTER FORMAT "X(16)":U INITIAL "Overrides Exist" 
+     VIEW-AS FILL-IN 
+     SIZE 19.4 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-20
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -243,7 +250,6 @@ DEFINE FRAME fold
           LIST-ITEM-PAIRS "Normal","N",
                      "Blank","B",
                      "Sheet","S"
-     /*     "N","S","B" */
           DROP-DOWN-LIST
           SIZE 13 BY 1
      ef.board AT ROW 2.43 COL 12 COLON-ALIGNED
@@ -259,13 +265,13 @@ DEFINE FRAME fold
      ef.cal AT ROW 3.38 COL 28 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     ef.cost-uom AT ROW 3.38 COL 54 NO-LABEL
+     ef.cost-uom AT ROW 3.38 COL 48.9 NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 7 BY 1
-     ef.cost-msh AT ROW 3.38 COL 59 COLON-ALIGNED NO-LABEL
+          SIZE 6.5 BY 1
+     ef.cost-msh AT ROW 3.38 COL 53.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 12.8 BY 1
-     ef.weight AT ROW 3.38 COL 86 COLON-ALIGNED
+     ef.weight AT ROW 3.38 COL 87.2 COLON-ALIGNED
           LABEL "Wt"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
@@ -429,8 +435,25 @@ DEFINE FRAME fold
      ef.leaf-l[4] AT ROW 15.29 COL 75 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 12.4 BY 1
+     btn_board AT ROW 2.43 COL 3 WIDGET-ID 16
+     btn_cost AT ROW 3.43 COL 68.2 WIDGET-ID 150
+     dtCost AT ROW 3.38 COL 41.6 NO-LABEL WIDGET-ID 152
+     OverrideExist AT ROW 3.38 COL 47.8 NO-LABEL WIDGET-ID 154
      "Die Inches" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 5.05 COL 110
+     "Total Up" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 5.05 COL 95
+     "Freight/" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 3.62 COL 111 RIGHT-ALIGNED
+     "Width" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 11 COL 65
+          FGCOLOR 9 
+     "Length" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 5.05 COL 34
+          FGCOLOR 1 
+     "Width" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 5.05 COL 20
+          FGCOLOR 1 
      "Length" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 11 COL 79
           FGCOLOR 9 
@@ -445,22 +468,6 @@ DEFINE FRAME fold
      "S  /  B" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 11 COL 50
           FGCOLOR 9 
-     "Total Up" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 5.05 COL 95
-     "Cost/" VIEW-AS TEXT
-          SIZE 6.4 BY .95 AT ROW 3.38 COL 47
-     "Freight/" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 3.62 COL 111 RIGHT-ALIGNED
-     "Width" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 11 COL 65
-          FGCOLOR 9 
-     "Length" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 5.05 COL 34
-          FGCOLOR 1 
-     "Width" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 5.05 COL 20
-          FGCOLOR 1 
-     btn_board AT ROW 2.43 COL 3 WIDGET-ID 16
      RECT-20 AT ROW 1 COL 1
      RECT-21 AT ROW 4.57 COL 3
      RECT-9 AT ROW 10.76 COL 3
@@ -538,6 +545,8 @@ ASSIGN
    ALIGN-L 5 EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN ef.die-in IN FRAME fold
    5                                                                    */
+/* SETTINGS FOR FILL-IN dtCost IN FRAME fold
+   NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN ef.fr-msh IN FRAME fold
    5                                                                    */
 /* SETTINGS FOR FILL-IN ef.fr-uom IN FRAME fold
@@ -638,6 +647,11 @@ ASSIGN
    NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN eb.num-wid IN FRAME fold
    2 EXP-LABEL EXP-FORMAT                                               */
+/* SETTINGS FOR FILL-IN OverrideExist IN FRAME fold
+   NO-ENABLE ALIGN-L                                                    */
+ASSIGN 
+       OverrideExist:HIDDEN IN FRAME fold           = TRUE.
+
 /* SETTINGS FOR TOGGLE-BOX ef.roll IN FRAME fold
    5 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN ef.roll-wid IN FRAME fold
@@ -688,7 +702,7 @@ ASSIGN
 */  /* FRAME fold */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -892,7 +906,6 @@ DO:
    END.  /* lastkey <> -1 */
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -901,6 +914,50 @@ END.
 ON VALUE-CHANGED OF ef.board IN FRAME fold /* Board */
 DO:
   RUN new-board.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn_board
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_board V-table-Win
+ON CHOOSE OF btn_board IN FRAME fold
+DO:
+  IF AVAIL eb THEN
+   FIND FIRST ITEM WHERE style.company  = cocode
+       AND ITEM.i-no = ef.board NO-LOCK NO-ERROR.
+
+   IF AVAIL ITEM THEN
+   RUN windows/item-fe.w(RECID(ITEM)) .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn_cost
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_cost V-table-Win
+ON CHOOSE OF btn_cost IN FRAME fold /* Cost By Qty */
+DO:
+  IF AVAIL eb THEN
+   FIND FIRST ITEM WHERE ITEM.company  = cocode
+       AND ITEM.i-no = ef.board NO-LOCK NO-ERROR.
+
+   IF AVAIL ITEM THEN do:
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostSourceFrom = "MF"' ).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostEst# = ' + est.est-no).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCost = ' + item.i-no).          
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostType = "RM" ' ).      
+      /*RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).*/
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = ""').  
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = ' + ( IF AVAIL eb THEN string(eb.form-no) ELSE "" ) ).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = ' + ( IF AVAIL eb THEN string(eb.blank-no) ELSE "" ) ).
+      
+      RUN windows/vendcostmtx.w .
+      RUN pShowHideCostFiled.
+   
+   END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1640,23 +1697,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn_board
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_board V-table-Win
-ON CHOOSE OF btn_board IN FRAME fold
-DO:
-  IF AVAIL eb THEN
-   FIND FIRST ITEM WHERE style.company  = cocode
-       AND ITEM.i-no = ef.board NO-LOCK NO-ERROR.
-
-   IF AVAIL ITEM THEN
-   RUN windows/item-fe.w(RECID(ITEM)) .
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -1673,6 +1713,18 @@ RUN sys/ref/nk1look.p (INPUT cocode, "CELAYOUT", "D" /* Logical */, NO /* check 
                        OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     dCelayoutDec = decimal(cRtnChar) NO-ERROR. 
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "VendItemCost", "L" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lVendItemCost = logical(cRtnChar) NO-ERROR.
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "CEVersion", "C" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cCEVersion = cRtnChar NO-ERROR.    
   
 {sys/inc/vendItemCost.i}
 SESSION:DATA-ENTRY-RETURN = YES.
@@ -2462,7 +2514,7 @@ PROCEDURE local-display-fields :
   DEF VAR lv-tot-len AS INT NO-UNDO.
   DEF VAR lv-tot-wid AS INT NO-UNDO.
   DEF VAR lv-tot-up AS INT NO-UNDO.
-
+      
   IF VALID-HANDLE(br-flm) THEN DELETE WIDGET  br-flm .
 
   /* To avoid the display for every form unnecessarily */
@@ -2493,12 +2545,19 @@ PROCEDURE local-display-fields :
   /* Code placed here will execute AFTER standard behavior.    */
 
    btn_board:LABEL = " " + TRIM(ef.board:LABEL) + ":" /*+ TRIM(ef.board)*/ .
-
+   
     IF ef.board = "" THEN
             btn_board:HIDDEN  = TRUE .
     ELSE 
          btn_board:HIDDEN  = FALSE .
-
+         
+    IF lVendItemCost AND cCEVersion EQ "New" AND ef.board NE "" THEN
+    DO:
+      btn_cost:HIDDEN  = FALSE .
+      RUN pShowHideCostFiled.      
+    END.                                     
+    ELSE btn_cost:HIDDEN  = TRUE .   
+     
   RUN one-eb-on-ef (ROWID(ef), OUTPUT ll-one-eb-on-ef).
   RUN one-ef-on-est (ROWID(est), OUTPUT ll-one-ef-on-est).
   /* from uest2.p =======*/
@@ -2919,24 +2978,6 @@ PROCEDURE local-update-record :
 
 END PROCEDURE.
 
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
-PROCEDURE proc-enable :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DO WITH FRAME {&FRAME-NAME}:
-      btn_board:HIDDEN = TRUE .
-  END.
-
-END PROCEDURE.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -3211,6 +3252,23 @@ PROCEDURE one-ef-on-est :
                  AND b-ac-ef.est-no  EQ b-ac-est.est-no        NO-LOCK NO-ERROR.
 
   op-one-ef = AVAIL b-ac-ef.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
+PROCEDURE proc-enable :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&FRAME-NAME}:
+      btn_board:HIDDEN = TRUE .
+      btn_cost:HIDDEN = TRUE .
+  END.
 
 END PROCEDURE.
 
@@ -3901,31 +3959,64 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pShowHideCostFiled V-table-Win 
+PROCEDURE pShowHideCostFiled :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE hdVendorCostProcs     AS HANDLE    NO-UNDO.
+  DEFIN VARIABLE lHideCostMsh AS LOGICAL NO-UNDO.
+  RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs. 
+  
+  DO WITH FRAME {&FRAME-NAME}:
+    lHideCostMsh = DYNAMIC-FUNCTION("fVendCostHasEstimateOverride" IN hdVendorCostProcs,ef.company,ef.est-no,ef.form-no, ef.board ).
+    IF lHideCostMsh THEN
+    DO:
+      OverrideExist:HIDDEN = FALSE .
+      dtCost:HIDDEN = TRUE.
+      ef.cost-uom:HIDDEN = TRUE.
+      ef.cost-msh:HIDDEN = TRUE.
+    END.
+    ELSE do:
+      OverrideExist:HIDDEN = TRUE .
+      dtCost:HIDDEN = FALSE.
+      ef.cost-uom:HIDDEN = FALSE.
+      ef.cost-msh:HIDDEN = FALSE.
+    END.      
+  END.
+  DELETE OBJECT hdVendorCostProcs.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME 
 
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fAvailVendItemCost V-table-Win
-FUNCTION fAvailVendItemCost RETURNS LOGICAL  
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fAvailVendItemCost V-table-Win 
+FUNCTION fAvailVendItemCost RETURNS LOGICAL
   (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER  ):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/       
-	DEFINE VARIABLE lResult AS LOGICAL  NO-UNDO.
+        DEFINE VARIABLE lResult AS LOGICAL  NO-UNDO.
 
     FIND FIRST vendItemCost NO-LOCK WHERE vendItemCost.company = ipcCompany
                                       AND vendItemCost.itemID = ipcItemID
                                       NO-ERROR.
     lResult = IF AVAIL vendItemCost THEN YES ELSE NO.                                  
-	RETURN lResult.
+        RETURN lResult.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetVendItemCostRollWidth V-table-Win
-FUNCTION fGetVendItemCostRollWidth RETURNS DECIMAL  
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetVendItemCostRollWidth V-table-Win 
+FUNCTION fGetVendItemCostRollWidth RETURNS DECIMAL
     (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER, ipdRollWidth AS DECIMAL ):
     /*------------------------------------------------------------------------------
      Purpose:
@@ -3949,22 +4040,22 @@ FUNCTION fGetVendItemCostRollWidth RETURNS DECIMAL
      
     END.
                                                                   
-	RETURN dResult.
+        RETURN dResult.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetVendItemCostUOM V-table-Win
-FUNCTION fGetVendItemCostUOM RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetVendItemCostUOM V-table-Win 
+FUNCTION fGetVendItemCostUOM RETURNS CHARACTER
     (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER   ):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-	DEFINE VARIABLE cResult AS CHARACTER  NO-UNDO.
-	
+        DEFINE VARIABLE cResult AS CHARACTER  NO-UNDO.
+        
     FIND FIRST vendItemCost NO-LOCK WHERE vendItemCost.company = ipcCompany
                                       AND vendItemCost.itemID = ipcItemID
                                       NO-ERROR.
@@ -3973,10 +4064,7 @@ FUNCTION fGetVendItemCostUOM RETURNS CHARACTER
     RETURN cResult.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 
