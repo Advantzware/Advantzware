@@ -211,7 +211,6 @@ PROCEDURE Calculator : /* shunting yard algorithm */
     DEFINE VARIABLE odx       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE sdx       AS INTEGER   NO-UNDO.
 
-    TokenLoop:
     DO idx = 1 TO NUM-ENTRIES(ipcCalcParam,"|"):
         cToken = ENTRY(idx,ipcCalcParam,"|").
         IF LOOKUP(cToken,"(,*,/,+,-,)") EQ 0 THEN
@@ -277,11 +276,12 @@ PROCEDURE Calculator : /* shunting yard algorithm */
             cOperator[idx] = ?
             .
     END. /* do idx */
+    /* cStack now contains the shunting yard result */
     /* process stack */
     DO idx = 1 TO sdx:
         IF LOOKUP(cStack[idx],"*,/,+,-") EQ 0 THEN NEXT.
         ASSIGN
-            cStack[idx]     = STRING(fMathOperation(DECIMAL(cStack[idx - 2]),DECIMAL(cStack[idx - 1]),cStack[idx]))
+            cStack[idx] = STRING(fMathOperation(DECIMAL(cStack[idx - 2]),DECIMAL(cStack[idx - 1]),cStack[idx]))
             cStack[idx - 1] = ""
             cStack[idx - 2] = ""
             .        
@@ -317,6 +317,7 @@ PROCEDURE spDynCalcField:
     DEFINE VARIABLE hTable  AS HANDLE    NO-UNDO.
     
     /* parse parameter string, replace fields with actual values */
+    ipcCalcParam = TRIM(ipcCalcParam,"|").
     DO idx = 1 TO NUM-ENTRIES(ipcCalcParam,"|"):
         cParam = ENTRY(idx,ipcCalcParam,"|").
         dNumber = DECIMAL(cParam) NO-ERROR.
