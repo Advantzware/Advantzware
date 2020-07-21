@@ -61,10 +61,12 @@ DEFINE VARIABLE gcPrepRoundTo                         AS CHARACTER NO-UNDO.  /*C
 DEFINE VARIABLE gcPrepMarkupOrMargin                  AS CHARACTER NO-UNDO.  /*CEPrepPrice - char val*/
 DEFINE VARIABLE gdMaterialMarkup                      AS DECIMAL   NO-UNDO.    /*CEMatl - Dec val*/
 DEFINE VARIABLE gcMarginMatrixLookup                  AS CHARACTER NO-UNDO.    /*CEMatl - Dec val*/
-DEFINE VARIABLE glOpRatesSeparate                     AS LOGICAL   NO-UNDO INIT YES.    /*CEOpRates - log val*/
+DEFINE VARIABLE glOpRatesSeparate                     AS LOGICAL   NO-UNDO INITIAL YES.    /*CEOpRates - log val*/
 
 DEFINE VARIABLE glUsePlateChangesAsColorForSetupWaste AS LOGICAL   NO-UNDO INITIAL NO.  /*Defect in EstOperation Calc of applying the MR Waste Sheets Per Color?*/
-DEFINE VARIABLE glVendItemCost                        AS LOGICAL   NO-UNDO INIT YES.    /*VendItemCost - log val*/
+DEFINE VARIABLE glVendItemCost                        AS LOGICAL   NO-UNDO INITIAL YES.    /*VendItemCost - log val*/
+DEFINE VARIABLE glApplyOperationMinimumCharge         AS LOGICAL   NO-UNDO. /*CEPRICE Logical*/
+DEFINE VARIABLE glApplyOperationMinimumChargeRunOnly  AS LOGICAL   NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -997,6 +999,7 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
             opbf-estCostOperation.quantityInkLbsWastedPerSetup = bf-mach.ink-waste
             opbf-estCostOperation.quantityInkLbsWastedPerColor = bf-mach.col-wastelb
             opbf-estCostOperation.hoursRunMinimum              = bf-mach.minRunHours
+            opbf-estCostOperation.costMinimum                  = bf-mach.mrk-rate
             .
 
         IF glOpRatesSeparate THEN 
@@ -3321,8 +3324,10 @@ PROCEDURE pCalcEstOperation PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostOperation FOR estCostOperation.
     DEFINE PARAMETER BUFFER ipbf-estCostForm      FOR estCostForm.
     
-    DEFINE VARIABLE lApplyMinChargeOnRun   AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lApplyMinChargeOnSetup AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dCostMinimumDiff AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostMinimumDiffFactor AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostMinimumDiffSetup AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dCostMinimumDiffRun AS DECIMAL NO-UNDO.
     
     IF ipbf-estCostOperation.speed NE 0 THEN
         IF ipbf-estCostOperation.isSpeedInLF THEN
@@ -3346,11 +3351,39 @@ PROCEDURE pCalcEstOperation PRIVATE:
         ipbf-estCostOperation.costTotalDLRun        = ipbf-estCostOperation.hoursRun * ipbf-estCostOperation.crewSizeRun * ipbf-estCostOperation.costPerManHourDLRun
         ipbf-estCostOperation.costTotalVORun        = ipbf-estCostOperation.hoursRun * ipbf-estCostOperation.costPerHourVORun
         ipbf-estCostOperation.costTotalFORun        = ipbf-estCostOperation.hoursRun * ipbf-estCostOperation.costPerHourFORun
-        ipbf-estCostOperation.costTotalSetup        = ipbf-estCostOperation.hoursSetup * ipbf-estCostOperation.costPerHourTotalSetup
-        ipbf-estCostOperation.costTotalRun          = ipbf-estCostOperation.hoursRun * ipbf-estCostOperation.costPerHourTotalRun
-        ipbf-estCostOperation.costTotal             = ipbf-estCostOperation.costTotalRun + ipbf-estCostOperation.costTotalSetup 
+        ipbf-estCostOperation.costTotalSetup        = ipbf-estCostOperation.costTotalDLSetup + ipbf-estCostOperation.costTotalVOSetup + ipbf-estCostOperation.costTotalFOSetup
+        ipbf-estCostOperation.costTotalRun          = ipbf-estCostOperation.costTotalDLRun + ipbf-estCostOperation.costTotalVORun + ipbf-estCostOperation.costTotalFORun
+        ipbf-estCostOperation.costTotal             = ipbf-estCostOperation.costTotalRun + ipbf-estCostOperation.costTotalSetup
         .
-
+    
+    /*Apply minimum Charge*/
+    IF glApplyOperationMinimumCharge AND ipbf-estCostOperation.costTotal GT 0 THEN 
+    DO:
+        IF glApplyOperationMinimumChargeRunOnly THEN 
+        DO:
+            IF ipbf-estCostOperation.costMinimum GT ipbf-estCostOperation.costTotalRun THEN 
+                ASSIGN 
+                    dCostMinimumDiffRun = ipbf-estCostOperation.costMinimum - ipbf-estCostOperation.costTotalRun.
+        END.
+        ELSE DO:
+            IF ipbf-estCostOperation.costMinimum GT ipbf-estCostOperation.costTotal THEN 
+                ASSIGN 
+                    dCostMinimumDiff = ipbf-estCostOperation.costMinimum - ipbf-estCostOperation.costTotal
+                    dCostMinimumDiffFactor = ipbf-estCostOperation.costTotalSetup / ipbf-estCostOperation.costTotal
+                    dCostMinimumDiffSetup  = dCostMinimumDiff * dCostMinimumDiffFactor
+                    dCostMinimumDiffRun    = dCostMinimumDiff - dCostMinimumDiffSetup
+                    .
+        END.
+        ASSIGN 
+            ipbf-estCostOperation.costTotalDlRun   = ipbf-estCostOperation.costTotalDLRun + dCostMinimumDiffRun
+            ipbf-estCostOperation.costTotalDlSetup = ipbf-estCostOperation.costTotalDLSetup + dCostMinimumDiffSetup
+            ipbf-estCostOperation.costTotalSetup   = ipbf-estCostOperation.costTotalDLSetup + ipbf-estCostOperation.costTotalVOSetup + ipbf-estCostOperation.costTotalFOSetup
+            ipbf-estCostOperation.costTotalRun     = ipbf-estCostOperation.costTotalDLRun + ipbf-estCostOperation.costTotalVORun + ipbf-estCostOperation.costTotalFORun
+            ipbf-estCostOperation.costTotal        = ipbf-estCostOperation.costTotalRun + ipbf-estCostOperation.costTotalSetup
+            .
+                    
+    END. 
+                        
 END PROCEDURE.
 
 PROCEDURE pProcessBoard PRIVATE:
@@ -4484,9 +4517,15 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     RUN sys/ref/nk1look.p (ipcCompany,"CEOpRates","C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     glOpRatesSeparate = lFound AND cReturn EQ "MR/Run Separate".
     
-    /* get NK1 for NewVendItemCost */
     RUN sys/ref/nk1look.p (ipcCompany, "VendItemCost", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    IF lFound THEN glVendItemCost = IF cReturn = "Yes" THEN YES ELSE NO.
+    IF lFound THEN glVendItemCost = cReturn EQ "Yes".
+    
+    RUN sys/ref/nk1look.p (ipcCompany, "CEPrice", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN glApplyOperationMinimumCharge = cReturn EQ "YES".
+    IF lFound AND glApplyOperationMinimumCharge THEN DO: 
+        RUN sys/ref/nk1look.p (ipcCompany, "CEPrice", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+        IF lFound THEN glApplyOperationMinimumChargeRunOnly = cReturn EQ "RunOnly".
+    END.
     
 END PROCEDURE.
 
