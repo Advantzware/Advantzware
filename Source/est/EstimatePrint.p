@@ -544,6 +544,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
     DEFINE VARIABLE iHeaderCount   AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iTotCount      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iCountCostSmy  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iMaxQtyColPerSummary AS INTEGER INITIAL 6 NO-UNDO.
 
     FIND FIRST bf-PrimaryestCostHeader NO-LOCK 
         WHERE bf-PrimaryestCostHeader.estCostHeaderID EQ ipbf-estCostForm.estCostHeaderID
@@ -589,13 +590,13 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
     iLineEnd     = 0 .
     iHeaderCount = 0.
   
-    IF iQtyCountTotal MOD 6 EQ 0 THEN
-        iTotCount = TRUNC( iQtyCountTotal / 6,0) .
-    ELSE iTotCount = TRUNC( iQtyCountTotal / 6,0) + 1.    
+    IF iQtyCountTotal MOD iMaxQtyColPerSummary EQ 0 THEN
+        iTotCount = TRUNC( iQtyCountTotal / iMaxQtyColPerSummary,0) .
+    ELSE iTotCount = TRUNC( iQtyCountTotal / iMaxQtyColPerSummary,0) + 1.    
   
-    DO  iCount = 1 TO iTotCount /*int(iQtyCountTotal / 6 )*/ :  
+    DO  iCount = 1 TO iTotCount :  
   
-        iLineEnd = iLineEnd + 6 .
+        iLineEnd = iLineEnd + iMaxQtyColPerSummary .
         IF iCount NE 1 THEN
         DO:     
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount). 
@@ -604,11 +605,11 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
         IF iplPerQuantity THEN 
         DO:
             RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "*** Totals Per M ", YES, YES, NO).
-            DO iQtyCount = 1 TO 6:
+            DO iQtyCount = 1 TO iMaxQtyColPerSummary:
                 iHeaderCount = iHeaderCount + 1.             
                 IF cQtyHeader[iHeaderCount] NE "" THEN
                     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2] + (iQtyCount - 1) * iColumnWidth, cQtyHeader[iHeaderCount], 7, 0, YES, YES, YES, YES, YES).
-                IF iQtyCount EQ 1 THEN 
+                IF iHeaderCount EQ 1 THEN 
                     RUN pWriteToCoordinates(iopiRowCount, iColumn[2], gcQtyMasterInd, YES, NO, NO).
             END.  
         END.
@@ -672,7 +673,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
             RUN pWriteToCoordinates(iopiRowCount, iColumn[1], estCostGroupLevel.estCostGroupLevelDesc, YES, NO, NO).    
             IF iplPerQuantity THEN
             DO: /*Print values for each quantity (per M)*/
-                DO iQtyCount = 1 TO 6:   
+                DO iQtyCount = 1 TO iMaxQtyColPerSummary:   
                     IF (iLineStart + iQtyCount - 1) LE iQtyCountTotal THEN
                         RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + (iQtyCount - 1) * iColumnWidth , dCostPerM[ iLineStart + iQtyCount - 1 ] , 6, 2, NO, YES, YES, NO, YES).
                 END.
@@ -684,7 +685,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
             END.
         END.
         
-        iLineStart = iLineStart + 6 .
+        iLineStart = iLineStart + iMaxQtyColPerSummary .
     
     END.
     
