@@ -9,7 +9,7 @@
 /* **********************  Internal Functions  ************************ */
 
 /* ************************  Function Implementations ***************** */
-FUNCTION fCalcTime RETURNS INTEGER  PRIVATE (ipcTime AS CHARACTER):
+FUNCTION fCalcTime RETURNS INTEGER PRIVATE (ipcTime AS CHARACTER):
     DEFINE VARIABLE iHours   AS INTEGER NO-UNDO.
     DEFINE VARIABLE iMinutes AS INTEGER NO-UNDO.
     DEFINE VARIABLE iTime    AS INTEGER NO-UNDO.
@@ -91,7 +91,7 @@ END FUNCTION.
 
 /* **********************  Internal Procedures  *********************** */
 
-PROCEDURE calcAPIType PRIVATE:
+PROCEDURE calcAPIType:
     DEFINE INPUT  PARAMETER ipiAPIOutboundID AS INTEGER   NO-UNDO.    
     DEFINE OUTPUT PARAMETER opcCalcValue     AS CHARACTER NO-UNDO.
     
@@ -99,7 +99,7 @@ PROCEDURE calcAPIType PRIVATE:
                    ELSE "System".
 END PROCEDURE.
 
-PROCEDURE calcDropShipment PRIVATE:
+PROCEDURE calcDropShipment:
     DEFINE INPUT  PARAMETER ipcPoType      AS CHARACTER   NO-UNDO.    
     DEFINE INPUT  PARAMETER ipcPoCust      AS CHARACTER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
@@ -112,7 +112,7 @@ PROCEDURE calcDropShipment PRIVATE:
    
 END PROCEDURE.
 
-PROCEDURE calcShiftEndTime PRIVATE:
+PROCEDURE calcShiftEndTime:
     DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplUseTime    AS LOGICAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcStartShift AS CHARACTER NO-UNDO.
@@ -148,7 +148,7 @@ PROCEDURE calcShiftEndTime PRIVATE:
         .
 END PROCEDURE.
     
-PROCEDURE calcShiftStartTime PRIVATE:
+PROCEDURE calcShiftStartTime:
     DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplUseTime    AS LOGICAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcStartShift AS CHARACTER NO-UNDO.
@@ -174,7 +174,7 @@ PROCEDURE calcShiftStartTime PRIVATE:
         .
 END PROCEDURE.
     
-PROCEDURE calcStringDateTime PRIVATE:
+PROCEDURE calcStringDateTime:
     DEFINE INPUT  PARAMETER ipdtDate     AS DATE      NO-UNDO.
     DEFINE INPUT  PARAMETER ipiTime      AS INTEGER   NO-UNDO.    
     DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
@@ -184,21 +184,21 @@ PROCEDURE calcStringDateTime PRIVATE:
                  .
 END PROCEDURE.
 	
-PROCEDURE calcStringTime PRIVATE:
+PROCEDURE calcStringTime:
     DEFINE INPUT  PARAMETER ipiTime      AS INTEGER   NO-UNDO.    
     DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
     
     opcCalcValue = STRING(ipiTime,"hh:mm:ss am").
 END PROCEDURE.
 	
-PROCEDURE calcTimeString PRIVATE:
+PROCEDURE calcTimeString:
     DEFINE INPUT  PARAMETER ipiTime      AS INTEGER   NO-UNDO.    
     DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
     
     opcCalcValue = STRING(ipiTime,"hh:mm:ss").
 END PROCEDURE.
 
-PROCEDURE Calculator  PRIVATE: /* shunting yard algorithm */
+PROCEDURE Calculator : /* shunting yard algorithm */
     DEFINE INPUT  PARAMETER ipcCalcParam AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFormat    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
