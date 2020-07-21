@@ -505,7 +505,10 @@ PROCEDURE pValidUoM PRIVATE:
 
     DEFINE BUFFER boe-ordl FOR oe-ordl.
     
-    DEFINE VARIABLE cBadLines AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBadLines AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE cValidUOMs AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
     FOR EACH boe-ordl NO-LOCK WHERE 
         boe-ordl.company EQ ipboe-ord.company AND 
@@ -515,6 +518,16 @@ PROCEDURE pValidUoM PRIVATE:
                 cBadLines = cBadLines + STRING(boe-ordl.line) + ",".
         ELSE IF NOT CAN-FIND(FIRST uom WHERE uom.uom EQ boe-ordl.pr-uom) THEN ASSIGN 
                     cBadLines = cBadLines + STRING(boe-ordl.line) + ",".
+        IF cBadLines EQ "" THEN DO:
+           FIND FIRST itemfg NO-LOCK
+                WHERE itemfg.company EQ boe-ordl.company
+                AND itemfg.i-no EQ boe-ordl.i-no NO-ERROR.
+            IF AVAIL itemfg THEN
+             RUN Conv_GetValidPriceUOMsForItem(ROWID(itemfg),OUTPUT cValidUOMs, OUTPUT lError, OUTPUT cMessage).
+             IF LOOKUP(boe-ordl.pr-uom,cValidUOMs) EQ 0 THEN
+              cBadLines = cBadLines + STRING(boe-ordl.line) + ",".             
+        END.
+         
     END.
     IF cBadLines NE "" THEN ASSIGN 
             cBadLines  = TRIM(cBadLines,",")
