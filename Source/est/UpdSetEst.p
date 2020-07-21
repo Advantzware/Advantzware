@@ -411,7 +411,9 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
     IF lBuildFile AND lBoxDesign THEN
     DO:
        RUN est/BuildBoxDesign.p ("B", ROWID(eb)).        
-    END.         
+    END. 
+      
+    RUN  est/CalcBlankSize.p("C", ROWID(eb)) .
         
 END. /*each ttInputEst*/
 RELEASE eb.
