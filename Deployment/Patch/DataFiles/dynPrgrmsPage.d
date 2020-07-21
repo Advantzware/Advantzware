@@ -1,5 +1,7 @@
 "" 0 70 1 "company" "style" "company" "" "202001187126304586271"
 "" 0 70 71 "IndustryType" "style" "industry" "" "202001187137304586272"
+"" 0 10 20 "startCustNo" "" "" "" "202007125667505459222"
+"" 0 10 23 "includeInactiveCust" "" "" "" "202007125667705459223"
 "vendcostmtx." 1 49 64 "allItemID" "" "" "yes" "201911117061504358790"
 "vendcostmtx." 2 49 64 "endItemID" "vendItemCost" "itemID" "" "201911117047904358789"
 "vendcostmtx." 2 49 64 "allItemID" "" "" "no" "201911117043104358787"

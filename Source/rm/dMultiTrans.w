@@ -115,10 +115,11 @@ DEFINE NEW SHARED TEMP-TABLE tt-selected
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS dtTrandDate btnCalendar-1 cItemNo cUom ~
-item-name cToWhs cToBin Btn_select-tag Btn_OK Btn_Cancel BROWSE-1 iPoNo 
+&Scoped-Define ENABLED-OBJECTS dtTrandDate btnCalendar-1 cItemNo cToWhs ~
+cToBin Btn_select-tag Btn_OK Btn_Cancel BROWSE-1 cFromWhs cFromBin ~
+Btn_delete 
 &Scoped-Define DISPLAYED-OBJECTS dtTrandDate cItemNo cUom item-name cToWhs ~
-cToBin iPoNo 
+cToBin cFromWhs cFromBin 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -143,6 +144,11 @@ DEFINE BUTTON Btn_Cancel
      SIZE 15 BY 1.29
      BGCOLOR 8 .
 
+DEFINE BUTTON Btn_delete AUTO-GO 
+     LABEL "&Delete" 
+     SIZE 15 BY 1.29
+     BGCOLOR 8 .
+
 DEFINE BUTTON Btn_OK AUTO-GO 
      LABEL "&Save" 
      SIZE 15 BY 1.29
@@ -153,6 +159,16 @@ DEFINE BUTTON Btn_select-tag AUTO-GO
      SIZE 22 BY 1.29
      BGCOLOR 8 .
 
+DEFINE VARIABLE cFromBin AS CHARACTER FORMAT "X(8)":U 
+     LABEL "From Bin" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cFromWhs AS CHARACTER FORMAT "X(5)":U 
+     LABEL "From Whse" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1 NO-UNDO.
+
 DEFINE VARIABLE cItemNo AS CHARACTER FORMAT "X(15)":U 
      LABEL "Item No" 
      VIEW-AS FILL-IN 
@@ -160,19 +176,20 @@ DEFINE VARIABLE cItemNo AS CHARACTER FORMAT "X(15)":U
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE cToBin AS CHARACTER FORMAT "X(8)":U 
-     LABEL "Transfers To Bin" 
+     LABEL "To Bin" 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cToWhs AS CHARACTER FORMAT "X(5)":U 
-     LABEL "Transfers To Whse" 
+     LABEL "To Whse" 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cUom AS CHARACTER FORMAT "X(3)":U 
      LABEL "Uom" 
      VIEW-AS FILL-IN 
-     SIZE 8 BY 1 NO-UNDO.
+     SIZE 8 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dtTrandDate AS DATE FORMAT "99/99/9999":U 
      LABEL "Transfer Date" 
@@ -180,16 +197,10 @@ DEFINE VARIABLE dtTrandDate AS DATE FORMAT "99/99/9999":U
      SIZE 17.4 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE iPoNo AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
-     LABEL "PO No" 
-     VIEW-AS FILL-IN 
-     SIZE 15 BY 1
-     BGCOLOR 15 FONT 1 NO-UNDO.
-
 DEFINE VARIABLE item-name AS CHARACTER FORMAT "X(30)":U 
      LABEL "Item Name" 
      VIEW-AS FILL-IN 
-     SIZE 42 BY 1
+     SIZE 43.8 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
@@ -229,15 +240,17 @@ DEFINE FRAME D-Dialog
      dtTrandDate AT ROW 2.05 COL 24.2 COLON-ALIGNED WIDGET-ID 178
      btnCalendar-1 AT ROW 2.05 COL 43.8
      cItemNo AT ROW 3.19 COL 24.2 COLON-ALIGNED WIDGET-ID 42
-     cUom AT ROW 3.19 COL 58.2 COLON-ALIGNED WIDGET-ID 274
-     iPoNo AT ROW 3.19 COL 78.6 COLON-ALIGNED WIDGET-ID 280
+     cUom AT ROW 3.19 COL 59.8 COLON-ALIGNED WIDGET-ID 274
      item-name AT ROW 4.38 COL 24.2 COLON-ALIGNED WIDGET-ID 208
-     cToWhs AT ROW 5.52 COL 24.2 COLON-ALIGNED WIDGET-ID 266
-     cToBin AT ROW 6.71 COL 24.2 COLON-ALIGNED WIDGET-ID 270
-     Btn_select-tag AT ROW 6.43 COL 70.2 WIDGET-ID 278
+     cFromWhs AT ROW 5.52 COL 24.2 COLON-ALIGNED WIDGET-ID 284
+     cFromBin AT ROW 6.71 COL 24.2 COLON-ALIGNED WIDGET-ID 282
+     cToWhs AT ROW 5.52 COL 53 COLON-ALIGNED WIDGET-ID 266
+     cToBin AT ROW 6.71 COL 53 COLON-ALIGNED WIDGET-ID 270
+     Btn_select-tag AT ROW 6.43 COL 73.8 WIDGET-ID 278
      Btn_OK AT ROW 23.67 COL 41.6
-     Btn_Cancel AT ROW 23.67 COL 57.6
-     BROWSE-1 AT ROW 9.19 COL 2.8          
+     Btn_Cancel AT ROW 23.67 COL 57.4
+     BROWSE-1 AT ROW 9.19 COL 2.8        
+     Btn_delete AT ROW 23.67 COL 80 WIDGET-ID 286
      "Parameters" VIEW-AS TEXT
           SIZE 14 BY .71 AT ROW 1.19 COL 5 WIDGET-ID 206
      "Bin List" VIEW-AS TEXT
@@ -283,6 +296,10 @@ ASSIGN
        FRAME D-Dialog:SCROLLABLE       = FALSE
        FRAME D-Dialog:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN cUom IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN item-name IN FRAME D-Dialog
+   NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-4 IN FRAME D-Dialog
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-5 IN FRAME D-Dialog
@@ -364,6 +381,27 @@ DO:
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME Btn_delete
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_delete D-Dialog
+ON CHOOSE OF Btn_delete IN FRAME D-Dialog /* Delete */
+DO:
+        DEFINE VARIABLE rwRowid AS ROWID NO-UNDO .
+                
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN {&displayed-objects}.
+        END.
+        
+        IF avail tt-rm-rctd THEN
+           DELETE tt-rm-rctd.
+           
+        RUN repo-query(rwRowid).          
+   
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK D-Dialog
 ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* Save */
@@ -385,7 +423,7 @@ DO:
             ASSIGN {&displayed-objects}.
         END.
 
-        RUN valid-loc2(OUTPUT lError) NO-ERROR.
+        RUN valid-loc2(INPUT cToWhs,INPUT 2,OUTPUT lError) NO-ERROR.
         IF lError THEN RETURN NO-APPLY.
         
         RUN valid-loc-bin2(OUTPUT lError) NO-ERROR.
@@ -393,7 +431,15 @@ DO:
                 
         RUN valid-rmitem(OUTPUT lError) NO-ERROR.
         IF lError THEN RETURN NO-APPLY.
-                
+               
+        FOR EACH tt-rm-rctd:
+            IF tt-rm-rctd.loc EQ cToWhs AND tt-rm-rctd.loc-bin EQ cToBin THEN
+            DO:                 
+                MESSAGE "To Whse/Bin may not be the same as From Whse/Bin" VIEW-AS ALERT-BOX INFO.
+                DELETE tt-rm-rctd.                                    
+            END.
+        END.
+        
         FOR EACH tt-rm-rctd:
         ASSIGN
            tt-rm-rctd.rct-date = dtTrandDate
@@ -428,11 +474,17 @@ DO:
         END.        
 
         RUN valid-rmitem(OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.        
+        IF lError THEN RETURN NO-APPLY.
+        
+        RUN valid-loc2(INPUT cToWhs,INPUT 2,OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+        
+        RUN valid-loc-bin2(OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
 
 
         DO WITH FRAME {&FRAME-NAME}:
-        RUN windows/l-rmibn2.w (cocode, cItemNo , "" , "" , "",iPoNo, OUTPUT lv-rowid).
+        RUN windows/l-rmibn2.w (cocode, cItemNo , cFromWhs , cFromBin , "",0, OUTPUT lv-rowid).
         EMPTY TEMP-TABLE tt-rm-rctd.
             MAIN-LOOP:
             FOR EACH tt-selected ,
@@ -469,6 +521,70 @@ DO:
           
         RUN repo-query(ROWID(tt-rm-rctd)).
            
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cFromBin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cFromBin D-Dialog
+ON HELP OF cFromBin IN FRAME D-Dialog /* From Bin */
+DO:
+        DEFINE VARIABLE char-val   AS cha   NO-UNDO.
+        
+        RUN windows/l-locbin.w (gcompany,cFromWhs:screen-value, "", OUTPUT char-val).
+        IF char-val <> "" AND SELF:screen-value <> entry(1,char-val) THEN 
+            ASSIGN
+                cFromBin:screen-value      = ENTRY(1,char-val)   . 
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cFromBin D-Dialog
+ON LEAVE OF cFromBin IN FRAME D-Dialog /* From Bin */
+DO: 
+        DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
+        IF LASTKEY NE -1 THEN 
+        DO:
+            ASSIGN {&self-name}.               
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cFromWhs
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cFromWhs D-Dialog
+ON HELP OF cFromWhs IN FRAME D-Dialog /* From Whse */
+DO:
+        DEFINE VARIABLE char-val   AS cha   NO-UNDO.
+        DEFINE VARIABLE look-recid AS RECID NO-UNDO.
+
+        RUN windows/l-loc.w (gcompany, cFromWhs:screen-value, OUTPUT char-val).
+        IF char-val <> "" AND SELF:screen-value <> entry(1,char-val) THEN 
+            ASSIGN
+                cFromWhs:screen-value      = ENTRY(1,char-val) . 
+
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cFromWhs D-Dialog
+ON LEAVE OF cFromWhs IN FRAME D-Dialog /* From Whse */
+DO: 
+        DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
+        IF LASTKEY NE -1 THEN 
+        DO:
+            ASSIGN {&self-name}.
+            RUN valid-loc2(INPUT cFromWhs, INPUT 1, OUTPUT lError) NO-ERROR.
+            IF lError THEN RETURN NO-APPLY.            
+        END.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -536,11 +652,11 @@ DO:
 
 &Scoped-define SELF-NAME cToBin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cToBin D-Dialog
-ON HELP OF cToBin IN FRAME D-Dialog /* Transfers To Bin */
+ON HELP OF cToBin IN FRAME D-Dialog /* To Bin */
 DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         
-        RUN windows/l-locbin.w (gcompany,cToWhs:SCREEN-VALUE, "", OUTPUT char-val).
+        RUN windows/l-locbin.w (gcompany,cToWhs:screen-value, "", OUTPUT char-val).
         IF char-val <> "" AND SELF:screen-value <> entry(1,char-val) THEN 
             ASSIGN
                 cToBin:screen-value      = ENTRY(1,char-val)   . 
@@ -551,7 +667,7 @@ DO:
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cToBin D-Dialog
-ON LEAVE OF cToBin IN FRAME D-Dialog /* Transfers To Bin */
+ON LEAVE OF cToBin IN FRAME D-Dialog /* To Bin */
 DO: 
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 THEN 
@@ -568,12 +684,12 @@ DO:
 
 &Scoped-define SELF-NAME cToWhs
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cToWhs D-Dialog
-ON HELP OF cToWhs IN FRAME D-Dialog /* Transfers To Whse */
+ON HELP OF cToWhs IN FRAME D-Dialog /* To Whse */
 DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
 
-        RUN windows/l-loc.w (gcompany, "", OUTPUT char-val).
+        RUN windows/l-loc.w (gcompany, cToWhs:screen-value, OUTPUT char-val).
         IF char-val <> "" AND SELF:screen-value <> entry(1,char-val) THEN 
             ASSIGN
                 cToWhs:screen-value      = ENTRY(1,char-val) . 
@@ -585,13 +701,13 @@ DO:
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cToWhs D-Dialog
-ON LEAVE OF cToWhs IN FRAME D-Dialog /* Transfers To Whse */
+ON LEAVE OF cToWhs IN FRAME D-Dialog /* To Whse */
 DO: 
         DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
         IF LASTKEY NE -1 THEN 
         DO:
             ASSIGN {&self-name}.
-            RUN valid-loc2(OUTPUT lError) NO-ERROR.
+            RUN valid-loc2(INPUT cToWhs, INPUT 2,OUTPUT lError) NO-ERROR.
             IF lError THEN RETURN NO-APPLY.            
         END.
     END.
@@ -641,59 +757,6 @@ DO:
 ON HELP OF dtTrandDate IN FRAME D-Dialog /* Transfer Date */
 DO:
         {methods/calpopup.i}
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME iPoNo
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iPoNo D-Dialog
-ON HELP OF iPoNo IN FRAME D-Dialog /* PO No */
-DO:
-        DEFINE VARIABLE char-val   AS cha   NO-UNDO.
-        DEFINE VARIABLE look-recid AS RECID NO-UNDO.
-        /*RUN windows/l-poordl.w (gcompany,iPoNo:SCREEN-VALUE, OUTPUT char-val).        
-        
-        IF char-val <> "" AND SELF:screen-value <> entry(1,char-val) THEN 
-            ASSIGN
-                iPoNo:screen-value = ENTRY(1,char-val) .*/                                                                          
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iPoNo D-Dialog
-ON LEAVE OF iPoNo IN FRAME D-Dialog /* PO No */
-DO:
-        DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
-        IF LASTKEY NE -1 THEN 
-        DO:
-            ASSIGN {&self-name}.
-            RUN valid-rmitem (OUTPUT lError) NO-ERROR.
-            IF lError THEN RETURN NO-APPLY.
-        END.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iPoNo D-Dialog
-ON VALUE-CHANGED OF iPoNo IN FRAME D-Dialog /* PO No */
-DO:
-        FIND FIRST ITEM NO-LOCK
-            WHERE ITEM.company = cocode
-            AND ITEM.i-no EQ cItemNo:SCREEN-VALUE NO-ERROR.
-        IF AVAILABLE ITEM THEN
-            ASSIGN
-                
-                item-name:SCREEN-VALUE = ITEM.i-name
-                cUom:SCREEN-VALUE = ITEM.cons-uom
-                 .
-        ASSIGN 
-            lCreateNewFG = FALSE .
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -810,10 +873,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY dtTrandDate cItemNo cUom item-name cToWhs cToBin iPoNo 
+  DISPLAY dtTrandDate cItemNo cUom item-name cToWhs cToBin cFromWhs cFromBin 
       WITH FRAME D-Dialog.
-  ENABLE dtTrandDate btnCalendar-1 cItemNo cUom item-name cToWhs cToBin 
-         Btn_select-tag Btn_OK Btn_Cancel BROWSE-1 iPoNo 
+  ENABLE dtTrandDate btnCalendar-1 cItemNo cToWhs cToBin Btn_select-tag Btn_OK 
+         Btn_Cancel BROWSE-1 cFromWhs cFromBin Btn_delete 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -930,20 +993,25 @@ PROCEDURE valid-loc2 :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ipcWhse AS CHARACTER NO-UNDO . 
+   DEFINE INPUT PARAMETER ipiType AS INTEGER NO-UNDO .
    DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
     DEFINE VARIABLE lv-msg AS CHARACTER NO-UNDO.
 
 
     DO WITH FRAME {&FRAME-NAME}:
+        IF ipiType EQ 1 AND ipcWhse  EQ "" THEN
+        RETURN .
+        
         IF lv-msg EQ "" THEN
-            IF cToWhs:SCREEN-VALUE  EQ "" THEN
+            IF ipcWhse  EQ "" THEN
                 lv-msg = "To Warehouse may not be spaces".
 
         IF lv-msg EQ "" THEN 
         DO:
             FIND FIRST loc
                 WHERE loc.company EQ cocode
-                AND loc.loc     EQ cToWhs:SCREEN-VALUE 
+                AND loc.loc     EQ ipcWhse 
                 NO-LOCK NO-ERROR.
             IF NOT AVAILABLE loc THEN lv-msg = "Invalid entry, try help".
         END.
@@ -951,7 +1019,9 @@ PROCEDURE valid-loc2 :
         IF lv-msg NE "" THEN 
         DO:
             MESSAGE TRIM(lv-msg) + "..." VIEW-AS ALERT-BOX.
-            APPLY "entry" TO cToWhs .
+            IF ipiType EQ 1 THEN
+            APPLY "entry" TO cFromWhs .
+            ELSE APPLY "entry" TO cToWhs .
             oplOutError = YES.
         END.
     END.

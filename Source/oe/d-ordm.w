@@ -33,7 +33,6 @@ ASSIGN
 DEFINE VARIABLE lv-item-rowid   AS ROWID   NO-UNDO.
 DEFINE VARIABLE ll-order-warned AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ll-new-record   AS LOGICAL NO-UNDO.
-DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 
 {oe/oe-sysct1.i NEW}
 
@@ -551,7 +550,6 @@ ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Misc. Charge Item Update */
                 WHERE ROWID(oe-ordm) EQ lv-item-rowid  NO-ERROR.
             IF AVAILABLE oe-ordm THEN DELETE oe-ordm .
         END.
-        DELETE OBJECT hdTaxProcs.
          APPLY 'GO':U TO FRAME {&FRAME-NAME}.
     END.
 
@@ -1078,8 +1076,6 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
         
-    RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
-    
     FIND oe-ord NO-LOCK
         WHERE oe-ord.company EQ cocode
         AND ROWID(oe-ord)  EQ ip-rowid2 NO-ERROR .
@@ -2171,7 +2167,7 @@ FUNCTION fGetTaxableMisc RETURNS LOGICAL
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
+    RUN Tax_GetTaxableMisc  (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
 
 END FUNCTION.
 	

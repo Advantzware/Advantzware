@@ -189,6 +189,8 @@ PROCEDURE os-Process-Hold-Status :
 
        ASSIGN vcStatus = "N"
               vcHoldType = "".
+              
+       RUN ClearTagsHold (b-oe-ord.rec_key).       
 
        /* Prompt to update items if more than one. */
        IF vi > 1 THEN
@@ -213,8 +215,9 @@ PROCEDURE os-Process-Hold-Status :
        /* If user selected a hold type, then change status to hold,
           else leave status at current status. */
        ASSIGN vcStatus = (IF vcHoldType <> "" THEN "H" ELSE b-oe-ord.stat).
-
-
+       IF vcHoldType NE "" THEN
+        RUN AddTagHold (b-oe-ord.rec_key,"oe-ord", getOrdStatDescr(vcHoldType)).
+        
        /* Prompt to update items if more than one. */
        IF vi > 1 THEN 
            RUN os-Prompt-Item-Update.

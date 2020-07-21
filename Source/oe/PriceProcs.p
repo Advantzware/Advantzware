@@ -46,7 +46,7 @@ DEFINE TEMP-TABLE ttItemLines
     .
 
 {oe/ttPriceHold.i} 
-    
+{system/ttPriceMatrix.i}
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -395,25 +395,22 @@ PROCEDURE GetPriceMatrix:
                                         OUTPUT riMatrix, OUTPUT lFound, OUTPUT cMessage).
         
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.  /*Company*/
-    DEFINE INPUT PARAMETER ipcFGItemID AS CHARACTER NO-UNDO.  /*FG Item ID*/
-    DEFINE INPUT PARAMETER ipcCustID AS CHARACTER NO-UNDO.  /*Customer Scope of FG Item*/
-    DEFINE INPUT PARAMETER ipcShipID AS CHARACTER NO-UNDO.  /*Ship to Scope of Customer  - optional*/
-    DEFINE OUTPUT PARAMETER opriOePrmtx AS ROWID NO-UNDO.  /*Outputs the rowid for the price matrix that matches*/
-    DEFINE OUTPUT PARAMETER oplMatchFound AS LOGICAL NO-UNDO.  /*Logical that can determine if find on rowid should be done*/
-    DEFINE OUTPUT PARAMETER opcMatchDetail AS CHARACTER NO-UNDO.  /*Clarifies the match criteria or failure to match*/
-
+    DEFINE INPUT        PARAMETER ipcCompany     AS CHARACTER NO-UNDO.  /*Company*/
+    DEFINE INPUT        PARAMETER ipcFGItemID    AS CHARACTER NO-UNDO.  /*FG Item ID*/
+    DEFINE INPUT        PARAMETER ipcCustID      AS CHARACTER NO-UNDO.  /*Customer Scope of FG Item*/
+    DEFINE INPUT        PARAMETER ipcShipID      AS CHARACTER NO-UNDO.  /*Ship to Scope of Customer  - optional*/
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttPriceMatrix.              /*Outputs the rowid for the price matrix that matches*/
+    DEFINE OUTPUT       PARAMETER oplMatchFound  AS LOGICAL NO-UNDO.    /*Logical that can determine if find on rowid should be done*/
+    DEFINE OUTPUT       PARAMETER opcMatchDetail AS CHARACTER NO-UNDO.  /*Clarifies the match criteria or failure to match*/
+    
     DEFINE BUFFER bf-itemfg   FOR itemfg.
     DEFINE BUFFER bf-cust     FOR cust.
     DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
 
-
     RUN pSetBuffers(ipcCompany, ipcFGItemId, ipcCustID, BUFFER bf-itemfg, BUFFER bf-cust).
-            
+
     /*Find match given buffers */  
     RUN pGetPriceMatrix(BUFFER bf-itemfg, BUFFER bf-cust, BUFFER bf-oe-prmtx, ipcShipID, OUTPUT oplMatchFound, OUTPUT opcMatchDetail).
-    IF oplMatchFound AND AVAILABLE bf-oe-prmtx THEN 
-        opriOePrmtx = ROWID(bf-oe-prmtx).
 
 END PROCEDURE.
 
@@ -775,6 +772,44 @@ PROCEDURE pBuildLineTable PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pAddPriceMatrix PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: creates ttPriceMatrix records
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipToID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiLevel       AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdQuantity    AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcQuantityUOM AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdPrice       AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPriceUOM    AS CHARACTER NO-UNDO.
+            
+    FIND FIRST ttPriceMatrix
+         WHERE ttPriceMatrix.company  = ipcCompany
+           AND ttPriceMatrix.itemID   = ipcItemID
+           AND ttPriceMatrix.custID   = ipcCustID
+           AND ttPriceMatrix.shiptoID = ipcShipToID
+           AND ttPriceMatrix.level    = ipiLevel
+         NO-ERROR.
+    IF NOT AVAILABLE ttPriceMatrix THEN DO:
+        CREATE ttPriceMatrix.
+        ASSIGN
+            ttPriceMatrix.company     = ipcCompany
+            ttPriceMatrix.itemID      = ipcItemID
+            ttPriceMatrix.custID      = ipcCustID
+            ttPriceMatrix.shipToID    = ipcShipToID
+            ttPriceMatrix.level       = ipiLevel
+            ttPriceMatrix.quantity    = ipdQuantity
+            ttPriceMatrix.quantityUOM = ipcQuantityUOM
+            ttPriceMatrix.price       = ipdPrice
+            ttPriceMatrix.priceUOM    = ipcPriceUOM
+            .
+    END. 
+END PROCEDURE.
+
 PROCEDURE pFindQuoteForQuantity PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given an item and quantity, validate that a quote exists
@@ -999,7 +1034,9 @@ PROCEDURE pGetPriceMatrix PRIVATE:
     DEFINE VARIABLE cMsgCustID     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMsgCustType   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMsgShipID     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iIndex         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cMsgBlankInd   AS CHARACTER NO-UNDO INIT "[blank]".
+    DEFINE VARIABLE lMatrixFound   AS LOGICAL   NO-UNDO.
     
     IF NOT AVAILABLE ipbf-itemfg THEN 
     DO:
@@ -1050,11 +1087,14 @@ PROCEDURE pGetPriceMatrix PRIVATE:
             RETURN.
         END.
     END.
+
+    /* To improve performance of the query, the query to find the matrix is split into two queries.
+       The first one will run the query with item match and the other one with blank item # */    
     /*Find match */  
     FOR EACH opbf-oe-prmtx NO-LOCK 
         WHERE opbf-oe-prmtx.company EQ ipbf-itemfg.company
-        /*Match on item # or match matrix with blank item #*/
-        AND (opbf-oe-prmtx.i-no EQ ipbf-itemfg.i-no OR opbf-oe-prmtx.i-no EQ "" )
+        /*Match on item # */
+        AND opbf-oe-prmtx.i-no EQ ipbf-itemfg.i-no
         /*Match on cust-no or match matrix with blank cust-no*/
         AND (opbf-oe-prmtx.cust-no EQ ipbf-cust.cust-no OR opbf-oe-prmtx.cust-no EQ "")
         /*Match on customer type or match on blank customer type - disregard this criteria if the matrix has a customer number at which
@@ -1075,16 +1115,52 @@ PROCEDURE pGetPriceMatrix PRIVATE:
         AND NOT (opbf-oe-prmtx.cust-no EQ "" AND opbf-oe-prmtx.i-no EQ "" AND opbf-oe-prmtx.procat EQ "" AND opbf-oe-prmtx.custype EQ "" 
         AND opbf-oe-prmtx.custShipID EQ "")
     /*Sort the resulting data set so that actual matches take priority over blank matches*/
-        BY opbf-oe-prmtx.i-no DESCENDING
         BY opbf-oe-prmtx.cust-no DESCENDING 
         BY opbf-oe-prmtx.procat DESCENDING 
         BY opbf-oe-prmtx.custype DESCENDING 
         BY opbf-oe-prmtx.custShipID DESCENDING
         BY opbf-oe-prmtx.eff-date DESCENDING 
         :
+        lMatrixFound = TRUE.
         LEAVE.  /*After first/best match, leave*/
     END.
-
+    
+    /* Find the matrix only if the above query failed to return a record */
+    IF NOT lMatrixFound THEN DO:
+        FOR EACH opbf-oe-prmtx NO-LOCK 
+            WHERE opbf-oe-prmtx.company EQ ipbf-itemfg.company
+            /* Match matrix with blank item #*/
+            AND opbf-oe-prmtx.i-no EQ ""
+            /*Match on cust-no or match matrix with blank cust-no*/
+            AND (opbf-oe-prmtx.cust-no EQ ipbf-cust.cust-no OR opbf-oe-prmtx.cust-no EQ "")
+            /*Match on customer type or match on blank customer type - disregard this criteria if the matrix has a customer number at which
+            point only the customer number match matters.  Cust Type only applicable when customer number is blank.
+            This allows for customer type to change in AF1 without having to update the Price Matrix type for that customer.*/
+            AND (opbf-oe-prmtx.custype EQ ipbf-cust.type OR opbf-oe-prmtx.custype EQ "" OR opbf-oe-prmtx.cust-no NE "")
+            /*Match on product category or match on blank product category - disregard this criteria if the matrix has a FG Item # at which
+            point only the FG Item # match matters.  Product Category only applicable when customer number is blank.
+            This allows for Product Category to change in IF1 without having to update the Price Matrix for that item.*/
+            AND (opbf-oe-prmtx.procat EQ ipbf-itemfg.procat OR opbf-oe-prmtx.procat EQ "" OR opbf-oe-prmtx.i-no NE "")
+            /*Match on ship ID or match matrix with blank ship ID*/
+            AND (opbf-oe-prmtx.custShipID EQ ipcShipID OR opbf-oe-prmtx.custShipID EQ "")
+            /*Must be effecitve*/
+            AND (opbf-oe-prmtx.eff-date LE TODAY)
+            /*must not be expired*/
+            AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ? OR opbf-oe-prmtx.exp-date EQ 01/01/0001)
+            /* Can't be all blank */
+            AND NOT (opbf-oe-prmtx.cust-no EQ "" AND opbf-oe-prmtx.i-no EQ "" AND opbf-oe-prmtx.procat EQ "" AND opbf-oe-prmtx.custype EQ "" 
+            AND opbf-oe-prmtx.custShipID EQ "")
+            /*Sort the resulting data set so that actual matches take priority over blank matches*/
+            BY opbf-oe-prmtx.cust-no DESCENDING 
+            BY opbf-oe-prmtx.procat DESCENDING 
+            BY opbf-oe-prmtx.custype DESCENDING 
+            BY opbf-oe-prmtx.custShipID DESCENDING
+            BY opbf-oe-prmtx.eff-date DESCENDING 
+            :
+            LEAVE.  /*After first/best match, leave*/
+        END.
+    END.
+    
     /*Initialize return message for match*/
     ASSIGN 
         opcMatchDetail = "Match "
@@ -1114,6 +1190,23 @@ PROCEDURE pGetPriceMatrix PRIVATE:
             cMsgCustType   = IF opbf-oe-prmtx.custype EQ "" THEN cMsgCustType + cMsgBlankInd ELSE cMsgCustType + opbf-oe-prmtx.custype 
             cMsgShipID     = IF opbf-oe-prmtx.custShipID EQ "" THEN cMsgShipID + cMsgBlankInd ELSE cMsgShipID + opbf-oe-prmtx.custShipID
             .
+
+        DO iIndex = 1 TO EXTENT(opbf-oe-prmtx.qty):
+            IF opbf-oe-prmtx.qty[iIndex] EQ 0 THEN
+                NEXT.
+            
+            RUN pAddPricematrix (
+                INPUT ipbf-itemfg.company,
+                INPUT ipbf-itemfg.i-no,
+                INPUT ipbf-cust.cust-no,
+                INPUT ipcShipID,
+                INPUT iIndex,   /* Level */
+                INPUT opbf-oe-prmtx.qty[iIndex],
+                INPUT "EA",     /* Quantity UOM */
+                INPUT opbf-oe-prmtx.price[iIndex],
+                INPUT opbf-oe-prmtx.uom[iIndex]
+                ).
+        END.
     END.    
     ELSE 
         ASSIGN 

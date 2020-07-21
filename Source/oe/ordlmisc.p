@@ -21,7 +21,6 @@ def var taxit           as   log init no.
 def var v-tax-rate      as   dec format ">,>>9.99<<<".
 def var v-frt-tax-rate  like v-tax-rate.
 DEF VAR v-tmp-int AS INT NO-UNDO.
-DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 
 {sys/inc/ceprep.i}
 {sys/inc/ceprepprice.i}
@@ -36,7 +35,6 @@ FUNCTION fGetTaxable RETURNS LOGICAL
 	 ipcPrepCode AS CHARACTER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
-RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 find first ar-ctrl {ar/ar-ctrlW.i} no-lock no-error.
 
 find oe-ordl where ROWID(oe-ordl) eq ip-rowid no-lock no-error.
@@ -200,7 +198,6 @@ for each ef OF xeb no-lock:
   end.
 end. /* each ef */
 END. /* each xeb */
-DELETE OBJECT hdTaxProcs.
 RETURN.
 
 /* **********************  Internal Procedures  *********************** */
@@ -403,7 +400,7 @@ FUNCTION fGetTaxable RETURNS LOGICAL
     ------------------------------------------------------------------------------*/	
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
+    RUN Tax_GetTaxableMisc  (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
     
 
     RETURN lTaxable.

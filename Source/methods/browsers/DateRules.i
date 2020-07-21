@@ -1,8 +1,8 @@
 /* DateRules.i
 "ASI" "DateRules"
 "dateRuleID" "Rule ID" ""
-"scope" "Scope" ""
-"scopeID" "Scope ID" ""
+"dateRuleName" "Rule Name" ""
+"" "" ""
 "" "" ""
 "" "" ""
 "" "" ""
@@ -18,21 +18,20 @@
 */
 
 &Global-define FLDNAME1 DateRules.dateRuleID
-&Global-define DATATYP1 INTEGER
-&Global-define FORMAT-1 >>>>>>>>9
+&Global-define FORMAT-1 X(16)
 &Global-define SORTBY-1 BY {&FLDNAME1}
 &Global-define IDXNAME1 
 &Global-define DESCRIP1 Rule ID
-&Global-define FLDNAME2 DateRules.scope
-&Global-define FORMAT-2 X(16)
+&Global-define FLDNAME2 DateRules.dateRuleName
+&Global-define FORMAT-2 X(32)
 &Global-define SORTBY-2 BY {&FLDNAME2} {&SORTBY-1}
 &Global-define IDXNAME2 
-&Global-define DESCRIP2 Scope
-&Global-define FLDNAME3 DateRules.scopeID
-&Global-define FORMAT-3 X(32)
-&Global-define SORTBY-3 BY {&FLDNAME3} {&SORTBY-1}
+&Global-define DESCRIP2 Rule Name
+&Global-define FLDNAME3
+&Global-define FORMAT-3
+&Global-define SORTBY-3
 &Global-define IDXNAME3 
-&Global-define DESCRIP3 Scope ID
+&Global-define DESCRIP3
 &Global-define FLDNAME4 
 &Global-define SORTBY-4 
 &Global-define IDXNAME4 

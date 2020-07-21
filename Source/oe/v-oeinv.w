@@ -48,9 +48,6 @@ DEF NEW SHARED VAR v-ship-no LIKE shipto.ship-no.
 DEF VAR v-cash-sale AS LOG NO-UNDO.
 DEFINE BUFFER bff-head FOR inv-head.
 
-DEFINE VARIABLE hdTaxProcs  AS HANDLE    NO-UNDO.
-RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
-
 &SCOPED-DEFINE other-enable enable-other
 
 /* _UIB-CODE-BLOCK-END */
@@ -1340,7 +1337,7 @@ DEFINE VARIABLE cmessage         AS CHARACTER NO-UNDO.
   IF inv-status EQ "ON HOLD" AND inv-head.stat NE "H" THEN inv-head.stat = "H".
   inv-head.f-bill = inv-head.frt-pay eq "B" /* OR inv-head.frt-pay eq "P" */.
 
-  RUN Tax_CalculateForInvHead IN hdTaxProcs (
+  RUN Tax_CalculateForInvHead  (
       INPUT ROWID(inv-head),
       INPUT locode,
       INPUT "INVOICE", /*  Message Type "INVOICE" or "QUOTATION" */

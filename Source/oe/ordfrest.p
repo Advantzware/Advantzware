@@ -127,8 +127,6 @@ DEFINE VARIABLE v-cost-2           LIKE oe-ordl.cost.
 DEFINE VARIABLE blk-fact           LIKE blk.fact         NO-UNDO.
 DEFINE VARIABLE v-rowid-list       AS CHARACTER        NO-UNDO.
 DEFINE VARIABLE lv-disc            LIKE cust.disc        NO-UNDO.
-DEFINE VARIABLE hdTaxProcs         AS HANDLE           NO-UNDO.
-RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 
 DEF BUFFER b-oe-ord FOR oe-ord.
 DEF BUFFER b-oe-ordl FOR oe-ordl.
@@ -1413,7 +1411,7 @@ FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
 ------------------------------------------------------------------------------*/
 DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+RUN Tax_GetTaxableAR  (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
 RETURN lTaxable.
 
 END FUNCTION.

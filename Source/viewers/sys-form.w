@@ -37,15 +37,18 @@ CREATE WIDGET-POOL.
 {sys/ref/sys-ctrl.i}
 
 DEFINE NEW SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
-DEFINE NEW SHARED VARIABLE cocode AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE cocode       AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE opName AS CHARACTER NO-UNDO.
-DEFINE VARIABLE opModule AS CHARACTER NO-UNDO.
+DEFINE VARIABLE opName         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE opModule       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gvcMultiSelect AS CHARACTER NO-UNDO INIT "OEDATECHANGE,SSBOLEMAIL,OEPRICEHOLD,CEUpdate".
-DEFINE VARIABLE cValidateList AS CHARACTER   NO-UNDO.
-  cValidateList = 'QUOPRINT,BOLFMT,ACKHEAD,RELPRINT,POPRINT,'
-                  + 'INVPRINT,BOLCERT,JOBCARDF,JOBCARDC,QUOPRICE'
-                  + 'SSBOLEMAIL,OEDATECHANGE,RELPOST,CINVOICE,FGTagValidation'.
+DEFINE VARIABLE cValidateList  AS CHARACTER NO-UNDO.
+
+cValidateList = 'QUOPRINT,BOLFMT,ACKHEAD,RELPRINT,POPRINT,'
+              + 'INVPRINT,BOLCERT,JOBCARDF,JOBCARDC,QUOPRICE,'
+              + 'SSBOLEMAIL,OEDATECHANGE,RELPOST,CINVOICE,FGTagValidation,'
+              + 'DateRule'
+              .
 &SCOPED-DEFINE Enhance NO
 
 /* _UIB-CODE-BLOCK-END */
@@ -782,9 +785,6 @@ PROCEDURE valid-char-fld :
   {methods/lValidateError.i YES}
   {methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT opName,OUTPUT opModule)"}
 
-
-
-
   DO WITH FRAME {&FRAME-NAME}:
  /* Task 11011321 */
     IF sys-ctrl-shipto.char-fld:SCREEN-VALUE NE "" AND
@@ -798,12 +798,8 @@ PROCEDURE valid-char-fld :
       /* option - validate each option individually              */
       IF LOOKUP(opName, gvcMultiSelect) GT 0 
         AND INDEX(sys-ctrl-shipto.char-fld:SCREEN-VALUE, ",") GT 0 THEN DO:
-
           DO i = 1 TO NUM-ENTRIES(sys-ctrl-shipto.char-fld:SCREEN-VALUE):
-
             cSingleValue = ENTRY(i, sys-ctrl-shipto.char-fld:SCREEN-VALUE).
-
-
             RUN sys/ref/validSysCtrlChar.p 
               (INPUT g_company,
                INPUT g_loc,
@@ -815,8 +811,6 @@ PROCEDURE valid-char-fld :
                INPUT str-init[LOOKUP(opName, name-fld-list)],
                OUTPUT cEntryTo,
                OUTPUT lValid).
-
-
             IF NOT lValid THEN DO:   
               CASE cEntryTo:
                 WHEN "Char" THEN
@@ -826,13 +820,9 @@ PROCEDURE valid-char-fld :
               END CASE.
               LEAVE.
             END. /* if not lvalid */
-
           END. /* do i = ... */
-
-
       END. /* if multiple values to validate */
       ELSE DO:
-
           RUN sys/ref/validSysCtrlChar.p 
             (INPUT g_company,
              INPUT g_loc,
@@ -852,17 +842,13 @@ PROCEDURE valid-char-fld :
                 APPLY 'ENTRY':U TO {&tableName}.log-fld.
             END CASE.
           END. /* Not lvalid */
-
       END. /* Single value to validate */
-
       IF NOT lValid THEN
         RETURN ERROR.
-    END.  /* End if non-blank value */   /* Task 11011321 */
-   
+    END.  /* End if non-blank value */   /* Task 11011321 */   
   END. /* do with frame */
-
-
   {methods/lValidateError.i NO}
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

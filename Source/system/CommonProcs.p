@@ -186,35 +186,65 @@ PROCEDURE spCommon_DateRule:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipiDateRuleID  AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcScope       AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcScopeID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcDateRuleID  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustNo      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcShipTo      AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdtBaseDate   AS DATE      NO-UNDO.
     DEFINE INPUT  PARAMETER iprBaseRowID   AS ROWID     NO-UNDO.
     DEFINE INPUT  PARAMETER iprResultRowID AS ROWID     NO-UNDO.    
     DEFINE OUTPUT PARAMETER opdtDate       AS DATE      NO-UNDO.
 
-    DEFINE VARIABLE cBaseField AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dtDate     AS DATE      NO-UNDO.
-    DEFINE VARIABLE hBuffer    AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hQuery     AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hTable     AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE iDayOfWeek AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lSkipDay   AS LOGICAL   NO-UNDO EXTENT 7.
+    DEFINE VARIABLE cBaseField  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNK1Value   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDateRuleID AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dtDate      AS DATE      NO-UNDO.
+    DEFINE VARIABLE hBuffer     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hQuery      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hTable      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iDayOfWeek  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lFound      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lSkipDay    AS LOGICAL   NO-UNDO EXTENT 7.
 
+    /* attempt to derive date rule id via nk1 */
+    IF ipcDateRuleID EQ ? OR ipcDateRuleID EQ "" THEN DO:
+        RUN sys/ref/nk1look.p (
+            ipcCompany, "DateRule", "L", NO, NO, "", "",
+            OUTPUT cNK1Value, OUTPUT lFound
+            ).
+        IF lFound AND cNK1Value EQ "YES" THEN DO:
+            /* default date rule id for all customers */
+            RUN sys/ref/nk1look.p (
+                ipcCompany, "DateRule", "C", NO, NO, "", "",
+                OUTPUT cDateRuleID, OUTPUT lFound
+                ).
+            RUN sys/ref/nk1look.p (
+                ipcCompany, "DateRule", "L", YES, YES, ipcCustNo, ipcShipTo,
+                OUTPUT cNK1Value, OUTPUT lFound
+                ).
+            IF lFound AND cNK1Value EQ "YES" THEN DO:
+                /* date rule id for specific customer & ship to */
+                RUN sys/ref/nk1look.p (
+                    ipcCompany, "DateRule", "C", YES, YES, ipcCustNo, ipcShipTo,
+                    OUTPUT cDateRuleID, OUTPUT lFound
+                    ).
+            END. /* if found */
+        END. /* if yes */
+    END. /* if ne ? */
+    ELSE
+    cDateRuleID = ipcDateRuleID.
+
+    /* attempt to locate date rule using id */
+    IF cDateRuleID NE ? AND cDateRuleID NE "" THEN
+    FIND FIRST DateRules NO-LOCK
+         WHERE DateRules.dateRuleID EQ cDateRuleID
+         NO-ERROR.
+    /* not date rule record, bail */
+    IF NOT AVAILABLE DateRules THEN RETURN.
+
+    /* if base row id provided, get date value from database */
     IF iprBaseRowID NE ? THEN DO:
-        /* get the date rule record */
-        IF ipiDateRuleID NE ? AND ipiDateRuleID NE 0 THEN
-        FIND FIRST DateRules NO-LOCK
-             WHERE DateRules.dateRuleID EQ ipiDateRuleID
-             NO-ERROR.
-        ELSE
-        FIND FIRST DateRules NO-LOCK
-             WHERE DateRules.Scope   EQ ipcScope
-               AND DateRules.ScopeID EQ ipcScopeID
-             NO-ERROR.
-        IF NOT AVAILABLE DateRules THEN RETURN.
         IF DateRules.baseTable EQ "" THEN RETURN.
         IF DateRules.baseField EQ "" THEN RETURN.
         FIND FIRST ASI._file NO-LOCK
@@ -253,6 +283,9 @@ PROCEDURE spCommon_DateRule:
     DO idx = 1 TO 7:
         lSkipDay[idx] = SUBSTRING(DateRules.skipDays,idx,1) EQ "Y".
     END. /* do idx */
+    /* add extra day if past the time limit */
+    IF DateRules.skipTime GT 0 AND DateRules.skipTime LE TIME THEN
+    dtDate = dtDate + 1.
     /* calculate ending date based on above week days to skip */
     DO idx = 1 TO DateRules.days:
         DO WHILE TRUE:
@@ -268,9 +301,6 @@ PROCEDURE spCommon_DateRule:
             LEAVE.
         END. /* while */
     END. /* do idx */
-    /* add extra day if past the time limit */
-    IF DateRules.skipTime GT 0 AND DateRules.skipTime GE TIME THEN
-    dtDate = dtDate + 1.
     opdtDate = dtDate.
 
     /* check if result table should be updated */

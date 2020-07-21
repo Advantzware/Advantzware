@@ -26,13 +26,14 @@ SET DUMP_INC_DEBUG=0
 SET blog=C:\tmp\VERBUILD-%iNewVer%-%date:~12,2%%date:~4,2%%date:~7,2%-%time:~0,2%%time:~3,2%%time:~6,2%-BASIC.log
 SET vlog=C:\tmp\VERBUILD-%iNewVer%-%date:~12,2%%date:~4,2%%date:~7,2%-%time:~0,2%%time:~3,2%%time:~6,2%-VERBOSE.log
 SET elog=C:\tmp\VERBUILD-%iNewVer%-%date:~12,2%%date:~4,2%%date:~7,2%-%time:~0,2%%time:~3,2%%time:~6,2%-ERRORS.log
+C:
+CD %buildDir%
 ECHO %cNewVer% > newVer.txt
 ECHO .
 ECHO Starting at %time% on %date%
 ECHO Starting at %time% on %date% > %blog%
 ECHO Starting at %time% on %date% > %vlog%
 ECHO Starting at %time% on %date% > %elog%
-
 :: Testing - UNcomment to jump to specific section
 ::GOTO :UpdateRepo
 
@@ -61,6 +62,13 @@ ECHO Starting at %time% on %date% > %elog%
 ECHO Creating New PATCH directories from repository
 ECHO Creating New PATCH directories from repository >> %blog%
 ECHO Creating New PATCH directories from repository >> %vlog%
+:: Test for existence of patch
+IF EXIST C:\asigui\upgrades\PATCH%cNewVer%\ (GOTO :PROMPT) ELSE (GOTO :NEXT)
+:PROMPT
+ECHO The version you are about to create already exists.
+SET /p lProceed="Are you sure?: " 
+IF /I %lProceed%==Y (GOTO :NEXT) ELSE (GOTO :END)
+:NEXT
 DEL /S /Q C:%patchDir%\* >> %vlog% 2>> %elog%
 DEL /S /Q C:%patchDir%\patch.mft >> %vlog% 2>> %elog%
 RMDIR /S /Q C:%patchDir% >> %vlog% 2>> %elog%
@@ -70,7 +78,10 @@ DEL /S /Q C:%patchDir%\Documentation\DBDict\* >> %vlog%
 RMDIR /S /Q C:%patchDir%\Documentation\DBDict >> %vlog%
 MKDIR C:%patchDir%\Documentation\DBDict >> %vlog%
 DEL /S /Q C:%patchDir%\DataFiles\* >> %vlog%
+XCOPY C:%patchDir%\Structure\DFFiles\audEmp* C:%patchDir%\Structure /E /S /H /C /I >> %vlog%
 DEL /S /Q C:%patchDir%\Structure\DFFiles\* >> %vlog%
+XCOPY C:%patchDir%\Structure\audEmp* C:%patchDir%\Structure\DFFiles /E /S /H /C /I >> %vlog%
+DEL /S /Q C:%patchDir%\Structure\audEmp* >> %vlog%
 DEL /Q C:%patchDir%\patch.mft >> %vlog%
 ECHO patchVer=%cNewVer% > C:%patchDir%\patch.mft
 ECHO asiDbVer=%cNewVer% >> C:%patchDir%\patch.mft
@@ -374,7 +385,7 @@ ECHO Updating repository files
 ECHO Updating repository files >> %blog%
 ECHO Updating repository files >> %vlog%
 MKDIR C:\asigui\Repositories\Advantzware\Deployment\SchemaChanges\%iCurVer%00 >> %vlog% 2>> %elog%
-XCOPY C:\asigui\Repositories\Advantzware\Deployment\Patch\Structure\DFFiles\* C:\asigui\Repositories\Deployment\SchemaChanges\%iCurVer%00 /E /S /H /C /I /Y >> %vlog%
+XCOPY C:\asigui\Repositories\Advantzware\Deployment\Patch\Structure\DFFiles\* C:\asigui\Repositories\Advantzware\Deployment\SchemaChanges\%iCurVer%00 /E /S /H /C /I /Y >> %vlog%
 DEL /S /Q C:\Asigui\Repositories\Advantzware\Deployment\Patch\Structure\DFFiles\*.* >> %vlog%
 XCOPY C:%patchDir%\Admin\* C:\asigui\Repositories\Advantzware\Deployment\Patch\Admin /E /S /H /C /I /Y >> %vlog%
 XCOPY C:%patchDir%\DataFiles\* C:\asigui\Repositories\Advantzware\Deployment\Patch\DataFiles /E /S /H /C /I /Y >> %vlog%
@@ -392,7 +403,6 @@ ECHO . >> %vlog%
 
 :Cleanup
 CD %buildDir%
-DEL /Q newVer.txt >> %vlog%
 
 :END
 

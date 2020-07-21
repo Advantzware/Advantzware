@@ -91,7 +91,6 @@ PROCEDURE pSuperProcs:
                 + "util/Validate.p,"
                 + "system/ConversionProcs.p,"
                 + "system/FileSysProcs.p,"
-                + "system/OSProcs.p,"
                 + "system/FormatProcs.p,"
                 + "est/EstimateProcs.p,"
                 + "system/GLProcs.p,"     

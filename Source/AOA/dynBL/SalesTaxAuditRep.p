@@ -36,7 +36,7 @@ DEFINE TEMP-TABLE ttSalesTaxAuditRep NO-UNDO
     FIELD prep-desc      AS CHARACTER FORMAT "x(30)"      LABEL "Prep Item Description"
     FIELD prep-cust      AS CHARACTER FORMAT "x(15)"      LABEL "Prep Item Customer"
     FIELD prep-taxable   AS LOGICAL   FORMAT "Yes/No"     LABEL "Prep Item Taxable"
-    FIELD problem        AS CHARACTER FORMAT "x(70)"      LABEL "Problem"    
+    FIELD problem        AS CHARACTER FORMAT "x(70)"      LABEL "Problem"
     .
 
 /* Parameters Definitions ---                                           */
@@ -57,104 +57,118 @@ PROCEDURE pBusinessLogic:
           AND cust.cust-no LE cEndCustNo
         :
         lCustTaxAble = cust.sort EQ "Y".
-        IF cShipToStatus EQ "2" OR cShipToStatus EQ "3" THEN DO:
-            MAIN-SHIPTO:
-            FOR EACH shipto NO-LOCK
-                WHERE shipto.company EQ cCompany
-                  AND shipto.cust-no EQ cust.cust-no
-                :
-                IF DYNAMIC-FUNCTION("IsActive",shipto.rec_key) EQ NO AND
-                   cShipToStatus EQ "2" THEN
-                NEXT MAIN-SHIPTO.               
-                CREATE ttSalesTaxAuditRep.
-                ASSIGN
-                    ttSalesTaxAuditRep.cust-no      = cust.cust-no
-                    ttSalesTaxAuditRep.cust-name    = cust.name
-                    ttSalesTaxAuditRep.cust-city    = cust.city
-                    ttSalesTaxAuditRep.cust-state   = cust.state
-                    ttSalesTaxAuditRep.cust-zip     = cust.zip
-                    ttSalesTaxAuditRep.cust-taxcode = cust.tax-gr
-                    ttSalesTaxAuditRep.cust-taxable = cust.sort
-                    ttSalesTaxAuditRep.ship-id      = shipto.ship-id
-                    ttSalesTaxAuditRep.ship-name    = shipto.ship-name
-                    ttSalesTaxAuditRep.ship-city    = shipto.ship-city
-                    ttSalesTaxAuditRep.ship-state   = shipto.ship-state
-                    ttSalesTaxAuditRep.ship-zip     = shipto.ship-zip
-                    ttSalesTaxAuditRep.ship-taxcode = shipto.tax-code
-                    ttSalesTaxAuditRep.ship-taxable = shipto.tax-mandatory.
-                FIND FIRST stax-group NO-LOCK
-                     WHERE stax-group.tax-group EQ shipto.tax-code
-                     NO-ERROR.
-                IF NOT AVAILABLE stax-group AND Shipto.tax-mandatory THEN
-                ttSalesTaxAuditRep.problem = "Ship to Tax code is not valid".
-                IF Shipto.tax-mandatory AND shipto.tax-code EQ "" THEN
-                ttSalesTaxAuditRep.problem = "Taxable ship to has no tax code".
-                IF NOT lCustTaxAble AND Cust.tax-id EQ "" AND AVAILABLE ttSalesTaxAuditRep THEN
-                ttSalesTaxAuditRep.problem = "Non Taxable customer without Resale certificate". 
-                IF NOT lCustTaxAble AND cust.date-field[2] LT TODAY + 30 AND AVAILABLE ttSalesTaxAuditRep THEN
-                ttSalesTaxAuditRep.problem = "Resale expiration date issue".    
-            END.
-        END.       
+        IF cFGItemStatus NE "None" THEN
         FOR EACH itemfg NO-LOCK
             WHERE itemfg.company EQ cCompany
               AND itemfg.cust-no EQ cust.cust-no
               AND itemfg.i-no    GE cStartFGItem
               AND itemfg.i-no    LE cEndFGItem
-              AND (itemfg.stat   EQ "A"
-               OR  cFGItemStatus EQ "2")
             :
-            CREATE ttSalesTaxAuditRep.
-            ASSIGN
-                ttSalesTaxAuditRep.cust-no        = cust.cust-no
-                ttSalesTaxAuditRep.cust-name      = cust.name
-                ttSalesTaxAuditRep.cust-city      = cust.city
-                ttSalesTaxAuditRep.cust-state     = cust.state
-                ttSalesTaxAuditRep.cust-zip       = cust.zip
-                ttSalesTaxAuditRep.cust-taxcode   = cust.tax-gr
-                ttSalesTaxAuditRep.cust-taxable   = cust.sort
-                ttSalesTaxAuditRep.tax-Resale     = cust.tax-id
-                ttSalesTaxAuditRep.resale-date    = cust.date-field[2]
-                ttSalesTaxAuditRep.fgitem         = itemfg.i-no
-                ttSalesTaxAuditRep.fgdesc         = itemfg.i-dscr
-                ttSalesTaxAuditRep.fgitem-cust    = itemfg.cust-no
-                ttSalesTaxAuditRep.fgitem-taxable = itemfg.taxable .  
+            IF cFGItemStatus EQ "Active" AND itemfg.stat NE "A" THEN
+            NEXT. 
             IF itemfg.taxable NE lCustTaxAble THEN
-            ttSalesTaxAuditRep.problem = "FG Item Taxable <> Customer Taxable".
-        END.  
+            RUN pLogProblem ("FGItem", "FG Item Taxable <> Customer Taxable").
+        END.
+        IF cPrepStatus NE "None" THEN
         FOR EACH prep NO-LOCK
             WHERE prep.company EQ cCompany
               AND prep.cust-no EQ cust.cust-no
               AND prep.code    GE cStartPrepNo
               AND prep.code    LE cEndPrepNo
             :
-            CREATE ttSalesTaxAuditRep.
-            ASSIGN
-                ttSalesTaxAuditRep.cust-no      = cust.cust-no
-                ttSalesTaxAuditRep.cust-name    = cust.cust-no
-                ttSalesTaxAuditRep.cust-city    = cust.city
-                ttSalesTaxAuditRep.cust-state   = cust.state
-                ttSalesTaxAuditRep.cust-zip     = cust.zip
-                ttSalesTaxAuditRep.cust-taxcode = cust.tax-gr
-                ttSalesTaxAuditRep.cust-taxable = cust.sort
-                ttSalesTaxAuditRep.tax-Resale   = cust.tax-id
-                ttSalesTaxAuditRep.resale-date  = cust.date-field[2]
-                ttSalesTaxAuditRep.prepitem     = prep.i-no
-                ttSalesTaxAuditRep.prep-desc    = prep.dscr
-                ttSalesTaxAuditRep.prep-cust    = prep.cust-no
-                ttSalesTaxAuditRep.prep-taxable = prep.taxable . 
+            IF cPrepStatus EQ "Active" AND prep.inactive EQ YES THEN
+            NEXT.
             IF prep.taxable NE lCustTaxAble THEN
-            ttSalesTaxAuditRep.problem = "Prep Item Taxable <> Customer Taxable".
+            RUN pLogProblem ("Prep", "Prep Item Taxable <> Customer Taxable").
         END.    
-        FIND FIRST stax-group NO-LOCK
-             WHERE stax-group.tax-group EQ cust.tax-gr
-             NO-ERROR.
-        IF NOT AVAILABLE stax-group AND AVAILABLE ttSalesTaxAuditRep AND cust.tax-gr NE "" THEN
-        ttSalesTaxAuditRep.problem = "Tax Group Defined is not valid".
-        IF cust.tax-gr EQ "" AND lCustTaxAble AND AVAILABLE ttSalesTaxAuditRep THEN
-        ttSalesTaxAuditRep.problem = "Taxable customer without tax code".
-        IF NOT lCustTaxAble AND Cust.tax-id EQ "" AND AVAILABLE ttSalesTaxAuditRep THEN
-        ttSalesTaxAuditRep.problem = "Non Taxable customer without Resale certificate". 
-        IF NOT lCustTaxAble AND cust.date-field[2] LT TODAY + 30 AND AVAILABLE ttSalesTaxAuditRep THEN
-        ttSalesTaxAuditRep.problem = "Resale expiration date issue".       
+        IF cShipToStatus NE "None" THEN DO:
+            FOR EACH shipto NO-LOCK
+                WHERE shipto.company EQ cCompany
+                  AND shipto.cust-no EQ cust.cust-no
+                :
+                IF DYNAMIC-FUNCTION("IsActive",shipto.rec_key) EQ NO AND
+                   cShipToStatus EQ "Active" THEN
+                NEXT.
+                FIND FIRST stax-group NO-LOCK
+                     WHERE stax-group.tax-group EQ shipto.tax-code
+                     NO-ERROR.
+                IF NOT AVAILABLE stax-group AND Shipto.tax-mandatory THEN
+                RUN pLogProblem ("ShipTo", "Ship to Tax code is not valid").
+                IF Shipto.tax-mandatory AND shipto.tax-code EQ "" THEN
+                RUN pLogProblem ("ShipTo", "Taxable ship to has no tax code").
+                IF NOT lCustTaxAble AND Cust.tax-id EQ "" AND AVAILABLE ttSalesTaxAuditRep THEN
+                RUN pLogProblem ("ShipTo", "Non Taxable customer without Resale certificate"). 
+                IF NOT lCustTaxAble AND cust.date-field[2] LT TODAY + 30 AND AVAILABLE ttSalesTaxAuditRep THEN
+                RUN pLogProblem ("ShipTo", "Resale expiration date issue").    
+            END.
+        END.
+        IF cCustomerStatus NE "None" THEN DO:
+            IF cCustomerStatus EQ "Active" AND cust.active NE "A" THEN
+            NEXT.
+            FIND FIRST stax-group NO-LOCK
+                 WHERE stax-group.tax-group EQ cust.tax-gr
+                 NO-ERROR.
+            IF NOT AVAILABLE stax-group AND AVAILABLE ttSalesTaxAuditRep AND cust.tax-gr NE "" THEN
+            RUN pLogProblem ("Cust", "Tax Group Defined is not valid").
+            IF cust.tax-gr EQ "" AND lCustTaxAble AND AVAILABLE ttSalesTaxAuditRep THEN
+            RUN pLogProblem ("Cust", "Taxable customer without tax code").
+            IF NOT lCustTaxAble AND Cust.tax-id EQ "" AND AVAILABLE ttSalesTaxAuditRep THEN
+            RUN pLogProblem ("Cust", "Non Taxable customer without Resale certificate"). 
+            IF NOT lCustTaxAble AND cust.date-field[2] LT TODAY + 30 AND AVAILABLE ttSalesTaxAuditRep THEN
+            RUN pLogProblem ("Cust", "Resale expiration date issue").
+        END. /* if ccustomerstatus */       
     END. /* each cust */
+END PROCEDURE.
+
+PROCEDURE pCreateSalesTaxAudit:
+    DEFINE INPUT PARAMETER ipcProblem AS CHARACTER NO-UNDO.
+
+    CREATE ttSalesTaxAuditRep.
+    ASSIGN
+        ttSalesTaxAuditRep.cust-no      = cust.cust-no
+        ttSalesTaxAuditRep.cust-name    = cust.name
+        ttSalesTaxAuditRep.cust-city    = cust.city
+        ttSalesTaxAuditRep.cust-state   = cust.state
+        ttSalesTaxAuditRep.cust-zip     = cust.zip
+        ttSalesTaxAuditRep.cust-taxcode = cust.tax-gr
+        ttSalesTaxAuditRep.cust-taxable = cust.sort
+        ttSalesTaxAuditRep.tax-Resale   = cust.tax-id
+        ttSalesTaxAuditRep.resale-date  = cust.date-field[2]
+        ttSalesTaxAuditRep.problem      = ipcProblem.
+        .
+END PROCEDURE.
+
+PROCEDURE pLogProblem:
+    DEFINE INPUT PARAMETER ipcType    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcProblem AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+
+    RUN pCreateSalesTaxAudit (ipcProblem).
+    CASE ipcType:
+        WHEN "FGItem" THEN
+        ASSIGN
+            ttSalesTaxAuditRep.fgitem         = itemfg.i-no
+            ttSalesTaxAuditRep.fgdesc         = itemfg.i-name
+            ttSalesTaxAuditRep.fgitem-cust    = itemfg.cust-no
+            ttSalesTaxAuditRep.fgitem-taxable = itemfg.taxable
+            .
+        WHEN "Prep" THEN
+        ASSIGN
+            ttSalesTaxAuditRep.prepitem     = prep.i-no
+            ttSalesTaxAuditRep.prep-desc    = prep.dscr
+            ttSalesTaxAuditRep.prep-cust    = prep.cust-no
+            ttSalesTaxAuditRep.prep-taxable = prep.taxable
+            . 
+        WHEN "ShipTo" THEN
+        ASSIGN
+            ttSalesTaxAuditRep.ship-id      = shipto.ship-id
+            ttSalesTaxAuditRep.ship-name    = shipto.ship-name
+            ttSalesTaxAuditRep.ship-city    = shipto.ship-city
+            ttSalesTaxAuditRep.ship-state   = shipto.ship-state
+            ttSalesTaxAuditRep.ship-zip     = shipto.ship-zip
+            ttSalesTaxAuditRep.ship-taxcode = shipto.tax-code
+            ttSalesTaxAuditRep.ship-taxable = shipto.tax-mandatory
+            .
+    END CASE.
 END PROCEDURE.

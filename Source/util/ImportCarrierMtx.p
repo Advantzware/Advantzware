@@ -13,13 +13,14 @@
 /*Refactor - required for old external procedures*/ 
 
 DEFINE TEMP-TABLE ttImportCarrierMtx
-    FIELD Company       AS CHARACTER 
-    FIELD Location      AS CHARACTER
-    FIELD carrier       AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Carrier" HELP "Required - Size:8"
-    FIELD del-zone      AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Zone" HELP "Required - Size:8"
-    FIELD del-dscr      AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Description" HELP "Optional - Size:30" 
-    FIELD del-zip        AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Zip Code" HELP "Optional - Size:10" 
-    FIELD min-rate      AS DECIMAL FORMAT ">>>>9.999" COLUMN-LABEL "Min Rate" HELP "Optional - Decimal" 
+    FIELD Company      AS CHARACTER 
+    FIELD Location     AS CHARACTER
+    FIELD carrier      AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Carrier" HELP "Required - Size:8"
+    FIELD loc          AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Location" HELP "Required - Size:8"
+    FIELD del-zone     AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Zone" HELP "Required - Size:8"
+    FIELD del-dscr     AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Description" HELP "Optional - Size:30" 
+    FIELD del-zip      AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Zip Code" HELP "Optional - Size:10" 
+    FIELD min-rate     AS DECIMAL FORMAT ">>>>9.999" COLUMN-LABEL "Min Rate" HELP "Optional - Decimal" 
     FIELD weight1      AS INTEGER FORMAT ">>>>>>>" COLUMN-LABEL "Qty Up To 1" HELP "Optional - Integer"
     FIELD weight2      AS INTEGER FORMAT ">>>>>>>" COLUMN-LABEL "Qty Up To 2" HELP "Optional - Integer"
     FIELD weight3      AS INTEGER FORMAT ">>>>>>>" COLUMN-LABEL "Qty Up To 3" HELP "Optional - Integer"
@@ -29,17 +30,17 @@ DEFINE TEMP-TABLE ttImportCarrierMtx
     FIELD weight7      AS INTEGER FORMAT ">>>>>>>" COLUMN-LABEL "Qty Up To 7" HELP "Optional - Integer"
     FIELD weight8      AS INTEGER FORMAT ">>>>>>>" COLUMN-LABEL "Qty Up To 8" HELP "Optional - Integer"
     FIELD weight9      AS INTEGER FORMAT ">>>>>>>" COLUMN-LABEL "Qty Up To 9" HELP "Optional - Integer"
-    FIELD weight10      AS INTEGER FORMAT ">>>>>>>" COLUMN-LABEL "Qty Up To 10" HELP "Optional - Integer"
-    FIELD rate1         AS DECIMAL FORMAT ">>>9.999" COLUMN-LABEL "Rate/Qty 1" HELP "Optional - Decimal"
-    FIELD rate2         AS DECIMAL FORMAT ">>>9.999" COLUMN-LABEL "Rate/Qty 2" HELP "Optional - Decimal"
-    FIELD rate3         AS DECIMAL FORMAT ">>>9.999" COLUMN-LABEL "Rate/Qty 3" HELP "Optional - Decimal"
-    FIELD rate4         AS DECIMAL FORMAT ">>>9.999" COLUMN-LABEL "Rate/Qty 4" HELP "Optional - Decimal"
-    FIELD rate5         AS DECIMAL FORMAT ">>>9.999" COLUMN-LABEL "Rate/Qty 5" HELP "Optional - Decimal"
-    FIELD rate6         AS DECIMAL FORMAT ">>>9.999" COLUMN-LABEL "Rate/Qty 6" HELP "Optional - Decimal"
-    FIELD rate7         AS DECIMAL FORMAT ">>>9.999" COLUMN-LABEL "Rate/Qty 7" HELP "Optional - Decimal"
-    FIELD rate8         AS DECIMAL FORMAT ">>>9.999" COLUMN-LABEL "Rate/Qty 8" HELP "Optional - Decimal"
-    FIELD rate9         AS DECIMAL FORMAT ">>>9.999" COLUMN-LABEL "Rate/Qty 9" HELP "Optional - Decimal"
-    FIELD rate10         AS DECIMAL FORMAT ">>>9.999" COLUMN-LABEL "Rate/Qty 10" HELP "Optional - Decimal"
+    FIELD weight10     AS INTEGER FORMAT ">>>>>>>" COLUMN-LABEL "Qty Up To 10" HELP "Optional - Integer"
+    FIELD rate1        AS DECIMAL FORMAT ">>>9.999" COLUMN-LABEL "Rate/Qty 1" HELP "Optional - Decimal"
+    FIELD rate2        AS DECIMAL FORMAT ">>>9.999" COLUMN-LABEL "Rate/Qty 2" HELP "Optional - Decimal"
+    FIELD rate3        AS DECIMAL FORMAT ">>>9.999" COLUMN-LABEL "Rate/Qty 3" HELP "Optional - Decimal"
+    FIELD rate4        AS DECIMAL FORMAT ">>>9.999" COLUMN-LABEL "Rate/Qty 4" HELP "Optional - Decimal"
+    FIELD rate5        AS DECIMAL FORMAT ">>>9.999" COLUMN-LABEL "Rate/Qty 5" HELP "Optional - Decimal"
+    FIELD rate6        AS DECIMAL FORMAT ">>>9.999" COLUMN-LABEL "Rate/Qty 6" HELP "Optional - Decimal"
+    FIELD rate7        AS DECIMAL FORMAT ">>>9.999" COLUMN-LABEL "Rate/Qty 7" HELP "Optional - Decimal"
+    FIELD rate8        AS DECIMAL FORMAT ">>>9.999" COLUMN-LABEL "Rate/Qty 8" HELP "Optional - Decimal"
+    FIELD rate9        AS DECIMAL FORMAT ">>>9.999" COLUMN-LABEL "Rate/Qty 9" HELP "Optional - Decimal"
+    FIELD rate10       AS DECIMAL FORMAT ">>>9.999" COLUMN-LABEL "Rate/Qty 10" HELP "Optional - Decimal"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
@@ -96,7 +97,14 @@ PROCEDURE pValidate PRIVATE:
     DO:
         IF oplValid AND ipbf-ttImportCarrierMtx.carrier NE "" THEN 
             RUN pIsValidCarrier (ipbf-ttImportCarrierMtx.carrier, YES, ipbf-ttImportCarrierMtx.company, OUTPUT oplValid, OUTPUT cValidNote).
-        
+        IF oplValid THEN 
+            RUN pIsValidWarehouse(
+                INPUT ipbf-ttImportCarrierMtx.loc,
+                INPUT YES,
+                INPUT ipbf-ttImportCarrierMtx.company,
+                OUTPUT oplvalid,
+                OUTPUT cValidNote
+                ). 
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
     

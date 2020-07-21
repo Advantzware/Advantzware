@@ -702,10 +702,10 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   /* gdm - 09200703 */
   DEF VAR ll-new-record AS LOG NO-UNDO.
-
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN valid-actnum NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  RUN valid-actnum(OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
 
   /* gdm - 09200703 */
   ASSIGN ll-new-record = adm-new-record.
@@ -860,7 +860,7 @@ PROCEDURE valid-actnum :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DO WITH FRAME {&FRAME-NAME}:
     RUN new-actnum (1).
 
@@ -877,7 +877,7 @@ PROCEDURE valid-actnum :
               " is invalid, try help..."
           VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO gl-jrnl.actnum IN BROWSE {&browse-name}.
-      RETURN ERROR.
+      oplReturnError = YES .
     END.
   END.
 
@@ -918,7 +918,7 @@ FUNCTION display-credit RETURNS DECIMAL
     Notes:  
 ------------------------------------------------------------------------------*/
   IF AVAIL gl-jrnl AND gl-jrnl.tr-amt > 0 THEN RETURN 0.00. 
-  ELSE RETURN  gl-jrnl.tr-amt.
+  ELSE IF AVAIL gl-jrnl THEN RETURN  gl-jrnl.tr-amt.
     /* Function return value. */
 END FUNCTION.
 

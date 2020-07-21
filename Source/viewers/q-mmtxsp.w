@@ -324,7 +324,7 @@ PROCEDURE proc-down :
    def buffer bf-mmtx for mmtx .
    def buffer bf2-mmtx for mmtx.
    def var i as int no-undo.
-   
+   IF not AVAIL mmtx THEN RETURN .
    assign li-cur-page = mmtx.page-no
           li-cur-across = mmtx.across-no.
           
@@ -426,6 +426,7 @@ PROCEDURE proc-left :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  IF AVAIL mmtx THEN 
   assign li-cur-page = mmtx.page-no
          li-cur-across = mmtx.across-no.
 
@@ -449,7 +450,7 @@ PROCEDURE proc-right :
   def buffer bf-mmtx for mmtx.
   def buffer bf2-mmtx for mmtx.
   def var i as int no-undo.
-
+  IF not AVAIL mmtx THEN RETURN .
   assign li-cur-page = mmtx.page-no
          li-cur-across = mmtx.across-no.
 
@@ -524,6 +525,7 @@ PROCEDURE proc-up :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  IF avail mmtx THEN
   assign li-cur-page = mmtx.page-no
          li-cur-across = mmtx.across-no.
 

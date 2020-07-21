@@ -640,18 +640,6 @@ PROCEDURE pGetParamValues :
                 ttParamValues.paramValue = dynValueParam.paramValue
                 .
         END. /* each dynvalueparam */
-/*        /* rstark - remove when depricated */                           */
-/*        DO idx = 1 TO EXTENT(dynParamValue.paramName):                  */
-/*            IF dynParamValue.paramName[idx] EQ "" THEN LEAVE.           */
-/*            IF dynParamValue.paramName[idx] BEGINS "sv" THEN NEXT.      */
-/*            CREATE ttParamValues.                                       */
-/*            ASSIGN                                                      */
-/*                ttParamValues.sortOrder  = idx                          */
-/*                ttParamValues.paramName  = dynParamValue.paramName[idx] */
-/*                ttParamValues.paramLabel = dynParamValue.paramLabel[idx]*/
-/*                ttParamValues.paramValue = dynParamValue.paramValue[idx]*/
-/*                .                                                       */
-/*        END. /* do idx */                                               */
     END. /* if avail */
     {&OPEN-QUERY-paramValueBrowse}
 

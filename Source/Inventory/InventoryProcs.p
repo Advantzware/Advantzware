@@ -113,6 +113,8 @@ PROCEDURE Inventory_CheckPOUnderOver:
     DEFINE VARIABLE dReceivedQty AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lIsUOMEA     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE dPostedPOQty AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lError       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
     
     
     FOR EACH fg-rctd NO-LOCK
@@ -148,21 +150,13 @@ PROCEDURE Inventory_CheckPOUnderOver:
             ).
         
         dReceivedQty = dReceivedQty + dPostedPOQty.
-  
-        RUN sys/ref/ea-um-fg.p(
-            INPUT  po-ordl.pr-qty-uom, 
-            OUTPUT lIsUOMEA
-            ).
-        IF NOT lIsUOMEA THEN
-            RUN sys/ref/convquom.p(
-                INPUT "EA",
-                INPUT po-ordl.pr-qty-uom,
-                INPUT 0,
-                INPUT 0,
-                INPUT 0,
-                INPUT 0,
-                INPUT-OUTPUT dReceivedQty
-                ).
+        
+        IF po-ordl.pr-qty-uom NE "EA" THEN 
+            RUN Conv_QuantityFromUOMtoUOM(ipcCompany, po-ordl.i-no, "FG", 
+                dReceivedQty, po-ordl.pr-qty-uom, "EA", 
+                0, 0, 0, 0, 0,  /*No Overrides*/ 
+                OUTPUT dReceivedQty, OUTPUT lError, OUTPUT cErrorMessage).
+
         IF iplFGUnderOver THEN DO:
             IF(ipcFGUnderOver EQ "OverRuns Only" OR ipcFGUnderOver EQ "UnderRuns and OverRun") AND 
                 dReceivedQty GT po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100)) THEN DO:
@@ -3686,7 +3680,7 @@ PROCEDURE ValidateCust:
     IF oplValid THEN
         opcMessage = "Success".
     ELSE
-        opcMessage = "Invalid Customer".
+        opcMessage = "Invalid Customer '" + ipcCustID + "'".
 END PROCEDURE.
 
 PROCEDURE ValidatePOLine:

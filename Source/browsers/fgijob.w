@@ -64,6 +64,7 @@ DEFINE TEMP-TABLE hold-job LIKE w-job.
 DEF TEMP-TABLE tt-ids 
     FIELD tt-type AS CHAR 
     FIELD tt-rowid AS ROWID
+    FIELD tt-tagno AS CHAR 
     FIELD tt-jobno LIKE oe-boll.job-no
     FIELD tt-jobno2 LIKE oe-boll.job-no2
     FIELD tt-qty LIKE oe-boll.qty.
@@ -297,11 +298,11 @@ DEFINE BROWSE br_table
     w-job.cases                LABEL "Units"                                                  LABEL-BGCOLOR 14
     w-job.case-count           LABEL "Unit Count"             FORMAT ">>>,>>9"                LABEL-BGCOLOR 14
     w-job.cases-unit           COLUMN-LABEL "Units/!Pallet"   FORMAT ">>>,>>9"                LABEL-BGCOLOR 14
-    w-job.partial-count        LABEL "Partial"                FORMAT "->>,>>9"                LABEL-BGCOLOR 14
-    w-job.qty                  LABEL "Total Qty"              FORMAT "->>>,>>9"               LABEL-BGCOLOR 14
-    w-job.rel-qty              LABEL "Releases"               FORMAT "->>>,>>9"               LABEL-BGCOLOR 14
-    w-job.bol-qty              LABEL "BOL Qty"                FORMAT "->>>,>>9"               LABEL-BGCOLOR 14
-    w-job.avl-qty              LABEL "Avail to Release"       FORMAT "->>>,>>9"               LABEL-BGCOLOR 14
+    w-job.partial-count        LABEL "Partial"                FORMAT "->>>,>>9"                LABEL-BGCOLOR 14
+    w-job.qty                  LABEL "Total Qty"              FORMAT "->,>>>,>>9"               LABEL-BGCOLOR 14
+    w-job.rel-qty              LABEL "Releases"               FORMAT "->,>>>,>>9"               LABEL-BGCOLOR 14
+    w-job.bol-qty              LABEL "BOL Qty"                FORMAT "->,>>>,>>9"               LABEL-BGCOLOR 14
+    w-job.avl-qty              LABEL "Avail to Release"       FORMAT "->,>>>,>>9"               LABEL-BGCOLOR 14
     w-job.std-tot-cost         COLUMN-LABEL "Standard!Cost"                                   LABEL-BGCOLOR 14
     w-job.sell-uom             LABEL "UOM"                                                    LABEL-BGCOLOR 14
     w-job.std-mat-cost         LABEL "Material"               FORMAT "->>>,>>9.9999"          LABEL-BGCOLOR 14
@@ -309,7 +310,7 @@ DEFINE BROWSE br_table
     w-job.std-var-cost         LABEL "Variable O/H"           FORMAT "->>>,>>9.9999"          LABEL-BGCOLOR 14
     w-job.std-fix-cost         LABEL "Fixed O/H"              FORMAT "->>>,>>9.9999"          LABEL-BGCOLOR 14
     w-job.cust-no              LABEL "Cust#"                  FORMAT "x(8)"        WIDTH 13   LABEL-BGCOLOR 14  
-    w-job.tot-wt               LABEL "Lbs / 100"              FORMAT "->>>,>>9.99" WIDTH 16   LABEL-BGCOLOR 14
+    w-job.tot-wt               LABEL "Lbs / 100"              FORMAT "->,>>>,>>9.99" WIDTH 16   LABEL-BGCOLOR 14
     w-job.tagStatusID          LABEL "Tag Status ID "         FORMAT "X(4)"        WIDTH 18.3 LABEL-BGCOLOR 14
     w-job.tagStatusDescription LABEL "Tag Status Description" FORMAT "X(32)"                  LABEL-BGCOLOR 14
     w-job.onHold               LABEL "On Hold"                FORMAT "Yes/No"                 LABEL-BGCOLOR 14
@@ -737,6 +738,7 @@ PROCEDURE build-table :
                 tt-rowid = ROWID(oe-rell)
                 tt-jobno = oe-rell.job-no
                 tt-jobno2 = oe-rell.job-no2
+                tt-tagno = oe-rell.tag
                 tt-qty = oe-rell.qty.
         END.
 
@@ -755,6 +757,7 @@ PROCEDURE build-table :
                     tt-rowid = ROWID(oe-boll)
                     tt-jobno = oe-boll.job-no
                     tt-jobno2 = oe-boll.job-no2
+                    tt-tagno = oe-boll.tag
                     tt-qty = oe-boll.qty.
         END.
   
@@ -774,6 +777,7 @@ PROCEDURE build-table :
                 tt-rowid = ROWID(oe-boll)
                 tt-jobno = oe-boll.job-no
                 tt-jobno2 = oe-boll.job-no2
+                tt-tagno = oe-boll.tag
                 tt-qty = oe-boll.qty.
         END.
     END.
@@ -819,10 +823,12 @@ PROCEDURE build-table :
             about 500,000 reads */
         FOR EACH tt-ids WHERE 
             tt-jobno EQ w-job.job-no AND 
-            tt-jobno2 EQ w-job.job-no2
+            tt-jobno2 EQ w-job.job-no2 AND 
+            tt-tagno EQ w-job.tag
             BY tt-ids.tt-type
             BY tt-ids.tt-jobno 
-            BY tt-ids.tt-jobno2:
+            BY tt-ids.tt-jobno2 
+            BY tt-ids.tt-tagno:
             IF tt-ids.tt-type EQ "REL" THEN ASSIGN 
                 w-job.rel-qty = w-job.rel-qty + tt-ids.tt-qty.
             ELSE ASSIGN 

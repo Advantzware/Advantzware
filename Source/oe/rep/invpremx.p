@@ -4,7 +4,7 @@
 DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
 DEF INPUT PARAM ip-print-s AS LOG NO-UNDO. /* for PremierS */
 {sys/inc/var.i shared}
-
+{system/TaxProcs.i}
 {oe/rep/invoice.i}
 
 def var v-salesman as char format "x(14)" NO-UNDO.
@@ -116,9 +116,7 @@ DEFINE VARIABLE dFrtTaxRate           AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE lIsTaxRateSame        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE dTotalSalesTaxableAmt AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dTotalFrtTaxableAmt   AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE hdTaxProcs            AS HANDLE    NO-UNDO.
 
-RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 FUNCTION fRoundUp RETURNS DECIMAL ( ipdNum AS DECIMAL ):
@@ -791,36 +789,45 @@ END.
              IF AVAIL stax AND inv-line.tax THEN 
              DO:
                 dLineTaxableAmt = inv-line.t-price.
-
-                RUN Tax_Calculate IN hdTaxProcs (
+                
+                EMPTY TEMP-TABLE ttTaxDetail.
+                
+                RUN Tax_CalculateWithDetail  (
                     INPUT  inv-head.company,
                     INPUT  inv-head.tax-gr,
                     INPUT  FALSE,   /* Is this freight */
                     INPUT  dLineTaxableAmt,
-                    INPUT  inv-line.i-no,
-                    OUTPUT dLineTaxAmt
-                    ).                   
+                    OUTPUT dLineTaxAmt,
+                    OUTPUT TABLE ttTaxDetail
+                    ). 
                     
                 ASSIGN 
-                    dLineTaxAmt           = fRoundUp(dLineTaxAmt)
-                    dLineTaxRate          = TRUNCATE(dLineTaxAmt / dLineTaxableAmt * 100, 2)
+                    dLineTaxRate = 0
+                    dFrtTaxRate  = 0
+                    .
+                        
+                FOR EACH ttTaxDetail:
+                    dLineTaxRate  = dLineTaxRate + ttTaxDetail.taxCodeRate.
+                    IF ttTaxDetail.isTaxOnFreight THEN 
+                        dFrtTaxRate = dFrtTaxRate + ttTaxDetail.taxCodeRate.
+                END.   
+                    
+                ASSIGN 
                     dTotalSalesTax        = dTotalSalesTax + dLineTaxAmt
                     dTotalSalesTaxableAmt = dTotalSalesTaxableAmt + dLineTaxableAmt
                     .
-                    
-                IF inv-head.f-bill THEN DO:    
+                IF inv-head.f-bill THEN DO: 
+                    EMPTY TEMP-TABLE ttTaxDetail.                     
                     lIsFreightTaxable = YES.
-                    RUN Tax_Calculate IN hdTaxProcs (
+                    RUN Tax_CalculateWithDetail  (
                         INPUT  inv-head.company,
                         INPUT  inv-head.tax-gr,
                         INPUT  TRUE,   /* Is this freight */
                         INPUT  inv-line.t-freight,
-                        INPUT  "",
-                        OUTPUT dFrtTaxAmt
+                        OUTPUT dFrtTaxAmt,
+                        OUTPUT TABLE ttTaxDetail
                         ).
                     ASSIGN     
-                        dFrtTaxAmt          = fRoundUp(dFrtTaxAmt)
-                        dFrtTaxRate         = TRUNCATE(dFrtTaxAmt / inv-line.t-freight * 100, 2)
                         dTotalFrtTax        = dTotalFrtTax + dFrtTaxAmt
                         dTotalFrtTaxableAmt = dTotalFrtTaxableAmt + inv-line.t-freight
                         .
@@ -925,14 +932,16 @@ END.
              RUN cXMLOutput (clXMLOutput,'/SubtotalAmount','','Row').
              RUN cXMLOutput (clXMLOutput,'UnitOfMeasure',(IF cOrigUom EQ "" THEN inv-line.pr-uom ELSE cOrigUOM),'Col').
              RUN cXMLOutput (clXMLOutput,'UnitPrice','','Row').
-             RUN cXMLOutput (clXMLOutput,'Money Currency="USD"','','Row').
+             RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
              RUN cXMLOutput (clXMLOutput,'',STRING(v-price),'Col').
              RUN cXMLOutput (clXMLOutput,'/Money','','Row').
              RUN cXMLOutput (clXMLOutput,'/UnitPrice','','Row').
              RUN cXMLOutput (clXMLOutput,'Tax','','Row').
-             RUN cXMLOutput (clXMLOutput,'Money Currency="USD"','','Row').
+             RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
              RUN cXMLOutput (clXMLOutput,'',STRING(dLineTaxAmt + dFrtTaxAmt),'Col').
              RUN cXMLOutput (clXMLOutput,'/Money','','Row').
+             RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
+             RUN cXMLOutput (clXMLOutput,'/Description','','Row').
              RUN cXMLOutput (clXMLOutput,'TaxDetail category="Sales"'+
                                          ' percentageRate="' + STRING(dLineTaxRate) + '"' +  ' purpose="ShippingTax"','','Row').
              RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').
@@ -1193,9 +1202,6 @@ END.
     {XMLOutput/XMLOutput.i &c=c &XMLClose} /* rstark 05291402 */
 
 end. /* each xinv-head */
-
-IF VALID-HANDLE(hdTaxProcs) THEN
-    DELETE PROCEDURE hdTaxProcs.
 
 IF VALID-HANDLE(hdFileSysProcs) THEN
     DELETE PROCEDURE hdFileSysProcs.

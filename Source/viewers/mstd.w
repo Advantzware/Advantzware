@@ -761,7 +761,7 @@ PROCEDURE create-matrix :
      tmpstore = "".
      if mstd.mr-x <> 0 then do:
         find std-code where std-code.code = string(mr-x,"99") no-lock no-error.
-        mmty.c-title = caps(std-code.dscr).
+        mmty.c-title = IF AVAIL std-code THEN caps(std-code.dscr) ELSE "".
         do i = 1 to length(mmty.c-title):
            tmpstore = tmpstore + substring(mmty.c-title,i,1) + " ".
         end.
@@ -769,7 +769,7 @@ PROCEDURE create-matrix :
      end.
      if mr-y ne 0 then do:
         find std-code where std-code.code = string(mr-y,"99") no-lock no-error.
-        mmty.r-title = caps(std-code.dscr).
+        mmty.r-title = IF AVAIL std-code THEN caps(std-code.dscr) ELSE "".
         tmpstore = "".
         do i = 1 to 15:
            mmty.rtit[i] = substring(mmty.r-title,i,1).
@@ -795,7 +795,7 @@ PROCEDURE create-matrix :
 
      if rs-x ne 0 then do:
         find std-code where std-code.code = string(rs-x,"99") no-lock no-error.
-        mmtx.c-title = caps(std-code.dscr).
+        mmtx.c-title = IF AVAIL std-code THEN caps(std-code.dscr) ELSE "".
         do i = 1 to length(mmtx.c-title):
            tmpstore = tmpstore + substring(mmtx.c-title,i,1) + " ".
         end.
@@ -803,7 +803,7 @@ PROCEDURE create-matrix :
      end.
      if rs-y ne 0 then do:
         find std-code where std-code.code = string(rs-y,"99") no-lock no-error.
-        mmtx.r-title = caps(std-code.dscr).
+        mmtx.r-title = IF AVAIL std-code THEN caps(std-code.dscr) ELSE "".
         tmpstore = "".
         do i = 1 to 15:
            mmtx.rtit[i] = substring(mmtx.r-title,i,1).
@@ -831,7 +831,7 @@ PROCEDURE create-matrix :
 
      if sp-x ne 0 then do:
         find std-code where std-code.code = string(sp-x,"99") no-lock no-error.
-        mmtx.c-title = caps(std-code.dscr).
+        mmtx.c-title = IF AVAIL std-code THEN caps(std-code.dscr) ELSE "".
         do i = 1 to length(mmtx.c-title):
            tmpstore = tmpstore + substring(mmtx.c-title,i,1) + " ".
         end.
@@ -839,7 +839,7 @@ PROCEDURE create-matrix :
      end.
      if sp-y ne 0 then do:
         find std-code where std-code.code = string(sp-y,"99") no-lock no-error.
-        mmtx.r-title = caps(std-code.dscr).
+        mmtx.r-title = IF AVAIL std-code THEN caps(std-code.dscr) ELSE "".
         tmpstore = "".
         do i = 1 to 15:
            mmtx.rtit[i] = substring(mmtx.r-title,i,1).
@@ -1206,7 +1206,7 @@ FOR EACH mmty where mmty.company = mstd.company and
                       mmty.style = ip-style EXCLUSIVE-LOCK:
    if mstd.mr-x ne 0 then do:
       find first std-code where std-code.code = string(mstd.mr-x,"99") no-lock no-error.
-      if mmty.c-title ne std-code.dscr then mmty.c-title = caps(std-code.dscr).
+      IF AVAIL std-code AND mmty.c-title ne std-code.dscr then mmty.c-title = caps(std-code.dscr).
       do i = 1 to length(mmty.c-title):
          tmpstore = tmpstore + substring(mmty.c-title,i,1) + " ".
       end.
@@ -1216,7 +1216,7 @@ FOR EACH mmty where mmty.company = mstd.company and
    end.
    if mstd.mr-y ne 0 then do:
       find first std-code where std-code.code = string(mstd.mr-y,"99") no-lock no-error.
-      if mmty.r-title ne std-code.dscr then mmty.r-title = caps(std-code.dscr).
+      IF AVAIL std-code AND mmty.r-title ne std-code.dscr then mmty.r-title = caps(std-code.dscr).
       do i = 1 to 15:
          mmty.rtit[i] = substring(mmty.r-title,i,1).
       end.
@@ -1233,7 +1233,7 @@ FOR EACH mmtx where mmtx.company = mstd.company and
                       not mr-run  EXCLUSIVE-LOCK:
    if mstd.rs-x ne 0 then do:
       find first std-code where std-code.code = string(mstd.rs-x,"99") no-lock no-error.
-      if mmtx.c-title ne std-code.dscr then mmtx.c-title = caps(std-code.dscr).
+      IF AVAIL std-code AND mmtx.c-title ne std-code.dscr then mmtx.c-title = caps(std-code.dscr).
       do i = 1 to length(mmtx.c-title):
          tmpstore = tmpstore + substring(mmtx.c-title,i,1) + " ".
       end.
@@ -1243,7 +1243,7 @@ FOR EACH mmtx where mmtx.company = mstd.company and
    end.
    if mstd.rs-y ne 0 then do:
       find first std-code where std-code.code = string(mstd.rs-y,"99") no-lock no-error.
-      if mmtx.r-title ne std-code.dscr then mmtx.r-title = caps(std-code.dscr).
+      IF AVAIL std-code AND mmtx.r-title ne std-code.dscr then mmtx.r-title = caps(std-code.dscr).
       do i = 1 to 15:
          mmtx.rtit[i] = substring(mmtx.r-title,i,1).
       end.
@@ -1267,7 +1267,7 @@ IF AVAIL mmtx THEN DO:
                       and mr-run EXCLUSIVE-LOCK.  /* spoil mtx */
    if mstd.sp-x ne 0 then do:
       find first std-code where std-code.code = string(mstd.sp-x,"99") no-lock no-error.
-      if bf-mmtx.c-title ne std-code.dscr then bf-mmtx.c-title = caps(std-code.dscr).
+      IF AVAIL std-code AND bf-mmtx.c-title ne std-code.dscr then bf-mmtx.c-title = caps(std-code.dscr).
       do i = 1 to length(bf-mmtx.c-title):
          tmpstore = tmpstore + substring(bf-mmtx.c-title,i,1) + " ".
       end.
@@ -1277,7 +1277,7 @@ IF AVAIL mmtx THEN DO:
    end.
    if mstd.sp-y ne 0 then do:
       find first std-code where std-code.code = string(mstd.sp-y,"99") no-lock no-error.
-      if bf-mmtx.r-title ne std-code.dscr then bf-mmtx.r-title = caps(std-code.dscr).
+      IF AVAIL std-code AND bf-mmtx.r-title ne std-code.dscr then bf-mmtx.r-title = caps(std-code.dscr).
       do i = 1 to 15:
          bf-mmtx.rtit[i] = substring(bf-mmtx.r-title,i,1).
       end.
@@ -1303,7 +1303,7 @@ END. /* avail mmtx*/
 
      if sp-x ne 0 then do:
         find std-code where std-code.code = string(sp-x,"99") no-lock no-error.
-        mmtx.c-title = caps(std-code.dscr).
+        mmtx.c-title = IF AVAIL std-code THEN caps(std-code.dscr) ELSE "". 
         do i = 1 to length(mmtx.c-title):
            tmpstore = tmpstore + substring(mmtx.c-title,i,1) + " ".
         end.
@@ -1311,7 +1311,7 @@ END. /* avail mmtx*/
      end.
      if sp-y ne 0 then do:
         find std-code where std-code.code = string(sp-y,"99") no-lock no-error.
-        mmtx.r-title = caps(std-code.dscr).
+        mmtx.r-title = IF AVAIL std-code THEN caps(std-code.dscr) ELSE "" .
         tmpstore = "".
         do i = 1 to 15:
            mmtx.rtit[i] = substring(mmtx.r-title,i,1).

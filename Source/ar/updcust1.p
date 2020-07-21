@@ -3,8 +3,6 @@ DEF PARAM BUFFER io-cust FOR cust.
 
 DEF OUTPUT PARAM op-dec AS DEC NO-UNDO.
 
-DEF BUFFER b-oe-ord FOR oe-ord.
-
 DEF VAR v-tot AS DEC EXTENT 10 NO-UNDO.
 DEF VAR v-tax-rate AS DEC NO-UNDO.
 DEF VAR v-frt-tax-rate AS DEC NO-UNDO.
@@ -18,18 +16,14 @@ IF AVAIL io-cust THEN DO:
       USE-INDEX opened NO-LOCK:
 
     IF ipUpdOrd THEN DO:
-   
-        FIND FIRST b-oe-ord WHERE RECID(b-oe-ord) EQ RECID(oe-ord)
-            EXCLUSIVE-LOCK no-error NO-WAIT.
               
-        IF AVAIL b-oe-ord THEN DO:   /******* CALCULATE TOTALS FOR ORDER *******/
-          RUN oe/calcordt.p (ROWID(b-oe-ord)).
-          FIND CURRENT b-oe-ord NO-LOCK.
-            
-          v-tot[4] = b-oe-ord.t-revenue + b-oe-ord.tax.
-        END.
-    
-        ELSE v-tot[4] = oe-ord.t-revenue + oe-ord.tax.
+    /******* CALCULATE TOTALS FOR ORDER *******/
+        RUN oe/calcordt.p (ROWID(oe-ord)).
+        
+        /* Read the current data if it got change in between */
+        FIND CURRENT oe-ord NO-LOCK NO-ERROR.
+          
+        v-tot[4] = oe-ord.t-revenue + oe-ord.tax.
     END.
     ELSE v-tot[4] = oe-ord.t-revenue + oe-ord.tax.
 

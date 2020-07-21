@@ -34,6 +34,9 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
+{sys/inc/var.i "new shared"}
+
 DEF VAR cMessage AS CHAR NO-UNDO.
 DEF VAR daTargetDate AS DATE NO-UNDO.
 DEF VAR hPurge AS HANDLE NO-UNDO.
@@ -41,6 +44,10 @@ DEF VAR iCtr AS INT NO-UNDO.
 DEF VAR lError AS LOG NO-UNDO.
 
 {src/adm2/widgetprto.i}
+
+ASSIGN
+    cocode = g_company
+    locode = g_loc.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -318,6 +325,7 @@ DO:
                                  ENTRY(iCtr,cFileList),
                                  fiEndDate:SCREEN-VALUE,
                                  fiOutputDir:SCREEN-VALUE,
+                                 cocode,
                                  OUTPUT iProcessedCount,
                                  OUTPUT lError,
                                  OUTPUT cMessage).

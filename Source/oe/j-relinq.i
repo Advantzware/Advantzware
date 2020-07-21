@@ -1,3 +1,5 @@
+DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+DEFINE VARIABLE iRelNO AS INTEGER NO-UNDO.
 
 IF fi_job-no NE "" THEN fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
 
@@ -76,10 +78,19 @@ END.
 
 ELSE
 IF fi_cust-no NE '' THEN DO:
+    {&for-each1} 
+        USE-INDEX r-no NO-LOCK 
+        BREAK BY oe-relh.r-no DESC:
+        iCount = iCount + 1.
+        iRelNo = oe-relh.release#.
+        IF iCount GE sys-ctrl.int-fld THEN 
+            LEAVE.
+    END.
   &SCOPED-DEFINE open-query              ~
       OPEN QUERY {&browse-name}          ~
           {&for-each1}                   ~
-              USE-INDEX cust NO-LOCK, ~
+           AND oe-relh.release# GE iRelNo ~
+              USE-INDEX release# NO-LOCK, ~
               {&for-each2}
 
 

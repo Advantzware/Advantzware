@@ -31,6 +31,11 @@ DEFINE VARIABLE lRetrigger              AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iAPIInboundEventID      AS INTEGER   NO-UNDO INITIAL ?.
 DEFINE VARIABLE cCompany                AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE hdSession AS HANDLE NO-UNDO.
+
+RUN system/session.p  PERSISTENT SET hdSession.
+SESSION:ADD-SUPER-PROCEDURE (hdSession).
+
 /* When this procedure is called from within ASI application 
    ( for offline load of queued requests, when the AppServer is down )
    then, currently logged user's password is passed as input 
@@ -211,6 +216,9 @@ RUN api\CreateAPIInboundEvent.p (
     OUTPUT opcAPIInboundEvent
     ) NO-ERROR.
      
+SESSION:REMOVE-SUPER-PROCEDURE (hdSession).
+DELETE PROCEDURE hdSession.
+
 /* This procedure checks whether username and password are valid or not */
 PROCEDURE UserAuthenticationCheck:
     DEFINE INPUT   PARAMETER ipcUsername    AS CHARACTER NO-UNDO.

@@ -1559,14 +1559,17 @@ PROCEDURE list-gl :
                 ASSIGN v-disp-amt = - work-job.amt
                     ld-t[2]    = - ld-t[2].
             ELSE*/
+            IF FIRST-OF(ttGLTransaction.account) THEN
+            v-disp-amt = 0.
+            
             ASSIGN 
-                v-disp-amt = ttGLTransaction.amount.
+                v-disp-amt = v-disp-amt + ttGLTransaction.amount.
 
             ld-pton = v-disp-amt / ld-t[2].
 
             IF ld-pton EQ ? THEN ld-pton = 0.
 
-            IF NOT v-gldetail THEN 
+            IF NOT v-gldetail AND LAST-OF(ttGLTransaction.account) THEN 
             DO:
                 DISPLAY v-disp-actnum
                     v-dscr
@@ -1579,10 +1582,8 @@ PROCEDURE list-gl :
                     WITH FRAME gl-sum.
                 DOWN WITH FRAME gl-sum.
             END.
-              IF v-disp-amt EQ ? THEN v-disp-amt = 0.
             ASSIGN
-                v-balance = v-balance + v-disp-amt
-                ld-t[3]   = ld-t[3] + ld-t[2].
+                ld-t[3] = ld-t[3] + ld-t[2].
         END. /* each work-job */
         
         
@@ -1597,18 +1598,19 @@ PROCEDURE list-gl :
             v-disp-amt = 0
             ld-t[2]    = 0.
 
-        IF v-gldetail THEN 
-        DO:
-            FOR EACH ttGLTransaction
-                WHERE ttGLTransaction.transactionType  EQ "FREIGHT"
-                NO-LOCK
-                BREAK BY ttGLTransaction.account:
+        
+        FOR EACH ttGLTransaction
+            WHERE ttGLTransaction.transactionType  EQ "FREIGHT"
+            NO-LOCK
+            BREAK BY ttGLTransaction.account:
 
-                ASSIGN
-                    ld-t[1]    = ttGLTransaction.quantityWeight / 2000
-                    v-disp-amt = v-disp-amt + dec(ttGLTransaction.amount)
-                    ld-t[2]    = ld-t[2] + ld-t[1].
-
+            ASSIGN
+                ld-t[1]    = ttGLTransaction.quantityWeight / 2000
+                v-disp-amt = v-disp-amt + dec(ttGLTransaction.amount)
+                ld-t[2]    = ld-t[2] + ld-t[1].
+                    
+                    
+            IF v-gldetail THEN              
                 IF dec(ttGLTransaction.amount) NE 0 THEN 
                 DO:
                     ld-pton = dec(ttGLTransaction.amount) / ld-t[1].
@@ -1627,34 +1629,30 @@ PROCEDURE list-gl :
                         WITH FRAME gl-det.
                     DOWN WITH FRAME gl-det.
                 END.
-            END.
-
-            IF v-disp-amt NE 0 THEN 
-            DO:
-                PUT v-disp-amt TO 128.
-                IF tb_ton THEN 
-                DO:
-                    ld-pton = v-disp-amt / ld-t[2].
-                    IF ld-pton EQ ? THEN ld-pton = 0.
-                    PUT ld-pton FORMAT "->>>>>>9.999" TO 141 ld-t[2] TO 151 SKIP(1).
-                END.
-                ELSE PUT SKIP.
-                ASSIGN
-                    v-disp-amt = 0
-                    ld-t[2]    = 0.
-            END.
         END.
 
-        ASSIGN
-            v-disp-actnum = v-ar-freight
-            v-disp-amt    = v-post-freight
-            ld-t[2]       = v-post-freight-w / 2000.
+        IF v-disp-amt NE 0 AND v-gldetail THEN 
+        DO:
+            PUT v-disp-amt TO 128.
+            IF tb_ton THEN 
+            DO:
+                ld-pton = v-disp-amt / ld-t[2].
+                IF ld-pton EQ ? THEN ld-pton = 0.
+                PUT ld-pton FORMAT "->>>>>>9.999" TO 141 ld-t[2] TO 151 SKIP(1).
+            END.
+            ELSE PUT SKIP.
+            ASSIGN
+                v-disp-amt = 0
+                ld-t[2]    = 0.
+        END.  
+
 
         IF NOT v-gldetail THEN 
-        DO:
+        DO:             
             ld-pton = v-disp-amt / ld-t[2].
 
             IF ld-pton EQ ? THEN ld-pton = 0.
+            IF v-disp-amt EQ ? THEN v-disp-amt = 0.
 
             DISPLAY v-disp-actnum
                 v-dscr
@@ -1667,8 +1665,7 @@ PROCEDURE list-gl :
                 WITH FRAME gl-sum.
             DOWN WITH FRAME gl-sum.
         END.
-        IF v-post-freight EQ ? THEN v-post-freight = 0.
-        v-balance = v-balance + v-post-freight.
+                     
         /** POST DISCOUNT TO G/L **/
         FIND FIRST account
             WHERE account.company EQ cocode
@@ -1678,20 +1675,19 @@ PROCEDURE list-gl :
             v-dscr     = IF AVAILABLE account THEN account.dscr
                    ELSE "ACCOUNT NOT FOUND - DISCOUNT"
             v-disp-amt = 0
-            ld-t[2]    = 0.
+            ld-t[2]    = 0.          
+        
+        FOR EACH ttGLTransaction
+            WHERE ttGLTransaction.transactionType  EQ "DISC"
+            NO-LOCK
+            BREAK BY ttGLTransaction.account:
 
-        IF v-gldetail THEN 
-        DO:
-            FOR EACH ttGLTransaction
-                WHERE ttGLTransaction.transactionType  EQ "DISC"
-                NO-LOCK
-                BREAK BY ttGLTransaction.account:
-
-                ASSIGN
-                    ld-t[1]    = ttGLTransaction.quantityWeight / 2000
-                    v-disp-amt = v-disp-amt + dec(ttGLTransaction.amount)
-                    ld-t[2]    = ld-t[2] + ld-t[1].
-
+            ASSIGN
+                ld-t[1]    = ttGLTransaction.quantityWeight / 2000
+                v-disp-amt = v-disp-amt + dec(ttGLTransaction.amount)
+                ld-t[2]    = ld-t[2] + ld-t[1].
+                    
+            IF v-gldetail THEN
                 IF dec(ttGLTransaction.amount) NE 0 THEN 
                 DO:
                     ld-pton = dec(ttGLTransaction.amount) / ld-t[1].
@@ -1710,23 +1706,22 @@ PROCEDURE list-gl :
                         WITH FRAME gl-det.
                     DOWN WITH FRAME gl-det.
                 END.
-            END.
-
-            IF v-disp-amt NE 0 THEN 
-            DO:
-                PUT v-disp-amt TO 128.
-                IF tb_ton THEN 
-                DO:
-                    ld-pton = v-disp-amt / ld-t[2].
-                    IF ld-pton EQ ? THEN ld-pton = 0.
-                    PUT ld-pton FORMAT "->>>>>>9.999" TO 141 ld-t[2] TO 151 SKIP(1).
-                END.
-                ELSE PUT SKIP.
-                ASSIGN
-                    v-disp-amt = 0
-                    ld-t[2]    = 0.
-            END.
         END.
+
+        IF v-disp-amt NE 0 AND v-gldetail THEN 
+        DO:
+            PUT v-disp-amt TO 128.
+            IF tb_ton THEN 
+            DO:
+                ld-pton = v-disp-amt / ld-t[2].
+                IF ld-pton EQ ? THEN ld-pton = 0.
+                PUT ld-pton FORMAT "->>>>>>9.999" TO 141 ld-t[2] TO 151 SKIP(1).
+            END.
+            ELSE PUT SKIP.
+            ASSIGN
+                v-disp-amt = 0
+                ld-t[2]    = 0.
+        END.        
 
         ASSIGN
             v-disp-actnum = v-ar-disc
@@ -1734,11 +1729,12 @@ PROCEDURE list-gl :
             ld-t[2]       = v-post-disc-w / 2000.
 
         IF NOT v-gldetail THEN 
-        DO:
+        DO:                         
             ld-pton = v-disp-amt / ld-t[2].
 
             IF ld-pton EQ ? THEN ld-pton = 0.
-
+            IF v-disp-amt EQ ? THEN v-disp-amt = 0.
+            
             DISPLAY v-disp-actnum
                 v-dscr
                 tran-date
@@ -1750,8 +1746,7 @@ PROCEDURE list-gl :
                 WITH FRAME gl-sum.
             DOWN WITH FRAME gl-sum.
         END.
-        IF v-disp-amt EQ ? THEN v-disp-amt = 0.
-        v-balance = v-balance + v-disp-amt.
+                
         /** POST CASH TO G/L **/
         IF v-post-cash NE 0 THEN 
         DO:
@@ -1760,24 +1755,23 @@ PROCEDURE list-gl :
                 AND account.actnum  EQ ar-ctrl.cash-act
                 NO-LOCK NO-ERROR.
             v-dscr = IF AVAILABLE account THEN account.dscr
-            ELSE "ACCOUNT NOT FOUND - CASH".
+            ELSE "ACCOUNT NOT FOUND - CASH".              
+            
+            ASSIGN
+                v-disp-amt = 0
+                ld-t[2]    = 0.
 
-            IF v-gldetail THEN 
-            DO:
+            FOR EACH ttGLTransaction
+                WHERE ttGLTransaction.transactionType  EQ "CASH"
+                NO-LOCK
+                BREAK BY ttGLTransaction.account:
+
                 ASSIGN
-                    v-disp-amt = 0
-                    ld-t[2]    = 0.
-
-                FOR EACH ttGLTransaction
-                    WHERE ttGLTransaction.transactionType  EQ "CASH"
-                    NO-LOCK
-                    BREAK BY ttGLTransaction.account:
-
-                    ASSIGN
-                        ld-t[1]    = ttGLTransaction.quantityWeight / 2000
-                        v-disp-amt = v-disp-amt + dec(ttGLTransaction.amount)
-                        ld-t[2]    = ld-t[2] + ld-t[1].
-
+                    ld-t[1]    = ttGLTransaction.quantityWeight / 2000
+                    v-disp-amt = v-disp-amt + dec(ttGLTransaction.amount)
+                    ld-t[2]    = ld-t[2] + ld-t[1].
+                    
+                IF v-gldetail THEN
                     IF dec(ttGLTransaction.amount) NE 0 THEN 
                     DO:
                         ld-pton = dec(ttGLTransaction.amount) / ld-t[1].
@@ -1796,23 +1790,22 @@ PROCEDURE list-gl :
                             WITH FRAME gl-det.
                         DOWN WITH FRAME gl-det.
                     END.
-                END.
-
-                IF v-disp-amt NE 0 THEN 
-                DO:
-                    PUT v-disp-amt TO 128.
-                    IF tb_ton THEN 
-                    DO:
-                        ld-pton = v-disp-amt / ld-t[2].
-                        IF ld-pton EQ ? THEN ld-pton = 0.
-                        PUT ld-pton FORMAT "->>>>>>9.999" TO 141 ld-t[2] TO 151 SKIP(1).
-                    END.
-                    ELSE PUT SKIP.
-                    ASSIGN
-                        v-disp-amt = 0
-                        ld-t[2]    = 0.
-                END.
             END.
+
+            IF v-disp-amt NE 0 AND v-gldetail THEN 
+            DO:
+                PUT v-disp-amt TO 128.
+                IF tb_ton THEN 
+                DO:
+                    ld-pton = v-disp-amt / ld-t[2].
+                    IF ld-pton EQ ? THEN ld-pton = 0.
+                    PUT ld-pton FORMAT "->>>>>>9.999" TO 141 ld-t[2] TO 151 SKIP(1).
+                END.
+                ELSE PUT SKIP.
+                ASSIGN
+                    v-disp-amt = 0
+                    ld-t[2]    = 0.
+            END.             
 
             ASSIGN
                 v-disp-actnum = ar-ctrl.cash-act
@@ -1820,7 +1813,7 @@ PROCEDURE list-gl :
                 ld-t[2]       = v-post-cash-w / 2000.
 
             IF NOT v-gldetail THEN 
-            DO:
+            DO:                  
                 ld-pton = v-disp-amt / ld-t[2].
 
                 IF ld-pton EQ ? THEN ld-pton = 0.
@@ -1836,8 +1829,7 @@ PROCEDURE list-gl :
                     WITH FRAME gl-sum.
                 DOWN WITH FRAME gl-sum.
             END.
-            IF v-disp-amt EQ ? THEN v-disp-amt = 0.
-            v-balance = v-balance + v-disp-amt.
+            IF v-disp-amt EQ ? THEN v-disp-amt = 0.           
         END.  
         /** OFFSET ENTRY TO G/L **/ 
         dTotOffSet = 0.
@@ -1862,10 +1854,9 @@ PROCEDURE list-gl :
                 v-disp-actnum = ttGLTransaction.account
                 v-disp-amt    = v-disp-amt + dec(ttGLTransaction.amount)
                 /*dRecTot       = dRecTot + dec(tt-report.key-06).                 */
-                dTotOffSet    = dTotOffSet + dec(ttGLTransaction.amount) . 
-            IF LAST-OF(ttGLTransaction.account) THEN 
-            DO:
-                IF v-gldetail THEN 
+                dTotOffSet    = dTotOffSet + dec(ttGLTransaction.amount) .
+                
+            IF v-gldetail THEN 
                 DO:
                     ASSIGN
                         ld-t[1] = dRecTot / 2000
@@ -1875,15 +1866,19 @@ PROCEDURE list-gl :
 
                     DISPLAY ttGLTransaction.account     @ account.actnum
                         v-dscr
-                        v-disp-amt    @ v-tmp-amt
+                        ttGLTransaction.amount    @ v-tmp-amt
                         ld-pton FORMAT "->>>>>>9.999" 
                         WHEN tb_ton 
                         ld-t[1] 
                         WHEN tb_ton 
                         WITH FRAME gl-det.
                     DOWN WITH FRAME gl-det.  
-                END.
-                ELSE 
+                END.    
+                
+            IF LAST-OF(ttGLTransaction.account) THEN 
+            DO:
+                
+                IF NOT v-gldetail THEN 
                 DO:
                     ASSIGN
                         ld-t[2] = dRecTot / 2000
@@ -1904,9 +1899,14 @@ PROCEDURE list-gl :
                 END.
                     
             END.
-        END.    /* for each "act-rece"*/         
+        END.    /* for each "act-rece"*/ 
+        v-balance = 0 .
+        FOR EACH ttGLTransaction NO-LOCK
+                BREAK BY ttGLTransaction.account:  
+           ASSIGN                     
+            v-balance = v-balance + dec(ttGLTransaction.amount) .
+        END.     
         
-        v-balance =  (v-balance * -1 ) + v-post-total.   
         IF v-gldetail THEN
             PUT dTotOffSet FORMAT "->>,>>>,>>9.99" TO 126 SKIP 
                 "---------------"  TO 128 SKIP
@@ -2338,18 +2338,7 @@ PROCEDURE run-report :
         AND period.pend    GE tran-date
         NO-LOCK NO-ERROR.
 
-    ASSIGN
-        str-tit2   = TRIM(c-win:TITLE) + " - " +
-              TRIM(STRING(tb_detailed,"Detail/Summary")) +
-              " - RUN# " + TRIM(STRING(v-trnum))
-        {sys/inc/ctrtext.i str-tit2 112}
-
-        str-tit3   = "Period " + string(tran-period,"99") + " - " +
-              IF AVAILABLE period THEN
-                (STRING(period.pst) + " to " + STRING(period.pend)) ELSE ""
-        {sys/inc/ctrtext.i str-tit3 132}
-
-        str-tit4   = "Post Date " + STRING(tran-date, "99/99/99")
+    ASSIGN         
         v-s-inv-no = begin_inv
         v-e-inv-no = end_inv
         v-s-date   = begin_date
@@ -2388,6 +2377,28 @@ PROCEDURE run-report :
     RUN pGetMiscLine .
       
     RUN pGLTransaction .
+    
+    FIND FIRST ttInvoiceLineToPost NO-LOCK NO-ERROR.
+    IF AVAIL ttInvoiceLineToPost THEN
+    v-trnum = ttInvoiceLineToPost.runID.
+    ELSE DO:
+      FIND FIRST ttInvoiceMiscToPost NO-LOCK NO-ERROR.
+        IF AVAIL ttInvoiceMiscToPost THEN
+        v-trnum = ttInvoiceMiscToPost.runID.      
+    END.
+    
+    ASSIGN
+    str-tit2 = TRIM(c-win:TITLE) + " - " +
+               TRIM(STRING(tb_detailed,"Detail/Summary")) +
+               " - RUN# " + TRIM(STRING(v-trnum))
+    {sys/inc/ctrtext.i str-tit2 112}
+
+    str-tit3 = "Period " + string(tran-period,"99") + " - " +
+               IF AVAILABLE period THEN
+               (STRING(period.pst) + " to " + STRING(period.pend)) ELSE ""
+    {sys/inc/ctrtext.i str-tit3 132}
+
+    str-tit4   = "Post Date " + STRING(tran-date, "99/99/99").
         
     {sys/inc/print1.i}
 

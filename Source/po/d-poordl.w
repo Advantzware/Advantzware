@@ -6052,7 +6052,9 @@ PROCEDURE valid-uom :
                         RUN Conv_GetValidPOQtyUOMsForItem(ROWID(itemfg), OUTPUT uom-list, OUTPUT lError, OUTPUT cMessage).
                 IF lError THEN  
                     IF ip-field EQ "pr-uom" THEN
-                        RUN Conv_GetValidCostUOMs(ROWID(itemfg), OUTPUT uom-list).
+                        RUN Conv_GetValidCostUOMs(
+                            OUTPUT uom-list
+                            ).
                     ELSE  
                         RUN Conv_GetValidPOQtyUOMs(ROWID(itemfg), OUTPUT uom-list).
         END.  

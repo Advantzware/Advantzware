@@ -16,8 +16,8 @@ name-fld-list =
 "stmtprint,TSFinish,appaper,cecunit,fgpost,corsuply,fgitemsf,GP,oeprep,celayout,1099misc,RFQPrint,oecredit,maxbreak,aptax,rmemails,sspostfg,bolfmtx,schdcard,TSTIME,FGReOrder,ARMEMO,APCheckFile,OEPrompt,SSBOLSCAN,INVCOPYS,REMOVED,BORELDATE,OEINQ,ECBROWSE,VENDXFER,CUSTXFER,ORDERXFER,MISCJOBCL,RMUnderOver,CEPREPPRICE,RELTYPE,SSMoveFG,CEMISC,BolPostTime,CEDeliveryZone," +
 /* 130         131      132     133           134        135      136      137      138      139    140      141           142       143           144      145         146      147        148        149       150          151        152    153               154               155            156        157                   158         159            160         161*/
 "BOLFreight,CESAMPLE,SSRMISSUE,CorrTrim,CustShipToImp,OEScreen,fgoecost,runship,InvStatus,AGEDAYS,FGPostCmp,AckMaster,ChkFmtACH,OeDateChange,SSBOLEMAIL,FGRecptUnit,FGBrowseIA,AlliFlutes,SSBOLPRINT,POScreen,SSScanVendor,BOLFMTTran,POStatus,BOLMaster,CEMarkupMatrixLookup,overwriteJobPlan,capacityPage,OEPriceMatrixCheck,BOLPartial,OEAutoDateUpdate,FGUnderOver,OEPriceHold," + 
-/*  162       163        164        165        166        167     168       169         170        171     172          173       174            175               176*         177            178              179                     180                      181           182*/
-"CEUpdate,ValidShipTo,PriceHold,CreditHold,CustomerPO,UniquePO,ValidUoM,PriceGtCost,CustomerPN,CEOpRates,CERequestYield,CINVOICE,BOLPartialFlag,POLoadtag,FreightCalculation,OnHandInventory,MiscEstimateSource,SalesTaxRoundingMethod,SalesTaxCalcMethod,FGTagValidation,CEFormat".
+/*  162       163        164        165        166        167     168       169         170        171     172          173       174            175               176*         177            178              179                     180                      181           182   183        184       185             186 */
+"CEUpdate,ValidShipTo,PriceHold,CreditHold,CustomerPO,UniquePO,ValidUoM,PriceGtCost,CustomerPN,CEOpRates,CERequestYield,CINVOICE,BOLPartialFlag,POLoadtag,FreightCalculation,OnHandInventory,MiscEstimateSource,SalesTaxRoundingMethod,SalesTaxCalcMethod,FGTagValidation,CEFormat,ItemHold,DuplicateItem,EstimateExists,DateRule".
 
 DEFINE VARIABLE str-init AS CHARACTER EXTENT 200 NO-UNDO.
     
@@ -256,7 +256,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[162] = ",FG Item #,CAD #,Customer Part #"
        str-init[163] = "HOLD,INFO"
        str-init[164] = "HOLD"
-       str-init[165] = "HOLD"
+       str-init[165] = "HOLD,INFO"
        str-init[166] = "HOLD,INFO"
        str-init[167] = "HOLD,INFO"
        str-init[168] = "HOLD,INFO"
@@ -267,13 +267,16 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[173] = "FIBREMEXICO,InvComm20"
        str-init[174] = "Order Quantity,Release Quantity"
        str-init[175] = ",PoLoadtag1,PoLoadtag2"
-       str-init[176] = "All,Estimating,Order processing,Bol Processing"
-       str-init[170] = "HOLD,INFO"
+       str-init[176] = "All,Estimating,Order processing,Bol Processing"       
+       str-init[177] = "HOLD,INFO"
        str-init[178] = "Estimate,Quote"
        str-init[179] = "ROUNDUP,ROUNDDOWN"
        str-init[180] = ",API"
        str-init[181] = "ItemMatch,NoMatch"
        str-init[182] = "Standard,McLean,By Form With Summary First,By Form With Summary Last,By Form Mult Qty Analysis,By Form With Summary First Mult Qty"
+       str-init[183] = "HOLD,INFO"
+       str-init[184] = "HOLD,INFO"
+       str-init[185] = "HOLD,INFO"
        .
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:
@@ -301,16 +304,13 @@ FOR EACH ASI.item-spec FIELDS(CODE) WHERE
     ASI.item-spec.company = g_company AND
     ASI.item-spec.i-no = '' NO-LOCK  
     BREAK BY item-spec.CODE:
-
     IF FIRST-OF(item-spec.CODE) THEN
        str-init[58] = str-init[58] + 
                       IF str-init[58] <> "" THEN "," + item-spec.CODE 
                       ELSE item-spec.CODE.
 END.
 
-
-FOR EACH ASI.company  NO-LOCK :
-
+FOR EACH ASI.company  NO-LOCK:
     IF AVAIL ASI.company THEN DO:   
       ASSIGN
        str-init[119] = str-init[119] + 
@@ -324,3 +324,8 @@ FOR EACH ASI.company  NO-LOCK :
                       ELSE company.company.
     END.
 END.
+
+FOR EACH DateRules NO-LOCK:
+    str-init[186] = str-init[186] + dateRules.dateRuleID + ",".
+END. /* each daterules */
+str-init[186] = TRIM(str-init[186],",").

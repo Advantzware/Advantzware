@@ -58,13 +58,13 @@ DEF VAR cTextListToSelect AS cha NO-UNDO.
 DEF VAR cFieldListToSelect AS cha NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
-ASSIGN cTextListToSelect = "Carrier,Zone,Description,Zip Code,Min Rate," +
+ASSIGN cTextListToSelect = "Carrier,Location,Zone,Description,Zip Code,Min Rate," +
                            "Num Pallets-Up To 1,Num Pallets-Up To 2,Num Pallets-Up To 3,Num Pallets-Up To 4,Num Pallets-Up To 5," +
                            "Num Pallets-Up To 6,Num Pallets-Up To 7,Num Pallets-Up To 8,Num Pallets-Up To 9,Num Pallets-Up To 10," + 
                            "Rate/Pallet 1,Rate/Pallet 2,Rate/Pallet 3,Rate/Pallet 4,Rate/Pallet 5," +
                            "Rate/Pallet 6,Rate/Pallet 7,Rate/Pallet 8,Rate/Pallet 9,Rate/Pallet 10"  
 
-      cFieldListToSelect = "carrier,del-zone,del-dscr,del-zip,min-rate," +
+      cFieldListToSelect = "carrier,loc,del-zone,del-dscr,del-zip,min-rate," +
                             "weight[1],weight[2],weight[3],weight[4],weight[5]," +
                             "weight[6],weight[7],weight[8],weight[9],weight[10]," +
                             "rate[1],rate[2],rate[3],rate[4],rate[5]," +
@@ -72,7 +72,7 @@ ASSIGN cTextListToSelect = "Carrier,Zone,Description,Zip Code,Min Rate," +
        .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  = "Carrier,Zone,Description,Zip Code,Min Rate," +
+ASSIGN cTextListToDefault  = "Carrier,Location,Zone,Description,Zip Code,Min Rate," +
                            "Num Pallets-Up To 1,Num Pallets-Up To 2,Num Pallets-Up To 3,Num Pallets-Up To 4,Num Pallets-Up To 5," +
                            "Num Pallets-Up To 6,Num Pallets-Up To 7,Num Pallets-Up To 8,Num Pallets-Up To 9,Num Pallets-Up To 10," + 
                            "Rate/Pallet 1,Rate/Pallet 2,Rate/Pallet 3,Rate/Pallet 4,Rate/Pallet 5," +

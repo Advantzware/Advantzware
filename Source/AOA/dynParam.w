@@ -566,24 +566,6 @@ PROCEDURE pErrorCheck :
                     .
             END. /* if can-do */
         END. /* each dynvaluecolumn */
-        
-/*        /* rstark - remove when depricated */                             */
-/*        DO idx = 1 TO EXTENT(dynParamValue.calcProc):                     */
-/*            IF dynParamValue.colName[idx] EQ "" THEN LEAVE.               */
-/*            IF NOT CAN-DO(cCalcProc, dynParamValue.calcProc[idx]) THEN DO:*/
-/*                lErrors = YES.                                            */
-/*                DISPLAY                                                   */
-/*                    dynParamValue.subjectID                               */
-/*                    dynParamValue.user-id                                 */
-/*                    dynParamValue.paramValueID                            */
-/*                    dynParamValue.paramDescription                        */
-/*                    idx                                                   */
-/*                    dynParamValue.colName[idx]                            */
-/*                    dynParamValue.colLabel[idx]                           */
-/*                    dynParamValue.calcProc[idx]                           */
-/*                    .                                                     */
-/*            END. /* if can-do */                                          */
-/*        END. /* do idx */                                                 */
     END. /* each dynsubjectcolumn */
     OUTPUT CLOSE.
     MESSAGE 

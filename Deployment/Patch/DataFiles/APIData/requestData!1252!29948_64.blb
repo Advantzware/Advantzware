@@ -1,0 +1,11 @@
+{
+  "saleMessageType": "$MessageType$",
+  "seller": {
+    "company": "PREMPACK"
+  },
+  "postToJournal": "$PostToJournal$",
+  "lineItems": [$LineItems$],
+  "documentNumber": "$DocumentNo$",
+  "documentDate": "$DocumentDate|YYYY-MM-DD|DATE|$",
+  "transactionType": "SALE"
+}

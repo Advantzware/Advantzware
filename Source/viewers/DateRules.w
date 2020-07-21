@@ -35,10 +35,11 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE hTable        AS HANDLE  NO-UNDO.
-DEFINE VARIABLE hField        AS HANDLE  NO-UNDO.
-DEFINE VARIABLE iHourMax      AS INTEGER NO-UNDO.
-DEFINE VARIABLE iHourMin      AS INTEGER NO-UNDO.
+DEFINE VARIABLE hTable      AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hField      AS HANDLE  NO-UNDO.
+DEFINE VARIABLE iHourMax    AS INTEGER NO-UNDO.
+DEFINE VARIABLE iHourMin    AS INTEGER NO-UNDO.
+DEFINE VARIABLE lSuperAdmin AS LOGICAL NO-UNDO.
 
 ASSIGN
     iHourMax = DYNAMIC-FUNCTION("sfCommon_HourMax")
@@ -69,13 +70,13 @@ ASSIGN
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR DateRules.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS dateRules.scope dateRules.scopeID ~
-dateRules.baseTable dateRules.baseField dateRules.days ~
-dateRules.resultTable dateRules.resultField 
+&Scoped-Define ENABLED-FIELDS dateRules.dateRuleName dateRules.days ~
+dateRules.baseTable dateRules.baseField dateRules.resultTable ~
+dateRules.resultField 
 &Scoped-define ENABLED-TABLES dateRules
 &Scoped-define FIRST-ENABLED-TABLE dateRules
-&Scoped-Define DISPLAYED-FIELDS dateRules.dateRuleID dateRules.scope ~
-dateRules.scopeID dateRules.baseTable dateRules.baseField dateRules.days ~
+&Scoped-Define DISPLAYED-FIELDS dateRules.dateRuleID dateRules.dateRuleName ~
+dateRules.days dateRules.baseTable dateRules.baseField ~
 dateRules.resultTable dateRules.resultField 
 &Scoped-define DISPLAYED-TABLES dateRules
 &Scoped-define FIRST-DISPLAYED-TABLE dateRules
@@ -85,6 +86,7 @@ skipampm
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,SKIP-TIME,F1 */
+&Scoped-define ADM-CREATE-FIELDS dateRules.dateRuleID 
 &Scoped-define ADM-ASSIGN-FIELDS dateRules.dateRuleID 
 &Scoped-define SKIP-TIME skipHour skipMinute skipampm 
 
@@ -139,16 +141,16 @@ DEFINE VARIABLE skipMinute AS CHARACTER FORMAT "X(2)":U
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 156 BY 18.57.
+     SIZE 156 BY 17.38.
 
 DEFINE VARIABLE dbFields AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
-     SIZE 46 BY 17.38
+     SIZE 46 BY 16.19
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE dbTables AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
-     SIZE 47 BY 17.38
+     SIZE 47 BY 16.19
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE lFriday AS LOGICAL INITIAL no 
@@ -195,59 +197,55 @@ DEFINE VARIABLE lWednesday AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     dateRules.dateRuleID AT ROW 1.24 COL 25 COLON-ALIGNED WIDGET-ID 34
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-          BGCOLOR 15 
-     dbTables AT ROW 1.95 COL 62 NO-LABEL WIDGET-ID 56
-     dbFields AT ROW 1.95 COL 110 NO-LABEL WIDGET-ID 58
-     dateRules.scope AT ROW 2.43 COL 25 COLON-ALIGNED WIDGET-ID 46
+     dateRules.dateRuleID AT ROW 1.24 COL 25 COLON-ALIGNED WIDGET-ID 96
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
           BGCOLOR 15 
-     dateRules.scopeID AT ROW 3.62 COL 25 COLON-ALIGNED WIDGET-ID 48
+     dbTables AT ROW 1.95 COL 62 NO-LABEL WIDGET-ID 56
+     dbFields AT ROW 1.95 COL 110 NO-LABEL WIDGET-ID 58
+     dateRules.dateRuleName AT ROW 2.43 COL 25 COLON-ALIGNED WIDGET-ID 98
           VIEW-AS FILL-IN 
           SIZE 34 BY 1
           BGCOLOR 15 
-     dateRules.baseTable AT ROW 4.81 COL 25 COLON-ALIGNED WIDGET-ID 38
-          VIEW-AS FILL-IN 
-          SIZE 34 BY 1
-          BGCOLOR 15 
-     dateRules.baseField AT ROW 6 COL 25 COLON-ALIGNED WIDGET-ID 36
-          VIEW-AS FILL-IN 
-          SIZE 34 BY 1
-          BGCOLOR 15 
-     dateRules.days AT ROW 7.19 COL 25 COLON-ALIGNED WIDGET-ID 40
+     dateRules.days AT ROW 3.62 COL 25 COLON-ALIGNED WIDGET-ID 40
           VIEW-AS FILL-IN 
           SIZE 7.6 BY 1
           BGCOLOR 15 
-     lSunday AT ROW 8.38 COL 27 WIDGET-ID 64
-     lMonday AT ROW 9.33 COL 27 WIDGET-ID 66
-     lTuesday AT ROW 10.29 COL 27 WIDGET-ID 68
-     lWednesday AT ROW 11.24 COL 27 WIDGET-ID 70
-     lThursday AT ROW 12.19 COL 27 WIDGET-ID 72
-     lFriday AT ROW 13.14 COL 27 WIDGET-ID 74
-     lSaturday AT ROW 14.1 COL 27 WIDGET-ID 76
-     lHoliday AT ROW 15.05 COL 27 WIDGET-ID 78
-     skipHour AT ROW 16 COL 25 COLON-ALIGNED HELP
+     lSunday AT ROW 4.81 COL 27 WIDGET-ID 64
+     lMonday AT ROW 5.76 COL 27 WIDGET-ID 66
+     lTuesday AT ROW 6.71 COL 27 WIDGET-ID 68
+     lWednesday AT ROW 7.67 COL 27 WIDGET-ID 70
+     lThursday AT ROW 8.62 COL 27 WIDGET-ID 72
+     lFriday AT ROW 9.57 COL 27 WIDGET-ID 74
+     lSaturday AT ROW 10.52 COL 27 WIDGET-ID 76
+     lHoliday AT ROW 11.48 COL 27 WIDGET-ID 78
+     skipHour AT ROW 12.43 COL 25 COLON-ALIGNED HELP
           "Enter Starting Hour" WIDGET-ID 92
-     skipMinute AT ROW 16 COL 31 COLON-ALIGNED HELP
+     skipMinute AT ROW 12.43 COL 31 COLON-ALIGNED HELP
           "Enter Starting Minute" WIDGET-ID 94
-     skipampm AT ROW 16 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 90
-     dateRules.resultTable AT ROW 17.19 COL 25 COLON-ALIGNED WIDGET-ID 44
+     skipampm AT ROW 12.43 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 90
+     dateRules.baseTable AT ROW 13.62 COL 25 COLON-ALIGNED WIDGET-ID 38
           VIEW-AS FILL-IN 
           SIZE 34 BY 1
           BGCOLOR 15 
-     dateRules.resultField AT ROW 18.38 COL 25 COLON-ALIGNED WIDGET-ID 42
+     dateRules.baseField AT ROW 14.81 COL 25 COLON-ALIGNED WIDGET-ID 36
+          VIEW-AS FILL-IN 
+          SIZE 34 BY 1
+          BGCOLOR 15 
+     dateRules.resultTable AT ROW 16 COL 25 COLON-ALIGNED WIDGET-ID 44
+          VIEW-AS FILL-IN 
+          SIZE 34 BY 1
+          BGCOLOR 15 
+     dateRules.resultField AT ROW 17.19 COL 25 COLON-ALIGNED WIDGET-ID 42
           VIEW-AS FILL-IN 
           SIZE 34 BY 1
           BGCOLOR 15 
      "Days to Skip:" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 8.38 COL 13 WIDGET-ID 80
-     "Tables (double-click to select)" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 1.24 COL 62 WIDGET-ID 60
+          SIZE 13 BY .62 AT ROW 4.81 COL 13 WIDGET-ID 80
      "Fields (double-click to select)" VIEW-AS TEXT
           SIZE 28 BY .62 AT ROW 1.24 COL 110 WIDGET-ID 62
+     "Tables (double-click to select)" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 1.24 COL 62 WIDGET-ID 60
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -282,7 +280,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 18.57
+         HEIGHT             = 17.38
          WIDTH              = 156.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -318,7 +316,7 @@ ASSIGN
        dateRules.baseTable:READ-ONLY IN FRAME F-Main        = TRUE.
 
 /* SETTINGS FOR FILL-IN dateRules.dateRuleID IN FRAME F-Main
-   NO-ENABLE 2                                                          */
+   NO-ENABLE 1 2                                                        */
 /* SETTINGS FOR SELECTION-LIST dbFields IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR SELECTION-LIST dbTables IN FRAME F-Main
@@ -582,46 +580,42 @@ PROCEDURE local-assign-record :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE iDateRuleID AS INTEGER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  DO WHILE TRUE WITH FRAME {&FRAME-NAME}:
-      IF DateRules.dateRuleID:SCREEN-VALUE NE "0" THEN
-      LEAVE.
-      iDateRuleID = NEXT-VALUE(DateRules_seq).
-      IF CAN-FIND(FIRST DateRules
-                  WHERE DateRules.dateRuleID EQ iDateRuleID) THEN
-      NEXT.
-      DateRules.dateRuleID:SCREEN-VALUE = STRING(iDateRuleID).
-      LEAVE.
-  END. /* do while */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN
-      skipHour skipMinute skipampm lSunday lMonday lTuesday lWednesday lThursday lFriday lSaturday lHoliday
-      skipHour = STRING(INTEGER(skipHour) + (IF iHourMax EQ 12 AND skipampm EQ "PM" AND INTEGER(skipHour) LT 12 THEN 12
-                                             ELSE IF skipampm EQ "AM" AND INTEGER(skipHour) EQ 12 THEN -12
-                                             ELSE 0)) 
-      DateRules.skipTime = INTEGER(skipHour) * 3600 + INTEGER(skipMinute) * 60
-      DateRules.skipDays = STRING(lSunday,"Y/N")
-                         + STRING(lMonday,"Y/N")
-                         + STRING(lTuesday,"Y/N")
-                         + STRING(lWednesday,"Y/N")
-                         + STRING(lThursday,"Y/N")
-                         + STRING(lFriday,"Y/N")
-                         + STRING(lSaturday,"Y/N")
-                         + STRING(lHoliday,"Y/N")
-                         .
+  RUN pUpdateDateRules.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win
-PROCEDURE local-display-fields:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-statement V-table-Win 
+PROCEDURE local-assign-statement :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  RUN pUpdateDateRules.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
+PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -636,7 +630,7 @@ PROCEDURE local-display-fields:
   {methods/viewers/rowAvail/DateRules.i}
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -655,9 +649,10 @@ PROCEDURE local-initialize :
   /* Code placed here will execute AFTER standard behavior.    */
   RUN pGetDBTables.
   ASSIGN
-      hTable = dateRules.baseTable:HANDLE IN FRAME {&FRAME-NAME}
-      hField = dateRules.baseField:HANDLE
+      hTable          = dateRules.baseTable:HANDLE IN FRAME {&FRAME-NAME}
+      hField          = dateRules.baseField:HANDLE
       skipampm:HIDDEN = iHourMax EQ 24
+      lSuperAdmin     = DYNAMIC-FUNCTION("sfIsUserSuperAdmin")
       .
   RUN pSetTableField.
 
@@ -734,6 +729,36 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateDateRules V-table-Win 
+PROCEDURE pUpdateDateRules :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF AVAILABLE DateRules THEN
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            skipHour skipMinute skipampm lSunday lMonday lTuesday lWednesday lThursday lFriday lSaturday lHoliday
+            skipHour = STRING(INTEGER(skipHour) + (IF iHourMax EQ 12 AND skipampm EQ "PM" AND INTEGER(skipHour) LT 12 THEN 12
+                                                   ELSE IF skipampm EQ "AM" AND INTEGER(skipHour) EQ 12 THEN -12
+                                                   ELSE 0)) 
+            DateRules.skipTime = INTEGER(skipHour) * 3600 + INTEGER(skipMinute) * 60
+            DateRules.skipDays = STRING(lSunday,"Y/N")
+                               + STRING(lMonday,"Y/N")
+                               + STRING(lTuesday,"Y/N")
+                               + STRING(lWednesday,"Y/N")
+                               + STRING(lThursday,"Y/N")
+                               + STRING(lFriday,"Y/N")
+                               + STRING(lSaturday,"Y/N")
+                               + STRING(lHoliday,"Y/N")
+                               .
+    END. /* do with */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -775,3 +800,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

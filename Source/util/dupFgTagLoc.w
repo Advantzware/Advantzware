@@ -52,9 +52,13 @@ DEFINE VARIABLE v-process AS LOG NO-UNDO.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 fiReport btnBrowseFolder-2 fiCSV ~
-btnBrowseFolder tgCsvExport btn-process btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiReport fiCSV tgCsvExport 
+&Scoped-Define ENABLED-OBJECTS RECT-17 begin_i-no end_i-no begin_date ~
+end_date tb_zero-qty t-receipt t-adj t-count t-ship t-ret t-trans tgIssue ~
+fiReport btnBrowseFolder-2 fiCSV btnBrowseFolder tgCsvExport btn-process ~
+btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS begin_i-no end_i-no begin_date end_date ~
+tb_zero-qty v-trans-lbl t-receipt t-adj t-count t-ship t-ret t-trans ~
+tgIssue fiReport fiCSV tgCsvExport 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -65,15 +69,12 @@ btnBrowseFolder tgCsvExport btn-process btn-cancel
 
 /* ************************  Function Prototypes ********************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnConvertSlash C-Win
-FUNCTION fnConvertSlash RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnConvertSlash C-Win 
+FUNCTION fnConvertSlash RETURNS CHARACTER
   ( ipcPath AS CHARACTER ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnDefaultRptName C-Win 
 FUNCTION fnDefaultRptName RETURNS CHARACTER
@@ -112,6 +113,26 @@ DEFINE BUTTON btnBrowseFolder-2
      LABEL "Select Rpt Folder" 
      SIZE 26 BY 1 TOOLTIP "Browse for Log Folder".
 
+DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U 
+     LABEL "Beginning Trans Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY .95 NO-UNDO.
+
+DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U 
+     LABEL "Beginning FG Item#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
+DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/2099 
+     LABEL "Ending Trans Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY .95 NO-UNDO.
+
+DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz" 
+     LABEL "Ending FG Item#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fiCSV AS CHARACTER FORMAT "X(256)":U 
      LABEL "CSV File" 
      VIEW-AS FILL-IN 
@@ -122,33 +143,93 @@ DEFINE VARIABLE fiReport AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 69 BY 1 NO-UNDO.
 
+DEFINE VARIABLE v-trans-lbl AS CHARACTER FORMAT "X(256)":U INITIAL "Transaction Types" 
+     VIEW-AS FILL-IN 
+     SIZE 25 BY .91
+     FONT 6 NO-UNDO.
+
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 113 BY 9.52.
+     SIZE 113 BY 14.29.
+
+DEFINE VARIABLE t-adj AS LOGICAL INITIAL no 
+     LABEL "Adjustments" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 23 BY .91 NO-UNDO.
+
+DEFINE VARIABLE t-count AS LOGICAL INITIAL no 
+     LABEL "Counts" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 23 BY .91 NO-UNDO.
+
+DEFINE VARIABLE t-receipt AS LOGICAL INITIAL no 
+     LABEL "Receipts" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 23 BY .91 NO-UNDO.
+
+DEFINE VARIABLE t-ret AS LOGICAL INITIAL no 
+     LABEL "Credit Returns" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 23 BY .91 NO-UNDO.
+
+DEFINE VARIABLE t-ship AS LOGICAL INITIAL no 
+     LABEL "Shipments" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 23 BY .91 NO-UNDO.
+
+DEFINE VARIABLE t-trans AS LOGICAL INITIAL no 
+     LABEL "Transfers" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 23 BY .91 NO-UNDO.
+
+DEFINE VARIABLE tb_zero-qty AS LOGICAL INITIAL no 
+     LABEL "Include Zero Quantity?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 31 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tgCsvExport AS LOGICAL INITIAL no 
      LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 4 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tgIssue AS LOGICAL INITIAL no 
+     LABEL "Issue Farm Outs" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 23 BY .91 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     fiReport AT ROW 5.52 COL 15 COLON-ALIGNED WIDGET-ID 2
-     btnBrowseFolder-2 AT ROW 5.52 COL 86 WIDGET-ID 24
-     fiCSV AT ROW 7.19 COL 15 COLON-ALIGNED WIDGET-ID 4
-     btnBrowseFolder AT ROW 7.19 COL 86 WIDGET-ID 22
-     tgCsvExport AT ROW 7.33 COL 3.2 WIDGET-ID 26
-     btn-process AT ROW 11.48 COL 20
-     btn-cancel AT ROW 11.48 COL 51
+     begin_i-no AT ROW 2.52 COL 27 COLON-ALIGNED HELP
+          "Enter Beginning Order Number" WIDGET-ID 28
+     end_i-no AT ROW 2.52 COL 80.8 COLON-ALIGNED HELP
+          "Enter Ending Item Number" WIDGET-ID 30
+     begin_date AT ROW 3.71 COL 27 COLON-ALIGNED WIDGET-ID 32
+     end_date AT ROW 3.71 COL 80.8 COLON-ALIGNED WIDGET-ID 34
+     tb_zero-qty AT ROW 5.33 COL 29 WIDGET-ID 36
+     v-trans-lbl AT ROW 7 COL 29 NO-LABEL WIDGET-ID 50
+     t-receipt AT ROW 7.95 COL 29 WIDGET-ID 40
+     t-adj AT ROW 8.05 COL 53.6 WIDGET-ID 38
+     t-count AT ROW 8.05 COL 77.6 WIDGET-ID 52
+     t-ship AT ROW 8.81 COL 29 WIDGET-ID 44
+     t-ret AT ROW 8.91 COL 53.6 WIDGET-ID 42
+     t-trans AT ROW 9.67 COL 29 WIDGET-ID 46
+     tgIssue AT ROW 9.71 COL 53.6 WIDGET-ID 48
+     fiReport AT ROW 11.86 COL 15 COLON-ALIGNED WIDGET-ID 2
+     btnBrowseFolder-2 AT ROW 11.86 COL 86 WIDGET-ID 24
+     fiCSV AT ROW 13.52 COL 15 COLON-ALIGNED WIDGET-ID 4
+     btnBrowseFolder AT ROW 13.52 COL 86 WIDGET-ID 22
+     tgCsvExport AT ROW 13.67 COL 3.2 WIDGET-ID 26
+     btn-process AT ROW 16.1 COL 20
+     btn-cancel AT ROW 16.1 COL 51
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .62 AT ROW 1.95 COL 4
+          SIZE 21 BY .62 AT ROW 1.57 COL 4
      RECT-17 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 114 BY 13.1.
+         SIZE 114 BY 17.24.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -168,7 +249,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Duplicate FG Tag Locations Report"
-         HEIGHT             = 13.19
+         HEIGHT             = 17.48
          WIDTH              = 114.4
          MAX-HEIGHT         = 32.52
          MAX-WIDTH          = 273.2
@@ -203,12 +284,65 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
 ASSIGN 
+       begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       begin_i-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
 ASSIGN 
        btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
+
+ASSIGN 
+       end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_i-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       t-adj:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       t-count:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       t-receipt:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       t-ret:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       t-ship:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       t-trans:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_zero-qty:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tgIssue:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+/* SETTINGS FOR FILL-IN v-trans-lbl IN FRAME FRAME-A
+   NO-ENABLE ALIGN-L                                                    */
+ASSIGN 
+       v-trans-lbl:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -244,6 +378,28 @@ DO:
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
+ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Trans Date */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_i-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_i-no C-Win
+ON LEAVE OF begin_i-no IN FRAME FRAME-A /* Beginning FG Item# */
+DO:
+  assign {&self-name}.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -306,6 +462,105 @@ DO:
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME end_date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
+ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Trans Date */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_i-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_i-no C-Win
+ON LEAVE OF end_i-no IN FRAME FRAME-A /* Ending FG Item# */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME t-adj
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL t-adj C-Win
+ON VALUE-CHANGED OF t-adj IN FRAME FRAME-A /* Adjustments */
+DO:
+      ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME t-count
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL t-count C-Win
+ON VALUE-CHANGED OF t-count IN FRAME FRAME-A /* Counts */
+DO:
+      ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME t-receipt
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL t-receipt C-Win
+ON VALUE-CHANGED OF t-receipt IN FRAME FRAME-A /* Receipts */
+DO:
+    ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME t-ship
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL t-ship C-Win
+ON VALUE-CHANGED OF t-ship IN FRAME FRAME-A /* Shipments */
+DO:
+      ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME t-trans
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL t-trans C-Win
+ON VALUE-CHANGED OF t-trans IN FRAME FRAME-A /* Transfers */
+DO:
+      ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_zero-qty
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_zero-qty C-Win
+ON VALUE-CHANGED OF tb_zero-qty IN FRAME FRAME-A /* Include Zero Quantity? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tgIssue
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tgIssue C-Win
+ON VALUE-CHANGED OF tgIssue IN FRAME FRAME-A /* Issue Farm Outs */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -338,8 +593,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
 
     RUN enable_UI.
+    
+    {custom/usrprint.i}
+    
     fiCSV:SCREEN-VALUE = "c:\tmp\" + fnDefaultRptName("CSV").
     fiReport:SCREEN-VALUE = "c:\tmp\" + fnDefaultRptName("Rpt").
+    tb_zero-qty:SCREEN-VALUE = "No" .
     {methods/nowait.i}
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -381,10 +640,13 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiReport fiCSV tgCsvExport 
+  DISPLAY begin_i-no end_i-no begin_date end_date tb_zero-qty v-trans-lbl 
+          t-receipt t-adj t-count t-ship t-ret t-trans tgIssue fiReport fiCSV 
+          tgCsvExport 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 fiReport btnBrowseFolder-2 fiCSV btnBrowseFolder tgCsvExport 
-         btn-process btn-cancel 
+  ENABLE RECT-17 begin_i-no end_i-no begin_date end_date tb_zero-qty t-receipt 
+         t-adj t-count t-ship t-ret t-trans tgIssue fiReport btnBrowseFolder-2 
+         fiCSV btnBrowseFolder tgCsvExport btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -436,12 +698,28 @@ SESSION:SET-WAIT-STATE("General").
     DEFINE VARIABLE iRecs    AS INTEGER NO-UNDO.
     DEFINE VARIABLE iTotRecs AS INTEGER NO-UNDO.
     DEFINE VARIABLE iDups    AS INTEGER NO-UNDO.
-    
+    DEFINE VARIABLE cRitaCodeList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lDataFound AS LOGICAL NO-UNDO.    
+    DEFINE VARIABLE cRitaCode AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTransDate AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-fg-bin FOR fg-bin.
     
     DO WITH FRAME {&frame-name}:
         ASSIGN fiCsv fiReport tgCsvExport.
+        ASSIGN {&DISPLAYED-OBJECTS}.
+           .
+       cRitaCodeList   = (IF t-receipt THEN "R," ELSE "") +                 
+               (IF t-ship THEN "S," ELSE "") +
+               (IF t-trans THEN "T," ELSE "") +
+               (IF t-adj THEN "A," ELSE "") +
+               (IF t-ret THEN "E," ELSE "") +
+               (IF tgIssue THEN "F," ELSE "") +
+               (IF t-count THEN "C," ELSE "") .
+               
     END.
+    IF LENGTH(cRitaCodeList) GT 0 AND
+    SUBSTR(cRitaCodeList,LENGTH(cRitaCodeList),1) EQ "," THEN
+    SUBSTR(cRitaCodeList,LENGTH(cRitaCodeList),1) = "".
     
     ASSIGN 
         fiReport = fnConvertSlash(fiReport)
@@ -453,11 +731,13 @@ SESSION:SET-WAIT-STATE("General").
         
     PAUSE 0 BEFORE-HIDE.
     IF tgCsvExport THEN 
-        EXPORT STREAM sCsv DELIMITER "," "Company" "FGItem" "Tag" "Loc" "Bin" "Qty".
+        EXPORT STREAM sCsv DELIMITER "," "Company" "FGItem" "Tag" "Loc" "Bin" "Qty" "Trans Date" "Trans Type".
 
     FOR EACH  fg-bin NO-LOCK 
         WHERE fg-bin.company EQ g_company
           AND fg-bin.tag     GT ""
+          AND fg-bin.i-no    GE begin_i-no
+          AND fg-bin.i-no    LE end_i-no
         USE-INDEX tag: 
         iRecs = iRecs + 1.
         IF iRecs GT 4999 THEN 
@@ -466,14 +746,41 @@ SESSION:SET-WAIT-STATE("General").
             iRecs = 0.
             STATUS DEFAULT STRING(iTotRecs).
         END.
-  
-        IF fg-bin.qty EQ 0 THEN 
+        
+         IF NOT tb_zero-qty AND fg-bin.qty EQ 0 THEN 
             NEXT.
+        
+        lDataFound = NO .
+        cRitaCode = "".
+        cTransDate = "" .
+        FOR EACH fg-rcpth  FIELDS(trans-date rita-code)
+        WHERE fg-rcpth.company   EQ fg-bin.company
+          AND fg-rcpth.i-no      EQ fg-bin.i-no
+          AND fg-rcpth.job-no    EQ fg-bin.job-no
+          AND fg-rcpth.job-no2   EQ fg-bin.job-no2
+          AND fg-rcpth.trans-date GE begin_date
+          AND fg-rcpth.trans-date LE end_date
+          AND LOOKUP(fg-rcpth.rita-code,cRitaCodeList) NE 0
+         NO-LOCK, 
+        EACH fg-rdtlh
+        WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
+          AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+          AND fg-rdtlh.loc       EQ fg-bin.loc    
+          AND fg-rdtlh.loc-bin   EQ fg-bin.loc-bin
+          AND fg-rdtlh.tag       EQ fg-bin.tag            
+         NO-LOCK BY fg-rcpth.trans-date DESC  :
+            lDataFound = YES .
+            cTransDate = string(fg-rcpth.trans-date) .
+            cRitaCode = fg-rcpth.rita-code .
+            LEAVE.        
+        END.
+        IF cTransDate EQ ? THEN cTransDate = "".
+        IF NOT lDataFound THEN NEXT.
 
         FOR EACH bf-fg-bin NO-LOCK
             WHERE bf-fg-bin.company   EQ fg-bin.company
               AND bf-fg-bin.tag       EQ fg-bin.tag
-              AND bf-fg-bin.qty       NE 0
+              AND ((bf-fg-bin.qty       NE 0 AND NOT tb_zero-qty) OR tb_zero-qty)
               AND  (bf-fg-bin.loc     NE fg-bin.loc OR 
                     bf-fg-bin.loc-bin NE fg-bin.loc-bin)
               BREAK BY bf-fg-bin.tag:
@@ -488,6 +795,8 @@ SESSION:SET-WAIT-STATE("General").
                     fg-bin.loc     COLUMN-LABEL "Loc" 
                     fg-bin.loc-bin COLUMN-LABEL "Bin" 
                     fg-bin.qty     COLUMN-LABEL "Qty"    FORMAT "->>>>>>,>>9.9<<<<<"
+                    cTransDate    COLUMN-LABEL "Trans Date"    FORMAT "x(10)" 
+                    cRitaCode    COLUMN-LABEL "Trans Type"    FORMAT "x(6)" 
                     WITH FRAME FirstLine WIDTH 200 STREAM-IO.
             
             DISPLAY STREAM sRpt 
@@ -504,7 +813,10 @@ SESSION:SET-WAIT-STATE("General").
                            fg-bin.tag
                            fg-bin.loc
                            fg-bin.loc-bin
-                           fg-bin.qty SKIP
+                           fg-bin.qty
+                           cTransDate
+                           cRitaCode
+                           SKIP
                             . 
                 EXPORT STREAM sCsv DELIMITER "," 
                      "" /* Company */
@@ -528,6 +840,8 @@ SESSION:SET-WAIT-STATE("General").
     &ELSE
         OS-COMMAND NO-WAIT NOTEPAD VALUE(fiReport).
     &ENDIF    
+    
+    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
     
     MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 

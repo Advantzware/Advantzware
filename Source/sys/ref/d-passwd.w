@@ -98,8 +98,13 @@ IF AVAIL sys-ctrl THEN DO:
   END.
   ELSE
   IF (ip-type = 9 ) AND
-     (NOT sys-ctrl.log-fld OR sys-ctrl.char-fld EQ "") THEN DO:
-    op-validated = NO.
+     (sys-ctrl.log-fld EQ ? OR NOT sys-ctrl.log-fld OR sys-ctrl.char-fld EQ "") THEN DO:
+         IF sys-ctrl.log-fld EQ ? THEN DO:
+            op-validated = NO.
+            APPLY "close" TO THIS-PROCEDURE.
+         END.
+         ELSE     
+            op-validated = NO.
     RETURN.
   END.
 END.

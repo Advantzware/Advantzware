@@ -400,7 +400,10 @@ DO:
                 INPUT lAvailOeOrdl
                 ).             
 
-            RUN util/upditmfg.p (riJobHdr, 1).
+            RUN pUpdateFGItemQty(
+                INPUT riJobHdr,
+                INPUT LAST(xeb.blank-no)
+                ).
 
             RUN pUpdateItem (
                 INPUT riJobHdr
@@ -2084,6 +2087,37 @@ PROCEDURE pUpdateEntryQuantity PRIVATE:
                     END.
                 END.
             END. /* IF gvlNoPrompt*/
+    END.
+
+END PROCEDURE.
+
+PROCEDURE pUpdateFGItemQty PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriJobHdr     AS ROWID   NO-UNDO.    
+    DEFINE INPUT  PARAMETER iplLastItem  AS LOGICAL NO-UNDO.    
+    
+    FIND FIRST job-hdr EXCLUSIVE-LOCK
+        WHERE ROWID(job-hdr) EQ ipriJobHdr
+        NO-ERROR.
+    IF NOT AVAILABLE job-hdr THEN
+        RETURN.
+   
+    IF iplLastItem THEN
+    DO: 
+        FOR EACH x-job-hdr
+            WHERE x-job-hdr.company EQ job-hdr.company
+            AND x-job-hdr.job     EQ job-hdr.job
+            AND x-job-hdr.job-no  EQ job-hdr.job-no
+            AND x-job-hdr.job-no2 EQ job-hdr.job-no2:
+                  
+            RUN util/upditmfg.p (
+                INPUT ROWID(x-job-hdr),
+                INPUT 1
+                ).              
+        END.
     END.
 
 END PROCEDURE.

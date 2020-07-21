@@ -17,18 +17,14 @@ USING Progress.Json.ObjectModel.*.
 
 DEFINE VARIABLE oModelParser    AS ObjectModelParser NO-UNDO.
 DEFINE VARIABLE oObject         AS JsonObject        NO-UNDO.
-DEFINE VARIABLE hdFileSysProcs  AS HANDLE            NO-UNDO.
-DEFINE VARIABLE hdOSProcs       AS HANDLE            NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs AS HANDLE            NO-UNDO.
 DEFINE VARIABLE cTempDir        AS CHARACTER         NO-UNDO.
 
 {api/ttAPIOutboundEvent.i}
 
-RUN system/OSProcs.p PERSISTENT SET hdOSProcs.
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
-RUN FileSys_GetTempDirectory IN hdFileSysProcs(
+RUN FileSys_GetTempDirectory (
     OUTPUT cTempDir
     ).
     
@@ -154,11 +150,29 @@ PROCEDURE pUpdateAccessToken PRIVATE:
         INPUT  ipcCompany,
         OUTPUT cAPIPassword
         ).
+
+    FIND FIRST bf-APIOutbound NO-LOCK
+         WHERE bf-APIOutbound.apiID EQ "CalculateTax"
+           AND NOT bf-APIOutbound.clientID BEGINS "_default"
+         NO-ERROR. 
+    IF NOT AVAILABLE bf-APIOutbound THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "No Outbound API is configured to save the access token"
+            .
+        RETURN.        
+    END.
     
     ASSIGN
         cResponseFile            = cTempDir + "\vertex_access_token" + STRING(MTIME) + ".txt"
         FIX-CODEPAGE(lcResponse) = 'utf-8'
-        cCommand                 = SEARCH("curl.exe") + ' -X POST "' + cAccessTokenURL + '" '
+        cCommand                 = SEARCH("curl.exe") 
+                                 + (IF bf-APIOutbound.isSSLEnabled THEN
+                                        ""
+                                    ELSE
+                                        " --insecure ")
+                                 + ' -X POST "' 
+                                 + cAccessTokenURL + '" '
                                  + '-H "Content-Type:application/x-www-form-urlencoded" '
                                  + '--data-urlencode "client_id=' + cClientID + '" '
                                  + '--data-urlencode "client_secret=' + cClientSecret + '" '
@@ -169,7 +183,7 @@ PROCEDURE pUpdateAccessToken PRIVATE:
         .
 
     /* execute CURL command with required parameters to call the API */
-    RUN OS_RunCommand IN hdOSProcs (
+    RUN OS_RunCommand (
         INPUT  cCommand,             /* Command string to run */
         INPUT  cResponseFile,        /* File name to write the command output */
         INPUT  TRUE,                 /* Run with SILENT option */
@@ -223,10 +237,7 @@ PROCEDURE pUpdateAccessToken PRIVATE:
             oplSuccess           = TRUE
             .    
         
-    FIND FIRST bf-APIOutbound EXCLUSIVE-LOCK
-         WHERE bf-APIOutbound.apiID EQ "CalculateTax"
-           AND NOT bf-APIOutbound.clientID BEGINS "_default"
-         NO-ERROR.
+    FIND CURRENT bf-APIOutbound EXCLUSIVE-LOCK NO-ERROR.
     IF AVAILABLE bf-APIOutbound THEN
         bf-APIOutbound.password = cAccessToken.
     
