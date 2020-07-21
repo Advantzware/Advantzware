@@ -59,8 +59,9 @@ RUN AOA/spDynCalcField.p PERSISTENT SET iphDynCalcField.
 &Scoped-Define ENABLED-OBJECTS btnOK btnAddParameter btnCancel cFieldLabel ~
 cDataType cFieldFormat cCalcParam cParamList cAvailFields cFieldType ~
 btnClearCalculator btnClearFormula cAvailCalcProc cCalculator cCalcFormula ~
-btn7 btn4 btn1 btnLeftParenthesis btn8 btn5 btn2 btnRightParenthesis btn0 ~
-btn9 btn6 btn3 btnPeriod btnMinus btnPlus btnDivide btnMultiply 
+btn7 btn4 btn1 btnLeftParenthesis btnSpace btn8 btn5 btn2 ~
+btnRightParenthesis btn0 btn9 btn6 btn3 btnPeriod btnMinus btnPlus ~
+btnDivide btnMultiply 
 &Scoped-Define DISPLAYED-OBJECTS cFieldName cFieldLabel cDataType ~
 cFieldFormat cCalcParam cParamList cAvailFields cFieldType cCalcProc ~
 cAvailCalcProc cCalculator cCalcFormula 
@@ -174,6 +175,10 @@ DEFINE BUTTON btnRightParenthesis
      LABEL ")" 
      SIZE 2 BY .95 TOOLTIP "Right Parenthesis".
 
+DEFINE BUTTON btnSpace 
+     LABEL "Space" 
+     SIZE 16 BY .95 TOOLTIP "Space".
+
 DEFINE VARIABLE cDataType AS CHARACTER FORMAT "X(256)":U INITIAL "Character" 
      LABEL "Data Type" 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -190,11 +195,11 @@ DEFINE VARIABLE cParamList AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE cCalcFormula AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 87 BY 6.91 NO-UNDO.
+     SIZE 87 BY 6.43 NO-UNDO.
 
 DEFINE VARIABLE cCalculator AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 68 BY 4.29 NO-UNDO.
+     SIZE 68 BY 4.76 NO-UNDO.
 
 DEFINE VARIABLE cCalcProc AS CHARACTER FORMAT "X(256)":U 
      LABEL "Calc Procedure" 
@@ -232,7 +237,7 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 18 BY 4.29.
+     SIZE 18 BY 5.24.
 
 DEFINE VARIABLE cAvailCalcProc AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SORT 
@@ -264,17 +269,18 @@ DEFINE FRAME Dialog-Frame
      cFieldType AT ROW 14.33 COL 55 NO-LABEL WIDGET-ID 216
      btnClearCalculator AT ROW 19.57 COL 66 HELP
           "Clear Free Form Calculator" WIDGET-ID 232
-     btnClearFormula AT ROW 24.57 COL 66 HELP
+     btnClearFormula AT ROW 25.05 COL 66 HELP
           "Clear Free Form Formula" WIDGET-ID 230
      cCalcProc AT ROW 1.24 COL 72 COLON-ALIGNED WIDGET-ID 10
      cAvailCalcProc AT ROW 2.43 COL 74 NO-LABEL WIDGET-ID 12
      cCalculator AT ROW 17.67 COL 74 NO-LABEL WIDGET-ID 224
-     cCalcFormula AT ROW 22.67 COL 74 NO-LABEL WIDGET-ID 212
+     cCalcFormula AT ROW 23.14 COL 74 NO-LABEL WIDGET-ID 212
      btn7 AT ROW 17.91 COL 144 WIDGET-ID 260
      btn4 AT ROW 18.86 COL 144 WIDGET-ID 254
      btn1 AT ROW 19.81 COL 144 WIDGET-ID 248
      btnLeftParenthesis AT ROW 20.76 COL 144 HELP
           "Left Parenthesis" WIDGET-ID 234
+     btnSpace AT ROW 21.71 COL 144 WIDGET-ID 272
      btn8 AT ROW 17.91 COL 148 WIDGET-ID 262
      btn5 AT ROW 18.86 COL 148 WIDGET-ID 256
      btn2 AT ROW 19.81 COL 148 WIDGET-ID 250
@@ -302,18 +308,18 @@ DEFINE FRAME Dialog-Frame
      "Free Form" VIEW-AS TEXT
           SIZE 10 BY .81 AT ROW 17.67 COL 64 WIDGET-ID 226
      "^^ each calculator element must be SPACE delimited ^^" VIEW-AS TEXT
-          SIZE 53 BY .62 AT ROW 21.95 COL 81 WIDGET-ID 246
+          SIZE 55 BY .62 AT ROW 22.43 COL 81 WIDGET-ID 246
      "Free Form" VIEW-AS TEXT
-          SIZE 10 BY .81 AT ROW 22.67 COL 64 WIDGET-ID 222
+          SIZE 10 BY .81 AT ROW 23.14 COL 64 WIDGET-ID 222
      "Calc Formula:" VIEW-AS TEXT
-          SIZE 13 BY .81 AT ROW 23.62 COL 61 WIDGET-ID 214
+          SIZE 13 BY .81 AT ROW 24.1 COL 61 WIDGET-ID 214
      "Calc Params:" VIEW-AS TEXT
           SIZE 13 BY 1 AT ROW 6 COL 5 WIDGET-ID 18
      "Copy Field To:" VIEW-AS TEXT
           SIZE 14 BY .62 AT ROW 13.38 COL 55 WIDGET-ID 220
      RECT-1 AT ROW 27.19 COL 55 WIDGET-ID 2
      RECT-2 AT ROW 17.67 COL 143 WIDGET-ID 270
-     SPACE(0.00) SKIP(7.60)
+     SPACE(0.00) SKIP(6.67)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 
@@ -388,7 +394,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn0 Dialog-Frame
 ON CHOOSE OF btn0 IN FRAME Dialog-Frame /* 0 */
 DO:
-    cCalculator:INSERT-STRING(SELF:LABEL + " ").
+    cCalculator:INSERT-STRING(SELF:LABEL).
+    APPLY "ENTRY":U TO cCalculator.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -399,7 +406,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn1 Dialog-Frame
 ON CHOOSE OF btn1 IN FRAME Dialog-Frame /* 1 */
 DO:
-    cCalculator:INSERT-STRING(SELF:LABEL + " ").
+    cCalculator:INSERT-STRING(SELF:LABEL).
+    APPLY "ENTRY":U TO cCalculator.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -410,7 +418,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn2 Dialog-Frame
 ON CHOOSE OF btn2 IN FRAME Dialog-Frame /* 2 */
 DO:
-    cCalculator:INSERT-STRING(SELF:LABEL + " ").
+    cCalculator:INSERT-STRING(SELF:LABEL).
+    APPLY "ENTRY":U TO cCalculator.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -421,7 +430,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn3 Dialog-Frame
 ON CHOOSE OF btn3 IN FRAME Dialog-Frame /* 3 */
 DO:
-    cCalculator:INSERT-STRING(SELF:LABEL + " ").
+    cCalculator:INSERT-STRING(SELF:LABEL).
+    APPLY "ENTRY":U TO cCalculator.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -432,7 +442,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn4 Dialog-Frame
 ON CHOOSE OF btn4 IN FRAME Dialog-Frame /* 4 */
 DO:
-    cCalculator:INSERT-STRING(SELF:LABEL + " ").
+    cCalculator:INSERT-STRING(SELF:LABEL).
+    APPLY "ENTRY":U TO cCalculator.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -443,7 +454,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn5 Dialog-Frame
 ON CHOOSE OF btn5 IN FRAME Dialog-Frame /* 5 */
 DO:
-    cCalculator:INSERT-STRING(SELF:LABEL + " ").
+    cCalculator:INSERT-STRING(SELF:LABEL).
+    APPLY "ENTRY":U TO cCalculator.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -454,7 +466,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn6 Dialog-Frame
 ON CHOOSE OF btn6 IN FRAME Dialog-Frame /* 6 */
 DO:
-    cCalculator:INSERT-STRING(SELF:LABEL + " ").
+    cCalculator:INSERT-STRING(SELF:LABEL).
+    APPLY "ENTRY":U TO cCalculator.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -465,7 +478,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn7 Dialog-Frame
 ON CHOOSE OF btn7 IN FRAME Dialog-Frame /* 7 */
 DO:
-    cCalculator:INSERT-STRING(SELF:LABEL + " ").
+    cCalculator:INSERT-STRING(SELF:LABEL).
+    APPLY "ENTRY":U TO cCalculator.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -476,7 +490,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn8 Dialog-Frame
 ON CHOOSE OF btn8 IN FRAME Dialog-Frame /* 8 */
 DO:
-    cCalculator:INSERT-STRING(SELF:LABEL + " ").
+    cCalculator:INSERT-STRING(SELF:LABEL).
+    APPLY "ENTRY":U TO cCalculator.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -487,7 +502,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn9 Dialog-Frame
 ON CHOOSE OF btn9 IN FRAME Dialog-Frame /* 9 */
 DO:
-    cCalculator:INSERT-STRING(SELF:LABEL + " ").
+    cCalculator:INSERT-STRING(SELF:LABEL).
+    APPLY "ENTRY":U TO cCalculator.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -500,6 +516,7 @@ ON CHOOSE OF btnAddParameter IN FRAME Dialog-Frame /* Add Parameter */
 DO:
     IF cParamList NE "" AND cParamList NE ? THEN
     cCalcParam:ADD-LAST("[[" + ENTRY(2,cParamList,"|") + "]]").
+    APPLY "ENTRY":U TO cCalculator.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -522,6 +539,7 @@ END.
 ON CHOOSE OF btnClearCalculator IN FRAME Dialog-Frame /* Clear */
 DO:
     cCalculator:SCREEN-VALUE = "".
+    APPLY "ENTRY":U TO cCalculator.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -557,6 +575,7 @@ END.
 ON CHOOSE OF btnLeftParenthesis IN FRAME Dialog-Frame /* ( */
 DO:
     cCalculator:INSERT-STRING(SELF:LABEL + " ").
+    APPLY "ENTRY":U TO cCalculator.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -568,6 +587,7 @@ END.
 ON CHOOSE OF btnMinus IN FRAME Dialog-Frame /* - */
 DO:
     cCalculator:INSERT-STRING(SELF:LABEL + " ").
+    APPLY "ENTRY":U TO cCalculator.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -579,6 +599,7 @@ END.
 ON CHOOSE OF btnMultiply IN FRAME Dialog-Frame /* * */
 DO:
     cCalculator:INSERT-STRING(SELF:LABEL + " ").
+    APPLY "ENTRY":U TO cCalculator.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -652,7 +673,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPeriod Dialog-Frame
 ON CHOOSE OF btnPeriod IN FRAME Dialog-Frame /* . */
 DO:
-    cCalculator:INSERT-STRING(SELF:LABEL + " ").
+    cCalculator:INSERT-STRING(SELF:LABEL).
+    APPLY "ENTRY":U TO cCalculator.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -664,6 +686,7 @@ END.
 ON CHOOSE OF btnPlus IN FRAME Dialog-Frame /* + */
 DO:
     cCalculator:INSERT-STRING(SELF:LABEL + " ").
+    APPLY "ENTRY":U TO cCalculator.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -675,6 +698,19 @@ END.
 ON CHOOSE OF btnRightParenthesis IN FRAME Dialog-Frame /* ) */
 DO:
     cCalculator:INSERT-STRING(SELF:LABEL + " ").
+    APPLY "ENTRY":U TO cCalculator.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnSpace
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSpace Dialog-Frame
+ON CHOOSE OF btnSpace IN FRAME Dialog-Frame /* Space */
+DO:
+    cCalculator:INSERT-STRING(" ").
+    APPLY "ENTRY":U TO cCalculator.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -882,8 +918,8 @@ PROCEDURE enable_UI :
   ENABLE btnOK btnAddParameter btnCancel cFieldLabel cDataType cFieldFormat 
          cCalcParam cParamList cAvailFields cFieldType btnClearCalculator 
          btnClearFormula cAvailCalcProc cCalculator cCalcFormula btn7 btn4 btn1 
-         btnLeftParenthesis btn8 btn5 btn2 btnRightParenthesis btn0 btn9 btn6 
-         btn3 btnPeriod btnMinus btnPlus btnDivide btnMultiply 
+         btnLeftParenthesis btnSpace btn8 btn5 btn2 btnRightParenthesis btn0 
+         btn9 btn6 btn3 btnPeriod btnMinus btnPlus btnDivide btnMultiply 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
