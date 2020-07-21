@@ -904,6 +904,12 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 
         RUN valid-date-change NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        
+        RUN pValid-Release-Date(cocode,
+                               oe-ordl.ord-no,
+                               DATE(tt-report.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
+                               OUTPUT lErrorMsg) .
+        IF lErrorMsg THEN RETURN NO-APPLY.
   
   
         /* Task 11041309 */
@@ -1456,6 +1462,7 @@ ON HELP OF tt-report.prom-date IN FRAME Dialog-Frame /* due Date */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-report.stat Dialog-Frame
 ON LEAVE OF tt-report.stat IN FRAME Dialog-Frame /* Rel Date */
     DO:
+        DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
         IF NOT ll-skip THEN 
         DO:
 
@@ -1476,6 +1483,12 @@ ON LEAVE OF tt-report.stat IN FRAME Dialog-Frame /* Rel Date */
 
             IF LASTKEY NE -1 THEN 
             DO:
+               RUN pValid-Release-Date(cocode,
+                               oe-ordl.ord-no,
+                               Date(tt-report.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
+                               OUTPUT lReturnError) .
+               IF lReturnError THEN RETURN NO-APPLY.
+              
     {custom/pastDatePrompt.i SELF:SCREEN-VALUE}
 
                 RUN valid-key-02 NO-ERROR.
@@ -3416,6 +3429,38 @@ PROCEDURE valid-date-change :
                 ", try help..." VIEW-AS ALERT-BOX.
             APPLY "entry" TO oe-rel.spare-char-2 IN FRAME {&FRAME-NAME}.
             RETURN ERROR.
+        END.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValid-Release-Date Dialog-Frame 
+PROCEDURE pValid-Release-Date :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOrder AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtReleaseDate AS DATE NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+    DEFINE BUFFER bf-oe-ord FOR oe-ord.
+    
+    DO WITH FRAME {&FRAME-NAME}:          
+        
+        FIND FIRST bf-oe-ord NO-LOCK
+             WHERE bf-oe-ord.company EQ ipcCompany
+             AND bf-oe-ord.ord-no  EQ ipiOrder
+            NO-ERROR.
+             
+        IF AVAIL bf-oe-ord AND date(ipdtReleaseDate) < (date(bf-oe-ord.ord-date) - 1 )  THEN 
+        DO:
+            MESSAGE "Release Date cannot be entered for a date before the order date." VIEW-AS ALERT-BOX INFO.
+            APPLY "entry" TO tt-report.stat IN FRAME {&FRAME-NAME}.
+            oplReturnError = YES.
         END.
     END.
 END PROCEDURE.
