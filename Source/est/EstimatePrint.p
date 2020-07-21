@@ -32,7 +32,7 @@ DEFINE VARIABLE gcSIMONListInclude  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcSIMONListSeparate AS CHARACTER NO-UNDO.
 
 ASSIGN 
-    giQtyMaxColumn      = 5
+    giQtyMaxColumn      = 99
     gcNumError          = "#"
     gcContinue          = CHR(187)
     giRowsPerPage       = 64
@@ -526,18 +526,25 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
     DEFINE BUFFER bf-estCostForm          FOR estCostForm.
 
     DEFINE VARIABLE iRowStart      AS INTEGER.
-    DEFINE VARIABLE iColumn        AS INTEGER   EXTENT 10 INITIAL [2,36].
+    DEFINE VARIABLE iColumn        AS INTEGER   EXTENT 10 INITIAL [2,32].
     DEFINE VARIABLE iColumnWidth   AS INTEGER   INITIAL 10.
     
     DEFINE VARIABLE iQtyCount      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iQtyCountTotal AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cScopeRecKey   AS CHARACTER EXTENT 10.
-    DEFINE VARIABLE cQtyHeader     AS CHARACTER EXTENT 10.
-    DEFINE VARIABLE dCostPerM      AS DECIMAL   EXTENT 10.
+    DEFINE VARIABLE cScopeRecKey   AS CHARACTER EXTENT 100.
+    DEFINE VARIABLE cQtyHeader     AS CHARACTER EXTENT 100.
+    DEFINE VARIABLE dCostPerM      AS DECIMAL   EXTENT 100.
     DEFINE VARIABLE dCostTotalPerM AS DECIMAL.
     DEFINE VARIABLE dCostTotal     AS DECIMAL.
     DEFINE VARIABLE dProfitPercent AS DECIMAL.
     DEFINE VARIABLE lLineStarted   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iLineStart     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iLineEnd       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCount         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iHeaderCount   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTotCount      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCountCostSmy  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iMaxQtyColPerSummary AS INTEGER INITIAL 6 NO-UNDO.
 
     FIND FIRST bf-PrimaryestCostHeader NO-LOCK 
         WHERE bf-PrimaryestCostHeader.estCostHeaderID EQ ipbf-estCostForm.estCostHeaderID
@@ -545,7 +552,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
     IF NOT AVAILABLE bf-PrimaryestCostHeader THEN LEAVE.
     
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount). 
     iRowStart = iopiRowCount. /*Store reset Point*/
         
     ASSIGN 
@@ -570,87 +577,118 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
                 cQtyHeader[iQtyCountTotal]   = fFormatNumber(estCostForm.quantityFGOnForm, 7, 0, YES, NO)
                 .
             IF iQtyCountTotal EQ giQtyMaxColumn THEN LEAVE. 
-        END.
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "*** Totals Per M ", YES, YES, NO).
-        DO iQtyCount = 1 TO iQtyCountTotal:
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2] + (iQtyCount - 1) * iColumnWidth, cQtyHeader[iQtyCount], 7, 0, YES, YES, YES, YES, YES).
-            IF iQtyCount EQ 1 THEN 
-                RUN pWriteToCoordinates(iopiRowCount, iColumn[2], gcQtyMasterInd, YES, NO, NO).
-        END.
+        END.             
     END.
     ELSE 
     DO: 
         RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "*** Totals for Qty: " +  fFormatNumber(ipbf-estCostForm.quantityFGOnForm, 7, 0, YES, NO), YES, YES, NO).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[2] , "Per M" , YES, YES, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[2] + iColumnWidth, "Total", YES, YES, YES).
-    END.    
-    
-    FOR EACH estCostGroupLevel NO-LOCK
-        BY estCostGroupLevel.estCostGroupLevelID:
-        FOR EACH estCostGroup NO-LOCK 
-            WHERE estCostGroup.estCostGroupLevelID EQ estCostGroupLevel.estCostGroupLevelID
-            BY estCostGroup.costGroupSequence:
+    END.
+   
+    iLineStart   = 1 .
+    iLineEnd     = 0 .
+    iHeaderCount = 0.
+  
+    IF iQtyCountTotal MOD iMaxQtyColPerSummary EQ 0 THEN
+        iTotCount = TRUNC( iQtyCountTotal / iMaxQtyColPerSummary,0) .
+    ELSE iTotCount = TRUNC( iQtyCountTotal / iMaxQtyColPerSummary,0) + 1.    
+  
+    DO  iCount = 1 TO iTotCount :  
+  
+        iLineEnd = iLineEnd + iMaxQtyColPerSummary .
+        IF iCount NE 1 THEN
+        DO:     
+            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount). 
+            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        END.
+        IF iplPerQuantity THEN 
+        DO:
+            RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "*** Totals Per M ", YES, YES, NO).
+            DO iQtyCount = 1 TO iMaxQtyColPerSummary:
+                iHeaderCount = iHeaderCount + 1.             
+                IF cQtyHeader[iHeaderCount] NE "" THEN
+                    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2] + (iQtyCount - 1) * iColumnWidth, cQtyHeader[iHeaderCount], 7, 0, YES, YES, YES, YES, YES).
+                IF iHeaderCount EQ 1 THEN 
+                    RUN pWriteToCoordinates(iopiRowCount, iColumn[2], gcQtyMasterInd, YES, NO, NO).
+            END.  
+        END.
+        FOR EACH estCostGroupLevel NO-LOCK
+            BY estCostGroupLevel.estCostGroupLevelID:
+            FOR EACH estCostGroup NO-LOCK 
+                WHERE estCostGroup.estCostGroupLevelID EQ estCostGroupLevel.estCostGroupLevelID
+                BY estCostGroup.costGroupSequence:
             
-            IF iplPerQuantity THEN 
-            DO: /*Print values for each quantity (per M)*/
-                lLineStarted = NO.
-                DO iQtyCount = 1 TO iQtyCountTotal:
+                IF iplPerQuantity THEN 
+                DO: /*Print values for each quantity (per M)*/                   
+                
+                    lLineStarted = NO.
+                    iCountCostSmy = 0.    
+                    DO iQtyCount = iLineStart TO iLineEnd:                    
+                        iCountCostSmy = iCountCostSmy + 1 .
+                        FIND FIRST estCostSummary NO-LOCK 
+                            WHERE estCostSummary.estCostGroupID EQ estCostGroup.estCostGroupID  
+                            AND estCostSummary.scopeRecKey EQ cScopeRecKey[iQtyCount]
+                            NO-ERROR.
+                        IF AVAILABLE estCostSummary THEN 
+                        DO:
+                            IF estCostSummary.costTotal NE 0 THEN 
+                            DO:
+                                IF NOT lLineStarted THEN 
+                                DO: 
+                                    lLineStarted = YES.
+                                    RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+                                    RUN pWriteToCoordinates(iopiRowCount, iColumn[1], estCostGroup.costGroupLabel, NO, NO, NO).
+                                END.                        
+                                RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + (iCountCostSmy - 1) * iColumnWidth ,estCostSummary.costTotalPerMFinished , 6, 2, NO, YES, NO, NO, YES).
+                                dCostPerM[iQtyCount] = dCostPerM[iQtyCount] + estCostSummary.costTotalPerMFinished.
+                            END.
+                        END.
+                    END.
+                END.
+                ELSE 
+                DO:  /*Print only the values for the subject quantity (per M and Totals)*/ 
                     FIND FIRST estCostSummary NO-LOCK 
-                        WHERE estCostSummary.estCostGroupID EQ estCostGroup.estCostGroupID  
-                        AND estCostSummary.scopeRecKey EQ cScopeRecKey[iQtyCount]
+                        WHERE estCostSummary.estCostGroupID EQ estCostGroup.estCostGroupID
+                        AND estCostSummary.scopeRecKey EQ ipbf-estCostForm.rec_key
                         NO-ERROR.
                     IF AVAILABLE estCostSummary THEN 
                     DO:
                         IF estCostSummary.costTotal NE 0 THEN 
-                        DO:
-                            IF NOT lLineStarted THEN 
-                            DO: 
-                                lLineStarted = YES.
-                                RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-                                RUN pWriteToCoordinates(iopiRowCount, iColumn[1], estCostGroup.costGroupLabel, NO, NO, NO).
-                            END.                        
-                            RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + (iQtyCount - 1) * iColumnWidth ,estCostSummary.costTotalPerMFinished , 6, 2, NO, YES, NO, NO, YES).
-                            dCostPerM[iQtyCount] = dCostPerM[iQtyCount] + estCostSummary.costTotalPerMFinished.
+                        DO:            
+                            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+                            RUN pWriteToCoordinates(iopiRowCount, iColumn[1], estCostGroup.costGroupLabel, NO, NO, NO).
+                            RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] , estCostSummary.costTotalPerMFinished , 6, 2, NO, YES, NO, NO, YES).
+                            RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + iColumnWidth, estCostSummary.costTotal , 6, 2, NO, YES, NO, NO, YES).
+                            ASSIGN 
+                                dCostTotal     = dCostTotal + estCostSummary.costTotal
+                                dCostTotalPerM = dCostTotalPerM + estCostSummary.costTotalPerMFinished
+                                .
                         END.
                     END.
                 END.
             END.
-            ELSE 
-            DO:  /*Print only the values for the subject quantity (per M and Totals)*/ 
-                FIND FIRST estCostSummary NO-LOCK 
-                    WHERE estCostSummary.estCostGroupID EQ estCostGroup.estCostGroupID
-                    AND estCostSummary.scopeRecKey EQ ipbf-estCostForm.rec_key
-                    NO-ERROR.
-                IF AVAILABLE estCostSummary THEN 
-                DO:
-                    IF estCostSummary.costTotal NE 0 THEN 
-                    DO:            
-                        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-                        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], estCostGroup.costGroupLabel, NO, NO, NO).
-                        RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] , estCostSummary.costTotalPerMFinished , 6, 2, NO, YES, NO, NO, YES).
-                        RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + iColumnWidth, estCostSummary.costTotal , 6, 2, NO, YES, NO, NO, YES).
-                        ASSIGN 
-                            dCostTotal     = dCostTotal + estCostSummary.costTotal
-                            dCostTotalPerM = dCostTotalPerM + estCostSummary.costTotalPerMFinished
-                            .
-                    END.
+        
+            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            RUN pWriteToCoordinates(iopiRowCount, iColumn[1], estCostGroupLevel.estCostGroupLevelDesc, YES, NO, NO).    
+            IF iplPerQuantity THEN
+            DO: /*Print values for each quantity (per M)*/
+                DO iQtyCount = 1 TO iMaxQtyColPerSummary:   
+                    IF (iLineStart + iQtyCount - 1) LE iQtyCountTotal THEN
+                        RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + (iQtyCount - 1) * iColumnWidth , dCostPerM[ iLineStart + iQtyCount - 1 ] , 6, 2, NO, YES, YES, NO, YES).
                 END.
             END.
-        END.
-        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], estCostGroupLevel.estCostGroupLevelDesc, YES, NO, NO).    
-        IF iplPerQuantity THEN
-        DO: /*Print values for each quantity (per M)*/
-            DO iQtyCount = 1 TO iQtyCountTotal:
-                RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + (iQtyCount - 1) * iColumnWidth , dCostPerM[iQtyCount] , 6, 2, NO, YES, YES, NO, YES).
+            ELSE 
+            DO:
+                RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] , dCostTotalPerM , 6, 2, NO, YES, YES, NO, YES).
+                RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + iColumnWidth, dCostTotal , 6, 2, NO, YES, YES, NO, YES).
             END.
         END.
-        ELSE 
-        DO:
-            RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] , dCostTotalPerM , 6, 2, NO, YES, YES, NO, YES).
-            RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + iColumnWidth, dCostTotal , 6, 2, NO, YES, YES, NO, YES).
-        END.
+        
+        iLineStart = iLineStart + iMaxQtyColPerSummary .
+    
     END.
+    
     IF iplPrintProfitPercent THEN 
     DO:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
