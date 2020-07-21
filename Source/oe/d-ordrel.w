@@ -905,7 +905,10 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
         RUN valid-date-change NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
         
-        RUN pValid-Release-Date(OUTPUT lErrorMsg) .
+        RUN pValid-Release-Date(cocode,
+                               oe-ordl.ord-no,
+                               DATE(tt-report.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
+                               OUTPUT lErrorMsg) .
         IF lErrorMsg THEN RETURN NO-APPLY.
   
   
@@ -1480,7 +1483,10 @@ ON LEAVE OF tt-report.stat IN FRAME Dialog-Frame /* Rel Date */
 
             IF LASTKEY NE -1 THEN 
             DO:
-               RUN pValid-Release-Date(OUTPUT lReturnError) .
+               RUN pValid-Release-Date(cocode,
+                               oe-ordl.ord-no,
+                               Date(tt-report.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME}),
+                               OUTPUT lReturnError) .
                IF lReturnError THEN RETURN NO-APPLY.
               
     {custom/pastDatePrompt.i SELF:SCREEN-VALUE}
@@ -3437,15 +3443,20 @@ PROCEDURE pValid-Release-Date :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOrder AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtReleaseDate AS DATE NO-UNDO.
     DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+    DEFINE BUFFER bf-oe-ord FOR oe-ord.
     
     DO WITH FRAME {&FRAME-NAME}:          
-        IF NOT AVAILABLE oe-ord THEN
-        FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
-            AND oe-ord.ord-no  EQ oe-ordl.ord-no
+        
+        FIND FIRST bf-oe-ord NO-LOCK
+             WHERE bf-oe-ord.company EQ ipcCompany
+             AND bf-oe-ord.ord-no  EQ ipiOrder
             NO-ERROR.
              
-        IF AVAIL oe-ord AND date(tt-report.stat:SCREEN-VALUE) < (date(oe-ord.ord-date) + 1 )  THEN 
+        IF AVAIL bf-oe-ord AND date(ipdtReleaseDate) < (date(bf-oe-ord.ord-date) - 1 )  THEN 
         DO:
             MESSAGE "Release Date cannot be entered for a date before the order date." VIEW-AS ALERT-BOX INFO.
             APPLY "entry" TO tt-report.stat IN FRAME {&FRAME-NAME}.
