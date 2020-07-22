@@ -53,113 +53,161 @@ ELSE IF vi_est-no <> "" THEN DO:
     
 END.
 ELSE IF begin_cust-no <> "" AND vi_style <> "" THEN DO:
-    
-           &scoped index-eb USE-INDEX cust        
-         
-                 &SCOPED-DEFINE open-query                   ~
-        OPEN QUERY {&browse-name}               ~
-                 {&for-eb} NO-LOCK  {&index-eb},       ~
-                 {&for-est} NO-LOCK,  ~
-                 {&for-eqty} NO-LOCK, ~
-                 {&for-ef}  NO-LOCK
+    &scoped index-eb USE-INDEX cust        
+    IF lIsMatches THEN DO:
+        &SCOPED-DEFINE OPEN-QUERY ~
+        OPEN QUERY {&browse-name} ~
+            {&for-eb}  NO-LOCK {&index-eb}, ~
+            {&for-est}  NO-LOCK, ~
+            {&for-eqty} NO-LOCK, ~
+            {&for-ef}   NO-LOCK
   
-
           IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                         ELSE {&open-query} {&sortby-phrase-desc}. 
-
-
+                         ELSE {&open-query} {&sortby-phrase-desc}.                   
+    END.         
+    ELSE DO:
+        &SCOPED-DEFINE OPEN-QUERY ~
+        OPEN QUERY {&browse-name} ~
+            {&for-eb1}   NO-LOCK {&index-eb}, ~
+            {&for-est}  NO-LOCK, ~
+            {&for-eqty} NO-LOCK, ~
+            {&for-ef}   NO-LOCK
+  
+          IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                         ELSE {&open-query} {&sortby-phrase-desc}.         
+    END.       
 END.
-ELSE IF begin_cust-no <> "" AND vi_len <> 0 THEN do:
-
-          &scoped index-eb USE-INDEX cust-length 
-
-
-        &SCOPED-DEFINE open-query                   ~
-        OPEN QUERY {&browse-name}               ~
-                 {&for-eb} NO-LOCK {&index-eb} ,            ~
-                 {&for-est} NO-LOCK, ~
-                 {&for-eqty}  NO-LOCK, ~
-                 {&for-ef} NO-LOCK
-  
-
-          IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                         ELSE {&open-query} {&sortby-phrase-desc}. 
-
-
-
-      END.
-ELSE IF begin_cust-no <> "" THEN do:
+ELSE IF begin_cust-no <> "" AND vi_len <> 0 THEN DO:
+    &scoped index-eb USE-INDEX cust-length 
     
-          &scoped index-eb USE-INDEX cust 
-
-                &SCOPED-DEFINE open-query                   ~
-        OPEN QUERY {&browse-name}               ~
-                 {&for-eb}   NO-LOCK  {&index-eb} ,    ~
-                 {&for-est} NO-LOCK, ~
-                 {&for-eqty}  NO-LOCK, ~
-                 {&for-ef} NO-LOCK
+    IF lIsMatches THEN DO:
+        &SCOPED-DEFINE OPEN-QUERY ~
+        OPEN QUERY {&browse-name} ~
+            {&for-eb}  NO-LOCK {&index-eb}, ~
+            {&for-est}  NO-LOCK, ~
+            {&for-eqty} NO-LOCK, ~
+            {&for-ef}   NO-LOCK
   
-
           IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                         ELSE {&open-query} {&sortby-phrase-desc}. 
-
-
-      END.
-
-
- ELSE IF vi_part-no <> "" THEN do:
-     
-          &scoped index-eb USE-INDEX part 
-          
-
-                &SCOPED-DEFINE open-query                   ~
-                 OPEN QUERY {&browse-name}               ~
-                 {&for-eb}   NO-LOCK  {&index-eb} ,   ~
-                 {&for-est} NO-LOCK, ~
-                 {&for-eqty}  NO-LOCK, ~
-                 {&for-ef}  NO-LOCK
+                         ELSE {&open-query} {&sortby-phrase-desc}.                   
+    END.         
+    ELSE DO:
+        &SCOPED-DEFINE OPEN-QUERY ~
+        OPEN QUERY {&browse-name} ~
+            {&for-eb1}   NO-LOCK {&index-eb}, ~
+            {&for-est}  NO-LOCK, ~
+            {&for-eqty} NO-LOCK, ~
+            {&for-ef}   NO-LOCK
   
-
           IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                         ELSE {&open-query} {&sortby-phrase-desc}. 
-
-
-      END.
-  ELSE IF vi_stock-no <> "" THEN do:
-          &scoped index-eb USE-INDEX stock 
-
-
-                &SCOPED-DEFINE open-query                   ~
-        OPEN QUERY {&browse-name}               ~
-                 {&for-eb}  NO-LOCK  {&index-eb} ,     ~
-                 {&for-est} NO-LOCK, ~
-                 {&for-eqty}  NO-LOCK, ~
-                 {&for-ef}  NO-LOCK
+                         ELSE {&open-query} {&sortby-phrase-desc}.         
+    END.       
+END.
+ELSE IF begin_cust-no <> "" THEN DO:
+    &scoped index-eb USE-INDEX cust 
+    IF lIsMatches THEN DO:
+        &SCOPED-DEFINE OPEN-QUERY ~
+        OPEN QUERY {&browse-name} ~
+            {&for-eb}  NO-LOCK {&index-eb}, ~
+            {&for-est}  NO-LOCK, ~
+            {&for-eqty} NO-LOCK, ~
+            {&for-ef}   NO-LOCK
   
-
           IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                         ELSE {&open-query} {&sortby-phrase-desc}. 
-
-
-  END.
-
-  ELSE IF vi_style <> "" THEN do:
-          &scoped index-eb USE-INDEX style
-          
-         &SCOPED-DEFINE open-query                   ~
-        OPEN QUERY {&browse-name}               ~
-                 {&for-eb} NO-LOCK {&index-eb} ,   ~
-                 {&for-est} NO-LOCK, ~
-                 {&for-eqty}  NO-LOCK, ~
-                 {&for-ef} NO-LOCK
+                         ELSE {&open-query} {&sortby-phrase-desc}.                   
+    END.         
+    ELSE DO:
+        &SCOPED-DEFINE OPEN-QUERY ~
+        OPEN QUERY {&browse-name} ~
+            {&for-eb1}   NO-LOCK {&index-eb}, ~
+            {&for-est}  NO-LOCK, ~
+            {&for-eqty} NO-LOCK, ~
+            {&for-ef}   NO-LOCK
   
-
           IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                         ELSE {&open-query} {&sortby-phrase-desc}. 
+                         ELSE {&open-query} {&sortby-phrase-desc}.         
+    END.    
+END.
+ELSE IF vi_part-no <> "" THEN do:
+    &scoped index-eb USE-INDEX part 
+    
+    IF lIsMatches THEN DO:
+        &SCOPED-DEFINE OPEN-QUERY ~
+        OPEN QUERY {&browse-name} ~
+            {&for-eb}  NO-LOCK {&index-eb}, ~
+            {&for-est}  NO-LOCK, ~
+            {&for-eqty} NO-LOCK, ~
+            {&for-ef}   NO-LOCK
+  
+          IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                         ELSE {&open-query} {&sortby-phrase-desc}.                   
+    END.         
+    ELSE DO:
+        &SCOPED-DEFINE OPEN-QUERY ~
+        OPEN QUERY {&browse-name} ~
+            {&for-eb1}   NO-LOCK {&index-eb}, ~
+            {&for-est}  NO-LOCK, ~
+            {&for-eqty} NO-LOCK, ~
+            {&for-ef}   NO-LOCK
+  
+          IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                         ELSE {&open-query} {&sortby-phrase-desc}.         
+    END.       
+END.
+ELSE IF vi_stock-no <> "" THEN do:    
+    &scoped index-eb USE-INDEX stock 
+    
+    IF lIsMatches THEN DO:
+        &SCOPED-DEFINE OPEN-QUERY ~
+        OPEN QUERY {&browse-name} ~
+            {&for-eb}  NO-LOCK {&index-eb}, ~
+            {&for-est}  NO-LOCK, ~
+            {&for-eqty} NO-LOCK, ~
+            {&for-ef}   NO-LOCK
+  
+          IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                         ELSE {&open-query} {&sortby-phrase-desc}.                   
+    END.         
+    ELSE DO:
+        &SCOPED-DEFINE OPEN-QUERY ~
+        OPEN QUERY {&browse-name} ~
+            {&for-eb1}   NO-LOCK {&index-eb}, ~
+            {&for-est}  NO-LOCK, ~
+            {&for-eqty} NO-LOCK, ~
+            {&for-ef}   NO-LOCK
+  
+          IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                         ELSE {&open-query} {&sortby-phrase-desc}.         
+    END.      
+END.
 
-
-  END.
-  ELSE IF vi_len <> 0 THEN do:
+ELSE IF vi_style <> "" THEN do:
+    &scoped index-eb USE-INDEX style
+    
+    IF lIsMatches THEN DO:
+        &SCOPED-DEFINE OPEN-QUERY ~
+        OPEN QUERY {&browse-name} ~
+            {&for-eb}  NO-LOCK {&index-eb}, ~
+            {&for-est}  NO-LOCK, ~
+            {&for-eqty} NO-LOCK, ~
+            {&for-ef}   NO-LOCK
+  
+          IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                         ELSE {&open-query} {&sortby-phrase-desc}.                   
+    END.         
+    ELSE DO:
+        &SCOPED-DEFINE OPEN-QUERY ~
+        OPEN QUERY {&browse-name} ~
+            {&for-eb1}   NO-LOCK {&index-eb}, ~
+            {&for-est}  NO-LOCK, ~
+            {&for-eqty} NO-LOCK, ~
+            {&for-ef}   NO-LOCK
+  
+          IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                         ELSE {&open-query} {&sortby-phrase-desc}.         
+    END.      
+END.
+ELSE IF vi_len <> 0 THEN do:
 /*
       &SCOPED-DEFINE sortby-phrase-len-asc  ~
                     BY eb.len       
@@ -170,20 +218,30 @@ ELSE IF begin_cust-no <> "" THEN do:
      
 */
     &scoped index-eb USE-INDEX size 
-    &SCOPED-DEFINE open-query                   ~
-        OPEN QUERY {&browse-name}               ~
-                 {&for-eb}  NO-LOCK {&index-eb} ,   ~
-                 {&for-est} NO-LOCK, ~
-                 {&for-eqty}  NO-LOCK, ~
-                 {&for-ef} NO-LOCK
+    
+    IF lIsMatches THEN DO:
+        &SCOPED-DEFINE OPEN-QUERY ~
+        OPEN QUERY {&browse-name} ~
+            {&for-eb}  NO-LOCK {&index-eb}, ~
+            {&for-est}  NO-LOCK, ~
+            {&for-eqty} NO-LOCK, ~
+            {&for-ef}   NO-LOCK
   
-        
           IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                         ELSE {&open-query} {&sortby-phrase-desc}. 
-
-         
-
-  END.
+                         ELSE {&open-query} {&sortby-phrase-desc}.                   
+    END.         
+    ELSE DO:
+        &SCOPED-DEFINE OPEN-QUERY ~
+        OPEN QUERY {&browse-name} ~
+            {&for-eb1}   NO-LOCK {&index-eb}, ~
+            {&for-est}  NO-LOCK, ~
+            {&for-eqty} NO-LOCK, ~
+            {&for-ef}   NO-LOCK
+  
+          IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                         ELSE {&open-query} {&sortby-phrase-desc}.         
+    END.       
+END.
 
 
 /*
@@ -217,18 +275,28 @@ ELSE IF vi_die-size <> 0 THEN DO:
 END.
 */
 ELSE DO:
-    
-
-      &SCOPED-DEFINE open-query                   ~
-        OPEN QUERY {&browse-name}               ~
-                   {&for-eb} NO-LOCK ,  ~
-                   {&for-est} NO-LOCK, ~
-                   {&for-eqty}  NO-LOCK, ~
-                   {&for-ef}  NO-LOCK
+    IF lIsMatches THEN DO:
+        &SCOPED-DEFINE OPEN-QUERY ~
+        OPEN QUERY {&browse-name} ~
+            {&for-eb}  NO-LOCK {&index-eb}, ~
+            {&for-est}  NO-LOCK, ~
+            {&for-eqty} NO-LOCK, ~
+            {&for-ef}   NO-LOCK
   
-
           IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                         ELSE {&open-query} {&sortby-phrase-desc}. 
+                         ELSE {&open-query} {&sortby-phrase-desc}.                   
+    END.         
+    ELSE DO:
+        &SCOPED-DEFINE OPEN-QUERY ~
+        OPEN QUERY {&browse-name} ~
+            {&for-eb1}   NO-LOCK {&index-eb}, ~
+            {&for-est}  NO-LOCK, ~
+            {&for-eqty} NO-LOCK, ~
+            {&for-ef}   NO-LOCK
+  
+          IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                         ELSE {&open-query} {&sortby-phrase-desc}.         
+    END.       
 
     /*  END. */
 END.
