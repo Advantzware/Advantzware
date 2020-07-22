@@ -8,7 +8,8 @@
 
 /* **********************  Internal Functions  ************************ */
 
-FUNCTION fCalcTime RETURNS INTEGER (ipcTime AS CHARACTER):
+/* ************************  Function Implementations ***************** */
+FUNCTION fCalcTime RETURNS INTEGER PRIVATE (ipcTime AS CHARACTER):
     DEFINE VARIABLE iHours   AS INTEGER NO-UNDO.
     DEFINE VARIABLE iMinutes AS INTEGER NO-UNDO.
     DEFINE VARIABLE iTime    AS INTEGER NO-UNDO.
@@ -21,7 +22,7 @@ FUNCTION fCalcTime RETURNS INTEGER (ipcTime AS CHARACTER):
     RETURN iTime.
 END FUNCTION.
 
-FUNCTION fDynStatusField RETURNS LOGICAL
+FUNCTION fDynStatusField RETURNS LOGICAL PRIVATE
     (iphQuery         AS HANDLE,
      ipcFieldName     AS CHARACTER,
      ipcStatusCompare AS CHARACTER,
@@ -66,6 +67,26 @@ FUNCTION fDynStatusField RETURNS LOGICAL
         WHEN "BEGINS" THEN
         RETURN cValue BEGINS ipcCompareValue.
     END CASE.
+END FUNCTION.
+
+FUNCTION fMathOperation RETURNS DECIMAL PRIVATE
+	(ipdNumber1 AS DECIMAL, ipdNumber2 AS DECIMAL, ipcOperator AS CHARACTER):
+    DEFINE VARIABLE opdResult AS DECIMAL NO-UNDO.
+    
+    CASE ipcOperator:
+        WHEN "+" THEN
+        opdResult = ipdNumber1 + ipdNumber2.
+        WHEN "-" THEN
+        opdResult = ipdNumber1 - ipdNumber2.
+        WHEN "*" THEN
+        opdResult = ipdNumber1 * ipdNumber2.
+        WHEN "/" THEN
+        IF ipdNumber2 NE 0 THEN
+        opdResult = ipdNumber1 / ipdNumber2.
+    END CASE.	
+
+	RETURN opdResult.
+		
 END FUNCTION.
 
 /* **********************  Internal Procedures  *********************** */
@@ -177,6 +198,105 @@ PROCEDURE calcTimeString:
     opcCalcValue = STRING(ipiTime,"hh:mm:ss").
 END PROCEDURE.
 
+PROCEDURE Calculator : /* shunting yard algorithm */
+    DEFINE INPUT  PARAMETER ipcCalcParam AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFormat    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cOperator AS CHARACTER NO-UNDO EXTENT 200 INITIAL ?.
+    DEFINE VARIABLE cStack    AS CHARACTER NO-UNDO EXTENT 200 INITIAL ?.
+    DEFINE VARIABLE cToken    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE jdx       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE odx       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE sdx       AS INTEGER   NO-UNDO.
+
+    DO idx = 1 TO NUM-ENTRIES(ipcCalcParam,"|"):
+        cToken = ENTRY(idx,ipcCalcParam,"|").
+        IF LOOKUP(cToken,"(,*,/,+,-,)") EQ 0 THEN
+        /* add number to stack */
+        ASSIGN
+            sdx = sdx + 1
+            cStack[sdx] = cToken
+            .
+        ELSE /* check operator precedence and add operator */
+        IF LOOKUP(cToken,"*,/,+,-") NE 0 THEN DO:
+            DO jdx = odx TO 1 BY -1:
+                IF cOperator[jdx] EQ "(" THEN LEAVE.
+                IF (LOOKUP(cOperator[jdx],"*,/") NE 0 AND LOOKUP(cToken,"+,-") NE 0)  OR
+                  ((LOOKUP(cOperator[jdx],"*,/") NE 0 AND LOOKUP(cToken,"*,/") NE 0)  OR
+                   (LOOKUP(cOperator[jdx],"+,-") NE 0 AND LOOKUP(cToken,"+,-") NE 0)) THEN DO:
+                    /* pop off operator, add to stack */
+                    ASSIGN
+                        sdx = sdx + 1
+                        cStack[sdx] = cOperator[jdx]
+                        cOperator[jdx] = ?
+                        odx = odx - 1
+                        .
+                END. /* if check precedence */
+            END. /* do jdx */
+            /* add operator */
+            ASSIGN
+                odx = odx + 1
+                cOperator[odx] = cToken
+                .
+        END. /* if operator */
+        ELSE
+        IF cToken EQ "(" THEN
+        /* add left parentheses to operators */
+        ASSIGN
+            odx = odx + 1
+            cOperator[odx] = cToken
+            .
+        ELSE
+        IF cToken EQ ")" THEN
+        DO jdx = odx TO 1 BY -1:
+            IF cOperator[jdx] EQ "(" THEN DO:
+                /* clear left parentheses */
+                ASSIGN
+                    cOperator[jdx] = ?
+                    odx = odx - 1
+                    .
+                LEAVE.
+            END.
+            /* pop off operator, add to stack */
+            ASSIGN
+                sdx = sdx + 1
+                cStack[sdx] = cOperator[jdx]
+                cOperator[jdx] = ?
+                odx = odx - 1
+                .
+        END. /* do jdx */
+    END. /* do idx */
+    /* clear remaining operators to the stack */
+    DO idx = odx TO 1 BY -1:
+        ASSIGN
+            sdx = sdx + 1
+            cStack[sdx] = cOperator[idx]
+            cOperator[idx] = ?
+            .
+    END. /* do idx */
+    /* cStack now contains the shunting yard result */
+    /* process stack */
+    DO idx = 1 TO sdx:
+        IF LOOKUP(cStack[idx],"*,/,+,-") EQ 0 THEN NEXT.
+        ASSIGN
+            cStack[idx] = STRING(fMathOperation(DECIMAL(cStack[idx - 2]),DECIMAL(cStack[idx - 1]),cStack[idx]))
+            cStack[idx - 1] = ""
+            cStack[idx - 2] = ""
+            .        
+        DO jdx = 2 TO sdx:
+            IF cStack[jdx] EQ "" THEN
+            ASSIGN
+                cStack[jdx] = cStack[jdx - 1]
+                cStack[jdx - 1] = ""
+                .
+        END. /* do jdx */
+    END. /* do idx */
+    opcCalcValue = STRING(DECIMAL(cStack[sdx]),ipcFormat).
+
+END PROCEDURE.
+
 PROCEDURE spDynCalcField:
     DEFINE INPUT  PARAMETER iphQuery     AS HANDLE    NO-UNDO.
     DEFINE INPUT  PARAMETER ipcCalcProc  AS CHARACTER NO-UNDO.
@@ -190,15 +310,18 @@ PROCEDURE spDynCalcField:
     DEFINE VARIABLE cTable  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cStr    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cValue  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dNumber AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE idx     AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iExtent AS INTEGER   NO-UNDO.
     DEFINE VARIABLE hField  AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hTable  AS HANDLE    NO-UNDO.
     
     /* parse parameter string, replace fields with actual values */
+    ipcCalcParam = TRIM(ipcCalcParam,"|").
     DO idx = 1 TO NUM-ENTRIES(ipcCalcParam,"|"):
         cParam = ENTRY(idx,ipcCalcParam,"|").
-        IF INDEX(cParam,".") NE 0 THEN DO:
+        dNumber = DECIMAL(cParam) NO-ERROR.
+        IF INDEX(cParam,".") NE 0 AND ERROR-STATUS:ERROR THEN DO:
             ASSIGN
                 cTable  = ENTRY(1,cParam,".")
                 cField  = ENTRY(2,cParam,".")
@@ -256,6 +379,11 @@ PROCEDURE spDynCalcField:
         WHEN "calcTimeString" THEN
         RUN VALUE(ipcCalcProc) (
             INTEGER(ipcCalcParam),
+            OUTPUT opcCalcValue).
+        WHEN "Calculator" THEN
+        RUN VALUE(ipcCalcProc) (
+            ipcCalcParam,
+            ipcFormat,
             OUTPUT opcCalcValue).
     END CASE.
 END PROCEDURE.
