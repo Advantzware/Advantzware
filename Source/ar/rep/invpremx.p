@@ -109,9 +109,6 @@ DEFINE VARIABLE cCurCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompanyID AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
-
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
     
     find first company where company.company = cocode no-lock no-error.
 IF company.company EQ '004' THEN 
@@ -137,12 +134,12 @@ IF company.company EQ '004' THEN
             OUTPUT cRtnChar, OUTPUT lRecFound).
   IF lRecFound AND cRtnChar NE "" THEN DO:
       cRtnChar = DYNAMIC-FUNCTION (
-                     "fFormatFilePath" IN hdFileSysProcs,
+                     "fFormatFilePath",
                      cRtnChar
                      ).
                      
       /* Validate the N-K-1 BusinessFormLogo image file */
-      RUN FileSys_ValidateFile IN hdFileSysProcs (
+      RUN FileSys_ValidateFile(
           INPUT  cRtnChar,
           OUTPUT lValid,
           OUTPUT cMessage
@@ -539,7 +536,5 @@ END.
               xar-inv.stat = "X".
     END. /* DO TRANSACTION avail ar-inv */ 
   end. /* each ar-inv */
-  IF VALID-HANDLE(hdFileSysProcs) THEN
-    DELETE PROCEDURE hdFileSysProcs.
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */

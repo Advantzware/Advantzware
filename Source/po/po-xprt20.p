@@ -60,9 +60,6 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
-
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 /*ASSIGN ls-image1 = "images\pacific1.bmp"
        ls-image2 = "images\pacific2.bmp"
@@ -76,12 +73,12 @@ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound AND cRtnChar NE "" THEN DO:
     cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath" IN hdFileSysProcs,
+                   "fFormatFilePath",
                    cRtnChar
                    ).
                    
     /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile IN hdFileSysProcs (
+    RUN FileSys_ValidateFile(
         INPUT  cRtnChar,
         OUTPUT lValid,
         OUTPUT cMessage
@@ -954,9 +951,6 @@ IF v-printline < 60 THEN PUT SKIP(80 - v-printline).
 
     end. /* for each po-ord record */.
     
-    IF VALID-HANDLE(hdFileSysProcs) THEN
-    DELETE PROCEDURE hdFileSysProcs.
-
 /* END ---------------------------- Copr. 1992 - 1994  Advanced Software Inc. */
 
 

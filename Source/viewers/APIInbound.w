@@ -43,9 +43,6 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE lSuperAdmin AS LOGICAL NO-UNDO.
 
-DEFINE VARIABLE hdFileSysProcs AS HANDLE NO-UNDO.
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
-
 DEFINE VARIABLE hdPgmMstrSecur AS HANDLE NO-UNDO.
 RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmMstrSecur.
 
@@ -733,7 +730,7 @@ PROCEDURE pFieldValidations :
     END.
 
     IF APIInbound.importPath:SCREEN-VALUE NE "" THEN DO:
-        RUN FileSys_CreateDirectory IN hdFileSysProcs (
+        RUN FileSys_CreateDirectory(
             INPUT  APIInbound.importPath:SCREEN-VALUE,
             OUTPUT oplSuccess,
             OUTPUT opcMessage

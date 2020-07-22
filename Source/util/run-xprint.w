@@ -94,9 +94,6 @@ DEFINE VARIABLE lBussFormModle AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE ls-full-img1   AS cha       FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
-
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -111,12 +108,12 @@ ASSIGN
     ls-full-img1 = cRtnChar  .
 IF lRecFound AND cRtnChar NE "" THEN DO:
     cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath" IN hdFileSysProcs,
+                   "fFormatFilePath",
                    cRtnChar
                    ).
                    
     /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile IN hdFileSysProcs (
+    RUN FileSys_ValidateFile(
         INPUT  cRtnChar,
         OUTPUT lValid,
         OUTPUT cMessage
@@ -393,8 +390,6 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Xprint Test */
 DO:
-      IF VALID-HANDLE(hdFileSysProcs) THEN
-          DELETE PROCEDURE hdFileSysProcs.
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.

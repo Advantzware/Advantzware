@@ -117,9 +117,7 @@ find first carrier no-lock no-error.
 find first cust no-lock no-error.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
 
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 {sa/sa-sls01.i}
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
@@ -128,12 +126,12 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 
 IF lRecFound AND cRtnChar NE "" THEN DO:
     cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath" IN hdFileSysProcs,
+                   "fFormatFilePath",
                    cRtnChar
                    ).
                    
     /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile IN hdFileSysProcs (
+    RUN FileSys_ValidateFile(
         INPUT  cRtnChar,
         OUTPUT lValid,
         OUTPUT cMessage
@@ -395,8 +393,6 @@ PUT "<FBook Antiqua><R45><C1><P12><B>     Shipping Instructions: </B> <P9> " SKI
      oe-bolh.printed = yes.
 
 end. /* for each oe-bolh */
-IF VALID-HANDLE(hdFileSysProcs) THEN
-    DELETE PROCEDURE hdFileSysProcs.
 
 /* END ---------------------------------- copr. 1998  Advanced Software, Inc. */
 

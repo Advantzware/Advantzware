@@ -134,10 +134,6 @@ DEF VAR ld-bsf LIKE eb.t-sqin INIT 1 NO-UNDO. /* store bsf for price/bsf calcula
 DEF VAR ld-price-per-m AS DEC INIT 1 NO-UNDO. /*for calculating BSF*/
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
-
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
-
 
 FIND FIRST sys-ctrl where sys-ctrl.company = cocode
                       and sys-ctrl.NAME = "INVPRINT" NO-LOCK NO-ERROR.
@@ -149,12 +145,12 @@ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound AND cRtnChar NE "" THEN DO:
     cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath" IN hdFileSysProcs,
+                   "fFormatFilePath",
                    cRtnChar
                    ).
                    
     /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile IN hdFileSysProcs (
+    RUN FileSys_ValidateFile(
         INPUT  cRtnChar,
         OUTPUT lValid,
         OUTPUT cMessage
@@ -989,10 +985,6 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     /*PUT SKIP(74 - v-printline). */
     
 END. /* each xinv-head */
-
-IF VALID-HANDLE(hdFileSysProcs) THEN
-    DELETE PROCEDURE hdFileSysProcs.
-
 
 PROCEDURE compute-ext-price.
     DEFINE INPUT PARAM in-recid AS RECID.

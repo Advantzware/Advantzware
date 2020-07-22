@@ -112,9 +112,6 @@ DEFINE VARIABLE cCurCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompanyID AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
-
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 /* rstark 05181205 */
 {XMLOutput/XMLOutput.i &XMLOutput=XMLInvoice &Company=cocode}
@@ -156,12 +153,12 @@ RUN XMLOutput (lXMLOutput,'','','Header').
             OUTPUT cRtnChar, OUTPUT lRecFound).
   IF lRecFound AND cRtnChar NE "" THEN DO:
       cRtnChar = DYNAMIC-FUNCTION (
-                     "fFormatFilePath" IN hdFileSysProcs,
+                     "fFormatFilePath",
                      cRtnChar
                      ).
                      
       /* Validate the N-K-1 BusinessFormLogo image file */
-      RUN FileSys_ValidateFile IN hdFileSysProcs (
+      RUN FileSys_ValidateFile(
           INPUT  cRtnChar,
           OUTPUT lValid,
           OUTPUT cMessage
@@ -1064,10 +1061,6 @@ END.
     {XMLOutput/XMLOutput.i &c=c &XMLClose} /* rstark 05291402 */
 
 end. /* each xinv-head */
-
-IF VALID-HANDLE(hdFileSysProcs) THEN
-    DELETE PROCEDURE hdFileSysProcs.
-
 {XMLOutput/XMLOutput.i &XMLClose} /* rstark 05181205 */
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */

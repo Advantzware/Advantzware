@@ -44,10 +44,6 @@ DEFINE VARIABLE output-name AS CHARACTER NO-UNDO.
 DEFINE VARIABLE spooled AS LOGICAL NO-UNDO.
 DEFINE VARIABLE quick-print AS LOGICAL NO-UNDO.
 
-DEFINE VARIABLE hdFileSysProcs AS HANDLE NO-UNDO.
-
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -202,9 +198,7 @@ ASSIGN
 &Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel F-Frame-Win
 ON CHOOSE OF Btn_Cancel IN FRAME F-Main /* Cancel */
-DO:
-    IF VALID-HANDLE(hdFileSysProcs) THEN
-        DELETE PROCEDURE hdFileSysProcs.    
+DO:   
     {methods/run_link.i "CONTAINER-SOURCE" "local-exit"}
 END.
 
@@ -650,7 +644,7 @@ PROCEDURE Output-to-Screen :
   cFilePath = "users~/" + USERID("NOSWEAT").
   
   /* Create output directory if not available */
-  RUN FileSys_CreateDirectory IN hdFileSysProcs (
+  RUN FileSys_CreateDirectory(
       INPUT  cFilePath,
       OUTPUT lCreated,
       OUTPUT cMessage

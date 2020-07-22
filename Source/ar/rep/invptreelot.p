@@ -92,9 +92,7 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
 
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 /*ASSIGN
    
    ls-image1 = "images\Peachtree_logo_2018.png"
@@ -106,12 +104,12 @@ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound AND cRtnChar NE "" THEN DO:
     cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath" IN hdFileSysProcs,
+                   "fFormatFilePath",
                    cRtnChar
                    ).
                    
     /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile IN hdFileSysProcs (
+    RUN FileSys_ValidateFile(
         INPUT  cRtnChar,
         OUTPUT lValid,
         OUTPUT cMessage
@@ -761,9 +759,6 @@ DEF VAR v-rel AS CHAR FORMAT "x(1)" NO-UNDO.
     END. /* DO TRANSACTION avail ar-inv */ 
  
     end. /* each ar-inv */
-    IF VALID-HANDLE(hdFileSysProcs) THEN
-    DELETE PROCEDURE hdFileSysProcs.
-
 /*PROCEDURE compute-ext-price.
     DEFINE INPUT PARAM in-recid AS RECID.
     DEFINE INPUT PARAM in-qty AS INTE NO-UNDO.

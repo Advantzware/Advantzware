@@ -18,12 +18,9 @@ PROCEDURE postMonitor:
     DEFINE VARIABLE lCreated         AS LOGICAL   NO-UNDO. 
     DEFINE VARIABLE cGCompany        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCocode          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hdFileSys        AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cCompanyMask     AS CHARACTER NO-UNDO INITIAL "$company$". /* Mask character */
     DEFINE VARIABLE ccXMLOrder       AS CHARACTER NO-UNDO INITIAL "cXMLOrder".
     DEFINE VARIABLE lValidateCompany AS LOGICAL   NO-UNDO. 
-    
-    RUN system\FileSysProcs.p PERSISTENT SET hdFileSys.
     
     FOR EACH cXMLDir:
         ASSIGN
@@ -50,7 +47,7 @@ PROCEDURE postMonitor:
                 .
 
             /* Checks whether import dir exists */    
-            RUN FileSys_ValidateDirectory IN hdFileSys (
+            RUN FileSys_ValidateDirectory(
                 INPUT monitorImportDir,
                 OUTPUT lValidPath,
                 OUTPUT cMessage
@@ -58,7 +55,7 @@ PROCEDURE postMonitor:
                 
             /* Creates import dir if it does not exists */ 
             IF NOT lValidPath THEN 
-                RUN FileSys_CreateDirectory IN hdFileSys (
+                RUN FileSys_CreateDirectory(
                     INPUT monitorImportDir,
                     OUTPUT lCreated,
                     OUTPUT cMessage
@@ -94,7 +91,7 @@ PROCEDURE postMonitor:
                     .
                 
             /* Checks whether processed dir exists */
-            RUN FileSys_ValidateDirectory IN hdFileSys (
+            RUN FileSys_ValidateDirectory(
                 INPUT cXMLProcessedDir,
                 OUTPUT lValidPath,
                 OUTPUT cMessage
@@ -102,14 +99,14 @@ PROCEDURE postMonitor:
                 
             /* Creates processed dir if it does not exists */    
             IF NOT lValidPath THEN    
-                RUN FileSys_CreateDirectory IN hdFileSys (
+                RUN FileSys_CreateDirectory(
                     INPUT cXMLProcessedDir,
                     OUTPUT lCreated,
                     OUTPUT cMessage
                     ) NO-ERROR.
                     
             /* Checks whether response dir exists */
-            RUN FileSys_ValidateDirectory IN hdFileSys (
+            RUN FileSys_ValidateDirectory(
                 INPUT cXMLResponseDir,
                 OUTPUT lValidPath,
                 OUTPUT cMessage
@@ -117,7 +114,7 @@ PROCEDURE postMonitor:
             
             /* Creates response dir if it does not exists */    
             IF NOT lValidPath THEN    
-                RUN FileSys_CreateDirectory IN hdFileSys (
+                RUN FileSys_CreateDirectory(
                     INPUT cXMLResponseDir,
                     OUTPUT lCreated,
                     OUTPUT cMessage
@@ -137,8 +134,6 @@ PROCEDURE postMonitor:
             cocode    = cCocode   /* Assigns back temporary variable into cocode */
             . 
     END. /* each cXMLDir */
-    
-    DELETE OBJECT hdFileSys.
 END PROCEDURE.
 
 PROCEDURE pPostcXML PRIVATE:

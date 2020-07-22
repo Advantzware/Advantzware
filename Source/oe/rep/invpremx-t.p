@@ -54,9 +54,7 @@ DEFINE        VARIABLE v-page-tot       AS INTEGER  NO-UNDO.
 DEFINE        VARIABLE v-sort-name      AS LOG  NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
 
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 /* rstark 05291402 */
 
 /* rstark 05291402 */
@@ -486,12 +484,12 @@ RUN sys/ref/nk1look.p (INPUT company.company, "BusinessFormLogo", "C" /* Logical
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound AND cRtnChar NE "" THEN DO:
     cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath" IN hdFileSysProcs,
+                   "fFormatFilePath",
                    cRtnChar
                    ).
                    
     /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile IN hdFileSysProcs (
+    RUN FileSys_ValidateFile(
         INPUT  cRtnChar,
         OUTPUT lValid,
         OUTPUT cMessage
@@ -1878,10 +1876,6 @@ DO:
     OS-RENAME VALUE(XMLTemp) VALUE(cXMLOutput + XMLFile).
     
 END. /* if lxmloutput */
-
-IF VALID-HANDLE(hdFileSysProcs) THEN
-    DELETE PROCEDURE hdFileSysProcs.
-
   /* rstark 05181205 */
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */
