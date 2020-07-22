@@ -11,6 +11,7 @@
     Notes       :
   ----------------------------------------------------------------------*/
 {api/ttArgs.i}
+{api/CommonAPIProcs.i}
 
 DEFINE INPUT  PARAMETER TABLE                   FOR ttArgs.
 DEFINE INPUT  PARAMETER ipiAPIOutboundID        AS INTEGER   NO-UNDO.
@@ -18,6 +19,11 @@ DEFINE INPUT  PARAMETER ipiAPIOutboundTriggerID AS INTEGER   NO-UNDO.
 DEFINE OUTPUT PARAMETER oplcRequestData         AS LONGCHAR  NO-UNDO.  
 DEFINE OUTPUT PARAMETER oplSuccess              AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage              AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE iAPITransCounter    AS INTEGER NO-UNDO.
+DEFINE VARIABLE iClientTransCounter AS INTEGER NO-UNDO.
+DEFINE VARIABLE cAPITransCounter    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cClientTransCounter AS CHARACTER NO-UNDO.
 
 FIND FIRST APIOutbound NO-LOCK
      WHERE APIOutbound.apiOutboundID EQ ipiAPIOutboundID
@@ -198,4 +204,28 @@ PROCEDURE pPrepareRequest PRIVATE:
                 OUTPUT opcMessage
                 ).                
     END CASE.   
+    
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+    
+    RUN Outbound_GetAPITransCountAPID IN hdOutboundProcs (
+         INPUT ipiAPIOutboundID,
+         OUTPUT iAPITransCounter
+         ).
+         
+    RUN Outbound_GetClientTransCount IN hdOutboundProcs (
+           
+         INPUT ipiAPIOutboundID,
+         OUTPUT iClientTransCounter
+         ).          
+         
+    DELETE PROCEDURE hdOutboundProcs.   
+       
+    ASSIGN 
+        cAPITransCounter = STRING(iAPITransCounter)
+        cClientTransCounter = STRING(iClientTransCounter)
+        .
+        
+  RUN updateRequestData(INPUT-OUTPUT oplcRequestData, "APITransCounter", cAPITransCounter).
+  RUN updateRequestData(INPUT-OUTPUT oplcRequestData, "ClientTransCounter", cClientTransCounter).
+    
 END PROCEDURE.

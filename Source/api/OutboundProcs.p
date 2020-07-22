@@ -14,7 +14,7 @@
   ----------------------------------------------------------------------*/
 {api/ttArgs.i}
 {api/ttScopes.i}
-
+{api/CommonAPIProcs.i}
 DEFINE TEMP-TABLE ttRequestData NO-UNDO
     FIELD company              AS CHARACTER
     FIELD location             AS CHARACTER
@@ -272,6 +272,18 @@ PROCEDURE Outbound_GetAPIRequestType:
             .
 END PROCEDURE.
 
+PROCEDURE Outbound_GetAPITransCountAPID:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiAPIOutboundID AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTransCount    AS INTEGER   NO-UNDO.
+    
+    opiTransCount = fGetAPITransactionCounter ( ipiAPIOutboundID ).
+
+END PROCEDURE.
+
 PROCEDURE Outbound_GetAPITriggerID:
     /*------------------------------------------------------------------------------
      Purpose: Get Outbound Trigger API Sequence ID of given inputs
@@ -304,6 +316,18 @@ PROCEDURE Outbound_GetAPITriggerID:
             opcMessage = "Outbound Trigger configuration for Trigger ID ["
                        + ipcTriggerID + "] is not available or inactive"
             .
+END PROCEDURE.
+
+PROCEDURE Outbound_GetClientTransCount:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiAPIOutboundID AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTransCount    AS INTEGER NO-UNDO.
+    
+    opiTransCount = fGetClientTransactionCounter ( ipiAPIOutboundID ).
+
 END PROCEDURE.
 
 PROCEDURE Outbound_GetRequestTypeList:
