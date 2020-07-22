@@ -273,7 +273,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSetSize D-Dialog
 ON CHOOSE OF btnSetSize IN FRAME D-Dialog
 DO:
+    DEFINE VARIABLE saveHeightSize AS INTEGER NO-UNDO.
+    DEFINE VARIABLE saveWidthSize  AS INTEGER NO-UNDO.
+
+    ASSIGN
+        saveHeightSize = FRAME {&FRAME-NAME}:HEIGHT
+        saveWidthSize  = FRAME {&FRAME-NAME}:WIDTH
+        .
     RUN pWinReSize (heightSize, widthSize).
+    MESSAGE 
+        "Save these Settings?"
+    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+    UPDATE lSave AS LOGICAL.
+    IF lSave EQ NO THEN
+    RUN pWinReSize (saveHeightSize, saveWidthSize).
 END.
 
 /* _UIB-CODE-BLOCK-END */
