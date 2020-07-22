@@ -437,7 +437,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                                FILL(" ",32 - LENGTH(v-case-cnt[1])) 
                                 .
         IF LAST(inv-line.inv-no) THEN do:
-            IF v-printline > 45 THEN DO:
+            IF v-printline > 44 THEN DO:
               PAGE.
               {oe/rep/invcccach.i}
               v-printline = 21.
@@ -657,7 +657,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
           AND inv-misc.bill = "Y" 
          BREAK BY ord-no WITH FRAME detailm:
 
-         IF v-printline > 45 THEN DO:
+         IF v-printline > 44 THEN DO:
            PAGE.                
            {oe/rep/invcccach.i}
             ASSIGN v-printline = 21.
@@ -773,29 +773,29 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                            ELSE 0.
 
 
-    PUT "<||><R46.5><C10><#4><FROM><R56.5><C70><RECT>" SKIP.  
+    PUT "<FCalibri><||><R45.5><C10><#4><FROM><R55.5><C70><RECT>" SKIP.  
     PUT 
+        "<R47.5><C10><FROM><R47.5><C70><LINE>"
         "<R48.5><C10><FROM><R48.5><C70><LINE>"
-        "<R49.5><C10><FROM><R49.5><C70><LINE>"
+        "<R50.5><C10><FROM><R50.5><C70><LINE>"
         "<R51.5><C10><FROM><R51.5><C70><LINE>"
         "<R52.5><C10><FROM><R52.5><C70><LINE>"
         "<R53.5><C10><FROM><R53.5><C70><LINE>"
         "<R54.5><C10><FROM><R54.5><C70><LINE>"
-        "<R55.5><C10><FROM><R55.5><C70><LINE>"
-        "<R48.5><C29><FROM><R56.5><C29><LINE>"
-        "<C11><R46.5><b>Bank Account Information to send an ACH Payment to 3C Packaging</b> "
-        "<C11><R47.5>(Note: Novo is already set up to pay 3C Packaging by ACH payments)" 
-        "<C11><R48.5>Bank Name  <C30>Fifth Third Bank"
-        "<C11><R49.5>Bank Address  <C30>2501 Blue Ridge Road, Suite 100"
-        "<C11><R50.5>    <C30>Raleigh, NC 27607 USA"
-        "<C11><R51.5>Bank Routing #  <C30>053100737"
-        "<C11><R52.5>Bank Account #  <C30>7471863501"
-        "<C11><R53.5>EIN # <C30>56-1239085"
-        "<C11><R54.5>Currency  <C30>USD  United States Dollar"
-        "<C11><R55.5>Country of Origin  <C30>USA"
+        "<R47.5><C29><FROM><R55.5><C29><LINE>"
+        "<C11><R45.5><b>Bank Account Information to send an ACH Payment to 3C Packaging</b> "
+        "<C11><R46.5>(Note: Novo is already set up to pay 3C Packaging by ACH payments)" 
+        "<C11><R47.5>Bank Name  <C30>Fifth Third Bank"
+        "<C11><R48.5>Bank Address  <C30>2501 Blue Ridge Road, Suite 100"
+        "<C11><R49.5>    <C30>Raleigh, NC 27607 USA"
+        "<C11><R50.5>Bank Routing #  <C30>053100737"
+        "<C11><R51.5>Bank Account #  <C30>7471863501"
+        "<C11><R52.5>EIN # <C30>56-1239085"
+        "<C11><R53.5>Currency  <C30>USD  United States Dollar"
+        "<C11><R54.5>Country of Origin  <C30>USA"
         .
 
-    PUT "<R57><C1><#7><FROM><C+80><LINE>"
+    PUT "<FCourier New><R57><C1><#7><FROM><C+80><LINE>"
         "<=7><C31><FROM><R+2.4><LINE>"
         "<=7><C40><FROM><R+2.4><LINE>"
         "<=7><C50><FROM><R+2.4><LINE>"
