@@ -107,7 +107,6 @@ DEFINE VARIABLE cCurCode              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompanyID            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lValid                AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage              AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdFileSysProcs        AS HANDLE    NO-UNDO.
 DEFINE VARIABLE dFrtTaxAmt            AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE lIsfreightTaxable     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE dTotalSalesTax        AS DECIMAL   NO-UNDO.
@@ -116,8 +115,6 @@ DEFINE VARIABLE dFrtTaxRate           AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE lIsTaxRateSame        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE dTotalSalesTaxableAmt AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dTotalFrtTaxableAmt   AS DECIMAL   NO-UNDO.
-
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 
 FUNCTION fRoundUp RETURNS DECIMAL ( ipdNum AS DECIMAL ):
   DEFINE VARIABLE dNumTwoRight AS DECIMAL NO-UNDO.
@@ -174,12 +171,12 @@ RUN XMLOutput (lXMLOutput,'','','Header').
             OUTPUT cRtnChar, OUTPUT lRecFound).
  IF lRecFound AND cRtnChar NE "" THEN DO:
      cRtnChar = DYNAMIC-FUNCTION (
-                    "fFormatFilePath" IN hdFileSysProcs,
+                    "fFormatFilePath",
                     cRtnChar
                     ).
                     
      /* Validate the N-K-1 BusinessFormLogo image file */
-     RUN FileSys_ValidateFile IN hdFileSysProcs (
+     RUN FileSys_ValidateFile(
          INPUT  cRtnChar,
          OUTPUT lValid,
          OUTPUT cMessage
@@ -1202,9 +1199,6 @@ END.
     {XMLOutput/XMLOutput.i &c=c &XMLClose} /* rstark 05291402 */
 
 end. /* each xinv-head */
-
-IF VALID-HANDLE(hdFileSysProcs) THEN
-    DELETE PROCEDURE hdFileSysProcs.
 
 {XMLOutput/XMLOutput.i &XMLClose} /* rstark 05181205 */
 
