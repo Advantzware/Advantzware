@@ -3168,7 +3168,7 @@ PROCEDURE pRunFormatValueChanged :
                              OR lv-format-f = "PackRite"  OR lv-format-f = "Knight***" OR lv-format-f = "Wingate"
                              OR lv-format-f = "Dee"       OR lv-format-f = "Rosmar" OR lv-format-f = "Carded" OR lv-format-f = "McLean" OR lv-format-f = "Carded2" OR lv-format-f = "Coburn")) OR
                 (tb_corr AND (lv-format-c = "Trilakes" OR lv-format-c = "Axis" OR lv-format-c = "Trilakes2" OR lv-format-c = "Hughes" OR lv-format-c = "colonialPL" OR lv-format-c = "JobCardc 20" OR lv-format-c = "AtlanticBox"
-                             OR lv-format-c = "PkgAtlanta" OR lv-format-c = "HoneyCell" OR lv-format-c = "AmCarton")) THEN
+                             OR lv-format-c = "PkgAtlanta" OR lv-format-c = "HoneyCell" OR lv-format-c = "AmCarton" OR lv-format-c = "PreCorr")) THEN
                 assign 
                 tb_prt-mch:SENSITIVE      = YES
                 tb_prt-shipto:SENSITIVE   = YES
@@ -3230,7 +3230,7 @@ PROCEDURE pRunFormatValueChanged :
                         IF NOT tb_prt-set-header:SENSITIVE THEN
                             tb_prt-set-header:SCREEN-VALUE = "no".
                    
-                        IF tb_corr EQ YES AND LOOKUP(lv-format-c,"jobcardc 20,AmCarton,PkgAtlanta,AtlanticBox,Valley20,Delta10,HoneyCell") > 0 THEN
+                        IF tb_corr EQ YES AND LOOKUP(lv-format-c,"jobcardc 20,PreCorr,AmCarton,PkgAtlanta,AtlanticBox,Valley20,Delta10,HoneyCell") > 0 THEN
                             ASSIGN tb_fgimage:SENSITIVE = NO
                             tb_fgimage:SCREEN-VALUE = "yes" 
                             tb_box:SENSITIVE = NO
