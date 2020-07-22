@@ -19,12 +19,9 @@ USING Progress.Json.ObjectModel.*.
 
 DEFINE VARIABLE oModelParser   AS ObjectModelParser NO-UNDO.
 DEFINE VARIABLE oObject        AS JsonObject        NO-UNDO.
-DEFINE VARIABLE hdFileSysProcs AS HANDLE            NO-UNDO.
 DEFINE VARIABLE cTempDir       AS CHARACTER         NO-UNDO.
 
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
-
-RUN FileSys_GetTempDirectory IN hdFileSysProcs(
+RUN FileSys_GetTempDirectory(
     OUTPUT cTempDir
     ).
     
