@@ -88,8 +88,9 @@ DEFINE VARIABLE lInquery AS LOGICAL INIT NO NO-UNDO .
 
 /* gdm - 01310801 */
 DEF VAR v-paidflg AS LOG NO-UNDO.
-DEFINE VARIABLE cPoStatus AS CHARACTER NO-UNDO .
-DEFINE VARIABLE cPoLineStatus AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cPoStatus     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPoLineStatus AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lIsMatches    AS LOGICAL   NO-UNDO.
 
 
 &SCOPED-DEFINE key-phrase po-ordl.company EQ cocode
@@ -105,6 +106,18 @@ DEFINE VARIABLE cPoLineStatus AS CHARACTER NO-UNDO .
           AND ((po-ordl.opened  AND tb_open)   OR    ~
                (NOT po-ordl.opened AND tb_closed))  ~
           AND (po-ordl.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
+
+&SCOPED-DEFINE for-each8                            ~
+    FOR EACH po-ordl                                ~
+        WHERE {&key-phrase}                         ~
+          AND po-ordl.vend-no   BEGINS fi_vend-no   ~
+          AND po-ordl.i-no      BEGINS fi_i-no ~
+          AND po-ordl.vend-i-no BEGINS fi_vend-i-no ~
+          AND po-ordl.job-no    BEGINS fi_job-no    ~
+          AND po-ordl.due-date  GE fi_due-date      ~
+          AND ((po-ordl.opened  AND tb_open)   OR    ~
+               (NOT po-ordl.opened AND tb_closed))  ~
+          AND (po-ordl.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")          
 
 &SCOPED-DEFINE for-each11                           ~
     FOR EACH po-ordl                                ~
@@ -1620,6 +1633,12 @@ PROCEDURE local-open-query :
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
+  IF INDEX(fi_vend-no,"*")   GT 0 OR
+     INDEX(fi_i-no,"*")      GT 0 OR
+     INDEX(fi_vend-i-no,"*") GT 0 THEN
+     lIsMatches = YES.
+  ELSE lIsMatches = NO.   
+        
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
@@ -1830,6 +1849,135 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrepareAndExecute B-table-Win
+PROCEDURE pPrepareAndExecute:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiPoNO AS INTEGER NO-UNDO.
+  
+    IF lIsMatches THEN DO:
+        &SCOPED-DEFINE open-query          ~
+          OPEN QUERY {&browse-name}        ~
+          {&for-each1}                     ~
+            AND po-ordl.po-no GE ipiPoNo   ~
+            USE-INDEX po-no NO-LOCK,       ~
+            {&for-each2},                  ~
+            {&for-each3},                  ~
+            {&for-each4},                  ~
+            {&for-each5},                  ~
+            {&for-each6}
+    
+        IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
+            IF ll-sort-asc THEN 
+                {&open-query} {&sortby-phrase-asc1}.
+            ELSE 
+                {&open-query} {&sortby-phrase-desc1}.
+        ELSE
+            IF ll-sort-asc THEN 
+                {&open-query} {&sortby-phrase-asc2}.
+            ELSE 
+                {&open-query} {&sortby-phrase-desc2}.            
+    END.
+    ELSE DO:
+        &SCOPED-DEFINE open-query          ~
+          OPEN QUERY {&browse-name}        ~
+          {&for-each8}                     ~
+            AND po-ordl.po-no GE ipiPoNo   ~
+            USE-INDEX po-no NO-LOCK,       ~
+            {&for-each2},                  ~
+            {&for-each3},                  ~
+            {&for-each4},                  ~
+            {&for-each5},                  ~
+            {&for-each6}
+    
+        IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
+            IF ll-sort-asc THEN 
+                {&open-query} {&sortby-phrase-asc1}.
+            ELSE 
+                {&open-query} {&sortby-phrase-desc1}.
+        ELSE
+            IF ll-sort-asc THEN 
+                {&open-query} {&sortby-phrase-asc2}.
+            ELSE 
+                {&open-query} {&sortby-phrase-desc2}.            
+    END. 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrepareAndExecutePrevNext B-table-Win
+PROCEDURE pPrepareAndExecutePrevNext:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiBeginPoNO AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiEndPoNo   AS INTEGER NO-UNDO.
+    
+    IF lIsMatches THEN DO:
+        &SCOPED-DEFINE open-query             ~
+          OPEN QUERY {&browse-name}           ~
+          {&for-each1}                        ~
+            AND po-ordl.po-no GE ipiBeginPoNo ~
+            AND po-ordl.po-no LE ipiEndPoNo   ~
+            USE-INDEX po-no NO-LOCK,          ~
+            {&for-each2},                     ~
+            {&for-each3},                     ~
+            {&for-each4},                     ~
+            {&for-each5},                     ~
+            {&for-each6}
+    
+        IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
+            IF ll-sort-asc THEN 
+                {&open-query} {&sortby-phrase-asc1}.
+            ELSE 
+                {&open-query} {&sortby-phrase-desc1}.
+        ELSE
+            IF ll-sort-asc THEN 
+                {&open-query} {&sortby-phrase-asc2}.
+            ELSE 
+                {&open-query} {&sortby-phrase-desc2}.            
+    END.
+    ELSE DO:
+        &SCOPED-DEFINE open-query             ~
+          OPEN QUERY {&browse-name}           ~
+          {&for-each8}                        ~
+            AND po-ordl.po-no GE ipiBeginPoNo ~
+            AND po-ordl.po-no LE ipiEndPoNo   ~
+            USE-INDEX po-no NO-LOCK,          ~
+            {&for-each2},                     ~
+            {&for-each3},                     ~
+            {&for-each4},                     ~
+            {&for-each5},                     ~
+            {&for-each6}
+    
+        IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
+            IF ll-sort-asc THEN 
+                {&open-query} {&sortby-phrase-asc1}.
+            ELSE 
+                {&open-query} {&sortby-phrase-desc1}.
+        ELSE
+            IF ll-sort-asc THEN 
+                {&open-query} {&sortby-phrase-asc2}.
+            ELSE 
+                {&open-query} {&sortby-phrase-desc2}.            
+    END.     
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE printPO B-table-Win 
 PROCEDURE printPO :
 /*------------------------------------------------------------------------------
@@ -1945,29 +2093,54 @@ PROCEDURE query-go :
     END.
 
     IF fi_po-no NE 0 THEN DO:
-
-        &SCOPED-DEFINE open-query          ~
-          OPEN QUERY {&browse-name}        ~
-          {&for-each1}                     ~
-            AND po-ordl.po-no EQ fi_po-no  ~
-            USE-INDEX po-no NO-LOCK,       ~
-            {&for-each2},                  ~
-            {&for-each3},                  ~
-            {&for-each4},                  ~
-            {&for-each5},                  ~
-            {&for-each6}
-
-
-        IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-            IF ll-sort-asc THEN 
-                {&open-query} {&sortby-phrase-asc1}.
-            ELSE 
-                {&open-query} {&sortby-phrase-desc1}.
-        ELSE
-            IF ll-sort-asc THEN 
-                {&open-query} {&sortby-phrase-asc2}.
-            ELSE 
-                {&open-query} {&sortby-phrase-desc2}.
+        IF lIsMatches THEN DO:
+            &SCOPED-DEFINE open-query          ~
+              OPEN QUERY {&browse-name}        ~
+              {&for-each1}                     ~
+                AND po-ordl.po-no EQ fi_po-no  ~
+                USE-INDEX po-no NO-LOCK,       ~
+                {&for-each2},                  ~
+                {&for-each3},                  ~
+                {&for-each4},                  ~
+                {&for-each5},                  ~
+                {&for-each6}
+    
+    
+            IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
+                IF ll-sort-asc THEN 
+                    {&open-query} {&sortby-phrase-asc1}.
+                ELSE 
+                    {&open-query} {&sortby-phrase-desc1}.
+            ELSE
+                IF ll-sort-asc THEN 
+                    {&open-query} {&sortby-phrase-asc2}.
+                ELSE 
+                    {&open-query} {&sortby-phrase-desc2}.
+        END. 
+        ELSE DO:  
+            &SCOPED-DEFINE open-query          ~
+              OPEN QUERY {&browse-name}        ~
+              {&for-each8}                     ~
+                AND po-ordl.po-no EQ fi_po-no  ~
+                USE-INDEX po-no NO-LOCK,       ~
+                {&for-each2},                  ~
+                {&for-each3},                  ~
+                {&for-each4},                  ~
+                {&for-each5},                  ~
+                {&for-each6}
+    
+    
+            IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
+                IF ll-sort-asc THEN 
+                    {&open-query} {&sortby-phrase-asc1}.
+                ELSE 
+                    {&open-query} {&sortby-phrase-desc1}.
+            ELSE
+                IF ll-sort-asc THEN 
+                    {&open-query} {&sortby-phrase-asc2}.
+                ELSE 
+                    {&open-query} {&sortby-phrase-desc2}.                 
+        END.    
     END.
 
     ELSE IF fi_job-no NE ""  THEN DO:
@@ -1981,29 +2154,9 @@ PROCEDURE query-go :
             IF li GE sys-ctrl.int-fld THEN 
                 LEAVE.
         END.
-
-        &SCOPED-DEFINE open-query          ~
-          OPEN QUERY {&browse-name}        ~
-          {&for-each1}                     ~
-            AND po-ordl.po-no GE lv-po-no  ~
-            USE-INDEX job-no NO-LOCK,       ~
-            {&for-each2},                  ~
-            {&for-each3},                  ~
-            {&for-each4},                  ~
-            {&for-each5},                  ~
-            {&for-each6}
-
-        IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-            IF ll-sort-asc THEN 
-                {&open-query} {&sortby-phrase-asc1}.
-            ELSE 
-                {&open-query} {&sortby-phrase-desc1}.
-        ELSE
-            IF ll-sort-asc THEN 
-                {&open-query} {&sortby-phrase-asc2}.
-            ELSE 
-                {&open-query} {&sortby-phrase-desc2}.
- 
+        RUN pPrepareAndExecute(
+            INPUT lv-po-no
+            ).    
     END.
 
     ELSE IF fi_i-no NE "" THEN DO:
@@ -2017,30 +2170,10 @@ PROCEDURE query-go :
             IF li GE sys-ctrl.int-fld THEN 
                 LEAVE.
         END.
-
-        &SCOPED-DEFINE open-query          ~
-          OPEN QUERY {&browse-name}        ~
-          {&for-each1}                     ~
-            AND po-ordl.po-no GE lv-po-no  ~
-            USE-INDEX item NO-LOCK,        ~
-            {&for-each2},                  ~
-            {&for-each3},                  ~
-            {&for-each4},                  ~
-            {&for-each5},                  ~
-            {&for-each6}
-
-
-        IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-            IF ll-sort-asc THEN 
-                {&open-query} {&sortby-phrase-asc1}.
-            ELSE 
-                {&open-query} {&sortby-phrase-desc1}.
-        ELSE
-            IF ll-sort-asc THEN 
-                {&open-query} {&sortby-phrase-asc2}.
-            ELSE 
-                {&open-query} {&sortby-phrase-desc2}.
-
+        RUN pPrepareAndExecute(
+            INPUT lv-po-no
+            ).
+                 
     END.
 
     ELSE IF fi_vend-i-no NE "" THEN DO:
@@ -2053,29 +2186,10 @@ PROCEDURE query-go :
             lv-po-no = po-ordl.po-no.
             IF li GE sys-ctrl.int-fld THEN 
                 LEAVE.
-        END.
-
-        &SCOPED-DEFINE open-query          ~
-          OPEN QUERY {&browse-name}        ~
-          {&for-each1}              ~
-            AND po-ordl.po-no GE lv-po-no  ~
-            USE-INDEX vend-i-no NO-LOCK ,           ~
-            {&for-each2},                  ~
-            {&for-each3},                  ~
-            {&for-each4},                  ~
-            {&for-each5},                  ~
-            {&for-each6}
-            
-        IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-            IF ll-sort-asc THEN 
-                {&open-query} {&sortby-phrase-asc1}.
-            ELSE 
-                {&open-query} {&sortby-phrase-desc1}.
-        ELSE
-            IF ll-sort-asc THEN 
-                {&open-query} {&sortby-phrase-asc2}.
-            ELSE 
-                {&open-query} {&sortby-phrase-desc2}.
+        END. 
+        RUN pPrepareAndExecute(
+            INPUT lv-po-no
+            ).                
     END.
 
     ELSE IF fi_vend-no NE "" THEN DO:
@@ -2089,28 +2203,9 @@ PROCEDURE query-go :
             IF li GE sys-ctrl.int-fld THEN 
                 LEAVE.
         END.
-
-        &SCOPED-DEFINE open-query          ~
-          OPEN QUERY {&browse-name}        ~
-          {&for-each1}              ~
-            AND po-ordl.po-no GE lv-po-no  ~
-            USE-INDEX vend-no NO-LOCK ,           ~
-            {&for-each2},                  ~
-            {&for-each3},                  ~
-            {&for-each4},                  ~
-            {&for-each5},                  ~
-            {&for-each6}
-            
-        IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-            IF ll-sort-asc THEN 
-                {&open-query} {&sortby-phrase-asc1}.
-            ELSE 
-                {&open-query} {&sortby-phrase-desc1}.
-        ELSE
-            IF ll-sort-asc THEN 
-                {&open-query} {&sortby-phrase-asc2}.
-            ELSE 
-                {&open-query} {&sortby-phrase-desc2}.
+        RUN pPrepareAndExecute(
+            INPUT lv-po-no
+            ).                
     END.
     ELSE DO:
         {&for-each7} 
@@ -2128,7 +2223,7 @@ PROCEDURE query-go :
           OPEN QUERY {&browse-name}        ~
           {&for-each7}                     ~
             AND po-ordl.po-no GE lv-po-no  ~
-            USE-INDEX opened NO-LOCK,      ~
+            USE-INDEX po-no NO-LOCK,      ~
             {&for-each2},                  ~
             {&for-each3},                  ~
             {&for-each4},                  ~
@@ -2401,24 +2496,54 @@ END.
 IF lv-show-prev THEN DO:
 
   IF fi_po-no NE 0 THEN DO:
-
-    &SCOPED-DEFINE open-query                   ~
-      OPEN QUERY {&browse-name}                 ~
-          {&for-each1}                          ~
-              AND po-ordl.po-no EQ fi_po-no     ~
-            USE-INDEX po-no NO-LOCK,            ~
-            {&for-each2}, ~
-            {&for-each3}, ~
-            {&for-each4}, ~
-            {&for-each5}, ~
-            {&for-each6}   
-
-    IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc1}.
-                     ELSE {&open-query} {&sortby-phrase-desc1}.
-    ELSE
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc2}.
-                     ELSE {&open-query} {&sortby-phrase-desc2}.
+        IF lIsMatches THEN DO:
+            &SCOPED-DEFINE open-query          ~
+              OPEN QUERY {&browse-name}        ~
+              {&for-each1}                     ~
+                AND po-ordl.po-no EQ fi_po-no  ~
+                USE-INDEX po-no NO-LOCK,       ~
+                {&for-each2},                  ~
+                {&for-each3},                  ~
+                {&for-each4},                  ~
+                {&for-each5},                  ~
+                {&for-each6}
+    
+    
+            IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
+                IF ll-sort-asc THEN 
+                    {&open-query} {&sortby-phrase-asc1}.
+                ELSE 
+                    {&open-query} {&sortby-phrase-desc1}.
+            ELSE
+                IF ll-sort-asc THEN 
+                    {&open-query} {&sortby-phrase-asc2}.
+                ELSE 
+                    {&open-query} {&sortby-phrase-desc2}.
+        END. 
+        ELSE DO:  
+            &SCOPED-DEFINE open-query          ~
+              OPEN QUERY {&browse-name}        ~
+              {&for-each8}                     ~
+                AND po-ordl.po-no EQ fi_po-no  ~
+                USE-INDEX po-no NO-LOCK,       ~
+                {&for-each2},                  ~
+                {&for-each3},                  ~
+                {&for-each4},                  ~
+                {&for-each5},                  ~
+                {&for-each6}
+    
+    
+            IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
+                IF ll-sort-asc THEN 
+                    {&open-query} {&sortby-phrase-asc1}.
+                ELSE 
+                    {&open-query} {&sortby-phrase-desc1}.
+            ELSE
+                IF ll-sort-asc THEN 
+                    {&open-query} {&sortby-phrase-asc2}.
+                ELSE 
+                    {&open-query} {&sortby-phrase-desc2}.                 
+        END.    
   END.
 
   ELSE IF fi_job-no NE "" THEN DO:
@@ -2433,26 +2558,10 @@ IF lv-show-prev THEN DO:
         lv-po-no = po-ordl.po-no.
         IF li GE sys-ctrl.int-fld THEN LEAVE.
       END.
-
-    &SCOPED-DEFINE open-query           ~
-      OPEN QUERY {&browse-name}         ~
-          {&for-each1}                  ~
-          AND po-ordl.po-no GE lv-po-no ~
-          AND po-ordl.po-no LE lv-last-show-po-no ~
-          USE-INDEX job-no NO-LOCK,     ~
-          {&for-each2}, ~
-          {&for-each3}, ~
-          {&for-each4}, ~
-          {&for-each5}, ~
-          {&for-each6}   
-
-    IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc1}.
-                     ELSE {&open-query} {&sortby-phrase-desc1}.
-    ELSE
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc2}.
-                     ELSE {&open-query} {&sortby-phrase-desc2}.
-
+    RUN pPrepareAndExecutePrevNext(
+        INPUT lv-po-no,
+        INPUT lv-last-show-po-no
+        ).
   END.
 
   ELSE IF fi_i-no NE "" THEN DO:
@@ -2467,25 +2576,11 @@ IF lv-show-prev THEN DO:
         lv-po-no = po-ordl.po-no.
         IF li GE sys-ctrl.int-fld THEN LEAVE.
       END.
-
-    &SCOPED-DEFINE open-query         ~
-      OPEN QUERY {&browse-name}       ~
-          {&for-each1}                ~
-          AND po-ordl.po-no GE lv-po-no ~
-          AND po-ordl.po-no LE lv-last-show-po-no ~
-          USE-INDEX item NO-LOCK, ~
-          {&for-each2}, ~
-          {&for-each3}, ~
-          {&for-each4}, ~
-          {&for-each5}, ~
-          {&for-each6} 
-
-    IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc1}.
-                     ELSE {&open-query} {&sortby-phrase-desc1}.
-    ELSE
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc2}.
-                     ELSE {&open-query} {&sortby-phrase-desc2}.
+      
+    RUN pPrepareAndExecutePrevNext(
+        INPUT lv-po-no,
+        INPUT lv-last-show-po-no
+        ).
   END.
 
   ELSE IF fi_vend-i-no NE "" THEN DO:
@@ -2501,24 +2596,10 @@ IF lv-show-prev THEN DO:
         IF li GE sys-ctrl.int-fld THEN LEAVE.
       END.
 
-    &SCOPED-DEFINE open-query              ~
-      OPEN QUERY {&browse-name}            ~
-          {&for-each1}                     ~
-          AND po-ordl.po-no GE lv-po-no    ~
-          AND po-ordl.po-no LE lv-last-show-po-no ~
-          USE-INDEX vend-i-no NO-LOCK, ~
-          {&for-each2}, ~
-          {&for-each3}, ~
-          {&for-each4}, ~
-          {&for-each5}, ~
-          {&for-each6} 
-
-    IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc1}.
-                     ELSE {&open-query} {&sortby-phrase-desc1}.
-    ELSE
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc2}.
-                     ELSE {&open-query} {&sortby-phrase-desc2}.
+    RUN pPrepareAndExecutePrevNext(
+        INPUT lv-po-no,
+        INPUT lv-last-show-po-no
+        ).
   END.
 
   ELSE IF tb_open NE tb_closed THEN DO:
@@ -2534,26 +2615,10 @@ IF lv-show-prev THEN DO:
         lv-po-no = po-ordl.po-no.
         IF li GE sys-ctrl.int-fld THEN LEAVE.
       END.
-
-    &SCOPED-DEFINE open-query                 ~
-      OPEN QUERY {&browse-name}               ~
-          {&for-each1}                        ~
-          AND po-ordl.opened EQ tb_open       ~
-          AND po-ordl.po-no GE lv-po-no       ~
-          AND po-ordl.po-no LE lv-last-show-po-no ~
-          USE-INDEX opened NO-LOCK,           ~
-          {&for-each2}, ~
-          {&for-each3}, ~
-          {&for-each4}, ~
-          {&for-each5}, ~
-          {&for-each6}  
-
-    IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc1}.
-                     ELSE {&open-query} {&sortby-phrase-desc1}.
-    ELSE
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc2}.
-                     ELSE {&open-query} {&sortby-phrase-desc2}.
+    RUN pPrepareAndExecutePrevNext(
+        INPUT lv-po-no,
+        INPUT lv-last-show-po-no
+        ).
   END.
 
   ELSE DO:
@@ -2568,48 +2633,63 @@ IF lv-show-prev THEN DO:
         lv-po-no = po-ordl.po-no.
         IF li GE sys-ctrl.int-fld THEN LEAVE.
       END.
-
-    &SCOPED-DEFINE open-query             ~
-      OPEN QUERY {&browse-name}           ~
-          {&for-each1}                    ~
-          AND po-ordl.po-no GE lv-po-no   ~
-          AND po-ordl.po-no LE lv-last-show-po-no ~
-          NO-LOCK,                        ~
-          {&for-each2}, ~
-          {&for-each3}, ~
-          {&for-each4}, ~
-          {&for-each5}, ~
-          {&for-each6}  
-
-    IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc1}.
-                     ELSE {&open-query} {&sortby-phrase-desc1}.
-    ELSE
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc2}.
-                     ELSE {&open-query} {&sortby-phrase-desc2}.
+    RUN pPrepareAndExecutePrevNext(
+        INPUT lv-po-no,
+        INPUT lv-last-show-po-no
+        ).
   END.
 END.  /* lv-show-prev */
 ELSE /*IF lv-show-next THEN*/ DO:
 
   IF fi_po-no NE 0 THEN DO:
-
-    &SCOPED-DEFINE open-query                   ~
-      OPEN QUERY {&browse-name}                 ~
-          {&for-each1}                          ~
-              AND po-ordl.po-no EQ fi_po-no     ~
-            USE-INDEX po-no NO-LOCK,            ~
-            {&for-each2}, ~
-            {&for-each3}, ~
-            {&for-each4}, ~
-            {&for-each5}, ~
-            {&for-each6} 
-
-    IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc1}.
-                     ELSE {&open-query} {&sortby-phrase-desc1}.
-    ELSE
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc2}.
-                     ELSE {&open-query} {&sortby-phrase-desc2}.
+        IF lIsMatches THEN DO:
+            &SCOPED-DEFINE open-query          ~
+              OPEN QUERY {&browse-name}        ~
+              {&for-each1}                     ~
+                AND po-ordl.po-no EQ fi_po-no  ~
+                USE-INDEX po-no NO-LOCK,       ~
+                {&for-each2},                  ~
+                {&for-each3},                  ~
+                {&for-each4},                  ~
+                {&for-each5},                  ~
+                {&for-each6}
+    
+    
+            IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
+                IF ll-sort-asc THEN 
+                    {&open-query} {&sortby-phrase-asc1}.
+                ELSE 
+                    {&open-query} {&sortby-phrase-desc1}.
+            ELSE
+                IF ll-sort-asc THEN 
+                    {&open-query} {&sortby-phrase-asc2}.
+                ELSE 
+                    {&open-query} {&sortby-phrase-desc2}.
+        END. 
+        ELSE DO:  
+            &SCOPED-DEFINE open-query          ~
+              OPEN QUERY {&browse-name}        ~
+              {&for-each8}                     ~
+                AND po-ordl.po-no EQ fi_po-no  ~
+                USE-INDEX po-no NO-LOCK,       ~
+                {&for-each2},                  ~
+                {&for-each3},                  ~
+                {&for-each4},                  ~
+                {&for-each5},                  ~
+                {&for-each6}
+    
+    
+            IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
+                IF ll-sort-asc THEN 
+                    {&open-query} {&sortby-phrase-asc1}.
+                ELSE 
+                    {&open-query} {&sortby-phrase-desc1}.
+            ELSE
+                IF ll-sort-asc THEN 
+                    {&open-query} {&sortby-phrase-asc2}.
+                ELSE 
+                    {&open-query} {&sortby-phrase-desc2}.                 
+        END.    
   END.
 
   ELSE IF fi_job-no NE "" THEN DO:
@@ -2624,25 +2704,10 @@ ELSE /*IF lv-show-next THEN*/ DO:
         lv-po-no = po-ordl.po-no.
         IF li GE sys-ctrl.int-fld THEN LEAVE.
       END.
-
-    &SCOPED-DEFINE open-query           ~
-      OPEN QUERY {&browse-name}         ~
-          {&for-each1}                  ~
-          AND po-ordl.po-no LE lv-po-no ~
-          AND po-ordl.po-no GE lv-first-show-po-no ~
-          USE-INDEX job-no NO-LOCK, ~
-          {&for-each2}, ~
-          {&for-each3}, ~
-          {&for-each4}, ~
-          {&for-each5}, ~
-          {&for-each6}   
-
-    IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc1}.
-                     ELSE {&open-query} {&sortby-phrase-desc1}.
-    ELSE
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc2}.
-                     ELSE {&open-query} {&sortby-phrase-desc2}.
+    RUN pPrepareAndExecutePrevNext(
+        INPUT lv-first-show-po-no,
+        INPUT lv-po-no
+        ).
   END.
 
   ELSE IF fi_i-no NE "" THEN DO:
@@ -2657,25 +2722,11 @@ ELSE /*IF lv-show-next THEN*/ DO:
         lv-po-no = po-ordl.po-no.
         IF li GE sys-ctrl.int-fld THEN LEAVE.
       END.
-
-    &SCOPED-DEFINE open-query         ~
-      OPEN QUERY {&browse-name}       ~
-          {&for-each1}                ~
-          AND po-ordl.po-no LE lv-po-no ~
-          AND po-ordl.po-no GE lv-first-show-po-no ~
-          USE-INDEX item NO-LOCK, ~
-          {&for-each2}, ~
-          {&for-each3}, ~
-          {&for-each4}, ~
-          {&for-each5}, ~
-          {&for-each6} 
-
-    IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc1}.
-                     ELSE {&open-query} {&sortby-phrase-desc1}.
-    ELSE
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc2}.
-                     ELSE {&open-query} {&sortby-phrase-desc2}.
+      
+    RUN pPrepareAndExecutePrevNext(
+        INPUT lv-first-show-po-no,
+        INPUT lv-po-no
+        ).      
   END.
 
   ELSE IF fi_vend-i-no NE "" THEN DO:
@@ -2691,24 +2742,10 @@ ELSE /*IF lv-show-next THEN*/ DO:
         IF li GE sys-ctrl.int-fld THEN LEAVE.
       END.
 
-    &SCOPED-DEFINE open-query              ~
-      OPEN QUERY {&browse-name}            ~
-          {&for-each1}                     ~
-          AND po-ordl.po-no LE lv-po-no   ~
-          AND po-ordl.po-no GE lv-first-show-po-no ~
-          USE-INDEX vend-i-no NO-LOCK, ~
-          {&for-each2}, ~
-          {&for-each3}, ~
-          {&for-each4}, ~
-          {&for-each5}, ~
-          {&for-each6}  
-
-    IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc1}.
-                     ELSE {&open-query} {&sortby-phrase-desc1}.
-    ELSE
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc2}.
-                     ELSE {&open-query} {&sortby-phrase-desc2}.
+    RUN pPrepareAndExecutePrevNext(
+        INPUT lv-first-show-po-no,
+        INPUT lv-po-no
+        ).
   END.
 
   ELSE IF tb_open NE tb_closed THEN DO:
@@ -2723,26 +2760,10 @@ ELSE /*IF lv-show-next THEN*/ DO:
         lv-po-no = po-ordl.po-no.
         IF li GE sys-ctrl.int-fld THEN LEAVE.
       END.
-
-    &SCOPED-DEFINE open-query                 ~
-      OPEN QUERY {&browse-name}               ~
-          {&for-each1}                        ~
-          AND po-ordl.po-no LE lv-po-no      ~
-          AND po-ordl.po-no GE lv-first-show-po-no ~
-          AND po-ordl.opened EQ tb_open       ~
-          USE-INDEX opened NO-LOCK,           ~
-          {&for-each2}, ~
-          {&for-each3}, ~
-          {&for-each4}, ~
-          {&for-each5}, ~
-          {&for-each6}
-
-    IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc1}.
-                     ELSE {&open-query} {&sortby-phrase-desc1}.
-    ELSE
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc2}.
-                     ELSE {&open-query} {&sortby-phrase-desc2}.
+    RUN pPrepareAndExecutePrevNext(
+        INPUT lv-first-show-po-no,
+        INPUT lv-po-no
+        ).
   END.
 
   ELSE DO:
@@ -2758,24 +2779,10 @@ ELSE /*IF lv-show-next THEN*/ DO:
         IF li GE sys-ctrl.int-fld THEN LEAVE.
       END.
 
-    &SCOPED-DEFINE open-query             ~
-      OPEN QUERY {&browse-name}           ~
-          {&for-each1}                    ~
-          AND po-ordl.po-no LE lv-po-no  ~
-          AND po-ordl.po-no GE lv-first-show-po-no ~
-          NO-LOCK,                        ~
-          {&for-each2}, ~
-          {&for-each3}, ~
-          {&for-each4}, ~
-          {&for-each5}, ~
-          {&for-each6}  
-
-    IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc1}.
-                     ELSE {&open-query} {&sortby-phrase-desc1}.
-    ELSE
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc2}.
-                     ELSE {&open-query} {&sortby-phrase-desc2}.
+    RUN pPrepareAndExecutePrevNext(
+        INPUT lv-first-show-po-no,
+        INPUT lv-po-no
+        ).
   END.
 END.
 END PROCEDURE.
