@@ -354,6 +354,14 @@ PROCEDURE pGetTaxAmounts PRIVATE:
     DEFINE VARIABLE iLengthProperty  AS INTEGER    NO-UNDO.
     DEFINE VARIABLE iCount           AS INTEGER    NO-UNDO.    
     
+    IF iplcResponseData EQ "" THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Empty response data"
+            .    
+        RETURN.
+    END.
+    
     ASSIGN
         oObject = CAST(oModelParser:Parse(INPUT iplcResponseData),JsonObject)
         oObject = CAST(oModelParser:PARSE(INPUT oObject:GetJsonText('data')),JsonObject)                

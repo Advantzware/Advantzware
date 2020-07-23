@@ -52,7 +52,7 @@ DEFINE VARIABLE cRequestStatusFailed      AS CHARACTER NO-UNDO INITIAL "Failed".
 DEFINE VARIABLE cRequestTypeAPI           AS CHARACTER NO-UNDO INITIAL "API".
 DEFINE VARIABLE cRequestTypeFTP           AS CHARACTER NO-UNDO INITIAL "FTP".
 DEFINE VARIABLE cRequestTypeSAVE          AS CHARACTER NO-UNDO INITIAL "SAVE".
-DEFINE VARIABLE cLocValidationExceptions  AS CHARACTER NO-UNDO INITIAL "SendAdvancedShipNotice,SendFinishedGood". /* Should be comma (,) separated. loc.isAPIEnabled will not be validated for APIs in the list */
+DEFINE VARIABLE cLocValidationExceptions  AS CHARACTER NO-UNDO INITIAL "SendAdvancedShipNotice,SendFinishedGood,CalculateTax". /* Should be comma (,) separated. loc.isAPIEnabled will not be validated for APIs in the list */
 DEFINE VARIABLE cScopeTypeList            AS CHARACTER NO-UNDO INITIAL "_ANY_,Customer,Vendor,ShipTo".
 DEFINE VARIABLE cScopeTypeCustomer        AS CHARACTER NO-UNDO INITIAL "Customer".
 DEFINE VARIABLE cScopeTypeVendor          AS CHARACTER NO-UNDO INITIAL "Vendor".
