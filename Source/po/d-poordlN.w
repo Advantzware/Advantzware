@@ -6537,8 +6537,8 @@ PROCEDURE vend-cost :
                 "", 0, 0, /*Estimate/F/B*/
                 DECIMAL(po-ordl.ord-qty:SCREEN-VALUE), 
                 po-ordl.pr-qty-uom:SCREEN-VALUE ,
-                DECIMAL(po-ordl.s-len), 
-                DECIMAL(po-ordl.s-wid), 
+                DECIMAL(po-ordl.s-len:SCREEN-VALUE), 
+                DECIMAL(po-ordl.s-wid:SCREEN-VALUE), 
                 DECIMAL(po-ordl.s-dep), 
                 "IN", 
                 IF AVAILABLE ITEM THEN item.basis-w ELSE 0, 
