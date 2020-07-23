@@ -6539,7 +6539,7 @@ PROCEDURE vend-cost :
                 po-ordl.pr-qty-uom:SCREEN-VALUE ,
                 DECIMAL(po-ordl.s-len:SCREEN-VALUE), 
                 DECIMAL(po-ordl.s-wid:SCREEN-VALUE), 
-                DECIMAL(po-ordl.s-dep), 
+                DECIMAL(v-po-dep:SCREEN-VALUE), 
                 "IN", 
                 IF AVAILABLE ITEM THEN item.basis-w ELSE 0, 
                 "LB/EA", 
