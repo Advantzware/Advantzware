@@ -894,11 +894,14 @@ PROCEDURE create-order-lines.
        END. /* lv-q-no ne 0 */
     END. /* avail xest and quo price log ... */
 
-    oe-ordl.t-price = oe-ordl.price * oe-ordl.qty /
-                      (IF oe-ordl.pr-uom EQ "C" THEN 100  ELSE
-                       IF oe-ordl.pr-uom EQ "M" THEN 1000 ELSE 
-                       IF oe-ordl.pr-uom = "L" THEN oe-ordl.qty ELSE 1).
-
+    RUN Conv_CalcTotalPrice(cocode, 
+                        oe-ordl.i-no,
+                        DECIMAL(oe-ordl.qty),
+                        DECIMAL(oe-ordl.price),
+                        oe-ordl.pr-uom,
+                        DECIMAL(oe-ordl.disc),
+                        DECIMAL(oe-ordl.cas-cnt),    
+                        OUTPUT oe-ordl.t-price). 
 
     FIND FIRST tt-oe-ordl WHERE tt-oe-ordl.row-id EQ ROWID(oe-ordl) NO-ERROR.
     IF AVAIL tt-oe-ordl THEN tt-oe-ordl.to-be-deleted = NO.
