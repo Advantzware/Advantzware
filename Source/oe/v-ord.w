@@ -1054,7 +1054,9 @@ DO:
                                                                shipto.ship-state,
                                                                shipto.ship-zip).
                  IF shipto.tax-code NE "" THEN
-                     oe-ord.tax-gr:screen-value = shipto.tax-code . 
+                     oe-ord.tax-gr:screen-value = shipto.tax-code .
+                 IF shipto.carrier NE "" THEN
+                     oe-ord.carrier:screen-value = shipto.carrier .    
                 RUN pGetOverUnderPct.
               END.
          END.  
@@ -1743,7 +1745,8 @@ DO:
                                                                shipto.ship-zip).
            IF shipto.tax-code NE "" THEN
                oe-ord.tax-gr:screen-value    =  shipto.tax-code .
-            
+           IF shipto.carrier NE "" THEN
+               oe-ord.carrier:screen-value = shipto.carrier . 
        END.      
   END.
 END.
@@ -3702,7 +3705,8 @@ PROCEDURE display-cust-detail :
               ls-ship-i[2] = shipto.notes[2]
               ls-ship-i[3] = shipto.notes[3]
               ls-ship-i[4] = shipto.notes[4]
-              oe-ord.tax-gr:screen-value    = IF shipto.tax-code NE "" THEN shipto.tax-code ELSE oe-ord.tax-gr:screen-value .
+              oe-ord.tax-gr:screen-value    = IF shipto.tax-code NE "" THEN shipto.tax-code ELSE oe-ord.tax-gr:screen-value
+              oe-ord.carrier:screen-value   = IF shipto.carrier NE "" THEN shipto.carrier ELSE oe-ord.carrier:screen-value  .
                             
      RUN pGetOverUnderPct.        
 
