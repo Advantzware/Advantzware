@@ -897,21 +897,36 @@ PROCEDURE first-query :
   RUN set-defaults.
 
   li = 0.
-
-  FOR EACH oe-bolh
-      WHERE oe-bolh.company EQ g_company
-        AND oe-bolh.posted  EQ tb_posted
-        AND oe-bolh.deleted EQ NO
-        AND CAN-FIND(FIRST oe-boll
-                     WHERE oe-boll.company EQ oe-bolh.company
-                       AND oe-boll.b-no    EQ oe-bolh.b-no)
-      USE-INDEX b-no NO-LOCK
-      BREAK BY oe-bolh.b-no DESC:
-    IF FIRST-OF(oe-bolh.b-no) THEN li = li + 1.
-    lv-b-no = oe-bolh.b-no.
-    IF li GE 100 THEN LEAVE.
+  IF tb_posted THEN DO:
+      FOR EACH oe-bolh
+          WHERE oe-bolh.company EQ g_company
+            AND oe-bolh.posted  EQ YES
+            AND oe-bolh.deleted EQ NO
+            AND CAN-FIND(FIRST oe-boll
+                         WHERE oe-boll.company EQ oe-bolh.company
+                           AND oe-boll.b-no    EQ oe-bolh.b-no)
+          USE-INDEX b-no NO-LOCK
+          BREAK BY oe-bolh.b-no DESC:
+        IF FIRST-OF(oe-bolh.b-no) THEN li = li + 1.
+        lv-b-no = oe-bolh.b-no.
+        IF li GE 100 THEN LEAVE.
+      END.      
   END.
-
+  ELSE DO:    
+      FOR EACH oe-bolh
+          WHERE oe-bolh.company EQ g_company
+            AND oe-bolh.posted  EQ NO
+            AND oe-bolh.deleted EQ NO
+            AND CAN-FIND(FIRST oe-boll
+                         WHERE oe-boll.company EQ oe-bolh.company
+                           AND oe-boll.b-no    EQ oe-bolh.b-no)
+          USE-INDEX post NO-LOCK
+          BREAK BY oe-bolh.b-no DESC:
+        IF FIRST-OF(oe-bolh.b-no) THEN li = li + 1.
+        lv-b-no = oe-bolh.b-no.
+        IF li GE 100 THEN LEAVE.
+      END.
+  END.
   &SCOPED-DEFINE open-query               ~
       OPEN QUERY {&browse-name}           ~
         {&for-each11}                     ~
