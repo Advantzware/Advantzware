@@ -54,6 +54,25 @@ def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
 DEF VAR lv-fgrecpt-val AS INT NO-UNDO.
 DEF VAR trans-time AS CHAR NO-UNDO.
 DEF VAR lv-new-tag-number-chosen AS LOG NO-UNDO.
+DEFINE VARIABLE lPostAuto-log AS LOGICAL NO-UNDO .
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL   NO-UNDO .
+DEF VAR v-post-date AS DATE INITIAL TODAY NO-UNDO.
+DEFINE VARIABLE cFgEmails AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iFgEmails AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lFgEmails AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lPromptForClose AS LOGICAL NO-UNDO INITIAL YES.
+
+{pc/pcprdd4u.i NEW}
+{fg/invrecpt.i NEW}   
+{jc/jcgl-sh.i  NEW}
+{fg/fullset.i  NEW}
+{fg/fg-post3.i NEW}
+{Inventory/ttInventory.i "NEW SHARED"}
+{fg/fgPostBatch.i} 
+
 &SCOPED-DEFINE item-key-phrase TRUE
 
 /* _UIB-CODE-BLOCK-END */
@@ -463,6 +482,12 @@ DO TRANSACTION:
   lv-fgrecpt-val = sys-ctrl.int-fld.
 END.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "FGTransferPost", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lPostAuto-log = LOGICAL(cRtnChar) NO-ERROR.
+
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -738,6 +763,13 @@ PROCEDURE pAddRecord :
        AND ROWID(bff-fg-rctd) EQ lv-rowid NO-ERROR .
    IF AVAIL bff-fg-rctd THEN
        RUN repo-query (lv-rowid).
+       
+  IF lPostAuto-log THEN
+  DO:
+     RUN auto-post. 
+     RUN repo-query (lv-rowid).
+  END.
+         
 
 END PROCEDURE.
 
@@ -759,6 +791,13 @@ PROCEDURE pUpdateRecord :
        RUN fg/d-trans.w (RECID(fg-rctd),"update", OUTPUT lv-rowid) . 
        RUN repo-query (lv-rowid).
     END.
+    
+    IF lPostAuto-log THEN
+    DO:
+       RUN auto-post.
+       RUN repo-query (lv-rowid).
+    END.
+     
 
 END PROCEDURE.
 
@@ -829,6 +868,53 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE auto-post B-table-Win 
+PROCEDURE auto-post :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    /* IF no rows are selected and this is run, it will return an error */
+    IF lPostAuto-log AND BROWSE Browser-Table:NUM-SELECTED-ROWS GT 0 THEN 
+    DO:
+        FOR EACH w-fg-rctd:
+            DELETE w-fg-rctd.
+        END.
+
+        /* Create a single workfile record for the finished good being posted */
+        CREATE w-fg-rctd.
+        BUFFER-COPY fg-rctd TO w-fg-rctd
+            ASSIGN 
+            w-fg-rctd.row-id  = ROWID(fg-rctd)
+            w-fg-rctd.has-rec = YES.        
+      ASSIGN
+          v-post-date = TODAY
+          .       
+      RUN fg/fgpostBatch.p ( 
+          INPUT v-post-date, /* Post date      */
+          INPUT NO,          /* tg-recalc-cost */
+          INPUT "T",         /* Transfer       */
+          INPUT lFgEmails,   /* Send fg emails */
+          INPUT YES,         /* Create work-gl */
+                  INPUT lPromptForClose, /* Executes .w closing orders logic */
+          INPUT TABLE w-fg-rctd BY-reference,
+          INPUT TABLE tt-fgemail BY-reference,
+          INPUT TABLE tt-email BY-reference,
+          INPUT TABLE tt-inv BY-reference).
+          
+      RUN DisplayMessage(INPUT "39").
+  END.
+  ELSE ERROR-STATUS:ERROR = NO .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 /* ************************  Function Implementations ***************** */
 
