@@ -4317,7 +4317,7 @@ FUNCTION fnValidateFgAssembly RETURNS LOGICAL
        IF NOT AVAILABLE w-fg-rctd THEN 
            NEXT. 
       
-        FIND fg-rctd EXCLUSIVE-LOCK WHERE ROWID(fg-rctd) = w-fg-rctd.row-id  NO-ERROR.
+        FIND fg-rctd EXCLUSIVE-LOCK WHERE ROWID(fg-rctd) = b-w-fg-rctd.row-id  NO-ERROR.
         FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ cocode 
             AND itemfg.i-no    EQ w-fg-rctd.i-no
             NO-ERROR.
