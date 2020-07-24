@@ -40,12 +40,13 @@ DEFINE VARIABLE lcConcatTaxData       AS LONGCHAR NO-UNDO.
 DEFINE VARIABLE lcTaxData             AS LONGCHAR NO-UNDO.         
        
 /* Invoice Header Variables */
-DEFINE VARIABLE cCompany              AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCurrentDate              AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCurrentTime              AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cInvoiceDate              AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cInvoiceNumber             AS CHARACTER NO-UNDO.
-DEFINE VARIABLE dtInvoiceDate         AS DATE      NO-UNDO.
+DEFINE VARIABLE cCompany       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCurrentDate   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCurrentTime   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInvoiceDate   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInvoiceNumber AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dtInvoiceDate  AS DATE      NO-UNDO.
+DEFINE VARIABLE cDocumentPoNum AS CHARACTER NO-UNDO.
            
 DEFINE VARIABLE cTotalAmount          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dInvoiceTotalAmt      AS DECIMAL   NO-UNDO.
@@ -292,8 +293,9 @@ DO:
             cTotalAmount  = TRIM(IF inv-head.t-inv-rev GT 0 THEN STRING(inv-head.t-inv-rev, ">>>>>>>>.99") ELSE "0")
             cTotalAmount  = REPLACE(ctotalAmount, ".", "")
             dtInvoiceDate = inv-head.inv-date
-            cShipToCode   = IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to.
-        .
+            cShipToCode   = IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to
+            
+            .
 
         RUN pCreateAddress("BT", 1, inv-head.bill-to, inv-head.cust-name, inv-head.addr[1], 
             inv-head.addr[2], inv-head.city, inv-head.state, inv-head.zip, 
@@ -373,9 +375,9 @@ DO:
     END.
 
     ASSIGN
-        cInvoiceDate = STRING(dtInvoiceDate).
-    cCurrentDate = STRING(TODAY).
-    cCurrentTime = STRING(TIME)
+        cInvoiceDate = STRING(dtInvoiceDate)
+        cCurrentDate = STRING(TODAY)
+        cCurrentTime = STRING(TIME)
         .
 
 
@@ -431,7 +433,9 @@ DO:
             WHERE inv-line.r-no   EQ inv-head.r-no
             AND inv-line.inv-qty GT 0
             BY inv-line.line:    
-                
+            
+            IF cDocumentPoNum EQ "" THEN
+                cDocumentPoNum = inv-line.po-no.
             /* find order line for line number */
             FIND FIRST oe-ordl NO-LOCK 
                 WHERE oe-ordl.company EQ inv-line.company
@@ -468,7 +472,8 @@ DO:
                 cUomCode     = (IF inv-line.pr-qty-uom > "" THEN
                         inv-line.pr-qty-uom
                         ELSE "EA"
-                        )                      
+                        )         
+                cPoNum       = inv-line.po-no             
                 .
             RUN pConvQtyPriceUOM (                                         
                 inv-line.inv-qty,
@@ -517,7 +522,8 @@ DO:
             WHERE ar-invl.x-no   EQ ar-inv.x-no
             AND ar-invl.inv-qty GT 0
             BY ar-invl.line:    
-                
+            IF cDocumentPoNum EQ "" THEN
+                cDocumentPoNum = ar-invl.po-no.                
             /* find order line for line number */
             FIND FIRST oe-ordl NO-LOCK 
                 WHERE oe-ordl.company EQ ar-invl.company
@@ -773,6 +779,7 @@ DO:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "InvoiceNum", cInvoiceNumber ). 
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Currency", "USD" ).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalAmount", cTotalAmount ).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "DocumentPoNum", cDocumentPoNum).
 
 
           
