@@ -14,6 +14,7 @@
   ----------------------------------------------------------------------*/
 {api/ttArgs.i}
 {api/ttScopes.i}
+{api/CommonAPIProcs.i}
 
 DEFINE TEMP-TABLE ttRequestData NO-UNDO
     FIELD company              AS CHARACTER
@@ -673,6 +674,28 @@ PROCEDURE Outbound_ResetContext:
     EMPTY TEMP-TABLE ttAPIOutboundEvent.
     EMPTY TEMP-TABLE ttRequestData.
 END.
+
+PROCEDURE Outbound_UpdateGlobalFieldValues:
+/*------------------------------------------------------------------------------
+ Purpose: This procedure updates global fields in the request data that are 
+          generic to the API 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipiAPIOutboundID AS INTEGER   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cAPITransactionCounter    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cClientTransactionCounter AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        cAPITransactionCounter    = STRING(fGetAPITransactionCounter(ipiAPIOutboundID))
+        cClientTransactionCounter = STRING(fGetClientTransactionCounter(ipiAPIOutboundID))
+        .
+        
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "APITransCounter", cAPITransactionCounter).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ClientTransCounter", cClientTransactionCounter).
+
+END PROCEDURE.
 
 PROCEDURE Outbound_ValidateClientID:
 /*------------------------------------------------------------------------------
