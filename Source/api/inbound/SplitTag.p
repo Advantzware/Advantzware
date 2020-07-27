@@ -319,7 +319,7 @@ PROCEDURE pFGReceiptCreation PRIVATE :
 
     DEFINE VARIABLE iRNo AS INTEGER NO-UNDO.
     
-    DEFINE BUFFER fg-rctd FOR fg-rctd.
+    DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
     
     oplSuccess = YES.
     
@@ -345,50 +345,50 @@ PROCEDURE pFGReceiptCreation PRIVATE :
            AND fg-bin.qty     GT 0
          NO-ERROR.
   
-    CREATE fg-rctd.
+    CREATE bf-fg-rctd.
     ASSIGN
-        fg-rctd.r-no         = iRNo + 1
-        fg-rctd.rct-date     = TODAY
-        fg-rctd.trans-time   = TIME
-        fg-rctd.s-num        = 0
-        fg-rctd.units-pallet = fg-bin.units-pallet
-        fg-rctd.cases-unit   = fg-bin.cases-unit
-        fg-rctd.company      = fg-bin.company
-        fg-rctd.tag          = fg-bin.tag
-        fg-rctd.qty          = ipdSplitQuantity
-        fg-rctd.i-no         = fg-bin.i-no
-        fg-rctd.i-name       = loadtag.i-name 
-        fg-rctd.po-no        = fg-bin.po-no 
-        fg-rctd.qty-case     = IF AVAILABLE fg-bin THEN 
-                                   fg-bin.case-count
-                               ELSE 
-                                   loadtag.qty-case
-        fg-rctd.job-no       = fg-bin.job-no
-        fg-rctd.job-no2      = fg-bin.job-no2
-        fg-rctd.loc          = fg-bin.loc
-        fg-rctd.loc-bin      = fg-bin.loc-bin
-        fg-rctd.tag2         = ipcNewInventoryStockID
-        fg-rctd.loc2         = fg-bin.loc
-        fg-rctd.loc-bin2     = fg-bin.loc-bin
-        fg-rctd.cust-no      = CAPS(fg-bin.cust-no)
-        fg-rctd.rita-code    = cTransactionTypeTransfer
-        fg-rctd.cases        = IF AVAILABLE fg-bin THEN 
-                                   TRUNC((ipdSplitQuantity - fg-bin.partial-count) / fg-bin.case-count,0)
-                               ELSE 
-                                   loadtag.tot-cases
-        fg-rctd.partial      = IF AVAILABLE fg-bin THEN 
-                                   fg-bin.partial-count
-                               ELSE 
-                                   loadtag.partial 
-        fg-rctd.t-qty        = ipdSplitQuantity
-        fg-rctd.created-by   = ipcUsername
-        fg-rctd.updated-by   = ipcUsername
-        fg-rctd.pur-uom      = fg-bin.pur-uom
-        fg-rctd.cost-uom     = fg-bin.pur-uom
-        fg-rctd.std-cost     = fg-bin.std-tot-cost
-        fg-rctd.ext-cost     = fg-rctd.t-qty * fg-rctd.std-cost
-        fg-rctd.enteredBy    = ipcUsername
-        fg-rctd.enteredDT    = DATETIME(TODAY, MTIME)
+        bf-fg-rctd.r-no         = iRNo + 1
+        bf-fg-rctd.rct-date     = TODAY
+        bf-fg-rctd.trans-time   = TIME
+        bf-fg-rctd.s-num        = 0
+        bf-fg-rctd.units-pallet = fg-bin.units-pallet
+        bf-fg-rctd.cases-unit   = fg-bin.cases-unit
+        bf-fg-rctd.company      = fg-bin.company
+        bf-fg-rctd.tag          = fg-bin.tag
+        bf-fg-rctd.qty          = ipdSplitQuantity
+        bf-fg-rctd.i-no         = fg-bin.i-no
+        bf-fg-rctd.i-name       = loadtag.i-name 
+        bf-fg-rctd.po-no        = fg-bin.po-no 
+        bf-fg-rctd.qty-case     = IF AVAILABLE fg-bin THEN 
+                                      fg-bin.case-count
+                                  ELSE 
+                                      loadtag.qty-case
+        bf-fg-rctd.job-no       = fg-bin.job-no
+        bf-fg-rctd.job-no2      = fg-bin.job-no2
+        bf-fg-rctd.loc          = fg-bin.loc
+        bf-fg-rctd.loc-bin      = fg-bin.loc-bin
+        bf-fg-rctd.tag2         = ipcNewInventoryStockID
+        bf-fg-rctd.loc2         = fg-bin.loc
+        bf-fg-rctd.loc-bin2     = fg-bin.loc-bin
+        bf-fg-rctd.cust-no      = CAPS(fg-bin.cust-no)
+        bf-fg-rctd.rita-code    = cTransactionTypeTransfer
+        bf-fg-rctd.cases        = IF AVAILABLE fg-bin THEN 
+                                      TRUNC((ipdSplitQuantity - fg-bin.partial-count) / fg-bin.case-count,0)
+                                  ELSE 
+                                      loadtag.tot-cases
+        bf-fg-rctd.partial      = IF AVAILABLE fg-bin THEN 
+                                      fg-bin.partial-count
+                                  ELSE 
+                                      loadtag.partial 
+        bf-fg-rctd.t-qty        = ipdSplitQuantity
+        bf-fg-rctd.created-by   = ipcUsername
+        bf-fg-rctd.updated-by   = ipcUsername
+        bf-fg-rctd.pur-uom      = fg-bin.pur-uom
+        bf-fg-rctd.cost-uom     = fg-bin.pur-uom
+        bf-fg-rctd.std-cost     = fg-bin.std-tot-cost
+        bf-fg-rctd.ext-cost     = bf-fg-rctd.t-qty * bf-fg-rctd.std-cost
+        bf-fg-rctd.enteredBy    = ipcUsername
+        bf-fg-rctd.enteredDT    = DATETIME(TODAY, MTIME)
         .
 
 END PROCEDURE.
