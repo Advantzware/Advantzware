@@ -38,17 +38,10 @@
     {Inventory/ttInventory.i "NEW SHARED"}
 
     DEFINE VARIABLE hdInventoryProcs  AS HANDLE NO-UNDO.
-    DEFINE VARIABLE hdReasonCode      AS HANDLE NO-UNDO.
     DEFINE VARIABLE hdConversionProcs AS HANDLE NO-UNDO.
     
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
-    RUN fg/ReasonCode.p            PERSISTENT SET hdReasonCode.
     RUN system/ConversionProcs.p   PERSISTENT SET hdConversionProcs.
-    
-    RUN pBuildReasonCode IN hdReasonCode (
-        INPUT  "ADJ",
-        OUTPUT cReasonCodes
-        ). 
       
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -106,8 +99,6 @@
     IF VALID-HANDLE(hdConversionProcs) THEN 
         DELETE PROCEDURE hdConversionProcs.
         
-    IF VALID-HANDLE(hdReasonCode) THEN 
-        DELETE PROCEDURE hdReasonCode. 
                                    
 /* **********************  Internal Procedures  *********************** */
 
