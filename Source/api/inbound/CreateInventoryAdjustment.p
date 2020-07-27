@@ -367,7 +367,7 @@ PROCEDURE pValidateInputs PRIVATE:
             opdStdTotCost = bf-fg-bin.std-tot-cost
             .   
                              
-        IF ipiQuantityPerSubUnit NE 0 AND opcPurUOM NE "EA" AND opcPurUOM NE ""  THEN DO: 
+        IF iopiQuantityPerSubUnit NE 0 AND opcPurUOM NE "EA" AND opcPurUOM NE ""  THEN DO: 
             RUN Conv_QuantityFromUOMToUOMForItem IN hdConversionProcs (
                 INPUT  ROWID(itemfg),
                 INPUT  iopiQuantityPerSubUnit,
