@@ -89,7 +89,8 @@ DEFINE VARIABLE lValid    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFilePath AS CHARACTER NO-UNDO.  
 DEFINE VARIABLE hdInventoryProcs AS HANDLE  NO-UNDO.
-DEFINE VARIABLE lInsufficientQty AS LOGICAL NO-UNDO. 
+DEFINE VARIABLE lInsufficientQty AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lFGBOLTransferPost AS LOGICAL   NO-UNDO.
 
 RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs. 
 
@@ -132,15 +133,12 @@ IF lUseLogs THEN DO:
 END.
 {oe/closchk.i NEW}
 
-DEFINE TEMP-TABLE tt-email NO-UNDO
-    FIELD tt-recid AS RECID
-    FIELD bol-no LIKE oe-boll.bol-no
-    FIELD ord-no LIKE oe-boll.ord-no
-    FIELD i-no   LIKE itemfg.i-no
-    FIELD qty      AS INTEGER
-    FIELD cust-no  AS CHARACTER
-        INDEX tt-cust IS PRIMARY cust-no DESCENDING
-        .
+{pc/pcprdd4u.i NEW}
+{fg/invrecpt.i NEW}   
+{jc/jcgl-sh.i  NEW}
+{fg/fullset.i  NEW}
+{fg/fg-post3.i NEW} 
+{fg/fgPostBatch.i} 
     
 DEFINE TEMP-TABLE ttSelectedOeRell LIKE oe-rell.
 
@@ -185,7 +183,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     /* Invstatus to determine invoice status when created  */
     RUN sys/ref/nk1look.p (cocode, "INVSTATUS", "C", NO, NO, "", "", 
         OUTPUT cInvoiceStatusType, OUTPUT lRecordFound).
-
+     /* auto transaction transfer   */
+    RUN sys/ref/nk1look.p (cocode, "FGBOLTransferPost", "L", NO, NO, "", "", 
+        OUTPUT cReturnChar, OUTPUT lRecordFound).    
+        lFGBOLTransferPost = LOGICAL(cReturnChar). 
 
     DO TRANSACTION:
     /* No prompt for creation of nk1 */
@@ -218,6 +219,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
             fDebugMsg("Start Post pPostBols").
             RUN pPostBols.
+            
+            /* auto post transfer transaction */
+             run pAutoPostTransferTransaction. 
             /* close transfer order here, Non-UI procedure */
             RUN oe/closchk.p (0).
             /* WFk- 5/4/12- This is here to make sure it is the last thing in*/
@@ -1202,6 +1206,82 @@ PROCEDURE pRunReport :
             END.
         END. /* each oe-boll */
     END. /* each w-bolh */
+END PROCEDURE.
+
+PROCEDURE pAutoPostTransferTransaction:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE v-post-date       AS DATE      INITIAL TODAY NO-UNDO.
+    DEFINE VARIABLE cFgEmails         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iFgEmails         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lFgEmails         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE hInventoryProcs   AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lActiveBin        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lPromptForClose   AS LOGICAL   NO-UNDO INITIAL YES.
+    DEFINE VARIABLE lFoundTransaction AS LOGICAL   NO-UNDO.
+              
+    IF lFGBOLTransferPost THEN
+    DO:
+        FOR EACH w-bolh,
+            FIRST oe-bolh NO-LOCK
+            WHERE RECID(oe-bolh) EQ w-bolh.w-recid:                         
+                      
+            FOR EACH oe-boll NO-LOCK WHERE oe-boll.b-no EQ oe-bolh.b-no,        
+                FIRST oe-ord NO-LOCK
+                WHERE oe-ord.company EQ oe-boll.company
+                AND oe-ord.ord-no  EQ oe-boll.ord-no
+                BREAK BY oe-boll.r-no BY oe-boll.i-no BY oe-boll.ord-no:  
+        
+                STATUS DEFAULT "Processing auto transfer transaction ........ BOL#: " + STRING(oe-bolh.bol-no).
+            
+                IF oe-ord.type EQ "T" OR oe-boll.s-code EQ "T" THEN 
+                DO:
+                    FOR EACH fg-rctd NO-LOCK
+                        WHERE fg-rctd.company EQ oe-bolh.company 
+                        AND fg-rctd.bol-no EQ oe-bolh.bol-no
+                        AND fg-rctd.i-no EQ oe-boll.i-no
+                        AND fg-rctd.rita-code EQ "T" 
+                        AND fg-rctd.job-no EQ oe-boll.job-no
+                        AND fg-rctd.job-no2 EQ oe-boll.job-no2
+                        AND fg-rctd.loc EQ oe-boll.loc
+                        AND fg-rctd.loc-bin EQ oe-boll.loc-bin:
+                   
+                        CREATE w-fg-rctd.
+                        BUFFER-COPY fg-rctd TO w-fg-rctd
+                            ASSIGN 
+                            w-fg-rctd.row-id  = ROWID(fg-rctd)
+                            w-fg-rctd.has-rec = YES
+                            lFoundTransaction = YES.        
+                        ASSIGN
+                            v-post-date = TODAY .
+                        RUN fg/fgpostBatch.p ( 
+                            INPUT v-post-date, /* Post date      */
+                            INPUT NO,          /* tg-recalc-cost */
+                            INPUT "T",         /* Transfer       */
+                            INPUT lFgEmails,   /* Send fg emails */
+                            INPUT YES,         /* Create work-gl */
+                            INPUT lPromptForClose, /* Executes .w closing orders logic */
+                            INPUT TABLE w-fg-rctd BY-REFERENCE,
+                            INPUT TABLE tt-fgemail BY-REFERENCE,
+                            INPUT TABLE tt-email BY-REFERENCE,
+                            INPUT TABLE tt-inv BY-REFERENCE).               
+               
+                    END.   /* for each  fg-rctd */
+                END. /* avail pe-bolh*/
+          
+            END. /* oe-ord.type EQ "T" OR oe-boll.s-code EQ "T"*/              
+              
+        END.  /* for each tt-report*/     
+    END.  /* lFGBOLTransferPost*/ 
+    
+    IF lFoundTransaction THEN
+    DO:
+        RUN DisplayMessage(INPUT "39").
+    END.
+
+
 END PROCEDURE.
 
 {aoa/BL/pBuildCustList.i}

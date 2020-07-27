@@ -164,6 +164,7 @@ DEFINE VARIABLE cBolCocEmail     AS CHARACTER NO-UNDO.
 /* gdm - 07240906 */
 DEF VAR v-tglflg   AS LOG NO-UNDO INIT YES.
 DEF NEW SHARED VAR v-ship-inst AS LOG NO-UNDO.
+DEFINE VARIABLE lFGBOLTransferPost AS LOGICAL   NO-UNDO.
 /* Build a Table to keep sequence of pdf files */
 DEF NEW SHARED TEMP-TABLE tt-filelist NO-UNDO
                     FIELD tt-FileCtr    AS INT
@@ -242,17 +243,18 @@ RUN sys/ref/nk1look.p (cocode, "INVSTATUS", "L", no, no, "", "",
 invstatus-log = LOGICAL(v-rtn-char).
 /* Invstatus to determine invoice status when created  */
 RUN sys/ref/nk1look.p (cocode, "INVSTATUS", "C", no, no, "", "", 
-                      Output invstatus-char, output v-rec-found).
+                      Output invstatus-char, output v-rec-found).                      
+ /* auto transaction transfer   */
+RUN sys/ref/nk1look.p (cocode, "FGBOLTransferPost", "L", NO, NO, "", "", 
+    OUTPUT v-rtn-char, OUTPUT v-rec-found).    
+lFGBOLTransferPost = LOGICAL(v-rtn-char).  
 
-
-DEF TEMP-TABLE tt-email NO-UNDO
-      FIELD tt-recid AS RECID
-      FIELD bol-no LIKE oe-boll.bol-no
-      FIELD ord-no LIKE oe-boll.ord-no
-      FIELD i-no LIKE itemfg.i-no
-      FIELD qty AS INT
-      FIELD cust-no AS cha
-      INDEX tt-cust IS PRIMARY cust-no DESCENDING .
+{pc/pcprdd4u.i NEW}
+{fg/invrecpt.i NEW}   
+{jc/jcgl-sh.i  NEW}
+{fg/fullset.i  NEW}
+{fg/fg-post3.i NEW}
+{fg/fgPostBatch.i} 
 
 DEF STREAM st-email.
 
@@ -272,7 +274,7 @@ DEFINE TEMP-TABLE ediOutFile NO-UNDO
   FIELD trailer AS CHAR
   FIELD bolNo AS INT
     INDEX ediOutFile IS PRIMARY custNo bolNo carrier trailer.
-
+     MESSAGE "entetttt " VIEW-AS ALERT-BOX ERROR .
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -4343,6 +4345,9 @@ PROCEDURE post-bol :
          INPUT v-term,
          INPUT fiPostDate
          ).
+   
+  /* auto post transfer transaction */
+  run pAutoPostTransferTransaction.
 
   /* close transfer order here */
   RUN oe/closchk.p (0).
@@ -5749,6 +5754,88 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAutoPostTransferTransaction C-Win 
+PROCEDURE pAutoPostTransferTransaction:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE v-post-date       AS DATE      INITIAL TODAY NO-UNDO.
+    DEFINE VARIABLE cFgEmails         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iFgEmails         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lFgEmails         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE hInventoryProcs   AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lActiveBin        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lPromptForClose   AS LOGICAL   NO-UNDO INITIAL YES.
+    DEFINE VARIABLE lFoundTransaction AS LOGICAL   NO-UNDO.
+              
+    IF lFGBOLTransferPost THEN
+    DO:
+        FOR EACH tt-post :        
+            FIND FIRST oe-bolh NO-LOCK WHERE ROWID(oe-bolh) EQ tt-post.row-id
+                NO-WAIT NO-ERROR.
+                        
+            IF AVAIL oe-bolh THEN 
+            DO:                 
+                FOR EACH oe-boll NO-LOCK WHERE oe-boll.b-no EQ oe-bolh.b-no,        
+                    FIRST oe-ord NO-LOCK
+                    WHERE oe-ord.company EQ oe-boll.company
+                    AND oe-ord.ord-no  EQ oe-boll.ord-no
+                    BREAK BY oe-boll.r-no BY oe-boll.i-no BY oe-boll.ord-no:  
+        
+                    STATUS DEFAULT "Processing auto transfer transaction ........ BOL#: " + STRING(oe-bolh.bol-no).
+            
+                    IF oe-ord.type EQ "T" OR oe-boll.s-code EQ "T" THEN 
+                    DO:
+                        FOR EACH fg-rctd NO-LOCK
+                            WHERE fg-rctd.company EQ oe-bolh.company 
+                            AND fg-rctd.bol-no EQ oe-bolh.bol-no
+                            AND fg-rctd.i-no EQ oe-boll.i-no
+                            AND fg-rctd.rita-code EQ "T" 
+                            AND fg-rctd.job-no EQ oe-boll.job-no
+                            AND fg-rctd.job-no2 EQ oe-boll.job-no2
+                            AND fg-rctd.loc EQ oe-boll.loc
+                            AND fg-rctd.loc-bin EQ oe-boll.loc-bin:
+                   
+                            CREATE w-fg-rctd.
+                            BUFFER-COPY fg-rctd TO w-fg-rctd
+                                ASSIGN 
+                                w-fg-rctd.row-id  = ROWID(fg-rctd)
+                                w-fg-rctd.has-rec = YES
+                                lFoundTransaction = YES.        
+                            ASSIGN
+                                v-post-date = TODAY .
+                            RUN fg/fgpostBatch.p ( 
+                                INPUT v-post-date, /* Post date      */
+                                INPUT NO,          /* tg-recalc-cost */
+                                INPUT "T",         /* Transfer       */
+                                INPUT lFgEmails,   /* Send fg emails */
+                                INPUT YES,         /* Create work-gl */
+                                INPUT lPromptForClose, /* Executes .w closing orders logic */
+                                INPUT TABLE w-fg-rctd BY-REFERENCE,
+                                INPUT TABLE tt-fgemail BY-REFERENCE,
+                                INPUT TABLE tt-email BY-REFERENCE,
+                                INPUT TABLE tt-inv BY-REFERENCE).               
+               
+                        END.   /* for each  fg-rctd */
+                    END. /* avail pe-bolh*/
+                END.
+            END. /* oe-ord.type EQ "T" OR oe-boll.s-code EQ "T"*/              
+              
+        END.  /* for each tt-report*/     
+    END.  /* lFGBOLTransferPost*/ 
+    
+    IF lFoundTransaction THEN
+    DO:
+        RUN DisplayMessage(INPUT "39").
+    END.
+
+
+END PROCEDURE.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :
