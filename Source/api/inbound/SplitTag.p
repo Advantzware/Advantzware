@@ -319,6 +319,8 @@ PROCEDURE pFGReceiptCreation PRIVATE :
 
     DEFINE VARIABLE iRNo AS INTEGER NO-UNDO.
     
+    DEFINE BUFFER fg-rctd FOR fg-rctd.
+    
     oplSuccess = YES.
     
     /* Retrieving last record of fg-rctd table - USE-INDEX fg-rctd is required to enforce the query to fetch latest r-no*/ 
