@@ -659,7 +659,7 @@ PROCEDURE create-misc :
 
          IF AVAIL cust THEN DO:
            FIND CURRENT cust.
-           RUN Tax_Calculate IN hdTaxProcs (
+           RUN Tax_Calculate (
                 INPUT  oe-ord.company,
                 INPUT  oe-ord.tax-gr,
                 INPUT  FALSE,   /* Is this freight */
@@ -714,7 +714,7 @@ PROCEDURE create-misc :
 
             IF AVAIL cust THEN DO:
               FIND CURRENT cust.
-              RUN Tax_Calculate IN hdTaxProcs (
+              RUN Tax_Calculate (
                   INPUT  oe-ord.company,
                   INPUT  oe-ord.tax-gr,
                   INPUT  FALSE,   /* Is this freight */
@@ -730,8 +730,7 @@ PROCEDURE create-misc :
             FIND CURRENT oe-ordm NO-LOCK.            
          END.  /* simon = "S" */
       END.  /* do */              
-  END.
-DELETE OBJECT hdTaxProcs.  
+  END.  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
