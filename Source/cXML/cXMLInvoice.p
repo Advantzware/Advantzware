@@ -22,6 +22,7 @@ DEFINE TEMP-TABLE ttInv NO-UNDO
     FIELD invoiceID                   AS INTEGER
     FIELD deploymentMode              AS CHARACTER
     FIELD invoiceDate                 AS DATE
+    FIELD invoiceDateString           AS CHARACTER
     FIELD customerID                  AS CHARACTER
     FIELD customerName                AS CHARACTER
     FIELD customerAddress1            AS CHARACTER
@@ -89,10 +90,10 @@ DEFINE TEMP-TABLE ttInvLine NO-UNDO
     FIELD orderID                  AS INTEGER 
     FIELD orderLine                AS INTEGER 
     FIELD taxRateFreight           AS DECIMAL 
+    FIELD customerPONo             AS CHARACTER
     .
     
 DEFINE VARIABLE gcCXMLIdentity       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE gcCXMLDTD            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcCXMLDeploymentMode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcCXMLShipToPrefix   AS CHARACTER NO-UNDO.
     
@@ -127,6 +128,14 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
     
     ASSIGN 
         ipbf-ttInv.deploymentMode = gcCXMLDeploymentMode
+        ipbf-ttInv.invoiceDateString = STRING(YEAR(ttInv.invoiceDate),'9999')
+                             + '-'
+                             + STRING(MONTH(ttInv.invoiceDate),'99')
+                             + '-'
+                             + STRING(DAY(ttInv.invoiceDate),'99')
+                             + 'T'
+                             + STRING(0,'hh:mm:ss')
+                             + '-05:00'.
         .
     FIND FIRST bf-company NO-LOCK
         WHERE bf-company.company EQ ipcCompany
@@ -186,6 +195,8 @@ PROCEDURE pAssignCommonLineData PRIVATE:
     DEFINE VARIABLE lError        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
     
+    IF ipbf-ttInv.customerPO EQ "" THEN 
+        ipbf-ttInv.customerPO = ipbf-ttInvLine.customerPO.
     FIND FIRST bf-oe-ord NO-LOCK
         WHERE bf-oe-ord.company EQ ipbf-ttInv.company
         AND bf-oe-ord.ord-no EQ ipbf-ttInvLine.orderID
@@ -218,18 +229,18 @@ PROCEDURE pAssignCommonLineData PRIVATE:
                     OUTPUT ipbf-ttInvLine.quantity, OUTPUT lError, OUTPUT cErrorMessage).
                 
                 IF ipbf-ttInvLine.quantity EQ 0 THEN 
-                    ipbf-ttInvLine.quantity = ipbf-ttInvLine.quantityOrderOriginal.
+                    ASSIGN 
+                        ipbf-ttInvLine.quantity = ipbf-ttInvLine.quantityInvoiced.
                 
                 ipbf-ttInvLine.quantityUOM = ipbf-ttInvLine.quantityOrderOriginalUOM.
-            END.
-            ELSE 
-                ASSIGN 
-                    ipbf-ttInvLine.quantity    = ipbf-ttInvLine.quantityInvoiced
-                    ipbf-ttInvLine.quantityUOM = ipbf-ttInvLine.quantityInvoicedUOM
-                    .
+            END.    
         END.
-            
     END.
+    IF ipbf-ttInvLine.quantity EQ 0 THEN 
+        ASSIGN 
+            ipbf-ttInvLine.quantity    = ipbf-ttInvLine.quantityInvoiced
+            ipbf-ttInvLine.quantityUOM = ipbf-ttInvLine.quantityInvoicedUOM
+            .
     IF ttInvLine.taxable THEN 
     DO:               
         EMPTY TEMP-TABLE ttTaxDetail.
@@ -263,14 +274,15 @@ PROCEDURE pAssignCommonLineData PRIVATE:
             IF NOT ipbf-ttInv.isTaxRateSame THEN 
                 ipbf-ttInv.isTaxRateSame = ipbf-ttInvLine.taxRate EQ ipbf-ttInvLine.taxRateFreight. 
         END.
+        ELSE 
+            ttInvLine.amountTaxableFreight = 0.
         ASSIGN     
             ipbf-ttInvLine.amountTax               = ipbf-ttInvLine.amountTaxExFreight + ipbf-ttInvLine.amountFreightTax
             ipbf-ttInvLine.amountTaxable           = ipbf-ttInvLine.amountTaxableExFreight + ipbf-ttInvLine.amountTaxableFreight
             ipbf-ttInv.amountTotalTaxableExFreight = ipbf-ttInv.amountTotalTaxableExFreight + ipbf-ttInvLine.amountTaxableExFreight
             ipbf-ttInv.amountTotalTaxable          = ipbf-ttInv.amountTotalTaxable + ipbf-ttInvLine.amountTaxable
             ipbf-ttInv.amountTotalTax              = ipbf-ttInv.amountTotalTax + ipbf-ttInvLine.amountTax
-            .      
-         
+            .
     END.
 END PROCEDURE.
 
@@ -351,7 +363,7 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                 ttInvLine.orderLine              = bf-ar-invl.ord-line
                 ttInvLine.quantityInvoiced       = bf-ar-invl.inv-qty
                 ttInvLine.quantityInvoicedUOM    = bf-ar-invl.pr-qty-uom
-                ttInvLine.pricePerUOM            = bf-ar-invl.unit-pr
+                ttInvLine.pricePerUOM            = bf-ar-invl.unit-pr * (1 - (bf-ar-invl.disc / 100))
                 ttInvLine.priceUOM               = bf-ar-invl.pr-uom
                 ttInvLine.customerPartID         = bf-ar-invl.part-no
                 ttInvLine.itemID                 = bf-ar-invl.i-no
@@ -361,6 +373,7 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                 ttInvLine.amountTaxableExFreight = ttInvLine.priceTotal
                 ttInvLine.amountTaxableFreight   = bf-ar-invl.t-freight
                 ttInvLine.amountFreight          = bf-ar-invl.t-freight
+                ttInvLine.customerPONo           = bf-ar-invl.po-no
                 ttInv.amountTotalLines           = ttInv.amountTotalLines + bf-ar-invl.amt
                 .
             RUN pAssignCommonLineData(BUFFER ttInv, 
@@ -403,7 +416,7 @@ PROCEDURE pGenerateCXML PRIVATE:
         RUN cXMLOutput (clXMLOutput,'Request deploymentMode="' + ttInv.deploymentMode + '"','','Row').
         RUN cXMLOutput (clXMLOutput,'InvoiceDetailRequest','','Row').
         RUN cXMLOutput (clXMLOutput,'InvoiceDetailRequestHeader ' 
-            + 'invoiceDate="' + STRING(ttInv.invoiceDate) + '" '
+            + 'invoiceDate="' + ttInv.invoiceDateString + '" '
             + 'invoiceID="' + STRING(ttInv.invoiceID) + '" '
             + 'operation="new" purpose="standard"','','Row').
         RUN cXMLOutput (clXMLOutput,'InvoiceDetailHeaderIndicator/','','Row').  
@@ -621,7 +634,7 @@ PROCEDURE pGenerateCXML PRIVATE:
             RUN cXMLOutput (clXMLOutput,'/Tax','','Row').
             RUN cXMLOutput (clXMLOutput,'GrossAmount','','Row').
             RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
-            RUN cXMLOutput (clXMLOutput,'',STRING(ttInvLine.amountTaxable + ttInvLine.amountTax),'Col').
+            RUN cXMLOutput (clXMLOutput,'',STRING(ttInvLine.priceTotal + ttInvLine.amountFreight + ttInvLine.amountTax),'Col').
             RUN cXMLOutput (clXMLOutput,'/Money','','Row').
             RUN cXMLOutput (clXMLOutput,'/GrossAmount','','Row').
             RUN cXMLOutput (clXMLOutput,'TotalAmountWithoutTax','','Row').
@@ -631,7 +644,7 @@ PROCEDURE pGenerateCXML PRIVATE:
             RUN cXMLOutput (clXMLOutput,'/TotalAmountWithoutTax','','Row').
             RUN cXMLOutput (clXMLOutput,'NetAmount','','Row').
             RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
-            RUN cXMLOutput (clXMLOutput,'',STRING(ttInvLine.amountTaxable + ttInvLine.amountTax),'Col').
+            RUN cXMLOutput (clXMLOutput,'',STRING(ttInvLine.priceTotal + ttInvLine.amountFreight + ttInvLine.amountTax),'Col').
             RUN cXMLOutput (clXMLOutput,'/Money','','Row').
             RUN cXMLOutput (clXMLOutput,'/NetAmount','','Row').
             RUN cXMLOutput (clXMLOutput,'Extrinsic name="punchinItemFromCatalog"','','Row').
@@ -749,7 +762,7 @@ PROCEDURE pGetSettings PRIVATE:
     DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
 
-    gcCXMLDTD = 'http://xml.cxml.org/schemas/cXML/1.2.025/InvoiceDetail.dtd'.
+    cXMLDTD = 'http://xml.cxml.org/schemas/cXML/1.2.025/InvoiceDetail.dtd'.
     RUN sys/ref/nk1look.p (ipcCompany, "cXMLIdentity", "C" /* Logical */, YES /* check by cust */, 
         INPUT YES /* use cust not vendor */, ipcCustomerID /* cust */, ipcShipToID /* ship-to*/,
         OUTPUT cReturn, OUTPUT lFound).
