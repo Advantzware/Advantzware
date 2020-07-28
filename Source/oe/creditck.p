@@ -173,11 +173,7 @@ DO:
                 /* gdm - 06020913 */
                 IF oecredit-int NE 1 THEN 
                 DO:
-                    lPutOnCreditHold = YES.
-
-                    /* update credit hold field in cust file */
-                    IF NOT cust.cr-hold THEN 
-                    DO:  
+                    lPutOnCreditHold = YES.                        
          
                         IF AVAIL oe-ord AND oecredit-log THEN 
                         DO:
@@ -216,10 +212,11 @@ DO:
 
                                 END.
 
+                        /* update credit hold field in cust file */
+                        IF NOT cust.cr-hold THEN         
                         cust.cr-hold = YES.
-
-                    END. /* IF AVAIL oe-ord */
-                END. /* IF NOT cust.cr-hold */ 
+                    
+                END. /* IF oecredit-int NE 1 */ 
 
                 cust.ord-bal = ld-ord-bal.
 
