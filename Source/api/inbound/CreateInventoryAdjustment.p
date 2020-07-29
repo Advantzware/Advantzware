@@ -13,6 +13,9 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+    {Inventory/ttInventory.i "NEW SHARED"}
+    {jc/jcgl-sh.i  NEW}
+    
     DEFINE INPUT        PARAMETER ipcCompany                 AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipcInventoryStockID        AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipiQuantity                AS INTEGER   NO-UNDO.
@@ -27,6 +30,7 @@
     
     DEFINE VARIABLE cTransactionTypeAdj   AS CHARACTER NO-UNDO INITIAL "A".
     DEFINE VARIABLE cDBNameASI            AS CHARACTER NO-UNDO INITIAL "ASI".
+    DEFINE VARIABLE lPromptForClose       AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cReasonCodes          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemName             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dStdTotCost           AS DECIMAL   NO-UNDO.
@@ -35,10 +39,8 @@
     DEFINE VARIABLE cItemID               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCustNo               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPurUOM               AS CHARACTER NO-UNDO.
-    {Inventory/ttInventory.i "NEW SHARED"}
-
-    DEFINE VARIABLE hdInventoryProcs  AS HANDLE NO-UNDO.
-    DEFINE VARIABLE hdConversionProcs AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hdInventoryProcs      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hdConversionProcs     AS HANDLE    NO-UNDO.
     
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
     RUN system/ConversionProcs.p   PERSISTENT SET hdConversionProcs.
@@ -182,7 +184,24 @@ PROCEDURE pCreateInventoryAdjustment PRIVATE:
         bf-fg-rctd.updated-by     = USERID(cDBNameASI)
         opisequenceID             = bf-fg-rctd.r-no
         .
-    
+
+    FIND CURRENT bf-fg-rctd NO-LOCK NO-ERROR.
+        
+    /* Posts fg-rctd records */
+    RUN PostFinishedGoodsForUser IN hdInventoryProcs(
+        INPUT        ipcCompany,
+        INPUT        cTransactionTypeAdj,       /* Adjustment */
+        INPUT        bf-fg-rctd.created-by,
+        INPUT        lPromptForClose, /* Executes API closing orders logic */
+        INPUT-OUTPUT oplSuccess,
+        INPUT-OUTPUT opcMessage
+        ) NO-ERROR.
+ 
+    IF ERROR-STATUS:ERROR THEN
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Error while posting Finished Good"
+            . 
 END PROCEDURE.
 
 PROCEDURE pValidateInputs PRIVATE:
@@ -270,12 +289,17 @@ PROCEDURE pValidateInputs PRIVATE:
         opcItemId   = itemfg.i-no
         opcItemName = itemfg.i-name
         . 
-    /* Gets loc & bin from itemfg if they are blank */ 
-    IF iopcWarehouseID EQ "" OR iopcLocationID EQ "" THEN 
+    
+    IF (iopcWarehouseID EQ "" AND  iopcLocationID NE "") OR 
+       (iopcWarehouseID NE "" AND  iopcLocationID EQ "") THEN DO:
         ASSIGN 
-            iopcWarehouseID = itemfg.def-loc
-            iopcLocationID  = itemfg.def-loc-bin
+            opcMessage = "Either warehouse or location is blank"
+            oplSuccess = NO
             .
+        RETURN.    
+            
+    END.       
+        
                                
     IF iopiQuantity EQ 0 THEN DO:
         ASSIGN 
@@ -343,14 +367,21 @@ PROCEDURE pValidateInputs PRIVATE:
     END.       
     
     iopcReasonCode = rejct-cd.code + " - " + rejct-cd.dscr.   
-
-    FIND FIRST bf-fg-bin NO-LOCK  
-         WHERE bf-fg-bin.company   EQ ipcCompany
-           AND bf-fg-bin.tag       EQ ipcInventoryStockID
-           AND bf-fg-bin.i-no      EQ opcItemID
-           AND bf-fg-bin.loc       EQ iopcWarehouseID
-           AND bf-fg-bin.loc-bin   EQ iopcLocationID
-        NO-ERROR.
+    
+    IF iopcWarehouseID EQ "" AND  iopcLocationID EQ "" THEN 
+        FIND FIRST bf-fg-bin NO-LOCK 
+             WHERE bf-fg-bin.company EQ ipcCompany
+               AND bf-fg-bin.tag     EQ ipcInventoryStockID
+             NO-ERROR.
+    ELSE             
+        FIND FIRST bf-fg-bin NO-LOCK  
+             WHERE bf-fg-bin.company   EQ ipcCompany
+               AND bf-fg-bin.tag       EQ ipcInventoryStockID
+               AND bf-fg-bin.i-no      EQ opcItemID
+               AND bf-fg-bin.loc       EQ iopcWarehouseID
+               AND bf-fg-bin.loc-bin   EQ iopcLocationID
+            NO-ERROR.
+            
     IF NOT AVAILABLE bf-fg-bin THEN DO:
         ASSIGN
             opcMessage = "No bin record exists for tag (" +  ipcInventoryStockID + ")"
@@ -360,14 +391,16 @@ PROCEDURE pValidateInputs PRIVATE:
     END.    
     ELSE DO:
         ASSIGN 
-            opcJobNo      = bf-fg-bin.job-no
-            opiJobNo2     = bf-fg-bin.job-no2 
-            opcPurUOM     = bf-fg-bin.pur-uom
-            opcCustNo     = bf-fg-bin.cust-no
-            opdStdTotCost = bf-fg-bin.std-tot-cost
+            opcJobNo        = bf-fg-bin.job-no
+            opiJobNo2       = bf-fg-bin.job-no2 
+            opcPurUOM       = bf-fg-bin.pur-uom
+            opcCustNo       = bf-fg-bin.cust-no
+            opdStdTotCost   = bf-fg-bin.std-tot-cost
+            iopcWarehouseID = bf-fg-bin.loc
+            iopcLocationID  = bf-fg-bin.loc-bin
             .   
                              
-        IF iopiQuantityPerSubUnit NE 0 AND opcPurUOM NE "EA" AND opcPurUOM NE ""  THEN DO: 
+        IF iopiQuantityPerSubUnit NE 0 AND opcPurUOM NE "EA" AND opcPurUOM NE "" THEN DO: 
             RUN Conv_QuantityFromUOMToUOMForItem IN hdConversionProcs (
                 INPUT  ROWID(itemfg),
                 INPUT  iopiQuantityPerSubUnit,

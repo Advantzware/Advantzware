@@ -388,6 +388,10 @@ PROCEDURE pProcessInputs PRIVATE:
 
         DO TRANSACTION ON ERROR UNDO, LEAVE:
             FOR EACH ttAdjustments:
+                ASSIGN
+                    g_company = ttAdjustments.company
+                    cocode    = g_company
+                    .
                 
                 RUN api\inbound\CreateInventoryAdjustment.p (
                     INPUT        ttAdjustments.company,                
