@@ -130,7 +130,7 @@ DEFINE VARIABLE cboLookupType AS CHARACTER FORMAT "X(256)":U INITIAL "Order Line
      DROP-DOWN-LIST
      SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)":U 
      LABEL "Beginning Customer#" 
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
@@ -145,7 +145,7 @@ DEFINE VARIABLE company AS CHARACTER FORMAT "X(6)":U INITIAL "001"
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
      LABEL "Ending Customer#" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
@@ -496,12 +496,12 @@ PROCEDURE TestOrderHeader :
 
 EMPTY TEMP-TABLE ttCloseRecord.
 
-MESSAGE cocode SKIP
+/*MESSAGE cocode SKIP
     begin_order SKIP
     END_order SKIP
     begin_cust SKIP
     END_cust
-    VIEW-AS ALERT-BOX INFO BUTTONS OK.
+    VIEW-AS ALERT-BOX INFO BUTTONS OK. */
 
 FOR EACH oe-ord
     WHERE oe-ord.company EQ company
@@ -607,7 +607,7 @@ PROCEDURE UpdateOrderLine :
   Notes:       
 ------------------------------------------------------------------------------*/
 FOR EACH ttCloseRecord
-    NO-LOCK:
+    NO-LOCK:  MESSAGE "helllo " VIEW-AS ALERT-BOX ERROR .
     FIND FIRST oe-ordl WHERE ROWID(oe-ordl) EQ ttCloseRecord.RecordRowID NO-LOCK NO-ERROR.
     IF AVAIL oe-ordl 
         AND oe-ordl.stat NE "C" 
