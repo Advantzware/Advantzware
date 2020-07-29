@@ -6,6 +6,6 @@ TRIGGER PROCEDURE FOR CREATE OF {&TABLENAME}.
 
 
 ASSIGN
- {&TABLENAME}.user-id  = USERID('nosweat')
+ {&TABLENAME}.user-id  = USERID("ASI")
  {&TABLENAME}.upd-date = TODAY
  {&TABLENAME}.upd-time = TIME.
