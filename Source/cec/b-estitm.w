@@ -780,6 +780,7 @@ DO:
            RUN windows/l-stylec.w (gcompany,ls-cur-val, OUTPUT char-val).
            IF char-val <> "" AND ls-cur-val <> entry(1,char-val) THEN DO:
               eb.style:screen-value IN BROWSE {&browse-name} = entry(1,char-val).
+              RUN set-lv-foam.
               FIND style WHERE style.company = gcompany AND
                                style.style = eb.style:screen-value IN BROWSE {&browse-name}
                          NO-LOCK NO-ERROR.            
