@@ -15,6 +15,7 @@
 /* ***************************  Definitions  ************************** */
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipriInv AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER ipdtInvDate AS DATE NO-UNDO.
 
 {system/TaxProcs.i}
 
@@ -331,7 +332,7 @@ PROCEDURE pBuildDataForPosted PRIVATE:
         
         CREATE ttInv.
         ASSIGN             
-            ttInv.invoiceDate        = ipbf-ar-inv.inv-date
+            ttInv.invoiceDate        = ipdtInvDate 
             ttInv.invoiceID          = ipbf-ar-inv.inv-no
             ttInv.customerID         = ipbf-ar-inv.cust-no
             ttInv.customerName       = ipbf-ar-inv.cust-name
