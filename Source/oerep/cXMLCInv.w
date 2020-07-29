@@ -76,15 +76,15 @@ ASSIGN
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS cXMLCustomer invStart calendar-1 invEnd ~
-calendar-2 invNoStart invNoEnd rd_posted btnOK btnCancel 
+calendar-2 invNoStart invNoEnd rd_posted invDate calendar-3 btnOK btnCancel 
 &Scoped-Define DISPLAYED-OBJECTS cXMLCustomer invStart invEnd invNoStart ~
-invNoEnd rd_posted 
+invNoEnd rd_posted invDate 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 &Scoped-define List-1 cXMLCustomer invStart invEnd invNoStart invNoEnd ~
-rd_posted 
-&Scoped-define List-2 calendar-1 calendar-2 btnOK btnCancel 
+rd_posted invDate 
+&Scoped-define List-2 calendar-1 calendar-2 calendar-3 btnOK btnCancel 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -115,6 +115,16 @@ DEFINE BUTTON calendar-2
      LABEL "" 
      SIZE 4.6 BY 1.05.
 
+DEFINE BUTTON calendar-3 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05.
+
+DEFINE VARIABLE invDate AS DATE FORMAT "99/99/9999":U 
+     LABEL "Invoice Date" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.05 NO-UNDO.
+
 DEFINE VARIABLE invEnd AS DATE FORMAT "99/99/9999":U 
      LABEL "To" 
      VIEW-AS FILL-IN 
@@ -140,7 +150,7 @@ DEFINE VARIABLE rd_posted AS INTEGER INITIAL 1
      RADIO-BUTTONS 
           "Unposted", 1,
 "Posted", 2
-     SIZE 36 BY 1.19 NO-UNDO.
+     SIZE 29.6 BY 1.19 NO-UNDO.
 
 DEFINE VARIABLE cXMLCustomer AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
@@ -162,7 +172,10 @@ DEFINE FRAME DEFAULT-FRAME
           "Enter Starting Invoice Date" WIDGET-ID 26
      invNoEnd AT ROW 15.52 COL 47 COLON-ALIGNED HELP
           "Enter Ending Invoice Date" WIDGET-ID 24
-     rd_posted AT ROW 17.29 COL 23 NO-LABEL WIDGET-ID 20
+     rd_posted AT ROW 17.29 COL 19.4 NO-LABEL WIDGET-ID 20
+     invDate AT ROW 17.38 COL 58.1 COLON-ALIGNED HELP
+          "Enter Invoice Date" WIDGET-ID 30
+     calendar-3 AT ROW 17.38 COL 74.8 WIDGET-ID 28
      btnOK AT ROW 19.1 COL 49 WIDGET-ID 16
      btnCancel AT ROW 19.1 COL 65 WIDGET-ID 18
      "Customers" VIEW-AS TEXT
@@ -234,7 +247,11 @@ ASSIGN
    2                                                                    */
 /* SETTINGS FOR BUTTON calendar-2 IN FRAME DEFAULT-FRAME
    2                                                                    */
+/* SETTINGS FOR BUTTON calendar-3 IN FRAME DEFAULT-FRAME
+   2                                                                    */
 /* SETTINGS FOR SELECTION-LIST cXMLCustomer IN FRAME DEFAULT-FRAME
+   1                                                                    */
+/* SETTINGS FOR FILL-IN invDate IN FRAME DEFAULT-FRAME
    1                                                                    */
 /* SETTINGS FOR FILL-IN invEnd IN FRAME DEFAULT-FRAME
    1                                                                    */
@@ -350,7 +367,7 @@ DO:
   END.
   ELSE DO:
     RUN pProcessPostedARInvoices(cocode, cXMLCustomer, invStart, invEnd, invNoStart, invNoEnd,
-        OUTPUT iCount).
+        invDate, OUTPUT iCount).
   END.
   IF iCount GT 0 THEN 
       cMessage = "Processed " + STRING(iCount) + " invoices ".
@@ -361,6 +378,27 @@ DO:
   MESSAGE cMessage
         VIEW-AS ALERT-BOX INFO BUTTONS OK.
   ENABLE {&List-1} {&List-2} WITH FRAME {&FRAME-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME rd_Posted
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_Posted C-Win
+ON VALUE-CHANGED OF rd_Posted IN FRAME DEFAULT-FRAME
+DO:
+  ASSIGN {&self-name}.
+  IF rd_Posted EQ 1 THEN
+  DO:
+     ASSIGN
+       invDate:HIDDEN IN FRAME DEFAULT-FRAME = YES
+       calendar-3:HIDDEN IN FRAME DEFAULT-FRAME = YES. 
+  END.
+  ELSE
+  ASSIGN
+    invDate:HIDDEN IN FRAME DEFAULT-FRAME = NO
+    calendar-3:HIDDEN IN FRAME DEFAULT-FRAME = NO.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -383,6 +421,28 @@ END.
 ON CHOOSE OF calendar-2 IN FRAME DEFAULT-FRAME
 DO:
   APPLY 'HELP':U TO invEnd.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME calendar-3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL calendar-3 C-Win
+ON CHOOSE OF calendar-3 IN FRAME DEFAULT-FRAME
+DO:
+  APPLY 'HELP':U TO invDate.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME invDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL invDate C-Win
+ON HELP OF invDate IN FRAME DEFAULT-FRAME /* Invoice Date */
+DO:
+  {methods/calendar.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -438,8 +498,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   ASSIGN
     invStart = TODAY
     invEnd = TODAY
+    invDate = TODAY
     .
   RUN enable_UI.
+  ASSIGN
+    invDate:HIDDEN IN FRAME DEFAULT-FRAME = YES
+    calendar-3:HIDDEN IN FRAME DEFAULT-FRAME = YES.
 
   FIND FIRST sys-ctrl NO-LOCK
        WHERE sys-ctrl.company EQ  cocode
@@ -502,10 +566,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY cXMLCustomer invStart invEnd invNoStart invNoEnd rd_posted 
+  DISPLAY cXMLCustomer invStart invEnd invNoStart invNoEnd rd_posted invDate 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE cXMLCustomer invStart calendar-1 invEnd calendar-2 invNoStart invNoEnd 
-         rd_posted btnOK btnCancel 
+         rd_posted invDate calendar-3 btnOK btnCancel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -527,6 +591,7 @@ PROCEDURE pProcessPostedARInvoices PRIVATE :
     DEFINE INPUT PARAMETER ipdtInvEnd AS DATE NO-UNDO.
     DEFINE INPUT PARAMETER ipiInvNoStart AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipiInvNoEnd AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtInvoiceDate AS DATE NO-UNDO.
     DEFINE OUTPUT PARAMETER opiCount AS INTEGER NO-UNDO.
 
     FOR EACH ar-inv NO-LOCK
@@ -539,7 +604,7 @@ PROCEDURE pProcessPostedARInvoices PRIVATE :
         AND ar-inv.posted:
         opiCount = opiCount + 1.
         
-        RUN cXML/cXMLInvoice.p (ar-inv.company, ROWID(ar-inv)).   
+        RUN cXML/cXMLInvoice.p (ar-inv.company, ROWID(ar-inv),ipdtInvoiceDate).   
     
     END.
     
