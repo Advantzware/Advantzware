@@ -361,14 +361,20 @@ IF AVAIL(fg-bin) THEN DO:
     IF AVAIL fg-rctd THEN NEXT.
     LEAVE.
   END.
+  
+  FIND FIRST inv-head NO-LOCK
+       WHERE inv-head.company eq cocode
+       AND NOT inv-head.multi-invoice
+       AND inv-head.bol-no eq tt-bolh.bol-no
+       AND inv-head.cust-no eq tt-bolh.cust-no NO-ERROR .
 
-  CREATE fg-rcpth.
+  CREATE fg-rcpth.  
   ASSIGN
    fg-rcpth.r-no       = v-rcpth-no
    fg-rcpth.b-no       = tt-bolh.b-no
    fg-rcpth.company    = fg-bin.company
    fg-rcpth.loc        = fg-bin.loc
-   fg-rcpth.trans-date = tt-bolh.bol-date
+   fg-rcpth.trans-date = IF AVAIL inv-head then inv-head.inv-date else tt-bolh.bol-date
    fg-rcpth.post-date  = TODAY 
    fg-rcpth.po-no      = tt-bolh.po-no
    fg-rcpth.i-no       = itemfg.i-no
