@@ -1684,7 +1684,12 @@ PROCEDURE pChangeDefaultShipTo PRIVATE:
     
     DEFINE BUFFER bf-ShipTo FOR shipto.
     
-    FIND FIRST bf-shipto EXCLUSIVE-LOCK 
+    /* Read the records in no-lock status before updating. As there is no index 
+       on the field isDefault, Progress reads all the shipto records for the 
+       customer in exclusive-lock mode for brief time and release as it goes through
+       other records. If it finds one that is already locked, a display message popups  
+       saying the records in locked */
+    FIND FIRST bf-shipto NO-LOCK 
          WHERE bf-shipto.company   EQ cocode
            AND bf-shipto.cust-no   EQ cust.cust-no
            AND bf-shipto.isDefault EQ YES
@@ -1692,12 +1697,15 @@ PROCEDURE pChangeDefaultShipTo PRIVATE:
          NO-ERROR.
          
     IF AVAILABLE bf-shipto THEN DO:
-        ASSIGN 
-            bf-shipto.isDefault = NO
-            oplUpdated          = YES
-            opcMessage          =  "Default shipto changed from " + bf-shipto.ship-id + 
-                                   " to " + shipto.ship-id:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-            .
+        /* If a record is available, read it in exclusive-lock mode and update */
+        FIND CURRENT bf-shipto EXCLUSIVE-LOCK NO-ERROR.
+        IF AVAILABLE bf-shipto THEN
+            ASSIGN 
+                bf-shipto.isDefault = NO
+                oplUpdated          = YES
+                opcMessage          =  "Default shipto changed from " + bf-shipto.ship-id + 
+                                       " to " + shipto.ship-id:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+                .
     END.    
  RELEASE bf-ShipTo.  
 END PROCEDURE.
