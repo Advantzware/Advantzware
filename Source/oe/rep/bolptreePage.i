@@ -112,28 +112,30 @@
         "<R33><C63><B><p6>  (subject to correction) </B>" SKIP. 
   iLineCount = 0 .
   oe-Boll-Loop:
-  FOR EACH oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no NO-LOCK,
+  FOR EACH tt-boll where tt-boll.company eq oe-bolh.company and tt-boll.b-no eq oe-bolh.b-no NO-LOCK,
         first oe-ordl
-	    where oe-ordl.company eq oe-boll.company
-	      and oe-ordl.ord-no  eq oe-boll.ord-no
-          AND oe-ordl.i-no    EQ oe-boll.i-no
-          AND oe-ordl.line    EQ oe-boll.LINE
-	    NO-LOCK:
+	    where oe-ordl.company eq tt-boll.company
+	      and oe-ordl.ord-no  eq tt-boll.ord-no
+          AND oe-ordl.i-no    EQ tt-boll.i-no
+          AND oe-ordl.line    EQ tt-boll.LINE  
+	    NO-LOCK BREAK BY tt-boll.qty-case:
+        
+        FIND FIRST itemfg NO-LOCK
+          WHERE itemfg.company EQ tt-boll.company
+            AND itemfg.i-no EQ tt-boll.i-no NO-ERROR .            
        
-      FIND FIRST itemfg NO-LOCK
-          WHERE itemfg.company EQ oe-boll.company
-            AND itemfg.i-no EQ oe-boll.i-no NO-ERROR .
-        iLineCount = iLineCount + 1 .
-      PUT "<P8><C2>" oe-boll.cases 
+            iLineCount = iLineCount + 1 .
+          PUT "<P8><C2>" tt-boll.cases 
           "<C8>" oe-ordl.i-name FORMAT "x(30)" 
           "<C25>" oe-ordl.part-no FORMAT "x(15)"
           "<C40>" oe-ordl.part-dscr1 FORMAT "x(30)"
-          "<C59>" oe-boll.weight 
+          "<C59>" tt-boll.weight 
           "<C63>" (IF AVAIL itemfg THEN itemfg.frt-class ELSE "") FORMAT "x(5)"
           "<C66>" ( IF AVAIL tt-temp-report AND iLineCount EQ 1 THEN tt-temp-report.key-02 ELSE "") FORMAT "x(10)"
-          "<C72>" ( IF AVAIL tt-temp-report AND iLineCount EQ 1 THEN tt-temp-report.key-03 ELSE "")  FORMAT "x(10)" SKIP.
-     iUnitCount = iUnitCount + oe-boll.cases .
-     dWeightCount = dWeightCount + oe-boll.weight .
+          "<C72>" ( IF AVAIL tt-temp-report AND iLineCount EQ 1 THEN tt-temp-report.key-03 ELSE "")  FORMAT "x(10)" SKIP.              
+        
+     iUnitCount = iUnitCount + tt-boll.cases .
+     dWeightCount = dWeightCount + tt-boll.weight .
      
      IF iLineCount GE 10 THEN LEAVE oe-Boll-Loop.
    END.
