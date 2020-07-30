@@ -65,8 +65,10 @@ DO:
         ld-ord-bal      = cust.ord-bal
         v-final-cust-no = cust.cust-no.
 
-    IF cust.cr-hold THEN v-error = "is on credit hold.".
-
+    IF cust.cr-hold THEN do: 
+      v-error = "is on credit hold.".
+      RUN AddTagHold (oe-ord.rec_key,"oe-ord", "Customer on credit hold" ).      
+    END.
     ELSE 
     DO:
         IF ip-aging AND cust.cr-hold-invdays GT 0 THEN
