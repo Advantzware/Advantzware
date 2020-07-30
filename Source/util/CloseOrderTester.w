@@ -590,7 +590,7 @@ FOR EACH oe-ord
         AND ttCloseRecord.CloseStatusCurrent EQ ttCloseRecord.CloseStatusNew THEN
         DELETE ttCloseRecord.
         
-    IF tbAutoClose AND ttCloseRecord.CloseStatusNew EQ "C" THEN
+    IF tbAutoClose AND AVAIL ttCloseRecord AND ttCloseRecord.CloseStatusNew EQ "C" THEN
     DO:
        RUN oe\close.p(RECID(oe-ord), YES).         
     END.    
@@ -640,7 +640,7 @@ FOR EACH oe-ordl
         AND ttCloseRecord.CloseStatusCurrent EQ ttCloseRecord.CloseStatusNew THEN
         DELETE ttCloseRecord.
         
-    IF tbAutoClose AND ttCloseRecord.CloseStatusNew EQ "C" THEN
+    IF tbAutoClose AND AVAIL ttCloseRecord AND ttCloseRecord.CloseStatusNew EQ "C" THEN
     DO:
        RUN oe/closelin.p (INPUT ROWID(oe-ordl),YES).         
     END.
