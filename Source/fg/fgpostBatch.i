@@ -30,8 +30,6 @@ DEFINE TEMP-TABLE tt-fgemail NO-UNDO
 
 DEFINE TEMP-TABLE tt-email NO-UNDO 
     FIELD tt-recid AS RECID
-    FIELD bol-no LIKE oe-boll.bol-no
-    FIELD ord-no LIKE oe-boll.ord-no
     FIELD job-no   LIKE job-hdr.job-no
     FIELD job-no2  LIKE job-hdr.job-no2
     FIELD i-no     LIKE itemfg.i-no
