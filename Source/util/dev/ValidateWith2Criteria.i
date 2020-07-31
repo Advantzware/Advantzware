@@ -56,7 +56,7 @@ DO:
             .
 
     IF AVAILABLE {&ValidateTable} and "{&ValidateField2}" EQ "ship-id"
-          and NOT DYNAMIC-FUNCTION("IsActive", {&ValidateTable}.rec_key) THEN
+          AND shipto.statusCode EQ "I"  THEN
           ASSIGN     
             oplIsValid = NO 
             opcMessage = cMessage + " is Inactive." .
