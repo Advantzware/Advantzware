@@ -32,12 +32,21 @@ END FUNCTION.
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE dynDescripARClass:
+    {&defInputParam}
+    FIND FIRST arClass NO-LOCK
+         WHERE arClass.classID EQ INTEGER(iphWidgetFrom:SCREEN-VALUE)
+         NO-ERROR.
+    IF AVAILABLE arClass THEN
+    iphWidgetTo:SCREEN-VALUE = arClass.description.
+END PROCEDURE.
+
 PROCEDURE dynDescripBoxDesign:
     {&defInputParam}
     FIND FIRST box-design-hdr NO-LOCK
          WHERE box-design-hdr.company   EQ cCompany
            AND box-design-hdr.design-no GT 0 
-           AND box-design-hdr.design-no EQ integer(iphWidgetFrom:SCREEN-VALUE)
+           AND box-design-hdr.design-no EQ INTEGER(iphWidgetFrom:SCREEN-VALUE)
          NO-ERROR.
     IF AVAILABLE box-design-hdr THEN
     iphWidgetTo:SCREEN-VALUE = box-design-hdr.description.
@@ -72,6 +81,16 @@ PROCEDURE dynDescripCompany:
     iphWidgetTo:SCREEN-VALUE = company.name.       
 END PROCEDURE.
 
+PROCEDURE dynDescripCurrency:
+    {&defInputParam}
+    FIND FIRST currency NO-LOCK
+         WHERE currency.company EQ cCompany
+           AND currency.c-code  EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE currency THEN
+    iphWidgetTo:SCREEN-VALUE = currency.c-desc.       
+END PROCEDURE.
+
 PROCEDURE dynDescripCust:
     {&defInputParam}
     FIND FIRST cust NO-LOCK
@@ -89,7 +108,7 @@ PROCEDURE dynDescripCustype:
            AND custype.custype EQ iphWidgetFrom:SCREEN-VALUE
          NO-ERROR.
     IF AVAILABLE custype THEN
-    iphWidgetTo:SCREEN-VALUE = custype.dscr .
+    iphWidgetTo:SCREEN-VALUE = custype.dscr.
 END PROCEDURE.
 
 PROCEDURE dynDescripEmployee:
@@ -119,7 +138,7 @@ PROCEDURE dynDescripFlute:
            AND flute.code    EQ iphWidgetFrom:SCREEN-VALUE
          NO-ERROR.
     IF AVAILABLE flute THEN
-    iphWidgetTo:SCREEN-VALUE = flute.dscr .
+    iphWidgetTo:SCREEN-VALUE = flute.dscr.
 END PROCEDURE.
 
 PROCEDURE dynDescripJobCode:
@@ -128,7 +147,7 @@ PROCEDURE dynDescripJobCode:
          WHERE job-code.code EQ iphWidgetFrom:SCREEN-VALUE
          NO-ERROR.
     IF AVAILABLE job-code THEN
-    iphWidgetTo:SCREEN-VALUE = job-code.dscr .
+    iphWidgetTo:SCREEN-VALUE = job-code.dscr.
 END PROCEDURE.
 
 PROCEDURE dynDescripLoc:
@@ -195,7 +214,7 @@ PROCEDURE dynDescripRouting:
            AND routing.r-code  EQ iphWidgetFrom:SCREEN-VALUE
          NO-ERROR.
     IF AVAILABLE routing THEN
-    iphWidgetTo:SCREEN-VALUE = routing.dscr .
+    iphWidgetTo:SCREEN-VALUE = routing.dscr.
 END PROCEDURE.
 
 PROCEDURE dynDescripRMItem:
@@ -234,7 +253,7 @@ PROCEDURE dynDescripScoreType:
            AND scoreType.scoreType EQ iphWidgetFrom:SCREEN-VALUE
          NO-ERROR.
     IF AVAILABLE scoreType THEN
-    iphWidgetTo:SCREEN-VALUE = scoreType.description .
+    iphWidgetTo:SCREEN-VALUE = scoreType.description.
 END PROCEDURE.
 
 PROCEDURE dynDescripSecure:
@@ -261,7 +280,7 @@ PROCEDURE dynDescripStackPatterns:
          WHERE  stackPattern.stackCode EQ iphWidgetFrom:SCREEN-VALUE 
          NO-ERROR.
     IF AVAILABLE stackPattern THEN
-    iphWidgetTo:SCREEN-VALUE = stackPattern.stackDescription .
+    iphWidgetTo:SCREEN-VALUE = stackPattern.stackDescription.
 END PROCEDURE.
 
 PROCEDURE dynDescripStyle:
@@ -271,7 +290,17 @@ PROCEDURE dynDescripStyle:
            AND style.style   EQ iphWidgetFrom:SCREEN-VALUE
          NO-ERROR.
     IF AVAILABLE style THEN
-    iphWidgetTo:SCREEN-VALUE = style.dscr .
+    iphWidgetTo:SCREEN-VALUE = style.dscr.
+END PROCEDURE.
+
+PROCEDURE dynDescripTerms:
+    {&defInputParam}
+    FIND FIRST terms NO-LOCK
+         WHERE terms.company EQ cCompany
+           AND terms.t-code  EQ iphWidgetFrom:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE terms THEN
+    iphWidgetTo:SCREEN-VALUE = terms.dscr.
 END PROCEDURE.
 
 PROCEDURE dynDescripUser:

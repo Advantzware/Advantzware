@@ -10,6 +10,13 @@ DEFINE VARIABLE cRange AS CHARACTER NO-UNDO.
 cRange = REPLACE(iphObject:NAME,"sv","").
 /* add additional parameter fields alphabetically */
 CASE iphObject:NAME:
+    WHEN "svStartARClass" OR WHEN "svEndARClass" THEN DO:
+        cRange = REPLACE(cRange,"ARClass","").
+        FIND FIRST arClass NO-LOCK
+             WHERE arClass.classID EQ INTEGER(iphObject:SCREEN-VALUE)
+             NO-ERROR.
+        IF AVAILABLE arClass THEN opcDescription = arClass.description.
+    END.
     WHEN "svStartCarrier" OR WHEN "svEndCarrier" THEN DO:
         cRange = REPLACE(cRange,"Carrier","").
         FIND FIRST carrier NO-LOCK
