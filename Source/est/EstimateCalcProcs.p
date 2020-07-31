@@ -16,7 +16,6 @@
 
 {est/ttEstCost.i}
 
-DEFINE VARIABLE ghVendorCost                          AS HANDLE    NO-UNDO.
 DEFINE VARIABLE ghFreight                             AS HANDLE    NO-UNDO.
 DEFINE VARIABLE ghFormula                             AS HANDLE    NO-UNDO.
 
@@ -113,8 +112,7 @@ ASSIGN
     /*Build mapping from estimate type # to descriptive type*/ 
     gcTypeList = gcTypeSingle + "," + gcTypeSet + ","  + gcTypeCombo + "," + gcTypeCombo + "," + gcTypeSingle + "," + gcTypeSet + ","  + gcTypeCombo + "," + gcTypeCombo
     .
-/*RUN system\VendorCostProcs.p PERSISTENT SET ghVendorCost.*/
-/*THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghVendorCost).       */
+
 RUN system\FreightProcs.p PERSISTENT SET ghFreight.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghFreight).
 RUN system\FormulaProcs.p PERSISTENT SET ghFormula.
@@ -3399,7 +3397,6 @@ PROCEDURE pProcessBoard PRIVATE:
     DEFINE BUFFER bf-estCostMaterial FOR estCostMaterial.
     DEFINE BUFFER bf-item            FOR ITEM.
     DEFINE BUFFER bf-estCostBlank    FOR estCostBlank.
-    DEFINE VARIABLE iEstCostBlankID AS INT64   NO-UNDO.
     
     FIND FIRST bf-item NO-LOCK 
         WHERE bf-item.company EQ ipbf-estCostForm.company
@@ -3415,14 +3412,7 @@ PROCEDURE pProcessBoard PRIVATE:
         RUN pAddError("Board '" + ipcITemID + "' is valid material but not a material type of " + gcBoardMatTypes, gcErrorImportant, ipbf-estCostForm.estCostHeaderID, ipbf-estCostForm.formNo, 0).
         RETURN.
     END.      
-    FIND FIRST bf-estCostBlank NO-LOCK 
-                WHERE bf-estCostBlank.estCostHeaderID EQ ipbf-estCostForm.estCostHeaderID
-                AND bf-estCostBlank.estCostFormID EQ ipbf-estCostForm.estCostFormID
-                AND bf-estCostBlank.blankNo EQ 1  /*REFACTOR - What is blank number???*/
-                NO-ERROR.
-    IF AVAILABLE bf-estCostBlank THEN 
-      iEstCostBlankID = bf-estCostBlank.estCostBlankID.
-    RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, ipcItemID, iEstCostBlankID, BUFFER bf-estCostMaterial).
+    RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, ipcItemID, 0, BUFFER bf-estCostMaterial).
     ASSIGN 
         bf-estCostMaterial.isPrimarySubstrate         = YES
         bf-estCostMaterial.addToWeightNet             = YES
@@ -4085,8 +4075,7 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
     IF glVendItemCost THEN 
     DO:
         ASSIGN 
-            cScope              = IF INDEX("BPR",ipbf-estCostMaterial.materialType) GT 0 THEN DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM-Over")
-                                  ELSE DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM")
+            cScope              = DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM-Over")
             lIncludeBlankVendor = YES
             .
         RUN VendCost_GetBestCost(ipbf-estCostMaterial.company, 
