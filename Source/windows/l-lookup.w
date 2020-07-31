@@ -106,7 +106,7 @@ DEFINE VARIABLE hDynCalcField      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hStatusField       AS HANDLE    NO-UNDO EXTENT 1000.
 DEFINE VARIABLE iRowCount          AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cFocusValue        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE h_btnOK            AS HANDLE  NO-UNDO.
+DEFINE VARIABLE h_btnOK            AS HANDLE    NO-UNDO.
 
 RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
 
@@ -570,7 +570,11 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+    /* grab screen value as a starting value */
     cFocusValue = FOCUS:SCREEN-VALUE.
+    /* if screen value is HI-VALUE, clear so user sees all entries */
+    IF cFocusValue EQ CHR(254) THEN
+    cFocusValue = "".
     RUN validateParameters NO-ERROR.
     IF ERROR-STATUS:ERROR THEN
     RETURN ERROR.
