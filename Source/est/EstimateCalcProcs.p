@@ -3396,7 +3396,6 @@ PROCEDURE pProcessBoard PRIVATE:
 
     DEFINE BUFFER bf-estCostMaterial FOR estCostMaterial.
     DEFINE BUFFER bf-item            FOR ITEM.
-    DEFINE BUFFER bf-estCostBlank    FOR estCostBlank.
     
     FIND FIRST bf-item NO-LOCK 
         WHERE bf-item.company EQ ipbf-estCostForm.company
