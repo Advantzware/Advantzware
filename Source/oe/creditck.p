@@ -67,7 +67,8 @@ DO:
 
     IF cust.cr-hold THEN do: 
       v-error = "is on credit hold.".
-      RUN AddTagHold (oe-ord.rec_key,"oe-ord", "Customer on credit hold" ).      
+      IF AVAILABLE oe-ord THEN 
+        RUN AddTagHold (oe-ord.rec_key,"oe-ord", "Customer on credit hold" ).      
     END.
     ELSE 
     DO:
