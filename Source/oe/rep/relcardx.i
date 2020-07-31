@@ -275,7 +275,9 @@ if v-zone-p then v-zone-hdr = "Route No.:".
 
         v-rel-qty = v-rel-qty + w-oe-rell.qty.
         iRelCase = iRelCase +  w-oe-rell.cases  .
-        iRelPallet = iRelPallet + ( w-oe-rell.qty / (oe-ordl.cas-cnt * oe-ordl.cases-unit))  /*(IF w-oe-rell.units-pallet EQ 0 THEN 1 ELSE w-oe-rell.units-pallet)*/   .
+        IF w-oe-rell.tag EQ "" THEN
+          iRelPallet = iRelPallet + ( w-oe-rell.qty / (oe-ordl.cas-cnt * oe-ordl.cases-unit))  /*(IF w-oe-rell.units-pallet EQ 0 THEN 1 ELSE w-oe-rell.units-pallet)*/   .
+        ELSE iRelPallet = iRelPallet + 1 .          
         
         if last-of(w-oe-rell.po-no) then do:
           for each w-bin:
