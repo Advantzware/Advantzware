@@ -3357,7 +3357,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
          END. 
          
          lShiptoTaxAble = fIsShiptoTaxable (bf-inv-head.company,bf-inv-head.cust-no,bf-inv-head.sold-no).
-         IF lShiptoTaxAble AND bf-inv-head.t-inv-tax LE 0 THEN
+         IF lShiptoTaxAble AND bf-inv-head.t-inv-tax EQ 0 THEN
          DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Taxable ship to with no tax",NO).
             lAutoApprove = NO.
