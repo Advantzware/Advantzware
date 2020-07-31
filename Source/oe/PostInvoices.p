@@ -376,12 +376,7 @@ FUNCTION fIsWritable RETURNS LOGICAL PRIVATE
     (ipriInvHead AS ROWID) FORWARD.
     
 FUNCTION fIsShiptoTaxable RETURNS LOGICAL PRIVATE
-    (ipcCompany AS CHARACTER,ipcCustomer AS CHARACTER, ipcShiptoId AS CHARACTER) FORWARD.
-    
-    /*------------------------------------------------------------------------------
-     Purpose:  Returns YES if the shipto is taxable
-     Notes:  
-    ------------------------------------------------------------------------------*/    
+    (ipcCompany AS CHARACTER,ipcCustomer AS CHARACTER, ipcShiptoId AS CHARACTER) FORWARD.        
 
 /* ***************************  Main Block  *************************** */
 /* Shared Vars needed for 810 invoices */
