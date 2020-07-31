@@ -2176,6 +2176,8 @@ FUNCTION VendCost_GetValidScopes RETURNS CHARACTER
             RETURN gcScopeRMStandard.
         WHEN "Purch-FG" THEN 
             RETURN gcScopeFGPurchased.
+        WHEN "Est-RM-Over" THEN
+            RETURN gcScopeRMOverride .    
         OTHERWISE  
         RETURN gcScopeList.
     END CASE.

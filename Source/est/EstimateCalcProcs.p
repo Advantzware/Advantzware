@@ -3398,6 +3398,8 @@ PROCEDURE pProcessBoard PRIVATE:
 
     DEFINE BUFFER bf-estCostMaterial FOR estCostMaterial.
     DEFINE BUFFER bf-item            FOR ITEM.
+    DEFINE BUFFER bf-estCostBlank    FOR estCostBlank.
+    DEFINE VARIABLE iEstCostBlankID AS INT64   NO-UNDO.
     
     FIND FIRST bf-item NO-LOCK 
         WHERE bf-item.company EQ ipbf-estCostForm.company
@@ -3412,8 +3414,15 @@ PROCEDURE pProcessBoard PRIVATE:
     DO:
         RUN pAddError("Board '" + ipcITemID + "' is valid material but not a material type of " + gcBoardMatTypes, gcErrorImportant, ipbf-estCostForm.estCostHeaderID, ipbf-estCostForm.formNo, 0).
         RETURN.
-    END.
-    RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, ipcItemID, 0, BUFFER bf-estCostMaterial).
+    END.      
+    FIND FIRST bf-estCostBlank NO-LOCK 
+                WHERE bf-estCostBlank.estCostHeaderID EQ ipbf-estCostForm.estCostHeaderID
+                AND bf-estCostBlank.estCostFormID EQ ipbf-estCostForm.estCostFormID
+                AND bf-estCostBlank.blankNo EQ 1  /*REFACTOR - What is blank number???*/
+                NO-ERROR.
+    IF AVAILABLE bf-estCostBlank THEN 
+      iEstCostBlankID = bf-estCostBlank.estCostBlankID.
+    RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, ipcItemID, iEstCostBlankID, BUFFER bf-estCostMaterial).
     ASSIGN 
         bf-estCostMaterial.isPrimarySubstrate         = YES
         bf-estCostMaterial.addToWeightNet             = YES
@@ -4072,11 +4081,12 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
         opdCost    = 0
         opdSetup   = 0.
 
-  
+           
     IF glVendItemCost THEN 
     DO:
         ASSIGN 
-            cScope              = DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM")
+            cScope              = IF INDEX("BPR",ipbf-estCostMaterial.materialType) GT 0 THEN DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM-Over")
+                                  ELSE DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM")
             lIncludeBlankVendor = YES
             .
         RUN VendCost_GetBestCost(ipbf-estCostMaterial.company, 
