@@ -324,8 +324,7 @@ FOR EACH ttTransBin  WHERE ttTransBin.IS-SELECTED
     v-printline = v-printline + 1.
 
     IF v-printline >= 40 THEN 
-    DO: 
-        MESSAGE "page " VIEW-AS ALERT-BOX ERROR .
+    DO:         
         v-printline = 0.
         PAGE {1}.
         {fg/rep/boltxten.i}
