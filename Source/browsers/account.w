@@ -31,7 +31,6 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE yellowColumnsName account2
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT
 &SCOPED-DEFINE useMatches
@@ -45,6 +44,59 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
+
+DEFINE VARIABLE char-hdl                AS CHAR NO-UNDO.
+DEFINE VARIABLE ll-first                AS LOG  INIT YES NO-UNDO.
+DEFINE VARIABLE ll-show-all             AS LOG  NO-UNDO.
+DEFINE VARIABLE ll-sort-asc             AS LOG  INIT YES NO-UNDO.
+DEFINE VARIABLE lv-cust-no              AS CHAR NO-UNDO.
+DEFINE VARIABLE lv-sort-by              AS CHAR INIT "actnum" NO-UNDO.
+DEFINE VARIABLE lv-sort-by-lab          AS CHAR INIT "Account No" NO-UNDO.
+DEFINE VARIABLE lvFirstRowID            AS ROWID NO-UNDO.
+DEFINE VARIABLE lvLastRowID             AS ROWID NO-UNDO.
+DEFINE VARIABLE phandle                 AS HANDLE NO-UNDO.
+
+ASSIGN 
+    cocode = g_company
+    locode = g_loc.
+                
+&SCOPED-DEFINE key-phrase TRUE
+
+&SCOPED-DEFINE for-each1                          ~
+    FOR EACH account                              ~
+        WHERE {&key-phrase}                       ~
+          AND account.company EQ cocode         ~
+          AND (IF fi_account BEGINS '*' THEN  account.actnum MATCHES (fi_account + "*") ~
+              ELSE account.actnum BEGINS fi_account) ~
+          AND (IF fi_desc BEGINS '*'     THEN account.dscr MATCHES (fi_desc + "*") ~
+              ELSE account.dscr BEGINS fi_desc) ~
+          AND account.type    begins  fi_type  ~
+          and (account.inactive eq tb_inactive ) ~
+          and (account.SalesReport eq tb_sales-report ) ~
+          and (account.CommReport eq tb_comm-report )
+
+&SCOPED-DEFINE for-eachblank ~
+    FOR EACH account ~
+        WHERE {&key-phrase} ~
+        AND account.company EQ cocode
+
+&SCOPED-DEFINE sortby-log                                                                                                                                  ~
+    IF lv-sort-by EQ "actnum"      THEN account.actnum ELSE ~
+    IF lv-sort-by EQ "dscr"        THEN account.dscr ELSE ~
+    IF lv-sort-by EQ "type"        THEN account.type ELSE ~
+    IF lv-sort-by EQ "inactive"    THEN string(account.inactive) ELSE ~
+    IF lv-sort-by EQ "SalesReport" THEN string(account.SalesReport) ELSE ~
+    IF lv-sort-by EQ "CommReport"  THEN string(account.CommReport) ELSE ""
+
+&SCOPED-DEFINE sortby BY account.actnum
+
+&SCOPED-DEFINE sortby-phrase-asc ~
+    BY ({&sortby-log}) ~
+    {&sortby}
+
+&SCOPED-DEFINE sortby-phrase-desc ~
+    BY ({&sortby-log}) DESC ~
+    {&sortby}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -71,13 +123,13 @@ CREATE WIDGET-POOL.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table account.actnum account.dscr ~
-account.type 
+account.type account.inactive account.SalesReport account.CommReport 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH account WHERE ~{&KEY-PHRASE} ~
-      AND account.company = gcompany NO-LOCK ~
+      AND account.company = cocode NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH account WHERE ~{&KEY-PHRASE} ~
-      AND account.company = gcompany NO-LOCK ~
+      AND account.company = cocode NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table account
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table account
@@ -86,9 +138,10 @@ account.type
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS RECT-7 fi_account fi_desc fi_type ~
+tb_inactive tb_sales-report tb_comm-report btn_go btn_show Browser-Table 
+&Scoped-Define DISPLAYED-OBJECTS fi_account fi_desc fi_type tb_inactive ~
+tb_sales-report tb_comm-report fi_sort-by
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -102,30 +155,57 @@ Btn_Clear_Find
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Clear_Find 
-     LABEL "&Clear Find" 
-     SIZE 13 BY 1
-     FONT 4.
+DEFINE BUTTON btn_go 
+     LABEL "&Go" 
+     SIZE 12 BY 1
+     FONT 6.
 
-DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Auto Find" 
+DEFINE BUTTON btn_show 
+     LABEL "&Show All" 
+     SIZE 12 BY 1
+     FONT 6.
+
+DEFINE VARIABLE fi_account AS CHARACTER FORMAT "X(20)":U 
+     LABEL "Account No" 
      VIEW-AS FILL-IN 
-     SIZE 35 BY 1 NO-UNDO.
+     SIZE 31 BY 1
+     BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fi_desc AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Description" 
      VIEW-AS FILL-IN 
-     SIZE 15 BY .71
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     SIZE 40.8 BY 1
+     BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE browse-order AS INTEGER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "N/A", 1
-     SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE fi_type AS CHARACTER FORMAT "X(1)":U 
+     LABEL "Type" 
+     VIEW-AS FILL-IN 
+     SIZE 8.6 BY 1
+     BGCOLOR 15  NO-UNDO.
 
-DEFINE RECTANGLE RECT-4
+DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 110 BY 1.43.
+     SIZE 141 BY 2.86.
+
+DEFINE VARIABLE tb_comm-report AS LOGICAL  
+     LABEL "Comm Report" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18.4 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_inactive AS LOGICAL 
+     LABEL "Inactive" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_sales-report AS LOGICAL 
+     LABEL "Sales Report" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY 1 NO-UNDO.
+     
+DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 34.6 BY 1
+     BGCOLOR 14 FONT 6 NO-UNDO.     
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -133,7 +213,10 @@ DEFINE QUERY Browser-Table FOR
       account
     FIELDS(account.actnum
       account.dscr
-      account.type) SCROLLING.
+      account.type
+      account.inactive
+      account.SalesReport
+      account.CommReport) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -144,27 +227,32 @@ DEFINE BROWSE Browser-Table
       account.dscr COLUMN-LABEL "Description" FORMAT "x(45)":U
             LABEL-BGCOLOR 14
       account.type FORMAT "X":U LABEL-BGCOLOR 14
+      account.inactive FORMAT "yes/no":U LABEL-BGCOLOR 14
+      account.SalesReport COLUMN-LABEL "Sales Report" FORMAT "yes/no":U
+            LABEL-BGCOLOR 14
+      account.CommReport COLUMN-LABEL "Comm Report" FORMAT "yes/no":U
+            LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 110 BY 18.1
+    WITH NO-ASSIGN SEPARATORS SIZE 141 BY 18.1
          FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Browser-Table AT ROW 1 COL 1 HELP
+     fi_account AT ROW 1.33 COL 16.8 COLON-ALIGNED WIDGET-ID 48
+     fi_desc AT ROW 1.33 COL 66.2 COLON-ALIGNED WIDGET-ID 50
+     fi_type AT ROW 1.33 COL 118.8 COLON-ALIGNED WIDGET-ID 54
+     tb_inactive AT ROW 2.57 COL 97.4 RIGHT-ALIGNED WIDGET-ID 56
+     tb_sales-report AT ROW 2.57 COL 113.4 RIGHT-ALIGNED WIDGET-ID 58
+     tb_comm-report AT ROW 2.57 COL 135.8 RIGHT-ALIGNED WIDGET-ID 60
+     btn_go AT ROW 2.76 COL 5 WIDGET-ID 4
+     btn_show AT ROW 2.76 COL 18.4 WIDGET-ID 10
+     Browser-Table AT ROW 3.95 COL 1.4 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     fi_sortby AT ROW 18.62 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     browse-order AT ROW 19.33 COL 6 HELP
-          "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 19.33 COL 60 COLON-ALIGNED HELP
-          "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 19.33 COL 97 HELP
-          "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 19.33 COL 2
-     RECT-4 AT ROW 19.1 COL 1
+     fi_sort-by AT ROW 2.60 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     RECT-7 AT ROW 1 COL 1 WIDGET-ID 52
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -197,18 +285,18 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 19.52
-         WIDTH              = 110.
+         HEIGHT             = 21.19
+         WIDTH              = 142.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB B-table-Win 
 /* ************************* Included-Libraries *********************** */
-
-{src/adm/method/browser.i}
+{src/adm/method/navbrows.i}
+/*{src/adm/method/browser.i}
 {src/adm/method/query.i}
-{methods/template/browser.i}
+{methods/template/browser.i}*/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -223,7 +311,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table fi_sort-by F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -233,11 +321,29 @@ ASSIGN
                 "2"
        Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
-/* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
-   NO-DISPLAY NO-ENABLE                                                 */
+/* SETTINGS FOR FILL-IN fi_sort-by IN FRAME F-Main
+    NO-ENABLE                                                 */
 ASSIGN 
-       fi_sortby:HIDDEN IN FRAME F-Main           = TRUE
-       fi_sortby:READ-ONLY IN FRAME F-Main        = TRUE.
+       
+       fi_sort-by:READ-ONLY IN FRAME F-Main        = TRUE.
+
+/* SETTINGS FOR TOGGLE-BOX tb_comm-report IN FRAME F-Main
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_comm-report:PRIVATE-DATA IN FRAME F-Main     = 
+                "parm".
+
+/* SETTINGS FOR TOGGLE-BOX tb_inactive IN FRAME F-Main
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_inactive:PRIVATE-DATA IN FRAME F-Main     = 
+                "parm".
+
+/* SETTINGS FOR TOGGLE-BOX tb_sales-report IN FRAME F-Main
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_sales-report:PRIVATE-DATA IN FRAME F-Main     = 
+                "parm".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -250,13 +356,19 @@ ASSIGN
      _TblList          = "ASI.account"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _Where[1]         = "account.company = gcompany"
+     _Where[1]         = "account.company = cocode"
      _FldNameList[1]   > ASI.account.actnum
 "account.actnum" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.account.dscr
 "account.dscr" "Description" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.account.type
 "account.type" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.account.inactive
+"account.inactive" ? ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > ASI.account.SalesReport
+"account.SalesReport" "Sales Report" ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ASI.account.CommReport
+"account.CommReport" "Comm Report" ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -273,7 +385,6 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
-
 &Scoped-define BROWSE-NAME Browser-Table
 &Scoped-define SELF-NAME Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
@@ -301,8 +412,24 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
-DO:
-    RUN StartSearch.
+DO:     
+        DEFINE VARIABLE lh-column     AS HANDLE NO-UNDO.
+        DEFINE VARIABLE lv-column-nam AS CHARACTER   NO-UNDO.
+        DEFINE VARIABLE lv-column-lab AS CHARACTER   NO-UNDO.
+
+        ASSIGN
+            lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
+            lv-column-nam = lh-column:NAME
+            lv-column-lab = lh-column:LABEL.
+
+        IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
+        ELSE
+            ASSIGN
+                lv-sort-by     = lv-column-nam
+                lv-sort-by-lab = lv-column-lab.
+
+        APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
+        RUN dispatch ("open-query").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -322,6 +449,77 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btn_go
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_go B-table-Win
+ON CHOOSE OF btn_go IN FRAME F-Main /* Go */
+DO:             
+        DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN
+                fi_account
+                fi_desc
+                fi_type
+                tb_inactive 
+                tb_sales-report
+                tb_comm-report
+                ll-first = NO 
+                .        
+            RUN dispatch ("open-query").
+    
+            GET FIRST Browser-Table .
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn_show
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_show B-table-Win
+ON CHOOSE OF btn_show IN FRAME F-Main /* Show All */
+DO:
+        DO WITH FRAME {&FRAME-NAME}:
+            ll-show-all = YES.
+            APPLY "choose" TO btn_go.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+  
+&Scoped-define SELF-NAME tb_comm-report
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_comm-report B-table-Win
+ON VALUE-CHANGED OF tb_comm-report IN FRAME F-Main /* Comm Report */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_inactive
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_inactive B-table-Win
+ON VALUE-CHANGED OF tb_inactive IN FRAME F-Main /* Inactive */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_sales-report
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sales-report B-table-Win
+ON VALUE-CHANGED OF tb_sales-report IN FRAME F-Main /* Sales Report */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
@@ -329,8 +527,6 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
-    
-{custom/YellowColumns.i}
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -384,27 +580,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
-PROCEDURE local-open-query :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  APPLY "value-changed" TO BROWSE {&browse-name}.
-  APPLY "entry" TO BROWSE {&browse-name}.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
 PROCEDURE export-xl :
 /*------------------------------------------------------------------------------
@@ -415,7 +590,7 @@ PROCEDURE export-xl :
 DEFINE VARIABLE lcAccFrom AS CHAR NO-UNDO.
 DEFINE VARIABLE lcAccTo   AS CHAR NO-UNDO.
 
-IF account.actnum NE "" THEN
+IF AVAIL account AND account.actnum NE "" THEN
     ASSIGN
         lcAccFrom = account.actnum
         lcAccTo = account.actnum .
@@ -429,6 +604,323 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE first-query B-table-Win 
+PROCEDURE first-query :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    IF ll-first THEN 
+    DO:
+        RUN set-defaults.
+        RUN query-first.
+    END.
+    ELSE
+        RUN query-go.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields B-table-Win 
+PROCEDURE local-display-fields :
+/*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+  
+    DO WITH FRAME {&FRAME-NAME}:
+        fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
+            TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
+    END.
+                    
+ 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-get-first B-table-Win 
+PROCEDURE local-get-first :
+/*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'get-first':U ) .
+
+/* Code placed here will execute AFTER standard behavior.    */
+/*{methods/template/local/setvalue.i}*/
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-get-last B-table-Win 
+PROCEDURE local-get-last :
+/*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'get-last':U ) . 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-get-next B-table-Win 
+PROCEDURE local-get-next :
+/*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'get-next':U ) .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-get-prev B-table-Win 
+PROCEDURE local-get-prev :
+/*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'get-prev':U ) . 
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+  
+    APPLY 'ENTRY':U TO fi_account IN FRAME {&FRAME-NAME}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
+PROCEDURE local-open-query :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE li AS INTEGER NO-UNDO.
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+    IF ll-show-all THEN 
+    DO:
+        RUN set-defaults.
+    &SCOPED-DEFINE open-query                   ~
+        OPEN QUERY {&browse-name}               ~
+           {&for-eachblank} NO-LOCK
+            
+        IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                   ELSE {&open-query} {&sortby-phrase-desc}.
+    END.
+    ELSE RUN first-query.
+
+    IF AVAILABLE {&first-table-in-query-{&browse-name}} THEN 
+    DO:
+        RUN dispatch ("display-fields").
+        RUN dispatch ("row-changed").
+
+    END.   
+    
+    ll-show-all = NO .
+    
+  APPLY "value-changed" TO BROWSE {&browse-name}.
+  APPLY "entry" TO BROWSE {&browse-name}.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-row-changed B-table-Win 
+PROCEDURE local-row-changed :
+/*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-changed':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    IF AVAILABLE account THEN APPLY "value-changed" TO BROWSE {&browse-name}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE navigate-browser B-table-Win 
+PROCEDURE navigate-browser :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipNavType AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opNavType AS CHARACTER NO-UNDO.
+ 
+    IF ipNavType NE '' THEN
+        CASE ipNavType:
+            WHEN 'F' THEN RUN dispatch ('get-first':U).
+            WHEN 'L' THEN RUN dispatch ('get-last':U).
+            WHEN 'N' THEN RUN dispatch ('get-next':U).
+            WHEN 'P' THEN RUN dispatch ('get-prev':U).
+            WHEN 'G' THEN RUN lookup-eb.
+        END CASE.
+    
+    IF ROWID(utilities) EQ lvLastRowID THEN
+        opNavType = 'L'.
+      
+    IF ROWID(utilities) EQ lvFirstRowID THEN
+        opNavType = IF opNavType EQ 'L' THEN 'B' ELSE 'F'.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE query-first B-table-Win 
+PROCEDURE query-first :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE li AS INTEGER NO-UNDO.
+  
+  &SCOPED-DEFINE open-query                   ~
+      OPEN QUERY {&browse-name}               ~
+        {&for-each1}                      NO-LOCK
+            
+IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                 ELSE {&open-query} {&sortby-phrase-desc}.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE query-go B-table-Win 
+PROCEDURE query-go :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE li AS INTEGER NO-UNDO.
+  
+     
+     &SCOPED-DEFINE open-query                   ~
+          OPEN QUERY {&browse-name}               ~
+            {&for-each1}                          ~
+               NO-LOCK
+
+    IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                    ELSE {&open-query} {&sortby-phrase-desc}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
+PROCEDURE repo-query :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+ 
+    RUN dispatch IN this-procedure ("open-query").
+  
+    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+
+    RUN dispatch IN this-procedure ("row-changed").
+    APPLY "value-changed" TO BROWSE {&browse-name}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query2 B-table-Win 
+PROCEDURE repo-query2 :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+
+    DEFINE VARIABLE li AS INTEGER NO-UNDO.  
+
+    RUN set-defaults.
+    
+    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+
+    RUN dispatch IN this-procedure ("row-changed").
+ 
+    APPLY "value-changed" TO BROWSE {&browse-name}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
@@ -446,6 +938,59 @@ PROCEDURE send-records :
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-defaults B-table-Win 
+PROCEDURE set-defaults :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:          
+        ASSIGN            
+            fi_account:SCREEN-VALUE = ""
+            fi_desc:SCREEN-VALUE = ""
+            fi_type:SCREEN-VALUE = ""
+            /*tb_inactive:SCREEN-VALUE = "No"  */
+           /* tb_sales-report:SCREEN-VALUE = "No" */
+           /* tb_comm-report:SCREEN-VALUE = "No" */
+            fi_account = ""
+            fi_desc = ""
+            fi_type = ""
+            .        
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-focus B-table-Win 
+PROCEDURE set-focus :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setBrowseFocus B-table-Win 
+PROCEDURE setBrowseFocus :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    APPLY 'ENTRY':U TO BROWSE {&BROWSE-NAME}.
 
 END PROCEDURE.
 
