@@ -952,7 +952,7 @@ DO:
       /*RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostVendor = ' + item.vend-no).*/
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostCustomer = ""').  
       RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostForm# = ' + ( IF AVAIL eb THEN string(eb.form-no) ELSE "" ) ).
-      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = ' + ( IF AVAIL eb THEN string(eb.blank-no) ELSE "" ) ).
+      RUN set-attribute-list IN adm-broker-hdl ('OneVendItemCostBlank# = 0').
       
       RUN windows/vendcostmtx.w .
       RUN pShowHideCostFiled.
@@ -2556,7 +2556,9 @@ PROCEDURE local-display-fields :
       btn_cost:HIDDEN  = FALSE .
       RUN pShowHideCostFiled.      
     END.                                     
-    ELSE btn_cost:HIDDEN  = TRUE .   
+    ELSE ASSIGN
+         btn_cost:HIDDEN  = TRUE
+         OverrideExist:HIDDEN = TRUE.   
      
   RUN one-eb-on-ef (ROWID(ef), OUTPUT ll-one-eb-on-ef).
   RUN one-ef-on-est (ROWID(est), OUTPUT ll-one-ef-on-est).
@@ -3978,6 +3980,10 @@ PROCEDURE pShowHideCostFiled :
       dtCost:HIDDEN = TRUE.
       ef.cost-uom:HIDDEN = TRUE.
       ef.cost-msh:HIDDEN = TRUE.
+      FIND CURRENT ef EXCLUSIVE-LOCK NO-ERROR .
+      IF AVAIL ef THEN
+       ASSIGN ef.cost-msh = 0.
+       FIND CURRENT ef NO-LOCK NO-ERROR .
     END.
     ELSE do:
       OverrideExist:HIDDEN = TRUE .
