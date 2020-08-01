@@ -374,9 +374,6 @@ FUNCTION fIsFactored RETURNS LOGICAL PRIVATE
 
 FUNCTION fIsWritable RETURNS LOGICAL PRIVATE
     (ipriInvHead AS ROWID) FORWARD.
-    
-FUNCTION fIsShiptoTaxable RETURNS LOGICAL PRIVATE
-    (ipcCompany AS CHARACTER,ipcCustomer AS CHARACTER, ipcShiptoId AS CHARACTER) FORWARD.        
 
 /* ***************************  Main Block  *************************** */
 /* Shared Vars needed for 810 invoices */
@@ -3354,14 +3351,17 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
          DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billing notes exist",NO).
             lAutoApprove = NO.              
-         END. 
+         END.         
          
-         lShiptoTaxAble = fIsShiptoTaxable (bf-inv-head.company,bf-inv-head.cust-no,bf-inv-head.sold-no).
-         IF lShiptoTaxAble AND bf-inv-head.t-inv-tax EQ 0 THEN
+         IF bf-inv-head.t-inv-tax EQ 0 THEN
          DO:
-            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Taxable ship to with no tax",NO).
-            lAutoApprove = NO.
-         END.
+            RUN Tax_GetTaxableAR(bf-inv-head.company,bf-inv-head.cust-no,bf-inv-head.sold-no,"", OUTPUT lShiptoTaxAble).
+            IF lShiptoTaxAble THEN
+            DO:            
+                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Taxable ship to with no tax",NO).
+                lAutoApprove = NO.
+            END.
+         END.         
          
          IF lAutoApprove AND bf-ttInvoiceToPost.isOKToPost THEN DO:
             FIND CURRENT bf-inv-head EXCLUSIVE-LOCK.
@@ -3600,27 +3600,6 @@ FUNCTION fIsWritable RETURNS LOGICAL PRIVATE
     lWritable = AVAILABLE bf-inv-head.
 	
     RETURN lWritable.
-		
-END FUNCTION.
-
-FUNCTION fIsShiptoTaxable RETURNS LOGICAL PRIVATE
-    (ipcCompany AS CHARACTER,ipcCustomer AS CHARACTER, ipcShiptoId AS CHARACTER):
-    /*------------------------------------------------------------------------------
-     Purpose:  Returns YES if the shipto is taxable
-     Notes:  
-    ------------------------------------------------------------------------------*/	
-    DEFINE VARIABLE lReturnValue AS LOGICAL NO-UNDO.
-	
-    DEFINE BUFFER bf-shipto FOR shipto.
-	
-    FIND FIRST bf-shipto NO-LOCK 
-        WHERE bf-shipto.company EQ ipcCompany
-        AND bf-shipto.cust-no EQ ipcCustomer
-        AND bf-shipto.ship-id EQ ipcShiptoId
-        NO-ERROR.
-    lReturnValue = IF AVAIL bf-shipto AND bf-shipto.tax-mandatory THEN TRUE ELSE FALSE.
-	
-    RETURN lReturnValue.
 		
 END FUNCTION.
 
