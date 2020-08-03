@@ -402,10 +402,8 @@ DO:
                 ).  
              
             RUN pGetUpdateableLocValue(
-                INPUT xeb.company,
                 INPUT xeb.est-type,
-                INPUT xeb.form-no,                  
-                INPUT xeb.stock-no,
+                INPUT xeb.form-no,                
                 INPUT LAST(xeb.blank-no),
                 OUTPUT lUpdateLoc).     
              
@@ -2136,19 +2134,12 @@ PROCEDURE pGetUpdateableLocValue PRIVATE:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany        AS CHARACTER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiEstType        AS INTEGER   NO-UNDO.    
     DEFINE INPUT  PARAMETER ipiFormNo         AS INTEGER NO-UNDO.        
-    DEFINE INPUT  PARAMETER ipcFGItemNo       AS CHARACTER NO-UNDO. 
     DEFINE INPUT  PARAMETER iplLastBlankNo    AS LOGICAL   NO-UNDO.    
     DEFINE OUTPUT PARAMETER ipolOutputReturn  AS LOGICAL NO-UNDO. 
-    DEFINE BUFFER bf-itemfg FOR itemfg.
-
-     FIND FIRST bf-itemfg NO-LOCK
-          WHERE bf-itemfg.company EQ ipcCompany
-          AND bf-itemfg.i-no EQ ipcFGItemNo NO-ERROR.
-
-     IF (ipiEstType EQ 2 OR ipiEstType EQ 6) AND ipiFormNo EQ 0 AND AVAIL bf-itemfg THEN
+    
+     IF (ipiEstType EQ 2 OR ipiEstType EQ 6) AND ipiFormNo EQ 0 THEN
      DO:
          ipolOutputReturn = TRUE.
      END.     
