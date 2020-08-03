@@ -22,7 +22,9 @@ for each xef where xef.company = xest.company
   {ce/pr4-spe.i qty}
 
 	 for each blk where blk.snum = xef.form-no:
-        READKEY PAUSE 0. 
+        //This line caused an infinite loop, never incrementing i - this is really bad code since the Ends seen below
+        //have matching DO: inside the ce/pr4-spe.i
+        //READKEY PAUSE 0. 
 	    blk.cost = blk.cost + (s-cost[i] * blk.pct).
 	 end.
 
