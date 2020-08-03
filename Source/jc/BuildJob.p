@@ -183,7 +183,14 @@ PROCEDURE pBuildHeaders PRIVATE:
                 bf-job-hdr.cust-no  = estCostItem.customerID
                 bf-job-hdr.est-no   = ipbf-job.est-no
                 bf-job-hdr.ord-no   = IF bf-job-hdr.ord-no EQ 0 THEN ipiOrderID ELSE bf-job-hdr.ord-no
+                bf-job-hdr.loc      = ipbf-job.loc
                 .
+                IF estCostBlank.formNo EQ 0 AND estCostBlank.blankNo EQ 0 THEN
+                DO:
+                    RUN pUpdateFGItemQty(INPUT ROWID(bf-job-hdr),
+                                         INPUT YES ). 
+                END.
+                
         END.
         CREATE ttJobHdrToKeep.
         ASSIGN 
@@ -556,8 +563,42 @@ PROCEDURE pCleanJob PRIVATE:
         AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
         AND NOT CAN-FIND(FIRST ttJobHdrToKeep WHERE ttJobHdrToKeep.riJobHdr EQ ROWID(bf-job-hdr)):
         DELETE bf-job-hdr.
-    END.
+    END.     
     RELEASE bf-job-hdr.
+
+END PROCEDURE.
+
+PROCEDURE pUpdateFGItemQty PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriJobHdr     AS ROWID   NO-UNDO.    
+    DEFINE INPUT  PARAMETER iplLastItem  AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER x-job-hdr       FOR job-hdr.
+    
+    FIND FIRST job-hdr EXCLUSIVE-LOCK
+        WHERE ROWID(job-hdr) EQ ipriJobHdr
+        NO-ERROR.
+    IF NOT AVAILABLE job-hdr THEN
+        RETURN.
+       
+    IF iplLastItem THEN
+    DO: 
+        FOR EACH x-job-hdr
+            WHERE x-job-hdr.company EQ job-hdr.company
+            AND x-job-hdr.job     EQ job-hdr.job
+            AND x-job-hdr.job-no  EQ job-hdr.job-no
+            AND x-job-hdr.job-no2 EQ job-hdr.job-no2
+            AND x-job-hdr.frm EQ 0:
+                  
+            RUN util/upditmfg.p (
+                INPUT ROWID(x-job-hdr),
+                INPUT 1
+                ).              
+        END.
+    END. 
 
 END PROCEDURE.
 

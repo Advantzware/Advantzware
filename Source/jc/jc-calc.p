@@ -399,17 +399,16 @@ DO:
                 INPUT LAST(xeb.blank-no),                
                 INPUT lAvailOeRel,
                 INPUT lAvailOeOrdl
-                ). 
-                
+                ).  
+             
             RUN pGetUpdateableLocValue(
                 INPUT xeb.company,
                 INPUT xeb.est-type,
-                INPUT xeb.form-no,
-                INPUT string(xeb.set-is-assembled),
+                INPUT xeb.form-no,                  
                 INPUT xeb.stock-no,
                 INPUT LAST(xeb.blank-no),
-                OUTPUT lUpdateLoc).    
-                    
+                OUTPUT lUpdateLoc).     
+             
             RUN pUpdateFGItemQty(
                 INPUT riJobHdr,
                 INPUT lUpdateLoc
@@ -2139,27 +2138,20 @@ PROCEDURE pGetUpdateableLocValue PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany        AS CHARACTER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiEstType        AS INTEGER   NO-UNDO.    
-    DEFINE INPUT  PARAMETER ipiFormNo         AS INTEGER NO-UNDO. 
-    DEFINE INPUT  PARAMETER ipcSetIsAssembled AS CHARACTER   NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipiFormNo         AS INTEGER NO-UNDO.        
     DEFINE INPUT  PARAMETER ipcFGItemNo       AS CHARACTER NO-UNDO. 
     DEFINE INPUT  PARAMETER iplLastBlankNo    AS LOGICAL   NO-UNDO.    
     DEFINE OUTPUT PARAMETER ipolOutputReturn  AS LOGICAL NO-UNDO. 
     DEFINE BUFFER bf-itemfg FOR itemfg.
-     
+
      FIND FIRST bf-itemfg NO-LOCK
           WHERE bf-itemfg.company EQ ipcCompany
           AND bf-itemfg.i-no EQ ipcFGItemNo NO-ERROR.
-          
-     IF (ipiEstType EQ 2 OR ipiEstType EQ 6) AND ipiFormNo EQ 0 AND AVAIL bf-itemfg AND 
-        (bf-itemfg.alloc EQ ? OR bf-itemfg.alloc EQ NO) THEN
+
+     IF (ipiEstType EQ 2 OR ipiEstType EQ 6) AND ipiFormNo EQ 0 AND AVAIL bf-itemfg THEN
      DO:
          ipolOutputReturn = TRUE.
-     END.
-     ELSE IF (ipiEstType EQ 2 OR ipiEstType EQ 6) AND ipiFormNo EQ 0 AND 
-         (ipcSetIsAssembled EQ ? OR LOGICAL(ipcSetIsAssembled) EQ NO) THEN
-     DO:
-         ipolOutputReturn = TRUE.
-     END.
+     END.     
      ELSE IF iplLastBlankNo EQ TRUE THEN
      DO:
          ipolOutputReturn = TRUE.
