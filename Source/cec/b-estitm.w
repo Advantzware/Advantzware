@@ -6199,7 +6199,8 @@ PROCEDURE local-delete-record :
       END.
       ELSE DO:
           /*LEAVE.       */
-          RUN first-run IN WIDGET-HANDLE(char-hdl).
+          RUN pSetFirstRunValue IN WIDGET-HANDLE(char-hdl)(yes).
+          RUN local-open-query IN WIDGET-HANDLE(char-hdl).
       END.
     END.
   END.
