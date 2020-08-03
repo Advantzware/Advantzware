@@ -330,7 +330,7 @@ ECHO Building HTML data dictionary
 ECHO Building HTML data dictionary >> %blog%
 ECHO Building HTML data dictionary >> %vlog%
 CD %buildDir%
-CALL %DLCBIN%\prowin.exe -basekey "INI" -ininame versionBuild.ini -pf versionBuildBOTHDB.pf -p HtmlDict.w -param "ShowHtml=false OutputDirectory=C:\asigui\Upgrades\PATCH%cNewVer%\Documentation\HTMLDict Autorun=true"
+CALL %DLCBIN%\prowin.exe -basekey "INI" -ininame versionBuild.ini -pf versionBuildBOTHDB.pf -p HtmlDict.w -param "ShowHtml=false OutputDirectory=C:\asigui\Upgrades\PATCH%cNewVer%\Documentation\DBDict Autorun=true"
 ECHO   HTML Dictionary generation complete
 ECHO   HTML Dictionary generation complete >> %blog%
 ECHO   HTML Dictionary generation complete >> %vlog%
