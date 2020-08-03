@@ -105,6 +105,8 @@ DEFINE VARIABLE hColumn            AS HANDLE    NO-UNDO EXTENT 1000.
 DEFINE VARIABLE hDynCalcField      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hStatusField       AS HANDLE    NO-UNDO EXTENT 1000.
 DEFINE VARIABLE iRowCount          AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cFocusValue        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE h_btnOK            AS HANDLE    NO-UNDO.
 
 RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
 
@@ -568,12 +570,14 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-    IF ip-subjectID NE 0 THEN DO:
-    END. /* if subject id ne 0 */
+    /* grab screen value as a starting value */
+    cFocusValue = FOCUS:SCREEN-VALUE.
+    /* if screen value is HI-VALUE, clear so user sees all entries */
+    IF cFocusValue EQ CHR(254) THEN
+    cFocusValue = "".
     RUN validateParameters NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN DO:
-        RETURN ERROR.
-    END.
+    IF ERROR-STATUS:ERROR THEN
+    RETURN ERROR.
     RUN init.
     RUN enable_UI.    
     RUN resizeWindow.    
@@ -587,9 +591,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         APPLY 'ENTRY' TO ls-search IN FRAME {&FRAME-NAME}.
     END.  
     ASSIGN 
-        bt-clear:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME}  = TRUE
-        ls-search:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE
-        bt-prev:HANDLE:SENSITIVE IN FRAME {&FRAME-NAME}   = FALSE
+        bt-clear:HANDLE:SENSITIVE  = TRUE
+        ls-search:HANDLE:SENSITIVE = TRUE
+        bt-prev:HANDLE:SENSITIVE   = FALSE
         .  
     RUN customizeBrowse.  
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -671,23 +675,23 @@ PROCEDURE addFilterObjects :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE h_field        AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE h_fillin       AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE h_combobox     AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE h_togglebox    AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE h_browseCol    AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE h_calendar     AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE h_btnClear     AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE h_btnOK        AS HANDLE    NO-UNDO.      
-    DEFINE VARIABLE h_colNum       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE h_field     AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE h_fillin    AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE h_combobox  AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE h_togglebox AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE h_browseCol AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE h_calendar  AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE h_btnClear  AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE h_colNum    AS INTEGER NO-UNDO.
+    DEFINE VARIABLE h_focus     AS HANDLE  NO-UNDO.
     
-    IF ip-filterList <> "" THEN DO:
+    IF ip-filterList NE "" THEN DO:
         DO li-count = 1 TO NUM-ENTRIES(ip-filterList):
             ASSIGN 
                 h_field = h_ttbuffer:BUFFER-FIELD(ENTRY(li-count,ip-filterList))
                 h_colNum = LOOKUP(ENTRY(li-count,ip-filterList), ip-displayList)
-                h_browseCol = h_browser:GET-BROWSE-COL(h_colNum):HANDLE.
-                
+                h_browseCol = h_browser:GET-BROWSE-COL(h_colNum):HANDLE
+                .                
             IF VALID-HANDLE(h_field) THEN DO:
                 IF h_field:DATA-TYPE = "CHARACTER" OR
                    h_field:DATA-TYPE = "INTEGER"   OR
@@ -695,7 +699,7 @@ PROCEDURE addFilterObjects :
                    h_field:DATA-TYPE = "DATE" THEN DO:
 
                    CREATE FILL-IN h_fillin
-                   ASSIGN FRAME    = h_filterFrame
+                   ASSIGN FRAME     = h_filterFrame
                        ROW          = h_browser:ROW - 1.26
                        X            = h_browseCol:X
                        SENSITIVE    = TRUE
@@ -704,7 +708,13 @@ PROCEDURE addFilterObjects :
                        FORMAT       = h_field:FORMAT
                        VISIBLE      = TRUE
                        SCREEN-VALUE = ""
-                       PRIVATE-DATA = h_field:NAME.
+                       PRIVATE-DATA = h_field:NAME
+                       TRIGGERS:
+                           ON RETURN PERSISTENT RUN applyFilter.
+                       END TRIGGERS.
+
+                   IF li-count EQ 1 THEN
+                   h_focus = h_fillin.
 
                    IF h_field:DATA-TYPE = "DATE" THEN DO:
                        h_fillin:WIDTH-CHARS = 16.
@@ -719,7 +729,7 @@ PROCEDURE addFilterObjects :
                            VISIBLE      = TRUE
                            PRIVATE-DATA = h_field:NAME
                            TRIGGERS:
-                               ON CHOOSE PERSISTENT RUN chooseDate IN THIS-PROCEDURE ( INPUT h_calendar:PRIVATE-DATA).
+                               ON CHOOSE PERSISTENT RUN chooseDate (h_calendar:PRIVATE-DATA).
                            END TRIGGERS.            
                            
                        h_calendar:LOAD-IMAGE-UP("Graphics/16x16/calendar.bmp").          
@@ -740,9 +750,8 @@ PROCEDURE addFilterObjects :
                        PRIVATE-DATA    = h_field:NAME
                        SCREEN-VALUE    = "1"
                        TRIGGERS:
-                           ON VALUE-CHANGED PERSISTENT RUN openFilterQuery IN THIS-PROCEDURE.
-                       END TRIGGERS
-                       .                      
+                           ON VALUE-CHANGED PERSISTENT RUN openFilterQuery.
+                       END TRIGGERS.                      
                 END.
             END.
         END.
@@ -793,8 +802,23 @@ PROCEDURE addFilterObjects :
  
     END.
     CLEAR FRAME filter-frame NO-PAUSE.
+    h_focus:SCREEN-VALUE = cFocusValue.
+
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE applyFilter Dialog-Frame
+PROCEDURE applyFilter:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    APPLY "CHOOSE":U TO h_btnOK.
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -14,6 +14,7 @@
   ----------------------------------------------------------------------*/
 {api/ttArgs.i}
 {api/ttScopes.i}
+{api/CommonAPIProcs.i}
 
 DEFINE TEMP-TABLE ttRequestData NO-UNDO
     FIELD company              AS CHARACTER
@@ -52,7 +53,7 @@ DEFINE VARIABLE cRequestStatusFailed      AS CHARACTER NO-UNDO INITIAL "Failed".
 DEFINE VARIABLE cRequestTypeAPI           AS CHARACTER NO-UNDO INITIAL "API".
 DEFINE VARIABLE cRequestTypeFTP           AS CHARACTER NO-UNDO INITIAL "FTP".
 DEFINE VARIABLE cRequestTypeSAVE          AS CHARACTER NO-UNDO INITIAL "SAVE".
-DEFINE VARIABLE cLocValidationExceptions  AS CHARACTER NO-UNDO INITIAL "SendAdvancedShipNotice,SendFinishedGood". /* Should be comma (,) separated. loc.isAPIEnabled will not be validated for APIs in the list */
+DEFINE VARIABLE cLocValidationExceptions  AS CHARACTER NO-UNDO INITIAL "SendAdvancedShipNotice,SendFinishedGood,CalculateTax". /* Should be comma (,) separated. loc.isAPIEnabled will not be validated for APIs in the list */
 DEFINE VARIABLE cScopeTypeList            AS CHARACTER NO-UNDO INITIAL "_ANY_,Customer,Vendor,ShipTo".
 DEFINE VARIABLE cScopeTypeCustomer        AS CHARACTER NO-UNDO INITIAL "Customer".
 DEFINE VARIABLE cScopeTypeVendor          AS CHARACTER NO-UNDO INITIAL "Vendor".
@@ -673,6 +674,28 @@ PROCEDURE Outbound_ResetContext:
     EMPTY TEMP-TABLE ttAPIOutboundEvent.
     EMPTY TEMP-TABLE ttRequestData.
 END.
+
+PROCEDURE Outbound_UpdateGlobalFieldValues:
+/*------------------------------------------------------------------------------
+ Purpose: This procedure updates global fields in the request data that are 
+          generic to the API 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipiAPIOutboundID AS INTEGER   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cAPITransactionCounter    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cClientTransactionCounter AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        cAPITransactionCounter    = STRING(fGetAPITransactionCounter(ipiAPIOutboundID))
+        cClientTransactionCounter = STRING(fGetClientTransactionCounter(ipiAPIOutboundID))
+        .
+        
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "APITransCounter", cAPITransactionCounter).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ClientTransCounter", cClientTransactionCounter).
+
+END PROCEDURE.
 
 PROCEDURE Outbound_ValidateClientID:
 /*------------------------------------------------------------------------------

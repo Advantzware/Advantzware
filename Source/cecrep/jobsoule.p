@@ -498,7 +498,8 @@ do v-local-loop = 1 to v-local-copies:
         FOR EACH fg-bin NO-LOCK
             where fg-bin.company  eq cocode
             and fg-bin.i-no     eq xeb.stock-no
-            and fg-bin.qty      gt 0 BY fg-bin.tag :
+            and fg-bin.qty      gt 0
+            AND fg-bin.loc-bin  NE ""  BY fg-bin.tag:
             ASSIGN cFgBin[j] = fg-bin.loc-bin
                    iFgBinQty[j] = fg-bin.qty.
                    j = j + 1.

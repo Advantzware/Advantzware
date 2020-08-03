@@ -2749,6 +2749,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix200110.
     IF fIntVer(cThisEntry) LT 20020000 THEN  
         RUN ipDataFix200200.
+    IF fIntVer(cThisEntry) LT 20020200 THEN 
+        RUN ipDataFix200202.
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3338,6 +3340,29 @@ PROCEDURE ipDataFix200200:
                     .
         END.
     END.
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix200202 C-Win
+PROCEDURE ipDataFix200202:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 200202...").
+
+    /* 85663 - Sales/Commission Reporting Definitions */
+    DISABLE TRIGGERS FOR LOAD OF account.
+    FOR EACH account EXCLUSIVE WHERE
+        account.type EQ "R": /* Revenue accounts only */
+        ASSIGN 
+            account.salesReport = TRUE 
+            account.commReport = TRUE.
+    END. 
+     
 END PROCEDURE.
     
 /* _UIB-CODE-BLOCK-END */

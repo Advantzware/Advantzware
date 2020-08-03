@@ -3328,7 +3328,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
     DEFINE BUFFER bf-inv-head FOR inv-head.
     
     DEFINE VARIABLE lAutoApprove AS LOGICAL NO-UNDO.
-    
+    DEFINE VARIABLE lShiptoTaxAble AS LOGICAL NO-UNDO.
     
     FOR EACH bf-ttInvoiceToPost,
         FIRST bf-inv-head NO-LOCK 
@@ -3351,7 +3351,18 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
          DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billing notes exist",NO).
             lAutoApprove = NO.              
-         END.          
+         END.         
+         
+         IF bf-inv-head.t-inv-tax EQ 0 THEN
+         DO:
+            RUN Tax_GetTaxableAR(bf-inv-head.company,bf-inv-head.cust-no,bf-inv-head.sold-no,"", OUTPUT lShiptoTaxAble).
+            IF lShiptoTaxAble THEN
+            DO:            
+                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Taxable ship to with no tax",NO).
+                lAutoApprove = NO.
+            END.
+         END.         
+         
          IF lAutoApprove AND bf-ttInvoiceToPost.isOKToPost THEN DO:
             FIND CURRENT bf-inv-head EXCLUSIVE-LOCK.
             ASSIGN 

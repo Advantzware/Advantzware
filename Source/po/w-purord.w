@@ -686,7 +686,7 @@ PROCEDURE local-change-page :
   Notes:       
 ------------------------------------------------------------------------------*/
     def var lAvail as log no-undo.
-    
+    DEFINE VARIABLE lUpdateDate AS LOGICAL NO-UNDO.
     assign 
         li-prev-page = li-cur-page.
     run get-attribute ("current-page").
@@ -700,6 +700,14 @@ PROCEDURE local-change-page :
             run select-page (2).
             return.
         end.
+        RUN pCheckUpdateMode IN h_v-purord (OUTPUT lUpdateDate).
+        IF lUpdateDate THEN
+        DO:
+            message "You must save your record or cancel."
+            view-as ALERT-BOX INFO.
+            run select-page (2).
+            return.  
+        END.
     end.
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .

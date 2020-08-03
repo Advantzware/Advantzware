@@ -219,11 +219,7 @@ DEFINE BUTTON btn_pack-code
 
 /* ************************  Frame Definitions  *********************** */
 
-DEFINE FRAME fold
-     eb.spare-int-3 AT ROW 1.95 COL 142.8 COLON-ALIGNED HELP
-          "" NO-LABEL WIDGET-ID 44 FORMAT ">>9"
-          VIEW-AS FILL-IN 
-          SIZE 6 BY 1 TOOLTIP "Enter Quantity of Case Materials Per Case"
+DEFINE FRAME fold     
      eb.i-col AT ROW 1.19 COL 22 COLON-ALIGNED
           LABEL "Inks"
           VIEW-AS FILL-IN 
@@ -584,6 +580,10 @@ DEFINE FRAME fold
      eb.cas-dep AT ROW 1.95 COL 129 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 13 BY .95
+     eb.spare-int-3 AT ROW 1.95 COL 142.8 COLON-ALIGNED HELP
+          "" NO-LABEL WIDGET-ID 44 FORMAT ">>9"
+          VIEW-AS FILL-IN 
+          SIZE 6 BY 1 TOOLTIP "Enter Quantity of Case Materials Per Case"     
      eb.layer-pad AT ROW 2.91 COL 87 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 17 BY 1

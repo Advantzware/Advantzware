@@ -64,8 +64,8 @@ END.
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnSetSize btn-close ed-scr-view widthSize ~
-heightSize btn-font btn-print btn-save 
+&Scoped-Define ENABLED-OBJECTS btnMinimize btnMaximize ed-scr-view btnApply ~
+widthSize heightSize btn-close btn-font btn-print btn-save 
 &Scoped-Define DISPLAYED-OBJECTS ed-scr-view widthSize heightSize 
 
 /* Custom List Definitions                                              */
@@ -101,10 +101,20 @@ DEFINE BUTTON btn-save
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Save As".
 
-DEFINE BUTTON btnSetSize 
+DEFINE BUTTON btnApply 
      IMAGE-UP FILE "Graphics/32x32/arrow_spread.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 8 BY 1.91 TOOLTIP "Set Size".
+     SIZE 8 BY 1.91 TOOLTIP "Apply".
+
+DEFINE BUTTON btnMaximize 
+     IMAGE-UP FILE "Graphics/32x32/arrow_spread2.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8 BY 1.91 TOOLTIP "Maximize".
+
+DEFINE BUTTON btnMinimize 
+     IMAGE-UP FILE "Graphics/32x32/arrow_join2.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8 BY 1.91 TOOLTIP "Minimize".
 
 DEFINE VARIABLE ed-scr-view AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL LARGE
@@ -129,11 +139,13 @@ DEFINE VARIABLE widthSize AS INTEGER INITIAL 0
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     btnSetSize AT ROW 27.43 COL 40 WIDGET-ID 18
-     btn-close AT ROW 27.43 COL 152
+     btnMinimize AT ROW 27.43 COL 96 WIDGET-ID 22
+     btnMaximize AT ROW 27.43 COL 87 WIDGET-ID 20
      ed-scr-view AT ROW 1 COL 2 NO-LABEL
+     btnApply AT ROW 27.43 COL 40 WIDGET-ID 18
      widthSize AT ROW 27.43 COL 2 NO-LABEL WIDGET-ID 14
      heightSize AT ROW 27.43 COL 49 NO-LABEL WIDGET-ID 16
+     btn-close AT ROW 27.43 COL 152
      btn-font AT ROW 27.43 COL 144
      btn-print AT ROW 27.43 COL 128
      btn-save AT ROW 27.43 COL 136
@@ -269,24 +281,41 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnSetSize
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSetSize D-Dialog
-ON CHOOSE OF btnSetSize IN FRAME D-Dialog
+&Scoped-define SELF-NAME btnApply
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnApply D-Dialog
+ON CHOOSE OF btnApply IN FRAME D-Dialog
 DO:
-    DEFINE VARIABLE saveHeightSize AS INTEGER NO-UNDO.
-    DEFINE VARIABLE saveWidthSize  AS INTEGER NO-UNDO.
+    RUN pWinReSize (heightSize, widthSize).
+END.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnMaximize
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMaximize D-Dialog
+ON CHOOSE OF btnMaximize IN FRAME D-Dialog
+DO:
     ASSIGN
-        saveHeightSize = FRAME {&FRAME-NAME}:HEIGHT
-        saveWidthSize  = FRAME {&FRAME-NAME}:WIDTH
+        heightSize = SESSION:HEIGHT - 1
+        widthSize  = SESSION:WIDTH
         .
     RUN pWinReSize (heightSize, widthSize).
-    MESSAGE 
-        "Save these Settings?"
-    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
-    UPDATE lSave AS LOGICAL.
-    IF lSave EQ NO THEN
-    RUN pWinReSize (saveHeightSize, saveWidthSize).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnMinimize
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMinimize D-Dialog
+ON CHOOSE OF btnMinimize IN FRAME D-Dialog
+DO:
+    ASSIGN
+        heightSize = heightSize:MIN-VALUE
+        widthSize  = widthSize:MIN-VALUE
+        .
+    RUN pWinReSize (heightSize, widthSize).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -354,6 +383,10 @@ IF notepad-log THEN DO:
         END.  /* not avail usergrps */
     END. /* else do  notepad-chr = "" */
 END.  /* if notepad-log */
+ASSIGN
+    heightSize:MAX-VALUE = SESSION:HEIGHT - 1
+    widthSize:MAX-VALUE  = SESSION:WIDTH
+    .
 RUN pGetSettings.
 ed-scr-view:READ-FILE(list-name).
 
@@ -430,8 +463,8 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY ed-scr-view widthSize heightSize 
       WITH FRAME D-Dialog.
-  ENABLE btnSetSize btn-close ed-scr-view widthSize heightSize btn-font 
-         btn-print btn-save 
+  ENABLE btnMinimize btnMaximize ed-scr-view btnApply widthSize heightSize 
+         btn-close btn-font btn-print btn-save 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -560,9 +593,11 @@ PROCEDURE pWinReSize :
             FRAME {&FRAME-NAME}:WIDTH  = ipdWidth
             ed-scr-view:HEIGHT         = FRAME {&FRAME-NAME}:HEIGHT - 4.2
             ed-scr-view:WIDTH          = FRAME {&FRAME-NAME}:WIDTH  - 3
-            btnSetSize:ROW             = FRAME {&FRAME-NAME}:HEIGHT - 3
-            heightSize:ROW             = btnSetSize:ROW
-            widthSize:ROW              = btnSetSize:ROW
+            btnApply:ROW               = FRAME {&FRAME-NAME}:HEIGHT - 3
+            heightSize:ROW             = btnApply:ROW
+            widthSize:ROW              = btnApply:ROW
+            btnMaximize:ROW            = btnApply:ROW
+            btnMinimize:ROW            = btnApply:ROW
             RECT-1:ROW                 = FRAME {&FRAME-NAME}:HEIGHT - 2.94
             btn-print:ROW              = RECT-1:ROW    + .24
             btn-save:ROW               = btn-print:ROW

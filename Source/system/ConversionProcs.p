@@ -18,7 +18,7 @@ DEFINE TEMP-TABLE ttUOM
     FIELD uom                 AS CHARACTER
     FIELD uomBase             AS CHARACTER
     FIELD multiplierToBase    AS DECIMAL
-    FIELD uomDescription      AS CHARACTER
+    FIELD uomDescription      AS CHARACTER 
     FIELD canUseOrderQuantity AS LOGICAL 
     FIELD canUsePOQuantity    AS LOGICAL
     FIELD canUseStockQuantity AS LOGICAL
@@ -678,6 +678,8 @@ PROCEDURE pAddUOMsFromDimensions PRIVATE:
             RUN pAddUOM("MSI", YES, "EA", "Thousand Square Inches", 1000 / fGetSqin(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost", ipiSourceLevel).
             RUN pAddUOM("MSF", YES, "EA", "Thousand Square Feet", 1000 / fGetSqft(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost", ipiSourceLevel ).
             RUN pAddUOM("SF", YES, "EA", "Square Feet", 1 / fGetSqft(ipdLength, ipdWidth, ipcDimUOM), ipcSource, "Cost", ipiSourceLevel).
+            IF ipdDepth GT 0 THEN 
+                RUN pAddUOM("BF", YES, "EA", "Board Feet", 1 / (fGetSqft(ipdLength, ipdWidth, ipcDimUOM) * fGetInches(ipdDepth,ipcDimUOM)), ipcSource, "Cost", ipiSourceLevel).    
         END.  /*Width GT 0*/
     END. /*Length GT 0*/
     

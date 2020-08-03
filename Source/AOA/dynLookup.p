@@ -69,6 +69,10 @@ ASSIGN
     cWhereClause = REPLACE(cWhereClause,"WHERE ","")
     cWhereClause = TRIM(cWhereClause)
     .
+
+IF INDEX(cWhereClause,"[[") NE 0 THEN
+RUN pInitParamValues (cWhereClause).
+
 /* replace [[parameter]] with parameter value */
 {AOA/includes/cQueryStr.i cWhereClause}
 cWhereClause = cQueryStr.
@@ -84,8 +88,8 @@ FOR EACH dynValueColumn NO-LOCK
     cFieldName = dynValueColumn.colName.
     ELSE
     ASSIGN
-        cTableName      = ENTRY(1,dynValueColumn.colName,".")
-        cFieldName      = ENTRY(2,dynValueColumn.colName,".")
+        cTableName = ENTRY(1,dynValueColumn.colName,".")
+        cFieldName = ENTRY(2,dynValueColumn.colName,".")
         .
     cRequiredFields = cRequiredFields + cFieldName + ",".
     IF dynValueColumn.sortOrder EQ 1 THEN
@@ -159,3 +163,50 @@ ELSE DO:
         OUTPUT oprRecID
         ).
 END. /* else */
+
+/* **********************  Internal Procedures  *********************** */
+
+PROCEDURE pInitParamValues:
+    DEFINE INPUT PARAMETER ipcWhereClause AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cInitItems   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParam       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hDynInitProc AS HANDLE    NO-UNDO.
+
+    DEFINE BUFFER bDynValueParam FOR dynValueParam.
+
+    RUN AOA/spDynInitializeProc.p PERSISTENT SET hDynInitProc.
+
+    FOR EACH dynValueParam NO-LOCK
+        WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
+          AND dynValueParam.user-id      EQ dynParamValue.user-id
+          AND dynValueParam.prgmName     EQ dynParamValue.prgmName
+          AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
+        :
+        cParam = "[[" + dynValueParam.paramName + "]]".
+        IF INDEX(ipcWhereClause,cParam) EQ 0 THEN NEXT.
+        FOR EACH dynValueParamSet NO-LOCK
+            WHERE dynValueParamSet.subjectID    EQ dynValueParam.subjectID
+              AND dynValueParamSet.user-id      EQ dynValueParam.user-id
+              AND dynValueParamSet.prgmName     EQ dynValueParam.prgmName
+              AND dynValueParamSet.paramValueID EQ dynValueParam.paramValueID,
+            FIRST dynParamSet NO-LOCK
+            WHERE dynParamSet.paramSetID EQ dynValueParamSet.paramSetID,
+            FIRST dynParamSetDtl NO-LOCK
+            WHERE dynParamSetDtl.paramSetID     EQ dynParamSet.paramSetID
+              AND dynParamSetDtl.paramName      EQ dynValueParam.paramName
+              AND dynParamSetDtl.initializeProc NE ""
+            :
+            RUN VALUE(dynParamSetDtl.initializeProc) IN hDynInitProc.
+            cInitItems = RETURN-VALUE.
+            DO TRANSACTION:
+                FIND CURRENT dynValueParam EXCLUSIVE-LOCK.
+                dynValueParam.paramValue = cInitItems.
+                FIND CURRENT dynValueParam NO-LOCK.
+            END. /* do trans */
+        END. /* each dynvalueparam */
+    END. /* each dynvalueparam */
+    
+    DELETE PROCEDURE hDynInitProc.
+
+END PROCEDURE.

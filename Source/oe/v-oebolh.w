@@ -109,7 +109,7 @@ DEFINE QUERY external_tables FOR oe-bolh.
 &Scoped-Define ENABLED-FIELDS oe-bolh.bol-no oe-bolh.bol-date ~
 oe-bolh.carrier oe-bolh.ship-id oe-bolh.trailer oe-bolh.frt-pay ~
 oe-bolh.airway-bill oe-bolh.freight oe-bolh.cwt oe-bolh.tot-wt ~
-oe-bolh.tot-pallets 
+oe-bolh.tot-pallets oe-bolh.quotedFreight oe-bolh.quoteNote
 &Scoped-define ENABLED-TABLES oe-bolh
 &Scoped-define FIRST-ENABLED-TABLE oe-bolh
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 RECT-2 
@@ -117,7 +117,7 @@ oe-bolh.tot-pallets
 oe-bolh.stat oe-bolh.release# oe-bolh.cust-no oe-bolh.carrier ~
 oe-bolh.ship-id oe-bolh.trailer oe-bolh.frt-pay oe-bolh.airway-bill ~
 oe-bolh.freight oe-bolh.cwt oe-bolh.tot-wt oe-bolh.tot-pallets ~
-oe-bolh.user-id oe-bolh.upd-date 
+oe-bolh.user-id oe-bolh.upd-date oe-bolh.quotedFreight oe-bolh.quoteNote
 &Scoped-define DISPLAYED-TABLES oe-bolh
 &Scoped-define FIRST-DISPLAYED-TABLE oe-bolh
 &Scoped-Define DISPLAYED-OBJECTS tgSigned cust_name ship_name cust_addr1 ~
@@ -239,6 +239,14 @@ DEFINE FRAME F-Main
      oe-bolh.bol-date AT ROW 1.24 COL 37 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
+     oe-bolh.quotedFreight AT ROW 2.30 COL 40 COLON-ALIGNED
+          LABEL "Quoted Freight" FORMAT "->>,>>>,>>9.99"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1 
+     oe-bolh.quoteNote AT ROW 2.30 COL 72 COLON-ALIGNED
+          LABEL "Quoted Note" FORMAT "x(32)"
+          VIEW-AS FILL-IN 
+          SIZE 33 BY 1    
      oe-bolh.stat AT ROW 2.33 COL 121 COLON-ALIGNED HELP
           "Order Status (R)eleased or (H)old"
           LABEL "BOL Status" FORMAT "x(20)"
@@ -441,7 +449,11 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-bolh.upd-date IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN oe-bolh.user-id IN FRAME F-Main
-   NO-ENABLE EXP-LABEL                                                  */
+   NO-ENABLE EXP-LABEL                                                  */      
+/* SETTINGS FOR FILL-IN oe-bolh.quotedFreight IN FRAME F-Main
+   EXP-LABEL EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN oe-bolh.quoteNote IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */   
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
