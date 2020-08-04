@@ -7878,10 +7878,14 @@ PROCEDURE setFarmTab :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lFarmtabEnable as logical no-undo.
   IF NOT AVAILABLE eb THEN RETURN.
   {methods/run_link.i "CONTAINER-SOURCE" "get-attribute" "('current-page':U)"}
+  lFarmtabEnable = eb.pur-man .
+  IF AVAIL est AND  est.estimateTypeID = "MISC"  THEN 
+   lFarmtabEnable = TRUE. 
   IF INTEGER(RETURN-VALUE) EQ 2 THEN
-  {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(eb.pur-man)"}
+  {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(lFarmtabEnable)"}
 
 END PROCEDURE.
 
