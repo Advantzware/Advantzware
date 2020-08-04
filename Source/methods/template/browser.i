@@ -323,6 +323,7 @@ PROCEDURE local-initialize :
     {custom/usrprint.i}
     ll-order-set = YES.
     RUN clear_auto_find.
+    IF NOT browse-order:HIDDEN THEN
     RUN change-order (browse-order:SCREEN-VALUE).
   END.
 
