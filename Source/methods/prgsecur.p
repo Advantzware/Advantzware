@@ -55,6 +55,7 @@ IF ip-group-override THEN DO:
         IF CAN-DO(usergrps.users,USERID("ASI")) THEN
         v_groups = v_groups + usergrps.usergrps + ",".  /* YSK "," added  */
     END.
+    v_groups = TRIM(v_groups,",").
 END.
 ELSE
 v_groups = g_groups.
@@ -93,13 +94,13 @@ IF AVAILABLE b-prgrms THEN DO:
            NOT CAN-DO(REPLACE(b-prgrms.can_create," ",""),ENTRY(num-groups,v_groups)) AND
            NOT CAN-DO(REPLACE(b-prgrms.can_delete," ",""),ENTRY(num-groups,v_groups)) THEN
         NEXT.    
-        IF NOT v-can-run    AND CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   ENTRY(num-groups,g_groups)) THEN
+        IF NOT v-can-run    AND CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   ENTRY(num-groups,v_groups)) THEN
         v-can-run    = YES.
-        IF NOT v-can-update AND CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),ENTRY(num-groups,g_groups)) THEN
+        IF NOT v-can-update AND CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),ENTRY(num-groups,v_groups)) THEN
         v-can-update = YES.
-        IF NOT v-can-create AND CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),ENTRY(num-groups,g_groups)) THEN
+        IF NOT v-can-create AND CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),ENTRY(num-groups,v_groups)) THEN
         v-can-create = YES.
-        IF NOT v-can-delete AND CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),ENTRY(num-groups,g_groups)) THEN
+        IF NOT v-can-delete AND CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),ENTRY(num-groups,v_groups)) THEN
         v-can-delete = YES.
         group-ok     = YES.
         CASE ip-basis:
