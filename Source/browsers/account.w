@@ -610,7 +610,7 @@ PROCEDURE local-open-query:
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
-/*  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .*/
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN
