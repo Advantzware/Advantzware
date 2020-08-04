@@ -32,7 +32,8 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE sizeOption HEIGHT
+&SCOPED-DEFINE browseOnly
+&SCOPED-DEFINE repositionBrowse
 &SCOPED-DEFINE useMatches
 {methods/defines/winReSize.i}
 
@@ -293,10 +294,9 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB B-table-Win 
 /* ************************* Included-Libraries *********************** */
-{src/adm/method/navbrows.i}
-/*{src/adm/method/browser.i}
+
+{src/adm/method/browser.i}
 {src/adm/method/query.i}
-{methods/template/browser.i}*/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
