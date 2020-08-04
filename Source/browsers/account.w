@@ -46,7 +46,6 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
 
-DEFINE VARIABLE char-hdl                AS CHAR NO-UNDO.
 DEFINE VARIABLE ll-first                AS LOG  INIT YES NO-UNDO.
 DEFINE VARIABLE ll-show-all             AS LOG  NO-UNDO.
 DEFINE VARIABLE ll-sort-asc             AS LOG  INIT YES NO-UNDO.
@@ -55,7 +54,6 @@ DEFINE VARIABLE lv-sort-by              AS CHAR INIT "actnum" NO-UNDO.
 DEFINE VARIABLE lv-sort-by-lab          AS CHAR INIT "Account No" NO-UNDO.
 DEFINE VARIABLE lvFirstRowID            AS ROWID NO-UNDO.
 DEFINE VARIABLE lvLastRowID             AS ROWID NO-UNDO.
-DEFINE VARIABLE phandle                 AS HANDLE NO-UNDO.
 
 ASSIGN 
     cocode = g_company
@@ -142,7 +140,7 @@ account.type account.inactive account.SalesReport account.CommReport
 &Scoped-Define ENABLED-OBJECTS RECT-7 fi_account fi_desc fi_type ~
 tb_inactive tb_sales-report tb_comm-report btn_go btn_show Browser-Table 
 &Scoped-Define DISPLAYED-OBJECTS fi_account fi_desc fi_type tb_inactive ~
-tb_sales-report tb_comm-report fi_sort-by
+tb_sales-report tb_comm-report fi_sort-by browse-order auto_find
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -206,7 +204,23 @@ DEFINE VARIABLE tb_sales-report AS LOGICAL
 DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 34.6 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.     
+     BGCOLOR 14 FONT 6 NO-UNDO. 
+     
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 73 BY 1 NO-UNDO. 
+     
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Auto Find" 
+     VIEW-AS FILL-IN 
+     SIZE 34 BY 1 NO-UNDO.  
+     
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear Find" 
+     SIZE 13 BY 1
+     FONT 4.     
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -252,6 +266,12 @@ DEFINE FRAME F-Main
      btn_show AT ROW 2.76 COL 18.4 WIDGET-ID 10
      Browser-Table AT ROW 3.95 COL 1.4 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     browse-order AT ROW 19.33 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL 
+     auto_find AT ROW 19.33 COL 89 COLON-ALIGNED HELP
+          "Enter Auto Find Value" 
+     Btn_Clear_Find AT ROW 19.33 COL 126 HELP
+          "CLEAR AUTO FIND Value"          
      fi_sort-by AT ROW 2.60 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      RECT-7 AT ROW 1 COL 1 WIDGET-ID 52
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -297,6 +317,7 @@ END.
 
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
+{methods/template/browser.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -315,11 +336,26 @@ END.
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
-
+       
+/* SETTINGS FOR FILL-IN auto_find IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       auto_find:HIDDEN IN FRAME F-Main           = TRUE.       
+/* SETTINGS FOR RADIO-SET browse-order IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       browse-order:HIDDEN IN FRAME F-Main           = TRUE.   
+       
 ASSIGN 
        Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
                 "2"
        Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
+
+/* SETTINGS FOR BUTTON Btn_Clear_Find IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       Btn_Clear_Find:HIDDEN IN FRAME F-Main           = TRUE.
+
 
 /* SETTINGS FOR FILL-IN fi_sort-by IN FRAME F-Main
     NO-ENABLE                                                 */
@@ -649,96 +685,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-get-first B-table-Win 
-PROCEDURE local-get-first :
-/*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'get-first':U ) .
-
-/* Code placed here will execute AFTER standard behavior.    */
-/*{methods/template/local/setvalue.i}*/
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-get-last B-table-Win 
-PROCEDURE local-get-last :
-/*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'get-last':U ) . 
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-get-next B-table-Win 
-PROCEDURE local-get-next :
-/*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'get-next':U ) .
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-get-prev B-table-Win 
-PROCEDURE local-get-prev :
-/*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'get-prev':U ) . 
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
-PROCEDURE local-initialize :
-/*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-  
-    APPLY 'ENTRY':U TO fi_account IN FRAME {&FRAME-NAME}.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
@@ -964,19 +910,6 @@ PROCEDURE set-defaults :
             fi_type = ""
             .        
     END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-focus B-table-Win 
-PROCEDURE set-focus :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
 
 END PROCEDURE.
 
