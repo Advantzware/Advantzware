@@ -158,6 +158,12 @@ PROCEDURE pPostcXML PRIVATE:
     DEFINE VARIABLE errorStatus   AS INTEGER   NO-UNDO.
     DEFINE VARIABLE ccXMLOrder    AS CHARACTER NO-UNDO INITIAL "cXMLOrder".  
     DEFINE VARIABLE ccXML         AS CHARACTER NO-UNDO INITIAL "cXML".
+
+    DEFINE VARIABLE cResponse             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAPIInboundEventRowID AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound                AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cOEImport             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lcRequestData         AS LONGCHAR  NO-UNDO.
     
     INPUT FROM OS-DIR(ipcMonitorImportDir) NO-ECHO.
     REPEAT:
@@ -203,8 +209,51 @@ PROCEDURE pPostcXML PRIVATE:
             INPUT YES,
             INPUT monitorFile
             ).
-        
-        IF ipcXMLName EQ ccXMLOrder THEN DO:
+
+        RUN sys/ref/nk1look.p (
+            INPUT cocode, 
+            INPUT "OEImport", 
+            INPUT "I", 
+            INPUT NO, 
+            INPUT NO, 
+            INPUT "", 
+            INPUT "",
+            OUTPUT cOEImport, 
+            OUTPUT lFound
+            ).
+            
+        /* If OEImport NK1 Integer value is 1 use the new Order Import handlers through API framework */ 
+        IF lFound AND INTEGER(cOEImport) EQ 1 THEN DO:     
+            COPY-LOB FROM FILE cXMLFile TO lcRequestData.
+
+            FIND FIRST _user NO-LOCK 
+                 WHERE _user._userid = USERID("ASI")
+                 NO-ERROR.
+            IF AVAILABLE _user THEN DO:
+                RUN api/inbound/APIRequestRouterAS.p (
+                    INPUT  "/api/OrderImport",
+                    INPUT  "POST",
+                    INPUT  _user._userid,
+                    INPUT  _user._password,
+                    INPUT  "XML",
+                    INPUT  lcRequestData,
+                    INPUT  "Offline",     
+                    OUTPUT cResponse,
+                    OUTPUT cAPIInboundEventRowID
+                    ) NO-ERROR.
+               
+                FIND FIRST APIInboundEvent NO-LOCK 
+                     WHERE ROWID(APIInboundEvent) EQ TO-ROWID(cAPIInboundEventRowID) 
+                     NO-ERROR.
+                IF AVAILABLE APIInboundEvent THEN DO:
+                    returnValue = IF APIInboundEvent.success THEN 
+                                      "Success: " + APIInboundEvent.errormessage
+                                  ELSE
+                                      APIInboundEvent.errorMessage.
+                END.
+            END.
+        END.
+        ELSE IF ipcXMLName EQ ccXMLOrder THEN DO:
             RUN gencXMLOrder (
                 INPUT cXMLFile, 
                 INPUT NO /* temptable only*/, 
