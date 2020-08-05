@@ -1162,22 +1162,18 @@ with down no-box STREAM-IO width 132 frame ordm.
 
         if xoe-ord.f-bill THEN
           xoe-ord.t-revenue = xoe-ord.t-revenue + xoe-ord.t-freight.
-
-        RUN oe/FrtTaxAvail.p(xoe-ord.company,xoe-ord.tax-gr,OUTPUT v-fr-tax) .
-
-        if v-fr-tax THEN
-        do:
+                       
           RUN Tax_Calculate  (
                     INPUT  xoe-ord.company,
                     INPUT  xoe-ord.tax-gr,
-                    INPUT  FALSE,   /* Is this freight */
-                    INPUT  oe-ordm.amt,
-                    INPUT  oe-ordm.ord-i-no,
+                    INPUT  TRUE,   /* Is this freight */
+                    INPUT  xoe-ord.t-freight,
+                    INPUT  "",
                     OUTPUT dTaxAmount
                     ).
         
           xoe-ord.tax = xoe-ord.tax + round(dTaxAmount,2).
-        END.
+      
         IF xoe-ord.stat eq "H" then xoe-ord.posted = yes.
 
         ELSE

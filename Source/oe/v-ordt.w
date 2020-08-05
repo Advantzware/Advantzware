@@ -33,7 +33,6 @@ ASSIGN
  locode = g_loc.
 
 DEF VAR lv-prev-value AS CHAR NO-UNDO.
-DEFINE VARIABLE lTaxOnFreight       LIKE oe-ctrl.f-tax INIT NO NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
@@ -265,8 +264,7 @@ DO:
              (DEC(oe-ord.t-freight:SCREEN-VALUE) *
               (IF oe-ord.f-bill:SCREEN-VALUE EQ "Y" THEN 1 ELSE -1))).
         
-  IF lTaxOnFreight THEN
-  DO:
+ 
      RUN Tax_Calculate(INPUT oe-ord.company,
                            INPUT oe-ord.tax-gr,
                            INPUT TRUE,
@@ -278,7 +276,7 @@ DO:
         STRING(DEC(oe-ord.tax:SCREEN-VALUE) +
                (ROUND(dFrtTaxAmount,2) *
                 (IF oe-ord.f-bill:SCREEN-VALUE EQ "Y" THEN 1 ELSE -1))).
-  END.
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -335,8 +333,7 @@ DO:
                DEC(oe-ord.t-freight:SCREEN-VALUE) -
                DEC(lv-prev-value)).
         
-    IF lTaxOnFreight THEN
-    DO:
+    
        RUN Tax_Calculate(INPUT oe-ord.company,
                            INPUT oe-ord.tax-gr,
                            INPUT TRUE,
@@ -354,7 +351,7 @@ DO:
           STRING(DEC(oe-ord.tax:SCREEN-VALUE) +
                  ROUND(dFrtTaxAmount,2) -
                  ROUND(dPrevFreValue,2)).
-     END.
+     
   END.
 
   lv-prev-value = oe-ord.t-freight:SCREEN-VALUE.
@@ -667,11 +664,7 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  IF AVAIL oe-ord THEN do:         
-
-     RUN oe/FrtTaxAvail.p(oe-ord.company,oe-ord.tax-gr,OUTPUT lTaxOnFreight) .
-  END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
