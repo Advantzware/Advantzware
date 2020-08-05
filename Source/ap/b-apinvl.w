@@ -2799,8 +2799,8 @@ PROCEDURE update-header :
   DEF INPUT PARAM ip-overwrite-tax AS LOG NO-UNDO.
 
   DEF VAR ld AS DEC NO-UNDO.
-  DEF VAR v-tax-rate AS DEC NO-UNDO.
-  DEF VAR v-frt-tax-rate AS DEC NO-UNDO.
+  DEFINE VARIABLE dTaxAmount AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dFrtTaxAmount AS DECIMAL NO-UNDO.
 
   DEF BUFFER b-ap-inv  FOR ap-inv.
   DEF BUFFER b-ap-invl FOR ap-invl.
@@ -2815,18 +2815,24 @@ PROCEDURE update-header :
 
     ASSIGN
      b-ap-inv.net     = 0
-     b-ap-inv.freight = 0.
-
-    IF b-ap-inv.tax-gr NE "" THEN
-      RUN ar/cctaxrt.p (b-ap-inv.company, b-ap-inv.tax-gr,
-                        OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
+     b-ap-inv.freight = 0.     
 
     FOR EACH b-ap-invl WHERE b-ap-invl.i-no EQ b-ap-inv.i-no NO-LOCK:
       b-ap-inv.net = b-ap-inv.net + b-ap-invl.amt.
 
       IF b-ap-invl.tax AND NOT ip-overwrite-tax THEN
-        b-ap-inv.tax-amt = b-ap-inv.tax-amt +
-                           ROUND((b-ap-invl.amt * v-tax-rate / 100),2).
+      DO:
+        dTaxAmount = 0.
+        IF b-ap-inv.tax-gr NE "" THEN
+          RUN Tax_Calculate(INPUT b-ap-inv.company,
+                            INPUT b-ap-inv.tax-gr,
+                            INPUT FALSE,
+                            INPUT b-ap-invl.amt,
+                            INPUT "", 
+                            OUTPUT dTaxAmount).  
+        
+        b-ap-inv.tax-amt = b-ap-inv.tax-amt + ROUND(dTaxAmount,2).
+      END.
 
       IF b-ap-invl.po-no NE 0 THEN DO:
         FIND FIRST po-ordl
@@ -2842,10 +2848,16 @@ PROCEDURE update-header :
         END.
       END.
     END.
-
+                                                
+    RUN Tax_Calculate(INPUT b-ap-inv.company,
+                      INPUT b-ap-inv.tax-gr,
+                      INPUT TRUE,
+                      INPUT b-ap-inv.freight,
+                      INPUT "", 
+                      OUTPUT dFrtTaxAmount).
     ASSIGN
      b-ap-inv.tax-amt = b-ap-inv.tax-amt +
-                        ROUND((b-ap-inv.freight * v-frt-tax-rate / 100),2)
+                        ROUND(dFrtTaxAmount,2)
      b-ap-inv.net     = b-ap-inv.net + b-ap-inv.tax-amt
      b-ap-inv.due     = b-ap-inv.net - b-ap-inv.disc-taken -
                         b-ap-inv.paid + b-ap-inv.freight.

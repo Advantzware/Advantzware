@@ -534,12 +534,11 @@ PROCEDURE OrderLineCloseSet :
     DEFINE INPUT  PARAMETER iplClose AS LOGICAL     NO-UNDO.
 
     DEFINE VARIABLE iNegativeIfClosing          AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dUnshippedOrderLineQty      AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dTaxRate                    AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dTaxRateFreight             AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dUnshippedOrderLineQty      AS DECIMAL NO-UNDO.    
     DEFINE VARIABLE dUnshippedOrderLineQtyValue AS DECIMAL INIT 0 NO-UNDO.
     DEFINE VARIABLE iUomMult                    AS INTEGER NO-UNDO.
-
+    DEFINE VARIABLE dTaxAmount                  AS DECIMAL NO-UNDO.
+    
     DISABLE TRIGGERS FOR LOAD OF itemfg.
 
     iNegativeIfClosing = IF iplClose THEN -1 ELSE 1.
@@ -617,10 +616,15 @@ PROCEDURE OrderLineCloseSet :
                 dUnshippedOrderLineQtyValue = dUnshippedOrderLineQtyValue - (dUnshippedOrderLineQtyValue * oe-ordl.disc / 100)
                 .
             IF oe-ordl.tax THEN 
-            DO:
-                RUN ar/cctaxrt.p (INPUT oe-ord.company, oe-ord.tax-gr,
-                    OUTPUT dTaxRate, OUTPUT dTaxRateFreight).
-                dUnshippedOrderLineQtyValue = dUnshippedOrderLineQtyValue + (dUnshippedOrderLineQtyValue * dTaxRate / 100).
+            DO:                 
+                dTaxAmount = 0.
+                RUN Tax_Calculate(INPUT oe-ord.company, 
+                                  INPUT oe-ord.tax-gr,
+                                  INPUT FALSE,
+                                  INPUT dUnshippedOrderLineQtyValue,
+                                  INPUT oe-ordl.i-no, 
+                                  OUTPUT dTaxAmount).    
+                dUnshippedOrderLineQtyValue = dUnshippedOrderLineQtyValue + (dTaxAmount).
             END.
             cust.ord-bal = cust.ord-bal + (dUnshippedOrderLineQtyValue * iNegativeIfClosing).
         END. /*avail cust*/

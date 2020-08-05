@@ -769,7 +769,6 @@ PROCEDURE list-post :
 ------------------------------------------------------------------------------*/
 DEF INPUT PARAMETER ip-list-post AS CHAR NO-UNDO.
 
-def var v-tax-rate as dec format ">,>>9.99<<<".
 DEF VAR v-tax-amt AS DEC NO-UNDO INIT 0.
 def var v-inv as log init no.
 def var v-ship as log init no.
@@ -783,8 +782,9 @@ def var v-g-tot-ord as dec format "->>,>>>,>>9.99".
 def var v-g-tot-qty as int format "->>,>>>,>>9".
 def var v-g-del-tot-ord as dec format "->>,>>>,>>9.99".
 def var v-g-del-tot-qty as int format "->>,>>>,>>9".
-DEF VAR v-freight-rate  AS DECIMAL NO-UNDO.  /* this variable is set and ignored, not used in calcs */
 DEF VAR v-q-back LIKE itemfg.q-back NO-UNDO.
+DEFINE VARIABLE dTaxAmount     AS DECIMAL format ">,>>9.99<<<" NO-UNDO.
+
 form
   xoe-ord.ord-no xoe-ord.est-no xoe-ord.job-no space(0) "-" space(0)
   xoe-ord.job-no2 format "99"
@@ -821,9 +821,7 @@ with down no-box STREAM-IO width 132 frame ordm.
       first cust {sys/ref/custW.i} and cust.cust-no eq xoe-ord.cust-no NO-LOCK
 
       by tt-report.key-01:
-
-      RUN ar/cctaxrt.p (cocode,xoe-ord.tax-gr, OUTPUT v-tax-rate, OUTPUT v-freight-rate /* ignored */).
-
+            
       /******* CALCULATE TOTALS FOR ORDER ***************/
       assign
        v-postable = yes
@@ -886,9 +884,17 @@ with down no-box STREAM-IO width 132 frame ordm.
                         (round(oe-ordl.t-freight / oe-ordl.qty, 2) * v-qty-lft).
 
                                            /** CALCULATE TAX CHARGES **/
-        if oe-ordl.tax and v-tax-rate > 0 then assign
-          v-tot-tax = v-tot-tax +
-                                round((v-ext-price * v-tax-rate) / 100,2).
+        if oe-ordl.tax THEN 
+        do:               
+         RUN Tax_Calculate(INPUT cocode,
+                           INPUT xoe-ord.tax-gr,
+                           INPUT FALSE,
+                           INPUT v-ext-price,
+                           INPUT oe-ordl.i-no, 
+                           OUTPUT dTaxAmount).
+          assign
+          v-tot-tax = v-tot-tax + round(dTaxAmount,2).
+        END.
 
         create w-ord-line.
         assign
@@ -917,8 +923,16 @@ with down no-box STREAM-IO width 132 frame ordm.
         if oe-ordm.bill EQ "Y" then do:
           v-tot-ord = v-tot-ord + oe-ordm.amt.
 
-          if oe-ordm.tax and v-tax-rate > 0 THEN
-            v-tot-tax = v-tot-tax + round((oe-ordm.amt * v-tax-rate) / 100,2).
+          if oe-ordm.tax THEN
+          DO:    
+            RUN Tax_Calculate(cocode,
+                              xoe-ord.tax-gr,
+                              FALSE,
+                              oe-ordm.amt,
+                              "", 
+                              OUTPUT dTaxAmount).
+            v-tot-tax = v-tot-tax + round(dTaxAmount,2).
+          END.
         end. /* = "Y" */
 
         create w-ord-misc.
@@ -1083,9 +1097,7 @@ with down no-box STREAM-IO width 132 frame ordm.
      first cust {sys/ref/custW.i} and cust.cust-no eq xoe-ord.cust-no
 
      by tt-report.key-01:
-
-     RUN ar/cctaxrt.p (cocode,xoe-ord.tax-gr, OUTPUT v-tax-rate, OUTPUT v-freight-rate /* ignored */).
-
+          
      DO TRANSACTION:
         assign
          xoe-ord.t-comm    = 0
@@ -1106,8 +1118,7 @@ with down no-box STREAM-IO width 132 frame ordm.
            xoe-ord.t-revenue = xoe-ord.t-revenue + oe-ordl.t-price
            xoe-ord.t-cost    = xoe-ord.t-cost    + oe-ordl.t-cost.
 
-          if oe-ordl.tax and v-tax-rate gt 0 THEN DO:
-
+          if oe-ordl.tax  THEN DO: 
               RUN Tax_Calculate  (
                   INPUT  xoe-ord.company,
                   INPUT  xoe-ord.tax-gr,
@@ -1130,7 +1141,7 @@ with down no-box STREAM-IO width 132 frame ordm.
           IF oe-ordm.bill EQ "Y" THEN do:
             xoe-ord.t-revenue = xoe-ord.t-revenue + oe-ordm.amt.
 
-            if oe-ordm.tax and v-tax-rate gt 0 THEN DO:
+            if oe-ordm.tax THEN DO:
                 RUN Tax_Calculate  (
                     INPUT  xoe-ord.company,
                     INPUT  xoe-ord.tax-gr,
@@ -1155,9 +1166,18 @@ with down no-box STREAM-IO width 132 frame ordm.
         RUN oe/FrtTaxAvail.p(xoe-ord.company,xoe-ord.tax-gr,OUTPUT v-fr-tax) .
 
         if v-fr-tax THEN
-          xoe-ord.tax = xoe-ord.tax +
-                       round((xoe-ord.t-freight * v-tax-rate) / 100,2).
-
+        do:
+          RUN Tax_Calculate  (
+                    INPUT  xoe-ord.company,
+                    INPUT  xoe-ord.tax-gr,
+                    INPUT  FALSE,   /* Is this freight */
+                    INPUT  oe-ordm.amt,
+                    INPUT  oe-ordm.ord-i-no,
+                    OUTPUT dTaxAmount
+                    ).
+        
+          xoe-ord.tax = xoe-ord.tax + round(dTaxAmount,2).
+        END.
         IF xoe-ord.stat eq "H" then xoe-ord.posted = yes.
 
         ELSE

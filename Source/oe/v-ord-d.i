@@ -10,8 +10,6 @@ def var v-tot-freight like oe-ord.t-freight no-undo.
 def var v-qty-lft like oe-ordl.qty no-undo.
 def var v-new-ord as logical initial NO no-undo.
 def var v-ext-price like oe-ordl.t-price no-undo.
-def var v-tax-rate as dec format "->>>.99" no-undo.
-def var v-frt-tax-rate like v-tax-rate no-undo.
 def var v-period as INT no-undo.
 def var tmp-ordm-amt like oe-ordm.amt no-undo.
 def var tmp-tax like oe-ord.tax no-undo.
@@ -19,6 +17,8 @@ def var v-continue as LOG no-undo.
 def var v-blank-fg-on-est as INT no-undo.
 def var char-hdl as cha no-undo.
 DEF VAR loop-limit AS INT NO-UNDO.
+DEFINE VARIABLE dTaxAmount     AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dFrtTaxAmount  AS DECIMAL NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   IF CAN-FIND(FIRST ar-invl
@@ -199,9 +199,7 @@ DEF VAR loop-limit AS INT NO-UNDO.
     end. /* avail itemfg */
    
     FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
-    run ar/cctaxrt.p (input oe-ord.company, input oe-ord.tax-gr,
-                      output v-tax-rate, output v-frt-tax-rate).
-
+    
     assign
      v-qty-lft   = oe-ordl.qty - oe-ordl.inv-qty
      v-ext-price = 0.
@@ -241,13 +239,30 @@ DEF VAR loop-limit AS INT NO-UNDO.
                             (round(oe-ordl.t-freight / oe-ordl.qty, 2) *
                              v-qty-lft).
                                            /** calculate tax charges **/
-      if oe-ordl.tax and v-tax-rate gt 0 then assign
-        v-tot-tax = v-tot-tax + round((v-ext-price * v-tax-rate) / 100,2).
+      if oe-ordl.tax then
+      do:
+         RUN Tax_Calculate(INPUT oe-ord.company,
+                           INPUT oe-ord.tax-gr,
+                           INPUT FALSE,
+                           INPUT v-ext-price,
+                           INPUT oe-ordl.i-no, 
+                           OUTPUT dTaxAmount).
+        assign
+        v-tot-tax = v-tot-tax + round(dTaxAmount,2).
+      end.
     end. /* inv-qty ne 0 */
 
     if oe-ordl.tax then
+    do:
+       RUN Tax_Calculate(INPUT oe-ord.company,
+                           INPUT oe-ord.tax-gr,
+                           INPUT FALSE,
+                           INPUT v-ext-price,
+                           INPUT oe-ordl.i-no, 
+                           OUTPUT dTaxAmount).
       assign v-totord = (v-totord + v-ext-price +
-                         ROUND((v-ext-price * v-tax-rate) / 100,2)).
+                         ROUND(dTaxAmount,2)).
+    end.
     else
       assign v-totord = v-totord + v-ext-price.
 
@@ -257,11 +272,16 @@ DEF VAR loop-limit AS INT NO-UNDO.
           and oe-ordm.est-no  eq oe-ordl.est-no:
       if oe-ordm.bill eq "Y" then do:
         assign  v-totord = v-totord + oe-ordm.amt.
-        if oe-ordm.tax and v-tax-rate gt 0 then
-          assign v-tot-tax = (v-tot-tax +
-                             round((oe-ordm.amt * v-tax-rate) / 100,2))
-                 v-totord = (v-totord +
-                             round((oe-ordm.amt * v-tax-rate) / 100,2)).
+        if oe-ordm.tax then
+        do:
+          RUN Tax_Calculate(INPUT oe-ord.company,
+                           INPUT oe-ord.tax-gr,
+                           INPUT FALSE,
+                           INPUT oe-ordm.amt,
+                           INPUT oe-ordl.i-no, 
+                           OUTPUT dTaxAmount).
+          assign v-tot-tax = (v-tot-tax + round(dTaxAmount,2))
+                 v-totord = (v-totord + round(dTaxAmount,2)).
       end.
         
       if oe-ord.stat = "N" or oe-ord.stat = "A" or oe-ord.stat = "H" then
@@ -443,21 +463,26 @@ DEF VAR loop-limit AS INT NO-UNDO.
      END.
 
   FIND CURRENT itemfg NO-LOCK NO-ERROR.
-
-  RUN ar/cctaxrt.p (INPUT oe-ord.company, INPUT oe-ord.tax-gr,
-                    OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
-
+ 
   for each oe-ordm
       where oe-ordm.company eq oe-ord.company
         and oe-ordm.ord-no  eq oe-ord.ord-no:
     if oe-ordm.bill eq "Y" then do:
       v-totord = v-totord + oe-ordm.amt.
-      if oe-ordm.tax and v-tax-rate gt 0 then
+      if oe-ordm.tax then
+      do:
+         RUN Tax_Calculate(INPUT oe-ord.company,
+                           INPUT oe-ord.tax-gr,
+                           INPUT FALSE,
+                           INPUT oe-ordm.amt,
+                           INPUT oe-ordm.ord-i-no, 
+                           OUTPUT dTaxAmount).
         assign
          v-tot-tax = v-tot-tax +
-                     round((oe-ordm.amt * v-tax-rate) / 100,2)
+                     round(dTaxAmount,2)
          v-totord  = v-totord +
-                     round((oe-ordm.amt * v-tax-rate) / 100,2).
+                     round(dTaxAmount,2).
+       end.
     end.
          
     if index("NAH",oe-ord.stat) gt 0 then delete oe-ordm.
@@ -467,14 +492,30 @@ DEF VAR loop-limit AS INT NO-UNDO.
 
   if oe-ord.f-bill then do:
     if v-fr-tax then
+    do:
+      RUN Tax_Calculate(INPUT oe-ord.company,
+                           INPUT oe-ord.tax-gr,
+                           INPUT TRUE,
+                           INPUT oe-ord.t-freight,
+                           INPUT "", 
+                           OUTPUT dFrtTaxAmount).
       v-totord = (v-totord + oe-ord.t-freight +
-                  round((oe-ord.t-freight * v-frt-tax-rate) / 100,2)).
+                  round(dFrtTaxAmount,2)).
+    end. 
     else
       v-totord = v-totord + oe-ord.t-freight.
   end.
 
-  if v-fr-tax then
-    v-tot-tax = v-tot-tax + round((v-tot-freight * v-frt-tax-rate) / 100,2).
+  if v-fr-tax then 
+  do:
+    RUN Tax_Calculate(INPUT oe-ord.company,
+                           INPUT oe-ord.tax-gr,
+                           INPUT TRUE,
+                           INPUT v-tot-freight,
+                           INPUT "", 
+                           OUTPUT dFrtTaxAmount).
+    v-tot-tax = v-tot-tax + round(dFrtTaxAmount,2).
+   end.
 
   find first cust
       where cust.company eq oe-ord.company

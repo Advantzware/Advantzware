@@ -12,8 +12,7 @@ DEF BUFFER b-oe-rell FOR oe-rell.
 DEF VAR v-factor       AS   INT NO-UNDO.
 DEF VAR v-fin-qty      AS   INT NO-UNDO.
 DEF VAR v              AS   INT NO-UNDO.
-DEF VAR v-tax-rate     AS   DEC FORMAT ">,>>9.99" NO-UNDO.
-DEF VAR v-frt-tax-rate LIKE v-tax-rate NO-UNDO.
+DEFINE VARIABLE dTaxAmount AS DECIMAL FORMAT ">,>>9.99" NO-UNDO.
 DEF VAR print-log      AS   LOG NO-UNDO.
 DEF VAR close_date     AS DATE NO-UNDO.
 DEF STREAM print-log.
@@ -81,14 +80,18 @@ FOR EACH oe-ordl NO-LOCK
   END.
 END. /* for each oe-ordl */
 
-RUN ar/cctaxrt.p (INPUT oe-ord.company, oe-ord.tax-gr,
-                  OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
-
 /* add/remove misc cost from cust order balance */
 FOR EACH oe-ordm OF oe-ord WHERE oe-ordm.bill EQ "Y" NO-LOCK:
+  dTaxAmount = 0.
+  RUN Tax_Calculate(INPUT oe-ord.company, 
+                    INPUT oe-ord.tax-gr,
+                    INPUT FALSE,
+                    INPUT oe-ordm.cost,
+                    INPUT oe-ordm.charge,
+                    OUTPUT dTaxAmount).
   cust.ord-bal = cust.ord-bal + (oe-ordm.cost * v-factor).
   IF oe-ordm.tax THEN
-    cust.ord-bal = cust.ord-bal + ((oe-ordm.cost * v-tax-rate / 100) * v-factor).
+    cust.ord-bal = cust.ord-bal + (dTaxAmount * v-factor).
 END.
 
 /* delete any backorder releases */
