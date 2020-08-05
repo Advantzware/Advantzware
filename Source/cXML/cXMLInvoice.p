@@ -630,7 +630,7 @@ PROCEDURE pGenerateCXML PRIVATE:
         RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
         RUN cXMLOutput (clXMLOutput,'','Sales Tax','Col').
         RUN cXMLOutput (clXMLOutput,'/Description','','Row').
-        RUN cXMLOutput (clXMLOutput,'TaxDetail category="Sales Tax"'+
+        RUN cXMLOutput (clXMLOutput,'TaxDetail category="SalesTax"'+
             ' percentageRate="0"','','Row').
         RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').    
         RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
