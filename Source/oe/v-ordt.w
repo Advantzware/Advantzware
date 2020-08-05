@@ -32,13 +32,11 @@ ASSIGN
  cocode = g_company
  locode = g_loc.
 
-DEF VAR v-tax-rate AS DEC NO-UNDO.
-DEF VAR v-frt-tax-rate LIKE v-tax-rate NO-UNDO.
 DEF VAR lv-prev-value AS CHAR NO-UNDO.
-DEFINE VARIABLE lTaxOnFreight       LIKE oe-ctrl.f-tax INIT NO NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dFrtTaxAmount  AS DECIMAL NO-UNDO.
 SUBSCRIBE TO "DispOrdTot" ANYWHERE.
 {oe/oe-sysct1.i NEW}
 
@@ -266,11 +264,19 @@ DO:
              (DEC(oe-ord.t-freight:SCREEN-VALUE) *
               (IF oe-ord.f-bill:SCREEN-VALUE EQ "Y" THEN 1 ELSE -1))).
         
-  IF lTaxOnFreight THEN
+ 
+     RUN Tax_Calculate(INPUT oe-ord.company,
+                           INPUT oe-ord.tax-gr,
+                           INPUT TRUE,
+                           INPUT DEC(oe-ord.t-freight:SCREEN-VALUE),
+                           INPUT "", 
+                           OUTPUT dFrtTaxAmount).
+  
     oe-ord.tax:SCREEN-VALUE = 
         STRING(DEC(oe-ord.tax:SCREEN-VALUE) +
-               (ROUND(DEC(oe-ord.t-freight:SCREEN-VALUE) * v-frt-tax-rate / 100,2) *
+               (ROUND(dFrtTaxAmount,2) *
                 (IF oe-ord.f-bill:SCREEN-VALUE EQ "Y" THEN 1 ELSE -1))).
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -316,6 +322,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.t-freight V-table-Win
 ON VALUE-CHANGED OF oe-ord.t-freight IN FRAME F-Main /* Freight */
 DO:
+  DEFINE VARIABLE dPrevFreValue AS DECIMAL NO-UNDO. 
   oe-ord.t-cost:SCREEN-VALUE = STRING(DEC(oe-ord.t-cost:SCREEN-VALUE) +
                                       DEC(oe-ord.t-freight:SCREEN-VALUE) -
                                       DEC(lv-prev-value)).
@@ -326,11 +333,25 @@ DO:
                DEC(oe-ord.t-freight:SCREEN-VALUE) -
                DEC(lv-prev-value)).
         
-    IF lTaxOnFreight THEN
+    
+       RUN Tax_Calculate(INPUT oe-ord.company,
+                           INPUT oe-ord.tax-gr,
+                           INPUT TRUE,
+                           INPUT DEC(oe-ord.t-freight:SCREEN-VALUE),
+                           INPUT "", 
+                           OUTPUT dFrtTaxAmount).
+        RUN Tax_Calculate(INPUT oe-ord.company,
+                           INPUT oe-ord.tax-gr,
+                           INPUT TRUE,
+                           INPUT decimal(lv-prev-value),
+                           INPUT "", 
+                           OUTPUT dPrevFreValue).                   
+                           
       oe-ord.tax:SCREEN-VALUE = 
           STRING(DEC(oe-ord.tax:SCREEN-VALUE) +
-                 ROUND(DEC(oe-ord.t-freight:SCREEN-VALUE) * v-frt-tax-rate / 100,2) -
-                 ROUND(DEC(lv-prev-value)                 * v-frt-tax-rate / 100,2)).
+                 ROUND(dFrtTaxAmount,2) -
+                 ROUND(dPrevFreValue,2)).
+     
   END.
 
   lv-prev-value = oe-ord.t-freight:SCREEN-VALUE.
@@ -643,13 +664,7 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  IF AVAIL oe-ord THEN do:
-     RUN ar/cctaxrt.p (cocode, oe-ord.tax-gr,
-                    OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
-
-     RUN oe/FrtTaxAvail.p(oe-ord.company,oe-ord.tax-gr,OUTPUT lTaxOnFreight) .
-  END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
