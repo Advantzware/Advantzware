@@ -71,33 +71,33 @@ DEF VAR li AS INT NO-UNDO.
 DEFINE QUERY external_tables FOR account.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS account.dscr account.cyr-open ~
-account.lyr-open account.type account.bud[1] account.ly-bud[1] ~
-account.bud[2] account.ly-bud[2] account.bud[3] account.ly-bud[3] ~
-account.bud[4] account.ly-bud[4] account.bud[5] account.ly-bud[5] ~
-account.terms-discount account.bud[6] account.ly-bud[6] account.bud[7] ~
-account.ly-bud[7] account.bud[8] account.ly-bud[8] account.bud[9] ~
-account.ly-bud[9] account.bud[10] account.ly-bud[10] account.bud[11] ~
-account.ly-bud[11] account.bud[12] account.ly-bud[12] account.bud[13] ~
-account.ly-bud[13] account.inactive
+account.inactive account.lyr-open account.type account.bud[1] ~
+account.ly-bud[1] account.bud[2] account.ly-bud[2] account.bud[3] ~
+account.ly-bud[3] account.bud[4] account.ly-bud[4] account.bud[5] ~
+account.ly-bud[5] account.terms-discount account.bud[6] account.ly-bud[6] ~
+account.bud[7] account.ly-bud[7] account.bud[8] account.ly-bud[8] ~
+account.bud[9] account.ly-bud[9] account.bud[10] account.ly-bud[10] ~
+account.salesReport account.bud[11] account.ly-bud[11] account.commReport ~
+account.bud[12] account.ly-bud[12] account.bud[13] account.ly-bud[13] 
 &Scoped-define ENABLED-TABLES account
 &Scoped-define FIRST-ENABLED-TABLE account
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS account.actnum account.dscr ~
-account.cyr-open account.lyr-open account.type account.cyr[1] ~
-account.lyr[1] account.bud[1] account.ly-bud[1] account.cyr[2] ~
-account.lyr[2] account.bud[2] account.ly-bud[2] account.cyr[3] ~
-account.lyr[3] account.bud[3] account.ly-bud[3] account.cyr[4] ~
-account.lyr[4] account.bud[4] account.ly-bud[4] account.cyr[5] ~
-account.lyr[5] account.bud[5] account.ly-bud[5] account.terms-discount ~
-account.cyr[6] account.lyr[6] account.bud[6] account.ly-bud[6] ~
-account.cyr[7] account.lyr[7] account.bud[7] account.ly-bud[7] ~
-account.cyr[8] account.lyr[8] account.bud[8] account.ly-bud[8] ~
-account.cyr[9] account.lyr[9] account.bud[9] account.ly-bud[9] ~
-account.cyr[10] account.lyr[10] account.bud[10] account.ly-bud[10] ~
-account.cyr[11] account.lyr[11] account.bud[11] account.ly-bud[11] ~
-account.cyr[12] account.lyr[12] account.bud[12] account.ly-bud[12] ~
-account.cyr[13] account.lyr[13] account.bud[13] account.ly-bud[13] ~
-account.inactive
+account.cyr-open account.inactive account.lyr-open account.type ~
+account.cyr[1] account.lyr[1] account.bud[1] account.ly-bud[1] ~
+account.cyr[2] account.lyr[2] account.bud[2] account.ly-bud[2] ~
+account.cyr[3] account.lyr[3] account.bud[3] account.ly-bud[3] ~
+account.cyr[4] account.lyr[4] account.bud[4] account.ly-bud[4] ~
+account.cyr[5] account.lyr[5] account.bud[5] account.ly-bud[5] ~
+account.terms-discount account.cyr[6] account.lyr[6] account.bud[6] ~
+account.ly-bud[6] account.cyr[7] account.lyr[7] account.bud[7] ~
+account.ly-bud[7] account.cyr[8] account.lyr[8] account.bud[8] ~
+account.ly-bud[8] account.cyr[9] account.lyr[9] account.bud[9] ~
+account.ly-bud[9] account.cyr[10] account.lyr[10] account.bud[10] ~
+account.ly-bud[10] account.salesReport account.cyr[11] account.lyr[11] ~
+account.bud[11] account.ly-bud[11] account.commReport account.cyr[12] ~
+account.lyr[12] account.bud[12] account.ly-bud[12] account.cyr[13] ~
+account.lyr[13] account.bud[13] account.ly-bud[13] 
 &Scoped-define DISPLAYED-TABLES account
 &Scoped-define FIRST-DISPLAYED-TABLE account
 
@@ -162,10 +162,10 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
-     account.inactive AT ROW 2.43 COL 61.5
+     account.inactive AT ROW 2.43 COL 61.6
           LABEL "Inactive"
           VIEW-AS TOGGLE-BOX
-          SIZE 15 BY 1.00
+          SIZE 15 BY 1
      account.lyr-open AT ROW 2.43 COL 98 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
@@ -193,7 +193,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
-     account.ly-bud[1] AT ROW 4.81 COL 99 COLON-ALIGNED NO-LABEL
+     account.ly-bud[1] AT ROW 4.81 COL 95.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
@@ -210,7 +210,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
-     account.ly-bud[2] AT ROW 6 COL 99 COLON-ALIGNED NO-LABEL
+     account.ly-bud[2] AT ROW 6 COL 95.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
@@ -227,7 +227,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
-     account.ly-bud[3] AT ROW 7.19 COL 99 COLON-ALIGNED NO-LABEL
+     account.ly-bud[3] AT ROW 7.19 COL 95.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
@@ -244,7 +244,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
-     account.ly-bud[4] AT ROW 8.38 COL 99 COLON-ALIGNED NO-LABEL
+     account.ly-bud[4] AT ROW 8.38 COL 95.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
@@ -268,7 +268,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
-     account.ly-bud[5] AT ROW 9.57 COL 99 COLON-ALIGNED NO-LABEL
+     account.ly-bud[5] AT ROW 9.57 COL 95.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
@@ -289,7 +289,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
-     account.ly-bud[6] AT ROW 10.76 COL 99 COLON-ALIGNED NO-LABEL
+     account.ly-bud[6] AT ROW 10.76 COL 95.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
@@ -306,7 +306,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
-     account.ly-bud[7] AT ROW 11.95 COL 99 COLON-ALIGNED NO-LABEL
+     account.ly-bud[7] AT ROW 11.95 COL 95.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
@@ -323,7 +323,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
-     account.ly-bud[8] AT ROW 13.14 COL 99 COLON-ALIGNED NO-LABEL
+     account.ly-bud[8] AT ROW 13.14 COL 95.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
@@ -347,7 +347,7 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     account.ly-bud[9] AT ROW 14.33 COL 99 COLON-ALIGNED NO-LABEL
+     account.ly-bud[9] AT ROW 14.33 COL 95.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
@@ -364,10 +364,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
-     account.ly-bud[10] AT ROW 15.52 COL 99 COLON-ALIGNED NO-LABEL
+     account.ly-bud[10] AT ROW 15.52 COL 95.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
+     
      account.cyr[11] AT ROW 16.71 COL 7 COLON-ALIGNED
           LABEL "11"
           VIEW-AS FILL-IN 
@@ -381,9 +382,19 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
-     account.ly-bud[11] AT ROW 16.71 COL 99 COLON-ALIGNED NO-LABEL
+     account.ly-bud[11] AT ROW 16.71 COL 95.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
+          BGCOLOR 15 FONT 4
+     account.salesReport AT ROW 16.71 COL 124.8
+          LABEL "Sales Reports"
+          VIEW-AS TOGGLE-BOX
+          SIZE 17.8 BY 1
+          BGCOLOR 15 FONT 4     
+     account.commReport AT ROW 17.76 COL 124.8
+          LABEL "Comm Reports"
+          VIEW-AS TOGGLE-BOX
+          SIZE 17.8 BY 1
           BGCOLOR 15 FONT 4
      account.cyr[12] AT ROW 17.91 COL 7 COLON-ALIGNED
           LABEL "12"
@@ -398,7 +409,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
-     account.ly-bud[12] AT ROW 17.91 COL 99 COLON-ALIGNED NO-LABEL
+     account.ly-bud[12] AT ROW 17.91 COL 95.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
@@ -415,23 +426,12 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
-     account.ly-bud[13] AT ROW 19.1 COL 99 COLON-ALIGNED NO-LABEL
+     account.ly-bud[13] AT ROW 19.1 COL 95.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 24.8 BY 1
           BGCOLOR 15 FONT 4
      "Type:" VIEW-AS TEXT
           SIZE 6.6 BY .81 AT ROW 1.48 COL 127
-     "Current Year" VIEW-AS TEXT
-          SIZE 18 BY .52 AT ROW 4 COL 14
-          FGCOLOR 9 
-     "Last Year Budget" VIEW-AS TEXT
-          SIZE 21 BY .52 AT ROW 4 COL 104
-          FGCOLOR 9 
-     "Period" VIEW-AS TEXT
-          SIZE 8 BY .52 AT ROW 4 COL 3
-          FGCOLOR 9 
-     "Discount" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 10.76 COL 131
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -439,13 +439,24 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     "No Terms" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 10.05 COL 131
+     "Current Year Budget" VIEW-AS TEXT
+          SIZE 25 BY .52 AT ROW 4 COL 70
+          FGCOLOR 9 
      "Last Year" VIEW-AS TEXT
           SIZE 15 BY .52 AT ROW 4 COL 45
           FGCOLOR 9 
-     "Current Year Budget" VIEW-AS TEXT
-          SIZE 25 BY .52 AT ROW 4 COL 70
+     "No Terms" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 10.05 COL 131
+     "Discount" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 10.76 COL 131
+     "Period" VIEW-AS TEXT
+          SIZE 8 BY .52 AT ROW 4 COL 3
+          FGCOLOR 9 
+     "Last Year Budget" VIEW-AS TEXT
+          SIZE 21 BY .52 AT ROW 4 COL 100.6
+          FGCOLOR 9 
+     "Current Year" VIEW-AS TEXT
+          SIZE 18 BY .52 AT ROW 4 COL 14
           FGCOLOR 9 
      RECT-2 AT ROW 4.81 COL 65
      RECT-1 AT ROW 1 COL 1
@@ -515,6 +526,8 @@ ASSIGN
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN account.bud[1] IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR TOGGLE-BOX account.commReport IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN account.cyr[10] IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN account.cyr[11] IN FRAME F-Main
@@ -541,6 +554,8 @@ ASSIGN
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN account.cyr[9] IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR TOGGLE-BOX account.inactive IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN account.lyr[10] IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN account.lyr[11] IN FRAME F-Main
@@ -569,9 +584,9 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX account.terms-discount IN FRAME F-Main
+/* SETTINGS FOR TOGGLE-BOX account.salesReport IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR TOGGLE-BOX account.inactive IN FRAME F-Main
+/* SETTINGS FOR TOGGLE-BOX account.terms-discount IN FRAME F-Main
    EXP-LABEL                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -765,6 +780,21 @@ END.
 ON RETURN OF account.actnum IN FRAME F-Main /* Account No */
 DO:
   APPLY "leave" TO {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME account.type
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL account.type V-table-Win
+ON VALUE-CHANGED OF account.type IN FRAME F-Main /* type */
+DO:
+  IF account.type:SCREEN-VALUE EQ "R" THEN
+  DO:
+       account.CommReport:SCREEN-VALUE = "Yes" .
+       account.SalesReport:SCREEN-VALUE = "Yes" .
+  END.
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1239,27 +1269,30 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
-    find first company where company.company eq account.company no-lock no-error.
+    IF AVAIL account THEN
+    do:
+        find first company where company.company eq g_company no-lock no-error.
 
-    do li = 1 to 13:
-      ld-period$[li] = account.cyr[li].
-    end.
+        do li = 1 to 13:
+          ld-period$[li] = account.cyr[li].
+        end.
+        
+        for each period
+            where period.company eq account.company
+              and period.pstat   eq yes
+            no-lock,
 
-    for each period
-        where period.company eq account.company
-          and period.pstat   eq yes
-        no-lock,
+            each gltrans
+            where gltrans.company eq account.company
+              and gltrans.actnum  eq account.actnum
+              and gltrans.period  eq period.pnum
+              and gltrans.tr-date ge period.pst
+              and gltrans.tr-date le period.pend
+                no-lock:
 
-        each gltrans
-        where gltrans.company eq account.company
-          and gltrans.actnum  eq account.actnum
-          and gltrans.period  eq period.pnum
-          and gltrans.tr-date ge period.pst
-          and gltrans.tr-date le period.pend
-            no-lock:
-
-          ld-period$[period.pnum] = ld-period$[period.pnum] + gltrans.tr-amt.
-    end.
+              ld-period$[period.pnum] = ld-period$[period.pnum] + gltrans.tr-amt.
+        end.
+    END.
 
     assign
      account.cyr[01]:screen-value = string(ld-period$[01])
