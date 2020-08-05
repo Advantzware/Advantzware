@@ -1728,7 +1728,7 @@ PROCEDURE pLocalCSV:
                 cBufferValue = fFormatValue(hQueryBuf, cFieldName)
                 cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "")
                 .
-            PUT UNFORMATTED cBufferValue + ",".
+            PUT UNFORMATTED REPLACE(cBufferValue,",","") + ",".
         END. /* each dynvaluecolumn */
         PUT UNFORMATTED SKIP.
         iphQuery:GET-NEXT().
