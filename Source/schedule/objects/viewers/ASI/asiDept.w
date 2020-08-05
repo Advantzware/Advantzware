@@ -42,7 +42,7 @@
 &Scoped-define PROCEDURE-TYPE Dialog-Box
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
@@ -113,7 +113,7 @@ DEFINE VARIABLE selectedDept AS CHARACTER
 
 DEFINE FRAME Dialog-Frame
      availDept AT ROW 1 COL 1 NO-LABEL
-     department AT ROW 1 COL 20.6
+     department AT ROW 1 COL 21.8
      selectedDept AT ROW 2.19 COL 29 NO-LABEL
      btnAdd AT ROW 3.62 COL 23
      btnDelete AT ROW 5.05 COL 23
@@ -143,7 +143,7 @@ DEFINE FRAME Dialog-Frame
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
-                                                                        */
+   FRAME-NAME                                                           */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
