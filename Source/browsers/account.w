@@ -144,19 +144,19 @@ DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U
      SIZE 35 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE cAccount AS CHARACTER FORMAT "X(256)":U INITIAL "*" 
+DEFINE VARIABLE cAccount AS CHARACTER FORMAT "X(256)":U 
      LABEL "Account" 
      VIEW-AS FILL-IN 
      SIZE 26 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE cDescription AS CHARACTER FORMAT "X(256)":U INITIAL "*" 
+DEFINE VARIABLE cDescription AS CHARACTER FORMAT "X(256)":U 
      LABEL "Description" 
      VIEW-AS FILL-IN 
      SIZE 51 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE cType AS CHARACTER FORMAT "X(256)":U INITIAL "*" 
+DEFINE VARIABLE cType AS CHARACTER FORMAT "X(256)":U 
      LABEL "Type" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1
@@ -600,8 +600,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win
-PROCEDURE local-open-query:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
+PROCEDURE local-open-query :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -620,7 +620,7 @@ PROCEDURE local-open-query:
       RUN pReopenBrowse.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
