@@ -75,7 +75,7 @@ DEFINE QUERY external_tables FOR cust.
 /* Definitions for BROWSE br_table                                      */
 &Scoped-define FIELDS-IN-QUERY-br_table ar-inv.inv-date ar-inv.inv-no ~
 ar-inv.paid + ar-inv.due @ ld-inv-amt ar-inv.due ~
-TODAY - ar-inv.inv-date @ li-days-old 
+TODAY - ar-inv.inv-date @ li-days-old ar-inv.due-date 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define QUERY-STRING-br_table FOR EACH ar-inv OF cust WHERE ~{&KEY-PHRASE} ~
       AND ar-inv.posted EQ YES AND ~
@@ -179,9 +179,10 @@ DEFINE BROWSE br_table
             WIDTH 20 LABEL-BGCOLOR 14
       TODAY - ar-inv.inv-date @ li-days-old COLUMN-LABEL "Days Old" FORMAT "->>,>>>":U
             WIDTH 12 LABEL-BGCOLOR 14
+      ar-inv.due-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 92 BY 12.62
+    WITH NO-ASSIGN SEPARATORS SIZE 107 BY 14
          BGCOLOR 8 FONT 2
          TITLE BGCOLOR 8 "Open Invoices".
 
@@ -224,8 +225,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 12.67
-         WIDTH              = 92.
+         HEIGHT             = 14
+         WIDTH              = 107.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -284,6 +285,8 @@ ASI.ar-inv.due    ne 0"
 "ar-inv.due" "Balance Due" ? "decimal" ? ? ? 14 ? ? no ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > "_<CALC>"
 "TODAY - ar-inv.inv-date @ li-days-old" "Days Old" "->>,>>>" ? ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ASI.ar-inv.due-date
+"ar-inv.due-date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME

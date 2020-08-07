@@ -145,12 +145,12 @@ cust.cr-lim cust.ord-lim cust.disc cust.curr-code cust.cr-hold cust.fin-chg ~
 cust.auto-reprice cust.an-edi-cust cust.factored cust.sort cust.tax-gr ~
 cust.tax-id cust.date-field[2] cust.frt-pay cust.fob-code cust.ship-part ~
 cust.loc cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
-cust.markup cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet ~
-cust.case-bundle cust.int-field[1] cust.po-mandatory cust.imported ~
-cust.show-set cust.nationalAcct cust.log-field[1] cust.classID
+cust.markup cust.ship-days cust.manf-day cust.classID cust.spare-int-1 ~
+cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
+cust.imported cust.show-set cust.nationalAcct cust.log-field[1] 
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
-&Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-2 RECT-3 RECT-4 
+&Scoped-Define ENABLED-OBJECTS btn_bank-info showTags 
 &Scoped-Define DISPLAYED-FIELDS cust.cust-no cust.active cust.name ~
 cust.addr[1] cust.addr[2] cust.spare-char-3 cust.city cust.state cust.zip ~
 cust.fax-country cust.spare-char-2 cust.type cust.date-field[1] ~
@@ -161,9 +161,9 @@ cust.cr-lim cust.ord-lim cust.disc cust.curr-code cust.cr-hold cust.fin-chg ~
 cust.auto-reprice cust.an-edi-cust cust.factored cust.sort cust.tax-gr ~
 cust.tax-id cust.date-field[2] cust.frt-pay cust.fob-code cust.ship-part ~
 cust.loc cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
-cust.markup cust.ship-days cust.manf-day cust.spare-int-1 cust.pallet ~
-cust.case-bundle cust.int-field[1] cust.po-mandatory cust.imported ~
-cust.show-set cust.nationalAcct cust.log-field[1] cust.classID 
+cust.markup cust.ship-days cust.manf-day cust.classID cust.spare-int-1 ~
+cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
+cust.imported cust.show-set cust.nationalAcct cust.log-field[1] 
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS fl_custemail custype_dscr faxAreaCode ~
@@ -244,7 +244,8 @@ DEFINE VARIABLE faxNumber AS CHARACTER FORMAT "xxx-xxxx":U
 DEFINE VARIABLE fi_flat-comm AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0 
      LABEL "Flat Comm%" 
      VIEW-AS FILL-IN 
-     SIZE 9 BY 1 NO-UNDO.
+     SIZE 9 BY 1
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fl_custemail AS CHARACTER FORMAT "X(60)":U 
      LABEL "Email" 
@@ -277,24 +278,28 @@ DEFINE VARIABLE terr_dscr AS CHARACTER FORMAT "x(20)"
      SIZE 23 BY 1
      BGCOLOR 15 FONT 4.
 
+DEFINE IMAGE showTags
+     FILENAME "Graphics/16x16/question.png":U
+     SIZE 3.4 BY .81 TOOLTIP "Show Linked Tags".
+
 DEFINE VARIABLE rd_inv-meth AS LOGICAL 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "BOL", no,
 "PO", yes,
 "User Select", ?
-     SIZE 46 BY .81 NO-UNDO.
+     SIZE 37 BY .81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 71 BY 8.33.
 
 DEFINE RECTANGLE RECT-3
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 71 BY 3.57.
 
 DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 80.4 BY 11.91.
 
 
@@ -347,45 +352,45 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
           BGCOLOR 15 
-     cust.spare-char-2 AT ROW 1 COL 78 COLON-ALIGNED WIDGET-ID 14
+     cust.spare-char-2 AT ROW 1 COL 79.4 COLON-ALIGNED WIDGET-ID 14
           LABEL "Group" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 17.2 BY 1
           BGCOLOR 15 FONT 4
-     cust.type AT ROW 1.95 COL 78 COLON-ALIGNED
+     cust.type AT ROW 1.95 COL 79.4 COLON-ALIGNED
           LABEL "Type"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 4
-     cust.date-field[1] AT ROW 1 COL 133 COLON-ALIGNED
+     cust.date-field[1] AT ROW 1 COL 134.4 COLON-ALIGNED
           LABEL "Date Added" FORMAT "99/99/9999"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 4 NO-TAB-STOP 
-     cust.contact AT ROW 2.91 COL 78 COLON-ALIGNED
+     cust.contact AT ROW 2.91 COL 79.4 COLON-ALIGNED
           LABEL "Contact"
           VIEW-AS FILL-IN 
           SIZE 44 BY 1
           BGCOLOR 15 FONT 4
-     fl_custemail AT ROW 3.86 COL 78 COLON-ALIGNED WIDGET-ID 2
-     cust.sman AT ROW 4.81 COL 78 COLON-ALIGNED
+     fl_custemail AT ROW 3.86 COL 79.4 COLON-ALIGNED WIDGET-ID 2
+     cust.sman AT ROW 4.81 COL 79.4 COLON-ALIGNED
           LABEL "Sales Grp"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
           BGCOLOR 15 FONT 4
-     custype_dscr AT ROW 1.95 COL 95 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     cust.area-code AT ROW 5.81 COL 78 COLON-ALIGNED AUTO-RETURN 
+     custype_dscr AT ROW 1.95 COL 96.4 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     cust.area-code AT ROW 5.81 COL 79.4 COLON-ALIGNED AUTO-RETURN 
           LABEL "Phone#" FORMAT "(xxx)"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
           BGCOLOR 15 FONT 4
-     cust.phone AT ROW 5.81 COL 86 COLON-ALIGNED NO-LABEL FORMAT "xxx-xxxx"
+     cust.phone AT ROW 5.81 COL 87.4 COLON-ALIGNED NO-LABEL FORMAT "xxx-xxxx"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     faxAreaCode AT ROW 6.71 COL 78 COLON-ALIGNED AUTO-RETURN 
-     faxNumber AT ROW 6.71 COL 86 COLON-ALIGNED NO-LABEL
-     cust.fax-prefix AT ROW 6.71 COL 111 COLON-ALIGNED
+     faxAreaCode AT ROW 6.71 COL 79.4 COLON-ALIGNED AUTO-RETURN 
+     faxNumber AT ROW 6.71 COL 87.4 COLON-ALIGNED NO-LABEL
+     cust.fax-prefix AT ROW 6.71 COL 112.4 COLON-ALIGNED
           LABEL "Prefix"
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
@@ -393,27 +398,28 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+         FGCOLOR 1 FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     cust.ASNClientID AT ROW 6.71 COL 135.4 COLON-ALIGNED WIDGET-ID 18
+     cust.ASNClientID AT ROW 6.71 COL 136.8 COLON-ALIGNED WIDGET-ID 18
           VIEW-AS FILL-IN 
           SIZE 13.6 BY 1
           BGCOLOR 15 
-     cust.csrUser_id AT ROW 2.67 COL 133 COLON-ALIGNED
+     cust.csrUser_id AT ROW 2.67 COL 134.4 COLON-ALIGNED
           LABEL "CSR"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 4
-     btn_bank-info AT ROW 3.62 COL 135
-     sman_sname AT ROW 4.81 COL 86 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     fi_flat-comm AT ROW 4.71 COL 140 COLON-ALIGNED
-     cust.scomm AT ROW 5.71 COL 140 COLON-ALIGNED HELP
+     btn_bank-info AT ROW 3.62 COL 136.4
+     sman_sname AT ROW 4.81 COL 87.4 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     fi_flat-comm AT ROW 4.71 COL 141.4 COLON-ALIGNED
+     cust.scomm AT ROW 5.71 COL 141.4 COLON-ALIGNED HELP
           "Enter Salesman Flat Commission Percentage" WIDGET-ID 8
           LABEL "Broker Comm%"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
+          BGCOLOR 15 
      cust.terms AT ROW 8.62 COL 17 COLON-ALIGNED
           LABEL "Terms"
           VIEW-AS FILL-IN 
@@ -466,7 +472,7 @@ DEFINE FRAME F-Main
      cust.cr-hold AT ROW 11.71 COL 47
           LABEL "Credit Hold"
           VIEW-AS TOGGLE-BOX
-          SIZE 21 BY .81
+          SIZE 17 BY .81
      cust.fin-chg AT ROW 12.43 COL 47
           VIEW-AS TOGGLE-BOX
           SIZE 23 BY .81
@@ -481,16 +487,16 @@ DEFINE FRAME F-Main
           LABEL "Factored"
           VIEW-AS TOGGLE-BOX
           SIZE 18 BY .81
-     cust.sort AT ROW 17.05 COL 22 NO-LABEL
+     cust.sort AT ROW 16.95 COL 19 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
                     "Yes", "Y":U,
 "No", "N":U
-          SIZE 16.4 BY .62
+          SIZE 20 BY .62
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+         FGCOLOR 1 FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
@@ -499,7 +505,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
           BGCOLOR 15 FONT 4
-     loc_dscr AT ROW 10.52 COL 105 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     loc_dscr AT ROW 10.52 COL 106.4 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      cust.tax-id AT ROW 18.81 COL 16 COLON-ALIGNED
           LABEL "Tax Resale#"
           VIEW-AS FILL-IN 
@@ -509,7 +515,8 @@ DEFINE FRAME F-Main
           LABEL "Exp."
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     cust.frt-pay AT ROW 8.62 COL 99 NO-LABEL
+          BGCOLOR 15 
+     cust.frt-pay AT ROW 8.62 COL 100.4 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
                     "Bill", "B":U,
@@ -517,107 +524,107 @@ DEFINE FRAME F-Main
 "Prepaid", "P":U,
 "3rd Party", "T":U
           SIZE 49 BY .81
-     cust.fob-code AT ROW 9.57 COL 99 NO-LABEL
+     cust.fob-code AT ROW 9.57 COL 100.4 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
                     "Destination", "DEST":U,
 "Origin", "ORIG":U
           SIZE 28 BY .81
-     cust.ship-part AT ROW 9.57 COL 131
+     cust.ship-part AT ROW 9.57 COL 132.4
           LABEL "Partial Ship"
           VIEW-AS TOGGLE-BOX
           SIZE 17 BY .81
-     carrier_dscr AT ROW 11.48 COL 105 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     cust.loc AT ROW 10.52 COL 93 COLON-ALIGNED
+     carrier_dscr AT ROW 11.48 COL 106.4 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     cust.loc AT ROW 10.52 COL 94.4 COLON-ALIGNED
           LABEL "Location"
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
           BGCOLOR 15 FONT 4
-     cust.carrier AT ROW 11.48 COL 93 COLON-ALIGNED
+     cust.carrier AT ROW 11.48 COL 94.4 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
           BGCOLOR 15 FONT 4
-     cust.del-zone AT ROW 12.48 COL 93 COLON-ALIGNED
+     cust.del-zone AT ROW 12.48 COL 94.4 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
           BGCOLOR 15 FONT 4
-     cust.terr AT ROW 13.43 COL 93 COLON-ALIGNED
+     cust.terr AT ROW 13.43 COL 94.4 COLON-ALIGNED
           LABEL "Territory"
           VIEW-AS FILL-IN 
           SIZE 5.8 BY 1
           BGCOLOR 15 FONT 4
-     carr-mtx_del-dscr AT ROW 12.48 COL 105 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     cust.under-pct AT ROW 14.33 COL 93 COLON-ALIGNED
+     carr-mtx_del-dscr AT ROW 12.48 COL 106.4 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     cust.under-pct AT ROW 14.33 COL 94.4 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
           BGCOLOR 15 FONT 4
-     cust.over-pct AT ROW 15.29 COL 93 COLON-ALIGNED
+     cust.over-pct AT ROW 15.29 COL 94.4 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
           BGCOLOR 15 FONT 4
-     cust.markup AT ROW 16.24 COL 93 COLON-ALIGNED FORMAT "->9.99"
+     cust.markup AT ROW 16.24 COL 94.4 COLON-ALIGNED FORMAT "->9.99"
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
           BGCOLOR 15 
-     cust.ship-days AT ROW 17.19 COL 93 COLON-ALIGNED
+     cust.ship-days AT ROW 17.19 COL 94.4 COLON-ALIGNED
           LABEL "Whse Days"
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
           BGCOLOR 15 FONT 4
-     cust.manf-day AT ROW 18.14 COL 93 COLON-ALIGNED HELP
+     cust.manf-day AT ROW 18.14 COL 94.4 COLON-ALIGNED HELP
           "" WIDGET-ID 6
           LABEL "Pallet Positions" FORMAT ">>>9"
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
-           BGCOLOR 15 FONT 4
-     cust.classID  AT ROW 18.96 COL 93 COLON-ALIGNED 
+          BGCOLOR 15 FONT 4
+     cust.classID AT ROW 18.95 COL 94.4 COLON-ALIGNED
           LABEL "AR ClassID" FORMAT ">>"
           VIEW-AS FILL-IN 
-          SIZE 11 BY .80
-          BGCOLOR 15 FONT 4     
-     cust.spare-int-1 AT ROW 13.43 COL 134 COLON-ALIGNED WIDGET-ID 12
+          SIZE 11 BY .81
+          BGCOLOR 15 FONT 4
+     cust.spare-int-1 AT ROW 13.43 COL 135 COLON-ALIGNED WIDGET-ID 12
           LABEL "Pallet ID" FORMAT ">>>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 12.2 BY .95
           BGCOLOR 15 FONT 4
-     terr_dscr AT ROW 13.43 COL 99 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     cust.pallet AT ROW 14.33 COL 127 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 18.6 BY 1
-          BGCOLOR 15 FONT 4
-     cust.case-bundle AT ROW 15.29 COL 127 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 18.6 BY 1
-          BGCOLOR 15 FONT 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+         FGCOLOR 1 FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     cust.int-field[1] AT ROW 16.24 COL 132 COLON-ALIGNED
+     terr_dscr AT ROW 13.43 COL 100 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     cust.pallet AT ROW 14.33 COL 128.4 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 18.6 BY 1
+          BGCOLOR 15 FONT 4
+     cust.case-bundle AT ROW 15.29 COL 128.4 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 18.6 BY 1
+          BGCOLOR 15 FONT 4
+     cust.int-field[1] AT ROW 16.24 COL 133.4 COLON-ALIGNED
           LABEL "# of Labels per Skid" FORMAT "->,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 13.6 BY 1
           BGCOLOR 15 FONT 4
-     cust.po-mandatory AT ROW 17.43 COL 110
+     cust.po-mandatory AT ROW 17.43 COL 111.4
           LABEL "PO Req'd"
           VIEW-AS TOGGLE-BOX
           SIZE 14.4 BY .81
-     cust.imported AT ROW 17.43 COL 128
+     cust.imported AT ROW 17.43 COL 129.4
           LABEL "Contract Pricing"
           VIEW-AS TOGGLE-BOX
           SIZE 22.4 BY .81
-     cust.show-set AT ROW 18.14 COL 110
+     cust.show-set AT ROW 18.14 COL 111.4
           LABEL "Show Sets"
           VIEW-AS TOGGLE-BOX
           SIZE 16 BY .81
-     cust.nationalAcct AT ROW 18.14 COL 128
+     cust.nationalAcct AT ROW 18.14 COL 129.4
           LABEL "National Account"
           VIEW-AS TOGGLE-BOX
-          SIZE 23 BY .81          
-     cust.log-field[1] AT ROW 18.86 COL 110 HELP
+          SIZE 23 BY .81
+     cust.log-field[1] AT ROW 18.86 COL 111.4 HELP
           "" WIDGET-ID 16
           LABEL "Paperless"
           VIEW-AS TOGGLE-BOX
@@ -632,21 +639,24 @@ DEFINE FRAME F-Main
           SIZE 17 BY .62 AT ROW 16.24 COL 4
           FGCOLOR 9 FONT 4
      "Invoice Per:" VIEW-AS TEXT
-          SIZE 14 BY .81 AT ROW 15.1 COL 4
+          SIZE 14 BY .81 AT ROW 15.43 COL 4
      " Other Information" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 7.91 COL 77
+          SIZE 19 BY .62 AT ROW 7.91 COL 78.4
           FGCOLOR 9 FONT 4
      "Freight Terms:" VIEW-AS TEXT
-          SIZE 20 BY .71 AT ROW 8.62 COL 78
+          SIZE 20 BY .71 AT ROW 8.62 COL 79.4
      "FOB:" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 9.57 COL 89
+          SIZE 6 BY .62 AT ROW 9.57 COL 90.4
+     "Taxable:" VIEW-AS TEXT
+          SIZE 10 BY .81 AT ROW 16.95 COL 7 WIDGET-ID 24
      RECT-2 AT ROW 8.14 COL 1
      RECT-3 AT ROW 16.48 COL 1
-     RECT-4 AT ROW 8.14 COL 71.6
+     RECT-4 AT ROW 8.14 COL 73
+     showTags AT ROW 11.71 COL 64 WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+         FGCOLOR 1 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -676,8 +686,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 19.1
-         WIDTH              = 152.
+         HEIGHT             = 19.05
+         WIDTH              = 152.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -723,6 +733,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cust.city IN FRAME F-Main
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN cust.classID IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN cust.contact IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR TOGGLE-BOX cust.cr-hold IN FRAME F-Main
@@ -789,10 +801,16 @@ ASSIGN
    2 4 EXP-LABEL                                                        */
 /* SETTINGS FOR RADIO-SET rd_inv-meth IN FRAME F-Main
    NO-ENABLE 2                                                          */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME F-Main
+   NO-ENABLE                                                            */
 ASSIGN 
        RECT-3:PRIVATE-DATA IN FRAME F-Main     = 
                 "Date".
 
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cust.scomm IN FRAME F-Main
    EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN cust.ship-days IN FRAME F-Main
@@ -830,9 +848,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN cust.type IN FRAME F-Main
    4 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN cust.zip IN FRAME F-Main
-   EXP-LABEL                                                            */ 
-/* SETTINGS FOR FILL-IN cust.classID IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                 */   
+   EXP-LABEL                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -1077,6 +1093,32 @@ DO:
   DO:
      RUN cust-city.     
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cust.classID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.classID V-table-Win
+ON LEAVE OF cust.classID IN FRAME F-Main /* AR ClassID */
+DO:
+  
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-ClassId NO-ERROR.
+     IF NOT v-valid THEN RETURN NO-APPLY.
+  END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.classID V-table-Win
+ON VALUE-CHANGED OF cust.classID IN FRAME F-Main /* AR ClassID */
+DO:
+  lCheckMessage = NO .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1417,6 +1459,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME showTags
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL showTags V-table-Win
+ON MOUSE-SELECT-CLICK OF showTags IN FRAME F-Main
+DO:
+    IF AVAILABLE cust THEN
+    RUN sys/ref/dlgTagVwr.w (cust.rec_key, "cust", "HOLD Tags for Customer " + cust.cust-no).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME cust.sman
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.sman V-table-Win
 ON LEAVE OF cust.sman IN FRAME F-Main /* Sales Grp */
@@ -1588,30 +1642,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME cust.classID
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.classID V-table-Win
-ON LEAVE OF cust.classID IN FRAME F-Main /* classID */
-DO:
-  
-  IF LASTKEY <> -1 THEN DO:
-     RUN valid-ClassId NO-ERROR.
-     IF NOT v-valid THEN RETURN NO-APPLY.
-  END.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-    
-&Scoped-define SELF-NAME cust.classID
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.classID V-table-Win
-ON VALUE-CHANGED OF cust.classID IN FRAME F-Main /* classID */
-DO:
-  lCheckMessage = NO .
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME  
 
 &UNDEFINE SELF-NAME
 
@@ -2508,7 +2538,24 @@ PROCEDURE local-update-record :
 
   RUN disable-fields.
 
- 
+  IF cust.cr-hold NE ll-prev-cr-hold THEN DO:
+      RUN ClearTagsHold (cust.rec_key).
+      CASE cust.cr-hold:
+          WHEN NO THEN
+          RUN AddTagHold (
+              cust.rec_key,
+              "cust",
+              "Released from Hold by " + USERID("ASI")
+              ).
+          WHEN YES THEN
+          RUN AddTagHold (
+              cust.rec_key,
+              "cust",
+              "Placed on Hold by " + USERID("ASI")
+              ).
+      END CASE.
+  END. /* if credit hold changed */
+
   IF NOT adm-new-record             AND
     cust.cr-hold NE ll-prev-cr-hold THEN
   FOR EACH oe-ord
@@ -2671,6 +2718,74 @@ PROCEDURE valid-carrier :
       APPLY "entry" TO cust.carrier.
       RETURN ERROR.
     END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-classId V-table-Win 
+PROCEDURE valid-classId :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE lCheckAccount AS LOGICAL NO-UNDO.
+   DEFINE BUFFER bf-arclass FOR arclass.
+  {methods/lValidateError.i YES}
+  v-valid = YES.
+
+  DO WITH FRAME {&frame-name}:
+     IF cust.classId:SCREEN-VALUE NE "" THEN do:
+       FIND FIRST arclass NO-LOCK
+            WHERE arclass.classID EQ INTEGER(cust.classId:SCREEN-VALUE) NO-ERROR.
+       IF AVAIL arclass AND arclass.inActive EQ YES THEN do:
+        MESSAGE "AR ClassId is inactive. Try Help." VIEW-AS ALERT-BOX INFO.  
+        ASSIGN
+          v-valid = NO  .         
+         APPLY "entry" TO cust.classId.
+       END.     
+            
+       IF NOT AVAIL arclass THEN do:
+        MESSAGE "Invalid AR ClassId. Try Help." VIEW-AS ALERT-BOX INFO.  
+        ASSIGN
+          v-valid = NO  .          
+         APPLY "entry" TO cust.classId.
+       END.
+     END.
+        
+     IF NOT adm-new-record AND cust.classID:SCREEN-VALUE NE ""
+        AND INTEGER(cust.classID:SCREEN-VALUE) NE cust.classID AND cust.acc-bal <> 0 THEN DO:
+        FIND FIRST bf-arclass NO-LOCK
+            WHERE bf-arclass.classID EQ INTEGER(cust.classId) NO-ERROR.
+        IF AVAIL arclass AND AVAIL bf-arclass AND bf-arclass.receivablesAcct NE arclass.receivablesAcct THEN DO:
+          MESSAGE "A/R Class can only be changed with a customer with no balance or with the same G/L Account number"
+                   VIEW-AS ALERT-BOX INFO.
+           v-valid = NO  .
+           lCheckAccount = TRUE .
+         APPLY "entry" TO cust.classId.         
+        END. 
+        IF AVAIL arclass AND AVAIL bf-arclass AND bf-arclass.receivablesAcct EQ arclass.receivablesAcct THEN lCheckAccount = TRUE .          
+     END.
+          
+     IF AVAIL arclass AND AVAIL cust AND NOT lCheckAccount AND cust.classId:SCREEN-VALUE NE "" AND cust.acc-bal <> 0 AND NOT lCheckMessage 
+         AND integer(cust.classId:SCREEN-VALUE) NE cust.classId THEN do:
+         RUN displayMessageQuestionLOG("35",OUTPUT lCheckError).          
+         
+       IF NOT lCheckError THEN do:         
+        ASSIGN
+          v-valid = NO  
+          lCheckMessage = NO.          
+          cust.classId:SCREEN-VALUE = "".
+         APPLY "entry" TO cust.classId.
+       END. 
+       ELSE
+         lCheckMessage = YES .
+     END.    
   END.
 
   {methods/lValidateError.i NO}
@@ -3160,74 +3275,6 @@ PROCEDURE zip-carrier :
                                      ELSE cust.del-zone:SCREEN-VALUE.
       /* gdm - 10010913 end*/
    END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-classId V-table-Win 
-PROCEDURE valid-classId :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO.
-   DEFINE VARIABLE lCheckAccount AS LOGICAL NO-UNDO.
-   DEFINE BUFFER bf-arclass FOR arclass.
-  {methods/lValidateError.i YES}
-  v-valid = YES.
-
-  DO WITH FRAME {&frame-name}:
-     IF cust.classId:SCREEN-VALUE NE "" THEN do:
-       FIND FIRST arclass NO-LOCK
-            WHERE arclass.classID EQ INTEGER(cust.classId:SCREEN-VALUE) NO-ERROR.
-       IF AVAIL arclass AND arclass.inActive EQ YES THEN do:
-        MESSAGE "AR ClassId is inactive. Try Help." VIEW-AS ALERT-BOX INFO.  
-        ASSIGN
-          v-valid = NO  .         
-         APPLY "entry" TO cust.classId.
-       END.     
-            
-       IF NOT AVAIL arclass THEN do:
-        MESSAGE "Invalid AR ClassId. Try Help." VIEW-AS ALERT-BOX INFO.  
-        ASSIGN
-          v-valid = NO  .          
-         APPLY "entry" TO cust.classId.
-       END.
-     END.
-        
-     IF NOT adm-new-record AND cust.classID:SCREEN-VALUE NE ""
-        AND INTEGER(cust.classID:SCREEN-VALUE) NE cust.classID AND cust.acc-bal <> 0 THEN DO:
-        FIND FIRST bf-arclass NO-LOCK
-            WHERE bf-arclass.classID EQ INTEGER(cust.classId) NO-ERROR.
-        IF AVAIL arclass AND AVAIL bf-arclass AND bf-arclass.receivablesAcct NE arclass.receivablesAcct THEN DO:
-          MESSAGE "A/R Class can only be changed with a customer with no balance or with the same G/L Account number"
-                   VIEW-AS ALERT-BOX INFO.
-           v-valid = NO  .
-           lCheckAccount = TRUE .
-         APPLY "entry" TO cust.classId.         
-        END. 
-        IF AVAIL arclass AND AVAIL bf-arclass AND bf-arclass.receivablesAcct EQ arclass.receivablesAcct THEN lCheckAccount = TRUE .          
-     END.
-          
-     IF AVAIL arclass AND AVAIL cust AND NOT lCheckAccount AND cust.classId:SCREEN-VALUE NE "" AND cust.acc-bal <> 0 AND NOT lCheckMessage 
-         AND integer(cust.classId:SCREEN-VALUE) NE cust.classId THEN do:
-         RUN displayMessageQuestionLOG("35",OUTPUT lCheckError).          
-         
-       IF NOT lCheckError THEN do:         
-        ASSIGN
-          v-valid = NO  
-          lCheckMessage = NO.          
-          cust.classId:SCREEN-VALUE = "".
-         APPLY "entry" TO cust.classId.
-       END. 
-       ELSE
-         lCheckMessage = YES .
-     END.    
-  END.
-
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

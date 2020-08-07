@@ -48,7 +48,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -59,10 +59,11 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR cust.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-8 
-&Scoped-Define DISPLAYED-FIELDS cust.cust-no cust.NAME cust.bank-acct cust.Bank-RTN  ~
-cust.hibal cust.hibal-date cust.cr-hold cust.lpay cust.lpay-date cust.cr-lim ~
-cust.acc-bal cust.ord-lim cust.ord-bal cust.on-account 
+&Scoped-Define DISPLAYED-FIELDS cust.cust-no cust.name cust.Bank-Acct ~
+cust.Bank-RTN cust.hibal cust.hibal-date cust.cr-hold cust.lpay ~
+cust.lpay-date cust.cr-lim cust.acc-bal cust.ord-lim cust.ord-bal ~
+cust.on-account cust.date-field[3] cust.balanceCurrent ~
+cust.balanceWithinGrace cust.balancePastDue 
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS fi_frst-ord-date fi_last-ord-date 
@@ -105,78 +106,110 @@ RUN set-attribute-list (
 DEFINE VARIABLE fi_frst-ord-date AS DATE FORMAT "99/99/9999":U 
      LABEL "First Order Date" 
      VIEW-AS FILL-IN 
-     SIZE 30 BY 1 NO-UNDO.
+     SIZE 23 BY 1
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_last-ord-date AS DATE FORMAT "99/99/9999":U 
      LABEL "Last Order Date" 
      VIEW-AS FILL-IN 
-     SIZE 30 BY 1 NO-UNDO.
+     SIZE 23 BY 1
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-8
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 147 BY 7.14.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 147 BY 7.62.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     cust.cust-no AT ROW 1.48 COL 15 COLON-ALIGNED
+     cust.cust-no AT ROW 1.24 COL 12 COLON-ALIGNED
           LABEL "Cust#"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     cust.name AT ROW 1.48 COL 31 COLON-ALIGNED NO-LABEL
+          BGCOLOR 15 
+     cust.name AT ROW 1.24 COL 29 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 46 BY 1 
-    cust.bank-acct AT ROW 1.48 COL 90 COLON-ALIGNED 
+          SIZE 46 BY 1
+          BGCOLOR 15 
+     cust.Bank-Acct AT ROW 1.24 COL 89 COLON-ALIGNED
           LABEL "Account#"
           VIEW-AS FILL-IN 
           SIZE 24 BY 1
-    cust.bank-RTN AT ROW 1.48 COL 127 COLON-ALIGNED 
+          BGCOLOR 15 
+     cust.Bank-RTN AT ROW 1.24 COL 127 COLON-ALIGNED
           LABEL "Routing#"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     cust.hibal AT ROW 2.91 COL 26 COLON-ALIGNED
+          BGCOLOR 15 
+     cust.hibal AT ROW 2.43 COL 20 COLON-ALIGNED
           LABEL "High Balance"
           VIEW-AS FILL-IN 
-          SIZE 30 BY 1
-     cust.hibal-date AT ROW 2.91 COL 62 COLON-ALIGNED
+          SIZE 23 BY 1
+          BGCOLOR 15 
+     cust.hibal-date AT ROW 2.43 COL 50 COLON-ALIGNED
           LABEL "ON"
           VIEW-AS FILL-IN 
-          SIZE 20 BY 1
-     cust.cr-hold AT ROW 2.91 COL 107
+          SIZE 15 BY 1
+          BGCOLOR 15 
+     cust.cr-hold AT ROW 2.43 COL 91
           VIEW-AS TOGGLE-BOX
-          SIZE 30 BY 1
-     cust.lpay AT ROW 3.86 COL 26 COLON-ALIGNED
+          SIZE 24 BY 1
+     cust.lpay AT ROW 3.38 COL 20 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 30 BY 1
-     cust.lpay-date AT ROW 3.86 COL 62 COLON-ALIGNED
+          SIZE 23 BY 1
+          BGCOLOR 15 
+     cust.lpay-date AT ROW 3.38 COL 50 COLON-ALIGNED
           LABEL "ON"
           VIEW-AS FILL-IN 
-          SIZE 20 BY 1
-     cust.cr-lim AT ROW 3.86 COL 105 COLON-ALIGNED
+          SIZE 15 BY 1
+          BGCOLOR 15 
+     cust.cr-lim AT ROW 3.38 COL 122 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 30 BY 1
-     cust.acc-bal AT ROW 4.81 COL 26 COLON-ALIGNED
+          SIZE 23 BY 1
+          BGCOLOR 15 
+     cust.acc-bal AT ROW 4.33 COL 20 COLON-ALIGNED
           LABEL "Balance Due"
           VIEW-AS FILL-IN 
-          SIZE 30 BY 1
-     cust.ord-lim AT ROW 4.81 COL 105 COLON-ALIGNED
+          SIZE 23 BY 1
+          BGCOLOR 15 
+     cust.ord-lim AT ROW 4.33 COL 122 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 30 BY 1
-     cust.ord-bal AT ROW 5.76 COL 26 COLON-ALIGNED
+          SIZE 23 BY 1
+          BGCOLOR 15 
+     cust.ord-bal AT ROW 5.29 COL 20 COLON-ALIGNED
           LABEL "Open Order"
           VIEW-AS FILL-IN 
-          SIZE 30 BY 1
-     fi_frst-ord-date AT ROW 5.76 COL 105 COLON-ALIGNED
-     cust.on-account AT ROW 6.71 COL 26 COLON-ALIGNED
+          SIZE 23 BY 1
+          BGCOLOR 15 
+     fi_frst-ord-date AT ROW 5.29 COL 122 COLON-ALIGNED
+     cust.on-account AT ROW 6.24 COL 20 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 30 BY 1
-     fi_last-ord-date AT ROW 6.71 COL 105 COLON-ALIGNED
+          SIZE 23 BY 1
+          BGCOLOR 15 
+     cust.date-field[3] AT ROW 6.24 COL 74 COLON-ALIGNED WIDGET-ID 20
+          LABEL "Last Aged On"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15 
+     fi_last-ord-date AT ROW 6.24 COL 122 COLON-ALIGNED
+     cust.balanceCurrent AT ROW 7.43 COL 20 COLON-ALIGNED WIDGET-ID 14
+          VIEW-AS FILL-IN 
+          SIZE 23 BY 1
+          BGCOLOR 15 
+     cust.balanceWithinGrace AT ROW 7.43 COL 74 COLON-ALIGNED WIDGET-ID 18
+          VIEW-AS FILL-IN 
+          SIZE 22.4 BY 1
+          BGCOLOR 15 
+     cust.balancePastDue AT ROW 7.43 COL 122 COLON-ALIGNED WIDGET-ID 16
+          VIEW-AS FILL-IN 
+          SIZE 23 BY 1
+          BGCOLOR 15 
      RECT-8 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+         FGCOLOR 1 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -206,7 +239,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 7.24
+         HEIGHT             = 7.62
          WIDTH              = 147.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -229,18 +262,30 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN cust.acc-bal IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN cust.balanceCurrent IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN cust.balancePastDue IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN cust.balanceWithinGrace IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN cust.Bank-Acct IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN cust.Bank-RTN IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR TOGGLE-BOX cust.cr-hold IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cust.cr-lim IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cust.cust-no IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN cust.date-field[3] IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN fi_frst-ord-date IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -262,10 +307,8 @@ ASSIGN
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN cust.ord-lim IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN cust.bank-acct IN FRAME F-Main
-   NO-ENABLE EXP-LABEL                                                  */
-/* SETTINGS FOR FILL-IN cust.bank-rtn IN FRAME F-Main
-   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR RECTANGLE RECT-8 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
