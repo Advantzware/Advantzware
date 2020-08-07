@@ -1,8 +1,7 @@
   
   DEF VAR ld AS DATE EXTENT 3 NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
-
-  DEF BUFFER b-tt-report FOR tt-report.
+  DEFINE VARIABLE cCustomerList AS CHARACTER NO-UNDO.  
 
   ASSIGN
    li = YEAR(as-of-date)
@@ -618,30 +617,33 @@
 
   RELEASE tt-report.
 
+ cCustomerList = "". 
  for each tt-report
       where tt-report.term-id eq "",
 
       first cust
       where cust.company eq cocode
         and cust.cust-no eq tt-report.key-09
-      no-lock:
+      NO-LOCK BREAK BY cust.cust-no :
 
     tt-report.key-01 = cust.cust-no + cust.name.
     tt-report.key-07 = cust.name.
-
+    
+    IF tt-report.ytd-only EQ NO THEN
+    DO:
+        IF LAST(cust.cust-no) THEN
+         cCustomerList = cCustomerList + tt-report.key-09 .
+        ELSE
+         cCustomerList = cCustomerList + tt-report.key-09 + "," .
+    END.     
   end.
 
   RELEASE tt-report.
 
 ASSIGN dPerAmt = 0 .
   for each tt-report
-      where tt-report.term-id eq ""
-         AND tt-report.ytd-only EQ NO   
-       /* AND CAN-FIND(FIRST b-tt-report
-                     WHERE b-tt-report.term-id  EQ ""
-                       AND b-tt-report.key-09   EQ tt-report.key-09
-                       AND b-tt-report.ytd-only EQ NO
-                     USE-INDEX ytd-only)*/
+      where tt-report.term-id eq "" 
+      AND LOOKUP(tt-report.key-09,cCustomerList) NE 0       
 
       BREAK by tt-report.key-01
             by tt-report.key-02
@@ -719,13 +721,13 @@ ASSIGN dPerAmt = 0 .
             IF dPerSales GT 1 THEN
                 ASSIGN dPerSales = 1 .
            w-sum.amt-y = w-sum.amt-y + (dPerAmt * dPerSales ).
-         /* IF tt-report.ytd-only EQ NO THEN DO:*/
+          IF tt-report.ytd-only EQ NO THEN DO:
             assign
                 w-sum.amt = w-sum.amt + (dPerAmt  * dPerSales )
                 w-sum.msf = w-sum.msf + (v-sqft * dPerSales )
                 w-sum.wgt = w-sum.wgt + (v-wght * dPerSales ).
             
-         /* END.*/  
+          END.
       END.
     end.
 
@@ -823,7 +825,7 @@ ASSIGN dPerAmt = 0 .
     
           w-sum.amt-y = w-sum.amt-y + (dPerAmt * v-pct).
     
-          /*IF tt-report.ytd-only EQ NO THEN*/
+          IF tt-report.ytd-only EQ NO THEN
              ASSIGN
               w-sum.amt = w-sum.amt + (dPerAmt  * v-pct)
               w-sum.msf = w-sum.msf - (v-sqft * v-pct)
