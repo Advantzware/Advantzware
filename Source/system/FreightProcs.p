@@ -379,12 +379,14 @@ PROCEDURE CreateEstReleaseForEstBlank:
         OUTPUT iEstReleaseID, OUTPUT lError, OUTPUT cMessage).
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipriEstBlank AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER iplRelForAllQty AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opiEstReleaseID AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER bf-estRelease FOR estRelease.
     DEFINE VARIABLE cCarrierDefault AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
       
     FIND FIRST eb NO-LOCK 
         WHERE ROWID(eb) EQ ipriEstBlank
@@ -397,12 +399,36 @@ PROCEDURE CreateEstReleaseForEstBlank:
             .
         RETURN.
     END.  
-    RUN pCreateEstReleaseBuffer(eb.company, eb.est-no, eb.form-no, eb.blank-no, eb.eqty, 
-        OUTPUT opiEstReleaseID, OUTPUT oplError, OUTPUT opcMessage, BUFFER bf-estRelease).
-    IF AVAILABLE bf-estRelease THEN 
+    
+    IF NOT iplRelForAllQty THEN 
     DO:
-        RUN pUpdateEstReleaseFromEstBlank(BUFFER bf-estRelease, BUFFER eb, OUTPUT oplError, OUTPUT opcMessage).
-    END. 
+        RUN pCreateEstReleaseBuffer(eb.company, eb.est-no, eb.form-no, eb.blank-no, eb.eqty, 
+        OUTPUT opiEstReleaseID, OUTPUT oplError, OUTPUT opcMessage, BUFFER bf-estRelease).
+        IF AVAILABLE bf-estRelease THEN 
+        DO:
+            RUN pUpdateEstReleaseFromEstBlank(BUFFER bf-estRelease, BUFFER eb, OUTPUT oplError, OUTPUT opcMessage).
+        END. 
+    END.
+    ELSE DO:
+        FIND FIRST est-qty NO-LOCK
+         WHERE est-qty.company EQ eb.company
+         AND est-qty.est-no EQ eb.est-no
+         AND est-qty.eqty EQ eb.eqty NO-ERROR .
+        
+        IF avail est-qty THEN 
+        DO iCount = 1 TO EXTENT(est-qty.qty):
+             IF est-qty.qty[iCount] NE 0 THEN DO:
+                RUN pCreateEstReleaseBuffer(eb.company, eb.est-no, eb.form-no, eb.blank-no, est-qty.qty[iCount], 
+                      OUTPUT opiEstReleaseID, OUTPUT oplError, OUTPUT opcMessage, BUFFER bf-estRelease).
+                IF AVAILABLE bf-estRelease THEN 
+                DO:
+                    RUN pUpdateEstReleaseFromEstBlank(BUFFER bf-estRelease, BUFFER eb, OUTPUT oplError, OUTPUT opcMessage).
+                END.              
+             END.     
+        END.    
+    END.   /* iplRelForAllQty*/
+    
+    
     
 END PROCEDURE.
 
