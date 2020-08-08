@@ -1378,6 +1378,7 @@ PROCEDURE valid-duplicateRecord :
                                    AND bf-vendItemCost.vendorID = vendItemCost.vendorID:SCREEN-VALUE IN FRAME {&frame-name}
                                    AND bf-vendItemCost.customerID = vendItemCost.customerID:SCREEN-VALUE IN FRAME {&frame-name}
                                    AND trim(bf-vendItemCost.EstimateNo) = trim(vendItemCost.EstimateNo:SCREEN-VALUE IN FRAME {&frame-name})
+                                   AND bf-vendItemCost.formNo EQ INTEGER(vendItemCost.formNo:SCREEN-VALUE IN FRAME {&FRAME-NAME})
                                    AND bf-vendItemCost.effectiveDate EQ DATE(vendItemCost.effectiveDate:SCREEN-VALUE IN FRAME {&FRAME-NAME})
                                    AND bf-vendItemCost.vendItemCostID <> venditemcost.venditemcostID                                    
              )    
