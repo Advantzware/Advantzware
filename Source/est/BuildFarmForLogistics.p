@@ -14,7 +14,7 @@
 
 /* ***************************  Definitions  ************************** */
 DEFINE INPUT PARAMETER ipriEb AS ROWID.
-DEFINE INPUT PARAMETER lPromptPopup AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER iplPromptForQuotes AS LOGICAL NO-UNDO.
 
 DEFINE TEMP-TABLE ttQuantityCost
     FIELD iQty       AS INTEGER
@@ -167,7 +167,7 @@ PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
     cEstNo = ipbf-eb.sourceEstimate.
     RUN util/rjust.p (INPUT-OUTPUT cEstNo,8). 
     
-    IF lPromptPopup AND CAN-FIND(FIRST quotehd WHERE quotehd.company EQ ipbf-eb.company AND quotehd.est-no EQ cEstNo) THEN
+    IF iplPromptForQuotes AND CAN-FIND(FIRST quotehd WHERE quotehd.company EQ ipbf-eb.company AND quotehd.est-no EQ cEstNo) THEN
         RUN oe/QuotePopup.w("",ipbf-eb.company,
             ipbf-eb.loc,
             cEstNo,
@@ -179,7 +179,7 @@ PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
             OUTPUT cChoice,
             OUTPUT rwRowid). 
             
-    IF NOT lPromptPopup THEN
+    IF NOT iplPromptForQuotes THEN
      RUN pGetLastQuoteNO(INPUT ipbf-eb.company, INPUT ipbf-eb.loc, INPUT ipbf-eb.est-no, OUTPUT iQuoteNo) .
     
     FOR EACH quotehd NO-LOCK

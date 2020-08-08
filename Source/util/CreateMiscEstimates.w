@@ -160,7 +160,7 @@ DEFINE RECTANGLE RECT-18
     SIZE 100 BY 10.43.
 
 DEFINE VARIABLE tb_cal-est        AS LOGICAL INITIAL NO 
-    LABEL "Calculate the estimate using the new estimate calculation engine" 
+    LABEL "Calculate Estimate" 
     VIEW-AS TOGGLE-BOX
     SIZE 67.2 BY .81 NO-UNDO.
 
