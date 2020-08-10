@@ -331,8 +331,7 @@ DO:
                 ar-inv.sold-name, ar-inv.sold-addr[1], ar-inv.sold-addr[2], ar-inv.sold-city,
                 ar-inv.sold-state,ar-inv.sold-zip, cCustCountry ).
         END.    
-        RUN pCreateAddress('PE', 3, '0000','PREMIER PACKAGING', '3254 RELIABLE PARKWAY', '', 'CHICAGO',
-            'IL','60686', 'US' ).  
+         
         dLineTotalAmt = 0.
         FOR EACH bf-ar-invl NO-LOCK  
             WHERE bf-ar-invl.x-no = ar-inv.x-no
@@ -378,7 +377,34 @@ DO:
     cCurrentTime = STRING(TIME)
         .
 
-
+    FIND FIRST company NO-LOCK 
+         WHERE company.company EQ ar-inv.company
+         NO-ERROR.
+         
+        RUN pCreateAddress(
+            INPUT "RI",
+            INPUT 2,
+            INPUT "0000",
+            INPUT IF AVAILABLE company THEN company.name    ELSE "",
+            INPUT IF AVAILABLE company THEN company.addr[1] ELSE "",
+            INPUT IF AVAILABLE company THEN company.addr[2] ELSE "",
+            INPUT IF AVAILABLE company THEN company.city    ELSE "",
+            INPUT IF AVAILABLE company THEN company.state   ELSE "",
+            INPUT IF AVAILABLE company THEN company.zip     ELSE "",
+            INPUT "US"
+            ).
+        RUN pCreateAddress(
+            INPUT "PE",
+            INPUT 3,
+            INPUT "0000",
+            INPUT IF AVAILABLE company THEN company.name    ELSE "",
+            INPUT IF AVAILABLE company THEN company.addr[1] ELSE "",
+            INPUT IF AVAILABLE company THEN company.addr[2] ELSE "",
+            INPUT IF AVAILABLE company THEN company.city    ELSE "",
+            INPUT IF AVAILABLE company THEN company.state   ELSE "",
+            INPUT IF AVAILABLE company THEN company.zip     ELSE "",
+            INPUT "US"
+            ).                
     // RUN pCreateAddress('RI', 2, '0000','PREMIER PACKAGING', '3254 RELIABLE PARKWAY', '', 'CHICAGO',
     //    'IL','60686', 'US' ).
                                
