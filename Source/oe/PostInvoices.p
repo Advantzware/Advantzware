@@ -374,6 +374,10 @@ FUNCTION fIsFactored RETURNS LOGICAL PRIVATE
 
 FUNCTION fIsWritable RETURNS LOGICAL PRIVATE
     (ipriInvHead AS ROWID) FORWARD.
+    
+FUNCTION fGetFgValueForZeroCost RETURNS LOGICAL PRIVATE
+    (ipcCompany AS CHARACTER,
+     ipcFgItem AS CHARACTER ) FORWARD.    
 
 /* ***************************  Main Block  *************************** */
 /* Shared Vars needed for 810 invoices */
@@ -650,6 +654,7 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
     
     DEFINE VARIABLE lAccountError        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cAccountErrorMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFGItemAllowZeroCost AS LOGICAL   NO-UNDO.
     
     CREATE ttInvoiceLineToPost.
     ASSIGN 
@@ -763,12 +768,19 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
     
     IF ttPostingMaster.blockZeroCost AND ipbf-inv-line.inv-qty NE 0 AND ttInvoiceLineToPost.costTotal EQ 0 THEN 
     DO:
-        ASSIGN 
+         lFGItemAllowZeroCost = fGetFgValueForZeroCost(ipbf-inv-line.company,ipbf-inv-line.i-no).
+         
+         IF lFGItemAllowZeroCost THEN
+          RUN pAddTagInfo (ipbf-ttInvoiceToPost.riInvHead,"Zero Cost Exemption Item").
+         ELSE
+         DO: 
+            ASSIGN 
             ttInvoiceLineToPost.isOKToPost     = NO
             ttInvoiceLineToPost.problemMessage = "Zero Cost"
             oplError                           = YES
             opcMessage                         = ttInvoiceLineToPost.problemMessage
             .
+         END.          
     END.  /*Check 0 cost*/
 
     IF ipbf-inv-line.t-price NE 0 THEN 
@@ -3411,7 +3423,26 @@ PROCEDURE pCreateValidationTags PRIVATE:
 
     END.
      
- END PROCEDURE.   
+ END PROCEDURE.  
+ 
+ 
+ PROCEDURE pAddTagInfo PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Processes the ttInvoiceError records and create tags on linked invoices
+  
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipcProblemMessage AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-inv-head FOR inv-head.
+    
+    FIND FIRST bf-inv-head NO-LOCK 
+         WHERE ROWID(bf-inv-head) EQ ipriRowid NO-ERROR .
+    IF AVAIL bf-inv-head THEN
+    DO:
+       RUN AddTagHoldInfo (bf-inv-head.rec_key,"inv-head", ipcProblemMessage). /*From TagProcs Super Proc*/ 
+    END.
+     
+ END PROCEDURE.  
     
 /* ************************  Function Implementations ***************** */ 
 FUNCTION fGetFilePath RETURNS CHARACTER PRIVATE
@@ -3602,4 +3633,26 @@ FUNCTION fIsWritable RETURNS LOGICAL PRIVATE
     RETURN lWritable.
 		
 END FUNCTION.
+
+FUNCTION fGetFgValueForZeroCost RETURNS LOGICAL PRIVATE
+    (ipcCompany AS CHARACTER,
+     ipcFgItem AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns YES if the FG Item define in view form NK1  
+     Notes:  
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE lReturnValue AS LOGICAL NO-UNDO.	
+    	
+    FIND FIRST sys-ctrl-shipto NO-LOCK
+         WHERE sys-ctrl-shipto.company EQ ipcCompany 
+         AND sys-ctrl-shipto.NAME EQ "INVPOST" 
+         AND sys-ctrl-shipto.char-fld EQ ipcFgItem
+         AND sys-ctrl-shipto.log-fld EQ NO NO-ERROR.
+    lReturnValue = AVAILABLE sys-ctrl-shipto.
+	
+    RETURN lReturnValue.
+		
+END FUNCTION.
+
+
 
