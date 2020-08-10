@@ -530,11 +530,11 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
        ELSE RELEASE terms .      
       
        ASSIGN
-        cust-t[v-int] = cust-t[v-int] + ( IF dAmountDue NE 0 THEN ag ELSE 0)
+        cust-t[v-int] = cust-t[v-int] + ag 
         v-dec         = 0
-        v-dec[v-int]  = ( IF dAmountDue NE 0 THEN ag ELSE 0)
+        v-dec[v-int]  = ag 
         cust-t[6] = cust-t[6] +  dAmountDue .
-
+               
        IF v-sep-fc THEN
        DO:
           IF v-type NE "FC" THEN
