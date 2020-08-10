@@ -1128,6 +1128,9 @@ PROCEDURE openQuery:
     IF sortColumn EQ 'Invoice Date' THEN STRING(YEAR(ar-inv.inv-date),'9999') + ~
                                      STRING(MONTH(ar-inv.inv-date),'99') + ~
                                      STRING(DAY(ar-inv.inv-date),'99') ELSE ~
+    IF sortColumn EQ 'Due Date' THEN STRING(YEAR(ar-inv.due-date),'9999') + ~
+                                     STRING(MONTH(ar-inv.due-date),'99') + ~
+                                     STRING(DAY(ar-inv.due-date),'99') ELSE ~
     IF sortColumn EQ 'Invoice#'    THEN STRING(ar-inv.inv-no, '>>>>>>>>') ELSE ~
     IF sortColumn EQ 'Invoice Amt' THEN STRING(ar-inv.paid + ar-inv.due, '->>,>>>,>>9.99')   ELSE ~
     IF sortColumn EQ 'Days Old'    THEN STRING((TODAY - ar-inv.inv-date),'->>,>>>') ELSE ~
@@ -1522,8 +1525,6 @@ PROCEDURE startSearch:
     lv-search
     &ENDIF
     .
- 
-
   IF browserTitle NE '' THEN
   BROWSE {&BROWSE-NAME}:TITLE = browserTitle + ' (sorted by: ' + sortDisplay + ')'.
   RUN openQuery.
