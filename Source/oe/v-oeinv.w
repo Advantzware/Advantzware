@@ -1338,10 +1338,11 @@ DEFINE VARIABLE cmessage         AS CHARACTER NO-UNDO.
   inv-head.f-bill = inv-head.frt-pay eq "B" /* OR inv-head.frt-pay eq "P" */.
 
   RUN Tax_CalculateForInvHead  (
-      INPUT ROWID(inv-head),
-      INPUT locode,
-      INPUT "INVOICE", /*  Message Type "INVOICE" or "QUOTATION" */
-      INPUT TRUE, /* Post To journal */
+      INPUT  ROWID(inv-head),
+      INPUT  locode,
+      INPUT  "QUOTATION", /*  Message Type "INVOICE" or "QUOTATION" */
+      INPUT  TRUE, /* Post To journal */
+      INPUT  "GetTaxAmount", /* Trigger ID */
       OUTPUT dTotalTax,
       OUTPUT dInvoiceTotal,
       OUTPUT dinvoiceSubTotal,
