@@ -60,24 +60,29 @@ ELSE IF fi_po-no NE "" THEN DO:
 END.
 
 ELSE IF fi_i-no NE "" THEN DO:
-    {&for-each41}
-        AND CAN-FIND(FIRST oe-boll
-                     WHERE oe-boll.company EQ oe-bolh.company
-                       AND oe-boll.b-no    EQ oe-bolh.b-no
-                       AND oe-boll.i-no    GE fi_i-no)
-        USE-INDEX b-no 
-        BREAK BY oe-bolh.b-no DESCENDING:
-        IF FIRST-OF(oe-bolh.b-no) THEN 
+    FOR EACH oe-boll
+        WHERE oe-boll.company EQ oe-bolh.company
+          AND oe-boll.i-no    BEGINS fi_i-no
+          AND CAN-FIND (FIRST oe-bolh
+                        WHERE oe-bolh.company EQ g_company
+                          AND oe-bolh.b-no    EQ oe-boll.b-no
+                          AND oe-bolh.posted  EQ tb_posted
+                          AND oe-bolh.deleted EQ NO
+                          USE-INDEX b-no)
+        USE-INDEX i-no
+        BREAK BY oe-boll.b-no DESCENDING :
+        IF FIRST-OF(oe-boll.b-no) THEN DO:
             iCount = iCount + 1.
-        IF lFirst THEN 
-            ASSIGN 
-                iFirstBNo = oe-bolh.b-no
-                lFirst    = NO
-                .    
-        lv-b-no = oe-bolh.b-no.
-        IF iCount GE 100 THEN 
+            IF lFirst THEN
+                ASSIGN
+                    iFirstBNo = oe-boll.b-no
+                    lFirst    = NO
+                    .
+            lv-b-no = oe-boll.b-no.
+        END.   
+        IF iCount GE 100 THEN
             LEAVE.
-    END.
+    END. 
     &SCOPED-DEFINE open-query               ~
         OPEN QUERY {&browse-name}           ~
           {&for-each1}                      ~
