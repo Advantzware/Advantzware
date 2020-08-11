@@ -1,6 +1,7 @@
   
   DEF VAR ld AS DATE EXTENT 3 NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
+  DEFINE VARIABLE cCustomerList AS CHARACTER NO-UNDO.  
 
   DEF BUFFER b-tt-report FOR tt-report.
 
@@ -582,15 +583,27 @@
 
   RELEASE tt-report.
   ASSIGN dPerAmt = 0 .
+  
+  cCustomerList = "". 
+  for each tt-report
+      where tt-report.term-id eq "",      
+      first cust
+      where cust.company eq cocode
+        and cust.cust-no eq tt-report.key-09
+      NO-LOCK BREAK BY cust.cust-no :       
+    
+    IF tt-report.ytd-only EQ NO THEN
+    DO:
+        IF LAST(cust.cust-no) THEN
+         cCustomerList = cCustomerList + tt-report.key-09 .
+        ELSE
+         cCustomerList = cCustomerList + tt-report.key-09 + "," .
+    END.     
+  end.
 
   for each tt-report
       where tt-report.term-id eq ""
-        AND tt-report.ytd-only EQ NO
-        /*AND CAN-FIND(FIRST b-tt-report
-                     WHERE b-tt-report.term-id  EQ ""
-                       AND b-tt-report.key-09   EQ tt-report.key-09
-                       AND b-tt-report.ytd-only EQ NO
-                     USE-INDEX ytd-only)*/
+        AND LOOKUP(tt-report.key-09,cCustomerList) NE 0        
 
       break by tt-report.key-01
             by tt-report.key-02

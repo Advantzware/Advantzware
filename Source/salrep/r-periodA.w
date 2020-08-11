@@ -910,7 +910,7 @@ PROCEDURE run-report :
 /* S/A Month To Date Sales Report Program - S/A Module                        */
 /* -------------------------------------------------------------------------- */
 
-{sys/form/r-topw.f}
+{sys/form/r-topsw.f}
 
 def var fdate as da.
 def var tdate as da.
@@ -960,7 +960,9 @@ assign
  slct-by-inv = rd_select EQ "Invoice Date"
  sort-by-inv = rd_sort BEGINS "Inv"     
  v-summ      = NOT tb_detailed   
- v-inc-fc    = tb_fin-chg.
+ v-inc-fc    = tb_fin-chg
+ str-tit3    =  "Sort By - " + string(rd_sort) + "  As of Date - " + STRING(as-of-date) + "  Sales " + fsman + " - " +   tsman 
+ {sys/inc/ctrtext.i str-tit3 122} .
 
 {sys/inc/print1.i}
 
