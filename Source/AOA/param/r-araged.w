@@ -128,7 +128,7 @@ DEFINE VARIABLE svStartInvoiceDateOption AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE svRecipients AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 69 BY 2.86
+     SIZE 69 BY 3.1
      BGCOLOR 15 .
 
 DEFINE VARIABLE endARClassName AS CHARACTER FORMAT "X(30)" 
@@ -344,7 +344,7 @@ DEFINE RECTANGLE RECT-8
 
 DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 82 BY 3.57.
+     SIZE 82 BY 3.81.
 
 DEFINE VARIABLE svAllARClass AS LOGICAL INITIAL yes 
      LABEL "All AR Classes" 
@@ -727,7 +727,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllARClass sObject
 ON VALUE-CHANGED OF svAllARClass IN FRAME F-Main /* All AR Classes */
 DO:
-    {aoa/includes/svAllValueChanged.i svStartTerms svEndTerms}
+    {aoa/includes/svAllValueChanged.i svStartARClass svEndARClass}
 END.
 
 /* _UIB-CODE-BLOCK-END */
