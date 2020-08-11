@@ -250,14 +250,14 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
     
     ll-valid-cust = NO.
 
-/*    IF NOT ll-valid-cust THEN*/
-/*    {&for-each-arinv}:       */
+    IF NOT ll-valid-cust THEN
+    {&for-each-arinv}:       
 /*      {&valid-factored}      */
-/*                             */
-/*      ll-valid-cust = YES.   */
-/*                             */
-/*      LEAVE.                 */
-/*    END.                     */
+                             
+      ll-valid-cust = YES.   
+                             
+      LEAVE.                 
+    END.                     
 
     IF NOT ll-valid-cust THEN
     {&for-each-arcsh}
