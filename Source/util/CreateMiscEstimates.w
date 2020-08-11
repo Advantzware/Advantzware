@@ -989,7 +989,7 @@ PROCEDURE run-process :
           IF est.ord-date EQ ? OR (est.ord-date LT begin_ord-date
                   AND est.ord-date GT end_ord-date) THEN
          PUT UNFORMATTED  
-            'No order esixt on estimate' STRING(begin_est-no)   SKIP.
+            'No order exists on estimate' STRING(begin_est-no)   SKIP.
           FIND FIRST quotehd NO-LOCK
                 WHERE quotehd.company  EQ est.company          
                 AND quotehd.loc EQ est.loc
@@ -1001,7 +1001,7 @@ PROCEDURE run-process :
                 
                 IF NOT AVAIL quotehd THEN
                  PUT UNFORMATTED  
-                 'No Quote esixt with quote date range' STRING(begin_est-no)   SKIP.                
+                 'No Quote exists within quote date range' STRING(begin_est-no)   SKIP.                
         END.          
     END.
     
