@@ -536,6 +536,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_shipto-2 ).
        /* Position in AB:  ( 4.57 , 5.00 ) */
+       RUN set-position IN h_shipto-2 ( 4.57 , 5.00 ) NO-ERROR.
        /* Size in UIB:  ( 20.24 , 149.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
