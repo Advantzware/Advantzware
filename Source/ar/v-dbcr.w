@@ -539,7 +539,9 @@ DEF VAR ll-new-record AS LOG NO-UNDO.
   /* Code placed here will execute AFTER standard behavior.    */
   IF ll-new-record THEN DO:
      DEF VAR char-hdl AS cha NO-UNDO.
-
+     
+     FIND CURRENT bf-cash NO-LOCK NO-ERROR.
+     
      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"get-rec-target", OUTPUT char-hdl).
      RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(ar-cash)).
 
