@@ -970,7 +970,45 @@ PROCEDURE run-process :
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
   
     MESSAGE TRIM(c-win:TITLE) + " Created [" STRING(iCount) "] estimates from [" STRING(iCount)"] source estimates.  View log in " STRING(cFileName) " file." VIEW-AS ALERT-BOX.  
+<<<<<<< HEAD
            
+=======
+    
+    IF iCount EQ 0 AND begin_est-no EQ end_est-no THEN
+    DO:
+      FIND FIRST est NO-LOCK
+        WHERE est.company EQ cocode
+        AND est.est-type GE 5         
+        AND est.est-no EQ begin_est-no NO-ERROR .
+        
+        IF NOT AVAIL est THEN
+        DO:
+             PUT UNFORMATTED  
+            'Invalid estimate' STRING(begin_est-no)   SKIP.
+        END.
+        
+        IF AVAIL est THEN
+        DO:
+          IF est.ord-date EQ ? OR (est.ord-date LT begin_ord-date
+                  AND est.ord-date GT end_ord-date) THEN
+         PUT UNFORMATTED  
+            'No order exists on estimate' STRING(begin_est-no)   SKIP.
+          FIND FIRST quotehd NO-LOCK
+                WHERE quotehd.company  EQ est.company          
+                AND quotehd.loc EQ est.loc
+                AND quotehd.est-no EQ est.est-no
+                AND quotehd.quo-date GE begin_quo-date
+                AND quotehd.quo-date LE end_quo-date
+                AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
+                AND quotehd.quo-date LE TODAY   NO-ERROR .
+                
+                IF NOT AVAIL quotehd THEN
+                 PUT UNFORMATTED  
+                 'No Quote exists within quote date range' STRING(begin_est-no)   SKIP.                
+        END.          
+    END.
+    
+>>>>>>> 77e0157da22a930ef86d52b48af951aec46287ea
     OUTPUT CLOSE.
   
     THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdEstimateCalcProcs).
