@@ -2734,6 +2734,9 @@ PROCEDURE pPostInvoices PRIVATE:
         WHERE ROWID(bf-inv-head) EQ ttInvoiceToPost.riInvHead 
         :
         opiCountPosted = opiCountPosted + 1.
+
+        RUN pCreateEDI(BUFFER bf-inv-head).
+                
         /*Create ar-inv based on inv-head and return writeable buffer*/
         RUN pCreateARInvHeader(BUFFER bf-inv-head, BUFFER ttInvoiceToPost, OUTPUT riArInv).  
         FIND FIRST bf-ar-inv NO-LOCK
@@ -2786,7 +2789,7 @@ PROCEDURE pPostInvoices PRIVATE:
                 DELETE bf-child-inv-head.
             END.
         
-        RUN pCreateEDI(BUFFER bf-inv-head).
+
         
         DELETE bf-inv-head.
         DELETE ttInvoiceToPost.
