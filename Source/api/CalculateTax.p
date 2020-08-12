@@ -57,6 +57,7 @@ DEFINE VARIABLE cItemQuantity  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cItemPrice     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLineID        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTermsCode     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cBOLID         AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE cFlexiFieldID AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFlexiCode    AS CHARACTER NO-UNDO.
@@ -268,9 +269,18 @@ ELSE DO:
                 IF AVAILABLE bf-APIOutboundDetail2 THEN DO:
                     /* Send BOL No in flexible field 1 */
                     lcFlexiCodeData = bf-APIOutboundDetail2.data.
+
+                    cBOLID = "".
                     
+                    FIND FIRST oe-bolh NO-LOCK
+                         WHERE oe-bolh.company EQ inv-line.company 
+                           AND oe-bolh.b-no    EQ inv-line.b-no 
+                         NO-ERROR.
+                    IF AVAILABLE oe-bolh THEN
+                        cBOLID = STRING(oe-bolh.bol-no).
+                        
                     RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "1").
-                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(inv-line.bol-no)).
+                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", cBOLID).
                     
                     lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
                     
@@ -546,6 +556,23 @@ ELSE DO:
                         
                         lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
                     END.
+
+                    /* Send Line type (inv-head(INHEAD)) in flexible field 8 */
+                    lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                    
+                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "8").
+                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", "INVHEAD").
+                    
+                    lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+
+                    /* Send line rec_key in flexible field 9 */
+                    lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                    
+                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "9").
+                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", inv-head.rec_key).
+                    
+                    lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+                    
                 END.
                 
                 RUN pUpdateDelimiter(
@@ -818,6 +845,23 @@ ELSE DO:
                         
                         lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
                     END.
+
+                    /* Send Line type (ar-invl(ARINVL)) in flexible field 8 */
+                    lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                    
+                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "8").
+                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", "ARINVL").
+                    
+                    lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+
+                    /* Send line rec_key in flexible field 9 */
+                    lcFlexiCodeData = bf-APIOutboundDetail2.data.
+                    
+                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "9").
+                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", ar-invl.rec_key).
+                    
+                    lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
+                    
                 END.
 
                 RUN pUpdateDelimiter(
