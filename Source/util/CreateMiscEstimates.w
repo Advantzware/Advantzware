@@ -287,10 +287,10 @@ ASSIGN
     begin_quo-date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
 ASSIGN 
-    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
 ASSIGN 
-    btn-process:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+    btn-process:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
 ASSIGN 
     end_cust-no:PRIVATE-DATA IN FRAME FRAME-A = "parm".
@@ -386,6 +386,20 @@ ON VALUE-CHANGED OF begin_est-no IN FRAME FRAME-A /* Beginning Estimate# */
     DO:
         ASSIGN {&self-name}.
     END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_est-no C-Win
+ON HELP OF begin_est-no IN FRAME FRAME-A
+DO:
+   DEF VAR char-val AS cha NO-UNDO.
+
+    RUN windows/l-esttyp.w (g_company,g_loc,"568","EST",FOCUS:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN begin_est-no:SCREEN-VALUE = ENTRY(1,char-val).
+    RETURN NO-APPLY.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -555,6 +569,19 @@ ON LEAVE OF end_est-no IN FRAME FRAME-A /* Ending Estimate# */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_est-no C-Win
+ON HELP OF end_est-no IN FRAME FRAME-A
+DO:
+   DEF VAR char-val AS cha NO-UNDO.
+
+    RUN windows/l-esttyp.w (g_company,g_loc,"568","EST",FOCUS:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN end_est-no:SCREEN-VALUE = ENTRY(1,char-val).
+    RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME end_ord-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_ord-date C-Win
@@ -641,13 +668,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {methods/nowait.i}
 
     DO WITH FRAME {&frame-name}:    
-        {custom/usrprint.i}
-        begin_ord-date = 01/01/2019.
-        end_ord-date = TODAY.
-        tb_create-quote:HIDDEN = TRUE .
-        DISPLAY begin_ord-date end_ord-date.
+        {custom/usrprint.i}          
         APPLY "entry" TO begin_est-no.         
     END.
+    
+    tb_create-quote:HIDDEN IN FRAME {&FRAME-NAME} = YES .
+    IF end_ord-date EQ ? THEN
+    ASSIGN
+        begin_ord-date = 01/01/2019
+        end_ord-date = TODAY.        
 
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -868,8 +897,7 @@ PROCEDURE run-process :
     iCount = 0. 
     FOR EACH bf-est NO-LOCK
         WHERE bf-est.company EQ cocode
-        AND bf-est.est-type GE 5
-        AND bf-est.estimateTypeId NE "MISC"
+        AND bf-est.est-type GE 5         
         AND bf-est.est-no GE begin_est-no
         AND bf-est.est-no LE end_est-no
         AND bf-est.ord-date GE begin_ord-date
@@ -936,13 +964,14 @@ PROCEDURE run-process :
      
      
     END.     
-
+        
+    SESSION:SET-WAIT-STATE("").      
+    
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-
-    SESSION:SET-WAIT-STATE("").
-    OUTPUT CLOSE.
   
     MESSAGE TRIM(c-win:TITLE) + " Created [" STRING(iCount) "] estimates from [" STRING(iCount)"] source estimates.  View log in " STRING(cFileName) " file." VIEW-AS ALERT-BOX.  
+
+    OUTPUT CLOSE.
   
     THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdEstimateCalcProcs).
     THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hFreightProcs).
