@@ -588,7 +588,7 @@ PROCEDURE export-xl :
     DEFINE VARIABLE lcAccFrom AS CHAR NO-UNDO.
     DEFINE VARIABLE lcAccTo   AS CHAR NO-UNDO.
     
-    IF account.actnum NE "" THEN
+    IF AVAIL account AND account.actnum NE "" THEN
     ASSIGN
         lcAccFrom = account.actnum
         lcAccTo = account.actnum
