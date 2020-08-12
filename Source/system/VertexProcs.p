@@ -347,6 +347,7 @@ PROCEDURE pGetTaxAmounts PRIVATE:
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.
     DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
     
@@ -514,6 +515,7 @@ PROCEDURE Vertex_CalculateTaxForInvHead:
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.
     DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
     
@@ -582,6 +584,7 @@ PROCEDURE Vertex_CalculateTaxForInvHead:
                 OUTPUT opdInvoiceTotal,
                 OUTPUT opdInvoiceSubTotal,
                 OUTPUT opdTaxTotal,
+                OUTPUT TABLE ttTaxDetail,
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage               
                 ).
@@ -602,6 +605,7 @@ PROCEDURE Vertex_CalculateTaxForArInv:
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.
     DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
     
@@ -670,6 +674,7 @@ PROCEDURE Vertex_CalculateTaxForArInv:
                 OUTPUT opdInvoiceTotal,
                 OUTPUT opdInvoiceSubTotal,
                 OUTPUT opdTaxTotal,
+                OUTPUT TABLE ttTaxDetail,
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage               
                 ).

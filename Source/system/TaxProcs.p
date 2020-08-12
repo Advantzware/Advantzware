@@ -40,6 +40,102 @@ FUNCTION fRoundValue RETURNS DECIMAL PRIVATE
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE pGetTotalTaxRoundedByLine PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the total tax after rounding the values by line from ttTaxDetail
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcInvoiceLineType AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplIsFreight       AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRoundMethod     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
+    
+    DEFINE VARIABLE dLineTax AS DECIMAL NO-UNDO.
+    
+    /* Rounding the tax by line item */
+    FOR EACH ttTaxDetail
+        WHERE ttTaxDetail.invoiceLineType EQ ipcInvoiceLineType
+          AND ttTaxDetail.isFreight       EQ iplIsFreight
+        BREAK BY ttTaxDetail.invoiceLineRecKey:
+        IF FIRST-OF(ttTaxDetail.invoiceLineRecKey) THEN
+            dLineTax = 0.
+        
+        dLineTax = dLineTax + ttTaxDetail.taxCodeRate * ttTaxDetail.taxCodeTaxableAmount.
+        
+        IF LAST-OF(ttTaxDetail.invoiceLineRecKey) THEN
+            ASSIGN
+                dLineTax    = fRoundValue(dLineTax, ipcRoundMethod, 2)
+                opdTaxTotal = dLineTax
+                .
+    END.
+END PROCEDURE.
+
+PROCEDURE Tax_CalculateForInvHead:
+/*------------------------------------------------------------------------------
+ Purpose: Calculates tax for a given ar-inv row id
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriInvHead        AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMessageType     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPostToJournal   AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTriggerID       AS CHARACTER NO-UNDO.        
+    DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+
+    EMPTY TEMP-TABLE ttTaxDetail.
+    
+    RUN pCalculateForInvHead (
+        INPUT  ipriInvHead,
+        INPUT  ipcLocation,
+        INPUT  ipcMessageType,
+        INPUT  iplPostToJournal,
+        INPUT  ipcTriggerID, 
+        OUTPUT opdTaxTotal,
+        OUTPUT opdInvoiceTotal,
+        OUTPUT opdInvoiceSubTotal,
+        OUTPUT TABLE ttTaxDetail,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage    
+        ).
+END PROCEDURE.
+
+PROCEDURE Tax_CalculateForArInv:
+/*------------------------------------------------------------------------------
+ Purpose: Calculates tax for a given ar-inv row id
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriArInv          AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMessageType     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPostToJournal   AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTriggerID       AS CHARACTER NO-UNDO.        
+    DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+
+    EMPTY TEMP-TABLE ttTaxDetail.
+    
+    RUN pCalculateForArinv (
+        INPUT  ipriArinv,
+        INPUT  ipcLocation,
+        INPUT  ipcMessageType,
+        INPUT  iplPostToJournal,
+        INPUT  ipcTriggerID, 
+        OUTPUT opdTaxTotal,
+        OUTPUT opdInvoiceTotal,
+        OUTPUT opdInvoiceSubTotal,
+        OUTPUT TABLE ttTaxDetail,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage    
+        ).
+END PROCEDURE.
+
 PROCEDURE Tax_GetTaxableMisc:
     /*------------------------------------------------------------------------------
      Purpose: Determines if a given combination of customer, shipto and control file
@@ -513,6 +609,7 @@ PROCEDURE pAPICalculateForInvHead PRIVATE:
     DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.
     DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
     
@@ -552,6 +649,7 @@ PROCEDURE pAPICalculateForInvHead PRIVATE:
         OUTPUT opdInvoiceTotal,
         OUTPUT opdInvoiceSubTotal,
         OUTPUT opdTaxTotal,
+        OUTPUT TABLE ttTaxDetail,
         OUTPUT oplSuccess,
         OUTPUT opcMessage    
         ).
@@ -573,6 +671,7 @@ PROCEDURE pAPICalculateForArInv PRIVATE:
     DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.    
     DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
     
@@ -612,6 +711,7 @@ PROCEDURE pAPICalculateForArInv PRIVATE:
         OUTPUT opdInvoiceTotal,
         OUTPUT opdInvoiceSubTotal,
         OUTPUT opdTaxTotal,
+        OUTPUT TABLE ttTaxDetail,
         OUTPUT oplSuccess,
         OUTPUT opcMessage    
         ).
@@ -620,7 +720,7 @@ PROCEDURE pAPICalculateForArInv PRIVATE:
         RETURN.    
 END PROCEDURE.
 
-PROCEDURE Tax_CalculateForInvHead:
+PROCEDURE pCalculateForInvHead PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Calculates tax for a given ar-inv row id
  Notes:
@@ -632,7 +732,8 @@ PROCEDURE Tax_CalculateForInvHead:
     DEFINE INPUT  PARAMETER ipcTriggerID       AS CHARACTER NO-UNDO.        
     DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.    
     DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
 
@@ -723,6 +824,7 @@ PROCEDURE Tax_CalculateForInvHead:
             OUTPUT dAPITaxTotal,
             OUTPUT dAPIInvoiceTotal,
             OUTPUT dAPIInvoiceSubTotal,
+            OUTPUT TABLE ttTaxDetail,
             OUTPUT oplSuccess,
             OUTPUT opcMessage
             ).
@@ -802,7 +904,7 @@ PROCEDURE Tax_CalculateForInvHead:
     opdInvoiceTotal = opdInvoiceSubTotal + opdTaxTotal.
 END PROCEDURE.
 
-PROCEDURE Tax_CalculateForArInv:
+PROCEDURE pCalculateForArInv PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Calculates tax for a given ar-inv row id
  Notes:
@@ -814,7 +916,8 @@ PROCEDURE Tax_CalculateForArInv:
     DEFINE INPUT  PARAMETER ipcTriggerID       AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.    
     DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
 
@@ -882,6 +985,7 @@ PROCEDURE Tax_CalculateForArInv:
             OUTPUT dAPITaxTotal,
             OUTPUT dAPIInvoiceTotal,
             OUTPUT dAPIInvoiceSubTotal,
+            OUTPUT TABLE ttTaxDetail,
             OUTPUT oplSuccess,
             OUTPUT opcMessage
             ).
