@@ -1,4 +1,4 @@
-/* subjectID137Defs.i - auto generated 08.04.2020 @ 11:18:03 pm */
+/* subjectID137Defs.i - auto generated 08.12.2020 @  2:46:21 am */
 
 {AOA/includes/dynRunBusinessLogicDefs.i}
 
@@ -9,6 +9,7 @@ DEFINE VARIABLE cStartCustNo AS Character NO-UNDO.
 DEFINE VARIABLE cStartCustName AS Character NO-UNDO.
 DEFINE VARIABLE cEndCustNo AS Character NO-UNDO.
 DEFINE VARIABLE cEndCustName AS Character NO-UNDO.
+DEFINE VARIABLE cIncludeCustomer AS Character NO-UNDO.
 
 PROCEDURE pAssignParamVariables:
     /* load dynamic parameter values into variables */
@@ -19,5 +20,6 @@ PROCEDURE pAssignParamVariables:
         cStartCustName = DYNAMIC-FUNCTION("fGetDynParamValue","startCustName")
         cEndCustNo = DYNAMIC-FUNCTION("fGetDynParamValue","endCustNo")
         cEndCustName = DYNAMIC-FUNCTION("fGetDynParamValue","endCustName")
+        cIncludeCustomer = DYNAMIC-FUNCTION("fGetDynParamValue","IncludeCustomer")
         .
 END PROCEDURE.

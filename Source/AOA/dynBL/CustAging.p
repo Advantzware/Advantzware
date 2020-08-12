@@ -88,12 +88,17 @@ PROCEDURE pBusinessLogic:
             RELEASE sys-ctrl.
         END. /* do trans */
     END. /* if lfound */
-
+    
+    MAIN-LOOP:
     FOR EACH cust NO-LOCK
         WHERE cust.company EQ cCompany
           AND cust.cust-no GE cStartCustNo
-          AND cust.cust-no LE cEndCustNo
-        :
+          AND cust.cust-no LE cEndCustNo 
+          AND (( cust.acc-bal GT 0 AND cIncludeCustomer EQ "2" ) OR cIncludeCustomer NE "2")
+          AND ((cust.cr-hold AND cIncludeCustomer EQ "3" ) OR cIncludeCustomer NE "3")
+          AND ((cust.balanceWithinGrace GT 0 AND cIncludeCustomer EQ "4") OR cIncludeCustomer NE "4") 
+        :           
+        
         IF cust.cr-hold-invdays GT 0 THEN
         RUN oe/creditid.p (RECID(cust), OUTPUT rInvoiceRecID).
         RUN ar/updcust1.p (YES, BUFFER cust, OUTPUT dOrderBalance).
@@ -104,6 +109,10 @@ PROCEDURE pBusinessLogic:
             OUTPUT dBalanceWithinGrace,
             OUTPUT dBalancePastDue
             ).
+            
+        IF cIncludeCustomer EQ "1" AND dBalanceCurrent LE 0 THEN
+        NEXT MAIN-LOOP.
+        
         CREATE ttCustAging.
         ASSIGN
             ttCustAging.custNo             = cust.cust-no
@@ -118,16 +127,16 @@ PROCEDURE pBusinessLogic:
             ttCustAging.balanceCurrent     = dBalanceCurrent
             ttCustAging.balanceWithinGrace = dBalanceWithinGrace
             ttCustAging.balancePastDue     = dBalancePastDue
-            ttCustAging.creditAvailable    = ttCustAging.creditLimit - ttCustAging.balanceDue
+            ttCustAging.creditAvailable    = ttCustAging.creditLimit - ttCustAging.openOrderBalance - ttCustAging.balanceCurrent   /*ttCustAging.balanceDue*/ 
             .
         IF rInvoiceRecID NE ? THEN
-        ttCustAging.creditHoldStatus = "Past Due Invoice,".
+        ttCustAging.creditHoldStatus = "Past Due Invoice |".
         IF ttCustAging.openOrderBalance + ttCustAging.balanceDue GT ttCustAging.creditLimit THEN
-        ttCustAging.creditHoldStatus = ttCustAging.creditHoldStatus + "Over Credit Limit,".
+        ttCustAging.creditHoldStatus = ttCustAging.creditHoldStatus + " Over Credit Limit |".
         IF ttCustAging.openOrderBalance GT ttCustAging.creditLimit THEN
-        ttCustAging.creditHoldStatus = ttCustAging.creditHoldStatus + "Over Order Limit,".
+        ttCustAging.creditHoldStatus = ttCustAging.creditHoldStatus + " Over Order Limit |".
         IF cust.cr-hold THEN
-        ttCustAging.creditHoldStatus = ttCustAging.creditHoldStatus + "Already On Hold".
+        ttCustAging.creditHoldStatus = ttCustAging.creditHoldStatus + " Already On Hold".
         ttCustAging.creditHoldStatus = TRIM(ttCustAging.creditHoldStatus,",").
         IF cust.acc-bal            NE ttCustAging.balanceDue         OR
            cust.ord-bal            NE ttCustAging.openOrderBalance   OR
