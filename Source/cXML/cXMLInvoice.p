@@ -558,7 +558,9 @@ PROCEDURE pGenerateCXML PRIVATE:
             RUN cXMLOutput (clXMLOutput,'/TaxDetail','','Row'). 
             
             /* Seperate section for handling shipping Tax */
-            IF ttInv.billFreight AND ttInvLine.amountTaxableFreight NE 0 THEN DO:
+            IF ttInv.billFreight AND ttInvLine.amountTaxableFreight NE 0 
+                AND ttInvLine.taxRateFreight NE 0 THEN DO:
+                    
                 RUN cXMLOutput (clXMLOutput,'TaxDetail purpose="shippingTax" category="sales"' + ' percentageRate="' + STRING(ttInvLine.taxRateFreight) + '"','','Row').             
                 RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').
                 RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').              
