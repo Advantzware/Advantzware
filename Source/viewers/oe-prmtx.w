@@ -83,7 +83,7 @@ oe-prmtx.qty[2] oe-prmtx.uom[2] oe-prmtx.qty[3] oe-prmtx.uom[3] ~
 oe-prmtx.qty[4] oe-prmtx.uom[4] oe-prmtx.qty[5] oe-prmtx.uom[5] ~
 oe-prmtx.qty[6] oe-prmtx.uom[6] oe-prmtx.qty[7] oe-prmtx.uom[7] ~
 oe-prmtx.qty[8] oe-prmtx.uom[8] oe-prmtx.qty[9] oe-prmtx.uom[9] ~
-oe-prmtx.qty[10] oe-prmtx.uom[10] oe-prmtx.online 
+oe-prmtx.qty[10] oe-prmtx.uom[10] oe-prmtx.online oe-prmtx.minOrderQty
 &Scoped-define ENABLED-TABLES oe-prmtx
 &Scoped-define FIRST-ENABLED-TABLE oe-prmtx
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-5 
@@ -99,7 +99,7 @@ oe-prmtx.discount[6] oe-prmtx.uom[6] oe-prmtx.qty[7] oe-prmtx.price[7] ~
 oe-prmtx.discount[7] oe-prmtx.uom[7] oe-prmtx.qty[8] oe-prmtx.price[8] ~
 oe-prmtx.discount[8] oe-prmtx.uom[8] oe-prmtx.qty[9] oe-prmtx.price[9] ~
 oe-prmtx.discount[9] oe-prmtx.uom[9] oe-prmtx.qty[10] oe-prmtx.price[10] ~
-oe-prmtx.discount[10] oe-prmtx.uom[10] oe-prmtx.online  
+oe-prmtx.discount[10] oe-prmtx.uom[10] oe-prmtx.online oe-prmtx.minOrderQty 
 &Scoped-define DISPLAYED-TABLES oe-prmtx
 &Scoped-define FIRST-DISPLAYED-TABLE oe-prmtx
 
@@ -116,7 +116,8 @@ oe-prmtx.price[4] oe-prmtx.discount[4] oe-prmtx.price[5] ~
 oe-prmtx.discount[5] oe-prmtx.price[6] oe-prmtx.discount[6] ~
 oe-prmtx.price[7] oe-prmtx.discount[7] oe-prmtx.price[8] ~
 oe-prmtx.discount[8] oe-prmtx.price[9] oe-prmtx.discount[9] ~
-oe-prmtx.price[10] oe-prmtx.discount[10] oe-prmtx.online 
+oe-prmtx.price[10] oe-prmtx.discount[10] oe-prmtx.online ~
+oe-prmtx.minOrderQty
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -155,7 +156,7 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 113 BY 13.1.
+     SIZE 108 BY 13.1.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -321,6 +322,9 @@ DEFINE FRAME F-Main
      oe-prmtx.uom[10] AT ROW 15.29 COL 109 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
+     oe-prmtx.minOrderQty  AT ROW 4.57 COL 123 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1    
      "Discount" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 3.86 COL 89
      "Price" VIEW-AS TEXT
@@ -337,6 +341,8 @@ DEFINE FRAME F-Main
           SIZE 8 BY .62 AT ROW 3.86 COL 20
      "7" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 11.95 COL 20
+     "Min Order Qty" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 3.86 COL 125     
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -1102,47 +1108,6 @@ DEF VAR cAccessList AS CHAR NO-UNDO.
     END.
     IF lAccess THEN DO:
         RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
-   /* Code placed here will execute AFTER standard behavior.    */
-   /* task 10301314  */
-        FIND CURRENT oe-prmtx NO-LOCK NO-ERROR .
-        IF NOT AVAIL oe-prmtx THEN
-            FIND FIRST oe-prmtx WHERE oe-prmtx.company = cocode NO-LOCK NO-ERROR.
-        RUN local-display-fields.
-        {methods/template/local/deleteAfter.i}       /* task 10301314  */
-    END.
-    ELSE
-        MESSAGE "You do not have access to delete a Sales Price Matrix."
-            VIEW-AS ALERT-BOX INFO BUTTONS OK.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE mass-delete V-table-Win 
-PROCEDURE mass-delete :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF VAR lAccess AS LOG NO-UNDO.
-DEF VAR lAccessClose AS LOG NO-UNDO.
-DEF VAR cAccessList AS CHAR NO-UNDO.
-
-    RUN methods/prgsecur.p(INPUT "oe-prmtx.",
-                           INPUT "delete",
-                           INPUT NO,
-                           INPUT NO,
-                           INPUT NO,
-                           OUTPUT lAccess,
-                           OUTPUT lAccessClose,
-                           OUTPUT cAccessList).
-  /* Code placed here will execute PRIOR to standard behavior. */
-    IF lAccess THEN DO:
-        IF AVAIL oe-prmtx AND NOT adm-new-record THEN
-            RUN cerep/del-prmtx.w (oe-prmtx.eff-date,oe-prmtx.cust-no, oe-prmtx.custype, oe-prmtx.procat, oe-prmtx.i-no).  /* task 10301314  */ 
-        /* Dispatch standard ADM method.   */
-        ELSE
-            RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
    /* Code placed here will execute AFTER standard behavior.    */
    /* task 10301314  */
         FIND CURRENT oe-prmtx NO-LOCK NO-ERROR .
