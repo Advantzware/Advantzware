@@ -521,6 +521,15 @@ DO:
         END.
     END.
     ELSE DO:
+        IF SELF:SCREEN-VALUE EQ "Monitor" THEN DO:
+            MESSAGE 
+                "The user 'Monitor' cannot be used for interactive" SKIP 
+                "logins. Please choose another user id."
+                VIEW-AS ALERT-BOX ERROR.
+            ASSIGN 
+                SELF:SCREEN-VALUE = "".
+            RETURN NO-APPLY.
+        END.
         ASSIGN
             cbEnvironment:LIST-ITEMS = IF cValidEnvs <> "" THEN cValidEnvs ELSE IF ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList ELSE cEnvList
             cbDatabase:LIST-ITEMS = IF cValidDbs <> "" THEN cValidDbs ELSE IF ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList ELSE cDbList
