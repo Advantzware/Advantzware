@@ -851,7 +851,8 @@ END.
              RUN cXMLOutput (clXMLOutput,'/TaxDetail','','Row'). 
              
              /* Seperate section for handling shipping Tax */
-             IF lIsFreightTaxable AND inv-line.t-freight NE 0 THEN DO:
+             IF lIsFreightTaxable AND inv-line.t-freight NE 0  
+                 AND dFrtTaxRate NE 0 THEN DO:
                  RUN cXMLOutput (clXMLOutput,'TaxDetail purpose="shippingTax" category="sales"' + ' percentageRate="' + STRING(dFrtTaxRate) + '"','','Row').             
                  RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').
                  RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').              
