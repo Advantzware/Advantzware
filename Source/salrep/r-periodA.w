@@ -990,6 +990,8 @@ display with frame r-top.
 
 SESSION:SET-WAIT-STATE ("general").
 
+EMPTY TEMP-TABLE tt-report .
+
 {salrep/r-period.i}
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
