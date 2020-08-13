@@ -403,7 +403,7 @@ PROCEDURE Outbound_IncrementAPITransactionCounter:
     END.
 END PROCEDURE.
 
-PROCEDURE Outbound_PrepareForScope:
+PROCEDURE Outbound_PrepareRequestForScope:
     /*------------------------------------------------------------------------------
      Purpose: Public wrapper procedure to prepare request data for a given scope id 
               and scope Type
