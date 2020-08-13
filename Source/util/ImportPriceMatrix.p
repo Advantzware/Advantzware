@@ -157,12 +157,14 @@ PROCEDURE pValidate PRIVATE:
         
         IF oplValid AND ipbf-ttImportPriceMatrix.FGItemID NE "" THEN 
             RUN pIsValidFGItemID IN hdValidator (ipbf-ttImportPriceMatrix.FGItemID, NO, ipbf-ttImportPriceMatrix.Company, OUTPUT oplValid, OUTPUT cValidNote).
-      
+        
+        IF oplValid THEN 
+        RUN pSetValidUOMList(ipbf-ttImportPriceMatrix.company, ipbf-ttImportPriceMatrix.FGItemID, OUTPUT cUOMList ).
+        
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM1 NE "" THEN 
         DO:
             IF ipbf-ttImportPriceMatrix.Quantity1 NE 0 THEN 
-            DO:                 
-                RUN pSetValidUOMList(ipbf-ttImportPriceMatrix.company, ipbf-ttImportPriceMatrix.FGItemID, OUTPUT cUOMList ).    
+            DO:                    
                 IF LOOKUP(ipbf-ttImportPriceMatrix.UOM1,cUOMList) EQ 0 THEN
                     ASSIGN 
                         oplValid = NO 
@@ -173,8 +175,7 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM2 NE "" THEN 
         DO:
             IF ipbf-ttImportPriceMatrix.Quantity2 NE 0 THEN 
-            DO:
-                RUN pSetValidUOMList(ipbf-ttImportPriceMatrix.company, ipbf-ttImportPriceMatrix.FGItemID, OUTPUT cUOMList ).    
+            DO:                     
                 IF LOOKUP(ipbf-ttImportPriceMatrix.UOM2,cUOMList) EQ 0 THEN
                     ASSIGN 
                         oplValid = NO 
@@ -184,8 +185,7 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM3 NE "" THEN 
         DO:
             IF ipbf-ttImportPriceMatrix.Quantity3 NE 0 THEN 
-            DO:
-                RUN pSetValidUOMList(ipbf-ttImportPriceMatrix.company, ipbf-ttImportPriceMatrix.FGItemID, OUTPUT cUOMList ).    
+            DO:                  
                 IF LOOKUP(ipbf-ttImportPriceMatrix.UOM3,cUOMList) EQ 0 THEN
                     ASSIGN 
                         oplValid = NO 
@@ -195,8 +195,7 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM4 NE "" THEN 
         DO:
             IF ipbf-ttImportPriceMatrix.Quantity4 NE 0 THEN 
-            DO:
-                RUN pSetValidUOMList(ipbf-ttImportPriceMatrix.company, ipbf-ttImportPriceMatrix.FGItemID, OUTPUT cUOMList ).    
+            DO:                  
                 IF LOOKUP(ipbf-ttImportPriceMatrix.UOM4,cUOMList) EQ 0 THEN
                     ASSIGN 
                         oplValid = NO 
@@ -206,8 +205,7 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM5 NE "" THEN 
         DO:
             IF ipbf-ttImportPriceMatrix.Quantity5 NE 0 THEN 
-            DO:
-                RUN pSetValidUOMList(ipbf-ttImportPriceMatrix.company, ipbf-ttImportPriceMatrix.FGItemID, OUTPUT cUOMList ).    
+            DO:                     
                 IF LOOKUP(ipbf-ttImportPriceMatrix.UOM5,cUOMList) EQ 0 THEN
                     ASSIGN 
                         oplValid = NO 
@@ -217,8 +215,7 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM6 NE "" THEN 
         DO:
             IF ipbf-ttImportPriceMatrix.Quantity6 NE 0 THEN 
-            DO:
-                RUN pSetValidUOMList(ipbf-ttImportPriceMatrix.company, ipbf-ttImportPriceMatrix.FGItemID, OUTPUT cUOMList ).    
+            DO:                   
                 IF LOOKUP(ipbf-ttImportPriceMatrix.UOM6,cUOMList) EQ 0 THEN
                     ASSIGN 
                         oplValid = NO 
@@ -229,8 +226,7 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM7 NE "" THEN 
         DO:
             IF ipbf-ttImportPriceMatrix.Quantity7 NE 0 THEN 
-            DO:
-                RUN pSetValidUOMList(ipbf-ttImportPriceMatrix.company, ipbf-ttImportPriceMatrix.FGItemID, OUTPUT cUOMList ).    
+            DO:                    
                 IF LOOKUP(ipbf-ttImportPriceMatrix.UOM7,cUOMList) EQ 0 THEN
                     ASSIGN 
                         oplValid = NO 
@@ -240,8 +236,7 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM8 NE "" THEN 
         DO:
             IF ipbf-ttImportPriceMatrix.Quantity8 NE 0 THEN 
-            DO:
-                RUN pSetValidUOMList(ipbf-ttImportPriceMatrix.company, ipbf-ttImportPriceMatrix.FGItemID, OUTPUT cUOMList ).    
+            DO:                     
                 IF LOOKUP(ipbf-ttImportPriceMatrix.UOM8,cUOMList) EQ 0 THEN
                     ASSIGN 
                         oplValid = NO 
@@ -251,8 +246,7 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM9 NE "" THEN 
         DO:
             IF ipbf-ttImportPriceMatrix.Quantity9 NE 0 THEN 
-            DO:
-                RUN pSetValidUOMList(ipbf-ttImportPriceMatrix.company, ipbf-ttImportPriceMatrix.FGItemID, OUTPUT cUOMList ).    
+            DO:                     
                 IF LOOKUP(ipbf-ttImportPriceMatrix.UOM9,cUOMList) EQ 0 THEN
                     ASSIGN 
                         oplValid = NO 
@@ -263,8 +257,7 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM10 NE "" THEN 
         DO:
             IF ipbf-ttImportPriceMatrix.Quantity10 NE 0 THEN 
-            DO:
-                RUN pSetValidUOMList(ipbf-ttImportPriceMatrix.company, ipbf-ttImportPriceMatrix.FGItemID, OUTPUT cUOMList ).    
+            DO:                    
                 IF LOOKUP(ipbf-ttImportPriceMatrix.UOM10,cUOMList) EQ 0 THEN
                     ASSIGN 
                         oplValid = NO 

@@ -676,8 +676,7 @@ PROCEDURE pAddPriceHold PRIVATE:
         IF NOT ttPriceHold.lPriceHold AND iplQtyAboveMin AND ipdQuantity LT bf-oe-prmtx.minOrderQty THEN 
         DO:
             ASSIGN 
-                ttPriceHold.lPriceHold           = YES
-                ttPriceHold.lEffectiveDateTooOld = YES 
+                ttPriceHold.lPriceHold           = YES                
                 ttPriceHold.cPriceHoldDetail     = "Order quantity " + STRING(ipdQuantity) + " below minimum order quantity " + STRING(bf-oe-prmtx.minOrderQty)
                 ttPriceHold.cPriceHoldReason     = "Order quantity below minimum order quantity".          
         END. 
