@@ -97,6 +97,7 @@ DEFINE TEMP-TABLE ttInvLine NO-UNDO
 DEFINE VARIABLE gcCXMLIdentity       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcCXMLDeploymentMode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcCXMLShipToPrefix   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFirstLine            AS LOG       NO-UNDO.
     
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -511,6 +512,7 @@ PROCEDURE pGenerateCXML PRIVATE:
         RUN cXMLOutput (clXMLOutput,'/OrderReference','','Row').
         RUN cXMLOutput (clXMLOutput,'/InvoiceDetailOrderInfo','','Row').
         
+        lFirstLine = TRUE.
         FOR EACH ttInvLine
             WHERE ttInvLine.isMisc EQ NO:
             RUN cXMLOutput (clXMLOutput,'InvoiceDetailItem invoiceLineNumber="' + STRING(ttInvLine.orderLine) 
@@ -612,8 +614,13 @@ PROCEDURE pGenerateCXML PRIVATE:
             RUN cXMLOutput (clXMLOutput,'/Contact','','Row').
             RUN cXMLOutput (clXMLOutput,'/InvoiceDetailShipping','','Row').
             RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
-            RUN cXMLOutput (clXMLOutput,'','0','Col').
-            RUN cXMLOutput (clXMLOutput,'/Money','','Row').
+             /* Assign total freight to first detail line since line-level freight not supported */
+            IF lFirstLine THEN DO: 
+                RUN cXMLOutput (clXMLOutput,'',STRING(inv-head.t-inv-freight),'Col').
+                lFirstLine = NO.
+            END.
+            ELSE
+                RUN cXMLOutput (clXMLOutput,'','0','Col').            RUN cXMLOutput (clXMLOutput,'/Money','','Row').
             RUN cXMLOutput (clXMLOutput,'/InvoiceDetailLineShipping','','Row').
             RUN cXMLOutput (clXMLOutput,'/InvoiceDetailItem','','Row'). 
         END.
