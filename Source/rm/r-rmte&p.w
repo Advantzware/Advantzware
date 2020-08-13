@@ -1805,7 +1805,7 @@ PROCEDURE post-rm :
 /* --------------------------------------------------- rm/rm-post.p 10/94 rd  */
 /* raw materials inventory control receipt maintenance                        */
 /* -------------------------------------------------------------------------- */
-
+DEFINE BUFFER bf-job    FOR job.
 DEF BUFFER xrm-rctd     FOR rm-rctd.
 DEF BUFFER xrm-bin      FOR rm-bin.
 DEF BUFFER b-rm-rctd    FOR rm-rctd.
@@ -1986,8 +1986,10 @@ EMPTY TEMP-TABLE ttBoardToWIP.
             IF v-bwt EQ 0 THEN v-bwt = item.basis-w.
 
             IF INDEX("RL",job.stat) NE 0 THEN DO:
-                FIND CURRENT job EXCLUSIVE-LOCK NO-ERROR.
-                job.stat = "W".
+                FIND FIRST bf-job WHERE ROWID(bf-job) EQ ROWID(job)
+                     EXCLUSIVE-LOCK NO-ERROR.
+                bf-job.stat = "W".
+                RELEASE bf-job.
             END.    
 
             {rm/rmmatact.i}            /* Create Actual Material */
