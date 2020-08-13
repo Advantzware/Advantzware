@@ -110,6 +110,7 @@ DEFINE VARIABLE cMessage              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dFrtTaxAmt            AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE lIsfreightTaxable     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE dFrtTaxRate           AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE lFirstLine            AS LOG       NO-UNDO.
 
 FUNCTION fRoundUp RETURNS DECIMAL ( ipdNum AS DECIMAL ):
   DEFINE VARIABLE dNumTwoRight AS DECIMAL NO-UNDO.
@@ -596,6 +597,7 @@ END.
         {oe/rep/invpremx.i}  /* xprint form */
 
         v-subtot-lines = 0.
+        lFirstLine = TRUE.
         for each inv-line no-lock where inv-line.r-no = inv-head.r-no:
 
           IF NOT s-print-zero-qty AND
@@ -644,7 +646,7 @@ END.
           END.
 
             assign v-line = v-line + 1
-                    /* v-printline = v-printline + 2 */.  
+                /* v-printline = v-printline + 2 */.  
             find first oe-ordl where oe-ordl.company = cocode and
                                      oe-ordl.ord-no = inv-line.ord-no and
                                      oe-ordl.i-no = inv-line.i-no
@@ -904,7 +906,13 @@ END.
              RUN cXMLOutput (clXMLOutput,'/Contact','','Row').
              RUN cXMLOutput (clXMLOutput,'/InvoiceDetailShipping','','Row').
              RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
-             RUN cXMLOutput (clXMLOutput,'','0','Col').
+             /* Assign total freight to first detail line since line-level freight not supported */
+             IF lFirstLine THEN DO: 
+                 RUN cXMLOutput (clXMLOutput,'',STRING(inv-head.t-inv-freight),'Col').
+                 lFirstLine = NO.
+             END.
+             ELSE
+                 RUN cXMLOutput (clXMLOutput,'','0','Col').
              RUN cXMLOutput (clXMLOutput,'/Money','','Row').
              RUN cXMLOutput (clXMLOutput,'/InvoiceDetailLineShipping','','Row').
              RUN cXMLOutput (clXMLOutput,'/InvoiceDetailItem','','Row'). 
