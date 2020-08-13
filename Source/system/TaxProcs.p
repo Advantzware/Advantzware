@@ -65,7 +65,7 @@ PROCEDURE pGetTotalTaxRoundedByLine PRIVATE:
         IF LAST-OF(ttTaxDetail.invoiceLineRecKey) THEN
             ASSIGN
                 dLineTax    = fRoundValue(dLineTax, ipcRoundMethod, 2)
-                opdTaxTotal = dLineTax
+                opdTaxTotal = opdTaxTotal + dLineTax
                 .
     END.
 END PROCEDURE.
@@ -738,10 +738,15 @@ PROCEDURE pCalculateForInvHead PRIVATE:
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE dTax                AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTaxTotalLine       AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTaxTotalMisc       AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTaxTotalFreight    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dAPITaxTotal        AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dAPIInvoiceTotal    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dAPIInvoiceSubTotal AS DECIMAL NO-UNDO.    
     DEFINE VARIABLE lIsInvoiceTaxable   AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cRoundMethod AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-inv-head FOR inv-head.
     DEFINE BUFFER bf-inv-line FOR inv-line.
@@ -828,13 +833,54 @@ PROCEDURE pCalculateForInvHead PRIVATE:
             OUTPUT oplSuccess,
             OUTPUT opcMessage
             ).
-        IF oplSuccess THEN
-            ASSIGN
-                opdTaxTotal        = dAPITaxTotal
-                opdInvoiceTotal    = dAPIInvoiceTotal
-                opdInvoiceSubTotal = dAPIInvoiceSubTotal
-                .   
+        IF oplSuccess THEN DO:
+            /* Get the round method for the customer */
+            RUN pGetRoundMethod (
+                INPUT  bf-inv-head.company,
+                INPUT  bf-inv-head.cust-no,
+                INPUT  bf-inv-head.sold-no,
+                OUTPUT cRoundMethod
+                ).
+            /* If the round method is ROUNDUP or ROUNDDOWN then round the vertex tax values */
+            IF cRoundMethod EQ cRoundMethodUp OR cRoundMethod EQ cRoundMethodDown THEN DO:
+                /* Calculate tax total for inv-line records */
+                RUN pGetTotalTaxRoundedByLine (
+                    INPUT  "INVLINE",
+                    INPUT  FALSE,     /* Calculate for freight */ 
+                    INPUT  cRoundMethod, 
+                    OUTPUT dTaxTotalLine
+                    ).
                 
+                /* Calculate tax total for inv-misc records */
+                RUN pGetTotalTaxRoundedByLine (
+                    INPUT  "INVMISC",
+                    INPUT  FALSE,     /* Calculate for freight */ 
+                    INPUT  cRoundMethod, 
+                    OUTPUT dTaxTotalMisc
+                    ).
+                
+                /* Calculate tax total for inv-head freight record */
+                RUN pGetTotalTaxRoundedByLine (
+                    INPUT  "INVHEAD",
+                    INPUT  TRUE,      /* Calculate for freight */ 
+                    INPUT  cRoundMethod, 
+                    OUTPUT dTaxTotalFreight
+                    ).
+                
+                ASSIGN
+                    opdTaxTotal        = dTaxTotalLine + dTaxTotalMisc + dTaxTotalFreight
+                    opdInvoiceSubTotal = dAPIInvoiceSubTotal
+                    opdInvoiceTotal    = opdInvoiceSubTotal + opdTaxTotal 
+                    .                    
+            END.            
+            ELSE  /* If cRoundMethod is NONE */
+                ASSIGN
+                    opdTaxTotal        = dAPITaxTotal
+                    opdInvoiceTotal    = dAPIInvoiceTotal
+                    opdInvoiceSubTotal = dAPIInvoiceSubTotal
+                    .   
+        END.
+        
         RETURN.  
     END.   
 
@@ -922,10 +968,14 @@ PROCEDURE pCalculateForArInv PRIVATE:
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE dTax                AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTaxTotalLine       AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTaxTotalFreight    AS DECIMAL NO-UNDO.    
     DEFINE VARIABLE dAPITaxTotal        AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dAPIInvoiceTotal    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dAPIInvoiceSubTotal AS DECIMAL NO-UNDO.    
     DEFINE VARIABLE lIsInvoiceTaxable   AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cRoundMethod AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-ar-inv  FOR ar-inv.
     DEFINE BUFFER bf-ar-invl FOR ar-invl.
@@ -989,14 +1039,45 @@ PROCEDURE pCalculateForArInv PRIVATE:
             OUTPUT oplSuccess,
             OUTPUT opcMessage
             ).
-        IF oplSuccess THEN
-            ASSIGN
-                opdTaxTotal        = dAPITaxTotal
-                opdInvoiceTotal    = dAPIInvoiceTotal
-                opdInvoiceSubTotal = dAPIInvoiceSubTotal
-                .
-        
-        RETURN.     
+        IF oplSuccess THEN DO:
+            /* Get the round method for the customer */
+            RUN pGetRoundMethod (
+                INPUT  bf-ar-inv.company,
+                INPUT  bf-ar-inv.cust-no,
+                INPUT  bf-ar-inv.ship-id,
+                OUTPUT cRoundMethod
+                ).
+            /* If the round method is ROUNDUP or ROUNDDOWN then round the vertex tax values */
+            IF cRoundMethod EQ cRoundMethodUp OR cRoundMethod EQ cRoundMethodDown THEN DO:
+                /* Calculate tax total for ar-invl records */
+                RUN pGetTotalTaxRoundedByLine (
+                    INPUT  "ARINVL",
+                    INPUT  FALSE,     /* Calculate for freight */ 
+                    INPUT  cRoundMethod, 
+                    OUTPUT dTaxTotalLine
+                    ).
+                
+                /* Calculate tax total for ar-invl freight records */
+                RUN pGetTotalTaxRoundedByLine (
+                    INPUT  "ARINVL",
+                    INPUT  TRUE,     /* Calculate for freight */ 
+                    INPUT  cRoundMethod, 
+                    OUTPUT dTaxTotalFreight
+                    ).
+                
+                ASSIGN
+                    opdTaxTotal        = dTaxTotalLine + dTaxTotalFreight
+                    opdInvoiceSubTotal = dAPIInvoiceSubTotal
+                    opdInvoiceTotal    = opdInvoiceSubTotal + opdTaxTotal 
+                    .                    
+            END.            
+            ELSE /* If cRoundMethod is NONE */
+                ASSIGN
+                    opdTaxTotal        = dAPITaxTotal
+                    opdInvoiceTotal    = dAPIInvoiceTotal
+                    opdInvoiceSubTotal = dAPIInvoiceSubTotal
+                    .   
+        END.
     END.
     
     FOR EACH bf-ar-invl NO-LOCK 
@@ -1077,15 +1158,19 @@ END PROCEDURE.
 FUNCTION fRoundValue RETURNS DECIMAL PRIVATE
     ( INPUT ipdValue AS DECIMAL, INPUT ipcRoundMethod AS CHARACTER, INPUT ipiDecimals AS INTEGER ):
     /*------------------------------------------------------------------------------
-     Purpose: Rounds/Truncates the given value using the rounding method
+     Purpose: Rounds/Truncates the given value using the rounding method. If round
+              method is blank anything other than round up or round down, then
+              input value is returned
      Notes:
     ------------------------------------------------------------------------------*/	
 
     DEFINE VARIABLE dValue AS DECIMAL NO-UNDO.
     
+    dValue = ipdValue.
+    
     IF ipcRoundMethod EQ cRoundMethodDown THEN
         dValue = TRUNCATE( ipdValue, ipiDecimals ).
-    ELSE
+    ELSE IF ipcRoundMethod EQ cRoundMethodUp THEN
         dValue = ROUND( ipdValue, ipiDecimals ).
         
     RETURN dValue.
