@@ -276,6 +276,10 @@ DO:
        RUN local-open-query IN WIDGET-HANDLE(char-hdl).
        RUN reopen-query IN WIDGET-HANDLE(char-hdl)("add") .
        RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
+       /* Call the API, after successfully adding a release line */
+       RUN pRunAPIOutboundTrigger IN WIDGET-HANDLE(char-hdl) (
+           INPUT "UpdateRelease"
+           ).
      END.
   END.
 END.
@@ -344,6 +348,11 @@ DO:
        RUN local-open-query IN WIDGET-HANDLE(char-hdl).
        RUN reopen-query IN WIDGET-HANDLE(char-hdl)("copy") .
        RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
+       /* Call the API, after successfully a record is copied */
+       RUN pRunAPIOutboundTrigger IN WIDGET-HANDLE(char-hdl) (
+           INPUT "UpdateRelease"
+           ).
+       
       END.
    END.
 END.
@@ -402,7 +411,13 @@ DO:
        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
        RUN reopen-query IN WIDGET-HANDLE(char-hdl)("update") .
        RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
-      
+       
+       /* Validate if any changes are made to the oe-rell record. Call the API if only changes are made */
+       IF NOT ll THEN
+           RUN pRunAPIOutboundTrigger IN WIDGET-HANDLE(char-hdl) (
+               INPUT "UpdateRelease"
+               ).
+       
        /*RUN reopen-po-ord-query.*/
       END.
     END.
