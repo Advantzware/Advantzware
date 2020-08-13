@@ -1,4 +1,3 @@
-
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12
 /* Procedure Description
 "Structured Procedure File Template.
@@ -29,31 +28,47 @@ DEFINE TEMP-TABLE ttFileList
     FIELD cFileName AS CHAR 
     FIELD rRowID AS ROWID 
     FIELD cRule AS CHAR 
+    FIELD cError AS CHAR  
     FIELD cMessage AS CHAR
-    FIELD lPurged AS LOG
+    FIELD lPurge AS LOG
     FIELD cRec_key AS CHAR
-    FIELD cKeyValues AS CHAR.
+    FIELD cKeyValues AS CHAR 
+    .
+    
+DEF TEMP-TABLE ttPurgeList
+    FIELD cTable AS CHAR 
+    FIELD rRowid AS ROWID 
+    FIELD lPurge AS LOG
+    .     
 
-DEF VAR iCtr AS INT NO-UNDO.
-DEF VAR iProcessedCount AS INT NO-UNDO.
+DEF VAR cCompanyList AS CHAR NO-UNDO.
+DEF VAR cFieldName AS CHAR NO-UNDO.
+DEF VAR cLocList AS CHAR NO-UNDO.
 DEF VAR cOutputDir AS CHAR NO-UNDO.
-DEF VAR lPurge AS LOG NO-UNDO.
 DEF VAR cRecKeyPrefix AS CHAR NO-UNDO.
+DEF VAR cThisCompany AS CHAR NO-UNDO.
+DEF VAR hActnumField AS HANDLE NO-UNDO.
+DEF VAR hBNoField AS HANDLE NO-UNDO.
+DEF VAR hBolNoField AS HANDLE NO-UNDO.
 DEF VAR hBuffer AS HANDLE NO-UNDO.
+DEF VAR hBufferField AS HANDLE NO-UNDO.
+DEF VAR hCompanyField AS HANDLE NO-UNDO.
+DEF VAR hCustNoField AS HANDLE NO-UNDO.
+DEF VAR hInoField AS HANDLE NO-UNDO.
+DEF VAR hInvNoField AS HANDLE NO-UNDO.
+DEF VAR hLocField AS HANDLE NO-UNDO.
+DEF VAR hOrdNoField AS HANDLE NO-UNDO.
 DEF VAR hQuery AS HANDLE NO-UNDO.
 DEF VAR hRecKey AS HANDLE NO-UNDO.
 DEF VAR hRnoField AS HANDLE NO-UNDO.
-DEF VAR hCompanyField AS HANDLE NO-UNDO.
-DEF VAR hBufferField AS HANDLE NO-UNDO.
 DEF VAR hTestField AS HANDLE NO-UNDO.
-DEF VAR cFieldName AS CHAR NO-UNDO.
-DEF VAR cCompanyList AS CHAR NO-UNDO.
-DEF VAR hInvNoField AS HANDLE NO-UNDO.
-DEF VAR cLocList AS CHAR NO-UNDO.
-DEF VAR hOrdNoField AS HANDLE NO-UNDO.
-DEF VAR hLocField AS HANDLE NO-UNDO.
-DEF VAR hInoField AS HANDLE NO-UNDO.
-DEF VAR cThisCompany AS CHAR NO-UNDO.
+DEF VAR hXnoField AS HANDLE NO-UNDO.
+DEF VAR iCtr AS INT NO-UNDO.
+DEF VAR iErrorCount AS INT NO-UNDO.
+DEF VAR iProcessedCount AS INT NO-UNDO.
+DEF VAR iWarningCount AS INT NO-UNDO.
+DEF VAR lPurge AS LOG NO-UNDO.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -125,6 +140,46 @@ FUNCTION dynExport RETURNS CHARACTER
 
 /* **********************  Internal Procedures  *********************** */
 
+&IF DEFINED(EXCLUDE-pDeleteRecordsByRowid) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteRecordsByRowid Procedure
+PROCEDURE pDeleteRecordsByRowid:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcFileName AS CHAR NO-UNDO.
+    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
+    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
+
+    CREATE BUFFER hBuffer FOR TABLE ipcFileName.
+    CREATE QUERY hQuery.
+    hBuffer:DISABLE-LOAD-TRIGGERS(FALSE).
+    hQuery:ADD-BUFFER(hBuffer).
+    hQuery:QUERY-PREPARE ("FOR EACH " + ipcFileName + " NO-LOCK").
+    hQuery:QUERY-OPEN().
+
+    OUTPUT STREAM sDump TO VALUE (cOutputDir + "\" + ipcFileName + ".d").
+    FOR EACH ttPurgeList WHERE 
+        ttPurgeList.cTable EQ ipcFileName TRANSACTION:
+        hQuery:REPOSITION-TO-ROWID (ttPurgeList.rRowid).
+        hBuffer:FIND-BY-ROWID(ttPurgeList.rRowid, EXCLUSIVE-LOCK).
+        IF hBuffer:AVAILABLE THEN DO:
+            PUT STREAM sDump UNFORMATTED dynExport(hBuffer, " ") SKIP.
+            hBuffer:BUFFER-DELETE().
+        END.
+    END.
+    OUTPUT STREAM sDump CLOSE.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-pGetFieldList) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetFieldList Procedure
@@ -160,10 +215,10 @@ END PROCEDURE.
 &ENDIF
 
 
-&IF DEFINED(EXCLUDE-pRuleBlankCompany) = 0 &THEN
+&IF DEFINED(EXCLUDE-pTestBlankCompany) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRuleBlankCompany Procedure
-PROCEDURE pRuleBlankCompany:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTestOneFile Procedure
+PROCEDURE pTestOneFile:
 /*------------------------------------------------------------------------------
  Purpose:   locates records with blank company code and adds to temp-table
  Notes:
@@ -172,857 +227,340 @@ PROCEDURE pRuleBlankCompany:
     DEF INPUT PARAMETER ipcRecKeyPrefix AS CHAR NO-UNDO.
     DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
     DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
+    DEF VAR cFieldList AS CHAR NO-UNDO.
+    DEF VAR lError AS LOG NO-UNDO.
+    DEF VAR lWarning AS LOG NO-UNDO.
+    DEF VAR cMessage AS CHAR NO-UNDO.
+    DEF VAR cRule AS CHAR NO-UNDO.
     
-    CREATE BUFFER hBuffer FOR TABLE ipcFileName. 
-    CREATE QUERY hQuery.
-     
+    /* Make a list of indexed fields in this table */
+    FIND FIRST asi._file NO-LOCK WHERE 
+        asi._file._file-name = ipcFileName 
+        NO-ERROR.
+    IF AVAIL asi._file THEN 
+        FOR EACH asi._index OF asi._file, 
+            EACH asi._index-field OF asi._index, 
+            EACH asi._field OF asi._index-field NO-LOCK 
+            BY asi._field._order:
+            IF LOOKUP(_field._field-name,cFieldList) EQ 0 THEN ASSIGN 
+                    cFieldList = cFieldList + asi._field._field-name + ",".
+        END.
     ASSIGN 
-        hTestField = ?
+        cFieldList = TRIM(cFieldList,",").
+
+    CREATE BUFFER hBuffer FOR TABLE ipcFileName.
+    CREATE QUERY hQuery.
+
+    ASSIGN
+        hRecKey = ?
+        hActnumField = ?
+        hBNoField = ?
+        hBolNoField = ?
         hCompanyField = ?
-        hLocField = ?
+        hCustNoField = ?
         hInoField = ?
+        hInvNoField = ?
+        hLocField = ?
         hOrdNoField = ?
-        hInvNoField = ?.
-        
+        hRnoField = ?
+        hTestField = ?
+        hXnoField = ?.
+    
+    /* Assign buffer-field names IF they are indexed fields */
     DO ictr = 1 TO hBuffer:NUM-FIELDS:
         ASSIGN 
             hTestField = hBuffer:BUFFER-FIELD(iCtr).
+        /* If this field is not in the list of indexed fields and isn't "rec_key", skip it */
+        IF NOT CAN-DO(cFieldList,hTestField:NAME) 
+        AND hTestField:NAME NE "rec_key" THEN NEXT.
+        /* Assign field names if exist in this table */        
         IF hTestField:NAME EQ "rec_key" THEN ASSIGN
             hRecKey = hBuffer:BUFFER-FIELD(iCtr).
+        ELSE IF hTestField:NAME EQ "actnum" THEN ASSIGN
+            hActnumField = hBuffer:BUFFER-FIELD(iCtr).
+        ELSE IF hTestField:NAME EQ "b-no" THEN ASSIGN
+            hBNoField = hBuffer:BUFFER-FIELD(iCtr).
+        ELSE IF hTestField:NAME EQ "bol-no" THEN ASSIGN
+            hBolNoField = hBuffer:BUFFER-FIELD(iCtr).
         ELSE IF hTestField:NAME EQ "company" THEN ASSIGN
             hCompanyField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "loc" THEN ASSIGN
-            hLocField = hBuffer:BUFFER-FIELD(iCtr).
+        ELSE IF hTestField:NAME EQ "cust-no" THEN ASSIGN
+            hCustNoField = hBuffer:BUFFER-FIELD(iCtr).
         ELSE IF hTestField:NAME EQ "i-no" THEN ASSIGN
             hInoField = hBuffer:BUFFER-FIELD(iCtr).
+        ELSE IF hTestField:NAME EQ "inv-no" THEN ASSIGN
+            hInvNoField = hBuffer:BUFFER-FIELD(iCtr).
+        ELSE IF hTestField:NAME EQ "loc" THEN ASSIGN
+            hLocField = hBuffer:BUFFER-FIELD(iCtr).
         ELSE IF hTestField:NAME EQ "ord-no" THEN ASSIGN 
             hOrdNoField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "inv-no" THEN ASSIGN 
-            hInvNoField = hBuffer:BUFFER-FIELD(iCtr).
+        ELSE IF hTestField:NAME EQ "r-no" THEN ASSIGN 
+            hRNoField = hBuffer:BUFFER-FIELD(iCtr).
+        ELSE IF hTestField:NAME EQ "x-no" THEN ASSIGN
+            hXnoField = hBuffer:BUFFER-FIELD(iCtr).
     END.
 
     hQuery:ADD-BUFFER(hBuffer).
     hQuery:QUERY-PREPARE ("FOR EACH " + ipcFileName + " WHERE " +
-                          ipcFileName + ".rec_key LT '" + ipcRecKeyPrefix + "'" + " AND " +
-                          ipcFileName + ".company EQ ''" +
+                          ipcFileName + ".rec_key LT '" + ipcRecKeyPrefix + "'" +
+                          (IF hCompanyField NE ? THEN (" AND " + ipcFileName + ".company EQ '" + cThisCompany + "'") ELSE "") + 
                           " NO-LOCK").
     hQuery:QUERY-OPEN().
     hQuery:GET-FIRST().
     
     DO WHILE NOT hQuery:QUERY-OFF-END:
-        FIND FIRST ttFileList WHERE 
-            ttFileList.cFileName EQ ipcFileName AND 
-            ttFileList.rRowID EQ hBuffer:ROWID
-            NO-ERROR.
-        IF NOT AVAIL ttFileList THEN DO:  
-            CREATE ttFileList.
-            ASSIGN 
-                ttFileList.cFileName = ipcFileName
-                ttFileList.rRowID = hBuffer:ROWID
-                ttFileList.cRec_key = hRecKey:BUFFER-VALUE
-                ttFileList.cKeyValues = "WHERE " +
-                                        (IF hCompanyField NE ? THEN ("Company='" + hCompanyField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hLocField NE ? THEN ("Loc='" + hLocField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hInoField NE ? THEN ("Item No='" + hInoField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hOrdNoField NE ? THEN ("Order No='" + hOrdNoField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hInvNoField NE ? THEN ("Invc No='" + hInvNoField:BUFFER-VALUE + "'") ELSE "").
-        END.        
-        ASSIGN 
-            iProcessedCount = iProcessedCount + 1
-            ttFileList.cRule = ttFileList.cRule + "Blank Company" + ","
-            ttFileList.cMessage = ttFileList.cMessage + "-" + ",".
-        hQuery:GET-NEXT().
-    END.
-
-        
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-pRuleBlankI-No) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRuleBlankI-No Procedure
-PROCEDURE pRuleBlankI-No:
-/*------------------------------------------------------------------------------
- Purpose:   Test for blank i-no fields
- Notes:      
-------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcFileName AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcRecKeyPrefix AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
-    
-    CREATE BUFFER hBuffer FOR TABLE ipcFileName. 
-    CREATE QUERY hQuery.
-     
-    ASSIGN 
-        hTestField = ?
-        hCompanyField = ?
-        hLocField = ?
-        hInoField = ?
-        hOrdNoField = ?
-        hInvNoField = ?.
-        
-    DO ictr = 1 TO hBuffer:NUM-FIELDS:
-        ASSIGN 
-            hTestField = hBuffer:BUFFER-FIELD(iCtr).
-        IF hTestField:NAME EQ "rec_key" THEN ASSIGN
-            hRecKey = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "company" THEN ASSIGN
-            hCompanyField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "loc" THEN ASSIGN
-            hLocField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "i-no" THEN ASSIGN
-            hInoField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "ord-no" THEN ASSIGN 
-            hOrdNoField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "inv-no" THEN ASSIGN 
-            hInvNoField = hBuffer:BUFFER-FIELD(iCtr).
-    END.
-
-    hQuery:ADD-BUFFER(hBuffer).
-    hQuery:QUERY-PREPARE ("FOR EACH " + ipcFileName + " WHERE " +
-        ipcFileName + ".rec_key LT '" + ipcRecKeyPrefix + "'" + " AND " +
-        ipcFileName + ".company EQ '" + cThisCompany + "'" + " AND " + 
-        ipcFileName + ".i-no EQ ''" +
-        " NO-LOCK").
-    hQuery:QUERY-OPEN().
-    hQuery:GET-FIRST().
-    
-    DO WHILE NOT hQuery:QUERY-OFF-END:
-        FIND FIRST ttFileList WHERE 
-            ttFileList.cFileName EQ ipcFileName AND 
-            ttFileList.rRowID EQ hBuffer:ROWID
-            NO-ERROR.
-        IF NOT AVAIL ttFileList THEN 
-        DO:  
-            CREATE ttFileList.
-            ASSIGN 
-                ttFileList.cFileName = ipcFileName
-                ttFileList.rRowID = hBuffer:ROWID
-                ttFileList.cRec_key = hRecKey:BUFFER-VALUE
-                ttFileList.cKeyValues = "WHERE " +
-                                        (IF hCompanyField NE ? THEN ("Company='" + hCompanyField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hLocField NE ? THEN ("Loc='" + hLocField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hInoField NE ? THEN ("Item No='" + hInoField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hOrdNoField NE ? THEN ("Order No='" + hOrdNoField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hInvNoField NE ? THEN ("Invc No='" + hInvNoField:BUFFER-VALUE + "'") ELSE "").
-        END.        
-        ASSIGN 
-            iProcessedCount = iProcessedCount + 1
-            ttFileList.cRule = ttFileList.cRule + "Blank i-no" + ","
-            ttFileList.cMessage = ttFileList.cMessage + "-" + ",".
-        hQuery:GET-NEXT().
-    END.
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-pRuleBlankI-NoMOD1) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRuleBlankI-NoMOD1 Procedure
-PROCEDURE pRuleBlankI-NoMOD1:
-/*------------------------------------------------------------------------------
- Purpose:   Test for blank i-no fields modified for related r-no
- Notes:      
-------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcFileName AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcRecKeyPrefix AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
-    
-    CREATE BUFFER hBuffer FOR TABLE ipcFileName. 
-    CREATE QUERY hQuery.
-     
-    ASSIGN 
-        hTestField = ?
-        hCompanyField = ?
-        hLocField = ?
-        hInoField = ?
-        hOrdNoField = ?
-        hInvNoField = ?.
-        
-    DO ictr = 1 TO hBuffer:NUM-FIELDS:
-        ASSIGN 
-            hTestField = hBuffer:BUFFER-FIELD(iCtr).
-        IF hTestField:NAME EQ "rec_key" THEN ASSIGN
-            hRecKey = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "company" THEN ASSIGN
-            hCompanyField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "loc" THEN ASSIGN
-            hLocField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "i-no" THEN ASSIGN
-            hInoField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "ord-no" THEN ASSIGN 
-            hOrdNoField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "inv-no" THEN ASSIGN 
-            hInvNoField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "r-no" THEN ASSIGN 
-            hRnoField = hBuffer:BUFFER-FIELD(iCtr).
-    END.
-
-    hQuery:ADD-BUFFER(hBuffer).
-
-    hQuery:QUERY-PREPARE ("FOR EACH " + ipcFileName + " WHERE " +
-        ipcFileName + ".rec_key LT '" + ipcRecKeyPrefix + "'" + " AND " +
-        ipcFileName + ".company EQ '" + cThisCompany + "'" + " AND " + 
-        ipcFileName + ".i-no EQ ''" + 
-        " NO-LOCK").
-    hQuery:QUERY-OPEN().
-    hQuery:GET-FIRST().
-    
-    DO WHILE NOT hQuery:QUERY-OFF-END:
-        IF ipcFileName EQ "fg-rdtlh" THEN DO:
-            IF CAN-FIND(FIRST fg-rcpth WHERE 
-                        fg-rcpth.company EQ hCompanyField:BUFFER-VALUE AND 
-                        fg-rcpth.r-no EQ INTEGER(hRnoField:BUFFER-VALUE)
-                        USE-INDEX r-no) THEN DO:
-                hQuery:GET-NEXT().
-                NEXT.
-            END.
+        /* Account number tests */
+        IF hActNumField NE ? THEN DO:
+            IF hActNumField:BUFFER-VALUE EQ "" THEN ASSIGN 
+                lError = IF CAN-DO("ar-invl",ipcFileName) THEN TRUE ELSE lError 
+                lWarning = IF NOT CAN-DO("ar-invl",ipcFileName) THEN TRUE ELSE lWarning 
+                cRule = cRule + ",Blank Acct No"
+                cMessage = cMessage + ",<blank>".
+            ELSE IF NOT CAN-FIND(FIRST account WHERE 
+                                 account.company EQ cThisCompany AND 
+                                 account.actnum EQ hActNumField:BUFFER-VALUE) THEN ASSIGN 
+                lError = TRUE 
+                cRule = cRule + ",Invalid Acct No"
+                cMessage = cMessage + ",Acctnum=" + hActNumField:BUFFER-VALUE.  
         END.
-        ELSE IF ipcFileName EQ "fg-rcpth" THEN DO:
-            IF CAN-FIND(FIRST fg-rdtlh WHERE 
-                        fg-rdtlh.company EQ hCompanyField:BUFFER-VALUE AND 
-                        fg-rdtlh.r-no EQ INTEGER(hRnoField:BUFFER-VALUE)
-                        USE-INDEX rm-rdtl) THEN DO: 
-                hQuery:GET-NEXT().
-                NEXT.
-            END.
+
+        /* B-no tests */
+        IF hBNoField NE ? THEN DO:
+            IF hBNoField:BUFFER-VALUE EQ "" 
+            AND NOT CAN-DO("fg-rcpth",ipcFileName) THEN ASSIGN 
+                lWarning = TRUE 
+                cRule = cRule + ",Blank B-no"
+                cMessage = cMessage + ",<blank>".
+            ELSE IF NOT CAN-FIND(FIRST oe-bolh WHERE 
+                                 oe-bolh.b-no EQ hBNoField:BUFFER-VALUE) 
+            AND NOT CAN-DO("fg-rcpth,fg-rcpts,fg-rctd,fg-rdtlh,rm-rctd",ipcFileName) THEN ASSIGN 
+                lError = TRUE 
+                cRule = cRule + ",Invalid B-no"
+                cMessage = cMessage + ",B-no=" + hBNoField:BUFFER-VALUE.  
         END.
-        FIND FIRST ttFileList WHERE 
-            ttFileList.cFileName EQ ipcFileName AND 
-            ttFileList.rRowID EQ hBuffer:ROWID
-            NO-ERROR.
-        IF NOT AVAIL ttFileList THEN 
-        DO:  
-            CREATE ttFileList.
-            ASSIGN 
-                ttFileList.cFileName = ipcFileName
-                ttFileList.rRowID = hBuffer:ROWID
-                ttFileList.cRec_key = hRecKey:BUFFER-VALUE
-                ttFileList.cKeyValues = "WHERE " +
-                                        (IF hCompanyField NE ? THEN ("Company='" + hCompanyField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hLocField NE ? THEN ("Loc='" + hLocField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hInoField NE ? THEN ("Item No='" + hInoField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hOrdNoField NE ? THEN ("Order No='" + hOrdNoField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hInvNoField NE ? THEN ("Invc No='" + hInvNoField:BUFFER-VALUE + "'") ELSE "").
-        END.        
-        ASSIGN 
-            iProcessedCount = iProcessedCount + 1
-            ttFileList.cRule = ttFileList.cRule + "Blank i-no/No matching r-no" + ","
-            ttFileList.cMessage = ttFileList.cMessage + "-" + ",".
-        hQuery:GET-NEXT().
-    END.
 
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pRuleBlankI-NoMOD2) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRuleBlankI-NoMOD2 Procedure
-PROCEDURE pRuleBlankI-NoMOD2:
-    /*------------------------------------------------------------------------------
-     Purpose:   Test for blank i-no fields modified for related ord-no
-     Notes:      
-    ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcFileName AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcRecKeyPrefix AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
-    
-    CREATE BUFFER hBuffer FOR TABLE ipcFileName. 
-    CREATE QUERY hQuery.
-     
-    ASSIGN 
-        hTestField = ?
-        hCompanyField = ?
-        hLocField = ?
-        hInoField = ?
-        hOrdNoField = ?
-        hInvNoField = ?.
-        
-    DO ictr = 1 TO hBuffer:NUM-FIELDS:
-        ASSIGN 
-            hTestField = hBuffer:BUFFER-FIELD(iCtr).
-        IF hTestField:NAME EQ "rec_key" THEN ASSIGN
-            hRecKey = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "company" THEN ASSIGN
-            hCompanyField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "loc" THEN ASSIGN
-            hLocField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "i-no" THEN ASSIGN
-            hInoField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "ord-no" THEN ASSIGN 
-            hOrdNoField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "inv-no" THEN ASSIGN 
-            hInvNoField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "r-no" THEN ASSIGN 
-            hRnoField = hBuffer:BUFFER-FIELD(iCtr).
-    END.
-
-    hQuery:ADD-BUFFER(hBuffer).
-
-    hQuery:QUERY-PREPARE ("FOR EACH " + ipcFileName + " WHERE " +
-        ipcFileName + ".rec_key LT '" + ipcRecKeyPrefix + "'" + " AND " +
-        ipcFileName + ".company EQ '" + cThisCompany + "'" + " AND " + 
-        ipcFileName + ".i-no EQ ''" + 
-        " NO-LOCK").
-    hQuery:QUERY-OPEN().
-    hQuery:GET-FIRST().
-    
-    DO WHILE NOT hQuery:QUERY-OFF-END:
-        IF ipcFileName EQ "oe-boll" 
-        OR ipcFileName EQ "oe-rell" THEN 
-        DO:
-            IF CAN-FIND(FIRST oe-ord WHERE 
-                oe-ord.company EQ hCompanyField:BUFFER-VALUE AND 
-                oe-ord.ord-no EQ INTEGER(hOrdNoField:BUFFER-VALUE)
-                USE-INDEX ord-no) THEN 
-            DO:
-                hQuery:GET-NEXT().
-                NEXT.
-            END.
+        /* BOL-no tests */
+        IF hBolNoField NE ? THEN DO:
+            IF hBolNoField:BUFFER-VALUE EQ "" 
+            AND NOT CAN-DO("fg-bin,fg-rdtlh",ipcFileName) THEN ASSIGN 
+                lWarning = TRUE 
+                cRule = cRule + ",Blank BOL-no"
+                cMessage = cMessage + ",<blank>".
+            ELSE IF NOT CAN-FIND(FIRST oe-bolh WHERE 
+                                 oe-bolh.bol-no EQ hBolNoField:BUFFER-VALUE) 
+            AND NOT CAN-DO("ar-invl,fg-bin,fg-rdtlh,inv-head",ipcFileName) THEN ASSIGN 
+                lError = TRUE 
+                cRule = cRule + ",Invalid BOL-no"
+                cMessage = cMessage + ",BOL-no=" + hBolNoField:BUFFER-VALUE.  
         END.
-        FIND FIRST ttFileList WHERE 
-            ttFileList.cFileName EQ ipcFileName AND 
-            ttFileList.rRowID EQ hBuffer:ROWID
-            NO-ERROR.
-        IF NOT AVAIL ttFileList THEN 
-        DO:  
-            CREATE ttFileList.
-            ASSIGN 
-                ttFileList.cFileName = ipcFileName
-                ttFileList.rRowID = hBuffer:ROWID
-                ttFileList.cRec_key = hRecKey:BUFFER-VALUE
-                ttFileList.cKeyValues = "WHERE " +
-                                        (IF hCompanyField NE ? THEN ("Company='" + hCompanyField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hLocField NE ? THEN ("Loc='" + hLocField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hInoField NE ? THEN ("Item No='" + hInoField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hOrdNoField NE ? THEN ("Order No='" + hOrdNoField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hInvNoField NE ? THEN ("Invc No='" + hInvNoField:BUFFER-VALUE + "'") ELSE "").
-        END.        
-        ASSIGN 
-            iProcessedCount = iProcessedCount + 1
-            ttFileList.cRule = ttFileList.cRule + "Blank i-no/No matching order no" + ","
-            ttFileList.cMessage = ttFileList.cMessage + "-" + ",".
-        hQuery:GET-NEXT().
-    END.
 
-END PROCEDURE.
-    
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+        /* Company tests */
+        IF hCompanyField NE ? THEN DO:
+            IF hCompanyField:BUFFER-VALUE EQ "" THEN ASSIGN 
+                lError = TRUE 
+                cRule = cRule + ",Blank Company"
+                cMessage = cMessage + ",<blank>".
+            ELSE IF NOT CAN-FIND(FIRST company WHERE 
+                                 company.company EQ hCompanyField:BUFFER-VALUE) THEN ASSIGN 
+                lError = TRUE 
+                cRule = cRule + ",Invalid Company"
+                cMessage = cMessage + ",Company=" + hCompanyField:BUFFER-VALUE.  
+        END.
 
+        /* Cust-no tests */
+        IF hCustNoField NE ? THEN DO:
+            IF hCustNoField:BUFFER-VALUE EQ "" 
+            AND NOT CAN-DO("fg-bin,fg-rdtlh,item,itemfg,rm-bin,fg-rcpts,",ipcFileName) THEN ASSIGN 
+                lWarning = IF NOT CAN-DO("oe-rel,oe-relh,oe-rell,oe-bolh,oe-boll,oe-ord,oe-ordl,oe-ordm",ipcFileName) THEN TRUE ELSE lWarning 
+                lError = IF CAN-DO("oe-rel,oe-relh,oe-rell,oe-bolh,oe-boll,oe-ord,oe-ordl,oe-ordm",ipcFileName) THEN TRUE ELSE lError 
+                cRule = cRule + ",Blank Cust-No"
+                cMessage = cMessage + ",<blank>".
+            ELSE IF hCustNoField:BUFFER-VALUE NE "" 
+            AND NOT CAN-FIND(FIRST cust WHERE 
+                                 cust.cust-no EQ hCustNoField:BUFFER-VALUE) THEN ASSIGN 
+                lError = IF NOT CAN-DO("item,itemfg",ipcFileName) THEN TRUE ELSE lError 
+                lWarning = IF CAN-DO("item,itemfg",ipcFileName) THEN TRUE ELSE lWarning 
+                cRule = cRule + ",Invalid Cust-no"
+                cMessage = cMessage + ",Cust-no=" + hCustNoField:BUFFER-VALUE.
+        END.
 
-&ENDIF
-
-&IF DEFINED(EXCLUDE-pRuleBlankLoc) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRuleBlankLoc Procedure
-PROCEDURE pRuleBlankLoc:
-    /*------------------------------------------------------------------------------
-     Purpose:   Test for blank loc fields
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcFileName AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcRecKeyPrefix AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
-    
-    CREATE BUFFER hBuffer FOR TABLE ipcFileName. 
-    CREATE QUERY hQuery.
-     
-    ASSIGN 
-        hTestField = ?
-        hCompanyField = ?
-        hLocField = ?
-        hInoField = ?
-        hOrdNoField = ?
-        hInvNoField = ?.
-        
-    DO ictr = 1 TO hBuffer:NUM-FIELDS:
-        ASSIGN 
-            hTestField = hBuffer:BUFFER-FIELD(iCtr).
-        IF hTestField:NAME EQ "rec_key" THEN ASSIGN
-            hRecKey = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "company" THEN ASSIGN
-            hCompanyField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "loc" THEN ASSIGN
-            hLocField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "i-no" THEN ASSIGN
-            hInoField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "ord-no" THEN ASSIGN 
-            hOrdNoField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "inv-no" THEN ASSIGN 
-            hInvNoField = hBuffer:BUFFER-FIELD(iCtr).
-    END.
-
-    hQuery:ADD-BUFFER(hBuffer).
-    hQuery:QUERY-PREPARE ("FOR EACH " + ipcFileName + " WHERE " +
-        ipcFileName + ".rec_key LT '" + ipcRecKeyPrefix + "'" + " AND " +
-        ipcFileName + ".company EQ '" + cThisCompany + "'" + " AND " + 
-        ipcFileName + ".loc EQ ''" +
-        " NO-LOCK").
-    hQuery:QUERY-OPEN().
-    hQuery:GET-FIRST().
-    
-    DO WHILE NOT hQuery:QUERY-OFF-END:
-        FIND FIRST ttFileList WHERE 
-            ttFileList.cFileName EQ ipcFileName AND 
-            ttFileList.rRowID EQ hBuffer:ROWID
-            NO-ERROR.
-        IF NOT AVAIL ttFileList THEN 
-        DO:  
-            CREATE ttFileList.
-            ASSIGN 
-                ttFileList.cFileName = ipcFileName
-                ttFileList.rRowID = hBuffer:ROWID
-                ttFileList.cRec_key = hRecKey:BUFFER-VALUE
-                ttFileList.cKeyValues = "WHERE " +
-                                        (IF hCompanyField NE ? THEN ("Company='" + hCompanyField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hLocField NE ? THEN ("Loc='" + hLocField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hInoField NE ? THEN ("Item No='" + hInoField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hOrdNoField NE ? THEN ("Order No='" + hOrdNoField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hInvNoField NE ? THEN ("Invc No='" + hInvNoField:BUFFER-VALUE + "'") ELSE "").
-        END.        
-        ASSIGN 
-            iProcessedCount = iProcessedCount + 1
-            ttFileList.cRule = ttFileList.cRule + "Blank Loc" + ","
-            ttFileList.cMessage = ttFileList.cMessage + "-" + ",".
-        hQuery:GET-NEXT().
-    END.
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-pRuleInvalidCompany) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRuleInvalidCompany Procedure
-PROCEDURE pRuleInvalidCompany:
-/*------------------------------------------------------------------------------
- Purpose:   Finds records with invalid company code and adds to temp-table
- Notes:     On large tables, this will be slow since we need to scan all records
-            If rec_key is indexed, we do limit based on that value
-------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcFileName AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcRecKeyPrefix AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
-    
-    FOR EACH company NO-LOCK:
-        ASSIGN 
-            cCompanyList = cCompanyList + company.company + ",".
-    END.
-    ASSIGN 
-        cCompanyList = TRIM(cCompanyList,",").
-        
-    CREATE BUFFER hBuffer FOR TABLE ipcFileName. 
-    CREATE QUERY hQuery.
-     
-    ASSIGN 
-        hTestField = ?
-        hCompanyField = ?
-        hLocField = ?
-        hInoField = ?
-        hOrdNoField = ?
-        hInvNoField = ?.
-        
-    DO ictr = 1 TO hBuffer:NUM-FIELDS:
-        ASSIGN 
-            hTestField = hBuffer:BUFFER-FIELD(iCtr).
-        IF hTestField:NAME EQ "rec_key" THEN ASSIGN
-            hRecKey = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "company" THEN ASSIGN
-            hCompanyField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "loc" THEN ASSIGN
-            hLocField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "i-no" THEN ASSIGN
-            hInoField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "ord-no" THEN ASSIGN 
-            hOrdNoField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "inv-no" THEN ASSIGN 
-            hInvNoField = hBuffer:BUFFER-FIELD(iCtr).
-    END.
-
-    hQuery:ADD-BUFFER(hBuffer).
-    DO ictr = 1 TO hBuffer:NUM-FIELDS:
-        ASSIGN 
-            hTestField = hBuffer:BUFFER-FIELD (iCtr).
-        IF hTestField:NAME EQ "company" THEN LEAVE.
-    END.
-    hQuery:QUERY-PREPARE ("FOR EACH " + ipcFileName + " WHERE " +
-        ipcFileName + ".rec_key LT '" + ipcRecKeyPrefix + "'" +
-        " NO-LOCK").
-    hQuery:QUERY-OPEN().
-    hQuery:GET-FIRST().
-    
-    DO WHILE NOT hQuery:QUERY-OFF-END:
-        
-        /* Test this here, not in the query, since this can't be indexed */
-        IF CAN-DO(cCompanyList,STRING(hTestField:BUFFER-VALUE)) THEN DO:
-            hQuery:GET-NEXT().
-            NEXT.
+        /* I-no tests - Test blank i-no is complicated, as other records/fields come into play */
+        IF hINoField NE ? THEN DO:
+            IF hINoField:BUFFER-VALUE EQ "" 
+            AND ipcFileName EQ "fg-rdtlh"
+            AND NOT CAN-FIND(FIRST fg-rcpth WHERE 
+                             fg-rcpth.company EQ hCompanyField:BUFFER-VALUE AND 
+                             fg-rcpth.r-no EQ INTEGER(hRnoField:BUFFER-VALUE)
+                             USE-INDEX r-no) THEN ASSIGN 
+                lError = TRUE 
+                cRule = cRule + ",Blank I-No"
+                cMessage = cMessage + ",<blank>".
+            ELSE IF hINoField:BUFFER-VALUE EQ "" 
+            AND ipcFileName EQ "fg-rcpth"
+            AND NOT CAN-FIND(FIRST fg-rdtlh WHERE 
+                             fg-rdtlh.company EQ hCompanyField:BUFFER-VALUE AND 
+                             fg-rdtlh.r-no EQ INTEGER(hRnoField:BUFFER-VALUE)
+                             USE-INDEX rm-rdtl) THEN ASSIGN 
+                lError = TRUE 
+                cRule = cRule + ",Blank I-No"
+                cMessage = cMessage + ",<blank>".
+            ELSE IF hINoField:BUFFER-VALUE EQ "" 
+            AND (ipcFileName EQ "oe-boll" OR ipcFileName EQ "oe-rell")
+            AND NOT CAN-FIND(FIRST oe-ord WHERE 
+                             oe-ord.company EQ hCompanyField:BUFFER-VALUE AND 
+                             oe-ord.ord-no EQ INTEGER(hOrdNoField:BUFFER-VALUE)
+                             USE-INDEX ord-no) THEN ASSIGN 
+                lError = TRUE 
+                cRule = cRule + ",Blank I-No"
+                cMessage = cMessage + ",<blank>".
+            ELSE IF hINoField:BUFFER-VALUE NE "" THEN DO:
+                IF NOT CAN-FIND(FIRST item WHERE 
+                                     item.company EQ cThisCompany AND  
+                                     item.i-no EQ hINoField:BUFFER-VALUE)
+                    AND NOT CAN-FIND(FIRST itemfg WHERE 
+                                     itemfg.company EQ cThisCompany AND 
+                                     itemfg.i-no EQ hINoField:BUFFER-VALUE) THEN ASSIGN 
+                    lError = IF NOT CAN-DO("item,itemfg-loc",ipcFileName) THEN TRUE ELSE lError 
+                    lWarning = IF CAN-DO("item,itemfg-loc",ipcFileName) THEN TRUE ELSE lWarning 
+                    cRule = cRule + ",Invalid Item No"
+                    cMessage = cMessage + ",I-no=" + hINoField:BUFFER-VALUE.
+/*                ELSE IF NOT CAN-DO("item,itemfg,itemfg-loc",ipcFileName) AND*/
+/*                        (CAN-FIND(FIRST item WHERE                          */
+/*                                 item.company EQ cThisCompany AND           */
+/*                                 item.i-no EQ hINoField:BUFFER-VALUE AND    */
+/*                                 item.stat EQ "I")                          */
+/*                        OR CAN-FIND(FIRST itemfg WHERE                      */
+/*                                itemfg.company = cThisCompany AND           */
+/*                                itemfg.i-no EQ hINoField:BUFFER-VALUE AND   */
+/*                                itemfg.stat EQ "I"))THEN ASSIGN             */
+/*                    lWarning = TRUE                                         */
+/*                    cRule = cRule + ",Inactive Item No"                     */
+/*                    cMessage = cMessage + ",I-no=" + hINoField:BUFFER-VALUE.*/
+                END.
         END.
         
-        FIND FIRST ttFileList WHERE 
-            ttFileList.cFileName EQ ipcFileName AND 
-            ttFileList.rRowID EQ hBuffer:ROWID
-            NO-ERROR.
-        IF NOT AVAIL ttFileList THEN 
-        DO:  
-            CREATE ttFileList.
-            ASSIGN 
-                ttFileList.cFileName = ipcFileName
-                ttFileList.rRowID = hBuffer:ROWID
-                ttFileList.cRec_key = hRecKey:BUFFER-VALUE
-                ttFileList.cKeyValues = "WHERE " +
-                                        (IF hCompanyField NE ? THEN ("Company='" + hCompanyField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hLocField NE ? THEN ("Loc='" + hLocField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hInoField NE ? THEN ("Item No='" + hInoField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hOrdNoField NE ? THEN ("Order No='" + hOrdNoField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hInvNoField NE ? THEN ("Invc No='" + hInvNoField:BUFFER-VALUE + "'") ELSE "").
-        END.        
-        ASSIGN 
-            iProcessedCount = iProcessedCount + 1
-            ttFileList.cRule = ttFileList.cRule + "Invalid Company" + ","
-            ttFileList.cMessage = ttFileList.cMessage + STRING(hTestField:BUFFER-VALUE) + ",".
-        hQuery:GET-NEXT().
-    END.
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-pRuleInvalidInv-No) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRuleInvalidInv-No Procedure
-PROCEDURE pRuleInvalidInv-No:
-/*------------------------------------------------------------------------------
- Purpose:   Finds records with invalid inv-no and adds to temp-table
- Notes:     On large tables, this will be slow since we need to scan all records
-            If rec_key is indexed, we do limit based on that value    
-------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcFileName AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcRecKeyPrefix AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
-    
-    FOR EACH loc NO-LOCK:
-        ASSIGN 
-            cLocList = cLocList + loc.loc + ",".
-    END.
-    ASSIGN 
-        cLocList = TRIM(cLocList,",").
-        
-    CREATE BUFFER hBuffer FOR TABLE ipcFileName. 
-    CREATE QUERY hQuery.
-
-    ASSIGN 
-        hTestField = ?
-        hCompanyField = ?
-        hLocField = ?
-        hInoField = ?
-        hOrdNoField = ?
-        hInvNoField = ?.
-        
-    DO ictr = 1 TO hBuffer:NUM-FIELDS:
-        ASSIGN 
-            hTestField = hBuffer:BUFFER-FIELD(iCtr).
-        IF hTestField:NAME EQ "rec_key" THEN ASSIGN
-            hRecKey = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "company" THEN ASSIGN
-            hCompanyField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "loc" THEN ASSIGN
-            hLocField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "i-no" THEN ASSIGN
-            hInoField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "ord-no" THEN ASSIGN 
-            hOrdNoField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "inv-no" THEN ASSIGN 
-            hInvNoField = hBuffer:BUFFER-FIELD(iCtr).
-    END.
-
-    hQuery:ADD-BUFFER(hBuffer).
-
-    hQuery:QUERY-PREPARE ("FOR EACH " + ipcFileName + " WHERE " +
-        ipcFileName + ".company EQ '" + cThisCompany + "'" + " AND " + 
-        ipcFileName + ".rec_key LT '" + ipcRecKeyPrefix + "'" +
-        " NO-LOCK").
-    hQuery:QUERY-OPEN().
-    hQuery:GET-FIRST().
-    
-    DO WHILE NOT hQuery:QUERY-OFF-END:
-        
-        /* Test this here, not in the query, since this can't be indexed */
-        IF CAN-FIND(FIRST inv-head WHERE 
-            inv-head.company EQ hCompanyField:BUFFER-VALUE AND 
-            inv-head.inv-no EQ INTEGER(hInvNoField:BUFFER-VALUE)) THEN DO:
-            hQuery:GET-NEXT().
-            NEXT.
-        END.        
-        IF CAN-FIND(FIRST ar-inv WHERE 
-            ar-inv.company EQ hCompanyField:BUFFER-VALUE AND 
-            ar-inv.inv-no EQ INTEGER(hInvNoField:BUFFER-VALUE)) THEN DO:
-            hQuery:GET-NEXT().
-            NEXT.
-        END.        
-        FIND FIRST ttFileList WHERE 
-            ttFileList.cFileName EQ ipcFileName AND 
-            ttFileList.rRowID EQ hBuffer:ROWID
-            NO-ERROR.
-        IF NOT AVAIL ttFileList THEN 
-        DO:  
-            CREATE ttFileList.
-            ASSIGN 
-                ttFileList.cFileName = ipcFileName
-                ttFileList.rRowID = hBuffer:ROWID
-                ttFileList.cRec_key = hRecKey:BUFFER-VALUE
-                ttFileList.cKeyValues = "WHERE " +
-                                        (IF hCompanyField NE ? THEN ("Company='" + hCompanyField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hLocField NE ? THEN ("Loc='" + hLocField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hInoField NE ? THEN ("Item No='" + hInoField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hOrdNoField NE ? THEN ("Order No='" + hOrdNoField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hInvNoField NE ? THEN ("Invc No='" + hInvNoField:BUFFER-VALUE + "'") ELSE "").
-        END.        
-        ASSIGN 
-            iProcessedCount = iProcessedCount + 1
-            ttFileList.cRule = ttFileList.cRule + "Invalid Inv-No" + ","
-            ttFileList.cMessage = ttFileList.cMessage + STRING(hInvNoField:BUFFER-VALUE) + ",".
-        hQuery:GET-NEXT().
-    END.
-    
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-pRuleInvalidLoc) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRuleInvalidLoc Procedure
-PROCEDURE pRuleInvalidLoc:
-/*------------------------------------------------------------------------------
- Purpose:   Finds records with invalid company code and adds to temp-table
- Notes:     On large tables, this will be slow since we need to scan all records
-            If rec_key is indexed, we do limit based on that value    
-------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcFileName AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcRecKeyPrefix AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
-    
-    FOR EACH loc NO-LOCK:
-        ASSIGN 
-            cLocList = cLocList + loc.loc + ",".
-    END.
-    ASSIGN 
-        cLocList = TRIM(cLocList,",").
-        
-    CREATE BUFFER hBuffer FOR TABLE ipcFileName. 
-    CREATE QUERY hQuery.
-     
-    ASSIGN 
-        hTestField = ?
-        hCompanyField = ?
-        hLocField = ?
-        hInoField = ?
-        hOrdNoField = ?
-        hInvNoField = ?.
-        
-    DO ictr = 1 TO hBuffer:NUM-FIELDS:
-        ASSIGN 
-            hTestField = hBuffer:BUFFER-FIELD(iCtr).
-        IF hTestField:NAME EQ "rec_key" THEN ASSIGN
-            hRecKey = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "company" THEN ASSIGN
-            hCompanyField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "loc" THEN ASSIGN
-            hLocField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "i-no" THEN ASSIGN
-            hInoField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "ord-no" THEN ASSIGN 
-            hOrdNoField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "inv-no" THEN ASSIGN 
-            hInvNoField = hBuffer:BUFFER-FIELD(iCtr).
-    END.
-
-    hQuery:ADD-BUFFER(hBuffer).
-    DO ictr = 1 TO hBuffer:NUM-FIELDS:
-        ASSIGN 
-            hTestField = hBuffer:BUFFER-FIELD (iCtr).
-        IF hTestField:NAME EQ "loc" THEN LEAVE.
-    END.
-    hQuery:QUERY-PREPARE ("FOR EACH " + ipcFileName + " WHERE " +
-        ipcFileName + ".company EQ '" + cThisCompany + "'" + " AND " + 
-        ipcFileName + ".rec_key LT '" + ipcRecKeyPrefix + "'" +
-        " NO-LOCK").
-    hQuery:QUERY-OPEN().
-    hQuery:GET-FIRST().
-    
-    DO WHILE NOT hQuery:QUERY-OFF-END:
-        
-        /* Test this here, not in the query, since this can't be indexed */
-        IF CAN-DO(cLocList,STRING(hTestField:BUFFER-VALUE)) THEN DO:
-            hQuery:GET-NEXT().
-            NEXT.
-        END.    
-        FIND FIRST ttFileList WHERE 
-            ttFileList.cFileName EQ ipcFileName AND 
-            ttFileList.rRowID EQ hBuffer:ROWID
-            NO-ERROR.
-        IF NOT AVAIL ttFileList THEN 
-        DO:  
-            CREATE ttFileList.
-            ASSIGN 
-                ttFileList.cFileName = ipcFileName
-                ttFileList.rRowID = hBuffer:ROWID
-                ttFileList.cRec_key = hRecKey:BUFFER-VALUE
-                ttFileList.cKeyValues = "WHERE " +
-                                        (IF hCompanyField NE ? THEN ("Company='" + hCompanyField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hLocField NE ? THEN ("Loc='" + hLocField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hInoField NE ? THEN ("Item No='" + hInoField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hOrdNoField NE ? THEN ("Order No='" + hOrdNoField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hInvNoField NE ? THEN ("Invc No='" + hInvNoField:BUFFER-VALUE + "'") ELSE "").
-        END.        
-        ASSIGN 
-            iProcessedCount = iProcessedCount + 1
-            ttFileList.cRule = ttFileList.cRule + "Invalid Loc" + ","
-            ttFileList.cMessage = ttFileList.cMessage + STRING(hTestField:BUFFER-VALUE) + ",".
-        hQuery:GET-NEXT().
-    END.
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
-
-
-&IF DEFINED(EXCLUDE-pRuleInvalidOrd-No) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRuleInvalidOrd-No Procedure
-PROCEDURE pRuleInvalidOrd-No:
-/*------------------------------------------------------------------------------
- Purpose:   Finds records with invalid ord-no and adds to temp-table
- Notes:     On large tables, this will be slow since we need to scan all records
-            If rec_key is indexed, we do limit based on that value    
-------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcFileName AS CHAR NO-UNDO.
-    DEF INPUT PARAMETER ipcRecKeyPrefix AS CHAR NO-UNDO.
-    DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
-    DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
-    
-    FOR EACH loc NO-LOCK:
-        ASSIGN 
-            cLocList = cLocList + loc.loc + ",".
-    END.
-    ASSIGN 
-        cLocList = TRIM(cLocList,",").
-        
-    CREATE BUFFER hBuffer FOR TABLE ipcFileName. 
-    CREATE QUERY hQuery.
-
-    ASSIGN 
-        hTestField = ?
-        hCompanyField = ?
-        hLocField = ?
-        hInoField = ?
-        hOrdNoField = ?
-        hInvNoField = ?.
-        
-    DO ictr = 1 TO hBuffer:NUM-FIELDS:
-        ASSIGN 
-            hTestField = hBuffer:BUFFER-FIELD(iCtr).
-        IF hTestField:NAME EQ "rec_key" THEN ASSIGN
-            hRecKey = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "company" THEN ASSIGN
-            hCompanyField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "loc" THEN ASSIGN
-            hLocField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "i-no" THEN ASSIGN
-            hInoField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "ord-no" THEN ASSIGN 
-            hOrdNoField = hBuffer:BUFFER-FIELD(iCtr).
-        ELSE IF hTestField:NAME EQ "inv-no" THEN ASSIGN 
-            hInvNoField = hBuffer:BUFFER-FIELD(iCtr).
-    END.
-
-    hQuery:ADD-BUFFER(hBuffer).
-
-    hQuery:QUERY-PREPARE ("FOR EACH " + ipcFileName + " WHERE " +
-        ipcFileName + ".company EQ '" + cThisCompany + "'" + " AND " + 
-        ipcFileName + ".rec_key LT '" + ipcRecKeyPrefix + "'" +
-        " NO-LOCK").
-    hQuery:QUERY-OPEN().
-    hQuery:GET-FIRST().
-    
-    DO WHILE NOT hQuery:QUERY-OFF-END:
-        
-        /* Test this here, not in the query, since this can't be indexed */
-        IF CAN-FIND(FIRST oe-ord WHERE 
-                    oe-ord.company EQ hCompanyField:BUFFER-VALUE AND 
-                    oe-ord.ord-no EQ INTEGER(hOrdNoField:BUFFER-VALUE)) THEN DO:
-            hQuery:GET-NEXT().
-            NEXT.
+        /* Inv-no tests */
+        IF hInvNoField NE ? THEN DO:
+            IF hInvNoField:BUFFER-VALUE EQ ""
+            AND NOT CAN-DO("fg-bin",ipcFileName) THEN ASSIGN 
+                lError = TRUE 
+                cRule = cRule + ",Blank Inv No"
+                cMessage = cMessage + ",<blank>".
+            ELSE IF hInvNoField:BUFFER-VALUE NE 0
+                AND NOT CAN-FIND(FIRST inv-head WHERE 
+                                 inv-head.company EQ hCompanyField:BUFFER-VALUE AND 
+                                 inv-head.inv-no EQ hInvNoField:BUFFER-VALUE) 
+                AND NOT CAN-FIND(FIRST ar-inv WHERE 
+                                 ar-inv.company EQ hCompanyField:BUFFER-VALUE AND 
+                                 ar-inv.inv-no EQ hInvNoField:BUFFER-VALUE)THEN ASSIGN 
+                lError = TRUE 
+                cRule = cRule + ",Invalid Inv No"
+                cMessage = cMessage + ",Inv-no=" + hInvNoField:BUFFER-VALUE.  
         END.
-        FIND FIRST ttFileList WHERE 
-            ttFileList.cFileName EQ ipcFileName AND 
-            ttFileList.rRowID EQ hBuffer:ROWID
-            NO-ERROR.
-        IF NOT AVAIL ttFileList THEN 
-        DO:  
+        
+        /* Loc tests */
+        IF hLocField NE ? THEN DO:
+            IF hLocField:BUFFER-VALUE EQ "" THEN ASSIGN 
+                lError = TRUE 
+                cRule = cRule + ",Blank Warehouse"
+                cMessage = cMessage + ",<blank>".
+            ELSE IF NOT CAN-FIND(FIRST loc WHERE 
+                                loc.company EQ hCompanyField:BUFFER-VALUE AND 
+                                loc.loc EQ hLocField:BUFFER-VALUE) THEN ASSIGN 
+                lError = TRUE 
+                cRule = cRule + ",Invalid Warehouse"
+                cMessage = cMessage + ",Loc=" + hLocField:BUFFER-VALUE.  
+        END.
+        
+        /* Ord-no tests */
+        IF hOrdNoField NE ? THEN DO:
+            IF hOrdNoField:BUFFER-VALUE EQ "" THEN ASSIGN 
+                lError = TRUE 
+                cRule = cRule + ",Blank Order No"
+                cMessage = cMessage + ",<blank>".
+            ELSE IF NOT CAN-FIND(FIRST oe-ord WHERE 
+                                oe-ord.company EQ hCompanyField:BUFFER-VALUE AND 
+                                oe-ord.ord-no EQ hOrdNoField:BUFFER-VALUE) 
+            AND NOT CAN-DO("fg-rcpth,fg-rcpts,fg-rctd,fg-rdtlh,rm-rctd",ipcFileName) 
+            THEN ASSIGN 
+                lError = IF NOT CAN-DO("ar-inv,ar-invl,ar-invm",ipcFileName) THEN TRUE ELSE lError 
+                cRule = cRule + ",Invalid Order No"
+                cMessage = cMessage + ",Ord-no=" + hOrdNoField:BUFFER-VALUE.  
+        END.
+        
+        /* R-no tests */
+        IF hRNoField NE ? THEN DO:
+            IF hRNoField:BUFFER-VALUE EQ "" 
+            AND NOT CAN-DO("fg-rcpth,fg-rctd,fg-rdtlh,fg-rdtl,fg-rcpts",ipcFileName) THEN ASSIGN 
+                lError = TRUE 
+                cRule = cRule + ",Blank R-no"
+                cMessage = cMessage + ",<blank>".
+            ELSE IF NOT CAN-FIND(FIRST oe-relh WHERE 
+                                oe-relh.company EQ hCompanyField:BUFFER-VALUE AND     
+                                oe-relh.r-no EQ hRNoField:BUFFER-VALUE) 
+            AND NOT CAN-DO("fg-rcpth,fg-rcpts,fg-rctd,fg-rdtlh,rm-rctd,rm-rcpt,oe-rel,inv-head",ipcFileName) THEN ASSIGN 
+                lError = TRUE 
+                cRule = cRule + ",Invalid R-no"
+                cMessage = cMessage + ",R-no=" + hRNoField:BUFFER-VALUE.  
+        END.
+        
+        /* X-no tests */
+        IF hXNoField NE ? THEN DO:
+            IF hXNoField:BUFFER-VALUE EQ "" THEN ASSIGN 
+                lError = TRUE 
+                cRule = cRule + ",Blank X-no"
+                cMessage = cMessage + ",<blank>".
+            ELSE IF NOT CAN-FIND(FIRST ar-inv WHERE 
+                    ar-inv.company EQ hCompanyField:BUFFER-VALUE AND     
+                    ar-inv.x-no EQ hXNoField:BUFFER-VALUE) THEN ASSIGN 
+                lError = TRUE 
+                cRule = cRule + ",Invalid X-no"
+                cMessage = cMessage + ",X-no=" + hXNoField:BUFFER-VALUE.  
+        END.
+        
+        /* No matter what, don't delete fg-bin or rm-bin */
+        IF CAN-DO("fg-bin,rm-bin",ipcFileName)
+        AND lError THEN ASSIGN 
+            lError = FALSE
+            lWarning = TRUE.
+            
+
+        IF lError 
+        OR lWarning THEN DO:
             CREATE ttFileList.
             ASSIGN 
-                ttFileList.cFileName = ipcFileName
-                ttFileList.rRowID = hBuffer:ROWID
-                ttFileList.cRec_key = hRecKey:BUFFER-VALUE
-                ttFileList.cKeyValues = "WHERE " +
-                                        (IF hCompanyField NE ? THEN ("Company='" + hCompanyField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hLocField NE ? THEN ("Loc='" + hLocField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hInoField NE ? THEN ("Item No='" + hInoField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hOrdNoField NE ? THEN ("Order No='" + hOrdNoField:BUFFER-VALUE + "' AND ") ELSE "") +
-                                        (IF hInvNoField NE ? THEN ("Invc No='" + hInvNoField:BUFFER-VALUE + "'") ELSE "").
+                ttFileList.cFileName    = ipcFileName
+                ttFileList.rRowID       = hBuffer:ROWID
+                ttFileList.cRec_key     = hRecKey:BUFFER-VALUE
+                ttFileList.cError       = IF lError THEN "Error" ELSE IF lWarning THEN "Warning" ELSE ""
+                ttFileList.lPurge       = lError
+                ttFileList.cRule        = SUBSTRING(cRule,2)
+                ttFileList.cMessage     = SUBSTRING(cMessage,2)
+                ttFileList.cKeyValues   = (IF hCompanyField NE ? THEN hCompanyField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hCustNoField NE ? THEN hCustNoField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hLocField NE ? THEN hLocField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hOrdNoField NE ? THEN hOrdNoField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hRNoField NE ? THEN hRNoField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hBolNoField NE ? THEN hBolNoField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hBNoField NE ? THEN hBNoField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hInvNoField NE ? THEN hInvNoField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hINoField NE ? THEN hINoField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hXNoField NE ? THEN hXNoField:BUFFER-VALUE ELSE "") + "," +
+                                          (IF hActNumField NE ? THEN hActNumField:BUFFER-VALUE ELSE "")
+                iErrorCount             = IF ttFileList.cError EQ "Error" THEN iErrorCount + 1 ELSE iErrorCount
+                iWarningCount           = IF ttFileList.cError EQ "Warning" THEN iWarningCount + 1 ELSE iWarningCount
+                .
+                
         END.        
         ASSIGN 
-            iProcessedCount = iProcessedCount + 1
-            ttFileList.cRule = ttFileList.cRule + "Invalid Ord-No" + ","
-            ttFileList.cMessage = ttFileList.cMessage + STRING(hOrdNoField:BUFFER-VALUE) + ",".
+            lError = FALSE 
+            lWarning = FALSE  
+            cRule = ""
+            cMessage = ""
+            iProcessedCount = iProcessedCount + 1.
         hQuery:GET-NEXT().
     END.
-    
+        
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -1030,12 +568,11 @@ END PROCEDURE.
 
 
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-purgeComplete) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE purgeComplete Procedure
-PROCEDURE purgeComplete:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE outputOrphanFile Procedure
+PROCEDURE outputOrphanFile:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1043,53 +580,60 @@ PROCEDURE purgeComplete:
     OUTPUT STREAM sReport TO VALUE (cOutputDir + "\" + "_PurgeReport.csv").
     
     PUT STREAM sReport UNFORMATTED 
-        "Purged?,Table Name,Key Values,Failed Rules" + CHR(10).
-    FOR EACH ttFileList:
-        ASSIGN 
-            ttFileList.cKeyValues = TRIM(ttFileList.cKeyValues," AND ").
-        PUT STREAM sReport UNFORMATTED 
-            STRING(ttFileList.lPurged) + "," +
-            ttFileList.cFileName + "," +
-            ttFileList.cKeyValues + ",".
+        "Purge (Y/N)?,ErrLevel,Table Name,Reckey,Rowid,Company,Cust-no,Loc,Ord-no,R-no,Bol-no,B-no,Inv-no,I-no,X-no,Acctnum" + CHR(10).
+    FOR EACH ttFileList
+        BY ttFileList.cError
+        BY ttFileList.cFileName 
+        BY ttFileList.cRec_key:
+        PUT STREAM sReport UNFORMATTED
+            (IF ttFileList.lPurge THEN "YES" ELSE "") + "," +
+            ttFileList.cError + "," +
+            ttFileList.cFileName + "," +   
+            ttFileList.cRec_key + ","                    
+            STRING(ttFileList.rRowID) + "," +                  
+            ttFileList.cKeyValues + ",,"
+            .
         DO iCtr = 1 TO NUM-ENTRIES(cRule):
             PUT STREAM sReport UNFORMATTED 
-                ENTRY(iCtr,cRule) + ",".
+                ENTRY(iCtr,cRule) + "," + ENTRY(iCtr,cMessage) + ",".
         END.
-        PUT STREAM sReport UNFORMATTED CHR(10). 
+        PUT STREAM sReport UNFORMATTED CHR(10).
     END.
     OUTPUT STREAM sReport CLOSE.
+    EMPTY TEMP-TABLE ttFileList.
     
-    IF lPurge THEN DO:
-        FOR EACH ttFileList 
-            BREAK BY ttFileList.cFileName:
-                
-            IF FIRST-OF(ttFileList.cFileName) THEN DO:
-                OUTPUT STREAM sDump TO VALUE (cOutputDir + "\" + ttFileList.cFileName + ".d").
-                CREATE BUFFER hBuffer FOR TABLE ttFileList.cFileName. 
-                hBuffer:DISABLE-LOAD-TRIGGERS(FALSE).
-                CREATE QUERY hQuery.
-                hQuery:ADD-BUFFER(hBuffer).
-            END.
- 
-            DO TRANSACTION:
-                hQuery:QUERY-PREPARE("FOR EACH " + ttFileList.cFileName +
-                                     " WHERE ROWID(" + ttFileList.cFileName + ")" +
-                                     " EQ TO-ROWID('" + STRING(ttFileList.rRowID) + "')").
-                hQuery:QUERY-OPEN().
-                hQuery:GET-FIRST(EXCLUSIVE-LOCK).
-                IF hBuffer:AVAILABLE THEN DO:
-                    PUT STREAM sDump UNFORMATTED dynExport(hBuffer, " ") SKIP.
-                    hBuffer:BUFFER-DELETE().
-                END.
-            END.
-            
-            IF LAST-OF(ttFileList.cFileName) THEN DO:
-                OUTPUT STREAM sDump CLOSE.
-                DELETE OBJECT hQuery.
-                DELETE OBJECT hBuffer.
-            END.
-        END.
-    END.
+/*    IF lPurge THEN DO:                                                                        */
+/*        FOR EACH ttFileList                                                                   */
+/*            BREAK BY ttFileList.cFileName:                                                    */
+/*                                                                                              */
+/*            IF FIRST-OF(ttFileList.cFileName) THEN DO:                                        */
+/*                OUTPUT STREAM sDump TO VALUE (cOutputDir + "\" + ttFileList.cFileName + ".d").*/
+/*                CREATE BUFFER hBuffer FOR TABLE ttFileList.cFileName.                         */
+/*                hBuffer:DISABLE-LOAD-TRIGGERS(FALSE).                                         */
+/*                CREATE QUERY hQuery.                                                          */
+/*                hQuery:ADD-BUFFER(hBuffer).                                                   */
+/*            END.                                                                              */
+/*                                                                                              */
+/*            DO TRANSACTION:                                                                   */
+/*                hQuery:QUERY-PREPARE("FOR EACH " + ttFileList.cFileName +                     */
+/*                                     " WHERE ROWID(" + ttFileList.cFileName + ")" +           */
+/*                                     " EQ TO-ROWID('" + STRING(ttFileList.rRowID) + "')").    */
+/*                hQuery:QUERY-OPEN().                                                          */
+/*                hQuery:GET-FIRST(EXCLUSIVE-LOCK).                                             */
+/*                OUTPUT STREAM sDump TO VALUE (cOutputDir + "\" + ttFileList.cFileName + ".d").*/
+/*                IF hBuffer:AVAILABLE THEN DO:                                                 */
+/*                    PUT STREAM sDump UNFORMATTED dynExport(hBuffer, " ") SKIP.                */
+/*                    hBuffer:BUFFER-DELETE().                                                  */
+/*                END.                                                                          */
+/*                OUTPUT STREAM sDump CLOSE.                                                    */
+/*            END.                                                                              */
+/*                                                                                              */
+/*            IF LAST-OF(ttFileList.cFileName) THEN DO:                                         */
+/*                DELETE OBJECT hQuery.                                                         */
+/*                DELETE OBJECT hBuffer.                                                        */
+/*            END.                                                                              */
+/*        END.                                                                                  */
+/*    END.                                                                                      */
     
 
 END PROCEDURE.
@@ -1121,27 +665,114 @@ END PROCEDURE.
 &ENDIF
 
 
+&IF DEFINED(EXCLUDE-purgeOrphansFromFile) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE purgeOrphansFromFile Procedure
+PROCEDURE purgeOrphansFromFile:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcFileName AS CHAR.
+    DEF OUTPUT PARAMETER oplError AS LOG.
+    DEF OUTPUT PARAMETER opcMessage AS CHAR.
+    
+    DEF VAR cHeaderList AS CHAR NO-UNDO.
+    DEF VAR iTableCol AS INT NO-UNDO.
+    DEF VAR iRowidCol AS INT NO-UNDO.
+    DEF VAR cRawRow AS CHAR NO-UNDO.
+    DEF VAR cTableList AS CHAR NO-UNDO.
+    
+    ASSIGN 
+        cOutputDir = REPLACE(ipcFileName,"\_PurgeReport.csv","").
+    EMPTY TEMP-TABLE ttPurgeList.
+    IF SEARCH (ipcFileName) EQ ? THEN DO:
+        ASSIGN 
+            oplError = TRUE 
+            opcMessage = "Unable to locate specified file name".
+        RETURN.
+    END.
+    ELSE IF SEARCH (cOutputDir + "\" + ipcFileName + ".d") NE ? THEN DO:
+        ASSIGN 
+            oplError = TRUE 
+            opcMessage = "Records already deleted for table " + ipcFileName + " in this purge.".
+        RETURN.
+    END.
+    ELSE DO:
+        INPUT FROM VALUE(ipcFileName).
+        IMPORT UNFORMATTED cHeaderList.
+        DO iCtr = 1 TO NUM-ENTRIES(cHeaderList):
+            IF ENTRY(iCtr,cHeaderList) = "Table Name" THEN ASSIGN 
+                iTableCol = iCtr.
+            IF ENTRY(iCtr,cHeaderList) = "Rowid" THEN ASSIGN 
+                iRowidCol = iCtr.
+        END.
+        INPUT CLOSE.
+        IF iTableCol EQ 0 
+        OR iRowidCol EQ 0 THEN DO:
+            ASSIGN 
+                oplError = TRUE 
+                opcMessage = "Unable to locate table name or rowid column in specified file".
+            RETURN.
+        END.
+        ELSE DO:
+            INPUT FROM VALUE(ipcFileName).
+            REPEAT:
+                IMPORT UNFORMATTED cRawRow.
+                IF ENTRY(1,cRawRow) BEGINS "Y" THEN DO:
+                    CREATE ttPurgeList.
+                    ASSIGN 
+                        ttPurgeList.cTable = ENTRY(iTableCol,cRawRow)
+                        ttPurgeList.rRowid = TO-ROWID(ENTRY(iRowidCol,cRawRow)).
+                END.
+            END.
+            FOR EACH ttPurgeList BREAK BY ttPurgeList.cTable:
+                IF FIRST-OF(ttPurgeList.cTable) THEN ASSIGN 
+                    cTableList = cTableList + ttPurgeList.cTable + ",".
+            END.
+            ASSIGN 
+                cTableList = TRIM(cTableList,",").
+            DO iCtr = 1 TO NUM-ENTRIES(cTableList):
+                RUN pDeleteRecordsByRowid (
+                    ENTRY(iCtr,cTableList),
+                    OUTPUT oplError,
+                    OUTPUT opcMessage).
+            END.
+        END.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-purgeOrphans) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE purgeOrphans Procedure
-PROCEDURE purgeOrphans:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE testOrphans Procedure
+PROCEDURE testOrphans:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:  Calling syntax:
-             RUN purgeOrphans IN hPurge (cMode,  /* 'PREVIEW' or 'PURGE' */
-                                        cFileName,
+             RUN testOrphans IN hPurge (cFileName,
                                         cDateLimit,
                                         cOutputDir,
+                                        cThisCompany,
+                                        OUTPUT iProcessed,
                                         OUTPUT lError,
                                         OUTPUT cMessage).
      
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcMode AS CHAR NO-UNDO.
     DEF INPUT PARAMETER ipcFileName AS CHAR NO-UNDO.
     DEF INPUT PARAMETER ipcDateLimit AS CHAR NO-UNDO.
     DEF INPUT PARAMETER ipcOutputDir AS CHAR NO-UNDO.
     DEF INPUT PARAMETER ipcCompany AS CHAR NO-UNDO.
     DEF OUTPUT PARAMETER opiProcessedCount AS INT NO-UNDO.
+    DEF OUTPUT PARAMETER opiErrorCount AS INT NO-UNDO.
+    DEF OUTPUT PARAMETER opiWarningCount AS INT NO-UNDO.
     DEF OUTPUT PARAMETER oplError AS LOG NO-UNDO.
     DEF OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
     
@@ -1155,70 +786,23 @@ PROCEDURE purgeOrphans:
                         STRING(MONTH(daDateLimit),"99") +
                         STRING(DAY(daDateLimit),"99")
         iProcessedCount = 0
-        lPurge = IF ipcMode EQ "Purge" THEN TRUE ELSE FALSE.
+        iErrorCount = 0
+        iWarningCount = 0.
    
     OS-CREATE-DIR VALUE(ipcOutputDir).
     ASSIGN 
         cOutputDir = ipcOutputDir.
          
-    RUN pGetFieldList (ipcFileName, OUTPUT cFieldNameList).
+    RUN pTestOneFile (ipcFileName,
+                      cRecKeyPrefix,
+                      OUTPUT oplError,
+                      OUTPUT opcMessage).
     
-    IF CAN-DO(cFieldNameList,"company") THEN 
-        RUN pRuleBlankCompany (ipcFileName,
-                               cRecKeyPrefix,
-                               OUTPUT oplError,
-                               OUTPUT opcMessage).
-    
-    IF CAN-DO(cFieldNameList,"loc")  
-    AND NOT CAN-DO("item,itemfg,oe-rell",ipcFileName) THEN 
-        RUN pRuleBlankLoc (ipcFileName,
-                           cRecKeyPrefix,
-                           OUTPUT oplError,
-                           OUTPUT opcMessage).
-
-    IF CAN-DO(cFieldNameList,"i-no") 
-    AND NOT CAN-DO("rm-bin,fg-bin,fg-rcpth,fg-rdtlh,oe-boll,oe-rell,oe-ordl",ipcFileName) THEN 
-        RUN pRuleBlankI-no (ipcFileName,
-                            cRecKeyPrefix,
-                            OUTPUT oplError,
-                            OUTPUT opcMessage).
-
-    IF CAN-DO(cFieldNameList,"i-no") 
-    AND CAN-DO("fg-rcpth,fg-rdtlh",ipcFileName) THEN 
-        RUN pRuleBlankI-noMOD1 (ipcFileName,
-                                cRecKeyPrefix,
-                                OUTPUT oplError,
-                                OUTPUT opcMessage).
-
-    IF CAN-DO(cFieldNameList,"i-no") 
-    AND CAN-DO("oe-boll,oe-rell,oe-ordl",ipcFileName) THEN 
-        RUN pRuleBlankI-noMOD2 (ipcFileName,
-            cRecKeyPrefix,
-            OUTPUT oplError,
-            OUTPUT opcMessage).
-
-    IF CAN-DO(cFieldNameList,"ord-no") THEN 
-        RUN pRuleInvalidOrd-No (ipcFileName,
-                                cRecKeyPrefix,
-                                OUTPUT oplError,
-                                OUTPUT opcMessage).
-
-    IF CAN-DO(cFieldNameList,"inv-no")  
-    AND NOT CAN-DO("rm-bin,fg-bin,fg-rcpth,fg-rdtlh",ipcFileName) THEN 
-        RUN pRuleInvalidInv-No (ipcFileName,
-                                cRecKeyPrefix,
-                                OUTPUT oplError,
-                                OUTPUT opcMessage).
-
-    FOR EACH ttFileList:
-        ASSIGN 
-            ttFileList.cRule = TRIM(ttFileList.cRule,",")
-            ttFileList.cMessage = TRIM(ttFileList.cMessage,",")
-            ttFileList.lPurge = IF ipcMode EQ "Purge" THEN TRUE ELSE FALSE.
-    END.     
     
     ASSIGN 
-        opiProcessedCount = iProcessedCount.                  
+        opiProcessedCount = iProcessedCount
+        opiErrorCount = iErrorCount
+        opiWarningCount = iWarningCount.                  
 
 END PROCEDURE.
 	
