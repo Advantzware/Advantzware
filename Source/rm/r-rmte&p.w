@@ -1884,7 +1884,7 @@ EMPTY TEMP-TABLE ttBoardToWIP.
         UNDO transblok, NEXT transblok.
       END.
 
-      FIND FIRST job
+      FIND FIRST job NO-LOCK
           WHERE job.company EQ rm-rctd.company
             AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no))) +
                                TRIM(rm-rctd.job-no)
@@ -1985,7 +1985,10 @@ EMPTY TEMP-TABLE ttBoardToWIP.
 
             IF v-bwt EQ 0 THEN v-bwt = item.basis-w.
 
-            IF INDEX("RL",job.stat) NE 0 THEN job.stat = "W".
+            IF INDEX("RL",job.stat) NE 0 THEN DO:
+                FIND CURRENT job EXCLUSIVE-LOCK NO-ERROR.
+                job.stat = "W".
+            END.    
 
             {rm/rmmatact.i}            /* Create Actual Material */
 
