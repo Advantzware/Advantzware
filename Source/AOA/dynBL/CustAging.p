@@ -53,6 +53,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE lFound                   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lOECredit                AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE rInvoiceRecID            AS RECID     NO-UNDO.
+    DEFINE VARIABLE cCustList                AS CHARACTER NO-UNDO.
 
     RUN system/CreditProcs.p PERSISTENT SET hCreditProcs.
 
@@ -88,11 +89,9 @@ PROCEDURE pBusinessLogic:
             RELEASE sys-ctrl.
         END. /* do trans */
     END. /* if lfound */
-
+        
     FOR EACH cust NO-LOCK
-        WHERE cust.company EQ cCompany
-          AND cust.cust-no GE cStartCustNo
-          AND cust.cust-no LE cEndCustNo
+        WHERE cust.company EQ cCompany          
         :
         IF cust.cr-hold-invdays GT 0 THEN
         RUN oe/creditid.p (RECID(cust), OUTPUT rInvoiceRecID).
@@ -118,16 +117,16 @@ PROCEDURE pBusinessLogic:
             ttCustAging.balanceCurrent     = dBalanceCurrent
             ttCustAging.balanceWithinGrace = dBalanceWithinGrace
             ttCustAging.balancePastDue     = dBalancePastDue
-            ttCustAging.creditAvailable    = ttCustAging.creditLimit - ttCustAging.balanceDue
+            ttCustAging.creditAvailable    = ttCustAging.creditLimit - ttCustAging.openOrderBalance - ttCustAging.balanceCurrent   /*ttCustAging.balanceDue*/ 
             .
         IF rInvoiceRecID NE ? THEN
-        ttCustAging.creditHoldStatus = "Past Due Invoice,".
+        ttCustAging.creditHoldStatus = "Past Due Invoice |".
         IF ttCustAging.openOrderBalance + ttCustAging.balanceDue GT ttCustAging.creditLimit THEN
-        ttCustAging.creditHoldStatus = ttCustAging.creditHoldStatus + "Over Credit Limit,".
+        ttCustAging.creditHoldStatus = ttCustAging.creditHoldStatus + " Over Credit Limit |".
         IF ttCustAging.openOrderBalance GT ttCustAging.creditLimit THEN
-        ttCustAging.creditHoldStatus = ttCustAging.creditHoldStatus + "Over Order Limit,".
+        ttCustAging.creditHoldStatus = ttCustAging.creditHoldStatus + " Over Order Limit |".
         IF cust.cr-hold THEN
-        ttCustAging.creditHoldStatus = ttCustAging.creditHoldStatus + "Already On Hold".
+        ttCustAging.creditHoldStatus = ttCustAging.creditHoldStatus + " Already On Hold".
         ttCustAging.creditHoldStatus = TRIM(ttCustAging.creditHoldStatus,",").
         IF cust.acc-bal            NE ttCustAging.balanceDue         OR
            cust.ord-bal            NE ttCustAging.openOrderBalance   OR
@@ -180,6 +179,25 @@ PROCEDURE pBusinessLogic:
         END. /* do trans */
         ELSE ttCustAging.balUpdated = YES.
     END. /* each cust */
+    cCustList = "".
+    FOR EACH ttCustAging NO-LOCK 
+        WHERE ttCustAging.custNo GE cStartCustNo
+        AND ttCustAging.custNo LE cEndCustNo
+        AND ((ttCustAging.openOrderBalance GT 0 AND lOrderBalance) OR NOT lOrderBalance )
+        AND ((ttCustAging.balanceCurrent GT 0 AND lARBalance) OR NOT lARBalance )
+        AND ((ttCustAging.balanceWithinGrace GT 0 AND lPastGraceBalance) OR NOT lPastGraceBalance )
+        AND ((ttCustAging.CreditHold EQ YES AND lCreditHold) OR NOT lCreditHold )
+        AND ((ttCustAging.balUpdated EQ NO AND lCustomerNotAged) OR NOT lCustomerNotAged)
+        BREAK BY ttCustAging.custNo:
+        IF NOT LAST(ttCustAging.custNo) THEN
+         cCustList = cCustList + ttCustAging.custNo + "," .
+        ELSE  cCustList = cCustList + ttCustAging.custNo .
+    END.
+    
+    FOR EACH ttCustAging :
+      IF LOOKUP(ttCustAging.custNo,cCustList) EQ 0 THEN
+      DELETE ttCustAging .
+    END.     
 
     IF VALID-HANDLE(hCreditProcs) THEN
     DELETE PROCEDURE hCreditProcs.
