@@ -81,11 +81,12 @@ PROCEDURE CheckPriceHoldForCustShip:
     DEFINE VARIABLE lEffectiveDateAge     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iEffectiveDateAgeDays AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lQtyQuoted            AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lQtyAboveMin          AS LOGICAL   NO-UNDO.
     DEFINE BUFFER bf-oe-ord FOR oe-ord.
 
     
     RUN pGetPriceHoldCriteria(ipcCompany,ipcCustID,ipcShipID, OUTPUT oplPriceHoldActive, 
-        OUTPUT oplPriceHold, OUTPUT lQtyInRange, OUTPUT lQtyMatch, OUTPUT lEffectiveDateAge, OUTPUT iEffectiveDateAgeDays, OUTPUT lQtyQuoted).
+        OUTPUT oplPriceHold, OUTPUT lQtyInRange, OUTPUT lQtyMatch, OUTPUT lEffectiveDateAge, OUTPUT iEffectiveDateAgeDays, OUTPUT lQtyQuoted, OUTPUT lQtyAboveMin).
             
 END PROCEDURE.
 
@@ -112,13 +113,14 @@ PROCEDURE CheckPriceHoldForOrder:
     DEFINE VARIABLE lEffectiveDateAge     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iEffectiveDateAgeDays AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lQtyQuoted            AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lQtyAboveMin          AS LOGICAL   NO-UNDO.
  
     FIND FIRST bf-oe-ord NO-LOCK 
         WHERE ROWID(bf-oe-ord) EQ ipriOeOrd
         NO-ERROR.
-
+                     
     RUN pGetPriceHoldCriteria(bf-oe-ord.company,bf-oe-ord.cust-no,bf-oe-ord.ship-id, OUTPUT lPriceHoldActive,
-        OUTPUT lPriceHoldSet, OUTPUT lQtyInRange, OUTPUT lQtyMatch, OUTPUT lEffectiveDateAge, OUTPUT iEffectiveDateAgeDays, OUTPUT lQtyQuoted).
+        OUTPUT lPriceHoldSet, OUTPUT lQtyInRange, OUTPUT lQtyMatch, OUTPUT lEffectiveDateAge, OUTPUT iEffectiveDateAgeDays, OUTPUT lQtyQuoted, OUTPUT lQtyAboveMin).
     IF NOT lPriceHoldActive THEN 
     DO:
         ASSIGN 
@@ -141,7 +143,7 @@ PROCEDURE CheckPriceHoldForOrder:
         FOR EACH bf-oe-ordl OF bf-oe-ord WHERE bf-oe-ordl.i-no NE "" NO-LOCK:
 
             RUN pAddPriceHold(ROWID(bf-oe-ordl), bf-oe-ordl.company, bf-oe-ordl.est-no, bf-oe-ordl.i-no, bf-oe-ordl.cust-no, bf-oe-ordl.ship-id, bf-oe-ordl.qty,
-                lQtyMatch, lQtyInRange, lEffectiveDateAge, iEffectiveDateAgeDays, lQtyQuoted).
+                lQtyMatch, lQtyInRange, lEffectiveDateAge, iEffectiveDateAgeDays, lQtyQuoted, lQtyAboveMin).
         END.
     END.
     FIND FIRST ttPriceHold NO-LOCK
@@ -619,6 +621,7 @@ PROCEDURE pAddPriceHold PRIVATE:
     DEFINE INPUT PARAMETER iplEffectiveDateAge AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER ipiEffectiveDateAgeDays AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER iplQuantityQuoted AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplQtyAboveMin AS LOGICAL NO-UNDO. 
 
     DEFINE BUFFER bf-itemfg   FOR itemfg.
     DEFINE BUFFER bf-cust     FOR cust.
@@ -667,6 +670,15 @@ PROCEDURE pAddPriceHold PRIVATE:
                 ttPriceHold.lEffectiveDateTooOld = YES 
                 ttPriceHold.cPriceHoldDetail     = "Price found in Matrix but Effective date of " + STRING(bf-oe-prmtx.eff-date,"99/99/9999") + " older than " + STRING(ipiEffectiveDateAgeDays) + " days"
                 ttPriceHold.cPriceHoldReason     = "Eff. date too old".           .
+        END. 
+        
+        /*Test mini order qty*/        
+        IF NOT ttPriceHold.lPriceHold AND iplQtyAboveMin AND ipdQuantity LT bf-oe-prmtx.minOrderQty THEN 
+        DO:
+            ASSIGN 
+                ttPriceHold.lPriceHold           = YES                
+                ttPriceHold.cPriceHoldDetail     = "Order quantity " + STRING(ipdQuantity) + " below minimum order quantity " + STRING(bf-oe-prmtx.minOrderQty)
+                ttPriceHold.cPriceHoldReason     = "Order quantity below minimum order quantity".          
         END. 
         
         /*Test Price Level if activated*/
@@ -1296,6 +1308,7 @@ PROCEDURE pGetPriceHoldCriteria PRIVATE:
     DEFINE OUTPUT PARAMETER oplEffectiveDateAge AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opiEffectiveDateAgeDays AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplQtyQuoted AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplQtyAboveMin AS LOGICAL NO-UNDO.
 
     DEFINE VARIABLE lFound    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cCriteria AS CHARACTER NO-UNDO. 
@@ -1313,6 +1326,7 @@ PROCEDURE pGetPriceHoldCriteria PRIVATE:
             oplQtyMatch         = LOOKUP("QtyMatch", cCriteria) GT 0
             oplEffectiveDateAge = LOOKUP("EffDateAge", cCriteria) GT 0
             oplQtyQuoted        = LOOKUP("QtyQuoted", cCriteria) GT 0
+            oplQtyAboveMin      = LOOKUP("QtyAboveMin", cCriteria) GT 0
             .
     END.
     IF oplEffectiveDateAge THEN 

@@ -90,8 +90,7 @@ DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_v-impcom AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-massdel AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -291,14 +290,7 @@ PROCEDURE adm-create-objects :
   CASE adm-current-page: 
 
     WHEN 0 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (      /* Task# 10301313*/
-             INPUT  'viewers/v-impcom.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_v-impcom ).
-       RUN set-position IN h_v-impcom ( 1.00 , 50.10 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 19.00 ) */
-
+       
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/f-add.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
@@ -345,9 +337,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
-       RUN add-link IN adm-broker-hdl ( h_oe-prmtx , 'excel':U , h_v-impcom ).
-
+       
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_options ,
              h_f-add , 'AFTER':U ).
@@ -357,6 +347,14 @@ PROCEDURE adm-create-objects :
              FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
+        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/import.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_import ).
+       RUN set-position IN h_import ( 1.00 , 61.10 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+    
         RUN init-object IN THIS-PROCEDURE (                 /*Task# 10301312*/
              INPUT  'viewers/export.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
@@ -375,6 +373,9 @@ PROCEDURE adm-create-objects :
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+       
+       /* Links to SmartViewer h_import. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
 
        /* Links to SmartNavBrowser h_oe-prmtx. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_oe-prmtx ).
@@ -417,16 +418,8 @@ PROCEDURE adm-create-objects :
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav ).
        RUN set-position IN h_p-updsav ( 21.48 , 70 ) NO-ERROR.
-       RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'panels/p-massdel.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_p-massdel ).
-       RUN set-position IN h_p-massdel ( 21.48 , 127.00 ) NO-ERROR.
-       RUN set-size IN h_p-massdel ( 2.14 , 56.00 ) NO-ERROR.
-
+       RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR. 
+       
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
@@ -434,20 +427,14 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_oe-prmtx , 'Record':U , h_oe-prmtx-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_oe-prmtx-2 ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_oe-prmtx-2 ).
-
-       /* Links to SmartViewer h_p-massdel. */
-       RUN add-link IN adm-broker-hdl ( h_oe-prmtx-2 , 'Record':U , h_p-massdel ).
-       RUN add-link IN adm-broker-hdl ( h_oe-prmtx-2 , 'disable-button':U , h_p-massdel ).
-
+              
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_oe-prmtx-2 ,
              h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
              h_oe-prmtx-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
-             h_p-navico , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-massdel ,
-             h_p-updsav , 'AFTER':U ).
+             h_p-navico , 'AFTER':U ).        
     END. /* Page 2 */
 
   END CASE.
@@ -528,6 +515,29 @@ PROCEDURE enable_UI :
   VIEW FRAME message-frame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-message-frame}
   VIEW W-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
+PROCEDURE import-file :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ DEFINE VARIABLE lAccess AS LOGICAL NO-UNDO.
+
+    RUN util/CheckModule.p ("ASI","ImpPMtx.", NO, OUTPUT lAccess).
+        IF lAccess THEN  
+         RUN util/dev/ImpPMtx.p .
+        ELSE 
+            RUN oe/PriceMatrixImport.p (INPUT cocode). 
+ 
+ IF VALID-HANDLE(h_oe-prmtx) THEN
+ RUN local-open-query IN h_oe-prmtx .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
