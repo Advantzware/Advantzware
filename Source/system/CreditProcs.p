@@ -20,7 +20,7 @@
 
 /* ************************  Function Prototypes ********************** */
  
-FUNCTION Credit_fAmountPaid RETURNS DECIMAL (
+FUNCTION Credit_fAmountPaidOnAccount RETURNS DECIMAL (
     ipcCompany AS CHARACTER,
     ipcCustNo  AS CHARACTER 
     ) FORWARD.
@@ -111,7 +111,7 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-FUNCTION Credit_fAmountPaid RETURNS DECIMAL (
+FUNCTION Credit_fAmountPaidOnAccount RETURNS DECIMAL (
     ipcCompany AS CHARACTER,
     ipcCustNo  AS CHARACTER 
     ):
