@@ -1323,13 +1323,6 @@ PROCEDURE pCalcArInvTotals PRIVATE:
             bf-ar-inv.t-cost = bf-ar-inv.t-cost + bf-ar-invl.t-cost.
         END.
 
-        RUN pGetSalesTaxForArInv (
-            INPUT  ROWID(bf-ar-inv),
-            INPUT  "QUOTATION",
-            OUTPUT dTotalTax
-            )
-            
-        bf-ar-inv.tax-amt = dTotalTax.
     END.
 
 END PROCEDURE.
@@ -2947,48 +2940,6 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
     
 /*REFACTOR - Need to process multi-currency - Manipulate GLTransactions and amounts and create CURR types for offsets*/
 
-END PROCEDURE.
-
-PROCEDURE pGetSalesTaxForArInv PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipriArInv      AS ROWID     NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcMessageType AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdTotalTax    AS DECIMAL   NO-UNDO.
-    
-    DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dInvoiceSubTotal AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTriggerID       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lPostToJournal   AS LOGICAL   NO-UNDO.
-    
-    IF ipcMessageType EQ "QUOTATION" THEN
-        ASSIGN
-            lPostToJournal = FALSE
-            cTriggerID     = "GetTaxAmount"
-            .
-    ELSE IF ipcMessageType EQ "INVOICE" THEN
-        ASSIGN
-            lPostToJournal = TRUE
-            cTriggerID     = "GetTaxAmountFinal"
-            .
-
-    RUN Tax_CalculateForArInvWithDetail  (
-        INPUT  ipriArInv,
-        INPUT  locode,
-        INPUT  ipcMessageType, /*  Message Type "INVOICE" or "QUOTATION" */
-        INPUT  lPostToJournal, /* Post To journal */
-        INPUT  cTriggerID,     /* Trigger ID */
-        OUTPUT opdTotalTax,
-        OUTPUT dInvoiceTotal,
-        OUTPUT dInvoiceSubTotal,
-        OUTPUT TABLE ttTaxDetail,
-        OUTPUT lSuccess,
-        OUTPUT cMessage
-        ).
 END PROCEDURE.
 
 PROCEDURE pPostSalesTaxForInvHead PRIVATE:
