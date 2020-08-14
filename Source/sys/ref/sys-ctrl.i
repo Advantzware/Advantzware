@@ -16,8 +16,8 @@ name-fld-list =
 "stmtprint,TSFinish,appaper,cecunit,fgpost,corsuply,fgitemsf,GP,oeprep,celayout,1099misc,RFQPrint,oecredit,maxbreak,aptax,rmemails,sspostfg,bolfmtx,schdcard,TSTIME,FGReOrder,ARMEMO,APCheckFile,OEPrompt,SSBOLSCAN,INVCOPYS,REMOVED,BORELDATE,OEINQ,ECBROWSE,VENDXFER,CUSTXFER,ORDERXFER,MISCJOBCL,RMUnderOver,CEPREPPRICE,RELTYPE,SSMoveFG,CEMISC,BolPostTime,CEDeliveryZone," +
 /* 130         131      132     133           134        135      136      137      138      139    140      141           142       143           144      145         146      147        148        149       150          151        152    153               154               155            156        157                   158         159            160         161*/
 "BOLFreight,CESAMPLE,SSRMISSUE,CorrTrim,CustShipToImp,OEScreen,fgoecost,runship,InvStatus,AGEDAYS,FGPostCmp,AckMaster,ChkFmtACH,OeDateChange,SSBOLEMAIL,FGRecptUnit,FGBrowseIA,AlliFlutes,SSBOLPRINT,POScreen,SSScanVendor,BOLFMTTran,POStatus,BOLMaster,CEMarkupMatrixLookup,overwriteJobPlan,capacityPage,OEPriceMatrixCheck,BOLPartial,OEAutoDateUpdate,FGUnderOver,OEPriceHold," + 
-/*  162       163        164        165        166        167     168       169         170        171     172          173       174            175               176*         177            178              179                     180                      181           182   183        184       185             186 */
-"CEUpdate,ValidShipTo,PriceHold,CreditHold,CustomerPO,UniquePO,ValidUoM,PriceGtCost,CustomerPN,CEOpRates,CERequestYield,CINVOICE,BOLPartialFlag,POLoadtag,FreightCalculation,OnHandInventory,MiscEstimateSource,SalesTaxRoundingMethod,SalesTaxCalcMethod,FGTagValidation,CEFormat,ItemHold,DuplicateItem,EstimateExists,DateRule".
+/*  162       163        164        165        166        167     168       169         170        171     172          173       174            175               176*         177            178              179                     180                      181           182   183        184       185             186          187*/
+"CEUpdate,ValidShipTo,PriceHold,CreditHold,CustomerPO,UniquePO,ValidUoM,PriceGtCost,CustomerPN,CEOpRates,CERequestYield,CINVOICE,BOLPartialFlag,POLoadtag,FreightCalculation,OnHandInventory,MiscEstimateSource,SalesTaxRoundingMethod,SalesTaxCalcMethod,FGTagValidation,CEFormat,ItemHold,DuplicateItem,EstimateExists,DateRule,Alliflutes1".
 
 DEFINE VARIABLE str-init AS CHARACTER EXTENT 200 NO-UNDO.
     
@@ -140,7 +140,7 @@ ASSIGN
  .
 ASSIGN
  str-init[51] = "None,CorrTrim,Alliance,HRMS,CorSuply,Corr-U-KraftII,GP," +
-                "Vendor,Kiwi,Smurfit,CorrChoice,Pratt,AlliFlutes,iPaper,KiwiT,Liberty"  
+                "Vendor,Kiwi,Smurfit,CorrChoice,Pratt,AlliFlutes,AlliFlutes1,iPaper,KiwiT,Liberty"  
  str-init[52] = "Percent,$/Pallet,$/MSF"
  str-init[53] = "AllItems,POOnly,None" 
  str-init[54] = "Sheet,Blank" 
@@ -238,7 +238,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[144] = ",Added,Deleted,OverUnder"
        str-init[145] = "Order Item Counts,Pallet Counts"
        str-init[146] = ",TEAL"
-       str-init[147] = ",PremierPkg,McElroy,Bell,Capitol,Rudd,Trepaper,StClair"
+       str-init[147] = ",PremierPkg,McElroy,Bell,Capitol,Rudd,Trepaper,StClair,PS,GAP"
        str-init[148] = ",NoWarning,OverShipWarning,UnderShipWarning,OverUnderShipWarning"
        str-init[149] = ",Job-Item,Item-Job"
        str-init[150] = ",RMLot"
@@ -277,6 +277,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[183] = "HOLD,INFO"
        str-init[184] = "HOLD,INFO"
        str-init[185] = "HOLD,INFO"
+       str-init[187] = ",PS,GAP"
        .
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:
