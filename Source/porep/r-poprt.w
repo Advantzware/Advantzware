@@ -1812,11 +1812,12 @@ IF AVAILABLE ipbf-po-ord THEN DO:
         cPrimaryID = STRING(ipbf-po-ord.po-no)
         cDescription = cAPIID + " triggered by " + cTriggerID + " from r-poprt.w for PO: " + cPrimaryID
         . 
-    RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+    RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
         INPUT  ipbf-po-ord.company,                /* Company Code (Mandatory) */
         INPUT  ipbf-po-ord.loc,               /* Location Code (Mandatory) */
         INPUT  cAPIID,                  /* API ID (Mandatory) */
-        INPUT  "",               /* Client ID (Optional) - Pass empty in case to make request for all clients */
+        INPUT  ipbf-po-ord.vend-no,     /* Scope ID */
+        INPUT  "Vendor",                /* Scoped Type */
         INPUT  cTriggerID,              /* Trigger ID (Mandatory) */
         INPUT  "po-ord",               /* Comma separated list of table names for which data being sent (Mandatory) */
         INPUT  STRING(ROWID(ipbf-po-ord)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
