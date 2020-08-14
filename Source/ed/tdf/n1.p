@@ -19,6 +19,26 @@ DEF SHARED var top-debug AS logical NO-UNDO.
 DEF SHARED STREAM s-out.
 {ed/edivars.i       "shared"}
 {ed/tdf/sharedv.i   "shared"}
+DEF VAR i AS INT.
+FUNCTION fnExpandLength RETURNS CHARACTER
+  (ipcOutStr AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iPos AS INTEGER NO-UNDO.
+    iPos = INDEX(ipcOutStr, "*").
+    IF iPos GT 0 AND iPos LT 300 THEN 
+      ipcOutStr = SUBSTRING(ipcOutStr, 1, iPos - 1) 
+                    + FILL(" ", 300 - iPos)
+                    + SUBSTRING(ipcOutstr, iPos)
+                    .
+   
+      cResult = ipcOutStr.
+    RETURN cResult.
+
+END FUNCTION.
 
 IF ws_segment <> "N1" THEN
 RETURN error.
@@ -27,6 +47,7 @@ DO:
   CASE ws_version:
   WHEN "4010" THEN
   DO:
+
     ASSIGN
       {rc/substr.i    entity_id                   18  03}
       {rc/substr.i    company_name                21  60}
@@ -109,14 +130,33 @@ DO:
   CASE ws_version:
   WHEN "4010" THEN
   DO:
+
     ASSIGN
-      {rc/outstr.i    entity_id                   18  03}
-      {rc/outstr.i    company_name                21  60}
-      {rc/outstr.i    id_code_qualifier           81  02}
-      {rc/outstr.i    id_code                     83  80}
-      {rc/outstr.i    entity_relationship_code   163  02}
-      {rc/outstr.i    entity_identifier_code     165  03}
+      {rc/outstr.i    trim(entity_id)                   18  03}.
+
+      str_buffa = fnExpandLength(str_buffa).
+      ASSIGN 
+      {rc/outstr.i    trim(company_name)                21  60}.
+      str_buffa = fnExpandLength(str_buffa).
+
+      assign
+      {rc/outstr.i    trim(id_code_qualifier)           81  02}.
+      str_buffa = fnExpandLength(str_buffa).
+
+      assign
+      {rc/outstr.i    trim(id_code)                     83  80}.
+      str_buffa = fnExpandLength(str_buffa).
+
+      assign
+      {rc/outstr.i    trim(entity_relationship_code)   163  02}.
+      str_buffa = fnExpandLength(str_buffa).
+
+      assign
+      {rc/outstr.i    trim(entity_identifier_code)     165  03}.
+      str_buffa = fnExpandLength(str_buffa).
       .
+
+
   END.
   WHEN "3060" THEN
   DO:
