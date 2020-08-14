@@ -168,34 +168,45 @@ PROCEDURE pBuildHeaders PRIVATE:
             AND bf-job-hdr.blank-no EQ estCostBlank.blankNo
             AND bf-job-hdr.i-no EQ estCostItem.itemID
             NO-ERROR.
+        IF NOT AVAILABLE bf-job-hdr AND estCostBlank.formNo EQ 0 THEN 
+        DO:  /*Job Build Process creates the Set Header job-hdr with form 1 blank 1.  This is a workaround to find that to prevent
+            creating more than one job-hdr for the set header which will need to be cleaned up*/
+            FIND FIRST bf-job-hdr EXCLUSIVE-LOCK 
+                WHERE bf-job-hdr.company EQ ipbf-job.company
+                AND bf-job-hdr.job EQ ipbf-job.job
+                AND bf-job-hdr.job-no EQ ipbf-job.job-no
+                AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
+                AND bf-job-hdr.i-no EQ estCostItem.itemID
+                NO-ERROR.                
+        END.            
         IF NOT AVAILABLE bf-job-hdr THEN 
         DO:
             CREATE bf-job-hdr.
             ASSIGN 
-                bf-job-hdr.company  = ipbf-job.company
-                bf-job-hdr.job      = ipbf-job.job
-                bf-job-hdr.job-no   = ipbf-job.job-no
-                bf-job-hdr.job-no2  = ipbf-job.job-no2
-                bf-job-hdr.frm      = estCostBlank.formNo
-                bf-job-hdr.blank-no = estCostBlank.blankNo
-                bf-job-hdr.i-no     = estCostItem.itemID
-                bf-job-hdr.qty      = estCostBlank.quantityRequired
-                bf-job-hdr.cust-no  = estCostItem.customerID
-                bf-job-hdr.est-no   = ipbf-job.est-no
-                bf-job-hdr.ord-no   = IF bf-job-hdr.ord-no EQ 0 THEN ipiOrderID ELSE bf-job-hdr.ord-no
-                bf-job-hdr.loc      = ipbf-job.loc
+                bf-job-hdr.company = ipbf-job.company
+                bf-job-hdr.job     = ipbf-job.job
+                bf-job-hdr.job-no  = ipbf-job.job-no
+                bf-job-hdr.job-no2 = ipbf-job.job-no2
+                bf-job-hdr.i-no    = estCostItem.itemID
+                bf-job-hdr.qty     = estCostBlank.quantityRequired
+                bf-job-hdr.cust-no = estCostItem.customerID
+                bf-job-hdr.est-no  = ipbf-job.est-no
+                bf-job-hdr.ord-no  = IF bf-job-hdr.ord-no EQ 0 THEN ipiOrderID ELSE bf-job-hdr.ord-no
+                bf-job-hdr.loc     = ipbf-job.loc
                 .
-                IF estCostBlank.formNo EQ 0 AND estCostBlank.blankNo EQ 0 THEN
-                DO:
-                    RUN pUpdateFGItemQty(INPUT ROWID(bf-job-hdr),
-                                         INPUT YES ). 
-                END.
+        /*                IF estCostBlank.formNo EQ 0 AND estCostBlank.blankNo EQ 0 THEN*/
+        /*                DO:                                                           */
+        /*                    RUN pUpdateFGItemQty(INPUT ROWID(bf-job-hdr),             */
+        /*                                         INPUT YES ).                         */
+        /*                END.                                                          */
                 
         END.
         CREATE ttJobHdrToKeep.
         ASSIGN 
             dQtyInM                 = bf-job-hdr.qty / 1000
             ttJobHdrToKeep.riJobHdr = ROWID(bf-job-hdr)
+            bf-job-hdr.frm          = estCostBlank.formNo
+            bf-job-hdr.blank-no     = estCostBlank.blankNo
             bf-job-hdr.sq-in        = estCostBlank.pctOfForm  * 100
             bf-job-hdr.std-tot-cost = estCostItem.costTotalFactory / dQtyInM
             bf-job-hdr.std-mat-cost = estCostItem.costTotalMaterial / dQtyInM
@@ -386,7 +397,8 @@ PROCEDURE pBuildMisc PRIVATE:
                 WHERE item.company EQ estCostMisc.company
                 AND item.i-no EQ estCostMisc.itemID
                 NO-ERROR.
-        IF AVAILABLE ITEM THEN DO: 
+        IF AVAILABLE ITEM THEN 
+        DO: 
             FIND FIRST bf-job-mat EXCLUSIVE-LOCK 
                 WHERE bf-job-mat.company EQ ipbf-job.company
                 AND bf-job-mat.job EQ ipbf-job.job
@@ -421,7 +433,8 @@ PROCEDURE pBuildMisc PRIVATE:
                 .
             RELEASE bf-job-mat.
         END.
-        ELSE DO:
+        ELSE 
+        DO:
             FIND FIRST bf-job-prep EXCLUSIVE-LOCK 
                 WHERE bf-job-prep.company EQ ipbf-job.company
                 AND bf-job-prep.job EQ ipbf-job.job
@@ -448,11 +461,11 @@ PROCEDURE pBuildMisc PRIVATE:
             CREATE ttJobPrepToKeep.
             ASSIGN 
                 ttJobPrepToKeep.riJobPrep = ROWID(bf-job-prep)
-                bf-job-prep.cost-m = estCostMisc.costTotalPerMFinished
-                bf-job-prep.qty = estCostMisc.quantityRequiredTotal
-                bf-job-prep.ml = estCostMisc.costType EQ "Mat"
-                bf-job-prep.std-cost = estCostMisc.costPerUOM
-                bf-job-prep.sc-uom = estCostMisc.costUOM
+                bf-job-prep.cost-m        = estCostMisc.costTotalPerMFinished
+                bf-job-prep.qty           = estCostMisc.quantityRequiredTotal
+                bf-job-prep.ml            = estCostMisc.costType EQ "Mat"
+                bf-job-prep.std-cost      = estCostMisc.costPerUOM
+                bf-job-prep.sc-uom        = estCostMisc.costUOM
                 . 
         END.
         RELEASE bf-job-prep.    
@@ -568,37 +581,37 @@ PROCEDURE pCleanJob PRIVATE:
 
 END PROCEDURE.
 
-PROCEDURE pUpdateFGItemQty PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipriJobHdr     AS ROWID   NO-UNDO.    
-    DEFINE INPUT  PARAMETER iplLastItem  AS LOGICAL NO-UNDO.
-    
-    DEFINE BUFFER x-job-hdr       FOR job-hdr.
-    
-    FIND FIRST job-hdr EXCLUSIVE-LOCK
-        WHERE ROWID(job-hdr) EQ ipriJobHdr
-        NO-ERROR.
-    IF NOT AVAILABLE job-hdr THEN
-        RETURN.
-       
-    IF iplLastItem THEN
-    DO: 
-        FOR EACH x-job-hdr
-            WHERE x-job-hdr.company EQ job-hdr.company
-            AND x-job-hdr.job     EQ job-hdr.job
-            AND x-job-hdr.job-no  EQ job-hdr.job-no
-            AND x-job-hdr.job-no2 EQ job-hdr.job-no2
-            AND x-job-hdr.frm EQ 0:
-                  
-            RUN util/upditmfg.p (
-                INPUT ROWID(x-job-hdr),
-                INPUT 1
-                ).              
-        END.
-    END. 
-
-END PROCEDURE.
+/*PROCEDURE pUpdateFGItemQty PRIVATE:                                                 */
+/*    /*------------------------------------------------------------------------------*/
+/*     Purpose:                                                                       */
+/*     Notes:                                                                         */
+/*    ------------------------------------------------------------------------------*/*/
+/*    DEFINE INPUT  PARAMETER ipriJobHdr     AS ROWID   NO-UNDO.                      */
+/*    DEFINE INPUT  PARAMETER iplLastItem  AS LOGICAL NO-UNDO.                        */
+/*                                                                                    */
+/*    DEFINE BUFFER x-job-hdr       FOR job-hdr.                                      */
+/*                                                                                    */
+/*    FIND FIRST job-hdr EXCLUSIVE-LOCK                                               */
+/*        WHERE ROWID(job-hdr) EQ ipriJobHdr                                          */
+/*        NO-ERROR.                                                                   */
+/*    IF NOT AVAILABLE job-hdr THEN                                                   */
+/*        RETURN.                                                                     */
+/*                                                                                    */
+/*    IF iplLastItem THEN                                                             */
+/*    DO:                                                                             */
+/*        FOR EACH x-job-hdr                                                          */
+/*            WHERE x-job-hdr.company EQ job-hdr.company                              */
+/*            AND x-job-hdr.job     EQ job-hdr.job                                    */
+/*            AND x-job-hdr.job-no  EQ job-hdr.job-no                                 */
+/*            AND x-job-hdr.job-no2 EQ job-hdr.job-no2                                */
+/*            AND x-job-hdr.frm EQ 0:                                                 */
+/*                                                                                    */
+/*            RUN util/upditmfg.p (                                                   */
+/*                INPUT ROWID(x-job-hdr),                                             */
+/*                INPUT 1                                                             */
+/*                ).                                                                  */
+/*        END.                                                                        */
+/*    END.                                                                            */
+/*                                                                                    */
+/*END PROCEDURE.                                                                      */
 
