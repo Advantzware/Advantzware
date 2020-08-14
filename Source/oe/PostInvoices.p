@@ -1310,6 +1310,8 @@ PROCEDURE pCalcArInvTotals PRIVATE:
     DEFINE BUFFER bf-ar-inv  FOR ar-inv.
     DEFINE BUFFER bf-ar-invl FOR ar-invl.
     
+    DEFINE VARIABLE dTotalTax AS DECIMAL NO-UNDO.
+    
     FIND bf-ar-inv EXCLUSIVE-LOCK 
         WHERE ROWID(bf-ar-inv) EQ ipriArInv
         NO-ERROR.
@@ -1320,6 +1322,7 @@ PROCEDURE pCalcArInvTotals PRIVATE:
             WHERE bf-ar-invl.x-no EQ bf-ar-inv.x-no:
             bf-ar-inv.t-cost = bf-ar-inv.t-cost + bf-ar-invl.t-cost.
         END.
+
     END.
 
 END PROCEDURE.
@@ -2212,12 +2215,18 @@ PROCEDURE pBuildInvoiceTaxDetail PRIVATE:
     DEFINE VARIABLE dTaxableAmount AS DECIMAL NO-UNDO.
     DEFINE VARIABLE lHasLimit AS LOGICAL NO-UNDO.
     
+    
     IF ipbf-ttInvoiceToPost.taxGroup NE "" AND ipbf-ttInvoiceToPost.amountBilledTax NE 0 THEN DO:
         ASSIGN 
             cAccountSource = "Tax Group: " + ipbf-ttInvoiceToPost.taxGroup
             dTaxableAmount = ipbf-ttInvoiceToPost.amountBilledExTax - ipbf-ttInvoiceToPost.amountBilledFreight
             .
-        RUN Tax_CalculateWithDetail  (ipbf-ttInvoiceToPost.company, ipbf-ttInvoiceToPost.taxGroup, NO, dTaxableAmount, OUTPUT dTax, OUTPUT TABLE ttTaxDetail).
+        RUN pGetSalesTaxForInvHead  (
+            INPUT  ipbf-ttInvoiceToPost.riInvHead, 
+            INPUT  "QUOTATION",
+            OUTPUT dTotalTax,
+            OUTPUT TABLE ttTaxDetail
+            ).
         FOR EACH ttTaxDetail:
             RUN pCheckAccount(ttTaxDetail.company,  ttTaxDetail.taxCodeAccount, cAccountSource + " Code: " + ttTaxDetail.taxCode, "Tax Account", 
                     OUTPUT oplError, OUTPUT opcErrorMessage).
@@ -2226,18 +2235,7 @@ PROCEDURE pBuildInvoiceTaxDetail PRIVATE:
             BUFFER-COPY ttTaxDetail TO ttInvoiceTaxDetail.
             ttInvoiceTaxDetail.riInvHead = ipbf-ttInvoiceToPost.riInvHead.
         END.         
-        dTotalTax = dTax.
-        dTaxableAmount = ipbf-ttInvoiceToPost.amountBilledFreight.
-        RUN Tax_CalculateWithDetail  (ipbf-ttInvoiceToPost.company, ipbf-ttInvoiceToPost.taxGroup, YES, dTaxableAmount, OUTPUT dTax, OUTPUT TABLE ttTaxDetail).
-        FOR EACH ttTaxDetail:
-            RUN pCheckAccount(ttTaxDetail.company,  ttTaxDetail.taxCodeAccount, cAccountSource + " Code: " + ttTaxDetail.taxCode, "Tax Account", 
-                OUTPUT oplError, OUTPUT opcErrorMessage).
-            IF oplError THEN RETURN.
-            CREATE ttInvoiceTaxDetail.
-            BUFFER-COPY ttTaxDetail TO ttInvoiceTaxDetail.
-            ttInvoiceTaxDetail.riInvHead = ipbf-ttInvoiceToPost.riInvHead.
-        END.             
-        dTotalTax = dTotalTax + dTax.
+
         IF dTotalTax NE ipbf-ttInvoiceToPost.amountBilledTax THEN DO:
             FIND FIRST ttInvoiceTaxDetail
                 WHERE ttInvoiceTaxDetail.riInvHead EQ ipbf-ttInvoiceToPost.riInvHead
@@ -2736,7 +2734,11 @@ PROCEDURE pPostInvoices PRIVATE:
         opiCountPosted = opiCountPosted + 1.
 
         RUN pCreateEDI(BUFFER bf-inv-head).
-                
+
+        RUN pPostSalesTaxForInvHead (
+            INPUT ROWID(bf-inv-head)
+            ).
+        
         /*Create ar-inv based on inv-head and return writeable buffer*/
         RUN pCreateARInvHeader(BUFFER bf-inv-head, BUFFER ttInvoiceToPost, OUTPUT riArInv).  
         FIND FIRST bf-ar-inv NO-LOCK
@@ -2938,6 +2940,67 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
     
 /*REFACTOR - Need to process multi-currency - Manipulate GLTransactions and amounts and create CURR types for offsets*/
 
+END PROCEDURE.
+
+PROCEDURE pPostSalesTaxForInvHead PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriInvHead AS ROWID     NO-UNDO.
+    
+    DEFINE VARIABLE dTotalTax AS DECIMAL   NO-UNDO.
+
+    RUN pGetSalesTaxForInvHead  (
+        INPUT  ipriInvHead, 
+        INPUT  "INVOICE",
+        OUTPUT dTotalTax,
+        OUTPUT TABLE ttTaxDetail
+        ).
+    
+END PROCEDURE.
+
+PROCEDURE pGetSalesTaxForInvHead PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriInvHead    AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMessageType AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTotalTax    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE          FOR ttTaxDetail.
+    
+    DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dInvoiceSubTotal AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTriggerID       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lPostToJournal   AS LOGICAL   NO-UNDO.
+    
+    IF ipcMessageType EQ "QUOTATION" THEN
+        ASSIGN
+            lPostToJournal = FALSE
+            cTriggerID     = "GetTaxAmount"
+            .
+    ELSE IF ipcMessageType EQ "INVOICE" THEN
+        ASSIGN
+            lPostToJournal = TRUE
+            cTriggerID     = "GetTaxAmountFinal"
+            .
+
+    RUN Tax_CalculateForInvHeadWithDetail  (
+        INPUT  ipriInvHead,
+        INPUT  locode,
+        INPUT  ipcMessageType, /*  Message Type "INVOICE" or "QUOTATION" */
+        INPUT  lPostToJournal, /* Post To journal */
+        INPUT  cTriggerID,     /* Trigger ID */
+        OUTPUT opdTotalTax,
+        OUTPUT dInvoiceTotal,
+        OUTPUT dinvoiceSubTotal,
+        OUTPUT TABLE ttTaxDetail,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).
 END PROCEDURE.
 
 PROCEDURE pRunAPIOutboundTrigger PRIVATE:
