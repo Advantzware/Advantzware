@@ -571,7 +571,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
     /* grab screen value as a starting value */
-    cFocusValue = FOCUS:SCREEN-VALUE.
+    cFocusValue = FOCUS:SCREEN-VALUE NO-ERROR.
     /* if screen value is HI-VALUE, clear so user sees all entries */
     IF cFocusValue EQ CHR(254) THEN
     cFocusValue = "".
