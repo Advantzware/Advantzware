@@ -502,6 +502,24 @@ IF AVAIL sys-ctrl THEN DO:
         OUTPUT CLOSE.
      END. /* AlliFlutes */
    
+     ELSE IF ip-ftp-where EQ "AlliFlutes1" THEN DO:
+        OUTPUT TO VALUE(cPoConfigDir + "\ftpaf.txt").    /* ftp text file */
+        IF lConfigBased THEN DO:
+            lConfigIdentified = TRUE.
+            FIND FIRST ttConfig 
+                WHERE ttConfig.exportFormat EQ ip-ftp-where
+                AND ttConfig.destName EQ sys-ctrl.char-fld
+                NO-LOCK NO-ERROR.
+
+            IF AVAIL ttconfig THEN 
+            DO:     
+                OUTPUT CLOSE.
+                RUN config-based-script.
+            END.
+        END.
+        OUTPUT CLOSE.
+    END. /* AlliFlutes */
+
     /* ip-ftp-where was not listed */
     IF NOT lConfigIdentified THEN DO:
         
