@@ -70,6 +70,32 @@ PROCEDURE pGetTotalTaxRoundedByLine PRIVATE:
     END.
 END PROCEDURE.
 
+PROCEDURE pPopulateTaxAccount PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttTaxDetail.
+
+    DEFINE BUFFER bf-ar-ctrl FOR ar-ctrl.
+    
+    FIND FIRST bf-ar-ctrl NO-LOCK
+         WHERE bf-ar-ctrl.company EQ ipcCompany
+         NO-ERROR.
+    
+    FOR EACH ttTaxDetail:
+        ttTaxDetail.company = ipcCompany.
+        
+        IF ttTaxDetail.taxCodeAccount EQ "" AND AVAILABLE bf-ar-ctrl THEN
+            ASSIGN
+                ttTaxDetail.taxCodeAccount = bf-ar-ctrl.stax
+                ttTaxDetail.taxCode        = "Sales Tax"
+                .
+    END.
+    
+END PROCEDURE.
+
 PROCEDURE Tax_CalculateForInvHead:
 /*------------------------------------------------------------------------------
  Purpose: Calculates tax for a given ar-inv row id
@@ -83,6 +109,40 @@ PROCEDURE Tax_CalculateForInvHead:
     DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+
+    EMPTY TEMP-TABLE ttTaxDetail.
+    
+    RUN pCalculateForInvHead (
+        INPUT  ipriInvHead,
+        INPUT  ipcLocation,
+        INPUT  ipcMessageType,
+        INPUT  iplPostToJournal,
+        INPUT  ipcTriggerID, 
+        OUTPUT opdTaxTotal,
+        OUTPUT opdInvoiceTotal,
+        OUTPUT opdInvoiceSubTotal,
+        OUTPUT TABLE ttTaxDetail,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage    
+        ).
+END PROCEDURE.
+
+PROCEDURE Tax_CalculateForInvHeadWithDetail:
+/*------------------------------------------------------------------------------
+ Purpose: Calculates tax for a given ar-inv row id
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriInvHead        AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMessageType     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPostToJournal   AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTriggerID       AS CHARACTER NO-UNDO.        
+    DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.
     DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
 
@@ -133,6 +193,54 @@ PROCEDURE Tax_CalculateForArInv:
         OUTPUT TABLE ttTaxDetail,
         OUTPUT oplSuccess,
         OUTPUT opcMessage    
+        ).
+END PROCEDURE.
+
+PROCEDURE Tax_CalculateForArInvWithDetail:
+/*------------------------------------------------------------------------------
+ Purpose: Calculates tax for a given ar-inv row id
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriArInv          AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMessageType     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPostToJournal   AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTriggerID       AS CHARACTER NO-UNDO.        
+    DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.       
+    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+
+    EMPTY TEMP-TABLE ttTaxDetail.
+    
+    RUN pCalculateForArinv (
+        INPUT  ipriArinv,
+        INPUT  ipcLocation,
+        INPUT  ipcMessageType,
+        INPUT  iplPostToJournal,
+        INPUT  ipcTriggerID, 
+        OUTPUT opdTaxTotal,
+        OUTPUT opdInvoiceTotal,
+        OUTPUT opdInvoiceSubTotal,
+        OUTPUT TABLE ttTaxDetail,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage    
+        ).
+END PROCEDURE.
+
+PROCEDURE Tax_GetCalcMethod:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns the calculation method from NK1 setting SalesTaxCalcMethod
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCalcMethod AS CHARACTER NO-UNDO.
+    
+    RUN pGetCalcMethod (
+        INPUT  ipcCompany,
+        OUTPUT opcCalcMethod
         ).
 END PROCEDURE.
 
@@ -834,6 +942,12 @@ PROCEDURE pCalculateForInvHead PRIVATE:
             OUTPUT opcMessage
             ).
         IF oplSuccess THEN DO:
+            /* Populates company and tax account */
+            RUN pPopulateTaxAccount (
+                INPUT        bf-inv-head.company,
+                INPUT-OUTPUT TABLE ttTaxDetail
+                ).
+
             /* Get the round method for the customer */
             RUN pGetRoundMethod (
                 INPUT  bf-inv-head.company,
@@ -1040,6 +1154,12 @@ PROCEDURE pCalculateForArInv PRIVATE:
             OUTPUT opcMessage
             ).
         IF oplSuccess THEN DO:
+            /* Populates company and tax account */
+            RUN pPopulateTaxAccount (
+                INPUT        bf-ar-inv.company,
+                INPUT-OUTPUT TABLE ttTaxDetail
+                ).
+
             /* Get the round method for the customer */
             RUN pGetRoundMethod (
                 INPUT  bf-ar-inv.company,
