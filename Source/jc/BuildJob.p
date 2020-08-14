@@ -168,27 +168,41 @@ PROCEDURE pBuildHeaders PRIVATE:
             AND bf-job-hdr.blank-no EQ estCostBlank.blankNo
             AND bf-job-hdr.i-no EQ estCostItem.itemID
             NO-ERROR.
+        
+        IF NOT AVAILABLE bf-job-hdr AND estCostBlank.formNo EQ 0 THEN 
+        DO:  /*Job Build Process creates the Set Header job-hdr with form 1 blank 1.  This is a workaround to find that to prevent
+            creating more than one job-hdr for the set header which will need to be cleaned up*/
+            FIND FIRST bf-job-hdr EXCLUSIVE-LOCK 
+                WHERE bf-job-hdr.company EQ ipbf-job.company
+                AND bf-job-hdr.job EQ ipbf-job.job
+                AND bf-job-hdr.job-no EQ ipbf-job.job-no
+                AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
+                AND bf-job-hdr.i-no EQ estCostItem.itemID
+                NO-ERROR.                
+        END.            
+        
         IF NOT AVAILABLE bf-job-hdr THEN 
         DO:
             CREATE bf-job-hdr.
             ASSIGN 
-                bf-job-hdr.company  = ipbf-job.company
-                bf-job-hdr.job      = ipbf-job.job
-                bf-job-hdr.job-no   = ipbf-job.job-no
-                bf-job-hdr.job-no2  = ipbf-job.job-no2
-                bf-job-hdr.frm      = estCostBlank.formNo
-                bf-job-hdr.blank-no = estCostBlank.blankNo
-                bf-job-hdr.i-no     = estCostItem.itemID
-                bf-job-hdr.qty      = estCostBlank.quantityRequired
-                bf-job-hdr.cust-no  = estCostItem.customerID
-                bf-job-hdr.est-no   = ipbf-job.est-no
-                bf-job-hdr.ord-no   = IF bf-job-hdr.ord-no EQ 0 THEN ipiOrderID ELSE bf-job-hdr.ord-no
+                bf-job-hdr.company = ipbf-job.company
+                bf-job-hdr.job     = ipbf-job.job
+                bf-job-hdr.job-no  = ipbf-job.job-no
+                bf-job-hdr.job-no2 = ipbf-job.job-no2
+                bf-job-hdr.i-no    = estCostItem.itemID
+                bf-job-hdr.qty     = estCostBlank.quantityRequired
+                bf-job-hdr.cust-no = estCostItem.customerID
+                bf-job-hdr.est-no  = ipbf-job.est-no
+                bf-job-hdr.ord-no  = IF bf-job-hdr.ord-no EQ 0 THEN ipiOrderID ELSE bf-job-hdr.ord-no
+                bf-job-hdr.loc     = ipbf-job.loc
                 .
         END.
         CREATE ttJobHdrToKeep.
         ASSIGN 
             dQtyInM                 = bf-job-hdr.qty / 1000
             ttJobHdrToKeep.riJobHdr = ROWID(bf-job-hdr)
+            bf-job-hdr.frm          = estCostBlank.formNo
+            bf-job-hdr.blank-no     = estCostBlank.blankNo
             bf-job-hdr.sq-in        = estCostBlank.pctOfForm  * 100
             bf-job-hdr.std-tot-cost = estCostItem.costTotalFactory / dQtyInM
             bf-job-hdr.std-mat-cost = estCostItem.costTotalMaterial / dQtyInM
@@ -379,7 +393,8 @@ PROCEDURE pBuildMisc PRIVATE:
                 WHERE item.company EQ estCostMisc.company
                 AND item.i-no EQ estCostMisc.itemID
                 NO-ERROR.
-        IF AVAILABLE ITEM THEN DO: 
+        IF AVAILABLE ITEM THEN 
+        DO: 
             FIND FIRST bf-job-mat EXCLUSIVE-LOCK 
                 WHERE bf-job-mat.company EQ ipbf-job.company
                 AND bf-job-mat.job EQ ipbf-job.job
@@ -414,7 +429,8 @@ PROCEDURE pBuildMisc PRIVATE:
                 .
             RELEASE bf-job-mat.
         END.
-        ELSE DO:
+        ELSE 
+        DO:
             FIND FIRST bf-job-prep EXCLUSIVE-LOCK 
                 WHERE bf-job-prep.company EQ ipbf-job.company
                 AND bf-job-prep.job EQ ipbf-job.job
@@ -441,11 +457,11 @@ PROCEDURE pBuildMisc PRIVATE:
             CREATE ttJobPrepToKeep.
             ASSIGN 
                 ttJobPrepToKeep.riJobPrep = ROWID(bf-job-prep)
-                bf-job-prep.cost-m = estCostMisc.costTotalPerMFinished
-                bf-job-prep.qty = estCostMisc.quantityRequiredTotal
-                bf-job-prep.ml = estCostMisc.costType EQ "Mat"
-                bf-job-prep.std-cost = estCostMisc.costPerUOM
-                bf-job-prep.sc-uom = estCostMisc.costUOM
+                bf-job-prep.cost-m        = estCostMisc.costTotalPerMFinished
+                bf-job-prep.qty           = estCostMisc.quantityRequiredTotal
+                bf-job-prep.ml            = estCostMisc.costType EQ "Mat"
+                bf-job-prep.std-cost      = estCostMisc.costPerUOM
+                bf-job-prep.sc-uom        = estCostMisc.costUOM
                 . 
         END.
         RELEASE bf-job-prep.    
@@ -554,10 +570,28 @@ PROCEDURE pCleanJob PRIVATE:
         AND bf-job-hdr.job EQ ipbf-job.job
         AND bf-job-hdr.job-no EQ ipbf-job.job-no
         AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
-        AND NOT CAN-FIND(FIRST ttJobHdrToKeep WHERE ttJobHdrToKeep.riJobHdr EQ ROWID(bf-job-hdr)):
-        DELETE bf-job-hdr.
-    END.
+        AND NOT CAN-FIND(FIRST ttJobHdrToKeep WHERE ttJobHdrToKeep.riJobHdr EQ ROWID(bf-job-hdr)): 
+            DELETE bf-job-hdr.
+    END.     
     RELEASE bf-job-hdr.
+    
+    /*The following is a hack to workaround the doubling of component inventory inside the jc-calc program*/
+    /*This should be removed in favor of moving more of the job quantity prompts and quantity management, into BuildJob*/
+    FIND FIRST bf-job-hdr NO-LOCK 
+        WHERE bf-job-hdr.company EQ ipbf-job.company
+        AND bf-job-hdr.job EQ ipbf-job.job
+        AND bf-job-hdr.job-no EQ ipbf-job.job-no
+        AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
+        AND bf-job-hdr.frm EQ 0
+        NO-ERROR.
+    IF AVAILABLE bf-job-hdr THEN 
+        FIND FIRST itemfg NO-LOCK 
+            WHERE itemfg.company EQ bf-job-hdr.company
+            AND itemfg.i-no EQ bf-job-hdr.i-no
+            NO-ERROR.
+    IF AVAILABLE itemfg THEN 
+        RUN fg/fg-reset.p (RECID(itemfg)).    
 
 END PROCEDURE.
+
 

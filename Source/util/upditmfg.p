@@ -50,7 +50,8 @@ IF AVAILABLE b-job-hdr THEN DO:
         itemfg-loc.q-ono = itemfg-loc.q-ono + (b-job-hdr.qty * ip-factor).   
      END.     
   END.
-  RUN fg/comp-upd.p (RECID(itemfg), b-job-hdr.qty * ip-factor,
+  IF b-job-hdr.frm NE 0 THEN 
+    RUN fg/comp-upd.p (RECID(itemfg), b-job-hdr.qty * ip-factor,
                      'q-ono', b-job-hdr.est-no).
   
 END.
