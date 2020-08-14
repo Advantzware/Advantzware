@@ -26,29 +26,17 @@
 
 /* Parameters Definitions ---                                           */
 
-&IF DEFINED(UIB_is_Running) EQ 0 &THEN
 DEFINE INPUT PARAMETER ipcType    AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER iprRowID   AS ROWID     NO-UNDO.
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-&ELSE
-DEFINE VARIABLE ipcType    AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iprRowID   AS ROWID     NO-UNDO.
-DEFINE VARIABLE ipcCompany AS CHARACTER NO-UNDO INITIAL "001".
-
-ASSIGN
-    ipcType  = "Job"
-    iprRowID = TO-ROWID("0x00000000005a4047")
-    .
-ASSIGN
-    ipcType  = "Est"
-    iprRowID = TO-ROWID("0x0000000000066b99")
-    .
-&ENDIF
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE cocode AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAccess    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cocode    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cErrorMsg AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAccess   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lContinue AS LOGICAL   NO-UNDO.
+ 
 {schedule/scopDir.i}
 {{&includes}/ttblDowntime.i NEW}
 
@@ -79,20 +67,22 @@ DEFINE TEMP-TABLE ttblJob NO-UNDO
 DEFINE BUFFER bTtblJob FOR ttblJob.
 DEFINE BUFFER bJobMch  FOR job-mch.
 
-DEFINE TEMP-TABLE ttTime NO-UNDO 
-  FIELD timeSlice AS INTEGER 
-  FIELD timeType1 AS CHARACTER 
-  FIELD timeType2 AS CHARACTER 
-  FIELD newJob    AS LOGICAL 
-    INDEX ttTime IS PRIMARY timeSlice
-    .
+{{&includes}/htmlDefs.i m-code}
+
 DEFINE TEMP-TABLE ttMachine NO-UNDO
-  FIELD m-code AS CHARACTER LABEL "Machine" FORMAT "x(10)"
-  FIELD m-dscr AS CHARACTER LABEL "Description" FORMAT "x(24)"
+  FIELD m-code AS CHARACTER FORMAT "x(10)" LABEL "Machine"
+  FIELD m-dscr AS CHARACTER FORMAT "x(24)" LABEL "Description"
   FIELD d-seq  LIKE mach.d-seq
   FIELD m-seq  LIKE mach.m-seq
     INDEX ttMachine IS PRIMARY m-code
     .
+DEFINE TEMP-TABLE ttFolder NO-UNDO
+  FIELD folderName AS CHARACTER
+  FIELD searched   AS LOGICAL
+  .
+DEFINE TEMP-TABLE ttResource NO-UNDO
+  FIELD resource AS CHARACTER
+  .
 SESSION:SET-WAIT-STATE ("").
 
 /* check for valid license */
@@ -114,7 +104,6 @@ END. /* if no */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
@@ -141,7 +130,6 @@ END. /* if no */
 &Scoped-define TABLES-IN-QUERY-ttJob ttJob
 &Scoped-define FIRST-TABLE-IN-QUERY-ttJob ttJob
 
-
 /* Definitions for BROWSE ttMachine                                     */
 &Scoped-define FIELDS-IN-QUERY-ttMachine ttMachine.m-code ttMachine.m-dscr   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-ttMachine   
@@ -150,7 +138,6 @@ END. /* if no */
 &Scoped-define OPEN-QUERY-ttMachine OPEN QUERY {&SELF-NAME} FOR EACH ttMachine.
 &Scoped-define TABLES-IN-QUERY-ttMachine ttMachine
 &Scoped-define FIRST-TABLE-IN-QUERY-ttMachine ttMachine
-
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-Dialog-Frame ~
@@ -168,44 +155,7 @@ btnRemove btnReset btnSort
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Prototypes ********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD checkJobConflict Dialog-Frame 
-FUNCTION checkJobConflict RETURNS LOGICAL
-  (ipStartDateTime AS DECIMAL,ipEndDateTime AS DECIMAL)  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fixTime Dialog-Frame 
-FUNCTION fixTime RETURNS INTEGER
-  (ipTime AS INTEGER)  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fTimeSlice Dialog-Frame 
-FUNCTION fTimeSlice RETURNS LOGICAL
-  (ipiTimeSlice AS INTEGER, ipcTimeType1 AS CHARACTER, ipcTimeType2 AS CHARACTER, iplNewJob AS LOGICAL) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD numericDateTime Dialog-Frame 
-FUNCTION numericDateTime RETURNS DECIMAL
-  (ipDate AS DATE,ipTime AS INTEGER)  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD timeSpan Dialog-Frame 
-FUNCTION timeSpan RETURNS INTEGER
-  (ipStartDate AS DATE,ipStartTime AS INTEGER,ipEndDate AS DATE,ipEndTime AS INTEGER)  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -288,7 +238,6 @@ ttMachine.m-dscr
     WITH NO-ROW-MARKERS SEPARATORS SIZE 40 BY 33.1
          FGCOLOR 1 .
 
-
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
@@ -306,7 +255,6 @@ DEFINE FRAME Dialog-Frame
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Capacity Schedule Page Generation" WIDGET-ID 100.
 
-
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
@@ -316,8 +264,6 @@ DEFINE FRAME Dialog-Frame
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
-
-
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
@@ -337,7 +283,6 @@ ASSIGN
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
-
 
 /* Setting information for Queries and Browse Widgets fields            */
 
@@ -359,10 +304,6 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttMachine.
 */  /* BROWSE ttMachine */
 &ANALYZE-RESUME
 
- 
-
-
-
 /* ************************  Control Triggers  ************************ */
 
 &Scoped-define SELF-NAME Dialog-Frame
@@ -375,7 +316,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &Scoped-define SELF-NAME btnClear
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClear Dialog-Frame
 ON CHOOSE OF btnClear IN FRAME Dialog-Frame /* Clear */
@@ -387,20 +327,19 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &Scoped-define SELF-NAME btnOK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOK Dialog-Frame
 ON CHOOSE OF btnOK IN FRAME Dialog-Frame /* OK */
 DO:
     SESSION:SET-WAIT-STATE ("General").
     RUN pScheduleJob (iprRowID).
-    RUN pHTMLPage.
+/*    RUN pHTMLPageHorizontal.*/
+    RUN pHTMLPageVertical.
     SESSION:SET-WAIT-STATE ("").
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME btnRemove
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRemove Dialog-Frame
@@ -412,7 +351,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &Scoped-define SELF-NAME btnReset
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnReset Dialog-Frame
 ON CHOOSE OF btnReset IN FRAME Dialog-Frame /* Reset */
@@ -423,7 +361,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &Scoped-define SELF-NAME btnSort
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSort Dialog-Frame
 ON CHOOSE OF btnSort IN FRAME Dialog-Frame /* Sort */
@@ -433,7 +370,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &Scoped-define BROWSE-NAME ttJob
 &Scoped-define SELF-NAME ttJob
@@ -449,7 +385,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &Scoped-define BROWSE-NAME ttMachine
 &Scoped-define SELF-NAME ttMachine
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttMachine Dialog-Frame
@@ -461,12 +396,10 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &Scoped-define BROWSE-NAME ttJob
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
-
 
 /* ***************************  Main Block  *************************** */
 
@@ -481,10 +414,17 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN pLoadDowntime.
-  RUN enable_UI.
   RUN pBuildTTMachine.
   RUN pBuildTTJob (ipcType, ipcCompany, iprRowID).
+  RUN pRemoveUnusedDowntime.
+  RUN enable_UI.
   DISPLAY baseOnText WITH FRAME {&FRAME-NAME}.
+  IF cErrorMsg NE "" THEN
+  MESSAGE 
+      cErrorMsg
+  VIEW-AS ALERT-BOX WARNING.
+  /* fatal error, bail */
+  IF NOT lContinue THEN RETURN.
   IF cCapacityPage EQ "Yes" THEN DO: 
       APPLY "CHOOSE":U TO btnOK.
       RETURN.
@@ -495,7 +435,6 @@ RUN disable_UI.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -551,53 +490,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE downtimeSpan Dialog-Frame 
-PROCEDURE downtimeSpan :
-/*------------------------------------------------------------------------------
-  Purpose:     calculate new ending date & time and downtime span value
-  Parameters:  fixed job time span, new start date & time,
-               output new end date & time, downtime span
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ipCompany   AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipMachine   AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipTimeSpan  AS INTEGER   NO-UNDO.
-  DEFINE INPUT PARAMETER ipStartDate AS DATE      NO-UNDO.
-  DEFINE INPUT PARAMETER ipStartTime AS INTEGER   NO-UNDO.
-  
-  DEFINE INPUT-OUTPUT PARAMETER iopEndDate AS DATE    NO-UNDO.
-  DEFINE INPUT-OUTPUT PARAMETER iopEndTime AS INTEGER NO-UNDO.
-
-  DEFINE VARIABLE lvCapacity AS INTEGER NO-UNDO.
-
-  IF NOT CAN-FIND(FIRST mach-calendar
-                  WHERE mach-calendar.company EQ ipCompany
-                    AND mach-calendar.m-code  EQ ipMachine
-                    AND mach-calendar.m-date  GE ipStartDate) THEN
-  RETURN.
-  
-  FOR EACH mach-calendar NO-LOCK
-      WHERE mach-calendar.company EQ ipCompany
-        AND mach-calendar.m-code  EQ ipMachine
-        AND mach-calendar.m-date  GE ipStartDate
-      :
-    IF ipStartDate EQ mach-calendar.m-date AND
-       ipStartTime GT mach-calendar.end-time THEN NEXT.
-    lvCapacity = lvCapacity + timeSpan(mach-calendar.m-date,mach-calendar.start-time,
-                                       mach-calendar.m-date,mach-calendar.end-time).
-    IF lvCapacity LT ipTimeSpan THEN NEXT.
-    ASSIGN
-      iopEndDate = mach-calendar.m-date
-      iopEndTime = mach-calendar.end-time - (lvCapacity - ipTimeSpan)
-      .
-    RETURN.
-  END. /* each mach-calendar */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
@@ -615,177 +507,6 @@ PROCEDURE enable_UI :
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE firstAvailable Dialog-Frame 
-PROCEDURE firstAvailable :
-/*------------------------------------------------------------------------------
-  Purpose:     find first available time slot for job
-  Parameters:  
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ipCompany       AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipMachine       AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipTimeSpan      AS INTEGER   NO-UNDO.
-  DEFINE INPUT PARAMETER ipStartDateTime AS DECIMAL   NO-UNDO.
-  DEFINE INPUT PARAMETER ipEndDateTime   AS DECIMAL   NO-UNDO.
-
-  DEFINE INPUT-OUTPUT PARAMETER opStartDate AS DATE    NO-UNDO.
-  DEFINE INPUT-OUTPUT PARAMETER opStartTime AS INTEGER NO-UNDO.
-  DEFINE INPUT-OUTPUT PARAMETER opEndDate   AS DATE    NO-UNDO.
-  DEFINE INPUT-OUTPUT PARAMETER opEndTime   AS INTEGER NO-UNDO.
-  
-  DEFINE VARIABLE lvStartDate     AS DATE    NO-UNDO.
-  DEFINE VARIABLE lvStartTime     AS INTEGER NO-UNDO.
-  DEFINE VARIABLE lvEndDate       AS DATE    NO-UNDO.
-  DEFINE VARIABLE lvEndTime       AS INTEGER NO-UNDO.
-  DEFINE VARIABLE lvStartDateTime AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE lvEndDateTime   AS DECIMAL NO-UNDO.
-  DEFINE VARIABLE lvTimeSpan      AS INTEGER NO-UNDO.
-
-  IF checkJobConflict(ipStartDateTime,ipEndDateTime) THEN
-  FOR EACH ttblJob NO-LOCK
-      WHERE ttblJob.m-code         EQ ipMachine
-        AND (ttblJob.startDateTime GE ipStartDateTime
-         OR  ttblJob.endDateTime   GE ipStartDateTime)
-      :
-    RUN getStartCapacity (ipCompany,ipMachine,ttblJob.endDate,ttblJob.endTime,
-                          OUTPUT lvStartDate,OUTPUT lvStartTime).
-    lvStartDateTime = numericDateTime(lvStartDate,lvStartTime).
-    RUN newEnd (ipTimeSpan,lvStartDate,lvStartTime,OUTPUT lvEndDate,OUTPUT lvEndTime).
-    RUN downtimeSpan (ipCompany,ipMachine,ipTimeSpan,lvStartDate,lvStartTime,
-                      INPUT-OUTPUT lvEndDate,INPUT-OUTPUT lvEndTime).
-    lvEndDateTime = numericDateTime(lvEndDate,lvEndTime).
-    IF checkJobConflict(lvStartDateTime,lvEndDateTime) THEN NEXT.
-    ASSIGN
-      opStartDate = lvStartDate
-      opStartTime = lvStartTime
-      opEndDate   = lvEndDate
-      opEndTime   = lvEndTime
-      .
-    RETURN.
-  END. /* each ttbljob */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getStartCapacity Dialog-Frame 
-PROCEDURE getStartCapacity :
-/*------------------------------------------------------------------------------
-  Purpose:     find first avail capacity record to set start date & time
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ipCompany    AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipMachine    AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ipStartDate  AS DATE      NO-UNDO.
-  DEFINE INPUT PARAMETER ipStartTime  AS INTEGER   NO-UNDO.
-  
-  DEFINE OUTPUT PARAMETER opStartDate AS DATE      NO-UNDO.
-  DEFINE OUTPUT PARAMETER opStartTime AS INTEGER   NO-UNDO.
-
-  ASSIGN
-    opStartDate = ipStartDate
-    opStartTime = ipStartTime.
-
-  IF CAN-FIND(FIRST mach-calendar
-              WHERE mach-calendar.company    EQ ipCompany
-                AND mach-calendar.m-code     EQ ipMachine
-                AND mach-calendar.m-date     EQ ipStartDate
-                AND mach-calendar.start-time LE ipStartTime
-                AND mach-calendar.end-time   GE ipStartTime) THEN
-  RETURN.
-  
-  FIND FIRST mach-calendar NO-LOCK
-       WHERE mach-calendar.company EQ ipCompany
-         AND mach-calendar.m-code  EQ ipMachine
-         AND mach-calendar.m-date  EQ ipStartDate
-       NO-ERROR.
-  IF AVAILABLE mach-calendar THEN DO:
-    IF ipStartTime LT mach-calendar.start-time THEN
-    opStartTime = mach-calendar.start-time.
-    ELSE DO:
-      FIND FIRST mach-calendar NO-LOCK
-           WHERE mach-calendar.company EQ ipCompany
-             AND mach-calendar.m-code  EQ ipMachine
-             AND mach-calendar.m-date  GT ipStartDate
-           NO-ERROR.
-      IF AVAILABLE mach-calendar THEN
-      ASSIGN
-        opStartDate = mach-calendar.m-date
-        opStartTime = mach-calendar.start-time
-        .
-    END.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE newEnd Dialog-Frame 
-PROCEDURE newEnd :
-/*------------------------------------------------------------------------------
-  Purpose:     calculate new ending date & time
-  Parameters:  inputs timespan, start date & time, output new end date & time
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ipTimeSpan   AS INTEGER NO-UNDO.
-  DEFINE INPUT PARAMETER newStartDate AS DATE    NO-UNDO.
-  DEFINE INPUT PARAMETER newStartTime AS INTEGER NO-UNDO.
-  
-  DEFINE OUTPUT PARAMETER newEndDate  AS DATE    NO-UNDO.
-  DEFINE OUTPUT PARAMETER newEndTime  AS INTEGER NO-UNDO.
-  
-  DEFINE VARIABLE days AS INTEGER NO-UNDO.
-  
-  ASSIGN
-    newEndTime = newStartTime + ipTimeSpan
-    days       = TRUNCATE(newEndTime / 86400,0)
-    newEndDate = newStartDate + days
-    newEndTime = newEndTime - days * 86400
-    .
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE newStart Dialog-Frame 
-PROCEDURE newStart :
-/*------------------------------------------------------------------------------
-  Purpose:     calculate new starting date & time
-  Parameters:  inputs timespan and end date & time, output new start date & time
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ipTimeSpan AS INTEGER NO-UNDO.
-  DEFINE INPUT PARAMETER newEndDate AS DATE    NO-UNDO.
-  DEFINE INPUT PARAMETER newEndTime AS INTEGER NO-UNDO.
-  
-  DEFINE OUTPUT PARAMETER newStartDate AS DATE    NO-UNDO.
-  DEFINE OUTPUT PARAMETER newStartTime AS INTEGER NO-UNDO.
-  
-  DEFINE VARIABLE days AS INTEGER NO-UNDO.
-  DEFINE VARIABLE i    AS INTEGER NO-UNDO.
-  
-  IF ipTimeSpan GT newEndTime THEN
-  ASSIGN
-    i            = ipTimeSpan - newEndTime
-    days         = TRUNCATE(i / 86400,0)
-    newStartTime = 86400 - (i - days * 86400)
-    newStartDate = newEndDate - days - (IF i / 86400 GT 0 THEN 1 ELSE 0)
-    .
-  ELSE
-  ASSIGN
-    newStartTime = newEndTime - ipTimeSpan
-    newStartDate = newEndDate
-    .
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -840,274 +561,284 @@ PROCEDURE pBuildTTJob :
     DEFINE VARIABLE dPalletQty  AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dParts      AS DECIMAL   NO-UNDO.
 
-    EMPTY TEMP-TABLE ttJob.
-    
+    DEFINE BUFFER beb FOR eb.
+
+    lContinue = YES.
+    EMPTY TEMP-TABLE ttJob.    
     /* order not yet implemented */
     IF ipcType EQ "Order" THEN DO:
         FIND FIRST oe-ord NO-LOCK 
              WHERE ROWID(oe-ord) EQ iprRowID
              NO-ERROR.
-        IF NOT AVAILABLE oe-ord OR oe-ord.job-no EQ "" THEN DO:
-            MESSAGE 
-                "No Job Exists for this Order."
-            VIEW-AS ALERT-BOX ERROR.
-            APPLY "GO":U TO FRAME {&FRAME-NAME}.
-        END. /* no order or no job on order */
+        IF NOT AVAILABLE oe-ord OR oe-ord.job-no EQ "" THEN
+        ASSIGN
+            cErrorMsg = "No Job Exists for this Order."
+            lContinue = NO
+            .
         FIND FIRST job NO-LOCK
              WHERE job.company EQ oe-ord.company
                AND job.job     EQ oe-ord.j-no
              NO-ERROR.
-        IF NOT AVAILABLE job THEN DO:
-            MESSAGE 
-                "Unable to locate Job for this Order."
-            VIEW-AS ALERT-BOX ERROR.
-            APPLY "GO":U TO FRAME {&FRAME-NAME}.
-        END. /* not avail */
+        IF NOT AVAILABLE job THEN
+        ASSIGN
+            cErrorMsg = cErrorMsg + "Unable to locate Job for this Order." + CHR(10)
+            lContinue = NO
+            .
         ASSIGN
             iprRowID = ROWID(job)
             ipcType  = "Job"
             .
     END. /* type eq order */
 
-    IF ipcType EQ "Job" AND iprRowID NE ? THEN DO: 
+    IF lContinue AND ipcType EQ "Job" AND iprRowID NE ? THEN DO: 
         FIND job NO-LOCK WHERE ROWID(job) EQ iprRowID NO-ERROR.
-        IF NOT AVAILABLE job THEN DO:
-            MESSAGE
-                "Job Record Missing."
-            VIEW-AS ALERT-BOX ERROR.
-            APPLY "GO":U TO FRAME {&FRAME-NAME}.
-        END. /* not avail */
-        baseOnText = "Based on Job #" + TRIM(job.job-no + "-" + STRING(job.job-no2)).
-        FOR EACH job-mch NO-LOCK
-            WHERE job-mch.company      EQ job.company
-              AND job-mch.job          EQ job.job
-              AND job-mch.run-complete EQ NO
-            :
-            FIND FIRST mach NO-LOCK
-                 WHERE mach.company EQ job-mch.company
-                   AND mach.loc     EQ job.loc
-                   AND mach.m-code  EQ job-mch.m-code
-                 NO-ERROR.
-            IF NOT AVAILABLE mach THEN NEXT.
-            cMachine = IF mach.sch-m-code NE "" THEN mach.sch-m-code ELSE mach.m-code.
-            CREATE ttJob.
-            BUFFER-COPY job-mch TO ttJob
-                ASSIGN 
-                  ttJob.rRowID = ROWID(job-mch)
-                  ttJob.d-seq  = mach.d-seq
-                  ttJob.m-seq  = mach.m-seq
-                  ttJob.m-code = cMachine
-                  ttJob.m-dscr = mach.m-dscr
-                  . 
-        END. /* each job-mch */
+        IF NOT AVAILABLE job THEN
+        ASSIGN
+            cErrorMsg = cErrorMsg + "Job Record Missing." + CHR(10)
+            lContinue = NO
+            .
+        IF lContinue THEN DO:
+            FIND FIRST job-hdr OF job NO-LOCK NO-ERROR.
+            IF NOT AVAILABLE job THEN
+            ASSIGN
+                cErrorMsg = cErrorMsg + "Unable to locate Job Header." + CHR(10)
+                lContinue = NO
+                .
+            ELSE IF NOT job-hdr.opened THEN
+                 cErrorMsg = cErrorMsg + "Job is Closed." + CHR(10).
+            baseOnText = "Based on Job #" + TRIM(job.job-no + "-" + STRING(job.job-no2)).
+            FOR EACH job-mch NO-LOCK
+                WHERE job-mch.company      EQ job.company
+                  AND job-mch.job          EQ job.job
+                  AND job-mch.run-complete EQ NO,
+                FIRST mach NO-LOCK
+                WHERE mach.company EQ job-mch.company
+                  AND mach.loc     EQ job.loc
+                  AND mach.m-code  EQ job-mch.m-code
+                :
+                IF job-mch.start-date-su NE ? THEN
+                cErrorMsg = cErrorMsg + job-mch.m-code + " Routing already Scheduled." + CHR(10).
+                IF job-mch.run-complete THEN
+                cErrorMsg = cErrorMsg + job-mch.m-code + " Routing already Run Completed." + CHR(10).
+                cMachine = IF mach.sch-m-code NE "" THEN mach.sch-m-code ELSE mach.m-code.
+                CREATE ttJob.
+                BUFFER-COPY job-mch TO ttJob
+                    ASSIGN 
+                      ttJob.rRowID = ROWID(job-mch)
+                      ttJob.d-seq  = mach.d-seq
+                      ttJob.m-seq  = mach.m-seq
+                      ttJob.m-code = cMachine
+                      ttJob.m-dscr = mach.m-dscr
+                      . 
+            END. /* each job-mch */
+        END. /* if lcontinue */
     END. /* job and iprrowid ne ? */
     
     IF ipcType EQ "Est" AND iprRowID NE ? THEN DO: 
         FIND est NO-LOCK WHERE ROWID(est) EQ iprRowID NO-ERROR.
-        IF NOT AVAILABLE est THEN DO:
-            MESSAGE
-                "Estimate Record Missing."
-            VIEW-AS ALERT-BOX ERROR.
-            APPLY "GO":U TO FRAME {&FRAME-NAME}.
-        END. /* not avail */
+        IF NOT AVAILABLE est THEN
+        ASSIGN
+            cErrorMsg = "Estimate Record Missing."
+            lContinue = NO
+            .
         baseOnText = "Based on Est #" + TRIM(est.est-no).
-
         FIND FIRST eb NO-LOCK 
              WHERE eb.company EQ est.company
                AND eb.est-no  EQ est.est-no
-               AND eb.form-no EQ 1.
-        lPrintedLit = CAN-FIND(FIRST prodl
-                               WHERE prodl.company EQ est.company
-                                 AND prodl.prolin  EQ 'Printed'
-                                 AND prodl.procat  EQ eb.procat).        
-        FOR EACH est-op NO-LOCK
-            WHERE est-op.company EQ est.company
-              AND est-op.est-no  EQ est.est-no
-              AND est-op.line    LT 500,
-            FIRST ef NO-LOCK
-            WHERE ef.company EQ est.company
-              AND ef.est-no  EQ est-op.est-no
-              AND ef.form-no EQ est-op.s-num
-               BY est-op.s-num
-               BY est-op.b-num
-               BY est-op.d-seq
-               BY est-op.op-pass
-            :
-            cMachine  = est-op.m-code.
-            FIND FIRST mach NO-LOCK
-                 WHERE mach.company EQ est.company
-                   AND mach.loc     EQ est.loc
-                   AND mach.m-code  EQ cMachine
-                 NO-ERROR.
-            IF NOT AVAILABLE mach THEN NEXT.
-            IF mach.sch-m-code NE "" AND mach.sch-m-code NE mach.m-code THEN DO:
-                cMachine = mach.sch-m-code. 
+               AND eb.form-no EQ 1
+             NO-ERROR.
+        IF AVAILABLE eb THEN DO:
+            lPrintedLit = CAN-FIND(FIRST prodl
+                                   WHERE prodl.company EQ est.company
+                                     AND prodl.prolin  EQ 'Printed'
+                                     AND prodl.procat  EQ eb.procat).        
+            FOR EACH est-op NO-LOCK
+                WHERE est-op.company EQ est.company
+                  AND est-op.est-no  EQ est.est-no
+                  AND est-op.line    LT 500,
+                FIRST ef NO-LOCK
+                WHERE ef.company EQ est.company
+                  AND ef.est-no  EQ est-op.est-no
+                  AND ef.form-no EQ est-op.s-num
+                   BY est-op.s-num
+                   BY est-op.b-num
+                   BY est-op.d-seq
+                   BY est-op.op-pass
+                :
+                cMachine  = est-op.m-code.
                 FIND FIRST mach NO-LOCK
                      WHERE mach.company EQ est.company
                        AND mach.loc     EQ est.loc
                        AND mach.m-code  EQ cMachine
                      NO-ERROR.
                 IF NOT AVAILABLE mach THEN NEXT.
-            END. /* if sch-m-code ne m-code */
-            IF est.est-type EQ 6 THEN DO:
-                dParts = 0.
-                FOR EACH eb FIELDS(quantityPerSet) NO-LOCK
-                    WHERE eb.company EQ est.company
-                      AND eb.est-no  EQ est.est-no
-                      AND eb.form-no NE 0
-                    :
-                    dParts = dParts
-                            + (IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet)
-                               ELSE eb.quantityPerSet).
-                END.
-            END. /* if est-type eq 6 */
-            ASSIGN
-                dSheetLen = IF est-op.dept EQ "LM" THEN ef.nsh-len ELSE ef.gsh-len
-                dRunHours = 0
-                .
-            CASE est.est-type:
-                WHEN 1 OR WHEN 3 THEN DO:
-                    RUN sys/inc/numout.p (RECID(est-op), OUTPUT dOnForm).                    
-                    IF est-op.op-speed GT 0 THEN DO:
-                        IF mach.therm AND (mach.p-type EQ "R" OR est-op.dept EQ "LM") THEN
-                                dRunHours = ((est-op.num-sh * dOnForm * iOut) - est-op.op-waste)
-                                          * (dSheetLen / 12).
-                        ELSE IF est-op.op-sb THEN
-                                dRunHours = (est-op.num-sh * dOnForm * iOut) - est-op.op-waste.
-                             ELSE IF NOT lPrintedLit OR iOut EQ 1 THEN
-                                    dRunHours = (est-op.num-sh * iNumUp
-                                              * (IF ef.n-out   EQ 0 THEN 1 ELSE ef.n-out)
-                                              * (IF ef.n-out-l EQ 0 THEN 1 ELSE ef.n-out-l))
-                                              - est-op.op-waste.
-                                  ELSE
-                                    dRunHours = (est-op.num-sh * iOut) - est-op.op-waste.
-                    END. /* if op-speed */
-                END. /* 1 or 3 */
-                WHEN 2 OR WHEN 4 THEN DO:
-                    RUN sys/inc/numup.p (ef.company, ef.est-no, ef.form-no, OUTPUT iNumUp).
-                    RUN sys/inc/numout.p (RECID(est-op), OUTPUT dOnForm).            
-                    IF est-op.dept EQ "DC" AND est-op.n-out GT 0 THEN DO:
-                        FIND FIRST ef-nsh OF ef NO-LOCK 
-                             WHERE ef-nsh.pass-no EQ est-op.op-pass
-                               AND ef-nsh.dept    EQ est-op.dept
-                             NO-ERROR.
-                        IF AVAILABLE ef-nsh THEN DO:
-                            RUN cec/foamplus.p (ROWID(ef-nsh), OUTPUT iDie).
-                            dOnForm = dOnForm * (est-op.n-out + INT(iDie GT 0)).
-                        END. /* avail ef-nsh */
-                    END. /* if dc */            
-                    IF est-op.op-speed GT 0 THEN DO:
-                        IF mach.therm AND (mach.p-type EQ "R" OR est-op.dept EQ "LM") THEN
-                                dRunHours = ((est-op.num-sh * dOnForm * iOut) - est-op.op-waste)
-                                          * (dSheetLen / 12).
-                        ELSE IF est-op.op-sb THEN
-                                dRunHours = (est-op.num-sh * dOnForm * iOut) - est-op.op-waste.
-                             ELSE IF NOT lPrintedLit OR iOut EQ 1 THEN
-                                    dRunHours = (est-op.num-sh * iNumUp * dOnForm) - est-op.op-waste.
-                                  ELSE
-                                    dRunHours = (est-op.num-sh * iOut * dOnForm) - est-op.op-waste.
-                    END. /* if op-speed */
-                END. /* 2 or 4 */
-                WHEN 5 THEN DO:
-                    lUnitize = NO.
-                    FOR EACH mstd NO-LOCK
-                        WHERE mstd.company EQ mach.company
-                          AND mstd.loc     EQ mach.loc
-                          AND mstd.m-code  EQ mach.m-code
-                        BREAK BY mstd.style DESCENDING
+                IF mach.sch-m-code NE "" AND mach.sch-m-code NE mach.m-code THEN DO:
+                    cMachine = mach.sch-m-code. 
+                    FIND FIRST mach NO-LOCK
+                         WHERE mach.company EQ est.company
+                           AND mach.loc     EQ est.loc
+                           AND mach.m-code  EQ cMachine
+                         NO-ERROR.
+                    IF NOT AVAILABLE mach THEN NEXT.
+                END. /* if sch-m-code ne m-code */
+                IF est.est-type EQ 6 THEN DO:
+                    dParts = 0.
+                    FOR EACH beb FIELDS(quantityPerSet) NO-LOCK
+                        WHERE beb.company EQ est.company
+                          AND beb.est-no  EQ est.est-no
+                          AND beb.form-no NE 0
                         :
-                        IF LAST(mstd.style) OR mstd.style EQ eb.style THEN DO:
-                            lUnitize = mstd.rs-x EQ 98 OR mstd.rs-y EQ 98.
-                            LEAVE.
-                        END. /* last(mstd.style) */
-                    END. /* each mstd */
-                    IF est-op.op-speed GT 0 THEN DO:
-                        IF lUnitize THEN 
+                        dParts = dParts
+                               + (IF beb.quantityPerSet LT 0 THEN (-1 / beb.quantityPerSet)
+                                  ELSE beb.quantityPerSet)
+                               .
+                    END. /* each beb */
+                END. /* if est-type eq 6 */
+                ASSIGN
+                    dSheetLen = IF est-op.dept EQ "LM" THEN ef.nsh-len ELSE ef.gsh-len
+                    dRunHours = 0
+                    .
+                CASE est.est-type:
+                    WHEN 1 OR WHEN 3 THEN DO:
+                        RUN sys/inc/numout.p (RECID(est-op), OUTPUT dOnForm).                    
+                        IF est-op.op-speed GT 0 THEN DO:
+                            IF mach.therm AND (mach.p-type EQ "R" OR est-op.dept EQ "LM") THEN
+                            dRunHours = ((est-op.num-sh * dOnForm * iOut) - est-op.op-waste)
+                                      * (dSheetLen / 12)
+                                      .
+                            ELSE IF est-op.op-sb THEN
+                                 dRunHours = (est-op.num-sh * dOnForm * iOut) - est-op.op-waste.
+                                 ELSE IF NOT lPrintedLit OR iOut EQ 1 THEN
+                                 dRunHours = (est-op.num-sh * iNumUp
+                                           * (IF ef.n-out   EQ 0 THEN 1 ELSE ef.n-out)
+                                           * (IF ef.n-out-l EQ 0 THEN 1 ELSE ef.n-out-l))
+                                           - est-op.op-waste
+                                           .
+                                      ELSE
+                                      dRunHours = (est-op.num-sh * iOut) - est-op.op-waste.
+                        END. /* if op-speed */
+                    END. /* 1 or 3 */
+                    WHEN 2 OR WHEN 4 THEN DO:
+                        RUN sys/inc/numup.p (ef.company, ef.est-no, ef.form-no, OUTPUT iNumUp).
+                        RUN sys/inc/numout.p (RECID(est-op), OUTPUT dOnForm).            
+                        IF est-op.dept EQ "DC" AND est-op.n-out GT 0 THEN DO:
+                            FIND FIRST ef-nsh OF ef NO-LOCK 
+                                 WHERE ef-nsh.pass-no EQ est-op.op-pass
+                                   AND ef-nsh.dept    EQ est-op.dept
+                                 NO-ERROR.
+                            IF AVAILABLE ef-nsh THEN DO:
+                                RUN cec/foamplus.p (ROWID(ef-nsh), OUTPUT iDie).
+                                dOnForm = dOnForm * (est-op.n-out + INT(iDie GT 0)).
+                            END. /* avail ef-nsh */
+                        END. /* if dc */            
+                        IF est-op.op-speed GT 0 THEN DO:
+                            IF mach.therm AND (mach.p-type EQ "R" OR est-op.dept EQ "LM") THEN
+                            dRunHours = ((est-op.num-sh * dOnForm * iOut) - est-op.op-waste)
+                                      * (dSheetLen / 12)
+                                      .
+                            ELSE IF est-op.op-sb THEN
+                                 dRunHours = (est-op.num-sh * dOnForm * iOut) - est-op.op-waste.
+                                 ELSE IF NOT lPrintedLit OR iOut EQ 1 THEN
+                                      dRunHours = (est-op.num-sh * iNumUp * dOnForm) - est-op.op-waste.
+                                      ELSE
+                                      dRunHours = (est-op.num-sh * iOut * dOnForm) - est-op.op-waste.
+                        END. /* if op-speed */
+                    END. /* 2 or 4 */
+                    WHEN 5 THEN DO:
+                        lUnitize = NO.
+                        FOR EACH mstd NO-LOCK
+                            WHERE mstd.company EQ mach.company
+                              AND mstd.loc     EQ mach.loc
+                              AND mstd.m-code  EQ mach.m-code
+                            BREAK BY mstd.style DESCENDING
+                            :
+                            IF LAST(mstd.style) OR mstd.style EQ eb.style THEN DO:
+                                lUnitize = mstd.rs-x EQ 98 OR mstd.rs-y EQ 98.
+                                LEAVE.
+                            END. /* last(mstd.style) */
+                        END. /* each mstd */
+                        IF est-op.op-speed GT 0 THEN DO:
+                            IF lUnitize THEN 
                             dRunHours = dPalletQty. /* not set, calc in cec/pr4-cas.p as p-qty */
-                        ELSE IF mach.therm AND (mach.p-type EQ "R" OR est-op.dept EQ "LM") THEN
-                                    dRunHours = ((est-op.num-sh * dOnForm) - est-op.op-waste)
-                                              * (dSheetLen / 12).
-                            ELSE IF mach.p-type EQ "A" THEN
-                                    dRunHours = est.est-qty[1].
-                                ELSE IF est-op.op-sb THEN
-                                        dRunHours = (est-op.num-sh * dOnForm) - est-op.op-waste.
-                                     ELSE 
-                                        dRunHours = (est-op.num-sh * dOnSheet) - est-op.op-waste.
-                    END. /* if op-speed */
-                END. /* 5 */
-                WHEN 6 THEN DO:
-                    lUnitize = NO.
-                    FOR EACH mstd NO-LOCK
-                        WHERE mstd.company EQ mach.company
-                          AND mstd.loc     EQ mach.loc
-                          AND mstd.m-code  EQ mach.m-code
-                        BREAK BY mstd.style DESCENDING
-                        :
-                        IF LAST(mstd.style) OR mstd.style EQ eb.style THEN DO:
-                            lUnitize = mstd.rs-x EQ 98 OR mstd.rs-y EQ 98.
-                            LEAVE.
-                        END. /* last(mstd.style) */
-                    END. /* each mstd */
-                    IF lUnitize THEN DO:
-/*                        /* not set, temp-table cas built in cec/box/pr4-cas.p */*/
-/*                        FOR EACH cas NO-LOCK                                    */
-/*                            WHERE cas.snum EQ eb.form-no                        */
-/*                              AND cas.bnum EQ eb.blank-no                       */
-/*                              AND cas.typ  EQ 3                                 */
-/*                            :                                                   */
-/*                            ACCUMULATE cas.qty (TOTAL).                         */
-/*                        END. /* each cas */                                     */
-/*                        dRunHours = (ACCUM TOTAL cas.qty).                      */
-                    END. /* if lunitize */
-                    ELSE IF mach.p-type EQ "P" THEN
-                            dRunHours = (est-op.num-sh - est-op.op-waste) * dParts.
-                        ELSE IF mach.therm AND (mach.p-type NE "A" OR est-op.dept EQ "LM") THEN
-                                    dRunHours = ((est-op.num-sh * dOnForm) - est-op.op-waste)
-                                              * (dSheetLen / 12).
-                            ELSE IF mach.p-type EQ "A" THEN
-                                    dRunHours = est.est-qty[1].
-                                ELSE IF est-op.op-sb THEN
-                                        dRunHours = (est-op.num-sh * dOnForm) - est-op.op-waste.
-                                     ELSE 
-                                        dRunHours = (est-op.num-sh * dOnSheet) - est-op.op-waste.
-                END. /* 6 */
-                WHEN 8 THEN DO:
-                    RUN sys/inc/numup.p (ef.company, ef.est-no, ef.form-no, OUTPUT iNumUp).
-                    RUN sys/inc/numout.p (RECID(est-op), OUTPUT dOnForm).            
-                    IF est-op.op-speed GT 0 THEN DO:
-                        IF mach.therm AND (mach.p-type EQ "R" OR est-op.dept EQ "LM") THEN
-                                dRunHours = ((est-op.num-sh * dOnForm) - est-op.op-waste)
-                                          * (dSheetLen / 12).
-                        ELSE IF est-op.op-sb THEN
-                                dRunHours = (est-op.num-sh * dOnForm) - est-op.op-waste.
-                             ELSE 
-                                dRunHours = (est-op.num-sh * iNumUp * dOnForm) - est-op.op-waste.
-                    END. /* if op-speed */
-                END. /* 8 */
-            END CASE.
-            dRunHours = dRunHours / est-op.op-speed.
-            IF est-op.n_out_div GT 0 THEN 
-            dRunHours = dRunHours / est-op.n_out_div.
-            IF dRunHours LT 0 THEN 
-            dRunHours = 0.
-            CREATE ttJob.
-            ASSIGN 
-                ttJob.rRowID   = ROWID(est-op)
-                ttJob.company  = ipcCompany
-                ttJob.m-code   = cMachine
-                ttJob.m-dscr   = mach.m-dscr
-                ttJob.frm      = est-op.s-num
-                ttJob.blank-no = IF (mach.p-type  EQ "B" OR
-                                    (est.est-type EQ  3 AND
-                                     est-op.dept  EQ "PR")) THEN est-op.b-num
-                                 ELSE 0
-                ttJob.pass     = est-op.op-pass
-                ttJob.d-seq    = mach.d-seq
-                ttJob.m-seq    = mach.m-seq
-                ttJob.mr-hr    = est-op.op-mr
-                ttJob.run-hr   = dRunHours
-                . 
-        END. /* each est-op */
+                            ELSE IF mach.therm AND (mach.p-type EQ "R" OR est-op.dept EQ "LM") THEN
+                                 dRunHours = ((est-op.num-sh * dOnForm) - est-op.op-waste)
+                                           * (dSheetLen / 12)
+                                           .
+                                ELSE IF mach.p-type EQ "A" THEN
+                                     dRunHours = est.est-qty[1].
+                                    ELSE IF est-op.op-sb THEN
+                                         dRunHours = (est-op.num-sh * dOnForm) - est-op.op-waste.
+                                         ELSE 
+                                         dRunHours = (est-op.num-sh * dOnSheet) - est-op.op-waste.
+                        END. /* if op-speed */
+                    END. /* 5 */
+                    WHEN 6 THEN DO:
+                        lUnitize = NO.
+                        FOR EACH mstd NO-LOCK
+                            WHERE mstd.company EQ mach.company
+                              AND mstd.loc     EQ mach.loc
+                              AND mstd.m-code  EQ mach.m-code
+                            BREAK BY mstd.style DESCENDING
+                            :
+                            IF LAST(mstd.style) OR mstd.style EQ eb.style THEN DO:
+                                lUnitize = mstd.rs-x EQ 98 OR mstd.rs-y EQ 98.
+                                LEAVE.
+                            END. /* last(mstd.style) */
+                        END. /* each mstd */
+                        IF lUnitize THEN DO:
+                        END. /* if lunitize */
+                        ELSE IF mach.p-type EQ "P" THEN
+                             dRunHours = (est-op.num-sh - est-op.op-waste) * dParts.
+                            ELSE IF mach.therm AND (mach.p-type NE "A" OR est-op.dept EQ "LM") THEN
+                                 dRunHours = ((est-op.num-sh * dOnForm) - est-op.op-waste)
+                                           * (dSheetLen / 12)
+                                           .
+                                ELSE IF mach.p-type EQ "A" THEN
+                                     dRunHours = est.est-qty[1].
+                                    ELSE IF est-op.op-sb THEN
+                                         dRunHours = (est-op.num-sh * dOnForm) - est-op.op-waste.
+                                         ELSE 
+                                         dRunHours = (est-op.num-sh * dOnSheet) - est-op.op-waste.
+                    END. /* 6 */
+                    WHEN 8 THEN DO:
+                        RUN sys/inc/numup.p (ef.company, ef.est-no, ef.form-no, OUTPUT iNumUp).
+                        RUN sys/inc/numout.p (RECID(est-op), OUTPUT dOnForm).            
+                        IF est-op.op-speed GT 0 THEN DO:
+                            IF mach.therm AND (mach.p-type EQ "R" OR est-op.dept EQ "LM") THEN
+                            dRunHours = ((est-op.num-sh * dOnForm) - est-op.op-waste)
+                                      * (dSheetLen / 12)
+                                      .
+                            ELSE IF est-op.op-sb THEN
+                                 dRunHours = (est-op.num-sh * dOnForm) - est-op.op-waste.
+                                 ELSE 
+                                 dRunHours = (est-op.num-sh * iNumUp * dOnForm) - est-op.op-waste.
+                        END. /* if op-speed */
+                    END. /* 8 */
+                END CASE.
+                dRunHours = dRunHours / est-op.op-speed.
+                IF est-op.n_out_div GT 0 THEN 
+                dRunHours = dRunHours / est-op.n_out_div.
+                IF dRunHours LT 0 THEN 
+                dRunHours = 0.
+                CREATE ttJob.
+                ASSIGN 
+                    ttJob.rRowID   = ROWID(est-op)
+                    ttJob.company  = ipcCompany
+                    ttJob.m-code   = cMachine
+                    ttJob.m-dscr   = mach.m-dscr
+                    ttJob.frm      = est-op.s-num
+                    ttJob.blank-no = IF (mach.p-type  EQ "B" OR
+                                        (est.est-type EQ  3 AND
+                                         est-op.dept  EQ "PR")) THEN est-op.b-num
+                                     ELSE 0
+                    ttJob.pass     = est-op.op-pass
+                    ttJob.d-seq    = mach.d-seq
+                    ttJob.m-seq    = mach.m-seq
+                    ttJob.mr-hr    = est-op.op-mr
+                    ttJob.run-hr   = dRunHours
+                    . 
+            END. /* each est-op */
+        END. /* if avail eb */
     END. /* est and iprrowid ne ? */
     
     {&OPEN-QUERY-ttJob}
@@ -1145,8 +876,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pHTMLPage Dialog-Frame 
-PROCEDURE pHTMLPage :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateTtblDowntime Dialog-Frame
+PROCEDURE pCreateTtblDowntime:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF CAN-FIND(FIRST ttblDowntime
+                WHERE ttblDowntime.dayID     EQ tempDowntime.dayID
+                  AND ttblDowntime.resource  EQ tempDowntime.resource
+                  AND ttblDowntime.startDate EQ tempDowntime.startDate
+                  AND ttblDowntime.startTime EQ tempDowntime.startTime
+                  AND ttblDowntime.endTime   EQ tempDowntime.endTime) THEN
+    RETURN.
+    CREATE ttblDowntime.
+    BUFFER-COPY tempDowntime TO ttblDowntime.
+    ttblDowntime.startDateTime = numericDateTime(ttblDowntime.startDate,ttblDowntime.startTime).
+    ttblDowntime.endDateTime   = numericDateTime(ttblDowntime.startDate,ttblDowntime.endTime).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pHTMLPageHorizontal Dialog-Frame 
+PROCEDURE pHTMLPageHorizontal :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1165,6 +919,7 @@ PROCEDURE pHTMLPage :
     DEFINE VARIABLE iEndTime    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cType1      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cType2      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iPercentage AS INTEGER   NO-UNDO.
     
     FIND FIRST ttblJob
          WHERE ttblJob.newJob EQ YES 
@@ -1175,7 +930,7 @@ PROCEDURE pHTMLPage :
     FIND LAST ttblJob
          WHERE ttblJob.newJob EQ YES 
          USE-INDEX startDate.
-    dtEndDate = ttblJob.endDate.
+    dtEndDate = ttblJob.endDate + 1.
     OUTPUT TO "c:\tmp\sbHTML.htm".
     PUT UNFORMATTED
         '<html>' SKIP
@@ -1189,7 +944,7 @@ PROCEDURE pHTMLPage :
         '  <legend><font face="{&fontFace}"><b>Schedule ' baseOnText '</b> (generated '
         STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss am') ')</font>'
         '~&nbsp;</legend>' SKIP
-        '  <img src="' SEARCH("Graphics/asiicon.ico")
+        '  <img src="' SEARCH("Graphics/32x32/asiicon.png")
         '" align="middle">~&nbsp;<b><a href="http://www.advantzware.com" target="_blank">'
         '<font face="{&fontFace}">Advantzware, Inc.</a>~&nbsp;~&copy;</b></font>' SKIP
         '~&nbsp;~&nbsp;~&nbsp;~&nbsp;~&nbsp;<font face="{&fontFace}"><font color="#FF0000"><b>Projected Completion: </font>'
@@ -1238,19 +993,6 @@ PROCEDURE pHTMLPage :
             .
         DO dtDate = dtStartDate TO dtEndDate:
             EMPTY TEMP-TABLE ttTime.
-            FOR EACH ttblDowntime
-                WHERE  ttblDowntime.dayID     EQ WEEKDAY(dtDate)
-                  AND (ttblDowntime.resource  EQ "<Calendar>"
-                   OR  ttblDowntime.resource  EQ ttblJob.m-code)
-                  AND (ttblDowntime.startDate EQ dtDate
-                   OR  ttblDowntime.startDate EQ ?)
-                :
-                fTimeSlice (ttblDowntime.startTime,"DT","Start",NO).
-                fTimeSlice (ttblDowntime.endTime,"DT","End",NO).
-            END. /* each ttbldowntime */
-            PUT UNFORMATTED
-                '      <td' cBGColor ' align="center" nowrap><font face="{&fontFace}">' SKIP
-                .
             iJobs = 0.
             FOR EACH bTtblJob
                 WHERE bTtblJob.m-code     EQ ttblJob.m-code
@@ -1261,18 +1003,31 @@ PROCEDURE pHTMLPage :
                 BY bTtblJob.startDateTime
                 :
                 iStartTime = IF bTtblJob.startDate EQ dtDate THEN bTtblJob.startTime ELSE 0.
-                fTimeSlice (iStartTime,"Job","Start",ROWID(bTtblJob) EQ ROWID(ttblJob)).
+                fTimeSlice ("",dtDate,iStartTime,"Job","Start",ROWID(bTtblJob) EQ ROWID(ttblJob)).
                 iEndTime = IF bTtblJob.endDate EQ dtDate THEN bTtblJob.endTime ELSE 86400.
-                fTimeSlice (iEndTime,"Job","End",ROWID(bTtblJob) EQ ROWID(ttblJob)).
+                fTimeSlice ("",dtDate,iEndTime,"Job","End",ROWID(bTtblJob) EQ ROWID(ttblJob)).
                 iJobs = iJobs + 1.
             END. /* each bttbljob */
-            PUT UNFORMATTED 
+            FOR EACH ttblDowntime
+                WHERE  ttblDowntime.dayID     EQ WEEKDAY(dtDate)
+                  AND (ttblDowntime.resource  EQ "<Calendar>"
+                   OR  ttblDowntime.resource  EQ ttblJob.m-code)
+                  AND (ttblDowntime.startDate EQ dtDate
+                   OR  ttblDowntime.startDate EQ ?)
+                :
+                fTimeSlice ("",dtDate,ttblDowntime.startTime,"DT","Start",NO).
+                fTimeSlice ("",dtDate,ttblDowntime.endTime,"DT","End",NO).
+            END. /* each ttbldowntime */
+            fTimeSlice ("",dtDate,0,"Avail","Start",NO).
+            fTimeSlice ("",dtDate,86400,"Avail","End",NO).
+            PUT UNFORMATTED
+                '      <td' cBGColor ' align="center" nowrap><font face="{&fontFace}">' SKIP
                 '        <table border="1" cellspacing="0" cellpadding="8" width="100%">' SKIP
                 '          <tr>' SKIP  
                 .
-            fTimeSlice (0,"Avail","Start",NO).
-            fTimeSlice (86400,"Avail","End",NO).
-            FOR EACH ttTime BY ttTime.timeSlice:
+            FOR EACH ttTime
+                BY ttTime.timeSlice
+                :
                 IF ttTime.timeSlice EQ 0 THEN DO:
                     ASSIGN
                         iTime  = 0
@@ -1285,16 +1040,20 @@ PROCEDURE pHTMLPage :
                    ttTime.timeType1 NE cType1 AND
                    ttTime.timeType2 NE cType2 THEN
                 cType1 = "Avail".
+                ELSE IF ttTime.timeType1 EQ "DT"    AND 
+                        ttTime.timeType2 EQ "Start" AND
+                        cType2           EQ "End"   THEN
+                cType1 = "Avail".
                 ELSE IF ttTime.timeType2 NE "Start" OR cType2 NE "Start" THEN
                 cType1 = ttTime.timeType1.
+                iPercentage = ROUND((ttTime.timeSlice - iTime) / 86400 * 100,0).
+                IF iPercentage GT 0 THEN
                 PUT UNFORMATTED
                     '            <td bgcolor="#'
                     (IF ttTime.newJob AND ttTime.timeType2 EQ "End" THEN "00CCFF" ELSE
                      IF cType1 EQ "Avail" THEN "F1FE98" ELSE
                      IF cType1 EQ "Job"   THEN "AAD5B9" ELSE "C0BEBE")
-                    '" align="center" width="' ROUND((ttTime.timeSlice - iTime) / 86400 * 100,0) '%' '" nowrap>~&nbsp;'
-                    .
-                PUT UNFORMATTED
+                    '" align="center" width="' iPercentage '%" nowrap>~&nbsp;'
                     '</td>' SKIP
                     .
                 ASSIGN
@@ -1333,48 +1092,380 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pHTMLPageVertical Dialog-Frame
+PROCEDURE pHTMLPageVertical:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    &Scoped-define fontFace Arial, Helvetica, sans-serif
+    &Scoped-define fontFace Comic Sans MS
+    &Scoped-define fontFace Tahoma
+    
+    DEFINE VARIABLE cDays       AS CHARACTER NO-UNDO INITIAL "Sun,Mon,Tue,Wed,Thu,Fri,Sat".
+    DEFINE VARIABLE cKey        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAltLine    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cBGColor    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dtStartDate AS DATE      NO-UNDO.
+    DEFINE VARIABLE dtEndDate   AS DATE      NO-UNDO.
+    DEFINE VARIABLE dtDate      AS DATE      NO-UNDO.
+    DEFINE VARIABLE iJobs       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTime       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iStartTime  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iEndTime    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cType1      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cType2      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMachines   AS CHARACTER NO-UNDO EXTENT 200.
+    DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE jdx         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iDays       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iPercentage AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cHTMLPage   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPageTitle  AS CHARACTER NO-UNDO.
+    
+    FIND FIRST ttblJob
+         WHERE ttblJob.newJob EQ YES 
+         USE-INDEX startDate
+         NO-ERROR.
+    IF NOT AVAILABLE ttblJob THEN RETURN.
+/*    dtStartDate = ttblJob.startDate.*/
+    dtStartDate = TODAY.
+    FIND LAST ttblJob
+         WHERE ttblJob.newJob EQ YES 
+         USE-INDEX startDate.
+    ASSIGN
+        dtEndDate = ttblJob.endDate + 1
+        iDays     = dtEndDate - dtStartDate + 1
+        cMachines = ""
+        .
+    EMPTY TEMP-TABLE ttTime.
+    FOR EACH ttblJob
+        WHERE ttblJob.newJob EQ YES
+        BREAK BY ttblJob.startDateTime
+              BY ttblJob.m-code
+        :
+        ASSIGN
+            idx            = idx + 1
+            cMachines[idx] = ttblJob.m-code + ","
+                           + STRING(ttblJob.frm) + ","
+                           + STRING(ttblJob.blank-no) + ","
+                           + STRING(ttblJob.pass)
+                           .
+        DO dtDate = dtStartDate TO dtEndDate:
+            FOR EACH ttblDowntime
+                WHERE  ttblDowntime.dayID     EQ WEEKDAY(dtDate)
+                  AND (ttblDowntime.resource  EQ "<Calendar>"
+                   OR  ttblDowntime.resource  EQ ttblJob.m-code)
+                  AND (ttblDowntime.startDate EQ dtDate
+                   OR  ttblDowntime.startDate EQ ?)
+                :
+                fTimeSlice (cMachines[idx],dtDate,ttblDowntime.startTime,"DT","Start",NO).
+                fTimeSlice (cMachines[idx],dtDate,ttblDowntime.endTime,  "DT","End",  NO).
+            END. /* each ttbldowntime */
+            iJobs = 0.
+            FOR EACH bTtblJob
+                WHERE bTtblJob.m-code     EQ ttblJob.m-code
+                  AND (bTtblJob.startDate EQ dtDate
+                   OR (bTtblJob.startDate LT dtDate
+                  AND  bTtbljob.endDate   GT dtDate)
+                   OR  bTtblJob.endDate   EQ dtDate)
+                BY bTtblJob.startDateTime
+                :
+                ASSIGN
+                    iStartTime = IF bTtblJob.startDate EQ dtDate THEN bTtblJob.startTime ELSE 0
+                    iEndTime   = IF bTtblJob.endDate   EQ dtDate THEN bTtblJob.endTime   ELSE 86400
+                    iJobs      = iJobs + 1
+                    .
+                fTimeSlice (cMachines[idx],dtDate,iStartTime,"Job","Start",ROWID(bTtblJob) EQ ROWID(ttblJob)).
+                fTimeSlice (cMachines[idx],dtDate,iEndTime,  "Job","End",  ROWID(bTtblJob) EQ ROWID(ttblJob)).                
+            END. /* each bttbljob */
+            fTimeSlice (cMachines[idx],dtDate,0,    "Avail","Start",NO).
+            fTimeSlice (cMachines[idx],dtDate,86400,"Avail","End",  NO).
+        END. /* do dtdate */
+    END. /* each ttbljob */
+    
+    DO jdx = 1 TO 2:
+        CASE jdx:
+            WHEN 1 THEN
+            cPageTitle = " by Time".
+            WHEN 2 THEN
+            cPageTitle = " by Percentage".
+        END CASE.
+        cHTMLPage = "c:\tmp\sbHTMLProjected" + STRING(jdx) + ".htm".
+        OUTPUT TO VALUE(cHTMLPage).
+        PUT UNFORMATTED
+            '<html>' SKIP
+            '<head>' SKIP
+            '<title>Schedule ' baseOnText '</title>' SKIP
+            '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">' SKIP
+            '</head>' SKIP
+            '<a name="Top"></a>' SKIP
+            '<form>' SKIP
+            '<fieldset>' SKIP
+            '  <legend><font face="{&fontFace}"><b>Schedule ' baseOnText cPageTitle '</b> (generated '
+            STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss am') ')</font>'
+            '~&nbsp;</legend>' SKIP
+            '  <img src="' SEARCH("Graphics/32x32/asiicon.png") '" align="middle">~&nbsp;'
+            '<b><a href="http://www.advantzware.com" target="_blank">'
+            '<font face="{&fontFace}">Advantzware, Inc.</a>~&nbsp;~&copy;</b></font>' SKIP
+            '~&nbsp;~&nbsp;~&nbsp;~&nbsp;~&nbsp;<font face="{&fontFace}"><font color="#FF0000"><b>Projected Completion: </font>'
+            ttblJob.endDate ' - ' STRING(ttblJob.endTime,"hh:mm:ss am")
+            '</font></b>' SKIP 
+            '  <table align="center" cellspacing="2" cellpadding="8">' SKIP
+            '    <tr>' SKIP 
+            '      <td><font face="{&fontFace}">Legend:</font></td>' SKIP 
+            '      <td bgcolor="#85FEFE"><font face="{&fontFace}"><b>' baseOnText '</b></font></td>' SKIP  
+            '      <td bgcolor="#FF8585"><font face="{&fontFace}"><b>Downtime</b></font></td>' SKIP 
+            '      <td bgcolor="#A1A5E2"><font face="{&fontFace}"><b>Booked Job</b></font></td>' SKIP
+            '      <td bgcolor="#97F3A0"><font face="{&fontFace}"><b>Available</b></font></td>' SKIP 
+            '    </tr>' SKIP  
+            '  </table>' SKIP 
+            '  <table border="1" cellspacing="0" cellpadding="0" width="100%" height="80%" style="border-color: white">' SKIP
+            .
+        RUN pOutputResources.
+        DO dtDate = dtStartDate TO dtEndDate:
+            PUT UNFORMATTED
+                '    <tr style="height: ' INTEGER(90 / iDays) '%;">' SKIP
+                '      <td bgcolor="#576490" align="center" nowrap><font face="{&fontFace}" color="#FFFFFF"><b>'
+                ENTRY(WEEKDAY(dtDate),cDays) ' ' MONTH(dtDate) '/' DAY(dtDate) '</b></font></td>' SKIP
+                .
+            DO idx = 1 TO EXTENT(cMachines):
+                IF cMachines[idx] EQ "" THEN LEAVE.
+                PUT UNFORMATTED
+                    '      <td style="padding: 5px">' SKIP
+                    '        <table border="1" cellspacing="0" cellpadding="0" align="center" width="70%" height="140px">' SKIP
+                    .
+                FOR EACH ttTime
+                    WHERE ttTime.timeKey  EQ cMachines[idx]
+                      AND ttTime.timeDate EQ dtDate
+                       BY ttTime.timeSlice DESCENDING
+                       BY ttTime.timeType2 DESCENDING
+                    :
+                    IF ttTime.timeSlice EQ 86400 THEN DO:
+                        ASSIGN
+                            iTime  = 86400
+                            cType1 = ttTime.timeType1
+                            cType2 = ttTime.timeType2                        
+                            .
+                        NEXT.
+                    END. /* timeslice eq 86400 */
+    
+                    IF ttTime.timeType1 EQ "DT"   AND 
+                       ttTime.timeType1 NE cType1 AND
+                       ttTime.timeType2 NE cType2 THEN
+                    cType1 = "Avail".
+                    ELSE IF ttTime.timeType1 EQ "DT"    AND
+                            ttTime.timeType2 EQ "End"   AND
+                            cType2           EQ "Start" THEN
+                    cType1 = "Avail".
+                    ELSE IF ttTime.timeType1 NE cType1 AND
+                            ttTime.timeType2 NE cType2 THEN
+                    cType1 = "Avail".
+                    ELSE IF ttTime.timeType2 NE "End" OR cType2 NE "End" THEN
+                    cType1 = ttTime.timeType1.
+    
+                    iPercentage = ROUND((iTime - ttTime.timeSlice) / 86400 * 100,0).
+                    IF iPercentage GT 0 THEN DO:
+                        PUT UNFORMATTED
+                            '          <tr style="height: ' iPercentage '%;">' SKIP
+                            '            <td bgcolor="#'
+                            (IF ttTime.newJob AND ttTime.timeType2 EQ "Start" THEN "85FEFE" ELSE
+                             IF cType1 EQ "Avail" THEN "97F3A0" ELSE
+                             IF cType1 EQ "Job"   THEN "A1A5E2" ELSE "FF8585")
+                            '" align="center" nowrap><font face="{&fontFace}"><b>'
+                            .
+                        IF jdx EQ 1 THEN
+                            IF iPercentage EQ 100 THEN
+                            PUT UNFORMATTED "24:00:00".
+                            ELSE
+                            PUT UNFORMATTED STRING(iTime - ttTime.timeSlice,"hh:mm:ss").
+                        ELSE
+                        PUT UNFORMATTED iPercentage '%'.
+                        PUT UNFORMATTED 
+                            '</b></font>'
+                            '</td>' SKIP
+                            '          </tr>' SKIP
+                            .
+                    END. /* if gt 0 */
+                    ASSIGN
+                        iTime  = ttTime.timeSlice
+                        cType1 = ttTime.timeType1
+                        cType2 = ttTime.timeType2
+                        .
+                END. /* each tttime */
+                PUT UNFORMATTED
+                    '        </table>' SKIP 
+                    '      </td>' SKIP
+                    .
+            END. /* do idx */
+            PUT UNFORMATTED
+                '      <td bgcolor="#576490" align="center" nowrap><font face="{&fontFace}" color="#FFFFFF"><b>'
+                ENTRY(WEEKDAY(dtDate),cDays) ' ' MONTH(dtDate) '/' DAY(dtDate) '</b></font></td>' SKIP
+                '    </tr>' SKIP
+                .
+        END. /* do dtdate */
+        RUN pOutputResources.
+        PUT UNFORMATTED
+            '  </table>' SKIP
+            '  <div align="left"><font face="{&fontFace}"><a href="#Top">Top</a></font>' SKIP
+            '  <div align="right"><font face="{&fontFace}">~&copy; Advantzware, Inc., All Rights Reserved</font></div>' SKIP
+            '  <table align="center" cellspacing="2" cellpadding="8">' SKIP
+            '    <tr>' SKIP 
+            '      <td><font face="{&fontFace}">Legend:</font></td>' SKIP 
+            '      <td bgcolor="#85FEFE"><font face="{&fontFace}"><b>' baseOnText '</b></font></td>' SKIP  
+            '      <td bgcolor="#FF8585"><font face="{&fontFace}"><b>Downtime</b></font></td>' SKIP 
+            '      <td bgcolor="#A1A5E2"><font face="{&fontFace}"><b>Booked Job</b></font></td>' SKIP
+            '      <td bgcolor="#97F3A0"><font face="{&fontFace}"><b>Available</b></font></td>' SKIP 
+            '    </tr>' SKIP  
+            '  </table>' SKIP 
+            '</fieldset>' SKIP
+            '</form>' SKIP
+            '</html>' SKIP
+            .
+        OUTPUT CLOSE.
+        OS-COMMAND NO-WAIT START VALUE(cHTMLPage).
+    END. /* do jdx */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLoadDowntime Dialog-Frame 
 PROCEDURE pLoadDowntime :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cSearchDir AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFileName  AS CHARACTER NO-UNDO FORMAT "X(60)".
-    DEFINE VARIABLE cAttrList  AS CHARACTER NO-UNDO FORMAT "X(4)".
-    DEFINE VARIABLE cListItems AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cSearchDir    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFileName     AS CHARACTER NO-UNDO FORMAT "X(60)".
+    DEFINE VARIABLE cAttrList     AS CHARACTER NO-UNDO FORMAT "X(4)".
+    DEFINE VARIABLE cListItems    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResource     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cResourceList AS CHARACTER NO-UNDO.
     
-    cSearchDir = ".\schedule".
-    INPUT FROM OS-DIR(cSearchDir) NO-ECHO.
-    REPEAT:
-        SET cFileName ^ cAttrList.
-        IF cAttrList NE "f" THEN NEXT.
-        IF INDEX(cFileName,"downtimes.") EQ 0 THEN NEXT.
-        IF INDEX(cFileName,".dat") EQ 0 THEN NEXT.
-        cListItems = cListItems + cFileName + ",".
-    END. /* repeat */
-    INPUT CLOSE.
+    DEFINE BUFFER bttFolder FOR ttFolder.
+
+    CREATE ttFolder.
+    ttFolder.folderName = ".\schedule\data\ASI".
+    FOR EACH ttFolder
+        WHERE ttFolder.searched EQ NO
+        :
+        INPUT FROM OS-DIR(ttFolder.folderName) NO-ECHO.
+        REPEAT:
+            SET cFileName ^ cAttrList.
+            IF cAttrList EQ "d" THEN DO:
+                IF cFileName EQ "." OR cFileName EQ ".." THEN NEXT.
+                CREATE bttFolder.
+                bttFolder.folderName = ttFolder.folderName + "\" + cFileName.
+            END.
+            ELSE
+            IF cAttrList EQ "f" AND
+               INDEX(cFileName,"downtimes.") NE 0 AND
+               INDEX(cFileName,".dat") NE 0 THEN
+            cListItems = cListItems + ttFolder.folderName + "\" + cFileName + ",".
+        END. /* repeat */
+        INPUT CLOSE.
+        ttFolder.searched = YES.
+    END. /* each ttfolder */
     cListItems = TRIM(cListItems,",").
 
     EMPTY TEMP-TABLE ttblDowntime.
     DO idx = 1 TO NUM-ENTRIES(cListItems):
-        INPUT FROM VALUE(SEARCH("schedule/" + ENTRY(idx,cListItems))) NO-ECHO.
+        EMPTY TEMP-TABLE ttResource.
+        cResourceList = REPLACE(ENTRY(idx,cListItems),"downtimes.Actual","ResourceList").
+        INPUT FROM VALUE(SEARCH(cResourceList)) NO-ECHO.
+        IMPORT ^.
+        REPEAT:
+            IMPORT cResource.
+            CREATE ttResource.
+            ttResource.resource = cResource.
+        END. /* repeat */
+        INPUT CLOSE.
+
+        INPUT FROM VALUE(SEARCH(ENTRY(idx,cListItems))) NO-ECHO.
         REPEAT:
             IMPORT tempDowntime.
             tempDowntime.dayID = tempDowntime.dayID MODULO 7.
             IF tempDowntime.dayID EQ 0 THEN
             tempDowntime.dayID = 7.
-            CREATE ttblDowntime.
-            BUFFER-COPY tempDowntime TO ttblDowntime.
-            ttblDowntime.startDateTime = numericDateTime(ttblDowntime.startDate,ttblDowntime.startTime).
-            ttblDowntime.endDateTime = numericDateTime(ttblDowntime.startDate,ttblDowntime.endTime).
+            IF tempDowntime.resource EQ "<Calendar>" THEN DO:
+                FOR EACH ttResource
+                    :
+                    tempDowntime.resource = ttResource.resource.
+                    RUN pCreateTtblDowntime.
+                END. /* each ttbljob */
+            END.
+            ELSE
+            IF CAN-FIND(FIRST ttResource
+                        WHERE ttResource.resource EQ tempDowntime.resource) THEN
+            RUN pCreateTtblDowntime.
         END. /* repeat */
         INPUT CLOSE.
     END. /* do idx */
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOutputResources Dialog-Frame
+PROCEDURE pOutputResources:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    PUT UNFORMATTED    
+        '    <tr>' SKIP
+        '      <td bgcolor="#576490" align="center" nowrap><font face="{&fontFace}" color="#FFFFFF"><b>'
+        'Operation</b></font></td>' SKIP
+        .
+    FOR EACH ttblJob
+        WHERE ttblJob.newJob EQ YES
+        BREAK BY ttblJob.startDateTime
+              BY ttblJob.m-code
+        :
+        PUT UNFORMATTED
+            '      <td bgcolor="#576490" align="left" nowrap><font face="{&fontFace}" color="#FFFFFF">'
+            '<img src="'
+            (IF SEARCH("Graphics/48x48/" + ttblJob.m-code + ".png") NE ? THEN
+                SEARCH("Graphics/48x48/" + ttblJob.m-code + ".png") ELSE
+                SEARCH("Graphics/48x48/gearwheels.png"))
+            '" width="48" height="48" align="left">~&nbsp<b>'
+            ttblJob.m-code '</b> (Form:<b>' ttblJob.frm
+            '</b> Blank:<b>' ttblJob.blank-no
+            '</b> Pass:<b>' ttblJob.pass ')</b><br>'
+            ttblJob.startDate ' - ' STRING(ttblJob.startTime,"hh:mm:ss am") '<br>'
+            ttblJob.endDate ' - ' STRING(ttblJob.endTime,"hh:mm:ss am") '</font></td>' SKIP
+            .
+    END. /* each ttbljob */
+    PUT UNFORMATTED
+        '      <td bgcolor="#576490" align="center" nowrap><font face="{&fontFace}" color="#FFFFFF"><b>'
+        'Operation</b></font></td>' SKIP
+        '    </tr>' SKIP
+        .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRemoveUnusedDowntime Dialog-Frame
+PROCEDURE pRemoveUnusedDowntime:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    FOR EACH ttblDowntime
+        :
+        IF NOT CAN-FIND(FIRST ttJob
+                        WHERE ttJob.m-code EQ ttblDowntime.resource) THEN
+        DELETE ttblDowntime.
+    END. /* each ttbldowntime */
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1412,16 +1503,24 @@ PROCEDURE pScheduleJob :
       lvEndDateTime   = numericDateTime(lvEndDate,lvEndTime)
       lvTimeSpan      = timeSpan(lvStartDate,lvStartTime,lvEndDate,lvEndTime)
       .
-    RUN firstAvailable (ttJob.company,ttJob.m-code,
-                        lvTimeSpan,lvStartDateTime,lvEndDateTime,
-                        INPUT-OUTPUT lvStartDate,INPUT-OUTPUT lvStartTime,
-                        INPUT-OUTPUT lvEndDate,INPUT-OUTPUT lvEndTime).
+    RUN firstAvailable (
+        ttJob.m-code,
+        lvTimeSpan,
+        lvStartDateTime,
+        lvEndDateTime,
+        OUTPUT lvStartDate,
+        OUTPUT lvStartTime,
+        OUTPUT lvEndDate,
+        OUTPUT lvEndTime
+        ).
     RUN calcEnd (lvStartDate,lvStartTime,ttJob.mr-hr,0,
                  OUTPUT lvEndDateMR,OUTPUT lvEndTimeMR).
     CREATE ttblJob.
     ASSIGN
       ttblJob.m-code        = ttJob.m-code
-      ttblJob.job           = ttJob.job-no + '-' + STRING(ttJob.job-no2) + '.' + STRING(ttJob.frm)
+      ttblJob.job           = ttJob.job-no + '-'
+                            + STRING(ttJob.job-no2) + '.'
+                            + STRING(ttJob.frm)
       ttblJob.frm           = ttJob.frm
       ttblJob.blank-no      = ttJob.blank-no
       ttblJob.pass          = ttJob.pass
@@ -1429,13 +1528,11 @@ PROCEDURE pScheduleJob :
       ttblJob.startTime     = lvStartTime
       ttblJob.endDate       = lvEndDate
       ttblJob.endTime       = lvEndTime
-      ttblJob.endDateTime   = lvEndDateTime
       ttblJob.startDateTime = numericDateTime(ttblJob.startDate,ttblJob.startTime)
+      ttblJob.endDateTime   = lvEndDateTime
       ttblJob.newJob        = YES
-      .
-    ASSIGN
-      lvStartDate = lvEndDate
-      lvStartTime = lvEndTime
+      lvStartDate           = lvEndDate
+      lvStartTime           = lvEndTime
       .
   END. /* each ttjob */
 
@@ -1520,105 +1617,3 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION checkJobConflict Dialog-Frame 
-FUNCTION checkJobConflict RETURNS LOGICAL
-  (ipStartDateTime AS DECIMAL,ipEndDateTime AS DECIMAL) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-  RETURN CAN-FIND(FIRST ttblJob
-                  WHERE (ttblJob.startDateTime GE ipStartDateTime
-                    AND ttblJob.startDateTime  LT ipEndDateTime)
-                     OR (ttblJob.endDateTime   LE ipEndDateTime
-                    AND ttblJob.endDateTime    GT ipStartDateTime)
-                     OR (ttblJob.startDateTime LE ipStartDateTime
-                    AND ttblJob.endDateTime    GE ipEndDateTime)).
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fixTime Dialog-Frame 
-FUNCTION fixTime RETURNS INTEGER
-  (ipTime AS INTEGER) :
-/*------------------------------------------------------------------------------
-  Purpose:  correct invalid time value
-    Notes:  
-------------------------------------------------------------------------------*/
-  IF ipTime EQ ? THEN ipTime = 0.
-  RETURN INTEGER(ipTime - TRUNCATE(ipTime / 86400,0) * 86400).
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fTimeSlice Dialog-Frame 
-FUNCTION fTimeSlice RETURNS LOGICAL
-  (ipiTimeSlice AS INTEGER, ipcTimeType1 AS CHARACTER, ipcTimeType2 AS CHARACTER, iplNewJob AS LOGICAL):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    IF NOT CAN-FIND(FIRST ttTime
-                    WHERE ttTime.timeSlice EQ ipiTimeSlice) THEN DO: 
-        CREATE ttTime.
-        ASSIGN
-            ttTime.timeSlice = ipiTimeSlice
-            ttTime.timeType1 = ipcTimeType1
-            ttTime.timeType2 = ipcTimeType2
-            ttTime.newJob    = iplNewJob
-            .
-    END. /* not avail */
-
-    RETURN TRUE.
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION numericDateTime Dialog-Frame 
-FUNCTION numericDateTime RETURNS DECIMAL
-  (ipDate AS DATE,ipTime AS INTEGER) :
-/*------------------------------------------------------------------------------
-  Purpose:  put the date and time in decimal format YYYYMMDD.TTTTT
-    Notes:  
-------------------------------------------------------------------------------*/
-  IF ipTime LT 0 THEN ipTime = 0.
-  IF ipTime GT 86400 THEN
-  ipTime = ipTime - TRUNCATE(ipTime / 86400,0) * 86400.
-  IF ipDate EQ ? AND ipTime EQ ? THEN
-  RETURN 0.99999.
-  ELSE
-  IF ipDate EQ ? THEN
-  RETURN DECIMAL('0.' + STRING(ipTime,'99999')).
-  ELSE
-  RETURN DECIMAL(STRING(YEAR(ipDate),'9999') +
-                 STRING(MONTH(ipDate),'99') +
-                 STRING(DAY(ipDate),'99') + '.' +
-                 STRING(ipTime,'99999')).
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION timeSpan Dialog-Frame 
-FUNCTION timeSpan RETURNS INTEGER
-  (ipStartDate AS DATE,ipStartTime AS INTEGER,ipEndDate AS DATE,ipEndTime AS INTEGER) :
-/*------------------------------------------------------------------------------
-  Purpose:  calculate time span between 2 dates & times in seconds
-    Notes:  
-------------------------------------------------------------------------------*/
-  RETURN IF ipStartDate EQ ipEndDate THEN ipEndTime - ipStartTime
-         ELSE (86400 - ipStartTime) + (ipEndDate - ipStartDate - 1) * 86400 + ipEndTime.
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-

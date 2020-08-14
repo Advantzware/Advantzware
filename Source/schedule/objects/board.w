@@ -4072,31 +4072,18 @@ PROCEDURE pSetDueDateJob :
           ttblJob.origEndDate   = bufPendingJob.endDate
           ttblJob.origEndTime   = bufPendingJob.endTime
           .
-        /*
-        RUN pPriorAvailable (ttblJob.resource,ROWID(ttblJob),ttblJob.timeSpan,
-                             INPUT-OUTPUT ttblJob.startDateTime,
-                             INPUT-OUTPUT ttblJob.endDateTime,
-                             INPUT-OUTPUT ttblJob.startDate,
-                             INPUT-OUTPUT ttblJob.startTime,
-                             INPUT-OUTPUT ttblJob.endDate,
-                             INPUT-OUTPUT ttblJob.endTime
-                             ).
-
-        RUN getPriorJobResource (ttblJob.job,ttblJob.resourceSequence,ttblJob.startDateTime,
-                                 INPUT-OUTPUT ttblJob.startDate,INPUT-OUTPUT ttblJob.startTime).
-        */
         RUN pDowntimeSpan (ttblJob.resource,ttblJob.timeSpan,ttblJob.endDate,ttblJob.endTime,
                            OUTPUT ttblJob.startDate,OUTPUT ttblJob.startTime,OUTPUT ttblJob.downtimeSpan).
         ttblJob.startDateTime = numericDateTime(ttblJob.startDate,ttblJob.startTime).
-        ttblJob.endDateTime = numericDateTime(ttblJob.endDate,ttblJob.endTime).
+        ttblJob.endDateTime   = numericDateTime(ttblJob.endDate,ttblJob.endTime).
         
         ASSIGN
-          ttblJob.jobBGColor = jobBGColor()
-          ttblJob.jobFGColor = jobFGColor()
+          ttblJob.jobBGColor  = jobBGColor()
+          ttblJob.jobFGColor  = jobFGColor()
           ttblJob.statusLabel = jobStatus()
-          priorStartDate = ttblJob.startDate
-          priorStartTime = ttblJob.startTime
-          priorDateTime  = ttblJob.startDateTime
+          priorStartDate      = ttblJob.startDate
+          priorStartTime      = ttblJob.startTime
+          priorDateTime       = ttblJob.startDateTime
           .
         RUN pSetResourceSequence (bufPendingJob.resource).
         ttblJob.sequenced = YES.
@@ -4144,13 +4131,15 @@ PROCEDURE pSetResourceSequence :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipResource AS CHARACTER NO-UNDO.
 
-  DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  DEFINE VARIABLE idx AS INTEGER NO-UNDO.
 
-  FOR EACH buffJob EXCLUSIVE-LOCK WHERE buffJob.resource EQ ipResource
-      BY buffJob.startDate BY buffJob.startTime:
+  FOR EACH buffJob
+      WHERE buffJob.resource EQ ipResource
+         BY buffJob.startDate BY buffJob.startTime
+      :
     ASSIGN
-      i = i + 1
-      buffJob.jobSequence = i.
+      idx = idx + 1
+      buffJob.jobSequence = idx.
   END.
 
 END PROCEDURE.

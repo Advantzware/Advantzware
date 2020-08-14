@@ -58,6 +58,7 @@ reload = IF '{&sbExternal}' EQ 'sbDMI'    THEN YES
     ELSE IF '{&sbExternal}' EQ 'sbNotes'  THEN reloadStatus
     ELSE IF '{&sbExternal}' EQ 'sbReport' THEN reloadReport
     ELSE IF '{&sbExternal}' EQ 'sbStatus' THEN reloadStatus
+    ELSE IF '{&sbExternal}' EQ 'sbHTML'   THEN reloadStatus
     ELSE ?
     .
 IF reload EQ ? THEN DO:
@@ -126,9 +127,8 @@ FOR EACH ttblJob
 END. /* each ttbljob */
 &ENDIF
 
-cProdAceDat = findProgram('{&data}/',ID,'/ProdAce.dat').
-
 &IF '{&sbExternal}' EQ 'sbDMI' &THEN
+cProdAceDat = findProgram('{&data}/',ID,'/ProdAce.dat').
 RUN VALUE(findProgram('{&loads}/',ID,'/prodAce.w')) (cProdAceDat, THIS-PROCEDURE, NO, OUTPUT lContinue).
 &ELSEIF '{&sbExternal}' EQ 'sbJScan' &THEN
 RUN {&prompts}/jobSeqScan.w (THIS-PROCEDURE, ENTRY(1,commaList)).
@@ -138,22 +138,24 @@ RUN {&objects}/sbNotes.w.
 RUN {&prompts}/fieldFilter.w ('{&Board}','','',NO,NO,?,'print').
 &ELSEIF '{&sbExternal}' EQ 'sbStatus' &THEN
 RUN {&objects}/sbStatus.w.
+&ELSEIF '{&sbExternal}' EQ 'sbHTML' &THEN
+RUN {&objects}/sbHTML.p (g_company).
 &ENDIF
 
-&IF '{&sbExternal}' EQ 'sbDMI' &THEN
-RUN VALUE(findProgram('{&loads}/',ID,'/prodAce.w')) persistent (cProdAceDat, THIS-PROCEDURE, NO, OUTPUT lContinue).
-&ELSEIF '{&sbExternal}' EQ 'sbJScan' &THEN
-RUN {&prompts}/jobSeqScan.w persistent (THIS-PROCEDURE, ENTRY(1,commaList)).
-&ELSEIF '{&sbExternal}' EQ 'sbNotes' &THEN
-RUN {&objects}/sbNotes.w persistent.
-&ELSEIF '{&sbExternal}' EQ 'sbReport' &THEN
-RUN {&prompts}/fieldFilter.w persistent ('{&Board}','','',NO,NO,?,'print').
-&ELSEIF '{&sbExternal}' EQ 'sbStatus' &THEN
-RUN {&objects}/sbStatus.w persistent.
-&ENDIF
-
+/*&IF '{&sbExternal}' EQ 'sbDMI' &THEN                                                                               */
+/*RUN VALUE(findProgram('{&loads}/',ID,'/prodAce.w')) PERSISTENT (cProdAceDat, THIS-PROCEDURE, NO, OUTPUT lContinue).*/
+/*&ELSEIF '{&sbExternal}' EQ 'sbJScan' &THEN                                                                         */
+/*RUN {&prompts}/jobSeqScan.w PERSISTENT (THIS-PROCEDURE, ENTRY(1,commaList)).                                       */
+/*&ELSEIF '{&sbExternal}' EQ 'sbNotes' &THEN                                                                         */
+/*RUN {&objects}/sbNotes.w PERSISTENT.                                                                               */
+/*&ELSEIF '{&sbExternal}' EQ 'sbReport' &THEN                                                                        */
+/*RUN {&prompts}/fieldFilter.w PERSISTENT ('{&Board}','','',NO,NO,?,'print').                                        */
+/*&ELSEIF '{&sbExternal}' EQ 'sbStatus' &THEN                                                                        */
+/*RUN {&objects}/sbStatus.w PERSISTENT.                                                                              */
+/*&ENDIF                                                                                                             */
 
 /* *** internal procedures ********************************************* */
+
 PROCEDURE asiCommaList:
   DEFINE INPUT PARAMETER ipValue AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opValue AS CHARACTER NO-UNDO.
@@ -178,7 +180,7 @@ END PROCEDURE.
 PROCEDURE getScenario:
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
-  {{&includes}/getPending.i}
+/*  {{&includes}/getPending.i}*/
   {{&includes}/getScenario.i}
 END PROCEDURE.
 
