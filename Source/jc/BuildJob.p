@@ -168,6 +168,7 @@ PROCEDURE pBuildHeaders PRIVATE:
             AND bf-job-hdr.blank-no EQ estCostBlank.blankNo
             AND bf-job-hdr.i-no EQ estCostItem.itemID
             NO-ERROR.
+        
         IF NOT AVAILABLE bf-job-hdr AND estCostBlank.formNo EQ 0 THEN 
         DO:  /*Job Build Process creates the Set Header job-hdr with form 1 blank 1.  This is a workaround to find that to prevent
             creating more than one job-hdr for the set header which will need to be cleaned up*/
@@ -179,6 +180,7 @@ PROCEDURE pBuildHeaders PRIVATE:
                 AND bf-job-hdr.i-no EQ estCostItem.itemID
                 NO-ERROR.                
         END.            
+        
         IF NOT AVAILABLE bf-job-hdr THEN 
         DO:
             CREATE bf-job-hdr.
@@ -194,12 +196,6 @@ PROCEDURE pBuildHeaders PRIVATE:
                 bf-job-hdr.ord-no  = IF bf-job-hdr.ord-no EQ 0 THEN ipiOrderID ELSE bf-job-hdr.ord-no
                 bf-job-hdr.loc     = ipbf-job.loc
                 .
-        /*                IF estCostBlank.formNo EQ 0 AND estCostBlank.blankNo EQ 0 THEN*/
-        /*                DO:                                                           */
-        /*                    RUN pUpdateFGItemQty(INPUT ROWID(bf-job-hdr),             */
-        /*                                         INPUT YES ).                         */
-        /*                END.                                                          */
-                
         END.
         CREATE ttJobHdrToKeep.
         ASSIGN 
@@ -574,44 +570,28 @@ PROCEDURE pCleanJob PRIVATE:
         AND bf-job-hdr.job EQ ipbf-job.job
         AND bf-job-hdr.job-no EQ ipbf-job.job-no
         AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
-        AND NOT CAN-FIND(FIRST ttJobHdrToKeep WHERE ttJobHdrToKeep.riJobHdr EQ ROWID(bf-job-hdr)):
-        DELETE bf-job-hdr.
+        AND NOT CAN-FIND(FIRST ttJobHdrToKeep WHERE ttJobHdrToKeep.riJobHdr EQ ROWID(bf-job-hdr)): 
+            DELETE bf-job-hdr.
     END.     
     RELEASE bf-job-hdr.
+    
+    /*The following is a hack to workaround the doubling of component inventory inside the jc-calc program*/
+    /*This should be removed in favor of moving more of the job quantity prompts and quantity management, into BuildJob*/
+    FIND FIRST bf-job-hdr NO-LOCK 
+        WHERE bf-job-hdr.company EQ ipbf-job.company
+        AND bf-job-hdr.job EQ ipbf-job.job
+        AND bf-job-hdr.job-no EQ ipbf-job.job-no
+        AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
+        AND bf-job-hdr.frm EQ 0
+        NO-ERROR.
+    IF AVAILABLE bf-job-hdr THEN 
+        FIND FIRST itemfg NO-LOCK 
+            WHERE itemfg.company EQ bf-job-hdr.company
+            AND itemfg.i-no EQ bf-job-hdr.i-no
+            NO-ERROR.
+    IF AVAILABLE itemfg THEN 
+        RUN fg/fg-reset.p (RECID(itemfg)).    
 
 END PROCEDURE.
 
-/*PROCEDURE pUpdateFGItemQty PRIVATE:                                                 */
-/*    /*------------------------------------------------------------------------------*/
-/*     Purpose:                                                                       */
-/*     Notes:                                                                         */
-/*    ------------------------------------------------------------------------------*/*/
-/*    DEFINE INPUT  PARAMETER ipriJobHdr     AS ROWID   NO-UNDO.                      */
-/*    DEFINE INPUT  PARAMETER iplLastItem  AS LOGICAL NO-UNDO.                        */
-/*                                                                                    */
-/*    DEFINE BUFFER x-job-hdr       FOR job-hdr.                                      */
-/*                                                                                    */
-/*    FIND FIRST job-hdr EXCLUSIVE-LOCK                                               */
-/*        WHERE ROWID(job-hdr) EQ ipriJobHdr                                          */
-/*        NO-ERROR.                                                                   */
-/*    IF NOT AVAILABLE job-hdr THEN                                                   */
-/*        RETURN.                                                                     */
-/*                                                                                    */
-/*    IF iplLastItem THEN                                                             */
-/*    DO:                                                                             */
-/*        FOR EACH x-job-hdr                                                          */
-/*            WHERE x-job-hdr.company EQ job-hdr.company                              */
-/*            AND x-job-hdr.job     EQ job-hdr.job                                    */
-/*            AND x-job-hdr.job-no  EQ job-hdr.job-no                                 */
-/*            AND x-job-hdr.job-no2 EQ job-hdr.job-no2                                */
-/*            AND x-job-hdr.frm EQ 0:                                                 */
-/*                                                                                    */
-/*            RUN util/upditmfg.p (                                                   */
-/*                INPUT ROWID(x-job-hdr),                                             */
-/*                INPUT 1                                                             */
-/*                ).                                                                  */
-/*        END.                                                                        */
-/*    END.                                                                            */
-/*                                                                                    */
-/*END PROCEDURE.                                                                      */
 
