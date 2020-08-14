@@ -161,12 +161,12 @@ PROCEDURE pBusinessLogic:
                           AND ttCustList.log-fld EQ TRUE) THEN
         NEXT.
         lValidCust = NO.
-/*        IF NOT lValidCust THEN   */
-/*        {&for-each-arinv}:       */
+        IF NOT lValidCust THEN   
+        {&for-each-arinv}:       
 /*            {&valid-factored}    */
-/*            lValidCust = YES.    */
-/*            LEAVE.               */
-/*        END. /* not lValidCust */*/
+            lValidCust = YES.    
+            LEAVE.               
+        END. /* not lValidCust */
         IF NOT lValidCust THEN
         {&for-each-arcsh}
             lValidCust = YES.
@@ -271,7 +271,7 @@ PROCEDURE pBusinessLogic:
             END. /* each ar-invl */    
             ASSIGN
                 dAg    = dAmt
-                iD     = dtAsofDate - ar-inv.due-date
+                iD     = dtAsofDate - ( IF cSort2 EQ "Due Date" THEN ar-inv.due-date ELSE ar-inv.inv-date)
                 idx    = idx + 1
                 cvType = IF ar-inv.terms EQ "FCHG" THEN "FC" ELSE "IN"
                 .    
@@ -662,12 +662,14 @@ PROCEDURE pBusinessLogic:
                 .
             iD = dtAsofDate - ar-cash.check-date.
         
-            IF iD GE iPeriodDays3 THEN
-            dUnapp[4] = dUnapp[4] + dCreditDebitAmt - dDiscAmt.
-            ELSE IF iD GE iPeriodDays2 AND iD LT iPeriodDays3 THEN
+            IF iD GE iPeriodDays4 THEN
+            dUnapp[5] = dUnapp[5] + dCreditDebitAmt - dDiscAmt.
+            ELSE IF iD GE iPeriodDays3 AND iD LT iPeriodDays4 THEN
+                    dUnapp[4] = dUnapp[4] + dCreditDebitAmt - dDiscAmt.
+            ELSE IF iD GE iPeriodDays2 AND iD LT iPeriodDays3 THEN 
                     dUnapp[3] = dUnapp[3] + dCreditDebitAmt - dDiscAmt.
             ELSE IF iD GE iPeriodDays1 AND iD LT iPeriodDays2 THEN 
-                    dUnapp[2] = dUnapp[2] + dCreditDebitAmt - dDiscAmt.
+                    dUnapp[2] = dUnapp[2] + dCreditDebitAmt - dDiscAmt.         
             ELSE IF iD LT iPeriodDays1 THEN 
                     dUnapp[1] = dUnapp[1] + dCreditDebitAmt - dDiscAmt.
         END. /* for each ar-cashl record */
