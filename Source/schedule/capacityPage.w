@@ -1308,8 +1308,8 @@ PROCEDURE pHTMLPageVertical:
                     .
             END. /* do idx */
             PUT UNFORMATTED
-                '      <td bgcolor="#576490" align="center" nowrap><font face="{&fontFace}" color="#FFFFFF"><b>'
-                ENTRY(WEEKDAY(dtDate),cDays) ' ' MONTH(dtDate) '/' DAY(dtDate) '</b></font></td>' SKIP
+                '      <td bgcolor="#576490" align="center" nowrap><font face="{&fontFace}" color="#FFFFFF">'
+                ENTRY(WEEKDAY(dtDate),cDays) ' ' MONTH(dtDate) '/' DAY(dtDate) '</font></td>' SKIP
                 '    </tr>' SKIP
                 .
         END. /* do dtdate */

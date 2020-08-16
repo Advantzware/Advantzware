@@ -407,8 +407,8 @@ PROCEDURE pHTMLPageVertical:
                     .
             END. /* each resourcelist */
             PUT UNFORMATTED
-                '      <td bgcolor="#576490" align="center" nowrap><font face="{&fontFace}" color="#FFFFFF"><b>'
-                ENTRY(WEEKDAY(dtDate),cDays) ' ' MONTH(dtDate) '/' DAY(dtDate) '/' YEAR(dtDate) '</b></font></td>' SKIP
+                '      <td bgcolor="#576490" align="center" nowrap><font face="{&fontFace}" color="#FFFFFF">'
+                ENTRY(WEEKDAY(dtDate),cDays) ' ' MONTH(dtDate) '/' DAY(dtDate) '/' YEAR(dtDate) '</font></td>' SKIP
                 '    </tr>' SKIP
                 .
         END. /* do dtdate */
