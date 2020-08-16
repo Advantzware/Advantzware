@@ -26,6 +26,7 @@ DEFINE SHARED VARIABLE g_loc AS CHARACTER NO-UNDO.
 SESSION:SET-WAIT-STATE('').
 
 /* *** function definitions ******************************************** */
+
 FUNCTION jobBGColor RETURNS INTEGER ():
   RETURN 0.
 END FUNCTION.
@@ -139,7 +140,7 @@ RUN {&prompts}/fieldFilter.w ('{&Board}','','',NO,NO,?,'print').
 &ELSEIF '{&sbExternal}' EQ 'sbStatus' &THEN
 RUN {&objects}/sbStatus.w.
 &ELSEIF '{&sbExternal}' EQ 'sbHTML' &THEN
-RUN {&objects}/sbHTML.p (g_company).
+RUN {&objects}/sbHTML.p (g_company, 0, YES).
 &ENDIF
 
 /*&IF '{&sbExternal}' EQ 'sbDMI' &THEN                                                                               */
@@ -180,7 +181,6 @@ END PROCEDURE.
 PROCEDURE getScenario:
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
-/*  {{&includes}/getPending.i}*/
   {{&includes}/getScenario.i}
 END PROCEDURE.
 

@@ -3,6 +3,8 @@
 /* ***************************  Definitions  ************************** */
 
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipiVersion AS INTEGER   NO-UNDO.
+DEFINE INPUT PARAMETER iplLaunch  AS LOGICAL   NO-UNDO.
 
 {schedule/scopDir.i}
 {{&includes}/defBoard.i}
@@ -44,6 +46,7 @@ PROCEDURE pCreatebttTime:
     DEFINE INPUT PARAMETER ipiTimeSlice AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipcTimeType1 AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTimeType2 AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobCount  AS INTEGER   NO-UNDO.
 
     CREATE bttTime.
     ASSIGN
@@ -52,6 +55,9 @@ PROCEDURE pCreatebttTime:
         bttTime.timeSlice = ipiTimeSlice
         bttTime.timeType1 = ipcTimeType1
         bttTime.timeType2 = ipcTimeType2
+        bttTime.jobCount  = ipiJobCount
+        iSortOrder        = iSortOrder + 1
+        bttTime.sortOrder = iSortOrder
         .
 
 END PROCEDURE.
@@ -85,7 +91,10 @@ PROCEDURE pFromPendingByDueDate:
     END. /* repeat */
     INPUT CLOSE.
 
-    pendingDays = 365.
+    ASSIGN
+        pendingDays    = 1
+        pendingLastDay = 365
+        .
     FOR EACH bPendingJob
         BREAK BY bPendingJob.dueDate
               BY bPendingJob.job
@@ -96,6 +105,8 @@ PROCEDURE pFromPendingByDueDate:
                 bPendingJob.startDate = bPendingJob.dueDate - pendingDays
                 bPendingJob.startTime = 0
                 .
+            IF bPendingJob.startDate LT TODAY THEN
+            bPendingJob.startDate = TODAY + 1.
             RUN newEnd (bPendingJob.timeSpan,bPendingJob.startDate,bPendingJob.startTime,
                         OUTPUT bPendingJob.endDate,OUTPUT bPendingJob.endTime).
             CREATE ttblJob.
@@ -162,24 +173,29 @@ PROCEDURE pHTMLPageVertical:
     &Scoped-define fontFace Comic Sans MS
     &Scoped-define fontFace Tahoma
     
-    DEFINE VARIABLE cDays       AS CHARACTER NO-UNDO INITIAL "Sun,Mon,Tue,Wed,Thu,Fri,Sat".
-    DEFINE VARIABLE cKey        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lAltLine    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cBGColor    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dtStartDate AS DATE      NO-UNDO.
-    DEFINE VARIABLE dtEndDate   AS DATE      NO-UNDO.
-    DEFINE VARIABLE dtDate      AS DATE      NO-UNDO.
-    DEFINE VARIABLE iJobs       AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iTime       AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iStartTime  AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iEndTime    AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cType1      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cType2      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iDays       AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iPercentage AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE jdx         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cDays       AS CHARACTER NO-UNDO INITIAL "Sun,Mon,Tue,Wed,Thu,Fri,Sat".
+    DEFINE VARIABLE cDaysLimit  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cKey        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cHTMLFolder AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cHTMLPage   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPageTitle  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cType1      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cType2      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dPercentage AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dtDate      AS DATE      NO-UNDO.
+    DEFINE VARIABLE dtEndDate   AS DATE      NO-UNDO.
+    DEFINE VARIABLE dtStartDate AS DATE      NO-UNDO.
+    DEFINE VARIABLE iDays       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iEndTime    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iEndVer     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iJobs       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iStartTime  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iStartVer   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTime       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE jdx         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lAltLine    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFound      AS LOGICAL   NO-UNDO.
     
     DEFINE BUFFER bTtblJob FOR ttblJob.
 
@@ -187,14 +203,10 @@ PROCEDURE pHTMLPageVertical:
          USE-INDEX startDateTimeIdx
          NO-ERROR.
     IF NOT AVAILABLE ttblJob THEN RETURN.
-/*    dtStartDate = ttblJob.startDate.*/
     dtStartDate = TODAY.
     FIND LAST ttblJob
          USE-INDEX startDateTimeIdx.
-    ASSIGN
-        dtEndDate = ttblJob.endDate + 1
-        iDays     = dtEndDate - dtStartDate + 1
-        .
+    dtEndDate = ttblJob.endDate.
     FOR EACH resourceList
         :
         DO dtDate = dtStartDate TO dtEndDate:
@@ -237,8 +249,12 @@ PROCEDURE pHTMLPageVertical:
         END. /* each ttbljob */
     END. /* each resourcelist */    
 
-    DO jdx = 1 TO 4:
-        IF jdx EQ 3 THEN
+    ASSIGN
+        iStartVer = IF ipiVersion EQ 0 THEN 1 ELSE ipiVersion
+        iEndVer   = IF ipiVersion EQ 0 THEN 6 ELSE ipiVersion
+        .
+    DO jdx = iStartVer TO iEndVer:
+        IF jdx GE 4 AND NOT CAN-FIND(FIRST bttTime) THEN
         RUN pSummarizeTimeSlices (dtStartDate, dtEndDate).
         CASE jdx:
             WHEN 1 THEN
@@ -246,11 +262,30 @@ PROCEDURE pHTMLPageVertical:
             WHEN 2 THEN
             cPageTitle = "by Percentage".
             WHEN 3 THEN
-            cPageTitle = "Time Summary".
+            cPageTitle = "by Time / Percentage".
             WHEN 4 THEN
+            cPageTitle = "Time Summary".
+            WHEN 5 THEN
             cPageTitle = "Percentage Summary".
+            WHEN 6 THEN
+            cPageTitle = "Time / Percentage Summary".
         END CASE.
-        cHTMLPage = "c:\tmp\sbHTMLCapacity." + SUBSTRING(ID,R-INDEX(ID,"/") + 1) + STRING(jdx) + ".htm".
+        RUN sys/ref/nk1look.p (
+            ipcCompany,"CapacityHTMLFolder","I",NO,NO,"","",
+            OUTPUT cDaysLimit,OUTPUT lFound
+            ).
+        iDays = INTEGER(cDaysLimit).
+        IF iDays GT 0 AND dtStartDate + iDays LT dtEndDate THEN
+        dtEndDate = dtStartDate + iDays.
+        iDays = dtEndDate - dtStartDate + 1.        
+        RUN sys/ref/nk1look.p (
+            ipcCompany,"CapacityHTMLFolder","C",NO,NO,"","",
+            OUTPUT cHTMLFolder,OUTPUT lFound
+            ).
+        ASSIGN
+            cHTMLFolder = IF lFound AND cHTMLFolder NE "" THEN cHTMLFolder ELSE "c:\tmp"
+            cHTMLPage = cHTMLFolder + "\sbHTMLCapacity." + SUBSTRING(ID,R-INDEX(ID,"/") + 1) + STRING(jdx) + ".htm"
+            .
         OUTPUT TO VALUE(cHTMLPage).
         PUT UNFORMATTED
             '<html>' SKIP
@@ -283,8 +318,8 @@ PROCEDURE pHTMLPageVertical:
         DO dtDate = dtStartDate TO dtEndDate:
             PUT UNFORMATTED
                 '    <tr style="height: ' INTEGER(90 / iDays) '%;">' SKIP
-                '      <td bgcolor="#576490" align="center" nowrap><font face="{&fontFace}" color="#FFFFFF"><b>'
-                ENTRY(WEEKDAY(dtDate),cDays) ' ' MONTH(dtDate) '/' DAY(dtDate) '/' YEAR(dtDate) '</b></font></td>' SKIP
+                '      <td bgcolor="#576490" align="center" nowrap><font face="{&fontFace}" color="#FFFFFF">'
+                ENTRY(WEEKDAY(dtDate),cDays) ' ' MONTH(dtDate) '/' DAY(dtDate) '/' YEAR(dtDate) '</font></td>' SKIP
                 .
             FOR EACH resourceList
                 :
@@ -299,10 +334,10 @@ PROCEDURE pHTMLPageVertical:
                     fTimeSlice (resourceList.resource,dtDate,86400, "Avail","End",  NO).                
                 END. /* if not can-find */
                 FOR EACH ttTime
-                    WHERE ttTime.timeKey  EQ resourceList.resource
-                      AND ttTime.timeDate EQ dtDate
+                    WHERE ttTime.timeKey   EQ resourceList.resource
+                      AND ttTime.timeDate  EQ dtDate
                        BY ttTime.timeSlice DESCENDING
-                       BY ttTime.timeType2 DESCENDING
+                       BY ttTime.sortOrder DESCENDING
                     :
                     IF ttTime.timeSlice EQ 86400 THEN DO:
                         ASSIGN
@@ -327,26 +362,36 @@ PROCEDURE pHTMLPageVertical:
                     ELSE IF ttTime.timeType2 NE "End" OR cType2 NE "End" THEN
                     cType1 = ttTime.timeType1.
     
-                    iPercentage = ROUND((iTime - ttTime.timeSlice) / 86400 * 100,0).
-                    IF iPercentage GT 0 THEN DO:
+                    dPercentage = ROUND((iTime - ttTime.timeSlice) / 86400 * 100,2).
+                    IF dPercentage GT 0 THEN DO:
                         PUT UNFORMATTED
-                            '          <tr style="height: ' iPercentage '%;">' SKIP
+                            '          <tr style="height: ' dPercentage '%;">' SKIP
                             '            <td bgcolor="#'
                             (IF ttTime.newJob AND ttTime.timeType2 EQ "Start" THEN "85FEFE" ELSE
                              IF cType1 EQ "Avail" THEN "97F3A0" ELSE
                              IF cType1 EQ "Job"   THEN "A1A5E2" ELSE "FF8585")
-                            '" align="center" nowrap><font face="{&fontFace}"><b>'
+                            '" align="center" nowrap><font face="{&fontFace}">'
                             .
-                        IF jdx EQ 1 OR jdx EQ 3 THEN
-                            IF iPercentage EQ 100 THEN
-                            PUT UNFORMATTED "24:00:00".
-                            ELSE
-                            PUT UNFORMATTED STRING(iTime - ttTime.timeSlice,"hh:mm:ss").
-                        ELSE
-                        PUT UNFORMATTED iPercentage '%'.
+                        CASE jdx:
+                            WHEN 1 OR WHEN 4 THEN
+                                IF dPercentage EQ 100 THEN
+                                PUT UNFORMATTED "24:00:00".
+                                ELSE
+                                PUT UNFORMATTED STRING(iTime - ttTime.timeSlice,"hh:mm:ss").
+                            WHEN 2 OR WHEN 5 THEN
+                                PUT UNFORMATTED dPercentage '%'.
+                            WHEN 3 OR WHEN 6 THEN DO:
+                                IF dPercentage EQ 100 THEN
+                                PUT UNFORMATTED "24:00:00".
+                                ELSE
+                                PUT UNFORMATTED STRING(iTime - ttTime.timeSlice,"hh:mm:ss").
+                                PUT UNFORMATTED ' / ' dPercentage '%'.
+                            END. /* 5 or 6 */
+                        END CASE.
+                        IF jdx GE 4 AND ttTime.jobCount NE 0 THEN
+                        PUT UNFORMATTED ' (' + STRING(ttTime.jobCount) + ')'.
                         PUT UNFORMATTED 
-                            '</b></font>'
-                            '</td>' SKIP
+                            '</font></td>' SKIP
                             '          </tr>' SKIP
                             .
                     END. /* if gt 0 */
@@ -385,15 +430,19 @@ PROCEDURE pHTMLPageVertical:
             '</html>' SKIP
             .
         OUTPUT CLOSE.
-        OS-COMMAND NO-WAIT START VALUE(cHTMLPage).
+        IF iplLaunch THEN DO:
+            OS-COMMAND NO-WAIT START VALUE(cHTMLPage).
+            PAUSE 1 NO-MESSAGE.
+        END. /* if iplLaunch */
     END. /* do jdx */
     
-/*    OUTPUT TO "c:\tmp\sbHTML1.txt".                     */
+    /* below used for debugging purposes */
+/*    OUTPUT TO "c:\tmp\sbHTML0.txt".                     */
 /*    FOR EACH ttTime                                     */
 /*    BREAK BY ttTime.timeKey                             */
 /*          BY ttTime.timeDate  DESCENDING                */
 /*          BY ttTime.timeSlice DESCENDING                */
-/*          BY ttTime.timeType2 DESCENDING                */
+/*          BY ttTime.sortOrder DESCENDING                */
 /*        :                                               */
 /*        EXPORT                                          */
 /*            ttTime.timeKey                              */
@@ -403,13 +452,15 @@ PROCEDURE pHTMLPageVertical:
 /*            ttTime.timeType1                            */
 /*            ttTime.timeType2                            */
 /*            ttTime.newJob                               */
+/*            ttTime.sortOrder                            */
+/*            ttTime.jobCount                             */
 /*            .                                           */
 /*        IF LAST-OF(ttTime.timeDate) THEN                */
 /*        PUT UNFORMATTED SKIP(1).                        */
 /*    END.                                                */
 /*    OUTPUT CLOSE.                                       */
-/*    OS-COMMAND NO-WAIT notepad.exe "c:\tmp\sbHTML1.txt".*/
-
+/*    OS-COMMAND NO-WAIT notepad.exe "c:\tmp\sbHTML0.txt".*/
+/*                                                           */
 /*    OUTPUT TO c:\tmp\ttblDowntime.txt.                     */
 /*    FOR EACH ttblDowntime:                                 */
 /*        EXPORT ttblDowntime.                               */
@@ -560,6 +611,7 @@ PROCEDURE pSummarizeTimeSlices:
     DEFINE VARIABLE iAvail     AS INTEGER NO-UNDO.
     DEFINE VARIABLE iBooked    AS INTEGER NO-UNDO.
     DEFINE VARIABLE iDowntime  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iJobCount  AS INTEGER NO-UNDO.
     DEFINE VARIABLE iTimeSlice AS INTEGER NO-UNDO.
 
     DO dtDate = ipdtStartDate TO ipdtEndDate:
@@ -577,42 +629,47 @@ PROCEDURE pSummarizeTimeSlices:
                 WHEN "DT" THEN
                 iDowntime = iDowntime + iTimeSlice - ttTime.timeSlice.
                 WHEN "Job" THEN
-                iBooked = iBooked + iTimeSlice - ttTime.timeSlice.
+                ASSIGN
+                    iBooked   = iBooked + iTimeSlice - ttTime.timeSlice
+                    iJobCount = iJobCount + 1
+                    .
             END CASE.
             IF LAST-OF(ttTime.timeKey) THEN DO:
                 IF iDowntime NE 0 THEN DO:
-                    RUN pCreatebttTime (ttTime.timeKey,dtDate,0,"DT","Start").
-                    RUN pCreatebttTime (ttTime.timeKey,dtDate,iDowntime,"DT","End").
+                    RUN pCreatebttTime (ttTime.timeKey,dtDate,0,"DT","Start",0).
+                    RUN pCreatebttTime (ttTime.timeKey,dtDate,iDowntime,"DT","End",0).
                 END. /* if idowntime */
                 IF iBooked NE 0 THEN DO:
                     IF iDowntime LT 86400 THEN DO:
-                        RUN pCreatebttTime (ttTime.timeKey,dtDate,iDowntime,"Job","Start").
+                        RUN pCreatebttTime (ttTime.timeKey,dtDate,iDowntime,"Job","Start",iJobCount).
                         iTimeSlice = iDowntime + iBooked.
                         IF iTimeSlice GT 86400 THEN
                         iTimeSlice = 86400.
-                        RUN pCreatebttTime (ttTime.timeKey,dtDate,iTimeSlice,"Job","End").
+                        RUN pCreatebttTime (ttTime.timeKey,dtDate,iTimeSlice,"Job","End",iJobCount).
                     END. /* if idowntime */
                 END. /* if ibooked */
                 iTimeSlice = iDowntime + iBooked.
                 IF iTimeSlice LT 86400 THEN DO:
-                    RUN pCreatebttTime (ttTime.timeKey,dtDate,iTimeSlice,"Avail","Start").
-                    RUN pCreatebttTime (ttTime.timeKey,dtDate,86400,"Avail","End").
+                    RUN pCreatebttTime (ttTime.timeKey,dtDate,iTimeSlice,"Avail","Start",0).
+                    RUN pCreatebttTime (ttTime.timeKey,dtDate,86400,"Avail","End",0).
                 END. /* if */
                 ASSIGN
                     iAvail    = 0
                     iBooked   = 0
                     iDowntime = 0
+                    iJobCount = 0
                     .
             END. /* if last-of */
         END. /* each tttime */
     END. /* do dtdate */
 
-/*    OUTPUT TO "c:\tmp\sbHTML1.txt".                     */
+    /* below used for debugging purposes */
+/*    OUTPUT TO "c:\tmp\sbHTML0.txt".                     */
 /*    FOR EACH ttTime                                     */
 /*    BREAK BY ttTime.timeKey                             */
-/*          BY ttTime.timeDate                            */
-/*          BY ttTime.timeSlice                           */
-/*          BY ttTime.timeType2 DESCENDING                */
+/*          BY ttTime.timeDate  DESCENDING                */
+/*          BY ttTime.timeSlice DESCENDING                */
+/*          BY ttTime.sortOrder DESCENDING                */
 /*        :                                               */
 /*        EXPORT                                          */
 /*            ttTime.timeKey                              */
@@ -622,24 +679,51 @@ PROCEDURE pSummarizeTimeSlices:
 /*            ttTime.timeType1                            */
 /*            ttTime.timeType2                            */
 /*            ttTime.newJob                               */
+/*            ttTime.sortOrder                            */
+/*            ttTime.jobCount                             */
+/*            .                                           */
+/*        IF LAST-OF(ttTime.timeDate) THEN                */
+/*        PUT UNFORMATTED SKIP(1).                        */
+/*    END.                                                */
+/*    OUTPUT CLOSE.                                       */
+/*    OS-COMMAND NO-WAIT notepad.exe "c:\tmp\sbHTML0.txt".*/
+/*                                                        */
+/*    OUTPUT TO "c:\tmp\sbHTML1.txt".                     */
+/*    FOR EACH ttTime                                     */
+/*    BREAK BY ttTime.timeKey                             */
+/*          BY ttTime.timeDate                            */
+/*          BY ttTime.timeSlice                           */
+/*          BY ttTime.sortOrder                           */
+/*        :                                               */
+/*        EXPORT                                          */
+/*            ttTime.timeKey                              */
+/*            ttTime.timeDate                             */
+/*            ttTime.timeSlice                            */
+/*            STRING(ttTime.timeSlice,"hh:mm:ss am")      */
+/*            ttTime.timeType1                            */
+/*            ttTime.timeType2                            */
+/*            ttTime.newJob                               */
+/*            ttTime.sortOrder                            */
+/*            ttTime.jobCount                             */
 /*            .                                           */
 /*        IF LAST-OF(ttTime.timeDate) THEN                */
 /*        PUT UNFORMATTED SKIP(1).                        */
 /*    END.                                                */
 /*    OUTPUT CLOSE.                                       */
 /*    OS-COMMAND NO-WAIT notepad.exe "c:\tmp\sbHTML1.txt".*/
-    
+
     EMPTY TEMP-TABLE ttTime.
     FOR EACH bttTime:
         CREATE ttTime.
         BUFFER-COPY bttTime TO ttTime.
     END. /* each btttime */
-    
+
 /*    OUTPUT TO "c:\tmp\sbHTML2.txt".                     */
 /*    FOR EACH bttTime                                    */
 /*    BREAK BY bttTime.timeKey                            */
 /*          BY bttTime.timeDate                           */
 /*          BY bttTime.timeSlice                          */
+/*          BY bttTime.sortOrder                          */
 /*        :                                               */
 /*        EXPORT                                          */
 /*            bttTime.timeKey                             */
@@ -649,6 +733,8 @@ PROCEDURE pSummarizeTimeSlices:
 /*            bttTime.timeType1                           */
 /*            bttTime.timeType2                           */
 /*            bttTime.newJob                              */
+/*            bttTime.sortOrder                           */
+/*            bttTime.jobCount                            */
 /*            .                                           */
 /*        IF LAST-OF(bttTime.timeDate) THEN               */
 /*        PUT UNFORMATTED SKIP(1).                        */
