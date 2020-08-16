@@ -1,6 +1,8 @@
 /* htmlDefs.i - rstark - 8.13.2020     */
 /* used in capacityPage.w and sbHTML.p */
 
+DEFINE VARIABLE iSortOrder AS INTEGER NO-UNDO.
+
 DEFINE TEMP-TABLE ttTime NO-UNDO
     FIELD timeKey   AS CHARACTER
     FIELD timeDate  AS DATE
@@ -8,6 +10,8 @@ DEFINE TEMP-TABLE ttTime NO-UNDO
     FIELD timeType1 AS CHARACTER 
     FIELD timeType2 AS CHARACTER 
     FIELD newJob    AS LOGICAL
+    FIELD sortOrder AS INTEGER
+    FIELD jobCount  AS INTEGER 
       INDEX ttTime IS PRIMARY
           timeKey
           timeDate  DESCENDING
@@ -112,6 +116,8 @@ FUNCTION fTimeSlice RETURNS LOGICAL
         ttTime.timeType1 = ipcTimeType1
         ttTime.timeType2 = ipcTimeType2
         ttTime.newJob    = iplNewJob
+        iSortOrder       = iSortOrder + 1
+        ttTime.sortOrder = iSortOrder
         .
     RETURN TRUE.
 

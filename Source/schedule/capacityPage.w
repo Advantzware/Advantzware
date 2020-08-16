@@ -919,7 +919,7 @@ PROCEDURE pHTMLPageHorizontal :
     DEFINE VARIABLE iEndTime    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cType1      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cType2      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iPercentage AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dPercentage AS DECIMAL   NO-UNDO.
     
     FIND FIRST ttblJob
          WHERE ttblJob.newJob EQ YES 
@@ -1046,14 +1046,14 @@ PROCEDURE pHTMLPageHorizontal :
                 cType1 = "Avail".
                 ELSE IF ttTime.timeType2 NE "Start" OR cType2 NE "Start" THEN
                 cType1 = ttTime.timeType1.
-                iPercentage = ROUND((ttTime.timeSlice - iTime) / 86400 * 100,0).
-                IF iPercentage GT 0 THEN
+                dPercentage = ROUND((ttTime.timeSlice - iTime) / 86400 * 100,0).
+                IF dPercentage GT 0 THEN
                 PUT UNFORMATTED
                     '            <td bgcolor="#'
                     (IF ttTime.newJob AND ttTime.timeType2 EQ "End" THEN "00CCFF" ELSE
                      IF cType1 EQ "Avail" THEN "F1FE98" ELSE
                      IF cType1 EQ "Job"   THEN "AAD5B9" ELSE "C0BEBE")
-                    '" align="center" width="' iPercentage '%" nowrap>~&nbsp;'
+                    '" align="center" width="' dPercentage '%" nowrap>~&nbsp;'
                     '</td>' SKIP
                     .
                 ASSIGN
@@ -1102,33 +1102,32 @@ PROCEDURE pHTMLPageVertical:
     &Scoped-define fontFace Comic Sans MS
     &Scoped-define fontFace Tahoma
     
-    DEFINE VARIABLE cDays       AS CHARACTER NO-UNDO INITIAL "Sun,Mon,Tue,Wed,Thu,Fri,Sat".
-    DEFINE VARIABLE cKey        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lAltLine    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cBGColor    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dtStartDate AS DATE      NO-UNDO.
-    DEFINE VARIABLE dtEndDate   AS DATE      NO-UNDO.
+    DEFINE VARIABLE cDays       AS CHARACTER NO-UNDO INITIAL "Sun,Mon,Tue,Wed,Thu,Fri,Sat".
+    DEFINE VARIABLE cHTMLPage   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cKey        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMachines   AS CHARACTER NO-UNDO EXTENT 200.
+    DEFINE VARIABLE cPageTitle  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cType1      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cType2      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dPercentage AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dtDate      AS DATE      NO-UNDO.
+    DEFINE VARIABLE dtEndDate   AS DATE      NO-UNDO.
+    DEFINE VARIABLE dtStartDate AS DATE      NO-UNDO.
+    DEFINE VARIABLE iDays       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iEndTime    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iJobs       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iTime       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iStartTime  AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iEndTime    AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cType1      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cType2      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cMachines   AS CHARACTER NO-UNDO EXTENT 200.
     DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE jdx         AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iDays       AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iPercentage AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cHTMLPage   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPageTitle  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAltLine    AS LOGICAL   NO-UNDO.
     
     FIND FIRST ttblJob
          WHERE ttblJob.newJob EQ YES 
          USE-INDEX startDate
          NO-ERROR.
     IF NOT AVAILABLE ttblJob THEN RETURN.
-/*    dtStartDate = ttblJob.startDate.*/
     dtStartDate = TODAY.
     FIND LAST ttblJob
          WHERE ttblJob.newJob EQ YES 
@@ -1184,12 +1183,14 @@ PROCEDURE pHTMLPageVertical:
         END. /* do dtdate */
     END. /* each ttbljob */
     
-    DO jdx = 1 TO 2:
+    DO jdx = 1 TO 3:
         CASE jdx:
             WHEN 1 THEN
             cPageTitle = " by Time".
             WHEN 2 THEN
             cPageTitle = " by Percentage".
+            WHEN 3 THEN
+            cPageTitle = " by Time / Percentage".
         END CASE.
         cHTMLPage = "c:\tmp\sbHTMLProjected" + STRING(jdx) + ".htm".
         OUTPUT TO VALUE(cHTMLPage).
@@ -1226,8 +1227,8 @@ PROCEDURE pHTMLPageVertical:
         DO dtDate = dtStartDate TO dtEndDate:
             PUT UNFORMATTED
                 '    <tr style="height: ' INTEGER(90 / iDays) '%;">' SKIP
-                '      <td bgcolor="#576490" align="center" nowrap><font face="{&fontFace}" color="#FFFFFF"><b>'
-                ENTRY(WEEKDAY(dtDate),cDays) ' ' MONTH(dtDate) '/' DAY(dtDate) '</b></font></td>' SKIP
+                '      <td bgcolor="#576490" align="center" nowrap><font face="{&fontFace}" color="#FFFFFF">'
+                ENTRY(WEEKDAY(dtDate),cDays) ' ' MONTH(dtDate) '/' DAY(dtDate) '</font></td>' SKIP
                 .
             DO idx = 1 TO EXTENT(cMachines):
                 IF cMachines[idx] EQ "" THEN LEAVE.
@@ -1264,26 +1265,34 @@ PROCEDURE pHTMLPageVertical:
                     ELSE IF ttTime.timeType2 NE "End" OR cType2 NE "End" THEN
                     cType1 = ttTime.timeType1.
     
-                    iPercentage = ROUND((iTime - ttTime.timeSlice) / 86400 * 100,0).
-                    IF iPercentage GT 0 THEN DO:
+                    dPercentage = ROUND((iTime - ttTime.timeSlice) / 86400 * 100,2).
+                    IF dPercentage GT 0 THEN DO:
                         PUT UNFORMATTED
-                            '          <tr style="height: ' iPercentage '%;">' SKIP
+                            '          <tr style="height: ' dPercentage '%;">' SKIP
                             '            <td bgcolor="#'
                             (IF ttTime.newJob AND ttTime.timeType2 EQ "Start" THEN "85FEFE" ELSE
                              IF cType1 EQ "Avail" THEN "97F3A0" ELSE
                              IF cType1 EQ "Job"   THEN "A1A5E2" ELSE "FF8585")
-                            '" align="center" nowrap><font face="{&fontFace}"><b>'
+                            '" align="center" nowrap><font face="{&fontFace}">'
                             .
-                        IF jdx EQ 1 THEN
-                            IF iPercentage EQ 100 THEN
-                            PUT UNFORMATTED "24:00:00".
-                            ELSE
-                            PUT UNFORMATTED STRING(iTime - ttTime.timeSlice,"hh:mm:ss").
-                        ELSE
-                        PUT UNFORMATTED iPercentage '%'.
+                        CASE jdx:
+                            WHEN 1 THEN
+                                IF dPercentage EQ 100 THEN
+                                PUT UNFORMATTED "24:00:00".
+                                ELSE
+                                PUT UNFORMATTED STRING(iTime - ttTime.timeSlice,"hh:mm:ss").
+                            WHEN 2 THEN
+                                PUT UNFORMATTED dPercentage '%'.
+                            WHEN 3 THEN DO:
+                                IF dPercentage EQ 100 THEN
+                                PUT UNFORMATTED "24:00:00".
+                                ELSE
+                                PUT UNFORMATTED STRING(iTime - ttTime.timeSlice,"hh:mm:ss").
+                                PUT UNFORMATTED ' / ' dPercentage '%'.
+                            END. /* 5 or 6 */
+                        END CASE.
                         PUT UNFORMATTED 
-                            '</b></font>'
-                            '</td>' SKIP
+                            '</font></td>' SKIP
                             '          </tr>' SKIP
                             .
                     END. /* if gt 0 */
@@ -1324,6 +1333,7 @@ PROCEDURE pHTMLPageVertical:
             .
         OUTPUT CLOSE.
         OS-COMMAND NO-WAIT START VALUE(cHTMLPage).
+        PAUSE 1 NO-MESSAGE.
     END. /* do jdx */
 
 END PROCEDURE.
@@ -1337,7 +1347,6 @@ PROCEDURE pLoadDowntime :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cSearchDir    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFileName     AS CHARACTER NO-UNDO FORMAT "X(60)".
     DEFINE VARIABLE cAttrList     AS CHARACTER NO-UNDO FORMAT "X(4)".
     DEFINE VARIABLE cListItems    AS CHARACTER NO-UNDO.

@@ -915,6 +915,9 @@ PROCEDURE pSelectionList:
     
     DEFINE VARIABLE hLabel AS HANDLE NO-UNDO.
 
+    IF iplMultiple EQ ? THEN
+    iplMultiple = NO.
+
     CREATE SELECTION-LIST ophWidget IN WIDGET-POOL ipcPoolName
       ASSIGN
         FRAME = iphFrame
