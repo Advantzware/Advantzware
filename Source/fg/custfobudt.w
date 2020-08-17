@@ -50,6 +50,8 @@ DEFINE VARIABLE num-groups   AS INTEGER NO-UNDO.
 DEFINE VARIABLE group-ok     AS LOGICAL NO-UNDO.
 DEFINE VARIABLE access-close AS LOGICAL NO-UNDO.
 
+DEFINE BUFFER bf-eb FOR eb.
+
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
    INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
@@ -75,12 +77,12 @@ ELSE
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tb-open_order tb-un_bol tb-un_inv Btn_OK 
-&Scoped-Define DISPLAYED-OBJECTS tb-open_order tb-un_bol tb-un_inv 
+&Scoped-Define ENABLED-OBJECTS tb-open_order tb-un_bol tb-un_inv tb-est Btn_OK 
+&Scoped-Define DISPLAYED-OBJECTS tb-open_order tb-un_bol tb-un_inv tb-est 
 
 /* Custom List Definitions                                              */
 /* orderFields,List-2,List-3,List-4,List-5,List-6                       */
-&Scoped-define orderFields tb-open_order tb-un_bol tb-un_inv 
+&Scoped-define orderFields tb-open_order tb-un_bol tb-un_inv tb-est
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -115,6 +117,11 @@ DEFINE VARIABLE tb-un_inv AS LOGICAL INITIAL no
      LABEL "Unposted Invoices" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81 NO-UNDO.
+     
+DEFINE VARIABLE tb-est AS LOGICAL INITIAL no 
+     LABEL "Estimates" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -123,8 +130,10 @@ DEFINE FRAME Dialog-Frame
      tb-open_order AT ROW 2.52 COL 11
      tb-un_bol AT ROW 3.62 COL 11 HELP
           "Select to Update BOL"
-     tb-un_inv AT ROW 4.86 COL 11 HELP
+     tb-un_inv AT ROW 4.62 COL 11 HELP
           "Select to Update Invoice "
+     tb-est AT ROW 5.62 COL 11 HELP
+          "Select to Update Estimate "    
      Btn_OK AT ROW 7.43 COL 15
      "Select Customer Information to Update:" VIEW-AS TEXT
           SIZE 37 BY .62 AT ROW 1.24 COL 3
@@ -165,6 +174,8 @@ ASSIGN
    1                                                                    */
 /* SETTINGS FOR TOGGLE-BOX tb-un_inv IN FRAME Dialog-Frame
    1                                                                    */
+/* SETTINGS FOR TOGGLE-BOX tb-est IN FRAME Dialog-Frame
+   1                                                                    */   
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -230,10 +241,21 @@ DO:
           inv-head.frt-pay = cust.frt-pay .
           inv-head.fob-code = cust.fob-code.
         END. /* each oe-bolh */
+        
+     IF tb-est THEN
+        FOR EACH bf-eb EXCLUSIVE-LOCK
+          WHERE bf-eb.company EQ cust.company
+          AND bf-eb.cust-no EQ cust.cust-no :
+
+           {custom/statusMsg.i " 'message update estimate '  + string(bf-eb.est-no) "}
+
+          bf-eb.chg-method = cust.frt-pay .         
+        END. /* each oe-bolh */   
 
     RELEASE oe-ord .
     RELEASE oe-bolh.
     RELEASE inv-head .
+    RELEASE bf-eb.
   END. /* if avail */
   RUN custom/usrprint.p (v-prgmname,FRAME {&FRAME-NAME}:HANDLE).
 
@@ -308,9 +330,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY tb-open_order tb-un_bol tb-un_inv 
+  DISPLAY tb-open_order tb-un_bol tb-un_inv tb-est 
       WITH FRAME Dialog-Frame.
-  ENABLE tb-open_order tb-un_bol tb-un_inv Btn_OK 
+  ENABLE tb-open_order tb-un_bol tb-un_inv tb-est Btn_OK 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

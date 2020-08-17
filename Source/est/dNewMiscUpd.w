@@ -821,7 +821,7 @@ PROCEDURE create-item :
     THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftp).
 
     DO WITH FRAME {&FRAME-NAME}:
-        RUN CreateEstReleaseForEstBlank(ROWID(eb), OUTPUT iEstReleaseID,
+        RUN CreateEstReleaseForEstBlank(ROWID(eb),NO, OUTPUT iEstReleaseID,
             OUTPUT lCreated ,  OUTPUT cCreatedMessage) .
         FIND FIRST estRelease NO-LOCK
             WHERE estRelease.estReleaseID EQ iEstReleaseID NO-ERROR .

@@ -1214,6 +1214,10 @@ do transaction on error undo with width 255:
      ar-ledger.tr-num   = v-trnum
      ar-ledger.tr-date  = tran-date.
     RELEASE ar-ledger.
+    
+    RUN pPostSalesTax (
+        INPUT ROWID(ar-inv)
+        ).
   end. /* for each ar-inv */
 
   FIND CURRENT cust NO-LOCK NO-ERROR.
@@ -1226,6 +1230,41 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPostSalesTax C-Win
+PROCEDURE pPostSalesTax PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriArInv AS ROWID NO-UNDO.
+    
+    DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dInvoiceSubTotal AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTotalTax        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
+
+    RUN Tax_CalculateForArInv  (
+        INPUT  ipriArInv,
+        INPUT  locode,
+        INPUT  "INVOICE", /*  Message Type "INVOICE" or "QUOTATION" */
+        INPUT  TRUE,      /* Post To journal */
+        INPUT  "GetTaxAmountFinal", /* Trigger ID */
+        OUTPUT dTotalTax,
+        OUTPUT dInvoiceTotal,
+        OUTPUT dinvoiceSubTotal,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunApiOutboundTrigger C-Win

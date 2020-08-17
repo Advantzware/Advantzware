@@ -14,6 +14,7 @@
 
 /* ***************************  Definitions  ************************** */
 DEFINE INPUT PARAMETER ipriEb AS ROWID.
+DEFINE INPUT PARAMETER iplPromptForQuotes AS LOGICAL NO-UNDO.
 
 DEFINE TEMP-TABLE ttQuantityCost
     FIELD iQty       AS INTEGER
@@ -166,7 +167,7 @@ PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
     cEstNo = ipbf-eb.sourceEstimate.
     RUN util/rjust.p (INPUT-OUTPUT cEstNo,8). 
     
-    IF CAN-FIND(FIRST quotehd WHERE quotehd.company EQ ipbf-eb.company AND quotehd.est-no EQ cEstNo) THEN
+    IF iplPromptForQuotes AND CAN-FIND(FIRST quotehd WHERE quotehd.company EQ ipbf-eb.company AND quotehd.est-no EQ cEstNo) THEN
         RUN oe/QuotePopup.w("",ipbf-eb.company,
             ipbf-eb.loc,
             cEstNo,
@@ -177,7 +178,10 @@ PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
             INPUT-OUTPUT iQuoteNo,
             OUTPUT cChoice,
             OUTPUT rwRowid). 
-    
+            
+    IF NOT iplPromptForQuotes THEN
+     RUN pGetLastQuoteNO(INPUT ipbf-eb.company, INPUT ipbf-eb.loc, INPUT cEstNo, OUTPUT iQuoteNo) .
+       
     FOR EACH quotehd NO-LOCK
         WHERE quotehd.company  EQ ipbf-eb.company
         AND (quotehd.q-no EQ iQuoteNo OR iQuoteNo EQ 0) 
@@ -230,4 +234,27 @@ PROCEDURE pGetCostFrom PRIVATE:
         OUTPUT cRtnChar, OUTPUT lRecFound). 
     opcMiscEstimateSource = STRING(cRtnChar) NO-ERROR .
 
-END PROCEDURE.          
+END PROCEDURE.     
+
+PROCEDURE pGetLastQuoteNO PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO. 
+    DEFINE INPUT PARAMETER ipcloc      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimate AS CHARACTER NO-UNDO. 
+    DEFINE OUTPUT PARAMETER opiQuoteNO AS INTEGER   NO-UNDO.    
+        
+    FOR EACH quotehd FIELDS(q-no) NO-LOCK  
+        WHERE quotehd.company EQ ipcCompany 
+        AND quotehd.loc EQ ipcloc
+        AND quotehd.quo-date LE TODAY 
+        AND (quotehd.expireDate GE TODAY OR quotehd.expireDate EQ ?)
+        AND quotehd.est-no EQ ipcEstimate  
+        BREAK BY quotehd.q-no DESC:
+        opiQuoteNO = quotehd.q-no .
+        LEAVE.
+    END.
+
+END PROCEDURE.   

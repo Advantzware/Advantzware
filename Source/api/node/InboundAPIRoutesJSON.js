@@ -116,4 +116,8 @@ router.post('/getpricematrix', (req,res) => {
     lib.handleRouteJSON(req, res);
 });
 
+router.post('/createinventoryadjustment', (req,res) => {
+    lib.handleRouteJSON(req, res);
+});
+
 module.exports = router;

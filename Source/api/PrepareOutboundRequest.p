@@ -63,139 +63,30 @@ PROCEDURE pPrepareRequest PRIVATE:
     RUN Outbound_IncrementAPITransactionCounter IN hdOutboundProcs (
         INPUT ipiAPIOutboundID
         ).
+        
+    IF SEARCH("api/" + ipcAPIID + ".r") EQ ? THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Request handler for API " + ipcAPIID + " not Found!"
+            .
+        RETURN.
+    END. 
     
+    RUN VALUE("api/" + ipcAPIID + ".r") (
+        INPUT TABLE  ttArgs,
+        INPUT        ipiAPIOutboundID,
+        INPUT        ipiAPIOutboundTriggerID,
+        INPUT        ipcRequestHandler,
+        INPUT-OUTPUT oplcRequestData,
+        OUTPUT       oplSuccess,
+        OUTPUT       opcMessage
+        ).
+    IF oplSuccess THEN
+        RUN Outbound_UpdateGlobalFieldValues IN hdOutboundProcs (
+            INPUT        ipiAPIOutboundID,
+            INPUT-OUTPUT oplcRequestData
+            ).
+
     DELETE PROCEDURE hdOutboundProcs.
-    
-    CASE ipcAPIID:
-        WHEN "SendCustomer" THEN
-            RUN api/SendCustomer.p (
-                INPUT TABLE ttArgs,
-                INPUT ipiAPIOutboundID,
-                INPUT ipiAPIOutboundTriggerID,
-                INPUT ipcRequestHandler,
-                INPUT-OUTPUT oplcRequestData,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ).
-        WHEN "SendFinishedGood" THEN
-            RUN api/SendFinishedGood.p (
-                INPUT TABLE ttArgs,
-                INPUT ipiAPIOutboundID,
-                INPUT ipiAPIOutboundTriggerID,
-                INPUT ipcRequestHandler,
-                INPUT-OUTPUT oplcRequestData,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ).
-        WHEN "SendVendor" THEN
-            RUN api/SendVendor.p (
-                INPUT TABLE ttArgs,
-                INPUT ipiAPIOutboundID,
-                INPUT ipiAPIOutboundTriggerID,
-                INPUT ipcRequestHandler,
-                INPUT-OUTPUT oplcRequestData,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ).
-        WHEN "SendPurchaseOrder" THEN
-            RUN api/SendPurchaseOrder.p (
-                INPUT TABLE ttArgs,
-                INPUT ipiAPIOutboundID,
-                INPUT ipiAPIOutboundTriggerID,
-                INPUT ipcRequestHandler,
-                INPUT-OUTPUT oplcRequestData,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ).
-        WHEN "SendPurchaseOrderStatus" THEN
-            RUN api/SendPurchaseOrderStatus.p (
-                INPUT TABLE ttArgs,
-                INPUT ipiAPIOutboundID,
-                INPUT ipiAPIOutboundTriggerID,
-                INPUT ipcRequestHandler,
-                INPUT-OUTPUT oplcRequestData,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ).
-        WHEN "SendPurchaseOrderLineStatus" THEN
-            RUN api/SendPurchaseOrderLineStatus.p (
-                INPUT TABLE ttArgs,
-                INPUT ipiAPIOutboundID,
-                INPUT ipiAPIOutboundTriggerID,
-                INPUT ipcRequestHandler,
-                INPUT-OUTPUT oplcRequestData,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ).
-        WHEN "SendInvoice" THEN
-            RUN api/SendInvoice.p (
-                INPUT TABLE ttArgs,
-                INPUT ipiAPIOutboundID,
-                INPUT ipiAPIOutboundTriggerID,
-                INPUT ipcRequestHandler,
-                INPUT-OUTPUT oplcRequestData,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ).            
-        WHEN "SendRelease" THEN
-            RUN api/SendRelease.p (
-                INPUT TABLE ttArgs,
-                INPUT ipiAPIOutboundID,
-                INPUT ipiAPIOutboundTriggerID,
-                INPUT ipcRequestHandler,
-                INPUT-OUTPUT oplcRequestData,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ).
-        WHEN "CheckTransfer" THEN
-            RUN api/CheckTransfer.p (
-                INPUT TABLE ttArgs,
-                INPUT ipiAPIOutboundID,
-                INPUT ipiAPIOutboundTriggerID,
-                INPUT ipcRequestHandler,
-                INPUT-OUTPUT oplcRequestData,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ).        
-        WHEN "SendAdvancedShipNotice" THEN
-            RUN api/SendAdvancedShipNotice.p (
-                INPUT TABLE ttArgs,
-                INPUT ipiAPIOutboundID,
-                INPUT ipiAPIOutboundTriggerID,
-                INPUT ipcRequestHandler,
-                INPUT-OUTPUT oplcRequestData,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ).
-        WHEN "SendJob" THEN
-            RUN api/SendJob.p (
-                INPUT TABLE ttArgs,
-                INPUT ipiAPIOutboundID,
-                INPUT ipiAPIOutboundTriggerID,
-                INPUT ipcRequestHandler,
-                INPUT-OUTPUT oplcRequestData,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ).
-        WHEN "SendOrderAck" THEN
-            RUN api/SendOrderAck.p (
-                INPUT TABLE ttArgs,
-                INPUT ipiAPIOutboundID,
-                INPUT ipiAPIOutboundTriggerID,
-                INPUT ipcRequestHandler,
-                INPUT-OUTPUT oplcRequestData,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ).                
-        WHEN "CalculateTax" THEN
-            RUN api/CalculateTax.p (
-                INPUT TABLE ttArgs,
-                INPUT ipiAPIOutboundID,
-                INPUT ipiAPIOutboundTriggerID,
-                INPUT ipcRequestHandler,
-                INPUT-OUTPUT oplcRequestData,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ).                
-    END CASE.   
+
 END PROCEDURE.

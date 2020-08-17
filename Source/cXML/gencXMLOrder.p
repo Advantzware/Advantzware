@@ -488,8 +488,8 @@ PROCEDURE genTempOrderLinesLocal:
             END.
             WHEN 'itemOut|quantity' THEN
                 ttOrdLines.ttItemQuantity = TRIM(ttNodes.nodeValue).
-/*            WHEN 'itemID|supplierPartID' THEN                             */
-/*                ttOrdLines.ttItemSupplierPartID = TRIM(ttNodes.nodeValue).*/
+            WHEN 'itemID|supplierPartID' THEN
+                ttOrdLines.ttItemSupplierPartID = TRIM(ttNodes.nodeValue).
             WHEN 'itemID|supplierPartAuxiliaryID'THEN
                 ttOrdLines.ttItemSupplierPartAuxiliaryID = TRIM(ttNodes.nodeValue).
             WHEN 'unitPrice|money'THEN
@@ -497,7 +497,10 @@ PROCEDURE genTempOrderLinesLocal:
             WHEN 'itemDetail|description' THEN
                 ASSIGN
                     ttOrdLines.ttItemDescription    = TRIM(ttNodes.nodeValue)
-                    ttOrdLines.ttItemSupplierPartID = SUBSTRING(ttOrdLines.ttItemDescription,1,8)
+                    ttOrdLines.ttItemSupplierPartID = IF ttOrdLines.ttItemSupplierPartID EQ "" THEN
+                                                          SUBSTRING(ttOrdLines.ttItemDescription,1,8)
+                                                      ELSE
+                                                          ttOrdLines.ttItemSupplierPartID
                     .
             WHEN  'itemDetail|unitOfMeasure' THEN
                 ttOrdLines.ttItemUnitOfMeasure = TRIM(ttNodes.nodeValue).

@@ -66,13 +66,13 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
                             "FG Item#,FG Item Name,Ship To,Bol Date,Release,Bol Status,carrier,Trailer#,Freight Terms,Seal#," +
                             "Freight Cost,Rate/100 Wt,Total Weight,Total Pallets,Added/Updated By,Upd Date,Cust Addr1,Cust Addr2,Cust city,Cust State,Cust Zip," +
                             "Ship Name,Ship Addr1,Ship Addr2,Ship City,Ship State,Ship Zip,Tag,Whse,Bin,Job NO,Job no2,Units,Qty/Unit,Partial,Qty Shipped,Weight,Freight,P/C,Customer Lot#," +
-                            "Unts/Pallet,Total Shipped Sq Ft,Estimate No,Est RM item No,Posted/Unposted"
+                            "Unts/Pallet,Total Shipped Sq Ft,Estimate No,Est RM item No,Posted/Unposted,Quoted Freight,Quoted Note"
                             
         cFieldListToSelect = "bol-no,ord-no,po-no,cust-no,cust-name,cust-part," +
                             "i-no,i-name,ship-id,bol-date,rel-no,stat,carrier,trailer,frt-pay,airway-bill," +
                             "freight,cwt,tot-wt,tot-pallets,user-id,upd-date,cust-addr1,cust-addr2,cust-city,cust-state,cust-zip," +
                             "ship-name,ship-addr1,ship-addr2,ship-city,ship-state,ship-zip,tag,loc,loc-bin,job-no,job-no2,cases,qty-case,partial,qty,weight,freight,p-c,lot-no," +
-                            "unit-pallet,tot-sqft,est-no,est-rm-item,posted"
+                            "unit-pallet,tot-sqft,est-no,est-rm-item,posted,quotedFreight,quoteNote"
                              .
 
 {sys/inc/ttRptSel.i}

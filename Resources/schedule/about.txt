@@ -11,6 +11,13 @@
 
  History:
 
+ r4.006 (updated 8.4.2020)
+ * add ability to filter pending report by department
+ * add field score length
+ * add field score width
+ * add field job qty
+ * add field ink lbs
+
  r4.006 (updated 6.13.2019)
  * add customer column to pending by job browser
 

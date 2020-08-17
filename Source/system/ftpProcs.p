@@ -421,7 +421,7 @@ FUNCTION fGetOpenCmd RETURNS CHARACTER
     CASE ipcSoftware:
         WHEN "WinScp" THEN 
             cCmd = "open " 
-            + ipcFtpMode + ":" + ipcFtpUser + ":" + ipcFtpPassword + "@" + ipcFtpURL.
+            + ipcFtpMode + ":" + ipcFtpUser + ":" + ipcFtpPassword + "@" + ipcFtpURL + " -hostkey=*".
         WHEN "FTP" THEN 
             cCmd = "open " + ipcFtpURL + " " + ipcFtpUser + " " + ipcFtpPassword . 
     END CASE.

@@ -1486,7 +1486,7 @@ PROCEDURE pHTMLBranding :
  Notes:
 ------------------------------------------------------------------------------*/
     PUT UNFORMATTED
-        '  <img src="' SEARCH("Graphics/asiicon.ico")
+        '  <img src="' SEARCH("Graphics/32x32/asiicon.png")
         '" align="middle">~&nbsp;<b><a href="http://www.advantzware.com" target="_blank">'
         '<font face="{&fontFace}">Advantzware, Inc.</a>~&nbsp;~&copy;</b></font>' SKIP
         . 

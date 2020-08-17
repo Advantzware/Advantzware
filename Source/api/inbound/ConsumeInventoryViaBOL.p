@@ -292,6 +292,14 @@
         OUTPUT iLineCounter
         ) NO-ERROR.
     
+    IF iLineCounter EQ 0 THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Missing BOL lines in request"
+            .
+        RETURN.
+    END.
+    
     /* Browse through all the Line detail records */
     DO iIndex = 0 TO iLineCounter - 1:
         
@@ -446,7 +454,14 @@
         ) NO-ERROR.
     IF NOT oplSuccess THEN
         RETURN.
-
+    
+    RUN ValidateBOLQuantity (
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ) NO-ERROR.
+    IF NOT oplSuccess THEN
+        RETURN.
+        
     FOR EACH ttInputs:
         /* Validate BOLID */
         RUN ValidateBOL (
@@ -635,6 +650,11 @@
         oplSuccess = TRUE
         .
 
+
+
+/* **********************  Internal Procedures  *********************** */
+
+
     PROCEDURE ValidateBOL:
         /* Purpose: Validate if a given bol-no exist in oe-bolh table */
         
@@ -723,6 +743,39 @@
         RELEASE bf-oe-boll.
     END PROCEDURE.
 
+    PROCEDURE ValidateBOLQuantity:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to validate if at least one of the input line quantity is 
+              not zero
+     Notes:
+    ------------------------------------------------------------------------------*/
+        DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO.
+        DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+        
+        DEFINE BUFFER bf-ttInputs FOR ttInputs.
+        
+        FOR EACH bf-ttInputs
+            BREAK BY bf-ttInputs.BOLID:
+            IF FIRST-OF(bf-ttInputs.BOLID) THEN DO:
+                IF NOT CAN-FIND(FIRST ttInputs
+                                WHERE ttInputs.company       EQ bf-ttInputs.company
+                                  AND ttInputs.BOLID         EQ bf-ttInputs.BOLID
+                                  AND ttInputs.quantityTotal NE 0) THEN DO:
+                    ASSIGN
+                        oplSuccess = FALSE
+                        opcMessage = "Quantity is zero for all lines for BOL # " + STRING(bf-ttInputs.BOLID)
+                        .
+                    RETURN.                    
+                END.
+            END.
+        END.
+
+        ASSIGN
+            oplSuccess = TRUE
+            opcMessage = "Success"
+            .
+    END PROCEDURE.
+
     PROCEDURE ValidateInventoryStockID:
         /* Purpose: Validate if a given tag exist in fg-bin table */
         
@@ -748,8 +801,8 @@
 
         IF ipcTag EQ "" THEN DO:
             ASSIGN
-                oplSuccess = FALSE
-                opcMessage = "Empty Inventory Stock ID for item " + bf-oe-boll.i-no
+                oplSuccess = TRUE
+                opcMessage = "Success"
                 .
             RETURN.
         END.
@@ -869,9 +922,14 @@
         FIND FIRST bf-fg-bin NO-LOCK
              WHERE ROWID(bf-fg-bin) EQ ipriFgbin
              NO-ERROR.
-        IF NOT AVAILABLE bf-fg-bin THEN
+        IF NOT AVAILABLE bf-fg-bin THEN DO:
+            ASSIGN
+                oplSuccess = TRUE
+                opcMessage = "Success"
+                .
             RETURN.
-          
+        END.
+        
         IF ipdQuantity GT bf-fg-bin.qty THEN DO:
             ASSIGN
                 oplSuccess = FALSE
@@ -917,8 +975,8 @@
              NO-ERROR.
         IF NOT AVAILABLE bf-fg-bin THEN DO:
             ASSIGN
-                oplSuccess = FALSE
-                opcMessage = "Invalid FG Bin"
+                oplSuccess = TRUE
+                opcMessage = "Success"
                 .
             RETURN.
         END.
@@ -1128,10 +1186,6 @@
                 END.
 
                 riOebolh = ROWID(bf-oe-bolh).
-                
-                /* Leave, if total item quantity is less than or equal to zero */
-                IF dTotalItemQty LE 0 THEN
-                    LEAVE.
 
                /* Update the existing oe-boll records if it's first of the item number
                   in ttBin records, else create new oe-boll record */
@@ -1412,7 +1466,7 @@
               + STRING(DAY(TODAY),"99")
               + STRING(TIME,"99999")
               + STRING(PROGRAM-NAME(1),"X(40)")
-              + STRING(USERID("nosweat"),"X(40)").
+              + STRING(USERID("ASI"),"X(40)").
 
         FIND FIRST sys-ctrl-shipto NO-LOCK
              WHERE sys-ctrl-shipto.company      EQ bf-oe-bolh.company 

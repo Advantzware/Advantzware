@@ -29,8 +29,12 @@ DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lr-rel-lib AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
 
+DEFINE VARIABLE gcCaseUOMList AS CHARACTER NO-UNDO.
+
 DEFINE TEMP-TABLE ttUpdateOrderReleaseStatus NO-UNDO 
   FIELD ord-no AS INTEGER.
+
+{oe/ttOrder.i}
 
 RUN sbo/oerel-recalc-act.p PERSISTENT SET lr-rel-lib.
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
@@ -40,14 +44,24 @@ RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 /* ************************  Function Prototypes ********************** */
 
 
+FUNCTION fGetOEAutoApprovalLog RETURNS LOGICAL 
+	(ipcCompany AS CHARACTER, ipcCustomerID AS CHARACTER, ipcShipToID AS CHARACTER) FORWARD.
+
 FUNCTION fGetSettingJobCreate RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER) FORWARD.
 
+FUNCTION fGetNextOrderNo RETURNS INTEGER PRIVATE
+    (ipcCompany AS CHARACTER) FORWARD.
+
+FUNCTION fGetNextShipNo RETURNS INTEGER PRIVATE
+    (ipcCompany AS CHARACTER, ipcCustNo AS CHARACTER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
 
 
 /* **********************  Internal Procedures  *********************** */
+{cXML/cXMLDefs.i}
+{oe/getprice.i}
 
 PROCEDURE CalcOrderCommission:
     /*------------------------------------------------------------------------------
@@ -127,6 +141,475 @@ PROCEDURE CalcOrderCommission:
         END.
     END.
 
+END PROCEDURE.
+
+PROCEDURE GetCaseUOMList PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCaseUOMList AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cRtnChar     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+
+    IF gcCaseUOMList EQ "" THEN
+        RUN sys/ref/nk1look.p (
+            INPUT  ipcCompany, 
+            INPUT  "CaseUOMList", 
+            INPUT  "C"              /* Logical */, 
+            INPUT  NO               /* check by cust */, 
+            INPUT  YES              /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+            OUTPUT gcCaseUomList, 
+            OUTPUT lRecFound
+            ).  
+    
+    opcCaseUOMList = gcCaseUOMList.
+END PROCEDURE.
+
+PROCEDURE GetOEImportConsol:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustomerID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcShipToID       AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplOEImportConsol AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE cRtnChar  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound AS LOGICAL   NO-UNDO.
+    
+    RUN sys/ref/nk1look.p (
+        INPUT  ipcCompany, 
+        INPUT  "OEImportConsol", 
+        INPUT  "L",  /* LOGICAL */
+        INPUT  YES,  /* check by cust */
+        INPUT  YES,  /* use cust not vendor */
+        INPUT  ipcCustomerID, /* cust */
+        INPUT  ipcShipToID, /* ship-to*/
+        OUTPUT cRtnChar,
+        OUTPUT lRecFound
+        ).
+    
+    IF lRecFound THEN
+        oplOEImportConsol = LOGICAL(cRtnChar).
+END PROCEDURE.
+
+PROCEDURE pConsolidateImportedOrderLines PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Consolidates the order lines if duplicates are found
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipiOrderSeqID AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcCustomerID AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcShipToID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttOrderLine.
+    
+    DEFINE VARIABLE lOEImportConsol AS LOGICAL NO-UNDO.
+
+    DEFINE BUFFER bf-ttOrderLine FOR ttOrderLine.
+    
+    RUN GetOEImportConsol (
+        INPUT  ipcCompany,
+        INPUT  ipcCustomerID,
+        INPUT  ipcShipToID,
+        OUTPUT lOEImportConsol    
+        ).
+    
+    IF lOEImportConsol THEN DO:
+        /* Consolidate and delete line only if action is create */
+        FOR EACH ttOrderLine 
+            WHERE ttOrderLine.orderSeqID EQ ipiOrderSeqID
+              AND ttOrderLine.action     EQ cOrderActionCreate
+            BY ttOrderLine.lineNo:
+            FOR EACH bf-ttOrderLine
+                WHERE bf-ttOrderLine.orderSeqID         EQ ttOrderLine.orderSeqID
+                  AND bf-ttOrderLine.manufacturerPartID EQ ttOrderLine.manufacturerPartID
+                  AND bf-ttOrderLine.lineNo             NE ttOrderLine.lineNo
+                  AND bf-ttOrderLine.action             EQ cOrderActionCreate:
+                ttOrderLine.quantity = ttOrderLine.quantity + bf-ttOrderLine.quantity.
+                DELETE bf-ttOrderLine.
+            END.
+        END.        
+    END.
+END PROCEDURE.
+
+PROCEDURE pCreateOrderHeader PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Creates an oe-ord (Order Header) record and returns the order no
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ipiOrderID AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-ord FOR oe-ord.
+    
+    CREATE bf-oe-ord.
+    ASSIGN
+       bf-oe-ord.company  = ipcCompany
+       bf-oe-ord.ord-no   = fGetNextOrderNo(ipcCompany)
+       bf-oe-ord.user-id  = USERID('ASI')
+       bf-oe-ord.type     = 'O'       
+       ipiOrderID         = bf-oe-ord.ord-no
+       .
+END PROCEDURE.
+
+PROCEDURE pCreateOrderLine PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Creates an order line
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiOrderID AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiLineNo  AS INTEGER   NO-UNDO.
+
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+    
+    FIND FIRST bf-oe-ordl NO-LOCK
+         WHERE bf-oe-ordl.company EQ ipcCompany
+           AND bf-oe-ordl.ord-no  EQ ipiOrderID
+           AND bf-oe-ordl.line    EQ ipiLineNo
+         NO-ERROR.
+    IF AVAILABLE bf-oe-ordl THEN
+        RETURN.
+    
+    CREATE bf-oe-ordl.
+    ASSIGN
+        bf-oe-ordl.company = ipcCompany
+        bf-oe-ordl.ord-no  = ipiOrderID
+        bf-oe-ordl.line    = ipiLineNo
+        .
+END PROCEDURE.
+
+PROCEDURE pCreateRelease:
+/*------------------------------------------------------------------------------
+ Purpose: Creates oe-rel records for the input order lines
+ Notes: This procedure was copied from from oe/createRelease.i
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiOrderID  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiLineNo   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcShipTo   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcShipFrom AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE dtDateRule AS DATE      NO-UNDO.
+    DEFINE VARIABLE iNextRelNo AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cOECARIER  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cOERELEAS  AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-oe-ord   FOR oe-ord.
+    DEFINE BUFFER bf-oe-ordl  FOR oe-ordl.
+    DEFINE BUFFER bf-shipto   FOR shipto.
+    
+    FIND FIRST bf-oe-ord NO-LOCK
+         WHERE bf-oe-ord.company EQ ipcCompany
+           AND bf-oe-ord.ord-no  EQ ipiOrderID
+         NO-ERROR.
+    IF NOT AVAILABLE bf-oe-ord THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Unable to find Order#: " + STRING(ipiOrderID) + ". Failed to create release."
+            .
+        RETURN.    
+    END.
+
+    FIND FIRST bf-oe-ordl NO-LOCK
+         WHERE bf-oe-ordl.company EQ ipcCompany
+           AND bf-oe-ordl.ord-no  EQ ipiOrderID
+           AND bf-oe-ordl.line    EQ ipiLineNo
+         NO-ERROR.
+    IF NOT AVAILABLE bf-oe-ordl THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Unable to find Line#: " + STRING(ipiLineNo) + "for Order#: " + STRING(ipiOrderID) + ". Failed to create release."
+            .
+        RETURN.    
+    END.
+        
+    RUN sys/ref/nk1look.p (
+        INPUT  ipcCompany,
+        INPUT  "OECARIER",
+        INPUT  "C",
+        INPUT  NO,
+        INPUT  NO,
+        INPUT  NO,
+        INPUT  "",
+        OUTPUT cOECARIER,
+        OUTPUT lFound
+        ).
+
+    RUN sys/ref/nk1look.p (
+        INPUT  ipcCompany,
+        INPUT  "OERELEAS",
+        INPUT  "C",
+        INPUT  NO,
+        INPUT  NO,
+        INPUT  NO,
+        INPUT  "",
+        OUTPUT cOERELEAS,
+        OUTPUT lFound
+        ).
+        
+    FIND FIRST bf-shipto NO-LOCK
+         WHERE bf-shipto.company EQ bf-oe-ord.company
+           AND bf-shipto.cust-no EQ bf-oe-ord.cust-no
+           AND bf-shipto.ship-id EQ ipcShipTo
+         NO-ERROR.
+    IF NOT AVAILABLE bf-shipto THEN
+        FIND FIRST bf-shipto NO-LOCK
+             WHERE bf-shipto.company EQ bf-oe-ord.company
+               AND bf-shipto.cust-no EQ bf-oe-ord.cust-no
+             NO-ERROR.
+
+    /* Get Next release no */
+    RUN oe/getNextRelNo.p (
+        INPUT  "oe-rel", 
+        OUTPUT iNextRelNo
+        ).
+
+    CREATE bf-oe-rel.
+    ASSIGN 
+        bf-oe-rel.company   = bf-oe-ord.company
+        bf-oe-rel.loc       = bf-oe-ord.loc
+        bf-oe-rel.ord-no    = bf-oe-ordl.ord-no
+        bf-oe-rel.i-no      = bf-oe-ordl.i-no
+        bf-oe-rel.cust-no   = bf-oe-ord.cust-no
+        bf-oe-rel.po-no     = IF bf-oe-ordl.po-no NE "" THEN 
+                                  bf-oe-ordl.po-no 
+                              ELSE 
+                                  bf-oe-ord.po-no
+        bf-oe-rel.qty       = bf-oe-ordl.qty
+        bf-oe-rel.tot-qty   = bf-oe-ordl.qty
+        bf-oe-rel.line      = bf-oe-ordl.line
+        bf-oe-rel.s-comm[1] = bf-oe-ord.s-comm[1]
+        bf-oe-rel.s-comm[2] = bf-oe-ord.s-comm[2]
+        bf-oe-rel.s-comm[3] = bf-oe-ord.s-comm[3]
+        bf-oe-rel.s-name[1] = bf-oe-ord.sname[1]
+        bf-oe-rel.s-name[2] = bf-oe-ord.sname[2]
+        bf-oe-rel.s-name[3] = bf-oe-ord.sname[3]
+        bf-oe-rel.s-pct[1]  = bf-oe-ord.s-pct[1]
+        bf-oe-rel.s-pct[2]  = bf-oe-ord.s-pct[2]
+        bf-oe-rel.s-pct[3]  = bf-oe-ord.s-pct[3]
+        bf-oe-rel.sman[1]   = bf-oe-ord.sman[1]
+        bf-oe-rel.sman[2]   = bf-oe-ord.sman[2]
+        bf-oe-rel.sman[3]   = bf-oe-ord.sman[3]
+        bf-oe-rel.sold-no   = bf-oe-ord.sold-no
+        bf-oe-rel.carrier   = IF cOECARIER = "Shipto" AND AVAILABLE bf-shipto THEN 
+                                  bf-shipto.carrier
+                              ELSE
+                                  bf-oe-ord.carrier
+        bf-oe-rel.r-no      = iNextRelNo
+        bf-oe-rel.frt-pay   = SUBSTRING(bf-oe-ord.frt-pay,1,1)
+        bf-oe-rel.fob-code  = bf-oe-ord.fob-code
+        .
+
+    IF cOERELEAS EQ "LastShip" THEN
+        bf-oe-rel.rel-date = bf-oe-ord.last-date.
+    ELSE IF cOERELEAS EQ "Due Date" THEN
+        bf-oe-rel.rel-date = bf-oe-ordl.req-date.
+    ELSE DO: /*DueDate+1Day*/ 
+        RUN spCommon_DateRule (
+            bf-oe-ord.company,
+            ?,
+            bf-oe-ord.cust-no,
+            IF AVAILABLE bf-shipto THEN bf-shipto.ship-id ELSE "",
+            bf-oe-ordl.req-date,
+            ?,
+            ?,
+            OUTPUT dtDateRule
+            ).
+        IF dtDateRule NE ? THEN
+            bf-oe-rel.rel-date = dtDateRule.
+        ELSE DO:
+            bf-oe-rel.rel-date = bf-oe-ordl.req-date + 1.
+            IF WEEKDAY(bf-oe-rel.rel-date) EQ 7 THEN
+                bf-oe-rel.rel-date = bf-oe-rel.rel-date + 2.
+            ELSE IF WEEKDAY(oe-rel.rel-date) EQ 1 THEN
+                bf-oe-rel.rel-date = bf-oe-rel.rel-date + 1.
+        END. /* else */
+    END.
+
+    IF AVAILABLE bf-shipto THEN DO:
+        ASSIGN 
+            bf-oe-rel.ship-addr[1] = bf-shipto.ship-addr[1]
+            bf-oe-rel.ship-city    = bf-shipto.ship-city
+            bf-oe-rel.ship-state   = bf-shipto.ship-state
+            bf-oe-rel.ship-zip     = bf-shipto.ship-zip
+            bf-oe-rel.ship-no      = bf-shipto.ship-no
+            bf-oe-rel.ship-id      = bf-shipto.ship-id
+            bf-oe-rel.ship-i[1]    = bf-shipto.notes[1]
+            bf-oe-rel.ship-i[2]    = bf-shipto.notes[2]
+            bf-oe-rel.ship-i[3]    = bf-shipto.notes[3]
+            bf-oe-rel.ship-i[4]    = bf-shipto.notes[4]
+            bf-oe-rel.spare-char-1 = IF ipcShipFrom NE "" THEN 
+                                         ipcShipFrom
+                                     ELSE 
+                                         bf-shipto.loc
+            .
+            
+        RUN CopyShipNote (
+            INPUT bf-shipto.rec_key, 
+            INPUT bf-oe-rel.rec_key
+            ).
+    END.
+    ELSE
+        ASSIGN
+            bf-oe-rel.ship-no      = bf-oe-ord.sold-no
+            bf-oe-rel.ship-id      = bf-oe-ord.sold-id
+            bf-oe-rel.ship-i[1]    = bf-oe-ord.ship-i[1]
+            bf-oe-rel.ship-i[2]    = bf-oe-ord.ship-i[2]
+            bf-oe-rel.ship-i[3]    = bf-oe-ord.ship-i[3]
+            bf-oe-rel.ship-i[4]    = bf-oe-ord.ship-i[4]
+            bf-oe-rel.spare-char-1 = IF ipcShipFrom NE "" THEN 
+                                         ipcShipFrom                                    
+                                     ELSE 
+                                         bf-oe-ord.loc
+            .
+    /* Assign itemfg-loc values */
+    RUN fg/fgitmloc.p (
+        INPUT bf-oe-rel.i-no, 
+        INPUT ROWID(bf-oe-rel)
+        ).
+    
+    ASSIGN
+        oplSuccess = TRUE
+        opcMessage = "Release#: " + STRING(bf-oe-rel.rel-no) + " created succssfully"
+        . 
+END PROCEDURE.
+
+PROCEDURE CopyShipNote PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes: This procedure was copied from from oe/createRelease.i
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRecKeyTo   AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
+
+    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+    DELETE OBJECT hNotesProcs.   
+
+END PROCEDURE.
+
+PROCEDURE pGetcXMLShipToPrefix PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the shipto id replacing the customer specific prefix from NK1
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustomerID AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcShipToID   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcShipToID   AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cXMLShipToPrefix AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound           AS LOGICAL   NO-UNDO.
+    
+    RUN sys/ref/nk1look.p (
+        INPUT  ipcCompany,
+        INPUT  "cXMLShipToPrefix",
+        INPUT  "C",
+        INPUT  YES,
+        INPUT  YES,
+        INPUT  ipcCustomerID,
+        INPUT  "",
+        OUTPUT cXMLShipToPrefix,
+        OUTPUT lFound
+        ).
+
+    IF lFound AND cXMLShipToPrefix NE '' THEN
+        opcShipToID = REPLACE(ipcShipToID, cXMLShipToPrefix, "").
+    ELSE
+        opcShipToID = ipcShipToID.
+END PROCEDURE.
+
+PROCEDURE ProcessOrdersFromImport:
+/*------------------------------------------------------------------------------
+ Purpose: Procedure to process imported orders 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttOrder.
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttOrderLine.
+    DEFINE OUTPUT       PARAMETER oplSuccess AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcMessage AS CHARACTER NO-UNDO.
+        
+    DEFINE VARIABLE lOEAutoApproval    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lValidationError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cValidationMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-ord FOR oe-ord.
+    
+    FOR EACH ttOrder:
+        RUN pProcessImportedOrderHeader (
+            BUFFER ttOrder,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ).
+        IF NOT oplSuccess THEN
+            RETURN.    
+        
+        RUN pConsolidateImportedOrderLines (
+            INPUT        ttOrder.orderSeqID,
+            INPUT        ttOrder.company,
+            INPUT        ttOrder.customerID,
+            INPUT        ttOrder.shipToID,
+            INPUT-OUTPUT TABLE ttOrderLine
+            ).
+        
+        FOR EACH ttOrderLine 
+            WHERE ttOrderLine.orderSeqID EQ ttOrder.orderSeqID
+               BY ttOrderLine.lineNo:
+            RUN pProcessImportedOrderLine (
+                INPUT  ttOrder.company,
+                INPUT  ttOrder.orderID,
+                BUFFER ttOrderLine,  
+                OUTPUT opcMessage,
+                OUTPUT oplSuccess
+                ).
+            IF NOT oplSuccess THEN
+                RETURN.
+        END.
+        
+        FIND FIRST bf-oe-ord NO-LOCK
+             WHERE bf-oe-ord.company EQ ttOrder.company
+               AND bf-oe-ord.ord-no  EQ ttOrder.orderID
+             NO-ERROR.
+        IF NOT AVAILABLE bf-oe-ord THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "Order failed to create"
+                .
+            RETURN.    
+        END.
+         
+        lOEAutoApproval = fGetOEAutoApprovalLog(INPUT ttOrder.company, INPUT ttOrder.customerID, INPUT ttOrder.shipToID).        
+        
+        IF lOeAutoApproval THEN 
+            RUN ProcessImportedOrder (
+                INPUT  ROWID(bf-oe-ord), 
+                OUTPUT lValidationError, 
+                OUTPUT cValidationMessage
+                ).
+        /* Force re-calculate tax. oe/calcordt.p is not being triggered from write.trg/oe-ord.p
+           on addition of each order line */
+        RUN oe/calcordt.p (
+            INPUT ROWID(bf-oe-ord)
+            ).
+    END.
+
+    ASSIGN
+        oplSuccess = TRUE
+        opcMessage = "Order(s) created successfully"
+        .
 END PROCEDURE.
 
 PROCEDURE GetReleaseType:
@@ -2583,7 +3066,446 @@ PROCEDURE pRunAPIOutboundTrigger :
 
 END PROCEDURE.
 
+PROCEDURE pProcessImportedOrderHeader PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Creates an order from ttOrder temp-table
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttOrder FOR ttOrder.
+    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-oe-ord       FOR oe-ord.
+    DEFINE BUFFER bf-cust         FOR cust.
+    DEFINE BUFFER bf-sman         FOR sman.
+    DEFINE BUFFER bf-terms        FOR terms.
+    DEFINE BUFFER bf-soldto       FOR soldto.
+    DEFINE BUFFER bf-shipto       FOR shipto.
+    DEFINE BUFFER bf-new-shipto   FOR shipto.
+    DEFINE BUFFER bf-state-shipto FOR shipto.
+    
+    IF NOT AVAILABLE ipbf-ttOrder THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Input Order not found"
+            .
+        RETURN.    
+    END.
+    
+    IF ipbf-ttOrder.action EQ cOrderActionCreate THEN DO:
+        RUN pCreateOrderHeader (
+            INPUT  ipbf-ttOrder.company,
+            OUTPUT ipbf-ttOrder.orderID
+            ).        
+    END.
+
+    FIND FIRST bf-oe-ord EXCLUSIVE-LOCK
+         WHERE bf-oe-ord.company EQ ipbf-ttOrder.company
+           AND bf-oe-ord.ord-no  EQ ipbf-ttOrder.orderID
+         NO-ERROR.
+    IF NOT AVAILABLE bf-oe-ord THEN DO:
+        ASSIGN
+            oplSuccess = NO
+            opcMessage = 'Unable to find/create Order#: ' + STRING(ipbf-ttOrder.orderID)
+            .                
+        RETURN.
+    END.
+    
+    ASSIGN
+        bf-oe-ord.company       = ipbf-ttOrder.company
+        bf-oe-ord.loc           = ipbf-ttOrder.wareHouseID
+        bf-oe-ord.ord-date      = ipbf-ttOrder.orderDate
+        bf-oe-ord.stat          = ipbf-ttOrder.stat
+        bf-oe-ord.due-code      = 'ON'
+        bf-oe-ord.cust-no       = ipbf-ttOrder.customerID
+        bf-oe-ord.sold-id       = ipbf-ttOrder.billToID
+        bf-oe-ord.po-no         = ipbf-ttOrder.poID
+        bf-oe-ord.spare-char-3  = ipbf-ttOrder.payloadID
+        bf-oe-ord.s-pct[1]      = 100.00
+        bf-oe-ord.cc-num        = ipbf-ttOrder.cardNo
+        bf-oe-ord.cc-type       = ipbf-ttOrder.cardType
+        bf-oe-ord.cc-expiration = ipbf-ttOrder.cardExpiryDate
+        .
+
+    FIND FIRST bf-cust NO-LOCK
+         WHERE bf-cust.company EQ ipbf-ttOrder.company
+           AND bf-cust.cust-no EQ ipbf-ttOrder.customerID
+         NO-ERROR.
+    IF AVAILABLE bf-cust THEN DO:
+        ASSIGN
+            bf-oe-ord.cust-name  = bf-cust.name
+            bf-oe-ord.addr[1]    = bf-cust.addr[1]
+            bf-oe-ord.addr[2]    = bf-cust.addr[2]
+            bf-oe-ord.city       = bf-cust.city
+            bf-oe-ord.state      = bf-cust.state
+            bf-oe-ord.zip        = bf-cust.zip
+            bf-oe-ord.terms      = bf-cust.terms
+            bf-oe-ord.over-pct   = bf-cust.over-pct
+            bf-oe-ord.under-pct  = bf-cust.under-pct
+            bf-oe-ord.fob-code   = bf-cust.fob-code
+            bf-oe-ord.frt-pay    = bf-cust.frt-pay
+            bf-oe-ord.tax-gr     = bf-cust.tax-gr
+            bf-oe-ord.sman[1]    = bf-cust.sman
+            bf-oe-ord.carrier    = bf-cust.carrier
+            bf-oe-ord.contact    = bf-cust.contact
+            bf-oe-ord.last-date  = bf-oe-ord.ord-date + bf-cust.ship-days
+            bf-oe-ord.due-date   = bf-oe-ord.last-date
+            bf-oe-ord.csrUser_id = bf-cust.csrUser_id
+            .
+
+        FIND FIRST bf-sman NO-LOCK
+             WHERE bf-sman.company EQ bf-oe-ord.company
+               AND bf-sman.sman    EQ bf-cust.sman
+             NO-ERROR.
+        IF AVAILABLE bf-sman THEN
+            ASSIGN
+                bf-oe-ord.sname[1]  = bf-sman.sname
+                bf-oe-ord.s-comm[1] = bf-sman.scomm
+                .
+
+        FIND FIRST bf-terms NO-LOCK
+             WHERE bf-terms.company EQ bf-cust.company
+               AND bf-terms.t-code  EQ bf-cust.terms 
+             NO-ERROR.
+        IF AVAILABLE bf-terms THEN 
+            bf-oe-ord.terms-d = bf-terms.dscr.
+
+        RUN pGetcXMLShipToPrefix (
+            INPUT  bf-cust.company,
+            INPUT  bf-cust.cust-no,
+            INPUT  ipbf-ttOrder.shipToID,
+            OUTPUT ipbf-ttOrder.shipToID
+            ).        
+
+        bf-oe-ord.ship-id = ipbf-ttOrder.shipToID.
+       
+        /* Update ship-to information. Create ship-to record if not available */
+        IF NOT CAN-FIND(FIRST shipto
+                        WHERE shipto.company EQ bf-oe-ord.company
+                          AND shipto.cust-no EQ bf-oe-ord.cust-no
+                          AND shipto.ship-id EQ bf-oe-ord.ship-id) THEN DO:
+            FIND FIRST bf-shipto NO-LOCK
+                 WHERE bf-shipto.company EQ bf-oe-ord.company
+                   AND bf-shipto.cust-no EQ bf-oe-ord.cust-no
+                   AND bf-shipto.ship-id EQ bf-oe-ord.cust-no
+                 NO-ERROR.            
+    
+            CREATE bf-new-shipto.
+            ASSIGN
+                bf-new-shipto.company      = ipbf-ttOrder.company
+                bf-new-shipto.loc          = ipbf-ttOrder.warehouseID
+                bf-new-shipto.cust-no      = ipbf-ttOrder.customerID
+                bf-new-shipto.ship-no      = fGetNextShipNo(ipbf-ttOrder.company, ipbf-ttOrder.customerID)
+                bf-new-shipto.ship-id      = IF ipbf-ttOrder.shipToID EQ "" THEN
+                                                 STRING(bf-new-shipto.ship-no)
+                                             ELSE
+                                                 ipbf-ttOrder.shipToID
+                bf-new-shipto.contact      = ipbf-ttOrder.contactName
+                bf-new-shipto.area-code    = ipbf-ttOrder.shipToAreaCode
+                bf-new-shipto.phone        = ipbf-ttOrder.shipToPhone
+                bf-new-shipto.ship-name    = ipbf-ttOrder.shipToName
+                bf-new-shipto.ship-addr[1] = ipbf-ttOrder.shipToAddress1
+                bf-new-shipto.ship-addr[2] = ipbf-ttOrder.shipToAddress2
+                bf-new-shipto.ship-city    = ipbf-ttOrder.shipToCity
+                bf-new-shipto.ship-state   = ipbf-ttOrder.shipToState
+                bf-new-shipto.ship-zip     = ipbf-ttOrder.shipToZip
+                bf-new-shipto.country      = ipbf-ttOrder.shipToCountry
+                bf-oe-ord.ship-id          = bf-new-shipto.ship-id
+                .
+    
+            IF AVAILABLE bf-shipto THEN
+                ASSIGN
+                    bf-new-shipto.carrier   = bf-shipto.carrier
+                    bf-new-shipto.dest-code = bf-shipto.dest-code
+                    bf-new-shipto.ship-id   = IF ipbf-ttOrder.shipToID NE "" THEN 
+                                                  ipbf-ttOrder.shipToID 
+                                              ELSE 
+                                                  STRING(bf-shipto.ship-no)
+                    bf-new-shipto.loc       = bf-shipto.loc
+                    bf-new-shipto.tax-code  = bf-shipto.tax-code
+                    .
+            ELSE IF AVAILABLE bf-cust THEN 
+                ASSIGN
+                    bf-new-shipto.carrier  = bf-cust.carrier
+                    bf-new-shipto.tax-code = bf-cust.tax-gr
+                    .
+      
+            FIND FIRST bf-state-shipto
+                 WHERE bf-state-shipto.company    EQ bf-new-shipto.company
+                   AND bf-state-shipto.cust-no    EQ bf-new-shipto.cust-no
+                   AND bf-state-shipto.ship-id    NE bf-new-shipto.cust-no
+                   AND bf-state-shipto.ship-state EQ bf-new-shipto.ship-state
+                 NO-LOCK NO-ERROR.
+            IF AVAILABLE bf-state-shipto THEN 
+                bf-new-shipto.tax-code = bf-state-shipto.tax-code.
+    
+            ipbf-ttOrder.shipToID = bf-new-shipto.ship-id.
+        END.
+        
+        /* Update sold-to information */
+        FIND FIRST bf-soldto NO-LOCK
+             WHERE bf-soldto.company EQ bf-oe-ord.company
+               AND bf-soldto.cust-no EQ bf-oe-ord.cust-no
+               AND bf-soldto.sold-id EQ bf-oe-ord.sold-id
+             NO-ERROR.
+        IF NOT AVAILABLE bf-soldto THEN
+            FIND FIRST bf-soldto NO-LOCK
+                 WHERE bf-soldto.company EQ bf-oe-ord.company
+                   AND bf-soldto.cust-no EQ bf-oe-ord.cust-no
+                   AND bf-soldto.sold-id EQ bf-oe-ord.cust-no
+                 NO-ERROR.
+    
+        IF AVAILABLE bf-soldto THEN
+            ASSIGN
+                bf-oe-ord.sold-id      = bf-soldto.sold-id
+                bf-oe-ord.sold-no      = bf-soldto.sold-no
+                bf-oe-ord.sold-name    = bf-soldto.sold-name
+                bf-oe-ord.sold-addr[1] = bf-soldto.sold-addr[1]
+                bf-oe-ord.sold-addr[2] = bf-soldto.sold-addr[2]
+                bf-oe-ord.sold-city    = bf-soldto.sold-city
+                bf-oe-ord.sold-state   = bf-soldto.sold-state
+                bf-oe-ord.sold-zip     = bf-soldto.sold-zip
+                .
+    END.    
+
+    IF bf-oe-ord.frt-pay = 'B' THEN 
+        bf-oe-ord.f-bill = YES.
+    ELSE 
+        bf-oe-ord.f-bill = NO.
+
+    ASSIGN
+        oplSuccess = TRUE
+        opcMessage = "Order created successfully"
+        .
+END PROCEDURE.
+
+PROCEDURE pProcessImportedOrderLine:
+/*------------------------------------------------------------------------------
+ Purpose: Creates an order line from ttOrderLines temp-table
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiOrderID AS INTEGER   NO-UNDO.
+    DEFINE PARAMETER BUFFER ipbf-ttOrderLine FOR ttOrderLine.  
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO.
+        
+    DEFINE VARIABLE dCostPerUOMTotal AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMDL    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMFO    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMVO    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerUOMDM    AS DECIMAL   NO-UNDO.    
+    DEFINE VARIABLE cCostUOM         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound           AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE hdCostProcs      AS HANDLE    NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-ord  FOR oe-ord.
+    DEFINE BUFFER bf-cust    FOR cust.
+    DEFINE BUFFER bf-itemfg  FOR itemfg.
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+        
+    RUN system\CostProcs.p PERSISTENT SET hdCostProcs.  
+
+    FIND FIRST bf-oe-ord NO-LOCK
+         WHERE bf-oe-ord.company EQ ipcCompany
+           AND bf-oe-ord.ord-no  EQ ipiOrderID
+         NO-ERROR.
+    IF NOT AVAILABLE bf-oe-ord THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Order header not found"
+            .
+        RETURN.
+    END.
+    
+    IF NOT AVAILABLE ipbf-ttOrderLine THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Order line not found for Order#: " + STRING(bf-oe-ord.ord-no)
+            .
+        RETURN.        
+    END.
+    
+    IF ipbf-ttOrderLine.action EQ cOrderActionCreate THEN DO:
+        RUN pCreateOrderLine (
+            INPUT bf-oe-ord.company,
+            INPUT bf-oe-ord.ord-no,
+            INPUT ipbf-ttOrderLine.lineNo
+            ).        
+    END.
+    
+    FIND FIRST bf-oe-ordl EXCLUSIVE-LOCK
+         WHERE bf-oe-ordl.company EQ bf-oe-ord.company
+           AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no
+           AND bf-oe-ordl.line    EQ ipbf-ttOrderLine.lineNo
+         NO-ERROR.
+    IF NOT AVAILABLE bf-oe-ordl THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Unable to create/find line: (" + STRING(ipbf-ttOrderLine.lineNo) + ") for Order#: " + bf-oe-ord.po-no
+            .
+        RETURN.
+    END.
+    
+    FIND FIRST bf-itemfg NO-LOCK 
+         WHERE bf-itemfg.company EQ bf-oe-ord.company
+           AND bf-itemfg.i-no    EQ ipbf-ttOrderLine.manufacturerPartID
+         NO-ERROR.
+    IF NOT AVAILABLE bf-itemfg THEN DO:                
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "ManufacturerPartID '" + ipbf-ttOrderLine.manufacturerPartID + "' not found for Order#: " + bf-oe-ord.po-no
+            .     
+        RETURN.
+    END.
+
+    RUN GetCaseUOMList (
+        INPUT  bf-oe-ord.company,
+        OUTPUT gcCaseUOMList
+        ).
+
+    FIND FIRST bf-cust NO-LOCK
+         WHERE bf-cust.company EQ bf-oe-ord.company 
+           AND bf-cust.cust-no EQ bf-oe-ord.cust-no
+           NO-ERROR.
+
+    ASSIGN
+        bf-oe-ordl.type-code  = bf-oe-ord.type
+        bf-oe-ordl.cust-no    = bf-oe-ord.cust-no
+        bf-oe-ordl.po-no      = bf-oe-ord.po-no
+        bf-oe-ordl.req-code   = bf-oe-ord.due-code
+        bf-oe-ordl.req-date   = ipbf-ttOrderLine.dueDate
+        bf-oe-ordl.prom-code  = bf-oe-ord.due-code
+        bf-oe-ordl.prom-date  = bf-oe-ord.due-date
+        bf-oe-ordl.ship-id    = bf-oe-ord.ship-id
+        bf-oe-ordl.over-pct   = bf-oe-ord.over-pct   
+        bf-oe-ordl.under-pct  = bf-oe-ord.under-pct
+        bf-oe-ordl.stat       = bf-oe-ord.stat
+        bf-oe-ordl.part-no    = TRIM(ipbf-ttOrderLine.supplierPartID)
+        bf-oe-ordl.qty        = ipbf-ttOrderLine.quantity
+        bf-oe-ordl.pr-uom     = ipbf-ttOrderLine.uom
+        bf-oe-ordl.price      = ipbf-ttOrderLine.unitPrice
+        bf-oe-ordl.est-no     = bf-oe-ord.est-no
+        bf-oe-ordl.q-qty      = bf-oe-ord.t-fuel
+        bf-oe-ordl.whsed      = bf-oe-ordl.est-no NE ''
+        bf-oe-ordl.q-no       = bf-oe-ord.q-no
+        bf-oe-ordl.i-no       = bf-itemfg.i-no
+        bf-oe-ordl.i-name     = bf-itemfg.i-name
+        bf-oe-ordl.cases-unit = bf-itemfg.case-pall
+        bf-oe-ordl.part-dscr1 = bf-itemfg.part-dscr1
+        bf-oe-ordl.part-dscr2 = bf-itemfg.part-dscr2         
+        .
+
+    IF AVAILABLE bf-cust THEN
+        ASSIGN
+            bf-oe-ordl.disc = bf-cust.disc
+            bf-oe-ordl.tax  = bf-cust.sort EQ 'Y' AND bf-oe-ord.tax-gr NE ''
+            .
+    
+    IF bf-oe-ordl.price EQ 0 THEN DO:                      
+        FIND FIRST xoe-ord OF bf-oe-ord NO-LOCK NO-ERROR.
+        /* oe/getprice.i */
+        RUN getPrice (
+            INPUT ROWID(bf-oe-ordl)
+            ).
+    END.
+    
+    ASSIGN
+        bf-oe-ordl.s-man  = bf-oe-ord.sman
+        bf-oe-ordl.s-pct  = bf-oe-ord.s-pct
+        bf-oe-ordl.s-comm = bf-oe-ord.s-comm        
+        .
+      
+    RUN GetCostForFGItem IN hdCostProcs (
+        INPUT  bf-oe-ordl.company,
+        INPUT  bf-oe-ordl.i-no,
+        OUTPUT dCostPerUOMTotal, 
+        OUTPUT dCostPerUOMDL,
+        OUTPUT dCostPerUOMFO,
+        OUTPUT dCostPerUOMVO,
+        OUTPUT dCostPerUOMDM,
+        OUTPUT cCostUOM,
+        OUTPUT lFound
+        ) .
+     
+    ASSIGN
+        bf-oe-ordl.cost   = dCostPerUOMTotal
+        bf-oe-ordl.t-cost = bf-oe-ordl.cost * bf-oe-ordl.qty / 1000
+        .
+    
+    IF bf-oe-ordl.pr-uom NE "EA" THEN DO:  /*This assumes the qty uom is the same as the price uom on imported orders*/
+        ASSIGN 
+            bf-oe-ordl.spare-dec-1  = bf-oe-ordl.qty
+            bf-oe-ordl.spare-char-2 = bf-oe-ordl.pr-uom
+            bf-oe-ordl.t-price      = bf-oe-ordl.spare-dec-1 * oe-ordl.price
+            bf-oe-ordl.pr-uom       = IF LOOKUP(bf-oe-ordl.pr-uom, gcCaseUOMList) GT 0 THEN 
+                                          "CS" 
+                                      ELSE 
+                                          bf-oe-ordl.pr-uom
+            .
+            
+        RUN Conv_QtyToEA (
+            INPUT  bf-oe-ordl.company,
+            INPUT  bf-oe-ordl.i-no, 
+            INPUT  bf-oe-ordl.qty, 
+            INPUT  bf-oe-ordl.pr-uom, 
+            INPUT  bf-itemfg.case-count, 
+            OUTPUT bf-oe-ordl.qty
+            ).
+    END.
+    ELSE 
+        bf-oe-ordl.t-price = bf-oe-ordl.qty * bf-oe-ordl.price.
+     
+    bf-oe-ordl.cas-cnt = IF bf-oe-ordl.qty LT bf-itemfg.case-count THEN 
+                             bf-oe-ordl.qty 
+                         ELSE 
+                             bf-itemfg.case-count.
+    
+    IF bf-oe-ordl.req-date EQ ? THEN 
+        bf-oe-ordl.req-date = bf-oe-ord.ord-date + 10.
+    
+    RUN pCreateRelease (
+        INPUT  bf-oe-ordl.company,
+        INPUT  bf-oe-ordl.ord-no,
+        INPUT  bf-oe-ordl.line,
+        INPUT  bf-oe-ord.ship-id,  /* ShipTo */
+        INPUT  "",                 /* ShipFrom */
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage       
+        ).
+
+    DELETE OBJECT hdCostProcs.
+END PROCEDURE.
+
 /* ************************  Function Implementations ***************** */
+
+
+FUNCTION fGetOEAutoApprovalLog RETURNS LOGICAL 
+	(INPUT ipcCompany AS CHARACTER, INPUT ipcCustomerID AS CHARACTER, INPUT ipcShipToID AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose: Returns the NK1 OEAutoApproval log field value
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE lOEAutoApproval AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFound          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cResult         AS CHARACTER NO-UNDO.
+
+    RUN sys/ref/nk1look.p (
+        INPUT  ttOrder.company,
+        INPUT  "OEAutoApproval", 
+        INPUT  "L", 
+        INPUT  YES,                 /* use shipto */ 
+        INPUT  YES,                 /* use cust*/ 
+        INPUT  ttOrder.customerID, 
+        INPUT  ttOrder.shipToID, 
+        OUTPUT cResult, 
+        OUTPUT lFound
+        ).
+    IF lFound THEN
+       lOEAutoApproval = LOGICAL(cResult) NO-ERROR.   
+       
+   RETURN lOEAutoApproval.     
+END FUNCTION.
 
 FUNCTION fGetSettingJobCreate RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER ):
@@ -2601,3 +3523,52 @@ FUNCTION fGetSettingJobCreate RETURNS LOGICAL PRIVATE
         
 END FUNCTION.
 
+FUNCTION fGetNextOrderNo RETURNS INTEGER PRIVATE 
+    ( ipcCompany AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose: Returns the next order number
+ Notes:
+------------------------------------------------------------------------------*/            
+    DEFINE VARIABLE iNextOrderID AS INTEGER NO-UNDO.
+
+    RUN sys/ref/asiseq.p (
+        INPUT  ipcCompany,
+        INPUT  'order_seq',
+        OUTPUT iNextOrderID
+        ) NO-ERROR.
+
+    /* Supposed to be a new order number, so cannot be found on an existing order */
+    DO WHILE CAN-FIND(FIRST oe-ord
+                      WHERE oe-ord.company EQ ipcCompany
+                        AND oe-ord.ord-no  EQ iNextOrderID):
+        RUN sys/ref/asiseq.p (
+            INPUT  ipcCompany,
+            INPUT  'order_seq',
+            OUTPUT iNextOrderID
+            ) NO-ERROR.
+    END.
+    
+    RETURN iNextOrderID.
+END FUNCTION.
+
+FUNCTION fGetNextShipNo RETURNS INTEGER PRIVATE
+    (ipcCompany AS CHARACTER, ipcCustNo AS CHARACTER):
+/*------------------------------------------------------------------------------
+ Purpose: Returns the next order number
+ Notes:
+------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE hdCustomerProcs AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE iShipToNo       AS INTEGER NO-UNDO.
+    
+    RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
+    
+    RUN Customer_GetNextShipToNo IN hdCustomerProcs (
+        INPUT  ipcCompany,
+        INPUT  ipcCustNo,
+        OUTPUT iShipToNo
+        ).
+    
+    DELETE PROCEDURE hdCustomerProcs.
+    
+    RETURN iShipToNo.
+END FUNCTION.

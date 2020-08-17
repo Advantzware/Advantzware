@@ -150,6 +150,19 @@ PROCEDURE BuildVendItemCosts:
                 RUN pAddTTVendItemCost(BUFFER bf-vendItemCost, ipdQuantity, ipcQuantityUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM, 
                     ipdBasisWeight, ipcBasisWeightUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).   
             END.
+            IF NOT CAN-FIND(FIRST ttVendItemCost) AND ipcItemID NE "" THEN  /*Find with out estimate*/ 
+                FOR EACH bf-vendItemCost NO-LOCK  
+                    WHERE bf-vendItemCost.company EQ ipcCompany
+                    AND bf-vendItemCost.itemID EQ ipcItemID
+                    AND bf-vendItemCost.itemType EQ ipcItemType
+                    AND bf-vendItemCost.estimateNo EQ ""
+                    AND bf-vendItemCost.effectiveDate LE TODAY
+                    AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
+                    AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)
+                    :
+                    RUN pAddTTVendItemCost(BUFFER bf-vendItemCost, ipdQuantity, ipcQuantityUOM, ipdDimLength, ipdDimWidth, ipdDimDepth, ipcDimUOM, 
+                        ipdBasisWeight, ipcBasisWeightUOM, OUTPUT oplError, INPUT-OUTPUT opcMessage).   
+                END.
         END. /*RM Estimated Override*/    
         WHEN gcScopeFGEstimated THEN DO:  /*FG when in Estimate*/
             FOR EACH bf-vendItemCost NO-LOCK  
@@ -2176,6 +2189,8 @@ FUNCTION VendCost_GetValidScopes RETURNS CHARACTER
             RETURN gcScopeRMStandard.
         WHEN "Purch-FG" THEN 
             RETURN gcScopeFGPurchased.
+        WHEN "Est-RM-Over" THEN
+            RETURN gcScopeRMOverride .    
         OTHERWISE  
         RETURN gcScopeList.
     END CASE.

@@ -14,8 +14,8 @@ form  header
       page-number format ">>9"
       skip
       tim_str
-      str-tit2 format "x(112)"   "{1}" at 123
-      str-tit3 FORMAT "x(50)"          AT 60
+      str-tit2 format "x(112)"  "{1}"  at 123 skip
+      str-tit3 FORMAT "x(112)"  "{1}"  at 123  skip      
       skip(1)
       
      with frame r-top row 1 column 1 stream-io width 150

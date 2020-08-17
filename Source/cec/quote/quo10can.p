@@ -53,7 +53,7 @@ IF lRecFound AND cRtnChar NE "" THEN DO:
                    ).
                    
     /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFiles(
+    RUN FileSys_ValidateFile(
         INPUT  cRtnChar,
         OUTPUT lValid,
         OUTPUT cMessage

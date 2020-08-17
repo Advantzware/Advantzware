@@ -1851,7 +1851,7 @@ FOR EACH ttCustList
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
            PUT str-line SKIP.
-            PUT UNFORMATTED "         CUSTOMER TOTALS" substring(cDisplay,25,350) SKIP.
+            PUT UNFORMATTED "     CUSTOMER TOTALS" substring(cDisplay,21,350) SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  '               CUSTOMER TOTALS ,'
                        substring(cExcelDisplay,4,350) SKIP(1).
@@ -1899,7 +1899,7 @@ FOR EACH ttCustList
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
            PUT str-line SKIP .
-            PUT UNFORMATTED "    CREDIT RATING TOTALS" substring(cDisplay,25,350) SKIP.
+            PUT UNFORMATTED "CREDIT RATING TOTALS" substring(cDisplay,21,350) SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  '  CREDIT RATING TOTALS ,'
                        substring(cExcelDisplay,4,350) SKIP(1).
@@ -1954,7 +1954,7 @@ FOR EACH ttCustList
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
            PUT str-line SKIP.
-            PUT UNFORMATTED "            GRAND TOTALS" substring(cDisplay,25,350) SKIP.
+            PUT UNFORMATTED "        GRAND TOTALS" substring(cDisplay,21,350) SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  '               GRAND TOTALS ,'
                        substring(cExcelDisplay,4,350) SKIP(1).

@@ -760,30 +760,6 @@ END.
 
 &Scoped-define SELF-NAME begin_arclass
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_arclass C-Win
-ON HELP OF begin_arclass IN FRAME FRAME-A /* Beginning AR Class */
-DO:     
-    DEFINE VARIABLE cFieldsValue AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFoundValue AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE recRecordID AS RECID    NO-UNDO.
-     RUN system/openLookup.p (
-            INPUT  gcompany, 
-            INPUT  "", /* Lookup ID */
-            INPUT  110,  /* Subject ID */
-            INPUT  "", /* User ID */
-            INPUT  0,  /* Param Value ID */
-            OUTPUT cFieldsValue, 
-            OUTPUT cFoundValue, 
-            OUTPUT recRecordID ).  
-       
-       IF cFoundValue NE "" THEN    
-         begin_arclass:SCREEN-VALUE IN FRAME {&frame-name} = cFoundValue.   
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_arclass C-Win
 ON LEAVE OF begin_arclass IN FRAME FRAME-A /* Beginning AR Class */
 DO:
   ASSIGN {&self-name}.
@@ -989,31 +965,6 @@ END.
 
 
 &Scoped-define SELF-NAME end_arclass
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_arclass C-Win
-ON HELP OF end_arclass IN FRAME FRAME-A /* Ending AR Class */
-DO:
-   DEFINE VARIABLE cFieldsValue AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFoundValue AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE recRecordID AS RECID    NO-UNDO.
-     RUN system/openLookup.p (
-            INPUT  gcompany, 
-            INPUT  "", /* Lookup ID */
-            INPUT  110,  /* Subject ID */
-            INPUT  "", /* User ID */
-            INPUT  0,  /* Param Value ID */
-            OUTPUT cFieldsValue, 
-            OUTPUT cFoundValue, 
-            OUTPUT recRecordID ).  
-       
-       IF cFoundValue NE "" THEN    
-         end_arclass:SCREEN-VALUE IN FRAME {&frame-name} = cFoundValue.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_arclass C-Win
 ON LEAVE OF end_arclass IN FRAME FRAME-A /* Ending AR Class */
 DO:
@@ -2213,7 +2164,7 @@ END PROCEDURE.
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION GEtFieldValue C-Win 
-FUNCTION GEtFieldValue RETURNS CHARACTER
+FUNCTION GetFieldValue RETURNS CHARACTER
   ( hipField AS HANDLE ) :
 /*------------------------------------------------------------------------------
   Purpose:  

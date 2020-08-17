@@ -59,9 +59,9 @@ DEFINE VARIABLE ls-fax-file       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-multi-faxout   AS LOG  NO-UNDO.
 DEFINE VARIABLE lv-fax-image      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-pdf-file       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lv-exp-form-list  AS CHARACTER NO-UNDO INIT "CorrTrim,Alliance,HRMS,CorSuply,Corr-U-KraftII,GP,Kiwi,Smurfit,CorrChoice,Pratt,AlliFlutes,iPaper,Kiwit,Liberty".
+DEFINE VARIABLE lv-exp-form-list  AS CHARACTER NO-UNDO INIT "CorrTrim,Alliance,HRMS,CorSuply,Corr-U-KraftII,GP,Kiwi,Smurfit,CorrChoice,Pratt,AlliFlutes,AlliFlutes1,iPaper,Kiwit,Liberty".
 DEFINE VARIABLE lv-exp-prog-list  AS CHARACTER NO-UNDO INIT "po-ctexp,po-alexp,po-hrexp,po-csexp,po-ckexp,po-gpexp,po-kwexp,po-smurfi,po-ccexp,po-prexp,~
-po-alnceexp,po-ipaper,po-ktexp,po-librt".
+po-alnceexp,po-alnceexp,po-ipaper,po-ktexp,po-librt".
 DEFINE VARIABLE vcDefaultForm     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-fax-type       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-attachments    AS LOG  NO-UNDO.
@@ -1812,11 +1812,12 @@ IF AVAILABLE ipbf-po-ord THEN DO:
         cPrimaryID = STRING(ipbf-po-ord.po-no)
         cDescription = cAPIID + " triggered by " + cTriggerID + " from r-poprt.w for PO: " + cPrimaryID
         . 
-    RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+    RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
         INPUT  ipbf-po-ord.company,                /* Company Code (Mandatory) */
         INPUT  ipbf-po-ord.loc,               /* Location Code (Mandatory) */
         INPUT  cAPIID,                  /* API ID (Mandatory) */
-        INPUT  "",               /* Client ID (Optional) - Pass empty in case to make request for all clients */
+        INPUT  ipbf-po-ord.vend-no,     /* Scope ID */
+        INPUT  "Vendor",                /* Scoped Type */
         INPUT  cTriggerID,              /* Trigger ID (Mandatory) */
         INPUT  "po-ord",               /* Comma separated list of table names for which data being sent (Mandatory) */
         INPUT  STRING(ROWID(ipbf-po-ord)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 

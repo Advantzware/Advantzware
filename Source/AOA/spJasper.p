@@ -1091,51 +1091,53 @@ PROCEDURE pJasperLastPageFooter :
         END. /* dynparamvalue */
     END CASE.
     
-    /* last page footer band */
-    PUT UNFORMATTED
-        "    <lastPageFooter>" SKIP
-        "        <band height=~"" (iParameterRow + 3) * 14 "~" splitType=~"Stretch~">" SKIP
-        .
-    IF svShowPageFooter THEN
-    RUN pJasperGroupType ("Page").
-    PUT UNFORMATTED
-        "            <rectangle>" SKIP
-        "                <reportElement mode=~"Transparent~" "
-        "x=~"" 0 "~" "
-        "y=~"" 14 "~" "
-        "width=~"" 560 "~" "
-        "height=~"" (iParameterRow - 1) * 14 "~"/>" SKIP
-        "            </rectangle>" SKIP
-        "            <staticText>" SKIP
-        "                <reportElement "
-        "x=~"" 0 "~" "
-        "y=~"" 14 "~" "
-        "width=~"" 56 "~" "
-        "height=~"" 14 "~"/>" SKIP
-        "                <textElement>" SKIP
-        "                    <font isBold=~"true~" isUnderline=~"true~"/>" SKIP
-        "                </textElement>" SKIP
-        "                <text><![CDATA[Parameters:]]></text>" SKIP
-        "            </staticText>" SKIP
-        .
-    DO idx = 1 TO iParameterRow:
-        IF cParameter[idx] NE "" AND cParameter[idx] NE CHR(254) THEN
+    IF dynParamValue.pageHeight GE (iParameterRow + 3) * 14 THEN DO:
+        /* last page footer band */
         PUT UNFORMATTED
+            "    <lastPageFooter>" SKIP
+            "        <band height=~"" (iParameterRow + 3) * 14 "~" splitType=~"Stretch~">" SKIP
+            .
+        IF svShowPageFooter THEN
+        RUN pJasperGroupType ("Page").
+        PUT UNFORMATTED
+            "            <rectangle>" SKIP
+            "                <reportElement mode=~"Transparent~" "
+            "x=~"" 0 "~" "
+            "y=~"" 14 "~" "
+            "width=~"" 560 "~" "
+            "height=~"" (iParameterRow - 1) * 14 "~"/>" SKIP
+            "            </rectangle>" SKIP
             "            <staticText>" SKIP
             "                <reportElement "
-            "x=~"" 60 "~" "
-            "y=~"" (idx) * 14 "~" "
-            "width=~"" 500 "~" "
+            "x=~"" 0 "~" "
+            "y=~"" 14 "~" "
+            "width=~"" 56 "~" "
             "height=~"" 14 "~"/>" SKIP
-            "                <text><![CDATA[" cParameter[idx] "]]></text>" SKIP
+            "                <textElement>" SKIP
+            "                    <font isBold=~"true~" isUnderline=~"true~"/>" SKIP
+            "                </textElement>" SKIP
+            "                <text><![CDATA[Parameters:]]></text>" SKIP
             "            </staticText>" SKIP
             .
-    END. /* do idx */
-    RUN pJasperPageBottom (iParameterRow * 14).
-    PUT UNFORMATTED
-        "        </band>" SKIP
-        "    </lastPageFooter>" SKIP
-        .
+        DO idx = 1 TO iParameterRow:
+            IF cParameter[idx] NE "" AND cParameter[idx] NE CHR(254) THEN
+            PUT UNFORMATTED
+                "            <staticText>" SKIP
+                "                <reportElement "
+                "x=~"" 60 "~" "
+                "y=~"" (idx) * 14 "~" "
+                "width=~"" 500 "~" "
+                "height=~"" 14 "~"/>" SKIP
+                "                <text><![CDATA[" cParameter[idx] "]]></text>" SKIP
+                "            </staticText>" SKIP
+                .
+        END. /* do idx */
+        RUN pJasperPageBottom (iParameterRow * 14).
+        PUT UNFORMATTED
+            "        </band>" SKIP
+            "    </lastPageFooter>" SKIP
+            .
+    END. /* if last page footer fits page height */
 
 END PROCEDURE.
 
@@ -1728,7 +1730,7 @@ PROCEDURE pLocalCSV:
                 cBufferValue = fFormatValue(hQueryBuf, cFieldName)
                 cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "")
                 .
-            PUT UNFORMATTED cBufferValue + ",".
+            PUT UNFORMATTED REPLACE(cBufferValue,",","") + ",".
         END. /* each dynvaluecolumn */
         PUT UNFORMATTED SKIP.
         iphQuery:GET-NEXT().

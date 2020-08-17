@@ -1748,8 +1748,8 @@ PROCEDURE pRecalculateAPInvoiceHeader:
     DEFINE INPUT PARAMETER iplOverwriteTax AS LOGICAL NO-UNDO.
 
     DEFINE VARIABLE dFreight        AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dTaxRate        AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dTaxRateFreight AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTaxAmount     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dFrtTaxAmount  AS DECIMAL NO-UNDO.
 
     DEFINE BUFFER bf-ap-inv  FOR ap-inv.
     DEFINE BUFFER bf-ap-invl FOR ap-invl.
@@ -1766,19 +1766,24 @@ PROCEDURE pRecalculateAPInvoiceHeader:
 
         ASSIGN
             bf-ap-inv.net     = 0
-            bf-ap-inv.freight = 0.
-
-        IF bf-ap-inv.tax-gr NE "" THEN
-            RUN ar/cctaxrt.p (bf-ap-inv.company, bf-ap-inv.tax-gr,
-                OUTPUT dTaxRate, OUTPUT dTaxRateFreight).
+            bf-ap-inv.freight = 0.          
 
         FOR EACH bf-ap-invl WHERE bf-ap-invl.i-no EQ bf-ap-inv.i-no NO-LOCK:
             bf-ap-inv.net = bf-ap-inv.net + bf-ap-invl.amt.
 
             IF bf-ap-invl.tax AND NOT iplOverwriteTax THEN
+            DO:
+                RUN Tax_Calculate(INPUT bf-ap-inv.company,
+                           INPUT bf-ap-inv.tax-gr,
+                           INPUT FALSE,
+                           INPUT bf-ap-invl.amt,
+                           INPUT "", 
+                           OUTPUT dTaxAmount).
+            
                 bf-ap-inv.tax-amt = bf-ap-inv.tax-amt +
-                    ROUND((bf-ap-invl.amt * dTaxRate / 100),2).
-
+                    ROUND(dTaxAmount,2).
+            END.
+            
             IF bf-ap-invl.po-no NE 0 THEN 
             DO:
                 FIND FIRST po-ordl NO-LOCK 
@@ -1795,10 +1800,18 @@ PROCEDURE pRecalculateAPInvoiceHeader:
                 END.
             END.
         END.
+        
+        IF bf-ap-inv.tax-gr NE "" THEN
+        RUN Tax_Calculate(INPUT bf-ap-inv.company,
+                           INPUT bf-ap-inv.tax-gr,
+                           INPUT TRUE,
+                           INPUT bf-ap-inv.freight,
+                           INPUT "", 
+                           OUTPUT dFrtTaxAmount).
 
         ASSIGN
             bf-ap-inv.tax-amt = bf-ap-inv.tax-amt +
-                        ROUND((bf-ap-inv.freight * dTaxRateFreight / 100),2)
+                        ROUND(dFrtTaxAmount,2)
             bf-ap-inv.net     = bf-ap-inv.net + bf-ap-inv.tax-amt
             bf-ap-inv.due     = bf-ap-inv.net - bf-ap-inv.disc-taken -
                         bf-ap-inv.paid + bf-ap-inv.freight.

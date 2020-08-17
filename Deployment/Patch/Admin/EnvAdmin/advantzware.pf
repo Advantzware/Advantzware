@@ -25,7 +25,7 @@
 -strictEntityResolution 0	#required for Premier, ok for others
 # Internationalization Parameters
 #-cpstream ISO8859-1 # Stream codepage
--cpstream IBM850    # Stream codepage
+#-cpstream IBM850    # Stream codepage
 -d mdy              # Date format
 -yy 1950            # Year cutover for century
 -debugalert

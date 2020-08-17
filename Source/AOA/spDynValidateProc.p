@@ -46,6 +46,18 @@ lDynParamValidation = cDynParamValidation EQ "YES".
 /* **********************  Internal Procedures  *********************** */
 
 /* all validate procedures should run this procedure, else RETURN "" */
+
+PROCEDURE dynValARClass:
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
+
+    RUN dynValReturn (iphWidget,~
+        INTEGER(iphWidget:SCREEN-VALUE) EQ 0  OR~
+        INTEGER(iphWidget:SCREEN-VALUE) EQ 99 OR
+        CAN-FIND(FIRST arClass
+                 WHERE arClass.classID EQ INTEGER(iphWidget:SCREEN-VALUE))
+        ).
+END PROCEDURE.
+
 PROCEDURE dynValReturn:
     DEFINE INPUT PARAMETER iphWidget AS HANDLE  NO-UNDO.
     DEFINE INPUT PARAMETER iplReturn AS LOGICAL NO-UNDO.
@@ -55,13 +67,14 @@ PROCEDURE dynValReturn:
 END PROCEDURE.
 
 /* create procedures in alphabetical order below here */
+
 PROCEDURE dynValAuditTable:
     {&defInputParam}    
     DEFINE VARIABLE cFieldLabel AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hWidget     AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lTables     AS LOGICAL   NO-UNDO.
 
-    RUN pGetWidgetByName (iphWidget, "types", OUTPUT hWidget).
+    RUN pGetWidgetByName (iphWidget, "fields", OUTPUT hWidget).
     ASSIGN
         lTables = CAN-DO("LOG,TRACK",hWidget:SCREEN-VALUE) EQ NO
         hWidget:LIST-ITEM-PAIRS = "All,All"
@@ -118,10 +131,10 @@ PROCEDURE dynValAuditType:
         IF CAN-FIND(FIRST AuditHdr
                     WHERE AuditHdr.AuditDB    EQ "ASI"
                       AND AuditHdr.AuditTable EQ prgrms.prgmname) THEN
-        hWidget:ADD-LAST ("["
-                  + prgrms.mnemonic + "] "
-                  + prgrms.prgTitle
-                  + " (" + prgrms.prgmname + ")", prgrms.prgmname).
+        hWidget:ADD-LAST ("[" + prgrms.mnemonic + "] "
+                              + prgrms.prgTitle
+                              + " (" + prgrms.prgmname + ")", prgrms.prgmname)
+                              .
     END. /* each prgrms */
     hWidget:SCREEN-VALUE = "All".
     RUN dynValAuditTable (hWidget).
@@ -133,7 +146,7 @@ PROCEDURE dynValBoxDesign:
     {&checkRange}
         CAN-FIND(FIRST box-design-hdr
                  WHERE box-design-hdr.company EQ cCompany
-                 AND box-design-hdr.design-no <> 0
+                 AND box-design-hdr.design-no NE 0
                    AND box-design-hdr.design-no  EQ integer(iphWidget:SCREEN-VALUE))
         ).
 END PROCEDURE.
@@ -161,6 +174,15 @@ PROCEDURE dynValCust:
         CAN-FIND(FIRST cust
                  WHERE cust.company EQ cCompany
                    AND cust.cust-no EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
+PROCEDURE dynValCurrency:
+    {&defInputParam}
+    {&checkRange}
+        CAN-FIND(FIRST currency
+                 WHERE currency.company EQ cCompany
+                   AND currency.c-code  EQ iphWidget:SCREEN-VALUE)
         ).
 END PROCEDURE.
 
@@ -205,7 +227,7 @@ PROCEDURE dynValFlute:
     {&checkRange}
         CAN-FIND(FIRST flute
                  WHERE flute.company EQ cCompany
-                   AND flute.CODE    EQ iphWidget:SCREEN-VALUE)
+                   AND flute.code    EQ iphWidget:SCREEN-VALUE)
         ).
 END PROCEDURE.
 
@@ -248,7 +270,7 @@ PROCEDURE dynValPrep:
     {&checkRange}
         CAN-FIND(FIRST prep
                  WHERE prep.company EQ cCompany
-                   AND prep.CODE    EQ iphWidget:SCREEN-VALUE)
+                   AND prep.code    EQ iphWidget:SCREEN-VALUE)
         ).
 END PROCEDURE.
 
@@ -416,6 +438,15 @@ PROCEDURE dynValStyle:
         CAN-FIND(FIRST style
                  WHERE style.company EQ cCompany
                    AND style.style   EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
+PROCEDURE dynValTerms:
+    {&defInputParam}
+    {&checkRange}
+        CAN-FIND(FIRST terms
+                 WHERE terms.company EQ cCompany
+                   AND terms.t-code  EQ iphWidget:SCREEN-VALUE)
         ).
 END PROCEDURE.
 

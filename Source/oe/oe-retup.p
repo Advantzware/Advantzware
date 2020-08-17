@@ -6,8 +6,9 @@ def input parameter rec-id as recid.
 
 {sys/inc/var.i shared}
 
-def var v-tax-rate           as   dec format ">,>>9.99<<<".
-def var v-frt-tax-rate       like v-tax-rate.
+DEFINE VARIABLE dTaxAmount     AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dFrtTaxAmount  AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dTaxAbleAmount AS DECIMAL NO-UNDO.
 def var v-line               like oe-retl.line.
 def var v-fac                as   int.
 
@@ -22,9 +23,6 @@ find first ar-inv where ar-inv.company eq oe-reth.company
            use-index ar-inv NO-LOCK NO-ERROR.
 
 IF NOT AVAIL ar-inv THEN RETURN.
-
-run ar/cctaxrt.p (input cocode, ar-inv.tax-code,
-		          output v-tax-rate, output v-frt-tax-rate).
 
 assign
  oe-reth.tot-qty-return = 0
@@ -56,11 +54,21 @@ for each oe-retl
 	  else if oe-retl.uom eq "C"   then 100
 	  else if oe-retl.uom eq "M"   then 1000 else 1.
 
-  if avail ar-invl and ar-invl.tax and v-tax-rate gt 0 then
-    oe-reth.tot-tax = oe-reth.tot-tax + (v-tax-rate / 100 *
-		 round((ar-invl.unit-pr * (oe-retl.tot-qty-return / v-fac)
-		  * if available ar-invl
-		  then ((100 - ar-invl.disc) / 100) else 1),2)).
+  if avail ar-invl and ar-invl.tax then
+  DO:
+      dTaxAmount = 0.
+      dTaxAbleAmount =  round((ar-invl.unit-pr * (oe-retl.tot-qty-return / v-fac)
+		                       * if available ar-invl
+		                       then ((100 - ar-invl.disc) / 100) else 1),2).
+      RUN Tax_Calculate(INPUT cocode, 
+                        INPUT ar-inv.tax-code,
+                        INPUT FALSE,
+                        INPUT dTaxAbleAmount,
+                        INPUT "",
+                        OUTPUT dTaxAmount).
+ 
+    oe-reth.tot-tax = oe-reth.tot-tax + dTaxAmount.
+   END.        
 
   assign
    oe-reth.tot-qty-return = oe-reth.tot-qty-return + oe-retl.tot-qty-return
@@ -75,9 +83,16 @@ for each oe-retl
    oe-retl.line           = v-line.
 end.
 
+  RUN Tax_Calculate(INPUT cocode, 
+                    INPUT ar-inv.tax-code,
+                    INPUT TRUE,
+                    INPUT oe-reth.tot-freight,
+                    INPUT "", 
+                    OUTPUT dFrtTaxAmount).
+
 assign
  oe-reth.tot-tax        = oe-reth.tot-tax +
-			  round((oe-reth.tot-freight * v-frt-tax-rate) / 100,2)
+			  round(dFrtTaxAmount,2)
 
  oe-reth.tot-return-amt = oe-reth.tot-return-amt +
 			  oe-reth.tot-tax + oe-reth.tot-freight.

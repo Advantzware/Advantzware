@@ -108,14 +108,14 @@ ASSIGN cTextListToDefault  = "CHECK#,CHK DATE,INVOICE#,VENDOR#,VEND NAME,DUE DAT
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_date end_date begin_vend ~
-end_vend begin_check end_check Begin_Bank End_Bank tb_prt-acc tb_post-date ~
-sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest ~
-lv-ornt lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file ~
-btn-ok btn-cancel 
+end_vend begin_check end_check Begin_Bank End_Bank rd_print tb_prt-acc ~
+tb_post-date sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up ~
+btn_down rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel ~
+tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_date end_date begin_vend end_vend ~
-begin_check end_check Begin_Bank End_Bank tb_prt-acc tb_post-date sl_avail ~
-sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
-td-show-parm tb_excel tb_runExcel fi_file 
+begin_check end_check Begin_Bank End_Bank lbl_sort rd_print tb_prt-acc ~
+tb_post-date sl_avail sl_selected rd-dest lv-ornt lines-per-page lv-font-no ~
+lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -214,6 +214,10 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-venchk.c
      SIZE 45 BY 1
      FGCOLOR 9 .
 
+DEFINE VARIABLE lbl_sort AS CHARACTER FORMAT "X(256)":U INITIAL "Print?" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
+
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
      VIEW-AS FILL-IN 
@@ -246,13 +250,20 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
 "To Port Directly", 6
      SIZE 19 BY 6.67 NO-UNDO.
 
+DEFINE VARIABLE rd_print AS CHARACTER INITIAL "Detail" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Detail", "Detail",
+"Summary", "Summary"
+     SIZE 34 BY 1 NO-UNDO.
+
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 95 BY 9.05.
+     SIZE 95 BY 8.38.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 95 BY 9.52.
+     SIZE 95 BY 10.24.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -297,28 +308,30 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Check Date"
      end_date AT ROW 2.67 COL 66 COLON-ALIGNED HELP
           "Enter Ending Check Date"
-     begin_vend AT ROW 4.1 COL 24 COLON-ALIGNED HELP
+     begin_vend AT ROW 4.05 COL 24 COLON-ALIGNED HELP
           "Enter Beginning Vendor Number"
-     end_vend AT ROW 4.1 COL 66 COLON-ALIGNED HELP
+     end_vend AT ROW 4.05 COL 66 COLON-ALIGNED HELP
           "Enter Ending Vendor Number"
-     begin_check AT ROW 5.52 COL 24 COLON-ALIGNED HELP
+     begin_check AT ROW 5.43 COL 24 COLON-ALIGNED HELP
           "Enter Beginning Check Date"
-     end_check AT ROW 5.52 COL 66 COLON-ALIGNED HELP
+     end_check AT ROW 5.43 COL 66 COLON-ALIGNED HELP
           "Enter Ending Check Date"
-     Begin_Bank AT ROW 6.95 COL 24 COLON-ALIGNED WIDGET-ID 4
-     End_Bank AT ROW 6.95 COL 66 COLON-ALIGNED WIDGET-ID 6
-     tb_prt-acc AT ROW 8.29 COL 25 WIDGET-ID 2
-     tb_post-date AT ROW 9.43 COL 25
-     sl_avail AT ROW 11.81 COL 5.4 NO-LABEL WIDGET-ID 26
-     Btn_Def AT ROW 11.81 COL 41.4 HELP
+     Begin_Bank AT ROW 6.81 COL 24 COLON-ALIGNED WIDGET-ID 4
+     End_Bank AT ROW 6.81 COL 66 COLON-ALIGNED WIDGET-ID 6
+     lbl_sort AT ROW 8.1 COL 13.6 COLON-ALIGNED NO-LABEL WIDGET-ID 58
+     rd_print AT ROW 8.1 COL 26.6 NO-LABEL WIDGET-ID 60
+     tb_prt-acc AT ROW 9.19 COL 25 WIDGET-ID 2
+     tb_post-date AT ROW 10.29 COL 25
+     sl_avail AT ROW 12.29 COL 5.4 NO-LABEL WIDGET-ID 26
+     Btn_Def AT ROW 12.29 COL 41.4 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 11.81 COL 60.8 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 12.81 COL 41.4 HELP
+     sl_selected AT ROW 12.29 COL 60.8 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 13.29 COL 41.4 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 13.81 COL 41.4 HELP
+     Btn_Remove AT ROW 14.29 COL 41.4 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 14.86 COL 41.4 WIDGET-ID 40
-     btn_down AT ROW 15.86 COL 41.4 WIDGET-ID 42
+     btn_Up AT ROW 15.33 COL 41.4 WIDGET-ID 40
+     btn_down AT ROW 16.33 COL 41.4 WIDGET-ID 42
      rd-dest AT ROW 18.43 COL 7 NO-LABEL
      lv-ornt AT ROW 18.67 COL 31 NO-LABEL
      lines-per-page AT ROW 18.67 COL 84 COLON-ALIGNED
@@ -332,15 +345,15 @@ DEFINE FRAME FRAME-A
      btn-ok AT ROW 26.67 COL 26
      btn-cancel AT ROW 26.67 COL 56
      "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 11.1 COL 6.2 WIDGET-ID 38
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 17.48 COL 5
+          SIZE 29 BY .62 AT ROW 11.57 COL 6.2 WIDGET-ID 38
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 11.57 COL 60.8 WIDGET-ID 44
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 11.1 COL 60.8 WIDGET-ID 44
-     RECT-6 AT ROW 17.24 COL 2
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 17.62 COL 5
+     RECT-6 AT ROW 17.91 COL 2
      RECT-7 AT ROW 1.24 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -399,16 +412,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        Begin_Bank:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -424,6 +427,14 @@ ASSIGN
 ASSIGN 
        begin_vend:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        End_Bank:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -445,8 +456,18 @@ ASSIGN
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR FILL-IN lbl_sort IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       lbl_sort:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "rd_print".
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
+ASSIGN 
+       rd_print:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
@@ -465,7 +486,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -830,6 +851,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME rd_print
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_print C-Win
+ON VALUE-CHANGED OF rd_print IN FRAME FRAME-A
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
@@ -1142,15 +1174,15 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_date end_date begin_vend end_vend begin_check end_check 
-          Begin_Bank End_Bank tb_prt-acc tb_post-date sl_avail sl_selected 
-          rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm 
-          tb_excel tb_runExcel fi_file 
+          Begin_Bank End_Bank lbl_sort rd_print tb_prt-acc tb_post-date sl_avail 
+          sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
+          td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_date end_date begin_vend end_vend begin_check 
-         end_check Begin_Bank End_Bank tb_prt-acc tb_post-date sl_avail Btn_Def 
-         sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt 
-         lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file 
-         btn-ok btn-cancel 
+         end_check Begin_Bank End_Bank rd_print tb_prt-acc tb_post-date 
+         sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down 
+         rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel 
+         tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1814,18 +1846,9 @@ FOR EACH tt-report NO-LOCK /*WITH FRAME ap-chk*/
 
     {custom/statusMsg.i " 'Processing Vendor #  '  + string(tt-report.vend-no) "}
 
+  IF rd_print EQ "Detail" THEN  
   IF tt-report.key-03 EQ FILL("z",100) + "TOTAL" THEN DO:
-   PUT str-line FORMAT "x(125)" SKIP .
-   /* UNDERLINE tt-report.check-no
-              tt-report.check-date
-              tt-report.vend-no
-              tt-report.vend-name
-              tt-report.gross-amt
-              tt-report.amt-disc
-              tt-report.amt-paid. 
-    DOWN.
-
-    CLEAR NO-PAUSE.*/ 
+   PUT str-line FORMAT "x(125)" SKIP .   
   END.
 
   IF tt-report.key-03 NE FILL("z",100) + "TOTAL" OR tt-report.inv-no EQ "Void" THEN
@@ -1834,23 +1857,9 @@ FOR EACH tt-report NO-LOCK /*WITH FRAME ap-chk*/
      v-amt-disc  = v-amt-disc  + tt-report.amt-disc
      v-amt-paid  = v-amt-paid  + tt-report.amt-paid.
 
-
-
- /* DISPLAY tt-report.check-no
-          tt-report.check-date
-          tt-report.vend-no
-          tt-report.vend-name
-          tt-report.inv-no
-          tt-report.due-date
-          tt-report.gross-amt
-          tt-report.amt-disc
-          tt-report.amt-paid.
-  DOWN.*/
-/*"chk,chk-date,inv,vend,vend-name,due-date,gross-amt,dis,net-amt," +
-                            "acc,po,acc-date,line,desc,qty,unit-pri,amt-paid"  
-                            cFieldLength = "8,8,12,8,30,8,14,10,14," + "7,15,7,4,20,6,13,12"
-       cFieldType = "i,c,c,c,c,i,i,i," + "c,c,c,i,c,i,i,i"
-                            */
+  IF rd_print EQ "Detail" OR (rd_print EQ "Summary" AND LAST-OF(tt-report.key-02) ) THEN
+  DO:  
+  
   ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -1882,23 +1891,11 @@ FOR EACH tt-report NO-LOCK /*WITH FRAME ap-chk*/
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
              END.
-
-  /*IF tb_excel THEN
-    PUT STREAM excel UNFORMATTED
-        '"' STRING(tt-report.check-no,">>>>>>>>") '",'
-        '"' (IF tt-report.check-date NE ? THEN STRING(tt-report.check-date,"99/99/99") ELSE "") '",'
-        '"' tt-report.vend-no '",'
-        '"' tt-report.vend-name '",'
-        '"' tt-report.inv-no '",'
-        '"' (IF tt-report.due-date NE ? THEN STRING(tt-report.due-date,"99/99/9999") ELSE "") '",'
-        '"' tt-report.gross-amt '",'
-        '"' tt-report.amt-disc '",'
-        '"' tt-report.amt-paid '"'
-        SKIP.*/
+  END.     
 
   RELEASE vend NO-ERROR.
 
-  IF LAST-OF(tt-report.key-02) THEN /*DOWN 2*/ PUT SKIP(2) .
+  IF rd_print EQ "Detail" AND LAST-OF(tt-report.key-02) THEN /*DOWN 2*/ PUT SKIP(2) .
 
   IF LAST(tt-report.key-01) THEN DO:
     PUT str-line2 FORMAT "x(125)" SKIP .

@@ -755,7 +755,7 @@ FOR EACH job-hdr NO-LOCK
           salesRepFound = YES
           .
       END. /* avail oe-ord */
-      IF ufPOOrdl THEN DO:
+      IF ufPOOrdl AND oe-ordl.po-no-po NE 0 THEN DO:
         FIND FIRST po-ord NO-LOCK WHERE po-ord.company EQ job-mch.company
                                     AND po-ord.po-no EQ oe-ordl.po-no-po NO-ERROR.
         IF AVAILABLE po-ord THEN DO:
@@ -803,7 +803,7 @@ FOR EACH job-hdr NO-LOCK
         END. /* avail po-ord */
       END. /* ufpoordl */
     END. /* avail oe-ordl */
-    ELSE IF ufPOOrdl THEN DO:
+    IF ufPOOrdl AND NOT AVAILABLE po-ordl THEN DO:
       FIND FIRST po-ordl NO-LOCK
            WHERE po-ordl.company EQ job-mch.company
              AND po-ordl.job-no  EQ job-mch.job-no

@@ -9,7 +9,7 @@
 /* **********************  Internal Functions  ************************ */
 
 /* ************************  Function Implementations ***************** */
-FUNCTION fCalcTime RETURNS INTEGER PRIVATE (ipcTime AS CHARACTER):
+FUNCTION fCalcTime RETURNS INTEGER (ipcTime AS CHARACTER):
     DEFINE VARIABLE iHours   AS INTEGER NO-UNDO.
     DEFINE VARIABLE iMinutes AS INTEGER NO-UNDO.
     DEFINE VARIABLE iTime    AS INTEGER NO-UNDO.
@@ -22,7 +22,7 @@ FUNCTION fCalcTime RETURNS INTEGER PRIVATE (ipcTime AS CHARACTER):
     RETURN iTime.
 END FUNCTION.
 
-FUNCTION fDynStatusField RETURNS LOGICAL PRIVATE
+FUNCTION fDynStatusField RETURNS LOGICAL
     (iphQuery         AS HANDLE,
      ipcFieldName     AS CHARACTER,
      ipcStatusCompare AS CHARACTER,
@@ -69,7 +69,7 @@ FUNCTION fDynStatusField RETURNS LOGICAL PRIVATE
     END CASE.
 END FUNCTION.
 
-FUNCTION fMathOperation RETURNS DECIMAL PRIVATE
+FUNCTION fMathOperation RETURNS DECIMAL
 	(ipdNumber1 AS DECIMAL, ipdNumber2 AS DECIMAL, ipcOperator AS CHARACTER):
     DEFINE VARIABLE opdResult AS DECIMAL NO-UNDO.
     
@@ -100,16 +100,12 @@ PROCEDURE calcAPIType:
 END PROCEDURE.
 
 PROCEDURE calcDropShipment:
-    DEFINE INPUT  PARAMETER ipcPoType      AS CHARACTER   NO-UNDO.    
-    DEFINE INPUT  PARAMETER ipcPoCust      AS CHARACTER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPOType    AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcPOCust    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
     
-   IF ipcPoType EQ "D" THEN
-   DO:
-     IF ipcPoCust NE "" THEN opcCalcValue = "Customer" .
-     ELSE opcCalcValue = "Vendor" .        
-   END.
-   
+   IF ipcPOType EQ "D" THEN
+   opcCalcValue = IF ipcPOCust NE "" THEN "Customer" ELSE "Vendor".   
 END PROCEDURE.
 
 PROCEDURE calcShiftEndTime:

@@ -19,4 +19,10 @@ PROCEDURE asiDeptBuild:
       asiDept.asiDept = lvAsiDept.
   END. /* repeat */
   INPUT CLOSE.
+  IF CAN-FIND(FIRST asiDept
+              WHERE asiDept.rptName EQ "pendingJobs") THEN
+  RETURN.
+  CREATE asiDept.
+  asiDept.rptName = "pendingJobs".
+
 END PROCEDURE.

@@ -2226,7 +2226,8 @@ format header
 ASSIGN
    str-tit2 = c-win:TITLE
    {sys/inc/ctrtext.i str-tit2 112}.
-ASSIGN str-tit3 = STRING(begin_date) + "-" + STRING(END_date) .
+ASSIGN str-tit3 = STRING(begin_date) + "-" + STRING(END_date)
+      {sys/inc/ctrtext.i str-tit3 132} .
 
 {sys/inc/print1.i}
 
