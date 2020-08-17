@@ -616,7 +616,7 @@ PROCEDURE pGenerateCXML PRIVATE:
             RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
              /* Assign total freight to first detail line since line-level freight not supported */
             IF lFirstLine THEN DO: 
-                RUN cXMLOutput (clXMLOutput,'',STRING(inv-head.t-inv-freight),'Col').
+                RUN cXMLOutput (clXMLOutput,'',STRING(ttInv.amountTotalFreight),'Col').
                 lFirstLine = NO.
             END.
             ELSE
