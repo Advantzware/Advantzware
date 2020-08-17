@@ -256,13 +256,6 @@ PROCEDURE pFindMatchingOeRellNew PRIVATE:
                 AND b2-oe-rell.loc EQ oe-rel.spare-char-1,
             {&for-each3}:
             {&for-each4}
-         
-            IF vcRelMergeCalc EQ "AllOrders&NotRunShip" AND AVAIL(bf-oe-ordl) THEN 
-            DO:
-                /* Criteria for AllOrders&ShipFromWhse, Run & ship can't be merged with any other */
-                IF  bf-oe-ordl.whsed = TRUE OR lRunShip EQ TRUE THEN 
-                    NEXT REL-MATCH.                  
-            END.
                    
             ASSIGN 
                 lRellFound    = TRUE
@@ -284,14 +277,7 @@ PROCEDURE pFindMatchingOeRellNew PRIVATE:
             {&for-each2},
             {&for-each3}:
             {&for-each4}
-         
-            IF vcRelMergeCalc EQ "AllOrders&NotRunShip" AND AVAIL(bf-oe-ordl) THEN 
-            DO:
-                /* Criteria for AllOrders&ShipFromWhse, Run & ship can't be merged with any other */
-                IF  bf-oe-ordl.whsed = TRUE OR lRunShip EQ TRUE THEN 
-                    NEXT REL-MATCH1.                  
-            END.
-                   
+           
             ASSIGN 
                 lRellFound    = TRUE
                 iOeRellRno    = b2-oe-rell.r-no
