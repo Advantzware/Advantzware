@@ -36,6 +36,7 @@ DEFINE INPUT PARAMETER iplApplyJobQty AS LOGICAL NO-UNDO .
 
 DEFINE BUFFER bf-job-hdr FOR job-hdr .
 DEFINE TEMP-TABLE tt-job-hdr 
+    FIELD company AS CHARACTER
     FIELD frm AS INTEGER
     FIELD blank-no AS INTEGER
     FIELD i-no AS CHARACTER
@@ -406,10 +407,12 @@ ON CHOOSE OF Btn_save IN FRAME Dialog-Frame /* Save */
 DO:
     DEFINE BUFFER bf-tt-job-hdr FOR tt-job-hdr .
     FOR EACH bf-tt-job-hdr NO-LOCK ,
-       FIRST bf-job-hdr WHERE bf-job-hdr.job-no EQ bf-tt-job-hdr.job-no
-           AND bf-job-hdr.job-no2 EQ bf-tt-job-hdr.job-no2
-           AND bf-job-hdr.frm EQ bf-tt-job-hdr.frm
-           AND bf-job-hdr.blank-no EQ bf-tt-job-hdr.blank-no EXCLUSIVE-LOCK:
+       FIRST bf-job-hdr EXCLUSIVE-LOCK 
+       WHERE bf-job-hdr.company  EQ bf-tt-job-hdr.company  
+         AND bf-job-hdr.job-no   EQ bf-tt-job-hdr.job-no
+         AND bf-job-hdr.job-no2  EQ bf-tt-job-hdr.job-no2
+         AND bf-job-hdr.frm      EQ bf-tt-job-hdr.frm
+         AND bf-job-hdr.blank-no EQ bf-tt-job-hdr.blank-no:
         ASSIGN bf-job-hdr.qty = bf-tt-job-hdr.qty .
     END.
    RELEASE bf-job-hdr .
@@ -547,6 +550,7 @@ PROCEDURE build-table :
 
             CREATE tt-job-hdr .
             ASSIGN
+                tt-job-hdr.company    =   bf-job-hdr.company
                 tt-job-hdr.frm        =   bf-job-hdr.frm     
                 tt-job-hdr.blank-no   =   bf-job-hdr.blank-no
                 tt-job-hdr.i-no       =   bf-job-hdr.i-no    
