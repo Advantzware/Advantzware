@@ -79,6 +79,9 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE dGrandT           AS DECIMAL   NO-UNDO EXTENT 6.
     DEFINE VARIABLE dGrandTPri        AS DECIMAL   NO-UNDO EXTENT 6.
     DEFINE VARIABLE dGrandTFc         AS DECIMAL   NO-UNDO EXTENT 6.
+    DEFINE VARIABLE arClassT          AS DECIMAL   NO-UNDO EXTENT 6.
+    DEFINE VARIABLE arClassTPri       AS DECIMAL   NO-UNDO EXTENT 6.
+    DEFINE VARIABLE arClassTFc        AS DECIMAL   NO-UNDO EXTENT 6.
     DEFINE VARIABLE iCurrentTrendDays AS INTEGER   NO-UNDO.
     DEFINE VARIABLE dCurrT            AS DECIMAL   NO-UNDO EXTENT 6.
     DEFINE VARIABLE dCurrTPri         AS DECIMAL   NO-UNDO EXTENT 6.
@@ -111,33 +114,12 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE cJobStr           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE i                 AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cLvText           AS CHARACTER NO-UNDO.
-    
-    
-/*    FOR EACH itemfg NO-LOCK                                           */
-/*        WHERE itemfg.company  GE cStartCompany                        */
-/*          AND itemfg.company  LE cEndCompany                          */
-/*          AND itemfg.factored EQ YES                                  */
-/*        :                                                             */
-/*        IF NOT CAN-FIND(FIRST tt-factored                             */
-/*                        WHERE tt-factored.company EQ itemfg.company   */
-/*                          AND tt-factored.i-no    EQ itemfg.i-no) THEN*/
-/*        FOR EACH ar-invl NO-LOCK                                      */
-/*            WHERE ar-invl.company EQ itemfg.company                   */
-/*              AND ar-invl.i-no    EQ itemfg.i-no                      */
-/*            :                                                         */
-/*            CREATE tt-factored.                                       */
-/*            ASSIGN                                                    */
-/*                tt-factored.company = itemfg.company                  */
-/*                tt-factored.i-no    = itemfg.i-no                     */
-/*                tt-factored.x-no    = ar-invl.x-no                    */
-/*                .                                                     */
-/*        END. /* each ar-inv1 */                                       */
-/*    END. /* each tt-factored */                                       */
+    DEFINE VARIABLE dAmountDue        AS DECIMAL   NO-UNDO.
     
     FOR EACH company NO-LOCK
         WHERE company.company GE cStartCompany
           AND company.company LE cEndCompany,
-        EACH cust FIELDS(company cust-no sman curr-code name area-code phone terms fax cr-lim contact addr city state zip) NO-LOCK
+        EACH cust FIELDS(company cust-no sman curr-code name area-code phone terms fax cr-lim contact addr city state zip classID) NO-LOCK
         WHERE cust.company EQ company.company
           AND cust.cust-no GE cStartCustNo
           AND cust.cust-no LE cEndCustNo
@@ -163,7 +145,6 @@ PROCEDURE pBusinessLogic:
         lValidCust = NO.
         IF NOT lValidCust THEN   
         {&for-each-arinv}:       
-/*            {&valid-factored}    */
             lValidCust = YES.    
             LEAVE.               
         END. /* not lValidCust */
@@ -204,7 +185,6 @@ PROCEDURE pBusinessLogic:
         EMPTY TEMP-TABLE tt-inv.
         IF lIncludePaidInvoices OR dtAsofDate NE TODAY THEN
         {&for-each-arinv}:
-/*            {&valid-factored}*/
             CREATE tt-inv.
             ASSIGN
                 tt-inv.sorter = IF cSort2 EQ "Due Date" THEN INTEGER(ar-inv.due-date)
@@ -216,7 +196,6 @@ PROCEDURE pBusinessLogic:
         END. /* for each arinv */
         ELSE DO:
             {&for-each-arinv} AND ar-inv.due LT 0 USE-INDEX posted-due:
-/*                {&valid-factored}*/
                 CREATE tt-inv.
                 ASSIGN
                     tt-inv.sorter = IF cSort2 EQ "Due Date" THEN INTEGER(ar-inv.due-date)
@@ -227,7 +206,6 @@ PROCEDURE pBusinessLogic:
                     .
             END. /* for each arinv */    
             {&for-each-arinv} AND ar-inv.due GT 0 USE-INDEX posted-due:
-/*                {&valid-factored}*/
                 CREATE tt-inv.
                 ASSIGN
                     tt-inv.sorter = IF cSort2 EQ "Due Date" THEN INTEGER(ar-inv.due-date)
@@ -245,9 +223,13 @@ PROCEDURE pBusinessLogic:
                   BY tt-inv.inv-no
             :
             /* Inserted because AR stores gross wrong */
-            dAmt = IF ar-inv.net EQ ar-inv.gross + ar-inv.freight + ar-inv.tax-amt THEN ar-inv.net
-            ELSE ar-inv.gross.
-            IF dAmt EQ ? THEN dAmt = 0.        
+            ASSIGN
+                dAmt = IF ar-inv.net EQ ar-inv.gross + ar-inv.freight + ar-inv.tax-amt THEN ar-inv.net
+                       ELSE ar-inv.gross
+                dAmountDue = ar-inv.due
+                .
+            IF dAmt EQ ? THEN dAmt = 0.
+            IF dAmountDue EQ ? THEN dAmountDue = 0. 
             /* if fuel surcharge should not be aged, get it out of 'amt' */
             IF NOT lIncludeFuelSurcharges THEN 
             FOR EACH ar-invl NO-LOCK
@@ -348,6 +330,7 @@ PROCEDURE pBusinessLogic:
                     dCustT[iInt] = dCustT[iInt] + dAg
                     dDec         = 0
                     dDec[iInt]   = dAg
+                    dCustT[6]    = dCustT[6] + dAmountDue
                     .    
                 IF lSeparateFinanceCharges THEN DO:
                     IF cvType NE "FC" THEN dCustTPri[iInt] = dCustTPri[iInt] + dAg.
@@ -384,6 +367,7 @@ PROCEDURE pBusinessLogic:
                         ttAgedReceivables.periodDay4  = dDec[5]
                         ttAgedReceivables.custPoNo    = cPoNo                        
                         ttAgedReceivables.jobNo       = cJobStr
+                        ttAgedReceivables.totalDue    = dAmountDue
                         ttAgedReceivables.arClass     = cust.classID
                         ttAgedReceivables.invoiceNote = ""                           
                         ttAgedReceivables.collNote    = ""
@@ -469,8 +453,8 @@ PROCEDURE pBusinessLogic:
                             dCreditDebitAmt = ar-cashl.amt-paid * -1
                             dDiscAmt        = ar-cashl.amt-disc * -1
                             .
-                        IF cvType EQ "VD" AND dCreditDebitAmt LT 0 THEN
-                        dCreditDebitAmt = dCreditDebitAmt * -1.
+/*                        IF cvType EQ "VD" AND dCreditDebitAmt LT 0 THEN*/
+/*                        dCreditDebitAmt = dCreditDebitAmt * -1.        */
                     END. /* else */    
                     IF dDiscAmt NE 0 THEN DO:
                         cDiscType = "DISC".
@@ -791,6 +775,7 @@ PROCEDURE pBusinessLogic:
                         . 
                 END. /*IF cType EQ "Detail" THEN DO */            
                 ASSIGN
+                    dCustT[6] = dCustT[6] + dUnapp[6]
                     dCustT[5] = dCustT[5] + dUnapp[5]
                     dCustT[4] = dCustT[4] + dUnapp[4]
                     dCustT[3] = dCustT[3] + dUnapp[3]
@@ -799,6 +784,7 @@ PROCEDURE pBusinessLogic:
                     .        
                 IF lSeparateFinanceCharges THEN
                 ASSIGN
+                    dCustTPri[6] = dCustTPri[6] + dUnapp[6]
                     dCustTPri[5] = dCustTPri[5] + dUnapp[5]
                     dCustTPri[4] = dCustTPri[4] + dUnapp[4]
                     dCustTPri[3] = dCustTPri[3] + dUnapp[3]
@@ -869,7 +855,7 @@ PROCEDURE pBusinessLogic:
             END. /* else do: */
         END. /* each ar-cashl */
     
-        dC1 = dCustT[1] + dCustT[2] + dCustT[3] + dCustT[4] + dCustT[5].
+        dC1 = dCustT[1] + dCustT[2] + dCustT[3] + dCustT[4] + dCustT[5] + dCustT[6].
         
         IF NOT lFirstCust OR dC1 NE 0 THEN DO:
             IF cType EQ "Detail" THEN DO:
@@ -884,12 +870,13 @@ PROCEDURE pBusinessLogic:
                     dCustT[3],
                     dCustT[4],
                     dCustT[5],
+                    dCustT[6],
                     tt-cust.sorter
                     ).
                 IF lSeparateFinanceCharges THEN DO:
                     ASSIGN
                         dC1Pri = dCustTPri[1] + dCustTPri[2] + dCustTPri[3] + dCustTPri[4] + dCustTPri[5]
-                        dC1Fc  = dCustTFc[1]  + dCustTFc[2]  + dCustTFc[3]  + dCustTFc[4] + dCustTFc[5].
+                        dC1Fc  = dCustTFc[1]  + dCustTFc[2]  + dCustTFc[3]  + dCustTFc[4]  + dCustTFc[5].
                     RUN AgedReceivablesCreateTotals (
                         "",
                         "",
@@ -901,6 +888,7 @@ PROCEDURE pBusinessLogic:
                         dCustTPri[3],
                         dCustTPri[4],
                         dCustTPri[5],
+                        0,
                         tt-cust.sorter
                         ).
                     RUN AgedReceivablesCreateTotals (
@@ -914,6 +902,7 @@ PROCEDURE pBusinessLogic:
                         dCustTFc[3],
                         dCustTFc[4],
                         dCustTFc[5],
+                        0,
                         tt-cust.sorter
                         ).
                 END. /* IF lSeparateFinanceCharges THEN */
@@ -930,27 +919,31 @@ PROCEDURE pBusinessLogic:
                     dCustT[3],
                     dCustT[4],
                     dCustT[5],
+                    dCustT[6],
                     tt-cust.sorter
                     ).
             END. /* if cType eq "Summary" */
                    
-            DO i = 1 TO 5:
+            DO i = 1 TO 6:
                 ASSIGN
-                    dSManT[i] = dSManT[i] + dCustT[i]
-                    dCustT[i] = 0
+                    dSManT[i]   = dSManT[i]   + dCustT[i]
+                    arClassT[i] = arClassT[i] + dCustT[i]
+                    dCustT[i]   = 0
                     .
                 IF lSeparateFinanceCharges THEN
                 ASSIGN
-                    dSManTPri[i] = dSManTPri[i] + dCustTPri[i]
-                    dSManTFc[i]  = dSManTFc[i]  + dCustTFc[i]
-                    dCustTPri[i] = 0
-                    dCustTFc[i]  = 0
+                    dSManTPri[i]   = dSManTPri[i]   + dCustTPri[i]
+                    dSManTFc[i]    = dSManTFc[i]    + dCustTFc[i]
+                    arClassTPri[i] = arClassTPri[i] + dCustTPri[i]
+                    arClassTFc[i]  = arClassTFc[i]  + dCustTFc[i]
+                    dCustTPri[i]   = 0
+                    dCustTFc[i]    = 0
                     .
             END. /* do i */
         END. /* if not lFirstCust */
         
         IF LAST-OF(tt-cust.sorter) THEN DO:
-            dC1 = dSManT[1] + dSManT[2] + dSManT[3] + dSManT[4] + dSManT[5].
+            dC1 = dSManT[1] + dSManT[2] + dSManT[3] + dSManT[4] + dSManT[5] + dSManT[6].
             IF cSort1 EQ "Name" THEN DO:
                 IF cType NE "Totals Only" THEN
                 RUN AgedReceivablesCreateTotals (
@@ -964,10 +957,11 @@ PROCEDURE pBusinessLogic:
                     dSManT[3],
                     dSManT[4],
                     dSManT[5],
+                    dSManT[6],
                     tt-cust.sorter
                     ).
             END. /* sort by customer no */
-            DO i = 1 TO 5:
+            DO i = 1 TO 6:
                 ASSIGN
                     dCurrT[i]    = dCurrT[i]    + dSManT[i]
                     dCurrTPri[i] = dCurrTPri[i] + dSManTPri[i]
@@ -981,8 +975,8 @@ PROCEDURE pBusinessLogic:
         
         IF LAST-OF(tt-cust.curr-code) THEN DO:
             IF lMultCurr THEN DO:
-                dC1 = dCurrT[1] + dCurrT[2] + dCurrT[3] + dCurrT[4] + dCurrT[5].
-                IF cType NE "Totals Only" THEN
+                dC1 = dCurrT[1] + dCurrT[2] + dCurrT[3] + dCurrT[4].
+/*                IF cType NE "Totals Only" THEN*/
                 RUN AgedReceivablesCreateTotals (
                     cust.cust-no,
                     cust.name,
@@ -994,6 +988,7 @@ PROCEDURE pBusinessLogic:
                     dCurrT[3],
                     dCurrT[4],
                     dCurrT[5],
+                    dCurrT[6],
                     tt-cust.sorter
                     ).
                 RUN AgedReceivablesCreateTotals (
@@ -1006,11 +1001,12 @@ PROCEDURE pBusinessLogic:
                     (IF dC1 NE 0 THEN (dCurrT[2] / dC1) * 100 ELSE 0),
                     (IF dC1 NE 0 THEN (dCurrT[3] / dC1) * 100 ELSE 0),
                     (IF dC1 NE 0 THEN (dCurrT[4] / dC1) * 100 ELSE 0),
-                    (IF dC1 NE 0 THEN (dCurrT[5] / dC1) * 100 ELSE 0),
+                    0,
+                    0,
                     tt-cust.sorter
                     ).
             END. /* IF lMultCurr */
-            DO i = 1 TO 5:
+            DO i = 1 TO 6:
                 ASSIGN
                     dGrandT[i] = dGrandT[i] + dCurrT[i]
                     dCurrT[i]  = 0
@@ -1047,6 +1043,7 @@ PROCEDURE pBusinessLogic:
             dGrandT[3],
             dGrandT[4],
             dGrandT[5],
+            dGrandT[6],
             tt-cust.sorter
             ).
         RUN AgedReceivablesCreateTotals (
@@ -1060,6 +1057,7 @@ PROCEDURE pBusinessLogic:
             (IF dT1 NE 0 THEN (dGrandT[3] / dT1) * 100 ELSE 0),
             (IF dT1 NE 0 THEN (dGrandT[4] / dT1) * 100 ELSE 0),
             (IF dT1 NE 0 THEN (dGrandT[5] / dT1) * 100 ELSE 0),
+            0,
             tt-cust.sorter
             ).
         
@@ -1079,6 +1077,7 @@ PROCEDURE pBusinessLogic:
                 dGrandTPri[3],
                 dGrandTPri[4],
                 dGrandTPri[5],
+                0,
                 tt-cust.sorter
                 ).
             RUN AgedReceivablesCreateTotals (
@@ -1092,6 +1091,7 @@ PROCEDURE pBusinessLogic:
                 dGrandTFc[3],
                 dGrandTFc[4],
                 dGrandTFc[5],
+                0,
                 tt-cust.sorter
                 ).
         END. /* if separate finance charges */
@@ -1099,17 +1099,18 @@ PROCEDURE pBusinessLogic:
 END PROCEDURE.
 
 PROCEDURE AgedReceivablesCreateTotals:
-    DEFINE INPUT  PARAMETER ipcTotCustNo      AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTotCustName    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTotSalesRep    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTotDescription AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdTotAmount      AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdTotCurrent     AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdTotPeriod1     AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdTotPeriod2     AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdTotPeriod3     AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdTotPeriod4     AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcSort           AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTotCustNo      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTotCustName    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTotSalesRep    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTotDescription AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdTotAmount      AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdTotCurrent     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdTotPeriod1     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdTotPeriod2     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdTotPeriod3     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdTotPeriod4     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdAmountDue      AS DECIMAL   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcSort           AS CHARACTER NO-UNDO.
 
     CREATE ttAgedReceivablesTotals.
     ASSIGN
@@ -1123,6 +1124,7 @@ PROCEDURE AgedReceivablesCreateTotals:
         ttAgedReceivablesTotals.totPeriodDay2  = ipdTotPeriod2
         ttAgedReceivablesTotals.totPeriodDay3  = ipdTotPeriod3
         ttAgedReceivablesTotals.totPeriodDay4  = ipdTotPeriod4
+        ttAgedReceivablesTotals.totalDue       = ipdAmountDue
         ttAgedReceivablesTotals.xxSort         = ipcSort
         . 
 END PROCEDURE.
