@@ -180,8 +180,8 @@ PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
             OUTPUT rwRowid). 
             
     IF NOT iplPromptForQuotes THEN
-     RUN pGetLastQuoteNO(INPUT ipbf-eb.company, INPUT ipbf-eb.loc, INPUT ipbf-eb.est-no, OUTPUT iQuoteNo) .
-    
+     RUN pGetLastQuoteNO(INPUT ipbf-eb.company, INPUT ipbf-eb.loc, INPUT cEstNo, OUTPUT iQuoteNo) .
+       
     FOR EACH quotehd NO-LOCK
         WHERE quotehd.company  EQ ipbf-eb.company
         AND (quotehd.q-no EQ iQuoteNo OR iQuoteNo EQ 0) 

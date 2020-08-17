@@ -918,7 +918,7 @@ PROCEDURE run-process :
         AND quotehd.quo-date LE TODAY
         :
         PUT UNFORMATTED  
-            'Procesing estimate ' STRING(bf-est.est-no)   SKIP. 
+            'Processing estimate ' STRING(bf-est.est-no)   SKIP. 
         EMPTY TEMP-TABLE ttInputEst .
         RUN pCreateInputEst(ROWID(bf-eb)) .        
                
@@ -933,6 +933,7 @@ PROCEDURE run-process :
             PUT UNFORMATTED  
                 'Creating Misc estimate ' STRING(bff-eb.est-no)   SKIP.
             iCount = iCount + 1.
+            {custom/statusMsg.i "'Creating Misc estimate# ' + string(bff-eb.est-no)"}
         END.
         IF AVAILABLE bff-eb THEN 
         DO:
@@ -975,6 +976,8 @@ PROCEDURE run-process :
   
     THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdEstimateCalcProcs).
     THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hFreightProcs).
+    
+    STATUS DEFAULT "Processing Complete".
   
 END PROCEDURE.
 
