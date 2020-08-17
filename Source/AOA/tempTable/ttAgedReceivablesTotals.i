@@ -13,6 +13,7 @@ DEFINE TEMP-TABLE ttAgedReceivablesTotals NO-UNDO
     FIELD totPeriodDay2  AS DECIMAL   LABEL "Period 2"    FORMAT "->,>>>,>>>,>>9.99"
     FIELD totPeriodDay3  AS DECIMAL   LABEL "Period 3"    FORMAT "->,>>>,>>>,>>9.99"
     FIELD totPeriodDay4  AS DECIMAL   LABEL "Period 4"    FORMAT "->,>>>,>>>,>>9.99"
+    FIELD totalDue       AS DECIMAL   LABEL "Total Due"   FORMAT "->,>>>,>>>.99"
     FIELD xxSort         AS CHARACTER LABEL "Sort"        FORMAT "x(100)"
         INDEX ttAgedReceivablesTotals IS PRIMARY rowType xxSort
     .
