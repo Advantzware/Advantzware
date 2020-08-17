@@ -377,7 +377,12 @@ FUNCTION fIsWritable RETURNS LOGICAL PRIVATE
     
 FUNCTION fGetFgValueForZeroCost RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER,
-     ipcFgItem AS CHARACTER ) FORWARD.    
+     ipcFgItem AS CHARACTER ) FORWARD.  
+     
+FUNCTION fGetInvoiceApprovalVal RETURNS LOGICAL PRIVATE
+    (ipcCompany AS CHARACTER,
+     ipcControl AS CHARACTER,
+     ipcCustomer AS CHARACTER) FORWARD.         
 
 /* ***************************  Main Block  *************************** */
 /* Shared Vars needed for 810 invoices */
@@ -2195,6 +2200,13 @@ PROCEDURE pGetSettings PRIVATE:
     RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "UseNewInvoicePost", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound THEN ipbf-ttPostingMaster.exportPath = cReturn.
     
+    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "InvoiceApprovalBillNotes", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "InvoiceApprovalFreightAmount", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "InvoiceApprovalFreightTerms", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "InvoiceApprovalPriceGTCost", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "InvoiceApprovalInvoiceStatus", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "InvoiceApprovalTaxableCheck", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    
     
 END PROCEDURE.
 
@@ -3404,41 +3416,65 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
     DEFINE OUTPUT PARAMETER opiCountValid AS INTEGER NO-UNDO.
     DEFINE BUFFER bf-ttInvoiceToPost            FOR ttInvoiceToPost.
     DEFINE BUFFER bf-inv-head FOR inv-head.
+    DEFINE BUFFER bf-ttInvoiceLineToPost        FOR ttInvoiceLineToPost. 
     
     DEFINE VARIABLE lAutoApprove AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lShiptoTaxAble AS LOGICAL NO-UNDO.
-    
+    DEFINE VARIABLE lValidateRequired AS LOGICAL NO-UNDO.
+        
     FOR EACH bf-ttInvoiceToPost,
         FIRST bf-inv-head NO-LOCK 
         WHERE ROWID(bf-inv-head) EQ bf-ttInvoiceToPost.riInvHead:
         lAutoApprove = YES.   
         opiCountProcessed = opiCountProcessed + 1.
-         IF bf-inv-head.stat EQ "H" THEN
+         
+         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalInvoiceStatus",bf-inv-head.cust-no).
+         IF lValidateRequired AND bf-inv-head.stat EQ "H" THEN
          DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invoice on Hold",NO).
             lAutoApprove = NO.                             
          END.
          
-         IF bf-ttInvoiceToPost.isFreightBillable AND  bf-ttInvoiceToPost.amountBilledFreight LE 0 THEN
+         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalFreightAmount",bf-inv-head.cust-no).
+         IF lValidateRequired AND bf-ttInvoiceToPost.isFreightBillable AND  bf-ttInvoiceToPost.amountBilledFreight LE 0 THEN
          DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billable freight without freight charge",NO).
             lAutoApprove = NO.              
          END.
          
-         IF bf-inv-head.bill-i[1] NE "" OR bf-inv-head.bill-i[2] NE "" OR bf-inv-head.bill-i[3] NE "" OR bf-inv-head.bill-i[4] NE "" THEN
+         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalBillNotes",bf-inv-head.cust-no).           
+         IF lValidateRequired AND bf-inv-head.bill-i[1] NE "" OR bf-inv-head.bill-i[2] NE "" OR bf-inv-head.bill-i[3] NE "" OR bf-inv-head.bill-i[4] NE "" THEN
          DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billing notes exist",NO).
             lAutoApprove = NO.              
-         END.         
+         END.    
+         
+         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalFreightTerms",bf-inv-head.cust-no).           
+         IF lValidateRequired AND bf-inv-head.frt-pay NE "" AND LOOKUP(bf-inv-head.frt-pay,"P,C,B") EQ 0 THEN
+         DO:
+            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invaild freight terms code",NO).
+            lAutoApprove = NO.              
+         END.
          
          IF bf-inv-head.t-inv-tax EQ 0 THEN
          DO:
             RUN Tax_GetTaxableAR(bf-inv-head.company,bf-inv-head.cust-no,bf-inv-head.sold-no,"", OUTPUT lShiptoTaxAble).
-            IF lShiptoTaxAble THEN
+            lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalTaxableCheck",bf-inv-head.cust-no).
+            IF lShiptoTaxAble AND lValidateRequired THEN
             DO:            
                 RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Taxable ship to with no tax",NO).
                 lAutoApprove = NO.
             END.
+         END.  
+         
+         FOR EACH bf-ttInvoiceLineToPost WHERE
+             bf-ttInvoiceLineToPost.rNo EQ bf-inv-head.r-no:               
+             lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalPriceGTCost",bf-inv-head.cust-no).        
+             IF lValidateRequired AND bf-ttInvoiceLineToPost.pricePerUOM GT bf-ttInvoiceLineToPost.costPerUOM THEN
+             DO:                             
+                  RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Item price is greater than the cost of the item",NO).
+                     lAutoApprove = NO.            
+             END.    
          END.         
          
          IF lAutoApprove AND bf-ttInvoiceToPost.isOKToPost THEN DO:
@@ -3721,4 +3757,25 @@ FUNCTION fGetFgValueForZeroCost RETURNS LOGICAL PRIVATE
 END FUNCTION.
 
 
-
+FUNCTION fGetInvoiceApprovalVal RETURNS LOGICAL PRIVATE
+    (ipcCompany AS CHARACTER,
+     ipcControl AS CHARACTER,
+     ipcCustomer AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns YES if the FG Item define in view form NK1  
+     Notes:  
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE lReturnValue AS LOGICAL NO-UNDO.	
+    	
+    FIND FIRST sys-ctrl-shipto NO-LOCK
+         WHERE sys-ctrl-shipto.company EQ ipcCompany 
+         AND sys-ctrl-shipto.NAME EQ ipcControl         
+         AND sys-ctrl-shipto.cust-vend-no EQ ipcCustomer
+         AND sys-ctrl-shipto.log-fld EQ YES
+         NO-ERROR.
+    
+    lReturnValue = AVAILABLE sys-ctrl-shipto.               
+   	
+    RETURN lReturnValue.
+		
+END FUNCTION.
