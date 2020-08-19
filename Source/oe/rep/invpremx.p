@@ -907,7 +907,7 @@ END.
              RUN cXMLOutput (clXMLOutput,'/InvoiceDetailShipping','','Row').
              RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
              /* Assign total freight to first detail line since line-level freight not supported */
-             IF lFirstLine THEN DO: 
+             IF lFirstLine AND inv-head.f-bill THEN DO: 
                  RUN cXMLOutput (clXMLOutput,'',STRING(inv-head.t-inv-freight),'Col').
                  lFirstLine = NO.
              END.
