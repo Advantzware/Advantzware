@@ -76,9 +76,10 @@ ASSIGN
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS cXMLCustomer invStart calendar-1 invEnd ~
-calendar-2 invNoStart invNoEnd rd_posted invDate calendar-3 btnOK btnCancel 
+calendar-2 invNoStart invNoEnd rd_posted invDate calendar-3 fiInvSuffix ~
+btnOK btnCancel 
 &Scoped-Define DISPLAYED-OBJECTS cXMLCustomer invStart invEnd invNoStart ~
-invNoEnd rd_posted invDate 
+invNoEnd rd_posted invDate fiInvSuffix 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -119,6 +120,11 @@ DEFINE BUTTON calendar-3
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05.
+
+DEFINE VARIABLE fiInvSuffix AS CHARACTER FORMAT "X(2)":U 
+     LABEL "Invoice Suffix" 
+     VIEW-AS FILL-IN 
+     SIZE 5 BY 1 NO-UNDO.
 
 DEFINE VARIABLE invDate AS DATE FORMAT "99/99/9999":U 
      LABEL "Invoice Date" 
@@ -173,9 +179,10 @@ DEFINE FRAME DEFAULT-FRAME
      invNoEnd AT ROW 15.52 COL 47 COLON-ALIGNED HELP
           "Enter Ending Invoice Date" WIDGET-ID 24
      rd_posted AT ROW 17.29 COL 19.4 NO-LABEL WIDGET-ID 20
-     invDate AT ROW 17.38 COL 58.1 COLON-ALIGNED HELP
+     invDate AT ROW 17.38 COL 58.2 COLON-ALIGNED HELP
           "Enter Invoice Date" WIDGET-ID 30
      calendar-3 AT ROW 17.38 COL 74.8 WIDGET-ID 28
+     fiInvSuffix AT ROW 19.1 COL 21 COLON-ALIGNED
      btnOK AT ROW 19.1 COL 49 WIDGET-ID 16
      btnCancel AT ROW 19.1 COL 65 WIDGET-ID 18
      "Customers" VIEW-AS TEXT
@@ -347,7 +354,8 @@ DO:
             AND inv-head.inv-date LE invEnd
             AND inv-head.inv-no   GE invNoStart
             AND inv-head.inv-no   LE invNoEnd
-            AND (inv-head.stat EQ "" OR inv-head.stat EQ "X"):
+            AND (inv-head.stat EQ "" OR inv-head.stat EQ "X")
+                :
         CREATE report.
         ASSIGN
           report.term-id = v-term-id
@@ -358,7 +366,7 @@ DO:
       END. /* each inv-head */
       DISABLE {&List-1} {&List-2} WITH FRAME {&FRAME-NAME}.
       IF CAN-FIND(FIRST report WHERE report.term-id EQ v-term-id) THEN
-      RUN oe/rep/invpremx.p ('',NO).
+      RUN oe/rep/invpremx.p (fiInvSuffix:screen-value,NO).
       iCount = 0.
       FOR EACH report EXCLUSIVE-LOCK WHERE report.term-id EQ v-term-id: 
         iCount = iCount + 1.
@@ -378,27 +386,6 @@ DO:
   MESSAGE cMessage
         VIEW-AS ALERT-BOX INFO BUTTONS OK.
   ENABLE {&List-1} {&List-2} WITH FRAME {&FRAME-NAME}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME rd_Posted
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_Posted C-Win
-ON VALUE-CHANGED OF rd_Posted IN FRAME DEFAULT-FRAME
-DO:
-  ASSIGN {&self-name}.
-  IF rd_Posted EQ 1 THEN
-  DO:
-     ASSIGN
-       invDate:HIDDEN IN FRAME DEFAULT-FRAME = YES
-       calendar-3:HIDDEN IN FRAME DEFAULT-FRAME = YES. 
-  END.
-  ELSE
-  ASSIGN
-    invDate:HIDDEN IN FRAME DEFAULT-FRAME = NO
-    calendar-3:HIDDEN IN FRAME DEFAULT-FRAME = NO.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -465,6 +452,27 @@ END.
 ON HELP OF invStart IN FRAME DEFAULT-FRAME /* Invoice Date */
 DO:
   {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME rd_posted
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_posted C-Win
+ON VALUE-CHANGED OF rd_posted IN FRAME DEFAULT-FRAME
+DO:
+  ASSIGN {&self-name}.
+  IF rd_Posted EQ 1 THEN
+  DO:
+     ASSIGN
+       invDate:HIDDEN IN FRAME DEFAULT-FRAME = YES
+       calendar-3:HIDDEN IN FRAME DEFAULT-FRAME = YES. 
+  END.
+  ELSE
+  ASSIGN
+    invDate:HIDDEN IN FRAME DEFAULT-FRAME = NO
+    calendar-3:HIDDEN IN FRAME DEFAULT-FRAME = NO.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -567,9 +575,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY cXMLCustomer invStart invEnd invNoStart invNoEnd rd_posted invDate 
+          fiInvSuffix 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE cXMLCustomer invStart calendar-1 invEnd calendar-2 invNoStart invNoEnd 
-         rd_posted invDate calendar-3 btnOK btnCancel 
+         rd_posted invDate calendar-3 fiInvSuffix btnOK btnCancel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

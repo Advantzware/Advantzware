@@ -111,6 +111,11 @@ DEFINE VARIABLE dFrtTaxAmt            AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE lIsfreightTaxable     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE dFrtTaxRate           AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE lFirstLine            AS LOG       NO-UNDO.
+DEF VAR cInvSuffix AS CHAR NO-UNDO.
+IF LENGTH(ip-copy-title) EQ 2 THEN ASSIGN 
+    cInvSuffix = ip-copy-title.
+ELSE ASSIGN 
+    cInvSuffix = "".
 
 FUNCTION fRoundUp RETURNS DECIMAL ( ipdNum AS DECIMAL ):
   DEFINE VARIABLE dNumTwoRight AS DECIMAL NO-UNDO.
@@ -491,7 +496,7 @@ END.
         RUN XMLOutput (lXMLOutput,'Ship_1',v-shipto-addr[1],'Col').
         RUN XMLOutput (lXMLOutput,'Ship_2',v-shipto-addr[2],'Col').
         RUN XMLOutput (lXMLOutput,'Ship_3',v-sold-addr3,'Col').
-        RUN XMLOutput (lXMLOutput,'InvoiceNo',inv-head.inv-no,'Col').
+        RUN XMLOutput (lXMLOutput,'InvoiceNo',string(inv-head.inv-no) + cInvSuffix,'Col').
         RUN XMLOutput (lXMLOutput,'InvoiceDate',v-inv-date,'Col').
         RUN XMLOutput (lXMLOutput,'ShipDate',v-date-ship,'Col').
         RUN XMLOutput (lXMLOutput,'FOB',v-fob,'Col').
@@ -507,9 +512,10 @@ END.
         cXMLLineNumber = 0. 
         RUN cXMLOutput (clXMLOutput,'Request deploymentMode="' + cXMLProduction + '"','','Row').
         RUN cXMLOutput (clXMLOutput,'InvoiceDetailRequest','','Row').
+        MESSAGE "here i am" VIEW-AS ALERT-BOX.
         RUN cXMLOutput (clXMLOutput,'InvoiceDetailRequestHeader ' 
                                 + 'invoiceDate="' + cInvDate + '" '
-                                + 'invoiceID="' + STRING(inv-head.inv-no) + '" '
+                                + 'invoiceID="' + STRING(inv-head.inv-no) + cInvSuffix + '" '
                                 + 'operation="new" purpose="standard"','','Row').
         RUN cXMLOutput (clXMLOutput,'InvoiceDetailHeaderIndicator/','','Row').  
         RUN cXMLOutput (clXMLOutput,'InvoiceDetailLineIndicator isShippingInLine="yes" isAccountingInLine="yes" isTaxInLine="yes" /','','Row').
