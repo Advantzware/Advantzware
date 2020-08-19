@@ -303,7 +303,7 @@ PROCEDURE pAutoSelectTags:
      Notes:
             
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER iprOeBoll AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER iprOeBoll AS ROWID NO-UNDO.
     
     DEFINE VARIABLE lSelectTags   AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lNoneSelected AS LOGICAL NO-UNDO.
@@ -333,7 +333,7 @@ PROCEDURE pAutoSelectTags:
     DEFINE VARIABLE op-rowid-list AS CHARACTER .   
     DEFINE BUFFER b-reftable FOR reftable. /* used to find and copy lot-no when creating oe-boll */
     
-    FIND xoe-boll EXCLUSIVE-LOCK
+    FIND xoe-boll NO-LOCK
         WHERE ROWID(xoe-boll) EQ iprOeBoll 
         NO-ERROR.
             
@@ -383,7 +383,11 @@ PROCEDURE pAutoSelectTags:
            lSelectTags = FALSE.
     EMPTY TEMP-TABLE w-bin.
 
-    fDebugMsg("start fifoloop " + STRING(TIME,"hh:mm:ss am")).     
+    fDebugMsg("start fifoloop " + STRING(TIME,"hh:mm:ss am")).
+    fDebugMsg("out-recid: " + STRING(out-recid)).
+    fDebugMsg("RowID: " + STRING(ROWID(xoe-boll))).
+    fDebugMsg("lSelectTags: " + STRING(lSelectTags)).
+    fDebugMsg("oe-rel.spare-char-1: " + oe-rel.spare-char-1).     
     RUN oe/fifoloopTags.p (ROWID(xoe-boll), lSelectTags, oe-rel.spare-char-1 /*oe-boll.ship-from */, OUTPUT lNoneSelected, OUTPUT hTToe-rel).
     fDebugMsg("end fifoloop " + STRING(TIME,"hh:mm:ss am")).     
     /* From fifoloop, process returned dynamic temp-table to retrieve tag records selected */
@@ -457,12 +461,12 @@ PROCEDURE pAutoSelectTags:
     fDebugMsg("selected qty " + STRING(li-selected-qty) + " bol " + string(xoe-boll.bol-no) + " " + xoe-boll.i-no).
     /* Was not able to assign full quantity from tagged inventory */
     IF li-selected-qty LT xoe-boll.qty THEN DO:
-        fDebugMsg("Inside li-selected-qty LT xoe-boll.qty").      
+        fDebugMsg("Inside li-selected-qty LT xoe-boll.qty").
         RETURN.
     END.
       
     /* If full quantity was selected, then process creation of oe-boll lines */
-    v-qty     = xoe-boll.qty.    
+    v-qty = xoe-boll.qty.    
     IF ll-change-qty AND li-selected-qty GT v-qty THEN DO:
         /* Hard code user selection Transfer scheduled release quantity instead of total of bins selected */
         ll-change-qty = FALSE.
@@ -475,20 +479,16 @@ PROCEDURE pAutoSelectTags:
         NO-ERROR.
     
     /* This loop will exit when v-qty is reduced to zero (in sel-bins.i) */
-    FOR EACH w-bin , 
-        FIRST fg-bin
-          WHERE RECID(fg-bin) EQ w-bin.rec-id
-          NO-LOCK,
-        FIRST itemfg
-          WHERE itemfg.company EQ cocode
+    FOR EACH w-bin, 
+        FIRST fg-bin NO-LOCK
+        WHERE RECID(fg-bin) EQ w-bin.rec-id,
+        FIRST itemfg NO-LOCK
+        WHERE itemfg.company EQ cocode
           AND itemfg.i-no    EQ fg-bin.i-no
-          NO-LOCK
-          BREAK 
-             BY w-bin.seq 
-             BY w-bin.tag:
-
-            
-        FIND FIRST oe-bolh WHERE oe-bolh.b-no EQ xoe-boll.b-no NO-LOCK.
+        BREAK BY w-bin.seq 
+              BY w-bin.tag
+        :            
+        FIND FIRST oe-bolh NO-LOCK WHERE oe-bolh.b-no EQ xoe-boll.b-no.
         ASSIGN 
           bolh_id = RECID(oe-bolh)        
           ip-rowid = ROWID(xoe-boll)
@@ -507,30 +507,21 @@ PROCEDURE pAutoSelectTags:
 
     END. /* for each w-bin, create the oe-boll record */
 
-    /* Special for r-bolpst - Delete the original non-tag bol lines */
-    FIND oe-bolh 
-        WHERE RECID(oe-bolh) EQ bolh_id
-        NO-LOCK NO-ERROR.
-        
     /* Mark oe-boll lines as complete */
-    FIND oe-bolh 
+    FIND oe-bolh NO-LOCK
         WHERE RECID(oe-bolh) EQ bolh_id
-        NO-LOCK NO-ERROR.
+        NO-ERROR.
     IF AVAILABLE oe-bolh THEN 
-    DO TRANSACTION:
-        FOR EACH oe-boll 
-            WHERE oe-boll.b-no EQ oe-bolh.b-no
-            EXCLUSIVE-LOCK
-            BREAK BY oe-boll.ord-no
-            BY oe-boll.i-no:
-            IF FIRST-OF(oe-boll.i-no) THEN 
-            DO:
-                {oe/oe-bolpc.i ALL}
-            END.
-        END. /* each oe-boll */
-    END. /* avail oe-bolh */
+    FOR EACH oe-boll EXCLUSIVE-LOCK
+        WHERE oe-boll.b-no EQ oe-bolh.b-no
+        BREAK BY oe-boll.ord-no
+              BY oe-boll.i-no
+        :
+        IF FIRST-OF(oe-boll.i-no) THEN DO:
+            {oe/oe-bolpc.i ALL}
+        END.
+    END. /* each oe-boll */
     fDebugMsg("leaving fifoloop").
-    RELEASE xoe-boll.     
 END PROCEDURE.
 
 PROCEDURE pCheckDate :
@@ -767,8 +758,6 @@ PROCEDURE pPostBols :
                       :
                       DELETE w-except.
                     END. /* each w-except */
-                    fDebugMsg("before bol check " + string(avail(bf-oe-bolh)) ).
-                    /* check if suffient inventory again after selecting tags */
                 END. /* if avail w-except */
             END. /* if lautoselectshipfrom */
 
@@ -975,7 +964,7 @@ PROCEDURE pRunReport :
     DEFINE BUFFER b-oe-boll FOR oe-boll.
     DEFINE BUFFER bf-itemfg FOR itemfg.
     
-    DEFINE VARIABLE lValidBin        AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lValidBin AS LOGICAL NO-UNDO.
     
     fDebugMsg("In Run Report").
     FIND FIRST period NO-LOCK                
@@ -1274,9 +1263,6 @@ FUNCTION fDebugMsg RETURNS CHARACTER
  Notes:
 ------------------------------------------------------------------------------*/	
     DEFINE VARIABLE result AS CHARACTER NO-UNDO.
-/*    MESSAGE                 */
-/*    "ipcMessage:" ipcMessage*/
-/*    VIEW-AS ALERT-BOX.      */
     IF lUseLogs THEN DO:
         OUTPUT STREAM sDebug CLOSE.
         PROCESS EVENTS.
