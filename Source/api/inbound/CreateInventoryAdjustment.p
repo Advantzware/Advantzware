@@ -229,7 +229,6 @@ PROCEDURE pValidateInputs PRIVATE:
     
     DEFINE VARIABLE lValidBin  AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lValidLoc  AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE dOutputQty AS DECIMAL NO-UNDO.
     DEFINE VARIABLE lError     AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-fg-bin FOR fg-bin.
@@ -400,47 +399,10 @@ PROCEDURE pValidateInputs PRIVATE:
             iopcLocationID  = bf-fg-bin.loc-bin
             .   
                              
-        IF iopiQuantityPerSubUnit NE 0 AND opcPurUOM NE "EA" AND opcPurUOM NE "" THEN DO: 
-            RUN Conv_QuantityFromUOMToUOMForItem IN hdConversionProcs (
-                INPUT  ROWID(itemfg),
-                INPUT  iopiQuantityPerSubUnit,
-                INPUT  "EA",
-                INPUT  opcPurUOM,
-                OUTPUT dOutputQty,
-                OUTPUT lError,
-                OUTPUT opcMessage
-                ) NO-ERROR.
-                
-            IF ERROR-STATUS:ERROR THEN
-                opcMessage = ERROR-STATUS:GET-MESSAGE(1).
-        
-            IF ERROR-STATUS:ERROR OR lError THEN
-                RETURN.  
-               
-            iopiQuantityPerSubUnit = dOutputQty.                                    
-        END. 
-        ELSE 
+        IF iopiQuantityPerSubUnit EQ 0 THEN
             iopiQuantityPerSubUnit = bf-fg-bin.case-count. /* Take from fg-bin if it is 0 */
                             
-    END. 
-    IF opcPurUOM NE "" AND opcPurUOM NE "EA" THEN DO:
-        RUN Conv_QuantityFromUOMToUOMForItem IN hdConversionProcs (
-            INPUT  ROWID(itemfg),
-            INPUT  iopiQuantity,
-            INPUT  "EA",
-            INPUT  opcPurUOM,
-            OUTPUT dOutputQty,
-            OUTPUT lError,
-            OUTPUT opcMessage
-            ) NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN
-            opcMessage = ERROR-STATUS:GET-MESSAGE(1).
-        
-        IF ERROR-STATUS:ERROR OR lError THEN
-            RETURN.
-            
-        iopiQuantity = dOutputQty.    
-    END.                                                 
+    END.                                                  
     ASSIGN
         oplSuccess = TRUE
         opcMessage = "Success"
