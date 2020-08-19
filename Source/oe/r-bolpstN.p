@@ -92,7 +92,7 @@ DEF VAR invstatus-log   AS LOG  NO-UNDO.
 DEF VAR v-invalid AS LOG NO-UNDO.
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
 
-RUN inventory/InventoryProcs PERSISTENT SET hdInventoryProcs.
+RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 FORMAT
   oe-bolh.bol-date
