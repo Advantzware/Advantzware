@@ -41,10 +41,12 @@ DEFINE VARIABLE lv-new-job-hdr-rowid AS ROWID NO-UNDO.
 DEFINE VARIABLE copyJob AS LOG NO-UNDO.
 DEFINE VARIABLE copyJobRowID AS ROWID NO-UNDO.
 /* rstark 06241201 */
-DEFINE VARIABLE noDate AS LOG NO-UNDO.
-DEFINE VARIABLE planDate AS LOG NO-UNDO.
-DEFINE VARIABLE scheduleHndl AS HANDLE NO-UNDO.
+DEFINE VARIABLE noDate       AS LOGICAL NO-UNDO.
+DEFINE VARIABLE planDate     AS LOGICAL NO-UNDO.
+DEFINE VARIABLE scheduleHndl AS HANDLE  NO-UNDO.
 /* rstark 06241201 */
+DEFINE VARIABLE dtDueDate    AS DATE    NO-UNDO.
+DEFINE VARIABLE iDueTime     AS INTEGER NO-UNDO.
 
 /* gdm - 05290901 */
 DEFINE VARIABLE v-jbmch-stdate LIKE job.start-date NO-UNDO.
@@ -66,18 +68,26 @@ DEFINE BUFFER bf-job-mch FOR job-mch.
 DEFINE VARIABLE OEJobHold-log AS LOG NO-UNDO.
 DEFINE VARIABLE lcReturn AS CHARACTER NO-UNDO.
 DEFINE VARIABLE llRecFound AS LOG NO-UNDO.
-DEFINE VARIABLE lCheckStartDate AS LOGICAL NO-UNDO .
-RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
-                          OUTPUT lcReturn, OUTPUT llRecFound).
+DEFINE VARIABLE lCheckStartDate AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lCalcJobDueDate AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cCalcJobDueDate AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCalcDueDateMsg AS CHARACTER NO-UNDO.
 
+RUN sys/ref/nk1look.p (cocode, "CalcJobDueDate", "L", NO, NO, "", "", 
+                       OUTPUT cCalcJobDueDate, OUTPUT llRecFound).
 IF llRecFound THEN
-   OEJobHold-log = LOGICAL(lcReturn) NO-ERROR.  
+lCalcJobDueDate = LOGICAL(cCalcJobDueDate) NO-ERROR.  
+
+RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
+                       OUTPUT lcReturn, OUTPUT llRecFound).
+IF llRecFound THEN
+OEJobHold-log = LOGICAL(lcReturn) NO-ERROR.  
 
 DEFINE VARIABLE JobHoldReason-log AS LOG NO-UNDO.
 RUN sys/ref/nk1look.p (cocode, "JOBHoldReason", "L", NO, NO, "", "", 
-                          OUTPUT lcReturn, OUTPUT llRecFound).
+                       OUTPUT lcReturn, OUTPUT llRecFound).
 IF llRecFound THEN
-   JobHoldReason-log = LOGICAL(lcReturn) NO-ERROR.
+JobHoldReason-log = LOGICAL(lcReturn) NO-ERROR.
 
 DEFINE BUFFER xjob FOR job.
 
@@ -100,16 +110,15 @@ DEFINE VARIABLE hdJobProcs      AS HANDLE    NO-UNDO.
 RUN jc/JobProcs.p   PERSISTENT SET hdJobProcs.
 
 RUN sys/ref/nk1look.p (cocode, "AUTOFGISSUE", "L", NO, NO, "", "", 
-    OUTPUT lvReturnChar, OUTPUT lvFound).
+                       OUTPUT lvReturnChar, OUTPUT lvFound).
     
-    DEFINE VARIABLE cOrdType AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cOrdName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cOrdType AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cOrdName AS CHARACTER NO-UNDO.
   
-    RUN sys/ref/ordtypes.p(
-        OUTPUT cOrdType, 
-        OUTPUT cOrdName
-        ).     
-    
+RUN sys/ref/ordtypes.p(
+    OUTPUT cOrdType, 
+    OUTPUT cOrdName
+    ).   
 
 {sys/inc/f16to32.i}
 {sys/ref/CustList.i NEW}
@@ -149,10 +158,10 @@ DEFINE QUERY external_tables FOR job.
 &Scoped-Define ENABLED-FIELDS job.start-date job.loc job.due-date 
 &Scoped-define ENABLED-TABLES job
 &Scoped-define FIRST-ENABLED-TABLE job
-&Scoped-Define ENABLED-OBJECTS RECT-1 btnCalendar-1 btnCalendar-2 ~
+&Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalcDueDate btnCalendar-2 ~
 fiTypeDescription 
 &Scoped-Define DISPLAYED-FIELDS job.job-no job.job-no2 job.est-no job.stat ~
-job.start-date job.ordertype job.create-date job.csrUser_id job.close-date ~
+job.start-date job.orderType job.create-date job.csrUser_id job.close-date ~
 job.user-id job.loc job.due-date 
 &Scoped-define DISPLAYED-TABLES job
 &Scoped-define FIRST-DISPLAYED-TABLE job
@@ -161,26 +170,13 @@ job.user-id job.loc job.due-date
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-ASSIGN-FIELDS job.job-no job.job-no2 job.est-no ~
-job.start-date job.ordertype job.create-date job.close-date job.due-date 
+job.start-date job.orderType job.create-date job.close-date job.due-date 
 &Scoped-define ROW-AVAILABLE btnCalendar-1 btnCalendar-2 
 &Scoped-define DISPLAY-FIELD job.start-date job.create-date job.close-date ~
 job.due-date 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
-
-/* ************************  Function Prototypes ********************** */
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDoRecalcWithoutRebuild V-table-Win
-FUNCTION fDoRecalcWithoutRebuild RETURNS LOGICAL PRIVATE
-    (ipcCompany AS CHARACTER) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" V-table-Win _INLINE
@@ -204,11 +200,25 @@ RUN set-attribute-list (
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDoRecalcWithoutRebuild V-table-Win 
+FUNCTION fDoRecalcWithoutRebuild RETURNS LOGICAL PRIVATE
+    ( ipcCompany AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnCalcDueDate 
+     IMAGE-UP FILE "Graphics/16x16/calculator.gif":U
+     LABEL "" 
+     SIZE 4 BY 1.05 TOOLTIP "Calculate Due Date".
+
 DEFINE BUTTON btnCalendar-1 
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
@@ -226,11 +236,12 @@ DEFINE VARIABLE fiTypeDescription AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE vHoldReason AS CHARACTER FORMAT "x(50)" 
      LABEL "Hold Reason" 
      VIEW-AS FILL-IN 
-     SIZE 34 BY 1.
+     SIZE 34 BY 1
+     BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 148 BY 4.29.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 148 BY 3.81.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -240,54 +251,67 @@ DEFINE FRAME F-Main
           LABEL "Job Number" FORMAT "x(6)"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
+          BGCOLOR 15 
      job.job-no2 AT ROW 1.24 COL 37 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
+          BGCOLOR 15 
      job.est-no AT ROW 1.24 COL 65 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 21 BY 1
+          BGCOLOR 15 
      job.stat AT ROW 1.24 COL 101 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
+          BGCOLOR 15 
      job.start-date AT ROW 1.24 COL 126 COLON-ALIGNED
           LABEL "Start"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
+          BGCOLOR 15 
      btnCalendar-1 AT ROW 1.24 COL 143.6
-     job.ordertype AT ROW 2.43 COL 19 COLON-ALIGNED WIDGET-ID 6
+     job.orderType AT ROW 2.43 COL 19 COLON-ALIGNED WIDGET-ID 6
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
+          BGCOLOR 15 
      job.create-date AT ROW 2.43 COL 65 COLON-ALIGNED
           LABEL "Created"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
+          BGCOLOR 15 
      vHoldReason AT ROW 2.43 COL 79 COLON-ALIGNED WIDGET-ID 4
      job.csrUser_id AT ROW 2.43 COL 101 COLON-ALIGNED
           LABEL "CSR"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
+          BGCOLOR 15 
      job.close-date AT ROW 2.43 COL 126 COLON-ALIGNED
           LABEL "Close"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
+          BGCOLOR 15 
      job.user-id AT ROW 3.62 COL 67 COLON-ALIGNED
           LABEL "User ID"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
+          BGCOLOR 15 
      job.loc AT ROW 3.62 COL 101 COLON-ALIGNED WIDGET-ID 2
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
+          BGCOLOR 15 
+     btnCalcDueDate AT ROW 3.62 COL 112 WIDGET-ID 10
      job.due-date AT ROW 3.62 COL 126 COLON-ALIGNED
           LABEL "Due Date"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
+          BGCOLOR 15 
      btnCalendar-2 AT ROW 3.62 COL 143.6
      fiTypeDescription AT ROW 2.52 COL 23.4 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+         FGCOLOR 1 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -363,8 +387,10 @@ ASSIGN
    NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN job.job-no2 IN FRAME F-Main
    NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN job.ordertype IN FRAME F-Main
+/* SETTINGS FOR FILL-IN job.orderType IN FRAME F-Main
    NO-ENABLE 2                                                          */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN job.start-date IN FRAME F-Main
    2 4 EXP-LABEL                                                        */
 /* SETTINGS FOR FILL-IN job.stat IN FRAME F-Main
@@ -429,6 +455,44 @@ DO:
   END CASE.
 
   RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCalcDueDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalcDueDate V-table-Win
+ON CHOOSE OF btnCalcDueDate IN FRAME F-Main
+DO:
+    IF lCalcJobDueDate AND job.due-date:SENSITIVE THEN DO:
+        RUN schedule/calcDueDate.p (
+            "Job",
+            ROWID(job),
+            job.company,
+            OUTPUT dtDueDate,
+            OUTPUT iDueTime
+            ).
+        ASSIGN
+            cCalcDueDateMsg = "Based on Current Capacity" + CHR(10) + CHR(10)
+                            + "Next Available Due Date: "
+                            + STRING(dtDueDate,"99/99/9999") + " @ "
+                            + STRING(iDueTime,"hh:mm:ss am")
+            cCalcDueDateMsg = cCalcDueDateMsg
+                            + IF dtDueDate GT DATE(job.due-date:SCREEN-VALUE) THEN
+                              CHR(10) + CHR(10) + "Calculated Due Date exceeds Current Due Date Value"
+                              ELSE ""
+            cCalcDueDateMsg = cCalcDueDateMsg
+                            + CHR(10) + CHR(10)
+                            + "Use Calculated Due Date?"
+                            .
+        MESSAGE
+            cCalcDueDateMsg
+        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+        UPDATE lUpdateJoeDueDate AS LOGICAL.
+        IF lUpdateJoeDueDate THEN
+        job.due-date:SCREEN-VALUE = STRING(dtDueDate).
+    END. /* if calc job due date */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -544,9 +608,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME job.ordertype
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.ordertype V-table-Win
-ON HELP OF job.ordertype IN FRAME F-Main /* Job Type */
+&Scoped-define SELF-NAME job.orderType
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.orderType V-table-Win
+ON HELP OF job.orderType IN FRAME F-Main /* Job Type */
 DO:
     DEFINE VARIABLE cOrderType  AS CHARACTER NO-UNDO.
   
@@ -565,8 +629,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.ordertype V-table-Win
-ON LEAVE OF job.ordertype IN FRAME F-Main /* Job Type */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.orderType V-table-Win
+ON LEAVE OF job.orderType IN FRAME F-Main /* Job Type */
 DO:
     IF LOOKUP(job.orderType:SCREEN-VALUE,cOrdType) EQ 0 THEN DO:
         MESSAGE "Invalid job order type. Valid job order types [" + cOrdType + "]" VIEW-AS ALERT-BOX ERROR.
@@ -1298,8 +1362,9 @@ PROCEDURE local-enable-fields :
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE job.due-date.
 
-    IF adm-new-record                 OR
-       job.due-date LT job.start-date THEN ENABLE job.due-date btnCalendar-1 btnCalendar-2.
+    IF adm-new-record OR
+       job.due-date LT job.start-date THEN
+    ENABLE btnCalcDueDate job.due-date btnCalendar-1 btnCalendar-2.
 
     ELSE
     FOR EACH job-hdr
@@ -1313,7 +1378,8 @@ PROCEDURE local-enable-fields :
       IF FIRST(job-hdr.job) AND LAST(job-hdr.job) THEN LEAVE.
     END.
 
-    IF AVAILABLE job-hdr THEN ENABLE job.due-date btnCalendar-1 btnCalendar-2.
+    IF AVAILABLE job-hdr THEN
+    ENABLE btnCalcDueDate job.due-date btnCalendar-1 btnCalendar-2.
     IF NOT copyjob THEN ENABLE job.orderType. /* Enable the Job Type  */
   END.
 
@@ -1564,8 +1630,8 @@ PROCEDURE local-update-record :
   /* gdm - 05290901 */
   IF ll-new AND NOT copyJob THEN DO:
     RUN pUpdateJobStartDate (
-        INPUT ROWID(job),
-        INPUT DATE(job.start-date:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+        ROWID(job),
+        DATE(job.start-date:SCREEN-VALUE IN FRAME {&FRAME-NAME})
         ).
     IF CAN-FIND(FIRST bf-job-mch NO-LOCK
                 WHERE bf-job-mch.company EQ job.company
@@ -1607,6 +1673,8 @@ PROCEDURE local-update-record :
                              STRING(v-reprint) + ',' +  "0" ). /* gdm - 07130906 */  
   END.
 
+  IF ll-new THEN
+  APPLY "CHOOSE":U TO btnCalcDueDate.
 
   /* re-open the query so when user selects Estimate folder, it shows the new estimate added. */
   IF ll-new THEN DO:  
@@ -1619,9 +1687,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFGadd V-table-Win
-PROCEDURE pFGAdd PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFGAdd V-table-Win 
+PROCEDURE pFGAdd PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1642,16 +1709,12 @@ PROCEDURE pFGAdd PRIVATE:
         
     {jc/fgadd.i}
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInternalJob V-table-Win
-PROCEDURE pGetInternalJob PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInternalJob V-table-Win 
+PROCEDURE pGetInternalJob PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1679,14 +1742,12 @@ PROCEDURE pGetInternalJob PRIVATE:
         opiJob = bf-job.job + 1.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateJobStartDate V-table-Win
-PROCEDURE pUpdateJobStartDate PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateJobStartDate V-table-Win 
+PROCEDURE pUpdateJobStartDate PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1702,11 +1763,9 @@ PROCEDURE pUpdateJobStartDate PRIVATE:
     IF AVAILABLE bf-job AND bf-job.start-date EQ ? THEN
         bf-job.start-date = ipdtStartDate.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateJobTypeDesc V-table-Win 
 PROCEDURE pUpdateJobTypeDesc PRIVATE :
@@ -1725,9 +1784,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateStockNo V-table-Win
-PROCEDURE pUpdateStockNo PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateStockNo V-table-Win 
+PROCEDURE pUpdateStockNo PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1747,11 +1805,9 @@ PROCEDURE pUpdateStockNo PRIVATE:
     END.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Rebuild-Stds V-table-Win 
 PROCEDURE Rebuild-Stds :
@@ -1826,7 +1882,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE recalc-costs V-table-Win 
 PROCEDURE recalc-costs :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2074,45 +2130,38 @@ PROCEDURE update-job-mch :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    DISABLE TRIGGERS FOR LOAD OF job-mch.
+    
+    /* rstark 06241201 */
+    DEFINE VARIABLE calcDueDate   AS DATE NO-UNDO.
+    DEFINE VARIABLE calcStartDate AS DATE NO-UNDO.
+    
+    IF noDate THEN RETURN.
+    IF planDate THEN DO:
+      IF NOT VALID-HANDLE(scheduleHndl) THEN
+      RUN custom/schedule.p PERSISTENT SET scheduleHndl.
+      RUN scheduleJob IN scheduleHndl (ROWID(job),OUTPUT calcStartDate,OUTPUT calcDueDate).
+      IF calcDueDate NE job.due-date THEN
+      MESSAGE 'Machine Capacity calulated Scheduled Completion date of'
+        calcDueDate SKIP 'Update Due Date?'
+        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+        UPDATE updateDueDate AS LOGICAL.
+      IF updateDueDate THEN job.due-date = calcDueDate.
+      job.start-date = calcStartDate.
+    END.
+    /* rstark 06241201 */
+    
+    FOR EACH bf-job-mch EXCLUSIVE-LOCK
+        WHERE bf-job-mch.company EQ job.company
+          AND bf-job-mch.job     EQ job.job
+          AND bf-job-mch.job-no  EQ job.job-no
+          AND bf-job-mch.job-no2 EQ job.job-no2
+        USE-INDEX line-idx
+        :
+        bf-job-mch.start-date-su = job.start-date.    
+    END. /* each bf-job-mch */
+    RELEASE bf-job-mch.
 
-DISABLE TRIGGERS FOR LOAD OF job-mch.
-
-/* rstark 06241201 */
-DEFINE VARIABLE calcDueDate AS DATE NO-UNDO.
-DEFINE VARIABLE calcStartDate AS DATE NO-UNDO.
-
-IF noDate THEN RETURN.
-IF planDate THEN DO:
-  IF NOT VALID-HANDLE(scheduleHndl) THEN
-  RUN custom/schedule.p PERSISTENT SET scheduleHndl.
-  RUN scheduleJob IN scheduleHndl (ROWID(job),OUTPUT calcStartDate,OUTPUT calcDueDate).
-  IF calcDueDate NE job.due-date THEN
-  MESSAGE 'Machine Capacity calulated Scheduled Completion date of'
-    calcDueDate SKIP 'Update Due Date?'
-    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
-    UPDATE updateDueDate AS LOGICAL.
-  IF updateDueDate THEN job.due-date = calcDueDate.
-  job.start-date = calcStartDate.
-END.
-/* rstark 06241201 */
-
-FOR EACH bf-job-mch EXCLUSIVE-LOCK
-  WHERE bf-job-mch.company EQ job.company
-    AND bf-job-mch.job     EQ job.job
-    AND bf-job-mch.job-no  EQ job.job-no
-    AND bf-job-mch.job-no2 EQ job.job-no2
-    USE-INDEX line-idx :
-
-    ASSIGN bf-job-mch.start-date-su = job.start-date.
-
-END.
-RELEASE bf-job-mch.
-/*
-RUN get-link-handle IN adm-broker-hdl
-        (THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
-RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(job)).
-*/
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2656,8 +2705,16 @@ PROCEDURE validate-est :
     DISABLE ALL.
 
     IF ip-lastevent EQ "" THEN DO:   /* except update button clicked */
-        ENABLE job.job-no job.job-no2 job.start-date job.due-date btnCalendar-1 btnCalendar-2 job.ordertype.
-      
+        ENABLE
+            job.job-no
+            job.job-no2
+            job.start-date
+            btnCalcDueDate
+            job.due-date
+            btnCalendar-1
+            btnCalendar-2
+            job.ordertype
+            .
         IF job.job-no2:SCREEN-VALUE GT "0" THEN 
             job.orderType:SCREEN-VALUE = "R".                                 
         ELSE 
@@ -2735,10 +2792,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fDoRecalcWithoutRebuild V-table-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fDoRecalcWithoutRebuild V-table-Win 
 FUNCTION fDoRecalcWithoutRebuild RETURNS LOGICAL PRIVATE
     ( ipcCompany AS CHARACTER ):
     /*------------------------------------------------------------------------------
@@ -2756,7 +2812,7 @@ FUNCTION fDoRecalcWithoutRebuild RETURNS LOGICAL PRIVATE
     RETURN lRecalcWithoutRebuild.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
