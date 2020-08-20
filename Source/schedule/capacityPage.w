@@ -61,6 +61,7 @@ END. /* if no */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -86,6 +87,7 @@ END. /* if no */
 &Scoped-define TABLES-IN-QUERY-ttJob ttJob
 &Scoped-define FIRST-TABLE-IN-QUERY-ttJob ttJob
 
+
 /* Definitions for BROWSE ttMachine                                     */
 &Scoped-define FIELDS-IN-QUERY-ttMachine ttMachine.m-code ttMachine.m-dscr   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-ttMachine   
@@ -95,15 +97,16 @@ END. /* if no */
 &Scoped-define TABLES-IN-QUERY-ttMachine ttMachine
 &Scoped-define FIRST-TABLE-IN-QUERY-ttMachine ttMachine
 
+
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-Dialog-Frame ~
     ~{&OPEN-QUERY-ttJob}~
     ~{&OPEN-QUERY-ttMachine}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnClear ttMachine ttJob btnExit btnOK ~
-btnRemove btnReset btnSort 
-&Scoped-Define DISPLAYED-OBJECTS baseOnText 
+&Scoped-Define ENABLED-OBJECTS btnClear ttMachine ttJob btnExit ~
+htmlPageType btnOK btnRemove btnReset btnSort 
+&Scoped-Define DISPLAYED-OBJECTS baseOnText htmlPageType 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -111,7 +114,7 @@ btnRemove btnReset btnSort
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-/* ************************  Function Prototypes ********************** */
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -153,6 +156,15 @@ DEFINE VARIABLE baseOnText AS CHARACTER FORMAT "X(256)":U
      SIZE 81 BY 1
      BGCOLOR 14  NO-UNDO.
 
+DEFINE VARIABLE htmlPageType AS INT64 INITIAL 1 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "All", 0,
+"By Time", 1,
+"By Percentage", 2,
+"By Time / Percentage", 3
+     SIZE 63 BY 1 NO-UNDO.
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY ttJob FOR 
@@ -181,8 +193,8 @@ ttJob.mr-hr
 ttJob.run-hr
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 81 BY 32.14
-         FGCOLOR 1  ROW-HEIGHT-CHARS .67.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 81 BY 26.19
+         FGCOLOR 1 .
 
 DEFINE BROWSE ttMachine
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttMachine Dialog-Frame _FREEFORM
@@ -191,8 +203,9 @@ DEFINE BROWSE ttMachine
 ttMachine.m-dscr
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 40 BY 33.1
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 40 BY 28.33
          FGCOLOR 1 .
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -201,15 +214,19 @@ DEFINE FRAME Dialog-Frame
      baseOnText AT ROW 1 COL 47 NO-LABEL WIDGET-ID 10
      ttMachine AT ROW 1.24 COL 2 WIDGET-ID 300
      ttJob AT ROW 2.19 COL 47 WIDGET-ID 200
-     btnExit AT ROW 32.43 COL 129 WIDGET-ID 6
+     btnExit AT ROW 27.67 COL 129 WIDGET-ID 6
+     htmlPageType AT ROW 28.38 COL 65 NO-LABEL WIDGET-ID 24
      btnOK AT ROW 2.91 COL 129 WIDGET-ID 4
      btnRemove AT ROW 9.1 COL 129 WIDGET-ID 16
      btnReset AT ROW 12.19 COL 129 WIDGET-ID 18
      btnSort AT ROW 6 COL 129 WIDGET-ID 20
-     SPACE(0.00) SKIP(26.43)
+     "HTML Page Type:" VIEW-AS TEXT
+          SIZE 18 BY 1 AT ROW 28.38 COL 47 WIDGET-ID 30
+     SPACE(72.00) SKIP(0.20)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Capacity Schedule Page Generation" WIDGET-ID 100.
+
 
 /* *********************** Procedure Settings ************************ */
 
@@ -220,6 +237,8 @@ DEFINE FRAME Dialog-Frame
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
+
+
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
@@ -239,6 +258,7 @@ ASSIGN
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
+
 
 /* Setting information for Queries and Browse Widgets fields            */
 
@@ -260,6 +280,10 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttMachine.
 */  /* BROWSE ttMachine */
 &ANALYZE-RESUME
 
+ 
+
+
+
 /* ************************  Control Triggers  ************************ */
 
 &Scoped-define SELF-NAME Dialog-Frame
@@ -272,6 +296,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME btnClear
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClear Dialog-Frame
 ON CHOOSE OF btnClear IN FRAME Dialog-Frame /* Clear */
@@ -283,6 +308,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME btnOK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOK Dialog-Frame
 ON CHOOSE OF btnOK IN FRAME Dialog-Frame /* OK */
@@ -290,12 +316,14 @@ DO:
     SESSION:SET-WAIT-STATE ("General").
     RUN pScheduleJob (iprRowID).
 /*    RUN pHTMLPageHorizontal.*/
-    RUN pHTMLPageVertical.
+    ASSIGN htmlPageType.
+    RUN pHTMLPageVertical (htmlPageType).
     SESSION:SET-WAIT-STATE ("").
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btnRemove
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRemove Dialog-Frame
@@ -307,6 +335,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME btnReset
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnReset Dialog-Frame
 ON CHOOSE OF btnReset IN FRAME Dialog-Frame /* Reset */
@@ -317,6 +346,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME btnSort
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSort Dialog-Frame
 ON CHOOSE OF btnSort IN FRAME Dialog-Frame /* Sort */
@@ -326,6 +356,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define BROWSE-NAME ttJob
 &Scoped-define SELF-NAME ttJob
@@ -341,6 +372,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define BROWSE-NAME ttMachine
 &Scoped-define SELF-NAME ttMachine
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttMachine Dialog-Frame
@@ -352,12 +384,12 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define BROWSE-NAME ttJob
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
 
-/* ***************************  Main Block  *************************** */
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
@@ -394,6 +426,7 @@ RUN disable_UI.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* **********************  Internal Procedures  *********************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
@@ -424,9 +457,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY baseOnText 
+  DISPLAY baseOnText htmlPageType 
       WITH FRAME Dialog-Frame.
-  ENABLE btnClear ttMachine ttJob btnExit btnOK btnRemove btnReset btnSort 
+  ENABLE btnClear ttMachine ttJob btnExit htmlPageType btnOK btnRemove btnReset 
+         btnSort 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -653,8 +687,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pHTMLPageVertical Dialog-Frame
-PROCEDURE pHTMLPageVertical:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pHTMLPageVertical Dialog-Frame 
+PROCEDURE pHTMLPageVertical :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -662,6 +696,8 @@ PROCEDURE pHTMLPageVertical:
     &Scoped-define fontFace Arial, Helvetica, sans-serif
     &Scoped-define fontFace Comic Sans MS
     &Scoped-define fontFace Tahoma
+    
+    DEFINE INPUT PARAMETER ipiVersion AS INTEGER NO-UNDO.
     
     DEFINE VARIABLE cBGColor    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cDays       AS CHARACTER NO-UNDO INITIAL "Sun,Mon,Tue,Wed,Thu,Fri,Sat".
@@ -677,9 +713,11 @@ PROCEDURE pHTMLPageVertical:
     DEFINE VARIABLE dtStartDate AS DATE      NO-UNDO.
     DEFINE VARIABLE iDays       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iEndTime    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iEndVer     AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iJobs       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iTime       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iStartTime  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iStartVer   AS INTEGER   NO-UNDO.
     DEFINE VARIABLE idx         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE jdx         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lAltLine    AS LOGICAL   NO-UNDO.
@@ -744,7 +782,11 @@ PROCEDURE pHTMLPageVertical:
         END. /* do dtdate */
     END. /* each ttbljob */
     
-    DO jdx = 1 TO 3:
+    ASSIGN
+        iStartVer = IF ipiVersion EQ 0 THEN 1 ELSE ipiVersion
+        iEndVer   = IF ipiVersion EQ 0 THEN 3 ELSE ipiVersion
+        .
+    DO jdx = iStartVer TO iEndVer:
         CASE jdx:
             WHEN 1 THEN
             cPageTitle = " by Time".
@@ -898,12 +940,12 @@ PROCEDURE pHTMLPageVertical:
     END. /* do jdx */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOutputResources Dialog-Frame
-PROCEDURE pOutputResources:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOutputResources Dialog-Frame 
+PROCEDURE pOutputResources :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -939,8 +981,7 @@ PROCEDURE pOutputResources:
         .
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-/* ************************  Function Implementations ***************** */

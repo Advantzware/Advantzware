@@ -28,7 +28,7 @@ FUNCTION fCreateLabel RETURNS HANDLE
 END FUNCTION.
 
 FUNCTION fFormatValue RETURNS CHARACTER
-  (iphTable AS HANDLE, ipcField AS CHARACTER):
+  (iphTable AS HANDLE, ipcField AS CHARACTER, ipcFormat AS CHARACTER):
 /*------------------------------------------------------------------------------
  Purpose: format field value
  Notes:
@@ -43,8 +43,9 @@ FUNCTION fFormatValue RETURNS CHARACTER
         idx  = INTEGER(cStr)
         ipcField = SUBSTRING(ipcField,1,INDEX(ipcField,"[") - 1)
         .
-    cStr = STRING(iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE(idx),
-                  iphTable:BUFFER-FIELD(ipcField):FORMAT) NO-ERROR.
+    IF ipcFormat EQ "" THEN
+    ipcFormat = iphTable:BUFFER-FIELD(ipcField):FORMAT.
+    cStr = STRING(iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE(idx),ipcFormat) NO-ERROR.
     /* error raised if invalid format for field value */
     IF ERROR-STATUS:NUM-MESSAGES NE 0 OR
        iphTable:BUFFER-FIELD(ipcField):DATA-TYPE EQ "CHARACTER" THEN 

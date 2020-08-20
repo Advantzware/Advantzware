@@ -436,38 +436,6 @@ PROCEDURE pHTMLPageVertical:
         END. /* if iplLaunch */
     END. /* do jdx */
     
-    /* below used for debugging purposes */
-/*    OUTPUT TO "c:\tmp\sbHTML0.txt".                     */
-/*    FOR EACH ttTime                                     */
-/*    BREAK BY ttTime.timeKey                             */
-/*          BY ttTime.timeDate  DESCENDING                */
-/*          BY ttTime.timeSlice DESCENDING                */
-/*          BY ttTime.sortOrder DESCENDING                */
-/*        :                                               */
-/*        EXPORT                                          */
-/*            ttTime.timeKey                              */
-/*            ttTime.timeDate                             */
-/*            ttTime.timeSlice                            */
-/*            STRING(ttTime.timeSlice,"hh:mm:ss am")      */
-/*            ttTime.timeType1                            */
-/*            ttTime.timeType2                            */
-/*            ttTime.newJob                               */
-/*            ttTime.sortOrder                            */
-/*            ttTime.jobCount                             */
-/*            .                                           */
-/*        IF LAST-OF(ttTime.timeDate) THEN                */
-/*        PUT UNFORMATTED SKIP(1).                        */
-/*    END.                                                */
-/*    OUTPUT CLOSE.                                       */
-/*    OS-COMMAND NO-WAIT notepad.exe "c:\tmp\sbHTML0.txt".*/
-/*                                                           */
-/*    OUTPUT TO c:\tmp\ttblDowntime.txt.                     */
-/*    FOR EACH ttblDowntime:                                 */
-/*        EXPORT ttblDowntime.                               */
-/*    END.                                                   */
-/*    OUTPUT CLOSE.                                          */
-/*    OS-COMMAND NO-WAIT notepad.exe c:\tmp\ttblDowntime.txt.*/
-
 END PROCEDURE.
 
 PROCEDURE pLoadDowntime:
@@ -663,83 +631,10 @@ PROCEDURE pSummarizeTimeSlices:
         END. /* each tttime */
     END. /* do dtdate */
 
-    /* below used for debugging purposes */
-/*    OUTPUT TO "c:\tmp\sbHTML0.txt".                     */
-/*    FOR EACH ttTime                                     */
-/*    BREAK BY ttTime.timeKey                             */
-/*          BY ttTime.timeDate  DESCENDING                */
-/*          BY ttTime.timeSlice DESCENDING                */
-/*          BY ttTime.sortOrder DESCENDING                */
-/*        :                                               */
-/*        EXPORT                                          */
-/*            ttTime.timeKey                              */
-/*            ttTime.timeDate                             */
-/*            ttTime.timeSlice                            */
-/*            STRING(ttTime.timeSlice,"hh:mm:ss am")      */
-/*            ttTime.timeType1                            */
-/*            ttTime.timeType2                            */
-/*            ttTime.newJob                               */
-/*            ttTime.sortOrder                            */
-/*            ttTime.jobCount                             */
-/*            .                                           */
-/*        IF LAST-OF(ttTime.timeDate) THEN                */
-/*        PUT UNFORMATTED SKIP(1).                        */
-/*    END.                                                */
-/*    OUTPUT CLOSE.                                       */
-/*    OS-COMMAND NO-WAIT notepad.exe "c:\tmp\sbHTML0.txt".*/
-/*                                                        */
-/*    OUTPUT TO "c:\tmp\sbHTML1.txt".                     */
-/*    FOR EACH ttTime                                     */
-/*    BREAK BY ttTime.timeKey                             */
-/*          BY ttTime.timeDate                            */
-/*          BY ttTime.timeSlice                           */
-/*          BY ttTime.sortOrder                           */
-/*        :                                               */
-/*        EXPORT                                          */
-/*            ttTime.timeKey                              */
-/*            ttTime.timeDate                             */
-/*            ttTime.timeSlice                            */
-/*            STRING(ttTime.timeSlice,"hh:mm:ss am")      */
-/*            ttTime.timeType1                            */
-/*            ttTime.timeType2                            */
-/*            ttTime.newJob                               */
-/*            ttTime.sortOrder                            */
-/*            ttTime.jobCount                             */
-/*            .                                           */
-/*        IF LAST-OF(ttTime.timeDate) THEN                */
-/*        PUT UNFORMATTED SKIP(1).                        */
-/*    END.                                                */
-/*    OUTPUT CLOSE.                                       */
-/*    OS-COMMAND NO-WAIT notepad.exe "c:\tmp\sbHTML1.txt".*/
-
     EMPTY TEMP-TABLE ttTime.
     FOR EACH bttTime:
         CREATE ttTime.
         BUFFER-COPY bttTime TO ttTime.
     END. /* each btttime */
-
-/*    OUTPUT TO "c:\tmp\sbHTML2.txt".                     */
-/*    FOR EACH bttTime                                    */
-/*    BREAK BY bttTime.timeKey                            */
-/*          BY bttTime.timeDate                           */
-/*          BY bttTime.timeSlice                          */
-/*          BY bttTime.sortOrder                          */
-/*        :                                               */
-/*        EXPORT                                          */
-/*            bttTime.timeKey                             */
-/*            bttTime.timeDate                            */
-/*            bttTime.timeSlice                           */
-/*            STRING(bttTime.timeSlice,"hh:mm:ss am")     */
-/*            bttTime.timeType1                           */
-/*            bttTime.timeType2                           */
-/*            bttTime.newJob                              */
-/*            bttTime.sortOrder                           */
-/*            bttTime.jobCount                            */
-/*            .                                           */
-/*        IF LAST-OF(bttTime.timeDate) THEN               */
-/*        PUT UNFORMATTED SKIP(1).                        */
-/*    END.                                                */
-/*    OUTPUT CLOSE.                                       */
-/*    OS-COMMAND NO-WAIT notepad.exe "c:\tmp\sbHTML2.txt".*/
 
 END PROCEDURE.
