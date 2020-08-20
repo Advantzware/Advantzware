@@ -104,22 +104,21 @@ PROCEDURE pBusinessLogic:
             OUTPUT dBalanceCurrent,
             OUTPUT dBalanceWithinGrace,
             OUTPUT dBalancePastDue
-            ).
-       
+            ).       
         ASSIGN             
-            dbalanceDue  = dDue - DYNAMIC-FUNCTION("Credit_fAmountPaidOnAccount" IN hCreditProcs, cust.company, cust.cust-no)            
-            .
-        cCreditHoldStatus = "".
-        lbalUpdated  = FALSE. 
+            dbalanceDue       = dDue - DYNAMIC-FUNCTION("Credit_fAmountPaidOnAccount" IN hCreditProcs, cust.company, cust.cust-no)            
+            cCreditHoldStatus = ""
+            lbalUpdated       = FALSE
+            . 
         IF rInvoiceRecID NE ? THEN
-         cCreditHoldStatus = "Past Due Invoice,".
-        IF  dOrderBalance +  dbalanceDue GT  cust.cr-lim THEN
-         cCreditHoldStatus =  cCreditHoldStatus + "Over Credit Limit,".
-        IF  dOrderBalance GT  cust.cr-lim THEN
-         cCreditHoldStatus =  cCreditHoldStatus + "Over Order Limit,".
+        cCreditHoldStatus = "Past Due Invoice,".
+        IF dOrderBalance + dbalanceDue GT  cust.cr-lim THEN
+        cCreditHoldStatus = cCreditHoldStatus + "Over Credit Limit,".
+        IF dOrderBalance GT cust.cr-lim THEN
+        cCreditHoldStatus = cCreditHoldStatus + "Over Order Limit,".
         IF cust.cr-hold THEN
-         cCreditHoldStatus =  cCreditHoldStatus + "Already On Hold".
-         cCreditHoldStatus = TRIM( cCreditHoldStatus,",").
+        cCreditHoldStatus = cCreditHoldStatus + "Already On Hold".
+        cCreditHoldStatus = TRIM(cCreditHoldStatus,",").
         IF cust.acc-bal            NE dbalanceDue         OR
            cust.ord-bal            NE dOrderBalance       OR
            cust.balanceCurrent     NE dBalanceCurrent     OR 
@@ -171,15 +170,14 @@ PROCEDURE pBusinessLogic:
         END. /* do trans */
         ELSE lbalUpdated = YES.
         
-       IF cust.cust-no GE cStartCustNo
-        AND cust.cust-no LE cEndCustNo
-        AND ((dbalanceDue GT 0 AND lOrderBalance) 
-        OR (dbalanceDue GT 0 AND lARBalance) 
-        OR (dBalanceWithinGrace GT 0 AND lPastGraceBalance) 
-        OR (cust.cr-hold EQ YES AND lCreditHold) 
-        OR (lbalUpdated EQ NO AND lCustomerNotAged) ) THEN
-        DO:
-            CREATE ttCustAging.
+        IF cust.cust-no GE cStartCustNo AND
+           cust.cust-no LE cEndCustNo   AND
+           ((dbalanceDue GT 0 AND lOrderBalance) OR
+            (dbalanceDue GT 0 AND lARBalance) OR
+            (dBalanceWithinGrace GT 0 AND lPastGraceBalance) OR
+            (cust.cr-hold EQ YES AND lCreditHold) OR
+            (lbalUpdated EQ NO AND lCustomerNotAged) ) THEN DO:
+        CREATE ttCustAging.
         ASSIGN
             ttCustAging.custNo             = cust.cust-no
             ttCustAging.custName           = cust.NAME
@@ -195,10 +193,9 @@ PROCEDURE pBusinessLogic:
             ttCustAging.balancePastDue     = dBalancePastDue
             ttCustAging.creditAvailable    = cust.cr-lim - dOrderBalance - dbalanceDue 
             ttCustAging.creditHoldStatus   = REPLACE(cCreditHoldStatus,","," | ")
-            ttCustAging.balUpdated         = lbalUpdated.          
-        
-        END.         
-        
+            ttCustAging.balUpdated         = lbalUpdated
+            .        
+        END.       
     END. /* each cust */     
 
     IF VALID-HANDLE(hCreditProcs) THEN
