@@ -475,7 +475,7 @@ PROCEDURE pGetTaxAmounts PRIVATE:
                 CREATE ttTaxDetail.
                 ASSIGN
                     ttTaxDetail.company                = ipcCompany
-                    ttTaxDetail.invoiceNo              = cInvoiceNo
+                    ttTaxDetail.invoiceNo              = INTEGER(cInvoiceNo)
                     ttTaxDetail.invoiceLineType        = cLineType
                     ttTaxDetail.invoiceLineRecKey      = cLineRecKey
                     ttTaxDetail.taxLine                = iLineNo

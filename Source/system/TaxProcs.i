@@ -15,7 +15,7 @@
 /* ***************************  Definitions  ************************** */
 DEFINE TEMP-TABLE ttTaxDetail NO-UNDO
     FIELD company                AS CHARACTER
-    FIELD invoiceNo              AS CHARACTER
+    FIELD invoiceNo              AS INTEGER
     FIELD invoiceLineType        AS CHARACTER
     FIELD invoiceLineRecKey      AS CHARACTER
     FIELD taxLine                AS INTEGER
