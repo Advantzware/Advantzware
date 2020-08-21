@@ -11,6 +11,9 @@
 
  History:
 
+ r4.007 (updated 8.21.2020)
+ * status checkoffs issued vs receipted
+
  r4.006 (updated 8.4.2020)
  * add ability to filter pending report by department
  * add field score length

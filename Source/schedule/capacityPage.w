@@ -24,6 +24,8 @@
 
 /* ***************************  Definitions  ************************** */
 
+&Scoped-define program-id capacityPage.
+
 /* Parameters Definitions ---                                           */
 
 DEFINE INPUT PARAMETER ipcType    AS CHARACTER NO-UNDO.
@@ -104,7 +106,7 @@ END. /* if no */
     ~{&OPEN-QUERY-ttMachine}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnClear ttMachine ttJob btnExit ~
+&Scoped-Define ENABLED-OBJECTS btnExit btnClear ttMachine ttJob ~
 htmlPageType btnOK btnRemove btnReset btnSort 
 &Scoped-Define DISPLAYED-OBJECTS baseOnText htmlPageType 
 
@@ -126,7 +128,7 @@ DEFINE BUTTON btnClear
      LABEL "Clear" 
      SIZE 8 BY 1.91 TOOLTIP "Clear".
 
-DEFINE BUTTON btnExit AUTO-END-KEY 
+DEFINE BUTTON btnExit 
      IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Exit" 
      SIZE 8 BY 1.91 TOOLTIP "Exit".
@@ -210,11 +212,11 @@ ttMachine.m-dscr
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
+     btnExit AT ROW 27.67 COL 129 WIDGET-ID 6
      btnClear AT ROW 15.52 COL 129 WIDGET-ID 22
      baseOnText AT ROW 1 COL 47 NO-LABEL WIDGET-ID 10
      ttMachine AT ROW 1.24 COL 2 WIDGET-ID 300
      ttJob AT ROW 2.19 COL 47 WIDGET-ID 200
-     btnExit AT ROW 27.67 COL 129 WIDGET-ID 6
      htmlPageType AT ROW 28.38 COL 65 NO-LABEL WIDGET-ID 24
      btnOK AT ROW 2.91 COL 129 WIDGET-ID 4
      btnRemove AT ROW 9.1 COL 129 WIDGET-ID 16
@@ -290,7 +292,8 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttMachine.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Capacity Schedule Page Generation */
 DO:
-  APPLY "END-ERROR":U TO SELF.
+    RUN pSaveSettings.
+    APPLY "END-ERROR":U TO SELF.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -307,6 +310,19 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnExit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExit Dialog-Frame
+ON CHOOSE OF btnExit IN FRAME Dialog-Frame /* Exit */
+DO:
+    RUN pSaveSettings.
+    APPLY "END-ERROR":U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &Scoped-define SELF-NAME btnOK
@@ -405,6 +421,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN pBuildTTMachine.
   RUN pBuildTTJob (ipcType, ipcCompany, iprRowID).
   RUN pRemoveUnusedDowntime.
+  RUN pGetSettings.
   RUN enable_UI.
   DISPLAY baseOnText WITH FRAME {&FRAME-NAME}.
   IF cErrorMsg NE "" THEN
@@ -459,7 +476,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY baseOnText htmlPageType 
       WITH FRAME Dialog-Frame.
-  ENABLE btnClear ttMachine ttJob btnExit htmlPageType btnOK btnRemove btnReset 
+  ENABLE btnExit btnClear ttMachine ttJob htmlPageType btnOK btnRemove btnReset 
          btnSort 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
@@ -488,6 +505,33 @@ PROCEDURE pAddMachine :
         .
     {&OPEN-QUERY-ttJob}
     QUERY ttJob:REPOSITION-TO-ROWID(rRowID).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSettings Dialog-Frame 
+PROCEDURE pGetSettings :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+    
+    FIND FIRST user-print NO-LOCK
+         WHERE user-print.program-id EQ "{&program-id}"
+           AND user-print.user-id    EQ USERID("ASI")
+         NO-ERROR.
+    IF AVAILABLE user-print THEN DO:
+        DO idx = 1 TO EXTENT(user-print.field-name):
+            IF user-print.field-name[idx] EQ "" THEN LEAVE.
+            CASE user-print.field-name[idx]:
+                WHEN "htmlPageType" THEN
+                htmlPageType = INTEGER(user-print.field-value[idx]).
+            END CASE.
+        END. /* do idx */
+    END. /* if avail */
 
 END PROCEDURE.
 
@@ -979,6 +1023,39 @@ PROCEDURE pOutputResources :
         'Operation</b></font></td>' SKIP
         '    </tr>' SKIP
         .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSaveSettings Dialog-Frame 
+PROCEDURE pSaveSettings :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+    
+    FIND FIRST user-print EXCLUSIVE-LOCK
+         WHERE user-print.program-id EQ "{&program-id}"
+           AND user-print.user-id    EQ USERID("ASI")
+         NO-ERROR.
+    IF NOT AVAILABLE user-print THEN DO:
+        CREATE user-print.
+        ASSIGN
+            user-print.program-id = "{&program-id}"
+            user-print.user-id    = USERID("ASI")
+            .
+    END. /* not avail */
+    ASSIGN
+        user-print.field-name     = ""
+        user-print.field-value    = ""
+        user-print.field-label    = ""
+        user-print.field-name[1]  = "htmlPageType"
+        user-print.field-value[1] = htmlPageType:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        .
+    FIND CURRENT user-print NO-LOCK.
 
 END PROCEDURE.
 
