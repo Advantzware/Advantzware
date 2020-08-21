@@ -408,13 +408,13 @@ PROCEDURE Outbound_IsApiScopeActive:
  Purpose: Check for Active Scope for a given API
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcLocation         AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcAPIID            AS CHARACTER NO-UNDO.    
-    DEFINE INPUT  PARAMETER ipcScopeID          AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcScopeType        AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTriggerID        AS CHARACTER NO-UNDO.    
-    DEFINE OUTPUT PARAMETER oplScopeActive      AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID       AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcScopeID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTriggerID   AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplScopeActive AS LOGICAL   NO-UNDO.
     
     DEFINE BUFFER bf-APIOutbound        FOR APIOutbound.
     DEFINE BUFFER bf-APIOutboundTrigger FOR APIOutboundTrigger.

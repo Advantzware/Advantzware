@@ -1127,7 +1127,7 @@ PROCEDURE pRunAPIOutboundTrigger:
                     INPUT  bf-oe-rell.loc,              /* Location Code (Mandatory) */
                     INPUT  cAPIID,                      /* API ID (Mandatory) */
                     INPUT  ipbf-oe-relh.cust-no,        /* Scope ID*/
-					INPUT  "Customer",                  /* Scope Type */
+		            INPUT  "Customer",                  /* Scope Type */
                     INPUT  ipcTriggerID,                /* Trigger ID (Mandatory) */
                     INPUT  "oe-relh",                   /* Comma separated list of table names for which data being sent (Mandatory) */
                     INPUT  STRING(ROWID(ipbf-oe-relh)), /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
