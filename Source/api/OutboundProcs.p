@@ -403,6 +403,60 @@ PROCEDURE Outbound_IncrementAPITransactionCounter:
     END.
 END PROCEDURE.
 
+PROCEDURE Outbound_IsApiScopeActive:
+/*------------------------------------------------------------------------------
+ Purpose: Check for Active Scope for a given API
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID            AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcScopeID          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeType        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTriggerID        AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplScopeActive      AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-APIOutbound        FOR APIOutbound.
+    DEFINE BUFFER bf-APIOutboundTrigger FOR APIOutboundTrigger.
+    DEFINE BUFFER bf-apiClient          FOR apiClient.
+    
+    /* The following code will be executed if it is a fresh (NOT re-triggered) API call */
+    FOR EACH bf-APIOutbound NO-LOCK
+       WHERE bf-APIOutbound.company EQ ipcCompany
+         AND bf-APIOutbound.apiID   EQ ipcAPIID:
+        IF bf-APIOutbound.Inactive THEN
+            NEXT.
+
+        FIND FIRST bf-APIOutboundTrigger NO-LOCK
+             WHERE bf-APIOutboundTrigger.apiOutboundID EQ bf-APIOutbound.apiOutboundID
+               AND bf-APIOutboundTrigger.triggerID     EQ ipcTriggerID
+               AND bf-APIOutboundtrigger.Inactive      EQ FALSE
+             NO-ERROR.
+        IF NOT AVAILABLE bf-APIOutboundTrigger THEN
+            NEXT.
+        
+        FIND FIRST bf-apiClient NO-LOCK
+             WHERE bf-apiClient.company  EQ bf-APIOutbound.company
+               AND bf-apiClient.clientID EQ bf-APIOutbound.clientID
+             NO-ERROR.
+        IF AVAILABLE bf-apiClient THEN DO:
+            RUN pIsScopeActive (
+                INPUT  bf-apiClient.company,
+                INPUT  ipcLocation,
+                INPUT  ipcAPIID,
+                INPUT  bf-apiClient.clientID,
+                INPUT  ipcTriggerID,
+                INPUT  ipcScopeID,
+                INPUT  ipcScopeType,
+                OUTPUT oplScopeActive
+                ).
+            IF oplScopeActive THEN 
+                RETURN.
+        END.
+    END.    
+
+END PROCEDURE.
+
 PROCEDURE Outbound_PrepareRequestForScope:
     /*------------------------------------------------------------------------------
      Purpose: Public wrapper procedure to prepare request data for a given scope id 
@@ -473,6 +527,27 @@ PROCEDURE Outbound_PrepareAndExecuteForScope:
         OUTPUT oplSuccess,
         OUTPUT opcMessage        
         ).
+END PROCEDURE.
+
+PROCEDURE Outbound_ValidateLocation:
+/*------------------------------------------------------------------------------
+ Purpose: Validates the location 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    RUN pValidateLocation(
+        INPUT  ipcCompany,
+        INPUT  ipcLocation,
+        INPUT  ipcAPIID,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ) NO-ERROR.
+
 END PROCEDURE.
 
 PROCEDURE pPrepareAndExecuteForScope PRIVATE:
