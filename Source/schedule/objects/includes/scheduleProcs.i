@@ -458,6 +458,9 @@ PROCEDURE pScheduleJob:
     DEFINE VARIABLE lvEndTimeMR     AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lvMachine       AS CHARACTER NO-UNDO.
 
+    &IF DEFINED(DebugLog) NE 0 &THEN
+    OUTPUT TO c:\tmp\dueDate.txt.
+    &ENDIF
     ASSIGN
         lvStartDate = TODAY
         lvStartTime = TIME
@@ -482,8 +485,6 @@ PROCEDURE pScheduleJob:
             OUTPUT lvEndDate,
             OUTPUT lvEndTime
             ).
-        RUN calcEnd (lvStartDate,lvStartTime,ttJob.mr-hr,0,
-            OUTPUT lvEndDateMR,OUTPUT lvEndTimeMR).
         CREATE ttblJob.
         ASSIGN
             ttblJob.m-code        = ttJob.m-code
@@ -504,6 +505,14 @@ PROCEDURE pScheduleJob:
             lvStartTime           = lvEndTime
             .
     END. /* each ttjob */
+    &IF DEFINED(DebugLog) NE 0 &THEN
+    PUT SKIP(2).
+    FOR EACH ttblJob:
+        EXPORT ttblJob.
+    END.
+    OUTPUT CLOSE.
+    OS-COMMAND NO-WAIT notepad.exe c:\tmp\dueDate.txt.
+    &ENDIF
 
 END PROCEDURE.
 
@@ -564,8 +573,8 @@ PROCEDURE ttblJobCreate:
                 ttblJob.startTime     = lvStartTime
                 ttblJob.endDate       = lvEndDate
                 ttblJob.endTime       = lvEndTime
-                ttblJob.endDateTime   = lvEndDateTime
                 ttblJob.startDateTime = numericDateTime(ttblJob.startDate,ttblJob.startTime)
+                ttblJob.endDateTime   = lvEndDateTime
                 ttblJob.newJob        = NO
                 .
         END. /* each bjobmch */

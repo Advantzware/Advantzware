@@ -309,15 +309,18 @@ PROCEDURE pCalculate PRIVATE :
      Purpose: Calculates tax amount for the given inputs
      Notes: Replaces ar/calctax.p and ar/calctax2.p
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcTaxCode       AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER iplIsThisFreight AS LOGICAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdTaxableAmount AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcCustomerID    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcShipToID      AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdTax           AS DECIMAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess       AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany           AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTaxCode           AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplIsThisFreight     AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdTaxableAmount     AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustomerID        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcShipToID          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiInvoiceNo         AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcInvoiceLineType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcInvoiceLineRecKey AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTax               AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess           AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE iCount         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iLine          AS INTEGER   NO-UNDO.    
@@ -325,7 +328,8 @@ PROCEDURE pCalculate PRIVATE :
     DEFINE VARIABLE dTaxableAmount AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lIsNegative    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cRoundMethod   AS CHARACTER NO-UNDO.
-
+    DEFINE VARIABLE dRoundedTax    AS DECIMAL   NO-UNDO.
+    
     DEFINE BUFFER bf-stax   FOR stax.
 
     IF cCalcMethod EQ "" THEN
@@ -386,22 +390,33 @@ PROCEDURE pCalculate PRIVATE :
         
         CREATE ttTaxDetail.
         ASSIGN 
-            iLine = iLine + 1
-            ttTaxDetail.company =  bf-stax.company
-            ttTaxDetail.isFreight = iplIsThisFreight
-            ttTaxDetail.isTaxOnFreight = bf-stax.tax-frt1[1]
-            ttTaxDetail.isTaxOnTax = bf-stax.accum-tax
-            ttTaxDetail.taxCode = bf-stax.tax-code1[iCount]
-            ttTaxDetail.taxCodeAccount = bf-stax.tax-acc1[iCount]
-            ttTaxDetail.taxCodeDescription = bf-stax.tax-dscr1[iCount]
-            ttTaxDetail.taxCodeRate = bf-stax.tax-rate1[iCount]
-            ttTaxDetail.taxCodeTaxableAmount = IF lIsNegative THEN - dTaxableAmount ELSE dTaxableAmount
-            ttTaxDetail.taxCodeTaxAmount = IF lIsNegative THEN - dTax ELSE dTax
-            ttTaxDetail.taxGroup = bf-stax.tax-group
-            ttTaxDetail.taxGroupLine = iLine
+            iLine                              = iLine + 1
+            ttTaxDetail.company                = bf-stax.company
+            ttTaxDetail.invoiceNo              = ipiInvoiceNo
+            ttTaxDetail.invoiceLineType        = ipcInvoiceLineType
+            ttTaxDetail.invoiceLineRecKey      = ipcInvoiceLineRecKey
+            ttTaxDetail.isFreight              = iplIsThisFreight
+            ttTaxDetail.isTaxOnFreight         = bf-stax.tax-frt1[1]
+            ttTaxDetail.isTaxOnTax             = bf-stax.accum-tax
+            ttTaxDetail.taxCode                = bf-stax.tax-code1[iCount]
+            ttTaxDetail.taxCodeAccount         = bf-stax.tax-acc1[iCount]
+            ttTaxDetail.taxCodeDescription     = bf-stax.tax-dscr1[iCount]
+            ttTaxDetail.taxCodeRate            = bf-stax.tax-rate1[iCount]
+            ttTaxDetail.taxCodeTaxableAmount   = IF lIsNegative THEN 
+                                                     - dTaxableAmount 
+                                                 ELSE 
+                                                     dTaxableAmount
+            ttTaxDetail.taxCodeTaxAmount       = IF lIsNegative THEN 
+                                                     - fRoundValue (dTax, cRoundMethod, 2) 
+                                                 ELSE 
+                                                     fRoundValue (dTax, cRoundMethod, 2)
+            ttTaxDetail.taxGroup               = bf-stax.tax-group
+            ttTaxDetail.taxGroupLine           = iLine
             ttTaxDetail.taxGroupTaxAmountLimit = bf-stax.taxableLimit
             .
 
+        dRoundedTax = dRoundedTax + ttTaxDetail.taxCodeTaxAmount.
+         
         /* Tax on tax - Build up taxable Amount with last tax calculation*/
         IF bf-stax.accum-tax THEN
             dTaxableAmount = MAX(dTaxableAmount,ABS(ipdTaxableAmount)) + dTax.
@@ -413,7 +428,19 @@ PROCEDURE pCalculate PRIVATE :
 
     opdTax = IF lIsNegative THEN - opdTax ELSE opdTax. 
 
-    opdTax = fRoundValue (opdTax, cRoundMethod, 2).     
+    opdTax = fRoundValue (opdTax, cRoundMethod, 2).
+    
+    IF opdTax NE dRoundedTax THEN DO:
+        FIND LAST ttTaxDetail
+             WHERE ttTaxDetail.company           EQ ipcCompany
+               AND ttTaxDetail.invoiceNo         EQ ipiInvoiceNo
+               AND ttTaxDetail.invoiceLineType   EQ ipcInvoiceLineType
+               AND ttTaxDetail.invoiceLineRecKey EQ ipcInvoiceLineRecKey
+               AND ttTaxDetail.isFreight         EQ iplIsThisFreight
+             NO-ERROR.
+        IF AVAILABLE ttTaxDetail THEN
+            ttTaxDetail.taxCodeTaxAmount = ttTaxDetail.taxCodeTaxAmount + (opdTax - dRoundedTax).
+    END.
 END PROCEDURE.
 
 PROCEDURE pGetTaxableMisc PRIVATE:
@@ -697,6 +724,9 @@ PROCEDURE Tax_Calculate:
         INPUT  ipdTaxableAmount,
         INPUT  "",     /* customer id */
         INPUT  "",     /* shipto id */
+        INPUT  0,      /* Invoice No */
+        INPUT  "",     /* Invoice Line Type (INVLINE, INVHEAD, INVMISC, ARINVL ) */ 
+        INPUT  "",     /* Invoice Line rec_key */
         OUTPUT opdTax,
         OUTPUT lSuccess,
         OUTPUT cMessage
@@ -1010,6 +1040,9 @@ PROCEDURE pCalculateForInvHead PRIVATE:
                 INPUT  bf-inv-line.t-price,
                 INPUT  bf-inv-head.cust-no,
                 INPUT  bf-inv-head.sold-no,  /* shipTo id */
+                INPUT  bf-inv-head.inv-no,   /* Invoice No */
+                INPUT  "INVLINE",            /* Invoice Line Type (INVLINE, INVHEAD, INVMISC, ARINVL ) */ 
+                INPUT  bf-inv-line.rec_key,  /* Invoice Line rec_key */
                 OUTPUT dTax,
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage
@@ -1033,6 +1066,9 @@ PROCEDURE pCalculateForInvHead PRIVATE:
                 INPUT  bf-inv-misc.amt,
                 INPUT  bf-inv-head.cust-no,
                 INPUT  "",  /* shipTo id */
+                INPUT  bf-inv-head.inv-no,   /* Invoice No */
+                INPUT  "INVMISC",            /* Invoice Line Type (INVLINE, INVHEAD, INVMISC, ARINVL ) */ 
+                INPUT  bf-inv-misc.rec_key,  /* Invoice Line rec_key */
                 OUTPUT dTax,
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage
@@ -1053,6 +1089,9 @@ PROCEDURE pCalculateForInvHead PRIVATE:
             INPUT  bf-inv-head.t-inv-freight,
             INPUT  bf-inv-head.cust-no,
             INPUT  "",  /* shipTo id */
+            INPUT  bf-inv-head.inv-no,   /* Invoice No */
+            INPUT  "INVHEAD",            /* Invoice Line Type (INVLINE, INVHEAD, INVMISC, ARINVL ) */ 
+            INPUT  bf-inv-head.rec_key,  /* Invoice Line rec_key */
             OUTPUT dTax,
             OUTPUT oplSuccess,
             OUTPUT opcMessage
@@ -1212,6 +1251,9 @@ PROCEDURE pCalculateForArInv PRIVATE:
                 INPUT  bf-ar-invl.amt,
                 INPUT  bf-ar-inv.cust-no,
                 INPUT  bf-ar-inv.ship-id,
+                INPUT  bf-ar-inv.inv-no,    /* Invoice No */
+                INPUT  "ARINVL",            /* Invoice Line Type (INVLINE, INVHEAD, INVMISC, ARINVL ) */ 
+                INPUT  bf-ar-invl.rec_key,  /* Invoice Line rec_key */
                 OUTPUT dTax,
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage
@@ -1227,6 +1269,9 @@ PROCEDURE pCalculateForArInv PRIVATE:
                     INPUT  bf-ar-invl.t-freight,
                     INPUT  bf-ar-inv.cust-no,
                     INPUT  bf-ar-inv.ship-id,
+                    INPUT  bf-ar-inv.inv-no,    /* Invoice No */
+                    INPUT  "ARINVL",            /* Invoice Line Type (INVLINE, INVHEAD, INVMISC, ARINVL ) */ 
+                    INPUT  bf-ar-invl.rec_key,  /* Invoice Line rec_key */
                     OUTPUT dTax,
                     OUTPUT oplSuccess,
                     OUTPUT opcMessage
@@ -1265,6 +1310,9 @@ PROCEDURE Tax_CalculateWithDetail:
         INPUT  ipdTaxableAmount,
         INPUT  "", /* Customer ID */
         INPUT  "", /* ShipTo ID */
+        INPUT  0,  /* Invoice No */
+        INPUT  "", /* Invoice Line Type (INVLINE, INVHEAD, INVMISC, ARINVL ) */ 
+        INPUT  "", /* Invoice Line rec_key */
         OUTPUT opdTax,
         OUTPUT lSuccess,
         OUTPUT cMessage

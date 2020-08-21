@@ -26,8 +26,12 @@ DEFINE VARIABLE cReturnValues      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lcMergeMessage     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lPromptEachItem    AS LOG       NO-UNDO.
 DEFINE VARIABLE lMergeNew          AS LOG       NO-UNDO.
-DEFINE VARIABLE cReturnChar AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.        
+DEFINE VARIABLE cReturnChar        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage           AS CHARACTER NO-UNDO. 
+DEFINE VARIABLE lActiveScope       AS LOGICAL   NO-UNDO.  
+DEFINE VARIABLE lValidLocation     AS LOGICAL   NO-UNDO. 
+DEFINE VARIABLE hdOutboundProcs    AS HANDLE    NO-UNDO.    
 DEFINE STREAM sRelErrorLog.
 
 DEFINE BUFFER bf-oe-rel FOR oe-rel.
@@ -43,6 +47,8 @@ PROCEDURE mail EXTERNAL "xpMail.dll" :
     DEFINE INPUT PARAMETER mailDialog AS LONG.
     DEFINE OUTPUT PARAMETER iReturnCode AS LONG.
 END.
+
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 {oe/chkordl.i NEW}
 {oe/relemail.i NEW}
@@ -128,6 +134,28 @@ DO:
         DO:
             IF lFirst THEN 
             DO:
+                RUN Outbound_IsApiScopeActive IN hdOutboundProcs(
+                    INPUT oe-rel.company,
+                    INPUT oe-rel.spare-char-1,
+                    INPUT "SendRelease",
+                    INPUT oe-rel.cust-no,
+                    INPUT "Customer",
+                    INPUT "CreateRelease",
+                    OUTPUT lActiveScope
+                    ).
+                IF lActiveScope THEN DO:
+                    RUN Outbound_ValidateLocation IN hdOutboundProcs(
+                          INPUT oe-rel.company,
+                          INPUT oe-rel.spare-char-1,
+                          INPUT "SendRelease",
+                          OUTPUT lValidLocation,
+                          OUTPUT cMessage 
+                          ).
+                    IF NOT lValidLocation THEN DO:
+                        SESSION:SET-WAIT-STATE ('').
+                        RETURN. 
+                    END.                         
+                END.
                 ASSIGN
                     lFirst = NO
                     lMergeWithExisting  = YES

@@ -45,12 +45,17 @@ DEF TEMP-TABLE tt-glinq NO-UNDO
     FIELD jrnl LIKE gltrans.jrnl       LABEL "Ref#"
     FIELD tr-dscr AS CHAR FORMAT "X(60)" LABEL "Description"
     FIELD tr-amt LIKE gltrans.tr-amt   LABEL "Amount"
+    FIELD db-amt LIKE gltrans.tr-amt   LABEL "Debit Amount"
+    FIELD cr-amt LIKE gltrans.tr-amt   LABEL "Credit Amount"
     FIELD tr-num LIKE gltrans.trnum FORMAT "9999999"  LABEL "Run #" 
     FIELD tr-from AS cha      FORM "x(30)"    LABEL "Inquiry From" 
     FIELD actnum LIKE gltrans.actnum LABEL "Account#"
     FIELD createdBy LIKE gltrans.createdBy LABEL "Created By"
     FIELD createdDate LIKE gltrans.createdDate LABEL "Created Date"
     FIELD posted LIKE gltrans.posted LABEL "Posted"
+    FIELD tr-period LIKE gltrans.period LABEL "Pd"
+    FIELD tr-yr LIKE gltrans.yr LABEL "Year"
+    FIELD riRowid AS ROWID 
     INDEX tr-date IS PRIMARY tr-date.
 
 ASSIGN cocode = g_company
@@ -81,7 +86,7 @@ DEF VAR v-col-move AS LOG INIT YES NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME br_table
 
@@ -92,8 +97,8 @@ DEF VAR v-col-move AS LOG INIT YES NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table tt-glinq.actnum tt-glinq.tr-date tt-glinq.jrnl tt-glinq.tr-dscr tt-glinq.tr-amt tt-glinq.tr-from tt-glinq.createdBy tt-glinq.createdDate tt-glinq.posted tt-glinq.tr-num  
-&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table tt-glinq.actnum tt-glinq.tr-date tt-glinq.jrnl tt-glinq.tr-dscr tt-glinq.tr-amt   
+&Scoped-define FIELDS-IN-QUERY-br_table tt-glinq.actnum tt-glinq.tr-date tt-glinq.jrnl tt-glinq.tr-dscr tt-glinq.db-amt tt-glinq.cr-amt tt-glinq.tr-from tt-glinq.createdBy tt-glinq.createdDate tt-glinq.posted tt-glinq.tr-num  tt-glinq.tr-period tt-glinq.tr-yr 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table tt-glinq.actnum tt-glinq.tr-date tt-glinq.jrnl tt-glinq.tr-dscr    
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table tt-glinq
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table tt-glinq
 &Scoped-define SELF-NAME br_table
@@ -101,19 +106,21 @@ DEF VAR v-col-move AS LOG INIT YES NO-UNDO.
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq.
 &Scoped-define TABLES-IN-QUERY-br_table tt-glinq
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table tt-glinq
+&Scoped-define FIRST-TABLE-IN-QUERY-br_table tt-glinq
 
 
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS begin_acct lv-year lv-period-fr lv-period-to ~
-btn-go btn-all btn-print br_table 
-&Scoped-Define DISPLAYED-OBJECTS begin_acct lv-actname lv-year lv-open-bal ~
-lv-close-bal lv-period-fr lv-period-to FI_moveCol
+&Scoped-Define ENABLED-OBJECTS btn-go btn-all lv-period-fr lv-period-to ~
+iRunFrom iRunTo dtDateFrom dtDateTo begin_acct lv-year btn-print br_table 
+&Scoped-Define DISPLAYED-OBJECTS lv-period-fr lv-period-to iRunFrom iRunTo ~
+dtDateFrom dtDateTo begin_acct lv-year FI_moveCol lv-open-bal lv-close-bal 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
-&Scoped-define List-1 begin_acct lv-year lv-period-fr lv-period-to 
+&Scoped-define List-1 lv-period-fr lv-period-to iRunFrom iRunTo dtDateFrom ~
+dtDateTo begin_acct lv-year 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -179,33 +186,46 @@ DEFINE BUTTON btn-print
      SIZE 12 BY 1.
 
 DEFINE VARIABLE begin_acct AS CHARACTER FORMAT "X(25)":U 
-     LABEL "Account Number" 
      VIEW-AS FILL-IN 
      SIZE 30 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE lv-actname AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE dtDateFrom AS DATE FORMAT "99/99/9999":U 
      VIEW-AS FILL-IN 
-     SIZE 49 BY 1 NO-UNDO.
+     SIZE 15 BY 1
+     BGCOLOR 15  NO-UNDO.
 
+DEFINE VARIABLE dtDateTo AS DATE FORMAT "99/99/9999":U 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
 
+DEFINE VARIABLE iRunFrom AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 11 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE iRunTo AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 11 BY 1
+     BGCOLOR 15  NO-UNDO.
+
 DEFINE VARIABLE lv-close-bal AS DECIMAL FORMAT "->>>,>>>,>>9.99":U INITIAL 0 
      LABEL "Closing Balance" 
      VIEW-AS FILL-IN 
-     SIZE 26 BY 1 NO-UNDO.
+     SIZE 24 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-open-bal AS DECIMAL FORMAT "->>>,>>>,>>9.99":U INITIAL 0 
      LABEL "Opening Balance" 
      VIEW-AS FILL-IN 
-     SIZE 26 BY 1 NO-UNDO.
+     SIZE 23.8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-period-fr AS INTEGER FORMAT ">9":U INITIAL 0 
-     LABEL "Period Range" 
      VIEW-AS FILL-IN 
      SIZE 6 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -216,10 +236,13 @@ DEFINE VARIABLE lv-period-to AS INTEGER FORMAT ">9":U INITIAL 0
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE lv-year AS INTEGER FORMAT ">>>9":U INITIAL 0 
-     LABEL "Year" 
      VIEW-AS FILL-IN 
-     SIZE 10 BY 1
+     SIZE 8.8 BY 1
      BGCOLOR 15  NO-UNDO.
+     
+DEFINE RECTANGLE RECT-9
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 159 BY 4.0.     
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -231,41 +254,74 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      tt-glinq.actnum LABEL-BGCOLOR 14 tt-glinq.tr-date LABEL-BGCOLOR 14 tt-glinq.jrnl LABEL-BGCOLOR 14
-      tt-glinq.tr-dscr FORM "X(60)" LABEL-BGCOLOR 14 tt-glinq.tr-amt FORM "->>,>>>,>>9.99" LABEL-BGCOLOR 14
+      tt-glinq.actnum LABEL-BGCOLOR 14 
+      tt-glinq.tr-date LABEL-BGCOLOR 14
+      tt-glinq.jrnl LABEL-BGCOLOR 14
+      tt-glinq.tr-dscr FORM "X(60)" LABEL-BGCOLOR 14 
+      tt-glinq.db-amt FORM "->>,>>>,>>9.99" LABEL-BGCOLOR 14
+      tt-glinq.cr-amt FORM "->>,>>>,>>9.99" LABEL-BGCOLOR 14
       tt-glinq.tr-from FORM "x(30)" LABEL-BGCOLOR 14
       tt-glinq.createdBy  LABEL-BGCOLOR 14
       tt-glinq.createdDate LABEL-BGCOLOR 14
       tt-glinq.posted LABEL-BGCOLOR 14
       tt-glinq.tr-num FORMAT "9999999" LABEL-BGCOLOR 14  WIDTH 12
-     ENABLE tt-glinq.actnum tt-glinq.tr-date  tt-glinq.jrnl tt-glinq.tr-dscr tt-glinq.tr-amt
+      tt-glinq.tr-period LABEL-BGCOLOR 14
+      tt-glinq.tr-yr LABEL-BGCOLOR 14
+     ENABLE tt-glinq.actnum tt-glinq.tr-date  tt-glinq.jrnl tt-glinq.tr-dscr 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 143 BY 12.86
-         BGCOLOR 8 FONT 2.
+    WITH NO-ASSIGN SEPARATORS SIZE 160 BY 15.52
+         FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     begin_acct AT ROW 1.48 COL 34 COLON-ALIGNED
-     lv-actname AT ROW 1.48 COL 65 COLON-ALIGNED NO-LABEL
-     lv-year AT ROW 2.67 COL 34 COLON-ALIGNED
-     lv-open-bal AT ROW 2.67 COL 88 COLON-ALIGNED
-     lv-close-bal AT ROW 3.62 COL 88 COLON-ALIGNED
-     lv-period-fr AT ROW 4.81 COL 34 COLON-ALIGNED
-     lv-period-to AT ROW 4.81 COL 47 COLON-ALIGNED NO-LABEL
-     btn-go AT ROW 5.29 COL 60
-     btn-all AT ROW 5.29 COL 78
-     btn-print AT ROW 5.29 COL 96
+     begin_acct AT ROW 2.1 COL 1 COLON-ALIGNED NO-LABEL
+     lv-year AT ROW 2.1 COL 33.4 COLON-ALIGNED NO-LABEL
+     lv-period-fr AT ROW 2.05 COL 45 COLON-ALIGNED NO-LABEL
+     lv-period-to AT ROW 2.05 COL 54.8 COLON-ALIGNED NO-LABEL
+     iRunFrom AT ROW 2.05 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 56
+     iRunTo AT ROW 2.05 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 58
+     dtDateFrom AT ROW 2.05 COL 90.6 COLON-ALIGNED NO-LABEL WIDGET-ID 66
+     dtDateTo AT ROW 2.05 COL 107 COLON-ALIGNED NO-LABEL WIDGET-ID 68
+     btn-go AT ROW 2 COL 128.2
+     btn-all AT ROW 2 COL 144.6     
+     btn-print AT ROW 3.33 COL 111.2
+     FI_moveCol AT ROW 3.33 COL 145.4 COLON-ALIGNED NO-LABEL WIDGET-ID 46
+     lv-open-bal AT ROW 3.38 COL 44.8 COLON-ALIGNED
+     lv-close-bal AT ROW 3.38 COL 86.2 COLON-ALIGNED
+     br_table AT ROW 5.05 COL 1
+     "Date" VIEW-AS TEXT
+          SIZE 15.6 BY .71 AT ROW 1.19 COL 92.6 WIDGET-ID 72
+          FGCOLOR 9 FONT 6
+     "Period Range" VIEW-AS TEXT
+          SIZE 15.6 BY .71 AT ROW 1.19 COL 46.8 WIDGET-ID 54
+          FGCOLOR 9 FONT 6
+     "__" VIEW-AS TEXT
+          SIZE 1.6 BY .67 AT ROW 1.91 COL 76.2 WIDGET-ID 64
      "Click on Yellow Field to " VIEW-AS TEXT
-          SIZE 28 BY .95 AT ROW 5.29 COL 112 WIDGET-ID 14
-     FI_moveCol AT ROW 5.29 COL 133 COLON-ALIGNED NO-LABEL WIDGET-ID 46
-     br_table AT ROW 6.71 COL 1
+          SIZE 24 BY .95 AT ROW 3.33 COL 124.4 WIDGET-ID 14
+     "__" VIEW-AS TEXT
+          SIZE 1.6 BY .67 AT ROW 1.95 COL 54.2 WIDGET-ID 62
+     "Run #" VIEW-AS TEXT
+          SIZE 15.6 BY .71 AT ROW 1.19 COL 65.2 WIDGET-ID 60
+          FGCOLOR 9 FONT 6
+     "Account Number" VIEW-AS TEXT
+          SIZE 23.8 BY .71 AT ROW 1.19 COL 3.4 WIDGET-ID 48
+          FGCOLOR 9 FONT 6
+     "Account Recivable" VIEW-AS TEXT
+          SIZE 21.2 BY .95 AT ROW 3.43 COL 4 WIDGET-ID 50
+     "Year" VIEW-AS TEXT
+          SIZE 8.6 BY .71 AT ROW 1.19 COL 35.4 WIDGET-ID 52
+          FGCOLOR 9 FONT 6
+     "__" VIEW-AS TEXT
+          SIZE 1.6 BY .67 AT ROW 1.91 COL 107 WIDGET-ID 70
+     RECT-9 AT ROW 1 COL 1 WIDGET-ID 4     
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 .
+         FGCOLOR 1 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -295,7 +351,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 18.71
-         WIDTH              = 143.8.
+         WIDTH              = 159.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -317,20 +373,27 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
-/* BROWSE-TAB br_table btn-print F-Main */
-/* BROWSE-TAB br_table FI_moveCol F-Main */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+/* BROWSE-TAB br_table lv-close-bal F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
-
-/* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
-   NO-ENABLE                                                            */
+       
+   ASSIGN 
+       br_table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 2.       
 
 /* SETTINGS FOR FILL-IN begin_acct IN FRAME F-Main
    1                                                                    */
-/* SETTINGS FOR FILL-IN lv-actname IN FRAME F-Main
+/* SETTINGS FOR FILL-IN dtDateFrom IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR FILL-IN dtDateTo IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN iRunFrom IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR FILL-IN iRunTo IN FRAME F-Main
+   1                                                                    */
 /* SETTINGS FOR FILL-IN lv-close-bal IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lv-open-bal IN FRAME F-Main
@@ -341,6 +404,8 @@ ASSIGN
    1                                                                    */
 /* SETTINGS FOR FILL-IN lv-year IN FRAME F-Main
    1                                                                    */
+/* SETTINGS FOR RECTANGLE RECT-9 IN FRAME F-Main
+   NO-ENABLE                                                            */   
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -372,7 +437,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq.
 
 &Scoped-define SELF-NAME begin_acct
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_acct B-table-Win
-ON ENTRY OF begin_acct IN FRAME F-Main /* Account Number */
+ON ENTRY OF begin_acct IN FRAME F-Main
 DO:
   RUN new-begin_acct.
 END.
@@ -382,7 +447,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_acct B-table-Win
-ON HELP OF begin_acct IN FRAME F-Main /* Account Number */
+ON HELP OF begin_acct IN FRAME F-Main
 DO:
   DEF VAR char-val AS CHAR NO-UNDO.
 
@@ -399,7 +464,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_acct B-table-Win
-ON LEAVE OF begin_acct IN FRAME F-Main /* Account Number */
+ON LEAVE OF begin_acct IN FRAME F-Main
 DO:
    IF LASTKEY = -1 THEN RETURN.
    ASSIGN {&self-name}.
@@ -418,7 +483,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_acct B-table-Win
-ON VALUE-CHANGED OF begin_acct IN FRAME F-Main /* Account Number */
+ON VALUE-CHANGED OF begin_acct IN FRAME F-Main
 DO:
   RUN new-begin_acct.
 END.
@@ -427,51 +492,17 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-period-to B-table-Win
-ON LEAVE OF lv-period-to IN FRAME F-Main /* Account Number */
-DO:
-   IF LASTKEY = -1 THEN RETURN.
-   ASSIGN {&self-name}.
-
-   IF int(lv-period-to:SCREEN-VALUE) < int(lv-period-fr:SCREEN-VALUE) THEN DO:
-       MESSAGE "Ending Period must be same or later period..." VIEW-AS ALERT-BOX ERROR.
-       RETURN NO-APPLY.
-   END.
-
-   IF lv-period-fr:SCREEN-VALUE EQ "0" OR lv-period-to:SCREEN-VALUE EQ "0" THEN DO:
-       MESSAGE "Period should not be zero..." VIEW-AS ALERT-BOX ERROR.
-       RETURN NO-APPLY.
-   END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-period-fr B-table-Win
-ON LEAVE OF lv-period-fr IN FRAME F-Main /* Account Number */
-DO:
-   IF LASTKEY = -1 THEN RETURN.
-   ASSIGN {&self-name}.
-
-   IF  lv-period-fr:SCREEN-VALUE EQ "0" THEN DO:
-       MESSAGE "Period should not be zero..." VIEW-AS ALERT-BOX ERROR.
-       RETURN NO-APPLY.
-   END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &Scoped-define BROWSE-NAME br_table
 &Scoped-define SELF-NAME br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON DEFAULT-ACTION OF br_table IN FRAME F-Main
 DO:
-  DEF VAR phandle AS HANDLE NO-UNDO.
-  DEF VAR char-hdl AS cha NO-UNDO.
-
-
-  {methods/run_link.i "container-source" "select-page" "(2)"}
+   IF AVAIL tt-glinq AND tt-glinq.posted THEN
+   DO:
+     MESSAGE "Record is posted and cannot be edited" VIEW-AS ALERT-BOX INFO .         
+   END.
+   ELSE IF AVAIL tt-glinq THEN
+    RUN pUpdate.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -542,9 +573,13 @@ DO:
            IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.tr-dscr.
            ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.tr-dscr {&sortby-des}.
       END.
-      WHEN "tr-amt" THEN DO:
-           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.tr-amt.
-           ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.tr-amt {&sortby-des}.
+      WHEN "db-amt" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.db-amt.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.db-amt {&sortby-des}.
+      END.
+      WHEN "cr-amt" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.cr-amt.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.cr-amt {&sortby-des}.
       END.
       WHEN "createdBy" THEN DO:
            IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.createdBy.
@@ -561,6 +596,14 @@ DO:
       WHEN "tr-num" THEN DO:
            IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.tr-num.
            ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.tr-num {&sortby-des}.
+      END.  
+      WHEN "tr-period" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.tr-period.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.tr-period {&sortby-des}.
+      END.
+      WHEN "tr-yr" THEN DO:
+           IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.tr-yr.
+           ELSE OPEN QUERY {&SELF-NAME} FOR EACH tt-glinq BY tt-glinq.tr-yr {&sortby-des}.
       END.
   END CASE.
 
@@ -591,6 +634,18 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON ROW-DISPLAY OF br_table IN FRAME F-Main
+DO:   
+  
+  IF AVAIL tt-glinq AND MONTH(tt-glinq.tr-date) NE tt-glinq.tr-period  THEN
+    ASSIGN   tt-glinq.tr-date:BGCOLOR IN BROWSE {&BROWSE-NAME}      = 3  .
+      
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btn-all
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-all B-table-Win
@@ -598,13 +653,19 @@ ON CHOOSE OF btn-all IN FRAME F-Main /* Show All */
 DO:
       ASSIGN begin_acct = ""
              lv-period-fr = 1
-             lv-period-to = 12.
+             lv-period-to = 12
+             iRunFrom = 0
+             iRunTo = 9999999.
       ASSIGN lv-year.
       
       IF lv-year:SCREEN-VALUE EQ "0" THEN 
                  lv-year = YEAR(TODAY).
       
-      DISPLAY begin_acct lv-year lv-period-fr lv-period-to WITH FRAME {&FRAME-NAME}.
+      RUN GetDefaultValue.                 
+      
+      DISPLAY begin_acct lv-year lv-period-fr lv-period-to iRunFrom iRunTo WITH FRAME {&FRAME-NAME}.
+      
+      ASSIGN {&list-1}.
       
       RUN build-inquiry.
       {&open-query-{&browse-name}}
@@ -621,17 +682,7 @@ END.
 ON CHOOSE OF btn-go IN FRAME F-Main /* Go */
 DO:
       ASSIGN {&list-1}.
-      
-      IF int(lv-period-to:SCREEN-VALUE) < int(lv-period-fr:SCREEN-VALUE) THEN DO:
-          MESSAGE "Ending Period must be same or later period" VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
-      END.
-
-      IF lv-period-fr:SCREEN-VALUE EQ "0" OR lv-period-to:SCREEN-VALUE EQ "0" THEN DO:
-          MESSAGE "Period should not be zero..." VIEW-AS ALERT-BOX ERROR.
-          RETURN NO-APPLY.
-      END.
-      
+                  
       RUN build-inquiry.
       {&open-query-{&browse-name}}
           DISPLAY lv-open-bal lv-close-bal WITH FRAME {&FRAME-NAME}.
@@ -656,6 +707,8 @@ DEF VAR lv-per-fr LIKE period.pnum                      NO-UNDO.
 DEF VAR lv-per-to LIKE lv-per-fr                        NO-UNDO.
 DEF VAR lv-open   AS   DEC FORMAT "->>>,>>>,>>>,>>9.99" NO-UNDO.
 DEF VAR lv-close  LIKE lv-open                          NO-UNDO.
+DEF VAR dCreditTotal  AS DECIMAL                        NO-UNDO.
+DEF VAR dDebitTotal   AS DECIMAL                        NO-UNDO.
 
 FORM SKIP(1)
      lv-acct    COLON 30 LABEL "GL Account#"
@@ -674,10 +727,16 @@ format space(4)
        tt-glinq.tr-date column-label "Date"  space(2)
        tt-glinq.jrnl    column-label "Ref#"  space(2)
        tt-glinq.tr-dscr label "Description" format "x(33)" space(2)
-       tt-glinq.tr-amt  label "Amount" space(3)
-      with no-box no-attr-space frame g2lines row 8 12 down stream-io WIDTH 80 centered.
+       tt-glinq.tr-period label "Period" format ">9" space(2)
+       tt-glinq.tr-yr label "Year" format ">>>9" space(2)
+       tt-glinq.tr-num label "Run Number" format ">>>>>>9" space(2)
+       tt-glinq.db-amt  label "Debit Amount" format "->>,>>>,>>9.99" space(3)
+       tt-glinq.cr-amt  label "Credit Amount" format "->>,>>>,>>9.99" space(3)
+      with no-box no-attr-space frame g2lines row 8 12 down stream-io WIDTH 180 centered.
 
-     
+  dCreditTotal = 0.
+  dDebitTotal = 0.
+  
   FIND FIRST tt-glinq NO-ERROR.
 
   IF AVAIL tt-glinq THEN DO WITH FRAME gl-inq:
@@ -689,7 +748,7 @@ format space(4)
     VIEW FRAME r-top.
 
     DISPLAY begin_acct   @ lv-acct
-            lv-actname   @ lv-dscr
+            /*lv-actname   @ lv-dscr*/
             lv-year      @ lv-yr
             lv-period-fr @ lv-per-fr
             lv-period-to @ lv-per-to
@@ -699,10 +758,19 @@ format space(4)
       DISPLAY tt-glinq.tr-date
               tt-glinq.jrnl
               tt-glinq.tr-dscr
-              tt-glinq.tr-amt
+              tt-glinq.db-amt
+              tt-glinq.cr-amt
           WITH FRAME g2lines.
       DOWN WITH FRAME g2lines.
+      dCreditTotal = dCreditTotal + tt-glinq.cr-amt.
+      dDebitTotal = dDebitTotal + tt-glinq.db-amt.
     END.
+    
+    PUT  SKIP(1)      SPACE(79)
+            "Totals:"   
+            dDebitTotal   format "->>>,>>>,>>9.99" SPACE(2)
+            dCreditTotal format "->>>,>>>,>>9.99"   
+            .
 
     DISPLAY SKIP(1)
             lv-close-bal @ lv-close COLON 30 LABEL "Closing Balance"
@@ -715,6 +783,126 @@ format space(4)
 
     RUN scr-rpt.w (list-name,TRIM(FRAME gl-inq:TITLE),11,"P"). /* open file-name, title */
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME dtDateFrom
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dtDateFrom B-table-Win
+ON LEAVE OF dtDateFrom IN FRAME F-Main
+DO:
+   IF LASTKEY = -1 THEN RETURN.
+   ASSIGN {&self-name}.  
+   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME dtDateTo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dtDateTo B-table-Win
+ON LEAVE OF dtDateTo IN FRAME F-Main
+DO:
+   IF LASTKEY = -1 THEN RETURN.
+   ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME iRunFrom
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iRunFrom B-table-Win
+ON LEAVE OF iRunFrom IN FRAME F-Main
+DO:
+   IF LASTKEY = -1 THEN RETURN.
+   ASSIGN {&self-name}.   
+   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME iRunTo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iRunTo B-table-Win
+ON LEAVE OF iRunTo IN FRAME F-Main
+DO:
+   IF LASTKEY = -1 THEN RETURN.
+   ASSIGN {&self-name}.
+
+   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-period-fr
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-period-fr B-table-Win
+ON LEAVE OF lv-period-fr IN FRAME F-Main
+DO:
+   IF LASTKEY = -1 THEN RETURN.
+   ASSIGN {&self-name}.      
+  
+        FIND FIRST period WHERE period.company = g_company
+                      AND period.yr = lv-year
+                      AND period.pnum = lv-period-fr NO-LOCK NO-ERROR.
+        dtDateFrom:SCREEN-VALUE = string(IF AVAIL period AND period.pst NE ? THEN period.pst ELSE 01/01/01) /*12/31/9999*/ .   
+   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME lv-period-fr
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-period-fr B-table-Win
+ON VALUE-CHANGED OF lv-period-fr IN FRAME F-Main
+DO:
+   IF LASTKEY = -1 THEN RETURN.
+   ASSIGN {&self-name}.      
+  
+        FIND FIRST period WHERE period.company = g_company
+                      AND period.yr = lv-year
+                      AND period.pnum = lv-period-fr NO-LOCK NO-ERROR.
+        dtDateFrom:SCREEN-VALUE = string(IF AVAIL period AND period.pst NE ? THEN period.pst ELSE 01/01/01) /*12/31/9999*/ .   
+   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-period-to
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-period-to B-table-Win
+ON LEAVE OF lv-period-to IN FRAME F-Main
+DO:
+   IF LASTKEY = -1 THEN RETURN.
+   ASSIGN {&self-name}.
+   
+   FIND FIRST period WHERE period.company = g_company
+                      AND period.yr = lv-year
+                      AND period.pnum = lv-period-to NO-LOCK NO-ERROR.
+  dtDateto:SCREEN-VALUE = string(IF AVAIL period AND period.pend NE ? THEN period.pend  ELSE 12/31/9999) /*01/01/0001*/ .    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME lv-period-to
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-period-to B-table-Win
+ON VALUE-CHANGED OF lv-period-to IN FRAME F-Main
+DO:
+   IF LASTKEY = -1 THEN RETURN.
+   ASSIGN {&self-name}.
+   
+   FIND FIRST period WHERE period.company = g_company
+                      AND period.yr = lv-year
+                      AND period.pnum = lv-period-to NO-LOCK NO-ERROR.
+  dtDateto:SCREEN-VALUE = string(IF AVAIL period AND period.pend NE ? THEN period.pend  ELSE 12/31/9999) /*01/01/0001*/ .    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -804,23 +992,31 @@ PROCEDURE build-inquiry :
 
   FIND FIRST period WHERE period.company = g_company
                       AND period.yr = lv-year
-                      AND period.pnum = lv-period-fr NO-LOCK NO-ERROR.
+                      AND (period.pnum = lv-period-fr OR lv-period-fr EQ 0 ) NO-LOCK NO-ERROR.
   tmp-start = IF AVAIL period THEN period.pst ELSE 01/01/01 /*12/31/9999*/ .
   FIND FIRST period WHERE period.company = g_company
                       AND period.yr = lv-year
-                      AND period.pnum = lv-period-to NO-LOCK NO-ERROR.
+                      AND (period.pnum = lv-period-to OR lv-period-to EQ 0) NO-LOCK NO-ERROR.
   tmp-end = IF AVAIL period THEN period.pend ELSE 12/31/9999 /*01/01/0001*/ .
- RUN gl/gl-opend.p (ROWID(account), tmp-start, OUTPUT lv-open-bal).
-
+                
+  IF lv-year EQ 0 THEN
+  tmp-start = dtDateFrom .
+  
+  RUN gl/gl-opend.p (ROWID(account), tmp-start, OUTPUT lv-open-bal).
+                     
   lv-close-bal = lv-open-bal.
-
+      
   for each glhist NO-LOCK
       where glhist.company eq cocode
         and (glhist.actnum  eq begin_acct OR begin_acct = "")
-        and glhist.period  ge lv-period-fr
-        and glhist.period  le lv-period-to
-        and glhist.tr-date ge tmp-start
-        and glhist.tr-date le tmp-end
+        and (glhist.period  ge lv-period-fr OR lv-period-fr EQ 0)
+        and (glhist.period  le lv-period-to  OR lv-period-to EQ 0)        
+        AND (YEAR(glhist.tr-date) EQ lv-year OR lv-year EQ 0)
+        AND glhist.tr-date ge dtDateFrom 
+        AND glhist.tr-date le dtDateTo 
+        AND (glhist.tr-num ge iRunFrom  OR iRunFrom EQ 0)
+        AND (glhist.tr-num le iRunTo  OR  iRunTo EQ 0)
+       
       by glhist.tr-date :
       CREATE tt-glinq.
       ASSIGN tt-glinq.tr-date = glhist.tr-date
@@ -834,7 +1030,14 @@ PROCEDURE build-inquiry :
              tt-glinq.createdBy = glhist.createdBy
              tt-glinq.createdDate = glhist.createdDate
              tt-glinq.posted = glhist.posted
-             tt-glinq.tr-num = glhist.tr-num.
+             tt-glinq.tr-num = glhist.tr-num
+             tt-glinq.tr-period = glhist.period
+             tt-glinq.tr-yr = glhist.yr
+             tt-glinq.riRowid = ROWID(glhist).
+        IF glhist.tr-amt GT 0 THEN
+           tt-glinq.db-amt = glhist.tr-amt .
+        IF glhist.tr-amt LT 0 THEN
+           tt-glinq.cr-amt = glhist.tr-amt .   
 
       IF LENGTH(glhist.tr-dscr) GT v-max-dscr-length THEN
          v-max-dscr-length = LENGTH(glhist.tr-dscr).
@@ -843,10 +1046,13 @@ PROCEDURE build-inquiry :
   for each gltrans  NO-LOCK
       where gltrans.company eq cocode
         and (gltrans.actnum  eq begin_acct OR begin_acct = "")
-        and gltrans.period  ge lv-period-fr
-        and gltrans.period  le lv-period-to
-        and gltrans.tr-date ge tmp-start
-        and gltrans.tr-date le tmp-end
+        AND (gltrans.period  ge lv-period-fr OR lv-period-fr EQ 0)
+        and (gltrans.period  le lv-period-to OR lv-period-to EQ 0)       
+        AND (YEAR(gltrans.tr-date) EQ lv-year OR lv-year EQ 0)
+        AND gltrans.tr-date ge dtDateFrom 
+        AND gltrans.tr-date le dtDateTo 
+        AND (gltrans.trnum ge iRunFrom  OR iRunFrom EQ 0)
+        AND (gltrans.trnum le iRunTo  OR  iRunTo EQ 0)
       by gltrans.tr-date:
       CREATE tt-glinq.
       ASSIGN tt-glinq.tr-date = gltran.tr-date
@@ -860,33 +1066,26 @@ PROCEDURE build-inquiry :
              tt-glinq.createdDate = gltrans.createdDate
              tt-glinq.posted = gltrans.posted
              tt-glinq.tr-num = gltrans.trnum
+             tt-glinq.tr-period = gltrans.period
+             tt-glinq.tr-yr = gltrans.yr
+             tt-glinq.riRowid = ROWID(gltrans)
              lv-close-bal = lv-close-bal + gltrans.tr-amt.
+             
+        IF gltran.tr-amt GT 0 THEN
+           tt-glinq.db-amt = gltran.tr-amt .
+        IF gltran.tr-amt LT 0 THEN
+           tt-glinq.cr-amt = gltran.tr-amt .
 
       IF LENGTH(gltran.tr-dscr) GT v-max-dscr-length THEN
          v-max-dscr-length = LENGTH(gltran.tr-dscr).
+         
+      IF begin_acct EQ "" THEN
+      ASSIGN
+          lv-open-bal = 0
+          lv-close-bal = 0.
+      
   end.
  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
-PROCEDURE move-columns :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DO WITH FRAME {&FRAME-NAME}:
-     ASSIGN
-        br_table:COLUMN-MOVABLE = v-col-move
-        br_table:COLUMN-RESIZABLE = v-col-move
-        v-col-move = NOT v-col-move
-        FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-     DISPLAY FI_moveCol.
-  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -947,7 +1146,7 @@ PROCEDURE local-initialize :
    lv-period-fr = g_period
    lv-period-to = g_period
    uperiod      = g_period.
-
+  RUN GetDefaultValue.
   RUN build-inquiry.
   tt-glinq.tr-dscr:WIDTH-CHARS IN BROWSE {&browse-name} = v-max-dscr-length + 20.
 
@@ -958,15 +1157,35 @@ PROCEDURE local-initialize :
 
     ASSIGN tt-glinq.tr-date:READ-ONLY IN BROWSE {&browse-name} = YES
            tt-glinq.jrnl:READ-ONLY IN BROWSE {&browse-name} = YES
-           tt-glinq.tr-dscr:READ-ONLY IN BROWSE {&browse-name} = YES
-           tt-glinq.tr-amt:READ-ONLY IN BROWSE {&browse-name} = YES   
+           tt-glinq.tr-dscr:READ-ONLY IN BROWSE {&browse-name} = YES               
            tt-glinq.actnum:READ-ONLY = YES
            FI_moveCol = "Sort"
            .
+          
         DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
         APPLY 'ENTRY':U TO begin_acct IN FRAME {&FRAME-NAME}.
 
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
+PROCEDURE move-columns :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&FRAME-NAME}:
+     ASSIGN
+        br_table:COLUMN-MOVABLE = v-col-move
+        br_table:COLUMN-RESIZABLE = v-col-move
+        v-col-move = NOT v-col-move
+        FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+     DISPLAY FI_moveCol.
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -984,17 +1203,83 @@ PROCEDURE new-begin_acct :
     FIND account
         WHERE account.company EQ g_company
           AND account.actnum  EQ begin_acct:SCREEN-VALUE
-        NO-LOCK NO-ERROR.
-    IF AVAIL account THEN
-      ASSIGN
-       lv-actname:SCREEN-VALUE = account.dscr
-       lv-actname.
+        NO-LOCK NO-ERROR.        
   END.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetDefaultValue B-table-Win 
+PROCEDURE GetDefaultValue :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+  
+    FIND FIRST period WHERE period.company = g_company
+                      AND period.yr = lv-year
+                      AND period.pnum = lv-period-fr NO-LOCK NO-ERROR.
+        dtDateFrom = (IF AVAIL period THEN period.pst ELSE 01/01/01) /*12/31/9999*/ . 
+        dtDateFrom:screen-value = STRING(IF AVAIL period AND period.pst NE ? THEN period.pst ELSE 01/01/01) /*12/31/9999*/ .
+        
+    FIND FIRST period WHERE period.company = g_company
+                      AND period.yr = lv-year
+                      AND period.pnum = lv-period-to NO-LOCK NO-ERROR.
+       dtDateto = (IF AVAIL period THEN period.pend ELSE 12/31/9999) /*01/01/0001*/ . 
+       dtDateto:SCREEN-VALUE = STRING(IF AVAIL period AND period.pend NE ? THEN period.pend ELSE 12/31/9999) /*01/01/0001*/ .
+    IF iRunTo EQ 0 THEN 
+       ASSIGN
+        iRunTo = 9999999
+        iRunTo:SCREEN-VALUE = "9999999".   
+   
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+   
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdate B-table-Win 
+PROCEDURE pUpdate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR phandle AS HANDLE NO-UNDO.
+   DEF VAR riRowid AS ROWID NO-UNDO.
+   DEF VAR riRecid AS RECID NO-UNDO.
+
+   IF avail tt-glinq THEN
+   do:
+     riRecid = RECID(tt-glinq).
+     RUN gl/d-glinq.w (INPUT cocode,INPUT tt-glinq.riRowid,INPUT "update",OUTPUT riRowid) .
+   END.
+   
+   IF riRowid NE ? THEN
+   DO:    
+       RUN build-inquiry.
+       {&open-query-{&browse-name}} 
+       
+       FIND FIRST tt-glinq NO-LOCK
+         WHERE tt-glinq.riRowid EQ riRowid NO-ERROR .         
+       reposition {&browse-name} to recid recid(tt-glinq) NO-ERROR  .           
+   END.
+  
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME   
+   
+   
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

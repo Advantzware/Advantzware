@@ -771,7 +771,7 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
         OUTPUT ttInvoiceLineToPost.costStdDeviation, 
         OUTPUT ttInvoiceLineToPost.costStdManufacture).
     
-    IF ttPostingMaster.blockZeroCost AND ipbf-inv-line.inv-qty NE 0 AND ttInvoiceLineToPost.costTotal EQ 0 THEN 
+    IF NOT ttPostingMaster.blockZeroCost AND ipbf-inv-line.inv-qty NE 0 AND ttInvoiceLineToPost.costTotal EQ 0 THEN 
     DO:
          lFGItemAllowZeroCost = fGetFgValueForZeroCost(ipbf-inv-line.company,ipbf-inv-line.i-no).
          

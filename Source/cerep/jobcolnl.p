@@ -321,7 +321,7 @@ FOR EACH job-hdr NO-LOCK
               AND bf-job-mch.job     EQ job-hdr.job
               AND bf-job-mch.job-no  EQ job-hdr.job-no
               AND bf-job-mch.job-no2 EQ job-hdr.job-no2 
-              AND bf-job-mch.m-code  EQ "303" NO-ERROR .
+              AND (bf-job-mch.m-code  EQ "303" OR bf-job-mch.m-code  EQ "304") NO-ERROR .
           IF AVAIL bf-job-mch THEN do: 
               RUN cerep/jobccchyb.p(job-hdr.job-no, job-hdr.job-no2)  .
               NEXT .

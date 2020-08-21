@@ -57,6 +57,9 @@ DEFINE VARIABLE cFobDscr2            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lPromptByItem        AS LOG       NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lReleaseCreated      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lActiveScope         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lValidLocation       AS LOGICAL   NO-UNDO.
 
 /* Procedure to prepare and execute API calls */
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
@@ -358,11 +361,40 @@ DO:
     END.
     
     /* calls sendrelease by triggering createrelease trigger */
-    IF lReleaseCreated THEN
+    IF lReleaseCreated THEN DO:
+        RUN Outbound_IsApiScopeActive IN hdOutboundProcs(
+            INPUT oe-rel.company,
+            INPUT oe-rel.spare-char-1,
+            INPUT "SendRelease",
+            INPUT oe-rel.cust-no,
+            INPUT "Customer",
+            INPUT "CreateRelease",
+            OUTPUT lActiveScope
+            ).
+        IF lActiveScope THEN DO:
+            RUN Outbound_ValidateLocation IN hdOutboundProcs(
+                  INPUT oe-rel.company,
+                  INPUT oe-rel.spare-char-1,
+                  INPUT "SendRelease",
+                  OUTPUT lValidLocation,
+                  OUTPUT cMessage 
+                  ).
+            IF NOT lValidLocation THEN DO:
+                SESSION:SET-WAIT-STATE (''). 
+                RETURN. 
+            END.
+            DO TRANSACTION:    
+                FIND CURRENT bf-oe-relh EXCLUSIVE-LOCK NO-ERROR.
+                bf-oe-relh.printed = YES.
+                FIND CURRENT bf-oe-relh NO-LOCK NO-ERROR.
+            END.                                
+        END. 
+                    
         RUN pRunAPIOutboundTrigger (
             BUFFER bf-oe-relh,
             INPUT  "CreateRelease"
             ).
+    END.        
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1090,18 +1122,19 @@ PROCEDURE pRunAPIOutboundTrigger:
                                  + " from actrelmerg.p for Release: " + cPrimaryID
                     . 
 
-                RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
-                    INPUT  ipbf-oe-relh.company,                /* Company Code (Mandatory) */
-                    INPUT  bf-oe-rell.loc,               /* Location Code (Mandatory) */
-                    INPUT  cAPIID,                  /* API ID (Mandatory) */
-                    INPUT  "",               /* Client ID (Optional) - Pass empty in case to make request for all clients */
-                    INPUT  ipcTriggerID,              /* Trigger ID (Mandatory) */
-                    INPUT  "oe-relh",               /* Comma separated list of table names for which data being sent (Mandatory) */
-                    INPUT  STRING(ROWID(ipbf-oe-relh)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
-                    INPUT  cPrimaryID,              /* Primary ID for which API is called for (Mandatory) */   
-                    INPUT  cDescription,       /* Event's description (Optional) */
-                    OUTPUT lSuccess,                /* Success/Failure flag */
-                    OUTPUT cMessage                 /* Status message */
+                RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+                    INPUT  ipbf-oe-relh.company,        /* Company Code (Mandatory) */
+                    INPUT  bf-oe-rell.loc,              /* Location Code (Mandatory) */
+                    INPUT  cAPIID,                      /* API ID (Mandatory) */
+                    INPUT  ipbf-oe-relh.cust-no,        /* Scope ID*/
+		            INPUT  "Customer",                  /* Scope Type */
+                    INPUT  ipcTriggerID,                /* Trigger ID (Mandatory) */
+                    INPUT  "oe-relh",                   /* Comma separated list of table names for which data being sent (Mandatory) */
+                    INPUT  STRING(ROWID(ipbf-oe-relh)), /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                    INPUT  cPrimaryID,              	/* Primary ID for which API is called for (Mandatory) */   
+                    INPUT  cDescription,       			/* Event's description (Optional) */
+                    OUTPUT lSuccess,                	/* Success/Failure flag */
+                    OUTPUT cMessage                 	/* Status message */
                     ) NO-ERROR.
             END.
         END.               

@@ -59,6 +59,7 @@ DEFINE TEMP-TABLE ttInv NO-UNDO
     FIELD amountTotal                 AS DECIMAL 
     FIELD taxGroup                    AS CHARACTER
     FIELD billFreight                 AS LOGICAL
+    FIELD frtTaxRate                  AS DECIMAL
     .
 
 DEFINE TEMP-TABLE ttInvLine NO-UNDO     
@@ -244,25 +245,8 @@ PROCEDURE pAssignCommonLineData PRIVATE:
             ipbf-ttInvLine.quantityUOM = ipbf-ttInvLine.quantityInvoicedUOM
             .
     IF ttInvLine.taxable THEN 
-    DO:               
-        EMPTY TEMP-TABLE ttTaxDetail.
-                
-        RUN Tax_CalculateWithDetail  (
-            INPUT  ipbf-ttInv.company,
-            INPUT  ipbf-ttInv.taxGroup,
-            INPUT  FALSE,   /* Is this freight */
-            INPUT  ipbf-ttInvLine.amountTaxableExFreight,
-            OUTPUT ipbf-ttInvLine.amountTaxExFreight,
-            OUTPUT TABLE ttTaxDetail
-            ). 
-
-        FOR EACH ttTaxDetail:
-            ipbf-ttInvLine.taxRate  = ipbf-ttInvLine.taxRate + ttTaxDetail.taxCodeRate.
-            IF ttTaxDetail.isTaxOnFreight THEN 
-                ipbf-ttInvLine.taxRateFreight = ipbf-ttInvLine.taxRateFreight + ttTaxDetail.taxCodeRate.
-        END.   
-                    
-        IF ttInv.billFreight THEN 
+    DO:                                 
+        /*IF ttInv.billFreight THEN 
         DO: 
             EMPTY TEMP-TABLE ttTaxDetail.                     
             RUN Tax_CalculateWithDetail  (
@@ -276,12 +260,12 @@ PROCEDURE pAssignCommonLineData PRIVATE:
         END.
         ELSE 
             ttInvLine.amountTaxableFreight = 0.
+        */
         ASSIGN     
             ipbf-ttInvLine.amountTax               = ipbf-ttInvLine.amountTaxExFreight + ipbf-ttInvLine.amountFreightTax
             ipbf-ttInvLine.amountTaxable           = ipbf-ttInvLine.amountTaxableExFreight + ipbf-ttInvLine.amountTaxableFreight
             ipbf-ttInv.amountTotalTaxableExFreight = ipbf-ttInv.amountTotalTaxableExFreight + ipbf-ttInvLine.amountTaxableExFreight
             ipbf-ttInv.amountTotalTaxable          = ipbf-ttInv.amountTotalTaxable + ipbf-ttInvLine.amountTaxable
-            ipbf-ttInv.amountTotalTax              = ipbf-ttInv.amountTotalTax + ipbf-ttInvLine.amountTax
             .
     END.
 END PROCEDURE.
@@ -325,11 +309,26 @@ PROCEDURE pBuildDataForPosted PRIVATE:
     DEFINE           BUFFER bf-ar-invl  FOR ar-invl.
     DEFINE           BUFFER bf-oe-ordl  FOR oe-ordl.
     
+    DEFINE VARIABLE dTaxTotal        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dInvoiceSubTotal AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dLineTaxAmt      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dLineTaxRate     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dFrtTaxRate      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dFrtTaxAmt       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lFirst           AS LOGICAL   NO-UNDO.
+    
     IF AVAILABLE ipbf-ar-inv THEN 
     DO:
+        EMPTY TEMP-TABLE ttTaxDetail.
+        ASSIGN 
+            dFrtTaxRate  = 0
+            dFrtTaxAmt   = 0
+            .
         RUN pGetSettings(ipbf-ar-inv.company, ipbf-ar-inv.cust-no, ipbf-ar-inv.ship-id).
-        
-        
+             
         CREATE ttInv.
         ASSIGN             
             ttInv.invoiceDate        = ipdtInvDate 
@@ -346,15 +345,36 @@ PROCEDURE pBuildDataForPosted PRIVATE:
             ttInv.amountTotal        = ipbf-ar-inv.t-sales 
             ttInv.billFreight        = ipbf-ar-inv.f-bill
             ttInv.amountTotalFreight = IF ttInv.billFreight THEN ipbf-ar-inv.freight ELSE 0
+            ttInv.amountTotalTax     = ipbf-ar-inv.tax-amt
             . 
-        
+        RUN Tax_CalculateForARInvWithDetail(
+            INPUT  ROWID(ipbf-ar-inv),
+            INPUT  ipbf-ar-inv.loc,
+            INPUT  "QUOTATION",  
+            INPUT  NO,
+            INPUT  "GetTaxAmount",
+            OUTPUT dTaxTotal,
+            OUTPUT dInvoiceTotal,
+            OUTPUT dInvoiceSubTotal,
+            OUTPUT TABLE ttTaxDetail,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ). 
         RUN pAssignCommonHeaderData(BUFFER ttInv, 
             ipbf-ar-inv.company, 
             ipbf-ar-inv.cust-no, 
             ipbf-ar-inv.ship-id,
             ipbf-ar-inv.terms).
+            
+        lFirst = YES.   
+         
         FOR EACH bf-ar-invl NO-LOCK
             WHERE bf-ar-invl.x-no EQ ipbf-ar-inv.x-no:
+                
+            ASSIGN
+                dLineTaxAmt  = 0
+                dLineTaxRate = 0 
+                .             
             CREATE ttInvLine.
             ASSIGN 
                 ttInvLine.invoiceID              = ttInv.invoiceID
@@ -378,7 +398,29 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                 ttInvLine.isMisc                 = bf-ar-invl.misc
                 ttInv.amountTotalLines           = ttInv.amountTotalLines + bf-ar-invl.amt
                 .
-.
+                
+            FOR EACH ttTaxDetail
+                WHERE ttTaxDetail.invoiceLineType   EQ "ARINVL"
+                  AND ttTaxDetail.invoiceLineRecKey EQ bf-ar-invl.rec_key:
+                IF NOT ttTaxDetail.isFreight THEN 
+                    ASSIGN 
+                        dLineTaxAmt  = dLineTaxAmt  + ttTaxDetail.taxCodeTaxAmount
+                        dLineTaxRate = dLineTaxRate + ttTaxDetail.taxCodeRate
+                        .  
+                IF ttTaxDetail.isFreight THEN DO:
+                    IF lFirst THEN DO:
+                        ASSIGN
+                            dFrtTaxRate = dFrtTaxRate + ttTaxDetail.taxCodeRate
+                            lFirst      = NO
+                            .
+                    END.    
+                    dFrtTaxAmt  = dFrtTaxAmt  + ttTaxDetail.taxCodeTaxAmount.
+                END.                                           
+            END.              
+            ASSIGN 
+                ttInvLine.amountTaxExFreight = dLineTaxAmt
+                ttInvLine.taxRate            = dLineTaxRate 
+                .
             FIND FIRST bf-oe-ordl NO-LOCK
                  WHERE bf-oe-ordl.company EQ bf-ar-invl.company
                    AND bf-oe-ordl.i-no    EQ bf-ar-invl.i-no
@@ -393,7 +435,9 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                 
         END.
         ASSIGN 
-            ttInv.amountTotal = ttInv.amountTotalLines + ttInv.amountTotalTax + ttInv.amountTotalFreight
+            ttInv.amountTotal            = ttInv.amountTotalLines + ttInv.amountTotalTax + ttInv.amountTotalFreight
+            ttInv.frtTaxRate             = dFrtTaxRate  
+            ttInv.amountTotalTaxFreight  = dFrtTaxAmt
             .
             
     END.
@@ -539,7 +583,7 @@ PROCEDURE pGenerateCXML PRIVATE:
       
             RUN cXMLOutput (clXMLOutput,'Tax','','Row'). 
             RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
-            RUN cXMLOutput (clXMLOutput,'',STRING(ttInvLine.amountTax),'Col').
+            RUN cXMLOutput (clXMLOutput,'',STRING(ttInvLine.amountTax + IF lFirstLine THEN ttInv.amountTotalTaxFreight ELSE 0 ),'Col').
             RUN cXMLOutput (clXMLOutput,'/Money','','Row').
             RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
             RUN cXMLOutput (clXMLOutput,'/Description','','Row').                        
@@ -560,18 +604,18 @@ PROCEDURE pGenerateCXML PRIVATE:
             RUN cXMLOutput (clXMLOutput,'/TaxDetail','','Row'). 
             
             /* Seperate section for handling shipping Tax */
-            IF ttInv.billFreight AND ttInvLine.amountTaxableFreight NE 0 
-                AND ttInvLine.taxRateFreight NE 0 THEN DO:
+            IF ttInv.billFreight AND ttInv.amountTotalFreight NE 0 
+                AND ttInv.frtTaxRate NE 0 AND lFirstLine THEN DO:
                     
-                RUN cXMLOutput (clXMLOutput,'TaxDetail purpose="shippingTax" category="sales"' + ' percentageRate="' + STRING(ttInvLine.taxRateFreight) + '"','','Row').             
+                RUN cXMLOutput (clXMLOutput,'TaxDetail purpose="shippingTax" category="sales"' + ' percentageRate="' + STRING(ttInv.frtTaxRate) + '"','','Row').             
                 RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').
                 RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').              
-                RUN cXMLOutput (clXMLOutput,'',STRING(ttInvLine.amountTaxableFreight),'Col').
+                RUN cXMLOutput (clXMLOutput,'',STRING(ttInv.amountTotalFreight),'Col').
                 RUN cXMLOutput (clXMLOutput,'/Money','','Row').             
                 RUN cXMLOutput (clXMLOutput,'/TaxableAmount','','Row').
                 RUN cXMLOutput (clXMLOutput,'TaxAmount','','Row').
                 RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').              
-                RUN cXMLOutput (clXMLOutput,'',STRING(ttInvLine.amountFreightTax),'Col').
+                RUN cXMLOutput (clXMLOutput,'',STRING(ttInv.amountTotalTaxFreight),'Col').
                 RUN cXMLOutput (clXMLOutput,'/Money','','Row').             
                 RUN cXMLOutput (clXMLOutput,'/TaxAmount','','Row').
                 RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
@@ -616,7 +660,7 @@ PROCEDURE pGenerateCXML PRIVATE:
             RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
              /* Assign total freight to first detail line since line-level freight not supported */
             IF lFirstLine THEN DO: 
-                RUN cXMLOutput (clXMLOutput,'',STRING(inv-head.t-inv-freight),'Col').
+                RUN cXMLOutput (clXMLOutput,'',STRING(ttInv.amountTotalFreight),'Col').
                 lFirstLine = NO.
             END.
             ELSE

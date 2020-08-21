@@ -45,7 +45,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "RMReceiptRules,FGReceiptRules,POLoadtag,SSCycleCountReset,OEImportConsol,AutoCreateHelp,SSVendTagOnly,ShowRestrictionMessage,UseNewInvoicePost,MiscEstimateSource,"
            + "JobRecalc,JobBuildVersion,CEWood,SalesTaxRoundingMethod,SalesTaxCalcMethod,FGTagValidation,DynParamValidation,DateRule,VertexTaxClassDefault,"
            + "CapacityHTMLFolder,InvoiceApprovalBillNotes,InvoiceApprovalFreightAmount,InvoiceApprovalFreightTerms,InvoiceApprovalPriceGTCost,InvoiceApprovalInvoiceStatus,"
-           + "InvoiceApprovalTaxableCheck" 
+           + "InvoiceApprovalTaxableCheck,CalcJobDueDate"            
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -1079,6 +1079,17 @@ CASE ip-nk1-value:
             INPUT 0                                              /* Dec value*/
             ).
     WHEN "InvoiceApprovalBillNotes" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "Calculate Job Due Date",                      /* Description */
+            INPUT ""      ,                                      /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT NO,                                            /* Logical value */ 
+            INPUT 0                                              /* Dec value*/
+            ).
+    WHEN "CalcJobDueDate" THEN 
         RUN sys/inc/addnk1.p (
             INPUT cocode, 
             INPUT ip-nk1-value, 

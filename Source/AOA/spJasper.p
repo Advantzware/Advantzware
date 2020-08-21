@@ -66,7 +66,8 @@ DEFINE BUFFER jasperUserPrint FOR user-print.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fFormatValue Procedure 
 FUNCTION fFormatValue RETURNS CHARACTER
-  (iphTable AS HANDLE, ipcField AS CHARACTER) FORWARD.
+  (iphTable AS HANDLE, ipcField AS CHARACTER,
+   ipcFormat AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -946,7 +947,7 @@ PROCEDURE pJasperJSON:
                 :
                 ASSIGN
                     cFullName    = ttColumn.ttField
-                    cBufferValue = fFormatValue(hTable, cFullName)
+                    cBufferValue = fFormatValue(hTable, cFullName, ttColumn.ttFormat)
                     cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "Web")
                     cFullName    = ttColumn.ttTable + "__" + cFullName
                     cFullName    = REPLACE(cFullName,"[","")
@@ -1727,7 +1728,7 @@ PROCEDURE pLocalCSV:
             ASSIGN
                 hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynValueColumn.colName,"."))
                 cFieldName   = ENTRY(2,dynValueColumn.colName,".")
-                cBufferValue = fFormatValue(hQueryBuf, cFieldName)
+                cBufferValue = fFormatValue(hQueryBuf, cFieldName, dynValueColumn.colFormat)
                 cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "")
                 .
             PUT UNFORMATTED REPLACE(cBufferValue,",","") + ",".
@@ -2010,7 +2011,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fFormatValue Procedure 
 FUNCTION fFormatValue RETURNS CHARACTER
-  (iphTable AS HANDLE, ipcField AS CHARACTER):
+  (iphTable AS HANDLE, ipcField AS CHARACTER, ipcFormat AS CHARACTER):
 /*------------------------------------------------------------------------------
  Purpose: format field value
  Notes:
@@ -2025,8 +2026,9 @@ FUNCTION fFormatValue RETURNS CHARACTER
         idx  = INTEGER(cStr)
         ipcField = SUBSTRING(ipcField,1,INDEX(ipcField,"[") - 1)
         .
-    cStr = STRING(iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE(idx),
-                  iphTable:BUFFER-FIELD(ipcField):FORMAT) NO-ERROR.
+    IF ipcFormat EQ "" THEN
+    ipcFormat = iphTable:BUFFER-FIELD(ipcField):FORMAT.
+    cStr = STRING(iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE(idx),ipcFormat) NO-ERROR.
     /* error raised if invalid format for field value */
     IF ERROR-STATUS:NUM-MESSAGES NE 0 OR
        iphTable:BUFFER-FIELD(ipcField):DATA-TYPE EQ "CHARACTER" THEN 

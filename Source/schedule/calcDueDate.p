@@ -2,11 +2,11 @@
 &ANALYZE-RESUME
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Procedure 
 /*------------------------------------------------------------------------
-    File        : schedule/jobDueDate.p
+    File        : schedule/calcDueDate.p
     Purpose     : persistent procedures used to calc job-mch due date
 
-    Syntax      : RUN jc/jobDueDate.p PERSISTENT SET scheduleHndl.
-
+    Syntax      : schedule/calcDueDate.p (ipcType, ROWID(job), ipcCompany,
+                                          OUTPUT opdtDueDate,OUTPUT opiDueTime).
     Description : 
 
     Author(s)   : Ron Stark
@@ -94,10 +94,6 @@ FOR EACH ttblJob
         opdtDueDate = ttblJob.endDate
         opiDueTime  = ttblJob.endTime
         .
-    MESSAGE
-        ttblJob.m-code SKIP 
-        "Due Date:" opdtDueDate STRING(opiDueTime,"hh:mm:ss am")
-    VIEW-AS ALERT-BOX.
     LEAVE.
 END. /* each ttbljob */
 SESSION:SET-WAIT-STATE ("").

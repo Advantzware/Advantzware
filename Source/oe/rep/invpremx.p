@@ -108,9 +108,17 @@ DEFINE VARIABLE cCompanyID            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lValid                AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dFrtTaxAmt            AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE lIsfreightTaxable     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE dFrtTaxRate           AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE lFirstLine            AS LOG       NO-UNDO.
+DEFINE VARIABLE dTaxTotal             AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dInvoiceTotal         AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dInvoiceSubTotal      AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE lSuccess              AS LOGICAL   NO-UNDO.
+DEF VAR cInvSuffix AS CHAR NO-UNDO.
+IF LENGTH(ip-copy-title) EQ 2 THEN ASSIGN 
+    cInvSuffix = ip-copy-title.
+ELSE ASSIGN 
+    cInvSuffix = "".
 
 FUNCTION fRoundUp RETURNS DECIMAL ( ipdNum AS DECIMAL ):
   DEFINE VARIABLE dNumTwoRight AS DECIMAL NO-UNDO.
@@ -491,7 +499,7 @@ END.
         RUN XMLOutput (lXMLOutput,'Ship_1',v-shipto-addr[1],'Col').
         RUN XMLOutput (lXMLOutput,'Ship_2',v-shipto-addr[2],'Col').
         RUN XMLOutput (lXMLOutput,'Ship_3',v-sold-addr3,'Col').
-        RUN XMLOutput (lXMLOutput,'InvoiceNo',inv-head.inv-no,'Col').
+        RUN XMLOutput (lXMLOutput,'InvoiceNo',string(inv-head.inv-no) + cInvSuffix,'Col').
         RUN XMLOutput (lXMLOutput,'InvoiceDate',v-inv-date,'Col').
         RUN XMLOutput (lXMLOutput,'ShipDate',v-date-ship,'Col').
         RUN XMLOutput (lXMLOutput,'FOB',v-fob,'Col').
@@ -507,9 +515,10 @@ END.
         cXMLLineNumber = 0. 
         RUN cXMLOutput (clXMLOutput,'Request deploymentMode="' + cXMLProduction + '"','','Row').
         RUN cXMLOutput (clXMLOutput,'InvoiceDetailRequest','','Row').
+
         RUN cXMLOutput (clXMLOutput,'InvoiceDetailRequestHeader ' 
                                 + 'invoiceDate="' + cInvDate + '" '
-                                + 'invoiceID="' + STRING(inv-head.inv-no) + '" '
+                                + 'invoiceID="' + STRING(inv-head.inv-no) + cInvSuffix + '" '
                                 + 'operation="new" purpose="standard"','','Row').
         RUN cXMLOutput (clXMLOutput,'InvoiceDetailHeaderIndicator/','','Row').  
         RUN cXMLOutput (clXMLOutput,'InvoiceDetailLineIndicator isShippingInLine="yes" isAccountingInLine="yes" isTaxInLine="yes" /','','Row').
@@ -597,7 +606,22 @@ END.
         {oe/rep/invpremx.i}  /* xprint form */
 
         v-subtot-lines = 0.
+        
         lFirstLine = TRUE.
+        EMPTY TEMP-TABLE ttTaxDetail.
+        RUN Tax_CalculateForInvHeadWithDetail(
+            INPUT  ROWID(inv-head),
+            INPUT  locode,
+            INPUT  "QUOTATION",  
+            INPUT  NO,
+            INPUT  "GetTaxAmount",
+            OUTPUT dTaxTotal,
+            OUTPUT dInvoiceTotal,
+            OUTPUT dInvoiceSubTotal,
+            OUTPUT TABLE ttTaxDetail,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ). 
         for each inv-line no-lock where inv-line.r-no = inv-head.r-no:
 
           IF NOT s-print-zero-qty AND
@@ -777,31 +801,37 @@ END.
              IF AVAIL stax AND inv-line.tax THEN 
              DO:
                 dLineTaxableAmt = inv-line.t-price.
-                
-                EMPTY TEMP-TABLE ttTaxDetail.
-                
-                RUN Tax_CalculateWithDetail  (
-                    INPUT  inv-head.company,
-                    INPUT  inv-head.tax-gr,
-                    INPUT  FALSE,   /* Is this freight */
-                    INPUT  dLineTaxableAmt,
-                    OUTPUT dLineTaxAmt,
-                    OUTPUT TABLE ttTaxDetail
-                    ). 
-                    
+                 
                 ASSIGN 
                     dLineTaxRate = 0
                     dFrtTaxRate  = 0
+                    dLineTaxAmt  = 0
+                    dFrtTaxAmt   = 0
                     .
-                        
-                FOR EACH ttTaxDetail:
-                    dLineTaxRate  = dLineTaxRate + ttTaxDetail.taxCodeRate.
-                    IF ttTaxDetail.isTaxOnFreight THEN 
-                        dFrtTaxRate = dFrtTaxRate + ttTaxDetail.taxCodeRate.
-                END.   
-                
-                IF inv-head.f-bill THEN DO: 
-                    EMPTY TEMP-TABLE ttTaxDetail.                     
+                    
+                FOR EACH ttTaxDetail
+                    WHERE ttTaxDetail.invoiceLineType   EQ "INVLINE"
+                      AND ttTaxDetail.invoiceLineRecKey EQ inv-line.rec_key
+                      AND ttTaxDetail.isFreight         EQ NO:
+                    ASSIGN 
+                        dLineTaxAmt  = dLineTaxAmt  + ttTaxDetail.taxCodeTaxAmount
+                        dLineTaxRate = dLineTaxRate + ttTaxDetail.taxCodeRate
+                        .        
+                END.  
+                IF lFirstLine THEN DO:
+                    FOR EACH ttTaxDetail
+                        WHERE ttTaxDetail.invoiceLineType   EQ "INVHEAD"
+                          AND ttTaxDetail.invoiceLineRecKey EQ inv-head.rec_key
+                          AND ttTaxDetail.isFreight         EQ YES:
+                        ASSIGN
+                            dFrtTaxRate = dFrtTaxRate + ttTaxDetail.taxCodeRate
+                            dFrtTaxAmt  = dFrtTaxAmt  + ttTaxDetail.taxCodeTaxAmount
+                            .         
+                    END. 
+                END.     
+                /* line level freight calculation not needed
+                IF inv-head.f-bill THEN DO:
+                    EMPTY TEMP-TABLE ttTaxDetail.
                     lIsFreightTaxable = YES.
                     RUN Tax_CalculateWithDetail  (
                         INPUT  inv-head.company,
@@ -811,13 +841,13 @@ END.
                         OUTPUT dFrtTaxAmt,
                         OUTPUT TABLE ttTaxDetail
                         ).
-                END.  
-                ELSE 
-                    ASSIGN 
+                END.
+                ELSE
+                    ASSIGN
                         lIsfreightTaxable = NO
                         dFrtTaxAmt        = 0
                         dFrtTaxRate       = 0
-                        .     
+                        . */
              END.
              ELSE 
                 ASSIGN 
@@ -825,7 +855,6 @@ END.
                     dLineTaxAmt       = 0
                     dLineTaxRate      = 0
                     dFrtTaxAmt        = 0
-                    lIsFreightTaxable = NO
                     dFrtTaxRate       = 0
                     . 
 
@@ -851,14 +880,14 @@ END.
              // RUN cXMLOutput (clXMLOutput,'','Sales Tax','Col').
              RUN cXMLOutput (clXMLOutput,'/Description','','Row').
              RUN cXMLOutput (clXMLOutput,'/TaxDetail','','Row'). 
-             
+
              /* Seperate section for handling shipping Tax */
-             IF lIsFreightTaxable AND inv-line.t-freight NE 0  
-                 AND dFrtTaxRate NE 0 THEN DO:
+             IF inv-head.f-bill AND inv-head.t-inv-freight NE 0  
+                 AND dFrtTaxRate NE 0  AND lFirstLine THEN DO:
                  RUN cXMLOutput (clXMLOutput,'TaxDetail purpose="shippingTax" category="sales"' + ' percentageRate="' + STRING(dFrtTaxRate) + '"','','Row').             
                  RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').
                  RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').              
-                 RUN cXMLOutput (clXMLOutput,'',STRING(inv-line.t-freight),'Col').
+                 RUN cXMLOutput (clXMLOutput,'',STRING(inv-head.t-inv-freight),'Col').
                  RUN cXMLOutput (clXMLOutput,'/Money','','Row').             
                  RUN cXMLOutput (clXMLOutput,'/TaxableAmount','','Row').
                  RUN cXMLOutput (clXMLOutput,'TaxAmount','','Row').
@@ -908,7 +937,7 @@ END.
              RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
              /* Assign total freight to first detail line since line-level freight not supported */
              IF lFirstLine THEN DO: 
-                 RUN cXMLOutput (clXMLOutput,'',STRING(inv-head.t-inv-freight),'Col').
+                 RUN cXMLOutput (clXMLOutput,'',IF inv-head.f-bill THEN STRING(inv-head.t-inv-freight) ELSE '0','Col').
                  lFirstLine = NO.
              END.
              ELSE

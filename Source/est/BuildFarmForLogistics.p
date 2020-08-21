@@ -171,7 +171,7 @@ PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
         RUN oe/QuotePopup.w("",ipbf-eb.company,
             ipbf-eb.loc,
             cEstNo,
-            ipbf-eb.stock-no,
+            ipbf-eb.part-no,
             INPUT-OUTPUT dQuotePrice,
             INPUT-OUTPUT cQuoteUom,
             INPUT-OUTPUT iQuoteQty,
@@ -180,8 +180,8 @@ PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
             OUTPUT rwRowid). 
             
     IF NOT iplPromptForQuotes THEN
-     RUN pGetLastQuoteNO(INPUT ipbf-eb.company, INPUT ipbf-eb.loc, INPUT ipbf-eb.est-no, OUTPUT iQuoteNo) .
-    
+     RUN pGetLastQuoteNO(INPUT ipbf-eb.company, INPUT ipbf-eb.loc, INPUT cEstNo, OUTPUT iQuoteNo) .
+       
     FOR EACH quotehd NO-LOCK
         WHERE quotehd.company  EQ ipbf-eb.company
         AND (quotehd.q-no EQ iQuoteNo OR iQuoteNo EQ 0) 
@@ -194,7 +194,7 @@ PROCEDURE pBuildQuantitiesAndCostsFromQuote PRIVATE:
         WHERE quoteitm.company EQ quotehd.company
         AND quoteitm.loc EQ quotehd.loc
         AND quoteitm.q-no EQ quotehd.q-no
-        AND quoteitm.i-no EQ ipbf-eb.stock-no
+        AND quoteitm.part-no EQ ipbf-eb.part-no
         ,
         EACH quoteqty NO-LOCK
         WHERE quoteqty.company EQ quoteitm.company

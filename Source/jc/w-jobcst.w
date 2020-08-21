@@ -609,7 +609,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-job-2 ).
-       RUN set-position IN h_v-job-2 ( 4.57 , 3.00 ) NO-ERROR.
+       RUN set-position IN h_v-job-2 ( 5.00 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 4.29 , 148.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -658,7 +658,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-job-3 ).
-       RUN set-position IN h_v-job-3 ( 4.57 , 3.00 ) NO-ERROR.
+       RUN set-position IN h_v-job-3 ( 5.00 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 4.29 , 148.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -721,7 +721,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-job-4 ).
-       RUN set-position IN h_v-job-4 ( 4.57 , 3.00 ) NO-ERROR.
+       RUN set-position IN h_v-job-4 ( 5.00 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 4.29 , 148.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (

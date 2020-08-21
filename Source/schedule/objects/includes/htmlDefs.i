@@ -1,6 +1,8 @@
 /* htmlDefs.i - rstark - 8.13.2020     */
 /* used in capacityPage.w and sbHTML.p */
 
+/*&Scoped-define DebugLog*/
+
 DEFINE VARIABLE iSortOrder AS INTEGER NO-UNDO.
 
 DEFINE TEMP-TABLE ttTime NO-UNDO
@@ -34,15 +36,16 @@ FUNCTION checkDowntimeConflict RETURNS LOGICAL
 END FUNCTION.
 
 FUNCTION checkJobConflict RETURNS LOGICAL
-  (ipStartDateTime AS DECIMAL,ipEndDateTime AS DECIMAL) :
+  (ipcResource AS CHARACTER,ipStartDateTime AS DECIMAL,ipEndDateTime AS DECIMAL) :
 
     RETURN CAN-FIND(FIRST ttblJob
-                    WHERE (ttblJob.startDateTime GE ipStartDateTime
+                    WHERE ttblJob.{1}            EQ ipcResource
+                      AND ((ttblJob.startDateTime GE ipStartDateTime
                       AND ttblJob.startDateTime  LT ipEndDateTime)
                        OR (ttblJob.endDateTime   LE ipEndDateTime
                       AND ttblJob.endDateTime    GT ipStartDateTime)
                        OR (ttblJob.startDateTime LE ipStartDateTime
-                      AND ttblJob.endDateTime    GE ipEndDateTime)
+                      AND ttblJob.endDateTime    GE ipEndDateTime))
                    ).
 
 END FUNCTION.
@@ -156,6 +159,50 @@ FUNCTION timeSpan RETURNS INTEGER
 
 END FUNCTION.
 
+/* **********************  Internal Procedures  *********************** */
+
+PROCEDURE downtimeLoop:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcMachine    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiTimeSpan   AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtStartDate AS DATE      NO-UNDO.
+    DEFINE INPUT PARAMETER ipiStartTime  AS INTEGER   NO-UNDO.
+    
+    DEFINE INPUT-OUTPUT PARAMETER iopdtEndDate AS DATE    NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiEndTime  AS INTEGER NO-UNDO.
+
+    DEFINE VARIABLE idx   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lLoop AS LOGICAL NO-UNDO INITIAL TRUE.
+
+    &IF DEFINED(DebugLog) NE 0 &THEN
+    EXPORT "start loop" ipcMachine ipdtStartDate STRING(ipiStartTime,"hh:mm:ss am")
+        iopdtEndDate STRING(iopiEndTime,"hh:mm:ss am").
+    &ENDIF
+    DO WHILE lLoop:
+        lLoop = FALSE.
+        IF checkDowntimeConflict(ipcMachine,ipdtStartDate,ipiStartTime) THEN DO:
+            lLoop = TRUE.
+            RUN downtimeSpan (ipcMachine,ipiTimeSpan,ipdtStartDate,ipiStartTime,
+                              OUTPUT iopdtEndDate,OUTPUT iopiEndTime).
+        END. /* if */
+        IF checkDowntimeConflict(ipcMachine,iopdtEndDate,iopiEndTime) THEN DO:
+            lLoop = TRUE.
+            RUN downtimeSpan (ipcMachine,ipiTimeSpan,iopdtEndDate,iopiEndTime,
+                              OUTPUT iopdtEndDate,OUTPUT iopiEndTime).
+        END. /* if */
+        idx = idx + 1.
+        IF idx GE 10 THEN LEAVE.
+    END. /* do while */
+    &IF DEFINED(DebugLog) NE 0 &THEN
+    EXPORT "  end loop" ipcMachine ipdtStartDate STRING(ipiStartTime,"hh:mm:ss am")
+        iopdtEndDate STRING(iopiEndTime,"hh:mm:ss am").
+    &ENDIF
+
+END PROCEDURE.
+
 PROCEDURE downtimeSpan :
 /*------------------------------------------------------------------------------
   Purpose:     calculate new ending date & time and downtime span value
@@ -223,15 +270,24 @@ PROCEDURE firstAvailable :
     DEFINE VARIABLE iDay            AS INTEGER NO-UNDO.
     DEFINE VARIABLE iMonth          AS INTEGER NO-UNDO.
     DEFINE VARIABLE iYear           AS INTEGER NO-UNDO.
-    DEFINE VARIABLE lLoop           AS LOGICAL NO-UNDO.
 
     DEFINE BUFFER ttblJob FOR ttblJob.
 
-    IF checkJobConflict(ipStartDateTime,ipEndDateTime) THEN
+    &IF DEFINED(DebugLog) NE 0 &THEN
+    EXPORT
+        " start firstAvailable"
+        ipMachine
+        ipStartDateTime
+        ipEndDateTime
+        "checkJobConflict(ipMachine,ipStartDateTime,ipEndDateTime):"
+        checkJobConflict(ipMachine,ipStartDateTime,ipEndDateTime)
+        .
+    &ENDIF
+    IF checkJobConflict(ipMachine,ipStartDateTime,ipEndDateTime) THEN
         FOR EACH ttblJob
             WHERE ttblJob.{1}            EQ ipMachine
               AND (ttblJob.startDateTime GE ipStartDateTime
-              OR  ttblJob.endDateTime    GE ipStartDateTime)
+               OR  ttblJob.endDateTime   GE ipStartDateTime)
             :
             ASSIGN
                 lvStartDate = ttblJob.endDate
@@ -239,20 +295,35 @@ PROCEDURE firstAvailable :
                 .
             lvStartDateTime = numericDateTime(lvStartDate,lvStartTime).
             RUN newEnd (ipTimeSpan,lvStartDate,lvStartTime,OUTPUT lvEndDate,OUTPUT lvEndTime).
-            IF checkDowntimeConflict(ipMachine,lvStartDate,lvStartTime) THEN
-            RUN downtimeSpan (ipMachine,ipTimeSpan,lvStartDate,lvStartTime,
-                              OUTPUT lvEndDate,OUTPUT lvEndTime).
-            IF checkDowntimeConflict(ipMachine,lvEndDate,lvEndTime) THEN
-            RUN downtimeSpan (ipMachine,ipTimeSpan,lvEndDate,lvEndTime,
-                              OUTPUT lvEndDate,OUTPUT lvEndTime).
+            RUN downtimeLoop (
+                ipMachine,
+                ipTimeSpan,
+                lvStartDate,
+                lvStartTime,
+                INPUT-OUTPUT lvEndDate,
+                INPUT-OUTPUT lvEndTime
+                ).
             lvEndDateTime = numericDateTime(lvEndDate,lvEndTime).
-            IF checkJobConflict(lvStartDateTime,lvEndDateTime) THEN NEXT.
+            IF checkJobConflict(ipMachine,lvStartDateTime,lvEndDateTime) THEN NEXT.
             ASSIGN
                 opStartDate = lvStartDate
                 opStartTime = lvStartTime
                 opEndDate   = lvEndDate
                 opEndTime   = lvEndTime
                 .
+            &IF DEFINED(DebugLog) NE 0 &THEN
+            EXPORT
+                "return firstAvailable"
+                ipMachine
+                lvStartDateTime
+                lvEndDateTime
+                opStartDate
+                STRING(opStartTime,"hh:mm:ss am")
+                opEndDate
+                STRING(opEndTime,"hh:mm:ss am")
+                .
+            PUT SKIP(1).
+            &ENDIF
             RETURN.
         END. /* each ttblJob */
     ELSE DO:
@@ -261,30 +332,21 @@ PROCEDURE firstAvailable :
             iMonth      = INTEGER(SUBSTRING(ENTRY(1,STRING(ipStartDateTime),"."),5,2))
             iDay        = INTEGER(SUBSTRING(ENTRY(1,STRING(ipStartDateTime),"."),7,2))
             lvStartDate = DATE(iMonth,iDay,iYear)
-            lvStartTime = INTEGER(ENTRY(2,STRING(ipStartDateTime),"."))
+            lvStartTime = INTEGER(ENTRY(2,STRING(ipStartDateTime,"99999999.99999"),"."))
             iYear       = INTEGER(SUBSTRING(ENTRY(1,STRING(ipEndDateTime),"."),1,4))
             iMonth      = INTEGER(SUBSTRING(ENTRY(1,STRING(ipEndDateTime),"."),5,2))
             iDay        = INTEGER(SUBSTRING(ENTRY(1,STRING(ipEndDateTime),"."),7,2))
             lvEndDate   = DATE(iMonth,iDay,iYear)
-            lvEndTime   = INTEGER(ENTRY(2,STRING(ipEndDateTime),"."))
-            lLoop       = TRUE
-            iDay        = 0
+            lvEndTime   = INTEGER(ENTRY(2,STRING(ipEndDateTime,"99999999.99999"),"."))
             .
-        DO WHILE lLoop:
-            lLoop = FALSE.
-            IF checkDowntimeConflict(ipMachine,lvStartDate,lvStartTime) THEN DO:
-                lLoop = TRUE.
-                RUN downtimeSpan (ipMachine,ipTimeSpan,lvStartDate,lvStartTime,
-                                  OUTPUT lvEndDate,OUTPUT lvEndTime).
-            END. /* if */
-            IF checkDowntimeConflict(ipMachine,lvEndDate,lvEndTime) THEN DO:
-                lLoop = TRUE.
-                RUN downtimeSpan (ipMachine,ipTimeSpan,lvEndDate,lvEndTime,
-                                  OUTPUT lvEndDate,OUTPUT lvEndTime).
-            END. /* if */
-            iDay = iDay + 1.
-            IF iDay GE 10 THEN LEAVE.
-        END. /* do while */
+        RUN downtimeLoop (
+            ipMachine,
+            ipTimeSpan,
+            lvStartDate,
+            lvStartTime,
+            INPUT-OUTPUT lvEndDate,
+            INPUT-OUTPUT lvEndTime
+            ).
         ASSIGN
             opStartDate = lvStartDate
             opStartTime = lvStartTime
@@ -292,6 +354,23 @@ PROCEDURE firstAvailable :
             opEndTime   = lvEndTime
             .
     END. /* else */
+    ASSIGN
+        lvStartDateTime = numericDateTime(opStartDate,opStartTime)
+        lvEndDateTime = numericDateTime(opEndDate,opEndTime)
+        .
+    &IF DEFINED(DebugLog) NE 0 &THEN
+    EXPORT
+        "   end firstAvailable"
+        ipMachine
+        lvStartDateTime
+        lvEndDateTime
+        opStartDate
+        STRING(opStartTime,"hh:mm:ss am")
+        opEndDate
+        STRING(opEndTime,"hh:mm:ss am")
+        .
+    PUT SKIP(1).
+    &ENDIF
 
 END PROCEDURE.
 
