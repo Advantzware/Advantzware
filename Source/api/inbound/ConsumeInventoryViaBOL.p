@@ -64,11 +64,13 @@
     {oe/closchk.i NEW}
 
     /* Temp-table to store the fg-bin buffer for the inputs */
-    DEFINE TEMP-TABLE ttBin LIKE fg-bin
+    DEFINE TEMP-TABLE ttBin NO-UNDO
+        FIELD company     AS CHARACTER
+        FIELD BOLID       AS INTEGER
+        FIELD itemID      AS CHARACTER
+        FIELD tag         AS CHARACTER        
         FIELD fgbinRowId  AS ROWID
         FIELD oebollRowId AS ROWID
-        FIELD BOLID       AS INTEGER
-        FIELD units       AS INTEGER
         FIELD processed   AS LOGICAL
         .
     
@@ -486,6 +488,7 @@
             INPUT  ttInputs.company,
             INPUT  ttInputs.BOLID,
             INPUT  ttInputs.itemID,
+            INPUT  ttInputs.inventoryStockID,
             OUTPUT riOeboll,
             OUTPUT oplSuccess,
             OUTPUT opcMessage
@@ -503,33 +506,11 @@
             ) NO-ERROR.
         IF NOT oplSuccess THEN
             RETURN.
-        
-        /* Validate if input item quantity exceeds the release quantity */
-        RUN ValidateOrderQuantityWithInputs (
-            INPUT  ttInputs.company,
-            INPUT  ttInputs.BOLID,
-            INPUT  ttInputs.itemID,
-            INPUT  riOeboll,
-            OUTPUT oplSuccess,
-            OUTPUT opcMessage
-            ).
-        IF NOT oplSuccess THEN
-            RETURN.
-        
+
         /* Create ttBin records for further processing */    
         RUN SelectBinsTags (
             INPUT  riOeboll,
             INPUT  riFgbin,
-            OUTPUT oplSuccess,
-            OUTPUT opcMessage
-            ) NO-ERROR.
-        IF NOT oplSuccess THEN
-            RETURN.
-        
-        /* Validate if input item quantity exceeds the fg-bin tag's available quantity */
-        RUN ValidateFGBinQuantityWithInputs (
-            INPUT  ttInputs.quantityTotal,
-            INPUT  riFgBin,
             OUTPUT oplSuccess,
             OUTPUT opcMessage
             ) NO-ERROR.
@@ -543,7 +524,7 @@
     
             FIND FIRST ttInputs
                  WHERE ttInputs.BOLID            EQ ttBin.BOLID
-                   AND ttInputs.itemID           EQ ttBin.i-no
+                   AND ttInputs.itemID           EQ ttBin.itemID
                    AND ttInputs.inventoryStockID EQ ttBin.tag
                  NO-ERROR.
             IF AVAILABLE ttInputs THEN DO:
@@ -551,7 +532,7 @@
                 RUN ProcessBinsTags (
                     INPUT  ttBin.company,
                     INPUT  ttBin.BOLID,
-                    INPUT  ttBin.i-no,
+                    INPUT  ttBin.itemID,
                     OUTPUT oplSuccess,
                     OUTPUT opcMessage
                     ) NO-ERROR.
@@ -716,6 +697,7 @@
         DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
         DEFINE INPUT  PARAMETER ipiBOLID   AS INTEGER   NO-UNDO.
         DEFINE INPUT  PARAMETER ipcItemID  AS CHARACTER NO-UNDO.
+        DEFINE INPUT  PARAMETER ipcTag     AS CHARACTER NO-UNDO.
         DEFINE OUTPUT PARAMETER oprioeBoll AS ROWID     NO-UNDO.
         DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO.
         DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
@@ -726,12 +708,20 @@
              WHERE bf-oe-boll.company EQ ipcCompany
                AND bf-oe-boll.bol-no  EQ ipiBOLID
                AND bf-oe-boll.i-no    EQ ipcItemID
+               AND bf-oe-boll.tag     EQ ipcTag
              NO-ERROR.
         IF NOT AVAILABLE bf-oe-boll THEN DO:
-            ASSIGN
-                oplSuccess = FALSE
-                opcMessage = "Invalid BOL Line"
-                .
+            FIND FIRST bf-oe-boll NO-LOCK
+                 WHERE bf-oe-boll.company EQ ipcCompany
+                   AND bf-oe-boll.bol-no  EQ ipiBOLID
+                   AND bf-oe-boll.i-no    EQ ipcItemID
+                 NO-ERROR.
+            IF NOT AVAILABLE bf-oe-boll THEN DO:
+                ASSIGN
+                    oplSuccess = FALSE
+                    opcMessage = "Invalid BOL Line"
+                    .
+            END.
         END.
 
         ASSIGN
@@ -973,13 +963,6 @@
         FIND FIRST bf-fg-bin NO-LOCK
              WHERE ROWID(bf-fg-bin) EQ ipriFgbin
              NO-ERROR.
-        IF NOT AVAILABLE bf-fg-bin THEN DO:
-            ASSIGN
-                oplSuccess = TRUE
-                opcMessage = "Success"
-                .
-            RETURN.
-        END.
         
         /* Create ttBin records */
         RUN CreateBinsTags (
@@ -1016,29 +999,24 @@
         FIND FIRST bf-fg-bin NO-LOCK
              WHERE ROWID(bf-fg-bin) EQ ipriFgbin
              NO-ERROR.
-        IF NOT AVAILABLE bf-fg-bin THEN DO:
-            ASSIGN
-                oplSuccess = FALSE
-                opcMessage = "Invalid FG Bin"
-                .
-            RETURN.
-        END.
 
         FIND FIRST bf-oe-boll NO-LOCK
              WHERE ROWID(bf-oe-boll) EQ ipriOeboll
              NO-ERROR.
 
         CREATE ttBin.
-        BUFFER-COPY bf-fg-bin TO ttBin
         ASSIGN
-            ttBin.BOLID         = bf-oe-boll.bol-no
-            ttBin.fgbinRowID    = ROWID(bf-fg-bin)
-            ttBin.oebollRowID   = ROWID(bf-oe-boll)
-            ttBin.units         = TRUNC((bf-fg-bin.qty - bf-fg-bin.partial-count) / bf-fg-bin.case-count,0)
-            ttBin.partial-count = bf-fg-bin.qty - (ttBin.units * bf-fg-bin.case-count)
-            ttBin.processed     = FALSE
-            .
+            ttBin.company     = bf-oe-boll.company
+            ttBin.BOLID       = bf-oe-boll.bol-no
+            ttBin.itemID      = bf-oe-boll.i-no
+            ttBin.fgbinRowID  = ipriFgbin
+            ttBin.oebollRowID = ipriOeboll
+            ttBin.processed   = FALSE
+            .               
 
+        IF AVAILABLE bf-fg-bin THEN
+            ttBin.tag = bf-fg-bin.tag.
+                        
         ASSIGN
             oplSuccess = TRUE
             opcMessage = "Success"
@@ -1091,14 +1069,8 @@
         DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
         DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
 
-        DEFINE VARIABLE dTotalItemQty AS DECIMAL NO-UNDO.
-        DEFINE VARIABLE riOebolh      AS ROWID   NO-UNDO.
-        DEFINE VARIABLE riOeboll      AS ROWID   NO-UNDO.
-        DEFINE VARIABLE dSumQty       AS DECIMAL NO-UNDO.
-
         DEFINE BUFFER bf-oerel          FOR oe-rel.
         DEFINE BUFFER bf-oe-boll        FOR oe-boll.
-        DEFINE BUFFER bf-create-oe-boll FOR oe-boll.
         DEFINE BUFFER bf-calc-qty-boll  FOR oe-boll.
         DEFINE BUFFER bf-oe-bolh        FOR oe-bolh.
         DEFINE BUFFER bf-ttBin          FOR ttBin.
@@ -1107,21 +1079,13 @@
         DEFINE BUFFER bf-oe-ordl        FOR oe-ordl.
         DEFINE BUFFER bf-ttInputs       FOR ttInputs.
 
-        /* Get the total quantity of all the ttInputs records for the BOLID and item */
-        FOR EACH bf-ttInputs
-            WHERE bf-ttInputs.company EQ ipcCompany
-              AND bf-ttInputs.BOLID   EQ ipiBOLID
-              AND bf-ttInputs.itemID  EQ ipcItemID:
-            dTotalItemQty = dTotalItemQty + bf-ttInputs.quantityTotal.
-        END.
-
         FOR EACH bf-ttBin
             WHERE bf-ttBin.company EQ ipcCompany
               AND bf-ttBin.BOLID   EQ ipiBOLID
-              AND bf-ttBin.i-no    EQ ipcItemID
-            BREAK BY bf-ttBin.i-no:
+              AND bf-ttBin.itemID  EQ ipcItemID
+            BREAK BY bf-ttBin.itemID:
 
-            FIND FIRST bf-oe-boll NO-LOCK
+            FIND FIRST bf-oe-boll EXCLUSIVE-LOCK
                  WHERE ROWID(bf-oe-boll) EQ bf-ttBin.oebollRowID
                  NO-ERROR.
             IF NOT AVAILABLE bf-oe-boll THEN DO:
@@ -1132,10 +1096,20 @@
                 RETURN.
             END.
 
+            FIND FIRST bf-oe-bolh NO-LOCK
+                 WHERE bf-oe-bolh.b-no EQ bf-oe-boll.b-no NO-ERROR.
+            IF NOT AVAILABLE bf-oe-bolh THEN DO:
+                ASSIGN
+                    oplSuccess = FALSE
+                    opcMessage = "Error finding BOL Header record"
+                    .
+                RETURN.
+            END.
+
             FIND FIRST bf-ttInputs
                  WHERE bf-ttInputs.company          EQ bf-ttBin.company
                    AND bf-ttInputs.BOLID            EQ bf-ttBin.BOLID
-                   AND bf-ttInputs.itemID           EQ bf-ttBin.i-no
+                   AND bf-ttInputs.itemID           EQ bf-ttBin.itemID
                    AND bf-ttInputs.inventoryStockID EQ bf-ttBin.tag
                  NO-ERROR.
             IF NOT AVAILABLE bf-ttInputs THEN DO:
@@ -1145,163 +1119,64 @@
                     .
                 RETURN.
             END.
-
-            riOeboll = bf-ttBin.oebollRowID.
-
-            IF NOT (AVAIL bf-oe-boll AND
-                NOT CAN-FIND(
-                FIRST oe-boll
-                WHERE oe-boll.company  EQ bf-oe-boll.company
-                  AND oe-boll.b-no     EQ bf-oe-boll.b-no
-                  AND oe-boll.ord-no   EQ bf-oe-boll.ord-no
-                  AND oe-boll.i-no     EQ bf-oe-boll.i-no
-                  AND oe-boll.line     EQ bf-oe-boll.line
-                  AND oe-boll.rel-no   EQ bf-oe-boll.rel-no
-                  AND oe-boll.b-ord-no EQ bf-oe-boll.b-ord-no
-                  AND oe-boll.po-no    EQ bf-oe-boll.po-no
-                  AND oe-boll.job-no   EQ bf-ttBin.job-no
-                  AND oe-boll.job-no2  EQ bf-ttBin.job-no2
-                  AND oe-boll.loc      EQ bf-ttBin.loc
-                  AND oe-boll.loc-bin  EQ bf-ttBin.loc-bin
-                  AND oe-boll.tag      EQ bf-ttBin.tag
-                  AND oe-boll.cust-no  EQ bf-ttBin.cust-no
-                  AND ROWID(oe-boll)   NE ROWID(bf-oe-boll)
-                USE-INDEX b-no)) THEN
-                NEXT.
-
+            
+            ASSIGN
+                bf-oe-boll.qty-case = bf-ttInputs.quantityPerUnit
+                bf-oe-boll.partial  = bf-ttInputs.quantityPartial
+                bf-oe-boll.cases    = bf-ttInputs.quantityOfUnits
+                bf-oe-boll.qty      = bf-ttInputs.quantityTotal
+                bf-oe-boll.p-c      = FALSE /* Always set as partial. The validtaion oe/oe-bolpc.p is going to correct this field */
+                bf-oe-boll.deleted  = NO
+                bf-oe-boll.posted   = NO
+                bf-oe-boll.printed  = NO
+                bf-oe-boll.cases    = IF bf-oe-boll.qty-case NE 0 THEN
+                                          TRUNC((bf-oe-boll.qty - bf-oe-boll.partial) / bf-oe-boll.qty-case, 0)
+                                      ELSE
+                                          0
+                NO-ERROR.
             FOR FIRST bf-fg-bin NO-LOCK
                 WHERE ROWID(bf-fg-bin) EQ bf-ttBin.fgbinRowId,
                 FIRST bf-itemfg NO-LOCK
                 WHERE bf-itemfg.company EQ bf-fg-bin.company
                   AND bf-itemfg.i-no    EQ bf-fg-bin.i-no:
-
-                FIND FIRST bf-oe-bolh NO-LOCK
-                     WHERE bf-oe-bolh.b-no EQ bf-oe-boll.b-no NO-ERROR.
-                IF NOT AVAILABLE bf-oe-bolh THEN DO:
-                    ASSIGN
-                        oplSuccess = FALSE
-                        opcMessage = "Error finding BOL Header record"
-                        .
-                    RETURN.
-                END.
-
-                riOebolh = ROWID(bf-oe-bolh).
-
-               /* Update the existing oe-boll records if it's first of the item number
-                  in ttBin records, else create new oe-boll record */
-                IF FIRST-OF(bf-ttBin.i-no) THEN
-                    FIND FIRST bf-create-oe-boll EXCLUSIVE-LOCK
-                         WHERE ROWID(bf-create-oe-boll) EQ ROWID(bf-oe-boll) NO-ERROR.
-
-                IF NOT AVAILABLE bf-create-oe-boll THEN DO:
-                    CREATE bf-create-oe-boll.
-                    ASSIGN
-                        bf-create-oe-boll.company = bf-oe-bolh.company
-                        bf-create-oe-boll.loc     = bf-oe-bolh.loc
-                        bf-create-oe-boll.bol-no  = bf-oe-bolh.bol-no
-                        bf-create-oe-boll.ord-no  = bf-oe-bolh.ord-no
-                        bf-create-oe-boll.po-no   = bf-oe-bolh.po-no
-                        bf-create-oe-boll.r-no    = bf-oe-bolh.r-no
-                        bf-create-oe-boll.b-no    = bf-oe-bolh.b-no
-                        .
-
-                    BUFFER-COPY bf-oe-boll EXCEPT rec_key TO bf-create-oe-boll.
-                END.
-
-                ASSIGN
-                    bf-create-oe-boll.lot-no   = bf-oe-boll.lot-no
-                    bf-create-oe-boll.job-no   = bf-fg-bin.job-no
-                    bf-create-oe-boll.job-no2  = bf-fg-bin.job-no2
-                    bf-create-oe-boll.loc      = bf-fg-bin.loc
-                    bf-create-oe-boll.loc-bin  = bf-fg-bin.loc-bin
-                    bf-create-oe-boll.tag      = bf-fg-bin.tag
-                    bf-create-oe-boll.cust-no  = bf-fg-bin.cust-no
-                    bf-create-oe-boll.deleted  = NO
-                    bf-create-oe-boll.posted   = NO
-                    bf-create-oe-boll.printed  = NO
-                    bf-create-oe-boll.qty-case = IF bf-fg-bin.case-count GT 0 THEN
-                                               bf-fg-bin.case-count
-                                           ELSE
-                                               bf-itemfg.case-count
-                    bf-create-oe-boll.qty      = MIN(bf-ttInputs.quantityTotal, bf-fg-bin.qty)
-                    bf-create-oe-boll.partial  = IF bf-create-oe-boll.qty MOD bf-create-oe-boll.qty-case GT 0 THEN
-                                               bf-fg-bin.partial-count
-                                           ELSE
-                                               0
-                    bf-create-oe-boll.cases    = TRUNC((bf-create-oe-boll.qty - bf-create-oe-boll.partial) / bf-create-oe-boll.qty-case, 0)
-                    dTotalItemQty        = dTotalItemQty - bf-create-oe-boll.qty
-                    .
-
-                IF bf-create-oe-boll.cases GT TRUNC((bf-fg-bin.qty - bf-fg-bin.partial-count) / bf-create-oe-boll.qty-case,0) THEN
-                    bf-create-oe-boll.cases = TRUNC((bf-fg-bin.qty - bf-fg-bin.partial-count) / bf-create-oe-boll.qty-case,0).
-
-                bf-create-oe-boll.partial = bf-create-oe-boll.qty - (bf-create-oe-boll.cases * bf-create-oe-boll.qty-case).
-
-                IF bf-create-oe-boll.partial GE bf-create-oe-boll.qty-case AND bf-fg-bin.partial-count EQ 0 THEN
-                    bf-create-oe-boll.cases = TRUNC(bf-create-oe-boll.qty / bf-create-oe-boll.qty-case,0).
-
-                ASSIGN
-                    bf-create-oe-boll.partial = bf-create-oe-boll.qty - (bf-create-oe-boll.cases * bf-create-oe-boll.qty-case)
-                    bf-create-oe-boll.weight  = bf-create-oe-boll.qty / 100 * bf-itemfg.weight-100
-                    .
                 
-                /* Important: Release the bf-create-oe-boll here. If not released this will 
-                   update the same bf-create-oe-boll record for all the ttBin records */
-                RELEASE bf-create-oe-boll.
+                /* Recalculate quantities as per fg-bin and itemfg */
+                ASSIGN
+                    bf-oe-boll.lot-no   = bf-oe-boll.lot-no
+                    bf-oe-boll.job-no   = bf-fg-bin.job-no
+                    bf-oe-boll.job-no2  = bf-fg-bin.job-no2
+                    bf-oe-boll.loc      = bf-fg-bin.loc
+                    bf-oe-boll.loc-bin  = bf-fg-bin.loc-bin
+                    bf-oe-boll.tag      = bf-fg-bin.tag
+                    bf-oe-boll.cust-no  = bf-fg-bin.cust-no
+                    bf-oe-boll.qty-case = IF bf-fg-bin.case-count GT 0 THEN
+                                              bf-fg-bin.case-count
+                                          ELSE
+                                              bf-itemfg.case-count
+                    bf-oe-boll.qty      = MIN(bf-ttInputs.quantityTotal, bf-fg-bin.qty)
+                    bf-oe-boll.cases    = TRUNC((bf-oe-boll.qty - bf-oe-boll.partial) / bf-oe-boll.qty-case, 0)
+                    .
+
+                IF bf-oe-boll.cases GT TRUNC((bf-fg-bin.qty - bf-fg-bin.partial-count) / bf-oe-boll.qty-case,0) THEN
+                    bf-oe-boll.cases = TRUNC((bf-fg-bin.qty - bf-fg-bin.partial-count) / bf-oe-boll.qty-case,0).
+
+                bf-oe-boll.partial = bf-oe-boll.qty - (bf-oe-boll.cases * bf-oe-boll.qty-case).
+
+                IF bf-oe-boll.partial GE bf-oe-boll.qty-case AND bf-fg-bin.partial-count EQ 0 THEN
+                    bf-oe-boll.cases = TRUNC(bf-oe-boll.qty / bf-oe-boll.qty-case,0).
+
+                ASSIGN
+                    bf-oe-boll.partial = bf-oe-boll.qty - (bf-oe-boll.cases * bf-oe-boll.qty-case)
+                    bf-oe-boll.weight  = bf-oe-boll.qty / 100 * bf-itemfg.weight-100
+                    .    
             END.
-        END.
 
-        FIND FIRST bf-oe-boll EXCLUSIVE-LOCK
-             WHERE ROWID(bf-oe-boll) EQ riOeboll
-             NO-ERROR.
-        IF NOT AVAILABLE bf-oe-boll THEN DO:
-            ASSIGN
-                oplSuccess = FALSE
-                opcMessage = "Error finding BOL Line record"
-                .
-            RETURN.
-        END.
-        
-        /* Existing business logic to calculate the partial quantity and
-           validate if the quantity applied is partial or complete */
-        FIND FIRST bf-oe-bolh NO-LOCK
-             WHERE ROWID(bf-oe-bolh) EQ riOebolh
-             NO-ERROR.
-        IF AVAIL bf-oe-bolh THEN DO:
-            FOR EACH bf-create-oe-boll NO-LOCK
-                WHERE bf-create-oe-boll.b-no EQ bf-oe-bolh.b-no
-                BREAK BY bf-create-oe-boll.ord-no
-                      BY bf-create-oe-boll.i-no:
-                IF FIRST-OF(bf-create-oe-boll.i-no) THEN DO:
-                    FIND FIRST bf-oe-ordl NO-LOCK
-                         WHERE bf-oe-ordl.company EQ bf-oe-boll.company
-                           AND bf-oe-ordl.ord-no  EQ bf-oe-boll.ord-no
-                           AND bf-oe-ordl.i-no    EQ bf-oe-boll.i-no
-                         NO-ERROR.
+            /* To catch multiple tags selected, need to examine all other lines */
+            RUN oe/oe-bolpc.p (
+                INPUT ROWID(bf-oe-boll), 
+                INPUT "" /* Type. Send "ALL" to calculate for all line with same item */
+                ) NO-ERROR.
 
-                    IF AVAILABLE bf-oe-ordl THEN DO:
-                        dSumQty = 0.
-                        FOR EACH bf-calc-qty-boll FIELDS(qty) NO-LOCK
-                            WHERE bf-calc-qty-boll.company   EQ bf-oe-ordl.company
-                              AND bf-calc-qty-boll.ord-no    EQ bf-oe-ordl.ord-no
-                              AND bf-calc-qty-boll.i-no      EQ bf-oe-ordl.i-no
-                              AND bf-calc-qty-boll.line      EQ bf-oe-ordl.line
-                              AND (bf-calc-qty-boll.rel-no   LT bf-oe-boll.rel-no OR
-                                  (bf-calc-qty-boll.rel-no   EQ bf-oe-boll.rel-no AND
-                                   bf-calc-qty-boll.b-ord-no LE bf-oe-boll.b-ord-no))
-                              AND ROWID(bf-calc-qty-boll)    NE ROWID(bf-oe-boll)
-                            USE-INDEX ord-no:
-                            dSumQty = dSumQty + bf-calc-qty-boll.qty.
-                        END.
-
-                        bf-oe-boll.p-c = bf-oe-boll.qty + dSumQty GE
-                                        (bf-oe-ordl.qty * (1 - (bf-oe-ordl.under-pct / 100))).
-                    END.
-
-                    /* To catch multiple tags selected, need to examine all other lines */
-                    RUN oe/oe-bolpc.p (INPUT ROWID(bf-oe-boll), "ALL") NO-ERROR.
-                END.
-            END.
         END.
 
         ASSIGN
@@ -1312,7 +1187,6 @@
 
         RELEASE bf-oerel.
         RELEASE bf-oe-boll.
-        RELEASE bf-create-oe-boll.
         RELEASE bf-calc-qty-boll.
         RELEASE bf-oe-bolh.
         RELEASE bf-ttBin.
@@ -1512,26 +1386,6 @@
                                       sys-ctrl-shipto.char-fld 
                                   ELSE 
                                       "".
-        END.
-                    
-        RUN oe/bolcheck.p (
-            INPUT ROWID(bf-oe-bolh)
-            ) NO-ERROR. 
-        IF ERROR-STATUS:ERROR THEN DO:
-            ASSIGN
-                oplSuccess = FALSE
-                opcMessage = "Error while checking BOL"
-                .
-            RETURN.
-        END.
-                       
-        IF CAN-FIND(FIRST w-except NO-LOCK
-                    WHERE w-except.bol-no EQ bf-oe-bolh.bol-no) THEN DO:
-            ASSIGN
-                oplSuccess = FALSE
-                opcMessage = "BOL " + STRING(bf-oe-bolh.bol-no) + " has insufficient inventory and cannot be posted"
-                .
-            RETURN.
         END.
 
         IF bf-oe-bolh.stat EQ "H" THEN DO:  
