@@ -195,6 +195,15 @@ PROCEDURE dynValCustype:
         ).
 END PROCEDURE.
 
+PROCEDURE dynValDept:
+    {&defInputParam}
+    {&checkRange}
+        CAN-FIND(FIRST dept
+                 WHERE dept.company EQ cCompany
+                   AND dept.CODE EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
 PROCEDURE dynValEmployee:
     {&defInputParam}
     {&checkRange}
