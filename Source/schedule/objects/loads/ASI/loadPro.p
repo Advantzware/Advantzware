@@ -240,9 +240,8 @@ DEFINE VARIABLE dueDate AS DATE NO-UNDO.
 DEFINE VARIABLE endDate AS DATE NO-UNDO.
 DEFINE VARIABLE endEstType AS INTEGER NO-UNDO.
 DEFINE VARIABLE endTime AS INTEGER NO-UNDO.
-/*DEFINE VARIABLE i AS INTEGER NO-UNDO.*/
 DEFINE VARIABLE itemDescription AS CHARACTER NO-UNDO.
-DEFINE VARIABLE jobBoard AS LOGICAL NO-UNDO.
+DEFINE VARIABLE jobBoardIssued AS LOGICAL NO-UNDO.
 DEFINE VARIABLE jobDescription AS CHARACTER NO-UNDO.
 DEFINE VARIABLE jobMchID AS INTEGER NO-UNDO.
 DEFINE VARIABLE jobNumber AS CHARACTER NO-UNDO.
@@ -345,37 +344,6 @@ FUNCTION getSalesRep RETURNS CHARACTER
   RETURN IF AVAILABLE sman THEN sman.sname ELSE ''.
 END FUNCTION.
 
-FUNCTION jobBoard RETURN LOGICAL (ipCompany AS CHARACTER, ipJob AS INTEGER,
-                                  ipJobNo AS CHARACTER, ipJobNo2 AS INTEGER,
-                                  ipForm AS INTEGER,
-                                  OUTPUT opBoardLength AS DECIMAL,
-                                  OUTPUT opBoardWidth AS DECIMAL):
-  ASSIGN
-    opBoardLength = 0
-    opBoardWidth = 0.
-  FOR EACH job-mat NO-LOCK
-      WHERE job-mat.company EQ ipCompany
-        AND job-mat.job EQ ipJob
-        AND job-mat.job-no EQ ipJobNo
-        AND job-mat.job-no2 EQ ipJobNo2
-        AND job-mat.frm EQ ipForm,
-      FIRST item OF job-mat NO-LOCK WHERE item.mat-type EQ 'B':
-    ASSIGN
-      opBoardLength = job-mat.len
-      opBoardWidth = job-mat.wid.
-    IF CAN-FIND(FIRST mat-act
-       WHERE mat-act.company EQ job-mat.company
-         AND mat-act.job EQ job-mat.job
-         AND mat-act.job-no EQ job-mat.job-no
-         AND mat-act.job-no2 EQ job-mat.job-no2
-         AND mat-act.i-no EQ job-mat.i-no
-         AND mat-act.s-num EQ job-mat.frm
-         AND mat-act.b-num EQ job-mat.blank-no USE-INDEX job) THEN
-    RETURN YES.
-  END. /* each job-mat */
-  RETURN NO.
-END FUNCTION.
-
 FUNCTION k16 RETURN CHARACTER (ipArrayValue AS DECIMAL,
                                ipKFrac AS DECIMAL,
                                ipDecimalFormat AS INTEGER):
@@ -391,6 +359,40 @@ FUNCTION noDate RETURN LOGICAL (ipCompany AS CHARACTER):
                     AND sys-ctrl.char-fld EQ 'NoDate'
                     AND sys-ctrl.int-fld  EQ 0
                     AND sys-ctrl.log-fld  EQ YES).
+END FUNCTION.
+
+FUNCTION fPOMaterial RETURNS LOGICAL (
+    ipCompany AS CHARACTER,
+    ipJobNo   AS CHARACTER,
+    ipJobNo2  AS INTEGER,
+    ipForm    AS INTEGER,
+    ipBlankNo AS INTEGER,
+    ipItemNo  AS CHARACTER,
+    ipMatType AS CHARACTER
+    ):
+
+    DEFINE VARIABLE lMaterialReceipted AS LOGICAL NO-UNDO.
+
+    FOR EACH rm-rcpth NO-LOCK
+        WHERE rm-rcpth.company   EQ ipCompany
+          AND rm-rcpth.job-no    EQ ipJobNo
+          AND rm-rcpth.job-no2   EQ ipJobNo2
+          AND rm-rcpth.i-no      EQ ipItemNo
+          AND rm-rcpth.rita-code EQ "R",
+        FIRST item NO-LOCK
+        WHERE item.company  EQ rm-rcpth.company
+          AND item.i-no     EQ rm-rcpth.i-no
+          AND item.mat-type EQ ipMatType,
+        EACH rm-rdtlh NO-LOCK
+        WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no 
+          AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code
+          AND rm-rdtlh.s-num     EQ ipForm
+          AND rm-rdtlh.b-num     EQ ipBlankNo          
+        :
+        lMaterialReceipted = TRUE.
+        LEAVE.
+    END. /* each rm-rcpth */
+    RETURN lMaterialReceipted.
 END FUNCTION.
 
 IF VALID-HANDLE(ipContainerHandle) THEN DO:
@@ -1123,7 +1125,7 @@ FOR EACH job-hdr NO-LOCK
         job-mch.i-no,
         OUTPUT boardLength,
         OUTPUT boardWidth,
-        OUTPUT jobBoard,
+        OUTPUT jobBoardIssued,
         OUTPUT userField[3],   /* B */
         OUTPUT userField[14],  /* I */
         OUTPUT userField[106], /* I */
@@ -1249,10 +1251,16 @@ FOR EACH job-hdr NO-LOCK
           FIND FIRST statusCheckOffs
                WHERE statusCheckOffs.statusCheckOffs EQ ENTRY(i,customValueList)
                NO-ERROR.
-          IF AVAILABLE statusCheckOffs THEN
-          jobStatus[i - 1] = statusCheckOff(job-mch.company,job-mch.job,
-                                            job-mch.job-no,job-mch.job-no2,
-                                            job-mch.frm,statusCheckOffs.materialType).
+          IF AVAILABLE statusCheckOffs THEN DO:
+            IF statusCheckOffType EQ "Issued" THEN
+            jobStatus[i - 1] = statusCheckOff(job-mch.company,job-mch.job,
+                                              job-mch.job-no,job-mch.job-no2,
+                                              job-mch.frm,statusCheckOffs.materialType).
+            ELSE
+            jobStatus[i - 1] = fPOMaterial(job-mch.company,job-mch.job-no,job-mch.job-no2,
+                                           job-mch.frm,job-mch.blank-no,job-mch.i-no,
+                                           statusCheckOffs.materialType).
+          END. /* if avail */
         END. /* not usesalesrep */
       END. /* avail sbstatus */
       ELSE DO:
@@ -1283,11 +1291,11 @@ FOR EACH job-hdr NO-LOCK
         END. /* avail reftable */
         ELSE IF NOT useSalesRep THEN
         ASSIGN
-          jobStatus[LOOKUP('Board',customValueList) - 1] = jobBoard
-                    WHEN CAN-DO(customValueList,'Board')
-          jobStatus[LOOKUP('Hold',customValueList) - 1] = job.stat NE 'H'
-                    WHEN CAN-DO(customValueList,'Hold')
-          .
+            jobStatus[LOOKUP('Board',customValueList) - 1] = jobBoardIssued
+                      WHEN CAN-DO(customValueList,'Board')
+            jobStatus[LOOKUP('Hold',customValueList) - 1] = job.stat NE 'H'
+                      WHEN CAN-DO(customValueList,'Hold')
+            .
       END. /* else */      
     END. /* useStatus */
 
@@ -1457,7 +1465,7 @@ PROCEDURE ipJobMaterial:
 
   DEFINE OUTPUT PARAMETER opBoardLength AS DECIMAL NO-UNDO.
   DEFINE OUTPUT PARAMETER opBoardWidth AS DECIMAL NO-UNDO.
-  DEFINE OUTPUT PARAMETER opJobBoard AS LOGICAL NO-UNDO.
+  DEFINE OUTPUT PARAMETER opjobBoardIssued AS LOGICAL NO-UNDO.
   DEFINE OUTPUT PARAMETER opBoard AS CHARACTER NO-UNDO.       /*   3,B */
   DEFINE OUTPUT PARAMETER opInk AS CHARACTER NO-UNDO.         /*  14,I */
   DEFINE OUTPUT PARAMETER opInkQty AS DECIMAL NO-UNDO.        /* 106,I */
@@ -1506,18 +1514,19 @@ PROCEDURE ipJobMaterial:
           IF NOT CAN-DO(opAdders,job-mat.i-no) THEN
           opAdders = opAdders + comma(opAdders) + job-mat.i-no.
         WHEN 'B' THEN DO:
-          IF NOT opJobBoard THEN
+          IF NOT opjobBoardIssued THEN
           ASSIGN
-            opBoardLength = job-mat.len
-            opBoardWidth = job-mat.wid
-            opJobBoard = CAN-FIND(FIRST mat-act
-                                  WHERE mat-act.company EQ job-mat.company
-                                    AND mat-act.job     EQ job-mat.job
-                                    AND mat-act.job-no  EQ job-mat.job-no
-                                    AND mat-act.job-no2 EQ job-mat.job-no2
-                                    AND mat-act.i-no    EQ job-mat.i-no
-                                    AND mat-act.s-num   EQ job-mat.frm
-                                    AND mat-act.b-num   EQ job-mat.blank-no USE-INDEX job).
+            opBoardLength  = job-mat.len
+            opBoardWidth   = job-mat.wid
+            opjobBoardIssued = CAN-FIND(FIRST mat-act
+                                        WHERE mat-act.company EQ job-mat.company
+                                          AND mat-act.job     EQ job-mat.job
+                                          AND mat-act.job-no  EQ job-mat.job-no
+                                          AND mat-act.job-no2 EQ job-mat.job-no2
+                                          AND mat-act.i-no    EQ job-mat.i-no
+                                          AND mat-act.s-num   EQ job-mat.frm
+                                          AND mat-act.b-num   EQ job-mat.blank-no
+                                        USE-INDEX job).
           IF NOT CAN-DO(opBoard,job-mat.i-no) THEN
           opBoard = opBoard + comma(opBoard) + job-mat.i-no.
         END. /* B */

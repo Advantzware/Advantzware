@@ -149,15 +149,15 @@ customLabel-12 customValue-12 colorPriorityValue-24 jobLabel-13 ~
 colorPriorityValue-11 customLabel-13 customValue-13 colorPriorityValue-25 ~
 jobLabel-14 colorPriorityValue-12 customLabel-14 customValue-14 ~
 colorPriorityValue-26 colorPriorityValue-27 colorPriorityValue-28 ~
-reloadReportValue customCheckoffValue reloadStatusValue ~
-completedCheckoffValue dueDateUsedValue 
+reloadReportValue customCheckoffValue completedCheckoffValue ~
+reloadStatusValue statusCheckoffTypeValue dueDateUsedValue 
 &Scoped-define defaultsFrameFields intervals lockButtonValue threeDValue ~
 timeValue autoSizeValue noteButtonValue threeDLeftValue threeDTopValue ~
 hpixelsValue gapValue showStatusValue allResourcesValue threeDBottomValue ~
-threeDRightValue downtimeTopValue alphaSortValue downtimeSizeValue ~
-flashGridLineValue completedHideValue flashTimeLineValue fullBoardValue ~
-priority1Value saveIntervalValue viewRefreshValue monitorIntervalValue ~
-popupBottomValue priority2Value priority3Value moveUndoRedoValue ~
+threeDRightValue alphaSortValue downtimeTopValue flashGridLineValue ~
+downtimeSizeValue flashTimeLineValue completedHideValue fullBoardValue ~
+popupBottomValue priority1Value moveUndoRedoValue saveIntervalValue ~
+viewRefreshValue monitorIntervalValue priority2Value priority3Value ~
 detailWindowValue showDowntimeValue IDList jobBlockValue jobWarningValue ~
 jobPromptValue flashLightValue boardDatePromptValue downtimeBlockValue ~
 downtimeWarningValue downtimePromptValue packOptionValue pendingOverValue ~
@@ -228,122 +228,122 @@ FUNCTION fCheckCustomValue RETURNS LOGICAL
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE colorChoice-0
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 0 .
 
 DEFINE RECTANGLE colorChoice-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 1 .
 
 DEFINE RECTANGLE colorChoice-10
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY .95
      BGCOLOR 10 .
 
 DEFINE RECTANGLE colorChoice-11
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 11 .
 
 DEFINE RECTANGLE colorChoice-12
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 12 .
 
 DEFINE RECTANGLE colorChoice-13
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 13 .
 
 DEFINE RECTANGLE colorChoice-14
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 14 .
 
 DEFINE RECTANGLE colorChoice-15
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 15 .
 
 DEFINE RECTANGLE colorChoice-16
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 16 .
 
 DEFINE RECTANGLE colorChoice-17
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 17 .
 
 DEFINE RECTANGLE colorChoice-18
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 18 .
 
 DEFINE RECTANGLE colorChoice-19
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 19 .
 
 DEFINE RECTANGLE colorChoice-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 2 .
 
 DEFINE RECTANGLE colorChoice-20
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 20 .
 
 DEFINE RECTANGLE colorChoice-21
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 21 .
 
 DEFINE RECTANGLE colorChoice-22
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 22 .
 
 DEFINE RECTANGLE colorChoice-23
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 23 .
 
 DEFINE RECTANGLE colorChoice-24
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 24 .
 
 DEFINE RECTANGLE colorChoice-25
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 25 .
 
 DEFINE RECTANGLE colorChoice-26
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 26 .
 
 DEFINE RECTANGLE colorChoice-27
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 27 .
 
 DEFINE RECTANGLE colorChoice-28
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 28 .
 
 DEFINE RECTANGLE colorChoice-29
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 29 .
 
 DEFINE RECTANGLE colorChoice-3
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 3 .
 
@@ -352,32 +352,32 @@ DEFINE RECTANGLE colorChoice-30
      SIZE 15 BY 1.
 
 DEFINE RECTANGLE colorChoice-4
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 4 .
 
 DEFINE RECTANGLE colorChoice-5
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 5 .
 
 DEFINE RECTANGLE colorChoice-6
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 6 .
 
 DEFINE RECTANGLE colorChoice-7
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 7 .
 
 DEFINE RECTANGLE colorChoice-8
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 8 .
 
 DEFINE RECTANGLE colorChoice-9
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 7.2 BY 1
      BGCOLOR 9 .
 
@@ -815,271 +815,278 @@ DEFINE VARIABLE reloadStatusValue AS LOGICAL
 "Prompt", ?
      SIZE 59 BY 1 NO-UNDO.
 
+DEFINE VARIABLE statusCheckoffTypeValue AS CHARACTER INITIAL "Issued" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Material Issued", "Issued",
+"PO Receipted", "Receipted"
+     SIZE 35 BY 1 NO-UNDO.
+
 DEFINE RECTANGLE customBGColor-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE customBGColor-10
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE customBGColor-11
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE customBGColor-12
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE customBGColor-13
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE customBGColor-14
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE customBGColor-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE customBGColor-3
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE customBGColor-4
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE customBGColor-5
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE customBGColor-6
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE customBGColor-7
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE customBGColor-8
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE customBGColor-9
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE customFGColor-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2.2 BY 1.
 
 DEFINE RECTANGLE customFGColor-10
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2.2 BY 1.
 
 DEFINE RECTANGLE customFGColor-11
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2.2 BY 1.
 
 DEFINE RECTANGLE customFGColor-12
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2.2 BY 1.
 
 DEFINE RECTANGLE customFGColor-13
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2.2 BY 1.
 
 DEFINE RECTANGLE customFGColor-14
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2.2 BY 1.
 
 DEFINE RECTANGLE customFGColor-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2.2 BY 1.
 
 DEFINE RECTANGLE customFGColor-3
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2.2 BY 1.
 
 DEFINE RECTANGLE customFGColor-4
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2.2 BY 1.
 
 DEFINE RECTANGLE customFGColor-5
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2.2 BY 1.
 
 DEFINE RECTANGLE customFGColor-6
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2.2 BY 1.
 
 DEFINE RECTANGLE customFGColor-7
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2.2 BY 1.
 
 DEFINE RECTANGLE customFGColor-8
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2.2 BY 1.
 
 DEFINE RECTANGLE customFGColor-9
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2.2 BY 1.
 
 DEFINE RECTANGLE downtimeConflictBGColorValue
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE downtimeConflictFGColorValue
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2 BY 1.
 
 DEFINE RECTANGLE jobBGColor-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE jobBGColor-10
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE jobBGColor-11
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE jobBGColor-12
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE jobBGColor-13
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE jobBGColor-14
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE jobBGColor-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE jobBGColor-3
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE jobBGColor-4
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE jobBGColor-5
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE jobBGColor-6
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE jobBGColor-7
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE jobBGColor-8
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE jobBGColor-9
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE jobConflictBGColorValue
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE jobConflictFGColorValue
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2 BY 1.
 
 DEFINE RECTANGLE jobFGColor-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2 BY 1.
 
 DEFINE RECTANGLE jobFGColor-10
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2 BY 1.
 
 DEFINE RECTANGLE jobFGColor-11
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2 BY 1.
 
 DEFINE RECTANGLE jobFGColor-12
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2 BY 1.
 
 DEFINE RECTANGLE jobFGColor-13
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2 BY 1.
 
 DEFINE RECTANGLE jobFGColor-14
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2 BY 1.
 
 DEFINE RECTANGLE jobFGColor-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2 BY 1.
 
 DEFINE RECTANGLE jobFGColor-3
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2 BY 1.
 
 DEFINE RECTANGLE jobFGColor-4
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2 BY 1.
 
 DEFINE RECTANGLE jobFGColor-5
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2 BY 1.
 
 DEFINE RECTANGLE jobFGColor-6
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2 BY 1.
 
 DEFINE RECTANGLE jobFGColor-7
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2 BY 1.
 
 DEFINE RECTANGLE jobFGColor-8
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2 BY 1.
 
 DEFINE RECTANGLE jobFGColor-9
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 2 BY 1.
 
 DEFINE RECTANGLE RECT-11
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 47 BY 2.86.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 47 BY 3.33.
 
 DEFINE RECTANGLE RECT-12
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 79 BY 2.86.
 
 DEFINE RECTANGLE RECT-13
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 79 BY 1.43.
 
 DEFINE RECTANGLE RECT-7
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 127 BY 1.43.
 
 DEFINE VARIABLE completedCheckoffValue AS LOGICAL INITIAL no 
      LABEL "&Apply Completed Checkoff to Whole Job" 
      VIEW-AS TOGGLE-BOX
-     SIZE 43 BY 1 NO-UNDO.
+     SIZE 43 BY .81 NO-UNDO.
 
 DEFINE VARIABLE customCheckoffValue AS LOGICAL INITIAL no 
      LABEL "&Apply Custom Value Checkoff to Whole Job" 
      VIEW-AS TOGGLE-BOX
-     SIZE 45 BY 1 NO-UNDO.
+     SIZE 45 BY .81 NO-UNDO.
 
 DEFINE BUTTON btnChangeColor-16 
      LABEL "" 
@@ -1384,51 +1391,51 @@ DEFINE VARIABLE threeDValue AS LOGICAL
      SIZE 37 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE flashLightColorValue
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE gridBGColorValue
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE gridLineColorValue
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE lightBulbColorValue
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 87 BY 17.38.
 
 DEFINE RECTANGLE RECT-10
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 39 BY 3.81.
 
 DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 39 BY 4.29.
 
 DEFINE RECTANGLE RECT-3
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 50 BY 4.05.
 
 DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 76 BY 2.86.
 
 DEFINE RECTANGLE RECT-5
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 39 BY 9.05.
 
 DEFINE RECTANGLE RECT-8
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 76 BY 2.62.
 
 DEFINE RECTANGLE RECT-9
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 39 BY 3.1.
 
 DEFINE RECTANGLE rectBottom
@@ -1462,11 +1469,11 @@ DEFINE RECTANGLE rectTop
      BGCOLOR 15 .
 
 DEFINE RECTANGLE resourceBGColorValue
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE RECTANGLE timeLineColorValue
-     EDGE-PIXELS 1 GRAPHIC-EDGE    
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 6.2 BY 1.
 
 DEFINE VARIABLE IDList AS CHARACTER 
@@ -1476,12 +1483,12 @@ DEFINE VARIABLE IDList AS CHARACTER
 DEFINE VARIABLE allResourcesValue AS LOGICAL INITIAL no 
      LABEL "Sh&ow All Resources" 
      VIEW-AS TOGGLE-BOX
-     SIZE 23 BY 1 NO-UNDO.
+     SIZE 23 BY .81 NO-UNDO.
 
 DEFINE VARIABLE alphaSortValue AS LOGICAL INITIAL no 
      LABEL "Alpha Sort &Resources" 
      VIEW-AS TOGGLE-BOX
-     SIZE 25 BY 1 NO-UNDO.
+     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE autoSizeValue AS LOGICAL INITIAL no 
      LABEL "&Auto Size" 
@@ -1536,7 +1543,7 @@ DEFINE VARIABLE downtimeWarningValue AS LOGICAL INITIAL no
 DEFINE VARIABLE flashGridLineValue AS LOGICAL INITIAL no 
      LABEL "Flashing Grid Line" 
      VIEW-AS TOGGLE-BOX
-     SIZE 23 BY 1 NO-UNDO.
+     SIZE 23 BY .81 NO-UNDO.
 
 DEFINE VARIABLE flashLightValue AS LOGICAL INITIAL no 
      LABEL "&Flashlight Initial Setting" 
@@ -1546,12 +1553,12 @@ DEFINE VARIABLE flashLightValue AS LOGICAL INITIAL no
 DEFINE VARIABLE flashTimeLineValue AS LOGICAL INITIAL no 
      LABEL "Flashing Time Line" 
      VIEW-AS TOGGLE-BOX
-     SIZE 23 BY 1 NO-UNDO.
+     SIZE 23 BY .81 NO-UNDO.
 
 DEFINE VARIABLE fullBoardValue AS LOGICAL INITIAL no 
      LABEL "Use Full &Board" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY 1 NO-UNDO.
+     SIZE 18 BY .81 NO-UNDO.
 
 DEFINE VARIABLE jobBlockValue AS LOGICAL INITIAL no 
      LABEL "&Block" 
@@ -1576,7 +1583,7 @@ DEFINE VARIABLE loadCapacityValue AS LOGICAL INITIAL no
 DEFINE VARIABLE moveUndoRedoValue AS LOGICAL INITIAL no 
      LABEL "Reposition Board after Undo/Redo" 
      VIEW-AS TOGGLE-BOX
-     SIZE 37 BY 1 NO-UNDO.
+     SIZE 37 BY .81 NO-UNDO.
 
 DEFINE VARIABLE packOptionPromptValue AS LOGICAL INITIAL no 
      LABEL "Pack Opt. Prompt" 
@@ -1586,7 +1593,7 @@ DEFINE VARIABLE packOptionPromptValue AS LOGICAL INITIAL no
 DEFINE VARIABLE popupBottomValue AS LOGICAL INITIAL no 
      LABEL "&Position Job Popup at Screen Bottom" 
      VIEW-AS TOGGLE-BOX
-     SIZE 39 BY 1 NO-UNDO.
+     SIZE 39 BY .81 NO-UNDO.
 
 DEFINE VARIABLE resourceJobDetailValue AS LOGICAL INITIAL no 
      LABEL "Sho&w Job Popup" 
@@ -1601,7 +1608,7 @@ DEFINE VARIABLE showDowntimeValue AS LOGICAL INITIAL no
 DEFINE VARIABLE showStatusValue AS LOGICAL INITIAL no 
      LABEL "Show Screen Status &Messages" 
      VIEW-AS TOGGLE-BOX
-     SIZE 39 BY 1 NO-UNDO.
+     SIZE 39 BY .81 NO-UNDO.
 
 DEFINE VARIABLE threeDBottomValue AS LOGICAL INITIAL no 
      LABEL "Bottom Edge" 
@@ -2278,6 +2285,492 @@ DEFINE FRAME configurationFrame
          AT COL 1 ROW 1 SCROLLABLE 
          TITLE "Scheduler Configuration".
 
+DEFINE FRAME colorsFrame
+     jobLabel-1 AT ROW 1.95 COL 3 COLON-ALIGNED
+     customLabel-1 AT ROW 1.95 COL 73 COLON-ALIGNED
+     customValue-1 AT ROW 1.95 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-13 AT ROW 1.95 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-2 AT ROW 3.14 COL 3 COLON-ALIGNED
+     customLabel-2 AT ROW 3.14 COL 73 COLON-ALIGNED
+     customValue-2 AT ROW 3.14 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-14 AT ROW 3.14 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-3 AT ROW 4.33 COL 3 COLON-ALIGNED
+     colorPriorityValue-1 AT ROW 4.33 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-3 AT ROW 4.33 COL 73 COLON-ALIGNED
+     customValue-3 AT ROW 4.33 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-15 AT ROW 4.33 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-4 AT ROW 5.52 COL 3 COLON-ALIGNED
+     colorPriorityValue-2 AT ROW 5.52 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-4 AT ROW 5.52 COL 73 COLON-ALIGNED
+     customValue-4 AT ROW 5.52 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-16 AT ROW 5.52 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-5 AT ROW 6.71 COL 3 COLON-ALIGNED
+     colorPriorityValue-3 AT ROW 6.71 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-5 AT ROW 6.71 COL 73 COLON-ALIGNED
+     customValue-5 AT ROW 6.71 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-17 AT ROW 6.71 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-6 AT ROW 7.91 COL 3 COLON-ALIGNED
+     colorPriorityValue-4 AT ROW 7.91 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-6 AT ROW 7.91 COL 73 COLON-ALIGNED
+     customValue-6 AT ROW 7.91 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-18 AT ROW 7.91 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-7 AT ROW 9.1 COL 3 COLON-ALIGNED
+     colorPriorityValue-5 AT ROW 9.1 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-7 AT ROW 9.1 COL 73 COLON-ALIGNED
+     customValue-7 AT ROW 9.1 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-19 AT ROW 9.1 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-8 AT ROW 10.29 COL 3 COLON-ALIGNED
+     colorPriorityValue-6 AT ROW 10.29 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-8 AT ROW 10.29 COL 73 COLON-ALIGNED
+     customValue-8 AT ROW 10.29 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-20 AT ROW 10.29 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-9 AT ROW 11.48 COL 3 COLON-ALIGNED
+     colorPriorityValue-7 AT ROW 11.48 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-9 AT ROW 11.48 COL 73 COLON-ALIGNED
+     customValue-9 AT ROW 11.48 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-21 AT ROW 11.48 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-10 AT ROW 12.67 COL 3 COLON-ALIGNED
+     colorPriorityValue-8 AT ROW 12.67 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-10 AT ROW 12.67 COL 73 COLON-ALIGNED
+     customValue-10 AT ROW 12.67 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-22 AT ROW 12.67 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-11 AT ROW 13.86 COL 3 COLON-ALIGNED
+     colorPriorityValue-9 AT ROW 13.86 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-11 AT ROW 13.86 COL 73 COLON-ALIGNED
+     customValue-11 AT ROW 13.86 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-23 AT ROW 13.86 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-12 AT ROW 15.05 COL 3 COLON-ALIGNED
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 1
+         SIZE 129 BY 25.48.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME colorsFrame
+     colorPriorityValue-10 AT ROW 15.05 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-12 AT ROW 15.05 COL 73 COLON-ALIGNED
+     customValue-12 AT ROW 15.05 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-24 AT ROW 15.05 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-13 AT ROW 16.24 COL 3 COLON-ALIGNED
+     colorPriorityValue-11 AT ROW 16.24 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-13 AT ROW 16.24 COL 73 COLON-ALIGNED
+     customValue-13 AT ROW 16.24 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-25 AT ROW 16.24 COL 118 COLON-ALIGNED NO-LABEL
+     jobLabel-14 AT ROW 17.43 COL 3 COLON-ALIGNED
+     colorPriorityValue-12 AT ROW 17.43 COL 33 COLON-ALIGNED NO-LABEL
+     customLabel-14 AT ROW 17.43 COL 73 COLON-ALIGNED
+     customValue-14 AT ROW 17.43 COL 93 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-26 AT ROW 17.43 COL 118 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-27 AT ROW 18.86 COL 33 COLON-ALIGNED NO-LABEL
+     colorPriorityValue-28 AT ROW 18.86 COL 118 COLON-ALIGNED NO-LABEL
+     reloadReportValue AT ROW 21 COL 21 NO-LABEL
+     customCheckoffValue AT ROW 21 COL 83 HELP
+          "Select to Apply Checkoff to Whole Job vs. Each Resource"
+     completedCheckoffValue AT ROW 21.95 COL 83 HELP
+          "Select to Apply Completed Checkoff to Whole Job vs. Each Resour"
+     reloadStatusValue AT ROW 22.19 COL 21 NO-LABEL
+     statusCheckoffTypeValue AT ROW 22.67 COL 93 NO-LABEL WIDGET-ID 4
+     btnHTMLPageLocation AT ROW 24.1 COL 82 HELP
+          "Click to Set HTML Page Location" WIDGET-ID 2
+     dueDateUsedValue AT ROW 24.33 COL 32 HELP
+          "Select Due Date/Production Date" NO-LABEL
+     "<Start--End><Due><Now>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 12.67 COL 44
+          FONT 1
+     "Reports:" VIEW-AS TEXT
+          SIZE 8 BY .81 AT ROW 21 COL 12
+     "BG   FG" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.24 COL 27
+          FONT 1
+     "<Now><Due><Start--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 6.71 COL 44
+          FONT 1
+     "Value" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 1.24 COL 99
+     "Default ~"<Due>~" Value Used:" VIEW-AS TEXT
+          SIZE 28 BY .81 AT ROW 24.33 COL 3
+     "[Set Job Color based on <Due>]" VIEW-AS TEXT
+          SIZE 31 BY .62 AT ROW 23.62 COL 3
+          BGCOLOR 8 
+     "Priority" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 1.24 COL 36
+     "Custom Color Label" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 1.24 COL 76
+     "<Start--Due--End><Now>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 13.86 COL 44
+          FONT 1
+     "[Status Checkoff Default Settings]" VIEW-AS TEXT
+          SIZE 32 BY .62 AT ROW 20.29 COL 83
+          BGCOLOR 8 
+     "<Start--Due--Now--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 10.29 COL 44
+          FONT 1
+     "<Due><Start--Now--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 16.24 COL 44
+          FONT 1
+     "Downtime Conflict Color" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 19.1 COL 86
+     "<Start--End><Now><Due>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 11.48 COL 44
+          FONT 1
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 1
+         SIZE 129 BY 25.48.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME colorsFrame
+     "Priority" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 1.24 COL 121
+     "Done By:" VIEW-AS TEXT
+          SIZE 10 BY 1 AT ROW 22.67 COL 83 WIDGET-ID 8
+     "Status Checkoffs:" VIEW-AS TEXT
+          SIZE 17 BY .81 AT ROW 22.19 COL 3
+     "BG   FG" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.24 COL 112
+          FONT 1
+     "<Due><Now><Start--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 17.43 COL 44
+          FONT 1
+     "[External Program Load Setting]" VIEW-AS TEXT
+          SIZE 30 BY .62 AT ROW 20.29 COL 3
+          BGCOLOR 8 
+     "<Job Completed>" VIEW-AS TEXT
+          SIZE 17 BY 1 AT ROW 3.14 COL 44
+          FONT 1
+     "<Due><Start--End><Now>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 15.05 COL 44
+          FONT 1
+     "<Start--Now--End><Due>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 7.91 COL 44
+          FONT 1
+     "<Now><Start--Due--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 5.52 COL 44
+          FONT 1
+     "<Start--Now--Due--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 9.1 COL 44
+          FONT 1
+     "Job Color Label" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 1.24 COL 6
+     "<Now><Start--End><Due>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 4.33 COL 44
+          FONT 1
+     "Job Conflict Color" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 19.1 COL 7
+     "<Unavailable>" VIEW-AS TEXT
+          SIZE 14 BY 1 AT ROW 1.95 COL 44
+          FONT 1
+     RECT-7 AT ROW 18.62 COL 2
+     customBGColor-1 AT ROW 1.95 COL 110
+     customBGColor-10 AT ROW 12.67 COL 110
+     customBGColor-11 AT ROW 13.86 COL 110
+     customBGColor-12 AT ROW 15.05 COL 110
+     customBGColor-13 AT ROW 16.24 COL 110
+     customBGColor-14 AT ROW 17.43 COL 110
+     customBGColor-2 AT ROW 3.14 COL 110
+     customBGColor-3 AT ROW 4.33 COL 110
+     customBGColor-4 AT ROW 5.52 COL 110
+     customBGColor-5 AT ROW 6.71 COL 110
+     customBGColor-6 AT ROW 7.91 COL 110
+     customBGColor-7 AT ROW 9.1 COL 110
+     customBGColor-8 AT ROW 10.29 COL 110
+     customBGColor-9 AT ROW 11.48 COL 110
+     downtimeConflictBGColorValue AT ROW 18.86 COL 110
+     jobBGColor-1 AT ROW 1.95 COL 25
+     jobBGColor-10 AT ROW 12.67 COL 25
+     jobBGColor-11 AT ROW 13.86 COL 25
+     jobBGColor-12 AT ROW 15.05 COL 25
+     jobBGColor-13 AT ROW 16.24 COL 25
+     jobBGColor-14 AT ROW 17.43 COL 25
+     jobBGColor-2 AT ROW 3.14 COL 25
+     jobBGColor-3 AT ROW 4.33 COL 25
+     jobBGColor-4 AT ROW 5.52 COL 25
+     jobBGColor-5 AT ROW 6.71 COL 25
+     jobBGColor-6 AT ROW 7.91 COL 25
+     jobBGColor-7 AT ROW 9.1 COL 25
+     jobBGColor-8 AT ROW 10.29 COL 25
+     jobBGColor-9 AT ROW 11.48 COL 25
+     jobConflictBGColorValue AT ROW 18.86 COL 25
+     jobFGColor-1 AT ROW 1.95 COL 32
+     jobFGColor-2 AT ROW 3.14 COL 32
+     jobFGColor-3 AT ROW 4.33 COL 32
+     jobFGColor-4 AT ROW 5.52 COL 32
+     jobFGColor-5 AT ROW 6.71 COL 32
+     jobFGColor-6 AT ROW 7.91 COL 32
+     jobFGColor-7 AT ROW 9.1 COL 32
+     jobFGColor-8 AT ROW 10.29 COL 32
+     jobFGColor-9 AT ROW 11.48 COL 32
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 1
+         SIZE 129 BY 25.48.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME colorsFrame
+     jobFGColor-10 AT ROW 12.67 COL 32
+     jobFGColor-11 AT ROW 13.86 COL 32
+     jobFGColor-12 AT ROW 15.05 COL 32
+     jobFGColor-13 AT ROW 16.24 COL 32
+     jobFGColor-14 AT ROW 17.43 COL 32
+     jobConflictFGColorValue AT ROW 18.86 COL 32
+     downtimeConflictFGColorValue AT ROW 18.86 COL 117
+     customFGColor-1 AT ROW 1.95 COL 117
+     customFGColor-2 AT ROW 3.14 COL 117
+     customFGColor-3 AT ROW 4.33 COL 117
+     customFGColor-4 AT ROW 5.52 COL 117
+     customFGColor-5 AT ROW 6.71 COL 117
+     customFGColor-6 AT ROW 7.91 COL 117
+     customFGColor-7 AT ROW 9.1 COL 117
+     customFGColor-8 AT ROW 10.29 COL 117
+     customFGColor-9 AT ROW 11.48 COL 117
+     customFGColor-10 AT ROW 12.67 COL 117
+     customFGColor-11 AT ROW 13.86 COL 117
+     customFGColor-12 AT ROW 15.05 COL 117
+     customFGColor-13 AT ROW 16.24 COL 117
+     customFGColor-14 AT ROW 17.43 COL 117
+     RECT-11 AT ROW 20.52 COL 82
+     RECT-12 AT ROW 20.52 COL 2
+     RECT-13 AT ROW 23.86 COL 2
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 1
+         SIZE 129 BY 25.48
+         TITLE "Color, Label & Priority Settings".
+
+DEFINE FRAME colorDisplayFrame
+     "No Color" VIEW-AS TEXT
+          SIZE 9 BY .52 AT ROW 19.33 COL 5
+     colorChoice-0 AT ROW 1.24 COL 2
+     colorChoice-1 AT ROW 2.43 COL 2
+     colorChoice-10 AT ROW 3.62 COL 10
+     colorChoice-11 AT ROW 4.81 COL 10
+     colorChoice-12 AT ROW 6 COL 10
+     colorChoice-13 AT ROW 7.19 COL 10
+     colorChoice-14 AT ROW 8.38 COL 10
+     colorChoice-15 AT ROW 1.24 COL 10
+     colorChoice-30 AT ROW 19.1 COL 2
+     colorChoice-2 AT ROW 3.62 COL 2
+     colorChoice-3 AT ROW 4.81 COL 2
+     colorChoice-4 AT ROW 6 COL 2
+     colorChoice-5 AT ROW 7.19 COL 2
+     colorChoice-6 AT ROW 8.38 COL 2
+     colorChoice-7 AT ROW 9.57 COL 2
+     colorChoice-8 AT ROW 9.57 COL 10
+     colorChoice-9 AT ROW 2.43 COL 10
+     colorChoice-16 AT ROW 10.76 COL 2
+     colorChoice-17 AT ROW 11.95 COL 2
+     colorChoice-18 AT ROW 13.14 COL 2
+     colorChoice-19 AT ROW 14.33 COL 2
+     colorChoice-20 AT ROW 15.52 COL 2
+     colorChoice-21 AT ROW 16.71 COL 2
+     colorChoice-22 AT ROW 17.91 COL 2
+     colorChoice-23 AT ROW 10.76 COL 10
+     colorChoice-24 AT ROW 11.95 COL 10
+     colorChoice-25 AT ROW 13.14 COL 10
+     colorChoice-26 AT ROW 14.33 COL 10
+     colorChoice-27 AT ROW 15.52 COL 10
+     colorChoice-28 AT ROW 16.71 COL 10
+     colorChoice-29 AT ROW 17.91 COL 10
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 3 ROW 4.1
+         SIZE 17 BY 20.24
+         TITLE "Colors".
+
+DEFINE FRAME defaultsFrame
+     intervals AT ROW 1.95 COL 10 COLON-ALIGNED HELP
+          "Select Startup Interval Value"
+     lockButtonValue AT ROW 1.95 COL 47 COLON-ALIGNED HELP
+          "Select Startup Lock Button Images Value"
+     threeDValue AT ROW 1.95 COL 91 NO-LABEL
+     timeValue AT ROW 3.14 COL 10 COLON-ALIGNED HELP
+          "Select Startup Time Value"
+     autoSizeValue AT ROW 3.14 COL 26 HELP
+          "Select to Force Scheduler to Optimize Job Bar Height and Gap"
+     noteButtonValue AT ROW 3.14 COL 47 COLON-ALIGNED HELP
+          "Select Startup Note Button Images Value"
+     threeDLeftValue AT ROW 3.86 COL 91
+     threeDTopValue AT ROW 3.86 COL 113
+     hpixelsValue AT ROW 4.33 COL 47 COLON-ALIGNED HELP
+          "Select Startup Job Bar Height Value"
+     gapValue AT ROW 4.33 COL 67 COLON-ALIGNED HELP
+          "Select Startup Gap  Between Job Bar Value"
+     rectJobBox AT ROW 5.05 COL 92 NO-LABEL
+     rectJobNoBox AT ROW 5.14 COL 92.4 NO-LABEL
+     showStatusValue AT ROW 5.52 COL 49
+     allResourcesValue AT ROW 6.48 COL 49 HELP
+          "Click to Show All Resources"
+     threeDBottomValue AT ROW 6.48 COL 91
+     threeDRightValue AT ROW 6.48 COL 113
+     alphaSortValue AT ROW 7.43 COL 49 HELP
+          "Click to Alpha Sort Resources"
+     downtimeTopValue AT ROW 7.43 COL 91
+     flashGridLineValue AT ROW 8.38 COL 49 HELP
+          "Click to Show Grid Line Flashing"
+     downtimeSizeValue AT ROW 8.38 COL 111 COLON-ALIGNED HELP
+          "Select Startup Gap  Between Job Bar Value"
+     flashTimeLineValue AT ROW 9.33 COL 49 HELP
+          "Click to Show Time Line Flashing"
+     completedHideValue AT ROW 9.57 COL 91
+     fullBoardValue AT ROW 10.29 COL 49
+     popupBottomValue AT ROW 11.24 COL 49
+     priority1Value AT ROW 11.48 COL 103 NO-LABEL
+     moveUndoRedoValue AT ROW 12.19 COL 49
+     saveIntervalValue AT ROW 12.43 COL 5 COLON-ALIGNED HELP
+          "Enter Auto Save Interval Minutes" NO-LABEL
+     viewRefreshValue AT ROW 12.43 COL 14 COLON-ALIGNED HELP
+          "Enter Auto View Refresh Interval Minutes" NO-LABEL
+     monitorIntervalValue AT ROW 12.43 COL 23 COLON-ALIGNED HELP
+          "Enter Auto Monitor Interval Minutes" NO-LABEL WIDGET-ID 2
+     priority2Value AT ROW 12.43 COL 103 NO-LABEL
+     priority3Value AT ROW 13.38 COL 103 NO-LABEL
+     btnDetailBoard AT ROW 13.86 COL 3 HELP
+          "Tune Detail Window Display On/Off"
+     detailWindowValue AT ROW 13.86 COL 9
+     btnShowDowntime AT ROW 15.05 COL 3
+     showDowntimeValue AT ROW 15.05 COL 9
+     IDList AT ROW 15.29 COL 50 NO-LABEL
+     jobBlockValue AT ROW 15.76 COL 94 HELP
+          "Select to Block Job Conflicts"
+     jobWarningValue AT ROW 15.76 COL 104 HELP
+          "Select to Issue Warning of Job Conflicts"
+     jobPromptValue AT ROW 15.76 COL 117 HELP
+          "Select to Block Job Conflicts"
+     btnFlashLight AT ROW 16.24 COL 3 HELP
+          "Turn Highlight On/Off"
+     flashLightValue AT ROW 16.24 COL 9
+     btnBoardDatePrompt AT ROW 17.43 COL 3 HELP
+          "Turn Date Prompt Popup On/Off"
+     boardDatePromptValue AT ROW 17.43 COL 9
+     downtimeBlockValue AT ROW 17.67 COL 94 HELP
+          "Select to Block Downtime Conflicts"
+     downtimeWarningValue AT ROW 17.67 COL 104 HELP
+          "Select to Issue Warning of Downtime Conflicts"
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 1.24
+         SIZE 129 BY 25.24.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME defaultsFrame
+     downtimePromptValue AT ROW 17.67 COL 117 HELP
+          "Select to Block Job Conflicts"
+     packOptionValue AT ROW 18.86 COL 10 COLON-ALIGNED
+     pendingOverValue AT ROW 19.33 COL 120 COLON-ALIGNED HELP
+          "Enter Number of Days to Set Job Ending Date Prior to Due Date"
+     packOptionPromptValue AT ROW 20.05 COL 30 HELP
+          "Select to Prompt Pack Options"
+     pendingLastDayValue AT ROW 20.52 COL 71 COLON-ALIGNED HELP
+          "Enter Number of Days from Current Date for Setting Ending Date"
+     pendingDaysValue AT ROW 20.52 COL 120 COLON-ALIGNED HELP
+          "Enter Number of Days to Set Job Ending Date Prior to Due Date"
+     btnDatePrompt AT ROW 21.48 COL 3 HELP
+          "Turn Date Prompt Popup On/Off"
+     datePromptValue AT ROW 21.48 COL 9
+     btnDetailResource AT ROW 22.67 COL 3 HELP
+          "Tune Detail Window Display On/Off"
+     resourceJobDetailValue AT ROW 22.67 COL 9
+     dontShowStartup AT ROW 22.67 COL 54 HELP
+          "Select to Not Show Startup Configurations"
+     boardSize AT ROW 22.67 COL 109 COLON-ALIGNED HELP
+          "Select Board Size Resolution"
+     resourceBrowseActionValue AT ROW 23.86 COL 40 COLON-ALIGNED HELP
+          "Set Behavior for Resource Browser Default Action"
+     loadCapacityValue AT ROW 23.86 COL 54
+     endDateBufferValue AT ROW 23.86 COL 120 COLON-ALIGNED HELP
+          "Enter Number of Days Past Last Job Date to Buffer"
+     rectDTOver AT ROW 4.81 COL 99 COLON-ALIGNED NO-LABEL
+     "Auto: Save | Refresh | Monitor" VIEW-AS TEXT
+          SIZE 30 BY .62 AT ROW 11.48 COL 3
+     "Grid Line Color" VIEW-AS TEXT
+          SIZE 14.4 BY .62 AT ROW 6.95 COL 10
+     "[Board Settings]" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 1.24 COL 3
+          BGCOLOR 8 
+     "[Pending Jobs]" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 18.86 COL 54
+          BGCOLOR 8 
+     "[Priority Settings]" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 10.76 COL 91
+          BGCOLOR 8 
+     "Job on Resource Highlight Color" VIEW-AS TEXT
+          SIZE 31 BY .62 AT ROW 9.33 COL 10
+     "Resource Grid Background Color" VIEW-AS TEXT
+          SIZE 32 BY .62 AT ROW 5.76 COL 10
+     "[Valid Schedule Board ID's]" VIEW-AS TEXT
+          SIZE 26 BY .62 AT ROW 14.57 COL 50
+          BGCOLOR 8 
+     "[Scheduler Re-Start Required to take effect]" VIEW-AS TEXT
+          SIZE 42 BY .62 AT ROW 21.95 COL 54
+          BGCOLOR 8 
+     "Job Seq.:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 12.43 COL 92
+     "Resource:" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 11.48 COL 91
+     "[Job Appearance]" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 1.24 COL 91
+          BGCOLOR 8 
+     "[Conflict Settings]" VIEW-AS TEXT
+          SIZE 16.8 BY .62 AT ROW 14.33 COL 91
+          BGCOLOR 8 
+     "(if changed scheduler restart required)" VIEW-AS TEXT
+          SIZE 36 BY .62 AT ROW 2.91 COL 91
+          FGCOLOR 12 
+     "Res. Seq.:" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 13.38 COL 91
+     "Board Background Color" VIEW-AS TEXT
+          SIZE 24 BY .62 AT ROW 4.57 COL 10
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 1.24
+         SIZE 129 BY 25.24.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME defaultsFrame
+     "Downtime Conflict Settings" VIEW-AS TEXT
+          SIZE 26 BY .62 AT ROW 16.95 COL 91
+     "[Resource Popup Settings]" VIEW-AS TEXT
+          SIZE 26 BY .62 AT ROW 20.76 COL 3
+          BGCOLOR 8 
+     "Time Line Color" VIEW-AS TEXT
+          SIZE 15.4 BY .62 AT ROW 8.14 COL 10
+     "(Zero=Off)" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 12.91 COL 34 WIDGET-ID 6
+     "Interval Minutes" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 12.19 COL 32 WIDGET-ID 4
+     "Job Selection Highlight Color" VIEW-AS TEXT
+          SIZE 27.6 BY .62 AT ROW 10.52 COL 10
+     "Job Conflict Settings" VIEW-AS TEXT
+          SIZE 20 BY .62 AT ROW 15.05 COL 91
+     RECT-3 AT ROW 21 COL 2
+     RECT-1 AT ROW 1.48 COL 2
+     rectGrid AT ROW 4.81 COL 91
+     RECT-5 AT ROW 1.48 COL 90
+     RECT-2 AT ROW 14.57 COL 90
+     rectTop AT ROW 5.05 COL 92
+     RECT-4 AT ROW 22.19 COL 53
+     rectRight AT ROW 5.05 COL 126
+     rectDTUnder AT ROW 4.81 COL 101
+     rectBottom AT ROW 6.1 COL 92.4
+     rectLeft AT ROW 5.05 COL 92
+     flashLightColorValue AT ROW 10.29 COL 3
+     gridBGColorValue AT ROW 4.33 COL 3
+     gridLineColorValue AT ROW 6.71 COL 3
+     lightBulbColorValue AT ROW 9.1 COL 3
+     lockImage AT ROW 2.19 COL 78
+     resourceBGColorValue AT ROW 5.52 COL 3
+     timeLineColorValue AT ROW 7.91 COL 3
+     RECT-8 AT ROW 19.1 COL 53
+     RECT-9 AT ROW 11 COL 90
+     RECT-10 AT ROW 14.81 COL 49
+     noteImage-1 AT ROW 3.38 COL 78
+     noteImage-2 AT ROW 3.38 COL 81
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 1.24
+         SIZE 129 BY 25.24
+         TITLE "Default Settings".
+
 DEFINE FRAME fieldsFrame
      userField71 AT ROW 1.24 COL 2
      userField72 AT ROW 2.19 COL 2
@@ -2416,489 +2909,6 @@ DEFINE FRAME fieldsFrame
          AT COL 24 ROW 1.24
          SIZE 129 BY 25
          TITLE "Fields".
-
-DEFINE FRAME colorsFrame
-     jobLabel-1 AT ROW 1.95 COL 3 COLON-ALIGNED
-     customLabel-1 AT ROW 1.95 COL 73 COLON-ALIGNED
-     customValue-1 AT ROW 1.95 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-13 AT ROW 1.95 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-2 AT ROW 3.14 COL 3 COLON-ALIGNED
-     customLabel-2 AT ROW 3.14 COL 73 COLON-ALIGNED
-     customValue-2 AT ROW 3.14 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-14 AT ROW 3.14 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-3 AT ROW 4.33 COL 3 COLON-ALIGNED
-     colorPriorityValue-1 AT ROW 4.33 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-3 AT ROW 4.33 COL 73 COLON-ALIGNED
-     customValue-3 AT ROW 4.33 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-15 AT ROW 4.33 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-4 AT ROW 5.52 COL 3 COLON-ALIGNED
-     colorPriorityValue-2 AT ROW 5.52 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-4 AT ROW 5.52 COL 73 COLON-ALIGNED
-     customValue-4 AT ROW 5.52 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-16 AT ROW 5.52 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-5 AT ROW 6.71 COL 3 COLON-ALIGNED
-     colorPriorityValue-3 AT ROW 6.71 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-5 AT ROW 6.71 COL 73 COLON-ALIGNED
-     customValue-5 AT ROW 6.71 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-17 AT ROW 6.71 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-6 AT ROW 7.91 COL 3 COLON-ALIGNED
-     colorPriorityValue-4 AT ROW 7.91 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-6 AT ROW 7.91 COL 73 COLON-ALIGNED
-     customValue-6 AT ROW 7.91 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-18 AT ROW 7.91 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-7 AT ROW 9.1 COL 3 COLON-ALIGNED
-     colorPriorityValue-5 AT ROW 9.1 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-7 AT ROW 9.1 COL 73 COLON-ALIGNED
-     customValue-7 AT ROW 9.1 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-19 AT ROW 9.1 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-8 AT ROW 10.29 COL 3 COLON-ALIGNED
-     colorPriorityValue-6 AT ROW 10.29 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-8 AT ROW 10.29 COL 73 COLON-ALIGNED
-     customValue-8 AT ROW 10.29 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-20 AT ROW 10.29 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-9 AT ROW 11.48 COL 3 COLON-ALIGNED
-     colorPriorityValue-7 AT ROW 11.48 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-9 AT ROW 11.48 COL 73 COLON-ALIGNED
-     customValue-9 AT ROW 11.48 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-21 AT ROW 11.48 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-10 AT ROW 12.67 COL 3 COLON-ALIGNED
-     colorPriorityValue-8 AT ROW 12.67 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-10 AT ROW 12.67 COL 73 COLON-ALIGNED
-     customValue-10 AT ROW 12.67 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-22 AT ROW 12.67 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-11 AT ROW 13.86 COL 3 COLON-ALIGNED
-     colorPriorityValue-9 AT ROW 13.86 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-11 AT ROW 13.86 COL 73 COLON-ALIGNED
-     customValue-11 AT ROW 13.86 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-23 AT ROW 13.86 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-12 AT ROW 15.05 COL 3 COLON-ALIGNED
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 1.24
-         SIZE 129 BY 25.24.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME colorsFrame
-     colorPriorityValue-10 AT ROW 15.05 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-12 AT ROW 15.05 COL 73 COLON-ALIGNED
-     customValue-12 AT ROW 15.05 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-24 AT ROW 15.05 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-13 AT ROW 16.24 COL 3 COLON-ALIGNED
-     colorPriorityValue-11 AT ROW 16.24 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-13 AT ROW 16.24 COL 73 COLON-ALIGNED
-     customValue-13 AT ROW 16.24 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-25 AT ROW 16.24 COL 118 COLON-ALIGNED NO-LABEL
-     jobLabel-14 AT ROW 17.43 COL 3 COLON-ALIGNED
-     colorPriorityValue-12 AT ROW 17.43 COL 33 COLON-ALIGNED NO-LABEL
-     customLabel-14 AT ROW 17.43 COL 73 COLON-ALIGNED
-     customValue-14 AT ROW 17.43 COL 93 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-26 AT ROW 17.43 COL 118 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-27 AT ROW 18.86 COL 33 COLON-ALIGNED NO-LABEL
-     colorPriorityValue-28 AT ROW 18.86 COL 118 COLON-ALIGNED NO-LABEL
-     reloadReportValue AT ROW 21 COL 21 NO-LABEL
-     customCheckoffValue AT ROW 21 COL 83 HELP
-          "Select to Apply Checkoff to Whole Job vs. Each Resource"
-     reloadStatusValue AT ROW 22.19 COL 21 NO-LABEL
-     completedCheckoffValue AT ROW 22.19 COL 83 HELP
-          "Select to Apply Completed Checkoff to Whole Job vs. Each Resour"
-     btnHTMLPageLocation AT ROW 23.62 COL 82 HELP
-          "Click to Set HTML Page Location" WIDGET-ID 2
-     dueDateUsedValue AT ROW 24.1 COL 32 HELP
-          "Select Due Date/Production Date" NO-LABEL
-     "<Due><Start--Now--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 16.24 COL 44
-          FONT 1
-     "<Start--Due--End><Now>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 13.86 COL 44
-          FONT 1
-     "<Due><Now><Start--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 17.43 COL 44
-          FONT 1
-     "<Start--Due--Now--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 10.29 COL 44
-          FONT 1
-     "Default ~"<Due>~" Value Used:" VIEW-AS TEXT
-          SIZE 28 BY .81 AT ROW 24.1 COL 3
-     "Value" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.24 COL 99
-     "<Now><Due><Start--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 6.71 COL 44
-          FONT 1
-     "BG   FG" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.24 COL 27
-          FONT 1
-     "Reports:" VIEW-AS TEXT
-          SIZE 8 BY .81 AT ROW 21 COL 12
-     "Downtime Conflict Color" VIEW-AS TEXT
-          SIZE 23 BY .62 AT ROW 19.1 COL 86
-     "<Unavailable>" VIEW-AS TEXT
-          SIZE 14 BY 1 AT ROW 1.95 COL 44
-          FONT 1
-     "Status Checkoffs:" VIEW-AS TEXT
-          SIZE 17 BY .81 AT ROW 22.19 COL 3
-     "<Now><Start--End><Due>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 4.33 COL 44
-          FONT 1
-     "Priority" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.24 COL 36
-     "Job Conflict Color" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 19.1 COL 7
-     "Custom Color Label" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 1.24 COL 76
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 1.24
-         SIZE 129 BY 25.24.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME colorsFrame
-     "[External Program Load Setting]" VIEW-AS TEXT
-          SIZE 30 BY .62 AT ROW 20.29 COL 3
-          BGCOLOR 8 
-     "Priority" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.24 COL 121
-     "<Due><Start--End><Now>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 15.05 COL 44
-          FONT 1
-     "<Job Completed>" VIEW-AS TEXT
-          SIZE 17 BY 1 AT ROW 3.14 COL 44
-          FONT 1
-     "BG   FG" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.24 COL 112
-          FONT 1
-     "Job Color Label" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 1.24 COL 6
-     "<Start--End><Now><Due>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 11.48 COL 44
-          FONT 1
-     "[Set Job Color based on <Due>]" VIEW-AS TEXT
-          SIZE 31 BY .62 AT ROW 23.38 COL 3
-          BGCOLOR 8 
-     "<Start--Now--Due--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 9.1 COL 44
-          FONT 1
-     "<Start--End><Due><Now>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 12.67 COL 44
-          FONT 1
-     "<Now><Start--Due--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 5.52 COL 44
-          FONT 1
-     "[Status Checkoff Default Settings]" VIEW-AS TEXT
-          SIZE 32 BY .62 AT ROW 20.29 COL 83
-          BGCOLOR 8 
-     "<Start--Now--End><Due>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 7.91 COL 44
-          FONT 1
-     RECT-7 AT ROW 18.62 COL 2
-     customBGColor-1 AT ROW 1.95 COL 110
-     customBGColor-10 AT ROW 12.67 COL 110
-     customBGColor-11 AT ROW 13.86 COL 110
-     customBGColor-12 AT ROW 15.05 COL 110
-     customBGColor-13 AT ROW 16.24 COL 110
-     customBGColor-14 AT ROW 17.43 COL 110
-     customBGColor-2 AT ROW 3.14 COL 110
-     customBGColor-3 AT ROW 4.33 COL 110
-     customBGColor-4 AT ROW 5.52 COL 110
-     customBGColor-5 AT ROW 6.71 COL 110
-     customBGColor-6 AT ROW 7.91 COL 110
-     customBGColor-7 AT ROW 9.1 COL 110
-     customBGColor-8 AT ROW 10.29 COL 110
-     customBGColor-9 AT ROW 11.48 COL 110
-     downtimeConflictBGColorValue AT ROW 18.86 COL 110
-     jobBGColor-1 AT ROW 1.95 COL 25
-     jobBGColor-10 AT ROW 12.67 COL 25
-     jobBGColor-11 AT ROW 13.86 COL 25
-     jobBGColor-12 AT ROW 15.05 COL 25
-     jobBGColor-13 AT ROW 16.24 COL 25
-     jobBGColor-14 AT ROW 17.43 COL 25
-     jobBGColor-2 AT ROW 3.14 COL 25
-     jobBGColor-3 AT ROW 4.33 COL 25
-     jobBGColor-4 AT ROW 5.52 COL 25
-     jobBGColor-5 AT ROW 6.71 COL 25
-     jobBGColor-6 AT ROW 7.91 COL 25
-     jobBGColor-7 AT ROW 9.1 COL 25
-     jobBGColor-8 AT ROW 10.29 COL 25
-     jobBGColor-9 AT ROW 11.48 COL 25
-     jobConflictBGColorValue AT ROW 18.86 COL 25
-     jobFGColor-1 AT ROW 1.95 COL 32
-     jobFGColor-2 AT ROW 3.14 COL 32
-     jobFGColor-3 AT ROW 4.33 COL 32
-     jobFGColor-4 AT ROW 5.52 COL 32
-     jobFGColor-5 AT ROW 6.71 COL 32
-     jobFGColor-6 AT ROW 7.91 COL 32
-     jobFGColor-7 AT ROW 9.1 COL 32
-     jobFGColor-8 AT ROW 10.29 COL 32
-     jobFGColor-9 AT ROW 11.48 COL 32
-     jobFGColor-10 AT ROW 12.67 COL 32
-     jobFGColor-11 AT ROW 13.86 COL 32
-     jobFGColor-12 AT ROW 15.05 COL 32
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 1.24
-         SIZE 129 BY 25.24.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME colorsFrame
-     jobFGColor-13 AT ROW 16.24 COL 32
-     jobFGColor-14 AT ROW 17.43 COL 32
-     jobConflictFGColorValue AT ROW 18.86 COL 32
-     downtimeConflictFGColorValue AT ROW 18.86 COL 117
-     customFGColor-1 AT ROW 1.95 COL 117
-     customFGColor-2 AT ROW 3.14 COL 117
-     customFGColor-3 AT ROW 4.33 COL 117
-     customFGColor-4 AT ROW 5.52 COL 117
-     customFGColor-5 AT ROW 6.71 COL 117
-     customFGColor-6 AT ROW 7.91 COL 117
-     customFGColor-7 AT ROW 9.1 COL 117
-     customFGColor-8 AT ROW 10.29 COL 117
-     customFGColor-9 AT ROW 11.48 COL 117
-     customFGColor-10 AT ROW 12.67 COL 117
-     customFGColor-11 AT ROW 13.86 COL 117
-     customFGColor-12 AT ROW 15.05 COL 117
-     customFGColor-13 AT ROW 16.24 COL 117
-     customFGColor-14 AT ROW 17.43 COL 117
-     RECT-11 AT ROW 20.52 COL 82
-     RECT-12 AT ROW 20.52 COL 2
-     RECT-13 AT ROW 23.62 COL 2
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 1.24
-         SIZE 129 BY 25.24
-         TITLE "Color, Label & Priority Settings".
-
-DEFINE FRAME colorDisplayFrame
-     "No Color" VIEW-AS TEXT
-          SIZE 9 BY .52 AT ROW 19.33 COL 5
-     colorChoice-0 AT ROW 1.24 COL 2
-     colorChoice-1 AT ROW 2.43 COL 2
-     colorChoice-10 AT ROW 3.62 COL 10
-     colorChoice-11 AT ROW 4.81 COL 10
-     colorChoice-12 AT ROW 6 COL 10
-     colorChoice-13 AT ROW 7.19 COL 10
-     colorChoice-14 AT ROW 8.38 COL 10
-     colorChoice-15 AT ROW 1.24 COL 10
-     colorChoice-30 AT ROW 19.1 COL 2
-     colorChoice-2 AT ROW 3.62 COL 2
-     colorChoice-3 AT ROW 4.81 COL 2
-     colorChoice-4 AT ROW 6 COL 2
-     colorChoice-5 AT ROW 7.19 COL 2
-     colorChoice-6 AT ROW 8.38 COL 2
-     colorChoice-7 AT ROW 9.57 COL 2
-     colorChoice-8 AT ROW 9.57 COL 10
-     colorChoice-9 AT ROW 2.43 COL 10
-     colorChoice-16 AT ROW 10.76 COL 2
-     colorChoice-17 AT ROW 11.95 COL 2
-     colorChoice-18 AT ROW 13.14 COL 2
-     colorChoice-19 AT ROW 14.33 COL 2
-     colorChoice-20 AT ROW 15.52 COL 2
-     colorChoice-21 AT ROW 16.71 COL 2
-     colorChoice-22 AT ROW 17.91 COL 2
-     colorChoice-23 AT ROW 10.76 COL 10
-     colorChoice-24 AT ROW 11.95 COL 10
-     colorChoice-25 AT ROW 13.14 COL 10
-     colorChoice-26 AT ROW 14.33 COL 10
-     colorChoice-27 AT ROW 15.52 COL 10
-     colorChoice-28 AT ROW 16.71 COL 10
-     colorChoice-29 AT ROW 17.91 COL 10
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 3 ROW 4.1
-         SIZE 17 BY 20.24
-         TITLE "Colors".
-
-DEFINE FRAME defaultsFrame
-     intervals AT ROW 1.95 COL 10 COLON-ALIGNED HELP
-          "Select Startup Interval Value"
-     lockButtonValue AT ROW 1.95 COL 47 COLON-ALIGNED HELP
-          "Select Startup Lock Button Images Value"
-     threeDValue AT ROW 1.95 COL 91 NO-LABEL
-     timeValue AT ROW 3.14 COL 10 COLON-ALIGNED HELP
-          "Select Startup Time Value"
-     autoSizeValue AT ROW 3.14 COL 26 HELP
-          "Select to Force Scheduler to Optimize Job Bar Height and Gap"
-     noteButtonValue AT ROW 3.14 COL 47 COLON-ALIGNED HELP
-          "Select Startup Note Button Images Value"
-     threeDLeftValue AT ROW 3.86 COL 91
-     threeDTopValue AT ROW 3.86 COL 113
-     hpixelsValue AT ROW 4.33 COL 47 COLON-ALIGNED HELP
-          "Select Startup Job Bar Height Value"
-     gapValue AT ROW 4.33 COL 67 COLON-ALIGNED HELP
-          "Select Startup Gap  Between Job Bar Value"
-     rectJobBox AT ROW 5.05 COL 92 NO-LABEL
-     rectJobNoBox AT ROW 5.14 COL 92.4 NO-LABEL
-     showStatusValue AT ROW 5.52 COL 49
-     allResourcesValue AT ROW 6.48 COL 49 HELP
-          "Click to Show All Resources"
-     threeDBottomValue AT ROW 6.48 COL 91
-     threeDRightValue AT ROW 6.48 COL 113
-     downtimeTopValue AT ROW 7.43 COL 91
-     alphaSortValue AT ROW 7.67 COL 49 HELP
-          "Click to Alpha Sort Resources"
-     downtimeSizeValue AT ROW 8.38 COL 111 COLON-ALIGNED HELP
-          "Select Startup Gap  Between Job Bar Value"
-     flashGridLineValue AT ROW 8.86 COL 49 HELP
-          "Click to Show Grid Line Flashing"
-     completedHideValue AT ROW 9.57 COL 91
-     flashTimeLineValue AT ROW 10.05 COL 49 HELP
-          "Click to Show Time Line Flashing"
-     fullBoardValue AT ROW 11.24 COL 49
-     priority1Value AT ROW 11.48 COL 103 NO-LABEL
-     saveIntervalValue AT ROW 12.43 COL 5 COLON-ALIGNED HELP
-          "Enter Auto Save Interval Minutes" NO-LABEL
-     viewRefreshValue AT ROW 12.43 COL 14 COLON-ALIGNED HELP
-          "Enter Auto View Refresh Interval Minutes" NO-LABEL
-     monitorIntervalValue AT ROW 12.43 COL 23 COLON-ALIGNED HELP
-          "Enter Auto Monitor Interval Minutes" NO-LABEL WIDGET-ID 2
-     popupBottomValue AT ROW 12.43 COL 49
-     priority2Value AT ROW 12.43 COL 103 NO-LABEL
-     priority3Value AT ROW 13.38 COL 103 NO-LABEL
-     moveUndoRedoValue AT ROW 13.62 COL 49
-     btnDetailBoard AT ROW 13.86 COL 3 HELP
-          "Tune Detail Window Display On/Off"
-     detailWindowValue AT ROW 13.86 COL 9
-     btnShowDowntime AT ROW 15.05 COL 3
-     showDowntimeValue AT ROW 15.05 COL 9
-     IDList AT ROW 15.29 COL 50 NO-LABEL
-     jobBlockValue AT ROW 15.76 COL 94 HELP
-          "Select to Block Job Conflicts"
-     jobWarningValue AT ROW 15.76 COL 104 HELP
-          "Select to Issue Warning of Job Conflicts"
-     jobPromptValue AT ROW 15.76 COL 117 HELP
-          "Select to Block Job Conflicts"
-     btnFlashLight AT ROW 16.24 COL 3 HELP
-          "Turn Highlight On/Off"
-     flashLightValue AT ROW 16.24 COL 9
-     btnBoardDatePrompt AT ROW 17.43 COL 3 HELP
-          "Turn Date Prompt Popup On/Off"
-     boardDatePromptValue AT ROW 17.43 COL 9
-     downtimeBlockValue AT ROW 17.67 COL 94 HELP
-          "Select to Block Downtime Conflicts"
-     downtimeWarningValue AT ROW 17.67 COL 104 HELP
-          "Select to Issue Warning of Downtime Conflicts"
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 1.24
-         SIZE 129 BY 25.24.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME defaultsFrame
-     downtimePromptValue AT ROW 17.67 COL 117 HELP
-          "Select to Block Job Conflicts"
-     packOptionValue AT ROW 18.86 COL 10 COLON-ALIGNED
-     pendingOverValue AT ROW 19.33 COL 120 COLON-ALIGNED HELP
-          "Enter Number of Days to Set Job Ending Date Prior to Due Date"
-     packOptionPromptValue AT ROW 20.05 COL 30 HELP
-          "Select to Prompt Pack Options"
-     pendingLastDayValue AT ROW 20.52 COL 71 COLON-ALIGNED HELP
-          "Enter Number of Days from Current Date for Setting Ending Date"
-     pendingDaysValue AT ROW 20.52 COL 120 COLON-ALIGNED HELP
-          "Enter Number of Days to Set Job Ending Date Prior to Due Date"
-     btnDatePrompt AT ROW 21.48 COL 3 HELP
-          "Turn Date Prompt Popup On/Off"
-     datePromptValue AT ROW 21.48 COL 9
-     btnDetailResource AT ROW 22.67 COL 3 HELP
-          "Tune Detail Window Display On/Off"
-     resourceJobDetailValue AT ROW 22.67 COL 9
-     dontShowStartup AT ROW 22.67 COL 54 HELP
-          "Select to Not Show Startup Configurations"
-     boardSize AT ROW 22.67 COL 109 COLON-ALIGNED HELP
-          "Select Board Size Resolution"
-     resourceBrowseActionValue AT ROW 23.86 COL 40 COLON-ALIGNED HELP
-          "Set Behavior for Resource Browser Default Action"
-     loadCapacityValue AT ROW 23.86 COL 54
-     endDateBufferValue AT ROW 23.86 COL 120 COLON-ALIGNED HELP
-          "Enter Number of Days Past Last Job Date to Buffer"
-     rectDTOver AT ROW 4.81 COL 99 COLON-ALIGNED NO-LABEL
-     "Job Conflict Settings" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 15.05 COL 91
-     "[Valid Schedule Board ID's]" VIEW-AS TEXT
-          SIZE 26 BY .62 AT ROW 14.57 COL 50
-          BGCOLOR 8 
-     "Job on Resource Highlight Color" VIEW-AS TEXT
-          SIZE 31 BY .62 AT ROW 9.33 COL 10
-     "[Board Settings]" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 1.24 COL 3
-          BGCOLOR 8 
-     "[Pending Jobs]" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 18.86 COL 54
-          BGCOLOR 8 
-     "Interval Minutes" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 12.19 COL 32 WIDGET-ID 4
-     "(Zero=Off)" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 12.91 COL 34 WIDGET-ID 6
-     "Time Line Color" VIEW-AS TEXT
-          SIZE 15.4 BY .62 AT ROW 8.14 COL 10
-     "[Resource Popup Settings]" VIEW-AS TEXT
-          SIZE 26 BY .62 AT ROW 20.76 COL 3
-          BGCOLOR 8 
-     "Downtime Conflict Settings" VIEW-AS TEXT
-          SIZE 26 BY .62 AT ROW 16.95 COL 91
-     "Board Background Color" VIEW-AS TEXT
-          SIZE 24 BY .62 AT ROW 4.57 COL 10
-     "Res. Seq.:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 13.38 COL 91
-     "(if changed scheduler restart required)" VIEW-AS TEXT
-          SIZE 36 BY .62 AT ROW 2.91 COL 91
-          FGCOLOR 12 
-     "[Conflict Settings]" VIEW-AS TEXT
-          SIZE 16.8 BY .62 AT ROW 14.33 COL 91
-          BGCOLOR 8 
-     "Resource Grid Background Color" VIEW-AS TEXT
-          SIZE 32 BY .62 AT ROW 5.76 COL 10
-     "Job Selection Highlight Color" VIEW-AS TEXT
-          SIZE 27.6 BY .62 AT ROW 10.52 COL 10
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 1.24
-         SIZE 129 BY 25.24.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME defaultsFrame
-     "Auto: Save | Refresh | Monitor" VIEW-AS TEXT
-          SIZE 30 BY .62 AT ROW 11.48 COL 3
-     "[Priority Settings]" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 10.76 COL 91
-          BGCOLOR 8 
-     "[Job Appearance]" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 1.24 COL 91
-          BGCOLOR 8 
-     "Grid Line Color" VIEW-AS TEXT
-          SIZE 14.4 BY .62 AT ROW 6.95 COL 10
-     "Resource:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 11.48 COL 91
-     "Job Seq.:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 12.43 COL 92
-     "[Scheduler Re-Start Required to take effect]" VIEW-AS TEXT
-          SIZE 42 BY .62 AT ROW 21.95 COL 54
-          BGCOLOR 8 
-     RECT-3 AT ROW 21 COL 2
-     RECT-1 AT ROW 1.48 COL 2
-     rectGrid AT ROW 4.81 COL 91
-     RECT-5 AT ROW 1.48 COL 90
-     RECT-2 AT ROW 14.57 COL 90
-     rectTop AT ROW 5.05 COL 92
-     RECT-4 AT ROW 22.19 COL 53
-     rectRight AT ROW 5.05 COL 126
-     rectDTUnder AT ROW 4.81 COL 101
-     rectBottom AT ROW 6.1 COL 92.4
-     rectLeft AT ROW 5.05 COL 92
-     flashLightColorValue AT ROW 10.29 COL 3
-     gridBGColorValue AT ROW 4.33 COL 3
-     gridLineColorValue AT ROW 6.71 COL 3
-     lightBulbColorValue AT ROW 9.1 COL 3
-     lockImage AT ROW 2.19 COL 78
-     resourceBGColorValue AT ROW 5.52 COL 3
-     timeLineColorValue AT ROW 7.91 COL 3
-     RECT-8 AT ROW 19.1 COL 53
-     RECT-9 AT ROW 11 COL 90
-     RECT-10 AT ROW 14.81 COL 49
-     noteImage-1 AT ROW 3.38 COL 78
-     noteImage-2 AT ROW 3.38 COL 81
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 1.24
-         SIZE 129 BY 25.24
-         TITLE "Default Settings".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -3593,6 +3603,8 @@ ASSIGN
    1                                                                    */
 /* SETTINGS FOR RADIO-SET reloadStatusValue IN FRAME colorsFrame
    1                                                                    */
+/* SETTINGS FOR RADIO-SET statusCheckoffTypeValue IN FRAME colorsFrame
+   1                                                                    */
 /* SETTINGS FOR FRAME configurationFrame
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
@@ -4118,7 +4130,8 @@ DO:
         threeDTop = threeDTopValue
         timeInit = timeValue
         timeLineColor = timeLineColorValue:BGCOLOR
-        viewRefresh = viewRefreshValue.
+        viewRefresh = viewRefreshValue
+        .
       OUTPUT TO VALUE(clientDat + '{&data}/validID.dat').
       DO idx = 1 TO IDList:NUM-ITEMS:
         IF IDList:IS-SELECTED(idx) THEN
@@ -4137,7 +4150,8 @@ DO:
         {{&includes}/putConfig.i 6 20}
         {{&includes}/putConfig.i 7 21}
         jobConflictBGColor = jobConflictBGColorValue:BGCOLOR
-        jobConflictFGColor = jobConflictFGColorValue:BGCOLOR.
+        jobConflictFGColor = jobConflictFGColorValue:BGCOLOR
+        .
       ASSIGN
         {{&includes}/putConfig.i 8 22}
         {{&includes}/putConfig.i 9 23}
@@ -4149,7 +4163,9 @@ DO:
         completedCheckoff = completedCheckOffValue
         customCheckoff = customCheckOffValue
         downtimeConflictBGColor = downtimeConflictBGColorValue:BGCOLOR
-        downtimeConflictFGColor = downtimeConflictFGColorValue:BGCOLOR.
+        downtimeConflictFGColor = downtimeConflictFGColorValue:BGCOLOR
+        statusCheckoffType = statusCheckoffTypeValue
+        .
     END. /* colorsframe */
     DO WITH FRAME fieldsFrame:
       ASSIGN {&userFields}.
@@ -5199,11 +5215,13 @@ PROCEDURE getConfiguration :
       dueDateUsedValue:SCREEN-VALUE = STRING(dueDateUsed)
       reloadReportValue:SCREEN-VALUE = STRING(reloadReport)
       reloadStatusValue:SCREEN-VALUE = STRING(reloadStatus)
+      statusCheckoffTypeValue:SCREEN-VALUE = statusCheckoffType
       .
     DISPLAY {&jobLabelFields} {&customValueFields}.
     ENABLE
       reloadReportValue reloadStatusValue dueDateUsedValue
       completedCheckOffValue customCheckOffValue {&jobLabelFields}
+      statusCheckoffTypeValue
       .
     FIND FIRST module NO-LOCK
          WHERE module.db-name EQ "ASI"
