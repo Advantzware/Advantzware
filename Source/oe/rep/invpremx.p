@@ -614,7 +614,7 @@ END.
             INPUT  locode,
             INPUT  "QUOTATION",  
             INPUT  NO,
-            INPUT  "SendInvoice",
+            INPUT  "GetTaxAmount",
             OUTPUT dTaxTotal,
             OUTPUT dInvoiceTotal,
             OUTPUT dInvoiceSubTotal,
