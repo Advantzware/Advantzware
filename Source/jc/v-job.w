@@ -465,34 +465,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalcDueDate V-table-Win
 ON CHOOSE OF btnCalcDueDate IN FRAME F-Main
 DO:
-    IF lCalcJobDueDate AND job.due-date:SENSITIVE THEN DO:
-        RUN schedule/calcDueDate.p (
-            "Job",
-            ROWID(job),
-            job.company,
-            OUTPUT dtDueDate,
-            OUTPUT iDueTime
-            ).
-        ASSIGN
-            cCalcDueDateMsg = "Based on Current Capacity" + CHR(10) + CHR(10)
-                            + "Next Available Due Date: "
-                            + STRING(dtDueDate,"99/99/9999") + " @ "
-                            + STRING(iDueTime,"hh:mm:ss am")
-            cCalcDueDateMsg = cCalcDueDateMsg
-                            + IF dtDueDate GT DATE(job.due-date:SCREEN-VALUE) THEN
-                              CHR(10) + CHR(10) + "Calculated Due Date exceeds Current Due Date Value"
-                              ELSE ""
-            cCalcDueDateMsg = cCalcDueDateMsg
-                            + CHR(10) + CHR(10)
-                            + "Use Calculated Due Date?"
-                            .
-        MESSAGE
-            cCalcDueDateMsg
-        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
-        UPDATE lUpdateJoeDueDate AS LOGICAL.
-        IF lUpdateJoeDueDate THEN
-        job.due-date:SCREEN-VALUE = STRING(dtDueDate).
-    END. /* if calc job due date */
+    IF lCalcJobDueDate AND job.due-date:SENSITIVE THEN
+    RUN pCalcDueDate (NO).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1674,7 +1648,7 @@ PROCEDURE local-update-record :
   END.
 
   IF ll-new THEN
-  APPLY "CHOOSE":U TO btnCalcDueDate.
+  RUN pCalcDueDate (YES).
 
   /* re-open the query so when user selects Estimate folder, it shows the new estimate added. */
   IF ll-new THEN DO:  
@@ -1684,6 +1658,53 @@ PROCEDURE local-update-record :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCalcDueDate V-table-Win
+PROCEDURE pCalcDueDate PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplUpdate AS LOGICAL NO-UNDO.
+
+    DO WITH FRAME {&FRAME-NAME}:
+        RUN schedule/calcDueDate.p (
+            "Job",
+            ROWID(job),
+            job.company,
+            OUTPUT dtDueDate,
+            OUTPUT iDueTime
+            ).
+        ASSIGN
+            cCalcDueDateMsg = "Based on Current Capacity" + CHR(10) + CHR(10)
+                            + "Next Available Due Date: "
+                            + STRING(dtDueDate,"99/99/9999") + " @ "
+                            + STRING(iDueTime,"hh:mm:ss am")
+            cCalcDueDateMsg = cCalcDueDateMsg
+                            + IF dtDueDate GT DATE(job.due-date:SCREEN-VALUE) THEN
+                              CHR(10) + CHR(10) + "Calculated Due Date exceeds Current Due Date Value"
+                              ELSE ""
+            cCalcDueDateMsg = cCalcDueDateMsg
+                            + CHR(10) + CHR(10)
+                            + "Use Calculated Due Date?"
+                            .
+        MESSAGE
+            cCalcDueDateMsg
+        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+        UPDATE lUpdateJoeDueDate AS LOGICAL.
+        IF lUpdateJoeDueDate THEN
+        job.due-date:SCREEN-VALUE = STRING(dtDueDate).
+        IF iplUpdate THEN DO TRANSACTION:
+            FIND CURRENT job EXCLUSIVE-LOCK.
+            ASSIGN job.due-date.
+            FIND CURRENT job NO-LOCK.
+        END. /* if iplUpdate */
+    END. /* with frame */
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2146,8 +2167,13 @@ PROCEDURE update-job-mch :
         calcDueDate SKIP 'Update Due Date?'
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
         UPDATE updateDueDate AS LOGICAL.
-      IF updateDueDate THEN job.due-date = calcDueDate.
-      job.start-date = calcStartDate.
+      DO TRANSACTION:
+          FIND CURRENT job EXCLUSIVE-LOCK.
+          IF updateDueDate THEN
+          job.due-date = calcDueDate.
+          job.start-date = calcStartDate.
+          FIND CURRENT job NO-LOCK.
+      END. /* do trans */
     END.
     /* rstark 06241201 */
     
