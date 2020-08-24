@@ -117,10 +117,6 @@ DEFINE SHARED VARIABLE lPrintQtyAll    AS LOGICAL   NO-UNDO .
 DEFINE BUFFER bf-cust FOR cust .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
-
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
-
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -128,12 +124,12 @@ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /
 IF lRecFound AND cRtnChar NE "" THEN 
 DO:
     cRtnChar = DYNAMIC-FUNCTION (
-        "fFormatFilePath" IN hdFileSysProcs,
+        "fFormatFilePath",
         cRtnChar
         ).
                    
     /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile IN hdFileSysProcs (
+    RUN FileSys_ValidateFile(
         INPUT  cRtnChar,
         OUTPUT lValid,
         OUTPUT cMessage
@@ -764,9 +760,6 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     END. /* DO TRANSACTION avail ar-inv */ 
  
 END. /* each report, ar-inv */
-
-IF VALID-HANDLE(hdFileSysProcs) THEN
-    DELETE PROCEDURE hdFileSysProcs.
 
 PROCEDURE pNotes:
 

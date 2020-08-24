@@ -70,7 +70,6 @@ PROCEDURE GetCostForFGItemHist:
     DEFINE OUTPUT PARAMETER oplSourceFound          AS LOGICAL   NO-UNDO.
          
     DEFINE VARIABLE lFound              AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE iPoLine             AS INTEGER   NO-UNDO.
     DEFINE VARIABLE dCostPerUOMTotalDef AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dCostPerUOMDLDef    AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dCostPerUOMFODef    AS DECIMAL   NO-UNDO.
@@ -103,14 +102,13 @@ PROCEDURE GetCostForFGItemHist:
     END.
     IF opdCostPerUOMTotal EQ 0 AND ipiPONo GT 0 THEN 
     DO:
-        iPoLine = MAXIMUM(ipiPoLine, 1).
-        RUN GetCostForPOLine(ipcCompany, ipiPoNo, iPoLine, ipcFGItemID,
+        RUN GetCostForPOLine(ipcCompany, ipiPoNo, ipiPoLine, ipcFGItemID,
             OUTPUT opdCostPerUOMTotal, OUTPUT opcCostUOM, OUTPUT opdCostPerUOMFreight, OUTPUT oplSourceFound).
         IF oplSourceFound THEN 
         DO:
             ASSIGN 
                 opdCostPerUOMDM = opdCostPerUOMTotal            
-                opcCostSource   = "PO: " + STRING(ipiPoNo,"999999") + "-" + STRING(iPoLine)
+                opcCostSource   = "PO: " + STRING(ipiPoNo,"999999") + "-" + STRING(ipiPoLine)
                 .
             IF glIncludeFreight AND opdCostPerUOMTotal NE 0 THEN 
             DO:  /*NK1 POFRT - find original receipt where freight override exists and add it to cost uom*/
@@ -350,7 +348,6 @@ PROCEDURE pGetCostForHistoryRecord PRIVATE:
     DEFINE OUTPUT PARAMETER opcCostUOM AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplFound AS LOGICAL NO-UNDO.
 
-    DEFINE VARIABLE iPOLine AS INTEGER NO-UNDO.
     DEFINE VARIABLE dCostFreight AS DECIMAL NO-UNDO.
     
     opcCostUOM = ipbf-fg-rcpth.pur-uom.
@@ -374,8 +371,7 @@ PROCEDURE pGetCostForHistoryRecord PRIVATE:
             END.
             IF opdCostPerUOMTotal EQ 0 AND INTEGER(ipbf-fg-rcpth.po-no) GT 0 THEN 
             DO:
-                iPoLine = MAXIMUM(ipbf-fg-rcpth.po-line, 1).
-                RUN GetCostForPOLine(ipbf-fg-rcpth.company, INTEGER(ipbf-fg-rcpth.po-no), iPoLine, ipbf-fg-rcpth.i-no,
+                RUN GetCostForPOLine(ipbf-fg-rcpth.company, INTEGER(ipbf-fg-rcpth.po-no), ipbf-fg-rcpth.po-line, ipbf-fg-rcpth.i-no,
                     OUTPUT opdCostPerUOMTotal, OUTPUT opcCostUOM, OUTPUT dCostFreight, OUTPUT oplFound).
                 ASSIGN 
                     opdCostPerUOMDM = opdCostPerUOMTotal.
@@ -593,14 +589,9 @@ PROCEDURE pSetBuffersPO PRIVATE:
         FIND FIRST opbf-po-ordl NO-LOCK
             WHERE opbf-po-ordl.company EQ opbf-po-ord.company
             AND opbf-po-ordl.po-no EQ opbf-po-ord.po-no
-            AND opbf-po-ordl.line EQ ipiPOLine
-            NO-ERROR.
-    IF NOT AVAILABLE opbf-po-ordl THEN
-        FIND FIRST opbf-po-ordl NO-LOCK
-            WHERE opbf-po-ordl.company EQ opbf-po-ord.company
-            AND opbf-po-ordl.po-no EQ opbf-po-ord.po-no
             AND opbf-po-ordl.i-no EQ ipcItemID
             NO-ERROR.
+   
     /*Po-ordl.item-type = NO-> FG, YES->RM*/
     IF AVAILABLE opbf-po-ordl AND opbf-po-ordl.item-type THEN 
         FIND FIRST opbf-item NO-LOCK 
@@ -1009,7 +1000,6 @@ PROCEDURE GetCostForReceipt:
     DEFINE BUFFER b-fg-rdtlh FOR fg-rdtlh.
     
     DEFINE VARIABLE dCostFreight AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE iPOLine      AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cSource      AS CHARACTER NO-UNDO.        
     
     RUN pGetReceiptBuffers(ipcCompany, ipcFGItemID, ipcTag, ipcJobNo, ipiJobNo2, BUFFER b-fg-rcpth, BUFFER b-fg-rdtlh).

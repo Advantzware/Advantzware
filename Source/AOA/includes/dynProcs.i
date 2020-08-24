@@ -105,6 +105,17 @@ ON ROW-DISPLAY OF hQueryBrowse DO:
                 OUTPUT cBufferValue
                 ).
             ELSE
+            IF dynValueColumn.calcFormula NE "" AND
+               INDEX(dynValueColumn.calcFormula,"$") EQ 0 THEN
+            RUN spDynCalcField IN hDynCalcField (
+                hBrowseQuery:HANDLE,
+                "Calculator",
+                dynValueColumn.calcFormula,
+                dynValueColumn.dataType,
+                dynValueColumn.colFormat,
+                OUTPUT cBufferValue
+                ).
+            ELSE
             IF dynValueColumn.calcFormula NE "" THEN
             cBufferValue = cFormula.
             ASSIGN

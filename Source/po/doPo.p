@@ -3969,6 +3969,8 @@ PROCEDURE RevCreateTtEivVend:
     DEFINE INPUT  PARAMETER iplPoBest AS LOGICAL     NO-UNDO.
     DEFINE OUTPUT PARAMETER oprItem AS ROWID         NO-UNDO.
  
+    DEFINE VARIABLE dQtyInVendorUOM AS DECIMAL NO-UNDO.
+    
     DEFINE BUFFER bf-w-job-mat FOR w-job-mat.
     FIND bf-w-job-mat NO-LOCK WHERE ROWID(bf-w-job-mat) EQ iprJobMat
         NO-ERROR.
@@ -4033,16 +4035,19 @@ PROCEDURE RevCreateTtEivVend:
             .        
     END.
     v-index = 0.    
-    FOR EACH vendItemCost NO-LOCK  WHERE vendItemCost.company EQ itemfg.company
+    FOR EACH vendItemCost NO-LOCK  WHERE vendItemCost.company EQ ITEM.company
                     AND vendItemCost.ItemID    EQ item.i-no
                     AND vendItemCost.ItemType EQ "RM" 
                     AND v-wid GE venditemCost.dimWidthMinimum AND v-wid LE venditemCost.dimWidthMaximum
                     AND v-len GE venditemCost.dimlengthMinimum AND v-len LE venditemCost.dimlengthMinimum,
                                                      
         EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
-                                       AND vendItemCostLevel.quantityTo >= bf-w-job-mat.qty 
         BY vendItemCostLevel.vendItemCostLevelID:
-            
+        dQtyInVendorUOM = fGetVendCostQty(bf-w-job-mat.qty, bf-w-job-mat.qty-uom, venditemcost.vendorUom).
+        IF  dQtyInVendorUOM LT venditemcostlevel.quantityfrom
+            OR dQtyInVendorUOM GT venditemcostlevel.quantityto 
+            THEN NEXT.  
+                        
         v-index = v-index + 1.         
         FIND FIRST tt-eiv WHERE tt-eiv.rec_key = vendItemCostLevel.rec_key NO-ERROR.
         IF NOT AVAIL tt-eiv THEN 

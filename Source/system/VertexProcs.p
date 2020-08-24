@@ -17,18 +17,15 @@ USING Progress.Json.ObjectModel.*.
 
 DEFINE VARIABLE oModelParser    AS ObjectModelParser NO-UNDO.
 DEFINE VARIABLE oObject         AS JsonObject        NO-UNDO.
-DEFINE VARIABLE hdFileSysProcs  AS HANDLE            NO-UNDO.
-DEFINE VARIABLE hdOSProcs       AS HANDLE            NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs AS HANDLE            NO-UNDO.
 DEFINE VARIABLE cTempDir        AS CHARACTER         NO-UNDO.
 
+{system/TaxProcs.i}
 {api/ttAPIOutboundEvent.i}
 
-RUN system/OSProcs.p PERSISTENT SET hdOSProcs.
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
-RUN FileSys_GetTempDirectory IN hdFileSysProcs(
+RUN FileSys_GetTempDirectory (
     OUTPUT cTempDir
     ).
     
@@ -187,7 +184,7 @@ PROCEDURE pUpdateAccessToken PRIVATE:
         .
 
     /* execute CURL command with required parameters to call the API */
-    RUN OS_RunCommand IN hdOSProcs (
+    RUN OS_RunCommand (
         INPUT  cCommand,             /* Command string to run */
         INPUT  cResponseFile,        /* File name to write the command output */
         INPUT  TRUE,                 /* Run with SILENT option */
@@ -345,18 +342,54 @@ PROCEDURE pGetTaxAmounts PRIVATE:
  Purpose: Reads the response and returns the tax amounts 
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplcResponseData   AS LONGCHAR  NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.
     DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE jaLineItems      AS JsonArray  NO-UNDO.
     DEFINE VARIABLE jaErrors         AS JsonArray  NO-UNDO.
     DEFINE VARIABLE joErrors         AS JsonObject NO-UNDO.
-    DEFINE VARIABLE iLengthProperty  AS INTEGER    NO-UNDO.
-    DEFINE VARIABLE iCount           AS INTEGER    NO-UNDO.    
+    DEFINE VARIABLE jaLineItems      AS JsonArray  NO-UNDO.
+    DEFINE VARIABLE joLineItem       AS JsonObject NO-UNDO.
+    DEFINE VARIABLE jaLineTaxes      AS JsonArray  NO-UNDO.
+    DEFINE VARIABLE joLineTax        AS JsonObject NO-UNDO.
+    DEFINE VARIABLE joFlexFields     AS JsonObject NO-UNDO.
+    DEFINE VARIABLE jaFlexCodeFields AS JsonArray  NO-UNDO.
+    DEFINE VARIABLE joFlexCodeField  AS JsonObject NO-UNDO.
+    
+    DEFINE VARIABLE iLengthProperty    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCount1            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCount2            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCount3            AS INTEGER   NO-UNDO.    
+    DEFINE VARIABLE iNumLines          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iNumTaxes          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iNumFlexCodeFields AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cInvoiceNo         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iLineNo            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dLineTax           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCalculatedTax     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dEffectiveRate     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTaxable           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cLineType          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLineRecKey        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE isFreight          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE isFreightTaxable   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cFieldID           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFieldValue        AS CHARACTER NO-UNDO.
+    
+    EMPTY TEMP-TABLE tttaxDetail.
+    
+    IF iplcResponseData EQ "" THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Empty response data"
+            .    
+        RETURN.
+    END.
     
     ASSIGN
         oObject = CAST(oModelParser:Parse(INPUT iplcResponseData),JsonObject)
@@ -369,9 +402,9 @@ PROCEDURE pGetTaxAmounts PRIVATE:
         NO-ERROR.
 
     IF NOT ERROR-STATUS:ERROR AND iLengthProperty GT 0 THEN DO:
-        DO iCount = 1 TO iLengthProperty:
+        DO iCount1 = 1 TO iLengthProperty:
             ASSIGN
-                joErrors   = jaErrors:GetJsonObject(iCount)
+                joErrors   = jaErrors:GetJsonObject(iCount1)
                 opcMessage = joErrors:GetJsonText("detail") 
                 NO-ERROR.            
         END.
@@ -383,10 +416,85 @@ PROCEDURE pGetTaxAmounts PRIVATE:
         opdInvoiceTotal    = DECIMAL(oObject:GetJsonText('total'))
         opdInvoiceSubTotal = DECIMAL(oObject:GetJsonText('subTotal'))
         opdTaxTotal        = DECIMAL(oObject:GetJsonText('totalTax'))
-/*        jaLineItems        = oObject:GetJsonArray("lineItems")*/
-/*        iLengthProperty    = jaLineItems:LENGTH               */
+        cInvoiceNo         = oObject:GetJsonText('documentNumber')
+        jaLineItems        = oObject:GetJsonArray("lineItems")
+        iNumLines          = jaLineItems:LENGTH
         NO-ERROR.
-        
+
+    IF NOT ERROR-STATUS:ERROR AND iNumLines GT 0 THEN DO:
+        DO iCount1 = 1 TO iNumLines:            
+            ASSIGN
+                cLineType          = ""
+                cLineRecKey        = ""
+                isFreight          = FALSE
+                isFreightTaxable   = FALSE
+                cLineType          = ""
+                cLineRecKey        = ""
+                joLineItem         = jaLineItems:GetJsonObject(iCount1)
+                iLineNo            = INTEGER(joLineItem:GetJsonText("lineItemNumber")) 
+                dLineTax           = DECIMAL(joLineItem:GetJsonText("totalTax")) 
+                jaLineTaxes        = joLineItem:GetJsonArray("taxes")
+                joFlexFields       = joLineItem:GetJsonObject("flexibleFields")
+                jaFlexCodeFields   = joFlexFields:GetJsonArray("flexibleCodeFields")
+                iNumFlexCodeFields = jaFlexCodeFields:LENGTH
+                iNumTaxes          = jaLineTaxes:LENGTH
+                NO-ERROR.
+
+            DO iCount2 = 1 TO iNumFlexCodeFields:
+                joFlexCodeField = jaFlexCodeFields:GetjsonObject(iCount2) NO-ERROR.
+                
+                ASSIGN
+                    cFieldID    = joFlexCodeField:GetJsonText("fieldId")
+                    cFieldValue = joFlexCodeField:GetJsonText("value")
+                    NO-ERROR.
+
+                IF cFieldID EQ "6" THEN
+                    isFreight = LOGICAL(joFlexCodeField:GetJsonText("value"),"FREIGHT/").
+
+                IF cFieldID EQ "7" THEN
+                    isFreightTaxable = LOGICAL(joFlexCodeField:GetJsonText("value"),"FREIGHTTAXABLE/").
+                
+                /* We are sending line type (ar-inv(ARINV), inv-line(INVLINE) or inv-misc(INVMISC) to identify the 
+                   returned value */
+                IF cFieldID EQ "8" THEN
+                    cLineType = joFlexCodeField:GetJsonText("value").
+                
+                /* Reckey of the line record that is calculated */
+                IF cFieldID EQ "9" THEN
+                    cLineRecKey = joFlexCodeField:GetJsonText("value"). 
+            END.
+            
+            DO iCount3 = 1 TO iNumTaxes:
+                ASSIGN
+                    joLineTax      = jaLinetaxes:GetJsonObject(iCount3)
+                    dCalculatedTax = DECIMAL(joLineTax:GetJsonText("calculatedTax"))
+                    dEffectiveRate = DECIMAL(joLineTax:GetJsonText("effectiveRate"))
+                    dTaxable       = DECIMAL(joLineTax:GetJsonText("taxable"))
+                    NO-ERROR.
+                
+                CREATE ttTaxDetail.
+                ASSIGN
+                    ttTaxDetail.company                = ipcCompany
+                    ttTaxDetail.invoiceNo              = INTEGER(cInvoiceNo)
+                    ttTaxDetail.invoiceLineType        = cLineType
+                    ttTaxDetail.invoiceLineRecKey      = cLineRecKey
+                    ttTaxDetail.taxLine                = iLineNo
+                    ttTaxDetail.taxGroup               = ""
+                    ttTaxDetail.taxGroupLine           = iCount3
+                    ttTaxDetail.isFreight              = isFreight
+                    ttTaxDetail.isTaxOnFreight         = isFreightTaxable                    
+                    ttTaxDetail.taxGroupTaxAmountLimit = 0
+                    ttTaxDetail.taxCode                = ""
+                    ttTaxDetail.taxCodeDescription     = ""
+                    ttTaxDetail.taxCodeRate            = dEffectiveRate
+                    ttTaxDetail.taxCodeAccount         = ""
+                    ttTaxDetail.taxCodeTaxAmount       = dCalculatedTax
+                    ttTaxDetail.taxCodeTaxableAmount   = dTaxable
+                    .
+            END.
+        END.
+    END. 
+
     ASSIGN
         oplSuccess = TRUE 
         opcMessage = "Success"
@@ -407,6 +515,7 @@ PROCEDURE Vertex_CalculateTaxForInvHead:
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.
     DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
     
@@ -432,7 +541,7 @@ PROCEDURE Vertex_CalculateTaxForInvHead:
     
     ASSIGN
         cInputListKeys   = "inv-head" + "," + "MessageType" + "," + "PostToJournal"
-        cInputListValues = STRING(ROWID(bf-inv-head)) + "," + "INVOICE" + "," + STRING(iplPostToJournal,"true/false")
+        cInputListValues = STRING(ROWID(bf-inv-head)) + "," + ipcMessageType + "," + STRING(iplPostToJournal,"true/false")
         .
 
     RUN pCallOutboundAPI (
@@ -470,10 +579,12 @@ PROCEDURE Vertex_CalculateTaxForInvHead:
             lcResponseData = bf-APIOutboundEvent.responseData.
 
             RUN pGetTaxAmounts (
+                INPUT  bf-inv-head.company,
                 INPUT  lcResponseData,
                 OUTPUT opdInvoiceTotal,
                 OUTPUT opdInvoiceSubTotal,
                 OUTPUT opdTaxTotal,
+                OUTPUT TABLE ttTaxDetail,
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage               
                 ).
@@ -494,6 +605,7 @@ PROCEDURE Vertex_CalculateTaxForArInv:
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.
     DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
     
@@ -519,7 +631,7 @@ PROCEDURE Vertex_CalculateTaxForArInv:
 
     ASSIGN
         cInputListKeys   = "ar-inv" + "," + "MessageType" + "," + "PostToJournal"
-        cInputListValues = STRING(ROWID(bf-ar-inv)) + "," + "INVOICE" + "," + STRING(iplPostToJournal,"true/false")
+        cInputListValues = STRING(ROWID(bf-ar-inv)) + "," + ipcMessageType + "," + STRING(iplPostToJournal,"true/false")
         .
     
     RUN pCallOutboundAPI (
@@ -557,10 +669,12 @@ PROCEDURE Vertex_CalculateTaxForArInv:
             lcResponseData = bf-APIOutboundEvent.responseData.
 
             RUN pGetTaxAmounts (
+                INPUT  bf-ar-inv.company,            
                 INPUT  lcResponseData,
                 OUTPUT opdInvoiceTotal,
                 OUTPUT opdInvoiceSubTotal,
                 OUTPUT opdTaxTotal,
+                OUTPUT TABLE ttTaxDetail,
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage               
                 ).

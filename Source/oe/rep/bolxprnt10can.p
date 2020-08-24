@@ -112,9 +112,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE SHARED VAR v-print-unassembled AS LOG NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
 
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 /*ASSIGN
    ls-image1 = "images\Lovepac_logo.jpg"
    FILE-INFO:FILE-NAME = ls-image1
@@ -125,12 +123,12 @@ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound AND cRtnChar NE "" THEN DO:
     cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath" IN hdFileSysProcs,
+                   "fFormatFilePath",
                    cRtnChar
                    ).
                    
     /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile IN hdFileSysProcs (
+    RUN FileSys_ValidateFile(
         INPUT  cRtnChar,
         OUTPUT lValid,
         OUTPUT cMessage
@@ -451,9 +449,6 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
   oe-bolh.printed = yes.
 end. /* for each oe-bolh */
-
-IF VALID-HANDLE(hdFileSysProcs) THEN
-    DELETE PROCEDURE hdFileSysProcs.
 
 PROCEDURE PrintBarTag:
    DEF VAR iBarLine AS INT NO-UNDO.

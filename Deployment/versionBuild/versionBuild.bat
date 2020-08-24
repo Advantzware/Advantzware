@@ -78,7 +78,10 @@ DEL /S /Q C:%patchDir%\Documentation\DBDict\* >> %vlog%
 RMDIR /S /Q C:%patchDir%\Documentation\DBDict >> %vlog%
 MKDIR C:%patchDir%\Documentation\DBDict >> %vlog%
 DEL /S /Q C:%patchDir%\DataFiles\* >> %vlog%
+XCOPY C:%patchDir%\Structure\DFFiles\audEmp* C:%patchDir%\Structure /E /S /H /C /I >> %vlog%
 DEL /S /Q C:%patchDir%\Structure\DFFiles\* >> %vlog%
+XCOPY C:%patchDir%\Structure\audEmp* C:%patchDir%\Structure\DFFiles /E /S /H /C /I >> %vlog%
+DEL /S /Q C:%patchDir%\Structure\audEmp* >> %vlog%
 DEL /Q C:%patchDir%\patch.mft >> %vlog%
 ECHO patchVer=%cNewVer% > C:%patchDir%\patch.mft
 ECHO asiDbVer=%cNewVer% >> C:%patchDir%\patch.mft
@@ -327,7 +330,7 @@ ECHO Building HTML data dictionary
 ECHO Building HTML data dictionary >> %blog%
 ECHO Building HTML data dictionary >> %vlog%
 CD %buildDir%
-CALL %DLCBIN%\prowin.exe -basekey "INI" -ininame versionBuild.ini -pf versionBuildBOTHDB.pf -p HtmlDict.w -param "ShowHtml=false OutputDirectory=C:\asigui\Upgrades\PATCH%cNewVer%\Documentation\HTMLDict Autorun=true"
+CALL %DLCBIN%\prowin.exe -basekey "INI" -ininame versionBuild.ini -pf versionBuildBOTHDB.pf -p HtmlDict.w -param "ShowHtml=false OutputDirectory=C:\asigui\Upgrades\PATCH%cNewVer%\Documentation\DBDict Autorun=true"
 ECHO   HTML Dictionary generation complete
 ECHO   HTML Dictionary generation complete >> %blog%
 ECHO   HTML Dictionary generation complete >> %vlog%
@@ -382,7 +385,7 @@ ECHO Updating repository files
 ECHO Updating repository files >> %blog%
 ECHO Updating repository files >> %vlog%
 MKDIR C:\asigui\Repositories\Advantzware\Deployment\SchemaChanges\%iCurVer%00 >> %vlog% 2>> %elog%
-XCOPY C:\asigui\Repositories\Advantzware\Deployment\Patch\Structure\DFFiles\* C:\asigui\Repositories\Deployment\SchemaChanges\%iCurVer%00 /E /S /H /C /I /Y >> %vlog%
+XCOPY C:\asigui\Repositories\Advantzware\Deployment\Patch\Structure\DFFiles\* C:\asigui\Repositories\Advantzware\Deployment\SchemaChanges\%iCurVer%00 /E /S /H /C /I /Y >> %vlog%
 DEL /S /Q C:\Asigui\Repositories\Advantzware\Deployment\Patch\Structure\DFFiles\*.* >> %vlog%
 XCOPY C:%patchDir%\Admin\* C:\asigui\Repositories\Advantzware\Deployment\Patch\Admin /E /S /H /C /I /Y >> %vlog%
 XCOPY C:%patchDir%\DataFiles\* C:\asigui\Repositories\Advantzware\Deployment\Patch\DataFiles /E /S /H /C /I /Y >> %vlog%

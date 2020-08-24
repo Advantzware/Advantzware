@@ -81,7 +81,6 @@ DEF VAR ll-new-due AS LOG NO-UNDO.
 DEF VAR lv-type-codes AS CHAR NO-UNDO.
 DEF VAR lv-type-dscrs AS CHAR NO-UNDO.
 DEF VAR K_FRAC AS DEC INIT 6.25 NO-UNDO.
-DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 
 DEFINE VARIABLE prodDateChanged AS LOGICAL NO-UNDO.
 DEFINE VARIABLE dueDateChanged AS LOGICAL NO-UNDO.
@@ -601,10 +600,12 @@ PROCEDURE create-misc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-recid AS RECID NO-UNDO.
-  DEF VAR li-line AS INT NO-UNDO.
-  DEF VAR v-tax-rate AS DEC FORM ">,>>9.99<<<" NO-UNDO.
-  DEF VAR v-frt-tax-rate LIKE v-tax-rate NO-UNDO.
+  DEFINE INPUT PARAMETER ip-recid AS RECID NO-UNDO.
+  
+  DEFINE VARIABLE li-line         AS INTEGER NO-UNDO.
+  DEFINE VARIABLE v-tax-rate      AS DECIMAL FORM ">,>>9.99<<<" NO-UNDO.
+  DEFINE VARIABLE v-frt-tax-rate  LIKE v-tax-rate NO-UNDO.
+  DEFINE VARIABLE dTaxCalculated  AS DECIMAL NO-UNDO INIT 0.
   DEF BUFFER bf-eb FOR eb .
   
   FIND bf-eb WHERE RECID(bf-eb) = ip-recid NO-LOCK NO-ERROR.
@@ -616,7 +617,6 @@ PROCEDURE create-misc :
         AND cust.cust-no = oe-ord.cust-no
       NO-ERROR.
       
-  RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
   FOR EACH est-prep WHERE est-prep.company = g_company
                       AND est-prep.est-no = bf-eb.est-no
                       AND est-prep.simon = "S" 
@@ -656,20 +656,26 @@ PROCEDURE create-misc :
          IF PrepTax-log THEN 
             ASSIGN oe-ordm.spare-char-1 = oe-ord.tax-gr.
                    .  
-         RUN ar/cctaxrt.p (INPUT g_company, oe-ord.tax-gr,
-                            OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
 
          IF AVAIL cust THEN DO:
            FIND CURRENT cust.
-           cust.ord-bal = cust.ord-bal + oe-ordm.amt +
-                          (IF oe-ordm.tax THEN (oe-ordm.amt * v-tax-rate / 100) ELSE 0).            
+           RUN Tax_Calculate (
+                INPUT  oe-ord.company,
+                INPUT  oe-ord.tax-gr,
+                INPUT  FALSE,   /* Is this freight */
+                INPUT  oe-ordm.amt,
+                INPUT  "",
+                OUTPUT dTaxCalculated
+                ).
+           cust.ord-bal = cust.ord-bal + oe-ordm.amt + dTaxCalculated
+                          /*(IF oe-ordm.tax THEN (oe-ordm.amt * v-tax-rate / 100) ELSE 0)*/.            
            FIND CURRENT cust NO-LOCK.
          END.
       END.
 
       FIND CURRENT oe-ordm NO-LOCK.
   END.
-  DELETE OBJECT hdTaxProcs.
+  
   FOR EACH ef OF bf-eb /*where ef.company = g_company and
                     ef.est-no = oe-ord.est-no */
                     NO-LOCK:
@@ -706,13 +712,18 @@ PROCEDURE create-misc :
                    oe-ordm.form-no = ef.form-no 
                    oe-ordm.blank-no = bf-eb.blank-no  .
 
-            RUN ar/cctaxrt.p (INPUT g_company, oe-ord.tax-gr,
-                              OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
-
             IF AVAIL cust THEN DO:
               FIND CURRENT cust.
-              cust.ord-bal = cust.ord-bal + oe-ordm.amt +
-                             (IF oe-ordm.tax THEN (oe-ordm.amt * v-tax-rate / 100) ELSE 0).
+              RUN Tax_Calculate (
+                  INPUT  oe-ord.company,
+                  INPUT  oe-ord.tax-gr,
+                  INPUT  FALSE,   /* Is this freight */
+                  INPUT  oe-ordm.amt,
+                  INPUT  "",
+                  OUTPUT dTaxCalculated
+                  ).
+              cust.ord-bal = cust.ord-bal + oe-ordm.amt + dTaxCalculated
+                             /*(IF oe-ordm.tax THEN (oe-ordm.amt * v-tax-rate / 100) ELSE 0)*/.
               FIND CURRENT cust NO-LOCK.
             END.
 
@@ -3097,7 +3108,7 @@ FUNCTION fGetTaxable RETURNS LOGICAL
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
+    RUN Tax_GetTaxableMisc  (ipcCompany, ipcCust, ipcShipto, OUTPUT lTaxable).  
     FIND FIRST prep NO-LOCK WHERE 
         prep.company EQ oe-ordm.company AND 
         prep.code    EQ oe-ordm.charge

@@ -39,10 +39,7 @@ DEF {&NEW} SHARED VAR g_lookup-var AS cha NO-UNDO.
 {oe/oe-sysct1.i NEW}
 
 DEFINE VARIABLE ll-inquiry AS LOGICAL NO-UNDO.
-DEFINE VARIABLE hdTaxProcs AS HANDLE  NO-UNDO.
-DEFINE VARIABLE lTaxable   AS LOGICAL NO-UNDO.   
-
-RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs. 
+DEFINE VARIABLE lTaxable   AS LOGICAL NO-UNDO. 
        
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -706,9 +703,6 @@ DO:
 
     FIND CURRENT ar-invl NO-LOCK NO-ERROR.
     ip-rowid = ROWID(ar-invl).
-
-    IF VALID-HANDLE(hdTaxProcs) THEN 
-        DELETE PROCEDURE hdTaxProcs.
     
     APPLY "GO":U TO FRAME {&FRAME-NAME}.
 
@@ -795,7 +789,7 @@ DO:
            IF DECIMAL(ar-invl.inv-qty:SCREEN-VALUE) NE 0.00 THEN 
                RUN pCalcAmtMsf.
                
-           RUN GetTaxableAR IN hdTaxProcs (
+           RUN Tax_GetTaxableAR  (
                 INPUT  ar-inv.company,
                 INPUT  ar-inv.cust-no,
                 INPUT  ar-inv.ship-id,
@@ -1270,7 +1264,7 @@ PROCEDURE get-iteminfo :
            IF DECIMAL(ar-invl.inv-qty:SCREEN-VALUE) NE 0.00 THEN 
                RUN pCalcAmtMsf.
                     
-           RUN GetTaxableAR IN hdTaxProcs (
+           RUN Tax_GetTaxableAR  (
                 INPUT  ar-inv.company,
                 INPUT  ar-inv.cust-no,
                 INPUT  ar-inv.ship-id,

@@ -54,6 +54,8 @@ DEFINE TEMP-TABLE ttCloseRecord
     FIELD CloseStatusNew LIKE oe-ord.stat
     FIELD Reason AS CHAR FORMAT "x(60)"
     .
+    
+DEFINE STREAM excel.    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -93,10 +95,11 @@ DEFINE TEMP-TABLE ttCloseRecord
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS cboLookupType company begin_order end_order ~
-begin_cust end_cust tbIncludeClosed tbDiffOnly btnGo BROWSE-1 btnUpdate ~
-btnDon 
+begin_cust end_cust tbIncludeClosed tbAutoClose fi_file tbDiffOnly tb_excel ~
+btnGo BROWSE-1 btnUpdate btnDon 
 &Scoped-Define DISPLAYED-OBJECTS cboLookupType company begin_order ~
-end_order begin_cust end_cust tbIncludeClosed tbDiffOnly 
+end_order begin_cust end_cust tbIncludeClosed tbAutoClose fi_file ~
+tbDiffOnly tb_excel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -130,7 +133,7 @@ DEFINE VARIABLE cboLookupType AS CHARACTER FORMAT "X(256)":U INITIAL "Order Line
      DROP-DOWN-LIST
      SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)":U 
      LABEL "Beginning Customer#" 
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
@@ -145,7 +148,7 @@ DEFINE VARIABLE company AS CHARACTER FORMAT "X(6)":U INITIAL "001"
      VIEW-AS FILL-IN 
      SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzz" 
      LABEL "Ending Customer#" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
@@ -155,15 +158,31 @@ DEFINE VARIABLE end_order AS INTEGER FORMAT ">>>>>>":U INITIAL 999999
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\Order_Status_Tester.csv" 
+     LABEL "If Yes, File Name" 
+     VIEW-AS FILL-IN 
+     SIZE 41 BY 1
+     FGCOLOR 9 .
+
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18.4 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tbDiffOnly AS LOGICAL INITIAL no 
      LABEL "Only Show Differences" 
      VIEW-AS TOGGLE-BOX
-     SIZE 39 BY .81 NO-UNDO.
+     SIZE 27 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tbIncludeClosed AS LOGICAL INITIAL no 
      LABEL "Include Closed Orders" 
      VIEW-AS TOGGLE-BOX
-     SIZE 39 BY .81 NO-UNDO.
+     SIZE 27 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL no 
+     LABEL "Export To Excel?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -200,7 +219,11 @@ DEFINE FRAME wOrdStatTest
      end_cust AT ROW 4.86 COL 65 COLON-ALIGNED HELP
           "Enter Ending Customer Number" WIDGET-ID 30
      tbIncludeClosed AT ROW 6.29 COL 26 WIDGET-ID 34
+     tbAutoClose AT ROW 6.29 COL 55.6 WIDGET-ID 44
+     fi_file AT ROW 7.14 COL 94 COLON-ALIGNED HELP
+          "Enter File Name" WIDGET-ID 40
      tbDiffOnly AT ROW 7.24 COL 26 WIDGET-ID 26
+     tb_excel AT ROW 7.29 COL 75.6 RIGHT-ALIGNED WIDGET-ID 42
      btnGo AT ROW 8.38 COL 47 WIDGET-ID 10
      BROWSE-1 AT ROW 9.81 COL 5 WIDGET-ID 200
      btnUpdate AT ROW 19.1 COL 47 WIDGET-ID 38
@@ -243,6 +266,16 @@ DEFINE FRAME wOrdStatTest
 ASSIGN 
        FRAME wOrdStatTest:SCROLLABLE       = FALSE
        FRAME wOrdStatTest:HIDDEN           = TRUE.
+
+ASSIGN 
+       fi_file:PRIVATE-DATA IN FRAME wOrdStatTest     = 
+                "parm".
+
+/* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME wOrdStatTest
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_excel:PRIVATE-DATA IN FRAME wOrdStatTest     = 
+                "parm".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -311,7 +344,7 @@ END.
 ON CHOOSE OF btnGo IN FRAME wOrdStatTest /* Show Results */
 DO:
     ASSIGN cboLookupType company begin_order end_order begin_cust end_cust 
-          tbIncludeClosed tbDiffOnly .
+          tbIncludeClosed tbDiffOnly tbAutoClose fi_file .
     
     CASE cboLookupType:
         WHEN "Order Headers" THEN
@@ -321,6 +354,9 @@ DO:
         OTHERWISE
             RUN TestOrderLine.
     END CASE.
+    
+    IF tb_excel THEN
+    RUN pRunReport .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -332,7 +368,7 @@ END.
 ON CHOOSE OF btnUpdate IN FRAME wOrdStatTest /* Close Open Orders If New Status = C */
 DO:
     ASSIGN cboLookupType company begin_order end_order begin_cust end_cust 
-          tbIncludeClosed tbDiffOnly .
+          tbIncludeClosed tbDiffOnly tbAutoClose.
     IF NOT CAN-FIND(FIRST ttCloseRecord) THEN
         MESSAGE "No orders listed.  Hit Show Results button first."
             VIEW-AS ALERT-BOX INFO BUTTONS OK.
@@ -394,6 +430,28 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file wOrdStatTest
+ON LEAVE OF fi_file IN FRAME wOrdStatTest /* If Yes, File Name */
+DO:
+     assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tbAutoClose
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbAutoClose wOrdStatTest
+ON VALUE-CHANGED OF tbAutoClose IN FRAME wOrdStatTest /* Auto Close? */
+DO:
+    ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tbDiffOnly
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbDiffOnly wOrdStatTest
 ON VALUE-CHANGED OF tbDiffOnly IN FRAME wOrdStatTest /* Only Show Differences */
@@ -410,6 +468,17 @@ END.
 ON VALUE-CHANGED OF tbIncludeClosed IN FRAME wOrdStatTest /* Include Closed Orders */
 DO:
     ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_excel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel wOrdStatTest
+ON VALUE-CHANGED OF tb_excel IN FRAME wOrdStatTest /* Export To Excel? */
+DO:
+  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -474,10 +543,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY cboLookupType company begin_order end_order begin_cust end_cust 
-          tbIncludeClosed tbDiffOnly 
+          tbIncludeClosed tbAutoClose fi_file tbDiffOnly tb_excel 
       WITH FRAME wOrdStatTest.
   ENABLE cboLookupType company begin_order end_order begin_cust end_cust 
-         tbIncludeClosed tbDiffOnly btnGo BROWSE-1 btnUpdate btnDon 
+         tbIncludeClosed tbAutoClose fi_file tbDiffOnly tb_excel btnGo BROWSE-1 
+         btnUpdate btnDon 
       WITH FRAME wOrdStatTest.
   VIEW FRAME wOrdStatTest.
   {&OPEN-BROWSERS-IN-QUERY-wOrdStatTest}
@@ -496,13 +566,6 @@ PROCEDURE TestOrderHeader :
 
 EMPTY TEMP-TABLE ttCloseRecord.
 
-MESSAGE cocode SKIP
-    begin_order SKIP
-    END_order SKIP
-    begin_cust SKIP
-    END_cust
-    VIEW-AS ALERT-BOX INFO BUTTONS OK.
-
 FOR EACH oe-ord
     WHERE oe-ord.company EQ company
       AND oe-ord.ord-no GE begin_order
@@ -511,6 +574,8 @@ FOR EACH oe-ord
       AND oe-ord.cust-no LE end_cust
       AND (tbIncludeClosed OR oe-ord.stat NE 'C')
     NO-LOCK:
+    
+    {custom/statusMsg.i " 'Processing Order#  '  + string(oe-ord.ord-no) "} 
     CREATE ttCloseRecord.
     RUN oe/CloseOrder.p(INPUT ROWID(oe-ord),
                         INPUT NO,
@@ -524,8 +589,14 @@ FOR EACH oe-ord
     IF tbDiffOnly 
         AND ttCloseRecord.CloseStatusCurrent EQ ttCloseRecord.CloseStatusNew THEN
         DELETE ttCloseRecord.
+        
+    IF tbAutoClose AND AVAIL ttCloseRecord AND ttCloseRecord.CloseStatusNew EQ "C" THEN
+    DO:
+       RUN oe\close.p(RECID(oe-ord), YES).         
+    END.    
 
 END.
+STATUS DEFAULT "".
 {&CLOSE-QUERY-BROWSE-1}   
 {&OPEN-QUERY-BROWSE-1}
 
@@ -542,7 +613,7 @@ PROCEDURE TestOrderLine :
   Notes:       
 ------------------------------------------------------------------------------*/
 EMPTY TEMP-TABLE ttCloseRecord.
-
+           
 FOR EACH oe-ordl
     WHERE oe-ordl.company EQ company
       AND oe-ordl.ord-no GE begin_order
@@ -550,13 +621,17 @@ FOR EACH oe-ordl
       AND oe-ordl.cust-no GE begin_cust
       AND oe-ordl.cust-no LE end_cust
       AND (tbIncludeClosed OR oe-ordl.stat NE 'C')
-    NO-LOCK:
+    NO-LOCK:       
+    
+    {custom/statusMsg.i " 'Processing Order#  '  + string(oe-ordl.ord-no) "} 
+    
     CREATE ttCloseRecord.
     RUN oe/CloseOrder.p(INPUT ROWID(oe-ordl),
                         INPUT NO,
                         OUTPUT ttCloseRecord.CloseStatusNew,
                         OUTPUT ttCloseRecord.Reason).
     ASSIGN 
+            ttCloseRecord.RecordRowID = ROWID(oe-ordl)
             ttCloseRecord.OrderNumber = oe-ordl.ord-no
             ttCloseRecord.ItemNumber = oe-ordl.i-no
             ttCloseRecord.CloseStatusCurrent = oe-ordl.stat
@@ -564,8 +639,14 @@ FOR EACH oe-ordl
     IF tbDiffOnly 
         AND ttCloseRecord.CloseStatusCurrent EQ ttCloseRecord.CloseStatusNew THEN
         DELETE ttCloseRecord.
+        
+    IF tbAutoClose AND AVAIL ttCloseRecord AND ttCloseRecord.CloseStatusNew EQ "C" THEN
+    DO:
+       RUN oe/closelin.p (INPUT ROWID(oe-ordl),YES).         
+    END.
 
 END.
+STATUS DEFAULT "".
 {&CLOSE-QUERY-BROWSE-1}   
 {&OPEN-QUERY-BROWSE-1}
 END PROCEDURE.
@@ -582,16 +663,17 @@ PROCEDURE UpdateOrderHeader :
 ------------------------------------------------------------------------------*/
 FOR EACH ttCloseRecord
     NO-LOCK:
+    
+    {custom/statusMsg.i " 'Processing Order#  '  + string(ttCloseRecord.OrderNumber) "}  
+    
     FIND FIRST oe-ord WHERE ROWID(oe-ord) EQ ttCloseRecord.RecordRowID NO-LOCK NO-ERROR.
     IF AVAIL oe-ord 
         AND oe-ord.stat NE "C" 
-        AND ttCloseRecord.CloseStatusCurrent EQ "C" THEN
-        RUN oe/CloseOrder.p(INPUT ROWID(oe-ord),
-                            INPUT YES,
-                            OUTPUT ttCloseRecord.CloseStatusNew,
-                            OUTPUT ttCloseRecord.Reason).
+        AND ttCloseRecord.CloseStatusNew EQ "C" THEN 
+          RUN oe\close.p(RECID(oe-ord), YES).
     
 END.
+STATUS DEFAULT "Processing Complete".
 {&CLOSE-QUERY-BROWSE-1}   
 {&OPEN-QUERY-BROWSE-1}
 END PROCEDURE.
@@ -608,18 +690,52 @@ PROCEDURE UpdateOrderLine :
 ------------------------------------------------------------------------------*/
 FOR EACH ttCloseRecord
     NO-LOCK:
+    
+    {custom/statusMsg.i " 'Processing Order#  '  + string(ttCloseRecord.OrderNumber) "}
+    
     FIND FIRST oe-ordl WHERE ROWID(oe-ordl) EQ ttCloseRecord.RecordRowID NO-LOCK NO-ERROR.
     IF AVAIL oe-ordl 
         AND oe-ordl.stat NE "C" 
-        AND ttCloseRecord.CloseStatusCurrent EQ "C" THEN
-        RUN oe/CloseOrder.p(INPUT ROWID(oe-ordl),
-                            INPUT YES,
-                            OUTPUT ttCloseRecord.CloseStatusNew,
-                            OUTPUT ttCloseRecord.Reason).
+        AND ttCloseRecord.CloseStatusNew EQ "C" THEN
+         RUN oe/closelin.p (INPUT ROWID(oe-ordl),YES).
     
 END.
+STATUS DEFAULT "Processing Complete".
 {&CLOSE-QUERY-BROWSE-1}   
 {&OPEN-QUERY-BROWSE-1}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunReport wOrdStatTest 
+PROCEDURE pRunReport :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+  DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+
+  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
+  excelheader = "Order#,FG Item#,Old,New,Reason".
+
+   OUTPUT STREAM excel TO VALUE(cFileName).
+   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.     
+
+    FOR EACH ttCloseRecord
+        NO-LOCK:
+        EXPORT STREAM excel DELIMITER ","
+                ttCloseRecord.OrderNumber
+                ttCloseRecord.ItemNumber
+                ttCloseRecord.CloseStatusCurrent 
+                ttCloseRecord.CloseStatusNew 
+                ttCloseRecord.Reason            
+                SKIP.         
+    END.
+    OUTPUT STREAM excel CLOSE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

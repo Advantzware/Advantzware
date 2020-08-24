@@ -55,6 +55,28 @@ PROCEDURE Customer_GetDefaultShipTo:
         opriShipTo = ROWID(shipto).
 END PROCEDURE.
 
+PROCEDURE Customer_GetNextShipToNo:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the next shipto id for the given company and customer
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustNo  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiShipNo  AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-shipto FOR shipto.
+    
+    opiShipNo = 1.
+    
+    FIND LAST bf-shipto NO-LOCK 
+        WHERE bf-shipto.company EQ ipcCompany
+          AND bf-shipto.cust-no EQ ipcCustNo 
+        USE-INDEX ship-no
+        NO-ERROR.
+    IF AVAILABLE bf-shipto THEN 
+        opiShipNo = bf-shipto.ship-no + 1.
+END PROCEDURE.
+
 PROCEDURE Customer_IsActiveShipToAvailable:
 /*------------------------------------------------------------------------------
  Purpose:

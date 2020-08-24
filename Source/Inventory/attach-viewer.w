@@ -53,16 +53,12 @@ DEFINE TEMP-TABLE ttAttachments NO-UNDO
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE hdFileSysProcs   AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hdOSProcs        AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation        AS CHARACTER NO-UNDO.
 
 {inventory/ttInventory.i "NEW SHARED"}
 
-RUN system/FileSysProcs.p    PERSISTENT SET hdFileSysProcs.
-RUN system/OSProcs.p         PERSISTENT SET hdOSProcs.
 RUN inventory/InventoryProcs PERSISTENT SET hdInventoryProcs.
 
 /* _UIB-CODE-BLOCK-END */
@@ -274,12 +270,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
 ON WINDOW-CLOSE OF W-Win /* Job Attachment Viewer */
 DO:
-    IF VALID-HANDLE(hdFileSysProcs) THEN
-        DELETE PROCEDURE hdFileSysProcs.
-
-    IF VALID-HANDLE(hdOSProcs) THEN
-        DELETE PROCEDURE hdOSProcs.
-
     IF VALID-HANDLE(hdInventoryProcs) THEN
         DELETE PROCEDURE hdInventoryProcs.
             
@@ -297,12 +287,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btExit W-Win
 ON CHOOSE OF btExit IN FRAME F-Main /* Exit */
 DO:
-    IF VALID-HANDLE(hdFileSysProcs) THEN
-        DELETE PROCEDURE hdFileSysProcs.
-
-    IF VALID-HANDLE(hdOSProcs) THEN
-        DELETE PROCEDURE hdOSProcs.
-
     IF VALID-HANDLE(hdInventoryProcs) THEN
         DELETE PROCEDURE hdInventoryProcs.
 
@@ -387,7 +371,7 @@ DO:
     
             iSequence = iSequence + 1.
     
-            RUN FileSys_ValidateFile IN hdFileSysProcs (
+            RUN FileSys_ValidateFile(
                 INPUT  attach.attach-file,
                 OUTPUT lValidFile,
                 OUTPUT cMessage
@@ -789,7 +773,7 @@ PROCEDURE pImageClicked :
     END.
     
     /* Command to open file with window default option */       
-    RUN OS_RunFile IN hdOSProcs (
+    RUN OS_RunFile (
         INPUT  ttAttachments.ttAttachFile,
         OUTPUT lSuccess,
         OUTPUT cMessage

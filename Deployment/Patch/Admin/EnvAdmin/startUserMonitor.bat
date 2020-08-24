@@ -1,16 +1,25 @@
 @ECHO OFF
-REM This a template for a batch script that allows automated log in into advantzware envronments
+:: This a template for a batch script that allows automated log in into advantzware environments
+:: This version of the template allows one-click running of ASI monitor programs
+:: This program CAN NOT be scheduled to run on Computer Startup in Task Scheduler
 
-REM Check advantzware.ini for variable defaults
-CALL ..\getSysVars.bat
-REM Do this AFTER you get the system variables
-SETLOCAL ENABLEDELAYEDEXPANSION
+:: UNCOMMENT the appropriate line for this monitor
+::SET MonitorName=cXMLMonitor&SET Mode=cXML Monitor
+::SET MonitorName=eskoMonitor&SET Mode=Esko Monitor
+::SET MonitorName=fgXmlMonitor&SET Mode=FG XML Monitor
+::SET MonitorName=relXmlMonitor&SET Mode=Rel XML Monitor
+::SET MonitorName=rfidMonitor&SET Mode=RFID Monitor
+::SET MonitorName=rmAsnTagMonitor&SET Mode=RM ASN Tag
+::SET MonitorName=scheduleMonitor&SET Mode=ScheduleMonitor
+::SET MonitorName=taskMonitor&SET Mode=TaskMonitor
+SET MonitorName=userMonitor&SET Mode=AutoLogout
 
-SET DLC=%DLCDir%
-!Drive!
-CD \!topDir!\!adminDir!\!envAdmin!
-START !DLC!\bin\prowin -basekey INI -ininame dbms.ini -pf advantzware.pf -p asiLogin.w -param %1
+:: UNCOMMENT to select the appropriate Environment and DB name
+SET environment=Prod&SET dbName=asiProd
+::SET environment=Test&SET dbName=asiTest
+::SET environment=devel&SET dbName=TESTDEVELd
 
-GOTO :EXIT
+CD /D %~dp0
+CALL startGenericMonitor.bat
+EXIT
 
-:EXIT

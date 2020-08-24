@@ -41,7 +41,6 @@ DEFINE VARIABLE v-ship-addr3    AS CHARACTER FORMAT "x(30)" NO-UNDO.
 DEFINE VARIABLE v-job-no        AS CHARACTER INIT "" NO-UNDO.
 DEFINE VARIABLE lValid          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdFileSysProcs  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iOrderTotal     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iShippedTotal   AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cCustomerPo     AS CHARACTER   NO-UNDO.
@@ -287,9 +286,5 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       
 /* end.*/
 END.
-
-
-IF VALID-HANDLE(hdFileSysProcs) THEN
-    DELETE PROCEDURE hdFileSysProcs.
 
 /* END ---------------------------------- copr. 1998  Advanced Software, Inc. */

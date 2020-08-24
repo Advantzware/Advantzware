@@ -47,7 +47,7 @@ PROCEDURE pGetChildren PRIVATE:
         ttNodes.nodeName    = iphdParent:NAME 
         ttNodes.parentName  = ipcParentName
         ttNodes.parentOrder = ipiParentOrder
-        ttNodes.nodeType    = iphdParent:SUBTYPE 
+        ttNodes.nodeType    = "ELEMENT" 
         ttNodes.level       = ipiLevel
         ttNodes.childLevel  = ipiChildLevel
         iopiOrder           = ttNodes.order
@@ -66,22 +66,39 @@ PROCEDURE pGetChildren PRIVATE:
     DO iNumChild = 1 TO iphdParent:NUM-CHILDREN :
         iphdParent:GET-CHILD(hdChild, iNumChild) NO-ERROR.
 
-        IF hdChild:SUBTYPE EQ "TEXT" THEN
-             ttNodes.nodeValue = hdChild:NODE-VALUE.
-
-        IF hdChild:SUBTYPE NE "ELEMENT" THEN
-            NEXT.
-    
-        RUN pGetChildren(
-            INPUT        hdChild,
-            INPUT        iParentOrder,      /* Parent Order */
-            INPUT        cParentName,       /* Parent Name */
-            INPUT        ipiLevel + 1,      /* Level */
-            INPUT        iNumChild / 2,     /* Child level. Divide by 2 because an element has two childs the element itself and text(value) */
-            INPUT-OUTPUT iopiOrder          /* Order */
-            ) NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN
-            RETURN ERROR ERROR-STATUS:GET-MESSAGE(1).       
+        IF (hdChild:SUBTYPE EQ "TEXT" AND hdChild:NAME EQ "#text") OR
+           (hdChild:SUBTYPE EQ "CDATA-SECTION" AND hdChild:NAME EQ "#cdata-section") THEN DO:
+            IF iNumChild GT 1 THEN DO:
+                CREATE ttNodes. 
+                ASSIGN
+                    ttNodes.order       = iopiOrder + 1
+                    ttNodes.nodeName    = hdChild:NAME 
+                    ttNodes.parentName  = cParentName
+                    ttNodes.parentOrder = iParentOrder
+                    ttNodes.nodeType    = "ELEMENT"
+                    ttNodes.valueType   = hdChild:SUBTYPE 
+                    ttNodes.level       = ipiLevel + 1
+                    ttNodes.childLevel  = ipiChildLevel + 1
+                    iopiOrder           = ttNodes.order
+                    .
+            END.
+            ASSIGN
+                ttNodes.nodeValue = hdChild:NODE-VALUE
+                ttNodes.valueType = hdChild:SUBTYPE
+                .            
+        END.
+        ELSE DO:    
+            RUN pGetChildren(
+                INPUT        hdChild,
+                INPUT        iParentOrder,      /* Parent Order */
+                INPUT        cParentName,       /* Parent Name */
+                INPUT        ipiLevel + 1,      /* Level */
+                INPUT        iNumChild / 2,     /* Child level. Divide by 2 because an element has two childs the element itself and text(value) */
+                INPUT-OUTPUT iopiOrder          /* Order */
+                ) NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN
+                RETURN ERROR ERROR-STATUS:GET-MESSAGE(1).
+        END.     
     END.
 
     DELETE OBJECT hdChild. 
@@ -115,7 +132,8 @@ PROCEDURE pGetAttributes PRIVATE:
             ttNodes.nodeValue   = iphdParent:GET-ATTRIBUTE(cAttribute)
             ttNodes.parentName  = ipcParentName
             ttNodes.parentOrder = ipiParentOrder
-            ttNodes.nodeType    = "ATTRIBUTE" 
+            ttNodes.nodeType    = "ATTRIBUTE"
+            ttNodes.valueType   = "TEXT" 
             ttNodes.level       = ipiLevel
             ttNodes.childLevel  = iNumAttribute
             iopiOrder           = ttNodes.order
@@ -136,7 +154,16 @@ PROCEDURE XML_ReadToTT:
     DEFINE VARIABLE hdRoot   AS HANDLE  NO-UNDO.
     DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
     DEFINE VARIABLE iOrder   AS INTEGER NO-UNDO.
-
+    
+    DEFINE VARIABLE cXMLDocumentMetaData AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cXMLDTD              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iXMLDTDRootCount     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iXMLDTDRootPosition  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iRootElementPosition AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iMatchPosition       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cXMLRootName         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iIndex               AS INTEGER   NO-UNDO.
+    
     EMPTY TEMP-TABLE ttNodes.
 
     CREATE X-DOCUMENT hdXML. 
@@ -150,7 +177,18 @@ PROCEDURE XML_ReadToTT:
     hdXML:GET-DOCUMENT-ELEMENT(hdRoot) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN
         RETURN ERROR ERROR-STATUS:GET-MESSAGE(1).
-
+    
+    /* SYSTEM-ID stores the XML dtd information. The root name is root tag name
+       of the xml */
+    ASSIGN
+        cXMLDTD      = hdXML:SYSTEM-ID
+        cXMLRootName = hdRoot:NAME
+        .
+    
+    /* Root name can be included with xsl tag */
+    IF INDEX(cXMLRootName, ":") GT 0 THEN
+        cXMLRootName = ENTRY(NUM-ENTRIES(cXMLRootName, ":"), cXMLRootName, ":"). 
+        
     RUN pGetChildren(
         INPUT        hdRoot,
         INPUT        0,       /* Parent Order */
@@ -161,7 +199,61 @@ PROCEDURE XML_ReadToTT:
         ) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN
         RETURN ERROR ERROR-STATUS:GET-MESSAGE(1).
+    
+    /* The below process to extract the document information like xml version
+       and document type that cannot be read to construct the xml from temp-table */
+    /* Get the position of root name in doctype */
+    iMatchPosition = INDEX(iplcXMLData, cXMLRootName, 1).
+
+    /* DOCTYPE stores the DTD information and XML root name */
+    IF INDEX(iplcXMLData, "DOCTYPE", 1) GT 0 THEN DO:
+        /* Get the position of root element in xml */
+        iMatchPosition = INDEX(iplcXMLData, cXMLRootName, iMatchPosition + LENGTH(cXMLRootName)).
         
+        /* Verify if root name is available in the dtd. Get the number of time root name is
+           repeated in DTD */
+        IF LENGTH(cXMLDTD) GE LENGTH(cXMLRootName) THEN DO:
+            iXMLDTDRootPosition = 1.
+            DO WHILE(iXMLDTDRootPosition LT LENGTH(cXMLDTD)):
+                IF INDEX(cXMLDTD, cXMLRootName, iXMLDTDRootPosition) GT 0 THEN
+                    ASSIGN
+                        iXMLDTDRootCount    = iXMLDTDRootCount + 1
+                        iXMLDTDRootPosition = INDEX(cXMLDTD, cXMLRootName, iXMLDTDRootPosition) + LENGTH(cXMLRootName)
+                        .
+                ELSE
+                    LEAVE.
+            END.
+        END.
+        
+        /* Forward the position of the root name with number of time it is available in DTD */
+        IF iXMLDTDRootCount GT 0 THEN DO:
+            DO iIndex = 1 TO iXMLDTDRootCount:
+                iMatchPosition = INDEX(iplcXMLData, cXMLRootName, iMatchPosition + LENGTH(cXMLRootName)).
+            END.
+        END.
+    END.
+    
+    /* Once we get an exact position of the root element, get the position
+       where it started */
+    iRootElementPosition = R-INDEX(iplcXMLData, "<", iMatchPosition).
+
+    /* Get the complete XML metadata from starting of the xml to beginning of root element tag */
+    cXMLDocumentMetaData = SUBSTRING(iplcXMLData, 1, iRootElementPosition - 1).
+
+    IF cXMLDocumentMetaData NE "" THEN DO:
+        CREATE ttNodes. 
+        ASSIGN
+            ttNodes.order       = iOrder + 1
+            ttNodes.nodeName    = "XMLMETADATA"
+            ttNodes.nodeValue   = cXMLDocumentMetaData 
+            ttNodes.parentName  = "X-DOCUMENT"
+            ttNodes.parentOrder = 0
+            ttNodes.nodeType    = "SYSTEM" 
+            ttNodes.level       = 0
+            ttNodes.childLevel  = 0
+            .
+    END.
+    
     DELETE OBJECT hdXML. 
     DELETE OBJECT hdRoot. 
 
@@ -178,11 +270,22 @@ PROCEDURE XML_WriteFromTT:
         INPUT        0,
         INPUT-OUTPUT oplcXMLData
         ).
+    
+    /* Append the XML meta data. This includes the xml version, encoding and dtd
+       information */ 
+    FIND FIRST ttNodes
+         WHERE ttNodes.nodeName   = "XMLMETADATA"
+           AND ttNodes.parentName = "X-DOCUMENT"
+           AND ttNodes.nodeType   = "SYSTEM"
+         NO-ERROR.
+    IF AVAILABLE ttNodes THEN
+        oplcXMLData = ttNodes.nodeValue + oplcXMLData.
+
 END PROCEDURE.
 
 PROCEDURE pWriteAttributesFromTT:
     /*------------------------------------------------------------------------------
-     Purpose:
+     Purpose: Writes attributes of an elements to the xml data
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT        PARAMETER ipiParentOrder AS INTEGER  NO-UNDO.
@@ -196,6 +299,8 @@ PROCEDURE pWriteAttributesFromTT:
         ioplcXMLData = ioplcXMLData + " " + ttNodes.nodeName + "=" 
                      + '"' + fReplaceExceptionCharacters(ttNodes.nodeValue) + '"'.
     END.
+    
+    /* Close the xml start tag */
     ioplcXMLData = ioplcXMLData + ">".
     
     RELEASE ttNodes.
@@ -203,7 +308,7 @@ END PROCEDURE.
 
 PROCEDURE pWriteChildsFromTT:
     /*------------------------------------------------------------------------------
-     Purpose:
+     Purpose: Writes the XML children data
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT        PARAMETER ipiParentOrder AS INTEGER  NO-UNDO.
@@ -221,19 +326,34 @@ PROCEDURE pWriteChildsFromTT:
             cNodeName  = ttNodes.nodeName
             cNodeValue = ttNodes.nodeValue
             .
-            
-        ioplcXMLData = ioplcXMLData + "<" + cNodeName.
-        RUN pWriteAttributesFromTT (
-            INPUT        ttNodes.order,
-            INPUT-OUTPUT ioplcXMLData
-            ).
-            
+        
+        /* Do not create an element if the value type of the node is either "TEXT"
+           or "CDATA-SECTION". These value types won't have any attributes */
+        IF NOT ((ttNodes.valueType EQ "TEXT" AND ttNodes.nodeName EQ "#text") OR
+                (ttNodes.valueType EQ "CDATA-SECTION" AND ttNodes.nodeName EQ "#cdata-section")) THEN DO:
+            ioplcXMLData = ioplcXMLData + "<" + cNodeName.
+            RUN pWriteAttributesFromTT (
+                INPUT        ttNodes.order,
+                INPUT-OUTPUT ioplcXMLData
+                ).
+        END.
+
+        /* If value type is "CDATA-SECTION" then wrap the value inside character data definition.
+           Else escape the special characters that interfere with xml validation. */
+        IF ttNodes.valueType EQ "CDATA-SECTION" AND ttNodes.nodeName EQ "#cdata-section" THEN
+            ioplcXMLData = ioplcXMLData + "<![CDATA[" + cNodeValue + "]]>".
+        ELSE
+            ioplcXMLData = ioplcXMLData + fReplaceExceptionCharacters(cNodeValue).
+        
         RUN pWriteChildsFromTT (
             INPUT        ttNodes.order,
             INPUT-OUTPUT ioplcXMLData            
             ).
 
-        ioplcXMLData = ioplcXMLData + fReplaceExceptionCharacters(cNodeValue) + "</" + cNodeName + ">".              
+        /* Write the closing tags only for elements */
+        IF NOT ((ttNodes.valueType EQ "TEXT" AND ttNodes.nodeName EQ "#text") OR
+                (ttNodes.valueType EQ "CDATA-SECTION" AND ttNodes.nodeName EQ "#cdata-section")) THEN
+            ioplcXMLData = ioplcXMLData + "</" + cNodeName + ">".              
     END.
     
     RELEASE ttNodes.
@@ -249,19 +369,30 @@ PROCEDURE XML_GetFieldValueByName:
     DEFINE OUTPUT PARAMETER oplRecFound   AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcFieldValue AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER bf-ttNodes FOR ttNodes.
-
+    DEFINE BUFFER bf-ttNodes       FOR ttNodes.
+    DEFINE BUFFER bf-value-ttNodes FOR ttNodes.
+    
     FIND FIRST bf-ttNodes
          WHERE bf-ttNodes.nodeName    EQ ipcNodeName
            AND bf-ttNodes.parentOrder EQ 0
          NO-ERROR.
-    IF AVAILABLE bf-ttNodes THEN
-        ASSIGN
-            oplRecFound   = TRUE
-            opcFieldValue = bf-ttNodes.nodeValue
-            .
-        
+    IF AVAILABLE bf-ttNodes THEN DO:
+        opcFieldValue = bf-ttNodes.nodeValue.
+        /* The below code is to fetch any additional value that is saved in "#text"
+           and "#cdata-section" of the element */
+        FOR EACH bf-value-ttNodes
+            WHERE bf-value-ttNodes.parentOrder EQ bf-ttNodes.order
+              AND bf-value-ttNodes.parentName  EQ bf-ttNodes.nodeName
+              AND ((bf-value-ttNodes.valueType EQ "TEXT" AND bf-value-ttNodes.nodeName EQ "#text") OR
+                   (bf-value-ttNodes.valueType EQ "CDATA-SECTION" AND bf-value-ttNodes.nodeName EQ "#cdata-section")):
+            opcFieldValue = opcFieldValue + bf-value-ttNodes.nodeValue.
+        END. 
+
+        oplRecFound = TRUE.
+    END.
+            
     RELEASE bf-ttNodes.
+    RELEASE bf-value-ttNodes.
 END PROCEDURE.
 
 PROCEDURE XML_GetFieldOrderByName:    
@@ -298,19 +429,31 @@ PROCEDURE XML_GetFieldValueByNameAndParent:
     DEFINE OUTPUT PARAMETER oplRecFound   AS LOGICAL   NO-UNDO.    
     DEFINE OUTPUT PARAMETER opcFieldValue AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER bf-ttNodes FOR ttNodes.
-
+    DEFINE BUFFER bf-ttNodes       FOR ttNodes.
+    DEFINE BUFFER bf-value-ttNodes FOR ttNodes.
+    
     FIND FIRST bf-ttNodes
          WHERE bf-ttNodes.nodeName    EQ ipcNodeName 
            AND bf-ttNodes.parentOrder EQ ipiParentID
          NO-ERROR.
-    IF AVAILABLE bf-ttNodes THEN
-        ASSIGN
-            oplRecFound   = TRUE
-            opcFieldValue = bf-ttNodes.nodeValue
-            .
+    IF AVAILABLE bf-ttNodes THEN DO:
+        opcFieldValue = bf-ttNodes.nodeValue.
 
-    RELEASE bf-ttNodes.        
+        /* The below code is to fetch any additional value that is saved in "#text"
+           and "#cdata-section" of the element */        
+        FOR EACH bf-value-ttNodes
+            WHERE bf-value-ttNodes.parentOrder EQ bf-ttNodes.order
+              AND bf-value-ttNodes.parentName  EQ bf-ttNodes.nodeName
+              AND ((bf-value-ttNodes.valueType EQ "TEXT" AND bf-value-ttNodes.nodeName EQ "#text") OR
+                   (bf-value-ttNodes.valueType EQ "CDATA-SECTION" AND bf-value-ttNodes.nodeName EQ "#cdata-section")):
+            opcFieldValue = opcFieldValue + bf-value-ttNodes.nodeValue.
+        END. 
+
+        oplRecFound = TRUE.
+    END.
+
+    RELEASE bf-ttNodes. 
+    RELEASE bf-value-ttNodes.       
 END PROCEDURE.
 
 PROCEDURE XML_GetFieldOrderListByNameAndParent:  
@@ -345,20 +488,67 @@ PROCEDURE XML_GetNameAndValueByFieldOrder:
     DEFINE OUTPUT PARAMETER opcName          AS CHARACTER NO-UNDO.    
     DEFINE OUTPUT PARAMETER opcValue         AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER bf-ttNodes FOR ttNodes.
+    DEFINE BUFFER bf-ttNodes       FOR ttNodes.
+    DEFINE BUFFER bf-value-ttNodes FOR ttNodes.
 
     FIND FIRST bf-ttNodes
          WHERE bf-ttNodes.order EQ ipiFieldOrderID
          NO-ERROR.
     IF AVAILABLE bf-ttNodes THEN DO:
         ASSIGN
-            oplRecFound = TRUE
-            opcName     = bf-ttNodes.nodeName
-            opcValue    = bf-ttNodes.nodeValue
+            opcName  = bf-ttNodes.nodeName
+            opcValue = bf-ttNodes.nodeValue
             .
+        /* The below code is to fetch any additional value that is saved in "#text"
+           and "#cdata-section" of the element */            
+        FOR EACH bf-value-ttNodes
+            WHERE bf-value-ttNodes.parentOrder EQ bf-ttNodes.order
+              AND bf-value-ttNodes.parentName  EQ bf-ttNodes.nodeName
+              AND ((bf-value-ttNodes.valueType EQ "TEXT" AND bf-value-ttNodes.nodeName EQ "#text") OR
+                   (bf-value-ttNodes.valueType EQ "CDATA-SECTION" AND bf-value-ttNodes.nodeName EQ "#cdata-section")):
+            opcValue = opcValue + bf-value-ttNodes.nodeValue.
+        END. 
+
+        oplRecFound = TRUE.
+    END.
+    
+    RELEASE bf-ttNodes.  
+    RELEASE bf-value-ttNodes.      
+END PROCEDURE.
+
+PROCEDURE XML_GetFieldValueByFieldOrder:  
+    /*------------------------------------------------------------------------------
+     Purpose: Fetches the value of a given field order id
+     Notes:  
+    ------------------------------------------------------------------------------*/      
+    DEFINE INPUT  PARAMETER ipiFieldOrderID  AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplRecFound      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcValue         AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-ttNodes       FOR ttNodes.
+    DEFINE BUFFER bf-value-ttNodes FOR ttNodes.
+    
+    FIND FIRST bf-ttNodes
+         WHERE bf-ttNodes.order EQ ipiFieldOrderID
+         NO-ERROR.
+    IF AVAILABLE bf-ttNodes THEN DO:
+        opcValue = bf-ttNodes.nodeValue.
+
+        /* The below code is to fetch any additional value that is saved in "#text"
+           and "#cdata-section" of the element */        
+        FOR EACH bf-value-ttNodes
+            WHERE bf-value-ttNodes.parentOrder EQ bf-ttNodes.order
+              AND bf-value-ttNodes.parentName  EQ bf-ttNodes.nodeName
+              AND ((bf-value-ttNodes.valueType EQ "TEXT" AND bf-value-ttNodes.nodeName EQ "#text") OR
+                   (bf-value-ttNodes.valueType EQ "CDATA-SECTION" AND bf-value-ttNodes.nodeName EQ "#cdata-section")):
+            opcValue = opcValue + bf-value-ttNodes.nodeValue.
+        END. 
+
+        oplRecFound = TRUE.
     END.   
     
-    RELEASE bf-ttNodes.        
+    RELEASE bf-ttNodes.
+    RELEASE bf-value-ttNodes.        
 END PROCEDURE.
 
 PROCEDURE XML_GetFieldOrderByNameAndParent:    
@@ -393,14 +583,14 @@ PROCEDURE XML_GetRecordCountByNameAndParent:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcNodeName    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiParentID    AS INTEGER   NO-UNDO.   
-    DEFINE OUTPUT PARAMETER opcRecordCount AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiRecordCount AS INTEGER   NO-UNDO.
     
     DEFINE BUFFER bf-ttNodes FOR ttNodes.
     
     FOR EACH bf-ttNodes
         WHERE bf-ttNodes.nodeName    EQ ipcNodeName 
           AND bf-ttNodes.parentOrder EQ ipiParentID:
-        opcRecordCount = opcRecordCount + 1.  
+        opiRecordCount = opiRecordCount + 1.  
     END.    
 
     RELEASE bf-ttNodes.    

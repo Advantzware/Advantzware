@@ -1416,7 +1416,7 @@ END.
 ON CHOOSE OF btnPrint IN FRAME AuditSearch
 DO:
     RUN pUserPrint.
-    RUN AOA/AuditHist.p.
+    RUN AOA/Jasper.p (11,USERID('ASI'),"",0,YES).
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -4,15 +4,20 @@
 {{&print}/includes/resourceFrame.i}
 {{&print}/includes/outputTo.i}
 RUN buildWrkRpt.
-FOR EACH ttblJob NO-LOCK WHERE {{&print}/includes/filterWhere.i}
-                           AND ttblJob.jobCompleted EQ NO,
-    FIRST job-mch NO-LOCK WHERE ROWID(job-mch) EQ TO-ROWID(ENTRY(2,ttblJob.rowIDs)),
-    FIRST mach NO-LOCK WHERE mach.company EQ job-mch.company
-                         AND mach.m-code EQ job-mch.m-code
-                         AND (CAN-DO(departmentValue,mach.dept[1])
-                          OR departmentValue EQ '')
-    BREAK BY ttblJob.resource BY ttblJob.jobSequence
-    {{&print}/includes/framePhrase.i}:
+FOR EACH ttblJob
+    WHERE {{&print}/includes/filterWhere.i}
+      AND ttblJob.jobCompleted EQ NO,
+    FIRST job-mch NO-LOCK
+    WHERE ROWID(job-mch) EQ TO-ROWID(ENTRY(2,ttblJob.rowIDs)),
+    FIRST mach NO-LOCK
+    WHERE mach.company EQ job-mch.company
+      AND mach.m-code  EQ job-mch.m-code
+      AND (CAN-DO(departmentValue,mach.dept[1])
+       OR departmentValue EQ ?)
+    BREAK BY ttblJob.resource
+          BY ttblJob.jobSequence
+    {{&print}/includes/framePhrase.i}
+    :
   {{&print}/includes/resourceExcel.i}
   IF FIRST-OF(ttblJob.resource) THEN
   DO WITH FRAME resourceFrame:

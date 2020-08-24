@@ -93,9 +93,9 @@ DEFINE NEW SHARED WORKFILE wrk-op
     FIELD speed LIKE est-op.op-speed EXTENT 100
     FIELD run-hr LIKE job-mch.run-hr EXTENT 100
     FIELD num-sh LIKE est-op.num-sh EXTENT 100
-    FIELD spoil LIKE job-mch.wst-prct EXTENT 20
-    FIELD mr-waste LIKE job-mch.mr-waste EXTENT 20 
-    FIELD waste-per LIKE job-mch.wst-prct EXTENT 20 
+    FIELD spoil LIKE job-mch.wst-prct EXTENT 100
+    FIELD mr-waste LIKE job-mch.mr-waste EXTENT 100 
+    FIELD waste-per LIKE job-mch.wst-prct EXTENT 100 
     FIELD iRecSeq AS INTEGER  
     FIELD cMachType AS CHARACTER  .
 DEFINE BUFFER bf-wrk-op FOR wrk-op .
@@ -1752,7 +1752,7 @@ DO:
                 "<C1.5><b>Salesperson:</b> <C10>"  (IF AVAILABLE oe-ord THEN STRING(oe-ord.sman[1] + "  " + oe-ord.sname[1]) ELSE "") FORMAT "x(33)"   
                 "<C37><b> Completion:</b><C47>" (IF AVAILABLE oe-ord THEN STRING(oe-ord.due-date,"99/99/9999") ELSE "") SKIP 
                 .
-            PUT "<#12><C1.5><R9.5><FROM><C84><R+52><RECT><||3><C80>" "<R9.5>" .
+            PUT "<#12><C1.5><R9.5><FROM><C84><R+54><RECT><||3><C80>" "<R9.5>" .
 
              
             IF AVAILABLE est AND est.est-type EQ 2 THEN 
@@ -1821,7 +1821,7 @@ DO:
             "<C60> <b>UOM:</b>" (IF AVAILABLE oe-ordl THEN STRING(oe-ordl.pr-uom) ELSE "") SKIP 
             "<C1.5><FROM><C84><LINE><||3>" SKIP.
                        
-        IF LINE-COUNTER > 68 THEN do:
+        IF LINE-COUNTER > 58 THEN do:
             PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" . 
             PAGE.
         END.

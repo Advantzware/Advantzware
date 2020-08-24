@@ -45,9 +45,6 @@ DEFINE VARIABLE ls-fax-file    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE is-xprint-form AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE v-prgmname     AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hdFileSysProcs AS HANDLE    NO-UNDO.
-
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
    INDEX(PROGRAM-NAME(1),".ped") NE 0 OR
@@ -318,8 +315,6 @@ ON END-ERROR OF C-Win /* Machine File */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Machine File */
     DO:
-        IF VALID-HANDLE(hdFileSysProcs) THEN
-            DELETE PROCEDURE hdFileSysProcs.
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
@@ -344,8 +339,6 @@ ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Creation Date# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
-        IF VALID-HANDLE(hdFileSysProcs) THEN
-            DELETE PROCEDURE hdFileSysProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -740,7 +733,7 @@ PROCEDURE run-report :
     {sys/inc/print1.i}
     
     /* Create output directory if not available */
-    RUN FileSys_CreateDirectory IN hdFileSysProcs (
+    RUN FileSys_CreateDirectory(
         INPUT  tmp-dir,
         OUTPUT lCreated,
         OUTPUT cMessage

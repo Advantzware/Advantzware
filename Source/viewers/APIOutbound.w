@@ -41,7 +41,6 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEFINE VARIABLE hdFileSysProcs       AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lCreated             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO.
@@ -56,7 +55,6 @@ DEFINE VARIABLE lSuperAdmin          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 DEFINE VARIABLE hdPgmMstrSecur AS HANDLE NO-UNDO.
@@ -1010,7 +1008,7 @@ PROCEDURE pFieldValidations :
             RETURN.
         END.    
     
-        RUN FileSys_CreateDirectory IN hdFileSysProcs (
+        RUN FileSys_CreateDirectory(
             INPUT  saveFileFolder:SCREEN-VALUE,
             OUTPUT oplSuccess,
             OUTPUT opcMessage

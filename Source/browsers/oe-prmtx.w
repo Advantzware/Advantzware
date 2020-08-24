@@ -497,32 +497,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-excel B-table-Win 
-PROCEDURE import-excel :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lAccess AS LOGICAL NO-UNDO.
-
-    RUN util/CheckModule.p ("ASI","ImpPMtx.", NO, OUTPUT lAccess).
-        IF lAccess THEN 
-            RUN util/Importer.w (INPUT cocode, 
-                INPUT locode, 
-                INPUT "ttImportPriceMatrix", INPUT ?).
-        ELSE 
-            RUN oe/PriceMatrixImport.p (INPUT cocode).
-
-
-   
-
-   RUN dispatch ('open-query'). 
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :

@@ -105,7 +105,7 @@ ASSIGN cTextListToSelect = "CUSTOMER,CUST NAME,ITEM #,TAG#,FULL TAG#,FG LOT#,CUS
 {sys/inc/ttRptSel.i}
 
 ASSIGN cTextListToDefault  = "CUSTOMER,CUST NAME,ITEM #,FULL TAG#,FG LOT#,REC DATE,CUST PART#,DESCRIPTION,WHSE,BIN,JOB#," +
-                             "QTY ON HAND,MSF OH,C-UOM,UOM COST,TOTAL COST,LINE PO#,REL QTY" .
+                             "QTY ON HAND,MSF OH,C-UOM,UOM COST,TOTAL COST,LINE PO#" .
 
 
 {sys/inc/oereordr.i}
@@ -2224,7 +2224,13 @@ IF lselected THEN DO:
 END.
 SESSION:SET-WAIT-STATE ("general").
 
-
+ IF LOOKUP("REL QTY", cSelectedList) GT 0 OR 
+    LOOKUP("REL PO#", cSelectedList) GT 0 OR 
+    tb_zero OR tb_summ-bin THEN 
+    RUN displayMessage(
+        INPUT "45"
+        ).
+       
  IF v-fg-lot THEN DO:
     assign
         v-label4[1] = "FG Lot#        "

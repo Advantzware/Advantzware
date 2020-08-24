@@ -3887,6 +3887,13 @@ PROCEDURE release-item :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+DEFINE VARIABLE lValidLocation  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lActiveScope    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
+
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
 IF adm-brs-in-update THEN RETURN.
 
 DEFINE BUFFER bf-oe-rel FOR oe-rel.
@@ -3950,8 +3957,30 @@ end.
          
      IF NOT lMsgResponse THEN 
          RETURN.
-  END.       
-      
+  END. 
+        
+   RUN Outbound_IsApiScopeActive IN hdOutboundProcs(
+      INPUT oe-rel.company,
+      INPUT oe-rel.spare-char-1,
+      INPUT "SendRelease",
+      INPUT oe-rel.cust-no,
+      INPUT "Customer",
+      INPUT "CreateRelease",
+      OUTPUT lActiveScope
+      ).
+  IF lActiveScope THEN DO:
+      RUN Outbound_ValidateLocation IN hdOutboundProcs(
+            INPUT oe-rel.company,
+            INPUT oe-rel.spare-char-1,
+            INPUT "SendRelease",
+            OUTPUT lValidLocation,
+            OUTPUT cMessage 
+            ).
+      IF NOT lValidLocation THEN DO:
+          SESSION:SET-WAIT-STATE ('').
+          RETURN. 
+      END.                         
+  END.     
   RUN oe/CheckAckPrint.p(INPUT ROWID(oe-ord)).
   RUN oe/actrel.p (RECID(oe-rel), INPUT-OUTPUT iocPrompt).
 

@@ -173,7 +173,7 @@ PROCEDURE pCreateTestEstReleases PRIVATE:
     AND eb.est-no EQ '   13798'
     AND eb.est-type EQ 5
     .
-    RUN CreateEstReleaseForEstBlank IN hFreightProcs (ROWID(eb), 
+    RUN CreateEstReleaseForEstBlank IN hFreightProcs (ROWID(eb),NO, 
         OUTPUT iEstReleaseID, OUTPUT lError, OUTPUT cMessage).
     
     IF lError THEN

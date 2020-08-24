@@ -10,16 +10,16 @@
 &Scoped-define ttTempTable ttPostBolCreateInvoice 
 {aoa/tempTable/ttPostBolCreateInvoice.i}
 
-DEFINE NEW SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
-DEFINE NEW SHARED VARIABLE g_track_usage AS LOGICAL NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_lookup-var  AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_track_usage AS LOGICAL   NO-UNDO.
 DEFINE NEW SHARED VARIABLE g_header_line AS CHARACTER NO-UNDO.
-DEFINE NEW SHARED VARIABLE g_groups AS CHARACTER NO-UNDO.
-DEFINE NEW SHARED VARIABLE init_menu AS LOGICAL NO-UNDO.
-DEFINE NEW SHARED VARIABLE g_developer AS CHARACTER NO-UNDO.
-DEFINE NEW SHARED VARIABLE g_version AS CHARACTER NO-UNDO.
-DEFINE NEW SHARED VARIABLE g_rec_key AS CHARACTER NO-UNDO.
-DEFINE NEW SHARED VARIABLE g_pageno AS INTEGER NO-UNDO.
-DEFINE NEW SHARED VARIABLE g_mainmenu AS WIDGET-HANDLE NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_groups      AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE init_menu     AS LOGICAL   NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_developer   AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_version     AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_rec_key     AS CHARACTER NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_pageno      AS INTEGER   NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_mainmenu    AS HANDLE    NO-UNDO.
 
 g_lookup-var = "".
 {sys/ref/CustList.i NEW}
@@ -48,7 +48,7 @@ DEFINE VARIABLE iDisplayFullTag    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iLineCount         AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lCheckQty          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cReturnChar        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lRecordFound       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lRecFound          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cExternalProgram   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cInvoiceStatusType AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lInvoiceStatusLog  AS LOGICAL   NO-UNDO.
@@ -99,7 +99,6 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE lRecFound          AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cReturnValue       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cLogFolder         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hdFileSysProcs     AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lValid             AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFilePath          AS CHARACTER NO-UNDO.    
@@ -108,15 +107,12 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE cTagNumber2        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iDisplayFullTag    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iLineCount         AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lCheckQty          AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cReturnChar        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lRecordFound       AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cExternalProgram   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cInvoiceStatusType AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lInvoiceStatusLog  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lInvalidDate       AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lUserChoice        AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lPrintInvoice      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iCountNotPosted    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE hExtProgramHandle  AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cAutoSelectShipFromAlpha AS CHARACTER NO-UNDO.
@@ -140,27 +136,26 @@ PROCEDURE pBusinessLogic:
         lUseLogs = NO /* Use debug logging */
         .
 
-    RUN sys/ref/nk1look.p (INPUT cocode, "OEBOLLOG", "L" /* Logical */, NO /* check by cust */, 
-                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-                       OUTPUT cReturnValue, OUTPUT lRecFound).
+    RUN sys/ref/nk1look.p (cocode, "OEBOLLOG", "L" /* Logical */, NO /* check by cust */, 
+                           YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                           OUTPUT cReturnValue, OUTPUT lRecFound).
     lUseLogs = LOGICAL(cReturnValue ) NO-ERROR.
-    RUN sys/ref/nk1look.p (INPUT cocode, "OEBOLLOG", "C" /* Logical */, NO /* check by cust */, 
-                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-                       OUTPUT cLogFolder, OUTPUT lRecFound).    
+    RUN sys/ref/nk1look.p (cocode, "OEBOLLOG", "C" /* Logical */, NO /* check by cust */, 
+                           YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                           OUTPUT cLogFolder, OUTPUT lRecFound).    
     cLogFolder = TRIM(TRIM(cLogFolder, "/"), "\").  
    
     IF lUseLogs THEN DO:
-        RUN system\FileSysProcs.p PERSISTENT SET hdFileSysProcs.
         cLogFolder = TRIM(TRIM(cLogFolder, "/"), "\").    
         cDebugLog = clogFolder + "/oe-bolp3" + STRING(TODAY,"99999999") + STRING(TIME) + STRING(RANDOM(1,1000)) + ".txt".
     
-        RUN FileSys_ValidateDirectory IN hdFileSysProcs (
+        RUN FileSys_ValidateDirectory(
             INPUT  cLogFolder,
             OUTPUT lValid,
             OUTPUT cMessage
             ).    
         IF NOT lValid THEN 
-            RUN FileSys_CreateDirectory IN hdFileSysProcs (
+            RUN FileSys_CreateDirectory(
                 INPUT  cLogFolder,
                 OUTPUT lValid,
                 OUTPUT cMessage
@@ -176,8 +171,7 @@ PROCEDURE pBusinessLogic:
         IF lUseLogs THEN DO:
           OUTPUT TO VALUE(cLogFile) APPEND.
           PUT STRING(TODAY,"99999999") + " " + STRING(TIME) SKIP.
-        END.            
-        DELETE OBJECT hdFileSysProcs.            
+        END.                     
     END. /* If luseLogs */ 
     
     /* ***************************  Main Block  *************************** */    
@@ -210,12 +204,12 @@ PROCEDURE pBusinessLogic:
       
         /* Invstatus to determine invoice status when created  */
         RUN sys/ref/nk1look.p (cocode, "INVSTATUS", "L", NO, NO, "", "", 
-            OUTPUT cReturnChar, OUTPUT lRecordFound).
+                               OUTPUT cReturnChar, OUTPUT lRecFound).
         lInvoiceStatusLog = LOGICAL(cReturnChar).
     
         /* Invstatus to determine invoice status when created  */
         RUN sys/ref/nk1look.p (cocode, "INVSTATUS", "C", NO, NO, "", "", 
-        OUTPUT cInvoiceStatusType, OUTPUT lRecordFound).
+                               OUTPUT cInvoiceStatusType, OUTPUT lRecFound).
     
         DO TRANSACTION:
         /* No prompt for creation of nk1 */
@@ -225,12 +219,7 @@ PROCEDURE pBusinessLogic:
         /* Best default for GUI applications is...                              */
         PAUSE 0 BEFORE-HIDE.
     
-        FIND FIRST oe-ctrl NO-LOCK
-             WHERE oe-ctrl.company EQ cocode
-             NO-ERROR.
-        lPrintInvoice = oe-ctrl.u-inv.
-     
-        RUN pCheckDate.  
+        RUN pCheckDate.
         IF lInvalidDate THEN RETURN NO-APPLY.
     
         iCountNotPosted = 0.
@@ -295,8 +284,8 @@ PROCEDURE pBusinessLogic:
               ASSIGN 
                  ttPostBolCreateInvoice.bolStatus = "Not Posted"
                  .
-              IF lPost = YES AND ttPostBolCreateInvoice.reason EQ "" THEN 
-                ttPostBolCreateInvoice.reason = "Undetermined".
+              IF lPost EQ YES AND ttPostBolCreateInvoice.reason EQ "" THEN 
+                ttPostBolCreateInvoice.reason = "".
               FIND FIRST w-except 
                   WHERE w-except.bol-no EQ ttPostBolCreateInvoice.bolNo
                   NO-ERROR. 
@@ -314,7 +303,7 @@ PROCEDURE pAutoSelectTags:
      Notes:
             
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER iprOeBoll AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER iprOeBoll AS ROWID NO-UNDO.
     
     DEFINE VARIABLE lSelectTags   AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lNoneSelected AS LOGICAL NO-UNDO.
@@ -344,7 +333,7 @@ PROCEDURE pAutoSelectTags:
     DEFINE VARIABLE op-rowid-list AS CHARACTER .   
     DEFINE BUFFER b-reftable FOR reftable. /* used to find and copy lot-no when creating oe-boll */
     
-    FIND xoe-boll EXCLUSIVE-LOCK
+    FIND xoe-boll NO-LOCK
         WHERE ROWID(xoe-boll) EQ iprOeBoll 
         NO-ERROR.
             
@@ -394,7 +383,11 @@ PROCEDURE pAutoSelectTags:
            lSelectTags = FALSE.
     EMPTY TEMP-TABLE w-bin.
 
-    fDebugMsg("start fifoloop " + STRING(TIME,"hh:mm:ss am")).     
+    fDebugMsg("start fifoloop " + STRING(TIME,"hh:mm:ss am")).
+    fDebugMsg("out-recid: " + STRING(out-recid)).
+    fDebugMsg("RowID: " + STRING(ROWID(xoe-boll))).
+    fDebugMsg("lSelectTags: " + STRING(lSelectTags)).
+    fDebugMsg("oe-rel.spare-char-1: " + oe-rel.spare-char-1).     
     RUN oe/fifoloopTags.p (ROWID(xoe-boll), lSelectTags, oe-rel.spare-char-1 /*oe-boll.ship-from */, OUTPUT lNoneSelected, OUTPUT hTToe-rel).
     fDebugMsg("end fifoloop " + STRING(TIME,"hh:mm:ss am")).     
     /* From fifoloop, process returned dynamic temp-table to retrieve tag records selected */
@@ -468,12 +461,12 @@ PROCEDURE pAutoSelectTags:
     fDebugMsg("selected qty " + STRING(li-selected-qty) + " bol " + string(xoe-boll.bol-no) + " " + xoe-boll.i-no).
     /* Was not able to assign full quantity from tagged inventory */
     IF li-selected-qty LT xoe-boll.qty THEN DO:
-        fDebugMsg("Inside li-selected-qty LT xoe-boll.qty").      
-      RETURN.
+        fDebugMsg("Inside li-selected-qty LT xoe-boll.qty").
+        RETURN.
     END.
       
     /* If full quantity was selected, then process creation of oe-boll lines */
-    v-qty     = xoe-boll.qty.    
+    v-qty = xoe-boll.qty.    
     IF ll-change-qty AND li-selected-qty GT v-qty THEN DO:
         /* Hard code user selection Transfer scheduled release quantity instead of total of bins selected */
         ll-change-qty = FALSE.
@@ -486,20 +479,16 @@ PROCEDURE pAutoSelectTags:
         NO-ERROR.
     
     /* This loop will exit when v-qty is reduced to zero (in sel-bins.i) */
-    FOR EACH w-bin , 
-        FIRST fg-bin
-          WHERE RECID(fg-bin) EQ w-bin.rec-id
-          NO-LOCK,
-        FIRST itemfg
-          WHERE itemfg.company EQ cocode
+    FOR EACH w-bin, 
+        FIRST fg-bin NO-LOCK
+        WHERE RECID(fg-bin) EQ w-bin.rec-id,
+        FIRST itemfg NO-LOCK
+        WHERE itemfg.company EQ cocode
           AND itemfg.i-no    EQ fg-bin.i-no
-          NO-LOCK
-          BREAK 
-             BY w-bin.seq 
-             BY w-bin.tag:
-
-            
-        FIND FIRST oe-bolh WHERE oe-bolh.b-no EQ xoe-boll.b-no NO-LOCK.
+        BREAK BY w-bin.seq 
+              BY w-bin.tag
+        :            
+        FIND FIRST oe-bolh NO-LOCK WHERE oe-bolh.b-no EQ xoe-boll.b-no.
         ASSIGN 
           bolh_id = RECID(oe-bolh)        
           ip-rowid = ROWID(xoe-boll)
@@ -507,7 +496,7 @@ PROCEDURE pAutoSelectTags:
         /* creates oe-boll if does not exist (based on ip-rowid), and assigns fg-bin values to it */
         {oe/sel-bins.i "oe-bol"}
         oe-boll.weight = oe-boll.qty / 100 * itemfg.weight-100.
-    
+
         IF NOT AVAILABLE oe-ordl THEN
             FIND FIRST oe-ordl WHERE oe-ordl.company EQ cocode
                 AND oe-ordl.ord-no  EQ xoe-boll.ord-no
@@ -518,29 +507,21 @@ PROCEDURE pAutoSelectTags:
 
     END. /* for each w-bin, create the oe-boll record */
 
-    /* Special for r-bolpst - Delete the original non-tag bol lines */
-    FIND oe-bolh 
-        WHERE RECID(oe-bolh) EQ bolh_id
-        NO-LOCK NO-ERROR.
-        
     /* Mark oe-boll lines as complete */
-    FIND oe-bolh 
+    FIND oe-bolh NO-LOCK
         WHERE RECID(oe-bolh) EQ bolh_id
-        NO-LOCK NO-ERROR.
+        NO-ERROR.
     IF AVAILABLE oe-bolh THEN 
-    DO:
-        FOR EACH oe-boll 
-            WHERE oe-boll.b-no EQ oe-bolh.b-no
-            EXCLUSIVE-LOCK
-            BREAK BY oe-boll.ord-no
-            BY oe-boll.i-no:
-            IF FIRST-OF(oe-boll.i-no) THEN 
-            DO:
-                {oe/oe-bolpc.i ALL}
-            END.
-        END. /* each oe-boll */
-    END. /* avail oe-bolh */
-        fDebugMsg("leaving fifoloop").     
+    FOR EACH oe-boll EXCLUSIVE-LOCK
+        WHERE oe-boll.b-no EQ oe-bolh.b-no
+        BREAK BY oe-boll.ord-no
+              BY oe-boll.i-no
+        :
+        IF FIRST-OF(oe-boll.i-no) THEN DO:
+            {oe/oe-bolpc.i ALL}
+        END.
+    END. /* each oe-boll */
+    fDebugMsg("leaving fifoloop").
 END PROCEDURE.
 
 PROCEDURE pCheckDate :
@@ -704,6 +685,10 @@ PROCEDURE pPostBols :
     /* DEFINE VARIABLE lv-exception AS LOG     NO-UNDO. */
     DEFINE VARIABLE dActualQty AS DECIMAL NO-UNDO.
     DEFINE VARIABLE hRelLib    AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE cFGTagValidation AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFGTagValidation AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFirstOFBOL      AS LOGICAL   NO-UNDO.
+
     DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
     /* Deletes xreport of report */
     {sa/sa-sls01.i}
@@ -732,26 +717,25 @@ PROCEDURE pPostBols :
             FIRST cust NO-LOCK
             WHERE cust.company EQ cocode
               AND cust.cust-no EQ bf-oe-bolh.cust-no                  
-            BREAK BY bf-oe-bolh.bol-no
-                  BY bf-oe-bolh.ord-no
-                  BY bf-oe-bolh.rel-no
+            BREAK BY w-bolh.bol-no
+                  BY w-bolh.ord-no
+                  BY w-bolh.rel-no
             :
-            
+            IF lFirstOFBOL EQ NO THEN
+            lFirstOFBOL = FIRST-OF(w-bolh.bol-no).
             lInsufficientQty = NO.
             /* Create tt-fg-bin */
-/*            IF FIRST-OF(bf-oe-bolh.bol-no) AND lPrintInvoice AND lCheckQty THEN*/
-/*                RUN oe/bolcheck.p (ROWID(bf-oe-bolh)).                         */
             /* Find out if autoSelectingTags for this customer */
-            RUN sys/ref/nk1look.p (cocode, "BOLPOST", "C", YES, YES /* Cust# */, bf-oe-bolh.cust-no, "" /* ship-to value */, 
-                OUTPUT cAutoSelectShipFrom, OUTPUT lRecordFound).
             RUN sys/ref/nk1look.p (cocode, "BOLPOST", "L", YES, YES /* Cust# */, bf-oe-bolh.cust-no, "" /* ship-to value */, 
-                OUTPUT cAutoSelectShipFromAlpha, OUTPUT lRecordFound).
-                lAutoSelectShipFrom = LOGICAL(cAutoSelectShipFromAlpha).
+                                   OUTPUT cAutoSelectShipFromAlpha, OUTPUT lRecFound).
+            lAutoSelectShipFrom = LOGICAL(cAutoSelectShipFromAlpha).
+            RUN sys/ref/nk1look.p (cocode, "BOLPOST", "C", YES, YES /* Cust# */, bf-oe-bolh.cust-no, "" /* ship-to value */, 
+                                   OUTPUT cAutoSelectShipFrom, OUTPUT lRecFound).
             FIND FIRST w-except WHERE w-except.bol-no EQ bf-oe-bolh.bol-no NO-ERROR.
             fDebugMsg("cAutoSelectShipFrom " + cAutoSelectShipFrom + " " + STRING(lAutoSelectShipFrom) + 
-                                          " avail w-except " + STRING(AVAILABLE(w-except)) + string(avail(bf-oe-bolh))).
+                      " avail w-except " + STRING(AVAILABLE(w-except)) + STRING(AVAILABLE(bf-oe-bolh))).
             IF lAutoSelectShipFrom  THEN DO:
-              lTaglessBOLExists = FALSE.
+                lTaglessBOLExists = FALSE.
                 FOR EACH bf-oe-boll NO-LOCK                   
                     WHERE bf-oe-boll.b-no EQ bf-oe-bolh.b-no                   
                     :
@@ -759,8 +743,7 @@ PROCEDURE pPostBols :
                     lTaglessBOLExists = TRUE.
                 END. /* each bf-oe-boll */
                 fDebugMsg("decide that lTaglessBolExists " + string(lTaglessBOLExists) + string(avail(bf-oe-bolh))).                
-                IF AVAILABLE w-except OR lTaglessBOLExists THEN DO:
-                
+                IF AVAILABLE w-except OR lTaglessBOLExists THEN DO:                
                     /* Try to assign tags to fulfill BOL Qty */
                     FOR EACH bf-oe-boll NO-LOCK                   
                         WHERE bf-oe-boll.b-no EQ bf-oe-bolh.b-no                   
@@ -770,34 +753,70 @@ PROCEDURE pPostBols :
                     END. /* each bf-oe-boll */
                     
                     fDebugMsg("after pAutoSelTags " + string(avail(bf-oe-bolh))).
-                    FOR EACH w-except 
-                      WHERE w-except.bol-no EQ bf-oe-bolh.bol-no 
+                    FOR EACH w-except
+                      WHERE w-except.bol-no EQ bf-oe-bolh.bol-no
                       :
                       DELETE w-except.
                     END. /* each w-except */
-                    fDebugMsg("before bol check " + string(avail(bf-oe-bolh)) ).
-                    /* check if suffient inventory again after selecting tags */
                 END. /* if avail w-except */
             END. /* if lautoselectshipfrom */
-            IF FIRST-OF(bf-oe-bolh.bol-no) AND lPrintInvoice AND lCheckQty THEN DO:
+
+            RUN sys/ref/nk1look.p (cocode, "FGTagValidation", "L", YES, YES /* Cust# */, bf-oe-bolh.cust-no, "" /* ship-to value */,
+                                   OUTPUT cFGTagValidation, OUTPUT lRecFound).
+            lFGTagValidation = LOGICAL(cFGTagValidation).
+            RUN sys/ref/nk1look.p (cocode, "FGTagValidation", "C", YES, YES /* Cust# */, bf-oe-bolh.cust-no, "" /* ship-to value */,
+                                   OUTPUT cFGTagValidation, OUTPUT lRecFound).
+            FOR EACH bf-oe-boll NO-LOCK
+                WHERE bf-oe-boll.b-no EQ bf-oe-bolh.b-no                   
+                :
+                IF lRecFound AND lFGTagValidation AND bf-oe-boll.tag EQ "" THEN DO:
+                    CREATE w-nopost.
+                    ASSIGN
+                        w-nopost.ord-no   = bf-oe-boll.ord-no
+                        w-nopost.i-no     = bf-oe-boll.i-no
+                        w-nopost.bol-no   = bf-oe-boll.BOL-no
+                        w-nopost.rel-no   = bf-oe-boll.REL-no
+                        w-nopost.b-ord-no = bf-oe-boll.b-ord-no
+                        w-nopost.cust-no  = bf-oe-boll.cust-no
+                        w-nopost.po-no    = bf-oe-boll.PO-NO
+                        w-nopost.reason   = "BOL Tag is Blank"
+                        .                          
+                    NEXT bolh.
+                END.
+                IF lRecFound AND cFGTagValidation EQ "ItemMatch" AND NOT bf-oe-boll.tag BEGINS bf-oe-boll.i-no THEN DO:
+                    CREATE w-nopost.
+                    ASSIGN
+                        w-nopost.ord-no   = bf-oe-boll.ord-no
+                        w-nopost.i-no     = bf-oe-boll.i-no
+                        w-nopost.bol-no   = bf-oe-boll.BOL-no
+                        w-nopost.rel-no   = bf-oe-boll.REL-no
+                        w-nopost.b-ord-no = bf-oe-boll.b-ord-no
+                        w-nopost.cust-no  = bf-oe-boll.cust-no
+                        w-nopost.po-no    = bf-oe-boll.PO-NO
+                        w-nopost.reason   = "BOL Tag does not Match Item".
+                    NEXT bolh.
+                END.
+            END. /* each bf-oe-boll */
+            IF lFirstOFBOL AND lPrintInvoice AND lCheckQty THEN DO:
+                lFirstOFBOL = NO.
                 fDebugMsg("before bol check " + string(avail(bf-oe-bolh)) ).
                 /* check if suffient inventory again after selecting tags */
                 RUN oe/bolcheck.p (ROWID(bf-oe-bolh)).
-                fDebugMsg("before each w-except after bolcheck " + string(avail(bf-oe-bolh))).
+                fDebugMsg("before each w-except after bolcheck " + STRING(AVAILABLE(bf-oe-bolh))).
                 FOR EACH w-except 
                     WHERE w-except.bol-no EQ bf-oe-bolh.bol-no:
                     IF NOT lInsufficientQty THEN 
-                        lInsufficientQty = YES.
+                    lInsufficientQty = YES.
                     fDebugMsg("Create w-nopost for BOL " + STRING(w-except.bol-no) + " item " + w-except.i-no).             
                     CREATE w-nopost.
                     ASSIGN
                         w-nopost.ord-no   = w-except.ord-no
                         w-nopost.i-no     = w-except.i-no
-                        w-nopost.bol-no   = w-except.BOL-no
-                        w-nopost.rel-no   = w-except.REL-no
+                        w-nopost.bol-no   = w-except.bol-no
+                        w-nopost.rel-no   = w-except.rel-no
                         w-nopost.b-ord-no = w-except.b-ord-no
                         w-nopost.cust-no  = w-except.cust-no
-                        w-nopost.po-no    = w-except.PO-NO
+                        w-nopost.po-no    = w-except.po-no
                         w-nopost.reason   = "Insufficient Inventory"
                         .  
                 END.               
@@ -839,8 +858,8 @@ PROCEDURE pPostBols :
                     :
                     /* Set actual quantity */
                     IF AVAILABLE oe-rel AND VALID-HANDLE(hRelLib) THEN 
-                        RUN recalc-act-qty IN hRelLib (INPUT ROWID(oe-rel), OUTPUT dActualQty).
-                     fDebugMsg("pPostbols actual qty check " + string(dActualQty)  ).                        
+                    RUN recalc-act-qty IN hRelLib (INPUT ROWID(oe-rel), OUTPUT dActualQty).
+                    fDebugMsg("pPostbols actual qty check " + string(dActualQty)  ).                        
                 END. /* each oe-rel */
             END. /* each oe-boll */
 
@@ -1065,6 +1084,7 @@ PROCEDURE pRunReport :
             fDebugMsg("run-report each oe-boll " + STRING(oe-boll.bol-no)).
             RELEASE oe-ord.
             RELEASE oe-ordl.
+
             IF oe-bolh.trailer EQ "HOLD" OR oe-bolh.stat EQ "H" THEN DO:
                 IF lSingleBOL THEN
                 RUN pCreateNoPostRec ("BOL " + STRING(w-bolh.bol-no) + " is on HOLD Status").    

@@ -169,11 +169,11 @@ DEF TEMP-TABLE tt-inv NO-UNDO  FIELD sorter    LIKE ar-inv.inv-no
       IF v-check-date NE ? AND v-check-date GT v-date THEN ~
          NEXT.
 
-&SCOPED-DEFINE valid-factored                                       ~
-    IF NOT v-include-factored AND                                   ~
-       CAN-FIND(FIRST tt-factored                                   ~
-                  WHERE tt-factored.x-no EQ ar-inv.x-no) THEN       ~
-        NEXT.   
+/*&SCOPED-DEFINE valid-factored                                       ~*/
+/*    IF NOT v-include-factored AND                                   ~*/
+/*       CAN-FIND(FIRST tt-factored                                   ~*/
+/*                  WHERE tt-factored.x-no EQ ar-inv.x-no) THEN       ~*/
+/*        NEXT.                                                        */
 
 FORM HEADER /*SKIP(1)*/
      lv-page-break FORMAT "x(200)"
@@ -198,27 +198,27 @@ FORMAT HEADER
 WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
 
 
-DEF TEMP-TABLE tt-factored
-  FIELD company LIKE itemfg.company
-  FIELD i-no    LIKE itemfg.i-no
-  FIELD x-no    LIKE ar-invl.x-no
-  INDEX i1 i-no
-  INDEX i2 x-no.
+/*DEF TEMP-TABLE tt-factored         */
+/*  FIELD company LIKE itemfg.company*/
+/*  FIELD i-no    LIKE itemfg.i-no   */
+/*  FIELD x-no    LIKE ar-invl.x-no  */
+/*  INDEX i1 i-no                    */
+/*  INDEX i2 x-no.                   */
   
-FOR EACH itemfg WHERE itemfg.factored    EQ YES
-                  NO-LOCK:  
-  FIND FIRST tt-factored WHERE tt-factored.i-no EQ itemfg.i-no
-    NO-LOCK NO-ERROR.
-  IF NOT AVAIL tt-factored THEN DO:
-    FOR EACH ar-invl WHERE ar-invl.company EQ cocode
-      AND ar-invl.i-no EQ itemfg.i-no
-      NO-LOCK:
-      CREATE tt-factored.
-      ASSIGN tt-factored.company = itemfg.company
-             tt-factored.i-no    = itemfg.i-no.
-    END.
-  END.
-END.
+/*FOR EACH itemfg WHERE itemfg.factored    EQ YES               */
+/*                  NO-LOCK:                                    */
+/*  FIND FIRST tt-factored WHERE tt-factored.i-no EQ itemfg.i-no*/
+/*    NO-LOCK NO-ERROR.                                         */
+/*  IF NOT AVAIL tt-factored THEN DO:                           */
+/*    FOR EACH ar-invl WHERE ar-invl.company EQ cocode          */
+/*      AND ar-invl.i-no EQ itemfg.i-no                         */
+/*      NO-LOCK:                                                */
+/*      CREATE tt-factored.                                     */
+/*      ASSIGN tt-factored.company = itemfg.company             */
+/*             tt-factored.i-no    = itemfg.i-no.               */
+/*    END.                                                      */
+/*  END.                                                        */
+/*END.                                                          */
 
 /* Start processing */
  FOR EACH company WHERE
@@ -251,13 +251,13 @@ END.
     ll-valid-cust = NO.
 
     IF NOT ll-valid-cust THEN
-    {&for-each-arinv}:
-      {&valid-factored}
-
-      ll-valid-cust = YES.
-
-      LEAVE.
-    END.
+    {&for-each-arinv}:       
+/*      {&valid-factored}      */
+                             
+      ll-valid-cust = YES.   
+                             
+      LEAVE.                 
+    END.                     
 
     IF NOT ll-valid-cust THEN
     {&for-each-arcsh}
@@ -339,7 +339,7 @@ END.
 
     IF v-inc OR v-date NE TODAY THEN
     {&for-each-arinv}:
-      {&valid-factored}
+/*      {&valid-factored}*/
 
       CREATE tt-inv.
       ASSIGN
@@ -352,7 +352,7 @@ END.
       {&for-each-arinv}
             AND ar-inv.due LT 0
           USE-INDEX posted-due:
-        {&valid-factored}
+/*        {&valid-factored}*/
 
         CREATE tt-inv.
         ASSIGN
@@ -364,7 +364,7 @@ END.
       {&for-each-arinv}
             AND ar-inv.due GT 0
           USE-INDEX posted-due:
-        {&valid-factored}
+/*        {&valid-factored}*/
 
         CREATE tt-inv.
         ASSIGN
@@ -530,11 +530,11 @@ END.
        ELSE RELEASE terms .      
       
        ASSIGN
-        cust-t[v-int] = cust-t[v-int] + ( IF dAmountDue NE 0 THEN ag ELSE 0)
+        cust-t[v-int] = cust-t[v-int] + ag 
         v-dec         = 0
-        v-dec[v-int]  = ( IF dAmountDue NE 0 THEN ag ELSE 0)
+        v-dec[v-int]  = ag 
         cust-t[6] = cust-t[6] +  dAmountDue .
-
+               
        IF v-sep-fc THEN
        DO:
           IF v-type NE "FC" THEN

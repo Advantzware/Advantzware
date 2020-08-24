@@ -521,6 +521,15 @@ DO:
         END.
     END.
     ELSE DO:
+        IF SELF:SCREEN-VALUE EQ "Monitor" THEN DO:
+            MESSAGE 
+                "The user 'Monitor' cannot be used for interactive" SKIP 
+                "logins. Please choose another user id."
+                VIEW-AS ALERT-BOX ERROR.
+            ASSIGN 
+                SELF:SCREEN-VALUE = "".
+            RETURN NO-APPLY.
+        END.
         ASSIGN
             cbEnvironment:LIST-ITEMS = IF cValidEnvs <> "" THEN cValidEnvs ELSE IF ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList ELSE cEnvList
             cbDatabase:LIST-ITEMS = IF cValidDbs <> "" THEN cValidDbs ELSE IF ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList ELSE cDbList
@@ -719,7 +728,6 @@ PROCEDURE ipChangeDatabase :
     END.
 
     /* Highlight for new password */    
-
     ASSIGN
         iPos = LOOKUP(cbEnvironment:SCREEN-VALUE IN FRAME {&FRAME-NAME},cEnvironmentList)
         iEnvLevel = intVer(ENTRY(iPos,cEnvVerList))
@@ -805,8 +813,7 @@ PROCEDURE ipChangeEnvironment :
                 DO iCtr = 1 TO NUM-ENTRIES(cDatabaseList):
                     IF INDEX(ENTRY(iCtr,cDatabaseList),"Prod") <> 0 AND cSessionParam EQ "" THEN DO:
                         ASSIGN
-                            cbDatabase:LIST-ITEMS = ENTRY(iCtr,cDatabaseList)
-                            cbDatabase:SCREEN-VALUE = ENTRY(1,cDatabaseList).
+                            cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cDatabaseList).
                         LEAVE.
                     END.
                 END.
@@ -815,8 +822,7 @@ PROCEDURE ipChangeEnvironment :
                 DO iCtr = 1 TO NUM-ENTRIES(cDatabaseList):
                     IF INDEX(ENTRY(iCtr,cDatabaseList),"Test") <> 0 AND cSessionParam EQ "" THEN DO:
                         ASSIGN
-                            cbDatabase:LIST-ITEMS = ENTRY(iCtr,cDatabaseList)
-                            cbDatabase:SCREEN-VALUE = ENTRY(1,cDatabaseList).
+                            cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cDatabaseList).
                         LEAVE.
                     END.
                 END.

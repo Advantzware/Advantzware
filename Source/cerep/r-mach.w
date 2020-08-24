@@ -49,10 +49,6 @@ def new shared var head as ch format "x(78)" extent 4.
 DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
 DEFINE VARIABLE is-xprint-form AS LOGICAL NO-UNDO.
 
-DEFINE VARIABLE hdFileSysProcs AS HANDLE NO-UNDO.
-
-RUN system/FileSysProcs.p PERSISTENT SET hdFileSysProcs.
-
 /* gdm - 10130802 */
 DEF STREAM excel.
 
@@ -352,8 +348,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Machine File */
 DO:
-    IF VALID-HANDLE(hdFileSysProcs) THEN
-        DELETE PROCEDURE hdFileSysProcs.
     /* This event will close the window and terminate the procedure.  */
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     RETURN NO-APPLY.
@@ -389,8 +383,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-    IF VALID-HANDLE(hdFileSysProcs) THEN
-        DELETE PROCEDURE hdFileSysProcs.
     apply "close" to this-procedure.
 END.
 
@@ -887,7 +879,7 @@ sho-stds = tb_show-stds.
     {sys/inc/print1.i}
     
     /* Create output directory if not available */
-    RUN FileSys_CreateDirectory IN hdFileSysProcs (
+    RUN FileSys_CreateDirectory(
         INPUT  tmp-dir,
         OUTPUT lCreated,
         OUTPUT cMessage

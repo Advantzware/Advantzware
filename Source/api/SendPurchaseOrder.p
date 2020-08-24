@@ -24,6 +24,7 @@
     
     DEFINE VARIABLE dQuantityInEA     AS DECIMAL NO-UNDO.
     DEFINE VARIABLE hdConversionProcs AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE hdFTPProcs        AS HANDLE  NO-UNDO.
     
     RUN system/ConversionProcs.p PERSISTENT SET hdConversionProcs.
     
@@ -185,6 +186,9 @@
     
     DEFINE VARIABLE hdPOProcs AS HANDLE NO-UNDO.
     RUN po/POProcs.p PERSISTENT SET hdPOProcs.
+    
+    DEFINE VARIABLE cRequestFile     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cRequestFilePath AS CHARACTER NO-UNDO.
     
     /* This is to run client specific request handler to fetch request data */
     IF ipcRequestHandler NE "" THEN
@@ -887,8 +891,47 @@
             opcMessage = ""
             oplSuccess = TRUE
              .
-    END.
 
+        IF APIOutbound.requestType EQ "FTP" THEN DO:
+            RUN system/ftpProcs.p PERSISTENT SET hdFTPProcs.
+
+            IF APIOutbound.SaveFile THEN DO:
+                RUN FileSys_CreateDirectory (
+                    INPUT  APIOutbound.SaveFileFolder,
+                    OUTPUT oplSuccess,
+                    OUTPUT opcMessage
+                    ) NO-ERROR.
+                IF oplSuccess THEN DO:    
+                    cRequestFile = APIOutbound.apiID + cPoNO + "_" + STRING(MTIME) + "." + "txt".
+                        
+                    COPY-LOB ioplcRequestData TO FILE cRequestFile.
+                    OS-COPY VALUE (cRequestFile) VALUE (APIOutbound.saveFileFolder).
+                    
+                    RUN FileSys_GetFilePath (
+                        INPUT  APIOutbound.saveFileFolder,
+                        OUTPUT cRequestFilePath,
+                        OUTPUT oplSuccess,
+                        OUTPUT opcMessage
+                        ).
+                    IF NOT oplSuccess THEN
+                        RETURN.
+                    
+                    RUN pExecFtp IN hdFTPProcs (
+                        INPUT APIOutbound.company,   /* Company */
+                        INPUT APIOutbound.apiID,     /* Ftp Config Code */
+                        INPUT APIOutbound.clientID,  /* Partner */
+                        INPUT cRequestFilePath,      /* File Folder */
+                        INPUT cRequestFile           /* File Name */
+                        ) NO-ERROR.
+                END.    
+            END.
+          
+           
+           DELETE PROCEDURE hdFTPProcs.
+        END.
+    END.
+    
+    
     IF VALID-HANDLE(hdJobProcs) THEN
         DELETE PROCEDURE hdJobProcs.
 

@@ -780,6 +780,7 @@ DO:
            RUN windows/l-stylec.w (gcompany,ls-cur-val, OUTPUT char-val).
            IF char-val <> "" AND ls-cur-val <> entry(1,char-val) THEN DO:
               eb.style:screen-value IN BROWSE {&browse-name} = entry(1,char-val).
+              RUN set-lv-foam.
               FIND style WHERE style.company = gcompany AND
                                style.style = eb.style:screen-value IN BROWSE {&browse-name}
                          NO-LOCK NO-ERROR.            
@@ -6198,7 +6199,8 @@ PROCEDURE local-delete-record :
       END.
       ELSE DO:
           /*LEAVE.       */
-          RUN first-run IN WIDGET-HANDLE(char-hdl).
+          RUN pSetFirstRunValue IN WIDGET-HANDLE(char-hdl)(yes).
+          RUN local-open-query IN WIDGET-HANDLE(char-hdl).
       END.
     END.
   END.
@@ -7042,13 +7044,13 @@ PROCEDURE pCreateMiscEstimate :
 
   IF AVAIL bff-eb THEN DO:
       IF bff-eb.sourceEstimate NE "" THEN 
-        RUN est/BuildFarmForLogistics.p (INPUT riEb).
+        RUN est/BuildFarmForLogistics.p (INPUT riEb,INPUT YES).
       ELSE 
         RUN est/dNewMiscCost.w( INPUT riEb ) .
   END.
   IF iCount > 0 AND AVAIL bff-eb THEN do:
       
-      RUN CreateEstReleaseForEstBlank(INPUT riEb, OUTPUT iEstReleaseID ,
+      RUN CreateEstReleaseForEstBlank(INPUT riEb,INPUT NO, OUTPUT iEstReleaseID ,
                                      OUTPUT lError,OUTPUT cMessage) .
 
       FIND FIRST estRelease NO-LOCK
@@ -8474,7 +8476,7 @@ PROCEDURE valid-ship-id :
         RETURN ERROR.
       END.
     END.
-    IF AVAIL shipto AND NOT DYNAMIC-FUNCTION("IsActive", shipto.rec_key) THEN DO:
+    IF AVAIL shipto AND shipto.statusCode EQ "I" THEN DO:
         MESSAGE "The ship to is inactive and cannot be used on an Estimate." 
             VIEW-AS ALERT-BOX INFORMATION .
         APPLY "entry" TO eb.ship-id IN BROWSE {&browse-name}.

@@ -36,9 +36,7 @@ DEFINE VARIABLE cLine         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdOutputProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cPathDataFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdSession     AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hdOSProcs     AS HANDLE    NO-UNDO.
 
-RUN system/OSProcs.p     PERSISTENT SET hdOSProcs.
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 RUN system/Session.p     PERSISTENT SET hdSession.
 
@@ -147,7 +145,7 @@ PROCEDURE pGetNodeStatus PRIVATE:
               + (IF cAPIPort NE '' THEN ":" + cAPIPort ELSE "")
               + '/api/getnodestatus'.
 
-    RUN OS_RunCommand IN hdOSProcs (
+    RUN OS_RunCommand (
         INPUT  cCommand,             /* Command string to run */
         INPUT  cPathDataFile,        /* File name to write the command output */
         INPUT  TRUE,                 /* Run with SILENT option */
@@ -238,7 +236,7 @@ PROCEDURE pGetASBrokerStatus PRIVATE:
     cCommand = cDLC + "\bin\asbman.bat -NAME " + ipcBrokerName + " -PORT " 
              + STRING(cAdminServerPort) + " -QUERY".
     
-    RUN OS_RunCommand IN hdOSProcs (
+    RUN OS_RunCommand (
         INPUT  cCommand,             /* Command string to run */
         INPUT  cPathDataFile,        /* File name to write the command output */
         INPUT  TRUE,                 /* Run with SILENT option */
@@ -306,7 +304,7 @@ PROCEDURE pGetNameServerStatus PRIVATE:
     cCommand = cDLC + "\bin\nsman.bat -NAME " + cNameServerName + " -PORT " 
              + STRING(cAdminServerPort) + " -QUERY".
     
-    RUN OS_RunCommand IN hdOSProcs (
+    RUN OS_RunCommand (
         INPUT  cCommand,             /* Command string to run */
         INPUT  cPathDataFile,        /* File name to write the command output */
         INPUT  TRUE,                 /* Run with SILENT option */
@@ -351,7 +349,7 @@ PROCEDURE pGetAdminServerStatus PRIVATE:
     cCommand = cDLC + "\bin\proadsv.bat -QUERY -port "
              + STRING(ipcPort).
 
-    RUN OS_RunCommand IN hdOSProcs (
+    RUN OS_RunCommand (
         INPUT  cCommand,             /* Command string to run */
         INPUT  cPathDataFile,        /* File name to write the command output */
         INPUT  TRUE,                 /* Run with SILENT option */

@@ -4,9 +4,8 @@
 
 DEF INPUT PARAM v-recid AS RECID NO-UNDO.
 
-DEF VAR v-tax-rate AS DEC NO-UNDO.
-DEF VAR v-frt-tax-rate AS DEC NO-UNDO.
-
+DEFINE VARIABLE dTaxAmount     AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dFrtTaxAmount  AS DECIMAL NO-UNDO.   
 
 FIND po-ord WHERE RECID(po-ord) EQ v-recid NO-ERROR.
 
@@ -20,13 +19,20 @@ IF AVAIL po-ord THEN DO:
       ASSIGN
        po-ord.t-cost = po-ord.t-freight.
 
-  IF po-ord.tax-gr NE "" THEN DO:
-    RUN ar/cctaxrt.p (po-ord.company, po-ord.tax-gr,
-                      OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
+  IF po-ord.tax-gr NE "" THEN DO:    
 
     IF po-ord.fob-code EQ "ORIG" AND po-ord.frt-pay NE "P" THEN
+    DO:
+     RUN Tax_Calculate(INPUT po-ord.company,
+                           INPUT po-ord.tax-gr,
+                           INPUT TRUE,
+                           INPUT po-ord.t-freight,
+                           INPUT "", 
+                           OUTPUT dFrtTaxAmount).
+    
       ASSIGN
-       po-ord.tax    = po-ord.t-freight * v-frt-tax-rate / 100.
+       po-ord.tax    = dFrtTaxAmount.
+    END.   
   END.
 
   FOR EACH po-ordl NO-LOCK
@@ -36,8 +42,16 @@ IF AVAIL po-ord THEN DO:
     po-ord.t-cost = po-ord.t-cost + po-ordl.t-cost.
   
     IF po-ordl.tax THEN
-      po-ord.tax = po-ord.tax + (po-ordl.t-cost * v-tax-rate / 100).
-
+    DO:
+       RUN Tax_Calculate(INPUT po-ord.company,
+                           INPUT po-ord.tax-gr,
+                           INPUT FALSE,
+                           INPUT po-ordl.t-cost,
+                           INPUT po-ordl.i-no, 
+                           OUTPUT dTaxAmount).
+      po-ord.tax = po-ord.tax + (dTaxAmount).
+    END.
+    
     IF po-ordl.stat EQ "U" AND
        po-ord.stat NE "H"  AND
        po-ord.opened       THEN po-ord.stat = "U".

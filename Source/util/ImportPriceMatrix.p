@@ -66,7 +66,8 @@ DEFINE TEMP-TABLE ttImportPriceMatrix
     FIELD UOM10         AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "UOM10" HELP "Optional - must be Valid"
     FIELD ExpireDate      AS DATE      FORMAT "99/99/9999" INITIAL "12/31/2099" COLUMN-LABEL "Exp Date" HELP "validated - must be greater than eff date"
     FIELD ShipTo       AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "ShipTo" HELP "Optional - Size:8"
-    FIELD cOnline    AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Online" HELP "Optional - Yes or N0"  .
+    FIELD cOnline      AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Online" HELP "Optional - Yes or N0" 
+    FIELD minOrderQty  AS CHARACTER FORMAT "->>>,>>>,>>9.<<<" COLUMN-LABEL "Minimum Order Qty" HELP "Optional - Decimal" .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
 
@@ -156,15 +157,15 @@ PROCEDURE pValidate PRIVATE:
         
         IF oplValid AND ipbf-ttImportPriceMatrix.FGItemID NE "" THEN 
             RUN pIsValidFGItemID IN hdValidator (ipbf-ttImportPriceMatrix.FGItemID, NO, ipbf-ttImportPriceMatrix.Company, OUTPUT oplValid, OUTPUT cValidNote).
-      
+        
+        IF oplValid THEN 
+        RUN pSetValidUOMList(ipbf-ttImportPriceMatrix.company, ipbf-ttImportPriceMatrix.FGItemID, OUTPUT cUOMList ).
+        
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM1 NE "" THEN 
         DO:
             IF ipbf-ttImportPriceMatrix.Quantity1 NE 0 THEN 
-            DO:
-                FIND FIRST uom NO-LOCK
-                    WHERE uom.uom EQ ipbf-ttImportPriceMatrix.UOM1
-                    AND lookup(uom.uom,cUOMList) NE 0 NO-ERROR.
-                IF NOT AVAILABLE uom THEN
+            DO:                    
+                IF LOOKUP(ipbf-ttImportPriceMatrix.UOM1,cUOMList) EQ 0 THEN
                     ASSIGN 
                         oplValid = NO 
                         opcNote  = "Invalid UOM1".
@@ -174,11 +175,8 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM2 NE "" THEN 
         DO:
             IF ipbf-ttImportPriceMatrix.Quantity2 NE 0 THEN 
-            DO:
-                FIND FIRST uom NO-LOCK
-                    WHERE uom.uom EQ ipbf-ttImportPriceMatrix.UOM2
-                    AND lookup(uom.uom,cUOMList) NE 0 NO-ERROR.
-                IF NOT AVAILABLE uom THEN
+            DO:                     
+                IF LOOKUP(ipbf-ttImportPriceMatrix.UOM2,cUOMList) EQ 0 THEN
                     ASSIGN 
                         oplValid = NO 
                         opcNote  = "Invalid UOM2".
@@ -187,11 +185,8 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM3 NE "" THEN 
         DO:
             IF ipbf-ttImportPriceMatrix.Quantity3 NE 0 THEN 
-            DO:
-                FIND FIRST uom NO-LOCK
-                    WHERE uom.uom EQ ipbf-ttImportPriceMatrix.UOM3
-                    AND lookup(uom.uom,cUOMList) NE 0 NO-ERROR.
-                IF NOT AVAILABLE uom THEN
+            DO:                  
+                IF LOOKUP(ipbf-ttImportPriceMatrix.UOM3,cUOMList) EQ 0 THEN
                     ASSIGN 
                         oplValid = NO 
                         opcNote  = "Invalid UOM3".
@@ -200,11 +195,8 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM4 NE "" THEN 
         DO:
             IF ipbf-ttImportPriceMatrix.Quantity4 NE 0 THEN 
-            DO:
-                FIND FIRST uom NO-LOCK
-                    WHERE uom.uom EQ ipbf-ttImportPriceMatrix.UOM4
-                    AND lookup(uom.uom,cUOMList) NE 0 NO-ERROR.
-                IF NOT AVAILABLE uom THEN
+            DO:                  
+                IF LOOKUP(ipbf-ttImportPriceMatrix.UOM4,cUOMList) EQ 0 THEN
                     ASSIGN 
                         oplValid = NO 
                         opcNote  = "Invalid UOM4".
@@ -213,11 +205,8 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM5 NE "" THEN 
         DO:
             IF ipbf-ttImportPriceMatrix.Quantity5 NE 0 THEN 
-            DO:
-                FIND FIRST uom NO-LOCK
-                    WHERE uom.uom EQ ipbf-ttImportPriceMatrix.UOM5
-                    AND lookup(uom.uom,cUOMList) NE 0 NO-ERROR.
-                IF NOT AVAILABLE uom THEN
+            DO:                     
+                IF LOOKUP(ipbf-ttImportPriceMatrix.UOM5,cUOMList) EQ 0 THEN
                     ASSIGN 
                         oplValid = NO 
                         opcNote  = "Invalid UOM5".
@@ -226,11 +215,8 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM6 NE "" THEN 
         DO:
             IF ipbf-ttImportPriceMatrix.Quantity6 NE 0 THEN 
-            DO:
-                FIND FIRST uom NO-LOCK
-                    WHERE uom.uom EQ ipbf-ttImportPriceMatrix.UOM6
-                    AND lookup(uom.uom,cUOMList) NE 0 NO-ERROR.
-                IF NOT AVAILABLE uom THEN
+            DO:                   
+                IF LOOKUP(ipbf-ttImportPriceMatrix.UOM6,cUOMList) EQ 0 THEN
                     ASSIGN 
                         oplValid = NO 
                         opcNote  = "Invalid UOM6".
@@ -240,11 +226,8 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM7 NE "" THEN 
         DO:
             IF ipbf-ttImportPriceMatrix.Quantity7 NE 0 THEN 
-            DO:
-                FIND FIRST uom NO-LOCK
-                    WHERE uom.uom EQ ipbf-ttImportPriceMatrix.UOM7
-                    AND lookup(uom.uom,cUOMList) NE 0 NO-ERROR.
-                IF NOT AVAILABLE uom THEN
+            DO:                    
+                IF LOOKUP(ipbf-ttImportPriceMatrix.UOM7,cUOMList) EQ 0 THEN
                     ASSIGN 
                         oplValid = NO 
                         opcNote  = "Invalid UOM7".
@@ -253,11 +236,8 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM8 NE "" THEN 
         DO:
             IF ipbf-ttImportPriceMatrix.Quantity8 NE 0 THEN 
-            DO:
-                FIND FIRST uom NO-LOCK
-                    WHERE uom.uom EQ ipbf-ttImportPriceMatrix.UOM8
-                    AND lookup(uom.uom,cUOMList) NE 0 NO-ERROR.
-                IF NOT AVAILABLE uom THEN
+            DO:                     
+                IF LOOKUP(ipbf-ttImportPriceMatrix.UOM8,cUOMList) EQ 0 THEN
                     ASSIGN 
                         oplValid = NO 
                         opcNote  = "Invalid UOM8".
@@ -266,11 +246,8 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM9 NE "" THEN 
         DO:
             IF ipbf-ttImportPriceMatrix.Quantity9 NE 0 THEN 
-            DO:
-                FIND FIRST uom NO-LOCK
-                    WHERE uom.uom EQ ipbf-ttImportPriceMatrix.UOM9
-                    AND lookup(uom.uom,cUOMList) NE 0 NO-ERROR.
-                IF NOT AVAILABLE uom THEN
+            DO:                     
+                IF LOOKUP(ipbf-ttImportPriceMatrix.UOM9,cUOMList) EQ 0 THEN
                     ASSIGN 
                         oplValid = NO 
                         opcNote  = "Invalid UOM9".
@@ -280,11 +257,8 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportPriceMatrix.UOM10 NE "" THEN 
         DO:
             IF ipbf-ttImportPriceMatrix.Quantity10 NE 0 THEN 
-            DO:
-                FIND FIRST uom NO-LOCK
-                    WHERE uom.uom EQ ipbf-ttImportPriceMatrix.UOM10
-                    AND lookup(uom.uom,cUOMList) NE 0 NO-ERROR.
-                IF NOT AVAILABLE uom THEN
+            DO:                    
+                IF LOOKUP(ipbf-ttImportPriceMatrix.UOM10,cUOMList) EQ 0 THEN
                     ASSIGN 
                         oplValid = NO 
                         opcNote  = "Invalid UOM10".
@@ -390,9 +364,43 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueD (ipbf-ttImportPriceMatrix.Discount10, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.discount[10]).
     RUN pAssignValueC (ipbf-ttImportPriceMatrix.UOM10, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.uom[10]).
     RUN pAssignValueC (ipbf-ttImportPriceMatrix.cOnline, YES, INPUT-OUTPUT bf-oe-prmtx.online).
+    RUN pAssignValueD (ipbf-ttImportPriceMatrix.minOrderQty, iplIgnoreBlanks, INPUT-OUTPUT bf-oe-prmtx.minOrderQty). 
 
     RELEASE bf-oe-prmtx.
 END PROCEDURE.
+
+
+PROCEDURE pSetValidUOMList PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Processes to get uom list 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcUomList AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+     
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+
+        IF ipcItemID NE "" THEN DO:
+            FIND FIRST bf-itemfg NO-LOCK
+                WHERE bf-itemfg.company EQ ipcCompany
+                AND bf-itemfg.i-no EQ ipcItemID
+                NO-ERROR.
+
+        END.
+        IF AVAILABLE bf-itemfg THEN DO: 
+            RUN Conv_GetValidPriceUOMsForItem(ROWID(bf-itemfg), OUTPUT opcUomList, OUTPUT lError, OUTPUT cMessage).
+        END.
+        ELSE DO: 
+            RUN Conv_GetValidPriceUOMs(OUTPUT opcUomList).
+        END.
+    
+   
+END PROCEDURE.
+
 
 
 /* ************************  Function Implementations ***************** */

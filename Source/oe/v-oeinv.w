@@ -48,9 +48,6 @@ DEF NEW SHARED VAR v-ship-no LIKE shipto.ship-no.
 DEF VAR v-cash-sale AS LOG NO-UNDO.
 DEFINE BUFFER bff-head FOR inv-head.
 
-DEFINE VARIABLE hdTaxProcs  AS HANDLE    NO-UNDO.
-RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
-
 &SCOPED-DEFINE other-enable enable-other
 
 /* _UIB-CODE-BLOCK-END */
@@ -1318,12 +1315,6 @@ PROCEDURE local-assign-record :
   DEF VAR ld-tax-amt AS DEC NO-UNDO.
   DEF VAR ld-inv-accum AS DEC NO-UNDO.
 
-DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE dInvoiceSubTotal AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE dTotalTax        AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cmessage         AS CHARACTER NO-UNDO.
-
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN ld-prev-frt-tot = IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0 .
 
@@ -1340,18 +1331,6 @@ DEFINE VARIABLE cmessage         AS CHARACTER NO-UNDO.
   IF inv-status EQ "ON HOLD" AND inv-head.stat NE "H" THEN inv-head.stat = "H".
   inv-head.f-bill = inv-head.frt-pay eq "B" /* OR inv-head.frt-pay eq "P" */.
 
-  RUN Tax_CalculateForInvHead IN hdTaxProcs (
-      INPUT ROWID(inv-head),
-      INPUT locode,
-      INPUT "INVOICE", /*  Message Type "INVOICE" or "QUOTATION" */
-      INPUT TRUE, /* Post To journal */
-      OUTPUT dTotalTax,
-      OUTPUT dInvoiceTotal,
-      OUTPUT dinvoiceSubTotal,
-      OUTPUT lSuccess,
-      OUTPUT cMessage
-      ).
-
   IF inv-head.cust-no NE '' AND inv-head.sman[1] EQ '' THEN DO:
       FIND FIRST cust 
           WHERE cust.company EQ inv-head.company
@@ -1362,11 +1341,6 @@ DEFINE VARIABLE cmessage         AS CHARACTER NO-UNDO.
             inv-head.sman[1] = cust.sman
             inv-head.s-pct[1] = 100.
   END.
-
-  ASSIGN 
-      inv-head.t-inv-tax = dTotalTax
-      inv-head.t-inv-rev = dInvoiceTotal
-      .
 
   RUN dispatch ('display-fields').
 
@@ -1554,7 +1528,9 @@ PROCEDURE local-update-record :
      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"auto-add-target",OUTPUT char-hdl).
      RUN auto-add IN WIDGET-HANDLE(char-hdl).
   END.
-
+ 
+  RUN dispatch IN THIS-PROCEDURE ('row-changed':U).
+  
   ASSIGN
    lv-add-record     = NO
    adm-adding-record = NO

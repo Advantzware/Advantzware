@@ -1,4 +1,4 @@
-/*File: oe\fifoloopcsc.p */
+/*File: oe\fifoloopTags.p */
 
 DEFINE INPUT PARAMETER iprTableRow AS ROWID NO-UNDO.
 DEFINE INPUT PARAMETER iplNoAssignTagNum AS LOG NO-UNDO.

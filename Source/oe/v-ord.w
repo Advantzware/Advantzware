@@ -120,7 +120,6 @@ DEF NEW SHARED BUFFER xeb FOR eb.
 DEF NEW SHARED BUFFER xef FOR ef.
 DEFINE VARIABLE hdPriceProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE lCreditAccSec AS LOGICAL NO-UNDO .
-DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE llOeShipFromLog AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lErrorValid AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cOeShipChar AS CHARACTER NO-UNDO.
@@ -128,7 +127,6 @@ DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMisEstimate AS CHARACTER NO-UNDO .
 
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
-RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 &Scoped-define sman-fields oe-ord.sman oe-ord.s-pct oe-ord.s-comm
 
 DEF NEW SHARED TEMP-TABLE w-ord NO-UNDO FIELD w-ord-no LIKE oe-ord.ord-no.
@@ -1056,7 +1054,9 @@ DO:
                                                                shipto.ship-state,
                                                                shipto.ship-zip).
                  IF shipto.tax-code NE "" THEN
-                     oe-ord.tax-gr:screen-value = shipto.tax-code . 
+                     oe-ord.tax-gr:screen-value = shipto.tax-code .
+                 IF shipto.carrier NE "" THEN
+                     oe-ord.carrier:screen-value = shipto.carrier .    
                 RUN pGetOverUnderPct.
               END.
          END.  
@@ -1745,7 +1745,8 @@ DO:
                                                                shipto.ship-zip).
            IF shipto.tax-code NE "" THEN
                oe-ord.tax-gr:screen-value    =  shipto.tax-code .
-            
+           IF shipto.carrier NE "" THEN
+               oe-ord.carrier:screen-value = shipto.carrier . 
        END.      
   END.
 END.
@@ -2576,9 +2577,9 @@ PROCEDURE create-misc :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-recid AS RECID NO-UNDO.
-  DEF VAR li-line AS INT NO-UNDO.
-  DEF VAR v-tax-rate AS DEC FORM ">,>>9.99<<<" NO-UNDO.
-  DEF VAR v-frt-tax-rate LIKE v-tax-rate NO-UNDO.
+  DEF VAR li-line AS INT NO-UNDO.  
+  DEFINE VARIABLE dTaxAmount     AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dFrtTaxAmount  AS DECIMAL NO-UNDO.
   DEF BUFFER bf-eb FOR eb .
 
   FIND bf-eb WHERE RECID(bf-eb) = ip-recid NO-LOCK NO-ERROR.
@@ -2628,14 +2629,17 @@ PROCEDURE create-misc :
 
          IF oe-ordm.tax THEN 
             ASSIGN oe-ordm.spare-char-1 = oe-ord.tax-gr.
-                   .  
-         RUN ar/cctaxrt.p (INPUT g_company, oe-ord.tax-gr,
-                            OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
-
+                            
          IF AVAIL cust THEN DO:
            FIND CURRENT cust EXCLUSIVE-LOCK.
+           RUN Tax_Calculate(INPUT g_company,
+                           INPUT oe-ord.tax-gr,
+                           INPUT FALSE,
+                           INPUT oe-ordm.amt,
+                           INPUT oe-ordm.ord-i-no, 
+                           OUTPUT dTaxAmount).           
            cust.ord-bal = cust.ord-bal + oe-ordm.amt +
-                          (IF oe-ordm.tax THEN (oe-ordm.amt * v-tax-rate / 100) ELSE 0).            
+                          (IF oe-ordm.tax THEN (dTaxAmount) ELSE 0).            
            FIND CURRENT cust NO-LOCK.
          END.
         est-prep.orderID = string(oe-ord.ord-no) .
@@ -2684,13 +2688,17 @@ PROCEDURE create-misc :
                    oe-ordm.form-no = ef.form-no
                    oe-ordm.blank-no = bf-eb.blank-no .
 
-            RUN ar/cctaxrt.p (INPUT g_company, oe-ord.tax-gr,
-                              OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
-
+           
             IF AVAIL cust THEN DO:
               FIND CURRENT cust EXCLUSIVE-LOCK.
+              RUN Tax_Calculate(INPUT oe-ord.company,
+                           INPUT oe-ord.tax-gr,
+                           INPUT FALSE,
+                           INPUT oe-ordm.amt,
+                           INPUT oe-ordm.ord-i-no, 
+                           OUTPUT dTaxAmount).
               cust.ord-bal = cust.ord-bal + oe-ordm.amt +
-                             (IF oe-ordm.tax THEN (oe-ordm.amt * v-tax-rate / 100) ELSE 0).
+                             (IF oe-ordm.tax THEN (dTaxAmount) ELSE 0).
               FIND CURRENT cust NO-LOCK.
             END.
 
@@ -3079,8 +3087,8 @@ DEFINE VARIABLE v-tot-freight     LIKE oe-ord.t-freight NO-UNDO.
 DEFINE VARIABLE v-qty-lft         LIKE oe-ordl.qty      NO-UNDO.
 DEFINE VARIABLE v-new-ord         AS LOGICAL          INITIAL NO NO-UNDO.
 DEFINE VARIABLE v-ext-price       LIKE oe-ordl.t-price  NO-UNDO.
-DEFINE VARIABLE v-tax-rate        AS DECIMAL          FORMAT "->>>.99" NO-UNDO.
-DEFINE VARIABLE v-frt-tax-rate    LIKE v-tax-rate       NO-UNDO.
+DEFINE VARIABLE dTaxAmount        AS DECIMAL          NO-UNDO.
+DEFINE VARIABLE dFrtTaxAmount     AS DECIMAL          NO-UNDO.
 DEFINE VARIABLE v-period          AS INTEGER          NO-UNDO.
 DEFINE VARIABLE tmp-ordm-amt      LIKE oe-ordm.amt      NO-UNDO.
 DEFINE VARIABLE tmp-tax           LIKE oe-ord.tax       NO-UNDO.
@@ -3193,9 +3201,7 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
       RUN fg/comp-upd.p (RECID(itemfg), oe-ordl.qty * -1, "q-alloc", 0).
     END. /* avail itemfg */
 
-    RUN ar/cctaxrt.p (INPUT oe-ord.company, INPUT oe-ord.tax-gr,
-    OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
-
+  
     ASSIGN
     v-qty-lft   = oe-ordl.qty - oe-ordl.inv-qty
     v-ext-price = 0.
@@ -3235,13 +3241,31 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
       (ROUND(oe-ordl.t-freight / oe-ordl.qty, 2) *
       v-qty-lft).
       /** calculate tax charges **/
-      IF oe-ordl.tax AND v-tax-rate GT 0 THEN ASSIGN
-      v-tot-tax = v-tot-tax + ROUND((v-ext-price * v-tax-rate) / 100,2).
+      IF oe-ordl.tax THEN
+      DO:
+        RUN Tax_Calculate(INPUT oe-ord.company,
+                           INPUT oe-ord.tax-gr,
+                           INPUT FALSE,
+                           INPUT v-ext-price,
+                           INPUT oe-ordl.i-no, 
+                           OUTPUT dTaxAmount).
+        ASSIGN
+        v-tot-tax = v-tot-tax + ROUND(dTaxAmount,2).
+      END.
     END. /* inv-qty ne 0 */
 
     IF oe-ordl.tax THEN
+    DO:
+       RUN Tax_Calculate(INPUT oe-ord.company,
+                           INPUT oe-ord.tax-gr,
+                           INPUT FALSE,
+                           INPUT v-ext-price,
+                           INPUT oe-ordl.i-no, 
+                           OUTPUT dTaxAmount).
+                           
       ASSIGN v-totord = (v-totord + v-ext-price +
-      ROUND((v-ext-price * v-tax-rate) / 100,2)).
+      ROUND(dTaxAmount,2)).
+    END.  
     ELSE
       ASSIGN v-totord = v-totord + v-ext-price.
 
@@ -3251,11 +3275,20 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
       AND oe-ordm.est-no  EQ oe-ordl.est-no:
       IF oe-ordm.bill EQ "Y" THEN DO:
         ASSIGN  v-totord = v-totord + oe-ordm.amt.
-        IF oe-ordm.tax AND v-tax-rate GT 0 THEN
-        ASSIGN v-tot-tax = (v-tot-tax +
-        ROUND((oe-ordm.amt * v-tax-rate) / 100,2))
-        v-totord = (v-totord +
-        ROUND((oe-ordm.amt * v-tax-rate) / 100,2)).
+        IF oe-ordm.tax THEN 
+        DO: 
+            RUN Tax_Calculate(INPUT oe-ord.company,
+                           INPUT oe-ord.tax-gr,
+                           INPUT FALSE,
+                           INPUT oe-ordm.amt,
+                           INPUT oe-ordm.ord-i-no, 
+                           OUTPUT dTaxAmount).
+                           
+            ASSIGN v-tot-tax = (v-tot-tax +
+            ROUND(dTaxAmount,2))
+            v-totord = (v-totord +
+            ROUND(dTaxAmount,2)).
+        END.
       END.
       
       FIND FIRST est-prep EXCLUSIVE-LOCK
@@ -3416,20 +3449,26 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
 
   FIND CURRENT itemfg NO-LOCK NO-ERROR.
 
-  RUN ar/cctaxrt.p (INPUT oe-ord.company, INPUT oe-ord.tax-gr,
-  OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
-
+ 
   FOR EACH oe-ordm
     WHERE oe-ordm.company EQ oe-ord.company
     AND oe-ordm.ord-no  EQ oe-ord.ord-no:
     IF oe-ordm.bill EQ "Y" THEN DO:
       v-totord = v-totord + oe-ordm.amt.
-      IF oe-ordm.tax AND v-tax-rate GT 0 THEN
-      ASSIGN
-      v-tot-tax = v-tot-tax +
-      ROUND((oe-ordm.amt * v-tax-rate) / 100,2)
-      v-totord  = v-totord +
-      ROUND((oe-ordm.amt * v-tax-rate) / 100,2).
+      IF oe-ordm.tax THEN
+      DO:
+         RUN Tax_Calculate(INPUT oe-ord.company,
+                           INPUT oe-ord.tax-gr,
+                           INPUT FALSE,
+                           INPUT oe-ordm.amt,
+                           INPUT oe-ordm.ord-i-no, 
+                           OUTPUT dTaxAmount).
+          ASSIGN
+          v-tot-tax = v-tot-tax +
+          ROUND(dTaxAmount,2)
+          v-totord  = v-totord +
+          ROUND(dTaxAmount,2).
+      END.
     END.
 
     FIND FIRST est-prep EXCLUSIVE-LOCK
@@ -3451,15 +3490,32 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
 
   IF oe-ord.f-bill THEN DO:
     IF v-fr-tax THEN
-    v-totord = (v-totord + oe-ord.t-freight +
-    ROUND((oe-ord.t-freight * v-frt-tax-rate) / 100,2)).
+    DO:
+        RUN Tax_Calculate(INPUT oe-ord.company,
+                           INPUT oe-ord.tax-gr,
+                           INPUT TRUE,
+                           INPUT oe-ord.t-freight,
+                           INPUT "", 
+                           OUTPUT dFrtTaxAmount).
+    
+        v-totord = (v-totord + oe-ord.t-freight +
+        ROUND(dFrtTaxAmount,2)).
+    END.
     ELSE
     v-totord = v-totord + oe-ord.t-freight.
   END.
 
   IF v-fr-tax THEN
-  v-tot-tax = v-tot-tax + ROUND((v-tot-freight * v-frt-tax-rate) / 100,2).
-
+  DO:
+     RUN Tax_Calculate(INPUT oe-ord.company,
+                           INPUT oe-ord.tax-gr,
+                           INPUT TRUE,
+                           INPUT v-tot-freight,
+                           INPUT "", 
+                           OUTPUT dFrtTaxAmount).
+  v-tot-tax = v-tot-tax + ROUND(dFrtTaxAmount,2).
+  END.
+  
   FIND FIRST cust
     WHERE cust.company EQ oe-ord.company
     AND cust.cust-no EQ oe-ord.cust-no
@@ -3704,7 +3760,8 @@ PROCEDURE display-cust-detail :
               ls-ship-i[2] = shipto.notes[2]
               ls-ship-i[3] = shipto.notes[3]
               ls-ship-i[4] = shipto.notes[4]
-              oe-ord.tax-gr:screen-value    = IF shipto.tax-code NE "" THEN shipto.tax-code ELSE oe-ord.tax-gr:screen-value .
+              oe-ord.tax-gr:screen-value    = IF shipto.tax-code NE "" THEN shipto.tax-code ELSE oe-ord.tax-gr:screen-value
+              oe-ord.carrier:screen-value   = IF shipto.carrier NE "" THEN shipto.carrier ELSE oe-ord.carrier:screen-value  .
                             
      RUN pGetOverUnderPct.        
 
@@ -5498,7 +5555,6 @@ PROCEDURE local-exit :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  DELETE OBJECT hdTaxProcs.
 
 
 END PROCEDURE.
@@ -7542,7 +7598,7 @@ FUNCTION fGetTaxable RETURNS LOGICAL
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-    RUN GetTaxableMisc IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
+    RUN Tax_GetTaxableMisc  (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
     RETURN lTaxable.
 
 END FUNCTION.

@@ -86,7 +86,7 @@ PROCEDURE pBusinessLogic:
                 WHERE shipto.company EQ cCompany
                   AND shipto.cust-no EQ cust.cust-no
                 :
-                IF DYNAMIC-FUNCTION("IsActive",shipto.rec_key) EQ NO AND
+                IF shipto.statusCode EQ "I" AND
                    cShipToStatus EQ "Active" THEN
                 NEXT.
                 FIND FIRST stax-group NO-LOCK

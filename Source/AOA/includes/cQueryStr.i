@@ -4,7 +4,7 @@
 
 cQueryStr = {1}.
 IF INDEX({1},"[[") NE 0 THEN
-FOR EACH dynValueParam EXCLUSIVE-LOCK
+FOR EACH dynValueParam NO-LOCK
     WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
       AND dynValueParam.user-id      EQ dynParamValue.user-id
       AND dynValueParam.prgmName     EQ dynParamValue.prgmName

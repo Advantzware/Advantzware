@@ -115,6 +115,7 @@ DEFINE VARIABLE lBuildError        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cBuildErrorMessage AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lUseNewCalc        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lPromptForNewCalc  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lUpdateLoc         AS LOGICAL   NO-UNDO.
 
 DEFINE BUFFER x-eb            FOR eb.
 DEFINE BUFFER x-job-hdr       FOR job-hdr.
@@ -398,35 +399,25 @@ DO:
                 INPUT LAST(xeb.blank-no),                
                 INPUT lAvailOeRel,
                 INPUT lAvailOeOrdl
-                ).             
-
-            RUN util/upditmfg.p (riJobHdr, 1).
+                ).  
+             
+            RUN pGetUpdateableLocValue(
+                INPUT xeb.est-type,
+                INPUT xeb.form-no,                
+                INPUT LAST(xeb.blank-no),
+                OUTPUT lUpdateLoc).     
+             
+            RUN pUpdateFGItemQty(
+                INPUT riJobHdr,
+                INPUT lUpdateLoc
+                ).
 
             RUN pUpdateItem (
                 INPUT riJobHdr
                 ).
         END.  /* FOR EACH xeb */
 
-    FOR EACH job-hdr
-        WHERE job-hdr.company EQ job.company
-        AND job-hdr.job     EQ job.job
-        AND job-hdr.job-no  EQ job.job-no
-        AND job-hdr.job-no2 EQ job.job-no2
-        AND NOT CAN-FIND(FIRST xeb
-        WHERE xeb.company      EQ job-hdr.company
-        AND xeb.est-no       EQ job-hdr.est-no
-        AND xeb.stock-no     EQ job-hdr.i-no
-        AND ((xeb.form-no    EQ 0 AND
-        xeb.blank-no   EQ 0 AND
-        (xest.est-type EQ 2 OR xest.est-type EQ 6)) OR
-        (xeb.form-no    EQ job-hdr.frm AND
-        xeb.blank-no   EQ job-hdr.blank-no AND
-        xest.est-type  NE 2 AND xest.est-type NE 6)))
-        TRANSACTION:
-        RUN util/upditmfg.p (ROWID(job-hdr), -1).
 
-        DELETE job-hdr.
-    END.
     DO TRANSACTION:
         ASSIGN
             job.est-no      = xest.est-no
@@ -448,6 +439,27 @@ DO:
         RUN jc\BuildJob.p(ROWID(job), IF AVAILABLE oe-ordl THEN oe-ordl.ord-no ELSE 0, OUTPUT lBuildError, OUTPUT cBuildErrorMessage).
     ELSE 
     DO: 
+        FOR EACH job-hdr
+            WHERE job-hdr.company EQ job.company
+            AND job-hdr.job     EQ job.job
+            AND job-hdr.job-no  EQ job.job-no
+            AND job-hdr.job-no2 EQ job.job-no2
+            AND NOT CAN-FIND(FIRST xeb
+            WHERE xeb.company      EQ job-hdr.company
+            AND xeb.est-no       EQ job-hdr.est-no
+            AND xeb.stock-no     EQ job-hdr.i-no
+            AND ((xeb.form-no    EQ 0 AND
+            xeb.blank-no   EQ 0 AND
+            (xest.est-type EQ 2 OR xest.est-type EQ 6)) OR
+            (xeb.form-no    EQ job-hdr.frm AND
+            xeb.blank-no   EQ job-hdr.blank-no AND
+            xest.est-type  NE 2 AND xest.est-type NE 6)))
+            TRANSACTION:
+            RUN util/upditmfg.p (ROWID(job-hdr), -1).
+
+            DELETE job-hdr.
+        END.
+        
         /* calc-est.p calls print4.p or print42.p to create op temp-table */
         RUN jc/calc-est.p (RECID(job)).
 
@@ -1623,8 +1635,8 @@ PROCEDURE pGetJobBuildVersionSettings PRIVATE:
     DEFINE OUTPUT PARAMETER oplUseNewCalc AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplPromptForNewCalc AS LOGICAL NO-UNDO.
 
-    DEFINE VARIABLE cReturn    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturn   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iPromptID AS INTEGER   NO-UNDO.
 
     RUN sys/ref/nk1look.p (ipbf-job.company, "JobBuildVersion", "C" /* Character */, NO /* check by cust */, 
@@ -2085,6 +2097,64 @@ PROCEDURE pUpdateEntryQuantity PRIVATE:
                 END.
             END. /* IF gvlNoPrompt*/
     END.
+
+END PROCEDURE.
+
+PROCEDURE pUpdateFGItemQty PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriJobHdr     AS ROWID   NO-UNDO.    
+    DEFINE INPUT  PARAMETER iplLastItem  AS LOGICAL NO-UNDO.    
+    
+    FIND FIRST job-hdr EXCLUSIVE-LOCK
+        WHERE ROWID(job-hdr) EQ ipriJobHdr
+        NO-ERROR.
+    IF NOT AVAILABLE job-hdr THEN
+        RETURN.
+   
+    IF iplLastItem THEN
+    DO: 
+        IF job-hdr.frm NE 0 THEN 
+            FOR EACH x-job-hdr
+                WHERE x-job-hdr.company EQ job-hdr.company
+                AND x-job-hdr.job     EQ job-hdr.job
+                AND x-job-hdr.job-no  EQ job-hdr.job-no
+                AND x-job-hdr.job-no2 EQ job-hdr.job-no2:
+                  
+                RUN util/upditmfg.p (
+                    INPUT ROWID(x-job-hdr),
+                    INPUT 1
+                    ).              
+            END.
+        ELSE 
+            RUN util/upditmfg.p (
+                INPUT ROWID(job-hdr),
+                INPUT 1
+                ).    
+    END.
+
+END PROCEDURE.
+
+PROCEDURE pGetUpdateableLocValue PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiEstType        AS INTEGER   NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipiFormNo         AS INTEGER NO-UNDO.        
+    DEFINE INPUT  PARAMETER iplLastBlankNo    AS LOGICAL   NO-UNDO.    
+    DEFINE OUTPUT PARAMETER ipolOutputReturn  AS LOGICAL NO-UNDO. 
+    
+    IF (ipiEstType EQ 2 OR ipiEstType EQ 6) AND ipiFormNo EQ 0 THEN
+    DO:
+        ipolOutputReturn = TRUE.
+    END.     
+    ELSE IF iplLastBlankNo EQ TRUE THEN
+        DO:
+            ipolOutputReturn = TRUE.
+        END.       
 
 END PROCEDURE.
 

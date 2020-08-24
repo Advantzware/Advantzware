@@ -287,9 +287,6 @@ END.
 /* ************************* Included-Libraries *********************** */
 {src/adm/method/navbrows.i}
 {custom/yellowColumns.i}
-/*{src/adm/method/browser.i}
-{src/adm/method/query.i}*/
-/*{methods/template/browser.i}*/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -640,21 +637,20 @@ ON VALUE-CHANGED OF fi_vend IN FRAME F-Main /* Vendor# */
 DEFINE BUFFER b-ap-pay FOR ap-pay.
 
 /*     Task 12111502 */
-ON MOUSE-SELECT-CLICK OF tt-cleared IN BROWSE Browser-Table /* Reconciled */
+ON MOUSE-SELECT-CLICK OF reconcile.tt-cleared IN BROWSE Browser-Table /* Reconciled */
     DO:
         DEFINE VARIABLE lv-bank LIKE ar-cash.bank-code NO-UNDO.
         /* Make sure correct reconcile is read */
         APPLY 'value-changed' TO BROWSE {&browse-name}.
 
-        IF tt-cleared:SCREEN-VALUE IN BROWSE {&browse-name} = "Yes" THEN
-            tt-cleared:SCREEN-VALUE IN BROWSE {&browse-name} = "No".
+        IF reconcile.tt-cleared:SCREEN-VALUE IN BROWSE {&browse-name} = "Yes" THEN
+            reconcile.tt-cleared:SCREEN-VALUE IN BROWSE {&browse-name} = "No".
         ELSE
-            tt-cleared:SCREEN-VALUE IN BROWSE {&browse-name} = "Yes".
-
+            reconcile.tt-cleared:SCREEN-VALUE IN BROWSE {&browse-name} = "Yes".
         IF AVAILABLE reconcile THEN 
         DO:
             FIND CURRENT reconcile NO-LOCK NO-ERROR.
-            tt-cleared = tt-cleared:SCREEN-VALUE IN BROWSE {&browse-name} EQ "Yes".
+            reconcile.tt-cleared = reconcile.tt-cleared:SCREEN-VALUE IN BROWSE {&browse-name} EQ "Yes".
 
             IF tt-type EQ 1 THEN 
             DO /*TRANSACTION*/ :
@@ -677,7 +673,7 @@ ON MOUSE-SELECT-CLICK OF tt-cleared IN BROWSE Browser-Table /* Reconciled */
 
                 IF AVAILABLE b-ap-pay THEN 
                 DO:
-                    b-ap-pay.cleared = tt-cleared.
+                    b-ap-pay.cleared = reconcile.tt-cleared.
 
                     FOR EACH ap-pay
                         WHERE ap-pay.company EQ b-ap-pay.company
@@ -712,7 +708,7 @@ ON MOUSE-SELECT-CLICK OF tt-cleared IN BROWSE Browser-Table /* Reconciled */
                             AND bank.bank-code EQ ar-cash.bank-code
                             USE-INDEX bank
                             /*TRANSACTION*/ :
-                            ar-cash.cleared = tt-cleared.
+                            ar-cash.cleared = reconcile.tt-cleared.
                         END.
                     END.
                 END.
@@ -721,7 +717,7 @@ ON MOUSE-SELECT-CLICK OF tt-cleared IN BROWSE Browser-Table /* Reconciled */
                     IF tt-type EQ 3 THEN 
                     DO /*TRANSACTION*/ :
                         FIND gl-jrn WHERE ROWID(gl-jrn) EQ tt-rowid EXCLUSIVE-LOCK NO-ERROR.
-                        IF AVAILABLE gl-jrn THEN gl-jrn.cleared = tt-cleared.
+                        IF AVAILABLE gl-jrn THEN gl-jrn.cleared = reconcile.tt-cleared.
                     END.
 
                     ELSE
@@ -733,7 +729,7 @@ ON MOUSE-SELECT-CLICK OF tt-cleared IN BROWSE Browser-Table /* Reconciled */
                                 AND ar-mcash-ref.company  EQ "ar-mcash"
                                 USE-INDEX rec_key
                                 /*TRANSACTION*/ EXCLUSIVE-LOCK:
-                                ar-mcash-ref.val[2] = INT(tt-cleared).
+                                ar-mcash-ref.val[2] = INT(reconcile.tt-cleared).
                             END.
         END.
         /* Ensure browser saves change */
@@ -757,15 +753,14 @@ DO WITH FRAME {&FRAME-NAME}:
     APPLY "entry" TO begin_bank .
 END.
 
-
 ON 'ENTRY':U OF reconcile.tt-cleared
-    DO:
-        IF LASTKEY NE -1 AND NOT v-can-update THEN
-        DO:       
-            APPLY "TAB" TO BROWSE {&browse-name}.
-            RETURN NO-APPLY .
-        END.
+DO:
+    IF LASTKEY NE -1 AND NOT v-can-update THEN
+    DO:       
+        APPLY "TAB" TO BROWSE {&browse-name}.
+        RETURN NO-APPLY .
     END.
+END.
 /* gdm - */
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
@@ -839,27 +834,26 @@ PROCEDURE get-security :
 
     ASSIGN
         v-prgmname = "w-reconl."
-        v-dirname  = "ap".
-
+        v-dirname  = "ap"
+        .
     FIND FIRST b-prgrms NO-LOCK
          WHERE b-prgrms.prgmname  EQ v-prgmname
-           AND b-prgrms.DIR_group EQ v-dirname
+           AND b-prgrms.dir_group EQ v-dirname
          NO-ERROR.
     IF NOT AVAILABLE b-prgrms THEN
     FIND FIRST b-prgrms NO-LOCK
          WHERE b-prgrms.prgmname EQ v-prgmname
          NO-ERROR.
-    IF AVAILABLE b-prgrms THEN DO:    
+    IF AVAILABLE b-prgrms THEN DO:
         DO num-groups = 1 TO NUM-ENTRIES(g_groups):
             IF NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   ENTRY(num-groups,g_groups)) AND
                NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),ENTRY(num-groups,g_groups)) AND
                NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_create," ","")),ENTRY(num-groups,g_groups)) AND
                NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_delete," ","")),ENTRY(num-groups,g_groups)) THEN
                 NEXT.
-        ASSIGN
-            v-can-update = NOT v-can-update AND CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),ENTRY(num-groups,g_groups))
-            group-ok     = YES
-            .
+            IF v-can-update EQ NO THEN
+            v-can-update = CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),ENTRY(num-groups,g_groups)).
+            group-ok = YES.
         END. /* do num-groups */
         IF NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_run," ","")),   USERID("ASI")) AND
            NOT CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),USERID("ASI")) AND
@@ -874,8 +868,9 @@ PROCEDURE get-security :
             VIEW-AS ALERT-BOX ERROR.
             access-close = YES.  /* used later in methods/template/windows.i - local-initialize procedure */
         END.
-        ELSE 
-        v-can-update = NOT v-can-update AND CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),USERID("ASI")).
+        ELSE
+        IF v-can-update EQ NO THEN
+        v-can-update = CAN-DO(TRIM(REPLACE(b-prgrms.can_update," ","")),USERID("ASI")).
     END. 
     ELSE DO: 
         MESSAGE

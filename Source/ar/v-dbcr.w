@@ -35,7 +35,6 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
-DEF BUFFER bf-cash FOR ar-cash.
 def var look-recid as recid no-undo.
 
 &SCOPED-DEFINE enable-arcash proc-enable
@@ -445,8 +444,10 @@ PROCEDURE local-create-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR xchk LIKE ar-cash.check-no NO-UNDO.
-  DEF VAR xno LIKE ar-cash.c-no NO-UNDO.
+  DEFINE BUFFER bf-cash FOR ar-cash.
+  
+  DEFINE VARIABLE xchk LIKE ar-cash.check-no NO-UNDO.
+  DEFINE VARIABLE xno LIKE ar-cash.c-no      NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   for each bf-cash where bf-cash.company eq g_company

@@ -83,6 +83,13 @@ DEFINE VARIABLE cStartEstTypeID AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEndEstTypeID   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iStartEstType   AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iEndEstType     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE dBeginLength    AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dEndLength      AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dBeginWidth     AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dEndWidth       AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dBeginDepth     AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dEndDepth       AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE lIsMatches      AS LOGICAL   NO-UNDO.
 
 &SCOPED-DEFINE key-phrase  YES
 /*
@@ -178,12 +185,35 @@ DEFINE VARIABLE iEndEstType     AS INTEGER   NO-UNDO.
                  AND eb.die-no MATCHES vi_die-no                            ~
                  AND eb.cad-no BEGINS vi_cad-no                             ~
                  AND eb.plate-no BEGINS vi_plate-no                         ~
-                 AND eb.len GE TRUNC(vi_len,0) + ((vi_len - TRUNC(vi_len,0)) * k_frac) ~
-                 AND eb.len LE TRUNC(vi_len-2,0) + ((vi_len-2 - TRUNC(vi_len-2,0)) * k_frac) ~
-                 AND eb.wid GE TRUNC(vi_wid,0) + ((vi_wid - TRUNC(vi_wid,0)) * k_frac) ~
-                 AND eb.wid LE TRUNC(vi_wid-2,0) + ((vi_wid-2 - TRUNC(vi_wid-2,0)) * k_frac) ~
-                 AND eb.dep GE TRUNC(vi_dep,0) + ((vi_dep - TRUNC(vi_dep,0)) * k_frac) ~
-                 AND eb.dep LE TRUNC(vi_dep-2,0) + ((vi_dep-2 - TRUNC(vi_dep-2,0)) * k_frac) 
+                 AND eb.len GE dBeginLength ~
+                 AND eb.len LE dEndLength ~
+                 AND eb.wid GE dBeginWidth ~
+                 AND eb.wid LE dEndWidth ~
+                 AND eb.dep GE dBeginDepth ~
+                 AND eb.dep LE dEndDepth 
+                 
+&SCOPED-DEFINE for-eb1                     ~
+       FOR EACH ASI.eb ~
+           WHERE ASI.eb.company EQ g_company  ~
+           AND eb.form-no  GT 0 ~
+           AND eb.blank-no GT 0 ~
+           AND ((lookup(eb.cust-no,custcount) NE 0 AND eb.cust-no NE "") OR custcount EQ "") ~
+           AND eb.cust-no BEGINS begin_cust-no ~
+           AND eb.ship-id BEGINS begin_ship    ~
+           AND (eb.ship-id EQ begin_ship OR NOT ll-shipto) ~
+           AND eb.part-no BEGINS vi_part-no   ~
+           AND eb.stock-no BEGINS vi_stock-no ~
+           AND eb.style BEGINS  vi_style  ~
+           AND eb.part-dscr1 BEGINS vi_part-dscr1   ~
+           AND eb.die-no MATCHES vi_die-no          ~
+           AND eb.cad-no BEGINS vi_cad-no           ~
+           AND eb.plate-no BEGINS vi_plate-no       ~
+           AND eb.len GE dBeginLength ~
+           AND eb.len LE dEndLength ~
+           AND eb.wid GE dBeginWidth ~
+           AND eb.wid LE dEndWidth ~
+           AND eb.dep GE dBeginDepth ~
+           AND eb.dep LE dEndDepth                  
 
 &SCOPED-DEFINE sortby-log                             ~
     IF lv-sort-by EQ "est-no"  THEN est.est-no   ELSE     ~
@@ -2135,6 +2165,14 @@ PROCEDURE local-open-query :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+   ASSIGN 
+       dBeginLength = TRUNC(vi_len,0) + ((vi_len - TRUNC(vi_len,0)) * k_frac)
+       dEndLength   = TRUNC(vi_len-2,0) + ((vi_len-2 - TRUNC(vi_len-2,0)) * k_frac)
+       dBeginWidth  = TRUNC(vi_wid,0) + ((vi_wid - TRUNC(vi_wid,0)) * k_frac)
+       dEndWidth    = TRUNC(vi_wid-2,0) + ((vi_wid-2 - TRUNC(vi_wid-2,0)) * k_frac)
+       dBeginDepth  = TRUNC(vi_dep,0) + ((vi_dep - TRUNC(vi_dep,0)) * k_frac)
+       dEndDepth    = TRUNC(vi_dep-2,0) + ((vi_dep-2 - TRUNC(vi_dep-2,0)) * k_frac)
+       .
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -2148,6 +2186,16 @@ PROCEDURE local-open-query :
        RUN show-all.
   END.
   ELSE DO:
+     IF INDEX(begin_cust-no,"*") GT 0 OR 
+        INDEX(begin_ship ,"*")   GT 0 OR 
+        INDEX(vi_stock-no, "*")  GT 0 OR
+        INDEX(vi_part-no,"*")    GT 0 OR 
+        INDEX(vi_style,"*")      GT 0 OR
+        INDEX(vi_part-dscr1,"*") GT 0 THEN
+        lIsMatches = YES.
+     ELSE 
+        lIsMatches = NO.   
+  
     {cec/j-esteb.i}
   END.
 
@@ -2723,6 +2771,22 @@ PROCEDURE pGetMiscType :
   DEFINE OUTPUT PARAMETER oplMiscType AS LOGICAL NO-UNDO.   
   ASSIGN 
      oplMiscType =  cStartEstTypeID  EQ "MISC" AND cEndEstTypeID EQ "MISC" .
+     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetFirstRunValue B-table-Win 
+PROCEDURE pSetFirstRunValue :
+/*------------------------------------------------------------------------------
+  Purpose:     Set value
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER oplSetFirstValue AS LOGICAL NO-UNDO.   
+  ASSIGN 
+     lv-first-run =  oplSetFirstValue .
      
 END PROCEDURE.
 

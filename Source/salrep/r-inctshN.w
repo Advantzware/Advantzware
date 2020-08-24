@@ -101,11 +101,13 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Customer,Ship To,City,State,Rep,Inv#,Month,Year," +
-                           "Inv Date,Fg Item#,Pro Code,Order #,Qty Shipped,Unit Price,UOM,Invoice Amt,BOL Whse"
+                           "Inv Date,Fg Item#,Pro Code,Order #,Qty Shipped,Unit Price,UOM,Invoice Amt,BOL Whse," +
+                           "Ship To Name,Ship Address 1,Ship Address 2,Ship Address 3,Ship To City,Ship To ST,Ship To Zip,BOL Date"
        cFieldListToSelect = "cust,shipto,city,stat,rep,inv,month,year," +
-                            "inv-date,fg-item,pro-code,ord,qty-ship,unit-price,uom,inv-amt,bol-whs"
-       cFieldLength = "8,8,15,5,20,7,5,4," + "8,15,8,8,12,15,4,17,8"
-       cFieldType = "c,c,c,c,c,i,i,i," + "c,c,c,i,i,i,c,i,c" 
+                            "inv-date,fg-item,pro-code,ord,qty-ship,unit-price,uom,inv-amt,bol-whs," +
+                            "ship-name,ship-add1,ship-add2,ship-add3,ship-city,ship-st,ship-zip,bol-date"
+       cFieldLength = "8,8,15,5,20,7,5,4," + "8,15,8,8,12,15,4,17,8," + "30,30,30,30,15,10,12,10"
+       cFieldType = "c,c,c,c,c,i,i,i," + "c,c,c,i,i,i,c,i,c," + "c,c,c,c,c,c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1717,12 +1719,14 @@ DEF VAR cVarValue AS cha NO-UNDO.
 DEF VAR cExcelVarValue AS cha NO-UNDO.
 DEF VAR cSelectedList AS cha NO-UNDO.
 DEF VAR cFieldName AS cha NO-UNDO.
-DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEF VAR str-tit4 AS cha FORM "x(400)" NO-UNDO.
+DEF VAR str-tit5 AS cha FORM "x(400)" NO-UNDO.
+DEF VAR str-line AS cha FORM "x(400)" NO-UNDO.
 DEF VAR v-bolwhs AS CHAR NO-UNDO .
+DEFINE VARIABLE dtBolDate AS DATE NO-UNDO .
+DEFINE VARIABLE iLineCount       AS INTEGER   NO-UNDO .
 
-{sys/form/r-top5DL3.f} 
+{sys/form/r-topl.f}  
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
@@ -1831,6 +1835,10 @@ END.
 IF td-show-parm THEN RUN show-param.
 
 DISPLAY "" WITH FRAME r-top.
+PUT  str-tit4 FORMAT "x(400)"
+     SKIP
+     str-tit5 FORMAT "x(400)"
+     SKIP .
 
 FOR EACH tt-report:
   DELETE tt-report.
@@ -2097,12 +2105,13 @@ FOR each cust
         no-lock no-error.
 
     v-bolwhs = "" .
+    dtBolDate = ? .
 
     FOR EACH oe-boll WHERE oe-boll.company = ar-invl.company
         AND oe-boll.b-no = ar-invl.b-no NO-LOCK:
 
         v-bolwhs = oe-boll.loc .
-
+        dtBolDate = oe-boll.bol-date .
         IF v-bolwhs NE "" THEN LEAVE .
 
     END.
@@ -2217,13 +2226,7 @@ FOR each cust
           AND shipto.cust-no EQ cust.cust-no
           AND shipto.ship-id EQ tt-report.key-05
         NO-LOCK NO-ERROR.
-
-    IF AVAIL shipto THEN
-      ASSIGN
-       v-name  = shipto.ship-name
-       v-city  = shipto.ship-city
-       v-state = shipto.ship-state.
-    ELSE
+        
       ASSIGN
        v-name  = cust.name
        v-city  = cust.city
@@ -2245,25 +2248,17 @@ FOR each cust
      v-year  = YEAR(v-date)
      v-month = MONTH(v-date).
 
-   /* DISPLAY cust.cust-no
-            v-year[1]
-            v-name
-            tt-report.key-05
-            v-city
-            v-state
-            v-sname
-            w-data.inv-no
-            v-month
-            v-year[2]
-            v-date
-            w-data.i-no
-            v-fgcat
-            v-ord
-            v-qty[1]
-            v-pric
-            v-uom
-            v-amt[1].
-    DOWN.*/
+    IF iLineCount GE (lines-per-page - 10)  THEN 
+    DO:
+          PAGE.
+          PUT str-tit4 FORMAT "x(400)"
+              SKIP
+              str-tit5 FORMAT "x(400)"
+              SKIP .
+          iLineCount = 0 .
+    END.
+    iLineCount = iLineCount + 1.
+      
          ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -2291,6 +2286,14 @@ FOR each cust
                          WHEN "uom"  THEN cVarValue = STRING(v-uom,"x(4)") .
                          WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[1],"->,>>>,>>>,>>9.99") .
                          WHEN "bol-whs"  THEN cVarValue = STRING(v-bolwhs) .
+                         WHEN "ship-name"  THEN cVarValue = IF AVAIL shipto THEN STRING(shipto.ship-name) ELSE "" .
+                         WHEN "ship-add1"  THEN cVarValue = IF AVAIL shipto THEN STRING(shipto.ship-addr[1]) ELSE "" .
+                         WHEN "ship-add2"  THEN cVarValue = IF AVAIL shipto THEN STRING(shipto.ship-addr[2]) ELSE "" .
+                         WHEN "ship-add3"  THEN cVarValue = IF AVAIL shipto THEN STRING(shipto.spare-char-3) ELSE "" .
+                         WHEN "ship-city"  THEN cVarValue = IF AVAIL shipto THEN STRING(shipto.ship-city) ELSE "" .
+                         WHEN "ship-st"  THEN cVarValue = IF AVAIL shipto THEN STRING(shipto.ship-state) ELSE "" .
+                         WHEN "ship-zip"  THEN cVarValue = IF AVAIL shipto THEN STRING(shipto.ship-zip) ELSE "" .
+                         WHEN "bol-date"  THEN cVarValue = IF dtBolDate NE ? THEN STRING(dtBolDate) ELSE "" .                           
 
                     END CASE.
 
@@ -2315,14 +2318,17 @@ FOR each cust
 
   /* display final totals */
   PUT SKIP(1).
-
-  /*UNDERLINE v-name v-qty[1] v-amt[1] WITH FRAME itemx.
-
-  DISPLAY "         GRAND TOTALS" @ v-name
-          v-qty[2] @ v-qty[1]
-          v-amt[2] @ v-amt[1]
-
-      WITH FRAME itemx.*/
+  iLineCount = iLineCount + 1.
+  IF iLineCount GE (lines-per-page - 10)  THEN 
+    DO:
+          PAGE.
+          PUT str-tit4 FORMAT "x(400)"
+              SKIP
+              str-tit5 FORMAT "x(400)"
+              SKIP .
+          iLineCount = 0 .
+    END.     
+  
   PUT str-line SKIP .
     ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -2351,6 +2357,14 @@ FOR each cust
                          WHEN "uom"  THEN cVarValue = "" .
                          WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[2],"->,>>>,>>>,>>9.99") .
                          WHEN "bol-whs"  THEN cVarValue = "" .
+                         WHEN "ship-name"  THEN cVarValue = "" .
+                         WHEN "ship-add1"  THEN cVarValue = "" .
+                         WHEN "ship-add2"  THEN cVarValue = "" .
+                         WHEN "ship-add3"  THEN cVarValue = "" .
+                         WHEN "ship-city"  THEN cVarValue = "" .
+                         WHEN "ship-st"    THEN cVarValue = "" .
+                         WHEN "ship-zip"   THEN cVarValue = "" .
+                         WHEN "bol-date"   THEN cVarValue = "" . 
 
                     END CASE.
 

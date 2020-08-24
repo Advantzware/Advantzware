@@ -121,6 +121,24 @@ PROCEDURE dynInitNumUsersOverLimit:
     RETURN sfGetUserControlFieldValue ("NumUsersOverLimit").
 END PROCEDURE.
 
+PROCEDURE dynInitSBID:
+    DEFINE VARIABLE cSearchDir    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFileName     AS CHARACTER NO-UNDO FORMAT "X(60)".
+    DEFINE VARIABLE cAttrList     AS CHARACTER NO-UNDO FORMAT "X(4)".
+    DEFINE VARIABLE cListItems    AS CHARACTER NO-UNDO.
+
+    cSearchDir = ".\schedule\data\ASI".
+    INPUT FROM OS-DIR(cSearchDir) NO-ECHO.
+    REPEAT:
+        SET cFileName ^ cAttrList.
+        IF cAttrList NE "d" THEN NEXT.
+        IF cFileName EQ "." OR cFileName EQ ".." THEN NEXT.
+        cListItems = cListItems + "ASI/" + cFileName + ",".
+    END. /* repeat */
+    INPUT CLOSE.
+    RETURN TRIM(cListItems,",").
+END PROCEDURE.
+
 PROCEDURE dynInitSecure:
     RUN spSetSessionParam ("Secure", "NO").
     RETURN "NO".

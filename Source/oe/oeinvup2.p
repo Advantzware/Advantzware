@@ -18,9 +18,6 @@ DISABLE TRIGGERS FOR LOAD OF inv-misc.
 
 FIND inv-head WHERE ROWID(inv-head) EQ ip-rowid EXCLUSIVE-LOCK NO-ERROR.
 
-DEFINE VARIABLE hdTaxProcs AS HANDLE NO-UNDO.
-RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
-
 IF AVAIL inv-head THEN DO:
   FIND FIRST cust NO-LOCK
       WHERE cust.company EQ inv-head.company
@@ -55,7 +52,7 @@ IF AVAIL inv-head THEN DO:
   FOR EACH inv-line WHERE inv-line.r-no EQ inv-head.r-no NO-LOCK:
     IF inv-line.tax THEN DO:
         /* Run the tax rate calculation program. */
-        RUN Tax_Calculate IN hdTaxProcs (
+        RUN Tax_Calculate  (
             INPUT  inv-head.company,
             INPUT  inv-head.tax-gr,
             INPUT  FALSE,   /* Is this freight */
@@ -139,7 +136,7 @@ IF AVAIL inv-head THEN DO:
         ASSIGN v-total-tax = 0.
         /* Tax on some other tax group also. */
         IF inv-misc.spare-char-1 <> "" THEN DO:
-            RUN Tax_Calculate IN hdTaxProcs (
+            RUN Tax_Calculate  (
                 INPUT  inv-head.company,
                 INPUT  inv-misc.spare-char-1,
                 INPUT  FALSE,   /* Is this freight */
@@ -152,7 +149,7 @@ IF AVAIL inv-head THEN DO:
         END.
         ELSE DO:       
             /* Tax on the invoice tax group. */
-            RUN Tax_Calculate IN hdTaxProcs (
+            RUN Tax_Calculate  (
                 INPUT  inv-head.company,
                 INPUT  inv-head.tax-gr,
                 INPUT  FALSE,   /* Is this freight */
@@ -192,7 +189,7 @@ IF AVAIL inv-head THEN DO:
   END.
 
   IF inv-head.f-bill THEN DO:
-    RUN Tax_Calculate IN hdTaxProcs (
+    RUN Tax_Calculate  (
         INPUT  inv-head.company,
         INPUT  inv-head.tax-gr,
         INPUT  TRUE,   /* Is this freight */
@@ -208,9 +205,6 @@ IF AVAIL inv-head THEN DO:
 
   inv-head.t-inv-rev = inv-head.t-inv-rev + inv-head.t-inv-tax.
 END.
-
-IF VALID-HANDLE(hdTaxProcs) THEN
-    DELETE PROCEDURE hdTaxProcs.
     
 RETURN.
 

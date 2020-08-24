@@ -31,6 +31,8 @@ DEFINE TEMP-TABLE ttAgedReceivables NO-UNDO
     FIELD periodDay4    AS DECIMAL   LABEL "Period Days 4"   FORMAT "->,>>>,>>>,>>9.99"
     FIELD custPoNo      AS CHARACTER LABEL "Customer PoNo"   FORMAT "x(15)"
     FIELD jobNo         AS CHARACTER LABEL "Job No "         FORMAT "x(9)"
+    FIELD totalDue      AS DECIMAL   LABEL "Total Due"       FORMAT "->,>>>,>>>.99"
+    FIELD arClass       AS INTEGER   LABEL "AR Class"        FORMAT "99"
     FIELD invoiceNote   AS CHARACTER LABEL "Invoice Note"    FORMAT "x(500)"
     FIELD collNote      AS CHARACTER LABEL "Collection Note" FORMAT "x(500)"    
     FIELD xxSort1       AS CHARACTER LABEL "Sort 1"          FORMAT "x(100)"

@@ -18,12 +18,9 @@ PROCEDURE postMonitor:
     DEFINE VARIABLE lCreated         AS LOGICAL   NO-UNDO. 
     DEFINE VARIABLE cGCompany        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCocode          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hdFileSys        AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cCompanyMask     AS CHARACTER NO-UNDO INITIAL "$company$". /* Mask character */
     DEFINE VARIABLE ccXMLOrder       AS CHARACTER NO-UNDO INITIAL "cXMLOrder".
     DEFINE VARIABLE lValidateCompany AS LOGICAL   NO-UNDO. 
-    
-    RUN system\FileSysProcs.p PERSISTENT SET hdFileSys.
     
     FOR EACH cXMLDir:
         ASSIGN
@@ -50,7 +47,7 @@ PROCEDURE postMonitor:
                 .
 
             /* Checks whether import dir exists */    
-            RUN FileSys_ValidateDirectory IN hdFileSys (
+            RUN FileSys_ValidateDirectory(
                 INPUT monitorImportDir,
                 OUTPUT lValidPath,
                 OUTPUT cMessage
@@ -58,7 +55,7 @@ PROCEDURE postMonitor:
                 
             /* Creates import dir if it does not exists */ 
             IF NOT lValidPath THEN 
-                RUN FileSys_CreateDirectory IN hdFileSys (
+                RUN FileSys_CreateDirectory(
                     INPUT monitorImportDir,
                     OUTPUT lCreated,
                     OUTPUT cMessage
@@ -94,7 +91,7 @@ PROCEDURE postMonitor:
                     .
                 
             /* Checks whether processed dir exists */
-            RUN FileSys_ValidateDirectory IN hdFileSys (
+            RUN FileSys_ValidateDirectory(
                 INPUT cXMLProcessedDir,
                 OUTPUT lValidPath,
                 OUTPUT cMessage
@@ -102,14 +99,14 @@ PROCEDURE postMonitor:
                 
             /* Creates processed dir if it does not exists */    
             IF NOT lValidPath THEN    
-                RUN FileSys_CreateDirectory IN hdFileSys (
+                RUN FileSys_CreateDirectory(
                     INPUT cXMLProcessedDir,
                     OUTPUT lCreated,
                     OUTPUT cMessage
                     ) NO-ERROR.
                     
             /* Checks whether response dir exists */
-            RUN FileSys_ValidateDirectory IN hdFileSys (
+            RUN FileSys_ValidateDirectory(
                 INPUT cXMLResponseDir,
                 OUTPUT lValidPath,
                 OUTPUT cMessage
@@ -117,7 +114,7 @@ PROCEDURE postMonitor:
             
             /* Creates response dir if it does not exists */    
             IF NOT lValidPath THEN    
-                RUN FileSys_CreateDirectory IN hdFileSys (
+                RUN FileSys_CreateDirectory(
                     INPUT cXMLResponseDir,
                     OUTPUT lCreated,
                     OUTPUT cMessage
@@ -137,8 +134,6 @@ PROCEDURE postMonitor:
             cocode    = cCocode   /* Assigns back temporary variable into cocode */
             . 
     END. /* each cXMLDir */
-    
-    DELETE OBJECT hdFileSys.
 END PROCEDURE.
 
 PROCEDURE pPostcXML PRIVATE:
@@ -163,6 +158,12 @@ PROCEDURE pPostcXML PRIVATE:
     DEFINE VARIABLE errorStatus   AS INTEGER   NO-UNDO.
     DEFINE VARIABLE ccXMLOrder    AS CHARACTER NO-UNDO INITIAL "cXMLOrder".  
     DEFINE VARIABLE ccXML         AS CHARACTER NO-UNDO INITIAL "cXML".
+
+    DEFINE VARIABLE cResponse             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAPIInboundEventRowID AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound                AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cOEImport             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lcRequestData         AS LONGCHAR  NO-UNDO.
     
     INPUT FROM OS-DIR(ipcMonitorImportDir) NO-ECHO.
     REPEAT:
@@ -208,13 +209,57 @@ PROCEDURE pPostcXML PRIVATE:
             INPUT YES,
             INPUT monitorFile
             ).
-        
+
+        RUN sys/ref/nk1look.p (
+            INPUT cocode, 
+            INPUT "OEImport", 
+            INPUT "I", 
+            INPUT NO, 
+            INPUT NO, 
+            INPUT "", 
+            INPUT "",
+            OUTPUT cOEImport, 
+            OUTPUT lFound
+            ).
+            
         IF ipcXMLName EQ ccXMLOrder THEN DO:
-            RUN gencXMLOrder (
-                INPUT cXMLFile, 
-                INPUT NO /* temptable only*/, 
-                OUTPUT returnValue
-                ). /* generate order */
+        /* If OEImport NK1 Integer value is 1 use the new Order Import handlers through API framework */ 
+            IF lFound AND INTEGER(cOEImport) EQ 1 THEN DO:     
+                COPY-LOB FROM FILE cXMLFile TO lcRequestData.
+    
+                FIND FIRST _user NO-LOCK 
+                     WHERE _user._userid = USERID("ASI")
+                     NO-ERROR.
+                IF AVAILABLE _user THEN DO:
+                    RUN api/inbound/APIRequestRouterAS.p (
+                        INPUT  "/api/OrderImport",
+                        INPUT  "POST",
+                        INPUT  _user._userid,
+                        INPUT  _user._password,
+                        INPUT  "XML",
+                        INPUT  lcRequestData,
+                        INPUT  "Offline",     
+                        OUTPUT cResponse,
+                        OUTPUT cAPIInboundEventRowID
+                        ) NO-ERROR.
+                   
+                    FIND FIRST APIInboundEvent NO-LOCK 
+                         WHERE ROWID(APIInboundEvent) EQ TO-ROWID(cAPIInboundEventRowID) 
+                         NO-ERROR.
+                    IF AVAILABLE APIInboundEvent THEN DO:
+                        returnValue = IF APIInboundEvent.success THEN 
+                                          "Success: " + APIInboundEvent.errormessage
+                                      ELSE
+                                          APIInboundEvent.errorMessage.
+                    END.
+                END.
+            END.
+            ELSE
+                RUN gencXMLOrder (
+                    INPUT cXMLFile, 
+                    INPUT NO /* temptable only*/, 
+                    OUTPUT returnValue
+                    ). /* generate order */
         END.
         ELSE 
             RUN cXML/ariba.p (

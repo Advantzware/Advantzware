@@ -76,13 +76,16 @@ ASSIGN
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS cXMLCustomer invStart calendar-1 invEnd ~
-calendar-2 btnOK btnCancel 
-&Scoped-Define DISPLAYED-OBJECTS cXMLCustomer invStart invEnd 
+calendar-2 invNoStart invNoEnd rd_posted invDate calendar-3 fiInvSuffix ~
+btnOK btnCancel 
+&Scoped-Define DISPLAYED-OBJECTS cXMLCustomer invStart invEnd invNoStart ~
+invNoEnd rd_posted invDate fiInvSuffix 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
-&Scoped-define List-1 cXMLCustomer invStart invEnd 
-&Scoped-define List-2 calendar-1 calendar-2 btnOK btnCancel 
+&Scoped-define List-1 cXMLCustomer invStart invEnd invNoStart invNoEnd ~
+rd_posted invDate 
+&Scoped-define List-2 calendar-1 calendar-2 calendar-3 btnOK btnCancel 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -113,8 +116,33 @@ DEFINE BUTTON calendar-2
      LABEL "" 
      SIZE 4.6 BY 1.05.
 
+DEFINE BUTTON calendar-3 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05.
+
+DEFINE VARIABLE fiInvSuffix AS CHARACTER FORMAT "X(2)":U 
+     LABEL "Invoice Suffix" 
+     VIEW-AS FILL-IN 
+     SIZE 5 BY 1 NO-UNDO.
+
+DEFINE VARIABLE invDate AS DATE FORMAT "99/99/9999":U 
+     LABEL "Invoice Date" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1.05 NO-UNDO.
+
 DEFINE VARIABLE invEnd AS DATE FORMAT "99/99/9999":U 
      LABEL "To" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1.05 NO-UNDO.
+
+DEFINE VARIABLE invNoEnd AS INTEGER FORMAT ">>>>>>9":U INITIAL 9999999 
+     LABEL "To" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1.05 NO-UNDO.
+
+DEFINE VARIABLE invNoStart AS INTEGER FORMAT ">>>>>>>9":U INITIAL 0 
+     LABEL "Invoice #" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1.05 NO-UNDO.
 
@@ -122,6 +150,13 @@ DEFINE VARIABLE invStart AS DATE FORMAT "99/99/9999":U
      LABEL "Invoice Date" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1.05 NO-UNDO.
+
+DEFINE VARIABLE rd_posted AS INTEGER INITIAL 1 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Unposted", 1,
+"Posted", 2
+     SIZE 29.6 BY 1.19 NO-UNDO.
 
 DEFINE VARIABLE cXMLCustomer AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
@@ -139,14 +174,23 @@ DEFINE FRAME DEFAULT-FRAME
      invEnd AT ROW 13.86 COL 47 COLON-ALIGNED HELP
           "Enter Ending Invoice Date" WIDGET-ID 10
      calendar-2 AT ROW 13.86 COL 65 WIDGET-ID 14
-     btnOK AT ROW 15.52 COL 49 WIDGET-ID 16
-     btnCancel AT ROW 15.52 COL 65 WIDGET-ID 18
+     invNoStart AT ROW 15.52 COL 21 COLON-ALIGNED HELP
+          "Enter Starting Invoice Date" WIDGET-ID 26
+     invNoEnd AT ROW 15.52 COL 47 COLON-ALIGNED HELP
+          "Enter Ending Invoice Date" WIDGET-ID 24
+     rd_posted AT ROW 17.29 COL 19.4 NO-LABEL WIDGET-ID 20
+     invDate AT ROW 17.38 COL 58.2 COLON-ALIGNED HELP
+          "Enter Invoice Date" WIDGET-ID 30
+     calendar-3 AT ROW 17.38 COL 74.8 WIDGET-ID 28
+     fiInvSuffix AT ROW 19.1 COL 21 COLON-ALIGNED
+     btnOK AT ROW 19.1 COL 49 WIDGET-ID 16
+     btnCancel AT ROW 19.1 COL 65 WIDGET-ID 18
      "Customers" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 1.24 COL 2 WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 80 BY 16 WIDGET-ID 100.
+         SIZE 80 BY 19.48 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -166,11 +210,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "cXML Invoice Generation"
-         HEIGHT             = 16
+         HEIGHT             = 19.62
          WIDTH              = 80
-         MAX-HEIGHT         = 16
+         MAX-HEIGHT         = 19.62
          MAX-WIDTH          = 80
-         VIRTUAL-HEIGHT     = 16
+         VIRTUAL-HEIGHT     = 19.62
          VIRTUAL-WIDTH      = 80
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -194,29 +238,37 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-ASSIGN
+/* SETTINGS FOR BUTTON btnCancel IN FRAME DEFAULT-FRAME
+   2                                                                    */
+ASSIGN 
        btnCancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-
-ASSIGN
+/* SETTINGS FOR BUTTON btnOK IN FRAME DEFAULT-FRAME
+   2                                                                    */
+ASSIGN 
        btnOK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-
-/* SETTINGS FOR BUTTON btnCancel IN FRAME DEFAULT-FRAME
-   2                                                                    */
-/* SETTINGS FOR BUTTON btnOK IN FRAME DEFAULT-FRAME
-   2                                                                    */
 /* SETTINGS FOR BUTTON calendar-1 IN FRAME DEFAULT-FRAME
    2                                                                    */
 /* SETTINGS FOR BUTTON calendar-2 IN FRAME DEFAULT-FRAME
    2                                                                    */
+/* SETTINGS FOR BUTTON calendar-3 IN FRAME DEFAULT-FRAME
+   2                                                                    */
 /* SETTINGS FOR SELECTION-LIST cXMLCustomer IN FRAME DEFAULT-FRAME
+   1                                                                    */
+/* SETTINGS FOR FILL-IN invDate IN FRAME DEFAULT-FRAME
    1                                                                    */
 /* SETTINGS FOR FILL-IN invEnd IN FRAME DEFAULT-FRAME
    1                                                                    */
+/* SETTINGS FOR FILL-IN invNoEnd IN FRAME DEFAULT-FRAME
+   1                                                                    */
+/* SETTINGS FOR FILL-IN invNoStart IN FRAME DEFAULT-FRAME
+   1                                                                    */
 /* SETTINGS FOR FILL-IN invStart IN FRAME DEFAULT-FRAME
+   1                                                                    */
+/* SETTINGS FOR RADIO-SET rd_posted IN FRAME DEFAULT-FRAME
    1                                                                    */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -224,7 +276,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -273,7 +325,8 @@ ON CHOOSE OF btnOK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   DEFINE VARIABLE iCount AS INTEGER     NO-UNDO.
   DEFINE VARIABLE cMessage AS CHARACTER   NO-UNDO.
-
+  DEFINE VARIABLE lUnposted AS LOGICAL NO-UNDO.
+  
   ASSIGN {&List-1}
     fcust = cXMLCustomer
     tcust = fcust
@@ -285,35 +338,45 @@ DO:
                 STRING(TIME,'99999') +
                 PROGRAM-NAME(1) +
                 USERID('NoSweat')
+    lUnPosted = rd_Posted EQ 1
     .
+  
   IF cXMLCustomer EQ ? THEN DO:
     MESSAGE 'Please Select a Customer' VIEW-AS ALERT-BOX.
     APPLY 'ENTRY':U TO cXMLCustomer.
     RETURN NO-APPLY.
   END.
-  FOR EACH inv-head NO-LOCK
-      WHERE inv-head.company EQ cocode
-        AND inv-head.cust-no EQ cXMLCustomer
-        AND inv-head.inv-date GE invStart
-        AND inv-head.inv-date LE invEnd
-        AND (inv-head.stat EQ "" OR inv-head.stat EQ "X"):
-    CREATE report.
-    ASSIGN
-      report.term-id = v-term-id
-      report.key-01 = inv-head.cust-no
-      report.key-02 = STRING(inv-head.bol-no,'9999999999')
-      report.rec-id = RECID(inv-head)
-      .
-  END. /* each inv-head */
-  DISABLE {&List-1} {&List-2} WITH FRAME {&FRAME-NAME}.
-  IF CAN-FIND(FIRST report WHERE report.term-id EQ v-term-id) THEN
-  RUN oe/rep/invpremx.p ('',NO).
-  iCount = 0.
-  FOR EACH report EXCLUSIVE-LOCK WHERE report.term-id EQ v-term-id: 
-    iCount = iCount + 1.
-    DELETE report.
-  END. /* each report */
-
+  IF lUnposted THEN DO:
+      FOR EACH inv-head NO-LOCK
+          WHERE inv-head.company EQ cocode
+            AND inv-head.cust-no EQ cXMLCustomer
+            AND inv-head.inv-date GE invStart
+            AND inv-head.inv-date LE invEnd
+            AND inv-head.inv-no   GE invNoStart
+            AND inv-head.inv-no   LE invNoEnd
+            AND (inv-head.stat EQ "" OR inv-head.stat EQ "X")
+                :
+        CREATE report.
+        ASSIGN
+          report.term-id = v-term-id
+          report.key-01 = inv-head.cust-no
+          report.key-02 = STRING(inv-head.bol-no,'9999999999')
+          report.rec-id = RECID(inv-head)
+          .
+      END. /* each inv-head */
+      DISABLE {&List-1} {&List-2} WITH FRAME {&FRAME-NAME}.
+      IF CAN-FIND(FIRST report WHERE report.term-id EQ v-term-id) THEN
+      RUN oe/rep/invpremx.p (fiInvSuffix:screen-value,NO).
+      iCount = 0.
+      FOR EACH report EXCLUSIVE-LOCK WHERE report.term-id EQ v-term-id: 
+        iCount = iCount + 1.
+        DELETE report.
+      END. /* each report */
+  END.
+  ELSE DO:
+    RUN pProcessPostedARInvoices(cocode, cXMLCustomer, invStart, invEnd, invNoStart, invNoEnd,
+        invDate, OUTPUT iCount).
+  END.
   IF iCount GT 0 THEN 
       cMessage = "Processed " + STRING(iCount) + " invoices ".
   ELSE
@@ -351,6 +414,28 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME calendar-3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL calendar-3 C-Win
+ON CHOOSE OF calendar-3 IN FRAME DEFAULT-FRAME
+DO:
+  APPLY 'HELP':U TO invDate.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME invDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL invDate C-Win
+ON HELP OF invDate IN FRAME DEFAULT-FRAME /* Invoice Date */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME invEnd
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL invEnd C-Win
 ON HELP OF invEnd IN FRAME DEFAULT-FRAME /* To */
@@ -367,6 +452,27 @@ END.
 ON HELP OF invStart IN FRAME DEFAULT-FRAME /* Invoice Date */
 DO:
   {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME rd_posted
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_posted C-Win
+ON VALUE-CHANGED OF rd_posted IN FRAME DEFAULT-FRAME
+DO:
+  ASSIGN {&self-name}.
+  IF rd_Posted EQ 1 THEN
+  DO:
+     ASSIGN
+       invDate:HIDDEN IN FRAME DEFAULT-FRAME = YES
+       calendar-3:HIDDEN IN FRAME DEFAULT-FRAME = YES. 
+  END.
+  ELSE
+  ASSIGN
+    invDate:HIDDEN IN FRAME DEFAULT-FRAME = NO
+    calendar-3:HIDDEN IN FRAME DEFAULT-FRAME = NO.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -400,8 +506,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   ASSIGN
     invStart = TODAY
     invEnd = TODAY
+    invDate = TODAY
     .
   RUN enable_UI.
+  ASSIGN
+    invDate:HIDDEN IN FRAME DEFAULT-FRAME = YES
+    calendar-3:HIDDEN IN FRAME DEFAULT-FRAME = YES.
 
   FIND FIRST sys-ctrl NO-LOCK
        WHERE sys-ctrl.company EQ  cocode
@@ -464,12 +574,49 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY cXMLCustomer invStart invEnd 
+  DISPLAY cXMLCustomer invStart invEnd invNoStart invNoEnd rd_posted invDate 
+          fiInvSuffix 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE cXMLCustomer invStart calendar-1 invEnd calendar-2 btnOK btnCancel 
+  ENABLE cXMLCustomer invStart calendar-1 invEnd calendar-2 invNoStart invNoEnd 
+         rd_posted invDate calendar-3 fiInvSuffix btnOK btnCancel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProcessPostedARInvoices C-Win 
+PROCEDURE pProcessPostedARInvoices PRIVATE :
+/*------------------------------------------------------------------------------
+     Purpose:  Given range parameters, process posted ar invoices to cXML.
+     Notes: RUN pProcessPostedARInvoices(ipcCompany, ipcCustomerID, ipdtInvStart, ipdtInvEnd,
+                OUTPUT opiCount).
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomerID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtInvStart AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtInvEnd AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER ipiInvNoStart AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiInvNoEnd AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtInvoiceDate AS DATE NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiCount AS INTEGER NO-UNDO.
+
+    FOR EACH ar-inv NO-LOCK
+        WHERE ar-inv.company EQ ipcCompany
+        AND ar-inv.cust-no EQ ipcCustomerID
+        AND ar-inv.inv-date GE ipdtInvStart
+        AND ar-inv.inv-date LE ipdtInvEnd
+        AND ar-inv.inv-no GE ipiInvNoStart
+        AND ar-inv.inv-no LE ipiInvNoEnd
+        AND ar-inv.posted:
+        opiCount = opiCount + 1.
+        
+        RUN cXML/cXMLInvoice.p (ar-inv.company, ROWID(ar-inv),ipdtInvoiceDate).   
+    
+    END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

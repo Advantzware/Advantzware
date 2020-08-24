@@ -688,6 +688,10 @@ DO:
                         iCurrEnvVer = fIntVer(fiFromVersion:{&SV})
                         iCurrDbVer = fIntVer(ENTRY(iIndex,cDBVerList))
                         iCurrAudVer = fIntVer(ENTRY(iIndex,cAudVerList))
+                        cAsiDbName = ENTRY(iIndex,cDBList)
+                        cAuditDbName = ENTRY(iIndex,cAudDbList)
+                        cAsiDbLongName = cDbDir + "\" + ENTRY(iIndex,cDbDirList) + "\" + cAsiDbName
+                        cAuditDbLongName = cDbDir + "\" + ENTRY(iIndex,cAudDirList) + "\" + cAuditDbName
                         ENTRY(3,cOutDir,"-") = SELF:{&SV}.
                 END.
         END CASE.

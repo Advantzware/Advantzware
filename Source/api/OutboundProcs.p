@@ -14,6 +14,7 @@
   ----------------------------------------------------------------------*/
 {api/ttArgs.i}
 {api/ttScopes.i}
+{api/CommonAPIProcs.i}
 
 DEFINE TEMP-TABLE ttRequestData NO-UNDO
     FIELD company              AS CHARACTER
@@ -52,7 +53,7 @@ DEFINE VARIABLE cRequestStatusFailed      AS CHARACTER NO-UNDO INITIAL "Failed".
 DEFINE VARIABLE cRequestTypeAPI           AS CHARACTER NO-UNDO INITIAL "API".
 DEFINE VARIABLE cRequestTypeFTP           AS CHARACTER NO-UNDO INITIAL "FTP".
 DEFINE VARIABLE cRequestTypeSAVE          AS CHARACTER NO-UNDO INITIAL "SAVE".
-DEFINE VARIABLE cLocValidationExceptions  AS CHARACTER NO-UNDO INITIAL "SendAdvancedShipNotice,SendFinishedGood". /* Should be comma (,) separated. loc.isAPIEnabled will not be validated for APIs in the list */
+DEFINE VARIABLE cLocValidationExceptions  AS CHARACTER NO-UNDO INITIAL "SendAdvancedShipNotice,SendFinishedGood,CalculateTax". /* Should be comma (,) separated. loc.isAPIEnabled will not be validated for APIs in the list */
 DEFINE VARIABLE cScopeTypeList            AS CHARACTER NO-UNDO INITIAL "_ANY_,Customer,Vendor,ShipTo".
 DEFINE VARIABLE cScopeTypeCustomer        AS CHARACTER NO-UNDO INITIAL "Customer".
 DEFINE VARIABLE cScopeTypeVendor          AS CHARACTER NO-UNDO INITIAL "Vendor".
@@ -402,8 +403,98 @@ PROCEDURE Outbound_IncrementAPITransactionCounter:
     END.
 END PROCEDURE.
 
+PROCEDURE Outbound_IsApiScopeActive:
+/*------------------------------------------------------------------------------
+ Purpose: Check for Active Scope for a given API
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID       AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcScopeID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTriggerID   AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplScopeActive AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-APIOutbound        FOR APIOutbound.
+    DEFINE BUFFER bf-APIOutboundTrigger FOR APIOutboundTrigger.
+    DEFINE BUFFER bf-apiClient          FOR apiClient.
+    
+    /* The following code will be executed if it is a fresh (NOT re-triggered) API call */
+    FOR EACH bf-APIOutbound NO-LOCK
+       WHERE bf-APIOutbound.company EQ ipcCompany
+         AND bf-APIOutbound.apiID   EQ ipcAPIID:
+        IF bf-APIOutbound.Inactive THEN
+            NEXT.
+
+        FIND FIRST bf-APIOutboundTrigger NO-LOCK
+             WHERE bf-APIOutboundTrigger.apiOutboundID EQ bf-APIOutbound.apiOutboundID
+               AND bf-APIOutboundTrigger.triggerID     EQ ipcTriggerID
+               AND bf-APIOutboundtrigger.Inactive      EQ FALSE
+             NO-ERROR.
+        IF NOT AVAILABLE bf-APIOutboundTrigger THEN
+            NEXT.
+        
+        FIND FIRST bf-apiClient NO-LOCK
+             WHERE bf-apiClient.company  EQ bf-APIOutbound.company
+               AND bf-apiClient.clientID EQ bf-APIOutbound.clientID
+             NO-ERROR.
+        IF AVAILABLE bf-apiClient THEN DO:
+            RUN pIsScopeActive (
+                INPUT  bf-apiClient.company,
+                INPUT  ipcLocation,
+                INPUT  ipcAPIID,
+                INPUT  bf-apiClient.clientID,
+                INPUT  ipcTriggerID,
+                INPUT  ipcScopeID,
+                INPUT  ipcScopeType,
+                OUTPUT oplScopeActive
+                ).
+            IF oplScopeActive THEN 
+                RETURN.
+        END.
+    END.    
+
+END PROCEDURE.
+
+PROCEDURE Outbound_PrepareRequestForScope:
+    /*------------------------------------------------------------------------------
+     Purpose: Public wrapper procedure to prepare request data for a given scope id 
+              and scope Type
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID            AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcScopeID          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeType        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTriggerID        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTableList        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcROWIDList        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPrimaryID        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEventDescription AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
+
+    RUN pPrepareAndExecuteForScope (
+        INPUT  ipcCompany,
+        INPUT  ipcLocation,
+        INPUT  ipcAPIID,
+        INPUT  ipcScopeID,
+        INPUT  ipcScopeType,
+        INPUT  ipcTriggerID,
+        INPUT  ipcTableList,
+        INPUT  ipcROWIDList,
+        INPUT  ipcPrimaryID,
+        INPUT  ipcEventDescription,
+        INPUT  FALSE,  /* Execute. Send FALSE for just preparing the request data */
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage        
+        ).
+END PROCEDURE.
+
 PROCEDURE Outbound_PrepareAndExecuteForScope:
-    /*----------------------------------------------------------vi--------------------
+    /*------------------------------------------------------------------------------
      Purpose: Public wrapper procedure to prepare request data and call Outbound API
               for a given scope id and scope Type
      Notes:
@@ -418,6 +509,64 @@ PROCEDURE Outbound_PrepareAndExecuteForScope:
     DEFINE INPUT  PARAMETER ipcROWIDList        AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcPrimaryID        AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcEventDescription AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
+
+    RUN pPrepareAndExecuteForScope (
+        INPUT  ipcCompany,
+        INPUT  ipcLocation,
+        INPUT  ipcAPIID,
+        INPUT  ipcScopeID,
+        INPUT  ipcScopeType,
+        INPUT  ipcTriggerID,
+        INPUT  ipcTableList,
+        INPUT  ipcROWIDList,
+        INPUT  ipcPrimaryID,
+        INPUT  ipcEventDescription,
+        INPUT  TRUE,  /* Execute. Send FALSE for just preparing the request data */
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage        
+        ).
+END PROCEDURE.
+
+PROCEDURE Outbound_ValidateLocation:
+/*------------------------------------------------------------------------------
+ Purpose: Validates the location 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    RUN pValidateLocation(
+        INPUT  ipcCompany,
+        INPUT  ipcLocation,
+        INPUT  ipcAPIID,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ) NO-ERROR.
+
+END PROCEDURE.
+
+PROCEDURE pPrepareAndExecuteForScope PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to prepare request data and call Outbound API
+              for a given scope id and scope Type
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID            AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcScopeID          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeType        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTriggerID        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTableList        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcROWIDList        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPrimaryID        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEventDescription AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplExecute          AS LOGICAL   NO-UNDO.    
     DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
     
@@ -462,7 +611,7 @@ PROCEDURE Outbound_PrepareAndExecuteForScope:
                 NEXT.
 
             IF AVAILABLE bf-apiClient THEN DO:
-                RUN pPrepareAndExecute (
+                RUN pInitializeAndPrepareRequest (
                     INPUT  ipcCompany,
                     INPUT  ipcLocation,
                     INPUT  ipcAPIID,
@@ -476,6 +625,14 @@ PROCEDURE Outbound_PrepareAndExecuteForScope:
                     OUTPUT oplSuccess,
                     OUTPUT opcMessage
                     ) NO-ERROR.
+                
+                /* Execute only if iplExecute flag is TRUE */
+                IF oplSuccess AND iplExecute THEN
+                    RUN pExecute (
+                        INPUT  FALSE,      /* Re-Trigger request */
+                        OUTPUT oplSuccess,
+                        OUTPUT opcMessage
+                        ) NO-ERROR.
             
                 IF ERROR-STATUS:ERROR THEN DO:
                     ASSIGN
@@ -673,6 +830,28 @@ PROCEDURE Outbound_ResetContext:
     EMPTY TEMP-TABLE ttAPIOutboundEvent.
     EMPTY TEMP-TABLE ttRequestData.
 END.
+
+PROCEDURE Outbound_UpdateGlobalFieldValues:
+/*------------------------------------------------------------------------------
+ Purpose: This procedure updates global fields in the request data that are 
+          generic to the API 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipiAPIOutboundID AS INTEGER   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cAPITransactionCounter    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cClientTransactionCounter AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        cAPITransactionCounter    = STRING(fGetAPITransactionCounter(ipiAPIOutboundID))
+        cClientTransactionCounter = STRING(fGetClientTransactionCounter(ipiAPIOutboundID))
+        .
+        
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "APITransCounter", cAPITransactionCounter).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ClientTransCounter", cClientTransactionCounter).
+
+END PROCEDURE.
 
 PROCEDURE Outbound_ValidateClientID:
 /*------------------------------------------------------------------------------

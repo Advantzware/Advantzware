@@ -127,8 +127,6 @@ DEFINE VARIABLE v-cost-2           LIKE oe-ordl.cost.
 DEFINE VARIABLE blk-fact           LIKE blk.fact         NO-UNDO.
 DEFINE VARIABLE v-rowid-list       AS CHARACTER        NO-UNDO.
 DEFINE VARIABLE lv-disc            LIKE cust.disc        NO-UNDO.
-DEFINE VARIABLE hdTaxProcs         AS HANDLE           NO-UNDO.
-RUN system/TaxProcs.p PERSISTENT SET hdTaxProcs.
 
 DEF BUFFER b-oe-ord FOR oe-ord.
 DEF BUFFER b-oe-ordl FOR oe-ordl.
@@ -896,11 +894,14 @@ PROCEDURE create-order-lines.
        END. /* lv-q-no ne 0 */
     END. /* avail xest and quo price log ... */
 
-    oe-ordl.t-price = oe-ordl.price * oe-ordl.qty /
-                      (IF oe-ordl.pr-uom EQ "C" THEN 100  ELSE
-                       IF oe-ordl.pr-uom EQ "M" THEN 1000 ELSE 
-                       IF oe-ordl.pr-uom = "L" THEN oe-ordl.qty ELSE 1).
-
+    RUN Conv_CalcTotalPrice(cocode, 
+                        oe-ordl.i-no,
+                        DECIMAL(oe-ordl.qty),
+                        DECIMAL(oe-ordl.price),
+                        oe-ordl.pr-uom,
+                        DECIMAL(oe-ordl.disc),
+                        DECIMAL(oe-ordl.cas-cnt),    
+                        OUTPUT oe-ordl.t-price). 
 
     FIND FIRST tt-oe-ordl WHERE tt-oe-ordl.row-id EQ ROWID(oe-ordl) NO-ERROR.
     IF AVAIL tt-oe-ordl THEN tt-oe-ordl.to-be-deleted = NO.
@@ -1413,7 +1414,7 @@ FUNCTION fGetTaxable RETURNS LOGICAL PRIVATE
 ------------------------------------------------------------------------------*/
 DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
-RUN GetTaxableAR IN hdTaxProcs (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
+RUN Tax_GetTaxableAR  (ipcCompany, ipcCust, ipcShipto, ipcFGItemID, OUTPUT lTaxable).  
 RETURN lTaxable.
 
 END FUNCTION.
