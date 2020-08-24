@@ -342,11 +342,12 @@ FOR EACH est-op
     ll-no-more-blank-fed = YES.
   END.
 
-  FIND FIRST w-qty WHERE w-qty.b-num EQ est-op.b-num.
-  ASSIGN
-   v-blk    = w-qty.num-bl
-   v-sav[2] = w-qty.sav-bl
-   spo      = w-qty.spo-bl.
+  FIND FIRST w-qty WHERE w-qty.b-num EQ est-op.b-num NO-ERROR.
+  IF AVAILABLE  w-qty THEN 
+    ASSIGN
+        v-blk    = w-qty.num-bl
+        v-sav[2] = w-qty.sav-bl
+        spo      = w-qty.spo-bl.
 
   IF FIRST(est-op.d-seq) OR ip-int EQ 3 THEN
     cumul = v-blk / (v-num-up * (IF b-ef.n-out   EQ 0 THEN 1 ELSE b-ef.n-out) *
@@ -376,13 +377,14 @@ FOR EACH est-op
     FIND xef WHERE ROWID(xef) EQ hold-id NO-LOCK.
   
       
-  ASSIGN
-   w-qty.num-bl = v-blk
-   w-qty.sav-bl = v-sav[2]
-   w-qty.spo-bl = v-sav[2].
+  IF AVAILABLE w-qty THEN DO:
+    ASSIGN
+        w-qty.num-bl = v-blk
+        w-qty.sav-bl = v-sav[2]
+        w-qty.spo-bl = v-sav[2].
 
-  {sys/inc/roundup.i w-qty.num-bl}
-
+        {sys/inc/roundup.i w-qty.num-bl}
+  END.
   IF est-op.b-num NE 0 THEN spo = 0.
   
 END.

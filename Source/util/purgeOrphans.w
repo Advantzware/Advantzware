@@ -68,11 +68,11 @@ ASSIGN
 &Scoped-define FRAME-NAME fMain
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 eInstructions bPreview bPurge ~
-fiEndDate fiOutputDir tbInventory slCompleted tbOrders btnExit 
+&Scoped-Define ENABLED-OBJECTS bExit RECT-1 eInstructions bTest fiEndDate ~
+fiOutputDir tbInventory slCompleted tbOrders tbInvoices 
 &Scoped-Define DISPLAYED-OBJECTS eInstructions fiEndDate fiOutputDir ~
-tbInventory slCompleted tbOrders tbPurchasing tbEstimating tbAccounting ~
-fiGroups fiCompleted 
+tbInventory slCompleted tbOrders tbInvoices tbPurchasing tbEstimating ~
+tbAccounting fiGroups fiCompleted 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -88,29 +88,34 @@ fiGroups fiCompleted
 DEFINE VAR wWin AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON bPreview 
-     LABEL "PREVIEW" 
-     SIZE 15 BY 1.43
-     FONT 6.
+DEFINE BUTTON bExit AUTO-END-KEY 
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 8.4 BY 2 TOOLTIP "Exit"
+     BGCOLOR 8 .
 
 DEFINE BUTTON bPurge 
      LABEL "PURGE" 
      SIZE 15 BY 1.43
      FONT 6.
 
-DEFINE BUTTON btnExit AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
-     SIZE 8.4 BY 2 TOOLTIP "Exit"
-     BGCOLOR 8 .
+DEFINE BUTTON bReview 
+     LABEL "REVIEW" 
+     SIZE 15 BY 1.43
+     FONT 6.
+
+DEFINE BUTTON bTest 
+     LABEL "TEST" 
+     SIZE 15 BY 1.43
+     FONT 6.
 
 DEFINE VARIABLE eInstructions AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
      SIZE 99 BY 5.24 NO-UNDO.
 
-DEFINE VARIABLE fiCompleted AS CHARACTER FORMAT "X(256)":U INITIAL "Completed:" 
+DEFINE VARIABLE fiCompleted AS CHARACTER FORMAT "X(256)":U INITIAL "Completed (Errors/Warnings):" 
       VIEW-AS TEXT 
-     SIZE 14 BY .62 NO-UNDO.
+     SIZE 29 BY .62 NO-UNDO.
 
 DEFINE VARIABLE fiEndDate AS DATE FORMAT "99/99/9999":U 
      LABEL "Delete Orphan Records Created Prior To" 
@@ -128,7 +133,7 @@ DEFINE VARIABLE fiOutputDir AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 142 BY 6.91.
+     SIZE 142 BY 8.33.
 
 DEFINE VARIABLE slCompleted AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
@@ -149,8 +154,13 @@ DEFINE VARIABLE tbInventory AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 56 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tbInvoices AS LOGICAL INITIAL no 
+     LABEL "Invoicing Files (OE and AR Invoices, Invc Lines, etc.)" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 71 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tbOrders AS LOGICAL INITIAL no 
-     LABEL "Order Processing Files (Order Lines, Releases, BoLs, Invc Lines, etc.)" 
+     LABEL "Order Processing Files (Order Lines, Releases, BoLs, etc.)" 
      VIEW-AS TOGGLE-BOX
      SIZE 71 BY .81 NO-UNDO.
 
@@ -163,25 +173,27 @@ DEFINE VARIABLE tbPurchasing AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME fMain
+     bExit AT ROW 1.48 COL 137
      eInstructions AT ROW 1.48 COL 5 NO-LABEL NO-TAB-STOP 
-     bPreview AT ROW 1.48 COL 111
-     bPurge AT ROW 3.38 COL 111
+     bTest AT ROW 1.48 COL 111
+     bReview AT ROW 3.38 COL 111
+     bPurge AT ROW 5.29 COL 111
      fiEndDate AT ROW 7.19 COL 43 COLON-ALIGNED
      fiOutputDir AT ROW 7.19 COL 82 COLON-ALIGNED
      tbInventory AT ROW 9.57 COL 16
      slCompleted AT ROW 10.05 COL 108 NO-LABEL
      tbOrders AT ROW 10.76 COL 16
-     tbPurchasing AT ROW 11.95 COL 16
-     tbEstimating AT ROW 13.14 COL 16
-     btnExit AT ROW 1.48 COL 137
-     tbAccounting AT ROW 14.33 COL 16
+     tbInvoices AT ROW 11.95 COL 16
+     tbPurchasing AT ROW 13.14 COL 16
+     tbEstimating AT ROW 14.33 COL 16
+     tbAccounting AT ROW 15.52 COL 16
      fiGroups AT ROW 8.62 COL 6 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      fiCompleted AT ROW 9.33 COL 106 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      RECT-1 AT ROW 8.86 COL 5
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 148 BY 14.95.
+         SIZE 148 BY 16.67.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -202,7 +214,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW wWin ASSIGN
          HIDDEN             = YES
          TITLE              = "Purge Orphan Records"
-         HEIGHT             = 14.95
+         HEIGHT             = 16.67
          WIDTH              = 148
          MAX-HEIGHT         = 28.81
          MAX-WIDTH          = 148
@@ -238,6 +250,10 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME fMain
    FRAME-NAME                                                           */
+/* SETTINGS FOR BUTTON bPurge IN FRAME fMain
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON bReview IN FRAME fMain
+   NO-ENABLE                                                            */
 ASSIGN 
        eInstructions:READ-ONLY IN FRAME fMain        = TRUE.
 
@@ -292,80 +308,118 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME bPreview
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bPreview wWin
-ON CHOOSE OF bPreview IN FRAME fMain /* PREVIEW */
-OR CHOOSE OF bPurge
+&Scoped-define SELF-NAME bTest
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bTest wWin
+ON CHOOSE OF bTest IN FRAME fMain /* TEST */
+OR CHOOSE OF bReview IN FRAME fMain
+OR CHOOSE OF bPurge IN FRAME fMain
+OR CHOOSE OF bExit IN FRAME fMain
+OR MOUSE-SELECT-DOWN OF bExit
 DO:
-    DEF VAR cMode AS CHAR NO-UNDO.
     DEF VAR cFileList AS CHAR NO-UNDO.
+    DEF VAR iErrorCount AS INT NO-UNDO.
     DEF VAR iProcessedCount AS INT NO-UNDO.
+    DEF VAR iWarningCount AS INT NO-UNDO.
     
-    ASSIGN 
-        cMode = IF SELF:NAME EQ "bPreview" THEN "Preview" ELSE "Purge"
-        cFileList = (IF tbAccounting:CHECKED THEN "" ELSE "") +
-                    (IF tbEstimating:CHECKED THEN "" ELSE "") +  
-                    (IF tbInventory:CHECKED THEN  
-                        "fg-act,fg-bin,fg-hist,fg-rcpth,fg-rcpts,fg-rctd,fg-rdtl,fg-rdtlh,fg-set,fgcat," +     
-                        "item,itemfg,itemfg-loc,itemfgdtl," + 
-                        "rm-bin,rm-rcpt,rm-rctd,"
-                        ELSE "") +    
-                    (IF tbOrders:CHECKED THEN 
-                        "oe-bolh,oe-boll,oe-boll-qty," +
-                        "oe-ordl,oe-ordm," + 
-                        "oe-rel,oe-relh,oe-rell,oe-ship,"
-                        ELSE "") + 
-                    (IF tbPurchasing:CHECKED THEN "" ELSE "")
-        cFileList = REPLACE(cFileList,",,",",")
-        cFileList = TRIM(cFileList,","). 
-
-    DO iCtr = 1 TO  NUM-ENTRIES(cFileList):
-        STATUS INPUT "Identifying orphans in table: " + ENTRY(iCtr,cFileList) + "...".
-        RUN purgeOrphans IN hPurge (cMode,
-                                 ENTRY(iCtr,cFileList),
-                                 fiEndDate:SCREEN-VALUE,
-                                 fiOutputDir:SCREEN-VALUE,
-                                 cocode,
-                                 OUTPUT iProcessedCount,
-                                 OUTPUT lError,
-                                 OUTPUT cMessage).
-        slCompleted:ADD-LAST(ENTRY(iCtr,cFileList) + " - " + STRING(iProcessedCount)).
-        STATUS INPUT "".
-    END.
-    
-    IF lError THEN DO:
-        MESSAGE 
-            cMessage VIEW-AS ALERT-BOX.
-        RETURN NO-APPLY.
-    END.
-    
-    IF cMode EQ "Purge" THEN 
-        STATUS INPUT "Generating report and Purging records...".
-    ELSE 
-        STATUS INPUT "Generating report...".
-    
-    RUN purgeComplete IN hPurge.
-    
-    ASSIGN 
-        fiOutputDir:SCREEN-VALUE = SESSION:TEMP-DIRECTORY + "OrphanPurge-" + 
-                                    STRING(YEAR(TODAY),"9999") +
-                                    STRING(MONTH(TODAY),"99") +
-                                    STRING(DAY(TODAY),"99") +
-                                    "-" + STRING(TIME).  
-    STATUS INPUT "Purge Processing Complete".
-                                     
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnExit
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExit wWin
-ON CHOOSE OF btnExit IN FRAME fMain
-OR MOUSE-SELECT-DOWN OF btnExit
-DO:
-    APPLY 'window-close' TO wWin.
+    CASE SELF:NAME:
+        WHEN "bTest" THEN DO:
+            STATUS INPUT "Analyzing files and running tests...".
+            STATUS DEFAULT "Analyzing files and running tests...".
+            ASSIGN 
+                fiOutputDir:SCREEN-VALUE = SESSION:TEMP-DIRECTORY + "OrphanPurge-" + 
+                                            STRING(YEAR(TODAY),"9999") +
+                                            STRING(MONTH(TODAY),"99") +
+                                            STRING(DAY(TODAY),"99") +
+                                            "-" + STRING(TIME,"99999")  
+                cFileList = (IF tbAccounting:CHECKED THEN "" ELSE "") +
+                            (IF tbEstimating:CHECKED THEN "" ELSE "") +  
+                            (IF tbInventory:CHECKED THEN  
+                                "fg-act,fg-bin,fg-hist,fg-rcpth,fg-rcpts,fg-rctd,fg-rdtl,fg-rdtlh,fg-set,fgcat," +     
+                                "item,itemfg,itemfg-loc,itemfgdtl," + 
+                                "rm-bin,rm-rcpt,rm-rctd,"
+                                ELSE "") +    
+                            (IF tbOrders:CHECKED THEN 
+                                "oe-bolh,oe-boll,oe-boll-qty," +
+                                "oe-ord,oe-ordl,oe-ordm," + 
+                                "oe-rel,oe-relh,oe-rell,oe-ship,"
+                                ELSE "") + 
+                            (IF tbInvoices:CHECKED THEN 
+                                "ar-inv,ar-invl,ar-invm," +
+                                "inv-head,inv-line,inv-misc,"
+                                ELSE "") +
+                            (IF tbPurchasing:CHECKED THEN "" ELSE "")
+                cFileList = REPLACE(cFileList,",,",",")
+                cFileList = TRIM(cFileList,","). 
+        
+            DO iCtr = 1 TO  NUM-ENTRIES(cFileList):
+                STATUS INPUT "Identifying orphans in table: " + ENTRY(iCtr,cFileList) + "...".
+                STATUS DEFAULT "Identifying orphans in table: " + ENTRY(iCtr,cFileList) + "...".
+                RUN testOrphans IN hPurge (
+                    ENTRY(iCtr,cFileList),
+                    fiEndDate:SCREEN-VALUE,
+                    fiOutputDir:SCREEN-VALUE,
+                    cocode,
+                    OUTPUT iProcessedCount,
+                    OUTPUT iErrorCount,
+                    OUTPUT iWarningCount,
+                    OUTPUT lError,
+                    OUTPUT cMessage).
+                slCompleted:ADD-LAST(ENTRY(iCtr,cFileList) + " - " + STRING(iProcessedCount) + " (" + STRING(iErrorCount) + "/" + STRING(iWarningCount) + ")").
+                slCompleted:SCROLL-TO-ITEM (slCompleted:NUM-ITEMS).
+                STATUS INPUT "".
+            END.
+            
+            IF lError THEN 
+            DO:
+                MESSAGE 
+                    cMessage VIEW-AS ALERT-BOX.
+                RETURN NO-APPLY.
+            END.
+            STATUS INPUT "Generating report...".
+            STATUS DEFAULT "Generating report...".
+            RUN outputOrphanFile IN hPurge.
+            APPLY 'value-changed' TO fiOutputDir.
+            ASSIGN 
+                bPurge:SENSITIVE = FALSE.
+            STATUS INPUT "Test complete.  Press Review to open the results list.".
+            STATUS DEFAULT "Test complete.  Press Review to open the results list.".
+        END.
+        WHEN "bReview" THEN DO:
+            STATUS INPUT "Opening file for review...".
+            STATUS DEFAULT "Opening file for review...".
+            OS-COMMAND SILENT VALUE ("START " + fiOutputDir:SCREEN-VALUE + "\" + "_PurgeReport.csv").
+            OS-COMMAND SILENT VALUE ("PING 127.0.0.1 -n 5"). /* Wait 5 OpSys seconds before next message */
+            STATUS INPUT "Review complete. Records can now be purged.".
+            STATUS DEFAULT "Review complete. Records can now be purged.".
+            ASSIGN 
+                bPurge:SENSITIVE = TRUE.
+            END.
+        WHEN "bPurge" THEN DO:
+            STATUS INPUT "Purging records...".
+            STATUS DEFAULT "Purging records...".
+            RUN purgeOrphansFromFile IN hPurge (
+                fiOutputDir:SCREEN-VALUE + "\" + "_PurgeReport.csv",
+                OUTPUT lError,
+                OUTPUT cMessage).
+            IF lError THEN DO:
+                STATUS INPUT "Issue with purging records.  Process halted.".
+                STATUS DEFAULT "Issue with purging records.  Process halted.".
+                MESSAGE 
+                    cMessage
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN NO-APPLY.
+            END.
+            ELSE DO:
+                STATUS INPUT "Purge complete.  Backup files stored in directory.".
+                STATUS DEFAULT "Purge complete.  Backup files stored in directory.".
+                APPLY 'value-changed' TO fiOutputDir.
+            END.
+        END.
+        WHEN "bExit" THEN 
+            DO:
+            APPLY 'window-close' TO wWin.
+        END.
+    END.                                     
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -386,6 +440,43 @@ DO:
             RETURN.
         END.
     END.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiOutputDir
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiOutputDir wWin
+ON HELP OF fiOutputDir IN FRAME fMain /* Purge data directory */
+DO:
+    DEF VAR cSelectedDir AS CHAR NO-UNDO.
+    SYSTEM-DIALOG GET-DIR cSelectedDir
+        INITIAL-DIR SESSION:TEMP-DIRECTORY 
+        TITLE "Select an Orphan Purge Directory".
+    ASSIGN 
+        SELF:SCREEN-VALUE = cSelectedDir.
+    APPLY 'value-changed' TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiOutputDir wWin
+ON VALUE-CHANGED OF fiOutputDir IN FRAME fMain /* Purge data directory */
+DO:
+    DEF VAR cFileName AS CHAR.
+    DEF VAR lHasDumpFile AS LOG NO-UNDO.
+    INPUT FROM OS-DIR(SELF:SCREEN-VALUE).
+    REPEAT:
+        IMPORT cFileName.
+        IF INDEX(cFileName,".d") NE 0 THEN ASSIGN 
+                lHasDumpFile = TRUE.
+    END. 
+    ASSIGN 
+        bReview:SENSITIVE = SEARCH(SELF:SCREEN-VALUE + "\" + "_PurgeReport.csv") NE ?
+        bPurge:SENSITIVE = NOT lHasDumpFile.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -419,20 +510,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN enable_UI.
     
     RUN util/purgeProcs.p PERSISTENT SET hPurge.
-
+ 
     ASSIGN 
         eInstructions:SCREEN-VALUE IN FRAME {&frame-name} = 
             "This function will locate and purge selected records in the database if no 'Parent' record can be located, or if certain " +
             "key data is blank." + CHR(10) +
-            "You have the option of running this function in 'PREVIEW Mode' if you ONLY want to see a list of records that " +
+            "You have the option of running this function in 'TEST Mode' if you ONLY want to see a list of records that " +
             "can be purged.  These record lists can be found in the directory specified below." + CHR(10) +
             "In 'PURGE mode', this directory will also contain data files which can be used to restore purged records."
         fiEndDate:SCREEN-VALUE = STRING(TODAY - 30,"99/99/9999")
-        fiOutputDir:SCREEN-VALUE = SESSION:TEMP-DIRECTORY + "OrphanPurge-" + 
-                                   STRING(YEAR(TODAY),"9999") +
-                                   STRING(MONTH(TODAY),"99") +
-                                   STRING(DAY(TODAY),"99") +
-                                   "-" + STRING(TIME).  
+        fiOutputDir:SCREEN-VALUE = SESSION:TEMP-DIRECTORY.  
         
     APPLY 'entry' TO fiEndDate.
   
@@ -490,10 +577,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY eInstructions fiEndDate fiOutputDir tbInventory slCompleted tbOrders 
-          tbPurchasing tbEstimating tbAccounting fiGroups fiCompleted 
+          tbInvoices tbPurchasing tbEstimating tbAccounting fiGroups fiCompleted 
       WITH FRAME fMain IN WINDOW wWin.
-  ENABLE RECT-1 eInstructions bPreview bPurge fiEndDate fiOutputDir tbInventory 
-         slCompleted tbOrders btnExit 
+  ENABLE bExit RECT-1 eInstructions bTest fiEndDate fiOutputDir tbInventory 
+         slCompleted tbOrders tbInvoices 
       WITH FRAME fMain IN WINDOW wWin.
   {&OPEN-BROWSERS-IN-QUERY-fMain}
   VIEW wWin.

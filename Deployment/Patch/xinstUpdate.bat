@@ -74,9 +74,9 @@ CD Updates
 :: Copy files/dirs from Patch to "regular" directories
 XCOPY /Y .\*.zip ..\Backups\PatchFiles > NUL
 XCOPY /S /Y .\Admin\*.* ..\Admin > NUL
-XCOPY /S /Y .\Documentation\DBDict\*.* ..\Documentation\DBDict > NUL
+XCOPY /S /Y .\Desktop\*.* ..\Desktop > NUL
+XCOPY /S /Y .\Documentation\*.* ..\Documentation > NUL
 XCOPY /S /Y .\Install\ReportWriter\*.* ..\Install\ReportWriter > NUL
-XCOPY /S /Y .\Documentation\ReleaseNotes\*.* ..\Documentation\ReleaseNotes > NUL
 XCOPY /S /Y .\Structure\*.* ..\Databases\Structure > NUL
 IF NOT EXIST ..\Admin\EnvAdmin\updateHist.txt (
     COPY /Y .\UpdateHist.txt ..\Admin\EnvAdmin\UpdateHist.txt > NUL

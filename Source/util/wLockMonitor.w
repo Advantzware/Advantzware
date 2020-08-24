@@ -85,16 +85,6 @@ DEF TEMP-TABLE ttLocks
     FIELD ttfLockTime AS DATETIME-TZ LABEL "Lock Time"
     FIELD ttfDuration AS INT LABEL "Duration"
     FIELD ttfLock-Type AS CHAR LABEL "Lk Type"
-    
-    FIELD ttfLastActivity1 AS CHAR LABEL "Last Action" FORMAT "x(24)"
-    FIELD ttfLastActHotkey1 AS CHAR LABEL "Hotkey" FORMAT "x(3)"
-    FIELD ttfLastActDtTm1 AS DATETIME LABEL "Dt/Tm" 
-    FIELD ttfLastActivity2 AS CHAR LABEL "2d Last Action" FORMAT "x(24)"
-    FIELD ttfLastActHotkey2 AS CHAR LABEL "Hotkey" FORMAT "x(3)"
-    FIELD ttfLastActDtTm2 AS DATETIME LABEL "Dt/Tm" 
-    FIELD ttfLastActivity3 AS CHAR LABEL "3d Last Action" FORMAT "x(24)"
-    FIELD ttfLastActHotkey3 AS CHAR LABEL "Hotkey" FORMAT "x(3)"
-    FIELD ttfLastActDtTm3 AS DATETIME LABEL "Dt/Tm" 
     .
 DEF VAR cLabels AS CHAR INITIAL 
     "Type,User ID,Name,Terminal,Table,Duration,Fields,Values,User ID,Lock ID,Lock User#,Table#,Recid,Lock Time,Duration,Lk Type,Last Action,Hotkey,Date/Time,2d Last Action,Hotkey,Date/Time,3d Last ActionHotkey,Date/Time".
@@ -980,33 +970,6 @@ PROCEDURE pGetLockData :
                 ttLocks.ttfFields = cFieldString
                 ttLocks.ttfValues = cKeyString
                 .
-            ASSIGN 
-                aCtr = 1.
-            FOR EACH AuditHdr NO-LOCK WHERE 
-                AuditHdr.AuditUser = _user._userid AND  
-                auditHdr.auditDateTime GT DATETIME(TODAY - INT(fiStackDays:SCREEN-VALUE), MTIME) AND 
-                auditHdr.auditKey ne "", 
-                EACH prgrms NO-LOCK WHERE 
-                prgrms.prgmname = AuditHdr.AuditTable
-                BY AuditHdr.AuditDateTime DESCENDING:
-                IF aCtr = 1 THEN ASSIGN 
-                    ttLocks.ttfLastActivity1 = prgrms.prgtitle
-                    ttLocks.ttfLastActHotkey1 = AuditHdr.AuditKey
-                    ttLocks.ttfLastActDtTm1 = AuditHdr.auditDateTime.
-                ELSE IF aCtr = 2 THEN ASSIGN 
-                    ttLocks.ttfLastActivity2 = prgrms.prgtitle
-                    ttLocks.ttfLastActHotkey2 = AuditHdr.AuditKey
-                    ttLocks.ttfLastActDtTm2 = AuditHdr.auditDateTime.
-                ELSE IF aCtr = 3 THEN DO:
-                    ASSIGN 
-                        ttLocks.ttfLastActivity3 = prgrms.prgtitle
-                        ttLocks.ttfLastActHotkey3 = AuditHdr.AuditKey
-                        ttLocks.ttfLastActDtTm3 = AuditHdr.auditDateTime.
-                    LEAVE.
-                END.
-                aCtr = aCtr + 1.
-            END. 
-            
             DELETE OBJECT hqRecKey.
             DELETE OBJECT hbRecKey.            
         END.
@@ -1028,15 +991,6 @@ PROCEDURE pGetLockData :
             ASSIGN
                 ttLocks2.ttfDuration = (NOW - ttLocks2.ttfLockTime) / 1000
                 ttLocks2.ttfDispTime = STRING(ttLocks2.ttfDuration,"HH:MM:SS")
-                ttLocks2.ttfLastActivity1 = ttLocks.ttfLastActivity1
-                ttLocks2.ttfLastActHotkey1 = ttLocks.ttfLastActHotkey1
-                ttLocks2.ttfLastActDtTm1 = ttLocks.ttfLastActDtTm1
-                ttLocks2.ttfLastActivity2 = ttLocks.ttfLastActivity2
-                ttLocks2.ttfLastActHotkey2 = ttLocks.ttfLastActHotkey2
-                ttLocks2.ttfLastActDtTm2 = ttLocks.ttfLastActDtTm2
-                ttLocks2.ttfLastActivity3 = ttLocks.ttfLastActivity3
-                ttLocks2.ttfLastActHotkey3 = ttLocks.ttfLastActHotkey3
-                ttLocks2.ttfLastActDtTm3 = ttLocks.ttfLastActDtTm3
                 .
         END.
     END.

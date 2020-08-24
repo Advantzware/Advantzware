@@ -154,20 +154,22 @@ for each est-op
     ll-no-more-blank-fed = YES.
   END.
 
-  FIND FIRST w-qty WHERE w-qty.b-num EQ est-op.b-num.
-  ASSIGN
-   v-blk    = w-qty.num-bl
-   v-sav[2] = w-qty.sav-bl
-   spo      = w-qty.spo-bl.
+  FIND FIRST w-qty WHERE w-qty.b-num EQ est-op.b-num NO-ERROR.
+  IF AVAILABLE w-qty THEN 
+    ASSIGN
+        v-blk    = w-qty.num-bl
+        v-sav[2] = w-qty.sav-bl
+        spo      = w-qty.spo-bl.
 
   IF FIRST(est-op.d-seq) THEN cumul = v-blk / (v-num-up * vn-out).
 
   {ce/box/prokalk.i}
       
-  ASSIGN
-   w-qty.num-bl = v-blk
-   w-qty.sav-bl = v-sav[2]
-   w-qty.spo-bl = spo.
+  IF AVAILABLE w-qty THEN 
+    ASSIGN
+        w-qty.num-bl = v-blk
+        w-qty.sav-bl = v-sav[2]
+        w-qty.spo-bl = spo.
 
   {sys/inc/roundup.i w-qty.num-bl}
 

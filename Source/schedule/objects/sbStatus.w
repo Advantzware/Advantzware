@@ -341,6 +341,22 @@ PROCEDURE local-view:
        NO-ERROR.
   IF AVAILABLE reftable THEN DO:
       IF reftable.code2 NE USERID('ASI') THEN DO:
+          IF DYNAMIC-FUNCTION("sfIsUserAdmin") THEN DO:
+              MESSAGE
+                  'External Status Checkoffs in Use by'
+                  reftable.code2 SKIP(1)
+                  'Do you wish to CLEAR this User?'
+              VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+              UPDATE lClearUser AS LOGICAL.
+              IF lClearUser THEN
+              FOR EACH reftable EXCLUSIVE-LOCK
+                  WHERE reftable.reftable EQ "SBCheckoffs"
+                    AND reftable.code     EQ ID
+                  :
+                  DELETE reftable. 
+              END. /* each reftable */
+          END. /* if IsUserAdmin */
+          ELSE
           MESSAGE
               'External Status Checkoffs in Use by'
               reftable.code2 SKIP(1)

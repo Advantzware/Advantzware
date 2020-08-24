@@ -1402,6 +1402,8 @@ DEF VAR cslist AS cha NO-UNDO.
 
 if td-show-parm then run show-param.
 
+EMPTY TEMP-TABLE tt-report .
+
 IF tb_excel THEN DO:
     IF NOT v-summ THEN DO:
         

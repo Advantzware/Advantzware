@@ -1390,6 +1390,11 @@ PROCEDURE local-delete-record :
         AND oe-rel.ord-no  EQ li-ord-no:
     RUN oe/rel-stat.p (ROWID(oe-rel), OUTPUT oe-rel.stat).
   END.
+  
+  /* Call the API, if the line is deleted successfully */
+  RUN pRunAPIOutboundTrigger (
+      INPUT "UpdateRelease"
+      ).
 
   RUN reopen-query2.
 
@@ -1573,6 +1578,43 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunAPIOutboundTrigger B-table-Win
+PROCEDURE pRunAPIOutboundTrigger:
+/*------------------------------------------------------------------------------
+ Purpose: Runs the API call in the parent viewer
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcTriggerID AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cOERelhViewerHandle  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdOERelhViewerHandle AS HANDLE    NO-UNDO.
+    
+    /* viewer*/
+    RUN get-link-handle IN adm-broker-hdl (
+        INPUT  this-procedure,
+        INPUT  "record-source", 
+        OUTPUT cOERelhViewerHandle
+        ).
+    
+    /* Validate if the handle returned is valid */
+    IF VALID-HANDLE(WIDGET-HANDLE(cOERelhViewerHandle)) THEN DO:
+        hdOERelhViewerHandle = WIDGET-HANDLE(cOERelhViewerHandle).
+        
+        /* If verify if the procedure that needs to be run is available */
+        IF LOOKUP("pRunAPIOutboundTrigger", hdOERelhViewerHandle:INTERNAL-ENTRIES) GT 0 THEN
+            RUN pRunAPIOutboundTrigger IN WIDGET-HANDLE(cOERelhViewerHandle) (
+                BUFFER oe-relh,
+                INPUT  ipcTriggerID
+                ).
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Refresh-browse B-table-Win 
 PROCEDURE Refresh-browse :
 /*------------------------------------------------------------------------------
@@ -1697,6 +1739,12 @@ PROCEDURE select-bintags :
        RUN dispatch ('get-next').
        li = li + 1.
      END.
+     
+     /* Call the API, if any tags are added to line after selecing select-bins buttons */
+     RUN pRunAPIOutboundTrigger (
+         INPUT "UpdateRelease"
+         ).
+     
    END.
  END.
 

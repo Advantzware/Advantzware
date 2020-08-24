@@ -1217,9 +1217,9 @@ FOR EACH employee fields(employee) WHERE
               machtran.blank_number
               machtran.pass_sequence*/
               machtran.start_date
-              STRING(machemp.start_time,'HH:MM am') LABEL 'Start Time'
+              STRING(machtran.start_time,'HH:MM am') LABEL 'Start Time'
               machtran.end_date
-              STRING(machemp.end_time,'HH:MM am') LABEL 'End Time'
+              STRING(machtran.end_time,'HH:MM am') LABEL 'End Time'
               /*machtran.shift */
               machtran.charge_code
 
@@ -1236,9 +1236,9 @@ FOR EACH employee fields(employee) WHERE
             '"' machtran.machine                       '",'
             '"' machtran.job_number + "-" + string(machtran.job_sub,"99") '",'
             '"' machtran.start_date                    '",'
-            '"' trim(STRING(machemp.start_time,'HH:MM am'))  '",'
+            '"' trim(STRING(machtran.start_time,'HH:MM am'))  '",'
             '"' machtran.end_date '",'
-            '"' trim(STRING(machemp.end_time,'HH:MM am')) '",'
+            '"' trim(STRING(machtran.end_time,'HH:MM am')) '",'
             '"' machtran.charge_code '",'
             '"' (IF ld-mr-time > 0 THEN trim(STRING(ld-mr-time,"HH:MM")) ELSE "") '",'
             '"' (IF ld-run-time > 0 THEN trim(STRING(ld-run-time,"HH:MM")) ELSE "") '",'

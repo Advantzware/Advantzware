@@ -435,7 +435,7 @@ PROCEDURE adm-create-objects :
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
        /* Links to SmartBrowser h_apioutbounddetail. */
-       RUN add-link IN adm-broker-hdl ( h_apioutbound , 'Record':U , h_apioutbounddetail ).
+       RUN add-link IN adm-broker-hdl ( h_apioutbound-2 , 'Record':U , h_apioutbounddetail ).
 
        /* Links to SmartViewer h_apioutbounddetail-2. */
        RUN add-link IN adm-broker-hdl ( h_apioutbounddetail , 'Record':U , h_apioutbounddetail-2 ).
@@ -480,7 +480,7 @@ PROCEDURE adm-create-objects :
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
        /* Links to SmartBrowser h_apioutboundtrigger. */
-       RUN add-link IN adm-broker-hdl ( h_apioutbound , 'Record':U , h_apioutboundtrigger ).
+       RUN add-link IN adm-broker-hdl ( h_apioutbound-2 , 'Record':U , h_apioutboundtrigger ).
 
        /* Links to SmartViewer h_apioutboundtrigger-2. */
        RUN add-link IN adm-broker-hdl ( h_apioutboundtrigger , 'Record':U , h_apioutboundtrigger-2 ).
@@ -562,7 +562,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-updapi-5 , 'TableIO':U , h_apiclientxref1-2 ).
 
        /* Links to SmartQuery h_q-apiclient. */
-       RUN add-link IN adm-broker-hdl ( h_apioutbound , 'Record':U , h_q-apiclient ).
+       RUN add-link IN adm-broker-hdl ( h_apioutbound-2 , 'Record':U , h_q-apiclient ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_apiclient ,

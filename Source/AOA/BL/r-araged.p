@@ -5,11 +5,13 @@
 
 /* ***************************  Definitions  ***************************/
 
-{aoa/BL/r-aragedDefs.i}
+{AOA/BL/r-aragedDefs.i}
 
 /* Parameters Definitions ---                                           */
 DEFINE OUTPUT PARAMETER TABLE FOR ttAgedReceivables.
-{aoa/includes/pAgedReceivables.i}
+{AOA/includes/pAgedReceivables.i}
+
+RUN pBusinessLogic.
 
 /* subject business logic */
-{aoa/BL/r-araged.i}
+{AOA/BL/r-araged.i}

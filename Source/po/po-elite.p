@@ -89,11 +89,10 @@ DEF VAR v-cost AS DEC NO-UNDO.
 DEF VAR v-sub-cost AS DEC NO-UNDO.
 DEF VAR v-tot-cost AS DEC NO-UNDO.
 DEF VAR v-setup AS DEC NO-UNDO.
-DEF VAR v-tax-tot AS DEC NO-UNDO.
-DEF VAR v-tax-rate AS DEC NO-UNDO.
-DEF VAR v-frt-tax-rate AS DEC NO-UNDO.
+DEF VAR v-tax-tot AS DEC NO-UNDO. 
 DEF VAR vt-cost LIKE po-ordl.t-cost NO-UNDO.
 DEF VAR v-ord-qty LIKE po-ordl.ord-qty NO-UNDO.
+DEFINE VARIABLE dTaxAmount     AS DECIMAL NO-UNDO.
 
 DEF VAR v-inst-lines AS INT NO-UNDO.
 DEF VAR v-inst AS cha FORM "x(80)" EXTENT 4 NO-UNDO.
@@ -158,21 +157,15 @@ assign
 
       ASSIGN
        v-page-counter = 1
-       v-change-ord   = ""
-       v-tax-rate     = 0
-       v-frt-tax-rate = 0
+       v-change-ord   = ""       
        v-po-type      = IF po-ord.type EQ "R" THEN "Regular" ELSE "Drop Ship"
        v-freight-dscr = IF po-ord.frt-pay EQ "P" THEN "Prepaid" ELSE
                         IF po-ord.frt-pay EQ "C" THEN "Collect" ELSE "Bill".
 
       IF po-ord.stat EQ "N" THEN po-ord.stat = "O".
       ELSE
-      IF po-ord.stat EQ "U" THEN v-change-ord = "(CHANGED ORDER ONLY)".
-
-      IF po-ord.tax-gr NE "" THEN
-        RUN ar/cctaxrt.p (po-ord.company, po-ord.tax-gr,
-                          OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
-
+      IF po-ord.stat EQ "U" THEN v-change-ord = "(CHANGED ORDER ONLY)".  
+      
       v-printline = 0.
       {po/po-elite.i}  /* xprint form */
 
@@ -323,8 +316,16 @@ assign
 
         /* calc tax without setup */
         IF po-ordl.tax THEN
-          v-tax-tot = v-tax-tot + ROUND((vt-cost * v-tax-rate / 100),2).
-
+        DO:   
+          RUN Tax_Calculate(INPUT po-ord.company,
+                           INPUT po-ord.tax-gr,
+                           INPUT FALSE,
+                           INPUT vt-cost,
+                           INPUT po-ordl.i-no, 
+                           OUTPUT dTaxAmount).
+          v-tax-tot = v-tax-tot + ROUND(dTaxAmount,2).
+        END.
+        
         vt-cost = vt-cost - po-ordl.setup.
         
         IF v-job-no = "-" THEN v-job-no = "".

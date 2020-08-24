@@ -2573,6 +2573,8 @@ PROCEDURE Set-Comp_Loc :
             g_loc                     = ipcLoc
             .
     END.
+    RUN spSetSessionParam ("Company", g_company).
+    RUN spSetSessionParam ("Location", g_loc).
     DYNAMIC-FUNCTION("sfClearUsage").
     RUN pGetMenuSettings.
 /*    RUN sys/ref/nk1look.p (                 */

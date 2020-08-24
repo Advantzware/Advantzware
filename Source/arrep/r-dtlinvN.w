@@ -85,7 +85,7 @@ DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
 ASSIGN cTextListToSelect = "GL Acct#,Description,Customer,Cust Name,Inv#,PO#,Customer Lot#,Item#,Item Desc,Run#,Date,Amount"
        cFieldListToSelect = "act,dscr,cust,cust-name,inv,po,cust-lot,itm,itm-dscr,run,date,amt"
-       cFieldLength = "25,25,8,30,6,15,15,15,30,6,10,14"
+       cFieldLength = "25,30,8,30,7,15,15,15,30,6,10,14"
        cFieldType = "c,c,c,c,c,c,c,c,c,c,c,i" 
     .
 
@@ -1350,7 +1350,7 @@ DEF VAR lv-jrnl LIKE gltrans.jrnl NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR lj AS INT NO-UNDO.
 DEF VAR lv-amt LIKE tt-report.amt EXTENT 3 NO-UNDO.
-DEF VAR ld-tax-rate AS DEC  EXTENT 4 NO-UNDO.
+DEF VAR ld-tax-rate AS DEC  EXTENT 10 NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR v-ttl-tax  AS DECIMAL NO-UNDO.
 DEF VAR v-ttl-rate AS DECIMAL NO-UNDO.
@@ -1517,7 +1517,7 @@ FOR EACH ar-ledger
            DO lj = 1 TO li - 1: 
 
               ld-tax-rate[li] = ld-tax-rate[li] +
-                                (ld-tax-rate[li] * (stax.tax-rate[lj] / 100)).
+                                (ld-tax-rate[li] * (stax.tax-rate1[lj] / 100)).
             END.
             v-ttl-rate = v-ttl-rate + ld-tax-rate[li].
           END.

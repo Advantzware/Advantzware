@@ -68,7 +68,7 @@ DEFINE            VARIABLE cRtnChar           AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE lRecFound          AS LOGICAL   NO-UNDO.
 DEFINE            VARIABLE lPOChangeDueDate   AS LOGICAL   NO-UNDO.
 DEF SHARED VAR lNewOrd AS LOG NO-UNDO.
-
+DEFINE VARIABLE lUpdateMode AS LOGICAL NO-UNDO.
 
 DEFINE TEMP-TABLE tt-ei NO-UNDO
 FIELD std-uom AS CHARACTER.
@@ -1654,6 +1654,7 @@ PROCEDURE local-cancel-record :
   /* Code placed here will execute AFTER standard behavior.    */
   DISABLE po-ord.ship-id WITH FRAME {&FRAME-NAME}.
     lNewOrd = FALSE.
+    lUpdateMode = FALSE.
   /* To allow ctrl-o to be picked up */
   APPLY 'entry' TO btnCalendar-1 IN FRAME {&FRAME-NAME}.
 
@@ -1905,6 +1906,7 @@ PROCEDURE local-update-record :
     
   lv-rowid = ROWID(po-ord).
   lNewOrd = FALSE.
+  lUpdateMode = FALSE.
 
   FIND CURRENT po-ord NO-LOCK NO-ERROR.
 
@@ -2109,7 +2111,7 @@ PROCEDURE post-enable :
         ASSIGN
          ls-drop-custno = po-ord.cust-no
          lv-type        = po-ord.type.
-
+    lUpdateMode = TRUE.
     IF adm-new-record AND NOT adm-adding-record THEN
       po-ord.po-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(TODAY).
     rd_drop-shipment:SENSITIVE = TRUE .
@@ -2193,11 +2195,12 @@ PROCEDURE pRunAPIOutboundTrigger :
             cPrimaryID = STRING(ipbf-po-ord.po-no)
             cDescription = cAPIID + " triggered by " + ipcTriggerID + " from v-purord.w for PO: " + cPrimaryID
             . 
-        RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+        RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
             INPUT  ipbf-po-ord.company,         /* Company Code (Mandatory) */
             INPUT  ipbf-po-ord.loc,             /* Location Code (Mandatory) */
             INPUT  cAPIID,                      /* API ID (Mandatory) */
-            INPUT  "",                          /* Client ID (Optional) - Pass empty in case to make request for all clients */
+            INPUT  ipbf-po-ord.vend-no,         /* Scoped ID */
+            INPUT  "Vendor",                    /* Scoped Type */
             INPUT  ipcTriggerID,                /* Trigger ID (Mandatory) */
             INPUT  "po-ord",                    /* Comma separated list of table names for which data being sent (Mandatory) */
             INPUT  STRING(ROWID(ipbf-po-ord)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
@@ -2392,6 +2395,21 @@ FIND first po-ord WHERE
 ASSIGN oplAvail = AVAIL po-ord.
 IF po-ord.vend-no:SCREEN-VALUE EQ "" THEN ASSIGN
     oplAvail = false.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckUpdateMode V-table-Win 
+PROCEDURE pCheckUpdateMode :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER oplUpdateMode AS LOGICAL NO-UNDO.
+  oplUpdateMode = lUpdateMode .
 
 END PROCEDURE.
 

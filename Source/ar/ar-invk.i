@@ -26,8 +26,9 @@ END.
 RUN Tax_CalculateForArInv  (
     INPUT  ROWID({1}),
     INPUT  locode,
-    INPUT  "INVOICE", /*  Message Type "INVOICE" or "QUOTATION" */
-    INPUT  TRUE,      /* Post To journal */
+    INPUT  "QUOTATION", /*  Message Type "INVOICE" or "QUOTATION" */
+    INPUT  FALSE,       /* Post To journal */
+    INPUT  "GetTaxAmount", /* Trigger ID */
     OUTPUT dTotalTax,
     OUTPUT dInvoiceTotal,
     OUTPUT dinvoiceSubTotal,

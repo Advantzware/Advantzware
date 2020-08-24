@@ -25,13 +25,13 @@
     DEFINE VARIABLE iPeriodDays2 AS INTEGER NO-UNDO.
     DEFINE VARIABLE iPeriodDays3 AS INTEGER NO-UNDO.
     DEFINE VARIABLE iPeriodDays4 AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iRecenTrendDays AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iRecentTrendDays AS INTEGER NO-UNDO.
     DEFINE VARIABLE cType AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSort1 AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSort2 AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lIncludePaidInvoices AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lIncludeFactoredFGItems AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lIncludeFuelSurchages AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIncludeFuelSurcharges AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lSeparateFinanceCharges AS LOGICAL NO-UNDO.
     DEFINE VARIABLE dtStartInvoiceDate AS DATE NO-UNDO.
     DEFINE VARIABLE cStartInvoiceDateOption AS CHARACTER NO-UNDO.
@@ -41,6 +41,9 @@
     DEFINE VARIABLE lSecure AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cAvailableColumns AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSelectedColumns AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAllARClass AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE iStartARClass AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iEndARClass AS INTEGER NO-UNDO.
 
     /* locate parameter values record */
     RUN pGetParamValues (ipcCompany, "r-araged.", ipcUserID, ipiBatch).
@@ -70,13 +73,13 @@
         iPeriodDays2 = DYNAMIC-FUNCTION("fGetParamValue","svPeriodDays2")
         iPeriodDays3 = DYNAMIC-FUNCTION("fGetParamValue","svPeriodDays3")
         iPeriodDays4 = DYNAMIC-FUNCTION("fGetParamValue","svPeriodDays4")
-        iRecenTrendDays = DYNAMIC-FUNCTION("fGetParamValue","svRecenTrendDays")
+        iRecentTrendDays = DYNAMIC-FUNCTION("fGetParamValue","svRecentTrendDays")
         cType = DYNAMIC-FUNCTION("fGetParamValue","svType")
         cSort1 = DYNAMIC-FUNCTION("fGetParamValue","svSort1")
         cSort2 = DYNAMIC-FUNCTION("fGetParamValue","svSort2")
         lIncludePaidInvoices = DYNAMIC-FUNCTION("fGetParamValue","svIncludePaidInvoices") EQ "yes"
         lIncludeFactoredFGItems = DYNAMIC-FUNCTION("fGetParamValue","svIncludeFactoredFGItems") EQ "yes"
-        lIncludeFuelSurchages = DYNAMIC-FUNCTION("fGetParamValue","svIncludeFuelSurchages") EQ "yes"
+        lIncludeFuelSurcharges = DYNAMIC-FUNCTION("fGetParamValue","svIncludeFuelSurcharges") EQ "yes"
         lSeparateFinanceCharges = DYNAMIC-FUNCTION("fGetParamValue","svSeparateFinanceCharges") EQ "yes"
         dtStartInvoiceDate = DATE(DYNAMIC-FUNCTION("fGetParamValue","svStartInvoiceDate"))
         cStartInvoiceDateOption = DYNAMIC-FUNCTION("fGetParamValue","svStartInvoiceDateOption")
@@ -88,6 +91,9 @@
         lSecure = DYNAMIC-FUNCTION("fGetParamValue","svSecure") EQ "yes"
         cAvailableColumns = DYNAMIC-FUNCTION("fGetParamValue","svAvailableColumns")
         cSelectedColumns = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")
+        lAllARClass = DYNAMIC-FUNCTION("fGetParamValue","svAllARClass") EQ "yes"
+        iStartARClass = DYNAMIC-FUNCTION("fGetParamValue","svStartARClass")
+        iEndARClass = DYNAMIC-FUNCTION("fGetParamValue","svEndARClass")
         .
 
     RUN pGetColumns (TEMP-TABLE ttAgedReceivables:HANDLE, cAvailableColumns, cSelectedColumns).

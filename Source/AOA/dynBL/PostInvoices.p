@@ -24,9 +24,13 @@ END FUNCTION.
 
 /* Local Variable Definitions ---                                       */
 
+DEFINE NEW SHARED VARIABLE cocode AS CHARACTER NO-UNDO.
 DEFINE NEW SHARED VARIABLE locode AS CHARACTER NO-UNDO.
 
-locode = cLocation.
+ASSIGN
+    cocode = cCompany
+    locode = cLocation
+    .
 RUN oe/PostInvoices.p PERSISTENT SET hPostInvoices.
 hTempTable = DYNAMIC-FUNCTION("fGetRptHandle" IN hPostInvoices).
 

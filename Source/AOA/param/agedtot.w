@@ -54,8 +54,10 @@ svAllCustNo svStartCustNo svEndCustNo svInactiveCustomers svAllCurrency ~
 svStartCurrency svEndCurrency svAsOfDate btnCalendar-1 svAsOfDateOption ~
 svStartInvoiceDate btnCalendar-2 svStartInvoiceDateOption svEndInvoiceDate ~
 btnCalendar-3 svEndInvoiceDateOption svPeriodDays1 svPeriodDays2 ~
-svPeriodDays3 svRecenTrendDays svIncludePaidInvoices svIncludeFuelSurchages ~
-svIncludeFactoredFGItems svSeparateFinanceCharges btnAddEmail svRecipients 
+svPeriodDays3 svRecentTrendDays svIncludePaidInvoices ~
+svIncludeFuelSurcharges svIncludeFactoredFGItems svSeparateFinanceCharges ~
+btnAddEmail svRecipients svPeriodDays4 svStartARClass svEndARClass ~
+svAllARClass 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svAllCompany svStartCompany ~
 svEndCompany svCustList svAllSalesRep svStartSalesRep svEndSalesRep ~
 svAllTerms svStartTerms svEndTerms svType svSort1 svSort2 startCompanyName ~
@@ -65,8 +67,10 @@ endCustName svInactiveCustomers svAllCurrency svStartCurrency ~
 startCurrencyName svEndCurrency endCurrencyName svAsOfDate svAsOfDateOption ~
 svStartInvoiceDate svStartInvoiceDateOption svEndInvoiceDate ~
 svEndInvoiceDateOption svPeriodDays1 svPeriodDays2 svPeriodDays3 ~
-svRecenTrendDays svIncludePaidInvoices svIncludeFuelSurchages ~
-svIncludeFactoredFGItems svSeparateFinanceCharges svRecipients 
+svRecentTrendDays svIncludePaidInvoices svIncludeFuelSurcharges ~
+svIncludeFactoredFGItems svSeparateFinanceCharges svRecipients ~
+svPeriodDays4 svStartARClass svEndARClass svAllARClass startARClassName ~
+endARClassName 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -125,8 +129,12 @@ DEFINE VARIABLE svStartInvoiceDateOption AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE svRecipients AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 70 BY 2.86
+     SIZE 66 BY 3.1
      BGCOLOR 15 .
+
+DEFINE VARIABLE endARClassName AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 56 BY 1.
 
 DEFINE VARIABLE endCompanyName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -147,6 +155,10 @@ DEFINE VARIABLE endSalesRepName AS CHARACTER FORMAT "X(30)"
 DEFINE VARIABLE endTermsName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
      SIZE 52 BY 1.
+
+DEFINE VARIABLE startARClassName AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 56 BY 1.
 
 DEFINE VARIABLE startCompanyName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -177,6 +189,11 @@ DEFINE VARIABLE svCompany AS CHARACTER FORMAT "X(3)"
      LABEL "Company" 
      VIEW-AS FILL-IN 
      SIZE 5 BY 1.
+
+DEFINE VARIABLE svEndARClass AS INTEGER FORMAT "99":U INITIAL 0 
+     LABEL "End AR Class" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svEndCompany AS CHARACTER FORMAT "X(3)" 
      LABEL "End Company" 
@@ -223,10 +240,20 @@ DEFINE VARIABLE svPeriodDays3 AS INTEGER FORMAT ">,>>9":U INITIAL 9999
      VIEW-AS FILL-IN 
      SIZE 8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svRecenTrendDays AS INTEGER FORMAT ">>9":U INITIAL 0 
+DEFINE VARIABLE svPeriodDays4 AS INTEGER FORMAT ">,>>9":U INITIAL 9999 
+     LABEL "4" 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svRecentTrendDays AS INTEGER FORMAT ">>9":U INITIAL 0 
      LABEL "Days for Recent Trend" 
      VIEW-AS FILL-IN 
      SIZE 6 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svStartARClass AS INTEGER FORMAT "99":U INITIAL 0 
+     LABEL "Start AR Class" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svStartCompany AS CHARACTER FORMAT "X(3)" 
      LABEL "Start Company" 
@@ -285,6 +312,10 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 79 BY 5.
 
+DEFINE RECTANGLE RECT-10
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 82 BY 3.57.
+
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 79 BY 3.81.
@@ -315,7 +346,12 @@ DEFINE RECTANGLE RECT-8
 
 DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 83 BY 3.33.
+     SIZE 79 BY 3.57.
+
+DEFINE VARIABLE svAllARClass AS LOGICAL INITIAL yes 
+     LABEL "All AR Classes" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18 BY .81 NO-UNDO.
 
 DEFINE VARIABLE svAllCompany AS LOGICAL INITIAL yes 
      LABEL "All Companies" 
@@ -357,10 +393,10 @@ DEFINE VARIABLE svIncludeFactoredFGItems AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svIncludeFuelSurchages AS LOGICAL INITIAL no 
-     LABEL "Include Fuel Surchages" 
+DEFINE VARIABLE svIncludeFuelSurcharges AS LOGICAL INITIAL no 
+     LABEL "Include Fuel Surcharges" 
      VIEW-AS TOGGLE-BOX
-     SIZE 25.6 BY 1 NO-UNDO.
+     SIZE 27 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svIncludePaidInvoices AS LOGICAL INITIAL no 
      LABEL "Include Paid Invoices" 
@@ -376,66 +412,66 @@ DEFINE VARIABLE svSeparateFinanceCharges AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     svCompany AT ROW 1.24 COL 17 COLON-ALIGNED WIDGET-ID 60
-     svAllCompany AT ROW 2.67 COL 19 HELP
+     svCompany AT ROW 1 COL 17 COLON-ALIGNED WIDGET-ID 60
+     svAllCompany AT ROW 2.43 COL 19 HELP
           "All Sales Reps?" WIDGET-ID 292
-     svStartCompany AT ROW 3.86 COL 17 COLON-ALIGNED HELP
+     svStartCompany AT ROW 3.62 COL 17 COLON-ALIGNED HELP
           "Enter Start Company" WIDGET-ID 296
-     svEndCompany AT ROW 5.05 COL 17 COLON-ALIGNED HELP
+     svEndCompany AT ROW 4.81 COL 17 COLON-ALIGNED HELP
           "Enter End Company" WIDGET-ID 294
-     svCustList AT ROW 6.24 COL 19 WIDGET-ID 48
-     btnCustList AT ROW 6.24 COL 49 WIDGET-ID 46
-     svAllSalesRep AT ROW 7.91 COL 19 HELP
+     svCustList AT ROW 6 COL 19 WIDGET-ID 48
+     btnCustList AT ROW 6 COL 49 WIDGET-ID 46
+     svAllSalesRep AT ROW 7.67 COL 19 HELP
           "All Sales Reps?" WIDGET-ID 108
-     svStartSalesRep AT ROW 9.1 COL 17 COLON-ALIGNED HELP
+     svStartSalesRep AT ROW 8.86 COL 17 COLON-ALIGNED HELP
           "Enter Start Sales Rep" WIDGET-ID 112
-     svEndSalesRep AT ROW 10.29 COL 17 COLON-ALIGNED HELP
+     svEndSalesRep AT ROW 10.05 COL 17 COLON-ALIGNED HELP
           "Enter End Sales Rep" WIDGET-ID 110
-     svAllTerms AT ROW 11.95 COL 19 HELP
+     svAllTerms AT ROW 11.71 COL 19 HELP
           "All Terms?" WIDGET-ID 312
-     svStartTerms AT ROW 13.14 COL 17 COLON-ALIGNED HELP
+     svStartTerms AT ROW 12.91 COL 17 COLON-ALIGNED HELP
           "Enter Start Terms" WIDGET-ID 316
-     svEndTerms AT ROW 14.33 COL 17 COLON-ALIGNED HELP
+     svEndTerms AT ROW 14.1 COL 17 COLON-ALIGNED HELP
           "Enter End Terms" WIDGET-ID 314
-     svType AT ROW 16 COL 19 HELP
+     svType AT ROW 15.76 COL 19 HELP
           "Select Sort Option" NO-LABEL WIDGET-ID 324
-     svSort1 AT ROW 17.19 COL 19 HELP
+     svSort1 AT ROW 16.95 COL 19 HELP
           "Select Sort Option" NO-LABEL WIDGET-ID 84
-     svSort2 AT ROW 18.38 COL 19 HELP
+     svSort2 AT ROW 18.14 COL 19 HELP
           "Select Sort Option" NO-LABEL WIDGET-ID 320
-     startCompanyName AT ROW 3.86 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 290
-     endCompanyName AT ROW 5.05 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 288
-     startSalesRepName AT ROW 9.1 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 106
-     endSalesRepName AT ROW 10.29 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 104
-     startTermsName AT ROW 13.14 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 310
-     endTermsName AT ROW 14.33 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 308
-     svAllCustNo AT ROW 2.67 COL 102 HELP
+     startCompanyName AT ROW 3.62 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 290
+     endCompanyName AT ROW 4.81 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 288
+     startSalesRepName AT ROW 8.86 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+     endSalesRepName AT ROW 10.05 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 104
+     startTermsName AT ROW 12.91 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 310
+     endTermsName AT ROW 14.1 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 308
+     svAllCustNo AT ROW 2.43 COL 102 HELP
           "All Customers?" WIDGET-ID 56
-     svStartCustNo AT ROW 3.86 COL 100 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 3.62 COL 100 COLON-ALIGNED HELP
           "Enter Start Customer" WIDGET-ID 2
-     startCustName AT ROW 3.86 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     svEndCustNo AT ROW 5.05 COL 100 COLON-ALIGNED HELP
+     startCustName AT ROW 3.62 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     svEndCustNo AT ROW 4.81 COL 100 COLON-ALIGNED HELP
           "Enter End Customer" WIDGET-ID 6
-     endCustName AT ROW 5.05 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     svInactiveCustomers AT ROW 6.24 COL 102 HELP
+     endCustName AT ROW 4.81 COL 116 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     svInactiveCustomers AT ROW 6 COL 102 HELP
           "Select to Include Inactive Customers" WIDGET-ID 336
-     svAllCurrency AT ROW 7.91 COL 102 HELP
+     svAllCurrency AT ROW 7.67 COL 102 HELP
           "All Currency?" WIDGET-ID 302
-     svStartCurrency AT ROW 9.1 COL 100 COLON-ALIGNED HELP
+     svStartCurrency AT ROW 8.86 COL 100 COLON-ALIGNED HELP
           "Enter Start Currency" WIDGET-ID 306
-     startCurrencyName AT ROW 9.1 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 300
-     svEndCurrency AT ROW 10.29 COL 100 COLON-ALIGNED HELP
+     startCurrencyName AT ROW 8.86 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 300
+     svEndCurrency AT ROW 10.05 COL 100 COLON-ALIGNED HELP
           "Enter End Currency" WIDGET-ID 304
-     endCurrencyName AT ROW 10.29 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 298
-     svAsOfDate AT ROW 11.95 COL 100 COLON-ALIGNED HELP
+     endCurrencyName AT ROW 10.05 COL 109 COLON-ALIGNED NO-LABEL WIDGET-ID 298
+     svAsOfDate AT ROW 11.71 COL 100 COLON-ALIGNED HELP
           "Enter As Of Date" WIDGET-ID 274
-     btnCalendar-1 AT ROW 13.14 COL 118 WIDGET-ID 80
-     svAsOfDateOption AT ROW 11.95 COL 121 COLON-ALIGNED HELP
+     btnCalendar-1 AT ROW 12.91 COL 118 WIDGET-ID 80
+     svAsOfDateOption AT ROW 11.71 COL 121 COLON-ALIGNED HELP
           "Select Start Date Option" NO-LABEL WIDGET-ID 276
-     svStartInvoiceDate AT ROW 13.14 COL 100 COLON-ALIGNED HELP
+     svStartInvoiceDate AT ROW 12.91 COL 100 COLON-ALIGNED HELP
           "Enter Start Invoice Date" WIDGET-ID 26
-     btnCalendar-2 AT ROW 14.33 COL 118 WIDGET-ID 82
-     svStartInvoiceDateOption AT ROW 13.14 COL 121 COLON-ALIGNED HELP
+     btnCalendar-2 AT ROW 14.1 COL 118 WIDGET-ID 82
+     svStartInvoiceDateOption AT ROW 12.91 COL 121 COLON-ALIGNED HELP
           "Select Start Invoice Date Option" NO-LABEL WIDGET-ID 64
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -444,49 +480,60 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     svEndInvoiceDate AT ROW 14.33 COL 100 COLON-ALIGNED HELP
+     svEndInvoiceDate AT ROW 14.1 COL 100 COLON-ALIGNED HELP
           "Enter End Invoice Date" WIDGET-ID 24
-     btnCalendar-3 AT ROW 11.95 COL 118 WIDGET-ID 272
-     svEndInvoiceDateOption AT ROW 14.33 COL 121 COLON-ALIGNED HELP
+     btnCalendar-3 AT ROW 11.71 COL 118 WIDGET-ID 272
+     svEndInvoiceDateOption AT ROW 14.1 COL 121 COLON-ALIGNED HELP
           "Select End Invoice Date Option" NO-LABEL WIDGET-ID 66
-     svPeriodDays1 AT ROW 16 COL 100 COLON-ALIGNED HELP
+     svPeriodDays1 AT ROW 15.76 COL 100 COLON-ALIGNED HELP
           "Enter Days for Period 1" WIDGET-ID 338
-     svPeriodDays2 AT ROW 16 COL 111 COLON-ALIGNED HELP
+     svPeriodDays2 AT ROW 15.76 COL 111 COLON-ALIGNED HELP
           "Enter Days for Period 2" WIDGET-ID 340
-     svPeriodDays3 AT ROW 16 COL 122 COLON-ALIGNED HELP
+     svPeriodDays3 AT ROW 15.76 COL 122 COLON-ALIGNED HELP
           "Enter Days for Period 3" WIDGET-ID 342
-     svRecenTrendDays AT ROW 16 COL 155 COLON-ALIGNED HELP
+     svRecentTrendDays AT ROW 6 COL 155 COLON-ALIGNED HELP
           "Enter Days for Recent Trend" WIDGET-ID 344
-     svIncludePaidInvoices AT ROW 17.19 COL 102 HELP
+     svIncludePaidInvoices AT ROW 16.95 COL 102 HELP
           "Select to Include Paid Invoices" WIDGET-ID 88
-     svIncludeFuelSurchages AT ROW 18.38 COL 102 HELP
-          "Select to Include Fuel Surchages" WIDGET-ID 330
-     svIncludeFactoredFGItems AT ROW 17.19 COL 129 HELP
+     svIncludeFuelSurcharges AT ROW 18.14 COL 102 HELP
+          "Select to Include Fuel Surcharges" WIDGET-ID 330
+     svIncludeFactoredFGItems AT ROW 16.95 COL 130 HELP
           "Select to Include Factored FG Items" WIDGET-ID 332
-     svSeparateFinanceCharges AT ROW 18.38 COL 129 HELP
+     svSeparateFinanceCharges AT ROW 18.14 COL 130 HELP
           "Select to Separate Finance Charges" WIDGET-ID 334
-     btnAddEmail AT ROW 21.71 COL 47 HELP
+     btnAddEmail AT ROW 21.48 COL 8 HELP
           "Add Recipents" WIDGET-ID 636
-     svRecipients AT ROW 20.05 COL 53 NO-LABEL WIDGET-ID 600
+     svRecipients AT ROW 19.81 COL 14 NO-LABEL WIDGET-ID 600
+     svPeriodDays4 AT ROW 15.76 COL 133 COLON-ALIGNED HELP
+          "Enter Days for Period 4" WIDGET-ID 654
+     svStartARClass AT ROW 20.76 COL 100 COLON-ALIGNED HELP
+          "Enter Start AR Class" WIDGET-ID 664
+     svEndARClass AT ROW 21.95 COL 100 COLON-ALIGNED HELP
+          "Enter End AR Class" WIDGET-ID 662
+     svAllARClass AT ROW 19.81 COL 102 HELP
+          "All AR Classes?" WIDGET-ID 660
+     startARClassName AT ROW 20.76 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 658
+     endARClassName AT ROW 21.95 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 656
      "Sort By 2:" VIEW-AS TEXT
-          SIZE 10 BY 1 AT ROW 18.38 COL 8 WIDGET-ID 318
+          SIZE 10 BY 1 AT ROW 18.14 COL 8 WIDGET-ID 318
      "Type:" VIEW-AS TEXT
-          SIZE 6 BY 1 AT ROW 16 COL 12 WIDGET-ID 328
+          SIZE 6 BY 1 AT ROW 15.76 COL 12 WIDGET-ID 328
      "Sort By 1:" VIEW-AS TEXT
-          SIZE 10 BY 1 AT ROW 17.19 COL 8 WIDGET-ID 90
+          SIZE 10 BY 1 AT ROW 16.95 COL 8 WIDGET-ID 90
      "Email" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 20.05 COL 47 WIDGET-ID 640
+          SIZE 5 BY .62 AT ROW 19.81 COL 8 WIDGET-ID 640
      "Recipients:" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 20.76 COL 42 WIDGET-ID 602
-     RECT-1 AT ROW 2.43 COL 2 WIDGET-ID 346
-     RECT-2 AT ROW 7.67 COL 2 WIDGET-ID 348
-     RECT-3 AT ROW 11.71 COL 2 WIDGET-ID 350
-     RECT-4 AT ROW 15.76 COL 2 WIDGET-ID 352
-     RECT-5 AT ROW 2.43 COL 82 WIDGET-ID 354
-     RECT-6 AT ROW 7.67 COL 82 WIDGET-ID 356
-     RECT-7 AT ROW 11.71 COL 82 WIDGET-ID 358
-     RECT-8 AT ROW 15.76 COL 82 WIDGET-ID 360
-     RECT-9 AT ROW 19.81 COL 41 WIDGET-ID 638
+          SIZE 11 BY .62 AT ROW 20.52 COL 3 WIDGET-ID 602
+     RECT-1 AT ROW 2.19 COL 2 WIDGET-ID 346
+     RECT-2 AT ROW 7.43 COL 2 WIDGET-ID 348
+     RECT-3 AT ROW 11.48 COL 2 WIDGET-ID 350
+     RECT-4 AT ROW 15.52 COL 2 WIDGET-ID 352
+     RECT-5 AT ROW 2.19 COL 82 WIDGET-ID 354
+     RECT-6 AT ROW 7.43 COL 82 WIDGET-ID 356
+     RECT-7 AT ROW 11.48 COL 82 WIDGET-ID 358
+     RECT-8 AT ROW 15.52 COL 82 WIDGET-ID 360
+     RECT-9 AT ROW 19.57 COL 2 WIDGET-ID 638
+     RECT-10 AT ROW 19.57 COL 82 WIDGET-ID 642
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -553,6 +600,8 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-3 IN FRAME F-Main
    3                                                                    */
+/* SETTINGS FOR FILL-IN endARClassName IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endCompanyName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endCurrencyName IN FRAME F-Main
@@ -564,6 +613,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN endTermsName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-10 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -580,6 +631,8 @@ ASSIGN
 /* SETTINGS FOR RECTANGLE RECT-8 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-9 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN startARClassName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCompanyName IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -666,6 +719,17 @@ END.
 ON CHOOSE OF btnCustList IN FRAME F-Main /* Preview */
 DO:
     RUN sys/ref/CustListManager.w (svCompany, "AR15").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svAllARClass
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllARClass sObject
+ON VALUE-CHANGED OF svAllARClass IN FRAME F-Main /* All AR Classes */
+DO:
+    {aoa/includes/svAllValueChanged.i svStartARClass svEndARClass}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -778,6 +842,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME svEndARClass
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndARClass sObject
+ON LEAVE OF svEndARClass IN FRAME F-Main /* End AR Class */
+DO:
+    endARClassName:SCREEN-VALUE = {aoa/includes/fSetDescription.i}  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME svEndCompany
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndCompany sObject
 ON LEAVE OF svEndCompany IN FRAME F-Main /* End Company */
@@ -849,6 +924,17 @@ END.
 ON LEAVE OF svEndTerms IN FRAME F-Main /* End Terms */
 DO:
     endTermsName:SCREEN-VALUE = {aoa/includes/fSetDescription.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svStartARClass
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartARClass sObject
+ON LEAVE OF svStartARClass IN FRAME F-Main /* Start AR Class */
+DO:
+    startARClassName:SCREEN-VALUE = {aoa/includes/fSetDescription.i}  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1008,6 +1094,14 @@ PROCEDURE pInitialize :
 
         APPLY "VALUE-CHANGED":U TO svStartInvoiceDateOption.
         APPLY "VALUE-CHANGED":U TO svEndInvoiceDateOption.
+        
+        APPLY "VALUE-CHANGED":U TO svAllARClass.
+        APPLY "LEAVE":U TO svStartARClass.
+        APPLY "LEAVE":U TO svEndARClass.
+        
+        APPLY "VALUE-CHANGED":U TO svAllARClass.
+        APPLY "LEAVE":U TO svStartARClass.
+        APPLY "LEAVE":U TO svEndARClass.
     END.
 
 END PROCEDURE.

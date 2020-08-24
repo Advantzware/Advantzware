@@ -16,7 +16,6 @@
 
 {est/ttEstCost.i}
 
-DEFINE VARIABLE ghVendorCost                          AS HANDLE    NO-UNDO.
 DEFINE VARIABLE ghFreight                             AS HANDLE    NO-UNDO.
 DEFINE VARIABLE ghFormula                             AS HANDLE    NO-UNDO.
 
@@ -113,8 +112,7 @@ ASSIGN
     /*Build mapping from estimate type # to descriptive type*/ 
     gcTypeList = gcTypeSingle + "," + gcTypeSet + ","  + gcTypeCombo + "," + gcTypeCombo + "," + gcTypeSingle + "," + gcTypeSet + ","  + gcTypeCombo + "," + gcTypeCombo
     .
-/*RUN system\VendorCostProcs.p PERSISTENT SET ghVendorCost.*/
-/*THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghVendorCost).       */
+
 RUN system\FreightProcs.p PERSISTENT SET ghFreight.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (ghFreight).
 RUN system\FormulaProcs.p PERSISTENT SET ghFormula.
@@ -3412,7 +3410,7 @@ PROCEDURE pProcessBoard PRIVATE:
     DO:
         RUN pAddError("Board '" + ipcITemID + "' is valid material but not a material type of " + gcBoardMatTypes, gcErrorImportant, ipbf-estCostForm.estCostHeaderID, ipbf-estCostForm.formNo, 0).
         RETURN.
-    END.
+    END.      
     RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, ipcItemID, 0, BUFFER bf-estCostMaterial).
     ASSIGN 
         bf-estCostMaterial.isPrimarySubstrate         = YES
@@ -4072,11 +4070,11 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
         opdCost    = 0
         opdSetup   = 0.
 
-  
+           
     IF glVendItemCost THEN 
     DO:
         ASSIGN 
-            cScope              = DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM")
+            cScope              = DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM-Over")
             lIncludeBlankVendor = YES
             .
         RUN VendCost_GetBestCost(ipbf-estCostMaterial.company, 

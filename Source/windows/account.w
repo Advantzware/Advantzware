@@ -365,8 +365,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_account ).
-       RUN set-position IN h_account ( 4.81 , 21.00 ) NO-ERROR.
-       RUN set-size IN h_account ( 19.52 , 110.00 ) NO-ERROR.
+       RUN set-position IN h_account ( 4.81 , 5.00 ) NO-ERROR.
+       RUN set-size IN h_account ( 17.52 , 110.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.

@@ -31,7 +31,6 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE yellowColumnsName account2
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT
 &SCOPED-DEFINE useMatches
@@ -45,6 +44,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
+{methods/defines/sortByDefs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -71,13 +71,31 @@ CREATE WIDGET-POOL.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table account.actnum account.dscr ~
-account.type 
+account.type account.inactive account.salesReport account.commReport 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH account WHERE ~{&KEY-PHRASE} ~
-      AND account.company = gcompany NO-LOCK ~
+      AND account.company EQ gcompany AND ~
+account.actnum MATCHES cAccount AND ~
+account.dscr MATCHES cDescription AND ~
+account.type MATCHES cType AND ~
+(account.inactive EQ lInactive OR ~
+lInactive EQ NO) AND ~
+(account.salesReport EQ lSalesReport OR ~
+lSalesReport EQ NO) AND ~
+(account.commReport EQ lCommReport OR ~
+lCommReport EQ NO) NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH account WHERE ~{&KEY-PHRASE} ~
-      AND account.company = gcompany NO-LOCK ~
+      AND account.company EQ gcompany AND ~
+account.actnum MATCHES cAccount AND ~
+account.dscr MATCHES cDescription AND ~
+account.type MATCHES cType AND ~
+(account.inactive EQ lInactive OR ~
+lInactive EQ NO) AND ~
+(account.salesReport EQ lSalesReport OR ~
+lSalesReport EQ NO) AND ~
+(account.commReport EQ lCommReport OR ~
+lCommReport EQ NO) NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table account
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table account
@@ -86,12 +104,15 @@ account.type
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS cAccount cDescription cType lCommReport ~
+lSalesReport lInactive btnGO btnShowAll Browser-Table browse-order 
+&Scoped-Define DISPLAYED-OBJECTS cAccount cDescription cType lCommReport ~
+lSalesReport lInactive browse-order auto_find 
 
 /* Custom List Definitions                                              */
-/* List-1,List-2,List-3,List-4,List-5,List-6                            */
+/* FilterFields,List-2,List-3,List-4,List-5,List-6                      */
+&Scoped-define FilterFields cAccount cDescription cType lCommReport ~
+lSalesReport lInactive 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -102,6 +123,16 @@ Btn_Clear_Find
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnGO 
+     LABEL "&GO" 
+     SIZE 9 BY .81
+     FONT 6.
+
+DEFINE BUTTON btnShowAll 
+     LABEL "&Show All" 
+     SIZE 14 BY .81
+     FONT 6.
+
 DEFINE BUTTON Btn_Clear_Find 
      LABEL "&Clear Find" 
      SIZE 13 BY 1
@@ -110,22 +141,60 @@ DEFINE BUTTON Btn_Clear_Find
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 
      VIEW-AS FILL-IN 
-     SIZE 35 BY 1 NO-UNDO.
+     SIZE 35 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE cAccount AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Account" 
+     VIEW-AS FILL-IN 
+     SIZE 26 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE cDescription AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Description" 
+     VIEW-AS FILL-IN 
+     SIZE 51 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE cType AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Type" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 15 BY .71
+     SIZE 51 BY .71
      BGCOLOR 14 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE browse-order AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "N/A", 1
-     SIZE 45 BY 1 NO-UNDO.
+     SIZE 77 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 110 BY 1.43.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 143 BY 1.43.
+
+DEFINE RECTANGLE RECT-9
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 143 BY 2.38.
+
+DEFINE VARIABLE lCommReport AS LOGICAL INITIAL no 
+     LABEL "Commission Report" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 22 BY .81 NO-UNDO.
+
+DEFINE VARIABLE lInactive AS LOGICAL INITIAL no 
+     LABEL "Inactive" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 11 BY .81 NO-UNDO.
+
+DEFINE VARIABLE lSalesReport AS LOGICAL INITIAL no 
+     LABEL "Sales Report" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -133,7 +202,10 @@ DEFINE QUERY Browser-Table FOR
       account
     FIELDS(account.actnum
       account.dscr
-      account.type) SCROLLING.
+      account.type
+      account.inactive
+      account.salesReport
+      account.commReport) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -144,31 +216,43 @@ DEFINE BROWSE Browser-Table
       account.dscr COLUMN-LABEL "Description" FORMAT "x(45)":U
             LABEL-BGCOLOR 14
       account.type FORMAT "X":U LABEL-BGCOLOR 14
+      account.inactive FORMAT "yes/no":U LABEL-BGCOLOR 14 VIEW-AS TOGGLE-BOX
+      account.salesReport COLUMN-LABEL "Sales" FORMAT "yes/no":U
+            LABEL-BGCOLOR 14 VIEW-AS TOGGLE-BOX
+      account.commReport COLUMN-LABEL "Commission" FORMAT "yes/no":U
+            LABEL-BGCOLOR 14 VIEW-AS TOGGLE-BOX
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 110 BY 18.1
+    WITH NO-ASSIGN SEPARATORS SIZE 143 BY 18.33
          FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Browser-Table AT ROW 1 COL 1 HELP
+     cAccount AT ROW 1.24 COL 9 COLON-ALIGNED WIDGET-ID 6
+     cDescription AT ROW 1.24 COL 48 COLON-ALIGNED WIDGET-ID 8
+     cType AT ROW 1.24 COL 106 COLON-ALIGNED WIDGET-ID 10
+     lCommReport AT ROW 1.24 COL 116 WIDGET-ID 16
+     lSalesReport AT ROW 2.19 COL 116 WIDGET-ID 14
+     lInactive AT ROW 2.19 COL 132 WIDGET-ID 12
+     btnGO AT ROW 2.43 COL 11 WIDGET-ID 18
+     btnShowAll AT ROW 2.43 COL 23 WIDGET-ID 20
+     fi_sortby AT ROW 2.43 COL 48 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     Browser-Table AT ROW 3.38 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     fi_sortby AT ROW 18.62 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     browse-order AT ROW 19.33 COL 6 HELP
+     browse-order AT ROW 20.52 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 19.33 COL 60 COLON-ALIGNED HELP
+     auto_find AT ROW 20.52 COL 93 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 19.33 COL 97 HELP
+     Btn_Clear_Find AT ROW 20.52 COL 130 HELP
           "CLEAR AUTO FIND Value"
-     "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 19.33 COL 2
-     RECT-4 AT ROW 19.1 COL 1
+     RECT-4 AT ROW 20.29 COL 1
+     RECT-9 AT ROW 1 COL 1 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 0 .
+         FGCOLOR 1 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -197,8 +281,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 19.52
-         WIDTH              = 110.
+         HEIGHT             = 20.71
+         WIDTH              = 143.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -223,22 +307,48 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table fi_sortby F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN auto_find IN FRAME F-Main
+   NO-ENABLE                                                            */
 ASSIGN 
+       auto_find:HIDDEN IN FRAME F-Main           = TRUE.
+
+ASSIGN 
+       Browser-Table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 4
        Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
                 "2"
        Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
+/* SETTINGS FOR BUTTON Btn_Clear_Find IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       Btn_Clear_Find:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* SETTINGS FOR FILL-IN cAccount IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR FILL-IN cDescription IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR FILL-IN cType IN FRAME F-Main
+   1                                                                    */
 /* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-       fi_sortby:HIDDEN IN FRAME F-Main           = TRUE
        fi_sortby:READ-ONLY IN FRAME F-Main        = TRUE.
 
+/* SETTINGS FOR TOGGLE-BOX lCommReport IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR TOGGLE-BOX lInactive IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR TOGGLE-BOX lSalesReport IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-9 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -250,13 +360,28 @@ ASSIGN
      _TblList          = "ASI.account"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _Where[1]         = "account.company = gcompany"
+     _Where[1]         = "account.company EQ gcompany AND
+account.actnum MATCHES cAccount AND
+account.dscr MATCHES cDescription AND
+account.type MATCHES cType AND
+(account.inactive EQ lInactive OR
+lInactive EQ NO) AND
+(account.salesReport EQ lSalesReport OR
+lSalesReport EQ NO) AND
+(account.commReport EQ lCommReport OR
+lCommReport EQ NO)"
      _FldNameList[1]   > ASI.account.actnum
 "account.actnum" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.account.dscr
 "account.dscr" "Description" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.account.type
 "account.type" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.account.inactive
+"account.inactive" ? ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+     _FldNameList[5]   > ASI.account.salesReport
+"account.salesReport" "Sales" ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+     _FldNameList[6]   > ASI.account.commReport
+"account.commReport" "Commission" ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -277,32 +402,19 @@ ASSIGN
 &Scoped-define BROWSE-NAME Browser-Table
 &Scoped-define SELF-NAME Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
-DO:
-  /* This code displays initial values for newly added or copied rows. */
-  {src/adm/template/brsentry.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON ROW-LEAVE OF Browser-Table IN FRAME F-Main
-DO:
-    /* Do not disable this code or no updates will take place except
-     by pressing the Save button on an Update SmartPanel. */
-   {src/adm/template/brsleave.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
-    RUN StartSearch.
+    IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
+        ASSIGN
+            cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME
+            cColLabel    = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL
+            .
+        IF cColumnLabel EQ cSaveLabel THEN
+        lAscending = NOT lAscending.
+        cSaveLabel = cColumnLabel.
+        RUN pReopenBrowse.
+    END.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -322,6 +434,79 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnGO
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGO B-table-Win
+ON CHOOSE OF btnGO IN FRAME F-Main /* GO */
+DO:
+    ASSIGN
+        {&FilterFields}
+        cAccount     = cAccount + "*"
+        cDescription = cDescription + "*"
+        cType        = cType + "*"
+        .
+    RUN pReopenBrowse.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnShowAll
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnShowAll B-table-Win
+ON CHOOSE OF btnShowAll IN FRAME F-Main /* Show All */
+DO:
+    ASSIGN
+        cAccount:SCREEN-VALUE     = ""
+        cDescription:SCREEN-VALUE = ""
+        cType:SCREEN-VALUE        = ""
+        lCommReport:SCREEN-VALUE  = "NO"
+        lSalesReport:SCREEN-VALUE = "NO"
+        lInactive:SCREEN-VALUE    = "NO"
+        {&FilterFields}
+        cAccount                  = "*"
+        cDescription              = "*"
+        cType                     = "*"
+        .
+    RUN pReopenBrowse.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cAccount
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cAccount B-table-Win
+ON RETURN OF cAccount IN FRAME F-Main /* Account */
+DO:
+    APPLY "CHOOSE":U TO btnGO.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cDescription
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cDescription B-table-Win
+ON RETURN OF cDescription IN FRAME F-Main /* Description */
+DO:
+    APPLY "CHOOSE":U TO btnGO.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cType
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cType B-table-Win
+ON RETURN OF cType IN FRAME F-Main /* Type */
+DO:
+    APPLY "CHOOSE":U TO btnGO. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
@@ -330,13 +515,22 @@ END.
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
     
-{custom/YellowColumns.i}
-
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
+ASSIGN
+    browse-order:SENSITIVE = NO
+    browse-order:HIDDEN    = YES
+    .
 {methods/winReSize.i}
+
+{methods/sortByProc.i "pByAccount" "account.actnum"}
+{methods/sortByProc.i "pByCommReport" "account.commReport"}
+{methods/sortByProc.i "pByDescription" "account.dscr"}
+{methods/sortByProc.i "pByInactive" "account.inactive"}
+{methods/sortByProc.i "pBySalesReport" "account.salesReport"}
+{methods/sortByProc.i "pByType" "account.type"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -384,11 +578,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lcAccFrom AS CHAR NO-UNDO.
+    DEFINE VARIABLE lcAccTo   AS CHAR NO-UNDO.
+    
+    IF AVAIL account AND account.actnum NE "" THEN
+    ASSIGN
+        lcAccFrom = account.actnum
+        lcAccTo = account.actnum
+        .
+    RUN fg/acc-exp.w (lcAccFrom, lcAccTo).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
+ Purpose:
+ Notes:
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -397,38 +613,48 @@ PROCEDURE local-open-query :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  APPLY "value-changed" TO BROWSE {&browse-name}.
-  APPLY "entry" TO BROWSE {&browse-name}.
+  ASSIGN
+      cColumnLabel = "actnum"
+      cColLabel = "Account No"
+      .
+      RUN pReopenBrowse.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
-PROCEDURE export-xl :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReopenBrowse B-table-Win 
+PROCEDURE pReopenBrowse :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
+ Purpose:
+ Notes:
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE lcAccFrom AS CHAR NO-UNDO.
-DEFINE VARIABLE lcAccTo   AS CHAR NO-UNDO.
-
-IF account.actnum NE "" THEN
-    ASSIGN
-        lcAccFrom = account.actnum
-        lcAccTo = account.actnum .
-
-RUN fg/acc-exp.w (lcAccFrom,
-                       lcAccTo).
-
+    CASE cColumnLabel:
+        WHEN "actnum" THEN
+        RUN pByAccount.
+        WHEN "commReport" THEN
+        RUN pByCommReport.
+        WHEN "dscr" THEN
+        RUN pByDescription.
+        WHEN "inactive" THEN
+        RUN pByInactive.
+        WHEN "salesReport" THEN
+        RUN pBySalesReport.
+        WHEN "type" THEN
+        RUN pByType.
+        OTHERWISE
+        {&OPEN-QUERY-{&BROWSE-NAME}}
+    END CASE.
+    fi_SortBy:SCREEN-VALUE IN FRAME {&FRAME-NAME} = " " + cColLabel + " "
+                                                  + TRIM(STRING(lAscending,"A/De"))
+                                                  + "scending"
+                                                  .
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

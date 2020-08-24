@@ -43,9 +43,10 @@ DEFINE OUTPUT PARAMETER opcRequestDataChanges AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lUpdateSave   AS LOGICAL NO-UNDO.
 DEFINE VARIABLE riPrevRowID   AS ROWID   NO-UNDO.
 DEFINE VARIABLE hdJSONProcs   AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hdXMLProcs    AS HANDLE  NO-UNDO.
 
 RUN api/JSONProcs.p PERSISTENT SET hdJSONProcs.
-THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdJSONProcs).
+RUN XMLOutput/XMLProcs.p PERSISTENT SET hdXMLProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -69,8 +70,8 @@ THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdJSONProcs).
 &Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttNodes.nodeName ttNodes.nodeValue   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2   
 &Scoped-define SELF-NAME BROWSE-2
-&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH ttNodes                            WHERE ttNodes.nodeName  MATCHES "*" + fiSearch:SCREEN-VALUE + "*"                               OR ttNodes.nodeValue MATCHES "*" + fiSearch:SCREEN-VALUE + "*"
-&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH ttNodes                            WHERE ttNodes.nodeName  MATCHES "*" + fiSearch:SCREEN-VALUE + "*"                               OR ttNodes.nodeValue MATCHES "*" + fiSearch:SCREEN-VALUE + "*".
+&Scoped-define QUERY-STRING-BROWSE-2 FOR EACH ttNodes                            WHERE ttNodes.nodeType NE "SYSTEM"                              AND (ttNodes.nodeName  MATCHES "*" + fiSearch:SCREEN-VALUE + "*" OR                                   ttNodes.nodeValue MATCHES "*" + fiSearch:SCREEN-VALUE + "*")
+&Scoped-define OPEN-QUERY-BROWSE-2 OPEN QUERY {&SELF-NAME} FOR EACH ttNodes                            WHERE ttNodes.nodeType NE "SYSTEM"                              AND (ttNodes.nodeName  MATCHES "*" + fiSearch:SCREEN-VALUE + "*" OR                                   ttNodes.nodeValue MATCHES "*" + fiSearch:SCREEN-VALUE + "*").
 &Scoped-define TABLES-IN-QUERY-BROWSE-2 ttNodes
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-2 ttNodes
 
@@ -213,8 +214,9 @@ ASSIGN
 /* Query rebuild information for BROWSE BROWSE-2
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH ttNodes
-                           WHERE ttNodes.nodeName  MATCHES "*" + fiSearch:SCREEN-VALUE + "*"
-                              OR ttNodes.nodeValue MATCHES "*" + fiSearch:SCREEN-VALUE + "*".
+                           WHERE ttNodes.nodeType NE "SYSTEM"
+                             AND (ttNodes.nodeName  MATCHES "*" + fiSearch:SCREEN-VALUE + "*" OR
+                                  ttNodes.nodeValue MATCHES "*" + fiSearch:SCREEN-VALUE + "*").
      _END_FREEFORM
      _Query            is OPENED
 */  /* BROWSE BROWSE-2 */
@@ -244,7 +246,7 @@ END.
 &Scoped-define BROWSE-NAME BROWSE-2
 &Scoped-define SELF-NAME BROWSE-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 Dialog-Frame
-ON VALUE-CHANGED OF BROWSE-2 IN FRAME Dialog-Frame /* Browse 1 */
+ON VALUE-CHANGED OF BROWSE-2 IN FRAME Dialog-Frame
 DO:
     DEFINE BUFFER bf-ttNodes FOR ttNodes.
 
@@ -268,20 +270,13 @@ DO:
             riPrevRowID              = ROWID(ttNodes)
             .
         
-        IF ipcRequestDataType EQ "XML" THEN DO:
-            FIND FIRST bf-ttNodes 
-                 WHERE bf-ttNodes.parentName EQ ttNodes.nodeName
-                   AND bf-ttNodes.nodeType   NE "attribute"
-                 NO-ERROR.
-                 
-        END.
-        ELSE IF ipcRequestDataType EQ "JSON" THEN DO:
+        IF ipcRequestDataType EQ "JSON" THEN DO:
             FIND FIRST bf-ttNodes 
                  WHERE bf-ttNodes.parentOrder EQ ttNodes.order
                  NO-ERROR.            
         END.
 
-        IF NOT AVAILABLE bf-ttNodes THEN
+        IF NOT AVAILABLE bf-ttNodes OR ipcRequestDataType EQ "XML" THEN
             ENABLE btUpdate WITH FRAME {&FRAME-NAME}.
         ELSE
             DISABLE {&ENABLE-FIELDS} btUpdate WITH FRAME {&FRAME-NAME}.
@@ -511,7 +506,7 @@ PROCEDURE pResetTTNodes PRIVATE :
     END.
     /* If request data type is XML */
     ELSE IF ipcRequestDataType EQ "XML" THEN
-        RUN XMLOutput/APIXMLParser.p (
+        RUN XML_ReadToTT IN hdXMLProcs (
             INPUT iplcRequestData
             ).
 END PROCEDURE.
@@ -642,6 +637,7 @@ PROCEDURE pSaveXML PRIVATE :
     DEFINE VARIABLE iIndex             AS INTEGER NO-UNDO.
     DEFINE VARIABLE iMatchPosition     AS INTEGER NO-UNDO.
     DEFINE VARIABLE iStartPosition     AS INTEGER NO-UNDO INITIAL 1.
+    DEFINE VARIABLE lReposition        AS LOGICAL NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
@@ -651,78 +647,7 @@ PROCEDURE pSaveXML PRIVATE :
         /* If no updates made to value then return */
         IF ttNodes.nodeValue EQ fiNodeValue:SCREEN-VALUE THEN
             RETURN.
-        
-        /* Required to sort by order field */
-        FOR EACH bf-ttNodes
-             BY bf-ttNodes.order:
-            /* Get the number of places where the current node name occurred. 
-               This is required to get the position of the node name for which 
-               changes should be made  */
-            /* For xml elements we need to consider increment an additional 1
-               for the closure element */                 
-            IF bf-ttNodes.nodeName MATCHES "*" + ttNodes.nodeName + "*" THEN                
-                cNameReplaceCount = cNameReplaceCount + 1
-                                  + INTEGER(bf-ttNodes.nodeType NE "attribute").
-
-            IF bf-ttNodes.nodeValue MATCHES "*" + ttNodes.nodeName + "*" THEN                 
-                cNameReplaceCount = cNameReplaceCount + 1.
-
-            /* Get the number of places where the current node value occurred. 
-               This is required to get the position of the node value for which 
-               changes should be made  */                
-            /* For xml elements we need to consider increment an additional 1
-               for the closure element */                 
-            IF ttNodes.nodeValue NE "" AND bf-ttNodes.nodeName MATCHES "*" + ttNodes.nodeValue + "*" THEN
-                cValueReplaceCount = cValueReplaceCount + 1
-                                   + INTEGER(bf-ttNodes.nodeType NE "attribute").
-
-            IF ttNodes.nodeValue NE "" AND bf-ttNodes.nodeValue MATCHES "*" + ttNodes.nodeValue + "*" THEN
-                cValueReplaceCount = cValueReplaceCount + 1.
-
-            /* If current record then we found the number of places where node
-               name and value occurred before the records name and value */
-            IF bf-ttNodes.order EQ ttNodes.order THEN
-                LEAVE.
-        END.
-        
-        /* For an xml element we need decrease the count by 1 for finding the
-           start element */        
-        IF ttNodes.nodeType NE "attribute" THEN
-            cNameReplaceCount = cNameReplaceCount - 1.
-
-        DO iIndex = 1 TO cNameReplaceCount:
-            /* iMatchPosition - Finds the position of the node name in request data
-                                from starting position */
-            /* iStartPosition - After finding the match position increments by node name 
-                                length in order to find the next node name position */
-            ASSIGN
-                iMatchPosition = INDEX(oplcRequestData, ttNodes.nodeName, iStartPosition)
-                iStartPosition = iMatchPosition + LENGTH(ttNodes.nodeName)
-                .
-        END.            
-        
-        /* For attribute types */
-        IF ttNodes.nodeType EQ "attribute" THEN DO:
-            ASSIGN
-                /* Replace anything between double quotes after node name */
-                iMatchPosition  = INDEX(oplcRequestData, '"', iMatchPosition)
-                oplcRequestData = SUBSTRING(oplcRequestData, 1, iMatchPosition) 
-                                + fiNodeValue:SCREEN-VALUE 
-                                + SUBSTRING(oplcRequestData, iMatchPosition + LENGTH(ttNodes.nodeValue) + 1, LENGTH(oplcRequestData))
-                .
-        END.
-        /* For element and parent (element with attributes are considered as 
-           parent type instead of element, whose values can be modified) types */
-        ELSE DO:
-            ASSIGN
-                /* Replace anything between angular brackets ( > < ) after node name */
-                iMatchPosition  = INDEX(oplcRequestData, '>', iMatchPosition)
-                oplcRequestData = SUBSTRING(oplcRequestData, 1, iMatchPosition) 
-                                + fiNodeValue:SCREEN-VALUE 
-                                + SUBSTRING(oplcRequestData, iMatchPosition + LENGTH(ttNodes.nodeValue) + 1, LENGTH(oplcRequestData))
-                .
-        END.
-        
+                
         /* Update the value in temp-table record */
         ASSIGN
             opcRequestDataChanges = opcRequestDataChanges
@@ -731,10 +656,20 @@ PROCEDURE pSaveXML PRIVATE :
             ttNodes.nodeValue     = fiNodeValue:SCREEN-VALUE
             oplRequestDataChanged = TRUE
             .
-
+        
+        /* Write temp-table data to xml */
+        RUN XML_WriteFromTT IN hdXMLProcs (
+            OUTPUT oplcRequestData
+            ).
+        
+        /* Reposition the record only if record exists after the query refreshes */
+        IF ttNodes.nodeName MATCHES "*" + fiSearch:SCREEN-VALUE + "*" OR ttNodes.nodeValue MATCHES "*" + fiSearch:SCREEN-VALUE + "*" THEN
+            lReposition = TRUE.
+        
         {&OPEN-QUERY-{&BROWSE-NAME}}
         
-        REPOSITION {&BROWSE-NAME} TO ROWID riPrevRowID.
+        IF lReposition THEN
+            REPOSITION {&BROWSE-NAME} TO ROWID riPrevRowID.
         
         APPLY "VALUE-CHANGED" TO {&BROWSE-NAME}.
     END.

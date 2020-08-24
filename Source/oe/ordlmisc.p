@@ -18,9 +18,8 @@ def new shared var uom-list as   char init ["M,EA,LOT,CASE,CS,C"].
 
 def var v-misc-tot      as   dec format "->>>,>>>.99".
 def var taxit           as   log init no.
-def var v-tax-rate      as   dec format ">,>>9.99<<<".
-def var v-frt-tax-rate  like v-tax-rate.
 DEF VAR v-tmp-int AS INT NO-UNDO.
+DEFINE VARIABLE dTaxAmount     AS DECIMAL format ">,>>9.99<<<" NO-UNDO.
 
 {sys/inc/ceprep.i}
 {sys/inc/ceprepprice.i}
@@ -44,11 +43,7 @@ IF NOT AVAIL oe-ord THEN LEAVE.
 
 FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 
-find first cust of oe-ord no-lock.
-
-run ar/cctaxrt.p (input cocode, oe-ord.tax-gr,
-                  output v-tax-rate, output v-frt-tax-rate).
-
+find first cust of oe-ord no-lock.  
 
 v-misc-tot = 0.
 
@@ -379,9 +374,17 @@ PROCEDURE update-prep.
       WHERE cust.company eq cocode
         AND cust.cust-no eq oe-ord.cust-no
       EXCLUSIVE-LOCK NO-ERROR.
-  IF AVAIL cust THEN
+  IF AVAIL cust THEN do:
+    dTaxAmount = 0.     
+    RUN Tax_Calculate(INPUT cocode,
+                      INPUT oe-ord.tax-gr,
+                      INPUT FALSE,
+                      INPUT oe-ordm.amt,
+                      INPUT "",
+                      OUTPUT dTaxAmount).
     cust.ord-bal = cust.ord-bal + oe-ordm.amt +
-                   (IF oe-ordm.tax THEN (oe-ordm.amt * v-tax-rate / 100) ELSE 0).
+                   (IF oe-ordm.tax THEN (dTaxAmount) ELSE 0).
+   END.                
   FIND CURRENT cust NO-LOCK.
 
 END PROCEDURE.

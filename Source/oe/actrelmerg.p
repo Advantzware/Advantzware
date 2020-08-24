@@ -57,6 +57,9 @@ DEFINE VARIABLE cFobDscr2            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lPromptByItem        AS LOG       NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs      AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lReleaseCreated      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lActiveScope         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lValidLocation       AS LOGICAL   NO-UNDO.
 
 /* Procedure to prepare and execute API calls */
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
@@ -80,7 +83,42 @@ DEFINE STREAM s1.
 DO TRANSACTION:
   {sys/inc/relmerge.i}
 END.
+          
+&SCOPED-DEFINE for-each1 ~
+    FOR EACH b-oe-rel NO-LOCK ~
+         WHERE b-oe-rel.company  EQ oe-rel.company  ~
+           AND b-oe-rel.po-no    EQ oe-rel.po-no    ~
+           AND b-oe-rel.r-no     NE oe-rel.r-no     ~
+           AND b-oe-rel.rel-date EQ oe-rel.rel-date ~
+           AND b-oe-rel.cust-no  EQ oe-rel.cust-no
+           
+&SCOPED-DEFINE for-each2 ~
+    EACH b2-oe-rell NO-LOCK ~
+        WHERE b2-oe-rell.company EQ b-oe-rel.company ~
+          AND b2-oe-rell.ord-no  EQ b-oe-rel.ord-no  ~
+          AND b2-oe-rell.i-no    EQ b-oe-rel.i-no     
 
+&SCOPED-DEFINE for-each3 ~
+    EACH oe-relh NO-LOCK ~
+        WHERE oe-relh.company  EQ cocode ~
+          AND oe-relh.rel-date EQ oe-rel.rel-date ~
+          AND oe-relh.cust-no  EQ cCustNo ~
+          AND oe-relh.ship-id  EQ oe-rel.ship-id  ~
+          AND oe-relh.posted   EQ NO ~
+          AND oe-relh.deleted  EQ NO ~
+          AND (oe-relh.printed EQ NO OR relmerge-log) ~
+          AND oe-relh.r-no     EQ b2-oe-rell.r-no ~
+          USE-INDEX r-no  ~
+          BY oe-relh.upd-date DESCENDING ~
+          BY oe-relh.upd-time DESCENDING 
+                         
+&SCOPED-DEFINE for-each4 ~
+    FIND FIRST bf-oe-ordl NO-LOCK ~
+        WHERE bf-oe-ordl.company EQ b-oe-rel.company ~
+          AND bf-oe-ordl.ord-no  EQ b-oe-rel.ord-no ~
+          AND bf-oe-ordl.line    EQ b-oe-rel.line ~
+        NO-ERROR.
+        
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -229,6 +267,10 @@ DO:
     /* To make sure not available initially */
     RELEASE oe-relh.
     
+    RUN testers/actrelmergtester.p(
+        INPUT ip-rowid
+        ).
+        
     RUN pFindMatchingOerell (OUTPUT lRellFound, OUTPUT iOeRellRno, 
         OUTPUT rOeRelRow, OUTPUT rOeRellRow2,
         OUTPUT rOeRelhRow2).
@@ -358,11 +400,40 @@ DO:
     END.
     
     /* calls sendrelease by triggering createrelease trigger */
-    IF lReleaseCreated THEN
+    IF lReleaseCreated THEN DO:
+        RUN Outbound_IsApiScopeActive IN hdOutboundProcs(
+            INPUT oe-rel.company,
+            INPUT oe-rel.spare-char-1,
+            INPUT "SendRelease",
+            INPUT oe-rel.cust-no,
+            INPUT "Customer",
+            INPUT "CreateRelease",
+            OUTPUT lActiveScope
+            ).
+        IF lActiveScope THEN DO:
+            RUN Outbound_ValidateLocation IN hdOutboundProcs(
+                  INPUT oe-rel.company,
+                  INPUT oe-rel.spare-char-1,
+                  INPUT "SendRelease",
+                  OUTPUT lValidLocation,
+                  OUTPUT cMessage 
+                  ).
+            IF NOT lValidLocation THEN DO:
+                SESSION:SET-WAIT-STATE (''). 
+                RETURN. 
+            END.
+            DO TRANSACTION:    
+                FIND CURRENT bf-oe-relh EXCLUSIVE-LOCK NO-ERROR.
+                bf-oe-relh.printed = YES.
+                FIND CURRENT bf-oe-relh NO-LOCK NO-ERROR.
+            END.                                
+        END. 
+                    
         RUN pRunAPIOutboundTrigger (
             BUFFER bf-oe-relh,
             INPUT  "CreateRelease"
             ).
+    END.        
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -601,58 +672,72 @@ PROCEDURE pFindMatchingOerell :
     IF AVAILABLE bf-oe-ordl THEN lRunShip = bf-oe-ordl.whsed.    
 
     lRellFound = NO.
-    REL-MATCH:
-    FOR EACH b-oe-rel NO-LOCK
-        WHERE b-oe-rel.company  EQ oe-rel.company
-          AND b-oe-rel.po-no    EQ oe-rel.po-no
-          AND b-oe-rel.r-no     NE oe-rel.r-no
-          AND b-oe-rel.rel-date EQ oe-rel.rel-date
-          AND b-oe-rel.cust-no  EQ oe-rel.cust-no
-          AND (IF INDEX(vcRelMergeCalc, "SameOrder") GT 0 THEN 
-               b-oe-rel.ord-no EQ oe-rel.ord-no ELSE TRUE)   
-        ,
-        EACH b2-oe-rell NO-LOCK
-            WHERE b2-oe-rell.company EQ b-oe-rel.company
-              AND b2-oe-rell.ord-no  EQ b-oe-rel.ord-no
-              AND b2-oe-rell.i-no    EQ b-oe-rel.i-no
-              AND (IF vcRelMergeCalc EQ "SameOrder&SameShipFrom&SamePO" THEN 
-                   b2-oe-rell.loc EQ oe-rel.spare-char-1 ELSE TRUE)          
-        ,
-        EACH oe-relh NO-LOCK
-            WHERE oe-relh.company  EQ oe-rel.company
-              AND oe-relh.rel-date EQ oe-rel.rel-date
-              AND oe-relh.cust-no  EQ cCustNo
-              AND oe-relh.ship-id  EQ oe-rel.ship-id                    
-              AND oe-relh.posted   EQ NO
-              AND oe-relh.deleted  EQ NO
-              AND (oe-relh.printed EQ NO OR relmerge-log) 
-              AND oe-relh.r-no     EQ b2-oe-rell.r-no
-            BY oe-relh.upd-date DESCENDING 
-            BY oe-relh.upd-time DESCENDING:
-        FIND FIRST bf-oe-ordl NO-LOCK
-            WHERE bf-oe-ordl.company EQ b-oe-rel.company
-              AND bf-oe-ordl.ord-no EQ b-oe-rel.ord-no
-              AND bf-oe-ordl.line EQ b-oe-rel.line
-            NO-ERROR.
-     
-        IF vcRelMergeCalc EQ "AllOrders&NotRunShip" AND AVAIL(bf-oe-ordl) THEN 
-        DO:
-            /* Criteria for AllOrders&ShipFromWhse, Run & ship can't be merged with any other */
-            IF  bf-oe-ordl.whsed = TRUE OR lRunShip EQ TRUE THEN 
-                NEXT REL-MATCH.                  
+     IF vcRelMergeCalc EQ "SameOrder&SameShipFrom&SamePO" THEN DO:
+        REL-MATCH:
+            {&for-each1}
+                AND b-oe-rel.ord-no EQ oe-rel.ord-no,
+            {&for-each2}
+                AND b2-oe-rell.loc EQ oe-rel.spare-char-1,
+            {&for-each3}:
+            {&for-each4}
+                   
+            ASSIGN 
+                lRellFound    = TRUE
+                iOeRellRno    = b2-oe-rell.r-no
+                oprOeRellRow  = ROWID(b-oe-rel)
+                oprOeRellRow2 = ROWID(b-oe-rel)
+                oprOeRelhRow2 = ROWID(oe-relh)
+                .
+    
+            LEAVE.
         END.
-               
-        ASSIGN 
-            lRellFound    = TRUE
-            iOeRellRno    = b2-oe-rell.r-no
-            oprOeRellRow  = ROWID(b-oe-rel)
-            oprOeRellRow2 = ROWID(b-oe-rel)
-            oprOeRelhRow2 = ROWID(oe-relh)
-            .
-
-        LEAVE.
     END.
-
+    ELSE IF vcRelMergeCalc NE "SameOrder&SameShipFrom&SamePO" AND 
+         INDEX(vcRelMergeCalc, "SameOrder") GT 0 THEN DO:  
+              
+        REL-MATCH1:
+            {&for-each1}
+                AND b-oe-rel.ord-no EQ oe-rel.ord-no,
+            {&for-each2},
+            {&for-each3}:
+            {&for-each4}
+                           
+            ASSIGN 
+                lRellFound    = TRUE
+                iOeRellRno    = b2-oe-rell.r-no
+                oprOeRellRow  = ROWID(b-oe-rel)
+                oprOeRellRow2 = ROWID(b-oe-rel)
+                oprOeRelhRow2 = ROWID(oe-relh)
+                .
+    
+            LEAVE.
+        END.    
+    END.
+    ELSE DO:
+       REL-MATCH2:
+           {&for-each1},
+           {&for-each2},        
+           {&for-each3}:
+            {&for-each4}
+         
+            IF vcRelMergeCalc EQ "AllOrders&NotRunShip" AND AVAIL(bf-oe-ordl) THEN 
+            DO:
+                /* Criteria for AllOrders&ShipFromWhse, Run & ship can't be merged with any other */
+                IF  bf-oe-ordl.whsed = TRUE OR lRunShip EQ TRUE THEN 
+                    NEXT REL-MATCH2.                  
+            END.
+                   
+            ASSIGN 
+                lRellFound    = TRUE
+                iOeRellRno    = b2-oe-rell.r-no
+                oprOeRellRow  = ROWID(b-oe-rel)
+                oprOeRellRow2 = ROWID(b-oe-rel)
+                oprOeRelhRow2 = ROWID(oe-relh)
+                .
+    
+            LEAVE.
+        END.        
+    END.    
     ASSIGN
         oplOeRellFound = lRellFound
         opiOeRellRno = iOeRellRno
@@ -1090,18 +1175,19 @@ PROCEDURE pRunAPIOutboundTrigger:
                                  + " from actrelmerg.p for Release: " + cPrimaryID
                     . 
 
-                RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
-                    INPUT  ipbf-oe-relh.company,                /* Company Code (Mandatory) */
-                    INPUT  bf-oe-rell.loc,               /* Location Code (Mandatory) */
-                    INPUT  cAPIID,                  /* API ID (Mandatory) */
-                    INPUT  "",               /* Client ID (Optional) - Pass empty in case to make request for all clients */
-                    INPUT  ipcTriggerID,              /* Trigger ID (Mandatory) */
-                    INPUT  "oe-relh",               /* Comma separated list of table names for which data being sent (Mandatory) */
-                    INPUT  STRING(ROWID(ipbf-oe-relh)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
-                    INPUT  cPrimaryID,              /* Primary ID for which API is called for (Mandatory) */   
-                    INPUT  cDescription,       /* Event's description (Optional) */
-                    OUTPUT lSuccess,                /* Success/Failure flag */
-                    OUTPUT cMessage                 /* Status message */
+                RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+                    INPUT  ipbf-oe-relh.company,        /* Company Code (Mandatory) */
+                    INPUT  bf-oe-rell.loc,              /* Location Code (Mandatory) */
+                    INPUT  cAPIID,                      /* API ID (Mandatory) */
+                    INPUT  ipbf-oe-relh.cust-no,        /* Scope ID*/
+		            INPUT  "Customer",                  /* Scope Type */
+                    INPUT  ipcTriggerID,                /* Trigger ID (Mandatory) */
+                    INPUT  "oe-relh",                   /* Comma separated list of table names for which data being sent (Mandatory) */
+                    INPUT  STRING(ROWID(ipbf-oe-relh)), /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                    INPUT  cPrimaryID,              	/* Primary ID for which API is called for (Mandatory) */   
+                    INPUT  cDescription,       			/* Event's description (Optional) */
+                    OUTPUT lSuccess,                	/* Success/Failure flag */
+                    OUTPUT cMessage                 	/* Status message */
                     ) NO-ERROR.
             END.
         END.               

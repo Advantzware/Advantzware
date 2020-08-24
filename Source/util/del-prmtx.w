@@ -25,18 +25,13 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEFINE INPUT PARAMETER ip-date AS DATE NO-UNDO.
-DEFINE INPUT PARAMETER ip-cust-no AS CHAR NO-UNDO.
-DEFINE INPUT PARAMETER ip-type   AS CHAR NO-UNDO.
-DEFINE INPUT PARAMETER ip-procat AS CHAR NO-UNDO.
-DEFINE INPUT PARAMETER ip-i-no   AS CHAR FORMAT "x(15)" NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
  
 {methods/defines/hndldefs.i}
-/*{methods/prgsecur.i}*/
+{methods/prgsecur.i}
 
 {custom/gcompany.i}
 {custom/gloc.i}
@@ -433,6 +428,9 @@ DO:
              DELETE oe-prmtx .
          END.
          
+         
+        RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+         
          apply "window-close" to frame {&frame-name}. 
      END.
      
@@ -518,23 +516,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
    {methods/nowait.i}
    DO WITH FRAME {&FRAME-NAME}:
-    /*{custom/usrprint.i}*/
-    IF ip-date NE ? THEN ASSIGN  
-        begin_date:SCREEN-VALUE     = string(ip-date)                              
-        end_date:SCREEN-VALUE      = STRING(ip-date) .
-    IF ip-cust-no NE "" THEN ASSIGN
-        begin_cust-no:SCREEN-VALUE  = ip-cust-no                             
-        end_cust-no:SCREEN-VALUE    = ip-cust-no .
-    IF ip-type NE "" THEN ASSIGN
-        begin_type:SCREEN-VALUE     = ip-type                           
-        end_type:SCREEN-VALUE      = ip-type.
-    IF ip-procat NE "" THEN ASSIGN
-        begin_item-cat:SCREEN-VALUE = ip-procat
-        end_item-cat:SCREEN-VALUE   = ip-procat.
-    IF ip-i-no NE "" THEN ASSIGN
-        begin_item:SCREEN-VALUE     = ip-i-no 
-        end_item:SCREEN-VALUE       = ip-i-no .
-
+    {custom/usrprint.i}
     APPLY "entry" TO begin_date.
   END.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.

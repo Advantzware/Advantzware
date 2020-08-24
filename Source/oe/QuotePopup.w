@@ -28,7 +28,7 @@ DEFINE INPUT PARAMETER ipxButtton AS CHARACTER NO-UNDO .
 DEF INPUT PARAM ipxCompany LIKE oe-ordl.company NO-UNDO.
 DEF INPUT PARAM ipxLoc LIKE quotehd.loc NO-UNDO.
 DEF INPUT PARAM ipxEstNo LIKE oe-ordl.est-no NO-UNDO.
-DEF INPUT PARAM ipxStock AS CHARACTER NO-UNDO.
+DEF INPUT PARAM ipcPartNo AS CHARACTER NO-UNDO.
 DEF INPUT-OUTPUT PARAM opxPrice LIKE oe-ordl.price NO-UNDO.
 DEF INPUT-OUTPUT PARAM opxUom LIKE oe-ordl.pr-uom NO-UNDO.
 DEF INPUT-OUTPUT PARAM opxQty LIKE oe-ordl.qty NO-UNDO.
@@ -401,7 +401,7 @@ FOR EACH quotehd FIELDS(q-no est-no company quo-date) NO-LOCK  WHERE
         quoteitm.company EQ quotehd.company         
         AND quoteitm.loc     EQ ipxLoc 
         AND quoteitm.q-no    EQ quotehd.q-no
-        AND quoteitm.i-no    EQ ipxStock
+        AND quoteitm.i-no    EQ ipcPartNo
     ,
     EACH quoteqty NO-LOCK WHERE
         quoteqty.company = quoteitm.company

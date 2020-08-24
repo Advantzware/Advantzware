@@ -76,7 +76,8 @@ FOR EACH itemfg
     IF NOT itemfg.pur-man THEN
       itemfg.q-ono = itemfg.q-ono - v-fin-qty.
               
-    RUN fg/comp-upd.p (RECID(itemfg), v-fin-qty * -1,
+    IF {&TABLENAME}.frm NE 0 THEN 
+        RUN fg/comp-upd.p (RECID(itemfg), v-fin-qty * -1,
                        "q-ono", {&TABLENAME}.est-no).
   END.
 

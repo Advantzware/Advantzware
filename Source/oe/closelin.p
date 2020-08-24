@@ -4,11 +4,9 @@ DEF INPUT PARAM ip-close AS LOG   NO-UNDO.
 
 DEF VAR v-factor       AS   INT NO-UNDO.
 DEF VAR v-qty          LIKE oe-ordl.qty NO-UNDO.
-DEF VAR v-tax-rate     AS   DEC FORMAT ">,>>9.99<<<" NO-UNDO.
-DEF VAR v-frt-tax-rate LIKE v-tax-rate NO-UNDO.
 DEF VAR v-dcr-val      LIKE oe-ordl.cost INIT 0 NO-UNDO.
 DEF VAR v-uom-rate     AS   INT NO-UNDO.
-
+DEFINE VARIABLE dTaxAmount AS DECIMAL NO-UNDO.
 
 DISABLE TRIGGERS FOR LOAD OF itemfg.
 
@@ -29,9 +27,7 @@ FIND FIRST cust
     NO-ERROR.
 
 IF AVAIL cust THEN DO:
-  RUN ar/cctaxrt.p (INPUT oe-ord.company, oe-ord.tax-gr,
-                    OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
-
+ 
   v-qty = oe-ordl.qty - oe-ordl.ship-qty.
   IF v-qty LT 0 THEN v-qty = 0.
 
@@ -95,9 +91,16 @@ IF AVAIL cust THEN DO:
 
      v-dcr-val  = (v-qty / v-uom-rate) * oe-ordl.price
      v-dcr-val  = v-dcr-val - (v-dcr-val * oe-ordl.disc / 100).
-
+     
+    dTaxAmount = 0.
+    RUN Tax_Calculate(INPUT oe-ord.company,
+                      INPUT oe-ord.tax-gr,
+                      INPUT FALSE,
+                      INPUT v-dcr-val,
+                      INPUT oe-ordl.i-no, 
+                      OUTPUT dTaxAmount).  
     IF oe-ordl.tax THEN
-      v-dcr-val = v-dcr-val + (v-dcr-val * v-tax-rate / 100).
+      v-dcr-val = v-dcr-val + (dTaxAmount).
 
     IF AVAIL cust THEN cust.ord-bal = cust.ord-bal + (v-dcr-val * v-factor).
   END.

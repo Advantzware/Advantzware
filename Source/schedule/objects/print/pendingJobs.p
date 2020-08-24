@@ -16,7 +16,15 @@ RUN ttblSortByBuild.
 {{&print}/includes/outputTo.i}
 RUN buildWrkRpt.
 RUN setPendingJob.
-FOR EACH pendingJob NO-LOCK WHERE {{&print}/includes/filterWhere.i}
+FOR EACH pendingJob
+    WHERE {{&print}/includes/filterWhere.i},
+    FIRST job-mch NO-LOCK
+    WHERE ROWID(job-mch) EQ TO-ROWID(ENTRY(2,pendingJob.rowIDs)),
+    FIRST mach NO-LOCK
+    WHERE mach.company EQ job-mch.company
+      AND mach.m-code  EQ job-mch.m-code
+      AND (CAN-DO(departmentValue,mach.dept[1])
+       OR departmentValue EQ ?)
     BREAK BY pendingJob.sortBy BY pendingJob.jobSort BY pendingJob.resourceSequence
     {{&print}/includes/framePhrase.i} DOWN:
   RUN buildLines (FIRST(pendingJob.jobSort)).

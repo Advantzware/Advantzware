@@ -14,12 +14,12 @@
 
 /* ***************************  Definitions  ************************** */
 DEFINE VARIABLE gcTypeInactive AS CHARACTER NO-UNDO INITIAL "INACTIVE".
-DEFINE VARIABLE gcTypeHold AS CHARACTER NO-UNDO INITIAL "HOLD".
-DEFINE VARIABLE gcTypeInfo AS CHARACTER NO-UNDO INITIAL "INFO".
-DEFINE VARIABLE gcTypeRelease AS CHARACTER NO-UNDO INITIAL "RELEASE".
+DEFINE VARIABLE gcTypeHold     AS CHARACTER NO-UNDO INITIAL "HOLD".
+DEFINE VARIABLE gcTypeInfo     AS CHARACTER NO-UNDO INITIAL "INFO".
+DEFINE VARIABLE gcTypeRelease  AS CHARACTER NO-UNDO INITIAL "RELEASE".
 
-DEFINE VARIABLE iCtr AS INTEGER NO-UNDO.
-DEFINE VARIABLE cNote LIKE tag.note.
+DEFINE VARIABLE iCtr  AS INTEGER    NO-UNDO.
+DEFINE VARIABLE cNote LIKE tag.note NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -33,8 +33,6 @@ FUNCTION IsOnHold RETURNS LOGICAL
 
 /* ***************************  Main Block  *************************** */
 
-
-
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE AddTagHold:
@@ -42,18 +40,16 @@ PROCEDURE AddTagHold:
  Purpose: Wrapper to Add tag, specifically for HOLD
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcLinkTable AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLinkRecKey  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLinkTable   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcDescription AS CHARACTER NO-UNDO.
 
-    FIND FIRST tag NO-LOCK 
-        WHERE tag.linkRecKey  EQ ipcLinkRecKey
-        AND tag.tagType     EQ gcTypeHold 
-        AND tag.linkTable   EQ ipcLinkTable
-        AND tag.description EQ ipcDescription
-        NO-ERROR.
-    IF NOT AVAILABLE  tag THEN 
-        RUN pAddTag (ipcLinkRecKey, gcTypeHold, ipcLinkTable, ipcDescription).
+    IF NOT CAN-FIND(FIRST tag 
+                    WHERE tag.linkRecKey  EQ ipcLinkRecKey
+                      AND tag.tagType     EQ gcTypeHold 
+                      AND tag.linkTable   EQ ipcLinkTable
+                      AND tag.description EQ ipcDescription) THEN 
+    RUN pAddTag (ipcLinkRecKey, gcTypeHold, ipcLinkTable, ipcDescription).
         
 END PROCEDURE.
 
@@ -62,43 +58,38 @@ PROCEDURE AddTagHoldInfo:
  Purpose: Wrapper to Add tag, specifically for HOLDINFO
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcLinkTable AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLinkRecKey  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLinkTable   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcDescription AS CHARACTER NO-UNDO.
 
-    FIND FIRST tag NO-LOCK 
-        WHERE tag.linkRecKey  EQ ipcLinkRecKey
-        AND tag.tagType     EQ gcTypeInfo 
-        AND tag.linkTable   EQ ipcLinkTable
-        AND tag.description EQ ipcDescription
-        NO-ERROR.
-    IF NOT AVAILABLE  tag THEN 
-        RUN pAddTag (ipcLinkRecKey, gcTypeInfo, ipcLinkTable, ipcDescription).
+    IF NOT CAN-FIND(FIRST tag 
+                    WHERE tag.linkRecKey  EQ ipcLinkRecKey
+                      AND tag.tagType     EQ gcTypeInfo 
+                      AND tag.linkTable   EQ ipcLinkTable
+                      AND tag.description EQ ipcDescription) THEN 
+    RUN pAddTag (ipcLinkRecKey, gcTypeInfo, ipcLinkTable, ipcDescription).
         
 END PROCEDURE.
 
 PROCEDURE AddTagInactive:
-    /*------------------------------------------------------------------------------
-     Purpose: Wrapper to Add tag, specifically for Inactive
-     Notes:
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ Purpose: Wrapper to Add tag, specifically for Inactive
+ Notes:
+------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcLinkTable AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLinkTable  AS CHARACTER NO-UNDO.
 
     ASSIGN 
         cNote = ""
-        cNote[1] = "Inactive " + ipcLinkTable.
-
-    FIND FIRST tag NO-LOCK 
-        WHERE tag.linkRecKey  EQ ipcLinkRecKey 
-        AND tag.tagType     EQ gcTypeInactive 
-        AND tag.linkTable   EQ ipcLinkTable 
-        NO-ERROR.
-    IF NOT AVAILABLE tag THEN 
-        RUN pAddTag (ipcLinkRecKey, gcTypeInactive, ipcLinkTable,"Record is inactive").
+        cNote[1] = "Inactive " + ipcLinkTable
+        .
+    IF NOT CAN-FIND(FIRST tag 
+                    WHERE tag.linkRecKey EQ ipcLinkRecKey 
+                      AND tag.tagType    EQ gcTypeInactive 
+                      AND tag.linkTable  EQ ipcLinkTable) THEN 
+    RUN pAddTag (ipcLinkRecKey, gcTypeInactive, ipcLinkTable, "Record is inactive").
 
 END PROCEDURE.
-
 
 PROCEDURE AddTagRelease:
 /*------------------------------------------------------------------------------
@@ -106,19 +97,15 @@ PROCEDURE AddTagRelease:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcLinkTable AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLinkTable  AS CHARACTER NO-UNDO.
     
-      FIND FIRST tag NO-LOCK 
-        WHERE tag.linkRecKey  EQ ipcLinkRecKey 
-        AND tag.tagType     EQ gcTypeRelease
-        AND tag.linkTable EQ ipcLinkTable
-        NO-ERROR.
-    IF NOT AVAIL tag THEN 
-        RUN pAddTag (ipcLinkRecKey, gcTypeRelease,"Record is manually released from hold").
+    IF NOT CAN-FIND(FIRST tag 
+                    WHERE tag.linkRecKey EQ ipcLinkRecKey 
+                      AND tag.tagType    EQ gcTypeRelease
+                      AND tag.linkTable  EQ ipcLinkTable) THEN 
+    RUN pAddTag (ipcLinkRecKey, gcTypeRelease, "Record is manually released from hold").
                                        
 END PROCEDURE.
-
-
 
 PROCEDURE ClearTagsByRecKey:
 /*------------------------------------------------------------------------------
@@ -127,13 +114,9 @@ PROCEDURE ClearTagsByRecKey:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
 
-    RUN pDeleteTags (ipcLinkRecKey,
-                     "RecKey",
-                     "").
+    RUN pDeleteTags (ipcLinkRecKey, "RecKey", "").
 
 END PROCEDURE.
-
-
 
 PROCEDURE ClearTagsHold:
 /*------------------------------------------------------------------------------
@@ -142,13 +125,8 @@ PROCEDURE ClearTagsHold:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
 
-    RUN pDeleteTags (ipcLinkRecKey,
-                     "TagType",
-                     gcTypeHold).
-
-    RUN pDeleteTags (ipcLinkRecKey,
-                     "TagType",
-                     gcTypeInfo).
+    RUN pDeleteTags (ipcLinkRecKey, "TagType", gcTypeHold).
+    RUN pDeleteTags (ipcLinkRecKey, "TagType", gcTypeInfo).
     
 END PROCEDURE.
 
@@ -159,12 +137,9 @@ PROCEDURE ClearTagsInactive:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
 
-    RUN pDeleteTags (ipcLinkRecKey,
-                     "TagType",
-                     gcTypeInactive).
+    RUN pDeleteTags (ipcLinkRecKey, "TagType", gcTypeInactive).
 
 END PROCEDURE.
-
 
 PROCEDURE ClearTagsOfType:
 /*------------------------------------------------------------------------------
@@ -174,9 +149,7 @@ PROCEDURE ClearTagsOfType:
     DEFINE INPUT PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTagType AS CHARACTER NO-UNDO.
 
-    RUN pDeleteTags (ipcLinkRecKey,
-                     "TagType",
-                     ipcTagType).
+    RUN pDeleteTags (ipcLinkRecKey, "TagType", ipcTagType).
 
 END PROCEDURE.
 
@@ -187,13 +160,9 @@ PROCEDURE ClearTagsRelease:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
 
-    RUN pDeleteTags (ipcLinkRecKey,
-                     "TagType",
-                     gcTypeRelease).
-
+    RUN pDeleteTags (ipcLinkRecKey, "TagType", gcTypeRelease).
     
 END PROCEDURE.
-
 
 PROCEDURE pAddTag PRIVATE:
     /*------------------------------------------------------------------------------
@@ -210,13 +179,15 @@ PROCEDURE pAddTag PRIVATE:
         tag.linkReckey  = ipcLinkRecKey
         tag.tagType     = ipcTagType     
         tag.linkTable   = ipcLinkTable
-        tag.description = ipcDescription.
-    
+        tag.description = ipcDescription
+        tag.createDT    = NOW
+        tag.updateDT    = tag.createDT
+        tag.createUser  = USERID("ASI")
+        tag.updateUser  = tag.createUser
+        .    
     RELEASE tag.
         
 END PROCEDURE.
-
-
 
 PROCEDURE pDeleteTags PRIVATE:
 /*------------------------------------------------------------------------------
@@ -224,30 +195,30 @@ PROCEDURE pDeleteTags PRIVATE:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcScope AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcValue AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcScope      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcValue      AS CHARACTER NO-UNDO.
 
     CASE ipcScope:
-        WHEN "RecKey" THEN DO:
-            FOR EACH tag EXCLUSIVE WHERE 
-                tag.linkRecKey  EQ ipcLinkRecKey:
-                DELETE tag.
-            END.
+        WHEN "RecKey" THEN
+        FOR EACH tag EXCLUSIVE-LOCK
+            WHERE tag.linkRecKey EQ ipcLinkRecKey
+            :
+            DELETE tag.
         END.
-        WHEN "TagType" THEN DO:
-            FOR EACH tag EXCLUSIVE WHERE 
-                tag.linkRecKey  EQ ipcLinkRecKey AND 
-                tag.tagtype     EQ ipcValue:
-                DELETE tag.
-            END.
+        WHEN "TagType" THEN
+        FOR EACH tag EXCLUSIVE-LOCK
+            WHERE tag.linkRecKey EQ ipcLinkRecKey
+              AND tag.tagtype    EQ ipcValue
+              :
+            DELETE tag.
         END.
-        WHEN "TestName" THEN DO:
-            FOR EACH tag EXCLUSIVE WHERE 
-                tag.linkRecKey  EQ ipcLinkRecKey AND 
-                tag.tagtype     EQ "HOLD" AND 
-                tag.description EQ ipcValue:
-                    DELETE tag.
-            END.
+        WHEN "TestName" THEN
+        FOR EACH tag EXCLUSIVE-LOCK
+            WHERE tag.linkRecKey  EQ ipcLinkRecKey
+              AND tag.tagtype     EQ "HOLD"
+              AND tag.description EQ ipcValue
+            :
+            DELETE tag.
         END.
     END CASE.
 
@@ -261,12 +232,9 @@ FUNCTION IsActive RETURNS LOGICAL
  Purpose:  Given a recKey - returns True if there are no inactive tags linked to it
  Notes:
 ------------------------------------------------------------------------------*/	
-    FIND FIRST tag NO-LOCK WHERE 
-        tag.linkRecKey EQ ipcLinkRecKey AND 
-        tag.tagType EQ gcTypeInactive /*Inactive Type*/
-        NO-ERROR.
-
-    RETURN NOT AVAILABLE tag.
+    RETURN NOT CAN-FIND(FIRST tag
+                        WHERE tag.linkRecKey EQ ipcLinkRecKey
+                          AND tag.tagType    EQ gcTypeInactive). /*Inactive Type*/
 		
 END FUNCTION.
 
@@ -276,13 +244,10 @@ FUNCTION IsOnHold RETURNS LOGICAL
  Purpose:  Given a recKey - returns True if there are no inactive tags linked to it
  Notes:
 ------------------------------------------------------------------------------*/    
-
-    RETURN CAN-FIND(FIRST tag WHERE  
-        tag.linkReckey  EQ ipcLinkRecKey AND 
-        tag.tagType     EQ gcTypeHold) 
-        AND NOT CAN-FIND(FIRST tag WHERE  
-        tag.linkReckey  EQ ipcLinkRecKey AND 
-        tag.tagType     EQ "RELEASE" ). 
-        
+    RETURN CAN-FIND(FIRST tag
+                    WHERE tag.linkReckey  EQ ipcLinkRecKey
+                      AND tag.tagType     EQ gcTypeHold) AND 
+       NOT CAN-FIND(FIRST tag
+                    WHERE tag.linkReckey  EQ ipcLinkRecKey
+                      AND tag.tagType     EQ "RELEASE" ). 
 END FUNCTION.
-

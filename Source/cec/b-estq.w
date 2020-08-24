@@ -2777,6 +2777,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetFirstRunValue B-table-Win 
+PROCEDURE pSetFirstRunValue :
+/*------------------------------------------------------------------------------
+  Purpose:     Set value
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER oplSetFirstValue AS LOGICAL NO-UNDO.   
+  ASSIGN 
+     lv-first-run =  oplSetFirstValue .
+     
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION display-combo-qty B-table-Win 

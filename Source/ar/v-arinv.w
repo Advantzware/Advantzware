@@ -1112,7 +1112,7 @@ PROCEDURE local-update-record :
   DEF VAR ll-new-record AS LOG NO-UNDO.
   DEF VAR v-oldinv LIKE ar-inv.inv-no NO-UNDO.
   DEFINE VARIABLE lIsAnEDI AS LOGICAL NO-UNDO.
-  DEF BUFFER bARInvl FOR ar-invl.
+  DEFINE BUFFER bf-ar-invl FOR ar-invl.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   /*========= validation=========*/
@@ -1199,11 +1199,11 @@ PROCEDURE local-update-record :
   lv-due-calckt = NO.
 
   /* task 02150601 */
-  FOR EACH bARInvl WHERE bARInvl.company EQ ar-inv.company
-                     AND bARInvl.inv-no EQ ar-inv.inv-no:
-    IF bARInvl.po-no NE ar-inv.po-no THEN
-    bARInvl.po-no = ar-inv.po-no.
-  END. /* each barinvl */
+  FOR EACH bf-ar-invl EXCLUSIVE-LOCK 
+      WHERE bf-ar-invl.x-no EQ ar-inv.x-no:
+      IF bf-ar-invl.po-no NE ar-inv.po-no THEN
+          bf-ar-invl.po-no = ar-inv.po-no.
+  END. /* each bf-ar-invl */
 
 END PROCEDURE.
 
