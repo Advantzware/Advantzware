@@ -45,7 +45,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "RMReceiptRules,FGReceiptRules,POLoadtag,SSCycleCountReset,OEImportConsol,AutoCreateHelp,SSVendTagOnly,ShowRestrictionMessage,UseNewInvoicePost,MiscEstimateSource,"
            + "JobRecalc,JobBuildVersion,CEWood,SalesTaxRoundingMethod,SalesTaxCalcMethod,FGTagValidation,DynParamValidation,DateRule,VertexTaxClassDefault,"
            + "CapacityHTMLFolder,InvoiceApprovalBillNotes,InvoiceApprovalFreightAmount,InvoiceApprovalFreightTerms,InvoiceApprovalPriceGTCost,InvoiceApprovalInvoiceStatus,"
-           + "InvoiceApprovalTaxableCheck,CalcJobDueDate"            
+           + "InvoiceApprovalTaxableCheck,CalcJobDueDate,FGBOLTransferPost"            
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -1055,7 +1055,18 @@ CASE ip-nk1-value:
             INPUT 0,                                             /* Int value */
             INPUT NO,                                            /* Logical value */ 
             INPUT 0                                              /* Dec value*/
-            ).                      
+            ). 
+    WHEN "FGBOLTransferPost" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "Auto post Trans Transfer from bol",           /* Description */
+            INPUT "",                                            /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT NO,                                            /* Logical value */ 
+            INPUT 0                                              /* Dec value*/
+            ).              
     WHEN "VertexTaxClassDefault" THEN 
         RUN sys/inc/addnk1.p (
             INPUT cocode, 
