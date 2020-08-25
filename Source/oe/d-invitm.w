@@ -1141,6 +1141,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      run create-item .
      find inv-line where recid(inv-line) = lv-item-recid no-error.
   end.
+  
+  ELSE IF ip-type = "VIEW" THEN
+      FIND FIRST inv-line NO-LOCK 
+           WHERE RECID(inv-line) EQ ip-recid 
+           NO-ERROR. 
+           
   else find inv-line where recid(inv-line) = ip-recid no-error.
   find inv-head of inv-line no-lock.
   FIND xinv-head OF inv-line NO-LOCK.
