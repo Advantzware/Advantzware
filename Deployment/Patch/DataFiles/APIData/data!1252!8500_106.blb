@@ -1,0 +1,3 @@
+            <ShipNoticeItem lineNumber="$ItemLineID$" quantity="$ItemQuantity$">
+               <UnitOfMeasure>$ItemQuantityUOM$</UnitOfMeasure>
+            </ShipNoticeItem>
