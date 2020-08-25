@@ -113,10 +113,9 @@ DEFINE VARIABLE dInvoiceTotal         AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dInvoiceSubTotal      AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE lSuccess              AS LOGICAL   NO-UNDO.
 DEF VAR cInvSuffix AS CHAR NO-UNDO.
-IF LENGTH(ip-copy-title) EQ 2 THEN ASSIGN 
+
+ASSIGN 
     cInvSuffix = ip-copy-title.
-ELSE ASSIGN 
-    cInvSuffix = "".
 
 FUNCTION fRoundUp RETURNS DECIMAL ( ipdNum AS DECIMAL ):
   DEFINE VARIABLE dNumTwoRight AS DECIMAL NO-UNDO.
