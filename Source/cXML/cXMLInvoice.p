@@ -13,10 +13,18 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipriInv AS ROWID NO-UNDO.
-DEFINE INPUT PARAMETER ipdtInvDate AS DATE NO-UNDO.
+DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcSuffix   AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipriInv     AS ROWID     NO-UNDO.
+DEFINE INPUT PARAMETER ipdtInvDate AS DATE      NO-UNDO.
 
+DEFINE VARIABLE cInvSuffix AS CHARACTER NO-UNDO.
+
+IF LENGTH(ipcSuffix) EQ 2 THEN
+    cInvSuffix = ipcSuffix.
+ELSE 
+    cInvSuffix = "".
+    
 {system/TaxProcs.i}
 
 DEFINE TEMP-TABLE ttInv NO-UNDO 
@@ -404,6 +412,7 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                   AND ttTaxDetail.invoiceLineRecKey EQ bf-ar-invl.rec_key:
                 IF NOT ttTaxDetail.isFreight THEN 
                     ASSIGN 
+                        ttInv.amountTotalTaxExFreight = ttInv.amountTotalTaxExFreight + ttTaxDetail.taxCodeTaxAmount 
                         dLineTaxAmt  = dLineTaxAmt  + ttTaxDetail.taxCodeTaxAmount
                         dLineTaxRate = dLineTaxRate + ttTaxDetail.taxCodeRate
                         .  
@@ -473,7 +482,7 @@ PROCEDURE pGenerateCXML PRIVATE:
         RUN cXMLOutput (clXMLOutput,'InvoiceDetailRequest','','Row').
         RUN cXMLOutput (clXMLOutput,'InvoiceDetailRequestHeader ' 
             + 'invoiceDate="' + ttInv.invoiceDateString + '" '
-            + 'invoiceID="' + STRING(ttInv.invoiceID) + '" '
+            + 'invoiceID="' + STRING(ttInv.invoiceID) + cInvSuffix + '" '
             + 'operation="new" purpose="standard"','','Row').
         RUN cXMLOutput (clXMLOutput,'InvoiceDetailHeaderIndicator/','','Row').  
         RUN cXMLOutput (clXMLOutput,'InvoiceDetailLineIndicator isShippingInLine="yes" isAccountingInLine="yes" isTaxInLine="yes" /','','Row').
@@ -579,51 +588,7 @@ PROCEDURE pGenerateCXML PRIVATE:
             RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
             RUN cXMLOutput (clXMLOutput,'',STRING(ttInvLine.priceTotal),'Col').
             RUN cXMLOutput (clXMLOutput,'/Money','','Row').
-            RUN cXMLOutput (clXMLOutput,'/SubtotalAmount','','Row').         
-      
-            RUN cXMLOutput (clXMLOutput,'Tax','','Row'). 
-            RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
-            RUN cXMLOutput (clXMLOutput,'',STRING(ttInvLine.amountTax + IF lFirstLine THEN ttInv.amountTotalTaxFreight ELSE 0 ),'Col').
-            RUN cXMLOutput (clXMLOutput,'/Money','','Row').
-            RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
-            RUN cXMLOutput (clXMLOutput,'/Description','','Row').                        
-            RUN cXMLOutput (clXMLOutput,'TaxDetail purpose="tax" category="sales"' + ' percentageRate="' + STRING(ttInvLine.taxRate) + '"','','Row').             
-            RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').
-            RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').              
-            RUN cXMLOutput (clXMLOutput,'',STRING(ttInvLine.amountTaxableExFreight),'Col').
-            RUN cXMLOutput (clXMLOutput,'/Money','','Row').             
-            RUN cXMLOutput (clXMLOutput,'/TaxableAmount','','Row').
-            RUN cXMLOutput (clXMLOutput,'TaxAmount','','Row').
-            RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').              
-            RUN cXMLOutput (clXMLOutput,'',STRING(ttInvLine.amountTaxExFreight),'Col').
-            RUN cXMLOutput (clXMLOutput,'/Money','','Row').             
-            RUN cXMLOutput (clXMLOutput,'/TaxAmount','','Row').
-            RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
-             // RUN cXMLOutput (clXMLOutput,'','Sales Tax','Col').
-            RUN cXMLOutput (clXMLOutput,'/Description','','Row').
-            RUN cXMLOutput (clXMLOutput,'/TaxDetail','','Row'). 
-            
-            /* Seperate section for handling shipping Tax */
-            IF ttInv.billFreight AND ttInv.amountTotalFreight NE 0 
-                AND ttInv.frtTaxRate NE 0 AND lFirstLine THEN DO:
-                    
-                RUN cXMLOutput (clXMLOutput,'TaxDetail purpose="shippingTax" category="sales"' + ' percentageRate="' + STRING(ttInv.frtTaxRate) + '"','','Row').             
-                RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').
-                RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').              
-                RUN cXMLOutput (clXMLOutput,'',STRING(ttInv.amountTotalFreight),'Col').
-                RUN cXMLOutput (clXMLOutput,'/Money','','Row').             
-                RUN cXMLOutput (clXMLOutput,'/TaxableAmount','','Row').
-                RUN cXMLOutput (clXMLOutput,'TaxAmount','','Row').
-                RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').              
-                RUN cXMLOutput (clXMLOutput,'',STRING(ttInv.amountTotalTaxFreight),'Col').
-                RUN cXMLOutput (clXMLOutput,'/Money','','Row').             
-                RUN cXMLOutput (clXMLOutput,'/TaxAmount','','Row').
-                RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
-                RUN cXMLOutput (clXMLOutput,'/Description','','Row').
-                RUN cXMLOutput (clXMLOutput,'/TaxDetail','','Row').
-            END.                        
-            RUN cXMLOutput (clXMLOutput,'/Tax','','Row'). 
-             
+            RUN cXMLOutput (clXMLOutput,'/SubtotalAmount','','Row').                      
             RUN cXMLOutput (clXMLOutput,'InvoiceDetailLineShipping','','Row').
             RUN cXMLOutput (clXMLOutput,'InvoiceDetailShipping','','Row').
             RUN cXMLOutput (clXMLOutput,'Contact addressID="' + ttInv.shiptoID + '" role="shipTo"','','Row').
@@ -692,10 +657,28 @@ PROCEDURE pGenerateCXML PRIVATE:
         RUN cXMLOutput (clXMLOutput,'/TaxableAmount','','Row').    
         RUN cXMLOutput (clXMLOutput,'TaxAmount','','Row').    
         RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
-        RUN cXMLOutput (clXMLOutput,'',STRING(ttInv.amountTotalTax),'Col').
+        RUN cXMLOutput (clXMLOutput,'',STRING(ttInv.amountTotalTaxExFreight),'Col').
         RUN cXMLOutput (clXMLOutput,'/Money','','Row').
         RUN cXMLOutput (clXMLOutput,'/TaxAmount','','Row').    
-        RUN cXMLOutput (clXMLOutput,'/TaxDetail','','Row').         
+        RUN cXMLOutput (clXMLOutput,'/TaxDetail','','Row'). 
+        /* Seperate section for handling shipping Tax */
+        IF ttInv.billFreight AND ttInv.amountTotalFreight NE 0 
+            AND ttInv.frtTaxRate NE 0 THEN DO:       
+            RUN cXMLOutput (clXMLOutput,'TaxDetail purpose="shippingTax" category="sales"' + ' percentageRate="' + STRING(ttInv.frtTaxRate) + '"','','Row').             
+            RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').
+            RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').              
+            RUN cXMLOutput (clXMLOutput,'',STRING(ttInv.amountTotalFreight),'Col').
+            RUN cXMLOutput (clXMLOutput,'/Money','','Row').             
+            RUN cXMLOutput (clXMLOutput,'/TaxableAmount','','Row').
+            RUN cXMLOutput (clXMLOutput,'TaxAmount','','Row').
+            RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').              
+            RUN cXMLOutput (clXMLOutput,'',STRING(ttInv.amountTotalTaxFreight),'Col').
+            RUN cXMLOutput (clXMLOutput,'/Money','','Row').             
+            RUN cXMLOutput (clXMLOutput,'/TaxAmount','','Row').
+            RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
+            RUN cXMLOutput (clXMLOutput,'/Description','','Row').
+            RUN cXMLOutput (clXMLOutput,'/TaxDetail','','Row').
+        END.           
 //Good from here               
         RUN cXMLOutput (clXMLOutput,'/Tax','','Row').
         RUN cXMLOutput (clXMLOutput,'SpecialHandlingAmount','','Row').
