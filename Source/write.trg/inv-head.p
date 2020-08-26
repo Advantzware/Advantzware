@@ -35,10 +35,6 @@ IF AVAIL cust THEN {&TABLENAME}.curr-code[1] = cust.curr-code.
 
 RUN oe/updmulti.p (BUFFER {&TABLENAME}, BUFFER old-{&TABLENAME}).
 
-/* Clear out any error-status from find with no-error that is false */
-DEF VAR ll-error AS LOG NO-UNDO.
-ll-error = YES NO-ERROR.
-
 IF old-{&TABLENAME}.t-inv-tax     NE {&TABLENAME}.t-inv-tax     OR
    old-{&TABLENAME}.t-inv-rev     NE {&TABLENAME}.t-inv-rev     OR
    old-{&TABLENAME}.t-inv-cost    NE {&TABLENAME}.t-inv-cost    OR
@@ -63,3 +59,7 @@ IF old-{&TABLENAME}.t-inv-tax     NE {&TABLENAME}.t-inv-tax     OR
         {&TABLENAME}.t-inv-rev = dInvoiceTotal
         .
 END.
+
+/* Clear out any error-status from find with no-error that is false */
+DEF VAR ll-error AS LOG NO-UNDO.
+ll-error = YES NO-ERROR.
