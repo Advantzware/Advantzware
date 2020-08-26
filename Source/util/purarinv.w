@@ -488,19 +488,23 @@ PROCEDURE ipRunPurge :
     OUTPUT STREAM out1 TO VALUE("c:\tmp\ar-inv" + 
                                 STRING(YEAR(TODAY),"9999") +
                                 STRING(MONTH(TODAY),"99") +
-                                STRING(DAY(TODAY),"99") + ".d").
+                                STRING(DAY(TODAY),"99") +
+                                "_" + STRING(TIME) + ".d").
     OUTPUT STREAM out2 TO VALUE("c:\tmp\ar-invl" +
                                 STRING(YEAR(TODAY),"9999") +
                                 STRING(MONTH(TODAY),"99") +
-                                STRING(DAY(TODAY),"99") + ".d").
+                                STRING(DAY(TODAY),"99") +
+                                "_" + STRING(TIME) + ".d").
     OUTPUT STREAM out3 TO VALUE("c:\tmp\ar-cash" + 
                                 STRING(YEAR(TODAY),"9999") +
                                 STRING(MONTH(TODAY),"99") +
-                                STRING(DAY(TODAY),"99") + ".d").
+                                STRING(DAY(TODAY),"99") + 
+                                "_" + STRING(TIME) + ".d").
     OUTPUT STREAM out4 TO VALUE("c:\tmp\ar-cashl" +
                                 STRING(YEAR(TODAY),"9999") +
                                 STRING(MONTH(TODAY),"99") +
-                                STRING(DAY(TODAY),"99") + ".d").
+                                STRING(DAY(TODAY),"99") +
+                                "_" + STRING(TIME) + ".d").
 
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN {&displayed-objects}.
