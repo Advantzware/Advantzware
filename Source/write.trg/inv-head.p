@@ -35,12 +35,14 @@ IF AVAIL cust THEN {&TABLENAME}.curr-code[1] = cust.curr-code.
 
 RUN oe/updmulti.p (BUFFER {&TABLENAME}, BUFFER old-{&TABLENAME}).
 
+/* If spare-int-1 is set to 1, then force re-calculate tax */
 IF old-{&TABLENAME}.t-inv-tax     NE {&TABLENAME}.t-inv-tax     OR
    old-{&TABLENAME}.t-inv-rev     NE {&TABLENAME}.t-inv-rev     OR
    old-{&TABLENAME}.t-inv-cost    NE {&TABLENAME}.t-inv-cost    OR
    old-{&TABLENAME}.t-inv-freight NE {&TABLENAME}.t-inv-freight OR
    old-{&TABLENAME}.tax-gr        NE {&TABLENAME}.tax-gr        OR
-   old-{&TABLENAME}.frt-pay       NE {&TABLENAME}.frt-pay THEN DO:
+   old-{&TABLENAME}.frt-pay       NE {&TABLENAME}.frt-pay       OR
+   {&TABLENAME}.spare-int-1       EQ 1 THEN DO:
     RUN Tax_CalculateForInvHead  (
         INPUT  ROWID({&TABLENAME}),
         INPUT  locode,
@@ -55,8 +57,9 @@ IF old-{&TABLENAME}.t-inv-tax     NE {&TABLENAME}.t-inv-tax     OR
         ).
   
     ASSIGN 
-        {&TABLENAME}.t-inv-tax = dTotalTax
-        {&TABLENAME}.t-inv-rev = dInvoiceTotal
+        {&TABLENAME}.t-inv-tax   = dTotalTax
+        {&TABLENAME}.t-inv-rev   = dInvoiceTotal
+        {&TABLENAME}.spare-int-1 = 0
         .
 END.
 

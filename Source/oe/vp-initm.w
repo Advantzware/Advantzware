@@ -261,6 +261,7 @@ DO:
    run oe/d-invitm.w (?, inv-head.r-no,"ADD").  
    run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
    run reopen-query in widget-handle(char-hdl) (?).
+   RUN refresh-value IN WIDGET-HANDLE(char-hdl).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -312,6 +313,7 @@ DO:
     run oe/d-invitm.w (recid(inv-line), inv-line.r-no,"Update").
     run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
     run reopen-query in widget-handle(char-hdl) (recid(inv-line)).
+    RUN refresh-value IN WIDGET-HANDLE(char-hdl).
 END.
 
 /* _UIB-CODE-BLOCK-END */
