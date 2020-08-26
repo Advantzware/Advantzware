@@ -39,10 +39,12 @@ RUN oe/updmulti.p (BUFFER {&TABLENAME}, BUFFER old-{&TABLENAME}).
 DEF VAR ll-error AS LOG NO-UNDO.
 ll-error = YES NO-ERROR.
 
-IF old-{&TABLENAME}.t-inv-tax     NE {&TABLENAME}.t-inv-tax  OR
-   old-{&TABLENAME}.t-inv-rev     NE {&TABLENAME}.t-inv-rev  OR
-   old-{&TABLENAME}.t-inv-cost    NE {&TABLENAME}.t-inv-cost OR
-   old-{&TABLENAME}.t-inv-freight NE {&TABLENAME}.t-inv-freight THEN DO:
+IF old-{&TABLENAME}.t-inv-tax     NE {&TABLENAME}.t-inv-tax     OR
+   old-{&TABLENAME}.t-inv-rev     NE {&TABLENAME}.t-inv-rev     OR
+   old-{&TABLENAME}.t-inv-cost    NE {&TABLENAME}.t-inv-cost    OR
+   old-{&TABLENAME}.t-inv-freight NE {&TABLENAME}.t-inv-freight OR
+   old-{&TABLENAME}.tax-gr        NE {&TABLENAME}.tax-gr        OR
+   old-{&TABLENAME}.frt-pay       NE {&TABLENAME}.frt-pay THEN DO:
     RUN Tax_CalculateForInvHead  (
         INPUT  ROWID({&TABLENAME}),
         INPUT  locode,
