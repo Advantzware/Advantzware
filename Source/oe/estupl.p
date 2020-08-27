@@ -17,11 +17,15 @@ def var v-est-no    like est.est-no     no-undo.
 def var hld-nufile  like nufile         no-undo.
 def var hld-id      like fil_id         no-undo.
 def var hld-stat      like job.stat       no-undo.
-
+DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
 
 DISABLE TRIGGERS FOR LOAD OF itemfg.
 
 find oe-ordl where recid(oe-ordl) eq fil_id no-lock.
+
+FIND FIRST oe-ord NO-LOCK 
+  WHERE oe-ord.company EQ oe-ordl.company
+  AND oe-ord.ord-no EQ oe-ordl.ord-no NO-ERROR .
  
 waitwarn:
 do x = 1 to v-exp-limit.
@@ -110,6 +114,15 @@ if v-create-job and oe-ordl.job-no ne "" then do:
 
         run jc/jc-calc.p(recid(job), NO).
         fil_id = RECID(job).
+        
+        lMsgResponse = TRUE.
+        IF AVAIL oe-ord AND oe-ord.Pricehold THEN
+            RUN displayMessageQuestionLog(
+                INPUT "33",
+                OUTPUT lMsgResponse 
+                ). 
+        
+        IF lMsgResponse THEN
         RUN po/doPo.p (YES) /* Yes Indicates to prompt for RM */.
         
         assign
