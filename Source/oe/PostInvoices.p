@@ -3487,7 +3487,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
          IF dTotalTax NE bf-inv-head.t-inv-tax THEN DO:
              RUN pAddValidationError(
                  BUFFER bf-ttInvoiceToPost,
-                 INPUT  "Tax on invoice does not match with caclulated tax",
+                 INPUT  "Tax on invoice does not match with calculated tax",
                  INPUT  NO
                  ).
              lAutoApprove = NO.             

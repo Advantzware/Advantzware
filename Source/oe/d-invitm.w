@@ -45,6 +45,13 @@ DEF VAR v-msg AS CHAR NO-UNDO.
 DEF VAR v-print-head LIKE sys-ctrl.log-fld NO-UNDO.
 DEF VAR v-print-fmt LIKE sys-ctrl.char-fld NO-UNDO.
 DEF VAR glInvQtyChanged AS LOG NO-UNDO.
+
+DEFINE VARIABLE lOldTax      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE dOldInvQty   AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dOldPrice    AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cOldPriceUOM AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dOldDisc     AS DECIMAL   NO-UNDO.
+
 DEF NEW SHARED BUFFER xinv-line FOR inv-line.
 DEF NEW SHARED BUFFER xinv-head FOR inv-head.
 
@@ -550,7 +557,8 @@ DO:
   DEFINE VARIABLE lopError AS LOGICAL NO-UNDO .
   DEF BUFFER bf-oe-ordl FOR oe-ordl.
 
-
+  DEFINE BUFFER bf-inv-head FOR inv-head.
+  
   DISABLE TRIGGERS FOR LOAD OF inv-line.
 
   RUN valid-i-no ( OUTPUT lopError) NO-ERROR.
@@ -669,7 +677,18 @@ DO:
   SESSION:SET-WAIT-STATE("general").
 
   RUN oe/oe-invup.p (ROWID(inv-head), INPUT NO).
-
+  
+  IF ip-type       NE "VIEW"           AND 
+     (lOldTax      NE inv-line.tax     OR
+      dOldInvQty   NE inv-line.inv-qty OR
+      dOldPrice    NE inv-line.price   OR
+      cOldPriceUOM NE inv-line.pr-uom  OR
+      dOldDisc     NE inv-line.disc) THEN DO:
+      FIND FIRST bf-inv-head OF inv-line EXCLUSIVE-LOCK NO-ERROR.
+      /* Set inv-head.spare-int-1 to 1 to force calculate the tax on inv-head write trigger */
+      IF AVAILABLE bf-inv-head THEN
+          bf-inv-head.spare-int-1 = 1.
+  END.
   SESSION:SET-WAIT-STATE("").
 
   APPLY "go" TO FRAME {&frame-name}.
@@ -1160,6 +1179,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     
     RUN oe/oe-sysct.p.
     
+    ASSIGN
+        lOldTax      = inv-line.tax     
+        dOldInvQty   = inv-line.inv-qty
+        dOldPrice    = inv-line.price
+        cOldPriceUOM = inv-line.pr-uom
+        dOldDisc     = inv-line.disc
+        .
+        
     IF ip-type EQ "view" THEN
       ASSIGN
        btn_done:HIDDEN    = NO
