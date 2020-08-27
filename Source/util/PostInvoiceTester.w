@@ -6,7 +6,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS wPostInvoiceTester 
 /*------------------------------------------------------------------------
 
-  File: 
+  File: Post Invoice Tester
 
   Description: from cntnrdlg.w - ADM2 SmartDialog Template
 
@@ -16,7 +16,7 @@
   Output Parameters:
       <none>
 
-  Author: 
+  Author: BV
 
   Created: 
 ------------------------------------------------------------------------*/
