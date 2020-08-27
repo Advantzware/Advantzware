@@ -367,7 +367,6 @@ FUNCTION fPOMaterial RETURNS LOGICAL (
     ipJobNo2  AS INTEGER,
     ipForm    AS INTEGER,
     ipBlankNo AS INTEGER,
-    ipItemNo  AS CHARACTER,
     ipMatType AS CHARACTER
     ):
 
@@ -377,7 +376,6 @@ FUNCTION fPOMaterial RETURNS LOGICAL (
         WHERE rm-rcpth.company   EQ ipCompany
           AND rm-rcpth.job-no    EQ ipJobNo
           AND rm-rcpth.job-no2   EQ ipJobNo2
-          AND rm-rcpth.i-no      EQ ipItemNo
           AND rm-rcpth.rita-code EQ "R",
         FIRST item NO-LOCK
         WHERE item.company  EQ rm-rcpth.company
@@ -387,7 +385,8 @@ FUNCTION fPOMaterial RETURNS LOGICAL (
         WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no 
           AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code
           AND rm-rdtlh.s-num     EQ ipForm
-          AND rm-rdtlh.b-num     EQ ipBlankNo          
+          AND (rm-rdtlh.b-num    EQ ipBlankNo
+           OR rm-rdtlh.b-num     EQ 0)          
         :
         lMaterialReceipted = TRUE.
         LEAVE.
@@ -1258,8 +1257,7 @@ FOR EACH job-hdr NO-LOCK
                                               job-mch.frm,statusCheckOffs.materialType).
             ELSE
             jobStatus[i - 1] = fPOMaterial(job-mch.company,job-mch.job-no,job-mch.job-no2,
-                                           job-mch.frm,job-mch.blank-no,job-mch.i-no,
-                                           statusCheckOffs.materialType).
+                                           job-mch.frm,job-mch.blank-no,statusCheckOffs.materialType).
           END. /* if avail */
         END. /* not usesalesrep */
       END. /* avail sbstatus */
