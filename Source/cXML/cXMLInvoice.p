@@ -294,6 +294,8 @@ PROCEDURE pBuildData PRIVATE:
         FIND FIRST bf-inv-head NO-LOCK 
             WHERE ROWID(bf-inv-head) EQ ipriInv
             NO-ERROR.
+            MESSAGE AVAILABLE bf-inv-head
+            VIEW-AS ALERT-BOX.
         IF AVAILABLE bf-inv-head THEN 
             RUN pBuildDataForUnposted(BUFFER bf-inv-head).
     END.
@@ -548,35 +550,36 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
                 ttInvLine.isMisc                 = NO
                 ttInv.amountTotalLines           = ttInv.amountTotalLines + bf-inv-line.t-price
                 .
-                
+              
             FOR EACH ttTaxDetail
-                WHERE ttTaxDetail.invoiceLineType   EQ "OEINVL"
-                AND ttTaxDetail.invoiceLineRecKey EQ bf-inv-line.rec_key:
-                IF NOT ttTaxDetail.isFreight THEN 
-                    ASSIGN 
-                        dLineTaxAmt  = dLineTaxAmt  + ttTaxDetail.taxCodeTaxAmount
-                        dLineTaxRate = dLineTaxRate + ttTaxDetail.taxCodeRate
-                        .  
-                IF ttTaxDetail.isFreight THEN 
-                DO:
-                    IF lFirst THEN 
-                    DO:
-                        ASSIGN
-                            dFrtTaxRate = dFrtTaxRate + ttTaxDetail.taxCodeRate
-                            lFirst      = NO
-                            .
-                    END.    
-                    dFrtTaxAmt  = dFrtTaxAmt  + ttTaxDetail.taxCodeTaxAmount.
-                END.                                           
-            END.              
+                WHERE ttTaxDetail.invoiceLineType   EQ "INVLINE"  
+                  AND ttTaxDetail.invoiceLineRecKey EQ bf-inv-line.rec_key
+                  AND ttTaxDetail.isFreight         EQ NO:
+                ASSIGN       
+                    dLineTaxAmt = dLineTaxAmt   + ttTaxDetail.taxCodeTaxAmount
+                    dLineTAxRate = dLineTaxRate + ttTaxDetail.taxCodeRate
+                    .        
+            END.  
+            IF lFirst THEN DO:
+                FOR EACH ttTaxDetail
+                    WHERE ttTaxDetail.invoiceLineType   EQ "INVHEAD"
+                      AND ttTaxDetail.invoiceLineRecKey EQ ipbf-inv-head.rec_key
+                      AND ttTaxDetail.isFreight         EQ YES:
+                    ASSIGN
+                        dFrtTaxRate = dFrtTaxRate + ttTaxDetail.taxCodeRate
+                        dFrtTaxAmt  = dFrtTaxAmt  + ttTaxDetail.taxCodeTaxAmount
+                        lFirst  = NO
+                        .         
+                END. 
+            END. 
             ASSIGN 
                 ttInvLine.amountTaxExFreight = dLineTaxAmt
                 ttInvLine.taxRate            = dLineTaxRate 
                 .
             FIND FIRST bf-oe-ordl NO-LOCK
                 WHERE bf-oe-ordl.company EQ bf-inv-line.company
-                AND bf-oe-ordl.i-no    EQ bf-inv-line.i-no
-                AND bf-oe-ordl.ord-no  EQ bf-inv-line.ord-no
+                  AND bf-oe-ordl.i-no    EQ bf-inv-line.i-no
+                  AND bf-oe-ordl.ord-no  EQ bf-inv-line.ord-no
                 NO-ERROR.
 
             IF AVAILABLE bf-oe-ordl THEN 
@@ -586,6 +589,7 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
                 BUFFER ttInvLine).            
                 
         END.
+
         FOR EACH bf-inv-misc NO-LOCK
             WHERE bf-inv-misc.r-no EQ ipbf-inv-head.r-no:
                 
@@ -593,62 +597,34 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
                 dLineTaxAmt  = 0
                 dLineTaxRate = 0 
                 .             
-/*            CREATE ttInvLine.                                                                        */
-/*            ASSIGN                                                                                   */
-/*                ttInvLine.invoiceID              = ttInv.invoiceID                                   */
-/*                ttInvLine.company                = ttInv.company                                     */
-/*                ttInvLine.lineNo                 = bf-inv-misc.line                                  */
-/*                ttInvLine.orderID                = bf-inv-misc.ord-no                                */
-/*                ttInvLine.orderLine              = bf-inv-misc.line                                  */
-/*                ttInvLine.quantityInvoiced       = bf-inv-misc.                                      */
-/*                ttInvLine.quantityInvoicedUOM    = bf-inv-misc.pr-qty-uom                            */
-/*                ttInvLine.pricePerUOM            = bf-inv-misc.price * (1 - (bf-inv-misc.disc / 100))*/
-/*                ttInvLine.priceUOM               = bf-inv-misc.pr-uom                                */
-/*                ttInvLine.customerPartID         = bf-inv-misc.part-no                               */
-/*                ttInvLine.itemID                 = bf-inv-misc.i-no                                  */
-/*                ttInvLine.itemName               = bf-inv-misc.i-name                                */
-/*                ttInvLine.priceTotal             = bf-inv-misc.t-price                               */
-/*                ttInvLine.taxable                = bf-inv-misc.tax                                   */
-/*                ttInvLine.amountTaxableExFreight = ttInvLine.priceTotal                              */
-/*                ttInvLine.amountTaxableFreight   = bf-inv-misc.t-freight                             */
-/*                ttInvLine.amountFreight          = bf-inv-misc.t-freight                             */
-/*                ttInvLine.customerPONo           = bf-inv-misc.po-no                                 */
-/*                ttInvLine.isMisc                 = NO                                                */
-/*                ttInv.amountTotalLines           = ttInv.amountTotalLines + bf-inv-misc.amt          */
-/*                .                                                                                    */
-                
+            CREATE ttInvLine.
+            ASSIGN
+                ttInvLine.invoiceID              = ttInv.invoiceID
+                ttInvLine.company                = ttInv.company
+                ttInvLine.lineNo                 = bf-inv-misc.line
+                ttInvLine.orderID                = bf-inv-misc.ord-no
+                ttInvLine.orderLine              = bf-inv-misc.line
+                ttInvLine.priceTotal             = bf-inv-misc.amt
+                ttInvLine.taxable                = bf-inv-misc.tax
+                ttInvLine.amountTaxableExFreight = ttInvLine.priceTotal
+                ttInvLine.customerPONo           = bf-inv-misc.po-no
+                ttInvLine.isMisc                 = YES
+                ttInv.amountTotalLines           = ttInv.amountTotalLines + bf-inv-misc.amt
+                .
+               
             FOR EACH ttTaxDetail
-                WHERE ttTaxDetail.invoiceLineType   EQ "OEINVL"
-                AND ttTaxDetail.invoiceLineRecKey EQ bf-inv-misc.rec_key:
-                IF NOT ttTaxDetail.isFreight THEN 
-                    ASSIGN 
-                        dLineTaxAmt  = dLineTaxAmt  + ttTaxDetail.taxCodeTaxAmount
-                        dLineTaxRate = dLineTaxRate + ttTaxDetail.taxCodeRate
-                        .  
-                IF ttTaxDetail.isFreight THEN 
-                DO:
-                    IF lFirst THEN 
-                    DO:
-                        ASSIGN
-                            dFrtTaxRate = dFrtTaxRate + ttTaxDetail.taxCodeRate
-                            lFirst      = NO
-                            .
-                    END.    
-                    dFrtTaxAmt  = dFrtTaxAmt  + ttTaxDetail.taxCodeTaxAmount.
-                END.                                           
-            END.              
+                WHERE ttTaxDetail.invoiceLineType   EQ "INVMISC"  
+                  AND ttTaxDetail.invoiceLineRecKey EQ bf-inv-misc.rec_key
+                  AND ttTaxDetail.isFreight         EQ NO:
+                ASSIGN       
+                    dLineTaxAmt = dLineTaxAmt   + ttTaxDetail.taxCodeTaxAmount
+                    dLineTAxRate = dLineTaxRate + ttTaxDetail.taxCodeRate
+                    .
+            END.                                                                 
             ASSIGN 
                 ttInvLine.amountTaxExFreight = dLineTaxAmt
                 ttInvLine.taxRate            = dLineTaxRate 
                 .
-/*            FIND FIRST bf-oe-ordl NO-LOCK                      */
-/*                WHERE bf-oe-ordl.company EQ bf-inv-misc.company*/
-/*                AND bf-oe-ordl.i-no    EQ bf-inv-misc.i-no     */
-/*                AND bf-oe-ordl.ord-no  EQ bf-inv-misc.ord-no   */
-/*                NO-ERROR.                                      */
-/*                                                               */
-/*            IF AVAILABLE bf-oe-ordl THEN                       */
-/*                ttInvLine.orderLine = bf-oe-ordl.line.         */
             
             RUN pAssignCommonLineData(BUFFER ttInv, 
                 BUFFER ttInvLine).            
