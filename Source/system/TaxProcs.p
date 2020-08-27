@@ -50,7 +50,8 @@ PROCEDURE pGetTotalTaxRoundedByLine PRIVATE:
     DEFINE INPUT  PARAMETER ipcRoundMethod     AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
     
-    DEFINE VARIABLE dLineTax AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dLineTax    AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dRoundedTax AS DECIMAL NO-UNDO.
     
     /* Rounding the tax by line item */
     FOR EACH ttTaxDetail
@@ -58,14 +59,26 @@ PROCEDURE pGetTotalTaxRoundedByLine PRIVATE:
           AND ttTaxDetail.isFreight       EQ iplIsFreight
         BREAK BY ttTaxDetail.invoiceLineRecKey:
         IF FIRST-OF(ttTaxDetail.invoiceLineRecKey) THEN
-            dLineTax = 0.
+            ASSIGN
+                dLineTax    = 0
+                dRoundedTax = 0
+                .
         
         dLineTax = dLineTax + ttTaxDetail.taxCodeRate * ttTaxDetail.taxCodeTaxableAmount.
         
+        /* Round the values by territory */
+        ASSIGN
+            ttTaxDetail.taxCodeTaxAmount = fRoundValue(ttTaxDetail.taxCodeRate * ttTaxDetail.taxCodeTaxableAmount, ipcRoundMethod, 2)
+            dRoundedTax                  = dRoundedTax + ttTaxDetail.taxCodeTaxAmount
+            .
+        
         IF LAST-OF(ttTaxDetail.invoiceLineRecKey) THEN
+            /* Adjust the last ttTaxDetail.taxCodeTaxAmount, so that sum of all ttTaxDetail.taxCodeTaxAmount values match the 
+               total tax on the line */
             ASSIGN
-                dLineTax    = fRoundValue(dLineTax, ipcRoundMethod, 2)
-                opdTaxTotal = opdTaxTotal + dLineTax
+                dLineTax                     = fRoundValue(dLineTax, ipcRoundMethod, 2)
+                ttTaxDetail.taxCodeTaxAmount = ttTaxDetail.taxCodeTaxAmount + (dLineTax - dRoundedTax)
+                opdTaxTotal                  = opdTaxTotal + dLineTax
                 .
     END.
 END PROCEDURE.

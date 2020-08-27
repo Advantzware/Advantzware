@@ -549,14 +549,20 @@ END.
 ON LEAVE OF vendItemCost.estimateNo IN FRAME F-Main /* Estimate */
 DO:
    DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
+   DEFINE VARIABLE cEstNo AS CHARACTER NO-UNDO.
 
    IF LASTKEY <> -1 AND vendItemCost.estimateNo:SCREEN-VALUE NE "" THEN DO:
        RUN valid-estimate(OUTPUT lCheckError)  NO-ERROR.
        IF lCheckError THEN RETURN NO-APPLY.
    END.
    
-   IF length(SELF:screen-value) < 8 then
-      SELF:SCREEN-VALUE = fill(" ", 8 - length(SELF:screen-value)) + trim(SELF:screen-value).
+   IF SELF:SCREEN-VALUE NE "" THEN
+   DO:
+     cEstNo = vendItemCost.estimateNo:SCREEN-VALUE.
+     
+     RUN util/rjust.p (INPUT-OUTPUT cEstNo,8).
+     vendItemCost.estimateNo:SCREEN-VALUE = cEstNo.
+  END.    
       
 END.
 
