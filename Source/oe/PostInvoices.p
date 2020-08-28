@@ -3491,7 +3491,6 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
          DO:     
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invoice lines <> Invoice Total",NO).
             lAutoApprove = NO.            
-             END.    
          END.         
          
          RUN pGetSalesTaxForInvHead  (
