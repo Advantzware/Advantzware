@@ -4,7 +4,7 @@
 DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
 DEF INPUT PARAM ip-print-s AS LOG NO-UNDO. /* for PremierS */
 {sys/inc/var.i shared}
-{system/TaxProcs.i}
+//{system/TaxProcs.i}
 {oe/rep/invoice.i}
 
 def var v-salesman as char format "x(14)" NO-UNDO.
@@ -105,10 +105,10 @@ DEFINE VARIABLE cCurCode              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompanyID            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lValid                AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage              AS CHARACTER NO-UNDO.
-DEFINE VARIABLE dFrtTaxAmt            AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE dFrtTaxRate           AS DECIMAL   NO-UNDO.
+/*DEFINE VARIABLE dFrtTaxAmt            AS DECIMAL   NO-UNDO.*/
+/*DEFINE VARIABLE dFrtTaxRate           AS DECIMAL   NO-UNDO.*/
 DEFINE VARIABLE lFirstLine            AS LOG       NO-UNDO.
-DEFINE VARIABLE dTaxTotal             AS DECIMAL   NO-UNDO.
+//DEFINE VARIABLE dTaxTotal             AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dInvoiceTotal         AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dInvoiceSubTotal      AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE lSuccess              AS LOGICAL   NO-UNDO.
@@ -518,7 +518,7 @@ END.
                                 + 'invoiceID="' + STRING(inv-head.inv-no) + cInvSuffix + '" '
                                 + 'operation="new" purpose="standard"','','Row').
         RUN cXMLOutput (clXMLOutput,'InvoiceDetailHeaderIndicator/','','Row').  
-        RUN cXMLOutput (clXMLOutput,'InvoiceDetailLineIndicator isShippingInLine="yes" isAccountingInLine="yes" isTaxInLine="yes" /','','Row').
+        RUN cXMLOutput (clXMLOutput,'InvoiceDetailLineIndicator isShippingInLine="yes" isAccountingInLine="yes" /','','Row').
         RUN cXMLOutput (clXMLOutput,'InvoicePartner','','Row').
         RUN cXMLOutput (clXMLOutput,'Contact role="billTo"','','Row').
         RUN cXMLOutput (clXMLOutput,'Name xml:lang="en-US"','','Row').
@@ -606,24 +606,24 @@ END.
         
         ASSIGN 
             lFirstLine     = TRUE
-            dTotalSalesTax = 0
-            dFrttaxRate    = 0
-            dFrtTaxAmt     = 0
+/*            dTotalSalesTax = 0*/
+/*            dFrttaxRate    = 0*/
+/*            dFrtTaxAmt     = 0*/
             .
-        EMPTY TEMP-TABLE ttTaxDetail.
-        RUN Tax_CalculateForInvHeadWithDetail(
-            INPUT  ROWID(inv-head),
-            INPUT  locode,
-            INPUT  "QUOTATION",  
-            INPUT  NO,
-            INPUT  "GetTaxAmount",
-            OUTPUT dTaxTotal,
-            OUTPUT dInvoiceTotal,
-            OUTPUT dInvoiceSubTotal,
-            OUTPUT TABLE ttTaxDetail,
-            OUTPUT lSuccess,
-            OUTPUT cMessage
-            ). 
+/*        EMPTY TEMP-TABLE ttTaxDetail.         */
+/*        RUN Tax_CalculateForInvHeadWithDetail(*/
+/*            INPUT  ROWID(inv-head),           */
+/*            INPUT  locode,                    */
+/*            INPUT  "QUOTATION",               */
+/*            INPUT  NO,                        */
+/*            INPUT  "GetTaxAmount",            */
+/*            OUTPUT dTaxTotal,                 */
+/*            OUTPUT dInvoiceTotal,             */
+/*            OUTPUT dInvoiceSubTotal,          */
+/*            OUTPUT TABLE ttTaxDetail,         */
+/*            OUTPUT lSuccess,                  */
+/*            OUTPUT cMessage                   */
+/*            ).                                */
         for each inv-line no-lock where inv-line.r-no = inv-head.r-no:
 
           IF NOT s-print-zero-qty AND
@@ -800,46 +800,46 @@ END.
              RUN cXMLOutput (clXMLOutput,'',STRING(inv-line.t-price),'Col').
              RUN cXMLOutput (clXMLOutput,'/Money','','Row').
              RUN cXMLOutput (clXMLOutput,'/SubtotalAmount','','Row'). 
-             IF AVAIL stax AND inv-line.tax THEN 
-             DO:
-                FOR EACH ttTaxDetail
-                    WHERE ttTaxDetail.invoiceLineType  EQ "INVLINE"  
-                      AND ttTaxDetail.invoiceLineRecKey EQ inv-line.rec_key
-                      AND ttTaxDetail.isFreight         EQ NO:
-                        dTotalSalesTax = dTotalSalesTax + ttTaxDetail.taxCodeTaxAmount
-                        .        
-                END.  
-                IF lFirstLine THEN DO:
-                    FOR EACH ttTaxDetail
-                        WHERE ttTaxDetail.invoiceLineType   EQ "INVHEAD"
-                          AND ttTaxDetail.invoiceLineRecKey EQ inv-head.rec_key
-                          AND ttTaxDetail.isFreight         EQ YES:
-                        ASSIGN
-                            dFrtTaxRate = dFrtTaxRate + ttTaxDetail.taxCodeRate
-                            dFrtTaxAmt  = dFrtTaxAmt  + ttTaxDetail.taxCodeTaxAmount
-                            .         
-                    END. 
-                END.     
-                /* line level freight calculation not needed
-                IF inv-head.f-bill THEN DO:
-                    EMPTY TEMP-TABLE ttTaxDetail.
-                    lIsFreightTaxable = YES.
-                    RUN Tax_CalculateWithDetail  (
-                        INPUT  inv-head.company,
-                        INPUT  inv-head.tax-gr,
-                        INPUT  TRUE,   /* Is this freight */
-                        INPUT  inv-line.t-freight,
-                        OUTPUT dFrtTaxAmt,
-                        OUTPUT TABLE ttTaxDetail
-                        ).
-                END.
-                ELSE
-                    ASSIGN
-                        lIsfreightTaxable = NO
-                        dFrtTaxAmt        = 0
-                        dFrtTaxRate       = 0
-                        . */
-             END.
+/*             IF AVAIL stax AND inv-line.tax THEN                                      */
+/*             DO:                                                                      */
+/*                FOR EACH ttTaxDetail                                                  */
+/*                    WHERE ttTaxDetail.invoiceLineType  EQ "INVLINE"                   */
+/*                      AND ttTaxDetail.invoiceLineRecKey EQ inv-line.rec_key           */
+/*                      AND ttTaxDetail.isFreight         EQ NO:                        */
+/*                        dTotalSalesTax = dTotalSalesTax + ttTaxDetail.taxCodeTaxAmount*/
+/*                        .                                                             */
+/*                END.                                                                  */
+/*                IF lFirstLine THEN DO:                                                */
+/*                    FOR EACH ttTaxDetail                                              */
+/*                        WHERE ttTaxDetail.invoiceLineType   EQ "INVHEAD"              */
+/*                          AND ttTaxDetail.invoiceLineRecKey EQ inv-head.rec_key       */
+/*                          AND ttTaxDetail.isFreight         EQ YES:                   */
+/*                        ASSIGN                                                        */
+/*                            dFrtTaxRate = dFrtTaxRate + ttTaxDetail.taxCodeRate       */
+/*                            dFrtTaxAmt  = dFrtTaxAmt  + ttTaxDetail.taxCodeTaxAmount  */
+/*                            .                                                         */
+/*                    END.                                                              */
+/*                END.                                                                  */
+/*                /* line level freight calculation not needed                          */
+/*                IF inv-head.f-bill THEN DO:                                           */
+/*                    EMPTY TEMP-TABLE ttTaxDetail.                                     */
+/*                    lIsFreightTaxable = YES.                                          */
+/*                    RUN Tax_CalculateWithDetail  (                                    */
+/*                        INPUT  inv-head.company,                                      */
+/*                        INPUT  inv-head.tax-gr,                                       */
+/*                        INPUT  TRUE,   /* Is this freight */                          */
+/*                        INPUT  inv-line.t-freight,                                    */
+/*                        OUTPUT dFrtTaxAmt,                                            */
+/*                        OUTPUT TABLE ttTaxDetail                                      */
+/*                        ).                                                            */
+/*                END.                                                                  */
+/*                ELSE                                                                  */
+/*                    ASSIGN                                                            */
+/*                        lIsfreightTaxable = NO                                        */
+/*                        dFrtTaxAmt        = 0                                         */
+/*                        dFrtTaxRate       = 0                                         */
+/*                        . */                                                          */
+/*             END.                                                                     */
                                  
              RUN cXMLOutput (clXMLOutput,'InvoiceDetailLineShipping','','Row').
              RUN cXMLOutput (clXMLOutput,'InvoiceDetailShipping','','Row').
@@ -1014,18 +1014,18 @@ END.
     RUN XMLOutput (lXMLOutput,'TotalInvoice',inv-head.t-inv-rev,'Col').
     RUN XMLOutput (lXMLOutput,'/InvoiceFooter','','Row').
     /* rstark 05181205 */
-    
-    FOR EACH inv-misc NO-LOCK 
-        WHERE inv-misc.company EQ inv-head.company 
-          AND inv-misc.r-no    EQ inv-head.r-no:
-        FOR EACH ttTaxDetail
-            WHERE ttTaxDetail.invoiceLineType   EQ "INVMISC"  
-              AND ttTaxDetail.invoiceLineRecKey EQ inv-misc.rec_key
-              AND ttTaxDetail.isFreight         EQ NO:
-            dTotalSalesTax = dTotalSalesTax + ttTaxDetail.taxCodeTaxAmount.
-        END. 
-    END. 
-                
+/*                                                                           */
+/*    FOR EACH inv-misc NO-LOCK                                              */
+/*        WHERE inv-misc.company EQ inv-head.company                         */
+/*          AND inv-misc.r-no    EQ inv-head.r-no:                           */
+/*        FOR EACH ttTaxDetail                                               */
+/*            WHERE ttTaxDetail.invoiceLineType   EQ "INVMISC"               */
+/*              AND ttTaxDetail.invoiceLineRecKey EQ inv-misc.rec_key        */
+/*              AND ttTaxDetail.isFreight         EQ NO:                     */
+/*            dTotalSalesTax = dTotalSalesTax + ttTaxDetail.taxCodeTaxAmount.*/
+/*        END.                                                               */
+/*    END.                                                                   */
+/*                                                                           */
     /* rstark 05291402 */
     RUN cXMLOutput (clXMLOutput,'/InvoiceDetailOrder','','Row'). 
     RUN cXMLOutput (clXMLOutput,'InvoiceDetailSummary','','Row').
@@ -1041,37 +1041,37 @@ END.
     RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
     RUN cXMLOutput (clXMLOutput,'','Sales Tax','Col').
     RUN cXMLOutput (clXMLOutput,'/Description','','Row').
-    RUN cXMLOutput (clXMLOutput,'TaxDetail category="SalesTax" '+
-                                'percentageRate="0"','','Row').
-    RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').    
-    RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
-    RUN cXMLOutput (clXMLOutput,'',STRING(v-subtot-lines),'Col').
-    RUN cXMLOutput (clXMLOutput,'/Money','','Row').
-    RUN cXMLOutput (clXMLOutput,'/TaxableAmount','','Row').    
-    RUN cXMLOutput (clXMLOutput,'TaxAmount','','Row').    
-    RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
-    RUN cXMLOutput (clXMLOutput,'',STRING(dTotalSalesTax),'Col').
-    RUN cXMLOutput (clXMLOutput,'/Money','','Row').
-    RUN cXMLOutput (clXMLOutput,'/TaxAmount','','Row').    
-    RUN cXMLOutput (clXMLOutput,'/TaxDetail','','Row').  
-     /* Seperate section for handling shipping Tax */
-    IF inv-head.f-bill AND inv-head.t-inv-freight NE 0  
-        AND dFrtTaxRate NE 0 THEN DO:
-        RUN cXMLOutput (clXMLOutput,'TaxDetail purpose="shippingTax" category="sales"' + ' percentageRate="' + STRING(dFrtTaxRate) + '"','','Row').             
-        RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').
-        RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').              
-        RUN cXMLOutput (clXMLOutput,'',STRING(inv-head.t-inv-freight),'Col').
-        RUN cXMLOutput (clXMLOutput,'/Money','','Row').             
-        RUN cXMLOutput (clXMLOutput,'/TaxableAmount','','Row').
-        RUN cXMLOutput (clXMLOutput,'TaxAmount','','Row').
-        RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').              
-        RUN cXMLOutput (clXMLOutput,'',STRING(dFrtTaxAmt),'Col').
-        RUN cXMLOutput (clXMLOutput,'/Money','','Row').             
-        RUN cXMLOutput (clXMLOutput,'/TaxAmount','','Row').
-        RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').
-        RUN cXMLOutput (clXMLOutput,'/Description','','Row').
-        RUN cXMLOutput (clXMLOutput,'/TaxDetail','','Row').
-    END.  
+/*    RUN cXMLOutput (clXMLOutput,'TaxDetail category="SalesTax" '+                                                                                  */
+/*                                'percentageRate="0"','','Row').                                                                                    */
+/*    RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').                                                                                         */
+/*    RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').                                                                                  */
+/*    RUN cXMLOutput (clXMLOutput,'',STRING(v-subtot-lines),'Col').                                                                                  */
+/*    RUN cXMLOutput (clXMLOutput,'/Money','','Row').                                                                                                */
+/*    RUN cXMLOutput (clXMLOutput,'/TaxableAmount','','Row').                                                                                        */
+/*    RUN cXMLOutput (clXMLOutput,'TaxAmount','','Row').                                                                                             */
+/*    RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').                                                                                  */
+/*    RUN cXMLOutput (clXMLOutput,'',STRING(dTotalSalesTax),'Col').                                                                                  */
+/*    RUN cXMLOutput (clXMLOutput,'/Money','','Row').                                                                                                */
+/*    RUN cXMLOutput (clXMLOutput,'/TaxAmount','','Row').                                                                                            */
+/*    RUN cXMLOutput (clXMLOutput,'/TaxDetail','','Row').                                                                                            */
+/*     /* Seperate section for handling shipping Tax */                                                                                              */
+/*    IF inv-head.f-bill AND inv-head.t-inv-freight NE 0                                                                                             */
+/*        AND dFrtTaxRate NE 0 THEN DO:                                                                                                              */
+/*        RUN cXMLOutput (clXMLOutput,'TaxDetail purpose="shippingTax" category="sales"' + ' percentageRate="' + STRING(dFrtTaxRate) + '"','','Row').*/
+/*        RUN cXMLOutput (clXMLOutput,'TaxableAmount','','Row').                                                                                     */
+/*        RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').                                                                              */
+/*        RUN cXMLOutput (clXMLOutput,'',STRING(inv-head.t-inv-freight),'Col').                                                                      */
+/*        RUN cXMLOutput (clXMLOutput,'/Money','','Row').                                                                                            */
+/*        RUN cXMLOutput (clXMLOutput,'/TaxableAmount','','Row').                                                                                    */
+/*        RUN cXMLOutput (clXMLOutput,'TaxAmount','','Row').                                                                                         */
+/*        RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').                                                                              */
+/*        RUN cXMLOutput (clXMLOutput,'',STRING(dFrtTaxAmt),'Col').                                                                                  */
+/*        RUN cXMLOutput (clXMLOutput,'/Money','','Row').                                                                                            */
+/*        RUN cXMLOutput (clXMLOutput,'/TaxAmount','','Row').                                                                                        */
+/*        RUN cXMLOutput (clXMLOutput,'Description xml:lang="en-US"','','Row').                                                                      */
+/*        RUN cXMLOutput (clXMLOutput,'/Description','','Row').                                                                                      */
+/*        RUN cXMLOutput (clXMLOutput,'/TaxDetail','','Row').                                                                                        */
+/*    END.                                                                                                                                           */
     RUN cXMLOutput (clXMLOutput,'/Tax','','Row').
     RUN cXMLOutput (clXMLOutput,'SpecialHandlingAmount','','Row').
     RUN cXMLOutput (clXMLOutput,'Money currency="USD"','','Row').
