@@ -45,7 +45,8 @@ DEFINE NEW SHARED VARIABLE matrixExists   AS LOG     NO-UNDO.
 
 {oe/oe-bolpi.i NEW}
 
-DEFINE NEW SHARED TEMP-TABLE tt-bolh NO-UNDO LIKE oe-bolh.
+DEFINE NEW SHARED TEMP-TABLE tt-bolh NO-UNDO LIKE oe-bolh
+                       FIELD trans-date AS DATE .
 DEFINE NEW SHARED TEMP-TABLE tt-boll NO-UNDO LIKE oe-boll.
 
 DEFINE VARIABLE v-relstat          AS CHARACTER NO-UNDO.

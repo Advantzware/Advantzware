@@ -34,6 +34,7 @@ DEFINE TEMP-TABLE ttImportAP
     FIELD DiscountDays    AS INTEGER   FORMAT ">>9" COLUMN-LABEL "Disc Days" HELP "Optional - Integer"
     FIELD LinePONumber    AS INTEGER   FORMAT ">>>>>9" COLUMN-LABEL "PO #" HELP "NOT YET SUPPORTED"
     FIELD LinePOLine      AS INTEGER   FORMAT ">>9" COLUMN-LABEL "PO Line" HELP "NOT YET SUPPORTED"
+    FIELD LineDescription AS CHARACTER FORMAT "x(35)" COLUMN-LABEL "Description" HELP "Optional - Size 35 "
     .
     
 
@@ -383,7 +384,10 @@ PROCEDURE pProcessRecord PRIVATE:
     IF ipbf-ttImportAP.LinePOLine NE 0 THEN
         bf-ap-invl.po-line = ipbf-ttImportAP.LinePOLine.
     IF ipbf-ttImportAP.LineAccount NE "" THEN 
-        bf-ap-invl.actnum = ipbf-ttImportAP.LineAccount.
+        bf-ap-invl.actnum = ipbf-ttImportAP.LineAccount. 
+        
+    IF ipbf-ttImportAP.LineDescription NE "" THEN 
+        bf-ap-invl.dscr = ipbf-ttImportAP.LineDescription.    
                                                             
     RUN pRecalculateInvoiceHeader (ROWID(bf-ap-inv), NO).   
 
