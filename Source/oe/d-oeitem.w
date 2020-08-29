@@ -5525,25 +5525,7 @@ DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
   END.
 
   DO TRANSACTION:     
-    IF oe-ord.type NE "T" AND
-       (lv-add-mode OR
-        (NOT ip-type BEGINS "update-" AND
-         (v-qty-mod OR oe-ordl.po-no-po EQ 0 OR lv-new-tandem NE ? OR
-          NOT CAN-FIND(FIRST po-ord
-                       WHERE po-ord.company EQ oe-ordl.company
-                         AND po-ord.po-no   EQ oe-ordl.po-no-po)))) THEN DO:
-        ASSIGN 
-            lMsgResponse = TRUE.
-        IF oe-ord.Pricehold THEN
-            RUN displayMessageQuestionLog(
-                INPUT "33",
-                OUTPUT lMsgResponse 
-                ).
-                           
-        IF lMsgResponse THEN
-            RUN po/doPo.p(YES).
-    END.
-
+    
     FIND CURRENT oe-ordl.    
 
     /* freight calc */
