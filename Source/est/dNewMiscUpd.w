@@ -190,8 +190,8 @@ DEFINE FRAME Dialog-Frame
           SIZE 16.2 BY 1
           BGCOLOR 15 FONT 1
      estRelease.quantity AT ROW 1.29 COL 43.4 COLON-ALIGNED
-          FORMAT "->,>>>,>>>" 
-          VIEW-AS COMBO-BOX INNER-LINES 5
+          FORMAT "->>>>>>>" 
+          VIEW-AS COMBO-BOX INNER-LINES 10
           DROP-DOWN-LIST
           SIZE 20 BY 1
           BGCOLOR 15 FONT 1
@@ -270,7 +270,7 @@ DEFINE FRAME Dialog-Frame
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
      estRelease.storageCost AT ROW 12.95 COL 85 COLON-ALIGNED
-          LABEL "Storage Cost Per Pallet Per Month at Ship From" FORMAT "->>>>9"
+          LABEL "Storage Cost Per Pallet Per Month at Ship From" FORMAT "->>,>>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
@@ -286,17 +286,17 @@ DEFINE FRAME Dialog-Frame
           SIZE 17.6 BY 1
           BGCOLOR 15 FONT 1
      estRelease.freightCost AT ROW 10.57 COL 80 COLON-ALIGNED
-          LABEL "Freight Cost" FORMAT ">>>>9.99"
+          LABEL "Freight Cost" FORMAT ">>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
      estRelease.handlingCostTotal AT ROW 12.95 COL 75 COLON-ALIGNED
-          LABEL "Handling Cost" FORMAT ">>>>>9.99"
+          LABEL "Handling Cost" FORMAT ">>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
      estRelease.storageCostTotal AT ROW 12.95 COL 17.2 COLON-ALIGNED
-          LABEL "Storage Cost" FORMAT ">>>>>9.99"
+          LABEL "Storage Cost" FORMAT ">>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 28.6 BY 1
           BGCOLOR 15 FONT 1
