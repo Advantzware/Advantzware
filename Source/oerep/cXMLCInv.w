@@ -613,7 +613,12 @@ PROCEDURE pProcessPostedARInvoices PRIVATE :
         AND ar-inv.posted:
         opiCount = opiCount + 1.
         
-        RUN cXML/cXMLInvoice.p (ar-inv.company, ROWID(ar-inv),ipdtInvoiceDate).   
+        RUN cXML/cXMLInvoice.p(
+            INPUT ar-inv.company,
+            INPUT fiInvSuffix:SCREEN-VALUE IN FRAME {&FRAME-NAME},
+            INPUT ROWID(ar-inv),
+            INPUT ipdtInvoiceDate
+            ).   
     
     END.
     

@@ -15,7 +15,7 @@ assign
  locode = gloc.
 
 DO TRANSACTION:
-   {sys/inc/runAOAVer.i "OB6"}
+   {sys/inc/runAOAVer.i "OB4"}
 END.
 
 cAOAFile = SEARCH("AOA/InvoiceRegister.r").

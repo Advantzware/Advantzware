@@ -10,6 +10,20 @@ DEF BUFFER b-oe-boll FOR oe-boll.
 
 DEF VAR li AS INT NO-UNDO.
 DEF VAR v-tag2 AS CHAR NO-UNDO.
+DEFINE VARIABLE riRowId AS ROWID NO-UNDO.
+
+{pc/pcprdd4u.i NEW}
+{fg/invrecpt.i NEW}   
+{jc/jcgl-sh.i  NEW}
+{fg/fullset.i  NEW}
+{fg/fg-post3.i NEW} 
+{fg/fgPostBatch.i} 
+
+/* ************************  Function Prototypes ********************** */
+
+FUNCTION fGetBOLTransferPost RETURNS LOGICAL PRIVATE
+    (ipcCompany AS CHARACTER) FORWARD.
+    
 
 FOR EACH oe-boll WHERE ROWID(oe-boll) EQ ip-rowid,
     FIRST oe-bolh
@@ -32,7 +46,7 @@ FOR EACH oe-boll WHERE ROWID(oe-boll) EQ ip-rowid,
     USE-INDEX ord-no,
     FIRST itemfg NO-LOCK
     WHERE itemfg.company EQ oe-boll.company
-      AND itemfg.i-no    EQ oe-boll.i-no:
+      AND itemfg.i-no    EQ oe-boll.i-no :
 
   RUN oe/custxship.p (oe-bolh.company,
                       oe-bolh.cust-no,
@@ -158,7 +172,7 @@ FOR EACH oe-boll WHERE ROWID(oe-boll) EQ ip-rowid,
                                       fg-rctd.std-cost, OUTPUT fg-rctd.ext-cost).
            
             fg-rctd.ext-cost = fg-rctd.ext-cost * fg-rctd.t-qty.
-
+            riRowId = ROWID(fg-rctd).
             RELEASE fg-rctd.
             
          END.
@@ -186,7 +200,77 @@ FOR EACH oe-boll WHERE ROWID(oe-boll) EQ ip-rowid,
          w-ord.ord-no = oe-ordl.ord-no
          w-ord.rec-id = RECID(oe-ord).
     END.
+      
+    RUN pAutoPostTransferTransaction(INPUT riRowId,INPUT oe-bolh.company).
+   
   END. /*  IF oe-ord.type EQ "T" OR oe-boll.s-code EQ "T" */
 
   {oe/seq-bolh.i}
 END.
+
+
+PROCEDURE pAutoPostTransferTransaction:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprwRowid   AS ROWID     NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.     
+    DEFINE VARIABLE dtPostDate         AS DATE      INITIAL TODAY NO-UNDO.
+    DEFINE VARIABLE cFgEmails          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iFgEmails          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lFgEmails          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE hInventoryProcs    AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lActiveBin         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lPromptForClose    AS LOGICAL   NO-UNDO INITIAL YES.   
+    DEFINE VARIABLE lFGBOLTransferPost AS LOGICAL   NO-UNDO.
+    
+    lFGBOLTransferPost = fGetBOLTransferPost(ipcCompany). 
+      
+    IF lFGBOLTransferPost THEN
+    DO: 
+        FOR EACH fg-rctd NO-LOCK
+            WHERE fg-rctd.company EQ ipcCompany 
+            AND rowid(fg-rctd) EQ iprwRowid:
+                                 
+            CREATE w-fg-rctd.
+            BUFFER-COPY fg-rctd TO w-fg-rctd
+                ASSIGN 
+                w-fg-rctd.row-id  = ROWID(fg-rctd)
+                w-fg-rctd.has-rec = YES.                            
+            ASSIGN
+                dtPostDate = TODAY .
+            RUN fg/fgpostBatch.p ( 
+                INPUT dtPostDate, /* Post date      */
+                INPUT NO,          /* tg-recalc-cost */
+                INPUT "T",         /* Transfer       */
+                INPUT lFgEmails,   /* Send fg emails */
+                INPUT YES,         /* Create work-gl */
+                INPUT lPromptForClose, /* Executes .w closing orders logic */
+                INPUT TABLE w-fg-rctd BY-REFERENCE,
+                INPUT TABLE tt-fgemail BY-REFERENCE,
+                INPUT TABLE tt-email BY-REFERENCE,
+                INPUT TABLE tt-inv BY-REFERENCE).              
+        END.   /* for each  fg-rctd */                    
+    END.  /* lFGBOLTransferPost*/        
+    
+END PROCEDURE.
+
+/* ************************  Function Implementations ***************** */ 
+FUNCTION fGetBOLTransferPost RETURNS LOGICAL PRIVATE
+    ( ipcCompany AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  return Nk1 value 
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE lReturnValue AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lRecordFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cReturnChar AS LOGICAL NO-UNDO. 
+    
+    RUN sys/ref/nk1look.p (ipcCompany, "FGBOLTransferPost", "L", NO, NO, "", "", 
+        OUTPUT cReturnChar, OUTPUT lRecordFound).    
+        lReturnValue = LOGICAL(cReturnChar).
+    
+    RETURN lReturnValue.
+    		
+END FUNCTION.
