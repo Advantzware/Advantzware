@@ -95,7 +95,6 @@
 "" "" "begin_type" "ventype." "0806200300101661"
 "" "" "begin_uom" "uom." "0117200000002782"
 "" "" "begin_uom_dscr" "uom_." "0117200000002784"
-"" "" "begin_upd-code" "" "201909053994703797580"
 "" "" "begin_usergrps" "usergrps." "0724199800000025"
 "" "" "begin_userid" "users." "1215200400164862"
 "" "" "begin_vend" "vend." "0620200200022713"

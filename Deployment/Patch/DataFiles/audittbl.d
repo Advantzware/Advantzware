@@ -1,6 +1,6 @@
-"acclrtrs" no no no no no no no no 0 0
-"account" no no no no no no no no 0 0
-"acctcost" no no no no no no no no 0 0
+"acclrtrs" yes yes yes yes yes yes yes yes 0 0
+"account" yes yes yes yes yes yes yes yes 0 0
+"acctcost" yes yes yes yes yes yes yes yes 0 0
 "address" no no no no no no no no 0 0
 "addrPhone" no no no no no no no no 0 0
 "ap-buy" yes no no no yes no no no 0 0
@@ -91,7 +91,7 @@
 "e-item-vend" no no no no no no no no 0 0
 "e-itemfg" no no no no no no no no 0 0
 "e-itemfg-vend" no no no no no no no no 0 0
-"eb" no no no no no no no no 0 0
+"eb" no yes no no no no no no 0 0
 "ed" no no no no no no no no 0 0
 "EDAPCheck" no no no no no no no no 0 0
 "EDCat" no no no no no no no no 0 0
@@ -265,9 +265,9 @@
 "oe-ordl" no no no no no no no no 0 0
 "oe-ordm" no no no no no no no no 0 0
 "oe-prmtx" no no no no no no no no 0 0
-"oe-rel" no yes yes no yes yes yes yes 0 0
-"oe-relh" no yes yes no yes yes no yes 0 0
-"oe-rell" no yes yes no yes yes no yes 0 0
+"oe-rel" no yes yes no no yes yes no 0 0
+"oe-relh" no yes yes no no yes yes no 0 0
+"oe-rell" no yes yes no no yes yes no 0 0
 "oe-reth" no no no no no no no no 0 0
 "oe-retl" no no no no no no no no 0 0
 "oe-ship" no no no no no no no no 0 0
@@ -427,4 +427,4 @@
 "XMLProjectInfo" no no no no no no no no 0 0
 "xUserMenu" no no no no no no no no 0 0
 "zipcode" no no no no no no no no 0 0
-"zMessage" no no no no no no no no 0 0
+"zMessage" yes yes yes yes yes yes yes yes 0 0
