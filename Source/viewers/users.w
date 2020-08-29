@@ -914,12 +914,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bChgPwd V-table-Win
 ON CHOOSE OF bChgPwd IN FRAME F-Main /* Change */
 DO:
+    DEFINE VARIABLE lPwdOK AS LOGICAL NO-UNDO.
     /* Verify password restrictions and display */
-    IF usercontrol.minLC > 0 
+    IF bChgPwd:LABEL EQ "Change" 
+    AND (usercontrol.minLC > 0 
     OR usercontrol.minUC > 0 
     OR usercontrol.minNC > 0 
     OR usercontrol.minSC > 0 
-    OR usercontrol.minPasswordLen > 0 THEN DO:
+    OR usercontrol.minPasswordLen > 0) THEN DO:
         MESSAGE
             "Note: Passwords have the following restrictions:" SKIP
             "Minimum Length = " + STRING(usercontrol.minPasswordLen) SKIP
@@ -930,12 +932,35 @@ DO:
             VIEW-AS ALERT-BOX.
     END.
     
-    ASSIGN
+    IF bChgPwd:LABEL EQ "Change" AND NOT lAdd THEN
+    DO: 
+    
+      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-source",OUTPUT char-hdl).
+      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
+      RUN set-buttons IN WIDGET-HANDLE(char-hdl) ("disable-all").
+       
+      ASSIGN
         fiPassword:SCREEN-VALUE = ""
         fiPassword:SENSITIVE = TRUE
-        SELF:SENSITIVE = FALSE.
-    APPLY 'entry' TO fiPassword.
-    RETURN NO-APPLY.
+        SELF:LABEL = "Save" .
+        APPLY 'entry' TO fiPassword.
+        RETURN NO-APPLY.
+    END.
+     IF bChgPwd:LABEL EQ "Save" AND NOT lAdd THEN 
+     DO:
+        RUN ipCheckPwd (INPUT-OUTPUT lPwdOK).
+        IF NOT lPwdOK THEN DO:
+            ASSIGN fiPassword:SCREEN-VALUE = "".
+            RETURN NO-APPLY.
+        END.
+        SELF:LABEL = "Change".          
+        RUN ipChangePassword (fiPassword:SCREEN-VALUE).
+        
+        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-source",OUTPUT char-hdl).
+        IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
+        RUN set-buttons IN WIDGET-HANDLE(char-hdl) ("initial").
+        MESSAGE "Password changed. " VIEW-AS ALERT-BOX INFO.
+     END.     
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1067,7 +1092,11 @@ DO:
         RETURN NO-APPLY.
     END.
     IF NOT lAdd THEN 
-        RUN ipChangePassword (SELF:SCREEN-VALUE).
+    DO: 
+       bChgPwd:LABEL = "Change".         
+       RUN ipChangePassword (SELF:SCREEN-VALUE).
+       MESSAGE "Password changed. " VIEW-AS ALERT-BOX INFO.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1773,6 +1802,7 @@ PROCEDURE local-cancel-record :
         bNone3
         bDefaults
             WITH FRAME {&FRAME-NAME}.
+        lAdd = FALSE .     
         
 END PROCEDURE.
 

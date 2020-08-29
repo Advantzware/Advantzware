@@ -326,6 +326,7 @@ DO:
   DEFINE VARIABLE iCount AS INTEGER     NO-UNDO.
   DEFINE VARIABLE cMessage AS CHARACTER   NO-UNDO.
   DEFINE VARIABLE lUnposted AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cSuffix AS CHARACTER NO-UNDO.
   
   ASSIGN {&List-1}
     fcust = cXMLCustomer
@@ -339,6 +340,7 @@ DO:
                 PROGRAM-NAME(1) +
                 USERID('NoSweat')
     lUnPosted = rd_Posted EQ 1
+    cSuffix = fiInvSuffix:SCREEN-VALUE 
     .
   
   IF cXMLCustomer EQ ? THEN DO:
@@ -366,7 +368,7 @@ DO:
       END. /* each inv-head */
       DISABLE {&List-1} {&List-2} WITH FRAME {&FRAME-NAME}.
       IF CAN-FIND(FIRST report WHERE report.term-id EQ v-term-id) THEN
-      RUN oe/rep/invpremx.p (fiInvSuffix:screen-value,NO).
+      RUN oe/rep/invpremx.p (cSuffix,NO).
       iCount = 0.
       FOR EACH report EXCLUSIVE-LOCK WHERE report.term-id EQ v-term-id: 
         iCount = iCount + 1.
@@ -375,7 +377,7 @@ DO:
   END.
   ELSE DO:
     RUN pProcessPostedARInvoices(cocode, cXMLCustomer, invStart, invEnd, invNoStart, invNoEnd,
-        invDate, OUTPUT iCount).
+        invDate, cSuffix, OUTPUT iCount).
   END.
   IF iCount GT 0 THEN 
       cMessage = "Processed " + STRING(iCount) + " invoices ".
@@ -587,6 +589,43 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProcessOEInvoices C-Win 
+PROCEDURE pProcessOEInvoices PRIVATE :
+/*------------------------------------------------------------------------------
+         Purpose:  Given range parameters, process unposted OE invoices to cXML.
+         Notes: RUN pProcessPostedARInvoices(ipcCompany, ipcCustomerID, ipdtInvStart, ipdtInvEnd,
+                    OUTPUT opiCount).
+        ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomerID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtInvStart AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtInvEnd AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER ipiInvNoStart AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiInvNoEnd AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtInvoiceDate AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER ipcInvSuffix AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiCount AS INTEGER NO-UNDO.
+
+    FOR EACH inv-head NO-LOCK
+        WHERE inv-head.company EQ ipcCompany
+        AND inv-head.cust-no EQ ipcCustomerID
+        AND inv-head.inv-date GE ipdtInvStart
+        AND inv-head.inv-date LE ipdtInvEnd
+        AND inv-head.inv-no   GE ipiInvNoStart
+        AND inv-head.inv-no   LE ipiInvNoEnd
+        AND (inv-head.stat EQ "" OR inv-head.stat EQ "X")
+        :
+        opiCount = opiCount + 1.
+        
+        RUN cXML/cXMLInvoice.p (inv-head.company, ROWID(inv-head),ipdtInvoiceDate, ipcInvSuffix).   
+    
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProcessPostedARInvoices C-Win 
 PROCEDURE pProcessPostedARInvoices PRIVATE :
 /*------------------------------------------------------------------------------
@@ -601,6 +640,7 @@ PROCEDURE pProcessPostedARInvoices PRIVATE :
     DEFINE INPUT PARAMETER ipiInvNoStart AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipiInvNoEnd AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipdtInvoiceDate AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER ipcInvSuffix AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiCount AS INTEGER NO-UNDO.
 
     FOR EACH ar-inv NO-LOCK
@@ -613,12 +653,7 @@ PROCEDURE pProcessPostedARInvoices PRIVATE :
         AND ar-inv.posted:
         opiCount = opiCount + 1.
         
-        RUN cXML/cXMLInvoice.p(
-            INPUT ar-inv.company,
-            INPUT fiInvSuffix:SCREEN-VALUE IN FRAME {&FRAME-NAME},
-            INPUT ROWID(ar-inv),
-            INPUT ipdtInvoiceDate
-            ).   
+        RUN cXML/cXMLInvoice.p (ar-inv.company, ROWID(ar-inv),ipdtInvoiceDate, ipcInvSuffix).   
     
     END.
     
