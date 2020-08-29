@@ -288,6 +288,7 @@
             
             FOR EACH bf-oe-rell NO-LOCK
                 WHERE bf-oe-rell.company EQ oe-rell.company
+                  AND bf-oe-rell.r-no    EQ oe-rell.r-no
                   AND bf-oe-rell.ord-no  EQ oe-rell.ord-no
                   AND bf-oe-rell.i-no    EQ oe-rell.i-no
                   AND bf-oe-rell.po-no   EQ oe-rell.po-no
