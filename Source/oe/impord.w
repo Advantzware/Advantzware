@@ -986,7 +986,8 @@ PROCEDURE CreateOrder :
           run oe/ordlup.p.         /* Update Inventory and Job Costing */
       END.
       */
-
+      
+      RUN oe/calcordt.p (ROWID(oe-ord)).
       
       /* Determine autoapproval for this customer/shipto */
       lOEAutoApproval = NO.
