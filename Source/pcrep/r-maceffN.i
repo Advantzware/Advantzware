@@ -4,6 +4,7 @@ DEF VAR v-qty AS DEC NO-UNDO.
 DEF BUFFER b-mach FOR mach.
 DEF VAR v-date2 AS DATE NO-UNDO.
 def var v-blanks    as   dec format "->>>>,>>>,>>9" .
+DEFINE VARIABLE cJobNo AS  CHARACTER NO-UNDO. .
 
 EMPTY TEMP-TABLE work-tmp.
 EMPTY TEMP-TABLE work-rep.
@@ -49,7 +50,7 @@ FOR EACH work-tmp
 
     if last-of(work-tmp.blank-no) then do:
 
-       for each job-hdr FIELDS(job job-no job-no2 i-no)
+       for each job-hdr FIELDS(job job-no job-no2 i-no cust-no)
           where job-hdr.company   eq cocode
             and job-hdr.job       eq work-tmp.job
             and job-hdr.job-no    eq work-tmp.job-no
@@ -77,6 +78,8 @@ FOR EACH work-tmp
                                      + (v-blanks /*fg-act.qty*/ *
                                         (if avail itemfg then itemfg.t-sqft
                                          else 1) / 1000).
+                 work-tmp.cust-no = job-hdr.cust-no .  
+                 work-tmp.i-no = job-hdr.i-no .
        END. /*each job-hdr*/
 
        RELEASE est.
@@ -95,7 +98,7 @@ FOR EACH work-tmp
               no-lock no-error.
 
        if avail est then
-          for each eb FIELDS(num-up)
+          for each eb FIELDS(num-up part-dscr1)
              where eb.company   eq est.company
                and eb.est-no    eq est.est-no
                and eb.form-no   eq work-tmp.frm
@@ -103,6 +106,7 @@ FOR EACH work-tmp
              no-lock:
         
              v-up-tmp = v-up-tmp + eb.num-up.
+             work-tmp.i-name = eb.part-dscr1.
           end.
       
       else v-up-tmp = v-up-tmp + 1.
@@ -313,6 +317,9 @@ for each work-tmp BREAK BY work-tmp.sort-field
              work-rep.sch-m-code = work-tmp.sch-m-code
              work-rep.job-no   = work-tmp.job-no
              work-rep.job-no2 = work-tmp.job-no2
+             work-rep.i-no   = work-tmp.i-no
+             work-rep.cust-no = work-tmp.cust-no
+             work-rep.i-name = IF AVAIL job-mch AND job-mch.i-name NE "" THEN job-mch.i-name ELSE work-tmp.i-name
              .
    end.
    assign work-rep.r-std-hrs = work-rep.r-std-hrs + run-hr
@@ -387,7 +394,10 @@ DO:
                  work-rep-copy.sort-field = work-rep.sort-field
                  work-rep-copy.dept = work-rep.dept
                  work-rep-copy.job-no = work-rep.job-no 
-                 work-rep-copy.job-no2 = work-rep.job-no2.
+                 work-rep-copy.job-no2 = work-rep.job-no2
+                 work-rep-copy.i-no =  work-rep.i-no   
+                 work-rep-copy.cust-no = work-rep.cust-no
+                 work-rep-copy.i-name = work-rep.i-name .
        END.
 
        ASSIGN
@@ -475,6 +485,20 @@ FOR EACH work-rep BREAK BY work-rep.sort-field
            with frame det1 STREAM-IO width 200 no-box down.
      
      down with frame det1.*/
+         IF work-rep.i-name EQ "" THEN
+         DO:
+             FIND FIRST itemfg
+                    WHERE itemfg.company EQ cocode
+                    AND itemfg.i-no    EQ work-rep.i-no
+                    NO-LOCK NO-ERROR.
+                IF AVAIL itemfg THEN do:
+                    work-rep.i-name = itemfg.i-name.
+                END.         
+         END.
+         FIND FIRST cust no-lock
+              WHERE cust.company EQ cocode 
+              AND cust.cust-no EQ work-rep.cust-no NO-ERROR .
+         cJobNo = string(work-rep.job-no) + "-" + STRING(work-rep.job-no2,"99") .     
 
         ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -509,7 +533,10 @@ FOR EACH work-rep BREAK BY work-rep.sort-field
                          WHEN "scr-qty"   THEN cVarValue = IF work-rep.qty-scrap-rec <> ? THEN STRING(work-rep.qty-scrap-rec,"->>>>>>>>9") ELSE "".
                          WHEN "scr-msf"  THEN cVarValue = IF work-rep.msf-scrap-rec <> ? THEN STRING(work-rep.msf-scrap-rec,"->>>>>.999") ELSE "".
                          WHEN "tot-scrap"   THEN cVarValue = IF work-rep.perc-total-scrap <> ? THEN STRING(work-rep.perc-total-scrap,"->>>>9.99") ELSE "" .
-                         
+                         WHEN "job-no"   THEN cVarValue = string(cJobNo,"x(10)").
+                         WHEN "job-dscr"   THEN cVarValue = string(work-rep.i-name,"x(30)").
+                         WHEN "cust-no"   THEN cVarValue = string(work-rep.cust-no,"x(8)").
+                         WHEN "cust-name"   THEN cVarValue = IF AVAIL cust THEN string(cust.NAME,"x(30)") ELSE "" .                        
                          
                     END CASE.
                       
@@ -602,8 +629,8 @@ FOR EACH work-rep BREAK BY work-rep.sort-field
                          WHEN "scr-qty"   THEN cVarValue = "".
                          WHEN "scr-msf"  THEN cVarValue = "" .
                          WHEN "tot-scrap"   THEN cVarValue = "" .
-                         
-                         
+                         OTHERWISE cVarValue = "" . 
+                                                 
                     END CASE.
                       
                     cExcelVarValue = cVarValue.
@@ -686,7 +713,7 @@ FOR EACH work-rep BREAK BY work-rep.sort-field
                          WHEN "scr-qty"   THEN cVarValue = IF sort-qty-scrap-rec <> ? THEN STRING(sort-qty-scrap-rec,"->>>>>>>>9") ELSE "".
                          WHEN "scr-msf"  THEN cVarValue = IF sort-msf-scrap-rec <> ? THEN STRING(sort-msf-scrap-rec,"->>>>>.999") ELSE "".
                          WHEN "tot-scrap"   THEN cVarValue = IF tot-scrap-pct <> ? THEN STRING(tot-scrap-pct,"->>>>9.99") ELSE "" .
-                         
+                         OTHERWISE cVarValue = "" .
                          
                     END CASE.
                       
@@ -768,7 +795,7 @@ FOR EACH work-rep BREAK BY work-rep.sort-field
                          WHEN "scr-qty"   THEN cVarValue = "".
                          WHEN "scr-msf"  THEN cVarValue = "" .
                          WHEN "tot-scrap"   THEN cVarValue = "".
-                         
+                         OTHERWISE cVarValue = "" .                         
                          
                     END CASE.
                       

@@ -69,13 +69,13 @@ DEFINE VARIABLE tb_msf AS LOGICAL INITIAL YES NO-UNDO.
 ASSIGN cTextListToSelect = "SHIFT,MACH CODE,DESCRIPTION,QUANTITY,MSF,QTY HOUR,RUN HOURS,MR HOURS," + 
                     "D/T CHGBL,TOTAL CHARGE,D/T No CHARGE,TOTAL HOURS,STD HOURS," +
                     "EFFIC PERCENT,PERCENT UTILIZED,D/T PERCENT,QTY FG RECEIVED,MSF FG RECEIVED," +
-                    "SCRAP QTY,SCRAP MSF,% OF TOT SCRAP"
+                    "SCRAP QTY,SCRAP MSF,% OF TOT SCRAP,JOB #,JOB DESCRIPTION,CUSTOMER,CUSTOMER NAME"
        cFieldListToSelect = "sft,mach-code,desc,qty,msf,qty-hr,run-hrs,mr-hrs," +
                             "dt-chg,tot-crg,dt-crg,tot-hrs,std-hrs," +
                             "eff-per,per-util,dt-per,qty-fg-rec,msf-fg-rec," +
-                            "scr-qty,scr-msf,tot-scrap"
-       cFieldLength = "5,6,20,10,10,8,8,8," + "8,8,8,8,8," + "8,8,8,10,10," + "10,10,9"
-       cFieldType = "c,c,c,i,i,i,i,i," + "i,i,i,i,i," + "i,i,i,i,i," + "i,i,i" 
+                            "scr-qty,scr-msf,tot-scrap,job-no,job-dscr,cust-no,cust-name"
+       cFieldLength = "5,6,20,10,10,8,8,8," + "8,8,8,8,8," + "8,8,8,10,10," + "10,10,9,10,30,8,30"
+       cFieldType = "c,c,c,i,i,i,i,i," + "i,i,i,i,i," + "i,i,i,i,i," + "i,i,i,c,c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
