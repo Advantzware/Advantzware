@@ -1400,10 +1400,6 @@ PROCEDURE local-assign-record :
   DEF VAR char-val AS CHAR NO-UNDO.
   
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
-  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-  RUN make-buttons-sensitive IN WIDGET-HANDLE(char-hdl).
-  
   ASSIGN
    old-weight  = oe-bolh.tot-wt
    old-freight = oe-bolh.freight
@@ -1529,10 +1525,8 @@ PROCEDURE local-cancel-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEFINE VARIABLE char-hdl AS CHAR NO-UNDO.
+
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
-  RUN make-buttons-sensitive IN WIDGET-HANDLE(char-hdl).
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
@@ -1553,12 +1547,8 @@ PROCEDURE local-create-record :
 ------------------------------------------------------------------------------*/
   DEF VAR li-next-bol AS INT NO-UNDO.
   DEF VAR li-next-release AS INT NO-UNDO.
-  DEFINE VARIABLE char-hdl AS CHAR NO-UNDO.
+
   /* Code placed here will execute PRIOR to standard behavior. */
-  
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
-  RUN make-buttons-insensitive IN WIDGET-HANDLE(char-hdl).
-  
   FIND LAST bf-bolh USE-INDEX b-no NO-LOCK NO-ERROR.
   li-next-bol = IF AVAIL bf-bolh THEN bf-bolh.b-no + 1 ELSE 1.
   
@@ -1767,16 +1757,13 @@ PROCEDURE local-enable-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE char-hdl AS CHAR NO-UNDO.
+
   /* Code placed here will execute PRIOR to standard behavior. */
   /*IF NOT adm-new-record and
      AVAIL oe-bolh AND oe-bolh.posted THEN DO:
      MESSAGE "BOL has been posted, update not allowed..." VIEW-AS ALERT-BOX ERROR.
      RETURN ERROR.
   END.*/
-  
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
-  RUN make-buttons-insensitive IN WIDGET-HANDLE(char-hdl).
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .

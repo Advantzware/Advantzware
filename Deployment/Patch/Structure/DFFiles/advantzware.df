@@ -2924,22 +2924,6 @@ ADD FIELD "inactive" OF "account" AS logical
   COLUMN-LABEL "Inactive"
   ORDER 460
 
-ADD FIELD "commReport" OF "account" AS logical 
-  FORMAT "yes/no"
-  INITIAL "no"
-  LABEL "Include on Commissiion Reports"
-  POSITION 50
-  MAX-WIDTH 1
-  ORDER 480
-
-ADD FIELD "salesReport" OF "account" AS logical 
-  FORMAT "yes/no"
-  INITIAL "no"
-  LABEL "Include on Sales Reports"
-  POSITION 51
-  MAX-WIDTH 1
-  ORDER 470
-
 ADD INDEX "account" ON "account" 
   AREA "Index"
   UNIQUE
@@ -22102,36 +22086,6 @@ ADD FIELD "classID" OF "cust" AS integer
   MAX-WIDTH 4
   HELP "Enter the AR Class ID for this customer"
   ORDER 1670
-
-ADD FIELD "balanceCurrent" OF "cust" AS decimal 
-  FORMAT "->,>>>,>>>,>>9.99"
-  INITIAL "0"
-  LABEL "Current Balance"
-  POSITION 170
-  MAX-WIDTH 17
-  HELP "Enter Current Balance"
-  DECIMALS 2
-  ORDER 1680
-
-ADD FIELD "balanceWithinGrace" OF "cust" AS decimal 
-  FORMAT "->,>>>,>>>,>>9.99"
-  INITIAL "0"
-  LABEL "Within Grace  Balance"
-  POSITION 171
-  MAX-WIDTH 17
-  HELP "Enter Within Grace  Balance"
-  DECIMALS 2
-  ORDER 1690
-
-ADD FIELD "balancePastDue" OF "cust" AS decimal 
-  FORMAT "->,>>>,>>>,>>9.99"
-  INITIAL "0"
-  LABEL "Past Due Balance"
-  POSITION 172
-  MAX-WIDTH 17
-  HELP "Enter Past Due Balance"
-  DECIMALS 2
-  ORDER 1700
 
 ADD INDEX "cust" ON "cust" 
   AREA "Index"
@@ -81474,23 +81428,6 @@ ADD FIELD "spare-int-2" OF "oe-bolh" AS integer
   MAX-WIDTH 4
   ORDER 830
 
-ADD FIELD "quotedFreight" OF "oe-bolh" AS decimal 
-  FORMAT "->>,>>>,>>9.99"
-  INITIAL "0"
-  LABEL "Quoted Freight"
-  POSITION 92
-  MAX-WIDTH 17
-  DECIMALS 2
-  ORDER 870
-
-ADD FIELD "quoteNote" OF "oe-bolh" AS character 
-  FORMAT "x(32)"
-  INITIAL ""
-  LABEL "Quote Note"
-  POSITION 93
-  MAX-WIDTH 64
-  ORDER 880
-
 ADD INDEX "b-no" ON "oe-bolh" 
   AREA "Index"
   UNIQUE
@@ -84127,14 +84064,6 @@ ADD FIELD "poReceivedDate" OF "oe-ord" AS date
   COLUMN-LABEL "Date PO Recd"
   ORDER 1350
 
-ADD FIELD "priority" OF "oe-ord" AS integer 
-  FORMAT "->,>>>,>>9"
-  INITIAL "0"
-  LABEL "Order Priority"
-  POSITION 139
-  MAX-WIDTH 4
-  ORDER 1360
-
 ADD INDEX "ord-no" ON "oe-ord" 
   AREA "Index"
   UNIQUE
@@ -86229,15 +86158,6 @@ ADD FIELD "online" OF "oe-prmtx" AS logical
   POSITION 25
   MAX-WIDTH 1
   ORDER 450
-
-ADD FIELD "minOrderQty" OF "oe-prmtx" AS decimal 
-  FORMAT "->>>,>>>,>>9.<<<"
-  INITIAL "0"
-  LABEL "Minimum Order Qty"
-  POSITION 26
-  MAX-WIDTH 17
-  DECIMALS 2
-  ORDER 460
 
 ADD INDEX "custitem" ON "oe-prmtx" 
   AREA "Data"
@@ -125774,9 +125694,6 @@ ADD TABLE "zMessage"
   LABEL "Message File Master"
   DESCRIPTION "Master message file "
   DUMP-NAME "zmessage"
-  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\zMessage.p" CRC "?" 
-  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\zMessage.p" CRC "?" 
-  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\zMessage.p" CRC "?" 
 
 ADD FIELD "msgID" OF "zMessage" AS character 
   DESCRIPTION "unique identifier"
@@ -125948,24 +125865,8 @@ ADD FIELD "contextParms" OF "zMessage" AS character
   MAX-WIDTH 120
   ORDER 190
 
-ADD FIELD "rec_key" OF "zMessage" AS character 
-  FORMAT "X(21)"
-  INITIAL ""
-  LABEL "Record Key"
-  POSITION 21
-  MAX-WIDTH 42
-  HELP "Enter Record Key Value"
-  LENGTH 0
-  ORDER 200
-
-ADD INDEX "si-rec_key" ON "zMessage" 
-  AREA "Index"
-  PRIMARY
-  DESCRIPTION "Secondary Index by Record Key"
-  INDEX-FIELD "rec_key" ASCENDING 
-
 .
 PSC
 cpstream=IBM850
 .
-0002718658
+0002716407

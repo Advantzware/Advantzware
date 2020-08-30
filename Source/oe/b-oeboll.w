@@ -1721,8 +1721,6 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
            v-pallets  = oe-boll.tot-pallets.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
-  RUN make-buttons-sensitive IN WIDGET-HANDLE(char-hdl).
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -1960,40 +1958,16 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win 
-PROCEDURE local-cancel-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE char-hdl AS CHAR NO-UNDO.
-   
-  /* Code placed here will execute PRIOR to standard behavior. */
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
-  RUN make-buttons-sensitive IN WIDGET-HANDLE(char-hdl).
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */   
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record B-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE char-hdl AS CHAR NO-UNDO.
-  DEF BUFFER b-oe-boll FOR oe-boll.         
+  DEF BUFFER b-oe-boll FOR oe-boll.
+
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
-  RUN make-buttons-insensitive IN WIDGET-HANDLE(char-hdl).
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
@@ -2177,15 +2151,13 @@ PROCEDURE local-enable-fields :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR li-cnt AS INT NO-UNDO.
-  DEFINE VARIABLE char-hdl AS CHAR NO-UNDO.
+
 /*   oe-boll.weight:READ-ONLY IN BROWSE {&browse-name} = NO. */
   /* Code placed here will execute PRIOR to standard behavior. */
   /*IF AVAIL oe-bolh AND oe-bolh.posted THEN DO:
      MESSAGE "BOL has been posted, update not allowed..." VIEW-AS ALERT-BOX ERROR.
      RETURN ERROR.
   END.*/
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
-  RUN make-buttons-insensitive IN WIDGET-HANDLE(char-hdl).
 
   DO li-cnt = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
     APPLY "cursor-left" TO {&BROWSE-NAME} IN FRAME {&FRAME-NAME}.

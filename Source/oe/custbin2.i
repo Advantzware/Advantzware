@@ -368,7 +368,7 @@ IF AVAIL(fg-bin) THEN DO:
    fg-rcpth.b-no       = tt-bolh.b-no
    fg-rcpth.company    = fg-bin.company
    fg-rcpth.loc        = fg-bin.loc
-   fg-rcpth.trans-date = tt-bolh.trans-date
+   fg-rcpth.trans-date = tt-bolh.bol-date
    fg-rcpth.post-date  = TODAY 
    fg-rcpth.po-no      = tt-bolh.po-no
    fg-rcpth.i-no       = itemfg.i-no

@@ -61,19 +61,12 @@
 "001" "202007164000905473703" "SendPurchaseOrder" "ClosePurchaseOrder" "Trigger when Purchase Order is closed from closepo.p" yes 2020-07-16T11:08:39.741 "user1" "_default2" 61 18
 "001" "202007164000905473704" "SendPurchaseOrder" "ReopenPurchaseOrder" "Trigger when Purchase Order is re-opened" yes 2020-07-16T11:06:49.845 "user1" "_default2" 62 18
 "001" "202007164000905473705" "SendPurchaseOrder" "TriggerGetPurchaseOrder" "Trigger to fetch purchase order details" yes 2020-07-16T11:08:47.263 "user1" "_default2" 63 18
-"001" "202008102357105530174" "CalculateTax" "GetTaxAmountFinal" "Notifies Vertex this is of Invoice message type" no 2020-08-10T06:32:51.145 "user1" "_default" 64 17
-"001" "202008241647405580064" "SendRelease" "PrintRelease" "Sends Release when Release is printed" no 2020-08-24T04:34:34.320 "user1" "_default1" 65 13
-"001" "202008241647405580065" "SendRelease" "ReprintRelease" "Sends Release when Release is reprinted" no 2020-08-24T04:34:34.336 "user1" "_default1" 66 13
-"001" "202008241647405580066" "SendRelease" "UpdateRelease" "Sends Release when Release is updated" no 2020-08-24T04:34:34.351 "user1" "_default1" 67 13
-"001" "202008241647405580067" "SendRelease" "DeleteRelease" "Sends Release when Release is deleted" no 2020-08-24T04:34:34.351 "user1" "_default1" 68 13
-"001" "202008241647405580068" "SendRelease" "CreateRelease" "Sends Release when Release is created" no 2020-08-24T04:34:34.367 "user1" "_default1" 69 13
-"001" "202008241647405580069" "SendRelease" "ApproveRelease" "Sends Release when Release is approved" no 2020-08-24T04:34:34.367 "user1" "_default1" 70 13
-"001" "202008241647405580070" "SendRelease" "HoldRelease" "Sends Release when Release is hold" no 2020-08-24T04:34:34.367 "user1" "_default1" 71 13
 "001" "202005312751105329006" "SendAdvancedShipNotice" "ReprintBillOfLading" "Triggers when BOL is re-printed" no 2020-05-31T07:38:31.905 "jay" "Test" 5023 5007
 "001" "202005312751105329007" "SendAdvancedShipNotice" "PrintBillOfLading" "Triggers when BOL is printed" no 2020-05-31T07:38:31.925 "jay" "Test" 5024 5007
 "001" "202005312751105329008" "SendAdvancedShipNotice" "AddCustomer" "Adds a customer" yes 2020-05-31T07:38:31.931 "jay" "Test" 5025 5007
 "001" "202005312751105329009" "SendAdvancedShipNotice" "PrintRelease" "SendCustomer when Release is Printed First Time" no 2020-05-31T07:38:31.938 "jay" "Test" 5026 5007
 "001" "202005312751105329010" "SendAdvancedShipNotice" "ReprintRelease" "SendCustomer when Release is Reprinted" no 2020-05-31T07:38:31.945 "jay" "Test" 5027 5007
+"001" "202006046350005336864" "CheckTransfer" "TransmitBankFile" "Transmit Bank File" no 2020-06-04T17:38:20.965 "asi" "8" 5028 5008
 "001" "202006053267605337059" "SendJob" "PrintJob" "Triggers when Job printed flag is NO" no 2020-06-05T09:04:36.014 "jay" "eWMS" 5036 5010
 "001" "202006053267605337060" "SendJob" "ReprintJob" "Triggers when Job printed flag is YES" no 2020-06-05T09:04:36.021 "jay" "eWMS" 5037 5010
 "001" "202006258075805408466" "SendOrderAck" "PrintOrderAck" "" no 2020-06-25T22:25:58.705 "matt" "test" 5039 5013
@@ -83,14 +76,4 @@
 "001" "202006294318605415377" "SendAdvancedShipNotice" "AddCustomer" "Adds a customer" yes 2020-06-29T11:59:46.012 "wade" "DSG" 5043 5014
 "001" "202006294318605415378" "SendAdvancedShipNotice" "PrintRelease" "SendCustomer when Release is Printed First Time" no 2020-06-29T11:59:46.018 "wade" "DSG" 5044 5014
 "001" "202006294318605415379" "SendAdvancedShipNotice" "ReprintRelease" "SendCustomer when Release is Reprinted" no 2020-06-29T11:59:46.024 "wade" "DSG" 5045 5014
-"001" "202006303733805419428" "CalculateTax" "GetTaxAmount" "Fetch Tax Amount" no 2020-07-22T15:47:44.360 "jay" "Vertex" 5046 5015
-"001" "202007315084905520535" "SendPurchaseOrder" "PrintPurchaseOrder" "Print purchase order" no 2020-07-31T14:07:50.669 "jay1" "CSC Penn" 5056 5017
-"001" "202007315084905520536" "SendPurchaseOrder" "RePrintPurchaseOrder" "RePrint purchase order" no 2020-07-31T14:08:08.776 "jay1" "CSC Penn" 5057 5017
-"001" "202008102359505530175" "CalculateTax" "GetTaxAmountFinal" "Notifies Vertex this is of Invoice message type" no 2020-08-10T06:33:15.508 "user1" "Vertex" 5058 5015
-"001" "202008185634805591278" "SendRelease" "PrintRelease" "Sends Release when Release is printed" no 2020-08-18T15:39:08.709 "laurel" "Tester" 5097 5025
-"001" "202008185634805591279" "SendRelease" "ReprintRelease" "Sends Release when Release is reprinted" no 2020-08-18T15:39:08.731 "laurel" "Tester" 5098 5025
-"001" "202008185634805591280" "SendRelease" "UpdateRelease" "Sends Release when Release is updated" no 2020-08-18T15:39:08.737 "laurel" "Tester" 5099 5025
-"001" "202008185634805591281" "SendRelease" "DeleteRelease" "Sends Release when Release is deleted" no 2020-08-18T15:39:08.744 "laurel" "Tester" 5100 5025
-"001" "202008185634805591282" "SendRelease" "CreateRelease" "Sends Release when Release is created" no 2020-08-18T15:39:08.750 "laurel" "Tester" 5101 5025
-"001" "202008185634805591283" "SendRelease" "ApproveRelease" "Sends Release when Release is approved" no 2020-08-18T15:39:08.756 "laurel" "Tester" 5102 5025
-"001" "202008185634805591284" "SendRelease" "HoldRelease" "Sends Release when Release is hold" no 2020-08-18T15:39:08.762 "laurel" "Tester" 5103 5025
+"001" "202006303733805419428" "CalculateTax" "GetTaxAmount" "Fetch Tax Amount" no 2020-06-30T10:22:18.554 "user1" "Vertex" 5046 5015

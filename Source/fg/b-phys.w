@@ -133,10 +133,10 @@ fg-rctd.cases-unit fg-rctd.partial
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table fg-rctd
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
       AND fg-rctd.company = g_company and fg-rctd.rita-code = "C" NO-LOCK ~
-      ~{&SORTBY-PHRASE}
+      BY fg-rctd.r-no DESCENDING 
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
       AND fg-rctd.company = g_company and fg-rctd.rita-code = "C" NO-LOCK ~
-      ~{&SORTBY-PHRASE}. 
+      BY fg-rctd.r-no DESCENDING. 
 &Scoped-define TABLES-IN-QUERY-Browser-Table fg-rctd
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table fg-rctd
 

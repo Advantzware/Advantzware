@@ -38,7 +38,6 @@ DEF VAR lv-audit-dir AS CHAR NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-{system/TaxProcs.i}
 
 assign
  cocode = gcompany
@@ -1268,42 +1267,6 @@ END PROCEDURE.
 
 
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pQuoteSalesTax C-Win
-PROCEDURE pQuoteSalesTax PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipriArInv AS ROWID NO-UNDO.
-    DEFINE OUTPUT PARAMETER TABLE     FOR ttTaxDetail.
-    
-    DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dInvoiceSubTotal AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dTotalTax        AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
-    
-    RUN Tax_CalculateForArInvWithDetail (
-        INPUT  ipriArInv,
-        INPUT  locode,
-        INPUT  "QUOTATION", /*  Message Type "INVOICE" or "QUOTATION" */
-        INPUT  FALSE,       /* Post To journal */
-        INPUT  "GetTaxAmount", /* Trigger ID */
-        OUTPUT dTotalTax,
-        OUTPUT dInvoiceTotal,
-        OUTPUT dinvoiceSubTotal,
-        OUTPUT TABLE ttTaxDetail,
-        OUTPUT lSuccess,
-        OUTPUT cMessage
-        ).
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunApiOutboundTrigger C-Win
 PROCEDURE pRunApiOutboundTrigger:
 /*------------------------------------------------------------------------------
@@ -1587,43 +1550,58 @@ IF cust.factored THEN
     END.
 
     IF ar-inv.tax-amt NE 0 THEN DO:
-        RUN pQuoteSalesTax (
-            INPUT  ROWID(ar-inv),
-            OUTPUT TABLE ttTaxDetail
-            ).
+      FIND FIRST stax
+          WHERE stax.company EQ ar-inv.company
+            AND stax.tax-group = ar-inv.tax-code
+          NO-LOCK NO-ERROR.
 
-        PUT "TAX" AT 79 SPACE(1)
-            ar-inv.tax-amt FORMAT "->>,>>>,>>9.99" AT 110 SKIP.
+      PUT "TAX" AT 79 SPACE(1)
+          ar-inv.tax-amt FORMAT "->>,>>>,>>9.99" AT 110 SKIP.
 
-        DEFINE VARIABLE tot-tax     AS DECIMAL   NO-UNDO.
-        DEFINE VARIABLE ws_taxacct  AS CHARACTER NO-UNDO.
-        DEFINE VARIABLE v-jd-taxamt AS DECIMAL   NO-UNDO.
+      IF AVAIL stax THEN DO:
+        DEF VAR tot-tax AS DECIMAL NO-UNDO.
+        DEF VAR ws_taxacct AS CHAR NO-UNDO.
+        DEF VAR last_one AS INTEGER NO-UNDO.
+        DEF VAR v-jd-taxamt AS DECIMAL NO-UNDO.
+        DEF VAR v-tax-rate AS DECIMAL NO-UNDO DECIMALS 8.
 
-        tot-tax = ar-inv.tax-amt.
+        ASSIGN
+           v-tax-rate = 0
+           tot-tax = ar-inv.tax-amt.
 
-        FOR EACH ttTaxDetail
-            BREAK BY ttTaxDetail.invoiceNo:
-            FIND FIRST account NO-LOCK
-                 WHERE account.company EQ cocode
-                   AND account.actnum  EQ ttTaxDetail.taxCodeAccount
-                 NO-ERROR.
+        DO i = 1 TO 3:
+          v-tax-rate = v-tax-rate + stax.tax-rate[i].
+          IF stax.tax-rate[i] NE 0 THEN last_one = i.
+        END.
+        DO i = 1 TO 3:
+          IF stax.tax-rate[i] NE 0 THEN DO:
+            FIND account NO-LOCK
+                WHERE account.company = cocode
+                  AND account.actnum = stax.tax-acc[i]
+                NO-ERROR.
             ASSIGN
-                ws_taxacct  = IF AVAILABLE account THEN 
-                                  ttTaxDetail.taxCodeAccount 
-                              ELSE 
-                                  xar-stax
-                v-jd-taxamt = ttTaxDetail.taxCodeTaxAmount
-                tot-tax     = tot-tax - v-jd-taxamt
-                .
+             ws_taxacct  = IF AVAIL account THEN stax.tax-acc[i] ELSE xar-stax
+             v-jd-taxamt = ROUND((stax.tax-rate[i] / v-tax-rate) * ar-inv.tax-amt,2)
+             tot-tax     = tot-tax - v-jd-taxamt.
+            /* add in any residual amount */
+            IF i EQ last_one THEN v-jd-taxamt = v-jd-taxamt + tot-tax.
 
-            ld-gl-amt = v-jd-taxamt * -1.
-            
-            IF AVAILABLE currency THEN 
-                ld-gl-amt = ld-gl-amt * currency.ex-rate.
+            ld-gl-amt = v-jd-taxamt * -1 *
+                       (IF AVAIL currency THEN currency.ex-rate ELSE 1).
 
             {sys/inc/gldstsum.i ws_taxacct ld-gl-amt NO "TAX"}
+          END.
+          RELEASE wkdistrib.
         END.
-    END.
+      END.
+
+      ELSE DO:
+        ld-gl-amt = ar-inv.tax-amt * -1 *
+                    (IF AVAIL currency THEN currency.ex-rate ELSE 1).
+
+        {sys/inc/gldstsum.i xar-stax ld-gl-amt NO "TAX"}
+      END.
+    END.  /* non-zero tax amount */
 
     IF LAST-OF(cust.cust-no) THEN DO:
       ld-pton = v2 / ld-tons[2].

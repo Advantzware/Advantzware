@@ -3416,15 +3416,12 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
     DEFINE OUTPUT PARAMETER opiCountValid AS INTEGER NO-UNDO.
     DEFINE BUFFER bf-ttInvoiceToPost            FOR ttInvoiceToPost.
     DEFINE BUFFER bf-inv-head FOR inv-head.
-    DEFINE BUFFER bf-ttInvoiceLineToPost        FOR ttInvoiceLineToPost.
-    DEFINE BUFFER bf-ttInvoiceMiscToPost        FOR ttInvoiceMiscToPost.
+    DEFINE BUFFER bf-ttInvoiceLineToPost        FOR ttInvoiceLineToPost. 
     
     DEFINE VARIABLE lAutoApprove AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lShiptoTaxAble AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lValidateRequired AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE dTotalLineRev AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dTotalTax         AS DECIMAL NO-UNDO.
-    
+        
     FOR EACH bf-ttInvoiceToPost,
         FIRST bf-inv-head NO-LOCK 
         WHERE ROWID(bf-inv-head) EQ bf-ttInvoiceToPost.riInvHead:
@@ -3470,7 +3467,6 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             END.
          END.  
          
-         dTotalLineRev = 0 .
          FOR EACH bf-ttInvoiceLineToPost WHERE
              bf-ttInvoiceLineToPost.rNo EQ bf-inv-head.r-no:               
              lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalPriceGTCost",bf-inv-head.cust-no).        
@@ -3478,35 +3474,8 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
              DO:                             
                   RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Item price is greater than the cost of the item",NO).
                      lAutoApprove = NO.            
-             END.  
-             dTotalLineRev = dTotalLineRev + bf-ttInvoiceLineToPost.amountBilled .
-         END. 
-         FOR EACH bf-ttInvoiceMiscToPost WHERE
-             bf-ttInvoiceMiscToPost.rNo EQ bf-inv-head.r-no
-             AND bf-ttInvoiceMiscToPost.isBillable :
-               dTotalLineRev = dTotalLineRev + bf-ttInvoiceMiscToPost.amountBilled.
-         END.
-             
-         IF dTotalLineRev NE (bf-inv-head.t-inv-rev - bf-inv-head.t-inv-tax - ( IF bf-inv-head.f-bill THEN bf-inv-head.t-inv-freight ELSE 0)) THEN
-         DO:     
-            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invoice lines <> Invoice Total",NO).
-            lAutoApprove = NO.            
+             END.    
          END.         
-         
-         RUN pGetSalesTaxForInvHead  (
-             INPUT  bf-ttInvoiceToPost.riInvHead, 
-             INPUT  "QUOTATION",
-             OUTPUT dTotalTax,
-             OUTPUT TABLE ttTaxDetail
-             ).             
-         IF dTotalTax NE bf-inv-head.t-inv-tax THEN DO:
-             RUN pAddValidationError(
-                 BUFFER bf-ttInvoiceToPost,
-                 INPUT  "Tax on invoice does not match with calculated tax",
-                 INPUT  NO
-                 ).
-             lAutoApprove = NO.             
-         END.
          
          IF lAutoApprove AND bf-ttInvoiceToPost.isOKToPost THEN DO:
             FIND CURRENT bf-inv-head EXCLUSIVE-LOCK.

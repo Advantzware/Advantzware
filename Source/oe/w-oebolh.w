@@ -728,36 +728,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-buttons-insensitive W-Win 
-PROCEDURE make-buttons-insensitive :
-/* -----------------------------------------------------------
-  Purpose:  Make buttons insensitive after add until complete
-  Parameters:  <none>
-  Notes:    To ensure user does not navigate to prior order
--------------------------------------------------------------*/
-    IF VALID-HANDLE(h_options) THEN
-       RUN make-insensitive IN h_options.     
-   RETURN.
-       
-END PROCEDURE.
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-buttons-sensitive W-Win 
-PROCEDURE make-buttons-sensitive :
-/* -----------------------------------------------------------
-  Purpose:  Make buttons sensitive after add is complete
-  Parameters:  <none>
-  Notes:   
--------------------------------------------------------------*/
-    IF VALID-HANDLE(h_options) THEN
-       RUN make-sensitive IN h_options.    
-   RETURN.
-       
-END PROCEDURE.
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setUserPrint W-Win 
 PROCEDURE setUserPrint :
 /*------------------------------------------------------------------------------

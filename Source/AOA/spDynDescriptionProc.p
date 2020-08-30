@@ -111,16 +111,6 @@ PROCEDURE dynDescripCustype:
     iphWidgetTo:SCREEN-VALUE = custype.dscr.
 END PROCEDURE.
 
-PROCEDURE dynDescripDepartment:
-    {&defInputParam}
-    FIND FIRST dept NO-LOCK
-         WHERE dept.company   EQ cCompany           
-           AND dept.CODE EQ (iphWidgetFrom:SCREEN-VALUE)
-         NO-ERROR.
-    IF AVAILABLE dept THEN
-    iphWidgetTo:SCREEN-VALUE = dept.dscr.
-END PROCEDURE.
-
 PROCEDURE dynDescripEmployee:
     {&defInputParam}
     FIND FIRST emp NO-LOCK

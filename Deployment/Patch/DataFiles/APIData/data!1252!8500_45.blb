@@ -1,7 +1,0 @@
-        {
-          "Level": $Level$,
-          "Quantity": $Quantity$,
-          "QuantityUOM": "$QuantityUOM$",
-          "Price": $Price$,
-          "PriceUOM": "$PriceUOM$"
-        }

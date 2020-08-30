@@ -642,9 +642,9 @@ PROCEDURE pHTMLPageHorizontal :
                 BY bTtblJob.startDateTime
                 :
                 iStartTime = IF bTtblJob.startDate EQ dtDate THEN bTtblJob.startTime ELSE 0.
-                fTimeSlice ("",dtDate,iStartTime,"Job","Start",ROWID(bTtblJob) EQ ROWID(ttblJob),bTtblJob.job).
+                fTimeSlice ("",dtDate,iStartTime,"Job","Start",ROWID(bTtblJob) EQ ROWID(ttblJob)).
                 iEndTime = IF bTtblJob.endDate EQ dtDate THEN bTtblJob.endTime ELSE 86400.
-                fTimeSlice ("",dtDate,iEndTime,"Job","End",ROWID(bTtblJob) EQ ROWID(ttblJob),bTtblJob.job).
+                fTimeSlice ("",dtDate,iEndTime,"Job","End",ROWID(bTtblJob) EQ ROWID(ttblJob)).
                 iJobs = iJobs + 1.
             END. /* each bttbljob */
             FOR EACH ttblDowntime
@@ -654,11 +654,11 @@ PROCEDURE pHTMLPageHorizontal :
                   AND (ttblDowntime.startDate EQ dtDate
                    OR  ttblDowntime.startDate EQ ?)
                 :
-                fTimeSlice ("",dtDate,ttblDowntime.startTime,"DT","Start",NO,"").
-                fTimeSlice ("",dtDate,ttblDowntime.endTime,"DT","End",NO,"").
+                fTimeSlice ("",dtDate,ttblDowntime.startTime,"DT","Start",NO).
+                fTimeSlice ("",dtDate,ttblDowntime.endTime,"DT","End",NO).
             END. /* each ttbldowntime */
-            fTimeSlice ("",dtDate,0,"Avail","Start",NO,"").
-            fTimeSlice ("",dtDate,86400,"Avail","End",NO,"").
+            fTimeSlice ("",dtDate,0,"Avail","Start",NO).
+            fTimeSlice ("",dtDate,86400,"Avail","End",NO).
             PUT UNFORMATTED
                 '      <td' cBGColor ' align="center" nowrap><font face="{&fontFace}">' SKIP
                 '        <table border="1" cellspacing="0" cellpadding="8" width="100%">' SKIP
@@ -801,8 +801,8 @@ PROCEDURE pHTMLPageVertical :
                   AND (ttblDowntime.startDate EQ dtDate
                    OR  ttblDowntime.startDate EQ ?)
                 :
-                fTimeSlice (cMachines[idx],dtDate,ttblDowntime.startTime,"DT","Start",NO,"").
-                fTimeSlice (cMachines[idx],dtDate,ttblDowntime.endTime,  "DT","End",  NO,"").
+                fTimeSlice (cMachines[idx],dtDate,ttblDowntime.startTime,"DT","Start",NO).
+                fTimeSlice (cMachines[idx],dtDate,ttblDowntime.endTime,  "DT","End",  NO).
             END. /* each ttbldowntime */
             iJobs = 0.
             FOR EACH bTtblJob
@@ -818,11 +818,11 @@ PROCEDURE pHTMLPageVertical :
                     iEndTime   = IF bTtblJob.endDate   EQ dtDate THEN bTtblJob.endTime   ELSE 86400
                     iJobs      = iJobs + 1
                     .
-                fTimeSlice (cMachines[idx],dtDate,iStartTime,"Job","Start",ROWID(bTtblJob) EQ ROWID(ttblJob),bTtblJob.job).
-                fTimeSlice (cMachines[idx],dtDate,iEndTime,  "Job","End",  ROWID(bTtblJob) EQ ROWID(ttblJob),bTtblJob.job).                
+                fTimeSlice (cMachines[idx],dtDate,iStartTime,"Job","Start",ROWID(bTtblJob) EQ ROWID(ttblJob)).
+                fTimeSlice (cMachines[idx],dtDate,iEndTime,  "Job","End",  ROWID(bTtblJob) EQ ROWID(ttblJob)).                
             END. /* each bttbljob */
-            fTimeSlice (cMachines[idx],dtDate,0,    "Avail","Start",NO,"").
-            fTimeSlice (cMachines[idx],dtDate,86400,"Avail","End",  NO,"").
+            fTimeSlice (cMachines[idx],dtDate,0,    "Avail","Start",NO).
+            fTimeSlice (cMachines[idx],dtDate,86400,"Avail","End",  NO).
         END. /* do dtdate */
     END. /* each ttbljob */
     
@@ -922,8 +922,6 @@ PROCEDURE pHTMLPageVertical :
                              IF cType1 EQ "Job"   THEN "A1A5E2" ELSE "FF8585")
                             '" align="center" nowrap><font face="{&fontFace}">'
                             .
-                        IF ttTime.spanText NE "" THEN
-                        PUT UNFORMATTED '<span title="' ttTime.spanText '">'.
                         CASE jdx:
                             WHEN 1 THEN
                                 IF dPercentage EQ 100 THEN
@@ -940,8 +938,6 @@ PROCEDURE pHTMLPageVertical :
                                 PUT UNFORMATTED ' / ' dPercentage '%'.
                             END. /* 5 or 6 */
                         END CASE.
-                        IF ttTime.spanText NE "" THEN
-                        PUT UNFORMATTED '</span>'.
                         PUT UNFORMATTED 
                             '</font></td>' SKIP
                             '          </tr>' SKIP
