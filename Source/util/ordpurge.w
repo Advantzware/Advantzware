@@ -160,9 +160,8 @@ DEFINE VARIABLE rsClosed AS CHARACTER
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Purge Closed Orders Only", "C",
-"ALL Orders", "A",
-"Only Purge Orders with no Customer", "N"
-     SIZE 81 BY .95 NO-UNDO.
+"ALL Orders", "A"
+     SIZE 46 BY .95 NO-UNDO.
 
 DEFINE VARIABLE tbArchive AS LOGICAL INITIAL yes 
      LABEL "Create Recovery Records?" 
@@ -187,7 +186,7 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Order Number"
      end_order AT ROW 9.33 COL 63 COLON-ALIGNED HELP
           "Enter Ending Order Number"
-     rsClosed AT ROW 10.76 COL 7 NO-LABEL
+     rsClosed AT ROW 10.76 COL 29 NO-LABEL
      tbInvoices AT ROW 11.95 COL 29
      tbArchive AT ROW 13.14 COL 29
      btn-Simulate AT ROW 17.67 COL 7
@@ -195,11 +194,11 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 17.67 COL 63
      fiDumpLoc AT ROW 14.57 COL 2 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      fiDumpLoc2 AT ROW 15.29 COL 4 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     "Selection Parameters:" VIEW-AS TEXT
+          SIZE 21 BY .62 AT ROW 5.29 COL 5
      "" VIEW-AS TEXT
           SIZE 2.2 BY .95 AT ROW 1.95 COL 88
           BGCOLOR 11 
-     "Selection Parameters:" VIEW-AS TEXT
-          SIZE 21 BY .62 AT ROW 5.29 COL 5
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -610,7 +609,6 @@ DEFINE VARIABLE v-post-date AS DATE INIT TODAY NO-UNDO.
 
     DEFINE BUFFER b-boll FOR oe-boll.
     DEFINE BUFFER b-rell FOR oe-rell.
-    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
 
     IF NOT lSimulate THEN MESSAGE 
         "Are you sure you want to delete the orders within the selection parameters?"
@@ -670,19 +668,13 @@ DEFINE VARIABLE v-post-date AS DATE INIT TODAY NO-UNDO.
             AND oe-ord.ord-date LT v-post-date
             AND oe-ord.ord-no   GE v-first-ord
             AND oe-ord.ord-no   LE v-last-ord
-            AND (oe-ord.cust-no GE begin_cust:SCREEN-VALUE OR rsClosed:SCREEN-VALUE EQ "N")
-            AND (oe-ord.cust-no LE end_cust:SCREEN-VALUE  OR rsClosed:SCREEN-VALUE EQ "N")
-            AND ((oe-ord.cust-no EQ ""
-                AND NOT CAN-FIND(FIRST bf-oe-ordl
-                       WHERE bf-oe-ordl.company EQ oe-ord.company
-                         AND bf-oe-ordl.ord-no  EQ oe-ord.ord-no
-                         AND bf-oe-ordl.line    GT 0) AND rsClosed:SCREEN-VALUE EQ "N")
-                OR  rsClosed:SCREEN-VALUE NE "N")         
+            AND oe-ord.cust-no GE begin_cust:SCREEN-VALUE
+            AND oe-ord.cust-no LE end_cust:SCREEN-VALUE
             TRANSACTION:
-                         
+                
             IF rsClosed:SCREEN-VALUE EQ "C" 
-            AND oe-ord.stat NE "C" THEN NEXT.
-            
+            AND oe-ord.stat NE "C" THEN NEXT.                
+
             STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...".
             
             STATUS DEFAULT "Processing order# " + STRING(oe-ord.ord-no) + "...removing order misc records".
