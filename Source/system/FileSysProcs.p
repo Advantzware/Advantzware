@@ -13,6 +13,9 @@
 
   Created: 11/25/2019
 ------------------------------------------------------------------------*/
+&SCOPED-DEFINE WTRUE 1
+&SCOPED-DEFINE WFALSE 0
+
 DEFINE VARIABLE cFileTypeFile      AS CHARACTER NO-UNDO INITIAL "F".
 DEFINE VARIABLE cFileTypeDirectory AS CHARACTER NO-UNDO INITIAL "D".
 DEFINE VARIABLE cBackwardSlash     AS CHARACTER NO-UNDO INITIAL "\".
@@ -20,6 +23,17 @@ DEFINE VARIABLE cForwardSlash      AS CHARACTER NO-UNDO INITIAL "/".
 
 FUNCTION fFormatFilePath RETURNS CHARACTER
     ( ipcFilePath AS CHARACTER ) FORWARD.
+
+FUNCTION get64BitValue RETURNS DECIMAL
+    ( INPUT m64 AS MEMPTR ) FORWARD.
+
+PROCEDURE GetDiskFreeSpaceExA EXTERNAL "kernel32.dll" :
+    DEFINE  INPUT  PARAMETER  lpDirectoryName        AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT  PARAMETER  FreeBytesAvailable     AS MEMPTR    NO-UNDO.
+    DEFINE OUTPUT  PARAMETER  TotalNumberOfBytes     AS MEMPTR    NO-UNDO.
+    DEFINE OUTPUT  PARAMETER  TotalNumberOfFreeBytes AS MEMPTR    NO-UNDO.
+    DEFINE RETURN  PARAMETER  iReturnVal                 AS LONG      NO-UNDO.
+END PROCEDURE.
 
 
 
@@ -54,6 +68,82 @@ PROCEDURE FileSys_GetTempDirectory:
             OUTPUT opcPath
             ) NO-ERROR.
 END.
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE FileSys_GetDiskSpace C-Win 
+PROCEDURE FileSys_GetDiskSpace :
+/*------------------------------------------------------------------------------
+     Purpose:   Returns total/free disk space on a disk
+     Notes:     If ip_drive is blank, uses disk of current directory
+                ip_drive can be a disk/map letter or UNC directory 
+                Input ip_unit can be variants of KB,MB,GB - if blank will return number of bytes
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ip_drive   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ip_unit    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdDiskFreeSpace    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdDiskTotalSpace   AS DECIMAL   NO-UNDO.
+    
+    DEF VAR cDivisor AS INT NO-UNDO.
+    DEF VAR iMem1 AS MEMPTR NO-UNDO.
+    DEF VAR iMem2 AS MEMPTR NO-UNDO.
+    DEF VAR iMem3 AS MEMPTR NO-UNDO.
+    DEF VAR iReturnVal AS INT NO-UNDO.
+    DEF VAR iDiskFreeSpace AS DECIMAL NO-UNDO.
+    DEF VAR iDiskTotalSpace AS DECIMAL NO-UNDO.
+
+    IF CAN-DO("KB,Kilo,Kilobyte,Kilobytes", ip_unit)
+        THEN cDivisor = 1024.
+    ELSE
+        IF CAN-DO("MB,Mega,Megabyte,Megabytes", ip_unit)
+            THEN cDivisor = 1024 * 1024.
+        ELSE
+            IF CAN-DO("GB,Giga,Gigabyte,Gigabytes", ip_unit)
+                THEN cDivisor = 1024 * 1024 * 1024.
+            ELSE cDivisor = 1.
+ 
+    /* No directory specified? Then use the current directory */
+    IF (ip_drive = "") OR (ip_drive=?) THEN 
+    DO:
+        FILE-INFO:FILE-NAME = ".".
+        ip_drive = FILE-INFO:FULL-PATHNAME.
+    END.
+ 
+    /* If a UNC name was specified, make sure it ends with a backslash ( \\drive\share\dir\ )
+       This won't hurt for a mapped drive too */
+    IF SUBSTR(ip_drive, LENGTH(ip_drive), 1) NE "\"
+        THEN ip_drive = ip_drive + "\".
+ 
+    SET-SIZE(iMem1) = 8.  /* 64 bit integer! */
+    SET-SIZE(iMem2) = 8.
+    SET-SIZE(iMem3) = 8.
+ 
+    RUN GetDiskFreeSpaceExA ( ip_drive + CHR(0),
+        OUTPUT iMem1,
+        OUTPUT iMem2,
+        OUTPUT iMem3,
+        OUTPUT iReturnVal  ).
+    IF iReturnVal NE {&WTRUE} THEN 
+    DO:
+        iDiskFreeSpace = ?.
+        iDiskTotalSpace = ?.
+    END.
+    ELSE 
+    DO:
+        ASSIGN
+            iDiskFreeSpace  = TRUNC( get64BitValue(iMem3) / cDivisor, 3)
+            iDiskTotalSpace = TRUNC( get64BitValue(iMem2) / cDivisor, 3)
+            opdDiskFreeSpace = iDiskFreeSpace
+            opdDiskTotalSpace = iDiskTotalSpace.
+    END.
+ 
+    SET-SIZE(iMem1) = 0.
+    SET-SIZE(iMem2) = 0.
+    SET-SIZE(iMem3) = 0.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 PROCEDURE FileSys_GetFilePath:
     /*------------------------------------------------------------------------------
@@ -613,3 +703,34 @@ FUNCTION fFormatFilePath RETURNS CHARACTER
 
     RETURN cFormattedFilePath.
 END FUNCTION.
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get64BitValue C-Win 
+FUNCTION get64BitValue RETURNS DECIMAL
+    ( INPUT m64 AS MEMPTR ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* constant 2^32 */
+    &SCOPED-DEFINE BigInt 4294967296
+ 
+    DEFINE VARIABLE d1 AS DECIMAL    NO-UNDO.
+    DEFINE VARIABLE d2 AS DECIMAL    NO-UNDO.
+ 
+    d1 = GET-LONG(m64, 1).
+    IF d1 < 0 
+        THEN d1 = d1 + {&BigInt}.
+ 
+    d2 = GET-LONG(m64, 5).
+    IF d2 < 0 
+        THEN d2 = d2 + {&BigInt}.
+ 
+    IF d2 GT 0
+        THEN d1 = d1 + (d2 * {&BigInt}).
+ 
+    RETURN d1.
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
