@@ -345,7 +345,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_b-glrun ).
        RUN set-position IN h_b-glrun ( 4.57 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_b-glrun ( 20.00 , 146.00 ) NO-ERROR.
+       RUN set-size IN h_b-glrun ( 20.00 , 164.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.

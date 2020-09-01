@@ -37,7 +37,9 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEF TEMP-TABLE tt-glhist NO-UNDO LIKE glhist.
+DEF TEMP-TABLE tt-glhist NO-UNDO LIKE glhist
+        FIELD db-amt LIKE gltrans.tr-amt   LABEL "Debit Amount"
+        FIELD cr-amt LIKE gltrans.tr-amt   LABEL "Credit Amount".
 
 {sa/sa-sls01.i}
 
@@ -65,7 +67,7 @@ DEF TEMP-TABLE tt-glhist NO-UNDO LIKE glhist.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table tt-glhist.tr-num tt-glhist.actnum tt-glhist.jrnl tt-glhist.tr-dscr tt-glhist.tr-amt tt-glhist.tr-date tt-glhist.createdBy tt-glhist.createdDate tt-glhist.posted   
+&Scoped-define FIELDS-IN-QUERY-br_table tt-glhist.tr-num tt-glhist.actnum tt-glhist.jrnl tt-glhist.tr-dscr tt-glhist.db-amt tt-glhist.cr-amt tt-glhist.tr-date tt-glhist.createdBy tt-glhist.createdDate tt-glhist.posted   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH tt-glhist, ~
@@ -151,7 +153,8 @@ DEFINE BROWSE br_table
       tt-glhist.actnum  LABEL "Account#"    
       tt-glhist.jrnl    LABEL "Journal"
       tt-glhist.tr-dscr LABEL "Reference"   FORMAT "x(40)"
-      tt-glhist.tr-amt  LABEL "Amount"
+      tt-glhist.db-amt FORM "->>,>>>,>>9.99" 
+      tt-glhist.cr-amt FORM "->>,>>>,>>9.99" 
       tt-glhist.tr-date LABEL "Date"
       tt-glhist.createdBy LABEL "Created By" 
       tt-glhist.createdDate LABEL "Created Date"
@@ -159,7 +162,7 @@ DEFINE BROWSE br_table
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 143 BY 18.57
-         BGCOLOR 8 FONT 2.
+          FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -169,7 +172,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 .
+         FGCOLOR 1 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -373,6 +376,10 @@ PROCEDURE build-inquiry :
         AND glhist.tr-num  EQ lv-tr-num:
     CREATE tt-glhist.
     BUFFER-COPY glhist TO tt-glhist.
+     IF glhist.tr-amt GT 0 THEN
+       tt-glhist.db-amt = glhist.tr-amt.
+     IF glhist.tr-amt LT 0 THEN
+       tt-glhist.cr-amt = glhist.tr-amt.   
   END.
 
   FOR EACH gltrans NO-LOCK
@@ -382,6 +389,10 @@ PROCEDURE build-inquiry :
     BUFFER-COPY gltrans TO tt-glhist
     ASSIGN
      tt-glhist.tr-num = gltrans.trnum.
+     IF gltrans.tr-amt GT 0 THEN
+       tt-glhist.db-amt = gltrans.tr-amt.
+     IF gltrans.tr-amt LT 0 THEN
+       tt-glhist.cr-amt = gltrans.tr-amt.
   END.
 
   FOR EACH tt-glhist WHERE tt-glhist.tr-dscr MATCHES "*Inv# *":

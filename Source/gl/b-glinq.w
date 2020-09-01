@@ -284,7 +284,7 @@ DEFINE FRAME F-Main
      iRunFrom AT ROW 2.05 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 56
      iRunTo AT ROW 2.05 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 58
      dtDateFrom AT ROW 2.05 COL 90.6 COLON-ALIGNED NO-LABEL WIDGET-ID 66
-     dtDateTo AT ROW 2.05 COL 107 COLON-ALIGNED NO-LABEL WIDGET-ID 68
+     dtDateTo AT ROW 2.05 COL 107.5 COLON-ALIGNED NO-LABEL WIDGET-ID 68
      btn-go AT ROW 2 COL 128.2
      btn-all AT ROW 2 COL 144.6     
      btn-print AT ROW 3.33 COL 111.2
@@ -316,7 +316,7 @@ DEFINE FRAME F-Main
           SIZE 8.6 BY .71 AT ROW 1.19 COL 35.4 WIDGET-ID 52
           FGCOLOR 9 FONT 6
      "__" VIEW-AS TEXT
-          SIZE 1.6 BY .67 AT ROW 1.91 COL 107 WIDGET-ID 70
+          SIZE 1.6 BY .67 AT ROW 1.91 COL 107.5 WIDGET-ID 70
      RECT-9 AT ROW 1 COL 1 WIDGET-ID 4     
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -717,9 +717,7 @@ FORM SKIP(1)
      lv-per-fr  COLON 30 LABEL "Beginning Period"
      lv-per-to  COLON 30 LABEL "Ending Period"
      SKIP(1)
-     lv-open    COLON 30 LABEL "Opening Balance"
-     SKIP(1)
-
+     
     WITH STREAM-IO WIDTH 80 FRAME gl-inq SIDE-LABELS NO-UNDERLINE PAGE-TOP
          TITLE "  A C C O U N T   A C T I V I T Y  ".
 
@@ -751,8 +749,7 @@ format space(4)
             /*lv-actname   @ lv-dscr*/
             lv-year      @ lv-yr
             lv-period-fr @ lv-per-fr
-            lv-period-to @ lv-per-to
-            lv-open-bal  @ lv-open.
+            lv-period-to @ lv-per-to   .
 
     FOR EACH tt-glinq:
       DISPLAY tt-glinq.tr-date
@@ -770,12 +767,7 @@ format space(4)
             "Totals:"   
             dDebitTotal   format "->>>,>>>,>>9.99" SPACE(2)
             dCreditTotal format "->>>,>>>,>>9.99"   
-            .
-
-    DISPLAY SKIP(1)
-            lv-close-bal @ lv-close COLON 30 LABEL "Closing Balance"
-            SKIP(2)
-        WITH STREAM-IO WIDTH 80 FRAME gl-inq1 SIDE-LABELS NO-UNDERLINE.
+            SKIP .       
 
     OUTPUT CLOSE.
 
@@ -834,6 +826,21 @@ DO:
    IF LASTKEY = -1 THEN RETURN.
    ASSIGN {&self-name}.
 
+   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME lv-year
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-year B-table-Win
+ON VALUE-CHANGED OF lv-year IN FRAME F-Main
+DO:
+   IF LASTKEY = -1 THEN RETURN.
+   ASSIGN {&self-name}. 
+  
+       APPLY "value-changed" TO  lv-period-fr .
+       APPLY "value-changed" TO  lv-period-to .     
    
 END.
 
