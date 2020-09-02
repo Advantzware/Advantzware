@@ -85,6 +85,9 @@ FUNCTION fTypePrintsLayout RETURNS LOGICAL PRIVATE
 FUNCTION fTypePrintsBoard RETURNS LOGICAL PRIVATE
     (ipcEstType AS CHARACTER) FORWARD.
     
+FUNCTION fTypeIsWood RETURNS LOGICAL PRIVATE
+    (ipcEstType AS CHARACTER) FORWARD.    
+    
 /* ***************************  Main Block  *************************** */
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdOutputProcs).
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdNotesProcs).
@@ -783,8 +786,21 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostForm   FOR estCostForm.
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
+    DEFINE VARIABLE cLabelBlank AS CHARACTER INIT "Blank #" NO-UNDO  . 
+    DEFINE VARIABLE cLabelNet AS CHARACTER INIT "Net:" NO-UNDO  .
+    DEFINE VARIABLE cLabelGross AS CHARACTER INIT "Gross:" NO-UNDO  .
+    DEFINE VARIABLE lWoodEstimate AS LOGICAL NO-UNDO  .
    
     DEFINE VARIABLE iColumn AS INTEGER EXTENT 10 INITIAL [12,22,32,45,58,72].
+    
+    lWoodEstimate = fTypeIsWood(ipbf-estCostHeader.estType) .
+    IF lWoodEstimate THEN
+    DO:
+        ASSIGN
+         cLabelBlank  = "Part Size:"
+         cLabelNet    = "Process Size:"
+         cLabelGross  = "Raw Wood Size" .
+    END.
        
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
@@ -797,7 +813,7 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     FOR EACH estCostBlank NO-LOCK 
         WHERE estCostBlank.estCostFormID EQ ipbf-estCostForm.estCostFormID:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Blank #" + TRIM(STRING(estCostBlank.blankNo,">>9")) + ":", NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], cLabelBlank + TRIM(STRING(estCostBlank.blankNo,">>9")) + ":", NO, NO, YES).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostBlank.blankWidth, 4, 5, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostBlank.blankLength, 4, 5, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, estCostBlank.dimUOM , NO, NO, NO).
@@ -807,17 +823,21 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostBlank.weightPerBlank * 1000, 5, 4, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostBlank.weightUOM + "/M", NO, NO, NO).
     END.
+    IF NOT lWoodEstimate THEN
+    DO:
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Die:", NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostForm.dieWidth, 4, 5, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostForm.dieLength,4, 5, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, estCostForm.dimUOM , NO, NO, NO).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.dieArea, 4, 5, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostForm.areaUOM , NO, NO, NO).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.weightDieSheet, 5, 4, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostForm.weightDieUOM, NO, NO, NO).
+    END.
+    
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Die:", NO, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostForm.dieWidth, 4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostForm.dieLength,4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, estCostForm.dimUOM , NO, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.dieArea, 4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostForm.areaUOM , NO, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.weightDieSheet, 5, 4, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostForm.weightDieUOM, NO, NO, NO).
-    RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Net:", NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn[1], cLabelNet, NO, NO, YES).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostForm.netWidth, 4, 5, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostForm.netLength,4, 5, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, estCostForm.dimUOM , NO, NO, NO).
@@ -827,7 +847,7 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.weightNetSheet, 5, 4, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostForm.weightNetUOM, NO, NO, NO).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Gross:", NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn[1], cLabelGross, NO, NO, YES).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostForm.grossWidth, 4, 5, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostForm.grossLength, 4, 5, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, estCostForm.dimUOM , NO, NO, NO).
@@ -1454,6 +1474,18 @@ FUNCTION fTypePrintsBoard RETURNS LOGICAL PRIVATE
     RETURN NOT DYNAMIC-FUNCTION("IsMiscType",ipcEstType).
         
 END FUNCTION.
+
+FUNCTION fTypeIsWood RETURNS LOGICAL PRIVATE
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns if given type should print Wood specific fields
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    
+    RETURN DYNAMIC-FUNCTION("IsWoodType",ipcEstType). 
+    
+END FUNCTION.
+
 
 PROCEDURE pPrintSummaryCosts PRIVATE:
     /*------------------------------------------------------------------------------

@@ -45,6 +45,7 @@ DEFINE VARIABLE gcTypeSingle                          AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcTypeSet                             AS CHARACTER NO-UNDO INITIAL "Set".
 DEFINE VARIABLE gcTypeCombo                           AS CHARACTER NO-UNDO INITIAL "Combo/Tandem".
 DEFINE VARIABLE gcTypeMisc                            AS CHARACTER NO-UNDO INITIAL "Miscellaneous".
+DEFINE VARIABLE gcTypeWood                            AS CHARACTER NO-UNDO INITIAL "Wood".
 DEFINE VARIABLE gcTypeList                            AS CHARACTER NO-UNDO. 
 
 DEFINE VARIABLE gcErrorWarning                        AS CHARACTER NO-UNDO INITIAL "Warning".
@@ -107,6 +108,9 @@ FUNCTION IsSetType RETURNS LOGICAL
 
 FUNCTION IsSingleType RETURNS LOGICAL 
     (ipcEstType AS CHARACTER) FORWARD.
+
+FUNCTION IsWoodType RETURNS LOGICAL 
+	(ipcEstType AS CHARACTER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
 ASSIGN 
@@ -3604,8 +3608,13 @@ PROCEDURE pBuildHeader PRIVATE:
         ipbf-estCostHeader.directMaterialPct           = gdMaterialMarkup / 100           
         ipbf-estCostHeader.weightUOM                   = gcDefaultWeightUOM     
         .
-    IF bf-est.estimateTypeID EQ "Misc" THEN 
-        ipbf-estCostHeader.estType = gcTypeMisc.
+    CASE bf-est.estimateTypeID:
+        WHEN "Misc" THEN 
+            ipbf-estCostHeader.estType = gcTypeMisc.
+        WHEN "Wood" THEN
+            ipbf-estCostHeader.estType = gcTypeWood.
+    END CASE.
+    
 END PROCEDURE.
 
 PROCEDURE pProcessInk PRIVATE:
@@ -4689,5 +4698,15 @@ FUNCTION IsSingleType RETURNS LOGICAL
     ------------------------------------------------------------------------------*/	
     RETURN ipcEstType EQ gcTypeSingle.
 	
+END FUNCTION.
+
+FUNCTION IsWoodType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the constant value for Single Estimate Type
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN ipcEstType EQ gcTypeWood.
+    
 END FUNCTION.
 
