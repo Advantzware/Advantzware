@@ -3632,8 +3632,8 @@ PROCEDURE update-ttt :
                    AND bff-item.i-no = tt-rm-rctd.i-no NO-ERROR.
                 IF v-bin NE "user entered" AND v-bin EQ "RMITEM" AND AVAIL bff-item THEN
                        ASSIGN 
-                            rm-rctd.loc:screen-value IN BROWSE {&browse-name}     = item.loc
-                            rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = item.loc-bin.
+                            rm-rctd.loc:screen-value IN BROWSE {&browse-name}     = bff-item.loc
+                            rm-rctd.loc-bin:screen-value IN BROWSE {&browse-name} = bff-item.loc-bin.
     END.
 
 END PROCEDURE.
