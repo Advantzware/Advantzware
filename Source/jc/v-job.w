@@ -1339,7 +1339,6 @@ PROCEDURE local-enable-fields :
     IF adm-new-record OR
        job.due-date LT job.start-date THEN
     ENABLE btnCalcDueDate job.due-date btnCalendar-1 btnCalendar-2.
-
     ELSE
     FOR EACH job-hdr
         WHERE job-hdr.company EQ job.company
@@ -1595,11 +1594,6 @@ PROCEDURE local-update-record :
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl).     
     RUN reopen-query IN WIDGET-HANDLE(char-hdl) (jobHdrRowID).
   END.
-  /*ELSE
-  IF ll-sch-updated THEN DO:
-    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl).     
-    RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(job-hdr)).
-  END.*/
 
   /* gdm - 05290901 */
   IF ll-new AND NOT copyJob THEN DO:
@@ -1609,11 +1603,11 @@ PROCEDURE local-update-record :
         ).
     IF CAN-FIND(FIRST bf-job-mch NO-LOCK
                 WHERE bf-job-mch.company EQ job.company
-                AND bf-job-mch.job     EQ job.job
-                AND bf-job-mch.job-no  EQ job.job-no
-                AND bf-job-mch.job-no2 EQ job.job-no2) AND
-       job.start-date NE ? 
-      THEN RUN update-job-mch.
+                  AND bf-job-mch.job     EQ job.job
+                  AND bf-job-mch.job-no  EQ job.job-no
+                  AND bf-job-mch.job-no2 EQ job.job-no2)
+                  AND job.start-date     NE ? THEN
+    RUN update-job-mch.
   END.
   /* gdm - 05290901 end */    
 
@@ -1635,8 +1629,8 @@ PROCEDURE local-update-record :
              WHERE job-hdr.company EQ job.company
                AND job-hdr.job     EQ job.job
                AND job-hdr.job-no  EQ job.job-no
-               AND job-hdr.job-no2 EQ job.job-no2 NO-ERROR.
-
+               AND job-hdr.job-no2 EQ job.job-no2
+             NO-ERROR.
      IF AVAILABLE job-hdr THEN
         v-reprint = job-hdr.ftick-prnt.
 
@@ -1773,16 +1767,17 @@ PROCEDURE pUpdateJobStartDate PRIVATE :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipriJob       AS ROWID NO-UNDO.
+    DEFINE INPUT  PARAMETER iprJob        AS ROWID NO-UNDO.
     DEFINE INPUT  PARAMETER ipdtStartDate AS DATE  NO-UNDO.
     
     DEFINE BUFFER bf-job FOR job.
     
     FIND FIRST bf-job EXCLUSIVE-LOCK
-         WHERE ROWID(bf-job) EQ ipriJob
+         WHERE ROWID(bf-job) EQ iprJob
          NO-ERROR.
     IF AVAILABLE bf-job AND bf-job.start-date EQ ? THEN
-        bf-job.start-date = ipdtStartDate.
+    bf-job.start-date = ipdtStartDate.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2176,7 +2171,7 @@ PROCEDURE update-job-mch :
       END. /* do trans */
     END.
     /* rstark 06241201 */
-    
+    ELSE    
     FOR EACH bf-job-mch EXCLUSIVE-LOCK
         WHERE bf-job-mch.company EQ job.company
           AND bf-job-mch.job     EQ job.job
