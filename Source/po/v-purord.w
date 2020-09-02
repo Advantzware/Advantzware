@@ -792,6 +792,21 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME po-ord.po-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.po-date V-table-Win
+ON LEAVE OF po-ord.po-date IN FRAME F-Main /* PO Date */
+DO:
+   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  IF LASTKEY NE -1 THEN DO:    
+    RUN valid-po-date(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.    
+  END.
+  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME rd_drop-shipment
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_drop-shipment V-table-Win
@@ -1798,6 +1813,7 @@ PROCEDURE local-display-fields :
       rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "C"
       ls-ship-choice = "C" .
       po-ord.cust-no:HIDDEN IN FRAME {&FRAME-NAME} = NO.
+      po-ord.cust-no:SENSITIVE IN FRAME {&FRAME-NAME} = NO .
       ls-drop-custno = po-ord.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
       DISPLAY po-ord.cust-no WITH FRAME {&FRAME-NAME}.
     END.
@@ -1846,6 +1862,9 @@ PROCEDURE local-update-record :
 
   {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME} :
+  
+    RUN valid-po-date(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
   
     RUN valid-vend-no(OUTPUT lReturnError) NO-ERROR.
     IF lReturnError THEN RETURN NO-APPLY.
@@ -2607,6 +2626,36 @@ PROCEDURE valid-is-dropship :
            oplReturnError = YES.
         END.
     END.
+  END.
+  {methods/lValidateError.i NO}
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-po-date V-table-Win 
+PROCEDURE valid-po-date :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+        IF date(po-ord.po-date:SCREEN-VALUE) EQ ? THEN DO:        
+               MESSAGE "Please enter PO date. " VIEW-AS ALERT-BOX INFO.
+               APPLY "entry" TO po-ord.po-date.
+               oplReturnError = YES.
+               lCheckError = YES .
+        END.
+        IF date(po-ord.po-date:SCREEN-VALUE) LT (TODAY - 90) AND NOT lCheckError THEN DO:        
+               MESSAGE "PO date not allow more then 90 day back from today " VIEW-AS ALERT-BOX INFO.
+               APPLY "entry" TO po-ord.po-date.
+               oplReturnError = YES.
+        END.  
   END.
   {methods/lValidateError.i NO}
     
