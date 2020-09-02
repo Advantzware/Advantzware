@@ -85,9 +85,8 @@ FUNCTION fTypePrintsLayout RETURNS LOGICAL PRIVATE
 FUNCTION fTypePrintsBoard RETURNS LOGICAL PRIVATE
     (ipcEstType AS CHARACTER) FORWARD.
     
-FUNCTION fEstimateTypeId RETURNS LOGICAL PRIVATE
-    (ipcCompany AS CHARACTER,
-     ipcEstNo AS CHARACTER) FORWARD.    
+FUNCTION fTypeIsWood RETURNS LOGICAL PRIVATE
+    (ipcEstType AS CHARACTER) FORWARD.    
     
 /* ***************************  Main Block  *************************** */
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdOutputProcs).
@@ -794,7 +793,7 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
    
     DEFINE VARIABLE iColumn AS INTEGER EXTENT 10 INITIAL [12,22,32,45,58,72].
     
-    lWoodEstimate = fEstimateTypeId(ipbf-estCostForm.company,ipbf-estCostForm.estimateNo) .
+    lWoodEstimate = fTypeIsWood(ipbf-estCostHeader.estType) .
     IF lWoodEstimate THEN
     DO:
         ASSIGN
@@ -1476,20 +1475,15 @@ FUNCTION fTypePrintsBoard RETURNS LOGICAL PRIVATE
         
 END FUNCTION.
 
-FUNCTION fEstimateTypeId RETURNS LOGICAL PRIVATE
-    (ipcCompany AS CHARACTER,
-    ipcEstNo AS CHARACTER):
+FUNCTION fTypeIsWood RETURNS LOGICAL PRIVATE
+    (ipcEstType AS CHARACTER):
     /*------------------------------------------------------------------------------
-     Purpose: Returns estimate Type Id wood 
+     Purpose: Returns if given type should print Wood specific fields
      Notes:
     ------------------------------------------------------------------------------*/    
-     DEFINE VARIABLE lReturnValue AS LOGICAL NO-UNDO.
-     FIND FIRST est NO-LOCK 
-            WHERE est.company EQ ipcCompany
-            AND est.est-no EQ ipcEstNo
-            NO-ERROR. 
-     lReturnValue = IF AVAIL est AND est.estimateTypeID EQ "Wood" THEN TRUE ELSE FALSE.       
-     RETURN lReturnValue .   
+    
+    RETURN DYNAMIC-FUNCTION("IsWoodType",ipcEstType). 
+    
 END FUNCTION.
 
 
