@@ -73,6 +73,10 @@ DEFINE VARIABLE cStartBeforeValue  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEndBeforeValue    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cStartAfterValue   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEndAfterValue     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdAuditHdrQuery    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdAuditDtlQuery    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cSortBY            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCurrentBrowse     AS CHARACTER NO-UNDO.
 
 {AOA/tempTable/ttAudit.i}
 
@@ -1095,6 +1099,10 @@ DO:
   &IF DEFINED(AuditHistory) EQ 0 &THEN
   RUN pSaveSettings.
   &ENDIF
+  IF VALID-HANDLE(hdAuditHdrQuery) THEN 
+      DELETE OBJECT hdAuditHdrQuery.
+  IF VALID-HANDLE(hdAuditDtlQuery) THEN   
+      DELETE OBJECT hdAuditDtlQuery.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -1127,6 +1135,7 @@ DO:
             cSaveLabel = cColumnLabel
             svSortByDtl:SCREEN-VALUE = BROWSE AuditDetail:CURRENT-COLUMN:LABEL + " "
                                      + STRING(lAscending,"Ascending/Descending")
+            cCurrentBrowse = {&BROWSE-NAME}:NAME
             .
         RUN pReopenBrowse.
     END.
@@ -1184,6 +1193,7 @@ DO:
             cSaveLabel = cColumnLabel
             svSortByHdr:SCREEN-VALUE = BROWSE AuditHeader:CURRENT-COLUMN:LABEL + " "
                                      + STRING(lAscending,"Ascending/Descending")
+            cCurrentBrowse = {&BROWSE-NAME}:NAME
             .
         RUN pReopenBrowse.
     END.
@@ -1203,7 +1213,7 @@ DO:
         btnRestore:HIDDEN IN FRAME AuditSearch    = AuditHdr.AuditType NE "DELETE"
         btnRestore:SENSITIVE = AuditHdr.AuditType EQ "DELETE"
         .
-    {&OPEN-QUERY-AuditDetail}
+    RUN pPrepareAndExecuteQueryForDetail.
     APPLY "VALUE-CHANGED":U TO BROWSE AuditDetail.
 END.
 
@@ -1445,7 +1455,10 @@ DO:
         lHeaderSorting = YES
         cColumnLabel   = ""
         cSaveLabel     = ""
+        cSortBy        = ""
+        cCurrentBrowse = "AuditHeader"
         .
+        
     RUN pReopenBrowse.
 END.
 
@@ -1964,10 +1977,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "VALUE-CHANGED":U TO svEndRecKeyDateOption.
     APPLY "VALUE-CHANGED":U TO svUseRecKeySearch.
     initTime:SCREEN-VALUE = STRING(ETIME / 1000).
+    
+    ASSIGN
+        hdAuditHdrQuery = BROWSE AuditHeader:QUERY
+        hdAuditDtlQuery = BROWSE AuditDetail:QUERY
+        . 
+        
     SESSION:SET-WAIT-STATE("General").
     ETIME(YES).
     &IF DEFINED(AuditHistory) NE 0 &THEN
-    RUN pByAuditID.
+    RUN pPrepareAndExecuteQueryForHeader.
     APPLY "VALUE-CHANGED":U TO BROWSE AuditHeader.
     &ENDIF
     searchTime:SCREEN-VALUE IN FRAME AuditSearch = STRING(ETIME / 1000).
@@ -1981,23 +2000,6 @@ END.
 
 &SCOPED-DEFINE FilterFrame AuditSearch
 {AOA/includes/pGetAuditQueryFilters.i}
-
-&Scoped-define sdBrowseName AuditHeader
-{methods/sortByProc.i "pByAuditID" "AuditHdr.AuditID"}
-{methods/sortByProc.i "pByAuditType" "AuditHdr.AuditType"}
-{methods/sortByProc.i "pByAuditDateTime" "AuditHdr.AuditDateTime"}
-{methods/sortByProc.i "pByAuditDB" "AuditHdr.AuditDB"}
-{methods/sortByProc.i "pByAuditTable" "AuditHdr.AuditTable"}
-{methods/sortByProc.i "pByAuditUser" "AuditHdr.AuditUser"}
-{methods/sortByProc.i "pByAuditKey" "AuditHdr.AuditKey"}
-{methods/sortByProc.i "pByAuditRecKey" "AuditHdr.AuditRecKey"}
-
-&Scoped-define sdBrowseName AuditDetail
-{methods/sortByProc.i "pByAuditIdxField" "AuditDtl.AuditIdxField"}
-{methods/sortByProc.i "pByAuditField" "AuditDtl.AuditField BY AuditDtl.AuditExtent"}
-{methods/sortByProc.i "pByAuditExtent" "AuditDtl.AuditExtent"}
-{methods/sortByProc.i "pByAuditBeforeValue" "AuditDtl.AuditBeforeValue"}
-{methods/sortByProc.i "pByAuditAfterValue" "AuditDtl.AuditAfterValue"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2269,6 +2271,58 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrepareAndExecuteQueryForDetail C-Win 
+PROCEDURE pPrepareAndExecuteQueryForDetail PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cQuery  AS CHARACTER NO-UNDO.
+    
+    cQuery = "FOR EACH AuditDtl NO-LOCK
+                  WHERE AuditDtl.AuditID EQ " + STRING (AuditHdr.AuditID) 
+               + ( IF cStartField        EQ CHR(32) AND cEndField       EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditField EQ '"       + cStartField + "'")
+               + ( IF cStartBeforeValue  EQ CHR(32) AND cEndBeforeValue EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditBeforeValue EQ '" + cStartBeforeValue + "'")
+               + ( IF cStartAfterValue   EQ CHR(32) AND cEndAfterValue  EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditAfterValue EQ '"  + cStartAfterValue + "'")
+               + ( IF cSortBy NE "" AND NOT lHeaderSorting THEN " BY " + cSortBy + ( IF lAscending THEN "" ELSE " DESCENDING")  ELSE " ").  
+   
+    hdAuditDtlQuery:QUERY-PREPARE (cQuery).    
+    hdAuditDtlQuery:QUERY-OPEN().
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrepareAndExecuteQueryForHeader C-Win 
+PROCEDURE pPrepareAndExecuteQueryForHeader PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cQuery  AS CHARACTER NO-UNDO.
+    
+    cQuery = "FOR EACH AuditHdr NO-LOCK
+                   WHERE AuditHdr.AuditDateTime GE DATETIME('" + STRING(dtStartDateTime) + "')"
+               +   " AND AuditHdr.AuditDateTime LE DATETIME('" + STRING(dtEndDateTime) + "')"
+               + ( IF cStartDB       EQ CHR(32) AND cEndDB       EQ CHR(254) THEN "" ELSE " AND AuditHdr.AuditDB    EQ '" + cStartDb + "'")  
+               + ( IF cStartTable    EQ CHR(32) AND cEndTable    EQ CHR(254) THEN "" ELSE " AND AuditHdr.AuditTable EQ '" + cStartTable + "'")
+               + ( IF cStartType     EQ CHR(32) AND cEndType     EQ CHR(254) THEN "" ELSE " AND AuditHdr.AuditType  EQ '" + cStartType + "'")
+               + ( IF cStartUser     EQ CHR(32) AND cEndType     EQ CHR(254) THEN "" ELSE " AND AuditHdr.AuditUser  EQ '" + cStartUser + "'")
+               + ( IF cStartAuditKey EQ CHR(32) AND cEndAuditKey EQ CHR(254) THEN "" ELSE " AND AuditHdr.Auditkey   EQ '" + cStartAuditKey + "'")
+               + " , FIRST AuditDtl OF AuditHdr NO-LOCK "
+               + ( IF cStartField        EQ CHR(32) AND cEndField       EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditField       EQ '" + cStartField + "'")
+               + ( IF cStartBeforeValue  EQ CHR(32) AND cEndBeforeValue EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditBeforeValue EQ '" + cStartBeforeValue + "'")
+               + ( IF cStartAfterValue   EQ CHR(32) AND cEndAfterValue  EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditAfterValue  EQ '" + cStartAfterValue + "'")
+               + ( IF cSortBy NE "" THEN "BY " + cSortBy +( IF lAscending THEN "" ELSE " DESCENDING")  ELSE " ")
+               +  " MAX-ROWS " + STRING(maxrows)
+               . 
+    hdAuditHdrQuery:QUERY-PREPARE(cQuery).    
+    hdAuditHdrQuery:QUERY-OPEN().
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReopenBrowse C-Win 
 PROCEDURE pReopenBrowse :
 /*------------------------------------------------------------------------------
@@ -2278,38 +2332,43 @@ PROCEDURE pReopenBrowse :
 ------------------------------------------------------------------------------*/
     SESSION:SET-WAIT-STATE("General").
     ETIME(YES).
-    IF svUseRecKeySearch EQ NO THEN
-    CASE cColumnLabel:
-        WHEN "AuditType" THEN
-        RUN pByAuditType.
-        WHEN "AuditDateTime" THEN
-        RUN pByAuditDateTime.
-        WHEN "AuditDB" THEN
-        RUN pByAuditDB.
-        WHEN "AuditTable" THEN
-        RUN pByAuditTable.
-        WHEN "AuditUser" THEN
-        RUN pByAuditUser.
-        WHEN "AuditIdxField" THEN
-        RUN pByAuditIdxField.
-        WHEN "AuditField" THEN
-        RUN pByAuditField.
-        WHEN "AuditKey" THEN
-        RUN pByAuditKey.
-        WHEN "AuditRecKey" THEN
-        RUN pByAuditRecKey.
-        WHEN "AuditExtent" THEN
-        RUN pByAuditExtent.
-        WHEN "AuditBeforeValue" THEN
-        RUN pByAuditBeforeValue.
-        WHEN "AuditAfterValue" THEN
-        RUN pByAuditAfterValue.
-        WHEN "AuditID" THEN
-        RUN pByAuditID.
-        OTHERWISE
-        &SCOPED-DEFINE SORTBY-PHRASE {&MAX-ROWS}
-        {&OPEN-QUERY-AuditHeader}
-    END CASE.
+    IF svUseRecKeySearch EQ NO THEN DO:
+        CASE cColumnLabel:
+            WHEN "AuditType" THEN
+                cSortBy = "AuditHdr.AuditType".
+            WHEN "AuditDateTime" THEN
+                cSortBy = "AuditHdr.AuditDateTime".
+            WHEN "AuditDB" THEN
+                cSortBy = "AuditHdr.AuditDB".
+            WHEN "AuditTable" THEN
+                cSortBy = "AuditHdr.AuditTable".
+            WHEN "AuditUser" THEN
+                cSortBy = "AuditHdr.AuditUser".
+            WHEN "AuditIdxField" THEN
+                cSortBy = "AuditDtl.AuditIdxField".
+            WHEN "AuditField" THEN
+                cSortBy = "AuditDtl.AuditField BY AuditDtl.AuditExtent".
+            WHEN "AuditKey" THEN
+                cSortBy = "AuditHdr.AuditKey".
+            WHEN "AuditRecKey" THEN
+                cSortBy = "AuditHdr.AuditRecKey".
+            WHEN "AuditExtent" THEN
+                cSortBy = "AuditDtl.AuditExtent".
+            WHEN "AuditBeforeValue" THEN
+                cSortBy = "AuditDtl.AuditBeforeValue".
+            WHEN "AuditAfterValue" THEN
+                cSortBy = "AuditDtl.AuditAfterValue".
+            WHEN "AuditID" THEN
+                cSortBy = "AuditHdr.AuditId".
+            OTHERWISE
+                cSortBy = "".
+        END CASE.
+        IF cCurrentBrowse EQ "AuditHeader" THEN 
+            RUN pPrepareAndExecuteQueryForHeader.
+        ELSE 
+            RUN pPrepareAndExecuteQueryForDetail.     
+ 
+    END.
     ELSE DO:
         OPEN QUERY AuditHeader
         FOR EACH AuditHdr NO-LOCK
