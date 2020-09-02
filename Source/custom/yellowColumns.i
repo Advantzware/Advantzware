@@ -1327,6 +1327,24 @@ PROCEDURE openQuery:
                                    STRING(DAY(po-ordl.due-date),'99') ELSE ~
      po-ord.ship-id ~{&SORTED}
 
+&ELSEIF '{&yellowColumnsName}' EQ 'l-eb' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Estimate #' THEN string(eb.est-no) ELSE ~
+  IF sortColumn EQ 'Cust#' THEN string(eb.cust-no)  ELSE ~
+  IF sortColumn EQ 'Cust Part #' THEN string(eb.part-no) ELSE ~
+  IF sortColumn EQ 'Description' THEN STRING(eb.part-dscr1) ELSE ~
+  IF sortColumn EQ 'FG Item#' THEN STRING(eb.stock-no) ELSE ~
+     eb.est-no ~{&SORTED}
+
+&ELSEIF '{&yellowColumnsName}' EQ 'l-ebstf' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Item No' THEN string(itemfg.i-no) ELSE ~
+  IF sortColumn EQ 'Item Description' THEN string(itemfg.part-dscr1)  ELSE ~
+  IF sortColumn EQ 'Cust. #' THEN string(itemfg.cust-no) ELSE ~
+  IF sortColumn EQ 'Cust Part #' THEN STRING(itemfg.part-no) ELSE ~
+  IF sortColumn EQ 'Estimate #' THEN STRING(itemfg.est-no) ELSE ~
+     itemfg.est-no ~{&SORTED}
+
 &ELSEIF '{&yellowColumnsName}' EQ 'd-po-inq#' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
   IF sortColumn EQ 'PO#' THEN string(po-ordl.po-no,"999999999") ELSE ~
