@@ -797,7 +797,7 @@ DO:
                 ttLines.orderID                = ar-invl.ord-no
                 ttLines.orderLine              = ar-invl.ord-line
                 ttLines.quantityInvoiced       = ar-invl.inv-qty
-                ttLines.quantityInvoicedUOM    = ar-invl.pr-qty-uom
+                ttLines.quantityInvoicedUOM    = "EA"
                 ttLines.pricePerUOM            = ar-invl.unit-pr * (1 - (ar-invl.disc / 100))
                 ttLines.priceUOM               = ar-invl.pr-uom
                 ttLines.customerPartID         = ar-invl.part-no
