@@ -25,7 +25,9 @@ DEF TEMP-TABLE work-tmp NO-UNDO
    FIELD est-no AS INT
    FIELD job-hr-total AS DEC
    FIELD tot-mr-hours AS DEC
-   FIELD i-no AS CHAR  
+   FIELD i-no AS CHAR 
+   FIELD cust-no AS CHAR 
+   FIELD i-name AS CHARACTER  
    INDEX idx1 m-code shift-sort job job-no job-no2 frm blank-no
    INDEX work-tmp job frm blank-no dept m-code pass sort-field
    INDEX job job-no job-no2.
@@ -53,6 +55,9 @@ DEF TEMP-TABLE work-rep NO-UNDO
    FIELD qty-sheets AS DEC
    FIELD job-no AS CHAR
    FIELD job-no2 AS INT
+   FIELD cust-no AS CHARACTER
+   FIELD i-name AS CHARACTER
+   FIELD i-no AS CHAR
    INDEX work-rep sort-field dept m-code.
 
  DEF TEMP-TABLE work-rep-copy NO-UNDO LIKE work-rep.
