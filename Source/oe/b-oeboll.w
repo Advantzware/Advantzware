@@ -2180,10 +2180,10 @@ PROCEDURE local-enable-fields :
   DEFINE VARIABLE char-hdl AS CHAR NO-UNDO.
 /*   oe-boll.weight:READ-ONLY IN BROWSE {&browse-name} = NO. */
   /* Code placed here will execute PRIOR to standard behavior. */
-  /*IF AVAIL oe-bolh AND oe-bolh.posted THEN DO:
-     MESSAGE "BOL has been posted, update not allowed..." VIEW-AS ALERT-BOX ERROR.
-     RETURN ERROR.
-  END.*/
+  IF AVAIL oe-bolh AND oe-bolh.posted THEN DO:
+     MESSAGE "BOL has been posted, update not allowed..." VIEW-AS ALERT-BOX INFO.
+     RETURN NO-APPLY.
+  END.
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
   RUN make-buttons-insensitive IN WIDGET-HANDLE(char-hdl).
 
