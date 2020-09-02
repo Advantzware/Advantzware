@@ -485,22 +485,72 @@ PROCEDURE ipRunPurge :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    OUTPUT STREAM out1 TO VALUE("c:\tmp\ar-inv" + 
+    DEFINE VARIABLE cOutputArInv AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOutputArInvl AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOutputArCash AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOutputArCashl AS CHARACTER NO-UNDO.   
+    
+    DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+    
+    cOutputArInv =  "c:\tmp\ar-inv" + 
                                 STRING(YEAR(TODAY),"9999") +
                                 STRING(MONTH(TODAY),"99") +
-                                STRING(DAY(TODAY),"99") + ".d").
-    OUTPUT STREAM out2 TO VALUE("c:\tmp\ar-invl" +
+                                STRING(DAY(TODAY),"99") + ".d"  .
+                                
+     cOutputArInvl =  "c:\tmp\ar-invl" +
                                 STRING(YEAR(TODAY),"9999") +
                                 STRING(MONTH(TODAY),"99") +
-                                STRING(DAY(TODAY),"99") + ".d").
-    OUTPUT STREAM out3 TO VALUE("c:\tmp\ar-cash" + 
+                                STRING(DAY(TODAY),"99") + ".d"  .
+                                
+     cOutputArCash =   "c:\tmp\ar-cash" + 
                                 STRING(YEAR(TODAY),"9999") +
                                 STRING(MONTH(TODAY),"99") +
-                                STRING(DAY(TODAY),"99") + ".d").
-    OUTPUT STREAM out4 TO VALUE("c:\tmp\ar-cashl" +
+                                STRING(DAY(TODAY),"99") + ".d"  .
+                                
+      cOutputArCashl =  "c:\tmp\ar-cashl" +
                                 STRING(YEAR(TODAY),"9999") +
                                 STRING(MONTH(TODAY),"99") +
-                                STRING(DAY(TODAY),"99") + ".d").
+                                STRING(DAY(TODAY),"99") + ".d" .
+      
+      
+    RUN FileSys_GetUniqueFileName (
+        INPUT  cOutputArInv,
+        INPUT  YES,    
+        OUTPUT cOutputArInv, 
+        OUTPUT lSuccess, 
+        OUTPUT cMessage  
+        ).  
+        
+    RUN FileSys_GetUniqueFileName (
+        INPUT  cOutputArInvl,
+        INPUT  YES,    
+        OUTPUT cOutputArInvl, 
+        OUTPUT lSuccess, 
+        OUTPUT cMessage  
+        ). 
+        
+    RUN FileSys_GetUniqueFileName (
+        INPUT  cOutputArCash,
+        INPUT  YES,    
+        OUTPUT cOutputArCash, 
+        OUTPUT lSuccess, 
+        OUTPUT cMessage  
+        ). 
+        
+    RUN FileSys_GetUniqueFileName (
+        INPUT  cOutputArCashl,
+        INPUT  YES,    
+        OUTPUT cOutputArCashl, 
+        OUTPUT lSuccess, 
+        OUTPUT cMessage  
+        ).         
+    
+    
+    OUTPUT STREAM out1 TO VALUE(cOutputArInv).
+    OUTPUT STREAM out2 TO VALUE(cOutputArInvl).
+    OUTPUT STREAM out3 TO VALUE(cOutputArCash).
+    OUTPUT STREAM out4 TO VALUE(cOutputArCashl).                                    
 
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN {&displayed-objects}.
