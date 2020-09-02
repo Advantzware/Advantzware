@@ -12,6 +12,7 @@
   ----------------------------------------------------------------------*/
 {api/ttArgs.i}
 {api/CommonAPIProcs.i}
+{XMLOutput/ttNodes.i NEW}
     
 DEFINE INPUT        PARAMETER TABLE                   FOR ttArgs.
 DEFINE INPUT        PARAMETER ipiAPIOutboundID        AS INTEGER   NO-UNDO.
@@ -38,13 +39,19 @@ DEFINE VARIABLE lcConcatAddress2Data  AS LONGCHAR NO-UNDO.
 /* Variables to store Tax request data */
 DEFINE VARIABLE lcConcatTaxData       AS LONGCHAR NO-UNDO.
 DEFINE VARIABLE lcTaxData             AS LONGCHAR NO-UNDO.         
+  
+/* Variables to store Tax request data */ 
+DEFINE VARIABLE lcConcatShiptoStreetData AS LONGCHAR NO-UNDO.
+DEFINE VARIABLE lcShiptoStreetData       AS LONGCHAR NO-UNDO. 
+DEFINE VARIABLE lcConcatBillToStreetData AS LONGCHAR NO-UNDO. 
+DEFINE VARIABLE lcBillToStreetData       AS LONGCHAR NO-UNDO.  
        
 /* Invoice Header Variables */
 DEFINE VARIABLE cCompany              AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCurrentDate              AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCurrentTime              AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cInvoiceDate              AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cInvoiceNumber             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCurrentDate          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCurrentTime          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInvoiceDate          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInvoiceNumber        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dtInvoiceDate         AS DATE      NO-UNDO.
            
 DEFINE VARIABLE cTotalAmount          AS CHARACTER NO-UNDO.
@@ -52,7 +59,7 @@ DEFINE VARIABLE dInvoiceTotalAmt      AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dLineTotalAmt         AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cSELineCount          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dSELineCount          AS INTEGER   NO-UNDO.
-DEFINE VARIABLE cFullDocument         AS LONGCHAR NO-UNDO.
+DEFINE VARIABLE cFullDocument         AS LONGCHAR  NO-UNDO.
     
 /* Invoice Line Variables */
 DEFINE VARIABLE cItemLineNum          AS CHARACTER NO-UNDO.
@@ -107,6 +114,19 @@ DEFINE VARIABLE cRequestDataType      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cClientID             AS CHARACTER NO-UNDO.
     
 DEFINE VARIABLE iIndex                AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lFirst                AS LOGICAL   NO-UNDO.
+
+DEFINE VARIABLE gcCXMLIdentity        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcCXMLDeploymentMode  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcCXMLShipToPrefix    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcCXMLIdentityCust    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcCXMLPayloadID       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcCXMLTimeStamp       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcCXMLSharedSecret    AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE cSuffix    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dtInvDate  AS DATE      NO-UNDO.
+DEFINE VARIABLE hdXMLProcs AS HANDLE    NO-UNDO.
     
 DEFINE BUFFER bf-APIOutboundDetail1 FOR APIOutboundDetail.
 DEFINE BUFFER bf-APIOutboundDetail2 FOR APIOutboundDetail. 
@@ -115,7 +135,10 @@ DEFINE BUFFER bf-APIOutboundDetail4 FOR APIOutBoundDetail.
 DEFINE BUFFER bf-reftable1          FOR reftable.
 DEFINE BUFFER bf-reftable2          FOR reftable.
 DEFINE BUFFER bf-ar-invl            FOR ar-invl.
-    
+  
+RUN XMLOutput/XMLProcs.p PERSISTENT SET hdXMLProcs.
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdXMLProcs).
+   
 DEFINE TEMP-TABLE ttAddons LIKE edivAddon.
     
 DEFINE TEMP-TABLE ttN1Address
@@ -132,10 +155,76 @@ DEFINE TEMP-TABLE ttN1Address
     INDEX iOrder AddressOrder.
         
 DEFINE TEMP-TABLE ttLines
-    FIELD rLineDetailRow AS ROWID 
-    FIELD iLine          AS INTEGER
+    FIELD rLineDetailRow           AS ROWID 
+    FIELD iLine                    AS INTEGER
+    FIELD invoiceID                AS INTEGER   
+    FIELD company                  AS CHARACTER 
+    FIELD lineNo                   AS INTEGER   
+    FIELD quantity                 AS INTEGER   
+    FIELD quantityUOM              AS CHARACTER 
+    FIELD quantityInvoiced         AS INTEGER   
+    FIELD quantityInvoicedUOM      AS CHARACTER 
+    FIELD quantityOrderOriginal    AS INTEGER   
+    FIELD quantityOrderOriginalUOM AS CHARACTER 
+    FIELD pricePerUOM              AS DECIMAL   
+    FIELD priceUOM                 AS CHARACTER 
+    FIELD priceTotal               AS DECIMAL   
+    FIELD customerPartID           AS CHARACTER 
+    FIELD itemID                   AS CHARACTER 
+    FIELD itemName                 AS CHARACTER 
+    FIELD amountTax                AS DECIMAL   
+    FIELD amountTaxExFreightTax    AS DECIMAL   
+    FIELD amountFreightTax         AS DECIMAL   
+    FIELD amountTaxable            AS DECIMAL   
+    FIELD amountTaxableExFreight   AS DECIMAL   
+    FIELD amountTaxableFreight     AS DECIMAL   
+    FIELD taxRate                  AS DECIMAL   
+    FIELD amountFreight            AS DECIMAL   
+    FIELD taxable                  AS LOGICAL   
+    FIELD taxGroup                 AS CHARACTER 
+    FIELD orderID                  AS INTEGER   
+    FIELD orderLine                AS INTEGER   
+    FIELD taxRateFreight           AS DECIMAL   
+    FIELD customerPONo             AS CHARACTER           
     .
-
+    
+DEFINE TEMP-TABLE ttInv NO-UNDO 
+    FIELD invoiceID                   AS INTEGER
+    FIELD invoiceIDString             AS CHARACTER
+    FIELD deploymentMode              AS CHARACTER
+    FIELD company                     AS CHARACTER 
+    FIELD invoiceDate                 AS DATE
+    FIELD invoiceDateString           AS CHARACTER
+    FIELD customerID                  AS CHARACTER
+    FIELD customerName                AS CHARACTER
+    FIELD customerAddress1            AS CHARACTER
+    FIELD customerAddress2            AS CHARACTER 
+    FIELD customerCity                AS CHARACTER 
+    FIELD customerState               AS CHARACTER 
+    FIELD customerPostalCode          AS CHARACTER 
+    FIELD shiptoID                    AS CHARACTER
+    FIELD shiptoName                  AS CHARACTER
+    FIELD shiptoAddress1              AS CHARACTER
+    FIELD shiptoAddress2              AS CHARACTER 
+    FIELD shiptoCity                  AS CHARACTER 
+    FIELD shiptoState                 AS CHARACTER 
+    FIELD shiptoPostalCode            AS CHARACTER 
+    FIELD termsDays                   AS INTEGER
+    FIELD customerPO                  AS CHARACTER
+    FIELD payloadID                   AS CHARACTER
+    FIELD amountTotalLines            AS DECIMAL 
+    FIELD amountTotalTax              AS DECIMAL 
+    FIELD amountTotalTaxable          AS DECIMAL 
+    FIELD amountTotalFreight          AS DECIMAL
+    FIELD amountTotalTaxableFreight   AS DECIMAL 
+    FIELD amountTotalTaxFreight       AS DECIMAL 
+    FIELD amountTotalTaxExFreight     AS DECIMAL
+    FIELD amountTotalTaxableExFreight AS DECIMAL
+    FIELD amountTotal                 AS DECIMAL 
+    FIELD taxGroup                    AS CHARACTER
+    FIELD billFreight                 AS LOGICAL
+    FIELD frtTaxRate                  AS DECIMAL
+    .
           
 /* This is to run client specific request handler to fetch request data */
 IF ipcRequestHandler NE "" THEN
@@ -226,6 +315,18 @@ DO:
             .
         RETURN.
     END.
+    FIND FIRST ttArgs
+         WHERE ttArgs.argkey EQ "Suffix"
+         NO-ERROR.
+    IF AVAILABLE ttArgs THEN 
+        cSuffix = ttArgs.argValue.
+        
+    FIND FIRST ttArgs
+         WHERE ttArgs.argkey EQ "InvoiceDate"
+         NO-ERROR.        
+    IF AVAILABLE ttArgs THEN 
+        dtInvDate = IF ttArgs.argValue EQ ? THEN TODAY ELSE DATE(ttArgs.argValue).
+                
     IF AVAILABLE inv-head THEN 
     DO:
         IF NOT CAN-FIND(FIRST inv-line
@@ -255,6 +356,7 @@ DO:
         cClientID        = APIOutbound.clientID
         cRequestDataType = APIOutbound.requestDataType 
         .
+    EMPTY TEMP-TABLE ttinv.
         
     IF AVAIL inv-head THEN 
     DO:
@@ -285,16 +387,45 @@ DO:
                 inv-head.sold-name, inv-head.sold-addr[1], inv-head.sold-addr[2], inv-head.sold-city,
                 inv-head.sold-state,inv-head.sold-zip, cCustCountry ).
         END.    
-                                                                    
+        RUN pGetSettings(  
+            INPUT inv-head.company,
+            INPUT inv-head.cust-no,
+            INPUT ""
+            ).                                                           
         ASSIGN                 
-            cInvoiceNumber     = STRING(inv-head.inv-no)
-            cInvoiceDate      = STRING(inv-head.inv-date)
-            cTotalAmount  = TRIM(IF inv-head.t-inv-rev GT 0 THEN STRING(inv-head.t-inv-rev, ">>>>>>>>.99") ELSE "0")
-            cTotalAmount  = REPLACE(ctotalAmount, ".", "")
-            dtInvoiceDate = inv-head.inv-date
-            cShipToCode   = IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to.
+            cInvoiceNumber = STRING(inv-head.inv-no)
+            cInvoiceDate   = STRING(inv-head.inv-date)
+            cTotalAmount   = TRIM(IF inv-head.t-inv-rev GT 0 THEN STRING(inv-head.t-inv-rev, ">>>>>>>>.99") ELSE "0")
+            cTotalAmount   = REPLACE(ctotalAmount, ".", "")
+            dtInvoiceDate  = inv-head.inv-date
+            cShipToCode    = IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to.
         .
-
+        CREATE ttInv.
+        ASSIGN             
+            ttInv.invoiceDate        = dtInvDate 
+            ttInv.invoiceID          = inv-head.inv-no
+            ttInv.customerID         = inv-head.cust-no
+            ttInv.customerName       = inv-head.cust-name
+            ttInv.customerAddress1   = inv-head.addr[1]
+            ttInv.customerAddress2   = inv-head.addr[2]
+            ttInv.customerCity       = inv-head.city
+            ttInv.customerState      = inv-head.state
+            ttInv.customerPostalCode = inv-head.zip
+            ttInv.company            = inv-head.company
+            ttInv.taxGroup           = inv-head.tax-gr
+            ttInv.amountTotal        = inv-head.t-inv-rev
+            ttInv.billFreight        = inv-head.f-bill
+            ttInv.amountTotalFreight = IF ttInv.billFreight THEN inv-head.t-inv-freight ELSE 0
+            ttInv.amountTotalTax     = inv-head.t-inv-tax
+            .   
+ 
+        RUN pAssignCommonHeaderData(
+            BUFFER ttInv, 
+            INPUT inv-head.company, 
+            INPUT inv-head.cust-no, 
+            INPUT inv-head.sold-no,
+            INPUT inv-head.terms
+            ).
         RUN pCreateAddress("BT", 1, inv-head.bill-to, inv-head.cust-name, inv-head.addr[1], 
             inv-head.addr[2], inv-head.city, inv-head.state, inv-head.zip, 
             cCustCountry).
@@ -339,12 +470,43 @@ DO:
             dLineTotalAmt = dLineTotalAmt + bf-ar-invl.amt.
         END.
         ASSIGN 
-            cInvoiceNumber        = STRING(ar-inv.inv-no)
+            cInvoiceNumber   = STRING(ar-inv.inv-no)
             dInvoiceTotalAmt = dLineTotalAmt + ar-inv.tax-amt + (IF ar-inv.f-bill THEN ar-inv.freight ELSE 0)
             cTotalAmount     = TRIM(IF dInvoiceTotalAmt GT 0 THEN STRING(dInvoiceTotalAmt, ">>>>>>>>.99") ELSE "0")
             cTotalAmount     = REPLACE(ctotalAmount, ".", "")
             dtInvoiceDate    = ar-inv.inv-date
             .
+        RUN pGetSettings(
+            INPUT ar-inv.company,
+            INPUT ar-inv.cust-no,
+            INPUT ar-inv.ship-id
+            ).
+             
+        CREATE ttInv.
+        ASSIGN             
+            ttInv.invoiceDate        = dtInvDate 
+            ttInv.invoiceID          = ar-inv.inv-no
+            ttInv.customerID         = ar-inv.cust-no
+            ttInv.customerName       = ar-inv.cust-name
+            ttInv.customerAddress1   = ar-inv.addr[1]
+            ttInv.customerAddress2   = ar-inv.addr[2]
+            ttInv.customerCity       = ar-inv.city
+            ttInv.customerState      = ar-inv.state
+            ttInv.customerPostalCode = ar-inv.zip
+            ttInv.company            = ar-inv.company
+            ttInv.taxGroup           = ar-inv.tax-code
+            ttInv.amountTotal        = ar-inv.t-sales 
+            ttInv.billFreight        = ar-inv.f-bill
+            ttInv.amountTotalFreight = IF ttInv.billFreight THEN ar-inv.freight ELSE 0
+            ttInv.amountTotalTax     = ar-inv.tax-amt
+            . 
+        RUN pAssignCommonHeaderData(
+            BUFFER ttInv, 
+            INPUT ar-inv.company, 
+            INPUT ar-inv.cust-no, 
+            INPUT ar-inv.ship-id,
+            INPUT ar-inv.terms
+            ).                
         /*
         IF AVAIL cust THEN 
             RUN pCreateAddress("BT", 1, cust.cust-no, cust.name, cust.addr[1], 
@@ -409,7 +571,29 @@ DO:
     //    'IL','60686', 'US' ).
                                
     /* Fetch Address Details for the invoice */
-    IF AVAILABLE(bf-APIOutboundDetail2) THEN DO:
+    IF AVAILABLE(bf-APIOutboundDetail2) THEN 
+    DO: 
+        ASSIGN 
+            lcBillToStreetData = STRING(bf-APIOutboundDetail2.data)
+            lcShipToStreetData = STRING(bf-APIOutboundDetail2.data)
+            .
+        RUN updateRequestData(INPUT-OUTPUT lcBillToStreetData, "Street",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerAddress1)).
+        RUN updateRequestData(INPUT-OUTPUT lcShipToStreetData, "Street",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.ShiptoAddress1)).
+        
+        ASSIGN 
+            lcConcatBillToStreetData =  lcBillToStreetData
+            lcConcatShiptoStreetData =  lcShipToStreetData.
+            .
+        IF ttInv.customerAddress2 NE "" THEN DO:
+            lcBillToStreetData = STRING(bf-APIOutboundDetail2.data).
+            RUN updateRequestData(INPUT-OUTPUT lcBillToStreetData, "Street",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerAddress2)).
+            lcConcatBillToStreetData   = lcConcatBillToStreetData + " " + lcBillToStreetData.
+        END.
+        IF ttInv.ShiptoAddress2 NE "" AND ttInv.shiptoAddress2 NE '345 Court Street' THEN DO:
+            lcShipToStreetData = STRING(bf-APIOutboundDetail2.data).
+            RUN updateRequestData(INPUT-OUTPUT lcShipToStreetData, "Street",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.ShiptoAddress2)).
+            lcConcatShipToStreetData   = lcConcatShipToStreetData + " " + lcShipToStreetData.
+        END.
         FOR EACH ttN1Address                                 
             :          
             /* Address section has 3 lines per iteration */        
@@ -451,7 +635,10 @@ DO:
     IF AVAIL inv-head THEN 
     DO:
             
-        lcConcatLineData = "".
+        ASSIGN 
+            lcConcatLineData = ""
+            lFirst           = YES
+            .
         EMPTY TEMP-TABLE ttLines.
         FOR EACH inv-line
             WHERE inv-line.r-no   EQ inv-head.r-no
@@ -475,9 +662,41 @@ DO:
                 iLineCounter = iLineCounter + 1.
             CREATE ttLines.
             ASSIGN 
-                ttLines.rLineDetailRow = ROWID(inv-line)
-                ttLines.iLine          = IF AVAILABLE oe-ordl THEN oe-ordl.line ELSE iLineCounter
-                .                       
+                ttLines.rLineDetailRow         = ROWID(inv-line)
+                ttLines.iLine                  = IF AVAILABLE oe-ordl THEN oe-ordl.line ELSE iLineCounter
+                ttLines.invoiceID              = ttInv.invoiceID
+                ttLines.company                = ttInv.company
+                ttLines.lineNo                 = inv-line.line
+                ttLines.orderID                = inv-line.ord-no
+                ttLines.orderLine              = inv-line.line
+                ttLines.quantityInvoiced       = inv-line.inv-qty
+                ttLines.quantityInvoicedUOM    = "EA"
+                ttLines.pricePerUOM            = inv-line.price * (1 - (inv-line.disc / 100))
+                ttLines.priceUOM               = inv-line.pr-uom
+                ttLines.customerPartID         = inv-line.part-no
+                ttLines.itemID                 = inv-line.i-no
+                ttLines.itemName               = inv-line.i-name
+                ttLines.priceTotal             = inv-line.t-price
+                ttLines.taxable                = inv-line.tax
+                ttLines.amountTaxableExFreight = ttLines.priceTotal
+                ttLines.amountTaxableFreight   = inv-line.t-freight
+                ttLines.amountFreight          = inv-line.t-freight
+                ttLines.customerPONo           = inv-line.po-no
+                ttInv.amountTotalLines         = ttInv.amountTotalLines + inv-line.t-price
+                . 
+            FIND FIRST oe-ordl NO-LOCK
+                 WHERE oe-ordl.company EQ inv-line.company
+                   AND oe-ordl.i-no    EQ inv-line.i-no
+                   AND oe-ordl.ord-no  EQ inv-line.ord-no
+                 NO-ERROR.
+
+            IF AVAILABLE oe-ordl THEN 
+                ttLines.orderLine = oe-ordl.line.
+            
+            RUN pAssignCommonLineData(
+                BUFFER ttInv, 
+                BUFFER ttLines
+                ).                                  
         END.             
         
         FOR EACH ttLines,
@@ -518,7 +737,12 @@ DO:
                     cPoNum         = STRING(inv-line.po-no)
                     cPartQualifier = STRING(IF cItemBuyerPart NE "" THEN "BP" ELSE "")
                     .
-        
+                RUN pUpdateLineRequestData(
+                    BUFFER ttLines,
+                    INPUT-OUTPUT lcLineData,
+                    INPUT-OUTPUT lFirst
+                    ).
+                   
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemLineNum", cItemLineNum).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemQty", cItemQty).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemUOM", cItemUom).
@@ -527,16 +751,20 @@ DO:
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "BuyerPart", cItemBuyerPart).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDescription", cItemDesc).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoNum", cPoNum).
+               
                     // RUN updateRequestData(INPUT-OUTPUT lcLineData, "linefeed", "~n").  
-                    // lcConcatLineData = lcConcatLineData +  lcLineData + "~n". 
-           END. /* If available APIOutboundDetail */
+                lcConcatLineData = lcConcatLineData + "" + lcLineData. 
+            END. /* If available APIOutboundDetail */
         END. /* Each tt lines */
       
     END. /* Process lines if using inv-head */
     ELSE 
     DO:
         /* Process lines if using ar-inv */
-        lcConcatLineData = "".
+        ASSIGN 
+            lcConcatLineData = ""
+            lFirst           = YES
+            .
 
         EMPTY TEMP-TABLE ttLines.
         FOR EACH ar-invl
@@ -561,9 +789,43 @@ DO:
                 iLineCounter = iLineCounter + 1.
             CREATE ttLines.
             ASSIGN 
-                ttLines.rLineDetailRow = ROWID(ar-invl)
-                ttLines.iLine          = IF AVAILABLE oe-ordl THEN oe-ordl.line ELSE iLineCounter
-                .                       
+                ttLines.rLineDetailRow         = ROWID(ar-invl)
+                ttLines.iLine                  = IF AVAILABLE oe-ordl THEN oe-ordl.line ELSE iLineCounter
+                ttLines.invoiceID              = ttInv.invoiceID
+                ttLines.company                = ttInv.company
+                ttLines.lineNo                 = ar-invl.line
+                ttLines.orderID                = ar-invl.ord-no
+                ttLines.orderLine              = ar-invl.ord-line
+                ttLines.quantityInvoiced       = ar-invl.inv-qty
+                ttLines.quantityInvoicedUOM    = ar-invl.pr-qty-uom
+                ttLines.pricePerUOM            = ar-invl.unit-pr * (1 - (ar-invl.disc / 100))
+                ttLines.priceUOM               = ar-invl.pr-uom
+                ttLines.customerPartID         = ar-invl.part-no
+                ttLines.itemID                 = ar-invl.i-no
+                ttLines.itemName               = ar-invl.i-name
+                ttLines.priceTotal             = ar-invl.amt
+                ttLines.taxable                = ar-invl.tax
+                ttLines.amountTaxableExFreight = ttLines.priceTotal
+                ttLines.amountTaxableFreight   = ar-invl.t-freight
+                ttLines.amountFreight          = ar-invl.t-freight
+                ttLines.customerPONo           = ar-invl.po-no
+                ttInv.amountTotalLines         = ttInv.amountTotalLines + ar-invl.amt
+                .
+            FIND FIRST oe-ordl NO-LOCK
+                 WHERE oe-ordl.company EQ ar-invl.company
+                   AND oe-ordl.i-no    EQ ar-invl.i-no
+                   AND oe-ordl.ord-no  EQ ar-invl.ord-no
+                 NO-ERROR.
+
+            IF AVAILABLE oe-ordl THEN 
+                ttLines.orderLine = oe-ordl.line.
+            
+            RUN pAssignCommonLineData(
+                BUFFER ttInv, 
+                BUFFER ttLines
+                ). 
+
+            ttInv.amountTotal = ttInv.amountTotalLines + ttInv.amountTotalTax + ttInv.amountTotalFreight.                              
         END.            
         FOR EACH ttLines,
             FIRST ar-invl
@@ -608,7 +870,13 @@ DO:
                     cPoNum         = STRING(ar-invl.po-no)
                     cPartQualifier = STRING(IF cItemBuyerPart NE "" THEN "BP" ELSE "")
                     .
-        
+                IF NOT ar-invl.misc THEN      
+                    RUN pUpdateLineRequestData(
+                        BUFFER ttLines,
+                        INPUT-OUTPUT lcLineData,
+                        INPUT-OUTPUT lFirst
+                        ).
+                        
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemLineNum", cItemLineNum).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemQty", cItemQty).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemUOM", cItemUom).
@@ -627,21 +895,38 @@ DO:
     /* Added charges section, i.e. Freight, Tax, Etc */
     IF AVAIL inv-head THEN 
     DO:
-        FOR EACH inv-misc OF inv-head NO-LOCK
-            WHERE inv-misc.deleted = FALSE:              
-            
-            RUN pCreateAddonRecord (
-                RECID(inv-head), 
-                inv-misc.inv-line,      
-                inv-misc.charge,
-                inv-misc.Dscr,
-                inv-misc.amt,
-                0,             /* rate */
-                inv-misc.bill,
-                "ESTIMATE# " + inv-misc.est-no,
-                inv-head.cust-no,
-                iCurrentAddonNumber                    
-                ).
+        FOR EACH inv-misc OF inv-head NO-LOCK:
+            CREATE ttLines.
+            ASSIGN 
+                ttLines.invoiceID              = ttInv.invoiceID
+                ttLines.company                = ttInv.company
+                ttLines.lineNo                 = inv-misc.line
+                ttLines.orderID                = inv-misc.ord-no
+                ttLines.orderLine              = inv-misc.line
+                ttLines.priceTotal             = inv-misc.amt
+                ttLines.taxable                = inv-misc.tax
+                ttLines.amountTaxableExFreight = ttLines.priceTotal
+                ttLines.customerPONo           = inv-misc.po-no
+                ttInv.amountTotalLines         = ttInv.amountTotalLines + inv-misc.amt
+                .  
+            RUN pAssignCommonLineData(
+                BUFFER ttInv, 
+                BUFFER ttLines
+                ). 
+                                        
+            IF NOT inv-misc.deleted  THEN 
+                RUN pCreateAddonRecord (
+                    RECID(inv-head), 
+                    inv-misc.inv-line,      
+                    inv-misc.charge,
+                    inv-misc.Dscr,
+                    inv-misc.amt,
+                    0,             /* rate */
+                    inv-misc.bill,
+                    "ESTIMATE# " + inv-misc.est-no,
+                    inv-head.cust-no,
+                    iCurrentAddonNumber                    
+                    ).
             
         END.    /* each inv-misc of inv-head */
         
@@ -799,9 +1084,34 @@ DO:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "InvoiceNum", cInvoiceNumber ). 
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Currency", "USD" ).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalAmount", cTotalAmount ).
-
-
-          
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PayloadID", TRIM(ttInv.payloadID)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TimeStamp", gcCXMLTimeStamp ).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "cXMLPayloadID", gcCXMLPayLoadID).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "IdentityCust", gcCXMLIdentityCust).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Identity", gcCXMLIdentity).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SharedSecret", gcCXMLSharedSecret).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "DeploymentMode", ttInv.deploymentMode).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "InvoiceDateString", ttInv.invoiceDateString).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "InvoiceID", ttInv.invoiceIDString).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerName", DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerName)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerCity", DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerCity)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerState",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerState)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerPostalCode",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerPostalcode)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoID", ttInv.shiptoID).    
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoName",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.shiptoName)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoCity", DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.shiptoCity)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoState",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.shiptoState)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoPostalCode",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.shiptoPostalcode)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Terms", STRING(ttInv.termsDays)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "OrderID", ttInv.customerPO).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PayloadID", ttInv.payloadID).  
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SubtotalAmount", STRING(ttInv.amountTotalLines)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalTax", STRING(ttInv.amountTotalTax)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalSalesTaxableAmt", STRING(ttInv.amountTotalTaxableExFreight)). 
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalSalesTax", STRING(ttInv.amountTotalTaxExFreight)).  
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalShippingAmt", STRING(ttInv.amountTotalFreight)).      
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalGrossAmt", STRING(ttInv.amountTotal)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalNetAmt", STRING(ttInv.amountTotal)).         
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "invNotes", cInvNotes).
     
     /* If the previous section was not blank, it ended with CR so don't need to start with one */
@@ -819,6 +1129,9 @@ DO:
         
     ioplcRequestData = REPLACE(ioplcRequestData, "$Tax$", (IF lcConcatTaxData ne "" THEN  "~n" ELSE "") + lcConcatTaxData).
 
+    ioplcRequestData = REPLACE(ioplcRequestData, "$BillToStreetData$", lcConcatBillToStreetData).
+    
+    ioplcRequestData = REPLACE(ioplcRequestData, "$ShipToStreetData$", lcConcatShipToStreetData).
     ASSIGN 
         cFullDocument = ioplcRequestData
         dSELineCount = NUM-ENTRIES(cFullDocument, "~~") - 1   
@@ -830,7 +1143,11 @@ DO:
     RELEASE bf-APIOutboundDetail1.
     RELEASE bf-APIOutboundDetail2.
     RELEASE bf-APIOutboundDetail3.
-        
+    
+    IF VALID-HANDLE(hdXMLProcs) THEN DO:
+        THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hdXMLProcs).
+        DELETE PROCEDURE hdXMLProcs. 
+    END. 
     ASSIGN
         opcMessage = ""
         oplSuccess = TRUE
@@ -840,8 +1157,152 @@ END.
 /* End of Main Code */
     
 
+
+
+/* ************************  Function Prototypes ********************** */
+FUNCTION pGetPayloadID RETURNS CHARACTER PRIVATE
+	(  ) FORWARD.
+
 /* **********************  Internal Procedures  *********************** */
 
+
+PROCEDURE pAssignCommonHeaderData PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttInv FOR ttInv.
+    
+    DEFINE INPUT PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomerID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipToID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTermsCode  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-company FOR company.
+    DEFINE BUFFER bf-cust    FOR cust.
+    DEFINE BUFFER bf-shipto  FOR shipto.
+    DEFINE BUFFER bf-terms   FOR terms.
+    
+    ASSIGN 
+        ipbf-ttInv.deploymentMode    = gcCXMLDeploymentMode
+        ipbf-ttInv.invoiceIDString   = STRING(ipbf-ttInv.invoiceID) + cSuffix
+        ipbf-ttInv.invoiceDateString = STRING(YEAR(ipbf-ttInv.invoiceDate),'9999')
+                                       + '-'
+                                       + STRING(MONTH(ipbf-ttInv.invoiceDate),'99')
+                                       + '-'
+                                       + STRING(DAY(ipbf-ttInv.invoiceDate),'99')
+                                       + 'T'
+                                       + STRING(0,'hh:mm:ss')
+                                       + '-05:00'.
+        .
+    FIND FIRST bf-shipto NO-LOCK 
+         WHERE bf-shipto.company EQ ipcCompany
+           AND bf-shipto.cust-no EQ ipcCustomerID
+           AND bf-shipto.ship-id EQ ipcShipToID
+         NO-ERROR.
+    IF AVAILABLE bf-shipto THEN 
+        ASSIGN 
+            ipbf-ttInv.shipToID         = gcCXMLShipToPrefix + bf-shipto.ship-id
+            ipbf-ttInv.shiptoName       = bf-shipto.ship-name
+            ipbf-ttInv.shiptoAddress1   = bf-shipto.ship-addr[1]
+            ipbf-ttInv.shiptoAddress2   = bf-shipto.ship-addr[2]
+            ipbf-ttInv.shiptoCity       = bf-shipto.ship-city
+            ipbf-ttInv.shiptoState      = bf-shipto.ship-state
+            ipbf-ttInv.shiptoPostalCode = bf-shipto.ship-zip
+            .
+
+    FIND FIRST bf-terms NO-LOCK 
+         WHERE bf-terms.company EQ ipcCompany
+           AND bf-terms.t-code  EQ ipcTermsCode
+        NO-ERROR.
+    IF AVAILABLE bf-terms THEN 
+        ipbf-ttInv.termsDays = bf-terms.net-days.
+
+END PROCEDURE.
+
+PROCEDURE pAssignCommonLineData PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttInv   FOR ttInv.
+    DEFINE PARAMETER BUFFER ipbf-ttLines FOR ttLines.
+    
+    DEFINE           BUFFER bf-oe-ord    FOR oe-ord.
+    DEFINE           BUFFER bf-oe-ordl   FOR oe-ordl.
+    
+    DEFINE VARIABLE lError        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
+    
+    IF ipbf-ttInv.customerPO EQ "" THEN 
+        ipbf-ttInv.customerPO = ipbf-ttLines.customerPO.
+        
+    FIND FIRST bf-oe-ord NO-LOCK
+         WHERE bf-oe-ord.company EQ ipbf-ttInv.company
+           AND bf-oe-ord.ord-no  EQ ipbf-ttLines.orderID
+         NO-ERROR.
+        
+    IF AVAILABLE bf-oe-ord THEN DO:
+        IF ipbf-ttInv.customerPO EQ "" THEN 
+            ipbf-ttInv.customerPO = bf-oe-ord.po-no.  
+                    
+        IF ipbf-ttInv.payloadID EQ "" THEN 
+            ipbf-ttInv.payloadID = bf-oe-ord.spare-char-3.
+            
+        FIND FIRST bf-oe-ordl NO-LOCK 
+             WHERE bf-oe-ordl.company EQ bf-oe-ord.company
+               AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no
+               AND bf-oe-ordl.i-no    EQ ipbf-ttLineS.itemID
+               AND bf-oe-ordl.line    EQ ipbf-ttLineS.orderLine
+             NO-ERROR.
+            
+        IF AVAILABLE bf-oe-ordl THEN DO: 
+            ASSIGN 
+                ipbf-ttLines.quantityOrderOriginal    = bf-oe-ordl.spare-dec-1
+                ipbf-ttLines.quantityOrderOriginalUOM = bf-oe-ordl.spare-char-2
+                .
+            IF ipbf-ttLines.quantityOrderOriginalUOM NE ""
+                AND ipbf-ttLines.quantityOrderOriginalUOM NE ipbf-ttLines.quantityInvoicedUOM THEN DO:
+                     
+                RUN Conv_QuantityFromUOMtoUOM(
+                    INPUT  bf-oe-ordl.company,
+                    INPUT  bf-oe-ordl.i-no,
+                    INPUT  "FG", 
+                    INPUT  ipbf-ttLines.quantityInvoiced,
+                    INPUT  ipbf-ttLines.quantityInvoicedUOM,
+                    INPUT  ipbf-ttLines.quantityOrderOriginalUOM, 
+                    INPUT  0,
+                    INPUT  0,
+                    INPUT  0,
+                    INPUT  0,
+                    INPUT  bf-oe-ordl.cas-cnt, 
+                    OUTPUT ipbf-ttLines.quantity,
+                    OUTPUT lError,
+                    OUTPUT cErrorMessage
+                    ).
+                IF ipbf-ttLines.quantity EQ 0 THEN 
+                    ASSIGN 
+                        ipbf-ttLines.quantity = ipbf-ttLines.quantityInvoiced.
+                
+                ipbf-ttLines.quantityUOM = ipbf-ttLines.quantityOrderOriginalUOM.
+            END.    
+        END.
+    END.
+    IF ipbf-ttLines.quantity EQ 0 THEN 
+        ASSIGN 
+            ipbf-ttLines.quantity    = ipbf-ttLines.quantityInvoiced
+            ipbf-ttLines.quantityUOM = ipbf-ttLines.quantityInvoicedUOM
+            .
+            
+    IF ttLines.taxable THEN                                
+        ASSIGN     
+            ipbf-ttLines.amountTax                 = ipbf-ttLines.amountTaxExFreight        + ipbf-ttLines.amountFreightTax
+            ipbf-ttLines.amountTaxable             = ipbf-ttLines.amountTaxableExFreight    + ipbf-ttLines.amountTaxableFreight
+            ipbf-ttInv.amountTotalTaxableExFreight = ipbf-ttInv.amountTotalTaxableExFreight + ipbf-ttLines.amountTaxableExFreight
+            ipbf-ttInv.amountTotalTaxExFreight     = ipbf-ttInv.amountTotalTaxExFreight     + ipbf-ttLines.amountTaxExFreight
+            ipbf-ttInv.amountTotalTaxable          = ipbf-ttInv.amountTotalTaxable          + ipbf-ttLines.amountTaxable
+            .
+END PROCEDURE.
 
 PROCEDURE pConvQtyPriceUOM:
     /*------------------------------------------------------------------------------
@@ -991,8 +1452,146 @@ PROCEDURE pCreateAddress PRIVATE:
         .
 END PROCEDURE.
 
+PROCEDURE pGetSettings PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomerID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipToID   AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+
+    RUN sys/ref/nk1look.p(
+        INPUT  ipcCompany,
+        INPUT  "cXMLIdentity",
+        INPUT  "C",           /* Logical */
+        INPUT  NO,           /* check by cust */
+        INPUT  NO,           /* use cust not vendor */
+        INPUT  ipcCustomerID, /* cust */
+        INPUT  ipcShipToID,   /* ship-to*/
+        OUTPUT cReturn,
+        OUTPUT lFound
+        ).
+        
+    gcCXMLIdentityCust = cReturn.
+      
+    RUN sys/ref/nk1look.p(
+        INPUT  ipcCompany,
+        INPUT  "cXMLIdentity", 
+        INPUT  "L",      /* Logical */
+        INPUT  NO,      /* check by cust */
+        INPUT  NO,      /* use cust not vendor */
+        INPUT  "",      /* cust */
+        INPUT  "",      /* ship-to*/
+        OUTPUT cReturn,
+        OUTPUT lFound
+        ).
+        
+    gcCXMLDeploymentMode = IF cReturn EQ "YES" THEN "production" ELSE "test".
+    
+    RUN sys/ref/nk1look.p(
+        INPUT ipcCompany,
+        INPUT "cXMLShipToPrefix",
+        INPUT  "C",            /* Logical */
+        INPUT  YES,            /* check by cust */ 
+        INPUT  YES,            /* use cust not vendor */
+        INPUT  ipcCustomerID,  /* cust */
+        INPUT  ipcShipToID,    /* ship-to*/
+        OUTPUT cReturn, 
+        OUTPUT lFound
+        ).
+    gcCXMLShipToPrefix = TRIM(cReturn).
+    
+    RUN sys/ref/nk1look.p(
+        INPUT  ipcCompany,
+        INPUT  "cXMLSecret", 
+        INPUT  "C",      /* Logical */
+        INPUT  NO,      /* check by cust */
+        INPUT  NO,      /* use cust not vendor */
+        INPUT  "",      /* cust */
+        INPUT  "",      /* ship-to*/
+        OUTPUT cReturn,
+        OUTPUT lFound
+        ).
+    gcCXMLSharedSecret = cReturn.  
+      
+    FIND FIRST sys-ctrl-shipto NO-LOCK
+         WHERE sys-ctrl-shipto.company      EQ ipcCompany
+           AND sys-ctrl-shipto.name         EQ "cXMLInvoice"
+           AND sys-ctrl-shipto.cust-vend    EQ YES
+           AND sys-ctrl-shipto.cust-vend-no EQ ipcCustomerID
+         NO-ERROR.   
+         
+    IF AVAILABLE sys-ctrl-shipto AND sys-ctrl-shipto.log-fld THEN 
+        gcCXMLIdentity  = sys-ctrl-shipto.char-fld.  
+        
+    gcCXMLTimeStamp = STRING(YEAR(TODAY),'9999')
+                      + '-'
+                      + STRING(MONTH(TODAY),'99')
+                      + '-'
+                      + STRING(DAY(TODAY),'99')
+                      + 'T'
+                      + STRING(TIME,'hh:mm:ss')
+                      + '-05:00'
+                      .
+    gcCXMLpayloadID = pGetPayloadID().                         
+
+END PROCEDURE.
+
+PROCEDURE pUpdateLineRequestData PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttLines FOR ttLines.
+    
+    DEFINE INPUT-OUTPUT PARAMETER ioplcLineData AS LONGCHAR.
+    DEFINE INPUT-OUTPUT PARAMETER ioplgFirst    AS LOGICAL.
+        
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "LineNumber",STRING(ipbf-ttLines.orderLine)). 
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "InvoiceQty",STRING(ipbf-ttLines.quantity)). 
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "UOM",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ipbf-ttLines.priceUOM)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "UnitPrice",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",STRING(ttLines.pricePerUOM))). 
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "ItemNo",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ipbf-ttLines.customerPartID)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "ItemName",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ipbf-ttLines.itemName)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "LineSubTotalAmount",STRING(ttLines.priceTotal)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "ShiptoID",ttInv.shiptoID).    
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "ShiptoName",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.shiptoName)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "ShiptoCity",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.shiptoCity)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "ShiptoState",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.shiptoState)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "ShiptoPostalCode",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.shiptoPostalcode)).
+    IF ioplgFirst THEN DO:
+        RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "Freight",STRING(ttInv.amountTotalFreight)).
+        ioplgFirst = NO.    
+    END.
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "Freight", "0").
+END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-
+FUNCTION pGetPayloadID RETURNS CHARACTER PRIVATE
+	(  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cPayLoadID AS CHARACTER NO-UNDO.
     
+    ASSIGN
+      cPayLoadID = STRING(NOW)
+      cPayLoadID = REPLACE(cPayLoadID,'/','')
+      cPayLoadID = REPLACE(cPayLoadID,' ','')
+      cPayLoadID = REPLACE(cPayLoadID,' ','')
+      cPayLoadID = REPLACE(cPayLoadID,':','')
+      cPayLoadID = REPLACE(cPayLoadID,'-','')
+      cPayLoadID = REPLACE(cPayLoadID,'.','')
+      cPayLoadID = cPayLoadID + ''
+      cPayLoadID = cPayLoadID + '.' + STRING(RANDOM(1000,9999),'9999') 
+      .
+    
+    RETURN cPayLoadID.
+END FUNCTION.
+
