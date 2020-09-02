@@ -1554,6 +1554,12 @@ PROCEDURE pCheckUpgradeAdvantzware :
             g_company,"ASIHelpService","C",NO,NO,"","",
             OUTPUT cHelpService,OUTPUT lFound
             ).
+        RUN sys/ref/nk1look.p (
+            g_company,"MenuLinkUpgrade","C",NO,NO,"","",
+            OUTPUT upgradeLink, OUTPUT lFound
+            ).
+        IF upgradeLink EQ "" THEN ASSIGN 
+            upgradeLink = "https://helpsvr.advantzware.com/patches/asiUpdate.html".
         CREATE SERVER hWebService.
         hWebService:CONNECT(cHelpService) NO-ERROR.
         IF hWebService:CONNECTED() THEN DO:
