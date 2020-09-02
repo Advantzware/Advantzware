@@ -387,7 +387,7 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                 ttInvLine.orderID                = bf-ar-invl.ord-no
                 ttInvLine.orderLine              = bf-ar-invl.ord-line
                 ttInvLine.quantityInvoiced       = bf-ar-invl.inv-qty
-                ttInvLine.quantityInvoicedUOM    = bf-ar-invl.pr-qty-uom
+                ttInvLine.quantityInvoicedUOM    = "EA"
                 ttInvLine.pricePerUOM            = bf-ar-invl.unit-pr * (1 - (bf-ar-invl.disc / 100))
                 ttInvLine.priceUOM               = bf-ar-invl.pr-uom
                 ttInvLine.customerPartID         = bf-ar-invl.part-no
