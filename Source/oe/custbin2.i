@@ -369,7 +369,7 @@ IF AVAIL(fg-bin) THEN DO:
    fg-rcpth.company    = fg-bin.company
    fg-rcpth.loc        = fg-bin.loc
    fg-rcpth.trans-date = tt-bolh.trans-date
-   fg-rcpth.post-date  = TODAY 
+   fg-rcpth.post-date  = IF invdate-chr EQ "User Date" THEN tt-bolh.trans-date else TODAY
    fg-rcpth.po-no      = tt-bolh.po-no
    fg-rcpth.i-no       = itemfg.i-no
    fg-rcpth.i-name     = IF AVAIL {1} THEN {1}.i-name ELSE itemfg.i-name

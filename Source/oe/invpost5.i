@@ -38,6 +38,8 @@ DEF SHARED TEMP-TABLE tt-bolh NO-UNDO LIKE oe-bolh
                       FIELD trans-date AS DATE.
 DEF SHARED TEMP-TABLE tt-boll NO-UNDO LIKE oe-boll.
 
+{sys/inc/invdate.i}
+
 ASSIGN 
      FgKeepZeroBin-log = TRUE.
      
