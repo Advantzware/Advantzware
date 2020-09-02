@@ -26,7 +26,7 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-
+&SCOPED-DEFINE yellowColumnsName l-ebstf
 &SCOPED-DEFINE useMatches
 
 /* Parameters Definitions ---                                           */
@@ -184,6 +184,12 @@ DEFINE BUTTON bt-ok
      LABEL "&OK" 
     SIZE 13 BY 1.14
      FONT 1.
+     
+DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Sorted By" 
+     VIEW-AS FILL-IN 
+     SIZE 39 BY 1
+     BGCOLOR 14 FONT 6 NO-UNDO.     
 
 DEFINE VARIABLE lv-search AS CHARACTER FORMAT "X(256)":U 
      LABEL "Search" 
@@ -215,13 +221,13 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      itemfg.i-no FORMAT "x(15)":U WIDTH 22
-      itemfg.part-dscr1 FORMAT "x(30)":U WIDTH 35
-      itemfg.cust-no FORMAT "x(8)":U WIDTH 10
+      itemfg.i-no FORMAT "x(15)":U WIDTH 22 LABEL-BGCOLOR 14
+      itemfg.part-dscr1 FORMAT "x(30)":U WIDTH 35 LABEL-BGCOLOR 14
+      itemfg.cust-no FORMAT "x(8)":U WIDTH 10 LABEL-BGCOLOR 14
       get-cust () @ itemfg.cust-no
-      itemfg.part-no FORMAT "x(15)":U WIDTH 22
+      itemfg.part-no FORMAT "x(15)":U WIDTH 22 LABEL-BGCOLOR 14
       get-part () @ itemfg.part-no 
-      itemfg.est-no FORMAT "x(10)":U
+      itemfg.est-no FORMAT "x(10)":U  LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 115 BY 11.19
@@ -235,6 +241,7 @@ DEFINE FRAME Dialog-Frame
      rd-sort AT ROW 12.67 COL 14 NO-LABEL
      bt-clear AT ROW 14.1 COL 2
      lv-search AT ROW 14.1 COL 25 COLON-ALIGNED
+     fi_sortby AT ROW 12.86 COL 78 COLON-ALIGNED
      bt-ok AT ROW 14.1 COL 91
      bt-cancel AT ROW 14.1 COL 104
      "Sort By:" VIEW-AS TEXT
@@ -257,6 +264,13 @@ DEFINE FRAME Dialog-Frame
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB Dialog-Frame 
+/* ************************* Included-Libraries *********************** */
+
+{custom/yellowColumns.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
@@ -267,6 +281,14 @@ DEFINE FRAME Dialog-Frame
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
+       
+ASSIGN 
+       BROWSE-1:ALLOW-COLUMN-SEARCHING IN FRAME Dialog-Frame = TRUE.       
+       
+/* SETTINGS FOR FILL-IN fi_sortby IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+ ASSIGN 
+       fi_sortby:HIDDEN IN FRAME Dialog-Frame        = TRUE.        
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -283,15 +305,15 @@ ASSIGN
 AND ASI.itemfg.stat = ""A""
 ~{&INDEX-PHRASE} "
      _FldNameList[1]   > ASI.itemfg.i-no
-"i-no" ? ? "character" ? ? ? ? ? ? no ? no no "23" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"i-no" ? ? "character" ? ? ? 14 ? ? no ? no no "23" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
     _FldNameList[3]   > "_<CALC>"
-"get-cust () @ itemfg.cust-no" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-cust () @ itemfg.cust-no" ? ? ? 14 ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.itemfg.cust-no
-"cust-no" ? ? "character" ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-no" ? ? "character" ? ? ? 14 ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.itemfg.part-no
-"part-no" ? "x(15)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"part-no" ? "x(15)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > "_<CALC>"
-"get-part () @ itemfg.part-no" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-part () @ itemfg.part-no" ? ? ? 14 ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   = ASI.itemfg.part-dscr1
      _FldNameList[8]   = ASI.itemfg.est-no
      _Query            is OPENED
@@ -347,6 +369,18 @@ DO:
 
    apply "window-close" to frame {&frame-name}. 
       
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
+ON START-SEARCH OF BROWSE-1 IN FRAME Dialog-Frame
+DO:
+  ASSIGN
+    lv-search:SCREEN-VALUE = ''
+    lv-search.
+  RUN startsearch.
 END.
 
 /* _UIB-CODE-BLOCK-END */

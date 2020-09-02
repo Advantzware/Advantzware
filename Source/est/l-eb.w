@@ -27,6 +27,8 @@
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE yellowColumnsName l-eb
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -145,7 +147,7 @@ and itemfg.stat eq "A" OUTER-JOIN NO-LOCK ~
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS BROWSE-1 RECT-1 rd-sort bt-clear lv-search ~
 bt-ok bt-cancel 
-&Scoped-Define DISPLAYED-OBJECTS rd-sort lv-search 
+&Scoped-Define DISPLAYED-OBJECTS rd-sort  lv-search 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -174,6 +176,12 @@ DEFINE BUTTON bt-ok
      LABEL "&OK" 
      SIZE 13 BY 1.14
      FONT 1.
+     
+DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Sorted By" 
+     VIEW-AS FILL-IN 
+     SIZE 39 BY 1
+     BGCOLOR 14 FONT 6 NO-UNDO.     
 
 DEFINE VARIABLE lv-search AS CHARACTER FORMAT "X(256)":U 
      LABEL "Search" 
@@ -209,13 +217,13 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      eb.est-no FORMAT "x(8)":U COLUMN-FONT 0
-      eb.cust-no COLUMN-LABEL "Cust#" FORMAT "x(8)":U COLUMN-FONT 0
-      eb.part-no FORMAT "x(16)":U WIDTH 22 COLUMN-FONT 0
+      eb.est-no FORMAT "x(8)":U COLUMN-FONT 0  LABEL-BGCOLOR 14
+      eb.cust-no COLUMN-LABEL "Cust#" FORMAT "x(8)":U COLUMN-FONT 0  LABEL-BGCOLOR 14
+      eb.part-no FORMAT "x(16)":U WIDTH 22 COLUMN-FONT 0 LABEL-BGCOLOR 14
       eb.part-dscr1 COLUMN-LABEL "Description" FORMAT "x(30)":U
-            WIDTH 35 COLUMN-FONT 1
+            WIDTH 35 COLUMN-FONT 1 LABEL-BGCOLOR 14
       eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(16)":U WIDTH 22
-            COLUMN-FONT 0
+            COLUMN-FONT 0 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 115 BY 11.19
@@ -229,6 +237,7 @@ DEFINE FRAME Dialog-Frame
      rd-sort AT ROW 12.67 COL 12 NO-LABEL
      bt-clear AT ROW 14.1 COL 2
      lv-search AT ROW 14.1 COL 25 COLON-ALIGNED
+     fi_sortby AT ROW 12.86 COL 78 COLON-ALIGNED
      bt-ok AT ROW 14.1 COL 89
      bt-cancel AT ROW 14.1 COL 103
      "Sort By:" VIEW-AS TEXT
@@ -254,6 +263,14 @@ DEFINE FRAME Dialog-Frame
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB Dialog-Frame 
+/* ************************* Included-Libraries *********************** */
+
+{custom/yellowColumns.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
@@ -264,6 +281,14 @@ DEFINE FRAME Dialog-Frame
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
+       
+ASSIGN 
+       BROWSE-1:ALLOW-COLUMN-SEARCHING IN FRAME Dialog-Frame = TRUE.       
+       
+/* SETTINGS FOR FILL-IN fi_sortby IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+ ASSIGN 
+       fi_sortby:HIDDEN IN FRAME Dialog-Frame        = TRUE.  
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -284,15 +309,15 @@ ASSIGN
 and itemfg.i-no eq eb.stock-no
 and itemfg.stat eq ""A"""
      _FldNameList[1]   > ASI.eb.est-no
-"eb.est-no" ? "x(8)" "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.est-no" ? "x(8)" "character" ? ? 0 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.eb.cust-no
-"eb.cust-no" "Cust#" ? "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.cust-no" "Cust#" ? "character" ? ? 0 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.eb.part-no
-"eb.part-no" ? "x(16)" "character" ? ? 0 ? ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.part-no" ? "x(16)" "character" ? ? 0 14 ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.eb.part-dscr1
-"eb.part-dscr1" "Description" ? "character" ? ? 1 ? ? ? no ? no no "35" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.part-dscr1" "Description" ? "character" ? ? 1 14 ? ? no ? no no "35" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.eb.stock-no
-"eb.stock-no" "FG Item#" "x(16)" "character" ? ? 0 ? ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.stock-no" "FG Item#" "x(16)" "character" ? ? 0 14 ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
@@ -356,6 +381,19 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
+ON START-SEARCH OF BROWSE-1 IN FRAME Dialog-Frame
+DO:
+  ASSIGN
+    lv-search:SCREEN-VALUE = ''
+    lv-search.
+  RUN startsearch.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
