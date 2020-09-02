@@ -1769,12 +1769,12 @@ PROCEDURE local-enable-fields :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE char-hdl AS CHAR NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
-  /*IF NOT adm-new-record and
+  IF NOT adm-new-record and
      AVAIL oe-bolh AND oe-bolh.posted THEN DO:
-     MESSAGE "BOL has been posted, update not allowed..." VIEW-AS ALERT-BOX ERROR.
-     RETURN ERROR.
-  END.*/
-  
+     MESSAGE "BOL has been posted, update not allowed..." VIEW-AS ALERT-BOX INFO.
+     RETURN NO-APPLY.
+  END.  
+    
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
   RUN make-buttons-insensitive IN WIDGET-HANDLE(char-hdl).
   
@@ -1785,14 +1785,10 @@ PROCEDURE local-enable-fields :
 
   DO WITH FRAME {&FRAME-NAME}:
     IF adm-adding-record THEN DISABLE oe-bolh.bol-no.
-
-    IF AVAIL oe-bolh AND oe-bolh.posted THEN DO:
-      DISABLE ALL.
-      ENABLE oe-bolh.carrier
-             oe-bolh.trailer.
-    END.
+    
+    RUN enable-bol-fields.     
   END.
-  RUN enable-bol-fields.
+  
 
 END PROCEDURE.
 
