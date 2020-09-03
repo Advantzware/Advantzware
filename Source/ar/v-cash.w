@@ -570,11 +570,14 @@ PROCEDURE local-create-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  FIND FIRST ar-ctrl WHERE ar-ctrl.company = g_company NO-LOCK NO-ERROR.
-  FIND FIRST bank WHERE bank.company = g_company AND
-                        bank.actnum = ar-ctrl.cash-act NO-LOCK NO-ERROR.
-  IF AVAIL bank THEN ASSIGN ar-cash.bank-code = bank.bank-code.
+  /* Code placed here will execute AFTER standard behavior.    */   
+  FIND FIRST user-print NO-LOCK 
+       WHERE user-print.company EQ g_company
+       AND user-print.program-id EQ "v-cash."
+       AND user-print.user-id EQ USERID(LDBNAME(1)) NO-ERROR.
+        
+  IF AVAIL user-print THEN ASSIGN ar-cash.bank-code = user-print.field-value[001].     
+ 
   FIND FIRST company WHERE company.company = g_company NO-LOCK NO-ERROR.
   FIND FIRST currency WHERE currency.company = g_company AND
                             currency.c-code = company.curr-code
@@ -662,6 +665,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR ll-new-record AS LOG NO-UNDO.
   DEF VAR char-hdl AS CHAR NO-UNDO.
+  DEFINE VARIABLE lUpdateBankCode AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   /* === validation ====*/
   RUN valid-cust-no NO-ERROR.
@@ -673,6 +677,7 @@ PROCEDURE local-update-record :
   DO WITH FRAME {&FRAME-NAME}:
      {&methods/lValidateError.i YES}
      IF ar-cash.bank-code:MODIFIED THEN do:
+        lUpdateBankCode = YES .
         FIND FIRST bank WHERE bank.company = g_company AND
                             bank.bank-code = ar-cash.bank-code:SCREEN-VALUE NO-LOCK NO-ERROR.
         IF NOT AVAIL bank THEN DO:
@@ -738,6 +743,10 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  IF AVAIL ar-cash AND (ll-new-record OR lUpdateBankCode) THEN
+  RUN custom/setUserPrint.p (g_company,'v-cash.',
+                             'ar-cash.bank-code',
+                             STRING(ar-cash.bank-code)).
   IF ll-new-record THEN DO:
 
      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"adding-line-target",OUTPUT char-hdl).
