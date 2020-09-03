@@ -69,9 +69,26 @@ PROCEDURE dynInitCompanyList:
     FOR EACH company NO-LOCK:
         cCompanyList = cCompanyList + company.company + ",".
     END. /* each company */
-    cCompanyList = TRIM(cCompanyList).
-    
+    cCompanyList = TRIM(cCompanyList).    
     RETURN cCompanyList.
+END PROCEDURE.
+
+PROCEDURE dynInitDBTableList:
+    DEFINE VARIABLE cTableLabel AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTableName  AS CHARACTER NO-UNDO.
+
+    FOR EACH ASI._file NO-LOCK
+        WHERE ASI._file._Tbl-Type EQ "T"
+        :
+        ASSIGN
+            cTableLabel = IF ASI._file._file-label NE ? THEN ASI._file._file-label ELSE ""
+            cTableName  = cTableName
+                        + cTableLabel + " (" + ASI._file._file-name + ")" + ","
+                        + ASI._file._file-name + ","
+            .
+    END. /* each _file */
+    cTableName = TRIM(cTableName,",").
+    RETURN cTableName.
 END PROCEDURE.
 
 PROCEDURE dynInitEstTypeCorr:

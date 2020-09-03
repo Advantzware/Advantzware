@@ -30,6 +30,7 @@ DEFINE VARIABLE cWidths         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dtDate          AS DATE      NO-UNDO.
 DEFINE VARIABLE hBusinessLogic  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hDynCalcField   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lRunLookup      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE idx             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iRecordLimit    AS INTEGER   NO-UNDO.
 
@@ -112,6 +113,8 @@ FOR EACH dynValueColumn NO-LOCK
         cSortFields   = cSortFields   + cFieldName + ",".
     END. /* if isactive */
 END. /* each dynvaluecolumn */
+
+lRunLookup = YES.
 IF cSourceTable BEGINS "tt" THEN DO:
     FIND FIRST dynSubject NO-LOCK
          WHERE dynSubject.subjectID     EQ ipiSubjectID
@@ -119,12 +122,16 @@ IF cSourceTable BEGINS "tt" THEN DO:
          NO-ERROR.
     IF AVAILABLE dynSubject THEN DO:
         RUN VALUE(dynSubject.businessLogic) PERSISTENT SET hBusinessLogic.
-        RUN pGetFileName IN hBusinessLogic (OUTPUT opcLookupField).
-        FOCUS:SCREEN-VALUE = opcLookupField.
+        IF CAN-DO(hBusinessLogic:INTERNAL-ENTRIES,"pGetFileName") THEN DO:
+            RUN pGetFileName IN hBusinessLogic (OUTPUT opcLookupField).
+            FOCUS:SCREEN-VALUE = opcLookupField.
+            lRunLookup = NO.
+        END.
         DELETE PROCEDURE hBusinessLogic.
     END. /* if avail */
 END. /* if begins */
-ELSE DO:
+
+IF lRunLookup THEN DO:
     ASSIGN
         cDisplayFields  = TRIM(cDisplayFields,",")
         cFormats        = TRIM(cFormats,",")
@@ -162,7 +169,7 @@ ELSE DO:
         OUTPUT opcLookupField,
         OUTPUT oprRecID
         ).
-END. /* else */
+END. /* if lRunLookup */
 
 /* **********************  Internal Procedures  *********************** */
 
