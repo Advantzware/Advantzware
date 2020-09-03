@@ -939,6 +939,11 @@ PROCEDURE pGetParamValue :
 ------------------------------------------------------------------------------*/
     EMPTY TEMP-TABLE ttDynParamValue.
     RUN spGetTaskFilter (OUTPUT cMnemonic, OUTPUT cPrgmName, OUTPUT cUserID).
+    IF cMnemonic NE "" THEN
+    ASSIGN
+        filterTasks:SCREEN-VALUE IN FRAME filterFrame = "4"
+        filterTasks
+        .
     FOR EACH dynParamValue NO-LOCK
         WHERE dynParamValue.module    BEGINS cMnemonic
           AND dynParamValue.securityLevel LE DYNAMIC-FUNCTION("sfUserSecurityLevel")
