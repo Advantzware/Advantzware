@@ -696,7 +696,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
              w-pal = (if fg-bin.case-count   eq 0 then 1 else fg-bin.case-count)   *
                      (if fg-bin.cases-unit   eq 0 then 1 else fg-bin.cases-unit)   *
                      (if fg-bin.units-pallet eq 0 then 1 else fg-bin.units-pallet)
-             w-pal = w-qty[1] / w-pal.
+             w-pal = TRUNC(w-qty[1] / w-pal,0).
 
             {sys/inc/roundup.i w-pal}
           end.
@@ -819,7 +819,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           
           for each w-bin break by w-qty[2] desc by w-qty[1] desc:
             assign
-             w-cas = w-qty[1] / w-c-c
+             w-cas = TRUNC(w-qty[1] / w-c-c,0)
              v-bin = trim(substr(w-tag,16,5)) + "/" +
                      trim(w-loc)              + "/" +
                      trim(w-bin).
