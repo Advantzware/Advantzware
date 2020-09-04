@@ -1268,7 +1268,7 @@ PROCEDURE createWPO :
   ASSIGN
     w-po.acknowledge = po-ord.acknowledge
     w-po.actnum = po-ordl.actnum
-    w-po.adders$ = po-ordl.adders$
+    w-po.adders = po-ordl.adders
     w-po.addr[1] = po-ord.addr[1]
     w-po.addr[2] = po-ord.addr[2]
     w-po.b-num = po-ordl.b-num

@@ -1791,7 +1791,7 @@ PROCEDURE CreatePrintInventoryForRM:
         IF AVAILABLE po-ordl THEN DO:
             ASSIGN
                 ttPrintInventoryStockRM.accountNo               = po-ordl.actnum
-                ttPrintInventoryStockRM.setupCharge             = po-ordl.adders$
+                ttPrintInventoryStockRM.setupCharge             = po-ordl.adders
                 ttPrintInventoryStockRM.blankNo                 = po-ordl.b-num
                 ttPrintInventoryStockRM.costs                   = po-ordl.cons-cost
                 ttPrintInventoryStockRM.consumptionQuantity     = po-ordl.cons-qty
