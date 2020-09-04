@@ -1793,14 +1793,7 @@ PROCEDURE release-item :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE BUFFER bf-oe-rel  FOR oe-rel.
-DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
-
-DEFINE VARIABLE lActiveScope    AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lValidLocation  AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cRelStat        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lFirst          AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+DEFINE BUFFER bf-rel FOR oe-rel .
 
 SESSION:SET-WAIT-STATE ('general').
 FIND FIRST oe-ctrl WHERE oe-ctrl.company = g_company NO-LOCK NO-ERROR.
@@ -1811,57 +1804,13 @@ RUN oe/CheckAckPrint.p(ROWID(oe-ord)).
 RUN check-release NO-ERROR.
 IF ERROR-STATUS:ERROR THEN RETURN.
 
-ASSIGN 
-    fil_id = RECID(oe-ordl)
-    scInstance = SharedConfig:instance
-    .
+fil_id = RECID(oe-ordl).
+scInstance = SharedConfig:instance.
+scInstance:DeleteValue(INPUT "RNoOERelh").  
+RUN oe/autorel.p .
 
-FOR EACH bf-oe-rel NO-LOCK
-    WHERE bf-oe-rel.company EQ oe-ord.company
-      AND bf-oe-rel.ord-no  EQ oe-ord.ord-no
-      AND bf-oe-rel.link-no EQ 0
-      AND bf-oe-rel.tot-qty GT 0,
-     FIRST bf-oe-ordl OF bf-oe-rel NO-LOCK
-     BREAK BY bf-oe-rel.rel-date
-           BY bf-oe-rel.ship-id:
-
-    RUN oe/rel-stat.p(
-        INPUT  ROWID(bf-oe-rel),
-        OUTPUT cRelStat
-        ).
-
-    IF INDEX("AB",cRelStat) EQ 0 AND FIRST-OF(bf-oe-rel.ship-id) THEN DO:
-        RUN Outbound_IsApiScopeActive IN hdOutboundProcs(
-            INPUT bf-oe-rel.company,
-            INPUT bf-oe-rel.spare-char-1,
-            INPUT "SendRelease",
-            INPUT bf-oe-rel.cust-no,
-            INPUT "Customer",
-            INPUT "CreateRelease",
-            OUTPUT lActiveScope
-            ).
-        IF lActiveScope THEN DO:
-            RUN Outbound_ValidateLocation IN hdOutboundProcs(
-                  INPUT bf-oe-rel.company,
-                  INPUT bf-oe-rel.spare-char-1,
-                  INPUT "SendRelease",
-                  OUTPUT lValidLocation,
-                  OUTPUT cMessage
-                  ).
-            IF NOT lValidLocation THEN DO:
-                SESSION:SET-WAIT-STATE ('').
-                RETURN.
-            END.
-        END.
-        LEAVE.    
-    END.
-END.
-scInstance:DeleteValue(INPUT "RNoOERelh"). /* Delete stale data, if any */
-
-RUN oe/autorel.p.
-IF lActiveScope AND lValidLocation THEN 
-    RUN Order_CallCreateReleaseTrigger IN hdOrderProcs.   
-SESSION:SET-WAIT-STATE ('').  
+SESSION:SET-WAIT-STATE ('').   
+  
 
 END PROCEDURE.
 

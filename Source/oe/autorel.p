@@ -31,7 +31,8 @@ DEFINE VARIABLE lRecFound          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage           AS CHARACTER NO-UNDO. 
 DEFINE VARIABLE lActiveScope       AS LOGICAL   NO-UNDO.  
 DEFINE VARIABLE lValidLocation     AS LOGICAL   NO-UNDO. 
-DEFINE VARIABLE hdOutboundProcs    AS HANDLE    NO-UNDO.    
+DEFINE VARIABLE hdOutboundProcs    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdOrderProcs       AS HANDLE    NO-UNDO.    
 DEFINE STREAM sRelErrorLog.
 
 DEFINE BUFFER bf-oe-rel FOR oe-rel.
@@ -49,6 +50,7 @@ PROCEDURE mail EXTERNAL "xpMail.dll" :
 END.
 
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+RUN oe/OrderProcs.p     PERSISTENT SET hdOrderProcs.
 
 {oe/chkordl.i NEW}
 {oe/relemail.i NEW}
@@ -134,6 +136,28 @@ DO:
         DO:
             IF lFirst THEN 
             DO:
+                RUN Outbound_IsApiScopeActive IN hdOutboundProcs(
+                    INPUT oe-rel.company,
+                    INPUT oe-rel.spare-char-1,
+                    INPUT "SendRelease",
+                    INPUT oe-rel.cust-no,
+                    INPUT "Customer",
+                    INPUT "CreateRelease",
+                    OUTPUT lActiveScope
+                    ).
+                IF lActiveScope THEN DO:
+                    RUN Outbound_ValidateLocation IN hdOutboundProcs(
+                          INPUT oe-rel.company,
+                          INPUT oe-rel.spare-char-1,
+                          INPUT "SendRelease",
+                          OUTPUT lValidLocation,
+                          OUTPUT cMessage 
+                          ).
+                    IF NOT lValidLocation THEN DO:
+                        SESSION:SET-WAIT-STATE ('').
+                        RETURN. 
+                    END.                         
+                END.                
                 ASSIGN
                     lFirst = NO
                     lMergeWithExisting  = YES
@@ -202,6 +226,9 @@ DO:
     RUN send-email-proc.
 END. /* If v-auto */
 
+IF lValidLocation AND lActiveScope THEN 
+    RUN Order_CallCreateReleaseTrigger IN hdOrderProcs.
+    
 IF addrelse-cha = "No Tags" THEN 
 DO:
     iNumOrderLines = 0.
@@ -225,6 +252,12 @@ DO:
             VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
 END.
 
+IF VALID-HANDLE(hdOutboundProcs) THEN 
+    DELETE PROCEDURE hdOutboundProcs.
+
+IF VALID-HANDLE(hdOrderProcs) THEN 
+    DELETE PROCEDURE hdOrderProcs. 
+      
 PROCEDURE send-email-proc:
     DEFINE VARIABLE cToList      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMailSubject AS CHARACTER NO-UNDO.
