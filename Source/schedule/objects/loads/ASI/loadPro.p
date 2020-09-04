@@ -1,4 +1,4 @@
-/* loadPro.p - ASI as of 2.3.2016 @ 5:45pm */
+/* loadPro.p - ASI as of 9.2.2020 @ 7:07pm */
 
 &SCOPED-DEFINE sbDB nosweat
 &SCOPED-DEFINE ID ASI/ALL
@@ -363,6 +363,7 @@ END FUNCTION.
 
 FUNCTION fPOMaterial RETURNS LOGICAL (
     ipCompany AS CHARACTER,
+    ipJob     AS INTEGER,
     ipJobNo   AS CHARACTER,
     ipJobNo2  AS INTEGER,
     ipForm    AS INTEGER,
@@ -373,25 +374,31 @@ FUNCTION fPOMaterial RETURNS LOGICAL (
 
     DEFINE VARIABLE lMaterialReceipted AS LOGICAL NO-UNDO.
 
-    FOR EACH rm-rcpth NO-LOCK
-        WHERE rm-rcpth.company   EQ ipCompany
-          AND rm-rcpth.job-no    EQ ipJobNo
-          AND rm-rcpth.job-no2   EQ ipJobNo2
-          AND rm-rcpth.i-no      EQ ipItemNo
+    FOR EACH job-mat NO-LOCK
+        WHERE job-mat.company   EQ ipCompany
+          AND job-mat.job       EQ ipJob
+          AND job-mat.job-no    EQ ipJobNo
+          AND job-mat.job-no2   EQ ipJobNo2
+          AND job-mat.frm       EQ ipForm
+          AND (job-mat.blank-no EQ ipBlankNo
+           OR job-mat.blank-no  EQ 0),
+         EACH item OF job-mat NO-LOCK
+        WHERE item.mat-type   EQ ipMatType, 
+         EACH rm-rcpth NO-LOCK
+        WHERE rm-rcpth.company   EQ job-mat.company
+          AND rm-rcpth.job-no    EQ job-mat.job-no
+          AND rm-rcpth.job-no2   EQ job-mat.job-no2
+          AND rm-rcpth.i-no      EQ job-mat.i-no
           AND rm-rcpth.rita-code EQ "R",
-        FIRST item NO-LOCK
-        WHERE item.company  EQ rm-rcpth.company
-          AND item.i-no     EQ rm-rcpth.i-no
-          AND item.mat-type EQ ipMatType,
-        EACH rm-rdtlh NO-LOCK
+         EACH rm-rdtlh NO-LOCK
         WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no 
           AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code
-          AND rm-rdtlh.s-num     EQ ipForm
-          AND rm-rdtlh.b-num     EQ ipBlankNo          
+          AND rm-rdtlh.s-num     EQ job-mat.frm
+          AND rm-rdtlh.b-num     EQ job-mat.blank-no
         :
         lMaterialReceipted = TRUE.
         LEAVE.
-    END. /* each rm-rcpth */
+    END. /* each job-mat */
     RETURN lMaterialReceipted.
 END FUNCTION.
 
@@ -1257,9 +1264,10 @@ FOR EACH job-hdr NO-LOCK
                                               job-mch.job-no,job-mch.job-no2,
                                               job-mch.frm,statusCheckOffs.materialType).
             ELSE
-            jobStatus[i - 1] = fPOMaterial(job-mch.company,job-mch.job-no,job-mch.job-no2,
-                                           job-mch.frm,job-mch.blank-no,job-mch.i-no,
-                                           statusCheckOffs.materialType).
+            jobStatus[i - 1] = fPOMaterial(job-mch.company,job-mch.job,
+                                           job-mch.job-no,job-mch.job-no2,
+                                           job-mch.frm,job-mch.blank-no,
+                                           job-mch.i-no,statusCheckOffs.materialType).
           END. /* if avail */
         END. /* not usesalesrep */
       END. /* avail sbstatus */
@@ -1517,9 +1525,9 @@ PROCEDURE ipJobMaterial:
         WHEN 'B' THEN DO:
           IF NOT opjobBoardIssued THEN
           ASSIGN
-            opBoardLength  = job-mat.len
-            opBoardWidth   = job-mat.wid
-            opjobBoardIssued = CAN-FIND(FIRST mat-act
+            opBoardLength    = job-mat.len
+            opBoardWidth     = job-mat.wid
+            opJobBoardIssued = CAN-FIND(FIRST mat-act
                                         WHERE mat-act.company EQ job-mat.company
                                           AND mat-act.job     EQ job-mat.job
                                           AND mat-act.job-no  EQ job-mat.job-no
