@@ -5395,6 +5395,8 @@ DEFINE BUFFER bf-eb FOR eb .
     RELEASE oe-ordl.
     RELEASE job.
     RUN release-shared-buffers.
+    
+    RUN DisplayMessage( INPUT "46"). 
 
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
     RUN reopen-query IN WIDGET-HANDLE(char-hdl).
