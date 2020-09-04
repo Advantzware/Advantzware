@@ -141,6 +141,18 @@ FUNCTION sfCommon_UserAMPM RETURNS LOGICAL
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-sfCommon_CheckIntDecValue) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_CheckIntDecValue Procedure
+FUNCTION sfCommon_CheckIntDecValue RETURNS CHARACTER 
+  ( pcString AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
@@ -778,3 +790,42 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+
+&IF DEFINED(EXCLUDE-sfCommon_CheckIntDecValue) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_CheckIntDecValue Procedure
+FUNCTION sfCommon_CheckIntDecValue RETURNS CHARACTER 
+  ( INPUT pcString AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+	DEFINE VARIABLE iChar AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iAsc AS INTEGER NO-UNDO.
+
+    DEFINE VARIABLE cTemp AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cChar AS CHARACTER NO-UNDO.
+
+    DO iChar = 1 TO LENGTH(pcString):
+        ASSIGN cChar = SUBSTRING(pcString,iChar,1)
+                        iAsc = ASC(cChar).
+
+        IF iAsc GT 47 AND
+             iAsc LT 58 THEN
+           cTemp = cTemp + cChar.
+    END.
+
+    IF (cTemp GT "") EQ TRUE THEN
+        RETURN cTemp.
+    ELSE
+        RETURN ?. /* If no integers in the string return the unknown value. */
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+
