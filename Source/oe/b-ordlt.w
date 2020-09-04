@@ -18,6 +18,8 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+     
+USING system.SharedConfig.
 
 CREATE WIDGET-POOL.
 
@@ -93,6 +95,9 @@ DEFINE VARIABLE clvtext AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lUpdateOrderItem AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
+DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdOrderProcs    AS HANDLE NO-UNDO.
 
 &SCOPED-DEFINE SORTBY-PHRASE BY oe-ordl.set-hdr-line BY oe-ordl.line
 
@@ -130,7 +135,9 @@ RUN methods/prgsecur.p
      OUTPUT lUpdateOrderItem, /* Allowed? Yes/NO */
      OUTPUT lAccessClose, /* used in template/windows.i  */
      OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
-
+     
+RUN api/outboundProcs.p PERSISTENT SET hdOutboundProcs.
+RUN oe/OrderProcs.p     PERSISTENT SET hdOrderProcs.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -785,6 +792,9 @@ IF choice THEN DO:
        DELETE w-rel.
   END.
   
+  scInstance = SharedConfig:instance.
+  scinstance:DeleteValue(INPUT "RNoOERelh"). /* Delete stale data, if any */
+
   FOR EACH w-rel,
       FIRST bf-rel WHERE ROWID(bf-rel) EQ w-rowid NO-LOCK,
       FIRST xoe-ordl
@@ -807,8 +817,7 @@ IF choice THEN DO:
 
     DELETE w-rel.
   END.
-
-
+  RUN Order_CallCreateReleaseTrigger IN hdOrderProcs.
   IF oeBolPrompt-log AND AVAILABLE xoe-ord THEN DO:
       IF NOT AVAIL cust THEN
           FIND FIRST cust NO-LOCK 
@@ -1784,8 +1793,14 @@ PROCEDURE release-item :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+DEFINE BUFFER bf-oe-rel  FOR oe-rel.
+DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
 
-DEFINE BUFFER bf-rel FOR oe-rel .
+DEFINE VARIABLE lActiveScope    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lValidLocation  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cRelStat        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFirst          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
 
 SESSION:SET-WAIT-STATE ('general').
 FIND FIRST oe-ctrl WHERE oe-ctrl.company = g_company NO-LOCK NO-ERROR.
@@ -1796,9 +1811,56 @@ RUN oe/CheckAckPrint.p(ROWID(oe-ord)).
 RUN check-release NO-ERROR.
 IF ERROR-STATUS:ERROR THEN RETURN.
 
-fil_id = RECID(oe-ordl).  
-RUN oe/autorel.p .
+ASSIGN 
+    fil_id = RECID(oe-ordl)
+    scInstance = SharedConfig:instance
+    .
 
+FOR EACH bf-oe-rel NO-LOCK
+    WHERE bf-oe-rel.company EQ oe-ord.company
+      AND bf-oe-rel.ord-no  EQ oe-ord.ord-no
+      AND bf-oe-rel.link-no EQ 0
+      AND bf-oe-rel.tot-qty GT 0,
+     FIRST bf-oe-ordl OF bf-oe-rel NO-LOCK
+     BREAK BY bf-oe-rel.rel-date
+           BY bf-oe-rel.ship-id:
+
+    RUN oe/rel-stat.p(
+        INPUT  ROWID(bf-oe-rel),
+        OUTPUT cRelStat
+        ).
+
+    IF INDEX("AB",cRelStat) EQ 0 AND FIRST-OF(bf-oe-rel.ship-id) THEN DO:
+        RUN Outbound_IsApiScopeActive IN hdOutboundProcs(
+            INPUT bf-oe-rel.company,
+            INPUT bf-oe-rel.spare-char-1,
+            INPUT "SendRelease",
+            INPUT bf-oe-rel.cust-no,
+            INPUT "Customer",
+            INPUT "CreateRelease",
+            OUTPUT lActiveScope
+            ).
+        IF lActiveScope THEN DO:
+            RUN Outbound_ValidateLocation IN hdOutboundProcs(
+                  INPUT bf-oe-rel.company,
+                  INPUT bf-oe-rel.spare-char-1,
+                  INPUT "SendRelease",
+                  OUTPUT lValidLocation,
+                  OUTPUT cMessage
+                  ).
+            IF NOT lValidLocation THEN DO:
+                SESSION:SET-WAIT-STATE ('').
+                RETURN.
+            END.
+        END.
+        LEAVE.    
+    END.
+END.
+scInstance:DeleteValue(INPUT "RNoOERelh"). /* Delete stale data, if any */
+
+RUN oe/autorel.p.
+IF lActiveScope AND lValidLocation THEN 
+    RUN Order_CallCreateReleaseTrigger IN hdOrderProcs.   
 SESSION:SET-WAIT-STATE ('').  
 
 END PROCEDURE.

@@ -12,6 +12,7 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+USING system.SharedConfig.
 DEFINE INPUT PARAMETER v-term       AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipdtPostDate AS DATE      NO-UNDO.
 
@@ -102,6 +103,7 @@ DEFINE VARIABLE lFirstReportKey3   AS LOG       NO-UNDO.
 DEFINE VARIABLE lLastReportKey3    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUseLogs           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cDebugLog          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE scInstance         AS CLASS system.SharedConfig NO-UNDO.
 DEFINE STREAM sDebug.
 DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
 DEFINE BUFFER bf-oe-boll FOR oe-boll.
@@ -138,8 +140,10 @@ DEFINE TEMP-TABLE ttblUPS NO-UNDO
     FIELD cod          AS LOGICAL
     INDEX ttblUPS IS PRIMARY UNIQUE company ord-no sold-to.
 
-DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hNotesProcs  AS HANDLE NO-UNDO.
+DEFINE VARIABLE hdOrderProcs AS HANDLE NO-UNDO.
 RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
+RUN oe/OrderProcs.p    PERSISTENT SET hdOrderProcs.
 
 DO TRANSACTION:
     {sys/inc/boltransfer.i}
@@ -205,12 +209,16 @@ DO TRANSACTION:
     RUN ipCheckPosted.
     
     /* Post of BOLs */
-    RUN ipPostBols.
+    RUN ipPostBols.  
+    
+    scInstance = SharedConfig:instance.
+    scInstance:DeleteValue("RNoOERelh"). /* Delete stale data, if any */
     
     RUN ipProcessBackorders.
     RUN ipUpdateReleaseStat.    
 
 END. /* Do trans */
+RUN Order_CallCreateReleaseTrigger IN hdOrderProcs.
 
 RUN ipProcessShipOnly.
 RUN ipCalcHeaderTotals.
@@ -218,6 +226,8 @@ RUN ipCalcHeaderTotals.
 RUN ipUpsFile.
 RUN ipEndLog.
 DELETE OBJECT hNotesProcs.
+IF VALID-HANDLE(hdOrderProcs) THEN 
+    DELETE PROCEDURE hdOrderProcs.
 
 STATUS DEFAULT.
 

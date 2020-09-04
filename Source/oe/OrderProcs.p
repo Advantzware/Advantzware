@@ -13,6 +13,8 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+USING system.SharedConfig.
+
 DEFINE VARIABLE hdOeValidate AS HANDLE.
 {custom/globdefs.i}     /*Refactor - hate this*/
 {sys/inc/var.i SHARED}  /*Refactor - hate this*/
@@ -28,6 +30,7 @@ DEFINE VARIABLE gcCompanyDefaultBin AS CHARACTER NO-UNDO.  /* default bin */
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lr-rel-lib AS HANDLE NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 
 DEFINE VARIABLE gcCaseUOMList AS CHARACTER NO-UNDO.
 
@@ -195,6 +198,124 @@ PROCEDURE GetOEImportConsol:
     
     IF lRecFound THEN
         oplOEImportConsol = LOGICAL(cRtnChar).
+END PROCEDURE.
+
+PROCEDURE Order_CallCreateReleaseTrigger:
+/*------------------------------------------------------------------------------
+ Purpose: Generice procedure to call create release trigger for sendRelease,
+          sendCustomer and sendFinishedGood API
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-oe-relh FOR oe-relh.
+    DEFINE BUFFER bf-oe-rell FOR oe-rell.
+    DEFINE BUFFER bf-cust    FOR cust.
+    DEFINE BUFFER bf-itemfg  FOR itemfg.
+    
+    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAPIID       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cRNoValues   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iNumValues   AS INTEGER NO-UNDO.
+     
+    ASSIGN 
+        scInstance = SharedConfig:instance. 
+        cRNoValues= scInstance:ConsumeValue("RNoOERelh")
+        .    
+    DO iNumValues = 1 TO NUM-ENTRIES(cRNoValues,"|"):
+        FIND FIRST bf-oe-relh NO-LOCK 
+             WHERE bf-oe-relh.r-no EQ INTEGER(ENTRY(iNumValues,cRNoValues,"|"))
+             NO-ERROR.
+        IF AVAILABLE bf-oe-relh THEN DO: 
+            FOR EACH bf-oe-rell NO-LOCK 
+                WHERE bf-oe-rell.company EQ bf-oe-relh.company
+                  AND bf-oe-rell.r-no    EQ bf-oe-relh.r-no,
+                FIRST bf-itemfg NO-LOCK 
+                WHERE bf-itemfg.company EQ bf-oe-rell.company
+                  AND bf-itemfg.i-no    EQ bf-oe-rell.i-no  
+                BREAK BY bf-oe-rell.r-no
+                      BY bf-oe-rell.i-no:
+                IF FIRST-OF(bf-oe-rell.r-no) THEN DO:
+                    ASSIGN 
+                        cAPIID       = "SendRelease"
+                        cPrimaryID   = STRING(bf-oe-relh.release#)
+                        cDescription = cAPIID + " triggered by CreateRelease"  
+                                     + " from OrderProcs.p for Release: " + cPrimaryID
+                        . 
+                    RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs  (
+                        INPUT  bf-oe-relh.company,        /* Company Code (Mandatory) */
+                        INPUT  bf-oe-rell.loc,            /* Location Code (Mandatory) */
+                        INPUT  cAPIID,                    /* API ID (Mandatory) */
+                        INPUT  bf-oe-relh.cust-no,        /* Scope ID*/
+                        INPUT  "Customer",                /* Scope Type */
+                        INPUT  "CreateRelease",           /* Trigger ID (Mandatory) */
+                        INPUT  "oe-relh",                 /* Comma separated list of table names for which data being sent (Mandatory) */
+                        INPUT  STRING(ROWID(bf-oe-relh)), /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                        INPUT  cPrimaryID,                /* Primary ID for which API is called for (Mandatory) */   
+                        INPUT  cDescription,              /* Event's description (Optional) */
+                        OUTPUT lSuccess,                  /* Success/Failure flag */
+                        OUTPUT cMessage                   /* Status message */
+                        ) NO-ERROR.
+                    FIND FIRST bf-cust NO-LOCK
+                         WHERE bf-cust.company EQ bf-oe-relh.company
+                           AND bf-cust.cust-no EQ bf-oe-relh.cust-no
+                         NO-ERROR.
+                    IF AVAILABLE bf-cust THEN DO:
+                        ASSIGN  
+                            cAPIId       = "SendCustomer"
+                            cPrimaryID   = bf-cust.cust-no
+                            cDescription = cAPIID + " triggered by CreateRelease from OrderProcs.p for Customer: " + cPrimaryID
+                            .
+                        RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs  (
+                            INPUT  bf-oe-relh.company,        /* Company Code (Mandatory) */
+                            INPUT  bf-oe-rell.loc,            /* Location Code (Mandatory) */
+                            INPUT  cAPIID,                    /* API ID (Mandatory) */
+                            INPUT  bf-oe-relh.cust-no,        /* Scope ID*/
+                            INPUT  "Customer",                /* Scope Type */
+                            INPUT  "CreateRelease",           /* Trigger ID (Mandatory) */
+                            INPUT  "cust",                    /* Comma separated list of table names for which data being sent (Mandatory) */
+                            INPUT  STRING(ROWID(bf-cust)),    /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                            INPUT  cPrimaryID,                /* Primary ID for which API is called for (Mandatory) */   
+                            INPUT  cDescription,              /* Event's description (Optional) */
+                            OUTPUT lSuccess,                  /* Success/Failure flag */
+                            OUTPUT cMessage                   /* Status message */
+                            ) NO-ERROR.
+                    END. /*avail bf-cust*/ 
+                END. /* IF avail first-of(r-no) */
+                IF FIRST-OF(bf-oe-rell.i-no) THEN DO:
+                    ASSIGN 
+                        cAPIId       = "SendFinishedGood"
+                        cPrimaryID   = bf-itemfg.i-no
+                        cDescription = cAPIID + " triggered by CreateRelease" 
+                                     + " from OrderProcs.p for FG Item: " + cPrimaryID
+                        .
+                    RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs  (
+                        INPUT  bf-oe-relh.company,        /* Company Code (Mandatory) */
+                        INPUT  bf-oe-rell.loc,            /* Location Code (Mandatory) */
+                        INPUT  cAPIID,                    /* API ID (Mandatory) */
+                        INPUT  bf-oe-relh.cust-no,        /* Scope ID*/
+                        INPUT  "Customer",                /* Scope Type */
+                        INPUT  "CreateRelease",           /* Trigger ID (Mandatory) */
+                        INPUT  "itemfg",                  /* Comma separated list of table names for which data being sent (Mandatory) */
+                        INPUT  STRING(ROWID(bf-itemfg)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+                        INPUT  cPrimaryID,                /* Primary ID for which API is called for (Mandatory) */   
+                        INPUT  cDescription,              /* Event's description (Optional) */
+                        OUTPUT lSuccess,                  /* Success/Failure flag */
+                        OUTPUT cMessage                   /* Status message */
+                        ) NO-ERROR.
+                END. /*First bf-oe-rell.i-no*/                
+            END.
+            DO TRANSACTION:  
+                FIND CURRENT bf-oe-relh EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE bf-oe-relh THEN.
+                     bf-oe-relh.printed = YES.     
+            END. 
+            RELEASE bf-oe-relh.                                                                         
+        END.  
+        RUN Outbound_ResetContext IN hdOutboundProcs.  
+    END.  
+
 END PROCEDURE.
 
 PROCEDURE pConsolidateImportedOrderLines PRIVATE:

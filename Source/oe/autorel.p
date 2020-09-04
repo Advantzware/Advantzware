@@ -134,28 +134,6 @@ DO:
         DO:
             IF lFirst THEN 
             DO:
-                RUN Outbound_IsApiScopeActive IN hdOutboundProcs(
-                    INPUT oe-rel.company,
-                    INPUT oe-rel.spare-char-1,
-                    INPUT "SendRelease",
-                    INPUT oe-rel.cust-no,
-                    INPUT "Customer",
-                    INPUT "CreateRelease",
-                    OUTPUT lActiveScope
-                    ).
-                IF lActiveScope THEN DO:
-                    RUN Outbound_ValidateLocation IN hdOutboundProcs(
-                          INPUT oe-rel.company,
-                          INPUT oe-rel.spare-char-1,
-                          INPUT "SendRelease",
-                          OUTPUT lValidLocation,
-                          OUTPUT cMessage 
-                          ).
-                    IF NOT lValidLocation THEN DO:
-                        SESSION:SET-WAIT-STATE ('').
-                        RETURN. 
-                    END.                         
-                END.
                 ASSIGN
                     lFirst = NO
                     lMergeWithExisting  = YES

@@ -16,6 +16,8 @@
   ----------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
+USING system.SharedConfig.
+
 DEFINE INPUT PARAMETER ip-rowid         AS ROWID NO-UNDO.
 DEFINE INPUT PARAMETER ipcAction         AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iocPrompt AS CHARACTER NO-UNDO.
@@ -60,6 +62,7 @@ DEFINE VARIABLE lReleaseCreated      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lActiveScope         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValidLocation       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE scInstance           AS CLASS system.SharedConfig NO-UNDO.
 
 /* Procedure to prepare and execute API calls */
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
@@ -401,38 +404,8 @@ DO:
     
     /* calls sendrelease by triggering createrelease trigger */
     IF lReleaseCreated THEN DO:
-        RUN Outbound_IsApiScopeActive IN hdOutboundProcs(
-            INPUT oe-rel.company,
-            INPUT oe-rel.spare-char-1,
-            INPUT "SendRelease",
-            INPUT oe-rel.cust-no,
-            INPUT "Customer",
-            INPUT "CreateRelease",
-            OUTPUT lActiveScope
-            ).
-        IF lActiveScope THEN DO:
-            RUN Outbound_ValidateLocation IN hdOutboundProcs(
-                  INPUT oe-rel.company,
-                  INPUT oe-rel.spare-char-1,
-                  INPUT "SendRelease",
-                  OUTPUT lValidLocation,
-                  OUTPUT cMessage 
-                  ).
-            IF NOT lValidLocation THEN DO:
-                SESSION:SET-WAIT-STATE (''). 
-                RETURN. 
-            END.
-            DO TRANSACTION:    
-                FIND CURRENT bf-oe-relh EXCLUSIVE-LOCK NO-ERROR.
-                bf-oe-relh.printed = YES.
-                FIND CURRENT bf-oe-relh NO-LOCK NO-ERROR.
-            END.                                
-        END. 
-                    
-        RUN pRunAPIOutboundTrigger (
-            BUFFER bf-oe-relh,
-            INPUT  "CreateRelease"
-            ).
+        scInstance = SharedConfig:instance. 
+        scInstance:setValueAppend("RNoOERelh", STRING(bf-oe-relh.r-no)).                        
     END.        
 END.
 
@@ -1138,64 +1111,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-PROCEDURE pRunAPIOutboundTrigger:
-/*------------------------------------------------------------------------------
- Purpose:  Fires Outbound APIs for given release header
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-oe-relh FOR oe-relh.
-    DEFINE INPUT PARAMETER ipcTriggerID AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cAPIID       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
-       
-    DEFINE BUFFER bf-oe-rell FOR oe-rell.
-    DEFINE BUFFER bf-cust    FOR cust.
-    DEFINE BUFFER bf-itemfg  FOR itemfg.
-    
-    IF AVAILABLE ipbf-oe-relh THEN DO:
-        FOR EACH bf-oe-rell NO-LOCK 
-            WHERE bf-oe-rell.company EQ ipbf-oe-relh.company
-            AND bf-oe-rell.r-no EQ ipbf-oe-relh.r-no,
-            FIRST bf-itemfg NO-LOCK 
-            WHERE bf-itemfg.company EQ bf-oe-rell.company
-            AND bf-itemfg.i-no EQ bf-oe-rell.i-no
-            BREAK BY bf-oe-rell.r-no  /*In order to get .loc from first oe-rell as "shipFrom"*/
-            BY bf-oe-rell.i-no:
-            
-            IF FIRST-OF(bf-oe-rell.r-no) THEN DO:
-                ASSIGN 
-                    cAPIID       = "SendRelease"
-                    cPrimaryID   = STRING(ipbf-oe-relh.release#)
-                    cDescription = cAPIID + " triggered by " + ipcTriggerID 
-                                 + " from actrelmerg.p for Release: " + cPrimaryID
-                    . 
-
-                RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
-                    INPUT  ipbf-oe-relh.company,        /* Company Code (Mandatory) */
-                    INPUT  bf-oe-rell.loc,              /* Location Code (Mandatory) */
-                    INPUT  cAPIID,                      /* API ID (Mandatory) */
-                    INPUT  ipbf-oe-relh.cust-no,        /* Scope ID*/
-		            INPUT  "Customer",                  /* Scope Type */
-                    INPUT  ipcTriggerID,                /* Trigger ID (Mandatory) */
-                    INPUT  "oe-relh",                   /* Comma separated list of table names for which data being sent (Mandatory) */
-                    INPUT  STRING(ROWID(ipbf-oe-relh)), /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
-                    INPUT  cPrimaryID,              	/* Primary ID for which API is called for (Mandatory) */   
-                    INPUT  cDescription,       			/* Event's description (Optional) */
-                    OUTPUT lSuccess,                	/* Success/Failure flag */
-                    OUTPUT cMessage                 	/* Status message */
-                    ) NO-ERROR.
-            END.
-        END.               
-        /* Reset context at the end of API calls to clear temp-table 
-           data inside OutboundProcs */
-        RUN Outbound_ResetContext IN hdOutboundProcs.
-    END.
-END PROCEDURE.
 &ENDIF
 
 /* ************************  Function Implementations ***************** */
