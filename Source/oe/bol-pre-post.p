@@ -11,6 +11,7 @@ DEF BUFFER b-oe-boll FOR oe-boll.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR v-tag2 AS CHAR NO-UNDO.
 DEFINE VARIABLE riRowId AS ROWID NO-UNDO.
+DEFINE VARIABLE lFGBOLTransferPost AS LOGICAL   NO-UNDO.
 
 {pc/pcprdd4u.i NEW}
 {fg/invrecpt.i NEW}   
@@ -52,6 +53,8 @@ FOR EACH oe-boll WHERE ROWID(oe-boll) EQ ip-rowid,
                       oe-bolh.cust-no,
                       oe-bolh.ship-id,
                       BUFFER shipto).
+   
+  lFGBOLTransferPost = fGetBOLTransferPost(oe-bolh.company).                      
 
   IF oe-ord.type EQ "T" OR oe-boll.s-code EQ "T" THEN DO: /* Process in-house transfer */
     IF AVAIL shipto AND CAN-FIND(FIRST fg-bin
@@ -223,10 +226,7 @@ PROCEDURE pAutoPostTransferTransaction:
     DEFINE VARIABLE hInventoryProcs    AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lActiveBin         AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lPromptForClose    AS LOGICAL   NO-UNDO INITIAL YES.   
-    DEFINE VARIABLE lFGBOLTransferPost AS LOGICAL   NO-UNDO.
-    
-    lFGBOLTransferPost = fGetBOLTransferPost(ipcCompany). 
-      
+        
     IF lFGBOLTransferPost THEN
     DO: 
         FOR EACH fg-rctd NO-LOCK
