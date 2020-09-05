@@ -570,13 +570,17 @@ PROCEDURE local-create-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */   
+  /* Code placed here will execute AFTER standard behavior.    */
+  FIND FIRST ar-ctrl WHERE ar-ctrl.company = g_company NO-LOCK NO-ERROR.
+  FIND FIRST bank WHERE bank.company = g_company AND
+                        bank.actnum = ar-ctrl.cash-act NO-LOCK NO-ERROR.  
   FIND FIRST user-print NO-LOCK 
        WHERE user-print.company EQ g_company
        AND user-print.program-id EQ "v-cash."
        AND user-print.user-id EQ USERID(LDBNAME(1)) NO-ERROR.
         
-  IF AVAIL user-print THEN ASSIGN ar-cash.bank-code = user-print.field-value[001].     
+  IF AVAIL user-print THEN ASSIGN ar-cash.bank-code = user-print.field-value[001].
+  ELSE IF AVAIL bank THEN ASSIGN ar-cash.bank-code = bank.bank-code.
  
   FIND FIRST company WHERE company.company = g_company NO-LOCK NO-ERROR.
   FIND FIRST currency WHERE currency.company = g_company AND
