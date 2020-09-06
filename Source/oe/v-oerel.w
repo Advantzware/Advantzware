@@ -1491,6 +1491,10 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR lv-adding-record AS LOG NO-UNDO.
   DEF VAR lv-date LIKE oe-relh.rel-date NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lValidLocation AS LOGICAL NO-UNDO.
+  
+  DEFINE BUFFER bf-oe-rell FOR oe-rell.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-cust-no NO-ERROR.
@@ -1524,10 +1528,22 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
   IF oe-relh.rel-date NE lv-date AND
      NOT lv-adding-record        THEN do:
+     FIND FIRST bf-oe-rell NO-LOCK 
+          WHERE bf-oe-rell.company EQ oe-relh.company
+            AND bf-oe-rell.r-no    EQ oe-relh.r-no 
+          NO-ERROR.   
+     IF AVAILABLE bf-oe-rell THEN 
+         RUN Outbound_ValidateLocation IN hdOutboundProcs(
+               INPUT bf-oe-rell.company,
+               INPUT bf-oe-rell.loc,
+               INPUT "SendRelease",
+               OUTPUT lValidLocation,
+               OUTPUT cMessage 
+               ).  
+      IF NOT lValidLocation THEN 
+          oe-relh.printed = NO.                            
       RUN oe/d-dudate.w (ROWID(oe-relh)). 
-      ASSIGN 
-        oe-relh.printed = NO /* task 05211304 */
-        oe-relh.spare-char-3 = "". 
+      oe-relh.spare-char-3 = "". 
   END.
   
   RUN pRunAPIOutboundTrigger (

@@ -1,6 +1,8 @@
 /* -------------------------------------------------- oe/oe-bolp7.p  */
 /* ORDER ENTRY MODULE - O/E RELEASE POST / CREATE BOLS                        */
 /* -------------------------------------------------------------------------- */
+USING system.SharedConfig.
+
 DEF INPUT PARAM v-term AS CHAR NO-UNDO.
 DEF INPUT PARAM ip-check-back-release AS LOG NO-UNDO.
 
@@ -74,6 +76,8 @@ DEF VAR v-new-fob-code AS CHAR NO-UNDO.
 DEF VAR v-fob-code AS CHAR NO-UNDO.
 DEF VAR v-new-sell-price AS DEC NO-UNDO.
 DEF VAR v-new-zero-price AS LOG NO-UNDO.
+DEFINE VARIABLE hdOrderProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 
 DEF VAR v-rtn-char AS CHAR NO-UNDO.
 DEF VAR v-rec-found AS LOG NO-UNDO.
@@ -96,6 +100,7 @@ DEFINE TEMP-TABLE ttblUPS NO-UNDO
 
 DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
 RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
+RUN oe/OrderProcs.p    PERSISTENT SET hdOrderProcs.
     
            
 FUNCTION tabChar RETURNS CHARACTER (ipValue AS CHARACTER):
@@ -158,7 +163,7 @@ FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 v-u-inv = oe-ctrl.u-inv.
 
 EMPTY TEMP-TABLE w-inv.
-
+scInstance = SharedConfig:instance.
 DO TRANSACTION:
   RUN check-posted.
 
@@ -392,6 +397,8 @@ END.
 
 RUN upsFile.
 DELETE OBJECT hNotesProcs.
+IF VALID-HANDLE(hdOrderProcs) THEN 
+    DELETE PROCEDURE hdOrderProcs.
 
 RETURN.
 
