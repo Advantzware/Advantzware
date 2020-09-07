@@ -44,8 +44,9 @@ DEFINE VARIABLE gcSuccess         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glAPIConfigFound  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE gcParentProgram   AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdFTPProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lSuccess   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
 
 ASSIGN
     gcParentProgram = ipcParentProgram
@@ -119,7 +120,66 @@ IF SEARCH("curl.exe") EQ ? THEN DO:
              
     RETURN. 
 END.
+
+IF APIOutbound.requestType EQ "FTP" AND NOT APIOutbound.SaveFile THEN DO:
+    ASSIGN
+        oplSuccess = FALSE
+        opcMessage = "File saving option is not enabled for [" + gcAPIID + "] API Oubound"
+        .
+    RETURN.
+END.
+
+IF APIOutbound.requestType EQ "FTP" OR APIOutbound.SaveFile THEN DO:
+    RUN FileSys_CreateDirectory (
+        INPUT  APIOutbound.SaveFileFolder,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ) NO-ERROR.
+    IF NOT oplSuccess THEN
+        RETURN.
+
+    ASSIGN
+        gcRequestFile  = gcAPIID       + "_"      /* API ID    */
+                       + gcClientID    + "_"      /* Client ID */
+                       + gcRequestVerb + "_"      /* i.e. GET, POST, PUT? */
+                       + gcDateTime               /* Date and Time */
+                       + "." + lc(gcRequestDataType). /* File Extentions */
+        gcResponseFile = gcAPIID       + "_"      /* API ID    */
+                       + gcClientID    + "_"      /* Client ID */
+                       + gcRequestVerb + "_"      /* i.e. GET, POST, PUT? */
+                       + gcDateTime               /* Date and Time */
+                       + "." + "log"
+        .
+
+    COPY-LOB iplcRequestData TO FILE gcRequestFile.
+    OS-COPY VALUE (gcRequestFile) VALUE (APIOutbound.saveFileFolder).
+    
+    RUN FileSys_GetFilePath (
+        INPUT  APIOutbound.saveFileFolder,
+        OUTPUT gcRequestFile,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ).
+    
+    IF oplSuccess THEN DO:
+        RUN system/ftpProcs.p PERSISTENT SET hdFTPProcs.
         
+        RUN FTP_SendFileWithCurl IN hdFTPProcs (
+            INPUT  "ftp://www.filegenie.com",   /* Command string to run */
+            INPUT  "FTP",                       /* File name to write the command output */
+            INPUT  "wadefk",                    /* Run with SILENT option */
+            INPUT  "4178-SJIS",                 /* Run with NO-WAIT option */
+            INPUT  "C:\temp\ftp.txt",
+            INPUT  FALSE,
+            INPUT  "",
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ) NO-ERROR.
+            
+        DELETE PROCEDURE hdFTPProcs.
+    END.
+END.
+
 gcCommand = SEARCH("curl.exe") 
           + (IF gcAuthType = "basic" THEN ' --user ' + gcUserName + ':' + gcPassword 
              ELSE IF gcAuthType = "bearer" THEN ' -H "Authorization: Bearer ' + gcPassword + '"' 

@@ -24,14 +24,12 @@
     
     DEFINE VARIABLE dQuantityInEA     AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dQuantityInM      AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dQuantityInSF     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQuantityInSF     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dItemBasisWeight  AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dCostInMSF        AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lError            AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hdConversionProcs AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hdFTPProcs        AS HANDLE    NO-UNDO.
-    
-    RUN system/ConversionProcs.p PERSISTENT SET hdConversionProcs.
     
     /* Variables to store order line's request data */
     DEFINE VARIABLE lcLineData       AS LONGCHAR  NO-UNDO.
@@ -90,6 +88,7 @@
     DEFINE VARIABLE cQuantityInM             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQuantityUOM             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemType                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemTypeShort           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemID                  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemName                AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemDesc1               AS CHARACTER NO-UNDO.
@@ -199,6 +198,8 @@
     DEFINE BUFFER bf-APIOutboundDetail1 FOR APIOutboundDetail.
     DEFINE BUFFER bf-APIOutboundDetail2 FOR APIOutboundDetail.    
     DEFINE BUFFER bf-hrms-reftable      FOR reftable.
+    DEFINE BUFFER bf-job-mat            FOR job-mat.
+    DEFINE BUFFER bf-item               FOR item.
     
     DEFINE VARIABLE hdJobProcs AS HANDLE NO-UNDO.
     RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
@@ -471,6 +472,10 @@
                 cQuantityOrdered         = TRIM(STRING(po-ordl.ord-qty,"->>>>>>>>9.9<<<<<"))
                 cQuantityUOM             = STRING(po-ordl.pr-qty-uom)
                 cItemType                = STRING(po-ordl.item-type)
+                cItemTypeShort           = IF po-ordl.item-type THEN
+                                               "RM"
+                                           ELSE
+                                               "FG"
                 cItemID                  = STRING(po-ordl.i-no)
                 cItemName                = STRING(po-ordl.i-name)
                 cItemDesc1               = STRING(po-ordl.dscr[1])
@@ -518,6 +523,8 @@
                 cJobIDBlankNo            = STRING(po-ordl.b-num)
                 cQuantityReceived        = TRIM(STRING(po-ordl.t-rec-qty, "->>>>>>>>9.9<<<<<"))
                 cLineDueDate             = STRING(po-ordl.due-date)
+                dCostInMSF               = po-ordl.cost
+                dQuantityInSF            = po-ordl.ord-qty
                 cScoreSizeDecimal        = ""
                 cScoreSize16ths          = ""
                 cItemWithAdders          = "" 
@@ -528,6 +535,7 @@
                 cScoreSizeDecimalHRMS2   = ""
                 cCostInMSF               = ""
                 cQuantityInSF            = ""
+                dItemBasisWeight         = 0
                 .
 
             FIND FIRST item NO-LOCK
@@ -538,6 +546,7 @@
 
             IF AVAILABLE item THEN
                 ASSIGN
+                    dItemBasisWeight = item.basis-w
                     cItemBasisWeight = STRING(item.basis-w)
                     cFlute           = item.flute   
                     .                
@@ -557,7 +566,7 @@
                     .
             
             IF po-ordl.pr-qty-uom NE "EA" THEN         
-                RUN Conv_QtyToEA IN hdConversionProcs (
+                RUN Conv_QtyToEA (
                     INPUT  po-ordl.company,
                     INPUT  po-ordl.i-no,
                     INPUT  po-ordl.ord-qty,
@@ -579,42 +588,49 @@
                 cPoLowQty  = TRIM(STRING(dQuantityInEA * (1 - (po-ordl.under-pct / 100)),"->>>>>>>>9"))
                 cPoHighQty = TRIM(STRING(dQuantityInEA * (1 + (po-ordl.over-pct / 100)),"->>>>>>>>9")) 
                 .
-            
-            IF AVAILABLE item THEN DO:
-                dCostInMSF = po-ordl.cost.
-                IF po-ordl.pr-uom NE "MSF" THEN
-                    RUN Conv_ValueFromUOMToUOMForItem IN hdConversionProcs (
-                        INPUT  ROWID(item),
-                        INPUT  po-ordl.cost,
-                        INPUT  po-ordl.pr-uom, 
-                        INPUT  "MSF",
-                        OUTPUT dCostInMSF,
-                        OUTPUT lError,
-                        OUTPUT cMessage
-                        ).
+                            
+            IF po-ordl.pr-uom NE "MSF" THEN
+                RUN Conv_ValueFromUOMToUOM (
+                    INPUT  po-ordl.company,
+                    INPUT  po-ordl.i-no,
+                    INPUT  cItemTypeShort,
+                    INPUT  po-ordl.cost,
+                    INPUT  po-ordl.pr-uom, 
+                    INPUT  "MSF",
+                    INPUT  dItemBasisWeight,
+                    INPUT  po-ordl.s-len,
+                    INPUT  po-ordl.s-wid,
+                    INPUT  po-ordl.s-dep,
+                    INPUT  0,
+                    OUTPUT dCostInMSF,
+                    OUTPUT lError,
+                    OUTPUT cMessage
+                    ).
                 
-                cCostInMSF = STRING(dCostInMSF).    
-            END.
+            cCostInMSF = STRING(dCostInMSF).    
 
-            IF AVAILABLE item THEN DO:
-                dQuantityInSF = po-ordl.ord-qty.
-                
-                IF po-ordl.pr-qty-uom NE "SF" THEN
-                    RUN Conv_QuantityFromUOMToUOMForItem IN hdConversionProcs (
-                        INPUT  ROWID(item),
-                        INPUT  po-ordl.ord-qty,
-                        INPUT  po-ordl.pr-qty-uom, 
-                        INPUT  "SF",
-                        OUTPUT dQuantityInSF,
-                        OUTPUT lError,
-                        OUTPUT cMessage
-                        ).
+            IF po-ordl.pr-qty-uom NE "SF" THEN
+                RUN Conv_QuantityFromUOMToUOM (
+                    INPUT  po-ordl.company,
+                    INPUT  po-ordl.i-no,
+                    INPUT  cItemTypeShort,
+                    INPUT  po-ordl.ord-qty,
+                    INPUT  po-ordl.pr-qty-uom, 
+                    INPUT  "SF",
+                    INPUT  dItemBasisWeight,
+                    INPUT  po-ordl.s-len,
+                    INPUT  po-ordl.s-wid,
+                    INPUT  po-ordl.s-dep,
+                    INPUT  0,
+                    OUTPUT dQuantityInSF,
+                    OUTPUT lError,
+                    OUTPUT cMessage
+                    ).
 
-                IF dQuantityInSF - TRUNCATE(dQuantityInSF,0) GT 0 THEN
-                    dQuantityInSF = TRUNCATE(dQuantityInSF,0) + 1.
+            IF dQuantityInSF - TRUNCATE(dQuantityInSF,0) GT 0 THEN
+                dQuantityInSF = TRUNCATE(dQuantityInSF,0) + 1.
 
-                cQuantityInSF = STRING(dQuantityInSF).                
-            END.
+            cQuantityInSF = STRING(dQuantityInSF).                
             
             IF dQuantityInEA NE 0 THEN
                 dQuantityInM = dQuantityInSF / (dQuantityInEA / 1000).
@@ -740,16 +756,66 @@
                 
                 cItemWithAdders = cItemWithAdders + ", " + po-ordl-add.adder-i-no.
             END.
+            
+            /* Fetch Adders for HRMS */
+            FIND FIRST job NO-LOCK 
+                 WHERE job.company EQ po-ordl.company
+                   AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no))) + TRIM(po-ordl.job-no) 
+                   AND job.job-no2 EQ po-ordl.job-no2
+                 NO-ERROR.            
+            IF AVAILABLE job THEN DO:
+                FOR EACH job-mat NO-LOCK 
+                    WHERE job-mat.company  EQ job.company 
+                      AND job-mat.job      EQ job.job 
+                      AND job-mat.job-no   EQ job.job-no 
+                      AND job-mat.job-no2  EQ job.job-no2 
+                      AND job-mat.i-no     EQ po-ordl.i-no 
+                      AND job-mat.frm      EQ po-ordl.s-num
+                    USE-INDEX job
+                    BREAK BY job-mat.blank-no DESCENDING:
+                    IF LAST(job-mat.blank-no) OR job-mat.blank-no EQ po-ordl.b-num THEN
+                        LEAVE.
+                END.
+    
+                IF AVAILABLE job-mat THEN DO:
+                    FIND FIRST reftable NO-LOCK
+                         WHERE reftable.reftable EQ "util/b-hrms-x.w"
+                           AND reftable.company  EQ po-ordl.company
+                           AND reftable.code2    EQ po-ordl.i-no
+                         NO-ERROR.
+                    IF AVAILABLE reftable THEN
+                        cItemWithAddersHRMS = STRING(INT(reftable.code),"9999") NO-ERROR.
+                    ELSE 
+                        cItemWithAddersHRMS = STRING("0000","X(4)").
 
-            FIND FIRST bf-hrms-reftable NO-LOCK 
-                 WHERE bf-hrms-reftable.reftable EQ "util/b-hrms-x.w"
-                   AND bf-hrms-reftable.company  EQ po-ordl.company
-                   AND bf-hrms-reftable.code2    EQ po-ordl.i-no
-                 NO-ERROR.
-            IF AVAILABLE bf-hrms-reftable THEN
-                cItemWithAddersHRMS = STRING(INT(bf-hrms-reftable.code),"9999").
-            ELSE
-                cItemWithAddersHRMS = STRING("0000","X(4)").
+                    iIndex  = 1.
+
+                    FOR EACH bf-job-mat NO-LOCK 
+                        WHERE bf-job-mat.company  EQ job-mat.company
+                          AND bf-job-mat.job      EQ job-mat.job 
+                          AND bf-job-mat.job-no   EQ job-mat.job-no 
+                          AND bf-job-mat.job-no2  EQ job-mat.job-no2 
+                          AND bf-job-mat.frm      EQ job-mat.frm 
+                          AND bf-job-mat.blank-no EQ job-mat.blank-no 
+                          AND bf-job-mat.i-no     NE job-mat.i-no,
+                        FIRST bf-item NO-LOCK 
+                        WHERE bf-item.company  EQ bf-job-mat.company 
+                          AND bf-item.i-no     EQ bf-job-mat.i-no 
+                          AND bf-item.mat-type EQ "A",
+                        FIRST bf-hrms-reftable NO-LOCK 
+                        WHERE bf-hrms-reftable.reftable EQ "util/b-hrms-x.w" 
+                          AND bf-hrms-reftable.company  EQ bf-item.company 
+                          AND bf-hrms-reftable.code2    EQ bf-item.i-no:          
+                        iIndex = iIndex + 1.
+                        cItemWithAddersHRMS = cItemWithAddersHRMS + STRING(INT(bf-hrms-reftable.code),"9999") NO-ERROR.
+                        IF ERROR-STATUS:ERROR THEN 
+                            cItemWithAddersHRMS = cItemWithAddersHRMS + STRING("0000","9999").
+                 
+                        IF iIndex GE 6 THEN
+                            LEAVE.
+                    END.
+                END.
+            END.
 
             RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatLineAdderData, cRequestDataType).
             
@@ -842,7 +908,7 @@
             lcLineData = REPLACE(lcLineData, "$lineAdder$", lcConcatLineAdderData).
             
             lcLineData = REPLACE(lcLineData, "$lineScores$", lcConcatLineScoresData).
-            
+
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSize16ths", cScoreSize16ths).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimal", cScoreSizeDecimal).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAdders", cItemWithAdders).
