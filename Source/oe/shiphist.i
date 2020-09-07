@@ -24,7 +24,7 @@ ASSIGN
  fg-rcpth.b-no       = tt-bolh.b-no
  fg-rcpth.company    = tt-bolh.company
  fg-rcpth.loc        = fg-bin.loc
- fg-rcpth.trans-date = tt-bolh.trans-date
+ fg-rcpth.trans-date = tt-bolh.bol-date
  fg-rcpth.post-date  = IF invdate-chr EQ "User Date" THEN tt-bolh.trans-date else TODAY
  fg-rcpth.po-no      = tt-bolh.po-no
  fg-rcpth.i-no       = tt-boll.i-no
