@@ -438,7 +438,7 @@ PROCEDURE run-process :
     DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
         
-    cProcessStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Invoice Processing ......".
+    cProcessStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Invoice Processing ...".
     
     RUN oe/PostInvoices.p PERSISTENT SET hPostInvoices.
          
