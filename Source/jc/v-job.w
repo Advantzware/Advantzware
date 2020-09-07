@@ -155,14 +155,14 @@ END.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR job.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS job.start-date job.loc job.due-date 
+&Scoped-Define ENABLED-FIELDS job.start-date job.loc job.due-date job.promiseDate
 &Scoped-define ENABLED-TABLES job
 &Scoped-define FIRST-ENABLED-TABLE job
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalcDueDate btnCalendar-2 ~
 fiTypeDescription 
 &Scoped-Define DISPLAYED-FIELDS job.job-no job.job-no2 job.est-no job.stat ~
 job.start-date job.orderType job.create-date job.csrUser_id job.close-date ~
-job.user-id job.loc job.due-date 
+job.user-id job.loc job.due-date job.promiseDate 
 &Scoped-define DISPLAYED-TABLES job
 &Scoped-define FIRST-DISPLAYED-TABLE job
 &Scoped-Define DISPLAYED-OBJECTS fiTypeDescription 
@@ -170,10 +170,11 @@ job.user-id job.loc job.due-date
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-ASSIGN-FIELDS job.job-no job.job-no2 job.est-no ~
-job.start-date job.orderType job.create-date job.close-date job.due-date 
-&Scoped-define ROW-AVAILABLE btnCalendar-1 btnCalendar-2 
+job.start-date job.orderType job.create-date job.close-date job.due-date ~
+job.promiseDate
+&Scoped-define ROW-AVAILABLE btnCalendar-1 btnCalendar-2 btnCalendar-3
 &Scoped-define DISPLAY-FIELD job.start-date job.create-date job.close-date ~
-job.due-date 
+job.due-date job.promiseDate
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -228,6 +229,11 @@ DEFINE BUTTON btnCalendar-2
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+     
+DEFINE BUTTON btnCalendar-3 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".     
 
 DEFINE VARIABLE fiTypeDescription AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
@@ -241,7 +247,7 @@ DEFINE VARIABLE vHoldReason AS CHARACTER FORMAT "x(50)"
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 148 BY 3.81.
+     SIZE 148 BY 4.81.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -306,6 +312,12 @@ DEFINE FRAME F-Main
           SIZE 16 BY 1
           BGCOLOR 15 
      btnCalendar-2 AT ROW 3.62 COL 143.6
+     job.promiseDate AT ROW 4.72 COL 126 COLON-ALIGNED
+          LABEL "Promise Date"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15 
+     btnCalendar-3 AT ROW 4.72 COL 143.6     
      fiTypeDescription AT ROW 2.52 COL 23.4 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -373,6 +385,8 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
    3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-3 IN FRAME F-Main
+   3                                                                    */   
 /* SETTINGS FOR FILL-IN job.close-date IN FRAME F-Main
    NO-ENABLE 2 4 EXP-LABEL                                              */
 /* SETTINGS FOR FILL-IN job.create-date IN FRAME F-Main
@@ -381,6 +395,8 @@ ASSIGN
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN job.due-date IN FRAME F-Main
    2 4 EXP-LABEL                                                        */
+/* SETTINGS FOR FILL-IN job.promiseDate IN FRAME F-Main
+   2 4 EXP-LABEL                                                        */   
 /* SETTINGS FOR FILL-IN job.est-no IN FRAME F-Main
    NO-ENABLE 2 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN job.job-no IN FRAME F-Main
@@ -514,6 +530,26 @@ DO:
     RUN valid-due-date NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END. */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btnCalendar-3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-3 V-table-Win
+ON CHOOSE OF btnCalendar-3 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i job.promiseDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME job.promiseDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.promiseDate V-table-Win
+ON HELP OF job.promiseDate IN FRAME F-Main /* promise Date */
+DO:
+  {methods/calendar.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1118,7 +1154,8 @@ PROCEDURE local-copy-record :
   IF noDate THEN
   ASSIGN
     job.start-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ''
-    job.due-date:SCREEN-VALUE = ''.
+    job.due-date:SCREEN-VALUE = ''
+    job.promiseDate:SCREEN-VALUE = ''.
 
   FIND CURRENT job EXCLUSIVE-LOCK NO-ERROR.
   ASSIGN
@@ -1163,7 +1200,8 @@ PROCEDURE local-create-record :
   IF copyJob THEN
   ASSIGN
     job.start-date = DATE(job.start-date:SCREEN-VALUE IN FRAME {&FRAME-NAME})
-    job.due-date = DATE(job.due-date:SCREEN-VALUE).
+    job.due-date = DATE(job.due-date:SCREEN-VALUE)
+    job.promiseDate = DATE(job.promiseDate:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE ALL.
@@ -1339,7 +1377,7 @@ PROCEDURE local-enable-fields :
 
     IF adm-new-record OR
        job.due-date LT job.start-date THEN
-    ENABLE btnCalcDueDate job.due-date btnCalendar-1 btnCalendar-2.
+    ENABLE btnCalcDueDate job.due-date btnCalendar-1 btnCalendar-2 btnCalendar-3.
     ELSE
     FOR EACH job-hdr
         WHERE job-hdr.company EQ job.company
@@ -1353,7 +1391,7 @@ PROCEDURE local-enable-fields :
     END.
 
     IF AVAILABLE job-hdr THEN
-    ENABLE btnCalcDueDate job.due-date btnCalendar-1 btnCalendar-2.
+    ENABLE btnCalcDueDate job.due-date btnCalendar-1 btnCalendar-2 btnCalendar-3.
     IF NOT copyjob THEN ENABLE job.orderType. /* Enable the Job Type  */
   END.
 
@@ -2733,8 +2771,10 @@ PROCEDURE validate-est :
             job.start-date
             btnCalcDueDate
             job.due-date
+            job.promisedate
             btnCalendar-1
             btnCalendar-2
+            btnCalendar-3
             job.ordertype
             .
         IF job.job-no2:SCREEN-VALUE GT "0" THEN 

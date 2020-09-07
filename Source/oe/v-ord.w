@@ -125,6 +125,7 @@ DEFINE VARIABLE lErrorValid AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cOeShipChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMisEstimate AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lLocalCancelRecords AS LOGICAL NO-UNDO .
 
 RUN oe/PriceProcs.p PERSISTENT SET hdPriceProcs.
 &Scoped-define sman-fields oe-ord.sman oe-ord.s-pct oe-ord.s-comm
@@ -283,7 +284,7 @@ DEFINE QUERY external_tables FOR oe-ord.
 &Scoped-Define ENABLED-FIELDS oe-ord.ord-no oe-ord.est-no oe-ord.job-no ~
 oe-ord.job-no2 oe-ord.po-no oe-ord.cust-no oe-ord.sold-id oe-ord.ship-id ~
 oe-ord.contact oe-ord.csrUser_id oe-ord.entered-id oe-ord.poReceivedDate ~
-oe-ord.ord-date oe-ord.due-code oe-ord.due-date oe-ord.last-date ~
+oe-ord.promiseDate oe-ord.ord-date oe-ord.due-code oe-ord.due-date oe-ord.last-date ~
 oe-ord.prod-date oe-ord.over-pct oe-ord.under-pct oe-ord.terms ~
 oe-ord.tax-gr oe-ord.managed oe-ord.priceHold oe-ord.priceHoldReason ~
 oe-ord.sman[1] oe-ord.s-pct[1] oe-ord.s-comm[1] oe-ord.sman[2] ~
@@ -299,8 +300,8 @@ RECT-33 RECT-35 RECT-36 RECT-37 RECT-34 imgHoldRsn
 &Scoped-Define DISPLAYED-FIELDS oe-ord.ord-no oe-ord.est-no oe-ord.job-no ~
 oe-ord.job-no2 oe-ord.po-no oe-ord.user-id oe-ord.stat oe-ord.cust-no ~
 oe-ord.sold-id oe-ord.ship-id oe-ord.contact oe-ord.csrUser_id ~
-oe-ord.entered-id oe-ord.poReceivedDate oe-ord.ord-date oe-ord.cust-name ~
-oe-ord.sold-name oe-ord.due-code oe-ord.due-date oe-ord.last-date ~
+oe-ord.entered-id oe-ord.poReceivedDate oe-ord.promiseDate oe-ord.ord-date  ~
+oe-ord.cust-name oe-ord.sold-name oe-ord.due-code oe-ord.due-date oe-ord.last-date ~
 oe-ord.prod-date oe-ord.over-pct oe-ord.under-pct oe-ord.terms ~
 oe-ord.terms-d oe-ord.tax-gr oe-ord.managed oe-ord.priceHold ~
 oe-ord.priceHoldReason oe-ord.sman[1] oe-ord.sname[1] oe-ord.s-pct[1] ~
@@ -569,6 +570,10 @@ DEFINE FRAME F-Main
           LABEL "Entered By"
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
+     oe-ord.promiseDate AT ROW 7.0 COL 93 COLON-ALIGNED
+          LABEL "Promise Date" FORMAT "99/99/9999"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
      oe-ord.poReceivedDate AT ROW 7.91 COL 93 COLON-ALIGNED
           LABEL "PO Received" FORMAT "99/99/9999"
           VIEW-AS FILL-IN 
@@ -895,6 +900,8 @@ ASSIGN
    4 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN oe-ord.poReceivedDate IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN oe-ord.promiseDate IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */   
 /* SETTINGS FOR TOGGLE-BOX oe-ord.priceHold IN FRAME F-Main
    ALIGN-R                                                              */
 /* SETTINGS FOR FILL-IN oe-ord.priceHoldReason IN FRAME F-Main
@@ -1716,6 +1723,16 @@ ON VALUE-CHANGED OF oe-ord.prod-date IN FRAME F-Main /* Production */
 DO:
    IF LASTKEY = -1 THEN RETURN.
    prodDateChanged = SELF:MODIFIED.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME oe-ord.promiseDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.promiseDate V-table-Win
+ON HELP OF oe-ord.promiseDate IN FRAME F-Main /* promise Date */
+DO:
+  {methods/calendar.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5054,11 +5071,13 @@ PROCEDURE local-cancel-record :
     /* Buttons were made not sensitive during add, so reverse that here */
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
   RUN make-buttons-sensitive IN WIDGET-HANDLE(char-hdl).
+  
+  lLocalCancelRecords = YES.     
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+  /* Code placed here will execute AFTER standard behavior.    */   
   copyRecord = NO.
   RUN release-shared-buffers.
   RUN disable-fields.
@@ -5396,7 +5415,10 @@ DEFINE BUFFER bf-eb FOR eb .
     RELEASE job.
     RUN release-shared-buffers.
     
+    IF NOT lLocalCancelRecords THEN
     RUN DisplayMessage( INPUT "46"). 
+    
+    lLocalCancelRecords = NO.
 
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
     RUN reopen-query IN WIDGET-HANDLE(char-hdl).
