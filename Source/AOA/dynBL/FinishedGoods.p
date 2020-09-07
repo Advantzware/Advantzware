@@ -51,6 +51,7 @@ DEFINE TEMP-TABLE ttFinishGoods NO-UNDO
     FIELD frt-class-dscr  AS CHARACTER FORMAT "x(30)"              LABEL "Freight Class Desc"
     FIELD trno            AS CHARACTER FORMAT "x(10)"              LABEL "TrNo" 
     FIELD spare-char-4    AS CHARACTER FORMAT "x(10)"              LABEL "Zone"     
+    FIELD SubZone         AS CHARACTER FORMAT "x(8)"               LABEL "Sub Zone"     
     FIELD stackHeight     AS INTEGER   FORMAT ">>>9"               LABEL "StackHeight"
     FIELD unitLength      AS DECIMAL   FORMAT ">>>,>>9.99"         LABEL "PalletLen"
     FIELD unitWidth       AS DECIMAL   FORMAT ">>>,>>9.99"         LABEL "PalletWid"

@@ -58,6 +58,7 @@ DEFINE TEMP-TABLE ttImportFG
     FIELD FrtClassDscr            AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Freight Class Desc" HELP "Optional - Size:30"
     FIELD TrNo                    AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Pallet#" HELP "Optional - Size:10"
     FIELD Zone                    AS CHARACTER FORMAT "x(12)" COLUMN-LABEL "Zone" HELP "Optional - Size:12"
+    FIELD SubZone                 AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Sub Zone" HELP "Optional - Size:8"
     FIELD StackHeight             AS INTEGER   FORMAT "->>>>>9" COLUMN-LABEL "Stack Height" HELP "Optional - Integer"
     FIELD PalletLen               AS DECIMAL   FORMAT ">>9.99" COLUMN-LABEL "Pallet (L)" HELP "Optional - Decimal"
     FIELD PalletWid               AS DECIMAL   FORMAT ">>9.99" COLUMN-LABEL "Pallet (W)" HELP "Optional - Decimal"
@@ -217,6 +218,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportFG.FrtClassDscr, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.frt-class-dscr).
     RUN pAssignValueC (ipbf-ttImportFG.TrNo, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.trno).
     RUN pAssignValueC (ipbf-ttImportFG.Zone, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.spare-char-4).
+    RUN pAssignValueC (ipbf-ttImportFG.SubZone, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.SubZone).
     RUN pAssignValueI (ipbf-ttImportFG.StackHeight, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.stackHeight).
     RUN pAssignValueD (ipbf-ttImportFG.PalletLen, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.unitLength).
     RUN pAssignValueD (ipbf-ttImportFG.PalletWid, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.unitWidth).

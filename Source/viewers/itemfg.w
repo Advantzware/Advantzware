@@ -106,7 +106,7 @@ itemfg.sell-price itemfg.sell-uom itemfg.curr-code[1] itemfg.procat ~
 itemfg.procat-desc itemfg.type-code itemfg.def-loc itemfg.def-loc-bin ~
 itemfg.case-count itemfg.case-pall itemfg.weight-100 itemfg.frt-class ~
 itemfg.frt-class-dscr itemfg.class itemfg.cc-code itemfg.quantityPartial ~
-itemfg.prod-notes itemfg.trNo itemfg.spare-char-4 itemfg.stackHeight ~
+itemfg.prod-notes itemfg.trNo itemfg.spare-char-4 itemfg.subZone itemfg.stackHeight ~
 itemfg.std-mat-cost itemfg.std-lab-cost itemfg.std-var-cost ~
 itemfg.std-fix-cost itemfg.spare-dec-1 itemfg.total-std-cost ~
 itemfg.avg-cost itemfg.last-cost itemfg.prod-uom itemfg.palletVolume ~
@@ -126,8 +126,8 @@ itemfg.curr-code[1] itemfg.procat itemfg.procat-desc itemfg.type-code ~
 itemfg.def-loc itemfg.def-loc-bin itemfg.case-count itemfg.case-pall ~
 itemfg.weight-100 itemfg.frt-class itemfg.frt-class-dscr itemfg.class ~
 itemfg.cc-code itemfg.quantityPartial itemfg.prod-notes itemfg.trNo ~
-itemfg.spare-char-4 itemfg.stackHeight itemfg.unitLength itemfg.unitWidth ~
-itemfg.unitHeight itemfg.std-mat-cost itemfg.std-lab-cost ~
+itemfg.spare-char-4 itemfg.subZone itemfg.stackHeight itemfg.unitLength  ~
+itemfg.unitWidth itemfg.unitHeight itemfg.std-mat-cost itemfg.std-lab-cost ~
 itemfg.std-var-cost itemfg.std-fix-cost itemfg.spare-dec-1 ~
 itemfg.total-std-cost itemfg.avg-cost itemfg.last-cost itemfg.prod-uom ~
 itemfg.setupBy itemfg.modifiedBy itemfg.modifiedDate itemfg.palletVolume ~
@@ -183,7 +183,7 @@ DEFINE VARIABLE fi_type-dscr AS CHARACTER FORMAT "X(15)":U
 DEFINE VARIABLE iCount AS INTEGER FORMAT "->,>>>,>>9" INITIAL 0 
      LABEL "Count" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 10.6 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-10
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -417,15 +417,19 @@ DEFINE FRAME F-Main
           LABEL "Pk Note"
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
-     itemfg.trNo AT ROW 12.67 COL 85 COLON-ALIGNED
+     itemfg.trNo AT ROW 12.67 COL 78.2 COLON-ALIGNED
           LABEL "Pallet #" FORMAT "x(10)"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     iCount AT ROW 12.67 COL 107.2 COLON-ALIGNED
-     itemfg.spare-char-4 AT ROW 12.67 COL 126.6 COLON-ALIGNED
+          SIZE 12.8 BY 1
+     iCount AT ROW 12.67 COL 99.4 COLON-ALIGNED
+     itemfg.spare-char-4 AT ROW 12.67 COL 117.8 COLON-ALIGNED
           LABEL "Zone" FORMAT "x(12)"
           VIEW-AS FILL-IN 
-          SIZE 15 BY 1
+          SIZE 13.2 BY 1
+     itemfg.subZone AT ROW 12.67 COL 131.0 COLON-ALIGNED NO-LABEL
+          FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 10.9 BY 1    
      itemfg.stackHeight AT ROW 13.86 COL 85 COLON-ALIGNED
           LABEL "Stack Height" FORMAT "->>>>>9"
           VIEW-AS FILL-IN 
@@ -655,6 +659,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.spare-char-4 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN itemfg.subZone IN FRAME F-Main
+   NO-LABEL EXP-FORMAT                                                 */    
 /* SETTINGS FOR FILL-IN itemfg.spare-dec-1 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.spare-int-2 IN FRAME F-Main
