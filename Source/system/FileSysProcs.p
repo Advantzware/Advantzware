@@ -73,12 +73,12 @@ END.
 PROCEDURE FileSys_GetDiskSpace :
 /*------------------------------------------------------------------------------
      Purpose:   Returns total/free disk space on a disk
-     Notes:     If ip_drive is blank, uses disk of current directory
-                ip_drive can be a disk/map letter or UNC directory 
-                Input ip_unit can be variants of KB,MB,GB - if blank will return number of bytes
+     Notes:     If ipcDrive is blank, uses disk of current directory
+                ipcDrive can be a disk/map letter or UNC directory 
+                Input ipcUnit can be variants of KB,MB,GB - if blank will return number of bytes
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ip_drive   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ip_unit    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcDrive   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcUnit    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdDiskFreeSpace    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdDiskTotalSpace   AS DECIMAL   NO-UNDO.
     
@@ -90,33 +90,33 @@ PROCEDURE FileSys_GetDiskSpace :
     DEF VAR iDiskFreeSpace AS DECIMAL NO-UNDO.
     DEF VAR iDiskTotalSpace AS DECIMAL NO-UNDO.
 
-    IF CAN-DO("KB,Kilo,Kilobyte,Kilobytes", ip_unit)
+    IF CAN-DO("KB,Kilo,Kilobyte,Kilobytes", ipcUnit)
         THEN cDivisor = 1024.
     ELSE
-        IF CAN-DO("MB,Mega,Megabyte,Megabytes", ip_unit)
+        IF CAN-DO("MB,Mega,Megabyte,Megabytes", ipcUnit)
             THEN cDivisor = 1024 * 1024.
         ELSE
-            IF CAN-DO("GB,Giga,Gigabyte,Gigabytes", ip_unit)
+            IF CAN-DO("GB,Giga,Gigabyte,Gigabytes", ipcUnit)
                 THEN cDivisor = 1024 * 1024 * 1024.
             ELSE cDivisor = 1.
  
     /* No directory specified? Then use the current directory */
-    IF (ip_drive = "") OR (ip_drive=?) THEN 
+    IF (ipcDrive = "") OR (ipcDrive=?) THEN 
     DO:
         FILE-INFO:FILE-NAME = ".".
-        ip_drive = FILE-INFO:FULL-PATHNAME.
+        ipcDrive = FILE-INFO:FULL-PATHNAME.
     END.
  
     /* If a UNC name was specified, make sure it ends with a backslash ( \\drive\share\dir\ )
        This won't hurt for a mapped drive too */
-    IF SUBSTR(ip_drive, LENGTH(ip_drive), 1) NE "\"
-        THEN ip_drive = ip_drive + "\".
+    IF SUBSTR(ipcDrive, LENGTH(ipcDrive), 1) NE "\"
+        THEN ipcDrive = ipcDrive + "\".
  
     SET-SIZE(iMem1) = 8.  /* 64 bit integer! */
     SET-SIZE(iMem2) = 8.
     SET-SIZE(iMem3) = 8.
  
-    RUN GetDiskFreeSpaceExA ( ip_drive + CHR(0),
+    RUN GetDiskFreeSpaceExA ( ipcDrive + CHR(0),
         OUTPUT iMem1,
         OUTPUT iMem2,
         OUTPUT iMem3,
