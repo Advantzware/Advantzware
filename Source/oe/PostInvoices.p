@@ -3435,28 +3435,32 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
          IF lValidateRequired AND bf-inv-head.stat EQ "H" THEN
          DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invoice on Hold",NO).
-            lAutoApprove = NO.                             
+            lAutoApprove = NO.
+            bf-ttInvoiceToPost.isOKToPost = NO.
          END.
          
          lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalFreightAmount",bf-inv-head.cust-no).
          IF lValidateRequired AND bf-ttInvoiceToPost.isFreightBillable AND  bf-ttInvoiceToPost.amountBilledFreight LE 0 THEN
          DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billable freight without freight charge",NO).
-            lAutoApprove = NO.              
+            lAutoApprove = NO.
+            bf-ttInvoiceToPost.isOKToPost = NO.
          END.
          
          lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalBillNotes",bf-inv-head.cust-no).           
-         IF lValidateRequired AND bf-inv-head.bill-i[1] NE "" OR bf-inv-head.bill-i[2] NE "" OR bf-inv-head.bill-i[3] NE "" OR bf-inv-head.bill-i[4] NE "" THEN
+         IF lValidateRequired AND (bf-inv-head.bill-i[1] NE "" OR bf-inv-head.bill-i[2] NE "" OR bf-inv-head.bill-i[3] NE "" OR bf-inv-head.bill-i[4] NE "") THEN
          DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billing notes exist",NO).
-            lAutoApprove = NO.              
+            lAutoApprove = NO. 
+            bf-ttInvoiceToPost.isOKToPost = NO.
          END.    
          
          lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalFreightTerms",bf-inv-head.cust-no).           
          IF lValidateRequired AND bf-inv-head.frt-pay NE "" AND LOOKUP(bf-inv-head.frt-pay,"P,C,B") EQ 0 THEN
          DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invaild freight terms code",NO).
-            lAutoApprove = NO.              
+            lAutoApprove = NO.
+             bf-ttInvoiceToPost.isOKToPost = NO.
          END.
          
          IF bf-inv-head.t-inv-tax EQ 0 THEN
@@ -3467,6 +3471,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             DO:            
                 RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Taxable ship to with no tax",NO).
                 lAutoApprove = NO.
+                bf-ttInvoiceToPost.isOKToPost = NO.
             END.
          END.  
          
@@ -3477,7 +3482,8 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
              IF lValidateRequired AND bf-ttInvoiceLineToPost.pricePerUOM GT bf-ttInvoiceLineToPost.costPerUOM THEN
              DO:                             
                   RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Item price is greater than the cost of the item",NO).
-                     lAutoApprove = NO.            
+                     lAutoApprove = NO.
+                     bf-ttInvoiceLineToPost.isOKToPost = NO.
              END.  
              dTotalLineRev = dTotalLineRev + bf-ttInvoiceLineToPost.amountBilled .
          END. 
@@ -3490,7 +3496,8 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
          IF dTotalLineRev NE (bf-inv-head.t-inv-rev - bf-inv-head.t-inv-tax - ( IF bf-inv-head.f-bill THEN bf-inv-head.t-inv-freight ELSE 0)) THEN
          DO:     
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invoice lines <> Invoice Total",NO).
-            lAutoApprove = NO.            
+            lAutoApprove = NO. 
+            bf-ttInvoiceToPost.isOKToPost = NO.
          END.         
          
          RUN pGetSalesTaxForInvHead  (
@@ -3505,7 +3512,8 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
                  INPUT  "Tax on invoice does not match with calculated tax",
                  INPUT  NO
                  ).
-             lAutoApprove = NO.             
+             lAutoApprove = NO.  
+             bf-ttInvoiceToPost.isOKToPost = NO.
          END.
          
          IF lAutoApprove AND bf-ttInvoiceToPost.isOKToPost THEN DO:
