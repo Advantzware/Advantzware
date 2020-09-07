@@ -1985,6 +1985,8 @@ PROCEDURE pCalculateHeader PRIVATE:
     
     DEFINE VARIABLE iNumOutBlanksOnForm AS INTEGER NO-UNDO.
     DEFINE VARIABLE dQtyOnForm          AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyOnFormRequired  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyOnFormYielded   AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyMaster          AS DECIMAL NO-UNDO.
     
     EMPTY TEMP-TABLE ttEstError.
@@ -2014,6 +2016,8 @@ PROCEDURE pCalculateHeader PRIVATE:
             ASSIGN 
                 iNumOutBlanksOnForm = 0
                 dQtyOnForm          = 0
+                dQtyOnFormRequired  = 0
+                dQtyOnFormYielded   = 0
                 .
             
             FOR EACH eb NO-LOCK 
@@ -2024,6 +2028,8 @@ PROCEDURE pCalculateHeader PRIVATE:
                     iNumOutBlanksOnForm = iNumOutBlanksOnForm + bf-estCostBlank.numOut
                     dQtyOnForm          = dQtyOnForm + 
                                         (IF bf-estCostBlank.priceBasedOnYield THEN bf-estCostBlank.quantityYielded ELSE bf-estCostBlank.quantityRequired)
+                    dQtyOnFormRequired  = dQtyOnFormRequired + bf-estCostBlank.quantityRequired
+                    dQtyOnFormYielded   = dQtyOnFormYielded + bf-estCostBlank.quantityYielded
                     .
                 RUN pBuildInksForEb(BUFFER bf-estCostHeader, BUFFER bf-estCostBlank, BUFFER eb).
                 RUN pAddGlue(BUFFER bf-estCostHeader, BUFFER bf-estCostBlank, BUFFER eb).
@@ -2032,10 +2038,12 @@ PROCEDURE pCalculateHeader PRIVATE:
             END. /*Each eb of ef*/
             
             ASSIGN 
-                bf-estCostForm.numOut                  = iNumOutBlanksOnForm * bf-estCostForm.numOutNet
-                bf-estCostForm.quantityFGOnForm        = dQtyOnForm
-                dQtyMaster                             = dQtyMaster + dQtyOnForm
-                bf-estCostForm.grossQtyRequiredNoWaste = fRoundUp(bf-estCostForm.quantityFGOnForm / bf-estCostForm.numOut)
+                bf-estCostForm.numOut                   = iNumOutBlanksOnForm * bf-estCostForm.numOutNet
+                bf-estCostForm.quantityFGOnFormRequired = dQtyOnFormRequired
+                bf-estCostForm.quantityFGOnFormYielded  = dQtyOnFormYielded
+                bf-estCostForm.quantityFGOnForm         = dQtyOnForm
+                dQtyMaster                              = dQtyMaster + dQtyOnForm
+                bf-estCostForm.grossQtyRequiredNoWaste  = fRoundUp(bf-estCostForm.quantityFGOnForm / bf-estCostForm.numOut)
                 .
             
             RUN pCalcBlankPct(BUFFER bf-estCostForm).                
@@ -3062,7 +3070,7 @@ PROCEDURE pProcessOperations PRIVATE:
                     dQtyInOutRunWaste   = dQtyInOutRunWaste * bf-estCostOperation.numOutForOperation.
             END.
             IF dQtyInOut EQ 0 THEN 
-                dQtyInOut = ipbf-estCostForm.quantityFGOnForm.
+                dQtyInOut = ipbf-estCostForm.quantityFGOnFormYielded.
             RUN pProcessOperation(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER bf-estCostOperation, INPUT-OUTPUT dQtyInOut, 
                 INPUT-OUTPUT dQtyInOutSetupWaste, INPUT-OUTPUT dQtyInOutRunWaste).
                 
