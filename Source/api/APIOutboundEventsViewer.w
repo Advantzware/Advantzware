@@ -827,9 +827,9 @@ DO:
     DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
   
     RUN system/openlookup.p (
-        g_company, 
-        "apiID", /* lookup field */
-        0,   /* Subject ID */
+        "", 
+        "",  /* lookup field */
+        142, /* Subject ID */
         "",  /* User ID */
         0,   /* Param value ID */
         OUTPUT returnFields, 

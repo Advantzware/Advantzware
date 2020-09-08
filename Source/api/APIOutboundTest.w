@@ -25,6 +25,7 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
+USING System.SharedConfig.
 
 /* ***************************  Definitions  ************************** */
 {api/ttArgs.i}
@@ -39,6 +40,7 @@ DEFINE VARIABLE cCompany          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cPrimaryID        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE scInstance        AS CLASS System.SharedConfig NO-UNDO.
 
 RUN api\OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
@@ -501,10 +503,12 @@ DO:
          ).
          
     IF NOT lValid THEN DO:
+        scinstance:DeleteValue("IsApiOutboundTester").
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
-         
+    scinstance:DeleteValue("IsApiOutboundTester"). 
+        
     FIND FIRST APIOutbound NO-LOCK
          WHERE APIOutbound.apiOutboundID EQ iAPIOutboundID
          NO-ERROR.
@@ -573,6 +577,7 @@ DO:
          ).
          
     IF NOT lSuccess THEN DO:
+        scinstance:DeleteValue("IsApiOutboundTester").
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
@@ -707,12 +712,13 @@ DO:
          OUTPUT lSuccess,
          OUTPUT cMessage
          ).
-         
+
     IF NOT lSuccess THEN DO:
+        scInstance:DeleteValue("IsApiOutboundTester").
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
-            
+           
     CASE fiAPIId:SCREEN-VALUE:
         WHEN "SendCustomer" THEN DO:
             FIND FIRST cust NO-LOCK
@@ -893,8 +899,42 @@ DO:
                 INPUT "oe-ord",
                 INPUT STRING(ROWID(oe-ord))
                 ).
-        END.
+        END.    
+        WHEN "CalculateTax" THEN DO:
+            FIND FIRST inv-head NO-LOCK
+                 WHERE inv-head.company EQ cCompany
+                   AND inv-head.inv-no  EQ INTEGER(fiPrimaryKey:SCREEN-VALUE)
+                 NO-ERROR.
+            IF NOT AVAILABLE inv-head THEN
+              FIND FIRST ar-inv NO-LOCK
+                WHERE ar-inv.company EQ cCompany
+                  AND ar-inv.inv-no  EQ INTEGER(fiPrimaryKey:SCREEN-VALUE)
+                  NO-ERROR. 
+            IF NOT AVAILABLE inv-head AND NOT AVAILABLE ar-inv THEN DO:    
+                MESSAGE "Invalid invoice Number" ccompany fiPrimaryKey:SCREEN-VALUE 
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN.
+            END.
+            IF AVAILABLE inv-head THEN 
+                RUN pCreateArgs (
+                    INPUT "ROWID",
+                    INPUT "inv-head",
+                    INPUT STRING(ROWID(inv-head))
+                    ).
+            ELSE IF AVAILABLE ar-inv THEN 
+                RUN pCreateArgs (
+                    INPUT "ROWID",
+                    INPUT "ar-inv",
+                    INPUT STRING(ROWID(ar-inv))
+                    ). 
+            RUN pCreateArgs (
+               INPUT "ROWID",
+               INPUT "MessageType",
+               INPUT "Quotation"
+               ).                    
+        END.                   
     END CASE.
+   
     RUN api/PrepareOutboundRequest.p (
         INPUT TABLE ttArgs,
         INPUT iAPIOutboundID,
@@ -905,6 +945,7 @@ DO:
         ).
 
     IF NOT lSuccess THEN DO:
+        scInstance:DeleteValue("IsApiOutboundTester").
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.   
         RETURN.
     END.
@@ -932,9 +973,9 @@ DO:
     DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
   
     RUN system/openlookup.p (
-        cCompany, 
-        "apiID", /* lookup field */
-        0,   /* Subject ID */
+        "",  /* company */ 
+        "",  /* lookup field */
+        142, /* Subject ID */
         "",  /* User ID */
         0,   /* Param value ID */
         OUTPUT returnFields, 
@@ -1294,7 +1335,10 @@ PROCEDURE pValidateOutboundAPI :
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
-
+    
+    scInstance = SharedConfig:instance.
+    scinstance:SetValueAppend("IsApiOutboundTester","YES").
+    
     RUN Outbound_GetAPIID IN hdOutboundProcs (
         INPUT  cCompany,
         INPUT  fiAPIID:SCREEN-VALUE,
@@ -1306,7 +1350,7 @@ PROCEDURE pValidateOutboundAPI :
     
     IF NOT oplValid THEN
         RETURN.
-    
+        
     RUN Outbound_GetAPITriggerID IN hdOutboundProcs (
         INPUT  cCompany,
         INPUT  fiAPIID:SCREEN-VALUE,

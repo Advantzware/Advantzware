@@ -12,6 +12,8 @@
                   The life cycle of this procedure should be limited to the calling
                   procedure only
   ----------------------------------------------------------------------*/
+USING System.SharedConfig.
+  
 {api/ttArgs.i}
 {api/ttScopes.i}
 {api/CommonAPIProcs.i}
@@ -59,6 +61,7 @@ DEFINE VARIABLE cScopeTypeCustomer        AS CHARACTER NO-UNDO INITIAL "Customer
 DEFINE VARIABLE cScopeTypeVendor          AS CHARACTER NO-UNDO INITIAL "Vendor".
 DEFINE VARIABLE cScopeTypeShipTo          AS CHARACTER NO-UNDO INITIAL "ShipTo".
 DEFINE VARIABLE cAPIClientXrefAny         AS CHARACTER NO-UNDO INITIAL "_ANY_".
+DEFINE VARIABLE scInstance                AS CLASS System.SharedConfig NO-UNDO.
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -197,6 +200,13 @@ PROCEDURE Outbound_GetAPIID:
     DEFINE OUTPUT PARAMETER opiAPIOutboundID AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplValid         AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage       AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lCalledFromTester AS LOGICAL NO-UNDO.
+    
+    ASSIGN 
+        scInstance        = SharedConfig:instance
+        lCalledFromTester = LOGICAL(scInstance:GetValue("IsApiOutboundTester")) NO-ERROR
+        .
 
     FIND FIRST APIOutbound NO-LOCK
           WHERE APIOutbound.company  EQ ipcCompany
@@ -204,7 +214,7 @@ PROCEDURE Outbound_GetAPIID:
             AND APIOutbound.clientID EQ ipcClientID
           NO-ERROR.
     IF AVAILABLE APIOutbound AND
-        NOT APIOutbound.Inactive THEN
+        (lCalledFromTester OR NOT APIOutbound.Inactive) THEN
         ASSIGN
             oplValid         = TRUE
             opcMessage       = "Success"
@@ -286,6 +296,13 @@ PROCEDURE Outbound_GetAPITriggerID:
     DEFINE OUTPUT PARAMETER oplValid                AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage              AS CHARACTER NO-UNDO.
 
+    DEFINE VARIABLE lCalledFromTester AS LOGICAL NO-UNDO.
+    
+    ASSIGN 
+        scInstance        = SharedConfig:instance
+        lCalledFromTester = LOGICAL(scInstance:GetValue("IsApiOutboundTester")) NO-ERROR
+        .
+
     FIND FIRST APIOutboundTrigger NO-LOCK
          WHERE APIOutboundTrigger.company   EQ ipcCompany
            AND APIOutboundTrigger.apiID     EQ ipcAPIID
@@ -293,7 +310,7 @@ PROCEDURE Outbound_GetAPITriggerID:
            AND APIOutboundTrigger.triggerID EQ ipcTriggerID
          NO-ERROR.
     IF AVAILABLE APIOutboundTrigger AND
-        NOT APIOutboundTrigger.Inactive THEN
+        (lCalledFromTester OR NOT APIOutboundTrigger.Inactive) THEN
         ASSIGN
             oplValid                = TRUE
             opcMessage              = "Success"

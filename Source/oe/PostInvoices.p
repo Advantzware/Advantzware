@@ -3377,6 +3377,7 @@ PROCEDURE ValidateInvoices:
     DEFINE INPUT PARAMETER ipcCustomerIDStart AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCustomerIDEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdtPostDate AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER iplgUpdateTax AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opiCountProcessed AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiCountValid AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiCountPosted AS INTEGER NO-UNDO.
@@ -3399,7 +3400,11 @@ PROCEDURE ValidateInvoices:
     
     IF NOT oplError THEN
         /*Process the list of invoices built for additional validations*/
-        RUN pValidateInvoicesToPost(OUTPUT opiCountProcessed, OUTPUT opiCountValid).
+        RUN pValidateInvoicesToPost(
+            INPUT  iplgUpdateTax,
+            OUTPUT opiCountProcessed, 
+            OUTPUT opiCountValid
+            ).
          
     /*Process to create hold tags from the ttInvoiceError table */
     RUN pCreateValidationTags. 
@@ -3412,6 +3417,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Process ttInvoicesToPost and check for additional validations
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iplgUpdateTax AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opiCountProcessed AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiCountValid AS INTEGER NO-UNDO.
     DEFINE BUFFER bf-ttInvoiceToPost            FOR ttInvoiceToPost.
@@ -3500,12 +3506,19 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
              OUTPUT TABLE ttTaxDetail
              ).             
          IF dTotalTax NE bf-inv-head.t-inv-tax THEN DO:
-             RUN pAddValidationError(
-                 BUFFER bf-ttInvoiceToPost,
-                 INPUT  "Tax on invoice does not match with calculated tax",
-                 INPUT  NO
-                 ).
-             lAutoApprove = NO.             
+             IF iplgUpdateTax THEN DO:
+                FIND CURRENT bf-inv-head EXCLUSIVE-LOCK NO-ERROR.
+                    bf-inv-head.t-inv-tax = dTotalTax.
+                FIND CURRENT bf-inv-head NO-LOCK NO-ERROR.     
+             END. 
+             ELSE DO:   
+                 RUN pAddValidationError(
+                     BUFFER bf-ttInvoiceToPost,
+                     INPUT  "Tax on invoice does not match with calculated tax",
+                     INPUT  NO
+                     ).
+                 lAutoApprove = NO. 
+             END.            
          END.
          
          IF lAutoApprove AND bf-ttInvoiceToPost.isOKToPost THEN DO:
