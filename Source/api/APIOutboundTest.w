@@ -606,21 +606,15 @@ DO:
         OUTPUT cMessage
         ).
 
-    IF cRequestType EQ "API" THEN
-        RUN api/CallOutBoundAPI.p (
-            INPUT  iAPIOutboundID,
-            INPUT  lcRequestData,
-            INPUT  cParentProgram,
-            OUTPUT lcResponseData,
-            OUTPUT lSuccess,
-            OUTPUT cMessage
-            ). 
-    ELSE
-        ASSIGN
-            lcResponseData = "Success"
-            lSuccess       = TRUE
-            cMessage       = "Success"
-            .
+    RUN api/CallOutBoundAPI.p (
+        INPUT  iAPIOutboundID,
+        INPUT  lcRequestData,
+        INPUT  cParentProgram,
+        INPUT  cPrimaryID,
+        OUTPUT lcResponseData,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ). 
 
     SESSION:SET-WAIT-STATE(""). 
 

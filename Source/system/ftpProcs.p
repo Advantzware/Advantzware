@@ -551,6 +551,68 @@ END FUNCTION.
    
    
 /* **********************  Internal Procedures  *********************** */   
+
+PROCEDURE FTP_SendFileWithCurl:
+/*------------------------------------------------------------------------------
+ Purpose: Uploads the file to the input host with cURL
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcHost      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFTPType   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcUserName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPassword  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFileName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLogFile   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplEnableSSH AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcHostKey   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cCommand      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cResponseFile AS CHARACTER NO-UNDO.
+        
+    IF SEARCH("curl.exe") EQ ? THEN DO:
+        ASSIGN 
+            opcMessage = "curl not found!".
+            oplSuccess = NO
+            .
+                 
+        RETURN. 
+    END.
+    
+    cCommand = SEARCH("curl.exe").
+    
+    IF ipcFTPType NE "FTP" AND ipcFTPType NE "SFTP" THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid FTP type. Valid FTP types are 'FTP' and 'SFTP'".
+            oplSuccess = NO
+            .
+                 
+        RETURN.         
+    END.
+    
+    cCommand = 'start /min '  /* Start cmd with no-wait option to run cmd asynchronously. /min option starts cmd in minimized state */
+             + cCommand + ' -v --ftp-skip-pasv-ip' 
+             + (IF iplEnableSSH THEN ' --hostpubmd5 "' + ipcHostKey + '"' ELSE ' --insecure')
+             + ' --user "' + ipcUserName + ":" + ipcPassword + '"'
+             + ' "' + LC(ipcFTPType) + "://" + ipcHost + '"'
+             + ' -T "' + ipcFileName + '"'
+             + ' --stderr "' + ipcLogFile + '"'.
+
+    cResponseFile = "ftp_log_" + STRING(MTIME) + ".log".
+
+    RUN OS_RunCommand (
+        INPUT  cCommand,              /* Command string to run */
+        INPUT  cResponseFile,         /* File name to write the command output */
+        INPUT  FALSE,                 /* Run with SILENT option */
+        INPUT  TRUE,                  /* Run with NO-WAIT option */
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ) NO-ERROR.
+    
+    OS-DELETE VALUE(cResponseFile).
+END PROCEDURE.
+
 PROCEDURE pCreateScriptRecords:
     DEFINE INPUT PARAMETER ipFtpURL      AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipFtpUser     AS CHARACTER NO-UNDO.

@@ -76,26 +76,3 @@ ELSE DO:
 END.
 
 opiOutboundEventID = APIOutboundEvent.apiOutboundEventID.
-
-FIND FIRST APIOutbound NO-LOCK
-     WHERE APIOutbound.company  EQ ipcCompany 
-       AND APIOutbound.apiId    EQ ipcAPIID
-       AND APIOutbound.clientID EQ ipcClientID
-       AND NOT APIOutbound.Inactive
-     NO-ERROR.
-IF NOT AVAILABLE APIOutbound THEN
-    RETURN.
-
-IF APIOutbound.SaveFile THEN DO:
-    RUN FileSys_CreateDirectory (
-        INPUT  APIOutbound.SaveFileFolder,
-        OUTPUT lSuccess,
-        OUTPUT cMessage
-        ) NO-ERROR.
-    IF lSuccess THEN DO:    
-        gcRequestFile = STRING(opiOutboundEventID) + "." + APIOutbound.requestDatatype.     
-        COPY-LOB iplcRequestData TO FILE gcRequestFile.
-        OS-COPY VALUE (gcRequestFile) VALUE (APIOutbound.saveFileFolder).
-        OS-DELETE VALUE(gcRequestFile).
-    END.    
-END.
