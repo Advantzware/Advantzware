@@ -630,7 +630,10 @@ DO:
         scInstance:DeleteValue("APiOutboundTestMode").            
     END.            
     SESSION:SET-WAIT-STATE(""). 
-
+    
+    scInstance = SharedConfig:instance.
+    scInstance:SetValueAppend("APIOutboundTestMode","YES").
+    
     RUN api/CreateAPIOutboundEvent.p (
         INPUT  FALSE,        /* Re-trigger flag */
         INPUT  ?,            /* API Outbound Event ID: Pass ? to create new Event*/
