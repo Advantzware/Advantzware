@@ -116,7 +116,7 @@ IF SEARCH("curl.exe") EQ ? THEN DO:
     RETURN. 
 END.
 
-IF (gcRequestType EQ "FTP" OR gcRequestType EQ "SFTP" OR gcRequestType EQ "SAVE") AND NOT APIOutbound.SaveFile THEN DO:
+IF (gcRequestType EQ "FTP" OR gcRequestType EQ "SFTP" OR gcRequestType EQ "SAVE") AND NOT glSaveFile THEN DO:
     ASSIGN
         oplSuccess = FALSE
         opcMessage = "File saving option is not enabled for [" + gcAPIID + "] API Oubound"
