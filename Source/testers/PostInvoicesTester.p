@@ -115,6 +115,7 @@ PROCEDURE pBuildAndDisplay PRIVATE:
             dtStart, dtEnd,
             cCustStart, cCustEnd,
             dtPost,
+            INPUT NO, /*Update Tax */
             OUTPUT iProcessed, OUTPUT iValid, OUTPUT iPosted,
             OUTPUT lError, OUTPUT cMessage). 
     ELSE 

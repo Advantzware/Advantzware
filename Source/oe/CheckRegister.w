@@ -61,7 +61,7 @@ assign
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-7 begin_cust-no end_cust-no begin_Inv ~
-end_inv end_date begin_date tgUpdateTax btn-ok btn-cancel cProcessStatus 
+end_inv end_date begin_date tgUpdateTax btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_Inv ~
 end_inv end_date begin_date tgUpdateTax cProcessStatus 
 
@@ -422,7 +422,7 @@ PROCEDURE enable_UI :
           tgUpdateTax cProcessStatus 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-7 begin_cust-no end_cust-no begin_Inv end_inv end_date begin_date 
-         tgUpdateTax btn-ok btn-cancel cProcessStatus 
+         tgUpdateTax btn-ok btn-cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
