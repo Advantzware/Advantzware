@@ -14,6 +14,7 @@
 DEFINE INPUT  PARAMETER ipcAPIOutboundID AS INTEGER   NO-UNDO.
 DEFINE INPUT  PARAMETER iplcRequestData  AS LONGCHAR  NO-UNDO.
 DEFINE INPUT  PARAMETER ipcParentProgram AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcPrimaryID     AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplcResponseData AS LONGCHAR  NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess       AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage       AS CHARACTER NO-UNDO.
@@ -26,6 +27,7 @@ DEFINE VARIABLE gcPassword         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glcRequestData     AS LONGCHAR  NO-UNDO.
 DEFINE VARIABLE glcResponseData    AS LONGCHAR  NO-UNDO.
 DEFINE VARIABLE gcRequestDataType  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcRequestType      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcResponseDataType AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcResponseHandler  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcRequestVerb      AS CHARACTER NO-UNDO.
@@ -33,6 +35,7 @@ DEFINE VARIABLE gcClientID         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcAPIID            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glSaveFile         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE gcSaveFileFolder   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcHostSSHKey       AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE gcCommandResult   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE gcCommand         AS CHARACTER NO-UNDO.
@@ -62,6 +65,7 @@ FOR FIRST APIOutbound NO-LOCK
         gcPassword         = APIOutbound.password
         gcRequestDataType  = APIOutbound.requestDataType
         gcResponseDataType = gcRequestDataType 
+        gcRequestType      = APIOutbound.requestType
         glIsSSLEnabled     = APIOutbound.isSSLEnabled
         gcRequestVerb      = APIOutbound.requestVerb
         gcClientID         = APIOutbound.clientID
@@ -69,6 +73,9 @@ FOR FIRST APIOutbound NO-LOCK
         gcEndPoint         = APIOutbound.endPoint
         gcResponseHandler  = APIOutbound.responseHandler
         gcAPIID            = APIOutbound.apiID
+        gcSaveFileFolder   = APIOutbound.saveFileFolder
+        glSaveFile         = APIOutbound.saveFile
+        gcHostSSHKey       = APIOutbound.hostSSHKey
         glAPIConfigFound   = YES
         .
 END.
@@ -85,22 +92,10 @@ IF NOT glAPIConfigFound THEN DO:
 END.
 
 ASSIGN
-    gcDateTime     = REPLACE(STRING(gdDateTime, "99/99/9999 HH:MM:SS.sss"), "/", "")
-    gcDateTime     = REPLACE(gcDateTime, ":", "")
-    gcDateTime     = REPLACE(gcDateTime, " ", "")
-    gcDateTime     = REPLACE(gcDateTime, ".", "")
-    gcRequestFile  = "request"     + "_"
-                   + gcAPIID       + "_"      /* API ID    */
-                   + gcClientID    + "_"      /* Client ID */
-                   + gcRequestVerb + "_"      /* i.e. GET, POST, PUT? */
-                   + gcDateTime               /* Date and Time */
-                   + "." + lc(gcRequestDataType). /* File Extentions */
-    gcResponseFile = "response"    + "_"
-                   + gcAPIID       + "_"      /* API ID    */
-                   + gcClientID    + "_"      /* Client ID */
-                   + gcRequestVerb + "_"      /* i.e. GET, POST, PUT? */
-                   + gcDateTime               /* Date and Time */
-                   + "." + lc(gcRequestDataType) /* File Extentions */
+    gcDateTime = REPLACE(STRING(gdDateTime, "99/99/9999 HH:MM:SS.sss"), "/", "")
+    gcDateTime = REPLACE(gcDateTime, ":", "")
+    gcDateTime = REPLACE(gcDateTime, " ", "")
+    gcDateTime = REPLACE(gcDateTime, ".", "")
     NO-ERROR.
     
 IF ERROR-STATUS:ERROR THEN DO:
@@ -121,7 +116,7 @@ IF SEARCH("curl.exe") EQ ? THEN DO:
     RETURN. 
 END.
 
-IF APIOutbound.requestType EQ "FTP" AND NOT APIOutbound.SaveFile THEN DO:
+IF (gcRequestType EQ "FTP" OR gcRequestType EQ "SFTP" OR gcRequestType EQ "SAVE") AND NOT APIOutbound.SaveFile THEN DO:
     ASSIGN
         oplSuccess = FALSE
         opcMessage = "File saving option is not enabled for [" + gcAPIID + "] API Oubound"
@@ -129,56 +124,93 @@ IF APIOutbound.requestType EQ "FTP" AND NOT APIOutbound.SaveFile THEN DO:
     RETURN.
 END.
 
-IF APIOutbound.requestType EQ "FTP" OR APIOutbound.SaveFile THEN DO:
+IF glSaveFile THEN DO:
     RUN FileSys_CreateDirectory (
-        INPUT  APIOutbound.SaveFileFolder,
+        INPUT  gcSaveFileFolder,
         OUTPUT oplSuccess,
         OUTPUT opcMessage
         ) NO-ERROR.
     IF NOT oplSuccess THEN
         RETURN.
 
+    RUN FileSys_GetFilePath (
+        INPUT  gcSaveFileFolder,
+        OUTPUT gcSaveFileFolder,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ).    
+    IF NOT oplSuccess THEN
+        RETURN.
+
     ASSIGN
-        gcRequestFile  = gcAPIID       + "_"      /* API ID    */
+        gcRequestFile = RIGHT-TRIM(gcSaveFileFolder, "/")
+        gcRequestFile = RIGHT-TRIM(gcSaveFileFolder, "\")
+        .
+
+    ASSIGN
+        gcResponseFile = gcRequestFile + "\"      /* Save Folder */
+                       + gcAPIID       + "_"      /* API ID    */
                        + gcClientID    + "_"      /* Client ID */
-                       + gcRequestVerb + "_"      /* i.e. GET, POST, PUT? */
-                       + gcDateTime               /* Date and Time */
-                       + "." + lc(gcRequestDataType). /* File Extentions */
-        gcResponseFile = gcAPIID       + "_"      /* API ID    */
-                       + gcClientID    + "_"      /* Client ID */
-                       + gcRequestVerb + "_"      /* i.e. GET, POST, PUT? */
+                       + ipcPrimaryID  + "_"      /* i.e. GET, POST, PUT? */
                        + gcDateTime               /* Date and Time */
                        + "." + "log"
+        gcRequestFile  = gcRequestFile + "\"      /* Save Folder */
+                       + gcAPIID       + "_"      /* API ID    */
+                       + gcClientID    + "_"      /* Client ID */
+                       + ipcPrimaryID  + "_"      /* i.e. GET, POST, PUT? */
+                       + gcDateTime               /* Date and Time */
+                       + "." + lc(gcRequestDataType). /* File Extentions */
         .
 
     COPY-LOB iplcRequestData TO FILE gcRequestFile.
-    OS-COPY VALUE (gcRequestFile) VALUE (APIOutbound.saveFileFolder).
+    OS-COPY VALUE (gcRequestFile) VALUE (gcSaveFileFolder).    
+END.
+
+/* Return as file would have been already saved */
+IF gcRequestType EQ "SAVE" THEN DO:
+    oplcResponseData = "File saved to " + gcRequestFile.
     
-    RUN FileSys_GetFilePath (
-        INPUT  APIOutbound.saveFileFolder,
-        OUTPUT gcRequestFile,
+    RETURN.
+END.
+
+/* Request for FTP transfer of the request data */
+IF gcRequestType EQ "FTP" OR gcRequestType EQ "SFTP" THEN DO:
+    RUN system/ftpProcs.p PERSISTENT SET hdFTPProcs.
+    
+    RUN FTP_SendFileWithCurl IN hdFTPProcs (
+        INPUT  gcEndPoint,
+        INPUT  gcRequestType,
+        INPUT  gcUserName,
+        INPUT  gcPassword,
+        INPUT  gcRequestFile,
+        INPUT  gcResponseFile,
+        INPUT  glIsSSLEnabled,
+        INPUT  gcHostSSHKey,
         OUTPUT oplSuccess,
         OUTPUT opcMessage
         ).
+
+    DELETE PROCEDURE hdFTPProcs.
     
-    IF oplSuccess THEN DO:
-        RUN system/ftpProcs.p PERSISTENT SET hdFTPProcs.
-        
-        RUN FTP_SendFileWithCurl IN hdFTPProcs (
-            INPUT  "ftp://www.filegenie.com",   /* Command string to run */
-            INPUT  "FTP",                       /* File name to write the command output */
-            INPUT  "wadefk",                    /* Run with SILENT option */
-            INPUT  "4178-SJIS",                 /* Run with NO-WAIT option */
-            INPUT  "C:\temp\ftp.txt",
-            INPUT  FALSE,
-            INPUT  "",
-            OUTPUT oplSuccess,
-            OUTPUT opcMessage
-            ) NO-ERROR.
-            
-        DELETE PROCEDURE hdFTPProcs.
-    END.
+    oplcResponseData = "FTP transfer status is saved to file " + gcResponseFile.
+     
+    RETURN.
 END.
+
+ASSIGN
+    gcRequestFile  = "request"     + "_"
+                   + gcAPIID       + "_"      /* API ID    */
+                   + gcClientID    + "_"      /* Client ID */
+                   + gcRequestVerb + "_"      /* i.e. GET, POST, PUT? */
+                   + gcDateTime               /* Date and Time */
+                   + "." + lc(gcRequestDataType). /* File Extentions */
+    gcResponseFile = "response"    + "_"
+                   + gcAPIID       + "_"      /* API ID    */
+                   + gcClientID    + "_"      /* Client ID */
+                   + gcRequestVerb + "_"      /* i.e. GET, POST, PUT? */
+                   + gcDateTime               /* Date and Time */
+                   + "." + lc(gcRequestDataType) /* File Extentions */
+    .
 
 gcCommand = SEARCH("curl.exe") 
           + (IF gcAuthType = "basic" THEN ' --user ' + gcUserName + ':' + gcPassword 

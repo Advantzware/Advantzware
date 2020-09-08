@@ -562,6 +562,7 @@ PROCEDURE FTP_SendFileWithCurl:
     DEFINE INPUT  PARAMETER ipcUserName  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcPassword  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcFileName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLogFile   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplEnableSSH AS LOGICAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcHostKey   AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess   AS LOGICAL   NO-UNDO.
@@ -569,7 +570,6 @@ PROCEDURE FTP_SendFileWithCurl:
     
     DEFINE VARIABLE cCommand      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cResponseFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cLogFile      AS CHARACTER NO-UNDO.
         
     IF SEARCH("curl.exe") EQ ? THEN DO:
         ASSIGN 
@@ -580,18 +580,25 @@ PROCEDURE FTP_SendFileWithCurl:
         RETURN. 
     END.
     
-    cLogFile = REPLACE(ipcFileName, ENTRY(NUM-ENTRIES(ipcFileName, "."), ipcFileName, "."), "log").
-
     cCommand = SEARCH("curl.exe").
-        
+    
+    IF ipcFTPType NE "FTP" AND ipcFTPType NE "SFTP" THEN DO:
+        ASSIGN 
+            opcMessage = "Invalid FTP type. Valid FTP types are 'FTP' and 'SFTP'".
+            oplSuccess = NO
+            .
+                 
+        RETURN.         
+    END.
+    
     cCommand = 'start /min '  /* Start cmd with no-wait option to run cmd asynchronously. /min option starts cmd in minimized state */
              + cCommand + ' -v --ftp-skip-pasv-ip' 
              + (IF iplEnableSSH THEN ' --hostpubmd5 "' + ipcHostKey + '"' ELSE ' --insecure')
              + ' --user "' + ipcUserName + ":" + ipcPassword + '"'
-             + ' "' + ipcHost + '"'
+             + ' "' + LC(ipcFTPType) + "://" + ipcHost + '"'
              + ' -T "' + ipcFileName + '"'
-             + ' --stderr "' + cLogFile + '"'.
-    
+             + ' --stderr "' + ipcLogFile + '"'.
+
     cResponseFile = "ftp_log_" + STRING(MTIME) + ".log".
 
     RUN OS_RunCommand (

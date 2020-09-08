@@ -29,7 +29,6 @@
     DEFINE VARIABLE dCostInMSF        AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lError            AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hdFTPProcs        AS HANDLE    NO-UNDO.
     
     /* Variables to store order line's request data */
     DEFINE VARIABLE lcLineData       AS LONGCHAR  NO-UNDO.
@@ -992,44 +991,6 @@
             opcMessage = ""
             oplSuccess = TRUE
              .
-
-        IF APIOutbound.requestType EQ "FTP" THEN DO:
-            RUN system/ftpProcs.p PERSISTENT SET hdFTPProcs.
-
-            IF APIOutbound.SaveFile THEN DO:
-                RUN FileSys_CreateDirectory (
-                    INPUT  APIOutbound.SaveFileFolder,
-                    OUTPUT oplSuccess,
-                    OUTPUT opcMessage
-                    ) NO-ERROR.
-                IF oplSuccess THEN DO:    
-                    cRequestFile = APIOutbound.apiID + cPoNO + "_" + STRING(MTIME) + "." + "txt".
-                        
-                    COPY-LOB ioplcRequestData TO FILE cRequestFile.
-                    OS-COPY VALUE (cRequestFile) VALUE (APIOutbound.saveFileFolder).
-                    
-                    RUN FileSys_GetFilePath (
-                        INPUT  APIOutbound.saveFileFolder,
-                        OUTPUT cRequestFilePath,
-                        OUTPUT oplSuccess,
-                        OUTPUT opcMessage
-                        ).
-                    IF NOT oplSuccess THEN
-                        RETURN.
-                    
-                    RUN pExecFtp IN hdFTPProcs (
-                        INPUT APIOutbound.company,   /* Company */
-                        INPUT APIOutbound.apiID,     /* Ftp Config Code */
-                        INPUT APIOutbound.clientID,  /* Partner */
-                        INPUT cRequestFilePath,      /* File Folder */
-                        INPUT cRequestFile           /* File Name */
-                        ) NO-ERROR.
-                END.    
-            END.
-          
-           
-           DELETE PROCEDURE hdFTPProcs.
-        END.
     END.
     
     

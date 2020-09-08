@@ -23,7 +23,6 @@
     
     DEFINE VARIABLE cFilePath  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFileName  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hdFTPProcs AS HANDLE    NO-UNDO.
         
     FIND FIRST APIOutbound NO-LOCK
          WHERE APIOutbound.apiOutboundID   EQ ipiAPIOutboundID
@@ -86,26 +85,17 @@
     END.
         
     cFileName = ttArgs.argValue.
-  
-    RUN system/ftpProcs.p PERSISTENT SET hdFTPProcs.
-  
-    RUN pExecFtp IN hdFTPProcs (
-        INPUT APIOutbound.company,   /* Company */
-        INPUT "CheckTransfer",       /* Ftp Config Code */
-        INPUT APIOutbound.clientID,  /* Bank Code */
-        INPUT cFilePath,             /* File Folder */
-        INPUT cFileName              /* File Name */
-        ) NO-ERROR.
     
-    IF ERROR-STATUS:ERROR THEN DO:
-        ASSIGN
-            oplSuccess = FALSE
-            opcMessage = ERROR-STATUS:GET-MESSAGE(1)
-            .
-            
+    RUN FileSys_ValidateFile (
+        INPUT  cFilePath + "/" + cFileName,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ).
+    IF NOT oplSuccess THEN
         RETURN.
-    END.
-                
+
+    COPY-LOB FILE cFilePath + "/" + cFileName TO ioplcRequestData.
+    
     ASSIGN   
         opcMessage = "Check file " + cFilePath 
                    + "/" + cFileName + " created successfully"

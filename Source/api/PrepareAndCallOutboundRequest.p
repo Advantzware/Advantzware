@@ -224,6 +224,7 @@ FOR EACH APIOutbound NO-LOCK
             INPUT  APIOutbound.apiOutboundID,
             INPUT  lcRequestData,
             INPUT  cParentProgram,
+            INPUT  ipcPrimaryID,
             OUTPUT lcResponseData,
             OUTPUT oplSuccess,
             OUTPUT opcMessage

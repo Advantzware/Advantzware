@@ -1593,22 +1593,15 @@ PROCEDURE pExecute PRIVATE:
 
         lcRequestData = ttRequestData.requestData.
 
-        /* Make the API call - We will have to exclude FTP and SAVE request type as those are handled in its customized handler */
-        IF ttRequestData.requestType EQ cRequestTypeAPI THEN
-            RUN api/CallOutBoundAPI.p (
-                INPUT  ttRequestData.apiOutboundID,
-                INPUT  lcRequestData,
-                INPUT  ttRequestData.parentProgram,
-                OUTPUT lcResponseData,
-                OUTPUT ttRequestData.success,
-                OUTPUT ttRequestData.requestMessage
-                ) NO-ERROR.
-        ELSE
-            ASSIGN
-                lcResponseData               = "Success"
-                ttRequestData.success        = TRUE
-                ttRequestData.requestMessage = "Success"
-                .
+        RUN api/CallOutBoundAPI.p (
+            INPUT  ttRequestData.apiOutboundID,
+            INPUT  lcRequestData,
+            INPUT  ttRequestData.parentProgram,
+            INPUT  ttRequestData.primaryID,
+            OUTPUT lcResponseData,
+            OUTPUT ttRequestData.success,
+            OUTPUT ttRequestData.requestMessage
+            ) NO-ERROR.
                 
         ttRequestData.requestStatus = cRequestStatusSuccess.
 
