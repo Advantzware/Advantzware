@@ -99,6 +99,10 @@ DEFINE TEMP-TABLE ttSalesReport NO-UNDO
     FIELD SalesGroupName    AS CHARACTER FORMAT "x(15)" LABEL "Salesgroup Name"    
     FIELD profit            AS DECIMAL   FORMAT "->>,>>>,>>>,>>9.99" LABEL "Profit $ "
     FIELD profitPer         AS DECIMAL   FORMAT "->>>9.99" LABEL "Profit % "        
+    FIELD CostStdFreight    AS DECIMAL   FORMAT "->>,>>>,>>>,>>9.99" LABEL "Std Freight Cost"        
+    FIELD CostStdWarehouse  AS DECIMAL   FORMAT "->>,>>>,>>>,>>9.99" LABEL "Std Warehouse Cost"              
+    FIELD costStdDeviation  AS DECIMAL   FORMAT "->>,>>>,>>>,>>9.99" LABEL "Std Deviation Cost" 
+    FIELD costStdManufacture AS DECIMAL  FORMAT "->>,>>>,>>>,>>9.99" LABEL "Std Manufacture Cost"
     .
     
 DEFINE VARIABLE cShipId   LIKE ar-inv.ship-id NO-UNDO.
@@ -536,40 +540,45 @@ PROCEDURE pBusinessLogic:
                 AND oe-ord.ord-no EQ  iOrderNo  NO-ERROR .     
                 
             ASSIGN   
-                ttSalesReport.ordQty        = IF AVAILABLE oe-ordl THEN oe-ordl.qty ELSE 0 
-                ttSalesReport.ordOrderNo    = iOrderNo
-                ttSalesReport.ordType       = IF AVAILABLE oe-ord THEN oe-ord.type ELSE "" 
-                ttSalesReport.ordLine       = IF AVAILABLE oe-ordl THEN oe-ordl.LINE ELSE 0
-                ttSalesReport.ordEstNo      = IF AVAILABLE oe-ordl THEN oe-ordl.est-no ELSE "" 
-                ttSalesReport.ordDate       = IF AVAILABLE oe-ord THEN oe-ord.ord-date ELSE 01/01/0001             
-                ttSalesReport.invNo         = IF AVAILABLE ar-invl THEN ar-invl.inv-no ELSE 0 
-                ttSalesReport.invDate       = IF AVAILABLE ar-inv THEN ar-inv.inv-date ELSE 01/01/0001 
-                ttSalesReport.invItemNo     = IF AVAILABLE ar-invl THEN ar-invl.i-no ELSE ""
-                ttSalesReport.invQtyUom     = IF AVAILABLE ar-invl THEN ar-invl.cons-uom ELSE "" 
-                ttSalesReport.invQtyShip    = iQtyShipped[1] 
-                ttSalesReport.invQtyInv     = IF AVAILABLE ar-invl THEN ar-invl.inv-qty ELSE 0         
-                ttSalesReport.invUnitPrice  = dUnitPrice  
-                ttSalesReport.invPriceUom   = cPriceUom 
-                ttSalesReport.invExtPrice   = dInvAmount
-                ttSalesReport.invTaxable    = IF AVAILABLE ar-invl THEN ar-invl.tax ELSE FALSE
-                ttSalesReport.invCarrier    = IF AVAILABLE ar-inv THEN ar-inv.carrier ELSE "" 
-                ttSalesReport.invFob        = IF AVAILABLE ar-inv THEN ar-inv.fob-code ELSE ""         
-                ttSalesReport.invFrtPay     = IF AVAILABLE ar-inv THEN ar-inv.frt-pay ELSE "" 
-                ttSalesReport.invTaxGroup   = IF AVAILABLE ar-inv THEN ar-inv.tax-code ELSE ""
-                ttSalesReport.invTotCost    = IF AVAILABLE ar-invl THEN ar-invl.cost ELSE 0
-                ttSalesReport.invTotWeight  = IF AVAILABLE ar-invl THEN ar-invl.t-weight ELSE 0  
-                ttSalesReport.invDiscount   = IF AVAILABLE ar-inv THEN ar-inv.disc-taken ELSE 0 
-                ttSalesReport.invBolNo      = IF AVAILABLE ar-invl THEN ar-invl.bol-no ELSE 0        
-                ttSalesReport.invCustPoNO   = IF AVAILABLE ar-invl THEN ar-invl.po-no ELSE "" 
-                ttSalesReport.invAmtDue     = IF AVAILABLE ar-inv THEN ar-inv.due ELSE 0
-                ttSalesReport.invPaidDate   = IF AVAILABLE ar-inv THEN ar-inv.pay-date ELSE 01/01/0001
-                ttSalesReport.invLastPayDate = dtCheckDate
-                ttSalesReport.invPayCheckNo = IF AVAILABLE ar-inv THEN STRING(ar-inv.check-no) ELSE ""  
-                ttSalesReport.invGLAccount  = IF AVAILABLE ar-invl THEN ar-invl.actnum ELSE ""                 
-                ttSalesReport.invFreightAmt = IF AVAILABLE ar-inv THEN ar-inv.freight ELSE 0 
-                ttSalesReport.invTaxAmt     = IF AVAILABLE ar-inv THEN ar-inv.tax-amt ELSE 0         
-                ttSalesReport.invCurrCode   = IF AVAILABLE ar-inv THEN ar-inv.curr-code[1] ELSE ""
-                ttSalesReport.invCurrRate   = IF AVAILABLE ar-inv THEN ar-inv.ex-rate ELSE 0      .
+                ttSalesReport.ordQty             = IF AVAILABLE oe-ordl THEN oe-ordl.qty ELSE 0 
+                ttSalesReport.ordOrderNo         = iOrderNo
+                ttSalesReport.ordType            = IF AVAILABLE oe-ord THEN oe-ord.type ELSE "" 
+                ttSalesReport.ordLine            = IF AVAILABLE oe-ordl THEN oe-ordl.LINE ELSE 0
+                ttSalesReport.ordEstNo           = IF AVAILABLE oe-ordl THEN oe-ordl.est-no ELSE "" 
+                ttSalesReport.ordDate            = IF AVAILABLE oe-ord THEN oe-ord.ord-date ELSE 01/01/0001             
+                ttSalesReport.invNo              = IF AVAILABLE ar-invl THEN ar-invl.inv-no ELSE 0 
+                ttSalesReport.invDate            = IF AVAILABLE ar-inv THEN ar-inv.inv-date ELSE 01/01/0001 
+                ttSalesReport.invItemNo          = IF AVAILABLE ar-invl THEN ar-invl.i-no ELSE ""
+                ttSalesReport.invQtyUom          = IF AVAILABLE ar-invl THEN ar-invl.cons-uom ELSE "" 
+                ttSalesReport.invQtyShip         = iQtyShipped[1] 
+                ttSalesReport.invQtyInv          = IF AVAILABLE ar-invl THEN ar-invl.inv-qty ELSE 0         
+                ttSalesReport.invUnitPrice       = dUnitPrice  
+                ttSalesReport.invPriceUom        = cPriceUom 
+                ttSalesReport.invExtPrice        = dInvAmount
+                ttSalesReport.invTaxable         = IF AVAILABLE ar-invl THEN ar-invl.tax ELSE FALSE
+                ttSalesReport.invCarrier         = IF AVAILABLE ar-inv THEN ar-inv.carrier ELSE "" 
+                ttSalesReport.invFob             = IF AVAILABLE ar-inv THEN ar-inv.fob-code ELSE ""         
+                ttSalesReport.invFrtPay          = IF AVAILABLE ar-inv THEN ar-inv.frt-pay ELSE "" 
+                ttSalesReport.invTaxGroup        = IF AVAILABLE ar-inv THEN ar-inv.tax-code ELSE ""
+                ttSalesReport.invTotCost         = IF AVAILABLE ar-invl THEN ar-invl.cost ELSE 0
+                ttSalesReport.invTotWeight       = IF AVAILABLE ar-invl THEN ar-invl.t-weight ELSE 0  
+                ttSalesReport.invDiscount        = IF AVAILABLE ar-inv THEN ar-inv.disc-taken ELSE 0 
+                ttSalesReport.invBolNo           = IF AVAILABLE ar-invl THEN ar-invl.bol-no ELSE 0        
+                ttSalesReport.invCustPoNO        = IF AVAILABLE ar-invl THEN ar-invl.po-no ELSE "" 
+                ttSalesReport.invAmtDue          = IF AVAILABLE ar-inv THEN ar-inv.due ELSE 0
+                ttSalesReport.invPaidDate        = IF AVAILABLE ar-inv THEN ar-inv.pay-date ELSE 01/01/0001
+                ttSalesReport.invLastPayDate     = dtCheckDate
+                ttSalesReport.invPayCheckNo      = IF AVAILABLE ar-inv THEN STRING(ar-inv.check-no) ELSE ""  
+                ttSalesReport.invGLAccount       = IF AVAILABLE ar-invl THEN ar-invl.actnum ELSE ""                 
+                ttSalesReport.invFreightAmt      = IF AVAILABLE ar-inv THEN ar-inv.freight ELSE 0 
+                ttSalesReport.invTaxAmt          = IF AVAILABLE ar-inv THEN ar-inv.tax-amt ELSE 0         
+                ttSalesReport.invCurrCode        = IF AVAILABLE ar-inv THEN ar-inv.curr-code[1] ELSE ""
+                ttSalesReport.invCurrRate        = IF AVAILABLE ar-inv THEN ar-inv.ex-rate ELSE 0  
+                ttSalesReport.costStdFreight     = IF AVAILABLE ar-invl THEN ar-invl.costStdFreight ELSE 0 
+                ttSalesReport.costStdWarehouse   = IF AVAILABLE ar-invl THEN ar-invl.costStdWarehouse ELSE 0         
+                ttSalesReport.costStdDeviation   = IF AVAILABLE ar-invl THEN ar-invl.costStdDeviation ELSE 0
+                ttSalesReport.costStdManufacture = IF AVAILABLE ar-invl THEN ar-invl.costStdManufacture ELSE 0                 
+               .
         
             RELEASE ar-ledger.
             RELEASE gltrans.
