@@ -29,8 +29,6 @@ ASSIGN
     lAPIOutboundTestMode = LOGICAL(scInstance:GetValue("APIOutboundTestMode")) NO-ERROR
     .
 
-scInstance:DeleteValue("APIOutboundTestMode").
-
 FIND FIRST APIOutboundEvent EXCLUSIVE-LOCK
      WHERE APIOutboundEvent.apiOutboundEventID EQ ipiOutboundEventID
      NO-ERROR.

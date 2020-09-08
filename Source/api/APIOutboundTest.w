@@ -502,12 +502,12 @@ DO:
          OUTPUT cMessage
          ).
          
+    scInstance:DeleteValue("APIOutboundTestMode").
+         
     IF NOT lValid THEN DO:
-        scInstance:DeleteValue("APIOutboundTestMode").
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         RETURN.
-    END.
-    scInstance:DeleteValue("APIOutboundTestMode"). 
+    END. 
         
     FIND FIRST APIOutbound NO-LOCK
          WHERE APIOutbound.apiOutboundID EQ iAPIOutboundID
@@ -621,19 +621,15 @@ DO:
             OUTPUT lSuccess,
             OUTPUT cMessage
             ). 
-    ELSE DO:
+    ELSE 
         ASSIGN
             lcResponseData = "Success"
             lSuccess       = TRUE
             cMessage       = "Success"
             .
-        scInstance:DeleteValue("APiOutboundTestMode").            
-    END.            
+                       
     SESSION:SET-WAIT-STATE(""). 
-    
-    scInstance = SharedConfig:instance.
-    scInstance:SetValueAppend("APIOutboundTestMode","YES").
-    
+       
     RUN api/CreateAPIOutboundEvent.p (
         INPUT  FALSE,        /* Re-trigger flag */
         INPUT  ?,            /* API Outbound Event ID: Pass ? to create new Event*/
@@ -652,7 +648,9 @@ DO:
         INPUT  NOW,
         OUTPUT iAPIOutboundEventID
         ).
-
+        
+    scInstance:DeleteValue("APIOutboundTestMode").
+    
     ASSIGN
         edResponseData:SCREEN-VALUE  = lcResponseData
         edErrorMessage:SCREEN-VALUE  = IF lSuccess THEN 
@@ -717,14 +715,14 @@ DO:
          OUTPUT lSuccess,
          OUTPUT cMessage
          ).
-
+         
+    scInstance:DeleteValue("APIOutboundTestMode").
+    
     IF NOT lSuccess THEN DO:
-        scInstance:DeleteValue("APIOutboundTestMode").
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
-    scInstance:DeleteValue("APIOutboundTestMode").
-           
+      
     CASE fiAPIId:SCREEN-VALUE:
         WHEN "SendCustomer" THEN DO:
             FIND FIRST cust NO-LOCK
@@ -952,9 +950,10 @@ DO:
         OUTPUT lSuccess,
         OUTPUT cMessage
         ).
-
+        
+    scInstance:DeleteValue("APIOutboundTestMode").
+    
     IF NOT lSuccess THEN DO:
-        scInstance:DeleteValue("APIOutboundTestMode").
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.   
         RETURN.
     END.

@@ -55,8 +55,6 @@ ASSIGN
     lAPIOutboundTestMode = LOGICAL(scInstance:GetValue("APIOutboundTestMode")) NO-ERROR
     .
     
-scInstance:DeleteValue("APIOutboundTestMode").
-
 ASSIGN
     gcParentProgram = ipcParentProgram
     glcRequestData  = iplcRequestData

@@ -29,8 +29,6 @@ ASSIGN
     lAPIOutboundTestMode = LOGICAL(scInstance:GetValue("APIOutboundTestMode"))NO-ERROR
     .
     
-scInstance:DeleteValue("APIOutboundTestMode").
-
 FIND FIRST APIOutbound NO-LOCK
      WHERE APIOutbound.apiOutboundID EQ ipiAPIOutboundID
      NO-ERROR.
