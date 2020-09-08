@@ -55,6 +55,7 @@ def var minus-ship as int NO-UNDO.
 DEF VAR v-pc AS cha NO-UNDO. /* partial or complete */
 DEF VAR v-i-dscr2 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR lv-bol-no LIKE oe-bolh.bol-no NO-UNDO.
+DEFINE VARIABLE iCasesShip LIKE oe-boll.cases NO-UNDO.
 
 def buffer xar-inv for ar-inv .
 
@@ -401,39 +402,20 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
         for each ar-invl no-lock where ar-invl.x-no = ar-inv.x-no:
           assign v-case-line = ""
                  v-part-line = ""
-                 v-case-cnt = "".
-          /*
-          v-pc = "P". /* partial*/ 
-          for each oe-boll no-lock where oe-boll.company = ar-invl.company
-                        and oe-boll.bol-no = ar-inv.bol-no
-                        /*and oe-boll.b-no = ar-invl.b-no*/
-                        and oe-boll.i-no = ar-invl.i-no use-index bol-no:
+                 v-case-cnt = ""
+                 iCasesShip = 0.
+           IF ar-invl.b-no NE 0 THEN
+            FOR EACH oe-boll NO-LOCK
+                WHERE oe-boll.company EQ ar-invl.company
+                  AND oe-boll.b-no    EQ ar-invl.b-no
+                  AND oe-boll.ord-no  EQ ar-invl.ord-no
+                  AND oe-boll.i-no    EQ ar-invl.i-no
+                  AND oe-boll.po-no   EQ ar-invl.po-no
+                BREAK BY oe-boll.po-no:
 
-                                       /** Build Case Count Display Lines **/
-            if oe-boll.cases ne 0 and oe-boll.qty-case ne 0 then
-            assign v-case-line = string(oe-boll.cases) + " @ " +
-                                     string(oe-boll.qty-case).
-            else assign v-case-line = "".
-            if oe-boll.partial ne 0 then
-            assign v-part-line = "1" + " @ " + string(oe-boll.partial).
-            else assign v-part-line = "".
-
-            IF oe-boll.p-c THEN v-pc = "C". /*complete*/
-
-            do i = 1 to 5:
-              if (80 - length(v-case-cnt[i])) > length(v-case-line) and
-                v-case-line ne "" then
-              assign v-case-cnt[i] = v-case-cnt[i] + v-case-line + "  "
-                     v-case-line = "".
-              if (80 - length(v-case-cnt[i])) > length(v-part-line) and
-                v-part-line ne "" then
-              assign v-case-cnt[i] = v-case-cnt[i] + v-part-line + "  "
-                     v-part-line = "".
-            end. /* 1 to 5 */
-
-            
-          end. /* each oe-boll */
-*/
+              iCasesShip = iCasesShip + oe-boll.cases.
+              
+            END.
           IF v-printline > 58 THEN do:           
                 PAGE.
                 {ar/rep/invmwbox.i}  /* xprint form */
@@ -502,7 +484,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
                 v-i-dscr  format "x(25)" SPACE(1)
                /* v-inv-qty format "->>>>>9" SPACE(1) */
                 SPACE(8)
-                v-ship-qty  format "->>>>>>" SPACE(1)
+                ( IF v-price-head EQ "CS" THEN iCasesShip ELSE v-ship-qty )  format "->>>>>>" SPACE(1)
               /*  v-bo-qty  format "->>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1) */ space(13)                               
                 v-price  format ">>>,>>9.9999" 

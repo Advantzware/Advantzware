@@ -86,6 +86,7 @@ def var v-bot-lab    as   char format "x(63)" extent 3 NO-UNDO.
 DEF VAR v-lines AS INT NO-UNDO.
 DEF VAR v-inv-freight LIKE inv-head.t-inv-freight NO-UNDO.
 DEF VAR v-frt-tax AS DEC NO-UNDO.
+DEFINE VARIABLE iCasesShip LIKE oe-boll.cases NO-UNDO.
 
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
@@ -346,7 +347,8 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
         for each inv-line no-lock where inv-line.r-no = inv-head.r-no:
           assign v-case-line = ""
                  v-part-line = ""
-                 v-case-cnt = "".
+                 v-case-cnt = ""
+                 iCasesShip = 0.
 
           v-pc = "P". /* partial*/ 
           for each oe-boll no-lock where oe-boll.company = inv-line.company
@@ -359,6 +361,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
             assign v-case-line = string(oe-boll.cases) + " @ " +
                                      string(oe-boll.qty-case).
             else assign v-case-line = "".
+            iCasesShip = iCasesShip + oe-boll.cases.
             if oe-boll.partial ne 0 then
             assign v-part-line = "1" + " @ " + string(oe-boll.partial).
             else assign v-part-line = "".
@@ -441,7 +444,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
                 /*v-i-dscr  format "x(25)" SPACE(1)
                 v-inv-qty format "->>>>>9" SPACE(1) */ 
                 inv-line.part-no SPACE(17)
-                v-ship-qty  format "->>>>>9" SPACE(1)
+                (IF inv-line.pr-uom EQ "CS" THEN iCasesShip ELSE  v-ship-qty ) format "->>>>>9" SPACE(1)
               /*  v-bo-qty  format "->>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1) */ space(15)      
                 v-price  format ">>>,>>9.9999"                
