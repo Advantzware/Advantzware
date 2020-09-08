@@ -45,17 +45,17 @@ DEFINE VARIABLE gcSuccess         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glAPIConfigFound  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE gcParentProgram   AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
-DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lCalledFromTester AS LOGICAL NO-UNDO.
-DEFINE VARIABLE scInstance AS CLASS System.SharedConfig NO-UNDO. 
+DEFINE VARIABLE lSuccess             AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAPIOutboundTestMode AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE scInstance           AS CLASS System.SharedConfig NO-UNDO. 
 
 ASSIGN 
-    scInstance        = SharedConfig:instance
-    lCalledFromTester = LOGICAL(scInstance:GetValue("IsApiOutboundTester")) NO-ERROR
+    scInstance           = SharedConfig:instance
+    lAPIOutboundTestMode = LOGICAL(scInstance:GetValue("APIOutboundTestMode")) NO-ERROR
     .
     
-scInstance:DeleteValue("IsApiOutboundTester").
+scInstance:DeleteValue("APIOutboundTestMode").
 
 ASSIGN
     gcParentProgram = ipcParentProgram
@@ -65,7 +65,7 @@ ASSIGN
 
 FOR FIRST APIOutbound NO-LOCK
     WHERE APIOutbound.apiOutboundID EQ ipcAPIOutboundID 
-      AND (lCalledFromTester OR 
+      AND (lAPIOutboundTestMode OR 
            APIOutbound.Inactive EQ FALSE):
     ASSIGN
         gcUserName         = APIOutbound.username

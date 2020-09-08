@@ -21,21 +21,21 @@ DEFINE OUTPUT PARAMETER oplcRequestData         AS LONGCHAR  NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess              AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage              AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE scInstance        AS CLASS system.SharedConfig NO-UNDO.
-DEFINE VARIABLE lCalledFromTester AS LOGICAL                   NO-UNDO.
+DEFINE VARIABLE scInstance           AS CLASS system.SharedConfig NO-UNDO.
+DEFINE VARIABLE lAPIOutboundTestMode AS LOGICAL                   NO-UNDO.
 
 ASSIGN 
     scInstance        = SharedConfig:instance
-    lCalledFromTester = LOGICAL(scInstance:GetValue("IsApiOutboundTester")) 
-    NO-ERROR.
+    lAPIOutboundTestMode = LOGICAL(scInstance:GetValue("APIOutboundTestMode"))NO-ERROR
+    .
     
-scInstance:DeleteValue("IsApiOutboundTester").
+scInstance:DeleteValue("APIOutboundTestMode").
 
 FIND FIRST APIOutbound NO-LOCK
      WHERE APIOutbound.apiOutboundID EQ ipiAPIOutboundID
      NO-ERROR.
 IF AVAILABLE APIOutbound AND 
-   (lCalledFromTester OR NOT APIOutbound.Inactive)THEN DO:           
+   (lAPIOutboundTestMode OR NOT APIOutbound.Inactive)THEN DO:           
     oplcRequestData = APIOutbound.requestData.
     /* Transform Request Data */
     RUN pPrepareRequest (

@@ -3508,7 +3508,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
          IF dTotalTax NE bf-inv-head.t-inv-tax THEN DO:
              IF iplgUpdateTax THEN DO:
                 FIND CURRENT bf-inv-head EXCLUSIVE-LOCK NO-ERROR.
-                    bf-inv-head.t-inv-tax = dTotalTax.
+                    bf-inv-head.spare-int-1 = 1.                     
                 FIND CURRENT bf-inv-head NO-LOCK NO-ERROR.     
              END. 
              ELSE DO:   

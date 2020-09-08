@@ -503,11 +503,11 @@ DO:
          ).
          
     IF NOT lValid THEN DO:
-        scinstance:DeleteValue("IsApiOutboundTester").
+        scInstance:DeleteValue("APIOutboundTestMode").
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
-    scinstance:DeleteValue("IsApiOutboundTester"). 
+    scInstance:DeleteValue("APIOutboundTestMode"). 
         
     FIND FIRST APIOutbound NO-LOCK
          WHERE APIOutbound.apiOutboundID EQ iAPIOutboundID
@@ -577,12 +577,13 @@ DO:
          ).
          
     IF NOT lSuccess THEN DO:
-        scinstance:DeleteValue("IsApiOutboundTester").
+        scInstance:DeleteValue("APIOutboundTestMode").
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
     
     IF edRequestData:SCREEN-VALUE EQ "" THEN DO:
+        scInstance:DeleteValue("APIOutboundTestMode").
         MESSAGE "Request Data cannot be empty" 
             VIEW-AS ALERT-BOX ERROR.
         RETURN.
@@ -620,13 +621,14 @@ DO:
             OUTPUT lSuccess,
             OUTPUT cMessage
             ). 
-    ELSE
+    ELSE DO:
         ASSIGN
             lcResponseData = "Success"
             lSuccess       = TRUE
             cMessage       = "Success"
             .
-
+        scInstance:DeleteValue("APiOutboundTestMode").            
+    END.            
     SESSION:SET-WAIT-STATE(""). 
 
     RUN api/CreateAPIOutboundEvent.p (
@@ -714,10 +716,11 @@ DO:
          ).
 
     IF NOT lSuccess THEN DO:
-        scInstance:DeleteValue("IsApiOutboundTester").
+        scInstance:DeleteValue("APIOutboundTestMode").
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
+    scInstance:DeleteValue("APIOutboundTestMode").
            
     CASE fiAPIId:SCREEN-VALUE:
         WHEN "SendCustomer" THEN DO:
@@ -934,7 +937,10 @@ DO:
                ).                    
         END.                   
     END CASE.
-   
+    
+    scInstance = SharedConfig:instance.
+    scInstance:SetValueAppend("APIOutboundTestMode","YES").
+    
     RUN api/PrepareOutboundRequest.p (
         INPUT TABLE ttArgs,
         INPUT iAPIOutboundID,
@@ -945,7 +951,7 @@ DO:
         ).
 
     IF NOT lSuccess THEN DO:
-        scInstance:DeleteValue("IsApiOutboundTester").
+        scInstance:DeleteValue("APIOutboundTestMode").
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.   
         RETURN.
     END.
@@ -1337,7 +1343,7 @@ PROCEDURE pValidateOutboundAPI :
     END.
     
     scInstance = SharedConfig:instance.
-    scinstance:SetValueAppend("IsApiOutboundTester","YES").
+    scInstance:SetValueAppend("APIOutboundTestMode","YES").
     
     RUN Outbound_GetAPIID IN hdOutboundProcs (
         INPUT  cCompany,

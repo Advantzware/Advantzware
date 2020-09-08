@@ -201,11 +201,11 @@ PROCEDURE Outbound_GetAPIID:
     DEFINE OUTPUT PARAMETER oplValid         AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage       AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE lCalledFromTester AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lAPIOutboundTestMode AS LOGICAL NO-UNDO.
     
     ASSIGN 
-        scInstance        = SharedConfig:instance
-        lCalledFromTester = LOGICAL(scInstance:GetValue("IsApiOutboundTester")) NO-ERROR
+        scInstance           = SharedConfig:instance
+        lAPIOutboundTestMode = LOGICAL(scInstance:GetValue("APIOutboundTestMode")) NO-ERROR
         .
 
     FIND FIRST APIOutbound NO-LOCK
@@ -214,7 +214,7 @@ PROCEDURE Outbound_GetAPIID:
             AND APIOutbound.clientID EQ ipcClientID
           NO-ERROR.
     IF AVAILABLE APIOutbound AND
-        (lCalledFromTester OR NOT APIOutbound.Inactive) THEN
+        (lAPIOutboundTestMode OR NOT APIOutbound.Inactive) THEN
         ASSIGN
             oplValid         = TRUE
             opcMessage       = "Success"
@@ -296,11 +296,11 @@ PROCEDURE Outbound_GetAPITriggerID:
     DEFINE OUTPUT PARAMETER oplValid                AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage              AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE lCalledFromTester AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lAPIOutboundTestMode AS LOGICAL NO-UNDO.
     
     ASSIGN 
-        scInstance        = SharedConfig:instance
-        lCalledFromTester = LOGICAL(scInstance:GetValue("IsApiOutboundTester")) NO-ERROR
+        scInstance           = SharedConfig:instance
+        lAPIOutboundTestMode = LOGICAL(scInstance:GetValue("APIOutboundTestMode")) NO-ERROR
         .
 
     FIND FIRST APIOutboundTrigger NO-LOCK
@@ -310,7 +310,7 @@ PROCEDURE Outbound_GetAPITriggerID:
            AND APIOutboundTrigger.triggerID EQ ipcTriggerID
          NO-ERROR.
     IF AVAILABLE APIOutboundTrigger AND
-        (lCalledFromTester OR NOT APIOutboundTrigger.Inactive) THEN
+        (lAPIOutboundTestMode OR NOT APIOutboundTrigger.Inactive) THEN
         ASSIGN
             oplValid                = TRUE
             opcMessage              = "Success"
