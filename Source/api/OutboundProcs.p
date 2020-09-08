@@ -44,7 +44,7 @@ DEFINE TEMP-TABLE ttRequestData NO-UNDO
 
 {api/ttAPIOutboundEvent.i}
 
-DEFINE VARIABLE cRequestTypeList          AS CHARACTER NO-UNDO INITIAL "API,FTP,SAVE".
+DEFINE VARIABLE cRequestTypeList          AS CHARACTER NO-UNDO INITIAL "API,FTP,SFTP,SAVE".
 DEFINE VARIABLE cRequestVerbList          AS CHARACTER NO-UNDO INITIAL "POST,GET".
 DEFINE VARIABLE cRequestDataTypeList      AS CHARACTER NO-UNDO INITIAL "JSON,XML,TXT,CSV".
 DEFINE VARIABLE cRequestStatusInitialized AS CHARACTER NO-UNDO INITIAL "Initialized".
@@ -1610,22 +1610,15 @@ PROCEDURE pExecute PRIVATE:
 
         lcRequestData = ttRequestData.requestData.
 
-        /* Make the API call - We will have to exclude FTP and SAVE request type as those are handled in its customized handler */
-        IF ttRequestData.requestType EQ cRequestTypeAPI THEN
-            RUN api/CallOutBoundAPI.p (
-                INPUT  ttRequestData.apiOutboundID,
-                INPUT  lcRequestData,
-                INPUT  ttRequestData.parentProgram,
-                OUTPUT lcResponseData,
-                OUTPUT ttRequestData.success,
-                OUTPUT ttRequestData.requestMessage
-                ) NO-ERROR.
-        ELSE
-            ASSIGN
-                lcResponseData               = "Success"
-                ttRequestData.success        = TRUE
-                ttRequestData.requestMessage = "Success"
-                .
+        RUN api/CallOutBoundAPI.p (
+            INPUT  ttRequestData.apiOutboundID,
+            INPUT  lcRequestData,
+            INPUT  ttRequestData.parentProgram,
+            INPUT  ttRequestData.primaryID,
+            OUTPUT lcResponseData,
+            OUTPUT ttRequestData.success,
+            OUTPUT ttRequestData.requestMessage
+            ) NO-ERROR.
                 
         ttRequestData.requestStatus = cRequestStatusSuccess.
 

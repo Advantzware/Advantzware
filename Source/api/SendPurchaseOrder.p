@@ -22,11 +22,13 @@
     DEFINE OUTPUT       PARAMETER oplSuccess              AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER opcMessage              AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE dQuantityInEA     AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE hdConversionProcs AS HANDLE  NO-UNDO.
-    DEFINE VARIABLE hdFTPProcs        AS HANDLE  NO-UNDO.
-    
-    RUN system/ConversionProcs.p PERSISTENT SET hdConversionProcs.
+    DEFINE VARIABLE dQuantityInEA     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQuantityInM      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQuantityInSF     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dItemBasisWeight  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostInMSF        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lError            AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
     
     /* Variables to store order line's request data */
     DEFINE VARIABLE lcLineData       AS LONGCHAR  NO-UNDO.
@@ -65,22 +67,27 @@
     DEFINE VARIABLE cShipToAddress3    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipToCity        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipToState       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cShipToZip         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipToCityState   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cShipToZip         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipToAddressFull AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCarrierID         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCarrierDesc       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFreightTerms      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFreightFOB        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cBuyer             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoNotes           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoNotesHRMS       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipToCompanyName AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTotalCost         AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line Variables */
     DEFINE VARIABLE cPoLine                  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQuantityOrdered         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityInSF            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityInM             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQuantityUOM             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemType                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemTypeShort           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemID                  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemName                AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemDesc1               AS CHARACTER NO-UNDO.
@@ -99,6 +106,7 @@
     DEFINE VARIABLE cItemLength16ths         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemDepth16ths          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCostPerUOM              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostInMSF               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCostUOM                 AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCostSetup               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCostDiscount            AS CHARACTER NO-UNDO.
@@ -113,6 +121,7 @@
     DEFINE VARIABLE cJobID                   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobID2                  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobConcat               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobConcatHRMS           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobIDFormNo             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobIDBlankNo            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoLineStatus            AS CHARACTER NO-UNDO.
@@ -129,9 +138,10 @@
     DEFINE VARIABLE cFormattedScoresWestrock AS CHARACTER NO-UNDO.
         
     /* Purchase Order Line adder Variables */
-    DEFINE VARIABLE cAdderItemID       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cAdderItemName     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemWithAdders    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAdderItemID        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAdderItemName      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWithAdders     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWithAddersHRMS AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line scores Variables */
     DEFINE VARIABLE cScoreOn                AS CHARACTER NO-UNDO.
@@ -148,6 +158,8 @@
     DEFINE VARIABLE lDecimalLog             AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lReftableFound          AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cScoreSize16thsWestRock AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreSizeDecimalHRMS1  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreSizeDecimalHRMS2  AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cWhsCode           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQtyPerPack        AS CHARACTER NO-UNDO.
@@ -163,6 +175,15 @@
     DEFINE VARIABLE cCustZip           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCustAreaCode      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCustPhone         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustXName         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustXAddress1     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustXAddress2     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustXCity         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustXState        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustXCityState    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustXZip          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustXAreaCode     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustXPhone        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFOBCode           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iTempAdder         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cBoardWeight       AS CHARACTER NO-UNDO.
@@ -170,13 +191,14 @@
     DEFINE VARIABLE lRecFound          AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cAssignedCustID    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPOExport          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cHRMSCustDir       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cHRMSCustLog       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cClientID          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cRequestDataType   AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-APIOutboundDetail1 FOR APIOutboundDetail.
     DEFINE BUFFER bf-APIOutboundDetail2 FOR APIOutboundDetail.    
+    DEFINE BUFFER bf-hrms-reftable      FOR reftable.
+    DEFINE BUFFER bf-job-mat            FOR job-mat.
+    DEFINE BUFFER bf-item               FOR item.
     
     DEFINE VARIABLE hdJobProcs AS HANDLE NO-UNDO.
     RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
@@ -273,16 +295,6 @@
             OUTPUT cPOExport, 
             OUTPUT lRecFound
             ).
-        
-
-        /* Cross-reference vendor to vendors customer number */  
-        FIND FIRST sys-ctrl-shipto NO-LOCK  
-             WHERE sys-ctrl-shipto.company      EQ po-ord.company
-               AND sys-ctrl-shipto.cust-vend    EQ FALSE 
-               AND sys-ctrl-shipto.cust-vend-no EQ po-ord.vend-no
-             NO-ERROR.
-        IF AVAILABLE sys-ctrl-shipto THEN 
-            cAssignedCustID = sys-ctrl-shipto.char-fld.
 
         IF NOT CAN-FIND(FIRST po-ordl
              WHERE po-ordl.company EQ po-ord.company
@@ -318,6 +330,7 @@
             cShipToAddress2    = STRING(po-ord.ship-addr[2])
             cShipToCity        = STRING(po-ord.ship-city)
             cShipToState       = STRING(po-ord.ship-state)
+            cShipToCityState   = cShipToCity + " " + cShipToState
             cShipToZip         = STRING(po-ord.ship-zip)
             cShipToAddress3    = cShipToCity + ","
                                + cShipToState + " "
@@ -342,101 +355,41 @@
             cRequestDataType = APIOutbound.requestDataType 
             .
         
-        IF cClientID EQ "HRMS" THEN DO:
-            FIND FIRST cust NO-LOCK 
-                 WHERE cust.company EQ po-ord.company
-                   AND cust.active  EQ "X"
-                 NO-ERROR.
-            IF NOT AVAILABLE cust THEN DO:
-                ASSIGN
-                    opcMessage = "Customer not found"
-                    oplSuccess = FALSE
-                    .
-                RETURN.                
-            END.
-
+        FIND FIRST cust NO-LOCK 
+             WHERE cust.company EQ po-ord.company
+               AND cust.active  EQ "X"
+             NO-ERROR.
+        IF AVAILABLE cust THEN DO:
             ASSIGN
-                cCustName      = cust.name
-                cCustAddress1  = cust.addr[1]
-                cCustAddress2  = cust.addr[2]
-                cCustCity      = cust.city
-                cCustState     = cust.state
-                cCustZip       = cust.zip
-                cCustCityState = cCustCity + " " + TRIM(cCustState)
-                cCustAreaCode  = STRING(cust.area-code)  
-                cCustPhone     = STRING(cust.phone)
+                cCustXName      = cust.name
+                cCustXAddress1  = cust.addr[1]
+                cCustXAddress2  = cust.addr[2]
+                cCustXCity      = cust.city
+                cCustXState     = cust.state
+                cCustXZip       = cust.zip
+                cCustXCityState = cCustXCity + " " + TRIM(cCustXState)
+                cCustXAreaCode  = STRING(cust.area-code)  
+                cCustXPhone     = STRING(cust.phone)
                 .
-                            
-            RUN sys/ref/nk1look.p (
-                INPUT po-ord.company, /* Company Code */ 
-                INPUT "HRMS",         /* sys-ctrl name */
-                INPUT "C",            /* Output return value */
-                INPUT NO,             /* Use ship-to */
-                INPUT NO,             /* ship-to vendor */
-                INPUT "",             /* ship-to vendor value */
-                INPUT "",             /* shi-id value */
-                OUTPUT cHRMSCustDir, 
-                OUTPUT lRecFound
-                ).
-        
-            RUN sys/ref/nk1look.p (
-                INPUT po-ord.company, /* Company Code */ 
-                INPUT "HRMS",         /* sys-ctrl name */
-                INPUT "L",            /* Output return value */
-                INPUT NO,             /* Use ship-to */
-                INPUT NO,             /* ship-to vendor */
-                INPUT "",             /* ship-to vendor value */
-                INPUT "",             /* shi-id value */
-                OUTPUT cHRMSCustLog, 
-                OUTPUT lRecFound
-                ).
-            IF cHRMSCustDir EQ "" OR LOGICAL(cHRMSCustLog) EQ FALSE THEN DO:
-                ASSIGN
-                    opcMessage = "NK1 'HRMS' not found or contains incorrect data"
-                    oplSuccess = FALSE
-                    .
-                RETURN.
-            END.
-                         
-            FIND FIRST vend NO-LOCK
-                 WHERE vend.company EQ po-ord.company
-                   AND vend.vend-no EQ po-ord.vend-no
-                   AND (vend.po-export EQ "HRMS" OR (cPOExport EQ "HRMS" AND vend.an-edi-vend))
-                 NO-ERROR.
-            IF NOT AVAILABLE vend THEN DO:
-                ASSIGN
-                    opcMessage = "Unable to find vendor for PO [" + STRING(po-ord.po-no) + "]"
-                    oplSuccess = FALSE
-                    .
-                RETURN.
-            END.        
-
-            IF po-ord.type NE "D" THEN
-                ASSIGN
-                    cShipToName      = cCustName 
-                    cShipToAddress1  = cCustAddress1 
-                    cShipToAddress2  = cCustAddress2 
-                    cShipToCity      = cCustCity 
-                    cShipToState     = cCustState 
-                    cShiptoZip       = cCustZip 
-                    cShipToCityState = cShipToCity + " " + TRIM(cShipToState)
-                    .
-    
-            FIND FIRST carrier NO-LOCK 
-                 WHERE carrier.company EQ po-ord.company
-                   AND carrier.carrier EQ po-ord.carrier         
-                 NO-ERROR.     
-            IF AVAILABLE carrier THEN
-                cCarrierID = carrier.dscr.
         END.
+
+    
+        FIND FIRST carrier NO-LOCK 
+             WHERE carrier.company EQ po-ord.company
+               AND carrier.carrier EQ po-ord.carrier         
+             NO-ERROR.     
+        IF AVAILABLE carrier THEN
+            cCarrierDesc = carrier.dscr.
 
         /* Fetch purchase order notes from notes table */    
         FOR EACH notes NO-LOCK
            WHERE notes.rec_key EQ po-ord.rec_key:
-            cPoNotes = cPoNotes + STRING(notes.note_text).
+            cPoNotes = cPoNotes + " " + STRING(notes.note_text).
         END.
         
         cPoNotes = REPLACE(cPoNotes, "~n", "").
+        
+        cPoNotesHRMS = cPoNotes.
         
         /* Fetch Vendor details for the purchase order */    
         FIND FIRST vend NO-LOCK
@@ -518,6 +471,10 @@
                 cQuantityOrdered         = TRIM(STRING(po-ordl.ord-qty,"->>>>>>>>9.9<<<<<"))
                 cQuantityUOM             = STRING(po-ordl.pr-qty-uom)
                 cItemType                = STRING(po-ordl.item-type)
+                cItemTypeShort           = IF po-ordl.item-type THEN
+                                               "RM"
+                                           ELSE
+                                               "FG"
                 cItemID                  = STRING(po-ordl.i-no)
                 cItemName                = STRING(po-ordl.i-name)
                 cItemDesc1               = STRING(po-ordl.dscr[1])
@@ -557,17 +514,28 @@
                                                ""
                                            ELSE
                                                cJobID + "-" + cJobID2
+                cJobConcatHRMS           = IF po-ordl.job-no EQ "" THEN
+                                               ""
+                                           ELSE
+                                               STRING(po-ordl.job-no, "X(6)") + "-" + STRING(po-ordl.job-no2, "99")                
                 cJobIDFormNo             = STRING(po-ordl.s-num)
                 cJobIDBlankNo            = STRING(po-ordl.b-num)
                 cQuantityReceived        = TRIM(STRING(po-ordl.t-rec-qty, "->>>>>>>>9.9<<<<<"))
                 cLineDueDate             = STRING(po-ordl.due-date)
+                dCostInMSF               = po-ordl.cost
+                dQuantityInSF            = po-ordl.ord-qty
                 cScoreSizeDecimal        = ""
                 cScoreSize16ths          = ""
                 cItemWithAdders          = "" 
+                cItemWithAddersHRMS      = ""
                 cFormattedScoresWestrock = ""
                 cScoreSize16thsWestRock  = ""
+                cScoreSizeDecimalHRMS1   = ""
+                cScoreSizeDecimalHRMS2   = ""
+                cCostInMSF               = ""
+                cQuantityInSF            = ""
+                dItemBasisWeight         = 0
                 .
-                
 
             FIND FIRST item NO-LOCK
                  WHERE item.company  EQ po-ordl.company
@@ -577,26 +545,11 @@
 
             IF AVAILABLE item THEN
                 ASSIGN
+                    dItemBasisWeight = item.basis-w
                     cItemBasisWeight = STRING(item.basis-w)
                     cFlute           = item.flute   
                     .                
-            
-            IF cClientID EQ "HRMS" THEN DO:
-                IF NOT AVAILABLE item THEN
-                    NEXT.                
 
-                ASSIGN
-                    cCostPerUOM      = IF po-ordl.cost GT 9999.99 THEN
-                                           STRING(9999.99)
-                                       ELSE
-                                           cCostPerUOM
-                    cQuantityOrdered = IF po-ordl.ord-qty GT 99999999 THEN
-                                           STRING(99999999)
-                                       ELSE
-                                           cQuantityOrdered
-                    .                
-            END.
-            
             FIND FIRST itemfg NO-LOCK
                  WHERE itemfg.company EQ po-ordl.company
                    AND itemfg.i-no    EQ po-ordl.i-no
@@ -612,7 +565,7 @@
                     .
             
             IF po-ordl.pr-qty-uom NE "EA" THEN         
-                RUN Conv_QtyToEA IN hdConversionProcs (
+                RUN Conv_QtyToEA (
                     INPUT  po-ordl.company,
                     INPUT  po-ordl.i-no,
                     INPUT  po-ordl.ord-qty,
@@ -622,13 +575,67 @@
                     ).
             ELSE 
                 dQuantityInEA = po-ordl.ord-qty.        
+
+            IF dQuantityInEA - TRUNCATE(dQuantityInEA,0) GT 0 THEN
+                dQuantityInEA = TRUNCATE(dQuantityInEA,0) + 1.
+
+            IF dQuantityInEA GT 99999999 THEN 
+                dQuantityInEA = 99999999.
                  
-             ASSIGN 
+            ASSIGN 
                 cQtyInEA   = TRIM(STRING(dQuantityInEA,"->>>>>>>>9")) 
                 cPoLowQty  = TRIM(STRING(dQuantityInEA * (1 - (po-ordl.under-pct / 100)),"->>>>>>>>9"))
                 cPoHighQty = TRIM(STRING(dQuantityInEA * (1 + (po-ordl.over-pct / 100)),"->>>>>>>>9")) 
                 .
+                            
+            IF po-ordl.pr-uom NE "MSF" THEN
+                RUN Conv_ValueFromUOMToUOM (
+                    INPUT  po-ordl.company,
+                    INPUT  po-ordl.i-no,
+                    INPUT  cItemTypeShort,
+                    INPUT  po-ordl.cost,
+                    INPUT  po-ordl.pr-uom, 
+                    INPUT  "MSF",
+                    INPUT  dItemBasisWeight,
+                    INPUT  po-ordl.s-len,
+                    INPUT  po-ordl.s-wid,
+                    INPUT  po-ordl.s-dep,
+                    INPUT  0,
+                    OUTPUT dCostInMSF,
+                    OUTPUT lError,
+                    OUTPUT cMessage
+                    ).
                 
+            cCostInMSF = STRING(dCostInMSF).    
+
+            IF po-ordl.pr-qty-uom NE "SF" THEN
+                RUN Conv_QuantityFromUOMToUOM (
+                    INPUT  po-ordl.company,
+                    INPUT  po-ordl.i-no,
+                    INPUT  cItemTypeShort,
+                    INPUT  po-ordl.ord-qty,
+                    INPUT  po-ordl.pr-qty-uom, 
+                    INPUT  "SF",
+                    INPUT  dItemBasisWeight,
+                    INPUT  po-ordl.s-len,
+                    INPUT  po-ordl.s-wid,
+                    INPUT  po-ordl.s-dep,
+                    INPUT  0,
+                    OUTPUT dQuantityInSF,
+                    OUTPUT lError,
+                    OUTPUT cMessage
+                    ).
+
+            IF dQuantityInSF - TRUNCATE(dQuantityInSF,0) GT 0 THEN
+                dQuantityInSF = TRUNCATE(dQuantityInSF,0) + 1.
+
+            cQuantityInSF = STRING(dQuantityInSF).                
+            
+            IF dQuantityInEA NE 0 THEN
+                dQuantityInM = dQuantityInSF / (dQuantityInEA / 1000).
+            
+            cQuantityInM = STRING(dQuantityInM).
+            
             /* Fetch first operation id (job-mch.m-code) for the order line */
             IF TRIM(po-ordl.job-no) NE "" THEN
                 RUN GetOperation IN hdJobProcs (
@@ -642,11 +649,14 @@
 
             /* Fetch purchase order notes from notes table */    
             FOR EACH notes NO-LOCK
-               WHERE notes.rec_key EQ po-ordl.rec_key:
-                cPoLineNotes = cPoLineNotes + STRING(notes.note_text).
+                WHERE notes.rec_key EQ po-ordl.rec_key:
+                cPoLineNotes = cPoLineNotes + " " + STRING(notes.note_text).
             END.
             
             cPoLineNotes = REPLACE(cPoLineNotes, "~n", "").
+            
+            cPoNotesHRMS = cPoNotesHRMS + " " + cPoLineNotes.
+            
             IF cPoLineNotes EQ "" THEN
                 cPoLineNotes = cPoNotes.
             
@@ -654,6 +664,8 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLine", cPoLine).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLineStatus", cPoLineStatus).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityOrdered", cQuantityOrdered).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityInSF", cQuantityInSF).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityInM", cQuantityInM).            
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityUOM", cQuantityUOM).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemType", cItemType).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemID", cItemID).
@@ -668,6 +680,7 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemLength", cItemLength).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDepth", cItemDepth).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "costPerUOM", cCostPerUOM).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "costInMSF", cCostInMSF).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "costUOM", cCostUOM).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "costSetup", cCostSetup).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "costDiscount", cCostDiscount).
@@ -700,7 +713,9 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemBasisWeight", cItemBasisWeight).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "flute", cFlute).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobConcat", cJobConcat).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobConcatHRMS", cJobConcatHRMS).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLineNotes", cPoLineNotes).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNotesHRMS", cPoNotesHRMS).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "SPACE", " ").
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNo",cPoNo).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "shipToAddress1", cshipToAddress1).
@@ -739,6 +754,66 @@
                 END.
                 
                 cItemWithAdders = cItemWithAdders + ", " + po-ordl-add.adder-i-no.
+            END.
+            
+            /* Fetch Adders for HRMS */
+            FIND FIRST job NO-LOCK 
+                 WHERE job.company EQ po-ordl.company
+                   AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no))) + TRIM(po-ordl.job-no) 
+                   AND job.job-no2 EQ po-ordl.job-no2
+                 NO-ERROR.            
+            IF AVAILABLE job THEN DO:
+                FOR EACH job-mat NO-LOCK 
+                    WHERE job-mat.company  EQ job.company 
+                      AND job-mat.job      EQ job.job 
+                      AND job-mat.job-no   EQ job.job-no 
+                      AND job-mat.job-no2  EQ job.job-no2 
+                      AND job-mat.i-no     EQ po-ordl.i-no 
+                      AND job-mat.frm      EQ po-ordl.s-num
+                    USE-INDEX job
+                    BREAK BY job-mat.blank-no DESCENDING:
+                    IF LAST(job-mat.blank-no) OR job-mat.blank-no EQ po-ordl.b-num THEN
+                        LEAVE.
+                END.
+    
+                IF AVAILABLE job-mat THEN DO:
+                    FIND FIRST reftable NO-LOCK
+                         WHERE reftable.reftable EQ "util/b-hrms-x.w"
+                           AND reftable.company  EQ po-ordl.company
+                           AND reftable.code2    EQ po-ordl.i-no
+                         NO-ERROR.
+                    IF AVAILABLE reftable THEN
+                        cItemWithAddersHRMS = STRING(INT(reftable.code),"9999") NO-ERROR.
+                    ELSE 
+                        cItemWithAddersHRMS = STRING("0000","X(4)").
+
+                    iIndex  = 1.
+
+                    FOR EACH bf-job-mat NO-LOCK 
+                        WHERE bf-job-mat.company  EQ job-mat.company
+                          AND bf-job-mat.job      EQ job-mat.job 
+                          AND bf-job-mat.job-no   EQ job-mat.job-no 
+                          AND bf-job-mat.job-no2  EQ job-mat.job-no2 
+                          AND bf-job-mat.frm      EQ job-mat.frm 
+                          AND bf-job-mat.blank-no EQ job-mat.blank-no 
+                          AND bf-job-mat.i-no     NE job-mat.i-no,
+                        FIRST bf-item NO-LOCK 
+                        WHERE bf-item.company  EQ bf-job-mat.company 
+                          AND bf-item.i-no     EQ bf-job-mat.i-no 
+                          AND bf-item.mat-type EQ "A",
+                        FIRST bf-hrms-reftable NO-LOCK 
+                        WHERE bf-hrms-reftable.reftable EQ "util/b-hrms-x.w" 
+                          AND bf-hrms-reftable.company  EQ bf-item.company 
+                          AND bf-hrms-reftable.code2    EQ bf-item.i-no:          
+                        iIndex = iIndex + 1.
+                        cItemWithAddersHRMS = cItemWithAddersHRMS + STRING(INT(bf-hrms-reftable.code),"9999") NO-ERROR.
+                        IF ERROR-STATUS:ERROR THEN 
+                            cItemWithAddersHRMS = cItemWithAddersHRMS + STRING("0000","9999").
+                 
+                        IF iIndex GE 6 THEN
+                            LEAVE.
+                    END.
+                END.
             END.
 
             RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatLineAdderData, cRequestDataType).
@@ -806,13 +881,25 @@
                                                    TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
                                                ELSE
                                                    cFormattedScoresWestrock + "x "  + TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
-              .
-     
+                    .
+                
+                IF iIndex LE 9 THEN 
+                    cScoreSizeDecimalHRMS1 = IF cScoreSizeDecimalHRMS1 EQ "" THEN 
+                                                 (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
+                                             ELSE
+                                                 cScoreSizeDecimalHRMS1 + (STRING(dScoreSize16ths, ">>>.99")) + cScoreType.
+                ELSE
+                    cScoreSizeDecimalHRMS2 = IF cScoreSizeDecimalHRMS2 EQ "" THEN 
+                                                 (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
+                                             ELSE
+                                                cScoreSizeDecimalHRMS2 + (STRING(dScoreSize16ths, ">>>.99")) + cScoreType.                
             END.
             
             ASSIGN 
                 cFormattedScoresWestrock = REPLACE(cFormattedScoresWestrock,".", "")
                 cScoreSize16ths          = REPLACE(cScoreSize16ths,".", ":")
+                cScoreSizeDecimalHRMS1   = REPLACE(cScoreSizeDecimalHRMS1,".",":")
+                cScoreSizeDecimalHRMS2   = REPLACE(cScoreSizeDecimalHRMS2,".",":")
                 .
             
             RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatLineScoresData, cRequestDataType).            
@@ -820,12 +907,15 @@
             lcLineData = REPLACE(lcLineData, "$lineAdder$", lcConcatLineAdderData).
             
             lcLineData = REPLACE(lcLineData, "$lineScores$", lcConcatLineScoresData).
-            
+
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSize16ths", cScoreSize16ths).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimal", cScoreSizeDecimal).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAdders", cItemWithAdders).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersHRMS", cItemWithAddersHRMS).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSize16thsWestrock", cScoreSize16thsWestrock).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData,"FormattedScoring", cFormattedScoresWestrock).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalHRMS1", cScoreSizeDecimalHRMS1).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalHRMS2", cScoreSizeDecimalHRMS2).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "FormattedScoring", cFormattedScoresWestrock).
             
             lcConcatLineData = lcConcatLineData + lcLineData.
         END.      
@@ -860,6 +950,7 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "shipToAddressFull", cShipToAddressFull).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "shipToCityState", cShipToCityState).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "carrierID", cCarrierID).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "carrierDesc", cCarrierDesc).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "freightTerms", cFreightTerms).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "freightFOB", cFreightFOB).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "buyer", cBuyer).
@@ -875,6 +966,15 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "custState", cCustState).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "custZip", cCustZip).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "custCityState", cCustCityState).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "custXAreaCode", cCustXAreaCode).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "custXPhone", cCustXPhone).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "custXName", cCustXName).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "custXAddress1", cCustXAddress1).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "custXAddress2", cCustXAddress2).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "custXCity", cCustXCity).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "custXState", cCustXState).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "custXZip", cCustXZip).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "custXCityState", cCustXCityState).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SPACE", " ").
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToCompanyName", cShipToCompanyName).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrentDate",STRING(TODAY)).
@@ -891,44 +991,6 @@
             opcMessage = ""
             oplSuccess = TRUE
              .
-
-        IF APIOutbound.requestType EQ "FTP" THEN DO:
-            RUN system/ftpProcs.p PERSISTENT SET hdFTPProcs.
-
-            IF APIOutbound.SaveFile THEN DO:
-                RUN FileSys_CreateDirectory (
-                    INPUT  APIOutbound.SaveFileFolder,
-                    OUTPUT oplSuccess,
-                    OUTPUT opcMessage
-                    ) NO-ERROR.
-                IF oplSuccess THEN DO:    
-                    cRequestFile = APIOutbound.apiID + cPoNO + "_" + STRING(MTIME) + "." + "txt".
-                        
-                    COPY-LOB ioplcRequestData TO FILE cRequestFile.
-                    OS-COPY VALUE (cRequestFile) VALUE (APIOutbound.saveFileFolder).
-                    
-                    RUN FileSys_GetFilePath (
-                        INPUT  APIOutbound.saveFileFolder,
-                        OUTPUT cRequestFilePath,
-                        OUTPUT oplSuccess,
-                        OUTPUT opcMessage
-                        ).
-                    IF NOT oplSuccess THEN
-                        RETURN.
-                    
-                    RUN pExecFtp IN hdFTPProcs (
-                        INPUT APIOutbound.company,   /* Company */
-                        INPUT APIOutbound.apiID,     /* Ftp Config Code */
-                        INPUT APIOutbound.clientID,  /* Partner */
-                        INPUT cRequestFilePath,      /* File Folder */
-                        INPUT cRequestFile           /* File Name */
-                        ) NO-ERROR.
-                END.    
-            END.
-          
-           
-           DELETE PROCEDURE hdFTPProcs.
-        END.
     END.
     
     
