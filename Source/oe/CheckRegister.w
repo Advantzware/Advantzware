@@ -61,15 +61,16 @@ assign
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-7 begin_cust-no end_cust-no begin_Inv ~
-end_inv end_date begin_date btn-ok btn-cancel 
+end_inv end_date begin_date tgUpdateTax btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_Inv ~
-end_inv end_date begin_date cProcessStatus 
+end_inv end_date begin_date tgUpdateTax cProcessStatus 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -123,6 +124,11 @@ DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 101 BY 8.76.
 
+DEFINE VARIABLE tgUpdateTax AS LOGICAL INITIAL no 
+     LABEL "Update Tax" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -139,6 +145,7 @@ DEFINE FRAME Dialog-Frame
           "Enter Beginning Date Number" WIDGET-ID 112
      end_date AT ROW 6.05 COL 71 COLON-ALIGNED HELP
           "Enter Beginning Date Number" WIDGET-ID 114     
+     tgUpdateTax AT ROW 7.67 COL 30 WIDGET-ID 116
      btn-ok AT ROW 10.57 COL 30.2 WIDGET-ID 14
      btn-cancel AT ROW 10.57 COL 60.4 WIDGET-ID 12
      cProcessStatus AT ROW 11.87 COL 10.2 NO-LABEL WIDGET-ID 18
@@ -411,10 +418,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_cust-no end_cust-no begin_Inv end_inv end_date begin_date cProcessStatus
+  DISPLAY begin_cust-no end_cust-no begin_Inv end_inv end_date begin_date 
+          tgUpdateTax cProcessStatus 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-7 begin_cust-no end_cust-no begin_Inv end_inv end_date begin_date 
-         btn-ok btn-cancel  
+         tgUpdateTax btn-ok btn-cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -450,6 +458,7 @@ PROCEDURE run-process :
                                         begin_cust-no,
                                         end_cust-no,
                                         date(TODAY),
+                                        INPUT tgUpdateTax:CHECKED, /* Update Tax */
                                         OUTPUT iCountProcess,
                                         OUTPUT iCountValid,
                                         OUTPUT iCountPost,

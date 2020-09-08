@@ -10,6 +10,7 @@
     Created     : Tue Jun 07 07:33:22 EDT 2019
     Notes       :
   ----------------------------------------------------------------------*/
+USING System.SharedConfig.
 
 DEFINE INPUT  PARAMETER ipcAPIOutboundID AS INTEGER   NO-UNDO.
 DEFINE INPUT  PARAMETER iplcRequestData  AS LONGCHAR  NO-UNDO.
@@ -47,10 +48,17 @@ DEFINE VARIABLE gcSuccess         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glAPIConfigFound  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE gcParentProgram   AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE lSuccess             AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAPIOutboundTestMode AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE scInstance           AS CLASS System.SharedConfig NO-UNDO. 
 DEFINE VARIABLE hdFTPProcs AS HANDLE    NO-UNDO.
-DEFINE VARIABLE lSuccess   AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
 
+ASSIGN 
+    scInstance           = SharedConfig:instance
+    lAPIOutboundTestMode = LOGICAL(scInstance:GetValue("APIOutboundTestMode")) NO-ERROR
+    .
+    
 ASSIGN
     gcParentProgram = ipcParentProgram
     glcRequestData  = iplcRequestData
@@ -59,7 +67,8 @@ ASSIGN
 
 FOR FIRST APIOutbound NO-LOCK
     WHERE APIOutbound.apiOutboundID EQ ipcAPIOutboundID 
-      AND APIOutbound.Inactive      EQ FALSE:
+      AND (lAPIOutboundTestMode OR 
+           APIOutbound.Inactive EQ FALSE):
     ASSIGN
         gcUserName         = APIOutbound.username
         gcPassword         = APIOutbound.password

@@ -10,6 +10,8 @@
     Created     : Tue Jun 07 07:33:22 EDT 2019
     Notes       :
   ----------------------------------------------------------------------*/
+USING System.SharedConfig.
+
 {api/ttArgs.i}
 
 DEFINE INPUT  PARAMETER TABLE                   FOR ttArgs.
@@ -19,11 +21,19 @@ DEFINE OUTPUT PARAMETER oplcRequestData         AS LONGCHAR  NO-UNDO.
 DEFINE OUTPUT PARAMETER oplSuccess              AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage              AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE scInstance           AS CLASS system.SharedConfig NO-UNDO.
+DEFINE VARIABLE lAPIOutboundTestMode AS LOGICAL                   NO-UNDO.
+
+ASSIGN 
+    scInstance        = SharedConfig:instance
+    lAPIOutboundTestMode = LOGICAL(scInstance:GetValue("APIOutboundTestMode"))NO-ERROR
+    .
+    
 FIND FIRST APIOutbound NO-LOCK
      WHERE APIOutbound.apiOutboundID EQ ipiAPIOutboundID
      NO-ERROR.
 IF AVAILABLE APIOutbound AND 
-   NOT APIOutbound.Inactive THEN DO:           
+   (lAPIOutboundTestMode OR NOT APIOutbound.Inactive)THEN DO:           
     oplcRequestData = APIOutbound.requestData.
     /* Transform Request Data */
     RUN pPrepareRequest (

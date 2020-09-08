@@ -1,3 +1,5 @@
+USING System.SharedConfig.
+
 DEFINE INPUT  PARAMETER iplReTrigger        AS LOGICAL   NO-UNDO.
 DEFINE INPUT  PARAMETER ipiOutboundEventID  AS INTEGER   NO-UNDO.
 DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
@@ -15,10 +17,17 @@ DEFINE INPUT  PARAMETER ipcMessage          AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcDateTime         AS DATETIME  NO-UNDO.
 DEFINE OUTPUT PARAMETER opiOutboundEventID  AS INTEGER   NO-UNDO.
 
-DEFINE VARIABLE lcNotes        AS LONGCHAR  NO-UNDO.
-DEFINE VARIABLE lSuccess       AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-DEFINE VARIABLE gcRequestFile  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lcNotes              AS LONGCHAR  NO-UNDO.
+DEFINE VARIABLE lSuccess             AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcRequestFile        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAPIOutboundTestMode AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE scInstance           AS CLASS System.SharedConfig NO-UNDO. 
+
+ASSIGN 
+    scInstance           = SharedConfig:instance
+    lAPIOutboundTestMode = LOGICAL(scInstance:GetValue("APIOutboundTestMode")) NO-ERROR
+    .
 
 FIND FIRST APIOutboundEvent EXCLUSIVE-LOCK
      WHERE APIOutboundEvent.apiOutboundEventID EQ ipiOutboundEventID
@@ -76,3 +85,4 @@ ELSE DO:
 END.
 
 opiOutboundEventID = APIOutboundEvent.apiOutboundEventID.
+
