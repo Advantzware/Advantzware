@@ -1035,7 +1035,7 @@ PROCEDURE pFieldValidations :
        NOT saveFile:CHECKED THEN DO:
         ASSIGN
             oplSuccess = FALSE            
-            opcMessage =  "Save file option need to enabled for 'FTP', 'SFTP' and 'SAVE' request types"
+            opcMessage = "Save file option need to enabled for 'FTP', 'SFTP' and 'SAVE' request types"
             .
         RETURN.
     END.
@@ -1044,7 +1044,7 @@ PROCEDURE pFieldValidations :
         IF saveFileFolder:SCREEN-VALUE EQ "" THEN DO:
             ASSIGN
                 oplSuccess = FALSE            
-                opcMessage =  "File location cannot be empty"
+                opcMessage = "File location cannot be empty"
                 .
             RETURN.
         END.    
