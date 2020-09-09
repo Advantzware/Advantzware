@@ -1795,11 +1795,8 @@ PROCEDURE pBuildProbe PRIVATE:
             
             ASSIGN 
                 bf-probe.gsh-qty = bf-probe.gsh-qty + estCostForm.grossQtyRequiredTotal
-                .
-            /*.tot-lbs is actually the MSF field but only for corrugated*/
-            IF ipbf-estCostHeader.industry EQ gcIndustryCorrugated THEN 
-                bf-probe.tot-lbs  = bf-probe.tot-lbs + estCostForm.grossQtyRequiredTotalArea * 1000. //Refactor - assumes Area is MSF
-                
+                bf-probe.gshQtyInSF = bf-probe.gshQtyInSF + (estCostForm.grossQtyRequiredTotalArea * 1000 )
+                .                  
         END.    
         FOR EACH estCostBlank NO-LOCK 
             WHERE estCostBlank.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
