@@ -7,7 +7,7 @@
 &SCOPED-DEFINE Fleetwood ASI/Fleetwood
 /* add new fields to procedures loadUserFieldLabelWidth & setUseFields below */
 /* add userField to rptFields.dat, see config.w definitions section to enable field */
-&SCOPED-DEFINE nextUserField 110
+&SCOPED-DEFINE nextUserField 111
 
 /* when expanding userFields mod the following:
    1. scopDir.i (userExtent)
@@ -1111,6 +1111,7 @@ FOR EACH job-hdr NO-LOCK
       userField[104] = setUserField(104,job-mch.job-no + '-' + STRING(job-mch.job-no2,'99'))
       userField[105] = setUserField(105,STRING(timeSpan / 3600,">>,>>9.99"))
       userField[107] = setUserField(107,STRING(job-hdr.qty,'>>,>>>,>>9'))
+      userField[110] = setUserField(110,STRING(job.promiseDate,'99/99/9999'))
       jobDescription = jobText
       .
     IF AVAILABLE itemfg AND NOT job-mch.run-qty * itemfg.t-sqft / 1000 LT 1000000 THEN
@@ -1941,6 +1942,7 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[107] = 'Job Qty'           userWidth[107] = 12
     userLabel[108] = 'Score (on Width)'  userWidth[108] = 24
     userLabel[109] = 'Score (on Length)' userWidth[109] = 24
+    userLabel[110] = 'Promise Date'      userWidth[110] = 15
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */
@@ -2007,7 +2009,7 @@ PROCEDURE setUseFields:
     ufIPJobMatField = useField[29] OR useField[30] OR useField[31] OR useField[32] OR useField[33]
     ufIPJobSet = useField[65] OR useField[66] OR useField[67] OR useField[68]
     ufItemFG = useField[21] OR useField[34] OR useField[52] OR useField[54] OR useField[64] OR useField[98] OR useField[99]
-    ufJob = useField[89] OR useField[107]
+    ufJob = useField[89] OR useField[107] OR useField[110]
     ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20] OR useField[85] OR useField[88] OR
                useField[96] OR useField[97] OR useField[100] OR useField[101] OR useField[104] OR useField[105]
     ufOEOrdl = useField[82] OR useField[84] OR useField[86] OR useField[87]
