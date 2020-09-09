@@ -52,9 +52,9 @@ DEFINE TEMP-TABLE ttSalesReport NO-UNDO
     FIELD ordType           AS CHARACTER FORMAT "x(10)" LABEL "Order Type"
     FIELD ordLine           AS INTEGER   FORMAT ">>>" LABEL "Order Line"
     FIELD ordEstNo          AS CHARACTER FORMAT "x(8)" LABEL "Estimate Number"
-    FIELD ordDate           AS DATE      FORMAT "99/99/9999" LABEL "Order Date"    
+    FIELD ordDate           AS CHARACTER FORMAT "99/99/9999" LABEL "Order Date"    
     FIELD invNo             AS INTEGER   FORMAT ">>>>>>>9" LABEL "Invoice#"
-    FIELD invDate           AS DATE      FORMAT "99/99/9999" LABEL "Invoice Date"
+    FIELD invDate           AS CHARACTER FORMAT "99/99/9999" LABEL "Invoice Date"
     FIELD invItemNo         AS CHARACTER FORMAT "x(15)" LABEL "Item Number"
     FIELD invQtyUom         AS CHARACTER FORMAT "x(3)" LABEL "Quantity UOM"
     FIELD invQtyShip        AS DECIMAL   FORMAT "->>,>>>,>>>,>>9.99" LABEL "Quantity Shipped"
@@ -73,8 +73,8 @@ DEFINE TEMP-TABLE ttSalesReport NO-UNDO
     FIELD invBolNo          AS INTEGER   FORMAT ">>>>>>>>9" LABEL "BOL Number"
     FIELD invCustPoNO       AS CHARACTER FORMAT "x(15)" LABEL "Customer PO Number"
     FIELD invAmtDue         AS DECIMAL   FORMAT "->>,>>>,>>>,>>9.99" LABEL "Current Amount Due"
-    FIELD invPaidDate       AS DATE      FORMAT "99/99/9999" LABEL "Paid Date"
-    FIELD invLastPayDate    AS DATE      FORMAT "99/99/9999" LABEL "Last Payment Date"
+    FIELD invPaidDate       AS CHARACTER FORMAT "99/99/9999" LABEL "Paid Date"
+    FIELD invLastPayDate    AS CHARACTER FORMAT "99/99/9999" LABEL "Last Payment Date"
     FIELD invPayCheckNo     AS CHARACTER FORMAT "x(30)" LABEL "Last Payment Check Number"
     FIELD invGLAccount      AS CHARACTER FORMAT "x(20)" LABEL "GL Account Number"
     FIELD invGLPeriod       AS INTEGER   FORMAT ">>>" LABEL "GL Period"
@@ -93,8 +93,8 @@ DEFINE TEMP-TABLE ttSalesReport NO-UNDO
     FIELD jobForm           AS INTEGER   FORMAT ">>9" LABEL "Form"
     FIELD jobBlank          AS INTEGER   FORMAT ">>9" LABEL "Blank"
     FIELD jobColor          AS INTEGER   FORMAT ">>>9" LABEL "Colors"
-    FIELD jobShipDate       AS DATE      FORMAT "99/99/9999" LABEL "Ship Date"
-    FIELD jobPostDate       AS DATE      FORMAT "99/99/9999" LABEL "Post Date"    
+    FIELD jobShipDate       AS CHARACTER FORMAT "99/99/9999" LABEL "Ship Date"
+    FIELD jobPostDate       AS CHARACTER FORMAT "99/99/9999" LABEL "Post Date"    
     FIELD SalesManager      AS CHARACTER FORMAT "x(15)" LABEL "Sales Manager"
     FIELD SalesGroupName    AS CHARACTER FORMAT "x(15)" LABEL "Salesgroup Name"    
     FIELD profit            AS DECIMAL   FORMAT "->>,>>>,>>>,>>9.99" LABEL "Profit $ "
@@ -545,9 +545,9 @@ PROCEDURE pBusinessLogic:
                 ttSalesReport.ordType            = IF AVAILABLE oe-ord THEN oe-ord.type ELSE "" 
                 ttSalesReport.ordLine            = IF AVAILABLE oe-ordl THEN oe-ordl.LINE ELSE 0
                 ttSalesReport.ordEstNo           = IF AVAILABLE oe-ordl THEN oe-ordl.est-no ELSE "" 
-                ttSalesReport.ordDate            = IF AVAILABLE oe-ord THEN oe-ord.ord-date ELSE 01/01/0001             
+                ttSalesReport.ordDate            = IF AVAILABLE oe-ord AND oe-ord.ord-date NE ? THEN string(oe-ord.ord-date) ELSE ""             
                 ttSalesReport.invNo              = IF AVAILABLE ar-invl THEN ar-invl.inv-no ELSE 0 
-                ttSalesReport.invDate            = IF AVAILABLE ar-inv THEN ar-inv.inv-date ELSE 01/01/0001 
+                ttSalesReport.invDate            = IF AVAILABLE ar-inv AND ar-inv.inv-date NE ? THEN string(ar-inv.inv-date) ELSE "" 
                 ttSalesReport.invItemNo          = IF AVAILABLE ar-invl THEN ar-invl.i-no ELSE ""
                 ttSalesReport.invQtyUom          = IF AVAILABLE ar-invl THEN ar-invl.cons-uom ELSE "" 
                 ttSalesReport.invQtyShip         = iQtyShipped[1] 
@@ -566,8 +566,8 @@ PROCEDURE pBusinessLogic:
                 ttSalesReport.invBolNo           = IF AVAILABLE ar-invl THEN ar-invl.bol-no ELSE 0        
                 ttSalesReport.invCustPoNO        = IF AVAILABLE ar-invl THEN ar-invl.po-no ELSE "" 
                 ttSalesReport.invAmtDue          = IF AVAILABLE ar-inv THEN ar-inv.due ELSE 0
-                ttSalesReport.invPaidDate        = IF AVAILABLE ar-inv THEN ar-inv.pay-date ELSE 01/01/0001
-                ttSalesReport.invLastPayDate     = dtCheckDate
+                ttSalesReport.invPaidDate        = IF AVAILABLE ar-inv AND ar-inv.pay-date NE ? THEN string(ar-inv.pay-date) ELSE ""
+                ttSalesReport.invLastPayDate     = IF dtCheckDate NE ? THEN string(dtCheckDate) ELSE ""
                 ttSalesReport.invPayCheckNo      = IF AVAILABLE ar-inv THEN STRING(ar-inv.check-no) ELSE ""  
                 ttSalesReport.invGLAccount       = IF AVAILABLE ar-invl THEN ar-invl.actnum ELSE ""                 
                 ttSalesReport.invFreightAmt      = IF AVAILABLE ar-inv THEN ar-inv.freight ELSE 0 
