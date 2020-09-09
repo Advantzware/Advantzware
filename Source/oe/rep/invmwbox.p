@@ -86,7 +86,9 @@ def var v-bot-lab    as   char format "x(63)" extent 3 NO-UNDO.
 DEF VAR v-lines AS INT NO-UNDO.
 DEF VAR v-inv-freight LIKE inv-head.t-inv-freight NO-UNDO.
 DEF VAR v-frt-tax AS DEC NO-UNDO.
-DEFINE VARIABLE iCasesShip LIKE oe-boll.cases NO-UNDO.
+DEFINE VARIABLE iQtyCasesShip LIKE oe-boll.cases NO-UNDO.
+DEFINE VARIABLE iCases LIKE oe-boll.cases NO-UNDO.
+DEFINE VARIABLE dExtPrice AS DECIMAL NO-UNDO.
 
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
@@ -348,7 +350,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
           assign v-case-line = ""
                  v-part-line = ""
                  v-case-cnt = ""
-                 iCasesShip = 0.
+                 iQtyCasesShip = 0.
 
           v-pc = "P". /* partial*/ 
           for each oe-boll no-lock where oe-boll.company = inv-line.company
@@ -361,7 +363,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
             assign v-case-line = string(oe-boll.cases) + " @ " +
                                      string(oe-boll.qty-case).
             else assign v-case-line = "".
-            iCasesShip = iCasesShip + oe-boll.cases.
+            iQtyCasesShip = iQtyCasesShip + oe-boll.qty-case.
             if oe-boll.partial ne 0 then
             assign v-part-line = "1" + " @ " + string(oe-boll.partial).
             else assign v-part-line = "".
@@ -409,7 +411,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
                    v-i-dscr = inv-line.i-name
                    v-price = inv-line.price * (1 - (inv-line.disc / 100))
                    v-t-price = inv-line.t-price
-                   v-subtot-lines = v-subtot-lines + inv-line.t-price.
+                  .
 
 
                 if inv-line.tax and avail stax then
@@ -438,17 +440,30 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
             ASSIGN v-po-no  = inv-line.po-no
                    v-ord-no = inv-line.ord-no
                    v-price-head = inv-line.pr-uom.
+                   
+           IF inv-line.pr-uom EQ "CS" THEN
+           DO:             
+            iCases =  ROUND(v-inv-qty / MAX(1,iQtyCasesShip),0) .
+            dExtPrice = iCases * v-price . 
+           END.
+           ELSE 
+            ASSIGN
+               iCases    = 0
+               dExtPrice = 0. 
+            
+             v-subtot-lines = v-subtot-lines + ( IF inv-line.pr-uom EQ "CS" THEN dExtPrice ELSE inv-line.t-price) .
+                     
 
             PUT space(1)
                 v-po-no 
                 /*v-i-dscr  format "x(25)" SPACE(1)
                 v-inv-qty format "->>>>>9" SPACE(1) */ 
                 inv-line.part-no SPACE(17)
-                (IF inv-line.pr-uom EQ "CS" THEN iCasesShip ELSE  v-ship-qty ) format "->>>>>9" SPACE(1)
+                (IF inv-line.pr-uom EQ "CS" THEN iCases ELSE v-ship-qty)  format "->>>>>9" SPACE(1)
               /*  v-bo-qty  format "->>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1) */ space(15)      
                 v-price  format ">>>,>>9.9999"                
-                inv-line.t-price  format "->>>,>>9.99"                
+                (IF inv-line.pr-uom EQ "CS" THEN dExtPrice ELSE inv-line.t-price)   format "->>>,>>9.99"                
                 SKIP
                 v-ord-no SPACE(10)
                 /*inv-line.part-dscr1 space(19) */
