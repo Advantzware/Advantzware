@@ -633,7 +633,7 @@ PROCEDURE triggerID:
            /* List of fields for which sorting is enabled */
            INPUT "triggerID",
            /* Where clause to select specific records */
-           INPUT "APIOutboundTrigger.company EQ '" + ipcCompany + "'" ,
+           INPUT "APIOutboundTrigger.company EQ '" + ipcCompany + "'" + " AND APIOutboundTrigger.apiOutboundID GE 5000",
            /* List of fields for which the value is required to be returned when a row is selected in the browse */
            INPUT "triggerID,apiID,clientID",
            /* Max record limit to prevent run away query */
