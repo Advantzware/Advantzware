@@ -1418,8 +1418,8 @@ PROCEDURE validateParameters :
     
     /* check if table input parameter is valid */
     FIND FIRST ASI._file NO-LOCK
-         WHERE ASI._file._file-name = ip-table AND
-               ASI._file._Tbl-Type  = "T" NO-ERROR.
+         WHERE ASI._file._file-name = ip-table
+         NO-ERROR.
     IF NOT AVAILABLE ASI._file THEN DO:
         MESSAGE "Incorrect DB table " + ip-table + " passed as input parameter"
             VIEW-AS ALERT-BOX.
