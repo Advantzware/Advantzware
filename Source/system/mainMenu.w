@@ -1555,7 +1555,7 @@ PROCEDURE pCheckUpgradeAdvantzware :
             OUTPUT cHelpService,OUTPUT lFound
             ).
         RUN sys/ref/nk1look.p (
-            g_company,"MenuLinkUpgrade","C",NO,NO,"","",
+            g_company,"MenuLinkUpgrade","DS",NO,NO,"","",
             OUTPUT upgradeLink, OUTPUT lFound
             ).
         IF upgradeLink EQ "" THEN ASSIGN 
