@@ -1050,7 +1050,7 @@ PROCEDURE copyOrder :
 
   b-oe-ord.ord-no = li-next-ordno.
   li-next-ordno = b-oe-ord.ord-no.
-  BUFFER-COPY oe-ord EXCEPT rec_key job-no job-no2 ord-no po-no2 company TO b-oe-ord.
+  BUFFER-COPY oe-ord EXCEPT rec_key job-no job-no2 ord-no po-no2 company upd-time TO b-oe-ord.
   b-oe-ord.company = ipToCompany.
   
   FIND FIRST b-cust-c WHERE b-cust-c.company = b-oe-ord.company
