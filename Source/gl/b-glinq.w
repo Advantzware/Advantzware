@@ -215,12 +215,12 @@ DEFINE VARIABLE iRunTo AS INTEGER FORMAT ">>>>>>9":U INITIAL 0
      SIZE 11 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE lv-close-bal AS DECIMAL FORMAT "->>>,>>>,>>9.99":U INITIAL 0 
+DEFINE VARIABLE lv-close-bal AS DECIMAL FORMAT "->>,>>>,>>>,>>9.99":U INITIAL 0 
      LABEL "Total Credits" 
      VIEW-AS FILL-IN 
      SIZE 24 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-open-bal AS DECIMAL FORMAT "->>>,>>>,>>9.99":U INITIAL 0 
+DEFINE VARIABLE lv-open-bal AS DECIMAL FORMAT "->>,>>>,>>>,>>9.99":U INITIAL 0 
      LABEL "Total Debits" 
      VIEW-AS FILL-IN 
      SIZE 23.8 BY 1 NO-UNDO.
@@ -1093,13 +1093,8 @@ PROCEDURE build-inquiry :
            lv-close-bal = lv-close-bal + (gltran.tr-amt * - 1).
 
       IF LENGTH(gltran.tr-dscr) GT v-max-dscr-length THEN
-         v-max-dscr-length = LENGTH(gltran.tr-dscr).
-         
-      IF begin_acct EQ "" THEN
-      ASSIGN
-          lv-open-bal = 0
-          lv-close-bal = 0.
-      
+         v-max-dscr-length = LENGTH(gltran.tr-dscr).           
+           
   end.
  
 END PROCEDURE.
@@ -1138,6 +1133,27 @@ PROCEDURE get-fields :
   ASSIGN
    op-company = g_company
    op-tr-num  = IF AVAIL tt-glinq THEN tt-glinq.tr-num ELSE 0.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-account B-table-Win 
+PROCEDURE get-account :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF OUTPUT PARAM op-company LIKE glhist.company NO-UNDO.
+  DEF OUTPUT PARAM op-act-num  LIKE glhist.actnum  NO-UNDO.
+  DEF OUTPUT PARAM op-year  AS INTEGER  NO-UNDO.
+
+  ASSIGN
+   op-company = g_company
+   op-act-num  = begin_acct
+   op-year = lv-year.
 
 END PROCEDURE.
 
