@@ -4733,6 +4733,10 @@ PROCEDURE pGetDBTables :
     DO idx = 1 TO NUM-ENTRIES(cDBList):
         CREATE ALIAS "dictdb" FOR DATABASE VALUE(ENTRY(idx,cDBList)).
         RUN nosweat/tables.p (OUTPUT cTableName, OUTPUT cTableDscr).
+        ASSIGN
+            cTableName = cTableName + ",_file,_field"
+            cTableDscr = cTableDscr + ",VST File,VST Field"
+            .
         IF cTableDscr EQ "" OR cTableDscr EQ ? THEN
         cTableDscr = cTableName.
         DO jdx = 1 TO NUM-ENTRIES(cTableName):

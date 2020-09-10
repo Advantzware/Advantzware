@@ -144,6 +144,13 @@ PROCEDURE dynInitSecure:
     RETURN "NO".
 END PROCEDURE.
 
+PROCEDURE dynInitTableRecID:
+    DEFINE VARIABLE cTableRecID AS CHARACTER NO-UNDO.
+    
+    RUN spGetSessionParam ("TableRecID", OUTPUT cTableRecID).
+    RETURN cTableRecID.
+END PROCEDURE.
+
 PROCEDURE dynInitUser:
     RETURN USERID("ASI").
 END PROCEDURE.

@@ -450,6 +450,37 @@ PROCEDURE dynValStyle:
         ).
 END PROCEDURE.
 
+PROCEDURE dynValTableField:
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE  NO-UNDO.
+    
+    DEFINE VARIABLE cTableRecID AS CHARACTER NO-UNDO.
+    
+    IF iphWidget:SCREEN-VALUE EQ "" THEN RETURN "".
+    RUN spGetSessionParam ("TableRecID", OUTPUT cTableRecID).
+    {&checkRange}
+        CAN-FIND(FIRST ASI._field NO-LOCK
+                 WHERE ASI._field._file-recid EQ INTEGER(cTableRecID)
+                   AND ASI._field._field-name EQ iphWidget:SCREEN-VALUE)
+        ).
+END PROCEDURE.
+
+PROCEDURE dynValTableRecID:
+    DEFINE INPUT PARAMETER iphWidget AS HANDLE  NO-UNDO.
+    
+    IF iphWidget:SCREEN-VALUE EQ "" THEN RETURN "".
+    FIND FIRST ASI._file NO-LOCK
+         WHERE ASI._file._file-name EQ iphWidget:SCREEN-VALUE
+         NO-ERROR.
+    IF AVAILABLE ASI._file THEN DO:
+        RUN spSetSessionParam ("TableRecID", STRING(RECID(ASI._file))).
+        RETURN "".
+    END. /* if avail */
+    ELSE DO:
+        RUN spSetSessionParam ("TableRecID", "").
+        RUN dynValReturn (iphWidget, NO).
+    END. /* else */
+END PROCEDURE.
+
 PROCEDURE dynValTerms:
     {&defInputParam}
     {&checkRange}
