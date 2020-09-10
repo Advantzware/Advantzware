@@ -533,7 +533,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/shipto.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = Yes':U ,
              OUTPUT h_shipto-2 ).
        /* Position in AB:  ( 4.57 , 5.00 ) */
        RUN set-position IN h_shipto-2 ( 4.57 , 5.00 ) NO-ERROR.
