@@ -81,6 +81,7 @@ DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-glinvl AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_b-glbal AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -101,7 +102,7 @@ DEFINE FRAME OPTIONS-FRAME
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 68 ROW 2.91
+         AT COL 88 ROW 2.91
          SIZE 83 BY 1.43
          BGCOLOR 15 .
 
@@ -299,7 +300,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'GL Inquiry|GL Run Detail|Invoices' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'GL Inquiry|GL Run Detail|Period Bal|Invoices' + ',
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
@@ -359,6 +360,25 @@ PROCEDURE adm-create-objects :
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'gl/b-glbal.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_b-glbal ).
+       RUN set-position IN h_b-glbal ( 4.57 , 3.00 ) NO-ERROR.
+       RUN set-size IN h_b-glbal ( 20.00 , 164.00 ) NO-ERROR.
+
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+
+       /* Links to SmartBrowser h_b-glrun. */
+       RUN add-link IN adm-broker-hdl ( h_b-glinq , 'bal-no':U , h_b-glbal ).
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-glbal ,
+             h_folder , 'AFTER':U ).
+    END. /* Page 3 */
+    WHEN 4 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'gl/w-glinvl.w':U ,
              INPUT  {&WINDOW-NAME} ,
              INPUT  'Layout = ':U ,
@@ -374,7 +394,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'quote':U , h_w-glinvl ).
 
        /* Adjust the tab order of the smart objects. */
-    END. /* Page 3 */
+    END. /* Page 4 */
 
   END CASE.
   /* Select a Startup page. */
@@ -481,6 +501,12 @@ PROCEDURE local-change-page :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
+  
+   IF li-cur-page EQ 3 THEN
+   DO:
+     RUN local-open-query IN h_b-glbal .
+       
+   END.
 
   /* Code placed here will execute AFTER standard behavior.    */
   
