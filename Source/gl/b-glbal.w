@@ -423,8 +423,7 @@ PROCEDURE build-inquiry :
                     ELSE dPeriodAccBalance = account.lyr[iCount] .
                 END.
                 ELSE 
-                DO: 
-                 
+                DO:                   
                     FOR EACH glhist NO-LOCK
                         WHERE glhist.company EQ cCompany
                         AND glhist.actnum  EQ account.actnum
@@ -441,9 +440,7 @@ PROCEDURE build-inquiry :
                         AND gltrans.tr-date LE period.pend :
                        
                         dPeriodAccBalance = dPeriodAccBalance + gltrans.tr-amt.
-                    END.
-                 
-                 
+                    END.                   
                 END.
                 
                 dTotalAccBalance = dTotalAccBalance + dPeriodAccBalance.
@@ -456,22 +453,10 @@ PROCEDURE build-inquiry :
                     ttGlAccBalance.perRange   = STRING(period.pst) + " - " + STRING(period.pend) 
                     ttGlAccBalance.perChange  = dPeriodAccBalance
                     ttGlAccBalance.endBalance = dTotalAccBalance 
-                    ttGlAccBalance.cStatus    = IF period.pstat EQ TRUE THEN "Open" ELSE "Close" . 
-               
-                   
+                    ttGlAccBalance.cStatus    = IF period.pstat EQ TRUE THEN "Open" ELSE "Close" .                   
             END.
-       
-              
-           
-                      
-           
         END.
-           
-           
-    END.
-       
-       
-  
+    END.    
   
 END PROCEDURE.
 
