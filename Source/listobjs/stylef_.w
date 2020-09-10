@@ -787,7 +787,8 @@ PROCEDURE run-report :
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE idx AS INTEGER NO-UNDO.
   DEFINE VARIABLE imageFound AS LOGICAL NO-UNDO.
-
+  DEFINE VARIABLE iLineCount AS INTEGER NO-UNDO.
+  
   {sys/form/r-top.f}
 
   ASSIGN str-tit2 = c-win:TITLE
@@ -829,6 +830,7 @@ PROCEDURE run-report :
       style.design-no
       box-design-hdr.box-image WHEN AVAIL(box-design-hdr) FORMAT 'X(55)'
         COLUMN-LABEL 'Image File'.
+      iLineCount = iLineCount + 15.  
     /* DOWN.
     DISPLAY box-design-hdr.box-3d-image
         WHEN AVAIL(box-design-hdr) @ box-design-hdr.box-image. */
@@ -838,11 +840,12 @@ PROCEDURE run-report :
       imageFound = YES.
       PUT UNFORMATTED '<#1><C1><FROM><C80><R+20><RECT><||3>'  SKIP
                       '<=1><R+2><C2><#1><R+17><C+78><IMAGE#1=' box-design-hdr.box-image '>' SKIP.
+      iLineCount = iLineCount + 20.                
     END.
     IF printScore THEN DO:
       RUN buildScore (style.style).
       FOR EACH score NO-LOCK BREAK BY score.flute WITH STREAM-IO WIDTH 100 NO-BOX:
-        IF FIRST-OF(score.flute) THEN
+        IF FIRST-OF(score.flute) THEN do:
         DISPLAY
           score.flute LABEL 'Flute'
           fluteValue(style.style,score.flute,'1',13) FORMAT '9.99' LABEL 'Joint Tab Width'
@@ -850,6 +853,15 @@ PROCEDURE run-report :
           style.dim-pan5 FORMAT '9.99' WHEN style.dim-pan5 NE 0
           style.dim-fit FORMAT '9.99' LABEL 'Lock Tab' WHEN style.dim-fit NE 0
             WITH FRAME flute STREAM-IO WIDTH 100 SIDE-LABELS.
+          iLineCount = iLineCount + 1.  
+        END.    
+            
+        IF iLineCount GE 59   THEN DO:
+            PAGE.     
+            imageFound = NO.
+            iLineCount = 0.
+        END. /* page check */    
+            
         DISPLAY
           score.panelLabel NO-LABEL
           score.panel
@@ -866,14 +878,20 @@ PROCEDURE run-report :
           score.score[11] LABEL '11' WHEN score.score[11] NE 0
           score.score[12] LABEL '12' WHEN score.score[12] NE 0
           score.score[13] LABEL '13' WHEN score.score[13] NE 0.
-        IF LAST-OF(score.flute) AND PAGE-SIZE - 7 LT LINE-COUNTER +
-          (IF printDesign AND imageFound THEN 20 ELSE 0) THEN DO:
-            PAGE.
+          iLineCount = iLineCount + 1.
+        IF iLineCount GE 59   THEN DO:
+            PAGE.     
             imageFound = NO.
+            iLineCount = 0.
         END. /* page check */
+        
       END. /* each score */
     END. /* if printscore */
-    IF printDesign OR printScore THEN PAGE.
+    IF printDesign OR printScore THEN
+    DO:
+        PAGE.
+        iLineCount = 0.
+    END.
   END. /* each style */
   SESSION:SET-WAIT-STATE ('').
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
