@@ -845,7 +845,7 @@ PROCEDURE run-report :
     IF printScore THEN DO:
       RUN buildScore (style.style).
       FOR EACH score NO-LOCK BREAK BY score.flute WITH STREAM-IO WIDTH 100 NO-BOX:
-        IF FIRST-OF(score.flute) THEN
+        IF FIRST-OF(score.flute) THEN do:
         DISPLAY
           score.flute LABEL 'Flute'
           fluteValue(style.style,score.flute,'1',13) FORMAT '9.99' LABEL 'Joint Tab Width'
@@ -853,6 +853,8 @@ PROCEDURE run-report :
           style.dim-pan5 FORMAT '9.99' WHEN style.dim-pan5 NE 0
           style.dim-fit FORMAT '9.99' LABEL 'Lock Tab' WHEN style.dim-fit NE 0
             WITH FRAME flute STREAM-IO WIDTH 100 SIDE-LABELS.
+          iLineCount = iLineCount + 1.  
+        END.    
             
         IF iLineCount GE 59   THEN DO:
             PAGE.     
