@@ -308,7 +308,7 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         "<=RoutingStart><C+61><R+9><#RoutingEnd>"
         "<=BoxImageStart><C+61><#BoxImageTR>"
         "<=BoxImageStart><R+29><#BoxImageBL>"
-        "<=BoxImageStart><C+61><R+28><#BoxImageEnd>"
+        "<=BoxImageStart><C+61><R+27><#BoxImageEnd>"
         .
          
                 
@@ -803,7 +803,8 @@ PUT  "<=NotesStart><FROM><C108><LINE><|1>"
     "<=SpecNotes2>" v-spec-note[5] FORMAT "x(100)" SKIP
     "<=SpecNotes3>" v-spec-note[6] FORMAT "x(100)"  SKIP*/
     .
-v-shipto = IF AVAILABLE xoe-rel THEN xoe-rel.ship-id 
+v-shipto = IF AVAILABLE xoe-ord THEN xoe-ord.ship-id
+ELSE IF AVAILABLE xoe-rel THEN xoe-rel.ship-id 
 ELSE IF AVAILABLE xeb THEN xeb.ship-id
 ELSE IF AVAILABLE xoe-ord THEN xoe-ord.sold-id 
 ELSE "".
