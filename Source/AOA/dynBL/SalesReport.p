@@ -98,7 +98,7 @@ DEFINE TEMP-TABLE ttSalesReport NO-UNDO
     FIELD SalesManager      AS CHARACTER FORMAT "x(15)" LABEL "Sales Manager"
     FIELD SalesGroupName    AS CHARACTER FORMAT "x(15)" LABEL "Salesgroup Name"    
     FIELD profit            AS DECIMAL   FORMAT "->>,>>>,>>>,>>9.99" LABEL "Profit $ "
-    FIELD profitPer         AS DECIMAL   FORMAT "->>>9.99" LABEL "Profit % "        
+    FIELD profitPer         AS DECIMAL   FORMAT "->>>,>>9.99" LABEL "Profit % "        
     FIELD CostStdFreight    AS DECIMAL   FORMAT "->>,>>>,>>>,>>9.99" LABEL "Std Freight Cost"        
     FIELD CostStdWarehouse  AS DECIMAL   FORMAT "->>,>>>,>>>,>>9.99" LABEL "Std Warehouse Cost"              
     FIELD costStdDeviation  AS DECIMAL   FORMAT "->>,>>>,>>>,>>9.99" LABEL "Std Deviation Cost" 
@@ -524,11 +524,11 @@ PROCEDURE pBusinessLogic:
                 ttSalesReport.invSman       = tt-report.key-06             
                 ttSalesReport.custPartNo    = IF AVAILABLE itemfg THEN itemfg.part-no ELSE ""
                 ttSalesReport.proCat        = IF AVAILABLE itemfg THEN itemfg.procat ELSE ""
-                ttSalesReport.itemUnitPrice = IF AVAILABLE itemfg THEN itemfg.sell-price ELSE 0
+                ttSalesReport.itemUnitPrice = IF AVAILABLE itemfg AND itemfg.sell-price NE ? THEN itemfg.sell-price ELSE 0
                 ttSalesReport.itemSqFt      = dFGItemSqft 
-                ttSalesReport.itemCost      = IF AVAILABLE itemfg THEN itemfg.total-std-cost ELSE 0
+                ttSalesReport.itemCost      = IF AVAILABLE itemfg AND itemfg.total-std-cost NE ? THEN itemfg.total-std-cost ELSE 0
                 ttSalesReport.itemStyle     = IF AVAILABLE itemfg THEN itemfg.style ELSE ""         
-                ttSalesReport.itemWeight    = IF AVAILABLE ar-invl THEN ar-invl.t-weight ELSE 0 .
+                ttSalesReport.itemWeight    = IF AVAILABLE ar-invl AND ar-invl.t-weight NE ? THEN ar-invl.t-weight ELSE 0 .
         
             FIND FIRST oe-ordl NO-LOCK
                 WHERE oe-ordl.company EQ cocode
@@ -540,7 +540,7 @@ PROCEDURE pBusinessLogic:
                 AND oe-ord.ord-no EQ  iOrderNo  NO-ERROR .     
                 
             ASSIGN   
-                ttSalesReport.ordQty             = IF AVAILABLE oe-ordl THEN oe-ordl.qty ELSE 0 
+                ttSalesReport.ordQty             = IF AVAILABLE oe-ordl AND oe-ordl.qty NE ? THEN oe-ordl.qty ELSE 0 
                 ttSalesReport.ordOrderNo         = iOrderNo
                 ttSalesReport.ordType            = IF AVAILABLE oe-ord THEN oe-ord.type ELSE "" 
                 ttSalesReport.ordLine            = IF AVAILABLE oe-ordl THEN oe-ordl.LINE ELSE 0
@@ -551,7 +551,7 @@ PROCEDURE pBusinessLogic:
                 ttSalesReport.invItemNo          = IF AVAILABLE ar-invl THEN ar-invl.i-no ELSE ""
                 ttSalesReport.invQtyUom          = IF AVAILABLE ar-invl THEN ar-invl.cons-uom ELSE "" 
                 ttSalesReport.invQtyShip         = iQtyShipped[1] 
-                ttSalesReport.invQtyInv          = IF AVAILABLE ar-invl THEN ar-invl.inv-qty ELSE 0         
+                ttSalesReport.invQtyInv          = IF AVAILABLE ar-invl AND ar-invl.inv-qty NE ? THEN ar-invl.inv-qty ELSE 0         
                 ttSalesReport.invUnitPrice       = dUnitPrice  
                 ttSalesReport.invPriceUom        = cPriceUom 
                 ttSalesReport.invExtPrice        = dInvAmount
@@ -560,24 +560,24 @@ PROCEDURE pBusinessLogic:
                 ttSalesReport.invFob             = IF AVAILABLE ar-inv THEN ar-inv.fob-code ELSE ""         
                 ttSalesReport.invFrtPay          = IF AVAILABLE ar-inv THEN ar-inv.frt-pay ELSE "" 
                 ttSalesReport.invTaxGroup        = IF AVAILABLE ar-inv THEN ar-inv.tax-code ELSE ""
-                ttSalesReport.invTotCost         = IF AVAILABLE ar-invl THEN ar-invl.cost ELSE 0
-                ttSalesReport.invTotWeight       = IF AVAILABLE ar-invl THEN ar-invl.t-weight ELSE 0  
-                ttSalesReport.invDiscount        = IF AVAILABLE ar-inv THEN ar-inv.disc-taken ELSE 0 
+                ttSalesReport.invTotCost         = IF AVAILABLE ar-invl AND ar-invl.cost NE ? THEN ar-invl.cost ELSE 0
+                ttSalesReport.invTotWeight       = IF AVAILABLE ar-invl AND ar-invl.t-weight NE ? THEN ar-invl.t-weight ELSE 0  
+                ttSalesReport.invDiscount        = IF AVAILABLE ar-inv AND ar-inv.disc-taken NE ? THEN ar-inv.disc-taken ELSE 0 
                 ttSalesReport.invBolNo           = IF AVAILABLE ar-invl THEN ar-invl.bol-no ELSE 0        
                 ttSalesReport.invCustPoNO        = IF AVAILABLE ar-invl THEN ar-invl.po-no ELSE "" 
-                ttSalesReport.invAmtDue          = IF AVAILABLE ar-inv THEN ar-inv.due ELSE 0
+                ttSalesReport.invAmtDue          = IF AVAILABLE ar-inv AND ar-inv.due NE ? THEN ar-inv.due ELSE 0
                 ttSalesReport.invPaidDate        = IF AVAILABLE ar-inv AND ar-inv.pay-date NE ? THEN string(ar-inv.pay-date) ELSE ""
                 ttSalesReport.invLastPayDate     = IF dtCheckDate NE ? THEN string(dtCheckDate) ELSE ""
                 ttSalesReport.invPayCheckNo      = IF AVAILABLE ar-inv THEN STRING(ar-inv.check-no) ELSE ""  
                 ttSalesReport.invGLAccount       = IF AVAILABLE ar-invl THEN ar-invl.actnum ELSE ""                 
-                ttSalesReport.invFreightAmt      = IF AVAILABLE ar-inv THEN ar-inv.freight ELSE 0 
-                ttSalesReport.invTaxAmt          = IF AVAILABLE ar-inv THEN ar-inv.tax-amt ELSE 0         
+                ttSalesReport.invFreightAmt      = IF AVAILABLE ar-inv AND ar-inv.freight NE ? THEN ar-inv.freight ELSE 0 
+                ttSalesReport.invTaxAmt          = IF AVAILABLE ar-inv AND ar-inv.tax-amt NE ? THEN ar-inv.tax-amt ELSE 0         
                 ttSalesReport.invCurrCode        = IF AVAILABLE ar-inv THEN ar-inv.curr-code[1] ELSE ""
-                ttSalesReport.invCurrRate        = IF AVAILABLE ar-inv THEN ar-inv.ex-rate ELSE 0  
-                ttSalesReport.costStdFreight     = IF AVAILABLE ar-invl THEN ar-invl.costStdFreight ELSE 0 
-                ttSalesReport.costStdWarehouse   = IF AVAILABLE ar-invl THEN ar-invl.costStdWarehouse ELSE 0         
-                ttSalesReport.costStdDeviation   = IF AVAILABLE ar-invl THEN ar-invl.costStdDeviation ELSE 0
-                ttSalesReport.costStdManufacture = IF AVAILABLE ar-invl THEN ar-invl.costStdManufacture ELSE 0                 
+                ttSalesReport.invCurrRate        = IF AVAILABLE ar-inv AND ar-inv.ex-rate NE ? THEN ar-inv.ex-rate ELSE 0  
+                ttSalesReport.costStdFreight     = IF AVAILABLE ar-invl AND ar-invl.costStdFreight NE ? THEN ar-invl.costStdFreight ELSE 0 
+                ttSalesReport.costStdWarehouse   = IF AVAILABLE ar-invl AND ar-invl.costStdWarehouse NE ? THEN ar-invl.costStdWarehouse ELSE 0         
+                ttSalesReport.costStdDeviation   = IF AVAILABLE ar-invl AND ar-invl.costStdDeviation NE ? THEN ar-invl.costStdDeviation ELSE 0
+                ttSalesReport.costStdManufacture = IF AVAILABLE ar-invl AND ar-invl.costStdManufacture NE ? THEN ar-invl.costStdManufacture ELSE 0                 
                .
         
             RELEASE ar-ledger.
@@ -597,7 +597,7 @@ PROCEDURE pBusinessLogic:
              
             ASSIGN
                 ttSalesReport.invGLPeriod = IF AVAILABLE gltrans THEN gltrans.period ELSE 0
-                ttSalesReport.invGLYear   = IF AVAILABLE gltrans THEN YEAR(gltrans.tr-date) ELSE 0
+                ttSalesReport.invGLYear   = IF AVAILABLE gltrans AND gltrans.tr-date NE ? THEN YEAR(gltrans.tr-date) ELSE 0
                 ttSalesReport.invGLRun    = IF AVAILABLE gltrans THEN gltrans.trnum ELSE 0 .               
         
             RELEASE job-hdr .
@@ -617,9 +617,9 @@ PROCEDURE pBusinessLogic:
             ASSIGN
                 ttSalesReport.itemFlute = IF AVAILABLE eb THEN eb.flute ELSE "" 
                 ttSalesReport.itemTest  = IF AVAILABLE eb THEN eb.test ELSE ""
-                ttSalesReport.itemLen   = IF AVAILABLE eb THEN eb.len ELSE 0
-                ttSalesReport.itemWid   = IF AVAILABLE eb THEN eb.wid ELSE 0
-                ttSalesReport.itemDep   = IF AVAILABLE eb THEN eb.dep ELSE 0 
+                ttSalesReport.itemLen   = IF AVAILABLE eb AND eb.len NE ? THEN eb.len ELSE 0
+                ttSalesReport.itemWid   = IF AVAILABLE eb AND eb.wid NE ? THEN eb.wid ELSE 0
+                ttSalesReport.itemDep   = IF AVAILABLE eb AND eb.dep NE ? THEN eb.dep ELSE 0 
                 ttSalesReport.jobNo     = IF AVAILABLE ar-invl THEN ar-invl.job-no ELSE "" 
                 ttSalesReport.jobNo2    = IF AVAILABLE ar-invl THEN ar-invl.job-no2 ELSE 0 
                 ttSalesReport.jobForm   = IF AVAILABLE job-hdr THEN job-hdr.frm ELSE 0
@@ -644,7 +644,7 @@ PROCEDURE pBusinessLogic:
             ASSIGN
                 ttSalesReport.SalesManager   = IF AVAILABLE sman THEN sman.salesManager ELSE "" 
                 ttSalesReport.SalesGroupName = IF AVAILABLE salesgrpMember AND AVAILABLE sman AND sman.hasMembers THEN STRING(salesgrpMember.salesmanID + " - " + salesgrpMember.salesmanName) ELSE "" 
-                ttSalesReport.profit         = dProfit
+                ttSalesReport.profit         = IF dProfit NE ? THEN dProfit ELSE 0
                 ttSalesReport.profitPer      = IF dPer NE ? THEN dPer ELSE 0  . 
                 
             IF AVAILABLE ar-invl THEN
@@ -655,7 +655,7 @@ PROCEDURE pBusinessLogic:
                     ar-invl.sf-sht,
                     ar-invl.qty,
                     OUTPUT dOutQty).                                   
-                 
+                IF dOutQty EQ ? THEN dOutQty = 0. 
                 ASSIGN
                     ttSalesReport.invExtPricePerM = IF (dOutQty * ar-invl.unit-pr) EQ 0
                                                     then (ar-invl.qty * ar-invl.unit-pr)
@@ -666,7 +666,7 @@ PROCEDURE pBusinessLogic:
                     ar-invl.sf-sht,
                     ar-invl.qty,
                     OUTPUT dOutQty).                             
-                 
+                IF dOutQty EQ ? THEN dOutQty = 0. 
                 ttSalesReport.invExtPricePerTon = IF (dOutQty * ar-invl.unit-pr) EQ 0
                 THEN (ar-invl.qty * ar-invl.unit-pr)
                 ELSE (dOutQty * ar-invl.unit-pr) .
@@ -676,7 +676,7 @@ PROCEDURE pBusinessLogic:
                     ar-invl.sf-sht,
                     ar-invl.qty,
                     OUTPUT dOutQty).    
-                    
+                IF dOutQty EQ ? THEN dOutQty = 0.    
                 ttSalesReport.invExtPricePerMsf = IF (dOutQty * ar-invl.unit-pr) EQ 0
                 THEN (ar-invl.qty * ar-invl.unit-pr)
                 ELSE (dOutQty * ar-invl.unit-pr) .                                               
