@@ -81,61 +81,61 @@
     DEFINE VARIABLE cTotalCost         AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line Variables */
-    DEFINE VARIABLE cPoLine                   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cQuantityOrdered          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cQuantityInSF             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cQuantityInM              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cQuantityUOM              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemType                 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemTypeShort            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemID                   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemName                 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemDesc1                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemDesc2                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemIDVendor             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cOverPct                  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUnderPct                 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoLineDueDate            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemWidth                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemLength               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemDepth                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemWidthTrunc           AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemLengthTrunc          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemDepthTrunc           AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemWidth16ths           AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemLength16ths          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemDepth16ths           AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCostPerUOM               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCostInMSF                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCostUOM                  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCostSetup                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCostDiscount             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCustomerID               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cOrderNo                  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cOperationID              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cStackHeight              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPalletWidth              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPalletLength             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPalletHeight             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUnitPallet               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobID                    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobID2                   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobConcat                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobConcatHRMS            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobIDFormNo              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobIDBlankNo             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoLineStatus             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cQuantityReceived         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cLineDueDate              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cStyle                    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cStyleDesc                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemBasisWeight          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFlute                    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoLineNotes              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cQtyINEA                  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPOLowQty                 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoHighQty                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFormattedScoresWestrock  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoLine                  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityOrdered         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityInSF            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityInM             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityUOM             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemType                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemTypeShort           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemID                  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemName                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemDesc1               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemDesc2               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemIDVendor            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOverPct                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUnderPct                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoLineDueDate           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWidth               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemLength              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemDepth               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWidthTrunc          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemLengthTrunc         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemDepthTrunc          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWidth16ths          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemLength16ths         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemDepth16ths          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostPerUOM              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostInMSF               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostUOM                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostSetup               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostDiscount            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustomerID              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOrderNo                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOperationID             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStackHeight             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPalletWidth             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPalletLength            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPalletHeight            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUnitPallet              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobID                   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobID2                  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobConcat               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobConcatHRMS           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobIDFormNo             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobIDBlankNo            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoLineStatus            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityReceived        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLineDueDate             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStyle                   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStyleDesc               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemBasisWeight         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFlute                   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoLineNotes             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQtyINEA                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPOLowQty                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoHighQty               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFormattedScoresWestrock AS CHARACTER NO-UNDO.
         
     /* Purchase Order Line adder Variables */
     DEFINE VARIABLE cAdderItemID        AS CHARACTER NO-UNDO.
@@ -812,9 +812,10 @@
                           AND bf-item.i-no     EQ bf-job-mat.i-no 
                           AND bf-item.mat-type EQ "A":                             
                         FIND FIRST bf-hrms-reftable NO-LOCK 
-                        WHERE bf-hrms-reftable.reftable EQ "util/b-hrms-x.w" 
-                          AND bf-hrms-reftable.company  EQ bf-item.company 
-                          AND bf-hrms-reftable.code2    EQ bf-item.i-no.          
+                             WHERE bf-hrms-reftable.reftable EQ "util/b-hrms-x.w" 
+                               AND bf-hrms-reftable.company  EQ bf-item.company 
+                               AND bf-hrms-reftable.code2    EQ bf-item.i-no
+                               NO-ERROR.        
                         IF AVAILABLE bf-hrms-reftable THEN DO:
                             iIndex = iIndex + 1.
                             IF iIndex LE 6 THEN DO:            
