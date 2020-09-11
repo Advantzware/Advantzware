@@ -3236,6 +3236,7 @@ PROCEDURE pProcessImportedOrderHeader PRIVATE:
         bf-oe-ord.company       = ipbf-ttOrder.company
         bf-oe-ord.loc           = ipbf-ttOrder.wareHouseID
         bf-oe-ord.ord-date      = ipbf-ttOrder.orderDate
+        bf-oe-ord.promiseDate   = ipbf-ttOrder.promiseDate
         bf-oe-ord.stat          = ipbf-ttOrder.stat
         bf-oe-ord.due-code      = 'ON'
         bf-oe-ord.cust-no       = ipbf-ttOrder.customerID
@@ -3584,6 +3585,14 @@ PROCEDURE pProcessImportedOrderLine:
     
     IF bf-oe-ordl.req-date EQ ? THEN 
         bf-oe-ordl.req-date = bf-oe-ord.ord-date + 10.
+    
+    bf-oe-ordl.promiseDate = bf-oe-ordl.req-date.
+    
+    IF bf-oe-ord.promiseDate EQ ? THEN DO:
+        FIND CURRENT bf-oe-ord EXCLUSIVE-LOCK NO-ERROR.
+        IF AVAILABLE bf-oe-ord THEN
+            bf-oe-ord.promiseDate = bf-oe-ordl.promiseDate.
+    END.
     
     RUN pCreateRelease (
         INPUT  bf-oe-ordl.company,
