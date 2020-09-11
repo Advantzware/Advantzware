@@ -81,91 +81,95 @@
     DEFINE VARIABLE cTotalCost         AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line Variables */
-    DEFINE VARIABLE cPoLine                  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cQuantityOrdered         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cQuantityInSF            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cQuantityInM             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cQuantityUOM             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemType                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemTypeShort           AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemID                  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemName                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemDesc1               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemDesc2               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemIDVendor            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cOverPct                 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUnderPct                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoLineDueDate           AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemWidth               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemLength              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemDepth               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemWidthTrunc          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemLengthTrunc         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemDepthTrunc          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemWidth16ths          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemLength16ths         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemDepth16ths          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCostPerUOM              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCostInMSF               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCostUOM                 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCostSetup               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCostDiscount            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCustomerID              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cOrderNo                 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cOperationID             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cStackHeight             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPalletWidth             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPalletLength            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPalletHeight            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUnitPallet              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobID                   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobID2                  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobConcat               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobConcatHRMS           AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobIDFormNo             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobIDBlankNo            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoLineStatus            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cQuantityReceived        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cLineDueDate             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cStyle                   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cStyleDesc               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemBasisWeight         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFlute                   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoLineNotes             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cQtyINEA                 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPOLowQty                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoHighQty               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFormattedScoresWestrock AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoLine                   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityOrdered          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityInSF             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityInM              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityUOM              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemType                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemTypeShort            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemID                   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemName                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemDesc1                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemDesc2                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemIDVendor             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOverPct                  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUnderPct                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoLineDueDate            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWidth                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemLength               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemDepth                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWidthTrunc           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemLengthTrunc          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemDepthTrunc           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWidth16ths           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemLength16ths          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemDepth16ths           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostPerUOM               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostInMSF                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostUOM                  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostSetup                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostDiscount             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustomerID               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOrderNo                  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOperationID              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStackHeight              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPalletWidth              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPalletLength             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPalletHeight             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUnitPallet               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobID                    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobID2                   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobConcat                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobConcatHRMS            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobIDFormNo              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobIDBlankNo             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoLineStatus             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityReceived         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLineDueDate              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStyle                    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStyleDesc                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemBasisWeight          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFlute                    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoLineNotes              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQtyINEA                  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPOLowQty                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoHighQty                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFormattedScoresWestrock  AS CHARACTER NO-UNDO.
         
     /* Purchase Order Line adder Variables */
     DEFINE VARIABLE cAdderItemID        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cAdderItemName      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAdders     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersHRMS AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWithAddersX4   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWithAddersX10  AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line scores Variables */
-    DEFINE VARIABLE cScoreOn                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cScoreSize              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cScoreType              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cScoreSize16ths         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cScoreSizeDecimal       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dScoreSize16ths         AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dScoreSizeDecimal       AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dScoreSizeArray         AS DECIMAL   NO-UNDO EXTENT 20.
-    DEFINE VARIABLE cScoreTypeArray         AS CHARACTER NO-UNDO EXTENT 20.
-    DEFINE VARIABLE dSizeFactor             AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE cSizeFormat             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lDecimalLog             AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lReftableFound          AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cScoreSize16thsWestRock AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cScoreSizeDecimalHRMS1  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cScoreSizeDecimalHRMS2  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreOn                    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreSize                  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreType                  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreSize16ths             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreSizeDecimal           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dScoreSize16ths             AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dScoreSizeDecimal           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dScoreSizeArray             AS DECIMAL   NO-UNDO EXTENT 20.
+    DEFINE VARIABLE cScoreTypeArray             AS CHARACTER NO-UNDO EXTENT 20.
+    DEFINE VARIABLE dSizeFactor                 AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cSizeFormat                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lDecimalLog                 AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lReftableFound              AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cScoreSize16thsWestRock     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreSizeDecimalHRMS1      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreSizeDecimalHRMS2      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreSizeDecimalAlliFlutes AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cWhsCode           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQtyPerPack        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPurchaseUnit      AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE iIndex             AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iIndex1            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cCustName          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCustAddress1      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCustAddress2      AS CHARACTER NO-UNDO.
@@ -464,77 +468,80 @@
                     .            
             
             ASSIGN
-                lcLineData               = STRING(APIOutboundDetail.data)
-                lcConcatLineAdderData    = ""
-                lcConcatLineScoresData   = ""
-                cPoLine                  = STRING(po-ordl.line)
-                cQuantityOrdered         = TRIM(STRING(po-ordl.ord-qty,"->>>>>>>>9.9<<<<<"))
-                cQuantityUOM             = STRING(po-ordl.pr-qty-uom)
-                cItemType                = STRING(po-ordl.item-type)
-                cItemTypeShort           = IF po-ordl.item-type THEN
-                                               "RM"
-                                           ELSE
-                                               "FG"
-                cItemID                  = STRING(po-ordl.i-no)
-                cItemName                = STRING(po-ordl.i-name)
-                cItemDesc1               = STRING(po-ordl.dscr[1])
-                cItemDesc2               = STRING(po-ordl.dscr[2])
-                cItemIDVendor            = STRING(po-ordl.vend-i-no)
-                cOverPct                 = TRIM(STRING(po-ordl.over-pct,">>9.99"))
-                cUnderPct                = TRIM(STRING(po-ordl.under-pct,">>9.99"))
-                cPoLineDueDate           = STRING(po-ordl.due-date)
-                cItemWidth               = TRIM(STRING(po-ordl.s-wid,">>9.9999"))
-                cItemLength              = TRIM(STRING(po-ordl.s-len,">>9.9999"))
-                cItemDepth               = TRIM(STRING(po-ordl.s-dep,">>9.9999"))
-                cItemWidthTrunc          = STRING(TRUNCATE(po-ordl.s-wid,0))
-                cItemLengthTrunc         = STRING(TRUNCATE(po-ordl.s-len,0))
-                cItemDepthTrunc          = STRING(TRUNCATE(po-ordl.s-dep,0))
-                cItemWidth16ths          = TRIM(STRING((po-ordl.s-wid - TRUNCATE(po-ordl.s-wid,0)) * 16))
-                cItemLength16ths         = TRIM(STRING((po-ordl.s-len - TRUNCATE(po-ordl.s-len,0)) * 16))
-                cItemDepth16ths          = TRIM(STRING((po-ordl.s-dep - TRUNCATE(po-ordl.s-dep,0)) * 16))
-                cCostPerUOM              = TRIM(STRING(po-ordl.cost,"->>>>>>9.99<<<<"))
-                cCostUOM                 = STRING(po-ordl.pr-uom)
-                cCostSetup               = STRING(po-ordl.setup)
-                cCostDiscount            = TRIM(STRING(po-ordl.disc,"->>>>>9.99"))
-                cCustomerID              = STRING(po-ordl.cust-no)
-                cOrderNo                 = STRING(po-ordl.ord-no)
-                cPoLineStatus            = STRING(po-ordl.stat)
-                cOperationID             = ""
-                cQtyPerPack              = ""
-                cPoLineNotes             = ""
-                cStackHeight             = "0"
-                cPalletWidth             = "0.00"
-                cPalletHeight            = "0.00"
-                cPalletLength            = "0.00"
-                cUnitPallet              = "0"
-                cPurchaseUnit            = STRING(po-ordl.pr-qty-uom)
-                cJobID                   = TRIM(STRING(po-ordl.job-no, "X(6)"))
-                cJobID2                  = STRING(po-ordl.job-no2, ">9")
-                cJobConcat               = IF po-ordl.job-no EQ "" THEN
-                                               ""
-                                           ELSE
-                                               cJobID + "-" + cJobID2
-                cJobConcatHRMS           = IF po-ordl.job-no EQ "" THEN
-                                               ""
-                                           ELSE
-                                               STRING(po-ordl.job-no, "X(6)") + "-" + STRING(po-ordl.job-no2, "99")                
-                cJobIDFormNo             = STRING(po-ordl.s-num)
-                cJobIDBlankNo            = STRING(po-ordl.b-num)
-                cQuantityReceived        = TRIM(STRING(po-ordl.t-rec-qty, "->>>>>>>>9.9<<<<<"))
-                cLineDueDate             = STRING(po-ordl.due-date)
-                dCostInMSF               = po-ordl.cost
-                dQuantityInSF            = po-ordl.ord-qty
-                cScoreSizeDecimal        = ""
-                cScoreSize16ths          = ""
-                cItemWithAdders          = "" 
-                cItemWithAddersHRMS      = ""
-                cFormattedScoresWestrock = ""
-                cScoreSize16thsWestRock  = ""
-                cScoreSizeDecimalHRMS1   = ""
-                cScoreSizeDecimalHRMS2   = ""
-                cCostInMSF               = ""
-                cQuantityInSF            = ""
-                dItemBasisWeight         = 0
+                lcLineData                  = STRING(APIOutboundDetail.data)
+                lcConcatLineAdderData       = ""
+                lcConcatLineScoresData      = ""
+                cPoLine                     = STRING(po-ordl.line)
+                cQuantityOrdered            = TRIM(STRING(po-ordl.ord-qty,"->>>>>>>>9.9<<<<<"))
+                cQuantityUOM                = STRING(po-ordl.pr-qty-uom)
+                cItemType                   = STRING(po-ordl.item-type)
+                cItemTypeShort              = IF po-ordl.item-type THEN
+                                                  "RM"
+                                              ELSE
+                                                  "FG"
+                cItemID                     = STRING(po-ordl.i-no)
+                cItemName                   = STRING(po-ordl.i-name)
+                cItemDesc1                  = STRING(po-ordl.dscr[1])
+                cItemDesc2                  = STRING(po-ordl.dscr[2])
+                cItemIDVendor               = STRING(po-ordl.vend-i-no)
+                cOverPct                    = TRIM(STRING(po-ordl.over-pct,">>9.99"))
+                cUnderPct                   = TRIM(STRING(po-ordl.under-pct,">>9.99"))
+                cPoLineDueDate              = STRING(po-ordl.due-date)
+                cItemWidth                  = TRIM(STRING(po-ordl.s-wid,">>9.9999"))
+                cItemLength                 = TRIM(STRING(po-ordl.s-len,">>9.9999"))
+                cItemDepth                  = TRIM(STRING(po-ordl.s-dep,">>9.9999"))
+                cItemWidthTrunc             = STRING(TRUNCATE(po-ordl.s-wid,0))
+                cItemLengthTrunc            = STRING(TRUNCATE(po-ordl.s-len,0))
+                cItemDepthTrunc             = STRING(TRUNCATE(po-ordl.s-dep,0))
+                cItemWidth16ths             = TRIM(STRING((po-ordl.s-wid - TRUNCATE(po-ordl.s-wid,0)) * 16))
+                cItemLength16ths            = TRIM(STRING((po-ordl.s-len - TRUNCATE(po-ordl.s-len,0)) * 16))
+                cItemDepth16ths             = TRIM(STRING((po-ordl.s-dep - TRUNCATE(po-ordl.s-dep,0)) * 16))
+                cCostPerUOM                 = TRIM(STRING(po-ordl.cost,"->>>>>>9.99<<<<"))
+                cCostUOM                    = STRING(po-ordl.pr-uom)
+                cCostSetup                  = STRING(po-ordl.setup)
+                cCostDiscount               = TRIM(STRING(po-ordl.disc,"->>>>>9.99"))
+                cCustomerID                 = STRING(po-ordl.cust-no)
+                cOrderNo                    = STRING(po-ordl.ord-no)
+                cPoLineStatus               = STRING(po-ordl.stat)
+                cOperationID                = ""
+                cQtyPerPack                 = ""
+                cPoLineNotes                = ""
+                cStackHeight                = "0"
+                cPalletWidth                = "0.00"
+                cPalletHeight               = "0.00"
+                cPalletLength               = "0.00"
+                cUnitPallet                 = "0"
+                cPurchaseUnit               = STRING(po-ordl.pr-qty-uom)
+                cJobID                      = TRIM(STRING(po-ordl.job-no, "X(6)"))
+                cJobID2                     = STRING(po-ordl.job-no2, ">9")
+                cJobConcat                  = IF po-ordl.job-no EQ "" THEN
+                                                  ""
+                                              ELSE
+                                                  cJobID + "-" + cJobID2
+                cJobConcatHRMS              = IF po-ordl.job-no EQ "" THEN
+                                                  ""
+                                              ELSE
+                                                  STRING(po-ordl.job-no, "X(6)") + "-" + STRING(po-ordl.job-no2, "99")                
+                cJobIDFormNo                = STRING(po-ordl.s-num)
+                cJobIDBlankNo               = STRING(po-ordl.b-num)
+                cQuantityReceived           = TRIM(STRING(po-ordl.t-rec-qty, "->>>>>>>>9.9<<<<<"))
+                cLineDueDate                = STRING(po-ordl.due-date)
+                dCostInMSF                  = po-ordl.cost
+                dQuantityInSF               = po-ordl.ord-qty
+                cScoreSizeDecimal           = ""
+                cScoreSize16ths             = ""
+                cItemWithAdders             = "" 
+                cItemWithAddersHRMS         = ""
+                cFormattedScoresWestrock    = ""
+                cScoreSize16thsWestRock     = ""
+                cScoreSizeDecimalHRMS1      = ""
+                cScoreSizeDecimalHRMS2      = ""
+                cCostInMSF                  = ""
+                cQuantityInSF               = ""
+                dItemBasisWeight            = 0 
+                cScoreSizeDecimalAlliFlutes = ""
+                cItemWithAddersX4           = ""
+                cItemWithAddersX10          = ""
                 .
 
             FIND FIRST item NO-LOCK
@@ -787,7 +794,10 @@
                     ELSE 
                         cItemWithAddersHRMS = STRING("0000","X(4)").
 
-                    iIndex  = 1.
+                    ASSIGN 
+                        iIndex  = 1
+                        iIndex1 = 1
+                        .
 
                     FOR EACH bf-job-mat NO-LOCK 
                         WHERE bf-job-mat.company  EQ job-mat.company
@@ -800,22 +810,28 @@
                         FIRST bf-item NO-LOCK 
                         WHERE bf-item.company  EQ bf-job-mat.company 
                           AND bf-item.i-no     EQ bf-job-mat.i-no 
-                          AND bf-item.mat-type EQ "A",
-                        FIRST bf-hrms-reftable NO-LOCK 
+                          AND bf-item.mat-type EQ "A":                             
+                        FIND FIRST bf-hrms-reftable NO-LOCK 
                         WHERE bf-hrms-reftable.reftable EQ "util/b-hrms-x.w" 
                           AND bf-hrms-reftable.company  EQ bf-item.company 
-                          AND bf-hrms-reftable.code2    EQ bf-item.i-no:          
-                        iIndex = iIndex + 1.
-                        cItemWithAddersHRMS = cItemWithAddersHRMS + STRING(INT(bf-hrms-reftable.code),"9999") NO-ERROR.
-                        IF ERROR-STATUS:ERROR THEN 
-                            cItemWithAddersHRMS = cItemWithAddersHRMS + STRING("0000","9999").
-                 
-                        IF iIndex GE 6 THEN
-                            LEAVE.
-                    END.
+                          AND bf-hrms-reftable.code2    EQ bf-item.i-no.          
+                        IF AVAILABLE bf-hrms-reftable THEN DO:
+                            iIndex = iIndex + 1.
+                            IF iIndex LE 6 THEN DO:            
+                                cItemWithAddersHRMS = cItemWithAddersHRMS + STRING(INT(bf-hrms-reftable.code),"9999") NO-ERROR.
+                                IF ERROR-STATUS:ERROR THEN 
+                                    cItemWithAddersHRMS = cItemWithAddersHRMS + STRING("0000","9999").
+                            END.
+                        END.
+                       iIndex1 = iIndex1 + 1.
+                        IF iIndex1 LE 6 THEN
+                            ASSIGN  
+                                cItemWithAddersX4  = cItemWithAddersX4 + STRING(bf-item.i-no,"X(4)")
+                                cItemWithAddersX10 = cItemWithAddersX10 + STRING(bf-item.i-no,"X(10)")
+                                .    
+                    END.                                 
                 END.
             END.
-
             RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatLineAdderData, cRequestDataType).
             
             DO iIndex = 1 TO 20:
@@ -883,6 +899,12 @@
                                                    cFormattedScoresWestrock + "x "  + TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
                     .
                 
+                    
+                    cScoreSizeDecimalAlliFlutes = IF cScoreSizeDecimalAlliFlutes EQ "" THEN 
+                                                    (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
+                                                 ELSE
+                                                    cScoreSizeDecimalAlliFlutes + (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
+                                                 .                                               
                 IF iIndex LE 9 THEN 
                     cScoreSizeDecimalHRMS1 = IF cScoreSizeDecimalHRMS1 EQ "" THEN 
                                                  (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
@@ -896,10 +918,11 @@
             END.
             
             ASSIGN 
-                cFormattedScoresWestrock = REPLACE(cFormattedScoresWestrock,".", "")
-                cScoreSize16ths          = REPLACE(cScoreSize16ths,".", ":")
-                cScoreSizeDecimalHRMS1   = REPLACE(cScoreSizeDecimalHRMS1,".",":")
-                cScoreSizeDecimalHRMS2   = REPLACE(cScoreSizeDecimalHRMS2,".",":")
+                cFormattedScoresWestrock    = REPLACE(cFormattedScoresWestrock,".", "")
+                cScoreSize16ths             = REPLACE(cScoreSize16ths,".", ":")
+                cScoreSizeDecimalHRMS1      = REPLACE(cScoreSizeDecimalHRMS1,".",":")
+                cScoreSizeDecimalHRMS2      = REPLACE(cScoreSizeDecimalHRMS2,".",":")
+                cScoreSizeDecimalAlliFlutes = REPLACE(cScoreSizeDecimalAlliFlutes,".",":")
                 .
             
             RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatLineScoresData, cRequestDataType).            
@@ -916,6 +939,9 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalHRMS1", cScoreSizeDecimalHRMS1).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalHRMS2", cScoreSizeDecimalHRMS2).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "FormattedScoring", cFormattedScoresWestrock).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalAlliFlutes", cScoreSizeDecimalAlliFlutes).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersX4", cItemWithAddersX4).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersX10", cItemWithAddersX10).
             
             lcConcatLineData = lcConcatLineData + lcLineData.
         END.      
