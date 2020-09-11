@@ -796,7 +796,7 @@
 
                     ASSIGN 
                         iIndex  = 1
-                        iIndex1 = 1
+                        iIndex1 = 0
                         .
 
                     FOR EACH bf-job-mat NO-LOCK 
