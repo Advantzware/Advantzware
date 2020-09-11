@@ -44,6 +44,7 @@ DEFINE TEMP-TABLE ttOrder NO-UNDO
     FIELD cardNo          AS CHARACTER LABEL "CardNo"
     FIELD cardExpiryDate  AS DATE      LABEL "CardExpiryDate"
     FIELD cardType        AS CHARACTER LABEL "CardType"
+    FIELD promiseDate     AS DATE      LABEL "PromiseDate"
     FIELD comments        AS CHARACTER LABEL "Comments"
     FIELD stat            AS CHARACTER LABEL "Status"
     FIELD importType      AS CHARACTER LABEL "ImportType"       /* cXML, Importer, EDI. Default - Importer */
@@ -60,6 +61,7 @@ DEFINE TEMP-TABLE ttOrderLine NO-UNDO
     FIELD lineNo                  AS INTEGER   LABEL "LineNo"
     FIELD quantity                AS DECIMAL   LABEL "Quantity"
     FIELD dueDate                 AS DATE      LABEL "DueDate"
+    FIELD promiseDate             AS DATE      LABEL "PromiseDate"
     FIELD supplierPartID          AS CHARACTER LABEL "SupplierPartID"
     FIELD supplierPartAuxiliaryID AS CHARACTER LABEL "SupplierPartAuxiliaryID"
     FIELD manufacturerPartID      AS CHARACTER LABEL "ManufacturerPartID"
