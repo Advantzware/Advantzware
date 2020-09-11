@@ -269,10 +269,6 @@ DO:
     
     /* To make sure not available initially */
     RELEASE oe-relh.
-    
-    RUN testers/actrelmergtester.p(
-        INPUT ip-rowid
-        ).
         
     RUN pFindMatchingOerell (OUTPUT lRellFound, OUTPUT iOeRellRno, 
         OUTPUT rOeRelRow, OUTPUT rOeRellRow2,
