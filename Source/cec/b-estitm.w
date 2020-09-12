@@ -781,14 +781,8 @@ DO:
            IF char-val <> "" AND ls-cur-val <> entry(1,char-val) THEN DO:
               eb.style:screen-value IN BROWSE {&browse-name} = entry(1,char-val).
               RUN set-lv-foam.
-              FIND style WHERE style.company = gcompany AND
-                               style.style = eb.style:screen-value IN BROWSE {&browse-name}
-                         NO-LOCK NO-ERROR.            
-              IF AVAIL style AND ef.board:SCREEN-VALUE EQ "" THEN DO:
-                ef.board:SCREEN-VALUE IN BROWSE {&browse-name} = style.material[1].
-                RUN new-board.
-              END.          
-           END. 
+              RUN pGetStyleValue.                  
+           END.           
            APPLY "ENTRY":U TO eb.style IN BROWSE {&browse-name}.
            RETURN NO-APPLY.
       END.
@@ -1575,25 +1569,13 @@ DO:
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY. 
 
     IF is-item-copied-from-est THEN RETURN.
-
+      
     IF /*eb.style:modified in browse {&browse-name}*/ 
        SELF:screen-value <> ls-prev-val THEN DO:
 
       RUN set-lv-foam.
-      IF AVAIL style THEN DO:
-        /* task 12011101 - to update this even on an update */
-        IF style.qty-per-set NE 0 THEN
-            eb.quantityPerSet:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(style.qty-per-set).
-        IF adm-adding-record THEN DO:
-          IF ef.board:SCREEN-VALUE EQ "" THEN DO:
-            ef.board:SCREEN-VALUE IN BROWSE {&browse-name} = style.material[1].
-            RUN new-board.
-
-          END.
-        END.
-
-
-      END.   
+      RUN pGetStyleValue.
+      
     END.
     SELF:screen-value = CAPS(SELF:screen-value).
 
@@ -8645,6 +8627,30 @@ PROCEDURE pUpdateRecord :
    END.
    ELSE
        RUN new-state IN phandle ('update-begin':U).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetStyleValue B-table-Win 
+PROCEDURE pGetStyleValue :
+
+  FIND first style NO-LOCK
+       WHERE style.company = gcompany 
+       AND style.style = eb.style:screen-value IN BROWSE {&browse-name}
+       NO-ERROR.         
+              
+       IF AVAIL style THEN DO:
+         /* task 12011101 - to update this even on an update */
+         IF style.qty-per-set NE 0 THEN
+             eb.quantityPerSet:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(style.qty-per-set).
+       
+         IF ef.board:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
+            ef.board:SCREEN-VALUE IN BROWSE {&browse-name} = style.material[1].
+            RUN new-board.
+         END.
+       END.   
 
 END PROCEDURE.
 
