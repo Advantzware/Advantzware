@@ -129,7 +129,7 @@ DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "x(9)"
 
 DEFINE RECTANGLE RECT-42
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 50 BY 9.29.
+     SIZE 46 BY 9.29.
 
 DEFINE VARIABLE rd_active AS CHARACTER INITIAL "M" 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -163,18 +163,18 @@ DEFINE BROWSE BROWSE-4
     ENABLE ttItemList.IS-SELECTED
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 55 BY 9.29
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 59 BY 9.29
          FONT 6 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     BROWSE-4 AT ROW 1.24 COL 56 WIDGET-ID 100
-     fi_job-no AT ROW 1.88 COL 28.6 COLON-ALIGNED HELP
+     BROWSE-4 AT ROW 1.24 COL 52 WIDGET-ID 100
+     fi_job-no AT ROW 1.88 COL 24.6 COLON-ALIGNED HELP
           "Enter Job Number."
-    rd_active AT ROW 3.67 COL 17.6 NO-LABEL WIDGET-ID 16
-    tb_include-page AT ROW 4.88 COL 20.6 WIDGET-ID 22
+    rd_active AT ROW 3.67 COL 13.6 NO-LABEL WIDGET-ID 16
+    tb_include-page AT ROW 4.88 COL 16.6 WIDGET-ID 22
     Btn_OK AT ROW 11 COL 36
     Btn_Cancel AT ROW 11 COL 64
      
@@ -215,6 +215,8 @@ ASSIGN
                                                                 */
 /* SETTINGS FOR FILL-IN tb_include-page IN FRAME Dialog-Frame
                                                                  */
+   BROWSE-4:NUM-LOCKED-COLUMNS IN FRAME Dialog-Frame     = 1. 
+   
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
