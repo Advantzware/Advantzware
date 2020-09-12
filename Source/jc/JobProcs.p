@@ -228,6 +228,44 @@ PROCEDURE GetOperationsForJob:
     RELEASE bf-job-mch.
 END PROCEDURE.
 
+PROCEDURE GetFGItemForJob:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns machine code list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcJobno        AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiJobno2       AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiFormNo       AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiBlankNo      AS INTEGER   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER opcFGItemList  AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-job     FOR job.
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+
+    FOR EACH bf-job NO-LOCK
+        WHERE bf-job.company EQ ipcCompany
+          AND bf-job.job-no  EQ ipcJobno
+          AND bf-job.job-no2 EQ ipiJobno2,
+            EACH bf-job-hdr NO-LOCK
+            WHERE bf-job-hdr.company EQ bf-job.company
+              AND bf-job-hdr.job     EQ bf-job.job
+              AND bf-job-hdr.job-no  EQ bf-job.job-no
+              AND bf-job-hdr.job-no2 EQ  bf-job.job-no2
+              AND bf-job-hdr.frm  EQ  ipiFormNo
+              AND (bf-job-hdr.blank-no EQ ipiBlankNo OR ipiBlankNo EQ 0):
+        opcFGItemList = IF opcFGItemList EQ "" THEN 
+                             STRING(bf-job-hdr.i-no)
+                         ELSE IF INDEX(opcFGItemList,STRING(bf-job-hdr.i-no)) GT 0 THEN
+                             opcFGItemList
+                         ELSE
+                             opcFGItemList + "," + STRING(bf-job-hdr.i-no).           
+    END.
+
+    RELEASE bf-job.
+    RELEASE bf-job-hdr.
+END PROCEDURE.
+
 PROCEDURE GetRMItemsForJob:
     /*------------------------------------------------------------------------------
      Purpose: Returns RM Item list for a given jobID
