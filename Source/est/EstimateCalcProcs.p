@@ -3349,6 +3349,7 @@ PROCEDURE pCalcEstOperation PRIVATE:
     DEFINE VARIABLE dCostMinimumDiffSetup AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dCostMinimumDiffRun AS DECIMAL NO-UNDO.
     
+        
     IF ipbf-estCostOperation.speed NE 0 THEN
         IF ipbf-estCostOperation.isSpeedInLF THEN
             ipbf-estCostOperation.hoursRun = ipbf-estCostOperation.quantityInAfterSetupWasteLF / ipbf-estCostOperation.speed. 
@@ -3357,6 +3358,9 @@ PROCEDURE pCalcEstOperation PRIVATE:
     ELSE 
         ipbf-estCostOperation.hoursRun = 0.
     
+    IF ipbf-estCostOperation.numOutDivisor GT 0 THEN
+        ipbf-estCostOperation.hoursRun = ipbf-estCostOperation.hoursRun / ipbf-estCostOperation.numOutDivisor.
+        
     IF ipbf-estCostOperation.hoursRun LT ipbf-estCostOperation.hoursRunMinimum THEN 
         ipbf-estCostOperation.hoursRun = ipbf-estCostOperation.hoursRunMinimum.
     
