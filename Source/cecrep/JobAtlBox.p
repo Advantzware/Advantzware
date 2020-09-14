@@ -82,6 +82,7 @@ DEFINE        VARIABLE dJobQty       AS DECIMAL   NO-UNDO .
 DEFINE        VARIABLE dSalesPrice   AS DECIMAL   NO-UNDO.
 DEFINE        VARIABLE dPricePerMsf  AS DECIMAL   NO-UNDO.
 DEFINE        VARIABLE dTotalup      AS DECIMAL   NO-UNDO.
+DEFINE        VARIABLE dTotalSqft    AS DECIMAL   NO-UNDO.
 DEFINE BUFFER bf-itemfg         FOR itemfg .
 
 DEFINE BUFFER b-rt              FOR reftable.
@@ -514,6 +515,10 @@ DO v-local-loop = 1 TO v-local-copies:
                                          xoe-ordl.price, OUTPUT dSalesPrice ).
               ELSE dSalesPrice = xoe-ordl.price .
           END.
+          
+          dTotalSqft = 0.
+          IF AVAILABLE bf-itemfg THEN
+          RUN fg/GetFGArea.p (ROWID(bf-itemfg), "MSF", OUTPUT dTotalSqft).
 
          PUT "<FGColor=Blue><B>"
               "<=JobQuantity>" dJobQty FORMAT "->>,>>>,>>9"
@@ -560,7 +565,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=SheetsSize>" "W:" + trim(string({sys/inc/k16v.i v-form-wid},">>,>>9.99")) + "  " +
                               "L:" + trim(string({sys/inc/k16v.i v-form-len},">>,>>9.99"))  format "x(30)"
 
-              "<=SheetsMSF>" TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) FORMAT "x(11)"
+              "<=SheetsMSF>" TRIM(STRING(v-sht-qty * dTotalSqft ,">>>9.9<")) FORMAT "x(11)"
               "<=Scores>" SUBSTRING(v-len-score,1,30) FORMAT "x(30)" 
               "<=Adders1>" IF LENGTH(xef.adder[7]) GT 10 THEN  string(string(xef.adder[7],"x(17)") + "...") ELSE xef.adder[7]  FORMAT "x(20)"
               "<=Adders2>"IF LENGTH(xef.adder[8]) GT 10 THEN  string(string(xef.adder[8],"x(17)") + "...") ELSE xef.adder[8]  FORMAT "x(20)"
