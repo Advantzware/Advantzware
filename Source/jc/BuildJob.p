@@ -210,7 +210,9 @@ PROCEDURE pBuildHeaders PRIVATE:
             bf-job-hdr.std-var-cost = estCostItem.costTotalVariableOverhead / dQtyInM
             bf-job-hdr.std-fix-cost = estCostItem.costTotalFixedOverhead / dQtyInM
             bf-job-hdr.n-on         = estCostBlank.numOut
+            bf-job-hdr.ftick-prnt   = NO
             .
+            
         IF estCostHeader.estType EQ "Set" AND NOT estCostItem.isSet THEN 
         DO:
             FIND FIRST bf-reftable
