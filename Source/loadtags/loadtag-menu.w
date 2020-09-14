@@ -317,12 +317,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRePrint C-Win
 ON CHOOSE OF btnRePrint IN FRAME DEFAULT-FRAME /* Reprint */
 DO:
-   /* RUN loadtags\LoadtagJob.w(INPUT ipcCompany,     /* Company Code */
-                        INPUT ipcLocation,    /* Location Code */
-                        INPUT "",  /* Primary Job number */                         
-                        INPUT 0,        /* Second Job number */
-                        INPUT 0,        /* Form number of the Job */
-                        INPUT 0).       /* Blank number of the Job */   */
+    RUN loadtags\LoadtagReprint.w(INPUT ipcCompany,     /* Company Code */
+                        INPUT ipcLocation).    /* Location Code */                             
 END.
 
 /* _UIB-CODE-BLOCK-END */

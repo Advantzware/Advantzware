@@ -3059,7 +3059,9 @@ PROCEDURE pFromJob :
             IF cb-userfield EQ "Weight" THEN
                 w-ord.unit-wt    = DECIMAL(cUserField2) . 
             ELSE IF cb-userfield EQ "CustPo" THEN
-                    w-ord.cust-po-no = cUserField2 .     
+                    w-ord.cust-po-no = cUserField2 .
+            ELSE IF cb-userfield EQ "lot" THEN
+                    w-ord.lot# = cUserField2 .        
             IF w-ord.partial EQ ? THEN w-ord.partial = 0 . 
         
         END.
@@ -3414,6 +3416,8 @@ PROCEDURE pFromOrd :
                 w-ord.unit-wt    = DECIMAL(cUserField2) .
             ELSE IF cb-userfield EQ "CustPo" THEN
                     w-ord.cust-po-no = cUserField2 .
+            ELSE IF cb-userfield EQ "lot" THEN
+                    w-ord.lot# = cUserField2 .         
                 
             IF w-ord.partial EQ ? THEN w-ord.partial = 0 .             
         
