@@ -35,12 +35,16 @@
     DEFINE VARIABLE lcConcatLineData AS LONGCHAR  NO-UNDO.
 
     /* Variables to store order line adder's request data */
-    DEFINE VARIABLE lcLineAdderData       AS LONGCHAR  NO-UNDO.
-    DEFINE VARIABLE lcConcatLineAdderData AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE lcLineAdderData         AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE lcConcatLineAdderData   AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE lcLineAdderDataGP       AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE lcConcatLineAdderDataGP AS LONGCHAR  NO-UNDO.    
 
     /* Variables to store order line scores request data */
-    DEFINE VARIABLE lcLineScoresData       AS LONGCHAR  NO-UNDO.
-    DEFINE VARIABLE lcConcatLineScoresData AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE lcLineScoresData         AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE lcConcatLineScoresData   AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE lcLineScoresDataGP       AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE lcConcatLineScoresDataGP AS LONGCHAR  NO-UNDO.    
     
     /* Purchase Order Header Variables */
     DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
@@ -77,8 +81,14 @@
     DEFINE VARIABLE cBuyer             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoNotes           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoNotesHRMS       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPONotesGP         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipToCompanyName AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTotalCost         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCurrentDateTime   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cGPPartnerID       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cGPPurchasedBy     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cGPPlantID         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cGPBillto          AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line Variables */
     DEFINE VARIABLE cPoLine                  AS CHARACTER NO-UNDO.
@@ -138,12 +148,13 @@
     DEFINE VARIABLE cFormattedScoresWestrock AS CHARACTER NO-UNDO.
         
     /* Purchase Order Line adder Variables */
-    DEFINE VARIABLE cAdderItemID        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cAdderItemName      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemWithAdders     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemWithAddersHRMS AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemWithAddersX4   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemWithAddersX10  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAdderItemID                    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAdderItemName                  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWithAdders                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWithAddersHRMS             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWithAddersX4               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWithAddersX10              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWithAddersX10WithoutConcat AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line scores Variables */
     DEFINE VARIABLE cScoreOn                    AS CHARACTER NO-UNDO.
@@ -195,6 +206,8 @@
     DEFINE VARIABLE lRecFound          AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cAssignedCustID    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPOExport          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReturnValue       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iGPEDI             AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cClientID          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cRequestDataType   AS CHARACTER NO-UNDO.
     
@@ -299,7 +312,20 @@
             OUTPUT cPOExport, 
             OUTPUT lRecFound
             ).
-
+        RUN sys/ref/nk1look.p (
+            INPUT po-ord.company, /* Company Code */ 
+            INPUT "GP",     /* sys-ctrl name */
+            INPUT "I",            /* Output return value */
+            INPUT NO,             /* Use lship-to */
+            INPUT NO,             /* ship-to vendor */
+            INPUT "",             /* ship-to vendor value */
+            INPUT "",             /* shi-id value */
+            OUTPUT cReturnValue, 
+            OUTPUT lRecFound
+            ).
+        IF lRecFound THEN
+            iGPEDI = INTEGER(cReturnValue).    
+        
         IF NOT CAN-FIND(FIRST po-ordl
              WHERE po-ordl.company EQ po-ord.company
                AND po-ordl.po-no   EQ po-ord.po-no) THEN DO:
@@ -310,6 +336,19 @@
             RETURN.
         END.
         
+        FIND FIRST sys-ctrl-shipto NO-LOCK 
+             WHERE sys-ctrl-shipto.company      EQ po-ord.company 
+               AND sys-ctrl-shipto.name         EQ "GP" 
+               AND sys-ctrl-shipto.cust-vend    EQ FALSE
+               AND sys-ctrl-shipto.cust-vend-no EQ po-ord.vend-no
+             NO-ERROR.
+        IF iGPEDI EQ 1 AND AVAIL sys-ctrl-shipto THEN 
+            ASSIGN
+                cGPPartnerID   = ENTRY(1,sys-ctrl-shipto.char-fld,"|")
+                cGPPurchasedBY = CAPS(ENTRY(1, sys-ctrl-shipto.char-fld,"|"))
+                cGPPlantID     = ENTRY(2,sys-ctrl-shipto.char-fld,"|")
+                cGPBillto      = ENTRY(1,sys-ctrl-shipto.char-fld,"|") + " " + ENTRY(2,sys-ctrl-shipto.char-fld,"|")
+                .
         FIND FIRST company
              WHERE company.company EQ po-ord.company
              NO-LOCK.
@@ -352,6 +391,7 @@
                                  ELSE 
                                      "ORIGIN"
             cTotalCost         = STRING(po-ord.t-cost)
+            cCurrentDateTime   = STRING(DATETIME(TODAY,MTIME))
             .
         
         ASSIGN
@@ -388,7 +428,9 @@
         /* Fetch purchase order notes from notes table */    
         FOR EACH notes NO-LOCK
            WHERE notes.rec_key EQ po-ord.rec_key:
-            cPoNotes = cPoNotes + " " + STRING(notes.note_text).
+            ASSIGN 
+                cPoNotes   = cPoNotes + " " + STRING(notes.note_text)
+                cPoNotesGP = cPoNotesGP + IF cPoNotesGP EQ "" THEN "" ELSE ".**" + TRIM(notes.note_text).
         END.
         
         cPoNotes = REPLACE(cPoNotes, "~n", "").
@@ -471,6 +513,8 @@
                 lcLineData                  = STRING(APIOutboundDetail.data)
                 lcConcatLineAdderData       = ""
                 lcConcatLineScoresData      = ""
+                lcConcatLineScoresDataGP    = ""
+                lcConcatLineAdderDataGP     = ""
                 cPoLine                     = STRING(po-ordl.line)
                 cQuantityOrdered            = TRIM(STRING(po-ordl.ord-qty,"->>>>>>>>9.9<<<<<"))
                 cQuantityUOM                = STRING(po-ordl.pr-qty-uom)
@@ -726,6 +770,7 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "SPACE", " ").
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNo",cPoNo).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "shipToAddress1", cshipToAddress1).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "shipToAddress2", cshipToAddress2).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "shipToCity", cShipToCity).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "ShipToName", cShipToName).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "ShipToCompanyName", cShipToCompanyName).
@@ -733,9 +778,9 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "shipToZip", cShipToZip).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityOrderedInEA", cQtyInEA).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoLowQty", cPoLowQty).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoHighQty", cPoHighQty).  
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoHighQty", cPoHighQty).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "CurrentDate",cCurrentDateTime).  
             cItemWithAdders = cItemID.
-            
             /* Fetch adder details for the purchase order line */
             FOR EACH po-ordl-add NO-LOCK
                WHERE po-ordl-add.company EQ po-ordl.company
@@ -825,11 +870,18 @@
                             END.
                         END.
                        iIndex1 = iIndex1 + 1.
-                        IF iIndex1 LE 6 THEN
+                        IF iIndex1 LE 6 THEN DO:
+                            IF AVAILABLE bf-APIOutboundDetail1 AND bf-item.i-no NE ""  THEN DO:                                
+                                lcLineAdderDataGP = STRING(bf-APIOutboundDetail1.data).
+                                RUN updateRequestData(INPUT-OUTPUT lcLineAdderDataGP, "ItemWithaddersX10WithoutConcat", STRING(bf-item.i-no,"X(10)")).
+                                lcConcatLineAdderDataGP = lcConcatLineAdderDataGP + lcLineAdderDataGP.    
+                                                              
+                            END.    
                             ASSIGN  
                                 cItemWithAddersX4  = cItemWithAddersX4 + STRING(bf-item.i-no,"X(4)")
                                 cItemWithAddersX10 = cItemWithAddersX10 + STRING(bf-item.i-no,"X(10)")
-                                .    
+                                .  
+                        END.           
                     END.                                 
                 END.
             END.
@@ -879,7 +931,16 @@
                         
                     dScoreSizeDecimal = dScoreSizeArray[iIndex].
                 END.
-                
+                IF AVAILABLE bf-APIOutboundDetail2 AND dScoreSize16ths NE 0 THEN DO:
+                    lcLineScoresDataGP = STRING(bf-APIOutboundDetail2.data).
+                    
+                    RUN updateRequestData(INPUT-OUTPUT lcLineScoresDataGP, "scoreType", cScoreType).
+                    RUN updateRequestData(INPUT-OUTPUT lcLineScoresDataGP, "ScoreSequence", STRING(iIndex)).
+                    RUN updateRequestData(INPUT-OUTPUT lcLineScoresDataGP, "scoreSize16thsWithoutConcat", STRING(dScoreSizeDecimal)).
+                    
+                    lcConcatLineScoresDataGP = lcConcatLineScoresDataGP + lcLineScoresDataGP.
+                    
+                END.     
                 ASSIGN
                     cScoreSizeDecimal       = IF cScoreSizeDecimal EQ "" THEN 
                                                   TRIM(STRING(dScoreSizeDecimal, ">>>>>>>9.99<<<<"))
@@ -931,6 +992,10 @@
             lcLineData = REPLACE(lcLineData, "$lineAdder$", lcConcatLineAdderData).
             
             lcLineData = REPLACE(lcLineData, "$lineScores$", lcConcatLineScoresData).
+            
+            lcLineData =  REPLACE(lcLineData, "$LineAdderGP$", lcConcatLineAdderDataGP).
+            
+            lcLineData =  REPLACE(lcLineData, "$lineScoresGP$", lcConcatLineScoresDataGP).
 
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSize16ths", cScoreSize16ths).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimal", cScoreSizeDecimal).
@@ -1005,7 +1070,11 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SPACE", " ").
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToCompanyName", cShipToCompanyName).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrentDate",STRING(TODAY)).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalCost",cTotalCost).   
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalCost",cTotalCost). 
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "GPPartnerID",cGPPartnerID).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "GPPurchasedBy",cGPPurchasedBy).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "GPPlantID",cGPPlantID).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "GPBillto",cGPBillto).  
         
         
         /* This replace is required for replacing nested JSON data */
