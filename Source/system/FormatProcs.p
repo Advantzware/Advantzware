@@ -173,14 +173,14 @@ PROCEDURE Format_DateTime:
         glFormatAll       = FALSE
         .
 
-    RUN Format_MTime (
-        INPUT  MTIME(ipdtDateTime),
+    RUN Format_Date (
+        INPUT  DATE(ipdtDateTime),
         INPUT  opcDateTimeString,
         OUTPUT opcDateTimeString   
         ).
 
-    RUN Format_Date (
-        INPUT  DATE(ipdtDateTime),
+    RUN Format_MTime (
+        INPUT  MTIME(ipdtDateTime),
         INPUT  opcDateTimeString,
         OUTPUT opcDateTimeString   
         ).
