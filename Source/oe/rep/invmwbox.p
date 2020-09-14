@@ -86,9 +86,6 @@ def var v-bot-lab    as   char format "x(63)" extent 3 NO-UNDO.
 DEF VAR v-lines AS INT NO-UNDO.
 DEF VAR v-inv-freight LIKE inv-head.t-inv-freight NO-UNDO.
 DEF VAR v-frt-tax AS DEC NO-UNDO.
-DEFINE VARIABLE iQtyCasesShip LIKE oe-boll.cases NO-UNDO.
-DEFINE VARIABLE iCases LIKE oe-boll.cases NO-UNDO.
-DEFINE VARIABLE dExtPrice AS DECIMAL NO-UNDO.
 
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
@@ -112,6 +109,9 @@ DEF VAR v-comp-add1 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add2 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add3 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE lError        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iCaseQty      AS INTEGER   NO-UNDO.
     
     find first company where company.company = cocode no-lock no-error.
 /*    ASSIGN v-comp-add1 = company.addr[1]
@@ -349,8 +349,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
         for each inv-line no-lock where inv-line.r-no = inv-head.r-no:
           assign v-case-line = ""
                  v-part-line = ""
-                 v-case-cnt = ""
-                 iQtyCasesShip = 0.
+                 v-case-cnt = "".
 
           v-pc = "P". /* partial*/ 
           for each oe-boll no-lock where oe-boll.company = inv-line.company
@@ -363,7 +362,6 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
             assign v-case-line = string(oe-boll.cases) + " @ " +
                                      string(oe-boll.qty-case).
             else assign v-case-line = "".
-            iQtyCasesShip = iQtyCasesShip + oe-boll.qty-case.
             if oe-boll.partial ne 0 then
             assign v-part-line = "1" + " @ " + string(oe-boll.partial).
             else assign v-part-line = "".
@@ -411,7 +409,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
                    v-i-dscr = inv-line.i-name
                    v-price = inv-line.price * (1 - (inv-line.disc / 100))
                    v-t-price = inv-line.t-price
-                  .
+                   v-subtot-lines = v-subtot-lines + inv-line.t-price.
 
 
                 if inv-line.tax and avail stax then
@@ -441,36 +439,24 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
                    v-ord-no = inv-line.ord-no
                    v-price-head = inv-line.pr-uom.
                    
-           IF inv-line.pr-uom EQ "CS" THEN
-           DO:             
-            iCases =  ROUND(v-inv-qty / MAX(1,iQtyCasesShip),0) .
-            dExtPrice = iCases * v-price . 
-           END.
-           ELSE 
-            ASSIGN
-               iCases    = 0
-               dExtPrice = 0. 
-            
-             v-subtot-lines = v-subtot-lines + ( IF inv-line.pr-uom EQ "CS" THEN dExtPrice ELSE inv-line.t-price) .
-                     
-
+            IF inv-line.pr-uom EQ "CS" THEN       
+            RUN Conv_QuantityFromUOMtoUOM(inv-line.company, inv-line.i-no, "FG", 
+                    v-inv-qty, "EA", "CS",  
+                    0, 0, 0, 0, inv-line.cas-cnt, 
+                    OUTPUT iCaseQty, OUTPUT lError, OUTPUT cErrorMessage).       
+                
             PUT space(1)
-                v-po-no 
-                /*v-i-dscr  format "x(25)" SPACE(1)
-                v-inv-qty format "->>>>>9" SPACE(1) */ 
+                v-po-no                  
                 inv-line.part-no SPACE(17)
-                (IF inv-line.pr-uom EQ "CS" THEN iCases ELSE v-ship-qty)  format "->>>>>9" SPACE(1)
-              /*  v-bo-qty  format "->>>>>9" SPACE(1)
-                v-i-no  format "x(15)" SPACE(1) */ space(15)      
+                (IF inv-line.pr-uom EQ "CS" THEN iCaseQty ELSE v-inv-qty)  format "->>>>>9" SPACE(1)
+                space(15)      
                 v-price  format ">>>,>>9.9999"                
-                (IF inv-line.pr-uom EQ "CS" THEN dExtPrice ELSE inv-line.t-price)   format "->>>,>>9.99"                
+                inv-line.t-price  format "->>>,>>9.99"                
                 SKIP
-                v-ord-no SPACE(10)
-                /*inv-line.part-dscr1 space(19) */
+                v-ord-no SPACE(10)                  
                 inv-line.i-no SPACE(34)
                 v-pc  SPACE(8)
-                v-price-head SPACE(1) SKIP
-             /*   space(16) inv-line.part-dscr2  */
+                v-price-head SPACE(1) SKIP                
                 .
              v-printline = v-printline + 2.
              

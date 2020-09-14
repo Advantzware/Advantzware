@@ -55,9 +55,6 @@ def var minus-ship as int NO-UNDO.
 DEF VAR v-pc AS cha NO-UNDO. /* partial or complete */
 DEF VAR v-i-dscr2 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR lv-bol-no LIKE oe-bolh.bol-no NO-UNDO.
-DEFINE VARIABLE iQtyCasesShip LIKE oe-boll.cases NO-UNDO.
-DEFINE VARIABLE iCases LIKE oe-boll.cases NO-UNDO.
-DEFINE VARIABLE dExtPrice AS DECIMAL NO-UNDO.
 
 def buffer xar-inv for ar-inv .
 
@@ -118,6 +115,9 @@ DEF VAR v-comp-add1 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add2 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add3 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE lError        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iCaseQty      AS INTEGER   NO-UNDO.
     
     find first company where company.company = cocode no-lock no-error.
 /*    ASSIGN v-comp-add1 = company.addr[1]
@@ -404,20 +404,39 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
         for each ar-invl no-lock where ar-invl.x-no = ar-inv.x-no:
           assign v-case-line = ""
                  v-part-line = ""
-                 v-case-cnt = ""
-                 iQtyCasesShip = 0.
-           IF ar-invl.b-no NE 0 THEN
-            FOR EACH oe-boll NO-LOCK
-                WHERE oe-boll.company EQ ar-invl.company
-                  AND oe-boll.b-no    EQ ar-invl.b-no
-                  AND oe-boll.ord-no  EQ ar-invl.ord-no
-                  AND oe-boll.i-no    EQ ar-invl.i-no
-                  AND oe-boll.po-no   EQ ar-invl.po-no
-                BREAK BY oe-boll.po-no:
+                 v-case-cnt = "".
+          /*
+          v-pc = "P". /* partial*/ 
+          for each oe-boll no-lock where oe-boll.company = ar-invl.company
+                        and oe-boll.bol-no = ar-inv.bol-no
+                        /*and oe-boll.b-no = ar-invl.b-no*/
+                        and oe-boll.i-no = ar-invl.i-no use-index bol-no:
 
-              iQtyCasesShip = iQtyCasesShip + oe-boll.qty-case.
-              
-            END.
+                                       /** Build Case Count Display Lines **/
+            if oe-boll.cases ne 0 and oe-boll.qty-case ne 0 then
+            assign v-case-line = string(oe-boll.cases) + " @ " +
+                                     string(oe-boll.qty-case).
+            else assign v-case-line = "".
+            if oe-boll.partial ne 0 then
+            assign v-part-line = "1" + " @ " + string(oe-boll.partial).
+            else assign v-part-line = "".
+
+            IF oe-boll.p-c THEN v-pc = "C". /*complete*/
+
+            do i = 1 to 5:
+              if (80 - length(v-case-cnt[i])) > length(v-case-line) and
+                v-case-line ne "" then
+              assign v-case-cnt[i] = v-case-cnt[i] + v-case-line + "  "
+                     v-case-line = "".
+              if (80 - length(v-case-cnt[i])) > length(v-part-line) and
+                v-part-line ne "" then
+              assign v-case-cnt[i] = v-case-cnt[i] + v-part-line + "  "
+                     v-part-line = "".
+            end. /* 1 to 5 */
+
+            
+          end. /* each oe-boll */
+*/
           IF v-printline > 58 THEN do:           
                 PAGE.
                 {ar/rep/invmwbox.i}  /* xprint form */
@@ -447,7 +466,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
                    v-i-dscr = ar-invl.part-no /*i-name*/
                    v-price = ar-invl.unit-pr * (1 - (ar-invl.disc / 100))
                    v-t-price = ar-invl.amt
-                   .
+                   v-subtot-lines = v-subtot-lines + ar-invl.amt.
 
            /*
                 if ar-invl.tax and avail stax then
@@ -481,31 +500,25 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
             IF v-i-dscr = "" THEN v-i-dscr = ar-invl.i-name.
             IF v-ord-no = 0 AND v-ship-qty = 0 THEN v-ship-qty = v-inv-qty.
             
-            IF v-price-head EQ "CS" THEN
-            DO:             
-             iCases =  ROUND(v-inv-qty / MAX(1,iQtyCasesShip),0) .
-             dExtPrice = iCases * v-price . 
-            END.
-            ELSE 
-             ASSIGN
-                iCases    = 0
-                dExtPrice = 0.  
-             
-             v-subtot-lines = v-subtot-lines + (IF v-price-head EQ "CS" THEN dExtPrice ELSE ar-invl.amt ) .
+            IF ar-invl.pr-uom EQ "CS" THEN
+            RUN Conv_QuantityFromUOMtoUOM(ar-invl.company, ar-invl.i-no, "FG", 
+                    v-inv-qty, "EA", "CS",  
+                    0, 0, 0, 0, ar-invl.cas-cnt, 
+                    OUTPUT iCaseQty, OUTPUT lError, OUTPUT cErrorMessage).
 
             PUT space(1)
                 v-po-no 
-                v-i-dscr  format "x(25)" SPACE(1)                
+                v-i-dscr  format "x(25)" SPACE(1)               
                 SPACE(8)
-                (IF v-price-head EQ "CS" THEN iCases ELSE v-ship-qty )  format "->>>>>>" SPACE(1)
+                (IF ar-invl.pr-uom EQ "CS" THEN iCaseQty ELSE v-inv-qty)  format "->>>>>>" SPACE(1)
                 space(13)                               
                 v-price  format ">>>,>>9.9999" 
-                (IF v-price-head EQ "CS" THEN dExtPrice ELSE ar-invl.amt)  format "->>>,>>9.99"                
+                ar-invl.amt  format "->>>,>>9.99"                
                 SKIP
                 v-ord-no FORM ">>>>>>" SPACE(10)
-                v-i-dscr2 space(19)                
+                v-i-dscr2 space(19)                  
                 v-pc  SPACE(8)
-                v-price-head SPACE(1) SKIP                  
+                v-price-head SPACE(1) SKIP                   
                 .
              v-printline = v-printline + 2.
              
