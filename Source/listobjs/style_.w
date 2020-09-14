@@ -853,10 +853,10 @@ PROCEDURE run-report :
           style.dim-pan5 FORMAT '9.99' WHEN style.dim-pan5 NE 0
           style.dim-fit FORMAT '9.99' LABEL 'Lock Tab' WHEN style.dim-fit NE 0
             WITH FRAME flute STREAM-IO WIDTH 100 SIDE-LABELS.
-          iLineCount = iLineCount + 1.   
+          iLineCount = iLineCount + 4.   
         END.    
         
-        IF iLineCount GE 59   THEN DO:
+        IF iLineCount GE 70  THEN DO:
             PAGE.     
             imageFound = NO.
             iLineCount = 0.
@@ -879,7 +879,7 @@ PROCEDURE run-report :
           score.score[12] LABEL '12' WHEN score.score[12] NE 0
           score.score[13] LABEL '13' WHEN score.score[13] NE 0.
           iLineCount = iLineCount + 1. 
-        IF iLineCount GE 59   THEN DO:
+        IF iLineCount GE 70   THEN DO:
             PAGE.     
             imageFound = NO.
             iLineCount = 0.
