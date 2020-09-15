@@ -916,7 +916,7 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
             RUN pWriteToCoordinatesString(iopiRowCount, iColumn[1] + 1, estCostMaterial.itemName + IF estCostMaterial.vendorID NE "" THEN " (" + estCostMaterial.vendorID + ")" ELSE "", 30, NO, NO, NO).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostMaterial.quantityRequiredNoWasteInCUOM, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesString(iopiRowCount, iColumn[4] + 1, estCostMaterial.costUOM, 4, NO, NO, NO).
-            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], estCostMaterial.costPerUOM, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], estCostMaterial.costPerUOM, 7, 4, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesString(iopiRowCount, iColumn[5] + 1, estCostMaterial.costUOM, 4, NO, NO, NO).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostMaterial.costTotalPerMFinishedNoWaste, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[7], estCostMaterial.costTotalNoWaste, 7, 2, NO, YES, NO, NO, YES).
