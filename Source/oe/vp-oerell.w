@@ -38,6 +38,20 @@ ASSIGN locode = g_loc.
 
 DEFINE TEMP-TABLE tt-oe-rell NO-UNDO LIKE oe-rell.
 
+DEFINE VARIABLE lAllowUpdate AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+
+RUN methods/prgsecur.p
+	    (INPUT "p-ordhd.",
+	     INPUT "ALL", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAllowUpdate, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -554,8 +568,8 @@ PROCEDURE local-row-available :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
 
-  DO WITH FRAME {&FRAME-NAME}: 
-    IF AVAIL oe-relh AND oe-relh.posted EQ YES THEN DO:
+  DO WITH FRAME {&FRAME-NAME}:    
+    IF (AVAIL oe-relh AND oe-relh.posted EQ YES) OR NOT lAllowUpdate THEN DO:
         ASSIGN Btn-View:SENSITIVE = NO.                                                          
         Btn-Save:SENSITIVE = NO.
         Btn-Add:SENSITIVE = NO.
