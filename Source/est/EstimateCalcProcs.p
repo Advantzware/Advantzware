@@ -31,6 +31,7 @@ DEFINE VARIABLE gcInkMatTypes                         AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcPackMatTypes                        AS CHARACTER NO-UNDO INITIAL "5,6,C,D,J,M".
 DEFINE VARIABLE gcLeafMatTypes                        AS CHARACTER NO-UNDO INITIAL "F,W".
 DEFINE VARIABLE gcWindowMatTypes                      AS CHARACTER NO-UNDO INITIAL "W".
+DEFINE VARIABLE gcAdderMatTypes                       AS CHARACTER NO-UNDO INITIAL "A".
 
 DEFINE VARIABLE gcDeptsForPrinters                    AS CHARACTER NO-UNDO INITIAL "PR".
 DEFINE VARIABLE gcDeptsForGluers                      AS CHARACTER NO-UNDO INITIAL "GL,QS".
@@ -2051,7 +2052,8 @@ PROCEDURE pCalculateHeader PRIVATE:
             IF AVAILABLE bf-estCostBlank AND bf-estCostBlank.isPurchased THEN 
                 RUN pProcessFarm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, BUFFER bf-estCostBlank ).
             RUN pProcessLeafs(BUFFER ef, BUFFER bf-estCostHeader, BUFFER bf-estCostForm).
-            RUN pProcessBoard(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, ef.board).           
+            RUN pProcessBoard(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, ef.board).      
+            RUN pProcessAdders(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, ef.adder).   
             RUN pProcessInks(BUFFER bf-estCostHeader, BUFFER bf-estCostForm).
             RUN pProcessGlues(BUFFER bf-estCostHeader, BUFFER bf-estCostForm).
             RUN pProcessSpecialMaterials(BUFFER ef, BUFFER bf-estCostHeader, BUFFER bf-estCostForm).  
@@ -2927,6 +2929,72 @@ PROCEDURE pGetStrapping PRIVATE:
             opcQuantityUOM               = cStrapUOM.
         
             
+    END.
+
+END PROCEDURE.
+
+PROCEDURE pProcessAdders PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: for a given form, build the estCostMaterial for adders
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
+    DEFINE PARAMETER BUFFER ipbf-estCostForm   FOR estCostForm.
+    DEFINE INPUT PARAMETER ipcAdders LIKE ef.adder NO-UNDO.
+
+    DEFINE BUFFER bf-estCostMaterial      FOR estCostMaterial.
+    DEFINE BUFFER bf-item                 FOR ITEM.
+    DEFINE BUFFER bfBoard-estCostMaterial FOR estCostMaterial.
+    
+    DEFINE VARIABLE iCount AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cAdder AS CHARACTER NO-UNDO.
+    
+    DO iCount = 1 TO EXTENT(ipcAdders):
+        cAdder = ipcAdders[iCount].
+        IF cAdder NE "" THEN 
+        DO:
+            FIND FIRST bf-item NO-LOCK 
+                WHERE bf-item.company EQ ipbf-estCostForm.company
+                AND bf-item.i-no EQ cAdder
+                NO-ERROR.
+            IF NOT AVAILABLE bf-item THEN 
+            DO:
+                RUN pAddError("Adder '" + cAdder + "' is not valid", gcErrorWarning, ipbf-estCostForm.estCostHeaderID, ipbf-estCostForm.formNo, 0).
+                RETURN.
+            END.
+            IF NOT CAN-DO(gcAdderMatTypes,bf-item.mat-type) THEN 
+            DO:
+                RUN pAddError("Adder '" + cAdder + "' is valid material but not a material type of " + gcAdderMatTypes, gcErrorWarning, ipbf-estCostForm.estCostHeaderID, ipbf-estCostForm.formNo, 0).
+                RETURN.
+            END.      
+            RUN pAddEstMaterial(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, cAdder, 0, BUFFER bf-estCostMaterial).
+            ASSIGN 
+                bf-estCostMaterial.isPrimarySubstrate         = NO
+                bf-estCostMaterial.addToWeightNet             = YES
+                bf-estCostMaterial.addToWeightTare            = NO
+                                       
+                bf-estCostMaterial.quantityRequiredNoWaste    = ipbf-estCostForm.grossQtyRequiredNoWaste
+                bf-estCostMaterial.quantityRequiredSetupWaste = ipbf-estCostForm.grossQtyRequiredSetupWaste
+                bf-estCostMaterial.quantityRequiredRunWaste   = ipbf-estCostForm.grossQtyRequiredRunWaste
+                bf-estCostMaterial.quantityUOMWaste           = "EA"
+                bf-estCostMaterial.quantityUOM                = "EA"
+                bf-estCostMaterial.basisWeight                = bf-item.basis-w
+                bf-estCostMaterial.dimWidth                   = ipbf-estCostForm.grossWidth
+                bf-estCostMaterial.dimLength                  = ipbf-estCostForm.grossLength
+                bf-estCostMaterial.dimDepth                   = ipbf-estCostForm.grossDepth
+                bf-estCostMaterial.noCharge                   = ipbf-estCostForm.noCost
+                .
+            FIND FIRST bfBoard-estCostMaterial NO-LOCK 
+                WHERE bfBoard-estCostMaterial.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+                AND bfBoard-estCostMaterial.estCostFormID EQ ipbf-estCostForm.estCostFormID
+                AND bfBoard-estCostMaterial.isPrimarySubstrate
+                NO-ERROR.
+            IF AVAILABLE bfBoard-estCostMaterial THEN 
+                bf-estCostMaterial.vendorID = bfBoard-estCostMaterial.vendorID.
+            
+            RUN pCalcEstMaterial(BUFFER ipbf-estCostHeader, BUFFER bf-estCostMaterial, BUFFER ipbf-estCostForm).   
+    
+        END.
     END.
 
 END PROCEDURE.
@@ -4108,15 +4176,28 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
             cScope              = DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM-Over")
             lIncludeBlankVendor = YES
             .
-        RUN VendCost_GetBestCost(ipbf-estCostMaterial.company, 
-            ipbf-estCostMaterial.itemID, "RM", 
-            cScope, lIncludeBlankVendor, 
-            ipbf-estCostMaterial.estimateNo, ipbf-estCostMaterial.formNo, ipbf-estCostMaterial.blankNo,
-            ipdQty, ipcQtyUOM, 
-            ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth, ipbf-estCostMaterial.dimUOM, 
-            ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM,
-            OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, OUTPUT opdCostDeviation,
-            OUTPUT lError, OUTPUT cMessage).
+        IF ipbf-estCostMaterial.vendorID NE "" THEN 
+        DO:
+            opcVendorID = ipbf-estCostMaterial.vendorID.
+            RUN GetVendorCost(ipbf-estCostMaterial.company, ipbf-estCostMaterial.itemID, "RM", 
+                opcVendorID, "", ipbf-estCostMaterial.estimateNo, ipbf-estCostMaterial.formNo, ipbf-estCostMaterial.blankNo, 
+                ipdQty, ipcQtyUOM, 
+                ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth, ipbf-estCostMaterial.dimUOM, 
+                ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM, 
+                NO,
+                OUTPUT opdCost, OUTPUT opdSetup, OUTPUT opcCostUOM, OUTPUT dCostTotal, OUTPUT lError, OUTPUT cMessage).
+        END.
+        ELSE
+            
+            RUN VendCost_GetBestCost(ipbf-estCostMaterial.company, 
+                ipbf-estCostMaterial.itemID, "RM", 
+                cScope, lIncludeBlankVendor, 
+                ipbf-estCostMaterial.estimateNo, ipbf-estCostMaterial.formNo, ipbf-estCostMaterial.blankNo,
+                ipdQty, ipcQtyUOM, 
+                ipbf-estCostMaterial.dimLength, ipbf-estCostMaterial.dimWidth, ipbf-estCostMaterial.dimDepth, ipbf-estCostMaterial.dimUOM, 
+                ipbf-estCostMaterial.basisWeight, ipbf-estCostMaterial.basisWeightUOM,
+                OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, OUTPUT opdCostDeviation,
+                OUTPUT lError, OUTPUT cMessage).
 
         RETURN.
     END.
