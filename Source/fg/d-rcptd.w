@@ -660,7 +660,7 @@ DO:
                             IF char-val <> "" THEN 
                             DO :
                                 ASSIGN 
-                                    FOCUS:SCREEN-VALUE           = ENTRY(1,char-val)
+                                    fg-rctd.i-no:SCREEN-VALUE           = ENTRY(1,char-val)
                                     fg-rctd.i-name:screen-value  = ENTRY(2,char-val)                                    
                                     fg-rctd.po-line:screen-value = ENTRY(6,char-val)
                                     .
@@ -950,6 +950,7 @@ DO:
         DEFINE VARIABLE lQtyChanged   AS LOG       NO-UNDO.
         DEFINE VARIABLE lOK           AS LOG       NO-UNDO.
         DEFINE VARIABLE iLinker       AS INTEGER   NO-UNDO.
+        DEFINE VARIABLE lErrorReturn  AS LOGICAL   NO-UNDO.
 
         IF ip-type EQ "view" THEN 
         DO: 
@@ -1003,9 +1004,12 @@ DO:
 
         RUN valid-lot# (fg-rctd.stack-code:HANDLE) NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-        RUN valid-po-no (1) NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        
+        RUN valid-po-no (INPUT 1, OUTPUT lErrorReturn) NO-ERROR.
+        IF lErrorReturn THEN RETURN NO-APPLY.
+        
+        RUN valid-po-no (INPUT 0, OUTPUT lErrorReturn) NO-ERROR.
+        IF lErrorReturn THEN RETURN NO-APPLY.
 
         IF glCheckClosedStatus THEN DO:       
             RUN CheckPOLineStatus IN hdPoProcs(
@@ -1334,18 +1338,15 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.i-no Dialog-Frame
 ON LEAVE OF fg-rctd.i-no IN FRAME Dialog-Frame /* Item No */
 DO:
+        DEFINE VARIABLE lErrorReturn  AS LOGICAL   NO-UNDO.
+        
         IF LASTKEY = -1 THEN RETURN.
 
         IF INT(fg-rctd.po-no:SCREEN-VALUE ) NE 0 AND
             fg-rctd.i-no:SCREEN-VALUE  NE ""      THEN 
         DO:
-            RUN valid-po-no (0) NO-ERROR.
-            IF ERROR-STATUS:ERROR THEN 
-            DO:
-                MESSAGE "FG does not exist on PO..." VIEW-AS ALERT-BOX ERROR.
-                APPLY "entry" TO fg-rctd.i-no .
-                RETURN NO-APPLY.
-            END.
+            RUN valid-po-no (INPUT 0, OUTPUT lErrorReturn) NO-ERROR.
+            IF lErrorReturn THEN  RETURN NO-APPLY .          
         END.
 
         FIND FIRST itemfg {sys/look/itemfgrlW.i}
@@ -1661,6 +1662,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.po-no Dialog-Frame
 ON LEAVE OF fg-rctd.po-no IN FRAME Dialog-Frame /* PO # */
 DO: 
+        DEFINE VARIABLE lErrorReturn  AS LOGICAL   NO-UNDO.
         IF LASTKEY NE -1 THEN 
         DO:
             IF INT({&self-name}:SCREEN-VALUE ) EQ 0 THEN
@@ -1693,8 +1695,8 @@ DO:
                 RUN pGetLocBin .
             END.
 
-            RUN valid-po-no (1) NO-ERROR.
-            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+            RUN valid-po-no (INPUT 1, OUTPUT lErrorReturn) NO-ERROR.
+            IF lErrorReturn THEN RETURN NO-APPLY.
          
             IF glCheckClosedStatus THEN DO:
                 RUN CheckPOLineStatus IN hdPoProcs(
@@ -4236,7 +4238,8 @@ PROCEDURE valid-po-no :
               Notes:       
             ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ip-type AS INTEGER NO-UNDO.
-
+    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+                 
     DO WITH FRAME {&FRAME-NAME}:
         IF NOT AVAILABLE fg-rctd AND INTEGER(fg-rctd.r-no:SCREEN-VALUE ) GT 0 THEN 
         DO:
@@ -4244,9 +4247,9 @@ PROCEDURE valid-po-no :
                 WHERE fg-rctd.r-no EQ INTEGER(fg-rctd.r-no:SCREEN-VALUE ) 
                 NO-LOCK NO-ERROR.
         END.  /*Mode 001*/
-
-        IF INT(fg-rctd.po-no:SCREEN-VALUE ) NE 0              AND
-            NOT CAN-FIND(FIRST tt-fg-rctd WHERE tt-fg-rctd.tt-rowid EQ ROWID(fg-rctd)) THEN 
+              
+        IF INT(fg-rctd.po-no:SCREEN-VALUE ) NE 0              /*AND
+            NOT CAN-FIND(FIRST tt-fg-rctd WHERE tt-fg-rctd.tt-rowid EQ ROWID(fg-rctd))*/ THEN 
         DO:
             IF fg-rctd.job-no:SCREEN-VALUE  NE "" THEN 
             DO:
@@ -4254,22 +4257,29 @@ PROCEDURE valid-po-no :
                 fg-rctd.po-no:SCREEN-VALUE  = "".
                 RETURN.
             END.
-
+              
             FIND FIRST po-ordl
                 WHERE po-ordl.company   EQ cocode
                 AND po-ordl.po-no     EQ INT(fg-rctd.po-no:SCREEN-VALUE )
-                AND po-ordl.item-type EQ NO
-                AND (po-ordl.i-no     EQ fg-rctd.i-no:SCREEN-VALUE  OR
-                fg-rctd.i-no:SCREEN-VALUE  EQ "")
+                AND po-ordl.item-type EQ NO 
+                AND ((ip-type EQ 0 AND (po-ordl.i-no     EQ fg-rctd.i-no:SCREEN-VALUE  OR
+                fg-rctd.i-no:SCREEN-VALUE  EQ "")) OR ip-type EQ 1) 
                 NO-LOCK NO-ERROR.
+                
             IF NOT AVAILABLE po-ordl THEN 
-            DO:
-                IF ip-type NE 0 THEN 
+            DO:               
+                IF ip-type EQ 1 THEN 
                 DO:
                     MESSAGE "Invalid PO#, try help..." VIEW-AS ALERT-BOX ERROR.
                     APPLY "entry" TO fg-rctd.po-no .
                 END.
-                RETURN ERROR.
+                IF ip-type EQ 0 THEN 
+                DO:
+                    MESSAGE "Item No is not on the Po and line referenced, please correct the entry." VIEW-AS ALERT-BOX ERROR.
+                    APPLY "entry" TO fg-rctd.i-no .
+                END.
+                oplReturnError = YES.
+                RETURN.
             END.
 
             ASSIGN 
@@ -4284,7 +4294,7 @@ PROCEDURE valid-po-no :
             DO: /* ticket 17372 */
                 MESSAGE "Unable to receive goods or materials for a purchase order that is on hold!"
                     VIEW-AS ALERT-BOX ERROR. 
-                RETURN ERROR.
+                oplReturnError = YES.
             END.
       
             /* WFK - Task 09261318 - Don't pull qty from PO if there is a tag per Joe, */
