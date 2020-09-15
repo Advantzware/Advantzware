@@ -31,8 +31,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 def var voverall as dec form ">>>,>>9.99" no-undo.
-def var vtot-msf as dec form ">>>>9.99" no-undo.
-def var vtot-lbs as dec form ">>>>>>>9" no-undo.
+def var vtot-msf as dec form ">>>>9.99999" no-undo.
 DEFINE VARIABLE dMatPctSellPrice LIKE probe.net-profit. 
 
 def new shared buffer xest for est.
@@ -235,8 +234,8 @@ END.
     IF lv-sort-by EQ "do-quote"        THEN string(probe.do-quote)                                         ELSE ~
     IF lv-sort-by EQ "probe-date"      THEN STRING(INT(probe.probe-date),"9999999999")                     ELSE ~
     IF lv-sort-by EQ "probe-user"      THEN string(probe.probe-user)                                       ELSE ~
-    IF lv-sort-by EQ "vtot-lbs"        THEN string(probe.tot-lbs,"-9999999999.99")                        ELSE ~
-    IF lv-sort-by EQ "vtot-msf"        THEN string(vtot-msf())                                             ELSE ~
+    IF lv-sort-by EQ "tot-lbs"        THEN string(probe.tot-lbs,"-9999999999.99")                          ELSE ~
+    IF lv-sort-by EQ "vtot-msf"        THEN string(probe.gshQtyInSF,"-99999999.99")                      ELSE ~
     IF lv-sort-by EQ "ls-probetime"    THEN string(cvt-time(probe.probe-time))                             ELSE ~
     IF lv-sort-by EQ "spare-dec-1"      THEN string(probe.spare-dec-1)                                     ELSE ~
     IF lv-sort-by EQ "dMatPctSellPrice"    THEN string(fDirectMatPctSellPrice(1))                          ELSE ~
@@ -289,7 +288,7 @@ probe.full-cost display-gp (1) @ probe.gross-profit ~
 probe.gross-profit display-gp (1) @ probe.gross-profit probe.comm ~
 probe.net-profit probe.sell-price probe.gsh-qty probe.do-quote ~
 voverall(1) @ voverall probe.probe-date probe.probe-user ~
-vtot-lbs() @ vtot-lbs vtot-msf() @ vtot-msf ~
+probe.tot-lbs vtot-msf() @ vtot-msf  ~
 cvt-time(probe.probe-time) @ ls-probetime probe.spare-dec-1 ~
 fDirectMatPctSellPrice(1) @ dMatPctSellPrice 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table probe.full-cost ~
@@ -397,13 +396,6 @@ FUNCTION voverall RETURNS DECIMAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD vtot-lbs B-table-Win 
-FUNCTION vtot-lbs RETURNS DECIMAL
-  ( /* parameter-definitions */ )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD vtot-msf B-table-Win 
 FUNCTION vtot-msf RETURNS DECIMAL
   ( /* parameter-definitions */ )  FORWARD.
@@ -452,7 +444,7 @@ DEFINE BROWSE br_table
             COLUMN-FONT 0
       probe.probe-date FORMAT "99/99/9999":U
       probe.probe-user COLUMN-LABEL "Probe By" FORMAT "X(8)":U
-      vtot-lbs() @ vtot-lbs COLUMN-LABEL "Shipping!Weight" WIDTH 12.2
+      probe.tot-lbs COLUMN-LABEL "Shipping!Weight" WIDTH 12.2
       vtot-msf() @ vtot-msf COLUMN-LABEL "Total!MSF" COLUMN-FONT 0
       cvt-time(probe.probe-time) @ ls-probetime COLUMN-LABEL "Time" FORMAT "x(8)":U
       probe.spare-dec-1 COLUMN-LABEL "Direct!Material" FORMAT "->>>,>>9.99":U
@@ -590,8 +582,8 @@ ASI.probe.est-no = ASI.eb.est-no"
      _FldNameList[13]   = ASI.probe.probe-date
      _FldNameList[14]   > ASI.probe.probe-user
 "probe.probe-user" "Probe By" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > "_<CALC>"
-"vtot-lbs() @ vtot-lbs" "Shipping!Weight" ? ? ? ? ? ? ? ? no ? no no "12.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[15]   > "ASI.probe.tot-lbs"
+"probe.tot-lbs" "Shipping!Weight" ? ? ? ? ? ? ? ? no ? no no "12.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > "_<CALC>"
 "vtot-msf() @ vtot-msf" "Total!MSF" ? ? ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > "_<CALC>"
@@ -4069,25 +4061,6 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION vtot-lbs B-table-Win 
-FUNCTION vtot-lbs RETURNS DECIMAL
-  ( /* parameter-definitions */ ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-  def var lv-tot-lbs as dec no-undo.
-
-  
-  if avail probe then lv-tot-lbs = probe.tot-lbs.
-  else lv-tot-lbs = 0.
-
-  RETURN lv-tot-lbs.   /* Function return value. */
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION vtot-msf B-table-Win 
 FUNCTION vtot-msf RETURNS DECIMAL
@@ -4099,7 +4072,7 @@ FUNCTION vtot-msf RETURNS DECIMAL
   def var lv-tot-msf as dec no-undo.
 
   
-  if avail probe then lv-tot-msf = probe.tot-lbs / 1000.
+  if avail probe then lv-tot-msf = probe.gshQtyInSF / 1000.
   else lv-tot-msf = 0.
 
   RETURN lv-tot-msf.   /* Function return value. */
