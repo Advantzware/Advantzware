@@ -159,7 +159,7 @@ DEFINE BROWSE BROWSE-1
       prep.code FORMAT "x(20)":U
       prep.dscr FORMAT "x(20)":U
       prep.cost FORMAT "->>,>>9.99":U
-      prep.mkup FORMAT ">>9.99":U
+      prep.mkup FORMAT "->>9.99":U
       prep.spare-dec-1 COLUMN-LABEL "Price" FORMAT "->>>,>>>9.99<<":U
       prep.taxable COLUMN-LABEL "Taxable" FORMAT "yes/no":U
       prep.loc COLUMN-LABEL "is" FORMAT "OPENED":U
@@ -224,11 +224,12 @@ ASSIGN
 "code" ? "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   = ASI.prep.dscr
      _FldNameList[3]   = ASI.prep.cost
-     _FldNameList[4]   = ASI.prep.mkup
+     _FldNameList[4]   > ASI.prep.mkup
+"mkup" ? "->>9.99" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.prep.spare-dec-1
 "spare-dec-1" "Price" "->>>,>>>9.99<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > ASI.prep.taxable
-"taxable" "Taxable" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   = ASI.prep.taxable
+"taxable" "Taxable" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no     
      _FldNameList[7]   > ASI.prep.loc
 "loc" "is" "OPENED" "character" ? ? ? ? ? ? no "" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
