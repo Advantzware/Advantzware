@@ -181,6 +181,7 @@ END PROCEDURE.
 PROCEDURE getScenario:
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
+  {{&includes}/getPending.i}
   {{&includes}/getScenario.i}
 END PROCEDURE.
 
