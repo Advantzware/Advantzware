@@ -4,7 +4,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
-  File: util/autoclosejobs.w
+  File: util/AmazonInvoice.w
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -30,6 +30,15 @@ CREATE WIDGET-POOL.
 assign
  cocode = g_company
  locode = g_loc.
+ 
+DEFINE TEMP-TABLE ttInv
+  FIELD iInvNo AS INT 
+  INDEX byInvNo iInvNo
+  .
+  
+DEFINE VARIABLE cInvNo AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iTempInvoice AS INTEGER NO-UNDO.
+DEFINE STREAM s1.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -46,9 +55,9 @@ assign
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 fiInvNo tbOverwriteEDI btn-process ~
-btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiInvNo tbOverwriteEDI 
+&Scoped-Define ENABLED-OBJECTS RECT-17 fiCsvFile btSelectFile ~
+tbOverwriteEDI btn-process btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS fiCsvFile tbOverwriteEDI 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -66,44 +75,54 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel 
      LABEL "Ca&ncel" 
-     SIZE 18 BY 1.14.
+     SIZE 12 BY .76.
 
 DEFINE BUTTON btn-process 
      LABEL "&Generate 810 Invoice" 
-     SIZE 26 BY 1.14.
+     SIZE 17.4 BY .76.
 
-DEFINE VARIABLE fiInvNo AS INTEGER FORMAT ">>,>>>,>>9":U INITIAL 0 
-     LABEL "Invoice Number" 
+DEFINE BUTTON btSelectFile 
+     LABEL "Select CSV File" 
+     SIZE 35 BY 1.14.
+
+DEFINE VARIABLE fiCsvFile AS CHARACTER FORMAT "X(256)":U 
+     LABEL "CSV File" 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 81.8 BY 1 TOOLTIP "Enter the nameof a csv file where inovice number is first" NO-UNDO.
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 89 BY 6.19.
+     SIZE 99 BY 6.91.
 
 DEFINE VARIABLE tbOverwriteEDI AS LOGICAL INITIAL no 
      LABEL "Overwrite Existing EDI?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 27 BY .81 NO-UNDO.
+     SIZE 18 BY .52 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     fiInvNo AT ROW 4.1 COL 22 COLON-ALIGNED WIDGET-ID 2
-     tbOverwriteEDI AT ROW 4.1 COL 48 WIDGET-ID 4
+     fiCsvFile AT ROW 3.86 COL 8.2 COLON-ALIGNED WIDGET-ID 6
+     btSelectFile AT ROW 5.29 COL 16 WIDGET-ID 8
+     tbOverwriteEDI AT ROW 7.67 COL 6 WIDGET-ID 4
      btn-process AT ROW 9.1 COL 14
      btn-cancel AT ROW 9.1 COL 47
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .62 AT ROW 2.19 COL 5
+          SIZE 28 BY .43 AT ROW 2.19 COL 5
      "" VIEW-AS TEXT
-          SIZE 2.2 BY .95 AT ROW 1.95 COL 88
+          SIZE 1.4 BY .62 AT ROW 1.95 COL 88
           BGCOLOR 11 
+     "(Check this only if instructed to)" VIEW-AS TEXT
+          SIZE 35 BY .62 AT ROW 7.67 COL 26 WIDGET-ID 10
+     "Note:  The CSV fiile must have the invoice number as the first column" VIEW-AS TEXT
+          SIZE 72 BY .62 AT ROW 6.48 COL 11 WIDGET-ID 12
+          FGCOLOR 12 
      RECT-17 AT ROW 1.71 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 89.6 BY 10.33.
+         SIZE 107.2 BY 10.33.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -123,8 +142,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Generate EDI Invoice"
-         HEIGHT             = 10.67
-         WIDTH              = 89.6
+         HEIGHT             = 10.19
+         WIDTH              = 107
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
@@ -213,6 +232,20 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME btSelectFile
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSelectFile C-Win
+ON CHOOSE OF btSelectFile IN FRAME FRAME-A /* Cancel */
+DO:
+    DEFINE VARIABLE cFilePath AS CHARACTER NO-UNDO.
+
+    SYSTEM-DIALOG GET-FILE cFilePath
+        TITLE "Select CSV file of invoice numbers".
+
+    fiCSVFile:SCREEN-VALUE = cFilePath.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME btn-process
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
@@ -261,7 +294,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
   DO WITH FRAME {&FRAME-NAME}:
-    APPLY "entry" TO fiInvNo.
+    APPLY "entry" TO fiCSVFile.
   END.
   WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -302,9 +335,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiInvNo tbOverwriteEDI 
+  DISPLAY fiCsvFile tbOverwriteEDI 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 fiInvNo tbOverwriteEDI btn-process btn-cancel 
+  ENABLE RECT-17 fiCsvFile btSelectFile tbOverwriteEDI btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -312,6 +345,82 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckMissingBuyer C-Win
+PROCEDURE pCheckMissingBuyer:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEF VAR cShipto AS CHAR.
+            IF AVAIL ar-inv THEN             
+               cShipTo = ar-inv.ship-id.
+            else
+               cShipto = IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to.
+        FIND FIRST edshipto NO-LOCK
+            WHERE edshipto.partner = edcode.partner
+            AND edshipto.ship-to = cShipTo
+            AND edshipto.ref-type = "BY"
+            NO-ERROR.
+
+        IF AVAIL eddoc THEN 
+        DO:
+            FIND FIRST edivtran OF eddoc. 
+            IF NOT AVAIL edivtran THEN 
+              RETURN.
+              
+            FIND FIRST EDShipto NO-LOCK WHERE 
+                EDShipto.Partner EQ EDIVTran.partner
+                AND EDShipto.ship-to EQ EDIVTran.By-code 
+                AND EDShipto.Ref-type EQ "BY"
+                NO-ERROR.
+
+             
+            IF edivtran.by-code EQ "" THEN do:
+                edivtran.by-code = cShipTo.
+            FIND FIRST EDShipto NO-LOCK WHERE 
+                EDShipto.Partner EQ EDIVTran.partner
+                AND EDShipto.ship-to EQ EDIVTran.By-code 
+                AND EDShipto.Ref-type EQ "BY"
+                NO-ERROR.                
+            END.
+            FIND FIRST shipto NO-LOCK
+                WHERE shipto.company EQ (IF AVAIL ar-inv THEN ar-inv.company ELSE inv-head.company)
+                AND shipto.ship-id EQ edivtran.by-code
+                AND shipto.cust-no EQ (IF AVAIL ar-inv THEN ar-inv.cust-no ELSE inv-head.cust-no)
+                NO-ERROR.
+          
+            IF AVAIL shipto AND NOT AVAIL edshipto THEN 
+            DO:
+                CREATE edshipto.
+                 
+                ASSIGN
+                    edshipto.partner  = edivtran.partner
+                    edshipto.ref-type = "BY"
+                    edshipto.by-code  = edivtran.by-code    /* partner must assign this */
+                    edshipto.cust     = edivtran.cust
+                    edshipto.ship-to  = edivtran.by-code
+                    .
+                ASSIGN
+                    edshipto.name    = shipto.ship-name
+                    edshipto.addr1   = shipto.ship-addr[1]
+                    edshipto.addr2   = shipto.ship-addr[2]
+                    edshipto.city    = shipto.ship-city
+                    edshipto.state   = shipto.ship-state
+                    edshipto.zip     = shipto.ship-zip
+                    edshipto.country = "US"
+                    .          
+                   //  message "edshipto created" view-as alert-box.
+            END.           
+
+      END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
@@ -341,8 +450,7 @@ DEFINE VARIABLE lv-audit-dir AS CHARACTER NO-UNDO.
 {custom/gcompany.i}
 {custom/gloc.i}
 
-
-DEFINE VARIABLE iInvNo      AS INTEGER NO-UNDO. 
+ 
 DEFINE VARIABLE lDeleteOrig AS LOGICAL NO-UNDO.
 IF gCompany EQ "" THEN 
   gcompany = '001'.
@@ -361,29 +469,39 @@ IF AVAILABLE company THEN lv-comp-curr = company.curr-code.
 
 RUN rc/genrcvar.p. 
 
-ASSIGN iInvNo = fiInvNo
+ASSIGN 
        lDeleteOrig = tbOverwriteEDI
        .
-       
-MAIN:
-DO:
+IF SEARCH(fiCSVFile) NE ? THEN DO:
+    INPUT STREAM s1 FROM value(fiCSVFile).
+    REPEAT:
+          IMPORT STREAM s1 DELIMITER "," cInvNo.
+          iTempInvoice = INTEGER(cInvNo) NO-ERROR. 
+          IF ERROR-STATUS:ERROR THEN 
+            NEXT.
+          CREATE ttInv.
+          ASSIGN ttInv.iInvNo = iTempInvoice.
+    END.
+    INPUT STREAM s1 CLOSE.
+END.       
 
-    IF iInvNo EQ 0 THEN 
+MAIN:
+FOR EACH ttInv:
+
+    IF ttInv.iInvNo EQ 0 THEN 
         LEAVE MAIN.
        
    
     FIND FIRST ar-inv WHERE ar-inv.company EQ cocode 
-        AND ar-inv.inv-no EQ iInvNo
+        AND ar-inv.inv-no EQ ttInv.iInvNo
         NO-ERROR.
     IF NOT AVAILABLE ar-inv THEN 
         FIND FIRST inv-head WHERE inv-head.company EQ cocode 
-            AND inv-head.inv-no EQ iInvNo
+            AND inv-head.inv-no EQ ttInv.iInvNo
             NO-ERROR.
     IF NOT AVAILABLE ar-inv AND NOT AVAILABLE inv-head THEN 
     DO:
-        MESSAGE "Invoice not found!"
-            VIEW-AS ALERT-BOX.
-        LEAVE MAIN.
+       NEXT MAIN.
     END. 
     
     IF lDeleteOrig THEN 
@@ -428,8 +546,30 @@ DO:
           eddoc.posted = NO.
         
     END.
+    FIND FIRST eddoc NO-LOCK 
+        WHERE eddoc.seq EQ edivtran.seq 
+          AND eddoc.partner EQ edivtran.partner
+        NO-ERROR.
+    RUN pCheckMissingBuyer.
+    
     /* Create eddoc for invoice if required */
     RUN ed/asi/o810hook.p (IF AVAILABLE(ar-inv) THEN RECID(ar-inv) ELSE RECID(inv-head), NO, NO).  
+    FIND FIRST edivtran NO-LOCK 
+    WHERE edivtran.company EQ cocode
+      AND edivtran.invoice-no EQ string(IF AVAILABLE ar-inv THEN ar-inv.inv-no ELSE inv-head.inv-no)
+    NO-ERROR. 
+    
+    if avail edivtran then 
+    FIND FIRST eddoc exclusive-lock
+    WHERE eddoc.seq EQ edivtran.seq 
+      AND eddoc.partner EQ edivtran.partner
+    NO-ERROR.
+    
+    IF AVAILABLE eddoc THEN 
+      eddoc.posted = NO.
+          
+    release eddoc.    
+    
     FIND FIRST edmast NO-LOCK
         WHERE edmast.cust EQ (IF AVAILABLE (ar-inv) THEN ar-inv.cust-no ELSE inv-head.cust-no)
         NO-ERROR.
