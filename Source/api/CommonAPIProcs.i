@@ -86,7 +86,7 @@ PROCEDURE updateRequestData:
         ASSIGN
             cFormat     = ""
             cFormatType = ""
-            cNextChar   = SUBSTRING(ioplcRequestData,INDEX(ioplcRequestData,cFieldValuePrefix + ipcField) + LENGTH(cFieldValuePrefix + ipcField), 1)
+            cNextChar   = SUBSTRING(ioplcRequestData,INDEX(ioplcRequestData,cFieldValuePrefix + ipcField + "|") + LENGTH(cFieldValuePrefix + ipcField), 1)
             .
         
         /* If $ do nothing, as it would have been already replaced */
@@ -94,7 +94,7 @@ PROCEDURE updateRequestData:
             cFormat = "".
         /* If |, then a format exists */
         ELSE IF cNextChar EQ "|" THEN DO:
-            iIndex = INDEX(ioplcRequestData,cFieldValuePrefix + ipcField) + LENGTH(cFieldValuePrefix + ipcField) + 1.
+            iIndex = INDEX(ioplcRequestData,cFieldValuePrefix + ipcField + "|") + LENGTH(cFieldValuePrefix + ipcField) + 1.
             
             /* Code to retrieve the format */
             DO WHILE TRUE:
