@@ -282,28 +282,28 @@ RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 DEFINE QUERY external_tables FOR oe-ord.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS oe-ord.ord-no oe-ord.est-no oe-ord.job-no ~
-oe-ord.job-no2 oe-ord.po-no oe-ord.cust-no oe-ord.sold-id oe-ord.ship-id ~
-oe-ord.contact oe-ord.csrUser_id oe-ord.entered-id oe-ord.poReceivedDate ~
-oe-ord.promiseDate oe-ord.ord-date oe-ord.due-code oe-ord.due-date oe-ord.last-date ~
-oe-ord.prod-date oe-ord.over-pct oe-ord.under-pct oe-ord.terms ~
-oe-ord.tax-gr oe-ord.managed oe-ord.priceHold oe-ord.priceHoldReason ~
-oe-ord.sman[1] oe-ord.s-pct[1] oe-ord.s-comm[1] oe-ord.sman[2] ~
-oe-ord.s-pct[2] oe-ord.s-comm[2] oe-ord.sman[3] oe-ord.s-pct[3] ~
-oe-ord.s-comm[3] oe-ord.frt-pay oe-ord.carrier oe-ord.fob-code ~
-oe-ord.cc-type oe-ord.cc-expiration oe-ord.spare-char-1 oe-ord.cc-num ~
-oe-ord.cc-auth oe-ord.spare-char-2 
+oe-ord.job-no2 oe-ord.priority oe-ord.po-no oe-ord.cust-no oe-ord.sold-id ~
+oe-ord.ship-id oe-ord.contact oe-ord.csrUser_id oe-ord.entered-id ~
+oe-ord.promiseDate oe-ord.poReceivedDate oe-ord.ord-date oe-ord.due-code ~
+oe-ord.due-date oe-ord.last-date oe-ord.prod-date oe-ord.over-pct ~
+oe-ord.under-pct oe-ord.terms oe-ord.tax-gr oe-ord.managed oe-ord.priceHold ~
+oe-ord.priceHoldReason oe-ord.sman[1] oe-ord.s-pct[1] oe-ord.s-comm[1] ~
+oe-ord.sman[2] oe-ord.s-pct[2] oe-ord.s-comm[2] oe-ord.sman[3] ~
+oe-ord.s-pct[3] oe-ord.s-comm[3] oe-ord.frt-pay oe-ord.carrier ~
+oe-ord.fob-code oe-ord.cc-type oe-ord.cc-expiration oe-ord.spare-char-1 ~
+oe-ord.cc-num oe-ord.cc-auth oe-ord.spare-char-2 
 &Scoped-define ENABLED-TABLES oe-ord
 &Scoped-define FIRST-ENABLED-TABLE oe-ord
 &Scoped-Define ENABLED-OBJECTS fiStatDesc btnCalendar-1 btnCalendar-2 ~
 btnCalendar-3 btnCalendar-4 btnCalendar-5 btnCalendar-6 btnValidate RECT-30 ~
 RECT-33 RECT-35 RECT-36 RECT-37 RECT-34 imgHoldRsn 
 &Scoped-Define DISPLAYED-FIELDS oe-ord.ord-no oe-ord.est-no oe-ord.job-no ~
-oe-ord.job-no2 oe-ord.po-no oe-ord.user-id oe-ord.stat oe-ord.cust-no ~
-oe-ord.sold-id oe-ord.ship-id oe-ord.contact oe-ord.csrUser_id ~
-oe-ord.entered-id oe-ord.poReceivedDate oe-ord.promiseDate oe-ord.ord-date  ~
-oe-ord.cust-name oe-ord.sold-name oe-ord.due-code oe-ord.due-date oe-ord.last-date ~
-oe-ord.prod-date oe-ord.over-pct oe-ord.under-pct oe-ord.terms ~
-oe-ord.terms-d oe-ord.tax-gr oe-ord.managed oe-ord.priceHold ~
+oe-ord.job-no2 oe-ord.priority oe-ord.po-no oe-ord.user-id oe-ord.cust-no ~
+oe-ord.sold-id oe-ord.ship-id oe-ord.stat oe-ord.contact oe-ord.csrUser_id ~
+oe-ord.entered-id oe-ord.promiseDate oe-ord.poReceivedDate oe-ord.ord-date ~
+oe-ord.cust-name oe-ord.sold-name oe-ord.due-code oe-ord.due-date ~
+oe-ord.last-date oe-ord.prod-date oe-ord.over-pct oe-ord.under-pct ~
+oe-ord.terms oe-ord.terms-d oe-ord.tax-gr oe-ord.managed oe-ord.priceHold ~
 oe-ord.priceHoldReason oe-ord.sman[1] oe-ord.sname[1] oe-ord.s-pct[1] ~
 oe-ord.s-comm[1] oe-ord.sman[2] oe-ord.sname[2] oe-ord.s-pct[2] ~
 oe-ord.s-comm[2] oe-ord.sman[3] oe-ord.sname[3] oe-ord.s-pct[3] ~
@@ -313,9 +313,9 @@ oe-ord.cc-auth oe-ord.approved-date oe-ord.ack-prnt-date ~
 oe-ord.spare-char-2 
 &Scoped-define DISPLAYED-TABLES oe-ord
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ord
-&Scoped-Define DISPLAYED-OBJECTS fiStatDesc fiText1 fiText2 fiCustAddress ~
-fiShipName fi_type fi_prev_order fi_sname-lbl fi_s-pct-lbl fi_s-comm-lbl ~
-fi_sman-lbl fiSoldAddress fiShipAddress 
+&Scoped-Define DISPLAYED-OBJECTS fiCustAddress fiStatDesc fiShipName ~
+fiText1 fiText2 fi_type fi_prev_order fi_sname-lbl fi_s-pct-lbl ~
+fi_s-comm-lbl fi_sman-lbl fiSoldAddress fiShipAddress 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,calendarPopup,webField,nonWebField,List-6 */
@@ -515,14 +515,14 @@ DEFINE RECTANGLE RECT-37
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiStatDesc AT ROW 9.33 COL 87 COLON-ALIGNED NO-TAB-STOP 
-     fiText1 AT ROW 12.91 COL 79 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     fiText2 AT ROW 13.95 COL 109 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      fiCustAddress AT ROW 3.71 COL 10.8 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     fiStatDesc AT ROW 9.33 COL 87 COLON-ALIGNED NO-TAB-STOP 
      fiShipName AT ROW 6.86 COL 23.8 COLON-ALIGNED NO-LABEL WIDGET-ID 28
+     fiText1 AT ROW 12.91 COL 79 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      oe-ord.ord-no AT ROW 1.24 COL 10 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
+     fiText2 AT ROW 13.95 COL 109 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      fi_type AT ROW 1.24 COL 29 COLON-ALIGNED HELP
           "Enter Order Type (O)riginal, (R)epeat, repeat with (C)hange"
      oe-ord.est-no AT ROW 1.24 COL 47.2 COLON-ALIGNED FORMAT "x(8)"
@@ -535,7 +535,11 @@ DEFINE FRAME F-Main
      oe-ord.job-no2 AT ROW 1.24 COL 93.8 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.8 BY 1
-     oe-ord.po-no AT ROW 1.24 COL 124 COLON-ALIGNED
+     oe-ord.priority AT ROW 1.24 COL 111 COLON-ALIGNED
+          LABEL "Priority" FORMAT "9"
+          VIEW-AS FILL-IN 
+          SIZE 4 BY 1
+     oe-ord.po-no AT ROW 1.24 COL 129 COLON-ALIGNED
           LABEL "Cust PO#"
           VIEW-AS FILL-IN 
           SIZE 21.6 BY 1
@@ -543,9 +547,6 @@ DEFINE FRAME F-Main
           LABEL "Last User"
           VIEW-AS FILL-IN 
           SIZE 17.4 BY 1
-     oe-ord.stat AT ROW 14.1 COL 146 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 4.2 BY 1 NO-TAB-STOP 
      oe-ord.cust-no AT ROW 2.67 COL 10.8 COLON-ALIGNED
           LABEL "Bill To" FORMAT "x(8)"
           VIEW-AS FILL-IN 
@@ -558,6 +559,9 @@ DEFINE FRAME F-Main
           LABEL "Ship To"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
+     oe-ord.stat AT ROW 14.1 COL 146 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 4.2 BY 1 NO-TAB-STOP 
      oe-ord.contact AT ROW 2.67 COL 86 COLON-ALIGNED
           LABEL "Contact"
           VIEW-AS FILL-IN 
@@ -570,7 +574,7 @@ DEFINE FRAME F-Main
           LABEL "Entered By"
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
-     oe-ord.promiseDate AT ROW 7.0 COL 93 COLON-ALIGNED
+     oe-ord.promiseDate AT ROW 7 COL 93 COLON-ALIGNED
           LABEL "Promise Date" FORMAT "99/99/9999"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
@@ -595,6 +599,13 @@ DEFINE FRAME F-Main
      oe-ord.due-date AT ROW 3.71 COL 128.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      oe-ord.last-date AT ROW 4.76 COL 128.2 COLON-ALIGNED
           LABEL "Last Ship"
           VIEW-AS FILL-IN 
@@ -603,13 +614,6 @@ DEFINE FRAME F-Main
           LABEL "Production"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      oe-ord.over-pct AT ROW 9.33 COL 15 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
@@ -685,12 +689,6 @@ DEFINE FRAME F-Main
      oe-ord.carrier AT ROW 13.95 COL 88 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     oe-ord.fob-code AT ROW 13.95 COL 120 NO-LABEL
-          VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
-                    "DEST", "DEST":U,
-"ORIG", "ORIG":U
-          SIZE 23 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -698,6 +696,12 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     oe-ord.fob-code AT ROW 13.95 COL 120 NO-LABEL
+          VIEW-AS RADIO-SET HORIZONTAL
+          RADIO-BUTTONS 
+                    "DEST", "DEST":U,
+"ORIG", "ORIG":U
+          SIZE 23 BY 1
      oe-ord.cc-type AT ROW 15.76 COL 90 COLON-ALIGNED
           LABEL "Pay Type"
           VIEW-AS FILL-IN 
@@ -900,14 +904,16 @@ ASSIGN
    4 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN oe-ord.poReceivedDate IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN oe-ord.promiseDate IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                 */   
 /* SETTINGS FOR TOGGLE-BOX oe-ord.priceHold IN FRAME F-Main
    ALIGN-R                                                              */
 /* SETTINGS FOR FILL-IN oe-ord.priceHoldReason IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN oe-ord.priority IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ord.prod-date IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN oe-ord.promiseDate IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ord.s-comm[1] IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.s-pct[1] IN FRAME F-Main
@@ -1728,9 +1734,10 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME oe-ord.promiseDate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.promiseDate V-table-Win
-ON HELP OF oe-ord.promiseDate IN FRAME F-Main /* promise Date */
+ON HELP OF oe-ord.promiseDate IN FRAME F-Main /* Promise Date */
 DO:
   {methods/calendar.i}
 END.
@@ -1771,7 +1778,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME oe-ord.ship-id
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.ship-id V-table-Win
 ON VALUE-CHANGED OF oe-ord.ship-id IN FRAME F-Main /* Ship To */
 DO:
@@ -5559,6 +5566,8 @@ PROCEDURE local-enable-fields :
    ll-valid-po-no = NO.
 
   RUN release-shared-buffers.
+  
+  ENABLE oe-ord.priority.
 
 END PROCEDURE.
 
@@ -6109,6 +6118,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddNewOrder V-table-Win 
+PROCEDURE pAddNewOrder :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF OUTPUT PARAMETER oplExists AS LOG NO-UNDO.
+
+ASSIGN oplExists = adm-new-record .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAssignHoldReason V-table-Win 
 PROCEDURE pAssignHoldReason :
 /*------------------------------------------------------------------------------
@@ -6207,6 +6232,70 @@ DO WITH FRAME {&FRAME-NAME}:
     
 END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetMiscEst V-table-Win 
+PROCEDURE pGetMiscEst :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+     DEFINE INPUT PARAMETER ipoEstNo AS CHARACTER NO-UNDO.
+     DEFINE BUFFER bff-est FOR est .
+     DEFINE BUFFER bff-eb FOR eb.
+     DEFINE BUFFER b-eb FOR eb.
+     cMisEstimate = "" .     
+     FIND FIRST bff-est WHERE bff-est.company EQ cocode
+                AND trim(bff-est.est-no) EQ trim(ipoEstNo)
+                AND bff-est.estimateTypeID EQ "MISC" NO-LOCK NO-ERROR. 
+     IF AVAIL bff-est THEN             
+     FIND FIRST bff-eb NO-LOCK
+          WHERE bff-eb.company EQ cocode 
+            AND bff-eb.est-no EQ bff-est.est-no NO-ERROR.
+                
+     DO WITH FRAME {&FRAME-NAME}:                
+         IF AVAIL bff-eb AND AVAIL bff-est AND bff-est.estimateTypeID EQ "MISC" THEN DO:
+         
+         FIND FIRST b-eb NO-LOCK
+             WHERE b-eb.company EQ bff-eb.company
+               AND trim(b-eb.est-no) EQ trim(bff-eb.sourceEstimate)  /*trim(bff-eb.est-no)*/
+               AND b-eb.stock-no EQ bff-eb.stock-no NO-ERROR. 
+               IF AVAIL b-eb THEN do:                                  
+                 cMisEstimate = bff-eb.est-no .
+                 oe-ord.est-no:SCREEN-VALUE = bff-eb.sourceEstimate.
+               END.
+         END.
+     END.
+       
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetOverUnderPct V-table-Win 
+PROCEDURE pGetOverUnderPct :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE dOverPer AS DECIMAL NO-UNDO.
+   DEFINE VARIABLE dUnderPer AS DECIMAL NO-UNDO.
+  
+  DO WITH FRAME {&FRAME-NAME}:          
+    RUN oe/GetOverUnderPct.p(g_company,
+                           oe-ord.cust-no:SCREEN-VALUE ,
+                           TRIM(oe-ord.ship-id:SCREEN-VALUE),
+                           OUTPUT dOverPer , OUTPUT dUnderPer ) .
+                           oe-ord.over-pct:SCREEN-VALUE = STRING(dOverPer).
+                           oe-ord.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
+  END.
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6428,6 +6517,35 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateReleaseCarrier V-table-Win 
+PROCEDURE pUpdateReleaseCarrier :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE BUFFER bf-oe-rel FOR oe-rel .
+  FOR EACH oe-rel NO-LOCK
+      WHERE oe-rel.company EQ oe-ord.company
+      AND oe-rel.ord-no  EQ oe-ord.ord-no      
+      BY oe-rel.rel-date: 
+      IF LOOKUP(oe-rel.stat, 'A,C,P,Z' ) EQ 0 THEN 
+          DO:
+          FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ rowid(oe-rel) EXCLUSIVE-LOCK.
+                   
+          IF AVAIL bf-oe-rel THEN do:
+              ASSIGN bf-oe-rel.carrier = oe-ord.carrier.             
+          END.
+
+          FIND CURRENT bf-oe-rel NO-LOCK.
+          RELEASE bf-oe-rel.
+      END.
+  END. /* each oe-rel **/
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRelShipID V-table-Win 
 PROCEDURE pUpdateRelShipID :
 /*------------------------------------------------------------------------------
@@ -6465,35 +6583,6 @@ DEFINE BUFFER bf-oe-rel FOR oe-rel .
                   bf-oe-rel.ship-i[4] = shipto.notes[4]
                   bf-oe-rel.spare-char-1 = shipto.loc.
               RUN CopyShipNote (shipto.rec_key, bf-oe-rel.rec_key).
-          END.
-
-          FIND CURRENT bf-oe-rel NO-LOCK.
-          RELEASE bf-oe-rel.
-      END.
-  END. /* each oe-rel **/
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateReleaseCarrier V-table-Win 
-PROCEDURE pUpdateReleaseCarrier :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEFINE BUFFER bf-oe-rel FOR oe-rel .
-  FOR EACH oe-rel NO-LOCK
-      WHERE oe-rel.company EQ oe-ord.company
-      AND oe-rel.ord-no  EQ oe-ord.ord-no      
-      BY oe-rel.rel-date: 
-      IF LOOKUP(oe-rel.stat, 'A,C,P,Z' ) EQ 0 THEN 
-          DO:
-          FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ rowid(oe-rel) EXCLUSIVE-LOCK.
-                   
-          IF AVAIL bf-oe-rel THEN do:
-              ASSIGN bf-oe-rel.carrier = oe-ord.carrier.             
           END.
 
           FIND CURRENT bf-oe-rel NO-LOCK.
@@ -7517,86 +7606,6 @@ PROCEDURE valid-type :
   END.
 
   {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetOverUnderPct V-table-Win 
-PROCEDURE pGetOverUnderPct :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE VARIABLE dOverPer AS DECIMAL NO-UNDO.
-   DEFINE VARIABLE dUnderPer AS DECIMAL NO-UNDO.
-  
-  DO WITH FRAME {&FRAME-NAME}:          
-    RUN oe/GetOverUnderPct.p(g_company,
-                           oe-ord.cust-no:SCREEN-VALUE ,
-                           TRIM(oe-ord.ship-id:SCREEN-VALUE),
-                           OUTPUT dOverPer , OUTPUT dUnderPer ) .
-                           oe-ord.over-pct:SCREEN-VALUE = STRING(dOverPer).
-                           oe-ord.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
-  END.
-
-  {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetMiscEst V-table-Win 
-PROCEDURE pGetMiscEst :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-     DEFINE INPUT PARAMETER ipoEstNo AS CHARACTER NO-UNDO.
-     DEFINE BUFFER bff-est FOR est .
-     DEFINE BUFFER bff-eb FOR eb.
-     DEFINE BUFFER b-eb FOR eb.
-     cMisEstimate = "" .     
-     FIND FIRST bff-est WHERE bff-est.company EQ cocode
-                AND trim(bff-est.est-no) EQ trim(ipoEstNo)
-                AND bff-est.estimateTypeID EQ "MISC" NO-LOCK NO-ERROR. 
-     IF AVAIL bff-est THEN             
-     FIND FIRST bff-eb NO-LOCK
-          WHERE bff-eb.company EQ cocode 
-            AND bff-eb.est-no EQ bff-est.est-no NO-ERROR.
-                
-     DO WITH FRAME {&FRAME-NAME}:                
-         IF AVAIL bff-eb AND AVAIL bff-est AND bff-est.estimateTypeID EQ "MISC" THEN DO:
-         
-         FIND FIRST b-eb NO-LOCK
-             WHERE b-eb.company EQ bff-eb.company
-               AND trim(b-eb.est-no) EQ trim(bff-eb.sourceEstimate)  /*trim(bff-eb.est-no)*/
-               AND b-eb.stock-no EQ bff-eb.stock-no NO-ERROR. 
-               IF AVAIL b-eb THEN do:                                  
-                 cMisEstimate = bff-eb.est-no .
-                 oe-ord.est-no:SCREEN-VALUE = bff-eb.sourceEstimate.
-               END.
-         END.
-     END.
-       
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME    
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddNewOrder V-table-Win 
-PROCEDURE pAddNewOrder :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF OUTPUT PARAMETER oplExists AS LOG NO-UNDO.
-
-ASSIGN oplExists = adm-new-record .
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
