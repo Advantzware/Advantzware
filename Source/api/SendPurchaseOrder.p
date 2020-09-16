@@ -74,6 +74,11 @@
     DEFINE VARIABLE cShipToCityState   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipToZip         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipToAddressFull AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompanyAddress1   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompanyAddress2   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompanyCity       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompanyState      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompanyZip        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCarrierID         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCarrierDesc       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFreightTerms      AS CHARACTER NO-UNDO.
@@ -81,10 +86,13 @@
     DEFINE VARIABLE cBuyer             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoNotes           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoNotesHRMS       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoNotesAlliance   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPONotesGP         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipToCompanyName AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTotalCost         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCurrentDateTime   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cHeaderUnderPct    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cHeaderOverPct     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cGPPartnerID       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cGPPurchasedBy     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cGPPlantID         AS CHARACTER NO-UNDO.
@@ -92,6 +100,7 @@
     
     /* Purchase Order Line Variables */
     DEFINE VARIABLE cPoLine                  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOrderType               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQuantityOrdered         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQuantityInSF            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQuantityInM             AS CHARACTER NO-UNDO.
@@ -141,10 +150,12 @@
     DEFINE VARIABLE cStyleDesc               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemBasisWeight         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFlute                   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cRegularNo               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoLineNotes             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQtyINEA                 AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPOLowQty                AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoHighQty               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMachineInitial          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFormattedScoresWestrock AS CHARACTER NO-UNDO.
         
     /* Purchase Order Line adder Variables */
@@ -174,6 +185,7 @@
     DEFINE VARIABLE cScoreSizeDecimalHRMS1      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScoreSizeDecimalHRMS2      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScoreSizeDecimalAlliFlutes AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreSizeDecimalAlliance  AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cWhsCode           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQtyPerPack        AS CHARACTER NO-UNDO.
@@ -356,6 +368,11 @@
         ASSIGN
             cCompany           = STRING(po-ord.company)
             cShipToCompanyName = IF AVAILABLE company THEN company.name ELSE ""
+            cCompanyAddress1   = STRING(company.addr[1])
+            cCompanyAddress2   = STRING(company.addr[2])
+            cCompanyCity       = STRING(company.city)
+            cCompanyState      = STRING(company.state)
+            cCompanyZip        = STRING(company.zip)
             cPoNO              = STRING(po-ord.po-no)
             cPoType            = STRING(po-ord.type)
             cPoStatus          = STRING(po-ord.stat)
@@ -392,6 +409,8 @@
                                      "ORIGIN"
             cTotalCost         = STRING(po-ord.t-cost)
             cCurrentDateTime   = STRING(DATETIME(TODAY,MTIME))
+            cHeaderUnderPct    = STRING(po-ord.under-pct)
+            cHeaderOverPct     = STRING(po-ord.over-pct)
             .
         
         ASSIGN
@@ -436,7 +455,10 @@
         cPoNotes = REPLACE(cPoNotes, "~n", "").
         
         cPoNotesHRMS = cPoNotes.
-        
+        DO iIndex = 1 TO 4:
+            IF po-ord.spec-i[iIndex] NE "" THEN
+                cPONotesAlliance = cPONotesAlliance + TRIM(po-ord.spec-i[iIndex]) + " ".
+        END.
         /* Fetch Vendor details for the purchase order */    
         FIND FIRST vend NO-LOCK
              WHERE vend.company EQ po-ord.company
@@ -517,6 +539,7 @@
                 lcConcatLineAdderDataGP     = ""
                 cPoLine                     = STRING(po-ordl.line)
                 cQuantityOrdered            = TRIM(STRING(po-ordl.ord-qty,"->>>>>>>>9.9<<<<<"))
+                cOrderType                  = IF po-ordl.deleted THEN "D" ELSE STRING(po-ord.printed,"C/A")
                 cQuantityUOM                = STRING(po-ordl.pr-qty-uom)
                 cItemType                   = STRING(po-ordl.item-type)
                 cItemTypeShort              = IF po-ordl.item-type THEN
@@ -584,6 +607,7 @@
                 cQuantityInSF               = ""
                 dItemBasisWeight            = 0 
                 cScoreSizeDecimalAlliFlutes = ""
+                cScoreSizeDecimalAlliance   = ""
                 cItemWithAddersX4           = ""
                 cItemWithAddersX10          = ""
                 .
@@ -599,6 +623,7 @@
                     dItemBasisWeight = item.basis-w
                     cItemBasisWeight = STRING(item.basis-w)
                     cFlute           = item.flute   
+                    cRegularNo       = item.reg-no
                     .                
 
             FIND FIRST itemfg NO-LOCK
@@ -710,7 +735,7 @@
             
             IF cPoLineNotes EQ "" THEN
                 cPoLineNotes = cPoNotes.
-            
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "company", cCompany).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poID", cPoNo).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLine", cPoLine).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLineStatus", cPoLineStatus).
@@ -776,10 +801,21 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "ShipToCompanyName", cShipToCompanyName).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "shipToState", cShipToState).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "shipToZip", cShipToZip).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "CompanyAddress1", cCompanyAddress1).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "CompanyAddress2", cCompanyAddress2).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "CompanyCity", cCompanyCity).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "CompanyState", cCompanyState).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "CompanyZip", cCompanyZip).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityOrderedInEA", cQtyInEA).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoLowQty", cPoLowQty).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoHighQty", cPoHighQty).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "CurrentDate",cCurrentDateTime).  
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "CurrentDate",cCurrentDateTime).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "HeaderUnderPct",cHeaderUnderPct).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "HeaderOverPct",cHeaderOverPct).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "OrderType",cOrderType).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "RegularNo",cRegularNo).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "MachineInitial",cMachineInitial).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoNotesAlliance",cPoNotesAlliance).
             cItemWithAdders = cItemID.
             /* Fetch adder details for the purchase order line */
             FOR EACH po-ordl-add NO-LOCK
@@ -886,17 +922,13 @@
                 END.
             END.
             RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatLineAdderData, cRequestDataType).
-            
             DO iIndex = 1 TO 20:
-                IF dScoreSizeArray[iIndex] EQ 0 THEN
-                    LEAVE.
-                
                 ASSIGN
                     cScoreSize = STRING(dScoreSizeArray[iIndex])
                     cScoreType = cScoreTypeArray[iIndex]
                     .
                 
-                IF AVAILABLE bf-APIOutboundDetail2 THEN DO:
+                IF AVAILABLE bf-APIOutboundDetail2 AND dScoreSizeArray[iIndex] NE 0 THEN DO:
                     lcLineScoresData = STRING(bf-APIOutboundDetail2.data).
                     
                     RUN updateRequestData(INPUT-OUTPUT lcLineScoresData, "scoreOn", cScoreOn).
@@ -931,7 +963,7 @@
                         
                     dScoreSizeDecimal = dScoreSizeArray[iIndex].
                 END.
-                IF AVAILABLE bf-APIOutboundDetail2 AND dScoreSize16ths NE 0 THEN DO:
+                IF AVAILABLE bf-APIOutboundDetail2 AND dScoreSize16ths NE 0 AND dScoreSizeArray[iIndex] NE 0 THEN DO:
                     lcLineScoresDataGP = STRING(bf-APIOutboundDetail2.data).
                     
                     RUN updateRequestData(INPUT-OUTPUT lcLineScoresDataGP, "scoreType", cScoreType).
@@ -940,34 +972,35 @@
                     
                     lcConcatLineScoresDataGP = lcConcatLineScoresDataGP + lcLineScoresDataGP.
                     
-                END.     
-                ASSIGN
-                    cScoreSizeDecimal       = IF cScoreSizeDecimal EQ "" THEN 
-                                                  TRIM(STRING(dScoreSizeDecimal, ">>>>>>>9.99<<<<"))
-                                              ELSE
-                                                  cScoreSizeDecimal + " X " + TRIM(STRING(dScoreSizeDecimal, ">>>>>>>9.99<<<<"))                                
-                    cScoreSize16ths         = IF cScoreSize16ths EQ "" THEN 
-                                                TRIM(STRING(dScoreSize16ths, ">>>>>>>9.99<<<<"))
-                                              ELSE
-                                                  cScoreSize16ths + " X " + TRIM(STRING(dScoreSize16ths, ">>>>>>>9.99<<<<"))
+                END.  
+                IF dScoreSizeArray[iIndex] NE 0 THEN  
+                    ASSIGN
+                        cScoreSizeDecimal       = IF cScoreSizeDecimal EQ "" THEN 
+                                                      TRIM(STRING(dScoreSizeDecimal, ">>>>>>>9.99<<<<"))
+                                                  ELSE
+                                                      cScoreSizeDecimal + " X " + TRIM(STRING(dScoreSizeDecimal, ">>>>>>>9.99<<<<"))                                
+                        cScoreSize16ths         = IF cScoreSize16ths EQ "" THEN 
+                                                    TRIM(STRING(dScoreSize16ths, ">>>>>>>9.99<<<<"))
+                                                  ELSE
+                                                      cScoreSize16ths + " X " + TRIM(STRING(dScoreSize16ths, ">>>>>>>9.99<<<<"))
+                        
+                        cScoreSize16thsWestRock = IF cScoreSize16thsWestrock EQ "" THEN 
+                                                      TRIM(STRING(dScoreSize16ths, ">>>>>>>9.99<<<<"))
+                                                  ELSE
+                                                      cScoreSize16thsWestrock + " x " + TRIM(STRING(dScoreSize16ths, ">>>>>>>9.99<<<<"))
+                        cFormattedScoresWestrock = IF cFormattedScoresWestrock EQ "" THEN 
+                                                       TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
+                                                   ELSE
+                                                       cFormattedScoresWestrock + "x "  + TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
+        
                     
-                    cScoreSize16thsWestRock = IF cScoreSize16thsWestrock EQ "" THEN 
-                                                  TRIM(STRING(dScoreSize16ths, ">>>>>>>9.99<<<<"))
-                                              ELSE
-                                                  cScoreSize16thsWestrock + " x " + TRIM(STRING(dScoreSize16ths, ">>>>>>>9.99<<<<"))
-                    cFormattedScoresWestrock = IF cFormattedScoresWestrock EQ "" THEN 
-                                                   TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
-                                               ELSE
-                                                   cFormattedScoresWestrock + "x "  + TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
-                    .
-                
-                    
-                    cScoreSizeDecimalAlliFlutes = IF cScoreSizeDecimalAlliFlutes EQ "" THEN 
-                                                    (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
-                                                 ELSE
-                                                    cScoreSizeDecimalAlliFlutes + (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
-                                                 .                                               
-                IF iIndex LE 9 THEN 
+                        
+                        cScoreSizeDecimalAlliFlutes = IF cScoreSizeDecimalAlliFlutes EQ "" THEN 
+                                                        (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
+                                                     ELSE
+                                                        cScoreSizeDecimalAlliFlutes + (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
+                        .                                               
+                IF iIndex LE 9 AND dScoreSizeArray[iIndex] NE 0 THEN 
                     cScoreSizeDecimalHRMS1 = IF cScoreSizeDecimalHRMS1 EQ "" THEN 
                                                  (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
                                              ELSE
@@ -976,15 +1009,25 @@
                     cScoreSizeDecimalHRMS2 = IF cScoreSizeDecimalHRMS2 EQ "" THEN 
                                                  (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
                                              ELSE
-                                                cScoreSizeDecimalHRMS2 + (STRING(dScoreSize16ths, ">>>.99")) + cScoreType.                
+                                                cScoreSizeDecimalHRMS2 + (STRING(dScoreSize16ths, ">>>.99")) + cScoreType.
+                                                
+                IF iIndex LE 17 THEN DO:  
+                    IF dScoreSizeArray[iIndex] EQ 0 THEN 
+                       cScoreSizeDecimalAlliance = cScoreSizeDecimalAlliance + "00000000".
+                    ELSE 
+                        ASSIGN 
+                            cScoreSizeDecimalAlliance = cScoreSizeDecimalAlliance + "02" + (STRING(dScoreSize16ths, "9999.99")).
+                   
+                                                                                  
+                END.    
             END.
-            
             ASSIGN 
                 cFormattedScoresWestrock    = REPLACE(cFormattedScoresWestrock,".", "")
                 cScoreSize16ths             = REPLACE(cScoreSize16ths,".", ":")
                 cScoreSizeDecimalHRMS1      = REPLACE(cScoreSizeDecimalHRMS1,".",":")
                 cScoreSizeDecimalHRMS2      = REPLACE(cScoreSizeDecimalHRMS2,".",":")
                 cScoreSizeDecimalAlliFlutes = REPLACE(cScoreSizeDecimalAlliFlutes,".",":")
+                cScoreSizeDecimalAlliance   = REPLACE(cScoreSizeDecimalAlliance,".","")
                 .
             
             RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatLineScoresData, cRequestDataType).            
@@ -1006,6 +1049,7 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalHRMS2", cScoreSizeDecimalHRMS2).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "FormattedScoring", cFormattedScoresWestrock).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalAlliFlutes", cScoreSizeDecimalAlliFlutes).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeAlliance", cScoreSizeDecimalAlliance).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersX4", cItemWithAddersX4).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersX10", cItemWithAddersX10).
             
