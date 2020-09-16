@@ -1559,7 +1559,8 @@ PROCEDURE pPrintSummaryCosts PRIVATE:
     FOR EACH estCostItem NO-LOCK 
         WHERE estCostItem.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
         AND NOT estCostItem.isSet
-        BY estCostItem.itemName:
+        BY estCostItem.formNo
+        BY estCostItem.blankNo:
         
         RUN pGetSummaryCosts(estCostItem.estCostHeaderID, estCostItem.rec_key, OUTPUT dCostTotal, OUTPUT dCostPerM).
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
