@@ -83,6 +83,9 @@ FUNCTION fCalculateQuantityTotal RETURNS DECIMAL
 FUNCTION fCalculateTagCountInTTbrowse RETURNS INTEGER
     (ipcInventoryStatus AS CHARACTER) FORWARD.
 
+FUNCTION fCalculateTagQuantityInTTbrowse RETURNS DECIMAL
+    (ipcInventoryStatus AS CHARACTER) FORWARD.
+
 FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
     (ipcCompany  AS CHARACTER,
      iplItemType AS LOGICAL,
@@ -2476,6 +2479,67 @@ PROCEDURE CreateTransactionReceived:
     
 END PROCEDURE.
 
+PROCEDURE CreateTransactionScanned:
+    /*------------------------------------------------------------------------------
+     Purpose: Given the inventoryStockID, create a scanned transaction 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcInventoryStockID AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPost             AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplCreated          AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
+     
+    DEFINE VARIABLE iInventoryTransactionID AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-inventoryStock FOR inventoryStock.
+    DEFINE BUFFER bf-rm-rctd        FOR rm-rctd.
+    
+    FIND FIRST bf-inventoryStock NO-LOCK
+         WHERE bf-inventoryStock.company          EQ ipcCompany 
+           AND bf-inventoryStock.inventoryStockID EQ ipcInventoryStockID
+         NO-ERROR.
+    IF AVAILABLE bf-inventoryStock THEN DO:
+        RUN pCreateTransactionAndReturnID(
+            INPUT  bf-inventoryStock.company, 
+            INPUT  bf-inventoryStock.inventoryStockID, 
+            INPUT  gcTransactionTypeScanned, 
+            INPUT  bf-inventoryStock.quantityOriginal, 
+            INPUT  bf-inventoryStock.quantityUOM, 
+            INPUT  bf-inventoryStock.warehouseID, 
+            INPUT  bf-inventoryStock.locationID, 
+            OUTPUT iInventoryTransactionID, 
+            OUTPUT oplCreated, 
+            OUTPUT opcMessage
+            ).
+        IF iplPost THEN 
+            RUN PostTransaction(iInventoryTransactionID).
+    END.
+
+    FIND FIRST bf-rm-rctd NO-LOCK
+         WHERE ROWID(bf-rm-rctd) EQ TO-ROWID(ipcInventoryStockID)
+         NO-ERROR.
+    IF AVAILABLE bf-rm-rctd THEN DO:
+        RUN pCreateTransactionAndReturnID(
+            INPUT  bf-rm-rctd.company,
+            INPUT  ipcInventoryStockID,
+            INPUT  gcTransactionTypeScanned, 
+            INPUT  0,
+            INPUT  bf-rm-rctd.pur-uom, 
+            INPUT  bf-rm-rctd.loc, 
+            INPUT  bf-rm-rctd.loc-bin, 
+            OUTPUT iInventoryTransactionID, 
+            OUTPUT oplCreated, 
+            OUTPUT opcMessage
+            ).
+        IF iplPost THEN 
+            RUN PostTransaction(iInventoryTransactionID).
+    END.
+
+    RELEASE bf-inventoryStock.
+    
+END PROCEDURE.
+
 PROCEDURE CreateTransactionTransfer:
     /*------------------------------------------------------------------------------
      Purpose: Wrapper function to create a transfer
@@ -3076,45 +3140,132 @@ END PROCEDURE.
 
 PROCEDURE RebuildRMBrowse:
     /*------------------------------------------------------------------------------
-     Purpose: Rebuilds browse temp-table
+     Purpose: Rebuilds browse temp-table from new inventory tables
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcJobno      AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcMachine    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiJobno2     AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiFormno     AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiBlankno    AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcRMItem     AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiTotTags    AS INTEGER   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiTotOnHand  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMachine   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormno    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankno   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMItem    AS CHARACTER NO-UNDO.
     
     EMPTY TEMP-TABLE ttBrowseInventory.
     
-    FOR EACH inventoryStock NO-LOCK
-       WHERE inventoryStock.company   EQ ipcCompany
-         AND inventoryStock.jobID     EQ ipcJobno
-         AND inventoryStock.jobID2    EQ ipiJobno2   
-         AND (IF ipcMachine           EQ "" THEN TRUE 
-              ELSE inventoryStock.MachineID EQ ipcMachine)
-         AND (IF ipcRMItem            EQ "" THEN TRUE
-              ELSE inventoryStock.rmItemID  EQ ipcRMItem)
-         AND inventoryStock.formNo    EQ ipiFormno   
-         AND inventoryStock.blankNo   EQ ipiBlankno
-        :
-        CREATE ttBrowseInventory.
-        BUFFER-COPY inventoryStock EXCEPT inventoryStock.locationID TO ttBrowseInventory.
-        ASSIGN
-            ttBrowseinventory.locationID = inventoryStock.warehouseID +
-                                           FILL(" ", 5 - LENGTH(inventoryStock.warehouseID)) +
-                                           inventoryStock.locationID
-            opiTotTags                   = opiTotTags + 1.
-         
-        IF inventoryStock.inventoryStatus EQ gcStatusStockReceived THEN
-            opiTotOnHand = opiTotOnHand + 1.
+    RUN pRebuildRMBrowse (
+        INPUT  ipcCompany,
+        INPUT  ipcJobno,
+        INPUT  ipcMachine,
+        INPUT  ipiJobno2,
+        INPUT  ipiFormno,
+        INPUT  ipiBlankno,
+        INPUT  ipcRMItem,
+        INPUT  TRUE /* Use new inventory tables */
+        ).
         
+END PROCEDURE.
+
+PROCEDURE RebuildRMBrowseLegacy:
+    /*------------------------------------------------------------------------------
+     Purpose: Rebuilds browse temp-table from legacy tables
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMachine   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormno    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankno   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMItem    AS CHARACTER NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttBrowseInventory.
+    
+    RUN pRebuildRMBrowse (
+        INPUT  ipcCompany,
+        INPUT  ipcJobno,
+        INPUT  ipcMachine,
+        INPUT  ipiJobno2,
+        INPUT  ipiFormno,
+        INPUT  ipiBlankno,
+        INPUT  ipcRMItem,
+        INPUT  FALSE     /* Use new inventory tables */
+        ).
+        
+END PROCEDURE.
+
+PROCEDURE pRebuildRMBrowse PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Rebuilds browse temp-table
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno              AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMachine            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2             AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormno             AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankno            AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMItem             AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplUseInventoryTables AS LOGICAL   NO-UNDO.    
+    
+    EMPTY TEMP-TABLE ttBrowseInventory.
+    
+    IF iplUseInventoryTables THEN DO:
+        FOR EACH inventoryStock NO-LOCK
+           WHERE inventoryStock.company   EQ ipcCompany
+             AND inventoryStock.jobID     EQ ipcJobno
+             AND inventoryStock.jobID2    EQ ipiJobno2   
+             AND (IF ipcMachine           EQ "" THEN TRUE 
+                  ELSE inventoryStock.MachineID EQ ipcMachine)
+             AND (IF ipcRMItem            EQ "" THEN TRUE
+                  ELSE inventoryStock.rmItemID  EQ ipcRMItem)
+             AND inventoryStock.formNo    EQ ipiFormno   
+             AND inventoryStock.blankNo   EQ ipiBlankno
+            :
+            CREATE ttBrowseInventory.
+            BUFFER-COPY inventoryStock TO ttBrowseInventory.    
+        END.        
     END.
-        
+    ELSE DO:
+        FOR EACH rm-rctd NO-LOCK 
+            WHERE rm-rctd.company   EQ ipcCompany
+              AND rm-rctd.rita-code EQ "I"
+              AND rm-rctd.qty       GT 0
+              AND rm-rctd.tag       NE ''
+              AND rm-rctd.job-no    EQ ipcJobNo
+              AND rm-rctd.job-no2   EQ ipiJobNo2
+              AND rm-rctd.s-num     EQ ipiFormNo
+              AND rm-rctd.b-num     EQ ipiBlankNo
+              AND rm-rctd.i-no      EQ ipcRMItem:
+            FIND FIRST inventoryTransaction NO-LOCK
+                 WHERE inventoryTransaction.inventoryStockID EQ STRING(ROWID(rm-rctd))
+                   AND inventoryTransaction.transactionType  EQ gcTransactionTypeScanned
+                 NO-ERROR.             
+            CREATE ttBrowseInventory.
+            ASSIGN
+                ttBrowseInventory.company             = rm-rctd.company
+                ttBrowseInventory.rmItemID            = rm-rctd.i-no
+                ttBrowseInventory.primaryID           = rm-rctd.i-no
+                ttBrowseInventory.itemType            = gcItemTypeRM
+                ttBrowseInventory.quantity            = rm-rctd.qty
+                ttBrowseInventory.jobID               = rm-rctd.job-no
+                ttBrowseInventory.jobID2              = rm-rctd.job-no2
+                ttBrowseInventory.formNo              = rm-rctd.s-num
+                ttBrowseInventory.blankNo             = rm-rctd.b-num
+                ttBrowseInventory.tag                 = rm-rctd.tag
+                ttBrowseInventory.warehouseID         = rm-rctd.loc
+                ttBrowseInventory.locationID          = rm-rctd.loc-bin
+                ttBrowseInventory.quantityOriginal    = rm-rctd.qty
+                ttBrowseInventory.inventoryStatus     = IF AVAILABLE inventoryTransaction THEN
+                                                            gcStatusStockScanned
+                                                        ELSE
+                                                            gcStatusStockReceived
+                ttBrowseInventory.rec_key             = rm-rctd.rec_key
+                ttBrowseInventory.inventoryStockID    = STRING(ROWID(rm-rctd))
+                .
+        END.
+    END.
+     
 END PROCEDURE.
 
 PROCEDURE RebuildBrowseTTFromPO:
@@ -3999,9 +4150,47 @@ PROCEDURE pGetInventoryStockDetails:
            AND inventoryStock.tag     EQ ipcStockIDAlias
          NO-ERROR.
     
+    /* Currently only fetches data for rita-code "I" */
+    FIND FIRST rm-rctd NO-LOCK
+         WHERE rm-rctd.company EQ ipcCompany
+           AND rm-rctd.rita-code EQ "I"
+           AND rm-rctd.qty       GT 0         
+           AND rm-rctd.tag       EQ ipcStockIDAlias
+         NO-ERROR.
+        
     EMPTY TEMP-TABLE ttInventoryStockDetails.
     
-    IF AVAILABLE inventoryStock THEN DO:
+    /* Made legacy tables as first preference to load the data for now */
+    IF AVAILABLE rm-rctd THEN DO:
+        FIND FIRST inventoryTransaction NO-LOCK
+             WHERE inventoryTransaction.inventoryStockID EQ STRING(ROWID(rm-rctd))
+               AND inventoryTransaction.transactionType  EQ gcTransactionTypeScanned
+             NO-ERROR.             
+        CREATE ttInventoryStockDetails.
+        ASSIGN
+            ttInventoryStockDetails.company             = rm-rctd.company
+            ttInventoryStockDetails.rmItemID            = rm-rctd.i-no
+            ttInventoryStockDetails.primaryID           = rm-rctd.i-no
+            ttInventoryStockDetails.itemType            = gcItemTypeRM
+            ttInventoryStockDetails.quantity            = rm-rctd.qty
+            ttInventoryStockDetails.jobID               = rm-rctd.job-no
+            ttInventoryStockDetails.jobID2              = rm-rctd.job-no2
+            ttInventoryStockDetails.formNo              = rm-rctd.s-num
+            ttInventoryStockDetails.blankNo             = rm-rctd.b-num
+            ttInventoryStockDetails.tag                 = rm-rctd.tag
+            ttInventoryStockDetails.warehouseID         = rm-rctd.loc
+            ttInventoryStockDetails.locationID          = rm-rctd.loc-bin
+            ttInventoryStockDetails.quantityOriginal    = rm-rctd.qty
+            ttInventoryStockDetails.inventoryStatus     = IF AVAILABLE inventoryTransaction THEN
+                                                              gcStatusStockScanned
+                                                          ELSE
+                                                              gcStatusStockReceived
+            ttInventoryStockDetails.rec_key             = rm-rctd.rec_key
+            ttInventoryStockDetails.inventoryStockID    = STRING(ROWID(rm-rctd))
+            oplValidInvStock                            = TRUE
+            .
+    END.    
+    ELSE IF AVAILABLE inventoryStock THEN DO:
         CREATE ttInventoryStockDetails.
         BUFFER-COPY inventoryStock TO ttInventoryStockDetails.
         
@@ -4634,6 +4823,21 @@ FUNCTION fCalculateTagCountInTTbrowse RETURNS INTEGER
     
     RETURN iCount.
 END FUNCTION.    
+
+FUNCTION fCalculateTagQuantityInTTbrowse RETURNS DECIMAL
+    (ipcInventoryStatus AS CHARACTER):
+    DEFINE VARIABLE dQuantity AS DECIMAL NO-UNDO.
+    
+    FOR EACH ttBrowseInventory
+        WHERE (IF ipcInventoryStatus EQ "" THEN
+                   TRUE
+               ELSE
+                   ttBrowseInventory.inventoryStatus EQ ipcInventoryStatus):
+        dQuantity = dQuantity + ttBrowseInventory.quantity.
+    END.
+    
+    RETURN dQuantity.
+END FUNCTION. 
 
 FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
     (ipcCompany AS CHARACTER, iplItemType AS LOGICAL, ipcTag AS CHARACTER):
