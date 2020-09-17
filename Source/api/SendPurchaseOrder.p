@@ -22,13 +22,15 @@
     DEFINE OUTPUT       PARAMETER oplSuccess              AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER opcMessage              AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE dQuantityInEA     AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dQuantityInM      AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dQuantityInSF     AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dItemBasisWeight  AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dCostInMSF        AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lError            AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dQuantityInEA         AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQuantityInM          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQuantityInSF         AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQuantityInCostUom    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQuantitySFPerCostUom AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dItemBasisWeight      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostInMSF            AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lError                AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage              AS CHARACTER NO-UNDO.
     
     /* Variables to store order line's request data */
     DEFINE VARIABLE lcLineData       AS LONGCHAR  NO-UNDO.
@@ -50,6 +52,8 @@
     DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoNO              AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoType            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoTypeInt         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustNoCorKraft    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoStatus          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoStatusExt       AS CHARACTER NO-UNDO.   /* Will store the extension of the PO Status. Eg: "Open", Delete */
     DEFINE VARIABLE cPoDate            AS CHARACTER NO-UNDO.
@@ -67,6 +71,7 @@
     DEFINE VARIABLE cShipToID          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipToName        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipToAddress1    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cShipToConcatAddress AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipToAddress2    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipToAddress3    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipToCity        AS CHARACTER NO-UNDO.
@@ -101,8 +106,11 @@
     /* Purchase Order Line Variables */
     DEFINE VARIABLE cPoLine                  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOrderType               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iPoLineCount             AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTotalLineCount          AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cQuantityOrdered         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQuantityInSF            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantitySFPerCostUom    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQuantityInM             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQuantityUOM             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemType                AS CHARACTER NO-UNDO.
@@ -141,6 +149,7 @@
     DEFINE VARIABLE cJobID2                  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobConcat               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobConcatHRMS           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobConcatSmurfit        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobIDFormNo             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobIDBlankNo            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoLineStatus            AS CHARACTER NO-UNDO.
@@ -163,6 +172,9 @@
     DEFINE VARIABLE cAdderItemName                  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAdders                 AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersHRMS             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWithAddersHRMSX5           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWithAddersHRMSINT          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWithAddersPrattINT         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersX4               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersX10              AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersX10WithoutConcat AS CHARACTER NO-UNDO.
@@ -185,7 +197,8 @@
     DEFINE VARIABLE cScoreSizeDecimalHRMS1      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScoreSizeDecimalHRMS2      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScoreSizeDecimalAlliFlutes AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cScoreSizeDecimalAlliance  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreSizeDecimalAlliance   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreSizeDecimalCorrKraft  AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cWhsCode           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQtyPerPack        AS CHARACTER NO-UNDO.
@@ -193,6 +206,8 @@
     
     DEFINE VARIABLE iIndex             AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iIndex1            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iIndex2            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iIndex3            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cCustName          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCustAddress1      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCustAddress2      AS CHARACTER NO-UNDO.
@@ -220,6 +235,7 @@
     DEFINE VARIABLE cPOExport          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cReturnValue       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iGPEDI             AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCorKraft          AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cClientID          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cRequestDataType   AS CHARACTER NO-UNDO.
     
@@ -336,8 +352,22 @@
             OUTPUT lRecFound
             ).
         IF lRecFound THEN
-            iGPEDI = INTEGER(cReturnValue).    
-        
+            iGPEDI = INTEGER(cReturnValue).
+      
+        RUN sys/ref/nk1look.p (
+            INPUT po-ord.company, /* Company Code */ 
+            INPUT "CorKraft",     /* sys-ctrl name */
+            INPUT "I",            /* Output return value */
+            INPUT NO,             /* Use lship-to */
+            INPUT NO,             /* ship-to vendor */
+            INPUT "",             /* ship-to vendor value */
+            INPUT "",             /* shi-id value */
+            OUTPUT cReturnValue, 
+            OUTPUT lRecFound
+            ).                
+        IF lRecFound THEN 
+            iCorKraft = INTEGER(cReturnValue).
+            
         IF NOT CAN-FIND(FIRST po-ordl
              WHERE po-ordl.company EQ po-ord.company
                AND po-ordl.po-no   EQ po-ord.po-no) THEN DO:
@@ -375,6 +405,8 @@
             cCompanyZip        = STRING(company.zip)
             cPoNO              = STRING(po-ord.po-no)
             cPoType            = STRING(po-ord.type)
+            cPoTypeInt         = STRING(po-ord.TYPE EQ "D","1/2")
+            cCustNoCorKraft    = IF iCorKraft EQ 0 THEN "77777" ELSE STRING(iCorKraft) 
             cPoStatus          = STRING(po-ord.stat)
             cPoStatusExt       = IF po-ord.stat EQ "H" THEN
                                      "Delete"
@@ -388,6 +420,8 @@
             cShipToName        = STRING(po-ord.ship-name)
             cShipToAddress1    = STRING(po-ord.ship-addr[1])
             cShipToAddress2    = STRING(po-ord.ship-addr[2])
+            cShipToConcatAddress = cShipToAddress1 + IF cShipToAddress2 NE "" THEN ", " ELSE ""
+                                   + cShipToAddress2
             cShipToCity        = STRING(po-ord.ship-city)
             cShipToState       = STRING(po-ord.ship-state)
             cShipToCityState   = cShipToCity + " " + cShipToState
@@ -588,7 +622,8 @@
                 cJobConcatHRMS              = IF po-ordl.job-no EQ "" THEN
                                                   ""
                                               ELSE
-                                                  STRING(po-ordl.job-no, "X(6)") + "-" + STRING(po-ordl.job-no2, "99")                
+                                                  STRING(po-ordl.job-no, "X(6)") + "-" + STRING(po-ordl.job-no2, "99")
+                cJobConcatSmurfit           = ""                                                  
                 cJobIDFormNo                = STRING(po-ordl.s-num)
                 cJobIDBlankNo               = STRING(po-ordl.b-num)
                 cQuantityReceived           = TRIM(STRING(po-ordl.t-rec-qty, "->>>>>>>>9.9<<<<<"))
@@ -599,15 +634,21 @@
                 cScoreSize16ths             = ""
                 cItemWithAdders             = "" 
                 cItemWithAddersHRMS         = ""
+                cItemWithAddersHRMSX5       = ""
+                cItemWithAddersHRMSINT      = ""
+                cItemWithAddersPrattINT     = ""
                 cFormattedScoresWestrock    = ""
                 cScoreSize16thsWestRock     = ""
                 cScoreSizeDecimalHRMS1      = ""
                 cScoreSizeDecimalHRMS2      = ""
                 cCostInMSF                  = ""
                 cQuantityInSF               = ""
+                dQuantityInCostUom          = 0
+                dQuantitySFPerCostUom       = 0
                 dItemBasisWeight            = 0 
                 cScoreSizeDecimalAlliFlutes = ""
                 cScoreSizeDecimalAlliance   = ""
+                cScoreSizeDecimalCorrKraft  = ""
                 cItemWithAddersX4           = ""
                 cItemWithAddersX10          = ""
                 .
@@ -624,7 +665,7 @@
                     cItemBasisWeight = STRING(item.basis-w)
                     cFlute           = item.flute   
                     cRegularNo       = item.reg-no
-                    .                
+                    iPoLineCount     = iPoLineCount + IF NOT po-ordl.deleted THEN 1 ELSE 0 .                
 
             FIND FIRST itemfg NO-LOCK
                  WHERE itemfg.company EQ po-ordl.company
@@ -707,13 +748,37 @@
 
             cQuantityInSF = STRING(dQuantityInSF).                
             
+            IF po-ordl.pr-qty-uom NE po-ordl.pr-uom THEN
+                RUN Conv_QuantityFromUOMToUOM (
+                    INPUT  po-ordl.company,
+                    INPUT  po-ordl.i-no,
+                    INPUT  cItemTypeShort,
+                    INPUT  dQuantityInEA,
+                    INPUT  po-ordl.pr-qty-uom, 
+                    INPUT  po-ordl.pr-uom,
+                    INPUT  dItemBasisWeight,
+                    INPUT  po-ordl.s-len,
+                    INPUT  po-ordl.s-wid,
+                    INPUT  po-ordl.s-dep,
+                    INPUT  0,
+                    OUTPUT dQuantityInCostUOM,
+                    OUTPUT lError,
+                    OUTPUT cMessage
+                    ).
+
+                    
             IF dQuantityInEA NE 0 THEN
                 dQuantityInM = dQuantityInSF / (dQuantityInEA / 1000).
-            
-            cQuantityInM = STRING(dQuantityInM).
-            
+                
+            IF dQuantityInCostUOM NE 0 THEN
+               dQuantitySFPerCostUom = dQuantityInSF / (dQuantityInCostUOM / 1000).
+           
+            ASSIGN  
+                cQuantityInM          = STRING(dQuantityInM).
+                cQuantitySFPerCostUom = STRING(dQuantitySFPerCostUom)
+                .
             /* Fetch first operation id (job-mch.m-code) for the order line */
-            IF TRIM(po-ordl.job-no) NE "" THEN
+            IF TRIM(po-ordl.job-no) NE "" THEN DO:
                 RUN GetOperation IN hdJobProcs (
                     INPUT        po-ordl.company,
                     INPUT        po-ordl.job-no,
@@ -722,7 +787,10 @@
                     INPUT        "First",
                     INPUT-OUTPUT cOperationID
                     ).
-
+           
+                cJobConcatSmurfit = (IF SUBSTRING(cOperationID,1,1) NE "" THEN SUBSTRING(cOperationID,1,1) + "-" ELSE "") +
+                                     TRIM(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2,"99").
+            END.
             /* Fetch purchase order notes from notes table */    
             FOR EACH notes NO-LOCK
                 WHERE notes.rec_key EQ po-ordl.rec_key:
@@ -738,11 +806,16 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "company", cCompany).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poID", cPoNo).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLine", cPoLine).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoDate", cPoDate).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "dueDate", cDueDate).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "CustNoCorKraft", cCustNoCorKraft).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "carrierDesc", cCarrierDesc).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLineStatus", cPoLineStatus).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityOrdered", cQuantityOrdered).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityInSF", cQuantityInSF).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityInM", cQuantityInM).            
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityUOM", cQuantityUOM).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "QuantityInSFPerCostUom",cQuantitySFPerCostUom).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemType", cItemType).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemID", cItemID).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemName", cItemName).
@@ -790,10 +863,21 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "flute", cFlute).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobConcat", cJobConcat).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobConcatHRMS", cJobConcatHRMS).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobConcatSmurfit", cJobConcatSmurfit).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLineNotes", cPoLineNotes).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNotesHRMS", cPoNotesHRMS).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "SPACE", " ").
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNo",cPoNo).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "fobCode", cFOBCode).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "custXAreaCode", cCustXAreaCode).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "custXPhone", cCustXPhone).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "custXName", cCustXName).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "custXAddress1", cCustXAddress1).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "custXAddress2", cCustXAddress2).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "custXCity", cCustXCity).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "custXState", cCustXState).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "custXZip", cCustXZip).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "custXCityState", cCustXCityState).            
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "shipToAddress1", cshipToAddress1).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "shipToAddress2", cshipToAddress2).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "shipToCity", cShipToCity).
@@ -801,6 +885,8 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "ShipToCompanyName", cShipToCompanyName).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "shipToState", cShipToState).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "shipToZip", cShipToZip).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "ShipToConcatAddress", cShipToConcatAddress).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "shipToCityState", cShipToCityState).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "CompanyAddress1", cCompanyAddress1).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "CompanyAddress2", cCompanyAddress2).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "CompanyCity", cCompanyCity).
@@ -816,6 +902,7 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "RegularNo",cRegularNo).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "MachineInitial",cMachineInitial).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoNotesAlliance",cPoNotesAlliance).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "TotalCost",cTotalCost). 
             cItemWithAdders = cItemID.
             /* Fetch adder details for the purchase order line */
             FOR EACH po-ordl-add NO-LOCK
@@ -878,6 +965,8 @@
                     ASSIGN 
                         iIndex  = 1
                         iIndex1 = 0
+                        iIndex2 = 0
+                        iIndex3 = 0
                         .
 
                     FOR EACH bf-job-mat NO-LOCK 
@@ -898,15 +987,34 @@
                                AND bf-hrms-reftable.code2    EQ bf-item.i-no
                                NO-ERROR.        
                         IF AVAILABLE bf-hrms-reftable THEN DO:
-                            iIndex = iIndex + 1.
+                            ASSIGN 
+                                iIndex  = iIndex  + 1
+                                iIndex1 = iIndex1 + 1
+                                .
                             IF iIndex LE 6 THEN DO:            
                                 cItemWithAddersHRMS = cItemWithAddersHRMS + STRING(INT(bf-hrms-reftable.code),"9999") NO-ERROR.
                                 IF ERROR-STATUS:ERROR THEN 
                                     cItemWithAddersHRMS = cItemWithAddersHRMS + STRING("0000","9999").
                             END.
+                            IF iIndex1 LE 6 THEN 
+                                ASSIGN 
+                                    cItemWithAddersHRMSX5  = cItemWithAddersHRMSX5  + STRING(bf-hrms-reftable.code,"X(5)")
+                                    cItemWithAddersHRMSINT = cItemWithAddersHRMSINT + STRING(INT(reftable.code),"9999")
+                                    .   
                         END.
-                       iIndex1 = iIndex1 + 1.
-                        IF iIndex1 LE 6 THEN DO:
+                        
+                        FIND FIRST bf-hrms-reftable NO-LOCK 
+                             WHERE bf-hrms-reftable.reftable EQ "util/b-pratt-x.w" 
+                               AND bf-hrms-reftable.company  EQ bf-item.company 
+                               AND bf-hrms-reftable.code2    EQ bf-item.i-no
+                               NO-ERROR. 
+                        IF AVAILABLE bf-hrms-reftable THEN DO:
+                            iIndex2 = iIndex2 + 1.
+                            IF iIndex2 LE 6 THEN 
+                                cItemWithAddersPrattINT = STRING(INT(bf-hrms-reftable.code),"9999").
+                        END.                                 
+                        iIndex3 = iIndex3 + 1.
+                        IF iIndex3 LE 6 THEN DO:
                             IF AVAILABLE bf-APIOutboundDetail1 AND bf-item.i-no NE ""  THEN DO:                                
                                 lcLineAdderDataGP = STRING(bf-APIOutboundDetail1.data).
                                 RUN updateRequestData(INPUT-OUTPUT lcLineAdderDataGP, "ItemWithaddersX10WithoutConcat", STRING(bf-item.i-no,"X(10)")).
@@ -1019,6 +1127,13 @@
                             cScoreSizeDecimalAlliance = cScoreSizeDecimalAlliance + "02" + (STRING(dScoreSize16ths, "9999.99")).
                    
                                                                                   
+                END.
+                IF iIndex LE 12 THEN DO:  
+                    IF dScoreSizeArray[iIndex] EQ 0 THEN 
+                       cScoreSizeDecimalCorrKraft = cScoreSizeDecimalCorrKraft + "0000000 ". 
+                       
+                    ELSE 
+                        cScoreSizeDecimalCorrKraft = cScoreSizeDecimalCorrKraft + (STRING(dScoreSize16ths, "999.99")) + "16" + cScoreType.     
                 END.    
             END.
             ASSIGN 
@@ -1028,6 +1143,7 @@
                 cScoreSizeDecimalHRMS2      = REPLACE(cScoreSizeDecimalHRMS2,".",":")
                 cScoreSizeDecimalAlliFlutes = REPLACE(cScoreSizeDecimalAlliFlutes,".",":")
                 cScoreSizeDecimalAlliance   = REPLACE(cScoreSizeDecimalAlliance,".","")
+                cScoreSizeDecimalCorrKraft  = REPLACE(cScoreSizeDecimalCorrKraft,".","")
                 .
             
             RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatLineScoresData, cRequestDataType).            
@@ -1044,12 +1160,16 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimal", cScoreSizeDecimal).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAdders", cItemWithAdders).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersHRMS", cItemWithAddersHRMS).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersHRMSX5", cItemWithAddersHRMSX5).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersHRMSINT", cItemWithAddersHRMSINT).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersPrattINT", cItemWithAddersPrattINT). 
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSize16thsWestrock", cScoreSize16thsWestrock).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalHRMS1", cScoreSizeDecimalHRMS1).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalHRMS2", cScoreSizeDecimalHRMS2).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "FormattedScoring", cFormattedScoresWestrock).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalAlliFlutes", cScoreSizeDecimalAlliFlutes).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeAlliance", cScoreSizeDecimalAlliance).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalCorrKraft", cScoreSizeDecimalCorrKraft).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersX4", cItemWithAddersX4).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersX10", cItemWithAddersX10).
             
@@ -1057,10 +1177,16 @@
         END.      
         
         RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatLineData, cRequestDataType).
-
+        
+        iTotalLineCount = 3  + (iPoLineCount * 5). /* 3 Lines for header */
+        
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "company", cCompany).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PoLineCount",STRING(iPoLineCount)).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalLineCount", STRING(iTotalLineCount)).        
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poNO", cPoNO).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poType", cPoType).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poTypeInt", cPoTypeInt).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustNoCorKraft", cCustNoCorKraft).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poStatus", cPoStatus).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poStatusExt", cPoStatusExt).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poDate", cPoDate).
