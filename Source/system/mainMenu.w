@@ -2332,6 +2332,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResetByUser MAINMENU
+PROCEDURE pResetByUser:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplRebuildMenu AS LOGICAL NO-UNDO.
+    
+    IF iplRebuildMenu THEN DO:
+        RUN pGetUserSettings.
+        RUN pRebuildMenuTree.
+    END. /* if rebuild */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSearchSelections MAINMENU 
 PROCEDURE pSearchSelections :
 /*------------------------------------------------------------------------------
