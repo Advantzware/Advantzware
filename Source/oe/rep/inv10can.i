@@ -71,7 +71,13 @@ PUT "<R26><C1><#5><FROM><R28><C80><RECT><||3>" SKIP
                 "<R26><C65><FROM><R28><C65><LINE><||3>" SKIP
                 "<R26><C69><FROM><R28><C69><LINE><||3>" SKIP
                 .   
+IF NOT lPrintQtyAll THEN DO:
 PUT "<FArial><=5><R+1> Commandè       Livrè    Order#    Article#/Reference#                      Description                              Prix        UM             Montant <P9>" SKIP(1).
+END.
+ELSE DO:
+	PUT "<FArial><=5> Commandè    " SKIP.
+	PUT "<FArial><=5><R+1> Facturè             Livrè    Order#    Article#/Reference#                      Description                              Prix        UM             Montant <P9>" SKIP(1).
+END.
 v-printline = v-printline + 4.
            
 
