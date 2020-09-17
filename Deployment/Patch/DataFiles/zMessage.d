@@ -48,3 +48,5 @@ or adding any field from a Release including:
 3) Release Quantity
 4) Release PO Number
 " "" "" ? 0 900 no no "WARNING" "" "" "2020080355168.NoSuper"
+"46" "OE" 0 "" "" "Deleted Order" "Order has been deleted" "" "This order has been deleted." "" "" ? 0 900 no no "INFO" "" "" "202009034506405625862"
+"47" "OE" 0 "" "" "Deleted Job" "Jobhas been deleted" "" "This Job has been deleted." "" "" ? 0 900 no no "INFO" "" "" "202009034650705625864"

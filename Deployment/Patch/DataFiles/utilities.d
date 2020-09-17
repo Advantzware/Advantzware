@@ -14,7 +14,7 @@ Note that this function does NOT create summary transactions; use with EXTREME c
 "ImportMachine.r" "CE" "EB1" "Import Machines" "Import of machines for estimating.  This imports machines into the machine file." 900
 "resendASN.r" "" "" "Resend ASN" "" 900
 "wLockMonitor.r" "UTIL" "" "Transaction and Lock Monitor" "Monitor program to view record locks and track the details for each user to find record locking issues. Also used for monitoring open transactions within the system." 100
-"w-UpdARInv.r" "AR" "AC1" "Clear Amount Due Amounts" "This utility will correct invoices that appear in A-C-1 but really should have a zero balance due and not apear." 900
+"w-UpdARInv.r" "AR" "AC1" "Clear Amount Due Amounts" "This utility will correct invoices that appear in A-C-1 but really should have a zero balance due and not appear." 900
 "PostInvoiceTester.r" "AR" "OB4" "New Post Invoice Tester" "Testor will provide a sample file of what will be posted using the new Invoice Posting program.
 
 Files saved based on NK1 = UseNewInvoicePost settings." 900
