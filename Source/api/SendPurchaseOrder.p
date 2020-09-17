@@ -107,7 +107,7 @@
     DEFINE VARIABLE cPoLine                  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOrderType               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iPoLineCount             AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iTotalLineCount          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTotalLineCountPratt     AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cQuantityOrdered         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQuantityInSF            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQuantitySFPerCostUom    AS CHARACTER NO-UNDO.
@@ -1010,8 +1010,11 @@
                                NO-ERROR. 
                         IF AVAILABLE bf-hrms-reftable THEN DO:
                             iIndex2 = iIndex2 + 1.
-                            IF iIndex2 LE 6 THEN 
-                                cItemWithAddersPrattINT = STRING(INT(bf-hrms-reftable.code),"9999").
+                            IF iIndex2 LE 6 THEN DO:
+                                cItemWithAddersPrattINT = cItemWithAddersPrattINT + STRING(INT(bf-hrms-reftable.code),"9999") NO-ERROR.
+                                IF ERROR-STATUS:ERROR THEN 
+                                    cItemWithAddersPrattINT = cItemWithAddersPrattINT + STRING("0000","9999").       
+                            END.    
                         END.                                 
                         iIndex3 = iIndex3 + 1.
                         IF iIndex3 LE 6 THEN DO:
@@ -1178,11 +1181,11 @@
         
         RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatLineData, cRequestDataType).
         
-        iTotalLineCount = 3  + (iPoLineCount * 5). /* 3 Lines for header */
+        iTotalLineCountPratt = 3  + (iPoLineCount * 5). /* 3 Lines for header */
         
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "company", cCompany).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PoLineCount",STRING(iPoLineCount)).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalLineCount", STRING(iTotalLineCount)).        
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalLineCount", STRING(iTotalLineCountPratt)).        
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poNO", cPoNO).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poType", cPoType).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "poTypeInt", cPoTypeInt).
