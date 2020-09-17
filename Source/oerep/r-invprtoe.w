@@ -483,7 +483,7 @@ DEFINE FRAME FRAME-A
           "Enter Beginning BOL Number"
      end_bol AT ROW 5.38 COL 69 COLON-ALIGNED HELP
           "Enter Ending BOL Number"
-     tb_reprint AT ROW 6.62 COL 28.2
+     tb_reprint AT ROW 6.62 COL 28.2       
      lv-scr-num-copies AT ROW 6.62 COL 69.8 COLON-ALIGNED
      tb_posted AT ROW 7.48 COL 28.2
      tb_collate AT ROW 7.48 COL 59.4
@@ -492,12 +492,12 @@ DEFINE FRAME FRAME-A
      tb_prt-dupl AT ROW 9.95 COL 59.2 RIGHT-ALIGNED
      tb_print-dept AT ROW 9.95 COL 49 RIGHT-ALIGNED
      fi_depts AT ROW 9.95 COL 48.4 COLON-ALIGNED HELP
-          "Enter Departments separated by commas" NO-LABEL
-     tb_qty-all AT ROW 10.14 COL 28 WIDGET-ID 28
+          "Enter Departments separated by commas" NO-LABEL      
      tb_prt-zero-qty AT ROW 10.95 COL 56 RIGHT-ALIGNED WIDGET-ID 12
      tb_open-inv AT ROW 10.95 COL 87.4 RIGHT-ALIGNED WIDGET-ID 34
      lbl_sort AT ROW 12 COL 26.2 COLON-ALIGNED NO-LABEL
      rd_sort AT ROW 12 COL 39 NO-LABEL
+     tb_qty-all AT ROW 13.00 COL 28 WIDGET-ID 28
      fi_broker-bol AT ROW 12 COL 75 COLON-ALIGNED HELP
           "Enter Beginning Invoice Number" WIDGET-ID 6
      rs_no_PN AT ROW 13 COL 28.2 NO-LABEL WIDGET-ID 8
@@ -2276,7 +2276,7 @@ PROCEDURE pRunFormatValueChanged :
                 tb_setcomp:SENSITIVE = YES
                 tb_setcomp           = YES.
 
-         IF v-print-fmt EQ "invprint 10" OR v-print-fmt EQ  "invprint 20" OR v-print-fmt EQ  "invprint 21" OR v-print-fmt EQ "LancoYork" THEN
+         IF v-print-fmt EQ "invprint 10" OR v-print-fmt EQ  "invprint 20" OR v-print-fmt EQ  "invprint 21" OR v-print-fmt EQ "LancoYork" OR v-print-fmt EQ "invprint10-CAN" THEN
              ASSIGN tb_qty-all:HIDDEN = NO .
          ELSE tb_qty-all:HIDDEN = YES .
        
