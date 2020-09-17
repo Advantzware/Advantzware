@@ -72,17 +72,18 @@ DEFINE QUERY external_tables FOR notes.
 notes.note_title notes.note_text 
 &Scoped-define ENABLED-TABLES notes
 &Scoped-define FIRST-ENABLED-TABLE notes
-&Scoped-Define ENABLED-OBJECTS RECT-1 btProgram 
+&Scoped-Define ENABLED-OBJECTS btProgram 
 &Scoped-Define DISPLAYED-FIELDS notes.note_code notes.note_form_no ~
-notes.viewed notes.note_title notes.note_text notes.createTime ~
-notes.createUser notes.createDate notes.updateDate notes.updateTime ~
-notes.updateUser 
+notes.viewed notes.note_title notes.chargeCode notes.note_text ~
+notes.createDate notes.createTime notes.createUser notes.updateDate ~
+notes.updateTime notes.updateUser 
 &Scoped-define DISPLAYED-TABLES notes
 &Scoped-define FIRST-DISPLAYED-TABLE notes
 &Scoped-Define DISPLAYED-OBJECTS dept-dscr 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,List-4,List-5,F1   */
+&Scoped-define ADM-ASSIGN-FIELDS notes.chargeCode 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -120,10 +121,11 @@ DEFINE BUTTON btProgram
 
 DEFINE VARIABLE dept-dscr AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 46 BY 1 NO-UNDO.
+     SIZE 46 BY 1
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 122 BY 14.05.
 
 
@@ -134,10 +136,12 @@ DEFINE FRAME F-Main
           LABEL "Dept"
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
+          BGCOLOR 15 
      dept-dscr AT ROW 1.24 COL 21 COLON-ALIGNED NO-LABEL
      notes.note_form_no AT ROW 1.24 COL 82 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
+          BGCOLOR 15 
      notes.viewed AT ROW 1.24 COL 108
           VIEW-AS TOGGLE-BOX
           SIZE 13.4 BY 1
@@ -145,40 +149,50 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 74 BY 1
           BGCOLOR 15 FONT 4
+     notes.chargeCode AT ROW 2.43 COL 106 COLON-ALIGNED WIDGET-ID 16
+          VIEW-AS FILL-IN 
+          SIZE 8 BY 1
+          BGCOLOR 15 
      notes.note_text AT ROW 3.62 COL 16 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
-          SIZE 106 BY 9.29
+          SIZE 106 BY 9.05
+          BGCOLOR 15 
+     notes.createDate AT ROW 12.91 COL 24 COLON-ALIGNED WIDGET-ID 2
+          LABEL "Created Date"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
           BGCOLOR 15 
      notes.createTime AT ROW 12.91 COL 52.6 COLON-ALIGNED WIDGET-ID 4
           LABEL "Time"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
+          BGCOLOR 15 
      notes.createUser AT ROW 12.91 COL 84.8 COLON-ALIGNED WIDGET-ID 6
           LABEL "User ID"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     notes.createDate AT ROW 12.95 COL 24 COLON-ALIGNED WIDGET-ID 2
-          LABEL "Created Date"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          BGCOLOR 15 
+     btProgram AT ROW 13.38 COL 107 WIDGET-ID 14
      notes.updateDate AT ROW 13.86 COL 24 COLON-ALIGNED WIDGET-ID 8
           LABEL "Last Updated Date"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
+          BGCOLOR 15 
      notes.updateTime AT ROW 13.86 COL 52.6 COLON-ALIGNED WIDGET-ID 10
           LABEL "Time"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
+          BGCOLOR 15 
      notes.updateUser AT ROW 13.86 COL 84.8 COLON-ALIGNED WIDGET-ID 12
           LABEL "User ID"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     btProgram AT ROW 13.86 COL 105 WIDGET-ID 14
+          BGCOLOR 15 
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+         FGCOLOR 1 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -208,7 +222,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 14.19
+         HEIGHT             = 14.05
          WIDTH              = 122.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -237,6 +251,8 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN notes.chargeCode IN FRAME F-Main
+   NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN notes.createDate IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN notes.createTime IN FRAME F-Main
@@ -247,6 +263,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN notes.note_code IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN notes.updateDate IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN notes.updateTime IN FRAME F-Main
@@ -528,8 +546,8 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR ll AS LOG NO-UNDO.
-
+  DEFINE VARIABLE cChargeCode AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE ll          AS LOGICAL   NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   saveNoteCode = notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
@@ -538,6 +556,9 @@ PROCEDURE local-update-record :
 
   RUN valid-note_form_no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+  {methods/run_link.i "CONTAINER-SOURCE" "pGetChargeCode" "(OUTPUT cChargeCode)"}
+  notes.chargeCode:SCREEN-VALUE = cChargeCode.
 
   FOR EACH tt-notes:
     DELETE tt-notes.
@@ -552,6 +573,21 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
   BUFFER-COMPARE notes TO tt-notes SAVE RESULT IN ll.
   IF NOT ll THEN RUN custom/notewtrg.p (ROWID(notes)).
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetChargeCode V-table-Win 
+PROCEDURE pGetChargeCode :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcChargeCode AS CHARACTER NO-UNDO.
+
+    {methods/run_link.i "CONTAINER-SOURCE" "pGetChargeCode" "(OUTPUT opcChargeCode)"}
 
 END PROCEDURE.
 
