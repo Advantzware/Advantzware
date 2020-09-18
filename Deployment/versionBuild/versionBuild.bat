@@ -1,4 +1,14 @@
 @ECHO OFF
+
+IF EXIST c:\asigui\build\buildON.txt (
+    ECHO A build is already running
+    pause
+    GOTO :EXIT
+)
+TASKKILL /F /IM ASIbranchTest.exe > NUL
+
+ECHO VERSION Build started %date% %time% > c:\asigui\build\buildON.txt
+
 SET DLC=C:\Progress\OE116_64
 SET DLCBIN=%DLC%\bin
 SET /p cCurVer="Enter CURRENT version number (xx.xx.xx) "
@@ -401,6 +411,7 @@ ECHO . >> %vlog%
 
 :Cleanup
 CD %buildDir%
+DEL /Q c:\asigui\build\buildON.txt > NUL
 
 :END
 
@@ -426,3 +437,6 @@ ECHO ------------------------------------------------------------------
 ECHO .
  
 PAUSE
+
+:EXIT
+EXIT
