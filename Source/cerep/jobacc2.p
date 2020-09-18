@@ -2312,24 +2312,26 @@ END FUNCTION.
                
 
                PUT "<R+2><C3><FROM><R+2><C8><RECT><R-4>" 
-                       "<R+2><C8><FROM><R+2><C16><RECT><R-4>" 
-                       "<R+2><C16><FROM><R+2><C24><RECT><R-4>"
-                       "<R+2><C24><FROM><R+2><C44><RECT><R-4>"
-                       "<R+2><C44><FROM><R+2><C70><RECT><R-4>"
-                       "<R+2><C70><FROM><R+2><C108><RECT><R-2>" .
-                    cItemName = IF job-mch.blank-no NE 0 THEN display-i-name() ELSE "" .
-                     cJobMchID = LEFT-TRIM(job-mch.job-no) + "-"
-                        + STRING(job-mch.job-no2) + "."
-                        + STRING(job-mch.job-mchID,"9999999")
-                        .
-                   PUT "<R+0.5><C4>" job-mch.frm
-                        "<C10>" job-mch.blank-no FORMAT ">>>" 
-                        "<C18>" job-mch.pass
-                        "<C26>" job-mch.m-code FORMAT "x(12)"
-                        "<C46>"  cItemName FORMAT "x(25)"
-                        "<C70>" "<#32><UNITS=INCHES><C71><FROM><C107><r+1><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
-                          cJobMchID FORMAT "x(19)" ">"   "<R-1.5>" .
-
+                   "<R+2><C8><FROM><R+2><C16><RECT><R-4>" 
+                   "<R+2><C16><FROM><R+2><C24><RECT><R-4>"
+                   "<R+2><C24><FROM><R+2><C44><RECT><R-4>"
+                   "<R+2><C44><FROM><R+2><C70><RECT><R-4>"
+                   "<R+2><C70><FROM><R+2><C108><RECT><R-2>"
+                   .
+               ASSIGN
+                   cItemName = IF job-mch.blank-no NE 0 THEN display-i-name() ELSE ""
+                   cJobMchID = LEFT-TRIM(job-mch.job-no) + "-"
+                             + STRING(job-mch.job-no2) + "."
+                             + STRING(job-mch.job-mchID,"999999999")
+                             .
+               PUT "<R+0.5><C4>" job-mch.frm
+                   "<C10>" job-mch.blank-no FORMAT ">>>" 
+                   "<C18>" job-mch.pass
+                   "<C26>" job-mch.m-code FORMAT "x(12)"
+                   "<C46>" cItemName FORMAT "x(25)"
+                   "<C70>" "<#32><UNITS=INCHES><C70><FROM><C107><r+1><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
+                   cJobMchID FORMAT "x(19)" ">" "<R-1.5>"
+                   .
            END.
 
           lv-pg-num2 = lv-pg-num2 + 1.
