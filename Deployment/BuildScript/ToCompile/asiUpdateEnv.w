@@ -4371,11 +4371,6 @@ PROCEDURE ipLoadAuditRecs :
             ASSIGN 
                 {&tableName}.auditDefault = tt{&tableName}.auditDefault
                 .
-            /* and make sure THEIR activation is AT LEAST the default */
-            ASSIGN 
-                {&tableName}.audit = IF {&tableName}.audit THEN TRUE ELSE {&tableName}.audit
-                . 
-            
         END.
     END.
     INPUT CLOSE.
@@ -4389,6 +4384,19 @@ PROCEDURE ipLoadAuditRecs :
     END.
     
     EMPTY TEMP-TABLE tt{&tablename}.
+
+    /* Finally, if an earlier iteration of auditFld, if auditTbl says audit updates, turn on all fields */
+    IF fIntVer(fiFromVer:{&SV}) LE 20020500 THEN DO:
+        FOR EACH AuditTbl NO-LOCK WHERE 
+            AuditTbl.AuditUpdate EQ YES:
+            FOR EACH AuditFld EXCLUSIVE-LOCK WHERE 
+                AuditFld.AuditTable EQ AuditTbl.AuditTable:
+                ASSIGN
+                    AuditFld.Audit = YES.
+            END.
+        END.
+    END. 
+ 
     
 END PROCEDURE.
 
@@ -5160,7 +5168,6 @@ PROCEDURE ipLoadPrograms :
                 tt{&tablename}.can_create
                 tt{&tablename}.can_update
                 tt{&tablename}.can_delete
-                tt{&tablename}.subjectID
                 TO {&tablename}.
         END.
     END.
