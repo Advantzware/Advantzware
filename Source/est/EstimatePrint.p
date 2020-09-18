@@ -529,7 +529,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
     DEFINE BUFFER bf-estCostForm          FOR estCostForm.
 
     DEFINE VARIABLE iRowStart      AS INTEGER.
-    DEFINE VARIABLE iColumn        AS INTEGER   EXTENT 10 INITIAL [2,32,58].
+    DEFINE VARIABLE iColumn        AS INTEGER   EXTENT 10 INITIAL [2,32,62].
     DEFINE VARIABLE iColumnWidth   AS INTEGER   INITIAL 10.
     
     DEFINE VARIABLE iQtyCount      AS INTEGER   NO-UNDO.
@@ -589,7 +589,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
         RUN pWriteToCoordinates(iopiRowCount, iColumn[2] + iColumnWidth, "Total", YES, YES, YES).
         IF ipbf-estCostHeader.quantityReference NE 0 THEN 
         DO:
-            RUN pWriteToCoordinates(iopiRowCount, iColumn[3] , "Per Set: " + STRING(ipbf-estCostHeader.quantityReference), YES, YES, YES). 
+            RUN pWriteToCoordinates(iopiRowCount, iColumn[3] , "Per M Ref Qty of " + STRING(ipbf-estCostHeader.quantityReference), YES, YES, YES). 
         END.
     END.
    
@@ -669,7 +669,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
                             RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + iColumnWidth, estCostSummary.costTotal , 6, 2, NO, YES, NO, NO, YES).
                             IF ipbf-estCostHeader.quantityReference NE 0 THEN 
                             DO:
-                                RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[3] , (estCostSummary.costTotalPerMFinished / 1000 ) * ipbf-estCostHeader.quantityReference  , 8, 2, NO, YES, NO, NO, YES).
+                                RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[3] , estCostSummary.costTotal / (ipbf-estCostHeader.quantityReference / 1000)  , 8, 2, NO, YES, NO, NO, YES).
                                                                 
                             END.
                             ASSIGN 
@@ -696,7 +696,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
                 RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + iColumnWidth, dCostTotal , 6, 2, NO, YES, YES, NO, YES).
                 IF ipbf-estCostHeader.quantityReference NE 0 THEN 
                 DO:
-                    RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[3] , (dCostTotalPerM / 1000 ) * ipbf-estCostHeader.quantityReference  , 8, 2, NO, YES, NO, NO, YES)
+                    RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[3] , dCostTotal / (ipbf-estCostHeader.quantityReference / 1000)  , 8, 2, NO, YES, NO, NO, YES)
                     .                                                                
                 END.
             END.
