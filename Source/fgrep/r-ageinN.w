@@ -2989,7 +2989,7 @@ FOR EACH tt-file WHERE
   FIND LAST fg-rcpth NO-LOCK 
       WHERE fg-rcpth.company EQ cocode 
         AND fg-rcpth.i-no EQ itemfg.i-no 
-        AND fg-rcpth.rita-code EQ "S" NO-ERROR.
+        AND fg-rcpth.rita-code EQ "S" USE-INDEX trans-date  NO-ERROR.
 
   ASSIGN
    v-cst[1]  = tt-cst[1]
