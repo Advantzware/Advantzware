@@ -1095,7 +1095,7 @@ PROCEDURE pAlignMultiInvoiceLinesWithMaster PRIVATE:
         AND bf-child-inv-head.inv-no        EQ ipbf-master-inv-head.inv-no
         AND bf-child-inv-head.multi-invoice EQ NO:
             
-        FOR EACH bf-child-inv-line EXCLUSIVE-LOCK 
+        FOR EACH bf-child-inv-line NO-LOCK 
             WHERE bf-child-inv-line.r-no EQ bf-child-inv-head.r-no:
             
             /*Clear procedure error if at least one found*/
@@ -1115,7 +1115,7 @@ PROCEDURE pAlignMultiInvoiceLinesWithMaster PRIVATE:
             END.
         END.
 
-        FOR EACH bf-child-inv-misc EXCLUSIVE-LOCK 
+        FOR EACH bf-child-inv-misc NO-LOCK 
             WHERE bf-child-inv-misc.r-no EQ bf-child-inv-head.r-no:
             
             /*Clear procedure error if at least one found*/
@@ -2697,11 +2697,18 @@ PROCEDURE pPostAll PRIVATE:
     
     IF oplError THEN RETURN.
     
-    /*create ar-inv and ar-invl*/
-    RUN pPostInvoices(OUTPUT opiCountPosted, OUTPUT oplError, OUTPUT opcMessage).
+    TRANSACTION-BLOCK:
+    DO TRANSACTION ON ERROR UNDO TRANSACTION-BLOCK, LEAVE TRANSACTION-BLOCK:
+        /*create ar-inv and ar-invl*/
+        RUN pPostInvoices(OUTPUT opiCountPosted, OUTPUT oplError, OUTPUT opcMessage).
+        IF oplError THEN
+            UNDO TRANSACTION-BLOCK, LEAVE TRANSACTION-BLOCK.
         
-    /*Create GL Records*/
-    RUN pPostGL(BUFFER ttPostingMaster, YES, OUTPUT oplError, OUTPUT opcMessage).       
+        /*Create GL Records*/
+        RUN pPostGL(BUFFER ttPostingMaster, YES, OUTPUT oplError, OUTPUT opcMessage).  
+        IF oplError THEN
+            UNDO TRANSACTION-BLOCK, LEAVE TRANSACTION-BLOCK.             
+    END.
     
     /*Update additional records*/
     RUN pUpdateOrders.
