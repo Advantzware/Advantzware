@@ -1,6 +1,14 @@
 @ECHO OFF
 
+IF EXIST c:\asigui\build\buildON.txt (
+    ECHO A build is already running
+    pause
+    GOTO :EXIT
+)
+TASKKILL /F /IM ASIbranchTest.exe > NUL
+
 :INITIALIZE
+SET buildDir=\asigui\build
 SET clogfile=c:\asigui\build\mergelog.txt
 SET cViewFile=c:\asigui\build\mergecomp.txt
 SET ghToken=5c5b4ee9facd6495549ae1a5e6c4184ec492807c
@@ -13,6 +21,11 @@ ECHO %date% %time% Merge/Compile Started > %cViewFile%
 ECHO ---------------------------------------------------- >> %cViewFile%
 ECHO %date% Merge/Compile >> %clogfile%
 ECHO ---------------------------------------------------- >> %clogFile%
+
+:: Update auditTbl/auditFld records
+C:
+CD %buildDir%
+CALL %DLCBIN%\prowin.exe -basekey "INI" -ininame versionBuild.ini -pf versionBuildBOTHDB.pf -p updateAuditTbl.p
 
 :GITHUB
 ECHO %time% Pulling latest merges from GitHub
