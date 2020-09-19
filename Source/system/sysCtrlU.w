@@ -63,23 +63,34 @@ SESSION:SET-WAIT-STATE ("").
 &Scoped-define BROWSE-NAME API
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES APIOutboundTrigger ttPermissions ~
+&Scoped-define INTERNAL-TABLES APIOutboundTrigger APIOutbound ttPermissions ~
 ttSysCtrlUsage
 
 /* Definitions for BROWSE API                                           */
 &Scoped-define FIELDS-IN-QUERY-API APIOutboundTrigger.apiID ~
 APIOutboundTrigger.clientID APIOutboundTrigger.triggerID ~
-APIOutboundTrigger.description APIOutboundTrigger.Inactive ~
-APIOutboundTrigger.createTime APIOutboundTrigger.createBy 
+APIOutboundTrigger.description APIOutboundTrigger.createTime ~
+APIOutboundTrigger.createBy 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-API 
 &Scoped-define QUERY-STRING-API FOR EACH APIOutboundTrigger ~
-      WHERE APIOutboundTrigger.company = g_company NO-LOCK ~
+      WHERE APIOutboundTrigger.company EQ g_company AND ~
+APIOutboundTrigger.apiOutboundID GE 5000 AND ~
+APIOutboundTrigger.inActive EQ NO NO-LOCK, ~
+      FIRST APIOutbound WHERE APIOutbound.company EQ APIOutboundTrigger.company AND ~
+APIOutbound.apiOutboundID EQ APIOutboundTrigger.apiOutboundID ~
+      AND APIOutbound.inActive EQ NO NO-LOCK ~
     ~{&SORTBY-PHRASE} INDEXED-REPOSITION
 &Scoped-define OPEN-QUERY-API OPEN QUERY API FOR EACH APIOutboundTrigger ~
-      WHERE APIOutboundTrigger.company = g_company NO-LOCK ~
+      WHERE APIOutboundTrigger.company EQ g_company AND ~
+APIOutboundTrigger.apiOutboundID GE 5000 AND ~
+APIOutboundTrigger.inActive EQ NO NO-LOCK, ~
+      FIRST APIOutbound WHERE APIOutbound.company EQ APIOutboundTrigger.company AND ~
+APIOutbound.apiOutboundID EQ APIOutboundTrigger.apiOutboundID ~
+      AND APIOutbound.inActive EQ NO NO-LOCK ~
     ~{&SORTBY-PHRASE} INDEXED-REPOSITION.
-&Scoped-define TABLES-IN-QUERY-API APIOutboundTrigger
+&Scoped-define TABLES-IN-QUERY-API APIOutboundTrigger APIOutbound
 &Scoped-define FIRST-TABLE-IN-QUERY-API APIOutboundTrigger
+&Scoped-define SECOND-TABLE-IN-QUERY-API APIOutbound
 
 
 /* Definitions for BROWSE Permissions                                   */
@@ -141,12 +152,13 @@ DEFINE VARIABLE showBrowse AS CHARACTER INITIAL "SysCtrl"
           "API Settings", "API",
 "Permissions", "Permissions",
 "SysCtrl Usage", "SysCtrl"
-     SIZE 52 BY .9 NO-UNDO.
+     SIZE 52 BY .91 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY API FOR 
-      APIOutboundTrigger SCROLLING.
+      APIOutboundTrigger, 
+      APIOutbound SCROLLING.
 
 DEFINE QUERY Permissions FOR 
       ttPermissions SCROLLING.
@@ -163,7 +175,6 @@ DEFINE BROWSE API
       APIOutboundTrigger.clientID FORMAT "x(32)":U WIDTH 21.8
       APIOutboundTrigger.triggerID FORMAT "x(32)":U WIDTH 21.8
       APIOutboundTrigger.description FORMAT "x(100)":U WIDTH 46.8
-      APIOutboundTrigger.Inactive FORMAT "yes/no":U WIDTH 10
       APIOutboundTrigger.createTime FORMAT "99/99/9999 HH:MM:SS":U
             WIDTH 24.2
       APIOutboundTrigger.createBy FORMAT "x(8)":U
@@ -273,9 +284,15 @@ THEN C-Win:HIDDEN = no.
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE API
 /* Query rebuild information for BROWSE API
-     _TblList          = "ASI.APIOutboundTrigger"
+     _TblList          = "ASI.APIOutboundTrigger,ASI.APIOutbound WHERE ASI.APIOutboundTrigger ..."
      _Options          = "NO-LOCK INDEXED-REPOSITION SORTBY-PHRASE"
-     _Where[1]         = "APIOutboundTrigger.company = g_company"
+     _TblOptList       = ", FIRST"
+     _Where[1]         = "APIOutboundTrigger.company EQ g_company AND
+APIOutboundTrigger.apiOutboundID GE 5000 AND
+APIOutboundTrigger.inActive EQ NO"
+     _JoinCode[2]      = "APIOutbound.company EQ APIOutboundTrigger.company AND
+APIOutbound.apiOutboundID EQ APIOutboundTrigger.apiOutboundID"
+     _Where[2]         = "APIOutbound.inActive EQ NO"
      _FldNameList[1]   > ASI.APIOutboundTrigger.apiID
 "APIOutboundTrigger.apiID" ? ? "character" ? ? ? ? ? ? no ? no no "21.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.APIOutboundTrigger.clientID
@@ -284,11 +301,9 @@ THEN C-Win:HIDDEN = no.
 "APIOutboundTrigger.triggerID" ? ? "character" ? ? ? ? ? ? no ? no no "21.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.APIOutboundTrigger.description
 "APIOutboundTrigger.description" ? ? "character" ? ? ? ? ? ? no ? no no "46.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.APIOutboundTrigger.Inactive
-"APIOutboundTrigger.Inactive" ? ? "logical" ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > ASI.APIOutboundTrigger.createTime
+     _FldNameList[5]   > ASI.APIOutboundTrigger.createTime
 "APIOutboundTrigger.createTime" ? "99/99/9999 HH:MM:SS" "datetime" ? ? ? ? ? ? no ? no no "24.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   = ASI.APIOutboundTrigger.createBy
+     _FldNameList[6]   = ASI.APIOutboundTrigger.createBy
      _Query            is OPENED
 */  /* BROWSE API */
 &ANALYZE-RESUME
