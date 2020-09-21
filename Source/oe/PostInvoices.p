@@ -2682,6 +2682,7 @@ PROCEDURE pPostAll PRIVATE:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
+    DEFINE VARIABLE lTransactionComplete AS LOGICAL NO-UNDO.
     
     FIND FIRST ttPostingMaster NO-ERROR.
     IF NOT AVAILABLE ttPostingMaster THEN 
@@ -2707,15 +2708,21 @@ PROCEDURE pPostAll PRIVATE:
         /*Create GL Records*/
         RUN pPostGL(BUFFER ttPostingMaster, YES, OUTPUT oplError, OUTPUT opcMessage).  
         IF oplError THEN
-            UNDO TRANSACTION-BLOCK, LEAVE TRANSACTION-BLOCK.             
+            UNDO TRANSACTION-BLOCK, LEAVE TRANSACTION-BLOCK. 
+        
+        /* Identifying if the transaction is complete */
+        lTransactionComplete = TRUE.            
     END.
     
-    /*Update additional records*/
-    RUN pUpdateOrders.
-    RUN pUpdateBOLs.
-    RUN pUpdateCustomers.
-    RUN pUpdateEstPreps.
-    RUN pUpdateFGItems.
+    /* Run the additional updates only if the above transaction is complete */
+    IF lTransactionComplete THEN DO:
+        /*Update additional records*/
+        RUN pUpdateOrders.
+        RUN pUpdateBOLs.
+        RUN pUpdateCustomers.
+        RUN pUpdateEstPreps.
+        RUN pUpdateFGItems.
+    END.
     
     RUN pBuildExceptions(OUTPUT oplExceptionsFound).
     
