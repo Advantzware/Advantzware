@@ -463,6 +463,7 @@ FOR EACH tt-srt USE-INDEX dept-idx
         IF dt-eff = ? THEN dt-eff = 0.
     END.
 
+    &IF DEFINED(ttTempTable) EQ 0 &THEN
     IF tb_excel THEN  
     DO:
         FIND FIRST itemfg NO-LOCK 
@@ -501,6 +502,5 @@ FOR EACH tt-srt USE-INDEX dept-idx
             SKIP.
           
     END.
-            
+    &ENDIF
 END. /* each tt-srt */
-

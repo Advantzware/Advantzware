@@ -40,28 +40,7 @@ assign
  cocode = gcompany
  locode = gloc.
 
-DEF TEMP-TABLE tt-srt NO-UNDO LIKE mch-srt
-                              FIELD act-m-code LIKE mach.m-code
-                              FIELD tot-run-hours AS DEC
-                              FIELD tot-mr-hours AS DEC
-                              FIELD qty-Ton AS dec format ">>,>>9.99"
-                              FIELD qty-msf AS DEC FORM ">>,>>9.99"
-                              FIELD sqFeet-blank AS DEC FORM ">>,>>9.9999"
-                              FIELD sqfeet-rcv AS INT
-                              FIELD sheet-rcv AS INT
-                              FIELD qty-rcv AS INT
-                              FIELD sqfeet-prod AS INT
-                              FIELD job-date AS DATE
-                              FIELD qty-finished AS DEC 
-                              FIELD mr-start-time LIKE mch-act.START
-                              FIELD mr-end-time LIKE mch-act.stopp
-                              FIELD run-start-time LIKE mch-act.START
-                              FIELD run-end-time LIKE mch-act.stopp
-                              FIELD gotReceipts AS LOGICAL
-                              FIELD i-no LIKE mch-act.i-no
-                              FIELD qty-lin-ft AS DECIMAL  
-    INDEX dept-idx dept m-code job-no job-no2 frm blank-no
-    INDEX job-idx job-no job-no2.
+{pcrep/tt-srt.i}
 
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
 DEF STREAM excel.
