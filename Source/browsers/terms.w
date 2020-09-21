@@ -44,6 +44,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
+{methods/defines/sortByDefs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -136,11 +137,11 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      terms.t-code FORMAT "x(5)":U
-      terms.dscr FORMAT "x(40)":U
-      terms.disc-rate FORMAT "z9.9":U
-      terms.disc-days FORMAT "z9":U
-      terms.net-days FORMAT ">>9":U
+      terms.t-code FORMAT "x(5)":U LABEL-BGCOLOR 14
+      terms.dscr FORMAT "x(40)":U LABEL-BGCOLOR 14
+      terms.disc-rate FORMAT "z9.9":U LABEL-BGCOLOR 14
+      terms.disc-days FORMAT "z9":U LABEL-BGCOLOR 14
+      terms.net-days FORMAT ">>9":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 92 BY 18.1
@@ -218,7 +219,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -226,7 +227,8 @@ ASSIGN
 
 ASSIGN 
        Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
-                "2".
+                "2"
+       Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -240,12 +242,16 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _Where[1]         = "terms.company = gcompany"
-     _FldNameList[1]   = ASI.terms.t-code
-     _FldNameList[2]   = ASI.terms.dscr
-     _FldNameList[3]   = ASI.terms.disc-rate
-     _FldNameList[4]   = ASI.terms.disc-days
+     _FldNameList[1]   > ASI.terms.t-code
+"t-code" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > ASI.terms.dscr
+"dscr" ? "x(40)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.terms.disc-rate
+"disc-rate" ? ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.terms.disc-days
+"disc-days" ? ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.terms.net-days
-"net-days" ? ">>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"net-days" ? ">>9" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -289,6 +295,30 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON START-SEARCH OF Browser-Table IN FRAME F-Main
+DO:
+    IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
+        cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
+        IF cColumnLabel EQ cSaveLabel THEN
+        lAscending = NOT lAscending.
+        IF VALID-HANDLE(hSaveLabel) THEN
+        hSaveLabel:LABEL-BGCOLOR = ?.
+        ASSIGN
+            hColumnLabel = {&BROWSE-NAME}:CURRENT-COLUMN
+            hColumnLabel:LABEL-BGCOLOR = 14
+            hSaveLabel = hColumnLabel
+            cSaveLabel = cColumnLabel
+            .
+        RUN pReopenBrowse.
+    END.
+    RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON VALUE-CHANGED OF Browser-Table IN FRAME F-Main
 DO:
   /* This ADM trigger code must be preserved in order to notify other
@@ -313,6 +343,12 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
+
+{methods/sortByProc.i "pByTerms" "terms.t-code"}
+{methods/sortByProc.i "pByDesc" "terms.dscr "}
+{methods/sortByProc.i "pByDisc" "terms.disc-rate"}
+{methods/sortByProc.i "pByDays" "terms.disc-days"}
+{methods/sortByProc.i "pByNet" "terms.net-days"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -355,6 +391,36 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReopenBrowse B-table-Win 
+PROCEDURE pReopenBrowse :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+      
+    CASE cColumnLabel:
+        WHEN "t-code" THEN
+        RUN pByTerms.
+        WHEN "dscr" THEN
+        RUN pByDesc.
+        WHEN "disc-rate" THEN
+        RUN pByDisc.
+        WHEN "disc-days" THEN
+        RUN pByDays.
+        WHEN "net-days" THEN
+        RUN pByNet.          
+        OTHERWISE
+        {&OPEN-QUERY-{&BROWSE-NAME}}
+    END CASE.
+    IF AVAILABLE terms THEN
+    APPLY "VALUE-CHANGED":U TO {&BROWSE-NAME} IN FRAME {&FRAME-NAME}.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
