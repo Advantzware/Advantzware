@@ -9,7 +9,7 @@ DEFINE VARIABLE cStartMachine AS Character NO-UNDO.
 DEFINE VARIABLE cStartMachDescription AS Character NO-UNDO.
 DEFINE VARIABLE cEndMachine AS Character NO-UNDO.
 DEFINE VARIABLE cEndMachDescription AS Character NO-UNDO.
-DEFINE VARIABLE lAllCodeNo AS Logical NO-UNDO.
+DEFINE VARIABLE lAllDeptNo AS Logical NO-UNDO.
 DEFINE VARIABLE cStartDeptNo AS Character NO-UNDO.
 DEFINE VARIABLE cStartDeptName AS Character NO-UNDO.
 DEFINE VARIABLE cEndDeptNo AS Character NO-UNDO.
@@ -36,7 +36,7 @@ PROCEDURE pAssignParamVariables:
         cStartMachDescription = DYNAMIC-FUNCTION("fGetDynParamValue","startMachDescription")
         cEndMachine = DYNAMIC-FUNCTION("fGetDynParamValue","endMachine")
         cEndMachDescription = DYNAMIC-FUNCTION("fGetDynParamValue","endMachDescription")
-        lAllCodeNo = DYNAMIC-FUNCTION("fGetDynParamValue","allCodeNo") EQ "YES"
+        lAllDeptNo = DYNAMIC-FUNCTION("fGetDynParamValue","allDeptNo") EQ "YES"
         cStartDeptNo = DYNAMIC-FUNCTION("fGetDynParamValue","StartDeptNo")
         cStartDeptName = DYNAMIC-FUNCTION("fGetDynParamValue","StartDeptName")
         cEndDeptNo = DYNAMIC-FUNCTION("fGetDynParamValue","EndDeptNo")

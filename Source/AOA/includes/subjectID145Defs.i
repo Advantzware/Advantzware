@@ -1,11 +1,11 @@
-/* subjectID145Defs.i - auto generated 09.20.2020 @ 11:48:09 pm */
+/* subjectID145Defs.i - auto generated 09.21.2020 @  6:22:21 pm */
 
 {AOA/includes/dynRunBusinessLogicDefs.i}
 
 /* parameter values loaded into these variables */
 DEFINE VARIABLE cCompany AS Character NO-UNDO.
 DEFINE VARIABLE cLocation AS Character NO-UNDO.
-DEFINE VARIABLE lAllCodeNo AS Logical NO-UNDO.
+DEFINE VARIABLE lAllDeptNo AS Logical NO-UNDO.
 DEFINE VARIABLE cStartDeptNo AS Character NO-UNDO.
 DEFINE VARIABLE cCStartDeptName AS Character NO-UNDO.
 DEFINE VARIABLE cEndDeptNo AS Character NO-UNDO.
@@ -24,6 +24,11 @@ DEFINE VARIABLE dtStartTransDate AS Date NO-UNDO.
 DEFINE VARIABLE dtEndTransDate AS Date NO-UNDO.
 DEFINE VARIABLE cStartTime AS Character NO-UNDO.
 DEFINE VARIABLE cEndTime AS Character NO-UNDO.
+DEFINE VARIABLE lAllCodeNo AS Logical NO-UNDO.
+DEFINE VARIABLE cStartCodeNo AS Character NO-UNDO.
+DEFINE VARIABLE cStartCodeName AS Character NO-UNDO.
+DEFINE VARIABLE cEndCodeNo AS Character NO-UNDO.
+DEFINE VARIABLE cEndCodeName AS Character NO-UNDO.
 
 PROCEDURE pAssignParamVariables:
     /* load dynamic parameter values into variables */
@@ -49,5 +54,10 @@ PROCEDURE pAssignParamVariables:
         dtEndTransDate = DATE(DYNAMIC-FUNCTION("fGetDynParamValue","endTransDate"))
         cStartTime = DYNAMIC-FUNCTION("fGetDynParamValue","StartTime")
         cEndTime = DYNAMIC-FUNCTION("fGetDynParamValue","EndTime")
+        lAllCodeNo = DYNAMIC-FUNCTION("fGetDynParamValue","allCodeNo") EQ "YES"
+        cStartCodeNo = DYNAMIC-FUNCTION("fGetDynParamValue","startCodeNo")
+        cStartCodeName = DYNAMIC-FUNCTION("fGetDynParamValue","startCodeName")
+        cEndCodeNo = DYNAMIC-FUNCTION("fGetDynParamValue","endCodeNo")
+        cEndCodeName = DYNAMIC-FUNCTION("fGetDynParamValue","endCodeName")
         .
 END PROCEDURE.
