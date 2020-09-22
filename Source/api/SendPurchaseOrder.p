@@ -93,6 +93,9 @@
     DEFINE VARIABLE cPoNotesHRMS       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoNotesAlliance   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPONotesGP         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoHeadNotesKiwi   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPONotesKiwi       AS CHARACTER NO-UNDO. /* For Customers other than CSC & TriLakes - Applicable for Kiwi and kiwiT */
+    DEFINE VARIABLE cPoNotesKiwi1      AS CHARACTER NO-UNDO. /* For CSC customer, Applicable for kiwi and KiwiT */
     DEFINE VARIABLE cShipToCompanyName AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTotalCost         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCurrentDateTime   AS CHARACTER NO-UNDO.
@@ -122,6 +125,8 @@
     DEFINE VARIABLE cItemIDVendor            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOverPct                 AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUnderPct                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLineUnderQty            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLineOverQty             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoLineDueDate           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWidth               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemLength              AS CHARACTER NO-UNDO.
@@ -175,6 +180,8 @@
     DEFINE VARIABLE cItemWithAddersHRMSX5           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersHRMSINT          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersPrattINT         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWithAddersKiwi             AS CHARACTER NO-UNDO. /* For Customers other than TriLakes- Applicable for Kiwi and KiwiT */
+    DEFINE VARIABLE cItemWithAddersKiwi1            AS CHARACTER NO-UNDO. /*For TriLakes- Applicable for Kiwi & KiwiT*/
     DEFINE VARIABLE cItemWithAddersX4               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersX10              AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersX10WithoutConcat AS CHARACTER NO-UNDO.
@@ -199,6 +206,7 @@
     DEFINE VARIABLE cScoreSizeDecimalAlliFlutes AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScoreSizeDecimalAlliance   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScoreSizeDecimalCorrKraft  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreSizeDecimalKiwi       AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cWhsCode           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQtyPerPack        AS CHARACTER NO-UNDO.
@@ -208,6 +216,7 @@
     DEFINE VARIABLE iIndex1            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iIndex2            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iIndex3            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iLength            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cCustName          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCustAddress1      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCustAddress2      AS CHARACTER NO-UNDO.
@@ -226,6 +235,7 @@
     DEFINE VARIABLE cCustXZip          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCustXAreaCode     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCustXPhone        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustXAreaPhone    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFOBCode           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iTempAdder         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cBoardWeight       AS CHARACTER NO-UNDO.
@@ -236,6 +246,7 @@
     DEFINE VARIABLE cReturnValue       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iGPEDI             AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iCorKraft          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cJobDescriptionKiwiT AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cClientID          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cRequestDataType   AS CHARACTER NO-UNDO.
     
@@ -467,6 +478,7 @@
                 cCustXCityState = cCustXCity + " " + TRIM(cCustXState)
                 cCustXAreaCode  = STRING(cust.area-code)  
                 cCustXPhone     = STRING(cust.phone)
+                cCustXAreaPhone = cCustXAreaCode + "-" + cCustXPhone
                 .
         END.
 
@@ -483,10 +495,13 @@
            WHERE notes.rec_key EQ po-ord.rec_key:
             ASSIGN 
                 cPoNotes   = cPoNotes + " " + STRING(notes.note_text)
-                cPoNotesGP = cPoNotesGP + IF cPoNotesGP EQ "" THEN "" ELSE ".**" + TRIM(notes.note_text).
+                cPoNotesGP = cPoNotesGP + IF cPoNotesGP EQ "" THEN "" ELSE ".**" + TRIM(notes.note_text)
+                .
         END.
-        
-        cPoNotes = REPLACE(cPoNotes, "~n", "").
+        ASSIGN 
+            cPoHeadNotesKiwi = cPoNotes
+            cPoNotes         = REPLACE(cPoNotes, "~n", "")
+            .
         
         cPoNotesHRMS = cPoNotes.
         DO iIndex = 1 TO 4:
@@ -598,12 +613,15 @@
                 cItemLength16ths            = TRIM(STRING((po-ordl.s-len - TRUNCATE(po-ordl.s-len,0)) * 16))
                 cItemDepth16ths             = TRIM(STRING((po-ordl.s-dep - TRUNCATE(po-ordl.s-dep,0)) * 16))
                 cCostPerUOM                 = TRIM(STRING(po-ordl.cost,"->>>>>>9.99<<<<"))
+                
                 cCostUOM                    = STRING(po-ordl.pr-uom)
                 cCostSetup                  = STRING(po-ordl.setup)
                 cCostDiscount               = TRIM(STRING(po-ordl.disc,"->>>>>9.99"))
                 cCustomerID                 = STRING(po-ordl.cust-no)
                 cOrderNo                    = STRING(po-ordl.ord-no)
                 cPoLineStatus               = STRING(po-ordl.stat)
+                cLineUnderQty               = STRING(po-ordl.ord-qty - (po-ord.under-pct * po-ordl.ord-qty / 100))
+                cLineOverQty                = STRING(po-ordl.ord-qty + (po-ord.over-pct * po-ordl.ord-qty / 100))
                 cOperationID                = ""
                 cQtyPerPack                 = ""
                 cPoLineNotes                = ""
@@ -630,6 +648,12 @@
                 cLineDueDate                = STRING(po-ordl.due-date)
                 dCostInMSF                  = po-ordl.cost
                 dQuantityInSF               = po-ordl.ord-qty
+                cJobDescriptionKiwiT        = STRING(po-ordl.po-no,"999999")
+                                              + "-" + STRING(po-ordl.LINE,"99") + "/" 
+                                              + IF po-ordl.job-no EQ "" THEN "" ELSE 
+                                              TRIM(STRING(po-ordl.job-no, "X(6)")) + "-" + STRING(po-ordl.job-no2,"99") 
+                                              + "-" + STRING(po-ordl.s-num,"99")
+                                                
                 cScoreSizeDecimal           = ""
                 cScoreSize16ths             = ""
                 cItemWithAdders             = "" 
@@ -637,6 +661,8 @@
                 cItemWithAddersHRMSX5       = ""
                 cItemWithAddersHRMSINT      = ""
                 cItemWithAddersPrattINT     = ""
+                cItemWithAddersKiwi1        = ""
+                cItemWithAddersKiwi         = ""
                 cFormattedScoresWestrock    = ""
                 cScoreSize16thsWestRock     = ""
                 cScoreSizeDecimalHRMS1      = ""
@@ -649,6 +675,7 @@
                 cScoreSizeDecimalAlliFlutes = ""
                 cScoreSizeDecimalAlliance   = ""
                 cScoreSizeDecimalCorrKraft  = ""
+                cScoreSizeDecimalKiwi       = ""
                 cItemWithAddersX4           = ""
                 cItemWithAddersX10          = ""
                 .
@@ -794,12 +821,15 @@
             /* Fetch purchase order notes from notes table */    
             FOR EACH notes NO-LOCK
                 WHERE notes.rec_key EQ po-ordl.rec_key:
-                cPoLineNotes = cPoLineNotes + " " + STRING(notes.note_text).
+                    cPoLineNotes = cPoLineNotes + " " + STRING(notes.note_text).
             END.
             
-            cPoLineNotes = REPLACE(cPoLineNotes, "~n", "").
-            
-            cPoNotesHRMS = cPoNotesHRMS + " " + cPoLineNotes.
+            ASSIGN 
+                cPoNotesKiwi  = cPoHeadNotesKiwi + " " + cPoLineNotes
+                cPoNotesKiwi1 = TRIM(po-ordl.dscr[1]) + " " + TRIM(po-ordl.dscr[2]) + " " + cPoNotesKiwi
+                cPoLineNotes  = REPLACE(cPoLineNotes, "~n", "")
+                cPoNotesHRMS  = cPoNotesHRMS + " " + cPoLineNotes
+                .      
             
             IF cPoLineNotes EQ "" THEN
                 cPoLineNotes = cPoNotes.
@@ -864,10 +894,16 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobConcat", cJobConcat).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobConcatHRMS", cJobConcatHRMS).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobConcatSmurfit", cJobConcatSmurfit).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "JobDescriptionKiwi", cJobConcatSmurfit).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobDescriptionKiwiT", cJobDescriptionKiwiT).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLineNotes", cPoLineNotes).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNotesHRMS", cPoNotesHRMS).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNotesKiwi", cPoNotesKiwi).   /* For Customer other than CSC & TriLakes (Kiwi & KiwiT) */
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNotesKiwi1", cPoNotesKiwi1). /* For CSC Customer (kiwi & KiwiT) */
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNotesKiwi2", cPoNotesHRMS).  /* For TriLakes Customer (Kiwi & KiwiT) */
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "SPACE", " ").
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNo",cPoNo).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "buyer", cBuyer).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "fobCode", cFOBCode).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "custXAreaCode", cCustXAreaCode).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "custXPhone", cCustXPhone).
@@ -895,6 +931,8 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "quantityOrderedInEA", cQtyInEA).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoLowQty", cPoLowQty).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoHighQty", cPoHighQty).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "LineOverQty",cLineOverQty).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "LineUnderQty", cLineunderQty).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "CurrentDate",cCurrentDateTime).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "HeaderUnderPct",cHeaderUnderPct).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "HeaderOverPct",cHeaderOverPct).
@@ -957,10 +995,26 @@
                            AND reftable.company  EQ po-ordl.company
                            AND reftable.code2    EQ po-ordl.i-no
                          NO-ERROR.
-                    IF AVAILABLE reftable THEN
+                    IF AVAILABLE reftable THEN DO:
                         cItemWithAddersHRMS = STRING(INT(reftable.code),"9999") NO-ERROR.
-                    ELSE 
-                        cItemWithAddersHRMS = STRING("0000","X(4)").
+                        DO iIndex = 1 TO NUM-ENTRIES(reftable.code,"."): 
+                            cItemWithAddersKiwi = cItemWithAddersKiwi + STRING(INT(ENTRY(iIndex,reftable.code,".")),"9999") NO-ERROR.
+                            IF ERROR-STATUS:ERROR THEN 
+                                cItemWithAddersKiwi = cItemWithAddersKiwi + STRING("0000","9999").   
+                        END.  
+                        ASSIGN 
+                            cItemWithAddersKiwi = cItemWithAddersKiwi + FILL("0000", (7 - NUM-ENTRIES(reftable.code,".")))
+                            cItemWithAddersKiwi1 = STRING(INT(reftable.code),"9999") 
+                            NO-ERROR.
+                        IF ERROR-STATUS:ERROR THEN 
+                            cItemWithAddersKiwi1 = STRING("0000","9999").        
+                    END.    
+                    ELSE DO:
+                        ASSIGN  
+                            cItemWithAddersHRMS  = STRING("0000","9999")
+                            cItemWithAddersKiwi1 = STRING("0000","9999")
+                            cItemWithAddersKiwi  = cItemWithAddersKiwi + FILL("0000",7).                               
+                    END.    
 
                     ASSIGN 
                         iIndex  = 1
@@ -999,8 +1053,10 @@
                             IF iIndex1 LE 6 THEN 
                                 ASSIGN 
                                     cItemWithAddersHRMSX5  = cItemWithAddersHRMSX5  + STRING(bf-hrms-reftable.code,"X(5)")
-                                    cItemWithAddersHRMSINT = cItemWithAddersHRMSINT + STRING(INT(reftable.code),"9999")
-                                    .   
+                                    cItemWithAddersHRMSINT = cItemWithAddersHRMSINT + STRING(INT(bf-hrms-reftable.code),"9999")
+                                    NO-ERROR.
+                                IF ERROR-STATUS:ERROR THEN  
+                                    cItemWithAddersHRMSINT = cItemWithAddersHRMSINT + STRING("0000","9999").                  
                         END.
                         
                         FIND FIRST bf-hrms-reftable NO-LOCK 
@@ -1029,7 +1085,13 @@
                                 cItemWithAddersX10 = cItemWithAddersX10 + STRING(bf-item.i-no,"X(10)")
                                 .  
                         END.           
-                    END.                                 
+                    END.   
+                    ASSIGN 
+                        cItemWithAddersKiwi1 = cItemWithAddersKiwi1 + cItemWithAddersHRMSINT
+                        iLength              = LENGTH(cItemWithAddersKiwi1) / 4
+                        .
+                    
+                    cItemWithAddersKiwi1 = cItemWithAddersKiwi1 + FILL("0000", (7 - iLength)).                                     
                 END.
             END.
             RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatLineAdderData, cRequestDataType).
@@ -1103,20 +1165,25 @@
                                                        TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
                                                    ELSE
                                                        cFormattedScoresWestrock + "x "  + TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
-        
-                    
                         
                         cScoreSizeDecimalAlliFlutes = IF cScoreSizeDecimalAlliFlutes EQ "" THEN 
                                                         (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
                                                      ELSE
                                                         cScoreSizeDecimalAlliFlutes + (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
                         .                                               
-                IF iIndex LE 9 AND dScoreSizeArray[iIndex] NE 0 THEN 
-                    cScoreSizeDecimalHRMS1 = IF cScoreSizeDecimalHRMS1 EQ "" THEN 
+                IF iIndex LE 9 THEN DO:
+                    IF dScoreSizeArray[iIndex] NE 0 THEN DO:    
+                        cScoreSizeDecimalHRMS1 = IF cScoreSizeDecimalHRMS1 EQ "" THEN 
                                                  (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
-                                             ELSE
-                                                 cScoreSizeDecimalHRMS1 + (STRING(dScoreSize16ths, ">>>.99")) + cScoreType.
-                ELSE
+                                                 ELSE
+                                                    cScoreSizeDecimalHRMS1 + (STRING(dScoreSize16ths, ">>>.99")) + cScoreType.
+                        cScoreSizeDecimalKiwi =  cScoreSizeDecimalKiwi + (STRING(dScoreSize16ths, ">>>.99")) + cScoreType.
+                    END.
+                    ELSE 
+                        cScoreSizeDecimalKiwi  = cScoreSizeDecimalKiwi  + "000:00 ".
+                                                     
+                END.
+                ELSE IF iIndex GT 9 AND dScoreSizeArray[iIndex] NE 0 THEN 
                     cScoreSizeDecimalHRMS2 = IF cScoreSizeDecimalHRMS2 EQ "" THEN 
                                                  (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
                                              ELSE
@@ -1147,6 +1214,7 @@
                 cScoreSizeDecimalAlliFlutes = REPLACE(cScoreSizeDecimalAlliFlutes,".",":")
                 cScoreSizeDecimalAlliance   = REPLACE(cScoreSizeDecimalAlliance,".","")
                 cScoreSizeDecimalCorrKraft  = REPLACE(cScoreSizeDecimalCorrKraft,".","")
+                cScoreSizeDecimalKiwi       = REPLACE(cScoreSizeDecimalKiwi,".",":")
                 .
             
             RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatLineScoresData, cRequestDataType).            
@@ -1172,9 +1240,12 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "FormattedScoring", cFormattedScoresWestrock).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalAlliFlutes", cScoreSizeDecimalAlliFlutes).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeAlliance", cScoreSizeDecimalAlliance).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalKiwi", cScoreSizeDecimalKiwi).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalCorrKraft", cScoreSizeDecimalCorrKraft).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersX4", cItemWithAddersX4).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersX10", cItemWithAddersX10).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersKiwi1", citemWithAddersKiwi1).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersKiwi", citemWithAddersKiwi).
             
             lcConcatLineData = lcConcatLineData + lcLineData.
         END.      
@@ -1240,6 +1311,7 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "custXState", cCustXState).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "custXZip", cCustXZip).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "custXCityState", cCustXCityState).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "custXAreaPhone", cCustXAreaPhone).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SPACE", " ").
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToCompanyName", cShipToCompanyName).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrentDate",STRING(TODAY)).
