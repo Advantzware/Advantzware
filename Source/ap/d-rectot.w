@@ -36,8 +36,10 @@ ASSIGN
     cocode = g_company
     locode = g_loc.
 
-DEFINE NEW SHARED VARIABLE v-tax-rate     AS DECIMAL.
-DEFINE NEW SHARED VARIABLE v-frt-tax-rate AS DECIMAL.
+
+DEFINE VARIABLE VendorProcs AS HANDLE NO-UNDO.
+RUN system/VendorProcs.p PERSISTENT SET VendorProcs.
+THIS-PROCEDURE:ADD-SUPER-PROCEDURE(VendorProcs).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -162,6 +164,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Recalculate Vendot Acct Balances */
     DO:
+        THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(VendorProcs).
         APPLY "END-ERROR":U TO SELF.
     END.
 
@@ -184,6 +187,7 @@ ON LEAVE OF begin_vend IN FRAME Dialog-Frame /* Vendor# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel Dialog-Frame
 ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
     DO:
+        THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(VendorProcs).
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -317,14 +321,9 @@ PROCEDURE runProcess :
     /* ---------------------------------------------------  */
     /* -------------------------------------------------------------------------- */
     
-    DEFINE VARIABLE as_of_date   AS DATE      NO-UNDO.
-    DEFINE VARIABLE dtCheckDate  AS DATE      NO-UNDO.
-    DEFINE VARIABLE dAmount      AS DECIMAL   FORMAT "->,>>>,>>>,>>9.99" NO-UNDO.
-    DEFINE VARIABLE v-refnum     AS CHARACTER NO-UNDO.
-
-    DEFINE BUFFER xap-ledger FOR ap-ledger.
-    DEFINE BUFFER b-vend     FOR vend.
-
+    DEFINE VARIABLE as_of_date   AS DATE      NO-UNDO. 
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
     SESSION:SET-WAIT-STATE("General").
     as_of_date = TODAY .
@@ -337,105 +336,14 @@ PROCEDURE runProcess :
 
         IF tb_acct-bal OR tb_avg-days OR tb_high-bal THEN 
         DO:    
-            ASSIGN
-                dAmount = 0
-                .      
-       
-            FOR EACH ap-inv NO-LOCK
-                WHERE ap-inv.company   EQ vend.company
-                AND ap-inv.vend-no   EQ vend.vend-no
-                AND ap-inv.posted    EQ YES
-                AND (ap-inv.inv-date LE as_of_date )
-                USE-INDEX ap-inv ,
-    
-                FIRST ap-ledger NO-LOCK 
-                WHERE ap-ledger.company  EQ vend.company
-                AND ap-ledger.vend-no  EQ ap-inv.vend-no
-                AND ap-ledger.ref-date EQ ap-inv.inv-date
-                AND ap-ledger.refnum   EQ ("INV# " + ap-inv.inv-no)
-                AND (ap-ledger.tr-date LE as_of_date )
-                USE-INDEX ap-ledger
-    
-                BREAK BY ap-inv.vend-no
-                BY (ap-ledger.tr-date)
-                BY ap-inv.inv-no:
-          
-          
-                FOR EACH ap-payl NO-LOCK
-                    WHERE ap-payl.inv-no   EQ ap-inv.inv-no
-                    AND ap-payl.vend-no  EQ ap-inv.vend-no
-                    AND ap-payl.posted   EQ YES 
-                    AND ap-payl.due-date EQ ap-inv.due-date
-                    USE-INDEX inv-no:
-
-                    FIND FIRST ap-pay NO-LOCK
-                        WHERE ap-pay.company EQ vend.company
-                        AND ap-pay.c-no EQ ap-payl.c-no
-                        USE-INDEX c-no NO-ERROR.
-
-                    IF AVAILABLE ap-pay THEN
-                    DO:       
-                        dtCheckDate = ap-pay.check-date.
-                        /*check for voided check transaction date*/
-                        IF ap-payl.amt-paid LT 0  AND
-                            ap-payl.memo                EQ NO AND
-                            ap-inv.net + ap-inv.freight GT 0 THEN
-                        DO:
-                            v-refnum = "VOIDED CHECK"
-                                + STRING(ap-pay.check-no, "zzzzzzz9").
-
-                            FIND FIRST xap-ledger NO-LOCK WHERE
-                                xap-ledger.company EQ vend.company AND
-                                xap-ledger.vend-no EQ ap-pay.vend-no AND
-                                xap-ledger.refnum  EQ v-refnum
-                                NO-ERROR.
-
-                            IF AVAILABLE xap-ledger THEN
-                            DO:
-                                dtCheckDate = xap-ledger.tr-date.
-                                RELEASE xap-ledger.
-                            END.
-                        END.
-
-                        IF dtCheckDate LE as_of_date THEN 
-                        DO:
-                            IF ap-payl.amt-paid NE 0 THEN dAmount = dAmount - ap-payl.amt-paid.
-                            IF ap-payl.amt-disc NE 0 THEN 
-                            DO:
-                                IF NOT ap-payl.memo THEN dAmount = dAmount - ap-payl.amt-disc.
-                                IF ap-payl.memo THEN dAmount = dAmount + ap-payl.amt-disc.
-                            END.
-                        END.
-                    END.
-
-                    RELEASE ap-pay.
-    
-                END. /* for each ap-payl */
-  
-                dAmount = dAmount + ap-inv.net + ap-inv.freight .
-                FIND FIRST b-vend EXCLUSIVE WHERE ROWID(b-vend) EQ ROWID(vend)
-                NO-ERROR NO-WAIT.
-                IF tb_acct-bal THEN
-                   b-vend.acc-bal =  dAmount .  
-                   
-                IF tb_high-bal AND dAmount GE vend.hibal THEN
-                 ASSIGN
-                 vend.hibal      = dAmount
-                 vend.hibal-date = ap-inv.inv-date.
-                  
-                
-                 IF tb_avg-days THEN 
-                 DO:
-                    IF ap-inv.due      LE 0 AND
-                       ap-inv.pay-date NE ? AND
-                       ap-inv.inv-date NE ? THEN
-                       
-                 ASSIGN
-                   b-vend.avg-pay = ((vend.avg-pay * vend.num-inv) +
-                                 (ap-inv.pay-date - ap-inv.inv-date)) /
-                                 (vend.num-inv + 1) .                     
-                 END.  /*tb_avg-days */                 
-            END.    /* for each ap-inv */
+           RUN pRecalculateVendorAccountBalance(INPUT ROWID(vend),
+                                                INPUT as_of_date,
+                                                INPUT tb_acct-bal,
+                                                INPUT tb_avg-days,
+                                                INPUT tb_high-bal,
+                                                OUTPUT lError,
+                                                OUTPUT cMessage).
+            
         END. /*if tb_acct-bal or tb_avg-days*/              
         
     END. /*each vend*/

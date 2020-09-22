@@ -506,6 +506,7 @@ PROCEDURE adm-create-objects :
                      AddFunction = One-Record':U ,
              OUTPUT h_p-vndtot ).
        RUN set-position IN h_p-vndtot ( 17.43 , 28.00 ) NO-ERROR.
+       RUN set-size IN h_p-vndtot ( 2.14 , 110.00 ) NO-ERROR. 
        
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.

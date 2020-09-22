@@ -97,7 +97,7 @@ DEFINE BUTTON Btn-Cancel
      FONT 4.
 
 DEFINE BUTTON btn-recalc 
-     LABEL "&Last YR and YTD Balances" 
+     LABEL "&Last YR and YTD Bal" 
      SIZE 34 BY 1.57.
 
 DEFINE BUTTON btn-recalc-bal 
