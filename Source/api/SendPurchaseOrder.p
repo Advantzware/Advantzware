@@ -172,7 +172,6 @@
     DEFINE VARIABLE cPoHighQty               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMachineInitial          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFormattedScoresWestrock AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFormattedScoresKiwi     AS CHARACTER NO-UNDO.
         
     /* Purchase Order Line adder Variables */
     DEFINE VARIABLE cAdderItemID                    AS CHARACTER NO-UNDO.
@@ -182,7 +181,7 @@
     DEFINE VARIABLE cItemWithAddersHRMSX5           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersHRMSINT          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersPrattINT         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemWithAddersKiwi             AS CHARACTER NO-UNDO. /* For Customer other than TriLakes- Applicable for Kiwi and KiwiT */
+    DEFINE VARIABLE cItemWithAddersKiwi             AS CHARACTER NO-UNDO. /* For Customers other than TriLakes- Applicable for Kiwi and KiwiT */
     DEFINE VARIABLE cItemWithAddersKiwi1            AS CHARACTER NO-UNDO. /*For TriLakes- Applicable for Kiwi & KiwiT*/
     DEFINE VARIABLE cItemWithAddersX4               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersX10              AS CHARACTER NO-UNDO.
@@ -667,7 +666,6 @@
                 cItemWithAddersKiwi1        = ""
                 cItemWithAddersKiwi         = ""
                 cFormattedScoresWestrock    = ""
-                cFormattedScoresKiwi        = ""
                 cScoreSize16thsWestRock     = ""
                 cScoreSizeDecimalHRMS1      = ""
                 cScoreSizeDecimalHRMS2      = ""
@@ -1092,10 +1090,11 @@
                                 cItemWithAddersX10 = cItemWithAddersX10 + STRING(bf-item.i-no,"X(10)")
                                 .  
                         END.           
-                    END.                     
-                    iLength  = 0.
-                    
-                    iLength = LENGTH(cItemWithAddersKiwi1) / 4.
+                    END.   
+                    ASSIGN 
+                        cItemWithAddersKiwi1 = cItemWithAddersKiwi1 + cItemWithAddersHRMSINT
+                        iLength              = LENGTH(cItemWithAddersKiwi1) / 4
+                        .
                     
                     cItemWithAddersKiwi1 = cItemWithAddersKiwi1 + FILL("0000", (7 - iLength)).                                     
                 END.
@@ -1172,13 +1171,6 @@
                                                    ELSE
                                                        cFormattedScoresWestrock + "x "  + TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
                         
-                        cFormattedScoresKiwi     = IF cFormattedScoresKiwi EQ "" THEN 
-                                                       TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
-                                                   ELSE
-                                                       cFormattedScoresKiwi + "x     "  + TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
-        
-                    
-                        
                         cScoreSizeDecimalAlliFlutes = IF cScoreSizeDecimalAlliFlutes EQ "" THEN 
                                                         (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
                                                      ELSE
@@ -1221,7 +1213,6 @@
             END.
             ASSIGN 
                 cFormattedScoresWestrock    = REPLACE(cFormattedScoresWestrock,".", "")
-                cFormattedScoresKiwi        = REPLACE(cFormattedScoresKiwi,".", "")
                 cScoreSize16ths             = REPLACE(cScoreSize16ths,".", ":")
                 cScoreSizeDecimalHRMS1      = REPLACE(cScoreSizeDecimalHRMS1,".",":")
                 cScoreSizeDecimalHRMS2      = REPLACE(cScoreSizeDecimalHRMS2,".",":")
@@ -1252,7 +1243,6 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalHRMS1", cScoreSizeDecimalHRMS1).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalHRMS2", cScoreSizeDecimalHRMS2).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "FormattedScoring", cFormattedScoresWestrock).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "FormattedScoringKiwi", cFormattedScoresKiwi).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalAlliFlutes", cScoreSizeDecimalAlliFlutes).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeAlliance", cScoreSizeDecimalAlliance).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalKiwi", cScoreSizeDecimalKiwi).
