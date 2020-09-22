@@ -75,7 +75,8 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Reset Btn-Cancel btn-recalc 
+&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Reset Btn-Cancel btn-recalc-bal ~
+btn-recalc 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -92,35 +93,40 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn-Cancel 
      LABEL "Ca&ncel" 
-     SIZE 9 BY 1.29
+     SIZE 19 BY 1.57
      FONT 4.
 
 DEFINE BUTTON btn-recalc 
-     LABEL "&Last YR and YTD Balances" 
-     SIZE 30 BY 1.29.
+     LABEL "&Last YR and YTD Bal" 
+     SIZE 34 BY 1.57.
+
+DEFINE BUTTON btn-recalc-bal 
+     LABEL "Recalculate" 
+     SIZE 19 BY 1.57.
 
 DEFINE BUTTON Btn-Reset 
      LABEL "&Reset" 
-     SIZE 9 BY 1.29
+     SIZE 19 BY 1.57
      FONT 4.
 
 DEFINE BUTTON Btn-Save 
      LABEL "&Save" 
-     SIZE 9 BY 1.29
+     SIZE 19 BY 1.57
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 59 BY 1.76.
+     SIZE 111 BY 2.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Panel-Frame
      Btn-Save AT ROW 1.29 COL 2
-     Btn-Reset AT ROW 1.29 COL 11
-     Btn-Cancel AT ROW 1.29 COL 20
-     btn-recalc AT ROW 1.29 COL 29
+     Btn-Reset AT ROW 1.29 COL 20.8
+     Btn-Cancel AT ROW 1.29 COL 39.6
+     btn-recalc-bal AT ROW 1.29 COL 58.6
+     btn-recalc AT ROW 1.29 COL 77.6
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -154,8 +160,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW C-WIn ASSIGN
-         HEIGHT             = 1.86
-         WIDTH              = 60.
+         HEIGHT             = 2.19
+         WIDTH              = 111.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -230,6 +236,21 @@ DO:
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "tableio-target", OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN RUN recalc-tot IN WIDGET-HANDLE(char-hdl).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn-recalc-bal
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-recalc-bal C-WIn
+ON CHOOSE OF btn-recalc-bal IN FRAME Panel-Frame /* Recalculate */
+DO:
+  DEF VAR char-hdl AS CHAR NO-UNDO.
+  
+
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "tableio-target", OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN RUN recalc-tot-bal IN WIDGET-HANDLE(char-hdl).
 END.
 
 /* _UIB-CODE-BLOCK-END */
