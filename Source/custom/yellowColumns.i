@@ -47,6 +47,7 @@ PROCEDURE openQuery:
 &ELSEIF '{&yellowColumnsName}' EQ 'w-seldue' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
   IF sortColumn EQ 'Vendor' THEN tt-sel.vend-no ELSE ~
+  IF sortColumn EQ 'Vendor Name' THEN tt-sel.vend-name ELSE ~
   IF sortColumn EQ 'Invoice Num' THEN tt-sel.inv-no ELSE ~
   IF sortColumn EQ 'Invoice Date' THEN STRING(YEAR(tt-sel.inv-date),'9999') + ~
   STRING(MONTH(tt-sel.inv-date),'99') + ~
