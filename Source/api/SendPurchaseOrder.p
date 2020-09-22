@@ -166,7 +166,6 @@
     DEFINE VARIABLE cFlute                   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cRegularNo               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoLineNotes             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoLineNotesKiwi         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQtyINEA                 AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPOLowQty                AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoHighQty               AS CHARACTER NO-UNDO.
@@ -626,7 +625,6 @@
                 cOperationID                = ""
                 cQtyPerPack                 = ""
                 cPoLineNotes                = ""
-                cPoLineNotesKiwi            = ""
                 cStackHeight                = "0"
                 cPalletWidth                = "0.00"
                 cPalletHeight               = "0.00"
@@ -823,17 +821,14 @@
             /* Fetch purchase order notes from notes table */    
             FOR EACH notes NO-LOCK
                 WHERE notes.rec_key EQ po-ordl.rec_key:
-                ASSIGN
-                    cPoLineNotes     = cPoLineNotes     + " " + STRING(notes.note_text)
-                    cPoLineNotesKiwi = cPoLineNotesKiwi + " " + STRING(notes.note_text)
-                    .
+                    cPoLineNotes = cPoLineNotes + " " + STRING(notes.note_text).
             END.
             
             ASSIGN 
+                cPoNotesKiwi  = cPoHeadNotesKiwi + " " + cPoLineNotes
+                cPoNotesKiwi1 = TRIM(po-ordl.dscr[1]) + " " + TRIM(po-ordl.dscr[2]) + " " + cPoNotesKiwi
                 cPoLineNotes  = REPLACE(cPoLineNotes, "~n", "")
                 cPoNotesHRMS  = cPoNotesHRMS + " " + cPoLineNotes
-                cPoNotesKiwi  = cPoHeadNotesKiwi + " " + cPoLineNotesKiwi
-                cPoNotesKiwi1 = TRIM(po-ordl.dscr[1]) + " " + TRIM(po-ordl.dscr[2]) + " "  +  cPoNotesKiwi
                 .      
             
             IF cPoLineNotes EQ "" THEN
