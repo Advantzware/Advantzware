@@ -26,7 +26,10 @@ DEFINE TEMP-TABLE ttAxis NO-UNDO
     FIELD axisPage       AS INTEGER
     .
 
-
+DEFINE VARIABLE giAttributeIDStyle       AS INTEGER NO-UNDO INITIAL 101.
+DEFINE VARIABLE giAttributeIDBoardItemID AS INTEGER NO-UNDO INITIAL 102.
+DEFINE VARIABLE giAttributeIDCaliper     AS INTEGER NO-UNDO INITIAL 103.
+DEFINE VARIABLE giAttributeIDBoxDepth    AS INTEGER NO-UNDO INITIAL 104.
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -66,10 +69,24 @@ PROCEDURE GetOperationStandards:
     DEFINE OUTPUT PARAMETER opdOpRunSpoil AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
-
-    RUN pGetRunSpeed(ipcCompany, ipcLocationID, ipcOpID, OUTPUT opdOpRunSpeed, OUTPUT oplError, OUTPUT opcMessage).
-    RUN pGetMRHours(ipcCompany, ipcLocationID, ipcOpID, OUTPUT opdOpMRHours, OUTPUT oplError, OUTPUT opcMessage).
-    RUN pGetRunSpoil(ipcCompany, ipcLocationID, ipcOpID, OUTPUT opdOpRunSpoil, OUTPUT oplError, OUTPUT opcMessage).
+    
+    DEFINE BUFFER bf-mach FOR mach.
+    
+    FIND FIRST bf-mach NO-LOCK 
+        WHERE bf-mach.company EQ ipcCompany
+        AND bf-mach.loc EQ ipcLocationID
+        AND bf-mach.m-code EQ ipcOpID
+        NO-ERROR.
+    IF NOT AVAILABLE bf-mach THEN DO:
+        ASSIGN 
+            oplError = YES
+            opcMessage = "Invalid Machine Code"
+            .
+            RETURN. 
+    END. 
+    RUN pGetRunSpeed(BUFFER bf-mach, OUTPUT opdOpRunSpeed, OUTPUT oplError, OUTPUT opcMessage).
+    RUN pGetMRHours(BUFFER bf-mach, OUTPUT opdOpMRHours, OUTPUT oplError, OUTPUT opcMessage).
+    RUN pGetRunSpoil(BUFFER bf-mach, OUTPUT opdOpRunSpoil, OUTPUT oplError, OUTPUT opcMessage).
 
 
 END PROCEDURE.
@@ -85,7 +102,7 @@ PROCEDURE pAddAxis PRIVATE:
     DEFINE INPUT PARAMETER ipiPage AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipdHeaderValues AS DECIMAL NO-UNDO EXTENT.
     
-    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iIndex  AS INTEGER NO-UNDO.
     DEFINE VARIABLE iExtent AS INTEGER NO-UNDO.
     
     iExtent = EXTENT(ipdHeaderValues).
@@ -94,14 +111,53 @@ PROCEDURE pAddAxis PRIVATE:
         DO:
             CREATE ttAxis.
             ASSIGN 
-                ttAxis.axisType = ipcAxisType
-                ttAxis.axisValue = ipdHeaderValues[iIndex]
+                ttAxis.axisType       = ipcAxisType
+                ttAxis.axisValue      = ipdHeaderValues[iIndex]
                 ttAxis.axisCoordinate = iIndex
-                ttAxis.axisPage = ipiPage 
+                ttAxis.axisPage       = ipiPage 
                 .
         END.
     END.
 
+END PROCEDURE.
+
+PROCEDURE pGetMatrixSpeedReduction PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-mstd FOR mstd.
+    DEFINE OUTPUT PARAMETER opdReduction AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE iIndex   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dCaliper AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cCaliper AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDepth   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dDepth   AS DECIMAL   NO-UNDO.
+     
+    RUN pGetAttribute(giAttributeIDCaliper, OUTPUT cCaliper, OUTPUT oplError, OUTPUT opcMessage).
+    dCaliper = DECIMAL(cCaliper).
+    RUN pGetAttribute(giAttributeIDBoxDepth, OUTPUT cDepth, OUTPUT oplError, OUTPUT opcMessage).
+    dDepth = DECIMAL(cDepth).
+    IF AVAILABLE ipbf-mstd THEN 
+    DO:
+        DO iIndex = 1 TO EXTENT(ipbf-mstd.board-cal):
+            IF ipbf-mstd.board-cal[iIndex] GE dCaliper AND ipbf-mstd.board-cal[iIndex] NE 0 THEN
+            DO:
+                opdReduction = ipbf-mstd.spd-reduc[iIndex] / 100.
+                LEAVE.
+            END. 
+        END.
+        DO iIndex = 1 TO EXTENT(ipbf-mstd.board-depth):
+            IF ipbf-mstd.board-depth[iIndex] GE dDepth AND ipbf-mstd.board-depth[iIndex] NE 0 THEN 
+            DO:
+                opdReduction = opdReduction + ipbf-mstd.depth-reduc[iIndex] / 100.
+                LEAVE.
+            END.
+        END.
+    END.
 END PROCEDURE.
 
 PROCEDURE pGetValue PRIVATE:
@@ -120,10 +176,10 @@ PROCEDURE pGetValue PRIVATE:
     
     DEFINE VARIABLE dXAttributeValue AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dYAttributeValue AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iX AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iY AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iAcross AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iPage AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iX               AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iY               AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iAcross          AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iPage            AS INTEGER NO-UNDO.
     
     EMPTY TEMP-TABLE ttAxis.
     CASE ipcType:
@@ -242,6 +298,50 @@ PROCEDURE pGetAttribute PRIVATE:
             
 END PROCEDURE.
 
+PROCEDURE pGetItemSpeedReduction PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Get Speed Reduction for the Board item
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDepartmentID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdReduction AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-item FOR item.
+    
+    DEFINE VARIABLE cDept      AS CHARACTER NO-UNDO.  
+    DEFINE VARIABLE cBoard     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iIndex     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dReduction AS DECIMAL   NO-UNDO.
+      
+    RUN pGetAttribute(giAttributeIDBoardItemID, OUTPUT cBoard, OUTPUT oplError, OUTPUT opcMessage).
+    
+    IF oplError THEN RETURN.
+    
+    FIND FIRST bf-item NO-LOCK 
+        WHERE bf-item.company EQ ipcCompany
+        AND bf-item.i-no EQ cBoard
+        NO-ERROR.
+    IF NOT AVAILABLE bf-item THEN 
+        ASSIGN 
+            oplError   = YES
+            opcMessage = "Invalid Board Attribute: " + cBoard
+            .
+    ELSE 
+    DO:
+        DO iIndex = 1 TO 10:
+            IF bf-item.dept-name[iIndex] EQ ipcDepartmentID AND bf-item.speed%[iIndex] NE 0 THEN  
+            DO:
+                opdReduction = bf-item.speed%[iIndex] / 100.
+                LEAVE.
+            END.
+        END.
+    END.       
+    
+END PROCEDURE.
+
 PROCEDURE pGetAttributeStyle PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Given an attribute type, get the current value from context
@@ -254,7 +354,7 @@ PROCEDURE pGetAttributeStyle PRIVATE:
 
     DEFINE BUFFER bf-style FOR style.
    
-    RUN pGetAttribute(0, OUTPUT opcStyle, OUTPUT oplError, OUTPUT opcMessage).
+    RUN pGetAttribute(giAttributeIDStyle, OUTPUT opcStyle, OUTPUT oplError, OUTPUT opcMessage).
     
     IF oplError THEN RETURN.
     
@@ -271,10 +371,10 @@ PROCEDURE pGetAttributeStyle PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pGetCoordinates PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:  Given lookup values for X
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose:  Given lookup values for X
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipdLookup AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcAxisType AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiCoordinate AS INTEGER NO-UNDO.
@@ -284,12 +384,12 @@ PROCEDURE pGetCoordinates PRIVATE:
         WHERE ttAxis.axisType EQ ipcAxisType
         BY ttAxis.axisPage
         BY ttAxis.axisCoordinate:
-            IF ipdLookup LE ttAxis.axisValue THEN LEAVE.
+        IF ipdLookup LE ttAxis.axisValue THEN LEAVE.
     END.
     IF AVAILABLE ttAxis THEN 
         ASSIGN 
             opiCoordinate = ttAxis.axisCoordinate
-            opiPage = ttAxis.axisPage
+            opiPage       = ttAxis.axisPage
             . 
  
 END PROCEDURE.
@@ -300,16 +400,14 @@ PROCEDURE pGetMRHours PRIVATE:
         current attribute context.
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcOpID AS CHARACTER NO-UNDO.
+    DEFINE PARAMETER BUFFER ipbf-mach FOR mach.
     DEFINE OUTPUT PARAMETER opdMRHours AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-mstd FOR mstd.
     
-    RUN pGetStandardBuffer(ipcCompany, ipcLocationID, ipcOpID, BUFFER bf-mstd, OUTPUT oplError, OUTPUT opcMessage).
+    RUN pGetStandardBuffer(ipbf-mach.company, ipbf-mach.loc, ipbf-mach.m-code, BUFFER bf-mstd, OUTPUT oplError, OUTPUT opcMessage).
     IF AVAILABLE bf-mstd THEN 
     DO:
         RUN pGetValue(BUFFER bf-mstd, "MRHours", OUTPUT opdMRHours, OUTPUT oplError, OUTPUT opcMessage).
@@ -325,20 +423,26 @@ PROCEDURE pGetRunSpeed PRIVATE:
         current attribute context.
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcOpID AS CHARACTER NO-UNDO.
+    DEFINE PARAMETER BUFFER ipbf-mach FOR mach.
     DEFINE OUTPUT PARAMETER opdRunSpeed AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-mstd FOR mstd.
     
-    RUN pGetStandardBuffer(ipcCompany, ipcLocationID, ipcOpID, BUFFER bf-mstd, OUTPUT oplError, OUTPUT opcMessage).
+    DEFINE VARIABLE dReduction      AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dReductionTotal AS DECIMAL NO-UNDO.
+    
+    RUN pGetStandardBuffer(ipbf-mach.company, ipbf-mach.loc, ipbf-mach.m-code, BUFFER bf-mstd, OUTPUT oplError, OUTPUT opcMessage).
     IF AVAILABLE bf-mstd THEN 
     DO:
         RUN pGetValue(BUFFER bf-mstd, "RunSpeed", OUTPUT opdRunSpeed, OUTPUT oplError, OUTPUT opcMessage).
-        
+        RUN pGetItemSpeedReduction(ipbf-mach.company, ipbf-mach.dept[1], OUTPUT dReductionTotal, OUTPUT oplError, OUTPUT opcMessage).
+        RUN pGetMatrixSpeedReduction(BUFFER bf-mstd, OUTPUT dReduction, OUTPUT oplError, OUTPUT opcMessage).
+        ASSIGN 
+            dReductionTotal = dReductionTotal + dReduction
+            opdRunSpeed = opdRunSpeed * (1 - dReductionTotal).
+            .
     END.
     
 END PROCEDURE.
@@ -349,16 +453,14 @@ PROCEDURE pGetRunSpoil PRIVATE:
         current attribute context.
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcOpID AS CHARACTER NO-UNDO.
+    DEFINE PARAMETER BUFFER ipbf-mach FOR mach.
     DEFINE OUTPUT PARAMETER opdRunSpoil AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-mstd FOR mstd.
     
-    RUN pGetStandardBuffer(ipcCompany, ipcLocationID, ipcOpID, BUFFER bf-mstd, OUTPUT oplError, OUTPUT opcMessage).
+    RUN pGetStandardBuffer(ipbf-mach.company, ipbf-mach.loc, ipbf-mach.m-code, BUFFER bf-mstd, OUTPUT oplError, OUTPUT opcMessage).
     IF AVAILABLE bf-mstd THEN 
     DO:
         RUN pGetValue(BUFFER bf-mstd, "RunSpoil", OUTPUT opdRunSpoil, OUTPUT oplError, OUTPUT opcMessage).
@@ -478,19 +580,26 @@ PROCEDURE SetAttributesFromRowid:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
-    DEFINE BUFFER bf-eb FOR eb. 
-    DEFINE BUFFER bf-ef FOR ef.
+    DEFINE VARIABLE iForm  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iBlank AS INTEGER NO-UNDO.
     
+    DEFINE BUFFER bf-eb     FOR eb. 
+    DEFINE BUFFER bf-ef     FOR ef.
+            
     FIND FIRST bf-eb NO-LOCK 
-        WHERE ROWID(bf-eb) EQ ipriRowid
+        WHERE ROWID(bf-eb) EQ ipriRowID
         NO-ERROR.
     
     IF AVAILABLE bf-eb THEN 
     DO:
         FIND FIRST bf-ef OF bf-eb NO-LOCK.
-        IF AVAILABLE bf-ef THEN DO:
+        IF AVAILABLE bf-ef THEN 
+        DO:
             RUN ClearAttributes.
-            RUN pSetAttribute(0, "Style", bf-eb.style).
+            RUN pSetAttribute(giAttributeIDStyle, "Style", bf-eb.style).
+            RUN pSetAttribute(giAttributeIDBoardItemID, "BoardItemID", bf-ef.board).
+            RUN pSetAttribute(giAttributeIDCaliper, "Caliper", STRING(bf-ef.cal)).
+            RUN pSetAttribute(giAttributeIDBoxDepth, "Box Depth", STRING(bf-eb.dep)).
             RUN pSetAttributeFromStandard(bf-eb.company,  1, "0").  //Maxco
             RUN pSetAttributeFromStandard(bf-eb.company,  2, STRING(bf-eb.len)).
             RUN pSetAttributeFromStandard(bf-eb.company,  3, STRING(bf-eb.wid)).
@@ -531,7 +640,7 @@ PROCEDURE SetAttributesFromRowid:
     ELSE 
         ASSIGN 
             oplError   = YES
-            opcMessage = "Invalid Rowid for 'eb' table"
+            opcMessage = "Invalid Blank for est-op"
             .
     
 END PROCEDURE.
