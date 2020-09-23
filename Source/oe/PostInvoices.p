@@ -3566,7 +3566,8 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
                dTotalLineRev = dTotalLineRev + bf-ttInvoiceMiscToPost.amountBilled.
          END.
              
-         IF dTotalLineRev NE (bf-ttInvoiceToPost.amountBilledExTax - ( IF bf-inv-head.f-bill THEN bf-inv-head.t-inv-freight ELSE 0)) THEN
+         IF dTotalLineRev NE (bf-inv-head.t-inv-rev - bf-inv-head.t-inv-tax - ( IF bf-inv-head.f-bill THEN bf-inv-head.t-inv-freight 
+         ELSE 0)) THEN
          DO:     
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invoice lines <> Invoice Total",NO).
             lAutoApprove = NO.  
