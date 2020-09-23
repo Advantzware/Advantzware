@@ -116,8 +116,8 @@ DEFINE VARIABLE cBuildErrorMessage AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lUseNewCalc        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lPromptForNewCalc  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUpdateLoc         AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE hOrderProcs        AS HANDLE NO-UNDO.
-RUN oe/OrderProcs.p PERSISTENT SET hOrderProcs.
+DEFINE VARIABLE hPrepProcs         AS HANDLE NO-UNDO.
+RUN system/PrepProcs.p PERSISTENT SET hPrepProcs.
 
 DEFINE BUFFER x-eb            FOR eb.
 DEFINE BUFFER x-job-hdr       FOR job-hdr.
@@ -1416,7 +1416,7 @@ DO:
                     NO-ERROR.
                 job-prep.sc-uom = IF AVAILABLE prep THEN prep.uom ELSE "EA".
                 IF avail prep AND AVAIL job-hdr AND job-hdr.ord-no EQ 0 THEN
-                RUN pDisplayPrepDisposedMessage IN hOrderProcs (ROWID(prep)).
+                RUN pDisplayPrepDisposedMessage IN hPrepProcs (ROWID(prep)).
                 
             END. /* each xprep */
         END. /* if nufile */
@@ -1502,8 +1502,8 @@ DO:
     RUN pRunNow (cOutputFormat,"",YES).
 END. /* if iauditid */
 
-IF VALID-HANDLE(hOrderProcs) THEN 
-DELETE OBJECT hOrderProcs.
+IF VALID-HANDLE(hPrepProcs) THEN 
+DELETE OBJECT hPrepProcs.
 
 /* **********************  Internal Procedures  *********************** */
 

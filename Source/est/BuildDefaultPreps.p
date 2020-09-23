@@ -22,8 +22,8 @@ DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
 DEFINE INPUT PARAMETER ipiForm LIKE eb.form-no NO-UNDO.
 DEFINE INPUT PARAMETER ipiBlank LIKE eb.blank-no NO-UNDO.
 
-DEFINE VARIABLE hOrderProcs AS HANDLE NO-UNDO.
-RUN oe/OrderProcs.p PERSISTENT SET hOrderProcs.
+DEFINE VARIABLE hPrepProcs AS HANDLE NO-UNDO.
+RUN system/PrepProcs.p PERSISTENT SET hPrepProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -118,11 +118,11 @@ FOR EACH bf-prep
                          OUTPUT est-prep.qty).
                          
         iCount = iCount + 1.
-        RUN pDisplayPrepDisposedMessage IN hOrderProcs (ROWID(bf-prep)).
+        RUN pDisplayPrepDisposedMessage IN hPrepProcs (ROWID(bf-prep)).
 END.
 
-IF VALID-HANDLE(hOrderProcs) THEN 
- DELETE OBJECT hOrderProcs.
+IF VALID-HANDLE(hPrepProcs) THEN 
+ DELETE OBJECT hPrepProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

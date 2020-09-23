@@ -20,8 +20,8 @@ def var v-misc-tot      as   dec format "->>>,>>>.99".
 def var taxit           as   log init no.
 DEF VAR v-tmp-int AS INT NO-UNDO.
 DEFINE VARIABLE dTaxAmount     AS DECIMAL format ">,>>9.99<<<" NO-UNDO.
-DEFINE VARIABLE hOrderProcs AS HANDLE NO-UNDO.
-RUN oe/OrderProcs.p PERSISTENT SET hOrderProcs.
+DEFINE VARIABLE hPrepProcs AS HANDLE NO-UNDO.
+RUN system/PrepProcs.p PERSISTENT SET hPrepProcs.
 
 {sys/inc/ceprep.i}
 {sys/inc/ceprepprice.i}
@@ -196,8 +196,8 @@ for each ef OF xeb no-lock:
 end. /* each ef */
 END. /* each xeb */
 
- IF VALID-HANDLE(hOrderProcs) THEN 
- DELETE OBJECT hOrderProcs.
+ IF VALID-HANDLE(hPrepProcs) THEN 
+ DELETE OBJECT hPrepProcs.
  
 RETURN.
 
@@ -262,7 +262,7 @@ PROCEDURE update-prep.
       EXCLUSIVE-LOCK NO-ERROR.
   IF AVAIL prep THEN DO:
   
-    RUN pDisplayPrepDisposedMessage IN hOrderProcs (ROWID(prep)).
+    RUN pDisplayPrepDisposedMessage IN hPrepProcs (ROWID(prep)).
     
     oe-ordm.charge = prep.code.
     IF oe-ordm.dscr EQ "" THEN oe-ordm.dscr  = prep.dscr.
