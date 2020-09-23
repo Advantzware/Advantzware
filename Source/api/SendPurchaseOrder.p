@@ -105,6 +105,7 @@
     DEFINE VARIABLE cGPPurchasedBy     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cGPPlantID         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cGPBillto          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTimeLiberty       AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line Variables */
     DEFINE VARIABLE cPoLine                  AS CHARACTER NO-UNDO.
@@ -137,6 +138,8 @@
     DEFINE VARIABLE cItemWidth16ths          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemLength16ths         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemDepth16ths          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWidthWithFracIn16ths    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemLengthWithFracIn16ths   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCostPerUOM              AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCostInMSF               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCostUOM                 AS CHARACTER NO-UNDO.
@@ -171,6 +174,7 @@
     DEFINE VARIABLE cPoHighQty               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMachineInitial          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFormattedScoresWestrock AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFormattedScoresLiberty  AS CHARACTER NO-UNDO.
         
     /* Purchase Order Line adder Variables */
     DEFINE VARIABLE cAdderItemID                    AS CHARACTER NO-UNDO.
@@ -182,6 +186,7 @@
     DEFINE VARIABLE cItemWithAddersPrattINT         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersKiwi             AS CHARACTER NO-UNDO. /* For Customers other than TriLakes- Applicable for Kiwi and KiwiT */
     DEFINE VARIABLE cItemWithAddersKiwi1            AS CHARACTER NO-UNDO. /*For TriLakes- Applicable for Kiwi & KiwiT*/
+    DEFINE VARIABLE cItemWithAddersLiberty          AS CHARACTER NO-UNDO EXTENT 7.
     DEFINE VARIABLE cItemWithAddersX4               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersX10              AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersX10WithoutConcat AS CHARACTER NO-UNDO.
@@ -462,7 +467,13 @@
             cClientID        = APIOutbound.clientID
             cRequestDataType = APIOutbound.requestDataType 
             .
-        
+
+        cTimeLiberty = STRING(TIME, "HH:MM:SS").
+        cTimeLiberty = SUBSTRING(cTimeLiberty, 1, 2) + 
+                       SUBSTRING(cTimeLiberty, 4, 2) + 
+                       SUBSTRING(cTimeLiberty, 7, 2)
+                       .
+                               
         FIND FIRST cust NO-LOCK 
              WHERE cust.company EQ po-ord.company
                AND cust.active  EQ "X"
@@ -612,6 +623,8 @@
                 cItemWidth16ths             = TRIM(STRING((po-ordl.s-wid - TRUNCATE(po-ordl.s-wid,0)) * 16))
                 cItemLength16ths            = TRIM(STRING((po-ordl.s-len - TRUNCATE(po-ordl.s-len,0)) * 16))
                 cItemDepth16ths             = TRIM(STRING((po-ordl.s-dep - TRUNCATE(po-ordl.s-dep,0)) * 16))
+                cItemWidthWithFracIn16ths   = TRIM(STRING(TRUNCATE(po-ordl.s-wid,0) + (((po-ordl.s-wid - TRUNCATE(po-ordl.s-wid,0)) * 16) / 100),">>>>.9999"))
+                cItemLengthWithFracIn16ths  = TRIM(STRING(TRUNCATE(po-ordl.s-len,0) + (((po-ordl.s-len - TRUNCATE(po-ordl.s-len,0)) * 16) / 100),">>>>.9999"))
                 cCostPerUOM                 = TRIM(STRING(po-ordl.cost,"->>>>>>9.99<<<<"))
                 
                 cCostUOM                    = STRING(po-ordl.pr-uom)
@@ -664,6 +677,7 @@
                 cItemWithAddersKiwi1        = ""
                 cItemWithAddersKiwi         = ""
                 cFormattedScoresWestrock    = ""
+                cFormattedScoresLiberty     = ""
                 cScoreSize16thsWestRock     = ""
                 cScoreSizeDecimalHRMS1      = ""
                 cScoreSizeDecimalHRMS2      = ""
@@ -887,6 +901,8 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWidth16ths", cItemWidth16ths).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemLength16ths", cItemLength16ths).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDepth16ths", cItemDepth16ths).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "ItemWidthWithFracIn16ths", cItemWidthWithFracIn16ths ).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "ItemLengthWithFracIn16ths", cItemLengthWithFracIn16ths ).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "style", cStyle).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "styleDesc", cStyleDesc).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemBasisWeight", cItemBasisWeight).
@@ -1081,10 +1097,12 @@
                                                               
                             END.    
                             ASSIGN  
-                                cItemWithAddersX4  = cItemWithAddersX4 + STRING(bf-item.i-no,"X(4)")
+                                cItemWithAddersX4  = cItemWithAddersX4  + STRING(bf-item.i-no,"X(4)")
                                 cItemWithAddersX10 = cItemWithAddersX10 + STRING(bf-item.i-no,"X(10)")
                                 .  
-                        END.           
+                        END. 
+                        IF iIndex LE 7 THEN 
+                            cItemWithAddersLiberty[iIndex] = cItemWithAddersLiberty[iIndex] + bf-item.i-no.           
                     END.   
                     ASSIGN 
                         cItemWithAddersKiwi1 = cItemWithAddersKiwi1 + cItemWithAddersHRMSINT
@@ -1165,6 +1183,11 @@
                                                        TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
                                                    ELSE
                                                        cFormattedScoresWestrock + "x "  + TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
+                                                       
+                        cFormattedScoresLiberty  = IF cFormattedScoresLiberty EQ "" THEN 
+                                                       TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
+                                                   ELSE
+                                                       cFormattedScoresLiberty + "x     "  + TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))                        
                         
                         cScoreSizeDecimalAlliFlutes = IF cScoreSizeDecimalAlliFlutes EQ "" THEN 
                                                         (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
@@ -1208,6 +1231,7 @@
             END.
             ASSIGN 
                 cFormattedScoresWestrock    = REPLACE(cFormattedScoresWestrock,".", "")
+                cFormattedScoresLiberty     = REPLACE(cFormattedScoresLiberty,".","")
                 cScoreSize16ths             = REPLACE(cScoreSize16ths,".", ":")
                 cScoreSizeDecimalHRMS1      = REPLACE(cScoreSizeDecimalHRMS1,".",":")
                 cScoreSizeDecimalHRMS2      = REPLACE(cScoreSizeDecimalHRMS2,".",":")
@@ -1238,6 +1262,7 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalHRMS1", cScoreSizeDecimalHRMS1).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalHRMS2", cScoreSizeDecimalHRMS2).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "FormattedScoring", cFormattedScoresWestrock).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "FormattedScoringLiberty", cFormattedScoresLiberty).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalAlliFlutes", cScoreSizeDecimalAlliFlutes).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeAlliance", cScoreSizeDecimalAlliance).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalKiwi", cScoreSizeDecimalKiwi).
@@ -1246,7 +1271,14 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersX10", cItemWithAddersX10).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersKiwi1", citemWithAddersKiwi1).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersKiwi", citemWithAddersKiwi).
-            
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersKiwi", citemWithAddersKiwi).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersLiberty1", citemWithAddersLiberty[1]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersLiberty2", citemWithAddersLiberty[2]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersLiberty3", citemWithAddersLiberty[3]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersLiberty4", citemWithAddersLiberty[4]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersLiberty5", citemWithAddersLiberty[5]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersLiberty6", citemWithAddersLiberty[6]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersLiberty7", citemWithAddersLiberty[7]).            
             lcConcatLineData = lcConcatLineData + lcLineData.
         END.      
         
@@ -1319,9 +1351,9 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "GPPartnerID",cGPPartnerID).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "GPPurchasedBy",cGPPurchasedBy).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "GPPlantID",cGPPlantID).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "GPBillto",cGPBillto).  
-        
-        
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "GPBillto",cGPBillto). 
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TimeLiberty",cTimeLiberty). 
+            
         /* This replace is required for replacing nested JSON data */
         ioplcRequestData = REPLACE(ioplcRequestData, "$detail$", lcConcatLineData).
         
