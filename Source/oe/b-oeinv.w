@@ -1053,7 +1053,7 @@ PROCEDURE check-inv-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-   RUN oe/CheckRegister.w .
+   RUN oe/AutoApproveInvoices.w .
 
 END PROCEDURE.
 
