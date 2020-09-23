@@ -50,6 +50,9 @@ FUNCTION fApplySize RETURNS CHARACTER PRIVATE
 
 FUNCTION fGetFGItemFormat RETURNS CHARACTER 
     (ipcCompany AS CHARACTER) FORWARD.
+    
+FUNCTION fGetFGWhsBinFormat RETURNS CHARACTER 
+    (ipcCompany AS CHARACTER) FORWARD.    
 
 
 /* ***************************  Main Block  *************************** */
@@ -440,6 +443,78 @@ END.
 
 END PROCEDURE.
 
+
+PROCEDURE pSetFGItemLocBin :
+    /*------------------------------------------------------------------------------
+     Purpose: Given temp-table, run validation rules and return validity logical with message if invalid
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriRowid AS ROWID NO-UNDO.
+    DEFINE VARIABLE cFGWhsBinFormat AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+
+    FIND FIRST bf-itemfg NO-LOCK 
+        WHERE ROWID(bf-itemfg) EQ ipriRowid
+        NO-ERROR.
+    IF NOT AVAILABLE bf-itemfg THEN RETURN.
+    
+    IF AVAILABLE bf-itemfg THEN
+    DO:      
+        cFGWhsBinFormat = fGetFGWhsBinFormat(bf-itemfg.company). 
+        
+        IF cFGWhsBinFormat EQ "ESTIMATE" THEN
+        DO:
+            FIND FIRST eb  NO-LOCK
+                WHERE eb.company  EQ bf-itemfg.company
+                AND eb.est-no   EQ bf-itemfg.est-no
+                AND eb.stock-no EQ bf-itemfg.i-no
+                USE-INDEX est-no  NO-ERROR.  
+            
+            IF AVAILABLE eb THEN
+            DO:
+                FIND FIRST shipto NO-LOCK
+                    WHERE shipto.company EQ eb.company
+                    AND shipto.cust-no EQ eb.cust-no
+                    AND shipto.ship-id EQ eb.ship-id
+                    NO-ERROR.
+                IF AVAILABLE shipto AND shipto.loc NE "" AND shipto.loc-bin NE "" THEN 
+                DO:
+                    FIND CURRENT bf-itemfg EXCLUSIVE-LOCK NO-ERROR .
+                    ASSIGN
+                        bf-itemfg.def-loc     = shipto.loc
+                        bf-itemfg.def-loc-bin = shipto.loc-bin.
+                    FIND CURRENT bf-itemfg NO-LOCK NO-ERROR .    
+                END.                
+            END.             
+            
+        END.  /* cFGWhsBinFormat EQ "ESTIMATE"*/
+        ELSE 
+        DO:
+            FIND FIRST cust NO-LOCK
+                WHERE cust.company EQ bf-itemfg.company
+                AND cust.active  EQ "X"
+                NO-ERROR.
+            IF AVAILABLE cust THEN
+                FIND FIRST shipto
+                    WHERE shipto.company EQ cust.company
+                    AND shipto.cust-no EQ cust.cust-no
+                    NO-LOCK NO-ERROR.
+            IF AVAILABLE shipto AND shipto.loc NE "" AND shipto.loc-bin NE "" THEN 
+            DO:
+                FIND CURRENT bf-itemfg EXCLUSIVE-LOCK NO-ERROR .
+                ASSIGN
+                    bf-itemfg.def-loc     = shipto.loc
+                    bf-itemfg.def-loc-bin = shipto.loc-bin.
+                FIND CURRENT bf-itemfg NO-LOCK NO-ERROR .    
+            END.            
+        END.        
+    END.     
+
+
+END PROCEDURE.
+
+
+
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fApplySize RETURNS CHARACTER PRIVATE
@@ -478,6 +553,29 @@ FUNCTION fGetFGItemFormat RETURNS CHARACTER
 
     RUN sys\ref\nk1look.p (ipcCompany,
         "FGITEM#",
+        "C",
+        NO,
+        NO,
+        "",
+        "", 
+        OUTPUT cReturn,
+        OUTPUT lFound).
+
+    RETURN cReturn.
+		
+END FUNCTION.
+
+FUNCTION fGetFGWhsBinFormat RETURNS CHARACTER 
+    ( ipcCompany AS CHARACTER  ):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns character value of NK1 FGItem#
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+
+    RUN sys\ref\nk1look.p (ipcCompany,
+        "FGWHSBIN",
         "C",
         NO,
         NO,

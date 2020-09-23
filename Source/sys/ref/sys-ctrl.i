@@ -157,7 +157,7 @@ ASSIGN
  str-init[65] = "Standard,Actual"  /* tspost */ 
  str-init[66] = "AUTOPOST,TSPOSTFG,Manual,LoadTag,TSPARTS"  /* fgrecpt */ 
  str-init[67] = "Stock,Purchase"  /* pouom */
- str-init[68] = "AUTOPOST,FGITEM"  /* fgwhsbin */
+ str-init[68] = "AUTOPOST,FGITEM,ESTIMATE"  /* fgwhsbin */
  str-init[69] = ",Artios,Arden,Artios2" /* cadcam */  
  str-init[70] = "Std,Std & Paper1/2" /* efbrowse */  
  str-init[71] = ",ByItem,POPUP,RMTAG" /* rmrecpt */

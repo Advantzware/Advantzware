@@ -12,6 +12,8 @@ def shared buffer xeb     for eb.
 
 DEF VAR li AS INT NO-UNDO.
 DEF VAR K_FRAC AS DEC INIT 6.25 NO-UNDO.
+DEFINE VARIABLE hdFGItemIDProcs AS HANDLE.
+RUN fg/FGItemIDProcs.p PERSISTENT SET hdFGItemIDProcs.
 
 
 {ce/msfcalc.i}
@@ -95,3 +97,9 @@ END.
 {sys/inc/fgcascnt.i itemfg xeb}
 
 {sys/inc/updfgdim.i "xeb"}
+
+RUN pSetFGItemLocBin IN hdFGItemIDProcs (input rowid(itemfg)) .
+
+IF VALID-HANDLE(hdFGItemIDProcs) THEN
+ DELETE OBJECT hdFGItemIDProcs.
+  

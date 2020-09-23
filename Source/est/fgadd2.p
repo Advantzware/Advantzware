@@ -26,6 +26,8 @@ DEF SHARED VAR fil_id AS RECID NO-UNDO.
 DEF SHARED VAR s-est-no AS cha NO-UNDO.
 def shared var v-i-item like eb.stock-no NO-UNDO. /* INPUT ITEM */
 def shared var v-i-qty like eb.bl-qty NO-UNDO.   /* INPUT QUANTITY */
+DEFINE VARIABLE hdFGItemIDProcs AS HANDLE.
+RUN fg/FGItemIDProcs.p PERSISTENT SET hdFGItemIDProcs.
 
 DEF BUFFER bf-eb FOR eb.
 DEF BUFFER x-eb FOR eb.
@@ -183,6 +185,8 @@ do on error undo:
 
       {sys/inc/updfgdim.i "bf-eb"}
 
+      RUN pSetFGItemLocBin IN hdFGItemIDProcs (input rowid(itemfg)) .
+      
       RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT bf-eb.loc).
 
       FIND FIRST itemfg-loc 
@@ -215,4 +219,7 @@ do on error undo:
 end.
 
 
+IF VALID-HANDLE(hdFGItemIDProcs) THEN
+ DELETE OBJECT hdFGItemIDProcs.
+  
 /* end ---------------------------------- copr. 1993  advanced software, inc. */

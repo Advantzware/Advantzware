@@ -17,7 +17,7 @@ IF AVAIL itemfg THEN DO:
 
   {sys/inc/fgwhsbin.i}
 
-  IF LOOKUP(fgwhsbin-cha,"AUTOPOST,FGITEM") GT 0 THEN DO:
+  IF LOOKUP(fgwhsbin-cha,"AUTOPOST,FGITEM,ESTIMATE") GT 0 THEN DO:
     ASSIGN
      op-loc     = itemfg.def-loc
      op-loc-bin = itemfg.def-loc-bin.
