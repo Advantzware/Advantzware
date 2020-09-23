@@ -5631,6 +5631,10 @@ PROCEDURE update-set :
   END.
 
   IF lv-type NE lv-old-type THEN RUN redisplay-blanks (ROWID(eb)).
+  IF lv-type NE lv-old-type THEN DO:
+      RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'Record-source':U,OUTPUT char-hdl).
+      RUN pReOpenQuery IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
+  END.
 
 END PROCEDURE.
 
