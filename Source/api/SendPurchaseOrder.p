@@ -49,128 +49,132 @@
     DEFINE VARIABLE lcConcatLineScoresDataGP AS LONGCHAR  NO-UNDO.    
     
     /* Purchase Order Header Variables */
-    DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoNO              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoType            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoTypeInt         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCustNoCorKraft    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoStatus          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoStatusExt       AS CHARACTER NO-UNDO.   /* Will store the extension of the PO Status. Eg: "Open", Delete */
-    DEFINE VARIABLE cPoDate            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cDueDate           AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cVendorID          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cVendorName        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cVendorAddress1    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cVendorAddress2    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cVendorAddress3    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cVendorCity        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cVendorState       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cVendorZip         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cVendorAddressFull AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cContact           AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cShipToID          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cShipToName        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cShipToAddress1    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompany             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoNO                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoType              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoTypeInt           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustNoCorKraft      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoStatus            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoStatusExt         AS CHARACTER NO-UNDO.   /* Will store the extension of the PO Status. Eg: "Open", Delete */
+    DEFINE VARIABLE cPoDate              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDueDate             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendorID            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendorName          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendorAddress1      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendorAddress2      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendorAddress3      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendorCity          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendorState         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendorZip           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendorAddressFull   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cContact             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cShipToID            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cShipToName          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cShipToAddress1      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cShipToConcatAddress AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cShipToAddress2    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cShipToAddress3    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cShipToCity        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cShipToState       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cShipToCityState   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cShipToZip         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cShipToAddressFull AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCompanyAddress1   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCompanyAddress2   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCompanyCity       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCompanyState      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCompanyZip        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCarrierID         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCarrierDesc       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFreightTerms      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFreightFOB        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cBuyer             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoNotes           AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoNotesHRMS       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoNotesAlliance   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPONotesGP         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoHeadNotesKiwi   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPONotesKiwi       AS CHARACTER NO-UNDO. /* For Customers other than CSC & TriLakes - Applicable for Kiwi and kiwiT */
-    DEFINE VARIABLE cPoNotesKiwi1      AS CHARACTER NO-UNDO. /* For CSC customer, Applicable for kiwi and KiwiT */
-    DEFINE VARIABLE cShipToCompanyName AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cTotalCost         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCurrentDateTime   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cHeaderUnderPct    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cHeaderOverPct     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cGPPartnerID       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cGPPurchasedBy     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cGPPlantID         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cGPBillto          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cShipToAddress2      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cShipToAddress3      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cShipToCity          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cShipToState         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cShipToCityState     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cShipToZip           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cShipToAddressFull   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompanyAddress1     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompanyAddress2     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompanyCity         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompanyState        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCompanyZip          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCarrierID           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCarrierDesc         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFreightTerms        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFreightFOB          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBuyer               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoNotes             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoNotesHRMS         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoNotesAlliance     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPONotesGP           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoHeadNotesKiwi     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPONotesKiwi         AS CHARACTER NO-UNDO. /* For Customers other than CSC & TriLakes - Applicable for Kiwi and kiwiT */
+    DEFINE VARIABLE cPoNotesKiwi1        AS CHARACTER NO-UNDO. /* For CSC customer, Applicable for kiwi and KiwiT */
+    DEFINE VARIABLE cShipToCompanyName   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTotalCost           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCurrentDateTime     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cHeaderUnderPct      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cHeaderOverPct       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cGPPartnerID         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cGPPurchasedBy       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cGPPlantID           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cGPBillto            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTimeLiberty         AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line Variables */
-    DEFINE VARIABLE cPoLine                  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cOrderType               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iPoLineCount             AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iTotalLineCountPratt     AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cQuantityOrdered         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cQuantityInSF            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cQuantitySFPerCostUom    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cQuantityInM             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cQuantityUOM             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemType                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemTypeShort           AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemID                  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemName                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemDesc1               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemDesc2               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemIDVendor            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cOverPct                 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUnderPct                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cLineUnderQty            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cLineOverQty             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoLineDueDate           AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemWidth               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemLength              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemDepth               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemWidthTrunc          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemLengthTrunc         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemDepthTrunc          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemWidth16ths          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemLength16ths         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemDepth16ths          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCostPerUOM              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCostInMSF               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCostUOM                 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCostSetup               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCostDiscount            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCustomerID              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cOrderNo                 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cOperationID             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cStackHeight             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPalletWidth             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPalletLength            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPalletHeight            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cUnitPallet              AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobID                   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobID2                  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobConcat               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobConcatHRMS           AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobConcatSmurfit        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobIDFormNo             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cJobIDBlankNo            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoLineStatus            AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cQuantityReceived        AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cLineDueDate             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cStyle                   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cStyleDesc               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cItemBasisWeight         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFlute                   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cRegularNo               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoLineNotes             AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cQtyINEA                 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPOLowQty                AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPoHighQty               AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cMachineInitial          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFormattedScoresWestrock AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoLine                    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOrderType                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iPoLineCount               AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTotalLineCountPratt       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cQuantityOrdered           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityInSF              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantitySFPerCostUom      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityInM               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityUOM               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemType                  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemTypeShort             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemID                    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemName                  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemDesc1                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemDesc2                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemIDVendor              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOverPct                   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUnderPct                  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLineUnderQty              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLineOverQty               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoLineDueDate             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWidth                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemLength                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemDepth                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWidthTrunc            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemLengthTrunc           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemDepthTrunc            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWidth16ths            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemLength16ths           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemDepth16ths            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWidthWithFracIn16ths  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemLengthWithFracIn16ths AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostPerUOM                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostInMSF                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostUOM                   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostSetup                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCostDiscount              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustomerID                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOrderNo                   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOperationID               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStackHeight               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPalletWidth               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPalletLength              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPalletHeight              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUnitPallet                AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobID                     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobID2                    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobConcat                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobConcatHRMS             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobConcatSmurfit          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobIDFormNo               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobIDBlankNo              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoLineStatus              AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityReceived          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLineDueDate               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStyle                     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStyleDesc                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemBasisWeight           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFlute                     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cRegularNo                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoLineNotes               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQtyINEA                   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPOLowQty                  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoHighQty                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMachineInitial            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFormattedScoresWestrock   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFormattedScoresLiberty    AS CHARACTER NO-UNDO.
         
     /* Purchase Order Line adder Variables */
     DEFINE VARIABLE cAdderItemID                    AS CHARACTER NO-UNDO.
@@ -182,6 +186,7 @@
     DEFINE VARIABLE cItemWithAddersPrattINT         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersKiwi             AS CHARACTER NO-UNDO. /* For Customers other than TriLakes- Applicable for Kiwi and KiwiT */
     DEFINE VARIABLE cItemWithAddersKiwi1            AS CHARACTER NO-UNDO. /*For TriLakes- Applicable for Kiwi & KiwiT*/
+    DEFINE VARIABLE cItemWithAddersLiberty          AS CHARACTER NO-UNDO EXTENT 7.
     DEFINE VARIABLE cItemWithAddersX4               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersX10              AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersX10WithoutConcat AS CHARACTER NO-UNDO.
@@ -462,7 +467,13 @@
             cClientID        = APIOutbound.clientID
             cRequestDataType = APIOutbound.requestDataType 
             .
-        
+
+        cTimeLiberty = STRING(TIME, "HH:MM:SS").
+        cTimeLiberty = SUBSTRING(cTimeLiberty, 1, 2) + 
+                       SUBSTRING(cTimeLiberty, 4, 2) + 
+                       SUBSTRING(cTimeLiberty, 7, 2)
+                       .
+                               
         FIND FIRST cust NO-LOCK 
              WHERE cust.company EQ po-ord.company
                AND cust.active  EQ "X"
@@ -612,6 +623,8 @@
                 cItemWidth16ths             = TRIM(STRING((po-ordl.s-wid - TRUNCATE(po-ordl.s-wid,0)) * 16))
                 cItemLength16ths            = TRIM(STRING((po-ordl.s-len - TRUNCATE(po-ordl.s-len,0)) * 16))
                 cItemDepth16ths             = TRIM(STRING((po-ordl.s-dep - TRUNCATE(po-ordl.s-dep,0)) * 16))
+                cItemWidthWithFracIn16ths   = TRIM(STRING(TRUNCATE(po-ordl.s-wid,0) + (((po-ordl.s-wid - TRUNCATE(po-ordl.s-wid,0)) * 16) / 100),">>>>.9999"))
+                cItemLengthWithFracIn16ths  = TRIM(STRING(TRUNCATE(po-ordl.s-len,0) + (((po-ordl.s-len - TRUNCATE(po-ordl.s-len,0)) * 16) / 100),">>>>.9999"))
                 cCostPerUOM                 = TRIM(STRING(po-ordl.cost,"->>>>>>9.99<<<<"))
                 
                 cCostUOM                    = STRING(po-ordl.pr-uom)
@@ -664,6 +677,7 @@
                 cItemWithAddersKiwi1        = ""
                 cItemWithAddersKiwi         = ""
                 cFormattedScoresWestrock    = ""
+                cFormattedScoresLiberty     = ""
                 cScoreSize16thsWestRock     = ""
                 cScoreSizeDecimalHRMS1      = ""
                 cScoreSizeDecimalHRMS2      = ""
@@ -887,6 +901,8 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWidth16ths", cItemWidth16ths).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemLength16ths", cItemLength16ths).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDepth16ths", cItemDepth16ths).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "ItemWidthWithFracIn16ths", cItemWidthWithFracIn16ths ).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "ItemLengthWithFracIn16ths", cItemLengthWithFracIn16ths ).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "style", cStyle).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "styleDesc", cStyleDesc).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemBasisWeight", cItemBasisWeight).
@@ -1081,10 +1097,12 @@
                                                               
                             END.    
                             ASSIGN  
-                                cItemWithAddersX4  = cItemWithAddersX4 + STRING(bf-item.i-no,"X(4)")
+                                cItemWithAddersX4  = cItemWithAddersX4  + STRING(bf-item.i-no,"X(4)")
                                 cItemWithAddersX10 = cItemWithAddersX10 + STRING(bf-item.i-no,"X(10)")
                                 .  
-                        END.           
+                        END. 
+                        IF iIndex LE 7 THEN 
+                            cItemWithAddersLiberty[iIndex] = cItemWithAddersLiberty[iIndex] + bf-item.i-no.           
                     END.   
                     ASSIGN 
                         cItemWithAddersKiwi1 = cItemWithAddersKiwi1 + cItemWithAddersHRMSINT
@@ -1165,6 +1183,11 @@
                                                        TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
                                                    ELSE
                                                        cFormattedScoresWestrock + "x "  + TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
+                                                       
+                        cFormattedScoresLiberty  = IF cFormattedScoresLiberty EQ "" THEN 
+                                                       TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))
+                                                   ELSE
+                                                       cFormattedScoresLiberty + "x     "  + TRIM(STRING(dScoreSize16ths, ">>>>>9999.99<<<<"))                        
                         
                         cScoreSizeDecimalAlliFlutes = IF cScoreSizeDecimalAlliFlutes EQ "" THEN 
                                                         (STRING(dScoreSize16ths, ">>>.99")) + cScoreType
@@ -1208,6 +1231,7 @@
             END.
             ASSIGN 
                 cFormattedScoresWestrock    = REPLACE(cFormattedScoresWestrock,".", "")
+                cFormattedScoresLiberty     = REPLACE(cFormattedScoresLiberty,".","")
                 cScoreSize16ths             = REPLACE(cScoreSize16ths,".", ":")
                 cScoreSizeDecimalHRMS1      = REPLACE(cScoreSizeDecimalHRMS1,".",":")
                 cScoreSizeDecimalHRMS2      = REPLACE(cScoreSizeDecimalHRMS2,".",":")
@@ -1238,6 +1262,7 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalHRMS1", cScoreSizeDecimalHRMS1).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalHRMS2", cScoreSizeDecimalHRMS2).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "FormattedScoring", cFormattedScoresWestrock).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "FormattedScoringLiberty", cFormattedScoresLiberty).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalAlliFlutes", cScoreSizeDecimalAlliFlutes).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeAlliance", cScoreSizeDecimalAlliance).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalKiwi", cScoreSizeDecimalKiwi).
@@ -1246,7 +1271,14 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersX10", cItemWithAddersX10).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersKiwi1", citemWithAddersKiwi1).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersKiwi", citemWithAddersKiwi).
-            
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersKiwi", citemWithAddersKiwi).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersLiberty1", citemWithAddersLiberty[1]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersLiberty2", citemWithAddersLiberty[2]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersLiberty3", citemWithAddersLiberty[3]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersLiberty4", citemWithAddersLiberty[4]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersLiberty5", citemWithAddersLiberty[5]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersLiberty6", citemWithAddersLiberty[6]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersLiberty7", citemWithAddersLiberty[7]).            
             lcConcatLineData = lcConcatLineData + lcLineData.
         END.      
         
@@ -1319,9 +1351,9 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "GPPartnerID",cGPPartnerID).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "GPPurchasedBy",cGPPurchasedBy).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "GPPlantID",cGPPlantID).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "GPBillto",cGPBillto).  
-        
-        
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "GPBillto",cGPBillto). 
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TimeLiberty",cTimeLiberty). 
+            
         /* This replace is required for replacing nested JSON data */
         ioplcRequestData = REPLACE(ioplcRequestData, "$detail$", lcConcatLineData).
         
