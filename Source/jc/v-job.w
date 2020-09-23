@@ -564,6 +564,9 @@ DO:
 
     RUN valid-cust-user NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    
+    RUN validate-cust-hold NO-ERROR. 
+    IF NOT ll-valid THEN RETURN NO-APPLY.
 
     RUN validate-est (""). 
     IF NOT ll-valid THEN RETURN NO-APPLY.
@@ -1471,6 +1474,9 @@ PROCEDURE local-update-record :
 
   RUN valid-cust-user NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  
+  RUN validate-cust-hold NO-ERROR. 
+  IF NOT ll-valid THEN RETURN NO-APPLY.
 
   RUN validate-est ("Update").
   IF NOT ll-valid THEN RETURN NO-APPLY.
@@ -2672,6 +2678,60 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-cust-hold V-table-Win 
+PROCEDURE validate-cust-hold :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cCustChk AS CHARACTER NO-UNDO.
+  {methods/lValidateError.i YES}
+    ll-valid = YES.
+    FIND FIRST oe-ctrl  NO-LOCK
+             WHERE oe-ctrl.company EQ cocode 
+             NO-ERROR.
+  
+    DO WITH FRAME {&FRAME-NAME}:
+        job.est-no:SCREEN-VALUE = FILL(" ",8 - LENGTH(TRIM(INPUT job.est-no))) + TRIM(INPUT job.est-no).
+
+        FIND FIRST est
+          WHERE est.company EQ cocode
+            AND est.loc     EQ locode
+            AND est.est-no  EQ job.est-no:SCREEN-VALUE
+          NO-LOCK NO-ERROR.
+        IF AVAILABLE est THEN
+            FIND FIRST eb
+          WHERE eb.company = cocode
+            AND eb.est-no   EQ est.est-no
+            AND eb.form-no NE 0
+            AND TRIM(eb.cust-no) NE "" 
+          NO-LOCK NO-ERROR.
+        IF AVAILABLE eb THEN
+            cCustChk = eb.cust-no .
+        ELSE cCustChk = "" .
+
+     IF cCustChk NE "" AND AVAIL oe-ctrl AND NOT oe-ctrl.p-fact THEN DO:
+          FIND FIRST cust NO-LOCK
+               WHERE cust.company EQ cocode
+               AND cust.cust-no EQ cCustChk NO-ERROR.
+          IF AVAIL cust AND cust.cr-hold THEN
+          DO:
+              RUN displayMessage ( INPUT "49").
+              APPLY "entry" TO job.est-no .
+              ll-valid = NO.            
+          END.          
+     END.
+    END.
+ 
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-start-date V-table-Win 
 PROCEDURE validate-start-date :

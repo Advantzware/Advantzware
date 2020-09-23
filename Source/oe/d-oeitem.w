@@ -187,6 +187,7 @@ DEFINE VARIABLE lCheckFgForceWarning AS LOGICAL NO-UNDO.
 DEFINE VARIABLE llOEDiscount AS LOGICAL NO-UNDO.
 DEF TEMP-TABLE w-est-no NO-UNDO FIELD w-est-no LIKE itemfg.est-no FIELD w-run AS LOG.
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
 ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
 
 FIND FIRST sys-ctrl
@@ -996,7 +997,10 @@ DO:
     CASE lw-focus:NAME :
          WHEN "est-no" THEN DO:
               RUN windows/l-estcst.w (g_company,g_loc,oe-ord.cust-no,0,lw-focus:SCREEN-VALUE, OUTPUT char-val).
-              IF char-val <> "" THEN RUN display-est-detail (char-val).
+              IF char-val <> "" THEN do:
+               lCheckMessage = NO.
+               RUN display-est-detail (char-val).
+              END. 
          END. 
          WHEN "type-code" THEN DO:
               RUN windows/l-ordtyp.w (oe-ordl.type-code:SCREEN-VALUE, OUTPUT char-val).
@@ -1517,6 +1521,18 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&Scoped-define SELF-NAME oe-ordl.est-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.est-no d-oeitem
+ON LEAVE OF oe-ordl.est-no IN FRAME d-oeitem /* Estimate # */
+DO:
+    lCheckMessage = NO .    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME    
 
 
 &Scoped-define SELF-NAME oe-ordl.est-no
@@ -4346,6 +4362,18 @@ PROCEDURE display-est-detail :
        ll-do-job = NOT b-eb.pur-man.
      END.
      IF NOT ll-do-job THEN ll-do-job = job#-int EQ 0.
+     
+     FIND FIRST oe-ctrl  NO-LOCK
+             WHERE oe-ctrl.company EQ g_company 
+             NO-ERROR.
+     
+     IF AVAIL oe-ord AND oe-ord.stat EQ "H" AND  AVAIL oe-ctrl AND NOT oe-ctrl.p-fact THEN
+     DO:
+        ll-do-job = NO .
+        IF NOT lCheckMessage THEN
+        RUN displayMessage ( INPUT "48").
+        lCheckMessage = YES.
+     END.
 
      RUN est/getcscnt.p ((IF eb.est-type EQ 6 AND
                              eb.cas-no NE ""  THEN ROWID(eb) ELSE ROWID(b-eb)),

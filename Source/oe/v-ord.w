@@ -4047,6 +4047,18 @@ IF AVAIL xest THEN DO:
          v-job-no2 = 0.
 
         RUN display-cust-detail (RECID(cust)).
+        
+        FIND FIRST oe-ctrl  NO-LOCK
+             WHERE oe-ctrl.company EQ g_company 
+             NO-ERROR.
+        
+        IF oe-ord.stat:SCREEN-VALUE EQ "H" AND AVAIL oe-ctrl AND NOT oe-ctrl.p-fact THEN
+        DO:
+         ASSIGN
+         v-job-no  = ""
+         v-job-no2 = 0.
+         RUN displayMessage ( INPUT "48").
+        END.
 
       ASSIGN oe-ord.sold-id:screen-value   = eb.cust-no /** DEFAULT to first SOLD to **/
              oe-ord.sman[1]:screen-value   = eb.sman
