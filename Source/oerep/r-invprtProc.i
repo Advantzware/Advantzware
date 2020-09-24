@@ -1646,7 +1646,9 @@ ASSIGN
     report.rec-id  = RECID({&head})
     vcInvNums      = vcInvNums + '-' + STRING ({&head}.inv-no)
     vcInvNums      = LEFT-TRIM (vcInvNums, '-')  
-    report.key-03  = IF v-sort THEN STRING({&head}.inv-no,"9999999999") ELSE ""  .
+    report.key-03  = IF v-sort THEN STRING({&head}.inv-no,"9999999999") ELSE ""
+    report.key-04  = STRING({&head}.printed)
+    .
 IF vcInvNums MATCHES '*-*' THEN
     vcInvNums = RIGHT-TRIM (SUBSTRING (vcInvNums, 1, INDEX (vcInvNums,'-')), '-') + SUBSTRING (vcInvNums, R-INDEX (vcInvNums, '-')).
 
@@ -1937,7 +1939,12 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     IF vcInvNums MATCHES '*-*' THEN
         vcInvNums = RIGHT-TRIM (SUBSTRING (vcInvNums, 1, INDEX (vcInvNums,'-')), '-') +     
             SUBSTRING (vcInvNums, R-INDEX (vcInvNums, '-')).
-
+    
+    IF "{&head}" EQ "inv-head" THEN
+        RUN pRunAPIOutboundTrigger (
+            BUFFER {&head},
+            INPUT  LOGICAL(report.key-04)
+            ).
 END.
 
 FOR EACH ttSaveLine WHERE ttSaveLine.sessionID EQ "save-line" + v-term-id:
@@ -3591,3 +3598,53 @@ PROCEDURE undo-save-line :
     RELEASE bf-inv-misc.
     
 END PROCEDURE.    
+
+PROCEDURE pRunAPIOutboundTrigger PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Prepares the request data for the invoice to call the API
+     Notes:
+    ------------------------------------------------------------------------------*/
+    
+    DEFINE PARAMETER BUFFER ipbf-inv-head FOR inv-head.
+    DEFINE INPUT PARAMETER lIsRePrint AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAPIID       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTriggerID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+    
+    IF AVAILABLE ipbf-inv-head THEN DO:
+    
+        ASSIGN 
+            cAPIID       = "SendInvoice"
+            cTriggerID   = IF lIsRePrint THEN 
+                               "RePrintInvoice"
+                           ELSE
+                               "PrintInvoice"
+            cPrimaryID   = STRING(ipbf-inv-head.inv-no)
+            cDescription = cAPIID + " triggered by " + cTriggerID + " from PostInvoices.p for invoice: " + cPrimaryID
+            .
+
+        RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+            INPUT  ipbf-inv-head.company,         /* Company Code (Mandatory) */
+            INPUT  locode,                        /* Location Code (Mandatory) */
+            INPUT  cAPIID,                        /* API ID (Mandatory) */
+            INPUT  ipbf-inv-head.cust-no,         /* Scope ID */
+            INPUT  "Customer",                    /* Scope Type */
+            INPUT  cTriggerID,                    /* Trigger ID (Mandatory) */
+            INPUT  "inv-head",                    /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(ROWID(ipbf-inv-head)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  cPrimaryID,                    /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  cDescription,                  /* Event's description (Optional) */
+            OUTPUT lSuccess,                      /* Success/Failure flag */
+            OUTPUT cMessage                       /* Status message */
+            ) NO-ERROR.    
+    END.
+    
+    DELETE PROCEDURE hdOutboundProcs.
+END PROCEDURE.
