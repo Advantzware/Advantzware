@@ -23,7 +23,7 @@ DEFINE TEMP-TABLE ttImportItem
     FIELD i-name               AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Name" HELP "Optional - Size:30"
     FIELD i-dscr               AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Desc" HELP "Optional - - Size:30"
     FIELD est-dscr             AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Est.Desc" HELP "Optional - Size:30"
-    FIELD i-code               AS CHARACTER FORMAT "x(14)" COLUMN-LABEL "Item Code" HELP "Optional - RM Stocked or Estimated Mat'l"
+    FIELD i-code               AS CHARACTER FORMAT "x(14)" COLUMN-LABEL "Item Code" HELP "Optional - RM Stocked or Estimated Materials"
     FIELD tax-rcpt             AS CHARACTER FORMAT "x" COLUMN-LABEL "Taxable" HELP "Optional - Y or N (blank=N)"
     FIELD mat-type             AS CHARACTER FORMAT "x" COLUMN-LABEL "Mat'l Type" HELP "Required - Size:1"
     FIELD cost-type            AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Cost Type" HELP "Required - Size:3"
@@ -80,7 +80,11 @@ DEFINE TEMP-TABLE ttImportItem
     FIELD loc-bin              AS CHARACTER FORMAT "x(12)" COLUMN-LABEL "Bin" HELP "Optional - Size:12"                  
     FIELD q-onh                AS DECIMAL   FORMAT "->>>,>>>,>>9.9<<<<<" COLUMN-LABEL "Qty On Hand" HELP "Optional - Decimal"
     FIELD pur-uom              AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Purchase UOM" HELP "Required - Size: 5"
-    FIELD cons-uom             AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Consumption UOM" HELP "Required - Size: 5"                  
+    FIELD cons-uom             AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Consumption UOM" HELP "Required - Size: 5"     
+    FIELD alloc                AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Auto Allocate" HELP "Optional - Yes or No(Blank - No)"                  
+    FIELD stocked              AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Stocked" HELP "Optional - Yes or No(Blank - No)"
+    FIELD pur-man              AS CHARACTER FORMAT "x(12)" COLUMN-LABEL "Purchased Or Manufactured" HELP "Required - Purchased Or Manufactured(Blank - Manufactured)"
+    FIELD inv-by-cust          AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Zero On Hand" HELP "Required - Yes or No(Blank - No)" 
 
     .
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 2 to skip Company and Location field in temp-table since this will not be part of the import data*/
@@ -188,8 +192,24 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportItem.loc-bin, iplIgnoreBlanks, INPUT-OUTPU bf-item.loc-bin).
     RUN pAssignValueC (ipbf-ttImportItem.pur-uom, iplIgnoreBlanks, INPUT-OUTPUT bf-item.pur-uom).
     RUN pAssignValueC (ipbf-ttImportItem.cons-uom, iplIgnoreBlanks, INPUT-OUTPUT bf-item.cons-uom).                         
-    RUN pAssignValueD (ipbf-ttImportItem.q-onh, YES, INPUT-OUTPUT bf-item.q-onh).                                       
+    RUN pAssignValueD (ipbf-ttImportItem.q-onh, YES, INPUT-OUTPUT bf-item.q-onh).
     
+    IF ipbf-ttImportItem.alloc EQ "Yes"  THEN
+    bf-item.alloc = YES .
+    ELSE bf-item.alloc = NO .
+    
+    IF ipbf-ttImportItem.stocked EQ "Yes"  THEN
+    bf-item.stocked = YES .
+    ELSE bf-item.stocked = NO .
+    
+    IF ipbf-ttImportItem.pur-man EQ "Purchased"  THEN
+    bf-item.pur-man = YES .
+    ELSE bf-item.pur-man = NO .
+    
+    IF ipbf-ttImportItem.inv-by-cust EQ "Yes"  THEN
+    bf-item.inv-by-cust = YES .
+    ELSE bf-item.inv-by-cust = NO .     
+      
     
     /*IF ipbf-ttImportItem.ml EQ "M" THEN
         ASSIGN bf-item.ml = YES.
@@ -331,7 +351,7 @@ PROCEDURE pValidate PRIVATE:
             RUN pIsValidFromList IN hdValidator ("Industry Type", ipbf-ttImportItem.ind-type, "Corrugated,Folding", OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportItem.i-code NE "" THEN 
-            RUN pIsValidFromList IN hdValidator ("Active", ipbf-ttImportItem.i-code, "RM Stocked,Estimated Mat'l", OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidFromList IN hdValidator ("Active", ipbf-ttImportItem.i-code, "RM Stocked,Estimated Materials", OUTPUT oplValid, OUTPUT cValidNote).
         
         IF oplValid AND ipbf-ttImportItem.flute NE "" THEN 
             RUN pIsValidFlute IN hdValidator (ipbf-ttImportItem.flute, NO, ipbf-ttImportItem.Company, OUTPUT oplValid, OUTPUT cValidNote).
@@ -371,6 +391,18 @@ PROCEDURE pValidate PRIVATE:
            RUN pIsValidDept IN hdValidator (ipbf-ttImportItem.dept-name9, NO, OUTPUT oplValid, OUTPUT cValidNote).
         IF oplValid AND ipbf-ttImportItem.dept-name10 NE "" THEN 
            RUN pIsValidDept IN hdValidator (ipbf-ttImportItem.dept-name10, NO, OUTPUT oplValid, OUTPUT cValidNote).
+           
+        IF oplValid AND ipbf-ttImportItem.alloc NE "" THEN 
+            RUN pIsValidFromList IN hdValidator ("Allocate", ipbf-ttImportItem.alloc, "Yes,No", OUTPUT oplValid, OUTPUT cValidNote).
+            
+        IF oplValid AND ipbf-ttImportItem.stocked NE "" THEN 
+            RUN pIsValidFromList IN hdValidator ("Stocked", ipbf-ttImportItem.stocked, "Yes,No", OUTPUT oplValid, OUTPUT cValidNote).
+            
+        IF oplValid AND ipbf-ttImportItem.pur-man NE "" THEN 
+            RUN pIsValidFromList IN hdValidator ("Pur Or Man", ipbf-ttImportItem.pur-man, "Purchased,Manufactured", OUTPUT oplValid, OUTPUT cValidNote).
+            
+        IF oplValid AND ipbf-ttImportItem.inv-by-cust NE "" THEN 
+            RUN pIsValidFromList IN hdValidator ("Zero On Hand", ipbf-ttImportItem.inv-by-cust, "Yes,No", OUTPUT oplValid, OUTPUT cValidNote).    
 
         IF ipbf-ttImportItem.i-code = "RM Stocked" AND
             CAN-DO('A,B,P',ipbf-ttImportItem.mat-type) THEN DO:
@@ -481,7 +513,7 @@ PROCEDURE pValidate PRIVATE:
     
     IF ipbf-ttImportItem.i-code EQ "RM Stocked" THEN 
         ipbf-ttImportItem.i-code = "R".
-    ELSE IF ipbf-ttImportItem.i-code EQ "Estimated Mat'l" THEN 
+    ELSE IF ipbf-ttImportItem.i-code EQ "Estimated Materials" THEN 
         ipbf-ttImportItem.i-code = "E".
 
     IF ipbf-ttImportItem.ink-type EQ "Ink" THEN 
