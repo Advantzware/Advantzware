@@ -739,6 +739,8 @@ PROCEDURE create-set :
 
   ASSIGN
    bf-eb.pur-man          = bf-eb.set-is-assembled NE NO
+   bf-eb.spare-char-3     = "C"
+   bf-eb.spare-char-4     = "C"
    lv-new-set             = YES
    lv-set-recid           = RECID(bf-eb).
 
