@@ -2285,6 +2285,22 @@ END FUNCTION.
                   "<AT=,8.2>" chrBarcode[3].             
 
           END. /* i <= 3 */
+           intLnCount = 0.
+           FOR EACH job-mch WHERE job-mch.company = job-hdr.company 
+               AND job-mch.job = job-hdr.job 
+               AND job-mch.job-no = job-hdr.job-no 
+               AND job-mch.job-no2 = job-hdr.job-no2 
+               AND job-mch.frm = job-hdr.frm 
+               use-index line-idx NO-LOCK BREAK BY job-mch.frm :
+               intLnCount = intLnCount + 1 .
+           END.
+           
+           IF LINE-COUNTER + (intLnCount * 2 + 7) GE PAGE-SIZE THEN
+           DO:
+            PAGE.
+            VIEW FRAME head.
+           END. 
+          
            intLnCount = 12 .
            FOR EACH job-mch WHERE job-mch.company = job-hdr.company 
                AND job-mch.job = job-hdr.job 
