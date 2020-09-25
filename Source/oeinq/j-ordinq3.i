@@ -190,6 +190,6 @@ ELSE DO:
             {&for-each1}                  ~
                 USE-INDEX opened NO-LOCK, ~
                 {&for-each2}
-  {oeinq/j-ordinq1.i}
+      {oeinq/j-ordinq1.i}
   END.
 END.
