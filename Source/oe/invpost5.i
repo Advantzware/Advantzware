@@ -37,6 +37,8 @@ DEFINE VARIABLE FgKeepZeroBin-log AS LOGICAL NO-UNDO INITIAL TRUE.
 DEF SHARED TEMP-TABLE tt-bolh NO-UNDO LIKE oe-bolh.
 DEF SHARED TEMP-TABLE tt-boll NO-UNDO LIKE oe-boll.
 
+{sys/inc/invdate.i}
+
 ASSIGN 
      FgKeepZeroBin-log = TRUE.
      

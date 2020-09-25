@@ -420,15 +420,15 @@ DO:
     END.
 
     WHEN "job-no2" THEN DO:
-      RUN fgbin-help("").
+      RUN fgbin-help("Tag").
     END.
 
     WHEN "loc" THEN DO:
-      RUN fgbin-help("").
+      RUN fgbin-help("Tag").
     END.
 
     WHEN "loc-bin" THEN DO:
-      RUN fgbin-help("").
+      RUN fgbin-help("Tag").
     END.
 
     WHEN "tag" THEN DO:

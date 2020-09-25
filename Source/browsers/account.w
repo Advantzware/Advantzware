@@ -650,6 +650,8 @@ PROCEDURE pReopenBrowse :
                                                   + TRIM(STRING(lAscending,"A/De"))
                                                   + "scending"
                                                   .
+    IF AVAILABLE account THEN
+    APPLY "VALUE-CHANGED":U TO {&BROWSE-NAME}.
 
 END PROCEDURE.
 

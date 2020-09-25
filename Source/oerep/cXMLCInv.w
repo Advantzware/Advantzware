@@ -46,6 +46,11 @@ CREATE WIDGET-POOL.
 
 DEFINE NEW SHARED VARIABLE s-print-zero-qty AS LOGICAL NO-UNDO.
 
+DEFINE VARIABLE cArgsValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
 ASSIGN
   cocode = gcompany
   locode = gloc.
@@ -300,6 +305,8 @@ END.
 ON WINDOW-CLOSE OF C-Win /* cXML Invoice Generation */
 DO:
   /* This event will close the window and terminate the procedure.  */
+  IF VALID-HANDLE(hdOutboundProcs) THEN
+    DELETE PROCEDURE hdOutboundProcs. 
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -356,6 +363,17 @@ DO:
             AND inv-head.inv-no   LE invNoEnd
             AND (inv-head.stat EQ "" OR inv-head.stat EQ "X")
                 :
+        cArgsValue = STRING(ROWID(inv-head)) + "," + cSuffix + "," + STRING(invDate).
+
+        RUN pCallOutboundAPI(
+            INPUT inv-head.company,
+            INPUT locode,
+            INPUT inv-head.cust-no,
+            INPUT inv-head.inv-no,
+            INPUT "inv-head,Suffix,InvoiceDate",
+            INPUT cArgsValue
+            ).
+        
         CREATE report.
         ASSIGN
           report.term-id = v-term-id
@@ -587,6 +605,96 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+<<<<<<< HEAD
+=======
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallOutboundAPI C-Win
+PROCEDURE pCallOutboundAPI PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiInvoiceNo  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTableName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcArgsValue  AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cAPIID       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTriggerID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+ 
+    ASSIGN  
+        cAPIId       = "SendInvoice"
+        cPrimaryID   = STRING(ipiInvoiceNo)
+        cTriggerID   = "printInvoice".
+        cDescription = cAPIID + " triggered by " + cTriggerID + " from cXMLCinv.w for Invoice: " + cPrimaryID
+        .
+    RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+        INPUT  ipcCompany,    /* Company Code (Mandatory) */
+        INPUT  ipcLocation,   /* Location Code (Mandatory) */
+        INPUT  cAPIID,        /* API ID (Mandatory) */
+        INPUT  ipcCustID,     /* Scope ID (Mandatory) */
+        INPUT  "Customer",    /* Scope  Type */
+        INPUT  cTriggerID,    /* Trigger ID (Mandatory) */
+        INPUT  ipcTableName,  /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  ipcArgsValue,  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  cPrimaryID,    /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  cDescription,  /* Event's description (Optional) */
+        OUTPUT lSuccess,      /* Success/Failure flag */
+        OUTPUT cMessage       /* Status message */
+        ).
+    
+    RUN Outbound_ResetContext IN hdOutboundProcs. 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProcessOEInvoices C-Win 
+PROCEDURE pProcessOEInvoices PRIVATE :
+/*------------------------------------------------------------------------------
+         Purpose:  Given range parameters, process unposted OE invoices to cXML.
+         Notes: RUN pProcessPostedARInvoices(ipcCompany, ipcCustomerID, ipdtInvStart, ipdtInvEnd,
+                    OUTPUT opiCount).
+        ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustomerID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtInvStart AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtInvEnd AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER ipiInvNoStart AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiInvNoEnd AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtInvoiceDate AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER ipcInvSuffix AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiCount AS INTEGER NO-UNDO.
+
+    FOR EACH inv-head NO-LOCK
+        WHERE inv-head.company EQ ipcCompany
+        AND inv-head.cust-no EQ ipcCustomerID
+        AND inv-head.inv-date GE ipdtInvStart
+        AND inv-head.inv-date LE ipdtInvEnd
+        AND inv-head.inv-no   GE ipiInvNoStart
+        AND inv-head.inv-no   LE ipiInvNoEnd
+        AND (inv-head.stat EQ "" OR inv-head.stat EQ "X")
+        :
+        opiCount = opiCount + 1.
+        
+        RUN cXML/cXMLInvoice.p (inv-head.company, ROWID(inv-head),ipdtInvoiceDate, ipcInvSuffix).   
+    
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+>>>>>>> release/Advantzware_20.02.05
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProcessPostedARInvoices C-Win 
 PROCEDURE pProcessPostedARInvoices PRIVATE :
 /*------------------------------------------------------------------------------
@@ -613,7 +721,21 @@ PROCEDURE pProcessPostedARInvoices PRIVATE :
         AND ar-inv.posted:
         opiCount = opiCount + 1.
         
+<<<<<<< HEAD
         RUN cXML/cXMLInvoice.p (ar-inv.company, ROWID(ar-inv),ipdtInvoiceDate).   
+=======
+        cArgsValue = STRING(ROWID(ar-inv)) + "," + ipcInvSuffix + "," + STRING(ipdtInvoiceDate). 
+               
+        RUN pCallOutboundAPI(
+            INPUT ar-inv.company,
+            INPUT locode,
+            INPUT ar-inv.cust-no,
+            INPUT ar-inv.inv-no,
+            INPUT "ar-inv,Suffix,InvoiceDate",
+            INPUT cArgsValue
+            ).
+        RUN cXML/cXMLInvoice.p (ar-inv.company, ROWID(ar-inv),ipdtInvoiceDate, ipcInvSuffix).   
+>>>>>>> release/Advantzware_20.02.05
     
     END.
     

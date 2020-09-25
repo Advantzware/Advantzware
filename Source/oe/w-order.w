@@ -1300,12 +1300,21 @@ PROCEDURE local-change-page :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var ls-est-no as cha no-undo.
-  
+  DEFINE VARIABLE lAddNewRecord AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   
   run get-attribute ("current-page").
   assign li-prev-page = li-cur-page
          li-cur-page = int(return-value).
+         
+  IF VALID-HANDLE(h_v-ord) AND li-cur-page NE 2 THEN DO:     
+    RUN pAddNewOrder IN h_v-ord (OUTPUT lAddNewRecord).
+    IF lAddNewRecord THEN DO:
+      MESSAGE "Please add an order or cancel it"
+        VIEW-AS ALERT-BOX INFO BUTTONS OK.
+      RUN select-page IN THIS-PROCEDURE ( 2 ).
+    END.
+  END.       
 
   if li-cur-page = 6 then do:  /* estimate */
      li-last-page = li-prev-page.

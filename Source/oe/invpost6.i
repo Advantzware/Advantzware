@@ -44,6 +44,8 @@ DEF SHARED TEMP-TABLE tt-boll NO-UNDO LIKE oe-boll.
 
 {sys/inc/fgsetrec.i}
 
+{sys/inc/invdate.i}
+
 FIND tt-boll WHERE RECID(tt-boll) EQ v-recid1.
 FIND {1}     WHERE RECID({1})     EQ v-recid2.
 FIND fg-bin  WHERE RECID(fg-bin)  EQ v-recid3 NO-ERROR.

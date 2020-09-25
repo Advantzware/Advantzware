@@ -518,7 +518,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-navest ).
-       RUN set-position IN h_v-navest ( 9.81 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_v-navest ( 10.10 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 34.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -528,7 +528,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-job ).
-       RUN set-position IN h_p-job ( 9.81 , 36.00 ) NO-ERROR.
+       RUN set-position IN h_p-job ( 10.10 , 36.00 ) NO-ERROR.
        RUN set-size IN h_p-job ( 1.91 , 101.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -536,7 +536,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_vp-hldjc ).
-       RUN set-position IN h_vp-hldjc ( 9.81 , 137.00 ) NO-ERROR.
+       RUN set-position IN h_vp-hldjc ( 10.10 , 137.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 13.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (

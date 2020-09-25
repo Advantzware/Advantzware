@@ -115,7 +115,8 @@ DEF VAR v-col-move AS LOG INIT YES NO-UNDO.
 &Scoped-Define ENABLED-OBJECTS btn-go btn-all lv-period-fr lv-period-to ~
 iRunFrom iRunTo dtDateFrom dtDateTo begin_acct lv-year btn-print br_table 
 &Scoped-Define DISPLAYED-OBJECTS lv-period-fr lv-period-to iRunFrom iRunTo ~
-dtDateFrom dtDateTo begin_acct lv-year FI_moveCol lv-open-bal lv-close-bal 
+dtDateFrom dtDateTo begin_acct lv-year FI_moveCol lv-open-bal lv-close-bal ~
+acct_dscr
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -215,6 +216,7 @@ DEFINE VARIABLE iRunTo AS INTEGER FORMAT ">>>>>>9":U INITIAL 0
      SIZE 11 BY 1
      BGCOLOR 15  NO-UNDO.
 
+<<<<<<< HEAD
 DEFINE VARIABLE lv-close-bal AS DECIMAL FORMAT "->>>,>>>,>>9.99":U INITIAL 0 
      LABEL "Closing Balance" 
      VIEW-AS FILL-IN 
@@ -222,6 +224,15 @@ DEFINE VARIABLE lv-close-bal AS DECIMAL FORMAT "->>>,>>>,>>9.99":U INITIAL 0
 
 DEFINE VARIABLE lv-open-bal AS DECIMAL FORMAT "->>>,>>>,>>9.99":U INITIAL 0 
      LABEL "Opening Balance" 
+=======
+DEFINE VARIABLE lv-close-bal AS DECIMAL FORMAT "->>,>>>,>>>,>>9.99":U INITIAL 0 
+     LABEL "Total Credits" 
+     VIEW-AS FILL-IN 
+     SIZE 24 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lv-open-bal AS DECIMAL FORMAT "->>,>>>,>>>,>>9.99":U INITIAL 0 
+     LABEL "Total Debits" 
+>>>>>>> release/Advantzware_20.02.05
      VIEW-AS FILL-IN 
      SIZE 23.8 BY 1 NO-UNDO.
 
@@ -242,7 +253,11 @@ DEFINE VARIABLE lv-year AS INTEGER FORMAT ">>>9":U INITIAL 0
      
 DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 159 BY 4.0.     
+     SIZE 159 BY 4.0.         
+ 
+DEFINE VARIABLE acct_dscr AS CHARACTER FORMAT "x(30)":U INITIAL "" 
+     VIEW-AS FILL-IN 
+     SIZE 30.8 BY 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -284,13 +299,14 @@ DEFINE FRAME F-Main
      iRunFrom AT ROW 2.05 COL 63 COLON-ALIGNED NO-LABEL WIDGET-ID 56
      iRunTo AT ROW 2.05 COL 76 COLON-ALIGNED NO-LABEL WIDGET-ID 58
      dtDateFrom AT ROW 2.05 COL 90.6 COLON-ALIGNED NO-LABEL WIDGET-ID 66
-     dtDateTo AT ROW 2.05 COL 107 COLON-ALIGNED NO-LABEL WIDGET-ID 68
+     dtDateTo AT ROW 2.05 COL 107.5 COLON-ALIGNED NO-LABEL WIDGET-ID 68
      btn-go AT ROW 2 COL 128.2
      btn-all AT ROW 2 COL 144.6     
      btn-print AT ROW 3.33 COL 111.2
      FI_moveCol AT ROW 3.33 COL 145.4 COLON-ALIGNED NO-LABEL WIDGET-ID 46
-     lv-open-bal AT ROW 3.38 COL 44.8 COLON-ALIGNED
+     lv-open-bal AT ROW 3.38 COL 48.8 COLON-ALIGNED
      lv-close-bal AT ROW 3.38 COL 86.2 COLON-ALIGNED
+     acct_dscr AT ROW 3.43 COL 1 COLON-ALIGNED NO-LABEL
      br_table AT ROW 5.05 COL 1
      "Date" VIEW-AS TEXT
           SIZE 15.6 BY .71 AT ROW 1.19 COL 92.6 WIDGET-ID 72
@@ -309,14 +325,12 @@ DEFINE FRAME F-Main
           FGCOLOR 9 FONT 6
      "Account Number" VIEW-AS TEXT
           SIZE 23.8 BY .71 AT ROW 1.19 COL 3.4 WIDGET-ID 48
-          FGCOLOR 9 FONT 6
-     "Account Recivable" VIEW-AS TEXT
-          SIZE 21.2 BY .95 AT ROW 3.43 COL 4 WIDGET-ID 50
+          FGCOLOR 9 FONT 6       
      "Year" VIEW-AS TEXT
           SIZE 8.6 BY .71 AT ROW 1.19 COL 35.4 WIDGET-ID 52
           FGCOLOR 9 FONT 6
      "__" VIEW-AS TEXT
-          SIZE 1.6 BY .67 AT ROW 1.91 COL 107 WIDGET-ID 70
+          SIZE 1.6 BY .67 AT ROW 1.91 COL 107.5 WIDGET-ID 70
      RECT-9 AT ROW 1 COL 1 WIDGET-ID 4     
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -398,6 +412,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lv-open-bal IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN acct_dscr IN FRAME F-Main
+   NO-ENABLE EXP-FORMAT                                                 */    
 /* SETTINGS FOR FILL-IN lv-period-fr IN FRAME F-Main
    1                                                                    */
 /* SETTINGS FOR FILL-IN lv-period-to IN FRAME F-Main
@@ -669,7 +685,7 @@ DO:
       
       RUN build-inquiry.
       {&open-query-{&browse-name}}
-      DISPLAY lv-open-bal lv-close-bal WITH FRAME {&FRAME-NAME}.
+      DISPLAY lv-open-bal lv-close-bal acct_dscr WITH FRAME {&FRAME-NAME}.
 
 END.
 
@@ -685,7 +701,7 @@ DO:
                   
       RUN build-inquiry.
       {&open-query-{&browse-name}}
-          DISPLAY lv-open-bal lv-close-bal WITH FRAME {&FRAME-NAME}.
+          DISPLAY lv-open-bal lv-close-bal acct_dscr WITH FRAME {&FRAME-NAME}.
       
       
 END.
@@ -717,9 +733,7 @@ FORM SKIP(1)
      lv-per-fr  COLON 30 LABEL "Beginning Period"
      lv-per-to  COLON 30 LABEL "Ending Period"
      SKIP(1)
-     lv-open    COLON 30 LABEL "Opening Balance"
-     SKIP(1)
-
+     
     WITH STREAM-IO WIDTH 80 FRAME gl-inq SIDE-LABELS NO-UNDERLINE PAGE-TOP
          TITLE "  A C C O U N T   A C T I V I T Y  ".
 
@@ -751,8 +765,7 @@ format space(4)
             /*lv-actname   @ lv-dscr*/
             lv-year      @ lv-yr
             lv-period-fr @ lv-per-fr
-            lv-period-to @ lv-per-to
-            lv-open-bal  @ lv-open.
+            lv-period-to @ lv-per-to   .
 
     FOR EACH tt-glinq:
       DISPLAY tt-glinq.tr-date
@@ -770,12 +783,7 @@ format space(4)
             "Totals:"   
             dDebitTotal   format "->>>,>>>,>>9.99" SPACE(2)
             dCreditTotal format "->>>,>>>,>>9.99"   
-            .
-
-    DISPLAY SKIP(1)
-            lv-close-bal @ lv-close COLON 30 LABEL "Closing Balance"
-            SKIP(2)
-        WITH STREAM-IO WIDTH 80 FRAME gl-inq1 SIDE-LABELS NO-UNDERLINE.
+            SKIP .       
 
     OUTPUT CLOSE.
 
@@ -834,6 +842,21 @@ DO:
    IF LASTKEY = -1 THEN RETURN.
    ASSIGN {&self-name}.
 
+   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME lv-year
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-year B-table-Win
+ON VALUE-CHANGED OF lv-year IN FRAME F-Main
+DO:
+   IF LASTKEY = -1 THEN RETURN.
+   ASSIGN {&self-name}. 
+  
+       APPLY "value-changed" TO  lv-period-fr .
+       APPLY "value-changed" TO  lv-period-to .     
    
 END.
 
@@ -1001,6 +1024,9 @@ PROCEDURE build-inquiry :
                 
   IF lv-year EQ 0 THEN
   tmp-start = dtDateFrom .
+  IF AVAIL account THEN
+   acct_dscr = account.dscr .
+   ELSE acct_dscr = "" .
   
   RUN gl/gl-opend.p (ROWID(account), tmp-start, OUTPUT lv-open-bal).
                      
@@ -1077,13 +1103,8 @@ PROCEDURE build-inquiry :
            tt-glinq.cr-amt = gltran.tr-amt .
 
       IF LENGTH(gltran.tr-dscr) GT v-max-dscr-length THEN
-         v-max-dscr-length = LENGTH(gltran.tr-dscr).
-         
-      IF begin_acct EQ "" THEN
-      ASSIGN
-          lv-open-bal = 0
-          lv-close-bal = 0.
-      
+         v-max-dscr-length = LENGTH(gltran.tr-dscr).           
+           
   end.
  
 END PROCEDURE.
@@ -1122,6 +1143,27 @@ PROCEDURE get-fields :
   ASSIGN
    op-company = g_company
    op-tr-num  = IF AVAIL tt-glinq THEN tt-glinq.tr-num ELSE 0.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-account B-table-Win 
+PROCEDURE get-account :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF OUTPUT PARAM op-company LIKE glhist.company NO-UNDO.
+  DEF OUTPUT PARAM op-act-num  LIKE glhist.actnum  NO-UNDO.
+  DEF OUTPUT PARAM op-year  AS INTEGER  NO-UNDO.
+
+  ASSIGN
+   op-company = g_company
+   op-act-num  = begin_acct
+   op-year = lv-year.
 
 END PROCEDURE.
 

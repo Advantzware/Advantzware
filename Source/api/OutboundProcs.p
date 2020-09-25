@@ -12,6 +12,8 @@
                   The life cycle of this procedure should be limited to the calling
                   procedure only
   ----------------------------------------------------------------------*/
+USING System.SharedConfig.
+  
 {api/ttArgs.i}
 {api/ttScopes.i}
 {api/CommonAPIProcs.i}
@@ -42,7 +44,7 @@ DEFINE TEMP-TABLE ttRequestData NO-UNDO
 
 {api/ttAPIOutboundEvent.i}
 
-DEFINE VARIABLE cRequestTypeList          AS CHARACTER NO-UNDO INITIAL "API,FTP,SAVE".
+DEFINE VARIABLE cRequestTypeList          AS CHARACTER NO-UNDO INITIAL "API,FTP,SFTP,SAVE".
 DEFINE VARIABLE cRequestVerbList          AS CHARACTER NO-UNDO INITIAL "POST,GET".
 DEFINE VARIABLE cRequestDataTypeList      AS CHARACTER NO-UNDO INITIAL "JSON,XML,TXT,CSV".
 DEFINE VARIABLE cRequestStatusInitialized AS CHARACTER NO-UNDO INITIAL "Initialized".
@@ -59,6 +61,7 @@ DEFINE VARIABLE cScopeTypeCustomer        AS CHARACTER NO-UNDO INITIAL "Customer
 DEFINE VARIABLE cScopeTypeVendor          AS CHARACTER NO-UNDO INITIAL "Vendor".
 DEFINE VARIABLE cScopeTypeShipTo          AS CHARACTER NO-UNDO INITIAL "ShipTo".
 DEFINE VARIABLE cAPIClientXrefAny         AS CHARACTER NO-UNDO INITIAL "_ANY_".
+DEFINE VARIABLE scInstance                AS CLASS System.SharedConfig NO-UNDO.
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -197,6 +200,13 @@ PROCEDURE Outbound_GetAPIID:
     DEFINE OUTPUT PARAMETER opiAPIOutboundID AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplValid         AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage       AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lAPIOutboundTestMode AS LOGICAL NO-UNDO.
+    
+    ASSIGN 
+        scInstance           = SharedConfig:instance
+        lAPIOutboundTestMode = LOGICAL(scInstance:GetValue("APIOutboundTestMode")) NO-ERROR
+        .
 
     FIND FIRST APIOutbound NO-LOCK
           WHERE APIOutbound.company  EQ ipcCompany
@@ -204,7 +214,7 @@ PROCEDURE Outbound_GetAPIID:
             AND APIOutbound.clientID EQ ipcClientID
           NO-ERROR.
     IF AVAILABLE APIOutbound AND
-        NOT APIOutbound.Inactive THEN
+        (lAPIOutboundTestMode OR NOT APIOutbound.Inactive) THEN
         ASSIGN
             oplValid         = TRUE
             opcMessage       = "Success"
@@ -286,6 +296,13 @@ PROCEDURE Outbound_GetAPITriggerID:
     DEFINE OUTPUT PARAMETER oplValid                AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage              AS CHARACTER NO-UNDO.
 
+    DEFINE VARIABLE lAPIOutboundTestMode AS LOGICAL NO-UNDO.
+    
+    ASSIGN 
+        scInstance           = SharedConfig:instance
+        lAPIOutboundTestMode = LOGICAL(scInstance:GetValue("APIOutboundTestMode")) NO-ERROR
+        .
+
     FIND FIRST APIOutboundTrigger NO-LOCK
          WHERE APIOutboundTrigger.company   EQ ipcCompany
            AND APIOutboundTrigger.apiID     EQ ipcAPIID
@@ -293,7 +310,7 @@ PROCEDURE Outbound_GetAPITriggerID:
            AND APIOutboundTrigger.triggerID EQ ipcTriggerID
          NO-ERROR.
     IF AVAILABLE APIOutboundTrigger AND
-        NOT APIOutboundTrigger.Inactive THEN
+        (lAPIOutboundTestMode OR NOT APIOutboundTrigger.Inactive) THEN
         ASSIGN
             oplValid                = TRUE
             opcMessage              = "Success"
@@ -1593,22 +1610,15 @@ PROCEDURE pExecute PRIVATE:
 
         lcRequestData = ttRequestData.requestData.
 
-        /* Make the API call - We will have to exclude FTP and SAVE request type as those are handled in its customized handler */
-        IF ttRequestData.requestType EQ cRequestTypeAPI THEN
-            RUN api/CallOutBoundAPI.p (
-                INPUT  ttRequestData.apiOutboundID,
-                INPUT  lcRequestData,
-                INPUT  ttRequestData.parentProgram,
-                OUTPUT lcResponseData,
-                OUTPUT ttRequestData.success,
-                OUTPUT ttRequestData.requestMessage
-                ) NO-ERROR.
-        ELSE
-            ASSIGN
-                lcResponseData               = "Success"
-                ttRequestData.success        = TRUE
-                ttRequestData.requestMessage = "Success"
-                .
+        RUN api/CallOutBoundAPI.p (
+            INPUT  ttRequestData.apiOutboundID,
+            INPUT  lcRequestData,
+            INPUT  ttRequestData.parentProgram,
+            INPUT  ttRequestData.primaryID,
+            OUTPUT lcResponseData,
+            OUTPUT ttRequestData.success,
+            OUTPUT ttRequestData.requestMessage
+            ) NO-ERROR.
                 
         ttRequestData.requestStatus = cRequestStatusSuccess.
 

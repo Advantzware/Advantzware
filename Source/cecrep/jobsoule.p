@@ -494,6 +494,8 @@ do v-local-loop = 1 to v-local-copies:
                BUFFER-COPY w-m TO tt-wm.
         END.
         j = 1 .
+        cFgBin = "".
+        iFgBinQty = 0.
         MAIN-FG-BIN:
         FOR EACH fg-bin NO-LOCK
             where fg-bin.company  eq cocode

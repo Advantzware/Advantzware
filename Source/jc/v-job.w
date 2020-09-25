@@ -155,14 +155,14 @@ END.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR job.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS job.start-date job.loc job.due-date 
+&Scoped-Define ENABLED-FIELDS job.start-date job.loc job.due-date job.promiseDate
 &Scoped-define ENABLED-TABLES job
 &Scoped-define FIRST-ENABLED-TABLE job
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalcDueDate btnCalendar-2 ~
 fiTypeDescription 
 &Scoped-Define DISPLAYED-FIELDS job.job-no job.job-no2 job.est-no job.stat ~
 job.start-date job.orderType job.create-date job.csrUser_id job.close-date ~
-job.user-id job.loc job.due-date 
+job.user-id job.loc job.due-date job.promiseDate 
 &Scoped-define DISPLAYED-TABLES job
 &Scoped-define FIRST-DISPLAYED-TABLE job
 &Scoped-Define DISPLAYED-OBJECTS fiTypeDescription 
@@ -170,10 +170,11 @@ job.user-id job.loc job.due-date
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-ASSIGN-FIELDS job.job-no job.job-no2 job.est-no ~
-job.start-date job.orderType job.create-date job.close-date job.due-date 
-&Scoped-define ROW-AVAILABLE btnCalendar-1 btnCalendar-2 
+job.start-date job.orderType job.create-date job.close-date job.due-date ~
+job.promiseDate
+&Scoped-define ROW-AVAILABLE btnCalendar-1 btnCalendar-2 btnCalendar-3
 &Scoped-define DISPLAY-FIELD job.start-date job.create-date job.close-date ~
-job.due-date 
+job.due-date job.promiseDate
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -228,6 +229,11 @@ DEFINE BUTTON btnCalendar-2
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+     
+DEFINE BUTTON btnCalendar-3 
+     IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".     
 
 DEFINE VARIABLE fiTypeDescription AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
@@ -241,7 +247,7 @@ DEFINE VARIABLE vHoldReason AS CHARACTER FORMAT "x(50)"
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 148 BY 3.81.
+     SIZE 148 BY 4.81.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -306,6 +312,12 @@ DEFINE FRAME F-Main
           SIZE 16 BY 1
           BGCOLOR 15 
      btnCalendar-2 AT ROW 3.62 COL 143.6
+     job.promiseDate AT ROW 4.72 COL 126 COLON-ALIGNED
+          LABEL "Promise Date"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 15 
+     btnCalendar-3 AT ROW 4.72 COL 143.6     
      fiTypeDescription AT ROW 2.52 COL 23.4 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -373,6 +385,8 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
    3                                                                    */
+/* SETTINGS FOR BUTTON btnCalendar-3 IN FRAME F-Main
+   3                                                                    */   
 /* SETTINGS FOR FILL-IN job.close-date IN FRAME F-Main
    NO-ENABLE 2 4 EXP-LABEL                                              */
 /* SETTINGS FOR FILL-IN job.create-date IN FRAME F-Main
@@ -381,6 +395,8 @@ ASSIGN
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN job.due-date IN FRAME F-Main
    2 4 EXP-LABEL                                                        */
+/* SETTINGS FOR FILL-IN job.promiseDate IN FRAME F-Main
+   2 4 EXP-LABEL                                                        */   
 /* SETTINGS FOR FILL-IN job.est-no IN FRAME F-Main
    NO-ENABLE 2 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN job.job-no IN FRAME F-Main
@@ -514,6 +530,26 @@ DO:
     RUN valid-due-date NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END. */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btnCalendar-3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-3 V-table-Win
+ON CHOOSE OF btnCalendar-3 IN FRAME F-Main
+DO:
+  {methods/btnCalendar.i job.promiseDate}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME job.promiseDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job.promiseDate V-table-Win
+ON HELP OF job.promiseDate IN FRAME F-Main /* promise Date */
+DO:
+  {methods/calendar.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1118,7 +1154,8 @@ PROCEDURE local-copy-record :
   IF noDate THEN
   ASSIGN
     job.start-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ''
-    job.due-date:SCREEN-VALUE = ''.
+    job.due-date:SCREEN-VALUE = ''
+    job.promiseDate:SCREEN-VALUE = ''.
 
   FIND CURRENT job EXCLUSIVE-LOCK NO-ERROR.
   ASSIGN
@@ -1163,7 +1200,8 @@ PROCEDURE local-create-record :
   IF copyJob THEN
   ASSIGN
     job.start-date = DATE(job.start-date:SCREEN-VALUE IN FRAME {&FRAME-NAME})
-    job.due-date = DATE(job.due-date:SCREEN-VALUE).
+    job.due-date = DATE(job.due-date:SCREEN-VALUE)
+    job.promiseDate = DATE(job.promiseDate:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE ALL.
@@ -1262,6 +1300,7 @@ PROCEDURE local-delete-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
+   RUN displayMessage (INPUT "47").
   
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
@@ -1338,8 +1377,7 @@ PROCEDURE local-enable-fields :
 
     IF adm-new-record OR
        job.due-date LT job.start-date THEN
-    ENABLE btnCalcDueDate job.due-date btnCalendar-1 btnCalendar-2.
-
+    ENABLE btnCalcDueDate job.due-date btnCalendar-1 btnCalendar-2 btnCalendar-3.
     ELSE
     FOR EACH job-hdr
         WHERE job-hdr.company EQ job.company
@@ -1353,7 +1391,7 @@ PROCEDURE local-enable-fields :
     END.
 
     IF AVAILABLE job-hdr THEN
-    ENABLE btnCalcDueDate job.due-date btnCalendar-1 btnCalendar-2.
+    ENABLE btnCalcDueDate job.due-date btnCalendar-1 btnCalendar-2 btnCalendar-3.
     IF NOT copyjob THEN ENABLE job.orderType. /* Enable the Job Type  */
   END.
 
@@ -1595,11 +1633,6 @@ PROCEDURE local-update-record :
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl).     
     RUN reopen-query IN WIDGET-HANDLE(char-hdl) (jobHdrRowID).
   END.
-  /*ELSE
-  IF ll-sch-updated THEN DO:
-    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl).     
-    RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(job-hdr)).
-  END.*/
 
   /* gdm - 05290901 */
   IF ll-new AND NOT copyJob THEN DO:
@@ -1607,13 +1640,13 @@ PROCEDURE local-update-record :
         ROWID(job),
         DATE(job.start-date:SCREEN-VALUE IN FRAME {&FRAME-NAME})
         ).
-    IF CAN-FIND(FIRST bf-job-mch NO-LOCK
-                WHERE bf-job-mch.company EQ job.company
-                AND bf-job-mch.job     EQ job.job
-                AND bf-job-mch.job-no  EQ job.job-no
-                AND bf-job-mch.job-no2 EQ job.job-no2) AND
-       job.start-date NE ? 
-      THEN RUN update-job-mch.
+/*    IF CAN-FIND(FIRST bf-job-mch NO-LOCK                */
+/*                WHERE bf-job-mch.company EQ job.company */
+/*                  AND bf-job-mch.job     EQ job.job     */
+/*                  AND bf-job-mch.job-no  EQ job.job-no  */
+/*                  AND bf-job-mch.job-no2 EQ job.job-no2)*/
+/*                  AND job.start-date     NE ? THEN      */
+    RUN update-job-mch.
   END.
   /* gdm - 05290901 end */    
 
@@ -1635,8 +1668,8 @@ PROCEDURE local-update-record :
              WHERE job-hdr.company EQ job.company
                AND job-hdr.job     EQ job.job
                AND job-hdr.job-no  EQ job.job-no
-               AND job-hdr.job-no2 EQ job.job-no2 NO-ERROR.
-
+               AND job-hdr.job-no2 EQ job.job-no2
+             NO-ERROR.
      IF AVAILABLE job-hdr THEN
         v-reprint = job-hdr.ftick-prnt.
 
@@ -1773,16 +1806,17 @@ PROCEDURE pUpdateJobStartDate PRIVATE :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipriJob       AS ROWID NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdtStartDate AS DATE  NO-UNDO.
+    DEFINE INPUT PARAMETER iprJob        AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtStartDate AS DATE  NO-UNDO.
     
     DEFINE BUFFER bf-job FOR job.
     
     FIND FIRST bf-job EXCLUSIVE-LOCK
-         WHERE ROWID(bf-job) EQ ipriJob
+         WHERE ROWID(bf-job) EQ iprJob
          NO-ERROR.
     IF AVAILABLE bf-job AND bf-job.start-date EQ ? THEN
-        bf-job.start-date = ipdtStartDate.
+    bf-job.start-date = ipdtStartDate.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2176,7 +2210,7 @@ PROCEDURE update-job-mch :
       END. /* do trans */
     END.
     /* rstark 06241201 */
-    
+    ELSE    
     FOR EACH bf-job-mch EXCLUSIVE-LOCK
         WHERE bf-job-mch.company EQ job.company
           AND bf-job-mch.job     EQ job.job
@@ -2200,131 +2234,9 @@ PROCEDURE update-schedule :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-IF noDate THEN RETURN. /* rstark 06241201 */
-RUN jc/updateSchedule.p (INPUT job.start-date, INPUT ROWID(job)).
-
-/*                                                                                                                   */
-/*   DEF BUFFER bf-hdr FOR job-hdr.                                                                                  */
-/*   DEF BUFFER bf-mch FOR job-mch.                                                                                  */
-/*                                                                                                                   */
-/*   DEF VAR lv-start-date AS DATE NO-UNDO.                                                                          */
-/*   DEF VAR lv-m-time AS INT no-undo.                                                                               */
-/*   DEF VAR lv-run-time AS INT NO-UNDO.                                                                             */
-/*   DEF VAR lv-mr-time AS INT NO-UNDO.                                                                              */
-/*   DEF VAR lv-job-time  AS INT NO-UNDO.                                                                            */
-/*   DEF VAR lv-job2-time  AS INT NO-UNDO.  /* job time if job needs more than a day */                              */
-/*   DEF VAR lv-start-time AS INT NO-UNDO.                                                                           */
-/*   DEF VAR lv-got-st-time AS LOG NO-UNDO.                                                                          */
-/*   DEF VAR lv-prev-end-time AS INT NO-UNDO.                                                                        */
-/*   DEF VAR lv-day-time AS INT NO-UNDO.  /* mach.start-time - previous mach's end-time */                           */
-/*   DEF VAR lv-lap-time AS INT NO-UNDO.                                                                             */
-/*                                                                                                                   */
-/*   IF noDate THEN RETURN. /* rstark 06241201 */                                                                    */
-/*                                                                                                                   */
-/*   FOR EACH bf-hdr OF job:                                                                                         */
-/*       bf-hdr.start-date = job.start-date.                                                                         */
-/*   END.                                                                                                            */
-/*   ASSIGN                                                                                                          */
-/*     lv-start-date = job.start-date                                                                                */
-/*     lv-job-time = 0.                                                                                              */
-/*   FOR EACH bf-mch OF job /*WHERE NOT bf-mch.anchored */                                                           */
-/*       BY bf-mch.frm BY bf-mch.blank-no by bf-mch.pass BY bf-mch.m-code:                                           */
-/*                                                                                                                   */
-/*       FIND FIRST mach-calendar WHERE mach-calendar.company = job.company                                          */
-/*                         AND mach-calendar.m-code = bf-mch.m-code                                                  */
-/*                         AND mach-calendar.m-date = lv-start-date                                                  */
-/*                         NO-LOCK NO-ERROR.                                                                         */
-/*       lv-m-time = IF AVAIL mach-calendar THEN mach-calendar.end-time - mach-calendar.start-time                   */
-/*                   ELSE 28800. /* 8 HRs*/                                                                          */
-/*       IF lv-m-time LT 0 THEN lv-m-time = 28800.                                                                   */
-/*                                                                                                                   */
-/*       IF AVAIL mach-calendar AND NOT lv-got-st-time THEN                                                          */
-/*                       ASSIGN lv-start-time = mach-calendar.start-time                                             */
-/*                              lv-got-st-time = YES.                                                                */
-/*                                                                                                                   */
-/*       lv-mr-time = IF bf-mch.mr-hr = 0 THEN 0 ELSE                                                                */
-/*                   truncate(bf-mch.mr-hr,0) * 3600 +                                                               */
-/*                 ((bf-mch.mr-hr - truncate(bf-mch.mr-hr,0)) * 100 * 60 / 100) * 60.                                */
-/*       lv-run-time = IF bf-mch.run-hr = 0 THEN 0 ELSE                                                              */
-/*                   truncate(bf-mch.run-hr,0) * 3600 +                                                              */
-/*                 ((bf-mch.run-hr - truncate(bf-mch.run-hr,0)) * 100 * 60 / 100) * 60.                              */
-/*                                                                                                                   */
-/*       ASSIGN bf-mch.seq-no = 0                                                                                    */
-/*              bf-mch.start-time-su = lv-start-time + lv-job-time + lv-day-time.                                    */
-/*              bf-mch.start-date-su = lv-start-date               .                                                 */
-/*                                                                                                                   */
-/*       lv-job-time = lv-job-time + lv-mr-time + lv-run-time.                                                       */
-/*                                                                                                                   */
-/*       lv-start-date = lv-start-date +                                                                             */
-/*                       IF lv-mr-time > lv-m-time THEN TRUNCATE(lv-mr-time / lv-m-time,0)                           */
-/*                       ELSE 0.                                                                                     */
-/*                                                                                                                   */
-/*       IF lv-mr-time > lv-m-time THEN DO:                                                                          */
-/*          lv-job2-time = lv-mr-time - lv-m-time.                                                                   */
-/*          lv-lap-time = bf-mch.start-time-su - lv-start-time.                                                      */
-/*          FIND FIRST mach-calendar WHERE mach-calendar.company = job.company                                       */
-/*                         AND mach-calendar.m-code = bf-mch.m-code                                                  */
-/*                         AND mach-calendar.m-date = lv-start-date                                                  */
-/*                         NO-LOCK NO-ERROR.                                                                         */
-/*          lv-m-time = IF AVAIL mach-calendar THEN mach-calendar.end-time - mach-calendar.start-time                */
-/*                      ELSE 28800. /* 8 HRs*/.                                                                      */
-/*          IF lv-m-time LT 0 THEN lv-m-time = 28800.                                                                */
-/*          lv-start-time = IF AVAIL mach-calendar THEN mach-calendar.start-time ELSE 0.                             */
-/*          ASSIGN bf-mch.end-time-su = lv-start-time + lv-job2-time + lv-lap-time                                   */
-/*                 bf-mch.start-time = lv-start-time + lv-job2-time + lv-lap-time                                    */
-/*                 bf-mch.end-date-su = lv-start-date                                                                */
-/*                 bf-mch.start-date = lv-start-date                                                                 */
-/*                 lv-day-time = lv-start-time - lv-prev-end-time + 86400 .                                          */
-/*       END.                                                                                                        */
-/*       ELSE ASSIGN bf-mch.end-time-su = lv-start-time + lv-job-time - lv-run-time + lv-day-time                    */
-/*                   bf-mch.start-time = lv-start-time + lv-job-time - lv-run-time + lv-day-time                     */
-/*                   bf-mch.end-date-su = lv-start-date                                                              */
-/*                   bf-mch.start-date = lv-start-date                                                               */
-/*                   lv-lap-time = 0.                                                                                */
-/*                                                                                                                   */
-/*       lv-start-date = lv-start-date +                                                                             */
-/*                       IF (lv-run-time ) > lv-m-time THEN TRUNCATE((lv-run-time) / lv-m-time,0)                    */
-/*                       ELSE 0.                                                                                     */
-/*                                                                                                                   */
-/*       IF (lv-run-time) > lv-m-time THEN DO:                                                                       */
-/*          lv-job2-time = lv-mr-time + lv-run-time - lv-m-time.                                                     */
-/*          lv-lap-time = bf-mch.start-time - lv-start-time.                                                         */
-/*          FIND FIRST mach-calendar WHERE mach-calendar.company = job.company                                       */
-/*                         AND mach-calendar.m-code = bf-mch.m-code                                                  */
-/*                         AND mach-calendar.m-date = lv-start-date                                                  */
-/*                         NO-LOCK NO-ERROR.                                                                         */
-/*          lv-m-time = IF AVAIL mach-calendar THEN mach-calendar.end-time - mach-calendar.start-time                */
-/*                      ELSE 28800. /* 8 HRs*/.                                                                      */
-/*          IF lv-m-time LT 0 THEN lv-m-time = 28800.                                                                */
-/*          lv-start-time = IF AVAIL mach-calendar THEN mach-calendar.start-time ELSE 0.                             */
-/*          ASSIGN bf-mch.end-time = lv-start-time + lv-job2-time + lv-lap-time                                      */
-/*                 bf-mch.end-date = lv-start-date                                                                   */
-/*                 lv-day-time = lv-day-time + lv-start-time - lv-prev-end-time + 86400 .                            */
-/*       END.                                                                                                        */
-/*       ELSE ASSIGN bf-mch.end-time = /*lv-start-time + lv-job-time */                                              */
-/*                                     bf-mch.start-time + lv-run-time                                               */
-/*                   bf-mch.end-date = lv-start-date                                                                 */
-/*                   lv-lap-time = 0.                                                                                */
-/*                                                                                                                   */
-/*       lv-prev-end-time = IF AVAIL mach-calendar THEN mach-calendar.end-time ELSE 86400. /* 24 HRs*/               */
-/*                                                                                                                   */
-/*       IF string(bf-mch.end-time,"hh:mm:ss") > string(lv-prev-end-time,"hh:mm:ss") THEN DO:                        */
-/*                         lv-start-date = lv-start-date + 1.                                                        */
-/*                         lv-lap-time = bf-mch.end-time - lv-prev-end-time.                                         */
-/*                         FIND FIRST mach-calendar WHERE mach-calendar.company = job.company                        */
-/*                                    AND mach-calendar.m-code = bf-mch.m-code                                       */
-/*                                    AND mach-calendar.m-date = lv-start-date                                       */
-/*                                    NO-LOCK NO-ERROR.                                                              */
-/*                         lv-m-time = IF AVAIL mach-calendar THEN mach-calendar.end-time - mach-calendar.start-time */
-/*                                 ELSE 28800. /* 8 HRs*/.                                                           */
-/*                         IF lv-m-time LT 0 THEN lv-m-time = 28800.                                                 */
-/*                         lv-start-time = IF AVAIL mach-calendar THEN mach-calendar.start-time ELSE 0.              */
-/*                         ASSIGN bf-mch.end-time = lv-start-time + lv-lap-time                                      */
-/*                                bf-mch.end-date = lv-start-date                                                    */
-/*                                lv-day-time = lv-day-time + lv-start-time - lv-prev-end-time + 86400.              */
-/*      END.                                                                                                         */
-/*   END.                                                                                                            */
-  ll-sch-updated = YES.
+    IF noDate THEN RETURN. /* rstark 06241201 */
+    RUN jc/updateSchedule.p (INPUT job.start-date, INPUT ROWID(job)).
+    ll-sch-updated = YES.
 
 END PROCEDURE.
 
@@ -2737,8 +2649,10 @@ PROCEDURE validate-est :
             job.start-date
             btnCalcDueDate
             job.due-date
+            job.promisedate
             btnCalendar-1
             btnCalendar-2
+            btnCalendar-3
             job.ordertype
             .
         IF job.job-no2:SCREEN-VALUE GT "0" THEN 

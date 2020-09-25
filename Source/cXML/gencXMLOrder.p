@@ -704,6 +704,14 @@ PROCEDURE genOrderLinesLocal:
       IF oe-ordl.req-date EQ ? THEN 
         oe-ordl.req-date = oe-ord.ord-date + 10.
 
+      oe-ordl.promiseDate = oe-ordl.req-date.
+      
+      IF oe-ord.promiseDate EQ ? THEN DO:
+          FIND CURRENT oe-ord EXCLUSIVE-LOCK NO-ERROR.
+          IF AVAILABLE oe-ord THEN
+              oe-ord.promiseDate = oe-ordl.promiseDate.
+      END.
+        
       RUN CreateRelease (
           INPUT ipcShipToID,
           INPUT ""

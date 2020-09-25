@@ -712,9 +712,12 @@ PROCEDURE pPrepareInputsCXMLMonitor PRIVATE:
         ttOrder.sharedSecret    = cSenderSharedSecret
         ttOrder.userAgent       = cSenderUserAgent
         ttOrder.poID            = cOrderID
-        ttOrder.orderDate       = DATE(INTEGER(SUBSTRING(cOrderDate, 6, 2)), 
-                                       INTEGER(SUBSTRING(cOrderDate, 9, 2)), 
-                                       INTEGER(SUBSTRING(cOrderDate, 1, 4)))
+        ttOrder.orderDate       = IF cOrderDate NE "" THEN
+                                      DATE(INTEGER(SUBSTRING(cOrderDate, 6, 2)), 
+                                           INTEGER(SUBSTRING(cOrderDate, 9, 2)), 
+                                           INTEGER(SUBSTRING(cOrderDate, 1, 4)))
+                                  ELSE
+                                      ?
         ttOrder.totalCost       = DECIMAL(cOrderTotalCost)
         ttOrder.shipToID        = cShipToAddressID
         ttOrder.shipToName      = cShipToName
@@ -738,9 +741,12 @@ PROCEDURE pPrepareInputsCXMLMonitor PRIVATE:
         ttOrder.billToEmail     = cBillToEmail
         ttOrder.freightCost     = DECIMAL(cShippingCost)
         ttOrder.cardNo          = cCardNo
-        ttOrder.cardExpiryDate  = DATE(INTEGER(SUBSTRING(cCardExpiryDate, 6, 2)), 
-                                       INTEGER(SUBSTRING(cCardExpiryDate, 9, 2)), 
-                                       INTEGER(SUBSTRING(cCardExpiryDate, 1, 4)))
+        ttOrder.cardExpiryDate  = IF cCardExpiryDate NE "" THEN
+                                      DATE(INTEGER(SUBSTRING(cCardExpiryDate, 6, 2)), 
+                                           INTEGER(SUBSTRING(cCardExpiryDate, 9, 2)), 
+                                           INTEGER(SUBSTRING(cCardExpiryDate, 1, 4)))
+                                  ELSE
+                                      ?
         ttOrder.cardType        = IF cCardNo BEGINS '3' THEN 
                                       'AMEX'
                                   ELSE IF cCardNo BEGINS '4' THEN 
@@ -894,9 +900,13 @@ PROCEDURE pPrepareInputsCXMLMonitor PRIVATE:
             ttOrderLine.unitPrice               = DECIMAL(cItemUnitPrice) 
             ttOrderLine.itemName                = cItemDescription
             ttOrderLine.uom                     = cItemUOM
-            ttOrderLine.dueDate                 = DATE(INTEGER(SUBSTRING(cLineDueDate, 6, 2)), 
-                                                        INTEGER(SUBSTRING(cLineDueDate, 9, 2)), 
-                                                        INTEGER(SUBSTRING(cLineDueDate, 1, 4)))
+            ttOrderLine.dueDate                 = IF cLineDueDate NE "" THEN
+                                                      DATE(INTEGER(SUBSTRING(cLineDueDate, 6, 2)), 
+                                                           INTEGER(SUBSTRING(cLineDueDate, 9, 2)), 
+                                                           INTEGER(SUBSTRING(cLineDueDate, 1, 4)))
+                                                  ELSE
+                                                      ?
+            ttOrderLine.promiseDate             = ttOrderLine.dueDate
             ttOrderLine.lineCost                = DECIMAL(cLineTotalCost)
             ttOrderLine.action                  = cOrderActionCreate
             NO-ERROR.
@@ -906,7 +916,10 @@ PROCEDURE pPrepareInputsCXMLMonitor PRIVATE:
                 opcMessage = ERROR-STATUS:GET-MESSAGE(1)
                 .
             RETURN.    
-        END.            
+        END.
+        
+        IF ttOrder.promiseDate EQ ? THEN
+            ttOrder.promiseDate = ttOrderLine.promiseDate.                        
     END.
     
     ASSIGN

@@ -19,6 +19,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+USING system.SharedConfig.
 
 CREATE WIDGET-POOL.
 
@@ -107,6 +108,8 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE clvtext AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lUpdateReleaseItem AS LOGICAL NO-UNDO.
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
+DEFINE VARIABLE hdOrderProcs AS HANDLE NO-UNDO.
 
 RUN sys/ref/s-codes.p (OUTPUT lv-s-codes, OUTPUT lv-s-dscrs).
 
@@ -148,6 +151,8 @@ DEFINE VARIABLE lv-sort-by AS CHAR INIT "tag" NO-UNDO.
 DEFINE VARIABLE lv-sort-by-lab AS CHAR INIT "Tag" NO-UNDO.
 DEFINE VARIABLE ll-sort-asc AS LOG NO-UNDO.
 DEFINE VARIABLE cAbbrStatus AS CHARACTER NO-UNDO .
+
+RUN oe/OrderProcs.p PERSISTENT SET hdOrderProcs.
 
 RUN methods/prgsecur.p
     (INPUT "OEDateChg",
@@ -1697,6 +1702,8 @@ ASSIGN
 lv-save-recid = RECID(oe-rel)
 v-first = YES.
 
+scInstance = SharedConfig:instance.
+scinstance:DeleteValue(INPUT "RNoOERelh"). /* Delete stale data, if any */
 SESSION:SET-WAIT-STATE("general").
 
      
@@ -1779,8 +1786,8 @@ SESSION:SET-WAIT-STATE("general").
             RUN oe/relbol.p (RECID(xoe-ordl)).
             v-auto = NO.               
         END.
-
         RUN oe/do-bol.p(INPUT NOT v-invoice).
+        RUN Order_CallCreateReleaseTrigger IN hdOrderProcs.
         FIND oe-rell WHERE RECID(oe-rell) EQ out-recid NO-LOCK NO-ERROR.
         IF AVAIL oe-rell AND oe-rell.link-no NE 0 THEN
         FIND oe-rel WHERE oe-rel.r-no EQ oe-rell.link-no NO-LOCK NO-ERROR.                    
@@ -3982,8 +3989,11 @@ end.
       END.                         
   END.     
   RUN oe/CheckAckPrint.p(INPUT ROWID(oe-ord)).
+  scInstance = SharedConfig:instance.
+  scInstance:DeleteValue(INPUT "RNoOERelh").
   RUN oe/actrel.p (RECID(oe-rel), INPUT-OUTPUT iocPrompt).
-
+  IF lActiveScope AND lValidLocation THEN 
+      RUN Order_CallCreateReleaseTrigger IN hdOrderProcs. 
   RUN send-email-proc.
 
   RUN release-shared-buffers.

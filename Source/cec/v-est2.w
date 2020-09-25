@@ -3718,7 +3718,19 @@ PROCEDURE local-display-fields :
       ef.trim-l:SENSITIVE  = NO       
       eb.t-wid:LABEL       = "Part Size"
       ef.test:HIDDEN       = YES
-      ef.test:SENSITIVE    = NO.      
+      ef.test:SENSITIVE    = NO.
+    ELSE
+     ASSIGN  
+      ef.board:LABEL      = "Board"
+      ef.flute:LABEL      = "Flute"
+      ef.gsh-wid:LABEL    = "Gross Sheet" 
+      ef.nsh-wid:LABEL    = "Net Sheet"
+      ef.trim-w:HIDDEN     = NO        
+      ef.trim-l:HIDDEN     = NO             
+      eb.t-wid:LABEL       = "Blank"
+      ef.test:HIDDEN       = NO
+      .
+    
 
   btn_board:LABEL = " " + TRIM(ef.board:LABEL) + ": " /*+ TRIM(ef.board) */ .
   END.

@@ -46,7 +46,7 @@ DEFINE {1} SHARED TEMP-TABLE w-po NO-UNDO
   FIELD vend-no LIKE po-ord.vend-no
   FIELD zip LIKE po-ord.zip
   FIELD actnum LIKE po-ordl.actnum
-  FIELD adders$ LIKE po-ordl.adders$
+  FIELD adders LIKE po-ordl.adders
   FIELD b-num LIKE po-ordl.b-num
   FIELD cons-cost LIKE po-ordl.cons-cost
   FIELD cons-qty LIKE po-ordl.cons-qty

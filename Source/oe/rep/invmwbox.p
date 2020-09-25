@@ -109,6 +109,9 @@ DEF VAR v-comp-add1 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add2 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add3 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE lError        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iCaseQty      AS INTEGER   NO-UNDO.
     
     find first company where company.company = cocode no-lock no-error.
 /*    ASSIGN v-comp-add1 = company.addr[1]
@@ -400,7 +403,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
               assign v-bo-qty = if ( inv-line.qty - inv-line.ship-qty ) < 0
                                   then 0 else inv-line.qty - inv-line.ship-qty.
 
-            assign v-inv-qty = inv-line.qty
+            assign v-inv-qty = inv-line.inv-qty
                    v-ship-qty = inv-line.ship-qty
                    v-i-no = inv-line.i-no
                    v-i-dscr = inv-line.i-name
@@ -435,24 +438,25 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
             ASSIGN v-po-no  = inv-line.po-no
                    v-ord-no = inv-line.ord-no
                    v-price-head = inv-line.pr-uom.
-
+                   
+            IF inv-line.pr-uom EQ "CS" THEN       
+            RUN Conv_QuantityFromUOMtoUOM(inv-line.company, inv-line.i-no, "FG", 
+                    v-inv-qty, "EA", "CS",  
+                    0, 0, 0, 0, inv-line.cas-cnt, 
+                    OUTPUT iCaseQty, OUTPUT lError, OUTPUT cErrorMessage).       
+                
             PUT space(1)
-                v-po-no 
-                /*v-i-dscr  format "x(25)" SPACE(1)
-                v-inv-qty format "->>>>>9" SPACE(1) */ 
+                v-po-no                  
                 inv-line.part-no SPACE(17)
-                v-ship-qty  format "->>>>>9" SPACE(1)
-              /*  v-bo-qty  format "->>>>>9" SPACE(1)
-                v-i-no  format "x(15)" SPACE(1) */ space(15)      
+                (IF inv-line.pr-uom EQ "CS" THEN iCaseQty ELSE v-inv-qty)  format "->>>>>9" SPACE(1)
+                space(15)      
                 v-price  format ">>>,>>9.9999"                
                 inv-line.t-price  format "->>>,>>9.99"                
                 SKIP
-                v-ord-no SPACE(10)
-                /*inv-line.part-dscr1 space(19) */
+                v-ord-no SPACE(10)                  
                 inv-line.i-no SPACE(34)
                 v-pc  SPACE(8)
-                v-price-head SPACE(1) SKIP
-             /*   space(16) inv-line.part-dscr2  */
+                v-price-head SPACE(1) SKIP                
                 .
              v-printline = v-printline + 2.
              

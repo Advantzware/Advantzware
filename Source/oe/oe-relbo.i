@@ -280,6 +280,7 @@ DO bo-try = 1 TO 2:
       RUN CopyShipNote IN hNotesProcs (oe-bolh.rec_key, xoe-relh.rec_key).
       
       RUN oe/release#.p (cocode, OUTPUT xoe-relh.release#).
+      scInstance:setValueAppend("RNoOERelh", STRING(xoe-relh.r-no)).
     END.
     
     IF bo-try EQ 1 THEN

@@ -2154,10 +2154,19 @@ PROCEDURE local-enable-fields :
 
 /*   oe-boll.weight:READ-ONLY IN BROWSE {&browse-name} = NO. */
   /* Code placed here will execute PRIOR to standard behavior. */
+<<<<<<< HEAD
   /*IF AVAIL oe-bolh AND oe-bolh.posted THEN DO:
      MESSAGE "BOL has been posted, update not allowed..." VIEW-AS ALERT-BOX ERROR.
      RETURN ERROR.
   END.*/
+=======
+  IF AVAIL oe-bolh AND oe-bolh.posted THEN DO:
+     MESSAGE "BOL has been posted, update not allowed..." VIEW-AS ALERT-BOX INFO.
+     RETURN NO-APPLY.
+  END.
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
+  RUN make-buttons-insensitive IN WIDGET-HANDLE(char-hdl).
+>>>>>>> release/Advantzware_20.02.05
 
   DO li-cnt = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME}:
     APPLY "cursor-left" TO {&BROWSE-NAME} IN FRAME {&FRAME-NAME}.

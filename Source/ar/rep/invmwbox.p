@@ -115,6 +115,9 @@ DEF VAR v-comp-add1 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add2 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add3 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
+DEFINE VARIABLE lError        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iCaseQty      AS INTEGER   NO-UNDO.
     
     find first company where company.company = cocode no-lock no-error.
 /*    ASSIGN v-comp-add1 = company.addr[1]
@@ -496,25 +499,26 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
             IF v-i-dscr2 = "" THEN v-i-dscr2 = ar-invl.i-dscr.
             IF v-i-dscr = "" THEN v-i-dscr = ar-invl.i-name.
             IF v-ord-no = 0 AND v-ship-qty = 0 THEN v-ship-qty = v-inv-qty.
+            
+            IF ar-invl.pr-uom EQ "CS" THEN
+            RUN Conv_QuantityFromUOMtoUOM(ar-invl.company, ar-invl.i-no, "FG", 
+                    v-inv-qty, "EA", "CS",  
+                    0, 0, 0, 0, ar-invl.cas-cnt, 
+                    OUTPUT iCaseQty, OUTPUT lError, OUTPUT cErrorMessage).
 
             PUT space(1)
                 v-po-no 
-                v-i-dscr  format "x(25)" SPACE(1)
-               /* v-inv-qty format "->>>>>9" SPACE(1) */
+                v-i-dscr  format "x(25)" SPACE(1)               
                 SPACE(8)
-                v-ship-qty  format "->>>>>>" SPACE(1)
-              /*  v-bo-qty  format "->>>>>9" SPACE(1)
-                v-i-no  format "x(15)" SPACE(1) */ space(13)                               
+                (IF ar-invl.pr-uom EQ "CS" THEN iCaseQty ELSE v-inv-qty)  format "->>>>>>" SPACE(1)
+                space(13)                               
                 v-price  format ">>>,>>9.9999" 
                 ar-invl.amt  format "->>>,>>9.99"                
                 SKIP
                 v-ord-no FORM ">>>>>>" SPACE(10)
-                v-i-dscr2 space(19) 
-                /*ar-invl.i-no SPACE(34)*/
+                v-i-dscr2 space(19)                  
                 v-pc  SPACE(8)
-                v-price-head SPACE(1) SKIP
-               /* space(16) ar-invl.part-dscr2  */
-                
+                v-price-head SPACE(1) SKIP                   
                 .
              v-printline = v-printline + 2.
              

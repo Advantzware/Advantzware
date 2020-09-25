@@ -61,15 +61,16 @@ assign
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-7 begin_cust-no end_cust-no begin_Inv ~
-end_inv end_date begin_date btn-ok btn-cancel 
+end_inv end_date begin_date tgUpdateTax btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_Inv ~
-end_inv end_date begin_date 
+end_inv end_date begin_date tgUpdateTax cProcessStatus 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -113,11 +114,20 @@ DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999"
 DEFINE VARIABLE end_inv AS INTEGER FORMAT ">>>>>>>>>" INITIAL 999999999
      LABEL "To Invoice#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 17 BY 1.      
+
+DEFINE VARIABLE cProcessStatus AS CHARACTER FORMAT "X(200)"       
+     VIEW-AS FILL-IN 
+     SIZE 56 BY 1.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 101 BY 8.76.
+
+DEFINE VARIABLE tgUpdateTax AS LOGICAL INITIAL no 
+     LABEL "Update Tax" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -135,8 +145,10 @@ DEFINE FRAME Dialog-Frame
           "Enter Beginning Date Number" WIDGET-ID 112
      end_date AT ROW 6.05 COL 71 COLON-ALIGNED HELP
           "Enter Beginning Date Number" WIDGET-ID 114     
+     tgUpdateTax AT ROW 7.67 COL 30 WIDGET-ID 116
      btn-ok AT ROW 10.57 COL 30.2 WIDGET-ID 14
      btn-cancel AT ROW 10.57 COL 60.4 WIDGET-ID 12
+     cProcessStatus AT ROW 11.87 COL 10.2 NO-LABEL WIDGET-ID 18
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 36
           BGCOLOR 2 
@@ -299,6 +311,8 @@ DO:
   END.
         
   run run-process.
+  
+  cProcessStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
 
  END.
 
@@ -361,7 +375,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    {methods/nowait.i}
    DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
- 
+    cProcessStatus = "" .
+    cProcessStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
     APPLY "entry" TO begin_cust-no.
   END.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -404,9 +419,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust-no end_cust-no begin_Inv end_inv end_date begin_date 
+          tgUpdateTax cProcessStatus 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-7 begin_cust-no end_cust-no begin_Inv end_inv end_date begin_date 
-         btn-ok btn-cancel 
+         tgUpdateTax btn-ok btn-cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -429,6 +445,8 @@ PROCEDURE run-process :
     DEFINE VARIABLE iCountPost AS INTEGER NO-UNDO.
     DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+        
+    cProcessStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Invoice Processing ...".
     
     RUN oe/PostInvoices.p PERSISTENT SET hPostInvoices.
          
@@ -440,6 +458,7 @@ PROCEDURE run-process :
                                         begin_cust-no,
                                         end_cust-no,
                                         date(TODAY),
+                                        INPUT tgUpdateTax:CHECKED, /* Update Tax */
                                         OUTPUT iCountProcess,
                                         OUTPUT iCountValid,
                                         OUTPUT iCountPost,
@@ -451,7 +470,7 @@ PROCEDURE run-process :
     DELETE OBJECT hPostInvoices.    
     
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-
+    cProcessStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
 SESSION:SET-WAIT-STATE ("").
 
 END PROCEDURE.

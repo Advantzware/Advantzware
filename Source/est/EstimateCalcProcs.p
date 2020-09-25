@@ -45,6 +45,7 @@ DEFINE VARIABLE gcTypeSingle                          AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcTypeSet                             AS CHARACTER NO-UNDO INITIAL "Set".
 DEFINE VARIABLE gcTypeCombo                           AS CHARACTER NO-UNDO INITIAL "Combo/Tandem".
 DEFINE VARIABLE gcTypeMisc                            AS CHARACTER NO-UNDO INITIAL "Miscellaneous".
+DEFINE VARIABLE gcTypeWood                            AS CHARACTER NO-UNDO INITIAL "Wood".
 DEFINE VARIABLE gcTypeList                            AS CHARACTER NO-UNDO. 
 
 DEFINE VARIABLE gcErrorWarning                        AS CHARACTER NO-UNDO INITIAL "Warning".
@@ -106,6 +107,9 @@ FUNCTION IsSetType RETURNS LOGICAL
 
 FUNCTION IsSingleType RETURNS LOGICAL 
     (ipcEstType AS CHARACTER) FORWARD.
+
+FUNCTION IsWoodType RETURNS LOGICAL 
+	(ipcEstType AS CHARACTER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
 ASSIGN 
@@ -445,7 +449,7 @@ PROCEDURE pAddEstBlank PRIVATE:
         opbf-estCostBlank.weightPerBlank          = ipbf-estCostForm.basisWeight * opbf-estCostBlank.blankAreaNetWindow / 144000 
         
         opbf-estCostBlank.quantityRequired        = IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.bl-qty ELSE ipbf-estCostHeader.quantityMaster
-        opbf-estCostBlank.quantityYielded         = ipbf-eb.yld-qty
+        opbf-estCostBlank.quantityYielded         = IF ipbf-estCostHeader.estType EQ gcTypeCombo THEN ipbf-eb.yld-qty ELSE ipbf-estCostHeader.quantityMaster
         opbf-estCostBlank.priceBasedOnYield       = ipbf-eb.yrprice AND ipbf-estCostHeader.estType EQ gcTypeCombo
         .
         
@@ -1971,6 +1975,8 @@ PROCEDURE pCalculateHeader PRIVATE:
     
     DEFINE VARIABLE iNumOutBlanksOnForm AS INTEGER NO-UNDO.
     DEFINE VARIABLE dQtyOnForm          AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyOnFormRequired  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dQtyOnFormYielded   AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyMaster          AS DECIMAL NO-UNDO.
     
     EMPTY TEMP-TABLE ttEstError.
@@ -2000,6 +2006,8 @@ PROCEDURE pCalculateHeader PRIVATE:
             ASSIGN 
                 iNumOutBlanksOnForm = 0
                 dQtyOnForm          = 0
+                dQtyOnFormRequired  = 0
+                dQtyOnFormYielded   = 0
                 .
             
             FOR EACH eb NO-LOCK 
@@ -2010,6 +2018,8 @@ PROCEDURE pCalculateHeader PRIVATE:
                     iNumOutBlanksOnForm = iNumOutBlanksOnForm + bf-estCostBlank.numOut
                     dQtyOnForm          = dQtyOnForm + 
                                         (IF bf-estCostBlank.priceBasedOnYield THEN bf-estCostBlank.quantityYielded ELSE bf-estCostBlank.quantityRequired)
+                    dQtyOnFormRequired  = dQtyOnFormRequired + bf-estCostBlank.quantityRequired
+                    dQtyOnFormYielded   = dQtyOnFormYielded + bf-estCostBlank.quantityYielded
                     .
                 RUN pBuildInksForEb(BUFFER bf-estCostHeader, BUFFER bf-estCostBlank, BUFFER eb).
                 RUN pAddGlue(BUFFER bf-estCostHeader, BUFFER bf-estCostBlank, BUFFER eb).
@@ -2018,10 +2028,12 @@ PROCEDURE pCalculateHeader PRIVATE:
             END. /*Each eb of ef*/
             
             ASSIGN 
-                bf-estCostForm.numOut                  = iNumOutBlanksOnForm * bf-estCostForm.numOutNet
-                bf-estCostForm.quantityFGOnForm        = dQtyOnForm
-                dQtyMaster                             = dQtyMaster + dQtyOnForm
-                bf-estCostForm.grossQtyRequiredNoWaste = fRoundUp(bf-estCostForm.quantityFGOnForm / bf-estCostForm.numOut)
+                bf-estCostForm.numOut                   = iNumOutBlanksOnForm * bf-estCostForm.numOutNet
+                bf-estCostForm.quantityFGOnFormRequired = dQtyOnFormRequired
+                bf-estCostForm.quantityFGOnFormYielded  = dQtyOnFormYielded
+                bf-estCostForm.quantityFGOnForm         = dQtyOnForm
+                dQtyMaster                              = dQtyMaster + dQtyOnForm
+                bf-estCostForm.grossQtyRequiredNoWaste  = fRoundUp(bf-estCostForm.quantityFGOnForm / bf-estCostForm.numOut)
                 .
             
             RUN pCalcBlankPct(BUFFER bf-estCostForm).                
@@ -3048,7 +3060,7 @@ PROCEDURE pProcessOperations PRIVATE:
                     dQtyInOutRunWaste   = dQtyInOutRunWaste * bf-estCostOperation.numOutForOperation.
             END.
             IF dQtyInOut EQ 0 THEN 
-                dQtyInOut = ipbf-estCostForm.quantityFGOnForm.
+                dQtyInOut = ipbf-estCostForm.quantityFGOnFormYielded.
             RUN pProcessOperation(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER bf-estCostOperation, INPUT-OUTPUT dQtyInOut, 
                 INPUT-OUTPUT dQtyInOutSetupWaste, INPUT-OUTPUT dQtyInOutRunWaste).
                 
@@ -3327,6 +3339,7 @@ PROCEDURE pCalcEstOperation PRIVATE:
     DEFINE VARIABLE dCostMinimumDiffSetup AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dCostMinimumDiffRun AS DECIMAL NO-UNDO.
     
+        
     IF ipbf-estCostOperation.speed NE 0 THEN
         IF ipbf-estCostOperation.isSpeedInLF THEN
             ipbf-estCostOperation.hoursRun = ipbf-estCostOperation.quantityInAfterSetupWasteLF / ipbf-estCostOperation.speed. 
@@ -3335,6 +3348,9 @@ PROCEDURE pCalcEstOperation PRIVATE:
     ELSE 
         ipbf-estCostOperation.hoursRun = 0.
     
+    IF ipbf-estCostOperation.numOutDivisor GT 0 THEN
+        ipbf-estCostOperation.hoursRun = ipbf-estCostOperation.hoursRun / ipbf-estCostOperation.numOutDivisor.
+        
     IF ipbf-estCostOperation.hoursRun LT ipbf-estCostOperation.hoursRunMinimum THEN 
         ipbf-estCostOperation.hoursRun = ipbf-estCostOperation.hoursRunMinimum.
     
@@ -3594,8 +3610,13 @@ PROCEDURE pBuildHeader PRIVATE:
         ipbf-estCostHeader.directMaterialPct           = gdMaterialMarkup / 100           
         ipbf-estCostHeader.weightUOM                   = gcDefaultWeightUOM     
         .
-    IF bf-est.estimateTypeID EQ "Misc" THEN 
-        ipbf-estCostHeader.estType = gcTypeMisc.
+    CASE bf-est.estimateTypeID:
+        WHEN "Misc" THEN 
+            ipbf-estCostHeader.estType = gcTypeMisc.
+        WHEN "Wood" THEN
+            ipbf-estCostHeader.estType = gcTypeWood.
+    END CASE.
+    
 END PROCEDURE.
 
 PROCEDURE pProcessInk PRIVATE:
@@ -4677,5 +4698,15 @@ FUNCTION IsSingleType RETURNS LOGICAL
     ------------------------------------------------------------------------------*/	
     RETURN ipcEstType EQ gcTypeSingle.
 	
+END FUNCTION.
+
+FUNCTION IsWoodType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the constant value for Single Estimate Type
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN ipcEstType EQ gcTypeWood.
+    
 END FUNCTION.
 

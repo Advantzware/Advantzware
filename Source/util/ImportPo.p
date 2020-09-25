@@ -316,8 +316,8 @@ PROCEDURE pProcessRecord PRIVATE:
     IF ipbf-ttImportPo.item-type EQ "RM" THEN
     DO:
         FIND FIRST ITEM NO-LOCK
-             WHERE ITEM.company EQ po-ordl.company
-             AND ITEM.i-no EQ po-ordl.i-no NO-ERROR.
+             WHERE ITEM.company EQ bf-po-ordl.company
+             AND ITEM.i-no EQ bf-po-ordl.i-no NO-ERROR.
         IF avail ITEM THEN
         ASSIGN
           bf-po-ordl.i-name  =  item.i-name
@@ -327,8 +327,8 @@ PROCEDURE pProcessRecord PRIVATE:
     ELSE IF ipbf-ttImportPo.item-type EQ "FG" THEN
     DO:
         FIND FIRST itemfg NO-LOCK
-             WHERE itemfg.company EQ po-ordl.company
-             AND itemfg.i-no EQ po-ordl.i-no NO-ERROR .
+             WHERE itemfg.company EQ bf-po-ordl.company
+             AND itemfg.i-no EQ bf-po-ordl.i-no NO-ERROR .
         IF avail itemfg THEN
         ASSIGN
           bf-po-ordl.i-name  =  itemfg.i-name

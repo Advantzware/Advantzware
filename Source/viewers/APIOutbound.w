@@ -93,15 +93,16 @@ DELETE PROCEDURE hdPgmMstrSecur.
 DEFINE QUERY external_tables FOR APIOutbound.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS APIOutbound.saveFileFolder ~
-APIOutbound.saveFile APIOutbound.userName APIOutbound.password ~
-APIOutbound.requestHandler APIOutbound.responseHandler 
+APIOutbound.saveFile APIOutbound.hostSSHKey APIOutbound.userName ~
+APIOutbound.password APIOutbound.requestHandler APIOutbound.responseHandler 
 &Scoped-define ENABLED-TABLES APIOutbound
 &Scoped-define FIRST-ENABLED-TABLE APIOutbound
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 RECT-4 edDescription ~
 edEndPoint edRequestData 
 &Scoped-Define DISPLAYED-FIELDS APIOutbound.apiID APIOutbound.clientID ~
-APIOutbound.saveFileFolder APIOutbound.saveFile APIOutbound.userName ~
-APIOutbound.password APIOutbound.requestHandler APIOutbound.responseHandler 
+APIOutbound.saveFileFolder APIOutbound.saveFile APIOutbound.hostSSHKey ~
+APIOutbound.userName APIOutbound.password APIOutbound.requestHandler ~
+APIOutbound.responseHandler 
 &Scoped-define DISPLAYED-TABLES APIOutbound
 &Scoped-define FIRST-DISPLAYED-TABLE APIOutbound
 &Scoped-Define DISPLAYED-OBJECTS fiAPIType tgInactive edDescription ~
@@ -198,7 +199,7 @@ DEFINE VARIABLE fiInactive AS CHARACTER FORMAT "X(256)":U INITIAL "Inactive"
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 154.6 BY 8.05.
+     SIZE 154.6 BY 9.48.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -214,7 +215,7 @@ DEFINE RECTANGLE RECT-4
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 157 BY 18.57.
+     SIZE 157 BY 19.76.
 
 DEFINE VARIABLE tgInactive AS LOGICAL INITIAL no 
      LABEL "" 
@@ -258,39 +259,43 @@ DEFINE FRAME F-Main
      cbRequestVerb AT ROW 9.24 COL 64.4 COLON-ALIGNED WIDGET-ID 42
      cbRequestDataType AT ROW 9.24 COL 111.2 COLON-ALIGNED WIDGET-ID 40
      tgSSLEnabled AT ROW 9.33 COL 138.8 WIDGET-ID 38
-     APIOutbound.userName AT ROW 11.24 COL 21 COLON-ALIGNED WIDGET-ID 24
+     APIOutbound.hostSSHKey AT ROW 10.52 COL 20.8 COLON-ALIGNED WIDGET-ID 76
+          VIEW-AS FILL-IN 
+          SIZE 132 BY 1
+          BGCOLOR 15 FGCOLOR 0 
+     APIOutbound.userName AT ROW 12.52 COL 21 COLON-ALIGNED WIDGET-ID 24
           LABEL "Username"
           VIEW-AS FILL-IN 
           SIZE 30.8 BY 1
           BGCOLOR 15 FGCOLOR 0 
-     APIOutbound.password AT ROW 11.24 COL 78 COLON-ALIGNED WIDGET-ID 14 PASSWORD-FIELD 
+     APIOutbound.password AT ROW 12.52 COL 78 COLON-ALIGNED WIDGET-ID 14 PASSWORD-FIELD 
           LABEL "Password" FORMAT "x(256)"
           VIEW-AS FILL-IN 
           SIZE 30.8 BY 1
           BGCOLOR 15 FGCOLOR 0 
-     cbAuthType AT ROW 11.24 COL 137 COLON-ALIGNED WIDGET-ID 32
-     APIOutbound.requestHandler AT ROW 13.24 COL 21 COLON-ALIGNED WIDGET-ID 18
+     cbAuthType AT ROW 12.52 COL 137 COLON-ALIGNED WIDGET-ID 32
+     APIOutbound.requestHandler AT ROW 14.43 COL 21 COLON-ALIGNED WIDGET-ID 18
           LABEL "Request Handler" FORMAT "x(256)"
           VIEW-AS FILL-IN 
           SIZE 54 BY 1
           BGCOLOR 15 FGCOLOR 0 
-     APIOutbound.responseHandler AT ROW 13.24 COL 98.6 COLON-ALIGNED WIDGET-ID 22
+     APIOutbound.responseHandler AT ROW 14.43 COL 98.6 COLON-ALIGNED WIDGET-ID 22
           LABEL "Response Handler" FORMAT "x(256)"
           VIEW-AS FILL-IN 
           SIZE 55 BY 1
           BGCOLOR 15 FGCOLOR 0 
-     edRequestData AT ROW 15 COL 23 NO-LABEL WIDGET-ID 48
+     edRequestData AT ROW 16.24 COL 23 NO-LABEL WIDGET-ID 48
      fiInactive AT ROW 2.67 COL 128 COLON-ALIGNED NO-LABEL WIDGET-ID 72
      "Description:" VIEW-AS TEXT
           SIZE 14 BY .62 AT ROW 4.38 COL 8.8 WIDGET-ID 64
+     "Request Data:" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 17.86 COL 6 WIDGET-ID 50
      "End Point:" VIEW-AS TEXT
           SIZE 11.6 BY .62 AT ROW 6.71 COL 11.2 WIDGET-ID 36
-     "Request Data:" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 16.52 COL 6 WIDGET-ID 50
      RECT-1 AT ROW 2.48 COL 2 WIDGET-ID 26
-     RECT-2 AT ROW 10.81 COL 2 WIDGET-ID 30
-     RECT-3 AT ROW 12.91 COL 2 WIDGET-ID 44
-     RECT-4 AT ROW 14.81 COL 2 WIDGET-ID 46
+     RECT-2 AT ROW 12.19 COL 2 WIDGET-ID 30
+     RECT-3 AT ROW 14.1 COL 2 WIDGET-ID 44
+     RECT-4 AT ROW 15.95 COL 2 WIDGET-ID 46
      RECT-7 AT ROW 1 COL 1 WIDGET-ID 54
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -325,7 +330,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 18.62
+         HEIGHT             = 19.86
          WIDTH              = 157.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -413,6 +418,20 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
+&Scoped-define SELF-NAME cbRequestType
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbRequestType V-table-Win
+ON VALUE-CHANGED OF cbRequestType IN FRAME F-Main /* Request Type */
+DO:
+    IF SELF:SCREEN-VALUE EQ "FTP" OR SELF:SCREEN-VALUE EQ "SFTP" OR SELF:SCREEN-VALUE EQ "SAVE" THEN
+        APIOutbound.saveFile:CHECKED = TRUE.
+        
+    APPLY "VALUE-CHANGED" TO APIOutbound.saveFile.        
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME APIOutbound.clientID
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL APIOutbound.clientID V-table-Win
 ON LEAVE OF APIOutbound.clientID IN FRAME F-Main /* Client ID */
@@ -453,12 +472,19 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL APIOutbound.saveFile V-table-Win
 ON VALUE-CHANGED OF APIOutbound.saveFile IN FRAME F-Main /* Save File */
 DO:
-
+    IF SELF:CHECKED = FALSE AND 
+       (cbRequestType:SCREEN-VALUE EQ "FTP" OR cbRequestType:SCREEN-VALUE EQ "SFTP" OR cbRequestType:SCREEN-VALUE EQ "SAVE") THEN DO:
+        SELF:CHECKED = TRUE.
+        MESSAGE "Cannot uncheck if request type is 'FTP', 'SFTP' or 'SAVE'"
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+    
     IF {&SELF-NAME}:CHECKED THEN
         saveFileFolder:SENSITIVE = TRUE.
     ELSE DO:
         ASSIGN
-            saveFileFolder:SENSITIVE = FALSE 
+            saveFileFolder:SENSITIVE    = FALSE 
             saveFileFolder:SCREEN-VALUE = ""
             .
     END.      
@@ -998,13 +1024,28 @@ PROCEDURE pFieldValidations :
     END.
     
     IF cbRequestType:SCREEN-VALUE EQ ? OR cbRequestType:SCREEN-VALUE EQ "" THEN DO:
-        opcMessage = "Request Type cannot be empty".
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Request Type cannot be empty"
+            .
+        RETURN.
+    END.
+
+    IF (cbRequestType:SCREEN-VALUE EQ "FTP" OR cbRequestType:SCREEN-VALUE EQ "SFTP" OR cbRequestType:SCREEN-VALUE EQ "SAVE") AND
+       NOT saveFile:CHECKED THEN DO:
+        ASSIGN
+            oplSuccess = FALSE            
+            opcMessage = "Save file option need to enabled for 'FTP', 'SFTP' and 'SAVE' request types"
+            .
         RETURN.
     END.
     
     IF saveFile:CHECKED THEN DO:
         IF saveFileFolder:SCREEN-VALUE EQ "" THEN DO:
-            opcMessage =  "File location cannot be empty".
+            ASSIGN
+                oplSuccess = FALSE            
+                opcMessage = "File location cannot be empty"
+                .
             RETURN.
         END.    
     

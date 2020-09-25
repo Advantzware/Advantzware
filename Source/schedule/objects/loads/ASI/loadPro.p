@@ -1,4 +1,4 @@
-/* loadPro.p - ASI as of 2.3.2016 @ 5:45pm */
+/* loadPro.p - ASI as of 9.2.2020 @ 7:07pm */
 
 &SCOPED-DEFINE sbDB nosweat
 &SCOPED-DEFINE ID ASI/ALL
@@ -7,7 +7,7 @@
 &SCOPED-DEFINE Fleetwood ASI/Fleetwood
 /* add new fields to procedures loadUserFieldLabelWidth & setUseFields below */
 /* add userField to rptFields.dat, see config.w definitions section to enable field */
-&SCOPED-DEFINE nextUserField 110
+&SCOPED-DEFINE nextUserField 111
 
 /* when expanding userFields mod the following:
    1. scopDir.i (userExtent)
@@ -363,6 +363,7 @@ END FUNCTION.
 
 FUNCTION fPOMaterial RETURNS LOGICAL (
     ipCompany AS CHARACTER,
+    ipJob     AS INTEGER,
     ipJobNo   AS CHARACTER,
     ipJobNo2  AS INTEGER,
     ipForm    AS INTEGER,
@@ -373,25 +374,31 @@ FUNCTION fPOMaterial RETURNS LOGICAL (
 
     DEFINE VARIABLE lMaterialReceipted AS LOGICAL NO-UNDO.
 
-    FOR EACH rm-rcpth NO-LOCK
-        WHERE rm-rcpth.company   EQ ipCompany
-          AND rm-rcpth.job-no    EQ ipJobNo
-          AND rm-rcpth.job-no2   EQ ipJobNo2
-          AND rm-rcpth.i-no      EQ ipItemNo
+    FOR EACH job-mat NO-LOCK
+        WHERE job-mat.company   EQ ipCompany
+          AND job-mat.job       EQ ipJob
+          AND job-mat.job-no    EQ ipJobNo
+          AND job-mat.job-no2   EQ ipJobNo2
+          AND job-mat.frm       EQ ipForm
+          AND (job-mat.blank-no EQ ipBlankNo
+           OR job-mat.blank-no  EQ 0),
+         EACH item OF job-mat NO-LOCK
+        WHERE item.mat-type   EQ ipMatType, 
+         EACH rm-rcpth NO-LOCK
+        WHERE rm-rcpth.company   EQ job-mat.company
+          AND rm-rcpth.job-no    EQ job-mat.job-no
+          AND rm-rcpth.job-no2   EQ job-mat.job-no2
+          AND rm-rcpth.i-no      EQ job-mat.i-no
           AND rm-rcpth.rita-code EQ "R",
-        FIRST item NO-LOCK
-        WHERE item.company  EQ rm-rcpth.company
-          AND item.i-no     EQ rm-rcpth.i-no
-          AND item.mat-type EQ ipMatType,
-        EACH rm-rdtlh NO-LOCK
+         EACH rm-rdtlh NO-LOCK
         WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no 
           AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code
-          AND rm-rdtlh.s-num     EQ ipForm
-          AND rm-rdtlh.b-num     EQ ipBlankNo          
+          AND rm-rdtlh.s-num     EQ job-mat.frm
+          AND rm-rdtlh.b-num     EQ job-mat.blank-no
         :
         lMaterialReceipted = TRUE.
         LEAVE.
-    END. /* each rm-rcpth */
+    END. /* each job-mat */
     RETURN lMaterialReceipted.
 END FUNCTION.
 
@@ -1104,6 +1111,7 @@ FOR EACH job-hdr NO-LOCK
       userField[104] = setUserField(104,job-mch.job-no + '-' + STRING(job-mch.job-no2,'99'))
       userField[105] = setUserField(105,STRING(timeSpan / 3600,">>,>>9.99"))
       userField[107] = setUserField(107,STRING(job-hdr.qty,'>>,>>>,>>9'))
+      userField[110] = setUserField(110,STRING(job.promiseDate,'99/99/9999'))
       jobDescription = jobText
       .
     IF AVAILABLE itemfg AND NOT job-mch.run-qty * itemfg.t-sqft / 1000 LT 1000000 THEN
@@ -1257,9 +1265,10 @@ FOR EACH job-hdr NO-LOCK
                                               job-mch.job-no,job-mch.job-no2,
                                               job-mch.frm,statusCheckOffs.materialType).
             ELSE
-            jobStatus[i - 1] = fPOMaterial(job-mch.company,job-mch.job-no,job-mch.job-no2,
-                                           job-mch.frm,job-mch.blank-no,job-mch.i-no,
-                                           statusCheckOffs.materialType).
+            jobStatus[i - 1] = fPOMaterial(job-mch.company,job-mch.job,
+                                           job-mch.job-no,job-mch.job-no2,
+                                           job-mch.frm,job-mch.blank-no,
+                                           job-mch.i-no,statusCheckOffs.materialType).
           END. /* if avail */
         END. /* not usesalesrep */
       END. /* avail sbstatus */
@@ -1516,9 +1525,9 @@ PROCEDURE ipJobMaterial:
         WHEN 'B' THEN DO:
           IF NOT opjobBoardIssued THEN
           ASSIGN
-            opBoardLength  = job-mat.len
-            opBoardWidth   = job-mat.wid
-            opjobBoardIssued = CAN-FIND(FIRST mat-act
+            opBoardLength    = job-mat.len
+            opBoardWidth     = job-mat.wid
+            opJobBoardIssued = CAN-FIND(FIRST mat-act
                                         WHERE mat-act.company EQ job-mat.company
                                           AND mat-act.job     EQ job-mat.job
                                           AND mat-act.job-no  EQ job-mat.job-no
@@ -1932,6 +1941,7 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[107] = 'Job Qty'           userWidth[107] = 12
     userLabel[108] = 'Score (on Width)'  userWidth[108] = 24
     userLabel[109] = 'Score (on Length)' userWidth[109] = 24
+    userLabel[110] = 'Promise Date'      userWidth[110] = 15
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */
@@ -1998,7 +2008,7 @@ PROCEDURE setUseFields:
     ufIPJobMatField = useField[29] OR useField[30] OR useField[31] OR useField[32] OR useField[33]
     ufIPJobSet = useField[65] OR useField[66] OR useField[67] OR useField[68]
     ufItemFG = useField[21] OR useField[34] OR useField[52] OR useField[54] OR useField[64] OR useField[98] OR useField[99]
-    ufJob = useField[89] OR useField[107]
+    ufJob = useField[89] OR useField[107] OR useField[110]
     ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20] OR useField[85] OR useField[88] OR
                useField[96] OR useField[97] OR useField[100] OR useField[101] OR useField[104] OR useField[105]
     ufOEOrdl = useField[82] OR useField[84] OR useField[86] OR useField[87]

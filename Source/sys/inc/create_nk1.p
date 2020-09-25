@@ -1083,7 +1083,7 @@ CASE ip-nk1-value:
             INPUT cocode, 
             INPUT ip-nk1-value, 
             INPUT NO,                                            /* Prompt? */
-            INPUT "Calculate Job Due Date",                      /* Description */
+            INPUT "Invoice Approval Bill Notes",                 /* Description */
             INPUT ""      ,                                      /* Char Value */
             INPUT 0,                                             /* Int value */
             INPUT NO,                                            /* Logical value */ 
@@ -1094,7 +1094,7 @@ CASE ip-nk1-value:
             INPUT cocode, 
             INPUT ip-nk1-value, 
             INPUT NO,                                            /* Prompt? */
-            INPUT "Invoice Approval Bill Notes",                 /* Description */
+            INPUT "Calculate Job Due Date",                 /* Description */
             INPUT "",                                            /* Char Value */
             INPUT 0,                                             /* Int value */
             INPUT NO,                                            /* Logical value */ 
@@ -1140,8 +1140,8 @@ CASE ip-nk1-value:
             INPUT NO,                                            /* Prompt? */
             INPUT "Invoice status is not on Hold",               /* Description */
             INPUT "",                                            /* Char Value */
-            INPUT 0,                                             /* Int value */
-            INPUT NO,                                            /* Logical value */ 
+            INPUT 1,                                             /* Int value */
+            INPUT YES,                                           /* Logical value */ 
             INPUT 0                                              /* Dec value*/
             ).
     WHEN "InvoiceApprovalTaxableCheck" THEN 

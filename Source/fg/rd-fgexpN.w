@@ -70,7 +70,7 @@ ASSIGN cTextListToSelect = "Item #,Item Name,Customer Part #,Customer,Customer N
                             "Set Header,Group,Exempt from Disc," +
                             "P/M,Sell Price,Sell Price UOM,Type Code,Currency," +
                             "Warehouse,Bin,Inventory Class,Cycle Count Code,Production Code," +
-                            "Count,Weight,Freeze Weight,Pk Note,Freight Class,Freight Class Desc,TrNo,Zone," +
+                            "Count,Weight,Freeze Weight,Pk Note,Freight Class,Freight Class Desc,TrNo,Zone,Sub Zone," +
                             "StackHeight,PalletLen,PalletWid,PalletDep,StdPalletVol," +
                             "Std Material Cost,Std Labor Cost,Std Var OH Cost,Std Fix OH Cost," +
                             "Total Std Cost,Average Cost,Last Cost,Cost UOM,Full Cost," +
@@ -103,7 +103,7 @@ ASSIGN cTextListToSelect = "Item #,Item Name,Customer Part #,Customer,Customer N
                             "isaset,spare-char-1,exempt-disc," +
                             "pur-man,sell-price,sell-uom,type-code,curr-code[1]," +
                             "def-loc,def-loc-bin,class,cc-code,prod-code," + 
-                            "case-count,weight-100,spare-int-1,prod-notes,frt-class,frt-class-dscr,trno,spare-char-4," +
+                            "case-count,weight-100,spare-int-1,prod-notes,frt-class,frt-class-dscr,trno,spare-char-4,subZone," +
                             "stackHeight,unitLength,unitWidth,unitHeight,palletVolume," +
                             "std-mat-cost,std-lab-cost,std-var-cost,std-fix-cost," +
                             "total-std-cost,avg-cost,last-cost,prod-uom,spare-dec-1," +
@@ -141,7 +141,7 @@ ASSIGN cTextListToSelect = "Item #,Item Name,Customer Part #,Customer,Customer N
                             "Style,Die #,Plate #,CAD #,Quality/SPC #,UPC#,Release Sequence,Taxable," +
                             "Varied,Status,P/M,Ship Method,Stock/Custom,Sell Price,Sell Price UOM," +
                             "Currency,Category,Type Code,Warehouse,Bin,Inventory Class,Cycle Count Code," +
-                            "Count,Units/Pall,Production Code,Weight,Pk Note,Freight Class,Freight Class Desc,TrNo,Zone," +
+                            "Count,Units/Pall,Production Code,Weight,Pk Note,Freight Class,Freight Class Desc,TrNo,Zone,Sub Zone," +
                             "StackHeight,PalletLen,PalletWid,PalletDep,StdPalletVol," +
                             "Std Material Cost,Std Labor Cost,Std Var OH Cost,Std Fix OH Cost," +
                             "Full Cost,Cost UOM,Stocked,Box Length,Box Width,Box Depth,Blank Length,Blank Width," +

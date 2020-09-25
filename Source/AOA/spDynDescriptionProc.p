@@ -321,3 +321,25 @@ PROCEDURE dynDescripVendor:
     IF AVAILABLE vend THEN
     iphWidgetTo:SCREEN-VALUE = vend.name.
 END PROCEDURE.
+
+PROCEDURE dynInitDBFieldList:
+    DEFINE INPUT PARAMETER iphWidgetFrom AS HANDLE NO-UNDO.
+    DEFINE INPUT PARAMETER iphWidgetTo   AS HANDLE NO-UNDO.
+
+    DEFINE VARIABLE cFieldLabel AS CHARACTER NO-UNDO.
+
+    iphWidgetTo:LIST-ITEM-PAIRS = ?.
+    FOR EACH ASI._file NO-LOCK
+        WHERE ASI._file._file-name EQ iphWidgetFrom:SCREEN-VALUE,
+        EACH ASI._field OF ASI._file NO-LOCK
+        :
+        ASSIGN
+            cFieldLabel = IF ASI._field._label NE ? THEN ASI._field._label ELSE ASI._field._field-name
+            cFieldLabel = cFieldLabel + " (" + ASI._field._field-name + ")"
+            .
+        iphWidgetTo:ADD-LAST(cFieldLabel,ASI._field._field-name).
+    END. /* each _file */
+    IF iphWidgetTo:LIST-ITEM-PAIRS EQ ? THEN
+    iphWidgetTo:LIST-ITEM-PAIRS = ",".
+    iphWidgetTo:SCREEN-VALUE = iphWidgetTo:ENTRY(1).
+END PROCEDURE.

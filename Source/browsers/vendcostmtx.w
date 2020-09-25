@@ -295,8 +295,8 @@ DEFINE BUTTON btn_go
      FONT 6.
 
 DEFINE BUTTON btn_show 
-     LABEL "&Show All" 
-     SIZE 12 BY 1
+     LABEL "&Clear Filter" 
+     SIZE 16 BY 1
      FONT 6.
 
 DEFINE VARIABLE cb_itemType AS CHARACTER FORMAT "X(256)":U 
