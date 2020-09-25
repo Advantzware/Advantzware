@@ -61,7 +61,14 @@ IF fi_po-no1 NE "" THEN DO:
   
   {oeinq/j-ordinq1.i}
 END.
-
+ELSE IF fi_po-no-2 NE "" THEN DO:
+  &SCOPED-DEFINE open-query            ~
+      OPEN QUERY {&browse-name}        ~
+          {&for-each1}                 ~
+              USE-INDEX po-no NO-LOCK, ~
+              {&for-each2}
+  {oeinq/j-ordinq1.i}  
+END.    
 ELSE
 IF fi_i-no NE "" THEN DO:
   &SCOPED-DEFINE joinScop OUTER-JOIN
@@ -167,6 +174,7 @@ ELSE DO:
             {&for-eachblank}              ~
                 USE-INDEX opened NO-LOCK, ~
                 {&for-each2}
+     {oeinq/j-ordinq1.i}              
   END.
   ELSE
   DO:
@@ -182,7 +190,6 @@ ELSE DO:
             {&for-each1}                  ~
                 USE-INDEX opened NO-LOCK, ~
                 {&for-each2}
-  END.
-  
   {oeinq/j-ordinq1.i}
+  END.
 END.
