@@ -222,7 +222,7 @@ DEFINE FRAME Dialog-Frame
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
      fg-rctd.cases AT ROW 3.62 COL 85.4 COLON-ALIGNED
-          LABEL "Units" FORMAT ">>>,>>9"
+          LABEL "Units" FORMAT ">>>>>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
