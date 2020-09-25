@@ -42,9 +42,6 @@ IF fConfirm() THEN
             iJobCount = iJobCount + 1.
             RUN jc/jc-calc.p (RECID(job), YES).
         END.
-        IF iJobCount EQ 20 THEN 
-            MESSAGE "Jobs Completed: " iJobCount
-            VIEW-AS ALERT-BOX.
     END.
 MESSAGE "Process Completed." SKIP 
     "Jobs Rebuilt: " iJobCount
