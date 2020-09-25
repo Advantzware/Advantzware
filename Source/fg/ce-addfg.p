@@ -12,7 +12,9 @@ def shared buffer xeb     for eb.
 
 DEF VAR li AS INT NO-UNDO.
 DEF VAR K_FRAC AS DEC INIT 6.25 NO-UNDO.
-
+DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cFGMasterLoc AS CHARACTER NO-UNDO.
 
 {ce/msfcalc.i}
 {oe/fgfreight.i}    
@@ -22,6 +24,18 @@ DEF VAR K_FRAC AS DEC INIT 6.25 NO-UNDO.
 DO TRANSACTION:
    {sys/inc/graphic.i}
 END.
+RUN sys\ref\nk1look.p (cocode,
+        "FGMasterLoc",
+        "C",
+        NO,
+        NO,
+        "",
+        "", 
+        OUTPUT cReturn,
+        OUTPUT lFound).
+ IF lFound THEN      
+ cFGMasterLoc = cReturn .
+
 IF NOT AVAIL xeb THEN
     RETURN.
 IF NOT AVAIL xest THEN
@@ -71,6 +85,10 @@ assign
       AND shipto.cust-no EQ xeb.cust-no
       AND shipto.ship-id EQ xeb.ship-id NO-ERROR.
   IF AVAIL shipto THEN ASSIGN itemfg.ship-meth = shipto.ship-meth.
+  IF cFGMasterLoc EQ "Estimate Shipto" AND AVAIL shipto THEN
+   ASSIGN
+       itemfg.def-loc     = shipto.loc
+       itemfg.def-loc-bin = shipto.loc-bin.   
  END.
  /* gdm - 11190901 end */
 
