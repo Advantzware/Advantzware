@@ -51,6 +51,8 @@ PROCEDURE pSetDynParamValue:
             dynParamValue.recordLimit      = dynSubject.recordLimit
             dynParamValue.isLookup         = dynSubject.isLookup
             dynParamValue.runSync          = dynSubject.runSync
+            dynParamValue.custListID       = dynSubject.custListID
+            dynParamValue.useCustList      = dynSubject.useCustList
             .
         FOR EACH dynValueColumn EXCLUSIVE-LOCK
             WHERE dynValueColumn.subjectID    EQ ipiSubjectID
@@ -95,6 +97,7 @@ PROCEDURE pSetDynParamValue:
                 dynValueColumn.sortCol        = {1}SubjectColumn.sortCol
                 dynValueColumn.sortDescending = {1}SubjectColumn.sortDescending
                 dynValueColumn.textColor      = {1}SubjectColumn.textColor
+                dynValueColumn.custListField  = {1}SubjectColumn.custListField
                 .
         END. /* each {1}SubjectColumn */
         FOR EACH dynValueParamSet EXCLUSIVE-LOCK

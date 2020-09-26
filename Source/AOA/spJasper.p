@@ -1654,18 +1654,31 @@ PROCEDURE pLocalCSV:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphQuery      AS HANDLE    NO-UNDO.
 
-    DEFINE VARIABLE cBufferValue  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cExcelFile    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFieldName    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hDynCalcField AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hTable        AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE iColumn       AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE hQuery        AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE hQueryBuf     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cBufferValue   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustListField AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cExcelFile     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFieldName     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hDynCalcField  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hTable         AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iColumn        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE hQuery         AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hQueryBuf      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lProceed       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lUseCustList   AS LOGICAL   NO-UNDO.
 
     RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
 
     SESSION:SET-WAIT-STATE("General").
+    IF dynParamValue.useCustList OR dynParamValue.CustListID NE "" THEN
+    RUN spCustList (
+        dynParamValue.subjectID,
+        dynParamValue.user-id,
+        dynParamValue.prgmName,
+        dynParamValue.paramValueID,
+        dynParamValue.custListID,
+        OUTPUT cCustListField,
+        OUTPUT lUseCustList
+        ).
     cExcelFile = "users\" + aoaUserID + "\"
                + REPLACE(aoaTitle," ","") + "."
                + STRING(TODAY,"99999999") + "."
@@ -1692,48 +1705,53 @@ PROCEDURE pLocalCSV:
     iphQuery:GET-FIRST().
     IF NOT iphQuery:QUERY-OFF-END THEN
     REPEAT:
-        FOR EACH dynValueColumn NO-LOCK
-            WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
-              AND dynValueColumn.user-id      EQ dynParamValue.user-id
-              AND dynValueColumn.prgmName     EQ dynParamValue.prgmName
-              AND dynValueColumn.paramValueID EQ dynParamValue.paramValueID
-              AND dynValueColumn.isActive     EQ YES
-               BY dynValueColumn.sortOrder
-            :
-            IF dynValueColumn.isCalcField THEN DO:
-                IF dynValueColumn.calcProc NE "" THEN
-                RUN spDynCalcField IN hDynCalcField (
-                    iphQuery:HANDLE,
-                    dynValueColumn.calcProc,
-                    dynValueColumn.calcParam,
-                    dynValueColumn.dataType,
-                    dynValueColumn.colFormat,
-                    OUTPUT cBufferValue
-                    ).
+        lProceed = YES.
+        IF lUseCustList THEN
+        RUN spCheckCustList (iphQuery, cCustListField, OUTPUT lProceed).
+        IF lProceed THEN DO:
+            FOR EACH dynValueColumn NO-LOCK
+                WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
+                  AND dynValueColumn.user-id      EQ dynParamValue.user-id
+                  AND dynValueColumn.prgmName     EQ dynParamValue.prgmName
+                  AND dynValueColumn.paramValueID EQ dynParamValue.paramValueID
+                  AND dynValueColumn.isActive     EQ YES
+                   BY dynValueColumn.sortOrder
+                :
+                IF dynValueColumn.isCalcField THEN DO:
+                    IF dynValueColumn.calcProc NE "" THEN
+                    RUN spDynCalcField IN hDynCalcField (
+                        iphQuery:HANDLE,
+                        dynValueColumn.calcProc,
+                        dynValueColumn.calcParam,
+                        dynValueColumn.dataType,
+                        dynValueColumn.colFormat,
+                        OUTPUT cBufferValue
+                        ).
+                    ELSE
+                    IF dynValueColumn.calcFormula NE "" AND
+                       INDEX(dynValueColumn.calcFormula,"$") EQ 0 THEN
+                    RUN spDynCalcField IN hDynCalcField (
+                        iphQuery:HANDLE,
+                        "Calculator",
+                        dynValueColumn.calcFormula,
+                        dynValueColumn.dataType,
+                        dynValueColumn.colFormat,
+                        OUTPUT cBufferValue
+                        ).
+                    ELSE
+                    IF dynValueColumn.calcFormula NE "" THEN NEXT.
+                END. /* if calc field */
                 ELSE
-                IF dynValueColumn.calcFormula NE "" AND
-                   INDEX(dynValueColumn.calcFormula,"$") EQ 0 THEN
-                RUN spDynCalcField IN hDynCalcField (
-                    iphQuery:HANDLE,
-                    "Calculator",
-                    dynValueColumn.calcFormula,
-                    dynValueColumn.dataType,
-                    dynValueColumn.colFormat,
-                    OUTPUT cBufferValue
-                    ).
-                ELSE
-                IF dynValueColumn.calcFormula NE "" THEN NEXT.
-            END. /* if calc field */
-            ELSE
-            ASSIGN
-                hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynValueColumn.colName,"."))
-                cFieldName   = ENTRY(2,dynValueColumn.colName,".")
-                cBufferValue = fFormatValue(hQueryBuf, cFieldName, dynValueColumn.colFormat)
-                cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "")
-                .
-            PUT UNFORMATTED REPLACE(cBufferValue,",","") + ",".
-        END. /* each dynvaluecolumn */
-        PUT UNFORMATTED SKIP.
+                ASSIGN
+                    hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynValueColumn.colName,"."))
+                    cFieldName   = ENTRY(2,dynValueColumn.colName,".")
+                    cBufferValue = fFormatValue(hQueryBuf, cFieldName, dynValueColumn.colFormat)
+                    cBufferValue = DYNAMIC-FUNCTION("sfWebCharacters", cBufferValue, 8, "")
+                    .
+                PUT UNFORMATTED REPLACE(cBufferValue,",","") + ",".
+            END. /* each dynvaluecolumn */
+            PUT UNFORMATTED SKIP.
+        END. /* if lproceed */
         iphQuery:GET-NEXT().
         IF iphQuery:QUERY-OFF-END THEN LEAVE.
     END. /* repeat */
@@ -1992,9 +2010,8 @@ PROCEDURE spJasperQuery:
                     RUN pJasperStarter (ipcType, ipcTaskRecKey, OUTPUT opcJasperFile).
                 END. /* if lok */
             END. /* if not local csv */
-            ELSE DO:
-                RUN pLocalCSV (hQuery).
-            END. /* else local csv */
+            ELSE
+            RUN pLocalCSV (hQuery).
         END. /* if lok */
     END. /* avail dynsubject */
 

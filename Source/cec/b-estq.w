@@ -503,22 +503,22 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 151 BY 5.24.
 
-DEFINE VARIABLE tb_set AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_set AS LOGICAL INITIAL YES 
      LABEL "Set" 
      VIEW-AS TOGGLE-BOX
      SIZE 8 BY .86 NO-UNDO.
 
-DEFINE VARIABLE tb_single AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_single AS LOGICAL INITIAL YES 
      LABEL "Single" 
      VIEW-AS TOGGLE-BOX
      SIZE 10 BY .86 NO-UNDO.
 
-DEFINE VARIABLE tb_tancom AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_tancom AS LOGICAL INITIAL YES 
      LABEL "Tandem/Combo" 
      VIEW-AS TOGGLE-BOX
      SIZE 20 BY .86 NO-UNDO.
 
-DEFINE VARIABLE TG_exact-match AS LOGICAL INITIAL no 
+DEFINE VARIABLE TG_exact-match AS LOGICAL INITIAL NO 
      LABEL "Exact" 
      VIEW-AS TOGGLE-BOX
      SIZE 9.6 BY .81 TOOLTIP "Exact Match" NO-UNDO.
@@ -577,9 +577,9 @@ DEFINE BROWSE Browser-Table
       eb.yld-qty COLUMN-LABEL "Yield Quantity" FORMAT "->>>>>>9":U
             LABEL-BGCOLOR 14
       eb.quantityPerSet FORMAT ">>>>9.9<<<":U
-      display-cw-dim(yes,eb.len) @ eb.len FORMAT ">>>>9.99":U LABEL-BGCOLOR 14 WIDTH 12
-      display-cw-dim(yes,eb.wid) @ eb.wid FORMAT ">>>>9.99":U LABEL-BGCOLOR 14 WIDTH 12
-      display-cw-dim(yes,eb.dep) @ eb.dep FORMAT ">>>>9.99":U LABEL-BGCOLOR 14 WIDTH 12
+      display-cw-dim(YES,eb.len) @ eb.len FORMAT ">>>>9.99":U LABEL-BGCOLOR 14 WIDTH 12
+      display-cw-dim(YES,eb.wid) @ eb.wid FORMAT ">>>>9.99":U LABEL-BGCOLOR 14 WIDTH 12
+      display-cw-dim(YES,eb.dep) @ eb.dep FORMAT ">>>>9.99":U LABEL-BGCOLOR 14 WIDTH 12
       eb.die-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       eb.cad-no COLUMN-LABEL "Cad #" FORMAT "x(15)":U LABEL-BGCOLOR 14
       eb.plate-no FORMAT "x(15)":U LABEL-BGCOLOR 14
@@ -887,6 +887,16 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
+ON ENTRY OF begin_cust-no IN FRAME F-Main
+DO:
+    RUN spSetSessionParam ("CustListID", "EC").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
 ON LEAVE OF begin_cust-no IN FRAME F-Main
 DO:
   /*IF LASTKEY NE -1 THEN DO:
@@ -1096,7 +1106,7 @@ DO:
     ELSE
        RUN spec-image-proc(INPUT "", INPUT NO).
 
-       IF AVAIL est AND est.estimateTypeID EQ "Misc" THEN do:
+       IF AVAIL est AND est.estimateTypeID EQ "Misc" THEN DO:
            {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-specs" "(NO)"}
                {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-layout" "(NO)"}
                {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-BoxDesign" "(NO)"}
@@ -1179,8 +1189,8 @@ DO:
             MESSAGE 
                 "No Estimate Found, reverting to initial setup."
                 VIEW-AS ALERT-BOX ERROR.
-            assign
-                lv-first-run = true.
+            ASSIGN
+                lv-first-run = TRUE.
             RUN local-open-query.
          END.
      END.

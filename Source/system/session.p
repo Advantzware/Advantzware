@@ -34,8 +34,8 @@ DEFINE VARIABLE iParamValueID       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iPeriod             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lAdmin              AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSecure             AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lUserAMPM           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSuperAdmin         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lUserAMPM           AS LOGICAL   NO-UNDO.
 /* cue card variables */
 DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iCueOrder           AS INTEGER   NO-UNDO.
@@ -81,6 +81,8 @@ DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
 {AOA/includes/pGetDynParamValue.i}
 {AOA/includes/pInitDynParamValue.i}
 {AOA/includes/pSetDynParamValue.i "dyn"}
+{sys/ref/CustList.i NEW}
+{AOA/BL/pBuildCustList.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -654,6 +656,71 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spBuildCustList) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spBuildCustList Procedure
+PROCEDURE spBuildCustList:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCustListID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplProceed    AS LOGICAL   NO-UNDO.
+
+    DEFINE VARIABLE cCompany       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEndCustList   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStartCustList AS CHARACTER NO-UNDO.
+
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    RUN pBuildCustList (
+        cCompany,
+        ipcCustListID,
+        OUTPUT cStartCustList,
+        OUTPUT cEndCustList,
+        OUTPUT oplProceed
+        ).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-spCheckCustList) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCheckCustList Procedure
+PROCEDURE spCheckCustList:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iphQuery   AS HANDLE    NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcField   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplProceed AS LOGICAL   NO-UNDO.
+
+    DEFINE VARIABLE cValue    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hTable AS HANDLE    NO-UNDO.
+
+    IF VALID-HANDLE(iphQuery) THEN
+    ASSIGN
+        hTable = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,ipcField,"."))
+        cValue = hTable:BUFFER-FIELD(ENTRY(2,ipcField,".")):BUFFER-VALUE
+        .
+    ELSE
+    cValue = ipcField.
+
+    oplProceed = CAN-FIND(FIRST ttCustList
+                          WHERE ttCustList.cust-no EQ cValue
+                            AND ttCustList.log-fld EQ TRUE).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-spCheckTrackUsage) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCheckTrackUsage Procedure
@@ -913,6 +980,45 @@ PROCEDURE spCueCardFrame:
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
     iphWidget:MOVE-TO-TOP ().
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-spCustList) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCustList Procedure
+PROCEDURE spCustList:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiSubjectID     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcUserID        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPrgmName      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiParamValueID  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustListID    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCustListField AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplUseCustList   AS LOGICAL   NO-UNDO.
+
+    FIND FIRST dynValueColumn NO-LOCK
+         WHERE dynValueColumn.subjectID     EQ ipiSubjectID
+           AND dynValueColumn.user-id       EQ ipcUserID
+           AND dynValueColumn.prgmName      EQ ipcPrgmName
+           AND dynValueColumn.paramValueID  EQ ipiParamValueID
+           AND dynValueColumn.CustListField EQ YES
+         NO-ERROR.
+    IF NOT AVAILABLE dynValueColumn THEN RETURN.
+
+    RUN spBuildCustList (
+        ipcCustListID,
+        OUTPUT oplUseCustList
+        ).
+    IF oplUseCustList THEN
+    opcCustListField = dynValueColumn.colName.
 
 END PROCEDURE.
 	
