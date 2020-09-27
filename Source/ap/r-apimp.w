@@ -49,6 +49,7 @@ DEF VAR tran-date AS DATE INIT TODAY NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
+{methods/getExecutableFileName.i quoter}
 
 assign
  cocode = gcompany
@@ -602,7 +603,7 @@ PROCEDURE run-report :
 qtr-file-name = in-file-name + ".q".
 
   DEF var cmdline AS char NO-UNDO.
-  cmdline = "quoter -d , " + in-file-name + " >" + qtr-file-name.
+  cmdline = cQuoterFullPathName + " -d , " + in-file-name + " >" + qtr-file-name.
 
   IF OPSYS = "unix" THEN UNIX silent value(cmdline).
   ELSE IF OPSYS = "msdos" OR OPSYS BEGINS "win" THEN
