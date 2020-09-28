@@ -464,7 +464,7 @@ for each ar-inv
 
     transaction:
 
-  DISPLAY ar-inv.inv-no WITH DOWN.
+  DISPLAY ar-inv.inv-no FORMAT ">>>>>>9" WITH DOWN.
 
   for each ar-invl where ar-invl.x-no eq ar-inv.x-no use-index x-no:
 
@@ -616,7 +616,7 @@ for each inv-head
 
     transaction:
 
-  DISPLAY inv-head.inv-no
+  DISPLAY inv-head.inv-no FORMAT ">>>>>>9"
           inv-head.r-no LABEL "Seq#" WITH DOWN.
 
   for each inv-line  where inv-line.r-no eq inv-head.r-no use-index r-no:
