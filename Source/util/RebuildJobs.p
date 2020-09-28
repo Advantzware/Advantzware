@@ -12,8 +12,11 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-{sys/inc/var.i SHARED} /* for jc-calc.p */
+{sys/inc/var.i NEW SHARED} /* for jc-calc.p */
 {custom/globdefs.i} /* for jc-calc.p */
+ASSIGN 
+    cocode = g_company
+    locode = g_loc.
 DEFINE NEW SHARED VARIABLE nufile AS LOG NO-UNDO.   /* for jc-calc.p */
 
 DEFINE VARIABLE iJobCount AS INTEGER NO-UNDO.
