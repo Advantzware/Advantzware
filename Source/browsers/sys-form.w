@@ -162,20 +162,25 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      sys-ctrl-shipto.cust-vend COLUMN-LABEL "Type" FORMAT "Cust/Vend":U LABEL-BGCOLOR 14
-      sys-ctrl-shipto.cust-vend-no COLUMN-LABEL "Cust/Vend" FORMAT "x(8)":U 
+      sys-ctrl-shipto.cust-vend COLUMN-LABEL "Type" FORMAT "Cust/Vend":U
+            LABEL-BGCOLOR 14
+      sys-ctrl-shipto.cust-vend-no COLUMN-LABEL "Cust/Vend" FORMAT "x(8)":U
             WIDTH 12.2 LABEL-BGCOLOR 14
       sys-ctrl-shipto.ship-id COLUMN-LABEL "ShipTo" FORMAT "x(8)":U
             WIDTH 12.2 LABEL-BGCOLOR 14
-      sys-ctrl-shipto.char-fld COLUMN-LABEL "Character" FORMAT "x(8)":U
-            WIDTH 12.2 LABEL-BGCOLOR 14
-      sys-ctrl-shipto.date-fld COLUMN-LABEL "Date" FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-      sys-ctrl-shipto.dec-fld COLUMN-LABEL "Decimal" FORMAT "->>,>>9.99":U LABEL-BGCOLOR 14
-      sys-ctrl-shipto.int-fld COLUMN-LABEL "Integer" FORMAT "->,>>>,>>9":U LABEL-BGCOLOR 14
-      sys-ctrl-shipto.log-fld COLUMN-LABEL "Log" FORMAT "yes/no":U LABEL-BGCOLOR 14
+      sys-ctrl-shipto.char-fld COLUMN-LABEL "Character" FORMAT "x(35)":U
+            WIDTH 40 LABEL-BGCOLOR 14
+      sys-ctrl-shipto.date-fld COLUMN-LABEL "Date" FORMAT "99/99/9999":U
+            LABEL-BGCOLOR 14
+      sys-ctrl-shipto.dec-fld COLUMN-LABEL "Decimal" FORMAT "->>,>>9.99":U
+            LABEL-BGCOLOR 14
+      sys-ctrl-shipto.int-fld COLUMN-LABEL "Integer" FORMAT "->,>>>,>>9":U
+            LABEL-BGCOLOR 14
+      sys-ctrl-shipto.log-fld COLUMN-LABEL "Log" FORMAT "yes/no":U
+            LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 99 BY 16.43
+    WITH NO-ASSIGN SEPARATORS SIZE 127 BY 16.43
          FONT 2.
 
 
@@ -228,7 +233,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 17.86
-         WIDTH              = 99.
+         WIDTH              = 127.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -290,7 +295,7 @@ ASSIGN
      _FldNameList[3]   > ASI.sys-ctrl-shipto.ship-id
 "sys-ctrl-shipto.ship-id" "ShipTo" ? "character" ? ? ? ? ? ? no ? no no "12.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.sys-ctrl-shipto.char-fld
-"sys-ctrl-shipto.char-fld" "Character" ? "character" ? ? ? ? ? ? no ? no no "12.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"sys-ctrl-shipto.char-fld" "Character" "x(35)" "character" ? ? ? 14 ? ? no ? no no "40" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.sys-ctrl-shipto.date-fld
 "sys-ctrl-shipto.date-fld" "Date" ? "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.sys-ctrl-shipto.dec-fld
