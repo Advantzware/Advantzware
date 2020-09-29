@@ -74,6 +74,7 @@ DEFINE        VARIABLE v-number-rows-selected  AS INTEGER   NO-UNDO.
 DEFINE        VARIABLE v-number-rows-selected2 AS INTEGER   NO-UNDO.
 DEFINE        VARIABLE v-selected              AS LOGICAL   INIT NO.
 DEFINE        VARIABLE ll-ord-no-override      AS LOG       NO-UNDO.
+DEFINE        VARIABLE hdPoProcs               AS HANDLE    NO-UNDO.
 
 DEFINE SHARED VARIABLE factor#                 AS DECIMAL   NO-UNDO.
 DEFINE SHARED VARIABLE v-default-gl-log        AS LOG       NO-UNDO.
@@ -167,6 +168,8 @@ END.
 
 FIND FIRST uom NO-LOCK WHERE uom.uom EQ "ROLL" NO-ERROR.
 IF AVAILABLE uom THEN ld-roll-len = uom.mult.
+
+RUN po/POProcs.p PERSISTENT SET hdPOProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -4581,6 +4584,7 @@ PROCEDURE po-adder2 :
     DEFINE INPUT PARAMETER ip-qty AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ip-cost AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ip-cons-cost AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplgShowWarning AS LOGICAL NO-UNDO.
 
     DEFINE OUTPUT PARAMETER op-cost AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER op-cons-cost AS DECIMAL NO-UNDO.
@@ -4640,7 +4644,11 @@ PROCEDURE po-adder2 :
             WHERE item.company  EQ job-mat.company
             AND item.i-no     EQ job-mat.i-no
             AND item.mat-type EQ "A":
-
+            
+            ASSIGN 
+                v-cost  = 0
+                v-setup = 0
+                .
             FIND FIRST e-item NO-LOCK
                 WHERE e-item.company EQ po-ordl.company
                 AND e-item.i-no    EQ po-ordl.i-no:SCREEN-VALUE
@@ -4703,16 +4711,6 @@ PROCEDURE po-adder2 :
                         job-mat.len, job-mat.wid, item.s-dep,
                         v-cost, OUTPUT v-cost).
             END.
-
-            ELSE 
-            DO:
-                v-cost = job-mat.std-cost.
-      
-                IF job-mat.sc-uom NE po-ordl.pr-uom:SCREEN-VALUE THEN
-                    RUN sys/ref/convcuom.p(job-mat.sc-uom, po-ordl.pr-uom:SCREEN-VALUE, job-mat.basis-w,
-                        job-mat.len, job-mat.wid, item.s-dep,
-                        job-mat.std-cost, OUTPUT v-cost).
-            END.
             IF v-cost = ? THEN v-cost = 0.
             ASSIGN
                 addersText = addersText + SUBSTR(item.i-name,1,18) +
@@ -4721,9 +4719,37 @@ PROCEDURE po-adder2 :
                 v-add-cost = v-add-cost + v-cost.
 
             /* gdm - */     
-            IF v-cost NE 0                         
-                THEN RUN po-adder3 (INPUT v-cost).   
-        /* gdm - end */                                
+            IF v-cost EQ 0 AND iplgShowWarning THEN 
+                RUN displayMessage(
+                    INPUT "52"
+                    ).       
+            FIND FIRST po-ordl-add NO-LOCK 
+                 WHERE po-ordl-add.company    EQ po-ordl.company
+                   AND po-ordl-add.po-no      EQ po-ordl.po-no  
+                   AND po-ordl-add.line       EQ po-ordl.line   
+                   AND po-ordl-add.adder-i-no EQ job-mat.i-no 
+                 NO-ERROR. 
+            IF AVAILABLE po-ordl-add THEN 
+                RUN PO_UpdatePoAdders IN hdPOProcs(
+                    INPUT po-ordl.company,
+                    INPUT po-ordl.po-no,
+                    INPUT po-ordl.line,
+                    INPUT job-mat.i-no,
+                    INPUT v-cost,
+                    INPUT v-setup,
+                    INPUT po-ordl.pr-uom:SCREEN-VALUE
+                    ). 
+             ELSE
+                RUN PO_CreatePoAdders IN hdPOProcs(
+                    INPUT po-ordl.company,
+                    INPUT po-ordl.po-no,
+                    INPUT po-ordl.line,
+                    INPUT job-mat.i-no,
+                    INPUT v-cost,
+                    INPUT v-setup,
+                    INPUT po-ordl.pr-uom:SCREEN-VALUE
+                    ).              
+                /* gdm - end */                                
         END.
 
         IF po-ordl.pr-uom:SCREEN-VALUE NE "EA" THEN 
@@ -4744,61 +4770,6 @@ PROCEDURE po-adder2 :
             v-adder[1] = op-cost      - v-adder[1]
             v-adder[2] = op-cons-cost - v-adder[2].
     END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE po-adder3 Dialog-Frame 
-PROCEDURE po-adder3 :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ip-cost     AS DECIMAL NO-UNDO.
-    FIND FIRST po-ordl-add EXCLUSIVE-LOCK 
-        WHERE po-ordl-add.company    EQ po-ordl.company
-        AND po-ordl-add.po-no      EQ po-ordl.po-no  
-        AND po-ordl-add.line       EQ po-ordl.LINE   
-        AND po-ordl-add.adder-i-no EQ job-mat.i-no NO-ERROR.
-    
-    IF NOT AVAILABLE po-ordl-add THEN 
-    DO:
-    
-        CREATE po-ordl-add.
-        ASSIGN 
-            po-ordl-add.company    = po-ordl.company
-            po-ordl-add.po-no      = po-ordl.po-no
-            po-ordl-add.line       = po-ordl.LINE
-            po-ordl-add.adder-i-no = job-mat.i-no.
-               
-    /*****************************************************************
-             THIS IN CASE WE NEED IT LATER
-    *****************************************************************            
-               po-ordl-add.cons-cost   =
-               po-ordl-add.cons-qty    =
-               po-ordl-add.cons-uom    =
-               po-ordl-add.ord-qty     =
-               po-ordl-add.pr-qty-uom  =
-               po-ordl-add.pr-uom      = 
-               po-ordl-add.t-cost      =
-               po-ordl-add.setup       = .
-    *****************************************************************/
-        /*rec_key CREATION CALL */
-        {custom/rec_key.i po-ordl-add}
-
-    END.
-    ELSE
-        IF AVAILABLE po-ordl-add THEN 
-        DO:
-            /* IF THERE THE SAME ADDER IN A JOB - RECORD THE BIGGER COST */        
-            IF ip-cost GT po-ordl-add.cost 
-                THEN ASSIGN po-ordl-add.cost = ip-cost.
-        END.
-    FIND CURRENT po-ordl-add NO-ERROR.
-    RELEASE po-ordl-add.
 
 END PROCEDURE.
 
@@ -6126,10 +6097,11 @@ PROCEDURE valid-vend-cost :
                 lv-hld-add = addersText.
                 RUN po-adder2 (RECID(po-ordl),
                     RECID(job-mat),
-                    "",
+                    po-ord.vend-no,
                     DEC(po-ordl.ord-qty:SCREEN-VALUE),
                     lv-cost[1],
                     0,
+                    INPUT NO,
                     OUTPUT lv-cost[1],
                     OUTPUT lv-cost[2],
                     OUTPUT lv-cost[3]).
@@ -6611,6 +6583,7 @@ PROCEDURE vend-cost :
                                 DEC(po-ordl.ord-qty:SCREEN-VALUE),
                                 v-cost,
                                 DEC(po-ordl.cons-cost:SCREEN-VALUE),
+                                INPUT NO,
                                 OUTPUT v-cost,
                                 OUTPUT lv-added-cons-cost,
                                 OUTPUT lv-adder-setup).
@@ -6630,6 +6603,7 @@ PROCEDURE vend-cost :
                     DEC(fi_pb-qty:SCREEN-VALUE),
                     v-pb-cst,
                     v-pb-cns,
+                    INPUT NO,
                     OUTPUT v-pb-cst,
                     OUTPUT v-pb-cns,
                     OUTPUT lv-adder-setup).
@@ -6637,6 +6611,7 @@ PROCEDURE vend-cost :
                 DEC(po-ordl.ord-qty:SCREEN-VALUE),
                 DEC(po-ordl.cost:SCREEN-VALUE),
                 DEC(po-ordl.cons-cost:SCREEN-VALUE),
+                INPUT YES,
                 OUTPUT lv-added-cost,
                 OUTPUT lv-added-cons-cost,
                 OUTPUT lv-adder-setup).

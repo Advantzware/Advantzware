@@ -26,6 +26,14 @@ def shared var v-tot-msf as dec format ">>,>>9.999" init 0 no-undo.
 def shared var v-adder as dec extent 2.
 def shared var v-po-qty as log initial true no-undo.
 
+DEFINE VARIABLE dCostTotal  AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dCostPerUOM AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dCostSetup  AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cCostUOM    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdPOProcs   AS HANDLE    NO-UNDO.
+
 def buffer xjob-mat for job-mat.
 
 
@@ -34,6 +42,7 @@ DEF TEMP-TABLE tt-eiv NO-UNDO
     FIELD run-cost AS DEC DECIMALS 4 EXTENT 20
     FIELD setups AS DEC DECIMALS 2 EXTENT 20.
 
+RUN po/POProcs.p PERSISTENT SET hdPOProcs.
 
 find xjob-mat where recid(xjob-mat) eq v-recid1 no-lock.
 
@@ -60,13 +69,42 @@ do with frame po-ordlf:
       where item.company  eq job-mat.company
         and item.i-no     eq job-mat.i-no
         and item.mat-type eq "A":
-
-    IF lNewVendorItemCost THEN DO:
-       FIND FIRST venditemcost NO-LOCK WHERE venditemcost.company = ITEM.company
-            AND venditemcost.itemID = ITEM.i-no
-            AND venditemcost.itemtype = "RM"
-            AND vendItemCost.vendorID = po-ord.vend-no NO-ERROR. 
+    ASSIGN 
+        v-cost  = 0
+        v-setup = 0
+        .
+    IF lNewVendorItemCost THEN DO:     
+        RUN GetVendorCost(
+            INPUT  po-ordl.company, 
+            INPUT  item.i-no, 
+            INPUT  "RM", 
+            INPUT  po-ord.vend-no, 
+            INPUT  po-ord.cust-no, 
+            INPUT  "", 
+            INPUT  0, 
+            INPUT  0,
+            INPUT  po-ordl.ord-qty, 
+            INPUT  po-ordl.pr-qty-uom,
+            INPUT  item.s-len, 
+            INPUT  item.s-wid, 
+            INPUT  0, 
+            INPUT  "IN", 
+            INPUT  item.basis-w, 
+            INPUT  "LB/EA", 
+            INPUT  NO,
+            OUTPUT dCostPerUOM, 
+            OUTPUT dCostSetup, 
+            OUTPUT cCostUOM,
+            OUTPUT dCostTotal, 
+            OUTPUT lError, 
+            OUTPUT cMessage).  
+            
+        ASSIGN 
+            v-cost  = dCostPerUOM
+            v-setup = dCostSetup
+            .  
     END.
+    
     ELSE DO:
         find first e-item no-lock
             where e-item.company eq po-ordl.company
@@ -125,63 +163,37 @@ do with frame po-ordlf:
                                job-mat.len, job-mat.wid, item.s-dep,
                                v-cost, OUTPUT v-cost).
     END.
-    ELSE IF AVAIL vendItemCost AND po-ord.vend-no NE "" then 
-    do:
-        DEFINE VARIABLE dCostTotal  AS DECIMAL   NO-UNDO.
-        DEFINE VARIABLE dCostPerUOM AS DECIMAL   NO-UNDO.
-        DEFINE VARIABLE dCostSetup  AS DECIMAL   NO-UNDO.
-        DEFINE VARIABLE cCostUOM    AS CHARACTER NO-UNDO.
-
-        DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
-        DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
-        
-        RUN GetVendorCost(vendItemCost.company, 
-            vendItemCost.ItemID, 
-            vendItemCost.itemType, 
-            vendItemCost.vendorID, 
-            vendItemCost.customerID, 
-            "", 
-            0, 
-            0,
-            po-ordl.ord-qty, 
-            vendItemCost.vendorUOM,
-            item.s-len, 
-            item.s-wid, 
-            0, 
-            "IN", 
-            item.basis-w, 
-            "LB/EA", 
-            NO,
-            OUTPUT dCostPerUOM, 
-            OUTPUT dCostSetup, 
-            OUTPUT cCostUOM,
-            OUTPUT dCostTotal, 
-            OUTPUT lError, 
-            OUTPUT cMessage).  
-        
-/*        MESSAGE                              */
-/*            "Total Cost: " dCostTotal SKIP   */
-/*            "Cost Per UOM: " dCostPerUOM SKIP*/
-/*            "Cost UOM: " cCostUOM SKIP       */
-/*            "Cost Setup: " dCostSetup SKIP   */
-/*            "Error: " lError SKIP            */
-/*            "Message: " cMessage SKIP        */
-/*            VIEW-AS ALERT-BOX.               */
-
-        v-cost = dCostTotal.         
-    END.
-    ELSE DO:
-      v-cost = job-mat.std-cost.
-      
-      IF job-mat.sc-uom NE po-ordl.pr-uom THEN
-        RUN sys/ref/convcuom.p(job-mat.sc-uom, po-ordl.pr-uom, job-mat.basis-w,
-                               job-mat.len, job-mat.wid, item.s-dep,
-                               job-mat.std-cost, OUTPUT v-cost).
-    END.
-
-    v-add-cost = v-add-cost + v-cost.
+    FIND FIRST po-ordl-add NO-LOCK 
+         WHERE po-ordl-add.company    EQ po-ordl.company
+           AND po-ordl-add.po-no      EQ po-ordl.po-no  
+           AND po-ordl-add.line       EQ po-ordl.line   
+           AND po-ordl-add.adder-i-no EQ job-mat.i-no 
+         NO-ERROR. 
+    IF AVAILABLE po-ordl-add THEN 
+        RUN PO_UpdatePoAdders IN hdPOProcs(
+            INPUT po-ordl.company,
+            INPUT po-ordl.po-no,
+            INPUT po-ordl.line,
+            INPUT job-mat.i-no,
+            INPUT v-cost,
+            INPUT v-setup,
+            INPUT po-ordl.pr-uom
+            ). 
+     ELSE
+        RUN PO_CreatePoAdders IN hdPOProcs(
+            INPUT po-ordl.company,
+            INPUT po-ordl.po-no,
+            INPUT po-ordl.line,
+            INPUT job-mat.i-no,
+            INPUT v-cost,
+            INPUT v-setup,
+            INPUT po-ordl.pr-uom
+            ).
+    ASSIGN 
+        v-add-cost   = v-add-cost + v-cost
+        dadder-setup = dadder-setup + v-setup
+        .
   END.
-
   ASSIGN
    po-ordl.cost      = po-ordl.cost + v-add-cost
    po-ordl.cons-cost = po-ordl.cost
@@ -196,5 +208,8 @@ end.
 assign
  v-adder[1] = po-ordl.cost      - v-adder[1]
  v-adder[2] = po-ordl.cons-cost - v-adder[2].
+ 
+IF VALID-HANDLE(hdPOProcs) THEN 
+    DELETE PROCEDURE hdPOProcs.
 
 /* end ---------------------------------- copr. 1998  advanced software, inc. */
