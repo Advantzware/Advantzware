@@ -43,7 +43,7 @@ IF fConfirm() THEN
         IF fJobIsOK(BUFFER job) THEN 
         DO:
             iJobCount = iJobCount + 1.
-            RUN jc/jc-calc.p (RECID(job), YES).
+            RUN jc/jc-calc.p (RECID(job), NO).  //NO - Recalc, YES - Rebuild
         END.
     END.
 MESSAGE "Process Completed." SKIP 
@@ -61,7 +61,7 @@ FUNCTION fConfirm RETURNS LOGICAL PRIVATE
     ------------------------------------------------------------------------------*/	
     DEFINE VARIABLE lConfirm AS LOGICAL NO-UNDO.
 
-    MESSAGE "This utility will update all open jobs that have 0 production quantity." SKIP 
+    MESSAGE "This utility will recalc all open jobs that have 0 production quantity." SKIP 
         "It will take several minutes (or hours) to complete." SKIP (1)
         "Continue?"
         VIEW-AS ALERT-BOX BUTTONS YES-NO UPDATE lConfirm .
