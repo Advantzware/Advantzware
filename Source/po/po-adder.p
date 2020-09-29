@@ -91,7 +91,7 @@ do with frame po-ordlf:
             INPUT  "IN", 
             INPUT  item.basis-w, 
             INPUT  "LB/EA", 
-            INPUT  NO,
+            INPUT  YES,
             OUTPUT dCostPerUOM, 
             OUTPUT dCostSetup, 
             OUTPUT cCostUOM,

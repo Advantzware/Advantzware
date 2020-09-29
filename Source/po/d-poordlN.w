@@ -4786,7 +4786,7 @@ PROCEDURE po-adder2 :
                 INPUT  "IN", 
                 INPUT  item.basis-w, 
                 INPUT  "LB/EA", 
-                INPUT  NO,
+                INPUT  YES,
                 OUTPUT dCostPerUOM, 
                 OUTPUT dCostSetup, 
                 OUTPUT cCostUOM,
@@ -4799,6 +4799,12 @@ PROCEDURE po-adder2 :
                 v-cost  = dCostPerUOM
                 v-setup = dCostSetup
                 .
+                
+            IF lError AND iplgShowWarning THEN 
+                RUN displayMessage(
+                    INPUT "52"
+                    ).  
+                      
             IF cCostUOM NE po-ordl.pr-uom:SCREEN-VALUE THEN
                 RUN Conv_ValueFromUOMToUOM (
                     INPUT  po-ordl.company,
@@ -4823,11 +4829,7 @@ PROCEDURE po-adder2 :
                   STRING(v-cost,'-z,zz9.99') + STRING(v-setup,'-zzz9.99') + CHR(10)
                 v-add-cost     = v-add-cost + v-cost
                 op-adder-setup = op-adder-setup + v-setup
-                .
-            IF v-cost EQ 0 AND iplgShowWarning THEN 
-                RUN displayMessage(
-                    INPUT "52"
-                    ).  
+                .  
             /* gdm - */     
             FIND FIRST po-ordl-add NO-LOCK 
                  WHERE po-ordl-add.company    EQ po-ordl.company
@@ -6521,8 +6523,6 @@ PROCEDURE vend-cost :
                 OUTPUT dCostPerUOMCons,
                 OUTPUT dAddersSetupCost
                 ).
-                MESSAGE dCostPerUOM SKIP dCostPerUOMCons SKIP dAddersSetupCost SKIP dCostTotal
-                VIEW-AS ALERT-BOX.
         IF ip-calc-cost THEN 
         DO:   
             ASSIGN 

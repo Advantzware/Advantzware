@@ -4719,7 +4719,7 @@ PROCEDURE po-adder2 :
                 v-add-cost = v-add-cost + v-cost.
 
             /* gdm - */     
-            IF v-cost EQ 0 AND iplgShowWarning THEN 
+            IF (NOT AVAILABLE e-item OR NOT AVAILABLE e-item-vend) AND iplgShowWarning THEN 
                 RUN displayMessage(
                     INPUT "52"
                     ).       
