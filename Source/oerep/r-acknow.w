@@ -2438,7 +2438,7 @@ PROCEDURE GenerateEmail:
   IF NOT is-xprint-form THEN
     OS-COPY VALUE(list-name) VALUE(lv-pdf-file + ".txt").
   IF ls-to-list2 <> "" THEN ls-to-list = ls-to-list + "," + ls-to-list2.       
-  ASSIGN lv-mailto       = 'To:' + ls-to-list
+  ASSIGN lv-mailto       = IF ls-to-list NE "" THEN ('To:' + ls-to-list) ELSE ""
          lv-mailsubject  = vcSubject
          lv-mailbody     = vcMailBody
          lv-mailattach   =  IF is-xprint-form THEN lv-pdf-file + ".pdf" ELSE lv-pdf-file + ".txt" /*list-name*/.
