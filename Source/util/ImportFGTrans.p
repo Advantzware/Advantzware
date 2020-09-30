@@ -58,9 +58,7 @@ PROCEDURE pProcessRecord PRIVATE:
     
     DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
     DEFINE BUFFER b-fg-rctd  FOR fg-rctd.
-    
-    RUN Inventory\InventoryProcs.p PERSISTENT SET hdInventoryProcs. 
-    
+            
     FIND FIRST loadtag WHERE loadtag.company   = ipbf-ttImportFGTrans.Company
         AND loadtag.ITEM-type = NO
         AND loadtag.tag-no    = ipbf-ttImportFGTrans.cTagNo NO-LOCK NO-ERROR.
@@ -133,20 +131,7 @@ PROCEDURE pProcessRecord PRIVATE:
         bf-fg-rctd.enteredBy    = USERID(LDBNAME(1))
         bf-fg-rctd.enteredDT    = DATETIME(TODAY, MTIME)
         .
-          
-    /* Posts fg-rctd records */
-    RUN PostFinishedGoodsForUser IN hdInventoryProcs(
-        INPUT        ipbf-ttImportFGTrans.Company,
-        INPUT        cTransfer,       /* Transfer */
-        INPUT        USERID(LDBNAME(1)),
-        INPUT        lPromptForClose, /* Executes API closing orders logic */
-        INPUT-OUTPUT lSuccess,
-        INPUT-OUTPUT cMessage
-        ) NO-ERROR .                 
-               
-    DELETE PROCEDURE hdInventoryProcs.            
-   
-   
+      
 END PROCEDURE.                                                                                                                 
                                                                                                                                
 PROCEDURE pValidate PRIVATE:

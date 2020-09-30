@@ -28,8 +28,7 @@ DEFINE TEMP-TABLE ttImportFGRctd
     FIELD iQuantityPerSubUnit      AS INTEGER   FORMAT ">>>>>>>9" COLUMN-LABEL "Unit" HELP "Optional - Integer"
     FIELD iQuantitySubUnitsPerUnit AS INTEGER   FORMAT ">>>>>>>9" COLUMN-LABEL "Unit Count" HELP "Optional - Integer"     
     FIELD cWarehouseID             AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Warehouse" HELP "Required - Size:5"
-    FIELD cLocationID              AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Bin" HELP "Optional - Size:8"
-    FIELD lSSPostFG                AS LOGICAL   FORMAT "Yes/No" COLUMN-LABEL "Auto Post" HELP "Optional - Yes Or No (Blank - No)"    
+    FIELD cLocationID              AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Bin" HELP "Optional - Size:8"    
     
     .      
     
@@ -50,16 +49,6 @@ DEFINE VARIABLE dFrtCost           AS DECIMAL   NO-UNDO.
 {jc/jcgl-sh.i  NEW}
 
 /* ********************  Preprocessor Definitions  ******************** */
-
-
-/* ************************  Function Prototypes ********************** */
-FUNCTION fGetValueInteger RETURNS INTEGER PRIVATE
-    ( ipcCompany AS CHARACTER,
-    ipcControlValue AS CHARACTER) FORWARD.
-    
-FUNCTION fGetValueLogical RETURNS LOGICAL PRIVATE
-    ( ipcCompany AS CHARACTER,
-    ipcControlValue AS CHARACTER) FORWARD.    
 
 
 /* ***************************  Main Block  *************************** */
@@ -84,8 +73,7 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
-    
-    RUN Inventory\InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+        
     RUN api\inbound\InventoryReceiptProcs.p PERSISTENT SET hdInventoryReceipt.
     
     ASSIGN
@@ -268,30 +256,16 @@ PROCEDURE pProcessRecord PRIVATE:
         
         
     /* Checks sys-ctrl */
-    {sys/inc/sspostfg.i}
+   /* {sys/inc/sspostfg.i}
 
     dFinalQuantity = IF ipbf-ttImportFGRctd.dQuantity LT 0 THEN
         dFinalQuantity
         ELSE
         ipbf-ttImportFGRctd.dQuantity
-        .   
-                       
-    IF (SSPostFG-log OR ipbf-ttImportFGRctd.lSSPostFG EQ YES) AND (ipbf-ttImportFGRctd.lSSPostFG NE NO) THEN 
-    DO:	   
-        /* Posts Receipts */
-        RUN PostFinishedGoodsForUser IN hdInventoryProcs(
-            INPUT        ipbf-ttImportFGRctd.Company,
-            INPUT        cReceipt,        /* Receipt */
-            INPUT        USERID(LDBNAME(1)),
-            INPUT        lPromptForClose, /* Executes API closing orders logic */
-            INPUT-OUTPUT lSuccess,
-            INPUT-OUTPUT cMessage
-            ) NO-ERROR.               
-           
-    END.                     
+        . */                        
+        
     
-   DELETE PROCEDURE hdInventoryReceipt. 
-   DELETE PROCEDURE hdInventoryProcs.
+   DELETE PROCEDURE hdInventoryReceipt.    
                                                                                                                                
 END PROCEDURE.                                                                                                                 
                                                                                                                                
@@ -769,43 +743,3 @@ PROCEDURE pFGRecordCreation PRIVATE :
 END PROCEDURE.
 
  
-FUNCTION fGetValueInteger RETURNS INTEGER PRIVATE
-    ( ipcCompany AS CHARACTER,
-    ipcControlValue AS CHARACTER):
-    /*------------------------------------------------------------------------------
-     Purpose: returns the next xNO for ar-inv creation
-     Notes:
-    ------------------------------------------------------------------------------*/	
-    
-    DEFINE VARIABLE iReturnValue AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cReturn      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lFound       AS LOGICAL   NO-UNDO.      
-    
-    RUN sys/ref/nk1look.p (ipcCompany, ipcControlValue , "I", NO, NO, "","", OUTPUT cReturn, OUTPUT lFound).
-    IF lFound THEN iReturnValue = INTEGER(cReturn) NO-ERROR. 
-    
-    RETURN iReturnValue .
-		
-END FUNCTION.
-
-FUNCTION fGetValueLogical RETURNS LOGICAL PRIVATE
-    ( ipcCompany AS CHARACTER,
-    ipcControlValue AS CHARACTER):
-    /*------------------------------------------------------------------------------
-     Purpose: returns the next xNO for ar-inv creation
-     Notes:
-    ------------------------------------------------------------------------------*/	
-    
-    DEFINE VARIABLE lReturnValue AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cReturn      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lFound       AS LOGICAL   NO-UNDO.        
-    
-    RUN sys/ref/nk1look.p (ipcCompany, ipcControlValue , "L", NO, NO, "","", OUTPUT cReturn, OUTPUT lFound).
-    IF lFound THEN lReturnValue = LOGICAL(cReturn) NO-ERROR. 
-    
-    RETURN lReturnValue .
-		
-END FUNCTION.
-
-
-

@@ -52,22 +52,15 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
     
-    DEFINE VARIABLE iRNo                AS int64     NO-UNDO.
-    DEFINE VARIABLE rifgrctd            AS ROWID     NO-UNDO.
-    DEFINE VARIABLE dOutputQty          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iRNo                AS int64     NO-UNDO.        
     DEFINE VARIABLE lError              AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cItemID             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTransactionTypeAdj AS CHARACTER NO-UNDO INITIAL "A".
-    DEFINE VARIABLE lPromptForClose     AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lSuccess            AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
-        
+            
     DEFINE BUFFER bf-fg-rctd  FOR fg-rctd.
     DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth.
-    DEFINE BUFFER bf-fg-bin   FOR fg-bin.
-    
-    RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
-        
+    DEFINE BUFFER bf-fg-bin   FOR fg-bin.       
+            
     FIND FIRST loadtag NO-LOCK 
         WHERE loadtag.company   EQ ipbf-ttImportFGAdj.Company
         AND loadtag.item-type EQ NO
@@ -139,20 +132,7 @@ PROCEDURE pProcessRecord PRIVATE:
         bf-fg-rctd.updated-by     = USERID(LDBNAME(1))         
         .
 
-    FIND CURRENT bf-fg-rctd NO-LOCK NO-ERROR.
-        
-    /* Posts fg-rctd records */
-    RUN PostFinishedGoodsForUser IN hdInventoryProcs(
-        INPUT        ipbf-ttImportFGAdj.Company,
-        INPUT        cTransactionTypeAdj,       /* Adjustment */
-        INPUT        bf-fg-rctd.created-by,
-        INPUT        lPromptForClose, /* Executes API closing orders logic */
-        INPUT-OUTPUT lSuccess,
-        INPUT-OUTPUT cMessage
-        ) NO-ERROR.   
-        
-    IF VALID-HANDLE(hdInventoryProcs) THEN 
-        DELETE PROCEDURE hdInventoryProcs.       
+    FIND CURRENT bf-fg-rctd NO-LOCK NO-ERROR.         
                                                                                                                                
 END PROCEDURE.                                                                                                                 
                                                                                                                                
