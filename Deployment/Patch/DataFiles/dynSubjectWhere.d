@@ -2254,3 +2254,7 @@
 144 4 "_field" "_field" "" "INT (" "" no "" "" "202009096453805608939"
 144 5 "_field" "_field" "Table RECID" "[[TableRecID]]" "" no "" "" "202009096453805608938"
 144 6 "_field" "_field" "" ")" "" no "" "" "202009096453805608940"
+146 1 "terms" "terms" "" "WHERE" "" no "" "" "202009211114805673165"
+146 2 "terms" "terms" "Company" "terms.company" "character" no "" "" "202009211114805673166"
+146 3 "terms" "terms" "" "EQ" "" no "" "" "202009211114805673167"
+146 4 "terms" "terms" "Company" "[[company]]" "" no "" "" "202009211114805673168"

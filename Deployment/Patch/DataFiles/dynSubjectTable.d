@@ -148,3 +148,7 @@
 142 1 "EACH" "APIOutbound" "API Oubound " "" "ASI" "202009082061105630146"
 143 1 "EACH" "_file" "VST File" "" "ASI" "202009095502105608659"
 144 1 "EACH" "_field" "VST Field" "" "ASI" "202009095790205608713"
+145 1 "EACH" "tt-srt" "" "" "ASI" "202009210108305641714"
+146 1 "EACH" "terms" "Terms Code Master" "" "ASI" "202009211114805673164"
+147 1 "EACH" "job-code" "Machine Charge Codes" "" "ASI" "202009217066305647778"
+148 1 "EACH" "dept" "Departments" "" "ASI" "202009217129805648029"

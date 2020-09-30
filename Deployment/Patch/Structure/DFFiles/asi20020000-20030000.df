@@ -1,0 +1,679 @@
+ADD FIELD "commReport" OF "account" AS logical
+  FORMAT "yes/no"
+  POSITION 50
+  INITIAL "no"
+  LABEL "Include on Commissiion Reports"
+  ORDER 480
+  MAX-WIDTH 1
+
+ADD FIELD "salesReport" OF "account" AS logical
+  FORMAT "yes/no"
+  POSITION 51
+  INITIAL "no"
+  LABEL "Include on Sales Reports"
+  ORDER 470
+  MAX-WIDTH 1
+
+ADD FIELD "postInProcess" OF "ap-ctrl" AS logical
+  FORMAT "yes/no"
+  POSITION 34
+  INITIAL "no"
+  LABEL "Post in Process"
+  ORDER 330
+  MAX-WIDTH 1
+
+ADD FIELD "postType" OF "ap-ctrl" AS character
+  FORMAT "x(8)"
+  POSITION 35
+  INITIAL ""
+  LABEL "Post Type"
+  ORDER 340
+  MAX-WIDTH 16
+
+ADD FIELD "postUserID" OF "ap-ctrl" AS character
+  FORMAT "x(12)"
+  POSITION 36
+  INITIAL ""
+  LABEL "Post UserID"
+  ORDER 350
+  MAX-WIDTH 24
+
+ADD FIELD "postStartDtTm" OF "ap-ctrl" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 37
+  INITIAL ?
+  LABEL "Post Started"
+  ORDER 360
+  MAX-WIDTH 8
+
+ADD FIELD "hostSSHKey" OF "APIOutbound" AS character
+  FORMAT "x(500)"
+  POSITION 25
+  INITIAL ""
+  HELP "Enter FTP host SSH Key for validating the host key"
+  LABEL "Host SSH Key"
+  COLUMN-LABEL "Host SSH Key"
+  ORDER 240
+  MAX-WIDTH 1000
+
+ADD FIELD "useLocationValidation" OF "APIOutbound" AS logical
+  DESCRIPTION "If disabled will skip the location validation"
+  FORMAT "yes/no"
+  POSITION 26
+  INITIAL "no"
+  LABEL "Use Location Validation"
+  COLUMN-LABEL "Use Location Validation"
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+  ORDER 250
+  MAX-WIDTH 1
+
+ADD FIELD "postInProcess" OF "ar-ctrl" AS logical
+  FORMAT "yes/no"
+  POSITION 41
+  INITIAL "no"
+  LABEL "Post in Process"
+  ORDER 380
+  MAX-WIDTH 1
+
+ADD FIELD "postType" OF "ar-ctrl" AS character
+  FORMAT "x(8)"
+  POSITION 42
+  INITIAL ""
+  LABEL "Post Type"
+  ORDER 390
+  MAX-WIDTH 16
+
+ADD FIELD "postUserID" OF "ar-ctrl" AS character
+  FORMAT "x(12)"
+  POSITION 43
+  INITIAL ""
+  LABEL "Post UserID"
+  ORDER 400
+  MAX-WIDTH 24
+
+ADD FIELD "postStartDtTm" OF "ar-ctrl" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 44
+  INITIAL ?
+  LABEL "Post Started"
+  ORDER 410
+  MAX-WIDTH 8
+
+ADD FIELD "fuel-%-or-amt" OF "carr-mtx" AS logical
+  FORMAT "%/$"
+  POSITION 21
+  INITIAL "%"
+  EXTENT 10
+  ORDER 190
+  MAX-WIDTH 40
+
+ADD FIELD "fuel-%-or-amt-array" OF "carr-mtx" AS logical
+  FORMAT "%/$"
+  POSITION 22
+  INITIAL "%"
+  EXTENT 90
+  ORDER 200
+  MAX-WIDTH 360
+
+DROP FIELD "fuel-%-or-$" OF "carr-mtx"
+DROP FIELD "fuel-%-or-$-array" OF "carr-mtx"
+
+ADD FIELD "balanceCurrent" OF "cust" AS decimal
+  FORMAT "->,>>>,>>>,>>9.99"
+  POSITION 170
+  INITIAL "0"
+  HELP "Enter Current Balance"
+  LABEL "Current Balance"
+  DECIMALS 2
+  ORDER 1680
+  MAX-WIDTH 17
+
+ADD FIELD "balanceWithinGrace" OF "cust" AS decimal
+  FORMAT "->,>>>,>>>,>>9.99"
+  POSITION 171
+  INITIAL "0"
+  HELP "Enter Within Grace  Balance"
+  LABEL "Within Grace  Balance"
+  DECIMALS 2
+  ORDER 1690
+  MAX-WIDTH 17
+
+ADD FIELD "balancePastDue" OF "cust" AS decimal
+  FORMAT "->,>>>,>>>,>>9.99"
+  POSITION 172
+  INITIAL "0"
+  HELP "Enter Past Due Balance"
+  LABEL "Past Due Balance"
+  DECIMALS 2
+  ORDER 1700
+  MAX-WIDTH 17
+
+UPDATE TABLE "dateRules"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/dateRules.p" CRC "?"
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/dateRules.p" CRC "?"
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/dateRules.p" CRC "?"
+
+RENAME FIELD "dateRuleID" OF "dateRules" TO "Z_dateRuleID01"
+ADD FIELD "dateRuleID" OF "dateRules" AS character
+  FORMAT "x(16)"
+  POSITION 3
+  INITIAL ""
+  LABEL "Date Rule ID"
+  ORDER 10
+  MAX-WIDTH 32
+
+ADD FIELD "dateRuleName" OF "dateRules" AS character
+  FORMAT "x(32)"
+  POSITION 4
+  INITIAL ""
+  LABEL "Date Rule Name"
+  ORDER 20
+  MAX-WIDTH 64
+
+UPDATE FIELD "baseTable" OF "dateRules"
+  ORDER 30
+
+UPDATE FIELD "baseField" OF "dateRules"
+  ORDER 40
+
+UPDATE FIELD "days" OF "dateRules"
+  ORDER 50
+
+UPDATE FIELD "skipDays" OF "dateRules"
+  ORDER 70
+
+UPDATE FIELD "resultTable" OF "dateRules"
+  ORDER 80
+
+UPDATE FIELD "resultField" OF "dateRules"
+  ORDER 90
+
+UPDATE FIELD "rec_key" OF "dateRules"
+  ORDER 100
+
+UPDATE FIELD "skipTime" OF "dateRules"
+  ORDER 60
+
+RENAME INDEX "iDateRuleID" TO "temp-30828" ON "dateRules"
+
+RENAME INDEX "iScope" TO "temp-80833" ON "dateRules"
+
+ADD INDEX "iDateRuleID" ON "dateRules"
+  AREA "Index"
+  UNIQUE
+  DESCRIPTION "Primary Index by Date Rule ID"
+  INDEX-FIELD "dateRuleID" ASCENDING
+
+ADD INDEX "iDateRuleName" ON "dateRules"
+  AREA "Index"
+  INDEX-FIELD "dateRuleName" ASCENDING
+
+ADD INDEX "iScope" ON "dateRules"
+  AREA "Index"
+  INDEX-FIELD "dateRuleID" ASCENDING
+
+UPDATE PRIMARY INDEX "iDateRuleID" ON "dateRules"
+
+DROP INDEX "temp-30828" ON "dateRules"
+DROP INDEX "temp-80833" ON "dateRules"
+DROP INDEX "iScopeID" ON "dateRules"
+
+DROP FIELD "scope" OF "dateRules"
+DROP FIELD "scopeID" OF "dateRules"
+DROP FIELD "Z_dateRuleID01" OF "dateRules"
+
+UPDATE FIELD "seq" OF "dmiTrans"
+  FORMAT ">>,>>>,>>9"
+
+ADD FIELD "moldTime" OF "dmiTrans" AS integer
+  FORMAT ">>>>9"
+  POSITION 22
+  INITIAL "0"
+  HELP "Enter Mold Time"
+  LABEL "Mold Time"
+  ORDER 210
+  MAX-WIDTH 4
+
+ADD FIELD "dryTime" OF "dmiTrans" AS integer
+  FORMAT ">>>>9"
+  POSITION 23
+  INITIAL "0"
+  HELP "Enter Dry Time"
+  LABEL "Dry Time"
+  ORDER 220
+  MAX-WIDTH 4
+
+ADD FIELD "cycleDelay" OF "dmiTrans" AS integer
+  FORMAT ">>>>9"
+  POSITION 24
+  INITIAL "0"
+  HELP "Enter Cycle Delay"
+  LABEL "Cycle Delay"
+  ORDER 230
+  MAX-WIDTH 4
+
+ADD FIELD "preAgitate" OF "dmiTrans" AS integer
+  FORMAT ">>>>9"
+  POSITION 25
+  INITIAL "0"
+  HELP "Enter PreAgitate"
+  LABEL "PreAgitate"
+  ORDER 240
+  MAX-WIDTH 4
+
+ADD FIELD "downAgitate" OF "dmiTrans" AS integer
+  FORMAT ">>>>9"
+  POSITION 26
+  INITIAL "0"
+  HELP "Enter Down Agitate"
+  LABEL "Down Agitate"
+  ORDER 250
+  MAX-WIDTH 4
+
+ADD FIELD "upAgitate" OF "dmiTrans" AS integer
+  FORMAT ">>>>9"
+  POSITION 27
+  INITIAL "0"
+  HELP "Enter Up Agitate"
+  LABEL "Up Agitate"
+  ORDER 260
+  MAX-WIDTH 4
+
+ADD FIELD "cycleTime" OF "dmiTrans" AS integer
+  FORMAT ">>>>9"
+  POSITION 28
+  INITIAL "0"
+  HELP "Enter Cycle Time"
+  LABEL "Cycle Time"
+  ORDER 270
+  MAX-WIDTH 4
+
+ADD FIELD "beltSpeed" OF "dmiTrans" AS integer
+  FORMAT ">>>>9"
+  POSITION 29
+  INITIAL "0"
+  HELP "Enter Belt Speed"
+  LABEL "Belt Speed"
+  ORDER 280
+  MAX-WIDTH 4
+
+ADD FIELD "zone1Temp" OF "dmiTrans" AS integer
+  FORMAT ">>9"
+  POSITION 30
+  INITIAL "0"
+  HELP "Enter Zone 1 Temp"
+  LABEL "Zone 1 Temp"
+  COLUMN-LABEL "Zone1"
+  ORDER 290
+  MAX-WIDTH 4
+
+ADD FIELD "zone2Temp" OF "dmiTrans" AS integer
+  FORMAT ">>9"
+  POSITION 31
+  INITIAL "0"
+  HELP "Enter Zone 2 Temp"
+  LABEL "Zone 2 Temp"
+  COLUMN-LABEL "Zone1"
+  ORDER 300
+  MAX-WIDTH 4
+
+ADD FIELD "zone3Temp" OF "dmiTrans" AS integer
+  FORMAT ">>9"
+  POSITION 32
+  INITIAL "0"
+  HELP "Enter Zone 3 Temp"
+  LABEL "Zone 3 Temp"
+  COLUMN-LABEL "Zone1"
+  ORDER 310
+  MAX-WIDTH 4
+
+ADD FIELD "custListID" OF "dynParamValue" AS character
+  FORMAT "x(3)"
+  POSITION 55
+  INITIAL ""
+  HELP "Enter Customer List ID"
+  LABEL "Customer List ID"
+  COLUMN-LABEL "CustListID"
+  ORDER 470
+  MAX-WIDTH 6
+
+ADD FIELD "useCustList" OF "dynParamValue" AS logical
+  FORMAT "yes/no"
+  POSITION 56
+  INITIAL "no"
+  HELP "Toggle Use Customer List"
+  LABEL "Use Customer List"
+  COLUMN-LABEL "UseCust"
+  ORDER 480
+  MAX-WIDTH 1
+
+ADD FIELD "custListID" OF "dynSubject" AS character
+  FORMAT "x(3)"
+  POSITION 27
+  INITIAL ""
+  HELP "Enter Customer List ID"
+  LABEL "Customer List ID"
+  COLUMN-LABEL "CustListID"
+  ORDER 230
+  MAX-WIDTH 6
+
+ADD FIELD "useCustList" OF "dynSubject" AS logical
+  FORMAT "yes/no"
+  POSITION 28
+  INITIAL "no"
+  HELP "Toggle Use Customer List"
+  LABEL "Use Customer List"
+  COLUMN-LABEL "UseCust"
+  ORDER 240
+  MAX-WIDTH 1
+
+ADD FIELD "CustListField" OF "dynSubjectColumn" AS logical
+  FORMAT "yes/no"
+  POSITION 32
+  INITIAL "no"
+  HELP "Toggle Customer List Field"
+  LABEL "Customer List Field"
+  COLUMN-LABEL "CustList"
+  ORDER 300
+  MAX-WIDTH 1
+
+ADD FIELD "CustListField" OF "dynValueColumn" AS logical
+  FORMAT "yes/no"
+  POSITION 32
+  INITIAL "no"
+  HELP "Toggle Customer List Field"
+  LABEL "Customer List Field"
+  COLUMN-LABEL "CustList"
+  ORDER 310
+  MAX-WIDTH 1
+
+ADD FIELD "quantityFGOnFormRequired" OF "estCostForm" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 62
+  INITIAL "0"
+  DECIMALS 6
+  ORDER 640
+  MAX-WIDTH 21
+
+ADD FIELD "quantityFGOnFormYielded" OF "estCostForm" AS decimal
+  FORMAT "->>,>>9.99"
+  POSITION 63
+  INITIAL "0"
+  DECIMALS 6
+  ORDER 650
+  MAX-WIDTH 21
+
+ADD FIELD "postInProcess" OF "fg-ctrl" AS logical
+  FORMAT "yes/no"
+  POSITION 25
+  INITIAL "no"
+  LABEL "Post in Process"
+  ORDER 250
+  MAX-WIDTH 1
+
+ADD FIELD "postType" OF "fg-ctrl" AS character
+  FORMAT "x(8)"
+  POSITION 26
+  INITIAL ""
+  LABEL "Post Type"
+  ORDER 260
+  MAX-WIDTH 16
+
+ADD FIELD "postUserID" OF "fg-ctrl" AS character
+  FORMAT "x(12)"
+  POSITION 27
+  INITIAL ""
+  LABEL "Post UserID"
+  ORDER 270
+  MAX-WIDTH 24
+
+ADD FIELD "postStartDtTm" OF "fg-ctrl" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 28
+  INITIAL ?
+  LABEL "Post Started"
+  ORDER 280
+  MAX-WIDTH 8
+
+ADD FIELD "postInProcess" OF "gl-ctrl" AS logical
+  FORMAT "yes/no"
+  POSITION 25
+  INITIAL "no"
+  LABEL "Post in Process"
+  ORDER 65
+  MAX-WIDTH 1
+
+ADD FIELD "postType" OF "gl-ctrl" AS character
+  FORMAT "x(8)"
+  POSITION 26
+  INITIAL ""
+  LABEL "Post Type"
+  ORDER 75
+  MAX-WIDTH 16
+
+ADD FIELD "postUserID" OF "gl-ctrl" AS character
+  FORMAT "x(12)"
+  POSITION 27
+  INITIAL ""
+  LABEL "Post UserID"
+  ORDER 85
+  MAX-WIDTH 24
+
+ADD FIELD "postStartDtTm" OF "gl-ctrl" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 28
+  INITIAL ?
+  LABEL "Post Started"
+  ORDER 95
+  MAX-WIDTH 8
+
+ADD FIELD "subZone" OF "itemfg" AS character
+  FORMAT "x(8)"
+  POSITION 227
+  INITIAL ""
+  LABEL "SubZone"
+  COLUMN-LABEL "SubZone"
+  ORDER 2230
+  MAX-WIDTH 16
+
+ADD FIELD "promiseDate" OF "job" AS date
+  FORMAT "99/99/9999"
+  POSITION 68
+  INITIAL ?
+  LABEL "Promise Date"
+  COLUMN-LABEL "Promise Date"
+  ORDER 670
+  MAX-WIDTH 4
+
+ADD FIELD "promiseDate" OF "job-hdr" AS date
+  FORMAT "99/99/9999"
+  POSITION 53
+  INITIAL ?
+  LABEL "Promise Date"
+  COLUMN-LABEL "Promise Date"
+  ORDER 540
+  MAX-WIDTH 4
+
+ADD INDEX "jobMchID" ON "job-mch"
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Job Machine Unique ID"
+  INDEX-FIELD "job-mchID" ASCENDING
+
+ADD FIELD "chargeCode" OF "notes" AS character
+  FORMAT "x(5)"
+  POSITION 29
+  INITIAL ""
+  HELP "Enter Charge Code"
+  LABEL "Charge Code"
+  COLUMN-LABEL "Charge"
+  ORDER 280
+  MAX-WIDTH 10
+
+ADD FIELD "quotedFreight" OF "oe-bolh" AS decimal
+  FORMAT "->>,>>>,>>9.99"
+  POSITION 92
+  INITIAL "0"
+  LABEL "Quoted Freight"
+  DECIMALS 2
+  ORDER 870
+  MAX-WIDTH 17
+
+ADD FIELD "quoteNote" OF "oe-bolh" AS character
+  FORMAT "x(32)"
+  POSITION 93
+  INITIAL ""
+  LABEL "Quote Note"
+  ORDER 880
+  MAX-WIDTH 64
+
+ADD FIELD "priority" OF "oe-ord" AS integer
+  FORMAT "->,>>>,>>9"
+  POSITION 139
+  INITIAL "0"
+  LABEL "Order Priority"
+  ORDER 1360
+  MAX-WIDTH 4
+
+ADD FIELD "promiseDate" OF "oe-ord" AS date
+  FORMAT "99/99/9999"
+  POSITION 140
+  INITIAL ?
+  LABEL "Promise Date"
+  COLUMN-LABEL "Promise Date"
+  ORDER 1370
+  MAX-WIDTH 4
+
+ADD FIELD "promiseDate" OF "oe-ordl" AS date
+  DESCRIPTION "Promise Date"
+  FORMAT "99/99/99"
+  POSITION 136
+  INITIAL ?
+  LABEL "Promise Date"
+  COLUMN-LABEL "Promise Date"
+  ORDER 1300
+  MAX-WIDTH 4
+
+ADD FIELD "minOrderQty" OF "oe-prmtx" AS decimal
+  FORMAT "->>>,>>>,>>9.<<<"
+  POSITION 26
+  INITIAL "0"
+  LABEL "Minimum Order Qty"
+  DECIMALS 2
+  ORDER 460
+  MAX-WIDTH 17
+
+ADD FIELD "postInProcess" OF "po-ctrl" AS logical
+  FORMAT "yes/no"
+  POSITION 23
+  INITIAL "no"
+  LABEL "Post in Process"
+  ORDER 250
+  MAX-WIDTH 1
+
+ADD FIELD "postType" OF "po-ctrl" AS character
+  FORMAT "x(8)"
+  POSITION 24
+  INITIAL ""
+  LABEL "Post Type"
+  ORDER 260
+  MAX-WIDTH 16
+
+ADD FIELD "postUserID" OF "po-ctrl" AS character
+  FORMAT "x(12)"
+  POSITION 25
+  INITIAL ""
+  LABEL "Post UserID"
+  ORDER 270
+  MAX-WIDTH 24
+
+ADD FIELD "postStartDtTm" OF "po-ctrl" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 26
+  INITIAL ?
+  LABEL "Post Started"
+  ORDER 280
+  MAX-WIDTH 8
+
+ADD FIELD "adders" OF "po-ordl" AS decimal
+  FORMAT ">>,>>9.99"
+  POSITION 46
+  INITIAL "0"
+  HELP "Enter charge incurred from the adders"
+  LABEL "Setup Charge"
+  DECIMALS 2
+  ORDER 450
+  MAX-WIDTH 17
+
+DROP FIELD "adders$" OF "po-ordl"
+
+ADD FIELD "gshQtyInSF" OF "probe" AS decimal
+  FORMAT "->,>>>,>>9.99<<<<"
+  POSITION 103
+  INITIAL "0"
+  LABEL "GSH Qty in SF"
+  COLUMN-LABEL "GSH Qty in SF"
+  DECIMALS 2
+  ORDER 960
+  MAX-WIDTH 17
+
+ADD FIELD "postInProcess" OF "rm-ctrl" AS logical
+  FORMAT "yes/no"
+  POSITION 26
+  INITIAL "no"
+  LABEL "Post in Process"
+  ORDER 250
+  MAX-WIDTH 1
+
+ADD FIELD "postType" OF "rm-ctrl" AS character
+  FORMAT "x(8)"
+  POSITION 27
+  INITIAL ""
+  LABEL "Post Type"
+  ORDER 260
+  MAX-WIDTH 16
+
+ADD FIELD "postUserID" OF "rm-ctrl" AS character
+  FORMAT "x(12)"
+  POSITION 28
+  INITIAL ""
+  LABEL "Post UserID"
+  ORDER 270
+  MAX-WIDTH 24
+
+ADD FIELD "postStartDtTm" OF "rm-ctrl" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 29
+  INITIAL ?
+  LABEL "Post Started"
+  ORDER 280
+  MAX-WIDTH 8
+
+UPDATE TABLE "zMessage"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg\zMessage.p" CRC "?"
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg\zMessage.p" CRC "?"
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg\zMessage.p" CRC "?"
+
+ADD FIELD "rec_key" OF "zMessage" AS character
+  FORMAT "X(21)"
+  POSITION 21
+  INITIAL ""
+  HELP "Enter Record Key Value"
+  LABEL "Record Key"
+  DECIMALS 0
+  ORDER 200
+  MAX-WIDTH 42
+
+ADD INDEX "si-rec_key" ON "zMessage"
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Record Key"
+  INDEX-FIELD "rec_key" ASCENDING
+
+UPDATE PRIMARY INDEX "si-rec_key" ON "zMessage"
+
+DROP SEQUENCE "dateRules_seq"
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000014323

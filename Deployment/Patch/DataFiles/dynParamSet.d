@@ -99,7 +99,7 @@
 107 "System" "Due Release Dates" 6.91 33 yes "Update Dates" yes "202004236252205124248"
 108 "System" "Sales Group Range" 5.48 71 yes "Sales Group" yes "202004287485305172005"
 109 "System" "ShipTo Range" 5.48 69 yes "ShipTo" yes "202005062079105231430"
-112 "System" "Code Range" 5.48 74 yes "Machine Charge" yes "202005201753905284213"
+112 "System" "Charge Code Range" 5.48 74 yes "Charge Codes" yes "202005201753905284213"
 113 "System" "Ship to Status" 3.33 36 yes "Ship to Status" yes "202006042136305335230"
 114 "System" "FG Item Status" 3.33 36 yes "FG Item Status" yes "202006042156105335232"
 115 "System" "Printer ID" 3.1 56 yes "" yes "202006156807805359288"
@@ -123,3 +123,4 @@
 136 "System" "Summary Details Total" 3.1 43 yes "" yes "202008250782605609379"
 137 "System" "Sales Analysis Options" 4.29 32 yes "" yes "202008250907305609381"
 138 "System" "Table RECID" 3.1 32 yes "" yes "202009096262805608838"
+139 "System" "Time Range" 3.57 38 yes "Time Range" yes "202009216683005646404"

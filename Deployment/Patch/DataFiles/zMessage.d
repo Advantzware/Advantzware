@@ -49,4 +49,9 @@ or adding any field from a Release including:
 4) Release PO Number
 " "" "" ? 0 900 no no "WARNING" "" "" "2020080355168.NoSuper"
 "46" "OE" 0 "" "" "Deleted Order" "Order has been deleted" "" "This order has been deleted." "" "" ? 0 900 no no "INFO" "" "" "202009034506405625862"
-"47" "OE" 0 "" "" "Deleted Job" "Jobhas been deleted" "" "This Job has been deleted." "" "" ? 0 900 no no "INFO" "" "" "202009034650705625864"
+"47" "OE" 0 "" "" "Deleted Job" "Job has been deleted" "" "This Job has been deleted." "" "" ? 0 900 no no "INFO" "" "" "202009034650705625864"
+"48" "OE" 0 "OU1" "" "Cannot Create Job" "Order is on hold" "" "The order status is on hold, thus your system settings will not create a job until the order is removed from hold status." "" "" ? 0 900 no no "INFO" "" "" "202009194444805672425"
+"49" "OE" 0 "OU1" "" "Cannot Create Job" "Customer is on hold" "" "The Customer is on hold, thus your system settings will not create a job until the customer is removed from hold status." "" "" ? 0 900 no no "WARNING" "" "" "202009194454205672426"
+"50" "AR" 0 "AF4" "" "Duplicate Terms Code" "Duplicate Terms Code" "" "This is not a unique terms code so enter a unique value." "" "" ? 0 900 no no "WARNING" "" "" "202009201736205672446"
+"51" "OE" 0 "OU1" "" "Prep Item Disposed" "Prep Item Disposed" "" "The prep item is not available as it has been disposed of according to the disposal date in the prep file." "" "" ? 0 900 no no "WARNING" "" "" "202009208180905672952"
+"52" "PO" 0 "PU1" "" "No Vendor Adder Cost" "No Vendor cost for this adder" "" "There is no cost defined for this vendor for the adder.  Cost will be zero." "" "" ? 0 900 no no "WARNING" "" "" "202009283141105691273"

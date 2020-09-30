@@ -23,6 +23,7 @@ Files saved based on NK1 = UseNewInvoicePost settings." 900
 "purgeOrphans.r" "UTIL" "" "Utility to Purge Orphan Records" "" 900
 "CreateMiscEstimates.r" "EC" "" "Create and Calculate Misc Estimates" "Automate the creation and calculation of Misc estimates by entering range of estimates.  The process will automate the adding of a new ""Misc Estimate"" when entering a ""Source Estimate""" 900
 "Del-prmtx.r" "OE" "OF3" "Price Matrix Delete Multiple Item" "Price Matrix Delete Multiple Item" 900
+"RebuildJobs.r" "JC" "" "Rebuilds all open jobs with no production qty" "" 900
 "adddcrec.r" "FG" "" "Record FG Receipts for Posted Data Collection" "Create receipts for FG items based on data collection using the last machne." 900
 "arinvpay.r" "AR" "NQ4" "Fix AR invoice/due dates" "Update invoices as paid to clear old invoices." 900
 "AutoCloseJobs.r" "JC" "" "Close Older Jobs Left Open" "Close old jobs with a range of job numbers and a aged date.  Use to clear old open jobs that should have been closed." 900
