@@ -253,6 +253,7 @@ DEFINE VARIABLE cItemName AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cJobMchID AS CHARACTER NO-UNDO.
 DEF VAR v-die-no  LIKE eb.die-no NO-UNDO.
 DEFINE VARIABLE lPageBreak AS LOGICAL NO-UNDO .
+DEFINE VARIABLE intLineCount AS INTEGER    NO-UNDO.
 format HEADER 
        "<OLANDSCAPE><P10>" skip
         "JOB NUMBER:<B>" v-job-no space(0) "-" space(0) v-job-no2 format "99" "</B>"
@@ -1980,7 +1981,7 @@ END FUNCTION.
 
         ASSIGN v-cust-name2 = v-cust-name 
                v-cust-name3 = v-cust-name.
-
+        intLineCount = LINE-COUNTER.  
        /* label prints per item */
         ASSIGN
            i = 0
@@ -2058,6 +2059,8 @@ END FUNCTION.
                SKIP
                   WITH FRAME itmlbl NO-BOX NO-LABELS STREAM-IO WIDTH 180.
                 DOWN WITH FRAME itmlbl.
+                
+                intLineCount = intLineCount + 12.  
                
                 ASSIGN
                   v-label-item-no = v-label-item-no + 1
@@ -2120,7 +2123,7 @@ END FUNCTION.
                 "<AT=,1>" chrBarcode[1] 
                 "<AT=,4.6>" chrBarcode[2] 
                 "<AT=,8.2>" chrBarcode[3].
-
+                intLineCount = intLineCount + 5.  
                 ASSIGN i = 0
                        v-fgitm[1] = ""
                        v-fgdsc[1] = ""
@@ -2216,7 +2219,7 @@ END FUNCTION.
                "Qty/Pal  :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-pal[3] WHEN v-fgitm[3] <> ""                               
                SKIP
                WITH FRAME itmlbl2 NO-BOX NO-LABELS STREAM-IO WIDTH 180.
-
+               intLineCount = intLineCount + 12.  
             ASSIGN
                i = 0
                v-label-item-no = v-label-item-no + 1.
@@ -2278,14 +2281,15 @@ END FUNCTION.
               PUT UNFORMATTED "<#=200><AT=-.6,4.6><FROM><AT=+.6,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" chrBarcode[2] ">".  
             IF v-fgitm[3] <> "" THEN
               PUT UNFORMATTED "<#=200><AT=-.6,8.2><FROM><AT=+.6,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" chrBarcode[3] ">".  
-
+            
             PUT UNFORMATTED
            "<#=200><AT=,1>" chrBarcode[1]
                   "<AT=,4.6>" chrBarcode[2]
                   "<AT=,8.2>" chrBarcode[3].             
-
+           intLineCount = intLineCount + 5.  
           END. /* i <= 3 */
-           intLnCount = 12 .
+          
+           intLnCount = 0.
            FOR EACH job-mch WHERE job-mch.company = job-hdr.company 
                AND job-mch.job = job-hdr.job 
                AND job-mch.job-no = job-hdr.job-no 
@@ -2293,9 +2297,24 @@ END FUNCTION.
                AND job-mch.frm = job-hdr.frm 
                use-index line-idx NO-LOCK BREAK BY job-mch.frm :
                intLnCount = intLnCount + 1 .
-               IF LINE-COUNTER + intLnCount >= PAGE-SIZE THEN
+           END.
+           
+           IF intLineCount + (intLnCount * 2 + 2) GE PAGE-SIZE THEN
+           DO:
+            PAGE.
+            VIEW FRAME head.
+           END.  
+           intLineCount = 0.
+           FOR EACH job-mch WHERE job-mch.company = job-hdr.company 
+               AND job-mch.job = job-hdr.job 
+               AND job-mch.job-no = job-hdr.job-no 
+               AND job-mch.job-no2 = job-hdr.job-no2 
+               AND job-mch.frm = job-hdr.frm 
+               use-index line-idx NO-LOCK BREAK BY job-mch.frm :
+               intLineCount = intLineCount + 2 .
+               IF LINE-COUNTER + intLineCount >= PAGE-SIZE THEN
                    ASSIGN lPageBreak = TRUE .
-               RUN PRpage (intLnCount).
+               RUN PRpage (intLineCount).
               
                IF FIRST(job-mch.frm) OR lPageBreak THEN do:
                    PUT SKIP "<C3><P12><u><b>DMI Barcods</b></u>" .
@@ -2303,8 +2322,8 @@ END FUNCTION.
                        "<R+2><C8><FROM><R+2><C16><RECT><R-4>" 
                        "<R+2><C16><FROM><R+2><C24><RECT><R-4>"
                        "<R+2><C24><FROM><R+2><C44><RECT><R-4>"
-                       "<R+2><C44><FROM><R+2><C70><RECT><R-4>"
-                       "<R+2><C70><FROM><R+2><C108><RECT><R-2>" .
+                       "<R+2><C44><FROM><R+2><C68.5><RECT><R-4>"
+                       "<R+2><C68.5><FROM><R+2><C108><RECT><R-2>" .
                     
                    PUT "<R+0.5><C4><b>Form <C10>Blank <C18>Pass <C26> Machine <C46>FG Item # <C72> BarCode<R-0.5></b>" .
                     lPageBreak = FALSE .
@@ -2312,24 +2331,26 @@ END FUNCTION.
                
 
                PUT "<R+2><C3><FROM><R+2><C8><RECT><R-4>" 
-                       "<R+2><C8><FROM><R+2><C16><RECT><R-4>" 
-                       "<R+2><C16><FROM><R+2><C24><RECT><R-4>"
-                       "<R+2><C24><FROM><R+2><C44><RECT><R-4>"
-                       "<R+2><C44><FROM><R+2><C70><RECT><R-4>"
-                       "<R+2><C70><FROM><R+2><C108><RECT><R-2>" .
-                    cItemName = IF job-mch.blank-no NE 0 THEN display-i-name() ELSE "" .
-                     cJobMchID = LEFT-TRIM(job-mch.job-no) + "-"
-                        + STRING(job-mch.job-no2) + "."
-                        + STRING(job-mch.job-mchID,"9999999")
-                        .
-                   PUT "<R+0.5><C4>" job-mch.frm
-                        "<C10>" job-mch.blank-no FORMAT ">>>" 
-                        "<C18>" job-mch.pass
-                        "<C26>" job-mch.m-code FORMAT "x(12)"
-                        "<C46>"  cItemName FORMAT "x(25)"
-                        "<C70>" "<#32><UNITS=INCHES><C71><FROM><C107><r+1><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
-                          cJobMchID FORMAT "x(19)" ">"   "<R-1.5>" .
-
+                   "<R+2><C8><FROM><R+2><C16><RECT><R-4>" 
+                   "<R+2><C16><FROM><R+2><C24><RECT><R-4>"
+                   "<R+2><C24><FROM><R+2><C44><RECT><R-4>"
+                   "<R+2><C44><FROM><R+2><C68.5><RECT><R-4>"
+                   "<R+2><C68.5><FROM><R+2><C108><RECT><R-2>"
+                   .
+               ASSIGN
+                   cItemName = IF job-mch.blank-no NE 0 THEN display-i-name() ELSE ""
+                   cJobMchID = LEFT-TRIM(job-mch.job-no) + "-"
+                             + STRING(job-mch.job-no2) + "."
+                             + STRING(job-mch.job-mchID,"999999999")
+                             .
+               PUT "<R+0.5><C4>" job-mch.frm
+                   "<C10>" job-mch.blank-no FORMAT ">>>" 
+                   "<C18>" job-mch.pass
+                   "<C26>" job-mch.m-code FORMAT "x(12)"
+                   "<C46>" cItemName FORMAT "x(25)"
+                   "<C70>" "<#32><UNITS=INCHES><C70><FROM><C107><r+1><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
+                   cJobMchID FORMAT "x(19)" ">" "<R-1.5>"
+                   .
            END.
 
           lv-pg-num2 = lv-pg-num2 + 1.
@@ -2425,6 +2446,7 @@ PROCEDURE PRpage:
       vline < PAGE-SIZE THEN DO:
       PAGE.
       VIEW FRAME head.
+      intLineCount = LINE-COUNTER.
    END.
 END PROCEDURE.
 

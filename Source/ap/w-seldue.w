@@ -48,6 +48,7 @@ DEF TEMP-TABLE tt-sel NO-UNDO LIKE ap-sel
     FIELD tt-rowid   AS ROWID
     FIELD tt-deleted AS LOG
     FIELD dsc-date   LIKE ap-inv.inv-date
+    FIELD vend-name  AS CHARACTER FORMAT "x(30)"
     .
 DEFINE VARIABLE lError     AS LOGICAL         NO-UNDO.
 
@@ -89,7 +90,7 @@ DEF VAR lv-in-update AS LOG NO-UNDO.
 &Scoped-define INTERNAL-TABLES tt-sel ap-pay
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-sel.vend-no tt-sel.inv-no tt-sel.inv-date tt-sel.due-date tt-sel.dsc-date tt-sel.inv-bal tt-sel.amt-due tt-sel.disc-amt tt-sel.amt-paid   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-sel.vend-no tt-sel.vend-name tt-sel.inv-no tt-sel.inv-date tt-sel.due-date tt-sel.dsc-date tt-sel.inv-bal tt-sel.amt-due tt-sel.disc-amt tt-sel.amt-paid   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 tt-sel.vend-no tt-sel.inv-no tt-sel.disc-amt tt-sel.amt-paid   
 &Scoped-define ENABLED-TABLES-IN-QUERY-BROWSE-1 tt-sel
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-BROWSE-1 tt-sel
@@ -214,7 +215,7 @@ DEFINE VARIABLE lv-proamt AS DECIMAL FORMAT "$->>>,>>>,>>9.99":U INITIAL ?
 
 DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 160.8 BY 5.24.
+     SIZE 201.2 BY 5.24.
 
 DEFINE VARIABLE tb_discount AS LOGICAL INITIAL no 
      LABEL "Include Invoices Available for Discount" 
@@ -235,6 +236,7 @@ DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 W-Win _FREEFORM
   QUERY BROWSE-1 DISPLAY
       tt-sel.vend-no LABEL "Vendor" LABEL-BGCOLOR 14
+    tt-sel.vend-name LABEL "Vendor Name" LABEL-BGCOLOR 14
     tt-sel.inv-no LABEL "Invoice Num" LABEL-BGCOLOR 14
     tt-sel.inv-date LABEL "Invoice Date" LABEL-BGCOLOR 14
     tt-sel.due-date LABEL "Due Date" LABEL-BGCOLOR 14
@@ -246,7 +248,7 @@ DEFINE BROWSE BROWSE-1
     ENABLE tt-sel.vend-no tt-sel.inv-no tt-sel.disc-amt tt-sel.amt-paid
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 162 BY 16.67
+    WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 202 BY 16.67
          BGCOLOR 8 FONT 0.
 
 
@@ -276,7 +278,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.2 ROW 1
-         SIZE 162.4 BY 23.71
+         SIZE 203.4 BY 23.71
          FONT 6.
 
 
@@ -298,7 +300,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Payment Selection by Due Date"
          HEIGHT             = 23.71
-         WIDTH              = 162.6
+         WIDTH              = 203.4
          MAX-HEIGHT         = 53.71
          MAX-WIDTH          = 384
          VIRTUAL-HEIGHT     = 53.71
@@ -1038,6 +1040,7 @@ DO:
   DEF VAR ld-non-disc AS DEC NO-UNDO.
   DEF VAR lc-vend-no AS CHAR NO-UNDO.
   DEF VAR lc-inv-no AS CHAR NO-UNDO.
+  DEFINE VARIABLE cVendorName AS CHARACTER NO-UNDO.
 
     ASSIGN 
         lc-vend-no = tt-sel.vend-no:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1082,11 +1085,14 @@ DO:
         
     ASSIGN tt-sel.due-date:SCREEN-VALUE IN BROWSE {&browse-name} = string(ap-inv.due-date,"99/99/9999")
            tt-sel.inv-bal:SCREEN-VALUE = STRING(ap-inv.due)
-           tt-sel.vend:SCREEN-VALUE = STRING(ap-inv.vend)
+           tt-sel.vend-no:SCREEN-VALUE = STRING(ap-inv.vend)
            tt-sel.inv-date:SCREEN-VALUE IN BROWSE {&browse-name} = string(ap-inv.inv-date,"99/99/9999") 
            tt-sel.dsc-date:SCREEN-VALUE IN BROWSE {&browse-name} = string(ap-inv.inv-date + ap-inv.disc-days ,"99/99/9999") 
            ld-tot-line = 0
            ld-non-disc = 0.
+           
+    RUN pGetVendorName(INPUT g_company, INPUT ap-inv.vend, OUTPUT cVendorName ) .
+    tt-sel.vend-name:SCREEN-VALUE IN BROWSE {&browse-name} = cVendorName . 
 
     FOR EACH ap-invl WHERE ap-invl.i-no EQ ap-inv.i-no NO-LOCK:
         ld-tot-line = ld-tot-line + ap-invl.amt.
@@ -1148,10 +1154,14 @@ DO:
        MESSAGE "Invalid Vendor. Try Help. " VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
     END.
+    IF AVAIL vend THEN
+    DO:     
+        tt-sel.vend-name:SCREEN-VALUE IN BROWSE {&browse-name} = vend.NAME .
+    END.
     IF lc-inv-no EQ "" THEN DO:
         APPLY "entry" TO tt-sel.inv-no IN BROWSE {&browse-name}.
         RETURN NO-APPLY. 
-    END.
+    END.        
     FIND FIRST ap-inv WHERE ap-inv.company = g_company 
                         AND ap-inv.posted  = YES
                         AND ap-inv.inv-no = lc-inv-no 
@@ -1233,6 +1243,7 @@ DO:
     APPLY "entry" TO tt-sel.vend-no IN BROWSE {&browse-name} .
     RUN windows/l-vendno.w (g_company, "", FOCUS:SCREEN-VALUE,OUTPUT char-val).
     IF char-val <> "" THEN ASSIGN tt-sel.vend-no:SCREEN-VALUE = ENTRY(1,char-val).
+    IF char-val <> "" THEN ASSIGN tt-sel.vend-name:SCREEN-VALUE = ENTRY(2,char-val).
 
 END.
 END.
@@ -1357,7 +1368,9 @@ PROCEDURE build-table :
      ASSIGN
       tt-sel.due-date = ap-inv.due-date
       tt-sel.dsc-date = ap-inv.inv-date + ap-inv.disc-days
-      tt-sel.inv-date = ap-inv.inv-date.
+      tt-sel.inv-date = ap-inv.inv-date.       
+      
+      RUN pGetVendorName(INPUT g_company, INPUT ap-sel.vend-no,OUTPUT tt-sel.vend-name ) .
  END.
 
  FIND FIRST ap-ctrl WHERE ap-ctrl.company EQ cocode NO-LOCK NO-ERROR.
@@ -1408,7 +1421,7 @@ ELSE cPaymentList = "".
 
 fi_amt = 0.
     for each vend where vend.company eq cocode
-                      and vend.acc-bal gt 0
+                      and vend.acc-bal NE 0
                         AND ( (vend.payment-type = cb_paytype )
                               OR cb_paytype = "All payment types"
                               OR (can-do(cPaymentList, vend.payment-type) AND cPaymentList <> "")
@@ -1793,6 +1806,32 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetVendorName W-Win 
+PROCEDURE pGetVendorName :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipcVendor AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcVendorName AS CHARACTER NO-UNDO.  
+  
+  FIND FIRST vend NO-LOCK
+       WHERE vend.company EQ ipcCompany
+       and vend.vend-no EQ ipcVendor 
+       use-index vend  no-error.
+       
+       IF avail vend THEN     
+       opcVendorName = vend.NAME .   
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 

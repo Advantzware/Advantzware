@@ -14,13 +14,16 @@ Note that this function does NOT create summary transactions; use with EXTREME c
 "ImportMachine.r" "CE" "EB1" "Import Machines" "Import of machines for estimating.  This imports machines into the machine file." 900
 "resendASN.r" "" "" "Resend ASN" "" 900
 "wLockMonitor.r" "UTIL" "" "Transaction and Lock Monitor" "Monitor program to view record locks and track the details for each user to find record locking issues. Also used for monitoring open transactions within the system." 100
-"w-UpdARInv.r" "AR" "AC1" "Clear Amount Due Amounts" "This utility will correct invoices that appear in A-C-1 but really should have a zero balance due and not apear." 900
+"w-UpdARInv.r" "AR" "AC1" "Clear Amount Due Amounts" "This utility will correct invoices that appear in A-C-1 but really should have a zero balance due and not appear." 900
 "PostInvoiceTester.r" "AR" "OB4" "New Post Invoice Tester" "Testor will provide a sample file of what will be posted using the new Invoice Posting program.
 
 Files saved based on NK1 = UseNewInvoicePost settings." 900
 "AuditPurge.r" "AH" "NS5" "Purge Audit History" "Prompts for date range to purge audit history records through this date.  Will delete data used for Auditing and increase performance of audit history inquiries." 999
 "dev/ImpPo.p" "PU1" "" "" "" 900
 "purgeOrphans.r" "UTIL" "" "Utility to Purge Orphan Records" "" 900
+"CreateMiscEstimates.r" "EC" "" "Create and Calculate Misc Estimates" "Automate the creation and calculation of Misc estimates by entering range of estimates.  The process will automate the adding of a new ""Misc Estimate"" when entering a ""Source Estimate""" 900
+"Del-prmtx.r" "OE" "OF3" "Price Matrix Delete Multiple Item" "Price Matrix Delete Multiple Item" 900
+"RebuildJobs.r" "JC" "" "Rebuilds all open jobs with no production qty" "" 900
 "adddcrec.r" "FG" "" "Record FG Receipts for Posted Data Collection" "Create receipts for FG items based on data collection using the last machne." 900
 "arinvpay.r" "AR" "NQ4" "Fix AR invoice/due dates" "Update invoices as paid to clear old invoices." 900
 "AutoCloseJobs.r" "JC" "" "Close Older Jobs Left Open" "Close old jobs with a range of job numbers and a aged date.  Use to clear old open jobs that should have been closed." 900

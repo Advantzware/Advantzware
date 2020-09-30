@@ -1,2 +1,4 @@
-﻿Source/DataDigger/DataDigger.ini
-Source/DataDigger/DataDigger-tyndm.ini
+﻿Source/DataDigger/DataDigger-*.ini
+Source/DataDigger/DataDigger.log
+Source/DataDigger/*.r
+

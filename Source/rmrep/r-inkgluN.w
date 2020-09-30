@@ -1643,8 +1643,8 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                FOR EACH mch-act WHERE mch-act.company EQ cocode
                                   AND mch-act.job-no  EQ job.job-no
                                   AND mch-act.job-no2 EQ job.job-no2
-                                  AND (mch-act.frm    EQ rm-rdtlh.s-num OR rm-rdtlh.s-num EQ 0)
-                                  AND (mat-act.b-num EQ rm-rdtlh.b-num OR rm-rdtlh.b-num EQ 0)  NO-LOCK,
+                                  AND (mch-act.frm    EQ rm-rdtlh.s-num OR mch-act.frm EQ 0)
+                                  AND (mat-act.b-num EQ rm-rdtlh.b-num OR mat-act.b-num EQ 0)  NO-LOCK,
 
                   FIRST mach WHERE mach.company EQ cocode
                                AND mach.loc     EQ locode 
@@ -1672,14 +1672,14 @@ FOR EACH rm-rcpth WHERE rm-rcpth.company    EQ cocode
                      leave.
                   END.
                END. 
-
+                          
                IF v-m-code EQ "" THEN
                   FOR EACH job-mch WHERE job-mch.company EQ cocode
                                      AND job-mch.job     EQ job.job
                                      AND job-mch.job-no  EQ job.job-no
                                      AND job-mch.job-no2 EQ job.job-no2
-                                     AND (job-mch.frm    EQ rm-rdtlh.s-num OR rm-rdtlh.s-num EQ 0)
-                                     AND (job-mch.blank-no EQ rm-rdtlh.b-num OR rm-rdtlh.b-num EQ 0) NO-LOCK,
+                                     AND (job-mch.frm    EQ rm-rdtlh.s-num OR job-mch.frm EQ 0)
+                                     AND (job-mch.blank-no EQ rm-rdtlh.b-num OR job-mch.blank-no EQ 0) NO-LOCK,
                      FIRST mach WHERE mach.company EQ cocode
                                   AND mach.loc     EQ locode 
                                   AND mach.m-code  EQ job-mch.m-code

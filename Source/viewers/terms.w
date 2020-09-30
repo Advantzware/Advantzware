@@ -37,7 +37,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 {custom/gcompany.i}
-
+{custom/globdefs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -246,7 +246,8 @@ ASSIGN
 &Scoped-define SELF-NAME terms.t-code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL terms.t-code V-table-Win
 ON LEAVE OF terms.t-code IN FRAME F-Main /* Terms */
-DO:
+DO: 
+    DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO .
     IF LASTKEY EQ -1 THEN Return .
      {&methods/lValidateError.i YES}
      if terms.t-code:screen-value EQ "CASH" 
@@ -255,6 +256,9 @@ DO:
         return no-apply.     
      end.
      {&methods/lValidateError.i NO}
+     
+   RUN valid-terms-code(OUTPUT lCheckError) NO-ERROR.
+   IF lCheckError THEN RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -522,6 +526,9 @@ PROCEDURE local-update-record :
      END.
     {&methods/lValidateError.i NO}
    END.
+   
+   RUN valid-terms-code(OUTPUT lCheckError) NO-ERROR.
+   IF lCheckError THEN RETURN NO-APPLY.
 
    RUN valid-day(OUTPUT lCheckError) NO-ERROR.
    IF lCheckError THEN RETURN NO-APPLY.
@@ -629,3 +636,48 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-terms-code V-table-Win 
+PROCEDURE valid-terms-code :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO .
+    DEFINE VARIABLE iCountDayInMonth AS INTEGER NO-UNDO .
+    DEFINE BUFFER bf-terms FOR terms.
+           
+    {&methods/lValidateError.i YES}
+     DO WITH FRAME {&FRAME-NAME}:
+      IF adm-new-record THEN
+      DO:         
+         IF terms.t-code:SCREEN-VALUE EQ "" THEN do:                
+                 MESSAGE "Please enter terms code.." VIEW-AS ALERT-BOX INFO .
+                 APPLY "entry" TO terms.t-code.
+                 oplReturnError = YES .             
+         END.
+         ELSE DO:
+             FIND FIRST bf-terms NO-LOCK
+                  WHERE bf-terms.company EQ g_company 
+                  AND bf-terms.t-code EQ  terms.t-code:SCREEN-VALUE
+                  AND (ROWID(bf-terms) NE ROWID(terms) OR NOT adm-adding-record)  NO-ERROR .
+                  
+             IF AVAIL bf-terms THEN 
+             DO:
+                 RUN displayMessage ( INPUT "50").
+                 oplReturnError = YES . 
+                 APPLY "entry" TO terms.t-code.
+             END.
+         END.
+      END.
+     END.
+     {&methods/lValidateError.i NO}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+

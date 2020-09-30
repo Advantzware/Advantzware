@@ -1,4 +1,14 @@
 @ECHO OFF
+
+IF EXIST c:\asigui\build\buildON.txt (
+    ECHO A build is already running
+    pause
+    GOTO :EXIT
+)
+TASKKILL /F /IM ASIbranchTest.exe > NUL
+
+ECHO VERSION Build started %date% %time% > c:\asigui\build\buildON.txt
+
 SET DLC=C:\Progress\OE116_64
 SET DLCBIN=%DLC%\bin
 SET /p cCurVer="Enter CURRENT version number (xx.xx.xx) "
@@ -78,10 +88,8 @@ DEL /S /Q C:%patchDir%\Documentation\DBDict\* >> %vlog%
 RMDIR /S /Q C:%patchDir%\Documentation\DBDict >> %vlog%
 MKDIR C:%patchDir%\Documentation\DBDict >> %vlog%
 DEL /S /Q C:%patchDir%\DataFiles\* >> %vlog%
-XCOPY C:%patchDir%\Structure\DFFiles\audEmp* C:%patchDir%\Structure /E /S /H /C /I >> %vlog%
 DEL /S /Q C:%patchDir%\Structure\DFFiles\* >> %vlog%
-XCOPY C:%patchDir%\Structure\audEmp* C:%patchDir%\Structure\DFFiles /E /S /H /C /I >> %vlog%
-DEL /S /Q C:%patchDir%\Structure\audEmp* >> %vlog%
+XCOPY C:\Asigui\Repositories\Advantzware\Deployment\Patch\Structure\DFFiles\audEmp* C:%patchDir%\Structure\DFFiles /E /S /H /C /I >> %vlog%
 DEL /Q C:%patchDir%\patch.mft >> %vlog%
 ECHO patchVer=%cNewVer% > C:%patchDir%\patch.mft
 ECHO asiDbVer=%cNewVer% >> C:%patchDir%\patch.mft
@@ -403,6 +411,7 @@ ECHO . >> %vlog%
 
 :Cleanup
 CD %buildDir%
+DEL /Q c:\asigui\build\buildON.txt > NUL
 
 :END
 
@@ -428,3 +437,6 @@ ECHO ------------------------------------------------------------------
 ECHO .
  
 PAUSE
+
+:EXIT
+EXIT

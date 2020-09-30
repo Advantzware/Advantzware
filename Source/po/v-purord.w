@@ -297,11 +297,11 @@ DEFINE FRAME F-Main
           SIZE 4 BY 1
      po-ord.stat AT ROW 1.24 COL 119 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 3.2 BY 1
-     rd_drop-shipment AT ROW 2.38 COL 73.8 NO-LABEL WIDGET-ID 16     
+          SIZE 3.2 BY 1         
      po-ord.vend-no AT ROW 3.52 COL 23 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
+     rd_drop-shipment AT ROW 2.38 COL 73.8 NO-LABEL WIDGET-ID 16       
      po-ord.cust-no AT ROW 3.52 COL 56.4 COLON-ALIGNED
           LABEL "Cust #"
           VIEW-AS FILL-IN 

@@ -28,6 +28,7 @@ def var v-tot-pallets as int NO-UNDO.
 def var v-tot-qty as INT NO-UNDO.
 def var v-inv-date as date initial TODAY FORM "99/99/9999" NO-UNDO.
 def shared var v-fr-tax as logical initial no NO-UNDO.
+DEFINE SHARED VARIABLE lPrintQtyAll  as LOGICAL no-undo .
 def var v-tax-rate as dec format "->>>.99" NO-UNDO.
 def var v-tax-code like stax.tax-code NO-UNDO.
 def var v-tx-rate like stax.tax-rate NO-UNDO.
@@ -117,6 +118,7 @@ DEF VAR cStockNotes AS cha FORM "x(80)" EXTENT 6 NO-UNDO.
 DEF BUFFER bf-cust FOR cust .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iOrdQty       AS INTEGER   NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -430,7 +432,11 @@ ELSE lv-comp-color = "BLACK".
                    v-i-dscr = ar-invl.i-name
                    v-price = ar-invl.unit-pr * (1 - (ar-invl.disc / 100))
                    v-t-price = ar-invl.amt
-                   v-subtot-lines = v-subtot-lines + ar-invl.amt.
+                   v-subtot-lines = v-subtot-lines + ar-invl.amt
+                   iOrdQty = ar-invl.qty.
+                   
+                   IF lPrintQtyAll THEN
+                   v-inv-qty = ar-invl.inv-qty .
 
                 if ar-invl.tax and avail stax then
                 do i = 1 to 5:
@@ -455,7 +461,7 @@ ELSE lv-comp-color = "BLACK".
                    v-lines   = v-lines + 1.
                 end.
             
-            
+           IF NOT lPrintQtyAll THEN do: 
             PUT space(1)        /*"->>>>9.9<"*/
                 v-inv-qty format  "->>>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>>9" SPACE(1)
@@ -467,6 +473,22 @@ ELSE lv-comp-color = "BLACK".
                 v-price-head SPACE(1)
                 ar-invl.amt  FORMAT "->,>>>,>>9.99" /* "->>>,>>9.99" */               
                 SKIP.
+           END.
+           ELSE DO:
+               PUT space(1)        /*"->>>>9.9<"*/
+                iOrdQty format  "->>>>>>9" SPACE(1)
+                v-ship-qty  format "->>>>>>9" SPACE(1)
+                /*v-bo-qty  format "->>>>>9" SPACE(1) */
+                ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
+                v-i-no  format "x(15)" SPACE(3)
+                v-i-dscr  format "x(25)" SPACE(2)
+                v-price  format "->>>>,>>9.99" /*"->,>>9.99<<"*/ SPACE(2)
+                v-price-head SPACE(1)
+                ar-invl.amt  FORMAT "->,>>>,>>9.99" /* "->>>,>>9.99" */               
+                SKIP.
+           
+           
+           END.
              v-printline = v-printline + 1.
       
             do v = 1 to 3:
@@ -476,9 +498,17 @@ ELSE lv-comp-color = "BLACK".
                             else           trim(lv-inv-list).
 
               if v-part-info ne "" OR (v = 1 AND ar-invl.part-no <> "") then do:
-                 IF v = 1 THEN PUT SPACE(27) ar-invl.part-no SPACE(3) v-part-info SKIP.
-                 ELSE
-                 IF v = 2 THEN PUT SPACE(45) v-part-info SKIP.
+                 IF v = 1 THEN do:
+                     IF lPrintQtyAll THEN do:
+                      PUT SPACE(1) v-inv-qty FORMAT "->>>>>>9" .
+                       PUT SPACE(18) ar-invl.part-no SPACE(3) v-part-info SKIP.
+                     END.
+                     ELSE do:
+                       PUT SPACE(27) ar-invl.part-no SPACE(3) v-part-info SKIP.
+                     END. 
+                 END.    
+                 ELSE 
+                 IF v = 2 THEN PUT SPACE(45) v-part-info SKIP.                  
                  ELSE          PUT SPACE(24) "Previous Invoice(s): " v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.

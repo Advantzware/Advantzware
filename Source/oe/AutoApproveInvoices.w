@@ -464,7 +464,11 @@ PROCEDURE run-process :
                                         OUTPUT iCountPost,
                                         OUTPUT lError,
                                         OUTPUT cMessage) .    
-    MESSAGE cMessage STRING(iCountProcess) "Invoices processed," STRING(iCountValid) "Approved," STRING(iCountProcess - iCountValid) "Problems."  VIEW-AS ALERT-BOX INFO .
+    MESSAGE cMessage SKIP (1)
+        "Processed: " STRING(iCountProcess) SKIP 
+        "Approved: " STRING(iCountValid) SKIP
+        "Problems: " STRING(iCountProcess - iCountValid) 
+        VIEW-AS ALERT-BOX INFO .
     
     IF VALID-HANDLE(hPostInvoices) THEN
     DELETE OBJECT hPostInvoices.    

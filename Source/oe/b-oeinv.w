@@ -1053,7 +1053,7 @@ PROCEDURE check-inv-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-   RUN oe/CheckRegister.w .
+   RUN oe/AutoApproveInvoices.w .
 
 END PROCEDURE.
 
@@ -1186,8 +1186,17 @@ FUNCTION pGetMargin RETURNS DECIMAL PRIVATE
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    IF inv-head.t-inv-rev NE 0 AND inv-head.t-inv-rev NE ? THEN
-        RETURN (inv-head.t-inv-rev - inv-head.t-inv-cost) / (inv-head.t-inv-rev) * 100.
+    DEFINE VARIABLE dMarginPct AS DECIMAL NO-UNDO.
+    
+    IF inv-head.t-inv-rev NE 0 AND inv-head.t-inv-rev NE ? THEN DO:
+        dMarginPct = (inv-head.t-inv-rev - inv-head.t-inv-cost) / (inv-head.t-inv-rev) * 100 .
+        IF dMarginPct GT 999.99 THEN 
+            RETURN 999.99.
+        ELSE IF dMarginPct LT 0 AND dMarginPct LT -999.99 THEN  
+            RETURN -999.99.  
+        ELSE 
+            RETURN dMarginPct.                   
+    END.    
     ELSE
         RETURN 0.            
 END FUNCTION.

@@ -717,8 +717,8 @@ DO:
         RETURN NO-APPLY.  
     
     RUN pValidateTag(
-        INPUT fg-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-        ) NO-ERROR. 
+        INPUT fg-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME},
+        INPUT NO) NO-ERROR. 
     IF ERROR-STATUS:ERROR THEN 
         RETURN NO-APPLY.
           
@@ -928,8 +928,8 @@ PROCEDURE crt-pcount :
                           AND itemfg.i-no = fg-bin.i-no NO-LOCK NO-ERROR.
       
       RUN pValidateTag(
-        INPUT fg-bin.tag
-        ) NO-ERROR. 
+        INPUT fg-bin.tag,
+        INPUT NO) NO-ERROR. 
         
       IF ERROR-STATUS:ERROR THEN 
           NEXT.
@@ -1756,8 +1756,8 @@ PROCEDURE local-update-record :
   IF lCheckError THEN RETURN NO-APPLY.
 
   RUN pValidateTag(
-      INPUT fg-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
-      ) NO-ERROR. 
+      INPUT fg-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME},
+      INPUT YES) NO-ERROR. 
   IF ERROR-STATUS:ERROR THEN 
       RETURN NO-APPLY.
             
@@ -2018,6 +2018,7 @@ PROCEDURE pValidateTag PRIVATE:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcTag  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipclValidateOnly  AS LOGICAL NO-UNDO.
     
     IF ipcTag NE ""  AND fg-rctd.tag:MODIFIED IN BROWSE {&BROWSE-NAME} THEN DO:
         FIND FIRST loadtag NO-LOCK 
@@ -2031,7 +2032,7 @@ PROCEDURE pValidateTag PRIVATE:
             APPLY "ENTRY" TO fg-rctd.tag IN BROWSE {&BROWSE-NAME}.    
             RETURN ERROR.
         END. 
-        ELSE DO:
+        ELSE IF NOT ipclValidateOnly THEN DO:
             RUN pGetValuesFromTag.
             RUN pGetBinValues.
         END.    

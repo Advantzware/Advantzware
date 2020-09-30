@@ -2362,6 +2362,7 @@ PROCEDURE local-update-record :
             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
             UPDATE lMenuChanges.
             RUN pResetByUser IN hMainMenu (lMenuChanges).
+            lMenuChanges = NO.
         END. /* if valid-handle */
     END. /* if super running */ 
         

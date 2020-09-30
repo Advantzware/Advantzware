@@ -33,7 +33,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 DEFINE VARIABLE voverall AS DECIMAL FORMAT ">>,>>>,>>9.99" NO-UNDO.
-DEFINE VARIABLE vtot-msf AS DECIMAL FORMAT ">>>>9.99" NO-UNDO.
+DEFINE VARIABLE vtot-msf AS DECIMAL FORMAT ">>>>9.99999" NO-UNDO.
 DEFINE VARIABLE dMatPctSellPrice LIKE probe.net-profit. 
  
 {jcrep/r-ticket.i "new shared"}
@@ -269,7 +269,8 @@ END.
     IF lv-sort-by EQ "boardContributionPerM"          THEN string(probe.boardContributionPerM)                                        ELSE ~
     IF lv-sort-by EQ "boardContributionTotal"          THEN string(probe.boardContributionTotal)                                        ELSE ~
     IF lv-sort-by EQ "probe-user"      THEN string(probe.probe-user)                                       ELSE ~
-    IF lv-sort-by EQ "vtot-msf"        THEN string(vtot-msf())                                             ELSE ~
+    IF lv-sort-by EQ "tot-lbs"        THEN string(probe.tot-lbs,"-9999999999.99")                        ELSE ~
+    IF lv-sort-by EQ "vtot-msf"        THEN string(probe.gshQtyInSF,"-99999999.99")                                             ELSE ~
     IF lv-sort-by EQ "ls-probetime"    THEN string(cvt-time(probe.probe-time))                             ELSE ~
     IF lv-sort-by EQ "line"            THEN string(probe.LINE)                                             ELSE ~
     IF lv-sort-by EQ "spare-dec-1"      THEN string(probe.spare-dec-1)                                     ELSE ~
@@ -326,7 +327,7 @@ display-gp (1) @ probe.gross-profit probe.gross-profit probe.grossProfitPctTemp 
 probe.comm probe.net-profit probe.sell-price probe.gsh-qty probe.do-quote ~
 voverall(1) @ voverall probe.probe-date probe.boardCostPerM probe.boardCostPct ~
 probe.boardContributionPerM probe.boardContributionTotal probe.probe-user vtot-msf() @ vtot-msf ~
-cvt-time(probe.probe-time) @ ls-probetime probe.line probe.spare-dec-1 ~
+probe.tot-lbs cvt-time(probe.probe-time) @ ls-probetime probe.line probe.spare-dec-1 ~
 fDirectMatPctSellPrice(1) @ dMatPctSellPrice 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table probe.full-cost ~
 probe.gross-profit probe.grossProfitPctTemp probe.net-profit ~
@@ -506,6 +507,7 @@ DEFINE BROWSE br_table
       probe.boardContributionTotal COLUMN-LABEL "Board!Contrib$" FORMAT "->>>,>>>,>>9.99":U
             WIDTH 19
       probe.probe-user COLUMN-LABEL "Probe By" FORMAT "X(8)":U
+      probe.tot-lbs COLUMN-LABEL "Shipping!Weight" WIDTH 12.2
       vtot-msf() @ vtot-msf COLUMN-LABEL "Total!MSF" COLUMN-FONT 0
       cvt-time(probe.probe-time) @ ls-probetime COLUMN-LABEL "Time" FORMAT "x(8)":U
       probe.line FORMAT ">>9":U
@@ -667,15 +669,17 @@ ASI.probe.est-no = ASI.eb.est-no"
 "probe.boardContributionTotal" "Board!Contrib$" "->>>,>>>,>>9.99" "decimal" ? ? ? ? ? ? yes ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > ASI.probe.probe-user
 "probe.probe-user" "Probe By" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[20]   > "_<CALC>"
-"vtot-msf() @ vtot-msf" "Total!MSF" ? ? ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[20]   > "ASI.probe.tot-lbs"
+"probe.tot-lbs" "Shipping!Weight" ? ? ? ? ? ? ? ? no ? no no "12.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > "_<CALC>"
+"vtot-msf() @ vtot-msf" "Total!MSF" ? ? ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[22]   > "_<CALC>"
 "cvt-time(probe.probe-time) @ ls-probetime" "Time" "x(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[22]   > ASI.probe.line
+     _FldNameList[23]   > ASI.probe.line
 "probe.line" ? ">>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[23]   > ASI.probe.spare-dec-1
+     _FldNameList[24]   > ASI.probe.spare-dec-1
 "probe.spare-dec-1" "Direct!Material" "->>>,>>9.99" "decimal" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[24]   > "_<CALC>"
+     _FldNameList[25]   > "_<CALC>"
 "fDirectMatPctSellPrice(1) @ dMatPctSellPrice" "Dir. Mat%" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
@@ -4457,9 +4461,9 @@ FUNCTION vtot-msf RETURNS DECIMAL
   DEFINE VARIABLE lv-tot-msf AS DECIMAL NO-UNDO.
 
   
-  IF AVAILABLE probe THEN lv-tot-msf = probe.tot-lbs / 1000.
+  IF AVAILABLE probe THEN lv-tot-msf = probe.gshQtyInSF / 1000.
   ELSE lv-tot-msf = 0.
-
+     
   RETURN lv-tot-msf.   /* Function return value. */
 
 END FUNCTION.

@@ -25,7 +25,7 @@
 &Scoped-define font 4
 &Scoped-define height-size 19
 &Scoped-define width-size 56
-&Scoped-define show-fields job-hdr.job-no job-hdr.job-no2 job-hdr.est-no job-hdr.ftick-prnt
+&Scoped-define show-fields job-hdr.job-no job-hdr.job-no2 format ">>>" job-hdr.est-no job-hdr.ftick-prnt
 &Scoped-define show-fields-yellow job-hdr.job-no LABEL-BGCOLOR 14 job-hdr.job-no2 LABEL-BGCOLOR 14 job-hdr.est-no LABEL-BGCOLOR 14 job-hdr.ftick-prnt LABEL-BGCOLOR 14
 &Scoped-define frame-title Job# Lookups
 &Scoped-define top-include ~{custom/getcmpny.i} ~{custom/getloc.i} ~{sys/inc/varasgn.i}

@@ -121,6 +121,7 @@ DEF VAR cStockNotes AS cha FORM "x(80)" EXTENT 6 NO-UNDO.
 DEF BUFFER bf-cust FOR cust .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iOrdQty        AS INTEGER format "99999" no-undo.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -539,7 +540,11 @@ find first company where company.company eq cocode NO-LOCK.
                    v-i-dscr = inv-line.i-name
                    v-price = inv-line.price * (1 - (inv-line.disc / 100))
                    v-t-price = inv-line.t-price
-                   v-subtot-lines = v-subtot-lines + inv-line.t-price.
+                   v-subtot-lines = v-subtot-lines + inv-line.t-price
+                   iOrdQty = inv-line.qty.
+                   
+                   IF lPrintQtyAll THEN
+                   v-inv-qty = inv-line.inv-qty .
 
             if inv-line.tax and avail stax then
             do i = 1 to 5:
@@ -565,7 +570,7 @@ find first company where company.company eq cocode NO-LOCK.
             end.
             
             v-price-head = inv-line.pr-uom.
-
+           IF NOT lPrintQtyAll THEN do:
             PUT space(1) v-inv-qty format "->>>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>>9" SPACE(1)
                 inv-line.ord-no FORMAT ">>>>>>9" SPACE(1)
@@ -575,6 +580,19 @@ find first company where company.company eq cocode NO-LOCK.
                 v-price-head SPACE(1)
                 inv-line.t-price  format "->>>>,>>9.99" /*"->>>,>>9.99"                     */
                 SKIP.
+           END. 
+           ELSE DO:
+              PUT space(1)iOrdQty  format "->>>>>>9" SPACE(1)
+                v-ship-qty  format "->>>>>>9" SPACE(1)
+                inv-line.ord-no FORMAT ">>>>>>9" SPACE(1)
+                v-i-no  format "x(15)" SPACE(3)
+                v-i-dscr  format "x(25)" SPACE(3)
+                v-price  format "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(2)
+                v-price-head 
+                inv-line.t-price  format "$->>>>,>>9.99" /*"$->>>,>>9.99"                     */
+                SKIP.
+
+          END.
 
             v-printline = v-printline + 1.
       
@@ -586,7 +604,16 @@ find first company where company.company eq cocode NO-LOCK.
                             else           trim(lv-inv-list).
 
               if v-part-info ne "" OR (v = 1 AND inv-line.part-no <> "") then do:
-                 IF v = 1 THEN PUT SPACE(27) inv-line.part-no SPACE(3) v-part-info SKIP.
+              
+                 IF v = 1 THEN do:
+                    IF lPrintQtyAll THEN do:
+                      PUT SPACE(1) v-inv-qty FORMAT "->>>>>>9" .
+                      PUT SPACE(18) inv-line.part-no SPACE(3) v-part-info SKIP.
+                    END.
+                    ELSE do:
+                    PUT SPACE(27) inv-line.part-no SPACE(3) v-part-info SKIP.
+                    END.
+                 END.
                  ELSE
                  IF v = 2 THEN PUT SPACE(45) v-part-info SKIP.
                  ELSE          PUT SPACE(24) "Previous Invoice(s): " v-part-info SKIP.

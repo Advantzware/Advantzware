@@ -1095,7 +1095,7 @@ PROCEDURE pAlignMultiInvoiceLinesWithMaster PRIVATE:
         AND bf-child-inv-head.inv-no        EQ ipbf-master-inv-head.inv-no
         AND bf-child-inv-head.multi-invoice EQ NO:
             
-        FOR EACH bf-child-inv-line EXCLUSIVE-LOCK 
+        FOR EACH bf-child-inv-line NO-LOCK 
             WHERE bf-child-inv-line.r-no EQ bf-child-inv-head.r-no:
             
             /*Clear procedure error if at least one found*/
@@ -1115,7 +1115,7 @@ PROCEDURE pAlignMultiInvoiceLinesWithMaster PRIVATE:
             END.
         END.
 
-        FOR EACH bf-child-inv-misc EXCLUSIVE-LOCK 
+        FOR EACH bf-child-inv-misc NO-LOCK 
             WHERE bf-child-inv-misc.r-no EQ bf-child-inv-head.r-no:
             
             /*Clear procedure error if at least one found*/
@@ -2682,6 +2682,7 @@ PROCEDURE pPostAll PRIVATE:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
+    DEFINE VARIABLE lTransactionComplete AS LOGICAL NO-UNDO.
     
     FIND FIRST ttPostingMaster NO-ERROR.
     IF NOT AVAILABLE ttPostingMaster THEN 
@@ -2697,18 +2698,31 @@ PROCEDURE pPostAll PRIVATE:
     
     IF oplError THEN RETURN.
     
-    /*create ar-inv and ar-invl*/
-    RUN pPostInvoices(OUTPUT opiCountPosted, OUTPUT oplError, OUTPUT opcMessage).
+    TRANSACTION-BLOCK:
+    DO TRANSACTION ON ERROR UNDO TRANSACTION-BLOCK, LEAVE TRANSACTION-BLOCK:
+        /*create ar-inv and ar-invl*/
+        RUN pPostInvoices(OUTPUT opiCountPosted, OUTPUT oplError, OUTPUT opcMessage).
+        IF oplError THEN
+            UNDO TRANSACTION-BLOCK, LEAVE TRANSACTION-BLOCK.
         
-    /*Create GL Records*/
-    RUN pPostGL(BUFFER ttPostingMaster, YES, OUTPUT oplError, OUTPUT opcMessage).       
+        /*Create GL Records*/
+        RUN pPostGL(BUFFER ttPostingMaster, YES, OUTPUT oplError, OUTPUT opcMessage).  
+        IF oplError THEN
+            UNDO TRANSACTION-BLOCK, LEAVE TRANSACTION-BLOCK. 
+        
+        /* Identifying if the transaction is complete */
+        lTransactionComplete = TRUE.            
+    END.
     
-    /*Update additional records*/
-    RUN pUpdateOrders.
-    RUN pUpdateBOLs.
-    RUN pUpdateCustomers.
-    RUN pUpdateEstPreps.
-    RUN pUpdateFGItems.
+    /* Run the additional updates only if the above transaction is complete */
+    IF lTransactionComplete THEN DO:
+        /*Update additional records*/
+        RUN pUpdateOrders.
+        RUN pUpdateBOLs.
+        RUN pUpdateCustomers.
+        RUN pUpdateEstPreps.
+        RUN pUpdateFGItems.
+    END.
     
     RUN pBuildExceptions(OUTPUT oplExceptionsFound).
     
@@ -3367,6 +3381,29 @@ PROCEDURE pUpdateOrders PRIVATE:
     
 END PROCEDURE.
 
+PROCEDURE pUpdateTax PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Given invoice to post, assign new buffer to trigger write to update 
+ tax.
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttInvoiceToPost FOR ttInvoiceToPost.
+    DEFINE INPUT PARAMETER ipdNewTax AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bf-inv-head FOR inv-head.
+    
+    FIND bf-inv-head EXCLUSIVE-LOCK
+        WHERE ROWID(bf-inv-head) EQ ipbf-ttInvoiceToPost.riInvHead
+        NO-ERROR.
+    IF AVAILABLE bf-inv-head THEN 
+        ASSIGN bf-inv-head.spare-int-1 = 1 
+        ipbf-ttInvoiceToPost.amountBilledTax = ipdNewTax
+        ipbf-ttInvoiceToPost.amountBilled = ipbf-ttInvoiceToPost.amountBilledExTax + ipdNewTax 
+        .
+         
+
+END PROCEDURE.
+
 PROCEDURE ValidateInvoices:
     /*------------------------------------------------------------------------------
      Purpose: validate invoices  - Public Procedure that runs the pre-post check,
@@ -3441,6 +3478,29 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
         lAutoApprove = YES.   
         opiCountProcessed = opiCountProcessed + 1.
          
+        RUN pGetSalesTaxForInvHead  (
+            INPUT  bf-ttInvoiceToPost.riInvHead, 
+            INPUT  "QUOTATION",
+            OUTPUT dTotalTax,
+            OUTPUT TABLE ttTaxDetail
+            ).             
+        
+        IF dTotalTax NE bf-inv-head.t-inv-tax THEN 
+        DO:
+            IF iplgUpdateTax THEN 
+                RUN pUpdateTax(BUFFER bf-ttInvoiceToPost, dTotalTax).
+            ELSE 
+            DO:   
+                RUN pAddValidationError(
+                    BUFFER bf-ttInvoiceToPost,
+                    INPUT  "Tax on invoice does not match with calculated tax",
+                    INPUT  NO
+                    ).
+                lAutoApprove = NO. 
+                bf-ttInvoiceToPost.isOKToPost = NO.    
+             END.            
+         END.
+         
          lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalInvoiceStatus",bf-inv-head.cust-no,iplIsValidateOnly).
          IF lValidateRequired AND bf-inv-head.stat EQ "H" THEN
          DO:
@@ -3473,7 +3533,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             bf-ttInvoiceToPost.isOKToPost = NO.
          END.
          
-         IF bf-inv-head.t-inv-tax EQ 0 THEN
+         IF bf-ttInvoiceToPost.amountBilledTax EQ 0 THEN
          DO:
             RUN Tax_GetTaxableAR(bf-inv-head.company,bf-inv-head.cust-no,bf-inv-head.sold-no,"", OUTPUT lShiptoTaxAble).
             lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalTaxableCheck",bf-inv-head.cust-no,iplIsValidateOnly).
@@ -3508,35 +3568,14 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
                dTotalLineRev = dTotalLineRev + bf-ttInvoiceMiscToPost.amountBilled.
          END.
              
-         IF dTotalLineRev NE (bf-inv-head.t-inv-rev - bf-inv-head.t-inv-tax - ( IF bf-inv-head.f-bill THEN bf-inv-head.t-inv-freight ELSE 0)) THEN
+         IF dTotalLineRev NE (bf-inv-head.t-inv-rev - bf-inv-head.t-inv-tax - ( IF bf-inv-head.f-bill THEN bf-inv-head.t-inv-freight 
+         ELSE 0)) THEN
          DO:     
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invoice lines <> Invoice Total",NO).
             lAutoApprove = NO.  
             bf-ttInvoiceToPost.isOKToPost = NO.
          END.         
            
-         RUN pGetSalesTaxForInvHead  (
-             INPUT  bf-ttInvoiceToPost.riInvHead, 
-             INPUT  "QUOTATION",
-             OUTPUT dTotalTax,
-             OUTPUT TABLE ttTaxDetail
-             ).             
-         IF dTotalTax NE bf-inv-head.t-inv-tax THEN DO:
-             IF iplgUpdateTax THEN DO:
-                FIND CURRENT bf-inv-head EXCLUSIVE-LOCK NO-ERROR.
-                    bf-inv-head.spare-int-1 = 1.                     
-                FIND CURRENT bf-inv-head NO-LOCK NO-ERROR.     
-             END. 
-             ELSE DO:   
-                 RUN pAddValidationError(
-                     BUFFER bf-ttInvoiceToPost,
-                     INPUT  "Tax on invoice does not match with calculated tax",
-                     INPUT  NO
-                     ).
-                 lAutoApprove = NO. 
-                 bf-ttInvoiceToPost.isOKToPost = NO.    
-             END.            
-         END.
              
 >>>>>>> release/Advantzware_20.02.05
          IF lAutoApprove AND bf-ttInvoiceToPost.isOKToPost THEN DO:
@@ -3838,7 +3877,7 @@ FUNCTION fGetInvoiceApprovalVal RETURNS LOGICAL PRIVATE
     IF lFound THEN lLogicalValue = cReturn EQ "YES".
     
     RUN sys/ref/nk1look.p (ipcCompany, ipcControl, "I", YES, YES, ipcCustomer,"", OUTPUT cReturn, OUTPUT lFound).
-    IF lFound THEN iIntegerValue = integer(cReturn) NO-ERROR.    
+    IF lFound THEN iIntegerValue = INTEGER(cReturn) NO-ERROR.    
       
     IF iplIsValidateOnly AND lLogicalValue THEN
 	DO:

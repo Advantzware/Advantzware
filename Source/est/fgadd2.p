@@ -26,6 +26,9 @@ DEF SHARED VAR fil_id AS RECID NO-UNDO.
 DEF SHARED VAR s-est-no AS cha NO-UNDO.
 def shared var v-i-item like eb.stock-no NO-UNDO. /* INPUT ITEM */
 def shared var v-i-qty like eb.bl-qty NO-UNDO.   /* INPUT QUANTITY */
+DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cFGMasterLoc AS CHARACTER NO-UNDO.
 
 DEF BUFFER bf-eb FOR eb.
 DEF BUFFER x-eb FOR eb.
@@ -56,6 +59,18 @@ form "Est.#" to 12 oe-ordl.est-no
 DO WITH TRANSACTION:
    {sys/inc/graphic.i}
 END.
+
+RUN sys\ref\nk1look.p (cocode,
+        "FGMasterLoc",
+        "C",
+        NO,
+        NO,
+        "",
+        "", 
+        OUTPUT cReturn,
+        OUTPUT lFound).
+IF lFound THEN      
+cFGMasterLoc = cReturn .
 
 RUN oe/oe-sysct.p.
 
@@ -171,6 +186,17 @@ do on error undo:
 
        /* Create an itemfg-loc for the default warehouse */
        RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
+       
+       IF xeb.ship-id NE "" THEN DO:
+          FIND FIRST shipto no-lock
+               WHERE shipto.company EQ xeb.company
+               AND shipto.cust-no EQ xeb.cust-no
+               AND shipto.ship-id EQ xeb.ship-id NO-ERROR.          
+          IF cFGMasterLoc EQ "Estimate Shipto" AND AVAIL shipto THEN
+           ASSIGN
+               itemfg.def-loc     = shipto.loc
+               itemfg.def-loc-bin = shipto.loc-bin.   
+       END.
 
       {oe/fgfreighta.i bf-eb}
 
