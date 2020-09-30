@@ -17,34 +17,89 @@
 DEFINE TEMP-TABLE ttImportAP1
     FIELD Company           AS CHARACTER FORMAT "x(3)"
     FIELD Location          AS CHARACTER 
-    FIELD VendorID          AS CHARACTER FORMAT "x(10)"           COLUMN-LABEL "Vendor ID"         HELP "Required - Must be valid - Size:10"
-    FIELD VendorName        AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "Vendor Name"       HELP "Optional - Character"
-    FIELD LinePONumber1     AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #1"             HELP "Optional - INTEGER"
-    FIELD LinePONumber2     AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #2"             HELP "Optional - INTEGER"
-    FIELD LinePONumber3     AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #3"             HELP "Optional - INTEGER"
-    FIELD LinePONumber4     AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #4"             HELP "Optional - INTEGER"
-    FIELD InvoiceNo         AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "Invoice #"         HELP "Required - Size:20"
-    FIELD InvoiceDate       AS DATE      FORMAT "99/99/99"        COLUMN-LABEL "Inv Date"          HELP "Defaults to Today - Date"
-    FIELD TotalAmount       AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "$ Total Amount"    HELP "Optional - Decimal"
-    FIELD Tax               AS CHARACTER FORMAT "X(20)"           COLUMN-LABEL "Tax #"             HELP "Optional - Size:20"
-    FIELD VendorTerms       AS CHARACTER FORMAT "x(8)"            COLUMN-LABEL "Vendor Terms"      HELP "Optional - Character"
-    FIELD APClerkAssigned   AS CHARACTER FORMAT "x(8)"            COLUMN-LABEL "AP Clerk Assigned" HELP "Optional - Character"
-    FIELD LineAccount1      AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #1"       HELP "Defaults to Vendor GL Account - Size:20"
-    FIELD LineQuantity1     AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity1"         HELP "Defaults to 1 - Decimal"
-    FIELD LinePrice1        AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price1"            HELP "Defaults to Line Amount - Decimal"
-    FIELD Linedescription1  AS CHARACTER FORMAT "x(35)"           COLUMN-LABEL "Notes1"            HELP "Optional - Character"
-    FIELD LineAccount2      AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #2"       HELP "Defaults to Vendor GL Account - Size:20"
-    FIELD LineQuantity2     AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity 2"        HELP "Defaults to 1 - Decimal"
-    FIELD LinePrice2        AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price 2"           HELP "Defaults to Line Amount - Decimal"
-    FIELD Linedescription2  AS CHARACTER FORMAT "x(35)"           COLUMN-LABEL "Notes2"            HELP "Optional - Character"
-    FIELD LineAccount3      AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #3"       HELP "Defaults to Vendor GL Account - Size:20"
-    FIELD LineQuantity3     AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity 3"        HELP "Defaults to 1 - Decimal"
-    FIELD LinePrice3        AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price 3"           HELP "Defaults to Line Amount - Decimal"
-    FIELD Linedescription3  AS CHARACTER FORMAT "x(35)"           COLUMN-LABEL "Notes3"            HELP "Optional - Character"
-    FIELD LineAccount4      AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #4"       HELP "Defaults to Vendor GL Account - Size:20"
-    FIELD LineQuantity4     AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity 4"        HELP "Defaults to 1 - Decimal"
-    FIELD LinePrice4        AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price 4"           HELP "Defaults to Line Amount - Decimal"
-    FIELD Linedescription4  AS CHARACTER FORMAT "x(35)"           COLUMN-LABEL "Notes4"            HELP "Optional - Character"
+    FIELD VendorID          AS CHARACTER FORMAT "x(10)"           COLUMN-LABEL "Vendor ID"          HELP "Required - Must be valid - Size:10"
+    FIELD VendorName        AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "Vendor Name"        HELP "Optional - Character"
+    FIELD LinePONumber1     AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #1"              HELP "Optional - INTEGER"
+    FIELD LinePONumber2     AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #2"              HELP "Optional - INTEGER"
+    FIELD LinePONumber3     AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #3"              HELP "Optional - INTEGER"
+    FIELD LinePONumber4     AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #4"              HELP "Optional - INTEGER"
+    FIELD LinePONumber5     AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #5"              HELP "Optional - INTEGER"
+    FIELD LinePONumber6     AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #6"              HELP "Optional - INTEGER"
+    FIELD LinePONumber7     AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #7"              HELP "Optional - INTEGER"
+    FIELD LinePONumber8     AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #8"              HELP "Optional - INTEGER"
+    FIELD LinePONumber9     AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #9"              HELP "Optional - INTEGER"
+    FIELD LinePONumber10    AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #10"             HELP "Optional - INTEGER"
+    FIELD LinePONumber11    AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #11"             HELP "Optional - INTEGER"
+    FIELD LinePONumber12    AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #12"             HELP "Optional - INTEGER"
+    FIELD LinePONumber13    AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #13"             HELP "Optional - INTEGER"
+    FIELD LinePONumber14    AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #14"             HELP "Optional - INTEGER"
+    FIELD LinePONumber15    AS INTEGER   FORMAT ">>>>>9"          COLUMN-LABEL "PO #15"             HELP "Optional - INTEGER"
+    FIELD InvoiceNo         AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "Invoice #"          HELP "Required - Size:20"
+    FIELD InvoiceDate       AS DATE      FORMAT "99/99/99"        COLUMN-LABEL "Inv Date"           HELP "Defaults to Today - Date"
+    FIELD TotalAmount       AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "$ Total Amount"     HELP "Optional - Decimal"
+    FIELD Tax               AS CHARACTER FORMAT "X(20)"           COLUMN-LABEL "Tax #"              HELP "Optional - Size:20"
+    FIELD VendorTerms       AS CHARACTER FORMAT "x(8)"            COLUMN-LABEL "Vendor Terms"       HELP "Optional - Character"
+    FIELD APClerkAssigned   AS CHARACTER FORMAT "x(8)"            COLUMN-LABEL "AP Clerk Assigned"  HELP "Optional - Character"
+    FIELD LineAccount1      AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #1"        HELP "Defaults to Vendor GL Account - Size:20"
+    FIELD LineQuantity1     AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity1"          HELP "Defaults to 1 - Decimal"
+    FIELD LinePrice1        AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price1"             HELP "Defaults to Line Amount - Decimal"
+    FIELD Linedescription1  AS CHARACTER FORMAT "x(35)"           COLUMN-LABEL "Notes1"             HELP "Optional - Character"
+    FIELD LineAccount2      AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #2"        HELP "Defaults to Vendor GL Account - Size:20"
+    FIELD LineQuantity2     AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity 2"         HELP "Defaults to 1 - Decimal"
+    FIELD LinePrice2        AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price 2"            HELP "Defaults to Line Amount - Decimal"
+    FIELD Linedescription2  AS CHARACTER FORMAT "x(35)"           COLUMN-LABEL "Notes2"             HELP "Optional - Character"
+    FIELD LineAccount3      AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #3"        HELP "Defaults to Vendor GL Account - Size:20"
+    FIELD LineQuantity3     AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity 3"         HELP "Defaults to 1 - Decimal"
+    FIELD LinePrice3        AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price 3"            HELP "Defaults to Line Amount - Decimal"
+    FIELD Linedescription3  AS CHARACTER FORMAT "x(35)"           COLUMN-LABEL "Notes3"             HELP "Optional - Character"
+    FIELD LineAccount4      AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #4"        HELP "Defaults to Vendor GL Account - Size:20"
+    FIELD LineQuantity4     AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity 4"         HELP "Defaults to 1 - Decimal"
+    FIELD LinePrice4        AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price 4"            HELP "Defaults to Line Amount - Decimal"
+    FIELD Linedescription4  AS CHARACTER FORMAT "x(35)"           COLUMN-LABEL "Notes4"             HELP "Optional - Character"
+    FIELD LineAccount5      AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #5"        HELP "Defaults to Vendor GL Account - Size:20"
+    FIELD LineQuantity5     AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity5"          HELP "Defaults to 1 - Decimal"
+    FIELD LinePrice5        AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price5"             HELP "Defaults to Line Amount - Decimal"
+    FIELD Linedescription5  AS CHARACTER FORMAT "x(35)"           COLUMN-LABEL "Notes5"             HELP "Optional - Character"
+    FIELD LineAccount6      AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #6"        HELP "Defaults to Vendor GL Account - Size:20"
+    FIELD LineQuantity6     AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity 6"         HELP "Defaults to 1 - Decimal"
+    FIELD LinePrice6        AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price 6"            HELP "Defaults to Line Amount - Decimal"
+    FIELD Linedescription6  AS CHARACTER FORMAT "x(35)"           COLUMN-LABEL "Notes6"             HELP "Optional - Character"
+    FIELD LineAccount7      AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #7"        HELP "Defaults to Vendor GL Account - Size:20"
+    FIELD LineQuantity7     AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity 7"         HELP "Defaults to 1 - Decimal"
+    FIELD LinePrice7        AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price 7"            HELP "Defaults to Line Amount - Decimal"
+    FIELD Linedescription7  AS CHARACTER FORMAT "x(35)"           COLUMN-LABEL "Notes7"             HELP "Optional - Character"
+    FIELD LineAccount8      AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #8"        HELP "Defaults to Vendor GL Account - Size:20"
+    FIELD LineQuantity8     AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity 8"         HELP "Defaults to 1 - Decimal"
+    FIELD LinePrice8        AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price 8"            HELP "Defaults to Line Amount - Decimal"
+    FIELD Linedescription8  AS CHARACTER FORMAT "x(35)"           COLUMN-LABEL "Notes8"             HELP "Optional - Character" 
+    FIELD LineAccount9      AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #9"        HELP "Defaults to Vendor GL Account - Size:20"
+    FIELD LineQuantity9     AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity9"          HELP "Defaults to 1 - Decimal"
+    FIELD LinePrice9        AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price9"             HELP "Defaults to Line Amount - Decimal"
+    FIELD Linedescription9  AS CHARACTER FORMAT "x(35)"           COLUMN-LABEL "Notes9"             HELP "Optional - Character"
+    FIELD LineAccount10     AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #10"       HELP "Defaults to Vendor GL Account - Size:20"
+    FIELD LineQuantity10    AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity 10"        HELP "Defaults to 1 - Decimal"
+    FIELD LinePrice10       AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price 10"           HELP "Defaults to Line Amount - Decimal"
+    FIELD Linedescription10 AS CHARACTER FORMAT "x(35)"           COLUMN-LABEL "Notes10"            HELP "Optional - Character"
+    FIELD LineAccount11     AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #11"       HELP "Defaults to Vendor GL Account - Size:20"
+    FIELD LineQuantity11    AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity 11"        HELP "Defaults to 1 - Decimal"
+    FIELD LinePrice11       AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price 11"           HELP "Defaults to Line Amount - Decimal"
+    FIELD Linedescription11 AS CHARACTER FORMAT "x(35)"           COLUMN-LABEL "Notes11"            HELP "Optional - Character"
+    FIELD LineAccount12     AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #12"       HELP "Defaults to Vendor GL Account - Size:20"
+    FIELD LineQuantity12    AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity 12"        HELP "Defaults to 1 - Decimal"
+    FIELD LinePrice12       AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price 12"           HELP "Defaults to Line Amount - Decimal"
+    FIELD Linedescription12 AS CHARACTER FORMAT "x(35)"           COLUMN-LABEL "Notes12"            HELP "Optional - Character"
+    FIELD LineAccount13     AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #13"       HELP "Defaults to Vendor GL Account - Size:20"
+    FIELD LineQuantity13    AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity13"         HELP "Defaults to 1 - Decimal"
+    FIELD LinePrice13       AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price13"            HELP "Defaults to Line Amount - Decimal"
+    FIELD Linedescription13 AS CHARACTER FORMAT "x(35)"           COLUMN-LABEL "Notes14"            HELP "Optional - Character"
+    FIELD LineAccount14     AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #14"       HELP "Defaults to Vendor GL Account - Size:20"
+    FIELD LineQuantity14    AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity 14"        HELP "Defaults to 1 - Decimal"
+    FIELD LinePrice14       AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price 14"           HELP "Defaults to Line Amount - Decimal"
+    FIELD Linedescription14 AS CHARACTER FORMAT "x(35)"           COLUMN-LABEL "Notes14"            HELP "Optional - Character"
+    FIELD LineAccount15     AS CHARACTER FORMAT "x(20)"           COLUMN-LABEL "GL Accnt #15"       HELP "Defaults to Vendor GL Account - Size:20"
+    FIELD LineQuantity15    AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity 15"        HELP "Defaults to 1 - Decimal"
+    FIELD LinePrice15       AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price 15"           HELP "Defaults to Line Amount - Decimal"
+    FIELD Linedescription15 AS CHARACTER FORMAT "x(35)"           COLUMN-LABEL "Notes15"            HELP "Optional - Character"
     .
     
 
@@ -415,8 +470,8 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER oplValid            AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote             AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE cPOLineDetails  AS CHARACTER NO-UNDO EXTENT 4.
-    DEFINE VARIABLE lInvLineAvail   AS LOGICAL   NO-UNDO EXTENT 4.      
+    DEFINE VARIABLE cPOLineDetails  AS CHARACTER NO-UNDO EXTENT 15.
+    DEFINE VARIABLE lInvLineAvail   AS LOGICAL   NO-UNDO EXTENT 15.      
     DEFINE VARIABLE iIndex          AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lDuplicateLines AS LOGICAL   NO-UNDO.
     
@@ -426,11 +481,8 @@ PROCEDURE pValidate PRIVATE:
     oplValid = YES.
     
     RUN pFetchInvoiceDetails (
-        BUFFER ipbf-ttImportAP1,
-        OUTPUT cPOLineDetails[1],
-        OUTPUT cPOLineDetails[2],
-        OUTPUT cPOLineDetails[3],
-        OUTPUT cPOLineDetails[4]
+        INPUT TEMP-TABLE ttImportAP1:HANDLE,
+        OUTPUT cPOLineDetails
         ).
   
     IF ipbf-ttImportAP1.Company EQ '' AND oplValid THEN DO:
@@ -505,7 +557,7 @@ PROCEDURE pValidate PRIVATE:
     END.   
     /* Additional validation to check if PO lines are existing in invoice.
        If atleast one PO line is not existing in invoice then create invoice line */ 
-    DO iIndex = 1 TO 4:
+    DO iIndex = 1 TO EXTENT(cPOLineDetails):
         IF cPOLineDetails[iIndex] NE "" AND oplValid THEN DO:
             RUN pValidateAccountNum(
                 INPUT ipbf-ttImportAP1.Company,
@@ -554,7 +606,7 @@ PROCEDURE pValidate PRIVATE:
                         .
             END.
         END.
-    END.    
+    END.
 
     IF AVAILABLE ap-inv AND oplValid AND ap-inv.posted THEN    
         ASSIGN 
@@ -747,7 +799,7 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE VARIABLE lHold      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iIndex     AS INTEGER   NO-UNDO.
 
-    DEFINE VARIABLE cPOLineDetails   AS CHARACTER NO-UNDO EXTENT 4.
+    DEFINE VARIABLE cPOLineDetails   AS CHARACTER NO-UNDO EXTENT 15.
     DEFINE VARIABLE iLinePONumber    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cLineAccount     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dLineQuantity    AS DECIMAL   NO-UNDO.
@@ -809,14 +861,11 @@ PROCEDURE pProcessRecord PRIVATE:
         ap-inv.receiver-no = "0".
     
     RUN pFetchInvoiceDetails (
-        BUFFER ipbf-ttImportAP1,
-        OUTPUT cPOLineDetails[1],
-        OUTPUT cPOLineDetails[2],
-        OUTPUT cPOLineDetails[3],
-        OUTPUT cPOLineDetails[4]
+        INPUT  TEMP-TABLE ttImportAP1:HANDLE,
+        OUTPUT cPOLineDetails
         ).
         
-    DO iIndex = 1 TO 4:
+    DO iIndex = 1 TO EXTENT(cPOLineDetails):
         IF cPOLineDetails[iIndex] NE "" THEN DO:
             ASSIGN
                 iLinePONumber    = IF NUM-ENTRIES(cPOLineDetails[iIndex]) GE 1 THEN
@@ -927,154 +976,83 @@ PROCEDURE pProcessRecord PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pFetchInvoiceDetails:
-    DEFINE PARAMETER BUFFER ipbf-ttImportAP1 FOR ttImportAP1.
-    DEFINE OUTPUT PARAMETER opcPOLineDetails1 AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcPOLineDetails2 AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcPOLineDetails3 AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcPOLineDetails4 AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iphdTempTable     AS HANDLE    NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcPOLineDetails  AS CHARACTER NO-UNDO EXTENT 15.
     
-    DEFINE VARIABLE cPOLineDetails1 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPOLineDetails2 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPOLineDetails3 AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPOLineDetails4 AS CHARACTER NO-UNDO.
-
+    DEFINE VARIABLE cPOLineDetails AS CHARACTER NO-UNDO EXTENT 15.
+    DEFINE VARIABLE hdTTBuffer     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iIndex         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lZeroPoNo      AS LOGICAL   NO-UNDO INIT YES.
+    DEFINE VARIABLE lNonZeroPoNo   AS LOGICAL   NO-UNDO.
+        
+    hdTTBuffer = iphdTempTable:DEFAULT-BUFFER-HANDLE.
+    
     RUN pFetchInvoiceLineDetails (
-        BUFFER ipbf-ttImportAP1,
-        OUTPUT cPOLineDetails1,
-        OUTPUT cPOLineDetails2,
-        OUTPUT cPOLineDetails3,
-        OUTPUT cPOLineDetails4
-        ).
-
-    IF ipbf-ttImportAP1.LinePONumber2 EQ 0 AND
-       ipbf-ttImportAP1.LinePONumber3 EQ 0 AND
-       ipbf-ttImportAP1.LinePONumber4 EQ 0 THEN DO:
-        ASSIGN
-            opcPOLineDetails1 = (IF cPOLineDetails1 NE "" THEN
-                                     STRING(ipbf-ttImportAP1.LinePONumber1) + "," + cPOLineDetails1
-                                 ELSE IF ipbf-ttImportAP1.LinePONumber1 NE 0 THEN
-                                     STRING(ipbf-ttImportAP1.LinePONumber1) + "," + ",1,0.01,"
-                                 ELSE
-                                     "") 
-            opcPOLineDetails2 = (IF cPOLineDetails2 NE "" THEN
-                                     STRING(ipbf-ttImportAP1.LinePONumber1) + "," + cPOLineDetails2
-                                 ELSE
-                                     "") 
-            opcPOLineDetails3 = (IF cPOLineDetails3 NE "" THEN
-                                     STRING(ipbf-ttImportAP1.LinePONumber1) + "," + cPOLineDetails3
-                                 ELSE
-                                     "") 
-            opcPOLineDetails4 = (IF cPOLineDetails4 NE "" THEN
-                                     STRING(ipbf-ttImportAP1.LinePONumber1) + "," + cPOLineDetails4
-                                 ELSE
-                                     "")
-            .
+        INPUT  hdTTBuffer,
+        OUTPUT cPOLineDetails
+        ).   
+      
+   /* lZeroPoNo  -> IF ttImportAP1.LinePONumber2 EQ 0 AND ttImportAP1.LinePONumber2 EQ 0 -- AND ttImportAP1.LinePONumber[N] EQ 0
+      lNonZeroPo -> IF ttImportAP1.LinePONumber1 NE 0 OR  ttImportAP1.LinePONumber2 NE 0 -- OR  ttImportAP1.LinePONumber[N] NE 0 */
+    
+    DO iIndex = 1 TO EXTENT(cPOLineDetails):
+        IF hdTTBuffer:BUFFER-FIELD("LinePONumber" + STRING(iIndex)):BUFFER-VALUE NE 0 THEN DO:
+            IF iIndex GE 2 AND lZeroPoNo THEN
+                lZeroPoNo = NO.
+            IF NOT lNonZeroPoNo THEN
+                lNonZeroPoNo = YES.
+        END.         
+    END. 
+    
+    IF lZeroPoNo THEN DO:   
+        opcPOLineDetails[1] = IF cPOLineDetails[1] NE "" THEN                                     
+                                  STRING(hdTTBuffer:BUFFER-FIELD("LinePONumber1"):BUFFER-VALUE) + "," + cPOLineDetails[1]
+                              ELSE IF hdTTBuffer:BUFFER-FIELD("LinePONumber1"):BUFFER-VALUE NE 0 THEN
+                                  STRING(hdTTBuffer:BUFFER-FIELD("LinePONumber1"):BUFFER-VALUE) + "," + ",1,0.01,"
+                              ELSE
+                                  "".                                      
+        DO iIndex = 2 TO EXTENT(cPOLineDetails):
+            opcPOLineDetails[iIndex] = IF cPOLineDetails[iIndex] NE "" THEN  
+                                           STRING((hdTTBuffer:BUFFER-FIELD("LinePONumber" + STRING(iIndex)):BUFFER-VALUE)) + "," + cPOLineDetails[iIndex]
+                                       ELSE "" .                                    
+        END.  
     END.
-    ELSE
-    IF (ipbf-ttImportAP1.LinePONumber1 NE 0 OR    
-        ipbf-ttImportAP1.LinePONumber2 NE 0 OR
-        ipbf-ttImportAP1.LinePONumber3 NE 0 OR
-        ipbf-ttImportAP1.LinePONumber4 NE 0) THEN DO:
-        ASSIGN
-            opcPOLineDetails1 = (IF cPOLineDetails1 NE "" THEN
-                                     STRING(ipbf-ttImportAP1.LinePONumber1) + "," + cPOLineDetails1
-                                 ELSE IF ipbf-ttImportAP1.LinePONumber1 NE 0 THEN
-                                     STRING(ipbf-ttImportAP1.LinePONumber1) + "," + ",1,0.01,"
-                                 ELSE
-                                     "") 
-            opcPOLineDetails2 = (IF cPOLineDetails2 NE "" THEN
-                                     STRING(ipbf-ttImportAP1.LinePONumber2) + "," + cPOLineDetails2
-                                 ELSE IF ipbf-ttImportAP1.LinePONumber2 NE 0 THEN
-                                     STRING(ipbf-ttImportAP1.LinePONumber2) + "," + ",1,0.01,"
-                                 ELSE
-                                     "") 
-            opcPOLineDetails3 = (IF cPOLineDetails3 NE "" THEN
-                                     STRING(ipbf-ttImportAP1.LinePONumber3) + "," + cPOLineDetails3
-                                 ELSE IF ipbf-ttImportAP1.LinePONumber3 NE 0 THEN
-                                     STRING(ipbf-ttImportAP1.LinePONumber3) + "," + ",1,0.01,"
-                                 ELSE
-                                     "") 
-            opcPOLineDetails4 = (IF cPOLineDetails4 NE "" THEN
-                                     STRING(ipbf-ttImportAP1.LinePONumber4) + "," + cPOLineDetails4
-                                 ELSE IF ipbf-ttImportAP1.LinePONumber4 NE 0 THEN
-                                     STRING(ipbf-ttImportAP1.LinePONumber4) + "," + ",1,0.01,"
-                                 ELSE
-                                     "") 
-            .
-    END.
-
+    ELSE IF lNonZeroPoNo THEN 
+        DO iIndex = 1 TO EXTENT(cPOLineDetails):
+            opcPOLineDetails[iIndex] = IF cPOLineDetails[iIndex] NE "" THEN 
+                                           STRING(hdTTBuffer:BUFFER-FIELD("LinePONumber" + STRING(iIndex)):BUFFER-VALUE) + "," + cPOLineDetails[iIndex]
+                                       ELSE IF hdTTBuffer:BUFFER-FIELD("LinePONumber" + STRING(iIndex)):BUFFER-VALUE NE 0 THEN
+                                           STRING(hdTTBuffer:BUFFER-FIELD("LinePONumber" + STRING(iIndex)):BUFFER-VALUE) + "," + ",1,0.01,"
+                                       ELSE "".   
+        END.                          
 END PROCEDURE.
 
 PROCEDURE pFetchInvoiceLineDetails:
-    DEFINE PARAMETER BUFFER ipbf-ttImportAP1 FOR ttImportAP1.
-    DEFINE OUTPUT PARAMETER opcPOLineDetails1 AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcPOLineDetails2 AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcPOLineDetails3 AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcPOLineDetails4 AS CHARACTER NO-UNDO.
-                
-    IF ipbf-ttImportAP1.LineAccount1  NE "" OR
-       ipbf-ttImportAP1.LineQuantity1 NE 0 OR
-       ipbf-ttImportAP1.LinePrice1    NE 0 THEN
-       opcPOLineDetails1 = ipbf-ttImportAP1.LineAccount1 + ","
-                         + (IF ipbf-ttImportAP1.LineQuantity1 EQ 0 THEN
-                                "1"
-                            ELSE
-                                STRING(ipbf-ttImportAP1.LineQuantity1))
-                         + ","
-                         + (IF ipbf-ttImportAP1.LinePrice1 EQ 0 THEN
-                                "0.01"
-                            ELSE
-                                STRING(ipbf-ttImportAP1.LinePrice1)) 
-                         + ","             
-                         + ipbf-ttImportAP1.LineDescription1.
-                         
-    IF ipbf-ttImportAP1.LineAccount2  NE "" OR
-       ipbf-ttImportAP1.LineQuantity2 NE 0 OR
-       ipbf-ttImportAP1.LinePrice2    NE 0 THEN
-       opcPOLineDetails2 = ipbf-ttImportAP1.LineAccount2 + ","
-                         + (IF ipbf-ttImportAP1.LineQuantity2 EQ 0 THEN
-                                "1"
-                            ELSE
-                                STRING(ipbf-ttImportAP1.LineQuantity2))
-                         + ","
-                         + (IF ipbf-ttImportAP1.LinePrice2 EQ 0 THEN
-                                "0.01"
-                            ELSE
-                                STRING(ipbf-ttImportAP1.LinePrice2))
-                         + ","       
-                         + ipbf-ttImportAP1.LineDescription2.
-                         
-    IF ipbf-ttImportAP1.LineAccount3  NE "" OR
-       ipbf-ttImportAP1.LineQuantity3 NE 0 OR
-       ipbf-ttImportAP1.LinePrice3    NE 0 THEN
-       opcPOLineDetails3 = ipbf-ttImportAP1.LineAccount3 + ","
-                         + (IF ipbf-ttImportAP1.LineQuantity3 EQ 0 THEN
-                                "1"
-                            ELSE
-                                STRING(ipbf-ttImportAP1.LineQuantity3))
-                         + "," 
-                         + (IF ipbf-ttImportAP1.LinePrice3 EQ 0 THEN
-                                "0.01"
-                            ELSE
-                                STRING(ipbf-ttImportAP1.LinePrice3))
-                         + ","       
-                         + ipbf-ttImportAP1.LineDescription3.
-                         
-    IF ipbf-ttImportAP1.LineAccount4  NE "" OR
-       ipbf-ttImportAP1.LineQuantity4 NE 0 OR
-       ipbf-ttImportAP1.LinePrice4    NE 0 THEN
-       opcPOLineDetails4 = ipbf-ttImportAP1.LineAccount4 + ","
-                         + (IF ipbf-ttImportAP1.LineQuantity4 EQ 0 THEN
-                                "1"
-                            ELSE
-                                STRING(ipbf-ttImportAP1.LineQuantity4))
-                         + ","
-                         + (IF ipbf-ttImportAP1.LinePrice4 EQ 0 THEN
-                                "0.01"
-                            ELSE
-                                STRING(ipbf-ttImportAP1.LinePrice4))
-                         + ","       
-                         + ipbf-ttImportAP1.LineDescription4.
+    DEFINE INPUT  PARAMETER iphdTTBuffer     AS HANDLE    NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcPOLineDetails AS CHARACTER NO-UNDO EXTENT 15.
+    
+    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+      
+    DO iIndex = 1 TO EXTENT(opcPOLineDetails):
+        IF iphdTTBuffer:BUFFER-FIELD("LineAccount"  + STRING(iIndex)):BUFFER-VALUE NE "" OR
+           iphdTTBuffer:BUFFER-FIELD("LineQuantity" + STRING(iIndex)):BUFFER-VALUE NE 0  OR 
+           iphdTTBuffer:BUFFER-FIELD("LinePrice"    + STRING(iIndex)):BUFFER-VALUE NE 0 THEN
+           opcPOLineDetails[iIndex] = iphdTTBuffer:BUFFER-FIELD("LineAccount" + STRING(iIndex)):BUFFER-VALUE + ","
+                                 + (IF iphdTTBuffer:BUFFER-FIELD("LineQuantity" + STRING(iIndex)):BUFFER-VALUE EQ 0 THEN
+                                        "1"
+                                    ELSE 
+                                        STRING(iphdTTBuffer:BUFFER-FIELD("LineQuantity" + STRING(iIndex)):BUFFER-VALUE)) 
+                                 + "," 
+                                  
+                                 + (IF iphdTTBuffer:BUFFER-FIELD("LinePrice" + STRING(iIndex)):BUFFER-VALUE EQ 0 THEN
+                                        "0.01"
+                                    ELSE 
+                                        STRING(iphdTTBuffer:BUFFER-FIELD("LinePrice" + STRING(iIndex)):BUFFER-VALUE))
+                                 + ","
+                                 
+                                 + iphdTTBuffer:BUFFER-FIELD("LineDescription"+ STRING(iIndex)):BUFFER-VALUE      
+                                 . 
+    END.    
 END PROCEDURE.
 
 PROCEDURE pRecalculateInvoiceHeader:
