@@ -5468,7 +5468,7 @@ PROCEDURE local-enable-fields :
 
   RUN release-shared-buffers.
   
-  ENABLE oe-ord.priority.
+/*  ENABLE oe-ord.priority WITH FRAME {&FRAME-NAME}.*/
 
 END PROCEDURE.
 
