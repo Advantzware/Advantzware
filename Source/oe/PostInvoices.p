@@ -3668,14 +3668,7 @@ PROCEDURE pCreateValidationTags PRIVATE:
     DEFINE BUFFER bf-inv-head                   FOR inv-head.
     DEFINE BUFFER bf-inv-line                   FOR inv-line.
     DEFINE BUFFER bf-inv-misc                   FOR inv-misc.
-    DEFINE BUFFER bf-cust                       FOR cust.
-    DEFINE BUFFER bf-MultiInvoiceChild-inv-head FOR inv-head.
-    DEFINE BUFFER bf-ttInvoiceToPost            FOR ttInvoiceToPost.
-    DEFINE BUFFER bf-ttInvoiceLineToPost        FOR ttInvoiceLineToPost.
-    DEFINE BUFFER bf-ttInvoiceMiscToPost        FOR ttInvoiceMiscToPost.
-    
-    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-cust                       FOR cust.       
 
     FIND FIRST ttPostingMaster NO-LOCK NO-ERROR.
     IF NOT AVAILABLE ttPostingMaster THEN 
@@ -3711,17 +3704,13 @@ PROCEDURE pCreateValidationTags PRIVATE:
         AND ((bf-cust.inv-meth EQ ? AND bf-inv-head.multi-invoice) OR (bf-cust.inv-meth NE ? AND NOT bf-inv-head.multi-invoice) OR iplValidateOnly )   /*Filter multi-invoices correctly based on customer*/
         :
         IF iplValidateOnly AND ( NOT bf-inv-head.autoApproved OR bf-inv-head.multi-invoice) THEN NEXT.
-
-        /*Add CustomerList Exclusions*/
-        /*TBD*/
+                
         opiProcessed = opiProcessed + 1.
         
         RUN ClearTagsByRecKey(bf-inv-head.rec_key).  /*Clear all hold tags - TagProcs.p*/
         
         bf-inv-head.autoApproved = NO.
-    END.    
-        
-        
+    END.          
         
  END PROCEDURE.
     
