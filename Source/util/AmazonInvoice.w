@@ -79,7 +79,7 @@ DEFINE BUTTON btn-cancel
 
 DEFINE BUTTON btn-process 
      LABEL "&Generate 810 Invoice" 
-     SIZE 17.4 BY .76.
+     SIZE 24 BY .76.
 
 DEFINE BUTTON btSelectFile 
      LABEL "Select CSV File" 
@@ -95,9 +95,9 @@ DEFINE RECTANGLE RECT-17
      SIZE 99 BY 6.91.
 
 DEFINE VARIABLE tbOverwriteEDI AS LOGICAL INITIAL no 
-     LABEL "Overwrite Existing EDI?" 
+     LABEL "Overwrite Existing EDI data?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .52 NO-UNDO.
+     SIZE 34 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -105,7 +105,7 @@ DEFINE VARIABLE tbOverwriteEDI AS LOGICAL INITIAL no
 DEFINE FRAME FRAME-A
      fiCsvFile AT ROW 3.86 COL 8.2 COLON-ALIGNED WIDGET-ID 6
      btSelectFile AT ROW 5.29 COL 16 WIDGET-ID 8
-     tbOverwriteEDI AT ROW 7.67 COL 6 WIDGET-ID 4
+     tbOverwriteEDI AT ROW 7.57 COL 6 WIDGET-ID 4
      btn-process AT ROW 9.1 COL 14
      btn-cancel AT ROW 9.1 COL 47
      "Selection Parameters" VIEW-AS TEXT
@@ -114,7 +114,7 @@ DEFINE FRAME FRAME-A
           SIZE 1.4 BY .62 AT ROW 1.95 COL 88
           BGCOLOR 11 
      "(Check this only if instructed to)" VIEW-AS TEXT
-          SIZE 35 BY .62 AT ROW 7.67 COL 26 WIDGET-ID 10
+          SIZE 35 BY .62 AT ROW 7.48 COL 41 WIDGET-ID 10
      "Note:  The CSV fiile must have the invoice number as the first column" VIEW-AS TEXT
           SIZE 72 BY .62 AT ROW 6.48 COL 11 WIDGET-ID 12
           FGCOLOR 12 
@@ -232,20 +232,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME btSelectFile
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSelectFile C-Win
-ON CHOOSE OF btSelectFile IN FRAME FRAME-A /* Cancel */
-DO:
-    DEFINE VARIABLE cFilePath AS CHARACTER NO-UNDO.
-
-    SYSTEM-DIALOG GET-FILE cFilePath
-        TITLE "Select CSV file of invoice numbers".
-
-    fiCSVFile:SCREEN-VALUE = cFilePath.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME btn-process
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
@@ -262,6 +248,22 @@ DO:
       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
 
   IF v-process THEN RUN run-process.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btSelectFile
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSelectFile C-Win
+ON CHOOSE OF btSelectFile IN FRAME FRAME-A /* Select CSV File */
+DO:
+    DEFINE VARIABLE cFilePath AS CHARACTER NO-UNDO.
+
+    SYSTEM-DIALOG GET-FILE cFilePath
+        TITLE "Select CSV file of invoice numbers".
+
+    fiCSVFile:SCREEN-VALUE = cFilePath.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -346,9 +348,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckMissingBuyer C-Win
-PROCEDURE pCheckMissingBuyer:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckMissingBuyer C-Win 
+PROCEDURE pCheckMissingBuyer :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -416,11 +417,9 @@ DEF VAR cShipto AS CHAR.
 
       END.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
@@ -506,12 +505,11 @@ FOR EACH ttInv:
     
     IF lDeleteOrig THEN 
     DO:
-        FIND FIRST edivtran EXCLUSIVE-LOCK 
+        FOR EACH edivtran EXCLUSIVE-LOCK 
           WHERE edivtran.company EQ cocode
             AND edivtran.invoice-no EQ string(IF AVAILABLE ar-inv THEN ar-inv.inv-no ELSE inv-head.inv-no)
-          NO-ERROR.
-        IF AVAILABLE edivtran THEN 
-        DO:
+          :
+
             FOR EACH edivaddon EXCLUSIVE-LOCK
                 WHERE edivaddon.seq = edivtran.seq
                   AND edivaddon.partner EQ edivtran.partner:
@@ -553,7 +551,12 @@ FOR EACH ttInv:
     RUN pCheckMissingBuyer.
     
     /* Create eddoc for invoice if required */
-    RUN ed/asi/o810hook.p (IF AVAILABLE(ar-inv) THEN RECID(ar-inv) ELSE RECID(inv-head), NO, NO).  
+    FIND FIRST edivtran NO-LOCK 
+       WHERE edivtran.company EQ cocode
+         AND edivtran.invoice-no EQ string(IF AVAILABLE ar-inv THEN ar-inv.inv-no ELSE inv-head.inv-no)
+       NO-ERROR.
+    IF NOT AVAIL edivtran THEN 
+        RUN ed/asi/o810hook.p (IF AVAILABLE(ar-inv) THEN RECID(ar-inv) ELSE RECID(inv-head), NO, NO).  
     FIND FIRST edivtran NO-LOCK 
     WHERE edivtran.company EQ cocode
       AND edivtran.invoice-no EQ string(IF AVAILABLE ar-inv THEN ar-inv.inv-no ELSE inv-head.inv-no)
