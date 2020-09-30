@@ -77,7 +77,7 @@ DEFINE QUERY external_tables FOR inv-head.
 &Scoped-Define ENABLED-FIELDS inv-head.inv-date inv-head.cust-no ~
 inv-head.sold-no inv-head.contact inv-head.tax-gr inv-head.terms ~
 inv-head.carrier inv-head.frt-pay inv-head.fob-code inv-head.t-inv-weight ~
-inv-head.t-inv-freight inv-head.t-comm 
+inv-head.t-inv-freight inv-head.t-comm inv-head.autoApproved
 &Scoped-define ENABLED-TABLES inv-head
 &Scoped-define FIRST-ENABLED-TABLE inv-head
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-41 imgHoldRsn btnCalendar-1 
@@ -218,6 +218,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 41.8 BY 1
      inv-head.autoApproved AT ROW 4.33 COL 118.6
+          LABEL "AutoApproved"
           VIEW-AS TOGGLE-BOX
           SIZE 20 BY 1
      inv-head.addr[1] AT ROW 5.29 COL 14.6 COLON-ALIGNED NO-LABEL
@@ -373,7 +374,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN inv-head.addr[2] IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR TOGGLE-BOX inv-head.autoApproved IN FRAME F-Main
-   NO-ENABLE                                                            */
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN inv-head.bol-no IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
@@ -1314,10 +1315,11 @@ PROCEDURE local-assign-record :
   DEF VAR ld-tax-tot AS DEC NO-UNDO.
   DEF VAR ld-tax-amt AS DEC NO-UNDO.
   DEF VAR ld-inv-accum AS DEC NO-UNDO.
+  DEFINE VARIABLE ld-prev-auto-approved AS LOGICAL NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN ld-prev-frt-tot = IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0 .
-
+  ld-prev-auto-approved = inv-head.autoApproved.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -1340,6 +1342,11 @@ PROCEDURE local-assign-record :
           ASSIGN 
             inv-head.sman[1] = cust.sman
             inv-head.s-pct[1] = 100.
+  END.
+  IF ld-prev-auto-approved NE inv-head.autoApproved AND inv-head.autoApproved THEN
+  DO:
+     RUN ClearTagsByRecKey(inv-head.rec_key).  /*Clear all hold tags - TagProcs.p*/
+     RUN AddTagHoldInfo (inv-head.rec_key,"inv-head", "Manually Approved"). /*From TagProcs Super Proc*/       
   END.
 
   RUN dispatch ('display-fields').
