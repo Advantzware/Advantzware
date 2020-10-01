@@ -58,6 +58,7 @@ DEF VAR ect-format AS CHAR NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL  NO-UNDO.
 DEFINE VARIABLE lDisplayWood AS LOGICAL  NO-UNDO.
+DEFINE VARIABLE lCheckMessage   AS LOGICAL   NO-UNDO .
 
 {sys/inc/f16to32.i}
 
@@ -100,8 +101,8 @@ item.dept-name[3] item.dept-name[4] item.dept-name[5] item.dept-name[6] ~
 item.dept-name[7] item.dept-name[8] item.dept-name[9] item.dept-name[10] ~
 item.box-case item.speed%[1] item.speed%[2] item.speed%[3] item.speed%[4] ~
 item.speed%[5] item.speed%[6] item.speed%[7] item.speed%[8] item.speed%[9] ~
-item.speed%[10] item.case-pall item.sqin-lb item.linin-lb item.ink-type ~
-item.press-type item.yield item.min-lbs item.spare-char-1 
+item.speed%[10] item.case-pall item.stat item.sqin-lb item.linin-lb  ~
+item.ink-type item.press-type item.yield item.min-lbs item.spare-char-1 
 &Scoped-define ENABLED-TABLES item
 &Scoped-define FIRST-ENABLED-TABLE item
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-20 RECT-3 RECT-4 RECT-5 ~
@@ -117,7 +118,7 @@ item.dept-name[5] item.dept-name[6] item.dept-name[7] item.dept-name[8] ~
 item.dept-name[9] item.dept-name[10] item.box-case item.speed%[1] ~
 item.speed%[2] item.speed%[3] item.speed%[4] item.speed%[5] item.speed%[6] ~
 item.speed%[7] item.speed%[8] item.speed%[9] item.speed%[10] item.case-pall ~
-item.sqin-lb item.linin-lb item.ink-type item.press-type item.yield ~
+item.stat item.sqin-lb item.linin-lb item.ink-type item.press-type item.yield ~
 item.min-lbs item.spare-char-1 
 &Scoped-define DISPLAYED-TABLES item
 &Scoped-define FIRST-DISPLAYED-TABLE item
@@ -558,6 +559,12 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 6.8 BY 1
           BGCOLOR 15 FONT 4
+     item.stat AT ROW 13.18 COL 115.5 NO-LABEL WIDGET-ID 6
+          VIEW-AS RADIO-SET HORIZONTAL
+          RADIO-BUTTONS 
+                    "Active", "A":U,
+                    "InActive", "I":U
+          SIZE 27 BY .81         
      item.sqin-lb AT ROW 13.62 COL 130 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
@@ -1399,6 +1406,23 @@ ON VALUE-CHANGED OF fi_flute IN FRAME F-Main /* Flute */
 DO:
   item.flute:SCREEN-VALUE = fi_flute:SCREEN-VALUE.
   RUN new-flute.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME itemfg.stat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.stat V-table-Win
+ON VALUE-CHANGED OF item.stat IN FRAME F-Main /* Status */
+DO:
+    IF item.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "I" THEN do:
+        lCheckMessage = YES .
+        RUN pCheckOnHandQty. 
+        lCheckMessage = NO .
+    END.
+    ELSE DO:
+        lCheckMessage = NO .
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2472,6 +2496,10 @@ PROCEDURE local-update-record :
                RETURN NO-APPLY.
         END. 
    END.
+   
+   RUN pCheckOnHandQty NO-ERROR.
+   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+   
 {&methods/lValidateError.i NO}
   /* ======== end validation =================== */
 
@@ -2552,6 +2580,75 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckOnHandQty V-table-Win 
+PROCEDURE pCheckOnHandQty :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+DEFINE VARIABLE iQtyOnHand AS INTEGER NO-UNDO .
+DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO .
+
+  {methods/lValidateError.i YES}
+    DO WITH FRAME {&FRAME-NAME}:
+        IF item.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "I" THEN do:
+            FOR EACH fg-bin FIELDS(qty )
+               WHERE fg-bin.company EQ cocode
+                 AND fg-bin.i-no    EQ item.i-no:SCREEN-VALUE
+                 NO-LOCK:
+             ASSIGN
+                iQtyOnHand = iQtyOnHand + fg-bin.qty.
+            END.
+            
+            IF iQtyOnHand GT 0 THEN DO:
+               MESSAGE "Remove all on hand quantity in order to make an item inactive." VIEW-AS ALERT-BOX ERROR.
+               APPLY "entry" TO item.stat.
+               RETURN ERROR.
+            END.
+        END.
+
+      IF lCheckMessage EQ YES THEN do:
+       FOR EACH po-ordl FIELDS(po-no )  NO-LOCK
+           WHERE po-ordl.company EQ cocode
+           AND po-ordl.i-no EQ  item.i-no:SCREEN-VALUE
+           AND po-ordl.opened  :
+           cMessage = " Po# " + string(po-ordl.po-no ) .
+           LEAVE.
+       END.
+
+       IF cMessage EQ "" THEN
+       FOR EACH oe-ordl FIELD(ord-no) NO-LOCK
+           WHERE oe-ordl.company EQ cocode
+           AND oe-ordl.i-no EQ item.i-no:SCREEN-VALUE
+           AND oe-ordl.opened  :
+           cMessage = " Order# " + string(oe-ordl.ord-no ) .
+           LEAVE.
+       END.
+       IF cMessage EQ "" THEN
+       FOR EACH job-mat NO-LOCK
+          WHERE  job-mat.company EQ cocode
+            AND job-mat.rm-i-no EQ item.i-no:SCREEN-VALUE, 
+           FIRST job-hdr FIELD(job-no)  NO-LOCK
+            WHERE  job-hdr.company EQ cocode
+              AND job-hdr.job-no EQ job-mat.job-no
+              AND job-hdr.job-no2 EQ job-mat.job-no2
+              AND job-hdr.opened EQ YES :
+            cMessage = " Job# " + string(job-hdr.job-no ) .
+       END.
+
+       IF  cMessage NE "" THEN 
+           MESSAGE "You are setting this item to inactive yet it is still included in "  SKIP
+               "open/unprocessed transactions.  This includes:" cMessage VIEW-AS ALERT-BOX WARNING .
+
+      END.  /* lCheckMessage */
+          
+    END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :
