@@ -3500,7 +3500,8 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
                     INPUT  NO
                     ).
                 lAutoApprove = NO. 
-                bf-ttInvoiceToPost.isOKToPost = NO.    
+                bf-ttInvoiceToPost.isOKToPost = NO. 
+                bf-ttInvoiceToPost.problemMessage = "Tax on invoice does not match with calculated tax".
              END.            
          END.
          
@@ -3510,6 +3511,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invoice on Hold",NO).
             lAutoApprove = NO. 
             bf-ttInvoiceToPost.isOKToPost = NO.
+            bf-ttInvoiceToPost.problemMessage = "Invoice on Hold".
          END.
          
          lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalFreightAmount",bf-inv-head.cust-no,iplIsValidateOnly).
@@ -3518,6 +3520,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billable freight without freight charge",NO).
             lAutoApprove = NO.
             bf-ttInvoiceToPost.isOKToPost = NO.
+            bf-ttInvoiceToPost.problemMessage =  "Billable freight without freight charge".
          END.
          
          lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalBillNotes",bf-inv-head.cust-no,iplIsValidateOnly).           
@@ -3526,6 +3529,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billing notes exist",NO).
             lAutoApprove = NO.
             bf-ttInvoiceToPost.isOKToPost = NO.
+            bf-ttInvoiceToPost.problemMessage =  "Billing notes exist".
          END.    
          
          lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalFreightTerms",bf-inv-head.cust-no,iplIsValidateOnly).           
@@ -3534,6 +3538,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invalid freight terms code",NO).
             lAutoApprove = NO. 
             bf-ttInvoiceToPost.isOKToPost = NO.
+            bf-ttInvoiceToPost.problemMessage =  "Invalid freight terms code".
          END.
          
          IF bf-ttInvoiceToPost.amountBilledTax EQ 0 THEN
@@ -3545,6 +3550,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
                 RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Taxable ship to with no tax",NO).
                 lAutoApprove = NO.
                 bf-ttInvoiceToPost.isOKToPost = NO.
+                bf-ttInvoiceToPost.problemMessage =  "Taxable ship to with no tax".
             END.
          END.  
          
@@ -3557,6 +3563,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
                   RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Item price is greater than the cost of the item",NO).
                      lAutoApprove = NO.
                      bf-ttInvoiceLineToPost.isOKToPost = NO.
+                     bf-ttInvoiceLineToPost.problemMessage =  "Item price is greater than the cost of the item".
              END.  
              dTotalLineRev = dTotalLineRev + bf-ttInvoiceLineToPost.amountBilled .
          END. 
@@ -3572,6 +3579,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invoice lines <> Invoice Total",NO).
             lAutoApprove = NO.  
             bf-ttInvoiceToPost.isOKToPost = NO.
+            bf-ttInvoiceToPost.problemMessage =  "Invoice lines <> Invoice Total".
          END.         
            
              

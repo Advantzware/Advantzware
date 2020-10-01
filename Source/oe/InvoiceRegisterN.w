@@ -353,7 +353,7 @@ DEFINE TEMP-TABLE ttARLedgerTransaction NO-UNDO
     FIELD currencyExRate AS DECIMAL 
     .
 
-
+DEFINE STREAM excel.
 
 &SCOPED-DEFINE use-factored
 
@@ -374,12 +374,12 @@ DEFINE TEMP-TABLE ttARLedgerTransaction NO-UNDO
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tran-date begin_cust end_cust ~
 begin_inv end_inv begin_date end_date tb_detailed tb_detailed-2 tb_ton ~
-tb_export rd-dest lv-ornt lines-per-page lv-font-no td-show-parm btn-ok ~
-btn-cancel 
+tb_export tb_exception-export rd-dest lv-ornt lines-per-page lv-font-no ~
+td-show-parm btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tran-date tran-period begin_cust end_cust ~
 begin_inv end_inv begin_date end_date tb_detailed tb_detailed-2 tb_ton ~
-tb_export rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
-td-show-parm 
+tb_export tb_exception-export rd-dest lv-ornt lines-per-page lv-font-no ~
+lv-font-name td-show-parm 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -503,6 +503,11 @@ DEFINE VARIABLE tb_ton        AS LOGICAL INITIAL NO
     VIEW-AS TOGGLE-BOX
     SIZE 28 BY 1 NO-UNDO.
 
+DEFINE VARIABLE tb_exception-export AS LOGICAL INITIAL no 
+     LABEL "Exception Report" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 23.6 BY 1 NO-UNDO.    
+
 DEFINE VARIABLE td-show-parm  AS LOGICAL INITIAL NO 
     LABEL "Show Parameters?" 
     VIEW-AS TOGGLE-BOX
@@ -528,6 +533,7 @@ DEFINE FRAME FRAME-A
     tb_detailed-2 AT ROW 10.05 COL 36
     tb_ton AT ROW 11 COL 36
     tb_export AT ROW 11.95 COL 36
+    tb_exception-export AT ROW 11.95 COL 65.2 WIDGET-ID 2
     rd-dest AT ROW 14.81 COL 5 NO-LABELS
     lv-ornt AT ROW 15.05 COL 29 NO-LABELS
     lines-per-page AT ROW 15.05 COL 82 COLON-ALIGNED
@@ -625,7 +631,10 @@ ASSIGN
 
 ASSIGN 
     tb_detailed-2:PRIVATE-DATA IN FRAME FRAME-A = "parm".
-
+    
+ASSIGN 
+       tb_exception-export:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 ASSIGN 
     tb_export:PRIVATE-DATA IN FRAME FRAME-A = "parm".
 
@@ -959,6 +968,16 @@ ON VALUE-CHANGED OF tb_detailed IN FRAME FRAME-A /* Invoice Report Detailed? */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_detailed-2 C-Win
 ON VALUE-CHANGED OF tb_detailed-2 IN FRAME FRAME-A /* G/L Report Detailed? */
     DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME tb_exception-export
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_exception-export C-Win
+ON VALUE-CHANGED OF tb_exception-export IN FRAME FRAME-A /* Exception Report */
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1331,12 +1350,13 @@ PROCEDURE enable_UI :
                    Settings" section of the widget Property Sheets.
     ------------------------------------------------------------------------------*/
     DISPLAY tran-date tran-period begin_cust end_cust begin_inv end_inv begin_date 
-        end_date tb_detailed tb_detailed-2 tb_ton tb_export rd-dest lv-ornt 
-        lines-per-page lv-font-no lv-font-name td-show-parm 
+        end_date tb_detailed tb_detailed-2 tb_ton tb_export tb_exception-export  
+        rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm 
         WITH FRAME FRAME-A IN WINDOW C-Win.
     ENABLE RECT-6 RECT-7 tran-date begin_cust end_cust begin_inv end_inv 
-        begin_date end_date tb_detailed tb_detailed-2 tb_ton tb_export rd-dest 
-        lv-ornt lines-per-page lv-font-no td-show-parm btn-ok btn-cancel 
+        begin_date end_date tb_detailed tb_detailed-2 tb_ton tb_export
+        tb_exception-export rd-dest lv-ornt lines-per-page lv-font-no
+        td-show-parm btn-ok btn-cancel 
         WITH FRAME FRAME-A IN WINDOW C-Win.
     {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
     VIEW C-Win.
@@ -2413,6 +2433,8 @@ PROCEDURE run-report :
     RUN list-post-inv ("list").
 
     OUTPUT CLOSE. 
+    
+    IF tb_exception-export THEN RUN pExcReport.
         
     IF v-postable THEN RUN list-gl.
 
@@ -2673,6 +2695,71 @@ PROCEDURE valid-date :
             ll-warned = YES.
         END.
     END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pExcReport C-Win 
+PROCEDURE pExcReport :
+    /*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE fi_file AS CHARACTER INITIAL "c:~\tmp~\r-exception.csv"  NO-UNDO.
+    DEF VAR excelheader AS CHAR NO-UNDO.
+    DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+    DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+    DEFINE VARIABLE cProblemMessage AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-inv-line FOR inv-line.
+
+    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+    
+    OUTPUT STREAM excel TO VALUE(cFileName).
+    excelheader = "Invoice ,Inv Date,Customer,Customer Name,Reason".
+    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+    
+    
+    FOR EACH ttInvoiceToPost NO-LOCK 
+        WHERE ttInvoiceToPost.isOKToPost EQ NO , 
+        FIRST inv-head WHERE ROWID(inv-head) EQ ttInvoiceToPost.riInvHead
+        TRANSACTION
+        BY ttInvoiceToPost.invoiceID:
+        
+         cProblemMessage = "" .
+         IF ttInvoiceToPost.problemMessage NE "" THEN
+         cProblemMessage = ttInvoiceToPost.problemMessage + "," .
+               
+         FOR EACH ttInvoiceLineToPost 
+             WHERE ttInvoiceLineToPost.rNo EQ ttInvoiceToPost.rNo 
+             AND ttInvoiceLineToPost.isOKToPost EQ NO,
+             FIRST bf-inv-line EXCLUSIVE-LOCK 
+             WHERE ROWID(bf-inv-line) EQ ttInvoiceLineToPost.riInvLine BREAK BY ttInvoiceLineToPost.orderID:
+             IF ttInvoiceLineToPost.problemMessage NE "" THEN
+             cProblemMessage = cProblemMessage + ttInvoiceLineToPost.problemMessage + "," .  
+         END.
+        
+         FOR EACH ttInvoiceMiscToPost NO-LOCK
+             WHERE ttInvoiceMiscToPost.rNo EQ ttInvoiceToPost.rNo
+             AND  ttInvoiceMiscToPost.isOKToPost EQ NO:
+             
+             IF ttInvoiceMiscToPost.problemMessage NE "" THEN
+             cProblemMessage = cProblemMessage + ttInvoiceMiscToPost.problemMessage + "," .
+         END.
+        
+         PUT STREAM excel UNFORMATTED
+               '"' inv-head.inv-no                           '",'
+               '"' inv-head.inv-date                         '",'
+               '"' inv-head.cust-no                          '",'
+               '"' inv-head.cust-name                        '",'
+               '"' cProblemMessage                           '",'                             
+               SKIP.                          
+    END.
+    
+    OUTPUT STREAM excel CLOSE.
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
 
 END PROCEDURE.
 
