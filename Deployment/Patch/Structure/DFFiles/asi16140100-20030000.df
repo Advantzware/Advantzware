@@ -2152,6 +2152,22 @@ ADD FIELD "importPath" OF "APIInbound" AS character
 
 DROP FIELD "isActive" OF "APIInbound"
 
+ADD FIELD "delayedProcessingStatus" OF "APIInboundEvent" AS character
+  DESCRIPTION "Stores the processing status of an Inbound request. Can be queued, processed and failed"
+  FORMAT "x(20)"
+  POSITION 15
+  INITIAL ""
+  LABEL "Delayed Processing Status"
+  COLUMN-LABEL "Delayed Processing Status"
+  ORDER 140
+  MAX-WIDTH 40
+
+ADD INDEX "delayedProcessingStatus" ON "APIInboundEvent"
+  AREA "Index"
+  DESCRIPTION "Index for delayedProcessingStatus and APIInboundEventID"
+  INDEX-FIELD "delayedProcessingStatus" ASCENDING
+  INDEX-FIELD "apiInboundEventID" ASCENDING
+
 ADD FIELD "inActive" OF "APIOutbound" AS logical
   FORMAT "yes/no"
   POSITION 13
@@ -4601,4 +4617,4 @@ ADD SEQUENCE "queryNr"
 PSC
 cpstream=ISO8859-1
 .
-0000103300
+0000103880
