@@ -30,6 +30,22 @@ ADD FIELD "postStartDtTm" OF "ap-ctrl" AS datetime
   ORDER 360
   MAX-WIDTH 8
 
+ADD FIELD "delayedProcessingStatus" OF "APIInboundEvent" AS character
+  DESCRIPTION "Stores the processing status of an Inbound request. Can be queued, processed and failed"
+  FORMAT "x(20)"
+  POSITION 15
+  INITIAL ""
+  LABEL "Delayed Processing Status"
+  COLUMN-LABEL "Delayed Processing Status"
+  ORDER 140
+  MAX-WIDTH 40
+
+ADD INDEX "delayedProcessingStatus" ON "APIInboundEvent"
+  AREA "Index"
+  DESCRIPTION "Index for delayedProcessingStatus and APIInboundEventID"
+  INDEX-FIELD "delayedProcessingStatus" ASCENDING
+  INDEX-FIELD "apiInboundEventID" ASCENDING
+
 ADD FIELD "hostSSHKey" OF "APIOutbound" AS character
   FORMAT "x(500)"
   POSITION 25
@@ -498,4 +514,4 @@ ADD FIELD "postStartDtTm" OF "rm-ctrl" AS datetime
 PSC
 cpstream=ISO8859-1
 .
-0000010167
+0000010747

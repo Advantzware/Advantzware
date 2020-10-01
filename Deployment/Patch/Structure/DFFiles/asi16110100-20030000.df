@@ -4687,6 +4687,16 @@ ADD FIELD "company" OF "APIInboundEvent" AS character
   ORDER 130
   MAX-WIDTH 6
 
+ADD FIELD "delayedProcessingStatus" OF "APIInboundEvent" AS character
+  DESCRIPTION "Stores the processing status of an Inbound request. Can be queued, processed and failed"
+  FORMAT "x(20)"
+  POSITION 15
+  INITIAL ""
+  LABEL "Delayed Processing Status"
+  COLUMN-LABEL "Delayed Processing Status"
+  ORDER 140
+  MAX-WIDTH 40
+
 RENAME INDEX "apiRoute" TO "temp-29069" ON "APIInboundEvent"
 
 RENAME INDEX "externalID" TO "temp-45781" ON "APIInboundEvent"
@@ -4710,6 +4720,12 @@ ADD INDEX "apiRouteSuccess" ON "APIInboundEvent"
   INDEX-FIELD "company" ASCENDING
   INDEX-FIELD "apiRoute" ASCENDING
   INDEX-FIELD "success" ASCENDING
+
+ADD INDEX "delayedProcessingStatus" ON "APIInboundEvent"
+  AREA "Index"
+  DESCRIPTION "Index for delayedProcessingStatus and APIInboundEventID"
+  INDEX-FIELD "delayedProcessingStatus" ASCENDING
+  INDEX-FIELD "apiInboundEventID" ASCENDING
 
 ADD INDEX "externalID" ON "APIInboundEvent"
   AREA "Data"
@@ -8816,4 +8832,4 @@ ADD SEQUENCE "vendItemCostLevelID_seq"
 PSC
 cpstream=ISO8859-1
 .
-0000202019
+0000202599

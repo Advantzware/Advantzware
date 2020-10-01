@@ -7577,6 +7577,16 @@ ADD FIELD "company" OF "APIInboundEvent" AS character
   COLUMN-LABEL "Company"
   ORDER 130
 
+ADD FIELD "delayedProcessingStatus" OF "APIInboundEvent" AS character 
+  DESCRIPTION "Stores the processing status of an Inbound request. Can be queued, processed and failed"
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Delayed Processing Status"
+  POSITION 15
+  MAX-WIDTH 40
+  COLUMN-LABEL "Delayed Processing Status"
+  ORDER 140
+
 ADD INDEX "apiInboundEventID" ON "APIInboundEvent" 
   AREA "Data"
   UNIQUE
@@ -7593,6 +7603,12 @@ ADD INDEX "apiRouteSuccess" ON "APIInboundEvent"
   INDEX-FIELD "company" ASCENDING 
   INDEX-FIELD "apiRoute" ASCENDING 
   INDEX-FIELD "success" ASCENDING 
+
+ADD INDEX "delayedProcessingStatus" ON "APIInboundEvent" 
+  AREA "Index"
+  DESCRIPTION "Index for delayedProcessingStatus and APIInboundEventID"
+  INDEX-FIELD "delayedProcessingStatus" ASCENDING 
+  INDEX-FIELD "apiInboundEventID" ASCENDING 
 
 ADD INDEX "externalID" ON "APIInboundEvent" 
   AREA "Data"
@@ -126430,4 +126446,4 @@ ADD INDEX "si-rec_key" ON "zMessage"
 PSC
 cpstream=IBM850
 .
-0002728198
+0002728782

@@ -50,7 +50,7 @@ DEFINE VARIABLE rowMsgRtn           AS ROWID     NO-UNDO.
 DEFINE VARIABLE datMsgRtn           AS DATE      NO-UNDO.
 DEFINE VARIABLE dtmMsgRtn           AS DATETIME  NO-UNDO.
 
-/* alphabetical list of super-procedures comma delimited */
+/* vv alphabetical list of super-procedures comma delimited vv */
 ASSIGN 
     cSuperProcedure = "est/EstimateProcs.p,"
                     + "system/CommonProcs.p,"
@@ -62,10 +62,12 @@ ASSIGN
                     + "system/OSProcs.p,"
                     + "system/PurgeProcs.p,"
                     + "system/TagProcs.p,"
-                    + "system/VendorCostProcs.p,"
                     + "system/TaxProcs.p,"
+                    + "system/VendorCostProcs.p,"
     cSuperProcedure = TRIM(cSuperProcedure,",")
     .
+/* ^^ alphabetical list of super-procedures comma delimited ^^ */
+
 DEFINE TEMP-TABLE ttSessionParam NO-UNDO
     FIELD sessionParam AS CHARACTER
     FIELD sessionValue AS CHARACTER
