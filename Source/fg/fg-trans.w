@@ -92,6 +92,7 @@ DEFINE VARIABLE h_loadtag AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -334,6 +335,14 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/import.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_import ).
+       RUN set-position IN h_import ( 1.00 , 60.90 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/loadtag.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
@@ -370,6 +379,9 @@ PROCEDURE adm-create-objects :
              OUTPUT h_p-updsav ).
        RUN set-position IN h_p-updsav ( 22.91 , 37.00 ) NO-ERROR.
        RUN set-size IN h_p-updsav ( 1.76 , 82.00 ) NO-ERROR.
+       
+        /* Links to SmartViewer h_import. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ). 
 
        /* Links to SmartObject h_loadtag. */
        RUN add-link IN adm-broker-hdl ( h_b-trans , 'loadtag':U , h_loadtag ).
@@ -549,6 +561,23 @@ PROCEDURE select_add :
   
   run get-link-handle in adm-broker-hdl(this-procedure,"receipt-target", output char-hdl).
   run auto-add in widget-handle(char-hdl).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
+PROCEDURE import-file :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
+ RUN util/dev/impFGTrans.p .
+ IF VALID-HANDLE(h_b-trans) THEN
+ RUN repo-query IN h_b-trans (lv-rowid) .
 
 END PROCEDURE.
 
