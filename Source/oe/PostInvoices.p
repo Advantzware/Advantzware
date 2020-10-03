@@ -1146,6 +1146,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iplValidateOnly AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplUnapprove AS LOGICAL NO-UNDO. 
     DEFINE OUTPUT PARAMETER opiProcessed AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
@@ -1195,12 +1196,21 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
         AND bf-cust.cust-no EQ bf-inv-head.cust-no
         AND ((bf-cust.inv-meth EQ ? AND bf-inv-head.multi-invoice) OR (bf-cust.inv-meth NE ? AND NOT bf-inv-head.multi-invoice) OR iplValidateOnly )   /*Filter multi-invoices correctly based on customer*/
         :
-        IF iplValidateOnly AND (bf-inv-head.autoApproved OR bf-inv-head.multi-invoice) THEN NEXT.
+        
+        IF iplValidateOnly AND NOT iplUnapprove AND (bf-inv-head.autoApproved OR bf-inv-head.multi-invoice) THEN NEXT.
+        
+        IF iplValidateOnly AND iplUnapprove AND ( NOT bf-inv-head.autoApproved OR bf-inv-head.multi-invoice) THEN NEXT.
 
         /*Add CustomerList Exclusions*/
         /*TBD*/
         opiProcessed = opiProcessed + 1.
-        
+           
+        IF iplUnapprove THEN
+        DO:        
+            RUN pUnApprovedInvoice(ROWID(bf-inv-head)).
+            NEXT.
+        END.
+         
         RUN ClearTagsByRecKey(bf-inv-head.rec_key).  /*Clear all hold tags - TagProcs.p*/
         
         RUN pAddInvoiceToPost(BUFFER ttPostingMaster, BUFFER bf-inv-head, BUFFER bf-cust, OUTPUT lError, OUTPUT cMessage, BUFFER bf-ttInvoiceToPost).
@@ -2431,7 +2441,7 @@ PROCEDURE PostInvoices:
 
     IF NOT oplError THEN
         /*Build the master list of invoices based on ttPostingMaster*/
-        RUN pBuildInvoicesToPost(ipcCompany, NO, OUTPUT opiCountProcessed, OUTPUT oplError, OUTPUT opcMessage).
+        RUN pBuildInvoicesToPost(ipcCompany, NO, NO, OUTPUT opiCountProcessed, OUTPUT oplError, OUTPUT opcMessage).
         
     IF NOT oplError THEN
         /*Process the list of invoices built for additional validations*/
@@ -3437,31 +3447,24 @@ PROCEDURE ValidateInvoices:
         ipdtPostDate,
         OUTPUT oplError, OUTPUT opcMessage).
     
-    IF iplUnApprovedInvoice THEN
+    IF NOT oplError THEN
+    /*Build the master list of invoices based on ttPostingMaster*/
+    RUN pBuildInvoicesToPost(ipcCompany, YES ,iplUnApprovedInvoice, OUTPUT opiCountProcessed, OUTPUT oplError, OUTPUT opcMessage).
+            
+    IF NOT iplUnApprovedInvoice THEN
     DO:
-        IF NOT oplError THEN
-            /*unapproved invoices that approved  */
-            RUN pUnApprovedInvoice(ipcCompany, YES , OUTPUT opiCountProcessed, OUTPUT oplError, OUTPUT opcMessage).
-        
-    END.
-    ELSE 
-    do:
-        IF NOT oplError THEN
-            /*Build the master list of invoices based on ttPostingMaster*/
-            RUN pBuildInvoicesToPost(ipcCompany, YES , OUTPUT opiCountProcessed, OUTPUT oplError, OUTPUT opcMessage).
-        
-        IF NOT oplError THEN
-            /*Process the list of invoices built for additional validations*/
-            RUN pValidateInvoicesToPost(
-                YES,
-                INPUT  iplgUpdateTax,
-                OUTPUT opiCountProcessed, 
-                OUTPUT opiCountValid
-                ).               
-        /*Process to create hold tags from the ttInvoiceError table */
-        RUN pCreateValidationTags. 
-    END.
-        
+       IF NOT oplError THEN
+       /*Process the list of invoices built for additional validations*/
+       RUN pValidateInvoicesToPost(
+            YES,
+            INPUT  iplgUpdateTax,
+            OUTPUT opiCountProcessed, 
+            OUTPUT opiCountValid
+            ).               
+       /*Process to create hold tags from the ttInvoiceError table */
+       RUN pCreateValidationTags.         
+    END.      
+           
     opcMessage = "Process Complete.".
     
 END PROCEDURE.
@@ -3659,59 +3662,19 @@ PROCEDURE pCreateValidationTags PRIVATE:
      Purpose:  Processes the auto unapproved invoices 
   
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER iplValidateOnly AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiProcessed AS INTEGER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO.
     
-    DEFINE BUFFER bf-inv-head                   FOR inv-head.
-    DEFINE BUFFER bf-inv-line                   FOR inv-line.
-    DEFINE BUFFER bf-inv-misc                   FOR inv-misc.
-    DEFINE BUFFER bf-cust                       FOR cust.       
-
-    FIND FIRST ttPostingMaster NO-LOCK NO-ERROR.
-    IF NOT AVAILABLE ttPostingMaster THEN 
-    DO: 
-        ASSIGN 
-            oplError   = YES
-            opcMessage = "Posting Master Not available"
-            .
-        RETURN.
-    END.    
-    ASSIGN 
-        oplError   = YES
-        opcMessage = "No Invoices Available for Process"
-        .
-    FOR EACH bf-inv-head EXCLUSIVE-LOCK
-        WHERE bf-inv-head.company  EQ ttPostingMaster.company
-        AND (bf-inv-head.printed  EQ YES OR iplValidateOnly)
-        AND (bf-inv-head.inv-no   GT 0 OR iplValidateOnly)
-        AND bf-inv-head.inv-no   GE ttPostingMaster.invoiceStart
-        AND bf-inv-head.inv-no   LE ttPostingMaster.invoiceEnd
-        AND bf-inv-head.inv-date GE ttPostingMaster.invoiceDateStart
-        AND bf-inv-head.inv-date LE ttPostingMaster.invoiceDateEnd
-        AND bf-inv-head.cust-no  GE ttPostingMaster.customerIDStart
-        AND bf-inv-head.cust-no  LE ttPostingMaster.customerIDEnd 
-        AND (CAN-FIND(FIRST bf-inv-line WHERE bf-inv-line.r-no EQ bf-inv-head.r-no)
-        OR CAN-FIND(FIRST bf-inv-misc WHERE bf-inv-misc.r-no = bf-inv-head.r-no )
-        OR bf-inv-head.multi-invoice)
-        AND (bf-inv-head.stat NE "H" OR iplValidateOnly)
-        USE-INDEX prnt,
-        FIRST bf-cust NO-LOCK
-        WHERE bf-cust.company EQ bf-inv-head.company
-        AND bf-cust.cust-no EQ bf-inv-head.cust-no
-        AND ((bf-cust.inv-meth EQ ? AND bf-inv-head.multi-invoice) OR (bf-cust.inv-meth NE ? AND NOT bf-inv-head.multi-invoice) OR iplValidateOnly )   /*Filter multi-invoices correctly based on customer*/
-        :
-        IF iplValidateOnly AND ( NOT bf-inv-head.autoApproved OR bf-inv-head.multi-invoice) THEN NEXT.
+    DEFINE BUFFER bf-inv-head FOR inv-head.        
                 
-        opiProcessed = opiProcessed + 1.
-        
+    FIND FIRST bf-inv-head EXCLUSIVE-LOCK
+         WHERE ROWID(bf-inv-head) EQ ipriRowid NO-ERROR.
+    IF AVAIL bf-inv-head THEN 
+    DO: 
         RUN ClearTagsByRecKey(bf-inv-head.rec_key).  /*Clear all hold tags - TagProcs.p*/
         
-        bf-inv-head.autoApproved = NO.
+        bf-inv-head.autoApproved = NO.          
     END.          
-        
+    RELEASE bf-inv-head .    
  END PROCEDURE.
     
 /* ************************  Function Implementations ***************** */ 

@@ -469,12 +469,16 @@ PROCEDURE run-process :
                                         OUTPUT iCountValid,
                                         OUTPUT iCountPost,
                                         OUTPUT lError,
-                                        OUTPUT cMessage) .    
+                                        OUTPUT cMessage) . 
+    IF NOT tgUnappInv THEN
     MESSAGE cMessage SKIP (1)
         "Processed: " STRING(iCountProcess) SKIP 
         "Approved: " STRING(iCountValid) SKIP
         "Problems: " STRING(iCountProcess - iCountValid) 
         VIEW-AS ALERT-BOX INFO .
+    ELSE MESSAGE  cMessage SKIP (1)         
+        "UnApproved Invoice: " STRING(iCountProcess) SKIP          
+        VIEW-AS ALERT-BOX INFO .   
     
     IF VALID-HANDLE(hPostInvoices) THEN
     DELETE OBJECT hPostInvoices.    
