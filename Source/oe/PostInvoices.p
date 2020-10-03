@@ -3474,6 +3474,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
     DEFINE VARIABLE lValidateRequired AS LOGICAL NO-UNDO.
     DEFINE VARIABLE dTotalLineRev AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dTotalTax         AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cNK1ControlName   AS CHARACTER NO-UNDO.
     
     FOR EACH bf-ttInvoiceToPost,
         FIRST bf-inv-head NO-LOCK 
@@ -3506,7 +3507,8 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
              END.            
          END.
          
-         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalInvoiceStatus",bf-inv-head.cust-no,iplIsValidateOnly).
+         cNK1ControlName = "InvoiceApprovalInvoiceStatus".
+         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,cNK1ControlName,bf-inv-head.cust-no,iplIsValidateOnly).
          IF lValidateRequired AND bf-inv-head.stat EQ "H" THEN
          DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invoice on Hold",NO).
@@ -3516,7 +3518,8 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
                 bf-ttInvoiceToPost.problemMessage = "Invoice on Hold".
          END.
          
-         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalFreightAmount",bf-inv-head.cust-no,iplIsValidateOnly).
+         cNK1ControlName = "InvoiceApprovalFreightAmount".
+         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,cNK1ControlName,bf-inv-head.cust-no,iplIsValidateOnly).
          IF lValidateRequired AND bf-ttInvoiceToPost.isFreightBillable AND  bf-ttInvoiceToPost.amountBilledFreight LE 0 THEN
          DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billable freight without freight charge",NO).
@@ -3526,7 +3529,8 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
                 bf-ttInvoiceToPost.problemMessage =  "Billable freight without freight charge".
          END.
          
-         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalBillNotes",bf-inv-head.cust-no,iplIsValidateOnly).           
+         cNK1ControlName = "InvoiceApprovalBillNotes".
+         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,cNK1ControlName,bf-inv-head.cust-no,iplIsValidateOnly).           
          IF lValidateRequired AND (bf-inv-head.bill-i[1] NE "" OR bf-inv-head.bill-i[2] NE "" OR bf-inv-head.bill-i[3] NE "" OR bf-inv-head.bill-i[4] NE "") THEN
          DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billing notes exist",NO).
@@ -3536,7 +3540,8 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
                 bf-ttInvoiceToPost.problemMessage =  "Billing notes exist".
          END.    
          
-         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalFreightTerms",bf-inv-head.cust-no,iplIsValidateOnly).           
+         cNK1ControlName = "InvoiceApprovalFreightTerms".
+         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,cNK1ControlName,bf-inv-head.cust-no,iplIsValidateOnly).           
          IF lValidateRequired AND bf-inv-head.frt-pay NE "" AND LOOKUP(bf-inv-head.frt-pay,"P,C,B") EQ 0 THEN
          DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invalid freight terms code",NO).
@@ -3549,7 +3554,8 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
          IF bf-ttInvoiceToPost.amountBilledTax EQ 0 THEN
          DO:
             RUN Tax_GetTaxableAR(bf-inv-head.company,bf-inv-head.cust-no,bf-inv-head.sold-no,"", OUTPUT lShiptoTaxAble).
-            lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalTaxableCheck",bf-inv-head.cust-no,iplIsValidateOnly).
+            cNK1ControlName = "InvoiceApprovalTaxableCheck".
+            lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,cNK1ControlName,bf-inv-head.cust-no,iplIsValidateOnly).
             IF lShiptoTaxAble AND lValidateRequired THEN
             DO:            
                 RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Taxable ship to with no tax",NO).
@@ -3562,8 +3568,9 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
          
          dTotalLineRev = 0 .
          FOR EACH bf-ttInvoiceLineToPost WHERE
-             bf-ttInvoiceLineToPost.rNo EQ bf-inv-head.r-no:               
-             lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalPriceGTCost",bf-inv-head.cust-no,iplIsValidateOnly).        
+             bf-ttInvoiceLineToPost.rNo EQ bf-inv-head.r-no:          
+             cNK1ControlName = "InvoiceApprovalPriceGTCost".
+             lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,cNK1ControlName,bf-inv-head.cust-no,iplIsValidateOnly).        
              IF lValidateRequired AND bf-ttInvoiceLineToPost.pricePerUOM GT bf-ttInvoiceLineToPost.costPerUOM THEN
              DO:                             
                   RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Item price is greater than the cost of the item",NO).
