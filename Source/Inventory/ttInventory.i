@@ -279,6 +279,30 @@ DEFINE VARIABLE gcStatusStockReceived      AS CHARACTER NO-UNDO INITIAL "On-Hand
 DEFINE VARIABLE gcStatusStockConsumed      AS CHARACTER NO-UNDO INITIAL "Consumed".
 DEFINE VARIABLE gcStatusStockScanned       AS CHARACTER NO-UNDO INITIAL "Scanned".
 
+DEFINE TEMP-TABLE ttRawMaterialsToPost NO-UNDO 
+    FIELD parentRowID AS ROWID
+    FIELD rmRctdRowID AS ROWID
+    FIELD ritaCode    AS CHARACTER
+    FIELD itemID      AS CHARACTER
+    FIELD poID        AS CHARACTER
+    FIELD formNo      AS INTEGER
+    FIELD quantity    AS DECIMAL 
+    FIELD vendorTag   AS CHARACTER
+    FIELD sequenceID  AS INTEGER
+    FIELD processed   AS LOGICAL
+    .
+
+DEFINE TEMP-TABLE ttRawMaterialsGLTransToPost NO-UNDO
+    FIELD accountNo     AS CHARACTER
+    FIELD job           AS INTEGER
+    FIELD jobNo         AS CHARACTER
+    FIELD jobNo2        AS INTEGER
+    FIELD errorDesc     AS CHARACTER
+    FIELD debitsAmount  AS DECIMAL
+    FIELD creditsAmount AS DECIMAL
+    INDEX accountNo accountNo
+    .
+
 DEFINE VARIABLE gcStatusSnapshotNotScanned      AS CHARACTER NO-UNDO INITIAL "Not Scanned".
 DEFINE VARIABLE gcStatusSnapshotNotScannedConf  AS CHARACTER NO-UNDO INITIAL "Not Scanned - Confirmed".
 DEFINE VARIABLE gcStatusSnapshotCompleteMatch   AS CHARACTER NO-UNDO INITIAL "Complete Match".
@@ -299,7 +323,6 @@ DEFINE VARIABLE gcTransactionTypeConsume   AS CHARACTER NO-UNDO INITIAL "I".
 DEFINE VARIABLE gcTransactionTypeShip      AS CHARACTER NO-UNDO INITIAL "S".
 DEFINE VARIABLE gcTransactionTypeCompare   AS CHARACTER NO-UNDO INITIAL "C".
 DEFINE VARIABLE gcTransactionTypeReturns   AS CHARACTER NO-UNDO INITIAL "E".
-DEFINE VARIABLE gcTransactionTypeScanned   AS CHARACTER NO-UNDO INITIAL "M".
 
 DEFINE VARIABLE gcSnapshotTypeCount        AS CHARACTER NO-UNDO INITIAL "C". /* Count */
 DEFINE VARIABLE gcSnapshotTypeCapture      AS CHARACTER NO-UNDO INITIAL "R". /* Report Capture */
