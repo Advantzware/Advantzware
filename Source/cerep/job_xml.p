@@ -290,6 +290,7 @@ DEFINE VARIABLE cShpDoc AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dQtyTray AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cSize    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dDueDate    LIKE oe-ord.due-date NO-UNDO.
+DEFINE VARIABLE dPoReceivedDate AS DATE NO-UNDO.
 DEFINE VARIABLE dLastDate LIKE oe-ord.last-date NO-UNDO.
 DEFINE VARIABLE cFrtCls LIKE itemfg.frt-class NO-UNDO.
 DEFINE VARIABLE cFrtClsDscr LIKE itemfg.frt-class-dscr NO-UNDO.
@@ -487,7 +488,8 @@ FOR EACH job-hdr NO-LOCK
         ASSIGN
             dDueDate = if avail oe-ord then oe-ord.due-date else ?
             v-start-date = job-hdr.start-date
-            dLastDate = if avail oe-ord then oe-ord.last-date else ?.
+            dLastDate = if avail oe-ord then oe-ord.last-date else ?
+            dPoReceivedDate = if avail oe-ord then oe-ord.poReceivedDate else ? .
 
         IF NOT FIRST(job-hdr.job-no) THEN PAGE.
         
@@ -1479,6 +1481,7 @@ FOR EACH job-hdr NO-LOCK
            RUN XMLOutput (lXMLOutput,'/RollExamining','','Row').
            
            RUN XMLOutput (lXMLOutput,'TicketPrint','','Row').
+           RUN XMLOutput (lXMLOutput,'PO_Received_Date',dPoReceivedDate,'Col').            
            RUN XMLOutput (lXMLOutput,'Requested_Date',dDueDate,'Col').
            RUN XMLOutput (lXMLOutput,'Ship_Due_Date',dLastDate,'Col').
            RUN XMLOutput (lXMLOutput,'Ship_id',eb.ship-id,'Col').
