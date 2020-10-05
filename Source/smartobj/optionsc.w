@@ -46,8 +46,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Select_Notes Select_List Select_spec UDF ~
-Select_frac Select_appl Select_help 
+&Scoped-Define ENABLED-OBJECTS Select_appl Select_frac Select_help ~
+Select_List Select_Notes UDF Select_spec 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -62,62 +62,69 @@ Select_frac Select_appl Select_help
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_appl 
-     IMAGE-UP FILE "Graphics/32x32/window_gear.ico":U
+     IMAGE-UP FILE "Resources/Graphics/32x32/utility-app_new.png":U
+     IMAGE-DOWN FILE "Resources/Graphics/32x32/utility-app_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Run App" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Utility Application".
+     SIZE 6.4 BY 1.52 TOOLTIP "Utility Application".
 
 DEFINE BUTTON Select_frac 
-     IMAGE-UP FILE "Graphics/32x32/calculator.ico":U
+     IMAGE-UP FILE "Resources/Graphics/32x32/calculator_new.png":U
+     IMAGE-DOWN FILE "Resources/Graphics/32x32/calculator_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Calculate" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Conversions".
+     SIZE 6.4 BY 1.52 TOOLTIP "Conversions".
 
 DEFINE BUTTON Select_help 
-     IMAGE-UP FILE "Graphics/32x32/question.ico":U
+     IMAGE-UP FILE "Resources/Graphics/32x32/help_new.png":U
+     IMAGE-DOWN FILE "Resources/Graphics/32x32/help_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Help" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Help".
+     SIZE 6.4 BY 1.52 TOOLTIP "Help".
 
 DEFINE BUTTON Select_List 
-     IMAGE-UP FILE "Graphics/32x32/printer.ico":U
+     IMAGE-UP FILE "Resources/Graphics/32x32/print_new.png":U
+     IMAGE-DOWN FILE "Resources/Graphics/32x32/print_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/printer_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "List" 
-     SIZE 7.8 BY 1.81 TOOLTIP "List".
+     SIZE 6.4 BY 1.52 TOOLTIP "List".
 
 DEFINE BUTTON Select_Notes 
-     IMAGE-UP FILE "Graphics/32x32/edit.ico":U
+     IMAGE-UP FILE "Resources/Graphics/32x32/add_note_new.png":U
+     IMAGE-DOWN FILE "Resources/Graphics/32x32/add_note_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/edit_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Notes".
+     SIZE 6.4 BY 1.52 TOOLTIP "Notes".
 
 DEFINE BUTTON Select_spec 
      IMAGE-UP FILE "Graphics/32x32/book_open.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/book_open_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Notes".
+     SIZE 6.4 BY 1.52 TOOLTIP "Notes".
 
 DEFINE BUTTON UDF 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
+     IMAGE-UP FILE "Resources/Graphics/32x32/udf-viewer_new.png":U
+     IMAGE-DOWN FILE "Resources/Graphics/32x32/udf-viewer_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Home" 
-     SIZE 7.8 BY 1.81 TOOLTIP "UDF Viewer".
+     SIZE 6.4 BY 1.52 TOOLTIP "UDF Viewer".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Select_Notes AT ROW 1 COL 9
+     Select_appl AT ROW 1 COL 25
+     Select_frac AT ROW 1 COL 49
+     Select_help AT ROW 1 COL 33
      Select_List AT ROW 1 COL 1
-     Select_spec AT ROW 1 COL 17
+     Select_Notes AT ROW 1 COL 9
      UDF AT ROW 1 COL 41 HELP
           "Access UDF Viewer"
-     Select_frac AT ROW 1 COL 49
-     Select_appl AT ROW 1 COL 25
-     Select_help AT ROW 1 COL 33
+     Select_spec AT ROW 1 COL 17
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -146,7 +153,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 1.81
+         HEIGHT             = 1.52
          WIDTH              = 55.8.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -393,9 +400,9 @@ PROCEDURE Spec-Book-Image :
 
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT ip-log THEN
-         SELECT_spec:LOAD-IMAGE("Graphics/32x32/edit.ico").
+         SELECT_spec:LOAD-IMAGE("Graphics/32x32/add_note_New.png").
       ELSE
-         SELECT_spec:LOAD-IMAGE("Graphics/32x32/edit_star.ico").
+         SELECT_spec:LOAD-IMAGE("Graphics/32x32/add_note__check_New.png").
    END.
 END PROCEDURE.
 

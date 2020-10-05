@@ -61,10 +61,12 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnMoveCol 
-     IMAGE-UP FILE "Graphics/32x32/spreadsheet_column.ico":U
+     IMAGE-UP FILE "Resources/Graphics/32x32/config-table_new.png":U
+     IMAGE-DOWN FILE "Resources/Graphics/32x32/config-table_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Phone" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Change Move/Sort Column Mode".
+     SIZE 6.4 BY 1.52 TOOLTIP "Change Move/Sort Column Mode"
+     BGCOLOR 21 .
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -73,7 +75,8 @@ DEFINE FRAME F-Main
      btnMoveCol AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -102,7 +105,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 1.81
+         HEIGHT             = 1.52
          WIDTH              = 66.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -200,7 +203,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-insensitive s-object 
 PROCEDURE make-insensitive :

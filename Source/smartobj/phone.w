@@ -61,10 +61,12 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_Phone 
-     IMAGE-UP FILE "Graphics/32x32/address_book.ico":U
+     IMAGE-UP FILE "Resources/Graphics/32x32/phone-info_new.png":U
+     IMAGE-DOWN FILE "Resources/Graphics/32x32/phone-info_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Phone" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Phone Info.".
+     SIZE 6.4 BY 1.52 TOOLTIP "Phone Info."
+     BGCOLOR 21 .
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -73,7 +75,8 @@ DEFINE FRAME F-Main
      Select_Phone AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -102,7 +105,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 1.81
+         HEIGHT             = 1.52
          WIDTH              = 41.
 /* END WINDOW DEFINITION */
                                                                         */

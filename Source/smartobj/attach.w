@@ -61,10 +61,12 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_att 
-     IMAGE-UP FILE "Graphics/32x32/pin2.ico":U
+     IMAGE-UP FILE "Resources/Graphics/32x32/attachment_new.png":U
+     IMAGE-DOWN FILE "Resources/Graphics/32x32/attachment_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Attachment" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Attachments".
+     SIZE 6.4 BY 1.52 TOOLTIP "Attachments"
+     BGCOLOR 21 .
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -73,7 +75,8 @@ DEFINE FRAME F-Main
      Select_att AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -102,7 +105,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 1.81
+         HEIGHT             = 1.57
          WIDTH              = 41.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -178,7 +181,7 @@ END.
 &ENDIF
 
 IF INDEX(PROGRAM-NAME(3),"windows/cust") > 0 OR PROGRAM-NAME(3) MATCHES "*touch/w-mchtrn*" THEN
-   SELECT_att:LOAD-IMAGE("Graphics/32x32/paperclip.ico").
+   SELECT_att:LOAD-IMAGE("Graphics/32x32/attachment_New.png").
 
 
 RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
@@ -238,9 +241,9 @@ PROCEDURE pushpin-image :
 
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT ip-attach THEN
-         SELECT_att:LOAD-IMAGE("Graphics/32x32/pin2.ico").
+         SELECT_att:LOAD-IMAGE("Graphics/32x32/attachment__check_New.png").
       ELSE
-         SELECT_att:LOAD-IMAGE("Graphics/32x32/pin2_star.ico").
+         SELECT_att:LOAD-IMAGE("Graphics/32x32/attachment_New.png").
    END.
 END PROCEDURE.
 
