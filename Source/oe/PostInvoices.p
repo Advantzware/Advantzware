@@ -1219,11 +1219,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
             END. /*each bf-inv-line*/
             IF lError THEN 
             DO: 
-                ASSIGN
-                    bf-ttInvoiceToPost.isOKToPost     = NO
-                    bf-ttInvoiceToPost.problemMessage = cMessage
-                    .
-                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, bf-ttInvoiceToPost.problemMessage, bf-ttInvoiceToPost.isOKToPost).
+                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, cMessage).
             END.
             FOR EACH bf-inv-misc NO-LOCK
                 WHERE bf-inv-misc.r-no EQ bf-inv-head.r-no
@@ -1232,11 +1228,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
             END. /*each bf-inv-misc*/
             IF lError THEN 
             DO: 
-                ASSIGN
-                    bf-ttInvoiceToPost.isOKToPost     = NO
-                    bf-ttInvoiceToPost.problemMessage = cMessage
-                    .
-                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, bf-ttInvoiceToPost.problemMessage, bf-ttInvoiceToPost.isOKToPost). 
+                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, cMessage). 
             END.
             
             /*Manage Multi Invoices*/
@@ -1245,11 +1237,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
                 RUN pAlignMultiInvoiceLinesWithMaster(BUFFER ttPostingMaster, BUFFER bf-inv-head, BUFFER bf-ttInvoiceToPost, ipcCompany, OUTPUT lError, OUTPUT cMessage).
                 IF lError THEN 
                 DO:
-                    ASSIGN
-                        bf-ttInvoiceToPost.isOKToPost     = NO
-                        bf-ttInvoiceToPost.problemMessage = cMessage
-                        .
-                    RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, bf-ttInvoiceToPost.problemMessage, bf-ttInvoiceToPost.isOKToPost).
+                    RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, cMessage).
                 END.
             END. /*Multi-invoice header*/
             
@@ -1259,11 +1247,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
                 NO-ERROR.
             IF AVAILABLE bf-ttInvoiceLineToPost THEN 
             DO:
-                ASSIGN 
-                    bf-ttInvoiceToPost.isOKToPost     = NO
-                    bf-ttInvoiceToPost.problemMessage = bf-ttInvoiceLineToPost.problemMessage
-                    .
-                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, bf-ttInvoiceToPost.problemMessage, bf-ttInvoiceToPost.isOKToPost).                
+                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, bf-ttInvoiceLineToPost.problemMessage).                
             END.
             FIND FIRST bf-ttInvoiceMiscToPost NO-LOCK
                 WHERE bf-ttInvoiceMiscToPost.rNo EQ bf-ttInvoiceToPost.rNo
@@ -1271,11 +1255,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
                 NO-ERROR.
             IF AVAILABLE bf-ttInvoiceMiscToPost THEN 
             DO:
-                ASSIGN 
-                    bf-ttInvoiceToPost.isOKToPost     = NO
-                    bf-ttInvoiceToPost.problemMessage = bf-ttInvoiceMiscToPost.problemMessage
-                    .
-                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, bf-ttInvoiceToPost.ProblemMessage, bf-ttInvoiceToPost.isOKToPost).                
+                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, bf-ttInvoiceMiscToPost.problemMessage).                
             END.
             
             IF bf-ttInvoiceToPost.isOKToPost THEN 
@@ -1296,11 +1276,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
             END.
         END. /*inv-head is writable*/
         ELSE DO:
-            ASSIGN 
-                bf-ttInvoiceToPost.isOKToPost     = NO
-                bf-ttInvoiceToPost.problemMessage = "Invoice is locked"
-                .
-            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, bf-ttInvoiceToPost.problemMessage, bf-ttInvoiceToPost.isOKToPost).
+            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, "Invoice is locked").
         END.
     END.  /*Each Inv-head that meets range criteria*/
     
@@ -3474,7 +3450,6 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
     DEFINE VARIABLE lValidateRequired AS LOGICAL NO-UNDO.
     DEFINE VARIABLE dTotalLineRev AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dTotalTax         AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE cNK1ControlName   AS CHARACTER NO-UNDO.
     
     FOR EACH bf-ttInvoiceToPost,
         FIRST bf-inv-head NO-LOCK 
@@ -3495,92 +3470,65 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
                 RUN pUpdateTax(BUFFER bf-ttInvoiceToPost, dTotalTax).
             ELSE 
             DO:   
-                RUN pAddValidationError(
-                    BUFFER bf-ttInvoiceToPost,
-                    INPUT  "Tax on invoice does not match with calculated tax",
-                    INPUT  NO
-                    ).
-                ASSIGN
-                    lAutoApprove = NO
-                    bf-ttInvoiceToPost.isOKToPost = NO
-                    bf-ttInvoiceToPost.problemMessage = "Tax on invoice does not match with calculated tax".
+                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Tax on invoice does not match with calculated tax").
+                lAutoApprove = NO.
              END.            
          END.
          
-         cNK1ControlName = "InvoiceApprovalInvoiceStatus".
-         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,cNK1ControlName,bf-inv-head.cust-no,iplIsValidateOnly).
+
+         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalInvoiceStatus",bf-inv-head.cust-no,iplIsValidateOnly).
          IF lValidateRequired AND bf-inv-head.stat EQ "H" THEN
          DO:
-            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invoice on Hold",NO).
-            ASSIGN
-                lAutoApprove = NO
-                bf-ttInvoiceToPost.isOKToPost = NO
-                bf-ttInvoiceToPost.problemMessage = "Invoice on Hold".
+            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, "Invoice on Hold").
+            lAutoApprove = NO.
          END.
          
-         cNK1ControlName = "InvoiceApprovalFreightAmount".
-         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,cNK1ControlName,bf-inv-head.cust-no,iplIsValidateOnly).
+         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalFreightAmount",bf-inv-head.cust-no,iplIsValidateOnly).
          IF lValidateRequired AND bf-ttInvoiceToPost.isFreightBillable AND  bf-ttInvoiceToPost.amountBilledFreight LE 0 THEN
          DO:
-            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billable freight without freight charge",NO).
-            ASSIGN
-                lAutoApprove = NO
-                bf-ttInvoiceToPost.isOKToPost = NO
-                bf-ttInvoiceToPost.problemMessage =  "Billable freight without freight charge".
+            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billable freight without freight charge").
+            lAutoApprove = NO.
          END.
          
-         cNK1ControlName = "InvoiceApprovalBillNotes".
-         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,cNK1ControlName,bf-inv-head.cust-no,iplIsValidateOnly).           
+         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalBillNotes",bf-inv-head.cust-no,iplIsValidateOnly).           
          IF lValidateRequired AND (bf-inv-head.bill-i[1] NE "" OR bf-inv-head.bill-i[2] NE "" OR bf-inv-head.bill-i[3] NE "" OR bf-inv-head.bill-i[4] NE "") THEN
          DO:
-            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billing notes exist",NO).
-            ASSIGN
-                lAutoApprove = NO
-                bf-ttInvoiceToPost.isOKToPost = NO
-                bf-ttInvoiceToPost.problemMessage =  "Billing notes exist".
+            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billing notes exist").
+            lAutoApprove = NO.
          END.    
          
-         cNK1ControlName = "InvoiceApprovalFreightTerms".
-         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,cNK1ControlName,bf-inv-head.cust-no,iplIsValidateOnly).           
+         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalFreightTerms",bf-inv-head.cust-no,iplIsValidateOnly).           
          IF lValidateRequired AND bf-inv-head.frt-pay NE "" AND LOOKUP(bf-inv-head.frt-pay,"P,C,B") EQ 0 THEN
          DO:
-            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invalid freight terms code",NO).
-            ASSIGN
-                lAutoApprove = NO
-                bf-ttInvoiceToPost.isOKToPost = NO
-                bf-ttInvoiceToPost.problemMessage =  "Invalid freight terms code".
+            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invalid freight terms code").
+            lAutoApprove = NO.
          END.
          
          IF bf-ttInvoiceToPost.amountBilledTax EQ 0 THEN
          DO:
             RUN Tax_GetTaxableAR(bf-inv-head.company,bf-inv-head.cust-no,bf-inv-head.sold-no,"", OUTPUT lShiptoTaxAble).
-            cNK1ControlName = "InvoiceApprovalTaxableCheck".
-            lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,cNK1ControlName,bf-inv-head.cust-no,iplIsValidateOnly).
+            lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalTaxableCheck", bf-inv-head.cust-no,iplIsValidateOnly).
             IF lShiptoTaxAble AND lValidateRequired THEN
             DO:            
-                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Taxable ship to with no tax",NO).
-                ASSIGN
-                    lAutoApprove = NO
-                    bf-ttInvoiceToPost.isOKToPost = NO
-                    bf-ttInvoiceToPost.problemMessage =  "Taxable ship to with no tax".
+                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Taxable ship to with no tax").
+                lAutoApprove = NO.
             END.
          END.  
          
+
          dTotalLineRev = 0 .
          FOR EACH bf-ttInvoiceLineToPost WHERE
              bf-ttInvoiceLineToPost.rNo EQ bf-inv-head.r-no:          
-             cNK1ControlName = "InvoiceApprovalPriceGTCost".
-             lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,cNK1ControlName,bf-inv-head.cust-no,iplIsValidateOnly).        
-             IF lValidateRequired AND bf-ttInvoiceLineToPost.pricePerUOM GT bf-ttInvoiceLineToPost.costPerUOM THEN
+
+             lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalPriceGTCost", bf-inv-head.cust-no,iplIsValidateOnly).        
+             IF lValidateRequired AND bf-ttInvoiceLineToPost.pricePerUOM LT bf-ttInvoiceLineToPost.costPerUOM THEN
              DO:                             
-                  RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Item price is greater than the cost of the item",NO).
-                  ASSIGN
-                      lAutoApprove = NO
-                      bf-ttInvoiceLineToPost.isOKToPost = NO
-                      bf-ttInvoiceLineToPost.problemMessage =  "Item price is greater than the cost of the item".
+                  RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Item price is less than the cost of the item").
+                  lAutoApprove = NO.
              END.  
              dTotalLineRev = dTotalLineRev + bf-ttInvoiceLineToPost.amountBilled .
          END. 
+
          FOR EACH bf-ttInvoiceMiscToPost WHERE
              bf-ttInvoiceMiscToPost.rNo EQ bf-inv-head.r-no
              AND bf-ttInvoiceMiscToPost.isBillable :
@@ -3590,11 +3538,8 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
          IF dTotalLineRev NE (bf-inv-head.t-inv-rev - bf-inv-head.t-inv-tax - ( IF bf-inv-head.f-bill THEN bf-inv-head.t-inv-freight 
          ELSE 0)) THEN
          DO:     
-            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invoice lines <> Invoice Total",NO).
-            ASSIGN
-                lAutoApprove = NO
-                bf-ttInvoiceToPost.isOKToPost = NO
-                bf-ttInvoiceToPost.problemMessage =  "Invoice lines <> Invoice Total".
+            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invoice lines <> Invoice Total").
+            lAutoApprove = NO.
          END.         
            
              
@@ -3618,16 +3563,19 @@ PROCEDURE pAddValidationError PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttInvoiceToPost FOR ttInvoiceToPost.
     DEFINE INPUT PARAMETER ipcProblemMessage AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER iplIsOKToPost AS LOGICAL NO-UNDO.
     
     CREATE ttInvoiceError.
     ASSIGN
       ttInvoiceError.riInvError = ipbf-ttInvoiceToPost.riInvHead
       ttInvoiceError.invoiceID    = ipbf-ttInvoiceToPost.invoiceID
       ttInvoiceError.problemMessage    = ipcProblemMessage 
-      ttInvoiceError.isOKToPost = iplIsOKToPost  .    
+      ttInvoiceError.isOKToPost = NO  .    
       RELEASE ttInvoiceError.
 
+    ASSIGN 
+        ipbf-ttInvoiceToPost.isOKToPost =  NO
+        ipbf-ttInvoiceToPost.problemMessage = ipcProblemMessage
+        .
 END PROCEDURE.
 
 PROCEDURE pCreateValidationTags PRIVATE:
