@@ -3464,7 +3464,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             OUTPUT TABLE ttTaxDetail
             ).             
         
-        IF dTotalTax NE bf-inv-head.t-inv-tax THEN 
+        IF dTotalTax NE bf-inv-head.t-inv-tax AND NOT bf-inv-head.multi-invoice THEN 
         DO:
             IF iplgUpdateTax THEN 
                 RUN pUpdateTax(BUFFER bf-ttInvoiceToPost, dTotalTax).
