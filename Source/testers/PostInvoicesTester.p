@@ -116,6 +116,7 @@ PROCEDURE pBuildAndDisplay PRIVATE:
             cCustStart, cCustEnd,
             dtPost,
             INPUT NO, /*Update Tax */
+            INPUT NO, /* Unapproved Invoices*/
             OUTPUT iProcessed, OUTPUT iValid, OUTPUT iPosted,
             OUTPUT lError, OUTPUT cMessage). 
     ELSE 

@@ -1146,6 +1146,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iplValidateOnly AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplUnapprove AS LOGICAL NO-UNDO. 
     DEFINE OUTPUT PARAMETER opiProcessed AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
@@ -1195,12 +1196,21 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
         AND bf-cust.cust-no EQ bf-inv-head.cust-no
         AND ((bf-cust.inv-meth EQ ? AND bf-inv-head.multi-invoice) OR (bf-cust.inv-meth NE ? AND NOT bf-inv-head.multi-invoice) OR iplValidateOnly )   /*Filter multi-invoices correctly based on customer*/
         :
-        IF iplValidateOnly AND (bf-inv-head.autoApproved OR bf-inv-head.multi-invoice) THEN NEXT.
+        
+        IF iplValidateOnly AND NOT iplUnapprove AND (bf-inv-head.autoApproved OR bf-inv-head.multi-invoice) THEN NEXT.
+        
+        IF iplValidateOnly AND iplUnapprove AND ( NOT bf-inv-head.autoApproved OR bf-inv-head.multi-invoice) THEN NEXT.
 
         /*Add CustomerList Exclusions*/
         /*TBD*/
         opiProcessed = opiProcessed + 1.
-        
+           
+        IF iplUnapprove THEN
+        DO:        
+            RUN pUnApprovedInvoice(ROWID(bf-inv-head)).
+            NEXT.
+        END.
+         
         RUN ClearTagsByRecKey(bf-inv-head.rec_key).  /*Clear all hold tags - TagProcs.p*/
         
         RUN pAddInvoiceToPost(BUFFER ttPostingMaster, BUFFER bf-inv-head, BUFFER bf-cust, OUTPUT lError, OUTPUT cMessage, BUFFER bf-ttInvoiceToPost).
@@ -2431,7 +2441,7 @@ PROCEDURE PostInvoices:
 
     IF NOT oplError THEN
         /*Build the master list of invoices based on ttPostingMaster*/
-        RUN pBuildInvoicesToPost(ipcCompany, NO, OUTPUT opiCountProcessed, OUTPUT oplError, OUTPUT opcMessage).
+        RUN pBuildInvoicesToPost(ipcCompany, NO, NO, OUTPUT opiCountProcessed, OUTPUT oplError, OUTPUT opcMessage).
         
     IF NOT oplError THEN
         /*Process the list of invoices built for additional validations*/
@@ -3420,6 +3430,7 @@ PROCEDURE ValidateInvoices:
     DEFINE INPUT PARAMETER ipcCustomerIDEnd AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdtPostDate AS DATE NO-UNDO.
     DEFINE INPUT PARAMETER iplgUpdateTax AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplUnApprovedInvoice AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opiCountProcessed AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiCountValid AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiCountPosted AS INTEGER NO-UNDO.
@@ -3437,21 +3448,23 @@ PROCEDURE ValidateInvoices:
         OUTPUT oplError, OUTPUT opcMessage).
     
     IF NOT oplError THEN
-        /*Build the master list of invoices based on ttPostingMaster*/
-        RUN pBuildInvoicesToPost(ipcCompany, YES , OUTPUT opiCountProcessed, OUTPUT oplError, OUTPUT opcMessage).
-    
-    IF NOT oplError THEN
-        /*Process the list of invoices built for additional validations*/
-        RUN pValidateInvoicesToPost(
+    /*Build the master list of invoices based on ttPostingMaster*/
+    RUN pBuildInvoicesToPost(ipcCompany, YES ,iplUnApprovedInvoice, OUTPUT opiCountProcessed, OUTPUT oplError, OUTPUT opcMessage).
+            
+    IF NOT iplUnApprovedInvoice THEN
+    DO:
+       IF NOT oplError THEN
+       /*Process the list of invoices built for additional validations*/
+       RUN pValidateInvoicesToPost(
             YES,
             INPUT  iplgUpdateTax,
             OUTPUT opiCountProcessed, 
             OUTPUT opiCountValid
-            ).
-         
-    /*Process to create hold tags from the ttInvoiceError table */
-    RUN pCreateValidationTags. 
-        
+            ).               
+       /*Process to create hold tags from the ttInvoiceError table */
+       RUN pCreateValidationTags.         
+    END.      
+           
     opcMessage = "Process Complete.".
     
 END PROCEDURE.
@@ -3642,7 +3655,27 @@ PROCEDURE pCreateValidationTags PRIVATE:
        RUN AddTagHoldInfo (bf-inv-head.rec_key,"inv-head", ipcProblemMessage). /*From TagProcs Super Proc*/ 
     END.
      
- END PROCEDURE.  
+ END PROCEDURE.
+ 
+ PROCEDURE pUnApprovedInvoice PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Processes the auto unapproved invoices 
+  
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO.
+    
+    DEFINE BUFFER bf-inv-head FOR inv-head.        
+                
+    FIND FIRST bf-inv-head EXCLUSIVE-LOCK
+         WHERE ROWID(bf-inv-head) EQ ipriRowid NO-ERROR.
+    IF AVAIL bf-inv-head THEN 
+    DO: 
+        RUN ClearTagsByRecKey(bf-inv-head.rec_key).  /*Clear all hold tags - TagProcs.p*/
+        
+        bf-inv-head.autoApproved = NO.          
+    END.          
+    RELEASE bf-inv-head .    
+ END PROCEDURE.
     
 /* ************************  Function Implementations ***************** */ 
 FUNCTION fGetFilePath RETURNS CHARACTER PRIVATE

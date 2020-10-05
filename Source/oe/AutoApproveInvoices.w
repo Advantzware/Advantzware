@@ -44,7 +44,6 @@ assign
  cocode = gcompany
  locode = gloc.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -61,9 +60,9 @@ assign
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-7 begin_cust-no end_cust-no begin_Inv ~
-end_inv end_date begin_date tgUpdateTax btn-ok btn-cancel 
+end_inv end_date begin_date tgUpdateTax tgUnappInv btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_Inv ~
-end_inv end_date begin_date tgUpdateTax cProcessStatus 
+end_inv end_date begin_date tgUpdateTax tgUnappInv cProcessStatus 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -101,6 +100,10 @@ DEFINE VARIABLE begin_Inv AS INTEGER FORMAT ">>>>>>>>>" INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
+DEFINE VARIABLE cProcessStatus AS CHARACTER FORMAT "X(200)" 
+     VIEW-AS FILL-IN 
+     SIZE 56 BY 1.
+
 DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Customer#" 
      VIEW-AS FILL-IN 
@@ -111,18 +114,19 @@ DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE end_inv AS INTEGER FORMAT ">>>>>>>>>" INITIAL 999999999
+DEFINE VARIABLE end_inv AS INTEGER FORMAT ">>>>>>>>>" INITIAL 999999999 
      LABEL "To Invoice#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.      
-
-DEFINE VARIABLE cProcessStatus AS CHARACTER FORMAT "X(200)"       
-     VIEW-AS FILL-IN 
-     SIZE 56 BY 1.
+     SIZE 17 BY 1.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 101 BY 8.76.
+
+DEFINE VARIABLE tgUnappInv AS LOGICAL INITIAL no 
+     LABEL "Unapprove Invoices" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 34.4 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tgUpdateTax AS LOGICAL INITIAL no 
      LABEL "Update Tax" 
@@ -146,9 +150,10 @@ DEFINE FRAME Dialog-Frame
      end_date AT ROW 6.05 COL 71 COLON-ALIGNED HELP
           "Enter Beginning Date Number" WIDGET-ID 114     
      tgUpdateTax AT ROW 7.67 COL 30 WIDGET-ID 116
+     tgUnappInv AT ROW 7.67 COL 54.6 WIDGET-ID 118
      btn-ok AT ROW 10.57 COL 30.2 WIDGET-ID 14
      btn-cancel AT ROW 10.57 COL 60.4 WIDGET-ID 12
-     cProcessStatus AT ROW 11.87 COL 10.2 NO-LABEL WIDGET-ID 18
+     cProcessStatus AT ROW 11.86 COL 8.2 COLON-ALIGNED NO-LABEL WIDGET-ID 18
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 36
           BGCOLOR 2 
@@ -192,6 +197,8 @@ ASSIGN
        begin_Inv:PRIVATE-DATA IN FRAME Dialog-Frame     = 
                 "parm".
 
+/* SETTINGS FOR FILL-IN cProcessStatus IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME Dialog-Frame     = 
                 "parm".
@@ -406,7 +413,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
@@ -419,10 +425,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust-no end_cust-no begin_Inv end_inv end_date begin_date 
-          tgUpdateTax cProcessStatus 
+          tgUpdateTax tgUnappInv cProcessStatus 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-7 begin_cust-no end_cust-no begin_Inv end_inv end_date begin_date 
-         tgUpdateTax btn-ok btn-cancel 
+         tgUpdateTax tgUnappInv btn-ok btn-cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -430,7 +436,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process Dialog-Frame 
 PROCEDURE run-process :
@@ -459,16 +464,21 @@ PROCEDURE run-process :
                                         end_cust-no,
                                         date(TODAY),
                                         INPUT tgUpdateTax:CHECKED, /* Update Tax */
+                                        INPUT tgUnappInv, /* Unapproved Invoices*/ 
                                         OUTPUT iCountProcess,
                                         OUTPUT iCountValid,
                                         OUTPUT iCountPost,
                                         OUTPUT lError,
-                                        OUTPUT cMessage) .    
+                                        OUTPUT cMessage) . 
+    IF NOT tgUnappInv THEN
     MESSAGE cMessage SKIP (1)
         "Processed: " STRING(iCountProcess) SKIP 
         "Approved: " STRING(iCountValid) SKIP
         "Problems: " STRING(iCountProcess - iCountValid) 
         VIEW-AS ALERT-BOX INFO .
+    ELSE MESSAGE  cMessage SKIP (1)         
+        "UnApproved Invoice: " STRING(iCountProcess) SKIP          
+        VIEW-AS ALERT-BOX INFO .   
     
     IF VALID-HANDLE(hPostInvoices) THEN
     DELETE OBJECT hPostInvoices.    
