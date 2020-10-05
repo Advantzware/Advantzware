@@ -96,7 +96,8 @@ DEFINE VARIABLE lAutoPost               AS LOGICAL   NO-UNDO.
 ASSIGN
     ipcCompany  = cocode
     ipcLocation = locode
-    . 
+    .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -175,7 +176,7 @@ DEFINE BUTTON btChange
      FONT 37.
 
 DEFINE BUTTON btConsumed 
-     LABEL "Consumed - 0" 
+     LABEL "Consumed: 0" 
      SIZE 27 BY 2 TOOLTIP "Filter Consumed Tags"
      FONT 36.
 
@@ -235,12 +236,12 @@ DEFINE BUTTON btPrevious
      SIZE 9.6 BY 2.29 TOOLTIP "Previous".
 
 DEFINE BUTTON btScanned 
-     LABEL "Scanned - 0" 
+     LABEL "Scanned: 0" 
      SIZE 27 BY 2 TOOLTIP "Filter Scanned Tags"
      FONT 36.
 
 DEFINE BUTTON btTotal 
-     LABEL "Total - 0" 
+     LABEL "Total: 0" 
      SIZE 27 BY 2 TOOLTIP "Filter All Tags"
      FONT 36.
 
@@ -271,7 +272,7 @@ DEFINE VARIABLE cbRMItem AS CHARACTER FORMAT "X(256)":U
      SIZE 38 BY 1
      FONT 37 NO-UNDO.
 
-DEFINE VARIABLE fiConsumedQty AS CHARACTER FORMAT "X(256)":U INITIAL "Qty - 0" 
+DEFINE VARIABLE fiConsumedQty AS CHARACTER FORMAT "X(256)":U INITIAL "Qty: 0" 
      VIEW-AS FILL-IN 
      SIZE 27 BY 1
      FONT 19 NO-UNDO.
@@ -286,7 +287,7 @@ DEFINE VARIABLE fiMessage AS CHARACTER FORMAT "X(256)":U
      SIZE 101.4 BY 1
      FONT 35 NO-UNDO.
 
-DEFINE VARIABLE fiScannedQty AS CHARACTER FORMAT "X(256)":U INITIAL "Qty - 0" 
+DEFINE VARIABLE fiScannedQty AS CHARACTER FORMAT "X(256)":U INITIAL "Qty: 0" 
      VIEW-AS FILL-IN 
      SIZE 27 BY 1
      FONT 19 NO-UNDO.
@@ -296,10 +297,10 @@ DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U
      SIZE 80 BY 1.38
      FONT 37 NO-UNDO.
 
-DEFINE VARIABLE fiTotalQty AS CHARACTER FORMAT "X(256)":U INITIAL "Qty - 0" 
+DEFINE VARIABLE fiTotalQty AS CHARACTER FORMAT "X(256)":U INITIAL "Qty: 0" 
      VIEW-AS FILL-IN 
      SIZE 27 BY 1
-     FONT 19 NO-UNDO.
+     FONT 19.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -365,7 +366,7 @@ DEFINE FRAME F-Main
      cbFormNo AT ROW 3.52 COL 54.6 COLON-ALIGNED NO-LABEL WIDGET-ID 54
      cbBlankNo AT ROW 3.52 COL 80.8 COLON-ALIGNED NO-LABEL WIDGET-ID 56
      cbRMItem AT ROW 5.29 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 152
-     btTotal AT ROW 8 COL 112.8 WIDGET-ID 162
+     btTotal AT ROW 8 COL 112.8 WIDGET-ID 162 NO-TAB-STOP 
      btScanned AT ROW 8 COL 141.4 WIDGET-ID 164
      btConsumed AT ROW 8 COL 170 WIDGET-ID 166
      fiTag AT ROW 8.19 COL 13.4 COLON-ALIGNED NO-LABEL WIDGET-ID 24
@@ -377,17 +378,17 @@ DEFINE FRAME F-Main
      "Blank #:" VIEW-AS TEXT
           SIZE 14 BY .95 AT ROW 3.71 COL 68 WIDGET-ID 58
           FONT 36
-     "Form #:" VIEW-AS TEXT
-          SIZE 14.6 BY .95 AT ROW 3.71 COL 42 WIDGET-ID 48
-          FONT 36
-     "RM Item:" VIEW-AS TEXT
-          SIZE 14 BY .95 AT ROW 5.43 COL 28 WIDGET-ID 154
+     "Tag:" VIEW-AS TEXT
+          SIZE 8.2 BY 1.19 AT ROW 8.29 COL 6.8 WIDGET-ID 22
           FONT 36
      "Job #:" VIEW-AS TEXT
           SIZE 11 BY .95 AT ROW 2.14 COL 30 WIDGET-ID 12
           FONT 36
-     "Tag:" VIEW-AS TEXT
-          SIZE 8.2 BY 1.19 AT ROW 8.29 COL 6.8 WIDGET-ID 22
+     "RM Item:" VIEW-AS TEXT
+          SIZE 14 BY .95 AT ROW 5.43 COL 28 WIDGET-ID 154
+          FONT 36
+     "Form #:" VIEW-AS TEXT
+          SIZE 14.6 BY .95 AT ROW 3.71 COL 42 WIDGET-ID 48
           FONT 36
      RECT-2 AT ROW 2.43 COL 97 WIDGET-ID 140
      RECT-1 AT ROW 1 COL 1 WIDGET-ID 126
@@ -598,7 +599,7 @@ END.
 
 &Scoped-define SELF-NAME btConsumed
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btConsumed W-Win
-ON CHOOSE OF btConsumed IN FRAME F-Main /* Consumed - 0 */
+ON CHOOSE OF btConsumed IN FRAME F-Main /* Consumed: 0 */
 DO:
     RUN pHighlightSelection (
         INPUT gcStatusStockConsumed
@@ -820,7 +821,7 @@ END.
 
 &Scoped-define SELF-NAME btScanned
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btScanned W-Win
-ON CHOOSE OF btScanned IN FRAME F-Main /* Scanned - 0 */
+ON CHOOSE OF btScanned IN FRAME F-Main /* Scanned: 0 */
 DO:
     RUN pHighlightSelection (
         INPUT gcStatusStockScanned
@@ -833,7 +834,7 @@ END.
 
 &Scoped-define SELF-NAME btTotal
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btTotal W-Win
-ON CHOOSE OF btTotal IN FRAME F-Main /* Total - 0 */
+ON CHOOSE OF btTotal IN FRAME F-Main /* Total: 0 */
 DO:
     RUN pHighlightSelection (
         INPUT ""   /* All */
@@ -1665,15 +1666,15 @@ PROCEDURE pRebuildBrowse :
                               'fCalculateTagQuantityInTTbrowse' IN hdInventoryProcs,
                               gcStatusStockScanned
                               )
-        btTotal:LABEL    = "Total - " + STRING(iScannedTags + iConsumedTags)
-        btScanned:LABEL  = "Scanned - " + STRING(iScannedTags)
-        btConsumed:LABEL = "Consumed - " + STRING(iConsumedTags)
+        btTotal:LABEL    = "Total: " + STRING(iScannedTags + iConsumedTags)
+        btScanned:LABEL  = "Scanned: " + STRING(iScannedTags)
+        btConsumed:LABEL = "Consumed: " + STRING(iConsumedTags)
         .
 
     ASSIGN
-        fiTotalQty:SCREEN-VALUE    = "Qty - " + STRING(dScannedQty + dConsumedQty)
-        fiScannedQty:SCREEN-VALUE  = "Qty - " + STRING(dScannedQty)
-        fiConsumedQty:SCREEN-VALUE = "Qty - " + STRING(dConsumedQty)
+        fiTotalQty:SCREEN-VALUE    = "Qty: " + STRING(dScannedQty + dConsumedQty)
+        fiScannedQty:SCREEN-VALUE  = "Qty: " + STRING(dScannedQty)
+        fiConsumedQty:SCREEN-VALUE = "Qty: " + STRING(dConsumedQty)
         .
     
     {&OPEN-BROWSERS-IN-QUERY-F-Main}    
