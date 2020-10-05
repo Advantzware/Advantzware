@@ -27,6 +27,7 @@ DEFINE VARIABLE gcEstimateID AS CHARACTER NO-UNDO INITIAL "   14227".
 RUN est\OperationProcs.p PERSISTENT SET hdOpProcs.
 RUN system\session.p PERSISTENT SET hdSession.
 SESSION:ADD-SUPER-PROCEDURE (hdSession).
+RUN ClearAttributes IN hdOpProcs.
 RUN pGetOperationStandardsSingle(gcCompany, gcEstimateID).
 
 
@@ -107,7 +108,7 @@ PROCEDURE pGetOperationStandardsSingle PRIVATE:
                 AND est-op.est-no EQ eb.est-no
                 AND est-op.s-num EQ eb.form-no
                 AND est-op.m-code EQ cMachineTarget:
-            RUN SetAttributesFromRowid IN hdOpProcs (ROWID(eb), OUTPUT lError, OUTPUT cMessage).
+            RUN SetAttributesFromEb IN hdOpProcs (ROWID(eb), OUTPUT lError, OUTPUT cMessage).
             
             RUN GetOperationStandards IN hdOpProcs (est.company, est.loc, cMachineTarget, 
                 OUTPUT dOpMRWaste, OUTPUT dOpMRHours, OUTPUT dOpRunSpeed, OUTPUT dOpRunSpoil, OUTPUT lError, OUTPUT cMessage).

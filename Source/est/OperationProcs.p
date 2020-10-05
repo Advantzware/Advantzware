@@ -558,6 +558,42 @@ PROCEDURE pSetAttribute PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pSetFormAttributes PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Given a form, sets attributes that are form dependent
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
+    
+    DEFINE BUFFER bf-eb FOR eb.
+        
+    RUN pSetAttribute(giAttributeIDBoardItemID, "BoardItemID", ipbf-ef.board).
+    RUN pSetAttribute(giAttributeIDCaliper, "Caliper", STRING(ipbf-ef.cal)).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  9, STRING(ipbf-ef.weight)). 
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  10, STRING(ipbf-ef.roll-wid)).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  11, STRING(ipbf-ef.nsh-wid)).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  12, STRING(ipbf-ef.nsh-len)).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  14, STRING(ipbf-ef.leaf-l[1])).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  15, STRING(ipbf-ef.leaf-w[1])).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  16, STRING(ipbf-ef.gsh-len)).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  17, STRING(ipbf-ef.gsh-wid)).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  19, STRING(ipbf-ef.die-in)).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  21, STRING(ipbf-ef.nsh-len * ipbf-ef.nsh-wid / 144)). //v-ssqft
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  22, STRING(ipbf-ef.f-col + ipbf-ef.f-coat)).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  23, STRING(ipbf-ef.n-cuts)). //v-cut
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  24, STRING(ipbf-ef.blank-qty)).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  26, STRING(ipbf-ef.n-out-l)).
+    
+    FOR EACH bf-eb NO-LOCK
+        WHERE bf-eb.company EQ ipbf-ef.company
+        AND bf-eb.est-no  EQ ipbf-ef.est-no
+        AND bf-eb.form-no EQ ipbf-ef.form-no:
+    
+        
+    END.
+
+END PROCEDURE.
+
 PROCEDURE SetAttribute:
     /*------------------------------------------------------------------------------
      Purpose: Public Wrapper to Set Attribute
@@ -571,7 +607,7 @@ PROCEDURE SetAttribute:
 
 END PROCEDURE.
 
-PROCEDURE SetAttributesFromRowid:
+PROCEDURE SetAttributesFromEb:
     /*------------------------------------------------------------------------------
      Purpose: Given a rowid (for eb), build out the attributes required
      Notes:
@@ -592,50 +628,32 @@ PROCEDURE SetAttributesFromRowid:
     
     IF AVAILABLE bf-eb THEN 
     DO:
+        RUN pSetAttribute(giAttributeIDStyle, "Style", bf-eb.style).
+        RUN pSetAttribute(giAttributeIDBoxDepth, "Box Depth", STRING(bf-eb.dep)).
+        RUN pSetAttributeFromStandard(bf-eb.company,  1, "0").  //Maxco
+        RUN pSetAttributeFromStandard(bf-eb.company,  2, STRING(bf-eb.len)).
+        RUN pSetAttributeFromStandard(bf-eb.company,  3, STRING(bf-eb.wid)).
+        RUN pSetAttributeFromStandard(bf-eb.company,  4, STRING(bf-eb.t-len)). //refactor dBlankLen
+        RUN pSetAttributeFromStandard(bf-eb.company,  5, STRING(bf-eb.t-wid)). //refactor dBlankWid
+        RUN pSetAttributeFromStandard(bf-eb.company,  6, STRING(bf-eb.lin-in)).
+        RUN pSetAttributeFromStandard(bf-eb.company,  7, STRING(bf-eb.t-sqft)). 
+        RUN pSetAttributeFromStandard(bf-eb.company,  8, "0"). //v-dep * 1000
+        RUN pSetAttributeFromStandard(bf-eb.company,  13, "0"). //v-up
+        RUN pSetAttributeFromStandard(bf-eb.company,  18, "0").  //qty
+        RUN pSetAttributeFromStandard(bf-eb.company,  20, "0"). //(qty * v-yld / xeb.num-up / v-n-out)
+        RUN pSetAttributeFromStandard(bf-eb.company,  25, "0"). //v-out
+        RUN pSetAttributeFromStandard(bf-eb.company,  27, "0"). //ld-parts[2]
+        RUN pSetAttributeFromStandard(bf-eb.company,  28, "0"). //ld-ink-frm
+        RUN pSetAttributeFromStandard(bf-eb.company,  29, "0"). //ld-parts[1]
+        RUN pSetAttributeFromStandard(bf-eb.company,  30, "0"). //none?
+        RUN pSetAttributeFromStandard(bf-eb.company,  31, "0"). //v-long-qty-set
+        RUN pSetAttributeFromStandard(bf-eb.company,  32, "0"). //v-short-qty-set
+        RUN pSetAttributeFromStandard(bf-eb.company,  33, STRING(bf-eb.num-wid)).
+        RUN pSetAttributeFromStandard(bf-eb.company,  34, STRING(bf-eb.num-len)).
+        
         FIND FIRST bf-ef OF bf-eb NO-LOCK.
         IF AVAILABLE bf-ef THEN 
-        DO:
-            RUN ClearAttributes.
-            RUN pSetAttribute(giAttributeIDStyle, "Style", bf-eb.style).
-            RUN pSetAttribute(giAttributeIDBoardItemID, "BoardItemID", bf-ef.board).
-            RUN pSetAttribute(giAttributeIDCaliper, "Caliper", STRING(bf-ef.cal)).
-            RUN pSetAttribute(giAttributeIDBoxDepth, "Box Depth", STRING(bf-eb.dep)).
-            RUN pSetAttributeFromStandard(bf-eb.company,  1, "0").  //Maxco
-            RUN pSetAttributeFromStandard(bf-eb.company,  2, STRING(bf-eb.len)).
-            RUN pSetAttributeFromStandard(bf-eb.company,  3, STRING(bf-eb.wid)).
-            RUN pSetAttributeFromStandard(bf-eb.company,  4, STRING(bf-eb.t-len)). //refactor dBlankLen
-            RUN pSetAttributeFromStandard(bf-eb.company,  5, STRING(bf-eb.t-wid)). //refactor dBlankWid
-            RUN pSetAttributeFromStandard(bf-eb.company,  6, STRING(bf-eb.lin-in)).
-            RUN pSetAttributeFromStandard(bf-eb.company,  7, "0"). //v-bsqft
-            RUN pSetAttributeFromStandard(bf-eb.company,  8, "0"). //v-dep * 1000
-            RUN pSetAttributeFromStandard(bf-eb.company,  9, STRING(bf-ef.weight)). 
-            RUN pSetAttributeFromStandard(bf-eb.company,  10, STRING(bf-ef.roll-wid)).
-            RUN pSetAttributeFromStandard(bf-eb.company,  11, STRING(bf-ef.nsh-wid)).
-            RUN pSetAttributeFromStandard(bf-eb.company,  12, STRING(bf-ef.nsh-len)).
-            RUN pSetAttributeFromStandard(bf-eb.company,  13, "0"). //v-up
-            RUN pSetAttributeFromStandard(bf-eb.company,  14, STRING(bf-ef.leaf-l[1])).
-            RUN pSetAttributeFromStandard(bf-eb.company,  15, STRING(bf-ef.leaf-w[1])).
-            RUN pSetAttributeFromStandard(bf-eb.company,  16, "0").  //v-len
-            RUN pSetAttributeFromStandard(bf-eb.company,  17, "0").  //v-wid
-            RUN pSetAttributeFromStandard(bf-eb.company,  18, "0").  //qty
-            RUN pSetAttributeFromStandard(bf-eb.company,  19, STRING(bf-ef.die-in)).
-            RUN pSetAttributeFromStandard(bf-eb.company,  20, "0"). //(qty * v-yld / xeb.num-up / v-n-out)
-            RUN pSetAttributeFromStandard(bf-eb.company,  21, "0"). //v-ssqft
-            RUN pSetAttributeFromStandard(bf-eb.company,  22, STRING(bf-ef.f-col + bf-ef.f-coat)).
-            RUN pSetAttributeFromStandard(bf-eb.company,  23, "0"). //v-cut
-            RUN pSetAttributeFromStandard(bf-eb.company,  24, STRING(bf-ef.blank-qty)).
-            RUN pSetAttributeFromStandard(bf-eb.company,  25, "0"). //v-out
-            RUN pSetAttributeFromStandard(bf-eb.company,  26, STRING(bf-ef.n-out-l)).
-            RUN pSetAttributeFromStandard(bf-eb.company,  27, "0"). //ld-parts[2]
-            RUN pSetAttributeFromStandard(bf-eb.company,  28, "0"). //ld-ink-frm
-            RUN pSetAttributeFromStandard(bf-eb.company,  29, "0"). //ld-parts[1]
-            RUN pSetAttributeFromStandard(bf-eb.company,  30, "0"). //none?
-            RUN pSetAttributeFromStandard(bf-eb.company,  31, "0"). //v-long-qty-set
-            RUN pSetAttributeFromStandard(bf-eb.company,  32, "0"). //v-short-qty-set
-            RUN pSetAttributeFromStandard(bf-eb.company,  33, STRING(bf-eb.num-wid)).
-            RUN pSetAttributeFromStandard(bf-eb.company,  34, STRING(bf-eb.num-len)).
-            
-        END.
+            RUN pSetAttributesForForm(BUFFER bf-ef).
     END.
     ELSE 
         ASSIGN 
