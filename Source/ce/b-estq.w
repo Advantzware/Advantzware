@@ -732,7 +732,7 @@ eb.est-no = lv-last-est-no"
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
 ON ENTRY OF begin_cust-no IN FRAME F-Main
 DO:
-    RUN spSetSessionParam ("CustListID", "EF").
+/*    RUN spSetSessionParam ("CustListID", "EF").*/
 END.
 
 /* _UIB-CODE-BLOCK-END */

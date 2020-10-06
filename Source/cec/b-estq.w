@@ -889,7 +889,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
 ON ENTRY OF begin_cust-no IN FRAME F-Main
 DO:
-    RUN spSetSessionParam ("CustListID", "EC").
+/*    RUN spSetSessionParam ("CustListID", "EC").*/
 END.
 
 /* _UIB-CODE-BLOCK-END */
