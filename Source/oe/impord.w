@@ -1006,6 +1006,8 @@ PROCEDURE CreateOrder :
                                         INPUT ttDetail.ShipToPhone,
                                         INPUT ttDetail.ShipToContact,
                                         OUTPUT ttDetail.ShipTo ).
+                  
+                  RUN Tax_GetTaxableAR  (oe-ord.company, oe-ord.cust-no, oe-ord.ship-id, oe-ordl.i-no, OUTPUT oe-ordl.tax).
                                         
                   /* createRelease found in oe/createRelease.i */
                   RUN createRelease (INPUT ttDetail.ShipTo,
