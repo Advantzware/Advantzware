@@ -199,7 +199,7 @@ PROCEDURE pCreateDynParameters :
               BY {1}SubjectParamSet.paramSetID
         :
         IF FIRST-OF({1}SubjectParamSet.paramSetID) THEN DO:
-            FIND FIRST dynValueParamSet EXCLUSIVE-LOCK
+            FIND FIRST dynValueParamSet NO-LOCK
                  WHERE dynValueParamSet.subjectID    EQ dynParamValue.subjectID
                    AND dynValueParamSet.user-id      EQ dynParamValue.user-id
                    AND dynValueParamSet.prgmName     EQ dynParamValue.prgmName
