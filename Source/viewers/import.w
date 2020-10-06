@@ -85,10 +85,11 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-import 
-     IMAGE-UP FILE "Graphics/32x32/import.ico":U
+     IMAGE-UP FILE "Graphics/32x32/import_new.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/import_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Import".
+     SIZE 6.4 BY 1.52 TOOLTIP "Import".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -97,7 +98,8 @@ DEFINE FRAME F-Main
      btn-import AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -126,7 +128,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 1.81
+         HEIGHT             = 1.52
          WIDTH              = 66.
 /* END WINDOW DEFINITION */
                                                                         */

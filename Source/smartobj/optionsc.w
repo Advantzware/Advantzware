@@ -46,8 +46,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Select_appl Select_frac Select_help ~
-Select_List Select_Notes UDF Select_spec 
+&Scoped-Define ENABLED-OBJECTS Select_Notes Select_spec Select_appl ~
+Select_frac Select_help Select_List UDF 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -92,12 +92,13 @@ DEFINE BUTTON Select_List
 DEFINE BUTTON Select_Notes 
      IMAGE-UP FILE "Graphics/32x32/add_note_new.png":U
      IMAGE-DOWN FILE "Graphics/32x32/add_note_hover_new.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/edit_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/add_note_disable_new.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
      SIZE 6.4 BY 1.52 TOOLTIP "Notes".
 
 DEFINE BUTTON Select_spec 
-     IMAGE-UP FILE "Graphics/32x32/book_open.ico":U
+     IMAGE-UP FILE "Graphics/32x32/spec-info_new.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/spec-info_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/book_open_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
      SIZE 6.4 BY 1.52 TOOLTIP "Notes".
@@ -113,14 +114,14 @@ DEFINE BUTTON UDF
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     Select_Notes AT ROW 1 COL 9
+     Select_spec AT ROW 1 COL 17
      Select_appl AT ROW 1 COL 25
      Select_frac AT ROW 1 COL 49
      Select_help AT ROW 1 COL 33
      Select_List AT ROW 1 COL 1
-     Select_Notes AT ROW 1 COL 9
      UDF AT ROW 1 COL 41 HELP
           "Access UDF Viewer"
-     Select_spec AT ROW 1 COL 17
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -400,9 +401,9 @@ PROCEDURE Spec-Book-Image :
 
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT ip-log THEN
-         SELECT_spec:LOAD-IMAGE("Graphics/32x32/add_note_New.png").
+         SELECT_spec:LOAD-IMAGE("Graphics/32x32/spec-info_New.png").
       ELSE
-         SELECT_spec:LOAD-IMAGE("Graphics/32x32/add_note__check_New.png").
+         SELECT_spec:LOAD-IMAGE("Graphics/32x32/spec-info_check_New.png").
    END.
 END PROCEDURE.
 
