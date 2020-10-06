@@ -555,7 +555,7 @@ DEF    VAR      lv-po-no       AS INT       NO-UNDO.
         
                 IF lv-cost[5] EQ ? THEN lv-cost[5] = 0.
     
-                IF lv-cost[5] NE 0 AND (lSourceFound OR tb_FallBack) THEN 
+                IF (lv-cost[5] NE 0 OR fg-rcpth.po-no NE "") AND (lSourceFound OR tb_FallBack) THEN 
                 DO:  /*if cost was found from PO or Job, lSourceFound = YES, otherwise, fall back cost of IF1 cost*/
                     iCountChanged = iCountChanged + 1.
 
