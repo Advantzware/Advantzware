@@ -138,6 +138,7 @@ DEFINE VARIABLE h_w-jobest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-jobfg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_optonote AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_attach AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -363,15 +364,23 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_smartmsg ).
        RUN set-position IN h_smartmsg ( 1.00 , 1.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.14 , 32.00 ) */
+       /* Size in UIB:  ( 1.14 , 32.00 ) */ 
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/import.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_import ).
+       RUN set-position IN h_import ( 1.00 , 22.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/attach.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_attach ).
-       RUN set-position IN h_attach ( 1.00 , 30.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       RUN set-position IN h_attach ( 1.00 , 30.00 ) NO-ERROR.   
+       /* Size in UIB:  ( 1.81 , 7.80 ) */  
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'panels/p-capacityPage.w':U ,
@@ -432,7 +441,10 @@ PROCEDURE adm-create-objects :
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
-
+       
+        /* Links to SmartViewer h_import. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
+            
        /* Links to SmartObject h_attach. */
        RUN add-link IN adm-broker-hdl ( h_b-jobinq , 'attach':U , h_attach ).
 
@@ -1233,6 +1245,23 @@ PROCEDURE select_add :
   run select-page(2).
   run get-link-handle in adm-broker-hdl(this-procedure,"add-job-target", output char-hdl).
   run add-job in widget-handle(char-hdl).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
+PROCEDURE import-file :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+ RUN util/dev/impJobSchedule.p .
+ IF VALID-HANDLE(h_b-jobinq) THEN   
+ RUN local-open-query IN h_b-jobinq .
 
 END PROCEDURE.
 
