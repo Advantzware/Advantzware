@@ -71,6 +71,10 @@ DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE glPOModified AS LOG NO-UNDO.
+DEFINE VARIABLE lCheckTagHoldMessage AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
+
+{inventory/ttInventory.i "NEW SHARED"}
 
 DEFINE TEMP-TABLE w-rowid FIELD w-rowid AS CHAR
           INDEX w-rowid IS PRIMARY w-rowid.
@@ -746,6 +750,16 @@ END.
 ON VALUE-CHANGED OF oe-boll.po-no IN BROWSE Browser-Table /* Customer PO */
 DO:
   glPOModified = YES.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME oe-boll.tag
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-boll.tag Browser-Table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF oe-boll.tag IN BROWSE Browser-Table /* Tag */
+DO:
+     lCheckTagHoldMessage = NO .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1921,6 +1935,7 @@ DEF VAR iLastBolLine AS INT NO-UNDO.
   END.
 
   Browser-Table:REFRESH() IN FRAME {&FRAME-NAME}.
+  lCheckTagHoldMessage = NO.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1976,7 +1991,7 @@ PROCEDURE local-cancel-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */   
-
+  lCheckTagHoldMessage = NO.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2028,6 +2043,7 @@ PROCEDURE local-create-record :
   IF AVAIL b-oe-boll THEN oe-boll.s-code = b-oe-boll.s-code.
   IF oe-boll.po-no:SCREEN-VALUE IN BROWSE {&browse-name} GT "" THEN
       oe-boll.po-no = oe-boll.po-no:SCREEN-VALUE IN BROWSE {&browse-name}.
+  lCheckTagHoldMessage = NO.    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3413,6 +3429,9 @@ PROCEDURE valid-tag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lCheckTagStatus AS LOGICAL NO-UNDO.
+  
+  RUN inventory\InventoryProcs.p PERSISTENT SET hInventoryProcs.
   
   DO WITH FRAME {&FRAME-NAME}:
     RUN set-local-vars.
@@ -3451,7 +3470,24 @@ PROCEDURE valid-tag :
          APPLY "entry" TO oe-boll.tag IN BROWSE {&browse-name}.
          RETURN ERROR.
     END.
+    
+    IF NOT lCheckTagHoldMessage AND lv-tag NE "" THEN
+    DO:     
+        lCheckTagStatus = LOGICAL(DYNAMIC-FUNCTION(
+                                   "fCheckFgBinTagOnHold" IN hInventoryProcs,
+                                   cocode,
+                                   lv-i-no, 
+                                   lv-tag)).
+        IF NOT lCheckTagStatus THEN do:
+          APPLY "entry" TO oe-boll.tag IN BROWSE {&browse-name}.
+          RETURN ERROR.
+        END.
+        ELSE lCheckTagHoldMessage = YES.
+    END.
+        
   END.
+  IF VALID-HANDLE(hInventoryProcs) THEN
+    DELETE OBJECT hInventoryProcs.
 
 END PROCEDURE.
 

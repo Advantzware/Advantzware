@@ -89,7 +89,12 @@ FUNCTION fCalculateTagQuantityInTTbrowse RETURNS DECIMAL
 FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
     (ipcCompany  AS CHARACTER,
      iplItemType AS LOGICAL,
-     ipcTag      AS CHARACTER) FORWARD.            
+     ipcTag      AS CHARACTER) FORWARD. 
+     
+FUNCTION fCheckFgBinTagOnHold RETURNS LOGICAL
+    (ipcCompany  AS CHARACTER,
+     ipcItem AS CHARACTER,
+     ipcTag      AS CHARACTER) FORWARD.     
 /* ***************************  Main Block  *************************** */
 
 
@@ -6430,4 +6435,19 @@ FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
         cVendorTag = loadtag.misc-char[1].
 
     RETURN cVendorTag.
+END FUNCTION.
+
+FUNCTION fCheckFgBinTagOnHold RETURNS LOGICAL
+    (ipcCompany AS CHARACTER, ipcItem AS CHARACTER, ipcTag AS CHARACTER):
+    DEFINE VARIABLE lReturnValue AS LOGICAL NO-UNDO.
+    lReturnValue = YES.
+    FIND FIRST fg-bin NO-LOCK
+         WHERE fg-bin.company   EQ ipcCompany
+           AND fg-bin.i-no EQ ipcItem
+           AND fg-bin.tag  EQ ipcTag
+        NO-ERROR.
+    IF AVAILABLE fg-bin AND fg-bin.onHold THEN
+        RUN displayMessageQuestion ("53", OUTPUT lReturnValue).
+
+    RETURN lReturnValue.
 END FUNCTION.
