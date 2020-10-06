@@ -602,7 +602,7 @@ PROCEDURE genOrderLines:
         oe-ordl.prom-date = oe-ord.due-date
         oe-ordl.stat      = 'W'
         .
-
+    
       IF oe-ordl.price EQ 0 THEN DO:                      
         FIND FIRST xoe-ord OF oe-ord NO-LOCK.
         RUN getPrice (ROWID(oe-ordl)).
@@ -651,6 +651,7 @@ PROCEDURE genOrderLines:
           IF AVAILABLE oe-ord THEN
               oe-ord.promiseDate = oe-ordl.promiseDate.
       END.
+      RUN Tax_GetTaxableAR  (oe-ord.company, oe-ord.cust-no, oe-ord.ship-id, oe-ordl.i-no, OUTPUT oe-ordl.tax).
       
       RUN CreateRelease (INPUT ipcShipToID,
                          INPUT "").
