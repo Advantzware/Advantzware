@@ -3534,7 +3534,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
              bf-ttInvoiceLineToPost.rNo EQ bf-inv-head.r-no:          
 
              lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalPriceGTCost", bf-inv-head.cust-no,iplIsValidateOnly).        
-             IF lValidateRequired AND bf-ttInvoiceLineToPost.pricePerUOM LT bf-ttInvoiceLineToPost.costPerUOM THEN
+             IF lValidateRequired AND bf-ttInvoiceLineToPost.amountBilled LT bf-ttInvoiceLineToPost.costTotal THEN
              DO:                             
                   RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Item price is less than the cost of the item").
                   lAutoApprove = NO.
