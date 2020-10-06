@@ -563,11 +563,11 @@ PROCEDURE pSetParamValueDefault:
                  EXCEPT paramValueID
                     TO bDynValueParamSet.
         END. /* each dynValueParamSet */
+        RELEASE bDynParamValue.
+        RELEASE bDynValueColumn.
+        RELEASE bDynValueParam.
+        RELEASE bDynValueParamSet.
     END. /* do trans */
-    RELEASE bDynParamValue.
-    RELEASE bDynValueColumn.
-    RELEASE bDynValueParam.
-    RELEASE bDynValueParamSet.
 
 END PROCEDURE.
 	
