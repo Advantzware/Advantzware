@@ -61,8 +61,8 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnExcel 
-     IMAGE-UP FILE "Resources/Graphics/32x32/excel_new.png":U
-     IMAGE-DOWN FILE "Resources/Graphics/32x32/excel_hover_new.png":U
+     IMAGE-UP FILE "Graphics/32x32/excel_new.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/excel_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Excel" 
      SIZE 6.4 BY 1.52 TOOLTIP "Excel Export".

@@ -104,7 +104,7 @@ DEFINE RECTANGLE Rect-Main
 
 DEFINE RECTANGLE Rect-Top
      EDGE-PIXELS 0    
-     SIZE 33.6 BY .4
+     SIZE 33.6 BY .38
      BGCOLOR 21 FGCOLOR 21 .
 
 
@@ -624,10 +624,10 @@ PROCEDURE set-size :
          Rect-Main:HEIGHT-PIXELS   = FRAME {&FRAME-NAME}:HEIGHT-PIXELS 
                                       - {&tab-height}
          Rect-Top:X                = 1
-         Rect-Top:Y                = {&tab-height} + 1
+         Rect-Top:Y                = {&tab-height} + 9
          Rect-Top:WIDTH-PIXELS     = FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS 
                                      - 3
-         Rect-Top:HEIGHT-PIXELS    = 3                             
+         Rect-Top:HEIGHT-PIXELS    = 4                          
          Rect-Top:HIDDEN    = no                             
          Rect-Main:HIDDEN   = no
          . 

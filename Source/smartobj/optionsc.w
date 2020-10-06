@@ -62,36 +62,36 @@ Select_List Select_Notes UDF Select_spec
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_appl 
-     IMAGE-UP FILE "Resources/Graphics/32x32/utility-app_new.png":U
-     IMAGE-DOWN FILE "Resources/Graphics/32x32/utility-app_hover_new.png":U
+     IMAGE-UP FILE "Graphics/32x32/utility-app_new.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/utility-app_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Run App" 
      SIZE 6.4 BY 1.52 TOOLTIP "Utility Application".
 
 DEFINE BUTTON Select_frac 
-     IMAGE-UP FILE "Resources/Graphics/32x32/calculator_new.png":U
-     IMAGE-DOWN FILE "Resources/Graphics/32x32/calculator_hover_new.png":U
+     IMAGE-UP FILE "Graphics/32x32/calculator_new.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/calculator_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Calculate" 
      SIZE 6.4 BY 1.52 TOOLTIP "Conversions".
 
 DEFINE BUTTON Select_help 
-     IMAGE-UP FILE "Resources/Graphics/32x32/help_new.png":U
-     IMAGE-DOWN FILE "Resources/Graphics/32x32/help_hover_new.png":U
+     IMAGE-UP FILE "Graphics/32x32/help_new.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/help_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Help" 
      SIZE 6.4 BY 1.52 TOOLTIP "Help".
 
 DEFINE BUTTON Select_List 
-     IMAGE-UP FILE "Resources/Graphics/32x32/print_new.png":U
-     IMAGE-DOWN FILE "Resources/Graphics/32x32/print_hover_new.png":U
+     IMAGE-UP FILE "Graphics/32x32/print_new.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/print_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/printer_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "List" 
      SIZE 6.4 BY 1.52 TOOLTIP "List".
 
 DEFINE BUTTON Select_Notes 
-     IMAGE-UP FILE "Resources/Graphics/32x32/add_note_new.png":U
-     IMAGE-DOWN FILE "Resources/Graphics/32x32/add_note_hover_new.png":U
+     IMAGE-UP FILE "Graphics/32x32/add_note_new.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/add_note_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/edit_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
      SIZE 6.4 BY 1.52 TOOLTIP "Notes".
@@ -103,8 +103,8 @@ DEFINE BUTTON Select_spec
      SIZE 6.4 BY 1.52 TOOLTIP "Notes".
 
 DEFINE BUTTON UDF 
-     IMAGE-UP FILE "Resources/Graphics/32x32/udf-viewer_new.png":U
-     IMAGE-DOWN FILE "Resources/Graphics/32x32/udf-viewer_hover_new.png":U
+     IMAGE-UP FILE "Graphics/32x32/udf-viewer_new.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/udf-viewer_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Home" 
      SIZE 6.4 BY 1.52 TOOLTIP "UDF Viewer".
