@@ -74,41 +74,47 @@ DEFINE OUTPUT PARAMETER op-returnFields AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER op-lookupField  AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER op-recVal       AS RECID     NO-UNDO.
  
-DEFINE VARIABLE h_query            AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_ttquery          AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_brquery          AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_buffer           AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_ttbuffer         AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_brbuffer         AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_tt               AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_brtt             AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_browser          AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_dialogFrame      AS HANDLE    NO-UNDO.
-DEFINE VARIABLE h_filterFrame      AS HANDLE    NO-UNDO.
-DEFINE VARIABLE li-count           AS INTEGER   NO-UNDO.
-DEFINE VARIABLE li-maxBrRows       AS INTEGER   NO-UNDO INITIAL 30.
-DEFINE VARIABLE li-pageCount       AS INTEGER   NO-UNDO INITIAL 0.
-DEFINE VARIABLE li-pageRecCount    AS INTEGER   NO-UNDO INITIAL 30.
-DEFINE VARIABLE ls-sortBy          AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ls-sortType        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ls-queryString     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE ll-filterOpen      AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE ll-filterFirst     AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE ll-filterFlag      AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE ll-ttLoaded        AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE ll-useMatches      AS LOGICAL   NO-UNDO INITIAL FALSE.
-DEFINE VARIABLE ll-continue        AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lRowSelectable     AS LOGICAL   NO-UNDO EXTENT 1000 INITIAL YES.
-DEFINE VARIABLE rDynValueColumn    AS ROWID     NO-UNDO EXTENT 1000.
-DEFINE VARIABLE hCalcColumn        AS HANDLE    NO-UNDO EXTENT 1000.
-DEFINE VARIABLE hColumn            AS HANDLE    NO-UNDO EXTENT 1000.
-DEFINE VARIABLE hDynCalcField      AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hStatusField       AS HANDLE    NO-UNDO EXTENT 1000.
-DEFINE VARIABLE iRowCount          AS INTEGER   NO-UNDO.
-DEFINE VARIABLE cFocusValue        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE h_btnOK            AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_query         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_ttquery       AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_brquery       AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_buffer        AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_ttbuffer      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_brbuffer      AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_tt            AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_brtt          AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_browser       AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_dialogFrame   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE h_filterFrame   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE li-count        AS INTEGER   NO-UNDO.
+DEFINE VARIABLE li-maxBrRows    AS INTEGER   NO-UNDO INITIAL 30.
+DEFINE VARIABLE li-pageCount    AS INTEGER   NO-UNDO INITIAL 0.
+DEFINE VARIABLE li-pageRecCount AS INTEGER   NO-UNDO INITIAL 30.
+DEFINE VARIABLE ls-sortBy       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ls-sortType     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ls-queryString  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ll-filterOpen   AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE ll-filterFirst  AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE ll-filterFlag   AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE ll-ttLoaded     AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE ll-useMatches   AS LOGICAL   NO-UNDO INITIAL FALSE.
+DEFINE VARIABLE ll-continue     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lRowSelectable  AS LOGICAL   NO-UNDO EXTENT 1000 INITIAL YES.
+DEFINE VARIABLE rDynValueColumn AS ROWID     NO-UNDO EXTENT 1000.
+DEFINE VARIABLE hCalcColumn     AS HANDLE    NO-UNDO EXTENT 1000.
+DEFINE VARIABLE hColumn         AS HANDLE    NO-UNDO EXTENT 1000.
+DEFINE VARIABLE hDynCalcField   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hStatusField    AS HANDLE    NO-UNDO EXTENT 1000.
+DEFINE VARIABLE iRowCount       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cFocusValue     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE h_btnOK         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cCustListQuery  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lUseCustList    AS LOGICAL   NO-UNDO.
 
 RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
+
+{sys/ref/CustList.i NEW}
+{AOA/BL/pBuildCustList.i}
+{AOA/includes/pGetDynParamValue.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -837,7 +843,12 @@ PROCEDURE attachQuery :
                           ELSE
                               "".
 
-    h_brquery:QUERY-PREPARE("FOR EACH" + " " + h_brbuffer:NAME + " " + "NO-LOCK").
+    h_brquery:QUERY-PREPARE(
+        "FOR EACH" + " " +
+        h_brbuffer:NAME + " " +
+        "NO-LOCK" + 
+        SUBSTITUTE(cCustListQuery, h_brbuffer:NAME)
+        ).
     h_brquery:QUERY-OPEN().
                                         
     h_browser:QUERY = h_brquery.
@@ -858,8 +869,10 @@ PROCEDURE buildTempTable :
     DEFINE VARIABLE ls-allData AS CHARACTER NO-UNDO.
   
     ls-queryString = "FOR EACH " + h_buffer:NAME + " NO-LOCK" + " "
-                   + IF ip-queryString EQ "" THEN "" 
-                     ELSE "WHERE" + " " + ip-queryString. 
+                   + (IF ip-queryString EQ "" THEN "" 
+                      ELSE "WHERE" + " " + ip-queryString)
+                   + SUBSTITUTE(cCustListQuery, h_buffer:NAME)
+                   . 
     h_query:QUERY-PREPARE (ls-queryString).
     h_query:QUERY-OPEN().        
     h_query:GET-FIRST().
@@ -1012,9 +1025,13 @@ PROCEDURE createTempTables :
 
     h_ttbuffer = h_tt:DEFAULT-BUFFER-HANDLE.
     h_ttquery:SET-BUFFERS(h_ttbuffer).
+    IF lUseCustList THEN
+    h_ttquery:ADD-BUFFER(BUFFER ttCustList:HANDLE).
 
     h_brbuffer = h_brtt:DEFAULT-BUFFER-HANDLE.
     h_brquery:SET-BUFFERS(h_brbuffer).
+    IF lUseCustList THEN
+    h_brquery:ADD-BUFFER(BUFFER ttCustList:HANDLE).
 
 END PROCEDURE.
 
@@ -1087,26 +1104,60 @@ PROCEDURE init :
   Purpose:     
   Parameters:  <none>
   Notes:       
-------------------------------------------------------------------------------*/    
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cCompany       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustListField AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustListID    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEndCustList   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStartCustList AS CHARACTER NO-UNDO.
     
+    IF ip-subjectID NE 0 THEN DO:
+        RUN pGetDynParamValue (ip-subjectID, "", "", 0).
+        IF dynParamValue.useCustList OR dynParamValue.CustListID NE "" THEN DO:
+            FIND FIRST dynValueColumn NO-LOCK
+                 WHERE dynValueColumn.subjectID     EQ dynParamValue.subjectID
+                   AND dynValueColumn.user-id       EQ dynParamValue.user-id
+                   AND dynValueColumn.prgmName      EQ dynParamValue.prgmName
+                   AND dynValueColumn.paramValueID  EQ dynParamValue.paramValueID
+                   AND dynValueColumn.CustListField EQ YES
+                 NO-ERROR.
+            IF AVAILABLE dynValueColumn THEN DO:
+                cCustListID = dynParamValue.CustListID.
+                IF cCustListID EQ "" THEN
+                RUN spGetSessionParam ("CustListID", OUTPUT cCustListID).
+                RUN spSetSessionParam ("CustListID", "").
+                RUN spGetSessionParam ("Company", OUTPUT cCompany).
+                RUN pBuildCustList (
+                    cCompany,
+                    cCustListID,
+                    OUTPUT cStartCustList,
+                    OUTPUT cEndCustList,
+                    OUTPUT lUseCustList
+                    ).
+                IF lUseCustList THEN
+                ASSIGN
+                    cCustListField = ENTRY(2,dynValueColumn.colName,".")
+                    cCustListQuery = ", FIRST ttCustList WHERE ttCustList.cust-no EQ &1."
+                                   + cCustListField
+                                   + " AND ttCustList.log-fld EQ YES "
+                                   .
+            END. /* if avail */
+        END. /* if custlistid */
+    END. /* if ip-subjectid */
     CREATE BUFFER h_buffer FOR TABLE ip-table.
-
     CREATE QUERY h_query.
     h_query:SET-BUFFERS(h_buffer).
-
-    CREATE QUERY h_ttquery.
-    
+    IF lUseCustList THEN
+    h_query:ADD-BUFFER(BUFFER ttCustList:HANDLE).
+    CREATE QUERY h_ttquery.    
     CREATE QUERY h_brquery.
-     
-    h_browser = br-table:HANDLE IN FRAME {&FRAME-NAME}.
-    
-    h_dialogFrame = FRAME {&FRAME-NAME}:HANDLE.
-    h_dialogFrame:TITLE = ip-title.
-
-    h_filterFrame = FRAME filter-frame:HANDLE.
-    
-    RUN validateRecordLimit(OUTPUT ll-filterFirst).
-    
+    ASSIGN
+        h_browser = br-table:HANDLE IN FRAME {&FRAME-NAME}    
+        h_dialogFrame = FRAME {&FRAME-NAME}:HANDLE
+        h_dialogFrame:TITLE = ip-title
+        h_filterFrame = FRAME filter-frame:HANDLE
+        .    
+    RUN validateRecordLimit(OUTPUT ll-filterFirst).    
     RUN createTempTables.
     RUN attachQuery.
     RUN addBrowseCols.
@@ -1175,8 +1226,8 @@ PROCEDURE openFilterQuery :
     
     li-pageCount = 0.
     
-    RUN nextPage ( INPUT h_query,
-                   INPUT h_buffer).
+    RUN nextPage (h_query, h_buffer).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1198,8 +1249,8 @@ PROCEDURE openSearchQuery :
     
     li-pageCount = 0.
     
-    RUN nextPage( INPUT h_ttquery,
-                  INPUT h_ttbuffer).
+    RUN nextPage(h_ttquery, h_ttbuffer).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1315,6 +1366,7 @@ PROCEDURE resetFilterObjects :
     END.
         
     RUN openFilterQuery.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1395,6 +1447,7 @@ PROCEDURE toggleMatches :
  Notes:
 ------------------------------------------------------------------------------*/
     ASSIGN ll-useMatches = NOT ll-useMatches.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1541,11 +1594,12 @@ PROCEDURE validateRecordLimit :
         RETURN.
     END.
     
-    ls-lqueryString = "FOR EACH" + " " +
-                    h_buffer:NAME + " " +
-                    "NO-LOCK" + " " + 
-                    IF ip-queryString = "" THEN "" ELSE "WHERE" + " " + ip-queryString. 
-                    "NO-LOCK". 
+    ls-lqueryString = "FOR EACH" + " "
+                    + h_buffer:NAME + " "
+                    + "NO-LOCK" + " "
+                    + (IF ip-queryString = "" THEN "" ELSE "WHERE" + " " + ip-queryString)
+                    + SUBSTITUTE(cCustListQuery, h_buffer:NAME)
+                    . 
     
     CREATE QUERY h_lquery.
     h_lquery:SET-BUFFERS(h_buffer).                
@@ -1644,13 +1698,15 @@ FUNCTION generateFilterQuery RETURNS CHARACTER
         h_widget = h_widget:NEXT-SIBLING.
     END.
     
-    ls-returnQueryString = "FOR EACH" + " " + 
-                    h_buffer:NAME + " " +
-                    "NO-LOCK" + " " + 
-                    (IF ip-queryString = "" THEN "" ELSE "WHERE" + " " + ip-queryString) + " " +                     
-                    ls-returnQueryString + " " +
-                    "BY" + " " + h_buffer:NAME + "." + ls-sortBy + " " + 
-                    ls-sortType.
+    ls-returnQueryString = "FOR EACH" + " "
+                         + h_buffer:NAME + " "
+                         + "NO-LOCK" + " "
+                         + (IF ip-queryString = "" THEN "" ELSE "WHERE" + " " + ip-queryString) + " "
+                         + ls-returnQueryString + " "
+                         + SUBSTITUTE(cCustListQuery, h_buffer:NAME)
+                         + "BY" + " " + h_buffer:NAME + "." + ls-sortBy + " "
+                         + ls-sortType
+                         .
     
     RETURN ls-returnQueryString.
     
@@ -1670,14 +1726,16 @@ FUNCTION generateSearchQuery RETURNS CHARACTER
     DEFINE VARIABLE ls-searchValue        AS CHARACTER NO-UNDO.
   
     ASSIGN ls-searchValue = getSearchValue()
-           ls-returnQueryString = "FOR EACH" + " " + h_ttbuffer:NAME + " " +
-                                  (IF ls-searchValue = "" THEN "" ELSE "WHERE" + " " +
-                                  h_ttbuffer:NAME + "." + "allData MATCHES" + " " +
-                                  ls-searchValue) + " " +
-                                  "BY" + " " + h_ttbuffer:NAME + "." + ls-sortBy + " " +
-                                  ls-sortType.
+           ls-returnQueryString = "FOR EACH" + " " + h_ttbuffer:NAME + " "
+                                + (IF ls-searchValue = "" THEN "" ELSE "WHERE" + " "
+                                + h_ttbuffer:NAME + "." + "allData MATCHES" + " "
+                                + ls-searchValue) + " "
+                                + SUBSTITUTE(cCustListQuery, h_ttbuffer:NAME)
+                                + "BY" + " " + h_ttbuffer:NAME + "." + ls-sortBy + " "
+                                + ls-sortType
+                                .
 
-    RETURN ls-returnQueryString.   /* Function return value. */
+    RETURN ls-returnQueryString. /* Function return value. */
 
 END FUNCTION.
 
