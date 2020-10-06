@@ -61,8 +61,8 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCRM 
-     IMAGE-UP FILE "Resources/Graphics/32x32/crm_new.png":U
-     IMAGE-DOWN FILE "Resources/Graphics/32x32/crm_hover_new.png":U
+     IMAGE-UP FILE "Graphics/32x32/crm_new.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/crm_hover_new.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "CRM" 
      SIZE 6.4 BY 1.52 TOOLTIP "Phone Info."
