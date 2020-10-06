@@ -94,8 +94,13 @@ PROCEDURE createTtblProdAce:
         DO idx = 1 TO NUM-ENTRIES(dmiTrans.operator):
             ttblProdAce.prodAceOperator[idx] = ENTRY(idx,dmiTrans.operator).
         END. /* do idx */
-        RUN newEnd (ttblProdAce.prodAceDuration, ttblProdAce.prodAceStartDate, ttblProdAce.prodAceStartTime,
-                    OUTPUT ttblProdAce.prodAceEndDate, OUTPUT ttblProdAce.prodAceEndTime).
+/*        RUN newEnd (ttblProdAce.prodAceDuration, ttblProdAce.prodAceStartDate, ttblProdAce.prodAceStartTime,*/
+/*                    OUTPUT ttblProdAce.prodAceEndDate, OUTPUT ttblProdAce.prodAceEndTime).                  */
+        /* temp using tranDate & tranTime as endDate & endTime */
+        ASSIGN
+            ttblProdAce.prodAceEndDate = dmiTrans.tranDate
+            ttblProdAce.prodAceEndTime = dmiTrans.tranTime
+            .
         DO TRANSACTION:
             FIND FIRST bDMITrans EXCLUSIVE-LOCK
                  WHERE ROWID(bDMITrans) EQ ROWID(dmiTrans).
