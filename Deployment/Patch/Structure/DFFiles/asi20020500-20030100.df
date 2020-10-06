@@ -1,0 +1,294 @@
+ADD FIELD "postInProcess" OF "ap-ctrl" AS logical
+  FORMAT "yes/no"
+  POSITION 34
+  INITIAL "no"
+  LABEL "Post in Process"
+  ORDER 330
+  MAX-WIDTH 1
+
+ADD FIELD "postType" OF "ap-ctrl" AS character
+  FORMAT "x(8)"
+  POSITION 35
+  INITIAL ""
+  LABEL "Post Type"
+  ORDER 340
+  MAX-WIDTH 16
+
+ADD FIELD "postUserID" OF "ap-ctrl" AS character
+  FORMAT "x(12)"
+  POSITION 36
+  INITIAL ""
+  LABEL "Post UserID"
+  ORDER 350
+  MAX-WIDTH 24
+
+ADD FIELD "postStartDtTm" OF "ap-ctrl" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 37
+  INITIAL ?
+  LABEL "Post Started"
+  ORDER 360
+  MAX-WIDTH 8
+
+ADD FIELD "delayedProcessingStatus" OF "APIInboundEvent" AS character
+  DESCRIPTION "Stores the processing status of an Inbound request. Can be queued, processed and failed"
+  FORMAT "x(20)"
+  POSITION 15
+  INITIAL ""
+  LABEL "Delayed Processing Status"
+  COLUMN-LABEL "Delayed Processing Status"
+  ORDER 140
+  MAX-WIDTH 40
+
+ADD INDEX "delayedProcessingStatus" ON "APIInboundEvent"
+  AREA "Index"
+  DESCRIPTION "Index for delayedProcessingStatus and APIInboundEventID"
+  INDEX-FIELD "delayedProcessingStatus" ASCENDING
+  INDEX-FIELD "apiInboundEventID" ASCENDING
+
+ADD FIELD "useLocationValidation" OF "APIOutbound" AS logical
+  DESCRIPTION "If disabled will skip the location validation"
+  FORMAT "yes/no"
+  POSITION 26
+  INITIAL "no"
+  LABEL "Use Location Validation"
+  COLUMN-LABEL "Use Location Validation"
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+  ORDER 250
+  MAX-WIDTH 1
+
+ADD FIELD "postInProcess" OF "ar-ctrl" AS logical
+  FORMAT "yes/no"
+  POSITION 41
+  INITIAL "no"
+  LABEL "Post in Process"
+  ORDER 380
+  MAX-WIDTH 1
+
+ADD FIELD "postType" OF "ar-ctrl" AS character
+  FORMAT "x(8)"
+  POSITION 42
+  INITIAL ""
+  LABEL "Post Type"
+  ORDER 390
+  MAX-WIDTH 16
+
+ADD FIELD "postUserID" OF "ar-ctrl" AS character
+  FORMAT "x(12)"
+  POSITION 43
+  INITIAL ""
+  LABEL "Post UserID"
+  ORDER 400
+  MAX-WIDTH 24
+
+ADD FIELD "postStartDtTm" OF "ar-ctrl" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 44
+  INITIAL ?
+  LABEL "Post Started"
+  ORDER 410
+  MAX-WIDTH 8
+
+ADD FIELD "custListID" OF "dynParamValue" AS character
+  FORMAT "x(3)"
+  POSITION 55
+  INITIAL ""
+  HELP "Enter Customer List ID"
+  LABEL "Customer List ID"
+  COLUMN-LABEL "CustListID"
+  ORDER 470
+  MAX-WIDTH 6
+
+ADD FIELD "useCustList" OF "dynParamValue" AS logical
+  FORMAT "yes/no"
+  POSITION 56
+  INITIAL "no"
+  HELP "Toggle Use Customer List"
+  LABEL "Use Customer List"
+  COLUMN-LABEL "UseCust"
+  ORDER 480
+  MAX-WIDTH 1
+
+ADD FIELD "custListID" OF "dynSubject" AS character
+  FORMAT "x(3)"
+  POSITION 27
+  INITIAL ""
+  HELP "Enter Customer List ID"
+  LABEL "Customer List ID"
+  COLUMN-LABEL "CustListID"
+  ORDER 230
+  MAX-WIDTH 6
+
+ADD FIELD "useCustList" OF "dynSubject" AS logical
+  FORMAT "yes/no"
+  POSITION 28
+  INITIAL "no"
+  HELP "Toggle Use Customer List"
+  LABEL "Use Customer List"
+  COLUMN-LABEL "UseCust"
+  ORDER 240
+  MAX-WIDTH 1
+
+ADD FIELD "CustListField" OF "dynSubjectColumn" AS logical
+  FORMAT "yes/no"
+  POSITION 32
+  INITIAL "no"
+  HELP "Toggle Customer List Field"
+  LABEL "Customer List Field"
+  COLUMN-LABEL "CustList"
+  ORDER 300
+  MAX-WIDTH 1
+
+ADD FIELD "CustListField" OF "dynValueColumn" AS logical
+  FORMAT "yes/no"
+  POSITION 32
+  INITIAL "no"
+  HELP "Toggle Customer List Field"
+  LABEL "Customer List Field"
+  COLUMN-LABEL "CustList"
+  ORDER 310
+  MAX-WIDTH 1
+
+ADD FIELD "postInProcess" OF "fg-ctrl" AS logical
+  FORMAT "yes/no"
+  POSITION 25
+  INITIAL "no"
+  LABEL "Post in Process"
+  ORDER 250
+  MAX-WIDTH 1
+
+ADD FIELD "postType" OF "fg-ctrl" AS character
+  FORMAT "x(8)"
+  POSITION 26
+  INITIAL ""
+  LABEL "Post Type"
+  ORDER 260
+  MAX-WIDTH 16
+
+ADD FIELD "postUserID" OF "fg-ctrl" AS character
+  FORMAT "x(12)"
+  POSITION 27
+  INITIAL ""
+  LABEL "Post UserID"
+  ORDER 270
+  MAX-WIDTH 24
+
+ADD FIELD "postStartDtTm" OF "fg-ctrl" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 28
+  INITIAL ?
+  LABEL "Post Started"
+  ORDER 280
+  MAX-WIDTH 8
+
+ADD FIELD "postInProcess" OF "gl-ctrl" AS logical
+  FORMAT "yes/no"
+  POSITION 25
+  INITIAL "no"
+  LABEL "Post in Process"
+  ORDER 65
+  MAX-WIDTH 1
+
+ADD FIELD "postType" OF "gl-ctrl" AS character
+  FORMAT "x(8)"
+  POSITION 26
+  INITIAL ""
+  LABEL "Post Type"
+  ORDER 75
+  MAX-WIDTH 16
+
+ADD FIELD "postUserID" OF "gl-ctrl" AS character
+  FORMAT "x(12)"
+  POSITION 27
+  INITIAL ""
+  LABEL "Post UserID"
+  ORDER 85
+  MAX-WIDTH 24
+
+ADD FIELD "postStartDtTm" OF "gl-ctrl" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 28
+  INITIAL ?
+  LABEL "Post Started"
+  ORDER 95
+  MAX-WIDTH 8
+
+ADD FIELD "chargeCode" OF "notes" AS character
+  FORMAT "x(5)"
+  POSITION 29
+  INITIAL ""
+  HELP "Enter Charge Code"
+  LABEL "Charge Code"
+  COLUMN-LABEL "Charge"
+  ORDER 280
+  MAX-WIDTH 10
+
+ADD FIELD "postInProcess" OF "po-ctrl" AS logical
+  FORMAT "yes/no"
+  POSITION 23
+  INITIAL "no"
+  LABEL "Post in Process"
+  ORDER 250
+  MAX-WIDTH 1
+
+ADD FIELD "postType" OF "po-ctrl" AS character
+  FORMAT "x(8)"
+  POSITION 24
+  INITIAL ""
+  LABEL "Post Type"
+  ORDER 260
+  MAX-WIDTH 16
+
+ADD FIELD "postUserID" OF "po-ctrl" AS character
+  FORMAT "x(12)"
+  POSITION 25
+  INITIAL ""
+  LABEL "Post UserID"
+  ORDER 270
+  MAX-WIDTH 24
+
+ADD FIELD "postStartDtTm" OF "po-ctrl" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 26
+  INITIAL ?
+  LABEL "Post Started"
+  ORDER 280
+  MAX-WIDTH 8
+
+ADD FIELD "postInProcess" OF "rm-ctrl" AS logical
+  FORMAT "yes/no"
+  POSITION 26
+  INITIAL "no"
+  LABEL "Post in Process"
+  ORDER 250
+  MAX-WIDTH 1
+
+ADD FIELD "postType" OF "rm-ctrl" AS character
+  FORMAT "x(8)"
+  POSITION 27
+  INITIAL ""
+  LABEL "Post Type"
+  ORDER 260
+  MAX-WIDTH 16
+
+ADD FIELD "postUserID" OF "rm-ctrl" AS character
+  FORMAT "x(12)"
+  POSITION 28
+  INITIAL ""
+  LABEL "Post UserID"
+  ORDER 270
+  MAX-WIDTH 24
+
+ADD FIELD "postStartDtTm" OF "rm-ctrl" AS datetime
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  POSITION 29
+  INITIAL ?
+  LABEL "Post Started"
+  ORDER 280
+  MAX-WIDTH 8
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000006201

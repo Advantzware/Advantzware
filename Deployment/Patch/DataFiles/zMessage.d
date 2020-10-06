@@ -55,3 +55,4 @@ or adding any field from a Release including:
 "50" "AR" 0 "AF4" "" "Duplicate Terms Code" "Duplicate Terms Code" "" "This is not a unique terms code so enter a unique value." "" "" ? 0 900 no no "WARNING" "" "" "202009201736205672446"
 "51" "OE" 0 "OU1" "" "Prep Item Disposed" "Prep Item Disposed" "" "The prep item is not available as it has been disposed of according to the disposal date in the prep file." "" "" ? 0 900 no no "WARNING" "" "" "202009208180905672952"
 "52" "PO" 0 "PU1" "" "No Vendor Adder Cost" "No Vendor cost for this adder" "" "There is no cost defined for this vendor for the adder.  Cost will be zero." "" "" ? 0 900 no no "WARNING" "" "" "202009283141105691273"
+"53" "FG" 0 "OS1" "" "Tag on Hold" "Tag on Hold" "" "This tag is on Hold and until removed from hold should not be shipped." "" "" ? 0 900 no no "QUESTION-YN" "Yes" "" "202010037986505744393"
