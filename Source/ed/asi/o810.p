@@ -334,7 +334,7 @@ PROCEDURE edi-ar.ip:
     
     ... */
 
-    IF ar-inv.freight <> 0 THEN 
+    IF ar-inv.freight <> 0 AND ar-inv.f-bill THEN 
     DO:
         RUN gen-addon.ip (
             ws_eddoc_rec, 
@@ -348,7 +348,7 @@ PROCEDURE edi-ar.ip:
             ).
     END.
 
-    IF ar-inv.tax-amt <> 0 THEN 
+    IF ar-inv.tax-amt <> 0 AND ar-inv.f-bill THEN 
     DO:
         FIND stax-group NO-LOCK
             WHERE stax-group.company = ar-inv.company
@@ -356,7 +356,8 @@ PROCEDURE edi-ar.ip:
             NO-ERROR.
   
         RUN ar/cctaxrt.p (INPUT ar-inv.company, ar-inv.tax-code /* oe-ord.tax-gr */,
-            OUTPUT dTaxRate, OUTPUT dTaxRateFreight).  
+            OUTPUT dTaxRate, OUTPUT dTaxRateFreight).
+              
         RUN gen-addon.ip (
             ws_eddoc_rec, 
             0,          /* line # */
@@ -1503,7 +1504,7 @@ PROCEDURE edi-oe.ip:
     
     END.    /* each inv-misc of inv-head */
 
-    IF inv-head.t-inv-freight <> 0 THEN 
+    IF inv-head.t-inv-freight <> 0 AND inv-head.f-bill THEN 
     DO:
         RUN gen-addon.ip (
             ws_eddoc_rec, 
@@ -1517,7 +1518,7 @@ PROCEDURE edi-oe.ip:
             ).
     END.
 
-    IF inv-head.t-inv-tax <> 0 THEN 
+    IF inv-head.t-inv-tax <> 0 AND inv-head.f-bill THEN 
     DO:
         FIND stax-group
             WHERE stax-group.company = inv-head.company
