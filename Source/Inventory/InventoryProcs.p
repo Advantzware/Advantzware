@@ -6445,6 +6445,7 @@ FUNCTION fCheckFgBinTagOnHold RETURNS LOGICAL
          WHERE fg-bin.company   EQ ipcCompany
            AND fg-bin.i-no EQ ipcItem
            AND fg-bin.tag  EQ ipcTag
+           AND fg-bin.qty GT 0
         NO-ERROR.
     IF AVAILABLE fg-bin AND fg-bin.onHold THEN
     lReturnValue = YES.   
