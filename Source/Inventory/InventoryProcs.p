@@ -91,6 +91,10 @@ FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
      iplItemType AS LOGICAL,
      ipcTag      AS CHARACTER) FORWARD. 
      
+FUNCTION fCheckFgBinTagOnHold RETURNS LOGICAL
+    (ipcCompany  AS CHARACTER,
+     ipcItem AS CHARACTER,
+     ipcTag      AS CHARACTER) FORWARD.     
 FUNCTION fItemHasOnHand RETURNS LOGICAL
     (ipcCompany  AS CHARACTER,
      ipcItem AS CHARACTER) FORWARD. 
@@ -98,6 +102,7 @@ FUNCTION fItemHasOnHand RETURNS LOGICAL
 FUNCTION fItemIsUsed RETURNS CHARACTER
     (ipcCompany  AS CHARACTER,
      ipcItem AS CHARACTER) FORWARD.     
+
 /* ***************************  Main Block  *************************** */
 
 
@@ -6438,6 +6443,22 @@ FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
         cVendorTag = loadtag.misc-char[1].
 
     RETURN cVendorTag.
+END FUNCTION.
+
+FUNCTION fCheckFgBinTagOnHold RETURNS LOGICAL
+    (ipcCompany AS CHARACTER, ipcItem AS CHARACTER, ipcTag AS CHARACTER):
+    DEFINE VARIABLE lReturnValue AS LOGICAL NO-UNDO.
+   
+    FIND FIRST fg-bin NO-LOCK
+         WHERE fg-bin.company   EQ ipcCompany
+           AND fg-bin.i-no EQ ipcItem
+           AND fg-bin.tag  EQ ipcTag
+           AND fg-bin.qty GT 0
+        NO-ERROR.
+    IF AVAILABLE fg-bin AND fg-bin.onHold THEN
+    lReturnValue = YES.   
+
+    RETURN lReturnValue.
 END FUNCTION.
 
 FUNCTION fItemHasOnHand RETURNS LOGICAL
