@@ -1470,7 +1470,7 @@ PROCEDURE new-charge :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE markUp AS DECIMAL NO-UNDO.
-  
+    DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:
         FIND prep  NO-LOCK
             WHERE prep.company EQ oe-ord.company 
@@ -1478,7 +1478,8 @@ PROCEDURE new-charge :
             NO-ERROR.
         IF AVAILABLE prep THEN 
         DO: 
-            oe-ordm.tax:SCREEN-VALUE = STRING(prep.taxable).
+            lTaxable = fGetTaxableMisc(oe-ord.company, oe-ord.cust-no, oe-ord.ship-id, prep.code).
+            oe-ordm.tax:SCREEN-VALUE = STRING(lTaxable).
             IF ceprepprice-chr EQ "Profit" THEN
                 markUp = prep.cost / (1 - (prep.mkup / 100)).
             ELSE
@@ -1748,7 +1749,7 @@ PROCEDURE valid-charge :
     DEFINE INPUT PARAMETER ip-focus AS HANDLE NO-UNDO.
 
     DEFINE VARIABLE ll AS LOGICAL INIT YES NO-UNDO.
-
+    DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
   
     DO WITH FRAME {&FRAME-NAME}:
         ll = ip-focus:SCREEN-VALUE NE "" AND
@@ -1784,8 +1785,11 @@ PROCEDURE valid-charge :
     NO-ERROR. 
     
     IF AVAIL prep THEN DO:
-        ASSIGN 
-            oe-ordm.tax:SCREEN-VALUE = STRING(prep.taxable).
+        
+        ASSIGN
+            lTaxable =  fGetTaxableMisc(oe-ord.company, oe-ord.cust-no, oe-ord.ship-id, prep.code)
+            oe-ordm.tax:SCREEN-VALUE = STRING(lTaxable)
+            .
             
         IF prep.commissionable THEN ASSIGN 
             oe-ordm.s-man[1]:SCREEN-VALUE = STRING(oe-ord.sman[1])
@@ -2168,6 +2172,8 @@ FUNCTION fGetTaxableMisc RETURNS LOGICAL
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
     RUN Tax_GetTaxableMisc  (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
+    
+    RETURN lTaxable.
 
 END FUNCTION.
 	

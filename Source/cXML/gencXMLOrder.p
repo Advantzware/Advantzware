@@ -711,6 +711,8 @@ PROCEDURE genOrderLinesLocal:
           IF AVAILABLE oe-ord THEN
               oe-ord.promiseDate = oe-ordl.promiseDate.
       END.
+      
+      RUN Tax_GetTaxableAR  (oe-ord.company, oe-ord.cust-no, oe-ord.ship-id, oe-ordl.i-no, OUTPUT oe-ordl.tax).
         
       RUN CreateRelease (
           INPUT ipcShipToID,
