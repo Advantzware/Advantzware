@@ -58,6 +58,10 @@ DEF VAR ect-format AS CHAR NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL  NO-UNDO.
 DEFINE VARIABLE lDisplayWood AS LOGICAL  NO-UNDO.
+DEFINE VARIABLE lCheckMessage   AS LOGICAL   NO-UNDO .
+DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
+
+{inventory/ttInventory.i "NEW SHARED"}
 
 {sys/inc/f16to32.i}
 
@@ -100,8 +104,8 @@ item.dept-name[3] item.dept-name[4] item.dept-name[5] item.dept-name[6] ~
 item.dept-name[7] item.dept-name[8] item.dept-name[9] item.dept-name[10] ~
 item.box-case item.speed%[1] item.speed%[2] item.speed%[3] item.speed%[4] ~
 item.speed%[5] item.speed%[6] item.speed%[7] item.speed%[8] item.speed%[9] ~
-item.speed%[10] item.case-pall item.sqin-lb item.linin-lb item.ink-type ~
-item.press-type item.yield item.min-lbs item.spare-char-1 
+item.speed%[10] item.case-pall item.stat item.sqin-lb item.linin-lb  ~
+item.ink-type item.press-type item.yield item.min-lbs item.spare-char-1 
 &Scoped-define ENABLED-TABLES item
 &Scoped-define FIRST-ENABLED-TABLE item
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-20 RECT-3 RECT-4 RECT-5 ~
@@ -117,7 +121,7 @@ item.dept-name[5] item.dept-name[6] item.dept-name[7] item.dept-name[8] ~
 item.dept-name[9] item.dept-name[10] item.box-case item.speed%[1] ~
 item.speed%[2] item.speed%[3] item.speed%[4] item.speed%[5] item.speed%[6] ~
 item.speed%[7] item.speed%[8] item.speed%[9] item.speed%[10] item.case-pall ~
-item.sqin-lb item.linin-lb item.ink-type item.press-type item.yield ~
+item.stat item.sqin-lb item.linin-lb item.ink-type item.press-type item.yield ~
 item.min-lbs item.spare-char-1 
 &Scoped-define DISPLAYED-TABLES item
 &Scoped-define FIRST-DISPLAYED-TABLE item
@@ -558,6 +562,12 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 6.8 BY 1
           BGCOLOR 15 FONT 4
+     item.stat AT ROW 13.18 COL 115.5 NO-LABEL WIDGET-ID 6
+          VIEW-AS RADIO-SET HORIZONTAL
+          RADIO-BUTTONS 
+                    "Active", "A":U,
+                    "InActive", "I":U
+          SIZE 27 BY .81         
      item.sqin-lb AT ROW 13.62 COL 130 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
@@ -1404,6 +1414,25 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME itemfg.stat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.stat V-table-Win
+ON VALUE-CHANGED OF item.stat IN FRAME F-Main /* Status */
+DO:
+    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+    IF item.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "I" THEN do:
+        lCheckMessage = YES .
+        RUN pCheckOnHandQty(OUTPUT lReturnError) . 
+        IF lReturnError THEN RETURN NO-APPLY.
+        lCheckMessage = NO .
+    END.
+    ELSE DO:
+        lCheckMessage = NO .
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME fi_mat-type
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_mat-type V-table-Win
@@ -2245,7 +2274,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR is-new-record AS LOG NO-UNDO.
   DEF VAR char-hdl AS CHAR NO-UNDO.
-
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   is-new-record = adm-new-record.
@@ -2472,6 +2501,10 @@ PROCEDURE local-update-record :
                RETURN NO-APPLY.
         END. 
    END.
+   
+   RUN pCheckOnHandQty(OUTPUT lReturnError) .
+   IF lReturnError THEN RETURN NO-APPLY.
+   
 {&methods/lValidateError.i NO}
   /* ======== end validation =================== */
 
@@ -2552,6 +2585,50 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckOnHandQty V-table-Win 
+PROCEDURE pCheckOnHandQty :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO .
+    DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO .
+
+  {methods/lValidateError.i YES} 
+    RUN inventory\InventoryProcs.p PERSISTENT SET hInventoryProcs.
+    DO WITH FRAME {&FRAME-NAME}:
+      IF item.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "I" THEN do:             
+            lReturnError = LOGICAL(DYNAMIC-FUNCTION(
+                               "fItemHasOnHand" IN hInventoryProcs,
+                               cocode,
+                               item.i-no:SCREEN-VALUE)).
+            
+            IF lReturnError THEN DO:
+               MESSAGE "Remove all on hand quantity in order to make an item inactive." VIEW-AS ALERT-BOX ERROR.
+               APPLY "entry" TO item.stat.
+               oplReturnError = YES.
+            END.
+        
+
+        cMessage = STRING(DYNAMIC-FUNCTION(
+                               "fItemIsUsed" IN hInventoryProcs,
+                               cocode,
+                               item.i-no:SCREEN-VALUE)).
+
+       IF lCheckMessage AND cMessage NE "" THEN 
+           MESSAGE "You are setting this item to inactive yet it is still included in "  SKIP
+               "open/unprocessed transactions.  This includes:" cMessage VIEW-AS ALERT-BOX WARNING .
+      END.          
+    END.
+    
+    IF VALID-HANDLE(hInventoryProcs) THEN
+    DELETE OBJECT hInventoryProcs.
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :

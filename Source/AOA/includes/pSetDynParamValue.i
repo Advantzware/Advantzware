@@ -100,6 +100,7 @@ PROCEDURE pSetDynParamValue:
                 dynValueColumn.custListField  = {1}SubjectColumn.custListField
                 .
         END. /* each {1}SubjectColumn */
+        RELEASE dynValueColumn.
         FOR EACH dynValueParamSet EXCLUSIVE-LOCK
             WHERE dynValueParamSet.subjectID    EQ ipiSubjectID
               AND dynValueParamSet.user-id      EQ ipcUserID
