@@ -469,8 +469,7 @@ PROCEDURE run-process :
     DEFINE VARIABLE iCountTotal     AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iCountChanged   AS INTEGER   NO-UNDO.
    
-    DO WITH FRAME {&FRAME-NAME}:
-    
+    DO WITH FRAME {&FRAME-NAME}:      
         ASSIGN 
             begin_job-no
             end_job-no
@@ -483,65 +482,11 @@ PROCEDURE run-process :
                 
         SESSION:SET-WAIT-STATE("General").
         
-        MAIN-LOOP:        
-        FOR EACH job NO-LOCK
-            WHERE job.company EQ cocode
-            AND job.opened EQ TRUE  /* Per Spec run for opened jobs */
-            AND (job.job-no GE begin_job-no OR rd_run-methods EQ "ALL")
-            AND (job.job-no LE end_job-no OR rd_run-methods EQ "ALL")
-            AND (job.job-no2 GE fiFromJobNo2 OR rd_run-methods EQ "ALL")
-            AND (job.job-no2 LE fiToJobNo2 OR rd_run-methods EQ "ALL")
-            BREAK BY job.job-no
-            BY job.job-no2
-            :
-            iCountTotal = iCountTotal + 1 .
-            IF FIRST-OF(job.job-no2) THEN 
-            DO:
-                FIND FIRST job-hdr NO-LOCK
-                    WHERE job-hdr.company EQ cocode
-                    AND job-hdr.job     EQ job.job
-                    AND job-hdr.job-no  EQ job.job-no
-                    AND job-hdr.job-no2 EQ job.job-no2   
-                    AND job-hdr.opened
-                    NO-ERROR.
-          
-                IF NOT AVAILABLE job-hdr THEN 
-                    NEXT MAIN-LOOP.
-                IF tb_prod-qty THEN
-                DO:
-                
-                    RUN fg/GetProductionQty.p
-                        (
-                        INPUT job-hdr.company,
-                        INPUT job-hdr.job-no,
-                        INPUT job-hdr.job-no2,
-                        INPUT job-hdr.i-no,
-                        INPUT NO,
-                        OUTPUT dQty
-                        ).
+        RUN jc/RebuildJobs.p (INPUT begin_job-no, INPUT end_job-no, INPUT fiFromJobNo2,
+                              INPUT fiToJobNo2,INPUT rd_methods, INPUT rd_run-methods,
+                              INPUT tb_prod-qty, OUTPUT iCountTotal, OUTPUT iCountChanged).        
 
-                    /* Per spec, run for jobs that have production qty = 0 */
-                    IF dQty NE 0 THEN 
-                        NEXT MAIN-LOOP.
-                END.
-          
-                STATUS DEFAULT job.job-no + "-" + STRING(job.job-no2, "99").               
-                iCountChanged = iCountChanged + 1.
-                IF rd_methods EQ "Rebuild" THEN
-                DO:
-                    RUN jc/jc-calc.p (RECID(job), YES) NO-ERROR.                    
-                END.                  
-                ELSE 
-                DO:                  
-                    RUN jc/jc-calc.p (RECID(job), NO) NO-ERROR.          
-                END.
-                
-            END. /* first of job-no2 */
-    
-        END. /* Each job, each job-hdr */         
-       
-
-        SESSION:SET-WAIT-STATE("").
+        SESSION:SET-WAIT-STATE("").   
     END. 
     
     MESSAGE  " Process is Completed." SKIP(2)               
