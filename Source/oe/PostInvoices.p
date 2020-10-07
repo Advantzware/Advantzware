@@ -2184,7 +2184,7 @@ PROCEDURE pGetSettings PRIVATE:
     RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "OEPREP", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound THEN ipbf-ttPostingMaster.deleteEstPrep = cReturn EQ "YES".
     
-    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "UseNewInvoicePost", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "AUDITDIR", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound THEN ipbf-ttPostingMaster.exportPath = cReturn.
     
     RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "InvoiceApprovalBillNotes", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
@@ -2336,13 +2336,21 @@ PROCEDURE pInitialize PRIVATE:
     RUN pGetSettings(BUFFER ttPostingMaster).
     
     IF ttPostingMaster.exportPath NE "" THEN 
-    DO: 
-        RUN FileSys_GetFilePath(ttPostingMaster.exportPath, OUTPUT ttPostingMaster.exportPath, OUTPUT lValid, OUTPUT opcMessage). 
+    DO:    
+        RUN FileSys_GetFilePath(ttPostingMaster.exportPath, OUTPUT ttPostingMaster.exportPath, OUTPUT lValid, OUTPUT opcMessage).         
         IF NOT lValid THEN 
-        DO:
-            ASSIGN 
+        DO:           
+            /* Create output directory if not available */
+            RUN FileSys_CreateDirectory(INPUT  ttPostingMaster.exportPath,
+                                        OUTPUT lValid,
+                                        OUTPUT opcMessage
+                                        ) NO-ERROR.
+             IF NOT lValid THEN 
+             DO:       
+                ASSIGN 
                 oplError = YES.
-            RETURN.
+                RETURN.
+             END.
         END.
     END.
     
