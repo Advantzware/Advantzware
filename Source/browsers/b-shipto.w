@@ -92,7 +92,8 @@ DEF VAR cust-rep AS CHAR NO-UNDO.
           AND shipto.ship-name   BEGINS fi_i-name   ~
           AND shipto.ship-city   BEGINS fi_city   ~
           AND shipto.ship-state    BEGINS fi_stat   ~
-          AND shipto.ship-zip    BEGINS fi_zip      
+          AND shipto.ship-zip    BEGINS fi_zip      ~
+          AND shipto.siteID      BEGINS fi_siteID 
 
 &SCOPED-DEFINE for-each2                          ~
     FOR EACH shipto                               ~
@@ -105,8 +106,10 @@ DEF VAR cust-rep AS CHAR NO-UNDO.
                ELSE shipto.ship-city   BEGINS fi_city)  ~
           AND (IF fi_stat BEGINS '*' THEN shipto.ship-state MATCHES fi_stat  ~
                ELSE shipto.ship-state    BEGINS fi_stat)   ~
-          AND shipto.ship-zip    BEGINS fi_zip   
-          
+          AND shipto.ship-zip    BEGINS fi_zip   ~
+          AND (IF fi_siteID BEGINS '*' THEN shipto.siteID MATCHES fi_siteID  ~
+               ELSE shipto.siteID    BEGINS fi_siteID) 
+                   
 
 &SCOPED-DEFINE for-eachblank                      ~
     FOR EACH shipto                               ~
@@ -121,7 +124,8 @@ DEF VAR cust-rep AS CHAR NO-UNDO.
     IF lv-sort-by EQ "ship-city"    THEN shipto.ship-city ELSE ~
     IF lv-sort-by EQ "ship-state"   THEN shipto.ship-state   ELSE ~
     IF lv-sort-by EQ "cust-rep"      THEN string(display-rep())  ELSE ~
-    IF lv-sort-by EQ "ship-zip"     THEN shipto.ship-zip      ELSE ""
+    IF lv-sort-by EQ "ship-zip"     THEN shipto.ship-zip      ELSE  ~
+    IF lv-sort-by EQ "siteID"     THEN shipto.siteID      ELSE "" 
     
 &SCOPED-DEFINE sortby BY shipto.ship-id
 
@@ -162,7 +166,7 @@ ASSIGN cocode = g_company
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table shipto.cust-no shipto.ship-id ~
 shipto.spare-char-1 shipto.ship-name shipto.ship-city shipto.ship-state ~
-shipto.ship-zip shipto.company display-rep() @ cust-rep
+shipto.ship-zip shipto.company display-rep() @ cust-rep shipto.siteID
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH shipto WHERE ~{&KEY-PHRASE} ~
       AND shipto.company = gcompany AND shipto.cust-no <> "" NO-LOCK ~
@@ -177,10 +181,10 @@ shipto.ship-zip shipto.company display-rep() @ cust-rep
 /* Definitions for FRAME F-Main                                         */
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS fi_ship-id fi_i-name fi_city fi_stat ~
-fi_zip btn_go btn_prev btn_next btn_show ~
+fi_zip fi_siteID btn_go btn_prev btn_next btn_show ~
 Browser-Table 
 &Scoped-Define DISPLAYED-OBJECTS fi_ship-id fi_i-name fi_city ~
-fi_stat fi_zip fi_sort-by FI_moveCol 
+fi_stat fi_zip fi_siteID fi_sort-by FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -299,6 +303,11 @@ DEFINE VARIABLE fi_zip AS CHARACTER FORMAT "X(8)":U
      VIEW-AS FILL-IN 
      SIZE 16 BY 1
      BGCOLOR 15  NO-UNDO.
+  
+DEFINE VARIABLE fi_siteID AS CHARACTER FORMAT "X(16)":U 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1
+     BGCOLOR 15  NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -311,7 +320,8 @@ DEFINE QUERY Browser-Table FOR
            shipto.ship-name
            shipto.ship-city
            shipto.ship-state 
-           shipto.ship-zip ) SCROLLING.
+           shipto.ship-zip
+           shipto.siteID) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -327,6 +337,7 @@ DEFINE BROWSE Browser-Table
       shipto.ship-state FORMAT "x(2)":U WIDTH 6.2 LABEL-BGCOLOR 14
       shipto.ship-zip COLUMN-LABEL "Zip" FORMAT "x(10)":U LABEL-BGCOLOR 14
       display-rep() @ cust-rep COLUMN-LABEL "Cust Rep" FORMAT "x(8)":U LABEL-BGCOLOR 14
+      shipto.siteID  COLUMN-LABEL "Site ID" FORMAT "x(16)":U LABEL-BGCOLOR 14
        
     ENABLE
      shipto.company  
@@ -336,7 +347,8 @@ DEFINE BROWSE Browser-Table
      shipto.ship-name
      shipto.ship-city
      shipto.ship-state
-     shipto.ship-zip  
+     shipto.ship-zip 
+     shipto.siteID
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -351,6 +363,7 @@ DEFINE FRAME F-Main
      fi_city AT ROW 2.19 COL 45.2 COLON-ALIGNED NO-LABEL WIDGET-ID 16
      fi_stat AT ROW 2.19 COL 65.8 COLON-ALIGNED NO-LABEL WIDGET-ID 20
      fi_zip AT ROW 2.19 COL 76.2 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     fi_siteID AT ROW 2.19 COL 93.2 COLON-ALIGNED NO-LABEL 
      btn_go AT ROW 3.62 COL 1.8 WIDGET-ID 4
      btn_prev AT ROW 3.62 COL 13.8 WIDGET-ID 8
      btn_next AT ROW 3.62 COL 34 WIDGET-ID 6
@@ -385,6 +398,9 @@ DEFINE FRAME F-Main
      "Ship Zip" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 81 WIDGET-ID 28
           FGCOLOR 9 FONT 6
+     "SiteID" VIEW-AS TEXT
+          SIZE 12 BY .71 AT ROW 1.24 COL 97
+          FGCOLOR 9 FONT 6     
      /*"Browser Col. Mode:" VIEW-AS TEXT
           SIZE 22.6 BY .62 AT ROW 18.38 COL 99.6 WIDGET-ID 6
           FONT 6*/
@@ -497,6 +513,8 @@ ASSIGN
 "shipto.ship-zip" "Zip" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
     _FldNameList[9]   > "_<CALC>"
 "display-rep() @ cust-rep" "Cust Rep" "character" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[10]   > ASI.shipto.siteID
+"shipto.siteID" "Site ID" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
    _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -594,6 +612,7 @@ DO:
      fi_city
      fi_stat
      fi_zip
+     fi_siteID 
      ll-first = NO.
     
     RUN dispatch ("open-query").
@@ -999,6 +1018,7 @@ PROCEDURE local-initialize :
          shipto.ship-city:READ-ONLY IN BROWSE {&browse-name} = YES
          shipto.ship-state:READ-ONLY IN BROWSE {&browse-name} = YES
          shipto.ship-zip:READ-ONLY IN BROWSE {&browse-name} = YES
+         shipto.siteID:READ-ONLY IN BROWSE {&browse-name} = YES
          FI_moveCol = "Sort".
   
   DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
@@ -1389,6 +1409,46 @@ PROCEDURE query-go :
                     ELSE {&open-query} {&sortby-phrase-desc}.
 
   END.
+  
+  ELSE IF fi_siteID NE "" AND fi_siteID BEGINS '*' THEN DO:  
+
+    {&for-each2} NO-LOCK
+        /* USE-INDEX procat*/
+         BY shipto.siteID :
+        ASSIGN
+        li = li + 1
+        lv-shipto-no = shipto.ship-id.
+        IF li GE sys-ctrl.int-fld THEN LEAVE.
+     END.
+
+     &SCOPED-DEFINE open-query                   ~
+         OPEN QUERY {&browse-name}               ~
+           {&for-each2}                          ~
+             AND shipto.ship-id <= lv-shipto-no NO-LOCK
+
+            
+     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                    ELSE {&open-query} {&sortby-phrase-desc}.
+  END.
+  ELSE IF fi_siteID NE "" AND NOT fi_siteID BEGINS '*' THEN DO:  
+     {&for-each1} NO-LOCK
+         /*USE-INDEX procat*/
+         BY shipto.siteID :
+        ASSIGN
+        li = li + 1
+        lv-shipto-no = shipto.ship-id.
+        IF li GE sys-ctrl.int-fld THEN LEAVE.
+     END.
+
+     &SCOPED-DEFINE open-query                   ~
+         OPEN QUERY {&browse-name}               ~
+           {&for-each1}                          ~
+             AND shipto.ship-id <= lv-shipto-no NO-LOCK
+
+     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                    ELSE {&open-query} {&sortby-phrase-desc}.
+
+  END.  
 
   
   /*ELSE IF fi_sman NE "" AND fi_sman BEGINS '*' THEN DO:
@@ -1558,7 +1618,7 @@ PROCEDURE set-defaults :
      fi_city:SCREEN-VALUE = ""
      fi_stat:SCREEN-VALUE  = ""
      fi_zip:SCREEN-VALUE  = ""
-    
+     fi_siteID:SCREEN-VALUE  = ""    
      .
   END.
 
@@ -1606,7 +1666,7 @@ PROCEDURE show-prev-next :
   IF lv-show-prev THEN DO:
 
      IF fi_ship-id EQ "" AND fi_i-name EQ "" AND fi_city EQ "" AND
-        fi_stat EQ "" AND fi_zip EQ ""  THEN
+        fi_stat EQ "" AND fi_zip EQ "" AND fi_siteID EQ ""  THEN
      DO:
         {&for-eachblank} 
          and shipto.ship-id <= lv-first-show-cust-no NO-LOCK BY shipto.ship-id DESC :
@@ -1646,7 +1706,7 @@ PROCEDURE show-prev-next :
   END.  /* lv-show-prev */
   ELSE IF lv-show-next THEN DO:
       IF fi_ship-id EQ "" AND fi_i-name EQ "" AND fi_city EQ "" AND
-        fi_stat EQ "" AND fi_zip EQ ""  THEN
+        fi_stat EQ "" AND fi_zip EQ "" AND fi_siteID EQ ""  THEN
       DO:
          {&for-eachblank} 
          and shipto.ship-id >= lv-last-show-cust-no  NO-LOCK:
