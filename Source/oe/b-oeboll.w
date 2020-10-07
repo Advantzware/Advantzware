@@ -3429,8 +3429,8 @@ PROCEDURE valid-tag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lCheckTagStatus AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE lMessageValue   AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lTagStatusOnHold AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lMessageValue    AS LOGICAL NO-UNDO.
   
   RUN inventory\InventoryProcs.p PERSISTENT SET hInventoryProcs.
   
@@ -3474,12 +3474,12 @@ PROCEDURE valid-tag :
     
     IF NOT lCheckTagHoldMessage AND lv-tag NE "" THEN
     DO:     
-        lCheckTagStatus = LOGICAL(DYNAMIC-FUNCTION(
+        lTagStatusOnHold = LOGICAL(DYNAMIC-FUNCTION(
                                    "fCheckFgBinTagOnHold" IN hInventoryProcs,
                                    cocode,
                                    lv-i-no, 
                                    lv-tag)).
-        IF lCheckTagStatus THEN do:
+        IF lTagStatusOnHold THEN do:
           RUN displayMessageQuestion ("53", OUTPUT lMessageValue).
           IF NOT lMessageValue then
           do:

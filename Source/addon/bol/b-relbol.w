@@ -3485,19 +3485,19 @@ PROCEDURE validate-tag-status :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE lCheckTagStatus AS LOGICAL NO-UNDO. 
-  DEFINE VARIABLE lMessageValue   AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lTagStatusOnHold AS LOGICAL NO-UNDO. 
+  DEFINE VARIABLE lMessageValue    AS LOGICAL NO-UNDO.
       
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND NOT lCheckTagHoldMessage 
     THEN DO:
-      lCheckTagStatus = LOGICAL(DYNAMIC-FUNCTION(
+      lTagStatusOnHold = LOGICAL(DYNAMIC-FUNCTION(
                                "fCheckFgBinTagOnHold" IN hInventoryProcs,
                                cocode,
                                tt-relbol.i-no:SCREEN-VALUE IN BROWSE {&browse-name}, 
                                tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name})).
-        IF lCheckTagStatus THEN do:
+        IF lTagStatusOnHold THEN do:
           RUN displayMessageQuestion ("53", OUTPUT lMessageValue).
           IF NOT lMessageValue then
           do:
