@@ -50,12 +50,17 @@ ASSIGN
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
 
+
+
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+
 
 /* *********************** Procedure Settings ************************ */
 
@@ -80,10 +85,23 @@ ASSIGN
                                                                         */
 &ANALYZE-RESUME
 
+ 
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Include 
 
-/* ***************************  Main Block  *************************** */
 
+DEF VAR colHand AS WIDGET-HANDLE NO-UNDO.
+DEF VAR colHandList AS CHAR NO-UNDO.
+DEF VAR icnt as integer no-undo.
+  
+colhand = {&BROWSE-NAME}:first-column.
+do while valid-handle(colhand).
+colHandList =  colHandList + ","  + string(colhand).
+colhand = colhand:next-column.
+END.
+ colHandList = trim(colHandList, ",").
+ 
 {methods/ctrl-a_browser.i}
 &IF "{&IAMWHAT}" = "" &THEN
   &IF DEFINED(BRWSDEFS) NE 0 &THEN
@@ -96,8 +114,23 @@ ASSIGN
 {methods/enhance.i}
 {AOA/includes/pDynBrowserParam.i}
 
+
+on 'row-display' of {&BROWSE-NAME} do:
+    IF CURRENT-RESULT-ROW("{&BROWSE-NAME}") / 2 <> INT (CURRENT-RESULT-ROW("{&BROWSE-NAME}") / 2) then 
+  DO iCnt = 1 TO num-entries(colHandList, ","): 
+     colhand = handle(entry(iCnt,colHandList,",")).
+     colhand:BGCOLOR = 25. 
+  END. 
+  else
+  DO iCnt = 1 TO num-entries(colHandList, ","):
+     colhand = handle(entry(iCnt,colHandList,",")).
+     colhand:BGCOLOR = 26.
+  END.
+end.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -411,8 +444,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE runCueCard Include
-PROCEDURE runCueCard:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE runCueCard Include 
+PROCEDURE runCueCard :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -423,7 +456,7 @@ PROCEDURE runCueCard:
     lRunCueCard = YES.
     
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -442,3 +475,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
