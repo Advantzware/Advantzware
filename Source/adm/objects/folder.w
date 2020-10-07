@@ -105,7 +105,7 @@ DEFINE RECTANGLE Rect-Main
 DEFINE RECTANGLE Rect-Top
      EDGE-PIXELS 0    
      SIZE 33.6 BY .38
-     BGCOLOR 21 FGCOLOR 21 .
+     BGCOLOR 29 FGCOLOR 29 .
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -219,7 +219,8 @@ PROCEDURE change-folder-page :
 
     DEFINE VARIABLE sts     AS LOGICAL NO-UNDO.
     DEFINE VARIABLE page#   AS INTEGER NO-UNDO.
-   
+    DEFINE VARIABLE iIndex  AS INTEGER NO-UNDO.
+    
     IF VALID-HANDLE (container-hdl) THEN DO:
         RUN get-attribute IN container-hdl ('CURRENT-PAGE':U).
         ASSIGN page# = INT(RETURN-VALUE).  
@@ -233,9 +234,24 @@ PROCEDURE change-folder-page :
         up-image:X      =     page-label[page#]:X -  9
         up-image:Y      =     page-label[page#]:Y -  4 
         up-image:HIDDEN =     no
-        sts             =     up-image:MOVE-TO-TOP().
+        sts             =     up-image:MOVE-TO-TOP()
+        .
       END.
- 
+      DO iIndex = 1 TO {&max-labels}:
+          IF NOT VALID-HANDLE(page-label[iIndex]) THEN
+              NEXT.
+
+          IF iIndex = page# THEN
+              ASSIGN
+                  page-label[iIndex]:BGCOLOR = 29
+                  page-label[iIndex]:FGCOLOR = 15
+                  .
+          ELSE
+              ASSIGN
+                  page-label[iIndex]:BGCOLOR = 22
+                  page-label[iIndex]:FGCOLOR = 0
+                  .
+      END.
     RETURN. 
 END PROCEDURE.
 
@@ -290,7 +306,7 @@ PROCEDURE create-folder-label :
       
       ASSIGN      
       sts = image-hdl[p-page#]:LOAD-IMAGE("images\tabdown":U + 
-                STRING(width-tab-values[tab-type])).
+                STRING(width-tab-values[tab-type]) + ".png").
       sts = image-hdl[p-page#]:MOVE-TO-TOP().
       sts = page-label[p-page#]:MOVE-TO-TOP().
 
@@ -521,7 +537,7 @@ PROCEDURE initialize-folder :
 
     ASSIGN
     sts            =   up-image:LOAD-IMAGE("images\tabup":U +
-         STRING(width-tab-values[tab-type])).
+         STRING(width-tab-values[tab-type]) + ".png").
       
     DO i = 1 TO number-of-pages:       
        IF ENTRY(i,folder-labels,'|':U) NE "":U THEN /*Allow skipping of pos'ns*/
