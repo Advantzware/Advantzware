@@ -486,6 +486,7 @@ DEF    VAR      lv-po-no       AS INT       NO-UNDO.
     DEFINE VARIABLE iCountChanged  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iTime          AS INTEGER   NO-UNDO.
     DEFINE VARIABLE excelheader    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lCheckLockBin  AS LOGICAL   NO-UNDO.
 
     DEF    BUFFER b-fg-bin    FOR fg-bin.
     DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth.
@@ -544,10 +545,21 @@ DEF    VAR      lv-po-no       AS INT       NO-UNDO.
                 lv-cost[5]  = 0
                 lv-cost[6]  = 0
                 .  
+                
+                FIND FIRST fg-bin NO-LOCK
+                     WHERE fg-bin.company EQ cocode
+                     AND fg-bin.i-no EQ fg-rcpth.i-no 
+                     AND fg-bin.po-no EQ fg-rcpth.po-no
+                     AND fg-bin.job-no EQ fg-rcpth.job-no
+                     AND fg-bin.job-no2 EQ fg-rcpth.job-no2
+                     AND fg-bin.tag EQ fg-rdtlh.tag                      
+                     NO-ERROR  .
+                     
+                lCheckLockBin = IF AVAIL fg-bin AND fg-bin.ship-default THEN TRUE ELSE FALSE .     
       
             /*Only "fix" if the transaction has a job or po or if it is not a receipt*/
             /*In other words, if a receipt has no po or a job, leave it alone*/   
-            IF fg-rcpth.rita-code NE "R" OR fg-rcpth.job-no NE "" OR fg-rcpth.po-no NE "" OR tb_Receipts THEN 
+            IF NOT lCheckLockBin AND (fg-rcpth.rita-code NE "R" OR fg-rcpth.job-no NE "" OR fg-rcpth.po-no NE "" OR tb_Receipts) THEN 
             DO:   
                 iCountCompared = iCountCompared + 1.
                 RUN GetCostForFGItemHist IN hdCostProcs (fg-rcpth.company, fg-rcpth.i-no, fg-rcpth.job-no, fg-rcpth.job-no2, fg-rcpth.po-no, fg-rcpth.po-line, fg-rdtlh.tag, fg-rcpth.rita-code,
