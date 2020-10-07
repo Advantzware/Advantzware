@@ -3643,7 +3643,8 @@ PROCEDURE validate-tag-status :
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DEFINE VARIABLE lCheckTagStatus AS LOGICAL NO-UNDO.   
-      
+  DEFINE VARIABLE lMessageValue   AS LOGICAL NO-UNDO.
+  
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND NOT lCheckTagHoldMessage 
@@ -3653,11 +3654,15 @@ PROCEDURE validate-tag-status :
                                cocode,
                                tt-relbol.i-no:SCREEN-VALUE IN BROWSE {&browse-name}, 
                                tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name})).
-        IF NOT lCheckTagStatus THEN do:
-          APPLY "entry" TO tt-relbol.tag# IN BROWSE {&browse-name}.
-          oplReturnError = YES .
-        END.
-        ELSE lCheckTagHoldMessage = YES.
+        IF lCheckTagStatus THEN do:
+          RUN displayMessageQuestion ("53", OUTPUT lMessageValue).
+          IF NOT lMessageValue then
+          do:
+              APPLY "entry" TO tt-relbol.tag# IN BROWSE {&browse-name}.
+              oplReturnError = YES .
+          END.
+          ELSE lCheckTagHoldMessage = YES.
+        END.        
     END.      
   END.
 

@@ -3430,6 +3430,7 @@ PROCEDURE valid-tag :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE lCheckTagStatus AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lMessageValue   AS LOGICAL NO-UNDO.
   
   RUN inventory\InventoryProcs.p PERSISTENT SET hInventoryProcs.
   
@@ -3478,11 +3479,15 @@ PROCEDURE valid-tag :
                                    cocode,
                                    lv-i-no, 
                                    lv-tag)).
-        IF NOT lCheckTagStatus THEN do:
-          APPLY "entry" TO oe-boll.tag IN BROWSE {&browse-name}.
-          RETURN ERROR.
-        END.
-        ELSE lCheckTagHoldMessage = YES.
+        IF lCheckTagStatus THEN do:
+          RUN displayMessageQuestion ("53", OUTPUT lMessageValue).
+          IF NOT lMessageValue then
+          do:
+              APPLY "entry" TO oe-boll.tag IN BROWSE {&browse-name}.
+              RETURN ERROR.
+          END.
+          ELSE lCheckTagHoldMessage = YES.
+        END.        
     END.
         
   END.
