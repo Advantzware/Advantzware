@@ -38,7 +38,7 @@ const self = {
 	},
 	
 	// this function initiates JSON API Route call
-    handleRouteJSON:function(req,res){
+    handleRouteJSON: async function(req,res){
 		var responseCode = "";
 		var response = "";
 		var responseExceptionMessage = "";
@@ -59,7 +59,7 @@ const self = {
 					res.end(); 
 					return;
 				}
-				response = self.callJavaProgram(req,config,JSONRequestData);
+				response = await self.callJavaProgram(req,config,JSONRequestData);
 				if (response.length > 0) {
 					response = JSON.parse(response);
 					if (!response) {
@@ -93,7 +93,7 @@ const self = {
     },
 	
 	// this function initiates cXML API Route call - cXML specific
-    handleRoutecXML:function(req,res){
+    handleRoutecXML: async function(req,res){
 		var responseCode = "";
 		var response = "";
 		var responseMessage = "";
@@ -116,7 +116,7 @@ const self = {
 					return;
 				}
 
-				response = self.callJavaProgram(req,config,XMLRequestData);
+				response = await self.callJavaProgram(req,config,XMLRequestData);
 				if (response.length > 0) {
 					response = JSON.parse(response);
 					if (!response) {
@@ -195,12 +195,38 @@ const self = {
 		else
 			return "plain";
 	},
+
+	asyncSpawn: function (classPath, className, args, options) {
+	  return new Promise((resolve, reject) => {
+		const handle = jre.spawn(classPath, className, args, options);
+		const stdouts = [];
+		const stderrs = [];
+
+		handle.stdout.on("data", (data) => {
+		  stdouts.push(data);
+		});
+
+		handle.stderr.on("data", (data) => {
+		  stderrs.push(data);
+		});
+
+		handle.on("exit", (status, signal) => {
+		  resolve({
+			output: stdouts,
+			stdout: Buffer.concat(stdouts).toString(),
+			stderr: Buffer.concat(stderrs).toString(),
+			status,
+			signal,
+		  });
+		});
+	  });
+	},
 	
 	// this function calls Java program
-	callJavaProgram: function(req,config,ipRequestData){
+	callJavaProgram: async function(req,config,ipRequestData){
 		reqCredentials = self.getCredentialsFromRequest(req);
 		// calling the Java program     
-		const output = jre.spawnSync( 
+		const { stdout } = await self.asyncSpawn( 
 				[config.javaProgramDir], //relative directory - should be on Node server
 				 config.javaProgram,  //java program
 				[config.appServerURL, //ipAppServerURL
@@ -213,7 +239,8 @@ const self = {
 				 config.appServerRequestRouter          // ipAppServerRequestRouter
 				],      
 				{ encoding: 'utf8' } // encode output as string
-			  ).stdout.trim();       // take output from stdout as trimmed String
+			  );       // take output from stdout as trimmed String
+		const output = stdout.trim();
 		return output;
 	},
     // this function separates username/password from request headers
