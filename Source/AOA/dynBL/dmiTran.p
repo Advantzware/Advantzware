@@ -82,7 +82,7 @@ PROCEDURE createTtblProdAce:
             ttblProdAce.prodAceQtyDue        = dmiTrans.qtyDue
             ttblProdAce.prodAceState         = cState
             ttblProdAce.prodAceChargeCode    = cChargeCode
-            ttblProdAce.prodAceDuration      = dmiTrans.downTime + dmiTrans.runTime
+/*            ttblProdAce.prodAceDuration      = dmiTrans.downTime + dmiTrans.runTime*/
             ttblProdAce.prodAceRunComplete   = ttblProdAce.prodAceState EQ "RUN" AND
                                                CAN-FIND(FIRST dmiJobStatus
                                                         WHERE dmiJobStatus.dmiID       EQ ttblProdAce.prodAceDMIID
@@ -98,9 +98,12 @@ PROCEDURE createTtblProdAce:
 /*                    OUTPUT ttblProdAce.prodAceEndDate, OUTPUT ttblProdAce.prodAceEndTime).                  */
         /* temp using tranDate & tranTime as endDate & endTime */
         ASSIGN
-            ttblProdAce.prodAceEndDate = dmiTrans.tranDate
-            ttblProdAce.prodAceEndTime = dmiTrans.tranTime
-            .
+            ttblProdAce.prodAceEndDate  = dmiTrans.tranDate
+            ttblProdAce.prodAceEndTime  = dmiTrans.tranTime
+            ttblProdAce.prodAceDuration = ttblProdAce.prodAceEndTime
+                                        + ((ttblProdAce.prodAceEndDate - ttblProdAce.prodAceStartDate)
+                                        * 86400 - ttblProdAce.prodAceStartTime)
+                                        .
         DO TRANSACTION:
             FIND FIRST bDMITrans EXCLUSIVE-LOCK
                  WHERE ROWID(bDMITrans) EQ ROWID(dmiTrans).
