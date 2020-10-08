@@ -548,11 +548,9 @@ DEF    VAR      lv-po-no       AS INT       NO-UNDO.
                 
                 FIND FIRST fg-bin NO-LOCK
                      WHERE fg-bin.company EQ cocode
-                     AND fg-bin.i-no EQ fg-rcpth.i-no 
-                     AND fg-bin.po-no EQ fg-rcpth.po-no
-                     AND fg-bin.job-no EQ fg-rcpth.job-no
-                     AND fg-bin.job-no2 EQ fg-rcpth.job-no2
-                     AND fg-bin.tag EQ fg-rdtlh.tag                      
+                     AND fg-bin.i-no EQ fg-rcpth.i-no                     
+                     AND fg-bin.tag EQ fg-rdtlh.tag 
+                     AND fg-bin.qty GT 0
                      NO-ERROR  .
                      
                 lCheckLockBin = IF AVAIL fg-bin AND fg-bin.ship-default THEN TRUE ELSE FALSE .     
