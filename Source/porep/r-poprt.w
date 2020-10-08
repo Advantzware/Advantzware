@@ -1430,7 +1430,7 @@ PROCEDURE GenerateMail :
   IF rd-dest = 5 OR (iplLoadtagMail) THEN DO:      
 
     /* gdm - 11190804 */
-    IF LOOKUP(v-print-fmt,"Xprint,poprint 1,poprint 10,Mclean,LancoYork,StClair,Boss,Hughes,PeachTree,FibreX,Lovepac,POPrint10-CAN,POPrint-CAN2,Protagon") > 0 
+    IF LOOKUP(v-print-fmt,"Xprint,poprint 1,poprint 10,Altex,Mclean,LancoYork,StClair,Boss,Hughes,PeachTree,FibreX,Lovepac,POPrint10-CAN,POPrint-CAN2,Protagon") > 0 
         OR lv-attachments THEN DO:
       FIND FIRST sys-ctrl NO-LOCK
         WHERE sys-ctrl.company EQ cocode
@@ -1487,7 +1487,7 @@ PROCEDURE GenerateMail :
     IF is-xprint-form OR v-print-fmt = "southpak-xl" OR (iPOLoadtagInt EQ 2 OR tb_print-loadtag) THEN DO:
       
       /* gdm - 11190804 */
-      IF (LOOKUP(v-print-fmt,"Xprint,poprint 1,poprint 10,McLean,LancoYork,StClair,Boss,Hughes,PeachTree,FibreX,Lovepac,POPrint10-CAN,POPrint-CAN2,Protagon") > 0 
+      IF (LOOKUP(v-print-fmt,"Xprint,poprint 1,poprint 10,Altex,McLean,LancoYork,StClair,Boss,Hughes,PeachTree,FibreX,Lovepac,POPrint10-CAN,POPrint-CAN2,Protagon") > 0 
            OR 
           lv-attachments)
         AND TRIM(v-outfile) NE "" 
@@ -1520,7 +1520,7 @@ PROCEDURE GenerateMail :
       IF NOT AttachmentExists() THEN RETURN.
 
       /* gdm - 11190804 */
-      IF (LOOKUP(v-print-fmt,"Xprint,poprint 1,poprint 10,McLean,LancoYork,StClair,Boss,Hughes,PeachTree,FibreX,Lovepac,POPrint10-CAN,POPrint-CAN2,Protagon") > 0 
+      IF (LOOKUP(v-print-fmt,"Xprint,poprint 1,poprint 10,Altex,McLean,LancoYork,StClair,Boss,Hughes,PeachTree,FibreX,Lovepac,POPrint10-CAN,POPrint-CAN2,Protagon") > 0 
            OR
           lv-attachments)
         AND TRIM(v-outfile) NE "" 
@@ -1868,10 +1868,10 @@ PROCEDURE pRunFormatValueChanged :
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
 
-        IF NOT CAN-DO('Brick,CSC,Southpak,Xprint,poprint 1,poprint 10,McLean,LancoYork,StClair,Boss,PeachTree,Asixprnt,PPI,CSC-GA,Indiana,Packrite,Allwest,Bell,ACPI,Sultana,CCC,Protagon,SouleMed,Soule,Hughes',v-print-fmt) THEN DISABLE tb_spec.
+        IF NOT CAN-DO('Brick,CSC,Southpak,Xprint,poprint 1,poprint 10,Altex,McLean,LancoYork,StClair,Boss,PeachTree,Asixprnt,PPI,CSC-GA,Indiana,Packrite,Allwest,Bell,ACPI,Sultana,CCC,Protagon,SouleMed,Soule,Hughes',v-print-fmt) THEN DISABLE tb_spec.
         ELSE ENABLE tb_spec .
 
-        IF NOT CAN-DO('Xprint,poprint 1,poprint 10,McLean,LancoYork,StClair,Boss,Hughes,PeachTree,Protagon,PPI,Packrite,Sultana,PremierX,PremierCX,PremierXFGItems,POPrint-Mex',v-print-fmt) THEN DO:
+        IF NOT CAN-DO('Xprint,poprint 1,poprint 10,Altex,McLean,LancoYork,StClair,Boss,Hughes,PeachTree,Protagon,PPI,Packrite,Sultana,PremierX,PremierCX,PremierXFGItems,POPrint-Mex',v-print-fmt) THEN DO:
             IF v-print-fmt NE "CentBox" THEN
                 ASSIGN
                 tb_itemDescription = NO
@@ -1899,7 +1899,7 @@ PROCEDURE pRunFormatValueChanged :
             tb_itemDescription:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
         ELSE tb_itemDescription:LABEL = "Print FG Item Description 3 Line?" .
         
-        IF LOOKUP(v-print-fmt,"xprint,poprint 1,poprint 10,McLean,LancoYork,StClair,Boss,Hughes,PeachTree,Protagon,ppi,Packrite") = 0 THEN 
+        IF LOOKUP(v-print-fmt,"xprint,poprint 1,poprint 10,Altex,McLean,LancoYork,StClair,Boss,Hughes,PeachTree,Protagon,ppi,Packrite") = 0 THEN 
             DISABLE tb_metric.
         ELSE ENABLE tb_metric.
 
@@ -1908,11 +1908,11 @@ PROCEDURE pRunFormatValueChanged :
             tb_print-prices:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
         ELSE ASSIGN tb_print-prices:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
 
-        IF LOOKUP(v-print-fmt,"poprint 10,McLean,poprint 20,POPrint10-CAN,POPrint-CAN2") = 0 THEN 
+        IF LOOKUP(v-print-fmt,"poprint 10,Altex,McLean,poprint 20,POPrint10-CAN,POPrint-CAN2") = 0 THEN 
             DISABLE tb_cust-code tb_mach.
         ELSE ENABLE tb_cust-code tb_mach.
 
-        IF LOOKUP(v-print-fmt,"poprint 10,McLean,poprint 20,POPrint10-CAN,POPrint-CAN2") NE 0 THEN 
+        IF LOOKUP(v-print-fmt,"poprint 10,Altex,McLean,poprint 20,POPrint10-CAN,POPrint-CAN2") NE 0 THEN 
             tb_grand-total:HIDDEN IN FRAME {&FRAME-NAME} = NO .
         ELSE 
             tb_grand-total:HIDDEN IN FRAME {&FRAME-NAME} = YES .
@@ -2066,7 +2066,7 @@ PROCEDURE run-report :
       END CASE.
   END.
 
-  IF LOOKUP(v-print-fmt,"SOUTHPAK,SouthPak-xl,CENTBOX,Oracle,metro,ASIXprnt,Valley,CSC-GA,HPB,Indiana,XPRINT,poprint 1,poprint 10,McLean,LancoYork,StClair,Boss,Hughes,PeachTree,ACPI,Sultana,CCC,SouleMed,Soule") > 0 THEN 
+  IF LOOKUP(v-print-fmt,"SOUTHPAK,SouthPak-xl,CENTBOX,Oracle,metro,ASIXprnt,Valley,CSC-GA,HPB,Indiana,XPRINT,poprint 1,poprint 10,Altex,McLean,LancoYork,StClair,Boss,Hughes,PeachTree,ACPI,Sultana,CCC,SouleMed,Soule") > 0 THEN 
     RUN VALUE(v-program) (lv-multi-faxout,lines-per-page). 
   ELSE  
     RUN VALUE(v-program).
@@ -2134,7 +2134,7 @@ PROCEDURE SetGlobalVariables :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-po-ord-no AS INTEGER NO-UNDO.
 
-  IF LOOKUP(v-print-fmt,"Pacific,Xprint,poprint 1,poprint 10,McLean,LancoYork,StClair,Boss,PeachTree,Xprint2,poprint 2,poprint 20,Southpak,Hughes,CENTbox,Oracle,metro,PremierX,PremierCX,PremierXFGItems,POPrint-Mex,Protagon,Protagon2,Coburn,CSC,Elite,ottpkg,APC,consbox,FibreX,Lovepac,POPrint10-CAN,POPrint-CAN2,ASIXprnt,Valley,PPI,CSC-GA,HPB,Indiana,MWFibre,Packrite,Allwest,Bell,ACPI,Sultana,Badger,CCC,SouleMed,Soule") > 0 
+  IF LOOKUP(v-print-fmt,"Pacific,Xprint,poprint 1,poprint 10,Altex,McLean,LancoYork,StClair,Boss,PeachTree,Xprint2,poprint 2,poprint 20,Southpak,Hughes,CENTbox,Oracle,metro,PremierX,PremierCX,PremierXFGItems,POPrint-Mex,Protagon,Protagon2,Coburn,CSC,Elite,ottpkg,APC,consbox,FibreX,Lovepac,POPrint10-CAN,POPrint-CAN2,ASIXprnt,Valley,PPI,CSC-GA,HPB,Indiana,MWFibre,Packrite,Allwest,Bell,ACPI,Sultana,Badger,CCC,SouleMed,Soule") > 0 
     THEN is-xprint-form = YES.
     ELSE is-xprint-form = NO.
 
@@ -2183,6 +2183,7 @@ PROCEDURE SetPOPrintForm :
     WHEN 'POPrint10-CAN' THEN ASSIGN v-program = "po/po-lovetencan.p"     li-lineperpage = 60.
     WHEN 'POPrint-CAN2' THEN ASSIGN v-program = "po/po-can2.p"     li-lineperpage = 60.
     WHEN 'poprint 10'   THEN ASSIGN v-program = "po/po-xprnt10.p"     li-lineperpage = 80.
+    WHEN 'Altex'        THEN ASSIGN v-program = "po/po-altex.p"     li-lineperpage = 80.
     WHEN 'McLean'       THEN ASSIGN v-program = "po/po-mclean.p"     li-lineperpage = 80.
     WHEN 'StClair'      THEN ASSIGN v-program = "po/po-stclr.p"     li-lineperpage = 80.
     WHEN 'Boss'         THEN ASSIGN v-program = "po/po-boss.p"     li-lineperpage = 80.
