@@ -143,9 +143,6 @@ PROCEDURE CalculateEstimate:
     FOR EACH ttEstHeaderToCalc: 
         RUN pCalculateHeader(ttEstHeaderToCalc.iEstCostHeaderID).
     END.
-    FOR EACH ttEstError NO-LOCK:
-        DISPLAY ttEstError.iFormNo ttEstError.iBlankNo ttEstError.cErrorType ttEstError.cError FORMAT "x(60)" ttEstError.iFormNo.
-    END.
 
 END PROCEDURE.
 
@@ -2946,7 +2943,7 @@ PROCEDURE pProcessAdders PRIVATE:
     DEFINE VARIABLE iCount AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cAdder AS CHARACTER NO-UNDO.
     
-    DO iCount = 1 TO EXTENT(ipcAdders):
+    DO iCount = 1 TO 6 :  //EXTENT(ipcAdders) - can't be used because elements 7 and up are the descriptions
         cAdder = ipcAdders[iCount].
         IF cAdder NE "" THEN 
         DO:
