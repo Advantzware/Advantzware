@@ -295,7 +295,7 @@ PROCEDURE create-folder-label :
       HEIGHT-PIXEL      = image-hdl[p-page#]:HEIGHT-PIXEL - 4
       FORMAT            = "X(13)":U
       SENSITIVE         = YES 
-      FONT              = IF tab-type = 1 THEN 23 ELSE 4 /* smaller for narrow */
+      FONT              = IF tab-type = 1 THEN 24 ELSE 22 /* smaller for narrow */
       BGCOLOR           = 22                /* Light gray to match the image */
       SCREEN-VALUE      = p-page-label
       PRIVATE-DATA      = "Tab-Folder":U     
@@ -305,7 +305,7 @@ PROCEDURE create-folder-label :
       END TRIGGERS.
       
       ASSIGN      
-      sts = image-hdl[p-page#]:LOAD-IMAGE("images\tabdown":U + 
+      sts = image-hdl[p-page#]:LOAD-IMAGE("Graphics\32x32\tabdown":U + 
                 STRING(width-tab-values[tab-type]) + ".png").
       sts = image-hdl[p-page#]:MOVE-TO-TOP().
       sts = page-label[p-page#]:MOVE-TO-TOP().
@@ -536,7 +536,7 @@ PROCEDURE initialize-folder :
     HIDDEN            = NO.  /* Do this explicitly or it's sometimes hidden. */
 
     ASSIGN
-    sts            =   up-image:LOAD-IMAGE("images\tabup":U +
+    sts            =   up-image:LOAD-IMAGE("Graphics\32x32\tabup":U +
          STRING(width-tab-values[tab-type]) + ".png").
       
     DO i = 1 TO number-of-pages:       

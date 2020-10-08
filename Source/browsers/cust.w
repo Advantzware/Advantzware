@@ -76,11 +76,11 @@ DEF VAR lv-last-show-cust-no AS cha NO-UNDO.
 DEF VAR lv-first-show-cust-no AS cha NO-UNDO.
 DEF VAR v-rec-key-list AS CHAR NO-UNDO.
 DEF VAR lActive AS LOG NO-UNDO.
-
+/*
 DEF VAR colHand AS WIDGET-HANDLE NO-UNDO.
 DEF VAR colHandList AS CHAR NO-UNDO.
 DEF VAR icnt as integer no-undo.
-
+*/
 ASSIGN cocode = g_company
        locode = g_loc.
 
@@ -685,7 +685,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
-  IF CURRENT-RESULT-ROW("Browser-Table") / 2 <> INT (CURRENT-RESULT-ROW("Browser-Table") / 2) then 
+ /* IF CURRENT-RESULT-ROW("Browser-Table") / 2 <> INT (CURRENT-RESULT-ROW("Browser-Table") / 2) then 
   DO iCnt = 1 TO num-entries(colHandList, ","): 
      colhand = handle(entry(iCnt,colHandList,",")).
      colhand:BGCOLOR = 25. 
@@ -694,7 +694,7 @@ DO:
   DO iCnt = 1 TO num-entries(colHandList, ","):
      colhand = handle(entry(iCnt,colHandList,",")).
      colhand:BGCOLOR = 26.
-  END.
+  END.*/
 END.
 
 /* _UIB-CODE-BLOCK-END */

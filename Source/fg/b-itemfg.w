@@ -833,7 +833,8 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL r_table B-table-Win
 ON ROW-DISPLAY OF r_table IN FRAME F-Main
-DO:   
+DO: 
+  &global-define exclude-row-display true   
   find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "FGBrowse"
                         no-lock no-error.

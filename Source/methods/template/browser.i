@@ -89,19 +89,7 @@ ASSIGN
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Include 
-
-
-DEF VAR colHand AS WIDGET-HANDLE NO-UNDO.
-DEF VAR colHandList AS CHAR NO-UNDO.
-DEF VAR icnt as integer no-undo.
-  
-colhand = {&BROWSE-NAME}:first-column.
-do while valid-handle(colhand).
-colHandList =  colHandList + ","  + string(colhand).
-colhand = colhand:next-column.
-END.
- colHandList = trim(colHandList, ",").
- 
+{methods/template/brwcustom.i}
 {methods/ctrl-a_browser.i}
 &IF "{&IAMWHAT}" = "" &THEN
   &IF DEFINED(BRWSDEFS) NE 0 &THEN
@@ -113,20 +101,6 @@ END.
 {methods/template/brwsrtrg.i}
 {methods/enhance.i}
 {AOA/includes/pDynBrowserParam.i}
-
-
-on 'row-display' of {&BROWSE-NAME} do:
-    IF CURRENT-RESULT-ROW("{&BROWSE-NAME}") / 2 <> INT (CURRENT-RESULT-ROW("{&BROWSE-NAME}") / 2) then 
-  DO iCnt = 1 TO num-entries(colHandList, ","): 
-     colhand = handle(entry(iCnt,colHandList,",")).
-     colhand:BGCOLOR = 25. 
-  END. 
-  else
-  DO iCnt = 1 TO num-entries(colHandList, ","):
-     colhand = handle(entry(iCnt,colHandList,",")).
-     colhand:BGCOLOR = 26.
-  END.
-end.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
