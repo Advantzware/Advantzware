@@ -2232,6 +2232,10 @@ PROCEDURE local-display-fields :
           fi_ect:LABEL           = "Board Grade"           
             .        
       END.
+      IF AVAIL ITEM AND ITEM.stat EQ "" THEN
+      DO:
+         ITEM.stat:SCREEN-VALUE = "A" . 
+      END.
   END.
 
   /* Code placed here will execute AFTER standard behavior.    */
