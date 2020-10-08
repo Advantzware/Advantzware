@@ -1738,6 +1738,13 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  DO WITH FRAME {&FRAME-NAME}:      
+      IF AVAIL ITEM AND ITEM.stat EQ "" THEN
+      DO:
+         ITEM.stat:SCREEN-VALUE = "A" . 
+      END.
+  END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
