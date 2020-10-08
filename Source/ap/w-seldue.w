@@ -573,8 +573,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-add W-Win
 ON CHOOSE OF btn-add IN FRAME F-Main /* Add */
 DO:
-   IF {&browse-name}:NUM-SELECTED-ROWS = 0 THEN
-        {&browse-name}:SELECT-FOCUSED-ROW().
+  
+   IF AVAIL tt-sel AND {&browse-name}:NUM-SELECTED-ROWS = 0 THEN
+        {&browse-name}:SELECT-FOCUSED-ROW(). 
    ASSIGN
    lv-in-add = YES
    tt-sel.inv-no:READ-ONLY IN BROWSE {&browse-name} = NO
@@ -702,11 +703,12 @@ DO:
           ASSIGN ap-inv.paid = ap-inv.paid - lv-pre-paid
                  ap-inv.due = ap-inv.due + lv-pre-paid + lv-pre-disc
                  .
-*/
+*/           
+          IF AVAIL tt-sel THEN
           ASSIGN tt-sel.disc-amt = dec(tt-sel.disc-amt:SCREEN-VALUE IN BROWSE {&browse-name})
               tt-sel.amt-due = dec(tt-sel.amt-due:SCREEN-VALUE)
-              tt-sel.amt-paid = dec(tt-sel.amt-paid:SCREEN-VALUE).
-          fi_amt = fi_amt + tt-sel.amt-paid.
+              tt-sel.amt-paid = dec(tt-sel.amt-paid:SCREEN-VALUE)
+              fi_amt = fi_amt + tt-sel.amt-paid.
  /*
           ASSIGN ap-inv.paid = ap-inv.paid + tt-sel.amt-paid
                  ap-inv.due = ap-inv.due - tt-sel.amt-paid - tt-sel.disc-amt */
@@ -896,6 +898,7 @@ DO:
             BUFFER-COPY tt-sel /*EXCEPT tt-recid tt-sel.amt-due*/ TO ap-sel.
         END.
         IF tt-sel.tt-deleted THEN DELETE ap-sel.
+        IF AVAIL ap-sel THEN
         ASSIGN
             ap-sel.amt-paid = tt-sel.amt-paid
             ap-sel.disc-amt = tt-sel.disc-amt.
@@ -1252,7 +1255,9 @@ DO:
     
     ASSIGN tt-sel.amt-due:SCREEN-VALUE IN BROWSE {&browse-name}
                   = string(dec(tt-sel.inv-bal:SCREEN-VALUE) - dec(tt-sel.disc-amt:SCREEN-VALUE))
-           tt-sel.amt-paid:SCREEN-VALUE = tt-sel.amt-due:SCREEN-VALUE
+           tt-sel.amt-paid:SCREEN-VALUE = tt-sel.amt-due:SCREEN-VALUE .
+    IF AVAIL tt-sel THEN
+       ASSIGN
            tt-sel.amt-due
            tt-sel.amt-paid.
     
