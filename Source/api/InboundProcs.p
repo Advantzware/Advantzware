@@ -226,6 +226,7 @@ PROCEDURE Inbound_UpdateEventRequestData:
         INPUT  bf-APIInboundEvent.recordSource,
         INPUT  bf-APIInboundEvent.notes,
         INPUT  bf-APIInboundEvent.externalID, /* PayloadID */
+        INPUT  STRING(bf-APIInboundEvent.success, "processed/failed"),
         OUTPUT cAPIInboundEvent
         ) NO-ERROR. 
 
@@ -266,6 +267,7 @@ PROCEDURE LoadRequestsFomCSV:
        
         FIND FIRST APIInbound NO-LOCK
              WHERE APIInbound.apiRoute EQ cAPIRoute
+               AND APIInbound.inActive EQ FALSE
                AND APIInbound.canBeQueued
              NO-ERROR.
         IF NOT AVAILABLE APIInbound THEN 
@@ -332,6 +334,7 @@ PROCEDURE ProcessRequests:
             ttInboundRequest.success      = lSuccess
             ttInboundRequest.processed    = YES
             ttInboundRequest.responsedata = cResponse
+            ttInboundRequest.eventID      = iInboundEventID
             .
     END.
 END PROCEDURE.
@@ -413,6 +416,7 @@ PROCEDURE Inbound_ReTrigger:
             INPUT  bf-APIInboundEvent.recordSource,
             INPUT  bf-APIInboundEvent.notes,
             INPUT  bf-APIInboundEvent.externalID, /* PayloadID */
+            INPUT  STRING(oplSuccess, "processed/failed"),
             OUTPUT cAPIInboundEvent
             ) NO-ERROR. 
     END.
