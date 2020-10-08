@@ -243,8 +243,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
 ON WINDOW-CLOSE OF W-Win /* Price Matrix */
 DO:
+   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
+  RUN pCheckEditMode(OUTPUT lReturnError).     
+  IF lReturnError THEN RETURN NO-APPLY .   
+     
   IF v-calling-program  NE ? THEN
       RUN hide-estimate IN v-calling-program.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -550,7 +554,20 @@ PROCEDURE local-change-page :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  DEFINE VARIABLE lQuoteitmExists AS LOGICAL NO-UNDO.
+   
+  DEF VAR adm-current-page AS INT NO-UNDO.
+     RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
+  ASSIGN adm-current-page = INTEGER(RETURN-VALUE).
   /* Code placed here will execute PRIOR to standard behavior. */
+  IF VALID-HANDLE(h_oe-prmtx-2) AND adm-current-page NE 2 THEN DO:     
+    RUN pricemtx-newitem IN h_oe-prmtx-2 (OUTPUT lQuoteitmExists).
+    IF lQuoteitmExists THEN DO:
+      MESSAGE "Please add/edit an item or cancel it"
+        VIEW-AS ALERT-BOX INFO BUTTONS OK.
+      RUN select-page IN THIS-PROCEDURE ( 2 ).
+    END.
+  END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
@@ -738,3 +755,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckEditMode W-Win 
+PROCEDURE pCheckEditMode :
+   DEFINE OUTPUT PARAMETER oplReturn AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE lQuoteitmExists AS LOGICAL NO-UNDO.    
+   IF VALID-HANDLE(h_oe-prmtx-2) THEN DO:     
+     RUN pricemtx-newitem IN h_oe-prmtx-2 (OUTPUT lQuoteitmExists).
+     IF lQuoteitmExists THEN DO:
+        RUN displayMessage ( INPUT "54").
+        RUN select-page IN THIS-PROCEDURE ( 2 ).
+        oplReturn = TRUE.
+     END.
+   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
