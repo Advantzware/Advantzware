@@ -2062,18 +2062,11 @@ SESSION:SET-WAIT-STATE ("general").
           dShtRollWid = 0  .
 
          IF ITEM.i-code EQ "R" THEN do:
-             IF item.industry = "1" THEN
-                 ASSIGN
-                 dShtWid     = ITEM.case-w 
-                 dShtLen     = ITEM.case-l
-                 dShtDep     = ITEM.case-d
-                 dShtRollWid = ITEM.r-wid .
-             ELSE
-                 ASSIGN
-                    dShtWid     = ITEM.s-wid 
-                    dShtLen     = ITEM.s-len
-                    dShtDep     = ITEM.s-dep
-                    dShtRollWid = ITEM.r-wid .
+            ASSIGN
+                dShtWid     = ITEM.s-wid 
+                dShtLen     = ITEM.s-len
+                dShtDep     = ITEM.s-dep
+                dShtRollWid = ITEM.r-wid .
          END.
          ELSE DO:
              
