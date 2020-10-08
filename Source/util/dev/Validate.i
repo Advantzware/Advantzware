@@ -50,4 +50,10 @@ IF oplIsValid THEN DO:
             oplIsValid = NO 
             opcMessage = cMessage + " is not valid."
             .
+
+    IF AVAILABLE {&ValidateTable} and "{&ValidateTable}" EQ "account" and  "{&ValidateField}" EQ "actnum"
+          AND account.inactive EQ Yes  THEN
+          ASSIGN     
+            oplIsValid = NO 
+            opcMessage = cMessage + " is Inactive." .	
 END.
