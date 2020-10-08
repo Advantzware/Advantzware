@@ -52,6 +52,7 @@ assign
 def new shared var uom-list as char init "M,EA,L,CS,C,LB,DRM,ROL,PKG,SET,DOZ,BDL" NO-UNDO.
 def var v-invalid as log no-undo.
 DEF VAR lv-cust-no AS cha NO-UNDO.
+DEFINE VARIABLE lEditMode AS LOGICAL NO-UNDO.
 DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx .
 
 /* _UIB-CODE-BLOCK-END */
@@ -1004,7 +1005,7 @@ PROCEDURE enable-oe-prmtx-field :
     IF AVAIL oe-prmtx AND oe-prmtx.i-no NE "" THEN DISABLE oe-prmtx.procat.
   END.
   RUN set-panel (0).
-
+  lEditMode = YES .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1050,7 +1051,7 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN set-panel (1).
-
+  lEditMode = NO.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1287,6 +1288,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN set-panel (1).
+  lEditMode = NO.
 
 END PROCEDURE.
 
@@ -1863,3 +1865,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pricemtx-newitem V-table-Win 
+PROCEDURE pricemtx-newitem :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF OUTPUT PARAMETER oplExists AS LOG NO-UNDO.
+
+ASSIGN oplExists = lEditMode .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
