@@ -12,30 +12,51 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-{util\ttImport.i SHARED}
+{util/ttImport.i SHARED}
 
-DEFINE TEMP-TABLE ttImportJobSchedule
-    FIELD company                 AS CHARACTER 
-    FIELD machineSequence         AS INTEGER   FORMAT ">>9"         COLUMN-LABEL "Sequence"         HELP "Required - Integer"
-    FIELD machineCode             AS CHARACTER FORMAT "x(10)"       COLUMN-LABEL "Machine"          HELP "Required - Size:10"
-    FIELD Location                AS CHARACTER FORMAT "x(6)"        COLUMN-LABEL "Location"         HELP "Required - Size:6" 
-    FIELD jobNumber               AS CHARACTER FORMAT "x(6)"        COLUMN-LABEL "Job No"           HELP "Required - Size:6" 
-    FIELD jobNumber2              AS INTEGER   FORMAT ">>9"         COLUMN-LABEL "Run#"             HELP "Required - Integer"
-    FIELD form-no                 AS INTEGER   FORMAT ">9"          COLUMN-LABEL "Form"             HELP "Required - Integer"
-    FIELD blank-no                AS INTEGER   FORMAT ">9"          COLUMN-LABEL "Blank"            HELP "Required - Integer"
-    FIELD pass                    AS INTEGER   FORMAT ">>9"         COLUMN-LABEL "Pass"             HELP "Required - Integer" 
-    FIELD ItemNumber              AS CHARACTER FORMAT "x(15)"       COLUMN-LABEL "FG Item"          HELP "Required - Size:15"
-    FIELD itemDescription         AS CHARACTER FORMAT "x(30)"       COLUMN-LABEL "Item Description" HELP "Optional - Size:30"
-    FIELD customerNumber          AS CHARACTER FORMAT "x(8)"        COLUMN-LABEL "Customer"         HELP "Required - Size:8"      
-    FIELD dueDate                 AS DATE      FORMAT "99/99/9999"  COLUMN-LABEL "Due Date"         HELP "Required - Date"
-    FIELD startDate               AS CHARACTER FORMAT "99/99/9999"  COLUMN-LABEL "Start Date"       HELP "Optional - Date"
-    FIELD orderType               AS CHARACTER FORMAT "x(10)"       COLUMN-LABEL "Order Type"       HELP "Optional - Original,Repeat,Change(default = Original)"
-    FIELD industry                AS CHARACTER FORMAT "x"           COLUMN-LABEL "Industry"         HELP "Required - 1 if Folding - 2 if Corrugated"
-    FIELD quantity                AS INTEGER   FORMAT ">>>,>>>,>>9" COLUMN-LABEL "Job Quantity"     HELP "Required - Integer"
-    FIELD machineRunQuantity      AS INTEGER   FORMAT ">>>,>>>,>>9" COLUMN-LABEL "Run Quantity"     HELP "Required - Decimal"
+DEFINE TEMP-TABLE ttImportJobSchedule NO-UNDO
+    FIELD company         AS CHARACTER 
+    FIELD location        AS CHARACTER 
+    FIELD machineCode     AS CHARACTER FORMAT "x(10)"       COLUMN-LABEL "Machine"          HELP "Required - Size:10"
+    FIELD line            AS INTEGER   FORMAT ">>9"         COLUMN-LABEL "Line"             HELP "Required - Integer"
+    FIELD jobNumber       AS CHARACTER FORMAT "x(6)"        COLUMN-LABEL "Job No"           HELP "Required - Size:6" 
+    FIELD jobNumber2      AS INTEGER   FORMAT ">>9"         COLUMN-LABEL "Run#"             HELP "Required - Integer"
+    FIELD form-no         AS INTEGER   FORMAT ">9"          COLUMN-LABEL "Form"             HELP "Required - Integer"
+    FIELD blank-no        AS INTEGER   FORMAT ">9"          COLUMN-LABEL "Blank"            HELP "Required - Integer"
+    FIELD pass            AS INTEGER   FORMAT ">>9"         COLUMN-LABEL "Pass"             HELP "Required - Integer" 
+    FIELD quantity        AS INTEGER   FORMAT ">>>,>>>,>>9" COLUMN-LABEL "Job Quantity"     HELP "Required - Integer"
+    FIELD itemNumber      AS CHARACTER FORMAT "x(15)"       COLUMN-LABEL "FG Item"          HELP "Required - Size:15"
+    FIELD itemDescription AS CHARACTER FORMAT "x(30)"       COLUMN-LABEL "Item Description" HELP "Optional - Size:30"
+    FIELD customerNumber  AS CHARACTER FORMAT "x(8)"        COLUMN-LABEL "Customer"         HELP "Required - Size:8"      
+    FIELD dueDate         AS DATE      FORMAT "99/99/9999"  COLUMN-LABEL "Due Date"         HELP "Required - Date"
+    FIELD startDate       AS DATE      FORMAT "99/99/9999"  COLUMN-LABEL "Start Date"       HELP "Optional - Date"
+    FIELD orderType       AS CHARACTER FORMAT "x(10)"       COLUMN-LABEL "Order Type"       HELP "Optional - Original, Repeat, Change"
+    FIELD industry        AS CHARACTER FORMAT "x"           COLUMN-LABEL "Industry"         HELP "Required - 1 if Folding - 2 if Corrugated"
+    FIELD runQuantity     AS INTEGER   FORMAT ">>>,>>>,>>9" COLUMN-LABEL "Run Quantity"     HELP "Required - Integer"
+    FIELD mrHours         AS DECIMAL   FORMAT ">,>>9.99"    COLUMN-LABEL "MR Hours"         HELP "Required - Decimal"
+    FIELD runHours        AS DECIMAL   FORMAT ">,>>9.99"    COLUMN-LABEL "Run Hours"        HELP "Required - Decimal"
     .
 /* Set to 2 to skip Company and Location field in temp-table since this will not be part of the import data */
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2.
+
+DEFINE TEMP-TABLE ttUniqueJob NO-UNDO
+    FIELD company    AS CHARACTER 
+    FIELD jobNumber  AS CHARACTER 
+    FIELD jobNumber2 AS INTEGER
+    FIELD job        AS INTEGER
+        INDEX ttUniqueJob IS PRIMARY
+            company
+            jobNumber
+            jobNumber2
+            .  
+
+FUNCTION fUniqueJNo RETURNS INTEGER ():
+    DEFINE BUFFER job-hdr FOR job-hdr.
+    
+    FIND LAST job-hdr NO-LOCK NO-ERROR.
+    RETURN IF AVAILABLE job-hdr THEN job-hdr.j-no + 1 ELSE 1.
+
+END.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -51,76 +72,101 @@ PROCEDURE pProcessRecord PRIVATE:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttImportJobSchedule FOR ttImportJobSchedule.
+
     DEFINE INPUT        PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded       AS INTEGER NO-UNDO.
     
-    DEFINE VARIABLE riNote AS ROWID NO-UNDO.
-    DEFINE VARIABLE iJob LIKE job.job.
+    DEFINE VARIABLE riNote AS ROWID   NO-UNDO.
+    DEFINE VARIABLE iJob   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iJNo   AS INTEGER NO-UNDO.
     
     DEFINE BUFFER bf-job     FOR job.
     DEFINE BUFFER bf-job-hdr FOR job-hdr.
     DEFINE BUFFER bf-job-mch FOR job-mch.      
 
-   RUN pGetInternalJob (
-       INPUT  ipbf-ttImportJobSchedule.company,
-       OUTPUT iJob
-       ). 
-            
-   ASSIGN 
-       iopiAdded = iopiAdded + 1.
-                
+    FIND FIRST ttUniqueJob
+         WHERE ttUniqueJob.company    EQ ipbf-ttImportJobSchedule.company
+           AND ttUniqueJob.jobNumber  EQ ipbf-ttImportJobSchedule.jobNumber
+           AND ttUniqueJob.jobNumber2 EQ ipbf-ttImportJobSchedule.jobNumber2
+         NO-ERROR.
+    IF NOT AVAILABLE ttUniqueJob THEN DO:
+        RUN pGetInternalJob (
+            INPUT  ipbf-ttImportJobSchedule.company,
+            OUTPUT iJob
+            ). 
+        CREATE ttUniqueJob.
+        ASSIGN
+            ttUniqueJob.company    = ipbf-ttImportJobSchedule.company
+            ttUniqueJob.jobNumber  = ipbf-ttImportJobSchedule.jobNumber
+            ttUniqueJob.jobNumber2 = ipbf-ttImportJobSchedule.jobNumber2
+            ttUniqueJob.job        = iJob
+            .
         CREATE bf-job.
         ASSIGN 
             bf-job.company    = ipbf-ttImportJobSchedule.company
-            bf-job.loc        = ipbf-ttImportJobSchedule.Location
-            bf-job.job        = iJob
+            bf-job.loc        = ipbf-ttImportJobSchedule.location
+            bf-job.job        = ttUniqueJob.job
             bf-job.job-no     = ipbf-ttImportJobSchedule.jobNumber
             bf-job.job-no2    = ipbf-ttImportJobSchedule.jobNumber2
             bf-job.stat       = "P"
             bf-job.opened     = TRUE 
             bf-job.industry   = ipbf-ttImportJobSchedule.industry
             bf-job.orderType  = ipbf-ttImportJobSchedule.orderType
-            bf-job.due-date   = ipbf-ttImportJobSchedule.dueDate 
-            bf-job.start-Date = IF ipbf-ttImportJobSchedule.startDate NE "" THEN DATE(ipbf-ttImportJobSchedule.startDate) ELSE TODAY
+            bf-job.due-date   = ipbf-ttImportJobSchedule.dueDate
+            bf-job.start-Date = ipbf-ttImportJobSchedule.startDate
             .                
-              
+    END. /* if not avail */ 
+
+    iopiAdded = iopiAdded + 1.
+                
+    IF NOT CAN-FIND(FIRST bf-job-hdr
+                    WHERE bf-job-hdr.company  EQ ipbf-ttImportJobSchedule.company
+                      AND bf-job-hdr.job-no   EQ ipbf-ttImportJobSchedule.jobNumber
+                      AND bf-job-hdr.job-no2  EQ ipbf-ttImportJobSchedule.jobNumber2
+                      AND bf-job-hdr.frm      EQ ipbf-ttImportJobSchedule.form-no
+                      AND bf-job-hdr.blank-no EQ ipbf-ttImportJobSchedule.blank-no) THEN DO:
+        iJNo = fUniqueJNo().
         CREATE bf-job-hdr.
         ASSIGN 
             bf-job-hdr.company    = ipbf-ttImportJobSchedule.company
-            bf-job-hdr.loc        = ipbf-ttImportJobSchedule.Location
-            bf-job-hdr.job        = iJob
+            bf-job-hdr.loc        = ipbf-ttImportJobSchedule.location
+            bf-job-hdr.job        = ttUniqueJob.job
             bf-job-hdr.job-no     = ipbf-ttImportJobSchedule.jobNumber
             bf-job-hdr.job-no2    = ipbf-ttImportJobSchedule.jobNumber2
-            bf-job-hdr.i-no       = ipbf-ttImportJobSchedule.ItemNumber
             bf-job-hdr.frm        = ipbf-ttImportJobSchedule.form-no
             bf-job-hdr.blank-no   = ipbf-ttImportJobSchedule.blank-no
+            bf-job-hdr.i-no       = ipbf-ttImportJobSchedule.itemNumber
             bf-job-hdr.cust-no    = ipbf-ttImportJobSchedule.customerNumber
             bf-job-hdr.opened     = TRUE
-            bf-job-hdr.due-date   = bf-job.due-date
-            bf-job-hdr.start-Date = bf-job.start-Date
+            bf-job-hdr.due-date   = ipbf-ttImportJobSchedule.dueDate
+            bf-job-hdr.start-Date = ipbf-ttImportJobSchedule.startDate
             bf-job-hdr.qty        = ipbf-ttImportJobSchedule.quantity
+            bf-job-hdr.j-no       = iJNo
             .     
-      
-        CREATE bf-job-mch.
-        ASSIGN
-            bf-job-mch.company  = bf-job-hdr.company
-            bf-job-mch.line     = 1
-            bf-job-mch.m-code   = ipbf-ttImportJobSchedule.machineCode
-            bf-job-mch.job      = bf-job-hdr.job
-            bf-job-mch.job-no   = bf-job-hdr.job-no
-            bf-job-mch.job-no2  = bf-job-hdr.job-no2
-            bf-job-mch.frm      = bf-job-hdr.frm
-            bf-job-mch.blank-no = bf-job-hdr.blank-no
-            bf-job-mch.pass     = ipbf-ttImportJobSchedule.pass
-            bf-job-mch.i-no     = bf-job-hdr.i-no
-            bf-job-mch.i-name   = ipbf-ttImportJobSchedule.itemDescription 
-            bf-job-mch.run-qty  = ipbf-ttImportJobSchedule.machineRunQuantity
-            bf-job-mch.seq-no   = ipbf-ttImportJobSchedule.machineSequence
-            .                    
-   
-   RELEASE bf-job .
-   RELEASE bf-job-hdr .
-   RELEASE bf-job-mch .                                                                                                                                 
+    END.
+
+    CREATE bf-job-mch.
+    ASSIGN
+        bf-job-mch.company  = ipbf-ttImportJobSchedule.company
+        bf-job-mch.line     = ipbf-ttImportJobSchedule.line
+        bf-job-mch.m-code   = ipbf-ttImportJobSchedule.machineCode
+        bf-job-mch.job      = ttUniqueJob.job
+        bf-job-mch.job-no   = ipbf-ttImportJobSchedule.jobNumber
+        bf-job-mch.job-no2  = ipbf-ttImportJobSchedule.jobNumber2
+        bf-job-mch.frm      = ipbf-ttImportJobSchedule.form-no
+        bf-job-mch.blank-no = ipbf-ttImportJobSchedule.blank-no
+        bf-job-mch.pass     = ipbf-ttImportJobSchedule.pass
+        bf-job-mch.i-no     = ipbf-ttImportJobSchedule.itemNumber
+        bf-job-mch.i-name   = ipbf-ttImportJobSchedule.itemDescription 
+        bf-job-mch.run-qty  = ipbf-ttImportJobSchedule.runQuantity
+        bf-job-mch.mr-hr    = ipbf-ttImportJobSchedule.mrHours
+        bf-job-mch.run-hr   = ipbf-ttImportJobSchedule.runHours
+        bf-job-mch.speed    = bf-job-mch.run-qty / bf-job-mch.run-hr
+        .                    
+   {sys/inc/roundup.i bf-job-mch.speed}
+   RELEASE bf-job.
+   RELEASE bf-job-hdr.
+   RELEASE bf-job-mch.                                                                                                                                 
                                                                                                                                
 END PROCEDURE.                                                                                                                 
                                                                                                                                
@@ -158,7 +204,7 @@ PROCEDURE pValidate PRIVATE:
     END.
     IF oplValid THEN 
     DO:
-        IF ipbf-ttImportJobSchedule.ItemNumber EQ "" THEN 
+        IF ipbf-ttImportJobSchedule.itemNumber EQ "" THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "FG Item is Blank".
@@ -200,14 +246,7 @@ PROCEDURE pValidate PRIVATE:
     END.
     IF oplValid THEN 
     DO:
-        IF ipbf-ttImportJobSchedule.machineSequence EQ 0 THEN 
-            ASSIGN 
-                oplValid = NO
-                opcNote  = "Machine Sequence is Blank or Zero ".
-    END.
-    IF oplValid THEN 
-    DO:
-        IF ipbf-ttImportJobSchedule.machineRunQuantity EQ 0 THEN 
+        IF ipbf-ttImportJobSchedule.runQuantity EQ 0 THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Machine Run Qty is Blank or Zero ".
@@ -247,8 +286,8 @@ PROCEDURE pValidate PRIVATE:
     /*Field Level Validation*/
     IF oplValid AND iplFieldValidation THEN 
     DO:         
-        IF oplValid AND ipbf-ttImportJobSchedule.ItemNumber NE "" THEN 
-            RUN pIsValidFGITemID (ipbf-ttImportJobSchedule.ItemNumber, NO, ipbf-ttImportJobSchedule.company, OUTPUT oplValid, OUTPUT cValidNote).
+        IF oplValid AND ipbf-ttImportJobSchedule.itemNumber NE "" THEN 
+            RUN pIsValidFGITemID (ipbf-ttImportJobSchedule.itemNumber, NO, ipbf-ttImportJobSchedule.company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportJobSchedule.customerNumber NE "" THEN 
             RUN pIsValidCustomerID (ipbf-ttImportJobSchedule.customerNumber, NO, ipbf-ttImportJobSchedule.company, OUTPUT oplValid, OUTPUT cValidNote).
