@@ -79,7 +79,7 @@ ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID(Vendor or Cust ShipId
                             "Setup,Discount,GL Number,Overrun,Underrun," +
                             "Customer #,Order #,Customer # From Order,FG Item # From Job,Cust Part#,Adder," +
                             "RM Item Code,FG Item Code,Style from Job,Buyer ID,User ID,Po Line," +
-                            "ShipTo Customer,Drop Shipment Type".
+                            "ShipTo Customer,Drop Shipment Type,RM Category,RM Category description,FG Category,FG Category description".
        cFieldListToSelect = "po-ordl.po-no,po-ord.vend-no,po-ordl.due-date,po-ord.ship-id,po-ord.ship-name," +
                             "po-ord.ship-addr[1],po-ord.ship-addr[2],po-ord.ship-city,po-ord.ship-state,po-ord.ship-zip," +
                             "po-ord.carrier,po-ord.t-freight,po-ord.frt-pay,po-ord.fob-code," +
@@ -94,7 +94,7 @@ ASSIGN cTextListToSelect = "PO #,Vendor #,Due Date,Ship ID(Vendor or Cust ShipId
                             "po-ordl.setup,po-ordl.disc,po-ordl.actnum,po-ordl.over-pct,po-ordl.under-pct," +
                             "po-ordl.cust-no,po-ordl.ord-no,po-ordl.dfuncCustfromOrder,po-ordl.dfuncFGFromJob,cust-part,adders," +
                             "rm-item,fg-item,style-job,po-ord.buyer,po-ord.user-id,po-ordl.line," +
-                            "shipto-cust,dropshipment"  .
+                            "shipto-cust,dropshipment,rm-cat,rm-cat-dscr,fg-cat,fg-cat-dscr"  .
 
 /*vend.name
        lv_vend-add1:SCREEN-VALUE  = vend.add1
@@ -1319,6 +1319,8 @@ DEFINE VARIABLE cFGItem AS CHAR NO-UNDO .
 DEF BUFFER xjob-mat FOR job-mat.
 DEF BUFFER xitem    FOR item.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE BUFFER bf-itemfg FOR itemfg.
+DEFINE BUFFER bf-item FOR ITEM.
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
@@ -1365,14 +1367,18 @@ FOR EACH po-ordl WHERE po-ordl.company = cocode
         WHEN 1 THEN IF NOT po-ord.printed THEN NEXT.
         WHEN 2 THEN IF po-ord.printed THEN NEXT.
     END CASE.
-/* "po-ordl.po-no,po-ord.vend-no,po-ordl.due-date,po-ord.ship-id,po-ord.ship-name," + */
-/* "po-ordl.job-no,po-ordl.i-no,po-ordl.i-name,po-ordl.s-wid,po-ordl.s-len," +        */
-/* "po-ordl.vend-i-no,po-ordl.ord-qty,po-ordl.pr-qty-uom," +                          */
-/* "po-ordl.t-rec-qty,po-ordl.cons-uom,po-ordl.cost,po-ordl.pr-uom,po-ord.buyer," +   */
-/* "po-ord.stat,po-ord.printed,po-ordl.opened"                                        */
+    
+    FIND FIRST bf-itemfg NO-LOCK
+          WHERE bf-itemfg.company = po-ordl.company
+          AND bf-itemfg.i-no = po-ordl.i-no  NO-ERROR.
+          
+    FIND FIRST bf-ITEM NO-LOCK
+         WHERE bf-ITEM.company EQ po-ordl.company
+         AND bf-ITEM.i-no EQ po-ordl.i-no NO-ERROR.     
+    
     FOR EACH ttRptSelected:
 
-        IF lookup(ttRptSelected.FieldList,"cust-part,adders,rm-item,fg-item,style-job,shipto-cust,dropshipment") EQ 0 THEN do:
+        IF lookup(ttRptSelected.FieldList,"cust-part,adders,rm-item,fg-item,style-job,shipto-cust,dropshipment,rm-cat,rm-cat-dscr,fg-cat,fg-cat-dscr") EQ 0 THEN do:
         v-excel-detail-lines = v-excel-detail-lines + 
             appendXLLine(getValue(BUFFER po-ordl,BUFFER po-ord,BUFFER vend,ttRptSelected.FieldList)).
         END.
@@ -1407,21 +1413,46 @@ FOR EACH po-ordl WHERE po-ordl.company = cocode
                  END.
                  ELSE v-excel-detail-lines = v-excel-detail-lines + "," .
              END.
-             WHEN "rm-item"  THEN DO:
-                 FIND FIRST ITEM WHERE ITEM.company EQ po-ordl.company
-                     AND ITEM.i-no EQ po-ordl.i-no NO-LOCK NO-ERROR.
-
-                 IF AVAIL ITEM AND ITEM.i-no NE "" THEN
-                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(ITEM.i-no)).                          
+             WHEN "rm-item"  THEN DO:                  
+                 IF AVAIL bf-ITEM AND bf-ITEM.i-no NE "" THEN
+                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(bf-ITEM.i-no)).                          
                  ELSE v-excel-detail-lines = v-excel-detail-lines + "," .
              END.
-             WHEN "fg-item" THEN DO:
-                 FIND FIRST itemfg
-                 WHERE itemfg.company = po-ordl.company
-                     AND itemfg.i-no = po-ordl.i-no NO-LOCK NO-ERROR.
-
-                 IF AVAIL itemfg AND itemfg.i-no NE "" THEN
-                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(itemfg.i-no)).                          
+             WHEN "fg-item" THEN DO: 
+                 IF AVAIL bf-itemfg AND bf-itemfg.i-no NE "" THEN
+                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(bf-itemfg.i-no)).                          
+                 ELSE v-excel-detail-lines = v-excel-detail-lines + "," .
+             END.
+             WHEN "rm-cat"  THEN DO:                  
+                 IF AVAIL bf-ITEM AND bf-ITEM.procat NE "" THEN
+                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(bf-ITEM.procat)).                          
+                 ELSE v-excel-detail-lines = v-excel-detail-lines + "," .
+             END.
+             WHEN "rm-cat-dscr"  THEN DO:                  
+                 IF AVAIL bf-ITEM AND bf-ITEM.procat NE "" THEN do:
+                    FIND FIRST procat NO-LOCK
+                         where procat.company EQ cocode
+                         AND procat.procat EQ bf-ITEM.procat NO-ERROR.
+                     IF avail procat THEN     
+                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(procat.dscr)).  
+                     ELSE v-excel-detail-lines = v-excel-detail-lines + "," .
+                 END.    
+                 ELSE v-excel-detail-lines = v-excel-detail-lines + "," .
+             END.
+             WHEN "fg-cat" THEN DO: 
+                 IF AVAIL bf-itemfg AND bf-itemfg.procat NE "" THEN
+                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(bf-itemfg.procat)).                          
+                 ELSE v-excel-detail-lines = v-excel-detail-lines + "," .
+             END.
+             WHEN "fg-cat-dscr" THEN DO: 
+                 IF AVAIL bf-itemfg AND bf-itemfg.procat NE "" THEN DO:
+                  FIND FIRST fgcat NO-LOCK
+                         where fgcat.company EQ cocode
+                         AND trim(fgcat.procat) EQ trim(bf-itemfg.procat) NO-ERROR.  
+                     IF avail fgcat THEN     
+                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(fgcat.dscr)).  
+                     ELSE v-excel-detail-lines = v-excel-detail-lines + "," .
+                 END.                                             
                  ELSE v-excel-detail-lines = v-excel-detail-lines + "," .
              END.
              WHEN "style-job" THEN DO:
