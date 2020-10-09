@@ -7543,9 +7543,12 @@ PROCEDURE set-auto-add-item :
   END.
   
   RUN update-e-itemfg-vend.
-  IF lv-num-created GT 0 THEN    
-
+  IF lv-num-created GT 0 THEN DO:
+  
+    RUN pUpdateVendItemCost(input cocode, input eb.est-no).   
+   
     RUN local-open-query.
+  END.   
 
 END PROCEDURE.
 
@@ -8550,6 +8553,37 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateVendItemCost B-table-Win 
+PROCEDURE pUpdateVendItemCost:
+    DEFINE INPUT PARAMETER ipcCompany as CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimate as CHARACTER NO-UNDO.
+    
+    FOR EACH xeb NO-LOCK 
+        WHERE xeb.company = ipcCompany 
+        AND xeb.est-no  = ipcEstimate :
+
+        IF CAN-FIND(FIRST vendItemCost
+                    WHERE vendItemCost.company    EQ xeb.company
+                      AND vendItemCost.ItemID     EQ "" /* Old FG Item */
+                      AND vendItemCost.estimateNo EQ xeb.est-no
+                      AND vendItemCost.formNo     EQ xeb.form-no
+                      AND vendItemCost.blankNo    EQ xeb.blank-no) THEN 
+            RUN VendCost_UpdateVendItemCost(
+                INPUT xeb.company,
+                INPUT xeb.est-no,
+                INPUT xeb.form-no,
+                INPUT xeb.blank-no,
+                INPUT "", /* Old FG Item */
+                INPUT xeb.stock-no /* New FG Item */
+                ).              
+    END.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME        
 
 /* ************************  Function Implementations ***************** */
 
