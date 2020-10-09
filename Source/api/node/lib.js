@@ -61,7 +61,12 @@ const self = {
 				}
 				response = await self.callJavaProgram(req,config,JSONRequestData);
 				if (response.length > 0) {
-					response = JSON.parse(response);
+					try{
+						response = JSON.parse(response);
+					}
+					catch ( e ) {
+						self.CSVFileDataCreate(req,JSONRequestData,response,e.message);
+					}
 					if (!response) {
 						response = {"response_code":500,"response_message":"Internal Server Error at Node (#4) - JSON response is Invalid"};
 					}
@@ -118,7 +123,12 @@ const self = {
 
 				response = await self.callJavaProgram(req,config,XMLRequestData);
 				if (response.length > 0) {
-					response = JSON.parse(response);
+					try{
+						response = JSON.parse(response);
+					}
+					catch ( e ) {
+						self.CSVFileDataCreate(req,JSONRequestData,response,e.message);
+					}
 					if (!response) {
 						response = {"response_code":500,"response_message":"Internal Server Error at Node (#1) - XML issue with the response format"};
 					}
