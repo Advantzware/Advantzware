@@ -78,8 +78,6 @@ DEFINE VARIABLE cRMListItems            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFormattedJobno         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lSwitchJob              AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lMoveToOnhand           AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE iTotTags                AS INTEGER   NO-UNDO.
-DEFINE VARIABLE iTotOnHand              AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iCount                  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cValidateJobno          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFilterBy               AS CHARACTER NO-UNDO.
@@ -1542,9 +1540,7 @@ PROCEDURE pRebuildBrowse :
         ipiJobno2,
         ipiFormno,
         ipiBlankno,
-        ipcRMItem,
-        OUTPUT iTotTags,
-        OUTPUT iTotOnHand
+        ipcRMItem
         ).
     
     ASSIGN

@@ -139,7 +139,8 @@ PROCEDURE GetFormnoForJob:
     FOR EACH bf-job NO-LOCK
         WHERE bf-job.company EQ ipcCompany
           AND bf-job.job-no  EQ ipcJobno
-          AND bf-job.job-no2 EQ ipiJobno2,
+          AND bf-job.job-no2 EQ ipiJobno2
+          AND bf-job.opened,
             EACH bf-job-mat NO-LOCK
             WHERE bf-job-mat.company EQ bf-job.company
               AND bf-job-mat.job     EQ bf-job.job
@@ -174,7 +175,8 @@ PROCEDURE GetBlanknoForJob:
     FOR EACH bf-job NO-LOCK
         WHERE bf-job.company EQ ipcCompany
           AND bf-job.job-no  EQ ipcJobno
-          AND bf-job.job-no2 EQ ipiJobno2,
+          AND bf-job.job-no2 EQ ipiJobno2
+          AND bf-job.opened,
             EACH bf-job-mat NO-LOCK
             WHERE bf-job-mat.company EQ bf-job.company
               AND bf-job-mat.job     EQ bf-job.job

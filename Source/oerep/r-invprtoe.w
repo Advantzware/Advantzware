@@ -1246,6 +1246,7 @@ RUN BatchMail (begin_cust, end_cust).
                                                end_cust,
                                                date(TODAY),
                                                INPUT NO, /* Update Tax */
+                                               INPUT NO, /* UnApproved Invoices*/
                                                OUTPUT iCountProcess,
                                                OUTPUT iCountValid,
                                                OUTPUT iCountPost,

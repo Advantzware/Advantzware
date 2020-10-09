@@ -29,7 +29,7 @@ PUT "<FArial>"  SKIP
      v-ord-bol                    at 78
      skip(4)*/
      "<FArial><P15><=#3><P15>" SKIP
-     "<=#3><R+3><C42><B> BOL#:" oe-bolh.bol-no FORMAT ">>>>>" "</B><P10>"
+     "<=#3><R+3><C42><B> BOL#:" oe-bolh.bol-no FORMAT ">>>>>>>" "</B><P10>"
   
     "<|10><R21><C1><#4><FROM><R25><C78><RECT>" SKIP
      "<R23><C1><FROM><R23><C78><LINE>" SKIP    

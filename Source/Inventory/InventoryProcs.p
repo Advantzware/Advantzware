@@ -83,15 +83,594 @@ FUNCTION fCalculateQuantityTotal RETURNS DECIMAL
 FUNCTION fCalculateTagCountInTTbrowse RETURNS INTEGER
     (ipcInventoryStatus AS CHARACTER) FORWARD.
 
+FUNCTION fCalculateTagQuantityInTTbrowse RETURNS DECIMAL
+    (ipcInventoryStatus AS CHARACTER) FORWARD.
+
 FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
     (ipcCompany  AS CHARACTER,
      iplItemType AS LOGICAL,
-     ipcTag      AS CHARACTER) FORWARD.            
+     ipcTag      AS CHARACTER) FORWARD. 
+     
+FUNCTION fCheckFgBinTagOnHold RETURNS LOGICAL
+    (ipcCompany  AS CHARACTER,
+     ipcItem AS CHARACTER,
+     ipcTag      AS CHARACTER) FORWARD.     
+FUNCTION fItemHasOnHand RETURNS LOGICAL
+    (ipcCompany  AS CHARACTER,
+     ipcItem AS CHARACTER) FORWARD. 
+     
+FUNCTION fItemIsUsed RETURNS CHARACTER
+    (ipcCompany  AS CHARACTER,
+     ipcItem AS CHARACTER) FORWARD.     
+
 /* ***************************  Main Block  *************************** */
 
 
 
 /* **********************  Internal Procedures  *********************** */
+
+PROCEDURE pCalculateAverageRawMaterialCost PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdAvgCost AS DECIMAL   NO-UNDO.
+
+    DEFINE VARIABLE dTotalBinQty AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dBinQty      AS DECIMAL NO-UNDO.    
+    
+    DEFINE BUFFER bf-rm-bin FOR rm-bin.
+
+    FOR EACH bf-rm-bin NO-LOCK
+        WHERE bf-rm-bin.company EQ ipcCompany
+          AND bf-rm-bin.i-no    EQ ipcItemID
+        USE-INDEX i-no
+        BREAK BY bf-rm-bin.i-no:
+
+        dBinQty = bf-rm-bin.qty.
+
+        IF dBinQty LT 0 THEN 
+            dBinQty = dBinQty * -1.
+
+        ASSIGN
+            dTotalBinQty = dTotalBinQty + dBinQty
+            opdAvgCost   = opdAvgCost + (dBinQty * bf-rm-bin.cost)
+            .
+
+        IF opdAvgCost EQ ? THEN 
+            opdAvgCost = 0.
+
+        IF LAST(bf-rm-bin.i-no) AND dTotalBinQty NE 0 AND opdAvgCost NE 0  
+            AND dTotalBinQty NE ? AND opdAvgCost NE ? THEN 
+            opdAvgCost = opdAvgCost / dTotalBinQty.
+    END.
+END PROCEDURE.
+
+PROCEDURE Inventory_PostRawMaterials:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtPostingDate AS DATE      NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-rm-rctd              FOR rm-rctd.
+    DEFINE BUFFER bf-item                 FOR item.
+    DEFINE BUFFER bf-create-rm-rctd       FOR rm-rctd.
+    DEFINE BUFFER bf-rm-rcpth             FOR rm-rcpth.
+    DEFINE BUFFER bf-rm-rdtlh             FOR rm-rdtlh.
+    DEFINE BUFFER bf-wiptag               FOR wiptag.
+    DEFINE BUFFER bf-ttRawMaterialsToPost FOR ttRawMaterialsToPost.
+    
+    DEFINE VARIABLE iNextRNo AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dAvgCost AS DECIMAL NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttRawMaterialsToPost.
+    EMPTY TEMP-TABLE ttRawMaterialsGLTransToPost.
+    
+    TRANSACTION-BLOCK:    
+    DO TRANSACTION ON ERROR UNDO TRANSACTION-BLOCK, LEAVE TRANSACTION-BLOCK:
+        FOR EACH ttBrowseInventory 
+            WHERE ttBrowseInventory.inventoryStatus EQ gcStatusStockScanned:
+            RUN pCreateRawMaterialsToPost (
+                INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),
+                INPUT  TRUE, /* AutoIssue */
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).
+            IF NOT oplSuccess THEN
+                UNDO TRANSACTION-BLOCK, LEAVE TRANSACTION-BLOCK.                
+        END.
+        
+        RUN pCreateRawMaterialsGLTrans.
+        
+        FOR EACH ttRawMaterialsToPost
+            WHERE ttRawMaterialsToPost.processed EQ FALSE,
+            FIRST bf-rm-rctd EXCLUSIVE-LOCK
+            WHERE ROWID(bf-rm-rctd) EQ ttRawMaterialsToPost.rmRctdRowID
+            BREAK BY ttRawMaterialsToPost.sequenceID
+                  BY ttRawMaterialsToPost.itemID:
+            
+            RUN pPostRawMaterials(
+                INPUT  ttRawmaterialsToPost.rmRctdRowID,
+                INPUT  ipdtPostingDate,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).
+            IF NOT oplSuccess THEN
+                UNDO TRANSACTION-BLOCK, LEAVE TRANSACTION-BLOCK.
+            
+            IF LAST-OF(ttRawMaterialsToPost.itemID) THEN DO:
+                RUN pCalculateAverageRawMaterialCost(
+                    INPUT  bf-rm-rctd.company,
+                    INPUT  bf-rm-rctd.i-no,
+                    OUTPUT dAvgCost
+                    ).
+                IF dAvgCost NE 0 THEN DO:
+                    FIND FIRST bf-item EXCLUSIVE-LOCK
+                         WHERE bf-item.company EQ bf-rm-rctd.company
+                           AND bf-item.i-no    EQ bf-rm-rctd.i-no
+                         NO-ERROR.
+                    IF AVAILABLE bf-item THEN
+                        bf-item.avg-cost = dAvgCost.
+                END.
+            END.
+                   
+            IF bf-rm-rctd.rita-code EQ "I" AND TRIM(bf-rm-rctd.tag) NE "" THEN DO:
+                FOR EACH bf-rm-rdtlh NO-LOCK
+                    WHERE bf-rm-rdtlh.company   EQ bf-rm-rctd.company
+                      AND bf-rm-rdtlh.tag       EQ bf-rm-rctd.tag
+                      AND bf-rm-rdtlh.rita-code EQ "R"
+                    USE-INDEX tag,
+                    FIRST bf-rm-rcpth NO-LOCK
+                    WHERE bf-rm-rcpth.r-no      EQ bf-rm-rdtlh.r-no
+                      AND bf-rm-rdtlh.rita-code EQ bf-rm-rdtlh.rita-code:
+        
+                    IF bf-rm-rctd.po-no EQ "" THEN 
+                        bf-rm-rctd.po-no = bf-rm-rcpth.po-no.
+        
+                    IF bf-rm-rctd.job-no EQ "" THEN
+                        ASSIGN
+                            bf-rm-rctd.job-no  = bf-rm-rcpth.job-no
+                            bf-rm-rctd.job-no2 = bf-rm-rcpth.job-no2
+                            .
+                    LEAVE.
+                END.
+            END.
+        
+            IF TRIM(bf-rm-rctd.tag) NE "" THEN DO:
+                FOR EACH bf-wiptag EXCLUSIVE-LOCK
+                    WHERE bf-wiptag.company   EQ bf-rm-rctd.company 
+                      AND bf-wiptag.rm-tag-no EQ bf-rm-rctd.tag:
+                    bf-wiptag.sts = "On Hand" .
+                END.
+            END.
+            
+            RUN pCreateRawMaterialHistoryRecords (
+                BUFFER bf-rm-rctd,
+                INPUT  ipdtPostingDate
+                ). 
+    
+            FOR EACH bf-ttRawMaterialsToPost
+                WHERE bf-ttRawMaterialsToPost.parentRowID EQ ROWID(ttRawMaterialsToPost):
+                iNextRNo = 0.
+                RUN sys/ref/asiseq.p (
+                    INPUT bf-rm-rctd.company, 
+                    INPUT "rm_rcpt_seq", 
+                    OUTPUT iNextRNo
+                    ) NO-ERROR.
+        
+                CREATE bf-create-rm-rctd.
+                BUFFER-COPY bf-rm-rctd TO bf-create-rm-rctd.
+                ASSIGN
+                   bf-create-rm-rctd.r-no              = iNextRNo
+                   bf-ttRawMaterialsToPost.rmRctdRowId = ROWID(bf-create-rm-rctd)
+                   .
+            END.
+        
+            DELETE bf-rm-rctd.
+        
+            ttRawMaterialsToPost.processed = TRUE.
+        END.
+        
+        RUN pPostRawMaterialsGLTrans(
+            INPUT ipcCompany,
+            INPUT ipdtPostingDate
+            ).
+    END.
+
+    FOR EACH ttBrowseInventory:
+        FIND FIRST bf-rm-rctd NO-LOCK
+             WHERE ROWID(bf-rm-rctd) EQ TO-ROWID(ttBrowseInventory.inventoryStockID)
+             NO-ERROR.
+        IF NOT AVAILABLE bf-rm-rctd THEN
+            ttBrowseInventory.inventoryStatus = gcStatusStockConsumed.
+    END.
+
+    EMPTY TEMP-TABLE ttRawMaterialsToPost.
+    EMPTY TEMP-TABLE ttRawMaterialsGLTransToPost.
+
+    ASSIGN
+        oplSuccess = TRUE
+        opcMessage = "Success"
+        .
+END PROCEDURE.
+
+PROCEDURE Inventory_CreateRMIssueFromTag:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPost     AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    RUN pCreateRMIssueFromTag (
+        INPUT  ipcCompany,
+        INPUT  ipcTag,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ).
+
+    IF iplPost AND oplSuccess THEN
+        RUN Inventory_PostRawMaterials (
+            INPUT  ipcCompany,
+            INPUT  TODAY,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ).
+    
+END PROCEDURE.
+
+PROCEDURE pCreateRawMaterialsGLTrans PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    DEFINE VARIABLE dExtCost   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lSingleJob AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dAmount    AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bf-rm-rctd  FOR rm-rctd.
+    DEFINE BUFFER bf-item     FOR item.
+    DEFINE BUFFER bf-costtype FOR costtype.
+    DEFINE BUFFER bf-job-hdr  FOR job-hdr.
+    DEFINE BUFFER bf-prod     FOR prod.
+    DEFINE BUFFER bf-prodl    FOR prodl.
+    DEFINE BUFFER bf-itemfg   FOR itemfg.
+    DEFINE BUFFER bf-job      FOR job.
+    
+    FOR EACH ttRawMaterialsToPost
+        WHERE ttRawMaterialsToPost.processed EQ FALSE,
+        FIRST bf-rm-rctd NO-LOCK
+        WHERE ROWID(bf-rm-rctd) EQ ttRawMaterialsToPost.rmRctdRowID
+        BY ttRawMaterialsToPost.sequenceID:
+
+        FIND FIRST bf-item NO-LOCK
+             WHERE bf-item.company EQ bf-rm-rctd.company
+               AND bf-item.i-no    EQ bf-rm-rctd.i-no
+             NO-ERROR.
+
+        IF AVAILABLE bf-item THEN
+            FIND FIRST bf-costtype NO-LOCK
+                 WHERE bf-costtype.company   EQ bf-rm-rctd.company
+                   AND bf-costtype.cost-type EQ bf-item.cost-type
+                 NO-ERROR.
+
+        dExtCost = bf-rm-rctd.cost * bf-rm-rctd.qty.
+
+        IF AVAILABLE bf-costtype AND bf-costtype.inv-asset NE ""  AND
+            dExtCost NE 0 AND dExtCost NE ? THEN DO:
+
+            IF ttRawMaterialsToPost.ritaCode EQ "R" AND bf-costtype.ap-accrued NE "" THEN DO:
+
+                /* Debit RM Asset */
+                FIND FIRST ttRawMaterialsGLTransToPost 
+                     WHERE ttRawMaterialsGLTransToPost.accountNo EQ bf-costtype.inv-asset
+                     NO-ERROR.
+                IF NOT AVAILABLE ttRawMaterialsGLTransToPost THEN DO:
+                    CREATE ttRawMaterialsGLTransToPost.
+                    ttRawMaterialsGLTransToPost.accountNo = bf-costtype.inv-asset.
+                END.
+                ttRawMaterialsGLTransToPost.debits = ttRawMaterialsGLTransToPost.debits + dExtCost.
+
+                /* Credit RM AP Accrued */
+                FIND FIRST ttRawMaterialsGLTransToPost 
+                     WHERE ttRawMaterialsGLTransToPost.accountNo EQ bf-costtype.ap-accrued 
+                     NO-ERROR.
+                IF NOT AVAILABLE ttRawMaterialsGLTransToPost THEN DO:
+                    CREATE ttRawMaterialsGLTransToPost.
+                    ttRawMaterialsGLTransToPost.accountNo = bf-costtype.ap-accrued.
+                END.
+                ttRawMaterialsGLTransToPost.credits = ttRawMaterialsGLTransToPost.credits + dExtCost.
+            END.
+            ELSE IF bf-rm-rctd.rita-code EQ "I" AND bf-rm-rctd.job-no NE "" THEN DO:
+
+                FOR EACH bf-job-hdr NO-LOCK
+                    WHERE bf-job-hdr.company EQ bf-rm-rctd.company
+                      AND bf-job-hdr.job-no  EQ bf-rm-rctd.job-no
+                      AND bf-job-hdr.job-no2 EQ bf-rm-rctd.job-no2,
+                    FIRST bf-job OF bf-job-hdr NO-LOCK
+                    BREAK BY bf-job-hdr.frm:
+                    lSingleJob = FIRST(bf-job-hdr.frm) AND LAST(bf-job-hdr.frm).
+                    LEAVE.
+                END.
+
+                FOR EACH bf-job-hdr NO-LOCK
+                    WHERE bf-job-hdr.company  EQ bf-rm-rctd.company
+                    AND bf-job-hdr.job-no     EQ bf-rm-rctd.job-no
+                    AND bf-job-hdr.job-no2    EQ bf-rm-rctd.job-no2
+                    AND ((bf-job-hdr.frm      EQ bf-rm-rctd.s-num AND
+                         (bf-job-hdr.blank-no EQ bf-rm-rctd.b-num OR bf-rm-rctd.b-num EQ 0))
+                    OR  lSingleJob),
+                    FIRST bf-job OF bf-job-hdr NO-LOCK,
+                    FIRST bf-itemfg NO-LOCK
+                    WHERE bf-itemfg.company EQ bf-rm-rctd.company
+                      AND bf-itemfg.i-no    EQ bf-job-hdr.i-no,
+                    FIRST bf-prodl NO-LOCK
+                    WHERE bf-prodl.company EQ bf-rm-rctd.company
+                      AND bf-prodl.procat  EQ bf-itemfg.procat
+                      AND CAN-FIND(FIRST bf-prod
+                                   WHERE bf-prod.company EQ bf-rm-rctd.company
+                                     AND bf-prod.prolin  EQ bf-prodl.prolin),
+                    FIRST bf-prod NO-LOCK
+                    WHERE bf-prod.company EQ bf-rm-rctd.company
+                      AND bf-prod.prolin  EQ bf-prodl.prolin
+                      AND bf-prod.wip-mat NE "":
+                    
+                    IF lSingleJob OR
+                       bf-rm-rctd.b-num NE 0 OR
+                       bf-job-hdr.sq-in LE 0 OR
+                       bf-job-hdr.sq-in EQ ? THEN
+                        dAmount = dExtCost.
+                    ELSE
+                        dAmount = ROUND(dExtCost * (bf-job-hdr.sq-in / 100),2).
+
+                    /* Debit FG Wip Material */
+                    FIND FIRST ttRawMaterialsGLTransToPost
+                         WHERE ttRawMaterialsGLTransToPost.job       EQ bf-job-hdr.job
+                           AND ttRawMaterialsGLTransToPost.jobNo     EQ bf-job-hdr.job-no
+                           AND ttRawMaterialsGLTransToPost.jobNo2    EQ bf-job-hdr.job-no2
+                           AND ttRawMaterialsGLTransToPost.accountNo EQ bf-prod.wip-mat 
+                         NO-ERROR.
+                    IF NOT AVAILABLE ttRawMaterialsGLTransToPost THEN DO:
+                        CREATE ttRawMaterialsGLTransToPost.
+                        ASSIGN
+                            ttRawMaterialsGLTransToPost.job       = bf-job-hdr.job
+                            ttRawMaterialsGLTransToPost.jobNo     = bf-job-hdr.job-no
+                            ttRawMaterialsGLTransToPost.jobNo2    = bf-job-hdr.job-no2
+                            ttRawMaterialsGLTransToPost.accountNo = bf-prod.wip-mat
+                            .
+                    END.
+                    ttRawMaterialsGLTransToPost.debitsAmount = ttRawMaterialsGLTransToPost.debitsAmount + dAmount.
+
+                    /* Credit RM Asset */
+                    FIND FIRST ttRawMaterialsGLTransToPost
+                         WHERE ttRawMaterialsGLTransToPost.job       EQ bf-job-hdr.job
+                           AND ttRawMaterialsGLTransToPost.jobNo     EQ bf-job-hdr.job-no
+                           AND ttRawMaterialsGLTransToPost.jobNo2    EQ bf-job-hdr.job-no2
+                           AND ttRawMaterialsGLTransToPost.accountNo EQ bf-costtype.inv-asset
+                         NO-ERROR.
+                    IF NOT AVAILABLE ttRawMaterialsGLTransToPost THEN DO:
+                        CREATE ttRawMaterialsGLTransToPost.
+                        ASSIGN
+                            ttRawMaterialsGLTransToPost.job       = bf-job-hdr.job
+                            ttRawMaterialsGLTransToPost.jobNo     = bf-job-hdr.job-no
+                            ttRawMaterialsGLTransToPost.jobNo2    = bf-job-hdr.job-no2
+                            ttRawMaterialsGLTransToPost.accountNo = bf-costtype.inv-asset
+                            .
+                    END.
+                    ttRawMaterialsGLTransToPost.credits = ttRawMaterialsGLTransToPost.credits + dAmount.
+                END.
+            END.
+        END.
+    END.
+END PROCEDURE.
+
+PROCEDURE pCreateRMIssueFromTag PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-loadtag FOR loadtag.
+    DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
+    DEFINE BUFFER bf-item    FOR item.
+    DEFINE BUFFER bf-rm-bin  FOR rm-bin.
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    DEFINE BUFFER bf-job     FOR job.
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    DEFINE BUFFER bf-est     FOR est.
+    
+    DEFINE VARIABLE iNextRNo        AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dTotalIssuedQty AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dIssuedQty      AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lSetJob         AS LOGICAL NO-UNDO.
+    
+    FIND FIRST bf-loadtag NO-LOCK 
+         WHERE bf-loadtag.company   EQ ipcCompany
+           AND bf-loadtag.item-type EQ YES
+           AND bf-loadtag.tag-no    EQ ipcTag
+         NO-ERROR.
+    IF NOT AVAILABLE bf-loadtag THEN
+        FIND FIRST bf-loadtag NO-LOCK 
+             WHERE bf-loadtag.company      EQ ipcCompany
+               AND bf-loadtag.item-type    EQ YES
+               AND bf-loadtag.misc-char[1] EQ ipcTag
+             NO-ERROR.
+
+    IF NOT AVAILABLE bf-loadtag THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid loadtag# " + ipcTag
+            .
+        RETURN.
+    END.    
+                
+    RUN pValidateRMLocBinTag(
+        INPUT  ipcCompany,
+        INPUT  bf-loadtag.loc,
+        INPUT  bf-loadtag.loc-bin,
+        INPUT  ipcTag,
+        INPUT  bf-loadtag.i-no,
+        INPUT  bf-loadtag.pallet-count,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
+        ).
+    IF NOT oplSuccess THEN
+        RETURN.
+
+    dIssuedQty = bf-loadtag.pallet-count.
+    
+    FIND FIRST bf-rm-bin NO-LOCK
+         WHERE bf-rm-bin.company EQ ipcCompany
+           AND bf-rm-bin.i-no    EQ bf-loadtag.i-no
+           AND bf-rm-bin.loc     EQ bf-loadtag.loc
+           AND bf-rm-bin.loc-bin EQ bf-loadtag.loc-bin
+           AND bf-rm-bin.tag     EQ bf-loadtag.tag-no
+         NO-ERROR.
+    IF AVAILABLE bf-rm-bin THEN
+        dIssuedQty = bf-rm-bin.qty.
+        
+    IF dIssuedQty EQ 0 THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Issued qty may not be 0 for tag " + ipcTag
+            .
+        RETURN.        
+    END.
+
+    FOR EACH bf-rm-rctd FIELDS(qty) NO-LOCK
+        WHERE bf-rm-rctd.company   EQ ipcCompany
+          AND bf-rm-rctd.rita-code EQ 'I'
+          AND bf-rm-rctd.qty       GT 0 
+          AND bf-rm-rctd.tag       EQ ipcTag:
+        dTotalIssuedQty = dTotalIssuedQty + bf-rm-rctd.qty.
+    END.
+
+    dIssuedQty = dIssuedQty - dTotalIssuedQty.
+      
+    IF dIssuedQty LT 0 THEN
+        dIssuedQty = 0.
+
+    IF dIssuedQty = 0 THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Tag " + ipcTag + " already issued or Qty on Hand = ZERO"
+            .
+        RETURN.
+    END.
+
+    FIND FIRST bf-job NO-LOCK
+         WHERE bf-job.company EQ ipcCompany
+           AND bf-job.job-no  EQ bf-loadtag.job-no
+           AND bf-job.job-no2 EQ bf-loadtag.job-no2
+         USE-INDEX job-no
+         NO-ERROR.
+
+      IF AVAILABLE bf-job THEN
+          FIND FIRST bf-job-hdr NO-LOCK 
+               WHERE bf-job-hdr.company EQ bf-job.company
+                 AND bf-job-hdr.job     EQ bf-job.job
+                 AND bf-job-hdr.job-no  EQ bf-job.job-no
+                 AND bf-job-hdr.job-no2 EQ bf-job.job-no2
+               NO-ERROR.
+
+      IF AVAILABLE bf-job-hdr THEN DO:
+          FIND FIRST bf-est NO-LOCK 
+               WHERE bf-est.company EQ bf-job-hdr.company
+                 AND bf-est.est-no  EQ bf-job-hdr.est-no
+               NO-ERROR.
+               
+          IF AVAILABLE bf-est AND (bf-est.est-type EQ 2 OR bf-est.est-type EQ 6) THEN 
+              lSetJob  = TRUE.
+      END.
+      
+    IF NOT lSetJob AND bf-loadtag.form-no EQ 0 AND bf-loadtag.job-no NE "" THEN DO:                        
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Sheet # may not be 0 for tag " + ipcTag
+            .
+        RETURN.
+    END.
+    
+    RUN sys/ref/asiseq.p (
+        INPUT ipcCompany, 
+        INPUT "rm_rcpt_seq", 
+        OUTPUT iNextRNo
+        ) NO-ERROR.
+    
+    CREATE bf-rm-rctd.
+    ASSIGN
+        bf-rm-rctd.company   = ipcCompany
+        bf-rm-rctd.r-no      = iNextRNo
+        bf-rm-rctd.tag       = ipcTag
+        bf-rm-rctd.rita-code = "I"
+        bf-rm-rctd.s-num     = bf-loadtag.form-no
+        bf-rm-rctd.b-num     = bf-loadtag.blank-no
+        bf-rm-rctd.rct-date  = TODAY
+        bf-rm-rctd.job-no    = bf-loadtag.job-no
+        bf-rm-rctd.job-no2   = bf-loadtag.job-no2
+        bf-rm-rctd.i-no      = bf-loadtag.i-no
+        bf-rm-rctd.i-name    = bf-loadtag.i-name
+        bf-rm-rctd.loc       = bf-loadtag.loc
+        bf-rm-rctd.loc-bin   = bf-loadtag.loc-bin
+        bf-rm-rctd.qty       = dIssuedQty
+        bf-rm-rctd.enteredBy = USERID("ASI")
+        bf-rm-rctd.enteredDT = NOW
+        .
+        
+    IF AVAILABLE bf-rm-bin THEN 
+         bf-rm-rctd.cost = bf-rm-bin.cost.
+        
+    FIND FIRST bf-po-ordl NO-LOCK
+         WHERE bf-po-ordl.company = ipcCompany
+           AND bf-po-ordl.po-no   = INTEGER(SUBSTRING(ipcTag,1,7))
+           AND bf-po-ordl.line    = INTEGER(SUBSTRING(ipcTag,8,3))
+         NO-ERROR.     
+    IF AVAILABLE bf-po-ordl THEN
+        ASSIGN
+            bf-rm-rctd.s-num = bf-po-ordl.s-num
+            bf-rm-rctd.b-num = bf-po-ordl.b-num
+            .
+    
+    FIND FIRST bf-item NO-LOCK
+         WHERE bf-item.company EQ bf-loadtag.company
+           AND bf-item.i-no    EQ bf-loadtag.i-no 
+         NO-ERROR.
+    IF AVAILABLE bf-item THEN
+        ASSIGN
+            bf-rm-rctd.pur-uom  = bf-item.cons-uom
+            bf-rm-rctd.cost-uom = bf-item.cons-uom
+            .
+
+    RUN pRebuildRMBrowse (
+        INPUT  ipcCompany,
+        INPUT  bf-rm-rctd.job-no,
+        INPUT  "",           /* Machine ID */
+        INPUT  bf-rm-rctd.job-no2,
+        INPUT  bf-rm-rctd.s-num,
+        INPUT  bf-rm-rctd.b-num,
+        INPUT  bf-rm-rctd.i-no,
+        INPUT  FALSE     /* Use new inventory tables */
+        ).
+    
+    ASSIGN
+        oplSuccess = TRUE
+        opcMessage = "Success"
+        .
+END PROCEDURE.
 
 PROCEDURE Inventory_CheckPOUnderOver:
 /*------------------------------------------------------------------------------
@@ -486,6 +1065,1075 @@ PROCEDURE Inventory_ValidateStatusID:
     
     oplValidStatusID = CAN-FIND(FIRST InventoryStatusType
                                 WHERE InventoryStatusType.statusID EQ ipcStatusID).
+END PROCEDURE.
+
+PROCEDURE pCalculateAverageCost PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Calculate new average cost for the bin
+ Notes: Business logic copied from rm/rm-post.i
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipdBinQty      AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdReceiptQty  AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdBinCost     AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdRecieptCost AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdAvgCost     AS DECIMAL NO-UNDO.
+
+    DEFINE VARIABLE dTotalQty       AS DECIMAL   NO-UNDO.
+
+    /* Takes first total cost + 2nd total cost / total qty to get avg. cost */    
+    dTotalQty = ipdBinQty + ipdReceiptQty.
+    
+    IF dTotalQty EQ 0 THEN
+        RETURN.
+
+    /* Case 1 - Transaction is positive and bin is positive */
+    IF ipdReceiptQty GE 0 AND ipdBinQty GT 0 THEN
+        /* Takes first total cost + 2nd total cost / total qty to get avg. cost */
+        opdAvgCost = ((ipdBinQty * ipdBinCost) + (ipdReceiptQty * ipdRecieptCost)) / dTotalQty.
+    /* Case 2 - Transaction is positive, orig. bin qty is negative */
+    /* Take the cost from the new transaction to avoid very large denominator */
+    ELSE IF ipdReceiptQty GE 0 AND ipdBinQty LE 0 THEN 
+        opdAvgCost = ipdRecieptCost.
+    /* Case 3 - Transaction qty is negative, new bin quantity is positive */
+    ELSE IF ipdReceiptQty LT 0 AND ipdBinQty + ipdReceiptQty GT 0 THEN 
+        /* No Change since transaction quantity is zero */
+        opdAvgCost = ((ipdBinQty * ipdBinCost) + (ipdReceiptQty * ipdRecieptCost)) / dTotalQty.
+
+    IF opdAvgCost LT 0 THEN 
+        opdAvgCost = opdAvgCost * -1.
+
+END PROCEDURE.
+
+PROCEDURE pCreateRawMaterialHistoryRecords PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Creates raw material history records
+ Notes: This procedure is a business logic copy of include file rm/rm-rctd.i
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-rm-rctd FOR rm-rctd.
+    DEFINE INPUT  PARAMETER ipdtPostingDate AS DATE NO-UNDO.
+    
+    DEFINE BUFFER bf-rm-rcpth FOR rm-rcpth.
+    DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
+    
+    FIND FIRST bf-rm-rcpth NO-LOCK
+         WHERE bf-rm-rcpth.r-no EQ ipbf-rm-rctd.r-no
+         NO-ERROR.
+    IF AVAILABLE bf-rm-rcpth THEN
+        RUN sys/ref/asiseq.p (
+            INPUT bf-rm-rcpth.company, 
+            INPUT "rm_rcpt_seq", 
+            OUTPUT ipbf-rm-rctd.r-no
+            ) NO-ERROR.
+  
+    CREATE bf-rm-rcpth.
+    BUFFER-COPY ipbf-rm-rctd EXCEPT rec_key user-id upd-date upd-time TO bf-rm-rcpth
+    ASSIGN
+        bf-rm-rcpth.trans-date = ipbf-rm-rctd.rct-date
+        bf-rm-rcpth.post-date  = ipdtPostingDate
+        .
+
+    CREATE bf-rm-rdtlh.
+    BUFFER-COPY ipbf-rm-rctd EXCEPT rec_key user-id upd-date upd-time TO bf-rm-rdtlh.
+
+    IF ipbf-rm-rctd.rita-code EQ "T" THEN DO:
+        bf-rm-rdtlh.qty = ipbf-rm-rctd.qty * -1.
+        
+        IF bf-rm-rdtlh.tag EQ bf-rm-rdtlh.tag2 THEN
+            bf-rm-rdtlh.tag2 = "".
+
+        CREATE bf-rm-rdtlh.
+        BUFFER-COPY ipbf-rm-rctd EXCEPT rec_key user-id upd-date upd-time TO bf-rm-rdtlh
+        ASSIGN
+            bf-rm-rdtlh.loc     = ipbf-rm-rctd.loc2
+            bf-rm-rdtlh.loc-bin = ipbf-rm-rctd.loc-bin2
+            bf-rm-rdtlh.tag     = ipbf-rm-rctd.tag2
+            .
+        IF bf-rm-rdtlh.tag EQ bf-rm-rdtlh.tag2 THEN
+            bf-rm-rdtlh.tag2 = "".
+    END.
+END PROCEDURE.
+
+PROCEDURE pPostRawMaterialsGLTrans PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtPostingDate AS DATE      NO-UNDO.
+    
+    DEFINE VARIABLE lRMPostGL     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cRMPostGL     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iTrNum        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dDebitsTotal  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCreditsTotal AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iCount        AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-gl-ctrl FOR gl-ctrl.
+    DEFINE BUFFER bf-period  FOR period.
+    DEFINE BUFFER bf-gltrans FOR gltrans.
+    
+    RUN sys/ref/nk1look.p (
+        INPUT ipcCompany,         /* Company Code */ 
+        INPUT "RMPOSTGL",         /* sys-ctrl name */
+        INPUT "L",                /* Output return value */
+        INPUT NO,                 /* Use ship-to */
+        INPUT NO,                 /* ship-to vendor */
+        INPUT "",                 /* ship-to vendor value */
+        INPUT "",                 /* shi-id value */
+        OUTPUT cRMPostGL, 
+        OUTPUT lRecFound
+        ).
+    IF lRecFound THEN
+        lRMPostGL = LOGICAL(cRMPostGL).
+
+    IF NOT lRMPostGL THEN
+        RETURN.
+
+    REPEAT:
+        FIND FIRST bf-gl-ctrl EXCLUSIVE-LOCK
+             WHERE bf-gl-ctrl.company EQ ipcCompany 
+             NO-ERROR NO-WAIT.
+        IF AVAILABLE bf-gl-ctrl THEN DO:
+            ASSIGN 
+                iTrNum           = bf-gl-ctrl.trnum + 1
+                bf-gl-ctrl.trnum = iTrNum
+                .
+        
+            FIND FIRST bf-period NO-LOCK
+                 WHERE bf-period.company EQ ipcCompany
+                   AND bf-period.pst     LE ipdtPostingDate
+                   AND bf-period.pend    GE ipdtPostingDate
+                 NO-ERROR.
+            DO iCount = 1 TO 2:
+                FOR EACH ttRawMaterialsGLTransToPost 
+                    WHERE (iCount EQ 1 AND ttRawMaterialsGLTransToPost.jobNo NE "")
+                       OR (iCount EQ 2 AND ttRawMaterialsGLTransToPost.jobNo EQ "")
+                    BREAK BY ttRawMaterialsGLTransToPost.accountNo:
+        
+                    ASSIGN
+                        dDebitsTotal  = dDebitsTotal + ttRawMaterialsGLTransToPost.debitsAmount
+                        dCreditsTotal = dCreditsTotal + ttRawMaterialsGLTransToPost.creditsAmount
+                        .
+        
+                    IF LAST-OF(ttRawMaterialsGLTransToPost.accountNo) THEN DO:
+                        CREATE bf-gltrans.
+                        ASSIGN
+                            bf-gltrans.company = ipcCompany
+                            bf-gltrans.actnum  = ttRawMaterialsGLTransToPost.accountNo
+                            bf-gltrans.jrnl    = "RMPOST"
+                            bf-gltrans.period  = IF AVAILABLE bf-period THEN 
+                                                     bf-period.pnum
+                                                 ELSE 
+                                                     1
+                            bf-gltrans.tr-amt  = dDebitsTotal - dCreditsTotal
+                            bf-gltrans.tr-date = ipdtPostingDate
+                            bf-gltrans.tr-dscr = IF ttRawMaterialsGLTransToPost.jobNo NE "" THEN 
+                                                     "RM Issue to Job"
+                                                 ELSE 
+                                                     "RM Receipt"
+                            bf-gltrans.trnum   = bf-gl-ctrl.trnum
+                            .        
+                    END.
+                END.
+            END.      
+                  
+            LEAVE.
+        END.
+    END.
+END PROCEDURE.
+
+PROCEDURE pPostRawMaterials PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriRmRctd      AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtPostingDate AS DATE      NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE dItemConsUOMQty AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dJobMatUOMQty   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iPOValidator    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lError          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dBasisWeight    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dLength         AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dWidth          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dDepth          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCost           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE riJobMat        AS RECID     NO-UNDO.
+    DEFINE VARIABLE lKeepZeroRMBin  AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-rm-rctd         FOR rm-rctd.
+    DEFINE BUFFER bf-receive-rm-rctd FOR rm-rctd.
+    DEFINE BUFFER bf-item            FOR item.    
+    DEFINE BUFFER bf-rm-bin          FOR rm-bin.
+    DEFINE BUFFER bf-transfer-rm-bin FOR rm-bin.
+    DEFINE BUFFER bf-job             FOR job.
+    DEFINE BUFFER bf-stat-job        FOR job.
+    DEFINE BUFFER bf-job-mat         FOR job-mat.
+    DEFINE BUFFER bf-mat-act         FOR mat-act.
+    DEFINE BUFFER bf-loadtag         FOR loadtag.
+    DEFINE BUFFER bf-rm-rcpth        FOR rm-rcpth.
+    DEFINE BUFFER bf-rm-rdtlh        FOR rm-rdtlh.
+    DEFINE BUFFER bf-prep            FOR prep.
+    
+    MAIN-BLOCK:
+    DO TRANSACTION ON ERROR UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+        FIND FIRST bf-rm-rctd NO-LOCK 
+             WHERE ROWID(bf-rm-rctd) EQ ipriRmRctd
+             NO-ERROR.
+        IF NOT AVAILABLE bf-rm-rctd THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "Invalid rm-rctd record"
+                .
+        END.
+        
+        FIND FIRST bf-item EXCLUSIVE-LOCK
+             WHERE bf-item.company EQ bf-rm-rctd.company
+               AND bf-item.i-no    EQ bf-rm-rctd.i-no
+             NO-ERROR.        
+
+        IF bf-rm-rctd.rita-code EQ "I" AND INT(bf-rm-rctd.po-no) NE 0 THEN DO:
+            FOR EACH bf-receive-rm-rctd NO-LOCK
+                WHERE bf-receive-rm-rctd.company   EQ bf-rm-rctd.company
+                  AND bf-receive-rm-rctd.i-no      EQ bf-rm-rctd.i-no
+                  AND bf-receive-rm-rctd.rita-code EQ "R"
+                  AND bf-receive-rm-rctd.po-no     EQ bf-rm-rctd.po-no
+                  AND bf-receive-rm-rctd.r-no      LT bf-rm-rctd.r-no:
+      
+                UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+            END.
+        END.
+        
+        FIND FIRST bf-job NO-LOCK
+             WHERE bf-job.company EQ bf-rm-rctd.company
+               AND bf-job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(bf-rm-rctd.job-no))) + TRIM(bf-rm-rctd.job-no)
+               AND bf-job.job-no2 EQ bf-rm-rctd.job-no2
+             NO-ERROR.
+
+        /** Find Bin & if not avail then create it **/
+        FIND FIRST bf-rm-bin
+             WHERE bf-rm-bin.company EQ bf-rm-rctd.company
+               AND bf-rm-bin.loc     EQ bf-rm-rctd.loc
+               AND bf-rm-bin.i-no    EQ bf-rm-rctd.i-no
+               AND bf-rm-bin.loc-bin EQ bf-rm-rctd.loc-bin
+               AND bf-rm-bin.tag     EQ bf-rm-rctd.tag
+             NO-ERROR.
+        IF NOT AVAILABLE bf-rm-bin THEN DO:
+            CREATE bf-rm-bin.
+            ASSIGN
+                bf-rm-bin.company = bf-rm-rctd.company
+                bf-rm-bin.loc     = bf-rm-rctd.loc
+                bf-rm-bin.loc-bin = bf-rm-rctd.loc-bin
+                bf-rm-bin.tag     = bf-rm-rctd.tag
+                bf-rm-bin.i-no    = bf-rm-rctd.i-no
+                .
+        END. /* not avail rm-bin */
+
+        dItemConsUOMQty = bf-rm-rctd.qty.
+
+        iPOValidator = INTEGER(bf-rm-rctd.po-no) NO-ERROR.
+
+        IF NOT ERROR-STATUS:ERROR AND NOT bf-rm-rctd.rita-code EQ "T" AND NOT 
+           (bf-rm-rctd.rita-code EQ "A" AND bf-rm-rctd.qty LT 0) THEN
+            bf-rm-bin.po-no = iPOValidator.
+            
+        IF bf-rm-rctd.pur-uom NE bf-item.cons-uom AND bf-item.cons-uom NE "" THEN
+            RUN Conv_QuantityFromUOMToUOM (
+                INPUT  bf-rm-rctd.company,
+                INPUT  bf-rm-rctd.i-no,
+                INPUT  "RM",
+                INPUT  dItemConsUOMQty,
+                INPUT  bf-rm-rctd.pur-uom, 
+                INPUT  bf-item.cons-uom,
+                INPUT  bf-item.basis-w,
+                INPUT  IF bf-item.r-wid EQ 0 THEN bf-item.s-len ELSE 12,
+                INPUT  IF bf-item.r-wid EQ 0 THEN bf-item.s-wid ELSE bf-item.r-wid,
+                INPUT  bf-item.s-dep,
+                INPUT  0,
+                OUTPUT dItemConsUOMQty,
+                OUTPUT lError,
+                OUTPUT cMessage
+                ).
+
+        IF bf-rm-rctd.rita-code EQ "R" THEN DO:        /** RECEIPTS **/
+            RUN pCalculateAverageCost (
+                INPUT  bf-rm-bin.qty,
+                INPUT  bf-rm-rctd.qty,
+                INPUT  bf-rm-bin.cost,
+                INPUT  bf-rm-rctd.cost,
+                OUTPUT bf-rm-bin.cost
+                ).
+
+            ASSIGN
+                bf-rm-bin.qty     = bf-rm-bin.qty + dItemConsUOMQty
+                bf-item.last-cost = bf-rm-rctd.cost
+                bf-item.q-onh     = bf-item.q-onh + dItemConsUOMQty
+                .
+            
+            RUN pRawMaterialPurchaseOrderUpdate (
+                BUFFER bf-rm-rctd,
+                BUFFER bf-item,
+                INPUT-OUTPUT dItemConsUOMQty,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).
+            IF NOT oplSuccess THEN
+                UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK. 
+            
+            bf-item.q-avail = bf-item.q-onh + bf-item.q-ono - bf-item.q-comm.
+        END. /* R */
+        ELSE IF bf-rm-rctd.rita-code EQ "I" THEN DO:  /** ISSUES **/
+            IF bf-rm-rctd.tag NE "" THEN DO:
+                FOR EACH bf-rm-rdtlh FIELDS(r-no rita-code tag2) NO-LOCK
+                    WHERE bf-rm-rdtlh.company   EQ bf-rm-rctd.company
+                      AND bf-rm-rdtlh.tag       EQ bf-rm-rctd.tag
+                      AND bf-rm-rdtlh.loc       EQ bf-rm-rctd.loc
+                      AND bf-rm-rdtlh.loc-bin   EQ bf-rm-rctd.loc-bin
+                      AND bf-rm-rdtlh.rita-code EQ "R"
+                      AND bf-rm-rdtlh.tag2      NE ""
+                    USE-INDEX tag,
+                    FIRST bf-rm-rcpth NO-LOCK
+                    WHERE bf-rm-rcpth.r-no      EQ bf-rm-rdtlh.r-no 
+                      AND bf-rm-rcpth.rita-code EQ bf-rm-rdtlh.rita-code
+                      AND bf-rm-rcpth.i-no      EQ bf-rm-rctd.i-no:                
+                    bf-rm-rctd.tag2 = bf-rm-rdtlh.tag2.
+                END.
+            END.
+
+            IF AVAILABLE bf-job AND bf-job.job-no NE "" THEN DO:
+                RUN rm/mkjobmat.p (
+                    INPUT  RECID(bf-rm-rctd),
+                    INPUT  bf-rm-rctd.company, 
+                    OUTPUT riJobMat
+                    ).
+
+                FIND FIRST bf-job-mat EXCLUSIVE-LOCK
+                     WHERE RECID(bf-job-mat) EQ riJobMat
+                     NO-ERROR.
+
+                IF NOT AVAILABLE bf-job-mat THEN DO:
+                    ASSIGN
+                        oplSuccess = FALSE
+                        opcMessage = "Job Mat Record not found for "
+                                   + STRING(bf-job.job-no + "-" + STRING(bf-job.job-no2,"99") + "  " + bf-rm-rctd.i-no)
+                        .
+
+                    UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK.
+                END.
+
+                ASSIGN
+                    dBasisWeight = bf-job-mat.basis-w
+                    dLength      = bf-job-mat.len
+                    dWidth       = bf-job-mat.wid
+                    dDepth       = bf-item.s-dep
+                    .
+
+                IF dLength EQ 0 THEN
+                    dLength = bf-item.s-len.
+
+                IF dWidth EQ 0 THEN
+                    dWidth = IF bf-item.r-wid NE 0 THEN 
+                                bf-item.r-wid
+                            ELSE 
+                                bf-item.s-wid.
+
+                IF dBasisWeight EQ 0 THEN 
+                    dBasisWeight = bf-item.basis-w.
+
+                IF bf-job.stat NE "L" AND bf-job.stat NE "R" THEN DO:
+                    FIND FIRST bf-stat-job EXCLUSIVE-LOCK
+                         WHERE ROWID(bf-stat-job) EQ ROWID(bf-job)
+                         NO-ERROR.
+                    IF AVAILABLE bf-stat-job THEN
+                        bf-job.stat = "W".
+                    RELEASE bf-stat-job.
+                END.    
+
+                /* Create Actual Material */
+                CREATE bf-mat-act.
+                ASSIGN
+                    bf-mat-act.company   = bf-rm-rctd.company
+                    bf-mat-act.mat-date  = ipdtPostingDate
+                    bf-mat-act.job       = bf-job.job
+                    bf-mat-act.job-no    = bf-job-mat.job-no
+                    bf-mat-act.job-no2   = bf-job-mat.job-no2
+                    bf-mat-act.s-num     = bf-job-mat.frm
+                    bf-mat-act.b-num     = bf-job-mat.blank-no
+                    bf-mat-act.i-no      = bf-job-mat.i-no
+                    bf-mat-act.i-name    = bf-rm-rctd.i-name
+                    bf-mat-act.rm-i-no   = bf-job-mat.i-no
+                    bf-mat-act.rm-i-name = bf-rm-rctd.i-name
+                    bf-mat-act.pass      = bf-rm-rctd.pass
+                    bf-mat-act.tag       = bf-rm-rctd.tag
+                    bf-mat-act.loc       = bf-rm-rctd.loc
+                    bf-mat-act.loc-bin   = bf-rm-rctd.loc-bin
+                    bf-mat-act.opn       = TRUE
+                    bf-mat-act.mat-time  = TIME
+                    .
+                 
+                dJobMatUOMQty = bf-rm-rctd.qty.
+                
+                IF bf-rm-rctd.pur-uom NE bf-job-mat.qty-uom AND bf-rm-rctd.pur-uom NE "" THEN
+                    RUN Conv_QuantityFromUOMToUOM (
+                        INPUT  bf-rm-rctd.company,
+                        INPUT  bf-rm-rctd.i-no,
+                        INPUT  "RM",
+                        INPUT  dJobMatUOMQty,
+                        INPUT  bf-rm-rctd.pur-uom, 
+                        INPUT  bf-job-mat.qty-uom,
+                        INPUT  dBasisWeight,
+                        INPUT  dLength,
+                        INPUT  dWidth,
+                        INPUT  dDepth,
+                        INPUT  0,
+                        OUTPUT dJobMatUOMQty,
+                        OUTPUT lError,
+                        OUTPUT cMessage
+                        ).
+                                   
+                dCost = bf-rm-rctd.cost.
+                IF bf-rm-rctd.pur-uom NE bf-job-mat.sc-uom AND bf-rm-rctd.pur-uom NE "" THEN
+                    RUN Conv_ValueFromUOMToUOM (
+                        INPUT  bf-rm-rctd.company,
+                        INPUT  bf-rm-rctd.i-no,
+                        INPUT  "RM",
+                        INPUT  dCost,
+                        INPUT  bf-rm-rctd.pur-uom, 
+                        INPUT  bf-job-mat.sc-uom,
+                        INPUT  dBasisWeight,
+                        INPUT  dLength,
+                        INPUT  dWidth,
+                        INPUT  dDepth,
+                        INPUT  0,
+                        OUTPUT dCost,
+                        OUTPUT lError,
+                        OUTPUT cMessage
+                        ).
+
+                ASSIGN
+                    bf-mat-act.qty-uom = bf-job-mat.qty-uom
+                    bf-mat-act.cost    = dCost
+                    bf-mat-act.qty     = bf-mat-act.qty     + dJobMatUOMQty
+                    bf-job-mat.qty-iss = bf-job-mat.qty-iss + dJobMatUOMQty
+                    bf-job-mat.qty-all = bf-job-mat.qty-all - dJobMatUOMQty
+                    bf-item.q-comm     = bf-item.q-comm     - bf-rm-rctd.qty
+                    .
+
+                RUN Conv_QuantityFromUOMToUOM (
+                    INPUT  bf-rm-rctd.company,
+                    INPUT  bf-rm-rctd.i-no,
+                    INPUT  "RM",
+                    INPUT  bf-rm-rctd.qty,
+                    INPUT  bf-rm-rctd.pur-uom, 
+                    INPUT  bf-job-mat.sc-uom,
+                    INPUT  dBasisWeight,
+                    INPUT  dLength,
+                    INPUT  dWidth,
+                    INPUT  dDepth,
+                    INPUT  0,
+                    OUTPUT dJobMatUOMQty,
+                    OUTPUT lError,
+                    OUTPUT cMessage
+                    ).
+                
+                bf-mat-act.ext-cost = bf-mat-act.ext-cost + (dCost * dJobMatUOMQty).
+                
+                /* Don't relieve more than were allocated */
+                IF bf-job-mat.qty-all LT 0 THEN DO:
+                    RUN Conv_QuantityFromUOMToUOM (
+                        INPUT  bf-rm-rctd.company,
+                        INPUT  bf-rm-rctd.i-no,
+                        INPUT  "RM",
+                        INPUT  bf-job-mat.qty-all,
+                        INPUT  bf-job-mat.qty-uom, 
+                        INPUT  bf-rm-rctd.pur-uom,
+                        INPUT  dBasisWeight,
+                        INPUT  dLength,
+                        INPUT  dWidth,
+                        INPUT  dDepth,
+                        INPUT  0,
+                        OUTPUT dJobMatUOMQty,
+                        OUTPUT lError,
+                        OUTPUT cMessage
+                        ).
+
+                    ASSIGN
+                        bf-job-mat.qty-all = 0
+                        bf-item.q-comm     = bf-item.q-comm - dJobMatUOMQty
+                        .
+                END.
+
+                IF bf-item.q-comm LT 0 THEN 
+                    bf-item.q-comm = 0.
+    
+                IF bf-item.mat-type EQ "B" THEN 
+                    RUN rm/rm-addcr.p (
+                        INPUT ROWID(bf-rm-rctd)
+                        ).
+            END.
+            FIND FIRST bf-rm-bin EXCLUSIVE-LOCK
+                 WHERE bf-rm-bin.company EQ bf-rm-rctd.company
+                   AND bf-rm-bin.loc     EQ bf-rm-rctd.loc
+                   AND bf-rm-bin.i-no    EQ bf-rm-rctd.i-no
+                   AND bf-rm-bin.loc-bin EQ bf-rm-rctd.loc-bin
+                   AND bf-rm-bin.tag     EQ bf-rm-rctd.tag
+                 NO-ERROR.
+    
+            ASSIGN
+                bf-rm-bin.qty     = bf-rm-bin.qty - dItemConsUOMQty
+                bf-item.q-onh     = bf-item.q-onh - dItemConsUOMQty
+                bf-item.qlast-iss = bf-rm-rctd.qty
+                bf-item.dlast-iss = bf-rm-rctd.rct-date
+                bf-item.q-ytd     = bf-item.q-ytd + bf-rm-rctd.qty
+                bf-item.q-ptd     = bf-item.q-ptd + bf-rm-rctd.qty
+                bf-item.u-ptd     = bf-item.u-ptd + (bf-rm-rctd.cost * bf-rm-rctd.qty)
+                bf-item.u-ytd     = bf-item.u-ytd + (bf-rm-rctd.cost * bf-rm-rctd.qty)
+                bf-item.q-avail   = bf-item.q-onh + bf-item.q-ono - bf-item.q-comm.
+             
+            IF NOT lKeepZeroRMBin AND bf-rm-bin.qty EQ 0 THEN
+                DELETE bf-rm-bin.
+        END.  /* I */
+        ELSE IF bf-rm-rctd.rita-code EQ "A" THEN DO:  /** ADJUSTMENTS **/
+            IF bf-rm-rctd.cost NE 0 THEN
+                RUN pCalculateAverageCost (
+                    INPUT  bf-rm-bin.qty,
+                    INPUT  bf-rm-rctd.qty,
+                    INPUT  bf-rm-bin.cost,
+                    INPUT  bf-rm-rctd.cost,
+                    OUTPUT bf-rm-bin.cost
+                    ).
+            ASSIGN
+                bf-rm-bin.qty     = bf-rm-bin.qty + dItemConsUOMQty
+                bf-item.last-cost = IF bf-rm-rctd.cost NE 0 THEN 
+                                        bf-rm-rctd.cost
+                                    ELSE 
+                                        bf-item.last-cost
+                bf-item.q-onh     = bf-item.q-onh + dItemConsUOMQty
+                bf-item.q-avail   = bf-item.q-onh + bf-item.q-ono - bf-item.q-comm
+                .
+        END. /* A */
+        ELSE IF bf-rm-rctd.rita-code EQ "T" THEN DO:  /** TRANSFERS **/
+            ASSIGN
+                bf-rm-bin.qty   = bf-rm-bin.qty - bf-rm-rctd.qty
+                bf-rm-rctd.cost = bf-rm-bin.cost
+                .
+            
+            /* This code is to handle the Transfer to quantity to increase the BIN
+               using a buffer record so current bf-rm-bin record is not updated. */
+            
+            FIND FIRST bf-transfer-rm-bin
+                 WHERE bf-transfer-rm-bin.company EQ bf-rm-rctd.company
+                   AND bf-transfer-rm-bin.loc     EQ bf-rm-rctd.loc2
+                   AND bf-transfer-rm-bin.i-no    EQ bf-rm-rctd.i-no
+                   AND bf-transfer-rm-bin.loc-bin EQ bf-rm-rctd.loc-bin2
+                   AND bf-transfer-rm-bin.tag     EQ bf-rm-rctd.tag2
+                 NO-ERROR.
+            IF NOT AVAIL bf-transfer-rm-bin THEN DO:
+                CREATE bf-transfer-rm-bin.
+                ASSIGN
+                    bf-transfer-rm-bin.company = bf-rm-rctd.company
+                    bf-transfer-rm-bin.loc     = bf-rm-rctd.loc2
+                    bf-transfer-rm-bin.loc-bin = bf-rm-rctd.loc-bin2
+                    bf-transfer-rm-bin.tag     = bf-rm-rctd.tag2
+                    bf-transfer-rm-bin.i-no    = bf-rm-rctd.i-no
+                    .
+            END.   
+
+            RUN pCalculateAverageCost (
+                INPUT  bf-transfer-rm-bin.qty,
+                INPUT  bf-rm-rctd.qty,
+                INPUT  bf-transfer-rm-bin.cost,
+                INPUT  bf-rm-rctd.cost,
+                OUTPUT bf-transfer-rm-bin.cost
+                ).
+
+            bf-transfer-rm-bin.qty = bf-transfer-rm-bin.qty + bf-rm-rctd.qty.
+        END. /* T */
+
+        IF TRIM(bf-rm-rctd.tag) NE "" THEN
+            FIND FIRST bf-loadtag EXCLUSIVE-LOCK 
+                 WHERE bf-loadtag.company     EQ bf-rm-rctd.company
+                   AND bf-loadtag.item-type   EQ YES
+                   AND bf-loadtag.tag-no      EQ bf-rm-rctd.tag
+                   AND bf-loadtag.i-no        EQ bf-rm-rctd.i-no
+                   AND bf-loadtag.is-case-tag EQ NO
+                 NO-ERROR.
+
+        IF AVAILABLE bf-loadtag THEN DO:
+            IF bf-rm-rctd.rita-code EQ "T" THEN 
+                ASSIGN
+                    bf-loadtag.loc     = bf-rm-rctd.loc2
+                    bf-loadtag.loc-bin = bf-rm-rctd.loc-bin2
+                    .
+            ELSE
+                ASSIGN
+                    bf-loadtag.loc     = bf-rm-rctd.loc
+                    bf-loadtag.loc-bin = bf-rm-rctd.loc-bin
+                    .
+            
+            IF bf-rm-rctd.rita-code EQ "R" THEN
+                bf-loadtag.sts = "Received".
+            ELSE IF bf-rm-rctd.rita-code EQ "I" THEN
+                bf-loadtag.sts = "Issued".            
+                        
+            IF bf-rm-rctd.rita-code EQ "R" AND (NOT AVAILABLE bf-rm-bin OR bf-rm-bin.qty LT 0) THEN
+                bf-loadtag.sts = "Deleted".        
+        END.
+
+        FOR EACH bf-prep EXCLUSIVE-LOCK
+            WHERE bf-prep.company EQ bf-rm-rctd.company                          
+              AND bf-prep.code    EQ bf-rm-rctd.i-no:
+            ASSIGN
+                bf-prep.loc            = bf-rm-rctd.loc
+                bf-prep.loc-bin        = bf-rm-rctd.loc-bin
+                bf-prep.received-date  = bf-rm-rctd.rct-date
+                .
+            IF bf-rm-rctd.job-no NE "" THEN
+                ASSIGN
+                    bf-prep.last-job-no    = bf-rm-rctd.job-no
+                    bf-prep.last-job-no2   = bf-rm-rctd.job-no2
+                    .
+        END.
+    END.
+
+    ASSIGN
+        oplSuccess = TRUE
+        opcMessage = "Success"
+        .    
+END PROCEDURE.
+
+PROCEDURE pCreateRawMaterialsToPost PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriRmRctd   AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER iplAutoIssue AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iPOValidator    AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dTotalJobMatQty AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dTotalPostQty   AS DECIMAL NO-UNDO.
+    
+    DEFINE BUFFER bf-rm-rctd                    FOR rm-rctd.
+    DEFINE BUFFER bf-item                       FOR item.
+    DEFINE BUFFER bf-adder-item                 FOR item.
+    DEFINE BUFFER bf-po-ord                     FOR po-ord.
+    DEFINE BUFFER bf-po-ordl                    FOR po-ordl.
+    DEFINE BUFFER bf-job                        FOR job.
+    DEFINE BUFFER bf-job-mat                    FOR job-mat.
+    DEFINE BUFFER bf-ttRawMaterialsToPost       FOR ttRawMaterialsToPost.
+    DEFINE BUFFER bf-child-ttRawMaterialsToPost FOR ttRawMaterialsToPost.
+    
+    FIND FIRST bf-rm-rctd NO-LOCK 
+         WHERE ROWID(bf-rm-rctd) EQ ipriRmRctd
+         NO-ERROR.
+    IF NOT AVAILABLE bf-rm-rctd THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid rm-rctd record"
+            .
+        RETURN.
+    END.
+    
+    CREATE ttRawMaterialsToPost.
+    ASSIGN
+        ttRawMaterialsToPost.rmRctdRowID = ROWID(bf-rm-rctd)
+        ttRawMaterialsToPost.sequenceID  = 1
+        ttRawMaterialsToPost.itemID      = bf-rm-rctd.i-no
+        ttRawMaterialsToPost.quantity    = bf-rm-rctd.qty
+        ttRawMaterialsToPost.ritaCode    = bf-rm-rctd.rita-code
+        .
+        
+    IF bf-rm-rctd.job-no EQ "" THEN
+        LEAVE.
+        
+    IF bf-rm-rctd.rita-code EQ "R" THEN DO:   
+        FIND FIRST bf-item NO-LOCK
+             WHERE bf-item.company EQ bf-rm-rctd.company
+               AND bf-item.i-no    EQ bf-rm-rctd.i-no
+             NO-ERROR.
+        IF NOT AVAILABLE bf-item THEN
+            LEAVE.
+
+/*        IF NOT(iplAutoIssue OR (bf-item.i-code EQ "E" AND bf-rm-rctd.tag EQ "")) THEN*/
+/*            LEAVE.                                                                   */
+        
+        /* Validate if po-no can be converted to integer */ 
+        IF bf-rm-rctd.po-no NE "" THEN DO:
+            iPOValidator = INTEGER(bf-rm-rctd.po-no) NO-ERROR.
+            IF ERROR-STATUS:ERROR THEN
+                LEAVE.
+        
+            FIND FIRST bf-po-ordl NO-LOCK 
+                 WHERE bf-po-ordl.company   EQ bf-rm-rctd.company
+                   AND bf-po-ordl.i-no      EQ bf-rm-rctd.i-no
+                   AND bf-po-ordl.po-no     EQ INTEGER(bf-rm-rctd.po-no)
+                   AND bf-po-ordl.job-no    EQ bf-rm-rctd.job-no
+                   AND bf-po-ordl.job-no2   EQ bf-rm-rctd.job-no2
+                   AND bf-po-ordl.item-type EQ YES
+                 USE-INDEX item-ordno NO-ERROR.
+        END.
+        
+        IF bf-item.mat-type NE "I" OR AVAILABLE bf-po-ordl THEN DO:
+            IF bf-item.i-code EQ "E" AND NOT AVAILABLE bf-po-ordl THEN
+                LEAVE.
+
+            IF bf-item.i-code EQ "R" AND NOT iplAutoIssue THEN
+                LEAVE.
+        END.
+                
+        IF bf-rm-rctd.job-no NE "" AND bf-rm-rctd.s-num EQ ? THEN
+            FIND FIRST bf-job NO-LOCK
+                 WHERE bf-job.company EQ bf-rm-rctd.company
+                   AND bf-job.job-no  EQ bf-rm-rctd.job-no
+                   AND bf-job.job-no2 EQ bf-rm-rctd.job-no2
+                 NO-ERROR.
+
+        IF AVAIL bf-job THEN DO:
+            FOR EACH bf-job-mat NO-LOCK
+                WHERE bf-job-mat.company EQ bf-job.company
+                  AND bf-job-mat.job     EQ bf-job.job
+                  AND bf-job-mat.job-no  EQ bf-job.job-no
+                  AND bf-job-mat.job-no2 EQ bf-job.job-no2
+                  AND bf-job-mat.rm-i-no EQ bf-rm-rctd.i-no
+                BY bf-job-mat.frm:                    
+                CREATE bf-child-ttRawMaterialsToPost.
+                BUFFER-COPY ttRawMaterialsToPost EXCEPT rmRctdRowID TO bf-child-ttRawMaterialsToPost
+                ASSIGN
+                    bf-child-ttRawMaterialsToPost.formNo      = bf-job-mat.frm
+                    bf-child-ttRawMaterialsToPost.quantity    = bf-job-mat.qty
+                    bf-child-ttRawMaterialsToPost.ritaCode    = "I"
+                    bf-child-ttRawMaterialsToPost.itemID      = bf-rm-rctd.i-no
+                    bf-child-ttRawMaterialsToPost.parentRowID = ROWID(ttRawMaterialsToPost)
+                    bf-child-ttRawMaterialsToPost.sequenceID  = 2
+                    dTotalJobMatQty                           = dTotalJobMatQty + bf-job-mat.qty
+                    .                            
+            END.
+        END.
+        ELSE DO:
+            CREATE bf-child-ttRawMaterialsToPost.
+            BUFFER-COPY ttRawMaterialsToPost EXCEPT rmRctdRowID TO bf-child-ttRawMaterialsToPost
+            ASSIGN
+                bf-child-ttRawMaterialsToPost.formNo      = bf-rm-rctd.s-num
+                bf-child-ttRawMaterialsToPost.quantity    = bf-rm-rctd.qty
+                bf-child-ttRawMaterialsToPost.ritaCode    = "I"
+                bf-child-ttRawMaterialsToPost.parentRowID = ROWID(ttRawMaterialsToPost)
+                bf-child-ttRawMaterialsToPost.sequenceID  = 2
+                .
+        END.
+
+        IF AVAILABLE bf-po-ordl THEN
+            FIND FIRST bf-po-ord NO-LOCK 
+                 WHERE bf-po-ord.company EQ bf-po-ordl.company 
+                   AND bf-po-ord.po-no   EQ bf-po-ordl.po-no 
+                 NO-ERROR.
+
+        FOR EACH bf-ttRawMaterialsToPost
+            WHERE bf-ttRawMaterialsToPost.parentRowID EQ ROWID(ttRawMaterialsToPost):
+
+            IF AVAILABLE bf-po-ord AND bf-po-ord.TYPE <> "S" THEN
+                bf-ttRawMaterialsToPost.poID = "".
+                
+            bf-ttRawMaterialsToPost.quantity = ttRawMaterialsToPost.quantity * ( bf-ttRawMaterialsToPost.quantity / dTotalJobMatQty).
+            IF bf-rm-rctd.pur-uom EQ "EA" THEN DO:
+                IF (bf-ttRawMaterialsToPost.quantity - INTEGER(bf-ttRawMaterialsToPost.quantity)) > 0 THEN
+                    bf-ttRawMaterialsToPost.quantity = INTEGER(bf-ttRawMaterialsToPost.quantity) + 1.
+                ELSE
+                    bf-ttRawMaterialsToPost.quantity = INTEGER(bf-ttRawMaterialsToPost.quantity).
+            END.
+            
+            dTotalPostQty = dTotalPostQty + bf-ttRawMaterialsToPost.quantity.
+        END.
+        
+        /* Adjust the quantity in the first available record */
+        IF bf-ttRawMaterialsToPost.quantity NE ttRawMaterialsToPost.quantity THEN DO:
+            FIND FIRST bf-ttRawMaterialsToPost
+                 WHERE bf-ttRawMaterialsToPost.parentRowID EQ ROWID(ttRawMaterialsToPost)
+                 NO-ERROR.
+            IF AVAILABLE bf-ttRawMaterialsToPost THEN
+                bf-ttRawMaterialsToPost.quantity = bf-ttRawMaterialsToPost.quantity + (ttRawMaterialsToPost.quantity - dTotalPostQty).
+        END.
+    END.
+
+    FOR EACH bf-ttRawMaterialsToPost
+        WHERE bf-ttRawMaterialsToPost.parentRowID EQ ROWID(ttRawMaterialsToPost)
+          AND bf-ttRawMaterialsToPost.ritaCode    EQ "I"
+          AND bf-ttRawMaterialsToPost.sequenceID  EQ 2,
+        FIRST bf-job NO-LOCK
+        WHERE bf-job.company EQ bf-rm-rctd.company
+          AND bf-job.job-no  EQ bf-rm-rctd.job-no
+          AND bf-job.job-no2 EQ bf-rm-rctd.job-no2,
+        FIRST bf-item NO-LOCK
+        WHERE bf-item.company  EQ bf-rm-rctd.company
+          AND bf-item.i-no     EQ bf-rm-rctd.i-no
+          AND bf-item.mat-type EQ "B":
+
+        FOR EACH bf-job-mat NO-LOCK
+            WHERE bf-job-mat.company EQ bf-rm-rctd.company
+              AND bf-job-mat.job     EQ bf-job.job
+              AND bf-job-mat.frm     EQ bf-rm-rctd.s-num
+            USE-INDEX seq-idx,
+            FIRST bf-adder-item NO-LOCK
+            WHERE bf-adder-item.company  EQ bf-rm-rctd.company
+              AND bf-adder-item.i-no     EQ bf-job-mat.rm-i-no
+              AND bf-adder-item.mat-type EQ "A"
+              AND bf-adder-item.i-code   EQ "E":
+            bf-ttRawMaterialsToPost.sequenceID = 3.
+        END.
+    END.    
+    
+    ASSIGN
+        oplSuccess = TRUE
+        opcMessage = "Success"
+        .
+        
+END PROCEDURE.
+
+PROCEDURE pRawMaterialPurchaseOrderUpdate PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes: A business logic copy of rm/rm-poupd.i
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER    BUFFER    ipbf-rm-rctd   FOR rm-rctd.
+    DEFINE PARAMETER    BUFFER    ipbf-item      FOR item.
+    DEFINE INPUT-OUTPUT PARAMETER iopdConsUOMQty AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER oplSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iIndex       AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iPOValidator AS INTEGER NO-UNDO.
+    DEFINE VARIABLE riPOOrdl     AS ROWID   NO-UNDO.
+    DEFINE VARIABLE lError       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-po-ord  FOR po-ord.
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    
+    oplSuccess = TRUE.        
+        
+    IF AVAILABLE ipbf-rm-rctd THEN DO:
+        iPOValidator = INTEGER(ipbf-rm-rctd.po-no) NO-ERROR.
+        
+        IF iPOValidator EQ 0 THEN
+            RETURN.
+
+        FIND FIRST bf-po-ord EXCLUSIVE-LOCK
+             WHERE bf-po-ord.company EQ ipbf-rm-rctd.company
+               AND bf-po-ord.po-no   EQ INTEGER(ipbf-rm-rctd.po-no)
+             NO-WAIT NO-ERROR.
+        IF NOT AVAILABLE bf-po-ord AND LOCKED bf-po-ord THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "Purchase Order Record " + STRING(ipbf-rm-rctd.po-no)
+                           + "is in use.  Can Not Update..."
+                .
+            RETURN.
+        END.
+
+        riPOOrdl = ?.
+
+        FOR EACH bf-po-ordl NO-LOCK 
+            WHERE bf-po-ordl.company   EQ ipbf-rm-rctd.company
+              AND bf-po-ordl.i-no      EQ ipbf-rm-rctd.i-no
+              AND bf-po-ordl.po-no     EQ INTEGER(ipbf-rm-rctd.po-no)
+              AND bf-po-ordl.LINE      EQ ipbf-rm-rctd.po-line 
+              AND bf-po-ordl.deleted   EQ NO
+              AND bf-po-ordl.item-type EQ YES
+              AND bf-po-ordl.job-no    EQ ipbf-rm-rctd.job-no
+              AND bf-po-ordl.job-no2   EQ ipbf-rm-rctd.job-no2
+              USE-INDEX item-ordno
+            BREAK BY bf-po-ordl.s-num DESCENDING:
+            riPOOrdl = ROWID(po-ordl).  
+            IF LAST(bf-po-ordl.s-num) OR bf-po-ordl.s-num EQ ipbf-rm-rctd.s-num THEN
+                LEAVE.
+        END.
+
+        FIND FIRST bf-po-ordl EXCLUSIVE-LOCK
+             WHERE ROWID(bf-po-ordl) EQ riPOOrdl
+             NO-WAIT NO-ERROR.
+        IF AVAILABLE bf-po-ordl THEN DO:
+            iopdConsUOMQty = ipbf-rm-rctd.qty.
+            IF ipbf-rm-rctd.pur-uom NE bf-po-ordl.cons-uom THEN
+                RUN Conv_QuantityFromUOMToUOM (
+                    INPUT  ipbf-rm-rctd.company,
+                    INPUT  ipbf-rm-rctd.i-no,
+                    INPUT  "RM",
+                    INPUT  iopdConsUOMQty,
+                    INPUT  ipbf-rm-rctd.pur-uom, 
+                    INPUT  bf-po-ordl.cons-uom,
+                    INPUT  ipbf-item.basis-w,
+                    INPUT  bf-po-ordl.s-len,
+                    INPUT  bf-po-ordl.s-wid,
+                    INPUT  ipbf-item.s-dep,
+                    INPUT  0,
+                    OUTPUT iopdConsUOMQty,
+                    OUTPUT lError,
+                    OUTPUT cMessage
+                    ).
+            ASSIGN
+                bf-po-ord.received   = TRUE
+                bf-po-ordl.t-rec-qty = bf-po-ordl.t-rec-qty + iopdConsUOMQty
+                .
+                
+            RUN rm/polclose.p (
+                INPUT ROWID(bf-po-ordl),
+                INPUT ipbf-rm-rctd.qty, 
+                INPUT ipbf-rm-rctd.pur-uom
+                ).
+            /* Need to check the purpose of fetching the record again */
+            FIND CURRENT bf-po-ordl EXCLUSIVE-LOCK NO-ERROR.
+        END.  
+        ELSE IF LOCKED po-ordl THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "Purchase Order Line Record is in use.  Can Not Update..."
+                .
+            RETURN.
+        END.
+        ELSE DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "Purchase Order Line Record not found.  Can Not Update..."
+                .
+            RETURN.
+        END.
+    END.
+END PROCEDURE.
+
+PROCEDURE pValidateIssueAndBinQuantity PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Valudate Raw Material issue quantity with bin quantity
+ Notes: This is an equivalent code to procedure checkIssuedQty in r-rmte&p.p.
+        But for some reason the output of procedure checkIssuedQty is irrelevant in posting
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE INPUT  PARAMETER iTotalIssueQty AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER iTotalBinQty   AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
+    DEFINE BUFFER bf-item    FOR item.
+    DEFINE BUFFER bf-rm-bin  FOR rm-bin.
+    
+    oplSuccess = TRUE.
+    
+    FOR EACH ttRawMaterialsToPost,
+        FIRST bf-rm-rctd NO-LOCK
+        WHERE ROWID(bf-rm-rctd)    EQ ttRawMaterialsToPost.rmRctdRowID
+          AND bf-rm-rctd.rita-code EQ "I"
+        BREAK BY bf-rm-rctd.i-no
+              BY bf-rm-rctd.loc
+              BY bf-rm-rctd.loc-bin
+              BY bf-rm-rctd.tag:
+        iTotalIssueQty = iTotalIssueQty + bf-rm-rctd.qty.
+       
+        IF LAST-OF(bf-rm-rctd.tag) THEN DO:
+            FIND FIRST bf-item NO-LOCK
+                 WHERE bf-item.company EQ bf-rm-rctd.company
+                   AND bf-item.i-no    EQ bf-rm-rctd.i-no
+                 NO-ERROR.            
+            IF AVAILABLE bf-item AND NOT bf-item.stocked THEN
+                NEXT.
+
+            FOR EACH bf-rm-bin NO-LOCK 
+                WHERE bf-rm-bin.company EQ bf-rm-rctd.company
+                  AND bf-rm-bin.i-no    EQ bf-rm-rctd.i-no
+                  AND bf-rm-bin.tag     EQ bf-rm-rctd.tag
+                  AND bf-rm-bin.loc     EQ bf-rm-rctd.loc
+                  AND bf-rm-bin.loc-bin EQ bf-rm-rctd.loc-bin:
+                iTotalBinQty = iTotalBinQty + bf-rm-bin.qty.
+            END.
+          
+            IF iTotalIssueQty GT iTotalBinQty THEN DO:
+                ASSIGN
+                    opcMessage = "Quantity Issued is greater than Bins On Hand + Unposted Issues for item " 
+                               + bf-rm-rctd.i-no 
+                               + " and Tag " + bf-rm-rctd.tag + "."
+                               + "Please update Issues to post."    
+                    oplSuccess = NO
+                    .
+            END.
+            ASSIGN 
+                iTotalIssueQty = 0
+                iTotalBinQty   = 0
+                .
+        END.
+    END.
+END PROCEDURE.
+
+PROCEDURE pValidateRMLocBinTag PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Vlaidates location, tag and quantity for RM receipts
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWarehouse AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQuantity  AS DECIMAL   NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplSuccess   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
+    DEFINE BUFFER bf-rm-rcpth FOR rm-rcpth.
+    
+    IF NOT CAN-FIND(FIRST rm-bin 
+                    WHERE rm-bin.company EQ ipcCompany
+                      AND rm-bin.i-no    EQ ipcItemID
+                      AND rm-bin.loc     EQ ipcWarehouse
+                      AND rm-bin.loc-bin EQ ipcLocation
+                      AND rm-bin.tag     EQ ipcTag) THEN DO:
+        IF ipdQuantity LE 0 THEN DO:
+            IF ipcTag NE "" THEN
+                FOR EACH bf-rm-rdtlh NO-LOCK
+                    WHERE bf-rm-rdtlh.company  EQ ipcCompany
+                      AND bf-rm-rdtlh.loc      EQ ipcWarehouse
+                      AND bf-rm-rdtlh.tag      EQ ipcTag
+                      AND bf-rm-rdtlh.loc-bin  EQ ipcLocation
+                    USE-INDEX tag,
+                    FIRST bf-rm-rcpth NO-LOCK
+                    WHERE bf-rm-rcpth.r-no      EQ bf-rm-rdtlh.r-no
+                      AND bf-rm-rcpth.rita-code EQ bf-rm-rdtlh.rita-code
+                      AND bf-rm-rcpth.i-no      EQ ipcItemID
+                    USE-INDEX r-no:
+                    LEAVE.
+                END.
+            ELSE
+                FOR EACH bf-rm-rcpth NO-LOCK 
+                    WHERE bf-rm-rcpth.company EQ ipcCompany
+                      AND bf-rm-rcpth.i-no    EQ ipcItemID
+                    USE-INDEX i-no,
+                    EACH bf-rm-rdtlh NO-LOCK
+                    WHERE bf-rm-rdtlh.r-no      EQ bf-rm-rcpth.r-no
+                      AND bf-rm-rdtlh.rita-code EQ bf-rm-rcpth.rita-code
+                      AND bf-rm-rdtlh.loc      EQ ipcWarehouse
+                      AND bf-rm-rdtlh.loc-bin  EQ ipcLocation:
+                    LEAVE.
+                END.
+        END.
+        
+        IF NOT AVAILABLE bf-rm-rdtlh THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "Invalid entry, no bin and location found for this tag..."
+                .
+            RETURN.
+        END.
+    END.
+    
+    ASSIGN
+        oplSuccess = TRUE
+        opcMessage = "Success"
+        .
 END PROCEDURE.
 
 PROCEDURE RecalculateQuantities:
@@ -3076,45 +4724,140 @@ END PROCEDURE.
 
 PROCEDURE RebuildRMBrowse:
     /*------------------------------------------------------------------------------
-     Purpose: Rebuilds browse temp-table
+     Purpose: Rebuilds browse temp-table from new inventory tables
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcJobno      AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcMachine    AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiJobno2     AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiFormno     AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiBlankno    AS INTEGER   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcRMItem     AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiTotTags    AS INTEGER   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opiTotOnHand  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMachine   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormno    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankno   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMItem    AS CHARACTER NO-UNDO.
     
     EMPTY TEMP-TABLE ttBrowseInventory.
     
-    FOR EACH inventoryStock NO-LOCK
-       WHERE inventoryStock.company   EQ ipcCompany
-         AND inventoryStock.jobID     EQ ipcJobno
-         AND inventoryStock.jobID2    EQ ipiJobno2   
-         AND (IF ipcMachine           EQ "" THEN TRUE 
-              ELSE inventoryStock.MachineID EQ ipcMachine)
-         AND (IF ipcRMItem            EQ "" THEN TRUE
-              ELSE inventoryStock.rmItemID  EQ ipcRMItem)
-         AND inventoryStock.formNo    EQ ipiFormno   
-         AND inventoryStock.blankNo   EQ ipiBlankno
-        :
-        CREATE ttBrowseInventory.
-        BUFFER-COPY inventoryStock EXCEPT inventoryStock.locationID TO ttBrowseInventory.
-        ASSIGN
-            ttBrowseinventory.locationID = inventoryStock.warehouseID +
-                                           FILL(" ", 5 - LENGTH(inventoryStock.warehouseID)) +
-                                           inventoryStock.locationID
-            opiTotTags                   = opiTotTags + 1.
-         
-        IF inventoryStock.inventoryStatus EQ gcStatusStockReceived THEN
-            opiTotOnHand = opiTotOnHand + 1.
+    RUN pRebuildRMBrowse (
+        INPUT  ipcCompany,
+        INPUT  ipcJobno,
+        INPUT  ipcMachine,
+        INPUT  ipiJobno2,
+        INPUT  ipiFormno,
+        INPUT  ipiBlankno,
+        INPUT  ipcRMItem,
+        INPUT  TRUE /* Use new inventory tables */
+        ).
         
+END PROCEDURE.
+
+PROCEDURE RebuildRMBrowseLegacy:
+    /*------------------------------------------------------------------------------
+     Purpose: Rebuilds browse temp-table from legacy tables
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMachine   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormno    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankno   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMItem    AS CHARACTER NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttBrowseInventory.
+    
+    RUN pRebuildRMBrowse (
+        INPUT  ipcCompany,
+        INPUT  ipcJobno,
+        INPUT  ipcMachine,
+        INPUT  ipiJobno2,
+        INPUT  ipiFormno,
+        INPUT  ipiBlankno,
+        INPUT  ipcRMItem,
+        INPUT  FALSE     /* Use new inventory tables */
+        ).
+        
+END PROCEDURE.
+
+PROCEDURE pRebuildRMBrowse PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Rebuilds browse temp-table
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobno              AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMachine            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobno2             AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormno             AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankno            AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcRMItem             AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplUseInventoryTables AS LOGICAL   NO-UNDO.    
+    
+    EMPTY TEMP-TABLE ttBrowseInventory.
+    
+    DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
+    
+    IF iplUseInventoryTables THEN DO:
+        FOR EACH inventoryStock NO-LOCK
+           WHERE inventoryStock.company   EQ ipcCompany
+             AND inventoryStock.jobID     EQ ipcJobno
+             AND inventoryStock.jobID2    EQ ipiJobno2   
+             AND (IF ipcMachine           EQ "" THEN TRUE 
+                  ELSE inventoryStock.MachineID EQ ipcMachine)
+             AND (IF ipcRMItem            EQ "" THEN TRUE
+                  ELSE inventoryStock.rmItemID  EQ ipcRMItem)
+             AND inventoryStock.formNo    EQ ipiFormno   
+             AND inventoryStock.blankNo   EQ ipiBlankno
+            :
+            CREATE ttBrowseInventory.
+            BUFFER-COPY inventoryStock TO ttBrowseInventory.    
+        END.        
     END.
+    ELSE DO:
+        FOR EACH bf-rm-rctd NO-LOCK 
+            WHERE bf-rm-rctd.company   EQ ipcCompany
+              AND bf-rm-rctd.rita-code EQ "I"
+              AND bf-rm-rctd.qty       GT 0
+              AND bf-rm-rctd.tag       NE ''
+              AND bf-rm-rctd.job-no    EQ ipcJobNo
+              AND bf-rm-rctd.job-no2   EQ ipiJobNo2
+              AND bf-rm-rctd.s-num     EQ ipiFormNo
+              AND bf-rm-rctd.b-num     EQ ipiBlankNo
+              AND bf-rm-rctd.i-no      EQ ipcRMItem:
+            FIND FIRST ttBrowseInventory
+                 WHERE ttBrowseInventory.inventoryStockID EQ STRING(ROWID(rm-rctd))
+                 NO-ERROR.
+            IF NOT AVAILABLE ttbrowseInventory THEN
+                CREATE ttBrowseInventory.
+
+            ASSIGN
+                ttBrowseInventory.company             = bf-rm-rctd.company
+                ttBrowseInventory.rmItemID            = bf-rm-rctd.i-no
+                ttBrowseInventory.primaryID           = bf-rm-rctd.i-no
+                ttBrowseInventory.itemType            = gcItemTypeRM
+                ttBrowseInventory.quantity            = bf-rm-rctd.qty
+                ttBrowseInventory.jobID               = bf-rm-rctd.job-no
+                ttBrowseInventory.jobID2              = bf-rm-rctd.job-no2
+                ttBrowseInventory.formNo              = bf-rm-rctd.s-num
+                ttBrowseInventory.blankNo             = bf-rm-rctd.b-num
+                ttBrowseInventory.tag                 = bf-rm-rctd.tag
+                ttBrowseInventory.warehouseID         = bf-rm-rctd.loc
+                ttBrowseInventory.locationID          = bf-rm-rctd.loc-bin
+                ttBrowseInventory.quantityOriginal    = bf-rm-rctd.qty
+                ttBrowseInventory.inventoryStatus     = gcStatusStockScanned
+                ttBrowseInventory.rec_key             = bf-rm-rctd.rec_key
+                ttBrowseInventory.inventoryStockID    = STRING(ROWID(bf-rm-rctd))
+                .
+        END.
         
+        FOR EACH ttBrowseInventory:
+            FIND FIRST bf-rm-rctd NO-LOCK
+                 WHERE ROWID(bf-rm-rctd) EQ TO-ROWID(ttBrowseInventory.inventoryStockID)
+                 NO-ERROR.
+            IF NOT AVAILABLE bf-rm-rctd THEN
+                ttBrowseInventory.inventoryStatus = gcStatusStockConsumed.
+        END.
+    END.
+     
 END PROCEDURE.
 
 PROCEDURE RebuildBrowseTTFromPO:
@@ -3994,14 +5737,51 @@ PROCEDURE pGetInventoryStockDetails:
     DEFINE OUTPUT PARAMETER opcMessage             AS CHARACTER NO-UNDO.     
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttInventoryStockDetails.
         
+    DEFINE BUFFER bf-loadtag FOR loadtag.
+    
     FIND FIRST inventoryStock NO-LOCK
          WHERE inventoryStock.company EQ ipcCompany
            AND inventoryStock.tag     EQ ipcStockIDAlias
          NO-ERROR.
     
+    /* Currently only fetches data for rita-code "I" */
+    FIND FIRST bf-loadtag NO-LOCK
+         WHERE bf-loadtag.company   EQ ipcCompany
+           AND bf-loadtag.item-type EQ TRUE
+           AND bf-loadtag.tag-no    EQ ipcStockIDAlias
+         NO-ERROR.
+    IF NOT AVAILABLE bf-loadtag THEN
+        FIND FIRST bf-loadtag NO-LOCK 
+             WHERE bf-loadtag.company      EQ ipcCompany
+               AND bf-loadtag.item-type    EQ YES
+               AND bf-loadtag.misc-char[1] EQ ipcStockIDAlias
+             NO-ERROR.
+     
     EMPTY TEMP-TABLE ttInventoryStockDetails.
     
-    IF AVAILABLE inventoryStock THEN DO:
+    /* Made legacy tables as first preference to load the data for now */
+    IF AVAILABLE bf-loadtag THEN DO:
+        CREATE ttInventoryStockDetails.
+        ASSIGN
+            ttInventoryStockDetails.company             = bf-loadtag.company
+            ttInventoryStockDetails.rmItemID            = bf-loadtag.i-no
+            ttInventoryStockDetails.primaryID           = bf-loadtag.i-no
+            ttInventoryStockDetails.itemType            = gcItemTypeRM
+            ttInventoryStockDetails.quantity            = bf-loadtag.qty
+            ttInventoryStockDetails.jobID               = bf-loadtag.job-no
+            ttInventoryStockDetails.jobID2              = bf-loadtag.job-no2
+            ttInventoryStockDetails.formNo              = bf-loadtag.form-no
+            ttInventoryStockDetails.blankNo             = bf-loadtag.blank-no
+            ttInventoryStockDetails.tag                 = bf-loadtag.tag-no
+            ttInventoryStockDetails.warehouseID         = bf-loadtag.loc
+            ttInventoryStockDetails.locationID          = bf-loadtag.loc-bin
+            ttInventoryStockDetails.quantityOriginal    = bf-loadtag.qty
+            ttInventoryStockDetails.rec_key             = bf-loadtag.rec_key
+            ttInventoryStockDetails.inventoryStockID    = STRING(ROWID(bf-loadtag))
+            oplValidInvStock                            = TRUE
+            .
+    END.    
+    ELSE IF AVAILABLE inventoryStock THEN DO:
         CREATE ttInventoryStockDetails.
         BUFFER-COPY inventoryStock TO ttInventoryStockDetails.
         
@@ -4635,6 +6415,21 @@ FUNCTION fCalculateTagCountInTTbrowse RETURNS INTEGER
     RETURN iCount.
 END FUNCTION.    
 
+FUNCTION fCalculateTagQuantityInTTbrowse RETURNS DECIMAL
+    (ipcInventoryStatus AS CHARACTER):
+    DEFINE VARIABLE dQuantity AS DECIMAL NO-UNDO.
+    
+    FOR EACH ttBrowseInventory
+        WHERE (IF ipcInventoryStatus EQ "" THEN
+                   TRUE
+               ELSE
+                   ttBrowseInventory.inventoryStatus EQ ipcInventoryStatus):
+        dQuantity = dQuantity + ttBrowseInventory.quantity.
+    END.
+    
+    RETURN dQuantity.
+END FUNCTION. 
+
 FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
     (ipcCompany AS CHARACTER, iplItemType AS LOGICAL, ipcTag AS CHARACTER):
     DEFINE VARIABLE cVendorTag AS CHARACTER NO-UNDO.
@@ -4648,4 +6443,70 @@ FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
         cVendorTag = loadtag.misc-char[1].
 
     RETURN cVendorTag.
+END FUNCTION.
+
+FUNCTION fCheckFgBinTagOnHold RETURNS LOGICAL
+    (ipcCompany AS CHARACTER, ipcItem AS CHARACTER, ipcTag AS CHARACTER):
+    DEFINE VARIABLE lReturnValue AS LOGICAL NO-UNDO.
+   
+    FIND FIRST fg-bin NO-LOCK
+         WHERE fg-bin.company   EQ ipcCompany
+           AND fg-bin.i-no EQ ipcItem
+           AND fg-bin.tag  EQ ipcTag
+           AND fg-bin.qty GT 0
+        NO-ERROR.
+    IF AVAILABLE fg-bin AND fg-bin.onHold THEN
+    lReturnValue = YES.   
+
+    RETURN lReturnValue.
+END FUNCTION.
+
+FUNCTION fItemHasOnHand RETURNS LOGICAL
+    (ipcCompany AS CHARACTER, ipcItem AS CHARACTER):    
+     DEFINE VARIABLE lReturnValue AS LOGICAL NO-UNDO.
+     DEFINE VARIABLE iQtyOnHand AS INTEGER NO-UNDO.
+     FOR EACH rm-bin FIELDS(qty )
+         WHERE rm-bin.company EQ ipcCompany
+         AND rm-bin.i-no EQ ipcItem
+         NO-LOCK:
+          ASSIGN
+          iQtyOnHand = iQtyOnHand + rm-bin.qty.
+      END.   
+      lReturnValue =  iQtyOnHand GT 0 .
+    RETURN lReturnValue.
+END FUNCTION.
+
+FUNCTION fItemIsUsed RETURNS CHARACTER
+    (ipcCompany AS CHARACTER, ipcItem AS CHARACTER):      
+    DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO .
+    
+    FOR EACH po-ordl FIELDS(po-no )  NO-LOCK
+        WHERE po-ordl.company EQ ipcCompany
+        AND po-ordl.i-no EQ  ipcItem
+        AND po-ordl.opened  :
+         cMessage = " Po# " + string(po-ordl.po-no ) .
+         LEAVE.
+    END.
+      
+    IF cMessage EQ "" THEN
+    FOR EACH oe-ordl FIELD(ord-no) NO-LOCK
+        WHERE oe-ordl.company EQ ipcCompany
+        AND oe-ordl.i-no EQ ipcItem
+        AND oe-ordl.opened  :
+         cMessage = " Order# " + string(oe-ordl.ord-no ) .
+         LEAVE.
+    END.
+    IF cMessage EQ "" THEN
+    FOR EACH job-mat NO-LOCK
+        WHERE  job-mat.company EQ ipcCompany
+        AND job-mat.rm-i-no EQ ipcItem, 
+        FIRST job-hdr FIELD(job-no)  NO-LOCK
+        WHERE  job-hdr.company EQ ipcCompany
+        AND job-hdr.job-no EQ job-mat.job-no
+        AND job-hdr.job-no2 EQ job-mat.job-no2
+        AND job-hdr.opened EQ YES :
+          cMessage = " Job# " + string(job-hdr.job-no ) .
+    END.
+
+    RETURN cMessage.
 END FUNCTION.

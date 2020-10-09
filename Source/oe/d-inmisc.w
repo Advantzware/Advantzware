@@ -1362,7 +1362,7 @@ PROCEDURE new-charge :
             NO-LOCK NO-ERROR.
         IF AVAILABLE prep THEN 
         DO:
-            inv-misc.tax:SCREEN-VALUE = STRING(prep.taxable).
+            inv-misc.tax:SCREEN-VALUE = STRING(fGetTaxableMisc(prep.company, inv-head.cust-no, inv-head.sold-no, prep.code)).
             inv-misc.dscr:SCREEN-VALUE  = prep.dscr.
 
             FIND FIRST account
@@ -2004,6 +2004,8 @@ FUNCTION fGetTaxableMisc RETURNS LOGICAL
     DEFINE VARIABLE lTaxable AS LOGICAL NO-UNDO.
 
     RUN Tax_GetTaxableMisc  (ipcCompany, ipcCust, ipcShipto, ipcPrepCode, OUTPUT lTaxable).  
+    
+    RETURN lTaxable.
 
 END FUNCTION.
 

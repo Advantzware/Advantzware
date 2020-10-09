@@ -95,7 +95,7 @@ DEFINE {1} TEMP-TABLE ttPhysicalBrowseInventory
     .
 
 DEFINE TEMP-TABLE ttInventoryStockDetails NO-UNDO
-    LIKE inventoryStock
+    LIKE ttBrowseInventory
     .
 
 DEFINE TEMP-TABLE ttPOOrderLineDetails NO-UNDO
@@ -272,52 +272,77 @@ DEFINE {1} TEMP-TABLE ttPrintInventoryStockRM NO-UNDO
     FIELDS firstPress             AS CHARACTER LABEL 'First Press'                                                           
     .
             		       	    
-DEFINE VARIABLE gcStatusStockPreLoadtag    AS CHARACTER INITIAL "PreLoadtag".
-DEFINE VARIABLE gcStatusStockLoadtag       AS CHARACTER INITIAL "Loadtag".
-DEFINE VARIABLE gcStatusStockInitial       AS CHARACTER INITIAL "Created".
-DEFINE VARIABLE gcStatusStockReceived      AS CHARACTER INITIAL "On-Hand".
-DEFINE VARIABLE gcStatusStockConsumed      AS CHARACTER INITIAL "Consumed".
+DEFINE VARIABLE gcStatusStockPreLoadtag    AS CHARACTER NO-UNDO INITIAL "PreLoadtag".
+DEFINE VARIABLE gcStatusStockLoadtag       AS CHARACTER NO-UNDO INITIAL "Loadtag".
+DEFINE VARIABLE gcStatusStockInitial       AS CHARACTER NO-UNDO INITIAL "Created".
+DEFINE VARIABLE gcStatusStockReceived      AS CHARACTER NO-UNDO INITIAL "On-Hand".
+DEFINE VARIABLE gcStatusStockConsumed      AS CHARACTER NO-UNDO INITIAL "Consumed".
+DEFINE VARIABLE gcStatusStockScanned       AS CHARACTER NO-UNDO INITIAL "Scanned".
 
-DEFINE VARIABLE gcStatusSnapshotNotScanned      AS CHARACTER INITIAL "Not Scanned".
-DEFINE VARIABLE gcStatusSnapshotNotScannedConf  AS CHARACTER INITIAL "Not Scanned - Confirmed".
-DEFINE VARIABLE gcStatusSnapshotCompleteMatch   AS CHARACTER INITIAL "Complete Match".
-DEFINE VARIABLE gcStatusSnapshotLocChange       AS CHARACTER INITIAL "Location Change".
-DEFINE VARIABLE gcStatusSnapshotQtyChange       AS CHARACTER INITIAL "Quantity Change".
-DEFINE VARIABLE gcStatusSnapshotQtyAndLocChange AS CHARACTER INITIAL "Quantity and Location Change".
-DEFINE VARIABLE gcStatusSnapshotTagNotFound     AS CHARACTER INITIAL "Tag Not Found".
+DEFINE TEMP-TABLE ttRawMaterialsToPost NO-UNDO 
+    FIELD parentRowID AS ROWID
+    FIELD rmRctdRowID AS ROWID
+    FIELD ritaCode    AS CHARACTER
+    FIELD itemID      AS CHARACTER
+    FIELD poID        AS CHARACTER
+    FIELD formNo      AS INTEGER
+    FIELD quantity    AS DECIMAL 
+    FIELD vendorTag   AS CHARACTER
+    FIELD sequenceID  AS INTEGER
+    FIELD processed   AS LOGICAL
+    .
 
-DEFINE VARIABLE gcSourceTypeSnapshot       AS CHARACTER INITIAL "Snapshot".
+DEFINE TEMP-TABLE ttRawMaterialsGLTransToPost NO-UNDO
+    FIELD accountNo     AS CHARACTER
+    FIELD job           AS INTEGER
+    FIELD jobNo         AS CHARACTER
+    FIELD jobNo2        AS INTEGER
+    FIELD errorDesc     AS CHARACTER
+    FIELD debitsAmount  AS DECIMAL
+    FIELD creditsAmount AS DECIMAL
+    INDEX accountNo accountNo
+    .
 
-DEFINE VARIABLE gcStatusTransactionInitial AS CHARACTER INITIAL "Pending".
-DEFINE VARIABLE gcStatusTransactionPosted  AS CHARACTER INITIAL "Posted".
+DEFINE VARIABLE gcStatusSnapshotNotScanned      AS CHARACTER NO-UNDO INITIAL "Not Scanned".
+DEFINE VARIABLE gcStatusSnapshotNotScannedConf  AS CHARACTER NO-UNDO INITIAL "Not Scanned - Confirmed".
+DEFINE VARIABLE gcStatusSnapshotCompleteMatch   AS CHARACTER NO-UNDO INITIAL "Complete Match".
+DEFINE VARIABLE gcStatusSnapshotLocChange       AS CHARACTER NO-UNDO INITIAL "Location Change".
+DEFINE VARIABLE gcStatusSnapshotQtyChange       AS CHARACTER NO-UNDO INITIAL "Quantity Change".
+DEFINE VARIABLE gcStatusSnapshotQtyAndLocChange AS CHARACTER NO-UNDO INITIAL "Quantity and Location Change".
+DEFINE VARIABLE gcStatusSnapshotTagNotFound     AS CHARACTER NO-UNDO INITIAL "Tag Not Found".
 
-DEFINE VARIABLE gcTransactionTypeReceive   AS CHARACTER INITIAL "R".
-DEFINE VARIABLE gcTransactionTypeTransfer  AS CHARACTER INITIAL "T".
-DEFINE VARIABLE gcTransactionTypeAdjustQty AS CHARACTER INITIAL "A".
-DEFINE VARIABLE gcTransactionTypeConsume   AS CHARACTER INITIAL "I".
-DEFINE VARIABLE gcTransactionTypeShip      AS CHARACTER INITIAL "S".
-DEFINE VARIABLE gcTransactionTypeCompare   AS CHARACTER INITIAL "C".
-DEFINE VARIABLE gcTransactionTypeReturns   AS CHARACTER INITIAL "E".
+DEFINE VARIABLE gcSourceTypeSnapshot       AS CHARACTER NO-UNDO INITIAL "Snapshot".
 
-DEFINE VARIABLE gcSnapshotTypeCount        AS CHARACTER INITIAL "C". /* Count */
-DEFINE VARIABLE gcSnapshotTypeCapture      AS CHARACTER INITIAL "R". /* Report Capture */
-DEFINE VARIABLE gcSnapshotTypeArchive      AS CHARACTER INITIAL "A". /* Archive */
+DEFINE VARIABLE gcStatusTransactionInitial AS CHARACTER NO-UNDO INITIAL "Pending".
+DEFINE VARIABLE gcStatusTransactionPosted  AS CHARACTER NO-UNDO INITIAL "Posted".
 
-DEFINE VARIABLE gcItemTypeWIP              AS CHARACTER INITIAL "WP".
-DEFINE VARIABLE gcItemTypeFG               AS CHARACTER INITIAL "FG".
-DEFINE VARIABLE gcItemTypeRM               AS CHARACTER INITIAL "RM".
+DEFINE VARIABLE gcTransactionTypeReceive   AS CHARACTER NO-UNDO INITIAL "R".
+DEFINE VARIABLE gcTransactionTypeTransfer  AS CHARACTER NO-UNDO INITIAL "T".
+DEFINE VARIABLE gcTransactionTypeAdjustQty AS CHARACTER NO-UNDO INITIAL "A".
+DEFINE VARIABLE gcTransactionTypeConsume   AS CHARACTER NO-UNDO INITIAL "I".
+DEFINE VARIABLE gcTransactionTypeShip      AS CHARACTER NO-UNDO INITIAL "S".
+DEFINE VARIABLE gcTransactionTypeCompare   AS CHARACTER NO-UNDO INITIAL "C".
+DEFINE VARIABLE gcTransactionTypeReturns   AS CHARACTER NO-UNDO INITIAL "E".
 
-DEFINE VARIABLE gcDBUser                   AS CHARACTER INITIAL "asi".
-DEFINE VARIABLE gcFGUOM                    AS CHARACTER INITIAL "EA".
-DEFINE VARIABLE gcUOMInches                AS CHARACTER INITIAL "IN".
-DEFINE VARIABLE gcUOMWeightBasis           AS CHARACTER INITIAL "C".
-DEFINE VARIABLE gcUOMWeightBasisLBSPerSQFT AS CHARACTER INITIAL "LBS/SQFT".
-DEFINE VARIABLE gcUOMWeightPound           AS CHARACTER INITIAL "LBS".
-DEFINE VARIABLE gcUOMWeight                AS CHARACTER INITIAL "LB".
+DEFINE VARIABLE gcSnapshotTypeCount        AS CHARACTER NO-UNDO INITIAL "C". /* Count */
+DEFINE VARIABLE gcSnapshotTypeCapture      AS CHARACTER NO-UNDO INITIAL "R". /* Report Capture */
+DEFINE VARIABLE gcSnapshotTypeArchive      AS CHARACTER NO-UNDO INITIAL "A". /* Archive */
 
-DEFINE VARIABLE gcInventorySourceTypeJob   AS CHARACTER INITIAL "Job".
-DEFINE VARIABLE gcInventorySourceTypePO    AS CHARACTER INITIAL "PO".
-DEFINE VARIABLE gcInventorySourceTypeFG    AS CHARACTER INITIAL "FG".
+DEFINE VARIABLE gcItemTypeWIP              AS CHARACTER NO-UNDO INITIAL "WP".
+DEFINE VARIABLE gcItemTypeFG               AS CHARACTER NO-UNDO INITIAL "FG".
+DEFINE VARIABLE gcItemTypeRM               AS CHARACTER NO-UNDO INITIAL "RM".
+
+DEFINE VARIABLE gcDBUser                   AS CHARACTER NO-UNDO INITIAL "asi".
+DEFINE VARIABLE gcFGUOM                    AS CHARACTER NO-UNDO INITIAL "EA".
+DEFINE VARIABLE gcUOMInches                AS CHARACTER NO-UNDO INITIAL "IN".
+DEFINE VARIABLE gcUOMWeightBasis           AS CHARACTER NO-UNDO INITIAL "C".
+DEFINE VARIABLE gcUOMWeightBasisLBSPerSQFT AS CHARACTER NO-UNDO INITIAL "LBS/SQFT".
+DEFINE VARIABLE gcUOMWeightPound           AS CHARACTER NO-UNDO INITIAL "LBS".
+DEFINE VARIABLE gcUOMWeight                AS CHARACTER NO-UNDO INITIAL "LB".
+
+DEFINE VARIABLE gcInventorySourceTypeJob   AS CHARACTER NO-UNDO INITIAL "Job".
+DEFINE VARIABLE gcInventorySourceTypePO    AS CHARACTER NO-UNDO INITIAL "PO".
+DEFINE VARIABLE gcInventorySourceTypeFG    AS CHARACTER NO-UNDO INITIAL "FG".
 
 /* ********************  Preprocessor Definitions  ******************** */
 

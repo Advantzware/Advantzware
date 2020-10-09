@@ -408,22 +408,22 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 150 BY 5.24.
 
-DEFINE VARIABLE tb_set AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_set AS LOGICAL INITIAL YES 
      LABEL "Set" 
      VIEW-AS TOGGLE-BOX
      SIZE 8 BY .86 NO-UNDO.
 
-DEFINE VARIABLE tb_single AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_single AS LOGICAL INITIAL YES 
      LABEL "Single" 
      VIEW-AS TOGGLE-BOX
      SIZE 10 BY .86 NO-UNDO.
 
-DEFINE VARIABLE tb_tancom AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_tancom AS LOGICAL INITIAL YES 
      LABEL "Tandem/Combo" 
      VIEW-AS TOGGLE-BOX
      SIZE 20 BY .86 NO-UNDO.
 
-DEFINE VARIABLE TG_exact-match AS LOGICAL INITIAL no 
+DEFINE VARIABLE TG_exact-match AS LOGICAL INITIAL NO 
      LABEL "Exact" 
      VIEW-AS TOGGLE-BOX
      SIZE 9.8 BY .81 TOOLTIP "Exact Match" NO-UNDO.
@@ -729,6 +729,16 @@ eb.est-no = lv-last-est-no"
 /* ************************  Control Triggers  ************************ */
 
 &Scoped-define SELF-NAME begin_cust-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
+ON ENTRY OF begin_cust-no IN FRAME F-Main
+DO:
+/*    RUN spSetSessionParam ("CustListID", "EF").*/
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
 ON LEAVE OF begin_cust-no IN FRAME F-Main
 DO:
