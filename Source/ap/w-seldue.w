@@ -628,6 +628,8 @@ DO:
   btn-change:LABEL = "Update".
   ENABLE btn-delete btn-add btn-finish WITH FRAME {&FRAME-NAME}.
   DISABLE btn-cancel WITH FRAME {&FRAME-NAME}.
+  lv-in-update = NO.
+  lv-in-add = NO.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1700,7 +1702,7 @@ PROCEDURE local-initialize :
     END.
     DISPLAY fi_amt.
     DISABLE fi_chk-date fi_due-date fi_curr-code fi_age fi_amt lv-proamt btn-go tb_discount cb_payType .
-    APPLY "entry" TO btn-change.
+    APPLY "entry" TO browse-1.
   END.
   ELSE DO WITH FRAME {&FRAME-NAME}:
       APPLY "entry" TO fi_chk-date.
