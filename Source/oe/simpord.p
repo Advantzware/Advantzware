@@ -912,6 +912,9 @@ PROCEDURE CreateOrder :
                         INPUT ttDetail.ShipToPhone,
                         INPUT ttDetail.ShipToContact,
                         OUTPUT ttDetail.ShipTo ).
+                  
+                  RUN Tax_GetTaxableAR  (oe-ord.company, oe-ord.cust-no, oe-ord.ship-id, oe-ordl.i-no, OUTPUT oe-ordl.tax).
+                  
                   RUN CreateRelease.
                   IF ttDetail.Notes <> "" THEN RUN CreateSpecNote (RECID(itemfg)).
                   IF ttDetail.ItemEst# <> "" AND

@@ -185,9 +185,6 @@
 "001" "202008185634805591282" "SendRelease" "CreateRelease" "Sends Release when Release is created" no 2020-08-18T15:39:08.750 "laurel" "Tester" 5101 5025
 "001" "202008185634805591283" "SendRelease" "ApproveRelease" "Sends Release when Release is approved" no 2020-08-18T15:39:08.756 "laurel" "Tester" 5102 5025
 "001" "202008185634805591284" "SendRelease" "HoldRelease" "Sends Release when Release is hold" no 2020-08-18T15:39:08.762 "laurel" "Tester" 5103 5025
-"001" "202009185564105672131" "SendInvoice" "PrintInvoice" "Generate cXML invoice on print of invoice" yes 2020-09-18T15:27:21.456 "jay1" "Sample" 5151 5036
-"001" "202009185564105672132" "SendInvoice" "RePrintInvoice" "Generate cXML invoice on re-print of invoice" no 2020-09-18T15:31:06.046 "jay1" "Sample" 5152 5036
-"001" "202009185564105672133" "SendInvoice" "PostInvoice" "Generate cXML invoice on post of invoice" yes 2020-09-18T15:27:21.531 "jay1" "Sample" 5153 5036
 "001" "202009240904305679808" "SendPurchaseOrder" "UpdatePurchaseOrder" "Updates a Purchase Order" yes 2020-09-24T02:30:43.139 "user1" "Westrock" 5154 5037
 "001" "202009240904305679809" "SendPurchaseOrder" "HoldPurchaseOrder" "Purchase Order status changing to ""H"" (Hold)" yes 2020-09-24T02:30:43.155 "user1" "Westrock" 5155 5037
 "001" "202009240904305679810" "SendPurchaseOrder" "ReleasePurchaseOrder" "Purchase Order status changing from ""H"" (Hold)" yes 2020-09-24T02:30:43.162 "user1" "Westrock" 5156 5037
@@ -197,3 +194,6 @@
 "001" "202009240904305679814" "SendPurchaseOrder" "DeletePurchaseOrder" "Trigger when Purchase order is deleted" yes 2020-09-24T02:30:43.185 "user1" "Westrock" 5160 5037
 "001" "202009240904305679815" "SendPurchaseOrder" "ReprintPurchaseOrder" "Trigger when Purchase Order Printed flag is ""YES""" no 2020-09-24T04:35:57.784 "jay" "Westrock" 5161 5037
 "001" "202009240904305679816" "SendPurchaseOrder" "PrintPurchaseOrder" "Trigger when Purchase Order Printed flag is ""NO""" yes 2020-09-24T02:30:43.197 "user1" "Westrock" 5162 5037
+"001" "202010024544505743040" "SendInvoice" "PrintInvoice" "Send EDI invoice on print of invoice" yes 2020-10-02T12:37:25.388 "Randy3" "GSWELL" 5166 5039
+"001" "202010024544505743041" "SendInvoice" "RePrintInvoice" "Send EDI invoice on re-print of invoice" no 2020-10-02T12:44:03.441 "Randy3" "GSWELL" 5167 5039
+"001" "202010024544505743042" "SendInvoice" "PostInvoice" "Send EDI invoice on post of invoice" yes 2020-10-02T13:27:42.836 "Randy3" "GSWELL" 5168 5039

@@ -3,7 +3,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS PROCEDURE 
 /*------------------------------------------------------------------------
     File        : sys/ref/CustList.p
-    Purpose     :  Builds a Customer List based on the values in an NK1
+    Purpose     : Builds a Customer List based on the values in an NK1
     Used initially for Statement Run but could have more applications
 
     Syntax      : run sys/ref/CustList.p (cocode, "NK1")
@@ -21,20 +21,20 @@
 /* ***************************  Definitions  ************************** */
 
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcMode AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcMode    AS CHARACTER NO-UNDO.
 /*Can be NK1 or "Prompt" - which will present UI for seletion list building */
-DEFINE INPUT PARAMETER iplBuild AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER iplBuild   AS LOGICAL   NO-UNDO.
 /*YES will build temp-table, NO will only return whether Customer List is active f
 for main NK1 defined in MODE.  Not applicable with "Prompt"*/
-DEFINE OUTPUT PARAMETER oplActive AS LOGICAL NO-UNDO.
+DEFINE OUTPUT PARAMETER oplActive AS LOGICAL   NO-UNDO.
 
 {sys/ref/CustList.i}  /*shared temp table ttCustList*/
 
-DEFINE VARIABLE gcNK1Master AS CHARACTER INITIAL "CustomerList"  NO-UNDO.
-DEFINE VARIABLE gcMsgReport AS CHARACTER INITIAL "NK1 CustList - Report Specific List"   NO-UNDO.
-DEFINE VARIABLE gcMsgGlobal AS CHARACTER INITIAL "NK1 CustList - Global List"  NO-UNDO.
-DEFINE VARIABLE gcMsgUser AS CHARACTER INITIAL "User Specific List"  NO-UNDO.
-DEFINE VARIABLE gcMsgdisplay AS CHARACTER INITIAL "JQ1,JU1,OU1,OQ1,EQ,EC,EF,IF1,AF1,IL3,JC,OT1,AQ1,AQ2,IQ1,IQ2,OB3"   NO-UNDO.
+DEFINE VARIABLE gcNK1Master  AS CHARACTER INITIAL "CustomerList" NO-UNDO.
+DEFINE VARIABLE gcMsgReport  AS CHARACTER INITIAL "NK1 CustList - Report Specific List" NO-UNDO.
+DEFINE VARIABLE gcMsgGlobal  AS CHARACTER INITIAL "NK1 CustList - Global List" NO-UNDO.
+DEFINE VARIABLE gcMsgUser    AS CHARACTER INITIAL "User Specific List" NO-UNDO.
+DEFINE VARIABLE gcMsgDisplay AS CHARACTER INITIAL "JQ1,JU1,OU1,OQ1,EQ,EC,EF,IF1,AF1,IL3,JC,OT1,AQ1,AQ2,IQ1,IQ2,OB3" NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -59,7 +59,7 @@ DEFINE VARIABLE gcMsgdisplay AS CHARACTER INITIAL "JQ1,JU1,OU1,OQ1,EQ,EC,EF,IF1,
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD GetCustListActive PROCEDURE 
 FUNCTION GetCustListActive RETURNS LOGICAL
-  ( ipcCompany AS CHARACTER, ipcNK1 AS CHARACTER )  FORWARD.
+    ( ipcCompany AS CHARACTER, ipcNK1 AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -97,29 +97,31 @@ FUNCTION GetCustListActive RETURNS LOGICAL
 
 
 /* ***************************  Main Block  *************************** */
-DEFINE VARIABLE iListCount AS INTEGER     NO-UNDO.
+DEFINE VARIABLE iListCount AS INTEGER NO-UNDO.
 
 IF ipcMode NE "PROMPT" THEN DO:
-    oplActive = GetCustListActive(INPUT ipcCompany,
-                                  INPUT gcNK1Master).
+    oplActive = GetCustListActive(ipcCompany,  gcNK1Master).
     IF oplActive AND iplBuild THEN DO:
         EMPTY TEMP-TABLE ttCustList.
         /*Build list specific to report*/
         iListCount = 0.
-        RUN BuildCustList(INPUT ipcCompany,
-                          INPUT gcNK1Master,
-                          INPUT ipcMode,
-                          INPUT-OUTPUT iListCount).
-        
+        RUN BuildCustList(
+            ipcCompany,
+            gcNK1Master,
+            ipcMode,
+            INPUT-OUTPUT iListCount
+            ).        
         /*Build list for all reports*/
-        RUN BuildCustList(INPUT ipcCompany,
-                          INPUT gcNK1Master,
-                          INPUT "",
-                          INPUT-OUTPUT iListCount).
-        IF LOOKUP(ipcMode,gcMsgdisplay) = 0 THEN
-        IF iListCount EQ 0 THEN
-            MESSAGE "No Customer List Specified for " ipcMode
-                VIEW-AS ALERT-BOX INFO BUTTONS OK.
+        RUN BuildCustList(
+            ipcCompany,
+            gcNK1Master,
+            "",
+            INPUT-OUTPUT iListCount
+            ).
+        IF LOOKUP(ipcMode,gcMsgDisplay) EQ 0 THEN
+            IF iListCount EQ 0 THEN
+                MESSAGE "No Customer List Specified for " ipcMode
+                    VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
     END.
 END.
 ELSE DO:
@@ -141,52 +143,50 @@ PROCEDURE BuildCustList :
   Parameters:  company and nk1
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcNK1 AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcCharFld AS CHARACTER NO-UNDO.
-DEFINE INPUT-OUTPUT PARAMETER iopiCount AS INTEGER NO-UNDO.
-
-DEFINE BUFFER bf-sys-ctrl-shipto FOR sys-ctrl-shipto.
-
-DEFINE VARIABLE cCustNo AS CHARACTER   NO-UNDO.
-
-FOR EACH bf-sys-ctrl-shipto
-    WHERE bf-sys-ctrl-shipto.company EQ ipcCompany
-      AND bf-sys-ctrl-shipto.NAME EQ ipcNK1
-      AND bf-sys-ctrl-shipto.char-fld EQ ipcCharFld
-      AND bf-sys-ctrl-shipto.log-fld
-    NO-LOCK
-    BY bf-sys-ctrl-shipto.cust-vend-no:
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcNK1     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCharFld AS CHARACTER NO-UNDO.
     
-    cCustNo = bf-sys-ctrl-shipto.cust-vend-no.
-    IF cCustNo NE "" THEN DO:
-        FIND FIRST ttCustList
-            WHERE ttCustList.cust-no EQ cCustNo
-            EXCLUSIVE-LOCK NO-ERROR.
-        IF NOT AVAIL ttCustList THEN DO:
-            iopiCount = iopiCount + 1.
-            CREATE ttCustList.
+    DEFINE INPUT-OUTPUT PARAMETER iopiCount AS INTEGER NO-UNDO.
+
+    DEFINE VARIABLE cCustNo AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-sys-ctrl-shipto FOR sys-ctrl-shipto.
+
+    FOR EACH bf-sys-ctrl-shipto NO-LOCK
+        WHERE bf-sys-ctrl-shipto.company  EQ ipcCompany
+          AND bf-sys-ctrl-shipto.name     EQ ipcNK1
+          AND bf-sys-ctrl-shipto.char-fld EQ ipcCharFld
+          AND bf-sys-ctrl-shipto.log-fld  EQ YES
+           BY bf-sys-ctrl-shipto.cust-vend-no
+        :    
+        cCustNo = bf-sys-ctrl-shipto.cust-vend-no.
+        IF cCustNo NE "" THEN DO:
+            FIND FIRST ttCustList EXCLUSIVE-LOCK
+                 WHERE ttCustList.cust-no EQ cCustNo
+                 NO-ERROR.
+            IF NOT AVAILABLE ttCustList THEN DO:
+                iopiCount = iopiCount + 1.
+                CREATE ttCustList.
+            END.
+            ASSIGN
+                ttCustList.cust-no  = cCustNo
+                ttCustList.log-fld  = bf-sys-ctrl-shipto.log-fld
+                ttCustList.char-fld = bf-sys-ctrl-shipto.char-fld
+                ttCustList.dec-fld  = bf-sys-ctrl-shipto.dec-fld
+                ttCustList.int-fld  = bf-sys-ctrl-shipto.int-fld
+                ttCustList.date-fld = bf-sys-ctrl-shipto.date-fld
+                custcount           = custcount + "," + cCustNo
+                ttCustList.cSource  = IF ipcCharFld EQ "" THEN gcMsgGlobal
+                                      ELSE gcMsgReport
+                                    .
         END.
-        ASSIGN
-            ttCustList.cust-no = cCustNo
-            ttCustList.log-fld = bf-sys-ctrl-shipto.log-fld
-            ttCustList.char-fld = bf-sys-ctrl-shipto.char-fld
-            ttCustList.dec-fld = bf-sys-ctrl-shipto.dec-fld
-            ttCustList.int-fld = bf-sys-ctrl-shipto.int-fld
-            ttCustList.date-fld = bf-sys-ctrl-shipto.date-fld
-            custcount  = custcount + "," + cCustNo
-            .
-        IF ipcCharFld EQ "" THEN
-            ttCustList.cSource = gcMsgGlobal.
-        ELSE
-            ttCustList.cSource = gcMsgReport.
+        ELSE IF bf-sys-ctrl-shipto.log-fld THEN
+             RUN BuildUserCustList(
+                 ipcCompany,
+                 INPUT-OUTPUT iopiCount
+                 ). 
     END.
-    ELSE DO:
-        IF bf-sys-ctrl-shipto.log-fld THEN
-            RUN BuildUserCustList(INPUT ipcCompany,
-                                  INPUT-OUTPUT iopiCount). 
-    END.
-END.
 
 END PROCEDURE.
 
@@ -204,33 +204,36 @@ PROCEDURE BuildUserCustList :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-DEFINE INPUT-OUTPUT PARAMETER iopiCount AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 
-DEFINE BUFFER bf-usercust FOR usercust.
+    DEFINE INPUT-OUTPUT PARAMETER iopiCount AS INTEGER NO-UNDO.
 
-FOR EACH bf-usercust 
-    WHERE bf-usercust.company EQ ipcCompany 
-      AND bf-usercust.user_id EQ USERID("nosweat") 
-    NO-LOCK,
-    FIRST cust WHERE cust.company EQ ipcCompany 
-     AND cust.cust-no = bf-usercust.cust-no NO-LOCK :
-    FIND FIRST ttCustList
-        WHERE ttCustList.cust-no EQ bf-usercust.cust-no
-        EXCLUSIVE-LOCK NO-ERROR.
-    IF NOT AVAIL ttCustList THEN DO:
-        iopiCount = iopiCount + 1.
-        CREATE ttCustList.
+    DEFINE BUFFER bf-usercust FOR usercust.
+
+    FOR EACH bf-usercust NO-LOCK
+        WHERE bf-usercust.company EQ ipcCompany 
+          AND bf-usercust.user_id EQ USERID("ASI"),
+        FIRST cust NO-LOCK
+        WHERE cust.company EQ ipcCompany 
+          AND cust.cust-no EQ bf-usercust.cust-no
+        :
+        FIND FIRST ttCustList EXCLUSIVE-LOCK
+             WHERE ttCustList.cust-no EQ bf-usercust.cust-no
+             NO-ERROR.
+        IF NOT AVAILABLE ttCustList THEN DO:
+            CREATE ttCustList.
+            ASSIGN 
+                iopiCount          = iopiCount + 1
+                ttCustList.cust-no = bf-usercust.cust-no      
+                custcount          = custcount + "," + bf-usercust.cust-no
+                .
+        END.
         ASSIGN 
-            ttCustList.cust-no = bf-usercust.cust-no      
+            ttCustList.log-fld = YES
+            ttCustList.cSource = gcMsgUser
             .
-            custcount = custcount +  "," + bf-usercust.cust-no .
     END.
-    ASSIGN 
-        ttCustList.log-fld = YES
-        ttCustList.cSource = gcMsgUser.
 
-END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -244,26 +247,26 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION GetCustListActive Procedure 
 FUNCTION GetCustListActive RETURNS LOGICAL
-  ( ipcCompany AS CHARACTER, ipcNK1 AS CHARACTER ) :
+    ( ipcCompany AS CHARACTER, ipcNK1 AS CHARACTER ) :
 /*------------------------------------------------------------------------------
   Purpose:  Returns the logical of an NK1
     Notes:  Will also build NK1 if it doesn't exist
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lActive AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lActive AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
 
     RUN sys/ref/nk1look.p (INPUT ipcCompany, 
-                           INPUT ipcNK1,
-                           INPUT "L",
-                           INPUT NO, 
-                           INPUT NO, 
-                           INPUT "",
-                           INPUT "", 
-                           OUTPUT cReturn, 
-                           OUTPUT lFound).
+        INPUT ipcNK1,
+        INPUT "L",
+        INPUT NO, 
+        INPUT NO, 
+        INPUT "",
+        INPUT "", 
+        OUTPUT cReturn, 
+        OUTPUT lFound).
     IF lFound THEN
-        lActive = cReturn EQ "YES".
+    lActive = cReturn EQ "YES".
 
     RETURN lActive.   /* Function return value. */
 
@@ -273,4 +276,3 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
-

@@ -214,7 +214,7 @@ FOR EACH report   NO-LOCK WHERE report.term-id EQ v-term-id,
      v-price    = 0
      v-tot-price  = 0 
      v-ord-bol  = TRIM(STRING(oe-bolh.ord-no,">>>>>9")) + " / " +
-                  TRIM(STRING(oe-bolh.bol-no,">>>>>9"))
+                  TRIM(STRING(oe-bolh.bol-no,">>>>>>9"))
      v-ord-date = oe-bolh.bol-date
      cases      = 0   
      qty-cases  = 0

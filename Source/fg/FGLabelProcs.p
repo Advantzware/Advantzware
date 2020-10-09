@@ -96,7 +96,7 @@ PROCEDURE pBuildAndPrintFGLabels PRIVATE:
             INPUT TEMP-TABLE ttFGLabel:HANDLE, 
             INPUT cPathDataFile, 
             INPUT YES,
-            INPUT TRUE, /* Auto increment File name */
+            INPUT FALSE, /* Auto increment File name */
             OUTPUT lSuccess,
             OUTPUT cMessage
             ).

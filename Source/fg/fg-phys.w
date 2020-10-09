@@ -83,6 +83,7 @@ DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_pv-trans AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -315,6 +316,14 @@ PROCEDURE adm-create-objects :
              h_options , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
+      RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/import.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_import ).
+       RUN set-position IN h_import ( 1.00 , 68.50 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+    
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/f-add.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
@@ -352,6 +361,9 @@ PROCEDURE adm-create-objects :
              OUTPUT h_pv-trans ).
        RUN set-position IN h_pv-trans ( 22.67 , 109.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.76 , 17.00 ) */
+       
+       /* Links to SmartViewer h_import. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
 
        /* Links to SmartNavBrowser h_b-phys. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_b-phys ).
@@ -481,6 +493,23 @@ PROCEDURE select_add :
   
   run get-link-handle in adm-broker-hdl(this-procedure,"receipt-target", output char-hdl).
   run auto-add in widget-handle(char-hdl).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
+PROCEDURE import-file :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
+ RUN util/dev/impFGCount.p .
+ IF VALID-HANDLE(h_b-phys) THEN
+ RUN repo-query IN h_b-phys (lv-rowid) .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

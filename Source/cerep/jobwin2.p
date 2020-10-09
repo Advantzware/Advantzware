@@ -1367,12 +1367,12 @@ END FUNCTION.
 
 
           PUT   "Quality Control Department Notes: " SKIP .
-          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"QC",job-hdr.frm,string(job-hdr.job)),80).
+          ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"QC",job-hdr.frm, ""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 
             END. 
-            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"QC",0,STRING(job-hdr.job)),80).
+            ASSIGN v-text = FNformat(FNdeptnotes(vjobreckey,"QC",0, ""),80).
              DO i = 1 TO NUM-ENTRIES(v-text,"`"):       
                PUT "<C1>" 
                 ENTRY(i,v-text,"`") FORMAT "X(80)" SKIP. 

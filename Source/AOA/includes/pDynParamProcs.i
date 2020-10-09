@@ -94,7 +94,7 @@ PROCEDURE pParamAction :
     FOR EACH ttDynAction
         WHERE ttDynAction.actionParamName EQ cParamName
           AND ttDynAction.action NE "",
-        FIRST dynParam
+        FIRST dynParam NO-LOCK
         WHERE dynParam.paramID EQ ttDynAction.paramID
         :
         DO idx = 1 TO NUM-ENTRIES(ttDynAction.action):

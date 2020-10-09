@@ -3561,7 +3561,7 @@ PROCEDURE GenerateReport :
    DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
 
    IF (v-print-bol AND v-print-fmt <> "SouthPak-XL" AND v-print-fmt <> "Prystup-Excel") OR
-      (NOT v-print-bol AND v-print-fmt <> "Unipak-XL" AND v-print-fmt <> "ACPI" AND v-print-fmt <> "Soule" AND v-print-fmt <> "CCC" AND v-print-fmt <> "CCCWPP" AND v-print-fmt <> "CCC3" AND v-print-fmt <> "CCC2" AND v-print-fmt <> "CCC4" AND v-print-fmt <> "CCC5") THEN
+      (NOT v-print-bol AND v-print-fmt <> "Unipak-XL" AND v-print-fmt <> "PrystupXLS" AND v-print-fmt <> "ACPI" AND v-print-fmt <> "Soule" AND v-print-fmt <> "CCC" AND v-print-fmt <> "CCCWPP" AND v-print-fmt <> "CCC3" AND v-print-fmt <> "CCC2" AND v-print-fmt <> "CCC4" AND v-print-fmt <> "CCC5") THEN
       case rd-dest:
          when 1 then run output-to-printer(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
          when 2 then run output-to-screen(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
@@ -3869,7 +3869,7 @@ PROCEDURE output-to-mail :
                            INPUT 1,
                            INPUT v-printed).
 
-      IF NOT v-print-bol AND (v-coc-fmt EQ "Unipak-XL" OR v-coc-fmt EQ "CCC" OR v-coc-fmt EQ "CCCWPP" OR v-coc-fmt EQ "CCC3" OR v-coc-fmt EQ "CCC2" OR v-coc-fmt EQ "CCC4" OR v-coc-fmt EQ "CCC5")  THEN
+      IF NOT v-print-bol AND (v-coc-fmt EQ "Unipak-XL" OR v-coc-fmt eq "PrystupXLS" OR v-coc-fmt EQ "CCC" OR v-coc-fmt EQ "CCCWPP" OR v-coc-fmt EQ "CCC3" OR v-coc-fmt EQ "CCC2" OR v-coc-fmt EQ "CCC4" OR v-coc-fmt EQ "CCC5")  THEN
       DO:
          lv-pdf-file = init-dir + "\cofc.pdf".
 
@@ -5710,6 +5710,10 @@ PROCEDURE SetBOLForm :
             ASSIGN
                is-xprint-form = YES
                v-program = "oe/rep/coclanyork.p".
+         WHEN "PrystupXLS" THEN
+            ASSIGN 
+                is-xprint-form = NO
+                v-program = "oe/rep/cocpryst-xl.p". 
 
          OTHERWISE
             ASSIGN
@@ -5735,13 +5739,13 @@ PROCEDURE SetVariables :
 
    IF rd-dest = 5 THEN
    DO:
-     IF NOT v-print-bol AND v-coc-fmt EQ "Unipak-XL" THEN
+     IF NOT v-print-bol AND (v-coc-fmt EQ "Unipak-XL" OR v-coc-fmt EQ "PrystupXLS") THEN
         lv-pdf-file = init-dir + "\cofc.pdf".
      ELSE
         lv-pdf-file = init-dir + "\BOL".
    END.
    ELSE
-      IF NOT v-print-bol AND v-coc-fmt EQ "Unipak-XL" THEN
+      IF NOT v-print-bol AND (v-coc-fmt EQ "Unipak-XL" OR v-coc-fmt EQ "PrystupXLS") THEN
          lv-pdf-file = init-dir + "\cofc.pdf".
       ELSE
          lv-pdf-file = init-dir + "\BOL" + string(begin_bol#).

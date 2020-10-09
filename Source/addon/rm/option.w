@@ -31,6 +31,9 @@ CREATE WIDGET-POOL.
 
 
 {methods/defines/hndldefs.i}
+{custom/globdefs.i}
+{sys/inc/var.i}
+{sys/inc/varasgn.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -247,7 +250,25 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Issues s-object
 ON CHOOSE OF Btn_Issues IN FRAME F-Main /* Issue Materials */
 DO:
-  RUN addon/rm/w-issue.w.
+    DEFINE VARIABLE lRecFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cIssueVersion AS CHARACTER NO-UNDO.
+    
+    RUN sys/ref/nk1look.p (
+        INPUT cocode,         /* Company Code */ 
+        INPUT "SSVersion",    /* sys-ctrl name */
+        INPUT "C",            /* Output return value */
+        INPUT NO,             /* Use ship-to */
+        INPUT NO,             /* ship-to vendor */
+        INPUT "",             /* ship-to vendor value */
+        INPUT "",             /* shi-id value */
+        OUTPUT cIssueVersion, 
+        OUTPUT lRecFound
+        ).
+    
+    IF cIssueVersion EQ "NEW" THEN
+        RUN inventory/rm-issue-legacy.w.
+    ELSE
+        RUN addon/rm/w-issue.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
