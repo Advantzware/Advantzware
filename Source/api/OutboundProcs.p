@@ -180,7 +180,7 @@ PROCEDURE Outbound_GetAPIClientTransCount:
     
     DEFINE BUFFER bf-apiClient FOR apiClient.
 
-    FIND FIRST bf-apiClient EXCLUSIVE-LOCK
+    FIND FIRST bf-apiClient NO-LOCK
          WHERE bf-apiClient.company  EQ ipcCompany
            AND bf-apiClient.clientID EQ ipcClientID
          NO-ERROR.
@@ -404,9 +404,19 @@ PROCEDURE Outbound_IncrementAPITransactionCounter:
     DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
     DEFINE BUFFER bf-apiClient   FOR apiClient.
         
-    FIND FIRST bf-APIOutbound EXCLUSIVE-LOCK
+    FIND FIRST bf-APIOutbound NO-LOCK
          WHERE bf-APIOutbound.apiOutboundID EQ ipiAPIOutboundID 
          NO-ERROR.
+    /* If record not available then return */
+    IF NOT AVAILABLE bf-APIOutbound THEN
+        RETURN.
+    
+    /* If record is available and autoIncrement flag is set to false then return */
+    IF NOT bf-APIOutbound.autoIncrement THEN
+        RETURN.
+
+    FIND CURRENT bf-APIOutbound EXCLUSIVE-LOCK NO-ERROR.
+    
     IF AVAILABLE bf-APIOutbound THEN DO:
         bf-APIOutbound.transactionCounter = bf-APIOutbound.transactionCounter + 1.
     
