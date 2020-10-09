@@ -18,6 +18,7 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+USING system.SharedConfig.
 
 DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation           AS CHARACTER NO-UNDO.
@@ -49,6 +50,8 @@ DEFINE VARIABLE recMsgRtn           AS RECID     NO-UNDO.
 DEFINE VARIABLE rowMsgRtn           AS ROWID     NO-UNDO.
 DEFINE VARIABLE datMsgRtn           AS DATE      NO-UNDO.
 DEFINE VARIABLE dtmMsgRtn           AS DATETIME  NO-UNDO.
+
+DEFINE VARIABLE scInstance          AS CLASS System.SharedConfig NO-UNDO.
 
 /* vv alphabetical list of super-procedures comma delimited vv */
 ASSIGN 
@@ -83,6 +86,7 @@ DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
 {AOA/includes/pGetDynParamValue.i}
 {AOA/includes/pInitDynParamValue.i}
 {AOA/includes/pSetDynParamValue.i "dyn"}
+{api/CommonAPIProcs.i}
 {sys/ref/CustList.i NEW}
 {AOA/BL/pBuildCustList.i}
 
@@ -132,6 +136,18 @@ FUNCTION fMessageText RETURNS CHARACTER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fMessageTitle Procedure
 FUNCTION fMessageTitle RETURNS CHARACTER 
   (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-pReplaceContext) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pReplaceContext Procedure
+FUNCTION pReplaceContext RETURNS CHARACTER PRIVATE
+  (ipcMessage AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2059,10 +2075,22 @@ FUNCTION fMessageText RETURNS CHARACTER
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
-------------------------------------------------------------------------------*/
-    RETURN IF zMessage.currMessage  NE "" THEN zMessage.currMessage
+------------------------------------------------------------------------------*/        
+    IF zMessage.contextParms EQ "" THEN DO:     
+        RETURN IF zMessage.currMessage  NE "" THEN 
+            zMessage.currMessage
            ELSE zMessage.defaultMsg + " (" + ipcMessageID + ")".
-
+    END.
+    
+    ELSE DO:
+        IF scInstance EQ ? THEN 
+            scInstance = SharedConfig:instance.
+            
+        IF zMessage.currMessage NE "" THEN
+            RETURN pReplaceContext(zMessage.currMessage).
+        ELSE 
+            RETURN pReplaceContext(zMessage.defaultMsg) + " (" + ipcMessageID + ")".
+    END.    
 END FUNCTION.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -2090,6 +2118,34 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-pReplaceContext) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pReplaceContext Procedure
+FUNCTION pReplaceContext RETURNS CHARACTER PRIVATE
+  (ipcMessage AS CHARACTER) :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iIndex        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cContextValue AS CHARACTER NO-UNDO.
+
+    DO iIndex = 1 TO NUM-ENTRIES(zMessage.contextParms,","):
+        cContextValue = scInstance:ConsumeValue(TRIM(ENTRY(iIndex,zMessage.contextParms,","))).
+        IF cContextValue NE "" THEN 
+            RUN updateRequestData(INPUT-OUTPUT ipcMessage ,TRIM(ENTRY(iIndex,zMessage.contextParms,",")),cContextValue).        
+    END.   
+    RETURN ipcMessage.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfDynLookupValue) = 0 &THEN
 
