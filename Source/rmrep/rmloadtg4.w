@@ -938,15 +938,27 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   v-bin = sys-ctrl.char-fld.
 
   DO WITH FRAME {&FRAME-NAME}:
-
-      IF ip-param = YES THEN
-          ASSIGN
-          reprintTag = YES
-          reprintTag:SCREEN-VALUE = "YES".
-
+            
     RUN enable_UI.
 
-    /* {custom/usrprint.i} */
+    {custom/usrprint.i} 
+    ASSIGN
+      begin_po-no:SCREEN-VALUE   = "0"
+      end_po-no:SCREEN-VALUE     = "0"
+      begin_job:SCREEN-VALUE     = ""
+      end_job:SCREEN-VALUE       = ""
+      begin_job2:SCREEN-VALUE    = "0"
+      end_job2:SCREEN-VALUE      = "99"
+      begin_rm-i-no:SCREEN-VALUE = ""
+      end_rm-i-no:SCREEN-VALUE   = "zzzzzzzzzzzzzzz" 
+      v-job-list:SCREEN-VALUE    = ""
+      v-po-list:SCREEN-VALUE     = ""
+      reprintTag:SCREEN-VALUE    = "NO" .
+      
+    IF ip-param = YES THEN
+          ASSIGN
+          reprintTag = YES
+          reprintTag:SCREEN-VALUE = "YES".   
 
     IF v-loadtag NE "TRIAD" THEN HIDE {&triad}.
 
@@ -955,8 +967,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         AND sys-ctrl.name    EQ "RMBARDIR" NO-ERROR.
 
     IF AVAIL sys-ctrl THEN
-       ASSIGN
-          scr-auto-print:SCREEN-VALUE = STRING(sys-ctrl.log-fld)
+       ASSIGN           
           scr-label-file:SCREEN-VALUE = sys-ctrl.char-fld.
     ASSIGN
        scr-text-file-path:SCREEN-VALUE = rmbardir-desc
@@ -1714,6 +1725,8 @@ PROCEDURE ok-button :
      IF ERROR-STATUS:ERROR THEN RETURN.
      APPLY "entry" TO v-po-list IN FRAME {&FRAME-NAME}.
   END.
+  
+  RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 END PROCEDURE.
 
