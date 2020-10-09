@@ -79,6 +79,13 @@
     DEFINE VARIABLE cPrinted                      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCSRID                        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEnteredBy                    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPOReceivedDate               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOrderQty                     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMfgDate                      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBoardCode                    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cGrain                        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCylinder                     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTray                         AS CHARACTER NO-UNDO.
     
     /*Job Material variables*/
     
@@ -167,7 +174,8 @@
     DEFINE VARIABLE cMatOrLab         AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-APIOutboundDetail FOR APIOutboundDetail.
-         
+    DEFINE BUFFER bf-job-mat           FOR job-mat.
+             
 /**********************  Preprocessor Definitions  ******************** */
 
 
@@ -229,7 +237,25 @@
         FOR EACH job-hdr NO-LOCK
             WHERE job-hdr.company EQ job.company
               AND job-hdr.job-no  EQ job.job-no
-              AND job-hdr.job-no2 EQ job.job-no2:   
+              AND job-hdr.job-no2 EQ job.job-no2: 
+                   
+            FIND FIRST oe-ord NO-LOCK 
+                 WHERE oe-ord.company EQ job-hdr.company
+                   AND oe-ord.ord-no  EQ job-hdr.ord-no 
+                 NO-ERROR.
+            cPOReceivedDate = IF AVAILABLE oe-ord THEN STRING(oe-ord.poReceivedDate) ELSE "".  
+             
+            FIND FIRST oe-ordl NO-LOCK
+                 WHERE oe-ordl.company EQ job-hdr.company
+                   AND oe-ordl.ord-no  EQ job-hdr.ord-no
+                   AND oe-ordl.job-no  EQ job-hdr.job-no
+                   AND oe-ordl.job-no2 EQ job-hdr.job-no2
+                   AND oe-ordl.i-no    EQ job-hdr.i-no
+                 NO-ERROR.  
+            ASSIGN 
+                cOrderQty = IF AVAILABLE oe-ordl THEN TRIM(STRING(oe-ordl.qty,"->,>>>,>>9")) ELSE "0"
+                cMfgDate  = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.prom-date) ELSE ""
+                .                                            
                 ASSIGN 
                     lcJobHeaderData               = bf-APIOutboundDetail.data
                     cCompany                      = job-hdr.company  
@@ -273,7 +299,10 @@
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "Printed",cPrinted).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "SquareInchPercentage",cSquareInchPct).
                 RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "CSRID",cCSRID).                
-                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "EnteredBy",cEnteredBy).       
+                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "EnteredBy",cEnteredBy).
+                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "POReceivedDate",cPOReceivedDate).
+                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "MfgDate",cMfgDate).
+                RUN updateRequestData(INPUT-OUTPUT lcJobHeaderData, "OrderQty",cOrderQty).       
                 lcConcatJobHeaderData = lcConcatJobHeaderData + lcJobHeaderData.
             END.
         END. 
@@ -288,7 +317,50 @@
                 WHERE job-mat.company EQ job.company
                   AND job-mat.job-no  EQ job.job-no
                   AND job-mat.job-no2 EQ job.job-no2:
-                      
+                
+                ASSIGN 
+                    cBoardCode = ""
+                    cCylinder  = ""
+                    cTray      = ""
+                    cGrain     = ""
+                    .
+                        
+                FOR EACH job-hdr 
+                    WHERE job-hdr.company EQ job-mat.company
+                      AND job-hdr.job-no  EQ job-mat.job-no
+                      AND job-hdr.job-no2 EQ job-mat.job-no2
+                      AND job-hdr.frm     EQ job-mat.frm,
+                      EACH ef
+                      WHERE ef.company EQ job-hdr.company
+                       AND ef.est-no   EQ job-hdr.est-no
+                       AND ef.form-no  EQ job-hdr.frm,
+                       EACH eb NO-LOCK
+                        WHERE eb.company    EQ ef.company
+                          AND eb.est-no     EQ ef.est-no
+                          AND eb.form-no    EQ ef.form-no
+                        BREAK BY ef.est-no
+                              BY ef.form-no
+                              BY eb.form-no 
+                              BY eb.blank-no:
+                        IF LAST-OF(eb.form-no) THEN DO:
+                            FOR EACH bf-job-mat NO-LOCK
+                                WHERE bf-job-mat.company  EQ job-hdr.company
+                                  AND bf-job-mat.job      EQ job-hdr.job
+                                  AND bf-job-mat.frm      EQ ef.form-no,
+                                FIRST ITEM NO-LOCK 
+                                WHERE item.company EQ job-hdr.company
+                                  AND item.i-no    EQ bf-job-mat.i-no
+                                  AND INDEX("BPR",item.mat-type) GT 0  
+                                :
+                                ASSIGN 
+                                    cBoardCode = TRIM(item.i-name)
+                                    cGrain     = TRIM(ef.xgrain)
+                                    cCylinder  = TRIM(STRING(ef.gsh-len)) 
+                                    .       
+                            END. /* End of for each job-mat */ 
+                            cTray = TRIM(eb.layer-pad).      
+                        END. /* End of last-of(eb.form-no)*/ 
+                    END.  /* End of for each eb */
                 ASSIGN
                     lcJobMatData               = bf-APIOutboundDetail.data
                     cItemNumber                = job-mat.i-no
@@ -336,6 +408,10 @@
                 RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Width",cWidth).
                 RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "RawMaterialItem",cRMItem).
                 RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "CrossGrain",cCrossGrain).
+                RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "BoardCode",cBoardCode).
+                RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Grain",cGrain).
+                RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Cylinder",cCylinder).
+                RUN updateRequestData(INPUT-OUTPUT lcJobMatData, "Tray",cTray).
                 
                 lcConcatJobMatData  = lcConcatJobMatData  + "~n" + lcJobMatData.                                              
             END.
