@@ -8561,15 +8561,8 @@ PROCEDURE pUpdateVendItemCost:
     DEFINE INPUT PARAMETER ipcEstimate as CHARACTER NO-UNDO.
     
     FOR EACH xeb NO-LOCK 
-        WHERE xeb.company = ipcCompany 
-        AND xeb.est-no  = ipcEstimate :
-
-        IF CAN-FIND(FIRST vendItemCost
-                    WHERE vendItemCost.company    EQ xeb.company
-                      AND vendItemCost.ItemID     EQ "" /* Old FG Item */
-                      AND vendItemCost.estimateNo EQ xeb.est-no
-                      AND vendItemCost.formNo     EQ xeb.form-no
-                      AND vendItemCost.blankNo    EQ xeb.blank-no) THEN 
+        WHERE xeb.company EQ ipcCompany 
+        AND xeb.est-no  EQ ipcEstimate :        
             RUN VendCost_UpdateVendItemCost(
                 INPUT xeb.company,
                 INPUT xeb.est-no,
