@@ -472,7 +472,7 @@ DEFINE VARIABLE svStartRecKeySec AS INTEGER FORMAT "99":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE svUseRecKeySearch AS LOGICAL INITIAL no 
+DEFINE VARIABLE svUseRecKeySearch AS LOGICAL INITIAL NO 
      LABEL "Use Rec Key Search" 
      VIEW-AS TOGGLE-BOX
      SIZE 27 BY 1 NO-UNDO.
@@ -749,15 +749,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 238.2
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 238.2
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -974,7 +974,7 @@ ASSIGN
        svSortByHdr:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -1959,6 +1959,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN pGetSettings.
     &ENDIF
     ASSIGN
+        AuditHdr.AuditKey:READ-ONLY = NOT lAdmin
+        AuditHdr.AuditKey:SENSITIVE = lAdmin
         svUseRecKeySearch = NO
         svUseRecKeySearch:SCREEN-VALUE = STRING(svUseRecKeySearch)
         svUseRecKeySearch:SENSITIVE = lAdmin
@@ -2219,7 +2221,7 @@ PROCEDURE pHistory :
         cEndAuditKey    = IF lAuditKeyFilter THEN ipcAuditKey ELSE CHR(254)
         .
 &IF DEFINED(FWD-VERSION) > 0 &THEN
-    open-mime-resource "text/plain" "file:///c:\tmp\AuditHistory.txt" false.
+    open-mime-resource "text/plain" "file:///c:\tmp\AuditHistory.txt" FALSE.
 &ELSE
     OS-COMMAND NO-WAIT notepad.exe c:\tmp\AuditHistory.txt.
 &ENDIF
@@ -2279,15 +2281,18 @@ PROCEDURE pPrepareAndExecuteQueryForDetail PRIVATE :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cQuery  AS CHARACTER NO-UNDO.
     
-    cQuery = "FOR EACH AuditDtl NO-LOCK
-                  WHERE AuditDtl.AuditID EQ " + STRING (AuditHdr.AuditID) 
-               + ( IF cStartField        EQ CHR(32) AND cEndField       EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditField EQ '"       + cStartField + "'")
-               + ( IF cStartBeforeValue  EQ CHR(32) AND cEndBeforeValue EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditBeforeValue EQ '" + cStartBeforeValue + "'")
-               + ( IF cStartAfterValue   EQ CHR(32) AND cEndAfterValue  EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditAfterValue EQ '"  + cStartAfterValue + "'")
-               + ( IF cSortBy NE "" AND NOT lHeaderSorting THEN " BY " + cSortBy + ( IF lAscending THEN "" ELSE " DESCENDING")  ELSE " ").  
-   
+    cQuery = "FOR EACH AuditDtl NO-LOCK "
+           + "WHERE AuditDtl.AuditID EQ " + STRING (AuditHdr.AuditID) 
+           + ( IF cStartField        EQ CHR(32) AND cEndField       EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditField EQ '"       + cStartField + "'")
+           + ( IF cStartBeforeValue  EQ CHR(32) AND cEndBeforeValue EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditBeforeValue EQ '" + cStartBeforeValue + "'")
+           + ( IF cStartAfterValue   EQ CHR(32) AND cEndAfterValue  EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditAfterValue EQ '"  + cStartAfterValue + "'")
+           + ( IF cSortBy NE "" AND NOT lHeaderSorting THEN " BY " + cSortBy + ( IF lAscending THEN "" ELSE " DESCENDING")  ELSE " ")
+           .
+    SESSION:SET-WAIT-STATE("General").
     hdAuditDtlQuery:QUERY-PREPARE (cQuery).    
     hdAuditDtlQuery:QUERY-OPEN().
+    SESSION:SET-WAIT-STATE("").
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2301,23 +2306,26 @@ PROCEDURE pPrepareAndExecuteQueryForHeader PRIVATE :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cQuery  AS CHARACTER NO-UNDO.
     
-    cQuery = "FOR EACH AuditHdr NO-LOCK
-                   WHERE AuditHdr.AuditDateTime GE DATETIME('" + STRING(dtStartDateTime) + "')"
-               +   " AND AuditHdr.AuditDateTime LE DATETIME('" + STRING(dtEndDateTime) + "')"
-               + ( IF cStartDB       EQ CHR(32) AND cEndDB       EQ CHR(254) THEN "" ELSE " AND AuditHdr.AuditDB    EQ '" + cStartDb + "'")  
-               + ( IF cStartTable    EQ CHR(32) AND cEndTable    EQ CHR(254) THEN "" ELSE " AND AuditHdr.AuditTable EQ '" + cStartTable + "'")
-               + ( IF cStartType     EQ CHR(32) AND cEndType     EQ CHR(254) THEN "" ELSE " AND AuditHdr.AuditType  EQ '" + cStartType + "'")
-               + ( IF cStartUser     EQ CHR(32) AND cEndType     EQ CHR(254) THEN "" ELSE " AND AuditHdr.AuditUser  EQ '" + cStartUser + "'")
-               + ( IF cStartAuditKey EQ CHR(32) AND cEndAuditKey EQ CHR(254) THEN "" ELSE " AND AuditHdr.Auditkey   EQ '" + cStartAuditKey + "'")
-               + " , FIRST AuditDtl OF AuditHdr NO-LOCK "
-               + ( IF cStartField        EQ CHR(32) AND cEndField       EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditField       EQ '" + cStartField + "'")
-               + ( IF cStartBeforeValue  EQ CHR(32) AND cEndBeforeValue EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditBeforeValue EQ '" + cStartBeforeValue + "'")
-               + ( IF cStartAfterValue   EQ CHR(32) AND cEndAfterValue  EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditAfterValue  EQ '" + cStartAfterValue + "'")
-               + ( IF cSortBy NE "" THEN "BY " + cSortBy +( IF lAscending THEN "" ELSE " DESCENDING")  ELSE " ")
-               +  " MAX-ROWS " + STRING(maxrows)
-               . 
+    cQuery = "FOR EACH AuditHdr NO-LOCK "
+           + "WHERE AuditHdr.AuditDateTime GE DATETIME('" + STRING(dtStartDateTime) + "')"
+           +   " AND AuditHdr.AuditDateTime LE DATETIME('" + STRING(dtEndDateTime) + "')"
+           + ( IF cStartDB       EQ CHR(32) AND cEndDB       EQ CHR(254) THEN "" ELSE " AND AuditHdr.AuditDB    EQ '" + cStartDb + "'")  
+           + ( IF cStartTable    EQ CHR(32) AND cEndTable    EQ CHR(254) THEN "" ELSE " AND AuditHdr.AuditTable EQ '" + cStartTable + "'")
+           + ( IF cStartType     EQ CHR(32) AND cEndType     EQ CHR(254) THEN "" ELSE " AND AuditHdr.AuditType  EQ '" + cStartType + "'")
+           + ( IF cStartUser     EQ CHR(32) AND cEndType     EQ CHR(254) THEN "" ELSE " AND AuditHdr.AuditUser  EQ '" + cStartUser + "'")
+           + ( IF cStartAuditKey EQ CHR(32) AND cEndAuditKey EQ CHR(254) THEN "" ELSE " AND AuditHdr.Auditkey   EQ '" + cStartAuditKey + "'")
+           + ", FIRST AuditDtl OF AuditHdr NO-LOCK WHERE TRUE"
+           + ( IF cStartField        EQ CHR(32) AND cEndField       EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditField       EQ '" + cStartField + "'")
+           + ( IF cStartBeforeValue  EQ CHR(32) AND cEndBeforeValue EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditBeforeValue EQ '" + cStartBeforeValue + "'")
+           + ( IF cStartAfterValue   EQ CHR(32) AND cEndAfterValue  EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditAfterValue  EQ '" + cStartAfterValue + "'")
+           + ( IF cSortBy NE "" THEN "BY " + cSortBy +( IF lAscending THEN "" ELSE " DESCENDING")  ELSE " ")
+           +  " MAX-ROWS " + STRING(maxrows)
+           . 
+    SESSION:SET-WAIT-STATE("General").
     hdAuditHdrQuery:QUERY-PREPARE(cQuery).    
     hdAuditHdrQuery:QUERY-OPEN().
+    SESSION:SET-WAIT-STATE("").
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

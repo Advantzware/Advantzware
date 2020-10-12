@@ -9,7 +9,7 @@ DO:
     DEFINE VARIABLE cTable AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hTable AS HANDLE    NO-UNDO.
 
-    RUN AOA/AuditTable.w (QUERY {&sdQuery}:HANDLE, OUTPUT cTable, OUTPUT hTable).
+    RUN AOA/AuditTable.w (QUERY {&sdQuery}:HANDLE, ?, OUTPUT cTable, OUTPUT hTable).
     IF VALID-HANDLE(hTable) THEN
     RUN system/CallAudit.p (cTable, hTable, "Viewer", PROGRAM-NAME(1)).
 END.
