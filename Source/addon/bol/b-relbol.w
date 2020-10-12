@@ -162,6 +162,12 @@ DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lSSBOLPassword AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cSSBOLPassword AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lCheckTagHoldMessage AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
+{inventory/ttInventory.i "NEW SHARED"}
+RUN inventory\InventoryProcs.p PERSISTENT SET hInventoryProcs.
+
 RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
 
 v-hold-list = "Royal,Superior,ContSrvc,BlueRidg,Danbury".
@@ -650,6 +656,11 @@ DO:
     RETURN.
 END.
 
+ON 'value-changed':U OF tt-relbol.tag#
+DO:
+   lCheckTagHoldMessage = NO.    
+END.
+
 ON 'leave':U OF tt-relbol.release#
 DO:
     DEF VAR lv-num-item AS INT NO-UNDO.
@@ -968,6 +979,9 @@ DO:
       DISPLAY tt-relbol.tag# WITH BROWSE {&browse-name}.
       RETURN NO-APPLY.
    END.
+   
+   RUN validate-tag-status(OUTPUT lReturnError) NO-ERROR.
+   IF lReturnError THEN RETURN NO-APPLY.
 
    FIND FIRST itemfg WHERE
         itemfg.company = cocode AND
@@ -2386,7 +2400,7 @@ PROCEDURE local-enable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
- 
+  lCheckTagHoldMessage = NO .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2403,6 +2417,8 @@ PROCEDURE local-exit :
   /* Code placed here will execute PRIOR to standard behavior. */
   IF VALID-HANDLE(hNotesProcs) THEN
       DELETE OBJECT hNotesProcs.
+  IF VALID-HANDLE(hInventoryProcs) THEN
+      DELETE OBJECT hInventoryProcs.    
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
 
@@ -2433,6 +2449,9 @@ PROCEDURE local-update-record :
 
   RUN validate-tag NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN.
+  
+  RUN validate-tag-status(OUTPUT lReturnError) NO-ERROR.
+   IF lReturnError THEN RETURN NO-APPLY.
   
   RUN validate-item NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN.
@@ -3452,6 +3471,46 @@ PROCEDURE validate-tag :
      APPLY "entry" TO tt-relbol.tag# .
      RETURN ERROR.
   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-tag-status B-table-Win 
+PROCEDURE validate-tag-status :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lTagStatusOnHold AS LOGICAL NO-UNDO. 
+  DEFINE VARIABLE lMessageValue    AS LOGICAL NO-UNDO.
+      
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+    IF tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND NOT lCheckTagHoldMessage 
+    THEN DO:
+      lTagStatusOnHold = LOGICAL(DYNAMIC-FUNCTION(
+                               "fCheckFgBinTagOnHold" IN hInventoryProcs,
+                               cocode,
+                               tt-relbol.i-no:SCREEN-VALUE IN BROWSE {&browse-name}, 
+                               tt-relbol.tag#:SCREEN-VALUE IN BROWSE {&browse-name})).
+        IF lTagStatusOnHold THEN do:
+          RUN displayMessageQuestion ("53", OUTPUT lMessageValue).
+          IF NOT lMessageValue then
+          do:
+              APPLY "entry" TO tt-relbol.tag# IN BROWSE {&browse-name}.
+              oplReturnError = YES .
+          END.
+          ELSE lCheckTagHoldMessage = YES.
+        END.
+        
+    END.      
+  END.
+
+  {methods/lValidateError.i NO}
 
 END PROCEDURE.
 

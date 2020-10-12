@@ -5,6 +5,7 @@ DEFINE INPUT PARAMETER  iplgShowMessages AS LOGICAL NO-UNDO.
 DEF BUFFER b-po-ordl FOR po-ordl.
 DEF BUFFER b-ref1 FOR reftable.
 DEF BUFFER b-ref2 FOR reftable.
+DEFINE BUFFER bf-po-ordl-add FOR po-ordl-add.
 
 DEF NEW SHARED VAR cocode AS CHAR NO-UNDO.
 
@@ -142,3 +143,12 @@ FOR EACH reftable
   DELETE reftable.
 END.
 
+FOR EACH bf-po-ordl-add NO-LOCK
+    WHERE bf-po-ordl-add.company EQ io-po-ordl.company 
+      AND bf-po-ordl-add.po-no   EQ io-po-ordl.po-no
+      AND bf-po-ordl-add.line    EQ io-po-ordl.line:
+          
+    FIND CURRENT bf-po-ordl-add EXCLUSIVE-LOCK NO-ERROR.
+    DELETE bf-po-ordl-add.          
+END.          
+      

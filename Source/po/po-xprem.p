@@ -107,6 +107,7 @@ DEF VAR v-tot-msf AS DEC FORM ">>>>,>>9.999" NO-UNDO.
 DEF VAR v-out-qty AS DEC NO-UNDO.
 DEF VAR lv-add-line AS LOG NO-UNDO.
 DEFINE SHARED VARIABLE s-print-prices AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cCustPo LIKE oe-ord.po-no no-undo.
 
 def var v-dec-fld as decimal no-undo.
 
@@ -552,12 +553,27 @@ v-printline = 0.
             v-line-number = v-line-number + 1.
             v-printline = v-printline + 1.
         END.
+        cCustPo = "".
+        FIND FIRST oe-ord NO-LOCK
+             WHERE oe-ord.company EQ po-ordl.company               /*Task# 10041302*/
+             AND oe-ord.ord-no EQ po-ordl.ord-no  NO-ERROR.
+        IF AVAIL oe-ord AND oe-ord.po-no NE "" THEN
+        ASSIGN cCustPo = oe-ord.po-no .
+
+        IF po-ordl.ord-no NE 0 THEN DO:
+            put "<C21>Order#:" string(po-ordl.ord-no,">>>>>9").
+            PUT "<C33>Cust PO#:" cCustPo           /*Task# 10041302*/
+                skip.
+            lv-add-line = NO.
+            v-line-number = v-line-number + 1.
+            v-printline = v-printline + 1.
+        END.          
 
         IF lv-add-line THEN DO:
             PUT SKIP.
             v-line-number = v-line-number + 1.
             v-printline = v-printline + 1.
-        END.
+        END.            
 
         /* calc total sq feet */
         ASSIGN v-basis-w = 0

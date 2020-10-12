@@ -74,6 +74,8 @@ DEFINE TEMP-TABLE ttDynParamValue NO-UNDO
     FIELD externalForm     LIKE dynParamValue.externalForm
     FIELD recordLimit      LIKE dynParamValue.recordLimit
     FIELD runSync          LIKE dynParamValue.runSync
+    FIELD custListID       LIKE dynParamValue.custListID
+    FIELD useCustList      LIKE dynParamValue.useCustList
     FIELD lastRunDateTime  LIKE dynParamValue.lastRunDateTime
     FIELD paramValueRowID    AS ROWID
     FIELD allData            AS CHARACTER
@@ -101,7 +103,7 @@ iSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
 &Scoped-define INTERNAL-TABLES ttDynParamValue
 
 /* Definitions for BROWSE browseParamValue                              */
-&Scoped-define FIELDS-IN-QUERY-browseParamValue ttDynParamValue.paramTitle ttDynParamValue.paramDescription ttDynParamValue.module ttDynParamValue.user-id ttDynParamValue.paramValueID ttDynParamValue.outputFormat ttDynParamValue.runSync ttDynParamValue.prgmName ttDynParamValue.securityLevel ttDynParamValue.mnemonic ttDynParamValue.lastRunDateTime ttDynParamValue.externalForm   
+&Scoped-define FIELDS-IN-QUERY-browseParamValue ttDynParamValue.paramTitle ttDynParamValue.paramDescription ttDynParamValue.module ttDynParamValue.user-id ttDynParamValue.paramValueID ttDynParamValue.outputFormat ttDynParamValue.runSync ttDynParamValue.prgmName ttDynParamValue.securityLevel ttDynParamValue.mnemonic ttDynParamValue.useCustList ttDynParamValue.custListID ttDynParamValue.subjectID ttDynParamValue.lastRunDateTime ttDynParamValue.externalForm   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseParamValue   
 &Scoped-define SELF-NAME browseParamValue
 &Scoped-define QUERY-STRING-browseParamValue FOR EACH ttDynParamValue WHERE ttDynParamValue.securityLevel LE iSecurityLevel   AND ttDynParamValue.prgmName BEGINS cPrgmName   AND ttDynParamValue.paramDescription BEGINS cParamDescrip   AND ttDynParamValue.module BEGINS cModule   AND ttDynParamValue.user-id BEGINS cUserID   AND ttDynParamValue.allData MATCHES "*" + searchBar + "*"  ~{&SORTBY-PHRASE}
@@ -239,6 +241,9 @@ ttDynParamValue.runSync
 ttDynParamValue.prgmName LABEL-BGCOLOR 14
 ttDynParamValue.securityLevel
 ttDynParamValue.mnemonic LABEL-BGCOLOR 14
+ttDynParamValue.useCustList VIEW-AS TOGGLE-BOX
+ttDynParamValue.custListID
+ttDynParamValue.subjectID
 ttDynParamValue.lastRunDateTime LABEL-BGCOLOR 14
 ttDynParamValue.externalForm
 /* _UIB-CODE-BLOCK-END */

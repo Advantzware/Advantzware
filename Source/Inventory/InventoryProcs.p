@@ -89,7 +89,20 @@ FUNCTION fCalculateTagQuantityInTTbrowse RETURNS DECIMAL
 FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
     (ipcCompany  AS CHARACTER,
      iplItemType AS LOGICAL,
-     ipcTag      AS CHARACTER) FORWARD.            
+     ipcTag      AS CHARACTER) FORWARD. 
+     
+FUNCTION fCheckFgBinTagOnHold RETURNS LOGICAL
+    (ipcCompany  AS CHARACTER,
+     ipcItem AS CHARACTER,
+     ipcTag      AS CHARACTER) FORWARD.     
+FUNCTION fItemHasOnHand RETURNS LOGICAL
+    (ipcCompany  AS CHARACTER,
+     ipcItem AS CHARACTER) FORWARD. 
+     
+FUNCTION fItemIsUsed RETURNS CHARACTER
+    (ipcCompany  AS CHARACTER,
+     ipcItem AS CHARACTER) FORWARD.     
+
 /* ***************************  Main Block  *************************** */
 
 
@@ -6430,4 +6443,70 @@ FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
         cVendorTag = loadtag.misc-char[1].
 
     RETURN cVendorTag.
+END FUNCTION.
+
+FUNCTION fCheckFgBinTagOnHold RETURNS LOGICAL
+    (ipcCompany AS CHARACTER, ipcItem AS CHARACTER, ipcTag AS CHARACTER):
+    DEFINE VARIABLE lReturnValue AS LOGICAL NO-UNDO.
+   
+    FIND FIRST fg-bin NO-LOCK
+         WHERE fg-bin.company   EQ ipcCompany
+           AND fg-bin.i-no EQ ipcItem
+           AND fg-bin.tag  EQ ipcTag
+           AND fg-bin.qty GT 0
+        NO-ERROR.
+    IF AVAILABLE fg-bin AND fg-bin.onHold THEN
+    lReturnValue = YES.   
+
+    RETURN lReturnValue.
+END FUNCTION.
+
+FUNCTION fItemHasOnHand RETURNS LOGICAL
+    (ipcCompany AS CHARACTER, ipcItem AS CHARACTER):    
+     DEFINE VARIABLE lReturnValue AS LOGICAL NO-UNDO.
+     DEFINE VARIABLE iQtyOnHand AS INTEGER NO-UNDO.
+     FOR EACH rm-bin FIELDS(qty )
+         WHERE rm-bin.company EQ ipcCompany
+         AND rm-bin.i-no EQ ipcItem
+         NO-LOCK:
+          ASSIGN
+          iQtyOnHand = iQtyOnHand + rm-bin.qty.
+      END.   
+      lReturnValue =  iQtyOnHand GT 0 .
+    RETURN lReturnValue.
+END FUNCTION.
+
+FUNCTION fItemIsUsed RETURNS CHARACTER
+    (ipcCompany AS CHARACTER, ipcItem AS CHARACTER):      
+    DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO .
+    
+    FOR EACH po-ordl FIELDS(po-no )  NO-LOCK
+        WHERE po-ordl.company EQ ipcCompany
+        AND po-ordl.i-no EQ  ipcItem
+        AND po-ordl.opened  :
+         cMessage = " Po# " + string(po-ordl.po-no ) .
+         LEAVE.
+    END.
+      
+    IF cMessage EQ "" THEN
+    FOR EACH oe-ordl FIELD(ord-no) NO-LOCK
+        WHERE oe-ordl.company EQ ipcCompany
+        AND oe-ordl.i-no EQ ipcItem
+        AND oe-ordl.opened  :
+         cMessage = " Order# " + string(oe-ordl.ord-no ) .
+         LEAVE.
+    END.
+    IF cMessage EQ "" THEN
+    FOR EACH job-mat NO-LOCK
+        WHERE  job-mat.company EQ ipcCompany
+        AND job-mat.rm-i-no EQ ipcItem, 
+        FIRST job-hdr FIELD(job-no)  NO-LOCK
+        WHERE  job-hdr.company EQ ipcCompany
+        AND job-hdr.job-no EQ job-mat.job-no
+        AND job-hdr.job-no2 EQ job-mat.job-no2
+        AND job-hdr.opened EQ YES :
+          cMessage = " Job# " + string(job-hdr.job-no ) .
+    END.
+
+    RETURN cMessage.
 END FUNCTION.

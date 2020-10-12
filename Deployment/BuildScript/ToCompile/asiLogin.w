@@ -1309,7 +1309,8 @@ PROCEDURE ipPreRun :
         DO:
             RUN system/session.p PERSISTENT SET hSession.
             SESSION:ADD-SUPER-PROCEDURE (hSession).
-        END. 
+            RUN spSetSessionParam ("Password", fiPassword). 
+        END.
     END.
     
     /* Find running super procedures (later versions of session.p will start some of these, so don't need to be restarted */

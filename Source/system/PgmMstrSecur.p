@@ -118,6 +118,7 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "windows/dept.w" AND ipFunction EQ "") OR /*NZ4 (NZ3) Departments - Edits*/
                 (ipProgName EQ "windows/prgrms.w" AND ipFunction EQ "") OR /*NS8 Program Master*/
                 (ipProgName EQ "windows/message.w" AND ipFunction EQ "Admin") OR /* Check security for Admin */
+                (ipProgName EQ "jcrep/r-ticket.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "" AND ipFunction = "")
                 ) THEN ASSIGN opCanAccess = FALSE.
         END. /* list-based exclusions */       
