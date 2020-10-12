@@ -2138,11 +2138,7 @@ PROCEDURE VendCost_UpdateVendItemCost:
         AND vendItemCost.blankNo  EQ ipiBlank
         AND vendItemCost.itemID   EQ ipcOldItem:
         FIND FIRST bf-vendItemCost EXCLUSIVE-LOCK
-            WHERE bf-vendItemCost.company  EQ vendItemCost.company
-            AND bf-vendItemCost.estimate EQ vendItemCost.estimate 
-            AND bf-vendItemCost.formNo   EQ vendItemCost.formNo 
-            AND bf-vendItemCost.blankNO  EQ vendItemCost.blankNo
-            AND bf-vendItemCost.itemID   EQ vendItemCost.itemID
+            WHERE ROWID(bf-vendItemCost)  EQ ROWID(vendItemCost)             
             NO-ERROR.
         IF AVAILABLE bf-vendItemCost THEN 
             bf-vendItemCost.itemID = ipcNewItem.                       
