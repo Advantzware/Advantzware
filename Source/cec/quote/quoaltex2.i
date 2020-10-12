@@ -51,7 +51,7 @@
    "<FCourier New><=4><R+3> " v-quo-date FORM "99/99/9999" space(2)
    cust.fob-code FORM "x(11)" SPACE(2)
    carrier.dscr FORM "x(20)" SPACE(1)
-   terms.dscr FORM "x(15)" space(1) sman.sname space(2) v-over-under SKIP.
+   terms.dscr FORM "x(15)" space(1) sman.sname space(2) (if v-over-under eq "" then "See Below" else v-over-under) format "x(10)" SKIP.
 
    PUT "<|10><R28><C1><#5><FROM><R30><C80><RECT>" SKIP    
              "<R28><C7><FROM><R30><C7><LINE>" SKIP

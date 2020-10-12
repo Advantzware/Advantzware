@@ -26,6 +26,8 @@ DEFINE            VARIABLE sold             AS ch        EXTENT 5 FORM "x(30)" N
 DEFINE            VARIABLE bill             AS ch        EXTENT 5 FORM "x(30)" NO-UNDO.
 DEFINE            VARIABLE ship             AS ch        EXTENT 5 FORM "x(30)" NO-UNDO.
 DEFINE            VARIABLE tot              AS de        NO-UNDO.
+DEFINE            VARIABLE cOverRun         AS CHARACTER NO-UNDO.
+DEFINE            VARIABLE cUnderRun        AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE v-over-under     AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE v-comp-name      LIKE company.name EXTENT 4.
 DEFINE            VARIABLE trim-size        LIKE quoteitm.size NO-UNDO.
@@ -101,6 +103,7 @@ DEFINE VARIABLE logPrint        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE intPageNum      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lValid          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lMultiItem      AS LOGICAL   NO-UNDO.
 
 {sys/inc/f16to32.i}
 {cecrep/jobtick2.i "new shared"}
@@ -226,6 +229,10 @@ ASSIGN
 PUT "<Farial>". 
 
 ln-cnt = 0.
+IF ch-multi THEN
+   assign
+       v-over-under = ""
+       lMultiItem   = YES.
 
 IF (NOT ch-multi) THEN 
 DO:
@@ -236,6 +243,11 @@ DO:
       EACH xqqty OF xqitm NO-LOCK*/:
         ln-cnt = ln-cnt + 1.
     END.
+    IF ln-cnt GT 1 THEN
+      assign
+          lMultiItem = YES
+          v-over-under = "".
+          
     ln-cnt = ln-cnt * 5.
 
     FOR EACH xqitm OF xquo NO-LOCK,

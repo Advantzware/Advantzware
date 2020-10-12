@@ -76,13 +76,18 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR fgcat.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS fgcat.dscr fgcat.glacc fgcat.miscCharge fgcat.brdExpAcct fgcat.cogsExpAcct fgcat.lActive
+&Scoped-Define ENABLED-FIELDS fgcat.dscr fgcat.glacc fgcat.over-pct ~
+fgcat.under-pct fgcat.miscCharge fgcat.brdExpAcct fgcat.cogsExpAcct ~
+fgcat.lActive 
 &Scoped-define ENABLED-TABLES fgcat
 &Scoped-define FIRST-ENABLED-TABLE fgcat
 &Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS fgcat.procat fgcat.dscr fgcat.glacc fgcat.miscCharge fgcat.brdExpAcct fgcat.cogsExpAcct fgcat.lActive
+&Scoped-Define DISPLAYED-FIELDS fgcat.procat fgcat.dscr fgcat.glacc ~
+fgcat.over-pct fgcat.under-pct fgcat.miscCharge fgcat.brdExpAcct ~
+fgcat.cogsExpAcct fgcat.lActive 
 &Scoped-define DISPLAYED-TABLES fgcat
 &Scoped-define FIRST-DISPLAYED-TABLE fgcat
+&Scoped-Define DISPLAYED-OBJECTS cat-format F1 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -131,7 +136,7 @@ DEFINE VARIABLE F1 AS CHARACTER FORMAT "X(256)":U INITIAL "F1"
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 78 BY 6.85.
+     SIZE 78 BY 8.57.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -151,26 +156,31 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
           BGCOLOR 15 FONT 4
-     fgcat.miscCharge AT ROW 3.62 COL 17 COLON-ALIGNED
-          FORMAT "X(20)"
-          VIEW-AS FILL-IN
-          SIZE 34 BY 1   
+     fgcat.over-pct AT ROW 3.62 COL 12.4 COLON-ALIGNED
+          LABEL "Overs"
+          VIEW-AS FILL-IN 
+          SIZE 11 BY 1
           BGCOLOR 15 FONT 4
-     fgcat.brdExpAcct AT ROW 4.62 COL 30 COLON-ALIGNED WIDGET-ID 2
-          FORMAT "X(20)"
-          VIEW-AS FILL-IN
+     fgcat.under-pct AT ROW 3.62 COL 40 COLON-ALIGNED
+          LABEL "Unders"
+          VIEW-AS FILL-IN 
+          SIZE 11 BY 1
+          BGCOLOR 15 FONT 4
+     fgcat.miscCharge AT ROW 5.05 COL 17 COLON-ALIGNED
+          VIEW-AS FILL-IN 
           SIZE 34 BY 1
-          BGCOLOR 15 FONT 4 
-     fgcat.cogsExpAcct AT ROW 5.62 COL 30 COLON-ALIGNED WIDGET-ID 4 
-          FORMAT "X(20)"
-          VIEW-AS FILL-IN
-          SIZE 34 BY 1 
           BGCOLOR 15 FONT 4
-     fgcat.lActive AT ROW 6.62 COL 30 COLON-ALIGNED HELP
-          "Status Yes or No "
-          FORMAT "Yes/No"
-          VIEW-AS FILL-IN
-          SIZE 7 BY 1 
+     fgcat.brdExpAcct AT ROW 6.05 COL 30 COLON-ALIGNED WIDGET-ID 2
+          VIEW-AS FILL-IN 
+          SIZE 34 BY 1
+          BGCOLOR 15 FONT 4
+     fgcat.cogsExpAcct AT ROW 7.05 COL 30 COLON-ALIGNED WIDGET-ID 4
+          VIEW-AS FILL-IN 
+          SIZE 34 BY 1
+          BGCOLOR 15 FONT 4
+     fgcat.lActive AT ROW 8.05 COL 30 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 7 BY 1
           BGCOLOR 15 FONT 4
      F1 AT ROW 2.43 COL 72 NO-LABEL
      RECT-1 AT ROW 1 COL 1
@@ -207,7 +217,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 7.24
+         HEIGHT             = 8.76
          WIDTH              = 79.2.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -243,8 +253,12 @@ ASSIGN
 ASSIGN 
        F1:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN fgcat.over-pct IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN fgcat.procat IN FRAME F-Main
    NO-ENABLE 1                                                          */
+/* SETTINGS FOR FILL-IN fgcat.under-pct IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -258,7 +272,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -303,6 +317,71 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fgcat.brdExpAcct
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fgcat.brdExpAcct V-table-Win
+ON LEAVE OF fgcat.brdExpAcct IN FRAME F-Main /* Brd Exp Acct */
+DO:
+   IF LASTKEY NE -1 THEN DO:
+      RUN valid-rm-glacc NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+   END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fgcat.brdExpAcct V-table-Win
+ON VALUE-CHANGED OF fgcat.brdExpAcct IN FRAME F-Main /* Brd Exp Acct */
+DO:
+   FIND account
+        WHERE account.company EQ cocode
+          AND account.actnum  BEGINS {&self-name}:SCREEN-VALUE
+          AND account.TYPE    EQ "E"
+        NO-LOCK NO-ERROR.
+  IF AVAIL account THEN DO:
+     {&self-name}:SCREEN-VALUE = account.actnum.
+     APPLY "tab" TO {&self-name}.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fgcat.cogsExpAcct
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fgcat.cogsExpAcct V-table-Win
+ON LEAVE OF fgcat.cogsExpAcct IN FRAME F-Main /* COGS Exp Acct */
+DO:
+   IF LASTKEY NE -1 THEN DO:
+      RUN valid-fg-glacc NO-ERROR.
+      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fgcat.cogsExpAcct V-table-Win
+ON VALUE-CHANGED OF fgcat.cogsExpAcct IN FRAME F-Main /* COGS Exp Acct */
+DO:
+   FIND account
+        WHERE account.company EQ cocode
+          AND account.actnum  BEGINS {&self-name}:SCREEN-VALUE
+          AND account.TYPE    EQ "E"
+        NO-LOCK NO-ERROR.
+  IF AVAIL account THEN DO:
+     {&self-name}:SCREEN-VALUE = account.actnum.
+     APPLY "tab" TO {&self-name}.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fgcat.glacc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fgcat.glacc V-table-Win
 ON LEAVE OF fgcat.glacc IN FRAME F-Main /* GL Account */
@@ -335,19 +414,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fgcat.procat
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fgcat.procat V-table-Win
-ON LEAVE OF fgcat.procat IN FRAME F-Main /* Category */
-DO:
-   IF LASTKEY <> -1 AND fgcat.procat:SCREEN-VALUE = "" THEN DO:
-      MESSAGE "Category cannot be blank. Try again." VIEW-AS ALERT-BOX ERROR.
-      RETURN NO-APPLY.
-   END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &Scoped-define SELF-NAME fgcat.miscCharge
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fgcat.miscCharge V-table-Win
 ON LEAVE OF fgcat.miscCharge IN FRAME F-Main /* Misc Charge */
@@ -359,72 +425,18 @@ DO:
 
 END.
 
-
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME fgcat.cogsExpAcct
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fgcat.cogsExpAcct V-table-Win
-ON LEAVE OF fgcat.cogsExpAcct IN FRAME F-Main /* FG COGS Expense GL# */
+
+&Scoped-define SELF-NAME fgcat.procat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fgcat.procat V-table-Win
+ON LEAVE OF fgcat.procat IN FRAME F-Main /* Category */
 DO:
-   IF LASTKEY NE -1 THEN DO:
-      RUN valid-fg-glacc NO-ERROR.
-      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+   IF LASTKEY <> -1 AND fgcat.procat:SCREEN-VALUE = "" THEN DO:
+      MESSAGE "Category cannot be blank. Try again." VIEW-AS ALERT-BOX ERROR.
+      RETURN NO-APPLY.
    END.
-END.
-
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fgcat.cogsExpAcct V-table-Win
-ON VALUE-CHANGED OF fgcat.cogsExpAcct IN FRAME F-Main /* FG COGS Expense GL# */
-DO:
-   FIND account
-        WHERE account.company EQ cocode
-          AND account.actnum  BEGINS {&self-name}:SCREEN-VALUE
-          AND account.TYPE    EQ "E"
-        NO-LOCK NO-ERROR.
-  IF AVAIL account THEN DO:
-     {&self-name}:SCREEN-VALUE = account.actnum.
-     APPLY "tab" TO {&self-name}.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME fgcat.brdExpAcct
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fgcat.brdExpAcct V-table-Win
-ON LEAVE OF fgcat.brdExpAcct IN FRAME F-Main /* RM Board Expense GL# */
-DO:
-   IF LASTKEY NE -1 THEN DO:
-      RUN valid-rm-glacc NO-ERROR.
-      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-   END.
-
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fgcat.brdExpAcct V-table-Win
-ON VALUE-CHANGED OF fgcat.brdExpAcct IN FRAME F-Main /* RM Board Expense GL# */
-DO:
-   FIND account
-        WHERE account.company EQ cocode
-          AND account.actnum  BEGINS {&self-name}:SCREEN-VALUE
-          AND account.TYPE    EQ "E"
-        NO-LOCK NO-ERROR.
-  IF AVAIL account THEN DO:
-     {&self-name}:SCREEN-VALUE = account.actnum.
-     APPLY "tab" TO {&self-name}.
-  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -672,7 +684,6 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
 DISABLE fgcat.miscCharge fgcat.brdExpAcct fgcat.cogsExpAcct WITH FRAME {&FRAME-NAME}.
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

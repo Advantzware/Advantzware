@@ -1043,6 +1043,8 @@ DO:
                         oe-ordl.i-name:screen-value = ENTRY(2,char-val).
                  RUN display-fgitem NO-ERROR.
                  IF NOT ERROR-STATUS:ERROR THEN DO:
+                   IF AVAIL oe-ord THEN
+                   RUN pGetOverUnderPct(oe-ord.cust-no,oe-ord.ship-id) .
                    ll-ok-i-no = YES.
                    IF oescreen-log AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
                    
@@ -1724,6 +1726,10 @@ DO:
             cLoc = shipto.loc
             cLocBin = shipto.loc-bin
             . 
+            
+   IF avail oe-ord THEN
+      RUN pGetOverUnderPct(oe-ord.cust-no,oe-ord.ship-id) .
+      
   IF ll-bypass THEN DO:
     ll-bypass = NO.
     RETURN.
@@ -8858,16 +8864,14 @@ PROCEDURE pGetOverUnderPct :
    DEFINE VARIABLE dUnderPer AS DECIMAL NO-UNDO.
    DEFINE BUFFER bf-shipto FOR shipto .
 
-  DO WITH FRAME {&FRAME-NAME}:
-    IF oe-ord.est-no EQ "" AND oe-ordl.est-no:SCREEN-VALUE NE "" AND oeship-cha EQ "EstShipto" THEN
-    DO:               
+  DO WITH FRAME {&FRAME-NAME}:                   
         RUN oe/GetOverUnderPct.p(g_company, 
                                ipcCustNo,
                                TRIM(ipcShipID),
+                               oe-ordl.i-no:SCREEN-VALUE,
                                OUTPUT dOverPer , OUTPUT dUnderPer ) .
                                oe-ordl.over-pct:SCREEN-VALUE = STRING(dOverPer).
-                               oe-ordl.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
-    END.                       
+                               oe-ordl.Under-pct:SCREEN-VALUE = STRING(dUnderPer).                         
   END.
 
   {methods/lValidateError.i NO}

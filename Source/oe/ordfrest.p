@@ -399,9 +399,7 @@ PROCEDURE create-new-order.
            xoe-ord.contact   = cust.contact
            xoe-ord.last-date = xoe-ord.ord-date + cust.ship-days
            xoe-ord.due-date  = xoe-ord.last-date
-           xoe-ord.terms     = cust.terms
-           xoe-ord.over-pct  = cust.over-pct
-           xoe-ord.under-pct = cust.under-pct
+           xoe-ord.terms     = cust.terms            
            xoe-ord.fob-code  = cust.fob-code
            xoe-ord.f-bill    = (oe-ord.frt-pay EQ "B")
            xoe-ord.tax-gr    = cust.tax-gr
@@ -418,6 +416,14 @@ PROCEDURE create-new-order.
             ASSIGN
              xoe-ord.last-date = xoe-ord.ord-date + (cust.ship-days * v-factor)
              xoe-ord.due-date  = xoe-ord.ord-date + (lastship-int * v-factor).
+             
+           RUN oe/GetOverUnderPct.p(xoe-ord.company, 
+                               xoe-ord.cust-no,
+                               TRIM(xoe-ord.ship-id),
+                               "",
+                               OUTPUT xoe-ord.over-pct , 
+                               OUTPUT xoe-ord.Under-pct ) .
+                                 
 END PROCEDURE.
 
 
@@ -517,6 +523,14 @@ PROCEDURE create-order-lines.
                                     AND style.style   EQ eb.style
                                     AND style.TYPE    EQ "F")       THEN
             oe-ordl.req-date = xoe-ord.ord-date + v-foamdate-int.
+            
+         RUN oe/GetOverUnderPct.p(xoe-ord.company, 
+                               xoe-ord.cust-no,
+                               TRIM(xoe-ord.ship-id),
+                               oe-ordl.i-no,
+                               OUTPUT oe-ordl.over-pct ,
+                               OUTPUT oe-ordl.Under-pct ) .   
+            
        END.  /* not avail oe-ordl */
 
        ELSE
