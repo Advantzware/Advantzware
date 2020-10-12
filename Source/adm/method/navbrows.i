@@ -99,7 +99,6 @@ Layout,Create-On-Add,SortBy-Case
   /* Initialize attributes for update processing objects. */
   RUN set-attribute-list ('FIELDS-ENABLED=no,ADM-NEW-RECORD=no':U).
 {methods/template/brwcustom.i}
-
 &ENDIF
 
 /* _UIB-CODE-BLOCK-END */

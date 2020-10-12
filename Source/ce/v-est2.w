@@ -29,6 +29,7 @@ CREATE WIDGET-POOL.
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/var.i new shared}
+DEFINE VARIABLE colHand      AS WIDGET-HANDLE NO-UNDO.
 DEF VAR ll-auto-calc-selected AS LOG NO-UNDO.
 DEF VAR k_frac AS DEC INIT 6.25 NO-UNDO.
 &IF DEFINED(UIB_is_Running) NE 0 &THEN
@@ -2634,7 +2635,32 @@ PROCEDURE local-display-fields :
                VISIBLE = YES 
                SENSITIVE = TRUE  
                BGCOLOR = 8
-               SEPARATORS = YES.
+               SEPARATORS = YES
+               bgcolor = 25
+               separator-fgcolor = 15
+               row-height-chars = 0.84
+               font = 22.
+         /*      trigger:
+                   on row-display 
+                   do:
+                       IF CURRENT-RESULT-ROW("br-flm") mod 2 = 0 then
+                       do:                       
+                           colHand = br-flm:first-column.
+                           do while valid-handle(colHand):
+                               colHand:BGCOLOR = 25. 
+                               colHand = colHand:next-column.
+                           end.
+                       end.
+                       else
+                       do:
+                           colHand = br-flm:first-column.
+                           do while valid-handle(colHand):
+                               colHand:BGCOLOR = 26. 
+                               colHand = colHand:next-column.
+                           end.
+                       end.
+                   end.
+               end trigger.*/
 
         OPEN QUERY q-flm FOR EACH est-flm WHERE est-flm.company = eb.company
                                              AND est-flm.est-no = eb.est-no
