@@ -127,7 +127,7 @@ const self = {
 						response = JSON.parse(response);
 					}
 					catch ( e ) {
-						self.CSVFileDataCreate(req,JSONRequestData,response,e.message);
+						self.CSVFileDataCreate(req,XMLRequestData,response,e.message);
 					}
 					if (!response) {
 						response = {"response_code":500,"response_message":"Internal Server Error at Node (#1) - XML issue with the response format"};
