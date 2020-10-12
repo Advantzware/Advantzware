@@ -68,7 +68,7 @@ DEF TEMP-TABLE w-jm NO-UNDO
    FIELD blank-no LIKE job-mch.blank-no
    FIELD row-id   AS   ROWID.
 
-DEF VAR lv-prev-prdd-rowid AS rowid NO-UNDO.
+DEF VAR lv-prev-prdd-rowid AS ROWID NO-UNDO.
 DEF VAR lv-initial AS LOG INIT YES NO-UNDO.
 DEF TEMP-TABLE tt-prdd2 NO-UNDO LIKE tt-prdd.
 
@@ -367,13 +367,13 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-prdd
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 DO:
-    def var phandle as widget-handle no-undo.
-    def var char-hdl as cha no-undo.   
+    DEF VAR phandle AS WIDGET-HANDLE NO-UNDO.
+    DEF VAR char-hdl AS cha NO-UNDO.   
     RUN get-link-handle IN adm-broker-hdl
        (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
     phandle = WIDGET-HANDLE(char-hdl).
 
-    RUN new-state in phandle ('update-begin':U).
+    RUN new-state IN phandle ('update-begin':U).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -411,11 +411,11 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON return OF Browser-Table IN FRAME F-Main
-anywhere
+ON RETURN OF Browser-Table IN FRAME F-Main
+ANYWHERE
 DO:
-   apply "tab" to self.
-   return no-apply.
+   APPLY "tab" TO SELF.
+   RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -619,7 +619,7 @@ ON 'leave':U OF tt-prdd.stopx IN BROWSE {&browse-name} DO:
         RETURN NO-APPLY.
      END.
      IF int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) < 0 OR 
-        int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) >= 60 or
+        int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) >= 60 OR
         (int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},1,2)) EQ 24 AND
          int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) NE 0) THEN DO:
         MESSAGE "Invalid Minites." VIEW-AS ALERT-BOX ERROR.        
@@ -699,15 +699,15 @@ PROCEDURE auto-add :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/   
-    def var phandle as widget-handle no-undo.
-    def var char-hdl as cha no-undo.   
+    DEF VAR phandle AS WIDGET-HANDLE NO-UNDO.
+    DEF VAR char-hdl AS cha NO-UNDO.   
 
     lv-is-first-prdd = PROGRAM-NAME(2) MATCHES "*v-prddj*".
 
     RUN get-link-handle IN adm-broker-hdl
        (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
     phandle = WIDGET-HANDLE(char-hdl).
-    RUN auto-add in phandle .
+    RUN auto-add IN phandle .
 
 END PROCEDURE.
 
@@ -753,13 +753,13 @@ PROCEDURE auto-update :
     RUN local-create-record.
     RUN dispatch ('display-fields').
 
-    def var phandle as widget-handle no-undo.
-    def var char-hdl as cha no-undo.   
+    DEF VAR phandle AS WIDGET-HANDLE NO-UNDO.
+    DEF VAR char-hdl AS cha NO-UNDO.   
     RUN get-link-handle IN adm-broker-hdl
        (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
     phandle = WIDGET-HANDLE(char-hdl).
 
-    RUN new-state in phandle ('update-begin':U).
+    RUN new-state IN phandle ('update-begin':U).
 
 END PROCEDURE.
 
@@ -1085,15 +1085,15 @@ PROCEDURE local-assign-record :
 
   FIND CURRENT bf-prdd NO-LOCK.
 
-  find first pc-prdh
-      where pc-prdh.company    eq g_company
-        and pc-prdh.m-code     eq tt-prdd.m-code
-        and pc-prdh.trans-date eq tt-prdd.op-date
-        and pc-prdh.shift      eq tt-prdd.shift
-      no-lock no-error.
-  if not avail pc-prdh then do:
-    create pc-prdh.
-    assign
+  FIND FIRST pc-prdh
+      WHERE pc-prdh.company    EQ g_company
+        AND pc-prdh.m-code     EQ tt-prdd.m-code
+        AND pc-prdh.trans-date EQ tt-prdd.op-date
+        AND pc-prdh.shift      EQ tt-prdd.shift
+      NO-LOCK NO-ERROR.
+  IF NOT AVAIL pc-prdh THEN DO:
+    CREATE pc-prdh.
+    ASSIGN
      pc-prdh.company    = g_company
      pc-prdh.m-code     = tt-prdd.m-code
      pc-prdh.trans-date = tt-prdd.op-date
@@ -1350,20 +1350,20 @@ PROCEDURE local-enable-fields :
    lv-depts    = ""
    lv-depts[1] = tt-prdd.dept.
 
-  find first job
-      where job.company eq cocode
-        and job.job-no  eq pc-prdd.job-no
-        and job.job-no2 eq pc-prdd.job-no2
-      use-index job-no no-lock no-error.
+  FIND FIRST job
+      WHERE job.company EQ cocode
+        AND job.job-no  EQ pc-prdd.job-no
+        AND job.job-no2 EQ pc-prdd.job-no2
+      USE-INDEX job-no NO-LOCK NO-ERROR.
 
   v-est-type = 1.
-  if avail job then do:
-    find first est
-        where est.company eq job.company
-          and est.est-no  eq job.est-no
-        no-lock no-error.
-    if avail est then v-est-type = est.est-type - if est.est-type gt 4 then 4 else 0.
-  end.
+  IF AVAIL job THEN DO:
+    FIND FIRST est
+        WHERE est.company EQ job.company
+          AND est.est-no  EQ job.est-no
+        NO-LOCK NO-ERROR.
+    IF AVAIL est THEN v-est-type = est.est-type - IF est.est-type GT 4 THEN 4 ELSE 0.
+  END.
 
   ll-no-frm = v-est-type EQ 1.
   
@@ -1483,7 +1483,7 @@ PROCEDURE local-update-record :
         RETURN NO-APPLY.
      END.
      IF int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) < 0 OR 
-        int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) >= 60 or
+        int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) >= 60 OR
         (int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE IN BROWSE {&browse-name},1,2)) EQ 24 AND
          int(SUBSTRING(tt-prdd.stopx:SCREEN-VALUE,4,2)) NE 0) THEN DO:
         MESSAGE "Invalid Minites." VIEW-AS ALERT-BOX ERROR.
@@ -1499,7 +1499,7 @@ PROCEDURE local-update-record :
            INT(SUBSTRING(tt-prdd.startx:SCREEN-VALUE,4,2)) * 60 )
         ) / 3600 ,2) ).
      IF INT(tt-prdd.hours:SCREEN-VALUE IN BROWSE {&browse-name}) < 0 THEN DO:
-        message "Time entered will create negative hours, OK to proceed? "
+        MESSAGE "Time entered will create negative hours, OK to proceed? "
                 VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE ll-ans AS LOG.
         IF NOT ll-ans OR ll-ans = ? THEN DO:
            APPLY "entry" TO tt-prdd.stopx.
@@ -1685,6 +1685,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetChargeCode B-table-Win
+PROCEDURE pGetChargeCode:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcChargeCode AS CHARACTER NO-UNDO.
+    
+    IF AVAILABLE tt-prdd THEN
+    opcChargeCode = tt-prdd.code.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-form-cmplt B-table-Win 
 PROCEDURE proc-form-cmplt :
 /*------------------------------------------------------------------------------
@@ -1703,8 +1719,8 @@ PROCEDURE proc-form-cmplt :
    DEF VAR X AS INT NO-UNDO.
    DEF VAR v-up AS INT NO-UNDO.
    DEF VAR v-out AS INT NO-UNDO.
-   def var v-up-hs     like eb.num-up NO-UNDO.
-   def var v-on        like eb.num-up NO-UNDO.
+   DEF VAR v-up-hs     LIKE eb.num-up NO-UNDO.
+   DEF VAR v-on        LIKE eb.num-up NO-UNDO.
    DEF VAR h_updbin AS HANDLE NO-UNDO.
    DEF VAR li-units AS INT NO-UNDO.
 
@@ -1810,7 +1826,7 @@ PROCEDURE proc-form-cmplt :
      li-units            = b-reftable.val[1]
      v-runqty = 0. 
 
-    FOR EACH bf-prdd fields(qty) WHERE bf-prdd.company = tt-prdd.company 
+    FOR EACH bf-prdd FIELDS(qty) WHERE bf-prdd.company = tt-prdd.company 
                        AND bf-prdd.m-code = tt-prdd.m-code
                        AND bf-prdd.job-no = tt-prdd.job-no
                        AND bf-prdd.job-no2 = tt-prdd.job-no2
@@ -1887,50 +1903,50 @@ PROCEDURE proc-form-cmplt :
        mach.dept[3] EQ "DC" OR mach.dept[4] EQ "DC" THEN
        RUN update-plate-die ("D", v-est-type).
 
-    if avail est then do:
-       run sys/inc/numup.p (est.company, est.est-no, job-mch.frm, output v-up).
+    IF AVAIL est THEN DO:
+       RUN sys/inc/numup.p (est.company, est.est-no, job-mch.frm, OUTPUT v-up).
 
-    find first ef
-        where ef.company eq est.company
-          and ef.est-no  eq est.est-no
-          and ef.form-no eq job-mch.frm
-        no-lock no-error.
+    FIND FIRST ef
+        WHERE ef.company EQ est.company
+          AND ef.est-no  EQ est.est-no
+          AND ef.form-no EQ job-mch.frm
+        NO-LOCK NO-ERROR.
 
     IF AVAIL ef THEN DO:
       RUN est/ef-#out.p (ROWID(ef), OUTPUT v-on).
       v-on = v-up * v-on.
     END.
                       
-    find first est-op
-        where est-op.company eq est.company
-          and est-op.est-no  eq est.est-no
-          and est-op.s-num   eq job-mch.frm
-          and (est-op.b-num  eq job-mch.blank-no OR job-mch.blank-no eq 0)
-          and est-op.m-code  eq job-mch.m-code
-          and est-op.op-pass eq job-mch.pass
-          and est-op.dept    eq job-mch.dept
-          and est-op.line    lt 500
-        no-lock no-error.
+    FIND FIRST est-op
+        WHERE est-op.company EQ est.company
+          AND est-op.est-no  EQ est.est-no
+          AND est-op.s-num   EQ job-mch.frm
+          AND (est-op.b-num  EQ job-mch.blank-no OR job-mch.blank-no EQ 0)
+          AND est-op.m-code  EQ job-mch.m-code
+          AND est-op.op-pass EQ job-mch.pass
+          AND est-op.dept    EQ job-mch.dept
+          AND est-op.line    LT 500
+        NO-LOCK NO-ERROR.
 
-    if ((avail est-op) and est-op.op-sb)           or
-       ((not avail est-op) and mach.p-type ne "B") then do:
+    IF ((AVAIL est-op) AND est-op.op-sb)           OR
+       ((NOT AVAIL est-op) AND mach.p-type NE "B") THEN DO:
 
-      if avail est-op THEN run sys/inc/numout.p (recid(est-op), output v-out).
-      else v-out = 1.
+      IF AVAIL est-op THEN RUN sys/inc/numout.p (RECID(est-op), OUTPUT v-out).
+      ELSE v-out = 1.
       v-up = v-up * v-out.
-    end.
-    else v-up = 1.
+    END.
+    ELSE v-up = 1.
 
     v-on = v-on / v-up.
-  end.
+  END.
            
   v-up-hs = 1.
 
-  if job-mch.dept eq "HS" and
-     avail est            and
-     mach.therm           and
-     mach.p-type eq "S"   then
-    run sys/inc/numup.p (est.company, est.est-no, job-mch.frm, output v-up-hs).
+  IF job-mch.dept EQ "HS" AND
+     AVAIL est            AND
+     mach.therm           AND
+     mach.p-type EQ "S"   THEN
+    RUN sys/inc/numup.p (est.company, est.est-no, job-mch.frm, OUTPUT v-up-hs).
 
  /* Don't create wip
     {touch/pcmchact.i}  /* from {pc/pcmchact.i}  mch-act creatation */
@@ -2098,8 +2114,8 @@ PROCEDURE proc-set-cmplt :
    DEF VAR X AS INT NO-UNDO.
    DEF VAR v-up AS INT NO-UNDO.
    DEF VAR v-out AS INT NO-UNDO.
-   def var v-up-hs     like eb.num-up NO-UNDO.
-   def var v-on        like eb.num-up NO-UNDO.
+   DEF VAR v-up-hs     LIKE eb.num-up NO-UNDO.
+   DEF VAR v-on        LIKE eb.num-up NO-UNDO.
    DEF VAR h_updbin AS HANDLE NO-UNDO.
    DEF VAR li-units AS INT NO-UNDO.
    
@@ -2301,51 +2317,51 @@ PROCEDURE proc-set-cmplt :
        mach.dept[3] EQ "DC" OR mach.dept[4] EQ "DC" THEN
        RUN update-plate-die ("D", v-est-type).
 
-    if avail est then do:
-       run sys/inc/numup.p (est.company, est.est-no, job-mch.frm, output v-up).
+    IF AVAIL est THEN DO:
+       RUN sys/inc/numup.p (est.company, est.est-no, job-mch.frm, OUTPUT v-up).
 
-    find first ef
-        where ef.company eq est.company
-          and ef.est-no  eq est.est-no
-          and ef.form-no eq job-mch.frm
-        no-lock no-error.
+    FIND FIRST ef
+        WHERE ef.company EQ est.company
+          AND ef.est-no  EQ est.est-no
+          AND ef.form-no EQ job-mch.frm
+        NO-LOCK NO-ERROR.
 
-    if avail ef then
+    IF AVAIL ef THEN
       v-on = v-up *
-             (if ef.n-out   eq 0 then 1 else ef.n-out) *
-             (if ef.n-out-l eq 0 then 1 else ef.n-out-l) *
-             (if ef.n-out-d eq 0 then 1 else ef.n-out-d).
+             (IF ef.n-out   EQ 0 THEN 1 ELSE ef.n-out) *
+             (IF ef.n-out-l EQ 0 THEN 1 ELSE ef.n-out-l) *
+             (IF ef.n-out-d EQ 0 THEN 1 ELSE ef.n-out-d).
                       
-    find first est-op
-        where est-op.company eq est.company
-          and est-op.est-no  eq est.est-no
-          and est-op.s-num   eq job-mch.frm
-          and (est-op.b-num  eq job-mch.blank-no OR job-mch.blank-no eq 0)
-          and est-op.m-code  eq job-mch.m-code
-          and est-op.op-pass eq job-mch.pass
-          and est-op.dept    eq job-mch.dept
-          and est-op.line    lt 500
-        no-lock no-error.
+    FIND FIRST est-op
+        WHERE est-op.company EQ est.company
+          AND est-op.est-no  EQ est.est-no
+          AND est-op.s-num   EQ job-mch.frm
+          AND (est-op.b-num  EQ job-mch.blank-no OR job-mch.blank-no EQ 0)
+          AND est-op.m-code  EQ job-mch.m-code
+          AND est-op.op-pass EQ job-mch.pass
+          AND est-op.dept    EQ job-mch.dept
+          AND est-op.line    LT 500
+        NO-LOCK NO-ERROR.
 
-    if ((avail est-op) and est-op.op-sb)           or
-       ((not avail est-op) and mach.p-type ne "B") then do:
+    IF ((AVAIL est-op) AND est-op.op-sb)           OR
+       ((NOT AVAIL est-op) AND mach.p-type NE "B") THEN DO:
 
-      if avail est-op THEN run sys/inc/numout.p (recid(est-op), output v-out).
-      else v-out = 1.
+      IF AVAIL est-op THEN RUN sys/inc/numout.p (RECID(est-op), OUTPUT v-out).
+      ELSE v-out = 1.
       v-up = v-up * v-out.
-    end.
-    else v-up = 1.
+    END.
+    ELSE v-up = 1.
 
     v-on = v-on / v-up.
-  end.
+  END.
            
   v-up-hs = 1.
 
-  if job-mch.dept eq "HS" and
-     avail est            and
-     mach.therm           and
-     mach.p-type eq "S"   then
-    run sys/inc/numup.p (est.company, est.est-no, job-mch.frm, output v-up-hs).
+  IF job-mch.dept EQ "HS" AND
+     AVAIL est            AND
+     mach.therm           AND
+     mach.p-type EQ "S"   THEN
+    RUN sys/inc/numup.p (est.company, est.est-no, job-mch.frm, OUTPUT v-up-hs).
 
  /* Don't create wip
     {touch/pcmchact.i}  /* from {pc/pcmchact.i}  mch-act creatation */
@@ -2367,22 +2383,22 @@ PROCEDURE proc-set-cmplt :
         AND job-hdr.job-no2   EQ job-mch.job-no2
         AND (job-hdr.frm      EQ job-mch.frm OR v-est-type       EQ 2 )
         AND (job-hdr.blank-no EQ job-mch.blank-no OR job-mch.blank-no EQ 0 ) ,
-        first itemfg
-        where itemfg.company    eq cocode
-          and itemfg.i-no       eq job-hdr.i-no
-          and itemfg.case-count gt 0 NO-LOCK:
+        FIRST itemfg
+        WHERE itemfg.company    EQ cocode
+          AND itemfg.i-no       EQ job-hdr.i-no
+          AND itemfg.case-count GT 0 NO-LOCK:
 
       x = 1.
-      FOR EACH fg-rctd no-lock BY fg-rctd.r-no DESC:
+      FOR EACH fg-rctd NO-LOCK BY fg-rctd.r-no DESC:
         LEAVE.
       END.
-      if avail fg-rctd then x = fg-rctd.r-no.
+      IF AVAIL fg-rctd THEN x = fg-rctd.r-no.
 
-      find last fg-rcpth use-index r-no no-lock no-error.
-      if avail fg-rcpth and fg-rcpth.r-no GT x then x = fg-rcpth.r-no.
+      FIND LAST fg-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
+      IF AVAIL fg-rcpth AND fg-rcpth.r-no GT x THEN x = fg-rcpth.r-no.
 
-      create fg-rctd.
-      assign
+      CREATE fg-rctd.
+      ASSIGN
        fg-rctd.r-no       = X + 1
        fg-rctd.rct-date   = TODAY /*c-prdd.op-date*/
        fg-rctd.trans-time = TIME
@@ -2393,26 +2409,26 @@ PROCEDURE proc-set-cmplt :
        fg-rctd.job-no     = job-hdr.job-no
        fg-rctd.job-no2    = job-hdr.job-no2.
                  
-      assign
+      ASSIGN
        v-up  = 1
        v-out = 1.
       
-      if avail est and mach.p-type ne "B" then do:
-        run sys/inc/numup.p (est.company, est.est-no, job-mch.frm, output v-up).
+      IF AVAIL est AND mach.p-type NE "B" THEN DO:
+        RUN sys/inc/numup.p (est.company, est.est-no, job-mch.frm, OUTPUT v-up).
                  
-        find first est-op
-            where est-op.company eq est.company
-              and est-op.est-no  eq est.est-no
-              and est-op.s-num   eq job-hdr.frm
-              and (est-op.b-num  eq job-hdr.blank-no or
-                   job-hdr.blank-no eq 0)
-              and est-op.m-code  eq job-mch.m-code
-              and est-op.op-pass eq job-mch.pass
-              and est-op.dept    eq job-mch.dept
-              and est-op.line    lt 500
-            no-lock no-error.
-        if avail est-op and est-op.n-out ne 0 then v-out = est-op.n-out.
-      end.
+        FIND FIRST est-op
+            WHERE est-op.company EQ est.company
+              AND est-op.est-no  EQ est.est-no
+              AND est-op.s-num   EQ job-hdr.frm
+              AND (est-op.b-num  EQ job-hdr.blank-no OR
+                   job-hdr.blank-no EQ 0)
+              AND est-op.m-code  EQ job-mch.m-code
+              AND est-op.op-pass EQ job-mch.pass
+              AND est-op.dept    EQ job-mch.dept
+              AND est-op.line    LT 500
+            NO-LOCK NO-ERROR.
+        IF AVAIL est-op AND est-op.n-out NE 0 THEN v-out = est-op.n-out.
+      END.
 
       ASSIGN
        fg-rctd.b-num      = job-mch.blank-no
@@ -2424,13 +2440,13 @@ PROCEDURE proc-set-cmplt :
        fg-rctd.std-cost   = job-hdr.std-tot-cost
        fg-rctd.ext-cost   = (fg-rctd.t-qty / 1000) * fg-rctd.std-cost
        fg-rctd.qty-case   = itemfg.case-count
-       fg-rctd.partial    = fg-rctd.t-qty modulo itemfg.case-count
+       fg-rctd.partial    = fg-rctd.t-qty MODULO itemfg.case-count
        fg-rctd.cases      = trunc(fg-rctd.t-qty / itemfg.case-count,0)
        fg-rctd.cases-unit = 1.
 
-      if fg-rctd.t-qty le 0 then fg-rctd.cases = 0.
+      IF fg-rctd.t-qty LE 0 THEN fg-rctd.cases = 0.
 
-      release fg-bin.
+      RELEASE fg-bin.
       
       FIND FIRST b-reftable
           WHERE b-reftable.reftable EQ "ts/jobdata.p"
@@ -2931,7 +2947,7 @@ PROCEDURE valid-pass :
                       AND job-mch.job-no  EQ tt-prdd.job-no
                       AND job-mch.job-no2 EQ tt-prdd.job-no2
                       AND job-mch.frm     EQ INT(tt-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name})
-                      AND (job-mch.blank-no EQ INT(tt-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) or
+                      AND (job-mch.blank-no EQ INT(tt-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) OR
                            ll-no-blk)
                       AND job-mch.dept    EQ lv-depts[li]
                       AND job-mch.pass    EQ INT(tt-prdd.pass:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -2962,7 +2978,7 @@ PROCEDURE valid-pass :
           AND tt-job-mch.job-no2 EQ tt-prdd.job-no2
           AND tt-job-mch.m-code  EQ lv-m-code
           AND tt-job-mch.frm     EQ INT(tt-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name})
-          AND (tt-job-mch.blank-no EQ INT(tt-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) or
+          AND (tt-job-mch.blank-no EQ INT(tt-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) OR
                ll-no-blk)
           AND tt-job-mch.dept    EQ lv-dept
           AND tt-job-mch.pass    EQ INT(tt-prdd.pass:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -2981,7 +2997,7 @@ PROCEDURE valid-pass :
             AND job-mch.job-no  EQ tt-prdd.job-no
             AND job-mch.job-no2 EQ tt-prdd.job-no2
             AND job-mch.frm     EQ INT(tt-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name})
-            AND (job-mch.blank-no EQ INT(tt-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) or
+            AND (job-mch.blank-no EQ INT(tt-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) OR
                  ll-no-blk)
             AND job-mch.dept    EQ lv-dept
             AND job-mch.pass    EQ INT(tt-prdd.pass:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -3008,7 +3024,7 @@ PROCEDURE valid-pass :
               AND job-mch.job-no  EQ tt-prdd.job-no
               AND job-mch.job-no2 EQ tt-prdd.job-no2
               AND job-mch.frm     EQ INT(tt-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name})
-              AND (job-mch.blank-no EQ INT(tt-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) or
+              AND (job-mch.blank-no EQ INT(tt-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) OR
                    ll-no-blk)
               AND job-mch.dept    EQ lv-dept
               AND job-mch.pass    EQ INT(tt-prdd.pass:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -3023,13 +3039,13 @@ PROCEDURE valid-pass :
               AND job-mch.job-no2 EQ tt-prdd.job-no2
               AND job-mch.m-code  EQ lv-m-code
               AND job-mch.frm     EQ INT(tt-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name})
-              AND (job-mch.blank-no EQ INT(tt-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) or
+              AND (job-mch.blank-no EQ INT(tt-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) OR
                    ll-no-blk)
               AND job-mch.pass    EQ INT(tt-prdd.pass:SCREEN-VALUE IN BROWSE {&browse-name})
             USE-INDEX seq-idx NO-LOCK NO-ERROR.
     
         IF AVAIL job-mch THEN DO:
-          IF actual-entered(job-mch.m-code, job-mch.job) = NO AND job-mch.run-hr = 0 then
+          IF actual-entered(job-mch.m-code, job-mch.job) = NO AND job-mch.run-hr = 0 THEN
           ASSIGN
            lv-msg[1] = "Machine " +
                        TRIM(lv-m-code) +
@@ -3168,10 +3184,10 @@ FUNCTION actual-entered RETURNS LOGICAL
 DEF VAR v-qty AS DEC NO-UNDO.
 
 v-qty = 0.
-for each mch-act where mch-act.company = cocode and
+FOR EACH mch-act WHERE mch-act.company = cocode AND
                        mch-act.job = ip-job AND
                        mch-act.m-code = ip-m-code
-                       no-lock:
+                       NO-LOCK:
   v-qty = v-qty + mch-act.hours.
 END.
 
