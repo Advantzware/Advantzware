@@ -18,10 +18,10 @@
 DEFINE TEMP-TABLE ttImportFGAdj
     FIELD Company                  AS CHARACTER 
     FIELD Location                 AS CHARACTER 
-    FIELD cTagNo                   AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Tag" HELP "Required - Size:20"    
-    FIELD iQuantity                AS INTEGER   FORMAT ">>>>>>>>9" COLUMN-LABEL "Quantity" HELP "Required - Integer"
+    FIELD cTagNo                   AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Tag" HELP "Required - Size:20"     
     FIELD iQuantityPerSubUnit      AS INTEGER   FORMAT ">>>>>>9" COLUMN-LABEL "Unit" HELP "Optional - Integer"
-    FIELD iQuantitySubUnitsPerUnit AS INTEGER   FORMAT ">>>>>>9" COLUMN-LABEL "Sun Unit" HELP "Optional - Integer"
+    FIELD iQuantitySubUnitsPerUnit AS INTEGER   FORMAT ">>>>>>9" COLUMN-LABEL "Unit Count" HELP "Optional - Integer(Blank- 1)"
+    FIELD iPartial                 AS INTEGER   FORMAT ">>>>>>>>9" COLUMN-LABEL "Partial" HELP "Optional - Integer"
     FIELD cWarehouseID             AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Warehouse" HELP "Optional - Size:5"
     FIELD cLocationID              AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Bin" HELP "Optional - Size:8"        
     FIELD cReasonCode              AS CHARACTER FORMAT "X(15)" COLUMN-LABEL "Adj Reason" HELP "Required - Size:5"
@@ -105,18 +105,15 @@ PROCEDURE pProcessRecord PRIVATE:
         bf-fg-rctd.trans-time     = TIME
         bf-fg-rctd.company        = ipbf-ttImportFGAdj.Company
         bf-fg-rctd.rita-code      = cTransactionTypeAdj
-        bf-fg-rctd.qty            = ipbf-ttImportFGAdj.iQuantity
+        bf-fg-rctd.qty            = ((ipbf-ttImportFGAdj.iQuantityPerSubUnit * ipbf-ttImportFGAdj.iQuantitySubUnitsPerUnit) + ipbf-ttImportFGAdj.iPartial)
         bf-fg-rctd.i-no           = IF AVAILABLE itemfg THEN itemfg.i-no ELSE ""
         bf-fg-rctd.i-name         = IF AVAILABLE itemfg THEN itemfg.i-name ELSE ""
         bf-fg-rctd.job-no         = bf-fg-bin.job-no
         bf-fg-rctd.job-no2        = bf-fg-bin.job-no2
         bf-fg-rctd.s-num          = 0  /* Assign sheet# to 0. Existing logic from b-fgadj.w */
-        bf-fg-rctd.cases          = IF ipbf-ttImportFGAdj.iQuantityPerSubUnit EQ 0  THEN 0 
-                                    ELSE TRUNC((ipbf-ttImportFGAdj.iQuantity / ipbf-ttImportFGAdj.iQuantityPerSubUnit),0)
-        bf-fg-rctd.qty-case       = ipbf-ttImportFGAdj.iQuantityPerSubUnit
-        bf-fg-rctd.partial        = IF ipbf-ttImportFGAdj.iQuantityPerSubUnit EQ 0 THEN 0                                                     
-                                    ELSE IF ipbf-ttImportFGAdj.iQuantity GT 0 THEN ipbf-ttImportFGAdj.iQuantity MODULO ipbf-ttImportFGAdj.iQuantityPerSubUnit              
-                                    ELSE -1 * ((-1 * ipbf-ttImportFGAdj.iQuantity) MODULO ipbf-ttImportFGAdj.iQuantityPerSubUnit)
+        bf-fg-rctd.cases          = ipbf-ttImportFGAdj.iQuantityPerSubUnit
+        bf-fg-rctd.qty-case       = ipbf-ttImportFGAdj.iQuantitySubUnitsPerUnit
+        bf-fg-rctd.partial        = ipbf-ttImportFGAdj.iPartial
         bf-fg-rctd.t-qty          = (bf-fg-rctd.cases * bf-fg-rctd.qty-case) + bf-fg-rctd.partial
         bf-fg-rctd.units-pallet   = 1
         bf-fg-rctd.cases-unit     = 1
@@ -175,14 +172,7 @@ PROCEDURE pValidate PRIVATE:
                 oplValid = NO
                 opcNote  = "Either warehouse or location is blank".
     END.     
-    IF oplValid THEN 
-    DO:
-        IF ipbf-ttImportFGAdj.iQuantity EQ 0 THEN 
-            ASSIGN 
-                oplValid = NO
-                opcNote  = "Quantity is Zero".
-    END.
-    
+        
     IF oplValid THEN 
     DO:
         IF ipbf-ttImportFGAdj.cReasonCode EQ ""  THEN 
@@ -325,6 +315,9 @@ PROCEDURE pValidate PRIVATE:
     END.       
     
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
+    
+    IF ipbf-ttImportFGAdj.iQuantitySubUnitsPerUnit EQ 0 THEN
+    ipbf-ttImportFGAdj.iQuantitySubUnitsPerUnit = 1.   
     
     IF VALID-HANDLE(hdInventoryProcs) THEN 
         DELETE PROCEDURE hdInventoryProcs.        

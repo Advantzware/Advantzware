@@ -50,6 +50,10 @@ DEFINE VARIABLE dFrtCost           AS DECIMAL   NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
+/* ************************  Function Prototypes ********************** */
+FUNCTION fGetLogicalValueFromNK1 RETURNS LOGICAL PRIVATE
+    (ipcCompany AS CHARACTER,
+     ipcControl AS CHARACTER ) FORWARD. 
 
 /* ***************************  Main Block  *************************** */
 
@@ -287,6 +291,7 @@ PROCEDURE pValidate PRIVATE:
     DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.         
     DEFINE VARIABLE lValidBin       AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lValidLoc       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lJobOrPoRequired AS LOGICAL   NO-UNDO.
     RUN Inventory\InventoryProcs.p PERSISTENT SET hdInventoryProcs.
     
     oplValid = YES.
@@ -305,6 +310,16 @@ PROCEDURE pValidate PRIVATE:
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Enter either PO Number or Job Number for Tag".
+    END.
+    
+    lJobOrPoRequired = fGetLogicalValueFromNK1(ipbf-ttImportFGRctd.Company,"FGRECPT").
+    
+    IF oplValid AND lJobOrPoRequired THEN 
+    DO:
+        IF ipbf-ttImportFGRctd.iPONo EQ 0 AND ipbf-ttImportFGRctd.cJobID EQ "" THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "User must enter a Job or a PO".
     END.
     
     /*Check for Duplicate Import Record and Ignore It*/ 
@@ -342,10 +357,10 @@ PROCEDURE pValidate PRIVATE:
                     .                      
             END.
                 
-            IF oplValid AND ipbf-ttImportFGRctd.iQuantityPerSubUnit LE 0 THEN 
+            IF oplValid AND ipbf-ttImportFGRctd.iQuantityPerSubUnit EQ 0 THEN 
             DO:
                 ASSIGN 
-                    opcNote  = "Units must be greater than zero for Tag "                   
+                    opcNote  = "Units can not be zero for Tag "                   
                     oplValid = NO
                     .                    
             END.
@@ -524,7 +539,7 @@ PROCEDURE pValidate PRIVATE:
     /*Determine if Add or Update*/
     IF oplValid THEN 
     DO:
-        IF ipbf-ttImportFGRctd.dQuantity GT 0 THEN 
+        IF ipbf-ttImportFGRctd.dQuantity GT 0 OR iQuantityPerSubUnit GT 0  THEN 
         DO:
             /* Checks fg-rctd record for the input tag and quantity */     
             FIND FIRST fg-rctd NO-LOCK  
@@ -535,7 +550,7 @@ PROCEDURE pValidate PRIVATE:
             IF AVAILABLE fg-rctd THEN 
             DO:
                 ASSIGN
-                    lv-msg   = "Tag# has already been used, please enter a negative quantity."
+                    lv-msg   = "Tag# has already been used, please enter a negative quantity with negative Unit."
                     oplValid = NO
                     .             
             END.
@@ -649,18 +664,19 @@ PROCEDURE pFGRecordCreation PRIVATE :
         bf-fg-rctd.loc-bin    = ipcLocationID
         bf-fg-rctd.created-by = USERID(LDBNAME(1))
         bf-fg-rctd.updated-by = USERID(LDBNAME(1))
-        bf-fg-rctd.qty-case   = ipiQuantityPerSubUnit
-        bf-fg-rctd.cases-unit = ipiQuantitySubUnitsPerUnit
-        bf-fg-rctd.cases      = IF ipiQuantityPerSubUnit EQ 0 THEN
+        bf-fg-rctd.qty-case   = ipiQuantitySubUnitsPerUnit /*ipiQuantityPerSubUnit*/
+        bf-fg-rctd.cases-unit = /*ipiQuantitySubUnitsPerUnit*/ 1
+        bf-fg-rctd.cases      =  ipiQuantityPerSubUnit /*IF ipiQuantityPerSubUnit EQ 0 THEN
                                     0
                                 ELSE
-                                    TRUNC((ipdQuantity / ipiQuantityPerSubUnit),0)
-        bf-fg-rctd.partial    = IF ipiQuantityPerSubUnit EQ 0 THEN
+                                    TRUNC((ipdQuantity / ipiQuantityPerSubUnit),0)  */
+        bf-fg-rctd.partial    = ipdQuantity - (ipiQuantityPerSubUnit * ipiQuantitySubUnitsPerUnit)                                   
+                                 /*IF ipiQuantityPerSubUnit EQ 0 THEN
                                     0
                                 ELSE IF ipdQuantity GT 0 THEN
                                     ipdQuantity MODULO ipiQuantityPerSubUnit
                                 ELSE 
-                                    -1 * ((-1 * ipdQuantity) MODULO ipiQuantityPerSubUnit)
+                                    -1 * ((-1 * ipdQuantity) MODULO ipiQuantityPerSubUnit)*/
         bf-fg-rctd.pur-uom    = ipcQuantityUOM
         bf-fg-rctd.std-cost   = dStdCost
         bf-fg-rctd.cost-uom   = cCostUOM
@@ -741,5 +757,22 @@ PROCEDURE pFGRecordCreation PRIVATE :
         
     RELEASE bf-fg-rctd.
 END PROCEDURE.
+
+
+FUNCTION fGetLogicalValueFromNK1 RETURNS LOGICAL PRIVATE
+    (ipcCompany AS CHARACTER,
+     ipcControl AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns YES if the FG Item define in view form NK1  
+     Notes:  
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE lLogicalValue AS LOGICAL   NO-UNDO.   
+    DEFINE VARIABLE cReturn       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound        AS LOGICAL   NO-UNDO.
+    
+    RUN sys/ref/nk1look.p (ipcCompany, ipcControl, "L", NO, NO, "" ,"", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN lLogicalValue = cReturn EQ "YES".
+	RETURN lLogicalValue.	
+END FUNCTION.
 
  
