@@ -88,7 +88,16 @@ CASE cFGOversDefault:
                     ASSIGN
                         opdOverPer  = fgcat.over-pct
                         opdUnderPer = fgcat.under-pct.                 
-            END.            
+            END.
+            IF opdOverPer EQ 0 AND opdUnderPer EQ 0 THEN DO:
+                FIND FIRST cust NO-LOCK
+                     WHERE cust.company EQ ipcCompany 
+                     AND cust.cust-no EQ ipcCustomerID NO-ERROR .
+                IF AVAILABLE cust THEN     
+                ASSIGN
+                    opdOverPer  = cust.over-pct
+                    opdUnderPer = cust.under-pct.            
+            END.
         END.           
 END CASE.
 

@@ -49,8 +49,17 @@ ASSIGN
 &ENDIF
 DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE cRtnChar        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cFGOversDefault AS CHARACTER NO-UNDO.
+
 &SCOPED-DEFINE proc-enable RUN proc-enable.
 &SCOPED-DEFINE create-more viewers/fgcatcreate
+
+RUN sys/ref/nk1look.p (cocode, "FGOversDefault", "C", NO, NO, "", "", 
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cFGOversDefault = STRING(cRtnChar) NO-ERROR. 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -696,6 +705,8 @@ PROCEDURE proc-enable :
   Notes:       
 ------------------------------------------------------------------------------*/
  ENABLE fgcat.miscCharge fgcat.brdExpAcct fgcat.cogsExpAcct WITH FRAME {&FRAME-NAME}.
+ IF cFGOversDefault NE "FG Category"  THEN
+ DISABLE fgcat.over-pct fgcat.under-pct WITH FRAME {&FRAME-NAME}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
