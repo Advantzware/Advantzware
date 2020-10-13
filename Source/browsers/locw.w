@@ -1127,11 +1127,7 @@ PROCEDURE pDisplayRecalculateMsg PRIVATE:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE BUFFER bf-itemfg FOR itemfg.
-    
-    FOR EACH tt-fg-set NO-LOCK:
-        DELETE tt-fg-set.
-    END.    
-    
+        
     RUN displayMessageQuestionLOG(
         INPUT  "20", 
         OUTPUT lCalculate
@@ -1150,6 +1146,10 @@ PROCEDURE pDisplayRecalculateMsg PRIVATE:
             INPUT lRecalcBackOrder
             ).    
         IF itemfg.isaset THEN DO:
+            FOR EACH tt-fg-set NO-LOCK:
+                DELETE tt-fg-set.
+            END.
+             
             RUN fg/fullset.p(
                 INPUT ROWID(itemfg)
                 ).   
