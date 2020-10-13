@@ -863,6 +863,7 @@ PROCEDURE local-assign-record :
      RUN oe/GetOverUnderPct.p(g_company,
                            ar-inv.cust-no,
                            ar-inv.ship-id,
+                           "", /* FG Item*/
                            OUTPUT dOverPer , OUTPUT dUnderPer ) .
                            ar-inv.over-pct = dOverPer.
                            ar-inv.Under-pct = dUnderPer. 

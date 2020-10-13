@@ -6191,7 +6191,8 @@ PROCEDURE pGetOverUnderPct :
     RUN oe/GetOverUnderPct.p(g_company,
                            oe-ord.cust-no:SCREEN-VALUE ,
                            TRIM(oe-ord.ship-id:SCREEN-VALUE),
-                           OUTPUT dOverPer , OUTPUT dUnderPer ) .
+                           "", /* FG Item*/
+                           OUTPUT dOverPer , OUTPUT dUnderPer ) .  
                            oe-ord.over-pct:SCREEN-VALUE = STRING(dOverPer).
                            oe-ord.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
   END.
