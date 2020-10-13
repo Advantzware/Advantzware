@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {sys/inc/var.i new shared}
 {Inventory/ttInventory.i "NEW SHARED"}
+{fg/fullset.i NEW}
 
 ASSIGN
     cocode = g_company
@@ -46,6 +47,10 @@ DEFINE VARIABLE lFirst            AS LOGICAL   NO-UNDO INIT YES.
 DEFINE VARIABLE lCalculate        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iPrevPage         AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iCurrentPage      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lRecalcOnHand     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lRecalcOnOrder    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lRecalcAllocated  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lRecalcBackOrder  AS LOGICAL   NO-UNDO.
 {sys/inc/oeinq.i}
  
 DEFINE NEW SHARED TEMP-TABLE w-job NO-UNDO
@@ -966,11 +971,9 @@ PROCEDURE local-open-query :
     RUN pGetPOLocation.
     RUN pCheckUnspecified.
     OPEN QUERY {&browse-name} {&for-each1}.    
-    IF lFirst AND iCurrentpage NE 15 THEN DO:
-        IF NOT lUnspecified THEN 
-            OPEN QUERY {&browse-name} {&for-each1}. 
-        ELSE 
-            RUN pDisplayRecalculateMsg.
+    IF lFirst AND iCurrentpage NE 15 AND lUnspecified THEN DO:
+        RUN pDisplayRecalculateMsg.
+        OPEN QUERY {&browse-name} {&for-each1}.    
         lFirst = NO.  
     END. 
 END PROCEDURE.
@@ -1033,17 +1036,41 @@ PROCEDURE pCheckUnspecified PRIVATE:
          WHERE w-jobs.i-no EQ itemfg.i-no
            AND w-jobs.loc  EQ "*UNSP"
             NO-ERROR.
-            
-    IF AVAILABLE w-jobs 
-       AND w-jobs.onHand       EQ 0      
-       AND w-jobs.onOrder      EQ 0
-       AND w-jobs.allocated    EQ 0               
-       AND w-jobs.backOrder    EQ 0 
-       AND w-jobs.qtyAvailable EQ 0 THEN DO:     
-       DELETE w-jobs.
-       lUnspecified = NO.
-    END.   
-       
+    IF AVAILABLE w-jobs THEN DO:        
+        IF w-jobs.onHand           EQ 0      
+           AND w-jobs.onOrder      EQ 0
+           AND w-jobs.allocated    EQ 0               
+           AND w-jobs.backOrder    EQ 0 
+           AND w-jobs.qtyAvailable EQ 0 THEN DO:     
+           DELETE w-jobs.
+           
+           ASSIGN 
+               lRecalcOnHand    = NO
+               lRecalcOnOrder   = NO
+               lRecalcAllocated = NO
+               lRecalcBackOrder = NO    
+               lUnspecified     = NO
+               .
+        END. 
+        ELSE IF w-jobs.onHand       EQ 0 
+            AND w-jobs.onOrder      EQ 0
+            AND w-jobs.allocated    EQ 0
+            AND w-jobs.backOrder    EQ 0
+            AND w-jobs.qtyAvailable NE 0 THEN 
+            ASSIGN 
+               lRecalcOnHand    = YES
+               lRecalcOnOrder   = YES
+               lRecalcAllocated = YES
+               lRecalcBackOrder = YES
+               .  
+        ELSE
+            ASSIGN 
+               lRecalcOnHand    = w-jobs.onHand       NE 0
+               lRecalcOnOrder   = w-jobs.onOrder      NE 0
+               lRecalcAllocated = w-jobs.allocated    NE 0
+               lRecalcBackOrder = w-jobs.backOrder    NE 0   
+               .
+    END.               
         
 END PROCEDURE.
 	
@@ -1099,15 +1126,42 @@ PROCEDURE pDisplayRecalculateMsg PRIVATE:
  Purpose: To Display a message box to recalculate the quantity
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+    
+    FOR EACH tt-fg-set NO-LOCK:
+        DELETE tt-fg-set.
+    END.    
+    
     RUN displayMessageQuestionLOG(
         INPUT  "20", 
         OUTPUT lCalculate
         ).
+        
     IF lCalculate THEN DO:
-        RUN RecalculateQuantities IN hdInventoryProcs(
+        RUN Inventory_AddLocFromHist IN hdInventoryProcs(
             INPUT ROWID(itemfg),
             INPUT cocode
             ).
+        RUN Inventory_RecalculateQuantities IN hdInventoryProcs(
+            INPUT ROWID(itemfg),
+            INPUT lRecalcOnHand,   
+            INPUT lRecalcOnOrder,
+            INPUT lRecalcAllocated,
+            INPUT lRecalcBackOrder
+            ).    
+        IF itemfg.isaset THEN DO:
+            RUN fg/fullset.p(
+                INPUT ROWID(itemfg)
+                ).   
+            FOR EACH tt-fg-set,
+                FIRST bf-itemfg NO-LOCK 
+                WHERE bf-itemfg.company EQ cocode 
+                  AND bf-itemfg.i-no    EQ tt-fg-set.part-no:  
+                RUN fg/fg-rst2.p(
+                    INPUT RECID(bf-itemfg)
+                    ).
+            END.
+        END.    
         RUN build-table.
         RUN pGetPOLocation.
         RUN pCheckUnspecified.
