@@ -2213,6 +2213,8 @@ PROCEDURE pBuildInvoiceTaxDetail PRIVATE:
     DEFINE VARIABLE dTax AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dTaxableAmount AS DECIMAL NO-UNDO.
     DEFINE VARIABLE lHasLimit AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
     
     
     IF ipbf-ttInvoiceToPost.taxGroup NE "" AND ipbf-ttInvoiceToPost.amountBilledTax NE 0 THEN DO:
@@ -2224,7 +2226,9 @@ PROCEDURE pBuildInvoiceTaxDetail PRIVATE:
             INPUT  ipbf-ttInvoiceToPost.riInvHead, 
             INPUT  "QUOTATION",
             OUTPUT dTotalTax,
-            OUTPUT TABLE ttTaxDetail
+            OUTPUT TABLE ttTaxDetail,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
             ).
         FOR EACH ttTaxDetail:
             RUN pCheckAccount(ttTaxDetail.company,  ttTaxDetail.taxCodeAccount, cAccountSource + " Code: " + ttTaxDetail.taxCode, "Tax Account", 
@@ -2975,12 +2979,16 @@ PROCEDURE pPostSalesTaxForInvHead PRIVATE:
     DEFINE INPUT  PARAMETER ipriInvHead AS ROWID     NO-UNDO.
     
     DEFINE VARIABLE dTotalTax AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
 
     RUN pGetSalesTaxForInvHead  (
         INPUT  ipriInvHead, 
         INPUT  "INVOICE",
         OUTPUT dTotalTax,
-        OUTPUT TABLE ttTaxDetail
+        OUTPUT TABLE ttTaxDetail,
+        OUTPUT lSuccess,
+        OUTPUT cMessage
         ).
     
 END PROCEDURE.
@@ -2994,11 +3002,11 @@ PROCEDURE pGetSalesTaxForInvHead PRIVATE:
     DEFINE INPUT  PARAMETER ipcMessageType AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdTotalTax    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE          FOR ttTaxDetail.
+    DEFINE OUTPUT PARAMETER oplSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dInvoiceSubTotal AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTriggerID       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lPostToJournal   AS LOGICAL   NO-UNDO.
     
@@ -3023,8 +3031,8 @@ PROCEDURE pGetSalesTaxForInvHead PRIVATE:
         OUTPUT dInvoiceTotal,
         OUTPUT dinvoiceSubTotal,
         OUTPUT TABLE ttTaxDetail,
-        OUTPUT lSuccess,
-        OUTPUT cMessage
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage
         ).
 END PROCEDURE.
 
@@ -3445,8 +3453,6 @@ PROCEDURE ValidateInvoices:
             OUTPUT opiCountProcessed, 
             OUTPUT opiCountValid
             ).               
-       /*Process to create hold tags from the ttInvoiceError table */
-       RUN pCreateValidationTags.         
     END.      
            
     opcMessage = "Process Complete.".
@@ -3471,6 +3477,8 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
     DEFINE VARIABLE lValidateRequired AS LOGICAL NO-UNDO.
     DEFINE VARIABLE dTotalLineRev AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dTotalTax         AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
     
     FOR EACH bf-ttInvoiceToPost,
         FIRST bf-inv-head NO-LOCK 
@@ -3482,8 +3490,16 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             INPUT  bf-ttInvoiceToPost.riInvHead, 
             INPUT  "QUOTATION",
             OUTPUT dTotalTax,
-            OUTPUT TABLE ttTaxDetail
-            ).             
+            OUTPUT TABLE ttTaxDetail,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).       
+           
+        lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalTaxCalc",bf-inv-head.cust-no,iplIsValidateOnly).        
+        IF lValidateRequired AND NOT lSuccess THEN DO:
+            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, "Tax Calculation Error").
+            lAutoApprove = NO.
+        END.
         
         IF dTotalTax NE bf-inv-head.t-inv-tax AND NOT bf-inv-head.multi-invoice THEN 
         DO:
@@ -3574,6 +3590,9 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
     END.  /*Each Inv-head*/
     
     RELEASE bf-inv-head.
+
+    /*Process to create hold tags from the ttInvoiceError table */
+    RUN pCreateValidationTags.         
     
 END PROCEDURE.
 
