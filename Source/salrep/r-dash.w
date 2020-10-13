@@ -39,6 +39,8 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i new shared}
 {salrep/dashtt.i NEW}
 
+{methods/template/brwcustomdefmulti.i}
+
 DEF TEMP-TABLE tt-report NO-UNDO LIKE report 
     FIELD DATE AS DATE
     FIELD row-id AS ROWID
@@ -712,6 +714,14 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3helpw.i}
+brwHandList = string(browse browse-machine:handle).
+brwHandList = brwHandList + "," + string(browse browse-sales-forecast:handle).
+brwHandList = brwHandList + "," + string(browse browse-ar:handle).
+{methods/template/brwcustommulti.i &brw-list=brwHandList }
+{methods/template/brwrowdisplaymulti.i &brw-name="browse-machine" }
+{methods/template/brwrowdisplaymulti.i &brw-name="browse-sales-forecast" }
+{methods/template/brwrowdisplaymulti.i &brw-name="browse-ar" }
+  
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.

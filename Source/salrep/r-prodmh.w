@@ -476,6 +476,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3helpw.i}
+{methods/template/brwcustom.i}
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.

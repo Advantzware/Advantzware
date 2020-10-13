@@ -42,7 +42,7 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 {sys/inc/var.i "new shared"}
-
+{methods/template/brwcustomdefmulti.i}
 DEFINE VARIABLE onlyone    AS LOGICAL NO-UNDO.
 DEFINE VARIABLE save-rowid AS ROWID   NO-UNDO.
 DEFINE BUFFER b-usercomp  FOR usercomp.
@@ -431,7 +431,11 @@ END.
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
-
+brwHandList = string(browse companies:handle).
+brwHandList = brwHandList + "," + string(browse locations:handle).
+{methods/template/brwcustommulti.i &brw-list=brwHandList }
+{methods/template/brwrowdisplaymulti.i &brw-name="companies" }
+{methods/template/brwrowdisplaymulti.i &brw-name="locations" }
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 

@@ -209,7 +209,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH temp-rec.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/template/brwcustom.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN
    /* Now enable the interface  if in test mode - otherwise this happens when
       the object is explicitly initialized from its container. */
