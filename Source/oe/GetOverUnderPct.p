@@ -18,10 +18,6 @@ RUN sys/ref/nk1look.p (ipcCompany, "FGOversDefault", "C", NO, NO, "", "",
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     cFGOversDefault = STRING(cRtnChar) NO-ERROR. 
-   
-IF ipcFGItem EQ  "" AND cFGOversDefault EQ "FG Category" THEN
-    cFGOversDefault = "ShipToOverride".       
-     
 
 CASE cFGOversDefault:
     WHEN "Customer" THEN 
@@ -77,7 +73,8 @@ CASE cFGOversDefault:
         DO:
             FIND FIRST itemfg NO-LOCK
                 WHERE itemfg.company EQ ipcCompany
-                AND itemfg.i-no EQ ipcFGItem NO-ERROR .
+                AND itemfg.i-no EQ ipcFGItem 
+                AND itemfg.i-no NE "" NO-ERROR .
                  
             IF AVAILABLE itemfg THEN
             DO:
@@ -89,7 +86,7 @@ CASE cFGOversDefault:
                         opdOverPer  = fgcat.over-pct
                         opdUnderPer = fgcat.under-pct.                 
             END.
-            IF opdOverPer EQ 0 AND opdUnderPer EQ 0 THEN DO:
+            ELSE DO:
                 FIND FIRST cust NO-LOCK
                      WHERE cust.company EQ ipcCompany 
                      AND cust.cust-no EQ ipcCustomerID NO-ERROR .
