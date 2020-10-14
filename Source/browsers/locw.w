@@ -969,10 +969,21 @@ PROCEDURE local-open-query :
     IF iCurrentpage EQ 15
         THEN lfirst = NO.
     RUN pGetPOLocation.
-    RUN pCheckUnspecified.
+    RUN pCheckUnspecified(
+        OUTPUT lUnspecified,
+        OUTPUT lRecalcOnHand,
+        OUTPUT lRecalcOnOrder,
+        OUTPUT lRecalcAllocated,
+        OUTPUT lRecalcBackOrder
+        ).
     OPEN QUERY {&browse-name} {&for-each1}.    
     IF lFirst AND iCurrentpage NE 15 AND lUnspecified THEN DO:
-        RUN pDisplayRecalculateMsg.
+        RUN pDisplayRecalculateMsg(
+            INPUT lRecalcOnHand,
+            INPUT lRecalcOnOrder,
+            INPUT lRecalcAllocated,
+            INPUT lRecalcBackOrder
+            ).
         OPEN QUERY {&browse-name} {&for-each1}.    
         lFirst = NO.  
     END. 
@@ -1000,9 +1011,20 @@ PROCEDURE local-view:
   RUN GET-ATTRIBUTE IN adm-broker-hdl ('CurrentPage'). 
   iCurrentPage = INTEGER(RETURN-VALUE).
   IF NOT lFirst AND iprevPage EQ 1 THEN DO: 
-      RUN pCheckUnspecified.
+    RUN pCheckUnspecified(
+        OUTPUT lUnspecified,
+        OUTPUT lRecalcOnHand,
+        OUTPUT lRecalcOnOrder,
+        OUTPUT lRecalcAllocated,
+        OUTPUT lRecalcBackOrder
+        ).
       IF lUnspecified THEN 
-          RUN pDisplayRecalculateMsg.  
+        RUN pDisplayRecalculateMsg(
+            INPUT lRecalcOnHand,
+            INPUT lRecalcOnOrder,
+            INPUT lRecalcAllocated,
+            INPUT lRecalcBackOrder
+            ). 
       OPEN QUERY {&browse-name} {&for-each1}. 
   END.
 END PROCEDURE.
@@ -1032,6 +1054,12 @@ PROCEDURE pCheckUnspecified PRIVATE:
  Purpose: To check and delete the unspecified location record from the workfile 
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplUnspecified      AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplRecalcOnHand     AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplRecalcOnOrder    AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplRecalcAllocated  AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplRecalcBackOrder  AS LOGICAL NO-UNDO.
+
     FIND FIRST w-jobs NO-LOCK
          WHERE w-jobs.i-no EQ itemfg.i-no
            AND w-jobs.loc  EQ "*UNSP"
@@ -1041,15 +1069,16 @@ PROCEDURE pCheckUnspecified PRIVATE:
            AND w-jobs.onOrder      EQ 0
            AND w-jobs.allocated    EQ 0               
            AND w-jobs.backOrder    EQ 0 
-           AND w-jobs.qtyAvailable EQ 0 THEN DO:     
+           AND w-jobs.qtyAvailable EQ 0 THEN DO:  
+                  
            DELETE w-jobs.
            
            ASSIGN 
-               lRecalcOnHand    = NO
-               lRecalcOnOrder   = NO
-               lRecalcAllocated = NO
-               lRecalcBackOrder = NO    
-               lUnspecified     = NO
+               oplRecalcOnHand    = NO
+               oplRecalcOnOrder   = NO
+               oplRecalcAllocated = NO
+               oplRecalcBackOrder = NO    
+               oplUnspecified     = NO
                .
         END. 
         ELSE IF w-jobs.onHand       EQ 0 
@@ -1058,17 +1087,19 @@ PROCEDURE pCheckUnspecified PRIVATE:
             AND w-jobs.backOrder    EQ 0
             AND w-jobs.qtyAvailable NE 0 THEN 
             ASSIGN 
-               lRecalcOnHand    = YES
-               lRecalcOnOrder   = YES
-               lRecalcAllocated = YES
-               lRecalcBackOrder = YES
+               oplRecalcOnHand    = YES
+               oplRecalcOnOrder   = YES
+               oplRecalcAllocated = YES
+               oplRecalcBackOrder = YES
+               oplUnspecified     = YES
                .  
         ELSE
             ASSIGN 
-               lRecalcOnHand    = w-jobs.onHand       NE 0
-               lRecalcOnOrder   = w-jobs.onOrder      NE 0
-               lRecalcAllocated = w-jobs.allocated    NE 0
-               lRecalcBackOrder = w-jobs.backOrder    NE 0   
+               oplRecalcOnHand    = w-jobs.onHand       NE 0
+               oplRecalcOnOrder   = w-jobs.onOrder      NE 0
+               oplRecalcAllocated = w-jobs.allocated    NE 0
+               oplRecalcBackOrder = w-jobs.backOrder    NE 0   
+               oplUnspecified     = YES
                .
     END.               
         
@@ -1126,6 +1157,11 @@ PROCEDURE pDisplayRecalculateMsg PRIVATE:
  Purpose: To Display a message box to recalculate the quantity
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplRecalcOnHand    AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplRecalcOnOrder   AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplRecalcAllocated AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplRecalcBackOrder AS LOGICAL NO-UNDO.
+    
     DEFINE BUFFER bf-itemfg FOR itemfg.
         
     RUN displayMessageQuestionLOG(
@@ -1140,10 +1176,10 @@ PROCEDURE pDisplayRecalculateMsg PRIVATE:
             ).
         RUN Inventory_RecalculateQuantities IN hdInventoryProcs(
             INPUT ROWID(itemfg),
-            INPUT lRecalcOnHand,   
-            INPUT lRecalcOnOrder,
-            INPUT lRecalcAllocated,
-            INPUT lRecalcBackOrder
+            INPUT iplRecalcOnHand,   
+            INPUT iplRecalcOnOrder,
+            INPUT iplRecalcAllocated,
+            INPUT iplRecalcBackOrder
             ).    
         IF itemfg.isaset THEN DO:
             FOR EACH tt-fg-set NO-LOCK:
@@ -1164,7 +1200,13 @@ PROCEDURE pDisplayRecalculateMsg PRIVATE:
         END.    
         RUN build-table.
         RUN pGetPOLocation.
-        RUN pCheckUnspecified.
+        RUN pCheckUnspecified(
+            OUTPUT lUnspecified,
+            OUTPUT iplRecalcOnHand,
+            OUTPUT iplRecalcOnOrder,
+            OUTPUT iplRecalcAllocated,
+            OUTPUT iplRecalcBackOrder
+            ).
         IF lUnspecified THEN
             RUN displayMessage(
                 INPUT "21"

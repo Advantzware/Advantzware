@@ -4591,7 +4591,8 @@ PROCEDURE Inventory_RecalculateQuantities:
 /*------------------------------------------------------------------------------
  Purpose: Recalculates On-Hand, On-Order, Allocated, Backorder quantities for
           itemfg and itemfg-loc
- Notes:
+ Notes:   Orignal source: fg/fg-reset.i
+          Deprecates fg/fg-reset.i include file
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipriItemfg           AS ROWID   NO-UNDO.
     DEFINE INPUT PARAMETER iplCalculateOnHand   AS LOGICAL NO-UNDO.
