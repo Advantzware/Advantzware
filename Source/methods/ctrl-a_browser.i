@@ -16,7 +16,8 @@ PROCEDURE pCallAudit:
     hExternal = QUERY external_tables:HANDLE.
     &ENDIF
 
-    RUN AOA/AuditTable.w (QUERY {&BROWSE-NAME}:HANDLE, hExternal, OUTPUT cTable, OUTPUT hTable).
+    RUN AOA/AuditTable.w (QUERY {&BROWSE-NAME}:HANDLE, hExternal, ?, OUTPUT cTable, OUTPUT hTable).
     IF VALID-HANDLE(hTable) THEN
     RUN system/CallAudit.p (cTable, hTable, ipcType, PROGRAM-NAME(1)).
+
 END PROCEDURE.

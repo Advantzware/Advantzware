@@ -1963,20 +1963,38 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     /* scop def set in system/CallAudit.p         */
     /* invoked by CTRL-A from viewers or browsers */
     ASSIGN
-        lAuditKeyFilter = YES
-        cAuditKeyFilter = fAuditKey(iphTable,cIdxFlds)
-        cStartAuditKey  = cAuditKeyFilter
-        cEndAuditKey    = cAuditKeyFilter
+        lAuditKeyFilter               = YES
+        cAuditKeyFilter               = fAuditKey(iphTable,cIdxFlds)
+        cStartAuditKey                = cAuditKeyFilter
+        cEndAuditKey                  = cAuditKeyFilter
         svAuditKeyFilter:SCREEN-VALUE = cAuditKeyFilter
-        svAuditKeyFilter:BGCOLOR = 14
+        svAuditKeyFilter:BGCOLOR      = 14
+        {&WINDOW-NAME}:TITLE          = {&WINDOW-NAME}:TITLE
+                                      + " [Key: "
+                                      + cAuditKeyFilter + "]"
+                                      + " Called from "
+                                      + ipcType + ": "
+                                      + ipcProgramName
+                                      .
+    &ELSEIF DEFINED(AuditTableList) NE 0 &THEN
+    /* scop def set in system/CallAuditList.p    */
+    /* invoked by selecting Help > Audit History */
+    ASSIGN
+        cStartDB             = "ASI"
+        cEndDB               = "ASI"
+        svDB:SCREEN-VALUE    = "ASI"
+        cStartTable          = ipcTable
+        cEndTable            = ipcTable
+        svTable:SCREEN-VALUE = ipcTable
         {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE
-                             + " [Key: "
-                             + cAuditKeyFilter + "]"
+                             + " [Table: "
+                             + ipcTable + "]"
                              + " Called from "
                              + ipcType + ": "
                              + ipcProgramName
                              .
     &ELSE
+    /* invoked by selecting NS5 from Main Menu */
     RUN pGetSettings.
     &ENDIF
     ASSIGN
@@ -1997,16 +2015,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "VALUE-CHANGED":U TO svStartRecKeyDateOption.
     APPLY "VALUE-CHANGED":U TO svEndRecKeyDateOption.
     APPLY "VALUE-CHANGED":U TO svUseRecKeySearch.
-    initTime:SCREEN-VALUE = STRING(ETIME / 1000).
-    
     ASSIGN
+        initTime:SCREEN-VALUE = STRING(ETIME / 1000)
         hdAuditHdrQuery = BROWSE AuditHeader:QUERY
         hdAuditDtlQuery = BROWSE AuditDetail:QUERY
-        . 
-        
+        .        
     SESSION:SET-WAIT-STATE("General").
     ETIME(YES).
-    &IF DEFINED(AuditHistory) NE 0 &THEN
+    &IF DEFINED(AuditHistory) NE 0 OR DEFINED(AuditTableList) NE 0 &THEN
     RUN pPrepareAndExecuteQueryForHeader.
     APPLY "VALUE-CHANGED":U TO BROWSE AuditHeader.
     &ENDIF

@@ -32,10 +32,11 @@ CREATE WIDGET-POOL.
 
 /* Parameters Definitions ---                                           */
 
-DEFINE INPUT  PARAMETER iphQuery    AS HANDLE    NO-UNDO.
-DEFINE INPUT  PARAMETER iphExternal AS HANDLE    NO-UNDO.
-DEFINE OUTPUT PARAMETER opcTable    AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER ophTable    AS HANDLE    NO-UNDO.
+DEFINE INPUT  PARAMETER iphQuery     AS HANDLE    NO-UNDO.
+DEFINE INPUT  PARAMETER iphExternal  AS HANDLE    NO-UNDO.
+DEFINE INPUT  PARAMETER ipcTableList AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcTable     AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER ophTable     AS HANDLE    NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
@@ -268,19 +269,29 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  IF VALID-HANDLE(iphExternal) THEN
-  DO idx = 1 TO iphExternal:NUM-BUFFERS:
+  IF ipcTableList EQ ? THEN DO:
+      IF VALID-HANDLE(iphExternal) THEN
+      DO idx = 1 TO iphExternal:NUM-BUFFERS:
+        ASSIGN
+            jdx         = jdx + 1
+            cTable[jdx] = iphExternal:GET-BUFFER-HANDLE(idx):NAME
+            hTable[jdx] = iphExternal:GET-BUFFER-HANDLE(idx):HANDLE
+            .
+      END. /* do idx */
+      IF VALID-HANDLE(iphQuery) THEN
+      DO idx = 1 TO iphQuery:NUM-BUFFERS:
+        ASSIGN
+            jdx         = jdx + 1
+            cTable[jdx] = iphQuery:GET-BUFFER-HANDLE(idx):NAME
+            hTable[jdx] = iphQuery:GET-BUFFER-HANDLE(idx):HANDLE
+            .
+      END. /* do idx */
+  END. /* if ipctablelist */
+  ELSE
+  DO idx = 1 TO NUM-ENTRIES(ipcTableList):
     ASSIGN
         jdx         = jdx + 1
-        cTable[jdx] = iphExternal:GET-BUFFER-HANDLE(idx):NAME
-        hTable[jdx] = iphExternal:GET-BUFFER-HANDLE(idx):HANDLE
-        .
-  END. /* do idx */
-  DO idx = 1 TO iphQuery:NUM-BUFFERS:
-    ASSIGN
-        jdx         = jdx + 1
-        cTable[jdx] = iphQuery:GET-BUFFER-HANDLE(idx):NAME
-        hTable[jdx] = iphQuery:GET-BUFFER-HANDLE(idx):HANDLE
+        cTable[jdx] = ENTRY(idx,ipcTableList)
         .
   END. /* do idx */
   DO idx = 1 TO jdx:
