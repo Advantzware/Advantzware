@@ -161,10 +161,10 @@ DEFINE RECTANGLE RECT-19
 DEFINE FRAME FRAME-A
      begin_i-no AT ROW 2.62 COL 19 COLON-ALIGNED HELP
           "Enter FG Item#"
-     fi_fg-name AT ROW 3.81 COL 19 COLON-ALIGNED NO-LABEL
-     rd_type AT ROW 4.95 COL 53 NO-LABEL
+     fi_fg-name AT ROW 3.81 COL 19 COLON-ALIGNED NO-LABEL      
      begin_rm-no AT ROW 5 COL 19 COLON-ALIGNED HELP
           "Enter RM Item#"
+     rd_type AT ROW 4.95 COL 53 NO-LABEL     
      fi_rm-name AT ROW 6.19 COL 19 COLON-ALIGNED NO-LABEL
      rd_um AT ROW 7.43 COL 22 NO-LABEL WIDGET-ID 2
      cUom AT ROW 7.43 COL 53.8 COLON-ALIGNED HELP
@@ -1056,21 +1056,20 @@ PROCEDURE valid-uom :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
-DEF VAR uom-list    AS   CHAR.
+DEFINE VARIABLE lCheckError    AS   LOGICAL NO-UNDO.
 DO WITH FRAME {&FRAME-NAME}:
    cUom:SCREEN-VALUE = CAPS(cUom:SCREEN-VALUE).
    
    IF rd_um:SCREEN-VALUE EQ "RM" THEN
-   DO:
-       run sys/ref/uom-rm.p  (SUBSTRING(rd_type:SCREEN-VALUE,1,1), output uom-list).
-       IF LOOKUP(cUom:SCREEN-VALUE,uom-list) EQ 0 THEN
+   DO:       
+       lCheckError = DYNAMIC-FUNCTION("fConv_ValidUomForRMItem", SUBSTRING(rd_type:SCREEN-VALUE,1,1), cUom:SCREEN-VALUE) .
+       IF lCheckError THEN
        DO:
-           MESSAGE "ERROR: Must enter a valid UOM"
+           MESSAGE "ERROR: Must enter a valid UOM, Try help"
            VIEW-AS ALERT-BOX ERROR.
            APPLY "entry" TO cUom.
            oplReturnError = YES.
-       END.     
-       
+       END.        
    END.
    
 END.
