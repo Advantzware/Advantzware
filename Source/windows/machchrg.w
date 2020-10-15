@@ -98,22 +98,21 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 141.2 BY 24.52
-         BGCOLOR 4 .
+         BGCOLOR 15.
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 68 ROW 2.91
          SIZE 58 BY 1.43
-         BGCOLOR 4 .
+         BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 127 BY 1.91
-         BGCOLOR 4 .
-
+         BGCOLOR 15 .
 
 /* *********************** Procedure Settings ************************ */
 
@@ -319,7 +318,6 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
     END. /* Page 0 */
-
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/machchrg.w':U ,
@@ -346,7 +344,6 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_machchrg , 'Record':U , THIS-PROCEDURE ).
 
     END. /* Page 1 */
-
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/mach.w':U ,
@@ -395,7 +392,6 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_machchrg-2 ).
 
     END. /* Page 2 */
-
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/mach.w':U ,

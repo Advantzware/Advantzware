@@ -987,7 +987,7 @@ END.
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3helpw.i}
 {custom/yellowColumns.i}
-
+{methods/template/brwcustom.i}
 
 
 ON 'leave':U OF tt-sel.inv-no IN BROWSE {&browse-name} 
