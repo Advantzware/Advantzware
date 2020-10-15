@@ -62,13 +62,13 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE mf-message AS CHARACTER FORMAT "X(256)":U 
-      VIEW-AS TEXT 
-     SIZE 28 BY .62
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
      FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE notes-message AS CHARACTER FORMAT "X(256)":U 
-      VIEW-AS TEXT 
-     SIZE 28 BY .62
+     VIEW-AS FILL-IN 
+     SIZE 28 BY 1
      FGCOLOR 0  NO-UNDO.
 
 DEFINE RECTANGLE UDF
@@ -143,9 +143,18 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN mf-message IN FRAME F-Main
-   NO-ENABLE ALIGN-L                                                    */
+   NO-DISPLAY NO-ENABLE ALIGN-L                                         */
+ASSIGN 
+       mf-message:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN notes-message IN FRAME F-Main
-   NO-ENABLE ALIGN-L                                                    */
+   NO-DISPLAY NO-ENABLE ALIGN-L                                         */
+ASSIGN 
+       notes-message:HIDDEN IN FRAME F-Main           = TRUE.
+
+ASSIGN 
+       UDF:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
