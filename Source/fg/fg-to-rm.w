@@ -674,6 +674,8 @@ DEF VAR troll       AS   INT FORMAT ">>,>>9".
 DEF VAR v-board     AS   LOG FORMAT "Board/Misc" INIT YES.
 DEF VAR uom-list    AS   CHAR.
 DEF VAR lv-rowids   AS   CHAR NO-UNDO. 
+DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
 DEF BUFFER b-loadtag FOR loadtag.
 
@@ -844,23 +846,39 @@ FOR EACH w-bin WHERE w-bin.selekt EQ "X",
          rm-bin.loc     = fg-bin.loc
          rm-bin.loc-bin = fg-bin.loc-bin
          rm-bin.tag     = fg-bin.tag.
-   END. /* not avail rm-bin */
-
-   RUN sys/ref/convquom.p("EA", item.cons-uom,
-                          item.basis-w, 
-                          IF item.s-len EQ 0 THEN 12         ELSE item.s-len,
-                          IF item.s-wid EQ 0 THEN item.r-wid ELSE item.s-wid,
-                          item.s-dep,
-                          fg-bin.qty * troll,
-                          OUTPUT v-qty).
-
-   RUN sys/ref/convcuom.p(fg-bin.pur-uom, item.cons-uom,
-                          item.basis-w, 
-                          IF item.s-len EQ 0 THEN 12         ELSE item.s-len,
-                          IF item.s-wid EQ 0 THEN item.r-wid ELSE item.s-wid,
-                          item.s-dep,
-                          fg-bin.std-tot-cost / troll,
-                          OUTPUT v-cost).
+   END. /* not avail rm-bin */ 
+   
+    RUN Conv_QuantityFromUOMToUOM (
+                    INPUT  cocode,
+                    INPUT  ITEM.i-no,
+                    INPUT  "RM",
+                    INPUT  fg-bin.qty * troll,
+                    INPUT  "EA", 
+                    INPUT  item.cons-uom,
+                    INPUT  0,
+                    INPUT  (IF item.s-len EQ 0 THEN 12 ELSE item.s-len), 
+                    INPUT  (IF item.s-wid EQ 0 THEN item.r-wid ELSE item.s-wid), 
+                    INPUT  item.s-dep,
+                    INPUT  0,
+                    OUTPUT v-qty,
+                    OUTPUT lError,
+                    OUTPUT cMessage
+                    ).    
+  
+  RUN Conv_ValueFromUOMtoUOM(cocode, 
+                INPUT ITEM.i-no, 
+                INPUT "RM", 
+                INPUT (fg-bin.std-tot-cost / troll),
+                INPUT fg-bin.pur-uom,
+                INPUT (IF AVAILABLE ITEM THEN item.cons-uom ELSE "M"), 
+                INPUT 0,
+                INPUT DECIMAL(item.s-len),
+                INPUT DECIMAL(item.s-wid),
+                INPUT DECIMAL(item.s-dep),
+                INPUT 0, 
+                OUTPUT v-cost,
+                OUTPUT lError, 
+                OUTPUT cMessage).    
 
    {rm/rm-post.i "rm-bin.qty" "rm-bin.cost" "v-qty" "v-cost"}
 
