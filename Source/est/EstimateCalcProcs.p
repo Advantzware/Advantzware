@@ -80,6 +80,10 @@ FUNCTION fGetEstBlankID RETURNS INT64 PRIVATE
     ipiEstFormID AS INT64,
     ipiBlankNo AS INTEGER) FORWARD.
 
+FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
+	(ipiEstCostOperationID AS INT64,
+	 ipiDefaultOut AS INTEGER) FORWARD.
+
 FUNCTION fGetProfit RETURNS DECIMAL PRIVATE
     (ipdCost AS DECIMAL,
     ipdProfitPercent AS DECIMAL,
@@ -1059,7 +1063,7 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
         
         IF opbf-estCostOperation.isNetSheetMaker THEN 
             ASSIGN 
-                opbf-estCostOperation.numOutForOperation = ipbf-estCostForm.numOutNet
+                opbf-estCostOperation.numOutForOperation = fGetNetSheetOut(opbf-estCostOperation.estCostOperationID,ipbf-estCostForm.numOutNet)
                 .
         ELSE IF opbf-estCostOperation.isBlankMaker THEN 
                 ASSIGN 
@@ -4652,6 +4656,38 @@ FUNCTION fGetEstBlankID RETURNS INT64 PRIVATE
     IF AVAILABLE estCostBlank THEN 
         RETURN estCostBlank.estCostBlankID.
 
+END FUNCTION.
+
+FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
+	(ipiEstCostOperationID AS INT64, ipiDefaultOut AS INTEGER):
+/*------------------------------------------------------------------------------
+ Purpose:  Given an operation buffer, return the # out based on the 
+ specific net sheet pass of the operation
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE BUFFER bf-ef-nsh FOR ef-nsh.
+    DEFINE BUFFER bf-estCostOperation FOR estCostOperation.
+    DEFINE VARIABLE iOut AS INTEGER.
+    
+    
+    FIND FIRST bf-estCostOperation NO-LOCK 
+        WHERE bf-estCostOperation.estCostOperationID EQ ipiEstCostOperationID
+        NO-ERROR.
+    IF AVAILABLE bf-estCostOperation THEN
+        FIND FIRST bf-ef-nsh NO-LOCK    
+            WHERE bf-ef-nsh.company EQ bf-estCostOperation.company
+            AND bf-ef-nsh.est-no EQ bf-estCostOperation.estimateNo
+            AND bf-ef-nsh.form-no EQ bf-estCostOperation.formNo
+            AND bf-ef-nsh.pass EQ bf-estCostOperation.pass
+            NO-ERROR.
+     IF AVAILABLE bf-ef-nsh THEN 
+        iOut = bf-ef-nsh.n-out-d * bf-ef-nsh.n-out-l * bf-ef-nsh.n-out-w.
+	
+    IF iOut LE 0 THEN 
+        iOut = ipiDefaultOut.
+	
+    RETURN iOut.
+		
 END FUNCTION.
 
 FUNCTION fGetProfit RETURNS DECIMAL PRIVATE
