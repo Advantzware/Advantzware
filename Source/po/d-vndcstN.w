@@ -26,6 +26,7 @@
 {sys/inc/var.i SHARED}
 {sys/inc/varasgn.i}
 {sys/inc\msfcalc.i}
+{methods/template/brwcustomdef.i}
 
 DEFINE INPUT PARAMETER v-term LIKE report.term-id NO-UNDO.
 DEFINE INPUT PARAMETER v-recid AS RECID NO-UNDO.
@@ -313,7 +314,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 Dialog-Frame
 ON ROW-DISPLAY OF BROWSE-2 IN FRAME Dialog-Frame
 DO:
- 
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}
 IF AVAILABLE tt-report AND tt-report.key-03 EQ v-vend-no THEN DO:
     ASSIGN 
         tt-report.key-03:BGCOLOR IN BROWSE {&BROWSE-NAME}      = 14
@@ -384,6 +386,8 @@ END.
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
+
+{methods/template/brwcustom.i}
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */

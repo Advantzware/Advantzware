@@ -31,6 +31,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
+{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -487,6 +488,8 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}    
   IF NOT CAN-FIND(FIRST sys-ctrl WHERE sys-ctrl.company EQ ar-invl.company
                                    AND sys-ctrl.name EQ 'OECOMM'
                                    AND sys-ctrl.log-fld EQ YES) THEN
@@ -834,6 +837,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/template/brwcustom.i}
 SESSION:DATA-ENTRY-RETURN = YES.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        

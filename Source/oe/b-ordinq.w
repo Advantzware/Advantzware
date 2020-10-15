@@ -33,6 +33,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE repositionBrowse
 &SCOPED-DEFINE xlocal-destroy xlocal-destroy
 {methods/defines/winReSize.i}
+{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -854,6 +855,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}    
   li-pct:FGCOLOR IN BROWSE {&BROWSE-NAME} = IF get-pct(get-prod(li-bal)) LT 0 THEN 12 ELSE 0.
 END.
 

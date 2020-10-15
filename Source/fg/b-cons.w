@@ -38,6 +38,7 @@ CREATE WIDGET-POOL.
 {custom/gloc.i}
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
+{methods/template/brwCustomDef.i}
 
 DO TRANSACTION:
 {pc/pcprdd4u.i NEW}
@@ -575,7 +576,11 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
-DO:  /* display calculated field */
+DO: 
+   &SCOPED-DEFINE exclude-row-display true
+   {methods/template/brwRowDisplay.i}
+        
+    /* display calculated field */
   /* def var ii as int.
    ii = if avail fg-rctd then integer(fg-rctd.po-no) else 0.
    

@@ -67,6 +67,7 @@ DEF VAR setFromHistory AS LOGICAL NO-UNDO.
 {custom/globdefs.i}
 {sys/inc/var.i NEW SHARED}
 {sys/inc/varasgn.i}
+{methods/template/brwcustomdef.i}
 
 DEF VAR cellColumn AS HANDLE NO-UNDO EXTENT 20.
 DEF VAR columnCount AS INTEGER NO-UNDO.
@@ -563,7 +564,8 @@ END.
 ON ROW-DISPLAY OF br_table IN FRAME F-Main
 DO:
 
-
+&scoped-define exclude-row-display true 
+{methods/template/brwrowdisplay.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

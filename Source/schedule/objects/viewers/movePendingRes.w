@@ -36,6 +36,7 @@ CREATE WIDGET-POOL.
 {{&includes}/filterVars.i}
 {{&includes}/ttblJob.i}
 {{&viewers}/includes/sharedVars.i NEW}
+{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -331,6 +332,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseJob sObject
 ON ROW-DISPLAY OF browseJob IN FRAME F-Main
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}    
   {{&viewers}/includes/rowDisplay.i}
 END.
 
@@ -443,7 +446,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/template/brwcustom.i}
 {{&viewers}/includes/winTitle.i}
 {{&viewers}/includes/viewersInclude.i}
 

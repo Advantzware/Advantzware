@@ -40,6 +40,8 @@ def output parameter op-rowid-val as ROWID no-undo. /* string i-code + i-name */
 
 def var lv-type-dscr as cha no-undo.
 
+{methods/template/brwCustomDef.i} 
+
 &Scoped-define BROWSER-A FOR EACH eb WHERE ~{&KEY-PHRASE} ~
       AND eb.company = ip-company AND ~
 ((eb.est-type ge 1 and eb.est-type le 4 and ip-est-type ge 1 and ip-est-type le 4) or ~
@@ -362,6 +364,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON ROW-DISPLAY OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
+   &SCOPED-DEFINE exclude-row-display true
+   {methods/template/brwRowDisplay.i}
+       
   FIND FIRST itemfg WHERE itemfg.company = ip-company
                       AND itemfg.i-no = eb.stock-no NO-LOCK NO-ERROR.
   v-fg-est-no = IF AVAIL itemfg THEN itemfg.est-no ELSE "".
@@ -481,7 +486,8 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
-   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:  
+   ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+    {methods/template/brwcustom.i}         
   RUN get-column.
 
 /*   DO TRANSACTION:                               */

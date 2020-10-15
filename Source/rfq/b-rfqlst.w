@@ -41,6 +41,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
 {custom/globdefs.i}
+{methods/template/brwcustomdef.i}
 /*&Scoped-define Item-KEY-PHRASE TRUE */
 
 def var CurRowIdent as rowid no-undo.
@@ -656,6 +657,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}  
+      
     find style where style.company = rfq.company and
                       style.style = rfqitem.style
                       no-lock no-error.
@@ -1011,6 +1015,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/template/brwcustom.i}
 {sys/inc/f3help.i}
 /*
 FIND FIRST ce-ctrl WHERE ce-ctrl.company = gcompany and

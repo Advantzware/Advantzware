@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 
 {sys/inc/VAR.i NEW SHARED}
+{methods/template/brwcustomdef.i}
 
 ASSIGN
  cocode = g_company
@@ -584,6 +585,9 @@ During assembly, the PROGRESS Advisor suggests links and creates them for you. H
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}
+    
   IF NOT CAN-FIND(FIRST sys-ctrl WHERE sys-ctrl.company EQ ar-invl.company
                                    AND sys-ctrl.name EQ 'OECOMM'
                                    AND sys-ctrl.log-fld EQ YES) THEN
@@ -947,6 +951,7 @@ END.
 &SCOPED-DEFINE cellColumnDat b-oeinvl
 
 /*{sys/inc/f3help.i}*/
+{methods/template/brwcustom.i}
 {methods/browsers/setCellColumns.i}
 
 /*  RUN-PROC = "sbo/oerel-recalc-act.p". */

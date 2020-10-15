@@ -39,6 +39,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
+{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -685,16 +686,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
- /* IF CURRENT-RESULT-ROW("Browser-Table") / 2 <> INT (CURRENT-RESULT-ROW("Browser-Table") / 2) then 
-  DO iCnt = 1 TO num-entries(colHandList, ","): 
-     colhand = handle(entry(iCnt,colHandList,",")).
-     colhand:BGCOLOR = 25. 
-  END. 
-  else
-  DO iCnt = 1 TO num-entries(colHandList, ","):
-     colhand = handle(entry(iCnt,colHandList,",")).
-     colhand:BGCOLOR = 26.
-  END.*/
+&scoped-define exclude-row-display true 
+{methods/template/brwrowdisplay.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -927,14 +920,6 @@ END.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
-
-colhand =  browse Browser-Table:first-column.
-do while valid-handle(colhand).
-colHandList =  colHandList + ","  + string(colhand).
-colhand = colhand:next-column.
-END.
- colHandList = trim(colHandList, ",").
-
 {methods/winReSize.i}
 
 &SCOPED-DEFINE cellColumnDat browsers-cust

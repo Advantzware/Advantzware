@@ -32,6 +32,7 @@ CREATE WIDGET-POOL.
 
 {schedule/scopDir.i}
 {{&includes}/defBoard.i}
+{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -493,6 +494,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL viewBrowse wWin
 ON ROW-DISPLAY OF viewBrowse IN FRAME fMain
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}  
+      
   DO idx = 2 TO col#:
     IF NOT VALID-HANDLE(cells[idx]) THEN NEXT.
     jdx = INTEGER(idx / 3 - 1).
@@ -623,6 +627,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/template/brwcustom.i}
 
 {{&viewers}/includes/winTitle.i}
 

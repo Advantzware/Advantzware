@@ -79,6 +79,7 @@ ASSIGN
 {custom/globdefs.i}
 {sys/inc/var.i NEW SHARED}
 {sys/inc/varasgn.i}
+{methods/template/brwCustomDef.i}
 
 DEF VAR cellColumncolor AS HANDLE NO-UNDO EXTENT 20.
 DEF VAR columnCount AS INTEGER NO-UNDO.
@@ -592,7 +593,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-DISPLAY OF br_table IN FRAME F-Main
 DO:
-
+   &SCOPED-DEFINE exclude-row-display true
+   {methods/template/brwRowDisplay.i}    
+   
   IF useColors NE '' THEN
   DO idx = 1 TO columnCount:
     CASE useColors:

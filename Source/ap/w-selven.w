@@ -36,6 +36,7 @@ DEF SHARED VAR g_period AS INT NO-UNDO.
     
 {sys/inc/VAR.i NEW SHARED}
 {ap/d-selinv.i NEW}
+{methods/template/brwCustomDef.i}
 
 DEF TEMP-TABLE tt-sel NO-UNDO LIKE ap-sel
            FIELD amt-due AS DEC FORM "->>,>>>,>>9.99" 
@@ -413,6 +414,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 W-Win
 ON ROW-DISPLAY OF BROWSE-1 IN FRAME F-Main
 DO:
+    &SCOPED-DEFINE exclude-row-display true
+    {methods/template/brwRowDisplay.i}    
   DEF VAR li AS INT NO-UNDO.
   FIND FIRST ap-inv NO-LOCK
        WHERE ap-inv.company = g_company 
@@ -985,6 +988,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/template/brwcustom.i}
 {sys/inc/f3helpw.i}
 {custom/yellowColumns.i}
 

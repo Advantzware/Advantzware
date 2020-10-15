@@ -54,6 +54,7 @@ DEFINE VARIABLE cColumnHandles        AS CHARACTER NO-UNDO.
 {system/sysconst.i}
 {wip/keyboardDefs.i}
 {Inventory/ttInventory.i "NEW SHARED"}
+{methods/template/brwcustomdef.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -528,6 +529,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-table W-Win
 ON ROW-DISPLAY OF br-table IN FRAME F-Main
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}    
     DEFINE VARIABLE iColor  AS INTEGER  NO-UNDO.
     
     IF AVAILABLE ttPhysicalBrowseInventory THEN DO:
@@ -819,6 +822,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/template/brwcustom.i}
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}

@@ -28,6 +28,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE programVersion
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
+{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -755,6 +756,9 @@ ON RETURN OF br_table IN FRAME F-Main
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-DISPLAY OF br_table IN FRAME F-Main
 DO: 
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}  
+      
   DEF BUFFER bfOeRel FOR oe-rel.
   DEF VAR v-stat AS CHAR NO-UNDO.
   v-stat = get-rel-stat().

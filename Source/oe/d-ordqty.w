@@ -16,6 +16,7 @@
 /* ***************************  Definitions  ************************** */
 
 {oe/tt-item-qty-price.i}
+{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -220,6 +221,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON ROW-DISPLAY OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}
+     
    DO idx = 1 TO columncounts:
      IF tt-item-qty-price.quote-date = lv-first-quote-date THEN
         cellColumn[idx]:BGCOLOR = 10.
@@ -314,7 +318,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/template/brwcustom.i}
 ON 'mouse-select-dblclick' OF tt-item-qty-price.tt-selected IN BROWSE {&BROWSE-NAME} DO:
   
    ASSIGN 

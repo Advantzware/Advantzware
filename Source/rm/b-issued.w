@@ -26,6 +26,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE yellowColumnsName b-issued
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
+{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -461,7 +462,10 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
-DO:  /* display calculated field */
+DO:  
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}
+/* display calculated field */
   /* def var ii as int.
    ii = if avail rm-rctd then integer(rm-rctd.po-no) else 0.
    

@@ -32,6 +32,8 @@ CREATE WIDGET-POOL.
 {custom/gcompany.i}
 {custom/gloc.i}
 {custom/persist.i}
+{methods/template/brwCustomDef.i}
+
 DEF VAR ls-add-what AS cha NO-UNDO.
 DEF VAR li-new-estnum AS INT NO-UNDO.
 DEF VAR ll-new-record AS LOG NO-UNDO.
@@ -788,6 +790,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-estitm B-table-Win
 ON ROW-DISPLAY OF br-estitm IN FRAME Corr
 DO:
+    &SCOPED-DEFINE exclude-row-display true
+    {methods/template/brwRowDisplay.i}
+        
     DEF VAR lActive AS LOG NO-UNDO.
 
    IF v-cefgitem-log THEN

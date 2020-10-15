@@ -25,6 +25,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
+{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -657,7 +658,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON ROW-DISPLAY OF br_table IN FRAME F-Main
 DO:   
-  
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}  
   IF AVAIL tt-glinq AND MONTH(tt-glinq.tr-date) NE tt-glinq.tr-period  THEN
     ASSIGN   tt-glinq.tr-date:BGCOLOR IN BROWSE {&BROWSE-NAME}      = 3  .
       

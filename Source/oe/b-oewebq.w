@@ -41,6 +41,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 
 {sys/inc/VAR.i NEW SHARED}
+{methods/template/brwcustomdef.i}
 
 ASSIGN
  cocode = g_company
@@ -864,6 +865,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}    
   IF NOT CAN-FIND(FIRST sys-ctrl WHERE sys-ctrl.company EQ oe-ord.company
                                    AND sys-ctrl.name EQ 'OECOMM'
                                    AND sys-ctrl.log-fld EQ YES) THEN

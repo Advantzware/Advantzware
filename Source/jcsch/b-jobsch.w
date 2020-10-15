@@ -63,6 +63,8 @@ DEF VAR lv-seq-color AS INT NO-UNDO.
 DEF VAR lv-corr AS LOG NO-UNDO.
 DEF VAR v-dim-fmt AS cha NO-UNDO.
 
+{methods/template/brwcustomdef.i}
+
 DEF TEMP-TABLE tt-sch FIELD rec-id AS RECID
                       FIELD seq-no LIKE job-mch.seq-no
                       FIELD board LIKE ef.board
@@ -647,7 +649,8 @@ END.
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
   /*  lv-col-bgcolor = get-col-bgcolor(). */   
-
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}
    /* tt-sch.seq-no:COLUMN-BGCOLOR IN BROWSE {&browse-name} = 10.  error */
     RUN set-col-bgcolor.
     FIND style WHERE style.company = g_company AND

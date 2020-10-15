@@ -47,6 +47,7 @@ opRunAgain = NO.
 {{&includes}/ttblJob.i}
 {{&includes}/sharedVars.i}
 {{&includes}/rptTables.i}
+{methods/template/brwcustomdef.i}
 
 DEFINE VARIABLE currentColumn AS HANDLE NO-UNDO.
 DEFINE VARIABLE moveColumns AS LOGICAL NO-UNDO.
@@ -621,6 +622,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseJob Dialog-Frame
 ON ROW-DISPLAY OF browseJob IN FRAME Dialog-Frame /* Browser Columns */
 DO:
+
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}    
   {{&viewers}/includes/rowDisplay.i}
 END.
 
@@ -984,6 +988,7 @@ END.
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
+{methods/template/brwcustom.i}
 {{&viewers}/includes/viewersInclude.i}
 
 /* Now enable the interface and wait for the exit condition.            */

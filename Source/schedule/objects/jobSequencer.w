@@ -41,6 +41,7 @@ CREATE WIDGET-POOL.
 {{&includes}/sharedVars.i}
 {{&viewers}/includes/sharedVars.i}
 {{&includes}/ttblJob.i}
+{methods/template/brwcustomdef.i}
 
 DEFINE VARIABLE boardHandle AS HANDLE NO-UNDO.
 DEFINE VARIABLE boardType AS CHARACTER NO-UNDO.
@@ -426,6 +427,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 wWin
 ON ROW-DISPLAY OF BROWSE-1 IN FRAME fMain
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}  
+      
   ASSIGN
     ttblSeq.rowNo:BGCOLOR IN BROWSE {&BROWSE-NAME} = 7
     ttblSeq.rowNo:FGCOLOR = 15.
@@ -618,6 +622,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{methods/template/brwcustom.i}
 
 {{&viewers}/includes/winTitle.i}
 

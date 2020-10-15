@@ -25,6 +25,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
+{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -1003,6 +1004,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-estitm B-table-Win
 ON ROW-DISPLAY OF br-estitm IN FRAME Corr
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}    
+    
     DEF VAR lActive AS LOG NO-UNDO.
    IF v-cefgitem-log AND AVAIL eb THEN
    DO:

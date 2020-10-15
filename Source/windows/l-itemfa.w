@@ -38,6 +38,7 @@ def output param op-recid as recid no-undo.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
+{methods/template/brwcustomdef.i}
 
 DEF VAR v-prgmname LIKE prgrms.prgmname NO-UNDO.
 DEF VAR period_pos AS INTEGER NO-UNDO.
@@ -340,6 +341,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON ROW-DISPLAY OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i} 
+       
   IF useColors NE '' THEN
   DO idx = 1 TO columnCount:
     CASE useColors:
@@ -444,6 +448,7 @@ END.
 IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
+{methods/template/brwcustom.i}
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */

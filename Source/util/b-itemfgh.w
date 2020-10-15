@@ -32,6 +32,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
+{methods/template/brwcustomdef.i}
 
 /* Parameters Definitions ---                                           */
 
@@ -854,6 +855,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL r_table B-table-Win
 ON ROW-DISPLAY OF r_table IN FRAME F-Main
 DO:
+&scoped-define exclude-row-display true 
+{methods/template/brwrowdisplay.i}
+    
 li-qty-pal = fg-rdtlh.qty-case * fg-rdtlh.cases.
 /* li-qty-pal = fg-rdtlh.qty-case * /* fg-rdtlh.stacks-unit */ fg-rdtlh.cases. */
 
@@ -1060,7 +1064,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/template/brwcustom.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF

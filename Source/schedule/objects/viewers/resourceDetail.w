@@ -36,6 +36,7 @@ CREATE WIDGET-POOL.
 {{&includes}/filterVars.i}
 {{&includes}/ttblJob.i}
 {{&viewers}/includes/sharedVars.i NEW}
+{methods/template/brwcustomdef.i}
 
 &SCOPED-DEFINE detailButton YES
 
@@ -540,6 +541,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseJob sObject
 ON ROW-DISPLAY OF browseJob IN FRAME F-Main /* Jobs by Resource */
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}    
   {{&viewers}/includes/rowDisplay.i}
 END.
 
@@ -906,7 +909,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+{methods/template/brwcustom.i}
 ON 'ENTRY':U OF jobSequence IN BROWSE {&BROWSE-NAME}
 DO:
   IF updateEnabled THEN

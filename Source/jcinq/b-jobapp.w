@@ -37,6 +37,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
+{methods/template/brwcustomdef.i}
 
 ASSIGN
  cocode = g_company
@@ -657,6 +658,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
+    &scoped-define exclude-row-display true 
+    {methods/template/brwrowdisplay.i}   
+     
   DEF VAR li-time AS INT NO-UNDO.
 
   ASSIGN

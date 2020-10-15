@@ -39,6 +39,7 @@ CREATE WIDGET-POOL.
 {custom/gcompany.i}
 {custom/gloc.i}
 {sys/inc/VAR.i NEW SHARED}
+{methods/template/brwCustomDef.i}
 
 ASSIGN
     cocode   = g_company
@@ -835,6 +836,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
+    &SCOPED-DEFINE exclude-row-display true
+    {methods/template/brwRowDisplay.i}
+       
     DEFINE VARIABLE lActive AS LOGICAL NO-UNDO.
     IF AVAILABLE est AND est.mod-date = 01/01/1900 THEN
        est.est-no:bgcolor IN BROWSE {&browse-name} = 12.
