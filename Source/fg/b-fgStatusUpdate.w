@@ -53,6 +53,8 @@ DEFINE VARIABLE lColMove         AS LOGICAL   NO-UNDO.
 
 RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
+DEF STREAM excel.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -393,6 +395,23 @@ DO:
         btUpdate:SENSITIVE    = AVAILABLE ttItem
         btUpdateAll:SENSITIVE = AVAILABLE ttitem
         .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME fiLocationID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocationID B-table-Win
+ON HELP OF fiLocationID IN FRAME F-Main /* Location */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+    
+    RUN windows/l-fgbin.w (g_company,fiWarehouseID:screen-value, fiLocationID:screen-value,OUTPUT char-val).
+    IF char-val <> "" THEN 
+    DO :
+        ASSIGN 
+        fiLocationID:SCREEN-VALUE = ENTRY(1,char-val)  .    
+    END.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -800,6 +819,54 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+
+  DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(50)" INITIAL "c:~\tmp~\FgStatusInquiry.csv" NO-UNDO.
+  DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+  DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cExcelDisplay AS CHARACTER NO-UNDO.
+
+  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
+  OUTPUT STREAM excel TO VALUE(cFileName).
+  excelheader = "Tag#,Quantity,PO#,Warehouse,Location,Tag Status,Tag Description,On Hold,Item#,Item Description,Job#,Customer".
+  PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
+
+       FOR EACH ttItem NO-LOCK:
+             cExcelDisplay = "".
+             cExcelDisplay = cExcelDisplay + quoter(ttItem.inventoryStockID) + ",".
+             cExcelDisplay = cExcelDisplay + quoter(ttItem.quantity) + ",".
+             cExcelDisplay = cExcelDisplay + quoter(ttItem.PoID) + ",".
+             cExcelDisplay = cExcelDisplay + quoter(ttItem.WareHouseID) + ",".
+             cExcelDisplay = cExcelDisplay + quoter(ttItem.LocationID) + ",".
+             cExcelDisplay = cExcelDisplay + quoter(ttItem.tagStatus) + ",".
+             cExcelDisplay = cExcelDisplay + quoter(ttItem.StatusDescription) + ",".
+             cExcelDisplay = cExcelDisplay + quoter(ttItem.onHold) + ",".
+             cExcelDisplay = cExcelDisplay + quoter(ttItem.PrimaryID) + ",".
+             cExcelDisplay = cExcelDisplay + quoter(ttItem.ItemDesc) + ",".
+             cExcelDisplay = cExcelDisplay + quoter(STRING(ttItem.jobNo + "-" + TRIM(STRING(ttItem.jobNo2,">9")))) + ",".
+             cExcelDisplay = cExcelDisplay + quoter(ttItem.customerID) + ",".
+             
+             PUT STREAM excel UNFORMATTED  
+               cExcelDisplay SKIP.
+             
+       END.
+            
+  OUTPUT STREAM excel CLOSE.   
+  OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
