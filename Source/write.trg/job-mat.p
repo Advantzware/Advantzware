@@ -52,7 +52,7 @@ IF {&TABLENAME}.qty-all NE old-{&TABLENAME}.qty-all THEN DO:
     */  
     /*  IF AVAIL item THEN RUN rm/calcqcom.p (ROWID(item), OUTPUT item.q-comm). */
 
-    IF AVAIL ITEM THEN DO:
+    IF AVAIL ITEM AND {&TABLENAME}.all-flg THEN DO:
         ASSIGN 
             v-comm = {&TABLENAME}.qty-all - old-{&TABLENAME}.qty-all.
 
