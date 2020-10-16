@@ -8,6 +8,7 @@ DEFINE TEMP-TABLE ttScopes NO-UNDO
     FIELD vendorID        AS CHARACTER
     FIELD customerID      AS CHARACTER
     FIELD shipToID        AS CHARACTER 
+    FIELD locValidation   AS LOGICAL
     FIELD inactive        AS LOGICAL    
     FIELD riApiClientXref AS ROWID
     . 
