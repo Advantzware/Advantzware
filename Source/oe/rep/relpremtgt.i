@@ -313,6 +313,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
            for each fg-bin
                where fg-bin.company  eq cocode
                  and fg-bin.i-no     eq w-oe-rell.i-no
+                 AND fg-bin.onHold   EQ NO
                  and fg-bin.qty      gt 0
                no-lock:
           
