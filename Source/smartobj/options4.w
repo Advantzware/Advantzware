@@ -63,45 +63,52 @@ Select_frac Select_appl Select_help
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_appl 
      IMAGE-UP FILE "Graphics/32x32/window_gear.ico":U
+     IMAGE-DOWN FILE "Graphics/32x32/book_open_hover.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Run App" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Utility Application".
+     SIZE 6.4 BY 1.52 TOOLTIP "Utility Application".
 
 DEFINE BUTTON Select_frac 
      IMAGE-UP FILE "Graphics/32x32/calculator.ico":U
+     IMAGE-DOWN FILE "Graphics/32x32/calculator_hover.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Calculate" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Conversions".
+     SIZE 6.4 BY 1.52 TOOLTIP "Conversions".
 
 DEFINE BUTTON Select_help 
      IMAGE-UP FILE "Graphics/32x32/question.ico":U
+     IMAGE-DOWN FILE "Graphics/32x32/question_hover.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Help" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Help".
+     SIZE 6.4 BY 1.52 TOOLTIP "Help".
 
 DEFINE BUTTON Select_List 
      IMAGE-UP FILE "Graphics/32x32/printer.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/printer_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-DOWN FILE "Graphics/32x32/printer_hover.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics\32x32\printer_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "List" 
-     SIZE 7.8 BY 1.81 TOOLTIP "List".
+     SIZE 6.4 BY 1.52 TOOLTIP "List".
 
 DEFINE BUTTON Select_Notes 
      IMAGE-UP FILE "Graphics/32x32/edit.ico":U
+     IMAGE-DOWN FILE "Graphics/32x32/edit_hover.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/edit_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Notes".
+     SIZE 6.4 BY 1.52 TOOLTIP "Notes".
 
 DEFINE BUTTON Select_spec 
      IMAGE-UP FILE "Graphics/32x32/book_open.ico":U
+     IMAGE-DOWN FILE "Graphics/32x32/book_open_hover.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/book_open_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Spec Note" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Spec Notes".
+     SIZE 6.4 BY 1.52 TOOLTIP "Spec Notes".
 
 DEFINE BUTTON UDF 
      IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
+     IMAGE-DOWN FILE "Graphics/32x32/window_dialog_hover.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "UDF" 
-     SIZE 7.8 BY 1.81 TOOLTIP "UDF Viewer".
+     SIZE 6.4 BY 1.52 TOOLTIP "UDF Viewer".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -117,7 +124,8 @@ DEFINE FRAME F-Main
      Select_help AT ROW 1 COL 33
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */

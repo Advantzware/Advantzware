@@ -21,11 +21,13 @@
 IF CURRENT-RESULT-ROW("{&BROWSE-NAME}") mod 2 = 0 then
   DO iCnt = 1 TO num-entries(colHandList, ","): 
      colHand = handle(entry(iCnt,colHandList,",")).
+     if VALID-HANDLE(colHand) then
      colHand:BGCOLOR = 25. 
   END. 
   else
   DO iCnt = 1 TO num-entries(colHandList, ","):
      colHand = handle(entry(iCnt,colHandList,",")).
+     if VALID-HANDLE(colHand) then
      colHand:BGCOLOR = 26.
   END.
 

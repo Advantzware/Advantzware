@@ -21,11 +21,16 @@
 
 
 do icnt = 1 to num-entries({&brw-list}, ","):
+       
     brwHand = handle(entry(icnt, {&brw-list}, ",")).
-    brwHand:bgcolor  = 25. 
-    brwHand:separator-fgcolor  = 15.
-    brwHand:row-height-chars  = 0.84.
-    brwHand:font = 22.
+    
+    if VALID-HANDLE(brwHand) then
+    assign
+        brwHand:bgcolor            = 25 
+        brwHand:fgcolor            = 0
+        brwHand:separator-fgcolor  = 15
+        brwHand:row-height-chars   = 0.84
+        brwHand:font               = 22.
 
     colHand = brwHand:first-column.
     do while valid-handle(colHand).

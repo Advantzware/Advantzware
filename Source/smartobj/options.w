@@ -63,50 +63,50 @@ Select_List Select_Notes Select_spec UDF
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_appl 
      IMAGE-UP FILE "Graphics/32x32/window_gear.ico":U
-     IMAGE-DOWN FILE "Graphics/32x32/book_open_hover.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/window_gear_hover.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Run App" 
      SIZE 6.4 BY 1.52 TOOLTIP "Utility Application".
 
 DEFINE BUTTON Select_frac 
      IMAGE-UP FILE "Graphics/32x32/calculator.ico":U
-     IMAGE-DOWN FILE "Graphics/32x32/calculator_hover.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/calculator_hover.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Calculate" 
      SIZE 6.4 BY 1.52 TOOLTIP "Conversions".
 
 DEFINE BUTTON Select_help 
      IMAGE-UP FILE "Graphics/32x32/question.ico":U
-     IMAGE-DOWN FILE "Graphics/32x32/question_hover.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/question_hover.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Help" 
      SIZE 6.4 BY 1.52 TOOLTIP "Help".
 
 DEFINE BUTTON Select_List 
      IMAGE-UP FILE "Graphics/32x32/printer.ico":U
-     IMAGE-DOWN FILE "Graphics/32x32/printer_hover.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/printer_hover.ico":U
      IMAGE-INSENSITIVE FILE "Graphics\32x32\printer_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "List" 
      SIZE 6.4 BY 1.52 TOOLTIP "List".
 
 DEFINE BUTTON Select_Notes 
      IMAGE-UP FILE "Graphics/32x32/edit.ico":U
-     IMAGE-DOWN FILE "Graphics/32x32/edit_hover.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/edit_hover.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/edit_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
      SIZE 6.4 BY 1.52 TOOLTIP "Notes".
 
 DEFINE BUTTON Select_spec 
      IMAGE-UP FILE "Graphics/32x32/book_open.ico":U
-     IMAGE-DOWN FILE "Graphics/32x32/book_open_hover.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/book_open_hover.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/book_open_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Spec Note" 
      SIZE 6.4 BY 1.52 TOOLTIP "Spec Notes".
 
 DEFINE BUTTON UDF 
      IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
-     IMAGE-DOWN FILE "Graphics/32x32/window_dialog_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialoge_disabled.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-DOWN FILE "Graphics/32x32/window_dialog_hover.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "UDF" 
      SIZE 6.4 BY 1.52 TOOLTIP "UDF Viewer".
 
@@ -530,6 +530,27 @@ PROCEDURE state-changed :
          or add new cases. */
   END CASE.
   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE udf-image s-object 
+PROCEDURE udf-image :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ip-log AS LOG NO-UNDO.
+
+   DO WITH FRAME {&FRAME-NAME}:
+
+      IF NOT ip-log THEN
+         UDF:LOAD-IMAGE("Graphics/32x32/window_dialog.ico").
+      ELSE
+         UDF:LOAD-IMAGE("Graphics/32x32/window_dialog_star.ico").
+   END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -528,7 +528,7 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   methods/template/brwcustom.i}
+   {methods/template/brwcustom.i}
   RUN get-column.
 
 /*   DO TRANSACTION:                               */

@@ -413,6 +413,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartObject h_options. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'spec':U , h_options ).
+       RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'udfmsg':U , h_options ).
 
        /* Links to SmartObject h_attach. */
        RUN add-link IN adm-broker-hdl ( h_b-itemfg , 'attach':U , h_attach ).

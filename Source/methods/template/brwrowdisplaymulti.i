@@ -22,7 +22,7 @@
         for each brwtemp :   
             brwHand = handle(brwtemp.brwname).
             colHandList = brwtemp.columlist.
-            if brwHand:name <> "{&brw-name}" then next.
+            if VALID-HANDLE(brwHand) and brwHand:name <> "{&brw-name}" then next.
             iF CURRENT-RESULT-ROW(brwHand:name) mod 2 = 0 then
             do iCnt = 1 TO num-entries(colHandList, ","): 
                 colHand = handle(entry(iCnt,colHandList,",")).

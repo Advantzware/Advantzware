@@ -934,6 +934,7 @@ DO:
 
   RUN paper-clip-image-proc(INPUT itemfg.rec_key).
   RUN spec-image-proc.
+  run udf-image-proc.
 
   /* disable/enable set parts tab */
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "container-source", OUTPUT char-hdl).
@@ -2203,6 +2204,27 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE udf-image-proc B-table-Win 
+PROCEDURE udf-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR v-udf AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+
+   v-udf = CAN-FIND(FIRST mfvalues WHERE mfvalues.rec_key = itemfg.rec_key). 
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'udfmsg-target':U, OUTPUT char-hdl).
+
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN udf-image IN WIDGET-HANDLE(char-hdl) (INPUT v-udf).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

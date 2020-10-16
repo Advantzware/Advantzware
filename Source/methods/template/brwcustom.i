@@ -23,9 +23,11 @@
 
 frame {&frame-name}:BGCOLOR = 15.
 {&BROWSE-NAME}:bgcolor = 25.
+{&BROWSE-NAME}:fgcolor = 0.
 {&BROWSE-NAME}:separator-fgcolor = 15.
 {&BROWSE-NAME}:row-height-chars = 0.84.
 {&BROWSE-NAME}:font = 22.
+
 
 colHand = {&BROWSE-NAME}:first-column.
 do while valid-handle(colHand).
