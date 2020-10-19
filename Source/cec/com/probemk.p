@@ -110,14 +110,14 @@ FOR EACH xef
               ELSE IF xef.gsh-qty NE 0 THEN xef.gsh-qty
               ELSE
               qty / (v-up * v-n-out).
-   {sys/inc/roundup.i vgsh-qty}
+   {sys/inc/roundup.i vgsh-qty}    
    ASSIGN
     probe.gsh-qty = probe.gsh-qty + vgsh-qty
-    probe.tot-lbs = probe.tot-lbs +
-                    IF v-corr THEN ROUND(((xef.gsh-len * xef.gsh-wid) * .007)
-                                                                  * vgsh-qty,0)
-                              ELSE ROUND(((xef.gsh-len * xef.gsh-wid) / 144)
-                                                                  * vgsh-qty,0).
+    probe.gshQtyInSF = probe.gshQtyInSF +
+                    IF v-corr THEN (((xef.gsh-len * xef.gsh-wid) * .007)
+                                                                  * vgsh-qty)
+                              ELSE (((xef.gsh-len * xef.gsh-wid) / 144)
+                                                                  * vgsh-qty).
 END.
 
 ASSIGN

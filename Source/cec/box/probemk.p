@@ -135,14 +135,14 @@ for each xef where xef.company = xest.company and
                         else qty / (v-up * v-n-out).
 
    {sys/inc/roundup.i vgsh-qty}
- 
+      
    assign
     probe.gsh-qty = probe.gsh-qty + vgsh-qty
-    probe.tot-lbs = probe.tot-lbs +
-                    if v-corr then round(((xef.gsh-len * xef.gsh-wid) * .007)
-                                                                  * vgsh-qty,0)
-                              else round(((xef.gsh-len * xef.gsh-wid) / 144)
-                                                                  * vgsh-qty,0).
+    probe.gshQtyInSF = probe.gshQtyInSF +
+                    if v-corr THEN (((xef.gsh-len * xef.gsh-wid) * .007)
+                                                                  * vgsh-qty)
+                              ELSE (((xef.gsh-len * xef.gsh-wid) / 144)
+                                                                  * vgsh-qty).
 end.
 
 ASSIGN
