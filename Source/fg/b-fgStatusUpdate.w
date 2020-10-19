@@ -831,41 +831,25 @@ PROCEDURE export-xl :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
-
   DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(50)" INITIAL "c:~\tmp~\FgStatusInquiry.csv" NO-UNDO.
   DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
-  DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cExcelDisplay AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE hdOutputProcs AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  
+  RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.  
 
   RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
-
-  OUTPUT STREAM excel TO VALUE(cFileName).
-  excelheader = "Tag#,Quantity,PO#,Warehouse,Location,Tag Status,Tag Description,On Hold,Item#,Item Description,Job#,Customer".
-  PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
-
-       FOR EACH ttItem NO-LOCK:
-             cExcelDisplay = "".
-             cExcelDisplay = cExcelDisplay + quoter(ttItem.inventoryStockID) + ",".
-             cExcelDisplay = cExcelDisplay + quoter(ttItem.quantity) + ",".
-             cExcelDisplay = cExcelDisplay + quoter(ttItem.PoID) + ",".
-             cExcelDisplay = cExcelDisplay + quoter(ttItem.WareHouseID) + ",".
-             cExcelDisplay = cExcelDisplay + quoter(ttItem.LocationID) + ",".
-             cExcelDisplay = cExcelDisplay + quoter(ttItem.tagStatus) + ",".
-             cExcelDisplay = cExcelDisplay + quoter(ttItem.StatusDescription) + ",".
-             cExcelDisplay = cExcelDisplay + quoter(ttItem.onHold) + ",".
-             cExcelDisplay = cExcelDisplay + quoter(ttItem.PrimaryID) + ",".
-             cExcelDisplay = cExcelDisplay + quoter(ttItem.ItemDesc) + ",".
-             cExcelDisplay = cExcelDisplay + quoter(STRING(ttItem.jobNo + "-" + TRIM(STRING(ttItem.jobNo2,">9")))) + ",".
-             cExcelDisplay = cExcelDisplay + quoter(ttItem.customerID) + ",".
-             
-             PUT STREAM excel UNFORMATTED  
-               cExcelDisplay SKIP.
-             
-       END.
-            
-  OUTPUT STREAM excel CLOSE.   
+  
+  RUN Output_TempTableToCSV IN hdOutputProcs (TEMP-TABLE ttItem:HANDLE,
+                                              cFileName,
+                                              YES,
+                                              INPUT FALSE /* Auto increment File name */,
+                                              OUTPUT lSuccess,
+                                              OUTPUT cMessage).    
   OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+      
+  DELETE OBJECT hdOutputProcs.
  
 END PROCEDURE.
 
