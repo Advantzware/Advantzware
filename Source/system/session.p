@@ -2260,7 +2260,9 @@ FUNCTION sfWebCharacters RETURNS CHARACTER
         4=< (less than)
         5=> (greater than)
         6=\ (back slash)
-        7=/ (forward slash)
+        7=RETURN (line feed)
+        8=EOF (end of file)
+        9=/ (forward slash)
 ------------------------------------------------------------------------------*/
 	DEFINE VARIABLE cWebString AS CHARACTER NO-UNDO.
 
