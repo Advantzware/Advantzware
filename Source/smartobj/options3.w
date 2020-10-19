@@ -46,8 +46,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Select_dept Select_spec UDF Select_Add ~
-Select_att Select_frac Select_appl Select_help 
+&Scoped-Define ENABLED-OBJECTS Select_help Select_dept Select_spec UDF ~
+Select_Add Select_att Select_frac Select_appl 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -62,56 +62,57 @@ Select_att Select_frac Select_appl Select_help
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_Add 
-     IMAGE-UP FILE "Graphics/32x32/add.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/add.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/add_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/add_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
      SIZE 7.8 BY 1.81 TOOLTIP "Add".
 
 DEFINE BUTTON Select_appl 
-     IMAGE-UP FILE "Graphics/32x32/window_gear.ico":U
-     IMAGE-DOWN FILE "Graphics/32x32/book_open_hover.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/window_gear.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/window_gear_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_gear_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Run App" 
      SIZE 6.4 BY 1.52 TOOLTIP "Utility Application".
 
 DEFINE BUTTON Select_att 
-     IMAGE-UP FILE "Graphics/32x32/paperclip.ico":U
+     IMAGE-UP FILE "Graphics/32x32/paperclip.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Attachment" 
      SIZE 6.4 BY 1.52 TOOLTIP "Attachments".
 
 DEFINE BUTTON Select_dept 
-     IMAGE-UP FILE "Graphics/32x32/edit.ico":U
-     IMAGE-DOWN FILE "Graphics/32x32/edit_hover.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/edit_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/edit.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/edit_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/edit_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
      SIZE 6.4 BY 1.52 TOOLTIP "Notes".
 
 DEFINE BUTTON Select_frac 
-     IMAGE-UP FILE "Graphics/32x32/calculator.ico":U
-     IMAGE-DOWN FILE "Graphics/32x32/calculator_hover.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/calculator.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/calculator_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/calculator_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 6.4 BY 1.52 TOOLTIP "Conversions".
 
 DEFINE BUTTON Select_help 
-     IMAGE-UP FILE "Graphics/32x32/question.ico":U
-     IMAGE-DOWN FILE "Graphics/32x32/question_hover.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/question.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/question_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/question_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Help" 
      SIZE 6.4 BY 1.52 TOOLTIP "Help".
 
 DEFINE BUTTON Select_spec 
-     IMAGE-UP FILE "Graphics/32x32/book_open.ico":U
+     IMAGE-UP FILE "Graphics/32x32/book_open.png":U
      IMAGE-DOWN FILE "Graphics/32x32/book_open_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/book_open_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/book_open_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Spec Note" 
      SIZE 6.4 BY 1.52 TOOLTIP "Spec Notes".
 
 DEFINE BUTTON UDF 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
-     IMAGE-DOWN FILE "Graphics/32x32/window_dialog_hover.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/window_dialog.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/window_dialog_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "UDF" 
      SIZE 6.4 BY 1.52 TOOLTIP "UDF Viewer".
 
@@ -119,6 +120,7 @@ DEFINE BUTTON UDF
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     Select_help AT ROW 1 COL 41
      Select_dept AT ROW 1 COL 16.8
      Select_spec AT ROW 1 COL 25
      UDF AT ROW 1 COL 49 HELP
@@ -127,7 +129,6 @@ DEFINE FRAME F-Main
      Select_att AT ROW 1 COL 8.8
      Select_frac AT ROW 1 COL 57
      Select_appl AT ROW 1 COL 33
-     Select_help AT ROW 1 COL 41
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -340,9 +341,9 @@ PROCEDURE dept-pen-image :
    DO WITH FRAME {&FRAME-NAME}:
 
       IF NOT ip-log THEN
-         Select_dept:LOAD-IMAGE("Graphics/32x32/edit.ico").
+         Select_dept:LOAD-IMAGE("Graphics/32x32/edit.png").
       ELSE
-         Select_dept:LOAD-IMAGE("Graphics/32x32/edit_star.ico").
+         Select_dept:LOAD-IMAGE("Graphics/32x32/edit_star.png").
    END.
 END PROCEDURE.
 
@@ -477,9 +478,9 @@ PROCEDURE Paper-Clip-Image :
    DO WITH FRAME {&FRAME-NAME}:
 
       IF NOT ip-attach THEN
-         SELECT_att:LOAD-IMAGE("Graphics/32x32/paperclip.ico").
+         SELECT_att:LOAD-IMAGE("Graphics/32x32/paperclip.png").
       ELSE
-         SELECT_att:LOAD-IMAGE("Graphics/32x32/paperclip_star.ico").
+         SELECT_att:LOAD-IMAGE("Graphics/32x32/paperclip_star.png").
    END.
 END PROCEDURE.
 
@@ -498,9 +499,9 @@ PROCEDURE Spec-Book-Image :
    DO WITH FRAME {&FRAME-NAME}:
 
       IF NOT ip-log THEN
-         SELECT_spec:LOAD-IMAGE("Graphics/32x32/book_open.ico").
+         SELECT_spec:LOAD-IMAGE("Graphics/32x32/book_open.png").
       ELSE
-         SELECT_spec:LOAD-IMAGE("Graphics/32x32/book_open_star.ico").
+         SELECT_spec:LOAD-IMAGE("Graphics/32x32/book_open_star.png").
    END.
 END PROCEDURE.
 

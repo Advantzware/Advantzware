@@ -63,7 +63,7 @@ CREATE WIDGET-POOL.
 DEFINE BUTTON Select_add 
      IMAGE-UP FILE "Graphics/32x32/add_new.png":U
      IMAGE-DOWN FILE "Graphics/32x32/add_hover_new.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/add_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
      SIZE 6.4 BY 1.52 TOOLTIP "Add"
      BGCOLOR 21 .

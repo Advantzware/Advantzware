@@ -47,7 +47,6 @@ CREATE WIDGET-POOL.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS UDF 
-&Scoped-Define DISPLAYED-OBJECTS mf-message notes-message 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -80,7 +79,7 @@ DEFINE RECTANGLE UDF
 
 DEFINE FRAME F-Main
      mf-message AT ROW 1 COL 5 NO-LABEL
-     notes-message AT ROW 1.52 COL 5 NO-LABEL
+     notes-message AT ROW 1.14 COL 5 NO-LABEL
      UDF AT ROW 1 COL 2 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -178,7 +177,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mf-message s-object
 ON LEFT-MOUSE-DOWN OF mf-message IN FRAME F-Main
 DO:
-    {methods/run_link.i "CONTAINER-SOURCE" "UDF"}
+  /*  {methods/run_link.i "CONTAINER-SOURCE" "UDF"} */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -189,7 +188,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL UDF s-object
 ON LEFT-MOUSE-DOWN OF UDF IN FRAME F-Main
 DO:
-    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+   /* {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}*/
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -239,12 +238,12 @@ PROCEDURE make-insensitive :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DO WITH FRAME {&FRAME-NAME}:
+   /* DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             mf-message:SENSITIVE    = FALSE
             notes-message:SENSITIVE = FALSE
             .
-    END.
+    END.*/
 
 END PROCEDURE.
 
@@ -258,12 +257,12 @@ PROCEDURE make-sensitive :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DO WITH FRAME {&FRAME-NAME}:
+ /*   DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             mf-message:SENSITIVE    = TRUE
             notes-message:SENSITIVE = TRUE
             .
-    END.
+    END.*/
 
 END PROCEDURE.
 
@@ -279,7 +278,7 @@ PROCEDURE Show-MF-Message :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ip-misc-flds AS LOGICAL NO-UNDO.
     
-    DO WITH FRAME {&FRAME-NAME}:
+  /*  DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             UDF:BGCOLOR = IF ip-misc-flds THEN 3 ELSE 0
             mf-message:SENSITIVE = YES
@@ -288,7 +287,7 @@ PROCEDURE Show-MF-Message :
                                     + IF ip-misc-flds THEN "Exists"
                                       ELSE ""
             .
-    END.
+    END.*/
 
 END PROCEDURE.
 
@@ -304,13 +303,13 @@ PROCEDURE Show-Notes-Message :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-notes AS LOGICAL NO-UNDO.
 
-  DO WITH FRAME {&FRAME-NAME}:
+ /* DO WITH FRAME {&FRAME-NAME}:
      ASSIGN
       notes-message:HIDDEN = NOT ip-notes
       notes-message:SCREEN-VALUE = IF ip-notes THEN
           " Notes Exist " ELSE ""
       .
-  END.
+  END.*/
 
 END PROCEDURE.
 

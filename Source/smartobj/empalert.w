@@ -56,9 +56,9 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_empalert 
-     IMAGE-UP FILE "Graphics/32x32/user-alert_new.png":U
-     IMAGE-DOWN FILE "Graphics/32x32/user-alert_hover_new.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/user-alert.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/user-alert_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/user-alert_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 6.4 BY 1.52 TOOLTIP "Employee Alert"
      BGCOLOR 21 .

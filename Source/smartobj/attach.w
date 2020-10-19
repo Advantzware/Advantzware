@@ -61,9 +61,9 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_att 
-     IMAGE-UP FILE "Graphics/32x32/attachment_new.png":U
-     IMAGE-DOWN FILE "Graphics/32x32/attachment_hover_new.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/pin2.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/pin2_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/pin2_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Attachment" 
      SIZE 6.4 BY 1.52 TOOLTIP "Attachments"
      BGCOLOR 21 .
@@ -181,7 +181,7 @@ END.
 &ENDIF
 
 IF INDEX(PROGRAM-NAME(3),"windows/cust") > 0 OR PROGRAM-NAME(3) MATCHES "*touch/w-mchtrn*" THEN
-   SELECT_att:LOAD-IMAGE("Graphics/32x32/attachment_New.png").
+   SELECT_att:LOAD-IMAGE("Graphics/32x32/pin2.png").
 
 
 RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
@@ -241,9 +241,9 @@ PROCEDURE pushpin-image :
 
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT ip-attach THEN
-         SELECT_att:LOAD-IMAGE("Graphics/32x32/attachment__check_New.png").
+         SELECT_att:LOAD-IMAGE("Graphics/32x32/pin2_star.png").
       ELSE
-         SELECT_att:LOAD-IMAGE("Graphics/32x32/attachment_New.png").
+         SELECT_att:LOAD-IMAGE("Graphics/32x32/pin2.png").
    END.
 END PROCEDURE.
 

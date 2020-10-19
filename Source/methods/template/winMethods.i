@@ -364,7 +364,7 @@ PROCEDURE Notes-Message :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-notes AS LOGICAL NO-UNDO.
 
-  RUN Show-Notes-Message IN h_smartmsg (ip-notes).
+ /* RUN Show-Notes-Message IN h_smartmsg (ip-notes).*/
 
 END PROCEDURE.
 
