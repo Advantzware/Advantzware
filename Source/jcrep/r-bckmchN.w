@@ -1476,6 +1476,11 @@ SESSION:SET-WAIT-STATE ("general").
         IF first(tt-report.key-01) THEN display "" with frame r-top.
         ELSE page.
       end.
+      
+      FIND FIRST est no-lock
+           where est.company EQ job-hdr.company
+           AND est.est-no  EQ job-hdr.est-no
+           no-error.
 
       for each job-mat
           where job-mat.company eq cocode
@@ -1528,11 +1533,7 @@ SESSION:SET-WAIT-STATE ("general").
          v-pct = 1
          v-up  = 1
          v-on  = 1.
-
-        find est where est.company EQ job-hdr.company
-                   AND est.est-no  EQ job-hdr.est-no
-                 no-lock no-error.
-
+                
         if avail est then do:
           run sys/inc/numup.p (est.company, est.est-no, job-mat.frm, output v-up).
 
