@@ -479,10 +479,7 @@ PROCEDURE BatchMail :
         FIRST b2-cust
         WHERE b2-cust.company EQ cocode
         AND b2-cust.cust-no EQ b1-{&head}2.cust-no
-        AND ((b2-cust.inv-meth EQ ? AND b1-{&head}2.{&multiinvoice}) OR
-        (b2-cust.inv-meth NE ? AND NOT b1-{&head}2.{&multiinvoice}) OR
-        "{&head}" EQ "ar-inv"
-        ) AND ( (b2-cust.log-field[1]) OR tb_override-email)
+        AND ( (b2-cust.log-field[1]) OR tb_override-email)
         NO-LOCK break BY b2-cust.cust-no :
                     
             
@@ -494,18 +491,7 @@ PROCEDURE BatchMail :
                     vcBegCustNo = b1-{&head}2.cust-no
                     vcEndCustNo = b1-{&head}2.cust-no.
                 vSoldToNo = "".
-                IF b1-{&head}2.{&multiinvoice} THEN 
-                DO: 
-                    FIND FIRST b2-{&head} 
-                        WHERE b2-{&head}.company       EQ b1-{&head}2.company
-                        AND b2-{&head}.cust-no       EQ b1-{&head}2.cust-no
-                        AND b2-{&head}.inv-no        EQ b1-{&head}2.inv-no
-                        AND b2-{&head}.{&multiinvoice} EQ NO            
-                        AND INDEX(vcHoldStats, b2-{&head}.stat) EQ 0 NO-LOCK NO-ERROR.
-                    IF AVAILABLE b2-{&head} THEN
-                        FIND FIRST {&line}  NO-LOCK WHERE {&line}.{&rno} EQ b2-{&head}.{&rno} AND {&line}.ord-no NE 0 NO-ERROR.  
-                END.  
-                ELSE FIND FIRST {&line}  NO-LOCK WHERE {&line}.{&rno} EQ b1-{&head}2.{&rno} AND {&line}.ord-no NE 0 NO-ERROR.
+                FIND FIRST {&line}  NO-LOCK WHERE {&line}.{&rno} EQ b1-{&head}2.{&rno} AND {&line}.ord-no NE 0 NO-ERROR.
                 IF AVAILABLE {&line} THEN 
                 DO:
                     FIND oe-ord WHERE oe-ord.company = b1-{&head}2.company
@@ -757,6 +743,7 @@ PROCEDURE pBolRangeCheck:
  Purpose:  Given and invoice number check that related BOL#'s are within range
  Notes:  The date for inv-head is checked against the BOL dates
 ------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER lCustInvMeth AS LOGICAL NO-UNDO.
 DEFINE PARAMETER BUFFER ipbf-inv-head FOR {&head}.
 DEFINE OUTPUT PARAMETER lInRange   AS LOGICAL NO-UNDO.
 
@@ -769,7 +756,8 @@ define buffer b-{&head}1 for {&head}.
 lInRange = TRUE. 
 
 
-IF ipbf-inv-head.{&multiinvoice} THEN 
+
+IF lCustInvMeth EQ ? THEN
 DO:
     /* If multi-invoice, must be inv-head */
     FOR EACH b-{&head}1 NO-LOCK
@@ -777,9 +765,7 @@ DO:
           AND b-{&head}1.cust-no       EQ ipbf-inv-head.cust-no
           AND b-{&head}1.inv-no        EQ ipbf-inv-head.inv-no
           AND b-{&head}1.{&multiinvoice} EQ NO            
-          AND INDEX(vcHoldStats, b-{&head}1.stat) EQ 0,
-        EACH buf-{&line}1 NO-LOCK 
-             WHERE buf-{&line}1.{&rno} EQ b-{&head}1.{&rno} 
+          AND INDEX(vcHoldStats, b-{&head}1.stat) EQ 0 
         :
 
             
@@ -792,26 +778,23 @@ DO:
 
             
 
-        RELEASE oe-bolh.
-        IF AVAIL buf-{&line}1 AND "{&head}" EQ "inv-head" THEN DO:
+        RELEASE oe-bolh.        
         
-            IF buf-{&line}1.{&bno} NE 0 THEN DO:       
+            IF b-{&head}1.{&bolno} NE 0 THEN DO:       
                     
                 FOR EACH oe-bolh NO-LOCK 
-                    WHERE  oe-bolh.b-no EQ buf-{&line}1.{&bno}:
+                    WHERE  oe-bolh.bol-no EQ b-{&head}1.{&bolno}:
 
                     {&bol-check-range}
                 END.
-             END.                
-        END.
-
+             END.        
 
     END. /* Each b-{&head}1 */
 
 END. /* If multi-invoice */
 
 ELSE 
-DO:
+DO: 
       /* Not multi-invoice */                                        
       RELEASE oe-bolh.
       
@@ -868,9 +851,7 @@ PROCEDURE runReport5:
             NO-LOCK,
             FIRST b-cust WHERE
             b-cust.company EQ cocode AND
-            b-cust.cust-no EQ buf-{&head}.cust-no AND
-            ((b-cust.inv-meth EQ ? AND buf-{&head}.{&multiinvoice}) OR
-            (b-cust.inv-meth NE ? AND NOT buf-{&head}.{&multiinvoice}) OR "{&head}" EQ "ar-inv")
+            b-cust.cust-no EQ buf-{&head}.cust-no 
             NO-LOCK
             BREAK BY buf-{&head}.company
             BY buf-{&head}.cust-no
@@ -1040,9 +1021,7 @@ PROCEDURE output-to-mail :
                 NO-LOCK,
                 FIRST b-cust WHERE
                 b-cust.company EQ cocode AND
-                b-cust.cust-no EQ buf-{&head}.cust-no  AND
-                ((b-cust.inv-meth EQ ? AND buf-{&head}.{&multiinvoice}) OR
-                (b-cust.inv-meth NE ? AND NOT buf-{&head}.{&multiinvoice}) OR "{&head}" EQ "ar-inv") 
+                b-cust.cust-no EQ buf-{&head}.cust-no   
                 NO-LOCK
                 BREAK BY buf-{&head}.company
                 BY buf-{&head}.cust-no:
@@ -1118,20 +1097,7 @@ PROCEDURE output-to-mail :
                         ASSIGN 
                             vSoldToNo = ""
                             vShipToNo = "".
-
-                        IF buf-{&head}.{&multiinvoice} THEN 
-                        DO: 
-                            FIND FIRST b2-{&head} 
-                                WHERE b2-{&head}.company       EQ buf-{&head}.company
-                                AND b2-{&head}.cust-no       EQ buf-{&head}.cust-no
-                                AND b2-{&head}.inv-no        EQ buf-{&head}.inv-no
-                                AND b2-{&head}.{&multiinvoice} EQ NO            
-                                AND INDEX(vcHoldStats, b2-{&head}.stat) EQ 0 NO-LOCK NO-ERROR.
-                            IF AVAILABLE b2-{&head} THEN
-                                FIND FIRST {&line} NO-LOCK WHERE {&line}.{&rno} EQ b2-{&head}.{&rno} 
-                                    AND {&line}.ord-no NE 0 NO-ERROR.  
-                        END.  
-                        ELSE         
+                                 
                             FIND FIRST {&line} NO-LOCK WHERE {&line}.{&rno} EQ buf-{&head}.{&rno}
                                 NO-ERROR.
                         IF AVAILABLE {&line} THEN 
@@ -1172,9 +1138,7 @@ PROCEDURE output-to-mail :
                 NO-LOCK,
                 FIRST b-cust WHERE
                     b-cust.company EQ cocode AND
-                    b-cust.cust-no EQ buf-{&head}.cust-no  AND
-                    ((b-cust.inv-meth EQ ? AND buf-{&head}.{&multiinvoice}) OR
-                    (b-cust.inv-meth NE ? AND NOT buf-{&head}.{&multiinvoice}) OR "{&head}" EQ "ar-inv") 
+                    b-cust.cust-no EQ buf-{&head}.cust-no   
                 NO-LOCK
                 BREAK BY buf-{&head}.company
                 BY buf-{&head}.cust-no:
@@ -1298,7 +1262,7 @@ PROCEDURE build-list1:
     IF fi_depts-hidden = NO THEN
         ASSIGN
             v-print-dept = LOGICAL(tb_print-dept-screen-value)
-            v-depts      = fi_depts-screen-value.
+            v-depts      = fi_depts-screen-value.  
         FOR EACH {&head} NO-LOCK
              WHERE {&head}.company         EQ cocode
                AND {&head}.cust-no         GE fcust
@@ -1330,10 +1294,7 @@ PROCEDURE build-list1:
           ,
         FIRST cust
           WHERE cust.company EQ cocode
-            AND cust.cust-no EQ {&head}.cust-no
-            AND ((cust.inv-meth EQ ? AND {&head}.{&multiinvoice}) OR
-                (cust.inv-meth NE ? AND NOT {&head}.{&multiinvoice}) OR
-                "{&head}" EQ "ar-inv" )
+            AND cust.cust-no EQ {&head}.cust-no             
             AND (    (rd-dest-screen-value EQ "5" AND cust.log-field[1] EQ YES) 
                 OR (rd-dest-screen-value EQ "1" AND cust.log-field[1] EQ NO)
                 OR (rd-dest-screen-value NE "1" AND rd-dest-screen-value NE "5") 
@@ -1348,20 +1309,11 @@ PROCEDURE build-list1:
             FIND FIRST oe-boll NO-LOCK WHERE oe-boll.b-no EQ buf-{&line}.{&bno}
             AND oe-boll.bol-no GE fbol
             AND oe-boll.bol-no LE tbol 
-            NO-ERROR. 
-            
-        /* If it's not either a mutli-invoice or a regular invoice that has an associate oe-boll then next */
-        IF NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(oe-boll)) OR {&head}.{&multiinvoice} )  THEN 
-        DO:
-            IF "{&head}" EQ "inv-head" AND AVAIL(buf-{&line}) THEN                 
-                NEXT.                    
-        END.
-        
-        
-        
-        RUN pBolRangeCheck (BUFFER {&head}, OUTPUT lValidRecord).
+            NO-ERROR.             
+               
+        RUN pBolRangeCheck (cust.inv-meth,BUFFER {&head}, OUTPUT lValidRecord).
         IF NOT lValidRecord THEN 
-            NEXT.
+            NEXT.  
             
         
         CREATE tt-list.
@@ -1467,11 +1419,7 @@ PROCEDURE run-report :
         WHERE ROWID({&head}) EQ tt-list.rec-row,
         FIRST cust
         WHERE cust.company EQ cocode
-        AND cust.cust-no EQ {&head}.cust-no
-        AND ((cust.inv-meth EQ ? AND {&head}.{&multiinvoice}) OR
-        (cust.inv-meth NE ? AND NOT {&head}.{&multiinvoice}) OR
-        "{&head}" EQ "ar-inv"
-        )
+        AND cust.cust-no EQ {&head}.cust-no         
         NO-LOCK BY {&head}.{&bolno} :
 /*
         FIND FIRST buf-{&line} NO-LOCK 
@@ -1493,102 +1441,11 @@ PROCEDURE run-report :
             NO-ERROR. 
     
                               
-        IF AVAIL buf-{&line} AND NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(oe-boll)) OR {&head}.{&multiinvoice} OR "{&head}" EQ "AR-INV") THEN 
-        DO:
-            NEXT.            
-        END.
-                
-                
-        IF {&head}.{&multiinvoice} THEN 
-        DO:
-            dtl-ctr = 0.
-            FOR EACH b-{&head}1 NO-LOCK
-                WHERE b-{&head}1.company       EQ {&head}.company
-                AND b-{&head}1.cust-no       EQ {&head}.cust-no
-                AND b-{&head}1.inv-no        EQ {&head}.inv-no
-                AND b-{&head}1.{&multiinvoice} EQ NO            
-                AND INDEX(vcHoldStats, b-{&head}1.stat) EQ 0,
-                EACH buf-{&line}1 NO-LOCK 
-                WHERE buf-{&line}1.{&rno} EQ b-{&head}1.{&rno} :
-    
-                    /*
-                     {oe/rep/bolcheck.i b-{&head}1 build-report} */
-                    
-                    &SCOPED-DEFINE bol-check                            ~
-                           IF oe-bolh.bol-no   GE fbol  AND             ~
-                              oe-bolh.bol-no   LE tbol  AND             ~
-                              oe-bolh.bol-date GE fdate AND             ~
-                              oe-bolh.bol-date LE tdate THEN DO:        ~
-                             RELEASE {&line}.                          ~
-                             RELEASE oe-bolh.                           ~
-                             LEAVE.                                     ~
-                           END.                                         ~
-                           ELSE                                         ~
-                             NEXT build-report.
-                    
-
-                RELEASE oe-bolh.
-                IF AVAIL buf-{&line}1 AND "{&head}" EQ "inv-head" THEN DO:
-                    IF buf-{&line}1.{&bolno} EQ 0 THEN                       
-                        FOR EACH oe-bolh NO-LOCK 
-                            WHERE  oe-bolh.b-no EQ buf-{&line}1.{&bno}:
-    
-                            {&bol-check}
-                        END.                    
-                        ELSE
-                            FOR EACH oe-bolh NO-LOCK
-                                WHERE  oe-bolh.b-no  EQ buf-{&line}1.{&bno}
-                                BREAK BY oe-bolh.b-no:
-                                                            
-                                {&bol-check}
-                            END.
-                END.
-
-                iBol = 0.
-                IF AVAIL buf-{&line}1 AND buf-{&line}1.bol-no GT 0 THEN
-                    iBol = buf-{&line}1.bol-no.
-                ELSE 
-                    IF AVAIL b-{&head}1 AND b-{&head}1.{&bolno} GT 0 THEN
-                        iBol = b-{&head}1.{&bolno}.
+        /*IF AVAIL buf-{&line} AND NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(oe-boll)) OR {&head}.{&multiinvoice} OR "{&head}" EQ "AR-INV") THEN   */
+        /*DO:                                                                                                                                               */
+        /*    NEXT.                                                                                                                                         */
+        /*END.                                                                                                                                              */
             
-            
-                IF tb_attachBOL AND SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf") NE ? 
-                  AND INDEX(vcBolFiles, SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf")) EQ 0 THEN 
-                    vcBOLFiles = vcBOLFiles + "," + SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf").
-
-                RUN create-save-line.
-
-                ASSIGN 
-                    dtl-ctr = dtl-ctr + 1.
-            END. /* Each b-{&head}1 */
-            /* wfk IF dtl-ctr EQ 0 THEN */ DO: 
-                /* Make sure invoices with no inv-lines are not missed */
-                FOR EACH b-{&head}1 NO-LOCK
-                    WHERE b-{&head}1.company       EQ {&head}.company
-                    AND b-{&head}1.cust-no       EQ {&head}.cust-no
-                    AND b-{&head}1.inv-no        EQ {&head}.inv-no
-                    AND b-{&head}1.{&multiinvoice} EQ NO            
-                    AND INDEX(vcHoldStats, b-{&head}1.stat) EQ 0,
-                    EACH inv-misc NO-LOCK 
-                    WHERE inv-misc.{&miscrno} EQ b-{&head}1.{&rno}:
-                       
-                    FIND first ttSaveLine 
-                         WHERE ttSaveLine.sessionID EQ "save-line" + v-term-id
-                           AND ttSaveLine.invRowID  EQ ROWID(inv-misc)
-                         NO-ERROR.
-                    IF NOT AVAILABLE ttSaveLine THEN DO:
-                        dtl-ctr = dtl-ctr + 1.
-                        RUN create-save-line. 
-                    END.
-                END.             
-            END.
-        END. /* If multi-invoice */
-
-        ELSE 
-        DO:
-  /* Not multi-invoice */
-  /* Was bolcheck.i */
-                                    
   RELEASE oe-bolh.
   IF AVAIL buf-{&line} AND "{&head}" EQ "inv-head" THEN DO:
       IF buf-{&line}.bol-no EQ 0 THEN
@@ -1618,20 +1475,6 @@ ELSE
 IF tb_attachBOL AND SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf") NE ?  THEN 
     vcBOLFiles = vcBOLFiles + "," + SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf").
 
-END. /* else do: not for multi-invoice */
- 
-
-/* dont include {&head} on printing when it's a MASTER invoice (multi-inv) AND 
-   no SLAVE invoices found which is NOT on HOLD Status ({&head}.stat NE "H") AH 07/08/10 */
-IF cust.inv-meth EQ ? 
-    AND {&head}.{&multiinvoice} 
-    AND dtl-ctr LE 0 
-    AND NOT "{&head}" EQ "ar-inv" THEN 
-DO:
-    NEXT. 
-
-
-END.
 
 vlSkipRec = NO.
 lReportRecCreated = YES.
@@ -2202,8 +2045,7 @@ PROCEDURE setBOLRange:
                     WHERE {&head}.company EQ oe-bolh.company
                     AND {&head}.cust-no EQ oe-bolh.cust-no
                     AND {&head}.inv-no GE INT(begin_inv-SCREEN-VALUE)
-                    AND {&head}.inv-no LE INT(end_inv-SCREEN-VALUE)
-                    AND {&head}.{&multiinvoice}              
+                    AND {&head}.inv-no LE INT(end_inv-SCREEN-VALUE)                    
                     AND INDEX(vcHoldStats, {&head}.stat) EQ 0:
 
     

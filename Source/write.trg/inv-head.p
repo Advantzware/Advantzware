@@ -33,8 +33,6 @@ FIND FIRST cust NO-LOCK
     NO-ERROR.
 IF AVAIL cust THEN {&TABLENAME}.curr-code[1] = cust.curr-code.
 
-RUN oe/updmulti.p (BUFFER {&TABLENAME}, BUFFER old-{&TABLENAME}).
-
 /* If spare-int-1 is set to 1, then force re-calculate tax */
 IF old-{&TABLENAME}.t-inv-tax     NE {&TABLENAME}.t-inv-tax     OR
    old-{&TABLENAME}.t-inv-rev     NE {&TABLENAME}.t-inv-rev     OR

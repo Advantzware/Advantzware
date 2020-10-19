@@ -48,6 +48,11 @@ DEF NEW SHARED VAR v-ship-no LIKE shipto.ship-no.
 DEF VAR v-cash-sale AS LOG NO-UNDO.
 DEFINE BUFFER bff-head FOR inv-head.
 
+DEFINE TEMP-TABLE tt-inv-head 
+ FIELD company AS CHARACTER 
+ FIELD r-no LIKE inv-head.r-no 
+ FIELD header-r-no LIKE  inv-head.r-no .
+
 &SCOPED-DEFINE other-enable enable-other
 
 /* _UIB-CODE-BLOCK-END */
@@ -1056,8 +1061,9 @@ PROCEDURE hold-invoice :
 /*   DEF VAR v-ThisInv-Date AS DATE NO-UNDO INIT ?.   */
 /*   DEF VAR v-FirstFG-Date AS DATE NO-UNDO INIT ?.   */
 /*   DEF VAR v-ThisCust-Date AS DATE NO-UNDO INIT ?.  */
-  DEF VAR v-stat-multi AS CHAR NO-UNDO.                                      
-
+  DEF VAR v-stat-multi AS CHAR NO-UNDO.
+  
+  EMPTY TEMP-TABLE tt-inv-head.
  IF INDEX("HX",inv-head.stat) > 0 OR inv-head.stat = "" THEN DO:
     MESSAGE "Are you sure you wish to"
            ( IF inv-head.stat = "H" THEN "release" ELSE "hold" )
@@ -1128,16 +1134,27 @@ PROCEDURE hold-invoice :
                       lv-rowid = TO-ROWID(ENTRY(li, v-rowid-list)).
                       FIND bf-head WHERE ROWID(bf-head) = lv-rowid EXCLUSIVE-LOCK NO-ERROR.
                       IF AVAIL bf-head THEN
+                      do:
                         ASSIGN bf-head.stat = ""
                                bf-head.inv-date = v-date.
+                         IF inv-head.r-no NE bf-head.r-no AND inv-head.printed EQ NO AND bf-head.printed EQ NO THEN
+                         DO:      
+                         CREATE tt-inv-head.
+                         ASSIGN
+                              tt-inv-head.company     = bf-head.company
+                              tt-inv-head.r-no        = bf-head.r-no 
+                              tt-inv-head.header-r-no = inv-head.r-no .      
+                         END.      
+                      END.         
+                               
                         IF AVAIL(bf-head) AND bf-head.inv-no EQ inv-head.inv-no THEN
                                  inv-status:SCREEN-VALUE IN FRAME {&FRAME-NAME} = 
                                  IF bf-head.stat = "H" THEN "ON HOLD" ELSE "RELEASED".
                       RELEASE bf-head.
-
+                      
                     END.
                 END.
-
+                RUN pCombineInvoice(ROWID(inv-head)) .
              END.
              ELSE IF v-choice EQ "Po" THEN
              DO:
@@ -1292,6 +1309,11 @@ PROCEDURE hold-invoice :
      END.
  END.
  RUN dispatch IN THIS-PROCEDURE ('row-changed':U).
+ 
+  
+ RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-source",OUTPUT char-hdl).
+IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+ RUN reopen-query IN WIDGET-HANDLE(char-hdl)(RECID(inv-head)).
 
 
 END PROCEDURE.
@@ -1945,6 +1967,53 @@ PROCEDURE valid-terms :
   END.
 
   {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCombineInvoice V-table-Win 
+PROCEDURE pCombineInvoice :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO.
+  
+  DEFINE VARIABLE iLineCount AS INTEGER NO-UNDO.
+  DEFINE BUFFER bf-inv-line FOR inv-line.
+  DEFINE BUFFER bf-com-head FOR inv-head.
+  
+  FIND FIRST bf-head NO-LOCK
+       WHERE ROWID(bf-head) EQ ipriRowid NO-ERROR .
+  FIND FIRST tt-inv-head NO-LOCK NO-ERROR.       
+  IF AVAIL bf-head AND AVAIL tt-inv-head THEN
+  DO:
+     FOR EACH bf-line NO-LOCK
+         WHERE bf-line.company EQ bf-head.company
+         AND bf-line.r-no EQ bf-head.r-no:
+         iLineCount = iLineCount + 1 .
+     END. 
+    FOR EACH tt-inv-head:
+       FIND FIRST bf-com-head EXCLUSIVE-LOCK
+            WHERE bf-com-head.company EQ tt-inv-head.company
+            AND bf-com-head.r-no EQ tt-inv-head.r-no NO-ERROR .
+            IF avail bf-com-head THEN
+            DO:              
+                FOR EACH bf-inv-line EXCLUSIVE-LOCK
+                    WHERE bf-inv-line.company EQ bf-com-head.company
+                    AND bf-inv-line.r-no EQ tt-inv-head.r-no:
+                    iLineCount = iLineCount + 1.
+                    ASSIGN
+                       bf-inv-line.r-no = bf-head.r-no
+                       bf-inv-line.LINE = iLineCount .                        
+                END.
+                DELETE bf-com-head.
+            END.     
+    END.             
+  END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
