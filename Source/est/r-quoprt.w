@@ -1765,7 +1765,7 @@ PROCEDURE batchmail-2-proc :
       v-print-fmt <> "NOSCO-EXCEL" AND 
       v-print-fmt <> "MSPACK-EXCEL" THEN
       lv-pdf-file = init-dir + "\" + (IF v-print-fmt EQ "Century" THEN "CBXQuote"
-                    ELSE "QT") + STRING(b-quotehd.q-no).
+                    ELSE "Quote_") + STRING(b-quotehd.q-no).
    ELSE
       ASSIGN
          is-xprint-form   = TRUE
@@ -2611,7 +2611,7 @@ PROCEDURE SetGlobalVariables :
 ------------------------------------------------------------------------------*/
    ASSIGN
     lv-pdf-file = INIT-dir + "\" + (IF v-print-fmt EQ "Century" THEN "CBXQuote"
-                              ELSE "QT") + STRING(begin_quo#).
+                              ELSE "Quote_") + STRING(begin_quo#).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
