@@ -196,7 +196,7 @@ for each report where report.term-id eq v-term-id no-lock,
     DO:
        ASSIGN
         /* Customer Part Number */
-         chWorkSheet:Range("C28"):VALUE = oe-ordl.part-no
+         chWorkSheet:Range("C28"):VALUE = itemfg.part-no
          /* ACP Order Number */
          chWorkSheet:Range("C36"):VALUE = oe-ordl.ord-no.
 
@@ -206,26 +206,13 @@ for each report where report.term-id eq v-term-id no-lock,
             eb.form-no EQ oe-ordl.form-no AND
             eb.blank-no EQ oe-ordl.blank-no NO-LOCK NO-ERROR.
 
-       /* Customer Part Description */
-/*        IF AVAIL eb AND eb.part-dscr1 NE "" THEN           */
-/*           chWorkSheet:Range("C30"):VALUE = eb.part-dscr1. */
-/*        ELSE                                               */
-          chWorkSheet:Range("C30"):VALUE = oe-ordl.i-name.
-/*        IF AVAIL eb AND eb.part-dscr2 NE "" THEN           */
-/*           chWorkSheet:Range("C31"):VALUE = eb.part-dscr2. */
-/*        ELSE                                               */
-          chWorkSheet:Range("C31"):VALUE = oe-ordl.part-dscr1.
-/*        IF AVAIL eb AND eb.part-dscr3 NE "" THEN           */
-/*           chWorkSheet:Range("C32"):VALUE = eb.part-dscr3. */
-/*        ELSE                                               */
-          chWorkSheet:Range("C32"):VALUE = oe-ordl.part-dscr2.
-    
-       /* Drawing Number */
-       IF AVAIL eb AND eb.cad-no NE "" THEN
-          chWorkSheet:Range("C34"):VALUE = eb.cad-no.
-       ELSE
-          chWorkSheet:Range("C34"):VALUE = itemfg.cad-no.
-
+                                          
+          chWorkSheet:Range("C30"):VALUE = itemfg.i-name. 
+          chWorkSheet:Range("C31"):VALUE = itemfg.part-dscr1.
+          chWorkSheet:Range("C32"):VALUE = itemfg.part-dscr2.
+          chWorkSheet:Range("D33"):VALUE = itemfg.spc-no.        
+          chWorkSheet:Range("C34"):VALUE = itemfg.upc-no.
+          chWorkSheet:Range("D38"):VALUE = oe-boll.lot-no.
        for each oe-rel no-lock
            where oe-rel.company   eq oe-ordl.company
              and oe-rel.ord-no    eq oe-ordl.ord-no
@@ -247,9 +234,9 @@ for each report where report.term-id eq v-term-id no-lock,
 
     /* Signature image */
     IF SEARCH(FILE-INFO:FULL-PATHNAME) NE ? THEN DO:
-       mypict = chExcelApplication:Range("B45"):Parent:Pictures:Insert(FILE-INFO:FULL-PATHNAME).
-       mypict:TOP = chExcelApplication:Range("B45"):TOP.
-       mypict:LEFT = chExcelApplication:Range("B45"):LEFT.
+       mypict = chExcelApplication:Range("B44"):Parent:Pictures:Insert(FILE-INFO:FULL-PATHNAME).
+       mypict:TOP = chExcelApplication:Range("B44"):TOP.
+       mypict:LEFT = chExcelApplication:Range("B44"):LEFT.
        RELEASE OBJECT mypict.
     END.
 
