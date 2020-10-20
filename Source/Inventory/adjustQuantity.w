@@ -29,9 +29,12 @@
 DEFINE INPUT  PARAMETER ipdTotalQuantity    AS DECIMAL    NO-UNDO.
 DEFINE INPUT  PARAMETER ipdSubUnitCount     AS DECIMAL    NO-UNDO.
 DEFINE INPUT  PARAMETER ipdSubUnitsPerUnit  AS DECIMAL    NO-UNDO.
+DEFINE INPUT  PARAMETER iplReqAdjReason     AS LOGICAL    NO-UNDO.
 DEFINE OUTPUT PARAMETER opdTotalQuantity    AS DECIMAL    NO-UNDO.
 DEFINE OUTPUT PARAMETER opdSubUnitCount     AS DECIMAL    NO-UNDO.
 DEFINE OUTPUT PARAMETER opdSubUnitsPerUnit  AS DECIMAL    NO-UNDO.
+DEFINE OUTPUT PARAMETER opdPartialQuantity  AS DECIMAL    NO-UNDO.
+DEFINE OUTPUT PARAMETER opcAdjReasonCode    AS CHARACTER  NO-UNDO.
 DEFINE OUTPUT PARAMETER oplValueReturned    AS LOGICAL    NO-UNDO.
 DEFINE OUTPUT PARAMETER opdValue            AS DECIMAL    NO-UNDO.
 
@@ -64,8 +67,8 @@ DEFINE VARIABLE lEmptyResult     AS LOGICAL   NO-UNDO INITIAL FALSE.
 btnClear btnDiv fiSubUnitCount btn7 btn8 btn9 btnMult fiSubUnitsPerUnit ~
 btn4 btn5 btn6 btnMinus btn1 btn2 btn3 btnPlus fiPartial btnZero btnPeriod ~
 btnEqual Btn_OK Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiText fiResult fiTotalQty fiSubUnits ~
-fiSubUnitCount fiSubUnitsPerUnit fiUnitCount fiPartial fiUnits 
+&Scoped-Define DISPLAYED-OBJECTS fiText fiTotalQty fiResult fiSubUnits ~
+fiSubUnitCount fiSubUnitsPerUnit fiUnitCount fiPartial fiUnits cbReasonCode 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -180,7 +183,13 @@ DEFINE BUTTON Btn_OK AUTO-GO
      SIZE 15 BY 2
      BGCOLOR 8 FONT 37.
 
-DEFINE VARIABLE fiPartial AS DECIMAL FORMAT "->,>>>,>>9.99":U INITIAL 0 
+DEFINE VARIABLE cbReasonCode AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     DROP-DOWN-LIST
+     SIZE 61.4 BY 1.29
+     FONT 36 NO-UNDO.
+
+DEFINE VARIABLE fiPartial AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
      FONT 37 NO-UNDO.
@@ -190,17 +199,17 @@ DEFINE VARIABLE fiResult AS CHARACTER FORMAT "X(256)":U
      SIZE 39.6 BY 1.76
      FONT 37 NO-UNDO.
 
-DEFINE VARIABLE fiSubUnitCount AS DECIMAL FORMAT "->,>>>,>>9.99":U INITIAL 0 
+DEFINE VARIABLE fiSubUnitCount AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
      FONT 37 NO-UNDO.
 
-DEFINE VARIABLE fiSubUnits AS DECIMAL FORMAT "->,>>>,>>9.99":U INITIAL 0 
+DEFINE VARIABLE fiSubUnits AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
      FONT 37 NO-UNDO.
 
-DEFINE VARIABLE fiSubUnitsPerUnit AS DECIMAL FORMAT "->,>>>,>>9.99":U INITIAL 0 
+DEFINE VARIABLE fiSubUnitsPerUnit AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
      FONT 37 NO-UNDO.
@@ -210,17 +219,17 @@ DEFINE VARIABLE fiText AS CHARACTER FORMAT "X(256)":U
      SIZE 39.6 BY 1.19
      FONT 35 NO-UNDO.
 
-DEFINE VARIABLE fiTotalQty AS DECIMAL FORMAT "->,>>>,>>9.99":U INITIAL 0 
+DEFINE VARIABLE fiTotalQty AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
      FONT 37 NO-UNDO.
 
-DEFINE VARIABLE fiUnitCount AS DECIMAL FORMAT "->,>>>,>>9.99":U INITIAL 0 
+DEFINE VARIABLE fiUnitCount AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
      FONT 37 NO-UNDO.
 
-DEFINE VARIABLE fiUnits AS DECIMAL FORMAT "->,>>>,>>9.99":U INITIAL 0 
+DEFINE VARIABLE fiUnits AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
      FONT 37 NO-UNDO.
@@ -237,59 +246,63 @@ DEFINE RECTANGLE RECT-31
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     fiText AT ROW 1.1 COL 129.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 44
-     fiResult AT ROW 2.57 COL 129.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 50
-     fiTotalQty AT ROW 2.67 COL 28.8 COLON-ALIGNED NO-LABEL WIDGET-ID 88
-     fiSubUnits AT ROW 4.43 COL 28.8 COLON-ALIGNED NO-LABEL WIDGET-ID 90
-     btnDel AT ROW 4.52 COL 90.2 WIDGET-ID 4 NO-TAB-STOP 
-     btnClear AT ROW 4.52 COL 110.6 WIDGET-ID 2 NO-TAB-STOP 
-     btnDiv AT ROW 4.52 COL 121 WIDGET-ID 6 NO-TAB-STOP 
-     fiSubUnitCount AT ROW 6.24 COL 28.8 COLON-ALIGNED NO-LABEL WIDGET-ID 94
-     btn7 AT ROW 6.57 COL 90.2 WIDGET-ID 18 NO-TAB-STOP 
-     btn8 AT ROW 6.57 COL 100.4 WIDGET-ID 10 NO-TAB-STOP 
-     btn9 AT ROW 6.57 COL 110.6 WIDGET-ID 12 NO-TAB-STOP 
-     btnMult AT ROW 6.57 COL 121 WIDGET-ID 14 NO-TAB-STOP 
-     fiSubUnitsPerUnit AT ROW 8.1 COL 28.8 COLON-ALIGNED NO-LABEL WIDGET-ID 98
-     btn4 AT ROW 8.67 COL 90.2 WIDGET-ID 20 NO-TAB-STOP 
-     btn5 AT ROW 8.67 COL 100.4 WIDGET-ID 22 NO-TAB-STOP 
-     btn6 AT ROW 8.67 COL 110.6 WIDGET-ID 24 NO-TAB-STOP 
-     btnMinus AT ROW 8.67 COL 121 WIDGET-ID 26 NO-TAB-STOP 
-     fiUnitCount AT ROW 9.91 COL 28.8 COLON-ALIGNED NO-LABEL WIDGET-ID 102
-     btn1 AT ROW 10.71 COL 90.2 WIDGET-ID 28 NO-TAB-STOP 
-     btn2 AT ROW 10.71 COL 100.4 WIDGET-ID 30 NO-TAB-STOP 
-     btn3 AT ROW 10.71 COL 110.6 WIDGET-ID 32 NO-TAB-STOP 
-     btnPlus AT ROW 10.76 COL 121 WIDGET-ID 34 NO-TAB-STOP 
-     fiPartial AT ROW 11.81 COL 28.8 COLON-ALIGNED NO-LABEL WIDGET-ID 106
-     btnZero AT ROW 12.81 COL 90.2 WIDGET-ID 38 NO-TAB-STOP 
-     btnPeriod AT ROW 12.81 COL 110.6 WIDGET-ID 40 NO-TAB-STOP 
-     btnEqual AT ROW 12.81 COL 121 WIDGET-ID 42 NO-TAB-STOP 
-     fiUnits AT ROW 13.62 COL 28.8 COLON-ALIGNED NO-LABEL WIDGET-ID 110
-     Btn_OK AT ROW 15.24 COL 90.4
-     Btn_Cancel AT ROW 15.24 COL 116
+     fiText AT ROW 1.1 COL 144.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 44
+     fiTotalQty AT ROW 1.95 COL 32.6 COLON-ALIGNED NO-LABEL WIDGET-ID 88
+     fiResult AT ROW 2.57 COL 144.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 50
+     fiSubUnits AT ROW 3.71 COL 32.6 COLON-ALIGNED NO-LABEL WIDGET-ID 90
+     btnDel AT ROW 4.52 COL 105.2 WIDGET-ID 4 NO-TAB-STOP 
+     btnClear AT ROW 4.52 COL 125.6 WIDGET-ID 2 NO-TAB-STOP 
+     btnDiv AT ROW 4.52 COL 136 WIDGET-ID 6 NO-TAB-STOP 
+     fiSubUnitCount AT ROW 5.52 COL 32.6 COLON-ALIGNED NO-LABEL WIDGET-ID 94
+     btn7 AT ROW 6.57 COL 105.2 WIDGET-ID 18 NO-TAB-STOP 
+     btn8 AT ROW 6.57 COL 115.4 WIDGET-ID 10 NO-TAB-STOP 
+     btn9 AT ROW 6.57 COL 125.6 WIDGET-ID 12 NO-TAB-STOP 
+     btnMult AT ROW 6.57 COL 136 WIDGET-ID 14 NO-TAB-STOP 
+     fiSubUnitsPerUnit AT ROW 7.38 COL 32.6 COLON-ALIGNED NO-LABEL WIDGET-ID 98
+     btn4 AT ROW 8.67 COL 105.2 WIDGET-ID 20 NO-TAB-STOP 
+     btn5 AT ROW 8.67 COL 115.4 WIDGET-ID 22 NO-TAB-STOP 
+     btn6 AT ROW 8.67 COL 125.6 WIDGET-ID 24 NO-TAB-STOP 
+     btnMinus AT ROW 8.67 COL 136 WIDGET-ID 26 NO-TAB-STOP 
+     fiUnitCount AT ROW 9.19 COL 32.6 COLON-ALIGNED NO-LABEL WIDGET-ID 102
+     btn1 AT ROW 10.71 COL 105.2 WIDGET-ID 28 NO-TAB-STOP 
+     btn2 AT ROW 10.71 COL 115.4 WIDGET-ID 30 NO-TAB-STOP 
+     btn3 AT ROW 10.71 COL 125.6 WIDGET-ID 32 NO-TAB-STOP 
+     btnPlus AT ROW 10.76 COL 136 WIDGET-ID 34 NO-TAB-STOP 
+     fiPartial AT ROW 11.1 COL 32.6 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+     btnZero AT ROW 12.81 COL 105.2 WIDGET-ID 38 NO-TAB-STOP 
+     btnPeriod AT ROW 12.81 COL 125.6 WIDGET-ID 40 NO-TAB-STOP 
+     btnEqual AT ROW 12.81 COL 136 WIDGET-ID 42 NO-TAB-STOP 
+     fiUnits AT ROW 12.91 COL 32.6 COLON-ALIGNED NO-LABEL WIDGET-ID 110
+     cbReasonCode AT ROW 14.67 COL 32.6 COLON-ALIGNED NO-LABEL WIDGET-ID 114
+     Btn_OK AT ROW 15.24 COL 105.4
+     Btn_Cancel AT ROW 15.24 COL 131
+     "Adjust  Reason Code:" VIEW-AS TEXT
+          SIZE 32 BY 1.19 AT ROW 14.67 COL 2 WIDGET-ID 116
+          FONT 36
      "Units:" VIEW-AS TEXT
-          SIZE 9.4 BY 1.33 AT ROW 13.62 COL 20.4 WIDGET-ID 112
+          SIZE 9.4 BY 1.33 AT ROW 12.91 COL 24.2 WIDGET-ID 112
           FONT 36
      "Unit Count:" VIEW-AS TEXT
-          SIZE 17.4 BY 1.33 AT ROW 9.91 COL 12.4 WIDGET-ID 104
+          SIZE 17.4 BY 1.33 AT ROW 9.19 COL 16.2 WIDGET-ID 104
           FONT 36
      "Sub-Units / Unit:" VIEW-AS TEXT
-          SIZE 24.4 BY 1.33 AT ROW 8.1 COL 5 WIDGET-ID 100
+          SIZE 24.4 BY 1.33 AT ROW 7.38 COL 8.8 WIDGET-ID 100
           FONT 36
      "Sub-Unit Count:" VIEW-AS TEXT
-          SIZE 24.2 BY 1.33 AT ROW 6.24 COL 6 WIDGET-ID 96
+          SIZE 24.2 BY 1.33 AT ROW 5.52 COL 9.8 WIDGET-ID 96
           FONT 36
      "Sub Units:" VIEW-AS TEXT
-          SIZE 15.4 BY 1.33 AT ROW 4.43 COL 14 WIDGET-ID 92
+          SIZE 15.4 BY 1.33 AT ROW 3.71 COL 17.8 WIDGET-ID 92
           FONT 36
      "Total Quantity:" VIEW-AS TEXT
-          SIZE 21.4 BY 1.33 AT ROW 2.67 COL 7.4 WIDGET-ID 86
+          SIZE 21.4 BY 1.33 AT ROW 1.95 COL 11.2 WIDGET-ID 86
           FONT 36
      "Partial:" VIEW-AS TEXT
-          SIZE 11.4 BY 1.33 AT ROW 11.81 COL 18.8 WIDGET-ID 108
+          SIZE 11.4 BY 1.33 AT ROW 11.1 COL 22.6 WIDGET-ID 108
           FONT 36
-     RECT-30 AT ROW 2.48 COL 90 WIDGET-ID 52
-     RECT-31 AT ROW 1 COL 90.2 WIDGET-ID 54
-     SPACE(1.39) SKIP(14.86)
+     RECT-30 AT ROW 2.48 COL 105 WIDGET-ID 52
+     RECT-31 AT ROW 1 COL 105 WIDGET-ID 54
+     SPACE(4.39) SKIP(14.85)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          BGCOLOR 15 
@@ -318,6 +331,8 @@ ASSIGN
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
 
+/* SETTINGS FOR COMBO-BOX cbReasonCode IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiResult IN FRAME Dialog-Frame
    NO-ENABLE ALIGN-R                                                    */
 ASSIGN 
@@ -638,10 +653,19 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* OK */
 DO:
+    IF iplReqAdjReason AND (cbReasonCode:SCREEN-VALUE EQ "" OR cbReasonCode:SCREEN-VALUE EQ ?) THEN DO:
+        MESSAGE "Adjust Reason code is required"
+        VIEW-AS ALERT-BOX ERROR.    
+        
+        RETURN NO-APPLY.
+    END.
+    
     ASSIGN
         opdTotalQuantity   = DECIMAL(fiTotalQty:SCREEN-VALUE)
         opdSubUnitCount    = DECIMAL(fiSubUnitCount:SCREEN-VALUE)
         opdSubUnitsPerUnit = DECIMAL(fiSubUnitsPerUnit:SCREEN-VALUE)
+        opdPartialQuantity = DECIMAL(fiPartial:SCREEN-VALUE)
+        opcAdjReasonCode   = cbReasonCode:SCREEN-VALUE
         oplValueReturned   = TRUE
         opdValue           = DECIMAL(fiResult:SCREEN-VALUE)
         .  
@@ -876,8 +900,8 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiText fiResult fiTotalQty fiSubUnits fiSubUnitCount fiSubUnitsPerUnit 
-          fiUnitCount fiPartial fiUnits 
+  DISPLAY fiText fiTotalQty fiResult fiSubUnits fiSubUnitCount fiSubUnitsPerUnit 
+          fiUnitCount fiPartial fiUnits cbReasonCode 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-30 RECT-31 fiTotalQty fiSubUnits btnDel btnClear btnDiv 
          fiSubUnitCount btn7 btn8 btn9 btnMult fiSubUnitsPerUnit btn4 btn5 btn6 
@@ -993,6 +1017,9 @@ PROCEDURE pInit :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cComboList   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdReasonCode AS HANDLE    NO-UNDO.
+    
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
@@ -1009,6 +1036,25 @@ PROCEDURE pInit :
         DECIMAL(fiSubUnitCount:SCREEN-VALUE),
         DECIMAL(fiSubUnitsPerUnit:SCREEN-VALUE)
         ).
+
+    IF iplReqAdjReason THEN DO:     
+        RUN fg/ReasonCode.p PERSISTENT SET hdReasonCode.
+        
+        RUN pBuildReasonCode IN hdReasonCode (
+            INPUT "ADJ",
+            OUTPUT cComboList
+            ).
+            
+        DELETE OBJECT hdReasonCode.
+    
+        IF cComboList EQ "" THEN 
+            cComboList = ?.
+     
+        ASSIGN
+            cbReasonCode:SENSITIVE       = TRUE
+            cbReasonCode:LIST-ITEM-PAIRS = cComboList
+            .
+    END.        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
