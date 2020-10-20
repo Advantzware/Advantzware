@@ -22,8 +22,6 @@ DEFINE VARIABLE chWorksheet AS COM-HANDLE   NO-UNDO.
 DEFINE VARIABLE CurrDir AS CHAR NO-UNDO.
 DEF VAR CommandString AS CHAR NO-UNDO.
 DEF VAR v-rel-date AS DATE INIT 12/31/2999 NO-UNDO.
-DEF VAR v-manuf-date AS DATE INIT 12/31/2999 NO-UNDO.
-DEF VAR v-fg-rctd-po-no LIKE fg-rctd.po-no NO-UNDO.
 DEF VAR v-type AS CHAR NO-UNDO.
 DEF VAR mypict AS COM-HANDLE.
 DEF VAR LvCtr as int no-undo.
@@ -141,39 +139,8 @@ for each report where report.term-id eq v-term-id no-lock,
                      cust.state + "  " +
                      cust.zip. 
 
-    if trim(v-cust-addr3) eq "," then v-cust-addr3 = "".
-
-    FOR EACH fg-rctd WHERE
-        fg-rctd.company EQ cocode AND
-        fg-rctd.i-no EQ oe-ordl.i-no AND
-        fg-rctd.job-no EQ oe-ordl.job-no AND
-        fg-rctd.job-no2 EQ oe-ordl.job-no2
-        NO-LOCK
-        USE-INDEX i-no
-        BY fg-rctd.rct-date:
-
-        ASSIGN v-manuf-date = fg-rctd.rct-date
-               v-fg-rctd-po-no = fg-rctd.po-no.
-        LEAVE.
-    END.
-
-    IF v-manuf-date EQ 12/31/2999 THEN
-       FOR EACH fg-rctd WHERE
-           fg-rctd.company EQ cocode AND
-           fg-rctd.i-no EQ oe-ordl.i-no AND
-           fg-rctd.po-no EQ STRING(oe-ordl.po-no-po)
-           NO-LOCK
-           USE-INDEX i-no
-           BY fg-rctd.rct-date:
-
-           ASSIGN v-manuf-date = fg-rctd.rct-date
-                  v-fg-rctd-po-no = fg-rctd.po-no.
-           LEAVE.
-       END.
-
+    if trim(v-cust-addr3) eq "," then v-cust-addr3 = "".     
     ASSIGN
-/*       chWorkSheet:Range("C48"):value = IF v-manuf-date NE 12/31/2999 THEN  */
-/*                                           STRING(v-manuf-date) ELSE ""     */
       chWorkSheet:Range("I6"):value = TODAY
       chWorkSheet:Range("C12"):value = cust.NAME
       chWorkSheet:Range("C13"):value = cust.addr[1]
@@ -184,19 +151,12 @@ for each report where report.term-id eq v-term-id no-lock,
       chWorkSheet:Range("C26"):VALUE = oe-boll.po-no
         /* Quantity Shipped */
       chWorkSheet:Range("C40"):VALUE = v-bol-qty.
-
-      /* ACP Manufacturing Lot Number */
-     IF oe-boll.job-no <> "" THEN
-         chWorkSheet:Range("C38"):VALUE = oe-boll.job-no.
-     ELSE
-         chWorkSheet:Range("C38"):VALUE = v-fg-rctd-po-no.
-
-
+            
     IF AVAIL oe-ordl THEN
     DO:
        ASSIGN
         /* Customer Part Number */
-         chWorkSheet:Range("C28"):VALUE = oe-ordl.part-no
+         chWorkSheet:Range("C28"):VALUE = itemfg.part-no
          /* ACP Order Number */
          chWorkSheet:Range("C36"):VALUE = oe-ordl.ord-no.
 
@@ -206,26 +166,13 @@ for each report where report.term-id eq v-term-id no-lock,
             eb.form-no EQ oe-ordl.form-no AND
             eb.blank-no EQ oe-ordl.blank-no NO-LOCK NO-ERROR.
 
-       /* Customer Part Description */
-/*        IF AVAIL eb AND eb.part-dscr1 NE "" THEN           */
-/*           chWorkSheet:Range("C30"):VALUE = eb.part-dscr1. */
-/*        ELSE                                               */
-          chWorkSheet:Range("C30"):VALUE = oe-ordl.i-name.
-/*        IF AVAIL eb AND eb.part-dscr2 NE "" THEN           */
-/*           chWorkSheet:Range("C31"):VALUE = eb.part-dscr2. */
-/*        ELSE                                               */
-          chWorkSheet:Range("C31"):VALUE = oe-ordl.part-dscr1.
-/*        IF AVAIL eb AND eb.part-dscr3 NE "" THEN           */
-/*           chWorkSheet:Range("C32"):VALUE = eb.part-dscr3. */
-/*        ELSE                                               */
-          chWorkSheet:Range("C32"):VALUE = oe-ordl.part-dscr2.
-    
-       /* Drawing Number */
-       IF AVAIL eb AND eb.cad-no NE "" THEN
-          chWorkSheet:Range("C34"):VALUE = eb.cad-no.
-       ELSE
-          chWorkSheet:Range("C34"):VALUE = itemfg.cad-no.
-
+       ASSIGN                                   
+          chWorkSheet:Range("C30"):VALUE = itemfg.i-name 
+          chWorkSheet:Range("C31"):VALUE = itemfg.part-dscr1
+          chWorkSheet:Range("C32"):VALUE = itemfg.part-dscr2
+          chWorkSheet:Range("D33"):VALUE = itemfg.spc-no     
+          chWorkSheet:Range("C34"):VALUE = itemfg.upc-no
+          chWorkSheet:Range("D38"):VALUE = oe-boll.lot-no.
        for each oe-rel no-lock
            where oe-rel.company   eq oe-ordl.company
              and oe-rel.ord-no    eq oe-ordl.ord-no
@@ -247,16 +194,15 @@ for each report where report.term-id eq v-term-id no-lock,
 
     /* Signature image */
     IF SEARCH(FILE-INFO:FULL-PATHNAME) NE ? THEN DO:
-       mypict = chExcelApplication:Range("B45"):Parent:Pictures:Insert(FILE-INFO:FULL-PATHNAME).
-       mypict:TOP = chExcelApplication:Range("B45"):TOP.
-       mypict:LEFT = chExcelApplication:Range("B45"):LEFT.
+       mypict = chExcelApplication:Range("B44"):Parent:Pictures:Insert(FILE-INFO:FULL-PATHNAME).
+       mypict:TOP = chExcelApplication:Range("B44"):TOP.
+       mypict:LEFT = chExcelApplication:Range("B44"):LEFT.
        RELEASE OBJECT mypict.
     END.
 
     ASSIGN
        v-bol-qty = 0
-       v-rel-date = 12/31/2999
-       v-manuf-date = 12/31/2999
+       v-rel-date = 12/31/2999       
        chExcelApplication:activeSheet:PageSetup:PrintArea = "$A$1:$I$48".
   end.
 end. /* for each report */
