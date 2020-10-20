@@ -3,9 +3,7 @@
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
-
   File: pcrep\r-prodep.w
-
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -40,28 +38,7 @@ assign
  cocode = gcompany
  locode = gloc.
 
-DEF TEMP-TABLE tt-srt NO-UNDO LIKE mch-srt
-                              FIELD act-m-code LIKE mach.m-code
-                              FIELD tot-run-hours AS DEC
-                              FIELD tot-mr-hours AS DEC
-                              FIELD qty-Ton AS dec format ">>,>>9.99"
-                              FIELD qty-msf AS DEC FORM ">>,>>9.99"
-                              FIELD sqFeet-blank AS DEC FORM ">>,>>9.9999"
-                              FIELD sqfeet-rcv AS INT
-                              FIELD sheet-rcv AS INT
-                              FIELD qty-rcv AS INT
-                              FIELD sqfeet-prod AS INT
-                              FIELD job-date AS DATE
-                              FIELD qty-finished AS DEC 
-                              FIELD mr-start-time LIKE mch-act.START
-                              FIELD mr-end-time LIKE mch-act.stopp
-                              FIELD run-start-time LIKE mch-act.START
-                              FIELD run-end-time LIKE mch-act.stopp
-                              FIELD gotReceipts AS LOGICAL
-                              FIELD i-no LIKE mch-act.i-no
-                              FIELD qty-lin-ft AS DECIMAL  
-    INDEX dept-idx dept m-code job-no job-no2 frm blank-no
-    INDEX job-idx job-no job-no2.
+{pcrep/tt-srt.i}
 
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
 DEF STREAM excel.
@@ -83,13 +60,14 @@ DEF STREAM excel.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_dept end_dept begin_mach ~
 end_mach begin_Shift end_shift begin_date end_date begin_time ~
-begin_time_mins end_time end_time_mins tb_show lv-ornt lines-per-page ~
-rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
-btn-cancel 
+begin_time_mins end_time end_time_mins tb_show cStartCodeNo cEndCodeNo ~
+lv-ornt lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel ~
+fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_dept end_dept begin_mach end_mach ~
 begin_Shift end_shift begin_date end_date begin_time begin_time_mins ~
-end_time end_time_mins tb_show lv-ornt lines-per-page rd-dest lv-font-no ~
-lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+end_time end_time_mins tb_show cStartCodeNo cEndCodeNo lv-ornt ~
+lines-per-page rd-dest lv-font-no lv-font-name td-show-parm tb_excel ~
+tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -142,6 +120,16 @@ DEFINE VARIABLE begin_time_mins AS INTEGER FORMAT "99":U INITIAL 0
      LABEL "" 
      VIEW-AS FILL-IN 
      SIZE 5 BY .95 NO-UNDO.
+
+DEFINE VARIABLE cEndCodeNo AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
+     LABEL "Ending Charge Code" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1 NO-UNDO.
+
+DEFINE VARIABLE cStartCodeNo AS CHARACTER FORMAT "X(5)":U 
+     LABEL "Notes - Beginning Charge Code" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Date" 
@@ -278,6 +266,10 @@ DEFINE FRAME FRAME-A
           "Enter Ending Time (Mins)" WIDGET-ID 22
      tb_show AT ROW 7.91 COL 28
      rd_TonMsfQty AT ROW 9.33 COL 28 NO-LABEL WIDGET-ID 8
+     cStartCodeNo AT ROW 10.76 COL 37 COLON-ALIGNED HELP
+          "Enter Beginning Charge Code" WIDGET-ID 24
+     cEndCodeNo AT ROW 10.76 COL 69 COLON-ALIGNED HELP
+          "Enter Ending Charge Code" WIDGET-ID 26
      lv-ornt AT ROW 13.62 COL 30 NO-LABEL
      lines-per-page AT ROW 13.62 COL 83 COLON-ALIGNED
      rd-dest AT ROW 13.67 COL 5 NO-LABEL
@@ -290,11 +282,11 @@ DEFINE FRAME FRAME-A
           "Enter File Name"
      btn-ok AT ROW 22.43 COL 21
      btn-cancel AT ROW 22.43 COL 57
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 12.67 COL 2
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 12.67 COL 2
      RECT-6 AT ROW 12.43 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -385,6 +377,14 @@ ASSIGN
 ASSIGN 
        btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
+
+ASSIGN 
+       cEndCodeNo:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       cStartCodeNo:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
        end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -891,13 +891,14 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_dept end_dept begin_mach end_mach begin_Shift end_shift 
           begin_date end_date begin_time begin_time_mins end_time end_time_mins 
-          tb_show lv-ornt lines-per-page rd-dest lv-font-no lv-font-name 
-          td-show-parm tb_excel tb_runExcel fi_file 
+          tb_show cStartCodeNo cEndCodeNo lv-ornt lines-per-page rd-dest 
+          lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_dept end_dept begin_mach end_mach begin_Shift 
          end_shift begin_date end_date begin_time begin_time_mins end_time 
-         end_time_mins tb_show lv-ornt lines-per-page rd-dest lv-font-no 
-         td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         end_time_mins tb_show cStartCodeNo cEndCodeNo lv-ornt lines-per-page 
+         rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1035,8 +1036,6 @@ def var shf-qty-prod as dec format ">,>>>,>>9" no-undo.
 def var shf-qty-expect as dec format ">,>>>,>>9" no-undo.
 def var shf-jobs as int format ">,>>>,>>9" no-undo.
 DEF VAR tot-jobs AS INT format ">,>>>,>>9" no-undo.
-def var mr-eff as dec format ">>>9.9-" no-undo.
-def var run-eff as dec format ">>>9.9-" no-undo.
 def var tot-eff as dec format ">>>9.9-" no-undo.
 def var dt-eff as dec format ">>>9.9-" no-undo.
 def var tot-std-hrs as dec format ">>>>9.9" no-undo.
@@ -1123,7 +1122,7 @@ IF tb_excel THEN DO:
    excelheader3 = "Job#,Blank,Start SE,End SE,Start Run,End Run,Received,Received,Quantity,Received,Deviation,Produced,Waste,per line,Time,Run time,Per Hr,,Efficiency,Efficiency".   
    */
    excelheader2 = ",,MR Start,MR End,Run Start,Run End,,Sq Feet,Setup,Run,Sq Feet,Sheets,Produced,Finished,FG,FG,Sq. Ft.,Sq Ft,waste % ,Avg Pcs,Setup,Run".
-   excelheader3 = "Machine,Date,Time,Time,Time,Time,Job#,Blank,Hours,Hours,Received,Received,Quantity,Quantity,Received,Deviation,Produced,Waste,per line,Per Hr,Efficiency,Efficiency,Shift#,Item Code,Item Name,Linear Ft/Hr".
+   excelheader3 = "Machine,Date,Time,Time,Time,Time,Job#,Blank,Hours,Hours,Received,Received,Quantity,Quantity,Received,Deviation,Produced,Waste,per line,Per Hr,Efficiency,Efficiency,Shift#,Item Code,Item Name,Linear Ft/Hr,Notes".
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader2,',','","') '"' SKIP
        '"' REPLACE(excelheader3,',','","') '"' SKIP.
        .
@@ -1137,7 +1136,6 @@ IF tb_excel THEN DO:
                  ELSE IF tb_tonmsf AND rd_tonmsfqty = "qm" THEN "ACT QTY,ACT MSF,"
                  ELSE IF tb_tonmsf AND rd_tonmsfqty = "qt" THEN "ACT QTY,ACT TONS,"
                  ELSE "ACT QTY,EXPECTED QTY,".
-
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
    */
 END. 
@@ -1231,4 +1229,3 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

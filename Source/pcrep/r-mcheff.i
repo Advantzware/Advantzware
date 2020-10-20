@@ -95,6 +95,7 @@ FOR EACH mch-act NO-LOCK
                 tt-srt.job            = mch-act.job
                 tt-srt.job-no         = mch-act.job-no
                 tt-srt.job-no2        = mch-act.job-no2
+                tt-srt.jobNo          = tt-srt.job-no + "-" + STRING(tt-srt.job-no2)
                 tt-srt.frm            = mch-act.frm
                 tt-srt.blank-no       = mch-act.blank-no
                 tt-srt.pass           = mch-act.pass
@@ -216,13 +217,14 @@ FOR EACH mch-act NO-LOCK
                                     AND eb.blank-no EQ 1 
                                     NO-ERROR.
                         END.
-                        FIND ef OF eb NO-LOCK NO-ERROR.
-                        IF AVAILABLE ef AND ef.spare-int-1 GT 0 THEN 
-                            iTotalUp = ef.spare-int-1.
-                        ELSE IF AVAILABLE ef THEN 
-                            iTotalUp = ef.n-out * ef.n-out-l * ef.n-out-d.
-                        ELSE 
-                            iTotalUp = 1.
+                        iTotalUp = 1.
+                        IF AVAILABLE eb THEN DO:
+                            FIND ef OF eb NO-LOCK NO-ERROR.
+                            IF AVAILABLE ef AND ef.spare-int-1 GT 0 THEN 
+                                iTotalUp = ef.spare-int-1.
+                            ELSE IF AVAILABLE ef THEN 
+                                iTotalUp = ef.n-out * ef.n-out-l * ef.n-out-d.
+                        END.
                         
                         tt-srt.qty-finished = tt-srt.qty-finished +
                             IF (mach.dept[1] = "RS" OR mach.dept[2] = "RS" OR mach.dept[3] = "RS" OR mach.dept[4] = "RS" OR
@@ -230,8 +232,8 @@ FOR EACH mch-act NO-LOCK
                             mach.dept[1] = "GU" OR mach.dept[2] = "GU" OR mach.dept[3] = "GU" OR mach.dept[4] = "GU" OR
                             mach.dept[1] = "SS" OR mach.dept[2] = "SS" OR mach.dept[3] = "SS" OR mach.dept[4] = "SS" 
                             )  
-                            THEN eb.num-up * iTotalUp * mch-act.qty
-                          ELSE IF mach.p-type = "S" THEN eb.num-up * mch-act.qty
+                            THEN (IF AVAILABLE eb THEN eb.num-up ELSE 1) * iTotalUp * mch-act.qty
+                          ELSE IF mach.p-type = "S" THEN (IF AVAILABLE eb THEN eb.num-up ELSE 1) * mch-act.qty
                           ELSE mch-act.qty         
                         .
                     END.                                    
@@ -433,8 +435,19 @@ FOR EACH tt-srt,
 
     IF tt-srt.run-std-hr EQ ? THEN tt-srt.run-std-hr = 0.
     IF tt-srt.mr-std-hr  EQ ? THEN tt-srt.mr-std-hr  = 0.
-      
-      
+
+    FOR EACH notes NO-LOCK
+        WHERE notes.rec_key EQ job.rec_key
+          AND notes.chargeCode GE cStartCodeNo
+          AND notes.chargeCode LE cEndCodeNo
+        :
+        tt-srt.notes = tt-srt.notes + DYNAMIC-FUNCTION("sfWebCharacters", notes.note_text, 9, "") + " ".
+    END. /* each notes */
+    ASSIGN
+        tt-srt.notes = REPLACE(tt-srt.notes,CHR(9)," ")
+        tt-srt.notes = REPLACE(tt-srt.notes,"~t"," ")
+        tt-srt.notes = REPLACE(tt-srt.notes,",","")
+        .
 END.
       
 FOR EACH tt-srt USE-INDEX dept-idx
@@ -451,26 +464,30 @@ FOR EACH tt-srt USE-INDEX dept-idx
     /* if v-show then*/
     DO:
         ASSIGN
-            mr-eff      = (tt-srt.mr-std-hr  / tt-srt.mr-act-hr)  * 100.00
-            run-eff     = (tt-srt.run-std-hr / tt-srt.run-act-hr) * 100.00
+            tt-srt.mr-eff      = (tt-srt.mr-std-hr  / tt-srt.mr-act-hr)  * 100.00
+            tt-srt.run-eff     = (tt-srt.run-std-hr / tt-srt.run-act-hr) * 100.00
             tot-std-hrs = tt-srt.mr-std-hr + tt-srt.run-std-hr
             tot-act-hrs = tt-srt.mr-act-hr + tt-srt.run-act-hr
             tot-eff     = (tot-std-hrs / tot-act-hrs) * 100.00
             dt-eff      = (tt-srt.act-dt-hr / tot-act-hrs) * 100.00.
-        IF mr-eff = ? THEN mr-eff = 0.
-        IF run-eff = ? THEN run-eff = 0.
+        IF tt-srt.mr-eff = ? THEN tt-srt.mr-eff = 0.
+        IF tt-srt.run-eff = ? THEN tt-srt.run-eff = 0.
         IF tot-eff = ? THEN tot-eff = 0.
         IF dt-eff = ? THEN dt-eff = 0.
     END.
 
+    FIND FIRST itemfg NO-LOCK
+         WHERE itemfg.company EQ cocode
+           AND itemfg.i-no EQ tt-srt.i-no
+         NO-ERROR.
+    IF AVAILABLE itemfg THEN
+    ASSIGN
+        tt-srt.sqFeet-Prod = tt-srt.qty-msf * 1000
+        tt-srt.fgItemName  = itemfg.i-name
+        .
+    &IF DEFINED(ttTempTable) EQ 0 &THEN
     IF tb_excel THEN  
     DO:
-        FIND FIRST itemfg NO-LOCK 
-                        WHERE itemfg.company EQ cocode
-                        AND itemfg.i-no EQ tt-srt.i-no
-                        NO-ERROR.
-
-        tt-srt.sqFeet-Prod = tt-srt.qty-msf * 1000.
         PUT STREAM excel UNFORMATTED
             '"' tt-srt.m-code '",'
             '"' tt-srt.job-date '",'
@@ -492,15 +509,15 @@ FOR EACH tt-srt USE-INDEX dept-idx
             '"' tt-srt.sqfeet-rcv - tt-srt.sqfeet-prod '",'
             '"' ROUND((tt-srt.sqFeet-rcv - tt-srt.sqFeet-prod) / tt-srt.sqFeet-rcv * 100,2) '",'
             '"' ROUND(tt-srt.qty-prod / tt-srt.run-act-hr,0) '",'
-            '"' mr-eff FORM "->>>>9.99%" '",'
-            '"' run-eff FORM "->>>>9.99%" '",'
+            '"' tt-srt.mr-eff FORM "->>>>9.99%" '",'
+            '"' tt-srt.run-eff FORM "->>>>9.99%" '",'
             '"' STRING(tt-srt.shift,">>>>") '",'
             '"' STRING(tt-srt.i-no) '",'
-            '"' (IF AVAIL itemfg THEN STRING(itemfg.i-name) ELSE "") '",'
+            '"' tt-srt.fgItemName '",'
             '"' STRING(tt-srt.qty-lin-ft / tt-srt.run-act-hr) '",'
+            '"' tt-srt.notes '",'
             SKIP.
           
     END.
-            
+    &ENDIF
 END. /* each tt-srt */
-

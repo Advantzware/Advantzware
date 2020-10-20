@@ -392,6 +392,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetChargeCode B-table-Win
+PROCEDURE pGetChargeCode:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcChargeCode AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+
+    {methods/run_link.i "RECORD-TARGET" "pGetChargeCode" "(OUTPUT opcChargeCode)"}
+    DO idx = 1 TO NUM-ENTRIES(char-hdl):
+        phandle = WIDGET-HANDLE(ENTRY(idx,char-hdl)).
+        IF INDEX(phandle:NAME,"b-prdd.") NE 0 THEN
+    RUN pGetChargeCode IN phandle (OUTPUT opcChargeCode).
+    END. /* do idx */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
 PROCEDURE repo-query :
 /*------------------------------------------------------------------------------
