@@ -429,7 +429,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + ipcHeader.
   {methods/nowait.i}
   IF RETURN-VALUE EQ "EMPTY" OR lError THEN
-  DISABLE btnSave btnDelete WITH FRAME {&FRAME-NAME}.
+  DISABLE btnSaveExit btnSave btnDelete WITH FRAME {&FRAME-NAME}.
   ELSE
   APPLY "ENTRY" TO btnSave IN FRAME {&FRAME-NAME}.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -992,6 +992,7 @@ PROCEDURE moveObjects :
             mfgroupList:Y = Rect-Main:HEIGHT-PIXELS + 26
             mfRecKeyLabel:Y = Rect-Main:HEIGHT-PIXELS + 51
             mfRecKey:Y = Rect-Main:HEIGHT-PIXELS + 51
+            btnSaveExit:Y = Rect-Main:HEIGHT-PIXELS + 31
             btnSave:Y = Rect-Main:HEIGHT-PIXELS + 31
             btnDelete:Y = Rect-Main:HEIGHT-PIXELS + 31
             btnExit:Y = Rect-Main:HEIGHT-PIXELS + 31
