@@ -6202,20 +6202,21 @@ PROCEDURE valid-s-num :
                 TRIM(po-ordl.job-no:SCREEN-VALUE).
             IF po-ordl.s-num:SCREEN-VALUE EQ "?" AND
                 NOT CAN-FIND(FIRST tt-job-mat)    THEN RUN create-multi-line.
+
             IF po-ordl.s-num:SCREEN-VALUE NE "?" AND
                 NOT CAN-FIND(FIRST job-mat
-                WHERE job-mat.company EQ po-ordl.company
+                WHERE job-mat.company EQ g_company
                 AND job-mat.job-no  EQ po-ordl.job-no:SCREEN-VALUE
                 AND job-mat.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                 AND job-mat.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE)) AND
                 NOT CAN-FIND(FIRST job-farm
-                WHERE job-farm.company EQ po-ordl.company
+                WHERE job-farm.company EQ g_company
                 AND job-farm.i-no    EQ po-ordl.i-no :SCREEN-VALUE
                 AND job-farm.job-no  EQ po-ordl.job-no:SCREEN-VALUE
                 AND job-farm.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                 AND job-farm.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE)) AND
                 NOT CAN-FIND(FIRST tt-job-mat
-                WHERE tt-job-mat.company  EQ po-ordl.company
+                WHERE tt-job-mat.company  EQ g_company
                 AND tt-job-mat.job-no   EQ po-ordl.job-no:SCREEN-VALUE
                 AND tt-job-mat.job-no2  EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                 AND tt-job-mat.frm      EQ INT(po-ordl.s-num:SCREEN-VALUE)
