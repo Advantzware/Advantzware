@@ -109,6 +109,23 @@ FUNCTION fItemIsUsed RETURNS CHARACTER
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE Inventory_GetStatusOnHold:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcStatusID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplOnHold   AS LOGICAL   NO-UNDO. 
+    
+    FIND FIRST inventoryStatusType NO-LOCK
+         WHERE inventoryStatusType.statusID EQ ipcStatusID
+         NO-ERROR. 
+
+    IF AVAILABLE inventoryStatusType THEN 
+        oplOnHold = inventoryStatusType.onHold.           
+
+END PROCEDURE.
+
 PROCEDURE pCalculateAverageRawMaterialCost PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
