@@ -496,11 +496,13 @@ PROCEDURE pWinReSize :
         IF {&WINDOW-NAME}:WIDTH  LT 160   THEN
         {&WINDOW-NAME}:WIDTH  = 160.
         ASSIGN
-            RECT-1:HIDDEN    = YES
-            btn-print:HIDDEN = YES
-            btn-save:HIDDEN  = YES
-            btn-font:HIDDEN  = YES
-            btn-close:HIDDEN = YES
+            {&WINDOW-NAME}:COL = 1
+            {&WINDOW-NAME}:ROW = 1
+            RECT-1:HIDDEN      = YES
+            btn-print:HIDDEN   = YES
+            btn-save:HIDDEN    = YES
+            btn-font:HIDDEN    = YES
+            btn-close:HIDDEN   = YES
             FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
             FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
             FRAME {&FRAME-NAME}:HEIGHT = {&WINDOW-NAME}:HEIGHT
