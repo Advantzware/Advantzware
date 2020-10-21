@@ -135,7 +135,7 @@ RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 &Scoped-Define ENABLED-OBJECTS fiFGItem fiCustItem fiLocation bt-exit ~
 btItemHelp btnKeyboardItem btnKeyboardLoc btnNumPad btItemNameHelp ~
 btnKeyboardItemName ttBrowseInventory btnFirst btnPrevious btnNext btnLast ~
-RECT-33 
+RECT-33 btLocHelp 
 &Scoped-Define DISPLAYED-OBJECTS fiFGItem fiCustItem fiLocation 
 
 /* Custom List Definitions                                              */
@@ -181,12 +181,17 @@ DEFINE BUTTON btAdjustQty
 DEFINE BUTTON btItemHelp 
      IMAGE-UP FILE "C:/Asigui/Environments/Devel/Resources/Graphics/32x32/magnifying_glass.ico":U
      LABEL "" 
-     SIZE 8.4 BY 1.57.
+     SIZE 6.6 BY 1.57.
 
 DEFINE BUTTON btItemNameHelp 
      IMAGE-UP FILE "C:/Asigui/Environments/Devel/Resources/Graphics/32x32/magnifying_glass.ico":U
      LABEL "" 
-     SIZE 8.4 BY 1.52.
+     SIZE 6.6 BY 1.52.
+
+DEFINE BUTTON btLocHelp 
+     IMAGE-UP FILE "C:/Asigui/Environments/Devel/Resources/Graphics/32x32/magnifying_glass.ico":U
+     LABEL "" 
+     SIZE 6.6 BY 1.57.
 
 DEFINE BUTTON btnFirst 
      IMAGE-UP FILE "Graphics/32x32/navigate_up2.ico":U
@@ -276,22 +281,23 @@ DEFINE BROWSE ttBrowseInventory
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiFGItem AT ROW 1.86 COL 26.8 COLON-ALIGNED WIDGET-ID 2
-     fiCustItem AT ROW 3.52 COL 26.8 COLON-ALIGNED WIDGET-ID 4
-     fiLocation AT ROW 1.86 COL 126.6 COLON-ALIGNED WIDGET-ID 142
+     fiFGItem AT ROW 1.86 COL 25.4 COLON-ALIGNED WIDGET-ID 2
+     fiCustItem AT ROW 3.52 COL 25.4 COLON-ALIGNED WIDGET-ID 4
+     fiLocation AT ROW 1.86 COL 123.2 COLON-ALIGNED WIDGET-ID 142
      bt-exit AT ROW 1.71 COL 189.8 WIDGET-ID 84 NO-TAB-STOP 
-     btItemHelp AT ROW 1.81 COL 96.4 WIDGET-ID 138 NO-TAB-STOP 
-     btnKeyboardItem AT ROW 1.81 COL 106.4 WIDGET-ID 136 NO-TAB-STOP 
-     btnKeyboardLoc AT ROW 1.81 COL 162.2 WIDGET-ID 144 NO-TAB-STOP 
+     btItemHelp AT ROW 1.81 COL 94.4 WIDGET-ID 138 NO-TAB-STOP 
+     btnKeyboardItem AT ROW 1.81 COL 101.8 WIDGET-ID 136 NO-TAB-STOP 
+     btnKeyboardLoc AT ROW 1.81 COL 165.8 WIDGET-ID 144 NO-TAB-STOP 
      btnNumPad AT ROW 2.05 COL 178.6 WIDGET-ID 120 NO-TAB-STOP 
-     btItemNameHelp AT ROW 3.48 COL 96.4 WIDGET-ID 140 NO-TAB-STOP 
-     btnKeyboardItemName AT ROW 3.48 COL 106.6 WIDGET-ID 134 NO-TAB-STOP 
+     btItemNameHelp AT ROW 3.48 COL 94.4 WIDGET-ID 140 NO-TAB-STOP 
+     btnKeyboardItemName AT ROW 3.48 COL 102 WIDGET-ID 134 NO-TAB-STOP 
      ttBrowseInventory AT ROW 5.86 COL 3 WIDGET-ID 200
      btnFirst AT ROW 7.43 COL 189.6 WIDGET-ID 44 NO-TAB-STOP 
      btnPrevious AT ROW 12.91 COL 189.6 WIDGET-ID 40 NO-TAB-STOP 
      btAdjustQty AT ROW 18.86 COL 189.6 WIDGET-ID 110 NO-TAB-STOP 
      btnNext AT ROW 24.38 COL 189.6 WIDGET-ID 42 NO-TAB-STOP 
      btnLast AT ROW 29.81 COL 189.6 WIDGET-ID 46 NO-TAB-STOP 
+     btLocHelp AT ROW 1.81 COL 158.4 WIDGET-ID 146 NO-TAB-STOP 
      RECT-33 AT ROW 5.33 COL 3.2 WIDGET-ID 6
      RECT-2 AT ROW 1.86 COL 177.6 WIDGET-ID 130
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -480,6 +486,17 @@ END.
 ON CHOOSE OF btItemNameHelp IN FRAME F-Main
 DO:
     APPLY "HELP" TO fiCustItem.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btLocHelp
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btLocHelp W-Win
+ON CHOOSE OF btLocHelp IN FRAME F-Main
+DO:
+    APPLY "HELP" TO fiLocation.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -740,6 +757,54 @@ END.
 
 &Scoped-define SELF-NAME fiLocation
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
+ON ENTRY OF fiLocation IN FRAME F-Main /* Location */
+DO:
+    hFocusField = SELF.
+    
+    IF lKeyboard THEN
+        RUN pKeyboard (
+            INPUT SELF, 
+            INPUT "Qwerty"
+            ).    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
+ON HELP OF fiLocation IN FRAME F-Main /* Location */
+DO:
+    DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
+  
+    RUN system/openlookup.p (
+        INPUT  "",  /* company */ 
+        INPUT  "",  /* lookup field */
+        INPUT  150, /* Subject ID */
+        INPUT  "",  /* User ID */
+        INPUT  0,   /* Param value ID */
+        OUTPUT returnFields, 
+        OUTPUT lookupField, 
+        OUTPUT recVal
+        ). 
+
+    IF lookupField NE "" THEN DO:
+        fiLocation:SCREEN-VALUE = IF NUM-ENTRIES(returnFields,"|") GE 2 THEN
+                                       ENTRY(2, returnFields, "|")
+                                  ELSE
+                                      "".
+        
+        APPLY "LEAVE" TO SELF.
+    END.      
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
 ON LEAVE OF fiLocation IN FRAME F-Main /* Location */
 DO:    
     ASSIGN
@@ -891,6 +956,7 @@ PROCEDURE enable_UI :
   ENABLE fiFGItem fiCustItem fiLocation bt-exit btItemHelp btnKeyboardItem 
          btnKeyboardLoc btnNumPad btItemNameHelp btnKeyboardItemName 
          ttBrowseInventory btnFirst btnPrevious btnNext btnLast RECT-33 
+         btLocHelp 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.

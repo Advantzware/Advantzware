@@ -101,8 +101,8 @@ RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-33 bt-exit btItemHelp btnKeyboardItem ~
-btnKeyboardLoc fiRMItem fiLocation btnNumPad ttBrowseInventory btnFirst ~
-btnPrevious btnNext btnLast 
+btLocHelp btnKeyboardLoc fiRMItem fiLocation btnNumPad ttBrowseInventory ~
+btnFirst btnPrevious btnNext btnLast 
 &Scoped-Define DISPLAYED-OBJECTS fiRMItem fiLocation fiRMName 
 
 /* Custom List Definitions                                              */
@@ -148,7 +148,12 @@ DEFINE BUTTON btAdjustQty
 DEFINE BUTTON btItemHelp 
      IMAGE-UP FILE "C:/Asigui/Environments/Devel/Resources/Graphics/32x32/magnifying_glass.ico":U
      LABEL "" 
-     SIZE 8.4 BY 1.57.
+     SIZE 6.6 BY 1.57.
+
+DEFINE BUTTON btLocHelp 
+     IMAGE-UP FILE "C:/Asigui/Environments/Devel/Resources/Graphics/32x32/magnifying_glass.ico":U
+     LABEL "" 
+     SIZE 6.6 BY 1.57.
 
 DEFINE BUTTON btnFirst 
      IMAGE-UP FILE "Graphics/32x32/navigate_up2.ico":U
@@ -198,7 +203,7 @@ DEFINE VARIABLE fiRMItem AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE fiRMName AS CHARACTER FORMAT "X(256)":U 
      LABEL "RM Name" 
      VIEW-AS FILL-IN 
-     SIZE 87.8 BY 1.43 NO-UNDO.
+     SIZE 85.8 BY 1.43 NO-UNDO.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
@@ -235,10 +240,11 @@ DEFINE BROWSE ttBrowseInventory
 DEFINE FRAME F-Main
      bt-exit AT ROW 1.52 COL 189.8 WIDGET-ID 84 NO-TAB-STOP 
      btItemHelp AT ROW 1.81 COL 91.6 WIDGET-ID 138 NO-TAB-STOP 
-     btnKeyboardItem AT ROW 1.81 COL 101.6 WIDGET-ID 136 NO-TAB-STOP 
-     btnKeyboardLoc AT ROW 1.81 COL 158.4 WIDGET-ID 144 NO-TAB-STOP 
+     btnKeyboardItem AT ROW 1.81 COL 99.8 WIDGET-ID 136 NO-TAB-STOP 
+     btLocHelp AT ROW 1.81 COL 156 WIDGET-ID 146 NO-TAB-STOP 
+     btnKeyboardLoc AT ROW 1.81 COL 163.2 WIDGET-ID 144 NO-TAB-STOP 
      fiRMItem AT ROW 1.86 COL 18.2 COLON-ALIGNED WIDGET-ID 2
-     fiLocation AT ROW 1.86 COL 122.8 COLON-ALIGNED WIDGET-ID 142
+     fiLocation AT ROW 1.86 COL 120.8 COLON-ALIGNED WIDGET-ID 142
      btnNumPad AT ROW 1.86 COL 178.6 WIDGET-ID 120 NO-TAB-STOP 
      fiRMName AT ROW 3.52 COL 18.2 COLON-ALIGNED WIDGET-ID 4 NO-TAB-STOP 
      ttBrowseInventory AT ROW 5.86 COL 3 WIDGET-ID 200
@@ -429,6 +435,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btLocHelp
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btLocHelp W-Win
+ON CHOOSE OF btLocHelp IN FRAME F-Main
+DO:
+    APPLY "HELP" TO fiLocation.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnFirst
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFirst W-Win
 ON CHOOSE OF btnFirst IN FRAME F-Main /* First */
@@ -530,6 +547,38 @@ DO:
             INPUT SELF, 
             INPUT "Qwerty"
             ).  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
+ON HELP OF fiLocation IN FRAME F-Main /* Location */
+DO:
+    DEFINE VARIABLE returnFields AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lookupField  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE recVal       AS RECID     NO-UNDO.
+  
+    RUN system/openlookup.p (
+        INPUT  "",  /* company */ 
+        INPUT  "",  /* lookup field */
+        INPUT  150, /* Subject ID */
+        INPUT  "",  /* User ID */
+        INPUT  0,   /* Param value ID */
+        OUTPUT returnFields, 
+        OUTPUT lookupField, 
+        OUTPUT recVal
+        ). 
+
+    IF lookupField NE "" THEN DO:
+        fiLocation:SCREEN-VALUE = IF NUM-ENTRIES(returnFields,"|") GE 2 THEN
+                                       ENTRY(2, returnFields, "|")
+                                  ELSE
+                                      "".
+        
+        APPLY "LEAVE" TO SELF.
+    END.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -837,9 +886,9 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiRMItem fiLocation fiRMName 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE RECT-33 bt-exit btItemHelp btnKeyboardItem btnKeyboardLoc fiRMItem 
-         fiLocation btnNumPad ttBrowseInventory btnFirst btnPrevious btnNext 
-         btnLast 
+  ENABLE RECT-33 bt-exit btItemHelp btnKeyboardItem btLocHelp btnKeyboardLoc 
+         fiRMItem fiLocation btnNumPad ttBrowseInventory btnFirst btnPrevious 
+         btnNext btnLast 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
