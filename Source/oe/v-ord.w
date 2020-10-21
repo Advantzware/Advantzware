@@ -3851,6 +3851,10 @@ v-est-no = oe-ord.est-no:screen-value IN FRAME {&frame-name}.
 RUN util/rjust.p (INPUT-OUTPUT v-est-no,8).
 oe-ord.est-no:screen-value IN FRAME {&frame-name} = v-est-no.
 
+FIND FIRST oe-ctrl  NO-LOCK
+     WHERE oe-ctrl.company EQ g_company 
+     NO-ERROR.
+
 FIND FIRST xest
     WHERE xest.company EQ cocode
       AND xest.est-no  EQ v-est-no 
@@ -3948,6 +3952,14 @@ IF AVAIL xest THEN DO:
          v-job-no2 = 0.
 
         RUN display-cust-detail (RECID(cust)).
+        
+        IF oe-ord.stat:SCREEN-VALUE EQ "H" AND AVAIL oe-ctrl AND NOT oe-ctrl.p-job THEN
+        DO:
+             ASSIGN
+             v-job-no  = ""
+             v-job-no2 = 0.
+             RUN displayMessage ( INPUT "48").
+        END.
 
       ASSIGN oe-ord.sold-id:screen-value   = eb.cust-no /** DEFAULT to first SOLD to **/
              oe-ord.sman[1]:screen-value   = eb.sman
