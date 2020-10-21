@@ -65,93 +65,20 @@ IF AVAIL itemfg THEN DO:
              AND job.job     EQ job-hdr.job
              AND job.job-no  EQ job-hdr.job-no
              AND job.job-no2 EQ job-hdr.job-no2 NO-LOCK NO-ERROR.
-      IF AVAIL job THEN DO: 
-         IF (itemfg.isaset OR w-ord.is-a-component) AND
-            CAN-FIND(FIRST reftable WHERE 
-                           reftable.reftable EQ "jc/jc-calc.p"
-                       AND reftable.company  EQ job.company
-                       AND reftable.loc      EQ ""
-                       AND reftable.code     EQ STRING(job.job,"999999999")) THEN
-            FOR EACH reftable NO-LOCK WHERE 
-                     reftable.reftable EQ "jc/jc-calc.p"
-                 AND reftable.company  EQ job-hdr.company
-                 AND reftable.loc      EQ ""
-                 AND reftable.code     EQ STRING(job-hdr.job,"999999999")
-                 AND ((reftable.code2  EQ w-ord.i-no AND w-ord.is-a-component) OR
-                     (job-hdr.i-no    EQ w-ord.i-no AND NOT w-ord.is-a-component)):
-               CREATE tt-fg-set.
-               ASSIGN 
-                  tt-fg-set.part-no      = reftable.code2
-                  tt-fg-set.QtyPerSet     = reftable.val[12]
-                  tt-fg-set.part-qty-dec = reftable.val[13].
-            END.
-         ELSE DO:
-            CREATE tt-fg-set.
-            ASSIGN 
-               tt-fg-set.part-no      = job-hdr.i-no
-               tt-fg-set.QtyPerSet     = job-hdr.frm
-               tt-fg-set.part-qty-dec = job-hdr.blank-no.
-         END.
-         
-         FOR EACH tt-fg-set
-            BREAK BY tt-fg-set.QtyPerSet
-                  BY tt-fg-set.part-qty-dec:
-
-            ll-po = NO.
-            IF LAST-OF(tt-fg-set.QtyPerSet) THEN
-               FOR EACH po-ordl WHERE 
-                        po-ordl.company   EQ job.company
-                    AND po-ordl.job-no    EQ job.job-no
-                    AND po-ordl.job-no2   EQ job.job-no2
-                    AND po-ordl.s-num     EQ INTEGER(tt-fg-set.QtyPerSet)
-                    AND po-ordl.item-type EQ YES USE-INDEX job-no NO-LOCK,
-                  FIRST po-ord WHERE 
-                        po-ord.company EQ po-ordl.company
-                    AND po-ord.po-no   EQ po-ordl.po-no NO-LOCK,
-                  FIRST ITEM WHERE 
-                        item.company EQ po-ordl.company
-                    AND item.i-no    EQ po-ordl.i-no
-                    AND INDEX("1234BPR",item.mat-type) GT 0 NO-LOCK
-                  BREAK BY po-ordl.po-no
-                        BY po-ordl.i-no
-                        BY po-ordl.rec_key:
-
-                     ll-po = YES.
-                     ASSIGN 
-                        lv-board-po-no = po-ordl.po-no
-                        lv-vend-no = po-ord.vend-no.
-                     IF po-ordl.cons-uom EQ "EA" THEN 
-                        ld-qty-rec = po-ordl.t-rec-qty.
-                     ELSE 
-                        RUN sys/ref/convquom.p(po-ordl.cons-uom,"EA",item.basis-w,po-ordl.s-len,po-ordl.s-wid,item.s-dep,po-ordl.t-rec-qty, output ld-qty-rec).
-                     {sys/inc/roundup.i ld-qty-rec}
-                     LEAVE.
-               END.
+      IF AVAIL job-hdr AND AVAIL job THEN DO:               
                lv-routing = "".
-               IF FIRST(tt-fg-set.QtyPerSet) THEN
-                  FOR EACH job-mch WHERE 
-                           job-mch.company EQ job.company
+               
+                  FIND LAST job-mch NO-LOCK
+                       WHERE job-mch.company EQ job.company
                        AND job-mch.job     EQ job.job
                        AND job-mch.job-no  EQ job.job-no
                        AND job-mch.job-no2 EQ job.job-no2
-                       AND job-mch.frm     EQ INTEGER(tt-fg-set.QtyPerSet) NO-LOCK
-                     BREAK BY job-mch.line:
-
-                     lv-routing = lv-routing + job-mch.m-code + ",".
-                  END.
-         END. /* each tt-fg-set*/
+                       AND job-mch.frm     EQ job-hdr.frm NO-ERROR.                     
+                   IF avail job-mch THEN
+                     lv-routing =  job-mch.m-code .
       END.  /* job*/
    
-      IF lv-routing = "" AND itemfg.est-no <> "" THEN 
-         FOR EACH est-op NO-LOCK WHERE 
-                  est-op.company = itemfg.company
-              AND est-op.est-no = itemfg.est-no
-              AND est-op.line LT 500 :
-              /*((ASI.est-op.qty eq est-qty.eqty and est.est-type ne 8) or
-                 (ASI.est-op.qty eq lv-eqty and est.est-type ge 7)) NO-LOCK*/
-            lv-routing = lv-routing + est-op.m-code + ",".
-         END.
-
+     
       /* spec notes */
       lv-text = "".
       IF tb_notes AND rd_lComments THEN 
@@ -223,38 +150,10 @@ IF AVAIL itemfg THEN DO:
    END.
 
    {custom/statusMsg.i "'Processing Customer # ' + string(w-ord.cust-no)"} 
-
-  /* DISP
-       w-ord.onh-qty   FORMAT "->>>>>>>>9"
-       w-ord.cust-name                                  
-       w-ord.i-no                                      
-       w-ord.i-name    FORMAT "X(27)"
-       itemfg.procat                                   
-       w-ord.po-num    FORMAT "x(15)"                       
-       w-ord.ord-no                                    
-       w-ord.price                                     
-       w-ord.rel-qty                                   
-       w-ord.rel-date                                  
-       w-ord.rel-no
-     WITH DOWN FRAME hots{1} NO-BOX STREAM-IO NO-LABEL WIDTH 250.
-
-
-
-   IF tb_excel THEN
-      PUT STREAM st-excel UNFORMATTED
-           '"' w-ord.onh-qty   '",'
-           '"' w-ord.cust-name '",'
-           '"' w-ord.i-no      '",'
-           '"' w-ord.i-name   '",'
-           '"' itemfg.procat   '",'
-           '"' w-ord.po-num    '",'
-           '"' w-ord.ord-no    '",'
-           '"' w-ord.price     '",'
-           '"' w-ord.rel-qty   '",'
-           '"' w-ord.rel-date  '",'
-           '"' w-ord.rel-no    '"'
-         SKIP.   */
-
+  FIND FIRST rejct-cd NO-LOCK
+       WHERE rejct-cd.TYPE    EQ "R"
+       AND rejct-cd.CODE EQ w-ord.prom-date-reason NO-ERROR .
+  
    ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -278,6 +177,10 @@ IF AVAIL itemfg THEN DO:
                          WHEN "rel"  THEN cVarValue = STRING(w-ord.rel-no,"->,>>>>>9") .
                          WHEN "pro-date"   THEN cVarValue = IF w-ord.prom-date NE ? THEN STRING(date(w-ord.prom-date),"99/99/99") ELSE "" .
                          WHEN "style"   THEN cVarValue = STRING(itemfg.style ,"x(6)").
+                         WHEN "pro-date-reason"   THEN cVarValue = IF AVAIL rejct-cd THEN STRING(w-ord.prom-date-reason + " " + rejct-cd.dscr ,"x(30)") ELSE "".
+                         WHEN "last-mch"   THEN cVarValue = STRING(lv-routing ,"x(12)").
+                         WHEN "job-no"   THEN cVarValue = IF w-ord.job-no NE "" THEN STRING(w-ord.job-no + "-" + STRING(w-ord.job-no2,"99") ,"x(9)") ELSE "".
+                         
                          
                     END CASE.
                       
