@@ -603,6 +603,9 @@ PROCEDURE pAddEstItem PRIVATE:
         opbf-estCostItem.areaUOM                   = "SQIN"
         opbf-estCostItem.dimUOM                    = "IN"
         opbf-estCostItem.quantityPerSet            = fGetQuantityPerSet(BUFFER ipbf-eb)
+        opbf-estCostItem.formNo                    = ipbf-eb.form-no
+        opbf-estCostItem.blankNo                   = ipbf-eb.blank-no
+        
         .
     
 
