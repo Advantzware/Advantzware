@@ -386,7 +386,7 @@ PROCEDURE ipCreateInvHead:
                            THEN bf-shipto.tax-code ELSE bf-oe-ord.tax-gr
         inv-head.tot-ord      = 0
         inv-head.inv-no       = 0
-        inv-head.stat         = IF AVAIL bf-cust AND bf-cust.inv-meth EQ ? THEN "H" ELSE ""
+        inv-head.stat         = ""
         inv-head.deleted      = NO
         inv-head.posted       = NO
         inv-head.inv-date     = IF invdate-chr EQ "Current" THEN TODAY ELSE IF invdate-chr EQ "User Date" THEN ipdtPostDate
@@ -407,7 +407,9 @@ PROCEDURE ipCreateInvHead:
     
     IF invStatus-log THEN
         inv-head.stat = "W".
-  
+    IF AVAIL bf-cust AND bf-cust.inv-meth EQ ? THEN 
+        inv-head.stat = "H". 
+    
     /*    FIND FIRST usergrps WHERE                                                                               */
     /*        usergrps.usergrps = "IN"                                                                            */
     /*        NO-LOCK NO-ERROR.                                                                                   */
