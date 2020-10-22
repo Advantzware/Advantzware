@@ -421,7 +421,7 @@ DEFINE BUTTON btnCalendar-6
 DEFINE BUTTON btnTags 
      IMAGE-UP FILE "Graphics/16x16/question.png":U
      LABEL "" 
-     SIZE 4.2 BY .95.
+     SIZE 4.2 BY .95 TOOLTIP "Show Details".
 
 DEFINE BUTTON btnValidate 
      LABEL "Validate" 
@@ -1227,9 +1227,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTags V-table-Win
 ON CHOOSE OF btnTags IN FRAME F-Main
 DO:
-    RUN sys/ref/dlgTagVwr.w (
+    RUN system/d-TagViewer.w (
         INPUT oe-ord.rec_key,
-        INPUT "",
         INPUT ""
         ).
 END.
@@ -2998,7 +2997,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE del-detail-recs V-table-Win 
 PROCEDURE del-detail-recs :

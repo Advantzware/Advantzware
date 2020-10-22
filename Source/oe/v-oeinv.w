@@ -160,7 +160,7 @@ DEFINE BUTTON btnCalendar-1
 DEFINE BUTTON btnTags 
      IMAGE-UP FILE "Graphics/16x16/question.png":U
      LABEL "" 
-     SIZE 4.4 BY 1.05.
+     SIZE 4.4 BY 1.05 TOOLTIP "Show Details".
 
 DEFINE VARIABLE fi_PO AS CHARACTER FORMAT "X(256)":U 
      LABEL "Cust PO#" 
@@ -554,9 +554,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTags V-table-Win
 ON CHOOSE OF btnTags IN FRAME F-Main
 DO:
-    RUN sys/ref/dlgTagVwr.w(
+    RUN system/d-TagViewer.w(
         INPUT inv-head.rec_key,
-        INPUT "",
         INPUT ""
         ).
 END.

@@ -213,7 +213,7 @@ RUN set-attribute-list (
 DEFINE BUTTON btnTags 
      IMAGE-UP FILE "Graphics/16x16/question.png":U
      LABEL "" 
-     SIZE 4.4 BY 1.
+     SIZE 4.4 BY 1 TOOLTIP "Show Details".
 
 DEFINE BUTTON btn_bank-info 
      LABEL "Bank Info" 
@@ -1009,10 +1009,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTags V-table-Win
 ON CHOOSE OF btnTags IN FRAME F-Main
 DO:
-    RUN sys/ref/dlgTagVwr.w(
+    RUN system/d-TagViewer.w(
         INPUT cust.rec_key,
-        INPUT "HOLD",
-        INPUT "HOLD Tags for Customer " + cust.cust-no
+        INPUT "HOLD"
         ). 
 END.
 

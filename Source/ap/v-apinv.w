@@ -129,7 +129,7 @@ DEFINE BUTTON btn-exrate
 DEFINE BUTTON btTags 
      IMAGE-UP FILE "Graphics/16x16/question.png":U
      LABEL "" 
-     SIZE 4.4 BY 1.05.
+     SIZE 4.4 BY 1.05 TOOLTIP "Show Details".
 
 DEFINE VARIABLE cb_freq AS CHARACTER FORMAT "X(256)":U 
      LABEL "Frequency" 
@@ -373,8 +373,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btTags V-table-Win
 ON CHOOSE OF btTags IN FRAME F-Main
 DO:
-    IF AVAILABLE ap-inv THEN
-        RUN sys/ref/dlgTagVwr.w (ap-inv.rec_key,"HOLD","").  
+    RUN system/d-TagViewer.w (
+        INPUT ap-inv.rec_key,
+        INPUT "HOLD"
+        ).  
 END.
 
 /* _UIB-CODE-BLOCK-END */
