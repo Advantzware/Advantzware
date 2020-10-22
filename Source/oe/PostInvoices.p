@@ -718,7 +718,7 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
             WHERE bf-itemfg.company EQ ipbf-inv-line.company
             AND bf-itemfg.i-no EQ ipbf-inv-line.i-no
             NO-ERROR.
-    IF NOT AVAILABLE bf-itemfg THEN 
+    IF AVAILABLE bf-itemfg THEN 
     DO:
         ASSIGN 
             ttInvoiceLineToPost.isOKToPost     = NO
@@ -1225,10 +1225,15 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
             FOR EACH bf-inv-line NO-LOCK
                 WHERE bf-inv-line.r-no EQ bf-inv-head.r-no
                 USE-INDEX r-no:
+                    MESSAGE inv-head.inv-no
+                    VIEW-AS ALERT-BOX.
                 RUN pAddInvoiceLineToPost(BUFFER ttPostingMaster, BUFFER bf-ttInvoiceToPost, BUFFER bf-inv-line, ipcCompany, bf-inv-head.r-no, OUTPUT lError, OUTPUT cMessage). 
             END. /*each bf-inv-line*/
+            
             IF lError THEN 
             DO: 
+                MESSAGE cMessage
+                VIEW-AS ALERT-BOX.
                 RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, cMessage).
             END.
             FOR EACH bf-inv-misc NO-LOCK
@@ -1255,6 +1260,8 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
                 WHERE bf-ttInvoiceLineToPost.rNo EQ bf-ttInvoiceToPost.rNo
                 AND NOT bf-ttInvoiceLineToPost.isOKToPost
                 NO-ERROR.
+                MESSAGE AVAILABLE bf-ttInvoiceLineToPost  SKIP bf-ttInvoiceLineToPost.problemMessage
+                VIEW-AS ALERT-BOX.
             IF AVAILABLE bf-ttInvoiceLineToPost THEN 
             DO:
                 RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, bf-ttInvoiceLineToPost.problemMessage).                
@@ -1264,7 +1271,8 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
                 AND NOT bf-ttInvoiceMiscToPost.isOKToPost
                 NO-ERROR.
             IF AVAILABLE bf-ttInvoiceMiscToPost THEN 
-            DO:
+            DO: MESSAGE "prob"bf-ttInvoiceMiscToPost.problemMessage 
+                VIEW-AS ALERT-BOX.
                 RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, bf-ttInvoiceMiscToPost.problemMessage).                
             END.
             
@@ -3629,8 +3637,14 @@ PROCEDURE pCreateValidationTags PRIVATE:
     FOR EACH ttInvoiceError,
         FIRST bf-inv-head NO-LOCK 
         WHERE ROWID(bf-inv-head) EQ ttInvoiceError.riInvError :
-            
-        RUN AddTagHold (bf-inv-head.rec_key,"inv-head", ttInvoiceError.problemMessage). /*From TagProcs Super Proc*/
+           MESSAGE bf-inv-head.inv-no SKIP "Rec" bf-inv-head.rec_key
+           VIEW-AS ALERT-BOX. 
+        RUN AddTagHold (
+            INPUT bf-inv-head.rec_key,
+            INPUT "inv-head",
+            INPUT ttInvoiceError.problemMessage,
+            INPUT ""
+            ). /*From TagProcs Super Proc*/
 
     END.
      
@@ -3650,7 +3664,12 @@ PROCEDURE pCreateValidationTags PRIVATE:
          WHERE ROWID(bf-inv-head) EQ ipriRowid NO-ERROR .
     IF AVAIL bf-inv-head THEN
     DO:
-       RUN AddTagHoldInfo (bf-inv-head.rec_key,"inv-head", ipcProblemMessage). /*From TagProcs Super Proc*/ 
+       RUN AddTagHoldInfo (
+           INPUT bf-inv-head.rec_key,
+           INPUT "inv-head",
+           INPUT ipcProblemMessage,
+           INPUT ""
+           ). /*From TagProcs Super Proc*/ 
     END.
      
  END PROCEDURE.

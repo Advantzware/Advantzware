@@ -888,7 +888,7 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+    DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT adm-new-record THEN
   DO:
@@ -918,6 +918,17 @@ PROCEDURE local-display-fields :
      lv-prev-exrate = ap-inv.ex-rate
      lv-got-exrate  = YES.
 
+  RUN Tag_IsTagRecordAvailable(
+      INPUT ap-inv.rec_key,
+      INPUT "ap-inv",
+      INPUT "Hold",
+      OUTPUT lAvailable
+      ).
+    IF lAvailable THEN  
+        btTags:SENSITIVE = TRUE
+        .
+    ELSE 
+        btTags:SENSITIVE = FALSE. 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1129,7 +1140,6 @@ PROCEDURE proc-enable :
   ASSIGN
    ll-first         = YES
    ll-date-warning  = NO
-   btTags:SENSITIVE = YES
    .
 
 END PROCEDURE.
