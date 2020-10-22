@@ -380,7 +380,8 @@
             w-ord.prom-date = oe-ordl.prom-date
             w-ord.last-date = oe-ord.ord-date
             w-ord.carrier   = v-carrier
-            w-ord.is-a-component = oe-ordl.is-a-component.
+            w-ord.is-a-component = oe-ordl.is-a-component
+            w-ord.prom-date-reason = oe-ordl.spare-char-3.
          
          IF v-comps AND itemfg.isaset THEN DO:
 

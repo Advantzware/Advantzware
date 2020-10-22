@@ -92,11 +92,13 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Qty on Hand,Customer Name,Item Code,Description,Cat,Po #," +
-                           "Order #,Sales,Rel Qty,Rel Date,Rel#,Prom Date,Style"
+                           "Order #,Sales,Rel Qty,Rel Date,Rel#,Prom Date,Style," +
+                           "Promise Date Change Reason,Last Machine,Job#" 
        cFieldListToSelect = "qty-hand,cust-name,item,desc,cat,po," +
-                            "order,sales,rel-qty,rel-date,rel,pro-date,style"
-       cFieldLength = "12,30,15,30,5,15," + "7,15,11,8,10,9,6"
-       cFieldType = "i,c,c,c,c,c," + "i,i,i,c,i,c,c" 
+                            "order,sales,rel-qty,rel-date,rel,pro-date,style," +
+                            "pro-date-reason,last-mch,job-no"
+       cFieldLength = "12,30,15,30,5,15," + "7,15,11,8,10,9,6," + "30,12,9"
+       cFieldType = "i,c,c,c,c,c," + "i,i,i,c,i,c,c," + "c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
