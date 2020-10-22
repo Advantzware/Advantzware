@@ -921,7 +921,6 @@ PROCEDURE local-display-fields :
   RUN Tag_IsTagRecordAvailable(
       INPUT ap-inv.rec_key,
       INPUT "ap-inv",
-      INPUT "Hold",
       OUTPUT lAvailable
       ).
     IF lAvailable THEN  

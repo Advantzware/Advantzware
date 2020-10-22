@@ -247,14 +247,12 @@ PROCEDURE Tag_IsTagRecordAvailable:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcLinkTable  AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcType       AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplAvailable  AS LOGICAL   NO-UNDO.
     
     oplAvailable = CAN-FIND(FIRST tag 
                             WHERE tag.linkRecKey EQ ipcLinkRecKey
                               AND tag.linkTable  EQ ipcLinkTable
-                              AND (IF ipcType NE "" THEN tag.tagType EQ ipcType ELSE YES) 
-                              ).
+                            ).
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
