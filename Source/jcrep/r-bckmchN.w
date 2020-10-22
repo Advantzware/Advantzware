@@ -1682,10 +1682,10 @@ SESSION:SET-WAIT-STATE ("general").
                   (est.est-type EQ 3 OR
                    est.est-type EQ 4 OR
                    est.est-type EQ 8))                                   or
-                 (eb.blank-no eq 0                and
-                  (est.est-type eq 2 or est.est-type eq 6)))
+                 (eb.form-no EQ job-hdr.frm                and
+                  (est.est-type eq 2 or est.est-type eq 6)) )
           no-lock no-error.
-
+         
       FIND first job
             where job.company eq cocode
               and job.job     eq job-hdr.job     
