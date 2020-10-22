@@ -1060,7 +1060,7 @@ PROCEDURE hold-invoice :
 /*   DEF VAR v-ThisCust-Date AS DATE NO-UNDO INIT ?.  */
   DEF VAR v-stat-multi AS CHAR NO-UNDO.
   
-  EMPTY TEMP-TABLE tt-inv-head.
+  EMPTY TEMP-TABLE ttCombInv.
  IF INDEX("HX",inv-head.stat) > 0 OR inv-head.stat = "" THEN DO:
     MESSAGE "Are you sure you wish to"
            ( IF inv-head.stat = "H" THEN "release" ELSE "hold" )
@@ -1097,14 +1097,20 @@ PROCEDURE hold-invoice :
                          bf-head.stat    EQ "H":
                          ASSIGN bf-head.stat = ""
                                 bf-head.inv-date = v-date.
+                    IF inv-head.r-no NE bf-head.r-no AND inv-head.printed EQ NO AND bf-head.printed EQ NO THEN
+                    DO:      
+                      CREATE ttCombInv.
+                      ASSIGN
+                          ttCombInv.company     = bf-head.company
+                          ttCombInv.r-no        = bf-head.r-no 
+                           .      
+                    END.          
                 END.
 
                 FIND bf-head WHERE RECID(bf-head) = RECID(inv-head).
 
                 IF bf-head.stat = "H" THEN
-                   bf-head.stat = "".
-
-                RELEASE bf-head.
+                   bf-head.stat = "".                  
 
                 inv-status:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "RELEASED".
              END. /*  IF v-choice EQ "FG" */
@@ -1118,9 +1124,16 @@ PROCEDURE hold-invoice :
 
                         ASSIGN bf-head.stat = ""
                                bf-head.inv-date = v-date.
-                    END.
-
-                    RELEASE bf-head.
+                        IF inv-head.r-no NE bf-head.r-no AND inv-head.printed EQ NO AND bf-head.printed EQ NO THEN
+                        DO:      
+                          CREATE ttCombInv.
+                          ASSIGN
+                              ttCombInv.company     = bf-head.company
+                              ttCombInv.r-no        = bf-head.r-no 
+                               .      
+                        END.           
+                    END. 
+                    
                     inv-status:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "RELEASED".
                 END.
                 ELSE DO:
@@ -1136,22 +1149,19 @@ PROCEDURE hold-invoice :
                                bf-head.inv-date = v-date.
                          IF inv-head.r-no NE bf-head.r-no AND inv-head.printed EQ NO AND bf-head.printed EQ NO THEN
                          DO:      
-                         CREATE tt-inv-head.
+                         CREATE ttCombInv.
                          ASSIGN
-                              tt-inv-head.company     = bf-head.company
-                              tt-inv-head.r-no        = bf-head.r-no 
+                              ttCombInv.company     = bf-head.company
+                              ttCombInv.r-no        = bf-head.r-no 
                                .      
                          END.      
                       END.         
                                
                         IF AVAIL(bf-head) AND bf-head.inv-no EQ inv-head.inv-no THEN
                                  inv-status:SCREEN-VALUE IN FRAME {&FRAME-NAME} = 
-                                 IF bf-head.stat = "H" THEN "ON HOLD" ELSE "RELEASED".
-                      RELEASE bf-head.
-                      
+                                 IF bf-head.stat = "H" THEN "ON HOLD" ELSE "RELEASED".                       
                     END.
-                END.
-                RUN pCombineInvoice(ROWID(inv-head)) .
+                END.                 
              END.
              ELSE IF v-choice EQ "Po" THEN
              DO:
@@ -1204,7 +1214,14 @@ PROCEDURE hold-invoice :
                            bf-head.stat    EQ "H":
                            ASSIGN bf-head.stat = ""
                                bf-head.inv-date = v-date.
-                           
+                           IF inv-head.r-no NE bf-head.r-no AND inv-head.printed EQ NO AND bf-head.printed EQ NO THEN
+                           DO:      
+                             CREATE ttCombInv.
+                             ASSIGN
+                                  ttCombInv.company     = bf-head.company
+                                  ttCombInv.r-no        = bf-head.r-no 
+                                   .      
+                           END.                                   
                            IF bf-head.r-no EQ inv-head.r-no THEN
                                inv-status:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "RELEASED" .
                        END.
@@ -1234,6 +1251,8 @@ PROCEDURE hold-invoice :
                 RELEASE bf-head.
 
              END.
+             RUN pCombineInvoice(ROWID(inv-head)) .
+             RELEASE bf-head.
           END. /* IF inv-head.stat = "H" */
           ELSE /* ELSE IF inv-head.stat NOT "H" */
           DO:
