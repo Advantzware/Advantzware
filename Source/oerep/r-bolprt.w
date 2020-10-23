@@ -1008,6 +1008,15 @@ DO:
           ).
       IF NOT lValid THEN 
           RETURN NO-APPLY.
+          
+      IF MONTH(fiPostdate) NE MONTH(begin_date) OR 
+          MONTH(fiPostDate) NE MONTH(end_date) THEN DO:
+          MESSAGE "The BOL posting date period is different from bol date " SKIP 
+                  "Please enter same period for posting the bol " VIEW-AS 
+              APPLY "ENTRY" TO fiPostDate IN FRAME {&FRAME-NAME}.
+              RETURN NO-APPLY .
+          END.
+      END.     
   
       IF MONTH(fiPostdate) NE MONTH(TODAY) OR 
           YEAR(fiPostDate) NE YEAR(TODAY) THEN DO:
