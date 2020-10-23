@@ -16,42 +16,43 @@
 {system\TaxProcs.i}
 
 DEFINE TEMP-TABLE ttPostingMaster NO-UNDO 
-    FIELD company              AS CHARACTER
-    FIELD blockZeroCost        AS LOGICAL
-    FIELD deleteEstPrep        AS LOGICAL
-    FIELD invoiceStart         AS INTEGER 
-    FIELD invoiceEnd           AS INTEGER 
-    FIELD invoiceDateStart     AS DATE 
-    FIELD invoiceDateEnd       AS DATE 
-    FIELD customerIDStart      AS CHARACTER 
-    FIELD customerIDEnd        AS CHARACTER
-    FIELD postDate             AS DATE
-    FIELD periodID             AS INTEGER 
-    FIELD periodDateStart      AS DATE
-    FIELD periodDateEnd        AS DATE 
-    FIELD accountAR            AS CHARACTER
-    FIELD accountARFreight     AS CHARACTER
-    FIELD accountARSales       AS CHARACTER
-    FIELD accountARSalesTax    AS CHARACTER
-    FIELD accountARDiscount    AS CHARACTER
-    FIELD accountARCash        AS CHARACTER
-    FIELD accountARCurrency    AS CHARACTER
-    FIELD accountCOGS          AS CHARACTER
-    FIELD accountFG            AS CHARACTER 
-    FIELD journalNote          AS CHARACTER
-    FIELD consolidateOnAR      AS CHARACTER
-    FIELD consolidateOnFG      AS CHARACTER
-    FIELD consolidateOnCOGS    AS CHARACTER
-    FIELD consolidateOnLine    AS CHARACTER
-    FIELD consolidateOnMisc    AS CHARACTER
-    FIELD consolidateOnTax     AS CHARACTER
-    FIELD consolidateOnDisc    AS CHARACTER
-    FIELD consolidateOnFreight AS CHARACTER
-    FIELD consolidateOnCash    AS CHARACTER
-    FIELD currencyCode         AS CHARACTER 
-    FIELD currencyExRate       AS DECIMAL
-    FIELD exportPath           AS CHARACTER
-    FIELD runID                AS INTEGER
+    FIELD company               AS CHARACTER
+    FIELD blockZeroCost         AS LOGICAL
+    FIELD deleteEstPrep         AS LOGICAL
+    FIELD invoiceStart          AS INTEGER 
+    FIELD invoiceEnd            AS INTEGER 
+    FIELD invoiceDateStart      AS DATE 
+    FIELD invoiceDateEnd        AS DATE 
+    FIELD customerIDStart       AS CHARACTER 
+    FIELD customerIDEnd         AS CHARACTER
+    FIELD postDate              AS DATE
+    FIELD periodID              AS INTEGER 
+    FIELD periodDateStart       AS DATE
+    FIELD periodDateEnd         AS DATE 
+    FIELD accountAR             AS CHARACTER
+    FIELD accountARFreight      AS CHARACTER
+    FIELD accountARSales        AS CHARACTER
+    FIELD accountARSalesTax     AS CHARACTER
+    FIELD accountARDiscount     AS CHARACTER
+    FIELD accountARCash         AS CHARACTER
+    FIELD accountARCurrency     AS CHARACTER
+    FIELD accountCOGS           AS CHARACTER
+    FIELD accountFG             AS CHARACTER 
+    FIELD journalNote           AS CHARACTER
+    FIELD consolidateOnAR       AS CHARACTER
+    FIELD consolidateOnFG       AS CHARACTER
+    FIELD consolidateOnCOGS     AS CHARACTER
+    FIELD consolidateOnLine     AS CHARACTER
+    FIELD consolidateOnMisc     AS CHARACTER
+    FIELD consolidateOnTax      AS CHARACTER
+    FIELD consolidateOnDisc     AS CHARACTER
+    FIELD consolidateOnFreight  AS CHARACTER
+    FIELD consolidateOnCash     AS CHARACTER
+    FIELD consolidateOnCurrency AS CHARACTER 
+    FIELD currencyCode          AS CHARACTER 
+    FIELD currencyExRate        AS DECIMAL
+    FIELD exportPath            AS CHARACTER
+    FIELD runID                 AS INTEGER
     .
     
 DEFINE TEMP-TABLE ttInvoiceToPost NO-UNDO 
@@ -311,14 +312,14 @@ DEFINE TEMP-TABLE rpt NO-UNDO
     .
     
 DEFINE TEMP-TABLE ttInvoiceTaxDetail NO-UNDO LIKE ttTaxDetail
-    FIELD riInvHead  AS ROWID
+    FIELD riInvHead AS ROWID
     .
 
 DEFINE TEMP-TABLE ttInvoiceError NO-UNDO 
-    FIELD riInvError AS ROWID
-    FIELD invoiceID AS INTEGER 
+    FIELD riInvError     AS ROWID
+    FIELD invoiceID      AS INTEGER 
     FIELD problemMessage AS CHARACTER
-    FIELD isOKToPost AS LOGICAL 
+    FIELD isOKToPost     AS LOGICAL 
     .    
 
     
@@ -326,7 +327,7 @@ DEFINE TEMP-TABLE ttInvoiceError NO-UNDO
 {sys/inc/var.i SHARED}
 /*Program-level Handles for persistent procs*/
 
-DEFINE VARIABLE ghNotesProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE ghNotesProcs    AS HANDLE NO-UNDO.
 
 DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
@@ -377,13 +378,13 @@ FUNCTION fIsWritable RETURNS LOGICAL PRIVATE
     
 FUNCTION fGetFgValueForZeroCost RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER,
-     ipcFgItem AS CHARACTER ) FORWARD.  
+    ipcFgItem AS CHARACTER ) FORWARD.  
      
 FUNCTION fGetInvoiceApprovalVal RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER,
-     ipcControl AS CHARACTER,
-     ipcCustomer AS CHARACTER,
-     iplIsValidateOnly AS LOGICAL) FORWARD.         
+    ipcControl AS CHARACTER,
+    ipcCustomer AS CHARACTER,
+    iplIsValidateOnly AS LOGICAL) FORWARD.         
 
 /* ***************************  Main Block  *************************** */
 /* Shared Vars needed for 810 invoices */
@@ -618,7 +619,7 @@ PROCEDURE pAddGLTransactionsForTax PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttPostingMaster FOR ttPostingMaster.   
     DEFINE PARAMETER BUFFER ipbf-ttInvoiceToPost FOR ttInvoiceToPost.
     
-    DEFINE VARIABLE dTaxAmount AS DECIMAL NO-UNDO. 
+    DEFINE VARIABLE dTaxAmount       AS DECIMAL NO-UNDO. 
     DEFINE VARIABLE lDetailAvailable AS LOGICAL NO-UNDO.
     
     lDetailAvailable = NO.    
@@ -627,15 +628,16 @@ PROCEDURE pAddGLTransactionsForTax PRIVATE:
         BREAK BY ttInvoiceTaxDetail.taxCodeAccount:
         ASSIGN 
             lDetailAvailable = YES
-            dTaxAmount = dTaxAmount + ttInvoiceTaxDetail.taxCodeTaxAmount
+            dTaxAmount       = dTaxAmount + ttInvoiceTaxDetail.taxCodeTaxAmount
             .
-        IF LAST-OF(ttInvoiceTaxDetail.taxCodeAccount) THEN DO:
-            RUN pAddGLTransaction(BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceToPost, "TAX", ttInvoiceTaxDetail.taxCodeAccount, - dTaxAmount, "").
+        IF LAST-OF(ttInvoiceTaxDetail.taxCodeAccount) THEN 
+        DO:
+            RUN pAddGLTransaction(BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceToPost, "TAX", ttInvoiceTaxDetail.taxCodeAccount, - dTaxAmount * ttInvoiceToPost.currencyExRate, "").
             dTaxAmount = 0.
         END.
     END.
     IF NOT lDetailAvailable THEN 
-        RUN pAddGLTransaction(BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceToPost, "TAX", ipbf-ttInvoiceToPost.accountARSalesTax, - ipbf-ttInvoiceToPost.amountBilledTax, "").
+        RUN pAddGLTransaction(BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceToPost, "TAX", ipbf-ttInvoiceToPost.accountARSalesTax, - ipbf-ttInvoiceToPost.amountBilledTax * ttInvoiceToPost.currencyExRate, "").
     
     
 END PROCEDURE.
@@ -774,19 +776,19 @@ PROCEDURE pAddInvoiceLineToPost PRIVATE:
     
     IF NOT ttPostingMaster.blockZeroCost AND ipbf-inv-line.inv-qty NE 0 AND ttInvoiceLineToPost.costTotal EQ 0 THEN 
     DO:
-         lFGItemAllowZeroCost = fGetFgValueForZeroCost(ipbf-inv-line.company,ipbf-inv-line.i-no).
+        lFGItemAllowZeroCost = fGetFgValueForZeroCost(ipbf-inv-line.company,ipbf-inv-line.i-no).
          
-         IF lFGItemAllowZeroCost THEN
-          RUN pAddTagInfo (ipbf-ttInvoiceToPost.riInvHead,"Zero Cost Exemption Item").
-         ELSE
-         DO: 
+        IF lFGItemAllowZeroCost THEN
+            RUN pAddTagInfo (ipbf-ttInvoiceToPost.riInvHead,"Zero Cost Exemption Item").
+        ELSE
+        DO: 
             ASSIGN 
-            ttInvoiceLineToPost.isOKToPost     = NO
-            ttInvoiceLineToPost.problemMessage = "Zero Cost"
-            oplError                           = YES
-            opcMessage                         = ttInvoiceLineToPost.problemMessage
-            .
-         END.          
+                ttInvoiceLineToPost.isOKToPost     = NO
+                ttInvoiceLineToPost.problemMessage = "Zero Cost"
+                oplError                           = YES
+                opcMessage                         = ttInvoiceLineToPost.problemMessage
+                .
+        END.          
     END.  /*Check 0 cost*/
 
     IF ipbf-inv-line.t-price NE 0 THEN 
@@ -1285,7 +1287,8 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
                 END.
             END.
         END. /*inv-head is writable*/
-        ELSE DO:
+        ELSE 
+        DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, "Invoice is locked").
         END.
     END.  /*Each Inv-head that meets range criteria*/
@@ -2067,7 +2070,10 @@ PROCEDURE pGetCurrencyCodeAndRate PRIVATE:
     DEFINE BUFFER bf-company  FOR company.
     DEFINE BUFFER bf-currency FOR currency.
     
-    opcCurrencyCode = ipcCurrCodeInvoice.
+    ASSIGN 
+        opcCurrencyCode = ipcCurrCodeInvoice
+        opdCurrencyExchangeRate = 1
+        .
     IF opcCurrencyCode EQ "" THEN 
         opcCurrencyCode = ipcCurrCodeCust.
     IF opcCurrencyCode EQ "" THEN 
@@ -2198,26 +2204,27 @@ PROCEDURE pGetSettings PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pBuildInvoiceTaxDetail PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:  GIven an invoice header, create the lines of tax details
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose:  GIven an invoice header, create the lines of tax details
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttInvoiceToPost FOR ttInvoiceToPost.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcErrorMessage AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iLine AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCount         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iLine          AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cAccountSource AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dTotalTax AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dTax AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dTaxableAmount AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE lHasLimit AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dTotalTax      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTax           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTaxableAmount AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lHasLimit      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
     
     
-    IF ipbf-ttInvoiceToPost.taxGroup NE "" AND ipbf-ttInvoiceToPost.amountBilledTax NE 0 THEN DO:
+    IF ipbf-ttInvoiceToPost.taxGroup NE "" AND ipbf-ttInvoiceToPost.amountBilledTax NE 0 THEN 
+    DO:
         ASSIGN 
             cAccountSource = "Tax Group: " + ipbf-ttInvoiceToPost.taxGroup
             dTaxableAmount = ipbf-ttInvoiceToPost.amountBilledExTax - ipbf-ttInvoiceToPost.amountBilledFreight
@@ -2232,14 +2239,15 @@ PROCEDURE pBuildInvoiceTaxDetail PRIVATE:
             ).
         FOR EACH ttTaxDetail:
             RUN pCheckAccount(ttTaxDetail.company,  ttTaxDetail.taxCodeAccount, cAccountSource + " Code: " + ttTaxDetail.taxCode, "Tax Account", 
-                    OUTPUT oplError, OUTPUT opcErrorMessage).
+                OUTPUT oplError, OUTPUT opcErrorMessage).
             IF oplError THEN RETURN.
             CREATE ttInvoiceTaxDetail.
             BUFFER-COPY ttTaxDetail TO ttInvoiceTaxDetail.
             ttInvoiceTaxDetail.riInvHead = ipbf-ttInvoiceToPost.riInvHead.
         END.         
 
-        IF dTotalTax NE ipbf-ttInvoiceToPost.amountBilledTax THEN DO:
+        IF dTotalTax NE ipbf-ttInvoiceToPost.amountBilledTax THEN 
+        DO:
             FIND FIRST ttInvoiceTaxDetail
                 WHERE ttInvoiceTaxDetail.riInvHead EQ ipbf-ttInvoiceToPost.riInvHead
                 AND NOT ttInvoiceTaxDetail.isFreight
@@ -2302,25 +2310,26 @@ PROCEDURE pInitialize PRIVATE:
     
     CREATE ttPostingMaster.
     ASSIGN 
-        ttPostingMaster.company              = ipcCompany
-        ttPostingMaster.invoiceStart         = ipiInvNoStart
-        ttPostingMaster.invoiceEnd           = ipiInvNoEnd
-        ttPostingMaster.invoiceDateStart     = ipdtInvDateStart
-        ttPostingMaster.invoiceDateEnd       = ipdtInvDateEnd
-        ttPostingMaster.customerIDStart      = ipcCustomerIDStart
-        ttPostingMaster.customerIDEnd        = ipcCustomerIDEnd
-        ttPostingMaster.postDate             = ipdtPostDate 
-        ttPostingMaster.consolidateOnAR      = "Account"
-        ttPostingMaster.consolidateOnDisc    = "Account"
-        ttPostingMaster.consolidateOnFreight = "Account"
-        ttPostingMaster.consolidateOnCash    = "Account"
-        ttPostingMaster.consolidateOnLine    = "Invoice"
-        ttPostingMaster.consolidateOnMisc    = "Invoice"
-        ttPostingMaster.consolidateOnTax     = "Invoice"
-        ttPostingMaster.consolidateOnCOGS    = "Invoice"
-        ttPostingMaster.consolidateOnFG      = "Invoice"
-        ttPostingMaster.journalNote          = "OEINV"
-        ttPostingMaster.runID                = fGetNextRun(ttPostingMaster.company, NO)
+        ttPostingMaster.company               = ipcCompany
+        ttPostingMaster.invoiceStart          = ipiInvNoStart
+        ttPostingMaster.invoiceEnd            = ipiInvNoEnd
+        ttPostingMaster.invoiceDateStart      = ipdtInvDateStart
+        ttPostingMaster.invoiceDateEnd        = ipdtInvDateEnd
+        ttPostingMaster.customerIDStart       = ipcCustomerIDStart
+        ttPostingMaster.customerIDEnd         = ipcCustomerIDEnd
+        ttPostingMaster.postDate              = ipdtPostDate 
+        ttPostingMaster.consolidateOnAR       = "Account"
+        ttPostingMaster.consolidateOnDisc     = "Account"
+        ttPostingMaster.consolidateOnFreight  = "Account"
+        ttPostingMaster.consolidateOnCash     = "Account"
+        ttPostingMaster.consolidateOnLine     = "Invoice"
+        ttPostingMaster.consolidateOnMisc     = "Invoice"
+        ttPostingMaster.consolidateOnTax      = "Invoice"
+        ttPostingMaster.consolidateOnCOGS     = "Invoice"
+        ttPostingMaster.consolidateOnFG       = "Invoice"
+        ttPostingMaster.consolidateOnCurrency = "Invoice"
+        ttPostingMaster.journalNote           = "OEINV"
+        ttPostingMaster.runID                 = fGetNextRun(ttPostingMaster.company, NO)
         .
     
     FIND FIRST bf-company NO-LOCK    
@@ -2346,15 +2355,15 @@ PROCEDURE pInitialize PRIVATE:
         DO:           
             /* Create output directory if not available */
             RUN FileSys_CreateDirectory(INPUT  ttPostingMaster.exportPath,
-                                        OUTPUT lValid,
-                                        OUTPUT opcMessage
-                                        ) NO-ERROR.
-             IF NOT lValid THEN 
-             DO:       
+                OUTPUT lValid,
+                OUTPUT opcMessage
+                ) NO-ERROR.
+            IF NOT lValid THEN 
+            DO:       
                 ASSIGN 
-                oplError = YES.
+                    oplError = YES.
                 RETURN.
-             END.
+            END.
         END.
     END.
     
@@ -2540,6 +2549,14 @@ PROCEDURE pPostGL PRIVATE:
         .  
     RUN pPostGLType(BUFFER ipbf-ttPostingMaster, iplCreateGL, cTransactionType, iRunID, 
         cConsolidateOn, cConsolidateAccount, cConsolidateMessage + cTransactionType, INPUT-OUTPUT dRunningBalance).
+    
+    ASSIGN 
+        cTransactionType    = "CURR"
+        cConsolidateOn      = ipbf-ttPostingMaster.consolidateOnCurrency
+        cConsolidateAccount = ipbf-ttPostingMaster.accountARCurrency
+        .  
+    RUN pPostGLType(BUFFER ipbf-ttPostingMaster, iplCreateGL, cTransactionType, iRunID, 
+        cConsolidateOn, cConsolidateAccount, cConsolidateMessage + cTransactionType, INPUT-OUTPUT dRunningBalance).
             
     ASSIGN 
         cTransactionType    = "FG"
@@ -2713,7 +2730,8 @@ PROCEDURE pPostAll PRIVATE:
     END.
     
     /* Run the additional updates only if the above transaction is complete */
-    IF lTransactionComplete THEN DO:
+    IF lTransactionComplete THEN 
+    DO:
         /*Update additional records*/
         RUN pUpdateOrders.
         RUN pUpdateBOLs.
@@ -2891,7 +2909,7 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
                     .
             
             IF ttInvoiceLineToPost.amountBilledIncDiscount NE 0 THEN  
-                RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "LINE", ttInvoiceLineToPost.accountARSales, - ttInvoiceLineToPost.amountBilledIncDiscount, ttInvoiceLineToPost.itemID).               
+                RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "LINE", ttInvoiceLineToPost.accountARSales, - ttInvoiceLineToPost.amountBilledIncDiscount * ttInvoiceLineToPost.currencyExRate, ttInvoiceLineToPost.itemID).               
             
             RUN pAddGLTransactionsForFG(BUFFER ttPostingMaster, BUFFER ttInvoiceLineToPost).
         
@@ -2905,7 +2923,7 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
             :
             
             IF ttInvoiceMiscToPost.isBillable AND ttInvoiceMiscToPost.amountBilled NE 0 THEN 
-                RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "MISC", ttInvoiceMiscToPost.accountARSales, - ttInvoiceMiscToPost.amountBilled, ttInvoiceMiscToPost.chargeID).
+                RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "MISC", ttInvoiceMiscToPost.accountARSales, - ttInvoiceMiscToPost.amountBilled * ttInvoiceLineToPost.currencyExRate, ttInvoiceMiscToPost.chargeID).
                 
             ASSIGN 
                 ttInvoiceToPost.amountCost       = ttInvoiceToPost.amountCost + ttInvoiceMiscToPost.costTotal
@@ -2949,11 +2967,14 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
         
         /*Add discount per invoice*/
         IF ttInvoiceToPost.amountDiscount NE 0 THEN 
-            RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "DISC", ttInvoiceToPost.accountARDiscount, ttInvoiceToPost.amountDiscount, "").
+            RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "DISC", ttInvoiceToPost.accountARDiscount, ttInvoiceToPost.amountDiscount * ttInvoiceToPost.currencyExRate, "").
 
         IF ttInvoiceToPost.amountBilledFreight NE 0 THEN 
-            RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "FREIGHT", ttInvoiceToPost.accountARFreight, - ttInvoiceToPost.amountBilledFreight, "").
+            RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "FREIGHT", ttInvoiceToPost.accountARFreight, - ttInvoiceToPost.amountBilledFreight * ttInvoiceToPost.currencyExRate, "").
 
+        IF ttInvoiceToPost.currencyExRate NE 1 THEN 
+            RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "CURR", ttInvoiceToPost.accountARCurrency, - ttInvoiceToPost.amountBilled + ttInvoiceToPost.amountBilled * ttInvoiceToPost.currencyExRate , "").
+            
         IF ttInvoiceToPost.amountBilledTax NE 0 THEN 
             RUN pAddGLTransactionsForTax(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost).
         
@@ -2972,10 +2993,10 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pPostSalesTaxForInvHead PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipriInvHead AS ROWID     NO-UNDO.
     
     DEFINE VARIABLE dTotalTax AS DECIMAL   NO-UNDO.
@@ -2994,10 +3015,10 @@ PROCEDURE pPostSalesTaxForInvHead PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pGetSalesTaxForInvHead PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipriInvHead    AS ROWID     NO-UNDO.
     DEFINE INPUT  PARAMETER ipcMessageType AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdTotalTax    AS DECIMAL   NO-UNDO.
@@ -3016,10 +3037,10 @@ PROCEDURE pGetSalesTaxForInvHead PRIVATE:
             cTriggerID     = "GetTaxAmount"
             .
     ELSE IF ipcMessageType EQ "INVOICE" THEN
-        ASSIGN
-            lPostToJournal = TRUE
-            cTriggerID     = "GetTaxAmountFinal"
-            .
+            ASSIGN
+                lPostToJournal = TRUE
+                cTriggerID     = "GetTaxAmountFinal"
+                .
 
     RUN Tax_CalculateForInvHeadWithDetail  (
         INPUT  ipriInvHead,
@@ -3051,7 +3072,8 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE:
     DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPrimaryID   AS CHARACTER NO-UNDO.
 
-    IF AVAILABLE ipbf-inv-head THEN DO:
+    IF AVAILABLE ipbf-inv-head THEN 
+    DO:
     
         ASSIGN 
             cAPIID       = "SendInvoice"
@@ -3384,11 +3406,11 @@ PROCEDURE pUpdateOrders PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pUpdateTax PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:  Given invoice to post, assign new buffer to trigger write to update 
- tax.
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose:  Given invoice to post, assign new buffer to trigger write to update 
+     tax.
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttInvoiceToPost FOR ttInvoiceToPost.
     DEFINE INPUT PARAMETER ipdNewTax AS DECIMAL NO-UNDO.
     
@@ -3398,10 +3420,10 @@ PROCEDURE pUpdateTax PRIVATE:
         WHERE ROWID(bf-inv-head) EQ ipbf-ttInvoiceToPost.riInvHead
         NO-ERROR.
     IF AVAILABLE bf-inv-head THEN 
-        ASSIGN bf-inv-head.spare-int-1 = 1 
-        ipbf-ttInvoiceToPost.amountBilledTax = ipdNewTax
-        ipbf-ttInvoiceToPost.amountBilled = ipbf-ttInvoiceToPost.amountBilledExTax + ipdNewTax 
-        .
+        ASSIGN bf-inv-head.spare-int-1              = 1 
+            ipbf-ttInvoiceToPost.amountBilledTax = ipdNewTax
+            ipbf-ttInvoiceToPost.amountBilled    = ipbf-ttInvoiceToPost.amountBilledExTax + ipdNewTax 
+            .
          
 
 END PROCEDURE.
@@ -3440,19 +3462,19 @@ PROCEDURE ValidateInvoices:
         OUTPUT oplError, OUTPUT opcMessage).
     
     IF NOT oplError THEN
-    /*Build the master list of invoices based on ttPostingMaster*/
-    RUN pBuildInvoicesToPost(ipcCompany, YES ,iplUnApprovedInvoice, OUTPUT opiCountProcessed, OUTPUT oplError, OUTPUT opcMessage).
+        /*Build the master list of invoices based on ttPostingMaster*/
+        RUN pBuildInvoicesToPost(ipcCompany, YES ,iplUnApprovedInvoice, OUTPUT opiCountProcessed, OUTPUT oplError, OUTPUT opcMessage).
             
     IF NOT iplUnApprovedInvoice THEN
     DO:
-       IF NOT oplError THEN
-       /*Process the list of invoices built for additional validations*/
-       RUN pValidateInvoicesToPost(
-            YES,
-            INPUT  iplgUpdateTax,
-            OUTPUT opiCountProcessed, 
-            OUTPUT opiCountValid
-            ).               
+        IF NOT oplError THEN
+            /*Process the list of invoices built for additional validations*/
+            RUN pValidateInvoicesToPost(
+                YES,
+                INPUT  iplgUpdateTax,
+                OUTPUT opiCountProcessed, 
+                OUTPUT opiCountValid
+                ).               
     END.      
            
     opcMessage = "Process Complete.".
@@ -3467,18 +3489,18 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
     DEFINE INPUT  PARAMETER iplgUpdateTax AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opiCountProcessed AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiCountValid AS INTEGER NO-UNDO.
-    DEFINE BUFFER bf-ttInvoiceToPost            FOR ttInvoiceToPost.
-    DEFINE BUFFER bf-inv-head FOR inv-head.
-    DEFINE BUFFER bf-ttInvoiceLineToPost        FOR ttInvoiceLineToPost.
-    DEFINE BUFFER bf-ttInvoiceMiscToPost        FOR ttInvoiceMiscToPost.
+    DEFINE BUFFER bf-ttInvoiceToPost     FOR ttInvoiceToPost.
+    DEFINE BUFFER bf-inv-head            FOR inv-head.
+    DEFINE BUFFER bf-ttInvoiceLineToPost FOR ttInvoiceLineToPost.
+    DEFINE BUFFER bf-ttInvoiceMiscToPost FOR ttInvoiceMiscToPost.
     
-    DEFINE VARIABLE lAutoApprove AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lShiptoTaxAble AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lValidateRequired AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE dTotalLineRev AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dTotalTax         AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAutoApprove      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lShiptoTaxAble    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lValidateRequired AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE dTotalLineRev     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTotalTax         AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
     
     FOR EACH bf-ttInvoiceToPost,
         FIRST bf-inv-head NO-LOCK 
@@ -3496,7 +3518,8 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             ).       
            
         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalTaxCalc",bf-inv-head.cust-no,iplIsValidateOnly).        
-        IF lValidateRequired AND NOT lSuccess THEN DO:
+        IF lValidateRequired AND NOT lSuccess THEN 
+        DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, "Tax Calculation Error").
             lAutoApprove = NO.
         END.
@@ -3509,40 +3532,40 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             DO:   
                 RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Tax on invoice does not match with calculated tax").
                 lAutoApprove = NO.
-             END.            
-         END.
+            END.            
+        END.
          
 
-         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalInvoiceStatus",bf-inv-head.cust-no,iplIsValidateOnly).
-         IF lValidateRequired AND bf-inv-head.stat EQ "H" THEN
-         DO:
+        lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalInvoiceStatus",bf-inv-head.cust-no,iplIsValidateOnly).
+        IF lValidateRequired AND bf-inv-head.stat EQ "H" THEN
+        DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, "Invoice on Hold").
             lAutoApprove = NO.
-         END.
+        END.
          
-         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalFreightAmount",bf-inv-head.cust-no,iplIsValidateOnly).
-         IF lValidateRequired AND bf-ttInvoiceToPost.isFreightBillable AND  bf-ttInvoiceToPost.amountBilledFreight LE 0 THEN
-         DO:
+        lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalFreightAmount",bf-inv-head.cust-no,iplIsValidateOnly).
+        IF lValidateRequired AND bf-ttInvoiceToPost.isFreightBillable AND  bf-ttInvoiceToPost.amountBilledFreight LE 0 THEN
+        DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billable freight without freight charge").
             lAutoApprove = NO.
-         END.
+        END.
          
-         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalBillNotes",bf-inv-head.cust-no,iplIsValidateOnly).           
-         IF lValidateRequired AND (bf-inv-head.bill-i[1] NE "" OR bf-inv-head.bill-i[2] NE "" OR bf-inv-head.bill-i[3] NE "" OR bf-inv-head.bill-i[4] NE "") THEN
-         DO:
+        lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalBillNotes",bf-inv-head.cust-no,iplIsValidateOnly).           
+        IF lValidateRequired AND (bf-inv-head.bill-i[1] NE "" OR bf-inv-head.bill-i[2] NE "" OR bf-inv-head.bill-i[3] NE "" OR bf-inv-head.bill-i[4] NE "") THEN
+        DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Billing notes exist").
             lAutoApprove = NO.
-         END.    
+        END.    
          
-         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalFreightTerms",bf-inv-head.cust-no,iplIsValidateOnly).           
-         IF lValidateRequired AND bf-inv-head.frt-pay NE "" AND LOOKUP(bf-inv-head.frt-pay,"P,C,B") EQ 0 THEN
-         DO:
+        lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalFreightTerms",bf-inv-head.cust-no,iplIsValidateOnly).           
+        IF lValidateRequired AND bf-inv-head.frt-pay NE "" AND LOOKUP(bf-inv-head.frt-pay,"P,C,B") EQ 0 THEN
+        DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invalid freight terms code").
             lAutoApprove = NO.
-         END.
+        END.
          
-         IF bf-ttInvoiceToPost.amountBilledTax EQ 0 THEN
-         DO:
+        IF bf-ttInvoiceToPost.amountBilledTax EQ 0 THEN
+        DO:
             RUN Tax_GetTaxableAR(bf-inv-head.company,bf-inv-head.cust-no,bf-inv-head.sold-no,"", OUTPUT lShiptoTaxAble).
             lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalTaxableCheck", bf-inv-head.cust-no,iplIsValidateOnly).
             IF lShiptoTaxAble AND lValidateRequired THEN
@@ -3550,43 +3573,44 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
                 RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Taxable ship to with no tax").
                 lAutoApprove = NO.
             END.
-         END.  
+        END.  
          
 
-         dTotalLineRev = 0 .
-         FOR EACH bf-ttInvoiceLineToPost WHERE
-             bf-ttInvoiceLineToPost.rNo EQ bf-inv-head.r-no:          
+        dTotalLineRev = 0 .
+        FOR EACH bf-ttInvoiceLineToPost WHERE
+            bf-ttInvoiceLineToPost.rNo EQ bf-inv-head.r-no:          
 
-             lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalPriceGTCost", bf-inv-head.cust-no,iplIsValidateOnly).        
-             IF lValidateRequired AND bf-ttInvoiceLineToPost.amountBilled LT bf-ttInvoiceLineToPost.costTotal THEN
-             DO:                             
-                  RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Item price is less than the cost of the item").
-                  lAutoApprove = NO.
-             END.  
-             dTotalLineRev = dTotalLineRev + bf-ttInvoiceLineToPost.amountBilled .
-         END. 
+            lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalPriceGTCost", bf-inv-head.cust-no,iplIsValidateOnly).        
+            IF lValidateRequired AND bf-ttInvoiceLineToPost.amountBilled LT bf-ttInvoiceLineToPost.costTotal THEN
+            DO:                             
+                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Item price is less than the cost of the item").
+                lAutoApprove = NO.
+            END.  
+            dTotalLineRev = dTotalLineRev + bf-ttInvoiceLineToPost.amountBilled .
+        END. 
 
-         FOR EACH bf-ttInvoiceMiscToPost WHERE
-             bf-ttInvoiceMiscToPost.rNo EQ bf-inv-head.r-no
-             AND bf-ttInvoiceMiscToPost.isBillable :
-               dTotalLineRev = dTotalLineRev + bf-ttInvoiceMiscToPost.amountBilled.
-         END.
+        FOR EACH bf-ttInvoiceMiscToPost WHERE
+            bf-ttInvoiceMiscToPost.rNo EQ bf-inv-head.r-no
+            AND bf-ttInvoiceMiscToPost.isBillable :
+            dTotalLineRev = dTotalLineRev + bf-ttInvoiceMiscToPost.amountBilled.
+        END.
              
-         IF dTotalLineRev NE (bf-inv-head.t-inv-rev - bf-inv-head.t-inv-tax - ( IF bf-inv-head.f-bill THEN bf-inv-head.t-inv-freight 
-         ELSE 0)) THEN
-         DO:     
+        IF dTotalLineRev NE (bf-inv-head.t-inv-rev - bf-inv-head.t-inv-tax - ( IF bf-inv-head.f-bill THEN bf-inv-head.t-inv-freight 
+        ELSE 0)) THEN
+        DO:     
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Invoice lines <> Invoice Total").
             lAutoApprove = NO.
-         END.         
+        END.         
            
              
-         IF lAutoApprove AND bf-ttInvoiceToPost.isOKToPost THEN DO:
+        IF lAutoApprove AND bf-ttInvoiceToPost.isOKToPost THEN 
+        DO:
             FIND CURRENT bf-inv-head EXCLUSIVE-LOCK.
             ASSIGN 
                 bf-inv-head.autoApprove = YES.
             FIND CURRENT bf-inv-head NO-LOCK.
             opiCountValid = opiCountValid + 1.
-         END.
+        END.
     END.  /*Each Inv-head*/
     
     RELEASE bf-inv-head.
@@ -3606,14 +3630,14 @@ PROCEDURE pAddValidationError PRIVATE:
     
     CREATE ttInvoiceError.
     ASSIGN
-      ttInvoiceError.riInvError = ipbf-ttInvoiceToPost.riInvHead
-      ttInvoiceError.invoiceID    = ipbf-ttInvoiceToPost.invoiceID
-      ttInvoiceError.problemMessage    = ipcProblemMessage 
-      ttInvoiceError.isOKToPost = NO  .    
-      RELEASE ttInvoiceError.
+        ttInvoiceError.riInvError     = ipbf-ttInvoiceToPost.riInvHead
+        ttInvoiceError.invoiceID      = ipbf-ttInvoiceToPost.invoiceID
+        ttInvoiceError.problemMessage = ipcProblemMessage 
+        ttInvoiceError.isOKToPost     = NO  .    
+    RELEASE ttInvoiceError.
 
     ASSIGN 
-        ipbf-ttInvoiceToPost.isOKToPost =  NO
+        ipbf-ttInvoiceToPost.isOKToPost     = NO
         ipbf-ttInvoiceToPost.problemMessage = ipcProblemMessage
         .
 END PROCEDURE.
@@ -3634,10 +3658,10 @@ PROCEDURE pCreateValidationTags PRIVATE:
 
     END.
      
- END PROCEDURE.  
+END PROCEDURE.  
  
  
- PROCEDURE pAddTagInfo PRIVATE:
+PROCEDURE pAddTagInfo PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Processes the ttInvoiceError records and create tags on linked invoices
   
@@ -3647,15 +3671,15 @@ PROCEDURE pCreateValidationTags PRIVATE:
     DEFINE BUFFER bf-inv-head FOR inv-head.
     
     FIND FIRST bf-inv-head NO-LOCK 
-         WHERE ROWID(bf-inv-head) EQ ipriRowid NO-ERROR .
+        WHERE ROWID(bf-inv-head) EQ ipriRowid NO-ERROR .
     IF AVAIL bf-inv-head THEN
     DO:
-       RUN AddTagHoldInfo (bf-inv-head.rec_key,"inv-head", ipcProblemMessage). /*From TagProcs Super Proc*/ 
+        RUN AddTagHoldInfo (bf-inv-head.rec_key,"inv-head", ipcProblemMessage). /*From TagProcs Super Proc*/ 
     END.
      
- END PROCEDURE.
+END PROCEDURE.
  
- PROCEDURE pUnApprovedInvoice PRIVATE:
+PROCEDURE pUnApprovedInvoice PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Processes the auto unapproved invoices 
   
@@ -3665,7 +3689,7 @@ PROCEDURE pCreateValidationTags PRIVATE:
     DEFINE BUFFER bf-inv-head FOR inv-head.        
                 
     FIND FIRST bf-inv-head EXCLUSIVE-LOCK
-         WHERE ROWID(bf-inv-head) EQ ipriRowid NO-ERROR.
+        WHERE ROWID(bf-inv-head) EQ ipriRowid NO-ERROR.
     IF AVAIL bf-inv-head THEN 
     DO: 
         RUN ClearTagsByRecKey(bf-inv-head.rec_key).  /*Clear all hold tags - TagProcs.p*/
@@ -3673,7 +3697,7 @@ PROCEDURE pCreateValidationTags PRIVATE:
         bf-inv-head.autoApproved = NO.          
     END.          
     RELEASE bf-inv-head .    
- END PROCEDURE.
+END PROCEDURE.
     
 /* ************************  Function Implementations ***************** */ 
 FUNCTION fGetFilePath RETURNS CHARACTER PRIVATE
@@ -3867,7 +3891,7 @@ END FUNCTION.
 
 FUNCTION fGetFgValueForZeroCost RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER,
-     ipcFgItem AS CHARACTER):
+    ipcFgItem AS CHARACTER):
     /*------------------------------------------------------------------------------
      Purpose:  Returns YES if the FG Item define in view form NK1  
      Notes:  
@@ -3875,10 +3899,10 @@ FUNCTION fGetFgValueForZeroCost RETURNS LOGICAL PRIVATE
     DEFINE VARIABLE lReturnValue AS LOGICAL NO-UNDO.	
     	
     FIND FIRST sys-ctrl-shipto NO-LOCK
-         WHERE sys-ctrl-shipto.company EQ ipcCompany 
-         AND sys-ctrl-shipto.NAME EQ "INVPOST" 
-         AND sys-ctrl-shipto.char-fld EQ ipcFgItem
-         AND sys-ctrl-shipto.log-fld EQ NO NO-ERROR.
+        WHERE sys-ctrl-shipto.company EQ ipcCompany 
+        AND sys-ctrl-shipto.NAME EQ "INVPOST" 
+        AND sys-ctrl-shipto.char-fld EQ ipcFgItem
+        AND sys-ctrl-shipto.log-fld EQ NO NO-ERROR.
     lReturnValue = AVAILABLE sys-ctrl-shipto.
 	
     RETURN lReturnValue.
@@ -3888,9 +3912,9 @@ END FUNCTION.
 
 FUNCTION fGetInvoiceApprovalVal RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER,
-     ipcControl AS CHARACTER,
-     ipcCustomer AS CHARACTER,
-     iplIsValidateOnly AS LOGICAL):
+    ipcControl AS CHARACTER,
+    ipcCustomer AS CHARACTER,
+    iplIsValidateOnly AS LOGICAL):
     /*------------------------------------------------------------------------------
      Purpose:  Returns YES if the FG Item define in view form NK1  
      Notes:  
@@ -3908,13 +3932,13 @@ FUNCTION fGetInvoiceApprovalVal RETURNS LOGICAL PRIVATE
     IF lFound THEN iIntegerValue = INTEGER(cReturn) NO-ERROR.    
       
     IF iplIsValidateOnly AND lLogicalValue THEN
-	DO:
+    DO:
         lReturnValue = TRUE .
     END.
     ELSE IF NOT iplIsValidateOnly AND lLogicalValue AND iIntegerValue EQ 1  THEN
-    DO:
-        lReturnValue = TRUE .
-    END.                  
+        DO:
+            lReturnValue = TRUE .
+        END.                  
    	
     RETURN lReturnValue.
 		
