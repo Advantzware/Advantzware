@@ -995,22 +995,32 @@ DO:
       EMPTY TEMP-TABLE tt-packslip.
 
    DO WITH FRAME {&FRAME-NAME}:
-     ASSIGN {&displayed-objects}.
+     ASSIGN {&displayed-objects}.     
+     
    END.
    IF begin_date:SCREEN-VALUE EQ "" OR end_date:SCREEN-VALUE EQ "" THEN DO:
       MESSAGE "Release date may not be left blank..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO begin_date.
       RETURN NO-APPLY.
   END.
+  
+  IF invstatus-char EQ "One Bol Only" THEN
+       ASSIGN END_bol# = begin_bol#
+              END_bol#:SCREEN-VALUE = begin_bol#:SCREEN-VALUE.
+   ELSE
+       ASSIGN END_bol#.
+   IF begin_bol# EQ end_bol# THEN
+       lSingleBOL = TRUE.
+       
   IF tb_post-bol THEN DO: 
       RUN pCheckPostDate(
           OUTPUT lvalid
           ).
       IF NOT lValid THEN 
           RETURN NO-APPLY.
-          
-      IF MONTH(fiPostdate) NE MONTH(begin_date) OR 
-          MONTH(fiPostDate) NE MONTH(end_date) THEN DO:
+      
+      IF begin_bol# EQ end_bol# AND (MONTH(fiPostdate) NE MONTH(begin_date) OR 
+          MONTH(fiPostDate) NE MONTH(end_date)) THEN DO:
           MESSAGE "The BOL posting date period is different from bol date " SKIP 
                   "Please enter same period for posting the bol " VIEW-AS ALERT-BOX INFO. 
               APPLY "ENTRY" TO fiPostDate IN FRAME {&FRAME-NAME}.
@@ -1027,15 +1037,7 @@ DO:
               RETURN NO-APPLY .
           END.
       END. 
-   END.          
-
-   IF invstatus-char EQ "One Bol Only" THEN
-       ASSIGN END_bol# = begin_bol#
-              END_bol#:SCREEN-VALUE = begin_bol#:SCREEN-VALUE.
-   ELSE
-       ASSIGN END_bol#.
-   IF begin_bol# EQ end_bol# THEN
-       lSingleBOL = TRUE.
+   END.    
        
    IF rd_bolcert EQ "BOL" THEN
    DO:
