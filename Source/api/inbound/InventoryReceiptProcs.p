@@ -591,7 +591,7 @@ PROCEDURE InventoryReceipt_PostRMItems:
                     mat-act.qty     = mat-act.qty     + dOutQty
                     job-mat.qty-iss = job-mat.qty-iss + dOutQty
                     job-mat.qty-all = job-mat.qty-all - dOutQty
-                    item.q-comm     = item.q-comm     - rm-rctd.qty
+                    //item.q-comm     = item.q-comm     - rm-rctd.qty handled in write trigger of job-mat
                     .
   
                 RUN sys/ref/convquom.p(
@@ -622,7 +622,7 @@ PROCEDURE InventoryReceipt_PostRMItems:
                         
                     ASSIGN
                         job-mat.qty-all = 0
-                        item.q-comm     = item.q-comm - dOutQty
+                        //item.q-comm     = item.q-comm - dOutQty
                         .
                 END.
   
