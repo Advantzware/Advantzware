@@ -148,10 +148,11 @@ DO:
         fifo-loop-csc:
         DO iFifoLoopCount = 1 TO 2.
             FOR EACH fg-bin
-                WHERE fg-bin.company    EQ cocode
+                WHERE fg-bin.company  EQ cocode
                 AND fg-bin.i-no       EQ cINo
+                AND fg-bin.onHold     EQ NO
                 AND (fg-bin.cust-no   EQ "" /*OR fg-bin.cust-no EQ oe-relh.cust-no*/)
-                AND (ipcLocationList EQ "" OR LOOKUP(fg-bin.loc, ipcLocationList) GT 0)
+                AND (ipcLocationList  EQ "" OR LOOKUP(fg-bin.loc, ipcLocationList) GT 0)
                 AND (NOT AVAILABLE oe-ordl                          OR
                 
                 ((itemfg.cust-no EQ oe-ord.cust-no OR
@@ -194,9 +195,10 @@ DO:
             DO iFifoLoopCount = 1 TO 2.
                 lFgBinFound = FALSE.
                 FOR EACH fg-bin
-                    WHERE fg-bin.company    EQ cocode
-                        AND fg-bin.i-no       EQ cINo
-                        AND (fg-bin.cust-no   EQ "" /*OR fg-bin.cust-no EQ oe-relh.cust-no*/)
+                    WHERE fg-bin.company     EQ cocode
+                        AND fg-bin.i-no      EQ cINo
+                        AND fg-bin.onHold    EQ NO
+                        AND (fg-bin.cust-no  EQ "" /*OR fg-bin.cust-no EQ oe-relh.cust-no*/)
                         AND (ipcLocationList EQ "" OR LOOKUP(fg-bin.loc, ipcLocationList) GT 0) 
                         AND (NOT AVAILABLE oe-ordl                          OR
                             ((itemfg.cust-no EQ oe-ord.cust-no OR
