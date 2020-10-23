@@ -1012,10 +1012,9 @@ DO:
       IF MONTH(fiPostdate) NE MONTH(begin_date) OR 
           MONTH(fiPostDate) NE MONTH(end_date) THEN DO:
           MESSAGE "The BOL posting date period is different from bol date " SKIP 
-                  "Please enter same period for posting the bol " VIEW-AS 
+                  "Please enter same period for posting the bol " VIEW-AS ALERT-BOX INFO. 
               APPLY "ENTRY" TO fiPostDate IN FRAME {&FRAME-NAME}.
-              RETURN NO-APPLY .
-          END.
+              RETURN NO-APPLY .         
       END.     
   
       IF MONTH(fiPostdate) NE MONTH(TODAY) OR 
