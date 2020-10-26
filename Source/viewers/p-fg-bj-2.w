@@ -56,8 +56,9 @@ listname = "p-updinv." .
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fi_tag# btnPreFix tg_showzerobins 
-&Scoped-Define DISPLAYED-OBJECTS fi_tag# tg_showzerobins 
+&Scoped-Define ENABLED-OBJECTS fi_tag# btnPreFix tg_showzerobins ~
+tg_includehold 
+&Scoped-Define DISPLAYED-OBJECTS fi_tag# tg_showzerobins tg_includehold 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -102,6 +103,11 @@ DEFINE VARIABLE fi_tag# AS CHARACTER FORMAT "X(20)":U
      SIZE 39 BY 1
      BGCOLOR 15  NO-UNDO.
 
+DEFINE VARIABLE tg_includehold AS LOGICAL INITIAL no 
+     LABEL "Include On Hold" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 26 BY 1.1 NO-UNDO.
+
 DEFINE VARIABLE tg_showzerobins AS LOGICAL INITIAL no 
      LABEL "Show Bins with Qty = 0" 
      VIEW-AS TOGGLE-BOX
@@ -114,6 +120,7 @@ DEFINE FRAME F-Main
      fi_tag# AT ROW 1 COL 6 COLON-ALIGNED
      btnPreFix AT ROW 1 COL 48
      tg_showzerobins AT ROW 1 COL 70 WIDGET-ID 2
+     tg_includehold AT ROW 1 COL 98
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -235,12 +242,30 @@ ON RETURN OF fi_tag# IN FRAME F-Main /* Tag */
 DO: 
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR hContainer AS HANDLE NO-UNDO.
-  ASSIGN tg_showZeroBins fi_tag#.
+  ASSIGN tg_showZeroBins fi_tag# tg_includehold.
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "container-source", 
                                         OUTPUT char-hdl).
   hContainer = HANDLE(char-hdl).
   IF VALID-HANDLE(hContainer) THEN
-    RUN filterTagBins IN hContainer (INPUT tg_showZeroBins, INPUT fi_tag#).
+    RUN filterTagBins IN hContainer (INPUT tg_showZeroBins, INPUT fi_tag#, INPUT tg_includehold).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tg_includehold
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tg_includehold V-table-Win
+ON VALUE-CHANGED OF tg_includehold IN FRAME F-Main /* Include On Hold */
+DO:
+  DEF VAR char-hdl AS CHAR NO-UNDO.
+  DEF VAR hContainer AS HANDLE NO-UNDO.
+  ASSIGN tg_includehold.    
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "container-source", 
+                                        OUTPUT char-hdl).
+  hContainer = HANDLE(char-hdl).
+  IF VALID-HANDLE(hContainer) THEN
+    RUN filterTagBins IN hContainer (INPUT tg_showZeroBins, INPUT fi_tag#, INPUT tg_includehold).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -258,7 +283,7 @@ DO:
                                         OUTPUT char-hdl).
   hContainer = HANDLE(char-hdl).
   IF VALID-HANDLE(hContainer) THEN
-    RUN filterTagBins IN hContainer (INPUT tg_showZeroBins, INPUT fi_tag#).
+    RUN filterTagBins IN hContainer (INPUT tg_showZeroBins, INPUT fi_tag#, INPUT tg_includehold).
 END.
 
 /* _UIB-CODE-BLOCK-END */
