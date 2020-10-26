@@ -485,20 +485,6 @@ in-file-name = SEARCH(in-file-name).
 qtr-file-name = in-file-name.
 
 
-/*  DO:
-    qtr-file-name = in-file-name + ".q".
-
-    cmdline = "quoter -d , " + in-file-name + " >" + qtr-file-name.
-
-    IF OPSYS = "unix" THEN
-    UNIX silent value(cmdline).
-    ELSE
-    IF OPSYS = "msdos" OR OPSYS BEGINS "win" THEN
-    DOS silent value(cmdline).
-
-  END. 
-  */
-
   /* move current budget to last year budget */
   FOR EACH account WHERE account.company EQ cocode:
       DO i = 1 TO 13:
