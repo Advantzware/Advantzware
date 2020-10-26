@@ -45,20 +45,28 @@ DEF VAR hbhRecKey1 AS HANDLE NO-UNDO.
 DEF VAR hbhRecKey2 AS HANDLE NO-UNDO.
 DEF VAR cName AS CHAR NO-UNDO.
 DEF VAR cKeyString AS CHAR NO-UNDO.
+DEF VAR cUserMatch AS CHAR NO-UNDO.
+DEF VAR cTableMatch AS CHAR NO-UNDO.
+DEF VAR cFlagMatch AS CHAR NO-UNDO.
 DEF VAR iLockCountSel AS INT NO-UNDO.
 DEF VAR iLockCountAll AS INT NO-UNDO.
 DEF VAR iTransCountSel AS INT NO-UNDO.
 DEF VAR iTransCountAll AS INT NO-UNDO.
-DEF VAR hQuery AS HANDLE NO-UNDO.
-DEF VAR hBuffer AS HANDLE NO-UNDO.
-DEF VAR hBufField AS HANDLE NO-UNDO EXTENT 17.
-DEF VAR hBrowse AS HANDLE NO-UNDO.
+DEF VAR hLockQuery AS HANDLE NO-UNDO.
+DEF VAR hLockBuffer AS HANDLE NO-UNDO.
+DEF VAR hLockBufField AS HANDLE NO-UNDO EXTENT 17.
+DEF VAR hLockBrowse AS HANDLE NO-UNDO.
+DEF VAR hTranQuery AS HANDLE NO-UNDO.
+DEF VAR hTranBuffer AS HANDLE NO-UNDO.
+DEF VAR hTranBufField AS HANDLE NO-UNDO EXTENT 17.
+DEF VAR hTranBrowse AS HANDLE NO-UNDO.
 DEF VAR cExportFile AS CHAR NO-UNDO FORMAT "x(60)".
 DEF VAR cRecKey AS CHAR NO-UNDO.
 DEF VAR lShowInstructions AS LOG NO-UNDO INITIAL TRUE.
 DEF VAR hThisUser AS HANDLE NO-UNDO.
 DEF VAR cThisUser AS CHAR NO-UNDO.
 DEF VAR lExclusive AS LOG NO-UNDO.
+DEF VAR lSortOrder AS LOG NO-UNDO INITIAL ?.
 DEF VAR cMyUser AS CHAR NO-UNDO.
 DEF VAR iMyLevel AS INT NO-UNDO.
 DEF VAR lTraceOn AS LOG NO-UNDO.
@@ -69,14 +77,14 @@ DEF VAR lAlreadyRun AS LOG NO-UNDO INITIAL FALSE.
 
 DEF TEMP-TABLE ttLocks
     FIELD ttfFlags AS CHAR LABEL "Type"
-    FIELD ttfLock-userid AS CHAR LABEL "User ID" FORMAT "x(12)"
+    FIELD ttfLock-userid AS CHAR LABEL "User ID" FORMAT "x(16)"
+    FIELD ttfLock-Tty AS CHAR LABEL "on Terminal" FORMAT "x(18)"
+    FIELD ttfDispTime AS CHAR LABEL "Duration" FORMAT "x(12)"
+    FIELD ttfTable AS CHAR LABEL "Table" FORMAT "x(22)"
+    FIELD ttfFields AS CHAR  LABEL "Fields" FORMAT "x(34)"
+    FIELD ttfValues AS CHAR LABEL "Values" FORMAT "x(34)"
+    
     FIELD ttfLock-name AS CHAR LABEL "Name" FORMAT "x(25)"
-    FIELD ttfLock-Tty AS CHAR LABEL "Terminal" FORMAT "x(13)"
-    FIELD ttfTable AS CHAR LABEL "Table" FORMAT "x(12)"
-    FIELD ttfDispTime AS CHAR LABEL "Duration" FORMAT "x(10)"
-    FIELD ttfFields AS CHAR  LABEL "Fields" FORMAT "x(32)"
-    FIELD ttfValues AS CHAR LABEL "Values" FORMAT "x(32)"
-
     FIELD ttfUserID AS CHAR LABEL "User ID"
     FIELD ttfLock-Id AS INT64 LABEL "Lock ID"
     FIELD ttfLock-Usr AS INT LABEL "Lock User#"
@@ -86,6 +94,18 @@ DEF TEMP-TABLE ttLocks
     FIELD ttfDuration AS INT LABEL "Duration"
     FIELD ttfLock-Type AS CHAR LABEL "Lk Type"
     .
+
+DEF TEMP-TABLE ttTrans 
+    FIELD ttfTrans-state AS CHAR LABEL "State" FORMAT "x(13)"
+    FIELD ttfUser-id AS CHAR LABEL "User ID" FORMAT "x(17)"
+    FIELD ttfTrans-txtime AS CHAR LABEL "Start Time" FORMAT "x(24)"
+    FIELD ttfTrans-Duration AS INT LABEL "Duration"
+    FIELD ttfDispTime AS CHAR LABEL "Duration" FORMAT "x(12)"
+    FIELD ttfTrans-flags AS CHAR LABEL "Flags" FORMAT "x(8)"
+    FIELD ttfTrans-usrnum AS INT LABEL "User Num" FORMAT ">>>>>>>>>9"
+    FIELD ttfTrans-num AS INT LABEL "Trans Num" FORMAT ">>>>>>>>>9"
+    . 
+
 DEF VAR cLabels AS CHAR INITIAL 
     "Type,User ID,Name,Terminal,Table,Duration,Fields,Values,User ID,Lock ID,Lock User#,Table#,Recid,Lock Time,Duration,Lk Type,Last Action,Hotkey,Date/Time,2d Last Action,Hotkey,Date/Time,3d Last ActionHotkey,Date/Time".
     
@@ -330,7 +350,7 @@ DEFINE FRAME fMain
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW wWin ASSIGN
          HIDDEN             = YES
-         TITLE              = "Lock Monitor"
+         TITLE              = "Lock and Transaction Monitor"
          HEIGHT             = 32.1
          WIDTH              = 159.8
          MAX-HEIGHT         = 33.29
@@ -433,7 +453,7 @@ END PROCEDURE.
 
 &Scoped-define SELF-NAME wWin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wWin wWin
-ON END-ERROR OF wWin /* Lock Monitor */
+ON END-ERROR OF wWin /* Lock and Transaction Monitor */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -446,7 +466,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wWin wWin
-ON WINDOW-CLOSE OF wWin /* Lock Monitor */
+ON WINDOW-CLOSE OF wWin /* Lock and Transaction Monitor */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
@@ -1032,15 +1052,30 @@ PROCEDURE pGetTransData :
         iTransCountAll = 0
         iTransCountSel = 0.
     
-    FOR EACH _trans NO-LOCK WHERE 
-        _trans._trans-usrnum NE ?:
-        FIND FIRST _user NO-LOCK WHERE 
-            _user._user_number = _trans._Trans-Usrnum
-            NO-ERROR.
-        IF NOT AVAIL _user THEN NEXT.
+    EMPTY TEMP-TABLE ttTrans.
+    
+    FOR EACH _trans WHERE 
+        _trans._trans-state EQ "ACTIVE" 
+        NO-LOCK:
+        
+        CREATE ttTrans.
         ASSIGN 
-            iTransCountAll = iTransCountAll + 1
-            iTransCountSel = IF CAN-DO(cUserList,_user._userid) THEN iTransCountSel + 1 ELSE iTransCountSel.
+            ttTrans.ttfTrans-state = _trans._trans-state 
+            ttTrans.ttfTrans-flags = _trans._trans-flags
+            ttTrans.ttfTrans-usrnum = _trans._trans-usrnum
+            ttTrans.ttfTrans-num = _trans._trans-num
+            ttTrans.ttfTrans-txtime = _trans._trans-txtime 
+            ttTrans.ttfTrans-duration = _trans._trans-duration
+            ttTrans.ttfDispTime = STRING(_trans._trans-duration,"HH:MM:SS")
+            .
+        FIND _Connect NO-LOCK WHERE 
+        _Connect._Connect-id = _Trans._Trans-Usrnum + 1
+        NO-ERROR.
+        IF AVAIL _connect THEN ASSIGN 
+            ttTrans.ttfUser-id = _connect._connect-name.    
+        ASSIGN 
+        iTransCountAll = iTransCountAll + 1
+            iTransCountSel = IF CAN-DO(cUserList,ttTrans.ttfUser-id) THEN iTransCountSel + 1 ELSE iTransCountSel.
     END.
     ASSIGN 
         fiTxnCount:SCREEN-VALUE IN FRAME {&frame-name} = STRING(iTransCountAll)
@@ -1051,13 +1086,14 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUser wWin 
-PROCEDURE pGetUser :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTranUser wWin 
+PROCEDURE pGetTranUser :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    hThisUser = hBrowse:GET-BROWSE-COLUMN (2).
+    /*
+    hThisUser = hTranBrowse:GET-BROWSE-COLUMN (2).
     cThisUser = hThisUser:SCREEN-VALUE.
     
     FIND FIRST users NO-LOCK WHERE 
@@ -1066,6 +1102,28 @@ PROCEDURE pGetUser :
     IF AVAIL users 
     AND users.track_usage THEN ASSIGN 
         lTraceOn = TRUE.
+    ELSE ASSIGN lTraceOn = FALSE.
+    */
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUser wWin 
+PROCEDURE pGetUser :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    hThisUser = hLockBrowse:GET-BROWSE-COLUMN (2).
+    cThisUser = hThisUser:SCREEN-VALUE.
+    
+    FIND FIRST users NO-LOCK WHERE 
+        users.user_id = cThisUser
+        NO-ERROR.
+    IF AVAIL users 
+        AND users.track_usage THEN ASSIGN 
+            lTraceOn = TRUE.
     ELSE ASSIGN lTraceOn = FALSE.
 
 END PROCEDURE.
@@ -1079,11 +1137,9 @@ PROCEDURE pRefresh :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEF VAR cUserMatch AS CHAR NO-UNDO.
-    DEF VAR cTableMatch AS CHAR NO-UNDO.
     DEF VAR iOldStatusColor AS INT NO-UNDO.
     DEF VAR iLockColor AS INT NO-UNDO.
-    DEF VAR cFlagMatch AS CHAR NO-UNDO.
+    DEF VAR iTranColor AS INT NO-UNDO.
     
     ASSIGN
         cFlagMatch = IF tbExclusive:CHECKED IN FRAME {&frame-name} THEN "EXCL" ELSE "*"
@@ -1095,58 +1151,99 @@ PROCEDURE pRefresh :
     
     RUN pRunMonitor.
     
-    IF VALID-HANDLE(hBuffer) THEN DELETE OBJECT hBuffer.
-    IF VALID-HANDLE(hQuery) THEN DELETE OBJECT hQuery.
-    IF VALID-HANDLE(hBrowse) THEN DELETE OBJECT hBrowse.
+    /* Build the lock table browser */
+    IF VALID-HANDLE(hLockBuffer) THEN DELETE OBJECT hLockBuffer.
+    IF VALID-HANDLE(hLockQuery) THEN DELETE OBJECT hLockQuery.
+    IF VALID-HANDLE(hLockBrowse) THEN DELETE OBJECT hLockBrowse.
     DO iCtr = 1 TO 17:
-        IF VALID-HANDLE(hBufField[iCtr]) THEN DELETE OBJECT hBufField[iCtr].
+        IF VALID-HANDLE(hLockBufField[iCtr]) THEN DELETE OBJECT hLockBufField[iCtr].
     END.    
-    hBuffer = TEMP-TABLE ttLocks2:HANDLE.
-    CREATE QUERY hQuery.
-    hQuery:ADD-BUFFER (BUFFER ttLocks2:HANDLE).
-
-    hQuery:QUERY-PREPARE ("FOR EACH ttLocks2 WHERE " +
-                           "ttLocks2.ttfLock-userid MATCHES '" +
-                            STRING(cUserMatch) + 
-                           "' AND ttLocks2.ttfTable MATCHES '" + 
-                            STRING(cTableMatch) +
-                           "' AND ttLocks2.ttfDuration GE " +
-                           fiDuration:SCREEN-VALUE +
-                           " AND CAN-DO('" +
-                            STRING(cFlagMatch) +                           
-                           "',ttLocks2.ttfFlags)" +
-                           " BY ttLocks2.ttfDuration DESCENDING"
-                          ).
-    hQuery:QUERY-OPEN().
-    
-    CREATE BROWSE hBrowse
+    hLockBuffer = TEMP-TABLE ttLocks2:HANDLE.
+    CREATE QUERY hLockQuery.
+    hLockQuery:ADD-BUFFER (BUFFER ttLocks2:HANDLE).
+    hLockQuery:QUERY-PREPARE ("FOR EACH ttLocks2 WHERE " +
+        "ttLocks2.ttfLock-userid MATCHES '" +
+        STRING(cUserMatch) + 
+        "' AND ttLocks2.ttfTable MATCHES '" + 
+        STRING(cTableMatch) +
+        "' AND ttLocks2.ttfDuration GE " +
+        fiDuration:SCREEN-VALUE +
+        " AND CAN-DO('" +
+        STRING(cFlagMatch) +                           
+        "',ttLocks2.ttfFlags)" +
+        " BY ttLocks2.ttfDuration DESCENDING"
+        ).
+    hLockQuery:QUERY-OPEN().
+    CREATE BROWSE hLockBrowse
         ASSIGN 
             FRAME = FRAME {&frame-name}:HANDLE 
-            QUERY = hQuery:HANDLE 
+            QUERY = hLockQuery:HANDLE 
             ROW-MARKERS = FALSE
             ROW = IF lShowInstructions THEN 13.47 ELSE 5.79
             COLUMN = 5.00
             WIDTH = 154.00
-            HEIGHT = IF lShowInstructions THEN 16.03 ELSE 23.78
+            HEIGHT = IF lShowInstructions THEN 10.03 ELSE 17.78
             VISIBLE = TRUE 
             READ-ONLY = TRUE 
             SENSITIVE = TRUE
             SEPARATORS = TRUE
+            ALLOW-COLUMN-SEARCHING = TRUE 
         TRIGGERS:
             ON VALUE-CHANGED PERSISTENT RUN pGetUser.
+            ON START-SEARCH PERSISTENT RUN pSortLocks.
         END TRIGGERS.
-
-    hBrowse:ADD-COLUMNS-FROM (BUFFER ttLocks2:HANDLE).
-    hBrowse:NUM-LOCKED-COLUMNS = 2.
-
-    APPLY 'value-changed' TO hBrowse.
-
+    hLockBrowse:ADD-COLUMNS-FROM (BUFFER ttLocks2:HANDLE).
+    hLockBrowse:NUM-LOCKED-COLUMNS = 2.
+    APPLY 'value-changed' TO hLockBrowse.
     ASSIGN
         iLockColor = IF NOT lExclusive THEN 14 ELSE 12
-        iLockColor = IF hQuery:NUM-RESULTS > 0 THEN iLockColor ELSE 10
+        iLockColor = IF hLockQuery:NUM-RESULTS > 0 THEN iLockColor ELSE 10
         rStatus:BGCOLOR = iOldStatusColor
-        fiLockCount:SCREEN-VALUE = STRING(hQuery:NUM-RESULTS)
+        fiLockCount:SCREEN-VALUE = STRING(hLockQuery:NUM-RESULTS)
         rLocks:BGCOLOR = iLockColor. 
+        
+    /* Build transaction browser */
+    IF VALID-HANDLE(hTranBuffer) THEN DELETE OBJECT hTranBuffer.
+    IF VALID-HANDLE(hTranQuery) THEN DELETE OBJECT hTranQuery.
+    IF VALID-HANDLE(hTranBrowse) THEN DELETE OBJECT hTranBrowse.
+    DO iCtr = 1 TO 17:
+        IF VALID-HANDLE(hTranBufField[iCtr]) THEN DELETE OBJECT hTranBufField[iCtr].
+    END.    
+    hTranBuffer = TEMP-TABLE ttTrans:HANDLE.
+    CREATE QUERY hTranQuery.
+    hTranQuery:ADD-BUFFER (BUFFER ttTrans:HANDLE).
+    hTranQuery:QUERY-PREPARE ("FOR EACH ttTrans WHERE " +
+        "ttTrans.ttfUser-id MATCHES '" +
+        STRING(cUserMatch) + 
+        "' BY ttTrans.ttfTrans-duration DESCENDING").
+    hTranQuery:QUERY-OPEN().
+    CREATE BROWSE hTranBrowse
+        ASSIGN 
+        FRAME = FRAME {&frame-name}:HANDLE 
+        QUERY = hTranQuery:HANDLE 
+        ROW-MARKERS = FALSE
+        ROW = hLockBrowse:ROW + hLockBrowse:HEIGHT + 0.5
+        COLUMN = 5.00
+        WIDTH = 108.00
+        HEIGHT = 29.9 - (hLockBrowse:ROW + hLockBrowse:HEIGHT + 0.5) 
+        VISIBLE = TRUE 
+        READ-ONLY = TRUE 
+        SENSITIVE = TRUE
+        SEPARATORS = TRUE
+        ALLOW-COLUMN-SEARCHING = TRUE 
+        TRIGGERS:
+            ON VALUE-CHANGED PERSISTENT RUN pGetTranUser.
+            ON START-SEARCH PERSISTENT RUN pSortTrans.
+        END TRIGGERS.
+    hTranBrowse:ADD-COLUMNS-FROM (BUFFER ttTrans:HANDLE, "ttfTrans-duration").
+    hTranBrowse:NUM-LOCKED-COLUMNS = 2.
+    APPLY 'value-changed' TO hTranBrowse.
+    ASSIGN
+        iTranColor = IF NOT lExclusive THEN 14 ELSE 12
+        iTranColor = IF hTranQuery:NUM-RESULTS > 0 THEN iTranColor ELSE 10
+        rStatus:BGCOLOR = iOldStatusColor
+        fiTxnCount:SCREEN-VALUE = STRING(hTranQuery:NUM-RESULTS)
+        rTrans:BGCOLOR = iTranColor. 
         
 END PROCEDURE.
 
@@ -1161,6 +1258,127 @@ PROCEDURE pRunMonitor :
 ------------------------------------------------------------------------------*/
     RUN pGetTransData.
     RUN pGetLockData.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSortLocks wWin 
+PROCEDURE pSortLocks :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hSortColumn  AS WIDGET-HANDLE.
+    DEFINE VARIABLE hQueryHandle AS HANDLE     NO-UNDO.
+
+    CASE lSortOrder:
+        WHEN TRUE THEN ASSIGN lSortOrder = FALSE.
+        WHEN FALSE THEN ASSIGN lSortOrder = ?.
+        WHEN ? THEN ASSIGN lSortOrder = TRUE.
+    END CASE. 
+    
+    DO iCtr = 1 TO hLockBrowse:NUM-COLUMNS:
+        hSortColumn = hLockBrowse:GET-BROWSE-COLUMN(iCtr).
+        hSortColumn:SORT-ASCENDING = ?.
+    END.
+    hSortColumn = hLockBrowse:CURRENT-COLUMN.
+    hQueryHandle = hLockBrowse:QUERY.
+    hQueryHandle:QUERY-CLOSE().
+    
+    CASE lSortOrder:
+        WHEN TRUE THEN DO:
+            hQueryHandle:QUERY-PREPARE("FOR EACH ttLocks2 NO-LOCK " + 
+                                        "WHERE " +
+                                        "ttLocks2.ttfLock-userid MATCHES '" + STRING(cUserMatch) + "' AND " +
+                                        "ttLocks2.ttfTable MATCHES '" + STRING(cTableMatch) + "' AND " +
+                                        "ttLocks2.ttfDuration GE " + fiDuration:SCREEN-VALUE IN FRAME fMain + " AND " +
+                                        "CAN-DO('" + STRING(cFlagMatch) + "',ttLocks2.ttfFlags)" +
+                                        " BY " + hSortColumn:NAME).
+            hSortColumn:SORT-ASCENDING = TRUE.
+            END.
+        WHEN FALSE THEN DO:
+            hQueryHandle:QUERY-PREPARE("FOR EACH ttLocks2 NO-LOCK " + 
+                                        "WHERE " +
+                                        "ttLocks2.ttfLock-userid MATCHES '" + STRING(cUserMatch) + "' AND " +
+                                        "ttLocks2.ttfTable MATCHES '" + STRING(cTableMatch) + "' AND " +
+                                        "ttLocks2.ttfDuration GE " + fiDuration:SCREEN-VALUE IN FRAME fMain + " AND " +
+                                        "CAN-DO('" + STRING(cFlagMatch) + "',ttLocks2.ttfFlags)" +
+                                        " BY " + hSortColumn:NAME + " DESCENDING").
+            hSortColumn:SORT-ASCENDING = FALSE.
+        END.
+        WHEN ? THEN DO:
+            hQueryHandle:QUERY-PREPARE("FOR EACH ttLocks2 NO-LOCK " + 
+                                        "WHERE " +
+                                        "ttLocks2.ttfLock-userid MATCHES '" + STRING(cUserMatch) + "' AND " +
+                                        "ttLocks2.ttfTable MATCHES '" + STRING(cTableMatch) + "' AND " +
+                                        "ttLocks2.ttfDuration GE " + fiDuration:SCREEN-VALUE IN FRAME fMain + " AND " +
+                                        "CAN-DO('" + STRING(cFlagMatch) + "',ttLocks2.ttfFlags)" +
+                                        " BY ttLocks2.ttfDuration DESCENDING").
+            hSortColumn:SORT-ASCENDING = ?.
+        END.
+    END CASE.
+    
+    hQueryHandle:QUERY-OPEN().
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSortTrans wWin 
+PROCEDURE pSortTrans :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hSortColumn  AS WIDGET-HANDLE.
+    DEFINE VARIABLE hQueryHandle AS HANDLE     NO-UNDO.
+
+    CASE lSortOrder:
+        WHEN TRUE THEN 
+            ASSIGN 
+                lSortOrder = FALSE.
+        WHEN FALSE THEN 
+            ASSIGN 
+                lSortOrder = ?.
+        WHEN ? THEN 
+            ASSIGN 
+                lSortOrder = TRUE.
+    END CASE. 
+    
+    DO iCtr = 1 TO hTranBrowse:NUM-COLUMNS:
+        hSortColumn = hTranBrowse:GET-BROWSE-COLUMN(iCtr).
+        hSortColumn:SORT-ASCENDING = ?.
+    END.
+    hSortColumn = hTranBrowse:CURRENT-COLUMN.
+    hQueryHandle = hTranBrowse:QUERY.
+    hQueryHandle:QUERY-CLOSE().
+    
+    CASE lSortOrder:
+        WHEN TRUE THEN DO:
+            hQueryHandle:QUERY-PREPARE("FOR EACH ttTrans WHERE " +
+                                        "ttTrans.ttfUser-id MATCHES '" + STRING(cUserMatch) + "'" +
+                                        " BY " + hSortColumn:NAME).
+                hSortColumn:SORT-ASCENDING = TRUE.
+            END.
+        WHEN FALSE THEN DO:
+            hQueryHandle:QUERY-PREPARE("FOR EACH ttTrans WHERE " +
+                                        "ttTrans.ttfUser-id MATCHES '" + STRING(cUserMatch) + "'" + 
+                                        " BY " + hSortColumn:NAME + " DESCENDING").
+            hSortColumn:SORT-ASCENDING = FALSE.
+        END.
+        WHEN ? THEN DO:
+            hQueryHandle:QUERY-PREPARE("FOR EACH ttTrans WHERE " +
+                                        "ttTrans.ttfUser-id MATCHES '" + STRING(cUserMatch) +  "'" +
+                                        " BY ttTrans.ttfTrans-duration DESCENDING").
+            hSortColumn:SORT-ASCENDING = ?.
+        END.
+    END CASE.
+    
+    hQueryHandle:QUERY-OPEN().
+
 
 END PROCEDURE.
 
