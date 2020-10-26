@@ -106,7 +106,7 @@ DEFINE VARIABLE fi_tag# AS CHARACTER FORMAT "X(20)":U
 DEFINE VARIABLE tg_includehold AS LOGICAL INITIAL no 
      LABEL "Include On Hold" 
      VIEW-AS TOGGLE-BOX
-     SIZE 26 BY 1.1 NO-UNDO.
+     SIZE 19 BY 1.1 NO-UNDO.
 
 DEFINE VARIABLE tg_showzerobins AS LOGICAL INITIAL no 
      LABEL "Show Bins with Qty = 0" 
