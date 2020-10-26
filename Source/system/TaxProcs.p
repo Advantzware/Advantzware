@@ -40,6 +40,103 @@ FUNCTION fRoundValue RETURNS DECIMAL PRIVATE
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE pCalculateForInvHeadChild PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Processes a non-multi inv-head
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-inv-head FOR inv-head.
+    DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-inv-line FOR inv-line.
+    DEFINE BUFFER bf-inv-misc FOR inv-misc.
+    
+    DEFINE VARIABLE dTax AS DECIMAL NO-UNDO.
+    
+    FOR EACH bf-inv-line NO-LOCK 
+        WHERE bf-inv-line.r-no EQ ipbf-inv-head.r-no:
+        opdInvoiceSubTotal = opdInvoiceSubTotal + bf-inv-line.t-price.
+
+        IF ipbf-inv-head.tax-gr NE "" AND bf-inv-line.tax THEN 
+        DO:
+            RUN pCalculate (
+                INPUT  ipbf-inv-head.company,
+                INPUT  ipbf-inv-head.tax-gr,
+                INPUT  FALSE,   /* Is this freight */
+                INPUT  bf-inv-line.t-price,
+                INPUT  ipbf-inv-head.cust-no,
+                INPUT  ipbf-inv-head.sold-no,  /* shipTo id */
+                INPUT  ipbf-inv-head.inv-no,   /* Invoice No */
+                INPUT  "INVLINE",            /* Invoice Line Type (INVLINE, INVHEAD, INVMISC, ARINVL ) */ 
+                INPUT  bf-inv-line.rec_key,  /* Invoice Line rec_key */
+                OUTPUT dTax,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).
+
+            opdTaxTotal = opdTaxTotal + dTax.
+        END.
+    END.
+
+    FOR EACH bf-inv-misc NO-LOCK 
+        WHERE bf-inv-misc.company EQ ipbf-inv-head.company 
+        AND bf-inv-misc.r-no    EQ ipbf-inv-head.r-no 
+        AND bf-inv-misc.bill    EQ "Y":     
+        opdInvoiceSubTotal = opdInvoiceSubTotal + bf-inv-misc.amt.
+
+        IF ipbf-inv-head.tax-gr NE "" AND bf-inv-misc.tax THEN 
+        DO:
+            RUN pCalculate (
+                INPUT  ipbf-inv-head.company,
+                INPUT  ipbf-inv-head.tax-gr,
+                INPUT  FALSE,   /* Is this freight */
+                INPUT  bf-inv-misc.amt,
+                INPUT  ipbf-inv-head.cust-no,
+                INPUT  "",  /* shipTo id */
+                INPUT  ipbf-inv-head.inv-no,   /* Invoice No */
+                INPUT  "INVMISC",            /* Invoice Line Type (INVLINE, INVHEAD, INVMISC, ARINVL ) */ 
+                INPUT  bf-inv-misc.rec_key,  /* Invoice Line rec_key */
+                OUTPUT dTax,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ).
+
+            opdTaxTotal = opdTaxTotal + dTax.
+        END.
+    END.
+
+    IF ipbf-inv-head.f-bill THEN
+        opdInvoiceSubTotal = opdInvoiceSubTotal + ipbf-inv-head.t-inv-freight.
+
+    IF ipbf-inv-head.tax-gr NE "" AND ipbf-inv-head.f-bill AND ipbf-inv-head.t-inv-freight NE 0 THEN 
+    DO:        
+        RUN pCalculate (
+            INPUT  ipbf-inv-head.company,
+            INPUT  ipbf-inv-head.tax-gr,
+            INPUT  TRUE,               /* Is this freight */
+            INPUT  ipbf-inv-head.t-inv-freight,
+            INPUT  ipbf-inv-head.cust-no,
+            INPUT  "",  /* shipTo id */
+            INPUT  ipbf-inv-head.inv-no,   /* Invoice No */
+            INPUT  "INVHEAD",            /* Invoice Line Type (INVLINE, INVHEAD, INVMISC, ARINVL ) */ 
+            INPUT  ipbf-inv-head.rec_key,  /* Invoice Line rec_key */
+            OUTPUT dTax,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ).
+        
+        opdTaxTotal = opdTaxTotal + dTax.
+    END.      
+    
+    opdInvoiceTotal = opdInvoiceSubTotal + opdTaxTotal.
+
+
+END PROCEDURE.
+
 PROCEDURE pGetTotalTaxRoundedByLine PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Returns the total tax after rounding the values by line from ttTaxDetail
@@ -895,10 +992,14 @@ PROCEDURE pCalculateForInvHead PRIVATE:
     DEFINE VARIABLE dAPITaxTotal        AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dAPIInvoiceTotal    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dAPIInvoiceSubTotal AS DECIMAL NO-UNDO.    
+    DEFINE VARIABLE dTaxTotal           AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dInvoiceTotal       AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dInvoiceSubTotal    AS DECIMAL NO-UNDO.    
     DEFINE VARIABLE lIsInvoiceTaxable   AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE cRoundMethod AS CHARACTER NO-UNDO.
     
+    DEFINE BUFFER bf-child-inv-head FOR inv-head.
     DEFINE BUFFER bf-inv-head FOR inv-head.
     DEFINE BUFFER bf-inv-line FOR inv-line.
     DEFINE BUFFER bf-inv-misc FOR inv-misc.
@@ -916,14 +1017,23 @@ PROCEDURE pCalculateForInvHead PRIVATE:
 
     EMPTY TEMP-TABLE ttTaxDetail.
 
+    IF cCalcMethod EQ "" THEN
+        RUN pGetCalcMethod (
+            INPUT  bf-inv-head.company,
+            OUTPUT cCalcMethod
+            ).
+    
+    ASSIGN
+        opdInvoiceSubTotal = 0
+        opdInvoiceTotal    = 0
+        .
+
     /* This is an additional check for QUOTATION message type. If all lines are 
        non-taxable then do not call Vertex */
-    IF ipcMessageType EQ "QUOTATION" THEN DO:    
+    IF cCalcMethod EQ cCalcMethodAPI AND ipcMessageType EQ "QUOTATION" THEN DO:    
         /* Validate if any of the invoice line items are taxable. If not return without calculating tax */
         FOR EACH bf-inv-line NO-LOCK 
             WHERE bf-inv-line.r-no EQ bf-inv-head.r-no:
-            opdInvoiceSubTotal = opdInvoiceSubTotal + bf-inv-line.t-price.
-    
             IF bf-inv-head.tax-gr NE "" AND bf-inv-line.tax THEN DO:
                 lIsInvoiceTaxable = TRUE.
                 LEAVE.
@@ -935,7 +1045,6 @@ PROCEDURE pCalculateForInvHead PRIVATE:
                 WHERE bf-inv-misc.company EQ bf-inv-head.company 
                   AND bf-inv-misc.r-no    EQ bf-inv-head.r-no 
                   AND bf-inv-misc.bill    EQ "Y":     
-                opdInvoiceSubTotal = opdInvoiceSubTotal + bf-inv-misc.amt.
         
                 IF bf-inv-head.tax-gr NE "" AND bf-inv-misc.tax THEN DO:
                     lIsInvoiceTaxable = TRUE.
@@ -943,32 +1052,17 @@ PROCEDURE pCalculateForInvHead PRIVATE:
                 END.
             END.
         END.
-        
-        IF bf-inv-head.f-bill THEN
-            opdInvoiceSubTotal = opdInvoiceSubTotal + bf-inv-head.t-inv-freight.
-    
+            
         IF NOT lIsInvoiceTaxable THEN DO:
             IF bf-inv-head.tax-gr NE "" AND bf-inv-head.f-bill AND bf-inv-head.t-inv-freight NE 0 THEN
                 lIsInvoiceTaxable = TRUE.
         END.
-        
-        opdInvoiceTotal = opdInvoiceSubTotal.
-        
+                
         IF NOT lIsInvoiceTaxable THEN
             RETURN.
     END.
     
-    ASSIGN
-        opdInvoiceSubTotal = 0
-        opdInvoiceTotal    = 0
-        .
 
-    IF cCalcMethod EQ "" THEN
-        RUN pGetCalcMethod (
-            INPUT  bf-inv-head.company,
-            OUTPUT cCalcMethod
-            ).
-    
     /* Calculate the tax from API and return */ 
     IF cCalcMethod EQ cCalcMethodAPI THEN DO:    
         RUN pAPICalculateForInvHead (
@@ -1040,80 +1134,33 @@ PROCEDURE pCalculateForInvHead PRIVATE:
         
         RETURN.  
     END.   
-
-    FOR EACH bf-inv-line NO-LOCK 
-        WHERE bf-inv-line.r-no EQ bf-inv-head.r-no:
-        opdInvoiceSubTotal = opdInvoiceSubTotal + bf-inv-line.t-price.
-
-        IF bf-inv-head.tax-gr NE "" AND bf-inv-line.tax THEN DO:
-            RUN pCalculate (
-                INPUT  bf-inv-head.company,
-                INPUT  bf-inv-head.tax-gr,
-                INPUT  FALSE,   /* Is this freight */
-                INPUT  bf-inv-line.t-price,
-                INPUT  bf-inv-head.cust-no,
-                INPUT  bf-inv-head.sold-no,  /* shipTo id */
-                INPUT  bf-inv-head.inv-no,   /* Invoice No */
-                INPUT  "INVLINE",            /* Invoice Line Type (INVLINE, INVHEAD, INVMISC, ARINVL ) */ 
-                INPUT  bf-inv-line.rec_key,  /* Invoice Line rec_key */
-                OUTPUT dTax,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ).
-
-            opdTaxTotal = opdTaxTotal + dTax.
+    IF bf-inv-head.multi-invoice THEN DO:
+        FOR EACH bf-child-inv-head NO-LOCK 
+            WHERE bf-child-inv-head.company     EQ bf-inv-head.company
+            AND bf-child-inv-head.cust-no       EQ bf-inv-head.cust-no
+            AND bf-child-inv-head.inv-no        EQ bf-inv-head.inv-no
+            AND bf-child-inv-head.multi-invoice EQ NO:
+            RUN pCalculateForInvHeadChild (BUFFER bf-child-inv-head, 
+                                           OUTPUT dTaxTotal, 
+                                           OUTPUT dInvoiceTotal, 
+                                           OUTPUT dInvoiceSubTotal, 
+                                           OUTPUT oplSuccess, 
+                                           OUTPUT opcMessage).
+            ASSIGN 
+                opdTaxTotal = opdTaxTotal + dTaxTotal
+                opdInvoiceTotal = opdInvoiceTotal + dInvoiceTotal
+                opdInvoiceSubTotal = opdInvoiceSubTotal + dInvoiceSubTotal
+                .
         END.
     END.
-
-    FOR EACH bf-inv-misc NO-LOCK 
-        WHERE bf-inv-misc.company EQ bf-inv-head.company 
-          AND bf-inv-misc.r-no    EQ bf-inv-head.r-no 
-          AND bf-inv-misc.bill    EQ "Y":     
-        opdInvoiceSubTotal = opdInvoiceSubTotal + bf-inv-misc.amt.
-
-        IF bf-inv-head.tax-gr NE "" AND bf-inv-misc.tax THEN DO:
-            RUN pCalculate (
-                INPUT  bf-inv-head.company,
-                INPUT  bf-inv-head.tax-gr,
-                INPUT  FALSE,   /* Is this freight */
-                INPUT  bf-inv-misc.amt,
-                INPUT  bf-inv-head.cust-no,
-                INPUT  "",  /* shipTo id */
-                INPUT  bf-inv-head.inv-no,   /* Invoice No */
-                INPUT  "INVMISC",            /* Invoice Line Type (INVLINE, INVHEAD, INVMISC, ARINVL ) */ 
-                INPUT  bf-inv-misc.rec_key,  /* Invoice Line rec_key */
-                OUTPUT dTax,
-                OUTPUT oplSuccess,
-                OUTPUT opcMessage
-                ).
-
-            opdTaxTotal = opdTaxTotal + dTax.
-        END.
-    END.
-
-    IF bf-inv-head.f-bill THEN
-        opdInvoiceSubTotal = opdInvoiceSubTotal + bf-inv-head.t-inv-freight.
-
-    IF bf-inv-head.tax-gr NE "" AND bf-inv-head.f-bill AND bf-inv-head.t-inv-freight NE 0 THEN DO:        
-        RUN pCalculate (
-            INPUT  bf-inv-head.company,
-            INPUT  bf-inv-head.tax-gr,
-            INPUT  TRUE,               /* Is this freight */
-            INPUT  bf-inv-head.t-inv-freight,
-            INPUT  bf-inv-head.cust-no,
-            INPUT  "",  /* shipTo id */
-            INPUT  bf-inv-head.inv-no,   /* Invoice No */
-            INPUT  "INVHEAD",            /* Invoice Line Type (INVLINE, INVHEAD, INVMISC, ARINVL ) */ 
-            INPUT  bf-inv-head.rec_key,  /* Invoice Line rec_key */
-            OUTPUT dTax,
-            OUTPUT oplSuccess,
-            OUTPUT opcMessage
-            ).
+    ELSE 
+        RUN pCalculateForInvHeadChild (BUFFER bf-inv-head, 
+                                       OUTPUT opdTaxTotal, 
+                                       OUTPUT opdInvoiceTotal, 
+                                       OUTPUT opdInvoiceSubTotal, 
+                                       OUTPUT oplSuccess, 
+                                       OUTPUT opcMessage).
         
-        opdTaxTotal = opdTaxTotal + dTax.
-    END.      
-    
-    opdInvoiceTotal = opdInvoiceSubTotal + opdTaxTotal.
 END PROCEDURE.
 
 PROCEDURE pCalculateForArInv PRIVATE:

@@ -515,6 +515,8 @@ PROCEDURE pAddGLTransaction PRIVATE:
     DEFINE INPUT PARAMETER ipcAccount AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipdAmount AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplConvertCurrency AS LOGICAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopdCurrencyGainLoss AS DECIMAL NO-UNDO.
     
     CREATE ttGLTransaction.
     ASSIGN 
@@ -531,6 +533,18 @@ PROCEDURE pAddGLTransaction PRIVATE:
         ttGLTransaction.currencyCode      = ipbf-ttInvoiceToPost.currencyCode
         ttGLTransaction.currencyExRate    = ipbf-ttInvoiceToPost.currencyExRate
         .
+        IF iplConvertCurrency AND ipbf-ttInvoiceToPost.currencyCode NE ipbf-ttPostingMaster.currencyCode THEN DO:
+            IF NOT ipcTransactionType EQ "CURR" THEN 
+                ASSIGN 
+                    ttGLTransaction.amount = ROUND(ipdAmount * ipbf-ttInvoiceToPost.currencyExRate,2) 
+                    iopdCurrencyGainLoss = iopdCurrencyGainLoss + ipdAmount - ttGLTransaction.amount
+                    .
+            ASSIGN 
+                ttGLTransaction.currencyCode = ipbf-ttPostingMaster.currencyCode
+                ttGLTransaction.currencyExRate = ipbf-ttPostingMaster.currencyExRate
+                .    
+        
+        END.
 END PROCEDURE.
 
 PROCEDURE pAddGLTransactionsForFG PRIVATE:
@@ -604,8 +618,8 @@ PROCEDURE pAddGLTransactionsForFGDetail PRIVATE:
         ttGLTransaction.transactionPeriod = ipbf-ttPostingMaster.periodID
         ttGLTransaction.company           = ipbf-ttInvoiceLineToPost.company
         ttGLTransaction.invoiceID         = ipbf-ttInvoiceLineToPost.invoiceID
-        ttGLTransaction.currencyCode      = ipbf-ttInvoiceLineToPost.currencyCode
-        ttGLTransaction.currencyExRate    = ipbf-ttInvoiceLineToPost.currencyExRate
+        ttGLTransaction.currencyCode      = ipbf-ttPostingMaster.currencyCode
+        ttGLTransaction.currencyExRate    = ipbf-ttPostingMaster.currencyExRate
         .
 
 END PROCEDURE.
@@ -618,10 +632,12 @@ PROCEDURE pAddGLTransactionsForTax PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttPostingMaster FOR ttPostingMaster.   
     DEFINE PARAMETER BUFFER ipbf-ttInvoiceToPost FOR ttInvoiceToPost.
+    DEFINE INPUT-OUTPUT PARAMETER iopdCurrencyGainLoss AS DECIMAL NO-UNDO.
     
     DEFINE VARIABLE dTaxAmount       AS DECIMAL NO-UNDO. 
     DEFINE VARIABLE lDetailAvailable AS LOGICAL NO-UNDO.
-    
+    DEFINE VARIABLE dCurrencyGainLoss AS DECIMAL NO-UNDO.
+        
     lDetailAvailable = NO.    
     FOR EACH ttInvoiceTaxDetail NO-LOCK
         WHERE ttInvoiceTaxDetail.riInvHead EQ ipbf-ttInvoiceToPost.riInvHead
@@ -632,12 +648,12 @@ PROCEDURE pAddGLTransactionsForTax PRIVATE:
             .
         IF LAST-OF(ttInvoiceTaxDetail.taxCodeAccount) THEN 
         DO:
-            RUN pAddGLTransaction(BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceToPost, "TAX", ttInvoiceTaxDetail.taxCodeAccount, - dTaxAmount * ttInvoiceToPost.currencyExRate, "").
+            RUN pAddGLTransaction(BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceToPost, "TAX", ttInvoiceTaxDetail.taxCodeAccount, - dTaxAmount, "", YES, INPUT-OUTPUT iopdCurrencyGainLoss).
             dTaxAmount = 0.
         END.
     END.
     IF NOT lDetailAvailable THEN 
-        RUN pAddGLTransaction(BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceToPost, "TAX", ipbf-ttInvoiceToPost.accountARSalesTax, - ipbf-ttInvoiceToPost.amountBilledTax * ttInvoiceToPost.currencyExRate, "").
+        RUN pAddGLTransaction(BUFFER ipbf-ttPostingMaster, BUFFER ipbf-ttInvoiceToPost, "TAX", ipbf-ttInvoiceToPost.accountARSalesTax, - ipbf-ttInvoiceToPost.amountBilledTax, "", YES, INPUT-OUTPUT iopdCurrencyGainLoss).
     
     
 END PROCEDURE.
@@ -1026,7 +1042,8 @@ PROCEDURE pAddInvoiceToPost PRIVATE:
         OUTPUT opbf-ttInvoiceToPost.currencyCode, OUTPUT opbf-ttInvoiceToPost.currencyExRate, OUTPUT opbf-ttInvoiceToPost.accountARCurrency,
         OUTPUT oplError, OUTPUT opcMessage).
     
-    RUN pBuildInvoiceTaxDetail(BUFFER opbf-ttInvoiceToPost, OUTPUT oplError, OUTPUT opcMessage).
+    IF NOT oplError THEN 
+        RUN pBuildInvoiceTaxDetail(BUFFER opbf-ttInvoiceToPost, OUTPUT oplError, OUTPUT opcMessage).
     
     IF oplError THEN 
         ASSIGN 
@@ -1163,6 +1180,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
     DEFINE BUFFER bf-ttInvoiceMiscToPost        FOR ttInvoiceMiscToPost.
     
     DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lErrorOnInvoice AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
     FIND FIRST ttPostingMaster NO-LOCK NO-ERROR.
@@ -1215,7 +1233,9 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
          
         RUN ClearTagsByRecKey(bf-inv-head.rec_key).  /*Clear all hold tags - TagProcs.p*/
         
-        RUN pAddInvoiceToPost(BUFFER ttPostingMaster, BUFFER bf-inv-head, BUFFER bf-cust, OUTPUT lError, OUTPUT cMessage, BUFFER bf-ttInvoiceToPost).
+        RUN pAddInvoiceToPost(BUFFER ttPostingMaster, BUFFER bf-inv-head, BUFFER bf-cust, OUTPUT lErrorOnInvoice, OUTPUT cMessage, BUFFER bf-ttInvoiceToPost).
+        IF lErrorOnInvoice THEN 
+            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, cMessage).
         IF fIsWritable(ROWID(bf-inv-head)) THEN 
         DO:
             ASSIGN 
@@ -2093,11 +2113,13 @@ PROCEDURE pGetCurrencyCodeAndRate PRIVATE:
             opcMessage = "Currency code is blank for invoice, customer and company (" + ipcCompany + ")"
             .
         
-    IF AVAILABLE bf-currency THEN 
+    IF AVAILABLE bf-currency THEN DO:
         ASSIGN 
             opdCurrencyExchangeRate = bf-currency.ex-rate 
             opcAccountARCurrency    = bf-currency.ar-ast-acct
             .
+        RUN pCheckAccount(ipcCompany, opcAccountARCurrency, "Currency " + opcCurrencyCode, "Currency Gain/Loss Account", OUTPUT oplError, OUTPUT opcMessage).
+    END.
     ELSE 
         ASSIGN 
             oplError   = YES
@@ -2863,8 +2885,7 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
     DEFINE BUFFER bf-inv-line FOR inv-line.
     DEFINE BUFFER bf-inv-misc FOR inv-misc.
    
-    DEFINE VARIABLE dDiscountAmount AS DECIMAL.
-    DEFINE VARIABLE dInvoiceAmount  AS DECIMAL.
+    DEFINE VARIABLE dCurrencyGainLoss  AS DECIMAL.
 
     FIND FIRST ttPostingMaster NO-ERROR.
     IF NOT AVAILABLE ttPostingMaster THEN 
@@ -2885,7 +2906,10 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
         FIRST ttCustomerToUpdate
         WHERE ttCustomerToUpdate.riCust EQ ttInvoiceToPost.riCust
         BY ttInvoiceToPost.invoiceID:
-        opiCountValid = opiCountValid + 1. 
+        ASSIGN 
+            dCurrencyGainLoss = 0
+            opiCountValid = opiCountValid + 1
+            . 
         LineBlock:
         FOR EACH ttInvoiceLineToPost
             WHERE ttInvoiceLineToPost.rNo EQ ttInvoiceToPost.rNo
@@ -2909,8 +2933,8 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
                     .
             
             IF ttInvoiceLineToPost.amountBilledIncDiscount NE 0 THEN  
-                RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "LINE", ttInvoiceLineToPost.accountARSales, - ttInvoiceLineToPost.amountBilledIncDiscount * ttInvoiceLineToPost.currencyExRate, ttInvoiceLineToPost.itemID).               
-            
+                RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "LINE", ttInvoiceLineToPost.accountARSales, - ttInvoiceLineToPost.amountBilledIncDiscount, ttInvoiceLineToPost.itemID, YES, INPUT-OUTPUT dCurrencyGainLoss).               
+
             RUN pAddGLTransactionsForFG(BUFFER ttPostingMaster, BUFFER ttInvoiceLineToPost).
         
         END. /* each inv-line */
@@ -2923,8 +2947,8 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
             :
             
             IF ttInvoiceMiscToPost.isBillable AND ttInvoiceMiscToPost.amountBilled NE 0 THEN 
-                RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "MISC", ttInvoiceMiscToPost.accountARSales, - ttInvoiceMiscToPost.amountBilled * ttInvoiceLineToPost.currencyExRate, ttInvoiceMiscToPost.chargeID).
-                
+                RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "MISC", ttInvoiceMiscToPost.accountARSales, - ttInvoiceMiscToPost.amountBilled, ttInvoiceMiscToPost.chargeID, YES, INPUT-OUTPUT dCurrencyGainLoss).
+            
             ASSIGN 
                 ttInvoiceToPost.amountCost       = ttInvoiceToPost.amountCost + ttInvoiceMiscToPost.costTotal
                 ttInvoiceToPost.amountBilledMisc = ttInvoiceToPost.amountBilledMisc + ttInvoiceMiscToPost.amountBilled
@@ -2966,22 +2990,23 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
             ttCustomerToUpdate.lastInvoiceDate = ttInvoiceToPost.invoiceDate.
         
         /*Add discount per invoice*/
-        IF ttInvoiceToPost.amountDiscount NE 0 THEN 
-            RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "DISC", ttInvoiceToPost.accountARDiscount, ttInvoiceToPost.amountDiscount * ttInvoiceToPost.currencyExRate, "").
-
+        IF ttInvoiceToPost.amountDiscount NE 0 THEN DO: 
+            RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "DISC", ttInvoiceToPost.accountARDiscount, ttInvoiceToPost.amountDiscount, "", YES, INPUT-OUTPUT dCurrencyGainLoss).
+        END.
         IF ttInvoiceToPost.amountBilledFreight NE 0 THEN 
-            RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "FREIGHT", ttInvoiceToPost.accountARFreight, - ttInvoiceToPost.amountBilledFreight * ttInvoiceToPost.currencyExRate, "").
-
-        IF ttInvoiceToPost.currencyExRate NE 1 THEN 
-            RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "CURR", ttInvoiceToPost.accountARCurrency, - ttInvoiceToPost.amountBilled + ttInvoiceToPost.amountBilled * ttInvoiceToPost.currencyExRate , "").
+            RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "FREIGHT", ttInvoiceToPost.accountARFreight, - ttInvoiceToPost.amountBilledFreight, "", YES, INPUT-OUTPUT dCurrencyGainLoss).
             
         IF ttInvoiceToPost.amountBilledTax NE 0 THEN 
-            RUN pAddGLTransactionsForTax(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost).
+            RUN pAddGLTransactionsForTax(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, INPUT-OUTPUT dCurrencyGainLoss).
+
+        IF dCurrencyGainLoss NE 0 THEN DO:
+            RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "CURR", ttInvoiceToPost.accountARCurrency, dCurrencyGainLoss , "", YES, INPUT-OUTPUT dCurrencyGainLoss).
+        END.
         
         IF ttInvoiceToPost.isCashTerms AND ttInvoiceToPost.amountBilled NE 0 THEN 
-            RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "CASH", ttInvoiceToPost.accountARCash, ttInvoiceToPost.amountBilled, "").
+            RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "CASH", ttInvoiceToPost.accountARCash, ttInvoiceToPost.amountBilled, "", NO, INPUT-OUTPUT dCurrencyGainLoss).
         ELSE 
-            RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "AR", ttInvoiceToPost.accountAR, ttInvoiceToPost.amountBilled, "").
+            RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "AR", ttInvoiceToPost.accountAR, ttInvoiceToPost.amountBilled, "", NO, INPUT-OUTPUT dCurrencyGainLoss).
 
         RUN pAddARLedgerTransaction (BUFFER ttInvoiceToPost).    
         
@@ -3524,12 +3549,12 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             lAutoApprove = NO.
         END.
         
-        IF dTotalTax NE bf-inv-head.t-inv-tax AND NOT bf-inv-head.multi-invoice THEN 
+        IF dTotalTax NE bf-inv-head.t-inv-tax THEN 
         DO:
             IF iplgUpdateTax THEN 
                 RUN pUpdateTax(BUFFER bf-ttInvoiceToPost, dTotalTax).
-            ELSE 
-            DO:   
+            ELSE IF lValidateRequired THEN 
+            DO:
                 RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Tax on invoice does not match with calculated tax").
                 lAutoApprove = NO.
             END.            
