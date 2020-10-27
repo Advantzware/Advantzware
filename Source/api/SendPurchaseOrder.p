@@ -1182,8 +1182,8 @@
                 IF iIndex LE 6 THEN
                     ASSIGN
                         cItemWithAddersX10POAdder  = cItemWithAddersX10POAdder + STRING(po-ordl-add.adder-i-no,"X(10)")
-                        cPOAdderCostInMSF[iIndex]    = STRING(dPOAdderCostMSF)
-                        cPOAdderSetupCost[iIndex]    = STRING(po-ordl.setup)
+                        cPOAdderCostInMSF[iIndex]  = STRING(dPOAdderCostMSF)
+                        cPOAdderSetupCost[iIndex]  = STRING(po-ordl.setup)
                         .        
             END.
             cBoardSetupCost = STRING(po-ordl.setup - dAddersSetupCost).
