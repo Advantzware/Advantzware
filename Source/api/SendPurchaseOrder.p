@@ -106,6 +106,8 @@
     DEFINE VARIABLE cGPPlantID           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cGPBillto            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTimeLiberty         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMaxOverPct          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMinUnderPct         AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line Variables */
     DEFINE VARIABLE cPoLine                    AS CHARACTER NO-UNDO.
@@ -156,6 +158,7 @@
     DEFINE VARIABLE cJobID                     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobID2                    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobConcat                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobConcat1                AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobConcatHRMS             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobConcatSmurfit          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cJobIDFormNo               AS CHARACTER NO-UNDO.
@@ -169,13 +172,29 @@
     DEFINE VARIABLE cFlute                     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cRegularNo                 AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoLineNotes               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPoLineNotes1              AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQtyINEA                   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPOLowQty                  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPoHighQty                 AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cMachineInitial            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFormattedScoresWestrock   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFormattedScoresLiberty    AS CHARACTER NO-UNDO.
-        
+    DEFINE VARIABLE dCostPerVendorUOMBoard     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerVendorUOMAdders    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerVendorUOM          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQuantityInVendorUOM       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerMSFBoard           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerMSFAdders          AS DECIMAL   NO-UNDO. 
+    DEFINE VARIABLE dCostPerEABoard            AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerEAAdders           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCostPerEA                 AS DECIMAL   NO-UNDO.  
+    DEFINE VARIABLE dBoardSetupCost            AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dAddersSetupCost           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cBoardSetupCost            AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dPOAdderCostMSF            AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cPOAdderCostInMSF          AS CHARACTER NO-UNDO EXTENT 6. 
+    DEFINE VARIABLE cPOAdderSetupCost          AS CHARACTER NO-UNDO EXTENT 6.
+    
     /* Purchase Order Line adder Variables */
     DEFINE VARIABLE cAdderItemID                    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cAdderItemName                  AS CHARACTER NO-UNDO.
@@ -190,6 +209,7 @@
     DEFINE VARIABLE cItemWithAddersX4               AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersX10              AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemWithAddersX10WithoutConcat AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemWithAddersX10POAdder       AS CHARACTER NO-UNDO.
     
     /* Purchase Order Line scores Variables */
     DEFINE VARIABLE cScoreOn                    AS CHARACTER NO-UNDO.
@@ -212,6 +232,7 @@
     DEFINE VARIABLE cScoreSizeDecimalAlliance   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScoreSizeDecimalCorrKraft  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cScoreSizeDecimalKiwi       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScoreSizeDecimalCorrTrim   AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cWhsCode           AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQtyPerPack        AS CHARACTER NO-UNDO.
@@ -461,6 +482,8 @@
             cCurrentDateTime   = STRING(DATETIME(TODAY,MTIME))
             cHeaderUnderPct    = STRING(po-ord.under-pct)
             cHeaderOverPct     = STRING(po-ord.over-pct)
+            cMaxOverPct        = STRING(100 + po-ord.over-pct)
+            cMinUnderPct       = STRING(100 - po-ord.under-pct)
             .
         
         ASSIGN
@@ -638,6 +661,7 @@
                 cOperationID                = ""
                 cQtyPerPack                 = ""
                 cPoLineNotes                = ""
+                cPoLineNotes1               = ""
                 cStackHeight                = "0"
                 cPalletWidth                = "0.00"
                 cPalletHeight               = "0.00"
@@ -654,7 +678,8 @@
                                                   ""
                                               ELSE
                                                   STRING(po-ordl.job-no, "X(6)") + "-" + STRING(po-ordl.job-no2, "99")
-                cJobConcatSmurfit           = ""                                                  
+                cJobConcatSmurfit           = "" 
+                cJobConcat1                 = TRIM(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2, "99")                                         
                 cJobIDFormNo                = STRING(po-ordl.s-num)
                 cJobIDBlankNo               = STRING(po-ordl.b-num)
                 cQuantityReceived           = TRIM(STRING(po-ordl.t-rec-qty, "->>>>>>>>9.9<<<<<"))
@@ -692,6 +717,13 @@
                 cScoreSizeDecimalKiwi       = ""
                 cItemWithAddersX4           = ""
                 cItemWithAddersX10          = ""
+                citemWithAddersLiberty      = ""
+                cScoreSizeDecimalCorrTrim   = ""
+                cPOAdderCostInMSF           = ""
+                cPOAdderSetupCost           = ""
+                cItemWithAddersX10POAdder   = ""
+                dPOAdderCostMSF             = 0
+                dAddersSetupCost            = 0
                 .
 
             FIND FIRST item NO-LOCK
@@ -818,6 +850,130 @@
                 cQuantityInM          = STRING(dQuantityInM).
                 cQuantitySFPerCostUom = STRING(dQuantitySFPerCostUom)
                 .
+            IF po-ordl.pr-uom NE "EA" THEN     
+                RUN Conv_ValueFromUOMToUOM (
+                    INPUT  po-ordl.company,
+                    INPUT  po-ordl.i-no,
+                    INPUT  cItemTypeShort,
+                    INPUT  po-ordl.cost,
+                    INPUT  po-ordl.pr-uom, 
+                    INPUT  "EA",
+                    INPUT  dItemBasisWeight,
+                    INPUT  po-ordl.s-len,
+                    INPUT  po-ordl.s-wid,
+                    INPUT  po-ordl.s-dep,
+                    INPUT  0,
+                    OUTPUT dCostPerEA,
+                    OUTPUT lError,
+                    OUTPUT cMessage
+                    ). 
+            ELSE                       
+                dCostPerEA = po-ordl.cost.
+                        
+            RUN PO_GetAddersCostInCostUOM IN hdPoProcs(
+                INPUT  po-ordl.company,
+                INPUT  po-ordl.po-no,
+                INPUT  po-ordl.line,
+                INPUT  po-ordl.s-len,
+                INPUT  po-ordl.s-wid,
+                INPUT  po-ordl.s-dep,
+                INPUT  po-ordl.pr-uom,
+                OUTPUT dCostPerVendorUOMAdders 
+                ).
+           
+            IF po-ordl.pr-uom NE "EA" THEN     
+                RUN PO_GetAddersCostInCostUOM IN hdPoProcs(
+                    INPUT  po-ordl.company,
+                    INPUT  po-ordl.po-no,
+                    INPUT  po-ordl.line,
+                    INPUT  po-ordl.s-len,
+                    INPUT  po-ordl.s-wid,
+                    INPUT  po-ordl.s-dep,
+                    INPUT  "EA",
+                    OUTPUT dCostPerEAAdders 
+                    ).
+            ELSE 
+                dCostPerEAAdders = dCostPerVendorUOMAdders.
+                
+            IF po-ordl.pr-uom NE "MSF" THEN                
+                RUN PO_GetAddersCostInCostUOM IN hdPoProcs(
+                    INPUT  po-ordl.company,
+                    INPUT  po-ordl.po-no,
+                    INPUT  po-ordl.line,
+                    INPUT  po-ordl.s-len,
+                    INPUT  po-ordl.s-wid,
+                    INPUT  po-ordl.s-dep,
+                    INPUT  "MSF",
+                    OUTPUT dCostPerMSFAdders
+                    ).  
+            ELSE 
+                dCostPerMSFAdders = dCostPerVendorUOMAdders.                                         
+                
+            ASSIGN 
+                dCostPerVendorUOMBoard = po-ordl.cost - dCostPerVendorUOMAdders
+                dCostPerVendorUOM      = po-ordl.cost
+                .
+                
+            IF po-ordl.pr-uom NE "MSF" THEN     
+                RUN Conv_ValueFromUOMToUOM (
+                    INPUT  po-ordl.company,
+                    INPUT  po-ordl.i-no,
+                    INPUT  cItemTypeShort,
+                    INPUT  dCostPerVendorUOMBoard,
+                    INPUT  po-ordl.pr-uom, 
+                    INPUT  "MSF",
+                    INPUT  dItemBasisWeight,
+                    INPUT  po-ordl.s-len,
+                    INPUT  po-ordl.s-wid,
+                    INPUT  po-ordl.s-dep,
+                    INPUT  0,
+                    OUTPUT dCostPerMSFBoard,
+                    OUTPUT lError,
+                    OUTPUT cMessage
+                    ).
+            ELSE
+                dCostPerMSFBoard = dCostPerVendorUOMBoard.
+                
+            IF po-ordl.pr-uom NE "EA" THEN     
+                RUN Conv_ValueFromUOMToUOM (
+                    INPUT  po-ordl.company,
+                    INPUT  po-ordl.i-no,
+                    INPUT  cItemTypeShort,
+                    INPUT  dCostPerVendorUOMBoard,
+                    INPUT  po-ordl.pr-uom, 
+                    INPUT  "EA",
+                    INPUT  dItemBasisWeight,
+                    INPUT  po-ordl.s-len,
+                    INPUT  po-ordl.s-wid,
+                    INPUT  po-ordl.s-dep,
+                    INPUT  0,
+                    OUTPUT dCostPerEABoard,
+                    OUTPUT lError,
+                    OUTPUT cMessage
+                    ).
+            ELSE
+                dCostPerEABoard = dCostPerVendorUOMBoard.
+                                                                      
+            IF po-ordl.pr-qty-uom NE po-ordl.pr-uom THEN
+                RUN Conv_QuantityFromUOMToUOM (
+                    INPUT  po-ordl.company,
+                    INPUT  po-ordl.i-no,
+                    INPUT  cItemTypeShort,
+                    INPUT  po-ordl.ord-qty,
+                    INPUT  po-ordl.pr-qty-uom, 
+                    INPUT  po-ordl.pr-uom,
+                    INPUT  dItemBasisWeight,
+                    INPUT  po-ordl.s-len,
+                    INPUT  po-ordl.s-wid,
+                    INPUT  po-ordl.s-dep,
+                    INPUT  0,
+                    OUTPUT dQuantityInVendorUOM,
+                    OUTPUT lError,
+                    OUTPUT cMessage
+                    ).  
+            ELSE                                      
+                dQuantityInVendorUOM = po-ordl.ord-qty.
+                    
             /* Fetch first operation id (job-mch.m-code) for the order line */
             IF TRIM(po-ordl.job-no) NE "" THEN DO:
                 RUN GetOperation IN hdJobProcs (
@@ -844,7 +1000,7 @@
                 cPoLineNotes  = REPLACE(cPoLineNotes, "~n", "")
                 cPoNotesHRMS  = cPoNotesHRMS + " " + cPoLineNotes
                 .      
-            
+            cPoLineNotes1 = cPoLineNotes.
             IF cPoLineNotes EQ "" THEN
                 cPoLineNotes = cPoNotes.
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "company", cCompany).
@@ -910,9 +1066,11 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobConcat", cJobConcat).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobConcatHRMS", cJobConcatHRMS).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobConcatSmurfit", cJobConcatSmurfit).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobConcat1", cJobConcat1).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "JobDescriptionKiwi", cJobConcatSmurfit).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "jobDescriptionKiwiT", cJobDescriptionKiwiT).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLineNotes", cPoLineNotes).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "poLineNotes1",cPoLineNotes1).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNotesHRMS", cPoNotesHRMS).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNotesKiwi", cPoNotesKiwi).   /* For Customer other than CSC & TriLakes (Kiwi & KiwiT) */
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNotesKiwi1", cPoNotesKiwi1). /* For CSC Customer (kiwi & KiwiT) */
@@ -957,6 +1115,19 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "MachineInitial",cMachineInitial).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoNotesAlliance",cPoNotesAlliance).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "TotalCost",cTotalCost). 
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "CostPerVendorUOMBoard",STRING(dCostPerVendorUOMBoard)).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "CostPerVendorUOMAdders",STRING(dCostPerVendorUOMAdders)).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "CostPerVendorUOM",STRING(dCostPerVendorUOM)).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "QuantityInVendorUOM",STRING(dQuantityInVendorUOM)).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "dCostPerMSFBoard",STRING(dCostPerMSFBoard)).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "CostPerMSFAdders",STRING(dCostPerMSFAdders)).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "CostPerEABoard",STRING(dCostPerEABoard)).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "CostPerEAAdders",STRING(dCostPerEAAdders)).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "CostPerEA",STRING(dCostPerEA)).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "BoardSetupCost",cBoardSetupCost).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData,"MaxOverPct",cMaxOverPct).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData,"MinUnderPct",cMinUnderPct).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNotes", cPoNotes).
             cItemWithAdders = cItemID.
             /* Fetch adder details for the purchase order line */
             FOR EACH po-ordl-add NO-LOCK
@@ -982,8 +1153,40 @@
                     lcConcatLineAdderData = lcConcatLineAdderData + lcLineAdderData.
                 END.
                 
-                cItemWithAdders = cItemWithAdders + ", " + po-ordl-add.adder-i-no.
+                ASSIGN 
+                    cItemWithAdders  = cItemWithAdders + ", " + po-ordl-add.adder-i-no
+                    dAddersSetupCost = dAddersSetupCost + po-ordl-add.setup
+                    .
+                    
+                    IF po-ordl-add.pr-uom NE "MSF" THEN
+                        RUN Conv_ValueFromUOMToUOM (
+                            INPUT  po-ordl.company,
+                            INPUT  po-ordl-add.adder-i-no,
+                            INPUT  "RM",
+                            INPUT  po-ordl-add.cost,
+                            INPUT  po-ordl-add.pr-uom, 
+                            INPUT  "MSF",
+                            INPUT  dItemBasisWeight,
+                            INPUT  po-ordl.s-len,
+                            INPUT  po-ordl.s-wid,
+                            INPUT  po-ordl.s-dep,
+                            INPUT  0,
+                            OUTPUT dPOAdderCostMSF,
+                            OUTPUT lError,
+                            OUTPUT cMessage
+                            ).
+                    ELSE                     
+                        dPOAdderCostMSF = po-ordl-add.cost.
+                                            
+                iIndex = iIndex + 1.
+                IF iIndex LE 6 THEN
+                    ASSIGN
+                        cItemWithAddersX10POAdder  = cItemWithAddersX10POAdder + STRING(po-ordl-add.adder-i-no,"X(10)")
+                        cPOAdderCostInMSF[iIndex]    = STRING(dPOAdderCostMSF)
+                        cPOAdderSetupCost[iIndex]    = STRING(po-ordl.setup)
+                        .        
             END.
+            cBoardSetupCost = STRING(po-ordl.setup - dAddersSetupCost).
             
             /* Fetch Adders for HRMS */
             FIND FIRST job NO-LOCK 
@@ -1214,12 +1417,15 @@
                                                 
                 IF iIndex LE 17 THEN DO:  
                     IF dScoreSizeArray[iIndex] EQ 0 THEN 
-                       cScoreSizeDecimalAlliance = cScoreSizeDecimalAlliance + "00000000".
+                        ASSIGN 
+                            cScoreSizeDecimalAlliance = cScoreSizeDecimalAlliance + "00000000"
+                            cScoreSizeDecimalCorrTrim = cScoreSizeDecimalCorrTrim + "  000000"
+                            .
                     ELSE 
                         ASSIGN 
-                            cScoreSizeDecimalAlliance = cScoreSizeDecimalAlliance + "02" + (STRING(dScoreSize16ths, "9999.99")).
-                   
-                                                                                  
+                            cScoreSizeDecimalAlliance = cScoreSizeDecimalAlliance + "02" + (STRING(dScoreSize16ths, "9999.99"))
+                            cScoreSizeDecimalCorrTrim = cScoreSizeDecimalCorrTrim + " " + cScoreType + (STRING(dScoreSize16ths, "9999.99"))
+                            .                                                               
                 END.
                 IF iIndex LE 12 THEN DO:  
                     IF dScoreSizeArray[iIndex] EQ 0 THEN 
@@ -1239,6 +1445,7 @@
                 cScoreSizeDecimalAlliance   = REPLACE(cScoreSizeDecimalAlliance,".","")
                 cScoreSizeDecimalCorrKraft  = REPLACE(cScoreSizeDecimalCorrKraft,".","")
                 cScoreSizeDecimalKiwi       = REPLACE(cScoreSizeDecimalKiwi,".",":")
+                cScoreSizeDecimalCorrTrim   = REPLACE(cScoreSizeDecimalCorrTrim,".","")
                 .
             
             RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatLineScoresData, cRequestDataType).            
@@ -1267,6 +1474,7 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeAlliance", cScoreSizeDecimalAlliance).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalKiwi", cScoreSizeDecimalKiwi).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "scoreSizeDecimalCorrKraft", cScoreSizeDecimalCorrKraft).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "ScoreSizeDecimalCorrTrim", cScoreSizeDecimalCorrTrim).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersX4", cItemWithAddersX4).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersX10", cItemWithAddersX10).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersKiwi1", citemWithAddersKiwi1).
@@ -1278,7 +1486,20 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersLiberty4", citemWithAddersLiberty[4]).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersLiberty5", citemWithAddersLiberty[5]).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersLiberty6", citemWithAddersLiberty[6]).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersLiberty7", citemWithAddersLiberty[7]).            
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemWithAddersLiberty7", citemWithAddersLiberty[7]).  
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "AdderCostInMSF1", cPOAdderCostInMSF[1]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "AdderCostInMSF2", cPOAdderCostInMSF[2]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "AdderCostInMSF3", cPOAdderCostInMSF[3]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "AdderCostInMSF4", cPOAdderCostInMSF[4]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "AdderCostInMSF5", cPOAdderCostInMSF[5]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "AdderCostInMSF6", cPOAdderCostInMSF[6]). 
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "AdderSetupCost1", cPOAdderSetupCost[1]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "AdderSetupCost2", cPOAdderSetupCost[2]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "AdderSetupCost3", cPOAdderSetupCost[3]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "AdderSetupCost4", cPOAdderSetupCost[4]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "AdderSetupCost5", cPOAdderSetupCost[5]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "AdderSetupCost6", cPOAdderSetupCost[6]).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "ItemWithAddersX10PoAdder", cItemWithAddersX10PoAdder).                                  
             lcConcatLineData = lcConcatLineData + lcLineData.
         END.      
         
