@@ -55,6 +55,7 @@ DEFINE INPUT PARAMETER ipcLocation AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE cItemID    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCustItem  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSellUOM   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWarehouse AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lSuccess   AS LOGICAL   NO-UNDO.
@@ -134,9 +135,9 @@ RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS fiFGItem fiCustItem fiLocation bt-exit ~
 btItemHelp btnKeyboardItem btnKeyboardLoc btnNumPad btItemNameHelp ~
-btnKeyboardItemName ttBrowseInventory btnFirst btnPrevious btnNext btnLast ~
-RECT-33 btLocHelp 
-&Scoped-Define DISPLAYED-OBJECTS fiFGItem fiCustItem fiLocation 
+btnKeyboardItemName btnFirst btnPrevious btnNext btnLast btLocHelp ~
+ttBrowseInventory RECT-33 
+&Scoped-Define DISPLAYED-OBJECTS fiFGItem fiCustItem fiLocation fiSellUOM 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -248,6 +249,11 @@ DEFINE VARIABLE fiLocation AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 32.2 BY 1.43 NO-UNDO.
 
+DEFINE VARIABLE fiSellUOM AS CHARACTER FORMAT "X(256)":U 
+     LABEL "UOM" 
+     VIEW-AS FILL-IN 
+     SIZE 32.2 BY 1.43 NO-UNDO.
+
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 10 BY 2.38
@@ -291,13 +297,14 @@ DEFINE FRAME F-Main
      btnNumPad AT ROW 2.05 COL 178.6 WIDGET-ID 120 NO-TAB-STOP 
      btItemNameHelp AT ROW 3.48 COL 94.4 WIDGET-ID 140 NO-TAB-STOP 
      btnKeyboardItemName AT ROW 3.48 COL 102 WIDGET-ID 134 NO-TAB-STOP 
-     ttBrowseInventory AT ROW 5.86 COL 3 WIDGET-ID 200
      btnFirst AT ROW 7.43 COL 189.6 WIDGET-ID 44 NO-TAB-STOP 
      btnPrevious AT ROW 12.91 COL 189.6 WIDGET-ID 40 NO-TAB-STOP 
      btAdjustQty AT ROW 18.86 COL 189.6 WIDGET-ID 110 NO-TAB-STOP 
      btnNext AT ROW 24.38 COL 189.6 WIDGET-ID 42 NO-TAB-STOP 
      btnLast AT ROW 29.81 COL 189.6 WIDGET-ID 46 NO-TAB-STOP 
      btLocHelp AT ROW 1.81 COL 158.4 WIDGET-ID 146 NO-TAB-STOP 
+     fiSellUOM AT ROW 3.52 COL 123.2 COLON-ALIGNED WIDGET-ID 148
+     ttBrowseInventory AT ROW 5.86 COL 3 WIDGET-ID 200
      RECT-33 AT ROW 5.33 COL 3.2 WIDGET-ID 6
      RECT-2 AT ROW 1.86 COL 177.6 WIDGET-ID 130
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -359,7 +366,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME Custom                                                    */
-/* BROWSE-TAB ttBrowseInventory btnKeyboardItemName F-Main */
+/* BROWSE-TAB ttBrowseInventory fiSellUOM F-Main */
 /* SETTINGS FOR BUTTON btAdjustQty IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
@@ -371,6 +378,8 @@ ASSIGN
 ASSIGN 
        btnKeyboardLoc:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN fiSellUOM IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
@@ -951,12 +960,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiFGItem fiCustItem fiLocation 
+  DISPLAY fiFGItem fiCustItem fiLocation fiSellUOM 
       WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE fiFGItem fiCustItem fiLocation bt-exit btItemHelp btnKeyboardItem 
-         btnKeyboardLoc btnNumPad btItemNameHelp btnKeyboardItemName 
-         ttBrowseInventory btnFirst btnPrevious btnNext btnLast RECT-33 
-         btLocHelp 
+         btnKeyboardLoc btnNumPad btItemNameHelp btnKeyboardItemName btnFirst 
+         btnPrevious btnNext btnLast btLocHelp ttBrowseInventory RECT-33 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -1023,6 +1031,8 @@ PROCEDURE pAdjustQty :
             INPUT  ttBrowseInventory.quantityOfSubUnits,
             INPUT  ttBrowseInventory.quantityPerSubUnit,
             INPUT  TRUE, /* Required Adj Reason  */
+            INPUT  TRUE, /* Display all units */
+            INPUT  FALSE,  /* Allow decimal units */
             OUTPUT dTotalQuantity,
             OUTPUT dSubUnitCount,
             OUTPUT dSubUnitsPerUnit,
@@ -1119,6 +1129,7 @@ PROCEDURE pItemScan :
         INPUT-OUTPUT cCustItem,
         INPUT        FALSE,  /* Include Zero qty bins */
         INPUT        TRUE,   /* Include empty tag bins */
+        OUTPUT       cSellUOM,
         OUTPUT       lSuccess,
         OUTPUT       cMessage
         ).
@@ -1129,6 +1140,7 @@ PROCEDURE pItemScan :
     ASSIGN
         fiFGItem:SCREEN-VALUE   = cItemID
         fiCustItem:SCREEN-VALUE = cCustItem
+        fiSellUOM:SCREEN-VALUE  = cSellUOM
         .
 
     {&OPEN-QUERY-{&BROWSE-NAME}}

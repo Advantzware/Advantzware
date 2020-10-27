@@ -54,6 +54,7 @@ DEFINE INPUT PARAMETER ipcLocation AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE cItemID    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cItemName  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cConsUOM   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWarehouse AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lSuccess   AS LOGICAL   NO-UNDO.
@@ -103,7 +104,7 @@ RUN Inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 &Scoped-Define ENABLED-OBJECTS RECT-33 bt-exit btItemHelp btnKeyboardItem ~
 btLocHelp btnKeyboardLoc fiRMItem fiLocation btnNumPad ttBrowseInventory ~
 btnFirst btnPrevious btnNext btnLast 
-&Scoped-Define DISPLAYED-OBJECTS fiRMItem fiLocation fiRMName 
+&Scoped-Define DISPLAYED-OBJECTS fiRMItem fiLocation fiRMName fiConsUOM 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -190,6 +191,11 @@ DEFINE BUTTON btnPrevious
      LABEL "Previous" 
      SIZE 11 BY 2.62 TOOLTIP "Previous".
 
+DEFINE VARIABLE fiConsUOM AS CHARACTER FORMAT "X(256)":U 
+     LABEL "UOM" 
+     VIEW-AS FILL-IN 
+     SIZE 32.2 BY 1.43 NO-UNDO.
+
 DEFINE VARIABLE fiLocation AS CHARACTER FORMAT "X(256)":U 
      LABEL "Location" 
      VIEW-AS FILL-IN 
@@ -239,14 +245,15 @@ DEFINE BROWSE ttBrowseInventory
 
 DEFINE FRAME F-Main
      bt-exit AT ROW 1.52 COL 189.8 WIDGET-ID 84 NO-TAB-STOP 
-     btItemHelp AT ROW 1.81 COL 91.6 WIDGET-ID 138 NO-TAB-STOP 
-     btnKeyboardItem AT ROW 1.81 COL 99.8 WIDGET-ID 136 NO-TAB-STOP 
+     btItemHelp AT ROW 1.81 COL 91.2 WIDGET-ID 138 NO-TAB-STOP 
+     btnKeyboardItem AT ROW 1.81 COL 98.8 WIDGET-ID 136 NO-TAB-STOP 
      btLocHelp AT ROW 1.81 COL 156 WIDGET-ID 146 NO-TAB-STOP 
      btnKeyboardLoc AT ROW 1.81 COL 163.2 WIDGET-ID 144 NO-TAB-STOP 
      fiRMItem AT ROW 1.86 COL 18.2 COLON-ALIGNED WIDGET-ID 2
      fiLocation AT ROW 1.86 COL 120.8 COLON-ALIGNED WIDGET-ID 142
      btnNumPad AT ROW 1.86 COL 178.6 WIDGET-ID 120 NO-TAB-STOP 
      fiRMName AT ROW 3.52 COL 18.2 COLON-ALIGNED WIDGET-ID 4 NO-TAB-STOP 
+     fiConsUOM AT ROW 3.52 COL 120.8 COLON-ALIGNED WIDGET-ID 148
      ttBrowseInventory AT ROW 5.86 COL 3 WIDGET-ID 200
      btnFirst AT ROW 7.43 COL 189.6 WIDGET-ID 44 NO-TAB-STOP 
      btnPrevious AT ROW 12.91 COL 189.6 WIDGET-ID 40 NO-TAB-STOP 
@@ -314,7 +321,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
-/* BROWSE-TAB ttBrowseInventory fiRMName F-Main */
+/* BROWSE-TAB ttBrowseInventory fiConsUOM F-Main */
 /* SETTINGS FOR BUTTON btAdjustQty IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
@@ -323,6 +330,8 @@ ASSIGN
 ASSIGN 
        btnKeyboardLoc:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN fiConsUOM IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiRMName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
@@ -884,7 +893,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiRMItem fiLocation fiRMName 
+  DISPLAY fiRMItem fiLocation fiRMName fiConsUOM 
       WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE RECT-33 bt-exit btItemHelp btnKeyboardItem btLocHelp btnKeyboardLoc 
          fiRMItem fiLocation btnNumPad ttBrowseInventory btnFirst btnPrevious 
@@ -955,6 +964,8 @@ PROCEDURE pAdjustQty :
             INPUT  1, /* Quantity of Units */
             INPUT  1, /* Quantity of Sub Units */
             INPUT  TRUE, /* Required Adj Reason  */
+            INPUT  FALSE, /* Display all units */
+            INPUT  TRUE,  /* Allow decimal units */
             OUTPUT dTotalQuantity,
             OUTPUT dSubUnitCount,
             OUTPUT dSubUnitsPerUnit,
@@ -1050,6 +1061,7 @@ PROCEDURE pItemScan :
         INPUT-OUTPUT cItemName,
         INPUT        FALSE,  /* Include Zero qty bins */
         INPUT        TRUE,   /* Include empty tag bins */
+        OUTPUT       cConsUOM,
         OUTPUT       lSuccess,
         OUTPUT       cMessage
         ).
@@ -1058,8 +1070,9 @@ PROCEDURE pItemScan :
         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
 
     ASSIGN
-        fiRMItem:SCREEN-VALUE = cItemID
-        fiRMName:SCREEN-VALUE = cItemName
+        fiRMItem:SCREEN-VALUE  = cItemID
+        fiRMName:SCREEN-VALUE  = cItemName
+        fiConsUOM:SCREEN-VALUE = cConsUOM
         .
 
     {&OPEN-QUERY-{&BROWSE-NAME}}

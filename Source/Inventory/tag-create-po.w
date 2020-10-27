@@ -634,6 +634,8 @@ DO:
             INPUT  ttBrowseInventory.quantityOfSubUnits,
             INPUT  1,
             INPUT  FALSE, /* Required Adj Reason */
+            INPUT  TRUE,  /* Display sub units */
+            INPUT  TRUE,  /* Allow decimal units */
             OUTPUT dTotalQuantity,
             OUTPUT dSubUnitCount,
             OUTPUT dSubUnitsPerUnit,

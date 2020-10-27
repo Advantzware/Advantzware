@@ -163,6 +163,7 @@ PROCEDURE Inventory_BuildFGBinForItem:
     DEFINE INPUT-OUTPUT PARAMETER iopcCustItem   AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
     DEFINE INPUT        PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
     DEFINE OUTPUT       PARAMETER oplSuccess     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER opcMessage     AS CHARACTER NO-UNDO.
 
@@ -172,6 +173,7 @@ PROCEDURE Inventory_BuildFGBinForItem:
         INPUT-OUTPUT iopcCustItem,
         INPUT        iplZeroQtyBins,
         INPUT        iplEmptyTags,
+        OUTPUT       opcConsUOM,
         OUTPUT       oplSuccess,
         OUTPUT       opcMessage    
         ).
@@ -407,6 +409,7 @@ PROCEDURE pBuildFGBinForItem PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopcCustItem   AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
     DEFINE INPUT        PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
     DEFINE OUTPUT       PARAMETER oplSuccess     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER opcMessage     AS CHARACTER NO-UNDO.
     
@@ -446,6 +449,10 @@ PROCEDURE pBuildFGBinForItem PRIVATE:
     ASSIGN
         iopcItemID   = bf-itemfg.i-no
         iopcCustItem = bf-itemfg.part-no
+        opcConsUOM   = IF bf-itemfg.cons-uom EQ "" THEN
+                           "EA"
+                       ELSE
+                           bf-itemfg.cons-uom
         .
 
     FOR EACH bf-fg-bin NO-LOCK
@@ -499,6 +506,7 @@ PROCEDURE Inventory_BuildRMBinForItem:
     DEFINE INPUT-OUTPUT PARAMETER iopcItemName   AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
     DEFINE INPUT        PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
     DEFINE OUTPUT       PARAMETER oplSuccess     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER opcMessage     AS CHARACTER NO-UNDO.
 
@@ -508,6 +516,7 @@ PROCEDURE Inventory_BuildRMBinForItem:
         INPUT-OUTPUT iopcItemName,
         INPUT        iplZeroQtyBins,
         INPUT        iplEmptyTags,
+        OUTPUT       opcConsUOM,
         OUTPUT       oplSuccess,
         OUTPUT       opcMessage    
         ).
@@ -523,6 +532,7 @@ PROCEDURE pBuildRMBinForItem PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopcItemName   AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
     DEFINE INPUT        PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
     DEFINE OUTPUT       PARAMETER oplSuccess     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER opcMessage     AS CHARACTER NO-UNDO.
     
@@ -562,6 +572,7 @@ PROCEDURE pBuildRMBinForItem PRIVATE:
     ASSIGN
         iopcItemID   = bf-item.i-no
         iopcItemName = bf-item.i-name
+        opcConsUOM   = bf-item.cons-uom
         .
 
     FOR EACH bf-rm-bin NO-LOCK
