@@ -795,7 +795,8 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
              mat-act.qty     = mat-act.qty     + out-qty
              job-mat.qty-iss = job-mat.qty-iss + out-qty
              job-mat.qty-all = job-mat.qty-all - out-qty
-             item.q-comm     = item.q-comm     - rm-rctd.qty.
+             //item.q-comm     = item.q-comm     - rm-rctd.qty - handled in write trigger of job-mat
+             .
               
             run sys/ref/convquom.p(rm-rctd.pur-uom, job-mat.sc-uom,
                                    v-bwt, v-len, v-wid, v-dep,
@@ -810,7 +811,8 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
                                      job-mat.qty-all, output out-qty).
               assign
                job-mat.qty-all = 0
-               item.q-comm     = item.q-comm - out-qty.
+               //item.q-comm     = item.q-comm - out-qty
+               .
             end.
            
             /*job-mat.all-flg = (job-mat.qty-all gt 0).*/

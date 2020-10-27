@@ -15,6 +15,7 @@ DEF BUFFER b-ref1  FOR reftable.
 DEF BUFFER b-ref2  FOR reftable.
 
 {po/po-print.i}
+{methods/getExecutableFileName.i quoter}
 
 DEF VAR v-sname LIKE shipto.ship-name.
 DEF VAR v-saddr LIKE shipto.ship-addr.
@@ -700,12 +701,9 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
   IF SEARCH(v-outfile[2]) NE ? THEN DO:
     OUTPUT CLOSE.
     
-    IF opsys EQ "unix" THEN
-      UNIX SILENT QUOTER -c 1-3000 VALUE(v-outfile[2]) >
-                                   VALUE(v-outfile[2] + ".quo").
-    ELSE
-      DOS  SILENT QUOTER -c 1-3000 VALUE(v-outfile[2]) >
-                                   VALUE(v-outfile[2] + ".quo").
+      ASSIGN 
+          cQuoterCommandString = cQuoterFullPathName + " -c 1-3000 " + v-outfile[2] + " > " + v-outFile[2] + ".quo".
+      OS-COMMAND SILENT VALUE(cQuoterCommandString).
                                    
     INPUT FROM VALUE(v-outfile[2] + ".quo").
     

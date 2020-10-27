@@ -244,7 +244,7 @@ DO v-local-loop = 1 TO v-local-copies:
                {sys/inc/ctrtext.i cCustName 30}.
       
         PUT "<C1><R1.2><#Start>"
-            "<=Start><FROM><C108><R51><RECT><|1>"
+            "<=Start><FROM><C108><R50><RECT><|1>"
             "<=Start><#JobStart>"
             "<=JobStart><C+20><#JobTR>"
             "<=JobStart><R+3><#JobBL> "
@@ -307,11 +307,11 @@ DO v-local-loop = 1 TO v-local-copies:
             "<=DieStart><C+29><R+11><#DieEnd>"
             
             "<=RoutingStart><C+61><#RoutingTR>"
-            "<=RoutingStart><R+11><#RoutingBL>"
-            "<=RoutingStart><C+61><R+11><#RoutingEnd>"
+            "<=RoutingStart><R+10><#RoutingBL>"
+            "<=RoutingStart><C+61><R+10><#RoutingEnd>"
             "<=BoxImageStart><C+61><#BoxImageTR>"
-            "<=BoxImageStart><R+29><#BoxImageBL>"
-            "<=BoxImageStart><C+61><R+28><#BoxImageEnd>"
+            "<=BoxImageStart><R+28><#BoxImageBL>"
+            "<=BoxImageStart><C+61><R+27><#BoxImageEnd>"
             .
             IF print-box AND AVAILABLE xest THEN 
           DO:
@@ -746,8 +746,8 @@ DO v-local-loop = 1 TO v-local-copies:
             WHERE stackPattern.stackcode EQ xeb.stack-code NO-ERROR .
             
        dJobQty  = job-hdr.qty * (IF xeb.est-type EQ 6 AND xeb.quantityPerSet GT 0 THEN xeb.quantityPerSet ELSE 1) .
-          PUT "<P8><R41.5><C1><FROM><R41.5><C108><LINE>".
-          PUT "<=Start><R+40><#PageStart>"
+          PUT "<P8><R40.5><C1><FROM><R40.5><C108><LINE>".
+          PUT "<=Start><R+38.5><#PageStart>"
               "<=PageStart><#PackingStart>"
               "<=PackingStart><C+25><#PackingTR>"
               "<=PackingStart><R+9><#PackingBL>"

@@ -1521,7 +1521,7 @@ PROCEDURE pPostRawMaterials PRIVATE:
                     bf-mat-act.qty     = bf-mat-act.qty     + dJobMatUOMQty
                     bf-job-mat.qty-iss = bf-job-mat.qty-iss + dJobMatUOMQty
                     bf-job-mat.qty-all = bf-job-mat.qty-all - dJobMatUOMQty
-                    bf-item.q-comm     = bf-item.q-comm     - bf-rm-rctd.qty
+                    //bf-item.q-comm     = bf-item.q-comm     - bf-rm-rctd.qty -> Should be handled in write trigger of job-mat
                     .
 
                 RUN Conv_QuantityFromUOMToUOM (
@@ -1564,7 +1564,7 @@ PROCEDURE pPostRawMaterials PRIVATE:
 
                     ASSIGN
                         bf-job-mat.qty-all = 0
-                        bf-item.q-comm     = bf-item.q-comm - dJobMatUOMQty
+                        //bf-item.q-comm     = bf-item.q-comm - dJobMatUOMQty
                         .
                 END.
 
