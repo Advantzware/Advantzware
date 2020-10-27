@@ -43,8 +43,12 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-    DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
     DEFINE VARIABLE scInstance       AS CLASS system.SharedConfig NO-UNDO.
+    DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cRtnValue        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSSTagStatus     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSSTagStatus     AS LOGICAL   NO-UNDO.    
     
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
     
@@ -63,6 +67,31 @@ CREATE WIDGET-POOL.
         FIELD poID            AS INTEGER 
         .
 
+    RUN sys/ref/nk1look.p(
+        INPUT  g_company,
+        INPUT  "SSTagStatus",
+        INPUT  "C",
+        INPUT  NO,
+        INPUT  NO,
+        INPUT  "",
+        INPUT  "",
+        OUTPUT cRtnValue,
+        OUTPUT lRecFound    
+        ).
+    cSSTagStatus = cRtnValue.
+       
+    RUN sys/ref/nk1look.p(
+        INPUT  g_company,
+        INPUT  "SSTagStatus",
+        INPUT  "C",
+        INPUT  NO,
+        INPUT  NO,
+        INPUT  "",
+        INPUT  "",
+        OUTPUT cRtnValue,
+        OUTPUT lRecFound    
+        ).        
+    lSSTagStatus = LOGICAL(cRtnValue) NO-ERROR.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -679,43 +708,13 @@ PROCEDURE pEnableTagStatus PRIVATE :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER opcReturnFocus  AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE lRecFound          AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cRtnValue          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cSSTagStatus       AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lSSTagStatus       AS LOGICAL   NO-UNDO.
+   
     DEFINE VARIABLE lValidStatusID     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cStatusDescription AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemName          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lResponse          AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lOnHold            AS LOGICAL   NO-UNDO.
-    
-    RUN sys/ref/nk1look.p(
-        INPUT  g_company,
-        INPUT  "SSTagStatus",
-        INPUT  "C",
-        INPUT  NO,
-        INPUT  NO,
-        INPUT  "",
-        INPUT  "",
-        OUTPUT cRtnValue,
-        OUTPUT lRecFound    
-        ).
-    cSSTagStatus = cRtnValue.
-       
-    RUN sys/ref/nk1look.p(
-        INPUT  g_company,
-        INPUT  "SSTagStatus",
-        INPUT  "C",
-        INPUT  NO,
-        INPUT  NO,
-        INPUT  "",
-        INPUT  "",
-        OUTPUT cRtnValue,
-        OUTPUT lRecFound    
-        ).        
-    lSSTagStatus = LOGICAL(cRtnValue) NO-ERROR.
-     
+         
     FIND fg-bin NO-LOCK 
         WHERE fg-bin.company  EQ g_company
           AND fg-bin.tag      EQ fiTagNo:SCREEN-VALUE IN FRAME {&FRAME-NAME}
