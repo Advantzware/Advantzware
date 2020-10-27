@@ -707,6 +707,8 @@ PROCEDURE build-table :
     DEFINE VARIABLE iTotBack    AS INTEGER NO-UNDO.
     DEFINE VARIABLE iTotAvail   AS INTEGER NO-UNDO.
     DEFINE VARIABLE iTotReOrder AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iQtyOnHand  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iQtyOnHandOnHold AS INTEGER NO-UNDO.
     lUnspecified = NO.
     
     EMPTY TEMP-TABLE w-jobs.
@@ -725,6 +727,11 @@ PROCEDURE build-table :
         WHERE loc.company EQ itemfg-loc.company
           AND loc.loc     EQ itemfg-loc.loc
         :
+        iQtyOnHand = DYNAMIC-FUNCTION("fGetFGQtyOnHand" IN hdInventoryProcs,
+                                      cocode,
+                                      itemfg.i-no,
+                                      loc.loc,
+                                      NO).         
         CREATE w-jobs.
         ASSIGN 
             w-jobs.i-no         = itemfg.i-no
@@ -733,25 +740,31 @@ PROCEDURE build-table :
             w-jobs.ord-level    = itemfg-loc.ord-level
             w-jobs.ord-max      = itemfg-loc.ord-max
             w-jobs.ord-min      = itemfg-loc.ord-min
-            w-jobs.onHand       = itemfg-loc.q-onh
+            w-jobs.onHand       = iQtyOnHand
             w-jobs.onOrder      = itemfg-loc.q-ono
             w-jobs.allocated    = itemfg-loc.q-alloc
             w-jobs.backOrder    = itemfg-loc.q-back
-            w-jobs.qtyAvailable = w-jobs.onHand
+            w-jobs.qtyAvailable = itemfg-loc.q-onh
                                 + w-jobs.onOrder
                                 - w-jobs.allocated
-            iTotOnHand          = iTotOnHand  + w-jobs.onHand
+            iTotOnHand          = iTotOnHand  + itemfg-loc.q-onh
             iTotonOrder         = iTotOnOrder + w-jobs.onOrder
             iTotAlloc           = iTotAlloc   + w-jobs.allocated
             iTotBack            = iTotBack    + w-jobs.backOrder
             iTotAvail           = iTotAvail   + w-jobs.qtyAvailable
             iTotReOrder         = iTotReOrder + w-jobs.ord-level
-            .
+            .     
         IF AVAILABLE loc THEN
             w-jobs.loc-desc = loc.dscr.      
 
         RELEASE w-jobs.
     END. /* each itemfg-loc */
+    
+    iQtyOnHandOnHold = DYNAMIC-FUNCTION("fGetFGQtyOnHand" IN hdInventoryProcs,
+                                      cocode,
+                                      itemfg.i-no,
+                                      "",
+                                      YES).
     CREATE w-jobs.
     ASSIGN 
         w-jobs.i-no         = itemfg.i-no
@@ -761,14 +774,15 @@ PROCEDURE build-table :
         w-jobs.ord-level    = itemfg.ord-level
         w-jobs.ord-max      = itemfg.ord-max
         w-jobs.ord-min      = itemfg.ord-min
-        w-jobs.onHand       = itemfg.q-onh
+        w-jobs.onHand       = (itemfg.q-onh - iQtyOnHandOnHold)
         w-jobs.onOrder      = itemfg.q-ono
         w-jobs.allocated    = itemfg.q-alloc
         w-jobs.backOrder    = itemfg.q-back
         w-jobs.qtyAvailable = itemfg.q-avail
         .
+        
     IF iTotAlloc NE itemfg.q-alloc 
-        OR iTotOnHand NE itemfg.q-onh 
+        OR iTotOnHand NE (itemfg.q-onh - iQtyOnHandOnHold)
         OR iTotOnOrder NE itemfg.q-ono
         OR iTotBack NE itemfg.q-back
         OR iTotAvail NE itemfg.q-avail THEN DO:

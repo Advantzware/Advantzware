@@ -101,7 +101,13 @@ FUNCTION fItemHasOnHand RETURNS LOGICAL
      
 FUNCTION fItemIsUsed RETURNS CHARACTER
     (ipcCompany  AS CHARACTER,
-     ipcItem AS CHARACTER) FORWARD.     
+     ipcItem AS CHARACTER) FORWARD. 
+
+FUNCTION fGetFGQtyOnHand RETURNS INTEGER
+    (ipcCompany  AS CHARACTER,
+     ipcItem AS CHARACTER,
+     ipcLoc AS CHARACTER,
+     iplOnHold AS LOGICAL) FORWARD.    
 
 /* ***************************  Main Block  *************************** */
 
@@ -6695,3 +6701,19 @@ FUNCTION fItemIsUsed RETURNS CHARACTER
 
     RETURN cMessage.
 END FUNCTION.
+
+FUNCTION fGetFGQtyOnHand RETURNS INTEGER
+    (ipcCompany AS CHARACTER, ipcItem AS CHARACTER,ipcLoc AS CHARACTER, iplOnHold AS LOGICAL):
+    DEFINE VARIABLE iQtyOnHand AS INTEGER NO-UNDO.
+     FOR EACH fg-bin FIELDS(qty )
+         WHERE fg-bin.company EQ ipcCompany
+         AND fg-bin.i-no EQ ipcItem
+         AND (fg-bin.loc EQ ipcLoc OR ipcLoc EQ "")
+         AND fg-bin.OnHold EQ iplOnHold
+         NO-LOCK:
+          ASSIGN
+          iQtyOnHand = iQtyOnHand + fg-bin.qty.
+      END.   
+      RETURN iQtyOnHand.
+END FUNCTION.
+
