@@ -1249,6 +1249,7 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
                 USE-INDEX r-no:
                 RUN pAddInvoiceLineToPost(BUFFER ttPostingMaster, BUFFER bf-ttInvoiceToPost, BUFFER bf-inv-line, ipcCompany, bf-inv-head.r-no, OUTPUT lError, OUTPUT cMessage). 
             END. /*each bf-inv-line*/
+            
             IF lError THEN 
             DO: 
                 RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, cMessage).
@@ -3678,8 +3679,12 @@ PROCEDURE pCreateValidationTags PRIVATE:
     FOR EACH ttInvoiceError,
         FIRST bf-inv-head NO-LOCK 
         WHERE ROWID(bf-inv-head) EQ ttInvoiceError.riInvError :
-            
-        RUN AddTagHold (bf-inv-head.rec_key,"inv-head", ttInvoiceError.problemMessage). /*From TagProcs Super Proc*/
+        RUN AddTagHold (
+            INPUT bf-inv-head.rec_key,
+            INPUT "inv-head",
+            INPUT ttInvoiceError.problemMessage,
+            INPUT ""
+            ). /*From TagProcs Super Proc*/
 
     END.
      
@@ -3699,7 +3704,12 @@ PROCEDURE pAddTagInfo PRIVATE:
         WHERE ROWID(bf-inv-head) EQ ipriRowid NO-ERROR .
     IF AVAIL bf-inv-head THEN
     DO:
-        RUN AddTagHoldInfo (bf-inv-head.rec_key,"inv-head", ipcProblemMessage). /*From TagProcs Super Proc*/ 
+       RUN AddTagHoldInfo (
+           INPUT bf-inv-head.rec_key,
+           INPUT "inv-head",
+           INPUT ipcProblemMessage,
+           INPUT ""
+           ). /*From TagProcs Super Proc*/ 
     END.
      
 END PROCEDURE.

@@ -68,7 +68,12 @@ DO:
     IF cust.cr-hold THEN do: 
       v-error = "is on credit hold.".
       IF AVAILABLE oe-ord THEN 
-        RUN AddTagHold (oe-ord.rec_key,"oe-ord", "Customer on credit hold" ).      
+        RUN AddTagHold (
+            INPUT oe-ord.rec_key,
+            INPUT "oe-ord",
+            INPUT "Customer on credit hold",
+            INPUT ""
+            ).      
     END.
     ELSE 
     DO:
@@ -197,7 +202,12 @@ DO:
                                 ASSIGN oe-ord.spare-char-2 = "Past due invoices" .
 
                             FIND CURRENT oe-ord NO-LOCK NO-ERROR.
-                            RUN AddTagHold (oe-ord.rec_key,"oe-ord", oe-ord.spare-char-2 ).
+                            RUN AddTagHold (
+                                INPUT oe-ord.rec_key,
+                                INPUT "oe-ord",
+                                INPUT oe-ord.spare-char-2,
+                                INPUT ""
+                                ).
                             RUN oe/syncJobHold.p (INPUT oe-ord.company, INPUT oe-ord.ord-no, INPUT "Hold").
                         END.
                         ELSE

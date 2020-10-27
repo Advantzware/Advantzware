@@ -216,7 +216,12 @@ PROCEDURE os-Process-Hold-Status :
           else leave status at current status. */
        ASSIGN vcStatus = (IF vcHoldType <> "" THEN "H" ELSE b-oe-ord.stat).
        IF vcHoldType NE "" THEN
-        RUN AddTagHold (b-oe-ord.rec_key,"oe-ord", getOrdStatDescr(vcHoldType)).
+        RUN AddTagHold (
+            INPUT b-oe-ord.rec_key,
+            INPUT "oe-ord",
+            INPUT getOrdStatDescr(vcHoldType),
+            INPUT ""
+            ).
         
        /* Prompt to update items if more than one. */
        IF vi > 1 THEN 

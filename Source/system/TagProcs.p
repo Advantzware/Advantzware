@@ -43,13 +43,20 @@ PROCEDURE AddTagHold:
     DEFINE INPUT PARAMETER ipcLinkRecKey  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcLinkTable   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcDescription AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcNotes       AS CHARACTER NO-UNDO.
 
     IF NOT CAN-FIND(FIRST tag 
                     WHERE tag.linkRecKey  EQ ipcLinkRecKey
                       AND tag.tagType     EQ gcTypeHold 
                       AND tag.linkTable   EQ ipcLinkTable
                       AND tag.description EQ ipcDescription) THEN 
-    RUN pAddTag (ipcLinkRecKey, gcTypeHold, ipcLinkTable, ipcDescription).
+    RUN pAddTag(
+        INPUT ipcLinkRecKey,
+        INPUT gcTypeHold,
+        INPUT ipcLinkTable,
+        INPUT ipcDescription,
+        INPUT ipcNotes
+        ).
         
 END PROCEDURE.
 
@@ -61,13 +68,20 @@ PROCEDURE AddTagHoldInfo:
     DEFINE INPUT PARAMETER ipcLinkRecKey  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcLinkTable   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcDescription AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcNotes       AS CHARACTER NO-UNDO.
 
     IF NOT CAN-FIND(FIRST tag 
                     WHERE tag.linkRecKey  EQ ipcLinkRecKey
                       AND tag.tagType     EQ gcTypeInfo 
                       AND tag.linkTable   EQ ipcLinkTable
                       AND tag.description EQ ipcDescription) THEN 
-    RUN pAddTag (ipcLinkRecKey, gcTypeInfo, ipcLinkTable, ipcDescription).
+    RUN pAddTag(
+        INPUT ipcLinkRecKey,
+        INPUT gcTypeHold,
+        INPUT ipcLinkTable,
+        INPUT ipcDescription,
+        INPUT ipcNotes
+        ).
         
 END PROCEDURE.
 
@@ -169,11 +183,12 @@ PROCEDURE pAddTag PRIVATE:
      Purpose:   Adds a tag to a given reckey based on provided parameters
      Notes:     ipcLinkRecKey and ipcTagType are mandatory; others are optional
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcTagType AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcLinkTable AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLinkRecKey  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcTagType     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLinkTable   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcDescription AS CHARACTER NO-UNDO.
-
+    DEFINE INPUT PARAMETER ipcNotes       AS CHARACTER NO-UNDO.
+    
     CREATE tag.
     ASSIGN 
         tag.linkReckey  = ipcLinkRecKey
@@ -184,6 +199,7 @@ PROCEDURE pAddTag PRIVATE:
         tag.updateDT    = tag.createDT
         tag.createUser  = USERID("ASI")
         tag.updateUser  = tag.createUser
+        tag.note[1]     = ipcNotes
         .    
     RELEASE tag.
         
@@ -222,6 +238,21 @@ PROCEDURE pDeleteTags PRIVATE:
         END.
     END CASE.
 
+END PROCEDURE.
+
+PROCEDURE Tag_IsTagRecordAvailable:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcLinkRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLinkTable  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplAvailable  AS LOGICAL   NO-UNDO.
+    
+    oplAvailable = CAN-FIND(FIRST tag 
+                            WHERE tag.linkRecKey EQ ipcLinkRecKey
+                              AND tag.linkTable  EQ ipcLinkTable
+                            ).
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
