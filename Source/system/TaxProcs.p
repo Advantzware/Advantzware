@@ -901,6 +901,7 @@ PROCEDURE pAPICalculateForInvHead PRIVATE:
         OUTPUT oplError,
         OUTPUT opcMessage    
         ).
+    oplError = NOT oplError. /* Vertex still sends success flag rather than error flag */        
 END PROCEDURE.
 
 PROCEDURE pAPICalculateForArInv PRIVATE:
@@ -960,6 +961,7 @@ PROCEDURE pAPICalculateForArInv PRIVATE:
         OUTPUT oplError,
         OUTPUT opcMessage    
         ).
+    oplError = NOT oplError. /* Vertex still sends success flag rather than error flag */
 END PROCEDURE.
 
 PROCEDURE pCalculateForInvHead PRIVATE:
