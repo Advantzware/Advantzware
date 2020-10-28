@@ -45,12 +45,12 @@ PROCEDURE pCalculateForInvHeadChild PRIVATE:
  Purpose:  Processes a non-multi inv-head
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-inv-head FOR inv-head.
+    DEFINE PARAMETER BUFFER ipbf-inv-head      FOR inv-head.
     DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError           AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-inv-line FOR inv-line.
     DEFINE BUFFER bf-inv-misc FOR inv-misc.
@@ -74,7 +74,7 @@ PROCEDURE pCalculateForInvHeadChild PRIVATE:
                 INPUT  "INVLINE",            /* Invoice Line Type (INVLINE, INVHEAD, INVMISC, ARINVL ) */ 
                 INPUT  bf-inv-line.rec_key,  /* Invoice Line rec_key */
                 OUTPUT dTax,
-                OUTPUT oplSuccess,
+                OUTPUT oplError,
                 OUTPUT opcMessage
                 ).
 
@@ -101,7 +101,7 @@ PROCEDURE pCalculateForInvHeadChild PRIVATE:
                 INPUT  "INVMISC",            /* Invoice Line Type (INVLINE, INVHEAD, INVMISC, ARINVL ) */ 
                 INPUT  bf-inv-misc.rec_key,  /* Invoice Line rec_key */
                 OUTPUT dTax,
-                OUTPUT oplSuccess,
+                OUTPUT oplError,
                 OUTPUT opcMessage
                 ).
 
@@ -125,7 +125,7 @@ PROCEDURE pCalculateForInvHeadChild PRIVATE:
             INPUT  "INVHEAD",            /* Invoice Line Type (INVLINE, INVHEAD, INVMISC, ARINVL ) */ 
             INPUT  ipbf-inv-head.rec_key,  /* Invoice Line rec_key */
             OUTPUT dTax,
-            OUTPUT oplSuccess,
+            OUTPUT oplError,
             OUTPUT opcMessage
             ).
         
@@ -219,7 +219,7 @@ PROCEDURE Tax_CalculateForInvHead:
     DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError           AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
 
     EMPTY TEMP-TABLE ttTaxDetail.
@@ -234,7 +234,7 @@ PROCEDURE Tax_CalculateForInvHead:
         OUTPUT opdInvoiceTotal,
         OUTPUT opdInvoiceSubTotal,
         OUTPUT TABLE ttTaxDetail,
-        OUTPUT oplSuccess,
+        OUTPUT oplError,
         OUTPUT opcMessage    
         ).
 END PROCEDURE.
@@ -253,7 +253,7 @@ PROCEDURE Tax_CalculateForInvHeadWithDetail:
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.
-    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError           AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
 
     EMPTY TEMP-TABLE ttTaxDetail.
@@ -268,7 +268,7 @@ PROCEDURE Tax_CalculateForInvHeadWithDetail:
         OUTPUT opdInvoiceTotal,
         OUTPUT opdInvoiceSubTotal,
         OUTPUT TABLE ttTaxDetail,
-        OUTPUT oplSuccess,
+        OUTPUT oplError,
         OUTPUT opcMessage    
         ).
 END PROCEDURE.
@@ -286,7 +286,7 @@ PROCEDURE Tax_CalculateForArInv:
     DEFINE OUTPUT PARAMETER opdTaxTotal        AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError           AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
 
     EMPTY TEMP-TABLE ttTaxDetail.
@@ -301,7 +301,7 @@ PROCEDURE Tax_CalculateForArInv:
         OUTPUT opdInvoiceTotal,
         OUTPUT opdInvoiceSubTotal,
         OUTPUT TABLE ttTaxDetail,
-        OUTPUT oplSuccess,
+        OUTPUT oplError,
         OUTPUT opcMessage    
         ).
 END PROCEDURE.
@@ -320,7 +320,7 @@ PROCEDURE Tax_CalculateForArInvWithDetail:
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.       
-    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError           AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
 
     EMPTY TEMP-TABLE ttTaxDetail.
@@ -335,7 +335,7 @@ PROCEDURE Tax_CalculateForArInvWithDetail:
         OUTPUT opdInvoiceTotal,
         OUTPUT opdInvoiceSubTotal,
         OUTPUT TABLE ttTaxDetail,
-        OUTPUT oplSuccess,
+        OUTPUT oplError,
         OUTPUT opcMessage    
         ).
 END PROCEDURE.
@@ -429,7 +429,7 @@ PROCEDURE pCalculate PRIVATE :
     DEFINE INPUT  PARAMETER ipcInvoiceLineType   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcInvoiceLineRecKey AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdTax               AS DECIMAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess           AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError             AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE iCount         AS INTEGER   NO-UNDO.
@@ -451,7 +451,7 @@ PROCEDURE pCalculate PRIVATE :
     /* If Calculate method is set to API then return without calculating Tax */
     IF cCalcMethod EQ cCalcMethodAPI THEN DO: 
         ASSIGN
-            oplSuccess = FALSE
+            oplError   = TRUE
             opcMessage = "Calculation method is set to API"
             .
         RETURN.
@@ -465,7 +465,7 @@ PROCEDURE pCalculate PRIVATE :
     IF NOT AVAILABLE bf-stax THEN 
     DO:
         ASSIGN
-            oplSuccess = FALSE
+            oplError   = TRUE
             opcMessage = "Sales tax does not exist for tax code '" + ipcTaxCode + "'"
             .
         RETURN. 
@@ -822,7 +822,7 @@ PROCEDURE Tax_Calculate:
     DEFINE INPUT  PARAMETER ipcItemID        AS CHARACTER NO-UNDO.  /*Deprecate*/
     DEFINE OUTPUT PARAMETER opdTax           AS DECIMAL   NO-UNDO.
     
-    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     
     EMPTY TEMP-TABLE ttTaxDetail.
@@ -838,7 +838,7 @@ PROCEDURE Tax_Calculate:
         INPUT  "",     /* Invoice Line Type (INVLINE, INVHEAD, INVMISC, ARINVL ) */ 
         INPUT  "",     /* Invoice Line rec_key */
         OUTPUT opdTax,
-        OUTPUT lSuccess,
+        OUTPUT lError,
         OUTPUT cMessage
         ).
         
@@ -858,8 +858,10 @@ PROCEDURE pAPICalculateForInvHead PRIVATE:
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.
-    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError           AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-inv-head FOR inv-head.
     
@@ -868,7 +870,7 @@ PROCEDURE pAPICalculateForInvHead PRIVATE:
          NO-ERROR.
     IF NOT AVAILABLE bf-inv-head THEN DO:
         ASSIGN
-            oplSuccess = FALSE
+            oplError   = TRUE
             opcMessage = "Invalid inv-head row id"
             .
         RETURN.
@@ -882,7 +884,7 @@ PROCEDURE pAPICalculateForInvHead PRIVATE:
     
     IF cCalcMethod NE cCalcMethodAPI THEN DO:
         ASSIGN
-            oplSuccess = FALSE
+            oplError   = TRUE
             opcMessage = "NK1 setting SalesTaxCalcMethod is not set to 'API'"
             .
         RETURN.
@@ -898,12 +900,10 @@ PROCEDURE pAPICalculateForInvHead PRIVATE:
         OUTPUT opdInvoiceSubTotal,
         OUTPUT opdTaxTotal,
         OUTPUT TABLE ttTaxDetail,
-        OUTPUT oplSuccess,
+        OUTPUT lSuccess,
         OUTPUT opcMessage    
         ).
-
-    IF NOT oplSuccess THEN
-        RETURN.
+    oplError = NOT lSuccess. /* Vertex still sends success flag rather than error flag */        
 END PROCEDURE.
 
 PROCEDURE pAPICalculateForArInv PRIVATE:
@@ -920,8 +920,10 @@ PROCEDURE pAPICalculateForArInv PRIVATE:
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.    
-    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError           AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-ar-inv FOR ar-inv.
     
@@ -930,7 +932,7 @@ PROCEDURE pAPICalculateForArInv PRIVATE:
          NO-ERROR.
     IF NOT AVAILABLE bf-ar-inv THEN DO:
         ASSIGN
-            oplSuccess = FALSE
+            oplError   = TRUE
             opcMessage = "Invalid ar-inv row id"
             .
         RETURN.
@@ -944,7 +946,7 @@ PROCEDURE pAPICalculateForArInv PRIVATE:
                 
     IF cCalcMethod NE cCalcMethodAPI THEN DO:
         ASSIGN
-            oplSuccess = FALSE
+            oplError   = TRUE
             opcMessage = "NK1 setting SalesTaxCalcMethod is not set to 'API'"
             .
         RETURN.
@@ -960,12 +962,10 @@ PROCEDURE pAPICalculateForArInv PRIVATE:
         OUTPUT opdInvoiceSubTotal,
         OUTPUT opdTaxTotal,
         OUTPUT TABLE ttTaxDetail,
-        OUTPUT oplSuccess,
+        OUTPUT lSuccess,
         OUTPUT opcMessage    
         ).
-
-    IF NOT oplSuccess THEN
-        RETURN.    
+    oplError = NOT lSuccess. /* Vertex still sends success flag rather than error flag */
 END PROCEDURE.
 
 PROCEDURE pCalculateForInvHead PRIVATE:
@@ -982,7 +982,7 @@ PROCEDURE pCalculateForInvHead PRIVATE:
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.    
-    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError           AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE dTax                AS DECIMAL NO-UNDO.
@@ -1009,7 +1009,7 @@ PROCEDURE pCalculateForInvHead PRIVATE:
          NO-ERROR.
     IF NOT AVAILABLE bf-inv-head THEN DO:
         ASSIGN
-            oplSuccess = FALSE
+            oplError   = TRUE
             opcMessage = "Invalid inv-head row id"
             .
         RETURN.
@@ -1075,10 +1075,10 @@ PROCEDURE pCalculateForInvHead PRIVATE:
             OUTPUT dAPIInvoiceTotal,
             OUTPUT dAPIInvoiceSubTotal,
             OUTPUT TABLE ttTaxDetail,
-            OUTPUT oplSuccess,
+            OUTPUT oplError,
             OUTPUT opcMessage
             ).
-        IF oplSuccess THEN DO:
+        IF NOT oplError THEN DO:
             /* Populates company and tax account */
             RUN pPopulateTaxAccount (
                 INPUT        bf-inv-head.company,
@@ -1144,7 +1144,7 @@ PROCEDURE pCalculateForInvHead PRIVATE:
                                            OUTPUT dTaxTotal, 
                                            OUTPUT dInvoiceTotal, 
                                            OUTPUT dInvoiceSubTotal, 
-                                           OUTPUT oplSuccess, 
+                                           OUTPUT oplError, 
                                            OUTPUT opcMessage).
             ASSIGN 
                 opdTaxTotal = opdTaxTotal + dTaxTotal
@@ -1158,7 +1158,7 @@ PROCEDURE pCalculateForInvHead PRIVATE:
                                        OUTPUT opdTaxTotal, 
                                        OUTPUT opdInvoiceTotal, 
                                        OUTPUT opdInvoiceSubTotal, 
-                                       OUTPUT oplSuccess, 
+                                       OUTPUT oplError, 
                                        OUTPUT opcMessage).
         
 END PROCEDURE.
@@ -1177,7 +1177,7 @@ PROCEDURE pCalculateForArInv PRIVATE:
     DEFINE OUTPUT PARAMETER opdInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdInvoiceSubTotal AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.    
-    DEFINE OUTPUT PARAMETER oplSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError           AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE dTax                AS DECIMAL NO-UNDO.
@@ -1198,7 +1198,7 @@ PROCEDURE pCalculateForArInv PRIVATE:
          NO-ERROR.
     IF NOT AVAILABLE bf-ar-inv THEN DO:
         ASSIGN
-            oplSuccess = FALSE
+            oplError   = TRUE
             opcMessage = "Invalid ar-inv row id"
             .
         RETURN.
@@ -1249,10 +1249,10 @@ PROCEDURE pCalculateForArInv PRIVATE:
             OUTPUT dAPIInvoiceTotal,
             OUTPUT dAPIInvoiceSubTotal,
             OUTPUT TABLE ttTaxDetail,
-            OUTPUT oplSuccess,
+            OUTPUT oplError,
             OUTPUT opcMessage
             ).
-        IF oplSuccess THEN DO:
+        IF NOT oplError THEN DO:
             /* Populates company and tax account */
             RUN pPopulateTaxAccount (
                 INPUT        bf-ar-inv.company,
@@ -1315,7 +1315,7 @@ PROCEDURE pCalculateForArInv PRIVATE:
                 INPUT  "ARINVL",            /* Invoice Line Type (INVLINE, INVHEAD, INVMISC, ARINVL ) */ 
                 INPUT  bf-ar-invl.rec_key,  /* Invoice Line rec_key */
                 OUTPUT dTax,
-                OUTPUT oplSuccess,
+                OUTPUT oplError,
                 OUTPUT opcMessage
                 ).
 
@@ -1333,7 +1333,7 @@ PROCEDURE pCalculateForArInv PRIVATE:
                     INPUT  "ARINVL",            /* Invoice Line Type (INVLINE, INVHEAD, INVMISC, ARINVL ) */ 
                     INPUT  bf-ar-invl.rec_key,  /* Invoice Line rec_key */
                     OUTPUT dTax,
-                    OUTPUT oplSuccess,
+                    OUTPUT oplError,
                     OUTPUT opcMessage
                     ). 
         
@@ -1358,7 +1358,7 @@ PROCEDURE Tax_CalculateWithDetail:
     DEFINE OUTPUT PARAMETER opdTax           AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE FOR ttTaxDetail.
     
-    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     
     EMPTY TEMP-TABLE ttTaxDetail.
@@ -1374,7 +1374,7 @@ PROCEDURE Tax_CalculateWithDetail:
         INPUT  "", /* Invoice Line Type (INVLINE, INVHEAD, INVMISC, ARINVL ) */ 
         INPUT  "", /* Invoice Line rec_key */
         OUTPUT opdTax,
-        OUTPUT lSuccess,
+        OUTPUT lError,
         OUTPUT cMessage
         ).
         

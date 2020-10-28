@@ -272,14 +272,14 @@ PROCEDURE pProcessRecord PRIVATE:
         ASSIGN 
             bf-quotehd.company = ipbf-ttImportQuote.Company
             bf-quotehd.cust-no = ipbf-ttImportQuote.CustNo
+            cAddedNewQuote = cAddedNewQuote + STRING(bf-quotehd.q-no) + "," 
             .
         IF lAutoNumber AND cQuoteGroup NE "" THEN DO:
             FIND CURRENT ipbf-ttImportQuote EXCLUSIVE-LOCK.
             ASSIGN 
                 ipbf-ttImportQuote.QuoteGroup = cQuoteGroup
                 ipbf-ttImportQuote.Quote = STRING(bf-quotehd.q-no)
-                cAddedNewQuote = cAddedNewQuote + STRING(bf-quotehd.q-no) + "," .
-                .
+                .                
             FIND CURRENT ipbf-ttImportQuote NO-LOCK.
         END.
     END.
