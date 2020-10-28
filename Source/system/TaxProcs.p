@@ -861,6 +861,8 @@ PROCEDURE pAPICalculateForInvHead PRIVATE:
     DEFINE OUTPUT PARAMETER oplError           AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    
     DEFINE BUFFER bf-inv-head FOR inv-head.
     
     FIND FIRST bf-inv-head NO-LOCK 
@@ -898,10 +900,10 @@ PROCEDURE pAPICalculateForInvHead PRIVATE:
         OUTPUT opdInvoiceSubTotal,
         OUTPUT opdTaxTotal,
         OUTPUT TABLE ttTaxDetail,
-        OUTPUT oplError,
+        OUTPUT lSuccess,
         OUTPUT opcMessage    
         ).
-    oplError = NOT oplError. /* Vertex still sends success flag rather than error flag */        
+    oplError = NOT lSuccess. /* Vertex still sends success flag rather than error flag */        
 END PROCEDURE.
 
 PROCEDURE pAPICalculateForArInv PRIVATE:
@@ -920,6 +922,8 @@ PROCEDURE pAPICalculateForArInv PRIVATE:
     DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.    
     DEFINE OUTPUT PARAMETER oplError           AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-ar-inv FOR ar-inv.
     
@@ -958,10 +962,10 @@ PROCEDURE pAPICalculateForArInv PRIVATE:
         OUTPUT opdInvoiceSubTotal,
         OUTPUT opdTaxTotal,
         OUTPUT TABLE ttTaxDetail,
-        OUTPUT oplError,
+        OUTPUT lSuccess,
         OUTPUT opcMessage    
         ).
-    oplError = NOT oplError. /* Vertex still sends success flag rather than error flag */
+    oplError = NOT lSuccess. /* Vertex still sends success flag rather than error flag */
 END PROCEDURE.
 
 PROCEDURE pCalculateForInvHead PRIVATE:
