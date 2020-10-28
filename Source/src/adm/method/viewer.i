@@ -1,35 +1,35 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r2 GUI
 &ANALYZE-RESUME
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Method-Library 
+/*********************************************************************
+* Copyright (C) 2000 by Progress Software Corporation. All rights    *
+* reserved. Prior versions of this work may contain portions         *
+* contributed by participants of Possenet.                           *
+*                                                                    *
+*********************************************************************/
 /*-------------------------------------------------------------------------
-    Library     : browser.i  
-    Purpose     : Base ADM methods for Browser objects
+    File        : viewer.i  
+    Purpose     : Basic SmartViewer methods for the ADM
   
-    Syntax      : {src/adm/method/browser.i}
+    Syntax      : {src/adm/method/viewer.i}
 
     Description :
   
     Author(s)   :
     Created     :
+    Notes       :
     HISTORY: 
---------------------------------------------------------------------------*/
+-------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE VARIABLE adm-sts           AS LOGICAL NO-UNDO.
-DEFINE VARIABLE adm-brs-in-update AS LOGICAL NO-UNDO INIT no.
-DEFINE VARIABLE adm-brs-initted   AS LOGICAL NO-UNDO INIT no.
-
-&IF DEFINED(adm-browser) = 0 &THEN
-&GLOBAL adm-browser yes
-
-&GLOBAL adm-open-query yes
-
+&IF DEFINED(adm-viewer) = 0 &THEN
+&GLOBAL adm-viewer yes
 /* Dialog program to run to set runtime attributes - if not defined in master */
 &IF DEFINED(adm-attribute-dlg) = 0 &THEN
-&SCOP adm-attribute-dlg adm/support/browserd.w
+&SCOP adm-attribute-dlg adm/support/viewerd.w
 &ENDIF
 
 /* +++ This is the list of attributes whose values are to be returned
@@ -38,7 +38,7 @@ DEFINE VARIABLE adm-brs-initted   AS LOGICAL NO-UNDO INIT no.
    by the UIB-generated code in adm-create-objects. */
 &IF DEFINED(adm-attribute-list) = 0 &THEN
 &SCOP adm-attribute-list Initial-Lock,Hide-on-Init,Disable-on-Init,Key-Name,~
-Layout,Create-On-Add,SortBy-Case
+Layout,Create-On-Add
 &ENDIF
 
 /* _UIB-CODE-BLOCK-END */
@@ -74,9 +74,8 @@ Layout,Create-On-Add,SortBy-Case
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/smart.i}
-{src/adm/method/tableio.i}
-{src/adm/method/query.i}
 {src/adm/method/record.i}
+{src/adm/method/tableio.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -92,20 +91,24 @@ Layout,Create-On-Add,SortBy-Case
 
 /* ***************************  Main Block  *************************** */
 
-/* Keep newly added entries from being at the top of the viewport. */
-  adm-sts = {&BROWSE-NAME}:SET-REPOSITIONED-ROW
-    ({&BROWSE-NAME}:DOWN,"CONDITIONAL":U). 
-
   /* Initialize attributes for update processing objects. */
   RUN set-attribute-list ('FIELDS-ENABLED=no,ADM-NEW-RECORD=no':U).
-{methods/template/brwcustom.i}
+ 
 
 &ENDIF
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&IF DEFINED(EXCLUDE-viewer-identifier) = 0 &THEN
 
-PROCEDURE nav-browse-identifier:
-/* Purpose: To make external programs identify this is a navigation brower using current procedure handle. */
-END PROCEDURE.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE viewer-identifier Method-Library 
+
+  PROCEDURE viewer-identifier:
+    /* Purpose: To make external programs identify this is a viewer using current procedure handle. */
+  END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF

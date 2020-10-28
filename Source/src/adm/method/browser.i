@@ -186,3 +186,15 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-browse-identifier) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE browse-identifier Method-Library 
+
+PROCEDURE browse-identifier:
+/* Purpose: To make external programs identify this is a navigation brower using current procedure handle. */
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF

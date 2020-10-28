@@ -310,6 +310,8 @@ END.
 
 RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
 
+ {custom\udfimgoptionframe.i}
+ 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

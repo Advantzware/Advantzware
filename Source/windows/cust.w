@@ -169,14 +169,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -224,7 +224,7 @@ ASSIGN
 /* SETTINGS FOR FRAME OPTIONS-FRAME
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
-THEN W-Win:HIDDEN = yes.
+THEN W-Win:HIDDEN = YES.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -278,6 +278,13 @@ DO:
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -404,6 +411,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_shipto , 'attachcustship':U , h_options ).
        RUN add-link IN adm-broker-hdl ( h_soldto , 'attachcustsold':U , h_options ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'panattachmain':U , h_options ).
+	     RUN add-link IN adm-broker-hdl ( h_cust , 'udfmsg':U , h_options ).
        RUN add-link IN adm-broker-hdl ( h_options , 'note-link':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
@@ -889,7 +897,7 @@ PROCEDURE adm-create-objects :
 
   END CASE.
   /* Select a Startup page. */
-  IF adm-current-page eq 0 
+  IF adm-current-page EQ 0 
   THEN RUN select-page IN THIS-PROCEDURE ( 1 ).
 
 END PROCEDURE.
@@ -935,9 +943,9 @@ PROCEDURE disable-note :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def output parameter op-need-note as log no-undo.
+  DEF OUTPUT PARAMETER op-need-note AS LOG NO-UNDO.
   
-  op-need-note = no.
+  op-need-note = NO.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1018,22 +1026,22 @@ DEFINE VARIABLE v-spec AS LOGICAL NO-UNDO.
   RUN GET-ATTRIBUTE('CURRENT-PAGE').
   iCurrentPage = INT(RETURN-VALUE).
   IF iCurrentPage = 3 
-    THEN do:
-       assign s-rec_key     = string (dynamic-function ('GetCurrShipTo' in h_shipto)).
+    THEN DO:
+       ASSIGN s-rec_key     = STRING (DYNAMIC-FUNCTION ('GetCurrShipTo' IN h_shipto)).
        v-spec = CAN-FIND(FIRST notes WHERE
                          notes.rec_key = s-rec_key AND
                          notes.note_type <> "o").
        RUN pPenImageChange(v-spec) .
   END.
-    ELSE IF iCurrentPage = 4 THEN do:
-         ASSIGN s-rec_key     = string (dynamic-function ('GetCurrSoldTo' in h_soldto)).
+    ELSE IF iCurrentPage = 4 THEN DO:
+         ASSIGN s-rec_key     = STRING (DYNAMIC-FUNCTION ('GetCurrSoldTo' IN h_soldto)).
          v-spec = CAN-FIND(FIRST notes WHERE
                            notes.rec_key = s-rec_key AND
                            notes.note_type <> "o").
          RUN pPenImageChange(v-spec) .
     END.
-    ELSE do:
-             assign rec_key_value = lv-cust-rec-key
+    ELSE DO:
+             ASSIGN rec_key_value = lv-cust-rec-key
                 s-rec_key     = lv-cust-rec-key.
              v-spec = CAN-FIND(FIRST notes WHERE
                                notes.rec_key = s-rec_key AND
@@ -1098,10 +1106,10 @@ PROCEDURE local-row-available :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  assign lv-cust-rec-key = cust.rec_key when avail cust no-error.
+  ASSIGN lv-cust-rec-key = cust.rec_key WHEN AVAIL cust no-error.
 
   v-att = CAN-FIND(FIRST asi.attach WHERE
-          attach.company = cust.company and
+          attach.company = cust.company AND
           attach.rec_key = lv-cust-rec-key AND
           ATTACH.est-no EQ "").
 

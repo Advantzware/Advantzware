@@ -478,9 +478,9 @@ PROCEDURE Paper-Clip-Image :
    DO WITH FRAME {&FRAME-NAME}:
 
       IF NOT ip-attach THEN
-         SELECT_att:LOAD-IMAGE("Graphics/32x32/paperclip.png").
+         SELECT_att:LOAD-IMAGE("Graphics/32x32/pin2.png").
       ELSE
-         SELECT_att:LOAD-IMAGE("Graphics/32x32/paperclip_star.png").
+         SELECT_att:LOAD-IMAGE("Graphics/32x32/pin2_star.png").
    END.
 END PROCEDURE.
 

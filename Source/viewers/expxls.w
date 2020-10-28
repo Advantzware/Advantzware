@@ -88,8 +88,8 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-excel-exp 
-     IMAGE-UP FILE "Graphics/32x32/file_excel.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/file_excel.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/file_excel_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 7.8 BY 1.81 TOOLTIP "Export to Excel".
 
@@ -100,7 +100,8 @@ DEFINE FRAME F-Main
      btn-excel-exp AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */
