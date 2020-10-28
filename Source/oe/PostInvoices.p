@@ -2241,10 +2241,7 @@ PROCEDURE pBuildInvoiceTaxDetail PRIVATE:
     DEFINE VARIABLE dTotalTax      AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dTax           AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dTaxableAmount AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lHasLimit      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lSuccess       AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-    
+    DEFINE VARIABLE lHasLimit      AS LOGICAL   NO-UNDO.    
     
     IF ipbf-ttInvoiceToPost.taxGroup NE "" AND ipbf-ttInvoiceToPost.amountBilledTax NE 0 THEN 
     DO:
@@ -2257,8 +2254,8 @@ PROCEDURE pBuildInvoiceTaxDetail PRIVATE:
             INPUT  "QUOTATION",
             OUTPUT dTotalTax,
             OUTPUT TABLE ttTaxDetail,
-            OUTPUT lSuccess,
-            OUTPUT cMessage
+            OUTPUT oplError,
+            OUTPUT opcErrorMessage
             ).
         FOR EACH ttTaxDetail:
             RUN pCheckAccount(ttTaxDetail.company,  ttTaxDetail.taxCodeAccount, cAccountSource + " Code: " + ttTaxDetail.taxCode, "Tax Account", 
@@ -3026,7 +3023,7 @@ PROCEDURE pPostSalesTaxForInvHead PRIVATE:
     DEFINE INPUT  PARAMETER ipriInvHead AS ROWID     NO-UNDO.
     
     DEFINE VARIABLE dTotalTax AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lError    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
 
     RUN pGetSalesTaxForInvHead  (
@@ -3034,7 +3031,7 @@ PROCEDURE pPostSalesTaxForInvHead PRIVATE:
         INPUT  "INVOICE",
         OUTPUT dTotalTax,
         OUTPUT TABLE ttTaxDetail,
-        OUTPUT lSuccess,
+        OUTPUT lError,
         OUTPUT cMessage
         ).
     
@@ -3049,7 +3046,7 @@ PROCEDURE pGetSalesTaxForInvHead PRIVATE:
     DEFINE INPUT  PARAMETER ipcMessageType AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdTotalTax    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE          FOR ttTaxDetail.
-    DEFINE OUTPUT PARAMETER oplSuccess     AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError       AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
@@ -3078,7 +3075,7 @@ PROCEDURE pGetSalesTaxForInvHead PRIVATE:
         OUTPUT dInvoiceTotal,
         OUTPUT dinvoiceSubTotal,
         OUTPUT TABLE ttTaxDetail,
-        OUTPUT oplSuccess,
+        OUTPUT oplError,
         OUTPUT opcMessage
         ).
 END PROCEDURE.
@@ -3525,7 +3522,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
     DEFINE VARIABLE lValidateRequired AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE dTotalLineRev     AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dTotalTax         AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lSuccess          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lError            AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
     
     FOR EACH bf-ttInvoiceToPost,
@@ -3539,12 +3536,12 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             INPUT  "QUOTATION",
             OUTPUT dTotalTax,
             OUTPUT TABLE ttTaxDetail,
-            OUTPUT lSuccess,
+            OUTPUT lError,
             OUTPUT cMessage
             ).       
            
         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalTaxCalc",bf-inv-head.cust-no,iplIsValidateOnly).        
-        IF lValidateRequired AND NOT lSuccess THEN 
+        IF lValidateRequired AND lError THEN 
         DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, "Tax Calculation Error").
             lAutoApprove = NO.

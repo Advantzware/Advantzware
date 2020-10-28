@@ -1245,7 +1245,7 @@ PROCEDURE pPostSalesTax PRIVATE:
     DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dInvoiceSubTotal AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dTotalTax        AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lError           AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
 
     RUN Tax_CalculateForArInv  (
@@ -1257,7 +1257,7 @@ PROCEDURE pPostSalesTax PRIVATE:
         OUTPUT dTotalTax,
         OUTPUT dInvoiceTotal,
         OUTPUT dinvoiceSubTotal,
-        OUTPUT lSuccess,
+        OUTPUT lError,
         OUTPUT cMessage
         ).
 
@@ -1281,7 +1281,7 @@ PROCEDURE pQuoteSalesTax PRIVATE:
     DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dInvoiceSubTotal AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dTotalTax        AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lError           AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
     
     RUN Tax_CalculateForArInvWithDetail (
@@ -1294,7 +1294,7 @@ PROCEDURE pQuoteSalesTax PRIVATE:
         OUTPUT dInvoiceTotal,
         OUTPUT dinvoiceSubTotal,
         OUTPUT TABLE ttTaxDetail,
-        OUTPUT lSuccess,
+        OUTPUT lError,
         OUTPUT cMessage
         ).
 END PROCEDURE.
