@@ -4651,7 +4651,7 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     IF lFound THEN glRoundPriceToDollar = cReturn EQ "Dollar".
     
     RUN sys/ref/nk1look.p (ipcCompany, "CEWindow", "D", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    IF lFound AND DECIMAL(cReturn) NE 0 THEN gdWindowDimOverlap = DECIMAL(cReturn).
+    IF lFound THEN gdWindowDimOverlap = DECIMAL(cReturn).
     
 END PROCEDURE.
 
