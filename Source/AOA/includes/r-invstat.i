@@ -138,15 +138,34 @@ FUNCTION fProductDescription RETURNS CHARACTER PRIVATE
     RETURN IF AVAILABLE fgcat THEN fgcat.dscr ELSE "".
 END FUNCTION.
 
+FUNCTION fIsOldJobBuild RETURNS LOGICAL PRIVATE
+    (ipcCompany AS CHARACTER):
+    
+    DEFINE VARIABLE lOldJobBuild AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    
+    RUN sys/ref/nk1look.p (ipcCompany, "JobBuildVersion", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN 
+        lOldJobBuild = cReturn NE "NEW".
+    
+    RETURN lOldJobBuild.    
+    
+END FUNCTION.
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBusinessLogic:
+    
+    DEFINE VARIABLE lOldJobBuild AS LOGICAL NO-UNDO.
+    
     CASE cAsOfDateOption:
         WHEN "Prior Month" THEN
             dtAsOfDate = DYNAMIC-FUNCTION("sfCommon_DateOptionDate", "Date Prior Month", dtAsOfDate).
         WHEN "Prior Year" THEN
             dtAsOfDate = DYNAMIC-FUNCTION("sfCommon_DateOptionDate", "Date Prior Year", dtAsOfDate).
     END CASE.
+    lOldJobBuild = fIsOldJobBuild(cCompany).
+    
     IF cProductCategoryList = "" THEN cProductCategoryList = "EP,EEP".
     RUN pBuildJobItem (
         cCompany, 
@@ -154,7 +173,10 @@ PROCEDURE pBusinessLogic:
         cStartCustNo,
         cEndCustNo,
         cStartFGItem,
-        cEndFGItem
+        cEndFGItem,
+        dtStartJob,
+        dtEndJob,
+        lOldJobBuild
         ).
 END PROCEDURE.
 
@@ -351,6 +373,9 @@ PROCEDURE pBuildJobItem PRIVATE:
     DEFINE INPUT PARAMETER ipcCustEnd     AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFGItemStart AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcFGItemEnd   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtJobStart   AS DATE      NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtJobEnd     AS DATE      NO-UNDO.
+    DEFINE INPUT PARAMETER iplOldJobBuild AS LOGICAL   NO-UNDO.
 
     DEFINE BUFFER bf-comp-itemfg    FOR itemfg.
     DEFINE BUFFER bf-job-hdr        FOR job-hdr.
@@ -380,7 +405,8 @@ PROCEDURE pBuildJobItem PRIVATE:
         AND job-hdr.i-no    GE ipcFGItemStart
         AND job-hdr.i-no    LE ipcFGItemEnd,
         FIRST job OF job-hdr  NO-LOCK
-        WHERE job.create-date LE ipdtAsOf,
+        WHERE job.create-date LE ipdtJobEnd
+        AND job.create-date GE ipdtJobStart,
         FIRST itemfg NO-LOCK
         WHERE itemfg.company  EQ job-hdr.company
         AND itemfg.i-no     EQ job-hdr.i-no
@@ -488,7 +514,7 @@ PROCEDURE pBuildJobItem PRIVATE:
             dtDueDate,
             BUFFER bf-ttJobItem
             ).
-        IF itemfg.isaset THEN 
+        IF itemfg.isaset AND iplOldJobBuild THEN 
         DO:
             FOR EACH fg-set NO-LOCK 
                 WHERE fg-set.company EQ itemfg.company
@@ -571,7 +597,8 @@ PROCEDURE pBuildJobItem PRIVATE:
         WHERE oe-ord.company EQ ipcCompany
         AND oe-ord.cust-no   GE ipcCustStart
         AND oe-ord.cust-no   LE ipcCustEnd
-        AND oe-ord.ord-date  LE ipdtAsOf,
+        AND oe-ord.ord-date  LE ipdtJobEnd
+        AND oe-ord.ord-date  GE ipdtJobStart,
         EACH oe-ordm NO-LOCK
         WHERE oe-ordm.company EQ oe-ord.company
         AND oe-ordm.ord-no  EQ oe-ord.ord-no
@@ -637,7 +664,8 @@ PROCEDURE pBuildJobItem PRIVATE:
         WHERE oe-ord.company EQ ipcCompany
         AND oe-ord.cust-no   GE ipcCustStart
         AND oe-ord.cust-no   LE ipcCustEnd
-        AND oe-ord.ord-date  LE ipdtAsOf
+        AND oe-ord.ord-date  LE ipdtJobEnd
+        AND oe-ord.ord-date  GE ipdtJobStart
         AND oe-ord.est-no EQ "",
         EACH oe-ordl NO-LOCK 
         WHERE oe-ordl.company EQ oe-ord.company
