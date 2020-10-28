@@ -57,6 +57,8 @@ DEFINE VARIABLE gcDefaultWeightUOM                    AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcDefaultAreaUOM                      AS CHARACTER NO-UNDO INITIAL "SQIN".
 DEFINE VARIABLE gcDefaultBasisWeightUOM               AS CHARACTER NO-UNDO INITIAL "LBS/MSF".
 
+DEFINE VARIABLE gdWindowDimOverlap                    AS DECIMAL   NO-UNDO INITIAL 0.5.
+
 /*Settings Globals*/
 DEFINE VARIABLE gcPrepRoundTo                         AS CHARACTER NO-UNDO.  /*CEPREP - char val - potentially deprecate*/
 DEFINE VARIABLE gcPrepMarkupOrMargin                  AS CHARACTER NO-UNDO.  /*CEPrepPrice - char val*/
@@ -1349,17 +1351,24 @@ PROCEDURE pAddLeaf PRIVATE:
                 ttLeaf.cMaterialType       = bf-item.mat-type
                 ttLeaf.cQtyUOM             = IF bf-item.cons-uom EQ "" THEN "LB" ELSE bf-item.cons-uom    
                 ttLeaf.dDimLength          = ipdLength
-                ttLeaf.dDimWidth           = ipdWidth     
-                ttLeaf.dAreaInSQIn         = ipdLength * ipdWidth
+                ttLeaf.dDimWidth           = ipdWidth    
+                ttLeaf.dAreaInSqInAperture = ipdLength * ipdWidth 
                 ttLeaf.cDescription        = IF ipcDescription NE "" THEN ipcDescription ELSE ttLeaf.cDescription
                 ttLeaf.dCoverageRate       = bf-item.sqin-lb
                 ttLeaf.cCoverageRateUOM    = "SQIN/LB"
                 ttLeaf.lIsSheetFed         = ipiBlankNo EQ 0
                 ttLeaf.lIsWindow           = CAN-DO(gcWindowMatTypes, bf-item.mat-type)
                 .
-            IF ttLeaf.cMaterialType EQ "W" AND bf-item.shrink NE 0 AND ipbf-estCostHeader.industry EQ gcIndustryCorrugated  THEN 
+            IF ttLeaf.lIsWindow THEN 
                 ASSIGN 
-                    ttLeaf.dAreaInSQIn = ((dAreaInSQIn / 144000) * ipbf-estCostForm.basisWeight) * bf-item.shrink
+                    ttLeaf.dDimLength = ipdLength + gdWindowDimOverlap * 2
+                    ttLeaf.dDimWidth = ipdWidth + gdWindowDimOverlap * 2
+                    .
+            ttLeaf.dAreaInSQIn         = ttLeaf.dDimLength * ttLeaf.dDimWidth.
+            
+            IF ttLeaf.lIsWindow AND bf-item.shrink NE 0 AND ipbf-estCostHeader.industry EQ gcIndustryCorrugated  THEN 
+                ASSIGN 
+                    ttLeaf.dAreaInSQIn = ((ttLeaf.dAreaInSQIn / 144000) * ipbf-estCostForm.basisWeight) * bf-item.shrink
                     ttLeaf.dCoverageRate = 1
                     .
             ttLeaf.dQtyRequiredPerLeaf = ttLeaf.dAreaInSQIn / ttLeaf.dCoverageRate.
@@ -1372,7 +1381,7 @@ PROCEDURE pAddLeaf PRIVATE:
             IF AVAILABLE bf-estCostBlank THEN 
                 ASSIGN
                     /*Only add Window Area if material is a Window - i.e. cut out*/ 
-                    bf-estCostBlank.blankAreaWindow    = bf-estCostBlank.blankAreaWindow + IF ttLeaf.lIsWindow THEN ttLeaf.dAreaInSQIn ELSE 0
+                    bf-estCostBlank.blankAreaWindow    = bf-estCostBlank.blankAreaWindow + IF ttLeaf.lIsWindow THEN ttLeaf.dAreaInSQInAperture ELSE 0
                     bf-estCostBlank.blankAreaNetWindow = bf-estCostBlank.blankArea - bf-estCostBlank.blankAreaWindow
                     ttLeaf.estBlankID                  = bf-estCostBlank.estCostBlankID
                     .
@@ -4640,6 +4649,10 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     
     RUN sys/ref/nk1look.p (ipcCompany, "CERound", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound THEN glRoundPriceToDollar = cReturn EQ "Dollar".
+    
+    RUN sys/ref/nk1look.p (ipcCompany, "CEWindow", "D", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound AND DECIMAL(cReturn) NE 0 THEN gdWindowDimOverlap = DECIMAL(cReturn).
+    
 END PROCEDURE.
 
 
