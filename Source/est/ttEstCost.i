@@ -105,6 +105,7 @@ DEFINE {1} TEMP-TABLE ttLeaf
     FIELD dQtyRequiredPerLeaf AS DECIMAL
     FIELD lIsSheetFed AS LOGICAL 
     FIELD lIsWindow AS LOGICAL
+    FIELD lIsWax AS LOGICAL
     . 
     
 DEFINE {1} TEMP-TABLE ttPack

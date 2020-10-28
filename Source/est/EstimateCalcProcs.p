@@ -31,6 +31,7 @@ DEFINE VARIABLE gcInkMatTypes                         AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcPackMatTypes                        AS CHARACTER NO-UNDO INITIAL "5,6,C,D,J,M".
 DEFINE VARIABLE gcLeafMatTypes                        AS CHARACTER NO-UNDO INITIAL "F,W".
 DEFINE VARIABLE gcWindowMatTypes                      AS CHARACTER NO-UNDO INITIAL "W".
+DEFINE VARIABLE gcWaxMatTypes                         AS CHARACTER NO-UNDO INITIAL "W".
 DEFINE VARIABLE gcAdderMatTypes                       AS CHARACTER NO-UNDO INITIAL "A".
 
 DEFINE VARIABLE gcDeptsForPrinters                    AS CHARACTER NO-UNDO INITIAL "PR".
@@ -1357,7 +1358,8 @@ PROCEDURE pAddLeaf PRIVATE:
                 ttLeaf.dCoverageRate       = bf-item.sqin-lb
                 ttLeaf.cCoverageRateUOM    = "SQIN/LB"
                 ttLeaf.lIsSheetFed         = ipiBlankNo EQ 0
-                ttLeaf.lIsWindow           = CAN-DO(gcWindowMatTypes, bf-item.mat-type)
+                ttLeaf.lIsWindow           = CAN-DO(gcWindowMatTypes, bf-item.mat-type) AND bf-item.industry EQ "1"
+                ttLeaf.lIsWax              = CAN-DO(gcWaxMatTypes, bf-item.mat-type) AND bf-item.industry EQ "2"
                 .
             IF ttLeaf.lIsWindow THEN 
                 ASSIGN 
@@ -1366,7 +1368,7 @@ PROCEDURE pAddLeaf PRIVATE:
                     .
             ttLeaf.dAreaInSQIn         = ttLeaf.dDimLength * ttLeaf.dDimWidth.
             
-            IF ttLeaf.lIsWindow AND bf-item.shrink NE 0 AND ipbf-estCostHeader.industry EQ gcIndustryCorrugated  THEN 
+            IF ttLeaf.lIsWax AND bf-item.shrink NE 0 THEN 
                 ASSIGN 
                     ttLeaf.dAreaInSQIn = ((ttLeaf.dAreaInSQIn / 144000) * ipbf-estCostForm.basisWeight) * bf-item.shrink
                     ttLeaf.dCoverageRate = 1
