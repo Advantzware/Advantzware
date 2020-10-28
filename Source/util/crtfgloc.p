@@ -283,6 +283,7 @@ IF ll EQ YES THEN DO:
         WHERE fg-bin.company EQ itemfg-loc.company
         AND fg-bin.i-no    EQ itemfg-loc.i-no
         AND fg-bin.loc     EQ itemfg-loc.loc
+        AND fg-bin.onHold  EQ NO
         NO-LOCK:
         
         itemfg-loc.q-onh = itemfg-loc.q-onh + fg-bin.qty.

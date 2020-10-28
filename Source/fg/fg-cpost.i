@@ -164,6 +164,7 @@ for each {1}fg-rctd
         where b-fg-bin.company eq cocode
           and b-fg-bin.i-no    eq itemfg.i-no 
           AND b-fg-bin.loc     EQ {1}fg-rctd.loc
+          AND b-fg-bin.onHold  EQ NO
         no-lock:
             
       v-qty-onh = v-qty-onh + b-fg-bin.qty.
@@ -195,7 +196,8 @@ for each {1}fg-rctd
 
     for each b-fg-bin FIELDS(qty)
         where b-fg-bin.company eq cocode
-          and b-fg-bin.i-no    eq itemfg.i-no 
+          and b-fg-bin.i-no    eq itemfg.i-no
+          AND b-fg-bin.onHold  EQ NO 
         no-lock:
             
       v-qty-onh = v-qty-onh + b-fg-bin.qty.

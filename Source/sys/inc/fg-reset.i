@@ -86,7 +86,8 @@
     /*** itemfg.q-onh ***/
     FOR EACH fg-bin NO-LOCK WHERE
         fg-bin.company EQ itemfg.company AND
-        fg-bin.i-no    EQ itemfg.i-no:
+        fg-bin.i-no    EQ itemfg.i-no AND
+        fg-bin.OnHold  EQ NO:
 
         {1}q-onh = {1}q-onh + fg-bin.qty.
     END.
@@ -110,7 +111,8 @@
         FOR EACH fg-bin NO-LOCK WHERE
             fg-bin.company eq itemfg-loc.company AND
             fg-bin.i-no    eq itemfg-loc.i-no AND
-            fg-bin.loc     EQ itemfg-loc.loc:
+            fg-bin.loc     EQ itemfg-loc.loc AND
+            fg-bin.OnHold  EQ NO:
             ASSIGN    
                 itemfg-loc.q-onh = itemfg-loc.q-onh + fg-bin.qty.
         END.

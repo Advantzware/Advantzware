@@ -1067,8 +1067,8 @@ PROCEDURE Inventory_UpdateFGBinOnHold:
         bf-fg-bin.onHold   = iplOnHold
         oplSuccess         = TRUE
         opcMessage         = "Success"
-        .
-    
+        .   
+    RUN UpdateFGLocationOnHandQty(INPUT ipriFGBin, INPUT bf-fg-bin.onHold) .
     RELEASE bf-fg-bin.
 END PROCEDURE.
 
@@ -4710,7 +4710,8 @@ PROCEDURE Inventory_RecalculateQuantities:
     IF iplCalculateOnHand THEN 
         FOR EACH fg-bin NO-LOCK 
             WHERE fg-bin.company EQ bf-itemfg.company 
-              AND fg-bin.i-no    EQ bf-itemfg.i-no:        
+              AND fg-bin.i-no    EQ bf-itemfg.i-no
+              AND fg-bin.OnHold  EQ NO:        
             bf-itemfg.q-onh = bf-itemfg.q-onh + fg-bin.qty.
         END.
 
@@ -4742,7 +4743,8 @@ PROCEDURE Inventory_RecalculateQuantities:
             FOR EACH fg-bin NO-LOCK 
                 WHERE fg-bin.company EQ bf-itemfg-loc.company 
                   AND fg-bin.i-no    EQ bf-itemfg-loc.i-no 
-                  AND fg-bin.loc     EQ bf-itemfg-loc.loc:   
+                  AND fg-bin.loc     EQ bf-itemfg-loc.loc
+                  AND fg-bin.OnHold  EQ NO:   
                 bf-itemfg-loc.q-onh = bf-itemfg-loc.q-onh + fg-bin.qty.
             END.
     
@@ -6366,6 +6368,52 @@ PROCEDURE UpdateTagStatusID:
     /* Updates bin status ID */
     bf-fg-bin.statusID = ipcStatusID.
     RELEASE bf-fg-bin.        
+END.
+
+PROCEDURE UpdateFGLocationOnHandQty:
+/*------------------------------------------------------------------------------
+ Purpose: Updates statusID for a FG bin
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iprifgbin   AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER iplOnHold   AS LOGICAL NO-UNDO.
+       
+    DEFINE BUFFER bf-fg-bin FOR fg-bin.    
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+    DEFINE BUFFER bf-itemfg-loc FOR itemfg-loc.
+    
+    FIND FIRST bf-fg-bin NO-LOCK
+         WHERE ROWID(bf-fg-bin) EQ iprifgbin
+         NO-WAIT NO-ERROR.
+    IF AVAIL bf-fg-bin THEN
+    DO:
+       FIND FIRST bf-itemfg EXCLUSIVE-LOCK
+            WHERE bf-itemfg.company EQ bf-fg-bin.company
+            AND bf-itemfg.i-no EQ bf-fg-bin.i-no NO-ERROR.
+              
+       /* Updates On Hand qty */     
+       IF avail bf-itemfg AND iplOnHold THEN
+       bf-itemfg.q-onh =  bf-itemfg.q-onh - bf-fg-bin.qty.
+       ELSE IF AVAIL bf-itemfg THEN
+       bf-itemfg.q-onh =  bf-itemfg.q-onh + bf-fg-bin.qty.
+       
+       FOR EACH bf-itemfg-loc EXCLUSIVE-LOCK 
+           WHERE bf-itemfg-loc.company EQ bf-fg-bin.company 
+           AND bf-itemfg-loc.i-no    EQ bf-fg-bin.i-no
+           AND bf-itemfg-loc.loc EQ bf-fg-bin.loc:  
+           
+           /* Updates On Hand qty */ 
+           IF iplOnHold THEN
+           bf-itemfg-loc.q-onh = bf-itemfg-loc.q-onh - bf-fg-bin.qty.
+           ELSE 
+           bf-itemfg-loc.q-onh = bf-itemfg-loc.q-onh + bf-fg-bin.qty.          
+       END.           
+    END.
+       
+    
+    RELEASE bf-fg-bin.
+    RELEASE bf-itemfg-loc.
+    RELEASE bf-itemfg.
 END.
 /* ************************  Function Implementations ***************** */
 
