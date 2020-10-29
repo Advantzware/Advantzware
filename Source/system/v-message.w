@@ -73,14 +73,16 @@ DEFINE QUERY external_tables FOR zMessage.
 &Scoped-Define ENABLED-FIELDS zMessage.msgID zMessage.msgName ~
 zMessage.msgType zMessage.module zMessage.hotKey zMessage.currSecLevel ~
 zMessage.defaultTitle zMessage.defaultMsg zMessage.currentTitle ~
-zMessage.currMessage zMessage.userSuppress zMessage.rtnValue 
+zMessage.currMessage zMessage.userSuppress zMessage.rtnValue ~
+zMessage.contextParms 
 &Scoped-define ENABLED-TABLES zMessage
 &Scoped-define FIRST-ENABLED-TABLE zMessage
 &Scoped-Define ENABLED-OBJECTS Btn_Test 
 &Scoped-Define DISPLAYED-FIELDS zMessage.msgID zMessage.msgName ~
 zMessage.msgType zMessage.module zMessage.hotKey zMessage.currSecLevel ~
 zMessage.defaultTitle zMessage.defaultMsg zMessage.currentTitle ~
-zMessage.currMessage zMessage.userSuppress zMessage.rtnValue 
+zMessage.currMessage zMessage.userSuppress zMessage.rtnValue ~
+zMessage.contextParms 
 &Scoped-define DISPLAYED-TABLES zMessage
 &Scoped-define FIRST-DISPLAYED-TABLE zMessage
 &Scoped-Define DISPLAYED-OBJECTS fiDfltMsg fiCurrtMsg 
@@ -196,8 +198,14 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 55 BY 1
           BGCOLOR 15 
+     zMessage.contextParms AT ROW 14.81 COL 21 NO-LABEL WIDGET-ID 2
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 71 BY 3.57
+          BGCOLOR 15 
      fiDfltMsg AT ROW 4.81 COL 1 COLON-ALIGNED NO-LABEL
      fiCurrtMsg AT ROW 9.1 COL 1 COLON-ALIGNED NO-LABEL
+     "Contexts:" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 14.81 COL 10 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -231,8 +239,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 13.43
-         WIDTH              = 112.8.
+         HEIGHT             = 20.05
+         WIDTH              = 126.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -663,7 +671,8 @@ PROCEDURE local-enable-fields :
             DO WITH FRAME {&FRAME-NAME}:
             DISABLE  zMessage.msgID zMessage.module 
                 zMessage.hotKey zMessage.msgName zMessage.currSecLevel 
-                zMessage.defaultTitle zMessage.defaultMsg zMessage.msgType .
+                zMessage.defaultTitle zMessage.defaultMsg zMessage.msgType 
+                zMessage.contextParms.
             END.
         END.
   RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.

@@ -31,6 +31,7 @@ DEFINE VARIABLE gcInkMatTypes                         AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcPackMatTypes                        AS CHARACTER NO-UNDO INITIAL "5,6,C,D,J,M".
 DEFINE VARIABLE gcLeafMatTypes                        AS CHARACTER NO-UNDO INITIAL "F,W".
 DEFINE VARIABLE gcWindowMatTypes                      AS CHARACTER NO-UNDO INITIAL "W".
+DEFINE VARIABLE gcWaxMatTypes                         AS CHARACTER NO-UNDO INITIAL "W".
 DEFINE VARIABLE gcAdderMatTypes                       AS CHARACTER NO-UNDO INITIAL "A".
 
 DEFINE VARIABLE gcDeptsForPrinters                    AS CHARACTER NO-UNDO INITIAL "PR".
@@ -57,6 +58,8 @@ DEFINE VARIABLE gcDefaultWeightUOM                    AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcDefaultAreaUOM                      AS CHARACTER NO-UNDO INITIAL "SQIN".
 DEFINE VARIABLE gcDefaultBasisWeightUOM               AS CHARACTER NO-UNDO INITIAL "LBS/MSF".
 
+DEFINE VARIABLE gdWindowDimOverlap                    AS DECIMAL   NO-UNDO INITIAL 0.5.
+
 /*Settings Globals*/
 DEFINE VARIABLE gcPrepRoundTo                         AS CHARACTER NO-UNDO.  /*CEPREP - char val - potentially deprecate*/
 DEFINE VARIABLE gcPrepMarkupOrMargin                  AS CHARACTER NO-UNDO.  /*CEPrepPrice - char val*/
@@ -78,6 +81,10 @@ FUNCTION fGetEstBlankID RETURNS INT64 PRIVATE
     (ipiEstHeaderID AS INT64,
     ipiEstFormID AS INT64,
     ipiBlankNo AS INTEGER) FORWARD.
+
+FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
+	(ipiEstCostOperationID AS INT64,
+	 ipiDefaultOut AS INTEGER) FORWARD.
 
 FUNCTION fGetProfit RETURNS DECIMAL PRIVATE
     (ipdCost AS DECIMAL,
@@ -141,9 +148,6 @@ PROCEDURE CalculateEstimate:
     RUN pBuildHeadersToProcess(ipcCompany, ipcEstimateNo, "", 0, 0, OUTPUT iEstCostHeaderID).
     FOR EACH ttEstHeaderToCalc: 
         RUN pCalculateHeader(ttEstHeaderToCalc.iEstCostHeaderID).
-    END.
-    FOR EACH ttEstError NO-LOCK:
-        DISPLAY ttEstError.iFormNo ttEstError.iBlankNo ttEstError.cErrorType ttEstError.cError FORMAT "x(60)" ttEstError.iFormNo.
     END.
 
 END PROCEDURE.
@@ -601,6 +605,9 @@ PROCEDURE pAddEstItem PRIVATE:
         opbf-estCostItem.areaUOM                   = "SQIN"
         opbf-estCostItem.dimUOM                    = "IN"
         opbf-estCostItem.quantityPerSet            = fGetQuantityPerSet(BUFFER ipbf-eb)
+        opbf-estCostItem.formNo                    = ipbf-eb.form-no
+        opbf-estCostItem.blankNo                   = ipbf-eb.blank-no
+        
         .
     
 
@@ -1061,7 +1068,7 @@ PROCEDURE pAddEstOperationFromEstOp PRIVATE:
         
         IF opbf-estCostOperation.isNetSheetMaker THEN 
             ASSIGN 
-                opbf-estCostOperation.numOutForOperation = ipbf-estCostForm.numOutNet
+                opbf-estCostOperation.numOutForOperation = fGetNetSheetOut(opbf-estCostOperation.estCostOperationID,ipbf-estCostForm.numOutNet)
                 .
         ELSE IF opbf-estCostOperation.isBlankMaker THEN 
                 ASSIGN 
@@ -1343,14 +1350,15 @@ PROCEDURE pAddLeaf PRIVATE:
                 ttLeaf.cMaterialType       = bf-item.mat-type
                 ttLeaf.cQtyUOM             = IF bf-item.cons-uom EQ "" THEN "LB" ELSE bf-item.cons-uom    
                 ttLeaf.dDimLength          = ipdLength
-                ttLeaf.dDimWidth           = ipdWidth     
-                ttLeaf.dAreaInSQIn         = ipdLength * ipdWidth
+                ttLeaf.dDimWidth           = ipdWidth    
+                ttLeaf.dAreaInSqInAperture = ipdLength * ipdWidth 
                 ttLeaf.cDescription        = IF ipcDescription NE "" THEN ipcDescription ELSE ttLeaf.cDescription
                 ttLeaf.dCoverageRate       = bf-item.sqin-lb
                 ttLeaf.cCoverageRateUOM    = "SQIN/LB"
                 ttLeaf.dQtyRequiredPerLeaf = ttLeaf.dAreaInSQIn / ttLeaf.dCoverageRate
                 ttLeaf.lIsSheetFed         = ipiBlankNo EQ 0
-                ttLeaf.lIsWindow           = CAN-DO(gcWindowMatTypes, bf-item.mat-type)
+                ttLeaf.lIsWindow           = CAN-DO(gcWindowMatTypes, bf-item.mat-type) AND bf-item.industry EQ "1"
+                ttLeaf.lIsWax              = CAN-DO(gcWaxMatTypes, bf-item.mat-type) AND bf-item.industry EQ "2"
                 .
             
             FIND FIRST bf-estCostBlank EXCLUSIVE-LOCK 
@@ -1361,7 +1369,7 @@ PROCEDURE pAddLeaf PRIVATE:
             IF AVAILABLE bf-estCostBlank THEN 
                 ASSIGN
                     /*Only add Window Area if material is a Window - i.e. cut out*/ 
-                    bf-estCostBlank.blankAreaWindow    = bf-estCostBlank.blankAreaWindow + IF ttLeaf.lIsWindow THEN ttLeaf.dAreaInSQIn ELSE 0
+                    bf-estCostBlank.blankAreaWindow    = bf-estCostBlank.blankAreaWindow + IF ttLeaf.lIsWindow THEN ttLeaf.dAreaInSQInAperture ELSE 0
                     bf-estCostBlank.blankAreaNetWindow = bf-estCostBlank.blankArea - bf-estCostBlank.blankAreaWindow
                     ttLeaf.estBlankID                  = bf-estCostBlank.estCostBlankID
                     .
@@ -2936,7 +2944,7 @@ PROCEDURE pProcessAdders PRIVATE:
     DEFINE VARIABLE iCount AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cAdder AS CHARACTER NO-UNDO.
     
-    DO iCount = 1 TO EXTENT(ipcAdders):
+    DO iCount = 1 TO 6 :  //EXTENT(ipcAdders) - can't be used because elements 7 and up are the descriptions
         cAdder = ipcAdders[iCount].
         IF cAdder NE "" THEN 
         DO:
@@ -4643,6 +4651,38 @@ FUNCTION fGetEstBlankID RETURNS INT64 PRIVATE
     IF AVAILABLE estCostBlank THEN 
         RETURN estCostBlank.estCostBlankID.
 
+END FUNCTION.
+
+FUNCTION fGetNetSheetOut RETURNS INTEGER PRIVATE
+	(ipiEstCostOperationID AS INT64, ipiDefaultOut AS INTEGER):
+/*------------------------------------------------------------------------------
+ Purpose:  Given an operation buffer, return the # out based on the 
+ specific net sheet pass of the operation
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE BUFFER bf-ef-nsh FOR ef-nsh.
+    DEFINE BUFFER bf-estCostOperation FOR estCostOperation.
+    DEFINE VARIABLE iOut AS INTEGER.
+    
+    
+    FIND FIRST bf-estCostOperation NO-LOCK 
+        WHERE bf-estCostOperation.estCostOperationID EQ ipiEstCostOperationID
+        NO-ERROR.
+    IF AVAILABLE bf-estCostOperation THEN
+        FIND FIRST bf-ef-nsh NO-LOCK    
+            WHERE bf-ef-nsh.company EQ bf-estCostOperation.company
+            AND bf-ef-nsh.est-no EQ bf-estCostOperation.estimateNo
+            AND bf-ef-nsh.form-no EQ bf-estCostOperation.formNo
+            AND bf-ef-nsh.pass EQ bf-estCostOperation.pass
+            NO-ERROR.
+     IF AVAILABLE bf-ef-nsh THEN 
+        iOut = bf-ef-nsh.n-out-d * bf-ef-nsh.n-out-l * bf-ef-nsh.n-out-w.
+	
+    IF iOut LE 0 THEN 
+        iOut = ipiDefaultOut.
+	
+    RETURN iOut.
+		
 END FUNCTION.
 
 FUNCTION fGetProfit RETURNS DECIMAL PRIVATE

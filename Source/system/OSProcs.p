@@ -14,6 +14,28 @@
 /* **********************  Internal Procedures  *********************** */
 
 
+PROCEDURE OS_GetFullFileName:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF INPUT-OUTPUT PARAMETER iopcFileName AS CHAR NO-UNDO.
+    DEF VAR cTempFileName AS CHAR NO-UNDO.
+    
+    ASSIGN 
+        cTempFileName = iopcFileName
+        FILE-INFO:FILE-NAME = cTempFileName
+        cTempFileName = FILE-INFO:FULL-PATHNAME.
+    IF cTempFileName = ? 
+    OR cTempFileName = "" THEN ASSIGN 
+        cTempFileName = SEARCH(cTempFileName).
+    IF cTempFileName = ? THEN ASSIGN 
+        cTempFileName = "".
+    ASSIGN 
+        iopcFileName = cTempFileName.
+
+END PROCEDURE.
+
 PROCEDURE OS_GetIPAddress:
 /*------------------------------------------------------------------------------
  Purpose: Procedure to return the current machines IP Address

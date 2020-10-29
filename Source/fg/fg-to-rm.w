@@ -55,11 +55,11 @@ DEF VAR ll-rm-warning AS LOG NO-UNDO.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-17 RECT-18 RECT-19 rd_type rd_um ~
-begin_i-no fi_fg-name begin_rm-no fi_rm-name roll_rm btn-process btn-cancel ~
-label-1 
-&Scoped-Define DISPLAYED-OBJECTS rd_type rd_um begin_i-no fi_fg-name ~
-begin_rm-no fi_rm-name roll_rm label-1 
+&Scoped-Define ENABLED-OBJECTS RECT-17 RECT-18 RECT-19 begin_i-no ~
+fi_fg-name rd_type begin_rm-no fi_rm-name rd_um cUom roll_rm btn-process ~
+btn-cancel label-1 
+&Scoped-Define DISPLAYED-OBJECTS begin_i-no fi_fg-name rd_type begin_rm-no ~
+fi_rm-name rd_um cUom fi_uom-dscr roll_rm label-1 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -86,47 +86,66 @@ DEFINE BUTTON btn-process
 DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U 
      LABEL "From FG Item#" 
      VIEW-AS FILL-IN 
-     SIZE 41.6 BY 1 NO-UNDO.
+     SIZE 41.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE begin_rm-no AS CHARACTER FORMAT "X(10)":U 
      LABEL "To RM Item#" 
      VIEW-AS FILL-IN 
-     SIZE 30 BY 1 NO-UNDO.
+     SIZE 30 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE cUom AS CHARACTER FORMAT "X(3)":U 
+     LABEL "UOM" 
+     VIEW-AS FILL-IN 
+     SIZE 6.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE fi_fg-name AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 74 BY 1 NO-UNDO.
+     SIZE 74 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE fi_rm-name AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 74 BY 1 NO-UNDO.
+     SIZE 74 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE fi_uom-dscr AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 32.2 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE label-1 AS CHARACTER FORMAT "X(10)":U INITIAL "RM U/M:" 
       VIEW-AS TEXT 
-     SIZE 11 BY .62 NO-UNDO.
+     SIZE 11 BY .62
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE roll_rm AS INTEGER FORMAT "->>>,>>9":U INITIAL 0 
      LABEL "Roll RM" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 17 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE rd_type AS CHARACTER INITIAL "Board" 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Board", "Board",
 "Misc", "Misc"
-     SIZE 23.8 BY 1 NO-UNDO.
+     SIZE 23.8 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE rd_um AS CHARACTER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "FG U/M", "FG",
-"MSF", "MSF"
-     SIZE 23 BY 1 NO-UNDO.
+"RM U/M", "RM"
+     SIZE 25 BY 1 
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 95 BY 9.29.
+     SIZE 95 BY 10.24.
 
 DEFINE RECTANGLE RECT-18
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -134,38 +153,41 @@ DEFINE RECTANGLE RECT-18
 
 DEFINE RECTANGLE RECT-19
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 25 BY 1.19.
+     SIZE 27 BY 1.19.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     rd_type AT ROW 2.52 COL 21.6 NO-LABEL
-     rd_um AT ROW 2.52 COL 61 NO-LABEL WIDGET-ID 2
-     begin_i-no AT ROW 3.62 COL 19 COLON-ALIGNED HELP
+     begin_i-no AT ROW 2.62 COL 19 COLON-ALIGNED HELP
           "Enter FG Item#"
-     fi_fg-name AT ROW 4.81 COL 19 COLON-ALIGNED NO-LABEL
-     begin_rm-no AT ROW 6 COL 19 COLON-ALIGNED HELP
+     fi_fg-name AT ROW 3.81 COL 19 COLON-ALIGNED NO-LABEL      
+     begin_rm-no AT ROW 5 COL 19 COLON-ALIGNED HELP
           "Enter RM Item#"
-     fi_rm-name AT ROW 7.19 COL 19 COLON-ALIGNED NO-LABEL
-     roll_rm AT ROW 8.38 COL 19 COLON-ALIGNED HELP
+     rd_type AT ROW 4.95 COL 53 NO-LABEL     
+     fi_rm-name AT ROW 6.19 COL 19 COLON-ALIGNED NO-LABEL
+     rd_um AT ROW 7.43 COL 22 NO-LABEL WIDGET-ID 2
+     cUom AT ROW 7.43 COL 53.8 COLON-ALIGNED HELP
+          "Enter RM Item#" WIDGET-ID 14
+     fi_uom-dscr AT ROW 7.43 COL 60.6 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     roll_rm AT ROW 9.38 COL 19 COLON-ALIGNED HELP
           "Enter the Roll length in feet or zero if not a roll"
-     btn-process AT ROW 10.76 COL 24
-     btn-cancel AT ROW 10.76 COL 56
-     label-1 AT ROW 2.67 COL 46 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     btn-process AT ROW 11.81 COL 24
+     btn-cancel AT ROW 11.81 COL 56
+     label-1 AT ROW 7.57 COL 7.2 COLON-ALIGNED NO-LABEL WIDGET-ID 12
      "Enter Roll length in feet or zero if not a roll" VIEW-AS TEXT
-          SIZE 56 BY 1 AT ROW 8.38 COL 39
+          SIZE 56 BY 1 AT ROW 9.38 COL 39
           FGCOLOR 9 
      "Selection Parameters" VIEW-AS TEXT
           SIZE 26 BY .62 AT ROW 1.71 COL 8
      RECT-17 AT ROW 1 COL 1
-     RECT-18 AT ROW 2.43 COL 21 WIDGET-ID 8
-     RECT-19 AT ROW 2.43 COL 60 WIDGET-ID 10
+     RECT-18 AT ROW 4.86 COL 52 WIDGET-ID 8
+     RECT-19 AT ROW 7.33 COL 21 WIDGET-ID 10
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 95.8 BY 11
-         FONT 6.
+         SIZE 95.8 BY 12.57
+         FGCOLOR 1 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -185,7 +207,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Create Board/Misc RM from FG"
-         HEIGHT             = 11
+         HEIGHT             = 12.57
          WIDTH              = 95.8
          MAX-HEIGHT         = 32.86
          MAX-WIDTH          = 204.8
@@ -219,16 +241,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
+ASSIGN 
        btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
-
+/* SETTINGS FOR FILL-IN fi_uom-dscr IN FRAME FRAME-A
+   NO-ENABLE                                                            */
 ASSIGN 
        roll_rm:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -239,7 +261,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -337,7 +359,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
-
+   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   ASSIGN rd_type begin_i-no begin_rm-no roll_rm rd_um.
 
   RUN valid-i-no NO-ERROR.
@@ -345,6 +367,9 @@ DO:
 
   RUN valid-rm-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  
+  RUN valid-uom(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
 
   v-process = NO.
 
@@ -354,6 +379,51 @@ DO:
           UPDATE v-process.
 
   IF v-process THEN RUN run-process.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cUom
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cUom C-Win
+ON HELP OF cUom IN FRAME FRAME-A /* UOM */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+    DEF VAR uom-list    AS   CHAR.
+    run sys/ref/uom-rm.p  (SUBSTRING(rd_type,1,1), output uom-list).
+             run windows/l-stduom.w (cocode,uom-list, cUom:SCREEN-VALUE in frame {&frame-name}, output char-val).
+         
+             if char-val <> "" then 
+                assign cUom:screen-value in frame {&frame-name} = entry(1,char-val)
+                       fi_uom-dscr:screen-value in frame {&frame-name} = entry(2,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cUom C-Win
+ON LEAVE OF cUom IN FRAME FRAME-A /* UOM */
+DO:
+   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-uom(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
+  END.
+
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cUom C-Win
+ON VALUE-CHANGED OF cUom IN FRAME FRAME-A /* UOM */
+DO:
+  RUN new-uom.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -370,12 +440,38 @@ DO:
      ASSIGN
         rd_um:HIDDEN = YES
         rect-19:HIDDEN = YES
-        label-1:HIDDEN = YES.
+        label-1:HIDDEN = YES
+        cUom:HIDDEN = YES
+        fi_uom-dscr:HIDDEN = YES
+        roll_rm:SENSITIVE = NO .
   ELSE
      ASSIGN
         rd_um:HIDDEN = NO
         rect-19:HIDDEN = NO
-        label-1:HIDDEN = NO.
+        label-1:HIDDEN = NO
+        cUom:HIDDEN = NO
+        fi_uom-dscr:HIDDEN = NO
+        roll_rm:SENSITIVE = YES .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME rd_um
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_um C-Win
+ON VALUE-CHANGED OF rd_um IN FRAME FRAME-A
+DO:
+  assign {&self-name}.
+
+  IF rd_um EQ "FG" THEN
+     ASSIGN         
+        cUom:SENSITIVE = NO
+        fi_uom-dscr:SENSITIVE = NO.
+  ELSE
+     ASSIGN          
+        cUom:SENSITIVE = YES
+        .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -423,6 +519,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN .
   END.
   RUN enable_UI.
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN 
+    cUom:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+    fi_uom-dscr:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
+    DISABLE fi_fg-name . 
+    APPLY "entry" TO begin_i-no.
+  END.  
+  
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -464,11 +568,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY rd_type rd_um begin_i-no fi_fg-name begin_rm-no fi_rm-name roll_rm 
-          label-1 
+  DISPLAY begin_i-no fi_fg-name rd_type begin_rm-no fi_rm-name rd_um cUom 
+          fi_uom-dscr roll_rm label-1 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-17 RECT-18 RECT-19 rd_type rd_um begin_i-no fi_fg-name 
-         begin_rm-no fi_rm-name roll_rm btn-process btn-cancel label-1 
+  ENABLE RECT-17 RECT-18 RECT-19 begin_i-no fi_fg-name rd_type begin_rm-no 
+         fi_rm-name rd_um cUom roll_rm btn-process btn-cancel label-1 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -496,6 +600,8 @@ PROCEDURE new-i-no :
 
       IF begin_rm-no:SCREEN-VALUE EQ "" THEN
         begin_rm-no:SCREEN-VALUE = CAPS(itemfg.i-no).
+       cUom:SCREEN-VALUE = caps(itemfg.pur-uom).  
+       RUN new-uom.
     END.
   END.
 
@@ -527,6 +633,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-uom C-Win 
+PROCEDURE new-uom :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}: 
+    FIND FIRST uom NO-LOCK
+         WHERE uom.uom EQ cUom:SCREEN-VALUE          
+         NO-ERROR.    
+    IF AVAIL uom THEN fi_uom-dscr:SCREEN-VALUE = uom.dscr.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
 /* -------------------------------------------------- fg/fg-to-rm.p 12/99 JLF */
@@ -548,6 +674,8 @@ DEF VAR troll       AS   INT FORMAT ">>,>>9".
 DEF VAR v-board     AS   LOG FORMAT "Board/Misc" INIT YES.
 DEF VAR uom-list    AS   CHAR.
 DEF VAR lv-rowids   AS   CHAR NO-UNDO. 
+DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
 DEF BUFFER b-loadtag FOR loadtag.
 
@@ -586,8 +714,8 @@ new-item: DO ON ENDKEY UNDO, RETRY.
          item.reg-no        = itemfg.test
          item.flute         = itemfg.flute
          item.basis-w       = itemfg.weight-100 / (itemfg.t-sqft * .1)
-         item.pur-uom       = IF rd_um = "FG" THEN itemfg.pur-uom ELSE "MSF"
-         item.cons-uom      = IF rd_um = "FG" THEN itemfg.pur-uom ELSE "MSF".
+         item.pur-uom       = IF rd_um = "FG" THEN itemfg.pur-uom ELSE cUom
+         item.cons-uom      = IF rd_um = "FG" THEN itemfg.pur-uom ELSE cUom.
 
       IF item.basis-w EQ ? THEN item.basis-w = 0.
 
@@ -642,18 +770,6 @@ IF troll EQ 0 THEN troll = 1.
 FIND ITEM WHERE RECID(item) EQ fil_id.
 
 SESSION:SET-WAIT-STATE("").
-
-FOR EACH fg-bin NO-LOCK WHERE fg-bin.company   eq cocode
-                          AND fg-bin.i-no      eq itemfg.i-no
-                          AND fg-bin.qty       gt 0
-                           BY fg-bin.tag:
-
-   CREATE w-bin.
-   ASSIGN
-      w-bin.tag    = fg-bin.tag
-      w-bin.rec-id = RECID(fg-bin)
-      w-bin.selekt = "X".
-END.
 
 /* IF NOT v-board THEN RUN oe/d-selbin.w (3, ?, "ALL", itemfg.i-no, */
 /*                                        OUTPUT lv-rowids).        */
@@ -730,23 +846,39 @@ FOR EACH w-bin WHERE w-bin.selekt EQ "X",
          rm-bin.loc     = fg-bin.loc
          rm-bin.loc-bin = fg-bin.loc-bin
          rm-bin.tag     = fg-bin.tag.
-   END. /* not avail rm-bin */
-
-   RUN sys/ref/convquom.p("EA", item.cons-uom,
-                          item.basis-w, 
-                          IF item.s-len EQ 0 THEN 12         ELSE item.s-len,
-                          IF item.s-wid EQ 0 THEN item.r-wid ELSE item.s-wid,
-                          item.s-dep,
-                          fg-bin.qty * troll,
-                          OUTPUT v-qty).
-
-   RUN sys/ref/convcuom.p(fg-bin.pur-uom, item.cons-uom,
-                          item.basis-w, 
-                          IF item.s-len EQ 0 THEN 12         ELSE item.s-len,
-                          IF item.s-wid EQ 0 THEN item.r-wid ELSE item.s-wid,
-                          item.s-dep,
-                          fg-bin.std-tot-cost / troll,
-                          OUTPUT v-cost).
+   END. /* not avail rm-bin */ 
+   
+    RUN Conv_QuantityFromUOMToUOM (
+                    INPUT  cocode,
+                    INPUT  ITEM.i-no,
+                    INPUT  "RM",
+                    INPUT  fg-bin.qty * troll,
+                    INPUT  "EA", 
+                    INPUT  item.cons-uom,
+                    INPUT  0,
+                    INPUT  (IF item.s-len EQ 0 THEN 12 ELSE item.s-len), 
+                    INPUT  (IF item.s-wid EQ 0 THEN item.r-wid ELSE item.s-wid), 
+                    INPUT  item.s-dep,
+                    INPUT  0,
+                    OUTPUT v-qty,
+                    OUTPUT lError,
+                    OUTPUT cMessage
+                    ).    
+  
+  RUN Conv_ValueFromUOMtoUOM(cocode, 
+                INPUT ITEM.i-no, 
+                INPUT "RM", 
+                INPUT (fg-bin.std-tot-cost / troll),
+                INPUT fg-bin.pur-uom,
+                INPUT (IF AVAILABLE ITEM THEN item.cons-uom ELSE "M"), 
+                INPUT 0,
+                INPUT DECIMAL(item.s-len),
+                INPUT DECIMAL(item.s-wid),
+                INPUT DECIMAL(item.s-dep),
+                INPUT 0, 
+                OUTPUT v-cost,
+                OUTPUT lError, 
+                OUTPUT cMessage).    
 
    {rm/rm-post.i "rm-bin.qty" "rm-bin.cost" "v-qty" "v-cost"}
 
@@ -928,6 +1060,37 @@ PROCEDURE valid-rm-no :
          END.
       END.
    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-uom C-Win 
+PROCEDURE valid-uom :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lCheckError    AS   LOGICAL NO-UNDO.
+DO WITH FRAME {&FRAME-NAME}:
+   cUom:SCREEN-VALUE = CAPS(cUom:SCREEN-VALUE).
+   
+   IF rd_um:SCREEN-VALUE EQ "RM" THEN
+   DO:       
+       lCheckError = DYNAMIC-FUNCTION("fConv_ValidUomForRMItem", SUBSTRING(rd_type:SCREEN-VALUE,1,1), cUom:SCREEN-VALUE) .
+       IF lCheckError THEN
+       DO:
+           MESSAGE "ERROR: Must enter a valid UOM, Try help"
+           VIEW-AS ALERT-BOX ERROR.
+           APPLY "entry" TO cUom.
+           oplReturnError = YES.
+       END.        
+   END.
+   
+END.
 
 END PROCEDURE.
 

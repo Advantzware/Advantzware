@@ -790,7 +790,14 @@ IF iplPrntDupl = NO THEN do:
         "<=8><R+4> " v-bot-lab[3]
         "<=8><R+5> Grand Total:" inv-head.t-inv-rev FORM "->,>>>,>>9.99" .
 END.
-
+IF cocode EQ "002" THEN
+DO:
+   PUT "<R56><C2> Please remit payment to: "
+        "<R58><C2> Shamrock Packaging Group"
+        "<R59><C2> PO Box 1248"
+        "<R60><C2> Bedford Park, IL 60499-1248". 
+END.
+ELSE
     PUT "<R56><C2> Please remit payment to: "
         "<R58><C2> Shamrock Packaging SHA4035"
         "<R59><C2> PO Box 1023"

@@ -930,7 +930,7 @@ DO:
             
         END.    /* each inv-misc of inv-head */
         
-        IF inv-head.t-inv-freight <> 0 THEN 
+        IF inv-head.t-inv-freight <> 0 AND inv-head.f-bill THEN 
         DO:
             RUN pCreateAddonRecord (
                 RECID(inv-head), 
@@ -970,7 +970,7 @@ DO:
     ELSE 
     DO:
 
-        IF ar-inv.freight <> 0 THEN 
+        IF ar-inv.freight <> 0 AND ar-inv.f-bill THEN 
         DO:
             RUN pCreateAddonRecord (
                 0 /* eddoc.rec */, 

@@ -98,6 +98,9 @@ DEFINE VARIABLE cBankTransmitRecValue     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBankTransmitFullFilePath AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBankTransmitFileName     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBankTransmitSysCtrlName  AS CHARACTER NO-UNDO INITIAL "BankTransmittalLocation".
+DEFINE VARIABLE cRecValue   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iAPCheckFile AS INTEGER  NO-UNDO.
 
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
@@ -144,6 +147,20 @@ DO TRANSACTION:
       lv-audit-dir = SUBSTR(lv-audit-dir,1,LENGTH(lv-audit-dir) - 1).
 
    RELEASE sys-ctrl.
+   
+    RUN sys/ref/nk1look.p (
+        INPUT  cocode,                   /* Company Code */
+        INPUT  "APCheckFile",            /* sys-ctrl name */
+        INPUT  "I",                      /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
+        INPUT  FALSE,                    /* Use ship-to */
+        INPUT  FALSE,                    /* ship-to vendor */
+        INPUT  "",                       /* ship-to vendor value */
+        INPUT  "",                       /* shi-id value */
+        OUTPUT cRecValue,
+        OUTPUT lRecFound
+        ).
+   IF lRecFound THEN
+     iAPCheckFile = INTEGER(cRecValue) NO-ERROR.          
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1459,7 +1476,8 @@ PROCEDURE PositivePay :
   Parameters:  <none>
   Notes: gdm - 05210901
 ------------------------------------------------------------------------------*/
-
+DEFINE VARIABLE dtCheckDate AS DATE NO-UNDO.
+dtCheckDate = ap-sel.check-date + iAPCheckFile.   
 IF tb_APcheckFile THEN DO:
 
     FIND FIRST bank NO-LOCK
@@ -1473,10 +1491,10 @@ IF tb_APcheckFile THEN DO:
      STRING(INT(ap-sel.check-no),"9999999999")                   /* Check Number   */ 
      STRING(INT(REPLACE(STRING(v-amt-paid,"->>,>>>,>>9.99"),".","")), "9999999999999") 
                                                                  /* Amount         */ 
-     IF ap-sel.check-date NE ? 
-        THEN STRING(YEAR(ap-sel.check-date),"9999") +  
-             STRING(MONTH(ap-sel.check-date),"99")  +     
-             STRING(DAY(ap-sel.check-date),"99")   
+     IF dtCheckDate NE ? 
+        THEN STRING(YEAR(dtCheckDate),"9999") +  
+             STRING(MONTH(dtCheckDate),"99")  +     
+             STRING(DAY(dtCheckDate),"99")   
         ELSE "00000000"                                          /* Issue Date     */
      FILL(" ",30)                                                /* Additinal data */ 
      IF TRIM(vend.name) NE ""
@@ -1495,8 +1513,8 @@ IF tb_APcheckFile THEN DO:
            '"' STRING(DECIMAL(REPLACE(bank.bk-act,"-","")), "99999999999999") '",'  /* Account Number   */
            '"' STRING(INT(ap-sel.check-no),"9999999999")   '",'  /* Check Number     */
            '"' STRING(INT(REPLACE(STRING(v-amt-paid,"->>,>>>,>>9.99"),".","")), "9999999999999") '",'  /* Amount */
-           '"'  IF ap-sel.check-date NE ? THEN STRING(YEAR(ap-sel.check-date),"9999") + 
-                STRING(MONTH(ap-sel.check-date),"99")  + STRING(DAY(ap-sel.check-date),"99")  ELSE "00000000" 
+           '"'  IF dtCheckDate NE ? THEN STRING(YEAR(dtCheckDate),"9999") + 
+                STRING(MONTH(dtCheckDate),"99")  + STRING(DAY(dtCheckDate),"99")  ELSE "00000000" 
                 FILL(" ",30)   '",'  /* Issue Date     */
            '"' IF TRIM(vend.name) NE "" THEN TRIM(vend.name) + 
                FILL(" ",(80 - LENGTH(TRIM(vend.name)))) ELSE FILL(" ",80)     '",'  /* Payee NAME    */
@@ -1529,6 +1547,7 @@ IF tb_APcheckFile THEN DO:
           AND bank.bank-code EQ ap-sel.bank-code NO-ERROR.
 
      v-check-date = IF ap-sel.man-check THEN ap-sel.pre-date ELSE ap-sel.check-date .
+     v-check-date = v-check-date + iAPCheckFile.
 
   IF rd_print-apfile EQ "Text" THEN do:
      PUT STREAM checkFile UNFORMATTED
@@ -1575,7 +1594,8 @@ PROCEDURE PositivePay-Santander :
   Parameters:  <none>
   Notes: 
 ------------------------------------------------------------------------------*/
-
+DEFINE VARIABLE dtCheckDate AS DATE NO-UNDO.
+dtCheckDate = ap-sel.check-date + iAPCheckFile.
 IF tb_APcheckFile THEN DO:
 
     FIND FIRST bank NO-LOCK
@@ -1588,10 +1608,10 @@ IF tb_APcheckFile THEN DO:
      STRING(INT(ap-sel.check-no),"9999999999")                   /* Check Number   */ 
      STRING(INT(REPLACE(STRING(v-amt-paid,"->>,>>>,>>9.99"),".","")), "9999999999") 
                                                                  /* Amount         */ 
-     IF ap-sel.check-date NE ? 
-        THEN SUBstring(STRING(YEAR(ap-sel.check-date),"9999"),3,2) +  
-             STRING(MONTH(ap-sel.check-date),"99")  +     
-             STRING(DAY(ap-sel.check-date),"99")   
+     IF dtCheckDate NE ? 
+        THEN SUBstring(STRING(YEAR(dtCheckDate),"9999"),3,2) +  
+             STRING(MONTH(dtCheckDate),"99")  +     
+             STRING(DAY(dtCheckDate),"99")   
         ELSE "000000"                                          /* Issue Date     */
 
     
@@ -1614,8 +1634,8 @@ IF tb_APcheckFile THEN DO:
            '"' STRING(DECIMAL(REPLACE(bank.bk-act,"-","")), "99999999999999") '",'  /* Account Number   */
            '"' STRING(INT(ap-sel.check-no),"9999999999")   '",'  /* Check Number     */
            '"' STRING(INT(REPLACE(STRING(v-amt-paid,"->>,>>>,>>9.99"),".","")), "9999999999999") '",'  /* Amount */
-           '"'  IF ap-sel.check-date NE ? THEN STRING(YEAR(ap-sel.check-date),"9999") + 
-                STRING(MONTH(ap-sel.check-date),"99")  + STRING(DAY(ap-sel.check-date),"99")  ELSE "00000000" 
+           '"'  IF dtCheckDate NE ? THEN STRING(YEAR(dtCheckDate),"9999") + 
+                STRING(MONTH(dtCheckDate),"99")  + STRING(DAY(dtCheckDate),"99")  ELSE "00000000" 
                 FILL(" ",30)   '",'  /* Issue Date     */
            '"' IF TRIM(vend.name) NE "" THEN TRIM(vend.name) + 
                FILL(" ",(80 - LENGTH(TRIM(vend.name)))) ELSE FILL(" ",80)     '",'  /* Payee NAME    */

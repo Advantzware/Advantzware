@@ -53,6 +53,8 @@ DEFINE VARIABLE lColMove         AS LOGICAL   NO-UNDO.
 
 RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
+DEF STREAM excel.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -393,6 +395,23 @@ DO:
         btUpdate:SENSITIVE    = AVAILABLE ttItem
         btUpdateAll:SENSITIVE = AVAILABLE ttitem
         .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME fiLocationID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocationID B-table-Win
+ON HELP OF fiLocationID IN FRAME F-Main /* Location */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+    
+    RUN windows/l-fgbin.w (g_company,fiWarehouseID:screen-value, fiLocationID:screen-value,OUTPUT char-val).
+    IF char-val <> "" THEN 
+    DO :
+        ASSIGN 
+        fiLocationID:SCREEN-VALUE = ENTRY(1,char-val)  .    
+    END.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -800,6 +819,38 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(50)" INITIAL "c:~\tmp~\FgStatusInquiry.csv" NO-UNDO.
+  DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+  DEFINE VARIABLE hdOutputProcs AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  
+  RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.  
+
+  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+  
+  RUN Output_TempTableToCSV IN hdOutputProcs (TEMP-TABLE ttItem:HANDLE,
+                                              cFileName,
+                                              YES,
+                                              INPUT FALSE /* Auto increment File name */,
+                                              OUTPUT lSuccess,
+                                              OUTPUT cMessage).    
+  OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+      
+  DELETE OBJECT hdOutputProcs.
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

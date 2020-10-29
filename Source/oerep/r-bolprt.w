@@ -133,8 +133,16 @@ DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
 RUN api/OutboundProcs.p        PERSISTENT SET hdOutboundProcs.
 RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
- RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+DEFINE VARIABLE cdAOABOLPost AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ldAOABOLPost AS LOGICAL   NO-UNDO.
+
+RUN sys/ref/nk1look.p (
+    g_company, "dAOABOLPost", "L", NO, NO, "", "",
+    OUTPUT cdAOABOLPost, OUTPUT ldAOABOLPost
+    ).
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+   INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
@@ -1595,11 +1603,15 @@ DO:
    END.
 
    IF ll THEN do:
-      RUN post-bol.
-      FIND FIRST tt-email NO-LOCK NO-ERROR.
-      IF AVAIL tt-email THEN RUN email-reorderitems.
-
-      MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
+       IF ldAOABOLPost AND cdAOABOLPost EQ "YES" THEN
+           RUN pdAOABOLPost.
+       ELSE DO:
+           RUN post-bol.
+           FIND FIRST tt-email NO-LOCK NO-ERROR.
+           IF AVAIL tt-email THEN
+               RUN email-reorderitems.
+       END.
+       MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
    END.
    
    ELSE IF tb_post-bol THEN 
@@ -2303,6 +2315,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
+
+{AOA/includes/pInitDynParamValue.i}
+{AOA/includes/pGetDynParamValue.i}
+{AOA/includes/pSetDynParamValue.i "dyn"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -4106,7 +4122,8 @@ PROCEDURE pCreatettExceptionBOL PRIVATE:
        ttExceptionBOL.bOrdNo  = oe-boll.b-ord-no
        ttExceptionBOL.custNo  = oe-bolh.cust-no
        ttExceptionBOL.poNo    = oe-boll.PO-NO
-       ttExceptionBOL.reason  = ipcReason.
+       ttExceptionBOL.reason  = ipcReason
+       .
   
 
 END PROCEDURE.
@@ -4114,6 +4131,38 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pdAOABOLPost C-Win
+PROCEDURE pdAOABOLPost:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cParamList  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParamValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hBOLPost    AS HANDLE    NO-UNDO.
+    ASSIGN
+        cParamList  = "company,location,postDate,custList,allCustNo,"
+                    + "startCustNo,endCustNo,startBOLDate,endBOLDate,"
+                    + "allBOL,startBOL,endBOL,post"
+        cParamValue = g_company + ","
+                    + g_loc + ","
+                    + STRING(TODAY,"99/99/9999") + ",no,no,"
+                    + begin_cust + ","
+                    + end_cust + ","
+                    + STRING(begin_date,"99/99/9999") + ","
+                    + STRING(end_date,"99/99/9999") + ",no,"
+                    + STRING(begin_bol#) + ","
+                    + STRING(end_bol#) + ",yes"
+        .
+    RUN pInitDynParamValue (19, "", "", 0, cParamList, cParamValue).
+    RUN AOA/dynBL/r-bolpst.p PERSISTENT SET hBOLPost.
+    RUN pRunBusinessLogic IN hBOLPost.
+    DELETE PROCEDURE hBOLPost.
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pdfArchive C-Win 

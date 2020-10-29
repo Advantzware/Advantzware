@@ -69,6 +69,20 @@ DEF NEW SHARED VAR uperiod AS INT NO-UNDO.  /* for gl-open.p */
 DEF VAR v-count AS INT NO-UNDO.
 DEF VAR v-acc-length AS INT NO-UNDO.
 DEF VAR v-col-move AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE lAllowEdit AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+    
+RUN methods/prgsecur.p
+	    (INPUT "GQEditSecurity.",
+	     INPUT "ALL", /* based on run, create, update, delete or all */
+	     INPUT NO,    /* use the directory in addition to the program */
+	     INPUT NO,    /* Show a message if not authorized */
+	     INPUT NO,    /* Group overrides user security? */
+	     OUTPUT lAllowEdit, /* Allowed? Yes/NO */
+	     OUTPUT lAccessClose, /* used in template/windows.i  */
+	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
 
 &SCOPED-DEFINE SORTBY-ASC ASCENDING
 &SCOPED-DEFINE SORTBY-DES DESCENDING
@@ -513,11 +527,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON DEFAULT-ACTION OF br_table IN FRAME F-Main
 DO:
-   IF AVAIL tt-glinq AND tt-glinq.posted THEN
+   IF lAllowEdit AND AVAIL tt-glinq AND tt-glinq.posted THEN
    DO:
      MESSAGE "Record is posted and cannot be edited" VIEW-AS ALERT-BOX INFO .         
    END.
-   ELSE IF AVAIL tt-glinq THEN
+   ELSE IF lAllowEdit AND AVAIL tt-glinq THEN
     RUN pUpdate.    
 END.
 

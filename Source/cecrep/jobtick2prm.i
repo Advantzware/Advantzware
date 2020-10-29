@@ -24,6 +24,7 @@ def {1} var v-job-prt       as   char format "x(9)"                     no-undo.
 def {1} var v-ord-no        as   char format "x(8)"                     no-undo.
 def {1} var v-ord-date      as   char format "x(8)"                     no-undo.
 def {1} var v-est-no        as   char format "x(6)"                     no-undo.
+def {1} var cDisEstimate    as   character format "x(18)"               no-undo.
 def {1} var v-fg            as   char format "x(25)"                    no-undo.
 def {1} var v-due-date      as   char format "x(13)"                    no-undo.
 DEF {1} VAR v-user-id       AS   CHAR FORMAT "x(10)"                    NO-UNDO.
@@ -120,6 +121,7 @@ format header
 
        "Est #:"                         at 3
        v-est-no
+       cDisEstimate
        v-set-hdr                        at 19
        "FG#:"                           at 44
        v-fg

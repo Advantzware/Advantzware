@@ -121,9 +121,7 @@ PROCEDURE pUpdateAccessToken PRIVATE:
            AND bf-sys-ctrl.name    EQ "VertexAccessToken"
          NO-ERROR.
     IF AVAILABLE bf-sys-ctrl THEN DO:
-        /* 1200 seconds or 20 minutes is the access token expiry time. 
-           Added a buffer of additionl 20 seconds to refresh access token */
-        IF bf-sys-ctrl.date-fld EQ TODAY AND TIME - bf-sys-ctrl.int-fld LT 1180 THEN DO:
+        IF bf-sys-ctrl.date-fld EQ TODAY AND TIME - bf-sys-ctrl.int-fld LT bf-sys-ctrl.dec-fld THEN DO:
             ASSIGN
                 oplSuccess     = TRUE
                 opcMessage     = "Success"

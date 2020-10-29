@@ -1,35 +1,35 @@
 /* r-invstat.i - Brad Vigrass - 2.26.2020 */
 
 DEFINE TEMP-TABLE ttJobItem NO-UNDO
-    FIELD cCompany                   AS CHARACTER LABEL "Company"                FORMAT "x(3)"
-    FIELD cCustomerID                AS CHARACTER LABEL "Cust ID"                FORMAT "x(8)"
-    FIELD cCustomerName              AS CHARACTER LABEL "Customer Name"          FORMAT "x(30)"
-    FIELD cItemID                    AS CHARACTER LABEL "Item ID"                FORMAT "x(15)"
-    FIELD cItemDescription           AS CHARACTER LABEL "Item Description"       FORMAT "x(20)"
-    FIELD cJob                       AS CHARACTER LABEL "Job"                    FORMAT "x(9)"
-    FIELD xxcJobID                   AS CHARACTER LABEL "Job"                    FORMAT "x(6)"
-    FIELD xxiJobID2                  AS INTEGER   LABEL "Job Rev"                FORMAT "99"
-    FIELD cProductCategory           AS CHARACTER LABEL "Product"                FORMAT "x(7)"
-    FIELD cProductDescription        AS CHARACTER LABEL "Product Description"    FORMAT "x(20)"
-    FIELD dtOrderDate                AS DATE      LABEL "Order Date"             FORMAT "99/99/9999"
-    FIELD dtDueDate                  AS DATE      LABEL "Due Date"               FORMAT "99/99/9999"
-    FIELD cSalesRep                  AS CHARACTER LABEL "SalesRep"               FORMAT "x(3)"
-    FIELD cSalesRepName              AS CHARACTER LABEL "Sales Rep Name"         FORMAT "x(20)"
-    FIELD dQuantityOrdered           AS DECIMAL   LABEL "Qty Ordered"            FORMAT "->,>>>,>>9.99"
-    FIELD dQuantityProduced          AS DECIMAL   LABEL "Qty Produced"           FORMAT "->,>>>,>>9.99"
-    FIELD dQuantityShipped           AS DECIMAL   LABEL "Qty Shipped"            FORMAT "->,>>>,>>9.99"
-    FIELD dQuantityInvoiced          AS DECIMAL   LABEL "Qty Invoiced"           FORMAT "->,>>>,>>9.99"
-    FIELD dQuantityOnHand            AS DECIMAL   LABEL "Qty On-Hand"            FORMAT "->,>>>,>>9.99"
-    FIELD dDisplayBalanceToRun       AS DECIMAL   LABEL "Qty On-Hand"            FORMAT "->,>>>,>>9.99"
-    FIELD dQuantityBalanceToRun      AS DECIMAL   LABEL "Qty To Run"             FORMAT "->,>>>,>>9.99"
-    FIELD dPricePerEA                AS DECIMAL   LABEL "Price Per EA"           FORMAT "->,>>>,>>9.99"
-    FIELD dPriceTotalOnHand          AS DECIMAL   LABEL "Sell Value of On-Hand"  FORMAT "->,>>>,>>9.99"
-    FIELD dPriceTotalOrdered         AS DECIMAL   LABEL "Sell Value of Ordered"  FORMAT "->,>>>,>>9.99"
+    FIELD cCompany                   AS CHARACTER LABEL "Company" FORMAT "x(3)"
+    FIELD cCustomerID                AS CHARACTER LABEL "Cust ID" FORMAT "x(8)"
+    FIELD cCustomerName              AS CHARACTER LABEL "Customer Name" FORMAT "x(30)"
+    FIELD cItemID                    AS CHARACTER LABEL "Item ID" FORMAT "x(15)"
+    FIELD cItemDescription           AS CHARACTER LABEL "Item Description" FORMAT "x(20)"
+    FIELD cJob                       AS CHARACTER LABEL "Job" FORMAT "x(9)"
+    FIELD xxcJobID                   AS CHARACTER LABEL "Job" FORMAT "x(6)"
+    FIELD xxiJobID2                  AS INTEGER   LABEL "Job Rev" FORMAT "99"
+    FIELD cProductCategory           AS CHARACTER LABEL "Product" FORMAT "x(7)"
+    FIELD cProductDescription        AS CHARACTER LABEL "Product Description" FORMAT "x(20)"
+    FIELD dtOrderDate                AS DATE      LABEL "Order Date" FORMAT "99/99/9999"
+    FIELD dtDueDate                  AS DATE      LABEL "Due Date" FORMAT "99/99/9999"
+    FIELD cSalesRep                  AS CHARACTER LABEL "SalesRep" FORMAT "x(3)"
+    FIELD cSalesRepName              AS CHARACTER LABEL "Sales Rep Name" FORMAT "x(20)"
+    FIELD dQuantityOrdered           AS DECIMAL   LABEL "Qty Ordered" FORMAT "->,>>>,>>9.99"
+    FIELD dQuantityProduced          AS DECIMAL   LABEL "Qty Produced" FORMAT "->,>>>,>>9.99"
+    FIELD dQuantityShipped           AS DECIMAL   LABEL "Qty Shipped" FORMAT "->,>>>,>>9.99"
+    FIELD dQuantityInvoiced          AS DECIMAL   LABEL "Qty Invoiced" FORMAT "->,>>>,>>9.99"
+    FIELD dQuantityOnHand            AS DECIMAL   LABEL "Qty On-Hand" FORMAT "->,>>>,>>9.99"
+    FIELD dDisplayBalanceToRun       AS DECIMAL   LABEL "Qty On-Hand" FORMAT "->,>>>,>>9.99"
+    FIELD dQuantityBalanceToRun      AS DECIMAL   LABEL "Qty To Run" FORMAT "->,>>>,>>9.99"
+    FIELD dPricePerEA                AS DECIMAL   LABEL "Price Per EA" FORMAT "->,>>>,>>9.99"
+    FIELD dPriceTotalOnHand          AS DECIMAL   LABEL "Sell Value of On-Hand" FORMAT "->,>>>,>>9.99"
+    FIELD dPriceTotalOrdered         AS DECIMAL   LABEL "Sell Value of Ordered" FORMAT "->,>>>,>>9.99"
     FIELD dPriceTotalProduced        AS DECIMAL   LABEL "Sell Value of Produced" FORMAT "->,>>>,>>9.99"
-    FIELD dPriceTotalShipped         AS DECIMAL   LABEL "Sell Value of Shipped"  FORMAT "->,>>>,>>9.99"
-    FIELD dPriceTotalBalanceToRun    AS DECIMAL   LABEL "Sell Value to Run"      FORMAT "->,>>>,>>9.99"
-    FIELD dtAsOfDate                 AS DATE      LABEL "As Of Date"             FORMAT "99/99/9999"
-    FIELD cAsOfDateOption            AS CHARACTER LABEL "As Of Date Option"      FORMAT "x(20)"
+    FIELD dPriceTotalShipped         AS DECIMAL   LABEL "Sell Value of Shipped" FORMAT "->,>>>,>>9.99"
+    FIELD dPriceTotalBalanceToRun    AS DECIMAL   LABEL "Sell Value to Run" FORMAT "->,>>>,>>9.99"
+    FIELD dtAsOfDate                 AS DATE      LABEL "As Of Date" FORMAT "99/99/9999"
+    FIELD cAsOfDateOption            AS CHARACTER LABEL "As Of Date Option" FORMAT "x(20)"
     FIELD cSource                    AS CHARACTER
     FIELD cLineType                  AS CHARACTER
     FIELD lNoMake                    AS LOGICAL 
@@ -70,10 +70,10 @@ DEFINE TEMP-TABLE ttJobItem NO-UNDO
     FIELD dQuantityInvoicedOther     AS DECIMAL
     FIELD dQuantityOnHandOther       AS DECIMAL
     FIELD dQuantityBalanceToRunOther AS DECIMAL
-    FIELD dPricePerUOM               AS DECIMAL   LABEL "Price Per UOM"          FORMAT "->,>>>,>>9.99"
-    FIELD cPriceUOM                  AS CHARACTER LABEL "Price UOM"              FORMAT "X"
-    FIELD iFormNumber                AS INTEGER   LABEL "Form"                   FORMAT ">>9"
-    FIELD iBlankNumber               AS INTEGER   LABEL "Blank"                  FORMAT ">9"
+    FIELD dPricePerUOM               AS DECIMAL   LABEL "Price Per UOM" FORMAT "->,>>>,>>9.99"
+    FIELD cPriceUOM                  AS CHARACTER LABEL "Price UOM" FORMAT "X"
+    FIELD iFormNumber                AS INTEGER   LABEL "Form" FORMAT ">>9"
+    FIELD iBlankNumber               AS INTEGER   LABEL "Blank" FORMAT ">9"
     .
 DEFINE TEMP-TABLE ttProdSum NO-UNDO
     FIELD cCompany                LIKE ttJobItem.cCompany
@@ -96,7 +96,7 @@ FUNCTION fSalesRepName RETURNS CHARACTER PRIVATE
     (ipcCompany AS CHARACTER, ipcSalesRep AS CHARACTER):
     FIND FIRST sman NO-LOCK
         WHERE sman.company EQ ipcCompany
-          AND sman.sman EQ ipcSalesRep
+        AND sman.sman EQ ipcSalesRep
         NO-ERROR.
     RETURN IF AVAILABLE sman THEN REPLACE(sman.sname,",","") ELSE "".
 END FUNCTION.
@@ -111,15 +111,15 @@ FUNCTION fItemDescription RETURNS CHARACTER PRIVATE
     
     FIND FIRST bItemFG NO-LOCK
         WHERE bItemFG.company EQ ipcCompany
-          AND bItemFG.i-no    EQ ipcItemID
+        AND bItemFG.i-no    EQ ipcItemID
         NO-ERROR.
     IF AVAILABLE bItemFG THEN
-    cItemDescription = bItemFG.i-name.
+        cItemDescription = bItemFG.i-name.
     ELSE 
     DO:
         FIND FIRST bPrep NO-LOCK
             WHERE bPrep.company EQ ipcCompany
-              AND bPrep.code    EQ ipcItemID
+            AND bPrep.code    EQ ipcItemID
             NO-ERROR.
         IF AVAILABLE bPrep THEN
             cItemDescription = bPrep.dscr.
@@ -133,7 +133,7 @@ FUNCTION fProductDescription RETURNS CHARACTER PRIVATE
     (ipcCompany AS CHARACTER, ipcProductCategory AS CHARACTER):
     FIND FIRST fgcat NO-LOCK
         WHERE fgcat.company EQ ipcCompany
-          AND fgcat.procat  EQ ipcProductCategory
+        AND fgcat.procat  EQ ipcProductCategory
         NO-ERROR.
     RETURN IF AVAILABLE fgcat THEN fgcat.dscr ELSE "".
 END FUNCTION.
@@ -143,9 +143,9 @@ END FUNCTION.
 PROCEDURE pBusinessLogic:
     CASE cAsOfDateOption:
         WHEN "Prior Month" THEN
-        dtAsOfDate = DYNAMIC-FUNCTION("sfCommon_DateOptionDate", "Date Prior Month", dtAsOfDate).
+            dtAsOfDate = DYNAMIC-FUNCTION("sfCommon_DateOptionDate", "Date Prior Month", dtAsOfDate).
         WHEN "Prior Year" THEN
-        dtAsOfDate = DYNAMIC-FUNCTION("sfCommon_DateOptionDate", "Date Prior Year", dtAsOfDate).
+            dtAsOfDate = DYNAMIC-FUNCTION("sfCommon_DateOptionDate", "Date Prior Year", dtAsOfDate).
     END CASE.
     IF cProductCategoryList = "" THEN cProductCategoryList = "EP,EEP".
     RUN pBuildJobItem (
@@ -194,13 +194,13 @@ PROCEDURE pAddJobItem PRIVATE:
     
     CASE ipcPriceUOM:
         WHEN "M" THEN 
-        dPricePerEA = ipdPricePerUOM / 1000.
+            dPricePerEA = ipdPricePerUOM / 1000.
         WHEN "LOT" OR 
         WHEN "L" THEN 
-        ASSIGN 
-            lLot        = YES
-            dPricePerEA = ipdPricePerUOM
-            . 
+            ASSIGN 
+                lLot        = YES
+                dPricePerEA = ipdPricePerUOM
+                . 
         OTHERWISE 
         dPricePerEA = ipdPricePerUOM.                
     END CASE.
@@ -244,7 +244,7 @@ PROCEDURE pAddJobItem PRIVATE:
         .
     FIND FIRST cust NO-LOCK
         WHERE cust.company EQ ipcCompany
-          AND cust.cust-no EQ ipcCustomerID
+        AND cust.cust-no EQ ipcCustomerID
         NO-ERROR.
     IF AVAILABLE cust THEN
         ASSIGN
@@ -254,9 +254,10 @@ PROCEDURE pAddJobItem PRIVATE:
             .
     FIND FIRST ttProdSum
         WHERE ttProdSum.cCompany         EQ ipcCompany
-          AND ttProdSum.cProductCategory EQ ipcProductCategory
+        AND ttProdSum.cProductCategory EQ ipcProductCategory
         NO-ERROR.
-    IF NOT AVAILABLE ttProdSum THEN DO:
+    IF NOT AVAILABLE ttProdSum THEN 
+    DO:
         CREATE ttProdSum.
         ASSIGN
             ttProdSum.cCompany            = ipcCompany
@@ -374,15 +375,15 @@ PROCEDURE pBuildJobItem PRIVATE:
     EMPTY TEMP-TABLE ttJobItem.
     FOR EACH job-hdr NO-LOCK  /*Go through all job-hdrs*/
         WHERE job-hdr.company EQ ipcCompany
-          AND job-hdr.cust-no GE ipcCustStart
-          AND job-hdr.cust-no LE ipcCustEnd
-          AND job-hdr.i-no    GE ipcFGItemStart
-          AND job-hdr.i-no    LE ipcFGItemEnd,
+        AND job-hdr.cust-no GE ipcCustStart
+        AND job-hdr.cust-no LE ipcCustEnd
+        AND job-hdr.i-no    GE ipcFGItemStart
+        AND job-hdr.i-no    LE ipcFGItemEnd,
         FIRST job OF job-hdr  NO-LOCK
         WHERE job.create-date LE ipdtAsOf,
         FIRST itemfg NO-LOCK
         WHERE itemfg.company  EQ job-hdr.company
-          AND itemfg.i-no     EQ job-hdr.i-no
+        AND itemfg.i-no     EQ job-hdr.i-no
         :
         ASSIGN 
             dQtyOrd      = job-hdr.qty
@@ -407,13 +408,15 @@ PROCEDURE pBuildJobItem PRIVATE:
             OUTPUT dQtyProd
             ).                
         /* This will be the case for all non-stock jobs */
-        IF job-hdr.ord-no NE 0 THEN DO:
+        IF job-hdr.ord-no NE 0 THEN 
+        DO:
             FIND FIRST oe-ordl NO-LOCK
                 WHERE oe-ordl.company EQ job-hdr.company
-                  AND oe-ordl.ord-no  EQ job-hdr.ord-no
-                  AND oe-ordl.i-no    EQ job-hdr.i-no
+                AND oe-ordl.ord-no  EQ job-hdr.ord-no
+                AND oe-ordl.i-no    EQ job-hdr.i-no
                 NO-ERROR.
-            IF AVAILABLE oe-ordl THEN DO:
+            IF AVAILABLE oe-ordl THEN 
+            DO:
                 RUN pGetQuantityInvShipAsOf (
                     ROWID(oe-ordl),
                     ipdtAsOf,
@@ -430,15 +433,16 @@ PROCEDURE pBuildJobItem PRIVATE:
             END.
             FIND FIRST oe-ord NO-LOCK
                 WHERE oe-ord.company EQ job-hdr.company
-                  AND oe-ord.ord-no  EQ job-hdr.ord-no
+                AND oe-ord.ord-no  EQ job-hdr.ord-no
                 NO-ERROR.
             IF AVAILABLE oe-ord THEN
-            ASSIGN
-                dtOrderDate = oe-ord.ord-date
-                dtDueDate   = oe-ord.due-date
-                .
+                ASSIGN
+                    dtOrderDate = oe-ord.ord-date
+                    dtDueDate   = oe-ord.due-date
+                    .
         END.
-        ELSE DO:
+        ELSE 
+        DO:
             RUN pGetQuantityOnHandAsOf (
                 job-hdr.company,
                 job-hdr.job-no,
@@ -455,8 +459,8 @@ PROCEDURE pBuildJobItem PRIVATE:
         END.
         
         cSource = "Job Header - "
-                + IF itemfg.isaset AND NOT CAN-DO(cProductCategoryList,itemfg.procat) THEN "Set"
-                  ELSE "Single".
+            + IF itemfg.isaset AND NOT CAN-DO(cProductCategoryList,itemfg.procat) THEN "Set"
+            ELSE "Single".
               
         IF dQtyInv GE dQtyOrd THEN NEXT. /* No Backlog at time of "as of" */
         
@@ -484,14 +488,15 @@ PROCEDURE pBuildJobItem PRIVATE:
             dtDueDate,
             BUFFER bf-ttJobItem
             ).
-        IF itemfg.isaset THEN DO:
+        IF itemfg.isaset THEN 
+        DO:
             FOR EACH fg-set NO-LOCK 
                 WHERE fg-set.company EQ itemfg.company
-                  AND fg-set.set-no  EQ itemfg.i-no,
+                AND fg-set.set-no  EQ itemfg.i-no,
                 FIRST bf-comp-itemfg NO-LOCK 
                 WHERE bf-comp-itemfg.company EQ fg-set.company
-                  AND bf-comp-itemfg.i-no    EQ fg-set.part-no
-                   BY fg-set.line
+                AND bf-comp-itemfg.i-no    EQ fg-set.part-no
+                BY fg-set.line
                 :
                 ASSIGN 
                     dQtyInv      = 0
@@ -503,12 +508,13 @@ PROCEDURE pBuildJobItem PRIVATE:
                     lNoMake      = YES /*fg-set.noReceipt*/
                     .
                 IF AVAILABLE bf-ttJobItem THEN 
-                RUN pAnalyzeItem (
-                    BUFFER bf-ttJobItem,
-                    bf-comp-itemfg.procat,
-                    fg-set.part-qty
-                    ).
-                IF LOOKUP(itemfg.procat, cProductCategoryList) EQ 0 THEN DO:
+                    RUN pAnalyzeItem (
+                        BUFFER bf-ttJobItem,
+                        bf-comp-itemfg.procat,
+                        fg-set.part-qty
+                        ).
+                IF LOOKUP(itemfg.procat, cProductCategoryList) EQ 0 THEN 
+                DO:
                     lNoMake = NO.
                     RUN pGetQuantityMadeAsOf (
                         job-hdr.company,
@@ -563,18 +569,18 @@ PROCEDURE pBuildJobItem PRIVATE:
 
     FOR EACH oe-ord NO-LOCK 
         WHERE oe-ord.company EQ ipcCompany
-          AND oe-ord.cust-no   GE ipcCustStart
-          AND oe-ord.cust-no   LE ipcCustEnd
-          AND oe-ord.ord-date  LE ipdtAsOf,
+        AND oe-ord.cust-no   GE ipcCustStart
+        AND oe-ord.cust-no   LE ipcCustEnd
+        AND oe-ord.ord-date  LE ipdtAsOf,
         EACH oe-ordm NO-LOCK
         WHERE oe-ordm.company EQ oe-ord.company
-          AND oe-ordm.ord-no  EQ oe-ord.ord-no
-          AND oe-ordm.charge  GE ipcFGItemStart
-          AND oe-ordm.charge  LE ipcFGItemEnd
-          AND oe-ordm.bill    EQ "Y",
+        AND oe-ordm.ord-no  EQ oe-ord.ord-no
+        AND oe-ordm.charge  GE ipcFGItemStart
+        AND oe-ordm.charge  LE ipcFGItemEnd
+        AND oe-ordm.bill    EQ "Y",
         FIRST prep NO-LOCK 
         WHERE prep.company EQ oe-ordm.company
-          AND prep.code    EQ oe-ordm.charge
+        AND prep.code    EQ oe-ordm.charge
         :
         ASSIGN 
             dQtyOrd      = 1
@@ -627,6 +633,69 @@ PROCEDURE pBuildJobItem PRIVATE:
             ).
     END.
     
+    FOR EACH oe-ord NO-LOCK 
+        WHERE oe-ord.company EQ ipcCompany
+        AND oe-ord.cust-no   GE ipcCustStart
+        AND oe-ord.cust-no   LE ipcCustEnd
+        AND oe-ord.ord-date  LE ipdtAsOf
+        AND oe-ord.est-no EQ "",
+        EACH oe-ordl NO-LOCK 
+        WHERE oe-ordl.company EQ oe-ord.company
+        AND oe-ordl.ord-no EQ oe-ord.ord-no
+        AND oe-ordl.i-no  GE ipcFGItemStart
+        AND oe-ordl.i-no  LE ipcFGItemEnd
+        AND oe-ordl.est-no EQ "",
+        FIRST itemfg NO-LOCK
+        WHERE itemfg.company  EQ oe-ordl.company
+        AND itemfg.i-no     EQ oe-ordl.i-no
+        :
+        ASSIGN 
+            dQtyOrd      = oe-ordl.qty
+            dQtyProd     = 0
+            dQtyShip     = 0
+            dQtyInv      = 0
+            dQtyOnHand   = 0
+            dPricePerUOM = oe-ordl.price
+            cPriceUOM    = oe-ordl.pr-uom
+            dInvAmt      = 0
+            lHasOrder    = YES
+            lIsComp      = NO
+            lNoMake      = NO
+            dtOrderDate  = oe-ord.ord-date
+            dtDueDate    = oe-ord.due-date
+            .
+        RUN pGetQuantityInvShipAsOf (
+            ROWID(oe-ordl),
+            ipdtAsOf,
+            OUTPUT dQtyInv,
+            OUTPUT dQtyShip
+            ).
+        RUN pAddJobItem (
+            oe-ord.company,
+            oe-ord.cust-no,
+            oe-ordl.i-no,
+            STRING(oe-ord.ord-no),
+            ?,
+            0,
+            0,
+            itemfg.procat,
+            dQtyOrd,
+            dQtyProd,
+            dQtyShip,
+            dQtyInv,
+            dQtyOnHand, 
+            "Placeholder Order",
+            dPricePerUOM,
+            cPriceUOM,
+            NO,
+            NO,
+            lHasOrder,
+            dtOrderDate,
+            dtDueDate,
+            BUFFER bf-ttJobItem
+            ).
+            
+    END.
 END PROCEDURE.
 
 PROCEDURE pGetInvoicedAmountForMiscAsOf PRIVATE:
@@ -641,16 +710,16 @@ PROCEDURE pGetInvoicedAmountForMiscAsOf PRIVATE:
 
     FOR EACH ar-invl NO-LOCK 
         WHERE ar-invl.company EQ ipcCompany
-          AND ar-invl.misc    EQ YES
-          AND ar-invl.ord-no  EQ ipiOrdNo
-          AND ar-invl.i-name  EQ ipcCharge,
+        AND ar-invl.misc    EQ YES
+        AND ar-invl.ord-no  EQ ipiOrdNo
+        AND ar-invl.i-name  EQ ipcCharge,
         FIRST ar-inv NO-LOCK 
         WHERE ar-inv.company  EQ ar-invl.company 
-          AND ar-inv.x-no     EQ ar-invl.x-no
-          AND ar-inv.inv-date LE ipdtAsOf,
+        AND ar-inv.x-no     EQ ar-invl.x-no
+        AND ar-inv.inv-date LE ipdtAsOf,
         FIRST prep NO-LOCK 
         WHERE prep.company EQ ar-invl.company
-          AND prep.code    EQ ar-invl.i-name
+        AND prep.code    EQ ar-invl.i-name
         :
         opdInvoiceAmount = ar-invl.amt.
         LEAVE.
@@ -673,15 +742,16 @@ PROCEDURE pGetQuantityInvShipAsOf PRIVATE:
 
     FIND oe-ordl WHERE ROWID(oe-ordl) EQ ipriOeOrdl NO-LOCK NO-ERROR.
 
-    IF AVAIL oe-ordl THEN DO:
+    IF AVAIL oe-ordl THEN 
+    DO:
         lInvQty = NO.
         FOR EACH ar-invl NO-LOCK
             WHERE ar-invl.company  EQ oe-ordl.company
-              AND ar-invl.ord-no   EQ oe-ordl.ord-no
-              AND ar-invl.i-no     EQ oe-ordl.i-no,
+            AND ar-invl.ord-no   EQ oe-ordl.ord-no
+            AND ar-invl.i-no     EQ oe-ordl.i-no,
             FIRST ar-inv NO-LOCK 
             WHERE ar-inv.x-no     EQ ar-invl.x-no
-              AND ar-inv.inv-date LE ipdtAsOf
+            AND ar-inv.inv-date LE ipdtAsOf
             :
             ASSIGN 
                 lInvQty             = YES
@@ -692,14 +762,14 @@ PROCEDURE pGetQuantityInvShipAsOf PRIVATE:
         /* if client only wants posted, remove this for each block */
         FOR EACH inv-head NO-LOCK 
             WHERE inv-head.company  EQ oe-ordl.company
-              AND inv-head.cust-no  EQ oe-ordl.cust-no
-              AND inv-head.inv-date LE ipdtAsOf
-              AND inv-head.printed  EQ YES,
+            AND inv-head.cust-no  EQ oe-ordl.cust-no
+            AND inv-head.inv-date LE ipdtAsOf
+            AND inv-head.printed  EQ YES,
             EACH inv-line NO-LOCK 
             WHERE inv-line.r-no   EQ inv-head.r-no
-              AND inv-line.ord-no EQ oe-ordl.ord-no
-              AND inv-line.i-no   EQ oe-ordl.i-no
-              AND inv-line.line   EQ oe-ordl.line
+            AND inv-line.ord-no EQ oe-ordl.ord-no
+            AND inv-line.i-no   EQ oe-ordl.i-no
+            AND inv-line.line   EQ oe-ordl.line
             :
             ASSIGN 
                 lInvQty             = YES
@@ -709,23 +779,23 @@ PROCEDURE pGetQuantityInvShipAsOf PRIVATE:
 
         FOR EACH oe-boll NO-LOCK
             WHERE oe-boll.company EQ oe-ordl.company
-              AND oe-boll.ord-no  EQ oe-ordl.ord-no
-              AND oe-boll.i-no    EQ oe-ordl.i-no
-              AND oe-boll.line    EQ oe-ordl.line
-              AND oe-boll.s-code  NE "T"
+            AND oe-boll.ord-no  EQ oe-ordl.ord-no
+            AND oe-boll.i-no    EQ oe-ordl.i-no
+            AND oe-boll.line    EQ oe-ordl.line
+            AND oe-boll.s-code  NE "T"
             USE-INDEX ord-no,
             FIRST oe-bolh NO-LOCK
             WHERE oe-bolh.b-no     EQ oe-boll.b-no
-              AND oe-bolh.posted   EQ YES
-              AND oe-bolh.bol-date LE ipdtAsOf
+            AND oe-bolh.posted   EQ YES
+            AND oe-bolh.bol-date LE ipdtAsOf
             USE-INDEX b-no
             :
             IF (oe-boll.s-code NE "I" OR
                 CAN-FIND(FIRST bf-oe-ordl 
-                         WHERE bf-oe-ordl.company        EQ oe-ordl.company
-                           AND bf-oe-ordl.ord-no         EQ oe-ordl.ord-no
-                           AND bf-oe-ordl.is-a-component EQ YES
-                           AND bf-oe-ordl.set-hdr-line   EQ oe-ordl.line)) THEN                
+                WHERE bf-oe-ordl.company        EQ oe-ordl.company
+                AND bf-oe-ordl.ord-no         EQ oe-ordl.ord-no
+                AND bf-oe-ordl.is-a-component EQ YES
+                AND bf-oe-ordl.set-hdr-line   EQ oe-ordl.line)) THEN                
                 opdQuantityShipped = opdQuantityShipped + oe-boll.qty.
         END.
     END.
@@ -746,15 +816,15 @@ PROCEDURE pGetQuantityMadeAsOf PRIVATE:
     FOR EACH fg-rcpth  
         FIELDS(r-no rita-code) NO-LOCK
         WHERE fg-rcpth.company    EQ ipcCompany
-          AND fg-rcpth.job-no     EQ ipcJobNo
-          AND fg-rcpth.job-no2    EQ ipiJobNo2
-          AND fg-rcpth.i-no       EQ ipcINo
-          AND fg-rcpth.rita-code  EQ 'R' 
-          AND fg-rcpth.trans-date LE ipdtAsOf
+        AND fg-rcpth.job-no     EQ ipcJobNo
+        AND fg-rcpth.job-no2    EQ ipiJobNo2
+        AND fg-rcpth.i-no       EQ ipcINo
+        AND fg-rcpth.rita-code  EQ 'R' 
+        AND fg-rcpth.trans-date LE ipdtAsOf
         USE-INDEX job,
         EACH fg-rdtlh FIELDS(qty) NO-LOCK
         WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
-          AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+        AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
         :            
         opdQty = opdQty + fg-rdtlh.qty.
     END.  /*each fg history*/    
@@ -774,22 +844,22 @@ PROCEDURE pGetQuantityOnHandAsOf PRIVATE:
     
     FOR EACH fg-rcpth NO-LOCK
         WHERE fg-rcpth.company    EQ ipcCompany
-          AND fg-rcpth.i-no       EQ ipcINo
-          AND fg-rcpth.job-no     EQ ipcJobNo
-          AND fg-rcpth.job-no2    EQ ipiJobNo2
-          AND fg-rcpth.trans-date LE ipdtAsOf
+        AND fg-rcpth.i-no       EQ ipcINo
+        AND fg-rcpth.job-no     EQ ipcJobNo
+        AND fg-rcpth.job-no2    EQ ipiJobNo2
+        AND fg-rcpth.trans-date LE ipdtAsOf
         USE-INDEX tran,
         EACH fg-rdtlh NO-LOCK
         WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
-          AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-           BY fg-rcpth.trans-date
-           BY fg-rdtlh.trans-time
-           BY fg-rcpth.r-no
+        AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
+        BY fg-rcpth.trans-date
+        BY fg-rdtlh.trans-time
+        BY fg-rcpth.r-no
         :
         CASE fg-rcpth.rita-code:
             WHEN "S" OR 
             WHEN "s" THEN
-            opdQty = opdQty - fg-rdtlh.qty.
+                opdQty = opdQty - fg-rdtlh.qty.
             OTHERWISE 
             opdQty = opdQty + fg-rdtlh.qty.
         END CASE.    

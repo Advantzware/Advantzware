@@ -162,13 +162,19 @@
 "001" "202009234161505678788" "SendPurchaseOrder" "ClosePurchaseOrder" "Trigger when Purchase Order is closed from closepo.p" yes 2020-09-23T11:33:35.521 "user1" "_default13" 163 30
 "001" "202009234161505678789" "SendPurchaseOrder" "DeletePurchaseOrder" "Trigger when Purchase order is deleted" yes 2020-09-23T11:33:35.534 "user1" "_default13" 164 30
 "001" "202009234161505678790" "SendPurchaseOrder" "ReprintPurchaseOrder" "Trigger when Purchase Order Printed flag is ""YES""" yes 2020-09-23T11:33:35.546 "user1" "_default13" 165 30
+"001" "202010273657605809476" "SendPurchaseOrder" "PrintPurchaseOrder" "Trigger when Purchase Order Printed flag is ""NO""" yes 2020-10-27T10:09:36.112 "asi" "_default14" 166 31
+"001" "202010273657605809477" "SendPurchaseOrder" "UpdatePurchaseOrder" "Updates a Purchase Order" yes 2020-10-27T10:09:36.130 "asi" "_default14" 167 31
+"001" "202010273657605809478" "SendPurchaseOrder" "HoldPurchaseOrder" "Purchase Order status changing to ""H"" (Hold)" yes 2020-10-27T10:09:36.143 "asi" "_default14" 168 31
+"001" "202010273657605809479" "SendPurchaseOrder" "ReleasePurchaseOrder" "Purchase Order status changing from ""H"" (Hold)" yes 2020-10-27T10:09:36.155 "asi" "_default14" 169 31
+"001" "202010273657605809480" "SendPurchaseOrder" "ReopenPurchaseOrder" "Trigger when Purchase Order is re-opened" yes 2020-10-27T10:09:36.168 "asi" "_default14" 170 31
+"001" "202010273657605809481" "SendPurchaseOrder" "ClosePurchaseOrder" "Trigger when Purchase Order is closed from closepo.p" yes 2020-10-27T10:09:36.180 "asi" "_default14" 171 31
+"001" "202010273657605809482" "SendPurchaseOrder" "DeletePurchaseOrder" "Trigger when Purchase order is deleted" yes 2020-10-27T10:09:36.192 "asi" "_default14" 172 31
+"001" "202010273657605809483" "SendPurchaseOrder" "ReprintPurchaseOrder" "Trigger when Purchase Order Printed flag is ""YES""" yes 2020-10-27T10:09:36.204 "asi" "_default14" 173 31
 "001" "202005312751105329006" "SendAdvancedShipNotice" "ReprintBillOfLading" "Triggers when BOL is re-printed" no 2020-05-31T07:38:31.905 "jay" "Test" 5023 5007
 "001" "202005312751105329007" "SendAdvancedShipNotice" "PrintBillOfLading" "Triggers when BOL is printed" no 2020-05-31T07:38:31.925 "jay" "Test" 5024 5007
 "001" "202005312751105329008" "SendAdvancedShipNotice" "AddCustomer" "Adds a customer" yes 2020-05-31T07:38:31.931 "jay" "Test" 5025 5007
 "001" "202005312751105329009" "SendAdvancedShipNotice" "PrintRelease" "SendCustomer when Release is Printed First Time" no 2020-05-31T07:38:31.938 "jay" "Test" 5026 5007
 "001" "202005312751105329010" "SendAdvancedShipNotice" "ReprintRelease" "SendCustomer when Release is Reprinted" no 2020-05-31T07:38:31.945 "jay" "Test" 5027 5007
-"001" "202006053267605337059" "SendJob" "PrintJob" "Triggers when Job printed flag is NO" no 2020-06-05T09:04:36.014 "jay" "eWMS" 5036 5010
-"001" "202006053267605337060" "SendJob" "ReprintJob" "Triggers when Job printed flag is YES" no 2020-06-05T09:04:36.021 "jay" "eWMS" 5037 5010
 "001" "202006258075805408466" "SendOrderAck" "PrintOrderAck" "" no 2020-06-25T22:25:58.705 "matt" "test" 5039 5013
 "001" "202006258075805408467" "SendOrderAck" "RePrintOrderAck" "" no 2020-06-25T22:25:58.724 "matt" "test" 5040 5013
 "001" "202006294318505415375" "SendAdvancedShipNotice" "ReprintBillOfLading" "Triggers when BOL is re-printed" no 2020-06-29T11:59:45.991 "wade" "DSG" 5041 5014
@@ -177,7 +183,7 @@
 "001" "202006294318605415378" "SendAdvancedShipNotice" "PrintRelease" "SendCustomer when Release is Printed First Time" no 2020-06-29T11:59:46.018 "wade" "DSG" 5044 5014
 "001" "202006294318605415379" "SendAdvancedShipNotice" "ReprintRelease" "SendCustomer when Release is Reprinted" no 2020-06-29T11:59:46.024 "wade" "DSG" 5045 5014
 "001" "202006303733805419428" "CalculateTax" "GetTaxAmount" "Fetch Tax Amount" no 2020-07-22T15:47:44.360 "jay" "Vertex" 5046 5015
-"001" "202008102359505530175" "CalculateTax" "GetTaxAmountFinal" "Notifies Vertex this is of Invoice message type" no 2020-08-10T06:33:15.508 "user1" "Vertex" 5058 5015
+"001" "202008102359505530175" "CalculateTax" "GetTaxAmountFinal" "Notifies Vertex this is of Invoice message type" yes 2020-10-14T06:57:46.950 "jay" "Vertex" 5058 5015
 "001" "202008185634805591278" "SendRelease" "PrintRelease" "Sends Release when Release is printed" no 2020-08-18T15:39:08.709 "laurel" "Tester" 5097 5025
 "001" "202008185634805591279" "SendRelease" "ReprintRelease" "Sends Release when Release is reprinted" no 2020-08-18T15:39:08.731 "laurel" "Tester" 5098 5025
 "001" "202008185634805591280" "SendRelease" "UpdateRelease" "Sends Release when Release is updated" no 2020-08-18T15:39:08.737 "laurel" "Tester" 5099 5025

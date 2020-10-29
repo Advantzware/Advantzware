@@ -551,7 +551,7 @@ PROCEDURE pUserColumns :
     IF rRowID EQ ? THEN RETURN.
     FIND FIRST dynParamValue NO-LOCK WHERE ROWID(dynParamValue) EQ rRowID.
     FIND FIRST dynSubject NO-LOCK
-         WHERE dynSubject.subjectID EQ dynParamValue.subject
+         WHERE dynSubject.subjectID EQ dynParamValue.subjectID
          NO-ERROR.
     IF NOT AVAILABLE dynSubject THEN RETURN.
     FOR EACH dynValueColumn NO-LOCK

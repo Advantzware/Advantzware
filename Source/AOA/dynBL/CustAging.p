@@ -146,9 +146,10 @@ PROCEDURE pBusinessLogic:
                         RUN ClearTagsHold (cust.rec_key).
                         DO idx = 1 TO NUM-ENTRIES( cCreditHoldStatus ):
                             RUN AddTagHold (
-                                cust.rec_key,
-                                "cust",
-                                ENTRY(idx, cCreditHoldStatus)
+                                INPUT cust.rec_key,
+                                INPUT "cust",
+                                INPUT ENTRY(idx, cCreditHoldStatus),
+                                INPUT ""
                                 ).
                         END. /* do idx */
                     END. /* if setting cr-hold */

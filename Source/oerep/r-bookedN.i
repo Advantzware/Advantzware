@@ -630,9 +630,12 @@ FORMAT wkrecap.procat
             AND eb.est-no  EQ oe-ordl.est-no
             AND eb.stock-no EQ oe-ordl.i-no NO-ERROR .
     END. /* avail oe-ordl  */
-
-    cMachine = fGetRoutingForJob() .
-    cInks    = fGetInksForJob().     
+    
+    IF AVAIL oe-ord AND AVAIL job AND job.job-no NE "" THEN 
+    cMachine = fGetRoutingForJob(INPUT job.job, INPUT job.job-no,INPUT job.job-no2).
+    
+    IF AVAIL oe-ord AND AVAIL job AND job.job-no NE "" AND AVAIL eb THEN
+    cInks    = fGetInksForJob(INPUT job.job,INPUT ROWID(eb)).     
 
     IF AVAIL oe-ord THEN DO:
         IF oe-ord.TYPE = "T" AND oe-ord.pord-no GT 0 THEN

@@ -28,6 +28,7 @@ DEF VAR v-quotercmd AS CHAR NO-UNDO.
 {ce/msfcalc.i}
 
 {cec/combasis.i}
+{methods/getExecutableFileName.i quoter}
 
 
 find probe where recid(probe) eq v-recid no-lock no-error.
@@ -51,20 +52,11 @@ for each ef
                          string(v-form-no,"99")   + ".s" +
                          string(probe.line,v-probe-fmt).
 
-v-quotercmd = SEARCH("quoter.exe").
+v-quotercmd = cQuoterFullPathName.
 v-quotercmd = v-quotercmd + " -c 1-85 " + outfile3 + " > " + 
                  tmp-dir + trim(xest.est-no) + ".q" + string(probe.line,v-probe-fmt).
 
 DOS SILENT VALUE(v-quotercmd).
-
-/*   if opsys eq "unix" then                                 */
-/*     unix silent quoter -c 1-85 value(outfile3) >          */
-/*          value(tmp-dir + trim(xest.est-no) + ".q"         */
-/*                        + string(probe.line,v-probe-fmt)). */
-/*   else                                                    */
-/*     dos  silent quoter -c 1-85 value(outfile3) >          */
-/*          value(tmp-dir + trim(xest.est-no) + ".q"         */
-/*                        + string(probe.line,v-probe-fmt)). */
 
   input from value(tmp-dir + trim(xest.est-no) + ".q"
                            + string(probe.line,v-probe-fmt)).

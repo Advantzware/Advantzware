@@ -34,6 +34,8 @@ DEFINE OUTPUT PARAMETER opriRowid AS ROWID NO-UNDO.
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE i           AS INTEGER NO-UNDO.
 DEFINE VARIABLE dtCheckDate AS DATE    NO-UNDO.
+DEFINE VARIABLE hdValidate AS HANDLE    NO-UNDO.
+RUN util/Validate.p PERSISTENT SET hdValidate.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -176,6 +178,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* GL Update */
     DO:
+        DELETE PROCEDURE hdValidate.
         APPLY "END-ERROR":U TO SELF.
     END.
 
@@ -192,6 +195,9 @@ ON CHOOSE OF Btn_save IN FRAME Dialog-Frame /* Save */
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
         END.
+        
+        RUN pCheckAccount(OUTPUT lReturnError) .
+        IF lReturnError THEN RETURN NO-APPLY .
     
         RUN pCheckTransDate(OUTPUT lReturnError) .
         IF lReturnError THEN RETURN NO-APPLY .
@@ -243,6 +249,18 @@ ON LEAVE OF iPeriod IN FRAME Dialog-Frame
     DO:
         DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
         RUN pCheckPeriod(OUTPUT lReturnError) .
+        IF lReturnError THEN RETURN NO-APPLY .
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME bank_account
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bank_account Dialog-Frame
+ON LEAVE OF bank_account IN FRAME Dialog-Frame
+    DO:
+        DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+        RUN pCheckAccount(OUTPUT lReturnError) .
         IF lReturnError THEN RETURN NO-APPLY .
     END.
 
@@ -453,6 +471,33 @@ PROCEDURE pCheckPeriod :
         IF INTEGER(iPeriod:SCREEN-VALUE) GT 12 OR integer(iPeriod:SCREEN-VALUE) LE 0 THEN
         DO:
             MESSAGE "Please enter a vaild period .." 
+                VIEW-AS ALERT-BOX INFORMATION .
+            oplReturnError = TRUE .
+        END.               
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckAccount Dialog-Frame 
+PROCEDURE pCheckAccount :
+    /*------------------------------------------------------------------------------
+                  Purpose:     
+                  Parameters:  <none>
+                  Notes:       
+                ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lValid AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cValidNote AS CHARACTER NO-UNDO.  
+    DO WITH FRAME {&FRAME-NAME}:
+       
+       RUN pIsValidGLAccount IN hdValidate (bank_account:SCREEN-VALUE, NO, ipcCompany, OUTPUT lValid, OUTPUT cValidNote).       
+          IF NOT lValid THEN DO:
+       
+            MESSAGE cValidNote
                 VIEW-AS ALERT-BOX INFORMATION .
             oplReturnError = TRUE .
         END.               

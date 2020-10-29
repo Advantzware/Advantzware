@@ -6,8 +6,6 @@ DEFINE OUTPUT PARAMETER op-q-back LIKE itemfg.q-back NO-UNDO.
 
 {sys/inc/var.i NEW SHARED}
 
-DEFINE VARIABLE ld-qty LIKE oe-ordl.t-ship-qty NO-UNDO.
-
 FIND itemfg NO-LOCK WHERE 
     ROWID(itemfg) EQ ip-rowid 
     NO-ERROR.
@@ -42,26 +40,6 @@ IF AVAILABLE itemfg THEN DO:
                     NEXT.
             END.
         END. /* oe-ordl.is-a-component */
-        ASSIGN 
-            ld-qty = 0.
-
-        IF oe-ctrl.u-inv THEN FOR EACH oe-boll NO-LOCK WHERE 
-            oe-boll.company EQ oe-ordl.company AND 
-            oe-boll.ord-no  EQ oe-ordl.ord-no AND 
-            oe-boll.i-no    EQ oe-ordl.i-no AND 
-            oe-boll.loc     EQ ip-loc AND 
-            oe-boll.line    EQ oe-ordl.line AND 
-            oe-boll.s-code  NE "T" AND 
-            CAN-FIND(FIRST oe-bolh WHERE 
-                oe-bolh.b-no   EQ oe-boll.b-no AND 
-                oe-bolh.posted EQ YES
-                USE-INDEX b-no)
-            USE-INDEX ord-no:  
-            ASSIGN 
-                ld-qty = ld-qty + oe-boll.qty.
-        END. /* EACH oe-boll */       
-        ELSE ASSIGN 
-            ld-qty = oe-ordl.ship-qty.
 
         FOR EACH oe-rel NO-LOCK WHERE 
             oe-rel.company EQ oe-ordl.company AND 

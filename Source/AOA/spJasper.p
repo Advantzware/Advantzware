@@ -577,11 +577,12 @@ PROCEDURE pJasperDetailBand :
         PUT UNFORMATTED
             "                <textElement textAlignment=~"Right~"/>" SKIP
             .
-        IF ttColumn.ttFormula NE "" THEN
+        IF ttColumn.ttFormula NE "" AND INDEX(ttColumn.ttFormula,"|") EQ 0 THEN
         cFieldName = ttColumn.ttFormula.
         ELSE
         ASSIGN
-            cFieldName = (IF ttColumn.ttTable NE "" THEN ttColumn.ttTable + "__" ELSE "") + ttColumn.ttField
+            cFieldName = (IF ttColumn.ttTable NE "" AND NOT ttColumn.ttField BEGINS "Calc" THEN ttColumn.ttTable + "__" ELSE "")
+                       + ttColumn.ttField
             cFieldName = REPLACE(cFieldName,"[","")
             cFieldName = REPLACE(cFieldName,"]","")
             cFieldName = "$F~{" + cFieldName + "}"
@@ -634,10 +635,12 @@ PROCEDURE pJasperFieldDeclarations :
             cDataType = "String".
         END CASE.
         ASSIGN
-            cFieldName = (IF ttColumn.ttTable NE "" THEN ttColumn.ttTable + "__" ELSE "") + ttColumn.ttField
+            cFieldName = (IF ttColumn.ttTable NE "" AND NOT ttColumn.ttField BEGINS "Calc" THEN ttColumn.ttTable + "__" ELSE "")
+                       + ttColumn.ttField
             cFieldName = REPLACE(cFieldName,"[","")
             cFieldName = REPLACE(cFieldName,"]","")
-            cData      = IF ttColumn.ttFormula NE "" THEN ttColumn.ttFormula ELSE cFieldName
+            cData      = IF ttColumn.ttFormula NE "" AND INDEX(ttColumn.ttFormula,"|") EQ 0 THEN ttColumn.ttFormula
+                         ELSE cFieldName
             .
         PUT UNFORMATTED
             "    <field name=~"" cFieldName "~" class=~"java.lang." cDataType "~">" SKIP
@@ -1540,7 +1543,7 @@ PROCEDURE pJasperVariableDeclarations :
         ELSE
         IF ttColumn.ttFormula NE "" THEN
         PUT UNFORMATTED
-            ttColumn.ttFormula
+            ttColumn.ttField
             .
         ELSE
         PUT UNFORMATTED

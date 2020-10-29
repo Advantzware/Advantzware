@@ -135,7 +135,7 @@ itemfg.prod-code
 &Scoped-define DISPLAYED-TABLES itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg
 &Scoped-Define DISPLAYED-OBJECTS tb_taxable tg-Freeze-weight iCount ~
-fi_type-dscr 
+fi_type-dscr cSourceEstimate
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -184,6 +184,10 @@ DEFINE VARIABLE iCount AS INTEGER FORMAT "->,>>>,>>9" INITIAL 0
      LABEL "Count" 
      VIEW-AS FILL-IN 
      SIZE 10.6 BY 1 NO-UNDO.
+     
+DEFINE VARIABLE cSourceEstimate AS CHARACTER FORMAT "x(8)"         
+     VIEW-AS FILL-IN 
+     SIZE 10.5 BY 1 NO-UNDO.    
 
 DEFINE RECTANGLE RECT-10
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -275,8 +279,9 @@ DEFINE FRAME F-Main
      itemfg.est-no AT ROW 10 COL 11 COLON-ALIGNED
           LABEL "Est#" FORMAT "x(8)"
           VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-     itemfg.designID AT ROW 10 COL 45 COLON-ALIGNED
+          SIZE 12 BY 1
+     cSourceEstimate  AT ROW 10 COL 23 COLON-ALIGNED NO-LABEL    
+     itemfg.designID AT ROW 10 COL 47 COLON-ALIGNED
           LABEL "Design Id" FORMAT "x(15)"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
@@ -421,7 +426,7 @@ DEFINE FRAME F-Main
           LABEL "Pallet #" FORMAT "x(10)"
           VIEW-AS FILL-IN 
           SIZE 12.8 BY 1
-     iCount AT ROW 12.67 COL 99.4 COLON-ALIGNED
+     iCount AT ROW 12.67 COL 99.4 COLON-ALIGNED 
      itemfg.spare-char-4 AT ROW 12.67 COL 117.8 COLON-ALIGNED
           LABEL "Zone" FORMAT "x(12)"
           VIEW-AS FILL-IN 
@@ -697,6 +702,8 @@ ASSIGN
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN itemfg.upc-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN cSourceEstimate IN FRAME F-Main
+   NO-LABEL NO-ENABLE EXP-FORMAT                                         */   
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -1701,7 +1708,7 @@ PROCEDURE enable-itemfg-field :
 
         DISABLE itemfg.cust-name
             itemfg.procat-desc
-            itemfg.style-desc itemfg.setupDate iCount
+            itemfg.style-desc itemfg.setupDate iCount cSourceEstimate
             fi_type-dscr itemfg.setupBy itemfg.modifiedBy itemfg.modifiedDate .
 
         IF itemfg.trNo NE "" THEN
@@ -2114,6 +2121,7 @@ PROCEDURE local-display-fields :
             tg-freeze-weight:CHECKED = (IF itemfg.spare-int-1 = 1 THEN TRUE ELSE FALSE).
         RUN SetPurMan(itemfg.isaset).
         RUN pCalCount .
+        RUN pGetSourceEst .
     END. /* avail itemfg */
     
     RUN new-type.
@@ -2558,6 +2566,28 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSourceEst V-table-Win 
+PROCEDURE pGetSourceEst :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+
+  {methods/lValidateError.i YES}     
+    DO WITH FRAME {&FRAME-NAME}:        
+            
+     FIND FIRST eb NO-LOCK
+          WHERE eb.company EQ itemfg.company             
+          AND eb.sourceEstimate EQ itemfg.est-no NO-ERROR .
+          IF AVAIL eb THEN    
+          cSourceEStimate:SCREEN-VALUE = eb.est-no.
+    END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckOnHandQty V-table-Win 
 PROCEDURE pCheckOnHandQty :

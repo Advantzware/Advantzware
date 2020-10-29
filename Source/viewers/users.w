@@ -402,7 +402,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 37 BY 1
           BGCOLOR 15 FONT 4
-     fiPassword AT ROW 2.43 COL 21 COLON-ALIGNED WIDGET-ID 80
+     fiPassword AT ROW 2.43 COL 21 COLON-ALIGNED WIDGET-ID 80 PASSWORD-FIELD 
      users.department AT ROW 2.43 COL 80 COLON-ALIGNED
           LABEL "Dept"
           VIEW-AS FILL-IN 
@@ -538,32 +538,8 @@ DEFINE FRAME F-Main
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11.24 COL 91 WIDGET-ID 58
           FONT 4
-     "3" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 18.14 COL 69 WIDGET-ID 512
-     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
-          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
-          FONT 1
-     "2" VIEW-AS TEXT
-          SIZE 2 BY .62 AT ROW 18.14 COL 62 WIDGET-ID 514
-     "Menu Level 1" VIEW-AS TEXT
-          SIZE 13 BY .67 AT ROW 18.14 COL 43 WIDGET-ID 518
-     "BG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 20.05 COL 43 WIDGET-ID 516
-     "FG Color:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 18.86 COL 43 WIDGET-ID 520
-     "Phone: (Country)" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 3.62 COL 15 WIDGET-ID 92
-     "?" VIEW-AS TEXT
-          SIZE 2 BY .76 AT ROW 19.57 COL 79 WIDGET-ID 522
-          FGCOLOR 0 FONT 6
      "Mobile:" VIEW-AS TEXT
           SIZE 7 BY 1 AT ROW 4.81 COL 15.6 WIDGET-ID 94
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      "Time Display Use" VIEW-AS TEXT
           SIZE 17 BY 1 AT ROW 19.1 COL 6 WIDGET-ID 536
      " At Login User Can Select:" VIEW-AS TEXT
@@ -584,9 +560,33 @@ DEFINE FRAME F-Main
      "Modes:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 6.71 COL 99 WIDGET-ID 62
           FONT 4
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE .
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      "(#)" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 3.62 COL 56 WIDGET-ID 106
           BGCOLOR 15 
+     "3" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 18.14 COL 69 WIDGET-ID 512
+     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
+          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
+          FONT 1
+     "2" VIEW-AS TEXT
+          SIZE 2 BY .62 AT ROW 18.14 COL 62 WIDGET-ID 514
+     "Menu Level 1" VIEW-AS TEXT
+          SIZE 13 BY .67 AT ROW 18.14 COL 43 WIDGET-ID 518
+     "BG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 20.05 COL 43 WIDGET-ID 516
+     "FG Color:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 18.86 COL 43 WIDGET-ID 520
+     "Phone: (Country)" VIEW-AS TEXT
+          SIZE 16 BY 1 AT ROW 3.62 COL 15 WIDGET-ID 92
+     "?" VIEW-AS TEXT
+          SIZE 2 BY .76 AT ROW 19.57 COL 79 WIDGET-ID 522
+          FGCOLOR 0 FONT 6
      RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
      cUserImage AT ROW 10.76 COL 72 WIDGET-ID 118
      colorChoice-0 AT ROW 18.86 COL 84 WIDGET-ID 472
@@ -1063,7 +1063,10 @@ DO:
     
     RUN ipCheckPwd (INPUT-OUTPUT lPwdOK).
     IF NOT lPwdOK THEN DO:
-        ASSIGN SELF:SCREEN-VALUE = "".
+        ASSIGN 
+            SELF:SCREEN-VALUE = ""
+            SELF:SENSITIVE = TRUE .
+        APPLY 'entry' TO SELF.
         RETURN NO-APPLY.
     END.
     IF NOT lAdd THEN 
@@ -1574,6 +1577,7 @@ PROCEDURE ipCheckPwd :
             ASSIGN
                 fiPassword:SCREEN-VALUE = cOldPwd
                 fiPassword:SENSITIVE = FALSE
+                lPwdOK = NO
                 lPwdChanged = FALSE
                 bChgPwd:SENSITIVE = TRUE.
             RETURN.
@@ -2118,6 +2122,7 @@ PROCEDURE local-update-record :
             END.
         END.            
     END.
+    /*
     IF fiPassword:MODIFIED THEN DO:
         RUN ipCheckPwd (INPUT-OUTPUT lPwdOK).
         IF NOT lPwdOK THEN 
@@ -2129,7 +2134,7 @@ PROCEDURE local-update-record :
         IF NOT lAdd THEN 
             RUN ipChangePassword (fiPassword:SCREEN-VALUE).
     END.
-                    
+    */                
     IF lAdd THEN DO:
         /* Add _user record */
         FIND FIRST _user EXCLUSIVE WHERE

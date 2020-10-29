@@ -39,9 +39,9 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE ITEM_spec fgitem
 
-def var li-prev-page as int init 1 no-undo.
-def var li-cur-page as int init 1 no-undo.
-def var h-detail as handle no-undo.
+DEF VAR li-prev-page AS INT INIT 1 NO-UNDO.
+DEF VAR li-cur-page AS INT INIT 1 NO-UNDO.
+DEF VAR h-detail AS HANDLE NO-UNDO.
 DEF VAR li-last-page AS INT NO-UNDO.  /* for folding estimate page */
 DEF VAR ll-farm-visible AS LOG NO-UNDO INIT YES. /* adjustment for inactive farmout tab */
 DEF VAR llJobFarmSec AS LOG NO-UNDO.
@@ -138,6 +138,7 @@ DEFINE VARIABLE h_w-jobest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-jobfg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_optonote AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_attach AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -195,14 +196,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = NO
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -255,7 +256,7 @@ ASSIGN
 /* SETTINGS FOR FRAME OPTIONS-FRAME
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
-THEN W-Win:HIDDEN = yes.
+THEN W-Win:HIDDEN = YES.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -363,15 +364,23 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_smartmsg ).
        RUN set-position IN h_smartmsg ( 1.00 , 1.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.14 , 32.00 ) */
+       /* Size in UIB:  ( 1.14 , 32.00 ) */ 
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/import.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_import ).
+       RUN set-position IN h_import ( 1.00 , 22.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/attach.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_attach ).
-       RUN set-position IN h_attach ( 1.00 , 30.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       RUN set-position IN h_attach ( 1.00 , 30.00 ) NO-ERROR.   
+       /* Size in UIB:  ( 1.81 , 7.80 ) */  
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'panels/p-capacityPage.w':U ,
@@ -432,7 +441,10 @@ PROCEDURE adm-create-objects :
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
-
+       
+        /* Links to SmartViewer h_import. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'import':U , h_import ).
+            
        /* Links to SmartObject h_attach. */
        RUN add-link IN adm-broker-hdl ( h_b-jobinq , 'attach':U , h_attach ).
 
@@ -873,7 +885,7 @@ PROCEDURE adm-create-objects :
 
   END CASE.
   /* Select a Startup page. */
-  IF adm-current-page eq 0 
+  IF adm-current-page EQ 0 
   THEN RUN select-page IN THIS-PROCEDURE ( 1 ).
 
 END PROCEDURE.
@@ -1228,11 +1240,28 @@ PROCEDURE select_add :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var char-hdl as cha no-undo.
+  DEF VAR char-hdl AS cha NO-UNDO.
   ASSIGN chk-date = YES .
-  run select-page(2).
-  run get-link-handle in adm-broker-hdl(this-procedure,"add-job-target", output char-hdl).
-  run add-job in widget-handle(char-hdl).
+  RUN select-page(2).
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-job-target", OUTPUT char-hdl).
+  RUN add-job IN WIDGET-HANDLE(char-hdl).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-file W-Win 
+PROCEDURE import-file :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+ RUN util/impJobSchedule.p .
+ IF VALID-HANDLE(h_b-jobinq) THEN   
+ RUN local-open-query IN h_b-jobinq .
 
 END PROCEDURE.
 

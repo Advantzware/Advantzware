@@ -89,12 +89,42 @@ FUNCTION fCalculateTagQuantityInTTbrowse RETURNS DECIMAL
 FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
     (ipcCompany  AS CHARACTER,
      iplItemType AS LOGICAL,
-     ipcTag      AS CHARACTER) FORWARD.            
+     ipcTag      AS CHARACTER) FORWARD. 
+     
+FUNCTION fCheckFgBinTagOnHold RETURNS LOGICAL
+    (ipcCompany  AS CHARACTER,
+     ipcItem AS CHARACTER,
+     ipcTag      AS CHARACTER) FORWARD.     
+FUNCTION fItemHasOnHand RETURNS LOGICAL
+    (ipcCompany  AS CHARACTER,
+     ipcItem AS CHARACTER) FORWARD. 
+     
+FUNCTION fItemIsUsed RETURNS CHARACTER
+    (ipcCompany  AS CHARACTER,
+     ipcItem AS CHARACTER) FORWARD.     
+
 /* ***************************  Main Block  *************************** */
 
 
 
 /* **********************  Internal Procedures  *********************** */
+
+PROCEDURE Inventory_GetStatusOnHold:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcStatusID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplOnHold   AS LOGICAL   NO-UNDO. 
+    
+    FIND FIRST inventoryStatusType NO-LOCK
+         WHERE inventoryStatusType.statusID EQ ipcStatusID
+         NO-ERROR. 
+
+    IF AVAILABLE inventoryStatusType THEN 
+        oplOnHold = inventoryStatusType.onHold.           
+
+END PROCEDURE.
 
 PROCEDURE pCalculateAverageRawMaterialCost PRIVATE:
 /*------------------------------------------------------------------------------
@@ -1508,7 +1538,7 @@ PROCEDURE pPostRawMaterials PRIVATE:
                     bf-mat-act.qty     = bf-mat-act.qty     + dJobMatUOMQty
                     bf-job-mat.qty-iss = bf-job-mat.qty-iss + dJobMatUOMQty
                     bf-job-mat.qty-all = bf-job-mat.qty-all - dJobMatUOMQty
-                    bf-item.q-comm     = bf-item.q-comm     - bf-rm-rctd.qty
+                    //bf-item.q-comm     = bf-item.q-comm     - bf-rm-rctd.qty -> Should be handled in write trigger of job-mat
                     .
 
                 RUN Conv_QuantityFromUOMToUOM (
@@ -1551,7 +1581,7 @@ PROCEDURE pPostRawMaterials PRIVATE:
 
                     ASSIGN
                         bf-job-mat.qty-all = 0
-                        bf-item.q-comm     = bf-item.q-comm - dJobMatUOMQty
+                        //bf-item.q-comm     = bf-item.q-comm - dJobMatUOMQty
                         .
                 END.
 
@@ -2123,10 +2153,10 @@ PROCEDURE pValidateRMLocBinTag PRIVATE:
         .
 END PROCEDURE.
 
-PROCEDURE RecalculateQuantities:
+PROCEDURE Inventory_AddLocFromHist:
 /*------------------------------------------------------------------------------
  Purpose: To add the location into itemfg-loc based on history records and oe-rel
-          and recalculate the quantities
+          
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipriItemFG AS ROWID     NO-UNDO.
@@ -2138,29 +2168,29 @@ PROCEDURE RecalculateQuantities:
          WHERE ROWID(bf-itemFG) EQ ipriItemFG
             NO-ERROR.
 
-    IF AVAILABLE bf-itemfg THEN DO:      
+    IF AVAILABLE bf-itemfg THEN DO:     
         FOR EACH fg-rcpth NO-LOCK
             WHERE fg-rcpth.company   EQ ipcCompany
-              AND fg-rcpth.i-no      EQ bf-itemFG.i-no       
-              USE-INDEX tran,
+              AND fg-rcpth.i-no      EQ bf-itemfg.i-no 
+            USE-INDEX tran,
             EACH fg-rdtlh NO-LOCK
             WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
-              AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code 
-            BREAK BY fg-rcpth.loc
+              AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code                      
+            BREAK BY fg-rdtlh.loc
                   BY fg-rcpth.po-no
                   BY fg-rcpth.job-no:
                    
-            IF FIRST-OF(fg-rcpth.loc) 
-                AND fg-rcpth.loc NE "" 
+            IF FIRST-OF(fg-rdtlh.loc) 
+                AND fg-rdtlh.loc NE "" 
                 AND NOT CAN-FIND (FIRST itemfg-loc 
                      WHERE itemfg-loc.company EQ fg-rcpth.company 
-                       AND itemfg-loc.i-no    EQ bf-itemFG.i-no 
-                       AND itemfg-loc.loc     EQ fg-rcpth.loc) THEN  
+                       AND itemfg-loc.i-no    EQ bf-itemfg.i-no 
+                       AND itemfg-loc.loc     EQ fg-rdtlh.loc) THEN  
                                     
                 RUN CreateItemFGLoc(
                     INPUT ipcCompany,
                     INPUT fg-rcpth.i-no,
-                    INPUT fg-rcpth.loc
+                    INPUT fg-rdtlh.loc
                     ).
                    
                     
@@ -2206,7 +2236,6 @@ PROCEDURE RecalculateQuantities:
                         ). 
             END.                                 
         END. 
-        
         FOR EACH oe-ordl NO-LOCK 
             WHERE oe-ordl.company EQ bf-itemFG.company 
               AND oe-ordl.opened  EQ YES 
@@ -2247,17 +2276,7 @@ PROCEDURE RecalculateQuantities:
                    INPUT oe-rel.spare-char-1
                    ).                                   
             END. /* EACH oe-rel */
-        END. /* EACH oe-ordl */
-             
-        RUN fg/fg-calcbcst.p(
-            INPUT ROWID(bf-itemFG)
-            ).
-        RUN fg/fg-mkbin.p(
-            INPUT RECID(bf-itemFG)
-            ).
-        RUN fg/fg-reset.p(
-            INPUT RECID(bf-itemfg)
-            ).      
+        END. /* EACH oe-ordl */     
     END.
 END PROCEDURE.
 
@@ -4585,6 +4604,202 @@ PROCEDURE pAdjustTransactionQuantity:
     END.
 END PROCEDURE.
 
+PROCEDURE Inventory_RecalculateQuantities:
+/*------------------------------------------------------------------------------
+ Purpose: Recalculates On-Hand, On-Order, Allocated, Backorder quantities for
+          itemfg and itemfg-loc
+ Notes:   Orignal source: fg/fg-reset.i
+          Deprecates fg/fg-reset.i include file
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriItemfg           AS ROWID   NO-UNDO.
+    DEFINE INPUT PARAMETER iplCalculateOnHand   AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplCalculateOnOrder  AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplCalculateAlloc    AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplCalculateBackOrd  AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE dPartQty      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lRecFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cOeReOrder    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dQtyAllocated AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dQtyBackOrder AS DECIMAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-itemfg     FOR itemfg.
+    DEFINE BUFFER bf-itemfg-loc FOR itemfg-loc.
+    
+    FIND FIRST bf-itemfg EXCLUSIVE-LOCK 
+         WHERE ROWID(bf-itemfg) EQ ipriItemfg
+         NO-ERROR.
+             
+    RUN sys/ref/nk1look.p (
+        INPUT bf-itemfg.company,  /* Company Code */ 
+        INPUT "OEREORDR",         /* sys-ctrl name */
+        INPUT "C",                /* Output return value */
+        INPUT NO,                 /* Use ship-to */
+        INPUT NO,                 /* ship-to vendor */
+        INPUT "",                 /* ship-to vendor value */
+        INPUT "",                 /* ship-id value */
+        OUTPUT cOeReOrder, 
+        OUTPUT lRecFound
+        ).   
+    IF iplCalculateOnHand THEN 
+        bf-itemfg.q-onh = 0.
+    IF iplCalculateOnOrder THEN
+        bf-itemfg.q-ono = 0.
+    IF iplCalculateAlloc THEN 
+        bf-itemfg.q-alloc = 0.
+    IF iplCalculateBackOrd THEN 
+        bf-itemfg.q-back = 0.         
+                     
+    IF bf-itemfg.est-no GT "" THEN 
+        FIND FIRST eb NO-LOCK 
+             WHERE eb.company  EQ bf-itemfg.company 
+               AND eb.est-no   EQ bf-itemfg.est-no 
+               AND eb.stock-no EQ bf-itemfg.i-no
+            NO-ERROR. 
+               
+    FOR EACH bf-itemfg-loc EXCLUSIVE-LOCK
+        WHERE bf-itemfg-loc.company EQ bf-itemfg.company 
+          AND bf-itemfg-loc.i-no    EQ bf-itemfg.i-no: 
+             
+        IF iplCalculateOnHand THEN 
+            bf-itemfg-loc.q-onh = 0.
+        IF iplCalculateOnOrder THEN
+            bf-itemfg-loc.q-ono = 0.
+        IF iplCalculateAlloc THEN 
+            bf-itemfg-loc.q-alloc = 0.
+        IF iplCalculateBackOrd THEN 
+            bf-itemfg-loc.q-back = 0.         
+           
+         /* Set component FGs with the same loc as the current itemfg-loc */
+        IF iplCalculateOnOrder OR iplCalculateAlloc THEN
+            FOR EACH fg-set NO-LOCK 
+                WHERE fg-set.company EQ bf-itemfg.company 
+                  AND fg-set.part-no EQ bf-itemfg.i-no,
+                FIRST itemfg NO-LOCK 
+                WHERE itemfg.company EQ bf-itemfg.company 
+                  AND itemfg.i-no    EQ fg-set.set-no 
+                  AND itemfg.isaset  EQ YES,
+                FIRST itemfg-loc NO-LOCK 
+                WHERE itemfg-loc.company EQ bf-itemfg.company
+                  AND itemfg-loc.i-no    EQ fg-set.set-no 
+                  AND itemfg-loc.loc     EQ bf-itemfg-loc.loc:  
+                dPartQty = (IF AVAILABLE eb AND eb.spare-char-2 = "Y" THEN 1.0 ELSE IF fg-set.qtyPerSet LT 0 THEN (1 / (fg-set.qtyPerSet * -1)) ELSE fg-set.qtyPerSet).
+                IF iplCalculateOnOrder THEN 
+                    bf-itemfg-loc.q-ono   = bf-itemfg-loc.q-ono   + (itemfg-loc.q-ono   * dPartQty).
+                IF iplCalculateAlloc THEN 
+                    bf-itemfg-loc.q-alloc = bf-itemfg-loc.q-alloc + (itemfg-loc.q-alloc * dPartQty).
+            END.
+    END.  
+
+    IF iplCalculateOnOrder OR iplCalculateAlloc THEN
+        FOR EACH fg-set NO-LOCK 
+            WHERE fg-set.company EQ bf-itemfg.company 
+              AND fg-set.part-no EQ bf-itemfg.i-no,
+            FIRST itemfg NO-LOCK 
+            WHERE itemfg.company EQ bf-itemfg.company 
+              AND itemfg.i-no    EQ fg-set.set-no 
+              AND itemfg.isaset  EQ YES:           
+            dPartQty = (IF AVAILABLE eb AND eb.spare-char-2 = "Y" THEN 1.0 ELSE IF fg-set.qtyPerSet LT 0 THEN (1 / (fg-set.qtyPerSet * -1)) ELSE fg-set.qtyPerSet).
+            IF iplCalculateOnOrder THEN 
+                bf-itemfg.q-ono   = bf-itemfg.q-ono   + (itemfg.q-ono   * dPartQty).
+            IF iplCalculateAlloc THEN 
+                bf-itemfg.q-alloc = bf-itemfg.q-alloc + (itemfg.q-alloc * dPartQty).
+        END.
+
+    /*** itemfg.q-onh ***/
+    IF iplCalculateOnHand THEN 
+        FOR EACH fg-bin NO-LOCK 
+            WHERE fg-bin.company EQ bf-itemfg.company 
+              AND fg-bin.i-no    EQ bf-itemfg.i-no:        
+            bf-itemfg.q-onh = bf-itemfg.q-onh + fg-bin.qty.
+        END.
+
+    /*** itemfg.q-ono from jobs and purchase orders***/
+    IF iplCalculateOnOrder THEN
+        RUN fg/calcqono.p(
+            INPUT ROWID(bf-itemfg),
+            OUTPUT bf-itemfg.q-ono
+            ).
+
+    /*** itemfg.q-alloc & itemfg.q-back from customer orders ***/
+    IF iplCalculateAlloc OR iplCalculateBackOrd THEN DO:
+        RUN fg/calcqa&b.p(
+            INPUT ROWID(bf-itemfg),
+            OUTPUT dQtyAllocated, 
+            OUTPUT dQtyBackOrder
+            ).
+        IF iplCalculateAlloc THEN  
+            bf-itemfg.q-alloc = dQtyAllocated.
+        IF iplCalculateBackOrd THEN 
+            bf-itemfg.q-back = dQtyBackOrder.                
+    END.           
+    FOR EACH bf-itemfg-loc EXCLUSIVE-LOCK 
+        WHERE bf-itemfg-loc.company EQ bf-itemfg.company 
+          AND bf-itemfg-loc.i-no    EQ bf-itemfg.i-no:
+              
+        /*** itemfg.q-onh ***/
+        IF iplCalculateOnHand THEN 
+            FOR EACH fg-bin NO-LOCK 
+                WHERE fg-bin.company EQ bf-itemfg-loc.company 
+                  AND fg-bin.i-no    EQ bf-itemfg-loc.i-no 
+                  AND fg-bin.loc     EQ bf-itemfg-loc.loc:   
+                bf-itemfg-loc.q-onh = bf-itemfg-loc.q-onh + fg-bin.qty.
+            END.
+    
+        /*** itemfg.q-ono from jobs and purchase orders***/
+        IF iplCalculateOnOrder THEN 
+            RUN fg/calcqool.p(
+                INPUT  ROWID(bf-itemfg),
+                INPUT  bf-itemfg-loc.loc,
+                OUTPUT bf-itemfg-loc.q-ono
+                ).
+    
+        /*** itemfg.q-alloc & itemfg.q-back from customer orders ***/
+        IF iplCalculateAlloc OR iplCalculateBackOrd THEN DO:
+            RUN fg/calcqabl.p(
+                INPUT  ROWID(bf-itemfg),
+                INPUT  bf-itemfg-loc.loc,
+                OUTPUT dQtyAllocated,
+                OUTPUT dQtyBackOrder
+                ).
+            IF iplCalculateAlloc THEN 
+                 bf-itemfg-loc.q-alloc = dQtyAllocated.
+            IF iplCalculateBackOrd THEN 
+                bf-itemfg-loc.q-back = dQtyBackOrder.           
+         END.       
+    
+        ASSIGN
+            bf-itemfg-loc.q-avail = bf-itemfg-loc.q-onh + (IF cOeReOrder EQ "XOnOrder" THEN 0 ELSE bf-itemfg-loc.q-ono) -
+                                    bf-itemfg-loc.q-alloc.
+    END.  
+    
+    /* This section needed because q-alloc was not being calculated */
+    IF iplCalculateAlloc THEN 
+        FOR EACH fg-set NO-LOCK 
+            WHERE fg-set.company EQ bf-itemfg.company 
+              AND fg-set.part-no EQ bf-itemfg.i-no,
+            FIRST itemfg NO-LOCK 
+            WHERE itemfg.company EQ bf-itemfg.company 
+              AND itemfg.i-no    EQ fg-set.set-no 
+              AND itemfg.isaset  EQ YES,
+            EACH itemfg-loc NO-LOCK 
+            WHERE itemfg-loc.company EQ bf-itemfg.company 
+              AND itemfg-loc.i-no    EQ bf-itemfg.i-no,
+            FIRST bf-itemfg-loc EXCLUSIVE-LOCK 
+            WHERE bf-itemfg-loc.company EQ bf-itemfg.company 
+              AND bf-itemfg-loc.i-no    EQ bf-itemfg.i-no 
+              AND bf-itemfg-loc.loc     EQ bf-itemfg-loc.loc:
+            ASSIGN
+                bf-itemfg-loc.q-alloc = 0
+                dPartQty              = (IF AVAILABLE eb AND eb.spare-char-2 = "Y" THEN 1.0 ELSE IF fg-set.qtyPerSet LT 0 THEN (1 / (fg-set.qtyPerSet * -1)) ELSE fg-set.qtyPerSet)   
+                bf-itemfg-loc.q-alloc = bf-itemfg-loc.q-alloc + (itemfg-loc.q-alloc * dPartQty)
+                .
+        END. 
+    RELEASE bf-itemfg.
+    RELEASE bf-itemfg-loc.
+        
+END PROCEDURE.
+
 PROCEDURE SubmitPhysicalCountScan:
     /*------------------------------------------------------------------------------
      Purpose: Submit Physical Count Scan
@@ -6430,4 +6645,70 @@ FUNCTION fGetVendorTagFromLoadTag RETURNS CHARACTER
         cVendorTag = loadtag.misc-char[1].
 
     RETURN cVendorTag.
+END FUNCTION.
+
+FUNCTION fCheckFgBinTagOnHold RETURNS LOGICAL
+    (ipcCompany AS CHARACTER, ipcItem AS CHARACTER, ipcTag AS CHARACTER):
+    DEFINE VARIABLE lReturnValue AS LOGICAL NO-UNDO.
+   
+    FIND FIRST fg-bin NO-LOCK
+         WHERE fg-bin.company   EQ ipcCompany
+           AND fg-bin.i-no EQ ipcItem
+           AND fg-bin.tag  EQ ipcTag
+           AND fg-bin.qty GT 0
+        NO-ERROR.
+    IF AVAILABLE fg-bin AND fg-bin.onHold THEN
+    lReturnValue = YES.   
+
+    RETURN lReturnValue.
+END FUNCTION.
+
+FUNCTION fItemHasOnHand RETURNS LOGICAL
+    (ipcCompany AS CHARACTER, ipcItem AS CHARACTER):    
+     DEFINE VARIABLE lReturnValue AS LOGICAL NO-UNDO.
+     DEFINE VARIABLE iQtyOnHand AS INTEGER NO-UNDO.
+     FOR EACH rm-bin FIELDS(qty )
+         WHERE rm-bin.company EQ ipcCompany
+         AND rm-bin.i-no EQ ipcItem
+         NO-LOCK:
+          ASSIGN
+          iQtyOnHand = iQtyOnHand + rm-bin.qty.
+      END.   
+      lReturnValue =  iQtyOnHand GT 0 .
+    RETURN lReturnValue.
+END FUNCTION.
+
+FUNCTION fItemIsUsed RETURNS CHARACTER
+    (ipcCompany AS CHARACTER, ipcItem AS CHARACTER):      
+    DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO .
+    
+    FOR EACH po-ordl FIELDS(po-no )  NO-LOCK
+        WHERE po-ordl.company EQ ipcCompany
+        AND po-ordl.i-no EQ  ipcItem
+        AND po-ordl.opened  :
+         cMessage = " Po# " + string(po-ordl.po-no ) .
+         LEAVE.
+    END.
+      
+    IF cMessage EQ "" THEN
+    FOR EACH oe-ordl FIELD(ord-no) NO-LOCK
+        WHERE oe-ordl.company EQ ipcCompany
+        AND oe-ordl.i-no EQ ipcItem
+        AND oe-ordl.opened  :
+         cMessage = " Order# " + string(oe-ordl.ord-no ) .
+         LEAVE.
+    END.
+    IF cMessage EQ "" THEN
+    FOR EACH job-mat NO-LOCK
+        WHERE  job-mat.company EQ ipcCompany
+        AND job-mat.rm-i-no EQ ipcItem, 
+        FIRST job-hdr FIELD(job-no)  NO-LOCK
+        WHERE  job-hdr.company EQ ipcCompany
+        AND job-hdr.job-no EQ job-mat.job-no
+        AND job-hdr.job-no2 EQ job-mat.job-no2
+        AND job-hdr.opened EQ YES :
+          cMessage = " Job# " + string(job-hdr.job-no ) .
+    END.
+
+    RETURN cMessage.
 END FUNCTION.

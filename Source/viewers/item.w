@@ -51,6 +51,9 @@ DEF VAR ect-label AS CHAR NO-UNDO.
 DEF VAR ect-help AS CHAR NO-UNDO.
 DEF VAR ect-format AS CHAR NO-UNDO.
 DEFINE VARIABLE lCheckMessage   AS LOGICAL   NO-UNDO .
+DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
+
+{inventory/ttInventory.i "NEW SHARED"}
 
 DEF BUFFER b-vendItemCost FOR vendItemCost.
 DEF BUFFER b-vendItemCostLevel FOR vendItemCostLevel.
@@ -1035,9 +1038,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.stat V-table-Win
 ON VALUE-CHANGED OF item.stat IN FRAME F-Main /* Status */
 DO:
+    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
     IF item.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "I" THEN do:
-        lCheckMessage = YES .
-        RUN pCheckOnHandQty. 
+        lCheckMessage = YES .   
+        RUN pCheckOnHandQty(OUTPUT lReturnError) . 
+        IF lReturnError THEN RETURN NO-APPLY.
         lCheckMessage = NO .
     END.
     ELSE DO:
@@ -1733,6 +1738,13 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  DO WITH FRAME {&FRAME-NAME}:      
+      IF AVAIL ITEM AND ITEM.stat EQ "" THEN
+      DO:
+         ITEM.stat:SCREEN-VALUE = "A" . 
+      END.
+  END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1746,7 +1758,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   def var is-new-record as log no-undo.
   DEF VAR char-hdl AS CHAR NO-UNDO.
-
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   is-new-record = adm-new-record.
@@ -1959,8 +1971,8 @@ PROCEDURE local-update-record :
         end. 
    end.
    
-   RUN pCheckOnHandQty NO-ERROR.
-   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY. 
+   RUN pCheckOnHandQty (OUTPUT lReturnError) . 
+   IF lReturnError THEN RETURN NO-APPLY. 
    
   /* ======== end validation =================== */
   {&methods/lValidateError.i NO}
@@ -2014,63 +2026,37 @@ PROCEDURE pCheckOnHandQty :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-DEFINE VARIABLE iQtyOnHand AS INTEGER NO-UNDO .
+DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO .
 
   {methods/lValidateError.i YES}
+   RUN inventory\InventoryProcs.p PERSISTENT SET hInventoryProcs.
     DO WITH FRAME {&FRAME-NAME}:
         IF item.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "I" THEN do:
-            FOR EACH fg-bin FIELDS(qty )
-               WHERE fg-bin.company EQ cocode
-                 AND fg-bin.i-no    EQ item.i-no:SCREEN-VALUE
-                 NO-LOCK:
-             ASSIGN
-                iQtyOnHand = iQtyOnHand + fg-bin.qty.
-            END.
+            lReturnError = LOGICAL(DYNAMIC-FUNCTION(
+                           "fItemHasOnHand" IN hInventoryProcs,
+                           cocode,
+                           item.i-no:SCREEN-VALUE)).
             
-            IF iQtyOnHand GT 0 THEN DO:
+            IF lReturnError THEN DO:
                MESSAGE "Remove all on hand quantity in order to make an item inactive." VIEW-AS ALERT-BOX ERROR.
                APPLY "entry" TO item.stat.
-               RETURN ERROR.
+               oplReturnError = YES.
             END.
-        END.
 
-      IF lCheckMessage EQ YES THEN do:
-       FOR EACH po-ordl FIELDS(po-no )  NO-LOCK
-           WHERE po-ordl.company EQ cocode
-           AND po-ordl.i-no EQ  item.i-no:SCREEN-VALUE
-           AND po-ordl.opened  :
-           cMessage = " Po# " + string(po-ordl.po-no ) .
-           LEAVE.
-       END.
-
-       IF cMessage EQ "" THEN
-       FOR EACH oe-ordl FIELD(ord-no) NO-LOCK
-           WHERE oe-ordl.company EQ cocode
-           AND oe-ordl.i-no EQ item.i-no:SCREEN-VALUE
-           AND oe-ordl.opened  :
-           cMessage = " Order# " + string(oe-ordl.ord-no ) .
-           LEAVE.
-       END.
-       IF cMessage EQ "" THEN
-       FOR EACH job-mat NO-LOCK
-          WHERE  job-mat.company EQ cocode
-            AND job-mat.rm-i-no EQ item.i-no:SCREEN-VALUE, 
-           FIRST job-hdr FIELD(job-no)  NO-LOCK
-            WHERE  job-hdr.company EQ cocode
-              AND job-hdr.job-no EQ job-mat.job-no
-              AND job-hdr.job-no2 EQ job-mat.job-no2
-              AND job-hdr.opened EQ YES :
-            cMessage = " Job# " + string(job-hdr.job-no ) .
-       END.
-
-       IF  cMessage NE "" THEN 
+      cMessage = STRING(DYNAMIC-FUNCTION(
+                        "fItemIsUsed" IN hInventoryProcs,
+                         cocode,
+                         item.i-no:SCREEN-VALUE)).
+                  
+       IF lCheckMessage AND cMessage NE "" THEN 
            MESSAGE "You are setting this item to inactive yet it is still included in "  SKIP
                "open/unprocessed transactions.  This includes:" cMessage VIEW-AS ALERT-BOX WARNING .
-
-      END.  /* lCheckMessage */
-          
+      END.          
     END.
+    IF VALID-HANDLE(hInventoryProcs) THEN
+    DELETE OBJECT hInventoryProcs.
 
   {methods/lValidateError.i NO}
 END PROCEDURE.

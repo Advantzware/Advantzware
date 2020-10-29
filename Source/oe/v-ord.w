@@ -296,7 +296,7 @@ oe-ord.cc-num oe-ord.cc-auth oe-ord.spare-char-2
 &Scoped-define FIRST-ENABLED-TABLE oe-ord
 &Scoped-Define ENABLED-OBJECTS fiStatDesc btnCalendar-1 btnCalendar-2 ~
 btnCalendar-3 btnCalendar-4 btnCalendar-5 btnCalendar-6 btnValidate RECT-30 ~
-RECT-33 RECT-35 RECT-36 RECT-37 RECT-34 imgHoldRsn 
+RECT-33 RECT-35 RECT-36 RECT-37 RECT-34 
 &Scoped-Define DISPLAYED-FIELDS oe-ord.ord-no oe-ord.est-no oe-ord.job-no ~
 oe-ord.job-no2 oe-ord.priority oe-ord.po-no oe-ord.user-id oe-ord.cust-no ~
 oe-ord.sold-id oe-ord.ship-id oe-ord.stat oe-ord.contact oe-ord.csrUser_id ~
@@ -418,6 +418,11 @@ DEFINE BUTTON btnCalendar-6
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
+DEFINE BUTTON btnTags 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.2 BY .95 TOOLTIP "Show Details".
+
 DEFINE BUTTON btnValidate 
      LABEL "Validate" 
      SIZE 21 BY 1.05 TOOLTIP "PopUp Calendar".
@@ -481,10 +486,6 @@ DEFINE VARIABLE fi_type AS CHARACTER FORMAT "X"
      VIEW-AS FILL-IN 
      SIZE 3.2 BY 1 TOOLTIP "(O)riginal, (R)epeat, Repeat with (C)hange, inhouse (T)ransfer".
 
-DEFINE IMAGE imgHoldRsn
-     FILENAME "graphics/16x16/question.png":U
-     SIZE 4 BY .95.
-
 DEFINE RECTANGLE RECT-30
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 76.4 BY 4.62.
@@ -515,6 +516,7 @@ DEFINE RECTANGLE RECT-37
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnTags AT ROW 9.33 COL 121.6 WIDGET-ID 34
      fiCustAddress AT ROW 3.71 COL 10.8 COLON-ALIGNED NO-LABEL WIDGET-ID 18
      fiStatDesc AT ROW 9.33 COL 87 COLON-ALIGNED NO-TAB-STOP 
      fiShipName AT ROW 6.86 COL 23.8 COLON-ALIGNED NO-LABEL WIDGET-ID 28
@@ -753,7 +755,6 @@ DEFINE FRAME F-Main
      RECT-36 AT ROW 13.71 COL 1.6
      RECT-37 AT ROW 2.52 COL 1.6
      RECT-34 AT ROW 9.1 COL 78 WIDGET-ID 14
-     imgHoldRsn AT ROW 9.33 COL 122
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -831,6 +832,8 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-6 IN FRAME F-Main
    3                                                                    */
+/* SETTINGS FOR BUTTON btnTags IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnValidate IN FRAME F-Main
    3                                                                    */
 /* SETTINGS FOR FILL-IN oe-ord.cc-auth IN FRAME F-Main
@@ -1220,6 +1223,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnTags
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTags V-table-Win
+ON CHOOSE OF btnTags IN FRAME F-Main
+DO:
+    RUN system/d-TagViewer.w (
+        INPUT oe-ord.rec_key,
+        INPUT ""
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnValidate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnValidate V-table-Win
 ON CHOOSE OF btnValidate IN FRAME F-Main /* Validate */
@@ -1507,17 +1524,6 @@ ON RETURN OF oe-ord.frt-pay IN FRAME F-Main /* Freight Pay Code */
 DO:
    APPLY "tab" TO SELF.
    RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME imgHoldRsn
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imgHoldRsn V-table-Win
-ON MOUSE-SELECT-CLICK OF imgHoldRsn IN FRAME F-Main
-DO:
-    RUN sys/ref/dlgTagVwr.w (oe-ord.rec_key,"","").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2992,7 +2998,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE del-detail-recs V-table-Win 
 PROCEDURE del-detail-recs :
 /*------------------------------------------------------------------------------
@@ -3851,6 +3856,10 @@ v-est-no = oe-ord.est-no:screen-value IN FRAME {&frame-name}.
 RUN util/rjust.p (INPUT-OUTPUT v-est-no,8).
 oe-ord.est-no:screen-value IN FRAME {&frame-name} = v-est-no.
 
+FIND FIRST oe-ctrl  NO-LOCK
+     WHERE oe-ctrl.company EQ g_company 
+     NO-ERROR.
+
 FIND FIRST xest
     WHERE xest.company EQ cocode
       AND xest.est-no  EQ v-est-no 
@@ -3948,6 +3957,14 @@ IF AVAIL xest THEN DO:
          v-job-no2 = 0.
 
         RUN display-cust-detail (RECID(cust)).
+        
+        IF oe-ord.stat:SCREEN-VALUE EQ "H" AND AVAIL oe-ctrl AND NOT oe-ctrl.p-job THEN
+        DO:
+             ASSIGN
+             v-job-no  = ""
+             v-job-no2 = 0.
+             RUN displayMessage ( INPUT "48").
+        END.        
 
       ASSIGN oe-ord.sold-id:screen-value   = eb.cust-no /** DEFAULT to first SOLD to **/
              oe-ord.sman[1]:screen-value   = eb.sman
@@ -5361,7 +5378,8 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF VAR cStatDesc AS CHAR NO-UNDO.
+    DEFINE VARIABLE cStatDesc  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
     
   /* Code placed here will execute PRIOR to standard behavior. */
   IF AVAIL oe-ord AND NOT adm-new-record THEN DO:
@@ -5386,6 +5404,17 @@ PROCEDURE local-display-fields :
         ASSIGN 
             fiStatDesc:SCREEN-VALUE IN FRAME {&frame-name} = cStatDesc
             oe-ord.spare-char-2:SCREEN-VALUE = cStatDesc.
+            
+         RUN Tag_IsTagRecordAvailable(
+             INPUT oe-ord.rec_key,
+             INPUT "oe-ord",
+             OUTPUT lAvailable
+             ).
+           IF lAvailable THEN  
+               btnTags:SENSITIVE = TRUE
+               .
+           ELSE 
+               btnTags:SENSITIVE = FALSE.            
     END.
 
   RUN pDisplayAddresses.
@@ -6191,7 +6220,8 @@ PROCEDURE pGetOverUnderPct :
     RUN oe/GetOverUnderPct.p(g_company,
                            oe-ord.cust-no:SCREEN-VALUE ,
                            TRIM(oe-ord.ship-id:SCREEN-VALUE),
-                           OUTPUT dOverPer , OUTPUT dUnderPer ) .
+                           "", /* FG Item*/
+                           OUTPUT dOverPer , OUTPUT dUnderPer ) .  
                            oe-ord.over-pct:SCREEN-VALUE = STRING(dOverPer).
                            oe-ord.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
   END.

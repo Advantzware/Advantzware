@@ -543,3 +543,15 @@ PROCEDURE pIsValidARClass:
         &ValidateMessage = "AR Class Id"}
         
 END PROCEDURE.
+
+PROCEDURE pIsValidMachCode:
+    /*------------------------------------------------------------------------------
+    Purpose:  Validates Machine Code
+    Notes: Input 1 = Mach Code
+    ------------------------------------------------------------------------------*/
+    {util/dev/validate.i
+        &ValidateTable = "mach" 
+        &ValidateField = "m-code"        
+        &ValidateMessage = "Machine Code"}
+        
+END PROCEDURE.

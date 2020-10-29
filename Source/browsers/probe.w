@@ -169,6 +169,7 @@ DEFINE VARIABLE gcEstimateFont AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
 DEFINE VARIABLE iLinePerPage AS INTEGER NO-UNDO .
 DEFINE VARIABLE hdEstimateProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lCEVersion AS LOGICAL NO-UNDO.
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -182,6 +183,11 @@ IF lRecFound THEN
   RUN sys/ref/nk1look.p (INPUT cocode, "CEFormatFont", "C" /* Character */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT gcEstimateFont, OUTPUT lRecFound).
+    
+ RUN sys/ref/nk1look.p (cocode, "CEVersion", "C" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cRtnChar, OUTPUT lRecFound).
+    lCEVersion = lRecFound AND cRtnChar EQ "New".   
     
 FIND FIRST sys-ctrl NO-LOCK WHERE
     sys-ctrl.company EQ cocode AND
@@ -608,7 +614,8 @@ ASSIGN
 ASSIGN 
        probe.comm:VISIBLE IN BROWSE br_table = FALSE
        probe.sell-price:AUTO-RESIZE IN BROWSE br_table = TRUE.
-
+ IF NOT lCEVersion THEN
+       probe.tot-lbs:VISIBLE IN BROWSE br_table = FALSE.
 
 /* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
    NO-ENABLE                                                            */

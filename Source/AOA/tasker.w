@@ -171,8 +171,8 @@ DEFINE BUTTON btnClearPendingEmails
 DEFINE VARIABLE showLogging AS LOGICAL 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
-          "Show Logging", yes,
-"Hide Logging", no
+          "Show Logging", YES,
+"Hide Logging", NO
      SIZE 34 BY .91 TOOLTIP "Show/Hide Logging Panel" NO-UNDO.
 
 /* Query definitions                                                    */
@@ -271,15 +271,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -303,7 +303,7 @@ IF NOT C-Win:LOAD-ICON("Graphics/32x32/jss_icon_32.ico":U) THEN
 /* BROWSE-TAB EmailBrowse btnClearIsRunning DEFAULT-FRAME */
 /* BROWSE-TAB AuditBrowse btnClearPendingEmails DEFAULT-FRAME */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -378,8 +378,8 @@ CREATE CONTROL-FRAME CtrlFrame ASSIGN
        HEIGHT          = 4.76
        WIDTH           = 20
        WIDGET-ID       = 2
-       HIDDEN          = yes
-       SENSITIVE       = yes.
+       HIDDEN          = YES
+       SENSITIVE       = YES.
 /* CtrlFrame OCXINFO:CREATE-CONTROL from: {F0B88A90-F5DA-11CF-B545-0020AF6ED35A} type: PSTimer */
       CtrlFrame:MOVE-AFTER(btnClearPendingEmails:HANDLE IN FRAME DEFAULT-FRAME).
 
@@ -716,12 +716,13 @@ PROCEDURE pRunCommand :
 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER opcRun AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE cDLC   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cEXE   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cParam AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE idx    AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE jdx    AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE lSkip  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cDLC      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEXE      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParam    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPassword AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE jdx       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lSkip     AS LOGICAL   NO-UNDO.
     
     GET-KEY-VALUE SECTION 'STARTUP'
         KEY 'DLC'
@@ -751,9 +752,13 @@ PROCEDURE pRunCommand :
     DO idx = 1 TO NUM-DBS:
         opcRun = opcRun + REPLACE(DBPARAM(idx),","," ") + " ".
     END. /* do idx */
+    RUN spGetSessionParam ("Password", OUTPUT cPassword).
+    IF cPassword NE "" THEN
+    cPassword = " -U " + USERID("ASI") + " -P " + cPassword.
     opcRun = cEXE
            + REPLACE(opcRun,"-U " + USERID("ASI") + " -P","")
-           + "-p &1 -param &2"
+           + cPassword
+           + " -p &1 -param &2"
            + " -debugalert"
            .
 
@@ -984,7 +989,7 @@ PROCEDURE pWinReSize :
             FRAME {&FRAME-NAME}:WIDTH  = {&WINDOW-NAME}:WIDTH
             BROWSE AuditBrowse:ROW     = 1
             .
-        IF showLogging then
+        IF showLogging THEN
         ASSIGN
             BROWSE TaskBrowse:HEIGHT   = FRAME {&FRAME-NAME}:HEIGHT / 2
             BROWSE EmailBrowse:HEIGHT  = BROWSE TaskBrowse:HEIGHT

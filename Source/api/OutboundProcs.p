@@ -180,7 +180,7 @@ PROCEDURE Outbound_GetAPIClientTransCount:
     
     DEFINE BUFFER bf-apiClient FOR apiClient.
 
-    FIND FIRST bf-apiClient EXCLUSIVE-LOCK
+    FIND FIRST bf-apiClient NO-LOCK
          WHERE bf-apiClient.company  EQ ipcCompany
            AND bf-apiClient.clientID EQ ipcClientID
          NO-ERROR.
@@ -225,6 +225,29 @@ PROCEDURE Outbound_GetAPIID:
             opcMessage = "Outbound configuration for API ID ["
                        + ipcAPIID + "] is not available or inactive"
             .
+END PROCEDURE.
+
+PROCEDURE Outbound_GetAPIStatus:
+/*------------------------------------------------------------------------------
+ Purpose: Given a company, api id and client id returns the status 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplInActive AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
+    
+    oplInActive = TRUE.
+       
+    FIND FIRST bf-APIOutbound NO-LOCK
+         WHERE bf-APIOutbound.company  EQ ipcCompany
+           AND bf-APIOutbound.apiID    EQ ipcAPIID
+           AND bf-APIOutbound.clientID EQ ipcClientID 
+         NO-ERROR.
+    IF AVAILABLE bf-APIOutbound THEN
+        oplInactive = bf-APIOutbound.inActive.
 END PROCEDURE.
 
 PROCEDURE Outbound_GetAPITransCount:
@@ -404,9 +427,19 @@ PROCEDURE Outbound_IncrementAPITransactionCounter:
     DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
     DEFINE BUFFER bf-apiClient   FOR apiClient.
         
-    FIND FIRST bf-APIOutbound EXCLUSIVE-LOCK
+    FIND FIRST bf-APIOutbound NO-LOCK
          WHERE bf-APIOutbound.apiOutboundID EQ ipiAPIOutboundID 
          NO-ERROR.
+    /* If record not available then return */
+    IF NOT AVAILABLE bf-APIOutbound THEN
+        RETURN.
+    
+    /* If record is available and autoIncrement flag is set to false then return */
+    IF NOT bf-APIOutbound.autoIncrement THEN
+        RETURN.
+
+    FIND CURRENT bf-APIOutbound EXCLUSIVE-LOCK NO-ERROR.
+    
     IF AVAILABLE bf-APIOutbound THEN DO:
         bf-APIOutbound.transactionCounter = bf-APIOutbound.transactionCounter + 1.
     
@@ -965,12 +998,13 @@ PROCEDURE Outbound_GetAPIsForScopeID:
     DEFINE INPUT  PARAMETER ipcScopeID   AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE FOR ttScopes.
     
-    DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
+    DEFINE BUFFER bf-APIOutbound   FOR APIOutbound.
     DEFINE BUFFER bf-apiClientXref FOR apiClientXref.
     
     FOR EACH bf-APIOutbound NO-LOCK
         WHERE bf-APIOutbound.company  EQ ipcCompany
-          AND bf-APIOutbound.inactive EQ FALSE:
+          AND bf-APIOutbound.inactive EQ FALSE
+          BY bf-APIOutbound.apiID:
         FOR EACH bf-apiClientXref NO-LOCK
             WHERE bf-apiClientXref.company  EQ bf-APIOutbound.company
               AND bf-apiClientXref.apiID    EQ bf-APIOutbound.apiID
@@ -1014,14 +1048,18 @@ PROCEDURE Outbound_GetAPIsForScopeID:
                                            ELSE
                                                bf-apiClientXref.triggerID
                 ttScopes.inactive        = bf-apiClientXref.inactive
+                ttScopes.locValidation   = bf-APIOutbound.useLocationValidation
                 ttScopes.riApiClientXref = ROWID(bf-apiClientXref)
                 .
 
             IF bf-apiClientXref.scopeType EQ cScopeTypeCustomer THEN
-                ttScopes.customerID = IF bf-apiClientXref.scopeID EQ cAPIClientXrefAny THEN
-                                          "ANY"
-                                      ELSE
-                                          bf-apiClientXref.scopeID.
+                ASSIGN
+                    ttScopes.customerID = IF bf-apiClientXref.scopeID EQ cAPIClientXrefAny THEN
+                                              "ANY"
+                                          ELSE
+                                              bf-apiClientXref.scopeID.
+                    ttScopes.shipToID   = "ANY"
+                    .
 
             IF bf-apiClientXref.scopeType EQ cScopeTypeShipTo THEN
                 ASSIGN
@@ -1029,7 +1067,7 @@ PROCEDURE Outbound_GetAPIsForScopeID:
                                               "ANY"
                                           ELSE
                                               ENTRY(1, bf-apiClientXref.scopeID, "|")
-                    ttScopes.shipToiD   = IF bf-apiClientXref.scopeID EQ cAPIClientXrefAny THEN
+                    ttScopes.shipToID   = IF bf-apiClientXref.scopeID EQ cAPIClientXrefAny THEN
                                               "ANY"
                                           ELSE
                                               ENTRY(2, bf-apiClientXref.scopeID, "|")
@@ -1039,9 +1077,9 @@ PROCEDURE Outbound_GetAPIsForScopeID:
                 ttScopes.vendorID = IF bf-apiClientXref.scopeID EQ cAPIClientXrefAny THEN
                                         "ANY"
                                     ELSE
-                                        bf-apiClientXref.scopeID.
+                                        bf-apiClientXref.scopeID.            
         END.
-    END.
+    END.   
 END PROCEDURE.
 
 PROCEDURE pInitializeRequest PRIVATE:

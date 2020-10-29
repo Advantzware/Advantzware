@@ -240,7 +240,8 @@ IF AVAILABLE ap-inv THEN DO:
                 RUN AddTagHold IN hdTagProcs (
                     INPUT ap-inv.REC_KEY,
                     INPUT "ap-inv",
-                    INPUT ENTRY(iIndex, cHoldMessage, "|")
+                    INPUT ENTRY(iIndex, cHoldMessage, "|"),
+                    INPUT STRING(ap-inv.inv-no)
                     ).
             END.
         END.

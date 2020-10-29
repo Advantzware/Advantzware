@@ -241,6 +241,7 @@ DEFINE VARIABLE v-due-qty           LIKE oe-rel.tot-qty EXTENT 4 NO-UNDO.
 DEFINE VARIABLE icount              AS INTEGER   INITIAL 0 NO-UNDO.
 DEFINE VARIABLE v-max-qty           AS INTEGER   NO-UNDO .
 DEFINE VARIABLE v-min-qty           AS INTEGER   NO-UNDO .
+DEFINE VARIABLE cOrdQty             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE v-reprun            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE v-brd-code          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE v-item-desc         AS CHARACTER NO-UNDO.
@@ -290,6 +291,7 @@ DEFINE VARIABLE cShpDoc AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dQtyTray AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cSize    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dDueDate    LIKE oe-ord.due-date NO-UNDO.
+DEFINE VARIABLE dPoReceivedDate AS DATE NO-UNDO.
 DEFINE VARIABLE dLastDate LIKE oe-ord.last-date NO-UNDO.
 DEFINE VARIABLE cFrtCls LIKE itemfg.frt-class NO-UNDO.
 DEFINE VARIABLE cFrtClsDscr LIKE itemfg.frt-class-dscr NO-UNDO.
@@ -487,7 +489,8 @@ FOR EACH job-hdr NO-LOCK
         ASSIGN
             dDueDate = if avail oe-ord then oe-ord.due-date else ?
             v-start-date = job-hdr.start-date
-            dLastDate = if avail oe-ord then oe-ord.last-date else ?.
+            dLastDate = if avail oe-ord then oe-ord.last-date else ?
+            dPoReceivedDate = if avail oe-ord then oe-ord.poReceivedDate else ? .
 
         IF NOT FIRST(job-hdr.job-no) THEN PAGE.
         
@@ -559,6 +562,7 @@ FOR EACH job-hdr NO-LOCK
       RUN XMLOutput (lXMLOutput,'Job2',v-job-no2,'Col').
       RUN XMLOutput (lXMLOutput,'Order',iOrder,'Col').
       RUN XMLOutput (lXMLOutput,'NUMBER_UP',v-upnew,'Col').
+      RUN XMLOutput (lXMLOutput,'Job_Start_date',v-start-date,'Col').
       RUN XMLOutput (lXMLOutput,'QC_SPC',v-spc-no,'Col').
       RUN XMLOutput (lXMLOutput,'Category',cProCat,'Col').
       RUN XMLOutput (lXMLOutput,'UserId',cEnterBy,'Col').
@@ -647,7 +651,9 @@ FOR EACH job-hdr NO-LOCK
             cDockAptmnt = STRING(cust.area-code,"(999)") + "        " + STRING(bank.phone,"999-9999")
             cContact = cust.contact  
             v-max-qty =  INTEGER ( oe-ordl.qty + oe-ordl.qty * (DECIMAL(lv-over-run) / 100) )
-            v-min-qty =  INTEGER ( oe-ordl.qty - oe-ordl.qty * (DECIMAL(lv-under-run) / 100)) .
+            v-min-qty =  INTEGER ( oe-ordl.qty - oe-ordl.qty * (DECIMAL(lv-under-run) / 100)) 
+            cOrdQty   =  IF AVAILABLE oe-ordl THEN STRING(oe-ordl.qty,"->,>>>,>>9") ELSE "0"
+            .
         IF AVAILABLE oe-ord THEN
             v-per-ord   = IF oe-ord.po-no2 NE "" THEN oe-ord.po-no2 ELSE STRING(oe-ord.pord-no) .
         IF AVAILABLE oe-ord AND oe-ord.TYPE EQ "T" AND oe-ord.pord-no GT 0 THEN
@@ -658,6 +664,7 @@ FOR EACH job-hdr NO-LOCK
        RUN XMLOutput (lXMLOutput,'max_qty',v-max-qty,'Col').
        RUN XMLOutput (lXMLOutput,'job_qty',job-hdr.qty,'Col').
        RUN XMLOutput (lXMLOutput,'min_qty',v-min-qty,'Col').
+       RUN XMLOutput (lXMLOutput,'ord_qty',cOrdQty,'Col').
        RUN XMLOutput (lXMLOutput,'OverRun',lv-over-run,'Col').
        RUN XMLOutput (lXMLOutput,'UnderRun',lv-under-run,'Col').
        RUN XMLOutput (lXMLOutput,'Account_code',job-hdr.cust-no,'Col').
@@ -1089,6 +1096,8 @@ FOR EACH job-hdr NO-LOCK
                   RUN XMLOutput (lXMLOutput,'Code',ef.m-code,'Col').
                   RUN XMLOutput (lXMLOutput,'MRWaste',iMrWaste,'Col').
                   RUN XMLOutput (lXMLOutput,'Stock_Code',IF AVAIL job-mat THEN  job-mat.rm-i-no ELSE "",'Col').
+                  RUN XMLOutput (lXMLOutput,'Board_Code',IF AVAIL item THEN ITEM.i-name ELSE "",'Col').
+                  RUN XMLOutput (lXMLOutput,'Grain',ef.xgrain,'Col').
                   RUN XMLOutput (lXMLOutput,'Sheet_Size',string(ef.gsh-wid) + "  X  " + string(ef.gsh-len),'Col').
                   RUN XMLOutput (lXMLOutput,'MRHours',dMrHour,'Col').
                   RUN XMLOutput (lXMLOutput,'Board_Paper',cPoItemName,'Col').
@@ -1453,6 +1462,7 @@ FOR EACH job-hdr NO-LOCK
            RUN XMLOutput (lXMLOutput,'code',ef.m-code,'Col').
            RUN XMLOutput (lXMLOutput,'MR_Waste',iMrWaste,'Col').
            RUN XMLOutput (lXMLOutput,'case_no',eb.cas-no,'Col').
+           RUN XMLOutput (lXMLOutput,'Tray',eb.layer-pad,'Col').
            RUN XMLOutput (lXMLOutput,'Size',string(item.case-w) + "  x  " + STRING(item.case-l) + "  x  " + STRING(item.case-d),'Col').
            RUN XMLOutput (lXMLOutput,'MR_Hours',dMrHour,'Col').
            RUN XMLOutput (lXMLOutput,'Units_perCase',eb.cas-cnt,'Col').
@@ -1479,6 +1489,8 @@ FOR EACH job-hdr NO-LOCK
            RUN XMLOutput (lXMLOutput,'/RollExamining','','Row').
            
            RUN XMLOutput (lXMLOutput,'TicketPrint','','Row').
+           RUN XMLOutput (lXMLOutput,'PO_Received_Date',dPoReceivedDate,'Col'). 
+           RUN XMLOutput (lXMLOutput,'MFG_Date',v-due-date,'Col').           
            RUN XMLOutput (lXMLOutput,'Requested_Date',dDueDate,'Col').
            RUN XMLOutput (lXMLOutput,'Ship_Due_Date',dLastDate,'Col').
            RUN XMLOutput (lXMLOutput,'Ship_id',eb.ship-id,'Col').

@@ -338,7 +338,7 @@ DO:
                 FIND job-hdr WHERE RECID(job-hdr) = rec-val NO-LOCK NO-ERROR.
                 IF AVAIL job-hdr THEN 
                    ASSIGN pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = job-hdr.job-no
-                          pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = string(job-hdr.job-no2)
+                          pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(job-hdr.job-no2)
                           pc-prdd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = job-hdr.i-no
                           li-help-job = job-hdr.job.
                             
@@ -522,6 +522,30 @@ PROCEDURE local-create-record :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetChargeCode B-table-Win
+PROCEDURE pGetChargeCode:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcChargeCode AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE idx AS INTEGER NO-UNDO.
+    
+    {methods/run_link.i "RECORD-TARGET" "pGetChargeCode" "(OUTPUT opcChargeCode)"}
+    DO idx = 1 TO NUM-ENTRIES(char-hdl):
+        phandle = WIDGET-HANDLE(ENTRY(idx,char-hdl)).
+        IF INDEX(phandle:NAME,"b-prddj2.") NE 0 THEN DO:
+            RUN pGetChargeCode IN phandle (OUTPUT opcChargeCode).
+            LEAVE.
+        END. /* if index */
+    END. /* do idx */
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

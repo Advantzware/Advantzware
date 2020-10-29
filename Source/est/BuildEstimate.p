@@ -349,7 +349,17 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
         ASSIGN  
             est.estimateTypeID = "MISC" 
             eb.pur-man         = YES 
-            eb.sourceEstimate  = ttInputEst.cSourceEst.
+            eb.sourceEstimate  = ttInputEst.cSourceEst
+            eb.flute           = ttInputEst.cFlute
+            eb.test            = ttInputEst.cTest
+            eb.cad-no          = ttInputEst.cCadID
+            eb.spc-no          = ttInputEst.cProject
+            ef.cost-msh        = ttInputEst.dMSF
+            ef.fr-msh          = ttInputEst.dForceFrt
+            ef.fr-uom          = ttInputEst.cForceFrtUom
+            ef.adder[7]        = ttInputEst.cAddersDscr1
+            ef.adder[8]        = ttInputEst.cAddersDscr2
+            ef.adder[9]        = ttInputEst.cAddersDscr3.
              
       FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
       FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.

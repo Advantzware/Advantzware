@@ -65,6 +65,7 @@ DEFINE VARIABLE cVendItemCostVendor AS CHAR NO-UNDO.
 DEFINE VARIABLE cVendItemCostCustomer AS CHAR NO-UNDO.
 DEFINE VARIABLE cVendItemCostForm# AS CHAR NO-UNDO.
 DEFINE VARIABLE cVendItemCostBlank# AS CHAR NO-UNDO.
+DEFINE VARIABLE lCheckEditMode AS LOGICAL NO-UNDO.
 &Scoped-define VendItemCostCreateAfter procCreateAfter
 
 /* _UIB-CODE-BLOCK-END */
@@ -925,6 +926,7 @@ PROCEDURE local-cancel-record :
   RUN set-panel (1).
   adm-adding-record = NO .
   adm-new-record = NO .
+  lCheckEditMode = NO.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1083,7 +1085,7 @@ PROCEDURE local-update-record :
   
   adm-adding-record = NO .
   adm-new-record = NO .
-
+  lCheckEditMode = NO.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1113,7 +1115,7 @@ PROCEDURE proc-enable :
              venditemCost.blankNo 
                     /*vendItemCost.effectiveDate vendItemCost.ExpirationDate*/ .
      END.  
-
+     lCheckEditMode = YES.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1603,7 +1605,7 @@ PROCEDURE vendcost-newitem :
 ------------------------------------------------------------------------------*/
 DEF OUTPUT PARAMETER oplExists AS LOG NO-UNDO.
 
-ASSIGN oplExists = adm-new-record .
+ASSIGN oplExists = lCheckEditMode .
 
 END PROCEDURE.
 
