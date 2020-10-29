@@ -244,6 +244,7 @@
        WHEN "CSCINStamp" THEN ASSIGN v-program = "oe/rep/bolcstmp.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "SouthPak" THEN ASSIGN v-program = "oe/rep/bolsouth.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "SouthPak-XL" THEN ASSIGN v-program = "oe/rep/bolsouth-xl.p" is-xprint-form = YES lines-per-page = 66.
+       WHEN "Mclean-Excel" THEN ASSIGN v-program = "oe/rep/bolmclean-xl.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "Prystup-Excel" THEN ASSIGN v-program = "oe/rep/bolpryst-xl.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "MWBox" THEN ASSIGN v-program = "oe/rep/bolmwbox.p" is-xprint-form = YES lines-per-page = 66.
        WHEN "Hughes" THEN ASSIGN v-program = "oe/rep/bolhughm.p" is-xprint-form = YES lines-per-page = 70.
