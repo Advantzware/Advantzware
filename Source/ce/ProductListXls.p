@@ -20,6 +20,7 @@ DEFINE VARIABLE CommandString      AS CHARACTER        NO-UNDO.
 DEFINE VARIABLE v-dir              AS CHARACTER        FORMAT "X(80)" NO-UNDO.
 DEFINE VARIABLE iRowCount          AS INTEGER          NO-UNDO.
 DEFINE VARIABLE iQtyOnHand         AS INTEGER          NO-UNDO.
+DEFINE VARIABLE cPrintItem         AS CHARACTER        NO-UNDO.
 
 DEFINE TEMP-TABLE tt-temp-table LIKE eb
     FIELD board LIKE ef.board. 
@@ -96,38 +97,41 @@ PROCEDURE FillData:
             iSheetQty =  iSheetQty + probe.gsh-qty .
         END.
       
-        IF FIRST-OF(tt-temp-table.board) AND tt-temp-table.board NE "" THEN
+        IF  tt-temp-table.board NE "" THEN
         DO:
-      
-            FIND FIRST ITEM NO-LOCK
-                WHERE ITEM.company EQ tt-temp-table.company
-                AND ITEM.i-no EQ tt-temp-table.board NO-ERROR .
-                      
-            ASSIGN 
-                chWorkSheet:Range("A" + STRING(iRowCount)):value = ITEM.i-name .
+            IF LOOKUP(tt-temp-table.board,cPrintItem) EQ 0 THEN 
+            do:
+                FIND FIRST ITEM NO-LOCK
+                    WHERE ITEM.company EQ tt-temp-table.company
+                    AND ITEM.i-no EQ tt-temp-table.board NO-ERROR .
+                          
+                ASSIGN 
+                    chWorkSheet:Range("A" + STRING(iRowCount)):value = ITEM.i-name .
+                
+                IF AVAILABLE ITEM THEN     
+                    chWorkSheet:Range("B" + STRING(iRowCount)):value = STRING(ITEM.s-len) + "x" + STRING(ITEM.s-wid).
+                
+               /*IF ITEM.mat-type EQ "B" THEN*/
+               chWorkSheet:Range("C" + STRING(iRowCount)):value = ITEM.i-name . 
+                iQtyOnHand = 0.
+                FOR EACH rm-bin FIELDS(qty )
+                    WHERE rm-bin.company EQ tt-temp-table.company
+                    AND rm-bin.i-no EQ tt-temp-table.board
+                    NO-LOCK:
+                    ASSIGN
+                        iQtyOnHand = iQtyOnHand + rm-bin.qty.
+                END.  
+                chWorkSheet:Range("D" + STRING(iRowCount)):value = STRING(iQtyOnHand) . 
+                chWorkSheet:Range("E" + STRING(iRowCount)):value = STRING(iSheetQty - iQtyOnHand) .
+                
+                RUN pGetWastePer( BUFFER tt-temp-table, OUTPUT dWastePer) .
+                chWorkSheet:Range("F" + STRING(iRowCount)):value = STRING(dWastePer) .
+                iRowCount = iRowCount + 1.
+                cPrintItem = cPrintItem + tt-temp-table.board + "," . 
+            END.
             
-            IF AVAILABLE ITEM THEN     
-                chWorkSheet:Range("B" + STRING(iRowCount)):value = STRING(ITEM.s-len) + "x" + STRING(ITEM.s-wid).
             
-           /*IF ITEM.mat-type EQ "B" THEN*/
-           chWorkSheet:Range("C" + STRING(iRowCount)):value = ITEM.i-name . 
-            iQtyOnHand = 0.
-            FOR EACH rm-bin FIELDS(qty )
-                WHERE rm-bin.company EQ tt-temp-table.company
-                AND rm-bin.i-no EQ tt-temp-table.board
-                NO-LOCK:
-                ASSIGN
-                    iQtyOnHand = iQtyOnHand + rm-bin.qty.
-            END.  
-            chWorkSheet:Range("D" + STRING(iRowCount)):value = STRING(iQtyOnHand) . 
-            chWorkSheet:Range("E" + STRING(iRowCount)):value = STRING(iSheetQty - iQtyOnHand) .
-            
-            RUN pGetWastePer( BUFFER tt-temp-table, OUTPUT dWastePer) .
-            chWorkSheet:Range("F" + STRING(iRowCount)):value = STRING(dWastePer) .
-            iRowCount = iRowCount + 1.
-            
-            
-            IF tt-temp-table.cas-no NE "" THEN
+            IF tt-temp-table.cas-no NE "" AND LOOKUP(tt-temp-table.cas-no,cPrintItem) EQ 0 THEN
             DO:
                  FIND FIRST ITEM NO-LOCK
                     WHERE ITEM.company EQ tt-temp-table.company
@@ -151,8 +155,9 @@ PROCEDURE FillData:
                 chWorkSheet:Range("D" + STRING(iRowCount)):value = STRING(iQtyOnHand) .    
                 chWorkSheet:Range("F" + STRING(iRowCount)):value = STRING(dWastePer) .           
                iRowCount = iRowCount + 1. 
+               cPrintItem = cPrintItem + tt-temp-table.cas-no + "," .
             END.
-            IF tt-temp-table.layer-pad NE "" THEN
+            IF tt-temp-table.layer-pad NE "" AND LOOKUP(tt-temp-table.layer-pad,cPrintItem) EQ 0 THEN
             DO:
                  FIND FIRST ITEM NO-LOCK
                     WHERE ITEM.company EQ tt-temp-table.company
@@ -175,6 +180,7 @@ PROCEDURE FillData:
                 chWorkSheet:Range("D" + STRING(iRowCount)):value = STRING(iQtyOnHand) .                  
                 chWorkSheet:Range("F" + STRING(iRowCount)):value = STRING(dWastePer) .          
                iRowCount = iRowCount + 1. 
+               cPrintItem = cPrintItem + tt-temp-table.layer-pad + "," .
             END.
         END.           
       
@@ -184,7 +190,7 @@ PROCEDURE FillData:
             AND estPacking.FormNo     = tt-temp-table.form-no 
             AND estPacking.BlankNo    = tt-temp-table.blank-No BREAK BY estPacking.rmItemID :                    
           
-            IF FIRST-OF(estPacking.rmItemID) THEN
+            IF FIRST-OF(estPacking.rmItemID) AND LOOKUP( estPacking.rmItemID,cPrintItem) EQ 0 THEN
             DO:          
                 FIND FIRST ITEM NO-LOCK
                     WHERE ITEM.company EQ tt-temp-table.company
@@ -223,7 +229,8 @@ PROCEDURE FillData:
                 chWorkSheet:Range("E" + STRING(iRowCount)):value = STRING(dQtyPerMaterial) .
                 chWorkSheet:Range("F" + STRING(iRowCount)):value = STRING(dWastePer) .
                             
-                iRowCount = iRowCount + 1.                
+                iRowCount = iRowCount + 1.
+                cPrintItem = cPrintItem + estPacking.rmItemID + "," .
             END.          
         END.      
     END.
