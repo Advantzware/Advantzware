@@ -40,6 +40,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE hdRMInquiry    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdRMInquiryWin AS HANDLE    NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -405,6 +407,49 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ViewRMInquiry B-table-Win 
+PROCEDURE ViewRMInquiry :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF NOT AVAILABLE job-mat THEN
+        RETURN.
+        
+    IF NOT VALID-HANDLE(hdRMInquiry) THEN DO:         
+        RUN sharpshooter/w-rmInquiry.w PERSISTENT SET hdRMInquiry.
+
+        RUN dispatch IN hdRMInquiry (
+            INPUT 'initialize':U
+            ) NO-ERROR.
+        
+        hdRMInquiryWin = hdRMInquiry:CURRENT-WINDOW.
+    END.
+                                                 
+    IF VALID-HANDLE(hdRMInquiry) AND
+        VALID-HANDLE(hdRMInquiryWin) THEN DO: 
+
+        RUN ScanItem IN hdRMInquiry (
+            INPUT job-mat.company,
+            INPUT "",
+            INPUT "",
+            INPUT job-mat.rm-i-no,
+            INPUT "",
+            INPUT job-mat.job-no,
+            INPUT job-mat.job-no2
+            ) NO-ERROR.            
+
+        IF hdRMInquiryWin:WINDOW-STATE EQ 2 THEN ASSIGN 
+            hdRMInquiryWin:WINDOW-STATE = 3.
+        
+        hdRMInquiryWin:MOVE-TO-TOP().
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
