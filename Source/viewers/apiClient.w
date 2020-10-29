@@ -38,16 +38,17 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 {custom/globdefs.i}
 {sys/inc/var.i}
+{sys/inc/varasgn.i}
 
-ASSIGN
-    cocode = g_company
-    locode = g_loc
-    .
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE cAPIID    AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cClientID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPIID     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cClientID  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAPIStatus AS LOGICAL   NO-UNDO.
+
+DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 /* The below variables are used in run_link.i */
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
@@ -86,7 +87,7 @@ apiClient.clientDesc apiClient.sharedSecret
 apiClient.transactionCounter apiClient.clientDesc apiClient.sharedSecret 
 &Scoped-define DISPLAYED-TABLES apiClient
 &Scoped-define FIRST-DISPLAYED-TABLE apiClient
-&Scoped-Define DISPLAYED-OBJECTS fiAPIID 
+&Scoped-Define DISPLAYED-OBJECTS fiAPIID fiAPIStatus 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -127,6 +128,12 @@ DEFINE VARIABLE fiAPIID AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 43 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fiAPIStatus AS LOGICAL FORMAT "Inactive/Active":U INITIAL NO 
+     LABEL "API Status" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1
+     BGCOLOR 10 FGCOLOR 0  NO-UNDO.
+
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
      SIZE 120.6 BY 4.76
@@ -137,6 +144,7 @@ DEFINE RECTANGLE RECT-3
 
 DEFINE FRAME F-Main
      fiAPIID AT ROW 1.14 COL 26 COLON-ALIGNED WIDGET-ID 16
+     fiAPIStatus AT ROW 1.24 COL 103.4 COLON-ALIGNED WIDGET-ID 18
      apiClient.clientID AT ROW 2.29 COL 26 COLON-ALIGNED WIDGET-ID 4
           LABEL "Client ID" FORMAT "x(32)"
           VIEW-AS FILL-IN 
@@ -219,6 +227,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN apiClient.clientID IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN fiAPIID IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiAPIStatus IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN apiClient.sharedSecret IN FRAME F-Main
    ALIGN-L EXP-LABEL                                                    */
@@ -438,6 +448,9 @@ PROCEDURE local-row-available :
     DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.    
     DEFINE VARIABLE cRowState AS CHARACTER NO-UNDO.
 
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
     /* Code placed here will execute PRIOR to standard behavior. */
 
     /* Dispatch standard ADM method.                             */
@@ -447,9 +460,31 @@ PROCEDURE local-row-available :
         OUTPUT cAPIID,
         OUTPUT cClientID
         ).
-    
-    IF AVAILABLE apiClient THEN
-        fiAPIID:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cAPIID.
+                
+    IF AVAILABLE apiClient THEN DO:
+        RUN Outbound_GetAPIStatus IN hdOutboundProcs (
+            INPUT  cocode,
+            INPUT  cAPIID,
+            INPUT  cClientID,
+            OUTPUT lAPIStatus
+            ).
+        
+        ASSIGN
+            fiAPIID:SCREEN-VALUE     = cAPIID
+            fiAPIStatus:SCREEN-VALUE = STRING(lAPIStatus)
+            .
+        
+        IF lAPIStatus THEN
+            ASSIGN
+                fiAPIStatus:BGCOLOR = 12
+                fiAPIStatus:FGCOLOR = 15
+                .
+        ELSE
+            ASSIGN
+                fiAPIStatus:BGCOLOR = 10
+                fiAPIStatus:FGCOLOR = 0
+                .
+    END.
     
     RUN pGetRowState (
         OUTPUT cRowState

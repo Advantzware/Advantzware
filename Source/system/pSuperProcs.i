@@ -29,7 +29,7 @@ PROCEDURE pSuperProcs:
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE jdx            AS INTEGER   NO-UNDO.
     
-    /* alphabetical list of persistent procedures */
+    /* vv alphabetical list of persistent procedures vv */
     cSuperProcs = "AOA/spDynCalcField.p,"
                 + "AOA/spDynDescriptionProc.p,"
                 + "AOA/spDynInitializeProc.p,"
@@ -44,6 +44,7 @@ PROCEDURE pSuperProcs:
                 + "est/ArtiosProcs.p,"
                 + "est/CadImgProcs.p,"
                 + "est/EstimateCalcProcs.p,"
+                + "est/EstimateProcs.p,"
                 + "fg/FgBinBuild.p,"
                 + "fg/FGItemIDProcs.p,"
                 + "fg/ReasonCode.p,"
@@ -68,11 +69,14 @@ PROCEDURE pSuperProcs:
                 + "oerep/r-invprtOESuper.p,"
                 + "sys/NotesProcs.p,"
                 + "system/CommonProcs.p,"
+                + "system/ConversionProcs.p,"
                 + "system/CostProcs.p,"
                 + "system/CreditProcs.p,"
                 + "system/FileSysProcs.p,"
+                + "system/FormatProcs.p,"
                 + "system/FreightProcs.p,"
                 + "system/ftpProcs.p,"
+                + "system/GLProcs.p,"     
                 + "system/oeValidate.p,"
                 + "system/OSProcs.p,"
                 + "system/OutputProcs.p,"
@@ -89,11 +93,8 @@ PROCEDURE pSuperProcs:
                 + "util/ImportProcs.p,"
                 + "util/updQuoteProcs.p,"
                 + "util/Validate.p,"
-                + "system/ConversionProcs.p,"
-                + "system/FormatProcs.p,"
-                + "est/EstimateProcs.p,"
-                + "system/GLProcs.p,"     
                 .
+    /* ^^ alphabetical list of persistent procedures ^^ */
     cSuperProcs = TRIM(cSuperProcs,",").
     DO idx = 1 TO NUM-ENTRIES(cSuperProcs):
         cProcFile = ENTRY(idx,cSuperProcs).

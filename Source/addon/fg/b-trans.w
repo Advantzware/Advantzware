@@ -227,7 +227,7 @@ DEFINE BROWSE Browser-Table
       fg-rctd.loc COLUMN-LABEL "From!Whse" FORMAT "x(13)":U WIDTH 7
             LABEL-BGCOLOR 14
       fg-rctd.loc-bin COLUMN-LABEL "From!Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
-      fg-rctd.cases COLUMN-LABEL "Units" FORMAT ">>>,>>9":U WIDTH 9
+      fg-rctd.cases COLUMN-LABEL "Units" FORMAT ">>>>>9":U WIDTH 9
             LABEL-BGCOLOR 14
       fg-rctd.qty-case COLUMN-LABEL "Unit!Count" FORMAT ">>>,>>9":U
             WIDTH 9 LABEL-BGCOLOR 14

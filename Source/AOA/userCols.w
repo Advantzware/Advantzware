@@ -66,7 +66,7 @@ DEFINE TEMP-TABLE ttSubjectColumn NO-UNDO LIKE dynSubjectColumn.
 &Scoped-define INTERNAL-TABLES ttSubjectColumn
 
 /* Definitions for BROWSE subjectColumnBrowse                           */
-&Scoped-define FIELDS-IN-QUERY-subjectColumnBrowse ttSubjectColumn.sortOrder ttSubjectColumn.isActive ttSubjectColumn.fieldLabel ttSubjectColumn.sortCol ttSubjectColumn.sortDescending ttSubjectColumn.isGroup ttSubjectColumn.groupLabel ttSubjectColumn.fieldName ttSubjectColumn.isCalcField ttSubjectColumn.fieldFormat ttSubjectColumn.calcProc ttSubjectColumn.calcParam ttSubjectColumn.groupCalc   
+&Scoped-define FIELDS-IN-QUERY-subjectColumnBrowse ttSubjectColumn.sortOrder ttSubjectColumn.isActive ttSubjectColumn.fieldLabel ttSubjectColumn.sortCol ttSubjectColumn.sortDescending ttSubjectColumn.isGroup ttSubjectColumn.groupLabel ttSubjectColumn.fieldName ttSubjectColumn.isCalcField ttSubjectColumn.fieldFormat ttSubjectColumn.isStatusField ttSubjectColumn.statusCompare ttSubjectColumn.compareValue ttSubjectColumn.custListField ttSubjectColumn.calcProc ttSubjectColumn.calcParam ttSubjectColumn.groupCalc ttSubjectColumn.calcFormula   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-subjectColumnBrowse ttSubjectColumn.isActive ttSubjectColumn.fieldLabel ttSubjectColumn.sortCol ttSubjectColumn.sortDescending ttSubjectColumn.isGroup ttSubjectColumn.groupLabel   
 &Scoped-define ENABLED-TABLES-IN-QUERY-subjectColumnBrowse ttSubjectColumn
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-subjectColumnBrowse ttSubjectColumn
@@ -80,13 +80,13 @@ DEFINE TEMP-TABLE ttSubjectColumn NO-UNDO LIKE dynSubjectColumn.
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnGroupCalc btnMoveDown btnMoveUp ~
-subjectColumnBrowse btnSave 
+&Scoped-Define ENABLED-OBJECTS btnMoveUp subjectColumnBrowse btnGroupCalc ~
+btnMoveDown btnSave 
 
 /* Custom List Definitions                                              */
 /* columnObjects,columnPanel,List-3,List-4,List-5,List-6                */
-&Scoped-define columnObjects btnGroupCalc btnMoveDown btnMoveUp 
-&Scoped-define columnPanel btnGroupCalc btnMoveDown btnMoveUp 
+&Scoped-define columnObjects btnMoveUp btnGroupCalc btnMoveDown 
+&Scoped-define columnPanel btnMoveUp btnGroupCalc btnMoveDown 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -149,6 +149,7 @@ ttSubjectColumn.fieldFormat
 ttSubjectColumn.isStatusField VIEW-AS TOGGLE-BOX
 ttSubjectColumn.statusCompare
 ttSubjectColumn.compareValue
+ttSubjectColumn.custListField VIEW-AS TOGGLE-BOX
 ttSubjectColumn.calcProc
 ttSubjectColumn.calcParam
 ttSubjectColumn.groupCalc
@@ -169,13 +170,13 @@ ttSubjectColumn.groupLabel
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnMoveUp AT ROW 3.86 COL 2 HELP
+          "Move Up" WIDGET-ID 64
+     subjectColumnBrowse AT ROW 1 COL 7 WIDGET-ID 200
      btnGroupCalc AT ROW 6.24 COL 2 HELP
           "Group Calculations" WIDGET-ID 272
      btnMoveDown AT ROW 5.05 COL 2 HELP
           "Move Down" WIDGET-ID 62
-     btnMoveUp AT ROW 3.86 COL 2 HELP
-          "Move Up" WIDGET-ID 64
-     subjectColumnBrowse AT ROW 1 COL 7 WIDGET-ID 200
      btnSave AT ROW 7.43 COL 2 HELP
           "Save" WIDGET-ID 274
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -550,7 +551,7 @@ PROCEDURE pUserColumns :
     IF rRowID EQ ? THEN RETURN.
     FIND FIRST dynParamValue NO-LOCK WHERE ROWID(dynParamValue) EQ rRowID.
     FIND FIRST dynSubject NO-LOCK
-         WHERE dynSubject.subjectID EQ dynParamValue.subject
+         WHERE dynSubject.subjectID EQ dynParamValue.subjectID
          NO-ERROR.
     IF NOT AVAILABLE dynSubject THEN RETURN.
     FOR EACH dynValueColumn NO-LOCK

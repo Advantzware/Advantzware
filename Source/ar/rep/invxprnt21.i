@@ -53,7 +53,7 @@ PUT "<R21><C1><#4><FROM><R25><C81><RECT><||3>" SKIP
 v-printline = v-printline + 5.
 
 
-PUT "<FArial><=4><R+1>     Ship Date               FOB                           Ship Via                                                 Terms               S.Person       Pallets     BOL#" SKIP
+PUT "<FArial><=4><R+1>     <C3>Ship Date    <C14>FOB   <C30>Ship Via    <C51>Terms   <C61.5>S.Person   <C69>Pallets     <C76>BOL#" SKIP
      "<FCourier New><=4><R+3> " v-date-ship FORM "99/99/9999" space(1)
      v-fob FORM "x(12)" SPACE(1)
      v-shipvia FORM "x(30)" SPACE(1)
@@ -73,12 +73,12 @@ PUT "<R26><C1><#5><FROM><R28><C81><RECT><||3>" SKIP
                 "<R26><C70><FROM><R28><C70><LINE><||3>" SKIP
                 . 
 IF NOT lPrintQtyAll THEN DO:  
-PUT "<FArial><=5>"  space(37) " Order /" SKIP
-                   " Ordered     Shipped      Cust PO      Item#/CustPart#                       Description                             Price        UOM              Amount <P9>" SKIP(1).
+PUT "<FArial><=5> <C15.5> Order /" SKIP
+                   "<C2>Ordered     <C9>Shipped    <C15.5>Cust PO     <C22>Item#/CustPart#     <C41>Description <C60>Price   <C66>UOM    <C75>Amount <P9>" SKIP(1).
 END.
 ELSE DO:
-PUT "<FArial><=5>" " Ordered" space(25)  " Order /" SKIP
-                   " Shipped     Invoiced      Cust PO      Item#/CustPart#                       Description                             Price        UOM              Amount <P9>" SKIP(1).
+PUT "<FArial><=5>" "<C2>Ordered   <C15.5> Order /" SKIP
+                   "<C2>Shipped   <C9>Invoiced      <C15.5>Cust PO    <C22>Item#/CustPart#     <C41>Description  <C60>Price  <C66>UOM    <C75>Amount <P9>" SKIP(1).
 END.
 v-printline = v-printline + 4.
            

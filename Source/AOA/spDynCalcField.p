@@ -184,7 +184,8 @@ PROCEDURE calcStringTime:
     DEFINE INPUT  PARAMETER ipiTime      AS INTEGER   NO-UNDO.    
     DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
     
-    opcCalcValue = STRING(ipiTime,"hh:mm:ss am").
+    opcCalcValue = IF ipiTime NE ? THEN STRING(ipiTime,"hh:mm:ss am")
+                   ELSE "".
 END PROCEDURE.
 	
 PROCEDURE calcTimeString:

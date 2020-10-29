@@ -40,6 +40,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE BUFFER bf-ttScopes FOR ttScopes.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -72,7 +73,7 @@ DEFINE QUERY external_tables FOR cust.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table ttScopes.apiID ttScopes.clientID ttScopes.customerID ttScopes.shipToID ttScopes.triggerID ttScopes.inactive   
+&Scoped-define FIELDS-IN-QUERY-br_table ttScopes.apiID ttScopes.clientID ttScopes.locValidation ttScopes.shipToID ttScopes.triggerID ttScopes.inactive   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH ttScopes
@@ -157,7 +158,7 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       ttScopes.apiID COLUMN-LABEL "API ID" WIDTH 35 FORMAT "X(32)"
       ttScopes.clientID COLUMN-LABEL "Client ID" WIDTH 15 FORMAT "X(32)"
-      ttScopes.customerID COLUMN-LABEL "Customer ID" WIDTH 20 FORMAT "X(32)"
+      ttScopes.locValidation COLUMN-LABEL "Location Validation" WIDTH 20 FORMAT "Enabled/Disabled"
       ttScopes.shipToID COLUMN-LABEL "ShipTo ID" WIDTH 20 FORMAT "X(32)"
       ttScopes.triggerID COLUMN-LABEL "Trigger ID" WIDTH 30 FORMAT "X(32)"
       ttScopes.inactive COLUMN-LABEL "Status" FORMAT "Inactive/Active"
@@ -424,6 +425,35 @@ PROCEDURE pInit PRIVATE :
             OUTPUT TABLE ttScopes            
             ).
 
+    /* Code to delete duplicates. Code for finding duplicate record is easier in this case,
+       than writing query before creating the record*/
+    FOR EACH ttScopes:
+        FIND FIRST bf-ttScopes
+             WHERE bf-ttScopes.company    EQ ttScopes.company
+               AND bf-ttScopes.apiID      EQ ttScopes.apiID
+               AND bf-ttScopes.clientID   EQ ttScopes.clientID
+               AND bf-ttScopes.triggerID  EQ ttScopes.triggerID
+               AND bf-ttScopes.inactive   EQ ttScopes.inactive
+               AND bf-ttScopes.customerID EQ ttScopes.customerID
+               AND bf-ttScopes.shipToID   EQ ttScopes.shipToID
+               AND ROWID(bf-ttScopes)     NE ROWID(ttScopes)
+             NO-ERROR.
+        IF AVAILABLE bf-ttScopes THEN
+            DELETE bf-ttScopes.        
+        
+        /* Delete records which will have less priority over a record that has customer scope */ 
+        IF ttScopes.customerID EQ cust.cust-no THEN DO:
+            FOR EACH bf-ttScopes
+                WHERE bf-ttScopes.company    EQ ttScopes.company
+                   AND bf-ttScopes.apiID     EQ ttScopes.apiID
+                   AND bf-ttScopes.clientID  EQ ttScopes.clientID
+                   AND bf-ttScopes.scopeType EQ "ANY"
+                   AND ROWID(bf-ttScopes)    NE ROWID(ttScopes):
+                DELETE bf-ttScopes.
+            END.
+        END.        
+    END.
+    
     RUN dispatch (
         INPUT "open-query"
         ).

@@ -382,10 +382,33 @@ PROCEDURE recalc-tot :
 
   IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
       
-  IF ll-secure THEN DO:
+  IF ll-secure AND AVAIL vend THEN DO:
     RUN ap/d-ytdbal.w (ROWID(vend)).
 
-    FIND CURRENT vend NO-LOCK.
+    FIND CURRENT vend NO-LOCK NO-ERROR.
+    RUN dispatch ("display-fields").
+    RUN dispatch ("row-available").
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE recalc-tot-bal V-table-Win 
+PROCEDURE recalc-tot-bal :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
+      
+  IF ll-secure AND AVAIL vend THEN DO:
+    RUN ap/d-rectot.w (ROWID(vend)).
+
+    FIND CURRENT vend NO-LOCK NO-ERROR.
     RUN dispatch ("display-fields").
     RUN dispatch ("row-available").
   END.

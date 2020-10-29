@@ -144,12 +144,14 @@ DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
 DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
 
 DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lPrinterAllow AS LOGICAL NO-UNDO.
 
 /* Procedure to prepare and execute API calls */
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
 RUN epCanAccess IN hPgmSecurity ("oerep/r-bolprt.w","", OUTPUT lResult).
+RUN epCanAccess IN hPgmSecurity ("jcrep/r-ticket.w", "", OUTPUT lPrinterAllow).
 DELETE OBJECT hPgmSecurity.
 IF lResult THEN ASSIGN lAsiUser = YES .
 
@@ -899,10 +901,18 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   DEF VAR hold-title AS CHAR NO-UNDO.
+  
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
-
+    
+    IF NOT lPrinterAllow AND (lv-format-f EQ "Colonial" OR lv-format-f EQ "CCC" ) AND rd-dest EQ 1 THEN
+    DO:
+        MESSAGE "Only Administrators can print a job card." VIEW-AS ALERT-BOX INFO .
+        RETURN.
+    END.
+       
+    
     /* Task 10181302  */
     IF string(begin_job1:SCREEN-VALUE) <> "" THEN
     ASSIGN begin_job1:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(begin_job1:SCREEN-VALUE))) +

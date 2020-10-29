@@ -25,7 +25,12 @@ FOR EACH bf-ef
     WHERE bf-ef.company EQ xest.company
       AND bf-ef.est-no  EQ xest.est-no
     TRANSACTION:
-
+  ASSIGN 
+    bf-ef.f-col = 0
+    bf-ef.f-pass = 0
+    bf-ef.f-coat = 0
+    bf-ef.f-coat-p = 0
+    .
   FOR EACH bf-eb NO-LOCK
       WHERE bf-eb.company EQ bf-ef.company 
         AND bf-eb.est-no  EQ bf-ef.est-no

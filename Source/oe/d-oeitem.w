@@ -187,6 +187,7 @@ DEFINE VARIABLE lCheckFgForceWarning AS LOGICAL NO-UNDO.
 DEFINE VARIABLE llOEDiscount AS LOGICAL NO-UNDO.
 DEF TEMP-TABLE w-est-no NO-UNDO FIELD w-est-no LIKE itemfg.est-no FIELD w-run AS LOG.
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
 ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
 
 FIND FIRST sys-ctrl
@@ -996,7 +997,10 @@ DO:
     CASE lw-focus:NAME :
          WHEN "est-no" THEN DO:
               RUN windows/l-estcst.w (g_company,g_loc,oe-ord.cust-no,0,lw-focus:SCREEN-VALUE, OUTPUT char-val).
-              IF char-val <> "" THEN RUN display-est-detail (char-val).
+              IF char-val <> "" THEN do:
+                 lCheckMessage = NO.
+                 RUN display-est-detail (char-val).
+              END. 
          END. 
          WHEN "type-code" THEN DO:
               RUN windows/l-ordtyp.w (oe-ordl.type-code:SCREEN-VALUE, OUTPUT char-val).
@@ -1043,6 +1047,8 @@ DO:
                         oe-ordl.i-name:screen-value = ENTRY(2,char-val).
                  RUN display-fgitem NO-ERROR.
                  IF NOT ERROR-STATUS:ERROR THEN DO:
+                   IF AVAIL oe-ord THEN
+                   RUN pGetOverUnderPct(oe-ord.cust-no,oe-ord.ship-id) .
                    ll-ok-i-no = YES.
                    IF oescreen-log AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
                    
@@ -1518,6 +1524,16 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME oe-ordl.est-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.est-no d-oeitem
+ON VALUE-CHANGED OF oe-ordl.est-no IN FRAME d-oeitem /* Estimate # */
+DO:
+    lCheckMessage = NO .    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME    
+
 
 &Scoped-define SELF-NAME oe-ordl.est-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.est-no d-oeitem
@@ -1724,6 +1740,10 @@ DO:
             cLoc = shipto.loc
             cLocBin = shipto.loc-bin
             . 
+            
+   IF avail oe-ord THEN
+      RUN pGetOverUnderPct(oe-ord.cust-no,oe-ord.ship-id) .
+      
   IF ll-bypass THEN DO:
     ll-bypass = NO.
     RETURN.
@@ -2907,7 +2927,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        oe-ordl.price:SENSITIVE  IN FRAME {&FRAME-NAME} = NO
        oe-ordl.pr-uom:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.
     END.    
-    oe-ordl.SourceEstimateID:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.    
+    oe-ordl.SourceEstimateID:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.  
+    IF oescreen-cha EQ "item-qty" AND ip-type EQ "ADD" AND oe-ord.est-no NE ""   THEN
+     APPLY "entry" TO oe-ordl.i-no IN FRAME {&FRAME-NAME}.
  END.
 
   IF fgsecurity-log THEN
@@ -4344,6 +4366,18 @@ PROCEDURE display-est-detail :
        ll-do-job = NOT b-eb.pur-man.
      END.
      IF NOT ll-do-job THEN ll-do-job = job#-int EQ 0.
+     
+     FIND FIRST oe-ctrl  NO-LOCK
+             WHERE oe-ctrl.company EQ g_company 
+             NO-ERROR.
+
+     IF AVAIL oe-ord AND oe-ord.stat EQ "H" AND  AVAIL oe-ctrl AND NOT oe-ctrl.p-job THEN
+     DO:
+        ll-do-job = NO .
+        IF NOT lCheckMessage THEN
+        RUN displayMessage ( INPUT "48").
+        lCheckMessage = YES.
+     END.
 
      RUN est/getcscnt.p ((IF eb.est-type EQ 6 AND
                              eb.cas-no NE ""  THEN ROWID(eb) ELSE ROWID(b-eb)),
@@ -8856,16 +8890,14 @@ PROCEDURE pGetOverUnderPct :
    DEFINE VARIABLE dUnderPer AS DECIMAL NO-UNDO.
    DEFINE BUFFER bf-shipto FOR shipto .
 
-  DO WITH FRAME {&FRAME-NAME}:
-    IF oe-ord.est-no EQ "" AND oe-ordl.est-no:SCREEN-VALUE NE "" AND oeship-cha EQ "EstShipto" THEN
-    DO:               
+  DO WITH FRAME {&FRAME-NAME}:                   
         RUN oe/GetOverUnderPct.p(g_company, 
                                ipcCustNo,
                                TRIM(ipcShipID),
+                               oe-ordl.i-no:SCREEN-VALUE,
                                OUTPUT dOverPer , OUTPUT dUnderPer ) .
                                oe-ordl.over-pct:SCREEN-VALUE = STRING(dOverPer).
-                               oe-ordl.Under-pct:SCREEN-VALUE = STRING(dUnderPer). 
-    END.                       
+                               oe-ordl.Under-pct:SCREEN-VALUE = STRING(dUnderPer).                         
   END.
 
   {methods/lValidateError.i NO}

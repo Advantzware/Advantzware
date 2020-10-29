@@ -93,16 +93,19 @@ DELETE PROCEDURE hdPgmMstrSecur.
 DEFINE QUERY external_tables FOR APIOutbound.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS APIOutbound.saveFileFolder ~
-APIOutbound.saveFile APIOutbound.hostSSHKey APIOutbound.userName ~
-APIOutbound.password APIOutbound.requestHandler APIOutbound.responseHandler 
+APIOutbound.saveFile APIOutbound.hostSSHKey ~
+APIOutbound.useLocationValidation APIOutbound.autoIncrement ~
+APIOutbound.userName APIOutbound.password APIOutbound.requestHandler ~
+APIOutbound.responseHandler 
 &Scoped-define ENABLED-TABLES APIOutbound
 &Scoped-define FIRST-ENABLED-TABLE APIOutbound
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 RECT-4 edDescription ~
 edEndPoint edRequestData 
 &Scoped-Define DISPLAYED-FIELDS APIOutbound.apiID APIOutbound.clientID ~
 APIOutbound.saveFileFolder APIOutbound.saveFile APIOutbound.hostSSHKey ~
-APIOutbound.userName APIOutbound.password APIOutbound.requestHandler ~
-APIOutbound.responseHandler 
+APIOutbound.transactionCounter APIOutbound.useLocationValidation ~
+APIOutbound.autoIncrement APIOutbound.userName APIOutbound.password ~
+APIOutbound.requestHandler APIOutbound.responseHandler 
 &Scoped-define DISPLAYED-TABLES APIOutbound
 &Scoped-define FIRST-DISPLAYED-TABLE APIOutbound
 &Scoped-Define DISPLAYED-OBJECTS fiAPIType tgInactive edDescription ~
@@ -199,7 +202,7 @@ DEFINE VARIABLE fiInactive AS CHARACTER FORMAT "X(256)":U INITIAL "Inactive"
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 154.6 BY 9.48.
+     SIZE 154.6 BY 10.71.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -233,36 +236,47 @@ DEFINE VARIABLE tgSSLEnabled AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiAPIType AT ROW 1.24 COL 144.2 COLON-ALIGNED WIDGET-ID 74
-     APIOutbound.apiID AT ROW 2.57 COL 21 COLON-ALIGNED WIDGET-ID 2
+     APIOutbound.apiID AT ROW 1.52 COL 21 COLON-ALIGNED WIDGET-ID 2
           LABEL "API ID"
           VIEW-AS FILL-IN 
           SIZE 40.4 BY 1
           BGCOLOR 3 FGCOLOR 15 
-     APIOutbound.clientID AT ROW 2.57 COL 78 COLON-ALIGNED WIDGET-ID 6
+     APIOutbound.clientID AT ROW 1.52 COL 74.8 COLON-ALIGNED WIDGET-ID 6
           LABEL "Client ID"
           VIEW-AS FILL-IN 
           SIZE 40.4 BY 1
           BGCOLOR 3 FGCOLOR 15 
-     tgInactive AT ROW 2.67 COL 126.6 WIDGET-ID 28
-     edDescription AT ROW 3.86 COL 22.8 NO-LABEL WIDGET-ID 62
-     edEndPoint AT ROW 6 COL 22.8 NO-LABEL WIDGET-ID 34
-     APIOutbound.saveFileFolder AT ROW 8.05 COL 40 WIDGET-ID 58
+     fiAPIType AT ROW 1.52 COL 142.8 COLON-ALIGNED WIDGET-ID 74
+     tgInactive AT ROW 1.62 COL 122.2 WIDGET-ID 28
+     edDescription AT ROW 2.81 COL 22.8 NO-LABEL WIDGET-ID 62
+     edEndPoint AT ROW 4.95 COL 22.8 NO-LABEL WIDGET-ID 34
+     APIOutbound.saveFileFolder AT ROW 7 COL 40 WIDGET-ID 58
           VIEW-AS FILL-IN 
           SIZE 94.8 BY 1
           BGCOLOR 15 FGCOLOR 0 
-     APIOutbound.saveFile AT ROW 8.1 COL 22.8 WIDGET-ID 60
+     APIOutbound.saveFile AT ROW 7.1 COL 22.8 WIDGET-ID 60
           VIEW-AS TOGGLE-BOX
           SIZE 14 BY .81
           BGCOLOR 15 FGCOLOR 0 
-     cbRequestType AT ROW 9.24 COL 20.8 COLON-ALIGNED WIDGET-ID 66
-     cbRequestVerb AT ROW 9.24 COL 64.4 COLON-ALIGNED WIDGET-ID 42
-     cbRequestDataType AT ROW 9.24 COL 111.2 COLON-ALIGNED WIDGET-ID 40
-     tgSSLEnabled AT ROW 9.33 COL 138.8 WIDGET-ID 38
-     APIOutbound.hostSSHKey AT ROW 10.52 COL 20.8 COLON-ALIGNED WIDGET-ID 76
+     cbRequestType AT ROW 8.19 COL 20.8 COLON-ALIGNED WIDGET-ID 66
+     cbRequestVerb AT ROW 8.19 COL 64.4 COLON-ALIGNED WIDGET-ID 42
+     cbRequestDataType AT ROW 8.19 COL 111.2 COLON-ALIGNED WIDGET-ID 40
+     tgSSLEnabled AT ROW 8.29 COL 138.8 WIDGET-ID 38
+     APIOutbound.hostSSHKey AT ROW 9.48 COL 20.8 COLON-ALIGNED WIDGET-ID 76
           VIEW-AS FILL-IN 
           SIZE 132 BY 1
           BGCOLOR 15 FGCOLOR 0 
+     APIOutbound.transactionCounter AT ROW 10.67 COL 119.6 COLON-ALIGNED WIDGET-ID 82
+          LABEL "Transaction Count"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     APIOutbound.useLocationValidation AT ROW 10.76 COL 22.8 WIDGET-ID 78
+          LABEL "Valid Location"
+          VIEW-AS TOGGLE-BOX
+          SIZE 24 BY .81 TOOLTIP "Disable to skip location validation"
+     APIOutbound.autoIncrement AT ROW 10.76 COL 51.8 WIDGET-ID 80
+          VIEW-AS TOGGLE-BOX
+          SIZE 44.2 BY .81
      APIOutbound.userName AT ROW 12.52 COL 21 COLON-ALIGNED WIDGET-ID 24
           LABEL "Username"
           VIEW-AS FILL-IN 
@@ -285,16 +299,23 @@ DEFINE FRAME F-Main
           SIZE 55 BY 1
           BGCOLOR 15 FGCOLOR 0 
      edRequestData AT ROW 16.24 COL 23 NO-LABEL WIDGET-ID 48
-     fiInactive AT ROW 2.67 COL 128 COLON-ALIGNED NO-LABEL WIDGET-ID 72
+     fiInactive AT ROW 1.62 COL 123.6 COLON-ALIGNED NO-LABEL WIDGET-ID 72
      "Description:" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 4.38 COL 8.8 WIDGET-ID 64
+          SIZE 14 BY .62 AT ROW 3.38 COL 8.8 WIDGET-ID 64
+     "End Point:" VIEW-AS TEXT
+          SIZE 11.6 BY .62 AT ROW 5.48 COL 11.2 WIDGET-ID 36
      "Request Data:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 17.86 COL 6 WIDGET-ID 50
-     "End Point:" VIEW-AS TEXT
-          SIZE 11.6 BY .62 AT ROW 6.71 COL 11.2 WIDGET-ID 36
-     RECT-1 AT ROW 2.48 COL 2 WIDGET-ID 26
+     RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 26
      RECT-2 AT ROW 12.19 COL 2 WIDGET-ID 30
      RECT-3 AT ROW 14.1 COL 2 WIDGET-ID 44
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FGCOLOR 1 FONT 6 WIDGET-ID 100.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      RECT-4 AT ROW 15.95 COL 2 WIDGET-ID 46
      RECT-7 AT ROW 1 COL 1 WIDGET-ID 54
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -397,6 +418,10 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX tgSSLEnabled IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN APIOutbound.transactionCounter IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR TOGGLE-BOX APIOutbound.useLocationValidation IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN APIOutbound.userName IN FRAME F-Main
    EXP-LABEL                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */

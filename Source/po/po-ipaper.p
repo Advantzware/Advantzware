@@ -15,6 +15,7 @@ DEFINE BUFFER b-ref1   FOR reftable.
 DEFINE BUFFER b-ref2   FOR reftable.
 
 {po/po-print.i}
+{methods/getExecutableFileName.i quoter}
 
 DEFINE VARIABLE v-sname   LIKE shipto.ship-name.
 DEFINE VARIABLE v-saddr   LIKE shipto.ship-addr.
@@ -669,12 +670,9 @@ IF AVAILABLE cust AND iPaper-log AND iPaper-dir NE "" THEN
         DO:
             OUTPUT close.
     
-            IF OPSYS EQ "unix" THEN
-                UNIX SILENT QUOTER -c 1-3000 VALUE(v-outfile[2]) >
-                    VALUE(v-outfile[2] + ".quo").
-            ELSE
-                DOS  SILENT QUOTER -c 1-3000 VALUE(v-outfile[2]) >
-                    VALUE(v-outfile[2] + ".quo").
+            ASSIGN 
+                cQuoterCommandString = cQuoterFullPathName + " -c 1-3000 " + v-outfile[2] + " > " + v-outFile[2] + ".quo".
+            OS-COMMAND SILENT VALUE(cQuoterCommandString).
                                    
             INPUT from value(v-outfile[2] + ".quo").
     

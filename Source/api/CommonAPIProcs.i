@@ -62,6 +62,7 @@ PROCEDURE updateRequestData:
     DEFINE VARIABLE cNextChar         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSourceString     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTargetString     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAlignmentStyle   AS CHARACTER NO-UNDO.
     
     ASSIGN
         cFieldValuePrefix = "$"
@@ -84,9 +85,11 @@ PROCEDURE updateRequestData:
     DO WHILE ioplcRequestData MATCHES "*" + cFieldValuePrefix + ipcField + "|*|" + cFieldValueSuffix + "*":
         /* cNextChar fetches the character after the at the end of key field */
         ASSIGN
-            cFormat     = ""
-            cFormatType = ""
-            cNextChar   = SUBSTRING(ioplcRequestData,INDEX(ioplcRequestData,cFieldValuePrefix + ipcField + "|") + LENGTH(cFieldValuePrefix + ipcField), 1)
+            cFormat         = ""
+            cFormatType     = ""
+            cAlignmentStyle = ""
+            cSourceString   = ""
+            cNextChar       = SUBSTRING(ioplcRequestData,INDEX(ioplcRequestData,cFieldValuePrefix + ipcField + "|") + LENGTH(cFieldValuePrefix + ipcField), 1)
             .
         
         /* If $ do nothing, as it would have been already replaced */
@@ -122,6 +125,24 @@ PROCEDURE updateRequestData:
                         .
                 END.
             END.
+            
+            ELSE iIndex = iIndex - 1.
+            
+            /* Block to check if a alignment style exist */
+            iIndex = iIndex + 1.
+  
+            /* If the next character after the format is not $, then alignment style exist */
+            IF SUBSTRING(ioplcRequestData,iIndex,1) NE "$" THEN DO:
+                DO WHILE TRUE:
+                    IF SUBSTRING(ioplcRequestData,iIndex,1) EQ "|" THEN
+                        LEAVE.
+  
+                    ASSIGN
+                        cAlignmentStyle = cAlignmentStyle + SUBSTRING(ioplcRequestData,iIndex,1)
+                        iIndex          = iIndex + 1
+                        .
+                END.
+            END.            
         END.    
         ELSE
             cFormat = ?.    
@@ -158,12 +179,24 @@ PROCEDURE updateRequestData:
         END.
         ELSE
             cTargetString = STRING(ipcValue,cFormat).
+
+        IF cFormatType BEGINS "INT" OR cFormatType BEGINS "DEC" THEN DO:
+            IF cAlignmentStyle EQ "L" THEN
+                cTargetString = cTargetString + FILL(" ", LENGTH(cFormat) - LENGTH(cTargetString)).
+            ELSE IF cAlignmentStyle EQ "R" THEN
+                cTargetString = FILL(" ", LENGTH(cFormat) - LENGTH(cTargetString)) + cTargetString.
+        END.
+        
+        cSourceString = cSourceString + cFieldValuePrefix + ipcField + "|" + cFormat + "|".
         
         IF cFormatType NE "" THEN
-            cSourceString = cFieldValuePrefix + ipcField + "|" + cFormat + "|" + cFormatType + "|" + cFieldValueSuffix.
-        ELSE
-            cSourceString = cFieldValuePrefix + ipcField + "|" + cFormat + "|" + cFieldValueSuffix.
+            cSourceString = cSourceString + cFormatType + "|".
         
+        IF cAlignmentStyle NE "" THEN
+            cSourceString = cSourceString + cAlignmentStyle + "|".
+
+        cSourceString = cSourceString + cFieldValueSuffix.
+                
         /* Replace the key field with format and data type with the value */
         IF cFormat NE ? AND cFormat NE "" THEN
             ioplcRequestData = REPLACE(ioplcRequestData,cSourceString, cTargetString).    

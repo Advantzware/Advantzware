@@ -1,6 +1,7 @@
 /*impfrcor.p  DISPLAY CORRUGATOR PRODUCTION - SOURCE CORRLINK*/
 
 DEF VAR A AS C FORMAT "X(304)" no-undo.
+{methods/getExecutableFileName.i quoter}
  
 DEF temp-TABLE CLDATA
     FIELD CL-ORDER-ID AS C FORMAT "X(20)"
@@ -19,15 +20,9 @@ DEF VAR DATEDISP AS C FORMAT "X(8)".
 
 STATUS INPUT OFF.
 
-/*DOS SILENT
-Q:\DLC91B\BIN\QUOTER.EXE 
-\\alan_chu\cti\dataxfer\CLHIST.DAT /*schedule.100*/
-> c:\cltrans.
-*/
-
-DOS SILENT QUOTER.EXE 
-\\alan_chu\cti\dataxfer\CLHIST.DAT /*schedule.100*/
-> c:\cltrans.
+ASSIGN 
+    cQuoterCommandString = cQuoterFullPathName + " \\alan_chu\cti\dataxfer\CLHIST.DAT > c:\cltrans".
+OS-COMMAND SILENT VALUE(cQuoterCommandString).
 
 
 INPUT FROM C:\CLTRANS.

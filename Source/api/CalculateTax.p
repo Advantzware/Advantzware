@@ -71,6 +71,21 @@ DEFINE VARIABLE cDefaultTaxClass AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFreightTaxClass AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTaxCode         AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE cOriginAddr1    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cOriginAddr2    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cOriginAddr3    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cOriginCity     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cOriginState    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cOriginZip      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cOriginCountry  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompanyAddr1   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompanyAddr2   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompanyCity    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompanyState   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompanyZip     AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE cLineLocation AS CHARACTER NO-UNDO.
+
 DEFINE BUFFER bf-APIOutboundDetail1 FOR APIOutboundDetail.
 DEFINE BUFFER bf-APIOutboundDetail2 FOR APIOutboundDetail.    
 DEFINE BUFFER bf-APIOutboundDetail3 FOR APIOutboundDetail.
@@ -190,6 +205,15 @@ ELSE DO:
         OUTPUT cFreightTaxClass
         ).
     
+    RUN pGetCompanyAddress(
+        INPUT  cCompany,
+        OUTPUT cCompanyAddr1,
+        OUTPUT cCompanyAddr2,
+        OUTPUT cCompanyCity,
+        OUTPUT cCompanyState,
+        OUTPUT cCompanyZip
+        ).
+    
     FIND FIRST bf-APIOutboundDetail1 NO-LOCK
          WHERE bf-APIOutboundDetail1.apiOutboundID EQ ipiAPIOutboundID
            AND bf-APIOutboundDetail1.detailID      EQ "LineItems"
@@ -252,14 +276,35 @@ ELSE DO:
                     lcLineItemsData          = bf-APIOutboundDetail1.data
                     cItemID                  = inv-line.i-no
                     cItemQuantity            = STRING(inv-line.inv-qty, "->>>>>>>9.9<<")
-                    cItemPrice               = STRING(inv-line.t-price / inv-line.inv-qty, ">>>>>>>9.99<<<<") 
+                    cItemPrice               = STRING(inv-line.t-price / inv-line.inv-qty, ">>>>>>>9.99<<<<<") 
                     cLineID                  = STRING(inv-line.line)
                     lcConcatFlexiCodeData    = ""
                     lcConcatFlexiNumericData = ""
                     lcConcatFlexiDateData    = ""
                     .
 
-                
+                RUN pGetInvoiceLocation (
+                    INPUT  inv-line.company,
+                    INPUT  inv-line.b-no,
+                    INPUT  inv-line.i-no,    
+                    INPUT  inv-line.ord-no,
+                    INPUT  inv-line.line,
+                    INPUT  inv-line.po-no,
+                    OUTPUT cLineLocation
+                    ).
+                    
+                RUN pGetAddressForLocation (
+                    INPUT  inv-line.company,
+                    INPUT  cLineLocation,
+                    OUTPUT cOriginAddr1,
+                    OUTPUT cOriginAddr2,
+                    OUTPUT cOriginAddr3,
+                    OUTPUT cOriginCity,
+                    OUTPUT cOriginState,
+                    OUTPUT cOriginZip,
+                    OUTPUT cOriginCountry
+                    ).
+                    
                 RUN pGetProductClassForItem (
                     INPUT  inv-line.company,
                     INPUT  inv-line.i-no,
@@ -377,6 +422,12 @@ ELSE DO:
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToState", cShipToState).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToZip", cShipToZip).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToCountry", cShipToCountry).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginStreetAddress1", cOriginAddr1).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginStreetAddress2", cOriginAddr2).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginCity", cOriginCity).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginState", cOriginState).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginZip", cOriginZip).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginCountry", cOriginCountry).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemClassCode", cItemClassCode).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemID", cItemID).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "CustomerClassCode", cCustClassCode).
@@ -403,6 +454,13 @@ ELSE DO:
                     lcConcatFlexiCodeData    = ""
                     lcConcatFlexiNumericData = ""
                     lcConcatFlexiDateData    = ""
+                    cOriginAddr1             = cCompanyAddr1
+                    cOriginAddr2             = cCompanyAddr2
+                    cOriginAddr3             = ""
+                    cOriginCity              = cCompanyCity
+                    cOriginState             = cCompanyState
+                    cOriginZip               = cCompanyZip
+                    cOriginCountry           = ""
                     .
 
                 IF inv-misc.inv-i-no NE "" THEN
@@ -520,6 +578,12 @@ ELSE DO:
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToState", cShipToState).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToZip", cShipToZip).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToCountry", cShipToCountry).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginStreetAddress1", cOriginAddr1).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginStreetAddress2", cOriginAddr2).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginCity", cOriginCity).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginState", cOriginState).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginZip", cOriginZip).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginCountry", cOriginCountry).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemClassCode", cItemClassCode).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemID", cItemID).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "CustomerClassCode", cCustClassCode).
@@ -549,6 +613,13 @@ ELSE DO:
                     cCustomerID              = ""
                     cCustClassCode           = ""
                     cItemClassCode           = cFreightTaxClass
+                    cOriginAddr1             = cCompanyAddr1
+                    cOriginAddr2             = cCompanyAddr2
+                    cOriginAddr3             = ""
+                    cOriginCity              = cCompanyCity
+                    cOriginState             = cCompanyState
+                    cOriginZip               = cCompanyZip
+                    cOriginCountry           = ""
                     .
 
                                   
@@ -638,6 +709,12 @@ ELSE DO:
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToState", cShipToState).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToZip", cShipToZip).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToCountry", cShipToCountry).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginStreetAddress1", cOriginAddr1).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginStreetAddress2", cOriginAddr2).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginCity", cOriginCity).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginState", cOriginState).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginZip", cOriginZip).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginCountry", cOriginCountry).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemClassCode", cItemClassCode).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemID", cItemID).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "CustomerClassCode", cCustClassCode).
@@ -698,6 +775,28 @@ ELSE DO:
                     lcConcatFlexiNumericData = ""
                     lcConcatFlexiDateData    = ""
                     .
+
+                RUN pGetInvoiceLocation (
+                    INPUT  ar-invl.company,
+                    INPUT  ar-invl.b-no,
+                    INPUT  ar-invl.i-no,    
+                    INPUT  ar-invl.ord-no,
+                    INPUT  ar-invl.line,
+                    INPUT  ar-invl.po-no,
+                    OUTPUT cLineLocation
+                    ).
+
+                RUN pGetAddressForLocation (
+                    INPUT  ar-invl.company,
+                    INPUT  cLineLocation,
+                    OUTPUT cOriginAddr1,
+                    OUTPUT cOriginAddr2,
+                    OUTPUT cOriginAddr3,
+                    OUTPUT cOriginCity,
+                    OUTPUT cOriginState,
+                    OUTPUT cOriginZip,
+                    OUTPUT cOriginCountry
+                    ).
                 
                 IF NOT ar-invl.misc AND (ar-invl.inv-qty EQ 0 OR ar-invl.amt EQ 0) THEN
                     NEXT.
@@ -711,12 +810,12 @@ ELSE DO:
                         cItemPrice      = IF ar-invl.inv-qty EQ 0 THEN 
                                               STRING(ar-invl.amt, ">>>>>>>9.99<<<<")
                                           ELSE
-                                              STRING(ar-invl.amt / ar-invl.inv-qty, ">>>>>>>9.99<<<<")
+                                              STRING(ar-invl.amt / ar-invl.inv-qty, ">>>>>>>9.99<<<<<")
                         .
                 ELSE
                     ASSIGN
                         cItemQuantity   = STRING(ar-invl.inv-qty, "->>>>>>>9.9<<")
-                        cItemPrice      = STRING(ar-invl.amt / ar-invl.inv-qty, ">>>>>>>9.99<<<<")
+                        cItemPrice      = STRING(ar-invl.amt / ar-invl.inv-qty, ">>>>>>>9.99<<<<<")
                         . 
 
                 RUN pGetProductClassForItem (
@@ -827,6 +926,12 @@ ELSE DO:
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToState", cShipToState).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToZip", cShipToZip).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToCountry", cShipToCountry).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginStreetAddress1", cOriginAddr1).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginStreetAddress2", cOriginAddr2).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginCity", cOriginCity).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginState", cOriginState).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginZip", cOriginZip).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginCountry", cOriginCountry).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemClassCode", cItemClassCode).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemID", cItemID).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "CustomerClassCode", cCustClassCode).
@@ -867,6 +972,28 @@ ELSE DO:
                     cItemQuantity   = "1" /* SEND 1 quantity */
                     cItemPrice      = STRING(ar-invl.t-freight, ">>>>>>>9.99<<<<") 
                     .
+
+                RUN pGetInvoiceLocation (
+                    INPUT  ar-invl.company,
+                    INPUT  ar-invl.b-no,
+                    INPUT  ar-invl.i-no,    
+                    INPUT  ar-invl.ord-no,
+                    INPUT  ar-invl.line,
+                    INPUT  ar-invl.po-no,
+                    OUTPUT cLineLocation
+                    ).
+
+                RUN pGetAddressForLocation (
+                    INPUT  ar-invl.company,
+                    INPUT  cLineLocation,
+                    OUTPUT cOriginAddr1,
+                    OUTPUT cOriginAddr2,
+                    OUTPUT cOriginAddr3,
+                    OUTPUT cOriginCity,
+                    OUTPUT cOriginState,
+                    OUTPUT cOriginZip,
+                    OUTPUT cOriginCountry
+                    ).
                     
                 RUN pGetCustClassCode(
                     INPUT  ar-invl.company,
@@ -969,6 +1096,12 @@ ELSE DO:
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToState", cShipToState).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToZip", cShipToZip).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ShipToCountry", cShipToCountry).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginStreetAddress1", cOriginAddr1).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginStreetAddress2", cOriginAddr2).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginCity", cOriginCity).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginState", cOriginState).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginZip", cOriginZip).
+                RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OriginCountry", cOriginCountry).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemClassCode", cItemClassCode).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemID", cItemID).
                 RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "CustomerClassCode", cCustClassCode).
@@ -1010,7 +1143,125 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
+PROCEDURE pGetInvoiceLocation PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  given an invoice line b-no, create a BOL Line to update and
+     return the BOL information for the invoice line
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBOLSeqNo   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiOrderID    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiLine       AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPOID       AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcLocationID AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-oe-boll FOR oe-boll.
+    DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
+    
+    IF ipiBOLSeqNo EQ 0 THEN
+        RETURN.
 
+    /*BOL Dependent Fields*/
+    FOR EACH bf-oe-boll NO-LOCK 
+        WHERE bf-oe-boll.company EQ ipcCompany
+          AND bf-oe-boll.b-no    EQ ipiBOLSeqNo
+          AND bf-oe-boll.i-no    EQ ipcItemID
+          AND bf-oe-boll.ord-no  EQ ipiOrderID
+          AND bf-oe-boll.line    EQ ipiLine
+          AND bf-oe-boll.po-no   EQ ipcPOID,
+        FIRST bf-oe-bolh NO-LOCK  
+        WHERE bf-oe-bolh.company EQ bf-oe-boll.company
+          AND bf-oe-bolh.b-no    EQ bf-oe-boll.b-no
+        BREAK BY bf-oe-bolh.bol-no:
+                
+        IF FIRST-OF(bf-oe-bolh.bol-no) THEN DO: 
+            opcLocationID = bf-oe-boll.loc.
+            LEAVE.
+        END.
+    END.
+
+END PROCEDURE.
+
+PROCEDURE pGetAddressForLocation PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Given a company and location returns the full address from location table
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWarehouseID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcStreetAddr1 AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opcStreetAddr2 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcStreetAddr3 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCity        AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcState       AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcZip         AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCountry     AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-loc      FOR loc.
+    DEFINE BUFFER bf-location FOR location.
+    
+    FIND FIRST bf-loc NO-LOCK
+         WHERE bf-loc.company EQ ipcCompany
+           AND bf-loc.loc     EQ ipcWarehouseID 
+         NO-ERROR.
+    IF AVAILABLE bf-loc THEN       
+        FIND FIRST bf-location NO-LOCK
+             WHERE bf-location.locationCode = bf-loc.loc
+               AND bf-location.rec_key      = bf-loc.addrRecKey 
+             NO-ERROR.
+
+    IF AVAILABLE bf-location THEN    
+        ASSIGN
+            opcStreetAddr1 = bf-location.streetAddr[1]
+            opcStreetAddr2 = bf-location.streetAddr[2]
+            opcStreetAddr3 = bf-location.streetAddr[3]
+            opcCity        = bf-location.subCode3
+            opcState       = bf-location.subCode1
+            opcZip         = bf-location.subCode4
+            opcCountry     = bf-location.countryCode
+            .
+    ELSE
+        /* If location is not available then use company address set initially */
+        ASSIGN
+            opcStreetAddr1 = cCompanyAddr1
+            opcStreetAddr2 = cCompanyAddr1
+            opcStreetAddr3 = ""
+            opcCity        = cCompanyCity
+            opcState       = cCompanyState
+            opcZip         = cCompanyZip
+            opcCountry     = "" /* No country available in company table */
+            .
+END PROCEDURE.
+
+PROCEDURE pGetCompanyAddress PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Given a company returns the address of the company 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcStreetAddr1 AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opcStreetAddr2 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCity        AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcState       AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcZip         AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-company  FOR company.
+
+    FIND FIRST bf-company NO-LOCK
+         WHERE bf-company.company EQ ipcCompany
+         NO-ERROR.
+    IF AVAILABLE bf-company THEN
+        ASSIGN
+            opcStreetAddr1 = bf-company.addr[1]
+            opcStreetAddr2 = bf-company.addr[1]
+            opcCity        = bf-company.city
+            opcState       = bf-company.state
+            opcZip         = bf-company.zip
+            .    
+END PROCEDURE.
+   
 PROCEDURE pGetCustClassCode PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:

@@ -67,7 +67,8 @@ def workfile w-ord
   field palls as int format "->>,>>>,>>9"
   FIELD xls-rel-date  LIKE oe-rel.rel-date format "99/99/99"
   FIELD xls-status    AS CHAR
-  field prom-date like oe-ordl.prom-date.
+  field prom-date like oe-ordl.prom-date
+  FIELD prom-date-reason as CHARACTER.
 
 def buffer b-w-ord for w-ord.
 

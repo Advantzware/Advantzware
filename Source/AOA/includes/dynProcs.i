@@ -32,6 +32,8 @@ DEFINE VARIABLE idx             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iFGColor        AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iNumColumns     AS INTEGER   NO-UNDO.
 
+{sys/ref/CustList.i NEW}
+
 RUN AOA/spDynDescriptionProc.p PERSISTENT SET hDynDescripProc.
 RUN AOA/spDynInitializeProc.p  PERSISTENT SET hDynInitProc.
 RUN AOA/spDynValidateProc.p    PERSISTENT SET hDynValProc.
@@ -257,8 +259,8 @@ PROCEDURE pResultsBrowser :
                 cFormula = REPLACE(cFormula,"}","")
                 cFormula = REPLACE(cFormula,"__",".")
                 hCalcColumn[dynValueColumn.sortOrder] = hQueryBrowse:ADD-CALC-COLUMN(
-                    "Character",
-                    "x(" + STRING(LENGTH(cFormula)) + ")",
+                    IF INDEX(dynValueColumn.calcFormula,"|") NE 0 THEN dynValueColumn.dataType ELSE "Character",
+                    IF INDEX(dynValueColumn.calcFormula,"|") NE 0 THEN dynValueColumn.colFormat ELSE "x(" + STRING(LENGTH(cFormula)) + ")",
                     "",
                     dynValueColumn.colLabel + "[Calc]"
                     )
@@ -561,11 +563,11 @@ PROCEDURE pSetParamValueDefault:
                  EXCEPT paramValueID
                     TO bDynValueParamSet.
         END. /* each dynValueParamSet */
+        RELEASE bDynParamValue.
+        RELEASE bDynValueColumn.
+        RELEASE bDynValueParam.
+        RELEASE bDynValueParamSet.
     END. /* do trans */
-    RELEASE bDynParamValue.
-    RELEASE bDynValueColumn.
-    RELEASE bDynValueParam.
-    RELEASE bDynValueParamSet.
 
 END PROCEDURE.
 	

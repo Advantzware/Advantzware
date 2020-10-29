@@ -174,6 +174,40 @@
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
 
+  ELSE IF fi_siteID NE "" AND fi_siteID BEGINS '*' THEN DO:  
+     
+    {&for-each2} NO-LOCK
+         /*USE-INDEX procat*/ BY shipto.siteID :
+        ASSIGN
+           li = li + 1
+           lv-shipto-no = shipto.ship-id.
+        IF li GE sys-ctrl.int-fld THEN LEAVE.
+     END.
+
+     &SCOPED-DEFINE open-query                   ~
+         OPEN QUERY {&browse-name}               ~
+           {&for-each2} NO-LOCK                         
+            
+     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                    ELSE {&open-query} {&sortby-phrase-desc}.
+  END.
+  ELSE IF fi_siteID NE "" AND NOT fi_siteID BEGINS '*' THEN DO:  
+    {&for-each1} NO-LOCK
+         /*USE-INDEX procat*/ BY shipto.siteID :
+        ASSIGN
+           li = li + 1
+           lv-shipto-no = shipto.ship-id.
+        IF li GE sys-ctrl.int-fld THEN LEAVE.
+     END.
+
+     &SCOPED-DEFINE open-query                   ~
+         OPEN QUERY {&browse-name}               ~
+           {&for-each1} NO-LOCK   
+            
+     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
+                    ELSE {&open-query} {&sortby-phrase-desc}.
+  END.
+
   
 
   ELSE DO:  

@@ -4317,31 +4317,6 @@ PROCEDURE ipLoadAuditRecs :
         DELETE {&tablename}.
     END.
     
-    /* Finally, read the DB and ensure ALL (non-exception) tables in asi DB are referenced in audittbl file
-        with all audit options off - Tkt #39728*/
-    FOR EACH _file NO-LOCK WHERE _file._Tbl-type EQ "T":
-        /* check if already exists */
-        IF CAN-FIND(FIRST AuditTbl WHERE 
-            AuditTbl.AuditTable EQ _file._file-name) THEN NEXT.
-        /* ensure field rec_key exists */
-        IF CAN-FIND(FIRST _field OF _file WHERE 
-            ASI._field._field-name EQ "rec_key") EQ NO THEN NEXT.
-        /* ensure trigger code exists */
-        IF CAN-FIND(FIRST _file-trig WHERE 
-            _file-trig._file-recid EQ recid(_file) AND 
-            _file-trig._event EQ "create") EQ NO THEN NEXT.
-        /* check if in exception list */
-        IF CAN-DO(cAuditExceptionList,_file._file-name) THEN NEXT.
-        /* add table to Audit Table */
-        CREATE AuditTbl.
-        ASSIGN
-            AuditTbl.AuditTable  = _file._file-name
-            AuditTbl.AuditCreate = NO
-            AuditTbl.AuditDelete = NO
-            AuditTbl.AuditUpdate = NO
-            AuditTbl.AuditStack  = NO
-            .
-    END.
             
     EMPTY TEMP-TABLE tt{&tablename}.
     
@@ -4371,11 +4346,6 @@ PROCEDURE ipLoadAuditRecs :
             ASSIGN 
                 {&tableName}.auditDefault = tt{&tableName}.auditDefault
                 .
-            /* and make sure THEIR activation is AT LEAST the default */
-            ASSIGN 
-                {&tableName}.audit = IF {&tableName}.audit THEN TRUE ELSE {&tableName}.audit
-                . 
-            
         END.
     END.
     INPUT CLOSE.
@@ -4389,6 +4359,19 @@ PROCEDURE ipLoadAuditRecs :
     END.
     
     EMPTY TEMP-TABLE tt{&tablename}.
+
+    /* Finally, if an earlier iteration of auditFld, if auditTbl says audit updates, turn on all fields */
+    IF fIntVer(fiFromVer:{&SV}) LE 20020500 THEN DO:
+        FOR EACH AuditTbl NO-LOCK WHERE 
+            AuditTbl.AuditUpdate EQ YES:
+            FOR EACH AuditFld EXCLUSIVE-LOCK WHERE 
+                AuditFld.AuditTable EQ AuditTbl.AuditTable:
+                ASSIGN
+                    AuditFld.Audit = YES.
+            END.
+        END.
+    END. 
+ 
     
 END PROCEDURE.
 
@@ -4811,6 +4794,18 @@ PROCEDURE ipLoadDAOAData :
             DELETE {&tablename}.
     END.
     INPUT CLOSE.
+    
+/*  #92831 Configure DAOA for Altex*/
+    DISABLE TRIGGERS FOR LOAD OF emailConfig.
+    FIND FIRST emailConfig NO-LOCK WHERE 
+        emailConfig.configID EQ 1
+        NO-ERROR.
+    IF NOT AVAIL emailConfig THEN DO:
+        CREATE emailConfig.
+        ASSIGN 
+            emailConfig.configID = 1
+            emailConfig.description = "DAOA Report Config".
+    END.
 
 END PROCEDURE.
 
@@ -5160,7 +5155,6 @@ PROCEDURE ipLoadPrograms :
                 tt{&tablename}.can_create
                 tt{&tablename}.can_update
                 tt{&tablename}.can_delete
-                tt{&tablename}.subjectID
                 TO {&tablename}.
         END.
     END.

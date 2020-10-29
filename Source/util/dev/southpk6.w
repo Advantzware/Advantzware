@@ -44,6 +44,7 @@ CREATE WIDGET-POOL.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
+{methods/getExecutableFileName.i quoter}
 
 assign
  cocode = gcompany
@@ -357,10 +358,9 @@ def var v-uom-qty like fg-rdtl.t-qty no-undo.
      v-op-file = "inven2.quo".
   end.
 
-  if opsys eq "UNIX" then
-    unix silent quoter -c 1-3000 value(search(v-ip-file)) > value(v-op-file).
-  else
-    dos  silent quoter -c 1-3000 value(search(v-ip-file)) > value(v-op-file).
+    ASSIGN 
+        cQuoterCommandString = cQuoterFullPathName + " -c 1-3000 " + v-ip-file + " > " + v-op-file.
+    OS-COMMAND SILENT VALUE(cQuoterCommandString).
 
   input from value(v-op-file).
 

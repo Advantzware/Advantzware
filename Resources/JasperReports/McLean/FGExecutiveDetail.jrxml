@@ -63,9 +63,9 @@
 		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__dQuantityOnHand"/>
 		<fieldDescription><![CDATA[ttJobItem__dQuantityOnHand]]></fieldDescription>
 	</field>
-	<field name="ttJobItem__dPricePerUOM" class="java.lang.Double">
-		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__dPricePerUOM"/>
-		<fieldDescription><![CDATA[ttJobItem__dPricePerUOM]]></fieldDescription>
+	<field name="ttJobItem__dPricePerEA" class="java.lang.Double">
+		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__dPricePerEA"/>
+		<fieldDescription><![CDATA[ttJobItem__dPricePerEA]]></fieldDescription>
 	</field>
 	<field name="ttJobItem__cPriceUOM" class="java.lang.String">
 		<property name="net.sf.jasperreports.xpath.field.expression" value="ttJobItem__cPriceUOM"/>
@@ -405,7 +405,7 @@
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID"/>
 				</reportElement>
 				<textElement textAlignment="Right"/>
-				<textFieldExpression><![CDATA[$F{ttJobItem__dPricePerUOM}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{ttJobItem__dPricePerEA}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement x="899" y="0" width="10" height="14" uuid="bcf75456-d858-453d-954c-d12ecaa54f49">

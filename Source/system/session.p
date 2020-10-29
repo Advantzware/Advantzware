@@ -18,6 +18,7 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+USING system.SharedConfig.
 
 DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation           AS CHARACTER NO-UNDO.
@@ -34,8 +35,8 @@ DEFINE VARIABLE iParamValueID       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iPeriod             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lAdmin              AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSecure             AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lUserAMPM           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSuperAdmin         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lUserAMPM           AS LOGICAL   NO-UNDO.
 /* cue card variables */
 DEFINE VARIABLE lCueCardActive      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iCueOrder           AS INTEGER   NO-UNDO.
@@ -50,7 +51,9 @@ DEFINE VARIABLE rowMsgRtn           AS ROWID     NO-UNDO.
 DEFINE VARIABLE datMsgRtn           AS DATE      NO-UNDO.
 DEFINE VARIABLE dtmMsgRtn           AS DATETIME  NO-UNDO.
 
-/* alphabetical list of super-procedures comma delimited */
+DEFINE VARIABLE scInstance          AS CLASS System.SharedConfig NO-UNDO.
+
+/* vv alphabetical list of super-procedures comma delimited vv */
 ASSIGN 
     cSuperProcedure = "est/EstimateProcs.p,"
                     + "system/CommonProcs.p,"
@@ -62,10 +65,12 @@ ASSIGN
                     + "system/OSProcs.p,"
                     + "system/PurgeProcs.p,"
                     + "system/TagProcs.p,"
-                    + "system/VendorCostProcs.p,"
                     + "system/TaxProcs.p,"
+                    + "system/VendorCostProcs.p,"
     cSuperProcedure = TRIM(cSuperProcedure,",")
     .
+/* ^^ alphabetical list of super-procedures comma delimited ^^ */
+
 DEFINE TEMP-TABLE ttSessionParam NO-UNDO
     FIELD sessionParam AS CHARACTER
     FIELD sessionValue AS CHARACTER
@@ -81,6 +86,9 @@ DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
 {AOA/includes/pGetDynParamValue.i}
 {AOA/includes/pInitDynParamValue.i}
 {AOA/includes/pSetDynParamValue.i "dyn"}
+{api/CommonAPIProcs.i}
+{sys/ref/CustList.i NEW}
+{AOA/BL/pBuildCustList.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -128,6 +136,18 @@ FUNCTION fMessageText RETURNS CHARACTER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fMessageTitle Procedure
 FUNCTION fMessageTitle RETURNS CHARACTER 
   (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-pReplaceContext) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pReplaceContext Procedure
+FUNCTION pReplaceContext RETURNS CHARACTER PRIVATE
+  (ipcMessage AS CHARACTER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -654,6 +674,71 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spBuildCustList) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spBuildCustList Procedure
+PROCEDURE spBuildCustList:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCustListID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplProceed    AS LOGICAL   NO-UNDO.
+
+    DEFINE VARIABLE cCompany       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEndCustList   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStartCustList AS CHARACTER NO-UNDO.
+
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    RUN pBuildCustList (
+        cCompany,
+        ipcCustListID,
+        OUTPUT cStartCustList,
+        OUTPUT cEndCustList,
+        OUTPUT oplProceed
+        ).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-spCheckCustList) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCheckCustList Procedure
+PROCEDURE spCheckCustList:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iphQuery   AS HANDLE    NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcField   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplProceed AS LOGICAL   NO-UNDO.
+
+    DEFINE VARIABLE cValue    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hTable AS HANDLE    NO-UNDO.
+
+    IF VALID-HANDLE(iphQuery) THEN
+    ASSIGN
+        hTable = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,ipcField,"."))
+        cValue = hTable:BUFFER-FIELD(ENTRY(2,ipcField,".")):BUFFER-VALUE
+        .
+    ELSE
+    cValue = ipcField.
+
+    oplProceed = CAN-FIND(FIRST ttCustList
+                          WHERE ttCustList.cust-no EQ cValue
+                            AND ttCustList.log-fld EQ TRUE).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-spCheckTrackUsage) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCheckTrackUsage Procedure
@@ -913,6 +998,45 @@ PROCEDURE spCueCardFrame:
     DEFINE INPUT PARAMETER iphWidget AS HANDLE NO-UNDO.
     
     iphWidget:MOVE-TO-TOP ().
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-spCustList) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCustList Procedure
+PROCEDURE spCustList:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiSubjectID     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcUserID        AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPrgmName      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiParamValueID  AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustListID    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCustListField AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplUseCustList   AS LOGICAL   NO-UNDO.
+
+    FIND FIRST dynValueColumn NO-LOCK
+         WHERE dynValueColumn.subjectID     EQ ipiSubjectID
+           AND dynValueColumn.user-id       EQ ipcUserID
+           AND dynValueColumn.prgmName      EQ ipcPrgmName
+           AND dynValueColumn.paramValueID  EQ ipiParamValueID
+           AND dynValueColumn.CustListField EQ YES
+         NO-ERROR.
+    IF NOT AVAILABLE dynValueColumn THEN RETURN.
+
+    RUN spBuildCustList (
+        ipcCustListID,
+        OUTPUT oplUseCustList
+        ).
+    IF oplUseCustList THEN
+    opcCustListField = dynValueColumn.colName.
 
 END PROCEDURE.
 	
@@ -1951,10 +2075,22 @@ FUNCTION fMessageText RETURNS CHARACTER
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
-------------------------------------------------------------------------------*/
-    RETURN IF zMessage.currMessage  NE "" THEN zMessage.currMessage
+------------------------------------------------------------------------------*/        
+    IF zMessage.contextParms EQ "" THEN DO:     
+        RETURN IF zMessage.currMessage  NE "" THEN 
+            zMessage.currMessage
            ELSE zMessage.defaultMsg + " (" + ipcMessageID + ")".
-
+    END.
+    
+    ELSE DO:
+        IF scInstance EQ ? THEN 
+            scInstance = SharedConfig:instance.
+            
+        IF zMessage.currMessage NE "" THEN
+            RETURN pReplaceContext(zMessage.currMessage).
+        ELSE 
+            RETURN pReplaceContext(zMessage.defaultMsg) + " (" + ipcMessageID + ")".
+    END.    
 END FUNCTION.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -1982,6 +2118,33 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-pReplaceContext) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pReplaceContext Procedure
+FUNCTION pReplaceContext RETURNS CHARACTER PRIVATE
+  (ipcMessage AS CHARACTER) :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iIndex        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cContextValue AS CHARACTER NO-UNDO.
+
+    DO iIndex = 1 TO NUM-ENTRIES(zMessage.contextParms,","):
+        cContextValue = scInstance:ConsumeValue(TRIM(ENTRY(iIndex,zMessage.contextParms,","))).
+        RUN updateRequestData(INPUT-OUTPUT ipcMessage ,TRIM(ENTRY(iIndex,zMessage.contextParms,",")),cContextValue).        
+    END.   
+    RETURN ipcMessage.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfDynLookupValue) = 0 &THEN
 
@@ -2096,7 +2259,9 @@ FUNCTION sfWebCharacters RETURNS CHARACTER
         4=< (less than)
         5=> (greater than)
         6=\ (back slash)
-        7=/ (forward slash)
+        7=RETURN (line feed)
+        8=EOF (end of file)
+        9=/ (forward slash)
 ------------------------------------------------------------------------------*/
 	DEFINE VARIABLE cWebString AS CHARACTER NO-UNDO.
 

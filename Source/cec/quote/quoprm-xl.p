@@ -166,8 +166,9 @@ if (xquo.shipto[1] eq xquo.soldto[1] and
      ship[4] = ""
      ship[5] = "SAME".
 
-
+  IF AVAIL est AND est.est-type NE 5 THEN
   RUN sys/ref/getFileFullPathName.p ("Template\QuotePrem.xlt", OUTPUT chFile).
+  ELSE  RUN sys/ref/getFileFullPathName.p ("Template\QuotePremWaterMark.xlt", OUTPUT chFile).
   IF chFile = ? THEN  
       APPLY 'close' TO THIS-PROCEDURE.
 
@@ -190,11 +191,26 @@ if not ch-multi then do:
       chExcelApplication:Selection:Font:Bold = TRUE
       inrowcount = inrowcount + 3
       v-cell = "R" + string(inrowcount) + "C2".
-
+      
+   
    chExcelApplication:Goto(v-cell) NO-ERROR.
    ASSIGN
-      chExcelApplication:ActiveCell:Value = sman.sname
-      chExcelApplication:Selection:Font:Bold = True.
+      chExcelApplication:ActiveCell:Value = "For items that utilize die cut tooling and/or print plates, Premier Packaging reserves the right to discard of "
+      inrowcount = inrowcount + 1
+      v-cell = "R" + string(inrowcount) + "C2"
+      .
+      
+    chExcelApplication:Goto(v-cell) NO-ERROR.
+   ASSIGN
+      chExcelApplication:ActiveCell:Value = "tooling & print plates due to inactivity over 12 months. Customers will have the option to request tooling prior to disposal."
+      inrowcount = inrowcount + 3
+      v-cell = "R" + string(inrowcount) + "C2"
+     .   
+      
+   chExcelApplication:Goto(v-cell) NO-ERROR.
+   ASSIGN
+      chExcelApplication:ActiveCell:Value = sman.sname     
+      chExcelApplication:Selection:Font:Bold = TRUE.   
 
    chExcelApplication:Goto("R1C1") NO-ERROR.
    chExcelApplication:activeSheet:PageSetup:CenterFooter = "PO BOX 39505 / LOUISVILLE KENTUCKY 40233 / 800-518-6305 / FAX: 502-935-8330".

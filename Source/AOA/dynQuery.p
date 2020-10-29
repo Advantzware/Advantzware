@@ -8,23 +8,65 @@ DEFINE OUTPUT PARAMETER ophQuery       AS HANDLE    NO-UNDO.
 DEFINE OUTPUT PARAMETER oplOK          AS LOGICAL   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcError       AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE cDate         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cParam        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cQueryStr     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE dtDate        AS DATE      NO-UNDO.
-DEFINE VARIABLE hBuffer       AS HANDLE    NO-UNDO EXTENT 200.
-DEFINE VARIABLE hDynCalcField AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hQuery        AS HANDLE    NO-UNDO.
-DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
-DEFINE VARIABLE lOK           AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cCompany       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCustListField AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDate          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndCustList   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cParam         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cQueryStr      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartCustList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dtDate         AS DATE      NO-UNDO.
+DEFINE VARIABLE hBuffer        AS HANDLE    NO-UNDO EXTENT 200.
+DEFINE VARIABLE hDynCalcField  AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hQuery         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lUseCustList   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lOK            AS LOGICAL   NO-UNDO.
+
+{sys/ref/CustList.i NEW}
+{AOA/BL/pBuildCustList.i}
 
 RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
 
-FIND FIRST dynParamValue NO-LOCK WHERE ROWID(dynParamValue) EQ iprRowID NO-ERROR.
+FIND FIRST dynParamValue NO-LOCK
+     WHERE ROWID(dynParamValue) EQ iprRowID
+     NO-ERROR.
 IF NOT AVAILABLE dynParamValue THEN RETURN.
+
+IF dynParamValue.useCustList OR dynParamValue.CustListID NE "" THEN DO:
+    FIND FIRST dynValueColumn NO-LOCK
+         WHERE dynValueColumn.subjectID     EQ dynParamValue.subjectID
+           AND dynValueColumn.user-id       EQ dynParamValue.user-id
+           AND dynValueColumn.prgmName      EQ dynParamValue.prgmName
+           AND dynValueColumn.paramValueID  EQ dynParamValue.paramValueID
+           AND dynValueColumn.CustListField EQ YES
+         NO-ERROR.
+    IF AVAILABLE dynValueColumn THEN DO:    
+        RUN spGetSessionParam ("Company", OUTPUT cCompany).
+        RUN pBuildCustList (
+            cCompany,
+            dynParamValue.CustListID,
+            OUTPUT cStartCustList,
+            OUTPUT cEndCustList,
+            OUTPUT lUseCustList
+            ).
+        IF lUseCustList THEN
+        ASSIGN
+            cCustListField = dynValueColumn.colName
+            ipcTableName   = ipcTableName + ",ttCustList"
+            .
+    END. /* if avail */
+END. /* if custlistid */
 
 /* replace [[parameter]] with parameter value */
 {AOA/includes/cQueryStr.i ipcQueryStr}
+
+IF lUseCustList THEN
+cQueryStr = cQueryStr
+          + ", FIRST ttCustList WHERE ttCustList.cust-no EQ "
+          + cCustListField
+          + " AND ttCustList.log-fld EQ YES"
+          .
 
 /* append sort by option to query */
 RUN AOA/dynSortBy.p (BUFFER dynParamValue, INPUT-OUTPUT cQueryStr).

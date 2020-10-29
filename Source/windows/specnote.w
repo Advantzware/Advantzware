@@ -40,6 +40,7 @@ ASSIGN
 DEF VAR v-prg-2 AS CHAR NO-UNDO.
 
 v-prg-2 = PROGRAM-NAME(2).
+
 /* Local Variable Definitions ---                                       */
 
 /* _UIB-CODE-BLOCK-END */
@@ -574,6 +575,33 @@ PROCEDURE local-exit :
        
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetChargeCode W-Win
+PROCEDURE pGetChargeCode:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcChargeCode AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE hCallingPrgm AS HANDLE NO-UNDO.
+    
+    IF INDEX(v-prg-2,"w-prdh.") NE 0 OR INDEX(v-prg-2,"w-prdhj.") NE 0 THEN DO:
+        hCallingPrgm = SESSION:FIRST-PROCEDURE.
+        DO WHILE VALID-HANDLE(hCallingPrgm):
+            IF hCallingPrgm:FILE-NAME EQ ENTRY(NUM-ENTRIES(v-prg-2," "),v-prg-2," ") AND
+               INDEX(hCallingPrgm:INTERNAL-ENTRIES,"pGetChargeCode") NE 0 THEN DO:
+                RUN pGetChargeCode IN hCallingPrgm (OUTPUT opcChargeCode).
+                LEAVE. 
+            END. /* if index */
+            hCallingPrgm = hCallingPrgm:NEXT-SIBLING.
+        END. /* do while */
+    END. /* if called from DU or DF */
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

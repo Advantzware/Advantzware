@@ -47,6 +47,8 @@ DEF SHARED TEMP-TABLE tt-selected FIELD tt-rowid AS ROWID.
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
 DEFINE VARIABLE lDisplayAllBins AS LOGICAL INIT YES NO-UNDO.
+DEFINE VARIABLE v-prgmname LIKE prgrms.prgmname NO-UNDO.
+
 &scoped-define SORTBY-1 BY rm-bin.loc BY rm-bin.loc-bin BY rm-bin.tag
 &scoped-define SORTBY-2 BY rm-bin.loc-bin
 &scoped-define SORTBY-3 BY rm-bin.tag
@@ -63,6 +65,16 @@ DEFINE VARIABLE lDisplayAllBins AS LOGICAL INIT YES NO-UNDO.
 
 IF  PROGRAM-NAME(2) MATCHES "*dMultiTrans.w*" THEN
     lDisplayAllBins = NO .  
+    
+ASSIGN
+    v-prgmname = SUBSTRING(PROGRAM-NAME(1), R-INDEX(PROGRAM-NAME(1), "/") + 1)
+    v-prgmname = SUBSTRING(v-prgmname,1,INDEX(v-prgmname,"."))
+    .   
+{system/sysconst.i}
+{methods/defines/globdefs.i} 
+{sys/inc/var.i new shared}
+ASSIGN
+  cocode = g_company.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -92,17 +104,17 @@ rm-bin.tag rm-bin.qty rm-bin.po-no
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH rm-bin WHERE ~{&KEY-PHRASE} ~
       AND rm-bin.company = ip-company ~
 AND rm-bin.i-no = ip-i-no  ~
-and (rm-bin.po-no eq ip-PoNo or ip-PoNo eq 0) ~
-and (rm-bin.loc  EQ ip-loc OR ip-loc EQ "") ~
-and (rm-bin.loc-bin  EQ ip-loc-bin OR ip-loc-bin EQ "") ~
+and (rm-bin.po-no eq ip-PoNo or ip-PoNo eq 0 OR tb_qty eq YES) ~
+and (rm-bin.loc  EQ ip-loc OR ip-loc EQ "" OR tb_qty eq YES) ~
+and (rm-bin.loc-bin  EQ ip-loc-bin OR ip-loc-bin EQ "" OR tb_qty eq YES) ~
 AND ((rm-bin.qty > 0 AND NOT tb_qty) OR tb_qty = YES)  NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH rm-bin WHERE ~{&KEY-PHRASE} ~
       AND rm-bin.company = ip-company ~
 AND rm-bin.i-no = ip-i-no  ~
-and (rm-bin.po-no eq ip-PoNo or ip-PoNo eq 0) ~
-and (rm-bin.loc  EQ ip-loc OR ip-loc EQ "") ~
-and (rm-bin.loc-bin  EQ ip-loc-bin OR ip-loc-bin EQ "") ~
+and (rm-bin.po-no eq ip-PoNo or ip-PoNo eq 0 OR tb_qty eq YES) ~
+and (rm-bin.loc  EQ ip-loc OR ip-loc EQ "" OR tb_qty eq YES) ~
+and (rm-bin.loc-bin  EQ ip-loc-bin OR ip-loc-bin EQ "" OR tb_qty eq YES) ~
 AND ((rm-bin.qty > 0 AND NOT tb_qty) OR tb_qty = YES)  NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 rm-bin
@@ -261,9 +273,9 @@ ASSIGN
      _TblList          = "ASI.rm-bin"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "ASI.rm-bin.company = ip-company
-AND ASI.rm-bin.i-no = ip-i-no AND (ASI.rm-bin.po-no = ip-PoNo or ip-PoNo eq 0)
-and (rm-bin.loc  EQ ip-loc OR ip-loc EQ '') 
-and (rm-bin.loc-bin  EQ ip-loc-bin OR ip-loc-bin EQ '') 
+AND ASI.rm-bin.i-no = ip-i-no AND (ASI.rm-bin.po-no = ip-PoNo or ip-PoNo eq 0 OR tb_qty eq YES)
+and (rm-bin.loc  EQ ip-loc OR ip-loc EQ '' OR tb_qty eq YES) 
+and (rm-bin.loc-bin  EQ ip-loc-bin OR ip-loc-bin EQ '' OR tb_qty eq YES)  
 AND ((rm-bin.qty > 0 AND NOT tb_qty) OR tb_qty = YES) "
      _FldNameList[1]   = ASI.rm-bin.loc
      _FldNameList[2]   > ASI.rm-bin.loc-bin
@@ -444,6 +456,7 @@ DO:
         {srtord.i 5}
     end.    
     apply "entry" to {&browse-name}.
+    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -465,6 +478,7 @@ DO:
         {srtord.i 5}
     end.    
     apply "entry" to {&browse-name}.
+    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -502,6 +516,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
 
   DO WITH frame {&frame-name}:
+    {custom/usrprint.i}
+     APPLY "VALUE-CHANGED" TO tb_qty .
+    
     {&browse-name}:SET-REPOSITIONED-ROW(INT({&browse-name}:DOWN / 2),"always").
           
     FOR EACH b-rm-bin

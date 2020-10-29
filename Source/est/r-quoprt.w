@@ -2625,7 +2625,7 @@ PROCEDURE SetQuoForm :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAM icPrintFormat AS CHAR NO-UNDO.
-   IF INDEX("Pacific,Xprint,RFC,quoprint 1,quoprint 2,quoprint 10,QuoPrintVAL,quoprint 11,quoprint 20,Chattanooga,Printers,Hughes,SouthPak,ABox,Midwest,Axis,MWFIBRE,century,Concepts,oracle,Harwell,quoprint10-CAN,PremierX,Elite,Unipak,Ottpkg,Frankstn,Mirpkg,APC,Perform,FibreX,Boss,Protagon,Loylang,LoylangBSF,PPI,Packrite,Xprint30,StClair,AllWest,Soule,Sultana,SouleMed,Simkins,CCC,Peachtree,Oklahoma,Accord,Onducorr",icPrintFormat) > 0 THEN
+   IF INDEX("Pacific,Xprint,RFC,quoprint 1,quoprint 2,quoprint 10,QuoPrintVAL,quoprint 11,quoprint 20,Chattanooga,Printers,Hughes,SouthPak,ABox,Midwest,Axis,MWFIBRE,century,Concepts,oracle,Harwell,quoprint10-CAN,PremierX,Elite,Unipak,Ottpkg,Frankstn,Mirpkg,APC,Perform,FibreX,Boss,Protagon,Loylang,LoylangBSF,PPI,Packrite,Xprint30,StClair,AllWest,Soule,Sultana,SouleMed,Simkins,CCC,Peachtree,Altex,Oklahoma,Accord,Onducorr",icPrintFormat) > 0 THEN
       is-xprint-form = YES.     
    ELSE is-xprint-form = NO.
 
@@ -2693,6 +2693,7 @@ PROCEDURE SetQuoForm :
        WHEN "Simkins" THEN ASSIGN v-program = "cec/quote/quosmkct.p" lines-per-page = 66.
        WHEN "CCC" THEN ASSIGN v-program = "cec/quote/quoccc.p" lines-per-page = 66.
        WHEN "Peachtree" THEN ASSIGN v-program = "cec/quote/quoxptree.p" lines-per-page = 66.
+       WHEN "Altex" THEN ASSIGN v-program = "cec/quote/quoaltex.p" lines-per-page = 66.
        WHEN "RFC" THEN ASSIGN v-program = "cec/quote/quorfc.p" lines-per-page = 66.
        WHEN "Chattanooga" THEN ASSIGN v-program = "cec/quote/quochatt.p" lines-per-page = 66.
        OTHERWISE DO:
@@ -2872,7 +2873,7 @@ PROCEDURE pRunFormatValueChanged :
             ASSIGN rd_sort:SENSITIVE = NO.
         ELSE rd_sort:SENSITIVE = YES.
 
-        IF v-print-fmt EQ "Peachtree" THEN
+        IF v-print-fmt EQ "Peachtree" OR v-print-fmt EQ "Altex" THEN
             ASSIGN rs-act-inact:HIDDEN = NO
             rs-act-inact:SENSITIVE = YES
             lbl_Item-status:HIDDEN = NO.

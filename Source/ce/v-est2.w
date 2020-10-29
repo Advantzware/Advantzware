@@ -78,6 +78,7 @@ DEF VAR lShtcalcWarm-log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE dCelayoutDec AS DECIMAL NO-UNDO.
 DEFINE VARIABLE lVendItemCost AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cCEVersion AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iCEVersion AS INTEGER NO-UNDO.
 
 {cec/bestfitc.i NEW SHARED}
 
@@ -648,9 +649,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN eb.num-wid IN FRAME fold
    2 EXP-LABEL EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN OverrideExist IN FRAME fold
-   NO-ENABLE ALIGN-L                                                    */
-ASSIGN 
-       OverrideExist:HIDDEN IN FRAME fold           = TRUE.
+   NO-ENABLE ALIGN-L                                                    */ 
 
 /* SETTINGS FOR TOGGLE-BOX ef.roll IN FRAME fold
    5 EXP-LABEL                                                          */
@@ -1724,7 +1723,13 @@ RUN sys/ref/nk1look.p (INPUT cocode, "CEVersion", "C" /* Logical */, NO /* check
                        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                        OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    cCEVersion = cRtnChar NO-ERROR.    
+    cCEVersion = cRtnChar NO-ERROR.  
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "CEVersion", "I" /* Logical */, NO /* check by cust */, 
+                       INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                       OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    iCEVersion = INTEGER(cRtnChar) NO-ERROR.    
   
 {sys/inc/vendItemCost.i}
 SESSION:DATA-ENTRY-RETURN = YES.
@@ -2551,7 +2556,7 @@ PROCEDURE local-display-fields :
     ELSE 
          btn_board:HIDDEN  = FALSE .
          
-    IF lVendItemCost AND cCEVersion EQ "New" AND ef.board NE "" THEN
+    IF lVendItemCost AND cCEVersion EQ "New" AND ef.board NE "" AND (iCEVersion EQ 0 OR iCEVersion EQ 3) THEN
     DO:
       btn_cost:HIDDEN  = FALSE .
       RUN pShowHideCostFiled.      

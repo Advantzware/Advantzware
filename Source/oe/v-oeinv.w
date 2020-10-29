@@ -75,12 +75,12 @@ DEFINE BUFFER bff-head FOR inv-head.
 DEFINE QUERY external_tables FOR inv-head.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS inv-head.inv-date inv-head.cust-no ~
-inv-head.sold-no inv-head.contact inv-head.tax-gr inv-head.terms ~
-inv-head.carrier inv-head.frt-pay inv-head.fob-code inv-head.t-inv-weight ~
-inv-head.t-inv-freight inv-head.t-comm 
+inv-head.sold-no inv-head.autoApproved inv-head.contact inv-head.tax-gr ~
+inv-head.terms inv-head.carrier inv-head.frt-pay inv-head.fob-code ~
+inv-head.t-inv-weight inv-head.t-inv-freight inv-head.t-comm 
 &Scoped-define ENABLED-TABLES inv-head
 &Scoped-define FIRST-ENABLED-TABLE inv-head
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-41 imgHoldRsn btnCalendar-1 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-41 btnCalendar-1 
 &Scoped-Define DISPLAYED-FIELDS inv-head.printed inv-head.inv-no ~
 inv-head.inv-date inv-head.bol-no inv-head.r-no inv-head.cust-no ~
 inv-head.sold-no inv-head.cust-name inv-head.sold-name ~
@@ -157,6 +157,11 @@ DEFINE BUTTON btnCalendar-1
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
+DEFINE BUTTON btnTags 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Show Details".
+
 DEFINE VARIABLE fi_PO AS CHARACTER FORMAT "X(256)":U 
      LABEL "Cust PO#" 
      VIEW-AS FILL-IN 
@@ -166,10 +171,6 @@ DEFINE VARIABLE inv-status AS CHARACTER FORMAT "X(8)":U
      LABEL "Status" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
-
-DEFINE IMAGE imgHoldRsn
-     FILENAME "graphics/16x16/question.png":U
-     SIZE 4 BY .95.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -211,6 +212,7 @@ DEFINE FRAME F-Main
           LABEL "Ship to"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
+     btnTags AT ROW 4.29 COL 139 WIDGET-ID 8
      inv-head.cust-name AT ROW 4.33 COL 14.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 49 BY 1
@@ -218,6 +220,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 41.8 BY 1
      inv-head.autoApproved AT ROW 4.33 COL 118.6
+          LABEL "AutoApproved"
           VIEW-AS TOGGLE-BOX
           SIZE 20 BY 1
      inv-head.addr[1] AT ROW 5.29 COL 14.6 COLON-ALIGNED NO-LABEL
@@ -305,7 +308,6 @@ DEFINE FRAME F-Main
           FGCOLOR 9 
      RECT-1 AT ROW 1.19 COL 1
      RECT-41 AT ROW 12.43 COL 9
-     imgHoldRsn AT ROW 4.48 COL 139.2 WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -373,11 +375,13 @@ ASSIGN
 /* SETTINGS FOR FILL-IN inv-head.addr[2] IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR TOGGLE-BOX inv-head.autoApproved IN FRAME F-Main
-   NO-ENABLE                                                            */
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN inv-head.bol-no IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
    3                                                                    */
+/* SETTINGS FOR BUTTON btnTags IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN inv-head.city IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN inv-head.contact IN FRAME F-Main
@@ -546,6 +550,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnTags
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTags V-table-Win
+ON CHOOSE OF btnTags IN FRAME F-Main
+DO:
+    RUN system/d-TagViewer.w(
+        INPUT inv-head.rec_key,
+        INPUT ""
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME inv-head.carrier
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-head.carrier V-table-Win
 ON LEAVE OF inv-head.carrier IN FRAME F-Main /* Carrier */
@@ -595,17 +613,6 @@ DO:
    IF LASTKEY = -1  THEN RETURN.
    RUN valid-fob NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME imgHoldRsn
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imgHoldRsn V-table-Win
-ON MOUSE-SELECT-CLICK OF imgHoldRsn IN FRAME F-Main
-DO:
-    RUN sys/ref/dlgTagVwr.w (inv-head.rec_key,"","").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1314,10 +1321,11 @@ PROCEDURE local-assign-record :
   DEF VAR ld-tax-tot AS DEC NO-UNDO.
   DEF VAR ld-tax-amt AS DEC NO-UNDO.
   DEF VAR ld-inv-accum AS DEC NO-UNDO.
+  DEFINE VARIABLE ld-prev-auto-approved AS LOGICAL NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN ld-prev-frt-tot = IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0 .
-
+  ld-prev-auto-approved = inv-head.autoApproved.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -1340,6 +1348,16 @@ PROCEDURE local-assign-record :
           ASSIGN 
             inv-head.sman[1] = cust.sman
             inv-head.s-pct[1] = 100.
+  END.
+  IF ld-prev-auto-approved NE inv-head.autoApproved AND inv-head.autoApproved THEN
+  DO:
+     RUN ClearTagsByRecKey(inv-head.rec_key).  /*Clear all hold tags - TagProcs.p*/
+     RUN AddTagHoldInfo(
+        INPUT inv-head.rec_key,
+        INPUT "inv-head",
+        INPUT "Manually Approved",
+        INPUT ""
+        ). /*From TagProcs Super Proc*/       
   END.
 
   RUN dispatch ('display-fields').
@@ -1425,6 +1443,7 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR lv-ord-no LIKE inv-line.ord-no.
+  DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
   DEF BUFFER b-inv-line FOR inv-line.
   DEF BUFFER b-inv-misc FOR inv-misc.
   DEF BUFFER b-oe-ord FOR oe-ord.
@@ -1465,6 +1484,17 @@ PROCEDURE local-display-fields :
 
      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
         RUN set-status-btn-lbl IN WIDGET-HANDLE(char-hdl) (INPUT inv-head.stat).
+        
+     RUN Tag_IsTagRecordAvailable(
+         INPUT inv-head.rec_key,
+         INPUT "inv-head",
+         OUTPUT lAvailable
+         ).
+       IF lAvailable THEN
+           btnTags:SENSITIVE = TRUE
+           .
+       ELSE
+           btnTags:SENSITIVE = FALSE.
   END.
 
   DISABLE inv-status WITH FRAME {&FRAME-NAME}.

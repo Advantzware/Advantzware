@@ -55,7 +55,6 @@ DEFINE VARIABLE cRequestStatusFailed      AS CHARACTER NO-UNDO INITIAL "Failed".
 DEFINE VARIABLE cRequestTypeAPI           AS CHARACTER NO-UNDO INITIAL "API".
 DEFINE VARIABLE cRequestTypeFTP           AS CHARACTER NO-UNDO INITIAL "FTP".
 DEFINE VARIABLE cRequestTypeSAVE          AS CHARACTER NO-UNDO INITIAL "SAVE".
-DEFINE VARIABLE cLocValidationExceptions  AS CHARACTER NO-UNDO INITIAL "SendAdvancedShipNotice,SendFinishedGood,CalculateTax". /* Should be comma (,) separated. loc.isAPIEnabled will not be validated for APIs in the list */
 DEFINE VARIABLE cScopeTypeList            AS CHARACTER NO-UNDO INITIAL "_ANY_,Customer,Vendor,ShipTo".
 DEFINE VARIABLE cScopeTypeCustomer        AS CHARACTER NO-UNDO INITIAL "Customer".
 DEFINE VARIABLE cScopeTypeVendor          AS CHARACTER NO-UNDO INITIAL "Vendor".
@@ -181,7 +180,7 @@ PROCEDURE Outbound_GetAPIClientTransCount:
     
     DEFINE BUFFER bf-apiClient FOR apiClient.
 
-    FIND FIRST bf-apiClient EXCLUSIVE-LOCK
+    FIND FIRST bf-apiClient NO-LOCK
          WHERE bf-apiClient.company  EQ ipcCompany
            AND bf-apiClient.clientID EQ ipcClientID
          NO-ERROR.
@@ -226,6 +225,29 @@ PROCEDURE Outbound_GetAPIID:
             opcMessage = "Outbound configuration for API ID ["
                        + ipcAPIID + "] is not available or inactive"
             .
+END PROCEDURE.
+
+PROCEDURE Outbound_GetAPIStatus:
+/*------------------------------------------------------------------------------
+ Purpose: Given a company, api id and client id returns the status 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcAPIID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcClientID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplInActive AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
+    
+    oplInActive = TRUE.
+       
+    FIND FIRST bf-APIOutbound NO-LOCK
+         WHERE bf-APIOutbound.company  EQ ipcCompany
+           AND bf-APIOutbound.apiID    EQ ipcAPIID
+           AND bf-APIOutbound.clientID EQ ipcClientID 
+         NO-ERROR.
+    IF AVAILABLE bf-APIOutbound THEN
+        oplInactive = bf-APIOutbound.inActive.
 END PROCEDURE.
 
 PROCEDURE Outbound_GetAPITransCount:
@@ -405,9 +427,19 @@ PROCEDURE Outbound_IncrementAPITransactionCounter:
     DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
     DEFINE BUFFER bf-apiClient   FOR apiClient.
         
-    FIND FIRST bf-APIOutbound EXCLUSIVE-LOCK
+    FIND FIRST bf-APIOutbound NO-LOCK
          WHERE bf-APIOutbound.apiOutboundID EQ ipiAPIOutboundID 
          NO-ERROR.
+    /* If record not available then return */
+    IF NOT AVAILABLE bf-APIOutbound THEN
+        RETURN.
+    
+    /* If record is available and autoIncrement flag is set to false then return */
+    IF NOT bf-APIOutbound.autoIncrement THEN
+        RETURN.
+
+    FIND CURRENT bf-APIOutbound EXCLUSIVE-LOCK NO-ERROR.
+    
     IF AVAILABLE bf-APIOutbound THEN DO:
         bf-APIOutbound.transactionCounter = bf-APIOutbound.transactionCounter + 1.
     
@@ -556,15 +588,36 @@ PROCEDURE Outbound_ValidateLocation:
     DEFINE INPUT  PARAMETER ipcAPIID    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+
+    IF NOT CAN-FIND (FIRST APIOutbound NO-LOCK
+                     WHERE APIOutbound.company  EQ ipcCompany
+                       AND APIOutbound.apiID    EQ ipcAPIID
+                       AND APIOutbound.inActive EQ FALSE) THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "No active " + ipcAPIID + " API available"
+            .
+        RETURN.                           
+    END.
     
-    RUN pValidateLocation(
+    RUN pIsLocationAPIEnabled (
         INPUT  ipcCompany,
         INPUT  ipcLocation,
-        INPUT  ipcAPIID,
         OUTPUT oplSuccess,
         OUTPUT opcMessage
         ) NO-ERROR.
+    IF oplSuccess THEN
+        RETURN.
 
+    IF CAN-FIND (FIRST APIOutbound NO-LOCK
+                 WHERE APIOutbound.company               EQ ipcCompany
+                   AND APIOutbound.apiID                 EQ ipcAPIID
+                   AND APIOutbound.inActive              EQ FALSE      
+                   AND APIOutbound.useLocationValidation EQ FALSE) THEN
+        ASSIGN
+            oplSuccess = TRUE
+            opcMessage = "Success"
+            .        
 END PROCEDURE.
 
 PROCEDURE pPrepareAndExecuteForScope PRIVATE:
@@ -945,12 +998,13 @@ PROCEDURE Outbound_GetAPIsForScopeID:
     DEFINE INPUT  PARAMETER ipcScopeID   AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER TABLE FOR ttScopes.
     
-    DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
+    DEFINE BUFFER bf-APIOutbound   FOR APIOutbound.
     DEFINE BUFFER bf-apiClientXref FOR apiClientXref.
     
     FOR EACH bf-APIOutbound NO-LOCK
         WHERE bf-APIOutbound.company  EQ ipcCompany
-          AND bf-APIOutbound.inactive EQ FALSE:
+          AND bf-APIOutbound.inactive EQ FALSE
+          BY bf-APIOutbound.apiID:
         FOR EACH bf-apiClientXref NO-LOCK
             WHERE bf-apiClientXref.company  EQ bf-APIOutbound.company
               AND bf-apiClientXref.apiID    EQ bf-APIOutbound.apiID
@@ -994,14 +1048,18 @@ PROCEDURE Outbound_GetAPIsForScopeID:
                                            ELSE
                                                bf-apiClientXref.triggerID
                 ttScopes.inactive        = bf-apiClientXref.inactive
+                ttScopes.locValidation   = bf-APIOutbound.useLocationValidation
                 ttScopes.riApiClientXref = ROWID(bf-apiClientXref)
                 .
 
             IF bf-apiClientXref.scopeType EQ cScopeTypeCustomer THEN
-                ttScopes.customerID = IF bf-apiClientXref.scopeID EQ cAPIClientXrefAny THEN
-                                          "ANY"
-                                      ELSE
-                                          bf-apiClientXref.scopeID.
+                ASSIGN
+                    ttScopes.customerID = IF bf-apiClientXref.scopeID EQ cAPIClientXrefAny THEN
+                                              "ANY"
+                                          ELSE
+                                              bf-apiClientXref.scopeID.
+                    ttScopes.shipToID   = "ANY"
+                    .
 
             IF bf-apiClientXref.scopeType EQ cScopeTypeShipTo THEN
                 ASSIGN
@@ -1009,7 +1067,7 @@ PROCEDURE Outbound_GetAPIsForScopeID:
                                               "ANY"
                                           ELSE
                                               ENTRY(1, bf-apiClientXref.scopeID, "|")
-                    ttScopes.shipToiD   = IF bf-apiClientXref.scopeID EQ cAPIClientXrefAny THEN
+                    ttScopes.shipToID   = IF bf-apiClientXref.scopeID EQ cAPIClientXrefAny THEN
                                               "ANY"
                                           ELSE
                                               ENTRY(2, bf-apiClientXref.scopeID, "|")
@@ -1019,9 +1077,9 @@ PROCEDURE Outbound_GetAPIsForScopeID:
                 ttScopes.vendorID = IF bf-apiClientXref.scopeID EQ cAPIClientXrefAny THEN
                                         "ANY"
                                     ELSE
-                                        bf-apiClientXref.scopeID.
+                                        bf-apiClientXref.scopeID.            
         END.
-    END.
+    END.   
 END PROCEDURE.
 
 PROCEDURE pInitializeRequest PRIVATE:
@@ -1240,6 +1298,9 @@ PROCEDURE pPopulateRequestData PRIVATE:
     DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
 
+    DEFINE VARIABLE lValidLocation AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cLocValMessage AS CHARACTER NO-UNDO.
+
     IF iplReTrigger THEN DO:
         RUN pPopulateRequestDataForReTrigger (
             INPUT  ipcCompany,
@@ -1259,6 +1320,13 @@ PROCEDURE pPopulateRequestData PRIVATE:
         RETURN.
     END.
 
+    RUN pIsLocationAPIEnabled (
+        INPUT  ipcCompany,
+        INPUT  ipcLocation,
+        OUTPUT lValidLocation,
+        OUTPUT cLocValMessage
+        ) NO-ERROR.
+
     /* The following code will be executed if it is a fresh (NOT re-triggered) API call */
     FOR EACH APIOutbound NO-LOCK
        WHERE APIOutbound.company EQ ipcCompany
@@ -1277,6 +1345,11 @@ PROCEDURE pPopulateRequestData PRIVATE:
                AND APIOutboundtrigger.Inactive      EQ FALSE
              NO-ERROR.
         IF NOT AVAILABLE APIOutboundTrigger THEN
+            NEXT.
+
+        /* If location is not API enabled and API configuration doesn't allow to skip location validation
+           then skip */
+        IF NOT lValidLocation AND APIOutbound.useLocationValidation THEN
             NEXT.
 
         RUN pCreateTTRequestData (
@@ -1324,9 +1397,11 @@ PROCEDURE pPopulateRequestDataForReTrigger PRIVATE:
     DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE lcRequestData  AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcResponseData AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE iCount         AS INTEGER  NO-UNDO.
+    DEFINE VARIABLE lcRequestData  AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE lcResponseData AS LONGCHAR  NO-UNDO.
+    DEFINE VARIABLE iCount         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lValidLocation AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cLocValMessage AS CHARACTER NO-UNDO.
 
     EMPTY TEMP-TABLE ttArgs.
 
@@ -1372,6 +1447,13 @@ PROCEDURE pPopulateRequestDataForReTrigger PRIVATE:
             ) NO-ERROR.
     END.
 
+    RUN pIsLocationAPIEnabled (
+        INPUT  ipcCompany,
+        INPUT  ipcLocation,
+        OUTPUT lValidLocation,
+        OUTPUT cLocValMessage
+        ) NO-ERROR.
+
     FOR EACH ttRequestData
         WHERE ttRequestData.requestStatus EQ cRequestStatusInitialized
           AND ttRequestData.reTrigger:
@@ -1397,14 +1479,17 @@ PROCEDURE pPopulateRequestDataForReTrigger PRIVATE:
                 .
 
             /* Validate if location is API enabled (see APIEnabled toggle box in I-F-4 screen) */
-            RUN pValidateLocation (
-                INPUT  ttRequestData.company,
-                INPUT  ttRequestData.location,
-                INPUT  ttRequestData.apiID,
-                OUTPUT ttRequestData.success,
-                OUTPUT ttRequestData.requestMessage
-                ) NO-ERROR.
-
+            IF NOT lValidLocation AND APIOutbound.useLocationValidation THEN
+                ASSIGN
+                    ttRequestData.success        = FALSE
+                    ttRequestData.requestMessage = cLocValMessage
+                    .                
+            ELSE
+                ASSIGN
+                    ttRequestData.success        = TRUE
+                    ttRequestData.requestMessage = "Success"
+                    .                
+                
             IF ttRequestData.success AND NOT ERROR-STATUS:ERROR THEN
                 NEXT.
 
@@ -1491,16 +1576,6 @@ PROCEDURE pPrepareRequest PRIVATE:
             OUTPUT ttRequestData.success,
             OUTPUT ttRequestData.requestMessage
             ) NO-ERROR.
-
-        IF ttRequestData.success AND NOT ERROR-STATUS:ERROR THEN
-            /* Validate location after preparing the request data */
-            RUN pValidateLocation (
-                INPUT  ttRequestData.company,
-                INPUT  ttRequestData.location,
-                INPUT  ttRequestData.apiID,
-                OUTPUT ttRequestData.success,
-                OUTPUT ttRequestData.requestMessage
-                ) NO-ERROR.
 
         IF ttRequestData.success AND NOT ERROR-STATUS:ERROR THEN DO:
             ttRequestData.requestData = lcRequestData.
@@ -1711,14 +1786,13 @@ PROCEDURE pPrepareAndExecute PRIVATE:
     END.
 END PROCEDURE.
 
-PROCEDURE pValidateLocation PRIVATE:
+PROCEDURE pIsLocationAPIEnabled PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Validate location if API enabled
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcLocation AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcAPIID    AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess  AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
 
@@ -1736,7 +1810,7 @@ PROCEDURE pValidateLocation PRIVATE:
     END.
     
     /* Skip this validation where APIs added to cLocValidationExceptions list */
-    IF NOT loc.isAPIEnabled AND LOOKUP(ipcAPIID, cLocValidationExceptions) EQ 0 THEN DO:
+    IF NOT loc.isAPIEnabled THEN DO:
         ASSIGN
             oplSuccess = FALSE
             opcMessage = "API Calls are not enabled for location '"

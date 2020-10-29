@@ -46,7 +46,7 @@ DEFINE TEMP-TABLE ttImportQuote
     
 DEFINE VARIABLE gcAutoIndicator AS CHARACTER NO-UNDO INITIAL "<AUTO>".
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INITIAL 3. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
-
+DEFINE VARIABLE cAddedNewQuote AS CHARACTER NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -231,7 +231,7 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE VARIABLE cQuoteGroup AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lAutoNumber AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lNewGroup AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE dTotCost AS DECIMAL NO-UNDO .
+    DEFINE VARIABLE dTotCost AS DECIMAL NO-UNDO .     
     DEFINE BUFFER bQuoteItm FOR quoteitm.
     DEFINE BUFFER bf-ttImportQuote FOR ttImportQuote.
     DEFINE VARIABLE hdupdQuoteProcs AS HANDLE NO-UNDO.
@@ -272,13 +272,14 @@ PROCEDURE pProcessRecord PRIVATE:
         ASSIGN 
             bf-quotehd.company = ipbf-ttImportQuote.Company
             bf-quotehd.cust-no = ipbf-ttImportQuote.CustNo
+            cAddedNewQuote = cAddedNewQuote + STRING(bf-quotehd.q-no) + "," 
             .
         IF lAutoNumber AND cQuoteGroup NE "" THEN DO:
             FIND CURRENT ipbf-ttImportQuote EXCLUSIVE-LOCK.
             ASSIGN 
                 ipbf-ttImportQuote.QuoteGroup = cQuoteGroup
                 ipbf-ttImportQuote.Quote = STRING(bf-quotehd.q-no)
-                .
+                .                
             FIND CURRENT ipbf-ttImportQuote NO-LOCK.
         END.
     END.
@@ -429,8 +430,8 @@ PROCEDURE pProcessRecord PRIVATE:
                bf-quoteqty.profit = ((bf-quoteqty.price / bf-quoteitm.qty * 1000) - dTotCost) / (bf-quoteqty.price / bf-quoteitm.qty * 1000)  * 100.
          END CASE.           
      
-
-      RUN UpdateExpireDate_allQuote IN hdupdQuoteProcs(ROWID(bf-quoteitm), bf-quotehd.quo-date - 1) .
+      IF lookup(STRING(bf-quotehd.q-no),cAddedNewQuote) NE 0 THEN 
+      RUN UpdateExpireDate_allQuote IN hdupdQuoteProcs(ROWID(bf-quoteitm), bf-quotehd.quo-date - 1) .      
       RELEASE bf-quoteitm.
       RELEASE bf-quotehd.
       RELEASE bf-quoteqty.

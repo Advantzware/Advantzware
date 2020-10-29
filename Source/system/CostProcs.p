@@ -129,7 +129,7 @@ PROCEDURE GetCostForFGItemHist:
                 opcCostSource  = opcCostSource + " not found or 0. "
                 oplSourceFound = NO.
     END.
-    IF opdCostPerUOMTotal EQ 0 AND ipcTag NE "" THEN 
+    IF opdCostPerUOMTotal EQ 0 AND ipcTag NE "" AND ipiPONo EQ 0 THEN 
     DO:
         RUN GetCostForReceipt(ipcCompany, ipcFGItemID, ipcTag, ipcJobNo, ipiJobNo2, 
             OUTPUT opdCostPerUOMTotal, OUTPUT opdCostPerUOMDL, OUTPUT opdCostPerUOMFO, OUTPUT opdCostPerUOMVO, OUTPUT opdCostPerUOMDM, OUTPUT opcCostUOM, OUTPUT oplSourceFound).
@@ -139,7 +139,7 @@ PROCEDURE GetCostForFGItemHist:
                 opcCostSource  = opcCostSource + " not found or 0. "
                 oplSourceFound = NO.
     END.
-    IF opdCostPerUOMTotal EQ 0 THEN 
+    IF opdCostPerUOMTotal EQ 0 AND ipiPONo EQ 0 THEN 
     DO:
         ASSIGN 
             opcCostSource      = opcCostSource + "Item Fallback: " + ipcFGItemID

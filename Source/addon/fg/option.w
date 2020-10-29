@@ -33,6 +33,9 @@ CREATE WIDGET-POOL.
 DEF NEW SHARED VAR choice AS LOG NO-UNDO. /* for post fg */
 
 {methods/defines/hndldefs.i}
+{custom/globdefs.i}
+{sys/inc/var.i}
+{sys/inc/varasgn.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -49,8 +52,9 @@ DEF NEW SHARED VAR choice AS LOG NO-UNDO. /* for post fg */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_Rcpt RECT-6 Btn_update Btn_Transfers ~
-Btn_Adjust-3 Btn_delete Btn_return Btn_Post Btn_Consol Btn_Close 
+&Scoped-Define ENABLED-OBJECTS RECT-6 Btn_Rcpt Btn_update Btn_Transfers ~
+Btn_Adjust-3 Btn_delete Btn_return Btn_Post Btn_Consol btnUpdateTagStatus ~
+btnFGInquiry Btn_Close 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -64,13 +68,23 @@ Btn_Adjust-3 Btn_delete Btn_return Btn_Post Btn_Consol Btn_Close
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnFGInquiry 
+     LABEL "&10.  Finished Goods Inquiry" 
+     SIZE 35 BY 1.52
+     FONT 6.
+
+DEFINE BUTTON btnUpdateTagStatus 
+     LABEL "&9.  Update Tag Status" 
+     SIZE 35 BY 1.52
+     FONT 6.
+
 DEFINE BUTTON Btn_Adjust-3 
      LABEL "&4.      Count  Goods" 
      SIZE 35 BY 1.52
      FONT 6.
 
 DEFINE BUTTON Btn_Close 
-     LABEL "&9.      Close" 
+     LABEL "&11.      Close" 
      SIZE 35 BY 1.52
      FONT 6.
 
@@ -111,7 +125,7 @@ DEFINE BUTTON Btn_update
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 37 BY 16.19.
+     SIZE 37 BY 18.81.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -125,7 +139,9 @@ DEFINE FRAME F-Main
      Btn_return AT ROW 9.57 COL 2
      Btn_Post AT ROW 11.24 COL 2
      Btn_Consol AT ROW 12.91 COL 2 WIDGET-ID 2
-     Btn_Close AT ROW 15.29 COL 2
+     btnUpdateTagStatus AT ROW 14.62 COL 2 WIDGET-ID 4
+     btnFGInquiry AT ROW 16.33 COL 2 WIDGET-ID 6
+     Btn_Close AT ROW 18 COL 2
      RECT-6 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -158,7 +174,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 16.62
+         HEIGHT             = 18.86
          WIDTH              = 37.4.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -205,6 +221,31 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
+&Scoped-define SELF-NAME btnFGInquiry
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFGInquiry s-object
+ON CHOOSE OF btnFGInquiry IN FRAME F-Main /* 10.  Finished Goods Inquiry */
+DO:
+    RUN inventory/w-fgInquiry.w (
+        INPUT cocode,
+        INPUT locode
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnUpdateTagStatus
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUpdateTagStatus s-object
+ON CHOOSE OF btnUpdateTagStatus IN FRAME F-Main /* 9.  Update Tag Status */
+DO:
+  RUN addon/fg/w-TagStatusUpdate.w.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME Btn_Adjust-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Adjust-3 s-object
 ON CHOOSE OF Btn_Adjust-3 IN FRAME F-Main /* 4.      Count  Goods */
@@ -218,7 +259,7 @@ END.
 
 &Scoped-define SELF-NAME Btn_Close
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Close s-object
-ON CHOOSE OF Btn_Close IN FRAME F-Main /* 9.      Close */
+ON CHOOSE OF Btn_Close IN FRAME F-Main /* 11.      Close */
 DO:
   {methods/run_link.i "CONTAINER" "Close_RM_Whse"}
 END.
