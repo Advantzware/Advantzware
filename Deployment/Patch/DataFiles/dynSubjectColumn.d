@@ -499,6 +499,7 @@
 49 yes 11 "vendItemCostLevel.costDeviation" "Cost Deviation" "->,>>>,>>9.9<" "vendItemCostLevel" 0 "decimal" "ASI" 0 no no "" "" no "" "" "201911064565904356309" no no no "" no "" "" 0 0 "" no
 49 yes 9 "vendItemCostLevel.costPerUOM" "Cost Per UOM" "->,>>>,>>9.9<" "vendItemCostLevel" 0 "decimal" "ASI" 0 no no "" "" no "" "" "201911064565904356310" no no no "" no "" "" 0 0 "" no
 49 yes 10 "vendItemCostLevel.costSetup" "Setup Cost" "->,>>>,>>9.9<" "vendItemCostLevel" 0 "decimal" "ASI" 0 no no "" "" no "" "" "201911064565904356311" no no no "" no "" "" 0 0 "" no
+49 yes 62 "vendItemCostLevel.leadTimeDays" "LeadTime (days)" "->,>>>,>>9" "vendItemCostLevel" 0 "integer" "ASI" 0 no no "" "" no "" "" "202010215557005780259" no no no "" no "" "" 0 0 "" no
 49 yes 8 "vendItemCostLevel.quantityBase" "Qty Base" "->,>>>,>>9.9<" "vendItemCostLevel" 0 "decimal" "ASI" 3 no no "" "" no "" "" "201911064565904356312" no no no "" no "" "" 0 0 "" no
 50 yes 2 "est.est-date" "Est Date" "99/99/9999" "est" 0 "date" "ASI" 0 no no "" "" no "" "" "201911064565904356025" yes yes yes "" no "" "" 0 0 "" no
 50 yes 1 "est.est-no" "Estimate #" "x(8)" "est" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565904356026" yes yes yes "" no "" "" 0 0 "" no
@@ -972,6 +973,7 @@
 74 yes 4 "oe-ord.cust-no" "Cust. #" "x(8)" "oe-ord" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001208161304588910" no no no "" no "" "" 0 0 "" no
 74 yes 10 "oe-ord.due-date" "Due Date" "99/99/9999" "oe-ord" 0 "date" "ASI" 0 no no "" "" no "" "" "202006100045105348393" no no no "" no "" "" 0 0 "" no
 74 yes 11 "oe-ord.due-time" "Due Time" ">>>>9" "oe-ord" 0 "integer" "ASI" 0 no no "" "" no "" "" "202006100045105348394" no no no "" no "" "" 0 0 "" no
+74 yes 12 "oe-ord.managed" "Managed Inventory" "yes/no" "oe-ord" 0 "logical" "ASI" 0 no no "" "" no "" "" "202010173668905764281" no no no "" no "" "" 0 0 "" no
 74 yes 9 "oe-ord.ord-date" "Order Date" "99/99/9999" "oe-ord" 0 "date" "ASI" 0 no no "" "" no "" "" "202006100045105348392" no no no "" no "" "" 0 0 "" no
 74 yes 2 "oe-ord.ord-no" "Order#" ">>>>>9" "oe-ord" 0 "integer" "ASI" 0 no no "" "" no "" "" "202001208161304588911" no no no "" no "" "" 0 0 "" no
 74 yes 3 "oe-ord.po-no" "P.O. Num" "x(15)" "oe-ord" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001208161304588912" no no no "" no "" "" 0 0 "" no
@@ -2217,3 +2219,30 @@
 148 yes 1 "dept.code" "Code" "x(2)" "dept" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202009217129805648030" yes yes yes "" no "" "" 0 0 "" no
 148 yes 2 "dept.dscr" "Description" "x(25)" "dept" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202009217129805648031" yes yes yes "" no "" "" 0 0 "" no
 148 yes 3 "dept.industry" "Industry" "x" "dept" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202009217129805648032" yes yes yes "" no "" "" 0 0 "" no
+149 yes 3 "itemfg.i-name" "Name" "x(30)" "itemfg" 30 "STRING" "ASI" 0 no no "" "" no "" "" "202010191868705766848" yes yes yes "" no "" "" 0 0 "" no
+149 yes 2 "itemfg.i-no" "Item No" "x(15)" "itemfg" 15 "STRING" "ASI" 0 no no "" "" no "" "" "202010191868705766849" yes yes yes "" no "" "" 0 0 "" no
+149 yes 1 "itemfg.part-no" "Cust Part #" "x(12)" "itemfg" 12 "STRING" "ASI" 0 no no "" "" no "" "" "202010191897905766871" yes yes yes "" no "" "" 0 0 "" no
+150 yes 3 "loc.active" "Active" "yes/no" "loc" 0 "logical" "ASI" 0 no no "" "" no "" "" "202010212808805776602" yes yes yes "" no "" "" 0 0 "" no
+150 yes 2 "loc.dscr" "Description" "x(30)" "loc" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202010212808805776603" yes yes yes "" no "" "" 0 0 "" no
+150 yes 1 "loc.loc" "Location" "x(5)" "loc" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202010212808805776604" yes yes yes "" no "" "" 0 0 "" no
+151 yes 19 "ttJobItem.cAsOfDateOption" "As Of Date Option" "x(20)" "ttJobItem" 0 "character" "ASI" 0 no no "" "" no "" "" "202010235629605801086" no no no "" no "" "" 0 0 "" no
+151 yes 16 "ttJobItem.cCustomerID" "CUST ID" "x(8)" "ttJobItem" 0 "character" "ASI" 1 no yes "Sub-Total >>>" "" no "" "" "202010235629605801087" no no no "" no "" "" 0 0 "" no
+151 yes 17 "ttJobItem.cCustomerName" "CUSTOMER NAME" "x(30)" "ttJobItem" 0 "character" "ASI" 0 no no "" "" no "" "" "202010235629605801088" no no no "" no "" "" 0 0 "" no
+151 yes 5 "ttJobItem.cItemDescription" "DESCRIPTION-SIZE" "x(20)" "ttJobItem" 0 "character" "ASI" 0 no no "" "" no "" "" "202010235629605801089" no no no "" no "" "" 0 0 "" no
+151 yes 2 "ttJobItem.cItemID" "FG  ID" "x(15)" "ttJobItem" 0 "character" "ASI" 0 no no "" "" no "" "" "202010235629605801090" no no no "" no "" "" 0 0 "" no
+151 yes 1 "ttJobItem.cJob" "SALES-ORD" "x(12)" "ttJobItem" 0 "character" "ASI" 2 no no "" "" no "" "" "202010235629605801091" no no no "" no "" "" 0 0 "" no
+151 yes 7 "ttJobItem.cProductCategory" "PR CD" "X(7)" "ttJobItem" 0 "character" "ASI" 0 no no "" "" no "" "" "202010235629605801092" no no no "" no "" "" 0 0 "" no
+151 yes 6 "ttJobItem.cSalesRep" "SLSMN" "x(3)" "ttJobItem" 0 "character" "ASI" 0 no no "" "" no "" "" "202010235629605801093" no no no "" no "" "" 0 0 "" no
+151 yes 13 "ttJobItem.dDisplayBalanceToRun" "BAL/RUN" "->,>>>,>>9.99" "ttJobItem" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202010235629605801094" no no no "" no "" "" 0 0 "" no
+151 yes 14 "ttJobItem.dPricePerEA" "PRICE PER" "->,>>>,>>9.99" "ttJobItem" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202010235629605801095" no no no "" no "" "" 0 0 "" no
+151 yes 15 "ttJobItem.dPriceTotalOnHand" "VALUE" "->,>>>,>>9.99" "ttJobItem" 0 "decimal" "ASI" 0 no no "" "Report,Sum,[Group] CUST ID,Sum" no "" "" "202010235629605801096" no no no "" no "" "" 0 0 "" no
+151 yes 12 "ttJobItem.dQuantityBalanceToRun" "BAL/RUN" "->,>>>,>>9.99" "ttJobItem" 0 "decimal" "ASI" 0 no no "" "Report,Sum" no "" "" "202010235629605801097" no no no "" no "" "" 0 0 "" no
+151 yes 11 "ttJobItem.dQuantityOnHand" "ON HAND" "->,>>>,>>9.99" "ttJobItem" 0 "decimal" "ASI" 0 no no "" "Report,Sum" no "" "" "202010235629605801098" no no no "" no "" "" 0 0 "" no
+151 yes 8 "ttJobItem.dQuantityOrdered" "ORDER" "->,>>>,>>9.99" "ttJobItem" 0 "decimal" "ASI" 0 no no "" "Report,Sum" no "" "" "202010235629605801099" no no no "" no "" "" 0 0 "" no
+151 yes 9 "ttJobItem.dQuantityProduced" "MADE" "->,>>>,>>9.99" "ttJobItem" 0 "decimal" "ASI" 0 no no "" "Report,Sum" no "" "" "202010235629605801100" no no no "" no "" "" 0 0 "" no
+151 yes 10 "ttJobItem.dQuantityShipped" "SHIPPED" "->,>>>,>>9.99" "ttJobItem" 0 "decimal" "ASI" 0 no no "" "Report,Sum" no "" "" "202010235629605801101" no no no "" no "" "" 0 0 "" no
+151 yes 18 "ttJobItem.dtAsOfDate" "As Of Date" "99/99/9999" "ttJobItem" 0 "date" "ASI" 0 no no "" "" no "" "" "202010235629605801102" no no no "" no "" "" 0 0 "" no
+151 yes 4 "ttJobItem.dtDueDate" "COM-DATE" "99/99/9999" "ttJobItem" 0 "date" "ASI" 6 no no "" "" no "" "" "202010235629605801103" no no no "" no "" "" 0 0 "" no
+151 yes 3 "ttJobItem.dtOrderDate" "ORD-DATE" "99/99/9999" "ttJobItem" 0 "date" "ASI" 5 no no "" "" no "" "" "202010235629605801104" no no no "" no "" "" 0 0 "" no
+151 no 21 "ttJobItem.iBlankNumber" "BLANK" ">9" "ttJobItem" 0 "integer" "ASI" 4 no no "" "" no "" "" "202010235629605801105" no no no "" no "" "" 0 0 "" no
+151 no 20 "ttJobItem.iFormNumber" "FORM" ">>9" "ttJobItem" 0 "integer" "ASI" 3 no no "" "" no "" "" "202010235629605801106" no no no "" no "" "" 0 0 "" no

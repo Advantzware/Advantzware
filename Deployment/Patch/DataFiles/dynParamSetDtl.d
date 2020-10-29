@@ -87,7 +87,7 @@
 30 12 "allUserID" "All Users" "dynNK1APSecureAllUsers" "" "" "" "no" 1 13 15 1.71 yes ? "" "201906186527003524659"
 31 12 "postOutOfPeriod" "Post Out of Period" "" "dynValSecure" "" "" "no" 1 22 3 1.71 yes ? "" "201906186603203524699"
 31 12 "postIntoClosedPeriod" "Post Into Closed Period" "" "dynValSecure" "" "" "no" 1 27 3 2.67 yes ? "" "201906186607803524700"
-31 12 "post" "POST" "dynInitNO" "" "" "" "no" 1 8 48 2.67 yes ? "" "201906186612603524701"
+31 12 "post" "POST" "dynInitNO" "" "" "" "no" 1 9 47 2.67 yes ? "" "201906186612603524701"
 32 2 "postDate" "Post Date" "" "dynValPostDate" "" "" "TODAY" 1 16 15 1.71 yes "CALENDAR,DATEPICKLIST" "" "201906186660403524711"
 32 15 "period" "Period" "" "" "dynDescripPeriod" "" "" 1 5 70 1.71 no ? "postDate" "201906186688703524714"
 33 16 "secure" "Secure" "dynInitSecure" "" "" "" "no" .95 11 3 1.71 no ? "" "201906186852103524735"

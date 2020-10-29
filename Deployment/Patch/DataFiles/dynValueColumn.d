@@ -2,26 +2,26 @@
 0 "_default" "dynSubjct." 0 2 yes "dynParamValue.subjectID" "Subject ID" ">,>>>,>>9" 0 "Integer" 2 no no "" "" no "" "" yes yes yes "" "202005136533005265123" no "" "" 0 0 "" no
 0 "_default" "dynSubjct." 0 3 yes "dynParamValue.user-id" "User ID" "x(15)" 0 "Character" 3 no no "" "" no "" "" yes yes yes "" "202005136533005265124" no "" "" 0 0 "" no
 0 "_default" "dynSubjct." 0 4 yes "dynParamValue.paramValueID" "Parameter Value ID" ">,>>>,>>9" 0 "Integer" 4 no no "" "" no "" "" yes yes yes "" "202005136533005265125" no "" "" 0 0 "" no
-1 "_default" "dynSubjct." 0 1 yes "ttMachineTransactions.machine" "Machine" "x(6)" 7.8 "character" 1 no yes "" "" no "" "" no no no "" "202008202689105596148" no "" "" 0 0 "" no
-1 "_default" "dynSubjct." 0 2 yes "ttMachineTransactions.custPartNo" "Cust Part" "x(15)" 15 "character" 0 no no "" "" no "" "" no no no "" "202008202689105596149" no "" "" 0 0 "" no
-1 "_default" "dynSubjct." 0 3 yes "ttMachineTransactions.custName" "Customer" "x(30)" 30 "character" 0 no no "" "" no "" "" no no no "" "202008202689105596150" no "" "" 0 0 "" no
-1 "_default" "dynSubjct." 0 4 yes "ttMachineTransactions.jobNumber" "Job" "X(6)" 7.4 "character" 0 no no "" "" no "" "" no no no "" "202008202689105596151" no "" "" 0 0 "" no
-1 "_default" "dynSubjct." 0 5 yes "ttMachineTransactions.jobSub" "Sub" ">9" 3.6 "integer" 0 no no "" "" no "" "" no no no "" "202008202689105596152" no "" "" 0 0 "" no
-1 "_default" "dynSubjct." 0 6 yes "ttMachineTransactions.formNumber" "Form" ">>9" 4.8 "integer" 0 no no "" "" no "" "" no no no "" "202008202689105596153" no "" "" 0 0 "" no
-1 "_default" "dynSubjct." 0 7 yes "ttMachineTransactions.blankNumber" "Blank" ">9" 5 "integer" 0 no no "" "" no "" "" no no no "" "202008202689105596154" no "" "" 0 0 "" no
-1 "_default" "dynSubjct." 0 8 yes "ttMachineTransactions.passSequence" "Pass" ">>9" 4.4 "integer" 0 no no "" "" no "" "" no no no "" "202008202689105596155" no "" "" 0 0 "" no
-1 "_default" "dynSubjct." 0 9 yes "ttMachineTransactions.chargeCode" "Code" "x(5)" 5 "character" 0 no no "" "" no "" "" no no no "" "202008202689105596156" no "" "" 0 0 "" no
-1 "_default" "dynSubjct." 0 10 yes "ttMachineTransactions.startDate" "Start Date" "99/99/9999" 11.2 "date" 2 no no "" "" no "" "" no no no "" "202008202689105596157" no "" "" 0 0 "" no
-1 "_default" "dynSubjct." 0 11 yes "ttMachineTransactions.endDate" "End Date" "99/99/9999" 11.2 "date" 0 no no "" "" no "" "" no no no "" "202008202689105596158" no "" "" 0 0 "" no
-1 "_default" "dynSubjct." 0 12 yes "ttMachineTransactions.shift" "Shift" "X" 4.4 "character" 0 no no "" "" no "" "" no no no "" "202008202689105596159" no "" "" 0 0 "" no
-1 "_default" "dynSubjct." 0 13 yes "ttMachineTransactions.msf" "MSF" ">>>>>9.999" 11.6 "decimal" 0 no no "" "" no "" "" no no no "" "202008202689105596160" no "" "" 0 0 "" no
-1 "_default" "dynSubjct." 0 14 yes "ttMachineTransactions.totalTime" "Total" "->>>,>>9.99" 12 "decimal" 0 no no "" "" no "" "" no no no "" "202008202689105596161" no "" "" 0 0 "" no
-1 "_default" "dynSubjct." 0 15 yes "ttMachineTransactions.runQty" "Run Qty" "->>>,>>9" 8.8 "integer" 0 no no "" "Report,Sum,[Group] Machine,Sum" no "" "" no no no "" "202008202689105596162" no "" "" 0 0 "" no
-1 "_default" "dynSubjct." 0 16 yes "ttMachineTransactions.wasteQty" "Waste Qty" "->>>,>>9" 10.4 "integer" 0 no no "" "Report,Sum,[Group] Machine,Sum" no "" "" no no no "" "202008202689105596163" no "" "" 0 0 "" no
-1 "_default" "dynSubjct." 0 17 yes "ttMachineTransactions.runComplete" "Complete" "yes/no" 9 "logical" 0 no no "" "" no "" "" no no no "" "202008202689105596164" no "" "" 0 0 "" no
-1 "_default" "dynSubjct." 0 18 yes "ttMachineTransactions.loginDateTime" "Log In Date-Time" "x(19)" 19 "character" 0 no no "" "" no "" "" no no no "" "202008202689105596165" no "" "" 0 0 "" no
-1 "_default" "dynSubjct." 0 19 yes "ttMachineTransactions.logoutDateTime" "Log Out Date-Time" "x(19)" 19 "character" 0 no no "" "" no "" "" no no no "" "202008202689105596166" no "" "" 0 0 "" no
-1 "_default" "dynSubjct." 0 20 no "ttMachineTransactions.startTime" "Log In" "hh:mm am" 0 "character" 3 no no "" "" no "" "" no no no "" "202008202689105596167" no "" "" 0 0 "" no
+1 "_default" "dynSubjct." 0 1 yes "ttMachineTransactions.machine" "Machine" "x(6)" 7.8 "character" 1 no yes "" "" no "" "" no no no "" "202010225396305782993" no "" "" 0 0 "" no
+1 "_default" "dynSubjct." 0 2 yes "ttMachineTransactions.custPartNo" "Cust Part" "x(15)" 15 "character" 0 no no "" "" no "" "" no no no "" "202010225396305782994" no "" "" 0 0 "" no
+1 "_default" "dynSubjct." 0 3 yes "ttMachineTransactions.custName" "Customer" "x(30)" 30 "character" 0 no no "" "" no "" "" no no no "" "202010225396305782995" no "" "" 0 0 "" no
+1 "_default" "dynSubjct." 0 4 yes "ttMachineTransactions.jobNumber" "Job" "X(6)" 7.4 "character" 0 no no "" "" no "" "" no no no "" "202010225396305782996" no "" "" 0 0 "" no
+1 "_default" "dynSubjct." 0 5 yes "ttMachineTransactions.jobSub" "Sub" ">9" 3.6 "integer" 0 no no "" "" no "" "" no no no "" "202010225396305782997" no "" "" 0 0 "" no
+1 "_default" "dynSubjct." 0 6 yes "ttMachineTransactions.formNumber" "Form" ">>9" 4.8 "integer" 0 no no "" "" no "" "" no no no "" "202010225396305782998" no "" "" 0 0 "" no
+1 "_default" "dynSubjct." 0 7 yes "ttMachineTransactions.blankNumber" "Blank" ">9" 5 "integer" 0 no no "" "" no "" "" no no no "" "202010225396305782999" no "" "" 0 0 "" no
+1 "_default" "dynSubjct." 0 8 yes "ttMachineTransactions.passSequence" "Pass" ">>9" 4.4 "integer" 0 no no "" "" no "" "" no no no "" "202010225396305783000" no "" "" 0 0 "" no
+1 "_default" "dynSubjct." 0 9 yes "ttMachineTransactions.chargeCode" "Code" "x(5)" 5 "character" 0 no no "" "" no "" "" no no no "" "202010225396305783001" no "" "" 0 0 "" no
+1 "_default" "dynSubjct." 0 10 yes "ttMachineTransactions.startDate" "Start Date" "99/99/9999" 11.2 "date" 2 no no "" "" no "" "" no no no "" "202010225396305783002" no "" "" 0 0 "" no
+1 "_default" "dynSubjct." 0 11 yes "ttMachineTransactions.endDate" "End Date" "99/99/9999" 11.2 "date" 0 no no "" "" no "" "" no no no "" "202010225396305783003" no "" "" 0 0 "" no
+1 "_default" "dynSubjct." 0 12 yes "ttMachineTransactions.shift" "Shift" "X" 4.4 "character" 0 no no "" "" no "" "" no no no "" "202010225396305783004" no "" "" 0 0 "" no
+1 "_default" "dynSubjct." 0 13 yes "ttMachineTransactions.msf" "MSF" ">>>>>9.999" 11.6 "decimal" 0 no no "" "" no "" "" no no no "" "202010225396305783005" no "" "" 0 0 "" no
+1 "_default" "dynSubjct." 0 14 yes "ttMachineTransactions.totalTime" "Total" "->>>,>>9.99" 12 "decimal" 0 no no "" "" no "" "" no no no "" "202010225396305783006" no "" "" 0 0 "" no
+1 "_default" "dynSubjct." 0 15 yes "ttMachineTransactions.runQty" "Run Qty" "->>>,>>9" 8.8 "integer" 0 no no "" "Report,Sum,[Group] Machine,Sum" no "" "" no no no "" "202010225396305783007" no "" "" 0 0 "" no
+1 "_default" "dynSubjct." 0 16 yes "ttMachineTransactions.wasteQty" "Waste Qty" "->>>,>>9" 10.4 "integer" 0 no no "" "Report,Sum,[Group] Machine,Sum" no "" "" no no no "" "202010225396305783008" no "" "" 0 0 "" no
+1 "_default" "dynSubjct." 0 17 yes "ttMachineTransactions.runComplete" "Complete" "yes/no" 9 "logical" 0 no no "" "" no "" "" no no no "" "202010225396305783009" no "" "" 0 0 "" no
+1 "_default" "dynSubjct." 0 18 yes "ttMachineTransactions.loginDateTime" "Log In Date-Time" "x(19)" 19 "character" 0 no no "" "" no "" "" no no no "" "202010225396305783010" no "" "" 0 0 "" no
+1 "_default" "dynSubjct." 0 19 yes "ttMachineTransactions.logoutDateTime" "Log Out Date-Time" "x(19)" 19 "character" 0 no no "" "" no "" "" no no no "" "202010225396305783011" no "" "" 0 0 "" no
+1 "_default" "dynSubjct." 0 20 no "ttMachineTransactions.startTime" "Log In" "hh:mm am" 0 "character" 3 no no "" "" no "" "" no no no "" "202010225396305783012" no "" "" 0 0 "" no
 2 "_default" "dynSubjct." 0 1 yes "AuditHdr.AuditDateTime" "Audit Date Time" "99/99/9999 HH:MM:SS.SSS" 0 "datetime" 1 no no "" "" no "" "" no no no "" "202009034462705625810" no "" "" 0 0 "" no
 2 "_default" "dynSubjct." 0 2 yes "AuditDtl.AuditField" "Audit Field" "x(16)" 0 "STRING" 3 no no "" "" no "" "" no no no "" "202009034462705625811" no "" "" 0 0 "" no
 2 "_default" "dynSubjct." 0 3 yes "AuditDtl.AuditExtent" "Extent" ">>>9" 0 "integer" 2 no no "" "" no "" "" no no no "" "202009034462705625812" no "" "" 0 0 "" no
@@ -157,17 +157,17 @@
 14 "_default" "dynSubjct." 0 7 yes "po-ordl.cost" "Unit Cost" "->,>>>,>>9.99<<<<" 14 "decimal" 0 no no "" "" no "" "" no no no "" "202007224203605465039" no "" "" 0 0 "" no
 14 "_default" "dynSubjct." 0 8 yes "po-ordl.line" "Line" "99" 3.8 "integer" 0 no no "" "" no "" "" no no no "" "202007224203605465040" no "" "" 0 0 "" no
 14 "_default" "dynSubjct." 0 9 yes "CalcTest" "Test" "->>>,>>>,>>9.9<<<<<" 0 "Decimal" 0 no no "" "" yes "" ? no no no "po-ordl.ord-qty|-|po-ordl.t-rec-qty" "202007224203605465041" no "" "" 0 0 "" no
-15 "_default" "dynSubjct." 0 1 yes "job-hdr.job-no" "Job Number" "x(6)" 0 "STRING" 1 yes no "" "" no "" "" no no no "" "202005136533305265735" no "" "" 0 0 "" no
-15 "_default" "dynSubjct." 0 2 yes "job-hdr.job-no2" "Run #" ">9" 0 "integer" 2 yes no "" "" no "" "" no no no "" "202005136533305265736" no "" "" 0 0 "" no
-15 "_default" "dynSubjct." 0 3 yes "job-hdr.est-no" "Estimate #" "x(5)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136533305265737" no "" "" 0 0 "" no
-15 "_default" "dynSubjct." 0 4 yes "job-hdr.ord-no" "Order#" ">>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202005136533305265738" no "" "" 0 0 "" no
-15 "_default" "dynSubjct." 0 5 yes "job-hdr.cust-no" "Cust. #" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136533305265739" no "" "" 0 0 "" no
-15 "_default" "dynSubjct." 0 6 yes "job-hdr.start-date" "Start Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202005136533305265740" no "" "" 0 0 "" no
-15 "_default" "dynSubjct." 0 7 yes "job.close-date" "Close Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202005136533305265741" no "" "" 0 0 "" no
-15 "_default" "dynSubjct." 0 8 yes "job.stat" "Job Status" "x" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136533305265742" no "" "" 0 0 "" no
-15 "_default" "dynSubjct." 0 9 yes "job-hdr.qty" "Quantity" ">>,>>>,>>9" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202005136533305265743" no "" "" 0 0 "" no
-15 "_default" "dynSubjct." 0 10 yes "job-hdr.i-no" "Item No" "x(15)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136533305265744" no "" "" 0 0 "" no
-15 "_default" "dynSubjct." 0 11 yes "job-hdr.opened" "Status" "Open/Closed" 0 "logical" 0 no no "" "" no "" "" no no no "" "202005136533305265745" no "" "" 0 0 "" no
+15 "_default" "dynSubjct." 0 1 yes "job-hdr.job-no" "Job Number" "x(6)" 0 "STRING" 1 yes no "" "" no "" "" no no no "" "202010078311205750460" no "" "" 0 0 "" no
+15 "_default" "dynSubjct." 0 2 yes "job-hdr.job-no2" "Run #" ">9" 0 "integer" 2 yes no "" "" no "" "" no no no "" "202010078311205750461" no "" "" 0 0 "" no
+15 "_default" "dynSubjct." 0 3 yes "job-hdr.est-no" "Estimate #" "x(5)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202010078311205750462" no "" "" 0 0 "" no
+15 "_default" "dynSubjct." 0 4 yes "job-hdr.ord-no" "Order#" ">>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202010078311205750463" no "" "" 0 0 "" no
+15 "_default" "dynSubjct." 0 5 yes "job-hdr.cust-no" "Cust. #" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202010078311205750464" no "" "" 0 0 "" no
+15 "_default" "dynSubjct." 0 6 yes "job-hdr.start-date" "Start Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202010078311205750465" no "" "" 0 0 "" no
+15 "_default" "dynSubjct." 0 7 yes "job.close-date" "Close Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202010078311205750466" no "" "" 0 0 "" no
+15 "_default" "dynSubjct." 0 8 yes "job.stat" "Job Status" "x" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202010078311205750467" no "" "" 0 0 "" no
+15 "_default" "dynSubjct." 0 9 yes "job-hdr.qty" "Quantity" ">>,>>>,>>9" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010078311205750468" no "" "" 0 0 "" no
+15 "_default" "dynSubjct." 0 10 yes "job-hdr.i-no" "Item No" "x(15)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202010078311205750469" no "" "" 0 0 "" no
+15 "_default" "dynSubjct." 0 11 yes "job-hdr.opened" "Status" "Open/Closed" 0 "logical" 0 no no "" "" no "" "" no no no "" "202010078311205750470" no "" "" 0 0 "" no
 16 "_default" "dynSubjct." 0 1 yes "ttAPInvoicePosting.vendNo" "Vendor No" "x(6)" 0 "character" 1 no yes "" "" no "" "" no no no "" "202008191884205594361" no "" "" 0 0 "" no
 16 "_default" "dynSubjct." 0 2 yes "ttAPInvoicePosting.vendName" "Vendor Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008191884205594362" no "" "" 0 0 "" no
 16 "_default" "dynSubjct." 0 3 yes "ttAPInvoicePosting.invNo" "Invoice" "x(8)" 0 "character" 2 no no "" "" no "" "" no no no "" "202008191884205594363" no "" "" 0 0 "" no
@@ -963,17 +963,17 @@
 71 "_default" "dynSubjct." 0 2 yes "style.dscr" "Description" "x(25)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535105268786" no "" "" 0 0 "" no
 73 "_default" "dynSubjct." 0 1 yes "scoreType.scoreType" "Score Type" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535205268815" no "" "" 0 0 "" no
 73 "_default" "dynSubjct." 0 2 yes "scoreType.description" "Description" "x(60)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535205268816" no "" "" 0 0 "" no
-74 "_default" "dynSubjct." 0 1 yes "oe-ord.csrUser_id" "CSR User ID" "X(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535205268835" no "" "" 0 0 "" no
-74 "_default" "dynSubjct." 0 2 yes "oe-ord.ord-no" "Order#" ">>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202005136535205268836" no "" "" 0 0 "" no
-74 "_default" "dynSubjct." 0 3 yes "oe-ord.po-no" "P.O. Num" "x(15)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535205268837" no "" "" 0 0 "" no
-74 "_default" "dynSubjct." 0 4 yes "oe-ord.cust-no" "Cust. #" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535205268838" no "" "" 0 0 "" no
-74 "_default" "dynSubjct." 0 5 yes "oe-ordl.line" "Line" "99" 0 "integer" 0 no no "" "" no "" "" no no no "" "202005136535205268839" no "" "" 0 0 "" no
-74 "_default" "dynSubjct." 0 6 yes "oe-ordl.part-no" "Cust Part #" "x(15)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535205268840" no "" "" 0 0 "" no
-74 "_default" "dynSubjct." 0 7 yes "oe-ordl.i-no" "Item#" "x(15)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535205268841" no "" "" 0 0 "" no
-74 "_default" "dynSubjct." 0 8 yes "oe-ord.contact" "Contact Name" "x(25)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535205268842" no "" "" 0 0 "" no
-74 "_default" "dynSubjct." 0 9 yes "oe-ord.ord-date" "Order Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202005136535205268843" no "" "" 0 0 "" no
-74 "_default" "dynSubjct." 0 10 yes "oe-ord.due-date" "Due Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202005136535205268844" no "" "" 0 0 "" no
-74 "_default" "dynSubjct." 0 11 yes "oe-ord.due-time" "Due Time" ">>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202005136535205268845" no "" "" 0 0 "" no
+74 "_default" "dynSubjct." 0 1 yes "oe-ord.csrUser_id" "CSR User ID" "X(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202010124146705755630" no "" "" 0 0 "" no
+74 "_default" "dynSubjct." 0 2 yes "oe-ord.ord-no" "Order#" ">>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202010124146705755631" no "" "" 0 0 "" no
+74 "_default" "dynSubjct." 0 3 yes "oe-ord.po-no" "P.O. Num" "x(15)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202010124146705755632" no "" "" 0 0 "" no
+74 "_default" "dynSubjct." 0 4 yes "oe-ord.cust-no" "Cust. #" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202010124146705755633" no "" "" 0 0 "" no
+74 "_default" "dynSubjct." 0 5 yes "oe-ordl.line" "Line" "99" 0 "integer" 0 no no "" "" no "" "" no no no "" "202010124146705755634" no "" "" 0 0 "" no
+74 "_default" "dynSubjct." 0 6 yes "oe-ordl.part-no" "Cust Part #" "x(15)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202010124146705755635" no "" "" 0 0 "" no
+74 "_default" "dynSubjct." 0 7 yes "oe-ordl.i-no" "Item#" "x(15)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202010124146705755636" no "" "" 0 0 "" no
+74 "_default" "dynSubjct." 0 8 yes "oe-ord.contact" "Contact Name" "x(25)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202010124146705755637" no "" "" 0 0 "" no
+74 "_default" "dynSubjct." 0 9 yes "oe-ord.ord-date" "Order Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202010124146705755638" no "" "" 0 0 "" no
+74 "_default" "dynSubjct." 0 10 yes "oe-ord.due-date" "Due Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202010124146705755639" no "" "" 0 0 "" no
+74 "_default" "dynSubjct." 0 11 yes "oe-ord.due-time" "Due Time" ">>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202010124146705755640" no "" "" 0 0 "" no
 75 "_default" "dynSubjct." 0 1 yes "box-design-hdr.design-no" "Design Number" "999" 0 "integer" 0 no no "" "" no "" "" no no no "" "202005136535205268864" no "" "" 0 0 "" no
 75 "_default" "dynSubjct." 0 2 yes "box-design-hdr.description" "Description" "x(30)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535205268865" no "" "" 0 0 "" no
 75 "_default" "dynSubjct." 0 3 yes "box-design-hdr.est-no" "Estimate" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535205268866" no "" "" 0 0 "" no
@@ -1259,27 +1259,27 @@
 92 "_default" "dynSubjct." 0 3 yes "machtran.job_sub" "Job Sub Number" ">9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202008212610605604396" no "" "" 0 0 "" no
 92 "_default" "dynSubjct." 0 4 yes "machtran.form_number" "Form Number" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202008212610605604397" no "" "" 0 0 "" no
 92 "_default" "dynSubjct." 0 5 yes "machtran.blank_number" "Blank Number" ">9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202008212610605604398" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 1 yes "ttJobItem.cJob" "SALES-ORD" "x(12)" 0 "character" 2 no no "" "" no "" "" no no no "" "202009295416805695946" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 2 yes "ttJobItem.dtOrderDate" "ORD-DATE" "99/99/9999" 0 "date" 5 no no "" "" no "" "" no no no "" "202009295416805695947" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 3 yes "ttJobItem.dtDueDate" "COM-DATE" "99/99/9999" 0 "date" 6 no no "" "" no "" "" no no no "" "202009295416805695948" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 4 yes "ttJobItem.cItemDescription" "DESCRIPTION-SIZE" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009295416805695949" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 5 yes "ttJobItem.cSalesRep" "SLSMN" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009295416805695950" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 6 yes "ttJobItem.cProductCategory" "PR CD" "X(7)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009295416805695951" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 7 yes "ttJobItem.dQuantityOrdered" "ORDER" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202009295416805695952" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 8 yes "ttJobItem.dQuantityProduced" "MADE" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202009295416805695953" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 9 yes "ttJobItem.dQuantityShipped" "SHIPPED" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202009295416805695954" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 10 yes "ttJobItem.dQuantityOnHand" "ON HAND" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202009295416805695955" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 11 yes "ttJobItem.dQuantityBalanceToRun" "BAL/RUN" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202009295416805695956" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 12 yes "ttJobItem.dDisplayBalanceToRun" "BAL/RUN" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009295416805695957" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 13 yes "ttJobItem.dPricePerEA" "PRICE PER" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009295416805695958" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 14 yes "ttJobItem.dPriceTotalOnHand" "VALUE" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] CUST ID,Sum" no "" "" no no no "" "202009295416805695959" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 15 yes "ttJobItem.cCustomerID" "CUST ID" "x(8)" 0 "character" 1 no yes "Sub-Total >>>" "" no "" "" no no no "" "202009295416805695960" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 16 yes "ttJobItem.cCustomerName" "CUSTOMER NAME" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009295416805695961" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 17 yes "ttJobItem.dtAsOfDate" "As Of Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202009295416805695962" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 18 yes "ttJobItem.cAsOfDateOption" "As Of Date Option" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009295416805695963" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 19 no "ttJobItem.iFormNumber" "FORM" ">>9" 0 "integer" 3 no no "" "" no "" "" no no no "" "202009295416805695964" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 20 no "ttJobItem.iBlankNumber" "BLANK" ">9" 0 "integer" 4 no no "" "" no "" "" no no no "" "202009295416805695965" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 21 no "ttJobItem.cItemID" "Item ID" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009295416805695966" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 1 yes "ttJobItem.cJob" "SALES-ORD" "x(12)" 0 "character" 2 no no "" "" no "" "" no no no "" "202010227839605784531" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 2 yes "ttJobItem.dtOrderDate" "ORD-DATE" "99/99/9999" 0 "date" 5 no no "" "" no "" "" no no no "" "202010227839605784532" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 3 yes "ttJobItem.dtDueDate" "COM-DATE" "99/99/9999" 0 "date" 6 no no "" "" no "" "" no no no "" "202010227839605784533" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 4 yes "ttJobItem.cItemDescription" "DESCRIPTION-SIZE" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010227839605784534" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 5 yes "ttJobItem.cSalesRep" "SLSMN" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010227839605784535" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 6 yes "ttJobItem.cProductCategory" "PR CD" "X(7)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010227839605784536" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 7 yes "ttJobItem.dQuantityOrdered" "ORDER" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010227839605784537" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 8 yes "ttJobItem.dQuantityProduced" "MADE" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010227839605784538" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 9 yes "ttJobItem.dQuantityShipped" "SHIPPED" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010227839605784539" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 10 yes "ttJobItem.dQuantityOnHand" "ON HAND" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010227839605784540" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 11 yes "ttJobItem.dQuantityBalanceToRun" "BAL/RUN" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010227839605784541" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 12 yes "ttJobItem.dDisplayBalanceToRun" "BAL/RUN" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010227839605784542" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 13 yes "ttJobItem.dPricePerEA" "PRICE PER" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010227839605784543" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 14 yes "ttJobItem.dPriceTotalOnHand" "VALUE" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] CUST ID,Sum" no "" "" no no no "" "202010227839605784544" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 15 yes "ttJobItem.cCustomerID" "CUST ID" "x(8)" 0 "character" 1 no yes "Sub-Total >>>" "" no "" "" no no no "" "202010227839605784545" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 16 yes "ttJobItem.cCustomerName" "CUSTOMER NAME" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010227839605784546" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 17 yes "ttJobItem.dtAsOfDate" "As Of Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202010227839605784547" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 18 yes "ttJobItem.cAsOfDateOption" "As Of Date Option" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010227839605784548" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 19 no "ttJobItem.iFormNumber" "FORM" ">>9" 0 "integer" 3 no no "" "" no "" "" no no no "" "202010227839605784549" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 20 no "ttJobItem.iBlankNumber" "BLANK" ">9" 0 "integer" 4 no no "" "" no "" "" no no no "" "202010227839605784550" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 21 no "ttJobItem.cItemID" "Item ID" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010227839605784551" no "" "" 0 0 "" no
 95 "_default" "dynSubjct." 0 1 yes "ttProdSum.cProductCategory" "Prod" "x(7)" 0 "character" 0 no no "" "" no "" "" no no no "" "202005136535605269461" no "" "" 0 0 "" no
 95 "_default" "dynSubjct." 0 2 yes "ttProdSum.cProductDescription" "Product Description" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202005136535605269462" no "" "" 0 0 "" no
 95 "_default" "dynSubjct." 0 3 yes "ttProdSum.dQuantityOnHand" "Qty On-Hand" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202005136535605269463" no "" "" 0 0 "" no
@@ -1976,37 +1976,37 @@
 133 "_default" "dynSubjct." 0 4 yes "dateRules.skipDays" "Days to Skip" "x(8)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202008147306005579175" no "" "" 0 0 "" no
 133 "_default" "dynSubjct." 0 5 yes "CalcSkipTime" "Skip Time" "x(11)" 0 "Character" 0 no no "" "" yes "calcStringTime" "dateRules.skipTime" no no no "" "202008147306005579176" no "" "" 0 0 "" no
 133 "_default" "dynSubjct." 0 6 no "dateRules.skipTime" "Skip Time" ">>>>9" 0 "integer" 0 no no "" "" no "" "" yes yes yes "" "202008147306005579177" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 1 yes "ttAgedReceivables.custNo" "Customer" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008176313005589486" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 2 yes "ttAgedReceivables.custName" "Customer Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008176313005589487" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 3 yes "ttAgedReceivables.contact" "Contact" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008176313005589488" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 4 yes "ttAgedReceivables.salesRep" "Sales Rep" "x(25)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008176313005589489" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 5 yes "ttAgedReceivables.terms" "Terms" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008176313005589490" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 6 yes "ttAgedReceivables.address1" "Address 1" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008176313005589491" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 7 yes "ttAgedReceivables.address2" "Address 2" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008176313005589492" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 8 yes "ttAgedReceivables.city" "City" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008176313005589493" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 9 yes "ttAgedReceivables.state" "State" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008176313005589494" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 10 yes "ttAgedReceivables.zip" "Zip" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008176313005589495" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 11 yes "ttAgedReceivables.creditLimit" "Credit Lim" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202008176313005589496" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 12 yes "ttAgedReceivables.phone" "Phone" "x(13)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008176313005589497" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 13 yes "ttAgedReceivables.fax" "Fax" "x(12)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008176313005589498" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 14 yes "ttAgedReceivables.checkMemo" "Check/Memo" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008176313005589499" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 15 yes "ttAgedReceivables.daysOld" "Days Old" "->>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202008176313005589500" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 16 yes "ttAgedReceivables.vType" "Type" "x(4)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008176313005589501" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 17 yes "ttAgedReceivables.invoiceNo" "Invoice" ">>>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202008176313005589502" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 18 yes "ttAgedReceivables.invoiceDate" "Inv Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202008176313005589503" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 19 yes "ttAgedReceivables.amount" "Amount" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202008176313005589504" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 20 yes "ttAgedReceivables.vCurrent" "Current" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202008176313005589505" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 21 yes "ttAgedReceivables.adtp" "Adtp" "->,>>9" 0 "integer" 0 no no "" "Report,Sum" no "" "" no no no "" "202008176313005589506" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 22 yes "ttAgedReceivables.td" "Td" "->,>>9" 0 "integer" 0 no no "" "Report,Sum" no "" "" no no no "" "202008176313005589507" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 23 yes "ttAgedReceivables.periodDay1" "Period Days 1" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202008176313005589508" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 24 yes "ttAgedReceivables.periodDay2" "Period Days 2" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202008176313005589509" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 25 yes "ttAgedReceivables.periodDay3" "Period Days 3" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202008176313005589510" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 26 yes "ttAgedReceivables.periodDay4" "Period Days 4" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202008176313005589511" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 27 yes "ttAgedReceivables.custPoNo" "Customer PoNo" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008176313005589512" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 28 yes "ttAgedReceivables.jobNo" "Job No " "x(9)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008176313005589513" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 29 yes "ttAgedReceivables.arClass" "AR Class" "99" 0 "integer" 0 no no "" "" no "" "" no no no "" "202008176313005589514" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 30 yes "ttAgedReceivables.invoiceNote" "Invoice Note" "x(50)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008176313005589515" no "" "" 0 0 "" no
-134 "_default" "dynSubjct." 0 31 yes "ttAgedReceivables.collNote" "Collection Note" "x(50)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008176313005589516" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 1 yes "ttAgedReceivables.custNo" "Customer" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010235616705801051" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 2 yes "ttAgedReceivables.custName" "Customer Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010235616705801052" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 3 yes "ttAgedReceivables.contact" "Contact" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010235616705801053" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 4 yes "ttAgedReceivables.salesRep" "Sales Rep" "x(25)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010235616705801054" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 5 yes "ttAgedReceivables.terms" "Terms" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010235616705801055" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 6 yes "ttAgedReceivables.address1" "Address 1" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010235616705801056" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 7 yes "ttAgedReceivables.address2" "Address 2" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010235616705801057" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 8 yes "ttAgedReceivables.city" "City" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010235616705801058" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 9 yes "ttAgedReceivables.state" "State" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010235616705801059" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 10 yes "ttAgedReceivables.zip" "Zip" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010235616705801060" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 11 yes "ttAgedReceivables.creditLimit" "Credit Lim" "->>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010235616705801061" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 12 yes "ttAgedReceivables.phone" "Phone" "x(13)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010235616705801062" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 13 yes "ttAgedReceivables.fax" "Fax" "x(12)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010235616705801063" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 14 yes "ttAgedReceivables.checkMemo" "Check/Memo" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010235616705801064" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 15 yes "ttAgedReceivables.daysOld" "Days Old" "->>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202010235616705801065" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 16 yes "ttAgedReceivables.vType" "Type" "x(4)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010235616705801066" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 17 yes "ttAgedReceivables.invoiceNo" "Invoice" ">>>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202010235616705801067" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 18 yes "ttAgedReceivables.invoiceDate" "Inv Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202010235616705801068" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 19 yes "ttAgedReceivables.amount" "Amount" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010235616705801069" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 20 yes "ttAgedReceivables.vCurrent" "Current" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010235616705801070" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 21 yes "ttAgedReceivables.adtp" "Adtp" "->,>>9" 0 "integer" 0 no no "" "Report,Sum" no "" "" no no no "" "202010235616705801071" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 22 yes "ttAgedReceivables.td" "Td" "->,>>9" 0 "integer" 0 no no "" "Report,Sum" no "" "" no no no "" "202010235616705801072" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 23 yes "ttAgedReceivables.periodDay1" "Period Days 1" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010235616705801073" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 24 yes "ttAgedReceivables.periodDay2" "Period Days 2" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010235616705801074" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 25 yes "ttAgedReceivables.periodDay3" "Period Days 3" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010235616705801075" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 26 yes "ttAgedReceivables.periodDay4" "Period Days 4" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010235616705801076" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 27 yes "ttAgedReceivables.custPoNo" "Customer PoNo" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010235616705801077" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 28 yes "ttAgedReceivables.jobNo" "Job No " "x(9)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010235616705801078" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 29 yes "ttAgedReceivables.arClass" "AR Class" "99" 0 "integer" 0 no no "" "" no "" "" no no no "" "202010235616705801079" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 30 yes "ttAgedReceivables.invoiceNote" "Invoice Note" "x(50)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010235616705801080" no "" "" 0 0 "" no
+134 "_default" "dynSubjct." 0 31 yes "ttAgedReceivables.collNote" "Collection Note" "x(50)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010235616705801081" no "" "" 0 0 "" no
 136 "_default" "dynSubjct." 0 1 yes "shipto.siteID" "Site ID" "x(16)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202008173458305586580" no "" "" 0 0 "" no
 136 "_default" "dynSubjct." 0 2 yes "shipto.company" "Company" "x(3)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202008173458305586581" no "" "" 0 0 "" no
 136 "_default" "dynSubjct." 0 3 yes "shipto.cust-no" "Customer" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202008173458305586582" no "" "" 0 0 "" no
@@ -2020,21 +2020,21 @@
 136 "_default" "dynSubjct." 0 11 yes "shipto.ship-state" "State" "x(2)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202008173458305586590" no "" "" 0 0 "" no
 136 "_default" "dynSubjct." 0 12 yes "shipto.ship-zip" "Zip" "x(10)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202008173458305586591" no "" "" 0 0 "" no
 136 "_default" "dynSubjct." 0 13 yes "shipto.statusCode" "Status" "x(2)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202008173458305586592" no "" "" 0 0 "" no
-137 "_default" "dynSubjct." 0 1 yes "ttCustAging.custNo" "Customer" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008280020905618860" no "" "" 0 0 "" no
-137 "_default" "dynSubjct." 0 2 yes "ttCustAging.custName" "Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008280020905618861" no "" "" 0 0 "" no
-137 "_default" "dynSubjct." 0 3 yes "ttCustAging.terms" "Terms" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008280020905618862" no "" "" 0 0 "" no
-137 "_default" "dynSubjct." 0 4 yes "ttCustAging.salesPerson" "Salesperson" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008280020905618863" no "" "" 0 0 "" no
-137 "_default" "dynSubjct." 0 5 yes "ttCustAging.creditHold" "Hold" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "202008280020905618864" no "" "" 0 0 "" no
-137 "_default" "dynSubjct." 0 6 yes "ttCustAging.creditLimit" "Credit Limit" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202008280020905618865" no "" "" 0 0 "" no
-137 "_default" "dynSubjct." 0 7 yes "ttCustAging.openOrder" "Open Order Limit" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202008280020905618866" no "" "" 0 0 "" no
-137 "_default" "dynSubjct." 0 8 yes "ttCustAging.balanceDue" "Balance Due" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202008280020905618867" no "" "" 0 0 "" no
-137 "_default" "dynSubjct." 0 9 yes "ttCustAging.openOrderBalance" "Open Order Balance" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202008280020905618868" no "" "" 0 0 "" no
-137 "_default" "dynSubjct." 0 10 yes "ttCustAging.balanceCurrent" "Current Balance" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202008280020905618869" no "" "" 0 0 "" no
-137 "_default" "dynSubjct." 0 11 yes "ttCustAging.balanceWithinGrace" "Grace Balance" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202008280020905618870" no "" "" 0 0 "" no
-137 "_default" "dynSubjct." 0 12 yes "ttCustAging.balancePastDue" "Past Due Balance" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202008280020905618871" no "" "" 0 0 "" no
-137 "_default" "dynSubjct." 0 13 yes "ttCustAging.creditAvailable" "Credit Available" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202008280020905618872" no "" "" 0 0 "" no
-137 "_default" "dynSubjct." 0 14 yes "ttCustAging.balUpdated" "Updated" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "202008280020905618873" no "" "" 0 0 "" no
-137 "_default" "dynSubjct." 0 15 yes "ttCustAging.creditHoldStatus" "Hold Status" "x(80)" 0 "character" 0 no no "" "" no "" "" no no no "" "202008280020905618874" no "" "" 0 0 "" no
+137 "_default" "dynSubjct." 0 1 yes "ttCustAging.custNo" "Customer" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236622105802424" no "" "" 0 0 "" no
+137 "_default" "dynSubjct." 0 2 yes "ttCustAging.custName" "Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236622105802425" no "" "" 0 0 "" no
+137 "_default" "dynSubjct." 0 3 yes "ttCustAging.terms" "Terms" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236622105802426" no "" "" 0 0 "" no
+137 "_default" "dynSubjct." 0 4 yes "ttCustAging.salesPerson" "Salesperson" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236622105802427" no "" "" 0 0 "" no
+137 "_default" "dynSubjct." 0 5 yes "ttCustAging.creditHold" "Hold" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "202010236622105802428" no "" "" 0 0 "" no
+137 "_default" "dynSubjct." 0 6 yes "ttCustAging.creditLimit" "Credit Limit" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236622105802429" no "" "" 0 0 "" no
+137 "_default" "dynSubjct." 0 7 yes "ttCustAging.openOrder" "Open Order Limit" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236622105802430" no "" "" 0 0 "" no
+137 "_default" "dynSubjct." 0 8 yes "ttCustAging.balanceDue" "Balance Due" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010236622105802431" no "" "" 0 0 "" no
+137 "_default" "dynSubjct." 0 9 yes "ttCustAging.openOrderBalance" "Open Order Balance" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010236622105802432" no "" "" 0 0 "" no
+137 "_default" "dynSubjct." 0 10 yes "ttCustAging.balanceCurrent" "Current Balance" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010236622105802433" no "" "" 0 0 "" no
+137 "_default" "dynSubjct." 0 11 yes "ttCustAging.balanceWithinGrace" "Grace Balance" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010236622105802434" no "" "" 0 0 "" no
+137 "_default" "dynSubjct." 0 12 yes "ttCustAging.balancePastDue" "Past Due Balance" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010236622105802435" no "" "" 0 0 "" no
+137 "_default" "dynSubjct." 0 13 yes "ttCustAging.creditAvailable" "Credit Available" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236622105802436" no "" "" 0 0 "" no
+137 "_default" "dynSubjct." 0 14 yes "ttCustAging.balUpdated" "Updated" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "202010236622105802437" no "" "" 0 0 "" no
+137 "_default" "dynSubjct." 0 15 yes "ttCustAging.creditHoldStatus" "Hold Status" "x(80)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236622105802438" no "" "" 0 0 "" no
 138 "_default" "dynSubjct." 0 1 yes "ttblJob.resource" "Resource" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009097144305641074" no "" "" 0 0 "" no
 138 "_default" "dynSubjct." 0 2 yes "ttblJob.job" "Job ID" "X(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009097144305641075" no "" "" 0 0 "" no
 138 "_default" "dynSubjct." 0 3 yes "ttblJob.dueDate" "Due Date" "99/99/99" 0 "date" 0 no no "" "" no "" "" no no no "" "202009097144305641076" no "" "" 0 0 "" no
@@ -2065,94 +2065,94 @@
 139 "_default" "dynSubjct." 0 21 yes "ttMachineEfficiency.totScrap" "% OF TOT SCRAP" "->>>>9.99" 17.4 "decimal" 0 no no "" "" no "" "" no no no "" "202008280045005618940" no "" "" 0 0 "" no
 139 "_default" "dynSubjct." 0 22 yes "ttMachineEfficiency.job" "Job#" "x(6)" 6 "character" 0 no no "" "" no "" "" no no no "" "202008280045005618941" no "" "" 0 0 "" no
 139 "_default" "dynSubjct." 0 23 yes "ttMachineEfficiency.job2" "Job2" ">>9" 4.6 "integer" 0 no no "" "" no "" "" no no no "" "202008280045005618942" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 1 yes "ttSalesReport.ArClass" "AR Class" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636831" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 2 yes "ttSalesReport.custNo" "Customer" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636832" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 3 yes "ttSalesReport.custName" "Customer Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636833" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 4 yes "ttSalesReport.custAdd1" "Customer Add1" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636834" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 5 yes "ttSalesReport.custAdd2" "Customer Add2" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636835" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 6 yes "ttSalesReport.custAdd3" "Customer Add3" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636836" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 7 yes "ttSalesReport.custCity" "Customer City" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636837" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 8 yes "ttSalesReport.custState" "Customer State" "x(2)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636838" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 9 yes "ttSalesReport.custZip" "Customer Zip" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636839" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 10 yes "ttSalesReport.custPhone" "Customer Phone" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636840" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 11 yes "ttSalesReport.custContact" "Customer Contact" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636841" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 12 yes "ttSalesReport.custNcaisCode" "NCAIS Code" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636842" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 13 yes "ttSalesReport.custMarketSeg" "Market Segment" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636843" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 14 yes "ttSalesReport.custParentCust" "Parent Customer" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636844" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 15 yes "ttSalesReport.custAccType" "Account Type" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636845" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 16 yes "ttSalesReport.custSplitType" "Split Type" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636846" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 17 yes "ttSalesReport.shipToCode" "Ship to Code" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636847" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 18 yes "ttSalesReport.shipToName" "Ship to Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636848" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 19 yes "ttSalesReport.shipToAdd1" "Ship to Add1" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636849" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 20 yes "ttSalesReport.shipToAdd2" "Ship to Add2" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636850" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 21 yes "ttSalesReport.shipToAdd3" "Ship to Add3" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636851" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 22 yes "ttSalesReport.shipToCity" "Ship to City" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636852" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 23 yes "ttSalesReport.shipToState" "Ship to State" "x(2)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636853" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 24 yes "ttSalesReport.shipToZip" "Ship to Zip" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636854" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 25 yes "ttSalesReport.custPartNo" "Cust Part No" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636855" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 26 yes "ttSalesReport.proCat" "Product Category" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636856" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 27 yes "ttSalesReport.itemUnitPrice" "Item Unit Price" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636857" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 28 yes "ttSalesReport.itemSqFt" "Item SqFt" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636858" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 29 yes "ttSalesReport.itemCost" "Item Cost" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636859" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 30 yes "ttSalesReport.itemStyle" "Item Style" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636860" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 31 yes "ttSalesReport.itemFlute" "Item Flute" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636861" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 32 yes "ttSalesReport.itemTest" "Item Test" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636862" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 33 yes "ttSalesReport.itemLen" "Item Length" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636863" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 34 yes "ttSalesReport.itemWid" "Item Width" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636864" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 35 yes "ttSalesReport.itemDep" "Item Depth" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636865" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 36 yes "ttSalesReport.itemWeight" "Item Weight" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636866" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 37 yes "ttSalesReport.ordQty" "Quantity Ordered" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636867" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 38 yes "ttSalesReport.ordOrderNo" "Order Number" ">>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202009092380405636868" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 39 yes "ttSalesReport.ordType" "Order Type" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636869" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 40 yes "ttSalesReport.ordLine" "Order Line" ">>>" 0 "integer" 0 no no "" "" no "" "" no no no "" "202009092380405636870" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 41 yes "ttSalesReport.ordEstNo" "Estimate Number" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636871" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 42 yes "ttSalesReport.ordDate" "Order Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202009092380405636872" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 43 yes "ttSalesReport.invNo" "Invoice#" ">>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202009092380405636873" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 44 yes "ttSalesReport.invDate" "Invoice Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202009092380405636874" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 45 yes "ttSalesReport.invItemNo" "Item Number" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636875" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 46 yes "ttSalesReport.invQtyUom" "Quantity UOM" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636876" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 47 yes "ttSalesReport.invQtyShip" "Quantity Shipped" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636877" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 48 yes "ttSalesReport.invQtyInv" "Quantity Invoiced" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636878" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 49 yes "ttSalesReport.invUnitPrice" "Unit Price" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636879" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 50 yes "ttSalesReport.invPriceUom" "Price UOM" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636880" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 51 yes "ttSalesReport.invExtPrice" "Extended Price" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636881" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 52 yes "ttSalesReport.invTaxable" "Taxable" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "202009092380405636882" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 53 yes "ttSalesReport.invCarrier" "Carrier" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636883" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 54 yes "ttSalesReport.invFob" "FOB" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636884" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 55 yes "ttSalesReport.invFrtPay" "Freight Pay" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636885" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 56 yes "ttSalesReport.invTaxGroup" "Tax Group" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636886" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 57 yes "ttSalesReport.invTotCost" "Total Cost" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636887" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 58 yes "ttSalesReport.invTotWeight" "Total Weight" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636888" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 59 yes "ttSalesReport.invDiscount" "Discount %" "->>>>.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636889" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 60 yes "ttSalesReport.invBolNo" "BOL Number" ">>>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202009092380405636890" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 61 yes "ttSalesReport.invCustPoNO" "Customer PO Number" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636891" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 62 yes "ttSalesReport.invAmtDue" "Current Amount Due" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636892" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 63 yes "ttSalesReport.invPaidDate" "Paid Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202009092380405636893" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 64 yes "ttSalesReport.invLastPayDate" "Last Payment Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202009092380405636894" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 65 yes "ttSalesReport.invPayCheckNo" "Last Payment Check Number" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636895" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 66 yes "ttSalesReport.invGLAccount" "GL Account Number" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636896" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 67 yes "ttSalesReport.invGLPeriod" "GL Period" ">>>" 0 "integer" 0 no no "" "" no "" "" no no no "" "202009092380405636897" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 68 yes "ttSalesReport.invGLYear" "GL Year" ">>>>>" 0 "integer" 0 no no "" "" no "" "" no no no "" "202009092380405636898" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 69 yes "ttSalesReport.invGLRun" "GL Run Number" ">>>>>>>>" 0 "integer" 0 no no "" "" no "" "" no no no "" "202009092380405636899" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 70 yes "ttSalesReport.invFreightAmt" "Freight Amount" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636900" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 71 yes "ttSalesReport.invTaxAmt" "Tax Amount" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636901" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 72 yes "ttSalesReport.invSman" "Salesgroup Id" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636902" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 73 yes "ttSalesReport.invCurrCode" "Currency Code" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636903" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 74 yes "ttSalesReport.invCurrRate" "Currency Rate" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636904" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 75 yes "ttSalesReport.invExtPricePerM" "Extended Price Per M" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636905" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 76 yes "ttSalesReport.invExtPricePerMsf" "Extended Price Per MSF" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636906" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 77 yes "ttSalesReport.invExtPricePerTon" "Extended Price Per Ton" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636907" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 78 yes "ttSalesReport.jobNo" "Job Number" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636908" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 79 yes "ttSalesReport.jobNo2" "Job Number2" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202009092380405636909" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 80 yes "ttSalesReport.jobForm" "Form" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202009092380405636910" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 81 yes "ttSalesReport.jobBlank" "Blank" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202009092380405636911" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 82 yes "ttSalesReport.jobColor" "Colors" ">>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202009092380405636912" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 83 yes "ttSalesReport.jobShipDate" "Ship Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202009092380405636913" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 84 yes "ttSalesReport.jobPostDate" "Post Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202009092380405636914" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 85 yes "ttSalesReport.SalesManager" "Sales Manager" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636915" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 86 yes "ttSalesReport.SalesGroupName" "Salesgroup Name" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009092380405636916" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 87 yes "ttSalesReport.profit" "Profit $ " "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636917" no "" "" 0 0 "" no
-140 "_default" "dynSubjct." 0 88 yes "ttSalesReport.profitPer" "Profit % " "->>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202009092380405636918" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 1 yes "ttSalesReport.ArClass" "AR Class" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802975" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 2 yes "ttSalesReport.custNo" "Customer" "x(10)" 0 "character" 0 no yes "test" "" no "" "" no no no "" "202010236882005802976" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 3 yes "ttSalesReport.custName" "Customer Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802977" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 4 yes "ttSalesReport.custAdd1" "Customer Add1" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802978" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 5 yes "ttSalesReport.custAdd2" "Customer Add2" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802979" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 6 yes "ttSalesReport.custAdd3" "Customer Add3" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802980" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 7 yes "ttSalesReport.custCity" "Customer City" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802981" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 8 yes "ttSalesReport.custState" "Customer State" "x(2)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802982" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 9 yes "ttSalesReport.custZip" "Customer Zip" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802983" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 10 yes "ttSalesReport.custPhone" "Customer Phone" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802984" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 11 yes "ttSalesReport.custContact" "Customer Contact" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802985" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 12 yes "ttSalesReport.custNcaisCode" "NCAIS Code" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802986" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 13 yes "ttSalesReport.custMarketSeg" "Market Segment" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802987" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 14 yes "ttSalesReport.custParentCust" "Parent Customer" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802988" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 15 yes "ttSalesReport.custAccType" "Account Type" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802989" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 16 yes "ttSalesReport.custSplitType" "Split Type" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802990" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 17 yes "ttSalesReport.shipToCode" "Ship to Code" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802991" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 18 yes "ttSalesReport.shipToName" "Ship to Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802992" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 19 yes "ttSalesReport.shipToAdd1" "Ship to Add1" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802993" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 20 yes "ttSalesReport.shipToAdd2" "Ship to Add2" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802994" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 21 yes "ttSalesReport.shipToAdd3" "Ship to Add3" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802995" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 22 yes "ttSalesReport.shipToCity" "Ship to City" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802996" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 23 yes "ttSalesReport.shipToState" "Ship to State" "x(2)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802997" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 24 yes "ttSalesReport.shipToZip" "Ship to Zip" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802998" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 25 yes "ttSalesReport.custPartNo" "Cust Part No" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005802999" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 26 yes "ttSalesReport.proCat" "Product Category" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803000" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 27 yes "ttSalesReport.itemUnitPrice" "Item Unit Price" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803001" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 28 yes "ttSalesReport.itemSqFt" "Item SqFt" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803002" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 29 yes "ttSalesReport.itemCost" "Item Cost" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803003" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 30 yes "ttSalesReport.itemStyle" "Item Style" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803004" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 31 yes "ttSalesReport.itemFlute" "Item Flute" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803005" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 32 yes "ttSalesReport.itemTest" "Item Test" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803006" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 33 yes "ttSalesReport.itemLen" "Item Length" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803007" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 34 yes "ttSalesReport.itemWid" "Item Width" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803008" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 35 yes "ttSalesReport.itemDep" "Item Depth" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803009" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 36 yes "ttSalesReport.itemWeight" "Item Weight" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803010" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 37 yes "ttSalesReport.ordQty" "Quantity Ordered" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803011" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 38 yes "ttSalesReport.ordOrderNo" "Order Number" ">>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202010236882005803012" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 39 yes "ttSalesReport.ordType" "Order Type" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803013" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 40 yes "ttSalesReport.ordLine" "Order Line" ">>>" 0 "integer" 0 no no "" "" no "" "" no no no "" "202010236882005803014" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 41 yes "ttSalesReport.ordEstNo" "Estimate Number" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803015" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 42 yes "ttSalesReport.ordDate" "Order Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202010236882005803016" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 43 yes "ttSalesReport.invNo" "Invoice#" ">>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202010236882005803017" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 44 yes "ttSalesReport.invDate" "Invoice Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202010236882005803018" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 45 yes "ttSalesReport.invItemNo" "Item Number" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803019" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 46 yes "ttSalesReport.invQtyUom" "Quantity UOM" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803020" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 47 yes "ttSalesReport.invQtyShip" "Quantity Shipped" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803021" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 48 yes "ttSalesReport.invQtyInv" "Quantity Invoiced" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803022" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 49 yes "ttSalesReport.invUnitPrice" "Unit Price" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803023" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 50 yes "ttSalesReport.invPriceUom" "Price UOM" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803024" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 51 yes "ttSalesReport.invExtPrice" "Extended Price" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803025" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 52 yes "ttSalesReport.invTaxable" "Taxable" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "202010236882005803026" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 53 yes "ttSalesReport.invCarrier" "Carrier" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803027" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 54 yes "ttSalesReport.invFob" "FOB" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803028" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 55 yes "ttSalesReport.invFrtPay" "Freight Pay" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803029" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 56 yes "ttSalesReport.invTaxGroup" "Tax Group" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803030" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 57 yes "ttSalesReport.invTotCost" "Total Cost" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803031" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 58 yes "ttSalesReport.invTotWeight" "Total Weight" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803032" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 59 yes "ttSalesReport.invDiscount" "Discount %" "->>>>.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803033" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 60 yes "ttSalesReport.invBolNo" "BOL Number" ">>>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202010236882005803034" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 61 yes "ttSalesReport.invCustPoNO" "Customer PO Number" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803035" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 62 yes "ttSalesReport.invAmtDue" "Current Amount Due" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803036" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 63 yes "ttSalesReport.invPaidDate" "Paid Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202010236882005803037" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 64 yes "ttSalesReport.invLastPayDate" "Last Payment Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202010236882005803038" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 65 yes "ttSalesReport.invPayCheckNo" "Last Payment Check Number" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803039" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 66 yes "ttSalesReport.invGLAccount" "GL Account Number" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803040" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 67 yes "ttSalesReport.invGLPeriod" "GL Period" ">>>" 0 "integer" 0 no no "" "" no "" "" no no no "" "202010236882005803041" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 68 yes "ttSalesReport.invGLYear" "GL Year" ">>>>>" 0 "integer" 0 no no "" "" no "" "" no no no "" "202010236882005803042" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 69 yes "ttSalesReport.invGLRun" "GL Run Number" ">>>>>>>>" 0 "integer" 0 no no "" "" no "" "" no no no "" "202010236882005803043" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 70 yes "ttSalesReport.invFreightAmt" "Freight Amount" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803044" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 71 yes "ttSalesReport.invTaxAmt" "Tax Amount" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803045" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 72 yes "ttSalesReport.invSman" "Salesgroup Id" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803046" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 73 yes "ttSalesReport.invCurrCode" "Currency Code" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803047" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 74 yes "ttSalesReport.invCurrRate" "Currency Rate" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803048" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 75 yes "ttSalesReport.invExtPricePerM" "Extended Price Per M" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803049" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 76 yes "ttSalesReport.invExtPricePerMsf" "Extended Price Per MSF" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803050" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 77 yes "ttSalesReport.invExtPricePerTon" "Extended Price Per Ton" "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803051" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 78 yes "ttSalesReport.jobNo" "Job Number" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803052" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 79 yes "ttSalesReport.jobNo2" "Job Number2" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202010236882005803053" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 80 yes "ttSalesReport.jobForm" "Form" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202010236882005803054" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 81 yes "ttSalesReport.jobBlank" "Blank" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202010236882005803055" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 82 yes "ttSalesReport.jobColor" "Colors" ">>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202010236882005803056" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 83 yes "ttSalesReport.jobShipDate" "Ship Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202010236882005803057" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 84 yes "ttSalesReport.jobPostDate" "Post Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202010236882005803058" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 85 yes "ttSalesReport.SalesManager" "Sales Manager" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803059" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 86 yes "ttSalesReport.SalesGroupName" "Salesgroup Name" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236882005803060" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 87 yes "ttSalesReport.profit" "Profit $ " "->>,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803061" no "" "" 0 0 "" no
+140 "_default" "dynSubjct." 0 88 yes "ttSalesReport.profitPer" "Profit % " "->>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236882005803062" no "" "" 0 0 "" no
 142 "_default" "dynSubjct." 0 1 yes "APIOutbound.apiID" "API ID" "x(32)" 32 "STRING" 2 no no "" "" no "" "" yes yes yes "" "202009082063605630166" no "" "" 0 0 "" no
 142 "_default" "dynSubjct." 0 2 yes "CalcType" "Type" "x(8)" 0 "Character" 0 no no "" "" yes "calcAPIType" "APIOutbound.apiOutboundID" no no no "" "202009082063605630167" no "" "" 0 0 "" no
 142 "_default" "dynSubjct." 0 3 no "APIOutbound.apiOutboundID" "Outbound Sequence ID" "->,>>>,>>9" 0 "int64" 1 no no "" "" no "" "" no no no "" "202009082063605630168" no "" "" 0 0 "" no
@@ -2166,42 +2166,69 @@
 143 "_default" "dynSubjct." 0 2 yes "_file._File-Label" "File-Label" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202009096912905640939" no "" "" 0 0 "" no
 144 "_default" "dynSubjct." 0 1 yes "_field._Field-Name" "Field-Name" "x(32)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202009096923505640969" no "" "" 0 0 "" no
 144 "_default" "dynSubjct." 0 2 yes "_field._Label" "Label" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202009096923505640970" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 1 yes "tt-srt.m-code" "Machine" "x(6)" 6 "character" 0 no no "" "" no "" "" no no no "" "202009217247305676753" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 2 yes "tt-srt.job-date" "Job Date" "99/99/9999" 8.8 "date" 1 no no "" "" no "" "" no no no "" "202009217247305676754" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 3 yes "CalcMRStart" "MR Start" "x(11)" 0 "Character" 0 no no "" "" yes "calcStringTime" "tt-srt.mr-start-time" no no no "" "202009217247305676755" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 4 yes "CalcMREnd" "MR End" "x(11)" 0 "Character" 0 no no "" "" yes "calcStringTime" "tt-srt.mr-end-time" no no no "" "202009217247305676756" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 5 yes "CalcRunStart" "Run Start" "x(11)" 0 "Character" 0 no no "" "" yes "calcStringTime" "tt-srt.run-start-time" no no no "" "202009217247305676757" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 6 yes "CalcRunEnd" "Run End" "x(11)" 0 "Character" 0 no no "" "" yes "calcStringTime" "tt-srt.run-end-time" no no no "" "202009217247305676758" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 7 yes "tt-srt.jobNo" "Job" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009217247305676759" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 8 yes "tt-srt.sqFeet-blank" "Sq Ft Blank" ">>,>>9.9999" 12.4 "decimal" 0 no no "" "" no "" "" no no no "" "202009217247405676760" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 9 yes "tt-srt.mr-act-hr" "Setup Hr" "->>,>>9.99" 9 "decimal" 0 no no "" "" no "" "" no no no "" "202009217247405676761" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 10 yes "tt-srt.run-act-hr" "Run Hr" "->>,>>9.99" 9.8 "decimal" 0 no no "" "" no "" "" no no no "" "202009217247405676762" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 11 yes "tt-srt.sqfeet-rcv" "Sq Ft Received" "->,>>>,>>9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "202009217247405676763" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 12 yes "tt-srt.sheet-rcv" "Sheets Received" "->,>>>,>>9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "202009217247405676764" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 13 yes "tt-srt.qty-prod" "Produced Qty" "->>,>>>,>>9" 10 "decimal" 0 no no "" "" no "" "" no no no "" "202009217247405676765" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 14 yes "tt-srt.qty-finished" "Finished Qty" "->>>,>>9.99" 11.4 "decimal" 0 no no "" "" no "" "" no no no "" "202009217247405676766" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 15 yes "tt-srt.qty-rcv" "FG Received" "->,>>>,>>9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "202009217247405676767" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 16 yes "CalcFGDeviation" "FG Deviation" "->>,>>9" 0 "Integer" 0 no no "" "" yes "" ? no no no "(|(|tt-srt.qty-rcv|-|tt-srt.qty-finished|)|/|tt-srt.qty-rcv|)|*|100" "202009217247405676768" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 17 yes "tt-srt.sqfeet-prod" "Sq Ft Produced" "->,>>>,>>9" 11.4 "integer" 0 no no "" "" no "" "" no no no "" "202009217247405676769" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 18 yes "CalcSqFtWaste" "Sq Ft Waste" "->,>>>,>>9" 0 "Integer" 0 no no "" "" yes "" ? no no no "tt-srt.sqfeet-rcv|-|tt-srt.sqfeet-prod|" "202009217247405676770" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 19 yes "CalcWastePerLine" "Waste Per Line" "->>,>>9.99" 0 "Decimal" 0 no no "" "" yes "" ? no no no "(|tt-srt.sqfeet-rcv|-|tt-srt.sqfeet-prod|)|/|tt-srt.sqfeet-rcv|*|100" "202009217247405676771" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 20 yes "CalcAvgPcsPerHr" "Avg Pcs Per Hr" "->,>>>,>>9" 0 "Integer" 0 no no "" "" yes "" ? no no no "tt-srt.qty-prod|/|tt-srt.run-act-hr" "202009217247405676772" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 21 yes "tt-srt.mr-eff" "Setup Eff" "->,>>9.99" 8.4 "decimal" 0 no no "" "" no "" "" no no no "" "202009217247405676773" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 22 yes "tt-srt.run-eff" "Run Eff" "->,>>9.99" 8.4 "decimal" 0 no no "" "" no "" "" no no no "" "202009217247405676774" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 23 yes "tt-srt.shift" "Shift" ">9" 4.4 "integer" 0 no no "" "" no "" "" no no no "" "202009217247405676775" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 24 yes "tt-srt.i-no" "Item No" "x(15)" 15 "character" 0 no no "" "" no "" "" no no no "" "202009217247405676776" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 25 yes "tt-srt.fgItemName" "Item Name" "x(30)" 30 "character" 0 no no "" "" no "" "" no no no "" "202009217247405676777" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 26 yes "CalcLinearFtHr" "Linear Ft Hr" "->,>>>,>>9.99" 0 "Decimal" 0 no no "" "" yes "" ? no no no "tt-srt.qty-lin-ft|/|tt-srt.run-act-hr|" "202009217247405676778" no "" "" 0 0 "" no
-145 "_default" "dynSubjct." 0 27 yes "tt-srt.notes" "Notes" "x(256)" 0 "character" 0 no no "" "" no "" "" no no no "" "202009217247405676779" no "" "" 0 0 "" no
-146 "_default" "dynSubjct." 0 1 yes "terms.t-code" "Terms" "x(5)" 9 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202009217032205676519" no "" "" 0 0 "" no
-146 "_default" "dynSubjct." 0 2 yes "terms.dscr" "Description" "x(30)" 35.2 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202009217032205676520" no "" "" 0 0 "" no
-146 "_default" "dynSubjct." 0 3 yes "terms.disc-rate" "Disc %" "z9.9" 6.6 "decimal" 0 no no "" "" no "" "" yes yes yes "" "202009217032205676521" no "" "" 0 0 "" no
-146 "_default" "dynSubjct." 0 4 yes "terms.disc-days" "Days" "z9" 4.8 "integer" 0 no no "" "" no "" "" yes yes yes "" "202009217032205676522" no "" "" 0 0 "" no
-146 "_default" "dynSubjct." 0 5 yes "terms.net-days" "Net" ">>9" 3.4 "integer" 0 no no "" "" no "" "" yes yes yes "" "202009217032205676523" no "" "" 0 0 "" no
-147 "_default" "dynSubjct." 0 1 yes "job-code.code" "Code" "x(5)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202009217173305676722" no "" "" 0 0 "" no
-147 "_default" "dynSubjct." 0 2 yes "job-code.dscr" "Description" "x(45)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202009217173305676723" no "" "" 0 0 "" no
-147 "_default" "dynSubjct." 0 3 yes "job-code.cat" "Category" "x(3)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202009217173305676724" no "" "" 0 0 "" no
-147 "_default" "dynSubjct." 0 4 yes "job-code.dmiID" "DMI ID" ">>>9" 0 "integer" 0 no no "" "" no "" "" yes yes yes "" "202009217173305676725" no "" "" 0 0 "" no
-148 "_default" "dynSubjct." 0 1 yes "dept.code" "Code" "x(2)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202009217174105676738" no "" "" 0 0 "" no
-148 "_default" "dynSubjct." 0 2 yes "dept.dscr" "Description" "x(25)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202009217174105676739" no "" "" 0 0 "" no
-148 "_default" "dynSubjct." 0 3 yes "dept.industry" "Industry" "x" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202009217174105676740" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 1 yes "tt-srt.m-code" "Machine" "x(6)" 6 "character" 0 no no "" "" no "" "" no no no "" "202010227917405784590" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 2 yes "tt-srt.job-date" "Job Date" "99/99/9999" 8.8 "date" 1 no no "" "" no "" "" no no no "" "202010227917405784591" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 3 yes "CalcMRStart" "MR Start" "x(11)" 0 "Character" 0 no no "" "" yes "calcStringTime" "tt-srt.mr-start-time" no no no "" "202010227917405784592" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 4 yes "CalcMREnd" "MR End" "x(11)" 0 "Character" 0 no no "" "" yes "calcStringTime" "tt-srt.mr-end-time" no no no "" "202010227917405784593" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 5 yes "CalcRunStart" "Run Start" "x(11)" 0 "Character" 0 no no "" "" yes "calcStringTime" "tt-srt.run-start-time" no no no "" "202010227917405784594" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 6 yes "CalcRunEnd" "Run End" "x(11)" 0 "Character" 0 no no "" "" yes "calcStringTime" "tt-srt.run-end-time" no no no "" "202010227917405784595" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 7 yes "tt-srt.jobNo" "Job" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010227917405784596" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 8 yes "tt-srt.sqFeet-blank" "Sq Ft Blank" ">>,>>9.9999" 12.4 "decimal" 0 no no "" "" no "" "" no no no "" "202010227917405784597" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 9 yes "tt-srt.mr-act-hr" "Setup Hr" "->>,>>9.99" 9 "decimal" 0 no no "" "" no "" "" no no no "" "202010227917405784598" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 10 yes "tt-srt.run-act-hr" "Run Hr" "->>,>>9.99" 9.8 "decimal" 0 no no "" "" no "" "" no no no "" "202010227917405784599" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 11 yes "tt-srt.sqfeet-rcv" "Sq Ft Received" "->,>>>,>>9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "202010227917405784600" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 12 yes "tt-srt.sheet-rcv" "Sheets Received" "->,>>>,>>9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "202010227917405784601" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 13 yes "tt-srt.qty-prod" "Produced Qty" "->>,>>>,>>9" 10 "decimal" 0 no no "" "" no "" "" no no no "" "202010227917405784602" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 14 yes "tt-srt.qty-finished" "Finished Qty" "->>>,>>9.99" 11.4 "decimal" 0 no no "" "" no "" "" no no no "" "202010227917405784603" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 15 yes "tt-srt.qty-rcv" "FG Received" "->,>>>,>>9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "202010227917405784604" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 16 yes "CalcFGDeviation" "FG Deviation" "->>,>>9" 0 "Integer" 0 no no "" "" yes "" ? no no no "(|(|tt-srt.qty-rcv|-|tt-srt.qty-finished|)|/|tt-srt.qty-rcv|)|*|100" "202010227917405784605" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 17 yes "tt-srt.sqfeet-prod" "Sq Ft Produced" "->,>>>,>>9" 11.4 "integer" 0 no no "" "" no "" "" no no no "" "202010227917405784606" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 18 yes "CalcSqFtWaste" "Sq Ft Waste" "->,>>>,>>9" 0 "Integer" 0 no no "" "" yes "" ? no no no "tt-srt.sqfeet-rcv|-|tt-srt.sqfeet-prod|" "202010227917405784607" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 19 yes "CalcWastePerLine" "Waste Per Line" "->>,>>9.99" 0 "Decimal" 0 no no "" "" yes "" ? no no no "(|tt-srt.sqfeet-rcv|-|tt-srt.sqfeet-prod|)|/|tt-srt.sqfeet-rcv|*|100" "202010227917405784608" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 20 yes "CalcAvgPcsPerHr" "Avg Pcs Per Hr" "->,>>>,>>9" 0 "Integer" 0 no no "" "" yes "" ? no no no "tt-srt.qty-prod|/|tt-srt.run-act-hr" "202010227917405784609" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 21 yes "tt-srt.mr-eff" "Setup Eff" "->,>>9.99" 8.4 "decimal" 0 no no "" "" no "" "" no no no "" "202010227917405784610" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 22 yes "tt-srt.run-eff" "Run Eff" "->,>>9.99" 8.4 "decimal" 0 no no "" "" no "" "" no no no "" "202010227917405784611" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 23 yes "tt-srt.shift" "Shift" ">9" 4.4 "integer" 0 no no "" "" no "" "" no no no "" "202010227917405784612" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 24 yes "tt-srt.i-no" "Item No" "x(15)" 15 "character" 0 no no "" "" no "" "" no no no "" "202010227917405784613" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 25 yes "tt-srt.fgItemName" "Item Name" "x(30)" 30 "character" 0 no no "" "" no "" "" no no no "" "202010227917405784614" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 26 yes "CalcLinearFtHr" "Linear Ft Hr" "->,>>>,>>9.99" 0 "Decimal" 0 no no "" "" yes "" ? no no no "tt-srt.qty-lin-ft|/|tt-srt.run-act-hr|" "202010227917405784615" no "" "" 0 0 "" no
+145 "_default" "dynSubjct." 0 27 yes "tt-srt.notes" "Notes" "x(256)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010227917405784616" no "" "" 0 0 "" no
+146 "_default" "dynSubjct." 0 1 yes "terms.t-code" "Terms" "x(5)" 9 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202010172756005764225" no "" "" 0 0 "" no
+146 "_default" "dynSubjct." 0 2 yes "terms.dscr" "Description" "x(30)" 35.2 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202010172756005764226" no "" "" 0 0 "" no
+146 "_default" "dynSubjct." 0 3 yes "terms.disc-rate" "Disc %" "z9.9" 6.6 "decimal" 0 no no "" "" no "" "" yes yes yes "" "202010172756005764227" no "" "" 0 0 "" no
+146 "_default" "dynSubjct." 0 4 yes "terms.disc-days" "Days" "z9" 4.8 "integer" 0 no no "" "" no "" "" yes yes yes "" "202010172756005764228" no "" "" 0 0 "" no
+146 "_default" "dynSubjct." 0 5 yes "terms.net-days" "Net" ">>9" 3.4 "integer" 0 no no "" "" no "" "" yes yes yes "" "202010172756005764229" no "" "" 0 0 "" no
+147 "_default" "dynSubjct." 0 1 yes "job-code.code" "Code" "x(5)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202010172755405764220" no "" "" 0 0 "" no
+147 "_default" "dynSubjct." 0 2 yes "job-code.dscr" "Description" "x(45)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202010172755405764221" no "" "" 0 0 "" no
+147 "_default" "dynSubjct." 0 3 yes "job-code.cat" "Category" "x(3)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202010172755405764222" no "" "" 0 0 "" no
+147 "_default" "dynSubjct." 0 4 yes "job-code.dmiID" "DMI ID" ">>>9" 0 "integer" 0 no no "" "" no "" "" yes yes yes "" "202010172755405764223" no "" "" 0 0 "" no
+148 "_default" "dynSubjct." 0 1 yes "dept.code" "Code" "x(2)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202010172754805764216" no "" "" 0 0 "" no
+148 "_default" "dynSubjct." 0 2 yes "dept.dscr" "Description" "x(25)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202010172754805764217" no "" "" 0 0 "" no
+148 "_default" "dynSubjct." 0 3 yes "dept.industry" "Industry" "x" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202010172754805764218" no "" "" 0 0 "" no
+149 "_default" "dynSubjct." 0 1 yes "itemfg.part-no" "Cust Part #" "x(12)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202010191872105766853" no "" "" 0 0 "" no
+149 "_default" "dynSubjct." 0 2 yes "itemfg.i-no" "Item No" "x(15)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202010191872105766854" no "" "" 0 0 "" no
+149 "_default" "dynSubjct." 0 3 yes "itemfg.i-name" "Name" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202010191872105766855" no "" "" 0 0 "" no
+150 "_default" "dynSubjct." 0 1 yes "loc.loc" "Location" "x(5)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202010278444305811902" no "" "" 0 0 "" no
+150 "_default" "dynSubjct." 0 2 yes "loc.dscr" "Description" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202010278444305811903" no "" "" 0 0 "" no
+150 "_default" "dynSubjct." 0 3 yes "loc.active" "Active" "yes/no" 0 "logical" 0 no no "" "" no "" "" yes yes yes "" "202010278444305811904" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 1 yes "ttJobItem.cJob" "SALES-ORD" "x(12)" 0 "character" 2 no no "" "" no "" "" no no no "" "202010236066105801878" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 2 yes "ttJobItem.cItemID" "FG  ID" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236066105801879" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 3 yes "ttJobItem.dtOrderDate" "ORD-DATE" "99/99/9999" 0 "date" 5 no no "" "" no "" "" no no no "" "202010236066105801880" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 4 yes "ttJobItem.dtDueDate" "COM-DATE" "99/99/9999" 0 "date" 6 no no "" "" no "" "" no no no "" "202010236066105801881" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 5 yes "ttJobItem.cItemDescription" "DESCRIPTION-SIZE" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236066105801882" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 6 yes "ttJobItem.cSalesRep" "SLSMN" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236066105801883" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 7 yes "ttJobItem.cProductCategory" "PR CD" "X(7)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236066105801884" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 8 yes "ttJobItem.dQuantityOrdered" "ORDER" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010236066105801885" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 9 yes "ttJobItem.dQuantityProduced" "MADE" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010236066105801886" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 10 yes "ttJobItem.dQuantityShipped" "SHIPPED" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010236066105801887" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 11 yes "ttJobItem.dQuantityOnHand" "ON HAND" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010236066105801888" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 12 yes "ttJobItem.dQuantityBalanceToRun" "BAL/RUN" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010236066105801889" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 13 yes "ttJobItem.dDisplayBalanceToRun" "BAL/RUN" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236066105801890" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 14 yes "ttJobItem.dPricePerEA" "PRICE PER" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010236066105801891" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 15 yes "ttJobItem.dPriceTotalOnHand" "VALUE" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] CUST ID,Sum" no "" "" no no no "" "202010236066105801892" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 16 yes "ttJobItem.cCustomerID" "CUST ID" "x(8)" 0 "character" 1 no yes "Sub-Total >>>" "" no "" "" no no no "" "202010236066105801893" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 17 yes "ttJobItem.cCustomerName" "CUSTOMER NAME" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236066105801894" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 18 yes "ttJobItem.dtAsOfDate" "As Of Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202010236066105801895" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 19 yes "ttJobItem.cAsOfDateOption" "As Of Date Option" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010236066105801896" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 20 no "ttJobItem.iFormNumber" "FORM" ">>9" 0 "integer" 3 no no "" "" no "" "" no no no "" "202010236066105801897" no "" "" 0 0 "" no
+151 "_default" "dynSubjct." 0 21 no "ttJobItem.iBlankNumber" "BLANK" ">9" 0 "integer" 4 no no "" "" no "" "" no no no "" "202010236066105801898" no "" "" 0 0 "" no
