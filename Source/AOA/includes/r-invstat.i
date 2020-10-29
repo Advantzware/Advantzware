@@ -141,17 +141,18 @@ END FUNCTION.
 FUNCTION fIsOldJobBuild RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER):
     
-    DEFINE VARIABLE lOldJobBuild AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReturn      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lOldJobBuild AS LOGICAL   NO-UNDO.
     
     RUN sys/ref/nk1look.p (ipcCompany, "JobBuildVersion", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound THEN 
-        lOldJobBuild = cReturn NE "NEW".
+    lOldJobBuild = cReturn NE "NEW".
     
     RETURN lOldJobBuild.    
     
 END FUNCTION.
+
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBusinessLogic:
@@ -174,8 +175,8 @@ PROCEDURE pBusinessLogic:
         cEndCustNo,
         cStartFGItem,
         cEndFGItem,
-        dtStartJob,
-        dtEndJob,
+        dtStartDate,
+        dtEndDate,
         lOldJobBuild
         ).
 END PROCEDURE.
