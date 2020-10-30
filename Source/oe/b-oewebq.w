@@ -2188,6 +2188,14 @@ PROCEDURE query-go :
                AND oe-ordl.ord-no GE lv-ord-no   ~
                    USE-INDEX opened NO-LOCK, ~
                    {&for-each2}
+        IF ll-sort-asc THEN 
+            {&open-query} {&sortby-phrase-asc}.
+        ELSE DO:
+            IF lv-sort-by EQ "ord-date" THEN 
+                {&open-query} {&sortby-phrase-desc1}.
+            ELSE  
+                {&open-query} {&sortby-phrase-desc}. 
+        END.                    
     END.
     ELSE
     DO:
@@ -2207,15 +2215,14 @@ PROCEDURE query-go :
                AND oe-ordl.ord-no GE lv-ord-no   ~
                    USE-INDEX opened NO-LOCK, ~
                    {&for-each2}
-    END.
-
-    IF ll-sort-asc THEN 
-      {&open-query} {&sortby-phrase-asc}.
-    ELSE DO:
-        IF lv-sort-by EQ "ord-date" THEN 
-          {&open-query} {&sortby-phrase-desc1}.
-        ELSE  
-          {&open-query} {&sortby-phrase-desc}. 
+        IF ll-sort-asc THEN 
+            {&open-query} {&sortby-phrase-asc}.
+        ELSE DO:
+            IF lv-sort-by EQ "ord-date" THEN 
+                {&open-query} {&sortby-phrase-desc1}.
+            ELSE  
+                {&open-query} {&sortby-phrase-desc}. 
+        END.                   
     END.
   END.
 
