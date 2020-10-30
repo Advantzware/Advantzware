@@ -204,6 +204,7 @@ ELSE DO:
             {&for-eachblank}              ~
                 USE-INDEX opened NO-LOCK, ~
                 {&for-each2}
+    {oeinq/j-ordinq1.i}              
   END.
   ELSE DO:
      &SCOPED-DEFINE joinScop OUTER-JOIN
@@ -218,6 +219,6 @@ ELSE DO:
             {&for-each1}                  ~
                 USE-INDEX opened NO-LOCK, ~
                 {&for-each2}
+    {oeinq/j-ordinq1.i}              
   END.  
-  {oeinq/j-ordinq1.i}
 END.
