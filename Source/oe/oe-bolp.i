@@ -7,7 +7,6 @@ EMPTY TEMP-TABLE tt-boll.
 
 CREATE tt-bolh.
 BUFFER-COPY oe-bolh TO tt-bolh.
-     tt-bolh.trans-date = inv-head.inv-date.
 
 CREATE tt-boll.
 BUFFER-COPY oe-boll TO tt-boll.

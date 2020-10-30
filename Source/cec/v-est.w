@@ -3062,11 +3062,11 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE BUFFER b-est FOR est.
-  DEFINE BUFFER b-ef FOR ef.
-  DEFINE BUFFER b-eb FOR eb.
-  DEFINE BUFFER b-set FOR eb.
-  DEFINE BUFFER bf-box-design-hdr FOR box-design-hdr.
+  def buffer b-est for est.
+  def buffer b-ef for ef.
+  def buffer b-eb for eb.
+  def buffer b-set for eb.
+  DEF BUFFER xbox-design-hdr FOR box-design-hdr.
 
   DEF VAR char-hdl AS cha NO-UNDO.
   DEF VAR lv-hld-cust like eb.cust-no no-undo.
@@ -3324,41 +3324,35 @@ PROCEDURE local-assign-record :
   IF eb.cad-no <> "" AND lv-cad-path <> "" THEN DO:
      IF SEARCH(lv-cad-path + eb.cad-no + lv-cad-ext) <> ? OR
         (cadfile NE '' AND SEARCH(cadfile) <> ?) THEN DO:
-        FIND FIRST bf-box-design-hdr NO-LOCK 
-             WHERE bf-box-design-hdr.design-no EQ 0 
-               AND bf-box-design-hdr.company   EQ eb.company 
-               AND bf-box-design-hdr.est-no    EQ eb.est-no     
-               AND bf-box-design-hdr.form-no   EQ eb.form-no
-               AND bf-box-design-hdr.blank-no  EQ eb.blank-no 
-             NO-ERROR.
-        IF AVAIL bf-box-design-hdr AND
+        FIND first box-design-hdr where box-design-hdr.design-no = 0 and
+                                     box-design-hdr.company = eb.company 
+                                 and box-design-hdr.est-no = eb.est-no     
+                                 and box-design-hdr.form-no   eq eb.form-no
+                                 and box-design-hdr.blank-no  eq eb.blank-no NO-ERROR.
+        IF AVAIL box-design-hdr AND
             ( ((cadfile NE '') AND SEARCH(cadfile) <> ?) OR
-              SEARCH(lv-cad-path + eb.cad-no + lv-cad-ext) <> ? ) THEN DO:
-           FIND CURRENT bf-box-design-hdr EXCLUSIVE-LOCK NO-ERROR.
-           bf-box-design-hdr.box-image = IF cadfile NE '' THEN cadfile
-                                         ELSE lv-cad-path + eb.cad-no + lv-cad-ext. /*".jpg"*/.
+              SEARCH(lv-cad-path + eb.cad-no + lv-cad-ext) <> ? ) THEN 
+        DO:
+
+           ASSIGN box-design-hdr.box-image = IF cadfile NE '' THEN cadfile
+                  ELSE lv-cad-path + eb.cad-no + lv-cad-ext. /*".jpg"*/.
         END.
      END.
      ELSE DO: /* reset from style */
         find first style where style.company EQ eb.company and style.style  eq eb.style
                  no-lock no-error.
         if avail style then
-           FIND FIRST box-design-hdr NO-LOCK
-                WHERE box-design-hdr.design-no EQ style.design-no
-                  AND box-design-hdr.est-no    EQ ""
-                NO-ERROR.
-           FIND FIRST bf-box-design-hdr NO-LOCK
-                WHERE bf-box-design-hdr.design-no EQ 0 
-                  AND bf-box-design-hdr.company   EQ eb.company 
-                  AND bf-box-design-hdr.est-no    EQ eb.est-no     
-                  AND bf-box-design-hdr.form-no   EQ eb.form-no
-                  AND bf-box-design-hdr.blank-no  EQ eb.blank-no 
-                NO-ERROR.
-        IF AVAILABLE bf-box-design-hdr AND (SEARCH(bf-box-design-hdr.box-image) EQ ? OR cadfile NE '') THEN DO:
-           FIND CURRENT bf-box-design-hdr EXCLUSIVE-LOCK NO-ERROR.
-           ASSIGN bf-box-design-hdr.box-image = IF cadfile NE '' THEN cadfile
-                                                ELSE box-design-hdr.box-image.
-        END.                                        
+           find first xbox-design-hdr where xbox-design-hdr.design-no eq style.design-no
+                                        and xbox-design-hdr.est-no    eq ""
+                                        no-lock no-error.
+           FIND first box-design-hdr where box-design-hdr.design-no = 0 and
+                                     box-design-hdr.company = eb.company 
+                                 and box-design-hdr.est-no = eb.est-no     
+                                 and box-design-hdr.form-no   eq eb.form-no
+                                 and box-design-hdr.blank-no  eq eb.blank-no NO-ERROR.
+        IF AVAIL box-design-hdr AND (SEARCH(box-design-hdr.box-image) EQ ? OR cadfile NE '') THEN 
+           ASSIGN box-design-hdr.box-image = IF cadfile NE '' THEN cadfile
+                                             ELSE xbox-design-hdr.box-image.
 
      END.
      ASSIGN
@@ -3369,20 +3363,16 @@ PROCEDURE local-assign-record :
      find first style where style.company EQ eb.company and style.style  eq eb.style
                  no-lock no-error.
      if avail style then
-        FIND FIRST box-design-hdr NO-LOCK
-             WHERE box-design-hdr.design-no EQ style.design-no
-               AND box-design-hdr.est-no    EQ ""
-             NO-ERROR.
-     FIND FIRST bf-box-design-hdr EXCLUSIVE-LOCK
-          WHERE bf-box-design-hdr.design-no EQ 0 
-            AND bf-box-design-hdr.company   EQ eb.company 
-            AND bf-box-design-hdr.est-no    EQ eb.est-no     
-            AND bf-box-design-hdr.form-no   EQ eb.form-no
-            AND bf-box-design-hdr.blank-no  EQ eb.blank-no 
-          NO-ERROR.
+        find first xbox-design-hdr where xbox-design-hdr.design-no eq style.design-no
+                                        and xbox-design-hdr.est-no    eq ""
+                                        no-lock no-error.
+     FIND first box-design-hdr where box-design-hdr.design-no = 0 and
+                                     box-design-hdr.company = eb.company 
+                                 and box-design-hdr.est-no = eb.est-no     
+                                 and box-design-hdr.form-no   eq eb.form-no
+                                 and box-design-hdr.blank-no  eq eb.blank-no NO-ERROR.
 
-     IF AVAILABLE bf-box-design-hdr THEN 
-         bf-box-design-hdr.box-image = box-design-hdr.box-image.
+     IF AVAIL box-design-hdr THEN ASSIGN box-design-hdr.box-image = xbox-design-hdr.box-image.
   END.
 
   IF est.est-type NE 8 THEN

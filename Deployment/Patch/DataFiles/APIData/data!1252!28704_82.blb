@@ -1,9 +1,0 @@
-<JobDetails>
-	<Company>$Company$</Company>
-	<JobNumber1>$JobNumber1$</JobNumber1>
-	<JobNumber2>$JobNumber2$</JobNumber2>
-	$JobHeader$
-	$JobMaterial$
-	$JobMachine$
-	$JobPrep$
-</JobDetails>

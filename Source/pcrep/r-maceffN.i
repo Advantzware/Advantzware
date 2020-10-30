@@ -292,28 +292,20 @@ for each work-tmp BREAK BY work-tmp.sort-field
    else
       assign run-hr = 0
              mr-hr  = 0.
-   IF tb_detail THEN
-   DO: 
-       find first work-rep where work-rep.sort-field EQ work-tmp.sort-field and
-                                 work-rep.dept   = work-tmp.dept and
-                                 work-rep.m-code = work-tmp.m-code AND
-                                 work-rep.job-no = work-tmp.job-no AND
-                                 work-rep.job-no2 = work-tmp.job-no2
-                                 no-error.
-   END.                             
-   ELSE
-   DO:
-        find first work-rep where work-rep.sort-field EQ work-tmp.sort-field and
+   
+   find first work-rep where work-rep.sort-field EQ work-tmp.sort-field and
                              work-rep.dept   = work-tmp.dept and
-                             work-rep.m-code = work-tmp.m-code 
+                             work-rep.m-code = work-tmp.m-code
                              no-error.
-   END.
    if not available work-rep then
    do:
       create work-rep.
       assign work-rep.sort-field = work-tmp.sort-field
              work-rep.dept     = work-tmp.dept
              work-rep.m-code   = work-tmp.m-code
+<<<<<<< HEAD
+             work-rep.sch-m-code = work-tmp.sch-m-code.
+=======
              work-rep.sch-m-code = work-tmp.sch-m-code
              work-rep.job-no   = work-tmp.job-no
              work-rep.job-no2 = work-tmp.job-no2
@@ -321,6 +313,7 @@ for each work-tmp BREAK BY work-tmp.sort-field
              work-rep.cust-no = work-tmp.cust-no
              work-rep.i-name = IF AVAIL job-mch AND job-mch.i-name NE "" THEN job-mch.i-name ELSE work-tmp.i-name
              .
+>>>>>>> release/Advantzware_20.02.05
    end.
    assign work-rep.r-std-hrs = work-rep.r-std-hrs + run-hr
           work-rep.r-act-hrs = work-rep.r-act-hrs + work-tmp.r-act-hrs
@@ -369,35 +362,27 @@ IF rs_machine EQ "Schedule" THEN
 DO:
    FOR EACH work-rep:
 
-       IF tb_detail THEN
-       DO:       
-           FIND FIRST work-rep-copy WHERE
-                work-rep-copy.m-code EQ work-rep.sch-m-code AND
-                work-rep-copy.sort-field EQ work-rep.sort-field AND
-                work-rep-copy.dept EQ work-rep.dept AND
-                work-rep-copy.job-no EQ work-tmp.job-no AND
-                work-rep-copy.job-no2 EQ work-tmp.job-no2
-                NO-ERROR.
-       END.
-       ELSE DO:
-           FIND FIRST work-rep-copy WHERE
+       FIND FIRST work-rep-copy WHERE
             work-rep-copy.m-code EQ work-rep.sch-m-code AND
             work-rep-copy.sort-field EQ work-rep.sort-field AND
-            work-rep-copy.dept EQ work-rep.dept 
+            work-rep-copy.dept EQ work-rep.dept
             NO-ERROR.
-       END.
 
        IF NOT AVAIL work-rep-copy THEN
        DO:
           CREATE work-rep-copy.
           ASSIGN work-rep-copy.m-code = work-rep.sch-m-code
                  work-rep-copy.sort-field = work-rep.sort-field
+<<<<<<< HEAD
+                 work-rep-copy.dept = work-rep.dept.
+=======
                  work-rep-copy.dept = work-rep.dept
                  work-rep-copy.job-no = work-rep.job-no 
                  work-rep-copy.job-no2 = work-rep.job-no2
                  work-rep-copy.i-no =  work-rep.i-no   
                  work-rep-copy.cust-no = work-rep.cust-no
                  work-rep-copy.i-name = work-rep.i-name .
+>>>>>>> release/Advantzware_20.02.05
        END.
 
        ASSIGN

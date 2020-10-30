@@ -14,7 +14,6 @@ DEFINE TEMP-TABLE ttTime NO-UNDO
     FIELD newJob    AS LOGICAL
     FIELD sortOrder AS INTEGER
     FIELD jobCount  AS INTEGER 
-    FIELD spanText  AS CHARACTER
       INDEX ttTime IS PRIMARY
           timeKey
           timeDate  DESCENDING
@@ -63,13 +62,12 @@ FUNCTION fixTime RETURNS INTEGER
 END FUNCTION.
 
 FUNCTION fTimeSlice RETURNS LOGICAL
-  (ipcKey       AS CHARACTER,
-   ipdtDate     AS DATE,
+  (ipcKey AS CHARACTER,
+   ipdtDate AS DATE,
    ipiTimeSlice AS INTEGER,
    ipcTimeType1 AS CHARACTER,
    ipcTimeType2 AS CHARACTER,
-   iplNewJob    AS LOGICAL,
-   ipcSpanText  AS CHARACTER):
+   iplNewJob AS LOGICAL):
 
     IF ipcTimeType1 EQ "Avail" AND
        CAN-FIND(FIRST ttTime
@@ -123,7 +121,6 @@ FUNCTION fTimeSlice RETURNS LOGICAL
         ttTime.newJob    = iplNewJob
         iSortOrder       = iSortOrder + 1
         ttTime.sortOrder = iSortOrder
-        ttTime.spanText  = ipcSpanText
         .
     RETURN TRUE.
 

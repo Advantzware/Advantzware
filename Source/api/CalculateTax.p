@@ -68,7 +68,6 @@ DEFINE VARIABLE cRequestDataType AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cDefaultTaxClass AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cFreightTaxClass AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTaxCode         AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE cOriginAddr1    AS CHARACTER NO-UNDO.
@@ -199,21 +198,7 @@ ELSE DO:
         INPUT  cCompany,
         OUTPUT cDefaultTaxClass
         ).
-
-    RUN pGetFreightTaxClass (
-        INPUT  cCompany,
-        OUTPUT cFreightTaxClass
-        ).
-    
-    RUN pGetCompanyAddress(
-        INPUT  cCompany,
-        OUTPUT cCompanyAddr1,
-        OUTPUT cCompanyAddr2,
-        OUTPUT cCompanyCity,
-        OUTPUT cCompanyState,
-        OUTPUT cCompanyZip
-        ).
-    
+        
     FIND FIRST bf-APIOutboundDetail1 NO-LOCK
          WHERE bf-APIOutboundDetail1.apiOutboundID EQ ipiAPIOutboundID
            AND bf-APIOutboundDetail1.detailID      EQ "LineItems"
@@ -321,7 +306,7 @@ ELSE DO:
                     /* Send BOL No in flexible field 1 */
                     lcFlexiCodeData = bf-APIOutboundDetail2.data.
 
-                    cBOLID = "0".
+                    cBOLID = "".
                     
                     FIND FIRST oe-bolh NO-LOCK
                          WHERE oe-bolh.company EQ inv-line.company 
@@ -483,14 +468,6 @@ ELSE DO:
                     ). 
 
                 IF AVAILABLE bf-APIOutboundDetail2 THEN DO:
-                    /* Send BOL No in flexible field 1 */
-                    lcFlexiCodeData = bf-APIOutboundDetail2.data.
-
-                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "1").
-                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(inv-head.bol-no)).
-                    
-                    lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
-                    
                     /* Send Order No in flexible field 2 */
                     lcFlexiCodeData = bf-APIOutboundDetail2.data.
                     
@@ -603,7 +580,7 @@ ELSE DO:
             IF inv-head.f-bill AND inv-head.t-inv-freight NE 0 THEN DO:
                 ASSIGN                    
                     lcLineItemsData          = bf-APIOutboundDetail1.data
-                    cItemID                  = "Freight"
+                    cItemID                  = ""
                     cItemQuantity            = "1" /* Send 1 quantity */
                     cItemPrice               = STRING(inv-head.t-inv-freight, ">>>>>>>9.99<<<<") 
                     cLineID                  = "1"
@@ -612,46 +589,11 @@ ELSE DO:
                     lcConcatFlexiDateData    = ""
                     cCustomerID              = ""
                     cCustClassCode           = ""
-                    cItemClassCode           = cFreightTaxClass
-                    cOriginAddr1             = cCompanyAddr1
-                    cOriginAddr2             = cCompanyAddr2
-                    cOriginAddr3             = ""
-                    cOriginCity              = cCompanyCity
-                    cOriginState             = cCompanyState
-                    cOriginZip               = cCompanyZip
-                    cOriginCountry           = ""
+                    cItemClassCode           = ""
                     .
 
                                   
                 IF AVAILABLE bf-APIOutboundDetail2 THEN DO:
-                    /* Send BOL No in flexible field 1 */
-                    lcFlexiCodeData = bf-APIOutboundDetail2.data.
-
-                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "1").
-                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(inv-head.bol-no)).
-                    
-                    lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
-                    
-                    IF AVAILABLE cust THEN DO:
-                        /* Send customer taxable in flexible field 4 */
-                        lcFlexiCodeData = bf-APIOutboundDetail2.data.
-                        
-                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "4").
-                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", TRIM(STRING(cust.sort EQ "Y", "CUSTOMERTAXABLE/"))).
-                        
-                        lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
-                    END.
-
-                    IF AVAILABLE shipTo THEN DO:
-                        /* Send shipTo taxable in flexible field 5 */
-                        lcFlexiCodeData = bf-APIOutboundDetail2.data.
-                        
-                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "5").
-                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", TRIM(STRING(shipto.tax-mandatory, "SHIPTOTAXABLE/"))).
-                        
-                        lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
-                    END.
-                    
                     /* Send if freight in flexible field 6 */
                     lcFlexiCodeData = bf-APIOutboundDetail2.data.
                     
@@ -685,17 +627,7 @@ ELSE DO:
                     RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", inv-head.rec_key).
                     
                     lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
-
-                    /* Send line taxable in flexible field 10 */
-                    lcFlexiCodeData = bf-APIOutboundDetail2.data.
                     
-                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "10").
-                    IF AVAILABLE shipto THEN
-                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", TRIM(STRING(shipto.tax-mandatory,"TAXABLE/EXEMPT"))).
-                    ELSE
-                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", TRIM(STRING(TRUE,"TAXABLE/EXEMPT"))).
-
-                    lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.                    
                 END.
                 
                 RUN pUpdateDelimiter(
@@ -959,10 +891,9 @@ ELSE DO:
 
                 ASSIGN
                     lcLineItemsData          = bf-APIOutboundDetail1.data
-                    cItemID                  = "Freight"
+                    cItemID                  = ar-invl.i-no
                     cCustomerID              = ar-inv.cust-no
                     cLineID                  = STRING(ar-invl.line)
-                    cItemClassCode           = cFreightTaxClass
                     lcConcatFlexiCodeData    = ""
                     lcConcatFlexiNumericData = ""
                     lcConcatFlexiDateData    = ""
@@ -973,26 +904,10 @@ ELSE DO:
                     cItemPrice      = STRING(ar-invl.t-freight, ">>>>>>>9.99<<<<") 
                     .
 
-                RUN pGetInvoiceLocation (
+                RUN pGetProductClassForItem (
                     INPUT  ar-invl.company,
-                    INPUT  ar-invl.b-no,
-                    INPUT  ar-invl.i-no,    
-                    INPUT  ar-invl.ord-no,
-                    INPUT  ar-invl.line,
-                    INPUT  ar-invl.po-no,
-                    OUTPUT cLineLocation
-                    ).
-
-                RUN pGetAddressForLocation (
-                    INPUT  ar-invl.company,
-                    INPUT  cLineLocation,
-                    OUTPUT cOriginAddr1,
-                    OUTPUT cOriginAddr2,
-                    OUTPUT cOriginAddr3,
-                    OUTPUT cOriginCity,
-                    OUTPUT cOriginState,
-                    OUTPUT cOriginZip,
-                    OUTPUT cOriginCountry
+                    INPUT  ar-invl.i-no,
+                    OUTPUT cItemClassCode
                     ).
                     
                 RUN pGetCustClassCode(
@@ -1002,42 +917,6 @@ ELSE DO:
                     ). 
 
                 IF AVAILABLE bf-APIOutboundDetail2 THEN DO:
-                    /* Send BOL No in flexible field 1 */
-                    lcFlexiCodeData = bf-APIOutboundDetail2.data.
-                        
-                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "1").
-                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(ar-invl.bol-no)).
-                    
-                    lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
-
-                    /* Send Order No in flexible field 2 */
-                    lcFlexiCodeData = bf-APIOutboundDetail2.data.
-                    
-                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "2").
-                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", STRING(ar-invl.ord-no)).
-                    
-                    lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
-                    
-                    IF AVAILABLE cust THEN DO:
-                        /* Send customer taxable in flexible field 4 */
-                        lcFlexiCodeData = bf-APIOutboundDetail2.data.
-                        
-                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "4").
-                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", TRIM(STRING(cust.sort EQ "Y", "CUSTOMERTAXABLE/"))).
-                        
-                        lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
-                    END.
-
-                    IF AVAILABLE shipTo THEN DO:
-                        /* Send shipTo taxable in flexible field 5 */
-                        lcFlexiCodeData = bf-APIOutboundDetail2.data.
-                        
-                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "5").
-                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", TRIM(STRING(shipto.tax-mandatory, "SHIPTOTAXABLE/"))).
-                        
-                        lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
-                    END.
-
                     /* Send if freight in flexible field 6 */
                     lcFlexiCodeData = bf-APIOutboundDetail2.data.
                     
@@ -1071,17 +950,6 @@ ELSE DO:
                     RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", ar-invl.rec_key).
                     
                     lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.
-
-                    /* Send line taxable in flexible field 10 */
-                    lcFlexiCodeData = bf-APIOutboundDetail2.data.
-                    
-                    RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleFieldID", "10").
-                    IF AVAILABLE shipto THEN
-                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", TRIM(STRING(shipto.tax-mandatory,"TAXABLE/EXEMPT"))).
-                    ELSE
-                        RUN updateRequestData(INPUT-OUTPUT lcFlexiCodeData, "FlexibleCode", TRIM(STRING(TRUE,"TAXABLE/EXEMPT"))).
-
-                    lcConcatFlexiCodeData = lcConcatFlexiCodeData + lcFlexiCodeData.                    
                     
                 END.
 
@@ -1353,27 +1221,4 @@ PROCEDURE pGetDefaultTaxClass PRIVATE:
         ). 
 
     opcDefaultTaxClass = cDefaultTaxClass.  
-END PROCEDURE.
-
-PROCEDURE pGetFreightTaxClass PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: Returns the freight tax class from NK1 setting VertexFreightTaxClass
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany         AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcFreightTaxClass AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
-        
-    RUN sys/ref/nk1look.p (
-        INPUT  ipcCompany,                  /* Company Code */
-        INPUT  "VertexFreightTaxClass",     /* sys-ctrl name */
-        INPUT  "C",                         /* Output return value I - int-fld, L - log-flf, C - char-fld, D - dec-fld, DT - date-fld */
-        INPUT  FALSE,                       /* Use ship-to */
-        INPUT  FALSE,                       /* ship-to vendor */
-        INPUT  "",                          /* ship-to vendor value */
-        INPUT  "",                          /* shi-id value */
-        OUTPUT opcFreightTaxClass,
-        OUTPUT lRecFound
-        ). 
 END PROCEDURE.

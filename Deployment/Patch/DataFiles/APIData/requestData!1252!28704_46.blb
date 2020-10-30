@@ -1,1 +1,0 @@
-{"cod_company":"$cust.company$","cod_customer":"$cust.cust-no$","name":"$cust.name$","groupcode":"$cust.type$","address":"$calcAddress$"}
