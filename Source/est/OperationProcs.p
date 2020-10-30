@@ -13,12 +13,8 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEFINE TEMP-TABLE ttAttribute NO-UNDO
-    FIELD attributeID    AS INTEGER
-    FIELD attributeName  AS CHARACTER
-    FIELD attributeValue AS CHARACTER
-    .
-    
+{est\ttAttribute.i}
+
 DEFINE TEMP-TABLE ttAxis NO-UNDO
     FIELD axisType       AS CHARACTER 
     FIELD axisCoordinate AS INTEGER 
@@ -26,6 +22,12 @@ DEFINE TEMP-TABLE ttAxis NO-UNDO
     FIELD axisPage       AS INTEGER
     .
 
+DEFINE TEMP-TABLE ttJobMch NO-UNDO LIKE job-mch 
+    FIELD riJobMch    AS ROWID
+    FIELD isExtraCopy AS LOGICAL
+    .
+    
+    
 DEFINE VARIABLE giAttributeIDStyle       AS INTEGER NO-UNDO INITIAL 101.
 DEFINE VARIABLE giAttributeIDBoardItemID AS INTEGER NO-UNDO INITIAL 102.
 DEFINE VARIABLE giAttributeIDCaliper     AS INTEGER NO-UNDO INITIAL 103.
@@ -38,6 +40,17 @@ DEFINE VARIABLE giAttributeIDBoxDepth    AS INTEGER NO-UNDO INITIAL 104.
 FUNCTION fGetAttributeValue RETURNS DECIMAL PRIVATE
     (ipiAttributeID AS INTEGER) FORWARD.
 
+FUNCTION fHasDataCollected RETURNS LOGICAL PRIVATE
+    (BUFFER ipbf-job-mch FOR job-mch) FORWARD.
+
+FUNCTION fIsOperationFound RETURNS LOGICAL PRIVATE
+    (ipcCompany AS CHARACTER,
+    ipcOperationID AS CHARACTER,
+    ipiJob AS INTEGER,
+    ipiFormNo AS INTEGER,
+    ipiBlankNo AS INTEGER,
+    ipiPass AS INTEGER,
+    ipcDepartmentID AS CHARACTER) FORWARD.
 
 /* ***************************  Main Block  *************************** */
 
@@ -54,6 +67,48 @@ PROCEDURE ClearAttributes:
 END PROCEDURE.
 
 
+PROCEDURE GetAttributes:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns the temp-table to caller
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER TABLE FOR ttAttribute.
+
+END PROCEDURE.
+
+PROCEDURE GetOperationRates:
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns Rates for given machine
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcOperationID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdRateMRLabor AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdRateMRFixedOverhead AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdRateMRVariableOverhead AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdRateRunLabor AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdRateRunFixedOverhead AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdRateRunVariableOverhead AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-mach FOR mach.
+    
+    RUN pGetMachineBuffer(ipcCompany, ipcLocationID, ipcOperationID, BUFFER bf-mach, OUTPUT oplError, OUTPUT opcMessage).
+    IF AVAILABLE bf-mach THEN DO:
+        ASSIGN 
+            opdRateMRFixedOverhead = bf-mach.mr-fixoh
+            opdRateMRVariableOverhead = bf-mach.mr-varoh
+            opdRateRunFixedOverhead = bf-mach.run-fixoh
+            opdRateRunVariableOverhead = bf-mach.run-varoh
+            opdRateMRLabor = bf-mach.mr-rate  // Refactor:  OpRatesSeparate & variable crew size
+            opdRateRunLabor = bf-mach.run-rate //Refactor: OpRatesSeparate & variable crew size
+            .
+            
+    END.
+END PROCEDURE.
+
 PROCEDURE GetOperationStandards:
     /*------------------------------------------------------------------------------
      Purpose: Given a company and machine code, return standards for the machine
@@ -62,7 +117,7 @@ PROCEDURE GetOperationStandards:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcOpID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcOperationID AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdOpMRWaste AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdOpMRHours AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdOpRunSpeed AS DECIMAL NO-UNDO.
@@ -72,26 +127,34 @@ PROCEDURE GetOperationStandards:
     
     DEFINE BUFFER bf-mach FOR mach.
     
-    FIND FIRST bf-mach NO-LOCK 
-        WHERE bf-mach.company EQ ipcCompany
-        AND bf-mach.loc EQ ipcLocationID
-        AND bf-mach.m-code EQ ipcOpID
-        NO-ERROR.
-    IF NOT AVAILABLE bf-mach THEN DO:
-        ASSIGN 
-            oplError = YES
-            opcMessage = "Invalid Machine Code"
-            .
-            RETURN. 
-    END. 
-    RUN pGetRunSpeed(BUFFER bf-mach, OUTPUT opdOpRunSpeed, OUTPUT oplError, OUTPUT opcMessage).
-    RUN pGetMRHours(BUFFER bf-mach, OUTPUT opdOpMRHours, OUTPUT oplError, OUTPUT opcMessage).
-    RUN pGetRunSpoil(BUFFER bf-mach, OUTPUT opdOpRunSpoil, OUTPUT oplError, OUTPUT opcMessage).
+    RUN pGetMachineBuffer(ipcCompany, ipcLocationID, ipcOperationID, BUFFER bf-mach, OUTPUT oplError, OUTPUT opcMessage).
 
+    IF AVAILABLE bf-mach THEN DO:
+        RUN pGetRunSpeed(BUFFER bf-mach, OUTPUT opdOpRunSpeed, OUTPUT oplError, OUTPUT opcMessage).
+        RUN pGetMRHours(BUFFER bf-mach, OUTPUT opdOpMRHours, OUTPUT oplError, OUTPUT opcMessage).
+        RUN pGetRunSpoil(BUFFER bf-mach, OUTPUT opdOpRunSpoil, OUTPUT oplError, OUTPUT opcMessage).
+    END.
 
 END PROCEDURE.
 
 
+PROCEDURE GetOperationStandardsForJobMch:
+/*------------------------------------------------------------------------------
+ Purpose: given job-mch rowid, get updated standards
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipriJobMch AS ROWID.
+    
+    DEFINE BUFFER bf-job-mch FOR job-mch.
+    
+    FIND bf-job-mch NO-LOCK 
+        WHERE ROWID(bf-job-mch) EQ ipriJobMch
+        NO-ERROR.
+    IF AVAILABLE bf-job-mch THEN DO:
+        
+    END.
+
+END PROCEDURE.
 
 PROCEDURE pAddAxis PRIVATE:
     /*------------------------------------------------------------------------------
@@ -118,6 +181,36 @@ PROCEDURE pAddAxis PRIVATE:
                 .
         END.
     END.
+
+END PROCEDURE.
+
+PROCEDURE pGetMachineBuffer PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Return the machine buffer
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcLocationID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcOperationID AS CHARACTER NO-UNDO.
+    DEFINE PARAMETER BUFFER opbf-mach FOR mach.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    
+    FIND FIRST opbf-mach NO-LOCK 
+        WHERE opbf-mach.company EQ ipcCompany
+        AND opbf-mach.loc EQ ipcLocationID
+        AND opbf-mach.m-code EQ ipcOperationID
+        NO-ERROR.
+    IF NOT AVAILABLE opbf-mach THEN 
+    DO:
+        ASSIGN 
+            oplError   = YES
+            opcMessage = "Invalid Machine Code"
+            .
+        RETURN. 
+    END. 
+    
+    
 
 END PROCEDURE.
 
@@ -441,8 +534,8 @@ PROCEDURE pGetRunSpeed PRIVATE:
         RUN pGetMatrixSpeedReduction(BUFFER bf-mstd, OUTPUT dReduction, OUTPUT oplError, OUTPUT opcMessage).
         ASSIGN 
             dReductionTotal = dReductionTotal + dReduction
-            opdRunSpeed = opdRunSpeed * (1 - dReductionTotal).
-            .
+            opdRunSpeed     = opdRunSpeed * (1 - dReductionTotal).
+        .
     END.
     
 END PROCEDURE.
@@ -509,6 +602,182 @@ PROCEDURE pGetStandardBuffer PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pOperationChangeAddDepartment PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given all inputs, add a operation to the job
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcOperationID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJob AS INTEGER NO-UNDO. 
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPass AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDepartmentID AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-job-mch FOR job-mch.
+
+    DEFINE BUFFER bf-job FOR job.
+    
+    FIND bf-job NO-LOCK 
+        WHERE bf-job.company EQ ipcCompany
+        AND bf-job.job EQ ipiJob
+        NO-ERROR.
+    IF NOT AVAILABLE bf-job THEN RETURN.
+    
+    CREATE bf-job-mch.
+    ASSIGN
+        bf-job-mch.company        = ipcCompany
+        bf-job-mch.job            = bf-job.job
+        bf-job-mch.job-no         = bf-job.job-no
+        bf-job-mch.job-no2        = bf-job.job-no2
+        bf-job-mch.frm            = ipiFormNo
+        bf-job-mch.blank-no       = ipiBlankNo
+        bf-job-mch.pass           = ipiPass
+        bf-job-mch.m-code         = ipcOperationID
+        bf-job-mch.dept           = ipcDepartmentID
+        
+        /* this let's SB know touch screen data collection made changes */
+        bf-job-mch.est-op_rec_key = 'TS ' + STRING(TODAY) + ' ' + STRING(TIME,'HH:MM:SS')
+        .
+    RUN GetOperationStandardsForJobMch(ROWID(bf-job-mch)).
+    
+END PROCEDURE.
+
+PROCEDURE pOperationChangeAddMachine PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Adds a new machine to the job for the new operation ID.
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-job-mch FOR job-mch.
+    DEFINE INPUT PARAMETER ipcOperationID AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-job-mch FOR job-mch.
+    
+    CREATE bf-job-mch.
+    BUFFER-COPY ipbf-job-mch EXCEPT m-code job-mchID TO bf-job-mch.
+    ASSIGN
+        bf-job-mch.m-code   = ipcOperationID
+        .
+    RUN GetOperationStandardsForJobMch(ROWID(bf-job-mch)).
+        
+END PROCEDURE.
+
+PROCEDURE pOperationChangeDetermineAction PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given job-mch buffer and machine code, determine through prompts or settings
+        which action to take
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-job-mch FOR job-mch.
+    DEFINE INPUT PARAMETER ipcOperationID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcAction AS CHARACTER NO-UNDO.
+    
+    IF AVAILABLE ipbf-job-mch THEN 
+    DO:
+        IF fHasDataCollected(BUFFER ipbf-job-mch) THEN              
+            ASSIGN
+                /*                    v-msg[1] = "Machine " +                                               */
+                /*                          TRIM(pc-prdd.m-code) +                                          */
+                /*                          " is not defined in job standards for this job/form/blank/pass."*/
+                /*                    v-msg[2] = "Would you like to replace machine " +                     */
+                /*                          TRIM(job-mch.m-code) +                                          */
+                /*                          " with machine " +                                              */
+                /*                          TRIM(pc-prdd.m-code) + "?"                                      */
+                opcAction = "Add"
+                .
+        ELSE
+            ASSIGN
+                /*                    v-msg[1] = "Machine " +                                                */
+                /*                           TRIM(pc-prdd.m-code) +                                          */
+                /*                           " is not defined in job standards for this job/form/blank/pass."*/
+                /*                    v-msg[2] = "Would you like to copy machine " +                         */
+                /*                           TRIM(job-mch.m-code) +                                          */
+                /*                           " to machine " +                                                */
+                /*                           TRIM(pc-prdd.m-code) + "?"                                      */
+                opcAction = "Replace"
+                .
+    END.
+    ELSE
+        ASSIGN
+            /*            v-msg[1] = "ERROR: This dept is not valid for this job/form/blank/pass."*/
+            /*            v-msg[2] = "Would you like to add the department to job standards?"     */
+            opcAction = "Add"
+            .
+        
+/*    MESSAGE v-msg[1] SKIP v-msg[2]                             */
+/*        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE choice.*/
+
+END PROCEDURE.
+
+PROCEDURE pOperationChangeReplaceMachine PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:  Given an existing job-mch, replace the machine code
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-job-mch FOR job-mch.
+    DEFINE INPUT PARAMETER ipcOperationID AS CHARACTER NO-UNDO.
+    
+    FIND CURRENT ipbf-job-mch EXCLUSIVE-LOCK.
+    ipbf-job-mch.m-code = ipcOperationID.
+    FIND CURRENT ipbf-job-mch NO-LOCK.
+    RUN GetOperationStandardsForJobMch(ROWID(ipbf-job-mch)).    
+
+END PROCEDURE.
+
+PROCEDURE ProcessOperationChange:
+    /*------------------------------------------------------------------------------
+     Purpose:  Given an operationID (mach code) and job, confirm that this machine
+     exists on job
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcOperationID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJob AS INTEGER NO-UNDO. 
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPass AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDepartmentID AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-job-mch FOR job-mch.
+    
+    DEFINE VARIABLE cAction AS CHARACTER NO-UNDO.
+    
+    IF fIsOperationFound(ipcCompany, 
+        ipcOperationID,
+        ipiJob,
+        ipiFormNo,
+        ipiBlankNo,
+        ipiPass,
+        ipcDepartmentID) THEN
+
+        RETURN.  /*If a match is found, return with no action*/
+                             
+    /*Find machine from same department*/
+    FIND FIRST bf-job-mch NO-LOCK
+        WHERE bf-job-mch.company EQ ipcCompany
+        AND bf-job-mch.job EQ ipiJob
+        AND bf-job-mch.frm     EQ ipiFormNo
+        AND bf-job-mch.blank-no EQ ipiBlankNo
+        AND bf-job-mch.dept    EQ ipcDepartmentID
+        AND bf-job-mch.pass    EQ ipiPass
+        NO-ERROR.
+
+    RUN pOperationChangeDetermineAction(BUFFER bf-job-mch, ipcOperationID, OUTPUT cAction).
+    
+    CASE cAction:
+        WHEN "Cancel" THEN 
+            RETURN.
+        WHEN "Add" THEN 
+            RUN pOperationChangeAddMachine(BUFFER bf-job-mch, ipcOperationID).
+        WHEN "Replace" THEN 
+            RUN pOperationChangeReplaceMachine(BUFFER bf-job-mch, ipcOperationID).
+        WHEN "AddDept" THEN 
+            RUN pOperationChangeAddDepartment(ipcCompany, ipcOperationID, ipiJob, ipiFormNo, ipiBlankNo, ipiPass, ipcDepartmentID).
+    END CASE.        
+                          
+END PROCEDURE.
+
 PROCEDURE pSetAttributeFromStandard PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Sets an attribute value (Creates if doesn't exist)
@@ -523,8 +792,7 @@ PROCEDURE pSetAttributeFromStandard PRIVATE:
     DEFINE VARIABLE cAttributeName AS CHARACTER NO-UNDO.
     
     FIND FIRST bf-std-code NO-LOCK 
-        WHERE bf-std-code.company EQ ipcCompany
-        AND bf-std-code.code EQ STRING(ipiAttributeID,"99")
+        WHERE bf-std-code.code EQ STRING(ipiAttributeID,"99")
         NO-ERROR.
     IF AVAILABLE bf-std-code THEN 
         cAttributeName = bf-std-code.dscr.
@@ -559,13 +827,13 @@ PROCEDURE pSetAttribute PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pSetFormAttributes PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:  Given a form, sets attributes that are form dependent
- Notes:
-------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------
+     Purpose:  Given a form, sets attributes that are form dependent
+     Notes:
+    ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
     
-    DEFINE BUFFER bf-eb FOR eb.
+    DEFINE           BUFFER bf-eb   FOR eb.
         
     RUN pSetAttribute(giAttributeIDBoardItemID, "BoardItemID", ipbf-ef.board).
     RUN pSetAttribute(giAttributeIDCaliper, "Caliper", STRING(ipbf-ef.cal)).
@@ -607,6 +875,15 @@ PROCEDURE SetAttribute:
 
 END PROCEDURE.
 
+PROCEDURE SetAttributes:
+    /*------------------------------------------------------------------------------
+     Purpose:  Sets Attributes for ttAttribute Table
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER TABLE FOR ttAttribute.
+    
+END PROCEDURE.
+
 PROCEDURE SetAttributesFromEb:
     /*------------------------------------------------------------------------------
      Purpose: Given a rowid (for eb), build out the attributes required
@@ -619,8 +896,8 @@ PROCEDURE SetAttributesFromEb:
     DEFINE VARIABLE iForm  AS INTEGER NO-UNDO.
     DEFINE VARIABLE iBlank AS INTEGER NO-UNDO.
     
-    DEFINE BUFFER bf-eb     FOR eb. 
-    DEFINE BUFFER bf-ef     FOR ef.
+    DEFINE BUFFER bf-eb FOR eb. 
+    DEFINE BUFFER bf-ef FOR ef.
             
     FIND FIRST bf-eb NO-LOCK 
         WHERE ROWID(bf-eb) EQ ipriRowID
@@ -653,7 +930,7 @@ PROCEDURE SetAttributesFromEb:
         
         FIND FIRST bf-ef OF bf-eb NO-LOCK.
         IF AVAILABLE bf-ef THEN 
-            RUN pSetAttributesForForm(BUFFER bf-ef).
+            RUN pSetFormAttributes(BUFFER bf-ef).
     END.
     ELSE 
         ASSIGN 
@@ -685,5 +962,67 @@ FUNCTION fGetAttributeValue RETURNS DECIMAL PRIVATE
     
     RETURN dAttributeValue.
         		
+END FUNCTION.
+
+FUNCTION fHasDataCollected RETURNS LOGICAL PRIVATE
+    (BUFFER ipbf-job-mch FOR job-mch):
+    /*------------------------------------------------------------------------------
+    Purpose: Given job-mch buffer, determine if there is data collected for it
+    Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE lHasData AS LOGICAL NO-UNDO.
+    
+    lHasData = CAN-FIND(FIRST mch-act
+        WHERE mch-act.company EQ ipbf-job-mch.company
+        AND mch-act.job EQ ipbf-job-mch.job
+        AND mch-act.m-code EQ ipbf-job-mch.m-code
+        AND mch-act.frm EQ ipbf-job-mch.frm
+        AND mch-act.blank-no EQ ipbf-job-mch.blank-no).
+
+    RETURN lHasData.
+		
+END FUNCTION.
+
+FUNCTION fIsOperationFound RETURNS LOGICAL PRIVATE
+    (ipcCompany AS CHARACTER,
+    ipcOperationID AS CHARACTER,
+    ipiJob AS INTEGER, 
+    ipiFormNo AS INTEGER,
+    ipiBlankNo AS INTEGER,
+    ipiPass AS INTEGER,
+    ipcDepartmentID AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Given a job and operation, determine return if found or not
+     Notes:
+    ------------------------------------------------------------------------------*/	
+
+    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+
+    lFound = CAN-FIND(
+        FIRST job-mch 
+        WHERE job-mch.company EQ ipcCompany
+        AND job-mch.job  EQ ipiJob
+        AND job-mch.m-code  EQ ipcOperationID
+        AND job-mch.frm     EQ ipiFormNo
+        AND job-mch.blank-no EQ ipiBlankNo
+        AND job-mch.dept    EQ ipcDepartmentID
+        AND job-mch.pass    EQ ipiPass).
+
+    IF NOT lFound THEN
+        /* search without using dept */
+        lFound = CAN-FIND(
+            FIRST job-mch
+            WHERE job-mch.company EQ ipcCompany
+            AND job-mch.job EQ ipiJob
+            AND job-mch.m-code  EQ ipcOperationID
+            AND job-mch.frm     EQ ipiFormNo
+            AND job-mch.blank-no EQ ipiBlankNo
+            AND job-mch.pass    EQ ipiPass
+            ).
+    
+    RETURN lFound.
+
+
+		
 END FUNCTION.
 
