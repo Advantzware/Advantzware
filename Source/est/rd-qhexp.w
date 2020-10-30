@@ -84,12 +84,14 @@ ASSIGN cTextListToDefault  = "Part #,Customer,Quote#,Quantity,Price,Profit %,Pri
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_cust end_cust ~
+begin_quo# end_quo# begin_procat end_procat begin_fg-procat end_fg-procat ~
+begin_slm end_slm begin_date end_date expiration_date tb_expmatrix ~
+tb_qtymin sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down ~
+tb_runExcel fi_file btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_quo# end_quo# ~
 begin_procat end_procat begin_fg-procat end_fg-procat begin_slm end_slm ~
-begin_date end_date sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up ~
-btn_down tb_runExcel fi_file btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_procat ~
-end_procat begin_fg-procat end_fg-procat begin_slm end_slm begin_date ~
-end_date sl_avail sl_selected tb_excel tb_runExcel fi_file 
+begin_date end_date expiration_date tb_expmatrix tb_qtymin sl_avail ~
+sl_selected tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -175,6 +177,11 @@ DEFINE VARIABLE begin_procat AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 20 BY 1.
 
+DEFINE VARIABLE begin_quo# AS INTEGER FORMAT ">>>>>>" INITIAL 0 
+     LABEL "From Quote" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1.
+
 DEFINE VARIABLE begin_slm AS CHARACTER FORMAT "X(3)" 
      LABEL "From Sales Rep #" 
      VIEW-AS FILL-IN 
@@ -200,10 +207,20 @@ DEFINE VARIABLE end_procat AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzz"
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
 
+DEFINE VARIABLE end_quo# AS INTEGER FORMAT ">>>>>>" INITIAL 999999 
+     LABEL "To Quote" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1.
+
 DEFINE VARIABLE end_slm AS CHARACTER FORMAT "X(3)" INITIAL "zzz" 
      LABEL "To Sales Rep #" 
      VIEW-AS FILL-IN 
      SIZE 21 BY 1.
+
+DEFINE VARIABLE expiration_date AS DATE FORMAT "99/99/9999" INITIAL 01/01/001 
+     LABEL "Expiration Date" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-quote.csv" 
      LABEL "If Yes, File Name" 
@@ -217,7 +234,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 101 BY 7.86.
+     SIZE 101 BY 10.24.
 
 DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -237,6 +254,16 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
+DEFINE VARIABLE tb_expmatrix AS LOGICAL INITIAL yes 
+     LABEL "Export to Price Matrix" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25.2 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tb_qtymin AS LOGICAL INITIAL no 
+     LABEL "Quantity -1" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 15.4 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL yes 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
@@ -251,51 +278,59 @@ DEFINE FRAME rd-fgexp
           "Enter Beginning Customer Number" WIDGET-ID 6
      end_cust AT ROW 2.48 COL 71 COLON-ALIGNED HELP
           "Enter Ending Customer Number" WIDGET-ID 16
-     begin_procat AT ROW 3.76 COL 28 COLON-ALIGNED HELP
+     begin_quo# AT ROW 3.57 COL 28 COLON-ALIGNED HELP
+          "Enter Beginning Quote Number" WIDGET-ID 146
+     end_quo# AT ROW 3.57 COL 71 COLON-ALIGNED HELP
+          "Enter Ending Customer Number" WIDGET-ID 148
+     begin_procat AT ROW 4.71 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Category" WIDGET-ID 108
-     end_procat AT ROW 3.76 COL 71 COLON-ALIGNED HELP
+     end_procat AT ROW 4.71 COL 71 COLON-ALIGNED HELP
           "Enter Ending Category" WIDGET-ID 110
-     begin_fg-procat AT ROW 5 COL 28 COLON-ALIGNED HELP
+     begin_fg-procat AT ROW 5.95 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Category" WIDGET-ID 142
-     end_fg-procat AT ROW 5 COL 71 COLON-ALIGNED HELP
+     end_fg-procat AT ROW 5.95 COL 71 COLON-ALIGNED HELP
           "Enter Ending Category" WIDGET-ID 144
-     begin_slm AT ROW 6.24 COL 28 COLON-ALIGNED HELP
+     begin_slm AT ROW 7.19 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Sales Rep" WIDGET-ID 120
-     end_slm AT ROW 6.24 COL 71 COLON-ALIGNED HELP
+     end_slm AT ROW 7.19 COL 71 COLON-ALIGNED HELP
           "Enter Ending Sales Rep" WIDGET-ID 122
-     begin_date AT ROW 7.48 COL 28 COLON-ALIGNED HELP
+     begin_date AT ROW 8.43 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Quote Date" WIDGET-ID 100
-     end_date AT ROW 7.48 COL 71 COLON-ALIGNED HELP
+     end_date AT ROW 8.43 COL 71 COLON-ALIGNED HELP
           "Enter Ending Quote Date" WIDGET-ID 102
-     sl_avail AT ROW 11.14 COL 9 NO-LABEL WIDGET-ID 26
-     sl_selected AT ROW 11.14 COL 64 NO-LABEL WIDGET-ID 28
-     Btn_Def AT ROW 11.38 COL 44 HELP
+     expiration_date AT ROW 9.81 COL 54.4 COLON-ALIGNED HELP
+          "Enter Beginning Quote Date" WIDGET-ID 152
+     tb_expmatrix AT ROW 9.91 COL 35.2 RIGHT-ALIGNED WIDGET-ID 150
+     tb_qtymin AT ROW 9.91 COL 95.2 RIGHT-ALIGNED WIDGET-ID 154
+     sl_avail AT ROW 13.29 COL 9 NO-LABEL WIDGET-ID 26
+     sl_selected AT ROW 13.29 COL 64 NO-LABEL WIDGET-ID 28
+     Btn_Def AT ROW 13.52 COL 44 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     Btn_Add AT ROW 12.57 COL 44 HELP
+     Btn_Add AT ROW 14.71 COL 44 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 130
-     Btn_Remove AT ROW 13.76 COL 44 HELP
+     Btn_Remove AT ROW 15.91 COL 44 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 134
-     btn_Up AT ROW 14.95 COL 44 WIDGET-ID 136
-     btn_down AT ROW 16.14 COL 44 WIDGET-ID 132
-     tb_excel AT ROW 17.81 COL 36 WIDGET-ID 32
-     tb_runExcel AT ROW 17.81 COL 78 RIGHT-ALIGNED WIDGET-ID 34
-     fi_file AT ROW 18.76 COL 34 COLON-ALIGNED HELP
+     btn_Up AT ROW 17.1 COL 44 WIDGET-ID 136
+     btn_down AT ROW 18.29 COL 44 WIDGET-ID 132
+     tb_excel AT ROW 19.95 COL 36 WIDGET-ID 32
+     tb_runExcel AT ROW 19.95 COL 78 RIGHT-ALIGNED WIDGET-ID 34
+     fi_file AT ROW 20.91 COL 34 COLON-ALIGNED HELP
           "Enter File Name" WIDGET-ID 22
-     btn-ok AT ROW 20.62 COL 30 WIDGET-ID 14
-     btn-cancel AT ROW 20.62 COL 60.2 WIDGET-ID 12
+     btn-ok AT ROW 22.76 COL 30 WIDGET-ID 14
+     btn-cancel AT ROW 22.76 COL 60.2 WIDGET-ID 12
      "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 10.43 COL 9.4 WIDGET-ID 140
-     "Export Selection" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 9.43 COL 3 WIDGET-ID 86
+          SIZE 29 BY .62 AT ROW 12.57 COL 9.4 WIDGET-ID 140
+     "Selected Columns" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 12.57 COL 64.4 WIDGET-ID 138
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 36
           BGCOLOR 2 
-     "Selected Columns" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 10.43 COL 64.4 WIDGET-ID 138
-     RECT-6 AT ROW 9.67 COL 2 WIDGET-ID 30
+     "Export Selection" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 11.57 COL 3 WIDGET-ID 86
+     RECT-6 AT ROW 11.81 COL 2 WIDGET-ID 30
      RECT-7 AT ROW 1.24 COL 2 WIDGET-ID 38
-     RECT-8 AT ROW 17.52 COL 2 WIDGET-ID 84
-     SPACE(2.39) SKIP(2.90)
+     RECT-8 AT ROW 19.67 COL 2 WIDGET-ID 84
+     SPACE(2.39) SKIP(2.51)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Export Quote to Excel" WIDGET-ID 100.
@@ -339,6 +374,10 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       begin_quo#:PRIVATE-DATA IN FRAME rd-fgexp     = 
+                "parm".
+
+ASSIGN 
        begin_slm:PRIVATE-DATA IN FRAME rd-fgexp     = 
                 "parm".
 
@@ -359,7 +398,15 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       end_quo#:PRIVATE-DATA IN FRAME rd-fgexp     = 
+                "parm".
+
+ASSIGN 
        end_slm:PRIVATE-DATA IN FRAME rd-fgexp     = 
+                "parm".
+
+ASSIGN 
+       expiration_date:PRIVATE-DATA IN FRAME rd-fgexp     = 
                 "parm".
 
 ASSIGN 
@@ -370,6 +417,18 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        tb_excel:PRIVATE-DATA IN FRAME rd-fgexp     = 
+                "parm".
+
+/* SETTINGS FOR TOGGLE-BOX tb_expmatrix IN FRAME rd-fgexp
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_expmatrix:PRIVATE-DATA IN FRAME rd-fgexp     = 
+                "parm".
+
+/* SETTINGS FOR TOGGLE-BOX tb_qtymin IN FRAME rd-fgexp
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_qtymin:PRIVATE-DATA IN FRAME rd-fgexp     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME rd-fgexp
@@ -493,6 +552,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_quo#
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_quo# rd-fgexp
+ON LEAVE OF begin_quo# IN FRAME rd-fgexp /* From Quote */
+DO:
+   ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME begin_slm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_slm rd-fgexp
 ON LEAVE OF begin_slm IN FRAME rd-fgexp /* From Sales Rep # */
@@ -523,7 +593,9 @@ DO:
     ASSIGN {&displayed-objects}.
   END.
   RUN GetSelectionList.  
+  IF not tb_expmatrix THEN
   RUN run-report.
+  ELSE RUN run-report-matrix.
 
  END.
 
@@ -654,11 +726,33 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME end_quo#
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_quo# rd-fgexp
+ON LEAVE OF end_quo# IN FRAME rd-fgexp /* To Quote */
+DO:
+     ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME end_slm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_slm rd-fgexp
 ON LEAVE OF end_slm IN FRAME rd-fgexp /* To Sales Rep # */
 DO:
      ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME expiration_date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL expiration_date rd-fgexp
+ON LEAVE OF expiration_date IN FRAME rd-fgexp /* Expiration Date */
+DO:
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -750,6 +844,29 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_expmatrix
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_expmatrix rd-fgexp
+ON VALUE-CHANGED OF tb_expmatrix IN FRAME rd-fgexp /* Export to Price Matrix */
+DO:
+  ASSIGN {&self-name}.
+  RUN pSetField.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_qtymin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_qtymin rd-fgexp
+ON VALUE-CHANGED OF tb_qtymin IN FRAME rd-fgexp /* Quantity -1 */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel rd-fgexp
 ON VALUE-CHANGED OF tb_runExcel IN FRAME rd-fgexp /* Auto Run Excel? */
@@ -786,7 +903,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     RUN Set-Sort-Data.
-
+    RUN pSetField.
     APPLY "entry" TO begin_cust.
   END.
   
@@ -946,12 +1063,14 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_cust end_cust begin_procat end_procat begin_fg-procat 
-          end_fg-procat begin_slm end_slm begin_date end_date sl_avail 
-          sl_selected tb_excel tb_runExcel fi_file 
+  DISPLAY begin_cust end_cust begin_quo# end_quo# begin_procat end_procat 
+          begin_fg-procat end_fg-procat begin_slm end_slm begin_date end_date 
+          expiration_date tb_expmatrix tb_qtymin sl_avail sl_selected tb_excel 
+          tb_runExcel fi_file 
       WITH FRAME rd-fgexp.
-  ENABLE RECT-6 RECT-7 RECT-8 begin_cust end_cust begin_procat end_procat 
-         begin_fg-procat end_fg-procat begin_slm end_slm begin_date end_date 
+  ENABLE RECT-6 RECT-7 RECT-8 begin_cust end_cust begin_quo# end_quo# 
+         begin_procat end_procat begin_fg-procat end_fg-procat begin_slm 
+         end_slm begin_date end_date expiration_date tb_expmatrix tb_qtymin 
          sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down 
          tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME rd-fgexp.
@@ -1040,9 +1159,9 @@ DEFINE VARIABLE iQty AS INTEGER NO-UNDO .
 DEFINE VARIABLE dPrice AS DECIMAL NO-UNDO .
 DEFINE VARIABLE dProfit AS DECIMAL FORMAT "->>,>>9.99%" NO-UNDO .
 DEFINE VARIABLE cUom AS CHARACTER NO-UNDO .
-DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO . 
 
-v-excelheader = buildHeader().
+v-excelheader = buildHeader(). 
 SESSION:SET-WAIT-STATE ("general").
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
@@ -1052,6 +1171,8 @@ IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
 MAIN:
 FOR EACH quotehd
         WHERE quotehd.company  EQ cocode
+          AND quotehd.q-no     GE begin_quo#
+          AND quotehd.q-no     LE end_quo#
           AND quotehd.cust-no  GE begin_cust
           AND quotehd.cust-no  LE end_cust
           AND quotehd.sman     GE begin_slm
@@ -1157,6 +1278,167 @@ FOR EACH quotehd
           END CASE.  
         
     END.
+        
+    PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
+END.
+
+IF tb_excel THEN DO:
+   OUTPUT STREAM excel CLOSE.
+   IF tb_runExcel THEN
+      OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cFileName)).
+END.
+
+RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+
+SESSION:SET-WAIT-STATE ("").
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report-matrix rd-fgexp 
+PROCEDURE run-report-matrix :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE v-excelheader AS CHARACTER NO-UNDO.
+DEFINE VARIABLE v-excel-detail-lines AS CHARACTER NO-UNDO.
+
+
+DEFINE VARIABLE list-name AS cha NO-UNDO.
+DEFINE VARIABLE lv-pdf-file AS cha NO-UNDO.
+DEFINE VARIABLE iQty AS INTEGER NO-UNDO .
+DEFINE VARIABLE dPrice AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dProfit AS DECIMAL FORMAT "->>,>>9.99%" NO-UNDO .
+DEFINE VARIABLE cUom AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE pricbas AS CHARACTER NO-UNDO.
+DEFINE BUFFER bf-quoteqty FOR quoteqty.
+
+
+v-excelheader = "Eff. Date,Customer,Type,Category,Item Code,Price Basis,Qty1,Price1,Dsc1,UOM1,Qty2,Price2,Dsc2,UOM2,"+
+                "Qty3,Price3,Dsc3,UOM3,Qty4,Price4,Dsc4,UOM4,Qty5,Price5,Dsc5,UOM5,Qty6,Price6,Dsc6,UOM6," + 
+                "Qty7,Price7,Dsc7,UOM7,Qty8,Price8,Dsc8,UOM8,Qty9,Price9,Dsc9,UOM9,Qty10,Price10,Dsc10,UOM10," +
+                "Exp Date,ShipTo,Online,Minimum Order Qty,Customer Part #,Item Name,Item Description 1".
+
+SESSION:SET-WAIT-STATE ("general").
+RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+
+IF tb_excel THEN OUTPUT STREAM excel TO VALUE(cFileName).
+IF v-excelheader NE "" THEN PUT STREAM excel UNFORMATTED v-excelheader SKIP.
+
+MAIN:
+FOR EACH quotehd
+        WHERE quotehd.company  EQ cocode
+          AND quotehd.q-no     GE begin_quo#
+          AND quotehd.q-no     LE end_quo#
+          AND quotehd.cust-no  GE begin_cust
+          AND quotehd.cust-no  LE end_cust
+          AND quotehd.sman     GE begin_slm
+          AND quotehd.sman     LE end_slm
+          AND quotehd.quo-date GE begin_date    
+          AND quotehd.quo-date LE end_date NO-LOCK,
+       EACH quoteitm OF quotehd WHERE  NO-LOCK,
+       FIRST quoteqty NO-LOCK
+         WHERE quoteqty.company EQ quoteitm.company 
+          AND quoteqty.loc EQ quoteitm.loc 
+          AND quoteqty.q-no EQ quoteitm.q-no 
+          AND quoteqty.line EQ quoteitm.line  :
+
+    v-excel-detail-lines = "".
+    ASSIGN
+       iQty   =  0
+       dPrice = 0
+       dProfit = 0
+       cUom   = "".
+     
+    FIND FIRST itemfg NO-LOCK 
+        WHERE itemfg.company EQ cocode 
+          AND itemfg.i-no EQ quoteitm.i-no NO-ERROR .
+
+    IF AVAIL itemfg THEN
+        IF NOT(itemfg.procat GE begin_fg-procat AND itemfg.procat LE end_fg-procat) THEN NEXT MAIN.
+     
+     FIND FIRST eb NO-LOCK 
+         WHERE eb.company EQ cocode
+         AND eb.est-no EQ quotehd.est-no 
+         AND eb.stock-no EQ quoteitm.i-no  NO-ERROR.
+
+     IF NOT AVAILABLE eb THEN
+         FIND FIRST eb NO-LOCK 
+         WHERE eb.company EQ cocode
+         AND eb.est-no EQ quotehd.est-no NO-ERROR.
+    
+     IF AVAILABLE eb THEN
+         IF NOT(eb.procat GE begin_procat AND eb.procat LE end_procat) THEN NEXT MAIN.
+      
+    FIND FIRST cust NO-LOCK
+         WHERE cust.company EQ cocode 
+         AND cust.cust-no EQ quotehd.cust-no NO-ERROR .
+    
+    
+     ASSIGN
+            pricbas = "Price"
+/*             v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(reftable.CODE)) */
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(TODAY,"99/99/9999"))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(quotehd.cust-no))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(IF AVAIL cust THEN cust.TYPE ELSE "")
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(IF AVAIL itemfg THEN itemfg.procat ELSE ""))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(quoteitm.i-no)                      
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(pricbas)) .
+    
+     i = 0.
+     FOR EACH bf-quoteqty NO-LOCK
+         WHERE bf-quoteqty.company EQ quoteitm.company 
+          AND bf-quoteqty.loc EQ quoteitm.loc 
+          AND bf-quoteqty.q-no EQ quoteitm.q-no 
+          AND bf-quoteqty.line EQ quoteitm.LINE BREAK BY bf-quoteqty.qty :
+     
+        ASSIGN
+          iQty = IF tb_qtymin THEN INTEGER(bf-quoteqty.qty - 1) ELSE  INTEGER(bf-quoteqty.qty)
+          dPrice = DECIMAL(bf-quoteqty.price)
+          dProfit = DECIMAL(bf-quoteqty.profit) 
+          cUom   = bf-quoteqty.uom .   
+          i = i + 1 .
+            IF i LE 10 THEN
+            DO:  
+               ASSIGN
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(iQty    ))
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(dPrice  ))
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine("0")
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(cUom    ))   .              
+            
+                IF LAST(bf-quoteqty.qty) THEN
+                DO:
+                ASSIGN
+                    v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING("99999999"))
+                    v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(dPrice  ))
+                    v-excel-detail-lines = v-excel-detail-lines + appendXLLine("0")
+                    v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(cUom    ))   .                 
+                END.
+            END.
+            
+     END.
+         DO j = (i + 1) TO 9:
+               ASSIGN
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine("")
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine("")
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine("")
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine("")   .         
+         END.
+         
+         ASSIGN   
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(IF expiration_date NE ? THEN  STRING(expiration_date,"99/99/9999") ELSE "")
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(string(quotehd.ship-id))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING("No")) 
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING("0"))
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(IF AVAIL itemfg THEN itemfg.part-no ELSE "") 
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(IF AVAIL itemfg THEN itemfg.i-name ELSE "") 
+            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(IF AVAIL itemfg THEN itemfg.part-dscr1 ELSE "")
+            
+            .    
 
     PUT STREAM excel UNFORMATTED v-excel-detail-lines SKIP.
 END.
@@ -1196,6 +1478,53 @@ DO WITH FRAME {&FRAME-NAME}:
         end_slm:SCREEN-VALUE   = assignParam(ipcSalesTo,YES)
         .
 
+END.
+
+RETURN.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetField rd-fgexp 
+PROCEDURE pSetField :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DO WITH FRAME {&FRAME-NAME}:
+    
+        
+    IF tb_expmatrix:SCREEN-VALUE EQ "Yes" THEN
+    do:
+     ASSIGN
+        sl_avail:SENSITIVE    = FALSE
+        sl_selected:SENSITIVE = FALSE
+        Btn_Def:SENSITIVE     = FALSE
+        Btn_Add:SENSITIVE     = FALSE
+        Btn_Remove:SENSITIVE  = FALSE
+        btn_Up:SENSITIVE      = FALSE
+        btn_down:SENSITIVE    = FALSE 
+        tb_qtymin:SENSITIVE   = TRUE
+        expiration_date:SENSITIVE = TRUE.       
+     END.
+    ELSE DO:  
+        ASSIGN
+        sl_avail:SENSITIVE    = TRUE
+        sl_selected:SENSITIVE = TRUE
+        Btn_Def:SENSITIVE     = TRUE
+        Btn_Add:SENSITIVE     = TRUE
+        Btn_Remove:SENSITIVE  = TRUE
+        btn_Up:SENSITIVE      = TRUE
+        btn_down:SENSITIVE    = TRUE 
+        tb_qtymin:SENSITIVE   = FALSE
+        expiration_date:SENSITIVE = FALSE. 
+        
+    END.
+    
 END.
 
 RETURN.
