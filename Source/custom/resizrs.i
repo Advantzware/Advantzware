@@ -188,7 +188,7 @@ ON 'WINDOW-RESIZED':U OF {&WINDOW-NAME}
             DO:
                 RUN get-position IN temphand ( OUTPUT deRowPos ,OUTPUT deColPos) NO-ERROR.         
                 RUN get-size IN temphand (OUTPUT deHeight , OUTPUT deWidth ) NO-ERROR. 
-                resizeval = resizeval -  (deWidth + 2 ).
+            //    resizeval = resizeval -  (deWidth + 2 ).
                 RUN set-position IN temphand ( deRowPos , deColPos + delta ) NO-ERROR. 
             END.   
 

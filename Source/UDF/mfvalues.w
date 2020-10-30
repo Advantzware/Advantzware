@@ -291,6 +291,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* User Defined Fields Viewer */
 DO:
+  APPLY 'choose' TO btnSave IN FRAME {&frame-name}.
+
   IF hMFPersist NE ? THEN DELETE PROCEDURE hMFPersist.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -316,6 +318,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExit C-Win
 ON CHOOSE OF btnExit IN FRAME DEFAULT-FRAME /* Exit */
 DO:
+  APPLY 'choose' TO btnSave IN FRAME {&frame-name}.
+
   IF hMFPersist NE ? THEN DELETE PROCEDURE hMFPersist.
   APPLY "CLOSE" TO THIS-PROCEDURE.
 END.
@@ -331,7 +335,8 @@ DO:
   RUN saveValues.
   IF VALID-HANDLE(iphSmartMsg) THEN
   RUN Show-MF-Message IN iphSmartMsg (YES).
-  MESSAGE "UDF Values Saved" VIEW-AS ALERT-BOX TITLE "Save".
+
+//  MESSAGE "UDF Values Saved" VIEW-AS ALERT-BOX TITLE "Save".
 END.
 
 /* _UIB-CODE-BLOCK-END */
