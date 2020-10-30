@@ -85,6 +85,11 @@ DEFINE VARIABLE lActive AS LOG NO-UNDO.
 DEFINE VARIABLE lSwitchToWeb AS LOG NO-UNDO.
 DEFINE VARIABLE iPreOrder AS INTEGER NO-UNDO .
 DEFINE VARIABLE iInvQty AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRtnValue    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iRecordLimit AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cSortBy      AS CHARACTER NO-UNDO.
+
 DEFINE TEMP-TABLE ttRelease NO-UNDO
     FIELD ordlRecID AS RECID
     FIELD lot-no AS CHARACTER
@@ -182,20 +187,63 @@ ll-sort-asc = NO /*oeinq*/.
                                       STRING(YEAR(oe-ordl.req-date),'9999') + STRING(MONTH(oe-ordl.req-date),'99') + STRING(DAY(oe-ordl.req-date),'99')
 
 &SCOPED-DEFINE sortby BY oe-ordl.ord-no BY oe-ordl.i-no
+&SCOPED-DEFINE sortbyDesc BY oe-ordl.ord-no DESCENDING BY oe-ordl.i-no
 
 &SCOPED-DEFINE sortby-phrase-asc  ~
     BY ({&sortby-log})            ~
     {&sortby}
-
+       
 &SCOPED-DEFINE sortby-phrase-desc  ~
     BY ({&sortby-log}) DESC        ~
     {&sortby}
+    
+&SCOPED-DEFINE sortby-phrase-desc1  ~
+    BY ({&sortby-log}) DESC        ~
+    {&sortbyDesc}
 
-DO TRANSACTION:
-  {sys/inc/browser.i "OEBROWSE"}
-END.
+RUN sys/ref/nk1look.p(
+    INPUT  cocode,
+    INPUT  "OEBROWSE",
+    INPUT  "L",
+    INPUT  NO,
+    INPUT  NO,
+    INPUT  "",
+    INPUT  "",
+    OUTPUT cRtnValue,
+    OUTPUT lRecFound    
+    ).  
+         
+ll-initial = LOGICAL(cRtnValue) NO-ERROR.
+RUN sys/ref/nk1look.p(
+    INPUT  cocode,
+    INPUT  "OEBROWSE",
+    INPUT  "I",
+    INPUT  NO,
+    INPUT  NO,
+    INPUT  "",
+    INPUT  "",
+    OUTPUT cRtnValue,
+    OUTPUT lRecFound    
+    ).
+iRecordLimit = INTEGER(cRtnValue).
 
-ll-initial = browser-log.
+RUN sys/ref/nk1look.p(
+    INPUT  cocode,
+    INPUT  "OEBROWSE",
+    INPUT  "C",
+    INPUT  NO,
+    INPUT  NO,
+    INPUT  "",
+    INPUT  "",
+    OUTPUT cSortBy,
+    OUTPUT lRecFound    
+    ).
+     
+IF cSortBy EQ "Order Date" THEN 
+    ASSIGN 
+        lv-sort-by     = "ord-date"
+        lv-sort-by-lab = "Order Date"
+        .   
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1467,19 +1515,6 @@ PROCEDURE first-query :
 
   RUN set-defaults.
 
-  FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
-                      AND sys-ctrl.name    EQ "OEBROWSE"
-                        NO-LOCK NO-ERROR.
-  IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
-    CREATE sys-ctrl.
-    ASSIGN sys-ctrl.company = cocode
-           sys-ctrl.name    = "OEBROWSE"
-           sys-ctrl.descrip = "# of Records to be displayed in oe browser"
-           sys-ctrl.log-fld = YES
-           sys-ctrl.char-fld = "CE"
-           sys-ctrl.int-fld = 30.
-  END.
-
   IF ll-initial THEN DO:
     IF NOT tb_web THEN DO:
           {&for-eachblank}
@@ -1488,7 +1523,7 @@ PROCEDURE first-query :
            BREAK BY oe-ordl.ord-no DESC:
              IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
                lv-ord-no = oe-ordl.ord-no.
-             IF li GE sys-ctrl.int-fld THEN LEAVE.
+             IF li GE iRecordLimit THEN LEAVE.
            END.
       END. 
       ELSE DO:
@@ -1499,12 +1534,10 @@ PROCEDURE first-query :
                
            IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
            lv-ord-no = oe-ordl.ord-no.
-           IF li GE sys-ctrl.int-fld THEN LEAVE.
+           IF li GE iRecordLimit THEN LEAVE.
       END. /* each blank */
     END.    
-        
-
-
+       
      &SCOPED-DEFINE joinScop OUTER-JOIN
      &SCOPED-DEFINE open-query                  ~
         OPEN QUERY {&browse-name}               ~
@@ -2256,19 +2289,6 @@ PROCEDURE show-all :
 DEFINE VARIABLE li AS INTEGER NO-UNDO.
 DEFINE VARIABLE lv-ord-no AS INTEGER NO-UNDO.
 
-FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
-                      AND sys-ctrl.name    EQ "OEBROWSE"
-                        NO-LOCK NO-ERROR.
-IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
-   CREATE sys-ctrl.
-   ASSIGN sys-ctrl.company = cocode
-          sys-ctrl.name    = "OEBROWSE"
-          sys-ctrl.descrip = "# of Records to be displayed in OE browser"
-          sys-ctrl.log-fld = YES
-          sys-ctrl.char-fld = "CE"
-          sys-ctrl.int-fld = 30.
-END.
-
 RUN set-defaults.
 
 IF lv-show-prev THEN DO:
@@ -2280,7 +2300,7 @@ IF lv-show-prev THEN DO:
         BREAK BY oe-ordl.ord-no DESC:
       IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
       lv-ord-no = oe-ordl.ord-no.
-      IF li GE sys-ctrl.int-fld THEN LEAVE.
+      IF li GE iRecordLimit THEN LEAVE.
     END.
 
     &SCOPED-DEFINE joinScop OUTER-JOIN
@@ -2311,7 +2331,7 @@ ELSE IF lv-show-next THEN DO:
     BREAK BY oe-ordl.ord-no :
     IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
     lv-ord-no = oe-ordl.ord-no.
-    IF li GE sys-ctrl.int-fld THEN LEAVE.
+    IF li GE iRecordLimit THEN LEAVE.
    END.
 
    &SCOPED-DEFINE joinScop OUTER-JOIN

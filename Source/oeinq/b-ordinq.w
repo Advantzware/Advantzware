@@ -98,24 +98,65 @@ DEFINE VARIABLE dTotRetInv AS DECIMAL NO-UNDO.
 DEFINE VARIABLE iHandQtyNoalloc AS INTEGER NO-UNDO .
 DEFINE VARIABLE iInvQty AS CHARACTER NO-UNDO.
 DEF VAR lActive AS LOG NO-UNDO.
+DEFINE VARIABLE cRtnValue    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iRecordLimit AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cSortBy      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dtOEBrowse   AS DATE      NO-UNDO.
 
  DO TRANSACTION:
      {sys/ref/CustList.i NEW}
     {sys/inc/custlistform.i ""OQ1"" }
  END.
+ 
+RUN sys/ref/nk1look.p(
+    INPUT  cocode,
+    INPUT  "OEBROWSE",
+    INPUT  "I",
+    INPUT  NO,
+    INPUT  NO,
+    INPUT  "",
+    INPUT  "",
+    OUTPUT cRtnValue,
+    OUTPUT lRecFound    
+    ).
+iRecordLimit = INTEGER(cRtnValue).
 
-/* DEF VAR lv-first-cust AS CHAR NO-UNDO.  */
-/* DEF VAR lv-last-cust  AS CHAR NO-UNDO.  */
+RUN sys/ref/nk1look.p(
+    INPUT  cocode,
+    INPUT  "OEBROWSE",
+    INPUT  "C",
+    INPUT  NO,
+    INPUT  NO,
+    INPUT  "",
+    INPUT  "",
+    OUTPUT cSortBy,
+    OUTPUT lRecFound    
+    ).
+    
+RUN sys/ref/nk1look.p(
+    INPUT  cocode,
+    INPUT  "OEBROWSE",
+    INPUT  "C",
+    INPUT  NO,
+    INPUT  NO,
+    INPUT  "",
+    INPUT  "",
+    OUTPUT cRtnValue,
+    OUTPUT lRecFound    
+    ).    
+dtOEBrowse = DATE(cRtnValue) NO-ERROR.
 
 DEF BUFFER b-itemfg FOR itemfg.
 DEFINE BUFFER bff-oe-ord FOR oe-ord.
 
 ll-sort-asc = NOT oeinq.
 
-IF ou6brows EQ 'Order Entry' THEN
-ASSIGN
-  lv-sort-by = "ord-no"
-  lv-sort-by-lab = "Order#".
+IF ou6brows EQ 'Order Entry' THEN 
+    ASSIGN
+        lv-sort-by     = IF cSortBy EQ "" OR cSortBy EQ "CE" THEN "ord-no" ELSE "ord-date"
+        lv-sort-by-lab = IF cSortBy EQ "" OR cSortBy EQ "CE" THEN "Order#" ELSE "Order Date"
+        .
 
 &SCOPED-DEFINE key-phrase oe-ordl.company EQ cocode
 
@@ -177,6 +218,7 @@ ASSIGN
                                       STRING(YEAR(oe-ordl.req-date),"9999") + STRING(MONTH(oe-ordl.req-date),"99") + STRING(DAY(oe-ordl.req-date),"99")
 
 &SCOPED-DEFINE sortby BY oe-ordl.ord-no BY oe-ordl.i-no
+&SCOPED-DEFINE sortbyDesc BY oe-ordl.ord-no DESCENDING BY oe-ordl.i-no
 
 &SCOPED-DEFINE sortby-phrase-asc  ~
     BY ({&sortby-log})            ~
@@ -185,8 +227,11 @@ ASSIGN
 &SCOPED-DEFINE sortby-phrase-desc  ~
     BY ({&sortby-log}) DESC        ~
     {&sortby}
-
-
+   
+&SCOPED-DEFINE sortby-phrase-desc1  ~
+    BY ({&sortby-log}) DESC        ~
+    {&sortbyDesc}    
+            
 DEFINE TEMP-TABLE tt-ord
     FIELD ord-no LIKE oe-ordl.ord-no
     FIELD cust-no LIKE oe-ordl.cust-no
@@ -1973,7 +2018,6 @@ PROCEDURE local-open-query :
   /* Code placed here will execute AFTER standard behavior.    */
 
   IF ll-show-all THEN DO:
-
     {oeinq/j-ordinq3.i}
   END.
   ELSE IF lv-show-prev OR lv-show-next THEN RUN show-prev-next.
@@ -2180,20 +2224,7 @@ PROCEDURE query-first :
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lv-ord-no LIKE oe-ordl.ord-no NO-UNDO.
 
-  FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
-                      AND sys-ctrl.name    EQ "OEBROWSE"
-                        NO-LOCK NO-ERROR.
-  IF NOT AVAIL sys-ctrl THEN DO TRANSACTION:
-        CREATE sys-ctrl.
-        ASSIGN sys-ctrl.company = cocode
-               sys-ctrl.name    = "OEBROWSE"
-               sys-ctrl.descrip = "# of Records to be displayed in oe browser"
-               sys-ctrl.log-fld = YES
-               sys-ctrl.char-fld = "CE"
-               sys-ctrl.int-fld = 30.
-  END.
-
-  IF sys-ctrl.date-fld NE ? THEN
+  IF dtOEBrowse NE ? THEN
       ASSIGN
       fi_ord-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(sys-ctrl.date-fld) 
       fi_ord-date = sys-ctrl.date-fld .
@@ -2205,7 +2236,7 @@ PROCEDURE query-first :
         BREAK BY oe-ordl.ord-no DESC:  
       IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
       lv-ord-no = oe-ordl.ord-no.
-      IF li GE sys-ctrl.int-fld THEN LEAVE.
+      IF li GE iRecordLimit THEN LEAVE.
      END.
 
      &SCOPED-DEFINE open-query                  ~
@@ -2216,8 +2247,14 @@ PROCEDURE query-first :
               USE-INDEX opened NO-LOCK,         ~
               {&for-each2}
 
-  IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                 ELSE {&open-query} {&sortby-phrase-desc}.
+  IF ll-sort-asc THEN 
+    {&open-query} {&sortby-phrase-asc}.
+  ELSE DO:
+      IF lv-sort-by EQ "ord-date" THEN 
+        {&open-query} {&sortby-phrase-desc1}.
+      ELSE  
+        {&open-query} {&sortby-phrase-desc}. 
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2232,19 +2269,6 @@ PROCEDURE query-go :
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lv-ord-no LIKE oe-ordl.ord-no NO-UNDO.
-
-  FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
-                      AND sys-ctrl.name    EQ "OEBROWSE"
-                        NO-LOCK NO-ERROR.
-  IF NOT AVAIL sys-ctrl THEN DO TRANSACTION:
-        CREATE sys-ctrl.
-        ASSIGN sys-ctrl.company = cocode
-               sys-ctrl.name    = "OEBROWSE"
-               sys-ctrl.descrip = "# of Records to be displayed in oe browser"
-               sys-ctrl.log-fld = YES
-               sys-ctrl.char-fld = "CE"
-               sys-ctrl.int-fld = 30.
-  END.
 
   IF fi_est-no NE "" THEN fi_est-no = FILL(" ",8 - LENGTH(TRIM(fi_est-no))) + TRIM(fi_est-no).
   IF fi_job-no NE "" THEN fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
@@ -2272,8 +2296,14 @@ PROCEDURE query-go :
                  {&for-each2}
     END.
 
-    IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                   ELSE {&open-query} {&sortby-phrase-desc}.
+    IF ll-sort-asc THEN 
+      {&open-query} {&sortby-phrase-asc}.
+    ELSE DO:
+        IF lv-sort-by EQ "ord-date" THEN 
+          {&open-query} {&sortby-phrase-desc1}.
+        ELSE  
+          {&open-query} {&sortby-phrase-desc}. 
+    END.
   END.
 
   ELSE IF fi_po-no1 NE "" THEN DO:
@@ -2285,7 +2315,7 @@ PROCEDURE query-go :
 
       IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
       lv-ord-no = oe-ordl.ord-no.
-      IF li GE sys-ctrl.int-fld THEN LEAVE.
+      IF li GE iRecordLimit THEN LEAVE.
     END.
 
     &SCOPED-DEFINE open-query         ~
@@ -2295,8 +2325,14 @@ PROCEDURE query-go :
             USE-INDEX po-no NO-LOCK, ~
             {&for-each2}
 
-     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                    ELSE {&open-query} {&sortby-phrase-desc}.
+     IF ll-sort-asc THEN 
+       {&open-query} {&sortby-phrase-asc}.
+     ELSE DO:
+         IF lv-sort-by EQ "ord-date" THEN 
+           {&open-query} {&sortby-phrase-desc1}.
+         ELSE  
+           {&open-query} {&sortby-phrase-desc}. 
+     END.
   END.
 
   ELSE IF fi_po-no-2 NE "" THEN DO:
@@ -2308,7 +2344,7 @@ PROCEDURE query-go :
 
       IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
       lv-ord-no = oe-ordl.ord-no.
-      IF li GE sys-ctrl.int-fld THEN LEAVE.
+      IF li GE iRecordLimit THEN LEAVE.
     END.
 
     &SCOPED-DEFINE open-query         ~
@@ -2318,8 +2354,14 @@ PROCEDURE query-go :
             USE-INDEX po-no NO-LOCK, ~
             {&for-each2}
 
-     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                    ELSE {&open-query} {&sortby-phrase-desc}.
+     IF ll-sort-asc THEN 
+       {&open-query} {&sortby-phrase-asc}.
+     ELSE DO:
+         IF lv-sort-by EQ "ord-date" THEN 
+           {&open-query} {&sortby-phrase-desc1}.
+         ELSE  
+           {&open-query} {&sortby-phrase-desc}. 
+     END.
   END.
 
   ELSE IF fi_i-no NE "" THEN DO:
@@ -2331,7 +2373,7 @@ PROCEDURE query-go :
 
       IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
       lv-ord-no = oe-ordl.ord-no.
-      IF li GE sys-ctrl.int-fld THEN LEAVE.
+      IF li GE iRecordLimit THEN LEAVE.
     END.
 
     &SCOPED-DEFINE open-query        ~
@@ -2341,8 +2383,14 @@ PROCEDURE query-go :
                 USE-INDEX item NO-LOCK, ~
                 {&for-each2}
 
-     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                 ELSE {&open-query} {&sortby-phrase-desc}.
+    IF ll-sort-asc THEN 
+      {&open-query} {&sortby-phrase-asc}.
+    ELSE DO:
+        IF lv-sort-by EQ "ord-date" THEN 
+          {&open-query} {&sortby-phrase-desc1}.
+        ELSE  
+          {&open-query} {&sortby-phrase-desc}. 
+    END.
   END.
 
   ELSE IF fi_job-no NE "" THEN DO:
@@ -2354,7 +2402,7 @@ PROCEDURE query-go :
 
       IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
       lv-ord-no = oe-ordl.ord-no.
-      IF li GE sys-ctrl.int-fld THEN LEAVE.
+      IF li GE iRecordLimit THEN LEAVE.
     END.
 
     &SCOPED-DEFINE open-query       ~
@@ -2364,8 +2412,14 @@ PROCEDURE query-go :
                 USE-INDEX job NO-LOCK, ~
                 {&for-each2}
 
-     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                    ELSE {&open-query} {&sortby-phrase-desc}.
+     IF ll-sort-asc THEN 
+       {&open-query} {&sortby-phrase-asc}.
+     ELSE DO:
+         IF lv-sort-by EQ "ord-date" THEN 
+           {&open-query} {&sortby-phrase-desc1}.
+         ELSE  
+           {&open-query} {&sortby-phrase-desc}. 
+     END.
   END.
 
   ELSE IF fi_est-no NE "" THEN DO:
@@ -2377,7 +2431,7 @@ PROCEDURE query-go :
 
       IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
       lv-ord-no = oe-ordl.ord-no.
-      IF li GE sys-ctrl.int-fld THEN LEAVE.
+      IF li GE iRecordLimit THEN LEAVE.
     END.
 
     &SCOPED-DEFINE open-query       ~
@@ -2386,9 +2440,15 @@ PROCEDURE query-go :
             AND oe-ordl.ord-no GE lv-ord-no   ~
                 USE-INDEX est NO-LOCK, ~
                 {&for-each2}
-
-    IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                   ELSE {&open-query} {&sortby-phrase-desc}.
+                
+     IF ll-sort-asc THEN 
+       {&open-query} {&sortby-phrase-asc}.
+     ELSE DO:
+         IF lv-sort-by EQ "ord-date" THEN 
+           {&open-query} {&sortby-phrase-desc1}.
+         ELSE  
+           {&open-query} {&sortby-phrase-desc}. 
+     END.
   END.
   ELSE IF fi_part-no NE "" THEN DO:
      {&for-each1}
@@ -2398,7 +2458,7 @@ PROCEDURE query-go :
 
       IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
       lv-ord-no = oe-ordl.ord-no.
-      IF li GE sys-ctrl.int-fld THEN LEAVE.
+      IF li GE iRecordLimit THEN LEAVE.
     END.
 
     &SCOPED-DEFINE open-query         ~
@@ -2408,8 +2468,14 @@ PROCEDURE query-go :
             USE-INDEX part NO-LOCK, ~
             {&for-each2}
 
-     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                    ELSE {&open-query} {&sortby-phrase-desc}.
+     IF ll-sort-asc THEN 
+       {&open-query} {&sortby-phrase-asc}.
+     ELSE DO:
+         IF lv-sort-by EQ "ord-date" THEN 
+           {&open-query} {&sortby-phrase-desc1}.
+         ELSE  
+           {&open-query} {&sortby-phrase-desc}. 
+     END.
   END.
   ELSE IF fi_cust-no NE "" THEN DO:
      {&for-each1}
@@ -2419,7 +2485,7 @@ PROCEDURE query-go :
 
       IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
       lv-ord-no = oe-ordl.ord-no.
-      IF li GE sys-ctrl.int-fld THEN LEAVE.
+      IF li GE iRecordLimit THEN LEAVE.
     END.
 
     &SCOPED-DEFINE open-query         ~
@@ -2429,8 +2495,14 @@ PROCEDURE query-go :
             USE-INDEX cust NO-LOCK, ~
             {&for-each2}
 
-     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                    ELSE {&open-query} {&sortby-phrase-desc}.
+     IF ll-sort-asc THEN 
+       {&open-query} {&sortby-phrase-asc}.
+     ELSE DO:
+         IF lv-sort-by EQ "ord-date" THEN 
+           {&open-query} {&sortby-phrase-desc1}.
+         ELSE  
+           {&open-query} {&sortby-phrase-desc}. 
+     END.
   END.
   ELSE DO:
 
@@ -2444,7 +2516,7 @@ PROCEDURE query-go :
 
          IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
          lv-ord-no = oe-ordl.ord-no.
-         IF li GE sys-ctrl.int-fld THEN LEAVE.
+         IF li GE iRecordLimit THEN LEAVE.
        END.
 
        &SCOPED-DEFINE open-query          ~
@@ -2453,8 +2525,14 @@ PROCEDURE query-go :
                AND oe-ordl.ord-no GE lv-ord-no NO-LOCK, ~
                    {&for-each2}
                    
-       IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                      ELSE {&open-query} {&sortby-phrase-desc}.
+        IF ll-sort-asc THEN 
+          {&open-query} {&sortby-phrase-asc}.
+        ELSE DO:
+            IF lv-sort-by EQ "ord-date" THEN 
+              {&open-query} {&sortby-phrase-desc1}.
+            ELSE  
+              {&open-query} {&sortby-phrase-desc}. 
+        END.
     END.
     ELSE
     DO:
@@ -2465,7 +2543,7 @@ PROCEDURE query-go :
 
          IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
          lv-ord-no = oe-ordl.ord-no.
-         IF li GE sys-ctrl.int-fld THEN LEAVE.
+         IF li GE iRecordLimit THEN LEAVE.
        END.
 
        &SCOPED-DEFINE open-query          ~
@@ -2475,8 +2553,14 @@ PROCEDURE query-go :
                    USE-INDEX opened NO-LOCK, ~
                    {&for-each2}
                    
-       IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                      ELSE {&open-query} {&sortby-phrase-desc}.
+       IF ll-sort-asc THEN 
+         {&open-query} {&sortby-phrase-asc}.
+       ELSE DO:
+           IF lv-sort-by EQ "ord-date" THEN 
+             {&open-query} {&sortby-phrase-desc1}.
+           ELSE  
+             {&open-query} {&sortby-phrase-desc}. 
+       END.
     END.
   END.
 
@@ -2726,21 +2810,7 @@ PROCEDURE show-prev-next :
 
   IF fi_est-no NE "" THEN fi_est-no = FILL(" ",8 - LENGTH(TRIM(fi_est-no))) + TRIM(fi_est-no).
   IF fi_job-no NE "" THEN fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
-
-  FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
-                      AND sys-ctrl.name    EQ "OEBROWSE"
-                        NO-LOCK NO-ERROR.
-  IF NOT AVAIL sys-ctrl THEN DO TRANSACTION:
-        CREATE sys-ctrl.
-        ASSIGN sys-ctrl.company = cocode
-               sys-ctrl.name    = "OEBROWSE"
-               sys-ctrl.descrip = "# of Records to be displayed in oe browser"
-               sys-ctrl.log-fld = YES
-               sys-ctrl.char-fld = "CE"
-               sys-ctrl.int-fld = 30.
-
-  END.
-
+  
   IF lv-show-prev THEN DO:
 
     IF fi_ord-no NE 0 THEN DO:
@@ -2766,9 +2836,14 @@ PROCEDURE show-prev-next :
                  {&for-each2}
       END.
 
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                     ELSE {&open-query} {&sortby-phrase-desc}.
-
+      IF ll-sort-asc THEN 
+        {&open-query} {&sortby-phrase-asc}.
+      ELSE DO:
+          IF lv-sort-by EQ "ord-date" THEN 
+            {&open-query} {&sortby-phrase-desc1}.
+          ELSE  
+            {&open-query} {&sortby-phrase-desc}. 
+      END.
     END. /* order # */
 
     ELSE IF fi_po-no1 NE "" THEN DO:
@@ -2780,7 +2855,7 @@ PROCEDURE show-prev-next :
       BREAK BY oe-ordl.ord-no DESC:
         IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
         lv-ord-no = oe-ordl.ord-no.
-        IF li GE sys-ctrl.int-fld THEN LEAVE.
+        IF li GE iRecordLimit THEN LEAVE.
       END.
 
       &SCOPED-DEFINE open-query                   ~
@@ -2791,9 +2866,14 @@ PROCEDURE show-prev-next :
               USE-INDEX po-no NO-LOCK,         ~
             {&for-each2}
 
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                   ELSE {&open-query} {&sortby-phrase-desc}.
-
+      IF ll-sort-asc THEN 
+        {&open-query} {&sortby-phrase-asc}.
+      ELSE DO:
+          IF lv-sort-by EQ "ord-date" THEN 
+            {&open-query} {&sortby-phrase-desc1}.
+          ELSE  
+            {&open-query} {&sortby-phrase-desc}. 
+      END.
     END.
 
     ELSE IF fi_po-no-2 NE "" THEN DO:
@@ -2805,7 +2885,7 @@ PROCEDURE show-prev-next :
       BREAK BY oe-ordl.ord-no DESC:
         IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
         lv-ord-no = oe-ordl.ord-no.
-        IF li GE sys-ctrl.int-fld THEN LEAVE.
+        IF li GE iRecordLimit THEN LEAVE.
       END.
 
       &SCOPED-DEFINE open-query                   ~
@@ -2816,9 +2896,14 @@ PROCEDURE show-prev-next :
               USE-INDEX po-no NO-LOCK,         ~
             {&for-each2}
 
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                   ELSE {&open-query} {&sortby-phrase-desc}.
-
+      IF ll-sort-asc THEN 
+        {&open-query} {&sortby-phrase-asc}.
+      ELSE DO:
+          IF lv-sort-by EQ "ord-date" THEN 
+            {&open-query} {&sortby-phrase-desc1}.
+          ELSE  
+            {&open-query} {&sortby-phrase-desc}. 
+      END.
     END.
 
     ELSE IF fi_i-no NE "" THEN DO:
@@ -2829,7 +2914,7 @@ PROCEDURE show-prev-next :
       BREAK BY oe-ordl.ord-no DESC:
         IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
         lv-ord-no = oe-ordl.ord-no.
-        IF li GE sys-ctrl.int-fld THEN LEAVE.
+        IF li GE iRecordLimit THEN LEAVE.
       END.
 
       &SCOPED-DEFINE open-query               ~
@@ -2840,9 +2925,14 @@ PROCEDURE show-prev-next :
               USE-INDEX ITEM NO-LOCK,         ~
             {&for-each2}
 
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                     ELSE {&open-query} {&sortby-phrase-desc}.
-
+      IF ll-sort-asc THEN 
+        {&open-query} {&sortby-phrase-asc}.
+      ELSE DO:
+          IF lv-sort-by EQ "ord-date" THEN 
+            {&open-query} {&sortby-phrase-desc1}.
+          ELSE  
+            {&open-query} {&sortby-phrase-desc}. 
+      END.
     END.
 
     ELSE IF fi_job-no NE "" THEN DO:
@@ -2853,7 +2943,7 @@ PROCEDURE show-prev-next :
       BREAK BY oe-ordl.ord-no DESC:
         IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
         lv-ord-no = oe-ordl.ord-no.
-        IF li GE sys-ctrl.int-fld THEN LEAVE.
+        IF li GE iRecordLimit THEN LEAVE.
       END.
 
       &SCOPED-DEFINE open-query                   ~
@@ -2864,8 +2954,14 @@ PROCEDURE show-prev-next :
               USE-INDEX job NO-LOCK,         ~
             {&for-each2}
 
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                     ELSE {&open-query} {&sortby-phrase-desc}.
+      IF ll-sort-asc THEN 
+        {&open-query} {&sortby-phrase-asc}.
+      ELSE DO:
+          IF lv-sort-by EQ "ord-date" THEN 
+            {&open-query} {&sortby-phrase-desc1}.
+          ELSE  
+            {&open-query} {&sortby-phrase-desc}. 
+      END.
     END.
 
     ELSE IF fi_est-no NE "" THEN DO:
@@ -2876,7 +2972,7 @@ PROCEDURE show-prev-next :
       BREAK BY oe-ordl.ord-no DESC:
         IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
         lv-ord-no = oe-ordl.ord-no.
-        IF li GE sys-ctrl.int-fld THEN LEAVE.
+        IF li GE iRecordLimit THEN LEAVE.
       END.
 
       &SCOPED-DEFINE open-query                   ~
@@ -2887,8 +2983,14 @@ PROCEDURE show-prev-next :
               USE-INDEX est NO-LOCK,         ~
             {&for-each2}
 
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                     ELSE {&open-query} {&sortby-phrase-desc}.
+      IF ll-sort-asc THEN 
+        {&open-query} {&sortby-phrase-asc}.
+      ELSE DO:
+          IF lv-sort-by EQ "ord-date" THEN 
+            {&open-query} {&sortby-phrase-desc1}.
+          ELSE  
+            {&open-query} {&sortby-phrase-desc}. 
+      END.
     END.
     ELSE IF fi_part-no NE "" THEN DO:
 
@@ -2899,7 +3001,7 @@ PROCEDURE show-prev-next :
       BREAK BY oe-ordl.ord-no DESC:
         IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
         lv-ord-no = oe-ordl.ord-no.
-        IF li GE sys-ctrl.int-fld THEN LEAVE.
+        IF li GE iRecordLimit THEN LEAVE.
       END.
 
       &SCOPED-DEFINE open-query                   ~
@@ -2910,9 +3012,14 @@ PROCEDURE show-prev-next :
               USE-INDEX part NO-LOCK,         ~
             {&for-each2}
 
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                     ELSE {&open-query} {&sortby-phrase-desc}.
-
+      IF ll-sort-asc THEN 
+        {&open-query} {&sortby-phrase-asc}.
+      ELSE DO:
+          IF lv-sort-by EQ "ord-date" THEN 
+            {&open-query} {&sortby-phrase-desc1}.
+          ELSE  
+            {&open-query} {&sortby-phrase-desc}. 
+      END.
     END.
     ELSE IF fi_cust-no NE "" THEN DO:
 
@@ -2923,7 +3030,7 @@ PROCEDURE show-prev-next :
       BREAK BY oe-ordl.ord-no DESC:
         IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
         lv-ord-no = oe-ordl.ord-no.
-        IF li GE sys-ctrl.int-fld THEN LEAVE.
+        IF li GE iRecordLimit THEN LEAVE.
       END.
 
       &SCOPED-DEFINE open-query                   ~
@@ -2934,9 +3041,14 @@ PROCEDURE show-prev-next :
               USE-INDEX cust NO-LOCK,         ~
             {&for-each2}
 
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                     ELSE {&open-query} {&sortby-phrase-desc}.
-
+      IF ll-sort-asc THEN 
+        {&open-query} {&sortby-phrase-asc}.
+      ELSE DO:
+          IF lv-sort-by EQ "ord-date" THEN 
+            {&open-query} {&sortby-phrase-desc1}.
+          ELSE  
+            {&open-query} {&sortby-phrase-desc}. 
+      END.
     END.
 
     ELSE DO:
@@ -2951,7 +3063,7 @@ PROCEDURE show-prev-next :
             BREAK BY oe-ordl.ord-no DESC:
               IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
               lv-ord-no = oe-ordl.ord-no.
-              IF li GE sys-ctrl.int-fld THEN LEAVE.
+              IF li GE iRecordLimit THEN LEAVE.
             END.
 
             &SCOPED-DEFINE open-query               ~
@@ -2961,8 +3073,14 @@ PROCEDURE show-prev-next :
                     AND oe-ordl.ord-no LE lv-last-show-ord-no NO-LOCK, ~
                   {&for-each2}
                   
-             IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                            ELSE {&open-query} {&sortby-phrase-desc}.
+             IF ll-sort-asc THEN 
+               {&open-query} {&sortby-phrase-asc}.
+             ELSE DO:
+                 IF lv-sort-by EQ "ord-date" THEN 
+                   {&open-query} {&sortby-phrase-desc1}.
+                 ELSE  
+                   {&open-query} {&sortby-phrase-desc}. 
+             END.
          END.
       ELSE
       DO:
@@ -2973,7 +3091,7 @@ PROCEDURE show-prev-next :
          BREAK BY oe-ordl.ord-no DESC:
            IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
            lv-ord-no = oe-ordl.ord-no.
-           IF li GE sys-ctrl.int-fld THEN LEAVE.
+           IF li GE iRecordLimit THEN LEAVE.
          END.
 
          &SCOPED-DEFINE open-query                   ~
@@ -2984,8 +3102,14 @@ PROCEDURE show-prev-next :
                  USE-INDEX opened NO-LOCK,         ~
                {&for-each2}
                
-         IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                        ELSE {&open-query} {&sortby-phrase-desc}.
+         IF ll-sort-asc THEN 
+           {&open-query} {&sortby-phrase-asc}.
+         ELSE DO:
+             IF lv-sort-by EQ "ord-date" THEN 
+               {&open-query} {&sortby-phrase-desc1}.
+             ELSE  
+               {&open-query} {&sortby-phrase-desc}. 
+         END.
       END.
     END.
 
@@ -3015,9 +3139,14 @@ PROCEDURE show-prev-next :
                  {&for-each2}
       END.
 
-        IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                       ELSE {&open-query} {&sortby-phrase-desc}.
-
+        IF ll-sort-asc THEN 
+          {&open-query} {&sortby-phrase-asc}.
+        ELSE DO:
+            IF lv-sort-by EQ "ord-date" THEN 
+              {&open-query} {&sortby-phrase-desc1}.
+            ELSE  
+              {&open-query} {&sortby-phrase-desc}. 
+        END.
     END. /* order # */
 
     ELSE IF fi_po-no1 NE "" THEN DO:
@@ -3029,7 +3158,7 @@ PROCEDURE show-prev-next :
       BREAK BY oe-ordl.ord-no:
         IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
         lv-ord-no = oe-ordl.ord-no.
-        IF li GE sys-ctrl.int-fld THEN LEAVE.
+        IF li GE iRecordLimit THEN LEAVE.
       END.
 
       &SCOPED-DEFINE open-query                   ~
@@ -3040,9 +3169,14 @@ PROCEDURE show-prev-next :
               USE-INDEX po-no NO-LOCK,         ~
             {&for-each2}
 
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                     ELSE {&open-query} {&sortby-phrase-desc}.
-
+      IF ll-sort-asc THEN 
+        {&open-query} {&sortby-phrase-asc}.
+      ELSE DO:
+          IF lv-sort-by EQ "ord-date" THEN 
+            {&open-query} {&sortby-phrase-desc1}.
+          ELSE  
+            {&open-query} {&sortby-phrase-desc}. 
+      END.
     END.
 
     ELSE IF fi_i-no NE "" THEN DO:
@@ -3053,7 +3187,7 @@ PROCEDURE show-prev-next :
       BREAK BY oe-ordl.ord-no:
         IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
         lv-ord-no = oe-ordl.ord-no.
-        IF li GE sys-ctrl.int-fld THEN LEAVE.
+        IF li GE iRecordLimit THEN LEAVE.
       END.
 
       &SCOPED-DEFINE open-query               ~
@@ -3064,9 +3198,14 @@ PROCEDURE show-prev-next :
               USE-INDEX ITEM NO-LOCK,         ~
             {&for-each2}
 
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                     ELSE {&open-query} {&sortby-phrase-desc}.
-
+      IF ll-sort-asc THEN 
+        {&open-query} {&sortby-phrase-asc}.
+      ELSE DO:
+          IF lv-sort-by EQ "ord-date" THEN 
+            {&open-query} {&sortby-phrase-desc1}.
+          ELSE  
+            {&open-query} {&sortby-phrase-desc}. 
+      END.
     END.
 
     ELSE IF fi_job-no NE "" THEN DO:
@@ -3077,7 +3216,7 @@ PROCEDURE show-prev-next :
       BREAK BY oe-ordl.ord-no:
         IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
         lv-ord-no = oe-ordl.ord-no.  
-        IF li GE sys-ctrl.int-fld THEN LEAVE.
+        IF li GE iRecordLimit THEN LEAVE.
       END.
 
       &SCOPED-DEFINE open-query               ~
@@ -3088,8 +3227,14 @@ PROCEDURE show-prev-next :
               USE-INDEX job NO-LOCK,         ~
             {&for-each2}
 
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                     ELSE {&open-query} {&sortby-phrase-desc}.
+      IF ll-sort-asc THEN 
+        {&open-query} {&sortby-phrase-asc}.
+      ELSE DO:
+          IF lv-sort-by EQ "ord-date" THEN 
+            {&open-query} {&sortby-phrase-desc1}.
+          ELSE  
+            {&open-query} {&sortby-phrase-desc}. 
+      END.
     END.
 
     ELSE IF fi_est-no NE "" THEN DO:
@@ -3100,7 +3245,7 @@ PROCEDURE show-prev-next :
       BREAK BY oe-ordl.ord-no:
         IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
         lv-ord-no = oe-ordl.ord-no.
-        IF li GE sys-ctrl.int-fld THEN LEAVE.
+        IF li GE iRecordLimit THEN LEAVE.
       END.
 
       &SCOPED-DEFINE open-query               ~
@@ -3111,8 +3256,14 @@ PROCEDURE show-prev-next :
               USE-INDEX est NO-LOCK,         ~
             {&for-each2}
 
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                     ELSE {&open-query} {&sortby-phrase-desc}.
+      IF ll-sort-asc THEN 
+        {&open-query} {&sortby-phrase-asc}.
+      ELSE DO:
+          IF lv-sort-by EQ "ord-date" THEN 
+            {&open-query} {&sortby-phrase-desc1}.
+          ELSE  
+            {&open-query} {&sortby-phrase-desc}. 
+      END.
     END.
     ELSE IF fi_part-no NE "" THEN DO:
 
@@ -3123,7 +3274,7 @@ PROCEDURE show-prev-next :
       BREAK BY oe-ordl.ord-no:
         IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
         lv-ord-no = oe-ordl.ord-no.
-        IF li GE sys-ctrl.int-fld THEN LEAVE.
+        IF li GE iRecordLimit THEN LEAVE.
       END.
 
       &SCOPED-DEFINE open-query                   ~
@@ -3134,8 +3285,14 @@ PROCEDURE show-prev-next :
               USE-INDEX part NO-LOCK,         ~
             {&for-each2}
 
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                     ELSE {&open-query} {&sortby-phrase-desc}.
+      IF ll-sort-asc THEN 
+        {&open-query} {&sortby-phrase-asc}.
+      ELSE DO:
+          IF lv-sort-by EQ "ord-date" THEN 
+            {&open-query} {&sortby-phrase-desc1}.
+          ELSE  
+            {&open-query} {&sortby-phrase-desc}. 
+      END.
     END.
     ELSE IF fi_cust-no NE "" THEN DO:
 
@@ -3146,7 +3303,7 @@ PROCEDURE show-prev-next :
       BREAK BY oe-ordl.ord-no:
         IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
         lv-ord-no = oe-ordl.ord-no.
-        IF li GE sys-ctrl.int-fld THEN LEAVE.
+        IF li GE iRecordLimit THEN LEAVE.
       END.
 
       &SCOPED-DEFINE open-query                   ~
@@ -3157,9 +3314,14 @@ PROCEDURE show-prev-next :
               USE-INDEX cust NO-LOCK,         ~
             {&for-each2}
 
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                     ELSE {&open-query} {&sortby-phrase-desc}.
-
+      IF ll-sort-asc THEN 
+        {&open-query} {&sortby-phrase-asc}.
+      ELSE DO:
+          IF lv-sort-by EQ "ord-date" THEN 
+            {&open-query} {&sortby-phrase-desc1}.
+          ELSE  
+            {&open-query} {&sortby-phrase-desc}. 
+      END.
     END.
 
     ELSE DO:
@@ -3174,7 +3336,7 @@ PROCEDURE show-prev-next :
          BREAK BY oe-ordl.ord-no:
            IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
            lv-ord-no = oe-ordl.ord-no.
-           IF li GE sys-ctrl.int-fld THEN LEAVE.
+           IF li GE iRecordLimit THEN LEAVE.
          END.
 
          &SCOPED-DEFINE open-query               ~
@@ -3184,8 +3346,14 @@ PROCEDURE show-prev-next :
                  AND oe-ordl.ord-no GE lv-first-show-ord-no NO-LOCK, ~
                {&for-each2}
                
-         IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                        ELSE {&open-query} {&sortby-phrase-desc}.
+        IF ll-sort-asc THEN 
+          {&open-query} {&sortby-phrase-asc}.
+        ELSE DO:
+            IF lv-sort-by EQ "ord-date" THEN 
+              {&open-query} {&sortby-phrase-desc1}.
+            ELSE  
+              {&open-query} {&sortby-phrase-desc}. 
+        END.
       END.
       ELSE
       DO:
@@ -3196,7 +3364,7 @@ PROCEDURE show-prev-next :
          BREAK BY oe-ordl.ord-no:
            IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
            lv-ord-no = oe-ordl.ord-no.
-           IF li GE sys-ctrl.int-fld THEN LEAVE.
+           IF li GE iRecordLimit THEN LEAVE.
          END.
 
          &SCOPED-DEFINE open-query               ~
@@ -3207,8 +3375,14 @@ PROCEDURE show-prev-next :
                  USE-INDEX opened NO-LOCK,         ~
                {&for-each2}
                
-         IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                        ELSE {&open-query} {&sortby-phrase-desc}.
+         IF ll-sort-asc THEN 
+           {&open-query} {&sortby-phrase-asc}.
+         ELSE DO:
+             IF lv-sort-by EQ "ord-date" THEN 
+               {&open-query} {&sortby-phrase-desc1}.
+             ELSE  
+               {&open-query} {&sortby-phrase-desc}. 
+         END.
       END.
     END.
   END. /*lv-show-next*/

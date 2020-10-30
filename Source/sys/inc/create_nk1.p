@@ -46,7 +46,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "JobRecalc,JobBuildVersion,CEWood,SalesTaxRoundingMethod,SalesTaxCalcMethod,FGTagValidation,DynParamValidation,DateRule,VertexTaxClassDefault,"
            + "CapacityHTMLFolder,InvoiceApprovalBillNotes,InvoiceApprovalFreightAmount,InvoiceApprovalFreightTerms,InvoiceApprovalPriceGTCost,InvoiceApprovalInvoiceStatus,"
            + "InvoiceApprovalTaxableCheck,CalcJobDueDate,FGBOLTransferPost,FGMasterLoc,FGOversDefault,InvoiceApprovalTaxCalc,SSTagStatus,CEWindow,"            
-           + "ZohoRefreshToken,ZohoClientID,ZohoClientSecret"
+           + "ZohoRefreshToken,ZohoClientID,ZohoClientSecret,OEBROWSE"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -1254,7 +1254,18 @@ CASE ip-nk1-value:
             INPUT 0,                                             /* Int value */
             INPUT NO,                                            /* Logical value */ 
             INPUT 0                                              /* Dec value*/
-            ).                                 
+            ). 
+    WHEN "OEBROWSE" THEN
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "# of Records to be displayed in oe browser",  /* Description */
+            INPUT "",                                            /* Char Value */
+            INPUT 30,                                            /* Int value */
+            INPUT YES,                                           /* Logical value */ 
+            INPUT 0                                              /* Dec value*/
+            ).                                                     
 END CASE.
 ELSE
 CASE ip-nk1-value:
