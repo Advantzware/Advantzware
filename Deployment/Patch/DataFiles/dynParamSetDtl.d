@@ -382,3 +382,5 @@
 138 14 "TableRecID" "Table RECID" "dynInitTableRecID" "" "" "" "0" 1 14 17 1.71 yes ? "" "202009096265305608839"
 139 3 "StartTime" "Start Time" "" "dynValTime" "" "" "0000" 1 8 15 2.19 yes "NO:DISABLE,YES:ENABLE" "" "202009216683005646405"
 139 3 "EndTime" "To" "" "dynValTime" "" "" "2400" 1 8 29 2.19 yes "NO:DISABLE,YES:ENABLE" "" "202009216683005646406"
+141 2 "StartDate" "Start Date" "" "" "" "" "" 1 16 15 1.71 yes "CALENDAR,DATEPICKLIST" "" "202010292931105813768"
+141 2 "EndDate" "To" "" "" "" "" "" 1 16 15 2.91 yes "CALENDAR,DATEPICKLIST" "" "202010292933405813769"

@@ -1259,33 +1259,33 @@
 92 "_default" "dynSubjct." 0 3 yes "machtran.job_sub" "Job Sub Number" ">9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202008212610605604396" no "" "" 0 0 "" no
 92 "_default" "dynSubjct." 0 4 yes "machtran.form_number" "Form Number" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202008212610605604397" no "" "" 0 0 "" no
 92 "_default" "dynSubjct." 0 5 yes "machtran.blank_number" "Blank Number" ">9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202008212610605604398" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 1 yes "ttJobItem.cJob" "SALES-ORD" "x(12)" 0 "character" 2 no no "" "" no "" "" no no no "" "202010227839605784531" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 2 yes "ttJobItem.dtOrderDate" "ORD-DATE" "99/99/9999" 0 "date" 5 no no "" "" no "" "" no no no "" "202010227839605784532" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 3 yes "ttJobItem.dtDueDate" "COM-DATE" "99/99/9999" 0 "date" 6 no no "" "" no "" "" no no no "" "202010227839605784533" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 4 yes "ttJobItem.cItemDescription" "DESCRIPTION-SIZE" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010227839605784534" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 5 yes "ttJobItem.cSalesRep" "SLSMN" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010227839605784535" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 6 yes "ttJobItem.cProductCategory" "PR CD" "X(7)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010227839605784536" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 7 yes "ttJobItem.dQuantityOrdered" "ORDER" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010227839605784537" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 8 yes "ttJobItem.dQuantityProduced" "MADE" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010227839605784538" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 9 yes "ttJobItem.dQuantityShipped" "SHIPPED" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010227839605784539" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 10 yes "ttJobItem.dQuantityOnHand" "ON HAND" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010227839605784540" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 11 yes "ttJobItem.dQuantityBalanceToRun" "BAL/RUN" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010227839605784541" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 12 yes "ttJobItem.dDisplayBalanceToRun" "BAL/RUN" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010227839605784542" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 13 yes "ttJobItem.dPricePerEA" "PRICE PER" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010227839605784543" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 14 yes "ttJobItem.dPriceTotalOnHand" "VALUE" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] CUST ID,Sum" no "" "" no no no "" "202010227839605784544" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 15 yes "ttJobItem.cCustomerID" "CUST ID" "x(8)" 0 "character" 1 no yes "Sub-Total >>>" "" no "" "" no no no "" "202010227839605784545" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 16 yes "ttJobItem.cCustomerName" "CUSTOMER NAME" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010227839605784546" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 17 yes "ttJobItem.dtAsOfDate" "As Of Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202010227839605784547" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 18 yes "ttJobItem.cAsOfDateOption" "As Of Date Option" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010227839605784548" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 19 no "ttJobItem.iFormNumber" "FORM" ">>9" 0 "integer" 3 no no "" "" no "" "" no no no "" "202010227839605784549" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 20 no "ttJobItem.iBlankNumber" "BLANK" ">9" 0 "integer" 4 no no "" "" no "" "" no no no "" "202010227839605784550" no "" "" 0 0 "" no
-94 "_default" "dynSubjct." 0 21 no "ttJobItem.cItemID" "Item ID" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010227839605784551" no "" "" 0 0 "" no
-95 "_default" "dynSubjct." 0 1 yes "ttProdSum.cProductCategory" "Prod" "x(7)" 0 "character" 0 no no "" "" no "" "" no no no "" "202005136535605269461" no "" "" 0 0 "" no
-95 "_default" "dynSubjct." 0 2 yes "ttProdSum.cProductDescription" "Product Description" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202005136535605269462" no "" "" 0 0 "" no
-95 "_default" "dynSubjct." 0 3 yes "ttProdSum.dQuantityOnHand" "Qty On-Hand" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202005136535605269463" no "" "" 0 0 "" no
-95 "_default" "dynSubjct." 0 4 yes "ttProdSum.dPriceTotalOnHand" "Sell Value of On-Hand" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202005136535605269464" no "" "" 0 0 "" no
-95 "_default" "dynSubjct." 0 5 yes "ttProdSum.dQuantityBalanceToRun" "Qty To Run" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202005136535605269465" no "" "" 0 0 "" no
-95 "_default" "dynSubjct." 0 6 yes "ttProdSum.dPriceTotalBalanceToRun" "Sell Value to Run" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202005136535605269466" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 1 yes "ttJobItem.cJob" "SALES-ORD" "x(12)" 0 "character" 2 no no "" "" no "" "" no no no "" "202010292953805813827" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 2 yes "ttJobItem.dtOrderDate" "ORD-DATE" "99/99/9999" 0 "date" 5 no no "" "" no "" "" no no no "" "202010292953805813828" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 3 yes "ttJobItem.dtDueDate" "COM-DATE" "99/99/9999" 0 "date" 6 no no "" "" no "" "" no no no "" "202010292953805813829" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 4 yes "ttJobItem.cItemDescription" "DESCRIPTION-SIZE" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010292953805813830" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 5 yes "ttJobItem.cSalesRep" "SLSMN" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010292953805813831" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 6 yes "ttJobItem.cProductCategory" "PR CD" "X(7)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010292953805813832" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 7 yes "ttJobItem.dQuantityOrdered" "ORDER" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010292953805813833" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 8 yes "ttJobItem.dQuantityProduced" "MADE" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010292953805813834" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 9 yes "ttJobItem.dQuantityShipped" "SHIPPED" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010292953805813835" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 10 yes "ttJobItem.dQuantityOnHand" "ON HAND" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010292953805813836" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 11 yes "ttJobItem.dQuantityBalanceToRun" "BAL/RUN" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010292953805813837" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 12 yes "ttJobItem.dDisplayBalanceToRun" "BAL/RUN" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010292953805813838" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 13 yes "ttJobItem.dPricePerEA" "PRICE PER" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202010292953805813839" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 14 yes "ttJobItem.dPriceTotalOnHand" "VALUE" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum,[Group] CUST ID,Sum" no "" "" no no no "" "202010292953805813840" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 15 yes "ttJobItem.cCustomerID" "CUST ID" "x(8)" 0 "character" 1 no yes "Sub-Total >>>" "" no "" "" no no no "" "202010292953805813841" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 16 yes "ttJobItem.cCustomerName" "CUSTOMER NAME" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010292953805813842" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 17 yes "ttJobItem.dtAsOfDate" "As Of Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202010292953805813843" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 18 yes "ttJobItem.cAsOfDateOption" "As Of Date Option" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010292953805813844" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 19 no "ttJobItem.iFormNumber" "FORM" ">>9" 0 "integer" 3 no no "" "" no "" "" no no no "" "202010292953805813845" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 20 no "ttJobItem.iBlankNumber" "BLANK" ">9" 0 "integer" 4 no no "" "" no "" "" no no no "" "202010292953805813846" no "" "" 0 0 "" no
+94 "_default" "dynSubjct." 0 21 no "ttJobItem.cItemID" "Item ID" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010292953805813847" no "" "" 0 0 "" no
+95 "_default" "dynSubjct." 0 1 yes "ttProdSum.cProductCategory" "Prod" "x(7)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010292951905813793" no "" "" 0 0 "" no
+95 "_default" "dynSubjct." 0 2 yes "ttProdSum.cProductDescription" "Product Description" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202010292951905813794" no "" "" 0 0 "" no
+95 "_default" "dynSubjct." 0 3 yes "ttProdSum.dQuantityOnHand" "Qty On-Hand" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010292951905813795" no "" "" 0 0 "" no
+95 "_default" "dynSubjct." 0 4 yes "ttProdSum.dPriceTotalOnHand" "Sell Value of On-Hand" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010292951905813796" no "" "" 0 0 "" no
+95 "_default" "dynSubjct." 0 5 yes "ttProdSum.dQuantityBalanceToRun" "Qty To Run" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010292951905813797" no "" "" 0 0 "" no
+95 "_default" "dynSubjct." 0 6 yes "ttProdSum.dPriceTotalBalanceToRun" "Sell Value to Run" "->,>>>,>>9.99" 0 "decimal" 0 no no "" "Report,Sum" no "" "" no no no "" "202010292951905813798" no "" "" 0 0 "" no
 97 "_default" "dynSubjct." 0 1 yes "ar-inv.addr[1]" "Customer Address[1]" "x(30)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535705269701" no "" "" 0 0 "" no
 97 "_default" "dynSubjct." 0 2 yes "ar-inv.addr[2]" "Customer Address[2]" "x(30)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535705269702" no "" "" 0 0 "" no
 97 "_default" "dynSubjct." 0 3 yes "ar-inv.bank-code" "Bank Code" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202005136535705269703" no "" "" 0 0 "" no
