@@ -342,7 +342,6 @@ ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 DO:
     run oe/d-invitm.w (recid(inv-line), inv-line.r-no,"Update").
     run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
-    RUN refresh-value.
 END.
 
 /* _UIB-CODE-BLOCK-END */

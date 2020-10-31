@@ -438,7 +438,6 @@ DO:
    IF AVAIL inv-misc AND lUpdateMiscItem THEN do:
        RUN oe/d-inmisc.w (ROWID(inv-misc),ROWID(inv-head), "update", OUTPUT lv-rowid) .
        RUN reopen-query (lv-rowid).
-       RUN refresh-value.
    END.
 END.
 
@@ -793,7 +792,6 @@ PROCEDURE pUpdateRecord :
     IF AVAIL inv-misc THEN do:
         RUN oe/d-inmisc.w (ROWID(inv-misc),ROWID(inv-head), "update", OUTPUT lv-rowid) .
         RUN reopen-query (lv-rowid).
-        RUN refresh-value.
    END.
   
 END PROCEDURE.
@@ -826,10 +824,8 @@ PROCEDURE pCopyRecord :
        RUN oe/d-inmisc.w (ROWID(bf-inv-misc), ROWID(inv-head), "Copy",OUTPUT lv-rowid).
         FIND FIRST bf-inv-misc NO-LOCK
             WHERE rowid(bf-inv-misc) EQ  lv-rowid  NO-ERROR .
-        IF AVAIL bf-inv-misc THEN DO:
+        IF AVAIL bf-inv-misc THEN
             RUN reopen-query (lv-rowid).
-            RUN refresh-value.
-        END.
    END.
 END PROCEDURE.
 
@@ -878,7 +874,6 @@ PROCEDURE pAddRecord :
            
       IF AVAIL bf-inv-misc THEN DO:
           RUN reopen-query (lv-rowid).
-          RUN refresh-value.
       END.
   END.
   

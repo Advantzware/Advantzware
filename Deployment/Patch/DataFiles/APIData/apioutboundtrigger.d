@@ -203,13 +203,3 @@
 "001" "202010024544505743040" "SendInvoice" "PrintInvoice" "Send EDI invoice on print of invoice" yes 2020-10-02T12:37:25.388 "Randy3" "GSWELL" 5166 5039
 "001" "202010024544505743041" "SendInvoice" "RePrintInvoice" "Send EDI invoice on re-print of invoice" no 2020-10-02T12:44:03.441 "Randy3" "GSWELL" 5167 5039
 "001" "202010024544505743042" "SendInvoice" "PostInvoice" "Send EDI invoice on post of invoice" yes 2020-10-02T13:27:42.836 "Randy3" "GSWELL" 5168 5039
-"001" "202010143530605760561" "SendAdvancedShipNotice" "ReprintBillOfLading" "Triggers when BOL is re-printed" no 2020-10-14T09:48:26.612 "wade" "SCP" 5169 5040
-"001" "202010143530605760562" "SendAdvancedShipNotice" "PrintBillOfLading" "Triggers when BOL is printed" no 2020-10-14T09:48:26.629 "wade" "SCP" 5170 5040
-"001" "202010143530605760563" "SendAdvancedShipNotice" "AddCustomer" "Adds a customer" yes 2020-10-14T09:48:26.635 "wade" "SCP" 5171 5040
-"001" "202010143530605760564" "SendAdvancedShipNotice" "PrintRelease" "SendCustomer when Release is Printed First Time" no 2020-10-14T09:48:26.642 "wade" "SCP" 5172 5040
-"001" "202010143530605760565" "SendAdvancedShipNotice" "ReprintRelease" "SendCustomer when Release is Reprinted" no 2020-10-14T09:48:26.648 "wade" "SCP" 5173 5040
-"001" "202010143870005760573" "SendInvoice" "PrintInvoice" "Generate cXML invoice on print of invoice" no 2020-10-14T10:45:07.972 "jay" "UPS" 5174 5041
-"001" "202010143870005760574" "SendInvoice" "RePrintInvoice" "Generate cXML invoice on re-print of invoice" yes 2020-10-14T10:45:00.798 "jay" "UPS" 5175 5041
-"001" "202010143870005760575" "SendInvoice" "PostInvoice" "Generate cXML invoice on post of invoice" yes 2020-10-14T10:45:00.805 "jay" "UPS" 5176 5041
-"001" "202010194574705767456" "SendJob" "PrintJob" "Triggers when Job printed flag is NO" no 2020-10-19T20:21:36.955 "matt" "eWMS" 5177 5042
-"001" "202010194574705767457" "SendJob" "ReprintJob" "Triggers when Job printed flag is YES" no 2020-10-19T20:21:41.218 "matt" "eWMS" 5178 5042

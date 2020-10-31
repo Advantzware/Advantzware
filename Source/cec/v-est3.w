@@ -658,7 +658,7 @@ DO:
               lw-focus:SCREEN-VALUE = ENTRY(1,char-val)
               v-valhld = char-val.
 
-            DO v-cnt = lw-focus:INDEX  TO v-loopct:
+            DO v-cnt = FOCUS:INDEX  TO v-loopct:
                 CASE v-cnt:
                  WHEN 1 THEN 
                    ASSIGN 
