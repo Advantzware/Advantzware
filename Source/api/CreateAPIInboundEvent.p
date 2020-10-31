@@ -23,6 +23,7 @@ DEFINE INPUT  PARAMETER ipcRequestedBy      AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcRecordSource     AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcNotes            AS CHARACTER NO-UNDO.
 DEFINE INPUT  PARAMETER ipcPayloadID        AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER ipcDelayedProcStat  AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER opcAPIInboundEvent  AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE lcNotes       AS LONGCHAR NO-UNDO.
@@ -36,9 +37,6 @@ IF NOT AVAILABLE APIInboundEvent AND iplReTrigger THEN
     
 IF AVAILABLE APIInboundEvent THEN DO:
     ASSIGN
-       APIInboundEvent.responseData    = iplcReponseData
-       APIInboundEvent.success         = iplSuccess
-       APIInboundEvent.requestDateTime = ipcDateTime
        lcNotes                         = APIInboundEvent.errorMessage
        lcRequestData                   = APIInboundEvent.requestData
        APIInboundEvent.errorMessage    = STRING(ipcDateTime, "99/99/9999 HH:MM:SS.SSS")
@@ -63,8 +61,6 @@ ELSE DO:
         APIInboundEvent.company         = ipcCompany
         APIInboundEvent.apiRoute        = ipcRoute
         APIInboundEvent.requestData     = iplcRequestData
-        APIInboundEvent.responseData    = iplcReponseData
-        APIInboundEvent.success         = iplSuccess
         APIInboundEvent.errorMessage    = STRING(ipcDateTime) 
                                           + " - " 
                                           + USERID("ASI") 
@@ -74,11 +70,18 @@ ELSE DO:
                                           + STRING(iplSuccess, "SUCCESS/FAILURE")
                                           + " - "
                                           + ipcMessage
-        APIInboundEvent.requestDateTime = ipcDateTime
         APIInboundEvent.requestedBy     = ipcRequestedBy
         APIInboundEvent.recordSource    = ipcRecordSource
         APIInboundEvent.notes           = ipcNotes
         APIInboundEvent.externalID      = ipcPayloadID
         .
- END.
+END.
+
+ASSIGN 
+    APIInboundEvent.delayedProcessingStatus = ipcDelayedProcStat
+    APIInboundEvent.responseData            = iplcReponseData
+    APIInboundEvent.success                 = iplSuccess
+    APIInboundEvent.requestDateTime         = ipcDateTime
+    .
+ 
 opcAPIInboundEvent = STRING(ROWID(APIInboundEvent))
