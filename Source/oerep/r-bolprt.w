@@ -4157,7 +4157,7 @@ PROCEDURE pdAOABOLPost:
         .
     RUN pInitDynParamValue (19, "", "", 0, cParamList, cParamValue).
     RUN AOA/dynBL/r-bolpst.p PERSISTENT SET hBOLPost.
-    RUN pRunBusinessLogic IN hBOLPost.
+    RUN pBusinessLogic IN hBOLPost.
     DELETE PROCEDURE hBOLPost.
 END PROCEDURE.
     
