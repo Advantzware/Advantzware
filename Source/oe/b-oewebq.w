@@ -1964,8 +1964,14 @@ PROCEDURE query-go :
                  {&for-each2}
     END.
 
-    IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                   ELSE {&open-query} {&sortby-phrase-desc}.
+    IF ll-sort-asc THEN 
+      {&open-query} {&sortby-phrase-asc}.
+    ELSE DO:
+        IF lv-sort-by EQ "ord-date" THEN 
+          {&open-query} {&sortby-phrase-desc1}.
+        ELSE  
+          {&open-query} {&sortby-phrase-desc}. 
+    END.
   END.
 
   ELSE IF fi_po-no1 NE "" THEN DO:
@@ -2565,8 +2571,14 @@ PROCEDURE show-prev-next :
                  {&for-each2}
       END.
 
-      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
-                     ELSE {&open-query} {&sortby-phrase-desc}.
+      IF ll-sort-asc THEN 
+        {&open-query} {&sortby-phrase-asc}.
+      ELSE DO:
+          IF lv-sort-by EQ "ord-date" THEN 
+            {&open-query} {&sortby-phrase-desc1}.
+          ELSE  
+            {&open-query} {&sortby-phrase-desc}. 
+      END.
 
     END. /* order # */
 
