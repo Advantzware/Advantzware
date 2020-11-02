@@ -702,7 +702,7 @@ PROCEDURE pOperationChangeDetermineAction PRIVATE:
         ASSIGN
             /*            v-msg[1] = "ERROR: This dept is not valid for this job/form/blank/pass."*/
             /*            v-msg[2] = "Would you like to add the department to job standards?"     */
-            opcAction = "Add"
+            opcAction = "AddDept"
             .
         
 /*    MESSAGE v-msg[1] SKIP v-msg[2]                             */
