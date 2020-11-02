@@ -1978,6 +1978,77 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrepareAndExecuteQuery B-table-Win
+PROCEDURE pPrepareAndExecuteQuery PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplIsBegins AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE iCount   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iOrderNo AS INTEGER NO-UNDO.
+    
+    IF iplIsBegins THEN DO:
+        {&for-each1} NO-LOCK,
+        {&for-each2}
+        BREAK BY oe-ordl.ord-no DESCENDING:
+            IF FIRST-OF(oe-ordl.ord-no) THEN 
+                iCount = iCount + 1.
+            iOrderNo = oe-ordl.ord-no.
+            IF iCount GE iRecordLimit THEN 
+                LEAVE.
+        END. 
+        &SCOPED-DEFINE joinScop OUTER-JOIN
+        &SCOPED-DEFINE open-query           ~
+            OPEN QUERY {&browse-name}       ~
+                {&for-each11}    ~
+                    AND oe-ordl.ord-no GE iOrderNo ~
+                    NO-LOCK, ~
+                    {&for-each2}
+        &SCOPED-DEFINE joinScop 
+        &SCOPED-DEFINE open-query-cad       ~
+            OPEN QUERY {&browse-name}       ~
+                {&for-each11}                ~
+                    AND oe-ordl.ord-no GE iOrderNo ~
+                     NO-LOCK, ~
+                    {&for-each2}    
+        {oeinq/j-ordinq1.i}                  
+    END.    
+    ELSE DO:
+        {&for-each11} NO-LOCK,
+        {&for-each2}
+        BREAK BY oe-ordl.ord-no DESCENDING:
+            IF FIRST-OF(oe-ordl.ord-no) THEN 
+                iCount = iCount + 1.
+            iOrderNo = oe-ordl.ord-no.
+            IF iCount GE iRecordLimit THEN 
+                LEAVE.
+        END. 
+        &SCOPED-DEFINE joinScop OUTER-JOIN
+        &SCOPED-DEFINE open-query           ~
+            OPEN QUERY {&browse-name}       ~
+                {&for-each1}    ~
+                    AND oe-ordl.ord-no GE iOrderNo ~
+                    NO-LOCK, ~
+                    {&for-each2}
+        &SCOPED-DEFINE joinScop 
+        &SCOPED-DEFINE open-query-cad       ~
+            OPEN QUERY {&browse-name}       ~
+                {&for-each1}                ~
+                    AND oe-ordl.ord-no GE iOrderNo ~
+                     NO-LOCK, ~
+                    {&for-each2}    
+        {oeinq/j-ordinq1.i}                     
+    END. 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pushpin-image-proc B-table-Win 
 PROCEDURE pushpin-image-proc :
 /*------------------------------------------------------------------------------
