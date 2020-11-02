@@ -150,7 +150,9 @@ FOR EACH work-tmp
                                  job-mat.wid, item.s-dep,
                                  mat-act.qty, output v-qty).
                                
-          work-tmp.msf-sheets = work-tmp.msf-sheets + v-qty.
+          work-tmp.msf-sheets = work-tmp.msf-sheets + v-qty. 
+               
+          work-tmp.tot-lin-ft = (work-tmp.tot-lin-ft + ((IF v-qty EQ ? THEN 0 ELSE v-qty) * job-mat.len / 12)).
       end.
 
       IF work-tmp.qty-sheets EQ 0 THEN      /* get sheets from slitter */
@@ -303,17 +305,13 @@ for each work-tmp BREAK BY work-tmp.sort-field
       assign work-rep.sort-field = work-tmp.sort-field
              work-rep.dept     = work-tmp.dept
              work-rep.m-code   = work-tmp.m-code
-<<<<<<< HEAD
-             work-rep.sch-m-code = work-tmp.sch-m-code.
-=======
-             work-rep.sch-m-code = work-tmp.sch-m-code
+             work-rep.sch-m-code = work-tmp.sch-m-code             
              work-rep.job-no   = work-tmp.job-no
              work-rep.job-no2 = work-tmp.job-no2
              work-rep.i-no   = work-tmp.i-no
              work-rep.cust-no = work-tmp.cust-no
              work-rep.i-name = IF AVAIL job-mch AND job-mch.i-name NE "" THEN job-mch.i-name ELSE work-tmp.i-name
              .
->>>>>>> release/Advantzware_20.02.05
    end.
    assign work-rep.r-std-hrs = work-rep.r-std-hrs + run-hr
           work-rep.r-act-hrs = work-rep.r-act-hrs + work-tmp.r-act-hrs
@@ -324,7 +322,8 @@ for each work-tmp BREAK BY work-tmp.sort-field
                                   work-tmp.dt-nochg-hrs
           work-rep.qty          = work-rep.qty + work-tmp.qty
           work-rep.msf          = work-rep.msf + work-tmp.msf
-
+          work-rep.tot-lin-ft = work-rep.tot-lin-ft + work-tmp.tot-lin-ft
+          
           work-rep.qty-fg-rec = work-rep.qty-fg-rec + work-tmp.qty-fg-rec
           work-rep.msf-fg-rec = work-rep.msf-fg-rec + work-tmp.msf-fg-rec
           work-rep.qty-scrap-rec = work-rep.qty-scrap-rec
@@ -373,16 +372,12 @@ DO:
           CREATE work-rep-copy.
           ASSIGN work-rep-copy.m-code = work-rep.sch-m-code
                  work-rep-copy.sort-field = work-rep.sort-field
-<<<<<<< HEAD
-                 work-rep-copy.dept = work-rep.dept.
-=======
                  work-rep-copy.dept = work-rep.dept
                  work-rep-copy.job-no = work-rep.job-no 
                  work-rep-copy.job-no2 = work-rep.job-no2
                  work-rep-copy.i-no =  work-rep.i-no   
                  work-rep-copy.cust-no = work-rep.cust-no
                  work-rep-copy.i-name = work-rep.i-name .
->>>>>>> release/Advantzware_20.02.05
        END.
 
        ASSIGN
@@ -395,6 +390,7 @@ DO:
           work-rep-copy.dt-chg-hrs = work-rep-copy.dt-chg-hrs + work-rep.dt-chg-hrs
           work-rep-copy.dt-nochg-hrs = work-rep-copy.dt-nochg-hrs + work-rep.dt-nochg-hrs
           work-rep-copy.qty = work-rep-copy.qty + work-rep.qty
+          work-rep-copy.tot-lin-ft = work-rep-copy.tot-lin-ft + work-rep.tot-lin-ft
           work-rep-copy.msf = work-rep-copy.msf + work-rep.msf
           work-rep-copy.qty-fg-rec = work-rep-copy.qty-fg-rec + work-rep.qty-fg-rec
           work-rep-copy.msf-fg-rec = work-rep-copy.msf-fg-rec + work-rep.msf-fg-rec
@@ -483,8 +479,9 @@ FOR EACH work-rep BREAK BY work-rep.sort-field
          FIND FIRST cust no-lock
               WHERE cust.company EQ cocode 
               AND cust.cust-no EQ work-rep.cust-no NO-ERROR .
-         cJobNo = string(work-rep.job-no) + "-" + STRING(work-rep.job-no2,"99") .     
-
+         cJobNo = string(work-rep.job-no) + "-" + STRING(work-rep.job-no2,"99") . 
+         
+         
         ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -521,7 +518,10 @@ FOR EACH work-rep BREAK BY work-rep.sort-field
                          WHEN "job-no"   THEN cVarValue = string(cJobNo,"x(10)").
                          WHEN "job-dscr"   THEN cVarValue = string(work-rep.i-name,"x(30)").
                          WHEN "cust-no"   THEN cVarValue = string(work-rep.cust-no,"x(8)").
-                         WHEN "cust-name"   THEN cVarValue = IF AVAIL cust THEN string(cust.NAME,"x(30)") ELSE "" .                        
+                         WHEN "cust-name"   THEN cVarValue = IF AVAIL cust THEN string(cust.NAME,"x(30)") ELSE "" .
+                         WHEN "tot-linear-feet"   THEN cVarValue = IF work-rep.tot-lin-ft NE ? THEN string(work-rep.tot-lin-ft,"->,>>>,>>9.99") ELSE "" .
+                         WHEN "avg-linear-hr"   THEN cVarValue = IF work-rep.tot-lin-ft NE ? AND qty-hr NE ? THEN string(work-rep.tot-lin-ft / qty-hr,"->>,>>>,>>9.99") ELSE "" .
+                         
                          
                     END CASE.
                       
