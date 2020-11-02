@@ -51,6 +51,8 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE hdJobProcs        AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cJobNo2ListItems  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iCount            AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cFormattedJobno   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany          AS CHARACTER NO-UNDO.
 
 RUN jc\JobProcs.p PERSISTENT SET hdJobProcs.
 
@@ -541,6 +543,30 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fiJobNo
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobNo W-Win
+ON LEAVE OF fiJobNo IN FRAME F-Main
+DO:
+    cFormattedJobno = DYNAMIC-FUNCTION (
+                      "fAddSpacesToString" IN hdJobProcs, SELF:SCREEN-VALUE, 6, TRUE
+                      ).
+
+    RUN GetSecondaryJobForJob IN hdJobProcs (
+        INPUT        cCompany,
+        INPUT        cFormattedJobno,
+        INPUT-OUTPUT cJobno2ListItems
+        ).
+
+    ASSIGN
+        cbJobNo2:LIST-ITEMS   = cJobno2ListItems.
+        cbJobNo2:SCREEN-VALUE = ENTRY(1, cJobno2ListItems)
+        NO-ERROR.                                                        
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK W-Win 
@@ -732,7 +758,7 @@ PROCEDURE local-enable :
     IF AVAILABLE company THEN            
         {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " 
                              + STRING(company.name) + " - " + g_loc.
-
+    cCompany = cocode.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -803,23 +829,6 @@ PROCEDURE pInit :
         ipiFormNo,
         ipiBlankNo
         ).
-
-    APPLY "CHOOSE" TO btFGItems IN FRAME {&FRAME-NAME}.
-
-    IF AVAILABLE job THEN
-        ASSIGN
-            fiStatus:SCREEN-VALUE  = job.stat
-            fiCreated:SCREEN-VALUE = IF job.create-date EQ ? THEN
-                                         ""
-                                     ELSE
-                                         STRING(job.create-date)
-            fiDue:SCREEN-VALUE     = IF job.due-date EQ ? THEN
-                                         ""
-                                     ELSE
-                                         STRING(job.due-date)
-            fiCSR:SCREEN-VALUE     = csrUser_id
-            .
-    APPLY "ENTRY" TO btFGitems.
     
     SESSION:SET-WAIT-STATE("").            
 END PROCEDURE.
@@ -878,6 +887,26 @@ PROCEDURE pJobScan :
         INPUT ipcJobNo,
         INPUT ipiJobNo2
         ) NO-ERROR.
+
+    APPLY "CHOOSE" TO btFGItems IN FRAME {&FRAME-NAME}.
+    
+    cCompany = ipcCompany.
+    
+    IF AVAILABLE job THEN
+        ASSIGN
+            fiStatus:SCREEN-VALUE  = job.stat
+            fiCreated:SCREEN-VALUE = IF job.create-date EQ ? THEN
+                                         ""
+                                     ELSE
+                                         STRING(job.create-date)
+            fiDue:SCREEN-VALUE     = IF job.due-date EQ ? THEN
+                                         ""
+                                     ELSE
+                                         STRING(job.due-date)
+            fiCSR:SCREEN-VALUE     = csrUser_id
+            .
+    APPLY "ENTRY" TO btFGitems.
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
