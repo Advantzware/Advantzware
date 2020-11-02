@@ -188,6 +188,7 @@ DEFINE VARIABLE llOEDiscount AS LOGICAL NO-UNDO.
 DEF TEMP-TABLE w-est-no NO-UNDO FIELD w-est-no LIKE itemfg.est-no FIELD w-run AS LOG.
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lCecUnit AS LOGICAL NO-UNDO.
 ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
 
 FIND FIRST sys-ctrl
@@ -262,6 +263,12 @@ RUN sys/ref/nk1look.p (INPUT cocode, "FreightCalculation", "C" /* Logical */, NO
                      OUTPUT v-rtn-char, OUTPUT v-rec-found).
 IF v-rec-found THEN
     cFreightCalculationValue = v-rtn-char NO-ERROR.
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "CECUNIT", "L" /* Logical */, NO /* check by cust */, 
+                     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                     OUTPUT v-rtn-char, OUTPUT v-rec-found).
+IF v-rec-found THEN
+    lCecUnit = logical(v-rtn-char) NO-ERROR.    
 
 DO TRANSACTION:
  {sys/inc/oeship.i}
@@ -8045,6 +8052,9 @@ IF AVAIL itemfg THEN DO:
          .
    
   FIND CURRENT itemfg EXCLUSIVE-LOCK.
+      
+  IF NOT lCecUnit THEN
+  ASSIGN itemfg.case-pall   = oe-ordl.cases-unit.
   
   IF v-flag[1] OR ll-new-fg-created THEN 
                     itemfg.sell-price  = oe-ordl.price.
