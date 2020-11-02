@@ -922,11 +922,19 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cObjects AS CHARACTER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  cObjects = "First,Last,HomeSmall,JobList,EnterJob,PageUpSmall,PageDownSmall,Schedule,Sort,BackSmall".
+  FIND FIRST prgrms NO-LOCK
+       WHERE prgrms.prgmName EQ "touchSort"
+       NO-ERROR.
+  IF AVAILABLE prgrms AND
+     NOT CAN-DO(prgrms.can_run,USERID("ASI")) THEN
+  cObjects = REPLACE(cObjects,"Sort,","").
+
   DISPLAY sortBy WITH FRAME {&FRAME-NAME}.
-  RUN pCreateINIObjects
-    ("First,Last,HomeSmall,JobList,EnterJob,PageUpSmall,PageDownSmall,Schedule,Sort,BackSmall").
+  RUN pCreateINIObjects (cObjects).
   
   RUN pSetSensitive ("EnterJob",v-autopo-sec).
 
