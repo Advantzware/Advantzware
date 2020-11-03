@@ -1063,7 +1063,7 @@ DO:
 
                  ASSIGN v-valhld = char-val.
 
-                 DO v-cnt = lw-focus:INDEX  TO v-loopct:                     
+                 DO v-cnt = FOCUS:INDEX  TO v-loopct:                     
 
                    CASE v-cnt:
                     WHEN 1 THEN 
@@ -1138,11 +1138,7 @@ DO:
 
                    ASSIGN v-valhld = SUBSTR(v-valhld,(LENGTH(ENTRY(1,v-valhld)) + LENGTH(ENTRY(2,v-valhld)) + 3)).
 
-                   IF TRIM(v-valhld) EQ ""  THEN
-                   DO: 
-                     APPLY "ENTRY":U TO lw-focus.
-                     LEAVE.
-                   END.
+                   IF TRIM(v-valhld) EQ ""  THEN LEAVE.
 
                  END.
 

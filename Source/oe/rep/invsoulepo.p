@@ -402,7 +402,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
           END.
           ELSE ASSIGN v-price-head = inv-line.pr-uom.
         END. 
-        PUT "[@startPage" + TRIM(STRING(inv-head.inv-no,">>>>>9")) + "]" FORMAT "X(50)".
+        PUT "[@startPage" + TRIM(STRING(inv-head.inv-no,">>>>>>9")) + "]" FORMAT "X(50)".
         {oe/rep/invsoulepo.i}  /* xprint form */
         
         ASSIGN v-printline    = 29
@@ -737,7 +737,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     lv-pg-num = PAGE-NUM.
 
    END.
-   PUT "[@endPage" + TRIM(STRING(inv-head.inv-no,">>>>>9")) + "]" FORMAT "X(50)".
+   PUT "[@endPage" + TRIM(STRING(inv-head.inv-no,">>>>>>9")) + "]" FORMAT "X(50)".
 /*     IF v-printline <= lv-line-print THEN PAGE. */
    PAGE.
     /*PUT SKIP(74 - v-printline). */

@@ -1057,6 +1057,13 @@ DO:
            RUN oe/rep/d-ptree.w(INPUT  begin_bol#,INPUT end_bol#,INPUT begin_cust,INPUT end_cust,INPUT begin_date,INPUT end_date)   .
        END.
    END.
+   
+   IF rd_bolcert EQ "BOL" THEN DO:
+       IF v-print-fmt = "Mclean-Excel"   THEN do:
+           EMPTY TEMP-TABLE tt-temp-report .
+           RUN oe/rep/d-mclean.w(INPUT  begin_bol#,INPUT end_bol#,INPUT begin_cust,INPUT end_cust,INPUT begin_date,INPUT end_date)   .
+       END.
+   END.
 
   
    CASE rd-dest:
@@ -3517,7 +3524,7 @@ PROCEDURE GenerateMail :
 
     IF NOT vcBOLNums GT '' THEN RETURN.
 
-    IF v-print-fmt = "SouthPak-XL" OR v-print-fmt = "Prystup-Excel" THEN do:
+    IF v-print-fmt = "SouthPak-XL" OR v-print-fmt = "Prystup-Excel" OR v-print-fmt = "Mclean-Excel" THEN do:
        ASSIGN lv-pdf-file = init-dir + "\" + string(b1-oe-bolh.bol-no) + ".pdf".
 
        END.
@@ -3576,7 +3583,7 @@ PROCEDURE GenerateReport :
    DEFINE INPUT PARAMETER ip-cust-no AS CHAR NO-UNDO.
    DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
 
-   IF (v-print-bol AND v-print-fmt <> "SouthPak-XL" AND v-print-fmt <> "Prystup-Excel") OR
+   IF (v-print-bol AND v-print-fmt <> "SouthPak-XL" AND v-print-fmt <> "Prystup-Excel" AND v-print-fmt <> "Mclean-Excel") OR
       (NOT v-print-bol AND v-print-fmt <> "Unipak-XL" AND v-print-fmt <> "PrystupXLS" AND v-print-fmt <> "ACPI" AND v-print-fmt <> "Soule" AND v-print-fmt <> "CCC" AND v-print-fmt <> "CCCWPP" AND v-print-fmt <> "CCC3" AND v-print-fmt <> "CCC2" AND v-print-fmt <> "CCC4" AND v-print-fmt <> "CCC5") THEN
       case rd-dest:
          when 1 then run output-to-printer(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
@@ -3851,7 +3858,7 @@ PROCEDURE output-to-mail :
                            INPUT 1,
                            INPUT v-printed).
 
-      IF v-print-fmt = "SouthPak-XL" OR v-print-fmt = "Prystup-Excel"  THEN do:
+      IF v-print-fmt = "SouthPak-XL" OR v-print-fmt = "Prystup-Excel" OR v-print-fmt = "Mclean-Excel"  THEN do:
          ASSIGN lv-pdf-file = init-dir + "\bol" + ".pdf".
           /* RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").  */
       END.
@@ -4157,7 +4164,7 @@ PROCEDURE pdAOABOLPost:
         .
     RUN pInitDynParamValue (19, "", "", 0, cParamList, cParamValue).
     RUN AOA/dynBL/r-bolpst.p PERSISTENT SET hBOLPost.
-    RUN pRunBusinessLogic IN hBOLPost.
+    RUN pBusinessLogic IN hBOLPost.
     DELETE PROCEDURE hBOLPost.
 END PROCEDURE.
     

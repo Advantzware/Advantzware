@@ -250,7 +250,8 @@ PROCEDURE prodAceDetail :
     &IF DEFINED(dmiTran) EQ 0 &THEN
     IF lvEmpLogin EQ 'ProdAce' THEN
     &ENDIF
-    RUN createMachEmp (BUFFER machtran).
+/*    RUN createMachEmp (BUFFER machtran).*/
+    RUN createEmpLogin (BUFFER ttblProdAce,BUFFER machtran).
     IF ttblProdAce.prodAceRunComplete THEN
     RUN completeMR.
   END. /* each ttblProdAce */
@@ -506,7 +507,7 @@ PROCEDURE prodAceSummary :
     &IF DEFINED(dmiTran) EQ 0 &THEN
     IF lvEmpLogin EQ 'ProdAce' THEN
     &ENDIF
-    RUN createEmpLogin (BUFFER ttblProdAce,BUFFER machtran).    
+    RUN createEmpLogin (BUFFER ttblProdAce,BUFFER machtran).
     IF ttblProdAce.prodAceRunComplete THEN
     RUN completeMR.
   END. /* each ttblProdAce */

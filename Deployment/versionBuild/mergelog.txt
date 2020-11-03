@@ -1,0 +1,353 @@
+Thu 09/17/2020 Merge/Compile 
+---------------------------------------------------- 
+15:00:01.88 Pulling latest merges from GitHub 
+15:00:25.29 Copying program files to /Devel environment 
+15:00:25.30   Deleting and recreating /Devel/Source directory 
+15:00:58.24   Copying source files from repository to /Devel/Source 
+23336 File(s) copied
+15:03:46.08 Copying resource files to /Devel environment 
+15:03:46.09   Copying resource files from repository to /Devel/Resources 
+1094 File(s) copied
+15:03:53.74   Removing /Devel/Override 
+15:03:53.76 Source/Resource copy complete 
+15:03:53.77 Begin compiling program files 
+Should complete approximately 15:20 
+15:24:55.42 Merge/Compile Complete 
+---------------------------------------------------- 
+. 
+15:24:55.48 Begin devel database backup 
+OpenEdge Release 11.6.3 as of Thu Sep  8 19:01:50 EDT 2016
+
+549362 active blocks out of 549389 blocks in TESTDEVELd will be dumped. (6686)
+7616 BI blocks will be dumped. (6688)
+Backup requires an estimated 2.2 GBytes of media. (9285)
+Restore would require an estimated 565732 db blocks using 2.2 GBytes of media. (9286)
+Backed up 549618 db blocks in 00:06:56
+Wrote a total of 15304 backup blocks using 2.0 GBytes of media. (13625)
+
+Backup complete. (3740)
+
+OpenEdge Release 11.6.3 as of Thu Sep  8 19:01:50 EDT 2016
+
+590525 active blocks out of 590526 blocks in TESTDEVELa will be dumped. (6686)
+62720 BI blocks will be dumped. (6688)
+Backup requires an estimated 2.7 GBytes of media. (9285)
+Restore would require an estimated 717304 db blocks using 2.7 GBytes of media. (9286)
+Backed up 590781 db blocks in 00:08:17
+Wrote a total of 14917 backup blocks using 1.9 GBytes of media. (13625)
+
+Backup complete. (3740)
+
+15:43:06.92 Ending devel database backup 
+15:43:06.94   Copying zipped backup to developers machines 
+        1 file(s) copied.
+        1 file(s) copied.
+        1 file(s) copied.
+        1 file(s) copied.
+        1 file(s) copied.
+c:\asigui\backups\databases\dev-prem-200625.df
+c:\asigui\backups\databases\Dev-PREM.df
+c:\asigui\backups\databases\Dev-Prem200622.df
+c:\asigui\backups\databases\Devel-Prem200426.df
+c:\asigui\backups\databases\Devel-Prem200427.df
+c:\asigui\backups\databases\Devel-Prem200507.df
+c:\asigui\backups\databases\DevelDB-200614.df
+c:\asigui\backups\databases\dev_prem_200515.df
+c:\asigui\backups\databases\dev_prem_audit_200515.df
+c:\asigui\backups\databases\PremDevelUpdate-200904.df
+c:\asigui\backups\databases\test-prem-200524.df
+       11 file(s) copied.
+c:\asigui\backups\databases\dev-prem-200625.df
+c:\asigui\backups\databases\Dev-PREM.df
+c:\asigui\backups\databases\Dev-Prem200622.df
+c:\asigui\backups\databases\Devel-Prem200426.df
+c:\asigui\backups\databases\Devel-Prem200427.df
+c:\asigui\backups\databases\Devel-Prem200507.df
+c:\asigui\backups\databases\DevelDB-200614.df
+c:\asigui\backups\databases\dev_prem_200515.df
+c:\asigui\backups\databases\dev_prem_audit_200515.df
+c:\asigui\backups\databases\PremDevelUpdate-200904.df
+c:\asigui\backups\databases\test-prem-200524.df
+       11 file(s) copied.
+c:\asigui\backups\databases\dev-prem-200625.df
+c:\asigui\backups\databases\Dev-PREM.df
+c:\asigui\backups\databases\Dev-Prem200622.df
+c:\asigui\backups\databases\Devel-Prem200426.df
+c:\asigui\backups\databases\Devel-Prem200427.df
+c:\asigui\backups\databases\Devel-Prem200507.df
+c:\asigui\backups\databases\DevelDB-200614.df
+c:\asigui\backups\databases\dev_prem_200515.df
+c:\asigui\backups\databases\dev_prem_audit_200515.df
+c:\asigui\backups\databases\PremDevelUpdate-200904.df
+c:\asigui\backups\databases\test-prem-200524.df
+       11 file(s) copied.
+c:\asigui\backups\databases\dev-prem-200625.df
+c:\asigui\backups\databases\Dev-PREM.df
+c:\asigui\backups\databases\Dev-Prem200622.df
+c:\asigui\backups\databases\Devel-Prem200426.df
+c:\asigui\backups\databases\Devel-Prem200427.df
+c:\asigui\backups\databases\Devel-Prem200507.df
+c:\asigui\backups\databases\DevelDB-200614.df
+c:\asigui\backups\databases\dev_prem_200515.df
+c:\asigui\backups\databases\dev_prem_audit_200515.df
+c:\asigui\backups\databases\PremDevelUpdate-200904.df
+c:\asigui\backups\databases\test-prem-200524.df
+       11 file(s) copied.
+c:\asigui\backups\databases\dev-prem-200625.df
+c:\asigui\backups\databases\Dev-PREM.df
+c:\asigui\backups\databases\Dev-Prem200622.df
+c:\asigui\backups\databases\Devel-Prem200426.df
+c:\asigui\backups\databases\Devel-Prem200427.df
+c:\asigui\backups\databases\Devel-Prem200507.df
+c:\asigui\backups\databases\DevelDB-200614.df
+c:\asigui\backups\databases\dev_prem_200515.df
+c:\asigui\backups\databases\dev_prem_audit_200515.df
+c:\asigui\backups\databases\PremDevelUpdate-200904.df
+c:\asigui\backups\databases\test-prem-200524.df
+       11 file(s) copied.
+Thu 09/17/2020 Merge/Compile 
+---------------------------------------------------- 
+11:38:11.97 Pulling latest merges from GitHub 
+11:38:25.51 Copying program files to /Devel environment 
+11:38:25.52   Deleting and recreating /Devel/Source directory 
+11:38:47.53   Copying source files from repository to /Devel/Source 
+23336 File(s) copied
+11:41:27.69 Copying resource files to /Devel environment 
+11:41:27.69   Copying resource files from repository to /Devel/Resources 
+1094 File(s) copied
+11:41:34.39   Removing /Devel/Override 
+11:41:34.41 Source/Resource copy complete 
+11:41:34.42 Begin compiling program files 
+Should complete approximately 11:58 
+12:01:48.66 Merge/Compile Complete 
+---------------------------------------------------- 
+. 
+12:01:48.72 Begin devel database backup 
+OpenEdge Release 11.6.3 as of Thu Sep  8 19:01:50 EDT 2016
+
+549362 active blocks out of 549389 blocks in TESTDEVELd will be dumped. (6686)
+7616 BI blocks will be dumped. (6688)
+Backup requires an estimated 2.2 GBytes of media. (9285)
+Restore would require an estimated 565732 db blocks using 2.2 GBytes of media. (9286)
+Backed up 549618 db blocks in 00:00:44
+Wrote a total of 15304 backup blocks using 2.0 GBytes of media. (13625)
+
+Backup complete. (3740)
+
+OpenEdge Release 11.6.3 as of Thu Sep  8 19:01:50 EDT 2016
+
+590525 active blocks out of 590526 blocks in TESTDEVELa will be dumped. (6686)
+62720 BI blocks will be dumped. (6688)
+Backup requires an estimated 2.7 GBytes of media. (9285)
+Restore would require an estimated 717304 db blocks using 2.7 GBytes of media. (9286)
+Backed up 590781 db blocks in 00:00:46
+Wrote a total of 14917 backup blocks using 1.9 GBytes of media. (13625)
+
+Backup complete. (3740)
+
+12:06:12.58 Ending devel database backup 
+12:06:12.60   Copying zipped backup to developers machines 
+        1 file(s) copied.
+        1 file(s) copied.
+        1 file(s) copied.
+        1 file(s) copied.
+        1 file(s) copied.
+c:\asigui\backups\databases\dev-prem-200625.df
+c:\asigui\backups\databases\Dev-PREM.df
+c:\asigui\backups\databases\Dev-Prem200622.df
+c:\asigui\backups\databases\Devel-Prem200426.df
+c:\asigui\backups\databases\Devel-Prem200427.df
+c:\asigui\backups\databases\Devel-Prem200507.df
+c:\asigui\backups\databases\DevelDB-200614.df
+c:\asigui\backups\databases\dev_prem_200515.df
+c:\asigui\backups\databases\dev_prem_audit_200515.df
+c:\asigui\backups\databases\PremDevelUpdate-200904.df
+c:\asigui\backups\databases\test-prem-200524.df
+       11 file(s) copied.
+c:\asigui\backups\databases\dev-prem-200625.df
+c:\asigui\backups\databases\Dev-PREM.df
+c:\asigui\backups\databases\Dev-Prem200622.df
+c:\asigui\backups\databases\Devel-Prem200426.df
+c:\asigui\backups\databases\Devel-Prem200427.df
+c:\asigui\backups\databases\Devel-Prem200507.df
+c:\asigui\backups\databases\DevelDB-200614.df
+c:\asigui\backups\databases\dev_prem_200515.df
+c:\asigui\backups\databases\dev_prem_audit_200515.df
+c:\asigui\backups\databases\PremDevelUpdate-200904.df
+c:\asigui\backups\databases\test-prem-200524.df
+       11 file(s) copied.
+c:\asigui\backups\databases\dev-prem-200625.df
+c:\asigui\backups\databases\Dev-PREM.df
+c:\asigui\backups\databases\Dev-Prem200622.df
+c:\asigui\backups\databases\Devel-Prem200426.df
+c:\asigui\backups\databases\Devel-Prem200427.df
+c:\asigui\backups\databases\Devel-Prem200507.df
+c:\asigui\backups\databases\DevelDB-200614.df
+c:\asigui\backups\databases\dev_prem_200515.df
+c:\asigui\backups\databases\dev_prem_audit_200515.df
+c:\asigui\backups\databases\PremDevelUpdate-200904.df
+c:\asigui\backups\databases\test-prem-200524.df
+       11 file(s) copied.
+c:\asigui\backups\databases\dev-prem-200625.df
+c:\asigui\backups\databases\Dev-PREM.df
+c:\asigui\backups\databases\Dev-Prem200622.df
+c:\asigui\backups\databases\Devel-Prem200426.df
+c:\asigui\backups\databases\Devel-Prem200427.df
+c:\asigui\backups\databases\Devel-Prem200507.df
+c:\asigui\backups\databases\DevelDB-200614.df
+c:\asigui\backups\databases\dev_prem_200515.df
+c:\asigui\backups\databases\dev_prem_audit_200515.df
+c:\asigui\backups\databases\PremDevelUpdate-200904.df
+c:\asigui\backups\databases\test-prem-200524.df
+       11 file(s) copied.
+c:\asigui\backups\databases\dev-prem-200625.df
+c:\asigui\backups\databases\Dev-PREM.df
+c:\asigui\backups\databases\Dev-Prem200622.df
+c:\asigui\backups\databases\Devel-Prem200426.df
+c:\asigui\backups\databases\Devel-Prem200427.df
+c:\asigui\backups\databases\Devel-Prem200507.df
+c:\asigui\backups\databases\DevelDB-200614.df
+c:\asigui\backups\databases\dev_prem_200515.df
+c:\asigui\backups\databases\dev_prem_audit_200515.df
+c:\asigui\backups\databases\PremDevelUpdate-200904.df
+c:\asigui\backups\databases\test-prem-200524.df
+       11 file(s) copied.
+Thu 09/17/2020 Merge/Compile 
+---------------------------------------------------- 
+10:00:00.75 Pulling latest merges from GitHub 
+10:00:19.75 Copying program files to /Devel environment 
+10:00:19.76   Deleting and recreating /Devel/Source directory 
+10:00:43.02   Copying source files from repository to /Devel/Source 
+23336 File(s) copied
+10:03:22.29 Copying resource files to /Devel environment 
+10:03:22.30   Copying resource files from repository to /Devel/Resources 
+1094 File(s) copied
+10:03:29.49   Removing /Devel/Override 
+10:03:29.52 Source/Resource copy complete 
+10:03:29.52 Begin compiling program files 
+Should complete approximately 10:20 
+10:23:54.23 Merge/Compile Complete 
+---------------------------------------------------- 
+. 
+10:23:54.29 Begin devel database backup 
+OpenEdge Release 11.6.3 as of Thu Sep  8 19:01:50 EDT 2016
+
+549362 active blocks out of 549389 blocks in TESTDEVELd will be dumped. (6686)
+7616 BI blocks will be dumped. (6688)
+Backup requires an estimated 2.2 GBytes of media. (9285)
+Restore would require an estimated 565732 db blocks using 2.2 GBytes of media. (9286)
+Backed up 549618 db blocks in 00:02:18
+Wrote a total of 15304 backup blocks using 2.0 GBytes of media. (13625)
+
+Backup complete. (3740)
+
+OpenEdge Release 11.6.3 as of Thu Sep  8 19:01:50 EDT 2016
+
+590525 active blocks out of 590526 blocks in TESTDEVELa will be dumped. (6686)
+62720 BI blocks will be dumped. (6688)
+Backup requires an estimated 2.7 GBytes of media. (9285)
+Restore would require an estimated 717304 db blocks using 2.7 GBytes of media. (9286)
+Backed up 590781 db blocks in 00:07:43
+Wrote a total of 14917 backup blocks using 1.9 GBytes of media. (13625)
+
+Backup complete. (3740)
+
+10:36:54.98 Ending devel database backup 
+10:36:55.00   Copying zipped backup to developers machines 
+        1 file(s) copied.
+        1 file(s) copied.
+        1 file(s) copied.
+        1 file(s) copied.
+        1 file(s) copied.
+c:\asigui\backups\databases\dev-prem-200625.df
+c:\asigui\backups\databases\Dev-PREM.df
+c:\asigui\backups\databases\Dev-Prem200622.df
+c:\asigui\backups\databases\Devel-Prem200426.df
+c:\asigui\backups\databases\Devel-Prem200427.df
+c:\asigui\backups\databases\Devel-Prem200507.df
+c:\asigui\backups\databases\DevelDB-200614.df
+c:\asigui\backups\databases\dev_prem_200515.df
+c:\asigui\backups\databases\dev_prem_audit_200515.df
+c:\asigui\backups\databases\PremDevelUpdate-200904.df
+c:\asigui\backups\databases\test-prem-200524.df
+       11 file(s) copied.
+c:\asigui\backups\databases\dev-prem-200625.df
+c:\asigui\backups\databases\Dev-PREM.df
+c:\asigui\backups\databases\Dev-Prem200622.df
+c:\asigui\backups\databases\Devel-Prem200426.df
+c:\asigui\backups\databases\Devel-Prem200427.df
+c:\asigui\backups\databases\Devel-Prem200507.df
+c:\asigui\backups\databases\DevelDB-200614.df
+c:\asigui\backups\databases\dev_prem_200515.df
+c:\asigui\backups\databases\dev_prem_audit_200515.df
+c:\asigui\backups\databases\PremDevelUpdate-200904.df
+c:\asigui\backups\databases\test-prem-200524.df
+       11 file(s) copied.
+c:\asigui\backups\databases\dev-prem-200625.df
+c:\asigui\backups\databases\Dev-PREM.df
+c:\asigui\backups\databases\Dev-Prem200622.df
+c:\asigui\backups\databases\Devel-Prem200426.df
+c:\asigui\backups\databases\Devel-Prem200427.df
+c:\asigui\backups\databases\Devel-Prem200507.df
+c:\asigui\backups\databases\DevelDB-200614.df
+c:\asigui\backups\databases\dev_prem_200515.df
+c:\asigui\backups\databases\dev_prem_audit_200515.df
+c:\asigui\backups\databases\PremDevelUpdate-200904.df
+c:\asigui\backups\databases\test-prem-200524.df
+       11 file(s) copied.
+c:\asigui\backups\databases\dev-prem-200625.df
+c:\asigui\backups\databases\Dev-PREM.df
+c:\asigui\backups\databases\Dev-Prem200622.df
+c:\asigui\backups\databases\Devel-Prem200426.df
+c:\asigui\backups\databases\Devel-Prem200427.df
+c:\asigui\backups\databases\Devel-Prem200507.df
+c:\asigui\backups\databases\DevelDB-200614.df
+c:\asigui\backups\databases\dev_prem_200515.df
+c:\asigui\backups\databases\dev_prem_audit_200515.df
+c:\asigui\backups\databases\PremDevelUpdate-200904.df
+c:\asigui\backups\databases\test-prem-200524.df
+       11 file(s) copied.
+c:\asigui\backups\databases\dev-prem-200625.df
+c:\asigui\backups\databases\Dev-PREM.df
+c:\asigui\backups\databases\Dev-Prem200622.df
+c:\asigui\backups\databases\Devel-Prem200426.df
+c:\asigui\backups\databases\Devel-Prem200427.df
+c:\asigui\backups\databases\Devel-Prem200507.df
+c:\asigui\backups\databases\DevelDB-200614.df
+c:\asigui\backups\databases\dev_prem_200515.df
+c:\asigui\backups\databases\dev_prem_audit_200515.df
+c:\asigui\backups\databases\PremDevelUpdate-200904.df
+c:\asigui\backups\databases\test-prem-200524.df
+       11 file(s) copied.
+Wed 09/16/2020 Merge/Compile 
+---------------------------------------------------- 
+18:10:37.51 Pulling latest merges from GitHub 
+18:10:53.20 Copying program files to /Devel environment 
+18:10:53.21   Deleting and recreating /Devel/Source directory 
+18:11:26.98   Copying source files from repository to /Devel/Source 
+23336 File(s) copied
+18:13:44.46 Copying resource files to /Devel environment 
+18:13:44.48   Copying resource files from repository to /Devel/Resources 
+1094 File(s) copied
+18:13:52.14   Removing /Devel/Override 
+18:13:52.16 Source/Resource copy complete 
+18:13:52.17 Begin compiling program files 
+Should complete approximately 18:30 
+18:25:04.31 Merge/Compile Complete 
+---------------------------------------------------- 
+. 
+18:25:04.36 Begin devel database backup 
+OpenEdge Release 11.6.3 as of Thu Sep  8 19:01:50 EDT 2016
+
+549362 active blocks out of 549389 blocks in TESTDEVELd will be dumped. (6686)
+7616 BI blocks will be dumped. (6688)
+Backup requires an estimated 2.2 GBytes of media. (9285)
+Restore would require an estimated 565732 db blocks using 2.2 GBytes of media. (9286)
+Backed up 549618 db blocks in 00:00:56
+Wrote a total of 15304 backup blocks using 2.0 GBytes of media. (13625)
+
+Backup complete. (3740)
+
+OpenEdge Release 11.6.3 as of Thu Sep  8 19:01:50 EDT 2016
+There is no server for database TESTDEVELa. (1423)
+

@@ -114,5 +114,6 @@ END PROCEDURE.
 
 PROCEDURE pBusinessLogic:
     RUN createTtblProdAce.
-    RUN prodAceSummary.
+    RUN prodAceDetail.
+/*    RUN prodAceSummary.*/
 END PROCEDURE.

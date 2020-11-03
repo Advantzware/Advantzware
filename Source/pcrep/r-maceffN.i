@@ -150,7 +150,9 @@ FOR EACH work-tmp
                                  job-mat.wid, item.s-dep,
                                  mat-act.qty, output v-qty).
                                
-          work-tmp.msf-sheets = work-tmp.msf-sheets + v-qty.
+          work-tmp.msf-sheets = work-tmp.msf-sheets + v-qty. 
+               
+          work-tmp.tot-lin-ft = (work-tmp.tot-lin-ft + ((IF v-qty EQ ? THEN 0 ELSE v-qty) * job-mat.len / 12)).
       end.
 
       IF work-tmp.qty-sheets EQ 0 THEN      /* get sheets from slitter */
@@ -292,29 +294,18 @@ for each work-tmp BREAK BY work-tmp.sort-field
    else
       assign run-hr = 0
              mr-hr  = 0.
-   IF tb_detail THEN
-   DO: 
-       find first work-rep where work-rep.sort-field EQ work-tmp.sort-field and
-                                 work-rep.dept   = work-tmp.dept and
-                                 work-rep.m-code = work-tmp.m-code AND
-                                 work-rep.job-no = work-tmp.job-no AND
-                                 work-rep.job-no2 = work-tmp.job-no2
-                                 no-error.
-   END.                             
-   ELSE
-   DO:
-        find first work-rep where work-rep.sort-field EQ work-tmp.sort-field and
+   
+   find first work-rep where work-rep.sort-field EQ work-tmp.sort-field and
                              work-rep.dept   = work-tmp.dept and
-                             work-rep.m-code = work-tmp.m-code 
+                             work-rep.m-code = work-tmp.m-code
                              no-error.
-   END.
    if not available work-rep then
    do:
       create work-rep.
       assign work-rep.sort-field = work-tmp.sort-field
              work-rep.dept     = work-tmp.dept
              work-rep.m-code   = work-tmp.m-code
-             work-rep.sch-m-code = work-tmp.sch-m-code
+             work-rep.sch-m-code = work-tmp.sch-m-code             
              work-rep.job-no   = work-tmp.job-no
              work-rep.job-no2 = work-tmp.job-no2
              work-rep.i-no   = work-tmp.i-no
@@ -331,7 +322,8 @@ for each work-tmp BREAK BY work-tmp.sort-field
                                   work-tmp.dt-nochg-hrs
           work-rep.qty          = work-rep.qty + work-tmp.qty
           work-rep.msf          = work-rep.msf + work-tmp.msf
-
+          work-rep.tot-lin-ft = work-rep.tot-lin-ft + work-tmp.tot-lin-ft
+          
           work-rep.qty-fg-rec = work-rep.qty-fg-rec + work-tmp.qty-fg-rec
           work-rep.msf-fg-rec = work-rep.msf-fg-rec + work-tmp.msf-fg-rec
           work-rep.qty-scrap-rec = work-rep.qty-scrap-rec
@@ -369,23 +361,11 @@ IF rs_machine EQ "Schedule" THEN
 DO:
    FOR EACH work-rep:
 
-       IF tb_detail THEN
-       DO:       
-           FIND FIRST work-rep-copy WHERE
-                work-rep-copy.m-code EQ work-rep.sch-m-code AND
-                work-rep-copy.sort-field EQ work-rep.sort-field AND
-                work-rep-copy.dept EQ work-rep.dept AND
-                work-rep-copy.job-no EQ work-tmp.job-no AND
-                work-rep-copy.job-no2 EQ work-tmp.job-no2
-                NO-ERROR.
-       END.
-       ELSE DO:
-           FIND FIRST work-rep-copy WHERE
+       FIND FIRST work-rep-copy WHERE
             work-rep-copy.m-code EQ work-rep.sch-m-code AND
             work-rep-copy.sort-field EQ work-rep.sort-field AND
-            work-rep-copy.dept EQ work-rep.dept 
+            work-rep-copy.dept EQ work-rep.dept
             NO-ERROR.
-       END.
 
        IF NOT AVAIL work-rep-copy THEN
        DO:
@@ -410,6 +390,7 @@ DO:
           work-rep-copy.dt-chg-hrs = work-rep-copy.dt-chg-hrs + work-rep.dt-chg-hrs
           work-rep-copy.dt-nochg-hrs = work-rep-copy.dt-nochg-hrs + work-rep.dt-nochg-hrs
           work-rep-copy.qty = work-rep-copy.qty + work-rep.qty
+          work-rep-copy.tot-lin-ft = work-rep-copy.tot-lin-ft + work-rep.tot-lin-ft
           work-rep-copy.msf = work-rep-copy.msf + work-rep.msf
           work-rep-copy.qty-fg-rec = work-rep-copy.qty-fg-rec + work-rep.qty-fg-rec
           work-rep-copy.msf-fg-rec = work-rep-copy.msf-fg-rec + work-rep.msf-fg-rec
@@ -498,8 +479,9 @@ FOR EACH work-rep BREAK BY work-rep.sort-field
          FIND FIRST cust no-lock
               WHERE cust.company EQ cocode 
               AND cust.cust-no EQ work-rep.cust-no NO-ERROR .
-         cJobNo = string(work-rep.job-no) + "-" + STRING(work-rep.job-no2,"99") .     
-
+         cJobNo = string(work-rep.job-no) + "-" + STRING(work-rep.job-no2,"99") . 
+         
+         
         ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -536,7 +518,10 @@ FOR EACH work-rep BREAK BY work-rep.sort-field
                          WHEN "job-no"   THEN cVarValue = string(cJobNo,"x(10)").
                          WHEN "job-dscr"   THEN cVarValue = string(work-rep.i-name,"x(30)").
                          WHEN "cust-no"   THEN cVarValue = string(work-rep.cust-no,"x(8)").
-                         WHEN "cust-name"   THEN cVarValue = IF AVAIL cust THEN string(cust.NAME,"x(30)") ELSE "" .                        
+                         WHEN "cust-name"   THEN cVarValue = IF AVAIL cust THEN string(cust.NAME,"x(30)") ELSE "" .
+                         WHEN "tot-linear-feet"   THEN cVarValue = IF work-rep.tot-lin-ft NE ? THEN string(work-rep.tot-lin-ft,"->,>>>,>>9.99") ELSE "" .
+                         WHEN "avg-linear-hr"   THEN cVarValue = IF work-rep.tot-lin-ft NE ? AND qty-hr NE ? THEN string(work-rep.tot-lin-ft / qty-hr,"->>,>>>,>>9.99") ELSE "" .
+                         
                          
                     END CASE.
                       

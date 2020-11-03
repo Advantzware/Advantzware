@@ -888,10 +888,10 @@ PROCEDURE pValidateTag :
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
     
     IF ipcTagNo EQ "" THEN DO: 
-        ASSIGN
-            oplSuccess = NO
-            opcMessage = "Blank Tag not allowed"
-            .
+/*        ASSIGN                                  */
+/*            oplSuccess = NO                     */
+/*            opcMessage = "Blank Tag not allowed"*/
+/*            .                                   */
         RETURN.        
     END.        
     ELSE IF NOT CAN-FIND(FIRST fg-bin 

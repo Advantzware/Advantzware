@@ -44,7 +44,71 @@ assign
 
 {cec/msfcalc.i}
 
-{pc/rep/ttMachEfficiency.i}
+DEF TEMP-TABLE work-tmp NO-UNDO
+   field job like job.job
+   field frm like job-mch.frm
+   field blank-no like job-mch.blank-no
+   FIELD sort-field AS CHAR
+   field dept as char format 'xx'
+   field m-code like mach.m-code
+   field sch-m-code LIKE mach.m-code
+   field pass like job-mch.pass
+   field r-act-hrs as dec format '>>>>9.99'
+   field m-act-hrs as dec format '>>>>9.99'
+   field dt-chg-hrs as dec format '>>>>9.99'
+   field dt-nochg-hrs as dec format '>>>>9.99'
+   field qty as dec format '>>>>>>>>9'
+   field msf as dec format '>>>>>>.999'
+   FIELD qty-fg-rec AS DEC
+   FIELD msf-fg-rec AS DEC
+   FIELD qty-sheets AS DEC
+   FIELD msf-sheets AS DEC
+   FIELD qty-scrap-rec AS DEC
+   FIELD msf-scrap-received AS DEC
+   FIELD shift-sort AS CHAR
+   FIELD job-no AS CHAR
+   FIELD job-no2 AS INT
+   FIELD est-no AS INT
+   FIELD job-hr-total AS DEC
+   FIELD tot-mr-hours AS DEC
+   FIELD i-no AS CHAR 
+   FIELD cust-no AS CHARACTER
+   FIELD i-name AS CHARACTER 
+   FIELD tot-lin-ft AS DECIMAL
+   INDEX idx1 m-code shift-sort job job-no job-no2 frm blank-no
+   INDEX work-tmp job frm blank-no dept m-code pass sort-field
+   INDEX job job-no job-no2.
+
+DEF TEMP-TABLE work-rep NO-UNDO
+   FIELD sort-field AS CHAR
+   FIELD dept as char format 'xx'
+   FIELD m-code like mach.m-code
+   FIELD sch-m-code LIKE mach.m-code
+   FIELD no-jobs as int
+   FIELD no-setups AS INT
+   FIELD r-std-hrs as dec format '>>>>9.99'
+   FIELD r-act-hrs as dec format '>>>>9.99'
+   FIELD m-std-hrs as dec format '>>>>9.99'
+   FIELD m-act-hrs as dec format '>>>>9.99'
+   FIELD dt-chg-hrs as dec format '>>>>9.99'
+   FIELD dt-nochg-hrs as dec format '>>>>9.99'
+   FIELD qty as dec format '>>>>>>>>9'
+   FIELD msf as dec format '>>>>>>.999'
+   FIELD qty-fg-rec AS DEC
+   FIELD msf-fg-rec AS DEC
+   FIELD qty-scrap-rec AS DEC
+   FIELD msf-scrap-received AS DEC
+   FIELD perc-total-scrap AS DEC
+   FIELD qty-sheets AS DEC
+   FIELD cust-no AS CHARACTER
+   FIELD i-no AS CHAR
+   FIELD i-name AS CHARACTER
+   FIELD job-no AS CHARACTER
+   FIELD job-no2 AS INTEGER
+   FIELD tot-lin-ft AS DECIMAL
+   INDEX work-rep sort-field dept m-code.
+
+ DEF TEMP-TABLE work-rep-copy NO-UNDO LIKE work-rep.
 
  DEF VAR v-print-fmt AS CHARACTER.
  DEF VAR is-xprint-form AS LOGICAL.
@@ -65,17 +129,20 @@ DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 DEFINE VARIABLE tb_msf AS LOGICAL INITIAL YES NO-UNDO.
+DEFINE VARIABLE dTotLinearFeet AS DECIMAL NO-UNDO.
 
 ASSIGN cTextListToSelect = "SHIFT,MACH CODE,DESCRIPTION,QUANTITY,MSF,QTY HOUR,RUN HOURS,MR HOURS," + 
                     "D/T CHGBL,TOTAL CHARGE,D/T No CHARGE,TOTAL HOURS,STD HOURS," +
                     "EFFIC PERCENT,PERCENT UTILIZED,D/T PERCENT,QTY FG RECEIVED,MSF FG RECEIVED," +
-                    "SCRAP QTY,SCRAP MSF,% OF TOT SCRAP,JOB #,JOB DESCRIPTION,CUSTOMER,CUSTOMER NAME"
+                    "SCRAP QTY,SCRAP MSF,% OF TOT SCRAP,JOB #,JOB DESCRIPTION,CUSTOMER,CUSTOMER NAME," +
+                    "TOTAL LINEAR FEET,AVERAGE LINEAR FEET/HR"
        cFieldListToSelect = "sft,mach-code,desc,qty,msf,qty-hr,run-hrs,mr-hrs," +
                             "dt-chg,tot-crg,dt-crg,tot-hrs,std-hrs," +
                             "eff-per,per-util,dt-per,qty-fg-rec,msf-fg-rec," +
-                            "scr-qty,scr-msf,tot-scrap,job-no,job-dscr,cust-no,cust-name"
-       cFieldLength = "5,6,20,10,10,8,8,8," + "8,8,8,8,8," + "8,8,8,10,10," + "10,10,9,10,30,8,30"
-       cFieldType = "c,c,c,i,i,i,i,i," + "i,i,i,i,i," + "i,i,i,i,i," + "i,i,i,c,c,c,c" 
+                            "scr-qty,scr-msf,tot-scrap,job-no,job-dscr,cust-no,cust-name," +
+                            "tot-linear-feet,avg-linear-hr"
+       cFieldLength = "5,6,20,10,10,8,8,8," + "8,8,8,8,8," + "8,8,8,10,10," + "10,10,9,10,30,8,30," + "13,14"
+       cFieldType = "c,c,c,i,i,i,i,i," + "i,i,i,i,i," + "i,i,i,i,i," + "i,i,i,c,c,c,c," + "i,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -99,15 +166,14 @@ ASSIGN cTextListToDefault  = "SHIFT,MACH CODE,DESCRIPTION,QUANTITY,MSF,QTY HOUR,
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 rs_machine begin_dept end_dept ~
-begin_mach end_mach begin_date end_date tb_detail select-shift tb_fold ~
-tb_corr rd_sort sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up ~
-btn_down lv-ornt lines-per-page rd-dest lv-font-no td-show-parm tb_excel ~
-tb_runExcel fi_file btn-ok btn-cancel 
+begin_mach end_mach begin_date end_date tb_fold select-shift tb_corr ~
+rd_sort sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down ~
+lv-ornt lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel ~
+fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS rs_machine begin_dept end_dept begin_mach ~
-end_mach begin_date end_date tb_detail lbl_select-shift select-shift ~
-tb_fold tb_corr lbl_sort rd_sort sl_avail sl_selected lv-ornt ~
-lines-per-page rd-dest lv-font-no lv-font-name td-show-parm tb_excel ~
-tb_runExcel fi_file 
+end_mach begin_date end_date lbl_select-shift tb_fold select-shift ~
+tb_corr lbl_sort rd_sort sl_avail sl_selected lv-ornt lines-per-page ~
+rd-dest lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -281,11 +347,6 @@ DEFINE VARIABLE tb_corr AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_detail AS LOGICAL INITIAL no 
-     LABEL "Print Job Detail" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 34 BY 1 NO-UNDO.
-
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
@@ -296,6 +357,11 @@ DEFINE VARIABLE tb_fold AS LOGICAL INITIAL yes
      LABEL "Folding?" 
      VIEW-AS TOGGLE-BOX
      SIZE 34 BY 1 NO-UNDO.
+
+/*DEFINE VARIABLE tb_msf AS LOGICAL INITIAL no 
+     LABEL "Show MSF and Summarize DT?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 34 BY 1 NO-UNDO.*/
 
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
@@ -326,12 +392,12 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Date"
      end_date AT ROW 4.57 COL 72 COLON-ALIGNED HELP
           "Enter Ending Date"
-     tb_detail AT ROW 5.91 COL 20 WIDGET-ID 58
+     /*tb_msf AT ROW 6 COL 20*/
      lbl_select-shift AT ROW 6 COL 70 COLON-ALIGNED NO-LABEL
+     tb_fold AT ROW 6.95 COL 20
      select-shift AT ROW 6.95 COL 72 HELP
           "Enter description of this Material Type." NO-LABEL
-     tb_fold AT ROW 7.05 COL 20
-     tb_corr AT ROW 8 COL 20
+     tb_corr AT ROW 7.91 COL 20
      lbl_sort AT ROW 9.57 COL 11 COLON-ALIGNED NO-LABEL
      rd_sort AT ROW 9.57 COL 23 NO-LABEL
      shifts AT ROW 9.81 COL 66 COLON-ALIGNED
@@ -359,15 +425,15 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 26.67 COL 63
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 11.52 COL 8 WIDGET-ID 38
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 11.52 COL 62.6 WIDGET-ID 44
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 17.86 COL 4
+     "Total By:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 1.38 COL 40.2 WIDGET-ID 6
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Total By:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.38 COL 40.2 WIDGET-ID 6
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 17.86 COL 4
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 11.52 COL 62.6 WIDGET-ID 44
      RECT-6 AT ROW 17.67 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -427,6 +493,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -438,14 +514,6 @@ ASSIGN
 ASSIGN 
        begin_mach:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
-ASSIGN 
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-ASSIGN 
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
 
 ASSIGN 
        end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -488,10 +556,6 @@ ASSIGN
        tb_corr:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-ASSIGN 
-       tb_detail:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
@@ -501,6 +565,8 @@ ASSIGN
 ASSIGN 
        tb_fold:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+
 
 /* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
    ALIGN-R                                                              */
@@ -514,7 +580,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -1199,12 +1265,12 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY rs_machine begin_dept end_dept begin_mach end_mach begin_date end_date 
-          tb_detail lbl_select-shift select-shift tb_fold tb_corr lbl_sort 
-          rd_sort sl_avail sl_selected lv-ornt lines-per-page rd-dest lv-font-no 
+          lbl_select-shift tb_fold select-shift tb_corr lbl_sort rd_sort 
+          sl_avail sl_selected lv-ornt lines-per-page rd-dest lv-font-no 
           lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 rs_machine begin_dept end_dept begin_mach end_mach 
-         begin_date end_date tb_detail select-shift tb_fold tb_corr rd_sort 
+         begin_date end_date tb_fold select-shift tb_corr rd_sort 
          sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down 
          lv-ornt lines-per-page rd-dest lv-font-no td-show-parm tb_excel 
          tb_runExcel fi_file btn-ok btn-cancel 
@@ -1546,6 +1612,17 @@ DEF VAR cslist AS cha NO-UNDO.
                str-tit4 = str-tit4 + "    SCRAP" + " "
                str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
                excelheader = excelHeader + ttRptSelected.TextList + "," .
+     ELSE IF ttRptSelected.TextList = "AVERAGE LINEAR FEET/HR" THEN ASSIGN
+               str-tit3 = str-tit3 + "AVERAGE LINEAR" + " "
+               str-tit4 = str-tit4 + "       FEET/HR" + " "
+               str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
+               excelheader = excelHeader + ttRptSelected.TextList + "," . 
+     ELSE IF ttRptSelected.TextList = "TOTAL LINEAR FEET" THEN ASSIGN
+               str-tit3 = str-tit3 + " TOTAL LINEAR" + " "
+               str-tit4 = str-tit4 + "         FEET" + " "
+               str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
+               excelheader = excelHeader + ttRptSelected.TextList + "," .          
+               
      ELSE do:
 
          IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 

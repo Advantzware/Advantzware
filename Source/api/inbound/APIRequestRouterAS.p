@@ -72,6 +72,7 @@ IF NOT AVAILABLE APIInbound THEN DO:
         INPUT  ipcRecordSource,
         INPUT  cNotes,
         INPUT  "", /* PayloadID */
+        INPUT  "failed",
         OUTPUT opcAPIInboundEvent
         ) NO-ERROR.
         
@@ -112,6 +113,7 @@ IF ERROR-STATUS:ERROR THEN DO:
         INPUT  ipcRecordSource,
         INPUT  cNotes,
         INPUT  "", /* PayloadID */
+        INPUT  "failed",
         OUTPUT opcAPIInboundEvent
         ) NO-ERROR.
  
@@ -136,6 +138,7 @@ IF NOT lSuccess THEN DO:
         INPUT  ipcRecordSource,
         INPUT  cNotes,
         INPUT  "", /* PayloadID */
+        INPUT  "failed",
         OUTPUT opcAPIInboundEvent
         ) NO-ERROR.
  
@@ -165,6 +168,7 @@ IF SEARCH(APIInbound.requestHandler) EQ ? AND
         INPUT  ipcRecordSource,
         INPUT  cNotes,
         INPUT  "", /* PayloadID */
+        INPUT  "failed",
         OUTPUT opcAPIInboundEvent
          ) NO-ERROR. 
                  
@@ -174,47 +178,75 @@ END.
 /* Set the user id of asi database to current user name */
 SETUSERID(ipcUsername,ipcPassword,LDBNAME(1)).
 
-/* Run the request handler program from the API Inbound configuration */
-RUN VALUE(APIInbound.requestHandler)(
-    INPUT  ipcRoute,
-    INPUT  ipcVerb,
-    INPUT  ipcRequestDataType,
-    INPUT  iplcRequestData,
-    INPUT  cResponseDataStructure,
-    INPUT  cRequestedBy,
-    INPUT  ipcRecordSource,
-    INPUT  cNotes,
-    INPUT  ipcUsername,
-    OUTPUT oplcResponseData,
-    OUTPUT lSuccess,
-    OUTPUT cMessage,
-    OUTPUT opcAPIInboundEvent
-    ) NO-ERROR.
-
- IF ERROR-STATUS:ERROR THEN    
-    ASSIGN 
-        cErrorMessage    = ERROR-STATUS:GET-MESSAGE(1)
-        lSuccess         = NO
-        cMessage         = "Internal Server Error at AppServer (#9) - " + cErrorMessage
-        oplcResponseData = '~{ "response_code": 500, "response_message":"' + cMessage + '"}'
+IF APIInbound.canBeQueued AND ipcRecordSource EQ "NodeServer" THEN DO:
+    ASSIGN
+        lSuccess         = YES
+        cMessage         = "Your request is received"
+        oplcResponseData = '~{ "response_code": 200, "response_message":"' + cMessage + '"}'
         .
     
-RUN api\CreateAPIInboundEvent.p (
-    INPUT  lRetrigger,
-    INPUT  iAPIInboundEventID,
-    INPUT  cCompany,
-    INPUT  ipcRoute,
-    INPUT  iplcRequestData,
-    INPUT  oplcResponseData,
-    INPUT  lSuccess,
-    INPUT  cMessage + " " + cErrorMessage,
-    INPUT  NOW,
-    INPUT  cRequestedBy,
-    INPUT  ipcRecordSource,
-    INPUT  cNotes,
-    INPUT  "", /* PayloadID */
-    OUTPUT opcAPIInboundEvent
-    ) NO-ERROR.
+    RUN api\CreateAPIInboundEvent.p (
+        INPUT  lRetrigger,
+        INPUT  iAPIInboundEventID,
+        INPUT  cCompany,
+        INPUT  ipcRoute,
+        INPUT  iplcRequestData,
+        INPUT  oplcResponseData,
+        INPUT  lSuccess,
+        INPUT  "Request queued for processing",
+        INPUT  NOW,
+        INPUT  cRequestedBy,
+        INPUT  ipcRecordSource,
+        INPUT  cNotes,
+        INPUT  "", /* PayloadID */
+        INPUT  "queued",
+        OUTPUT opcAPIInboundEvent
+        ) NO-ERROR.    
+END.
+ELSE DO:
+    /* Run the request handler program from the API Inbound configuration */
+    RUN VALUE(APIInbound.requestHandler)(
+        INPUT  ipcRoute,
+        INPUT  ipcVerb,
+        INPUT  ipcRequestDataType,
+        INPUT  iplcRequestData,
+        INPUT  cResponseDataStructure,
+        INPUT  cRequestedBy,
+        INPUT  ipcRecordSource,
+        INPUT  cNotes,
+        INPUT  ipcUsername,
+        OUTPUT oplcResponseData,
+        OUTPUT lSuccess,
+        OUTPUT cMessage,
+        OUTPUT opcAPIInboundEvent
+        ) NO-ERROR.
+    
+    IF ERROR-STATUS:ERROR THEN    
+        ASSIGN 
+            cErrorMessage    = ERROR-STATUS:GET-MESSAGE(1)
+            lSuccess         = NO
+            cMessage         = "Internal Server Error at AppServer (#9) - " + cErrorMessage
+            oplcResponseData = '~{ "response_code": 500, "response_message":"' + cMessage + '"}'
+            .
+        
+    RUN api\CreateAPIInboundEvent.p (
+        INPUT  lRetrigger,
+        INPUT  iAPIInboundEventID,
+        INPUT  cCompany,
+        INPUT  ipcRoute,
+        INPUT  iplcRequestData,
+        INPUT  oplcResponseData,
+        INPUT  lSuccess,
+        INPUT  cMessage + " " + cErrorMessage,
+        INPUT  NOW,
+        INPUT  cRequestedBy,
+        INPUT  ipcRecordSource,
+        INPUT  cNotes,
+        INPUT  "", /* PayloadID */
+        INPUT  STRING(lSuccess, "processed/failed"),
+        OUTPUT opcAPIInboundEvent
+        ) NO-ERROR.
+END.
      
 SESSION:REMOVE-SUPER-PROCEDURE (hdSession).
 DELETE PROCEDURE hdSession.

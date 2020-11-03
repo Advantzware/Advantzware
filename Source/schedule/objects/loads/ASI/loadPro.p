@@ -1317,7 +1317,6 @@ FOR EACH job-hdr NO-LOCK
     END. /* do i */
 
     IF prodDate EQ ? THEN prodDate = dueDate.
-    IF DATE(userField[82]) EQ ? THEN userField[82] = STRING(dueDate,"99/99/9999").
 
     IF startDate NE ? THEN
     {{&exports}/job.i &streamName=sScenario

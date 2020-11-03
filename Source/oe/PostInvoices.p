@@ -3512,19 +3512,14 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
     DEFINE INPUT  PARAMETER iplgUpdateTax AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opiCountProcessed AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiCountValid AS INTEGER NO-UNDO.
-    DEFINE BUFFER bf-ttInvoiceToPost     FOR ttInvoiceToPost.
-    DEFINE BUFFER bf-inv-head            FOR inv-head.
-    DEFINE BUFFER bf-ttInvoiceLineToPost FOR ttInvoiceLineToPost.
-    DEFINE BUFFER bf-ttInvoiceMiscToPost FOR ttInvoiceMiscToPost.
+    DEFINE BUFFER bf-ttInvoiceToPost            FOR ttInvoiceToPost.
+    DEFINE BUFFER bf-inv-head FOR inv-head.
+    DEFINE BUFFER bf-ttInvoiceLineToPost        FOR ttInvoiceLineToPost. 
     
-    DEFINE VARIABLE lAutoApprove      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lShiptoTaxAble    AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lValidateRequired AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE dTotalLineRev     AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dTotalTax         AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lError            AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
-    
+    DEFINE VARIABLE lAutoApprove AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lShiptoTaxAble AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lValidateRequired AS LOGICAL NO-UNDO.
+        
     FOR EACH bf-ttInvoiceToPost,
         FIRST bf-inv-head NO-LOCK 
         WHERE ROWID(bf-inv-head) EQ bf-ttInvoiceToPost.riInvHead:
@@ -3626,8 +3621,8 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
         END.         
            
              
-        IF lAutoApprove AND bf-ttInvoiceToPost.isOKToPost THEN 
-        DO:
+>>>>>>> release/Advantzware_20.02.05
+         IF lAutoApprove AND bf-ttInvoiceToPost.isOKToPost THEN DO:
             FIND CURRENT bf-inv-head EXCLUSIVE-LOCK.
             ASSIGN 
                 bf-inv-head.autoApprove = YES.

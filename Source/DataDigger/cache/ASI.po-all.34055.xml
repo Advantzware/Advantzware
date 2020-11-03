@@ -1,0 +1,653 @@
+<?xml version="1.0"?>
+<dsFields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ttField>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>company</cFieldName>
+    <cFullName>company</cFullName>
+    <cXmlNodeName>company</cXmlNodeName>
+    <iOrder>1.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(3)</cFormat>
+    <cFormatOrg>x(3)</cFormatOrg>
+    <iWidth>6</iWidth>
+    <cLabel>Company</cLabel>
+    <iOrderOrg>1.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>true</lPrimary>
+    <lMandatory>true</lMandatory>
+    <lUniqueIdx>true</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>2</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter Company Nunber</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>po-no</cFieldName>
+    <cFullName>po-no</cFullName>
+    <cXmlNodeName>po-no</cXmlNodeName>
+    <iOrder>2.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;&gt;&gt;&gt;&gt;9</cFormat>
+    <cFormatOrg>&gt;&gt;&gt;&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>Purchase Order#</cLabel>
+    <iOrderOrg>2.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>true</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>true</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>3</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>line</cFieldName>
+    <cFullName>line</cFullName>
+    <cXmlNodeName>line</cXmlNodeName>
+    <iOrder>3.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>99</cFormat>
+    <cFormatOrg>99</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>Line</cLabel>
+    <iOrderOrg>3.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>true</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>true</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>4</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>i-no</cFieldName>
+    <cFullName>i-no</cFullName>
+    <cXmlNodeName>i-no</cXmlNodeName>
+    <iOrder>4.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(15)</cFormat>
+    <cFormatOrg>x(15)</cFormatOrg>
+    <iWidth>30</iWidth>
+    <cLabel>Item#</cLabel>
+    <iOrderOrg>4.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>5</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter Item Number.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>job</cFieldName>
+    <cFullName>job</cFullName>
+    <cXmlNodeName>job</cXmlNodeName>
+    <iOrder>5.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;&gt;&gt;&gt;&gt;&gt;9</cFormat>
+    <cFormatOrg>&gt;&gt;&gt;&gt;&gt;&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>Unique Internial Job Number</cLabel>
+    <iOrderOrg>5.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>6</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Links JOB-HDR File to JOB File.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>job-no</cFieldName>
+    <cFullName>job-no</cFullName>
+    <cXmlNodeName>job-no</cXmlNodeName>
+    <iOrder>6.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>x(6)</cFormat>
+    <cFormatOrg>x(6)</cFormatOrg>
+    <iWidth>12</iWidth>
+    <cLabel>Job Number</cLabel>
+    <iOrderOrg>6.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>true</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>true</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>7</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Job Number.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>job-no2</cFieldName>
+    <cFullName>job-no2</cFullName>
+    <cXmlNodeName>job-no2</cXmlNodeName>
+    <iOrder>7.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;9</cFormat>
+    <cFormatOrg>&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>Run #</cLabel>
+    <iOrderOrg>7.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>true</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>true</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>8</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter Job sub-number.</cHelp>
+    <cDesc>Sub number to track reorders, etc.</cDesc>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>qty-all</cFieldName>
+    <cFullName>qty-all</cFullName>
+    <cXmlNodeName>qty-all</cXmlNodeName>
+    <iOrder>8.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>decimal</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;&gt;&gt;,&gt;&gt;9.99&lt;</cFormat>
+    <cFormatOrg>&gt;&gt;&gt;,&gt;&gt;9.99&lt;</cFormatOrg>
+    <iWidth>17</iWidth>
+    <cLabel>Qty Allocated</cLabel>
+    <iOrderOrg>8.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel>Quantity!Allocated</cColLabel>
+    <iDecimals>2</iDecimals>
+    <iFieldRpos>9</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter the Quantity to be Allocated to this Item.</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>form-no</cFieldName>
+    <cFullName>form-no</cFullName>
+    <cXmlNodeName>form-no</cXmlNodeName>
+    <iOrder>9.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>1</cInitial>
+    <cFormat>&gt;9</cFormat>
+    <cFormatOrg>&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>FORM</cLabel>
+    <iOrderOrg>9.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>true</lPrimary>
+    <lMandatory>true</lMandatory>
+    <lUniqueIdx>true</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>10</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>blank-no</cFieldName>
+    <cFullName>blank-no</cFullName>
+    <cXmlNodeName>blank-no</cXmlNodeName>
+    <iOrder>10.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>integer</cDataType>
+    <cInitial>0</cInitial>
+    <cFormat>&gt;9</cFormat>
+    <cFormatOrg>&gt;9</cFormatOrg>
+    <iWidth>4</iWidth>
+    <cLabel>BLANK</cLabel>
+    <iOrderOrg>10.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>11</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>rec_key</cFieldName>
+    <cFullName>rec_key</cFullName>
+    <cXmlNodeName>rec_key</cXmlNodeName>
+    <iOrder>11.0</iOrder>
+    <lShow>true</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>X(21)</cFormat>
+    <cFormatOrg>X(21)</cFormatOrg>
+    <iWidth>40</iWidth>
+    <cLabel>Rec Key</cLabel>
+    <iOrderOrg>11.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel xsi:nil="true"/>
+    <iDecimals xsi:nil="true"/>
+    <iFieldRpos>12</iFieldRpos>
+    <cValExp xsi:nil="true"/>
+    <cValMsg/>
+    <cHelp>Enter Rec Key</cHelp>
+    <cDesc/>
+    <cViewAs xsi:nil="true"/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>RECID</cFieldName>
+    <cFullName>RECID</cFullName>
+    <cXmlNodeName/>
+    <iOrder>12.0</iOrder>
+    <lShow>false</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>X(20)</cFormat>
+    <cFormatOrg>X(20)</cFormatOrg>
+    <iWidth>0</iWidth>
+    <cLabel>RECID</cLabel>
+    <iOrderOrg>12.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel/>
+    <iDecimals>0</iDecimals>
+    <iFieldRpos>0</iFieldRpos>
+    <cValExp/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttField>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>ROWID</cFieldName>
+    <cFullName>ROWID</cFullName>
+    <cXmlNodeName/>
+    <iOrder>13.0</iOrder>
+    <lShow>false</lShow>
+    <cDataType>character</cDataType>
+    <cInitial/>
+    <cFormat>X(24)</cFormat>
+    <cFormatOrg>X(24)</cFormatOrg>
+    <iWidth>0</iWidth>
+    <cLabel>ROWID</cLabel>
+    <iOrderOrg>13.0</iOrderOrg>
+    <iExtent>0</iExtent>
+    <lPrimary>false</lPrimary>
+    <lMandatory>false</lMandatory>
+    <lUniqueIdx>false</lUniqueIdx>
+    <cColLabel/>
+    <iDecimals>0</iDecimals>
+    <iFieldRpos>0</iFieldRpos>
+    <cValExp/>
+    <cValMsg/>
+    <cHelp/>
+    <cDesc/>
+    <cViewAs/>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <hColumn xsi:nil="true"/>
+  </ttField>
+  <ttColumn>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>company</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>company</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>1.0</iOrder>
+    <cLabel>Company</cLabel>
+    <iColumnNr>1</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>po-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>po-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>2.0</iOrder>
+    <cLabel>Purchase Order#</cLabel>
+    <iColumnNr>2</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>line</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>line</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>3.0</iOrder>
+    <cLabel>Line</cLabel>
+    <iColumnNr>3</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>i-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>i-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>4.0</iOrder>
+    <cLabel>Item#</cLabel>
+    <iColumnNr>4</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>job</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>job</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>5.0</iOrder>
+    <cLabel>Unique Internial Job Number</cLabel>
+    <iColumnNr>5</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>job-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>job-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>6.0</iOrder>
+    <cLabel>Job Number</cLabel>
+    <iColumnNr>6</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>job-no2</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>job-no2</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>7.0</iOrder>
+    <cLabel>Run #</cLabel>
+    <iColumnNr>7</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>qty-all</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>qty-all</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>8.0</iOrder>
+    <cLabel>Qty Allocated</cLabel>
+    <iColumnNr>8</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>form-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>form-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>9.0</iOrder>
+    <cLabel>FORM</cLabel>
+    <iColumnNr>9</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>blank-no</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>blank-no</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>10.0</iOrder>
+    <cLabel>BLANK</cLabel>
+    <iColumnNr>10</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>rec_key</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>rec_key</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>11.0</iOrder>
+    <cLabel>Rec Key</cLabel>
+    <iColumnNr>11</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>RECID</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>RECID</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>12.0</iOrder>
+    <cLabel>RECID</cLabel>
+    <iColumnNr>12</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+  <ttColumn>
+    <cTableCacheId>ASI.po-all.34055</cTableCacheId>
+    <cDatabase>ASI</cDatabase>
+    <cTableName>po-all</cTableName>
+    <cFieldName>ROWID</cFieldName>
+    <iExtent>0</iExtent>
+    <cFullName>ROWID</cFullName>
+    <cFilterValue/>
+    <cNewValue/>
+    <cOldValue/>
+    <lShow>false</lShow>
+    <iOrder>13.0</iOrder>
+    <cLabel>ROWID</cLabel>
+    <iColumnNr>13</iColumnNr>
+    <hColumn xsi:nil="true"/>
+    <hFilter xsi:nil="true"/>
+  </ttColumn>
+</dsFields>
