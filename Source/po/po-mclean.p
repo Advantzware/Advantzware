@@ -672,8 +672,18 @@ v-printline = 0.
         END.
 
        /* IF AVAIL ITEM AND ITEM.mat-type EQ "B" AND ITEM.industry = "2" THEN
-           PUT lv-flute FORM "x(13)" /*"Test:" */ lv-reg-no FORM "x(10)".*/
+           PUT lv-flute FORM "x(13)" /*"Test:" */ lv-reg-no FORM "x(10)".*/ 
+        IF cFlueTest NE "" THEN   
         PUT cFlueTest.
+        FIND FIRST account NO-LOCK
+             WHERE account.company EQ cocode
+             AND account.actnum  EQ po-ordl.actnum NO-ERROR.
+              
+        IF avail account THEN
+        PUT po-ordl.actnum + " - " + account.dscr AT 25  FORMAT "x(50)".
+        ELSE
+        PUT po-ordl.actnum AT 25  FORMAT "x(20)".       
+        
         IF v-cost GT 0 AND v-setup GT 0 THEN DO:
             /*PUT STRING(v-cost,">>,>>9.99<<") + lv-pr-uom + " $" +
                STRING(v-setup) + "SETUP" FORM "x(25)" SKIP.*/
@@ -951,12 +961,11 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
           cEmailId =  "purchaseorders@mcleanpackaging.com" .  
 
 PUT "<FArial><R57.5><C1><P12><B>Terms and Conditions</B><P9> " SKIP
-       "<R59><C1><P7><B> Please send acknowledgment to: " cEmailId FORMAT "x(35)" "</B>"
-       "<R60><C1><P7> - All Pallets must be labeled with the McLean specified 128 Auto bar code"
-       "<R61><C1><P7> - No Steel Banding On Pallets Vendor must confirm shipment"
-       "<R62><C1><P7> - Vendor must confirm shipment and schedule a dock appointment by calling (856)359-2625 (NJ) or (610)759-3550 (PA)"  
-       "<R63><C1><P7> - Receiving hours are 7:00am to 3:30pm Monday-Friday, please contact if special arrangements need to be made"
-       "<R64><C1><P7> - Invoices must reference only <u>ONE</u> Purchase Order Number (each purchase/delivery to be invoiced separately)" SKIP 
+       "<R59><C1><P7><B> Please send acknowledgment to: " cEmailId FORMAT "x(35)" "</B>"        
+       "<R60><C1><P7> - No Steel Banding On Pallets Vendor must confirm shipment"
+       "<R61><C1><P7> - Vendor must confirm shipment and schedule a dock appointment by calling (856)359-2625 (NJ) or (610)759-3550 (PA)"  
+       "<R62><C1><P7> - Receiving hours are 7:00am to 3:00pm Monday-Friday, please contact if special arrangements need to be made"
+       "<R63><C1><P7> - Invoices must reference only <u>ONE</u> Purchase Order Number (each purchase/delivery to be invoiced separately)" SKIP 
      .
 
 v-printline = v-printline + 6.
