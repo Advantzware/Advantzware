@@ -187,6 +187,7 @@ RUN methods/prgsecur.p
      
 DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
 
 RUN sys/ref/nk1look.p (cocode, "OEJobHold", "L", NO, NO, "", "", 
     OUTPUT lcReturn, OUTPUT llRecFound).
@@ -226,7 +227,13 @@ RUN sys/ref/nk1look.p (INPUT g_company, "FreightCalculation", "C" /* Logical */,
                      INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
                      OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    cFreightCalculationValue = cRtnChar NO-ERROR.    
+    cFreightCalculationValue = cRtnChar NO-ERROR.   
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "CEAddCustomerOption", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCEAddCustomerOption = logical(cRtnChar) NO-ERROR.    
 
 /* transaction */
 {sys/inc/f16to32.i}
@@ -7002,6 +7009,12 @@ PROCEDURE valid-cust-no :
                                  AND cust.ACTIVE EQ "I") THEN
         MESSAGE "Customer is Inactive. Please select a Active Customer ..."
           VIEW-AS ALERT-BOX INFORMATION .
+          
+    ELSE IF NOT lCEAddCustomerOption AND NOT CAN-FIND(FIRST cust WHERE cust.company EQ cocode
+                                 AND cust.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
+                                 ) THEN
+        MESSAGE "Invalid Customer Number. Try Help."
+          VIEW-AS ALERT-BOX INFORMATION .      
 
     ELSE
     DO li = 1 TO 2:
