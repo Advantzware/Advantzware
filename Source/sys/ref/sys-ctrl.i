@@ -17,7 +17,10 @@ name-fld-list =
 /* 130         131      132     133           134        135      136      137      138      139    140      141           142       143           144      145         146      147        148        149       150          151        152    153               154               155            156        157                   158         159            160         161*/
 "BOLFreight,CESAMPLE,SSRMISSUE,CorrTrim,CustShipToImp,OEScreen,fgoecost,runship,InvStatus,AGEDAYS,FGPostCmp,AckMaster,ChkFmtACH,OeDateChange,SSBOLEMAIL,FGRecptUnit,FGBrowseIA,AlliFlutes,SSBOLPRINT,POScreen,SSScanVendor,BOLFMTTran,POStatus,BOLMaster,CEMarkupMatrixLookup,overwriteJobPlan,capacityPage,OEPriceMatrixCheck,BOLPartial,OEAutoDateUpdate,FGUnderOver,OEPriceHold," + 
 /*  162       163        164        165        166        167     168       169         170        171     172          173       174            175               176*         177            178              179                     180                      181           182   183        184       185             186          187       188       189            190 */
-"CEUpdate,ValidShipTo,PriceHold,CreditHold,CustomerPO,UniquePO,ValidUoM,PriceGtCost,CustomerPN,CEOpRates,CERequestYield,CINVOICE,BOLPartialFlag,POLoadtag,FreightCalculation,OnHandInventory,MiscEstimateSource,SalesTaxRoundingMethod,SalesTaxCalcMethod,FGTagValidation,CEFormat,ItemHold,DuplicateItem,EstimateExists,DateRule,Alliflutes1,FGMasterLoc,FGOversDefault,cXMLCustomerPartSource".
+"CEUpdate,ValidShipTo,PriceHold,CreditHold,CustomerPO,UniquePO,ValidUoM,PriceGtCost,CustomerPN,CEOpRates,CERequestYield,CINVOICE,BOLPartialFlag,POLoadtag,FreightCalculation,OnHandInventory,MiscEstimateSource,SalesTaxRoundingMethod,SalesTaxCalcMethod,FGTagValidation,CEFormat,ItemHold,DuplicateItem,EstimateExists,DateRule,Alliflutes1,FGMasterLoc,FGOversDefault,cXMLCustomerPartSource," +
+/*  191 */
+"TruckPlan" 
+.
 
 DEFINE VARIABLE str-init AS CHARACTER EXTENT 200 NO-UNDO.
     
@@ -280,7 +283,8 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[187] = ",PS,GAP"
        str-init[188] = "FGMaster,Estimate Shipto"
        str-init[189] = "Customer,Ship To,ShipToOverride,FG Category"
-       str-init[190] = "SupplierPartId,AuxiliaryPartId,Description".
+       str-init[190] = "SupplierPartId,AuxiliaryPartId,Description"
+       str-init[191] = "FG Item number,Item Name".
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:
      ASSIGN

@@ -62,6 +62,9 @@ DEFINE            VARIABLE AdobePrinter         AS CHAR         NO-UNDO.
 define            variable CommandString        AS CHAR         NO-UNDO.
 define            variable WshNetwork           as com-handle.
 DEFINE            VARIABLE LvFirstTimePrint     AS LOGICAL      NO-UNDO   INIT no.
+DEFINE            VARIABLE cRtnChar             AS CHARACTER    NO-UNDO.
+DEFINE            VARIABLE lRecFound            AS LOGICAL      NO-UNDO.
+DEFINE            VARIABLE cTruckPlan           AS CHARACTER    NO-UNDO.
 
 /* Build a Table to keep sequence of pdf files */
 DEFINE new SHARED TEMP-TABLE tt-filelist
@@ -69,6 +72,12 @@ DEFINE new SHARED TEMP-TABLE tt-filelist
                        FIELD tt-FileName        AS CHAR
                        INDEX filelist           IS PRIMARY 
                              TT-FILECTR.
+                             
+RUN sys/ref/nk1look.p (INPUT cocode, "TruckPlan", "C" /* Logical */, NO /* check by cust */, 
+                     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                     OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    cTruckPlan = cRtnChar NO-ERROR.                              
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -200,6 +209,7 @@ PROCEDURE MainLoop :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cItemName AS CHARACTER NO-UNDO.
   /* Open our Excel Template. */  
   assign chWorkbook = chExcelApplication:Workbooks:Open(chfile) no-error.
   
@@ -267,6 +277,25 @@ PROCEDURE MainLoop :
       RUN SetCellValue ("E" + STRING(4 + viRowCount),tt-report.deliv-zone).
       RUN SetCellValue ("F" + STRING(4 + viRowCount),STRING(tt-report.order-no) +
                                                      "-" + STRING(tt-report.line-no)).
+      
+      IF cTruckPlan EQ "Item Name" THEN
+      DO:
+         FIND FIRST oe-ordl NO-LOCK
+               WHERE oe-ordl.company EQ cocode
+               AND oe-ordl.ord-no EQ tt-report.order-no
+               AND oe-ordl.i-no EQ  tt-report.item-no NO-ERROR .
+              
+         cItemName = IF avail oe-ordl THEN oe-ordl.i-name ELSE "" .
+         IF cItemName EQ "" THEN
+         DO:
+           FIND FIRST itemfg NO-LOCK
+                WHERE itemfg.company EQ cocode
+                AND itemfg.i-no EQ  tt-report.item-no NO-ERROR .
+            cItemName = IF avail itemfg THEN itemfg.i-name ELSE "" . 
+         END.   
+         RUN SetCellValue ("G" + STRING(4 + viRowCount),cItemName).     
+      END.
+      ELSE
       RUN SetCellValue ("G" + STRING(4 + viRowCount),tt-report.item-no).
 
 
