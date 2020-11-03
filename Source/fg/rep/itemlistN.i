@@ -17,6 +17,8 @@
       v-qtyoh = 0.
       v-fgitm = "".
      iInkCount = 0.
+     cInkCode = "".
+     cInkDesc = "".
     FOR EACH itemfg-ink OF itemfg NO-LOCK:
         iInkCount = iInkCount + 1.
         IF iInkCount LE 12 THEN

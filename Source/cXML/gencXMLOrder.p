@@ -193,6 +193,31 @@ SESSION:ADD-SUPER-PROCEDURE (hTags).
           cocode = ipcCompany
           locode = ipcWarehouseID
           .
+      RUN sys/ref/nk1look.p(
+          INPUT  cocode,
+          INPUT  "cXMLCustomerPartSource",
+          INPUT  "C",
+          INPUT  YES,
+          INPUT  YES,
+          INPUT  custno,
+          INPUT  shipToID,
+          OUTPUT ccXMLCustomerPartSource,
+          OUTPUT lRecFound    
+          ).
+        
+      RUN sys/ref/nk1look.p(
+          INPUT  cocode,
+          INPUT  "cXMLCustomerPartSource",
+          INPUT  "I",
+          INPUT  YES,
+          INPUT  YES,
+          INPUT  custNo,
+          INPUT  shipToID,
+          OUTPUT cRtnValue,
+          OUTPUT lRecFound    
+          ). 
+
+      icXMLCustomerPartLength = IF INTEGER(cRtnValue) GT 15 THEN 15 ELSE INTEGER(cRtnValue).
       
       FIND FIRST oe-ord NO-LOCK
            WHERE oe-ord.company     EQ ipcCompany
@@ -494,14 +519,31 @@ PROCEDURE genTempOrderLinesLocal:
                 ttOrdLines.ttItemSupplierPartAuxiliaryID = TRIM(ttNodes.nodeValue).
             WHEN 'unitPrice|money'THEN
                 ttOrdLines.ttItemMoney = TRIM(ttNodes.nodeValue).
-            WHEN 'itemDetail|description' THEN
-                ASSIGN
-                    ttOrdLines.ttItemDescription    = TRIM(ttNodes.nodeValue)
-                    ttOrdLines.ttItemSupplierPartID = IF ttOrdLines.ttItemSupplierPartID EQ "" THEN
-                                                          SUBSTRING(ttOrdLines.ttItemDescription,1,8)
-                                                      ELSE
-                                                          ttOrdLines.ttItemSupplierPartID
-                    .
+            WHEN 'itemDetail|description' THEN DO:
+                ttOrdLines.ttItemDescription = TRIM(ttNodes.nodeValue).
+                IF icXMLCustomerPartLength EQ 0 THEN DO:
+                    IF ccXMLCustomerPartSource EQ "SupplierPartId" THEN
+                        ttOrdLines.ttItemSupplierPartID = IF ttOrdLines.ttItemSupplierPartID EQ "" THEN
+                                                             ttOrdLines.ttItemDescription
+                                                          ELSE
+                                                              ttOrdLines.ttItemSupplierPartID. 
+                    ELSE IF ccXMLCustomerPartSource EQ "AuxiliaryPartId" THEN
+                        ttOrdLines.ttItemSupplierPartID = ttOrdLines.ttItemSupplierPartAuxiliaryID.
+                    ELSE                                                     
+                        ttOrdLines.ttItemSupplierPartID = ttOrdLines.ttItemDescription.            
+                END.
+                ELSE DO:
+                    IF ccXMLCustomerPartSource EQ "SupplierPartId" THEN
+                        ttOrdLines.ttItemSupplierPartID = IF ttOrdLines.ttItemSupplierPartID EQ "" THEN
+                                                             SUBSTRING(ttOrdLines.ttItemDescription,1,icXMLCustomerPartLength)
+                                                          ELSE
+                                                              SUBSTRING(ttOrdLines.ttItemSupplierPartID,1,icXMLCustomerPartLength). 
+                    ELSE IF ccXMLCustomerPartSource EQ "AuxiliaryPartId" THEN
+                        ttOrdLines.ttItemSupplierPartID = SUBSTRING(ttOrdLines.ttItemSupplierPartAuxiliaryID,1,icXMLCustomerPartLength).
+                    ELSE
+                        ttOrdLines.ttItemSupplierPartID = SUBSTRING(ttOrdLines.ttItemDescription,1,icXMLCustomerPartLength).
+                END.                    
+            END.        
             WHEN  'itemDetail|unitOfMeasure' THEN
                 ttOrdLines.ttItemUnitOfMeasure = TRIM(ttNodes.nodeValue).
             WHEN  'itemDetail|ManufacturerPartID' THEN DO:
