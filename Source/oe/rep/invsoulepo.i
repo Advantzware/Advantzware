@@ -11,7 +11,7 @@
 *****************************************************************************/             
 PUT
   "<C2><R1><#1><R+13><C+50><IMAGE#1=" ls-full-img1  
-   "<C60><R1><P10>Page " + STRING(PAGE-NUM - lv-pg-num,">>9") + " of [=@endPage" + string(inv-head.inv-no) + "-@startPage" + string(inv-head.inv-no) + "+1] " FORM "x(120)".
+   "<C60><R1><P10>Page " + STRING(PAGE-NUM - lv-pg-num,">>9") + " of [=@endPage" + trim(string(inv-head.inv-no,">>>>>>9")) + "-@startPage" + trim(string(inv-head.inv-no,">>>>>>9")) + "+1] " FORM "x(120)".
 
 PUT 
   "<=1>" SKIP

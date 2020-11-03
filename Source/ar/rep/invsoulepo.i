@@ -12,7 +12,7 @@
 PUT
 /*   "<C7><#1><R+11><C+25><IMAGE#1=" ls-full-img1 SKIP. */
   "<C2><R0><#1><R+13><C+50><IMAGE#1=" ls-full-img1 
-  "<C60><R1><P10>Page " + STRING(PAGE-NUM - lv-pg-num,">>9") + " of [=@endPage" + string(ar-inv.inv-no) + "-@startPage" + string(ar-inv.inv-no,">>>>>>9") + "+1] " FORM "x(120)".
+  "<C60><R1><P10>Page " + STRING(PAGE-NUM - lv-pg-num,">>9") + " of [=@endPage" + trim(string(ar-inv.inv-no,">>>>>>9")) + "-@startPage" + trim(string(ar-inv.inv-no,">>>>>>9")) + "+1] " FORM "x(120)".
 PUT 
   "<=1>" SKIP
   "<C1><#2>"
