@@ -44,6 +44,9 @@ DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobNo   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iJobNo2  AS INTEGER   NO-UNDO.
 
+DEFINE VARIABLE hdFGInquiry    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdFGInquiryWin AS HANDLE    NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -420,6 +423,52 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ViewFGInquiry B-table-Win 
+PROCEDURE ViewFGInquiry :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    IF NOT AVAILABLE job-hdr THEN
+        RETURN.
+        
+    IF NOT VALID-HANDLE(hdFGInquiry) THEN DO:         
+        RUN sharpshooter/w-fgInquiry.w PERSISTENT SET hdFGInquiry.
+
+        RUN dispatch IN hdFGInquiry (
+            INPUT 'initialize':U
+            ) NO-ERROR.
+        
+        hdFGInquiryWin = hdFGInquiry:CURRENT-WINDOW.
+    END.
+                                                 
+    IF VALID-HANDLE(hdFGInquiry) AND
+        VALID-HANDLE(hdFGInquiryWin) THEN DO: 
+
+        RUN ScanItem IN hdFGInquiry (
+            INPUT job-hdr.company,
+            INPUT "",
+            INPUT "",
+            INPUT job-hdr.i-no,
+            INPUT "",
+            INPUT "",
+            INPUT 0
+            ) NO-ERROR.            
+
+        IF hdFGInquiryWin:WINDOW-STATE EQ 2 THEN ASSIGN 
+            hdFGInquiryWin:WINDOW-STATE = 3.
+        
+        hdFGInquiryWin:MOVE-TO-TOP().
+    END.      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

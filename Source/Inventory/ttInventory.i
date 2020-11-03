@@ -73,6 +73,16 @@ DEFINE {1} TEMP-TABLE ttPrintInventoryStock
 
 DEFINE {1} TEMP-TABLE ttBrowseInventory
     LIKE ttInventoryStockLoadtagWIP
+    FIELD locDscr           AS CHARACTER
+    FIELD leadDays          AS INTEGER
+    FIELD orderLevel        AS INTEGER
+    FIELD orderMax          AS INTEGER
+    FIELD orderMin          AS INTEGER
+    FIELD quantityOnHand    AS DECIMAL
+    FIELD quantityOnOrder   AS DECIMAL
+    FIELD quantityAllocated AS DECIMAL
+    FIELD quantityBackOrder AS DECIMAL
+    FIELD quantityAvailable AS DECIMAL
     .
 
 DEFINE {1} TEMP-TABLE ttPhysicalBrowseInventory
