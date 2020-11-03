@@ -39,6 +39,7 @@ def var v-process as log no-undo.
 {oe/d-selbin.i NEW}
 
 DEF VAR ll-rm-warning AS LOG NO-UNDO.
+DEFINE BUFFER bf-item FOR ITEM.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -67,7 +68,14 @@ fi_rm-name rd_um cUom fi_uom-dscr roll_rm label-1
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetFgBin Dialog-Frame 
+FUNCTION fGetFgBin RETURNS LOGICAL
+  ( ipcFgItem AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -676,6 +684,7 @@ DEF VAR uom-list    AS   CHAR.
 DEF VAR lv-rowids   AS   CHAR NO-UNDO. 
 DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lValidateFgBin AS LOGICAL NO-UNDO.
 
 DEF BUFFER b-loadtag FOR loadtag.
 
@@ -759,6 +768,16 @@ new-item: DO ON ENDKEY UNDO, RETRY.
 
 
       RUN rm/updaterm.p (ROWID(item)).
+      
+     FIND FIRST bf-item NO-LOCK
+          WHERE bf-item.company EQ cocode 
+          AND bf-item.industry EQ item.industry
+          AND bf-item.mat-type  EQ item.mat-type NO-ERROR.
+          
+     IF avail bf-item THEN      
+     ASSIGN
+            item.cost-type     = bf-item.cost-type
+            item.procat        = bf-item.procat.
 
       SESSION:SET-WAIT-STATE("General").
 
@@ -773,6 +792,8 @@ SESSION:SET-WAIT-STATE("").
 
 /* IF NOT v-board THEN RUN oe/d-selbin.w (3, ?, "ALL", itemfg.i-no, */
 /*                                        OUTPUT lv-rowids).        */
+lValidateFgBin = fGetFgBin(itemfg.i-no) .    
+IF lValidateFgBin THEN
 RUN oe/d-selbin.w (INPUT 3,
                    INPUT ?,
                    INPUT "ALL",
@@ -1096,4 +1117,39 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetFgBin Dialog-Frame 
+FUNCTION fGetFgBin RETURNS LOGICAL
+  ( ipcFgItem AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE lReturnValue AS LOGICAL NO-UNDO.
+
+FOR EACH fg-bin
+       WHERE fg-bin.company EQ cocode
+         AND fg-bin.i-no    EQ ipcFgItem
+         AND fg-bin.qty     GT 0
+         AND fg-bin.cust-no EQ '' /* ticket 23164 */
+    NO-LOCK:
+
+    IF NOT((TRIM(fg-bin.job-no) EQ "" OR
+              NOT CAN-FIND(FIRST job
+                        WHERE job.company EQ fg-bin.company
+                          AND job.job-no  EQ fg-bin.job-no
+                          AND job.job-no2 EQ fg-bin.job-no2
+                          AND job.stat    EQ "H"))) THEN
+       NEXT.   
+   lReturnValue = YES .       
+END. 
+  RETURN lReturnValue.   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
