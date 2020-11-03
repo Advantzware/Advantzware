@@ -1,31 +1,30 @@
 /* users.i */
 
-FOR EACH usercomp EXCLUSIVE-LOCK
-    WHERE usercomp.user_id EQ users.user_id
-    :
+FOR EACH usercomp WHERE usercomp.user_id = users.user_id.
     DELETE usercomp.
 END.
 
-FOR EACH usercust EXCLUSIVE-LOCK
-    WHERE usercust.user_id EQ users.user_id
-    :
+FOR EACH usercust WHERE usercust.user_id = users.user_id:
     DELETE usercust.
 END.
 
-FOR EACH uservend EXCLUSIVE-LOCK
-    WHERE uservend.user_id EQ users.user_id
-    :
+FOR EACH uservend WHERE uservend.user_id = users.user_id:
     DELETE uservend.
 END.
 
-FOR EACH dynParamValue EXCLUSIVE-LOCK
-    WHERE dynParamValue.user-id EQ {&TABLENAME}.user_id
-    :
-    DELETE dynParamValue.
-END. /* each dynParamValue */
+FIND asi._user EXCLUSIVE-LOCK
+    WHERE asi._user._userid = users.user_id NO-ERROR.
+IF AVAILABLE asi._user THEN DELETE asi._user.
 
-FIND FIRST ASI._user EXCLUSIVE-LOCK
-     WHERE ASI._user._userid EQ users.user_id
-     NO-ERROR.
-IF AVAILABLE ASI._user THEN
-DELETE ASI._user.
+DEF VAR v-file AS CHAR FORMAT "x(30)" NO-UNDO.
+
+IF SEARCH("./usermenu/" + trim(users.user_id) + "/menu.lst" ) <> ? THEN 
+         OS-DELETE VALUE("./usermenu/" + users.user_id + "/menu.lst").
+IF SEARCH("./usermenu/" + trim(users.user_id) + "/menu.fol" ) <> ? THEN 
+         OS-DELETE VALUE("./usermenu/" + users.user_id + "/menu.fol").
+IF SEARCH("./usermenu/" + trim(users.user_id) + "/menu.cor" ) <> ? THEN 
+         OS-DELETE VALUE("./usermenu/" + users.user_id + "/menu.cor").
+IF SEARCH("./usermenu/" + trim(users.user_id) + "/menu.tmp" ) <> ? THEN 
+         OS-DELETE VALUE("./usermenu/" + users.user_id + "/menu.tmp").
+
+

@@ -517,14 +517,6 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
-&Scoped-define sdBrowseName TaskBrowse
-{methods/template/brwcustom.i 1}
-&Scoped-define sdBrowseName EmailBrowse
-{methods/template/brwcustom.i 2}
-&Scoped-define sdBrowseName AuditBrowse
-{methods/template/brwcustom.i 3}
-
-
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.

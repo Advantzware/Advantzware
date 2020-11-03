@@ -31,13 +31,4 @@ FOR EACH dynValueColumn EXCLUSIVE-LOCK
     DELETE dynValueColumn.
 END. /* each dynvaluecolumn */
 
-FOR EACH Task EXCLUSIVE-LOCK
-    WHERE Task.subjectID    EQ {&TABLENAME}.subjectID
-      AND Task.user-id      EQ {&TABLENAME}.user-id
-      AND Task.prgmName     EQ {&TABLENAME}.prgmName
-      AND Task.paramValueID EQ {&TABLENAME}.paramValueID
-    :
-    DELETE Task.
-END. /* each task */
-
 {methods/triggers/delete.i}

@@ -479,6 +479,14 @@ PROCEDURE pSetParamValueDefault:
              EXCEPT paramValueID paramDescription
                  TO bDynParamValue.
 
+/*        FOR EACH dynValueColumn EXCLUSIVE-LOCK                          */
+/*            WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID*/
+/*              AND dynValueColumn.user-id      EQ dynParamValue.user-id  */
+/*              AND dynValueColumn.prgmName     EQ dynParamValue.prgmName */
+/*              AND dynValueColumn.paramValueID EQ 0                      */
+/*            :                                                           */
+/*            DELETE dynValueColumn.                                      */
+/*        END. /* each dynvaluecolumn */                                  */
         FOR EACH dynValueColumn NO-LOCK
             WHERE dynValueColumn.subjectID    EQ dynParamValue.subjectID
               AND dynValueColumn.user-id      EQ dynParamValue.user-id
@@ -499,6 +507,14 @@ PROCEDURE pSetParamValueDefault:
                  EXCEPT paramValueID
                      TO bDynValueColumn.
         END. /* each dynvaluecolumn */
+/*        FOR EACH dynValueParam EXCLUSIVE-LOCK                          */
+/*            WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID*/
+/*              AND dynValueParam.user-id      EQ dynParamValue.user-id  */
+/*              AND dynValueParam.prgmName     EQ dynParamValue.prgmName */
+/*              AND dynValueParam.paramValueID EQ 0                      */
+/*            :                                                          */
+/*            DELETE dynValueParam.                                      */
+/*        END. /* each dynValueParam */                                  */
         FOR EACH dynValueParam NO-LOCK
             WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
               AND dynValueParam.user-id      EQ dynParamValue.user-id
@@ -519,6 +535,14 @@ PROCEDURE pSetParamValueDefault:
                  EXCEPT paramValueID
                      TO bDynValueParam.
         END. /* each dynValueParam */
+/*        FOR EACH dynValueParamSet EXCLUSIVE-LOCK                          */
+/*            WHERE dynValueParamSet.subjectID    EQ dynParamValue.subjectID*/
+/*              AND dynValueParamSet.user-id      EQ dynParamValue.user-id  */
+/*              AND dynValueParamSet.prgmName     EQ dynParamValue.prgmName */
+/*              AND dynValueParamSet.paramValueID EQ 0                      */
+/*            :                                                             */
+/*            DELETE dynValueParamSet.                                      */
+/*        END. /* each dynValueParamSet */                                  */
         FOR EACH dynValueParamSet NO-LOCK
             WHERE dynValueParamSet.subjectID    EQ dynParamValue.subjectID
               AND dynValueParamSet.user-id      EQ dynParamValue.user-id
