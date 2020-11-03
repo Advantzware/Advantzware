@@ -241,18 +241,9 @@ PROCEDURE pCreateDynParameters :
             cParamLabel = dynParamSetDtl.paramLabel
             cParamValue = dynParamSetDtl.initialValue
             cInitItems  = dynParamSetDtl.initialItems
+            dCol = dynParamSetDtl.paramCol + dSetCol - 1
+            dRow = dynParamSetDtl.paramRow + dSetRow - 1
             .
-&IF "{&program-id}" NE "dynBrowserParam." &THEN
-        CASE svSetAlignment:
-            WHEN "Custom" THEN
-&ENDIF
-            ASSIGN
-                dCol = dynParamSetDtl.paramCol + dSetCol - 1
-                dRow = dynParamSetDtl.paramRow + dSetRow - 1
-                .
-&IF "{&program-id}" NE "dynBrowserParam." &THEN
-        END CASE.
-&ENDIF
         /* set screen-value for parameters from dynvalueparam */
         IF iplLive AND lSensitive THEN
         FIND FIRST dynValueParam NO-LOCK
