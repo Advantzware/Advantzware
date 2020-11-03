@@ -104,6 +104,8 @@ PROCEDURE pJasperGroupCalc:
     
     DEFINE BUFFER bttSubjectColumn FOR ttSubjectColumn.
     
+    IF NOT AVAILABLE ttSubjectColumn THEN RETURN.
+
     FOR EACH ttGroupCalc
         WHERE ttGroupCalc.subjectID EQ ttSubjectColumn.subjectID
           AND ttGroupCalc.fieldName EQ ttSubjectColumn.fieldName
@@ -124,7 +126,11 @@ PROCEDURE pJasperGroupCalc:
         OUTPUT lSave
         ).
     IF lSave THEN DO:
+        &IF "{&program-id}" EQ "dynSubjct." &THEN
         fSetSaveButton (YES).
+        &ELSE
+        APPLY "CHOOSE":U TO btnSave IN FRAME {&FRAME-NAME}.
+        &ENDIF
         FOR EACH ttGroupCalc
             WHERE ttGroupCalc.subjectID EQ ttSubjectColumn.subjectID
               AND ttGroupCalc.fieldName EQ ttSubjectColumn.fieldName

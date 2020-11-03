@@ -46,9 +46,14 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
+DEFINE VARIABLE iPage              AS INTEGER NO-UNDO.
 DEFINE VARIABLE iParamSetID        AS INTEGER NO-UNDO.
 DEFINE VARIABLE iUserSecurityLevel AS INTEGER NO-UNDO.
+DEFINE VARIABLE hColumnLabel       AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hTarget            AS HANDLE  NO-UNDO.
+DEFINE VARIABLE lAscending         AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lContinue          AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lMoveColumn        AS LOGICAL NO-UNDO.
 
 &IF DEFINED(UIB_is_Running) EQ 0 &THEN
 RUN util/CheckModule.p ("ASI","ParameterBuilder", YES, OUTPUT lContinue).
@@ -77,10 +82,19 @@ iUserSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnErrorCheck btnRestoreDefaults 
+&Scoped-Define ENABLED-OBJECTS btnCopy btnUpdate btnErrorCheck RECT-OPTIONS ~
+RECT-CRUD btnFirst RECT-NAV btnExit RECT-BUILDER btnBuilder RECT-SEARCH ~
+btnLast searchBar btnNext btnPrev btnAdd btnMoveColumn btnDelete 
+&Scoped-Define DISPLAYED-OBJECTS searchBar 
 
 /* Custom List Definitions                                              */
-/* List-1,List-2,List-3,List-4,List-5,List-6                            */
+/* transPanel,transInit,transUpdate,navPanel,List-5,List-6                */
+&Scoped-define transPanel btnCopy btnUpdate btnFirst btnBuilder ~
+btnLast btnNext btnPrev btnCancel btnAdd btnDelete btnReset 
+&Scoped-define transInit btnCopy btnUpdate btnFirst btnBuilder btnLast ~
+btnNext btnPrev btnAdd btnDelete 
+&Scoped-define transUpdate btnUpdate btnCancel btnReset
+&Scoped-define navPanel btnFirst btnLast btnNext btnPrev 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -99,28 +113,169 @@ DEFINE VARIABLE h_paramSet AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_paramSetDtl AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAdd 
+     IMAGE-UP FILE "Graphics/32x32/navigate_plus.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Add" 
+     SIZE 8 BY 1.91 TOOLTIP "Add".
+
+DEFINE BUTTON btnBuilder 
+     IMAGE-UP FILE "Graphics/32x32/compasses.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Parameter Set Builder" 
+     SIZE 8 BY 1.91 TOOLTIP "Parameter Set Builder".
+
+DEFINE BUTTON btnCancel 
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Cancel" 
+     SIZE 8 BY 1.91 TOOLTIP "Cancel".
+
+DEFINE BUTTON btnCopy 
+     IMAGE-UP FILE "Graphics/32x32/element_copy.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/element_copy_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Copy" 
+     SIZE 8 BY 1.91 TOOLTIP "Copy".
+
+DEFINE BUTTON btnDelete 
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Delete" 
+     SIZE 8 BY 1.91 TOOLTIP "Delete".
+
 DEFINE BUTTON btnErrorCheck 
      IMAGE-UP FILE "Graphics/16x16/save.jpg":U NO-FOCUS FLAT-BUTTON
-     LABEL "Error Check Report" 
-     SIZE 4.4 BY 1.05 TOOLTIP "Error Check Report".
+     LABEL "btnErrorCheck" 
+     SIZE 3.4 BY .81 TOOLTIP "Error Check Report".
 
-DEFINE BUTTON btnRestoreDefaults 
-     IMAGE-UP FILE "Graphics/16x16/rename.jpg":U NO-FOCUS FLAT-BUTTON
-     LABEL "Defaults" 
-     SIZE 4 BY 1.1 TOOLTIP "Restore Defaults".
+DEFINE BUTTON btnExit 
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Exit" 
+     SIZE 8 BY 1.91 TOOLTIP "Exit".
+
+DEFINE BUTTON btnFirst 
+     IMAGE-UP FILE "Graphics/32x32/navigate_beginning.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_beginning_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "First" 
+     SIZE 8 BY 1.91 TOOLTIP "First".
+
+DEFINE BUTTON btnLast 
+     IMAGE-UP FILE "Graphics/32x32/navigate_end.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_end_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Last" 
+     SIZE 8 BY 1.91 TOOLTIP "Last".
+
+DEFINE BUTTON btnMoveColumn 
+     IMAGE-UP FILE "Graphics/32x32/spreadsheet.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Move Column" 
+     SIZE 8 BY 1.91 TOOLTIP "Move Column".
+
+DEFINE BUTTON btnNext 
+     IMAGE-UP FILE "Graphics/32x32/navigate_right.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_right_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Next" 
+     SIZE 8 BY 1.91 TOOLTIP "Next".
+
+DEFINE BUTTON btnPrev 
+     IMAGE-UP FILE "Graphics/32x32/navigate_left.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_left_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Previous" 
+     SIZE 8 BY 1.91 TOOLTIP "Previous".
+
+DEFINE BUTTON btnReset 
+     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Reset" 
+     SIZE 8 BY 1.91 TOOLTIP "Reset".
+
+DEFINE BUTTON btnSort 
+     IMAGE-UP FILE "Graphics/32x32/sort_az_descending.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/sort_az_descending_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Sort" 
+     SIZE 8 BY 1.91 TOOLTIP "Sort".
+
+DEFINE BUTTON btnUpdate 
+     IMAGE-UP FILE "Graphics/32x32/pencil.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Update" 
+     SIZE 8 BY 1.91 TOOLTIP "Update/Save".
+
+DEFINE VARIABLE searchBar AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 36 BY 1 TOOLTIP "Search Bar"
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE RECTANGLE RECT-BUILDER
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE .2 BY 2.1
+     BGCOLOR 1 FGCOLOR 1 .
+
+DEFINE RECTANGLE RECT-CRUD
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE .2 BY 2.1
+     BGCOLOR 1 FGCOLOR 1 .
+
+DEFINE RECTANGLE RECT-NAV
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE .2 BY 2.1
+     BGCOLOR 1 FGCOLOR 1 .
+
+DEFINE RECTANGLE RECT-OPTIONS
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE .2 BY 2.1
+     BGCOLOR 1 FGCOLOR 1 .
+
+DEFINE RECTANGLE RECT-SEARCH
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
+     SIZE .2 BY 2.1
+     BGCOLOR 1 FGCOLOR 1 .
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnErrorCheck AT ROW 1.1 COL 71 WIDGET-ID 294
-     btnRestoreDefaults AT ROW 1.1 COL 67 HELP
-          "Restore Defaults" WIDGET-ID 42
+     btnCopy AT ROW 1.29 COL 108 HELP
+          "Copy" WIDGET-ID 122
+     btnUpdate AT ROW 1.29 COL 92 HELP
+          "Update/Save" WIDGET-ID 128
+     btnErrorCheck AT ROW 3.62 COL 67.6 WIDGET-ID 294
+     btnFirst AT ROW 1.24 COL 20 HELP
+          "First" WIDGET-ID 274
+     searchBar AT ROW 2.19 COL 52 COLON-ALIGNED HELP
+          "Search" NO-LABEL WIDGET-ID 6
+     btnExit AT ROW 1.24 COL 152 HELP
+          "Exit" WIDGET-ID 288
+     btnBuilder AT ROW 1.29 COL 142 HELP
+          "Parameter Set Builder" WIDGET-ID 286
+     btnLast AT ROW 1.24 COL 44 HELP
+          "Last" WIDGET-ID 68
+     btnNext AT ROW 1.24 COL 36 HELP
+          "Next" WIDGET-ID 276
+     btnPrev AT ROW 1.24 COL 28 HELP
+          "Previous" WIDGET-ID 278
+     btnSort AT ROW 1.24 COL 2 HELP
+          "Sort" WIDGET-ID 48
+     btnCancel AT ROW 1.29 COL 132 HELP
+          "Cancel" WIDGET-ID 120
+     btnAdd AT ROW 1.29 COL 100 HELP
+          "Add" WIDGET-ID 118
+     btnMoveColumn AT ROW 1.24 COL 10 HELP
+          "Move Column" WIDGET-ID 42
+     btnDelete AT ROW 1.29 COL 116 HELP
+          "Delete" WIDGET-ID 124
+     btnReset AT ROW 1.29 COL 124 HELP
+          "Reset" WIDGET-ID 126
+     "Search:" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 1.24 COL 55 WIDGET-ID 304
+     RECT-OPTIONS AT ROW 1.19 COL 151 WIDGET-ID 290
+     RECT-CRUD AT ROW 1.19 COL 91 WIDGET-ID 296
+     RECT-NAV AT ROW 1.19 COL 19 WIDGET-ID 298
+     RECT-BUILDER AT ROW 1.19 COL 141 WIDGET-ID 300
+     RECT-SEARCH AT ROW 1.19 COL 53 WIDGET-ID 302
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 160 BY 28.57
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
+         BGCOLOR 26 FGCOLOR 1  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -183,6 +338,32 @@ IF NOT W-Win:LOAD-ICON("Graphics/32x32/jss_icon_32.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
+/* SETTINGS FOR BUTTON btnAdd IN FRAME F-Main
+   1 2                                                                  */
+/* SETTINGS FOR BUTTON btnBuilder IN FRAME F-Main
+   1 2                                                                  */
+/* SETTINGS FOR BUTTON btnCancel IN FRAME F-Main
+   NO-ENABLE 1 3                                                        */
+/* SETTINGS FOR BUTTON btnCopy IN FRAME F-Main
+   1 2                                                                  */
+/* SETTINGS FOR BUTTON btnDelete IN FRAME F-Main
+   1 2                                                                  */
+/* SETTINGS FOR BUTTON btnExit IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnFirst IN FRAME F-Main
+   1 2                                                                  */
+/* SETTINGS FOR BUTTON btnLast IN FRAME F-Main
+   1 2                                                                  */
+/* SETTINGS FOR BUTTON btnNext IN FRAME F-Main
+   1 2                                                                  */
+/* SETTINGS FOR BUTTON btnPrev IN FRAME F-Main
+   1 2                                                                  */
+/* SETTINGS FOR BUTTON btnReset IN FRAME F-Main
+   NO-ENABLE 1 3                                                        */
+/* SETTINGS FOR BUTTON btnSort IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnUpdate IN FRAME F-Main
+   1 2 3                                                                */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
 
@@ -233,9 +414,64 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnAdd
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAdd W-Win
+ON CHOOSE OF btnAdd IN FRAME F-Main /* Add */
+DO:
+    RUN pCRUD IN hTarget (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnBuilder
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnBuilder W-Win
+ON CHOOSE OF btnBuilder IN FRAME F-Main /* Parameter Set Builder */
+DO:
+    RUN pBuilder IN hTarget.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel W-Win
+ON CHOOSE OF btnCancel IN FRAME F-Main /* Cancel */
+DO:
+    RUN pCRUD IN hTarget (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCopy
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCopy W-Win
+ON CHOOSE OF btnCopy IN FRAME F-Main /* Copy */
+DO:
+    RUN pCRUD IN hTarget (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnDelete
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDelete W-Win
+ON CHOOSE OF btnDelete IN FRAME F-Main /* Delete */
+DO:
+    RUN pCRUD IN hTarget (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnErrorCheck
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnErrorCheck W-Win
-ON CHOOSE OF btnErrorCheck IN FRAME F-Main /* Error Check Report */
+ON CHOOSE OF btnErrorCheck IN FRAME F-Main /* btnErrorCheck */
 DO:
     RUN pErrorCheck.
 END.
@@ -244,12 +480,115 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnRestoreDefaults
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRestoreDefaults W-Win
-ON CHOOSE OF btnRestoreDefaults IN FRAME F-Main /* Defaults */
+&Scoped-define SELF-NAME btnExit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExit W-Win
+ON CHOOSE OF btnExit IN FRAME F-Main /* Exit */
 DO:
-    RUN pGetSettings ("_default").
-    RUN select-page (1).
+    APPLY "WINDOW-CLOSE":U TO {&WINDOW-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnFirst
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFirst W-Win
+ON CHOOSE OF btnFirst IN FRAME F-Main /* First */
+DO:
+    RUN pNavPanel (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnLast
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLast W-Win
+ON CHOOSE OF btnLast IN FRAME F-Main /* Last */
+DO:
+    RUN pNavPanel (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnMoveColumn
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMoveColumn W-Win
+ON CHOOSE OF btnMoveColumn IN FRAME F-Main /* Move Column */
+DO:
+    lMoveColumn = NOT lMoveColumn.
+    RUN pMoveColumn IN hTarget (lMoveColumn).
+    RUN pMoveColumn.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnNext
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnNext W-Win
+ON CHOOSE OF btnNext IN FRAME F-Main /* Next */
+DO:
+    RUN pNavPanel (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnPrev
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrev W-Win
+ON CHOOSE OF btnPrev IN FRAME F-Main /* Previous */
+DO:
+    RUN pNavPanel (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnReset
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnReset W-Win
+ON CHOOSE OF btnReset IN FRAME F-Main /* Reset */
+DO:
+    RUN pCRUD IN hTarget (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnSort
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSort W-Win
+ON CHOOSE OF btnSort IN FRAME F-Main /* Sort */
+DO:
+    lAscending = NOT lAscending.
+    RUN pSort IN hTarget (lAscending).
+    RUN pSort.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnUpdate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUpdate W-Win
+ON CHOOSE OF btnUpdate IN FRAME F-Main /* Update */
+DO:
+    RUN pCRUD IN hTarget (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME searchBar
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL searchBar W-Win
+ON VALUE-CHANGED OF searchBar IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+    RUN pSearchBar IN hTarget ({&SELF-NAME}).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -262,6 +601,8 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+
+{methods/menus/stdHelpMenu.i}
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
@@ -284,7 +625,7 @@ PROCEDURE adm-create-objects :
   RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
   ASSIGN adm-current-page = INTEGER(RETURN-VALUE).
 
-  CASE adm-current-page: 
+  CASE adm-current-page:
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -293,8 +634,8 @@ PROCEDURE adm-create-objects :
              INPUT  'FOLDER-LABELS = ':U + 'Sets|Set Details|Parameters' + ',
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 1.00 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 28.57 , 160.00 ) NO-ERROR.
+       RUN set-position IN h_folder ( 3.38 , 1.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 26.19 , 160.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
@@ -306,9 +647,12 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_paramSet ).
-       RUN set-position IN h_paramSet ( 2.43 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 26.95 , 158.00 ) */
+       RUN set-position IN h_paramSet ( 4.81 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 24.57 , 158.00 ) */
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_paramSet ,
+             h_folder , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -316,8 +660,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_paramSetDtl ).
-       RUN set-position IN h_paramSetDtl ( 2.43 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 26.95 , 158.00 ) */
+       RUN set-position IN h_paramSetDtl ( 4.81 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 24.76 , 158.00 ) */
 
     END. /* Page 2 */
     WHEN 3 THEN DO:
@@ -326,8 +670,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_param ).
-       RUN set-position IN h_param ( 2.43 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 26.95 , 158.00 ) */
+       RUN set-position IN h_param ( 4.81 , 2.00 ) NO-ERROR.
+       /* Size in UIB:  ( 24.76 , 158.00 ) */
 
        /* Adjust the tab order of the smart objects. */
     END. /* Page 3 */
@@ -394,10 +738,55 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btnErrorCheck btnRestoreDefaults 
+  DISPLAY searchBar 
+      WITH FRAME F-Main IN WINDOW W-Win.
+  ENABLE btnCopy btnUpdate RECT-OPTIONS RECT-CRUD btnErrorCheck RECT-NAV 
+         RECT-BUILDER RECT-SEARCH btnFirst searchBar btnExit btnBuilder btnLast 
+         btnNext btnPrev btnAdd btnMoveColumn btnDelete 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-change-page W-Win 
+PROCEDURE local-change-page :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
+  ASSIGN iPage = INTEGER(RETURN-VALUE).
+
+  ENABLE {&navPanel} WITH FRAME {&FRAME-NAME}.
+  CASE iPage:
+      WHEN 1 THEN
+      hTarget = h_paramSet.
+      WHEN 2 THEN
+      hTarget = h_paramSetDtl.
+      WHEN 3 THEN DO:
+          hTarget = h_param.
+          DISABLE {&navPanel} WITH FRAME {&FRAME-NAME}.
+      END. /* 3 */
+  END CASE.
+  RUN pSearchBar IN hTarget (searchBar).
+  searchBar:SCREEN-VALUE = searchBar.
+  RUN pGetTargetSettings IN hTarget (
+      OUTPUT hColumnLabel,
+      OUTPUT lAscending,
+      OUTPUT lMoveColumn
+      ).
+    RUN pMoveColumn.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -438,6 +827,41 @@ PROCEDURE local-exit :
        
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddParam W-Win
+PROCEDURE pAddParam:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    hTarget = h_param.
+    APPLY "CHOOSE":U TO BtnAdd IN FRAME {&FRAME-NAME}. 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pColumnLabel W-Win
+PROCEDURE pColumnLabel:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphColumnLabel AS HANDLE  NO-UNDO.
+    DEFINE INPUT PARAMETER iplAscending   AS LOGICAL NO-UNDO.
+
+    ASSIGN
+        hColumnLabel = iphColumnLabel
+        lAscending   = iplAscending
+        btnSort:SENSITIVE IN FRAME {&FRAME-NAME} = VALID-HANDLE(hColumnLabel)
+        .
+    RUN pSort.
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -603,6 +1027,7 @@ PROCEDURE pGetParamSetDtl :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    IF VALID-HANDLE(h_paramSetDtl) THEN
     RUN pGetParamSetID IN h_paramSetDtl.
 
 END PROCEDURE.
@@ -672,6 +1097,23 @@ PROCEDURE pGetSettings :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMoveColumn W-Win
+PROCEDURE pMoveColumn:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    btnMoveColumn:LOAD-IMAGE("Graphics/32x32/"
+        + IF lMoveColumn THEN "spreadsheet_column.ico"
+          ELSE "spreadsheet.ico") IN FRAME {&FRAME-NAME}
+        .
+    btnSort:SENSITIVE = NOT lMoveColumn AND VALID-HANDLE(hColumnLabel).
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -749,6 +1191,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetButton W-Win 
+PROCEDURE pSetButton :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcButton AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplEnable AS LOGICAL   NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        CASE ipcButton:
+            WHEN "btnAdd" THEN
+            btnAdd:SENSITIVE = iplEnable.
+            WHEN "btnReset" THEN
+            btnReset:SENSITIVE = iplEnable.
+        END CASE.
+    END. /* do with frame */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetParamSetID W-Win 
 PROCEDURE pSetParamSetID :
 /*------------------------------------------------------------------------------
@@ -759,6 +1224,72 @@ PROCEDURE pSetParamSetID :
     DEFINE INPUT PARAMETER ipiParamSetID AS INTEGER NO-UNDO.
     
     iParamSetID = ipiParamSetID.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSort W-Win
+PROCEDURE pSort:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    btnSort:LOAD-IMAGE("Graphics/32x32/"
+        + IF lAscending THEN "sort_az_descending.ico"
+          ELSE "sort_az_descending2.ico") IN FRAME {&FRAME-NAME}
+        .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTransInit W-Win 
+PROCEDURE pTransInit :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    ENABLE {&transInit} WITH FRAME {&FRAME-NAME}.
+    btnUpdate:LOAD-IMAGE("Graphics\32x32\Pencil.ico").
+    btnUpdate:LABEL = "Update".
+    IF iPage EQ 3 THEN
+    DISABLE {&navPanel} WITH FRAME {&FRAME-NAME}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTransPanel W-Win 
+PROCEDURE pTransPanel :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DISABLE {&transPanel} WITH FRAME {&FRAME-NAME}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTransUpdate W-Win 
+PROCEDURE pTransUpdate :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    ENABLE {&transUpdate} WITH FRAME {&FRAME-NAME}.
+    btnUpdate:LOAD-IMAGE("Graphics\32x32\Save_As.ico").
+    btnUpdate:LABEL = "Save".
+    IF iPage EQ 3 THEN
+    DISABLE {&navPanel} WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -789,10 +1320,12 @@ PROCEDURE pWinReSize :
             FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
             dHeight                            = FRAME {&FRAME-NAME}:HEIGHT
             dWidth                             = FRAME {&FRAME-NAME}:WIDTH
+            btnExit:COL                        = dWidth - btnExit:WIDTH
+            RECT-OPTIONS:COL                   = btnExit:COL - 1
             .
         RUN set-size IN h_folder (dHeight, dWidth).
         ASSIGN
-            dHeight = dHeight - 1.62
+            dHeight = dHeight - 4
             dWidth  = dWidth  - 2
             .
         IF NOT VALID-HANDLE(h_paramSetDtl) THEN

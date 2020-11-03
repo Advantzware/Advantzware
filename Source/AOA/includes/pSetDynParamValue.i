@@ -53,6 +53,9 @@ PROCEDURE pSetDynParamValue:
             dynParamValue.runSync          = dynSubject.runSync
             dynParamValue.custListID       = dynSubject.custListID
             dynParamValue.useCustList      = dynSubject.useCustList
+            dynParamValue.mnemonic         = dynSubject.mnemonic
+            dynParamValue.saveLastRun      = dynSubject.saveLastRun
+            dynParamValue.subjectGroup     = dynSubject.subjectGroup
             .
         FOR EACH dynValueColumn EXCLUSIVE-LOCK
             WHERE dynValueColumn.subjectID    EQ ipiSubjectID
@@ -82,6 +85,7 @@ PROCEDURE pSetDynParamValue:
                 dynValueColumn.colFormat      = {1}SubjectColumn.fieldFormat
                 dynValueColumn.columnSize     = {1}SubjectColumn.columnSize
                 dynValueColumn.compareValue   = {1}SubjectColumn.compareValue
+                dynValueColumn.custListField  = {1}SubjectColumn.custListField
                 dynValueColumn.dataType       = {1}SubjectColumn.dataType
                 dynValueColumn.groupCalc      = {1}SubjectColumn.groupCalc
                 dynValueColumn.groupLabel     = {1}SubjectColumn.groupLabel
@@ -97,7 +101,6 @@ PROCEDURE pSetDynParamValue:
                 dynValueColumn.sortCol        = {1}SubjectColumn.sortCol
                 dynValueColumn.sortDescending = {1}SubjectColumn.sortDescending
                 dynValueColumn.textColor      = {1}SubjectColumn.textColor
-                dynValueColumn.custListField  = {1}SubjectColumn.custListField
                 .
         END. /* each {1}SubjectColumn */
         RELEASE dynValueColumn.
