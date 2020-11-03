@@ -922,15 +922,24 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE cObjects AS CHARACTER NO-UNDO.
-
+  DEFINE VARIABLE cAccessList  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cObjects     AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lAccess      AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE lAccessClose AS LOGICAL   NO-UNDO.
+ 
   /* Code placed here will execute PRIOR to standard behavior. */
   cObjects = "First,Last,HomeSmall,JobList,EnterJob,PageUpSmall,PageDownSmall,Schedule,Sort,BackSmall".
-  FIND FIRST prgrms NO-LOCK
-       WHERE prgrms.prgmName EQ "touchSort"
-       NO-ERROR.
-  IF AVAILABLE prgrms AND
-     NOT CAN-DO(prgrms.can_run,USERID("ASI")) THEN
+  RUN methods/prgsecur.p (
+      "touchSort",
+      "Access",
+      NO, /* validate directory */
+      NO, /* show messages      */
+      NO, /* group override     */
+      OUTPUT lAccess,
+      OUTPUT lAccessClose,
+      OUTPUT cAccessList
+      ).
+  IF NOT lAccess THEN
   cObjects = REPLACE(cObjects,"Sort,","").
 
   DISPLAY sortBy WITH FRAME {&FRAME-NAME}.
