@@ -165,7 +165,7 @@ ll-sort-asc = NO /*oeinq*/.
 &SCOPED-DEFINE for-each4 for each oe-ord  WHERE ~
     oe-ord.company eq cocode ~
     and oe-ord.stat EQ 'W' ~
-   USE-INDEX ord-no NO-LOCK
+    NO-LOCK
    
 &SCOPED-DEFINE sortby-log ~
     IF lv-sort-by EQ 'ord-no'    THEN STRING(oe-ordl.ord-no,'9999999999') ELSE ~
@@ -1512,6 +1512,8 @@ PROCEDURE first-query :
 
   DEFINE VARIABLE li AS INTEGER NO-UNDO.
   DEFINE VARIABLE lv-ord-no LIKE oe-ordl.ord-no NO-UNDO.
+  DEFINE VARIABLE iFirstOrdNo AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lFirst      AS LOGICAL NO-UNDO INIT YES.
 
   RUN set-defaults.
 
@@ -1521,8 +1523,17 @@ PROCEDURE first-query :
            USE-INDEX opened NO-LOCK,
              {&for-each3}
            BREAK BY oe-ordl.ord-no DESC:
-             IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
-               lv-ord-no = oe-ordl.ord-no.
+             IF FIRST-OF(oe-ordl.ord-no) THEN DO:
+                ASSIGN 
+                    li = li + 1
+                    lv-ord-no = oe-ordl.ord-no
+                    .
+                IF lFirst THEN 
+                    ASSIGN
+                        iFirstOrdNo = lv-ord-no
+                        lFirst      = NO
+                        .       
+             END.  
              IF li GE iRecordLimit THEN LEAVE.
            END.
       END. 
@@ -1532,8 +1543,17 @@ PROCEDURE first-query :
             USE-INDEX ord-no NO-LOCK       
             BREAK BY oe-ordl.ord-no DESC:
                
-           IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
-           lv-ord-no = oe-ordl.ord-no.
+           IF FIRST-OF(oe-ordl.ord-no) THEN DO:
+              ASSIGN 
+                  li = li + 1
+                  lv-ord-no = oe-ordl.ord-no
+                  .
+              IF lFirst THEN 
+                  ASSIGN
+                      iFirstOrdNo = lv-ord-no
+                      lFirst      = NO
+                      .       
+           END.
            IF li GE iRecordLimit THEN LEAVE.
       END. /* each blank */
     END.    
@@ -1543,14 +1563,16 @@ PROCEDURE first-query :
         OPEN QUERY {&browse-name}               ~
           {&for-eachblank}                      ~
                 AND oe-ordl.ord-no GE lv-ord-no ~
-              USE-INDEX opened NO-LOCK,         ~
+                AND oe-ordl.ord-no LE iFirstOrdNo ~
+               NO-LOCK,         ~
               {&for-each2}
      &SCOPED-DEFINE joinScop 
      &SCOPED-DEFINE open-query-cad              ~
         OPEN QUERY {&browse-name}               ~
           {&for-eachblank}                      ~
                 AND oe-ordl.ord-no GE lv-ord-no ~
-              USE-INDEX opened NO-LOCK,         ~
+                AND oe-ordl.ord-no LE iFirstOrdNo ~
+              NO-LOCK,         ~
               {&for-each2}
      {oeinq/j-ordinq1.i}
   END. /* if initial */
@@ -1987,16 +2009,26 @@ PROCEDURE pPrepareAndExecuteQuery PRIVATE:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iplIsBegins AS LOGICAL NO-UNDO.
     
-    DEFINE VARIABLE iCount   AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iOrderNo AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCount      AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iLastOrdNo  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iFirstOrdNo AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lFirst      AS LOGICAL NO-UNDO INIT YES.
     
     IF iplIsBegins THEN DO:
         {&for-each1} NO-LOCK,
         {&for-each2}
         BREAK BY oe-ordl.ord-no DESCENDING:
-            IF FIRST-OF(oe-ordl.ord-no) THEN 
-                iCount = iCount + 1.
-            iOrderNo = oe-ordl.ord-no.
+            IF FIRST-OF(oe-ordl.ord-no) THEN DO:
+                ASSIGN 
+                    iCount = iCount + 1
+                    iLastOrdNo = oe-ordl.ord-no
+                    .
+                IF lFirst THEN 
+                    ASSIGN 
+                        iFirstOrdNo = oe-ordl.ord-no
+                        lFirst      = NO
+                        .            
+            END.
             IF iCount GE iRecordLimit THEN 
                 LEAVE.
         END. 
@@ -2004,14 +2036,16 @@ PROCEDURE pPrepareAndExecuteQuery PRIVATE:
         &SCOPED-DEFINE open-query           ~
             OPEN QUERY {&browse-name}       ~
                 {&for-each11}    ~
-                    AND oe-ordl.ord-no GE iOrderNo ~
+                    AND oe-ordl.ord-no GE iLastOrdNo ~
+                    AND oe-ordl.ord-no LE iFirstOrdNo ~
                     NO-LOCK, ~
                     {&for-each2}
         &SCOPED-DEFINE joinScop 
         &SCOPED-DEFINE open-query-cad       ~
             OPEN QUERY {&browse-name}       ~
                 {&for-each11}                ~
-                    AND oe-ordl.ord-no GE iOrderNo ~
+                    AND oe-ordl.ord-no GE iLastOrdNo ~
+                    AND oe-ordl.ord-no LE iFirstOrdNo ~
                      NO-LOCK, ~
                     {&for-each2}    
         {oeinq/j-ordinq1.i}                  
@@ -2020,9 +2054,17 @@ PROCEDURE pPrepareAndExecuteQuery PRIVATE:
         {&for-each11} NO-LOCK,
         {&for-each2}
         BREAK BY oe-ordl.ord-no DESCENDING:
-            IF FIRST-OF(oe-ordl.ord-no) THEN 
-                iCount = iCount + 1.
-            iOrderNo = oe-ordl.ord-no.
+            IF FIRST-OF(oe-ordl.ord-no) THEN DO:
+                ASSIGN 
+                    iCount = iCount + 1
+                    iLastOrdNo = oe-ordl.ord-no
+                    .
+                IF lFirst THEN 
+                    ASSIGN 
+                        iFirstOrdNo = oe-ordl.ord-no
+                        lFirst      = NO
+                        .            
+            END.
             IF iCount GE iRecordLimit THEN 
                 LEAVE.
         END. 
@@ -2030,14 +2072,16 @@ PROCEDURE pPrepareAndExecuteQuery PRIVATE:
         &SCOPED-DEFINE open-query           ~
             OPEN QUERY {&browse-name}       ~
                 {&for-each1}    ~
-                    AND oe-ordl.ord-no GE iOrderNo ~
+                    AND oe-ordl.ord-no GE iLastOrdNo ~
+                    AND oe-ordl.ord-no LE iFirstOrdNo ~
                     NO-LOCK, ~
                     {&for-each2}
         &SCOPED-DEFINE joinScop 
         &SCOPED-DEFINE open-query-cad       ~
             OPEN QUERY {&browse-name}       ~
                 {&for-each1}                ~
-                    AND oe-ordl.ord-no GE iOrderNo ~
+                    AND oe-ordl.ord-no GE iLastOrdNo ~
+                    AND oe-ordl.ord-no LE iFirstOrdNo ~
                      NO-LOCK, ~
                     {&for-each2}    
         {oeinq/j-ordinq1.i}                     
