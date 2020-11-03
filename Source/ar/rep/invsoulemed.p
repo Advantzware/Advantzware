@@ -355,7 +355,7 @@ FOR each report
 
      END.
 
-     PUT "[@startPage" + TRIM(STRING(ar-inv.inv-no,">>>>>9")) + "]" FORMAT "X(50)".
+     PUT "[@startPage" + TRIM(STRING(ar-inv.inv-no,">>>>>>9")) + "]" FORMAT "X(50)".
      {ar/rep/invsoulemed.i}  /* xprint form */
      ASSIGN 
        v-printline = 29
@@ -556,7 +556,7 @@ FOR each report
         SKIP . 
 /*     ASSIGN v-printline = v-printline + 8. */
     lv-pg-num = PAGE-NUM.
-    PUT "[@endPage" + TRIM(STRING(ar-inv.inv-no,">>>>>9")) + "]" FORMAT "X(50)".  
+    PUT "[@endPage" + TRIM(STRING(ar-inv.inv-no,">>>>>>9")) + "]" FORMAT "X(50)".  
 /*     IF v-printline <= lv-line-print THEN page. /*PUT SKIP(74 - v-printline). */ */
     PAGE.
     DO TRANSACTION:

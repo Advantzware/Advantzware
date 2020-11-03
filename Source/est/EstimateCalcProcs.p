@@ -31,6 +31,7 @@ DEFINE VARIABLE gcInkMatTypes                         AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcPackMatTypes                        AS CHARACTER NO-UNDO INITIAL "5,6,C,D,J,M".
 DEFINE VARIABLE gcLeafMatTypes                        AS CHARACTER NO-UNDO INITIAL "F,W".
 DEFINE VARIABLE gcWindowMatTypes                      AS CHARACTER NO-UNDO INITIAL "W".
+DEFINE VARIABLE gcWaxMatTypes                         AS CHARACTER NO-UNDO INITIAL "W".
 DEFINE VARIABLE gcAdderMatTypes                       AS CHARACTER NO-UNDO INITIAL "A".
 
 DEFINE VARIABLE gcDeptsForPrinters                    AS CHARACTER NO-UNDO INITIAL "PR".
@@ -57,6 +58,8 @@ DEFINE VARIABLE gcDefaultWeightUOM                    AS CHARACTER NO-UNDO INITI
 DEFINE VARIABLE gcDefaultAreaUOM                      AS CHARACTER NO-UNDO INITIAL "SQIN".
 DEFINE VARIABLE gcDefaultBasisWeightUOM               AS CHARACTER NO-UNDO INITIAL "LBS/MSF".
 
+DEFINE VARIABLE gdWindowDimOverlap                    AS DECIMAL   NO-UNDO INITIAL 0.5.
+
 /*Settings Globals*/
 DEFINE VARIABLE gcPrepRoundTo                         AS CHARACTER NO-UNDO.  /*CEPREP - char val - potentially deprecate*/
 DEFINE VARIABLE gcPrepMarkupOrMargin                  AS CHARACTER NO-UNDO.  /*CEPrepPrice - char val*/
@@ -68,7 +71,6 @@ DEFINE VARIABLE glUsePlateChangesAsColorForSetupWaste AS LOGICAL   NO-UNDO INITI
 DEFINE VARIABLE glVendItemCost                        AS LOGICAL   NO-UNDO INITIAL YES.    /*VendItemCost - log val*/
 DEFINE VARIABLE glApplyOperationMinimumCharge         AS LOGICAL   NO-UNDO. /*CEPRICE Logical*/
 DEFINE VARIABLE glApplyOperationMinimumChargeRunOnly  AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE glRoundPriceToDollar                  AS LOGICAL   NO-UNDO.  /*CEROUND*/
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -603,6 +605,9 @@ PROCEDURE pAddEstItem PRIVATE:
         opbf-estCostItem.areaUOM                   = "SQIN"
         opbf-estCostItem.dimUOM                    = "IN"
         opbf-estCostItem.quantityPerSet            = fGetQuantityPerSet(BUFFER ipbf-eb)
+        opbf-estCostItem.formNo                    = ipbf-eb.form-no
+        opbf-estCostItem.blankNo                   = ipbf-eb.blank-no
+        
         .
     
 
@@ -1296,7 +1301,6 @@ PROCEDURE pAddLeaf PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
 
-    DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-estCostForm FOR estCostForm.
     DEFINE INPUT PARAMETER ipcItemCode AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcDescription AS CHARACTER NO-UNDO.
@@ -1346,21 +1350,17 @@ PROCEDURE pAddLeaf PRIVATE:
                 ttLeaf.cMaterialType       = bf-item.mat-type
                 ttLeaf.cQtyUOM             = IF bf-item.cons-uom EQ "" THEN "LB" ELSE bf-item.cons-uom    
                 ttLeaf.dDimLength          = ipdLength
-                ttLeaf.dDimWidth           = ipdWidth     
-                ttLeaf.dAreaInSQIn         = ipdLength * ipdWidth
+                ttLeaf.dDimWidth           = ipdWidth    
+                ttLeaf.dAreaInSqInAperture = ipdLength * ipdWidth 
                 ttLeaf.cDescription        = IF ipcDescription NE "" THEN ipcDescription ELSE ttLeaf.cDescription
                 ttLeaf.dCoverageRate       = bf-item.sqin-lb
                 ttLeaf.cCoverageRateUOM    = "SQIN/LB"
+                ttLeaf.dQtyRequiredPerLeaf = ttLeaf.dAreaInSQIn / ttLeaf.dCoverageRate
                 ttLeaf.lIsSheetFed         = ipiBlankNo EQ 0
-                ttLeaf.lIsWindow           = CAN-DO(gcWindowMatTypes, bf-item.mat-type)
+                ttLeaf.lIsWindow           = CAN-DO(gcWindowMatTypes, bf-item.mat-type) AND bf-item.industry EQ "1"
+                ttLeaf.lIsWax              = CAN-DO(gcWaxMatTypes, bf-item.mat-type) AND bf-item.industry EQ "2"
                 .
-            IF ttLeaf.cMaterialType EQ "W" AND bf-item.shrink NE 0 AND ipbf-estCostHeader.industry EQ gcIndustryCorrugated  THEN 
-                ASSIGN 
-                    ttLeaf.dAreaInSQIn = ((dAreaInSQIn / 144000) * ipbf-estCostForm.basisWeight) * bf-item.shrink
-                    ttLeaf.dCoverageRate = 1
-                    .
-            ttLeaf.dQtyRequiredPerLeaf = ttLeaf.dAreaInSQIn / ttLeaf.dCoverageRate.
-                
+            
             FIND FIRST bf-estCostBlank EXCLUSIVE-LOCK 
                 WHERE bf-estCostBlank.estCostHeaderID EQ ttLeaf.estHeaderID
                 AND bf-estCostBlank.estCostFormID EQ ttLeaf.estFormID
@@ -1369,7 +1369,7 @@ PROCEDURE pAddLeaf PRIVATE:
             IF AVAILABLE bf-estCostBlank THEN 
                 ASSIGN
                     /*Only add Window Area if material is a Window - i.e. cut out*/ 
-                    bf-estCostBlank.blankAreaWindow    = bf-estCostBlank.blankAreaWindow + IF ttLeaf.lIsWindow THEN ttLeaf.dAreaInSQIn ELSE 0
+                    bf-estCostBlank.blankAreaWindow    = bf-estCostBlank.blankAreaWindow + IF ttLeaf.lIsWindow THEN ttLeaf.dAreaInSQInAperture ELSE 0
                     bf-estCostBlank.blankAreaNetWindow = bf-estCostBlank.blankArea - bf-estCostBlank.blankAreaWindow
                     ttLeaf.estBlankID                  = bf-estCostBlank.estCostBlankID
                     .
@@ -1752,7 +1752,6 @@ PROCEDURE pBuildProbe PRIVATE:
     DEFINE VARIABLE iProbeLine     AS INTEGER NO-UNDO.
     DEFINE VARIABLE dQtyInM        AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQtyInMForItem AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dPricePerM     AS DECIMAL NO-UNDO.
        
     DISABLE TRIGGERS FOR LOAD OF probe.
     
@@ -1814,8 +1813,7 @@ PROCEDURE pBuildProbe PRIVATE:
         bf-probe.full-cost      = ipbf-estCostHeader.costTotalFull / dQtyInM
         bf-probe.gross-profit   = ipbf-estCostHeader.profitPctGross
         bf-probe.net-profit     = ipbf-estCostHeader.profitPctNet 
-        dPricePerM              = ipbf-estCostHeader.sellPrice / dQtyInM
-        bf-probe.sell-price     = IF glRoundPriceToDollar THEN ROUND(dPricePerM, 0) ELSE ROUND(dPricePerM, 2)
+        bf-probe.sell-price     = ipbf-estCostHeader.sellPrice / dQtyInM
         bf-probe.spare-dec-1    = ipbf-estCostHeader.costTotalMaterial / dQtyInM
         bf-probe.boardCostTotal = ipbf-estCostHeader.costTotalBoard
         bf-probe.boardCostPerM  = ipbf-estCostHeader.costTotalBoard / dQtyInM
@@ -1850,10 +1848,9 @@ PROCEDURE pBuildProbe PRIVATE:
                 .
         END.
         ASSIGN
-            dPricePerM            = estCostItem.sellPrice / dQtyInMForItem
             bf-probeit.fact-cost  = estCostItem.costTotalFactory / dQtyInMForItem
             bf-probeit.full-cost  = estCostItem.costTotalFull / dQtyInMForItem
-            bf-probeit.sell-price = IF glRoundPriceToDollar THEN ROUND(dPricePerM, 0) ELSE ROUND(dPricePerM, 2)
+            bf-probeit.sell-price = estCostItem.sellPrice / dQtyInMForItem
             bf-probeit.brd-cost   = estCostItem.costTotalBoard / dQtyInMForItem
             .
         RELEASE bf-probeit.
@@ -2418,7 +2415,7 @@ PROCEDURE pBuildLeafForEf PRIVATE:
 
     DO iIndex = 1 TO 4:
         IF ipbf-ef.leaf[iIndex] NE "" THEN
-            RUN pAddLeaf(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, ipbf-ef.leaf[iIndex], ipbf-ef.leaf-dscr[iIndex], ipbf-ef.leaf-bnum[iIndex], ipbf-ef.leaf-l[iIndex], ipbf-ef.leaf-w[iIndex]).
+            RUN pAddLeaf(BUFFER ipbf-estCostForm, ipbf-ef.leaf[iIndex], ipbf-ef.leaf-dscr[iIndex], ipbf-ef.leaf-bnum[iIndex], ipbf-ef.leaf-l[iIndex], ipbf-ef.leaf-w[iIndex]).
     END.
     
 
@@ -4635,8 +4632,6 @@ PROCEDURE pSetGlobalSettings PRIVATE:
         IF lFound THEN glApplyOperationMinimumChargeRunOnly = cReturn EQ "RunOnly".
     END.
     
-    RUN sys/ref/nk1look.p (ipcCompany, "CERound", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    IF lFound THEN glRoundPriceToDollar = cReturn EQ "Dollar".
 END PROCEDURE.
 
 

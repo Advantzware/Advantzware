@@ -15,6 +15,7 @@ def shared var tmp-dir as cha no-undo.
 
 {cec/print4.i shared shared}
 {cec/print42.i shared}
+{methods/getExecutableFileName.i quoter}
 
 def var qm as de.
 def var v as int.
@@ -53,20 +54,11 @@ for each ef
                          string(v-form-no,"99")   + ".s" +
                          string(probe.line,v-probe-fmt).
 
-  v-quotercmd = SEARCH("quoter.exe").
+  v-quotercmd = cQuoterFullPathName.
   v-quotercmd = v-quotercmd + " -c 1-85 " + outfile3 + " > " +
                           (tmp-dir + trim(xest.est-no) + ".q" + string(probe.line,v-probe-fmt)).
 
   DOS SILENT VALUE(v-quotercmd).
-
-/*   if opsys eq "unix" then                                 */
-/*     unix silent quoter -c 1-85 value(outfile3) >          */
-/*          value(tmp-dir + trim(xest.est-no) + ".q"         */
-/*                        + string(probe.line,v-probe-fmt)). */
-/*   else                                                    */
-/*     dos  silent quoter -c 1-85 value(outfile3) >          */
-/*          value(tmp-dir + trim(xest.est-no) + ".q"         */
-/*                        + string(probe.line,v-probe-fmt)). */
 
   input from value(tmp-dir + trim(xest.est-no) + ".q"
                            + string(probe.line,v-probe-fmt)).

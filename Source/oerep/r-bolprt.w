@@ -133,8 +133,16 @@ DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
 RUN api/OutboundProcs.p        PERSISTENT SET hdOutboundProcs.
 RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
- RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+DEFINE VARIABLE cdAOABOLPost AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ldAOABOLPost AS LOGICAL   NO-UNDO.
+
+RUN sys/ref/nk1look.p (
+    g_company, "dAOABOLPost", "L", NO, NO, "", "",
+    OUTPUT cdAOABOLPost, OUTPUT ldAOABOLPost
+    ).
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+   INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
@@ -1049,6 +1057,13 @@ DO:
            RUN oe/rep/d-ptree.w(INPUT  begin_bol#,INPUT end_bol#,INPUT begin_cust,INPUT end_cust,INPUT begin_date,INPUT end_date)   .
        END.
    END.
+   
+   IF rd_bolcert EQ "BOL" THEN DO:
+       IF v-print-fmt = "Mclean-Excel"   THEN do:
+           EMPTY TEMP-TABLE tt-temp-report .
+           RUN oe/rep/d-mclean.w(INPUT  begin_bol#,INPUT end_bol#,INPUT begin_cust,INPUT end_cust,INPUT begin_date,INPUT end_date)   .
+       END.
+   END.
 
   
    CASE rd-dest:
@@ -1595,11 +1610,15 @@ DO:
    END.
 
    IF ll THEN do:
-      RUN post-bol.
-      FIND FIRST tt-email NO-LOCK NO-ERROR.
-      IF AVAIL tt-email THEN RUN email-reorderitems.
-
-      MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
+       IF ldAOABOLPost AND cdAOABOLPost EQ "YES" THEN
+           RUN pdAOABOLPost.
+       ELSE DO:
+           RUN post-bol.
+           FIND FIRST tt-email NO-LOCK NO-ERROR.
+           IF AVAIL tt-email THEN
+               RUN email-reorderitems.
+       END.
+       MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
    END.
    
    ELSE IF tb_post-bol THEN 
@@ -2303,6 +2322,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
+
+{AOA/includes/pInitDynParamValue.i}
+{AOA/includes/pGetDynParamValue.i}
+{AOA/includes/pSetDynParamValue.i "dyn"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3501,7 +3524,7 @@ PROCEDURE GenerateMail :
 
     IF NOT vcBOLNums GT '' THEN RETURN.
 
-    IF v-print-fmt = "SouthPak-XL" OR v-print-fmt = "Prystup-Excel" THEN do:
+    IF v-print-fmt = "SouthPak-XL" OR v-print-fmt = "Prystup-Excel" OR v-print-fmt = "Mclean-Excel" THEN do:
        ASSIGN lv-pdf-file = init-dir + "\" + string(b1-oe-bolh.bol-no) + ".pdf".
 
        END.
@@ -3560,7 +3583,7 @@ PROCEDURE GenerateReport :
    DEFINE INPUT PARAMETER ip-cust-no AS CHAR NO-UNDO.
    DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
 
-   IF (v-print-bol AND v-print-fmt <> "SouthPak-XL" AND v-print-fmt <> "Prystup-Excel") OR
+   IF (v-print-bol AND v-print-fmt <> "SouthPak-XL" AND v-print-fmt <> "Prystup-Excel" AND v-print-fmt <> "Mclean-Excel") OR
       (NOT v-print-bol AND v-print-fmt <> "Unipak-XL" AND v-print-fmt <> "PrystupXLS" AND v-print-fmt <> "ACPI" AND v-print-fmt <> "Soule" AND v-print-fmt <> "CCC" AND v-print-fmt <> "CCCWPP" AND v-print-fmt <> "CCC3" AND v-print-fmt <> "CCC2" AND v-print-fmt <> "CCC4" AND v-print-fmt <> "CCC5") THEN
       case rd-dest:
          when 1 then run output-to-printer(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
@@ -3835,7 +3858,7 @@ PROCEDURE output-to-mail :
                            INPUT 1,
                            INPUT v-printed).
 
-      IF v-print-fmt = "SouthPak-XL" OR v-print-fmt = "Prystup-Excel"  THEN do:
+      IF v-print-fmt = "SouthPak-XL" OR v-print-fmt = "Prystup-Excel" OR v-print-fmt = "Mclean-Excel"  THEN do:
          ASSIGN lv-pdf-file = init-dir + "\bol" + ".pdf".
           /* RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").  */
       END.
@@ -4106,7 +4129,8 @@ PROCEDURE pCreatettExceptionBOL PRIVATE:
        ttExceptionBOL.bOrdNo  = oe-boll.b-ord-no
        ttExceptionBOL.custNo  = oe-bolh.cust-no
        ttExceptionBOL.poNo    = oe-boll.PO-NO
-       ttExceptionBOL.reason  = ipcReason.
+       ttExceptionBOL.reason  = ipcReason
+       .
   
 
 END PROCEDURE.
@@ -4114,6 +4138,38 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pdAOABOLPost C-Win
+PROCEDURE pdAOABOLPost:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cParamList  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParamValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hBOLPost    AS HANDLE    NO-UNDO.
+    ASSIGN
+        cParamList  = "company,location,postDate,custList,allCustNo,"
+                    + "startCustNo,endCustNo,startBOLDate,endBOLDate,"
+                    + "allBOL,startBOL,endBOL,post"
+        cParamValue = g_company + ","
+                    + g_loc + ","
+                    + STRING(TODAY,"99/99/9999") + ",no,no,"
+                    + begin_cust + ","
+                    + end_cust + ","
+                    + STRING(begin_date,"99/99/9999") + ","
+                    + STRING(end_date,"99/99/9999") + ",no,"
+                    + STRING(begin_bol#) + ","
+                    + STRING(end_bol#) + ",yes"
+        .
+    RUN pInitDynParamValue (19, "", "", 0, cParamList, cParamValue).
+    RUN AOA/dynBL/r-bolpst.p PERSISTENT SET hBOLPost.
+    RUN pBusinessLogic IN hBOLPost.
+    DELETE PROCEDURE hBOLPost.
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pdfArchive C-Win 

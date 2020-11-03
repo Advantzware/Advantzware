@@ -73,9 +73,9 @@ ASSIGN cocode = g_company
 &Scoped-define FIELDS-IN-QUERY-Browser-Table users.user_id users.user_name users.phone users.image_filename users.userType users.securityLevel   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table   
 &Scoped-define SELF-NAME Browser-Table
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH users WHERE {&KEY-PHRASE} AND     users.user_id = userid(ldbname(1)) OR     zUsers.securityLevel GE 1000 OR     (zUsers.securityLevel GE 700 AND users.user_id NE "ASI") NO-LOCK, ~
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH users WHERE {&KEY-PHRASE} AND     users.user_id = userid(ldbname(1)) OR     zUsers.securityLevel GE 1000 OR     (zUsers.securityLevel GE 900 AND users.user_id NE "ASI") NO-LOCK, ~
                FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK         BY {&SortByPhrase}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY {&SELF-NAME} FOR EACH users WHERE {&KEY-PHRASE} AND     users.user_id = userid(ldbname(1)) OR     zUsers.securityLevel GE 1000 OR     (zUsers.securityLevel GE 700 AND users.user_id NE "ASI") NO-LOCK, ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY {&SELF-NAME} FOR EACH users WHERE {&KEY-PHRASE} AND     users.user_id = userid(ldbname(1)) OR     zUsers.securityLevel GE 1000 OR     (zUsers.securityLevel GE 900 AND users.user_id NE "ASI") NO-LOCK, ~
                FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK         BY {&SortByPhrase}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table users usr
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table users
@@ -239,7 +239,7 @@ ASSIGN
 OPEN QUERY {&SELF-NAME} FOR EACH users WHERE {&KEY-PHRASE} AND
     users.user_id = userid(ldbname(1)) OR
     zUsers.securityLevel GE 1000 OR
-    (zUsers.securityLevel GE 700 AND users.user_id NE "ASI") NO-LOCK,
+    (zUsers.securityLevel GE 900 AND users.user_id NE "ASI") NO-LOCK,
         FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK
         BY {&SortByPhrase}.
      _END_FREEFORM
@@ -247,7 +247,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH users WHERE {&KEY-PHRASE} AND
      _TblOptList       = "USED, FIRST USED"
      _Where[1]         = "users.user_id = userid(ldbname(1)) or
 zUsers.securityLevel GE 1000 OR
-(zUsers.securityLevel GE 700 AND users.securityLevel LE zUsers.securityLevel)"
+(zUsers.securityLevel GE 900 AND users.securityLevel LE zUsers.securityLevel)"
      _JoinCode[2]      = "usr.uid EQ users.user_id"
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
@@ -281,7 +281,7 @@ DO:
                     FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK
                     {&SORTBY-PHRASE}.
             END.
-            ELSE IF zUsers.securityLevel GE 700 THEN DO:
+            ELSE IF zUsers.securityLevel GE 900 THEN DO:
                 OPEN QUERY browser-table FOR EACH users WHERE
                     users.user_id NE "asi" AND
                     (IF INDEX(SELF:SCREEN-VALUE,'*') EQ 0 THEN
@@ -308,7 +308,7 @@ DO:
                     FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK
                     {&SORTBY-PHRASE}.
             END.
-            ELSE IF zUsers.securityLevel GE 700 THEN DO:
+            ELSE IF zUsers.securityLevel GE 900 THEN DO:
                 OPEN QUERY browser-table FOR EACH users WHERE
                     users.user_id NE "asi" AND
                     (IF INDEX(SELF:SCREEN-VALUE,'*') EQ 0 THEN
@@ -336,7 +336,7 @@ DO:
         OPEN QUERY browser-table FOR EACH users WHERE 
             users.user_id = userid(ldbname(1)) OR
             zUsers.securityLevel GE 1000 OR
-            (zUsers.securityLevel GE 700 AND users.user_id NE "ASI") NO-LOCK,
+            (zUsers.securityLevel GE 900 AND users.user_id NE "ASI") NO-LOCK,
                 FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK
                 BY {&SortByPhrase}.
         ASSIGN

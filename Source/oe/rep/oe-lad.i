@@ -37,4 +37,9 @@ DEF TEMP-TABLE tt-boll LIKE oe-boll
 
 DEF BUFFER b-tt-boll FOR tt-boll.
 
-DEF {1} SHARED TEMP-TABLE tt-temp-report LIKE report .
+DEF {1} SHARED TEMP-TABLE tt-temp-report LIKE report
+     FIELD cCarrier as CHARACTER
+     FIELD cTrailer as CHARACTER
+     FIELD cScac as CHARACTER
+     FIELD cProName as CHARACTER
+     FIELD cSpecInst as CHARACTER.

@@ -2133,8 +2133,7 @@ FUNCTION pReplaceContext RETURNS CHARACTER PRIVATE
 
     DO iIndex = 1 TO NUM-ENTRIES(zMessage.contextParms,","):
         cContextValue = scInstance:ConsumeValue(TRIM(ENTRY(iIndex,zMessage.contextParms,","))).
-        IF cContextValue NE "" THEN 
-            RUN updateRequestData(INPUT-OUTPUT ipcMessage ,TRIM(ENTRY(iIndex,zMessage.contextParms,",")),cContextValue).        
+        RUN updateRequestData(INPUT-OUTPUT ipcMessage ,TRIM(ENTRY(iIndex,zMessage.contextParms,",")),cContextValue).        
     END.   
     RETURN ipcMessage.
 

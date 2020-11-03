@@ -25,8 +25,7 @@ def new shared var v-uom-rate as int init 0.
 
 {oe/oe-bolpi.i NEW}
 
-DEF NEW SHARED TEMP-TABLE tt-bolh NO-UNDO LIKE oe-bolh
-                    FIELD trans-date AS DATE .
+DEF NEW SHARED TEMP-TABLE tt-bolh NO-UNDO LIKE oe-bolh.
 DEF NEW SHARED TEMP-TABLE tt-boll NO-UNDO LIKE oe-boll.
 
 def shared var v-back like itemfg.q-back.

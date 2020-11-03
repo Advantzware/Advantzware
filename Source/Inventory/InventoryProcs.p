@@ -801,6 +801,20 @@ PROCEDURE pBuildRMBinForItem PRIVATE:
     END.
 END PROCEDURE.
 
+PROCEDURE Inventory_GetStatusOnHold:
+    DEFINE INPUT  PARAMETER ipcStatusID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplOnHold   AS LOGICAL   NO-UNDO. 
+    
+    FIND FIRST inventoryStatusType NO-LOCK
+         WHERE inventoryStatusType.statusID EQ ipcStatusID
+         NO-ERROR. 
+
+    IF AVAILABLE inventoryStatusType THEN 
+        oplOnHold = inventoryStatusType.onHold.           
+
+
+END PROCEDURE.
+
 PROCEDURE pCalculateAverageRawMaterialCost PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -2254,7 +2268,7 @@ PROCEDURE pPostRawMaterials PRIVATE:
                     bf-mat-act.qty     = bf-mat-act.qty     + dJobMatUOMQty
                     bf-job-mat.qty-iss = bf-job-mat.qty-iss + dJobMatUOMQty
                     bf-job-mat.qty-all = bf-job-mat.qty-all - dJobMatUOMQty
-                    bf-item.q-comm     = bf-item.q-comm     - bf-rm-rctd.qty
+                    //bf-item.q-comm     = bf-item.q-comm     - bf-rm-rctd.qty -> Should be handled in write trigger of job-mat
                     .
 
                 RUN Conv_QuantityFromUOMToUOM (
@@ -2297,7 +2311,7 @@ PROCEDURE pPostRawMaterials PRIVATE:
 
                     ASSIGN
                         bf-job-mat.qty-all = 0
-                        bf-item.q-comm     = bf-item.q-comm - dJobMatUOMQty
+                        //bf-item.q-comm     = bf-item.q-comm - dJobMatUOMQty
                         .
                 END.
 

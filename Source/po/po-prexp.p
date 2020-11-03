@@ -15,6 +15,7 @@ def buffer b-ref1  for reftable.
 def buffer b-ref2  for reftable.
 
 {po/po-print.i}
+{methods/getExecutableFileName.i quoter}
 
 def var v-sname like shipto.ship-name.
 def var v-saddr like shipto.ship-addr.
@@ -639,29 +640,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
   if search(v-outfile[2]) ne ? then do:
     
     output close.   
-    /*===
-    if opsys eq "unix" then
-      unix silent quoter -c 1-3000 value(v-outfile[2]) >
-                                   value(v-outfile[2] + ".quo").
-    else
-      dos  silent quoter -c 1-3000 value(v-outfile[2]) >
-                                   value(v-outfile[2] + ".quo").
-                                   
-    input from value(v-outfile[2] + ".quo").
-    
-    output to value(v-outfile[4]).
-    
-    repeat:
-      v-line = fill(" ",128).
-      import v-line.
-      put v-line format "x(128)" /*skip*/.
-    end.
 
-
-    output close.
-    
-    input close.
-    ===*/
     OS-COPY VALUE(v-outfile[2]) VALUE(v-outfile[4]).
 
     if opsys eq "unix" then

@@ -377,7 +377,10 @@ DO:
     
     DYNAMIC-FUNCTION ("fStartPurge", "job").
      
-      
+    /* ensure job-no values are formatted correctly */
+    APPLY "LEAVE":U TO fiStartJob.
+    APPLY "LEAVE":U TO fiEndJob.
+
     /* Optimize these to use the best index given entered values */
     IF rsOpen:SCREEN-VALUE EQ "C" THEN DO:  /* Closed jobs only, use close-date for index */
         FOR EACH job NO-LOCK WHERE 

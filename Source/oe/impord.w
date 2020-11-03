@@ -153,13 +153,6 @@ btn-cancel
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-/* ************************  Function Prototypes ********************** */
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pCheckIntDecValue B-table-Win
-FUNCTION pCheckIntDecValue RETURNS CHARACTER 
-  (pcString AS CHARACTER  ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -508,8 +501,6 @@ PROCEDURE BuildImpTable :
  DEFINE VARIABLE cPO#     AS CHARACTER NO-UNDO.
  DEFINE VARIABLE isPOSame AS LOGICAL   NO-UNDO.
  DEFINE VARIABLE cEstNo   AS CHARACTER NO-UNDO.
- DEFINE VARIABLE dtDateField AS DATE    NO-UNDO.
- DEFINE VARIABLE cCheckField AS CHARACTER NO-UNDO.
 
  IF ipFileName NE '' THEN DO: /* 05291402 */
    INPUT FROM VALUE(ipFileName) NO-ECHO.
@@ -522,16 +513,9 @@ PROCEDURE BuildImpTable :
         IF ENTRY(1,cInput) = "H" THEN DO:
             IF NOT CAN-FIND(cust WHERE cust.company = cocode AND cust.cust-no = entry(2,cInput))
                 THEN DO:
-                      ASSIGN gcImportError = "Header Error - Invalid Customer:" + entry(2,cInput).
+                      ASSIGN gcImportError = "Header Error - No Customer:" + entry(2,cInput).
                       RETURN.
-            END.  
-            
-            dtDateField = DATE(ENTRY(4,cInput)) NO-ERROR .             
-            IF dtDateField EQ ?
-                THEN DO:
-                      ASSIGN gcImportError = "Header Error - Invalid Date:" + entry(4,cInput).
-                      RETURN.
-            END.  
+            END.          
 
             CREATE ttHeader.
             ASSIGN ttHeader.Order# = GetNextOrder#()
@@ -564,38 +548,9 @@ PROCEDURE BuildImpTable :
         ELSE DO:
             IF NOT CAN-FIND(itemfg WHERE itemfg.company = cocode AND itemfg.i-no = ENTRY(2,cInput)) 
             THEN DO:
-                          ASSIGN gcImportError = "Detail Error - Invalid FG Item:" + entry(2,cInput).                        
+                          ASSIGN gcImportError = "Detail Error - No FG Item:" + entry(2,cInput).                        
                           RETURN.
             END.
-                
-            IF ENTRY(4,cInput) <> "" THEN
-            DO:              
-                cCheckField = pCheckIntDecValue(ENTRY(4,cInput))  .                        
-                IF cCheckField EQ ?  
-                    THEN DO:
-                          ASSIGN gcImportError = "Detail Error - Invalid Qty Value:" + entry(4,cInput).
-                          RETURN.
-                END. 
-            END.
-            
-            IF ENTRY(6,cInput) <> "" THEN
-            DO:              
-                cCheckField = pCheckIntDecValue(ENTRY(6,cInput))  .                        
-                IF cCheckField EQ ?  
-                    THEN DO:
-                          ASSIGN gcImportError = "Detail Error - Invalid Price Value:" + entry(6,cInput).
-                          RETURN.
-                END. 
-            END.
-             
-              
-            dtDateField = DATE(ENTRY(8,cInput)) NO-ERROR .             
-            IF dtDateField EQ ? AND ENTRY(8,cInput) <> "" 
-                THEN DO:
-                      ASSIGN gcImportError = "Detail Error - Invalid Due Date:" + entry(8,cInput).
-                      RETURN.
-            END.  
-            
             
             IF cEstNo NE "" THEN
                 IF NOT CAN-FIND(FIRST eb 
@@ -1033,8 +988,7 @@ PROCEDURE CreateOrder :
           run oe/ordlup.p.         /* Update Inventory and Job Costing */
       END.
       */
-      
-      RUN oe/calcordt.p (ROWID(oe-ord)).
+
       
       /* Determine autoapproval for this customer/shipto */
       lOEAutoApproval = NO.
@@ -1603,37 +1557,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-/* ************************  Function Implementations ***************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pCheckIntDecValue B-table-Win 
-FUNCTION pCheckIntDecValue RETURNS CHARACTER
-  ( INPUT pcString AS CHARACTER ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-
-DEFINE VARIABLE iChar AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iAsc AS INTEGER NO-UNDO.
-
-    DEFINE VARIABLE cTemp AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cChar AS CHARACTER NO-UNDO.
-
-    DO iChar = 1 TO LENGTH(pcString):
-        ASSIGN cChar = SUBSTRING(pcString,iChar,1)
-                        iAsc = ASC(cChar).
-
-        IF iAsc GT 47 AND
-             iAsc LT 58 THEN
-           cTemp = cTemp + cChar.
-    END.
-
-    IF (cTemp GT "") EQ TRUE THEN
-        RETURN cTemp.
-    ELSE
-        RETURN ?. /* If no integers in the string return the unknown value. */
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
