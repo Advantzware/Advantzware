@@ -46,7 +46,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "JobRecalc,JobBuildVersion,CEWood,SalesTaxRoundingMethod,SalesTaxCalcMethod,FGTagValidation,DynParamValidation,DateRule,VertexTaxClassDefault,"
            + "CapacityHTMLFolder,InvoiceApprovalBillNotes,InvoiceApprovalFreightAmount,InvoiceApprovalFreightTerms,InvoiceApprovalPriceGTCost,InvoiceApprovalInvoiceStatus,"
            + "InvoiceApprovalTaxableCheck,CalcJobDueDate,FGBOLTransferPost,FGMasterLoc,FGOversDefault,InvoiceApprovalTaxCalc,SSTagStatus,CEWindow,"            
-           + "ZohoRefreshToken,ZohoClientID,ZohoClientSecret,cXMLCustomerPartSource,CEAddCustomerOption""
+           + "ZohoRefreshToken,ZohoClientID,ZohoClientSecret,cXMLCustomerPartSource,CEAddCustomerOption,TruckPlan"
            .
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -1276,7 +1276,18 @@ CASE ip-nk1-value:
             INPUT 8,                                                              /* Int value */
             INPUT NO,                                                             /* Logical value */ 
             INPUT 0                                                               /* Dec value*/
-            ).                                             
+            ). 
+    WHEN "TruckPlan" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                                               /* Prompt? */
+            INPUT "Truck Plan FG# is printing the value - Either FG# or Item Name", /* Description */
+            INPUT "FG Item number",                                                 /* Char Value */
+            INPUT 0,                                                                /* Int value */
+            INPUT NO,                                                               /* Logical value */ 
+            INPUT 0                                                                 /* Dec value*/
+            ).                                                
 END CASE.
 ELSE
 CASE ip-nk1-value:
