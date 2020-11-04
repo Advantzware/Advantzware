@@ -98,63 +98,63 @@ IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
                     THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object06) <> 0 &THEN
-                IF STRING({&h_Object06}) = entry(iCnt,smartObjList,",")  
+                IF STRING({&h_Object06}) = entry(iCnt,cSmartObjList,",")  
                     THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object07) <> 0 &THEN
-                IF STRING({&h_Object07}) = entry(iCnt,smartObjList,",")  
+                IF STRING({&h_Object07}) = entry(iCnt,cSmartObjList,",")  
                     THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object08) <> 0 &THEN
-                IF STRING({&h_Object08}) = entry(iCnt,smartObjList,",")  
+                IF STRING({&h_Object08}) = entry(iCnt,cSmartObjList,",")  
                     THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object09) <> 0 &THEN
-                IF STRING({&h_Object09}) = entry(iCnt,smartObjList,",")  
+                IF STRING({&h_Object09}) = entry(iCnt,cSmartObjList,",")  
                     THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object10) <> 0 &THEN
-                IF STRING({&h_Object05}) = entry(iCnt,smartObjList,",")  
+                IF STRING({&h_Object05}) = entry(iCnt,cSmartObjList,",")  
                     THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object11) <> 0 &THEN
-                IF STRING({&h_Object11}) = entry(iCnt,smartObjList,",")  
+                IF STRING({&h_Object11}) = entry(iCnt,cSmartObjList,",")  
                     THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object12) <> 0 &THEN
-                IF STRING({&h_Object12}) = entry(iCnt,smartObjList,",")  
+                IF STRING({&h_Object12}) = entry(iCnt,cSmartObjList,",")  
                     THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object13) <> 0 &THEN
-                 IF STRING({&h_Object13}) = entry(iCnt,smartObjList,",")  
+                 IF STRING({&h_Object13}) = entry(iCnt,cSmartObjList,",")  
                     THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object14) <> 0 &THEN
-                IF STRING({&h_Object14}) = entry(iCnt,smartObjList,",")  
+                IF STRING({&h_Object14}) = entry(iCnt,cSmartObjList,",")  
                     THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object15) <> 0 &THEN
-                IF STRING({&h_Object15}) = entry(iCnt,smartObjList,",")  
+                IF STRING({&h_Object15}) = entry(iCnt,cSmartObjList,",")  
                     THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object16) <> 0 &THEN
-                IF STRING({&h_Object16}) = entry(iCnt,smartObjList,",")  
+                IF STRING({&h_Object16}) = entry(iCnt,cSmartObjList,",")  
                     THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object17) <> 0 &THEN
-                IF STRING({&h_Object17}) = entry(iCnt,smartObjList,",")  
+                IF STRING({&h_Object17}) = entry(iCnt,cSmartObjList,",")  
                     THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object18) <> 0 &THEN
-                IF STRING({&h_Object18}) = entry(iCnt,smartObjList,",")  
+                IF STRING({&h_Object18}) = entry(iCnt,cSmartObjList,",")  
                     THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object19) <> 0 &THEN
-                IF STRING({&h_Object19}) = entry(iCnt,smartObjList,",")  
+                IF STRING({&h_Object19}) = entry(iCnt,cSmartObjList,",")  
                     THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object20) <> 0 &THEN
-                IF STRING({&h_Object20}) = entry(iCnt,smartObjList,",")  
+                IF STRING({&h_Object20}) = entry(iCnt,cSmartObjList,",")  
                     THEN NEXT.
             &ENDIF          
     
