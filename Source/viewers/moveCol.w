@@ -61,9 +61,9 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnMoveCol 
-     IMAGE-UP FILE "Graphics/32x32/config-table_new.png":U
-     IMAGE-DOWN FILE "Graphics/32x32/config-table_hover_new.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/config-table.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/config-table_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/config-table_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Phone" 
      SIZE 6.4 BY 1.52 TOOLTIP "Change Move/Sort Column Mode"
      BGCOLOR 21 .

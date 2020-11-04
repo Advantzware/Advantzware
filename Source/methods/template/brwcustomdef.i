@@ -20,9 +20,10 @@
 /* ***************************  Definitions  ************************** */
 
 &if defined(exclude-brw-custom) = 0 &then
-DEFINE VARIABLE colHand      AS WIDGET-HANDLE NO-UNDO.
-DEFINE VARIABLE colHandList AS CHAR NO-UNDO.
-DEFINE VARIABLE icnt        as integer no-undo. 
+DEFINE VARIABLE hColumn      AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE cColHandList AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE iCnt         AS INTEGER NO-UNDO. 
+DEFINE VARIABLE cTemp        AS CHARACTER  NO-UNDO. 
 
 &global-define exclude-brw-custom true
 &endif

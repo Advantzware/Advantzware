@@ -21,25 +21,24 @@
 
 {methods/template/brwcustomdef.i}
 
-frame {&frame-name}:BGCOLOR = 15.
-{&BROWSE-NAME}:bgcolor = 25.
-{&BROWSE-NAME}:fgcolor = 0.
-{&BROWSE-NAME}:separator-fgcolor = 15.
-{&BROWSE-NAME}:row-height-chars = 0.84.
-{&BROWSE-NAME}:font = 22.
+FRAME {&frame-name}:BGCOLOR      = 15.
+{&BROWSE-NAME}:BGCOLOR           = 25.
+{&BROWSE-NAME}:FGCOLOR           = 0.
+{&BROWSE-NAME}:SEPARATOR-FGCOLOR = 15.
+{&BROWSE-NAME}:ROW-HEIGHT-CHARS  = 0.84.
+{&BROWSE-NAME}:FONT              = 22.
 
-
-colHand = {&BROWSE-NAME}:first-column.
-do while valid-handle(colHand).
-    colHandList =  colHandList + ","  + string(colHand).
-    colHand = colHand:next-column.
+hColumn = {&BROWSE-NAME}:first-column.
+DO WHILE VALID-HANDLE(hColumn).
+    cColHandList =  cColHandList + ","  + string(hColumn).
+    hColumn      = hColumn:NEXT-COLUMN.
 END.
-colHandList = trim(colHandList, ",").
- 
+cColHandList = TRIM(cColHandList, ",").
+
 &if defined(exclude-row-display) = 0 &then
-    on 'row-display' of {&BROWSE-NAME} do:
+    ON 'row-display' OF {&BROWSE-NAME} DO:
         {methods/template/brwrowdisplay.i}
-    end.
+    END.
 &endif
 
 

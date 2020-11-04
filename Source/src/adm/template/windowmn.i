@@ -8,42 +8,45 @@
 /* Skip all of this if no window was created. */
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 
-DEFINE VARIABLE temphand     AS HANDLE    NO-UNDO.
-DEFINE VARIABLE resizeval    AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE smartObjList AS CHARACTER NO-UNDO.
-DEFINE VARIABLE icnt         AS INTEGER   NO-UNDO.
-DEFINE VARIABLE deRowPos     AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE deColPos     AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE deWidth      AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE deHeight     AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE tempcolpos   AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE hTemp           AS HANDLE    NO-UNDO.
+DEFINE VARIABLE deResizeVal   AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE cSmartObjList   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iCnt            AS INTEGER   NO-UNDO.
+DEFINE VARIABLE deRowPos        AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE deColPos        AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE deWidth         AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE deHeight        AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE deTempColPos  AS DECIMAL   NO-UNDO.
+
 DEFINE TEMP-TABLE toreposition 
- FIELDS widhand AS CHARACTER 
- FIELDS colpos AS DECIMAL
- FIELDS rowpos AS DECIMAL  
- FIELD widwidth AS DECIMAL.
+    FIELDS widhand  AS CHARACTER 
+    FIELDS colpos   AS DECIMAL
+    FIELDS rowpos   AS DECIMAL  
+    FIELDS widwidth AS DECIMAL.
 
 IF VALID-HANDLE({&WINDOW-NAME}) THEN DO:
     ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        {&WINDOW-NAME}:KEEP-FRAME-Z-ORDER = YES
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
 
-    temphand  = FRAME {&FRAME-NAME}:handle.
-    temphand  = temphand:FIRST-CHILD .       
-    IF temphand:TYPE = "FIELD-GROUP" THEN  
-        temphand  = temphand:FIRST-CHILD .
-    REPEAT WHILE VALID-HANDLE(temphand):
-        IF temphand:NAME = "OPTIONS-FRAME"  THEN
+    hTemp  = FRAME {&FRAME-NAME}:handle.
+    hTemp  = hTemp:FIRST-CHILD .       
+    IF hTemp:TYPE = "FIELD-GROUP" THEN  
+        hTemp  = hTemp:FIRST-CHILD .
+    REPEAT WHILE VALID-HANDLE(hTemp):
+        IF hTemp:NAME = "OPTIONS-FRAME"  THEN
         ASSIGN
-            temphand:ROW = 1
-            temphand:COLUMN = 1
-            temphand:BGCOLOR = 21
-            temphand:width = {&WINDOW-NAME}:width
-            temphand:VIRTUAL-HEIGHT-PIXELS = temphand:HEIGHT-PIXELS
-            temphand:VIRTUAL-WIDTH-PIXELS  = temphand:WIDTH-PIXELS. 
-        temphand = temphand:NEXT-SIBLING.
+            hTemp:ROW                   = 1
+            hTemp:COLUMN                = 1
+            hTemp:BGCOLOR               = 21
+            hTemp:WIDTH                 = {&WINDOW-NAME}:width
+            hTemp:VIRTUAL-HEIGHT-PIXELS = hTemp:HEIGHT-PIXELS
+            hTemp:VIRTUAL-WIDTH-PIXELS  = hTemp:WIDTH-PIXELS
+            . 
+        hTemp = hTemp:NEXT-SIBLING.
     END.
     
+    hTemp = ?.
      
     /* The CLOSE event can be used from inside or outside the procedure to  */
     /* terminate it.                                                        */
@@ -63,65 +66,140 @@ IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
     MAIN-BLOCK:
     DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
- 
+       // MESSAGE 0 STRING(h_import) VIEW-AS ALERT-BOX.
     /* Now enable the interface and wait for the exit condition.            */
        RUN dispatch ('initialize':U).
        
-       RUN getlinktable IN adm-broker-hdl(INPUT THIS-PROCEDURE:UNIQUE-ID, OUTPUT smartObjList).
+       RUN getlinktable IN adm-broker-hdl(
+           INPUT THIS-PROCEDURE:UNIQUE-ID, 
+           OUTPUT cSmartObjList
+           ).
 
-        DO icnt = 1 TO NUM-ENTRIES(smartObjList,","): 
+        DO iCnt = 1 TO NUM-ENTRIES(cSmartObjList,","): 
+            
             &IF DEFINED (h_Object01) <> 0 &THEN
-            IF STRING({&h_Object01}) = entry(icnt,smartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object01}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object02) <> 0 &THEN
-            IF STRING({&h_Object02}) = entry(icnt,smartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object02}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object03) <> 0 &THEN
-            IF STRING({&h_Object03}) = entry(icnt,smartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object03}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object04) <> 0 &THEN
-            IF STRING({&h_Object04}) = entry(icnt,smartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object04}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object05) <> 0 &THEN
-            IF STRING({&h_Object05}) = entry(icnt,smartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object05}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
-        
-            temphand = HANDLE(ENTRY(icnt,smartObjList,",")).
+            &IF DEFINED (h_Object06) <> 0 &THEN
+                IF STRING({&h_Object06}) = entry(iCnt,smartObjList,",")  
+                    THEN NEXT.
+            &ENDIF
+            &IF DEFINED (h_Object07) <> 0 &THEN
+                IF STRING({&h_Object07}) = entry(iCnt,smartObjList,",")  
+                    THEN NEXT.
+            &ENDIF
+            &IF DEFINED (h_Object08) <> 0 &THEN
+                IF STRING({&h_Object08}) = entry(iCnt,smartObjList,",")  
+                    THEN NEXT.
+            &ENDIF
+            &IF DEFINED (h_Object09) <> 0 &THEN
+                IF STRING({&h_Object09}) = entry(iCnt,smartObjList,",")  
+                    THEN NEXT.
+            &ENDIF
+            &IF DEFINED (h_Object10) <> 0 &THEN
+                IF STRING({&h_Object05}) = entry(iCnt,smartObjList,",")  
+                    THEN NEXT.
+            &ENDIF
+            &IF DEFINED (h_Object11) <> 0 &THEN
+                IF STRING({&h_Object11}) = entry(iCnt,smartObjList,",")  
+                    THEN NEXT.
+            &ENDIF
+            &IF DEFINED (h_Object12) <> 0 &THEN
+                IF STRING({&h_Object12}) = entry(iCnt,smartObjList,",")  
+                    THEN NEXT.
+            &ENDIF
+            &IF DEFINED (h_Object13) <> 0 &THEN
+                 IF STRING({&h_Object13}) = entry(iCnt,smartObjList,",")  
+                    THEN NEXT.
+            &ENDIF
+            &IF DEFINED (h_Object14) <> 0 &THEN
+                IF STRING({&h_Object14}) = entry(iCnt,smartObjList,",")  
+                    THEN NEXT.
+            &ENDIF
+            &IF DEFINED (h_Object15) <> 0 &THEN
+                IF STRING({&h_Object15}) = entry(iCnt,smartObjList,",")  
+                    THEN NEXT.
+            &ENDIF
+            &IF DEFINED (h_Object16) <> 0 &THEN
+                IF STRING({&h_Object16}) = entry(iCnt,smartObjList,",")  
+                    THEN NEXT.
+            &ENDIF
+            &IF DEFINED (h_Object17) <> 0 &THEN
+                IF STRING({&h_Object17}) = entry(iCnt,smartObjList,",")  
+                    THEN NEXT.
+            &ENDIF
+            &IF DEFINED (h_Object18) <> 0 &THEN
+                IF STRING({&h_Object18}) = entry(iCnt,smartObjList,",")  
+                    THEN NEXT.
+            &ENDIF
+            &IF DEFINED (h_Object19) <> 0 &THEN
+                IF STRING({&h_Object19}) = entry(iCnt,smartObjList,",")  
+                    THEN NEXT.
+            &ENDIF
+            &IF DEFINED (h_Object20) <> 0 &THEN
+                IF STRING({&h_Object20}) = entry(iCnt,smartObjList,",")  
+                    THEN NEXT.
+            &ENDIF          
     
-            IF LOOKUP( "nav-browse-identIFier", temphand:INTERNAL-ENTRIES, ",")   > 0 OR
-                LOOKUP( "browse-identifier",     temphand:INTERNAL-ENTRIES, ",")  > 0 OR
-                LOOKUP( "panel-identifier",      temphand:INTERNAL-ENTRIES, ",")  > 0 OR
-                LOOKUP( "viewer-identifier",     temphand:INTERNAL-ENTRIES, ",")  > 0 OR
-                LOOKUP( "count-buttons",     temphand:INTERNAL-ENTRIES, ",")      > 0     OR
-            INDEX(temphand:INTERNAL-ENTRIES, "folder")  > 0 OR
-                THIS-PROCEDURE:FILE-NAME =  temphand:NAME                             OR
-                temphand:NAME = "smartobj/smartmsg.w"
+            hTemp = HANDLE(ENTRY(iCnt,cSmartObjList,",")).
+    
+            IF LOOKUP( "nav-browse-identIFier", hTemp:INTERNAL-ENTRIES, ",")  > 0 OR
+               LOOKUP( "browse-identifier",     hTemp:INTERNAL-ENTRIES, ",")  > 0 OR
+               LOOKUP( "panel-identifier",      hTemp:INTERNAL-ENTRIES, ",")  > 0 OR
+               LOOKUP( "viewer-identifier",     hTemp:INTERNAL-ENTRIES, ",")  > 0 OR
+               LOOKUP( "count-buttons",         hTemp:INTERNAL-ENTRIES, ",")  > 0 OR
+               INDEX(hTemp:INTERNAL-ENTRIES, "folder")                        > 0 OR
+               THIS-PROCEDURE:FILE-NAME =  hTemp:NAME                             OR
+               hTemp:NAME = "smartobj/smartmsg.w"
                 THEN NEXT.   
             
-            RUN get-position IN temphand ( OUTPUT deRowPos ,OUTPUT deColPos) NO-ERROR.
-            RUN get-size IN temphand (OUTPUT deHeight , OUTPUT deWidth ) NO-ERROR. 
+            RUN get-position IN hTemp ( 
+                OUTPUT deRowPos ,
+                OUTPUT deColPos
+                ) NO-ERROR.
+            RUN get-size IN hTemp (
+                OUTPUT deHeight , 
+                OUTPUT deWidth 
+                ) NO-ERROR. 
             
             CREATE toreposition.
             ASSIGN 
-                toreposition.widhand   = ENTRY(icnt,smartObjList,",")
+                toreposition.widhand   = ENTRY(iCnt,cSmartObjList,",")
                 toreposition.colpos    = deColPos
-                toreposition.rowpos = deRowPos
-                toreposition.widwidth  = deWidth.
-
+                toreposition.rowpos    = deRowPos
+                toreposition.widwidth  = deWidth
+                .
         END.  
         
-       resizeval = {&WINDOW-NAME}:WIDTH.
+       deResizeVal = {&WINDOW-NAME}:WIDTH.
+       
        FOR EACH toreposition BY toreposition.colpos DESCENDING :
-           IF tempcolpos <> toreposition.colpos THEN 
-            resizeval = resizeval -  (toreposition.widwidth + 2 ).
-           RUN set-position IN WIDGET-HANDLE(toreposition.widhand) ( toreposition.rowpos , resizeval ) NO-ERROR. 
-           tempcolpos = toreposition.colpos.
+           IF deTempColPos NE toreposition.colpos THEN 
+               deResizeVal = deResizeVal -  (toreposition.widwidth + 2 ).
+           RUN set-position IN WIDGET-HANDLE(toreposition.widhand) ( 
+               INPUT toreposition.rowpos , 
+               INPUT deResizeVal 
+               ) NO-ERROR. 
+           deTempColPos = toreposition.colpos.
        END.
+       
        IF NOT THIS-PROCEDURE:PERSISTENT THEN
            WAIT-FOR CLOSE OF THIS-PROCEDURE.
     END.

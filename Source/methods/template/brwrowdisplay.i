@@ -18,17 +18,17 @@
 
 /* ***************************  Definitions  ************************** */
 
-IF CURRENT-RESULT-ROW("{&BROWSE-NAME}") mod 2 = 0 then
-  DO iCnt = 1 TO num-entries(colHandList, ","): 
-     colHand = handle(entry(iCnt,colHandList,",")).
-     if VALID-HANDLE(colHand) then
-     colHand:BGCOLOR = 25. 
+IF CURRENT-RESULT-ROW("{&BROWSE-NAME}") MOD 2 EQ 0 THEN
+  DO iCnt = 1 TO NUM-ENTRIES(cColHandList, ","): 
+      hColumn = HANDLE(ENTRY(iCnt,cColHandList,",")).
+      IF VALID-HANDLE(hColumn) THEN
+         hColumn:BGCOLOR = 25.   
   END. 
-  else
-  DO iCnt = 1 TO num-entries(colHandList, ","):
-     colHand = handle(entry(iCnt,colHandList,",")).
-     if VALID-HANDLE(colHand) then
-     colHand:BGCOLOR = 26.
+  ELSE
+  DO iCnt = 1 TO NUM-ENTRIES(cColHandList, ","):
+      hColumn = HANDLE(ENTRY(iCnt,cColHandList,",")).
+      IF VALID-HANDLE(hColumn) THEN
+         hColumn:BGCOLOR = 26.
   END.
 
 

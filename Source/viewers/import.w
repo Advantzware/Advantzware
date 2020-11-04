@@ -66,9 +66,9 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-import 
-     IMAGE-UP FILE "Graphics/32x32/import_new.png":U
-     IMAGE-DOWN FILE "Graphics/32x32/import_hover_new.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/import.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/import_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/import_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 6.4 BY 1.52 TOOLTIP "Import".
 

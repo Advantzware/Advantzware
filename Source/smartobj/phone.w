@@ -61,8 +61,8 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_Phone 
-     IMAGE-UP FILE "Graphics/32x32/phone-info_new.png":U
-     IMAGE-DOWN FILE "Graphics/32x32/phone-info_hover_new.png":U
+     IMAGE-UP FILE "Graphics/32x32/phone-info.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/phone-info_hover.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Phone" 
      SIZE 6.4 BY 1.52 TOOLTIP "Phone Info."
