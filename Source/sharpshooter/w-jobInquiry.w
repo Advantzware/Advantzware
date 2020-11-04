@@ -102,6 +102,8 @@ fiStatus fiCreatedLabel fiCreated fiDueLabel fiDue fiCSRLabel fiCSR
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
+DEFINE VARIABLE h_adjustqty AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_adjustqty-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-job-hdr AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-job-mat AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-job-mch AS HANDLE NO-UNDO.
@@ -606,14 +608,27 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_b-job-hdr ( 11.48 , 7.40 ) NO-ERROR.
        RUN set-size IN h_b-job-hdr ( 21.91 , 181.60 ) NO-ERROR.
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/adjustqty.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_adjustqty ).
+       RUN set-position IN h_adjustqty ( 21.24 , 192.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.62 , 11.00 ) */
+
        /* Links to SmartBrowser h_b-job-hdr. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'FGInq':U , h_b-job-hdr ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'PAGE_1':U , h_b-job-hdr ).
        RUN add-link IN adm-broker-hdl ( h_b-job-hdr , 'Record':U , THIS-PROCEDURE ).
 
+       /* Links to SmartObject h_adjustqty. */
+       RUN add-link IN adm-broker-hdl ( h_b-job-hdr , 'ADJUST':U , h_adjustqty ).
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-hdr ,
              btRoutings:HANDLE IN FRAME F-Main , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_adjustqty ,
+             btnPrevious:HANDLE IN FRAME F-Main , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -624,6 +639,14 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_b-job-mat ( 11.48 , 7.40 ) NO-ERROR.
        RUN set-size IN h_b-job-mat ( 21.91 , 181.60 ) NO-ERROR.
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/adjustqty.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_adjustqty-2 ).
+       RUN set-position IN h_adjustqty-2 ( 21.24 , 192.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.62 , 11.00 ) */
+
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
@@ -632,9 +655,14 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'PAGE_2':U , h_b-job-mat ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'RMInq':U , h_b-job-mat ).
 
+       /* Links to SmartObject h_adjustqty-2. */
+       RUN add-link IN adm-broker-hdl ( h_b-job-mat , 'ADJUST':U , h_adjustqty-2 ).
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mat ,
              btRoutings:HANDLE IN FRAME F-Main , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_adjustqty-2 ,
+             btnPrevious:HANDLE IN FRAME F-Main , 'AFTER':U ).
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
