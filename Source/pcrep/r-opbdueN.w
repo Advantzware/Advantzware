@@ -1348,7 +1348,7 @@ display "" with frame r-top.
               IF ITEM.mat-type EQ "B" THEN
                   lBoard = YES.                  
           END.  
-          IF AVAIL ITEM AND item.mat-type EQ "F" THEN 
+          IF AVAIL ITEM AND LOOKUP(item.mat-type,"1,2,3,4") GT 0 THEN 
           lCheckFoam = YES.
       END.
       IF i GT 1 THEN
