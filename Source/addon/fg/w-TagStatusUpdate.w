@@ -114,7 +114,7 @@ CREATE WIDGET-POOL.
 &Scoped-define INTERNAL-TABLES ttFGBin
 
 /* Definitions for BROWSE BROWSE-2                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttFGBin.quantity ttFGBin.tag ttFGBin.warehouseID ttFGBin.jobID ttFGBin.poID getInventoryStatus(ttFGBin.inventoryStatus) @ cInventoryStatus  
+&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttFGBin.quantity ttFGBin.tag ttFGBin.warehouseID ttFGBin.jobID ttFGBin.poID fGetInventoryStatus(ttFGBin.inventoryStatus) @ cInventoryStatus  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2   
 &Scoped-define SELF-NAME BROWSE-2
 &Scoped-define QUERY-STRING-BROWSE-2 FOR EACH ttFGBin
@@ -139,8 +139,8 @@ btnFirst btnPrevious btnNext btnLast
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getInventoryStatus W-Win 
-FUNCTION getInventoryStatus RETURNS CHARACTER
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetInventoryStatus W-Win 
+FUNCTION fGetInventoryStatus RETURNS CHARACTER
     ( ipcInventoryStatus AS CHARACTER ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -216,7 +216,7 @@ DEFINE BROWSE BROWSE-2
       ttFGBin.warehouseID WIDTH 25 COLUMN-LABEL "Location" FORMAT "X(12)"
       ttFGBin.jobID       WIDTH 20 COLUMN-LABEL "Job #"    FORMAT "X(20)"
       ttFGBin.poID        WIDTH 20 COLUMN-LABEL "PO #"     FORMAT ">>>>>9"       
-      getInventoryStatus(ttFGBin.inventoryStatus) @ cInventoryStatus WIDTH 50 COLUMN-LABEL "Status"   FORMAT "X(40)"
+      fGetInventoryStatus(ttFGBin.inventoryStatus) @ cInventoryStatus WIDTH 50 COLUMN-LABEL "Status"   FORMAT "X(40)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 187 BY 26.43
@@ -943,8 +943,8 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getInventoryStatus W-Win 
-FUNCTION getInventoryStatus RETURNS CHARACTER
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetInventoryStatus W-Win 
+FUNCTION fGetInventoryStatus RETURNS CHARACTER
     ( ipcInventoryStatus AS CHARACTER ):
     /*------------------------------------------------------------------------------
      Purpose:
