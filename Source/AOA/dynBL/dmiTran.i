@@ -204,13 +204,15 @@ PROCEDURE prodAceDetail :
       &IF DEFINED(dmiTran) EQ 0 &THEN
       FIND FIRST ttblJob
            WHERE ttblJob.resource EQ ttblProdAce.prodAceResource
-             AND ttblJob.job EQ ttblProdAce.prodAceJob NO-ERROR.
+             AND ttblJob.job      EQ ttblProdAce.prodAceJob
+           NO-ERROR.
       IF AVAILABLE ttblJob THEN
       jobMchRowID = TO-ROWID(ENTRY(2,ttblJob.rowIDs)).
       ELSE DO:
         FIND FIRST pendingJob
              WHERE pendingJob.resource EQ ttblProdAce.prodAceResource
-               AND pendingJob.job      EQ ttblProdAce.prodAceJob NO-ERROR.
+               AND pendingJob.job      EQ ttblProdAce.prodAceJob
+             NO-ERROR.
         IF NOT AVAILABLE pendingJob THEN NEXT.
         jobMchRowID = TO-ROWID(ENTRY(2,pendingJob.rowIDs)).
       END. /* not avail ttbljob */
@@ -221,8 +223,8 @@ PROCEDURE prodAceDetail :
            WHERE job-mch.job-mchID EQ iJobMchID
            NO-ERROR.
       &ENDIF
-      IF NOT AVAILABLE job-mch THEN NEXT.
     END. /* first-of job */
+    IF NOT AVAILABLE job-mch THEN NEXT.
     CREATE machtran.
     ASSIGN
       machtran.company       = job-mch.company
