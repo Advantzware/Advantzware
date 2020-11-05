@@ -74,7 +74,8 @@ DEFINE FRAME F-Main
      selectMiscFlds AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+		 BGCOLOR 21.
 
 
 /* *********************** Procedure Settings ************************ */
