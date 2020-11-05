@@ -1376,11 +1376,11 @@ PROCEDURE local-enable-fields :
   */  
 
   DO WITH FRAME {&FRAME-NAME}:
-    DISABLE job.due-date.
+/*    DISABLE job.due-date.*/
 
     IF adm-new-record OR
        job.due-date LT job.start-date THEN
-    ENABLE btnCalcDueDate job.due-date btnCalendar-1 btnCalendar-2 btnCalendar-3.
+    ENABLE btnCalcDueDate /*job.due-date*/ btnCalendar-1 btnCalendar-2 btnCalendar-3.
     ELSE
     FOR EACH job-hdr
         WHERE job-hdr.company EQ job.company
@@ -1394,7 +1394,7 @@ PROCEDURE local-enable-fields :
     END.
 
     IF AVAILABLE job-hdr THEN
-    ENABLE btnCalcDueDate job.due-date btnCalendar-1 btnCalendar-2 btnCalendar-3.
+    ENABLE btnCalcDueDate /*job.due-date*/ btnCalendar-1 btnCalendar-2 btnCalendar-3.
     IF NOT copyjob THEN ENABLE job.orderType. /* Enable the Job Type  */
   END.
 
