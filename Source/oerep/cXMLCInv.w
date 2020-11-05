@@ -333,6 +333,7 @@ DO:
   DEFINE VARIABLE iCount AS INTEGER     NO-UNDO.
   DEFINE VARIABLE cMessage AS CHARACTER   NO-UNDO.
   DEFINE VARIABLE lUnposted AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cSuffix AS CHARACTER NO-UNDO.
   
   ASSIGN {&List-1}
     fcust = cXMLCustomer
@@ -346,6 +347,7 @@ DO:
                 PROGRAM-NAME(1) +
                 USERID('NoSweat')
     lUnPosted = rd_Posted EQ 1
+    cSuffix = fiInvSuffix:SCREEN-VALUE 
     .
   
   IF cXMLCustomer EQ ? THEN DO:
@@ -384,7 +386,7 @@ DO:
       END. /* each inv-head */
       DISABLE {&List-1} {&List-2} WITH FRAME {&FRAME-NAME}.
       IF CAN-FIND(FIRST report WHERE report.term-id EQ v-term-id) THEN
-      RUN oe/rep/invpremx.p (fiInvSuffix:screen-value,NO).
+      RUN oe/rep/invpremx.p (cSuffix,NO).
       iCount = 0.
       FOR EACH report EXCLUSIVE-LOCK WHERE report.term-id EQ v-term-id: 
         iCount = iCount + 1.
@@ -393,7 +395,7 @@ DO:
   END.
   ELSE DO:
     RUN pProcessPostedARInvoices(cocode, cXMLCustomer, invStart, invEnd, invNoStart, invNoEnd,
-        invDate, OUTPUT iCount).
+        invDate, cSuffix, OUTPUT iCount).
   END.
   IF iCount GT 0 THEN 
       cMessage = "Processed " + STRING(iCount) + " invoices ".
@@ -605,8 +607,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-<<<<<<< HEAD
-=======
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallOutboundAPI C-Win
 PROCEDURE pCallOutboundAPI PRIVATE:
@@ -694,7 +694,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
->>>>>>> release/Advantzware_20.02.05
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pProcessPostedARInvoices C-Win 
 PROCEDURE pProcessPostedARInvoices PRIVATE :
 /*------------------------------------------------------------------------------
@@ -709,6 +708,7 @@ PROCEDURE pProcessPostedARInvoices PRIVATE :
     DEFINE INPUT PARAMETER ipiInvNoStart AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipiInvNoEnd AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipdtInvoiceDate AS DATE NO-UNDO.
+    DEFINE INPUT PARAMETER ipcInvSuffix AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiCount AS INTEGER NO-UNDO.
 
     FOR EACH ar-inv NO-LOCK
@@ -721,9 +721,6 @@ PROCEDURE pProcessPostedARInvoices PRIVATE :
         AND ar-inv.posted:
         opiCount = opiCount + 1.
         
-<<<<<<< HEAD
-        RUN cXML/cXMLInvoice.p (ar-inv.company, ROWID(ar-inv),ipdtInvoiceDate).   
-=======
         cArgsValue = STRING(ROWID(ar-inv)) + "," + ipcInvSuffix + "," + STRING(ipdtInvoiceDate). 
                
         RUN pCallOutboundAPI(
@@ -735,7 +732,6 @@ PROCEDURE pProcessPostedARInvoices PRIVATE :
             INPUT cArgsValue
             ).
         RUN cXML/cXMLInvoice.p (ar-inv.company, ROWID(ar-inv),ipdtInvoiceDate, ipcInvSuffix).   
->>>>>>> release/Advantzware_20.02.05
     
     END.
     

@@ -1,0 +1,1 @@
+"16","$poId$-$poLine|>9|INT|$","$poLineDueDate|MM/DD/YYYY|DATE|$","1","1","$itemWidth|>>>>>>>>>9.999<<<|DEC|$","$itemLength|>>>>>>>>>9.999<<<|DEC|$","$itemWithAdders$","$flute$","$scoreSize16ths$","$quantityOrdered|->>>>>>>>>9|INT|$","$overPct|>>9|INT|$","$underPct|>>9|INT|$","$itemID$","$poLineNotes$","$operationID$"$linefeed$

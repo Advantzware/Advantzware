@@ -230,15 +230,6 @@ DEFINE VARIABLE iRunTo AS INTEGER FORMAT ">>>>>>9":U INITIAL 0
      SIZE 11 BY 1
      BGCOLOR 15  NO-UNDO.
 
-<<<<<<< HEAD
-DEFINE VARIABLE lv-close-bal AS DECIMAL FORMAT "->>>,>>>,>>9.99":U INITIAL 0 
-     LABEL "Closing Balance" 
-     VIEW-AS FILL-IN 
-     SIZE 24 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-open-bal AS DECIMAL FORMAT "->>>,>>>,>>9.99":U INITIAL 0 
-     LABEL "Opening Balance" 
-=======
 DEFINE VARIABLE lv-close-bal AS DECIMAL FORMAT "->>,>>>,>>>,>>9.99":U INITIAL 0 
      LABEL "Total Credits" 
      VIEW-AS FILL-IN 
@@ -246,7 +237,6 @@ DEFINE VARIABLE lv-close-bal AS DECIMAL FORMAT "->>,>>>,>>>,>>9.99":U INITIAL 0
 
 DEFINE VARIABLE lv-open-bal AS DECIMAL FORMAT "->>,>>>,>>>,>>9.99":U INITIAL 0 
      LABEL "Total Debits" 
->>>>>>> release/Advantzware_20.02.05
      VIEW-AS FILL-IN 
      SIZE 23.8 BY 1 NO-UNDO.
 
@@ -1023,7 +1013,9 @@ PROCEDURE build-inquiry :
   EMPTY TEMP-TABLE tt-glinq.
   ASSIGN
      v-max-dscr-length = 0
-     uperiod = lv-period-fr.
+     uperiod = lv-period-fr
+     lv-close-bal = 0
+     lv-open-bal = 0.
   FIND first account WHERE account.company = g_company
                        AND account.actnum = begin_acct NO-LOCK NO-ERROR.
 
@@ -1042,9 +1034,9 @@ PROCEDURE build-inquiry :
    acct_dscr = account.dscr .
    ELSE acct_dscr = "" .
   
-  RUN gl/gl-opend.p (ROWID(account), tmp-start, OUTPUT lv-open-bal).
+ /* RUN gl/gl-opend.p (ROWID(account), tmp-start, OUTPUT lv-open-bal).*/
                      
-  lv-close-bal = lv-open-bal.
+ /* lv-close-bal = lv-open-bal. */
       
   for each glhist NO-LOCK
       where glhist.company eq cocode
@@ -1065,8 +1057,7 @@ PROCEDURE build-inquiry :
              tt-glinq.tr-amt = glhist.tr-amt
              tt-glinq.tr-from = "GL History "
              tt-glinq.actnum = glhist.actnum
-             tt-glinq.tr-num = glhist.tr-num
-             lv-close-bal = lv-close-bal + glhist.tr-amt
+             tt-glinq.tr-num = glhist.tr-num               
              tt-glinq.createdBy = glhist.createdBy
              tt-glinq.createdDate = glhist.createdDate
              tt-glinq.posted = glhist.posted
@@ -1075,9 +1066,13 @@ PROCEDURE build-inquiry :
              tt-glinq.tr-yr = glhist.yr
              tt-glinq.riRowid = ROWID(glhist).
         IF glhist.tr-amt GT 0 THEN
-           tt-glinq.db-amt = glhist.tr-amt .
+        ASSIGN
+           tt-glinq.db-amt = glhist.tr-amt
+           lv-open-bal = lv-open-bal + glhist.tr-amt.
         IF glhist.tr-amt LT 0 THEN
-           tt-glinq.cr-amt = glhist.tr-amt .   
+        ASSIGN
+           tt-glinq.cr-amt = glhist.tr-amt * - 1
+           lv-close-bal = lv-close-bal + ( glhist.tr-amt * - 1) .   
 
       IF LENGTH(glhist.tr-dscr) GT v-max-dscr-length THEN
          v-max-dscr-length = LENGTH(glhist.tr-dscr).
@@ -1109,12 +1104,16 @@ PROCEDURE build-inquiry :
              tt-glinq.tr-period = gltrans.period
              tt-glinq.tr-yr = gltrans.yr
              tt-glinq.riRowid = ROWID(gltrans)
-             lv-close-bal = lv-close-bal + gltrans.tr-amt.
+             .
              
         IF gltran.tr-amt GT 0 THEN
-           tt-glinq.db-amt = gltran.tr-amt .
+         ASSIGN
+           tt-glinq.db-amt = gltran.tr-amt 
+           lv-open-bal = lv-open-bal + gltran.tr-amt.
         IF gltran.tr-amt LT 0 THEN
-           tt-glinq.cr-amt = gltran.tr-amt .
+        ASSIGN
+           tt-glinq.cr-amt = gltran.tr-amt * - 1
+           lv-close-bal = lv-close-bal + (gltran.tr-amt * - 1).
 
       IF LENGTH(gltran.tr-dscr) GT v-max-dscr-length THEN
          v-max-dscr-length = LENGTH(gltran.tr-dscr).           

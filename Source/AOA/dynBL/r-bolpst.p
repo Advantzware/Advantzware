@@ -769,7 +769,7 @@ PROCEDURE pPostBols :
             FOR EACH bf-oe-boll NO-LOCK
                 WHERE bf-oe-boll.b-no EQ bf-oe-bolh.b-no                   
                 :
-                IF lRecFound AND lFGTagValidation AND bf-oe-boll.tag EQ "" THEN DO:
+                IF lRecFound AND lFGTagValidation AND bf-oe-boll.tag EQ "" AND bf-oe-boll.qty NE 0 THEN DO:
                     CREATE w-nopost.
                     ASSIGN
                         w-nopost.ord-no   = bf-oe-boll.ord-no
@@ -783,7 +783,7 @@ PROCEDURE pPostBols :
                         .                          
                     NEXT bolh.
                 END.
-                IF lRecFound AND cFGTagValidation EQ "ItemMatch" AND NOT bf-oe-boll.tag BEGINS bf-oe-boll.i-no THEN DO:
+                IF lRecFound AND cFGTagValidation EQ "ItemMatch" AND NOT bf-oe-boll.tag BEGINS bf-oe-boll.i-no AND bf-oe-boll.qty NE 0 THEN DO:
                     CREATE w-nopost.
                     ASSIGN
                         w-nopost.ord-no   = bf-oe-boll.ord-no

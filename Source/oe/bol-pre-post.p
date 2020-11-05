@@ -10,8 +10,6 @@ DEF BUFFER b-oe-boll FOR oe-boll.
 
 DEF VAR li AS INT NO-UNDO.
 DEF VAR v-tag2 AS CHAR NO-UNDO.
-<<<<<<< HEAD
-=======
 DEFINE VARIABLE riRowId AS ROWID NO-UNDO.
 DEFINE VARIABLE lFGBOLTransferPost AS LOGICAL   NO-UNDO.
 
@@ -27,7 +25,6 @@ DEFINE VARIABLE lFGBOLTransferPost AS LOGICAL   NO-UNDO.
 FUNCTION fGetBOLTransferPost RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER) FORWARD.
     
->>>>>>> release/Advantzware_20.02.05
 
 FOR EACH oe-boll WHERE ROWID(oe-boll) EQ ip-rowid,
     FIRST oe-bolh
@@ -50,7 +47,7 @@ FOR EACH oe-boll WHERE ROWID(oe-boll) EQ ip-rowid,
     USE-INDEX ord-no,
     FIRST itemfg NO-LOCK
     WHERE itemfg.company EQ oe-boll.company
-      AND itemfg.i-no    EQ oe-boll.i-no:
+      AND itemfg.i-no    EQ oe-boll.i-no :
 
   RUN oe/custxship.p (oe-bolh.company,
                       oe-bolh.cust-no,
@@ -178,7 +175,7 @@ FOR EACH oe-boll WHERE ROWID(oe-boll) EQ ip-rowid,
                                       fg-rctd.std-cost, OUTPUT fg-rctd.ext-cost).
            
             fg-rctd.ext-cost = fg-rctd.ext-cost * fg-rctd.t-qty.
-
+            riRowId = ROWID(fg-rctd).
             RELEASE fg-rctd.
             
          END.
@@ -206,12 +203,13 @@ FOR EACH oe-boll WHERE ROWID(oe-boll) EQ ip-rowid,
          w-ord.ord-no = oe-ordl.ord-no
          w-ord.rec-id = RECID(oe-ord).
     END.
+      
+    RUN pAutoPostTransferTransaction(INPUT riRowId,INPUT oe-bolh.company).
+   
   END. /*  IF oe-ord.type EQ "T" OR oe-boll.s-code EQ "T" */
 
   {oe/seq-bolh.i}
 END.
-<<<<<<< HEAD
-=======
 
 
 PROCEDURE pAutoPostTransferTransaction:
@@ -276,4 +274,3 @@ FUNCTION fGetBOLTransferPost RETURNS LOGICAL PRIVATE
     RETURN lReturnValue.
     		
 END FUNCTION.
->>>>>>> release/Advantzware_20.02.05

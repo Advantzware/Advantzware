@@ -55,7 +55,8 @@ DEF VAR v-cost AS DEC EXTENT 4 NO-UNDO.
 DEF VAR v-basis LIKE sman.commbasis INIT "" NO-UNDO.
 DEF VAR v-u-inv LIKE oe-ctrl.u-inv INIT NO.
 
-DEF NEW SHARED TEMP-TABLE tt-bolh NO-UNDO LIKE oe-bolh.
+DEF NEW SHARED TEMP-TABLE tt-bolh NO-UNDO LIKE oe-bolh
+                    FIELD trans-date AS DATE.
 DEF NEW SHARED TEMP-TABLE tt-boll NO-UNDO LIKE oe-boll.
 
 DEF TEMP-TABLE tt-missing-inv

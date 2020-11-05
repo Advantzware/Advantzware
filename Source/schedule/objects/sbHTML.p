@@ -217,8 +217,8 @@ PROCEDURE pHTMLPageVertical:
                   AND (ttblDowntime.startDate EQ dtDate
                    OR  ttblDowntime.startDate EQ ?)
                 :
-                fTimeSlice (resourceList.resource,dtDate,ttblDowntime.startTime,"DT","Start",NO).
-                fTimeSlice (resourceList.resource,dtDate,ttblDowntime.endTime,  "DT","End",  NO).
+                fTimeSlice (resourceList.resource,dtDate,ttblDowntime.startTime,"DT","Start",NO,"").
+                fTimeSlice (resourceList.resource,dtDate,ttblDowntime.endTime,  "DT","End",  NO,"").
             END. /* each ttbldowntime */
         END. /* do dtdate */
         FOR EACH ttblJob
@@ -240,11 +240,11 @@ PROCEDURE pHTMLPageVertical:
                         iEndTime   = IF bTtblJob.endDate   EQ dtDate THEN bTtblJob.endTime   ELSE 86400
                         iJobs      = iJobs + 1
                         .
-                    fTimeSlice (resourceList.resource,dtDate,iStartTime,"Job","Start",NO).
-                    fTimeSlice (resourceList.resource,dtDate,iEndTime,  "Job","End",  NO).                
+                    fTimeSlice (resourceList.resource,dtDate,iStartTime,"Job","Start",NO,bTtblJob.job).
+                    fTimeSlice (resourceList.resource,dtDate,iEndTime,  "Job","End",  NO,bTtblJob.job).
                 END. /* each bttbljob */
-                fTimeSlice (resourceList.resource,dtDate,0,    "Avail","Start",NO).
-                fTimeSlice (resourceList.resource,dtDate,86400,"Avail","End",  NO).
+                fTimeSlice (resourceList.resource,dtDate,0,    "Avail","Start",NO,"").
+                fTimeSlice (resourceList.resource,dtDate,86400,"Avail","End",  NO,"").
             END. /* do dtdate */
         END. /* each ttbljob */
     END. /* each resourcelist */    
@@ -330,8 +330,8 @@ PROCEDURE pHTMLPageVertical:
                 IF NOT CAN-FIND(FIRST ttTime
                                 WHERE ttTime.timeKey  EQ resourceList.resource
                                   AND ttTime.timedate EQ dtDate) THEN DO:
-                    fTimeSlice (resourceList.resource,dtDate,0,     "Avail","Start",NO).
-                    fTimeSlice (resourceList.resource,dtDate,86400, "Avail","End",  NO).                
+                    fTimeSlice (resourceList.resource,dtDate,0,     "Avail","Start",NO,"").
+                    fTimeSlice (resourceList.resource,dtDate,86400, "Avail","End",  NO,"").                
                 END. /* if not can-find */
                 FOR EACH ttTime
                     WHERE ttTime.timeKey   EQ resourceList.resource
@@ -372,6 +372,8 @@ PROCEDURE pHTMLPageVertical:
                              IF cType1 EQ "Job"   THEN "A1A5E2" ELSE "FF8585")
                             '" align="center" nowrap><font face="{&fontFace}">'
                             .
+                        IF jdx LE 3 AND ttTime.spanText NE "" THEN
+                        PUT UNFORMATTED '<span title="' ttTime.spanText '">'.
                         CASE jdx:
                             WHEN 1 OR WHEN 4 THEN
                                 IF dPercentage EQ 100 THEN
@@ -388,6 +390,8 @@ PROCEDURE pHTMLPageVertical:
                                 PUT UNFORMATTED ' / ' dPercentage '%'.
                             END. /* 5 or 6 */
                         END CASE.
+                        IF jdx LE 3 AND ttTime.spanText NE "" THEN
+                        PUT UNFORMATTED '</span>'.
                         IF jdx GE 4 AND ttTime.jobCount NE 0 THEN
                         PUT UNFORMATTED ' (' + STRING(ttTime.jobCount) + ')'.
                         PUT UNFORMATTED 
