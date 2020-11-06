@@ -5557,7 +5557,7 @@ DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
     END.
 
   END.
-  ELSE IF oe-ord.type NE "T" 
+  IF oe-ord.type NE "T" 
   AND (lv-add-mode 
       OR (NOT ip-type BEGINS "update-" 
             AND (v-qty-mod OR oe-ordl.po-no-po EQ 0 
