@@ -84,7 +84,6 @@ DEFINE VARIABLE dQtyShipped           AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cCustPart             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPoNum                AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iLineCount            AS INTEGER   NO-UNDO.
-DEFINE VARIABLE cItemType             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLineTotal            AS CHARACTER NO-UNDO.
     
 /* Invoice Addon Variables */
@@ -232,9 +231,6 @@ DEFINE TEMP-TABLE ttInv NO-UNDO
     .
   
 /* ************************  Function Prototypes ********************** */
-
-FUNCTION pGetItemType RETURNS CHARACTER PRIVATE
-(INPUT ipcCompany AS CHARACTER,INPUT ipcItemID AS CHARACTER) FORWARD.
 
 FUNCTION pGetPayloadID RETURNS CHARACTER PRIVATE
     (  ) FORWARD.          
@@ -733,15 +729,13 @@ DO:
                 cUomCode     = (IF inv-line.pr-qty-uom > "" THEN
                         inv-line.pr-qty-uom
                         ELSE "EA"
-                        )
-                cItemType = pGetItemType(inv-head.company,inv-line.i-no)                      
+                        )                     
                 iLineCount = iLineCount + 1
                 .
             IF cUomCode NE inv-line.pr-uom THEN 
                 RUN pConvQtyPriceUOM ( 
                     INPUT inv-head.company,
                     INPUT inv-line.i-no,
-                    INPUT cItemType,
                     INPUT inv-line.pr-uom,
                     INPUT cUomCode,
                     INPUT-OUTPUT dUnitPrice
@@ -871,15 +865,13 @@ DO:
                 cUomCode     = (IF ar-invl.pr-qty-uom > "" THEN
                         ar-invl.pr-qty-uom
                         ELSE "EA"
-                        ) 
-                cItemType = pGetItemType(ar-inv.company,ar-invl.i-no)                              
+                        )                               
                 iLineCount = iLineCount + 1
                 .
             IF cUomCode NE ar-invl.pr-uom THEN  
                 RUN pConvQtyPriceUOM ( 
                     INPUT ar-inv.company,
                     INPUT ar-invl.i-no,
-                    INPUT cItemType,
                     INPUT ar-invl.pr-uom,
                     INPUT cUomCode,
                     INPUT-OUTPUT dQtyShipped
@@ -1338,7 +1330,6 @@ PROCEDURE pConvQtyPriceUOM:
 
     DEFINE INPUT        PARAMETER ipcCompany   AS CHARACTER NO-UNDO. 
     DEFINE INPUT        PARAMETER ipcItemID    AS CHARACTER NO-UNDO.  
-    DEFINE INPUT        PARAMETER ipcItemType  AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipcFromUom   AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipcToUom     AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopdPrice    AS DECIMAL   NO-UNDO.
@@ -1349,7 +1340,7 @@ PROCEDURE pConvQtyPriceUOM:
     RUN Conv_ValueFromUOMtoUOM(
         INPUT  ipcCompany,
         INPUT  ipcItemID,
-        INPUT  ipcItemType, 
+        INPUT  "FG", 
         INPUT  iopdPrice,
         INPUT  ipcFromUom,
         INPUT  ipcToUom, 
@@ -1576,29 +1567,6 @@ PROCEDURE pUpdateLineRequestData PRIVATE:
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
-
-FUNCTION pGetItemType RETURNS CHARACTER PRIVATE
-(INPUT ipcCompany AS CHARACTER, INPUT ipcItemID AS CHARACTER):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    IF CAN-FIND(FIRST itemfg 
-                WHERE itemfg.company EQ ipcCompany
-                  AND itemfg.i-no    EQ ipcItemID
-                ) THEN
-        RETURN "FG".
-        
-    ELSE IF CAN-FIND(FIRST item
-                     WHERE ITEM.company EQ ipcCompany
-                       AND ITEM.i-no    EQ ipcItemID
-                     ) THEN
-        RETURN "RM".
-        
-    ELSE 
-        RETURN "".                         
-		
-END FUNCTION.
 
 FUNCTION pGetPayloadID RETURNS CHARACTER PRIVATE
 	(  ):
