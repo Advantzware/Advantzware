@@ -7,7 +7,7 @@
 &SCOPED-DEFINE Fleetwood ASI/Fleetwood
 /* add new fields to procedures loadUserFieldLabelWidth & setUseFields below */
 /* add userField to rptFields.dat, see config.w definitions section to enable field */
-&SCOPED-DEFINE nextUserField 111
+&SCOPED-DEFINE nextUserField 112
 
 /* when expanding userFields mod the following:
    1. scopDir.i (userExtent)
@@ -49,6 +49,7 @@ DEFINE VARIABLE ufIPJobSet AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufItemFG AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufJob AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufJobMch AS LOGICAL NO-UNDO INIT YES.
+DEFINE VARIABLE ufOEOrd AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufOEOrdl AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufOERel AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufPOOrdl AS LOGICAL NO-UNDO INIT YES.
@@ -735,6 +736,7 @@ FOR EACH job-hdr NO-LOCK
           userField[36] = setUserField(36,getSalesRep(oe-ord.company,oe-ord.sman[1]))
           userField[86] = setUserField(86,STRING(oe-ord.under-pct,'>>9.99'))
           userField[87] = setUserField(87,STRING(oe-ord.over-pct,'>>9.99'))
+          userField[111] = setUserField(111,STRING(oe-ord.ord-date,'99/99/9999'))
           salesRepFound = YES
           .
       END. /* avail oe-ord */
@@ -1943,6 +1945,7 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[108] = 'Score (on Width)'  userWidth[108] = 24
     userLabel[109] = 'Score (on Length)' userWidth[109] = 24
     userLabel[110] = 'Promise Date'      userWidth[110] = 15
+    userLabel[111] = 'Order Date'        userWidth[111] = 15
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */
@@ -2012,6 +2015,7 @@ PROCEDURE setUseFields:
     ufJob = useField[89] OR useField[107] OR useField[110]
     ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20] OR useField[85] OR useField[88] OR
                useField[96] OR useField[97] OR useField[100] OR useField[101] OR useField[104] OR useField[105]
+    ufOEOrd = useField[111]
     ufOEOrdl = useField[82] OR useField[84] OR useField[86] OR useField[87]
     ufOERel = useField[37] OR useField[38] OR useField[39] OR useField[40] OR useField[52] OR useField[63]OR useField[91]
     ufPOOrdl = useField[7] OR useField[16] OR useField[17] OR useField[35]
