@@ -907,8 +907,8 @@ PROCEDURE Outbound_UpdateGlobalFieldValues:
           generic to the API 
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT        PARAMETER ipiAPIOutboundID AS INTEGER   NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiAPIOutboundID AS INTEGER  NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ioplcRequestData AS LONGCHAR NO-UNDO.
     
     DEFINE VARIABLE cAPITransactionCounter    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cClientTransactionCounter AS CHARACTER NO-UNDO.

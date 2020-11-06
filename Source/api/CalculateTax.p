@@ -256,16 +256,27 @@ ELSE DO:
                  WHERE cust.company EQ inv-head.company
                    AND cust.cust-no EQ inv-head.cust-no
                  NO-ERROR.                    
+            
+            cCustomerID = inv-head.cust-no.
 
-            ASSIGN
-                cShipToAddr1    = inv-head.sold-addr[1]
-                cShipToAddr2    = inv-head.sold-addr[2]
-                cShipToCity     = inv-head.sold-city
-                cShipToState    = inv-head.sold-state
-                cShipToZip      = inv-head.sold-zip
-                cShipToCountry  = "" /* Not available in inv-head */
-                cCustomerID     = inv-head.cust-no
-                .
+            IF AVAILABLE shipTo THEN
+                ASSIGN
+                    cShipToAddr1    = shipto.ship-addr[1]
+                    cShipToAddr2    = shipto.ship-addr[2]
+                    cShipToCity     = shipto.ship-city
+                    cShipToState    = shipto.ship-state
+                    cShipToZip      = shipto.ship-zip
+                    cShipToCountry  = shipto.country
+                    .
+            ELSE
+                ASSIGN
+                    cShipToAddr1    = inv-head.sold-addr[1]
+                    cShipToAddr2    = inv-head.sold-addr[2]
+                    cShipToCity     = inv-head.sold-city
+                    cShipToState    = inv-head.sold-state
+                    cShipToZip      = inv-head.sold-zip
+                    cShipToCountry  = "" /* Not available in inv-head */
+                    .
 
             FOR EACH inv-line NO-LOCK 
                 WHERE inv-line.r-no EQ inv-head.r-no:
