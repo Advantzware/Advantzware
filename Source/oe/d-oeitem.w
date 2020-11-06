@@ -5538,14 +5538,28 @@ DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
 
 
     IF oe-ord.est-no EQ ""                                       OR
-       (v-qty-mod AND (NOT ll-new-record OR lv-new-tandem NE ?)) THEN DO:
+       (v-qty-mod AND (NOT ll-new-record OR lv-new-tandem NE ?)) OR
+       ll-new-record  
+       THEN DO:
 
-      /*03300902 need sensitive = no to display job ticket print*/
-      FRAME {&frame-name}:SENSITIVE = NO.      
-
-      RUN oe/estupl.p.
-      FRAME {&frame-name}:SENSITIVE = YES.
-
+      IF oe-ordl.job-no NE "" THEN DO:
+          /*03300902 need sensitive = no to display job ticket print*/
+          FRAME {&frame-name}:SENSITIVE = NO.      
+          /* This will ONLY prompt for a PO if there is a job associated witht the order line */
+          RUN oe/estupl.p.
+          FRAME {&frame-name}:SENSITIVE = YES.
+      END.
+      ELSE DO:
+          ASSIGN 
+              lMsgResponse = TRUE.
+          IF oe-ord.Pricehold THEN
+              RUN displayMessageQuestionLog(
+                  INPUT "33",
+                  OUTPUT lMsgResponse 
+                  ).
+          IF lMsgResponse THEN
+              RUN po/doPo.p(YES).
+      END.
       fil_id = RECID(oe-ordl).
     END.
 
@@ -5557,12 +5571,12 @@ DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
     END.
 
   END.
-  IF oe-ord.type NE "T" 
-  AND (lv-add-mode 
+  ELSE IF oe-ord.type NE "T" 
+  AND (lv-add-mode
       OR (NOT ip-type BEGINS "update-" 
-            AND (v-qty-mod OR oe-ordl.po-no-po EQ 0 
-                 OR lv-new-tandem NE ? 
-                 OR NOT CAN-FIND(FIRST po-ord WHERE 
+          AND (v-qty-mod OR oe-ordl.po-no-po EQ 0 
+               OR lv-new-tandem NE ? 
+               OR NOT CAN-FIND(FIRST po-ord WHERE 
                     po-ord.company EQ oe-ordl.company AND 
                     po-ord.po-no   EQ oe-ordl.po-no-po)))) THEN DO:
       ASSIGN 
