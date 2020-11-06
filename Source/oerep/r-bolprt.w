@@ -4148,23 +4148,25 @@ PROCEDURE pdAOABOLPost:
     DEFINE VARIABLE cParamList  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cParamValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hBOLPost    AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hTable      AS HANDLE    NO-UNDO.
+
     ASSIGN
-        cParamList  = "company,location,postDate,custList,allCustNo,"
-                    + "startCustNo,endCustNo,startBOLDate,endBOLDate,"
-                    + "allBOL,startBOL,endBOL,post"
-        cParamValue = g_company + ","
-                    + g_loc + ","
-                    + STRING(TODAY,"99/99/9999") + ",no,no,"
-                    + begin_cust + ","
-                    + end_cust + ","
-                    + STRING(begin_date,"99/99/9999") + ","
-                    + STRING(end_date,"99/99/9999") + ",no,"
-                    + STRING(begin_bol#) + ","
-                    + STRING(end_bol#) + ",yes"
+        cParamList  = "company|location|postDate|custList|allCustNo|"
+                    + "startCustNo|endCustNo|startBOLDate|endBOLDate|"
+                    + "allBOL|startBOL|endBOL|post"
+        cParamValue = g_company + "|"
+                    + g_loc + "|"
+                    + STRING(TODAY,"99/99/9999") + "|no|no|"
+                    + begin_cust + "|"
+                    + end_cust + "|"
+                    + STRING(begin_date,"99/99/9999") + "|"
+                    + STRING(end_date,"99/99/9999") + "|no|"
+                    + STRING(begin_bol#) + "|"
+                    + STRING(end_bol#) + "|yes"
         .
     RUN pInitDynParamValue (19, "", "", 0, cParamList, cParamValue).
     RUN AOA/dynBL/r-bolpst.p PERSISTENT SET hBOLPost.
-    RUN pBusinessLogic IN hBOLPost.
+    RUN pRunBusinessLogic IN hBOLPost (ROWID(dynParamValue), OUTPUT hTable).
     DELETE PROCEDURE hBOLPost.
 END PROCEDURE.
     
