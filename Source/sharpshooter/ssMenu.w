@@ -99,7 +99,7 @@ ASSIGN
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnExit btnBack 
+&Scoped-Define ENABLED-OBJECTS btnBack btnExit 
 &Scoped-Define DISPLAYED-OBJECTS menuTitle 
 
 /* Custom List Definitions                                              */
@@ -117,18 +117,18 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnBack 
-     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/back_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Back" 
      SIZE 8 BY 1.91.
 
 DEFINE BUTTON btnExit 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Exit" 
      SIZE 8 BY 1.91.
 
 DEFINE VARIABLE menuTitle AS CHARACTER FORMAT "X(256)":U INITIAL "Menu Loading..." 
       VIEW-AS TEXT 
-     SIZE 52 BY 1.43
+     SIZE 24 BY 1.43
      FGCOLOR 15 FONT 24 NO-UNDO.
 
 DEFINE VARIABLE svFocus AS CHARACTER FORMAT "X(256)":U 
@@ -139,8 +139,8 @@ DEFINE VARIABLE svFocus AS CHARACTER FORMAT "X(256)":U
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     btnBack AT ROW 1 COL 1 WIDGET-ID 2
      btnExit AT ROW 1 COL 64 WIDGET-ID 4
-     btnBack AT ROW 1 COL 2 WIDGET-ID 2
      menuTitle AT ROW 1.24 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -150,7 +150,7 @@ DEFINE FRAME DEFAULT-FRAME
 
 DEFINE FRAME menuTreeFrame
      svFocus AT ROW 1 COL 1 NO-LABEL WIDGET-ID 82
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 2.91
          SIZE 71 BY 29.29
@@ -386,7 +386,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY menuTitle 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnExit btnBack 
+  ENABLE btnBack btnExit 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   DISPLAY svFocus 
@@ -664,7 +664,7 @@ PROCEDURE pDisplayMenuTree-1 :
         FRAME {&FRAME-NAME}:WIDTH = dWidth
         iphFrame:VIRTUAL-WIDTH = dWidth
         iphFrame:WIDTH = dWidth
-        btnExit:COL = FRAME {&FRAME-NAME}:WIDTH - btnExit:WIDTH
+        btnExit:COL = FRAME {&FRAME-NAME}:WIDTH - btnExit:WIDTH + 1
         . 
     
     FOR EACH bttMenuTree
