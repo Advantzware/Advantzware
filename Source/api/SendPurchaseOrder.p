@@ -759,7 +759,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cVendItemNoBoardAndAdders   = ""
                 .
             
-            RUN pGetVendItemNumber(
+            RUN Vendor_GetVendItemNumber(
                 INPUT  po-ord.company,
                 INPUT  po-ordl.i-no,
                 INPUT  po-ord.vend-no,
@@ -1227,7 +1227,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                         cPOAdderCostInMSF[iIndex]  = STRING(dPOAdderCostMSF)
                         cPOAdderSetupCost[iIndex]  = STRING(po-ordl.setup)
                         .  
-                RUN pGetVendItemNumber(
+                RUN Vendor_GetVendItemNumber(
                     INPUT  po-ord.company,
                     INPUT  po-ordl-add.adder-i-no,
                     INPUT  po-ord.vend-no,
@@ -1657,60 +1657,6 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
 
     IF VALID-HANDLE(hdPOProcs) THEN
         DELETE PROCEDURE hdPOProcs.
-
-/* **********************  Internal Procedures  *********************** */
-
-PROCEDURE pGetVendItemNumber PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcVendNo      AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER iplUseVendCost AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcVendItemNo  AS CHARACTER NO-UNDO.
-    
-    IF iplUseVendCost THEN DO:
-        FIND FIRST vendItemCost NO-LOCK 
-             WHERE vendItemCost.company  EQ ipcCompany
-               AND vendItemCost.vendorID EQ ipcVendNo
-               AND vendItemCost.itemID   EQ ipcItemID
-               AND vendItemCost.itemType EQ "RM"
-            NO-ERROR.
-        IF AVAILABLE vendItemCost THEN 
-            opcVendItemNo = vendItemCost.vendorItemID.
-        ELSE DO:
-            FIND FIRST vendItemCost NO-LOCK 
-                 WHERE vendItemCost.company  EQ ipcCompany
-                   AND vendItemCost.vendorID EQ ""
-                   AND vendItemCost.itemID   EQ ipcItemID
-                   AND vendItemCost.itemType EQ "RM"
-                 NO-ERROR. 
-            IF AVAILABLE vendItemCost THEN 
-                opcVendItemNo = vendItemCost.vendorItemID.                        
-        END.                          
-    END.
-    ELSE DO:
-        FIND FIRST e-item-vend NO-LOCK 
-             WHERE e-item-vend.company EQ ipcCompany
-               AND e-item-vend.vend-no EQ ipcVendNo
-               AND e-item-vend.i-no    EQ ipcItemID
-             NO-ERROR.
-        IF AVAILABLE e-item-ven THEN 
-            opcVendItemNo = e-item-vend.vend-item.
-        ELSE DO:
-            FIND FIRST e-item-vend NO-LOCK 
-                 WHERE e-item-vend.company EQ ipcCompany
-                   AND e-item-vend.vend-no EQ ""
-                   AND e-item-vend.i-no    EQ ipcItemID
-                 NO-ERROR.
-            IF AVAILABLE e-item-vend THEN 
-                opcVendItemNo = e-item-vend.vend-item.            
-        END.                                
-    END.
-END PROCEDURE.
-
 
 /* ************************  Function Implementations ***************** */
 
