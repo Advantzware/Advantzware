@@ -7,8 +7,10 @@ find first sys-ctrl
       and sys-ctrl.name    eq "OECOUNT"
     no-lock no-error.
 if avail sys-ctrl and not sys-ctrl.log-fld then
+assign
   {1}.case-count = if {2}.tr-cnt ne 0 then {2}.tr-cnt
-                   else ({2}.cas-cnt * {2}.cas-pal).
+                   else ({2}.cas-cnt * {2}.cas-pal)
+  {1}.case-pall  = 1.
 
 DEF BUFFER b-eiv FOR e-itemfg-vend.
 
