@@ -194,6 +194,10 @@
     DEFINE VARIABLE dPOAdderCostMSF            AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cPOAdderCostInMSF          AS CHARACTER NO-UNDO EXTENT 6. 
     DEFINE VARIABLE cPOAdderSetupCost          AS CHARACTER NO-UNDO EXTENT 6.
+    DEFINE VARIABLE cVendItemNoBoard           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendItemNoAdders          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendItemNoBoardAndAdders  AS CHARACTER NO-UNDO.
+    
     
     /* Purchase Order Line adder Variables */
     DEFINE VARIABLE cAdderItemID                    AS CHARACTER NO-UNDO.
@@ -270,6 +274,7 @@
     DEFINE VARIABLE cAssignedCustID    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPOExport          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cReturnValue       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lUseVendItemCost   AS LOGICAL NO-UNDO.
     DEFINE VARIABLE iGPEDI             AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iCorKraft          AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cJobDescriptionKiwiT AS CHARACTER NO-UNDO.
@@ -282,6 +287,12 @@
     DEFINE BUFFER bf-job-mat            FOR job-mat.
     DEFINE BUFFER bf-item               FOR item.
     
+    DEFINE TEMP-TABLE ttVendItemNumberAdders
+        FIELD sequence       AS INTEGER 
+        FIELD vendItemNumber AS CHARACTER 
+        INDEX idxSequence IS PRIMARY UNIQUE sequence
+        .
+    
     DEFINE VARIABLE hdJobProcs AS HANDLE NO-UNDO.
     RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
     
@@ -293,7 +304,13 @@
     
     DEFINE VARIABLE cRequestFile     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cRequestFilePath AS CHARACTER NO-UNDO.
+  
+  
+/* ************************  Function Prototypes ********************** */
+FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
+    (  ) FORWARD.
     
+      
     /* This is to run client specific request handler to fetch request data */
     IF ipcRequestHandler NE "" THEN
         RUN VALUE(ipcRequestHandler) (
@@ -405,6 +422,19 @@
         IF lRecFound THEN 
             iCorKraft = INTEGER(cReturnValue).
             
+        RUN sys/ref/nk1look.p (
+            INPUT po-ord.company, /* Company Code */ 
+            INPUT "VendItemCost", /* sys-ctrl name */
+            INPUT "L",            /* Output return value */
+            INPUT NO,             /* Use lship-to */
+            INPUT NO,             /* ship-to vendor */
+            INPUT "",             /* ship-to vendor value */
+            INPUT "",             /* shi-id value */
+            OUTPUT cReturnValue, 
+            OUTPUT lRecFound
+            ).       
+        lUseVendItemCost = LOGICAL(cReturnValue) NO-ERROR.
+                 
         IF NOT CAN-FIND(FIRST po-ordl
              WHERE po-ordl.company EQ po-ord.company
                AND po-ordl.po-no   EQ po-ord.po-no) THEN DO:
@@ -724,8 +754,18 @@
                 cItemWithAddersX10POAdder   = ""
                 dPOAdderCostMSF             = 0
                 dAddersSetupCost            = 0
+                cVendItemNoBoard            = ""
+                cVendItemNoAdders           = ""
+                cVendItemNoBoardAndAdders   = ""
                 .
-
+            
+            RUN Vendor_GetVendItemNumber(
+                INPUT  po-ord.company,
+                INPUT  po-ordl.i-no,
+                INPUT  po-ord.vend-no,
+                INPUT  lUseVendItemCost,
+                OUTPUT cVendItemNoBoard
+                ).
             FIND FIRST item NO-LOCK
                  WHERE item.company  EQ po-ordl.company
                    AND item.i-no     EQ po-ordl.i-no
@@ -1129,6 +1169,9 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData,"MinUnderPct",cMinUnderPct).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "poNotes", cPoNotes).
             cItemWithAdders = cItemID.
+            
+            EMPTY TEMP-TABLE ttVendItemNumberAdders.
+            
             /* Fetch adder details for the purchase order line */
             FOR EACH po-ordl-add NO-LOCK
                WHERE po-ordl-add.company EQ po-ordl.company
@@ -1157,26 +1200,25 @@
                     cItemWithAdders  = cItemWithAdders + ", " + po-ordl-add.adder-i-no
                     dAddersSetupCost = dAddersSetupCost + po-ordl-add.setup
                     .
-                    
-                    IF po-ordl-add.pr-uom NE "MSF" THEN
-                        RUN Conv_ValueFromUOMToUOM (
-                            INPUT  po-ordl.company,
-                            INPUT  po-ordl-add.adder-i-no,
-                            INPUT  "RM",
-                            INPUT  po-ordl-add.cost,
-                            INPUT  po-ordl-add.pr-uom, 
-                            INPUT  "MSF",
-                            INPUT  dItemBasisWeight,
-                            INPUT  po-ordl.s-len,
-                            INPUT  po-ordl.s-wid,
-                            INPUT  po-ordl.s-dep,
-                            INPUT  0,
-                            OUTPUT dPOAdderCostMSF,
-                            OUTPUT lError,
-                            OUTPUT cMessage
-                            ).
-                    ELSE                     
-                        dPOAdderCostMSF = po-ordl-add.cost.
+                IF po-ordl-add.pr-uom NE "MSF" THEN
+                    RUN Conv_ValueFromUOMToUOM (
+                        INPUT  po-ordl.company,
+                        INPUT  po-ordl-add.adder-i-no,
+                        INPUT  "RM",
+                        INPUT  po-ordl-add.cost,
+                        INPUT  po-ordl-add.pr-uom, 
+                        INPUT  "MSF",
+                        INPUT  dItemBasisWeight,
+                        INPUT  po-ordl.s-len,
+                        INPUT  po-ordl.s-wid,
+                        INPUT  po-ordl.s-dep,
+                        INPUT  0,
+                        OUTPUT dPOAdderCostMSF,
+                        OUTPUT lError,
+                        OUTPUT cMessage
+                        ).
+                ELSE                     
+                    dPOAdderCostMSF = po-ordl-add.cost.
                                             
                 iIndex = iIndex + 1.
                 IF iIndex LE 6 THEN
@@ -1184,9 +1226,26 @@
                         cItemWithAddersX10POAdder  = cItemWithAddersX10POAdder + STRING(po-ordl-add.adder-i-no,"X(10)")
                         cPOAdderCostInMSF[iIndex]  = STRING(dPOAdderCostMSF)
                         cPOAdderSetupCost[iIndex]  = STRING(po-ordl.setup)
-                        .        
+                        .  
+                RUN Vendor_GetVendItemNumber(
+                    INPUT  po-ord.company,
+                    INPUT  po-ordl-add.adder-i-no,
+                    INPUT  po-ord.vend-no,
+                    INPUT  lUseVendItemCost,
+                    OUTPUT cVendItemNoAdders
+                    ).
+                    
+                CREATE ttVendItemNumberAdders.
+                ASSIGN 
+                    ttVendItemNumberAdders.sequence       = iIndex
+                    ttVendItemNumberAdders.vendItemNumber = cVendItemNoAdders
+                    .                                    
             END.
-            cBoardSetupCost = STRING(po-ordl.setup - dAddersSetupCost).
+            ASSIGN 
+                cBoardSetupCost           = STRING(po-ordl.setup - dAddersSetupCost)
+                cVendItemNoAdders         = pSortVendItemNumbersAdders()
+                cVendItemNoBoardAndAdders = cVendItemNoBoard + cVendItemNoAdders
+                .
             
             /* Fetch Adders for HRMS */
             FIND FIRST job NO-LOCK 
@@ -1499,7 +1558,9 @@
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "AdderSetupCost4", cPOAdderSetupCost[4]).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "AdderSetupCost5", cPOAdderSetupCost[5]).
             RUN updateRequestData(INPUT-OUTPUT lcLineData, "AdderSetupCost6", cPOAdderSetupCost[6]).
-            RUN updateRequestData(INPUT-OUTPUT lcLineData, "ItemWithAddersX10PoAdder", cItemWithAddersX10PoAdder).                                  
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "ItemWithAddersX10PoAdder", cItemWithAddersX10PoAdder).
+            RUN updateRequestData(INPUT-OUTPUT lcLineData, "VendorItemNumbersWithAdders", cVendItemNoBoardAndAdders).
+                                              
             lcConcatLineData = lcConcatLineData + lcLineData.
         END.      
         
@@ -1597,4 +1658,19 @@
     IF VALID-HANDLE(hdPOProcs) THEN
         DELETE PROCEDURE hdPOProcs.
 
-        
+/* ************************  Function Implementations ***************** */
+
+FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
+	(  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cVendItemNumbers AS CHARACTER NO-UNDO.	
+    
+    FOR EACH ttVendItemNumberAdders
+        BY ttVendItemNumberAdders.vendItemNumber:
+        cVendItemNumbers = cVendItemNumbers + ttVendItemNumberAdders.vendItemNumber.            
+    END.        
+    RETURN cVendItemNumbers.        
+END FUNCTION.
