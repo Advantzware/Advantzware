@@ -3631,6 +3631,8 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             FIND CURRENT bf-inv-head EXCLUSIVE-LOCK.
             ASSIGN 
                 bf-inv-head.autoApprove = YES.
+            IF bf-inv-head.stat EQ "W" THEN
+               bf-inv-head.stat = "".
             FIND CURRENT bf-inv-head NO-LOCK.
             opiCountValid = opiCountValid + 1.
         END.
