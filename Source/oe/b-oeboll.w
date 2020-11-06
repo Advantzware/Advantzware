@@ -3274,12 +3274,14 @@ PROCEDURE valid-ord-no :
     FIND FIRST oe-ord NO-LOCK
         WHERE oe-ord.company EQ oe-bolh.company
           AND oe-ord.ord-no  EQ INT(oe-boll.ord-no:SCREEN-VALUE IN BROWSE {&browse-name})
-          NO-ERROR.
-    IF NOT AVAIL oe-ord THEN lv-msg = "Invalid Order#,try help...".
+          NO-ERROR.     
+    IF NOT AVAIL oe-ord THEN lv-msg = "Invalid Order - Order # " + oe-boll.ord-no:SCREEN-VALUE IN BROWSE {&browse-name} + " is not found, try help...".
     ELSE IF LOOKUP(oe-ord.stat,lv-ord-ok) EQ 0 THEN
-    DO:
+    DO:       
        IF oe-ord.stat EQ "H" THEN
-          lv-msg = "Order is on Credit Hold.".
+          lv-msg = "Invalid Order - Order is on Credit Hold.".
+       ELSE IF  (oe-ord.stat EQ "C" OR oe-ord.stat EQ "Z") THEN
+          lv-msg = "Invalid Order - The order status is Closed".   
        ELSE
           lv-msg = "Invalid Order#,try help...".
     END.
@@ -3289,6 +3291,7 @@ PROCEDURE valid-ord-no :
     IF lv-msg EQ ""                              AND
        AVAILABLE oe-ord                          AND 
        oe-bolh.cust-no NE oe-ord.cust-no         AND
+       AVAIL oe-boll                             AND
        oe-boll.s-code NE "T"                     AND 
        NOT CAN-FIND(FIRST shipto
                     WHERE shipto.company EQ oe-ord.company
