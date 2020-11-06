@@ -48,7 +48,8 @@ CREATE WIDGET-POOL.
     DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cRtnValue        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSSTagStatus     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lSSTagStatus     AS LOGICAL   NO-UNDO.    
+    DEFINE VARIABLE lSSTagStatus     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cInventoryStatus AS CHARACTER NO-UNDO.
     
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
     
@@ -83,7 +84,7 @@ CREATE WIDGET-POOL.
     RUN sys/ref/nk1look.p(
         INPUT  g_company,
         INPUT  "SSTagStatus",
-        INPUT  "C",
+        INPUT  "L",
         INPUT  NO,
         INPUT  NO,
         INPUT  "",
@@ -113,7 +114,7 @@ CREATE WIDGET-POOL.
 &Scoped-define INTERNAL-TABLES ttFGBin
 
 /* Definitions for BROWSE BROWSE-2                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttFGBin.quantity ttFGBin.tag ttFGBin.warehouseID ttFGBin.jobID ttFGBin.poID ttFGBin.inventoryStatus   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-2 ttFGBin.quantity ttFGBin.tag ttFGBin.warehouseID ttFGBin.jobID ttFGBin.poID fGetInventoryStatus(ttFGBin.inventoryStatus) @ cInventoryStatus  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-2   
 &Scoped-define SELF-NAME BROWSE-2
 &Scoped-define QUERY-STRING-BROWSE-2 FOR EACH ttFGBin
@@ -138,6 +139,12 @@ btnFirst btnPrevious btnNext btnLast
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetInventoryStatus W-Win 
+FUNCTION fGetInventoryStatus RETURNS CHARACTER
+    ( ipcInventoryStatus AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -159,11 +166,6 @@ DEFINE BUTTON btnKeyboard
      IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U
      LABEL "KeyBoard" 
      SIZE 6.4 BY 1.52 TOOLTIP "KeyBoard".
-
-DEFINE BUTTON btnKeyBoard2 
-     IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U
-     LABEL "Button 9" 
-     SIZE 6.4 BY 1.52.
 
 DEFINE BUTTON btnLast 
      IMAGE-UP FILE "Graphics/32x32/navigate_down2.ico":U
@@ -209,12 +211,12 @@ DEFINE QUERY BROWSE-2 FOR
 DEFINE BROWSE BROWSE-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 W-Win _FREEFORM
   QUERY BROWSE-2 DISPLAY
-      ttFGBin.quantity    WIDTH 25 COLUMN-LABEL "Qty On-hand"   
+      ttFGBin.quantity    WIDTH 25 COLUMN-LABEL "Qty On-hand" FORMAT ">>>,>>>,>>>9":U  
       ttFGBin.tag         WIDTH 50 COLUMN-LABEL "Tag #"    FORMAT "X(30)"   
-      ttFGBin.warehouseID WIDTH 30 COLUMN-LABEL "Location" FORMAT "X(12)"
-      ttFGBin.jobID       WIDTH 25 COLUMN-LABEL "Job #"    FORMAT "X(20)"
-      ttFGBin.poID        WIDTH 25 COLUMN-LABEL "PO #"     FORMAT ">>>>>9"
-      ttFGBin.inventoryStatus      COLUMN-LABEL "Status"   FORMAT "X(15)"
+      ttFGBin.warehouseID WIDTH 25 COLUMN-LABEL "Location" FORMAT "X(12)"
+      ttFGBin.jobID       WIDTH 20 COLUMN-LABEL "Job #"    FORMAT "X(20)"
+      ttFGBin.poID        WIDTH 20 COLUMN-LABEL "PO #"     FORMAT ">>>>>9"       
+      fGetInventoryStatus(ttFGBin.inventoryStatus) @ cInventoryStatus WIDTH 50 COLUMN-LABEL "Status"   FORMAT "X(40)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 187 BY 26.43
@@ -223,18 +225,17 @@ DEFINE BROWSE BROWSE-2
 
 /* ************************  Frame Definitions  *********************** */
 
-DEFINE FRAME F-Main
-     btnExit AT ROW 1.24 COL 192.4 WIDGET-ID 26
+DEFINE FRAME F-Main       
      fiTagNo AT ROW 2 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      btnKeyboard AT ROW 2 COL 121.4 WIDGET-ID 6
      fiTagStatus AT ROW 4 COL 39.2 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      fiStatusDescription AT ROW 4 COL 99.6 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     btnKeyBoard2 AT ROW 4.1 COL 64.4 WIDGET-ID 30
      BROWSE-2 AT ROW 6.71 COL 3 WIDGET-ID 200
      btnFirst AT ROW 6.95 COL 191.6 WIDGET-ID 18
      btnPrevious AT ROW 11.24 COL 191.6 WIDGET-ID 20
      btnNext AT ROW 25.62 COL 191.6 WIDGET-ID 22
      btnLast AT ROW 30.52 COL 191.6 WIDGET-ID 24
+     btnExit AT ROW 1.24 COL 192.4 WIDGET-ID 26
      "Tag:" VIEW-AS TEXT
           SIZE 8 BY 1.19 AT ROW 2.14 COL 31.8 WIDGET-ID 4
           FONT 36
@@ -306,10 +307,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   FRAME-NAME                                                           */
-/* BROWSE-TAB BROWSE-2 btnKeyBoard2 F-Main */
-/* SETTINGS FOR BUTTON btnKeyBoard2 IN FRAME F-Main
-   NO-ENABLE                                                            */
+   FRAME-NAME                                                           */ 
 /* SETTINGS FOR FILL-IN fiStatusDescription IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiTagStatus IN FRAME F-Main
@@ -410,22 +408,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btnKeyBoard2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnKeyBoard2 W-Win
-ON CHOOSE OF btnKeyBoard2 IN FRAME F-Main /* Button 9 */
-DO:
-    APPLY "ENTRY":U TO fiTagStatus.
-    
-    RUN pKeyboard(
-        INPUT fiTagStatus:HANDLE,
-        INPUT "Qwerty"
-        ).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME btnLast
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLast W-Win
 ON CHOOSE OF btnLast IN FRAME F-Main /* Last */
@@ -471,25 +453,31 @@ DO:
     DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cReturnFocus AS CHARACTER NO-UNDO.
-    
-     RUN pValidateTag(
-         INPUT  fiTagNo:SCREEN-VALUE,
-         OUTPUT lSuccess,
-         OUTPUT cMessage
-         ).
-    IF NOT lSuccess THEN DO:
-        fiTagStatus:SENSITIVE = NO.
-        MESSAGE cMessage 
-            VIEW-AS ALERT-BOX ERROR.
-        RETURN NO-APPLY.    
-    END.
-    RUN pEnableTagStatus(
-        OUTPUT cReturnFocus
-        ).
-    IF cReturnFocus EQ "TagStatus" THEN 
-        APPLY "ENTRY":U TO fiTagStatus.
-    RETURN NO-APPLY.    
-                 
+    IF fiTagNo:SCREEN-VALUE NE "" THEN
+    DO:       
+         RUN pValidateTag(
+             INPUT  fiTagNo:SCREEN-VALUE,
+             OUTPUT lSuccess,
+             OUTPUT cMessage
+             ).   
+        IF NOT lSuccess THEN DO:
+            fiTagStatus:SENSITIVE = NO.
+            MESSAGE cMessage 
+                VIEW-AS ALERT-BOX ERROR.                             
+            RETURN NO-APPLY.    
+        END.
+        RUN pEnableTagStatus(
+            OUTPUT cReturnFocus
+            ).
+        IF cReturnFocus EQ "TagStatus" THEN 
+            APPLY "ENTRY":U TO fiTagStatus.
+        ELSE IF cReturnFocus EQ "TagNo" THEN 
+        DO:
+           fiTagNo:SCREEN-VALUE = "".
+           APPLY "ENTRY":U TO fiTagNo. 
+        END.
+        RETURN NO-APPLY. 
+    END.                 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -502,17 +490,20 @@ ON LEAVE OF fiTagStatus IN FRAME F-Main
 DO:
     DEFINE VARIABLE lValidStatusID AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lOnHold        AS LOGICAL NO-UNDO.
-    
-    RUN Inventory_ValidateStatusID in hdInventoryProcs(
+    IF fiTagStatus:SCREEN-VALUE NE "" THEN
+    DO:
+        RUN Inventory_ValidateStatusID in hdInventoryProcs(
         INPUT  fiTagStatus:SCREEN-VALUE,
         OUTPUT lValidStatusID
         ).
            
-    IF NOT lValidStatusID THEN DO:
-        MESSAGE "Invalid status ID"
-            VIEW-AS ALERT-BOX ERROR.
-        RETURN NO-APPLY.           
-    END.  
+        IF NOT lValidStatusID THEN DO:
+            MESSAGE "Invalid status ID"
+                VIEW-AS ALERT-BOX ERROR.
+            RETURN NO-APPLY.           
+        END.            
+    END.
+    
     RUN Inventory_GetStatusOnHold IN hdInventoryProcs(
        INPUT  fiTagStatus:SCREEN-VALUE,
        OUTPUT lOnHold
@@ -721,13 +712,28 @@ PROCEDURE pEnableTagStatus PRIVATE :
           AND fg-bin.qty      NE 0
         NO-ERROR.
     IF AVAILABLE fg-bin THEN DO:
+        IF lSSTagStatus OR NOT fg-bin.onHold THEN
+        DO:
+             RUN Inventory_GetStatusDescription in hdInventoryProcs(
+                    INPUT  fg-bin.statusID,
+                    OUTPUT cStatusDescription
+                    ).  
+             ASSIGN 
+             fiTagStatus:SCREEN-VALUE IN FRAME {&FRAME-NAME}         = fg-bin.statusID
+             fiStatusDescription:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cStatusDescription.
+        END.
+        
         IF fg-bin.onHold THEN DO:
-            IF lSSTagStatus THEN
+            IF lSSTagStatus THEN do:
+                RUN displayMessage(
+                    INPUT "55"
+                    ).   
+                    
                 ASSIGN
-                    fiTagStatus:SENSITIVE   = TRUE
-                    btnKeyBoard2:SENSITIVE  = TRUE 
+                    fiTagStatus:SENSITIVE   = TRUE                     
                     opcReturnFocus          = "TagStatus"
                     .
+            END.        
             ELSE DO:
                 IF scInstance EQ ? THEN 
                     scInstance = SharedConfig:instance.
@@ -758,9 +764,8 @@ PROCEDURE pEnableTagStatus PRIVATE :
                     INPUT "ItemName",
                     INPUT cItemName          
                     ).                                                                                         
-                RUN displayMessageQuestionLog(
-                    INPUT "55",
-                    OUTPUT lResponse
+                RUN displayMessage(
+                    INPUT "55"                    
                     ).   
                 scInstance:DeleteValue(
                     INPUT "StockID"
@@ -774,14 +779,8 @@ PROCEDURE pEnableTagStatus PRIVATE :
                  scInstance:DeleteValue(
                     INPUT "ItemName"
                     ). 
-                IF lResponse THEN 
-                    ASSIGN
-                        fiTagStatus:SENSITIVE  = TRUE
-                        btnKeyboard2:SENSITIVE = TRUE
-                        opcReturnFocus         = "TagStatus"
-                        .
-                ELSE                                                                                       
-                    opcReturnFocus = "TagNo".        
+                                                                                            
+                 opcReturnFocus = "TagNo".        
             END.               
         END.
         ELSE DO:
@@ -809,16 +808,14 @@ PROCEDURE pEnableTagStatus PRIVATE :
             END.
             ELSE 
                 ASSIGN
-                    fiTagStatus:SENSITIVE  = TRUE
-                    btnKeyBoard2:SENSITIVE = TRUE
+                    fiTagStatus:SENSITIVE  = TRUE                    
                     opcReturnFocus         = "TagStatus"
                     .                               
         END.     
     END.
     ELSE IF AMBIGUOUS(fg-bin) THEN
         ASSIGN
-            fiTagStatus:SENSITIVE  = TRUE
-            btnKeyBoard2:SENSITIVE = TRUE
+            fiTagStatus:SENSITIVE  = TRUE             
             opcReturnFocus         = "TagStatus"
             .     
                      
@@ -864,8 +861,7 @@ PROCEDURE pUpdateBinStatus PRIVATE :
         RELEASE bf-fg-bin.                      
     END.
     ASSIGN
-        fiTagStatus:SENSITIVE            = FALSE
-        btnKeyboard2:SENSITIVE           = FALSE
+        fiTagStatus:SENSITIVE            = FALSE        
         fiStatusDescription:SCREEN-VALUE = ""
         fiTagStatus:SCREEN-VALUE         = ""
         fiTagNo:SCREEN-VALUE             = ""
@@ -945,3 +941,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetInventoryStatus W-Win 
+FUNCTION fGetInventoryStatus RETURNS CHARACTER
+    ( ipcInventoryStatus AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE cResult    AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cStatusDescription AS CHARACTER NO-UNDO.
+    
+    RUN Inventory_GetStatusDescription in hdInventoryProcs(
+        INPUT  ipcInventoryStatus,
+        OUTPUT cStatusDescription
+        ).
+    IF cStatusDescription NE "" THEN
+        cResult = ipcInventoryStatus + " - " + cStatusDescription.
+
+    RETURN cResult.
+
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
