@@ -2215,15 +2215,7 @@ PROCEDURE pGetSettings PRIVATE:
     
     RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "AUDITDIR", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound THEN ipbf-ttPostingMaster.exportPath = cReturn.
-    
-    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "InvoiceApprovalBillNotes", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "InvoiceApprovalFreightAmount", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "InvoiceApprovalFreightTerms", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "InvoiceApprovalPriceGTCost", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "InvoiceApprovalInvoiceStatus", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "InvoiceApprovalTaxableCheck", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
-    
-    
+       
 END PROCEDURE.
 
 PROCEDURE pBuildInvoiceTaxDetail PRIVATE:
@@ -3524,6 +3516,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
     DEFINE VARIABLE dTotalTax         AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lError            AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValidateRequiredInvoiceStatus AS LOGICAL NO-UNDO.
     
     FOR EACH bf-ttInvoiceToPost,
         FIRST bf-inv-head NO-LOCK 
@@ -3560,6 +3553,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
          
 
         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalInvoiceStatus",bf-inv-head.cust-no,iplIsValidateOnly).
+        lValidateRequiredInvoiceStatus = lValidateRequired.
         IF lValidateRequired AND bf-inv-head.stat EQ "H" THEN
         DO:
             RUN pAddValidationError(BUFFER bf-ttInvoiceToPost, "Invoice on Hold").
@@ -3631,7 +3625,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             FIND CURRENT bf-inv-head EXCLUSIVE-LOCK.
             ASSIGN 
                 bf-inv-head.autoApprove = YES.
-            IF bf-inv-head.stat EQ "W" THEN
+            IF lValidateRequiredInvoiceStatus AND bf-inv-head.stat EQ "W" THEN
                bf-inv-head.stat = "".
             FIND CURRENT bf-inv-head NO-LOCK.
             opiCountValid = opiCountValid + 1.
