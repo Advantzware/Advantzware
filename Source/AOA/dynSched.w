@@ -268,31 +268,31 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnExit 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Exit" 
      SIZE 8 BY 1.91 TOOLTIP "Exit".
 
 DEFINE BUTTON btnMoveColumn 
-     IMAGE-UP FILE "Graphics/32x32/spreadsheet.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/spreadsheet_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/spreadsheet.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/spreadsheet_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Move Column" 
      SIZE 8 BY 1.91 TOOLTIP "Move Column".
 
 DEFINE BUTTON btnRun 
-     IMAGE-UP FILE "Graphics/32x32/media_play.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/media_play_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/media_play.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/media_play_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Run" 
      SIZE 8 BY 1.91 TOOLTIP "Run Now".
 
 DEFINE BUTTON btnSort 
-     IMAGE-UP FILE "Graphics/32x32/sort_az_descending.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/sort_az_descending_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/sort_az_descending.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/sort_az_descending_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Sort" 
      SIZE 8 BY 1.91 TOOLTIP "Sort".
 
 DEFINE BUTTON btnView 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/window_dialog.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "View" 
      SIZE 8 BY 1.91 TOOLTIP "Viewer".
 
@@ -313,11 +313,11 @@ DEFINE VARIABLE showTasks AS LOGICAL INITIAL yes
 DEFINE RECTANGLE RECT-OPTIONS
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE .2 BY 1.91
-     BGCOLOR 1 FGCOLOR 1 .
+     BGCOLOR 15 FGCOLOR 15 .
 
 DEFINE BUTTON btnAdd 
-     IMAGE-UP FILE "Graphics/32x32/navigate_plus.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_plus.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
      SIZE 8 BY 1.91 TOOLTIP "Add".
 
@@ -337,8 +337,8 @@ DEFINE BUTTON btnCalendar-2
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
 DEFINE BUTTON btnCancel 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
      SIZE 8 BY 1.91 TOOLTIP "Cancel".
 
@@ -348,56 +348,56 @@ DEFINE BUTTON btnClose
      SIZE 4.2 BY 1 TOOLTIP "Close".
 
 DEFINE BUTTON btnCopy 
-     IMAGE-UP FILE "Graphics/32x32/element_copy.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/element_copy_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/element_copy.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/element_copy_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Copy" 
      SIZE 8 BY 1.91 TOOLTIP "Copy".
 
 DEFINE BUTTON btnDelete 
-     IMAGE-UP FILE "Graphics/32x32/garbage_can.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
      SIZE 8 BY 1.91 TOOLTIP "Delete".
 
 DEFINE BUTTON btnFirst 
-     IMAGE-UP FILE "Graphics/32x32/navigate_beginning.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_beginning_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_beginning.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_beginning_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "First" 
      SIZE 8 BY 1.91 TOOLTIP "First".
 
 DEFINE BUTTON btnLast 
-     IMAGE-UP FILE "Graphics/32x32/navigate_end.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_end_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_end.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_end_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Last" 
      SIZE 8 BY 1.91 TOOLTIP "Last".
 
 DEFINE BUTTON btnNext 
-     IMAGE-UP FILE "Graphics/32x32/navigate_right.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_right_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_right.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_right_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Next" 
      SIZE 8 BY 1.91 TOOLTIP "Next".
 
 DEFINE BUTTON btnPrev 
-     IMAGE-UP FILE "Graphics/32x32/navigate_left.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_left_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_left.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_left_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Previous" 
      SIZE 8 BY 1.91 TOOLTIP "Previous".
 
 DEFINE BUTTON btnReset 
-     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Reset" 
      SIZE 8 BY 1.91 TOOLTIP "Reset".
 
 DEFINE BUTTON btnRunNow 
-     IMAGE-UP FILE "Graphics/32x32/media_play.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/media_play_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/media_play.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/media_play_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Run Now" 
      SIZE 8 BY 1.91 TOOLTIP "Run Now".
 
 DEFINE BUTTON btnUpdate 
-     IMAGE-UP FILE "Graphics/32x32/pencil.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/pencil.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Update" 
      SIZE 8 BY 1.91 TOOLTIP "Update/Save".
 
@@ -527,6 +527,27 @@ DEFINE FRAME DEFAULT-FRAME
          SIZE 160 BY 28.57
          BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
 
+DEFINE FRAME optionsFrame
+     btnExit AT ROW 1.24 COL 152 HELP
+          "Exit" WIDGET-ID 288
+     showTasks AT ROW 1.24 COL 35 NO-LABEL WIDGET-ID 52
+     searchBar AT ROW 1.71 COL 60 COLON-ALIGNED HELP
+          "Search" WIDGET-ID 6
+     btnMoveColumn AT ROW 1.24 COL 26 HELP
+          "Move Column" WIDGET-ID 42
+     btnRun AT ROW 1.24 COL 2 HELP
+          "Run Now" WIDGET-ID 44
+     btnSort AT ROW 1.24 COL 18 HELP
+          "Sort" WIDGET-ID 48
+     btnView AT ROW 1.24 COL 10 HELP
+          "Viewer" WIDGET-ID 46
+     RECT-OPTIONS AT ROW 1.19 COL 150 WIDGET-ID 290
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 160 BY 2.38
+         BGCOLOR 21 FGCOLOR 15  WIDGET-ID 600.
+
 DEFINE FRAME viewFrame
      btnCopy AT ROW 22.71 COL 31 HELP
           "Copy" WIDGET-ID 24
@@ -534,6 +555,8 @@ DEFINE FRAME viewFrame
           "Delete" WIDGET-ID 26
      btnAddEmail AT ROW 19.1 COL 8 HELP
           "Add Recipents" WIDGET-ID 636
+     btnRunNow AT ROW 22.67 COL 92 HELP
+          "Run Now" WIDGET-ID 634
      Task.paramValueID AT ROW 1.24 COL 19 COLON-ALIGNED WIDGET-ID 658
           LABEL "Schedule ID"
           VIEW-AS FILL-IN 
@@ -543,8 +566,6 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
           BGCOLOR 15 
-     btnRunNow AT ROW 22.67 COL 92 HELP
-          "Run Now" WIDGET-ID 634
      Task.taskName AT ROW 1.24 COL 70 COLON-ALIGNED WIDGET-ID 480 FORMAT "x(40)"
           VIEW-AS FILL-IN 
           SIZE 48 BY 1
@@ -558,6 +579,8 @@ DEFINE FRAME viewFrame
           VIEW-AS TOGGLE-BOX
           SIZE 125 BY 1
           BGCOLOR 14 FONT 6
+     btnClose AT ROW 1 COL 156 HELP
+          "Close" WIDGET-ID 72
      Task.frequency AT ROW 4.1 COL 21 NO-LABEL WIDGET-ID 604
           VIEW-AS RADIO-SET VERTICAL
           RADIO-BUTTONS 
@@ -584,8 +607,6 @@ DEFINE FRAME viewFrame
      Task.dayOfWeek1 AT ROW 6.48 COL 35 WIDGET-ID 488
           VIEW-AS TOGGLE-BOX
           SIZE 11 BY .81
-     btnClose AT ROW 1 COL 156 HELP
-          "Close" WIDGET-ID 72
      Task.dayOfWeek2 AT ROW 6.48 COL 51 WIDGET-ID 490
           VIEW-AS TOGGLE-BOX
           SIZE 11 BY .81
@@ -595,6 +616,8 @@ DEFINE FRAME viewFrame
      Task.dayOfWeek4 AT ROW 6.48 COL 83 WIDGET-ID 494
           VIEW-AS TOGGLE-BOX
           SIZE 15 BY .81
+     btnFirst AT ROW 22.67 COL 126 HELP
+          "First" WIDGET-ID 274
      Task.dayOfWeek5 AT ROW 6.48 COL 101 WIDGET-ID 496
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY .81
@@ -608,8 +631,6 @@ DEFINE FRAME viewFrame
           LABEL "1"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnFirst AT ROW 22.67 COL 126 HELP
-          "First" WIDGET-ID 274
      Task.dayOfMonth[2] AT ROW 7.91 COL 43 WIDGET-ID 526
           LABEL "2"
           VIEW-AS TOGGLE-BOX
@@ -638,6 +659,8 @@ DEFINE FRAME viewFrame
           LABEL "6"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnLast AT ROW 22.71 COL 150 HELP
+          "Last" WIDGET-ID 68
      Task.dayOfMonth[7] AT ROW 7.91 COL 83 WIDGET-ID 536
           LABEL "7"
           VIEW-AS TOGGLE-BOX
@@ -650,8 +673,6 @@ DEFINE FRAME viewFrame
           LABEL "9"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnLast AT ROW 22.71 COL 150 HELP
-          "Last" WIDGET-ID 68
      Task.dayOfMonth[10] AT ROW 8.86 COL 51 WIDGET-ID 542
           LABEL "10"
           VIEW-AS TOGGLE-BOX
@@ -696,6 +717,8 @@ DEFINE FRAME viewFrame
           LABEL "20"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
+     btnNext AT ROW 22.67 COL 142 HELP
+          "Next" WIDGET-ID 276
      Task.dayOfMonth[21] AT ROW 9.81 COL 83 WIDGET-ID 560
           LABEL "21"
           VIEW-AS TOGGLE-BOX
@@ -708,8 +731,6 @@ DEFINE FRAME viewFrame
           LABEL "23"
           VIEW-AS TOGGLE-BOX
           SIZE 6 BY .81
-     btnNext AT ROW 22.67 COL 142 HELP
-          "Next" WIDGET-ID 276
      Task.dayOfMonth[24] AT ROW 10.76 COL 51 WIDGET-ID 578
           LABEL "24"
           VIEW-AS TOGGLE-BOX
@@ -808,12 +829,12 @@ DEFINE FRAME viewFrame
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
           BGCOLOR 15 
+     btnPrev AT ROW 22.67 COL 134 HELP
+          "Previous" WIDGET-ID 278
      Task.user-id AT ROW 25.05 COL 36 COLON-ALIGNED WIDGET-ID 516
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
           BGCOLOR 15 
-     btnPrev AT ROW 22.67 COL 134 HELP
-          "Previous" WIDGET-ID 278
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 3.38
@@ -844,10 +865,10 @@ DEFINE FRAME viewFrame
           "Update/Save" WIDGET-ID 18
      "Format:" VIEW-AS TEXT
           SIZE 8 BY 1 AT ROW 16.48 COL 85 WIDGET-ID 614
-     "Frequency:" VIEW-AS TEXT
-          SIZE 11 BY 1 AT ROW 4.1 COL 9 WIDGET-ID 618
      "Recipients:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 18.38 COL 3 WIDGET-ID 602
+     "Frequency:" VIEW-AS TEXT
+          SIZE 11 BY 1 AT ROW 4.1 COL 9 WIDGET-ID 618
      transPanel AT ROW 22.43 COL 14 WIDGET-ID 16
      navPanel AT ROW 22.43 COL 125 WIDGET-ID 280
      RECT-2 AT ROW 6.24 COL 34 WIDGET-ID 620
@@ -861,27 +882,6 @@ DEFINE FRAME viewFrame
          SIZE 160 BY 26.19
          FGCOLOR 1 
          TITLE "View" WIDGET-ID 400.
-
-DEFINE FRAME optionsFrame
-     btnExit AT ROW 1.24 COL 152 HELP
-          "Exit" WIDGET-ID 288
-     showTasks AT ROW 1.24 COL 35 NO-LABEL WIDGET-ID 52
-     searchBar AT ROW 1.71 COL 60 COLON-ALIGNED HELP
-          "Search" WIDGET-ID 6
-     btnMoveColumn AT ROW 1.24 COL 26 HELP
-          "Move Column" WIDGET-ID 42
-     btnRun AT ROW 1.24 COL 2 HELP
-          "Run Now" WIDGET-ID 44
-     btnSort AT ROW 1.24 COL 18 HELP
-          "Sort" WIDGET-ID 48
-     btnView AT ROW 1.24 COL 10 HELP
-          "Viewer" WIDGET-ID 46
-     RECT-OPTIONS AT ROW 1.19 COL 150 WIDGET-ID 290
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 160 BY 2.38
-         BGCOLOR 26 FGCOLOR 1  WIDGET-ID 600.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1394,8 +1394,8 @@ DO:
         BROWSE taskBrowse:COLUMN-MOVABLE = lMoveColumn
         .
     SELF:LOAD-IMAGE("Graphics/32x32/"
-        + IF lMoveColumn THEN "spreadsheet_column.ico"
-          ELSE "spreadsheet.ico")
+        + IF lMoveColumn THEN "spreadsheet_column.png"
+          ELSE "spreadsheet.png")
         .
 END.
 
@@ -1469,8 +1469,8 @@ DO:
     lAscending = NOT lAscending.
     RUN pReopenBrowse.
     btnSort:LOAD-IMAGE("Graphics/32x32/"
-        + IF lAscending THEN "sort_az_descending.ico"
-          ELSE "sort_az_descending2.ico")
+        + IF lAscending THEN "sort_az_descending.png"
+          ELSE "sort_az_descending2.png")
         .
 END.
 
@@ -2152,7 +2152,7 @@ PROCEDURE pCRUD :
                 DISABLE {&transPanel}.
                 BROWSE taskBrowse:SENSITIVE = NO.
                 ENABLE {&transUpdate} {&enabledFields} {&calendarObjects}.
-                btnUpdate:LOAD-IMAGE("Graphics\32x32\Save_As.ico").
+                btnUpdate:LOAD-IMAGE("Graphics\32x32\floppy_disk.png").
                 IF iphMode:LABEL EQ "Add" THEN DO:
                     RUN pClearView.
                     DISABLE btnReset.
@@ -2187,7 +2187,7 @@ PROCEDURE pCRUD :
                 DISABLE {&transPanel} {&enabledFields} {&calendarObjects}.
                 ENABLE {&transInit}.
                 BROWSE taskBrowse:SENSITIVE = YES.
-                btnUpdate:LOAD-IMAGE("Graphics\32x32\Pencil.ico").
+                btnUpdate:LOAD-IMAGE("Graphics\32x32\Pencil.png").
                 ASSIGN
                     FRAME viewFrame:TITLE       = "View"
                     btnUpdate:LABEL             = "Update"

@@ -141,7 +141,7 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnSave 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS
      LABEL "Save" 
      SIZE 8 BY 1.91 TOOLTIP "Save".
 

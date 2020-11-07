@@ -52,7 +52,7 @@ DEFINE VARIABLE cPrgmName          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cOutputFormat      AS CHARACTER NO-UNDO INITIAL
     "Grid,LocalCSV,CSV,XLS,DOCX,PDF,HTML,Print -d,View".
 DEFINE VARIABLE cOutputImage       AS CHARACTER NO-UNDO INITIAL
-    "table.ico,CSV.png,file_excel.ico,XLS.png,DOCX.png,PDF.png,html_tag.ico,printer.ico,table.ico".
+    "table.png,CSV.png,spreadsheet_sum.png,XLS.png,DOCX.png,PDF.png,html_tag.png,printer.png,table.png".
 DEFINE VARIABLE cUserID            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hAppSrvBin         AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iUserSecurityLevel AS INTEGER   NO-UNDO.
@@ -116,14 +116,14 @@ DEFINE VARIABLE h_usertasks AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCSV 
-     IMAGE-UP FILE "Graphics/32x32/file_excel.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/file_excel_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/spreadsheet_sum.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/spreadsheet_sum_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.9 TOOLTIP "Excel CSV".
 
 DEFINE BUTTON btnDeleteTask 
-     IMAGE-UP FILE "Graphics/32x32/garbage_can.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete Task" 
      SIZE 8 BY 1.91 TOOLTIP "Delete Task".
 
@@ -134,19 +134,19 @@ DEFINE BUTTON btnDOCX
      SIZE 8 BY 1.9 TOOLTIP "Word DOCX".
 
 DEFINE BUTTON btnExit 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Exit" 
      SIZE 8 BY 1.91 TOOLTIP "Exit".
 
 DEFINE BUTTON btnFavorite 
-     IMAGE-UP FILE "Graphics/32x32/star_black.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/star_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/star_black.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/star_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Favorite" 
      SIZE 8 BY 1.91 TOOLTIP "Favorite".
 
 DEFINE BUTTON btnHTML 
-     IMAGE-UP FILE "Graphics/32x32/html_tag.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/html_tag_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/html_tag.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/html_tag_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.9 TOOLTIP "HTML".
 
@@ -157,8 +157,8 @@ DEFINE BUTTON btnLocalCSV
      SIZE 8 BY 1.9 TOOLTIP "Local Excel CSV".
 
 DEFINE BUTTON btnPageFormat 
-     IMAGE-UP FILE "Graphics/32x32/document_gear.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/document_gear_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/document_gear.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/document_gear_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Page Format".
 
@@ -169,44 +169,44 @@ DEFINE BUTTON btnPDF
      SIZE 8 BY 1.9 TOOLTIP "PDF".
 
 DEFINE BUTTON btnPrint 
-     IMAGE-UP FILE "Graphics/32x32/printer.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/printer_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/printer.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/printer_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.9 TOOLTIP "Printer".
 
 DEFINE BUTTON btnRunResults 
-     IMAGE-UP FILE "Graphics/32x32/table.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/table_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/table.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/table_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Results Grid" 
      SIZE 8 BY 1.9 TOOLTIP "Results Grid".
 
 DEFINE BUTTON btnSave 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/floppy_disk_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/floppy_disk_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Save" 
      SIZE 8 BY 1.91 TOOLTIP "Save".
 
 DEFINE BUTTON btnSaveAs 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disks.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/floppy_disks_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/floppy_disks.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/floppy_disks_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Save As" 
      SIZE 8 BY 1.91 TOOLTIP "Save As".
 
 DEFINE BUTTON btnScheduleTask 
-     IMAGE-UP FILE "Graphics/32x32/calendar_clock.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/calendar_clock_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/calendar_clock.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/calendar_clock_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Schedule Task" 
      SIZE 8 BY 1.91 TOOLTIP "Schedule Task".
 
 DEFINE BUTTON btnSubjctAttr 
-     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/window_dialog.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/window_dialog_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Subject Attributes" 
      SIZE 8 BY 1.91 TOOLTIP "Set External Form".
 
 DEFINE BUTTON btnView 
-     IMAGE-UP FILE "Graphics/32x32/jss_icon_32.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/jss_icon_32_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/jss_icon.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/jss_icon_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.9 TOOLTIP "Jasper Viewer".
 
@@ -219,12 +219,12 @@ DEFINE BUTTON btnXLS
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE .2 BY 2.1
-     BGCOLOR 9 FGCOLOR 9 .
+     BGCOLOR 15 FGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-OPTIONS
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE .2 BY 2.1
-     BGCOLOR 9 FGCOLOR 9 .
+     BGCOLOR 15 FGCOLOR 15 .
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -270,7 +270,7 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 160 BY 28.62
-         BGCOLOR 26 FGCOLOR 1  WIDGET-ID 100.
+         BGCOLOR 21 FGCOLOR 1  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1189,8 +1189,8 @@ PROCEDURE pSetFavorite :
     DEFINE INPUT PARAMETER iplFavorite AS LOGICAL NO-UNDO.
 
     btnFavorite:LOAD-IMAGE("Graphics/32x32/"
-        + IF iplFavorite THEN "star.ico"
-          ELSE "star_black.ico") IN FRAME {&FRAME-NAME}
+        + IF iplFavorite THEN "star.png"
+          ELSE "star_black.png") IN FRAME {&FRAME-NAME}
         .
 
 END PROCEDURE.

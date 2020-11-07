@@ -127,9 +127,9 @@ DEFINE TEMP-TABLE ttGroup NO-UNDO
     ~{&OPEN-QUERY-sortBrowse}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnColMoveDown btnColMoveUp searchBar ~
-sortBrowse subjectColumnBrowse btnAdvanced groupBrowse btnGroupCalc btnSave ~
-btnAddGroup btnAddSort btnRemoveGroup btnRemoveSort btnSortMoveDown ~
+&Scoped-Define ENABLED-OBJECTS searchBar sortBrowse btnColMoveDown ~
+subjectColumnBrowse groupBrowse btnColMoveUp btnAdvanced btnGroupCalc ~
+btnSave btnAddGroup btnAddSort btnRemoveGroup btnRemoveSort btnSortMoveDown ~
 btnSortMoveUp 
 &Scoped-Define DISPLAYED-OBJECTS searchBar 
 
@@ -150,74 +150,74 @@ btnSortMoveDown btnSortMoveUp
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnAddGroup 
-     IMAGE-UP FILE "Graphics/32x32/navigate_media_play.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_media_play_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/media_play.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/media_play_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Add Group" 
      SIZE 8 BY 1.91 TOOLTIP "Add Group".
 
 DEFINE BUTTON btnAddSort 
-     IMAGE-UP FILE "Graphics/32x32/navigate_media_play.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_media_play_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/media_play.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/media_play_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Add Sort" 
      SIZE 8 BY 1.91 TOOLTIP "Add Sort".
 
 DEFINE BUTTON btnAdvanced 
-     IMAGE-UP FILE "Graphics/32x32/indent_increase.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/indent_increase.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      CONTEXT-HELP-ID 0
      SIZE 8 BY 1.91 TOOLTIP "Advanced".
 
 DEFINE BUTTON btnColMoveDown 
-     IMAGE-UP FILE "Graphics/32x32/navigate_close.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_close_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_close.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_close_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Move Down Column" 
-     SIZE 8 BY 1.9 TOOLTIP "Move Down Column".
+     SIZE 8 BY 1.91 TOOLTIP "Move Down Column".
 
 DEFINE BUTTON btnColMoveUp 
-     IMAGE-UP FILE "Graphics/32x32/navigate_open.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_open_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_open.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_open_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Move Up Column" 
-     SIZE 8 BY 1.9 TOOLTIP "Move Up Column".
+     SIZE 8 BY 1.91 TOOLTIP "Move Up Column".
 
 DEFINE BUTTON btnGroupCalc 
-     IMAGE-UP FILE "Graphics/32x32/spreadsheet_sum.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/spreadsheet_sum_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/spreadsheet_sum.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/spreadsheet_sum_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Group Calculations".
 
 DEFINE BUTTON btnRemoveGroup 
-     IMAGE-UP FILE "Graphics/32x32/garbage_can.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Remove Group" 
      SIZE 8 BY 1.91 TOOLTIP "Remove Group".
 
 DEFINE BUTTON btnRemoveSort 
-     IMAGE-UP FILE "Graphics/32x32/garbage_can.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Remove Sort" 
      SIZE 8 BY 1.91 TOOLTIP "Remove Sort".
 
 DEFINE BUTTON btnReset 
-     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Reset" 
      SIZE 8 BY 1.91 TOOLTIP "Update/Save Sort".
 
 DEFINE BUTTON btnSave 
-     IMAGE-UP FILE "Graphics/32x32/pencil.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/pencil.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Update/Save Columns" 
      SIZE 8 BY 1.91 TOOLTIP "Update/Save Columns".
 
 DEFINE BUTTON btnSortMoveDown 
-     IMAGE-UP FILE "Graphics/32x32/navigate_close.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_close_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_close.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_close_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Move Down" 
      SIZE 8 BY 1.91 TOOLTIP "Move Down".
 
 DEFINE BUTTON btnSortMoveUp 
-     IMAGE-UP FILE "Graphics/32x32/navigate_open.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_open_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_open.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_open_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Move Up" 
      SIZE 8 BY 1.91 TOOLTIP "Move Up".
 
@@ -285,17 +285,17 @@ ttSubjectColumn.fieldLabel
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnColMoveDown AT ROW 8.38 COL 1 HELP
-          "Move Down Column" WIDGET-ID 14
-     btnColMoveUp AT ROW 6.48 COL 1 HELP
-          "Move Up Column" WIDGET-ID 16
      searchBar AT ROW 1.24 COL 7 COLON-ALIGNED HELP
           "Enter Search" WIDGET-ID 22
      sortBrowse AT ROW 1.24 COL 103 WIDGET-ID 300
+     btnColMoveDown AT ROW 8.38 COL 1 HELP
+          "Move Down Column" WIDGET-ID 14
      subjectColumnBrowse AT ROW 2.19 COL 9 WIDGET-ID 200
+     groupBrowse AT ROW 17.19 COL 103 WIDGET-ID 400
+     btnColMoveUp AT ROW 6.48 COL 1 HELP
+          "Move Up Column" WIDGET-ID 16
      btnAdvanced AT ROW 2.67 COL 1 HELP
           "Expand/Collapse Columns" WIDGET-ID 668
-     groupBrowse AT ROW 17.19 COL 103 WIDGET-ID 400
      btnGroupCalc AT ROW 18.14 COL 1 HELP
           "Group Calculations" WIDGET-ID 272
      btnSave AT ROW 12.19 COL 1 HELP
@@ -370,8 +370,8 @@ END.
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB sortBrowse searchBar F-Main */
-/* BROWSE-TAB subjectColumnBrowse sortBrowse F-Main */
-/* BROWSE-TAB groupBrowse btnAdvanced F-Main */
+/* BROWSE-TAB subjectColumnBrowse btnColMoveDown F-Main */
+/* BROWSE-TAB groupBrowse subjectColumnBrowse F-Main */
 ASSIGN 
        FRAME F-Main:HIDDEN           = TRUE
        FRAME F-Main:HEIGHT           = 24.52
@@ -476,8 +476,8 @@ ON CHOOSE OF btnAdvanced IN FRAME F-Main
 DO:
     lAdvanced = NOT lAdvanced.
     SELF:LOAD-IMAGE("Graphics/32x32/"
-        + IF lAdvanced THEN "indent_decrease.ico"
-          ELSE "indent_increase.ico")
+        + IF lAdvanced THEN "indent_decrease.png"
+          ELSE "indent_increase.png")
         .
     RUN pAdvanced.
 END.
@@ -563,8 +563,8 @@ DO:
         btnReset:SENSITIVE = lUpdateMode
         .
     btnSave:LOAD-IMAGE("Graphics/32x32/" 
-        + IF lUpdateMode THEN "floppy_disk.ico"
-          ELSE "pencil.ico").
+        + IF lUpdateMode THEN "floppy_disk.png"
+          ELSE "pencil.png").
     RUN pUpdateMode (lUpdateMode).
     IF lUpdateMode THEN
     APPLY "ENTRY":U TO ttSubjectColumn.fieldLabel IN BROWSE subjectColumnBrowse.

@@ -114,31 +114,32 @@ DEFINE VARIABLE h_paramSetDtl AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnAdd 
-     IMAGE-UP FILE "Graphics/32x32/navigate_plus.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_plus.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Add" 
      SIZE 8 BY 1.91 TOOLTIP "Add".
 
 DEFINE BUTTON btnBuilder 
-     IMAGE-UP FILE "Graphics/32x32/compasses.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/compasses.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/compasses_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Parameter Set Builder" 
      SIZE 8 BY 1.91 TOOLTIP "Parameter Set Builder".
 
 DEFINE BUTTON btnCancel 
-     IMAGE-UP FILE "Graphics/32x32/navigate_cross.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Cancel" 
      SIZE 8 BY 1.91 TOOLTIP "Cancel".
 
 DEFINE BUTTON btnCopy 
-     IMAGE-UP FILE "Graphics/32x32/element_copy.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/element_copy_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/element_copy.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/element_copy_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Copy" 
      SIZE 8 BY 1.91 TOOLTIP "Copy".
 
 DEFINE BUTTON btnDelete 
-     IMAGE-UP FILE "Graphics/32x32/garbage_can.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
      SIZE 8 BY 1.91 TOOLTIP "Delete".
 
@@ -148,54 +149,54 @@ DEFINE BUTTON btnErrorCheck
      SIZE 3.4 BY .81 TOOLTIP "Error Check Report".
 
 DEFINE BUTTON btnExit 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Exit" 
      SIZE 8 BY 1.91 TOOLTIP "Exit".
 
 DEFINE BUTTON btnFirst 
-     IMAGE-UP FILE "Graphics/32x32/navigate_beginning.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_beginning_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_beginning.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_beginning_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "First" 
      SIZE 8 BY 1.91 TOOLTIP "First".
 
 DEFINE BUTTON btnLast 
-     IMAGE-UP FILE "Graphics/32x32/navigate_end.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_end_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_end.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_end_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Last" 
      SIZE 8 BY 1.91 TOOLTIP "Last".
 
 DEFINE BUTTON btnMoveColumn 
-     IMAGE-UP FILE "Graphics/32x32/spreadsheet.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/spreadsheet.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Move Column" 
      SIZE 8 BY 1.91 TOOLTIP "Move Column".
 
 DEFINE BUTTON btnNext 
-     IMAGE-UP FILE "Graphics/32x32/navigate_right.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_right_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_right.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_right_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Next" 
      SIZE 8 BY 1.91 TOOLTIP "Next".
 
 DEFINE BUTTON btnPrev 
-     IMAGE-UP FILE "Graphics/32x32/navigate_left.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_left_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/navigate_left.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_left_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Previous" 
      SIZE 8 BY 1.91 TOOLTIP "Previous".
 
 DEFINE BUTTON btnReset 
-     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Reset" 
      SIZE 8 BY 1.91 TOOLTIP "Reset".
 
 DEFINE BUTTON btnSort 
-     IMAGE-UP FILE "Graphics/32x32/sort_az_descending.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/sort_az_descending_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/sort_az_descending.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/sort_az_descending_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Sort" 
      SIZE 8 BY 1.91 TOOLTIP "Sort".
 
 DEFINE BUTTON btnUpdate 
-     IMAGE-UP FILE "Graphics/32x32/pencil.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/pencil.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Update" 
      SIZE 8 BY 1.91 TOOLTIP "Update/Save".
 
@@ -265,7 +266,7 @@ DEFINE FRAME F-Main
      btnReset AT ROW 1.29 COL 124 HELP
           "Reset" WIDGET-ID 126
      "Search:" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 1.24 COL 55 WIDGET-ID 304
+          SIZE 8 BY 1 AT ROW 1.24 COL 55 FGCOLOR 15 WIDGET-ID 304
      RECT-OPTIONS AT ROW 1.19 COL 151 WIDGET-ID 290
      RECT-CRUD AT ROW 1.19 COL 91 WIDGET-ID 296
      RECT-NAV AT ROW 1.19 COL 19 WIDGET-ID 298
@@ -275,7 +276,7 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 160 BY 28.57
-         BGCOLOR 26 FGCOLOR 1  WIDGET-ID 100.
+         BGCOLOR 21 FGCOLOR 1  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -1107,8 +1108,8 @@ PROCEDURE pMoveColumn:
  Notes:
 ------------------------------------------------------------------------------*/
     btnMoveColumn:LOAD-IMAGE("Graphics/32x32/"
-        + IF lMoveColumn THEN "spreadsheet_column.ico"
-          ELSE "spreadsheet.ico") IN FRAME {&FRAME-NAME}
+        + IF lMoveColumn THEN "spreadsheet_column.png"
+          ELSE "spreadsheet.png") IN FRAME {&FRAME-NAME}
         .
     btnSort:SENSITIVE = NOT lMoveColumn AND VALID-HANDLE(hColumnLabel).
 
@@ -1238,8 +1239,8 @@ PROCEDURE pSort:
  Notes:
 ------------------------------------------------------------------------------*/
     btnSort:LOAD-IMAGE("Graphics/32x32/"
-        + IF lAscending THEN "sort_az_descending.ico"
-          ELSE "sort_az_descending2.ico") IN FRAME {&FRAME-NAME}
+        + IF lAscending THEN "sort_az_descending.png"
+          ELSE "sort_az_descending2.png") IN FRAME {&FRAME-NAME}
         .
 
 END PROCEDURE.
@@ -1256,7 +1257,7 @@ PROCEDURE pTransInit :
  Notes:
 ------------------------------------------------------------------------------*/
     ENABLE {&transInit} WITH FRAME {&FRAME-NAME}.
-    btnUpdate:LOAD-IMAGE("Graphics\32x32\Pencil.ico").
+    btnUpdate:LOAD-IMAGE("Graphics\32x32\Pencil.png").
     btnUpdate:LABEL = "Update".
     IF iPage EQ 3 THEN
     DISABLE {&navPanel} WITH FRAME {&FRAME-NAME}.
@@ -1286,7 +1287,7 @@ PROCEDURE pTransUpdate :
  Notes:
 ------------------------------------------------------------------------------*/
     ENABLE {&transUpdate} WITH FRAME {&FRAME-NAME}.
-    btnUpdate:LOAD-IMAGE("Graphics\32x32\Save_As.ico").
+    btnUpdate:LOAD-IMAGE("Graphics\32x32\floppy_disk.png").
     btnUpdate:LABEL = "Save".
     IF iPage EQ 3 THEN
     DISABLE {&navPanel} WITH FRAME {&FRAME-NAME}.

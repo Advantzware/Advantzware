@@ -23,8 +23,8 @@ IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
     &ENDIF
     btnSort:SENSITIVE IN FRAME {&sortButtonFrame} = VALID-HANDLE(hColumnLabel).
     btnSort:LOAD-IMAGE("Graphics/32x32/"
-        + IF lAscending THEN "sort_az_descending.ico"
-          ELSE "sort_az_descending2.ico")
+        + IF lAscending THEN "sort_az_descending.png"
+          ELSE "sort_az_descending2.png")
         .
     &ENDIF
 

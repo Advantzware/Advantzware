@@ -211,7 +211,7 @@ DEFINE FRAME outputFrame
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 158 BY 5.24
-         BGCOLOR 28 FGCOLOR 1 
+         BGCOLOR 22 FGCOLOR 1 
          TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1300.
 
 

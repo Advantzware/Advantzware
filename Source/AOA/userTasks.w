@@ -131,8 +131,8 @@ iSecurityLevel = DYNAMIC-FUNCTION("sfUserSecurityLevel").
     ~{&OPEN-QUERY-browseTasks}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnMoveColumn searchBar btnSearch ~
-filterTasks filterDescrip filterModule filterUser filterHotkey filterGroup ~
+&Scoped-Define ENABLED-OBJECTS btnMoveColumn searchBar filterTasks ~
+btnSearch filterDescrip filterModule filterUser filterHotkey filterGroup ~
 filterScheduled browseTasks 
 &Scoped-Define DISPLAYED-OBJECTS searchBar filterTasks filterDescrip ~
 filterModule filterUser filterHotkey filterGroup filterScheduled 
@@ -187,7 +187,7 @@ FUNCTION fUSerID RETURNS CHARACTER
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnMoveColumn 
-     IMAGE-UP FILE "Graphics/32x32/spreadsheet.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/spreadsheet.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Move Column" 
      SIZE 8 BY 1.91 TOOLTIP "Move Column".
 
@@ -197,8 +197,8 @@ DEFINE BUTTON btnSearch
      SIZE 5 BY 1.19 TOOLTIP "Search".
 
 DEFINE BUTTON btnSort 
-     IMAGE-UP FILE "Graphics/32x32/sort_az_descending.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/sort_az_descending_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/sort_az_descending.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/sort_az_descending_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Sort" 
      SIZE 8 BY 1.91 TOOLTIP "Sort".
 
@@ -300,13 +300,13 @@ ttDynParamValue.externalForm
 DEFINE FRAME F-Main
      btnSort AT ROW 3.62 COL 151 HELP
           "Sort" WIDGET-ID 48
-     btnMoveColumn AT ROW 1.48 COL 151 HELP
+     btnMoveColumn AT ROW 1.71 COL 151 HELP
           "Move Column" WIDGET-ID 42
      searchBar AT ROW 1.71 COL 10.4 COLON-ALIGNED HELP
           "Search" WIDGET-ID 6
+     filterTasks AT ROW 1.71 COL 67 NO-LABEL WIDGET-ID 66
      btnSearch AT ROW 1.71 COL 61 HELP
           "Search" WIDGET-ID 288
-     filterTasks AT ROW 1.71 COL 67 NO-LABEL WIDGET-ID 66
      filterDescrip AT ROW 4.33 COL 3 HELP
           "Select Report" NO-LABEL WIDGET-ID 50
      filterModule AT ROW 4.33 COL 66 HELP
@@ -317,21 +317,21 @@ DEFINE FRAME F-Main
           "Select Hotkey" NO-LABEL WIDGET-ID 290
      filterGroup AT ROW 4.33 COL 104 HELP
           "Select Group" NO-LABEL WIDGET-ID 294
-     filterScheduled AT ROW 4.33 COL 139 HELP
+     filterScheduled AT ROW 4.33 COL 138.6 HELP
           "Select Hotkey" NO-LABEL WIDGET-ID 298
      browseTasks AT ROW 6.24 COL 2 WIDGET-ID 500
      "User:" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 3.62 COL 77 WIDGET-ID 60
-     "Hotkey:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 3.62 COL 93 WIDGET-ID 292
-     "Module:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 3.62 COL 66 WIDGET-ID 56
-     "Description:" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 3.62 COL 3 WIDGET-ID 52
+     "Scheduled:" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 3.62 COL 138 WIDGET-ID 300
      "Group:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 3.62 COL 104 WIDGET-ID 296
-     "Scheduled:" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 3.62 COL 138.4 WIDGET-ID 300
+     "Description:" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 3.62 COL 3 WIDGET-ID 52
+     "Module:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 3.62 COL 66 WIDGET-ID 56
+     "Hotkey:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 3.62 COL 93 WIDGET-ID 292
      RECT-1 AT ROW 1.24 COL 2 WIDGET-ID 302
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -506,8 +506,8 @@ DO:
         BROWSE {&BROWSE-NAME}:COLUMN-MOVABLE = lMoveColumn
         .
     SELF:LOAD-IMAGE("Graphics/32x32/"
-        + IF lMoveColumn THEN "spreadsheet_column.ico"
-          ELSE "spreadsheet.ico")
+        + IF lMoveColumn THEN "spreadsheet_column.png"
+          ELSE "spreadsheet.png")
         .
 END.
 
@@ -534,8 +534,8 @@ DO:
     lAscending = NOT lAscending.
     RUN pReopenBrowse.
     btnSort:LOAD-IMAGE("Graphics/32x32/"
-        + IF lAscending THEN "sort_az_descending.ico"
-          ELSE "sort_az_descending2.ico")
+        + IF lAscending THEN "sort_az_descending.png"
+          ELSE "sort_az_descending2.png")
         .
 END.
 

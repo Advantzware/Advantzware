@@ -257,7 +257,7 @@ DEFINE BUTTON btnParam  NO-FOCUS FLAT-BUTTON
      FONT 6.
 
 DEFINE BUTTON btnSave 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Save" 
      SIZE 8 BY 1.91 TOOLTIP "Save".
 
@@ -267,7 +267,7 @@ DEFINE BUTTON btnTable  NO-FOCUS FLAT-BUTTON
      FONT 6.
 
 DEFINE BUTTON btnUndo 
-     IMAGE-UP FILE "Graphics/32x32/undo_32.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Undo" 
      SIZE 8 BY 1.91 TOOLTIP "Undo Changes".
 

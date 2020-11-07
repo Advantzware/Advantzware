@@ -116,40 +116,40 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnArchive 
-     IMAGE-UP FILE "Graphics/32x32/element_copy.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/element_copy.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Archive" 
      SIZE 8 BY 1.91 TOOLTIP "Archive to User Folder".
 
 DEFINE BUTTON btnDelete 
-     IMAGE-UP FILE "Graphics/32x32/garbage_can.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Delete" 
      SIZE 8 BY 1.91 TOOLTIP "Delete Folder File".
 
 DEFINE BUTTON btnExit 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Exit" 
      SIZE 8 BY 1.91 TOOLTIP "Exit".
 
 DEFINE BUTTON btnRefresh 
-     IMAGE-UP FILE "Graphics/32x32/refresh.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/refresh.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Refresh" 
      SIZE 8 BY 1.91 TOOLTIP "Refresh Folder Files".
 
 DEFINE BUTTON btnSort 
-     IMAGE-UP FILE "Graphics/32x32/sort_az_descending.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/sort_az_descending_disabled.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/sort_az_descending.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/sort_az_descending_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Sort" 
      SIZE 8 BY 1.91 TOOLTIP "Sort".
 
 DEFINE BUTTON btnView 
-     IMAGE-UP FILE "Graphics/32x32/media_play.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/media_play.png":U NO-FOCUS FLAT-BUTTON
      LABEL "View" 
      SIZE 8 BY 1.91 TOOLTIP "View Folder File".
 
 DEFINE RECTANGLE RECT-OPTIONS
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE .2 BY 2.1
-     BGCOLOR 1 FGCOLOR 1 .
+     BGCOLOR 15 FGCOLOR 15 .
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -202,7 +202,7 @@ DEFINE FRAME optionsFrame
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 160 BY 2.38
-         BGCOLOR 26  WIDGET-ID 300.
+         BGCOLOR 21 FGCOLOR 15  WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -437,8 +437,8 @@ DO:
     lAscending = NOT lAscending.
     RUN pReopenBrowse.
     btnSort:LOAD-IMAGE("Graphics/32x32/"
-        + IF lAscending THEN "sort_az_descending.ico"
-          ELSE "sort_az_descending2.ico")
+        + IF lAscending THEN "sort_az_descending.png"
+          ELSE "sort_az_descending2.png")
         .
 END.
 

@@ -116,17 +116,17 @@ DEFINE BUTTON btnAddEmail
      SIZE 4.4 BY 1.05 TOOLTIP "Add Recipents".
 
 DEFINE BUTTON btnCSV 
-     IMAGE-UP FILE "Graphics/32x32/file_excel.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/spreadsheet_sum.png":U NO-FOCUS FLAT-BUTTON
      LABEL "csv" 
      SIZE 8 BY 1.91 TOOLTIP "Excel CSV".
 
 DEFINE BUTTON btnDOCX 
-     IMAGE-UP FILE "Graphics/32x32/docx.jpg":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/docx.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Word DOCX".
 
 DEFINE BUTTON btnHTML 
-     IMAGE-UP FILE "Graphics/32x32/html_tag.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/html_tag.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "HTML".
 
@@ -136,32 +136,32 @@ DEFINE BUTTON btnLocalCSV
      SIZE 8 BY 1.91 TOOLTIP "Local Excel CSV".
 
 DEFINE BUTTON btnPageFormat 
-     IMAGE-UP FILE "Graphics/32x32/document_gear.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/document_gear.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Page Format".
 
 DEFINE BUTTON btnPDF 
-     IMAGE-UP FILE "Graphics/32x32/pdf.jpg":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/pdf.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "PDF".
 
 DEFINE BUTTON btnPrint 
-     IMAGE-UP FILE "Graphics/32x32/printer.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/printer.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Printer".
 
 DEFINE BUTTON btnRunResults 
-     IMAGE-UP FILE "Graphics/32x32/table.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/table.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Results Grid" 
      SIZE 8 BY 1.91 TOOLTIP "Results Grid".
 
 DEFINE BUTTON btnView 
-     IMAGE-UP FILE "Graphics/32x32/jss_icon_32.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/jss_icon.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Jasper Viewer".
 
 DEFINE BUTTON btnXLS 
-     IMAGE-UP FILE "Graphics/32x32/xls.jpg":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/xls.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91 TOOLTIP "Excel XLS".
 
@@ -243,29 +243,32 @@ DEFINE FRAME paramFrame
          SIZE 160 BY 28.57
          FGCOLOR 1  WIDGET-ID 100.
 
-DEFINE FRAME blankFrame
+DEFINE FRAME resultsFrame
+     btnSaveResults AT ROW 1 COL 2 HELP
+          "Jasper Viewer" WIDGET-ID 254
+     btnCloseResults AT ROW 1 COL 6 HELP
+          "Jasper Viewer" WIDGET-ID 252
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 12 ROW 6.48
-         SIZE 19 BY 2.38
-         BGCOLOR 15 FGCOLOR 1 
-         TITLE "Building Grid ..." WIDGET-ID 1400.
+         AT COL 1 ROW 6.48
+         SIZE 10 BY 2.38
+         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
 
 DEFINE FRAME outputFrame
      btnCSV AT ROW 1.48 COL 95 HELP
           "Excel CSV" WIDGET-ID 140
      btnLocalCSV AT ROW 1.48 COL 87 HELP
           "Local Excel CSV" WIDGET-ID 656
-     btnPageFormat AT ROW 1.48 COL 143 HELP
-          "Page Format" WIDGET-ID 652
      svRecipients AT ROW 1.24 COL 8 NO-LABEL WIDGET-ID 600
      svRunSync AT ROW 2.91 COL 8 HELP
           "Toggle to Run Synchronous" WIDGET-ID 654
-     btnRunResults AT ROW 1.48 COL 79 HELP
-          "Results Grid" WIDGET-ID 254
+     btnPageFormat AT ROW 1.48 COL 143 HELP
+          "Page Format" WIDGET-ID 652
      svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
      svShowReportHeader AT ROW 4.1 COL 24 WIDGET-ID 2
      svShowReportFooter AT ROW 4.1 COL 45 WIDGET-ID 4
+     btnRunResults AT ROW 1.48 COL 79 HELP
+          "Results Grid" WIDGET-ID 254
      svShowPageHeader AT ROW 4.1 COL 66 WIDGET-ID 6
      svShowPageFooter AT ROW 4.1 COL 85 WIDGET-ID 8
      svShowGroupHeader AT ROW 4.1 COL 104 WIDGET-ID 10
@@ -293,19 +296,16 @@ DEFINE FRAME outputFrame
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 160 BY 5.24
-         BGCOLOR 28 
+         BGCOLOR 21 FGCOLOR 15 
          TITLE BGCOLOR 15 "Parameters" WIDGET-ID 1300.
 
-DEFINE FRAME resultsFrame
-     btnSaveResults AT ROW 1 COL 2 HELP
-          "Jasper Viewer" WIDGET-ID 254
-     btnCloseResults AT ROW 1 COL 6 HELP
-          "Jasper Viewer" WIDGET-ID 252
+DEFINE FRAME blankFrame
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 6.48
-         SIZE 10 BY 2.38
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 1200.
+         AT COL 12 ROW 6.48
+         SIZE 19 BY 2.38
+         BGCOLOR 15 FGCOLOR 1 
+         TITLE "Building Grid ..." WIDGET-ID 1400.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -828,8 +828,8 @@ PROCEDURE enable_UI :
           svShowPageHeader svShowPageFooter svShowGroupHeader svShowGroupFooter 
           svShowParameters 
       WITH FRAME outputFrame IN WINDOW C-Win.
-  ENABLE btnCSV btnLocalCSV btnPageFormat svRecipients svRunSync btnRunResults 
-         svShowAll svShowReportHeader svShowReportFooter svShowPageHeader 
+  ENABLE btnCSV btnLocalCSV svRecipients svRunSync btnPageFormat svShowAll 
+         svShowReportHeader svShowReportFooter btnRunResults svShowPageHeader 
          svShowPageFooter svShowGroupHeader svShowGroupFooter svShowParameters 
          btnHTML btnView btnAddEmail btnPrint btnDOCX btnPDF btnXLS 
       WITH FRAME outputFrame IN WINDOW C-Win.
