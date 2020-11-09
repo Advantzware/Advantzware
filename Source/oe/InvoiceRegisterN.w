@@ -738,6 +738,10 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
         DEFINE VARIABLE v-close-line AS LOG       NO-UNDO.
         DEFINE VARIABLE cStatus      AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cReason      AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cFieldInProcess AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cFieldPostType  AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cFieldUserId    AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cFieldDateTime  AS CHARACTER NO-UNDO.
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
@@ -816,7 +820,17 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                     UPDATE lv-post.
 
             IF lv-post THEN 
-            DO:                         
+            DO:        
+                RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
+                                        INPUT "postStartDtTm", INPUT cocode, INPUT "OB4", INPUT NO, 
+                                        OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
+                IF cFieldInProcess EQ "Yes" THEN
+                DO:    
+                    MESSAGE "Another user " cFieldUserId " started posting from " cFieldPostType " at " cFieldDateTime " and this process does not " 
+                    "support multiple people posting at the same time. Please try again later." VIEW-AS ALERT-BOX INFO.
+                    RETURN NO-APPLY.
+                END.
+                     
                 RUN PostInvoices IN hPostInvoices (
                     cocode,
                     INT(begin_inv),
@@ -832,7 +846,12 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                     OUTPUT iPosted,
                     OUTPUT lError,
                     OUTPUT cMessage
-                    ).
+                    ).  
+                    
+                RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
+                                        INPUT "postStartDtTm", INPUT cocode, INPUT "OB4", INPUT YES, 
+                                        OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).   
+                                        
                 MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.                 
             END.
         END.

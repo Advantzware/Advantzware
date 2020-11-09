@@ -61,12 +61,13 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME ar-ctrl
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-15 RECT-16 Btn_Update Btn_Close 
+&Scoped-Define ENABLED-OBJECTS RECT-15 RECT-16 Btn_Update Btn_Close ~
+Btn_Clear 
 &Scoped-Define DISPLAYED-FIELDS ar-ctrl.last-inv ar-ctrl.receivables-dscr ~
 ar-ctrl.receivables ar-ctrl.sales ar-ctrl.sales-dscr ar-ctrl.cash-act ~
 ar-ctrl.cash-act-dscr ar-ctrl.discount ar-ctrl.discount-dscr ar-ctrl.onac ~
 ar-ctrl.onac-dscr ar-ctrl.freight ar-ctrl.freight-dscr ar-ctrl.stax ~
-ar-ctrl.stax-dscr 
+ar-ctrl.stax-dscr ar-ctrl.postUserID ar-ctrl.postStartDtTm ar-ctrl.postType 
 &Scoped-define DISPLAYED-TABLES ar-ctrl
 &Scoped-define FIRST-DISPLAYED-TABLE ar-ctrl
 
@@ -77,7 +78,7 @@ ar-ctrl.stax-dscr
 ar-ctrl.receivables ar-ctrl.sales ar-ctrl.sales-dscr ar-ctrl.cash-act ~
 ar-ctrl.cash-act-dscr ar-ctrl.discount ar-ctrl.discount-dscr ar-ctrl.onac ~
 ar-ctrl.onac-dscr ar-ctrl.freight ar-ctrl.freight-dscr ar-ctrl.stax ~
-ar-ctrl.stax-dscr 
+ar-ctrl.stax-dscr  
 &Scoped-define F1 F1 F-2 F-3 F-4 F-5 F-6 F-7 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -100,6 +101,10 @@ FUNCTION getAccountDesc RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Clear 
+     LABEL "&Clear Posting" 
+     SIZE 15.4 BY 1.14.
+
 DEFINE BUTTON Btn_Close 
      LABEL "&Close" 
      SIZE 15 BY 1.14.
@@ -145,11 +150,11 @@ DEFINE VARIABLE F1 AS CHARACTER FORMAT "X(256)":U INITIAL "F1"
 
 DEFINE RECTANGLE RECT-15
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 33 BY 1.67.
+     SIZE 51 BY 1.67.
 
 DEFINE RECTANGLE RECT-16
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 102 BY 9.76.
+     SIZE 102 BY 11.67.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -217,23 +222,44 @@ DEFINE FRAME ar-ctrl
           VIEW-AS FILL-IN 
           SIZE 47 BY 1
           BGCOLOR 7 FGCOLOR 15  NO-TAB-STOP 
-     Btn_Update AT ROW 11.24 COL 27 HELP
+     ar-ctrl.postUserID AT ROW 11.05 COL 24 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 7 FGCOLOR 15  NO-TAB-STOP 
+     ar-ctrl.postStartDtTm AT ROW 11.05 COL 40.6 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 34.4 BY 1
+          BGCOLOR 7 FGCOLOR 15  NO-TAB-STOP 
+     ar-ctrl.postType AT ROW 11.05 COL 76.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+          BGCOLOR 7 FGCOLOR 15  NO-TAB-STOP 
+     Btn_Update AT ROW 13.24 COL 27 HELP
           "Update/Save System Configurations"
-     Btn_Close AT ROW 11.24 COL 43 HELP
+     Btn_Close AT ROW 13.24 COL 43 HELP
           "Cancel Update or Close Window"
+     Btn_Clear AT ROW 13.24 COL 59.6 HELP
+          "Cancel Update or Close Window" WIDGET-ID 2
      F1 AT ROW 2.43 COL 53 NO-LABEL
      F-2 AT ROW 3.62 COL 53 NO-LABEL
      F-3 AT ROW 4.81 COL 53 NO-LABEL
      F-4 AT ROW 6 COL 53 NO-LABEL
      F-5 AT ROW 7.19 COL 53 NO-LABEL
      F-6 AT ROW 8.38 COL 53 NO-LABEL
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 102.2 BY 14.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME ar-ctrl
      F-7 AT ROW 9.57 COL 53 NO-LABEL
-     RECT-15 AT ROW 11 COL 26
+     RECT-15 AT ROW 13.05 COL 26
      RECT-16 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 102.2 BY 12.
+         SIZE 102.2 BY 14.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -253,11 +279,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "A/R Control"
-         HEIGHT             = 12
+         HEIGHT             = 14
          WIDTH              = 102.2
-         MAX-HEIGHT         = 12
+         MAX-HEIGHT         = 14.14
          MAX-WIDTH          = 102.2
-         VIRTUAL-HEIGHT     = 12
+         VIRTUAL-HEIGHT     = 14.14
          VIRTUAL-WIDTH      = 102.2
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -287,6 +313,10 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME ar-ctrl
    FRAME-NAME                                                           */
+ASSIGN 
+       Btn_Clear:PRIVATE-DATA IN FRAME ar-ctrl     = 
+                "ribbon-button".
+
 ASSIGN 
        Btn_Close:PRIVATE-DATA IN FRAME ar-ctrl     = 
                 "ribbon-button".
@@ -356,12 +386,21 @@ ASSIGN
 ASSIGN 
        ar-ctrl.onac-dscr:READ-ONLY IN FRAME ar-ctrl        = TRUE.
 
+/* SETTINGS FOR FILL-IN ar-ctrl.postStartDtTm IN FRAME ar-ctrl
+   NO-ENABLE 1                                                          */
+/* SETTINGS FOR FILL-IN ar-ctrl.postType IN FRAME ar-ctrl
+   NO-ENABLE 1                                                          */
+/* SETTINGS FOR FILL-IN ar-ctrl.postUserID IN FRAME ar-ctrl
+   NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ar-ctrl.receivables IN FRAME ar-ctrl
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ar-ctrl.receivables-dscr IN FRAME ar-ctrl
    NO-ENABLE 1                                                          */
 ASSIGN 
-       ar-ctrl.receivables-dscr:READ-ONLY IN FRAME ar-ctrl        = TRUE.
+       ar-ctrl.receivables-dscr:READ-ONLY IN FRAME ar-ctrl = TRUE
+       ar-ctrl.postStartDtTm:READ-ONLY IN FRAME ar-ctrl    = TRUE
+       ar-ctrl.postType:READ-ONLY IN FRAME ar-ctrl         = TRUE
+       ar-ctrl.postUserID:READ-ONLY IN FRAME ar-ctrl       = TRUE.
 
 /* SETTINGS FOR FILL-IN ar-ctrl.sales IN FRAME ar-ctrl
    NO-ENABLE 1                                                          */
@@ -419,6 +458,30 @@ DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Clear
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Clear C-Win
+ON CHOOSE OF Btn_Clear IN FRAME ar-ctrl /* Clear Posting */
+DO:
+  
+  DO WITH FRAME {&FRAME-NAME}:
+    FIND CURRENT ar-ctrl EXCLUSIVE-LOCK.
+    ASSIGN
+    ar-ctrl.postStartDtTm = ?
+    ar-ctrl.postInProcess = NO
+    ar-ctrl.postType = ""
+    ar-ctrl.postUserID = ""
+    ar-ctrl.postStartDtTm:SCREEN-VALUE = ?    
+    ar-ctrl.postType:SCREEN-VALUE = ""
+    ar-ctrl.postUserID:SCREEN-VALUE = "".    
+    
+    FIND CURRENT ar-ctrl NO-LOCK.    
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -730,9 +793,10 @@ PROCEDURE enable_UI :
           ar-ctrl.sales ar-ctrl.sales-dscr ar-ctrl.cash-act 
           ar-ctrl.cash-act-dscr ar-ctrl.discount ar-ctrl.discount-dscr 
           ar-ctrl.onac ar-ctrl.onac-dscr ar-ctrl.freight ar-ctrl.freight-dscr 
-          ar-ctrl.stax ar-ctrl.stax-dscr 
+          ar-ctrl.stax ar-ctrl.stax-dscr ar-ctrl.postUserID 
+          ar-ctrl.postStartDtTm ar-ctrl.postType 
       WITH FRAME ar-ctrl IN WINDOW C-Win.
-  ENABLE RECT-15 RECT-16 Btn_Update Btn_Close 
+  ENABLE RECT-15 RECT-16 Btn_Update Btn_Close Btn_Clear 
       WITH FRAME ar-ctrl IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-ar-ctrl}
   VIEW C-Win.

@@ -458,6 +458,91 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spCommon_CheckTableLock) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_CheckPostingProcess Procedure
+PROCEDURE spCommon_CheckPostingProcess:
+/*------------------------------------------------------------------------------
+     Purpose: Validate if a given value can be converted to given data type.
+              Returns error in case of failure
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE INPUT  PARAMETER ipcTableName      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFieldInProcess AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFieldPostType  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFieldUserId    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFieldDateTime  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFieldCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTypeValue      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplReleaseLock    AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFieldInProcess AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFieldPostType  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFieldUserId    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFieldDateTime  AS CHARACTER NO-UNDO.
+    
+    define variable qh as handle no-undo.
+    define variable bh as handle no-undo.
+    define variable fhProcess as handle no-undo.
+    define variable fhType as handle no-undo.
+    define variable fhUser as handle no-undo.
+    define variable fhDate as handle no-undo.
+  
+    DEFINE VARIABLE cQueryString AS CHARACTER NO-UNDO.
+                
+    cQueryString =  "for each " + ipcTableName + " WHERE " + ipcTableName + ".company = " + QUOTER(ipcFieldCompany) .
+                
+    create buffer bh for table ipcTableName.
+    create query qh.
+    qh:set-buffers( bh ).
+    qh:query-prepare( cQueryString ).
+    qh:query-open.
+  
+    do transaction:
+      qh:get-first( EXCLUSIVE-LOCK ).
+      fhProcess = bh:buffer-field( ipcFieldInProcess ).
+      fhType = bh:buffer-field( ipcFieldPostType ).
+      fhUser = bh:buffer-field( ipcFieldUserId ).
+      fhDate = bh:buffer-field( ipcFieldDateTime ).
+      IF NOT iplReleaseLock THEN
+      DO:     
+        IF fhProcess:BUFFER-VALUE EQ NO THEN
+        DO:            
+           opcFieldInProcess = "No" .
+           ASSIGN
+                fhProcess:buffer-value = "Yes"
+                fhType:buffer-value = ipcTypeValue
+                fhUser:buffer-value = USERID(LDBNAME(1))
+                fhDate:buffer-value = NOW .       
+        END.
+        ELSE IF fhProcess:BUFFER-VALUE EQ YES THEN
+        DO:            
+           ASSIGN
+            opcFieldInProcess = "Yes" 
+            opcFieldPostType = fhType:buffer-value
+            opcFieldUserId =  fhUser:buffer-value
+            opcFieldDateTime = fhDate:BUFFER-VALUE .    
+        END.       
+      END.
+      ELSE IF iplReleaseLock THEN
+      DO:
+         ASSIGN
+          fhProcess:buffer-value = "NO"
+          fhType:buffer-value = ""
+          fhUser:buffer-value = ""
+          fhDate:buffer-value = "".  
+      END.       
+    end.
+
+    DELETE object bh.
+    DELETE object qh. 
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED(EXCLUDE-sfCommon_DateOptionDate) = 0 &THEN

@@ -461,6 +461,10 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   DEF VAR lv-post AS LOG NO-UNDO.
+  DEFINE VARIABLE cFieldInProcess AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFieldPostType  AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFieldUserId    AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cFieldDateTime  AS CHARACTER NO-UNDO.
 
   run check-date.
   if v-invalid then return no-apply.
@@ -509,8 +513,23 @@ DO:
             UPDATE lv-post.
 
     IF lv-post THEN do:
+      RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
+                                        INPUT "postStartDtTm", INPUT cocode, INPUT "AU4", INPUT NO, 
+                                        OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
+      IF cFieldInProcess EQ "Yes" THEN
+      DO:    
+          MESSAGE "Another user " cFieldUserId " started posting from " cFieldPostType " at " cFieldDateTime " and this process does not " 
+          "support multiple people posting at the same time. Please try again later." VIEW-AS ALERT-BOX INFO.
+          RETURN NO-APPLY.
+      END.
+    
       RUN post-inv.
       RUN copy-report-to-audit-dir.
+      
+      RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
+                                        INPUT "postStartDtTm", INPUT cocode, INPUT "AU4", INPUT YES, 
+                                        OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
+      
       MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.      
     END.
     ELSE RUN undo-trnum.
