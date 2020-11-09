@@ -2751,6 +2751,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix200200.
     IF fIntVer(cThisEntry) LT 20020200 THEN 
         RUN ipDataFix200202.
+    IF fIntVer(cThisEntry) LT 20030300 THEN 
+        RUN ipDataFix200303.
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3362,6 +3364,44 @@ PROCEDURE ipDataFix200202:
             account.salesReport = TRUE 
             account.commReport = TRUE.
     END. 
+     
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix200303 C-Win
+PROCEDURE ipDataFix200303:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 200303...").
+
+  /* from Jay's known issues list */
+    /* Deactivate estimate type filter in DAOA */
+    DISABLE TRIGGERS FOR LOAD OF dynSubject.
+    FIND FIRST dynSubject EXCLUSIVE WHERE
+        dynSubject.subjectID EQ 99
+        NO-ERROR.
+    IF AVAIL dynSubject THEN ASSIGN 
+        dynSubject.isActive = FALSE. 
+        
+    /* Remove new SharpShooter menu */
+    DISABLE TRIGGERS FOR LOAD OF prgrms.
+    FIND FIRST prgrms EXCLUSIVE WHERE 
+        prgrms.prgmname = "ssMenu."
+        NO-ERROR.
+    IF AVAIL prgrms THEN DELETE prgrms.
+    
+    /* Set oe-ctrl flag for jobs on hold */
+    DISABLE TRIGGERS FOR LOAD OF oe-ctrl.
+    FOR EACH oe-ctrl EXCLUSIVE:
+        ASSIGN 
+            oe-ctrl.p-job = TRUE.
+    END.
+    
      
 END PROCEDURE.
     
@@ -6733,6 +6773,15 @@ PROCEDURE ipUpdateTTIniFile :
     FIND ttIniFile WHERE ttIniFile.cVarName = "envVerList" NO-ERROR.
     ASSIGN ENTRY(iListEntry,ttIniFile.cVarValue) = fiToVer:{&SV}.
     
+    FIND ttIniFile WHERE ttIniFile.cVarName EQ "modeList" NO-ERROR.
+    IF AVAIL ttIniFile 
+    AND INDEX(ttIniFile.cVarValue,"API Monitor") = 0 THEN ASSIGN 
+        ttIniFile.cVarValue = ttIniFile.cVarValue + ",API Monitor".
+    FIND ttIniFile WHERE ttIniFile.cVarName EQ "pgmList" NO-ERROR.
+    IF AVAIL ttIniFile 
+    AND INDEX(ttIniFile.cVarValue,"api/Monitor.w") = 0 THEN ASSIGN 
+        ttIniFile.cVarValue = ttIniFile.cVarValue + ",api/Monitor.w".
+        
     ASSIGN
         lSuccess = TRUE.
     
