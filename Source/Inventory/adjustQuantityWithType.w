@@ -30,7 +30,6 @@ DEFINE INPUT  PARAMETER ipdTotalQuantity    AS DECIMAL    NO-UNDO.
 DEFINE INPUT  PARAMETER ipdSubUnitCount     AS DECIMAL    NO-UNDO.
 DEFINE INPUT  PARAMETER ipdSubUnitsPerUnit  AS DECIMAL    NO-UNDO.
 DEFINE INPUT  PARAMETER iplReqAdjReason     AS LOGICAL    NO-UNDO.
-DEFINE INPUT  PARAMETER iplDisplayUnits     AS LOGICAL    NO-UNDO.
 DEFINE INPUT  PARAMETER iplAllowFractions   AS LOGICAL    NO-UNDO.
 DEFINE OUTPUT PARAMETER opdTotalQuantity    AS DECIMAL    NO-UNDO.
 DEFINE OUTPUT PARAMETER opdSubUnitCount     AS DECIMAL    NO-UNDO.
@@ -51,6 +50,7 @@ DEFINE VARIABLE lEmptyResult     AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE cRtnChar         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lReqReasonCode   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lDisplayUnits    AS LOGICAL   NO-UNDO.
 
 {inventory/ttInventory.i "NEW SHARED"}
 {custom/globdefs.i}
@@ -993,7 +993,7 @@ PROCEDURE pCalculateQuantities :
     DO WITH FRAME {&FRAME-NAME}:
     END.
 
-    IF NOT iplDisplayUnits THEN
+    IF NOT lDisplayUnits THEN
         RETURN.
 
     ASSIGN
@@ -1086,11 +1086,36 @@ PROCEDURE pInit :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cComboList   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hdReasonCode AS HANDLE    NO-UNDO.
+
+    DEFINE VARIABLE cSSJobInquiryAdjust AS CHARACTER NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    IF NOT iplDisplayUnits THEN
+    RUN sys/ref/nk1look.p (
+        INPUT  g_company,            /* Company Code */ 
+        INPUT  "SSJobInquiryAdjust", /* sys-ctrl name */
+        INPUT  "C",                  /* Output return value */
+        INPUT  NO,                   /* Use ship-to */
+        INPUT  NO,                   /* ship-to vendor */
+        INPUT  "",                   /* ship-to vendor value */
+        INPUT  "",                   /* ship-id value */
+        OUTPUT cSSJobInquiryAdjust, 
+        OUTPUT lRecFound
+        ).
+    
+    lDisplayUnits = TRUE.
+     
+    IF cSSJobInquiryAdjust EQ "Simple with options" THEN
+        lDisplayUnits = NOT lDisplayUnits AND FALSE.
+    ELSE IF cSSJobInquiryAdjust EQ "Simple - Reduce Only" THEN
+        ASSIGN
+            rsAdjustType:SENSITIVE    = FALSE
+            rsAdjustType:SCREEN-VALUE = "Reduce"
+            lDisplayUnits             = FALSE
+            .            
+            
+    IF NOT lDisplayUnits THEN
         ASSIGN
             fiSubUnits:HIDDEN             = TRUE
             fiSubUnitCount:HIDDEN         = TRUE

@@ -54,7 +54,7 @@ RUN epCanAccess IN hdPgmSecurity (
     OUTPUT lHasAccess
     ).
     
-DELETE OBJECT hdPgmSecurity. 
+DELETE OBJECT hdPgmSecurity.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -333,84 +333,6 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE AdjustQuantity B-table-Win 
-PROCEDURE AdjustQuantity :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE dTotalQuantity   AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dSubUnitCount    AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dSubUnitsPerUnit AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dPartialQuantity AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE cAdjReasonCode   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lValueReturned   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cAdjustType      AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE dValue           AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
-
-    /* If not automatically cleared by security level, ask for password */
-    IF NOT lHasAccess THEN DO:
-        RUN sys/ref/d-passwd.w (
-            INPUT  10, 
-            OUTPUT lHasAccess
-            ). 
-    END.
-
-    IF NOT lHasAccess THEN
-        RETURN.
-
-    IF AVAILABLE job-mat THEN DO:
-        RUN inventory/adjustQuantityWithType.w (
-            INPUT  job-mat.qty,
-            INPUT  0,
-            INPUT  0,
-            INPUT  TRUE, /* Required Adj Reason  */
-            INPUT  FALSE, /* Display all units */
-            INPUT  TRUE,  /* Allow decimal units */
-            OUTPUT dTotalQuantity,
-            OUTPUT dSubUnitCount,
-            OUTPUT dSubUnitsPerUnit,
-            OUTPUT dPartialQuantity,
-            OUTPUT cAdjustType,
-            OUTPUT cAdjReasonCode,
-            OUTPUT lValueReturned,
-            OUTPUT dValue
-            ).
-  
-        IF lValueReturned THEN DO:  
-            MESSAGE cAdjustType + " quantity to " + STRING(dTotalQuantity) "?" 
-                    VIEW-AS ALERT-BOX QUESTION
-                    BUTTON OK-CANCEL
-                    TITLE "Adjust Quantity" UPDATE lContinue AS LOGICAL.
-/*            IF lContinue THEN DO:                                               */
-/*                RUN Inventory_AdjustFinishedGoodBinQty IN hdInventoryProcs (    */
-/*                    INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),        */
-/*                    INPUT  dTotalQuantity - ttBrowseInventory.quantity,         */
-/*                    INPUT  dPartialQuantity - ttBrowseInventory.quantityPartial,*/
-/*                    INPUT  cAdjReasonCode,                                      */
-/*                    OUTPUT lSuccess,                                            */
-/*                    OUTPUT cMessage                                             */
-/*                    ).                                                          */
-/*                                                                                */
-/*                IF NOT lSuccess THEN                                            */
-/*                    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.                   */
-/*                ELSE                                                            */
-/*                    ttBrowseInventory.quantity = dTotalQuantity.                */
-/*                                                                                */
-/*                {&OPEN-QUERY-{&BROWSE-NAME}}                                    */
-/*                                                                                */
-/*                APPLY "VALUE-CHANGED" TO BROWSE {&BROWSE-NAME}.                 */
-/*            END.                                                                */
-        END.
-    END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
 /*------------------------------------------------------------------------------
@@ -455,6 +377,78 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE IssueQuantity B-table-Win 
+PROCEDURE IssueQuantity :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dTotalQuantity   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSubUnitCount    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSubUnitsPerUnit AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dPartialQuantity AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cAdjReasonCode   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValueReturned   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cAdjustType      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dValue           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
+
+    /* If not automatically cleared by security level, ask for password */
+    IF NOT lHasAccess THEN DO:
+        RUN sys/ref/d-passwd.w (
+            INPUT  10, 
+            OUTPUT lHasAccess
+            ). 
+    END.
+
+    IF NOT lHasAccess THEN
+        RETURN.
+
+    IF AVAILABLE job-mat THEN DO:
+        RUN inventory/adjustQuantityIssue.w (
+            INPUT  job-mat.qty,
+            INPUT  TRUE, /* Required Adj Reason  */
+            INPUT  TRUE,  /* Allow decimal units */
+            OUTPUT dTotalQuantity,
+            OUTPUT cAdjustType,
+            OUTPUT cAdjReasonCode,
+            OUTPUT lValueReturned,
+            OUTPUT dValue
+            ).
+  
+        IF lValueReturned THEN DO:  
+            MESSAGE cAdjustType + " quantity to " + STRING(dTotalQuantity) "?" 
+                    VIEW-AS ALERT-BOX QUESTION
+                    BUTTON OK-CANCEL
+                    TITLE "Adjust Quantity" UPDATE lContinue AS LOGICAL.
+/*            IF lContinue THEN DO:                                               */
+/*                RUN Inventory_AdjustFinishedGoodBinQty IN hdInventoryProcs (    */
+/*                    INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),        */
+/*                    INPUT  dTotalQuantity - ttBrowseInventory.quantity,         */
+/*                    INPUT  dPartialQuantity - ttBrowseInventory.quantityPartial,*/
+/*                    INPUT  cAdjReasonCode,                                      */
+/*                    OUTPUT lSuccess,                                            */
+/*                    OUTPUT cMessage                                             */
+/*                    ).                                                          */
+/*                                                                                */
+/*                IF NOT lSuccess THEN                                            */
+/*                    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.                   */
+/*                ELSE                                                            */
+/*                    ttBrowseInventory.quantity = dTotalQuantity.                */
+/*                                                                                */
+/*                {&OPEN-QUERY-{&BROWSE-NAME}}                                    */
+/*                                                                                */
+/*                APPLY "VALUE-CHANGED" TO BROWSE {&BROWSE-NAME}.                 */
+/*            END.                                                                */
+        END.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

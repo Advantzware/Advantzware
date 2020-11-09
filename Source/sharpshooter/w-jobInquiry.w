@@ -103,10 +103,10 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_adjustqty AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_adjustqty-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-job-hdr AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-job-mat AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-job-mch AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_issueqty AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btExit 
@@ -640,11 +640,11 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_b-job-mat ( 21.91 , 181.60 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'sharpshooter/smartobj/adjustqty.w':U ,
+             INPUT  'sharpshooter/smartobj/issueqty.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
-             OUTPUT h_adjustqty-2 ).
-       RUN set-position IN h_adjustqty-2 ( 21.24 , 192.00 ) NO-ERROR.
+             OUTPUT h_issueqty ).
+       RUN set-position IN h_issueqty ( 21.24 , 192.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.62 , 11.00 ) */
 
        /* Initialize other pages that this page requires. */
@@ -655,13 +655,13 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'PAGE_2':U , h_b-job-mat ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'RMInq':U , h_b-job-mat ).
 
-       /* Links to SmartObject h_adjustqty-2. */
-       RUN add-link IN adm-broker-hdl ( h_b-job-mat , 'ADJUST':U , h_adjustqty-2 ).
+       /* Links to SmartObject h_issueqty. */
+       RUN add-link IN adm-broker-hdl ( h_b-job-mat , 'ISSUE':U , h_issueqty ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mat ,
              btRoutings:HANDLE IN FRAME F-Main , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_adjustqty-2 ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_issueqty ,
              btnPrevious:HANDLE IN FRAME F-Main , 'AFTER':U ).
     END. /* Page 2 */
     WHEN 3 THEN DO:

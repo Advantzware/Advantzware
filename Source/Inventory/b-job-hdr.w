@@ -58,7 +58,7 @@ RUN epCanAccess IN hdPgmSecurity (
     OUTPUT lHasAccess
     ).
     
-DELETE OBJECT hdPgmSecurity. 
+DELETE OBJECT hdPgmSecurity.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -370,7 +370,6 @@ PROCEDURE AdjustQuantity :
             INPUT  1,
             INPUT  1,
             INPUT  TRUE, /* Required Adj Reason  */
-            INPUT  TRUE, /* Display all units */
             INPUT  FALSE,  /* Allow decimal units */
             OUTPUT dTotalQuantity,
             OUTPUT dSubUnitCount,

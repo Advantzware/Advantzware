@@ -779,8 +779,25 @@ PROCEDURE pInit :
     DEFINE VARIABLE cComboList   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hdReasonCode AS HANDLE    NO-UNDO.
     
+    DEFINE VARIABLE cSSJobInquiryIssue AS CHARACTER NO-UNDO.
+    
     DO WITH FRAME {&FRAME-NAME}:
     END.
+    
+    RUN sys/ref/nk1look.p (
+        INPUT  g_company,            /* Company Code */ 
+        INPUT  "SSJobInquiryIssue",  /* sys-ctrl name */
+        INPUT  "C",                  /* Output return value */
+        INPUT  NO,                   /* Use ship-to */
+        INPUT  NO,                   /* ship-to vendor */
+        INPUT  "",                   /* ship-to vendor value */
+        INPUT  "",                   /* ship-id value */
+        OUTPUT cSSJobInquiryIssue, 
+        OUTPUT lRecFound
+        ).
+    
+    IF cSSJobInquiryIssue EQ "Reduce only" THEN
+        rsAdjustType:SENSITIVE = FALSE.
     
     IF NOT iplAllowFractions THEN
         fiTotalQty:FORMAT = "->,>>>,>>>,>>9" NO-ERROR.
