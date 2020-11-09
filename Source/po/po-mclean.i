@@ -7,7 +7,7 @@ PUT
    
      "<FCourier New>".
 IF AVAIL vend THEN PUT
-     "Purchase Order To:" AT 4  " Vendor#" SPACE(33) "Ship To:"  SKIP.
+     "Purchase Order To:" AT 4 SPACE(1) vend.vend-no FORMAT "x(8)" SPACE(32) "Ship To:"  SKIP.
 ELSE PUT "Purchase Order To:" AT 4 SPACE(43) "Ship To:"  SKIP.
 
 IF AVAIL vend THEN
