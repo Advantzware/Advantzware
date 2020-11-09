@@ -152,7 +152,7 @@ DEFINE QUERY external_tables FOR shipto, cust.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS shipto.isDefault shipto.ship-name ~
 shipto.ship-addr[1] shipto.ship-addr[2] shipto.ship-city shipto.ship-state ~
-shipto.ship-zip shipto.contact shipto.area-code shipto.phone ~
+shipto.ship-zip shipto.country shipto.contact shipto.area-code shipto.phone ~
 shipto.spare-char-1 shipto.tax-code shipto.tax-mandatory shipto.notes[1] ~
 shipto.notes[2] shipto.notes[3] shipto.notes[4] shipto.loc shipto.loc-bin ~
 shipto.carrier shipto.dest-code shipto.pallet shipto.spare-char-4 ~
@@ -166,7 +166,7 @@ shipto.undersPercent shipto.spare-char-3 shipto.siteID
 &Scoped-Define ENABLED-OBJECTS ship_note RECT-1 RECT-2 RECT-3 
 &Scoped-Define DISPLAYED-FIELDS shipto.isDefault shipto.ship-id ~
 shipto.ship-name shipto.ship-addr[1] shipto.ship-addr[2] shipto.ship-city ~
-shipto.ship-state shipto.ship-zip shipto.contact shipto.area-code ~
+shipto.ship-state shipto.ship-zip shipto.country shipto.contact shipto.area-code ~
 shipto.phone shipto.spare-char-1 shipto.tax-code shipto.tax-mandatory ~
 shipto.notes[1] shipto.notes[2] shipto.notes[3] shipto.notes[4] shipto.loc ~
 shipto.loc-bin shipto.carrier shipto.dest-code shipto.pallet ~
@@ -298,8 +298,12 @@ DEFINE FRAME F-Main
           FONT 4
      shipto.ship-zip AT ROW 15.05 COL 41 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 17 BY 1
+          SIZE 13 BY 1
           FONT 4
+     shipto.country AT ROW 15.05 COL 53.5 COLON-ALIGNED NO-LABEL FORMAT "x(3)"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY 1
+          FONT 4    
      shipto.contact AT ROW 10.05 COL 71 COLON-ALIGNED
           LABEL "Contact"
           VIEW-AS FILL-IN 
@@ -602,6 +606,8 @@ ASSIGN
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN shipto.ship-city IN FRAME F-Main
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN shipto.country IN FRAME F-Main
+   EXP-FORMAT                                                           */   
 /* SETTINGS FOR FILL-IN shipto.ship-id IN FRAME F-Main
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN shipto.ship-name IN FRAME F-Main
@@ -744,6 +750,7 @@ DO:
        shipto.ship-city:SCREEN-VALUE    = b-cust.city
        shipto.ship-state:SCREEN-VALUE   = b-cust.state
        shipto.ship-zip:SCREEN-VALUE     = b-cust.zip
+       shipto.country:SCREEN-VALUE      = b-cust.fax-country
        shipto.carrier:SCREEN-VALUE      = b-cust.carrier
        shipto.loc:SCREEN-VALUE          = b-cust.loc
        shipto.dest-code:SCREEN-VALUE    = b-cust.del-zone
@@ -1167,6 +1174,7 @@ PROCEDURE display-new-shipto :
                 shipto.ship-name:SCREEN-VALUE = bf-cust.name
                 shipto.ship-state:SCREEN-VALUE = bf-cust.state
                 shipto.ship-zip:SCREEN-VALUE = bf-cust.zip
+                shipto.country:SCREEN-VALUE = bf-cust.fax-country
                 shipto.carrier:SCREEN-VALUE = bf-cust.carrier
                 shipto.dest-code:SCREEN-VALUE = bf-cust.del-zone
                 shipto.tax-code:SCREEN-VALUE = bf-cust.tax-gr
@@ -1847,6 +1855,7 @@ PROCEDURE ship-zip :
       shipto.ship-state:SCREEN-VALUE = zipcode.state.
 /*       IF shipto.ship-city:SCREEN-VALUE EQ "" THEN */
         shipto.ship-city:SCREEN-VALUE = zipcode.city.
+        shipto.country:SCREEN-VALUE = zipcode.country.
       ASSIGN
          shipto.carrier:SCREEN-VALUE = zipcode.carrier 
          shipto.dest-code:SCREEN-VALUE = zipcode.del-zone.
@@ -1876,6 +1885,7 @@ DEF BUFFER b-zipcode FOR zipcode.
       shipto.ship-state:SCREEN-VALUE = b-zipcode.state.
 /*       IF shipto.ship-city:SCREEN-VALUE EQ "" THEN */
         shipto.ship-city:SCREEN-VALUE = b-zipcode.city.
+        shipto.country:SCREEN-VALUE = b-zipcode.country.
       ASSIGN
          shipto.carrier:SCREEN-VALUE = b-zipcode.carrier 
          shipto.dest-code:SCREEN-VALUE = b-zipcode.del-zone.
