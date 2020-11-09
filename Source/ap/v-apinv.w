@@ -920,16 +920,19 @@ PROCEDURE local-display-fields :
      lv-prev-exrate = ap-inv.ex-rate
      lv-got-exrate  = YES.
 
-  RUN Tag_IsTagRecordAvailable(
-      INPUT ap-inv.rec_key,
-      INPUT "ap-inv",
-      OUTPUT lAvailable
-      ).
-    IF lAvailable THEN  
-        btTags:SENSITIVE = TRUE
-        .
-    ELSE 
-        btTags:SENSITIVE = FALSE. 
+    IF AVAIL ap-inv THEN DO:
+        RUN Tag_IsTagRecordAvailable(INPUT ap-inv.rec_key,
+                                    INPUT "ap-inv",
+                                    OUTPUT lAvailable
+                                    ).
+        IF lAvailable THEN  
+            btTags:SENSITIVE = TRUE.
+        ELSE 
+            btTags:SENSITIVE = FALSE.
+    END.
+    ELSE
+        btTags:SENSITIVE = FALSE.
+              
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
