@@ -342,7 +342,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
     IF AVAILABLE(est) AND 
        AVAILABLE(ef)  AND 
-       est.est-type EQ 6 AND /* this field identifies if a set is to be print */
+       (est.est-type EQ 6 OR est.est-type EQ 2) AND /* this field identifies if a set is to be print */
       (est.form-qty GT 1 OR NOT can-find(eb OF ef)) THEN
     FOR EACH ef WHERE ef.company EQ est.company
                   AND ef.est-no  EQ est.est-no NO-LOCK,      
