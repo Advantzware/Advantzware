@@ -1028,39 +1028,39 @@ PROCEDURE pCalculateForInvHead PRIVATE:
         opdInvoiceTotal    = 0
         .
 
-    /* This is an additional check for QUOTATION message type. If all lines are 
-       non-taxable then do not call Vertex */
-    IF cCalcMethod EQ cCalcMethodAPI AND ipcMessageType EQ "QUOTATION" THEN DO:    
-        /* Validate if any of the invoice line items are taxable. If not return without calculating tax */
-        FOR EACH bf-inv-line NO-LOCK 
-            WHERE bf-inv-line.r-no EQ bf-inv-head.r-no:
-            IF bf-inv-head.tax-gr NE "" AND bf-inv-line.tax THEN DO:
-                lIsInvoiceTaxable = TRUE.
-                LEAVE.
-            END.
-        END.
-    
-        IF NOT lIsInvoiceTaxable THEN DO:
-            FOR EACH bf-inv-misc NO-LOCK 
-                WHERE bf-inv-misc.company EQ bf-inv-head.company 
-                  AND bf-inv-misc.r-no    EQ bf-inv-head.r-no 
-                  AND bf-inv-misc.bill    EQ "Y":     
-        
-                IF bf-inv-head.tax-gr NE "" AND bf-inv-misc.tax THEN DO:
-                    lIsInvoiceTaxable = TRUE.
-                    LEAVE.
-                END.
-            END.
-        END.
-            
-        IF NOT lIsInvoiceTaxable THEN DO:
-            IF bf-inv-head.tax-gr NE "" AND bf-inv-head.f-bill AND bf-inv-head.t-inv-freight NE 0 THEN
-                lIsInvoiceTaxable = TRUE.
-        END.
-                
-        IF NOT lIsInvoiceTaxable THEN
-            RETURN.
-    END.
+/*    /* This is an additional check for QUOTATION message type. If all lines are                           */
+/*       non-taxable then do not call Vertex */                                                             */
+/*    IF cCalcMethod EQ cCalcMethodAPI AND ipcMessageType EQ "QUOTATION" THEN DO:                           */
+/*        /* Validate if any of the invoice line items are taxable. If not return without calculating tax */*/
+/*        FOR EACH bf-inv-line NO-LOCK                                                                      */
+/*            WHERE bf-inv-line.r-no EQ bf-inv-head.r-no:                                                   */
+/*            IF bf-inv-head.tax-gr NE "" AND bf-inv-line.tax THEN DO:                                      */
+/*                lIsInvoiceTaxable = TRUE.                                                                 */
+/*                LEAVE.                                                                                    */
+/*            END.                                                                                          */
+/*        END.                                                                                              */
+/*                                                                                                          */
+/*        IF NOT lIsInvoiceTaxable THEN DO:                                                                 */
+/*            FOR EACH bf-inv-misc NO-LOCK                                                                  */
+/*                WHERE bf-inv-misc.company EQ bf-inv-head.company                                          */
+/*                  AND bf-inv-misc.r-no    EQ bf-inv-head.r-no                                             */
+/*                  AND bf-inv-misc.bill    EQ "Y":                                                         */
+/*                                                                                                          */
+/*                IF bf-inv-head.tax-gr NE "" AND bf-inv-misc.tax THEN DO:                                  */
+/*                    lIsInvoiceTaxable = TRUE.                                                             */
+/*                    LEAVE.                                                                                */
+/*                END.                                                                                      */
+/*            END.                                                                                          */
+/*        END.                                                                                              */
+/*                                                                                                          */
+/*        IF NOT lIsInvoiceTaxable THEN DO:                                                                 */
+/*            IF bf-inv-head.tax-gr NE "" AND bf-inv-head.f-bill AND bf-inv-head.t-inv-freight NE 0 THEN    */
+/*                lIsInvoiceTaxable = TRUE.                                                                 */
+/*        END.                                                                                              */
+/*                                                                                                          */
+/*        IF NOT lIsInvoiceTaxable THEN                                                                     */
+/*            RETURN.                                                                                       */
+/*    END.                                                                                                  */
     
 
     /* Calculate the tax from API and return */ 

@@ -3532,7 +3532,10 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             OUTPUT lError,
             OUTPUT cMessage
             ).       
-           
+        
+        IF iplgUpdateTax THEN 
+            RUN pUpdateTax(BUFFER bf-ttInvoiceToPost, dTotalTax).
+               
         lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company,"InvoiceApprovalTaxCalc",bf-inv-head.cust-no,iplIsValidateOnly).        
         IF lValidateRequired AND lError THEN 
         DO:
@@ -3540,15 +3543,10 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             lAutoApprove = NO.
         END.
         
-        IF dTotalTax NE bf-inv-head.t-inv-tax THEN 
+        IF lValidateRequired AND dTotalTax NE bf-inv-head.t-inv-tax THEN 
         DO:
-            IF iplgUpdateTax THEN 
-                RUN pUpdateTax(BUFFER bf-ttInvoiceToPost, dTotalTax).
-            ELSE IF lValidateRequired THEN 
-            DO:
-                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Tax on invoice does not match with calculated tax").
-                lAutoApprove = NO.
-            END.            
+            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Tax on invoice does not match with calculated tax").
+            lAutoApprove = NO.
         END.
          
 
