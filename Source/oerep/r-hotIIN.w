@@ -92,13 +92,15 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Qty on Hand,Customer Name,Item Code,Description,Cat,Po #," +
-                           "Order #,Sales,Rel Qty,Rel Date,Rel#,Prom Date,Style," +
-                           "Promise Date Change Reason,Last Machine,Job#" 
+                           "Order #,Sales,Rel Qty,Rel Date,Rel#,Order Line Prom Date,Style," +
+                           "Line Promise Date Change Reason,Last Machine,Job#,Job Promise Date,Order Promise Date," +
+                           "Order LINE Promise Date Priority"
        cFieldListToSelect = "qty-hand,cust-name,item,desc,cat,po," +
                             "order,sales,rel-qty,rel-date,rel,pro-date,style," +
-                            "pro-date-reason,last-mch,job-no"
-       cFieldLength = "12,30,15,30,5,15," + "7,15,11,8,10,9,6," + "30,12,9"
-       cFieldType = "i,c,c,c,c,c," + "i,i,i,c,i,c,c," + "c,c,c" 
+                            "pro-date-reason,last-mch,job-no,job-prom-date,ord-prom-date," + "prom-code"
+                            
+       cFieldLength = "12,30,15,30,5,15," + "7,15,11,8,10,10,6," + "32,12,9,11,13," + "18"
+       cFieldType = "i,c,c,c,c,c," + "i,i,i,c,i,c,c," + "c,c,c,c,c," + "c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1724,6 +1726,7 @@ DEF VAR cVarValue AS cha NO-UNDO.
 DEF VAR cExcelVarValue AS cha NO-UNDO.
 DEF VAR cSelectedList AS cha NO-UNDO.
 DEF VAR cFieldName AS cha NO-UNDO.
+DEF VAR cHeading AS CHARACTER FORM "x(200)" NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
@@ -1754,30 +1757,53 @@ FIND FIRST users WHERE
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
-
-   IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
-   THEN ASSIGN str-tit4 = str-tit4 + ttRptSelected.TextList + " "
+    IF ttRptSelected.TextList = "Order Line Prom Date" THEN ASSIGN
+               cHeading = cHeading + "Order Line" + " "
+               str-tit4 = str-tit4 + " Prom Date" + " "
                str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
-               excelheader = excelHeader + ttRptSelected.TextList + "," .        
-   ELSE 
-   ASSIGN str-tit4 = str-tit4 + 
-            (IF ttRptSelected.HeadingFromLeft THEN
-                ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
-            ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + ttRptSelected.TextList) + " "
-          str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
-          excelheader = excelHeader + ttRptSelected.TextList + ","
-          .        
-          cSlist = cSlist + ttRptSelected.FieldList + ",".
-
+               excelheader = excelHeader + ttRptSelected.TextList + "," . 
+     ELSE IF ttRptSelected.TextList = "Job Promise Date" THEN ASSIGN
+               cHeading = cHeading + "Job Promise" + " "
+               str-tit4 = str-tit4 + "       Date" + " "
+               str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
+               excelheader = excelHeader + ttRptSelected.TextList + "," . 
+     ELSE IF ttRptSelected.TextList = "Order Promise Date" THEN ASSIGN
+               cHeading = cHeading + "Order Promise" + " "
+               str-tit4 = str-tit4 + "         Date" + " "
+               str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
+               excelheader = excelHeader + ttRptSelected.TextList + "," . 
+    ELSE IF ttRptSelected.TextList = "Order LINE Promise Date Priority" THEN ASSIGN
+               cHeading = cHeading + "Order LINE Promise" + " "
+               str-tit4 = str-tit4 + "     Date Priority" + " "
+               str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
+               excelheader = excelHeader + ttRptSelected.TextList + "," .           
+               
+   ELSE do:
+       IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
+       THEN ASSIGN str-tit4 = str-tit4 + ttRptSelected.TextList + " "
+                   str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
+                   cHeading = cHeading + FILL(" ",ttRptSelected.FieldLength) + " "
+                   excelheader = excelHeader + ttRptSelected.TextList + "," .        
+       ELSE 
+       ASSIGN str-tit4 = str-tit4 + 
+                (IF ttRptSelected.HeadingFromLeft THEN
+                    ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
+                ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + ttRptSelected.TextList) + " "
+              str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
+              cHeading = cHeading + FILL(" ",ttRptSelected.FieldLength) + " "
+              excelheader = excelHeader + ttRptSelected.TextList + ","
+              .        
+              cSlist = cSlist + ttRptSelected.FieldList + ",".
+   END.
         IF LOOKUP(ttRptSelected.TextList, "Daily Sq Ft/M,Amount1,PTD Sq Ft/M,Amount2,YTD Sq Ft/M,Amount3") <> 0    THEN
          ASSIGN
          str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
  END.
-
+       
  /*{oe/rep/oehots.i}*/
-{oe/rep/oehotsIIN.i}
+{oe/rep/oehotsIIN.i}  
 
 IF tb_excel THEN DO:
    OUTPUT STREAM st-excel CLOSE.
