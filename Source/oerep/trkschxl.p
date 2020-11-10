@@ -301,8 +301,10 @@ PROCEDURE MainLoop :
 
       IF tt-report.key-06 NE "P" THEN
          RUN SetCellValue ("H" + STRING(4 + viRowCount),STRING(tt-report.rel-no)).
-      ELSE
+      ELSE do:      
+         RUN SetCellValue ("H" + STRING(4 + viRowCount),"0").
          RUN SetCellValue ("J" + STRING(4 + viRowCount),STRING(tt-report.bol-no)).
+      END.
 
       RUN SetCellValue ("I" + STRING(4 + viRowCount),STRING(tt-report.pallets)).
   END.
