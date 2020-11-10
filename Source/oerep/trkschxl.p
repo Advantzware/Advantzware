@@ -285,13 +285,13 @@ PROCEDURE MainLoop :
                AND oe-ordl.ord-no EQ tt-report.order-no
                AND oe-ordl.i-no EQ  tt-report.item-no NO-ERROR .
               
-         cItemName = IF avail oe-ordl THEN oe-ordl.i-name ELSE "" .
+         cItemName = IF avail oe-ordl THEN substring(oe-ordl.i-name,1,15) ELSE "" .
          IF cItemName EQ "" THEN
          DO:
            FIND FIRST itemfg NO-LOCK
                 WHERE itemfg.company EQ cocode
                 AND itemfg.i-no EQ  tt-report.item-no NO-ERROR .
-            cItemName = IF avail itemfg THEN itemfg.i-name ELSE "" . 
+            cItemName = IF avail itemfg THEN substring(itemfg.i-name,1,15) ELSE "" . 
          END.   
          RUN SetCellValue ("G" + STRING(4 + viRowCount),cItemName).     
       END.
