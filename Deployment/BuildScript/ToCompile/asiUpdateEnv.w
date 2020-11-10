@@ -109,6 +109,9 @@ DEF TEMP-TABLE ttUserLanguage LIKE userlanguage.
 DEF TEMP-TABLE ttXuserMenu LIKE xuserMenu.
 DEF TEMP-TABLE ttUtilities LIKE utilities.
 DEF TEMP-TABLE ttZmessage LIKE zMessage.
+DEF TEMP-TABLE ttEmailConfig LIKE emailConfig.
+DEF TEMP-TABLE ttServerResource LIKE serverResource.
+
 DEF TEMP-TABLE ttAPIOutbound 
     FIELD apiOutboundID AS INT64 
     FIELD username AS CHAR 
@@ -3401,7 +3404,8 @@ PROCEDURE ipDataFix200303:
         ASSIGN 
             oe-ctrl.p-job = TRUE.
     END.
-    
+    /* Set default Gain/Loss accounts in currency records */    
+    RUN ipSetCurrencyAccounts.
      
 END PROCEDURE.
     
@@ -3420,6 +3424,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipUseOldNK1.
     RUN ipAuditSysCtrl.
     RUN ipLoadDAOAData.
+    RUN ipLoadAPIConfigData.
     RUN ipLoadAPIData.
     RUN ipSetCueCards.
     RUN ipDeleteAudit.
@@ -4174,6 +4179,56 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadAPIConfigData C-Win
+PROCEDURE ipLoadAPIConfigData:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading API Config Data").
+
+    /* Only load any new records created on DEVEL */
+    &SCOPED-DEFINE tablename serverResource
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.rec_key EQ tt{&tablename}.rec_key 
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
+        END.
+    END.
+    INPUT CLOSE.
+    EMPTY TEMP-TABLE tt{&tablename}.
+
+    &SCOPED-DEFINE tablename emailConfig
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.configID EQ tt{&tablename}.configID 
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
+        END.
+    END.
+    INPUT CLOSE.
+    EMPTY TEMP-TABLE tt{&tablename}.
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadAPIData C-Win
 PROCEDURE ipLoadAPIData:
@@ -6331,6 +6386,32 @@ PROCEDURE ipSetCueCards:
             RELEASE xCueCard.
         END. /* each cuecardtext */
     END. /* each users */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetCurrencyAccounts C-Win
+PROCEDURE ipSetCurrencyAccounts:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Setting Currency Accounts").
+
+    DEF BUFFER bcurrency FOR currency.
+    
+    FOR EACH bcurrency EXCLUSIVE WHERE 
+        bcurrency.ar-ast-acct EQ "":
+        FIND ar-ctrl NO-LOCK WHERE 
+            ar-ctrl.company = bcurrency.company.
+        IF AVAIL ar-ctrl THEN ASSIGN 
+            bcurrency.ar-ast-acct = ar-ctrl.sales.
+    END.
 
 END PROCEDURE.
 	
