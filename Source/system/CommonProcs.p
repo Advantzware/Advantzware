@@ -190,6 +190,37 @@ lUserAMPM = AVAILABLE users AND users.AMPM.
 
 /* **********************  Internal Procedures  *********************** */
 
+&IF DEFINED(EXCLUDE-pGetTimeInGMT) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTimeInGMT Procedure
+PROCEDURE pGetTimeInGMT PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipdttzSystemTime AS DATETIME-TZ NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdttzGMTTime    AS DATETIME-TZ NO-UNDO.
+
+    DEFINE VARIABLE iCurrentTimeZone         AS INTEGER     NO-UNDO.
+        
+    ASSIGN
+        /* Fetch system time zone. Returns the minutes behind/ahead of GMT */
+        iCurrentTimeZone = TIMEZONE(ipdttzSystemTime) * -1
+        /* Substract/Add minutes to get the current GMT date and  time */
+        opdttzGMTTime    = ADD-INTERVAL(ipdttzSystemTime, iCurrentTimeZone, "minutes")        
+        /* Set the time zone to GMT */
+        opdttzGMTTIme    = DATETIME-TZ(DATE(opdttzGMTTIme), MTIME(opdttzGMTTIme), 0)
+        .
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-spCommon_DateRule) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_DateRule Procedure
@@ -353,6 +384,29 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-spCommon_GetCurrentGMTTime) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_GetCurrentGMTTime Procedure
+PROCEDURE spCommon_GetCurrentGMTTime:
+/*------------------------------------------------------------------------------
+ Purpose: Returns current GMT Time
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opdttzCurrentGMTTime AS DATE NO-UNDO.
+    
+    RUN pGetTimeInGMT(
+        INPUT  NOW,
+        OUTPUT opdttzCurrentGMTTime
+        ).
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-spCommon_ParseTime) = 0 &THEN
 
