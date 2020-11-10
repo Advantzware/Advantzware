@@ -1237,7 +1237,7 @@ PROCEDURE pGetAddressForLocation PRIVATE:
         /* If location is not available then use company address set initially */
         ASSIGN
             opcStreetAddr1 = cCompanyAddr1
-            opcStreetAddr2 = cCompanyAddr1
+            opcStreetAddr2 = cCompanyAddr2
             opcStreetAddr3 = ""
             opcCity        = cCompanyCity
             opcState       = cCompanyState
@@ -1266,7 +1266,7 @@ PROCEDURE pGetCompanyAddress PRIVATE:
     IF AVAILABLE bf-company THEN
         ASSIGN
             opcStreetAddr1 = bf-company.addr[1]
-            opcStreetAddr2 = bf-company.addr[1]
+            opcStreetAddr2 = bf-company.addr[2]
             opcCity        = bf-company.city
             opcState       = bf-company.state
             opcZip         = bf-company.zip
