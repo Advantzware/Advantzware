@@ -92,6 +92,7 @@ DEF VAR v-frt-tax     AS DEC NO-UNDO.
 
 DEF VAR v-bol-no AS INT FORMAT ">>>>>>>9" NO-UNDO.
 DEF VAR v-inv-total AS DECI NO-UNDO.
+DEFINE VARIABLE iPageNum AS INTEGER NO-UNDO.
 
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 
@@ -378,6 +379,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
           ELSE ASSIGN v-price-head = inv-line.pr-uom.
         END. 
             
+        PUT "[@startPage" + TRIM(STRING(inv-head.inv-no,">>>>>>9")) + "]" FORMAT "X(50)".    
         {oe/rep/invsoule.i}  /* xprint form */
         
         ASSIGN v-printline    = 29
@@ -682,8 +684,10 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         "<=8><R62>  Tot Inv:" v-inv-total        FORMAT "->>,>>9.99".
   
     ASSIGN v-printline = v-printline + 6.
-
+    iPageNum = PAGE-NUM.
    END.
+   
+   PUT "[@endPage" + TRIM(STRING(inv-head.inv-no,">>>>>>9")) + "]" FORMAT "X(50)".
 
     IF v-printline <= 66 THEN PAGE. 
     /*PUT SKIP(74 - v-printline). */

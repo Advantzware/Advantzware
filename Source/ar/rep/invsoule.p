@@ -103,7 +103,7 @@ DEF VAR v-comp-add1 AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-comp-add2 AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-comp-add3 AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-comp-add4 AS CHAR FORMAT "x(30)" NO-UNDO.
-
+DEFINE VARIABLE iPageNum AS INTEGER NO-UNDO.
 DEF VAR lv-bol-no LIKE ar-invl.bol-no NO-UNDO.
 
 FOR each report 
@@ -339,7 +339,7 @@ FOR each report
 
      END.
 
-     
+     PUT "[@startPage" + TRIM(STRING(ar-inv.inv-no,">>>>>>9")) + "]" FORMAT "X(50)". 
      {ar/rep/invsoule.i}  /* xprint form */
      ASSIGN 
        v-printline = 29
@@ -519,6 +519,8 @@ FOR each report
         SKIP .
  
     v-printline = v-printline + 8.
+    iPageNum = PAGE-NUM.
+    PUT "[@endPage" + TRIM(STRING(ar-inv.inv-no,">>>>>>9")) + "]" FORMAT "X(50)".
   
     IF v-printline <= 66 THEN page. /*PUT SKIP(74 - v-printline). */
      
