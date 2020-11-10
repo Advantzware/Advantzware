@@ -900,12 +900,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL jobID sObject
 ON START-SEARCH OF jobID IN FRAME F-Main
 DO:
+{methods/template/sortindicator.i} 
   IF {&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR EQ 14 THEN DO:
     ASSIGN
       columnLabel = {&BROWSE-NAME}:CURRENT-COLUMN:NAME
       ascendingFlag = NOT ascendingFlag.
     RUN openQueryJobID.
   END.
+  {methods/template/sortindicatorend.i} 
   RETURN NO-APPLY.
 END.
 

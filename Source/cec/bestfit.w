@@ -372,6 +372,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 D-Dialog
 ON START-SEARCH OF BROWSE-1 IN FRAME D-Dialog
 DO:
+  {methods/template/sortindicator.i} 
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -392,6 +393,7 @@ DO:
   APPLY "END-SEARCH" TO {&BROWSE-NAME}.
 
   RUN open-query.
+  {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */

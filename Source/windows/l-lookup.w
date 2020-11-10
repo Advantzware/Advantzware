@@ -425,6 +425,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-table Dialog-Frame
 ON START-SEARCH OF br-table IN FRAME Dialog-Frame
 DO:
+	{methods/template/sortindicator.i} 
    IF INDEX(ip-sortList, h_browser:CURRENT-COLUMN:NAME) > 0 THEN DO:
        IF ls-sortBy = h_browser:CURRENT-COLUMN:NAME THEN
             ls-sortType = IF ls-sortType = "DESCENDING" THEN "" ELSE "DESCENDING".
@@ -437,6 +438,7 @@ DO:
        ELSE
           RUN openSearchQuery.
    END.
+   {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */

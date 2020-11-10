@@ -472,6 +472,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON START-SEARCH OF br_table IN FRAME F-Main
 DO:
+  {methods/template/sortindicator.i} 
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -495,6 +496,7 @@ DO:
   OPEN QUERY {&BROWSE-NAME} {&QUERY-STRING-{&BROWSE-NAME}} {&sortby-phrase-asc}.
   ELSE
   OPEN QUERY {&BROWSE-NAME} {&QUERY-STRING-{&BROWSE-NAME}} {&sortby-phrase-desc}.
+  {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */

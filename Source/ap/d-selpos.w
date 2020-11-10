@@ -332,6 +332,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
 ON START-SEARCH OF BROWSE-2 IN FRAME D-Dialog
     DO: 
+		{methods/template/sortindicator.i} 
         IF SELF:CURRENT-COLUMN:NAME EQ "selekt" THEN 
         DO:
             lReTrigger = NOT lReTrigger.
@@ -341,7 +342,8 @@ ON START-SEARCH OF BROWSE-2 IN FRAME D-Dialog
             END.
 
             {&OPEN-QUERY-BROWSE-2}
-        END.    
+        END.
+		{methods/template/sortindicatorend.i}		
     END.
 
 /* _UIB-CODE-BLOCK-END */

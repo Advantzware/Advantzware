@@ -392,18 +392,18 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      cust.company FORMAT "x(3)":U LABEL-BGCOLOR 28 LABEL-FONT 23
-      cust.cust-no FORMAT "x(8)":U WIDTH 11.2 LABEL-BGCOLOR 27 LABEL-FONT 23
-      cust.name COLUMN-LABEL "Name" FORMAT "x(30)":U LABEL-BGCOLOR 27 LABEL-FONT 23
-      cust.city FORMAT "x(15)":U LABEL-BGCOLOR 27 LABEL-FONT 23
-      cust.state FORMAT "x(2)":U WIDTH 6.2 LABEL-BGCOLOR 27 LABEL-FONT 23
-      cust.zip COLUMN-LABEL "Zip" FORMAT "x(10)":U LABEL-BGCOLOR 27 LABEL-FONT 23
-      cust.area-code FORMAT "(999)":U LABEL-BGCOLOR 27 LABEL-FONT 23
-      cust.phone COLUMN-LABEL "Phone #" FORMAT "999-9999":U LABEL-BGCOLOR 27 LABEL-FONT 23
-      cust.type COLUMN-LABEL "Type" FORMAT "x(8)":U LABEL-BGCOLOR 27 LABEL-FONT 23
-      cust.sman COLUMN-LABEL "SalesGrp" FORMAT "x(3)":U LABEL-BGCOLOR 27 LABEL-FONT 23
-      cust.terr COLUMN-LABEL "Territory" FORMAT "x(3)":U LABEL-BGCOLOR 27 LABEL-FONT 23
-      cust.spare-char-2 COLUMN-LABEL "Group" FORMAT "x(8)":U LABEL-BGCOLOR 27 LABEL-FONT 23
+      cust.company FORMAT "x(3)":U  LABEL-FONT 23
+      cust.cust-no FORMAT "x(8)":U WIDTH 11.2 LABEL-BGCOLOR 14 LABEL-FONT 23
+      cust.name COLUMN-LABEL "Name" FORMAT "x(30)":U LABEL-BGCOLOR 14 LABEL-FONT 23
+      cust.city FORMAT "x(15)":U LABEL-BGCOLOR 14 LABEL-FONT 23
+      cust.state FORMAT "x(2)":U WIDTH 6.2 LABEL-BGCOLOR 14 LABEL-FONT 23
+      cust.zip COLUMN-LABEL "Zip" FORMAT "x(10)":U LABEL-BGCOLOR 14 LABEL-FONT 23
+      cust.area-code FORMAT "(999)":U LABEL-BGCOLOR 14 LABEL-FONT 23
+      cust.phone COLUMN-LABEL "Phone #" FORMAT "999-9999":U LABEL-BGCOLOR 14 LABEL-FONT 23
+      cust.type COLUMN-LABEL "Type" FORMAT "x(8)":U LABEL-BGCOLOR 14 LABEL-FONT 23
+      cust.sman COLUMN-LABEL "SalesGrp" FORMAT "x(3)":U LABEL-BGCOLOR 14 LABEL-FONT 23
+      cust.terr COLUMN-LABEL "Territory" FORMAT "x(3)":U LABEL-BGCOLOR 14 LABEL-FONT 23
+      cust.spare-char-2 COLUMN-LABEL "Group" FORMAT "x(8)":U LABEL-BGCOLOR 14 LABEL-FONT 23
       cust.rec_key FORMAT "X(20)":U
       ENABLE
       cust.company          
@@ -718,17 +718,25 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
-ON START-SEARCH OF Browser-Table IN FRAME F-Main
-DO:
+ON START-SEARCH OF Browser-Table IN FRAME F-Main  
+DO: 
+
+{methods/template/sortindicator.i} 
   /*RUN startSearch.*/
      DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
+  
 
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
    lv-column-lab = lh-column:LABEL.
+   
+  /* IF NOT lh-column:SORT-ASCENDING THEN 
+       lh-column:SORT-ASCENDING = TRUE.
+   ELSE   
+       lh-column:SORT-ASCENDING = FALSE.*/
 
   IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
   ELSE
@@ -738,7 +746,7 @@ DO:
 
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
   RUN dispatch ("open-query").
-  
+  {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -755,6 +763,7 @@ DO:
   
   assign s-rec_key = cust.rec_key when avail cust.
   RUN spec-book-image-proc .  /* task 10221306 */
+  run udf-image-proc.
   IF AVAIL cust THEN
   DO:
      run get-link-handle in adm-broker-hdl(this-procedure,"custto-source", output char-hdl).
@@ -944,10 +953,9 @@ IF NOT AVAIL sys-ctrl THEN DO:
         sys-ctrl.log-fld = NO
         sys-ctrl.descrip = "Check credit limit for past due invoices when adding release?".
 END.
-
+ {custom\udfimgchange.i}
 FI_moveCol = "Sort".
 DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

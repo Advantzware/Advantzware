@@ -2,6 +2,7 @@
 
 DEFINE VARIABLE sortBy AS LOGICAL NO-UNDO.
 DEFINE VARIABLE sortColumn AS CHARACTER NO-UNDO.
+DEFINE VARIABLE sortColumnhand AS HANDLE NO-UNDO.
 DEFINE VARIABLE colLabels AS CHARACTER NO-UNDO.
 DEFINE VARIABLE browserTitle AS CHARACTER NO-UNDO.
 
@@ -1520,17 +1521,27 @@ END PROCEDURE.
 
 PROCEDURE startSearch:
   DEFINE VARIABLE sortDisplay AS CHARACTER NO-UNDO.
-
+  IF BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR = 30 THEN
+  BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR = 14.
+  IF VALID-HANDLE(sortcolumnhand) AND sortcolumnhand:LABEL-BGCOLOR = 30 THEN
+  sortcolumnhand:LABEL-BGCOLOR        = 14.
+  
   IF colLabels EQ '' THEN RUN getColLabels.
 
   IF NOT CAN-DO(colLabels,BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL) THEN
   RETURN NO-APPLY.
+  
+    BROWSE {&BROWSE-NAME}:CLEAR-SORT-ARROWS( ) NO-ERROR.
 
   IF sortColumn EQ BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL THEN
-     sortBy = NOT sortBy.
+	ASSIGN
+     sortBy = NOT sortBy
+	 BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:SORT-ASCENDING = sortBy.
+
 
   ASSIGN
     sortColumn = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL
+	BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:SORT-ASCENDING = sortBy
     sortDisplay = TRIM(sortColumn + ' - ' + STRING(sortBy,'Ascending/Descending'))
     &IF DEFINED(noSortByField) EQ 0 &THEN
     fi_sortBy:SCREEN-VALUE IN FRAME {&FRAME-NAME} = sortDisplay
@@ -1544,9 +1555,17 @@ PROCEDURE startSearch:
     lv-search
     &ENDIF
     .
+
   IF browserTitle NE '' THEN
   BROWSE {&BROWSE-NAME}:TITLE = browserTitle + ' (sorted by: ' + sortDisplay + ')'.
+
   RUN openQuery.
+
+  BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL-BGCOLOR = 30.
+
+ASSIGN
+    sortColumn = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL
+	sortcolumnhand = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN.
 END PROCEDURE.
 
 /* Sort removed from b-cusinq 'Date' */

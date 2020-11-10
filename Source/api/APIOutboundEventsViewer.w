@@ -486,6 +486,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 C-Win
 ON START-SEARCH OF BROWSE-2 IN FRAME DEFAULT-FRAME
 DO:
+	{methods/template/sortindicator.i} 
     IF SELF:CURRENT-COLUMN:NAME EQ "retryEvent" THEN DO:
         lReTrigger = NOT lReTrigger.
         
@@ -500,6 +501,7 @@ DO:
                                         
         {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}    
     END.    
+	{methods/template/sortindicatorend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */

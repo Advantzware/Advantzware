@@ -2650,6 +2650,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sysCtrlBrowse C-Win
 ON START-SEARCH OF sysCtrlBrowse IN FRAME DEFAULT-FRAME
 DO:
+	{methods/template/sortindicator.i} 
     IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
         cColumnLabel[1] = BROWSE sysCtrlBrowse:CURRENT-COLUMN:NAME.
         IF cColumnLabel[1] EQ cSaveLabel[1] THEN
@@ -2657,6 +2658,7 @@ DO:
         cSaveLabel[1] = cColumnLabel[1].
         RUN pReopenBrowse.
     END.
+	{methods/template/sortindicatorend.i} 
     RETURN NO-APPLY.
 END.
 
@@ -2715,6 +2717,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sysCtrlShipToBrowse C-Win
 ON START-SEARCH OF sysCtrlShipToBrowse IN FRAME formsFrame
 DO:
+	{methods/template/sortindicator.i} 
     IF SELF:CURRENT-COLUMN:NAME NE ? THEN DO:
         cColumnLabel[2] = BROWSE sysCtrlShipToBrowse:CURRENT-COLUMN:NAME.
         IF cColumnLabel[2] EQ cSaveLabel[2] THEN
@@ -2722,6 +2725,7 @@ DO:
         cSaveLabel[2] = cColumnLabel[2].
         RUN pReopenShipToBrowse.
     END.
+	{methods/template/sortindicatorend.i} 
     RETURN NO-APPLY.
 END.
 

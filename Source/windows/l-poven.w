@@ -334,6 +334,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON START-SEARCH OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
+  {methods/template/sortindicator.i} 
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -354,6 +355,7 @@ DO:
 
   /*APPLY "open_query" TO BROWSE {&browse-name}.*/
   {&open-query-{&browse-name}}
+  {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */

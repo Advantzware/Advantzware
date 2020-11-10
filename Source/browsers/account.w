@@ -404,6 +404,7 @@ lCommReport EQ NO)"
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
 DO:
+	{methods/template/sortindicator.i}
     IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
         ASSIGN
             cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME
@@ -414,6 +415,7 @@ DO:
         cSaveLabel = cColumnLabel.
         RUN pReopenBrowse.
     END.
+	{methods/template/sortindicatorend.i}
     RETURN NO-APPLY.
 END.
 

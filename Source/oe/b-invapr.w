@@ -599,6 +599,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON START-SEARCH OF br_table IN FRAME F-Main
 DO:
+{methods/template/sortindicator.i} 
   DEF VAR sortDisplay AS CHAR.
   RUN setChecked.
   /* User clicked on column heading so don't change selection */
@@ -621,7 +622,7 @@ DO:
   fi_sortBy:SCREEN-VALUE IN FRAME {&FRAME-NAME} = sortDisplay.
 
   /* ll-sort-asc = sortby. */
-
+{methods/template/sortindicatorend.i} 
 
 END.
 

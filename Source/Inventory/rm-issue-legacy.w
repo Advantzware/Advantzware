@@ -565,6 +565,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-table W-Win
 ON START-SEARCH OF br-table IN FRAME F-Main
 DO:
+	{methods/template/sortindicator.i} 
     IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
         cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
         IF cColumnLabel EQ cSaveLabel THEN
@@ -579,6 +580,7 @@ DO:
             .
         RUN pReopenBrowse.
     END.
+	{methods/template/sortindicatorend.i} 
     RETURN NO-APPLY.  
 END.
 

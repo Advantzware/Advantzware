@@ -631,6 +631,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON START-SEARCH OF br_table IN FRAME F-Main
 DO:
+  {methods/template/sortindicator.i} 
   DEF VAR sortDisplay AS CHAR.
   /* User clicked on column heading so don't change selection */
   ASSIGN fi_sortby.
@@ -653,7 +654,7 @@ DO:
 
   /* ll-sort-asc = sortby. */
 
-
+{methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */

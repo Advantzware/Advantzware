@@ -890,6 +890,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL r_table B-table-Win
 ON START-SEARCH OF r_table IN FRAME F-Main
 DO:
+  {methods/template/sortindicator.i} 
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
@@ -907,6 +908,7 @@ DO:
 
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
   RUN dispatch ("open-query").
+  {methods/template/sortindicatorend.i} 
 
 END.
 

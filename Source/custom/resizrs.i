@@ -50,14 +50,19 @@ END.
 
 ON 'WINDOW-RESIZED':U OF {&WINDOW-NAME}
     DO:
+        
         DEFINE VARIABLE cSmartObjList AS CHARACTER NO-UNDO.
         DEFINE VARIABLE iCnt          AS INTEGER   NO-UNDO.
-        DEFINE VARIABLE hTempHand         AS HANDLE    NO-UNDO.
+        DEFINE VARIABLE hTempHand     AS HANDLE    NO-UNDO.
         DEFINE VARIABLE deRowPos      AS DECIMAL   NO-UNDO.
         DEFINE VARIABLE deColPos      AS DECIMAL   NO-UNDO.
         DEFINE VARIABLE deWidth       AS DECIMAL   NO-UNDO.
         DEFINE VARIABLE deDelta       AS DECIMAL   NO-UNDO.
-        DEFINE VARIABLE deHeight      AS DECIMAL   NO-UNDO.    
+        DEFINE VARIABLE deHeight      AS DECIMAL   NO-UNDO.  
+        
+        IF deOrigWinWidth > {&WINDOW-NAME}:WIDTH THEN
+            {&WINDOW-NAME}:WIDTH = deOrigWinWidth.
+          
         deDelta =  {&WINDOW-NAME}:WIDTH - FRAME {&FRAME-NAME}:WIDTH.
         
         FRAME {&FRAME-NAME}:WIDTH                 = {&WINDOW-NAME}:WIDTH.
@@ -86,92 +91,92 @@ ON 'WINDOW-RESIZED':U OF {&WINDOW-NAME}
             ).
             
         DO iCnt = 1 TO NUM-ENTRIES(cSmartObjList,","): 
+                   
             &IF DEFINED (h_Object01) <> 0 &THEN
-            IF STRING({&h_Object01}) = entry(iCnt,cSmartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object01}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object02) <> 0 &THEN
-            IF STRING({&h_Object02}) = entry(iCnt,cSmartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object02}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object03) <> 0 &THEN
-            IF STRING({&h_Object03}) = entry(iCnt,cSmartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object03}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object04) <> 0 &THEN
-            IF STRING({&h_Object04}) = entry(iCnt,cSmartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object04}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object05) <> 0 &THEN
-            IF STRING({&h_Object05}) = entry(iCnt,cSmartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object05}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object06) <> 0 &THEN
-            IF STRING({&h_Object06}) = entry(iCnt,cSmartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object06}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object07) <> 0 &THEN
-            IF STRING({&h_Object07}) = entry(iCnt,cSmartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object07}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object08) <> 0 &THEN
-            IF STRING({&h_Object08}) = entry(iCnt,cSmartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object08}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object09) <> 0 &THEN
-            IF STRING({&h_Object09}) = entry(iCnt,cSmartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object09}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object10) <> 0 &THEN
-            IF STRING({&h_Object05}) = entry(iCnt,cSmartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object05}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object11) <> 0 &THEN
-            IF STRING({&h_Object11}) = entry(iCnt,cSmartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object11}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object12) <> 0 &THEN
-            IF STRING({&h_Object12}) = entry(iCnt,cSmartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object12}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object13) <> 0 &THEN
-            IF STRING({&h_Object13}) = entry(iCnt,cSmartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object13}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object14) <> 0 &THEN
-            IF STRING({&h_Object14}) = entry(iCnt,cSmartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object14}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object15) <> 0 &THEN
-            IF STRING({&h_Object15}) = entry(iCnt,cSmartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object15}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object16) <> 0 &THEN
-            IF STRING({&h_Object16}) = entry(iCnt,cSmartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object16}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object17) <> 0 &THEN
-            IF STRING({&h_Object17}) = entry(iCnt,cSmartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object17}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object18) <> 0 &THEN
-            IF STRING({&h_Object18}) = entry(iCnt,cSmartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object18}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object19) <> 0 &THEN
-            IF STRING({&h_Object19}) = entry(iCnt,cSmartObjList,",")  
-                THEN NEXT.
+                IF STRING({&h_Object19}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
             &ENDIF
             &IF DEFINED (h_Object20) <> 0 &THEN
-            IF STRING({&h_Object20}) = entry(iCnt,cSmartObjList,",")  
-                THEN NEXT.
-            &ENDIF        
+                IF STRING({&h_Object20}) = entry(iCnt,cSmartObjList,",")  
+                    THEN NEXT.
+            &ENDIF     
     
             hTempHand = HANDLE(ENTRY(iCnt,cSmartObjList,",")).
       
             IF VALID-HANDLE(hTempHand) AND
                (LOOKUP( "nav-browse-identIFier", hTempHand:INTERNAL-ENTRIES, ",")  > 0 OR
-                LOOKUP( "browse-identifier",     hTempHand:INTERNAL-ENTRIES, ",")  > 0 OR
                 LOOKUP( "panel-identifier",      hTempHand:INTERNAL-ENTRIES, ",")  > 0 OR
                 LOOKUP( "viewer-identifier",     hTempHand:INTERNAL-ENTRIES, ",")  > 0 OR
                 LOOKUP( "count-buttons",         hTempHand:INTERNAL-ENTRIES, ",")  > 0 OR
@@ -191,25 +196,34 @@ ON 'WINDOW-RESIZED':U OF {&WINDOW-NAME}
                     ) NO-ERROR.
             END.
             ELSE IF LOOKUP( "browse-identifier",hTempHand:INTERNAL-ENTRIES, ",") > 0 THEN
-            DO:
+            DO:              
                 RUN get-size IN hTempHand (
                     OUTPUT deHeight ,
-                    OUTPUT deWidth 
-                    ) NO-ERROR. 
-                RUN set-size IN hTempHand ( 
+                    OUTPUT deWidth   
+                    ) NO-ERROR.
+                &IF DEFINED(h_Browse01) NE 0 &THEN
+                    IF VALID-HANDLE(HANDLE(STRING({&h_Browse01}))) THEN 
+                        RUN winReSize IN HANDLE(STRING({&h_Browse01})) (0,deDelta) NO-ERROR.
+                &ENDIF
+                &IF DEFINED(h_Browse02) NE 0 &THEN
+                    IF VALID-HANDLE(HANDLE(STRING({&h_Browse02}))) THEN 
+                        RUN winReSize IN HANDLE(STRING({&h_Browse02})) (0,deDelta) NO-ERROR.
+                &ENDIF
+                &IF DEFINED(h_Browse03) NE 0 &THEN
+                    IF VALID-HANDLE(HANDLE(STRING({&h_Browse03}))) THEN 
+                        RUN winReSize IN HANDLE(STRING({&h_Browse03})) (0,deDelta) NO-ERROR.
+                &ENDIF
+                                
+              /*  RUN set-size IN hTempHand ( 
                     INPUT deHeight , 
                     INPUT deWidth + deDelta 
-                    ) NO-ERROR.
+                    ) NO-ERROR.  */              
             END.
             ELSE 
-            DO:
+            DO:            
                 RUN get-position IN hTempHand ( 
                     OUTPUT deRowPos ,
                     OUTPUT deColPos
-                    ) NO-ERROR.         
-                RUN get-size IN hTempHand (
-                    OUTPUT deHeight , 
-                    OUTPUT deWidth 
                     ) NO-ERROR. 
                 RUN set-position IN hTempHand ( 
                     INPUT deRowPos , 

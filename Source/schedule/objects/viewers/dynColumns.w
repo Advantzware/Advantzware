@@ -635,12 +635,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseJob Dialog-Frame
 ON START-SEARCH OF browseJob IN FRAME Dialog-Frame /* Browser Columns */
 DO:
+ {methods/template/sortindicator.i} 
   ASSIGN
     currentColumn = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN
     selectedColumn:SCREEN-VALUE = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:LABEL + ' (' +
          (IF BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME EQ ? THEN 'calcTimeField'
           ELSE BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME) + ')'
     .
+	{methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */

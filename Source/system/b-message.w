@@ -490,6 +490,7 @@ ON ROW-LEAVE OF Browser-Table IN FRAME F-Main
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON START-SEARCH OF Browser-Table IN FRAME F-Main
     DO:
+		{methods/template/sortindicator.i} 
         /*RUN startSearch.*/
         DEFINE VARIABLE lh-column     AS HANDLE    NO-UNDO.
         DEFINE VARIABLE lv-column-nam AS CHARACTER NO-UNDO.
@@ -508,6 +509,7 @@ ON START-SEARCH OF Browser-Table IN FRAME F-Main
 
         APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
         RUN dispatch ("open-query").
+		{methods/template/sortindicatorend.i} 
   
     END.
 

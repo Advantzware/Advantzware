@@ -97,7 +97,65 @@ FIND FIRST company NO-LOCK WHERE company.company EQ g_company NO-ERROR .
 {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " + string(company.name) + " - " + g_loc  .
  
 ON WINDOW-MAXIMIZED OF {&WINDOW-NAME} DO:
+
+    DEFINE VARIABLE cSmartObjList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCnt          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE hTempHand     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE deRowPos      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE deColPos      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE deWidth       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE deDelta       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE deHeight      AS DECIMAL   NO-UNDO.  
+          
+    deDelta =  {&WINDOW-NAME}:WIDTH - FRAME {&FRAME-NAME}:WIDTH.
+        
   RUN winReSize.
+  
+    hTempHand = FRAME {&FRAME-NAME}:handle.
+    hTempHand = hTempHand:FIRST-CHILD .
+    IF hTempHand:TYPE = "FIELD-GROUP" THEN  
+        hTempHand  = hTempHand:FIRST-CHILD.
+            
+    REPEAT WHILE VALID-HANDLE(hTempHand):
+        IF hTempHand:TYPE = "frame" AND 
+            hTempHand:NAME = "OPTIONS-FRAME"  THEN
+            ASSIGN
+                hTempHand:WIDTH                 = {&WINDOW-NAME}:WIDTH
+                hTempHand:VIRTUAL-HEIGHT-PIXELS = hTempHand:HEIGHT-PIXELS
+                hTempHand:VIRTUAL-WIDTH-PIXELS  = hTempHand:WIDTH-PIXELS 
+                no-error.
+        hTempHand = hTempHand:NEXT-SIBLING.
+    END.
+           
+    RUN getlinktable IN adm-broker-hdl(
+        INPUT THIS-PROCEDURE:UNIQUE-ID, 
+        OUTPUT cSmartObjList
+        ).
+            
+    DO iCnt = 1 TO NUM-ENTRIES(cSmartObjList,","): 
+            hTempHand = HANDLE(ENTRY(iCnt,cSmartObjList,",")).
+      
+        IF VALID-HANDLE(hTempHand) AND
+           (LOOKUP( "nav-browse-identIFier", hTempHand:INTERNAL-ENTRIES, ",")  > 0 OR
+            LOOKUP( "browse-identifier",     hTempHand:INTERNAL-ENTRIES, ",")  > 0 OR
+            LOOKUP( "panel-identifier",      hTempHand:INTERNAL-ENTRIES, ",")  > 0 OR
+            LOOKUP( "viewer-identifier",     hTempHand:INTERNAL-ENTRIES, ",")  > 0 OR
+            LOOKUP( "count-buttons",         hTempHand:INTERNAL-ENTRIES, ",")  > 0 OR
+            THIS-PROCEDURE:FILE-NAME =  hTempHand:NAME                             OR
+            hTempHand:NAME = "smartobj/smartmsg.w")                                OR
+            INDEX(hTempHand:INTERNAL-ENTRIES, "folder")  > 0 
+            THEN NEXT.   
+           
+                RUN get-position IN hTempHand ( 
+                    OUTPUT deRowPos ,
+                    OUTPUT deColPos
+                    ) NO-ERROR.         
+                RUN set-position IN hTempHand ( 
+                    INPUT deRowPos , 
+                    INPUT deColPos + deDelta 
+                    ) NO-ERROR. 
+    END.  
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */

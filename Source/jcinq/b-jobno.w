@@ -404,6 +404,7 @@ DO:
     MESSAGE '{&for-each1} USE-INDEX job-no NO-LOCK , {&for-each2}  {&sortby-phrase-asc}' 
          VIEW-AS ALERT-BOX.
     */
+	{methods/template/sortindicator.i} 
     DEF VAR lv-field AS cha NO-UNDO.
     DEF VAR lv-handle AS HANDLE NO-UNDO.
 
@@ -413,6 +414,7 @@ DO:
 
     QUERY {&browse-name}:query-prepare('for each rowobject ' ).
     QUERY {&browse-name}:QUERY-OPEN().
+	{methods/template/sortindicatorend.i} 
 
 END.
 

@@ -807,6 +807,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttblEstOp C-Win
 ON START-SEARCH OF ttblEstOp IN FRAME DEFAULT-FRAME
 DO:
+  {methods/template/sortindicator.i} 
   CASE ttblEstOp:CURRENT-COLUMN:NAME:
     WHEN 'mCode' THEN DO:
       ASSIGN
@@ -876,6 +877,7 @@ DO:
     END. /* mrStd */
   END CASE.
   {&OPEN-QUERY-ttblEstOp}
+  {methods/template/sortindicatorend.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */

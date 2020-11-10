@@ -20,11 +20,14 @@
 /* ***************************  Definitions  ************************** */
 
 &if defined(exclude-brw-custom) = 0 &then
-DEFINE VARIABLE hColumn      AS WIDGET-HANDLE NO-UNDO.
-DEFINE VARIABLE cColHandList AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE iCnt         AS INTEGER NO-UNDO. 
-DEFINE VARIABLE cTemp        AS CHARACTER  NO-UNDO. 
-
+DEFINE VARIABLE hColumn          AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE cColHandList     AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE iCnt             AS INTEGER NO-UNDO. 
+DEFINE VARIABLE cTemp            AS CHARACTER  NO-UNDO. 
+DEFINE VARIABLE hCurrentColumn   AS WIDGET-HANDLE NO-UNDO. 
+DEFINE VARIABLE hPrevColumn      AS WIDGET-HANDLE NO-UNDO. 
+DEFINE VARIABLE lsortBy          AS LOGICAL INITIAL TRUE NO-UNDO.
+DEFINE VARIABLE deOrigWinWidth   AS DECIMAL NO-UNDO.
 &global-define exclude-brw-custom true
 &endif
 
