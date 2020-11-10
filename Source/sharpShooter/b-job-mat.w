@@ -13,7 +13,7 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: inventory\b-job-mat.w
+  File: sharpshooter/b-job-mat.w
 
   Description: SmartBrowser for job-mat table
 
@@ -81,19 +81,22 @@ DELETE OBJECT hdPgmSecurity.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR job.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES job-mat
+&Scoped-define INTERNAL-TABLES job-mat item
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table job-mat.rm-i-no job-mat.qty job-mat.qty-uom job-mat.wid job-mat.len job-mat.n-up job-mat.qty-iss   
+&Scoped-define FIELDS-IN-QUERY-br_table job-mat.frm job-mat.blank-no job-mat.rm-i-no item.i-dscr job-mat.qty job-mat.qty-iss job-mat.qty-uom   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH job-mat WHERE job-mat.company EQ job.company   AND job-mat.job     EQ job.job   AND job-mat.job-no  EQ job.job-no   AND job-mat.job-no2 EQ job.job-no2 USE-INDEX seq-idx NO-LOCK     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH job-mat WHERE job-mat.company EQ job.company   AND job-mat.job     EQ job.job   AND job-mat.job-no  EQ job.job-no   AND job-mat.job-no2 EQ job.job-no2 USE-INDEX seq-idx NO-LOCK     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-br_table job-mat
+&Scoped-define QUERY-STRING-br_table FOR EACH job-mat WHERE job-mat.company EQ job.company   AND job-mat.job     EQ job.job   AND job-mat.job-no  EQ job.job-no   AND job-mat.job-no2 EQ job.job-no2 USE-INDEX seq-idx NO-LOCK, ~
+       FIRST item NO-LOCK WHERE item.company EQ job-mat.company   AND item.i-no    EQ job-mat.rm-i-no     ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH job-mat WHERE job-mat.company EQ job.company   AND job-mat.job     EQ job.job   AND job-mat.job-no  EQ job.job-no   AND job-mat.job-no2 EQ job.job-no2 USE-INDEX seq-idx NO-LOCK, ~
+       FIRST item NO-LOCK WHERE item.company EQ job-mat.company   AND item.i-no    EQ job-mat.rm-i-no     ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-br_table job-mat item
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table job-mat
+&Scoped-define SECOND-TABLE-IN-QUERY-br_table item
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -158,20 +161,21 @@ RUN set-attribute-list (
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
-      job-mat SCROLLING.
+      job-mat, 
+      item SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      job-mat.rm-i-no FORMAT "x(10)":U WIDTH 40
-      job-mat.qty FORMAT ">,>>>,>>9.9<<<<<":U WIDTH 30
+      job-mat.frm COLUMN-LABEL "Form" FORMAT "99" WIDTH 10
+      job-mat.blank-no COLUMN-LABEL "Blank" FORMAT "99" WIDTH 10
+      job-mat.rm-i-no COLUMN-LABEL "Item No" WIDTH 35
+      item.i-dscr COLUMN-LABEL "Item Description" WIDTH 55
+      job-mat.qty COLUMN-LABEL "Required" FORMAT ">,>>>,>>9.9<<<<<":U WIDTH 27
+      job-mat.qty-iss COLUMN-LABEL "Issued" FORMAT "->>,>>9.99<<<<":U WIDTH 27
       job-mat.qty-uom FORMAT "x(3)":U WIDTH 18 COLUMN-LABEL "Qty!UOM"
-      job-mat.wid FORMAT ">>9.99<<":U WIDTH 18
-      job-mat.len FORMAT ">>9.99<<":U WIDTH 18
-      job-mat.n-up COLUMN-LABEL "#  Up" FORMAT ">>9":U WIDTH 18
-      job-mat.qty-iss FORMAT "->>,>>9.99<<<<":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 178 BY 18.48
@@ -258,7 +262,10 @@ WHERE job-mat.company EQ job.company
   AND job-mat.job     EQ job.job
   AND job-mat.job-no  EQ job.job-no
   AND job-mat.job-no2 EQ job.job-no2
-USE-INDEX seq-idx NO-LOCK
+USE-INDEX seq-idx NO-LOCK,
+FIRST item NO-LOCK
+WHERE item.company EQ job-mat.company
+  AND item.i-no    EQ job-mat.rm-i-no
     ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
@@ -411,8 +418,11 @@ PROCEDURE IssueQuantity :
     IF NOT lHasAccess THEN
         RETURN.
 
-    IF AVAILABLE job-mat THEN DO:
+    IF AVAILABLE job-mat AND AVAILABLE item THEN DO:
         RUN inventory/adjustQuantityIssue.w (
+            INPUT  item.i-no,
+            INPUT  item.i-name,
+            INPUT  job-mat.qty-iss,
             INPUT  job-mat.qty,
             INPUT  TRUE, /* Required Adj Reason  */
             INPUT  TRUE,  /* Allow decimal units */
@@ -468,6 +478,7 @@ PROCEDURE send-records :
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "job"}
   {src/adm/template/snd-list.i "job-mat"}
+  {src/adm/template/snd-list.i "item"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

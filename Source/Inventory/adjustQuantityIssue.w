@@ -5,7 +5,7 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
 
-  File: inventory/adjustQuantity.w
+  File: inventory/adjustQuantityIssue.w
 
   Description: Calculator Numpad
 
@@ -18,7 +18,7 @@
 
   Author: Mithun Porandla
 
-  Created: 04/30/2019
+  Created: 11/04/2020
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
@@ -26,16 +26,14 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
+DEFINE INPUT  PARAMETER ipcItemID           AS CHARACTER  NO-UNDO.
+DEFINE INPUT  PARAMETER ipcItemName         AS CHARACTER  NO-UNDO.
+DEFINE INPUT  PARAMETER ipdIssueQuantity    AS DECIMAL    NO-UNDO.
 DEFINE INPUT  PARAMETER ipdTotalQuantity    AS DECIMAL    NO-UNDO.
-DEFINE INPUT  PARAMETER ipdSubUnitCount     AS DECIMAL    NO-UNDO.
-DEFINE INPUT  PARAMETER ipdSubUnitsPerUnit  AS DECIMAL    NO-UNDO.
 DEFINE INPUT  PARAMETER iplReqAdjReason     AS LOGICAL    NO-UNDO.
-DEFINE INPUT  PARAMETER iplDisplayUnits     AS LOGICAL    NO-UNDO.
 DEFINE INPUT  PARAMETER iplAllowFractions   AS LOGICAL    NO-UNDO.
 DEFINE OUTPUT PARAMETER opdTotalQuantity    AS DECIMAL    NO-UNDO.
-DEFINE OUTPUT PARAMETER opdSubUnitCount     AS DECIMAL    NO-UNDO.
-DEFINE OUTPUT PARAMETER opdSubUnitsPerUnit  AS DECIMAL    NO-UNDO.
-DEFINE OUTPUT PARAMETER opdPartialQuantity  AS DECIMAL    NO-UNDO.
+DEFINE OUTPUT PARAMETER opcAdjustType       AS CHARACTER  NO-UNDO.
 DEFINE OUTPUT PARAMETER opcAdjReasonCode    AS CHARACTER  NO-UNDO.
 DEFINE OUTPUT PARAMETER oplValueReturned    AS LOGICAL    NO-UNDO.
 DEFINE OUTPUT PARAMETER opdValue            AS DECIMAL    NO-UNDO.
@@ -51,7 +49,6 @@ DEFINE VARIABLE cRtnChar         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lReqReasonCode   AS LOGICAL   NO-UNDO.
 
-{inventory/ttInventory.i "NEW SHARED"}
 {custom/globdefs.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -69,15 +66,13 @@ DEFINE VARIABLE lReqReasonCode   AS LOGICAL   NO-UNDO.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-30 RECT-31 fiTotalQty fiSubUnits btnDel ~
-btnClear btnDiv fiSubUnitCount btn7 btn8 btn9 btnMult fiSubUnitsPerUnit ~
-btn4 btn5 btn6 btnMinus btn1 btn2 btn3 btnPlus fiPartial btnZero btnPeriod ~
-btnEqual Btn_OK Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiText fiTotalQtyLabel fiTotalQty fiResult ~
-fiSubUnitsLabel fiSubUnits fiSubUnitCountLabel fiSubUnitCount ~
-fiSubUnitsPerUnitLabel fiSubUnitsPerUnit fiUnitCountLabel fiUnitCount ~
-fiPartialLabel fiPartial fiUnitsLabel fiUnits fiReasonCodeLabel ~
-cbReasonCode 
+&Scoped-Define ENABLED-OBJECTS RECT-30 RECT-31 RECT-32 btnDel btnClear ~
+btnDiv btn7 btn8 btn9 btnMult rsAdjustType btn4 btn5 btn6 btnMinus ~
+fiTotalQty btn1 btn2 btn3 btnPlus btnZero btnPeriod btnEqual Btn_OK ~
+Btn_Cancel 
+&Scoped-Define DISPLAYED-OBJECTS fiText fiItem fiResult fiItemName ~
+fiQtyIssue fiQtyReq rsAdjustType fiTotalQtyLabel fiTotalQty ~
+fiReasonCodeLabel cbReasonCode 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -198,14 +193,28 @@ DEFINE VARIABLE cbReasonCode AS CHARACTER FORMAT "X(256)":U
      SIZE 61.4 BY 1
      FONT 36 NO-UNDO.
 
-DEFINE VARIABLE fiPartial AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
+DEFINE VARIABLE fiItem AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Item #" 
      VIEW-AS FILL-IN 
-     SIZE 40 BY 1.43
-     FONT 37 NO-UNDO.
+     SIZE 65 BY 1.43
+     FONT 36 NO-UNDO.
 
-DEFINE VARIABLE fiPartialLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Partial:" 
+DEFINE VARIABLE fiItemName AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Item Name" 
      VIEW-AS FILL-IN 
-     SIZE 11 BY 1.43
+     SIZE 65 BY 1.43
+     FONT 36 NO-UNDO.
+
+DEFINE VARIABLE fiQtyIssue AS DECIMAL FORMAT "->>>,>>>,>>9.99<<<<":U INITIAL 0 
+     LABEL "Qty Issued" 
+     VIEW-AS FILL-IN 
+     SIZE 28.6 BY 1.43
+     FONT 36 NO-UNDO.
+
+DEFINE VARIABLE fiQtyReq AS DECIMAL FORMAT "->>>,>>>,>>9.99<<<<":U INITIAL 0 
+     LABEL "Qty Required" 
+     VIEW-AS FILL-IN 
+     SIZE 28.6 BY 1.43
      FONT 36 NO-UNDO.
 
 DEFINE VARIABLE fiReasonCodeLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Adjust Reason Code:" 
@@ -217,36 +226,6 @@ DEFINE VARIABLE fiResult AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 39.6 BY 1.76
      FONT 37 NO-UNDO.
-
-DEFINE VARIABLE fiSubUnitCount AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 40 BY 1.43
-     FONT 37 NO-UNDO.
-
-DEFINE VARIABLE fiSubUnitCountLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Case/Bundle Count:" 
-     VIEW-AS FILL-IN 
-     SIZE 28.8 BY 1.43
-     FONT 36 NO-UNDO.
-
-DEFINE VARIABLE fiSubUnits AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 40 BY 1.43
-     FONT 37 NO-UNDO.
-
-DEFINE VARIABLE fiSubUnitsLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Case/Bundle:" 
-     VIEW-AS FILL-IN 
-     SIZE 19.4 BY 1.43
-     FONT 36 NO-UNDO.
-
-DEFINE VARIABLE fiSubUnitsPerUnit AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 40 BY 1.43
-     FONT 37 NO-UNDO.
-
-DEFINE VARIABLE fiSubUnitsPerUnitLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Case/Bundle Per Pallet:" 
-     VIEW-AS FILL-IN 
-     SIZE 33.6 BY 1.43
-     FONT 36 NO-UNDO.
 
 DEFINE VARIABLE fiText AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -263,24 +242,12 @@ DEFINE VARIABLE fiTotalQtyLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Total Qu
      SIZE 22.2 BY 1.43
      FONT 36 NO-UNDO.
 
-DEFINE VARIABLE fiUnitCount AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 40 BY 1.43
-     FONT 37 NO-UNDO.
-
-DEFINE VARIABLE fiUnitCountLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Pallet Count:" 
-     VIEW-AS FILL-IN 
-     SIZE 19 BY 1.43
-     FONT 36 NO-UNDO.
-
-DEFINE VARIABLE fiUnits AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
-     VIEW-AS FILL-IN 
-     SIZE 40 BY 1.43
-     FONT 37 NO-UNDO.
-
-DEFINE VARIABLE fiUnitsLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Pallets:" 
-     VIEW-AS FILL-IN 
-     SIZE 11 BY 1.43
+DEFINE VARIABLE rsAdjustType AS CHARACTER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Reduce", "Reduce",
+"Count Remaining", "Count Remaining"
+     SIZE 61 BY 1.43
      FONT 36 NO-UNDO.
 
 DEFINE RECTANGLE RECT-30
@@ -291,54 +258,52 @@ DEFINE RECTANGLE RECT-31
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 41 BY 1.38.
 
+DEFINE RECTANGLE RECT-32
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 102 BY 5.48.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     fiText AT ROW 1.1 COL 144.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 44
-     fiTotalQtyLabel AT ROW 1.95 COL 14.8 COLON-ALIGNED NO-LABEL WIDGET-ID 128
-     fiTotalQty AT ROW 1.95 COL 37.6 COLON-ALIGNED NO-LABEL WIDGET-ID 88
-     fiResult AT ROW 2.57 COL 144.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 50
-     fiSubUnitsLabel AT ROW 3.71 COL 17.6 COLON-ALIGNED NO-LABEL WIDGET-ID 134
-     fiSubUnits AT ROW 3.71 COL 37.6 COLON-ALIGNED NO-LABEL WIDGET-ID 90
-     btnDel AT ROW 4.52 COL 105.2 WIDGET-ID 4 NO-TAB-STOP 
-     btnClear AT ROW 4.52 COL 125.6 WIDGET-ID 2 NO-TAB-STOP 
-     btnDiv AT ROW 4.52 COL 136 WIDGET-ID 6 NO-TAB-STOP 
-     fiSubUnitCountLabel AT ROW 5.52 COL 8.2 COLON-ALIGNED NO-LABEL WIDGET-ID 136
-     fiSubUnitCount AT ROW 5.52 COL 37.6 COLON-ALIGNED NO-LABEL WIDGET-ID 94
-     btn7 AT ROW 6.57 COL 105.2 WIDGET-ID 18 NO-TAB-STOP 
-     btn8 AT ROW 6.57 COL 115.4 WIDGET-ID 10 NO-TAB-STOP 
-     btn9 AT ROW 6.57 COL 125.6 WIDGET-ID 12 NO-TAB-STOP 
-     btnMult AT ROW 6.57 COL 136 WIDGET-ID 14 NO-TAB-STOP 
-     fiSubUnitsPerUnitLabel AT ROW 7.38 COL 5.4 NO-LABEL WIDGET-ID 138
-     fiSubUnitsPerUnit AT ROW 7.38 COL 37.6 COLON-ALIGNED NO-LABEL WIDGET-ID 98
-     btn4 AT ROW 8.67 COL 105.2 WIDGET-ID 20 NO-TAB-STOP 
-     btn5 AT ROW 8.67 COL 115.4 WIDGET-ID 22 NO-TAB-STOP 
-     btn6 AT ROW 8.67 COL 125.6 WIDGET-ID 24 NO-TAB-STOP 
-     btnMinus AT ROW 8.67 COL 136 WIDGET-ID 26 NO-TAB-STOP 
-     fiUnitCountLabel AT ROW 9.19 COL 18.2 COLON-ALIGNED NO-LABEL WIDGET-ID 140
-     fiUnitCount AT ROW 9.19 COL 37.6 COLON-ALIGNED NO-LABEL WIDGET-ID 102
-     btn1 AT ROW 10.71 COL 105.2 WIDGET-ID 28 NO-TAB-STOP 
-     btn2 AT ROW 10.71 COL 115.4 WIDGET-ID 30 NO-TAB-STOP 
-     btn3 AT ROW 10.71 COL 125.6 WIDGET-ID 32 NO-TAB-STOP 
-     btnPlus AT ROW 10.76 COL 136 WIDGET-ID 34 NO-TAB-STOP 
-     fiPartialLabel AT ROW 11.1 COL 26.2 COLON-ALIGNED NO-LABEL WIDGET-ID 142
-     fiPartial AT ROW 11.1 COL 37.6 COLON-ALIGNED NO-LABEL WIDGET-ID 106
-     btnZero AT ROW 12.81 COL 105.2 WIDGET-ID 38 NO-TAB-STOP 
-     btnPeriod AT ROW 12.81 COL 125.6 WIDGET-ID 40 NO-TAB-STOP 
-     btnEqual AT ROW 12.81 COL 136 WIDGET-ID 42 NO-TAB-STOP 
-     fiUnitsLabel AT ROW 12.91 COL 26 COLON-ALIGNED NO-LABEL WIDGET-ID 144
-     fiUnits AT ROW 12.91 COL 37.6 COLON-ALIGNED NO-LABEL WIDGET-ID 110
-     fiReasonCodeLabel AT ROW 14.57 COL 6.4 COLON-ALIGNED NO-LABEL WIDGET-ID 146
-     cbReasonCode AT ROW 14.67 COL 37.6 COLON-ALIGNED NO-LABEL WIDGET-ID 114
-     Btn_OK AT ROW 15.24 COL 105.4
-     Btn_Cancel AT ROW 15.24 COL 131
-     RECT-30 AT ROW 2.48 COL 105 WIDGET-ID 52
-     RECT-31 AT ROW 1 COL 105 WIDGET-ID 54
-     SPACE(4.39) SKIP(14.86)
+     fiText AT ROW 1.33 COL 144.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 44
+     fiItem AT ROW 1.71 COL 20 COLON-ALIGNED WIDGET-ID 152
+     fiResult AT ROW 2.81 COL 144.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 50
+     fiItemName AT ROW 3.24 COL 20 COLON-ALIGNED WIDGET-ID 154
+     btnDel AT ROW 4.76 COL 105.2 WIDGET-ID 4 NO-TAB-STOP 
+     btnClear AT ROW 4.76 COL 125.6 WIDGET-ID 2 NO-TAB-STOP 
+     btnDiv AT ROW 4.76 COL 136 WIDGET-ID 6 NO-TAB-STOP 
+     fiQtyIssue AT ROW 4.81 COL 20 COLON-ALIGNED WIDGET-ID 156
+     fiQtyReq AT ROW 4.81 COL 71 COLON-ALIGNED WIDGET-ID 158
+     btn7 AT ROW 6.81 COL 105.2 WIDGET-ID 18 NO-TAB-STOP 
+     btn8 AT ROW 6.81 COL 115.4 WIDGET-ID 10 NO-TAB-STOP 
+     btn9 AT ROW 6.81 COL 125.6 WIDGET-ID 12 NO-TAB-STOP 
+     btnMult AT ROW 6.81 COL 136 WIDGET-ID 14 NO-TAB-STOP 
+     rsAdjustType AT ROW 7.43 COL 18.6 NO-LABEL WIDGET-ID 148
+     btn4 AT ROW 8.91 COL 105.2 WIDGET-ID 20 NO-TAB-STOP 
+     btn5 AT ROW 8.91 COL 115.4 WIDGET-ID 22 NO-TAB-STOP 
+     btn6 AT ROW 8.91 COL 125.6 WIDGET-ID 24 NO-TAB-STOP 
+     btnMinus AT ROW 8.91 COL 136 WIDGET-ID 26 NO-TAB-STOP 
+     fiTotalQtyLabel AT ROW 9.38 COL 14.4 COLON-ALIGNED NO-LABEL WIDGET-ID 128
+     fiTotalQty AT ROW 9.38 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 88
+     fiReasonCodeLabel AT ROW 10.91 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 146
+     btn1 AT ROW 10.95 COL 105.2 WIDGET-ID 28 NO-TAB-STOP 
+     btn2 AT ROW 10.95 COL 115.4 WIDGET-ID 30 NO-TAB-STOP 
+     btn3 AT ROW 10.95 COL 125.6 WIDGET-ID 32 NO-TAB-STOP 
+     cbReasonCode AT ROW 11 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 114
+     btnPlus AT ROW 11 COL 136 WIDGET-ID 34 NO-TAB-STOP 
+     btnZero AT ROW 13.05 COL 105.2 WIDGET-ID 38 NO-TAB-STOP 
+     btnPeriod AT ROW 13.05 COL 125.6 WIDGET-ID 40 NO-TAB-STOP 
+     btnEqual AT ROW 13.05 COL 136 WIDGET-ID 42 NO-TAB-STOP 
+     Btn_OK AT ROW 15.48 COL 105.4
+     Btn_Cancel AT ROW 15.48 COL 131
+     RECT-30 AT ROW 2.71 COL 105 WIDGET-ID 52
+     RECT-31 AT ROW 1.24 COL 105 WIDGET-ID 54
+     RECT-32 AT ROW 1.24 COL 2 WIDGET-ID 160
+     SPACE(46.39) SKIP(11.03)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         BGCOLOR 15 
+         BGCOLOR 15 FONT 36
          TITLE "Insert Value"
          DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
 
@@ -366,7 +331,13 @@ ASSIGN
 
 /* SETTINGS FOR COMBO-BOX cbReasonCode IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiPartialLabel IN FRAME Dialog-Frame
+/* SETTINGS FOR FILL-IN fiItem IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiItemName IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiQtyIssue IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiQtyReq IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiReasonCodeLabel IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
@@ -375,26 +346,12 @@ ASSIGN
 ASSIGN 
        fiResult:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
-/* SETTINGS FOR FILL-IN fiSubUnitCountLabel IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiSubUnitsLabel IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiSubUnitsPerUnitLabel IN FRAME Dialog-Frame
-   NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN fiText IN FRAME Dialog-Frame
    NO-ENABLE ALIGN-R                                                    */
 ASSIGN 
        fiText:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
 /* SETTINGS FOR FILL-IN fiTotalQtyLabel IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiUnitCount IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiUnitCountLabel IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiUnits IN FRAME Dialog-Frame
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiUnitsLabel IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -558,7 +515,8 @@ DO:
     IF LENGTH(fiResult:SCREEN-VALUE) > 0 THEN
         ASSIGN
             fiResult:SCREEN-VALUE     = SUBSTRING(fiResult:SCREEN-VALUE,1, LENGTH(fiResult:SCREEN-VALUE) - 1)
-            hdEntryField:SCREEN-VALUE = fiResult:SCREEN-VALUE.
+            hdEntryField:SCREEN-VALUE = fiResult:SCREEN-VALUE
+            .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -711,155 +669,11 @@ DO:
     
     ASSIGN
         opdTotalQuantity   = DECIMAL(fiTotalQty:SCREEN-VALUE)
-        opdSubUnitCount    = DECIMAL(fiSubUnitCount:SCREEN-VALUE)
-        opdSubUnitsPerUnit = DECIMAL(fiSubUnitsPerUnit:SCREEN-VALUE)
-        opdPartialQuantity = DECIMAL(fiPartial:SCREEN-VALUE)
         opcAdjReasonCode   = cbReasonCode:SCREEN-VALUE
         oplValueReturned   = TRUE
         opdValue           = DECIMAL(fiResult:SCREEN-VALUE)
+        opcAdjustType      = rsAdjustType:SCREEN-VALUE
         .  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fiPartial
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPartial Dialog-Frame
-ON ENTRY OF fiPartial IN FRAME Dialog-Frame
-DO:
-    ASSIGN
-        hdEntryField  = SELF:HANDLE
-        cValueChanged = SELF:SCREEN-VALUE.  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPartial Dialog-Frame
-ON LEAVE OF fiPartial IN FRAME Dialog-Frame
-DO:
-    IF cValueChanged NE SELF:SCREEN-VALUE THEN DO:
-        fiTotalQty:SCREEN-VALUE = STRING(
-                                  DYNAMIC-FUNCTION (
-                                  "fCalculateQuantityTotal" IN hdInventoryProcs,
-                                  DECIMAL(fiSubUnits:SCREEN-VALUE),
-                                  DECIMAL(fiSubUnitCount:SCREEN-VALUE),
-                                  DECIMAL(SELF:SCREEN-VALUE)
-                                  )).
-        RUN pCalculateQuantities (
-            DECIMAL(fiTotalQty:SCREEN-VALUE),
-            DECIMAL(fiSubUnitCount:SCREEN-VALUE),
-            DECIMAL(fiSubUnitsPerUnit:SCREEN-VALUE)
-            ).
-    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fiSubUnitCount
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSubUnitCount Dialog-Frame
-ON ENTRY OF fiSubUnitCount IN FRAME Dialog-Frame
-DO:
-    ASSIGN
-        hdEntryField  = SELF:HANDLE
-        cValueChanged = SELF:SCREEN-VALUE.  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSubUnitCount Dialog-Frame
-ON LEAVE OF fiSubUnitCount IN FRAME Dialog-Frame
-DO:
-    SELF:SCREEN-VALUE = STRING(MAX(1,DECIMAL(SELF:SCREEN-VALUE))).
-    
-    IF cValueChanged NE SELF:SCREEN-VALUE THEN DO:
-        ASSIGN
-            fiPartial:SCREEN-VALUE = "0"
-            fiTotalQty:SCREEN-VALUE = STRING(
-                                      DYNAMIC-FUNCTION (
-                                      "fCalculateQuantityTotal" IN hdInventoryProcs,
-                                      DECIMAL(fiSubUnits:SCREEN-VALUE),
-                                      DECIMAL(fiSubUnitCount:SCREEN-VALUE),
-                                      DECIMAL(fiPartial:SCREEN-VALUE)
-                                      )).
-        RUN pCalculateQuantities (
-            DECIMAL(fiTotalQty:SCREEN-VALUE),
-            DECIMAL(fiSubUnitCount:SCREEN-VALUE),
-            DECIMAL(fiSubUnitsPerUnit:SCREEN-VALUE)
-            ).
-    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fiSubUnits
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSubUnits Dialog-Frame
-ON ENTRY OF fiSubUnits IN FRAME Dialog-Frame
-DO:
-    ASSIGN
-        hdEntryField   = SELF:HANDLE
-        cValueChanged  = SELF:SCREEN-VALUE.  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSubUnits Dialog-Frame
-ON LEAVE OF fiSubUnits IN FRAME Dialog-Frame
-DO:    
-    SELF:SCREEN-VALUE = STRING(MAX(1,DECIMAL(SELF:SCREEN-VALUE))).
-    
-    IF cValueChanged NE SELF:SCREEN-VALUE THEN DO:
-        ASSIGN
-            fiPartial:SCREEN-VALUE = "0"
-            fiTotalQty:SCREEN-VALUE = STRING(
-                                      DYNAMIC-FUNCTION (
-                                      "fCalculateQuantityTotal" IN hdInventoryProcs,
-                                      DECIMAL(SELF:SCREEN-VALUE),
-                                      DECIMAL(fiSubUnitCount:SCREEN-VALUE),
-                                      DECIMAL(fiPartial:SCREEN-VALUE)
-                                      )).
-        RUN pCalculateQuantities (
-            DECIMAL(fiTotalQty:SCREEN-VALUE),
-            DECIMAL(fiSubUnitCount:SCREEN-VALUE),
-            DECIMAL(fiSubUnitsPerUnit:SCREEN-VALUE)
-            ).                   
-    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fiSubUnitsPerUnit
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSubUnitsPerUnit Dialog-Frame
-ON ENTRY OF fiSubUnitsPerUnit IN FRAME Dialog-Frame
-DO:
-    hdEntryField = SELF:HANDLE.  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSubUnitsPerUnit Dialog-Frame
-ON LEAVE OF fiSubUnitsPerUnit IN FRAME Dialog-Frame
-DO:
-    SELF:SCREEN-VALUE = STRING(MAX(1,DECIMAL(SELF:SCREEN-VALUE))).
-    RUN pCalculateQuantities (
-        DECIMAL(fiTotalQty:SCREEN-VALUE),
-        DECIMAL(fiSubUnitCount:SCREEN-VALUE),
-        DECIMAL(fiSubUnitsPerUnit:SCREEN-VALUE)
-        ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -870,21 +684,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTotalQty Dialog-Frame
 ON ENTRY OF fiTotalQty IN FRAME Dialog-Frame
 DO:
-    hdEntryField = SELF:HANDLE.  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTotalQty Dialog-Frame
-ON LEAVE OF fiTotalQty IN FRAME Dialog-Frame
-DO:
-    RUN pCalculateQuantities (
-        DECIMAL(fiTotalQty:SCREEN-VALUE),
-        DECIMAL(fiSubUnitCount:SCREEN-VALUE),
-        DECIMAL(fiSubUnitsPerUnit:SCREEN-VALUE)
-        ).    
+    hdEntryField  = SELF:HANDLE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -949,64 +749,15 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiText fiTotalQtyLabel fiTotalQty fiResult fiSubUnitsLabel fiSubUnits 
-          fiSubUnitCountLabel fiSubUnitCount fiSubUnitsPerUnitLabel 
-          fiSubUnitsPerUnit fiUnitCountLabel fiUnitCount fiPartialLabel 
-          fiPartial fiUnitsLabel fiUnits fiReasonCodeLabel cbReasonCode 
+  DISPLAY fiText fiItem fiResult fiItemName fiQtyIssue fiQtyReq rsAdjustType 
+          fiTotalQtyLabel fiTotalQty fiReasonCodeLabel cbReasonCode 
       WITH FRAME Dialog-Frame.
-  ENABLE RECT-30 RECT-31 fiTotalQty fiSubUnits btnDel btnClear btnDiv 
-         fiSubUnitCount btn7 btn8 btn9 btnMult fiSubUnitsPerUnit btn4 btn5 btn6 
-         btnMinus btn1 btn2 btn3 btnPlus fiPartial btnZero btnPeriod btnEqual 
-         Btn_OK Btn_Cancel 
+  ENABLE RECT-30 RECT-31 RECT-32 btnDel btnClear btnDiv btn7 btn8 btn9 btnMult 
+         rsAdjustType btn4 btn5 btn6 btnMinus fiTotalQty btn1 btn2 btn3 btnPlus 
+         btnZero btnPeriod btnEqual Btn_OK Btn_Cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCalculateQuantities Dialog-Frame 
-PROCEDURE pCalculateQuantities :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipdTotalQuantity   AS DECIMAL    NO-UNDO.
-    DEFINE INPUT PARAMETER ipdSubUnitCount    AS DECIMAL    NO-UNDO.
-    DEFINE INPUT PARAMETER ipdSubUnitsPerUnit AS DECIMAL    NO-UNDO.
-    
-    DO WITH FRAME {&FRAME-NAME}:
-    END.
-
-    IF NOT iplDisplayUnits THEN
-        RETURN.
-
-    ASSIGN
-        fiSubUnits:SCREEN-VALUE  = STRING(DYNAMIC-FUNCTION(
-                                       "fCalculateQuantitySubUnits" IN hdInventoryProcs,
-                                       ipdTotalQuantity,
-                                       ipdSubUnitCount)
-                                       )
-        fiUnitCount:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION(
-                                       "fCalculateQuantityUnitCount" IN hdInventoryProcs,
-                                       ipdSubUnitCount,
-                                       ipdSubUnitsPerUnit)
-                                       )
-        fiPartial:SCREEN-VALUE   = STRING(DYNAMIC-FUNCTION(
-                                       "fCalculateQuantityPartialSubUnit" IN hdInventoryProcs,
-                                       ipdTotalQuantity,
-                                       DECIMAL(fiSubUnits:SCREEN-VALUE),
-                                       ipdSubUnitCount)
-                                       )
-        fiUnits:SCREEN-VALUE     = STRING(DYNAMIC-FUNCTION(
-                                       "fCalculateQuantityUnits" IN hdInventoryProcs,
-                                       DECIMAL(fiSubUnits:SCREEN-VALUE),
-                                       ipdSubUnitsPerUnit,
-                                       DECIMAL(fiPartial:SCREEN-VALUE))
-                                       )
-        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1074,40 +825,36 @@ PROCEDURE pInit :
     DEFINE VARIABLE cComboList   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hdReasonCode AS HANDLE    NO-UNDO.
     
+    DEFINE VARIABLE cSSJobInquiryIssue AS CHARACTER NO-UNDO.
+    
     DO WITH FRAME {&FRAME-NAME}:
     END.
+
+    ASSIGN
+        fiItem:SCREEN-VALUE     = ipcItemID
+        fiItemName:SCREEN-VALUE = ipcItemName
+        fiQtyIssue:SCREEN-VALUE = STRING(ipdIssueQuantity)
+        fiQtyReq:SCREEN-VALUE   = STRING(ipdTotalQuantity)
+        .
     
-    IF NOT iplDisplayUnits THEN
-        ASSIGN
-            fiSubUnits:HIDDEN             = TRUE
-            fiSubUnitCount:HIDDEN         = TRUE
-            fiSubUnitsPerUnit:HIDDEN      = TRUE
-            fiUnitCount:HIDDEN            = TRUE
-            fiPartial:HIDDEN              = TRUE
-            fiUnits:HIDDEN                = TRUE
-            fiSubUnitsLabel:HIDDEN        = TRUE
-            fiSubUnitCountLabel:HIDDEN    = TRUE
-            fiSubUnitsPerUnitLabel:HIDDEN = TRUE
-            fiUnitCountLabel:HIDDEN       = TRUE
-            fiPartialLabel:HIDDEN         = TRUE
-            fiUnitsLabel:HIDDEN           = TRUE
-            fiReasonCodeLabel:ROW         = fiSubUnits:ROW
-            cbReasonCode:ROW              = fiSubUnits:ROW
-            .
+    RUN sys/ref/nk1look.p (
+        INPUT  g_company,            /* Company Code */ 
+        INPUT  "SSJobInquiryIssue",  /* sys-ctrl name */
+        INPUT  "C",                  /* Output return value */
+        INPUT  NO,                   /* Use ship-to */
+        INPUT  NO,                   /* ship-to vendor */
+        INPUT  "",                   /* ship-to vendor value */
+        INPUT  "",                   /* ship-id value */
+        OUTPUT cSSJobInquiryIssue, 
+        OUTPUT lRecFound
+        ).
+    
+    IF cSSJobInquiryIssue EQ "Reduce only" THEN
+        rsAdjustType:SENSITIVE = FALSE.
     
     IF NOT iplAllowFractions THEN
-        ASSIGN
-            fiTotalQty:FORMAT           = "->,>>>,>>>,>>9"
-            fiSubUnits:FORMAT           = "->,>>>,>>>,>>9"
-            fiSubUnitCount:FORMAT       = "->,>>>,>>>,>>9"
-            fiSubUnitsPerUnit:FORMAT    = "->,>>>,>>>,>>9"
-            fiUnitCount:FORMAT          = "->,>>>,>>>,>>9"
-            fiPartial:FORMAT            = "->,>>>,>>>,>>9"
-            fiUnits:FORMAT              = "->,>>>,>>>,>>9"
-            NO-ERROR.
+        fiTotalQty:FORMAT = "->,>>>,>>>,>>9" NO-ERROR.
     
-    RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
-
     RUN sys/ref/nk1look.p (
         INPUT  g_company, 
         INPUT  "AdjustReason", 
@@ -1122,18 +869,8 @@ PROCEDURE pInit :
     IF lRecFound THEN
         lReqReasonCode = LOGICAL(cRtnChar) NO-ERROR.
     
-    ASSIGN
-        fiTotalQty:SCREEN-VALUE        = STRING(ipdTotalQuantity)
-        fiSubUnitCount:SCREEN-VALUE    = STRING(MAX(1,ipdSubUnitCount))
-        fiSubUnitsPerUnit:SCREEN-VALUE = STRING(MAX(1,ipdSubUnitsPerUnit))
-        .
+    fiTotalQty:SCREEN-VALUE = STRING(ipdTotalQuantity).
     
-    RUN pCalculateQuantities (
-        DECIMAL(fiTotalQty:SCREEN-VALUE),
-        DECIMAL(fiSubUnitCount:SCREEN-VALUE),
-        DECIMAL(fiSubUnitsPerUnit:SCREEN-VALUE)
-        ).
-
     IF iplReqAdjReason THEN DO:     
         RUN fg/ReasonCode.p PERSISTENT SET hdReasonCode.
         

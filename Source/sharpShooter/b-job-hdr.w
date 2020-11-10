@@ -13,9 +13,9 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: inventory\b-job-mat.w
+  File: sharpshooter\b-job-hdr.w
 
-  Description: SmartBrowser for job-mat table
+  Description: SmartBrowser for job-hdr table
 
   Input Parameters:
       <none>
@@ -40,13 +40,23 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE hdRMInquiry    AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hdRMInquiryWin AS HANDLE    NO-UNDO.
+{inventory/ttInventory.i "NEW SHARED"}
+
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cJobNo   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iJobNo2  AS INTEGER   NO-UNDO.
+
+DEFINE VARIABLE hdFGInquiry    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdFGInquiryWin AS HANDLE    NO-UNDO.
 
 DEFINE VARIABLE lHasAccess AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iTotalRcvd AS INTEGER NO-UNDO.
 
 DEFINE VARIABLE hdPgmSecurity AS HANDLE  NO-UNDO.
 RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmSecurity.
+
+DEFINE VARIABLE hdInventoryProcs AS HANDLE  NO-UNDO.
+RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 RUN epCanAccess IN hdPgmSecurity (
     INPUT  "sharpshooter/b-fgInqBins.w", 
@@ -73,27 +83,26 @@ DELETE OBJECT hdPgmSecurity.
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME br_table
 
-/* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES job
-&Scoped-define FIRST-EXTERNAL-TABLE job
-
-
-/* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR job.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES job-mat
+&Scoped-define INTERNAL-TABLES job-hdr job itemfg
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table job-mat.rm-i-no job-mat.qty job-mat.qty-uom job-mat.wid job-mat.len job-mat.n-up job-mat.qty-iss   
+&Scoped-define FIELDS-IN-QUERY-br_table job-hdr.cust-no job-hdr.i-no job-hdr.qty fGetTotalReceived() @ iTotalRcvd itemfg.q-onh   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH job-mat WHERE job-mat.company EQ job.company   AND job-mat.job     EQ job.job   AND job-mat.job-no  EQ job.job-no   AND job-mat.job-no2 EQ job.job-no2 USE-INDEX seq-idx NO-LOCK     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH job-mat WHERE job-mat.company EQ job.company   AND job-mat.job     EQ job.job   AND job-mat.job-no  EQ job.job-no   AND job-mat.job-no2 EQ job.job-no2 USE-INDEX seq-idx NO-LOCK     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-br_table job-mat
-&Scoped-define FIRST-TABLE-IN-QUERY-br_table job-mat
+&Scoped-define QUERY-STRING-br_table FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company EQ cCompany         AND job-hdr.job-no  EQ cJobNo         AND job-hdr.job-no2 EQ iJobNo2, ~
+             FIRST job       WHERE job.company EQ job-hdr.company         AND job.job     EQ job-hdr.job         AND job.job-no  EQ job-hdr.job-no         AND job.job-no2 EQ job-hdr.job-no2, ~
+             FIRST itemfg       WHERE itemfg.company EQ job-hdr.company         AND itemfg.i-no    EQ job-hdr.i-no     ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH job-hdr NO-LOCK       WHERE job-hdr.company EQ cCompany         AND job-hdr.job-no  EQ cJobNo         AND job-hdr.job-no2 EQ iJobNo2, ~
+             FIRST job       WHERE job.company EQ job-hdr.company         AND job.job     EQ job-hdr.job         AND job.job-no  EQ job-hdr.job-no         AND job.job-no2 EQ job-hdr.job-no2, ~
+             FIRST itemfg       WHERE itemfg.company EQ job-hdr.company         AND itemfg.i-no    EQ job-hdr.i-no     ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-br_table job-hdr job itemfg
+&Scoped-define FIRST-TABLE-IN-QUERY-br_table job-hdr
+&Scoped-define SECOND-TABLE-IN-QUERY-br_table job
+&Scoped-define THIRD-TABLE-IN-QUERY-br_table itemfg
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -150,6 +159,15 @@ RUN set-attribute-list (
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTotalReceived B-table-Win 
+FUNCTION fGetTotalReceived RETURNS INTEGER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -158,23 +176,23 @@ RUN set-attribute-list (
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
-      job-mat SCROLLING.
+      job-hdr, 
+      job, 
+      itemfg SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      job-mat.rm-i-no FORMAT "x(10)":U WIDTH 40
-      job-mat.qty FORMAT ">,>>>,>>9.9<<<<<":U WIDTH 30
-      job-mat.qty-uom FORMAT "x(3)":U WIDTH 18 COLUMN-LABEL "Qty!UOM"
-      job-mat.wid FORMAT ">>9.99<<":U WIDTH 18
-      job-mat.len FORMAT ">>9.99<<":U WIDTH 18
-      job-mat.n-up COLUMN-LABEL "#  Up" FORMAT ">>9":U WIDTH 18
-      job-mat.qty-iss FORMAT "->>,>>9.99<<<<":U
+      job-hdr.cust-no FORMAT "x(8)":U WIDTH 30
+      job-hdr.i-no FORMAT "x(15)":U WIDTH 40
+      job-hdr.qty COLUMN-LABEL "Job Quantity" FORMAT "->>,>>>,>>9":U WIDTH 36
+      fGetTotalReceived() @ iTotalRcvd COLUMN-LABEL "Job Qty Received" FORMAT "->>,>>>,>>9":U WIDTH 36
+      itemfg.q-onh COLUMN-LABEL "Total On-Hand" FORMAT "->>,>>>,>>9":U WIDTH 40
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 178 BY 18.48
+    WITH NO-ASSIGN SEPARATORS SIZE 181 BY 18.48
          FONT 19 ROW-HEIGHT-CHARS 1.05 FIT-LAST-COLUMN.
 
 
@@ -192,7 +210,6 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartBrowser
-   External Tables: ASI.job
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -214,8 +231,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 18.48
-         WIDTH              = 178.6.
+         HEIGHT             = 18.62
+         WIDTH              = 181.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -253,12 +270,18 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH job-mat
-WHERE job-mat.company EQ job.company
-  AND job-mat.job     EQ job.job
-  AND job-mat.job-no  EQ job.job-no
-  AND job-mat.job-no2 EQ job.job-no2
-USE-INDEX seq-idx NO-LOCK
+OPEN QUERY {&SELF-NAME} FOR EACH job-hdr NO-LOCK
+      WHERE job-hdr.company EQ cCompany
+        AND job-hdr.job-no  EQ cJobNo
+        AND job-hdr.job-no2 EQ iJobNo2,
+      FIRST job
+      WHERE job.company EQ job-hdr.company
+        AND job.job     EQ job-hdr.job
+        AND job.job-no  EQ job-hdr.job-no
+        AND job.job-no2 EQ job-hdr.job-no2,
+      FIRST itemfg
+      WHERE itemfg.company EQ job-hdr.company
+        AND itemfg.i-no    EQ job-hdr.i-no
     ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
@@ -333,57 +356,8 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
-PROCEDURE adm-row-available :
-/*------------------------------------------------------------------------------
-  Purpose:     Dispatched to this procedure when the Record-
-               Source has a new row available.  This procedure
-               tries to get the new row (or foriegn keys) from
-               the Record-Source and process it.
-  Parameters:  <none>
-------------------------------------------------------------------------------*/
-
-  /* Define variables needed by this internal procedure.             */
-  {src/adm/template/row-head.i}
-
-  /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "job"}
-
-  /* Get the record ROWID's from the RECORD-SOURCE.                  */
-  {src/adm/template/row-get.i}
-
-  /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "job"}
-
-  /* Process the newly available records (i.e. display fields,
-     open queries, and/or pass records on to any RECORD-TARGETS).    */
-  {src/adm/template/row-end.i}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
-PROCEDURE disable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     DISABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we clean-up the user-interface by deleting
-               dynamic widgets we have created and/or hide 
-               frames.  This procedure is usually called when
-               we are ready to "clean-up" after running.
-------------------------------------------------------------------------------*/
-  /* Hide all frames. */
-  HIDE FRAME F-Main.
-  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE IssueQuantity B-table-Win 
-PROCEDURE IssueQuantity :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE AdjustQuantity B-table-Win 
+PROCEDURE AdjustQuantity :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
@@ -399,7 +373,8 @@ PROCEDURE IssueQuantity :
     DEFINE VARIABLE dValue           AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
-
+    DEFINE VARIABLE iProdQty         AS INTEGER   NO-UNDO.
+    
     /* If not automatically cleared by security level, ask for password */
     IF NOT lHasAccess THEN DO:
         RUN sys/ref/d-passwd.w (
@@ -411,12 +386,23 @@ PROCEDURE IssueQuantity :
     IF NOT lHasAccess THEN
         RETURN.
 
-    IF AVAILABLE job-mat THEN DO:
-        RUN inventory/adjustQuantityIssue.w (
-            INPUT  job-mat.qty,
+    IF AVAILABLE job-hdr AND AVAILABLE itemfg THEN DO:
+        iProdQty = fGetTotalReceived().
+        
+        RUN inventory/adjustQuantityWithType.w (
+            INPUT  itemfg.i-no,
+            INPUT  itemfg.i-name,
+            INPUT  job-hdr.qty,
+            INPUT  iProdQty,
+            INPUT  itemfg.q-onh,
+            INPUT  1,
+            INPUT  1,
             INPUT  TRUE, /* Required Adj Reason  */
-            INPUT  TRUE,  /* Allow decimal units */
+            INPUT  FALSE,  /* Allow decimal units */
             OUTPUT dTotalQuantity,
+            OUTPUT dSubUnitCount,
+            OUTPUT dSubUnitsPerUnit,
+            OUTPUT dPartialQuantity,
             OUTPUT cAdjustType,
             OUTPUT cAdjReasonCode,
             OUTPUT lValueReturned,
@@ -454,6 +440,69 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
+PROCEDURE adm-row-available :
+/*------------------------------------------------------------------------------
+  Purpose:     Dispatched to this procedure when the Record-
+               Source has a new row available.  This procedure
+               tries to get the new row (or foriegn keys) from
+               the Record-Source and process it.
+  Parameters:  <none>
+------------------------------------------------------------------------------*/
+
+  /* Define variables needed by this internal procedure.             */
+  {src/adm/template/row-head.i}
+
+  /* Process the newly available records (i.e. display fields,
+     open queries, and/or pass records on to any RECORD-TARGETS).    */
+  {src/adm/template/row-end.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
+PROCEDURE disable_UI :
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME F-Main.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOpenQuery B-table-Win 
+PROCEDURE pOpenQuery :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcJobNo   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiJobNo2  AS INTEGER   NO-UNDO.
+
+    ASSIGN
+        cCompany = ipcCompany
+        cJobNo   = ipcJobNo
+        iJobNo2  = ipiJobNo2
+        .
+        
+    RUN dispatch ('open-query').
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -466,8 +515,9 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "job-hdr"}
   {src/adm/template/snd-list.i "job"}
-  {src/adm/template/snd-list.i "job-mat"}
+  {src/adm/template/snd-list.i "itemfg"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -497,45 +547,77 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ViewRMInquiry B-table-Win 
-PROCEDURE ViewRMInquiry :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ViewFGInquiry B-table-Win 
+PROCEDURE ViewFGInquiry :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    IF NOT AVAILABLE job-mat THEN
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    IF NOT AVAILABLE job-hdr THEN
         RETURN.
         
-    IF NOT VALID-HANDLE(hdRMInquiry) THEN DO:         
-        RUN sharpshooter/w-rmInquiry.w PERSISTENT SET hdRMInquiry.
+    IF NOT VALID-HANDLE(hdFGInquiry) THEN DO:         
+        RUN sharpshooter/w-fgInquiry.w PERSISTENT SET hdFGInquiry.
 
-        RUN dispatch IN hdRMInquiry (
+        RUN dispatch IN hdFGInquiry (
             INPUT 'initialize':U
             ) NO-ERROR.
         
-        hdRMInquiryWin = hdRMInquiry:CURRENT-WINDOW.
+        hdFGInquiryWin = hdFGInquiry:CURRENT-WINDOW.
     END.
                                                  
-    IF VALID-HANDLE(hdRMInquiry) AND
-        VALID-HANDLE(hdRMInquiryWin) THEN DO: 
+    IF VALID-HANDLE(hdFGInquiry) AND
+        VALID-HANDLE(hdFGInquiryWin) THEN DO: 
 
-        RUN ScanItem IN hdRMInquiry (
-            INPUT job-mat.company,
+        RUN ScanItem IN hdFGInquiry (
+            INPUT job-hdr.company,
             INPUT "",
             INPUT "",
-            INPUT job-mat.rm-i-no,
+            INPUT job-hdr.i-no,
             INPUT "",
-            INPUT job-mat.job-no,
-            INPUT job-mat.job-no2
+            INPUT "",
+            INPUT 0
             ) NO-ERROR.            
 
-        IF hdRMInquiryWin:WINDOW-STATE EQ 2 THEN ASSIGN 
-            hdRMInquiryWin:WINDOW-STATE = 3.
+        IF hdFGInquiryWin:WINDOW-STATE EQ 2 THEN ASSIGN 
+            hdFGInquiryWin:WINDOW-STATE = 3.
         
-        hdRMInquiryWin:MOVE-TO-TOP().
-    END.
+        hdFGInquiryWin:MOVE-TO-TOP().
+    END.      
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTotalReceived B-table-Win 
+FUNCTION fGetTotalReceived RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iJobProdQty AS INTEGER   NO-UNDO.
+    
+    IF AVAILABLE job-hdr THEN DO:
+        RUN fg/GetProductionQty.p (
+            INPUT  job-hdr.company,
+            INPUT  job-hdr.job-no,
+            INPUT  job-hdr.job-no2,
+            INPUT  job-hdr.i-no,
+            INPUT  NO,
+            OUTPUT iJobProdQty
+            ).
+    END.
+
+    RETURN iJobProdQty.
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

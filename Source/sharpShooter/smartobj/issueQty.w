@@ -4,12 +4,12 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS s-object 
 /*------------------------------------------------------------------------
 
-  File: sharpshooter/smartobj/adjustQty.w
+  File: sharpshooter/smartobj/issueQty.w
 
   Description: 
 
   Author: Mithun Porandla
-  Created: 11/03/2020
+  Created: 11/06/2020
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -46,7 +46,7 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btAdjust 
+&Scoped-Define ENABLED-OBJECTS btIssue 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -60,16 +60,16 @@ CREATE WIDGET-POOL.
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btAdjust 
-     LABEL "Adjust" 
-     SIZE 11 BY 2.62 TOOLTIP "Adjust"
+DEFINE BUTTON btIssue 
+     LABEL "Issue" 
+     SIZE 11 BY 2.62 TOOLTIP "Issue"
      FONT 35.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btAdjust AT ROW 1 COL 1
+     btIssue AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -148,11 +148,11 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME btAdjust
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btAdjust s-object
-ON CHOOSE OF btAdjust IN FRAME F-Main /* Adjust */
+&Scoped-define SELF-NAME btIssue
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btIssue s-object
+ON CHOOSE OF btIssue IN FRAME F-Main /* Issue */
 DO:    
-    {methods/run_link.i "ADJUST-SOURCE" "AdjustQuantity"}
+    {methods/run_link.i "ISSUE-SOURCE" "IssueQuantity"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -204,7 +204,7 @@ PROCEDURE MakeInsensitive :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    btAdjust:SENSITIVE IN FRAME F-Main = FALSE.
+    btIssue:SENSITIVE IN FRAME F-Main = FALSE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -217,7 +217,7 @@ PROCEDURE MakeSensitive :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    btAdjust:SENSITIVE IN FRAME F-Main = TRUE.
+    btIssue:SENSITIVE IN FRAME F-Main = TRUE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

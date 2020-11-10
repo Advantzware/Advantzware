@@ -4,12 +4,13 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS s-object 
 /*------------------------------------------------------------------------
 
-  File: options.w
+  File: sharpshooter/smartobj/exit.w
 
-  Description: from SMART.W - Template for basic SmartObject
+  Description: 
 
-  Author: Ron Stark
-  Created: 02/08/98
+  Author: Mithun Porandla
+  Created: 11/03/2020
+
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
