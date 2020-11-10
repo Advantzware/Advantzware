@@ -130,6 +130,7 @@ PROCEDURE GetOperationStandards:
     RUN pGetMachineBuffer(ipcCompany, ipcLocationID, ipcOperationID, BUFFER bf-mach, OUTPUT oplError, OUTPUT opcMessage).
 
     IF AVAILABLE bf-mach THEN DO:
+        opdOpMRWaste = bf-mach.mr-waste.
         RUN pGetRunSpeed(BUFFER bf-mach, OUTPUT opdOpRunSpeed, OUTPUT oplError, OUTPUT opcMessage).
         RUN pGetMRHours(BUFFER bf-mach, OUTPUT opdOpMRHours, OUTPUT oplError, OUTPUT opcMessage).
         RUN pGetRunSpoil(BUFFER bf-mach, OUTPUT opdOpRunSpoil, OUTPUT oplError, OUTPUT opcMessage).
@@ -146,12 +147,46 @@ PROCEDURE GetOperationStandardsForJobMch:
     DEFINE INPUT PARAMETER ipriJobMch AS ROWID.
     
     DEFINE BUFFER bf-job-mch FOR job-mch.
+    DEFINE BUFFER bf-job FOR job.
+    DEFINE BUFFER bf-eb FOR eb.
+    
+    DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     
     FIND bf-job-mch NO-LOCK 
         WHERE ROWID(bf-job-mch) EQ ipriJobMch
         NO-ERROR.
     IF AVAILABLE bf-job-mch THEN DO:
-        
+        FIND FIRST bf-job NO-LOCK 
+            WHERE bf-job.company EQ bf-job-mch.company
+            AND bf-job.job EQ bf-job-mch.job
+            NO-ERROR.
+        IF NOT AVAILABLE bf-job THEN RETURN.
+        FIND FIRST bf-eb NO-LOCK 
+            WHERE bf-eb.company EQ bf-job-mch.company
+            AND bf-eb.est-no EQ bf-job.est-no
+            AND bf-eb.form-no EQ bf-job-mch.frm
+            AND bf-eb.blank-no EQ MAX(bf-job-mch.blank-no,1)
+            NO-ERROR.
+            
+        RUN SetAttributesFromEb (ROWID(bf-eb), OUTPUT lError, OUTPUT cMessage).
+        IF NOT lError THEN DO:
+            FIND CURRENT bf-job-mch EXCLUSIVE-LOCK.
+            RUN GetOperationRates(bf-job-mch.company, bf-job.loc, bf-job-mch.m-code, 
+                              OUTPUT bf-job-mch.mr-rate, 
+                              OUTPUT bf-job-mch.mr-fixoh, 
+                              OUTPUT bf-job-mch.mr-varoh,
+                              OUTPUT bf-job-mch.run-rate,
+                              OUTPUT bf-job-mch.run-fixoh,
+                              OUTPUT bf-job-mch.run-varoh,
+                              OUTPUT lError, OUTPUT cMessage).
+            RUN GetOperationStandards(bf-job-mch.company, bf-job.loc, bf-job-mch.m-code,
+                                      OUTPUT bf-job-mch.mr-waste, 
+                                      OUTPUT bf-job-mch.mr-hr, 
+                                      OUTPUT bf-job-mch.speed, 
+                                      OUTPUT bf-job-mch.wst-prct, 
+                                      OUTPUT lError, OUTPUT cMessage).
+        END.
     END.
 
 END PROCEDURE.
@@ -673,40 +708,36 @@ PROCEDURE pOperationChangeDetermineAction PRIVATE:
     DEFINE INPUT PARAMETER ipcOperationID AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcAction AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE cMessage1 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMessage2 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lChoice AS LOGICAL NO-UNDO.
+    
     IF AVAILABLE ipbf-job-mch THEN 
     DO:
+        cMessage1 = "Machine " + TRIM(ipcOperationID) + " is not defined in job standards for this job/form/blank/pass.".
         IF fHasDataCollected(BUFFER ipbf-job-mch) THEN              
             ASSIGN
-                /*                    v-msg[1] = "Machine " +                                               */
-                /*                          TRIM(pc-prdd.m-code) +                                          */
-                /*                          " is not defined in job standards for this job/form/blank/pass."*/
-                /*                    v-msg[2] = "Would you like to replace machine " +                     */
-                /*                          TRIM(job-mch.m-code) +                                          */
-                /*                          " with machine " +                                              */
-                /*                          TRIM(pc-prdd.m-code) + "?"                                      */
+                cMessage2 = "Data has already been collected for " + TRIM(ipbf-job-mch.m-code) + ".  Would you like to add machine " + TRIM(ipcOperationID) + "?"
                 opcAction = "Add"
                 .
         ELSE
             ASSIGN
-                /*                    v-msg[1] = "Machine " +                                                */
-                /*                           TRIM(pc-prdd.m-code) +                                          */
-                /*                           " is not defined in job standards for this job/form/blank/pass."*/
-                /*                    v-msg[2] = "Would you like to copy machine " +                         */
-                /*                           TRIM(job-mch.m-code) +                                          */
-                /*                           " to machine " +                                                */
-                /*                           TRIM(pc-prdd.m-code) + "?"                                      */
+                cMessage2 = "Would you like to replace machine " + TRIM(ipbf-job-mch.m-code) + " with machine " + TRIM(ipcOperationID) + "?"
                 opcAction = "Replace"
                 .
     END.
     ELSE
         ASSIGN
-            /*            v-msg[1] = "ERROR: This dept is not valid for this job/form/blank/pass."*/
-            /*            v-msg[2] = "Would you like to add the department to job standards?"     */
+            cMessage1 = "Machine " + TRIM(ipcOperationID) + " does not have a department that is valid for this job/form/blank/pass."
+            cMessage2 = "Would you like to add the department to job standards?"
             opcAction = "AddDept"
             .
-        
-/*    MESSAGE v-msg[1] SKIP v-msg[2]                             */
-/*        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE choice.*/
+
+    MESSAGE cMessage1 SKIP cMessage2
+    VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE lChoice.        
+    
+    IF NOT lChoice THEN 
+        opcAction = "Cancel".
 
 END PROCEDURE.
 

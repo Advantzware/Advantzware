@@ -27,12 +27,30 @@ DEFINE VARIABLE gcEstimateID AS CHARACTER NO-UNDO INITIAL "   14227".
 RUN est\OperationProcs.p PERSISTENT SET hdOpProcs.
 RUN system\session.p PERSISTENT SET hdSession.
 SESSION:ADD-SUPER-PROCEDURE (hdSession).
-RUN ClearAttributes IN hdOpProcs.
-RUN pGetOperationStandardsSingle(gcCompany, gcEstimateID).
+
+RUN pChangeOperation.
+//RUN ClearAttributes IN hdOpProcs.
+//RUN pGetOperationStandardsSingle(gcCompany, gcEstimateID).
 
 
 /* **********************  Internal Procedures  *********************** */
 
+
+PROCEDURE pChangeOperation PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    
+    FIND FIRST job NO-LOCK 
+        WHERE job.company EQ '001'
+        AND job.job-no EQ 'W00854'
+        AND job.job-no2 EQ 0
+        NO-ERROR.
+    RUN ProcessOperationChange IN hdOpProcs (job.company,"PRBV", job.job, 1,1,1,"PR").
+
+END PROCEDURE.
 
 PROCEDURE pGetOperationStandardsTest PRIVATE:
     /*------------------------------------------------------------------------------
