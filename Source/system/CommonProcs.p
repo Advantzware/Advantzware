@@ -393,7 +393,7 @@ PROCEDURE spCommon_GetCurrentGMTTime:
  Purpose: Returns current GMT Time
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opdttzCurrentGMTTime AS DATE NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdttzCurrentGMTTime AS DATETIME-TZ NO-UNDO.
     
     RUN pGetTimeInGMT(
         INPUT  NOW,
