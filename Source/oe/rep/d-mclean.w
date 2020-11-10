@@ -66,15 +66,15 @@ ASSIGN
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-40 RECT-41 cCarrier cName cTrailer ~
-cAdd1 cSerialNo cAdd2 cCity cState cZip cScac cProName cCortons Btn_OK ~
+cAdd1 cSerialNo cAdd2 cCity cState cZip cScac cProName cCartons Btn_OK ~
 Btn_Cancel cSpecInst 
 &Scoped-Define DISPLAYED-OBJECTS cCarrier cName cTrailer cAdd1 cSerialNo ~
-cAdd2 cCity cState cZip cScac cProName cCortons cSpecInst 
+cAdd2 cCity cState cZip cScac cProName cCartons cSpecInst 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 &Scoped-define List-1 cCarrier cName cTrailer cAdd1 cSerialNo cAdd2 cCity ~
-cState cZip cScac cProName cCortons cSpecInst 
+cState cZip cScac cProName cCartons cSpecInst 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -119,8 +119,8 @@ DEFINE VARIABLE cCity AS CHARACTER FORMAT "X(20)":U
      SIZE 18.4 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE cCortons AS CHARACTER FORMAT "X(30)":U 
-     LABEL "Cortons" 
+DEFINE VARIABLE cCartons AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Cartons" 
      VIEW-AS FILL-IN 
      SIZE 36 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -194,7 +194,7 @@ DEFINE FRAME Dialog-Frame
      cCity AT ROW 5.62 COL 71.8 COLON-ALIGNED WIDGET-ID 8
      cState AT ROW 5.62 COL 90.8 COLON-ALIGNED NO-LABEL WIDGET-ID 10
      cZip AT ROW 5.62 COL 97.8 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     cCortons AT ROW 6.91 COL 71.8 COLON-ALIGNED WIDGET-ID 20
+     cCartons AT ROW 6.91 COL 71.8 COLON-ALIGNED WIDGET-ID 20
      cSpecInst AT ROW 8.14 COL 28.8 COLON-ALIGNED WIDGET-ID 22
      Btn_OK AT ROW 10.76 COL 52.2
      Btn_Cancel AT ROW 10.76 COL 96.4       
@@ -237,7 +237,7 @@ ASSIGN
    1                                                                    */
 /* SETTINGS FOR FILL-IN cCity IN FRAME Dialog-Frame
    1                                                                    */
-/* SETTINGS FOR FILL-IN cCortons IN FRAME Dialog-Frame
+/* SETTINGS FOR FILL-IN cCartons IN FRAME Dialog-Frame
    1                                                                    */
 /* SETTINGS FOR FILL-IN cName IN FRAME Dialog-Frame
    1                                                                    */
@@ -284,7 +284,7 @@ DO:
     CREATE tt-temp-report .
      ASSIGN
         tt-temp-report.key-01  = cSerialNo:SCREEN-VALUE 
-        tt-temp-report.key-02  = cCortons:SCREEN-VALUE
+        tt-temp-report.key-02  = cCartons:SCREEN-VALUE
         /*tt-temp-report.key-03  = cSub:SCREEN-VALUE*/
         tt-temp-report.key-04  = cName:SCREEN-VALUE 
         tt-temp-report.key-05  = cAdd1:SCREEN-VALUE
@@ -389,10 +389,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY cCarrier cName cTrailer cAdd1 cSerialNo cAdd2 cCity cState cZip cScac 
-          cProName cCortons cSpecInst 
+          cProName cCartons cSpecInst 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-40 RECT-41 cCarrier cName cTrailer cAdd1 cSerialNo cAdd2 cCity 
-         cState cZip cScac cProName cCortons Btn_OK Btn_Cancel cSpecInst 
+         cState cZip cScac cProName cCartons Btn_OK Btn_Cancel cSpecInst 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
