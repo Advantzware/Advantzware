@@ -3,6 +3,7 @@
  
 *****************************************************************************/
 DEFINE VARIABLE hftJobPros AS HANDLE NO-UNDO.
+DEFINE VARIABLE cCsrName   AS CHARACTER NO-UNDO.
 
 RUN jc/JobProcs.p PERSISTENT SET hftJobPros.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftJobPros).
@@ -53,12 +54,17 @@ for each itemfg
     ASSIGN
        v-whse-bin-found = NO
        v-qty-onh = 0
-       v-sales-rep = "".
-       cMachine = "" .
+       v-sales-rep = ""
+       cMachine = "" 
+       cCsrName = "" .
 
        /*Added for premier mod 08291201*/
     FIND FIRST cust WHERE cust.company = itemfg.company
         AND cust.cust-no = itemfg.cust-no NO-LOCK NO-ERROR.
+    if AVAIL cust then
+    find first users no-lock
+         WHERE users.user_id eq cust.csrUser_id no-error . 
+     cCsrName = if AVAIL cust and AVAIL users then users.user_name else "" .
 
     IF AVAIL cust AND cust.ACTIVE NE "X" THEN do:
     FOR EACH cust-part WHERE cust-part.company = itemfg.company   
@@ -334,6 +340,8 @@ for each itemfg
                   CASE cTmpField:                      
                           WHEN "v-qty-onh" THEN ASSIGN cVarValue = string(v-qty-onh)
                               cExcelVarValue = "".
+	                  WHEN "csr-name" THEN ASSIGN cVarValue = string(cCsrName,"x(30)")
+                              cExcelVarValue = "".
                           WHEN "v-alloc-qty" THEN ASSIGN cVarValue = string(v-alloc-qty)
                               cExcelVarValue = "".
                           WHEN "v-qty-avail" THEN ASSIGN cVarValue = string(v-qty-avail)
@@ -433,7 +441,9 @@ for each itemfg
                 ELSE DO: 
                       /*{sys/inc/rptDisp2.i cTmpField "2"} */
                       /*RUN getVarValue (cTmpField, OUTPUT cVarValue).*/
-                      CASE cTmpField:                      
+                      CASE cTmpField:  
+                          WHEN "csr-name" THEN ASSIGN cVarValue = string(cCsrName,"x(30)")
+                              cExcelVarValue = "".                    
                           WHEN "v-qty-onh" THEN ASSIGN cVarValue = string(v-qty-onh)
                               cExcelVarValue = "".
                           WHEN "v-alloc-qty" THEN ASSIGN cVarValue = string(v-alloc-qty)
