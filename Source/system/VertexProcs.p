@@ -113,15 +113,27 @@ PROCEDURE pUpdateAccessToken PRIVATE:
     DEFINE VARIABLE lcResponse      AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE cAccessToken    AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE dttzCurrentGMTDateTimeTZ AS DATETIME-TZ NO-UNDO.
+    DEFINE VARIABLE dttzSysCtrlDateTimeTZ    AS DATETIME-TZ NO-UNDO.
+    
     DEFINE BUFFER bf-sys-ctrl FOR sys-ctrl.
     DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
     
+    /* Code to find and extract the GMT Date and time from current date amnd time */
+    RUN spCommon_GetCurrentGMTTime (
+        OUTPUT dttzCurrentGMTDateTimeTZ
+        ).        
+
     FIND FIRST bf-sys-ctrl NO-LOCK
          WHERE bf-sys-ctrl.company EQ ipcCompany
            AND bf-sys-ctrl.name    EQ "VertexAccessToken"
          NO-ERROR.
-    IF AVAILABLE bf-sys-ctrl THEN DO:
-        IF bf-sys-ctrl.date-fld EQ TODAY AND TIME - bf-sys-ctrl.int-fld LT bf-sys-ctrl.dec-fld THEN DO:
+    IF AVAILABLE bf-sys-ctrl AND bf-sys-ctrl.date-fld NE ? THEN DO:
+        
+        /* Convert sys-ctrl date and time into a variable of type datetime-tz with +00:00 time zone */
+        dttzSysCtrlDateTimeTZ = DATETIME-TZ(bf-sys-ctrl.date-fld, bf-sys-ctrl.int-fld * 1000, 0).
+        
+        IF INTERVAL(dttzCurrentGMTDateTimeTZ, dttzSysCtrlDateTimeTZ, "seconds") LT bf-sys-ctrl.dec-fld THEN DO:
             ASSIGN
                 oplSuccess     = TRUE
                 opcMessage     = "Success"
@@ -223,6 +235,11 @@ PROCEDURE pUpdateAccessToken PRIVATE:
         RETURN.
     END.
 
+    /* Code to find and extract the GMT Date and time from current date amnd time */
+    RUN spCommon_GetCurrentGMTTime (
+        OUTPUT dttzCurrentGMTDateTimeTZ
+        ).        
+
     FIND FIRST bf-sys-ctrl EXCLUSIVE-LOCK
          WHERE bf-sys-ctrl.company EQ ipcCompany
            AND bf-sys-ctrl.name    EQ "VertexAccessToken"
@@ -230,8 +247,8 @@ PROCEDURE pUpdateAccessToken PRIVATE:
     IF AVAILABLE bf-sys-ctrl THEN
         ASSIGN
             bf-sys-ctrl.char-fld = cAccessToken
-            bf-sys-ctrl.date-fld = TODAY
-            bf-sys-ctrl.int-fld  = TIME
+            bf-sys-ctrl.date-fld = DATE(dttzCurrentGMTDateTimeTZ) /* Save GMT date */
+            bf-sys-ctrl.int-fld  = TRUNCATE(MTIME(dttzCurrentGMTDateTimeTZ) / 1000, 0) /* Save GMT time */
             opcMessage           = "Success"
             oplSuccess           = TRUE
             .    
