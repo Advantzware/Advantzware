@@ -11,6 +11,7 @@ IF v-first THEN
         "  End date:" STRING(end_date) FORM "x(5)" 
         "Page: " AT 145 PAGE-NUM FORM ">>9"
         SKIP
+        cHeading SKIP
         str-tit4 SKIP
         str-tit5
         "</B>"
@@ -246,6 +247,10 @@ IF AVAIL itemfg THEN DO:
                          WHEN "pro-date-reason"   THEN cVarValue = IF AVAIL rejct-cd THEN STRING(w-ord.prom-date-reason + " " + rejct-cd.dscr ,"x(30)") ELSE "".
                          WHEN "last-mch"   THEN cVarValue = STRING(lv-routing ,"x(12)").
                          WHEN "job-no"   THEN cVarValue = IF w-ord.job-no NE "" THEN STRING(w-ord.job-no + "-" + STRING(w-ord.job-no2,"99") ,"x(9)") ELSE "".
+			             WHEN "ord-prom-date"   THEN cVarValue = IF w-ord.ord-prom-date ne ? THEN STRING(w-ord.ord-prom-date,"99/99/9999") ELSE "".
+                         WHEN "job-prom-date"   THEN cVarValue = IF w-ord.job-prom-date ne ? THEN STRING(w-ord.job-prom-date,"99/99/9999") ELSE "".
+                         WHEN "prom-code"   THEN cVarValue = IF w-ord.prom-code ne ? THEN STRING(w-ord.prom-code,"x(10)") ELSE "".
+			
                     END CASE.
                       
                     cExcelVarValue = cVarValue.
