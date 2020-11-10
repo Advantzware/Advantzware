@@ -418,10 +418,53 @@ PROCEDURE Inventory_BuildFGBinSummaryForItem:
     DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
 
+    DEFINE VARIABLE iTotOnHand  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTotOnOrder AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTotAlloc   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTotBack    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTotAvail   AS INTEGER   NO-UNDO.
+
     RUN pBuildFGBinSummaryForItem (
         INPUT  ipcCompany,
         INPUT  iopcItemID,
         INPUT  iopcCustItem,
+        INPUT  TRUE,
+        OUTPUT iTotOnHand, 
+        OUTPUT iTotOnOrder,
+        OUTPUT iTotAlloc,  
+        OUTPUT iTotBack,   
+        OUTPUT iTotAvail,          
+        OUTPUT oplError,
+        OUTPUT opcMessage        
+        ).
+END PROCEDURE.
+
+PROCEDURE Inventory_BuildFGBinTotalsForItem:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iopcItemID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iopcCustItem  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotOnHand  AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotOnOrder AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotAlloc   AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotBack    AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotAvail   AS INTEGER   NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+
+    RUN pBuildFGBinSummaryForItem (
+        INPUT  ipcCompany,
+        INPUT  iopcItemID,
+        INPUT  iopcCustItem,
+        INPUT  FALSE,
+        OUTPUT opiTotOnHand, 
+        OUTPUT opiTotOnOrder,
+        OUTPUT opiTotAlloc,  
+        OUTPUT opiTotBack,   
+        OUTPUT opiTotAvail,          
         OUTPUT oplError,
         OUTPUT opcMessage        
         ).
@@ -432,18 +475,17 @@ PROCEDURE pBuildFGBinSummaryForItem PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER iopcItemID   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER iopcCustItem AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE iTotOnHand  AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iTotOnOrder AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iTotAlloc   AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iTotBack    AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iTotAvail   AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iTotReOrder AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iopcItemID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iopcCustItem  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplCreateTT   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotOnHand  AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotOnOrder AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotAlloc   AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotBack    AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotAvail   AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.    
     
     DEFINE BUFFER bf-itemfg     FOR itemfg.
     DEFINE BUFFER bf-itemfg-loc FOR itemfg-loc.
@@ -483,81 +525,88 @@ PROCEDURE pBuildFGBinSummaryForItem PRIVATE:
         FIRST bf-loc NO-LOCK
         WHERE bf-loc.company EQ bf-itemfg-loc.company
           AND bf-loc.loc     EQ bf-itemfg-loc.loc:
-        CREATE ttBrowseInventory.
-        ASSIGN 
-            ttBrowseInventory.fgItemID          = bf-itemfg.i-no
-            ttBrowseInventory.warehouseID       = bf-itemfg-loc.loc    
-            ttBrowseInventory.locDscr           = bf-loc.dscr
-            ttBrowseInventory.leadDays          = bf-itemfg-loc.lead-days
-            ttBrowseInventory.orderLevel        = bf-itemfg-loc.ord-level
-            ttBrowseInventory.orderMax          = bf-itemfg-loc.ord-max
-            ttBrowseInventory.orderMin          = bf-itemfg-loc.ord-min
-            ttBrowseInventory.quantityOnHand    = bf-itemfg-loc.q-onh
-            ttBrowseInventory.quantityOnOrder   = bf-itemfg-loc.q-ono
-            ttBrowseInventory.quantityAllocated = bf-itemfg-loc.q-alloc
-            ttBrowseInventory.quantityBackOrder = bf-itemfg-loc.q-back
-            ttBrowseInventory.quantityAvailable = ttBrowseInventory.quantityOnHand
-                                                + ttBrowseInventory.quantityOnOrder
-                                                - ttBrowseInventory.quantityAllocated
-            iTotOnHand                          = iTotOnHand  + ttBrowseInventory.quantityOnHand
-            iTotonOrder                         = iTotOnOrder + ttBrowseInventory.quantityOnOrder
-            iTotAlloc                           = iTotAlloc   + ttBrowseInventory.quantityAllocated
-            iTotBack                            = iTotBack    + ttBrowseInventory.quantityBackOrder
-            iTotAvail                           = iTotAvail   + ttBrowseInventory.quantityAvailable
-            iTotReOrder                         = iTotReOrder + ttBrowseInventory.orderLevel
-            ttBrowseInventory.inventoryStockID  = STRING(ROWID(bf-itemfg-loc))
-            .      
 
-        RELEASE ttBrowseInventory.
-    END.
-
-    CREATE ttBrowseInventory.
-    ASSIGN 
-        ttBrowseInventory.fgItemID          = bf-itemfg.i-no
-        ttBrowseInventory.warehouse         = "*ALL"
-        ttBrowseInventory.locDscr           = "ALL Locations"
-        ttBrowseInventory.leadDays          = bf-itemfg.lead-days
-        ttBrowseInventory.orderLevel        = bf-itemfg.ord-level
-        ttBrowseInventory.orderMax          = bf-itemfg.ord-max
-        ttBrowseInventory.orderMin          = bf-itemfg.ord-min
-        ttBrowseInventory.quantityOnHand    = bf-itemfg.q-onh
-        ttBrowseInventory.quantityOnOrder   = bf-itemfg.q-ono
-        ttBrowseInventory.quantityAllocated = bf-itemfg.q-alloc
-        ttBrowseInventory.quantityBackOrder = bf-itemfg.q-back
-        ttBrowseInventory.quantityAvailable = bf-itemfg.q-avail
-        ttBrowseInventory.inventoryStockID  = "1"
-        .
-        
-    IF iTotAlloc   NE bf-itemfg.q-alloc OR 
-       iTotOnHand  NE bf-itemfg.q-onh   OR 
-       iTotOnOrder NE bf-itemfg.q-ono   OR
-       iTotBack    NE bf-itemfg.q-back  OR
-       iTotAvail   NE bf-itemfg.q-avail THEN DO:
-          
-        CREATE ttBrowseInventory.
-        ASSIGN 
-            ttBrowseInventory.fgItemID          = bf-itemfg.i-no
-            ttBrowseInventory.warehouse         = "*UNSP"
-            ttBrowseInventory.locDscr           = "Unspecified Locations"
-            ttBrowseInventory.leadDays          = 0
-            ttBrowseInventory.orderLevel        = 0
-            ttBrowseInventory.orderMax          = 0
-            ttBrowseInventory.orderMin          = 0
-            ttBrowseInventory.quantityOnHand    = bf-itemfg.q-onh - iTotOnHand
-            ttBrowseInventory.quantityOnOrder   = bf-itemfg.q-ono - iTotOnOrder
-            ttBrowseInventory.quantityAllocated = bf-itemfg.q-alloc - iTotAlloc
-            ttBrowseInventory.quantityBackOrder = bf-itemfg.q-back - iTotBack
-            ttBrowseInventory.quantityAvailable = bf-itemfg.q-avail - iTotAvail
-            ttBrowseInventory.inventoryStockID  = "2"
-            .
-    END.
-    
-    IF NOT TEMP-TABLE ttBrowseInventory:HAS-RECORDS THEN DO:
         ASSIGN
-            oplError   = TRUE
-            opcMessage = "No Raw material bins available for Item # '" + iopcItemID + "' or Customer Item # '" + iopcCustItem + "'"
+            opiTotOnHand  = opiTotOnHand  + bf-itemfg-loc.q-onh
+            opiTotonOrder = opiTotOnOrder + bf-itemfg-loc.q-ono
+            opiTotAlloc   = opiTotAlloc   + bf-itemfg-loc.q-alloc
+            opiTotBack    = opiTotBack    + bf-itemfg-loc.q-back
+            opiTotAvail   = opiTotAvail   + bf-itemfg-loc.q-onh + bf-itemfg-loc.q-ono + bf-itemfg-loc.q-alloc
             .
-        RETURN.        
+        
+        IF iplCreateTT THEN DO:
+            CREATE ttBrowseInventory.
+            ASSIGN 
+                ttBrowseInventory.fgItemID          = bf-itemfg.i-no
+                ttBrowseInventory.warehouseID       = bf-itemfg-loc.loc    
+                ttBrowseInventory.locDscr           = bf-loc.dscr
+                ttBrowseInventory.leadDays          = bf-itemfg-loc.lead-days
+                ttBrowseInventory.orderLevel        = bf-itemfg-loc.ord-level
+                ttBrowseInventory.orderMax          = bf-itemfg-loc.ord-max
+                ttBrowseInventory.orderMin          = bf-itemfg-loc.ord-min
+                ttBrowseInventory.quantityOnHand    = bf-itemfg-loc.q-onh
+                ttBrowseInventory.quantityOnOrder   = bf-itemfg-loc.q-ono
+                ttBrowseInventory.quantityAllocated = bf-itemfg-loc.q-alloc
+                ttBrowseInventory.quantityBackOrder = bf-itemfg-loc.q-back
+                ttBrowseInventory.quantityAvailable = ttBrowseInventory.quantityOnHand
+                                                    + ttBrowseInventory.quantityOnOrder
+                                                    - ttBrowseInventory.quantityAllocated
+                ttBrowseInventory.inventoryStockID  = STRING(ROWID(bf-itemfg-loc))
+                .      
+    
+            RELEASE ttBrowseInventory.
+        END.
+    END.
+
+    IF iplCreateTT THEN DO:
+        CREATE ttBrowseInventory.
+        ASSIGN 
+            ttBrowseInventory.fgItemID          = bf-itemfg.i-no
+            ttBrowseInventory.warehouse         = "*ALL"
+            ttBrowseInventory.locDscr           = "ALL Locations"
+            ttBrowseInventory.leadDays          = bf-itemfg.lead-days
+            ttBrowseInventory.orderLevel        = bf-itemfg.ord-level
+            ttBrowseInventory.orderMax          = bf-itemfg.ord-max
+            ttBrowseInventory.orderMin          = bf-itemfg.ord-min
+            ttBrowseInventory.quantityOnHand    = bf-itemfg.q-onh
+            ttBrowseInventory.quantityOnOrder   = bf-itemfg.q-ono
+            ttBrowseInventory.quantityAllocated = bf-itemfg.q-alloc
+            ttBrowseInventory.quantityBackOrder = bf-itemfg.q-back
+            ttBrowseInventory.quantityAvailable = bf-itemfg.q-avail
+            ttBrowseInventory.inventoryStockID  = "1"
+            .
+            
+        IF opiTotAlloc   NE bf-itemfg.q-alloc OR 
+           opiTotOnHand  NE bf-itemfg.q-onh   OR 
+           opiTotOnOrder NE bf-itemfg.q-ono   OR
+           opiTotBack    NE bf-itemfg.q-back  OR
+           opiTotAvail   NE bf-itemfg.q-avail THEN DO:
+              
+            CREATE ttBrowseInventory.
+            ASSIGN 
+                ttBrowseInventory.fgItemID          = bf-itemfg.i-no
+                ttBrowseInventory.warehouse         = "*UNSP"
+                ttBrowseInventory.locDscr           = "Unspecified Locations"
+                ttBrowseInventory.leadDays          = 0
+                ttBrowseInventory.orderLevel        = 0
+                ttBrowseInventory.orderMax          = 0
+                ttBrowseInventory.orderMin          = 0
+                ttBrowseInventory.quantityOnHand    = bf-itemfg.q-onh - opiTotOnHand
+                ttBrowseInventory.quantityOnOrder   = bf-itemfg.q-ono - opiTotOnOrder
+                ttBrowseInventory.quantityAllocated = bf-itemfg.q-alloc - opiTotAlloc
+                ttBrowseInventory.quantityBackOrder = bf-itemfg.q-back - opiTotBack
+                ttBrowseInventory.quantityAvailable = bf-itemfg.q-avail - opiTotAvail
+                ttBrowseInventory.inventoryStockID  = "2"
+                .
+        END.
+        
+        IF NOT TEMP-TABLE ttBrowseInventory:HAS-RECORDS THEN DO:
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "No Raw material bins available for Item # '" + iopcItemID + "' or Customer Item # '" + iopcCustItem + "'"
+                .
+            RETURN.        
+        END.
     END.    
 END PROCEDURE.
 

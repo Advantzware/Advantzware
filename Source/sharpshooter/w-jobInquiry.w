@@ -601,7 +601,7 @@ PROCEDURE adm-create-objects :
 
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'inventory/b-job-hdr.w':U ,
+             INPUT  'sharpshooter/b-job-hdr.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-job-hdr ).
@@ -632,7 +632,7 @@ PROCEDURE adm-create-objects :
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'inventory/b-job-mat.w':U ,
+             INPUT  'sharpshooter/b-job-mat.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-job-mat ).

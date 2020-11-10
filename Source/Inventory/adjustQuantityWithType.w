@@ -26,6 +26,10 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
+DEFINE INPUT  PARAMETER ipcItemID           AS CHARACTER  NO-UNDO.
+DEFINE INPUT  PARAMETER ipcItemName         AS CHARACTER  NO-UNDO.
+DEFINE INPUT  PARAMETER ipdJobQuantity      AS DECIMAL    NO-UNDO.
+DEFINE INPUT  PARAMETER ipdRcvdQuantity     AS DECIMAL    NO-UNDO.
 DEFINE INPUT  PARAMETER ipdTotalQuantity    AS DECIMAL    NO-UNDO.
 DEFINE INPUT  PARAMETER ipdSubUnitCount     AS DECIMAL    NO-UNDO.
 DEFINE INPUT  PARAMETER ipdSubUnitsPerUnit  AS DECIMAL    NO-UNDO.
@@ -70,14 +74,15 @@ DEFINE VARIABLE lDisplayUnits    AS LOGICAL   NO-UNDO.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-30 RECT-31 rsAdjustType fiTotalQty ~
-btnDel btnClear btnDiv fiSubUnits btn7 btn8 btn9 btnMult fiSubUnitCount ~
-fiSubUnitsPerUnit btn4 btn5 btn6 btnMinus btn1 btn2 btn3 btnPlus fiPartial ~
-btnZero btnPeriod btnEqual Btn_OK Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiText rsAdjustType fiResult ~
-fiTotalQtyLabel fiTotalQty fiSubUnitsLabel fiSubUnits fiSubUnitCountLabel ~
-fiSubUnitCount fiSubUnitsPerUnitLabel fiSubUnitsPerUnit fiUnitCountLabel ~
-fiUnitCount fiPartialLabel fiPartial fiUnitsLabel fiUnits fiReasonCodeLabel ~
+&Scoped-Define ENABLED-OBJECTS RECT-30 RECT-31 RECT-32 rsAdjustType ~
+fiTotalQty btnDel btnClear btnDiv fiSubUnits btn7 btn8 btn9 btnMult ~
+fiSubUnitCount fiSubUnitsPerUnit btn4 btn5 btn6 btnMinus btn1 btn2 btn3 ~
+btnPlus fiPartial btnZero btnPeriod btnEqual Btn_OK Btn_Cancel 
+&Scoped-Define DISPLAYED-OBJECTS fiItem fiItemName fiJobQty fiRcvdQty ~
+fiOnHandQty fiText rsAdjustType fiResult fiTotalQtyLabel fiTotalQty ~
+fiSubUnitsLabel fiSubUnits fiSubUnitCountLabel fiSubUnitCount ~
+fiSubUnitsPerUnitLabel fiSubUnitsPerUnit fiUnitCountLabel fiUnitCount ~
+fiPartialLabel fiPartial fiUnitsLabel fiUnits fiReasonCodeLabel ~
 cbReasonCode 
 
 /* Custom List Definitions                                              */
@@ -199,6 +204,26 @@ DEFINE VARIABLE cbReasonCode AS CHARACTER FORMAT "X(256)":U
      SIZE 61.4 BY 1
      FONT 36 NO-UNDO.
 
+DEFINE VARIABLE fiItem AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Item #" 
+     VIEW-AS FILL-IN 
+     SIZE 41.4 BY 1.43 NO-UNDO.
+
+DEFINE VARIABLE fiItemName AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Name" 
+     VIEW-AS FILL-IN 
+     SIZE 77 BY 1.43 NO-UNDO.
+
+DEFINE VARIABLE fiJobQty AS DECIMAL FORMAT "->>>,>>>,>>9.99<<<<":U INITIAL 0 
+     LABEL "Job Qty" 
+     VIEW-AS FILL-IN 
+     SIZE 27.4 BY 1.43 NO-UNDO.
+
+DEFINE VARIABLE fiOnHandQty AS DECIMAL FORMAT "->>>,>>>,>>9.99<<<<":U INITIAL 0 
+     LABEL "On Hand Qty" 
+     VIEW-AS FILL-IN 
+     SIZE 27.4 BY 1.43 NO-UNDO.
+
 DEFINE VARIABLE fiPartial AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
@@ -208,6 +233,11 @@ DEFINE VARIABLE fiPartialLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Partial:"
      VIEW-AS FILL-IN 
      SIZE 11 BY 1.43
      FONT 36 NO-UNDO.
+
+DEFINE VARIABLE fiRcvdQty AS DECIMAL FORMAT "->>>,>>>,>>9.99<<<<":U INITIAL 0 
+     LABEL "Received Qty" 
+     VIEW-AS FILL-IN 
+     SIZE 27.4 BY 1.43 NO-UNDO.
 
 DEFINE VARIABLE fiReasonCodeLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Adjust Reason Code:" 
      VIEW-AS FILL-IN 
@@ -301,55 +331,65 @@ DEFINE RECTANGLE RECT-31
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 41 BY 1.38.
 
+DEFINE RECTANGLE RECT-32
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 148 BY 3.43.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     fiText AT ROW 1.33 COL 144.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 44
-     rsAdjustType AT ROW 1.43 COL 18.6 NO-LABEL WIDGET-ID 148
-     fiResult AT ROW 2.81 COL 144.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 50
-     fiTotalQtyLabel AT ROW 3.38 COL 14.4 COLON-ALIGNED NO-LABEL WIDGET-ID 128
-     fiTotalQty AT ROW 3.38 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 88
-     btnDel AT ROW 4.76 COL 105.2 WIDGET-ID 4 NO-TAB-STOP 
-     btnClear AT ROW 4.76 COL 125.6 WIDGET-ID 2 NO-TAB-STOP 
-     btnDiv AT ROW 4.76 COL 136 WIDGET-ID 6 NO-TAB-STOP 
-     fiSubUnitsLabel AT ROW 5.14 COL 17.2 COLON-ALIGNED NO-LABEL WIDGET-ID 134
-     fiSubUnits AT ROW 5.14 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 90
-     btn7 AT ROW 6.81 COL 105.2 WIDGET-ID 18 NO-TAB-STOP 
-     btn8 AT ROW 6.81 COL 115.4 WIDGET-ID 10 NO-TAB-STOP 
-     btn9 AT ROW 6.81 COL 125.6 WIDGET-ID 12 NO-TAB-STOP 
-     btnMult AT ROW 6.81 COL 136 WIDGET-ID 14 NO-TAB-STOP 
-     fiSubUnitCountLabel AT ROW 6.95 COL 7.8 COLON-ALIGNED NO-LABEL WIDGET-ID 136
-     fiSubUnitCount AT ROW 6.95 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 94
-     fiSubUnitsPerUnitLabel AT ROW 8.81 COL 5 NO-LABEL WIDGET-ID 138
-     fiSubUnitsPerUnit AT ROW 8.81 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 98
-     btn4 AT ROW 8.91 COL 105.2 WIDGET-ID 20 NO-TAB-STOP 
-     btn5 AT ROW 8.91 COL 115.4 WIDGET-ID 22 NO-TAB-STOP 
-     btn6 AT ROW 8.91 COL 125.6 WIDGET-ID 24 NO-TAB-STOP 
-     btnMinus AT ROW 8.91 COL 136 WIDGET-ID 26 NO-TAB-STOP 
-     fiUnitCountLabel AT ROW 10.62 COL 17.8 COLON-ALIGNED NO-LABEL WIDGET-ID 140
-     fiUnitCount AT ROW 10.62 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 102
-     btn1 AT ROW 10.95 COL 105.2 WIDGET-ID 28 NO-TAB-STOP 
-     btn2 AT ROW 10.95 COL 115.4 WIDGET-ID 30 NO-TAB-STOP 
-     btn3 AT ROW 10.95 COL 125.6 WIDGET-ID 32 NO-TAB-STOP 
-     btnPlus AT ROW 11 COL 136 WIDGET-ID 34 NO-TAB-STOP 
-     fiPartialLabel AT ROW 12.52 COL 25.8 COLON-ALIGNED NO-LABEL WIDGET-ID 142
-     fiPartial AT ROW 12.52 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 106
-     btnZero AT ROW 13.05 COL 105.2 WIDGET-ID 38 NO-TAB-STOP 
-     btnPeriod AT ROW 13.05 COL 125.6 WIDGET-ID 40 NO-TAB-STOP 
-     btnEqual AT ROW 13.05 COL 136 WIDGET-ID 42 NO-TAB-STOP 
-     fiUnitsLabel AT ROW 14.33 COL 25.6 COLON-ALIGNED NO-LABEL WIDGET-ID 144
-     fiUnits AT ROW 14.33 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 110
-     Btn_OK AT ROW 15.48 COL 105.4
-     Btn_Cancel AT ROW 15.48 COL 131
-     fiReasonCodeLabel AT ROW 16 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 146
-     cbReasonCode AT ROW 16.1 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 114
-     RECT-30 AT ROW 2.71 COL 105 WIDGET-ID 52
-     RECT-31 AT ROW 1.24 COL 105 WIDGET-ID 54
-     SPACE(4.39) SKIP(15.13)
+     fiItem AT ROW 1.33 COL 15.6 COLON-ALIGNED WIDGET-ID 154
+     fiItemName AT ROW 1.33 COL 68 COLON-ALIGNED WIDGET-ID 156
+     fiJobQty AT ROW 2.91 COL 15.6 COLON-ALIGNED WIDGET-ID 158
+     fiRcvdQty AT ROW 2.91 COL 65 COLON-ALIGNED WIDGET-ID 160
+     fiOnHandQty AT ROW 2.91 COL 114.6 COLON-ALIGNED WIDGET-ID 162
+     fiText AT ROW 4.91 COL 144.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 44
+     rsAdjustType AT ROW 5 COL 18.6 NO-LABEL WIDGET-ID 148
+     fiResult AT ROW 6.38 COL 144.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 50
+     fiTotalQtyLabel AT ROW 6.95 COL 14.4 COLON-ALIGNED NO-LABEL WIDGET-ID 128
+     fiTotalQty AT ROW 6.95 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 88
+     btnDel AT ROW 8.33 COL 105.2 WIDGET-ID 4 NO-TAB-STOP 
+     btnClear AT ROW 8.33 COL 125.6 WIDGET-ID 2 NO-TAB-STOP 
+     btnDiv AT ROW 8.33 COL 136 WIDGET-ID 6 NO-TAB-STOP 
+     fiSubUnitsLabel AT ROW 8.71 COL 17.2 COLON-ALIGNED NO-LABEL WIDGET-ID 134
+     fiSubUnits AT ROW 8.71 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 90
+     btn7 AT ROW 10.38 COL 105.2 WIDGET-ID 18 NO-TAB-STOP 
+     btn8 AT ROW 10.38 COL 115.4 WIDGET-ID 10 NO-TAB-STOP 
+     btn9 AT ROW 10.38 COL 125.6 WIDGET-ID 12 NO-TAB-STOP 
+     btnMult AT ROW 10.38 COL 136 WIDGET-ID 14 NO-TAB-STOP 
+     fiSubUnitCountLabel AT ROW 10.52 COL 7.8 COLON-ALIGNED NO-LABEL WIDGET-ID 136
+     fiSubUnitCount AT ROW 10.52 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 94
+     fiSubUnitsPerUnitLabel AT ROW 12.38 COL 5 NO-LABEL WIDGET-ID 138
+     fiSubUnitsPerUnit AT ROW 12.38 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 98
+     btn4 AT ROW 12.48 COL 105.2 WIDGET-ID 20 NO-TAB-STOP 
+     btn5 AT ROW 12.48 COL 115.4 WIDGET-ID 22 NO-TAB-STOP 
+     btn6 AT ROW 12.48 COL 125.6 WIDGET-ID 24 NO-TAB-STOP 
+     btnMinus AT ROW 12.48 COL 136 WIDGET-ID 26 NO-TAB-STOP 
+     fiUnitCountLabel AT ROW 14.19 COL 17.8 COLON-ALIGNED NO-LABEL WIDGET-ID 140
+     fiUnitCount AT ROW 14.19 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 102
+     btn1 AT ROW 14.52 COL 105.2 WIDGET-ID 28 NO-TAB-STOP 
+     btn2 AT ROW 14.52 COL 115.4 WIDGET-ID 30 NO-TAB-STOP 
+     btn3 AT ROW 14.52 COL 125.6 WIDGET-ID 32 NO-TAB-STOP 
+     btnPlus AT ROW 14.57 COL 136 WIDGET-ID 34 NO-TAB-STOP 
+     fiPartialLabel AT ROW 16.1 COL 25.8 COLON-ALIGNED NO-LABEL WIDGET-ID 142
+     fiPartial AT ROW 16.1 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 106
+     btnZero AT ROW 16.62 COL 105.2 WIDGET-ID 38 NO-TAB-STOP 
+     btnPeriod AT ROW 16.62 COL 125.6 WIDGET-ID 40 NO-TAB-STOP 
+     btnEqual AT ROW 16.62 COL 136 WIDGET-ID 42 NO-TAB-STOP 
+     fiUnitsLabel AT ROW 17.91 COL 25.6 COLON-ALIGNED NO-LABEL WIDGET-ID 144
+     fiUnits AT ROW 17.91 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 110
+     Btn_OK AT ROW 19.05 COL 105.4
+     Btn_Cancel AT ROW 19.05 COL 131
+     fiReasonCodeLabel AT ROW 19.57 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 146
+     cbReasonCode AT ROW 19.67 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 114
+     RECT-30 AT ROW 6.29 COL 105 WIDGET-ID 52
+     RECT-31 AT ROW 4.81 COL 105 WIDGET-ID 54
+     RECT-32 AT ROW 1.14 COL 2 WIDGET-ID 152
+     SPACE(0.39) SKIP(16.94)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         BGCOLOR 15 
+         BGCOLOR 15 FONT 36
          TITLE "Insert Value"
          DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
 
@@ -377,7 +417,17 @@ ASSIGN
 
 /* SETTINGS FOR COMBO-BOX cbReasonCode IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiItem IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiItemName IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiJobQty IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiOnHandQty IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiPartialLabel IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiRcvdQty IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiReasonCodeLabel IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
@@ -961,13 +1011,13 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiText rsAdjustType fiResult fiTotalQtyLabel fiTotalQty 
-          fiSubUnitsLabel fiSubUnits fiSubUnitCountLabel fiSubUnitCount 
-          fiSubUnitsPerUnitLabel fiSubUnitsPerUnit fiUnitCountLabel fiUnitCount 
-          fiPartialLabel fiPartial fiUnitsLabel fiUnits fiReasonCodeLabel 
-          cbReasonCode 
+  DISPLAY fiItem fiItemName fiJobQty fiRcvdQty fiOnHandQty fiText rsAdjustType 
+          fiResult fiTotalQtyLabel fiTotalQty fiSubUnitsLabel fiSubUnits 
+          fiSubUnitCountLabel fiSubUnitCount fiSubUnitsPerUnitLabel 
+          fiSubUnitsPerUnit fiUnitCountLabel fiUnitCount fiPartialLabel 
+          fiPartial fiUnitsLabel fiUnits fiReasonCodeLabel cbReasonCode 
       WITH FRAME Dialog-Frame.
-  ENABLE RECT-30 RECT-31 rsAdjustType fiTotalQty btnDel btnClear btnDiv 
+  ENABLE RECT-30 RECT-31 RECT-32 rsAdjustType fiTotalQty btnDel btnClear btnDiv 
          fiSubUnits btn7 btn8 btn9 btnMult fiSubUnitCount fiSubUnitsPerUnit 
          btn4 btn5 btn6 btnMinus btn1 btn2 btn3 btnPlus fiPartial btnZero 
          btnPeriod btnEqual Btn_OK Btn_Cancel 
@@ -1091,7 +1141,15 @@ PROCEDURE pInit :
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
-    
+
+    ASSIGN
+        fiItem:SCREEN-VALUE      = ipcItemID
+        fiItemName:SCREEN-VALUE  = ipcItemName    
+        fiJobQty:SCREEN-VALUE    = STRING(ipdJobQuantity)
+        fiRcvdQty:SCREEN-VALUE   = STRING(ipdRcvdQuantity)
+        fiOnHandQty:SCREEN-VALUE = STRING(ipdTotalQuantity)
+        .
+
     RUN sys/ref/nk1look.p (
         INPUT  g_company,            /* Company Code */ 
         INPUT  "SSJobInquiryAdjust", /* sys-ctrl name */

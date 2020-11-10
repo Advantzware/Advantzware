@@ -26,6 +26,9 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
+DEFINE INPUT  PARAMETER ipcItemID           AS CHARACTER  NO-UNDO.
+DEFINE INPUT  PARAMETER ipcItemName         AS CHARACTER  NO-UNDO.
+DEFINE INPUT  PARAMETER ipdIssueQuantity    AS DECIMAL    NO-UNDO.
 DEFINE INPUT  PARAMETER ipdTotalQuantity    AS DECIMAL    NO-UNDO.
 DEFINE INPUT  PARAMETER iplReqAdjReason     AS LOGICAL    NO-UNDO.
 DEFINE INPUT  PARAMETER iplAllowFractions   AS LOGICAL    NO-UNDO.
@@ -63,11 +66,13 @@ DEFINE VARIABLE lReqReasonCode   AS LOGICAL   NO-UNDO.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-30 RECT-31 rsAdjustType fiTotalQty ~
-btnDel btnClear btnDiv btn7 btn8 btn9 btnMult btn4 btn5 btn6 btnMinus btn1 ~
-btn2 btn3 btnPlus btnZero btnPeriod btnEqual Btn_OK Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS fiText rsAdjustType fiResult ~
-fiTotalQtyLabel fiTotalQty fiReasonCodeLabel cbReasonCode 
+&Scoped-Define ENABLED-OBJECTS RECT-30 RECT-31 RECT-32 btnDel btnClear ~
+btnDiv btn7 btn8 btn9 btnMult rsAdjustType btn4 btn5 btn6 btnMinus ~
+fiTotalQty btn1 btn2 btn3 btnPlus btnZero btnPeriod btnEqual Btn_OK ~
+Btn_Cancel 
+&Scoped-Define DISPLAYED-OBJECTS fiText fiItem fiResult fiItemName ~
+fiQtyIssue fiQtyReq rsAdjustType fiTotalQtyLabel fiTotalQty ~
+fiReasonCodeLabel cbReasonCode 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -188,6 +193,30 @@ DEFINE VARIABLE cbReasonCode AS CHARACTER FORMAT "X(256)":U
      SIZE 61.4 BY 1
      FONT 36 NO-UNDO.
 
+DEFINE VARIABLE fiItem AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Item #" 
+     VIEW-AS FILL-IN 
+     SIZE 65 BY 1.43
+     FONT 36 NO-UNDO.
+
+DEFINE VARIABLE fiItemName AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Item Name" 
+     VIEW-AS FILL-IN 
+     SIZE 65 BY 1.43
+     FONT 36 NO-UNDO.
+
+DEFINE VARIABLE fiQtyIssue AS DECIMAL FORMAT "->>>,>>>,>>9.99<<<<":U INITIAL 0 
+     LABEL "Qty Issued" 
+     VIEW-AS FILL-IN 
+     SIZE 28.6 BY 1.43
+     FONT 36 NO-UNDO.
+
+DEFINE VARIABLE fiQtyReq AS DECIMAL FORMAT "->>>,>>>,>>9.99<<<<":U INITIAL 0 
+     LABEL "Qty Required" 
+     VIEW-AS FILL-IN 
+     SIZE 28.6 BY 1.43
+     FONT 36 NO-UNDO.
+
 DEFINE VARIABLE fiReasonCodeLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Adjust Reason Code:" 
      VIEW-AS FILL-IN 
      SIZE 30.6 BY 1.43
@@ -229,31 +258,39 @@ DEFINE RECTANGLE RECT-31
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 41 BY 1.38.
 
+DEFINE RECTANGLE RECT-32
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 102 BY 5.48.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
      fiText AT ROW 1.33 COL 144.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 44
-     rsAdjustType AT ROW 1.43 COL 18.6 NO-LABEL WIDGET-ID 148
+     fiItem AT ROW 1.71 COL 20 COLON-ALIGNED WIDGET-ID 152
      fiResult AT ROW 2.81 COL 144.4 RIGHT-ALIGNED NO-LABEL WIDGET-ID 50
-     fiTotalQtyLabel AT ROW 3.38 COL 14.4 COLON-ALIGNED NO-LABEL WIDGET-ID 128
-     fiTotalQty AT ROW 3.38 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 88
+     fiItemName AT ROW 3.24 COL 20 COLON-ALIGNED WIDGET-ID 154
      btnDel AT ROW 4.76 COL 105.2 WIDGET-ID 4 NO-TAB-STOP 
      btnClear AT ROW 4.76 COL 125.6 WIDGET-ID 2 NO-TAB-STOP 
      btnDiv AT ROW 4.76 COL 136 WIDGET-ID 6 NO-TAB-STOP 
-     fiReasonCodeLabel AT ROW 4.91 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 146
-     cbReasonCode AT ROW 5 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 114
+     fiQtyIssue AT ROW 4.81 COL 20 COLON-ALIGNED WIDGET-ID 156
+     fiQtyReq AT ROW 4.81 COL 71 COLON-ALIGNED WIDGET-ID 158
      btn7 AT ROW 6.81 COL 105.2 WIDGET-ID 18 NO-TAB-STOP 
      btn8 AT ROW 6.81 COL 115.4 WIDGET-ID 10 NO-TAB-STOP 
      btn9 AT ROW 6.81 COL 125.6 WIDGET-ID 12 NO-TAB-STOP 
      btnMult AT ROW 6.81 COL 136 WIDGET-ID 14 NO-TAB-STOP 
+     rsAdjustType AT ROW 7.43 COL 18.6 NO-LABEL WIDGET-ID 148
      btn4 AT ROW 8.91 COL 105.2 WIDGET-ID 20 NO-TAB-STOP 
      btn5 AT ROW 8.91 COL 115.4 WIDGET-ID 22 NO-TAB-STOP 
      btn6 AT ROW 8.91 COL 125.6 WIDGET-ID 24 NO-TAB-STOP 
      btnMinus AT ROW 8.91 COL 136 WIDGET-ID 26 NO-TAB-STOP 
+     fiTotalQtyLabel AT ROW 9.38 COL 14.4 COLON-ALIGNED NO-LABEL WIDGET-ID 128
+     fiTotalQty AT ROW 9.38 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 88
+     fiReasonCodeLabel AT ROW 10.91 COL 6 COLON-ALIGNED NO-LABEL WIDGET-ID 146
      btn1 AT ROW 10.95 COL 105.2 WIDGET-ID 28 NO-TAB-STOP 
      btn2 AT ROW 10.95 COL 115.4 WIDGET-ID 30 NO-TAB-STOP 
      btn3 AT ROW 10.95 COL 125.6 WIDGET-ID 32 NO-TAB-STOP 
+     cbReasonCode AT ROW 11 COL 37.2 COLON-ALIGNED NO-LABEL WIDGET-ID 114
      btnPlus AT ROW 11 COL 136 WIDGET-ID 34 NO-TAB-STOP 
      btnZero AT ROW 13.05 COL 105.2 WIDGET-ID 38 NO-TAB-STOP 
      btnPeriod AT ROW 13.05 COL 125.6 WIDGET-ID 40 NO-TAB-STOP 
@@ -262,10 +299,11 @@ DEFINE FRAME Dialog-Frame
      Btn_Cancel AT ROW 15.48 COL 131
      RECT-30 AT ROW 2.71 COL 105 WIDGET-ID 52
      RECT-31 AT ROW 1.24 COL 105 WIDGET-ID 54
-     SPACE(4.39) SKIP(15.13)
+     RECT-32 AT ROW 1.24 COL 2 WIDGET-ID 160
+     SPACE(46.39) SKIP(11.03)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         BGCOLOR 15 
+         BGCOLOR 15 FONT 36
          TITLE "Insert Value"
          DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel WIDGET-ID 100.
 
@@ -292,6 +330,14 @@ ASSIGN
        FRAME Dialog-Frame:HIDDEN           = TRUE.
 
 /* SETTINGS FOR COMBO-BOX cbReasonCode IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiItem IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiItemName IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiQtyIssue IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiQtyReq IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiReasonCodeLabel IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
@@ -703,11 +749,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiText rsAdjustType fiResult fiTotalQtyLabel fiTotalQty 
-          fiReasonCodeLabel cbReasonCode 
+  DISPLAY fiText fiItem fiResult fiItemName fiQtyIssue fiQtyReq rsAdjustType 
+          fiTotalQtyLabel fiTotalQty fiReasonCodeLabel cbReasonCode 
       WITH FRAME Dialog-Frame.
-  ENABLE RECT-30 RECT-31 rsAdjustType fiTotalQty btnDel btnClear btnDiv btn7 
-         btn8 btn9 btnMult btn4 btn5 btn6 btnMinus btn1 btn2 btn3 btnPlus 
+  ENABLE RECT-30 RECT-31 RECT-32 btnDel btnClear btnDiv btn7 btn8 btn9 btnMult 
+         rsAdjustType btn4 btn5 btn6 btnMinus fiTotalQty btn1 btn2 btn3 btnPlus 
          btnZero btnPeriod btnEqual Btn_OK Btn_Cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
@@ -783,6 +829,13 @@ PROCEDURE pInit :
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
+
+    ASSIGN
+        fiItem:SCREEN-VALUE     = ipcItemID
+        fiItemName:SCREEN-VALUE = ipcItemName
+        fiQtyIssue:SCREEN-VALUE = STRING(ipdIssueQuantity)
+        fiQtyReq:SCREEN-VALUE   = STRING(ipdTotalQuantity)
+        .
     
     RUN sys/ref/nk1look.p (
         INPUT  g_company,            /* Company Code */ 
