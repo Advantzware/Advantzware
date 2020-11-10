@@ -26,6 +26,16 @@ if v-ship-city ne "" or v-ship-state ne "" or v-ship-zip ne "" then
   
  ASSIGN
    chWorkSheet:Range("O2"):VALUE = oe-bolh.bol-no .
+
+if oe-bolh.frt-pay eq "P" then
+   chWorkSheet:Range("L18"):VALUE = "Prepaid" .
+else if oe-bolh.frt-pay eq "C" then
+   chWorkSheet:Range("L18"):VALUE = "Collect" .
+else if oe-bolh.frt-pay eq "T" then
+   chWorkSheet:Range("L18"):VALUE = "3rd Party" .
+else if oe-bolh.frt-pay eq "B" then
+   chWorkSheet:Range("L18"):VALUE = "Bill" .
+
 if avail tt-temp-report then
    assign
    chWorkSheet:Range("N7"):VALUE = tt-temp-report.cCarrier 
