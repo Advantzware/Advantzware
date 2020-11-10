@@ -1332,8 +1332,9 @@ PROCEDURE filterTagBins :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iplShowZeroBins AS LOGICAL   NO-UNDO.
     DEFINE INPUT PARAMETER iplTagBins      AS CHARACTER NO-UNDO.
-    
-    RUN filterTagBins IN h_fgijob (INPUT iplShowZeroBins, INPUT iplTagBins ).
+    DEFINE INPUT PARAMETER iplShowOnHold   AS LOGICAL   NO-UNDO.
+         
+    RUN filterTagBins IN h_fgijob (INPUT iplShowZeroBins, INPUT iplTagBins, INPUT iplShowOnHold ).
 
 END PROCEDURE.
 

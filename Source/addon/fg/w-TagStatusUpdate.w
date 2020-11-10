@@ -836,6 +836,7 @@ PROCEDURE pUpdateBinStatus PRIVATE :
     DEFINE INPUT PARAMETER ipcStatusID AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iplOnHold   AS LOGICAL   NO-UNDO.
     
+    DEFINE VARIABLE lCheckUpdateOnHold AS LOGICAL NO-UNDO.
     DEFINE BUFFER bf-fg-bin FOR fg-bin.
     
     DO WITH FRAME {&FRAME-NAME}:
@@ -844,6 +845,7 @@ PROCEDURE pUpdateBinStatus PRIVATE :
         WHERE bf-fg-bin.company EQ ipcCompany
           AND bf-fg-bin.tag     EQ ipcTag:
         ASSIGN
+            lCheckUpdateOnHold = bf-fg-bin.onHold
             bf-fg-bin.statusID = ipcStatusID
             bf-fg-bin.onHold   = iplOnHold
             .
@@ -857,6 +859,13 @@ PROCEDURE pUpdateBinStatus PRIVATE :
             INPUT bf-fg-bin.po-no,
             INPUT ipcStatusID
             ).
+            
+        IF lCheckUpdateOnHold NE iplOnHold THEN
+        DO:
+            RUN UpdateFGLocationOnHandQty IN hdInventoryProcs( 
+                                                INPUT rowid(bf-fg-bin), 
+                                                INPUT iplOnHold) .
+        END.
                    
         RELEASE bf-fg-bin.                      
     END.
