@@ -65,18 +65,18 @@ DEFINE VARIABLE cTextListToSelect AS cha NO-UNDO.
 DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 
-ASSIGN cTextListToSelect = "Customer #,customer Name,Ship To #,Ship To Name,Address 1,Address 2,Contact,City,State,Zip,Phone,Fax,Tax Code,Warehouse,Bin,Carrier," +
+ASSIGN cTextListToSelect = "Customer #,customer Name,Ship To #,Ship To Name,Address 1,Address 2,Contact,City,State,Zip,Country,Phone,Fax,Tax Code,Warehouse,Bin,Carrier," +
                            "Zone,Pallet,Broker,Billable,Shipper ID,Member #,Dock #,Dock hours,Charge,Transit Days,Samples," +
                            "Dock Appt,Earliest Allowed,Latest Allowed,Ship Method,Ship Notes 1,Ship Notes 2,Ship Notes 3,Ship Notes 4,Sales Rep (Ship to),Sales Rep (cust),Export ID#,Taxable," +
                            "Area Code,Sales Rep Code (ShipTo),Inactive,Site ID"
 
-      cFieldListToSelect = "cust-no,cust-name,ship-id,ship-name,ship-addr[1],ship-addr[2],contact,ship-city,ship-state,ship-zip,phone,fax,tax-code,loc,loc-bin,carrier," +
+      cFieldListToSelect = "cust-no,cust-name,ship-id,ship-name,ship-addr[1],ship-addr[2],contact,ship-city,ship-state,ship-zip,country,phone,fax,tax-code,loc,loc-bin,carrier," +
                            "dest-code,pallet,broker,bill,spare-char-4,spare-char-5,dock-loc,dock-hour,del-chg,del-time,spare-int-1," +
                            "spare-int-2,spare-int-3,spare-int-4,ship-meth,notes[1],notes[2],notes[3],notes[4],salrepship,salrepcust,jd-edw,man-tax," +
                            "area-code,spare-char-1,statusCode,siteID" .
 {sys/inc/ttRptSel.i}
 
-    ASSIGN cTextListToDefault = "Customer #,Ship To #,Ship To Name,Address 1,Address 2,City,State,Zip,Contact,Area Code,Phone,Fax,Sales Rep Code (ShipTo),Tax Code," +
+    ASSIGN cTextListToDefault = "Customer #,Ship To #,Ship To Name,Address 1,Address 2,City,State,Zip,Country,Contact,Area Code,Phone,Fax,Sales Rep Code (ShipTo),Tax Code," +
                                 "Ship Notes 1,Ship Notes 2,Ship Notes 3,Ship Notes 4," +
                                 "Warehouse,Bin,Carrier,Zone,Pallet,Shipper ID,Member #,Export ID#,Dock #,Dock hours,Charge," +
                                 "Transit Days,Samples,Dock Appt,Earliest Allowed,Latest Allowed,Ship Method,Broker,Billable,Taxable,Inactive, Site ID"

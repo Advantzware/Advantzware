@@ -48,6 +48,7 @@ ASSIGN
  shipto.spare-char-1 = cust.sman
  shipto.carrier = cust.carrier 
  shipto.dest-code = cust.del-zone 
+ shipto.country   = cust.fax-country
  .
 
 

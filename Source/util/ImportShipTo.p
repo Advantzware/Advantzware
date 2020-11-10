@@ -26,6 +26,7 @@ DEFINE TEMP-TABLE ttImportShipTo
     FIELD ShipCity            AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "City" HELP "Optional - Size:30"
     FIELD ShipState           AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "State" HELP "Optional - Size:10"
     FIELD ShipCode            AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Zip/Postal" HELP "Optional - Size:20"
+    FIELD ShipCountry         AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Country" HELP "Optional - Size:3"
     FIELD Contact             AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Contact" HELP "Optional - Size:30"
     FIELD PhoneArea           AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Area Code" HELP "Optional - Size:3"
     FIELD Phone               AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Phone" HELP "Optional - Size:20"
@@ -239,6 +240,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportShipTo.ShipCity, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-city).
     RUN pAssignValueC (ipbf-ttImportShipTo.ShipState, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-state).
     RUN pAssignValueC (ipbf-ttImportShipTo.ShipCode, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-zip).
+    RUN pAssignValueC (ipbf-ttImportShipTo.ShipCountry, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.Country).
     RUN pAssignValueC (ipbf-ttImportShipTo.Contact, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.contact).
     RUN pAssignValueC (ipbf-ttImportShipTo.PhoneArea, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.area-code).
     RUN pAssignValueC (ipbf-ttImportShipTo.Phone, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.phone).
