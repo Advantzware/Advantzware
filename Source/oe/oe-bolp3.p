@@ -1405,7 +1405,7 @@ PROCEDURE ipUpdateReleaseStat:
             DO:
                 RUN oe/rel-stat.p (INPUT ROWID(oe-rel), OUTPUT v-relstat).
                 IF v-relstat NE oe-rel.stat THEN
-               
+                    oe-rel.stat = v-relstat.
                 RELEASE oe-rel.
             END.
             ELSE 
