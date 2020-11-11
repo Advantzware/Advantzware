@@ -4325,7 +4325,6 @@ PROCEDURE post-bol :
    lr-rel-lib = phandle.
 
   FOR EACH tt-post TRANSACTION:
-    RELEASE oe-bolh.
     DO WHILE NOT AVAIL oe-bolh:
       FIND FIRST oe-bolh EXCLUSIVE WHERE ROWID(oe-bolh) EQ tt-post.row-id
           NO-WAIT NO-ERROR.
@@ -4395,6 +4394,7 @@ PROCEDURE post-bol :
         END. /* each oe-boll */
       END.
     END.
+    RELEASE oe-bolh.  
   END.
 
   RUN oe/oe-bolp3.p(
@@ -4409,7 +4409,6 @@ PROCEDURE post-bol :
   /* fixing the actual problems                                  */
 
   FOR EACH tt-post TRANSACTION:
-    RELEASE oe-bolh.
     DO WHILE NOT AVAIL oe-bolh:
       FIND FIRST oe-bolh EXCLUSIVE WHERE ROWID(oe-bolh) EQ tt-post.row-id
           NO-WAIT NO-ERROR.
@@ -4428,6 +4427,7 @@ PROCEDURE post-bol :
         END.
       END.
     END.
+    RELEASE oe-bolh.
   END.
 
   FOR EACH w-ord:
@@ -4446,7 +4446,6 @@ PROCEDURE post-bol :
 
  FOR EACH tt-post TRANSACTION:
 
-    RELEASE oe-bolh.
     DO WHILE NOT AVAIL oe-bolh:
       FIND FIRST oe-bolh EXCLUSIVE WHERE ROWID(oe-bolh) EQ tt-post.row-id
           NO-WAIT NO-ERROR.
@@ -4495,6 +4494,7 @@ PROCEDURE post-bol :
         IF asnsps-log THEN RUN oe/oe856gen.p (RECID(oe-bolh), yes,yes).
       END. /* avail */
     END. /* do while not avail */
+    RELEASE oe-bolh.
   END. /* do trans */
 
   IF v-EDIBOLPost-log THEN
@@ -4538,7 +4538,7 @@ PROCEDURE post-bol :
       END. /* each edioutfile, when rheem */
     END CASE.
   END. /* each sys-ctrl-shipto */
-  RELEASE oe-bolh.
+  
   IF VALID-HANDLE(lr-rel-lib) THEN
      DELETE OBJECT lr-rel-lib.
 END PROCEDURE.
