@@ -145,8 +145,8 @@ ll-sort-asc = NO.
 &SCOPED-DEFINE for-each1                            ~
     FOR EACH oe-ordl                                ~
         WHERE {&key-phrase}                         ~
-          AND ((oe-ordl.opened  EQ YES AND tb_open) OR ((oe-ordl.opened EQ NO OR oe-ordl.stat = "C") AND tb_closed)) ~
-          AND ((oe-ordl.stat    NE "C" AND tb_open) OR (oe-ordl.stat EQ "C" AND tb_closed) OR oe-ordl.stat EQ "") ~
+          AND oe-ordl.opened    EQ YES              ~
+          AND oe-ordl.stat      NE "C"              ~
           AND oe-ordl.cust-no   BEGINS fi_cust-no   ~
           AND oe-ordl.i-no      BEGINS fi_i-no      ~
           AND (oe-ordl.i-name    BEGINS fi_i-name OR ~
@@ -161,11 +161,10 @@ ll-sort-asc = NO.
     FIRST oe-ord NO-LOCK                              ~
         WHERE oe-ord.company  EQ oe-ordl.company      ~
           AND oe-ord.ord-no   EQ oe-ordl.ord-no       ~
-          AND (oe-ord.type    NE "T" OR NOT ll-alloc) ~
           AND oe-ord.po-no    BEGINS fi_po-no1        ~
           AND oe-ord.stat     EQ "W" /* gdm - 04080909 */  ~
-          AND ((oe-ord.opened EQ YES AND tb_open) OR ((oe-ord.opened EQ NO OR oe-ordl.stat = "C") AND tb_closed)) ~
-        USE-INDEX ord-no  
+          AND oe-ord.opened EQ YES ~
+        USE-INDEX stat   
 
 &SCOPED-DEFINE sortby-log                                                                                                                                  ~
     IF lv-sort-by EQ "ord-no"    THEN STRING(oe-ordl.ord-no,"9999999999")                                                                              ELSE ~
@@ -1875,6 +1874,51 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrepareAndExecuteQuery B-table-Win
+PROCEDURE pPrepareAndExecuteQuery PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Generic procedure to prepare and execute the query
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iCount   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iOrdNo   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cRecKey  AS CHARACTER NO-UNDO.
+    
+    {&for-each1} NO-LOCK,
+        {&for-each2}
+        BY oe-ord.rec_key DESCENDING:
+        IF iOrdNo NE 0 AND iOrdNo NE oe-ordl.ord-no THEN
+            iCount = iCount + 1.
+        cRecKey = oe-ord.rec_key.
+        iOrdNo = oe-ordl.ord-no.
+        IF iCount GE iRecordLimit THEN 
+            LEAVE.
+    END.
+
+    &SCOPED-DEFINE OPEN-QUERY              ~
+        OPEN QUERY {&browse-name}          ~
+            {&for-each1}                   ~
+            AND oe-ordl.rec_key GE cRecKey ~
+            NO-LOCK, ~
+            {&for-each2}
+
+     IF ll-sort-asc THEN 
+       {&open-query} {&sortby-phrase-asc}.
+     ELSE DO:
+         IF lv-sort-by EQ "ord-date" THEN 
+           {&open-query} {&sortby-phrase-desc1}.
+         ELSE  
+           {&open-query} {&sortby-phrase-desc}. 
+     END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pushpin-image-proc B-table-Win 
 PROCEDURE pushpin-image-proc :
 /*------------------------------------------------------------------------------
@@ -1974,262 +2018,38 @@ PROCEDURE query-go :
     END.
   END.
 
-  ELSE IF fi_po-no1 NE "" THEN DO:
+  ELSE IF fi_po-no1 NE "" THEN 
+      RUN pPrepareAndExecuteQuery.
 
-    {&for-each1}
-      USE-INDEX po-no NO-LOCK,
-      {&for-each2}
-      BREAK BY oe-ordl.ord-no DESC:
+  ELSE IF fi_po-no-2 NE "" THEN 
+      RUN pPrepareAndExecuteQuery.
 
-      IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
-      lv-ord-no = oe-ordl.ord-no.
-      IF li GE iRecordLimit THEN LEAVE.
-    END.
+  ELSE IF fi_i-no NE "" THEN 
+      RUN pPrepareAndExecuteQuery.
 
-    &SCOPED-DEFINE open-query         ~
-        OPEN QUERY {&browse-name}        ~
-            {&for-each1}                 ~
-            AND oe-ordl.ord-no GE lv-ord-no   ~
-            USE-INDEX po-no NO-LOCK, ~
-            {&for-each2}
-
-     IF ll-sort-asc THEN 
-       {&open-query} {&sortby-phrase-asc}.
-     ELSE DO:
-         IF lv-sort-by EQ "ord-date" THEN 
-           {&open-query} {&sortby-phrase-desc1}.
-         ELSE  
-           {&open-query} {&sortby-phrase-desc}. 
-     END.
-  END.
-
-  ELSE IF fi_po-no-2 NE "" THEN DO:
-
-    {&for-each1}
-      USE-INDEX po-no NO-LOCK,
-      {&for-each2}
-      BREAK BY oe-ordl.ord-no DESC:
-
-      IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
-      lv-ord-no = oe-ordl.ord-no.
-      IF li GE iRecordLimit THEN LEAVE.
-    END.
-
-    &SCOPED-DEFINE open-query         ~
-        OPEN QUERY {&browse-name}        ~
-            {&for-each1}                 ~
-            AND oe-ordl.ord-no GE lv-ord-no   ~
-            USE-INDEX po-no NO-LOCK, ~
-            {&for-each2}
-
-     IF ll-sort-asc THEN 
-       {&open-query} {&sortby-phrase-asc}.
-     ELSE DO:
-         IF lv-sort-by EQ "ord-date" THEN 
-           {&open-query} {&sortby-phrase-desc1}.
-         ELSE  
-           {&open-query} {&sortby-phrase-desc}. 
-     END.
-  END.
-
-  ELSE IF fi_i-no NE "" THEN DO:
-
-    {&for-each1}
-      USE-INDEX ITEM NO-LOCK,
-      {&for-each2}
-      BREAK BY oe-ordl.ord-no DESC:
-
-      IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
-      lv-ord-no = oe-ordl.ord-no.
-      IF li GE iRecordLimit THEN LEAVE.
-    END.
-
-    &SCOPED-DEFINE open-query        ~
-        OPEN QUERY {&browse-name}       ~
-            {&for-each1}                ~
-            AND oe-ordl.ord-no GE lv-ord-no   ~
-                USE-INDEX item NO-LOCK, ~
-                {&for-each2}
-
-     IF ll-sort-asc THEN 
-       {&open-query} {&sortby-phrase-asc}.
-     ELSE DO:
-         IF lv-sort-by EQ "ord-date" THEN 
-           {&open-query} {&sortby-phrase-desc1}.
-         ELSE  
-           {&open-query} {&sortby-phrase-desc}. 
-     END.
-  END.
-
-  ELSE IF fi_job-no NE "" THEN DO:
-
-    {&for-each1}
-      USE-INDEX job NO-LOCK,
-      {&for-each2}
-      BREAK BY oe-ordl.ord-no DESC:
-
-      IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
-      lv-ord-no = oe-ordl.ord-no.
-      IF li GE iRecordLimit THEN LEAVE.
-    END.
-
-    &SCOPED-DEFINE open-query       ~
-        OPEN QUERY {&browse-name}      ~
-            {&for-each1}               ~
-            AND oe-ordl.ord-no GE lv-ord-no   ~
-                USE-INDEX job NO-LOCK, ~
-                {&for-each2}
-
-     IF ll-sort-asc THEN 
-       {&open-query} {&sortby-phrase-asc}.
-     ELSE DO:
-         IF lv-sort-by EQ "ord-date" THEN 
-           {&open-query} {&sortby-phrase-desc1}.
-         ELSE  
-           {&open-query} {&sortby-phrase-desc}. 
-     END.
-  END.
-
-  ELSE IF fi_est-no NE "" THEN DO:
-
-    {&for-each1}
-      USE-INDEX est NO-LOCK,
-      {&for-each2}
-      BREAK BY oe-ordl.ord-no DESC:
-
-      IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
-      lv-ord-no = oe-ordl.ord-no.
-      IF li GE iRecordLimit THEN LEAVE.
-    END.
-
-    &SCOPED-DEFINE open-query       ~
-        OPEN QUERY {&browse-name}      ~
-            {&for-each1}               ~
-            AND oe-ordl.ord-no GE lv-ord-no   ~
-                USE-INDEX est NO-LOCK, ~
-                {&for-each2}
-
-     IF ll-sort-asc THEN 
-       {&open-query} {&sortby-phrase-asc}.
-     ELSE DO:
-         IF lv-sort-by EQ "ord-date" THEN 
-           {&open-query} {&sortby-phrase-desc1}.
-         ELSE  
-           {&open-query} {&sortby-phrase-desc}. 
-     END.
-  END.
-  ELSE IF fi_part-no NE "" THEN DO:
-     {&for-each1}
-      USE-INDEX part NO-LOCK,
-      {&for-each2}
-      BREAK BY oe-ordl.ord-no DESC:
-
-      IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
-      lv-ord-no = oe-ordl.ord-no.
-      IF li GE iRecordLimit THEN LEAVE.
-    END.
-
-    &SCOPED-DEFINE open-query         ~
-        OPEN QUERY {&browse-name}        ~
-            {&for-each1}                 ~
-            AND oe-ordl.ord-no GE lv-ord-no   ~
-            USE-INDEX part NO-LOCK, ~
-            {&for-each2}
-
-     IF ll-sort-asc THEN 
-       {&open-query} {&sortby-phrase-asc}.
-     ELSE DO:
-         IF lv-sort-by EQ "ord-date" THEN 
-           {&open-query} {&sortby-phrase-desc1}.
-         ELSE  
-           {&open-query} {&sortby-phrase-desc}. 
-     END.
-  END.
-  ELSE IF fi_cust-no NE "" THEN DO:
-     {&for-each1}
-      USE-INDEX cust NO-LOCK,
-      {&for-each2}
-      BREAK BY oe-ordl.ord-no DESC:
-
-      IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
-      lv-ord-no = oe-ordl.ord-no.
-      IF li GE iRecordLimit THEN LEAVE.
-    END.
-
-    &SCOPED-DEFINE open-query         ~
-        OPEN QUERY {&browse-name}        ~
-            {&for-each1}                 ~
-            AND oe-ordl.ord-no GE lv-ord-no   ~
-            USE-INDEX cust NO-LOCK, ~
-            {&for-each2}
-
-     IF ll-sort-asc THEN 
-       {&open-query} {&sortby-phrase-asc}.
-     ELSE DO:
-         IF lv-sort-by EQ "ord-date" THEN 
-           {&open-query} {&sortby-phrase-desc1}.
-         ELSE  
-           {&open-query} {&sortby-phrase-desc}. 
-     END.
-  END.
+  ELSE IF fi_job-no NE "" THEN 
+      RUN pPrepareAndExecuteQuery.
+      
+  ELSE IF fi_est-no NE "" THEN 
+      RUN pPrepareAndExecuteQuery.
+      
+  ELSE IF fi_part-no NE "" THEN 
+      RUN pPrepareAndExecuteQuery.
+      
+  ELSE IF fi_cust-no NE "" THEN
+      RUN pPrepareAndExecuteQuery.
   ELSE DO:
 
-    IF fi_cust-no EQ "" AND fi_i-no EQ "" AND
+    IF fi_cust-no EQ "" AND fi_i-no   EQ "" AND
        fi_part-no EQ "" AND fi_po-no1 EQ "" AND
-       fi_est-no EQ "" AND fi_job-no EQ "" THEN
+       fi_est-no  EQ "" AND fi_job-no EQ "" AND 
+       fi_i-name  EQ "" THEN
     DO:
-       {&for-eachblank}
-         USE-INDEX opened NO-LOCK,
-         {&for-each2}
-         BREAK BY oe-ordl.ord-no DESC:
-
-         IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
-         lv-ord-no = oe-ordl.ord-no.
-         IF li GE iRecordLimit THEN LEAVE.
-       END.
-
-       &SCOPED-DEFINE open-query          ~
-           OPEN QUERY {&browse-name}         ~
-               {&for-eachblank}              ~
-               AND oe-ordl.ord-no GE lv-ord-no   ~
-                   USE-INDEX opened NO-LOCK, ~
-                   {&for-each2}
-        IF ll-sort-asc THEN 
-            {&open-query} {&sortby-phrase-asc}.
-        ELSE DO:
-            IF lv-sort-by EQ "ord-date" THEN 
-                {&open-query} {&sortby-phrase-desc1}.
-            ELSE  
-                {&open-query} {&sortby-phrase-desc}. 
-        END.                    
+        ll-first = YES.
+        RUN query-first.                    
     END.
     ELSE
-    DO:
-       {&for-each1}
-         USE-INDEX opened NO-LOCK,
-         {&for-each2}
-         BREAK BY oe-ordl.ord-no DESC:
-
-         IF FIRST-OF(oe-ordl.ord-no) THEN li = li + 1.
-         lv-ord-no = oe-ordl.ord-no.
-         IF li GE iRecordLimit THEN LEAVE.
-       END.
-
-       &SCOPED-DEFINE open-query          ~
-           OPEN QUERY {&browse-name}         ~
-               {&for-each1}                  ~
-               AND oe-ordl.ord-no GE lv-ord-no   ~
-                   USE-INDEX opened NO-LOCK, ~
-                   {&for-each2}
-        IF ll-sort-asc THEN 
-            {&open-query} {&sortby-phrase-asc}.
-        ELSE DO:
-            IF lv-sort-by EQ "ord-date" THEN 
-                {&open-query} {&sortby-phrase-desc1}.
-            ELSE  
-                {&open-query} {&sortby-phrase-desc}. 
-        END.                   
-    END.
+        RUN pPrepareAndExecuteQuery.
   END.
 
 END PROCEDURE.
