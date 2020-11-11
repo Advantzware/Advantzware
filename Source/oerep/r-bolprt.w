@@ -4538,7 +4538,7 @@ PROCEDURE post-bol :
       END. /* each edioutfile, when rheem */
     END CASE.
   END. /* each sys-ctrl-shipto */
-
+  RELEASE oe-bolh.
   IF VALID-HANDLE(lr-rel-lib) THEN
      DELETE OBJECT lr-rel-lib.
 END PROCEDURE.
