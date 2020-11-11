@@ -1315,6 +1315,7 @@ DEFINE VARIABLE dProfit AS DECIMAL FORMAT "->>,>>9.99%" NO-UNDO .
 DEFINE VARIABLE cUom AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 DEFINE VARIABLE pricbas AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dPriceNextQty AS DECIMAL NO-UNDO .
 DEFINE BUFFER bf-quoteqty FOR quoteqty.
 
 
@@ -1352,7 +1353,8 @@ FOR EACH quotehd
        iQty   =  0
        dPrice = 0
        dProfit = 0
-       cUom   = "".
+       cUom   = ""
+       dPriceNextQty = 0.
      
     FIND FIRST itemfg NO-LOCK 
         WHERE itemfg.company EQ cocode 
@@ -1406,10 +1408,10 @@ FOR EACH quotehd
             DO:  
                ASSIGN
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(iQty    ))
-                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(dPrice  ))
+                v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(dPriceNextQty  ))
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine("0")
                 v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(cUom    ))   .              
-            
+                dPriceNextQty = dPrice .
                 IF LAST(bf-quoteqty.qty) THEN
                 DO:
                 ASSIGN
@@ -1418,8 +1420,7 @@ FOR EACH quotehd
                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine("0")
                     v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(cUom    ))   .                 
                 END.
-            END.
-            
+            END.                          
      END.
          DO j = (i + 1) TO 9:
                ASSIGN
