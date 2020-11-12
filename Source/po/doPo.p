@@ -4038,8 +4038,8 @@ PROCEDURE RevCreateTtEivVend:
     FOR EACH vendItemCost NO-LOCK  WHERE vendItemCost.company EQ ITEM.company
                     AND vendItemCost.ItemID    EQ item.i-no
                     AND vendItemCost.ItemType EQ "RM" 
-                    AND v-wid GE venditemCost.dimWidthMinimum AND v-wid LE venditemCost.dimWidthMaximum
-                    AND v-len GE venditemCost.dimlengthMinimum AND v-len LE venditemCost.dimlengthMaximum,
+                    AND bf-w-job-mat.wid GE venditemCost.dimWidthMinimum AND bf-w-job-mat.wid LE venditemCost.dimWidthMaximum
+                    AND bf-w-job-mat.len GE venditemCost.dimlengthMinimum AND bf-w-job-mat.len LE venditemCost.dimlengthMaximum,
                                                      
         EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
         BY vendItemCostLevel.vendItemCostLevelID:
