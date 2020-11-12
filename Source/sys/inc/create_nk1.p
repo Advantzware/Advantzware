@@ -1273,7 +1273,7 @@ CASE ip-nk1-value:
             INPUT NO,                                                             /* Prompt? */
             INPUT "Defined source to obtain the FG item number from cXML order",  /* Description */
             INPUT "SupplierPartId",                                               /* Char Value */
-            INPUT 8,                                                              /* Int value */
+            INPUT 0,                                                              /* Int value */
             INPUT NO,                                                             /* Logical value */ 
             INPUT 0                                                               /* Dec value*/
             ). 
