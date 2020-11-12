@@ -170,6 +170,9 @@
 "001" "202010273657605809481" "SendPurchaseOrder" "ClosePurchaseOrder" "Trigger when Purchase Order is closed from closepo.p" yes 2020-10-27T10:09:36.180 "asi" "_default14" 171 31
 "001" "202010273657605809482" "SendPurchaseOrder" "DeletePurchaseOrder" "Trigger when Purchase order is deleted" yes 2020-10-27T10:09:36.192 "asi" "_default14" 172 31
 "001" "202010273657605809483" "SendPurchaseOrder" "ReprintPurchaseOrder" "Trigger when Purchase Order Printed flag is ""YES""" yes 2020-10-27T10:09:36.204 "asi" "_default14" 173 31
+"001" "202011062110905822551" "SendInvoice" "PrintInvoice" "Send EDI invoice on print of invoice" yes 2020-11-06T05:51:49.920 "asi" "_default2" 174 32
+"001" "202011062110905822552" "SendInvoice" "RePrintInvoice" "Send EDI invoice on re-print of invoice" yes 2020-11-06T05:51:49.940 "asi" "_default2" 175 32
+"001" "202011062110905822553" "SendInvoice" "PostInvoice" "Send EDI invoice on post of invoice" yes 2020-11-06T05:51:49.953 "asi" "_default2" 176 32
 "001" "202005312751105329006" "SendAdvancedShipNotice" "ReprintBillOfLading" "Triggers when BOL is re-printed" no 2020-05-31T07:38:31.905 "jay" "Test" 5023 5007
 "001" "202005312751105329007" "SendAdvancedShipNotice" "PrintBillOfLading" "Triggers when BOL is printed" no 2020-05-31T07:38:31.925 "jay" "Test" 5024 5007
 "001" "202005312751105329008" "SendAdvancedShipNotice" "AddCustomer" "Adds a customer" yes 2020-05-31T07:38:31.931 "jay" "Test" 5025 5007
@@ -213,3 +216,11 @@
 "001" "202010143870005760575" "SendInvoice" "PostInvoice" "Generate cXML invoice on post of invoice" yes 2020-10-14T10:45:00.805 "jay" "UPS" 5176 5041
 "001" "202010194574705767456" "SendJob" "PrintJob" "Triggers when Job printed flag is NO" no 2020-10-19T20:21:36.955 "matt" "eWMS" 5177 5042
 "001" "202010194574705767457" "SendJob" "ReprintJob" "Triggers when Job printed flag is YES" no 2020-10-19T20:21:41.218 "matt" "eWMS" 5178 5042
+"001" "202011028541505818227" "SendPurchaseOrder" "UpdatePurchaseOrder" "Updates a Purchase Order" yes 2020-11-02T23:43:35.154 "mattasi" "trepaper" 5356 5066
+"001" "202011028541505818228" "SendPurchaseOrder" "HoldPurchaseOrder" "Purchase Order status changing to ""H"" (Hold)" yes 2020-11-02T23:43:35.160 "mattasi" "trepaper" 5357 5066
+"001" "202011028541505818229" "SendPurchaseOrder" "ReleasePurchaseOrder" "Purchase Order status changing from ""H"" (Hold)" yes 2020-11-02T23:43:35.166 "mattasi" "trepaper" 5358 5066
+"001" "202011028541505818230" "SendPurchaseOrder" "ReopenPurchaseOrder" "Trigger when Purchase Order is re-opened" yes 2020-11-02T23:43:35.172 "mattasi" "trepaper" 5359 5066
+"001" "202011028541505818231" "SendPurchaseOrder" "ClosePurchaseOrder" "Trigger when Purchase Order is closed from closepo.p" yes 2020-11-02T23:43:35.179 "mattasi" "trepaper" 5360 5066
+"001" "202011028541505818232" "SendPurchaseOrder" "DeletePurchaseOrder" "Trigger when Purchase order is deleted" yes 2020-11-02T23:43:35.185 "mattasi" "trepaper" 5361 5066
+"001" "202011028541505818233" "SendPurchaseOrder" "ReprintPurchaseOrder" "Trigger when Purchase Order Printed flag is ""YES""" no 2020-11-02T23:43:49.713 "mattasi" "trepaper" 5362 5066
+"001" "202011028541505818234" "SendPurchaseOrder" "PrintPurchaseOrder" "Trigger when Purchase Order Printed flag is ""NO""" no 2020-11-02T23:43:42.371 "mattasi" "trepaper" 5363 5066

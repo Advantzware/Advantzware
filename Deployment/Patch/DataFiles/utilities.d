@@ -23,6 +23,7 @@ Files saved based on NK1 = AuditDir settings." 900
 "purgeOrphans.r" "UTIL" "" "Utility to Purge Orphan Records" "" 900
 "CreateMiscEstimates.r" "EC" "" "Create and Calculate Misc Estimates" "Automate the creation and calculation of Misc estimates by entering range of estimates.  The process will automate the adding of a new ""Misc Estimate"" when entering a ""Source Estimate""" 900
 "Del-prmtx.r" "OE" "OF3" "Price Matrix Delete Multiple Item" "Price Matrix Delete Multiple Item" 900
+"AmazonInvoice.r" "OE" "" "Resend Amazon Invoices" "Enter CSV file of invoices to resend" 900
 "resetSecurity.r" "UTIL" "" "Reset all NS8 user security to 'Everyone'" "" 1000
 "RebuildRecalcJobs.r" "JC" "JU1" "Rebuild / Recalculate Jobs" "Utility will allow the rebuild or recalc of jobs with no production quantity." 900
 "adddcrec.r" "FG" "" "Record FG Receipts for Posted Data Collection" "Create receipts for FG items based on data collection using the last machne." 900
@@ -106,7 +107,7 @@ Note: No prompt will be provided, so running this will execute immediately." 900
 
 Note: No prompt will be provided, so running this will execute immediately." 900
 "Fxestqty.r" "ASI" "E" "Restore Estimate Not Displaying" "If the estimate has lost its quantities, then this will reset the quantity as it only updates the estimate quantity." 1000
-"FxIvOnly.r" "ASI" "OS1" "Invoice Only Missing Invoice Fix" "Validates the order, gets first posted BOL line for that order, find the first release line for that BOL, it will delete the BOL line if there is a BOL and sets the release to unposted so they can ost it again." 1000
+"FxIvOnly.r" "ASI" "OS1" "Invoice Only Missing Invoice Fix" "Validates the order, gets first posted BOL line for that order, find the first release line for that BOL, it will delete the BOL line if there is a BOL and sets the release to unposted so they can post it again." 1000
 "FxMnote.r" "JC" "JU1" "Restore Job Machine Notes" "Restores the machine notes on the job from the estimate.  Asks begin and end job number." 900
 "fxoeretl.r" "FG" "IF" "Returns should reduce the ship quantity" "No prompt!  This utility will automatiaclly recalulcate the shipped quantity by adding all shipments and reducing that by all returns." 900
 "fxoeship.r" "OP" "OU1" "Update Order Browsers Ship Quantity" " Recalculates the ship and invoice quantities of all orders based on the sum of all the invoices and all the BOLs and updates the order quantities.

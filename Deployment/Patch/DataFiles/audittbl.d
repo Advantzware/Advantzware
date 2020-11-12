@@ -209,7 +209,7 @@
 "itemfg" no no no no no no no no 0 0
 "itemfg-bom" no no no no no no no no 0 0
 "itemfg-ink" no no no no no no no no 0 0
-"itemfg-loc" no no no no no no no no 0 0
+"itemfg-loc" no no no no yes yes yes yes 0 0
 "itemfgdtl" no no no no no no no no 0 0
 "itemUom" no no no no no no no no 0 0
 "jc-ctrl" no no no no no no yes no 0 0
@@ -222,7 +222,7 @@
 "job-farm-rctd" no no no no no no no no 0 0
 "job-hdr" no no no no no no no no 0 0
 "job-mat" no no no no no no no no 0 0
-"job-mch" no no no no no no no no 0 0
+"job-mch" yes yes yes no yes yes yes no 0 0
 "job-prep" no no no no no no no no 0 0
 "job-sch" no no no no no no no no 0 0
 "jobcad" no no no no no no no no 0 0
@@ -360,7 +360,7 @@
 "shift" no no no no no no no no 0 0
 "shifts" no no no no no no no no 0 0
 "shift_break" no no no no no no no no 0 0
-"shipto" no no no no no no no no 0 0
+"shipto" no no yes no yes yes yes yes 0 0
 "sman" no no no no no no no no 0 0
 "sman-mtx" no no no no no no no no 0 0
 "smanbcat" no no no no no no no no 0 0

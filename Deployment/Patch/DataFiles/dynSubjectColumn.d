@@ -1284,7 +1284,7 @@
 94 yes 2 "ttJobItem.dtOrderDate" "ORD-DATE" "99/99/9999" "ttJobItem" 0 "date" "ASI" 5 no no "" "" no "" "" "202003237065804706918" no no no "" no "" "" 0 0 "" no
 94 no 20 "ttJobItem.iBlankNumber" "BLANK" ">9" "ttJobItem" 0 "integer" "ASI" 4 no no "" "" no "" "" "202009114887205641172" no no no "" no "" "" 0 0 "" no
 94 no 19 "ttJobItem.iFormNumber" "FORM" ">>9" "ttJobItem" 0 "integer" "ASI" 3 no no "" "" no "" "" "202009114887205641173" no no no "" no "" "" 0 0 "" no
-95 yes 1 "ttProdSum.cProductCategory" "Prod" "x(7)" "ttProdSum" 0 "character" "ASI" 0 no no "" "" no "" "" "202002284828904619260" no no no "" no "" "" 0 0 "" no
+95 yes 1 "ttProdSum.cProductCategory" "Prod" "x(7)" "ttProdSum" 0 "character" "ASI" 1 no no "" "" no "" "" "202002284828904619260" no no no "" no "" "" 0 0 "" no
 95 yes 2 "ttProdSum.cProductDescription" "Product Description" "x(20)" "ttProdSum" 0 "character" "ASI" 0 no no "" "" no "" "" "202002284828904619261" no no no "" no "" "" 0 0 "" no
 95 yes 6 "ttProdSum.dPriceTotalBalanceToRun" "Sell Value to Run" "->,>>>,>>9.99" "ttProdSum" 0 "decimal" "ASI" 0 no no "" "Report,Sum" no "" "" "202002284828904619262" no no no "" no "" "" 0 0 "" no
 95 yes 4 "ttProdSum.dPriceTotalOnHand" "Sell Value of On-Hand" "->,>>>,>>9.99" "ttProdSum" 0 "decimal" "ASI" 0 no no "" "Report,Sum" no "" "" "202002285117804619293" no no no "" no "" "" 0 0 "" no
@@ -2246,3 +2246,9 @@
 151 yes 3 "ttJobItem.dtOrderDate" "ORD-DATE" "99/99/9999" "ttJobItem" 0 "date" "ASI" 5 no no "" "" no "" "" "202010235629605801104" no no no "" no "" "" 0 0 "" no
 151 no 21 "ttJobItem.iBlankNumber" "BLANK" ">9" "ttJobItem" 0 "integer" "ASI" 4 no no "" "" no "" "" "202010235629605801105" no no no "" no "" "" 0 0 "" no
 151 no 20 "ttJobItem.iFormNumber" "FORM" ">>9" "ttJobItem" 0 "integer" "ASI" 3 no no "" "" no "" "" "202010235629605801106" no no no "" no "" "" 0 0 "" no
+152 yes 4 "cust-part.cust-no" "Cust. #" "x(8)" "cust-part" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202011112454205840103" yes yes yes "" no "" "" 0 0 "" no
+152 yes 1 "cust-part.part-no" "Cust Part #" "x(12)" "cust-part" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202011112454205840104" yes yes yes "" no "" "" 0 0 "" no
+152 yes 5 "itemfg.i-no" "Item No" "x(15)" "itemfg" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202011112454205840105" yes yes yes "" no "" "" 0 0 "" no
+152 yes 2 "itemfg.part-dscr1" "Item Description" "x(30)" "itemfg" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202011112454205840106" yes yes yes "" no "" "" 0 0 "" no
+152 yes 6 "itemfg.part-dscr2" "Item Description" "x(30)" "itemfg" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202011112454205840107" yes yes yes "" no "" "" 0 0 "" no
+152 yes 3 "itemfg.q-onh" "Qty On-Hand" "->>,>>>,>>9.999" "itemfg" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202011112454205840108" yes yes yes "" no "" "" 0 0 "" no

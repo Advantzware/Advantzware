@@ -154,3 +154,5 @@
 148 1 "EACH" "dept" "Departments" "" "ASI" "202009217129805648029"
 149 1 "EACH" "itemfg" "FG Item Master" "" "ASI" "202010191868705766843"
 150 1 "EACH" "loc" "Location Master" "" "ASI" "202010212808805776597"
+152 1 "EACH" "cust-part" "Customer Part Number " "" "ASI" "202011112454205840089"
+152 2 "FIRST" "itemfg" "FG Item Master" "" "ASI" "202011112454205840090"
