@@ -4039,7 +4039,7 @@ PROCEDURE RevCreateTtEivVend:
                     AND vendItemCost.ItemID    EQ item.i-no
                     AND vendItemCost.ItemType EQ "RM" 
                     AND v-wid GE venditemCost.dimWidthMinimum AND v-wid LE venditemCost.dimWidthMaximum
-                    AND v-len GE venditemCost.dimlengthMinimum AND v-len LE venditemCost.dimlengthMinimum,
+                    AND v-len GE venditemCost.dimlengthMinimum AND v-len LE venditemCost.dimlengthMaximum,
                                                      
         EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
         BY vendItemCostLevel.vendItemCostLevelID:
