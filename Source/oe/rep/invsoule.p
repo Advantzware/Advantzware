@@ -79,6 +79,8 @@ DEF VAR v-ship-i       AS CHAR FORMAT "x(25)" NO-UNDO.
 DEF VAR v-rel-po-no    LIKE oe-rel.po-no NO-UNDO.
 DEF VAR v-price-head   AS CHAR FORMAT "x(5)" NO-UNDO.
 DEF VAR v-subtot-lines AS DEC NO-UNDO.
+DEF VAR lv-line-start AS INT INIT 29 NO-UNDO. /*line to start body*/
+DEF VAR lv-line-print AS INT INIT 59 NO-UNDO. /*# of lines in body*/
 
 DEF TEMP-TABLE w-tax
     FIELD w-dsc AS CHAR
@@ -488,13 +490,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             v-ord-no = inv-line.ord-no
             v-price-head = inv-line.pr-uom.
 
-          
-          IF v-printline GE 63 THEN DO:             
-            PAGE.
-            {oe/rep/invsoule.i}
-            v-printline = 29.
-          END.
-
+          RUN addLines(4).          
           PUT             
             SPACE(1)
               inv-line.part-no  FORMAT "x(15)" SPACE(1)
@@ -524,40 +520,25 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             SPACE(1)
            SKIP
             SPACE(17) inv-line.part-dscr2 FORMAT "x(30)" 
-           SKIP.
-
-          v-printline = v-printline + 5.
-
-          IF v-printline GE 63 THEN DO:             
-             PAGE.
-             {oe/rep/invsoule.i}
-             v-printline = 29.
-          END.
-
-          v-printline = v-printline + 1.
+           SKIP.           
 
         END.  /* each inv-line */
-
+        
+        RUN addLines(2).
         PUT SKIP(1). 
-        ASSIGN v-printline = v-printline + 2.
-
+        
         FOR EACH inv-misc NO-LOCK WHERE inv-misc.company = inv-head.company 
                                     AND inv-misc.r-no = inv-head.r-no 
                                     AND inv-misc.bill = "Y" 
                                   BREAK BY inv-misc.ord-no:
 
             IF FIRST(inv-misc.ord-no) THEN DO:
+                RUN addLines(1).
                 PUT "** Miscellaneous Items **" AT 20 
-                    SKIP.
-                ASSIGN v-printline = v-printline + 2.
+                    SKIP.                  
             END.                 
-
-            IF v-printline GE 66 THEN do:                                               
-                PAGE.                
-                {oe/rep/invsoule.i}                
-                v-printline = 29.
-            END.
-
+                             
+            RUN addLines(1).
             PUT 
               SPACE(1)
               inv-misc.po-no  FORMAT "x(16)"
@@ -567,7 +548,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
             ASSIGN 
               v-subtot-lines = v-subtot-lines + inv-misc.amt
-              v-printline = v-printline + 1.
+              .
 
             IF inv-misc.tax AND 
                AVAIL stax 
@@ -586,14 +567,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                     v-t-tax[i] = v-t-tax[i] + w-tax
                     v-lines    = v-lines + 1.
                 END.
-            END.
-
-            IF v-printline GE 66 THEN do:                                
-                PAGE.                
-                {oe/rep/invsoule.i}                
-                v-printline = 29.
-            END.
-
+            END.   
+            
             IF v-t-price NE inv-misc.amt THEN DO:
               CREATE w-tax.
               ASSIGN
@@ -610,21 +585,15 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
              TRIM(inv-head.bill-i[3]) NE "" OR
              TRIM(inv-head.bill-i[4]) NE "" 
             THEN DO:
-              PUT SKIP(1).
-              ASSIGN v-printline = v-printline + 1.
+              RUN addLines(2).
+              PUT SKIP(1).                
           END.
          
           DO i = 1 TO 4:
-           IF inv-head.bill-i[i] NE "" THEN DO:
-             IF v-printline GE 66 THEN do:                                
-                PAGE.                
-                {oe/rep/invsoule.i}                
-                v-printline = 29.
-             END.
-
+           IF inv-head.bill-i[i] NE "" THEN DO:              
+             RUN addLines(1).
              PUT inv-head.bill-i[i] AT 18
-              SKIP.
-             ASSIGN v-printline = v-printline + 1.
+              SKIP.              
            END.
           END.  /* 1 to 4 */
         END.
@@ -682,16 +651,32 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         "<=8><R60>  Sals Tx:" inv-head.t-inv-tax FORMAT "->>,>>9.99"
         "<=8><R61>  Freight:" v-inv-freight      FORMAT "->>,>>9.99"
         "<=8><R62>  Tot Inv:" v-inv-total        FORMAT "->>,>>9.99".
-  
-    ASSIGN v-printline = v-printline + 6.
+        
     iPageNum = PAGE-NUM.
    END.
    
    PUT "[@endPage" + TRIM(STRING(inv-head.inv-no,">>>>>>9")) + "]" FORMAT "X(50)".
 
-    IF v-printline <= 66 THEN PAGE. 
-    /*PUT SKIP(74 - v-printline). */
-    
+   PAGE. 
+       
 END. /* each xinv-head */
+
+PROCEDURE testNewPage:   
+    IF v-printline GE lv-line-print  THEN
+    DO:               
+        PAGE .
+         {oe/rep/invsoule.i}
+        ASSIGN v-printline = lv-line-start.          
+    END.
+
+END PROCEDURE.
+
+PROCEDURE addLines:
+    DEFINE INPUT PARAMETER ipiNumLines AS INTEGER NO-UNDO.
+    
+    v-printline = v-printline + ipiNumLines.
+    RUN testNewPage.
+
+END PROCEDURE.
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */
