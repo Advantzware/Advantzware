@@ -1559,7 +1559,8 @@ DO:
                END.       
            END. 
        END. 
-   END. 
+   END.
+   RELEASE oe-bolh.  
    IF ll AND NOT lSingleBOL THEN DO: 
        RUN pDisplayExceptionBol.
        CASE rd-dest:
