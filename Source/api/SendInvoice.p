@@ -53,6 +53,8 @@ DEFINE VARIABLE cCurrentTime          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cInvoiceDate          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cInvoiceNumber        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dtInvoiceDate         AS DATE      NO-UNDO.
+DEFINE VARIABLE cInvoiceDueDate       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInvoiceType          AS CHARACTER NO-UNDO.
            
 DEFINE VARIABLE cTotalAmount          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dInvoiceTotalAmt      AS DECIMAL   NO-UNDO.
@@ -81,6 +83,8 @@ DEFINE VARIABLE dUnitPrice            AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dQtyShipped           AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cCustPart             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPoNum                AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iLineCount            AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cLineTotal            AS CHARACTER NO-UNDO.
     
 /* Invoice Addon Variables */
 DEFINE VARIABLE cAddonAllowCharge     AS CHARACTER NO-UNDO.
@@ -225,7 +229,11 @@ DEFINE TEMP-TABLE ttInv NO-UNDO
     FIELD billFreight                 AS LOGICAL
     FIELD frtTaxRate                  AS DECIMAL
     .
-          
+  
+/* ************************  Function Prototypes ********************** */
+
+FUNCTION pGetPayloadID RETURNS CHARACTER PRIVATE
+    (  ) FORWARD.          
 /* This is to run client specific request handler to fetch request data */
 IF ipcRequestHandler NE "" THEN
     RUN VALUE(ipcRequestHandler) (
@@ -271,7 +279,7 @@ DO:
              
     FIND FIRST bf-APIOutboundDetail3 NO-LOCK
         WHERE bf-APIOutboundDetail3.apiOutboundID EQ ipiAPIOutboundID
-        AND bf-APIOutboundDetail3.detailID      EQ "Addons"
+    AND bf-APIOutboundDetail3.detailID      EQ "Addons"
         AND bf-APIOutboundDetail3.parentID      EQ "SendInvoice"
         NO-ERROR.
              
@@ -361,7 +369,11 @@ DO:
     IF AVAIL inv-head THEN 
     DO:
             
-        cCompany = inv-head.company.
+        ASSIGN 
+            cCompany        = inv-head.company
+            cInvoiceDueDate = STRING(DYNAMIC-FUNCTION("GetInvDueDate", inv-head.inv-date, inv-head.company ,inv-head.terms))
+            cInvoiceType    = IF inv-head.t-inv-rev LT 0 THEN "CR" ELSE ""
+            .
         FIND FIRST cust NO-LOCK 
             WHERE cust.company EQ inv-head.company
             AND cust.cust-no EQ inv-head.cust-no
@@ -437,7 +449,10 @@ DO:
     END. /* end using inv-head */
     ELSE 
     DO: /* Using ar-inv */
-        cCompany = ar-inv.company.
+        ASSIGN 
+            cCompany        = ar-inv.company
+            cInvoiceDueDate = STRING(ar-inv.due-date)
+            .
         FIND FIRST cust NO-LOCK 
             WHERE cust.company EQ ar-inv.company
             AND cust.cust-no EQ ar-inv.cust-no
@@ -475,6 +490,7 @@ DO:
             cTotalAmount     = TRIM(IF dInvoiceTotalAmt GT 0 THEN STRING(dInvoiceTotalAmt, ">>>>>>>>.99") ELSE "0")
             cTotalAmount     = REPLACE(ctotalAmount, ".", "")
             dtInvoiceDate    = ar-inv.inv-date
+            cInvoiceType     = IF dInvoiceTotalAmt LT 0 THEN "CR" ELSE ""
             .
         RUN pGetSettings(
             INPUT ar-inv.company,
@@ -713,16 +729,19 @@ DO:
                 cUomCode     = (IF inv-line.pr-qty-uom > "" THEN
                         inv-line.pr-qty-uom
                         ELSE "EA"
-                        )                      
+                        )                     
+                iLineCount = iLineCount + 1
                 .
-            RUN pConvQtyPriceUOM (                                         
-                inv-line.inv-qty,
-                inv-line.cas-cnt,
-                inv-line.pr-uom,
-                inv-line.pr-qty-uom,
-                INPUT-OUTPUT cUomCode,
-                INPUT-OUTPUT dQtyShipped,
-                INPUT-OUTPUT dUnitprice). 
+            IF cUomCode NE inv-line.pr-uom THEN 
+                RUN pConvQtyPriceUOM ( 
+                    INPUT inv-head.company,
+                    INPUT inv-line.i-no,
+                    INPUT inv-line.pr-uom,
+                    INPUT cUomCode,
+                    INPUT-OUTPUT dUnitPrice
+                    ). 
+            cLineTotal =  STRING(dUnitPrice * dQtyShipped).
+            
             IF AVAILABLE APIOutboundDetail THEN DO:                    
                 /* Line number from inbound 850 if available, otherwise incremented */
                 ASSIGN
@@ -751,6 +770,7 @@ DO:
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "BuyerPart", cItemBuyerPart).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDescription", cItemDesc).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoNum", cPoNum).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "LineTotal",cLineTotal).
                
                     // RUN updateRequestData(INPUT-OUTPUT lcLineData, "linefeed", "~n").  
                 lcConcatLineData = lcConcatLineData + "" + lcLineData. 
@@ -845,17 +865,18 @@ DO:
                 cUomCode     = (IF ar-invl.pr-qty-uom > "" THEN
                         ar-invl.pr-qty-uom
                         ELSE "EA"
-                        )                      
+                        )                               
+                iLineCount = iLineCount + 1
                 .
-            RUN pConvQtyPriceUOM (                                         
-                ar-invl.inv-qty,
-                ar-invl.cas-cnt,
-                ar-invl.pr-uom,
-                ar-invl.pr-qty-uom,
-                INPUT-OUTPUT cUomCode,
-                INPUT-OUTPUT dQtyShipped,
-                INPUT-OUTPUT dUnitprice). 
-                          
+            IF cUomCode NE ar-invl.pr-uom THEN  
+                RUN pConvQtyPriceUOM ( 
+                    INPUT ar-inv.company,
+                    INPUT ar-invl.i-no,
+                    INPUT ar-invl.pr-uom,
+                    INPUT cUomCode,
+                    INPUT-OUTPUT dQtyShipped
+                    ). 
+            cLineTotal =  STRING(dUnitPrice * dQtyShipped).                                                  
             IF AVAILABLE APIOutboundDetail THEN DO:
                 /* Line number from inbound 850 if available, otherwise incremented */
                 ASSIGN
@@ -884,7 +905,8 @@ DO:
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "PartQualifier", cPartQualifier).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "PoNum", cPoNum).
                 RUN updateRequestData(INPUT-OUTPUT lcLineData, "BuyerPart", cItemBuyerPart).
-                RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDescription", cItemDesc).
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "itemDescription", cItemDesc). 
+                RUN updateRequestData(INPUT-OUTPUT lcLineData, "LineTotal",cLineTotal).
                     // RUN updateRequestData(INPUT-OUTPUT lcLineData, "linefeed", "~n").
                     
                 lcConcatLineData = lcConcatLineData + "" + lcLineData.  
@@ -1113,6 +1135,9 @@ DO:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalGrossAmt", STRING(ttInv.amountTotal)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalNetAmt", STRING(ttInv.amountTotal)).         
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "invNotes", cInvNotes).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "InvoiceDueDate", cInvoiceDueDate).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "InvoiceType", cInvoiceType).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "LineCount",STRING(iLineCount)).
     
     /* If the previous section was not blank, it ended with CR so don't need to start with one */
     RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatLineData, cRequestDataType).
@@ -1156,13 +1181,6 @@ END.
     
 /* End of Main Code */
     
-
-
-
-/* ************************  Function Prototypes ********************** */
-FUNCTION pGetPayloadID RETURNS CHARACTER PRIVATE
-	(  ) FORWARD.
-
 /* **********************  Internal Procedures  *********************** */
 
 
@@ -1306,57 +1324,35 @@ END PROCEDURE.
 
 PROCEDURE pConvQtyPriceUOM:
     /*------------------------------------------------------------------------------
-     Purpose:
+     Purpose: Converts Price to Quantity UOM
      Notes:
     ------------------------------------------------------------------------------*/
 
-    DEFINE INPUT  PARAMETER ipdInvoiceQty AS DECIMAL NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiCaseCount AS INTEGER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcPriceUom AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcPriceqtyUom AS CHARACTER NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER iopcUomCode AS CHARACTER NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER iopdQtyShipped LIKE dQtyShipped NO-UNDO.
-    DEFINE INPUT-OUTPUT PARAMETER iopdUnitPrice AS DECIMAL NO-UNDO.
-   
+    DEFINE INPUT        PARAMETER ipcCompany   AS CHARACTER NO-UNDO. 
+    DEFINE INPUT        PARAMETER ipcItemID    AS CHARACTER NO-UNDO.  
+    DEFINE INPUT        PARAMETER ipcFromUom   AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcToUom     AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopdPrice    AS DECIMAL   NO-UNDO.
+    
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
                         
-    CASE iopcUomCode :
-        WHEN 'CS' THEN 
-            DO:
-                iopcUomCode = "CT". 
-                IF ipiCaseCount > 0 THEN
-                    iopdQtyShipped = ipdInvoiceQty / ipiCaseCount.
-            END.
-        WHEN "M" THEN 
-            DO:
-                ASSIGN 
-                    iopcUomCode   = "EA"
-                    iopdUnitPrice = iopdUnitPrice  / 1000
-                    .
-            END.
-        OTHERWISE 
-        DO:
-        END. 
-    END CASE.
-                    
-                       
-    IF ipcPriceUom = "CS" AND ipiCaseCount > 0 THEN
-    DO:  /* scale qty by case count */
-        iopdQtyShipped = ipdInvoiceQty / ipiCaseCount.
-                    
-    END.
-    ELSE
-    DO:
-        /* quantity unit */
-        iopcUomCode =
-            (IF ipcPriceqtyUom > "" THEN
-            ipcPriceqtyUom
-            ELSE "EA"
-            ).              
-    END.
-                
-    IF iopcUomCode = "CS"
-        THEN
-        iopcUomCode = "CT".    /* 9705 CAH */   
+    RUN Conv_ValueFromUOMtoUOM(
+        INPUT  ipcCompany,
+        INPUT  ipcItemID,
+        INPUT  "FG", 
+        INPUT  iopdPrice,
+        INPUT  ipcFromUom,
+        INPUT  ipcToUom, 
+        INPUT  0,
+        INPUT  0,
+        INPUT  0,
+        INPUT  0,
+        INPUT  0,
+        OUTPUT iopdPrice, 
+        OUTPUT lError,
+        OUTPUT cMessage
+        ). 
 
 END PROCEDURE.
 
