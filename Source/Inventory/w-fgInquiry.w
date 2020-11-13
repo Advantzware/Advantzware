@@ -180,17 +180,17 @@ DEFINE BUTTON btAdjustQty
      FONT 35.
 
 DEFINE BUTTON btItemHelp 
-     IMAGE-UP FILE "C:/Asigui/Environments/Devel/Resources/Graphics/32x32/magnifying_glass.ico":U
+     IMAGE-UP FILE "Graphics/32x32/magnifying_glass.ico":U
      LABEL "" 
      SIZE 6.6 BY 1.57.
 
 DEFINE BUTTON btItemNameHelp 
-     IMAGE-UP FILE "C:/Asigui/Environments/Devel/Resources/Graphics/32x32/magnifying_glass.ico":U
+     IMAGE-UP FILE "Graphics/32x32/magnifying_glass.ico":U
      LABEL "" 
      SIZE 6.6 BY 1.52.
 
 DEFINE BUTTON btLocHelp 
-     IMAGE-UP FILE "C:/Asigui/Environments/Devel/Resources/Graphics/32x32/magnifying_glass.ico":U
+     IMAGE-UP FILE "Graphics/32x32/magnifying_glass.ico":U
      LABEL "" 
      SIZE 6.6 BY 1.57.
 

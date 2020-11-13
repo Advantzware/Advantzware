@@ -65,7 +65,7 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnNext 
-     IMAGE-UP FILE "C:/Asigui/Environments/Devel/Resources/Graphics/32x32/navigate_down.ico":U
+     IMAGE-UP FILE "Graphics/32x32/navigate_down.ico":U
      LABEL "Next" 
      SIZE 11 BY 2.62 TOOLTIP "Next".
 
