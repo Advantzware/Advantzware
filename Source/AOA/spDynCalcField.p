@@ -108,6 +108,32 @@ PROCEDURE calcDropShipment:
    opcCalcValue = IF ipcPOCust NE "" THEN "Customer" ELSE "Vendor".   
 END PROCEDURE.
 
+PROCEDURE calcGetChgMethod:
+    DEFINE INPUT  PARAMETER ipcChgMethod    AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
+    
+   IF ipcChgMethod EQ "M" THEN
+      opcCalcValue = "MSF". 
+   ELSE IF ipcChgMethod EQ "P" THEN
+        opcCalcValue = "Pallet".
+   ELSE opcCalcValue = "Weight".
+END PROCEDURE.
+
+PROCEDURE calcGetCarrierInActive:
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCarrier    AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opcCalcValue  AS CHARACTER NO-UNDO.
+    
+    FIND FIRST carrier NO-LOCK
+         WHERE carrier.company EQ ipcCompany
+         AND carrier.carrier EQ  ipcCarrier NO-ERROR.
+    IF AVAIL carrier THEN
+    
+    IF AVAIL carrier AND NOT DYNAMIC-FUNCTION("IsActive", carrier.rec_key) THEN
+                opcCalcValue = "Yes".
+            ELSE opcCalcValue = "No".
+END PROCEDURE.
+
 PROCEDURE calcShiftEndTime:
     DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplUseTime    AS LOGICAL   NO-UNDO.
@@ -348,7 +374,16 @@ PROCEDURE spDynCalcField:
         RUN VALUE(ipcCalcProc) (
             ENTRY(1,ipcCalcParam,"|"),
             ENTRY(2,ipcCalcParam,"|"),
-            OUTPUT opcCalcValue).    
+            OUTPUT opcCalcValue). 
+        WHEN "calcGetChgMethod" THEN
+        RUN VALUE(ipcCalcProc) (
+            (ipcCalcParam),            
+            OUTPUT opcCalcValue).     
+        WHEN "calcGetCarrierInActive" THEN
+        RUN VALUE(ipcCalcProc) (
+            ENTRY(1,ipcCalcParam,"|"),
+            ENTRY(2,ipcCalcParam,"|"),
+            OUTPUT opcCalcValue).   
         WHEN "calcShiftEndTime" THEN
         RUN VALUE(ipcCalcProc) (
             ENTRY(1,ipcCalcParam,"|"),
