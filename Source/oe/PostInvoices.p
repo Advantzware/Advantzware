@@ -3590,7 +3590,15 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             END.
         END.  
          
-
+        IF bf-ttInvoiceToPost.amountBilled NE 0 THEN DO:
+            lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalExpectZero", bf-inv-head.cust-no,iplIsValidateOnly).
+            
+            IF lValidateRequired THEN DO:
+                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Expected zero value in the invoice").
+                lAutoApprove = NO.
+            END.    
+            
+        END.    
         dTotalLineRev = 0 .
         FOR EACH bf-ttInvoiceLineToPost WHERE
             bf-ttInvoiceLineToPost.rNo EQ bf-inv-head.r-no:          
