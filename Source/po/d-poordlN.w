@@ -6425,28 +6425,26 @@ PROCEDURE valid-vend-cost :
         END.
     END. 
     dCostPerUom = dCostPerUom + dAddersCost.   
-         
-    DO WITH FRAME {&FRAME-NAME}:        
-        IF DEC(po-ordl.cost:SCREEN-VALUE) GT DEC(STRING(dCostPerUom,po-ordl.cost:FORMAT)) THEN DO:
-            MESSAGE "Vendor Cost ("                          +
-                TRIM(po-ordl.cost:SCREEN-VALUE)              +
-                ") is higher than estimated ("               +
-                TRIM(STRING(dCostPerUom,po-ordl.cost:FORMAT)) +
-                "), continue?"
-                VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE lChoice.
-            IF NOT lChoice THEN 
-            DO:
-                APPLY "entry" TO po-ordl.cost.
-                RETURN ERROR.
-            END.
-            ELSE IF lChoice AND v-hold-op1 AND po-ord.stat NE "H" THEN DO:
-                FIND CURRENT po-ord EXCLUSIVE-LOCK NO-ERROR.
-                IF AVAILABLE po-ord THEN 
-                    po-ord.stat = "H".
-                FIND CURRENT po-ord NO-LOCK NO-ERROR.   
-            END.               
-        END.        
-    END.
+                
+    IF DEC(po-ordl.cost:SCREEN-VALUE) GT DEC(STRING(dCostPerUom,po-ordl.cost:FORMAT)) THEN DO:
+        MESSAGE "Vendor Cost ("                          +
+            TRIM(po-ordl.cost:SCREEN-VALUE)              +
+            ") is higher than estimated ("               +
+            TRIM(STRING(dCostPerUom,po-ordl.cost:FORMAT)) +
+            "), continue?"
+            VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE lChoice.
+        IF NOT lChoice THEN 
+        DO:
+            APPLY "entry" TO po-ordl.cost.
+            RETURN ERROR.
+        END.
+        ELSE IF lChoice AND v-hold-op1 AND po-ord.stat NE "H" THEN DO:
+            FIND CURRENT po-ord EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE po-ord THEN 
+                po-ord.stat = "H".
+            FIND CURRENT po-ord NO-LOCK NO-ERROR.   
+        END.               
+    END.        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
