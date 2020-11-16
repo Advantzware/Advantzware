@@ -151,7 +151,7 @@
             ASSIGN
              tt-report.key-01    = v-slsm[1]
              tt-report.key-02    = ar-inv.cust-no
-             tt-report.key-03    = STRING(ar-inv.inv-no,"999999")
+             tt-report.key-03    = STRING(ar-inv.inv-no,"9999999")
              tt-report.key-10    = "ar-invl"
              tt-report.rec-id    = RECID(ar-invl)
              tt-report.row-id    = ROWID(ar-invl)
@@ -388,6 +388,7 @@ v-comm = 0.
             CASE cTmpField: 
                  WHEN "sman" THEN cVarValue = IF AVAIL tt-report AND FIRST-OF(tt-report.key-01) THEN string(tt-report.key-01,"x(3)") ELSE "". 
                  WHEN "cust-no" THEN cVarValue = IF FIRST-OF(tt-report.key-02) THEN string(ar-inv.cust-no) ELSE "".
+                 WHEN "inv-no" THEN cVarValue = IF AVAIL ar-inv THEN string(ar-inv.inv-no,">>>>>>9") ELSE "".
                  WHEN "i-no" THEN cVarValue = IF AVAIL itemfg THEN string(itemfg.i-no) ELSE "".
                  WHEN "ord-no" THEN cVarValue = IF AVAIL ar-invl THEN string(ar-invl.ord-no) ELSE "".          
                  WHEN "qty" THEN cVarValue = IF AVAIL tt-report THEN string(tt-report.qty,"->>>>>>>9") ELSE "".            
@@ -493,7 +494,7 @@ v-comm = 0.
               CASE cTmpField:
                    WHEN "sman" THEN cVarValue = IF NOT tb_detailed THEN string(p-sman) ELSE "".
                    WHEN "cust-no" THEN cVarValue = IF NOT tb_detailed THEN string(ar-inv.cust-no) ELSE "".
-                   WHEN "ar-inv.inv-no" THEN cVarValue = "" .
+                   WHEN "inv-no" THEN cVarValue = "" .
                    WHEN "ar-inv.inv-date" THEN cVarValue = "" .
                    WHEN "i-no" THEN cVarValue = "" .
                    WHEN "ord-no" THEN cVarValue = "" .
@@ -534,7 +535,7 @@ v-comm = 0.
               CASE cTmpField:
                    WHEN "sman" THEN cVarValue = string(p-sman) .
                    WHEN "cust-no" THEN cVarValue = string(ar-inv.cust-no) .
-                   WHEN "ar-inv.inv-no" THEN cVarValue = "" .
+                   WHEN "inv-no" THEN cVarValue = "" .
                    WHEN "ar-inv.inv-date" THEN cVarValue = "" .
                    WHEN "i-no" THEN cVarValue = "" .
                    WHEN "ord-no" THEN cVarValue = "" .
@@ -626,7 +627,7 @@ v-comm = 0.
               CASE cTmpField:
                    WHEN "sman" THEN cVarValue = "".
                    WHEN "cust-no" THEN cVarValue = "" .
-                   WHEN "ar-inv.inv-no" THEN cVarValue = "" .
+                   WHEN "inv-no" THEN cVarValue = "" .
                    WHEN "ar-inv.inv-date" THEN cVarValue = "" .
                    WHEN "i-no" THEN cVarValue = "" .
                    WHEN "ord-no" THEN cVarValue = "" .
@@ -719,7 +720,7 @@ v-comm = 0.
               CASE cTmpField:
                    WHEN "sman" THEN cVarValue = "".
                    WHEN "cust-no" THEN cVarValue = "" .
-                   WHEN "ar-inv.inv-no" THEN cVarValue = "" .
+                   WHEN "inv-no" THEN cVarValue = "" .
                    WHEN "ar-inv.inv-date" THEN cVarValue = "" .
                    WHEN "i-no" THEN cVarValue = "" .
                    WHEN "ord-no" THEN cVarValue = "" .
