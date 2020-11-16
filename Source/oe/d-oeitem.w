@@ -985,7 +985,9 @@ DO:
  DEF VAR char-val AS cha NO-UNDO.
  DEF VAR look-recid AS RECID NO-UNDO.
  DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
-
+ DEFINE VARIABLE cMainField AS CHARACTER NO-UNDO.
+ DEFINE VARIABLE cAllFields AS CHARACTER NO-UNDO.
+ DEFINE VARIABLE recRecordID AS RECID    NO-UNDO.   
   
   FIND oe-ord NO-LOCK
       WHERE oe-ord.company EQ cocode
@@ -1063,14 +1065,28 @@ DO:
          WHEN "part-no" THEN DO:
 /*                IF ll-new-file THEN                                                                                                                        */
 /*                  run windows/l-cstprt.w (g_company, oe-ord.cust-no, lw-focus:screen-value,oe-ordl.i-no:screen-value, output char-val, output look-recid). */
-/*                ELSE                                                                                                                                       */
-              RUN windows/l-itemfp.w (g_company, lw-focus:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
-              IF char-val <> "" THEN DO:
-                 ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val)
-                        oe-ordl.part-dscr1:screen-value = ENTRY(2,char-val)
-                        oe-ordl.part-dscr2:screen-value = ENTRY(3,char-val).
+/*                ELSE                                                                                                                                      */
+              
+              RUN system/openlookup.p (INPUT  "",  /* company */ 
+                                       INPUT  "",  /* lookup field */
+                                       INPUT  152, /* Subject ID */
+                                       INPUT  "",  /* User ID */
+                                       INPUT  0,   /* Param value ID */ 
+                                       OUTPUT cAllFields, 
+                                       OUTPUT cMainField,  
+                                       OUTPUT recRecordID).               
+              IF cMainField <> "" THEN DO:
+                 ASSIGN lw-focus:SCREEN-VALUE = cMainField
+                        oe-ordl.part-dscr1:screen-value = IF NUM-ENTRIES(cAllFields,"|") GE 2 THEN
+                                                           ENTRY(2, cAllFields, "|")
+                                                           ELSE ""
+                        oe-ordl.part-dscr2:screen-value = IF NUM-ENTRIES(cAllFields,"|") GE 6 THEN
+                                                           ENTRY(6, cAllFields, "|")
+                                                           ELSE "".
                  IF oe-ordl.i-no:SCREEN-VALUE = "" OR oe-ordl.i-no:SCREEN-VALUE = "0" 
-                      THEN oe-ordl.i-no:SCREEN-VALUE = ENTRY(4,char-val).
+                      THEN oe-ordl.i-no:SCREEN-VALUE = IF NUM-ENTRIES(cAllFields,"|") GE 5 THEN
+                                                       ENTRY(5, cAllFields, "|")
+                                                       ELSE "".
                  RUN display-fgpart (look-recid).
                  IF oescreen-log AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
                      IF oescreen-cha EQ "item-qty" THEN
