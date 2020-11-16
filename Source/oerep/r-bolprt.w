@@ -4151,20 +4151,62 @@ PROCEDURE pdAOABOLPost:
     DEFINE VARIABLE hBOLPost    AS HANDLE    NO-UNDO.
     DEFINE VARIABLE hTable      AS HANDLE    NO-UNDO.
 
+    /* subject parameter names listed alphabetically */
     ASSIGN
-        cParamList  = "company|location|postDate|custList|allCustNo|"
-                    + "startCustNo|endCustNo|startBOLDate|endBOLDate|"
-                    + "allBOL|startBOL|endBOL|post"
-        cParamValue = g_company + "|"
-                    + g_loc + "|"
-                    + STRING(TODAY,"99/99/9999") + "|no|no|"
-                    + begin_cust + "|"
-                    + end_cust + "|"
-                    + STRING(begin_date,"99/99/9999") + "|"
-                    + STRING(end_date,"99/99/9999") + "|no|"
-                    + STRING(begin_bol#) + "|"
-                    + STRING(end_bol#) + "|yes"
-        .
+        cParamList  = "allBOL|"
+                    + "allCustNo|"
+                    + "allLocBin|"
+                    + "allLocs|"
+                    + "company|"
+                    + "custList|"
+                    + "DatePickList-1|"
+                    + "DatePickList-2|"
+                    + "DatePickList-3|"
+                    + "endBOL|"
+                    + "endBOLDate|"
+                    + "endCustName|"
+                    + "endCustNo|"
+                    + "endLoc|"
+                    + "endLocBin|"
+                    + "endLocDescription|"
+                    + "location|"
+                    + "post|"
+                    + "postDate|"
+                    + "startBOL|"
+                    + "startBOLDate|"
+                    + "startCustName|"
+                    + "startCustNo|"
+                    + "startLoc|"
+                    + "startLocBin|"
+                    + "startLocDescription"
+        /* subject parameter values listed alphabetically */
+        cParamValue = "yes|" // allBOL
+                    + "yes|" // allCustNo
+                    + "yes|" // allLocBin
+                    + "yes|" // allLocs
+                    + g_company + "|" // company
+                    + "no|" // custList
+                    + "Fixed Date|" // DatePickList-1
+                    + "Fixed Date|" // DatePickList-2
+                    + "Fixed Date|" // DatePickList-3
+                    + STRING(end_bol#) + "|" // endBOL
+                    + STRING(end_date,"99/99/9999") + "|" // endBOLDate
+                    + "<End Range Value>|" // endCustName
+                    + end_cust + "|" // endCustNo
+                    + CHR(254) + "|" // endLoc
+                    + CHR(254) + "|" // endLocBin
+                    + "<End Range Value>|" // endLocDescription
+                    + g_loc + "|" // location
+                    + "yes|" // post
+                    + STRING(TODAY,"99/99/9999") + "|" // postDate
+                    + STRING(begin_bol#) + "|" // startBOL
+                    + STRING(begin_date,"99/99/9999") + "|" // startBOLDate
+                    + "<Start Range Value>|" // startCustName
+                    + begin_cust + "|" // startCustNo
+                    + "|" // startLoc
+                    + "|" // startLocBin
+                    + "<Start Range Value>" // startLocDescription
+                    .
     RUN pInitDynParamValue (19, "", "", 0, cParamList, cParamValue).
     RUN AOA/dynBL/r-bolpst.p PERSISTENT SET hBOLPost.
     RUN pRunBusinessLogic IN hBOLPost (ROWID(dynParamValue), OUTPUT hTable).
