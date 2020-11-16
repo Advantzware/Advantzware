@@ -134,6 +134,42 @@ PROCEDURE calcGetCarrierInActive:
             ELSE opcCalcValue = "No".
 END PROCEDURE.
 
+PROCEDURE calcGetQtyOnHandFromFgitem:
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcFGItem     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCalcValue  AS CHARACTER NO-UNDO.
+    
+   FIND FIRST itemfg NO-LOCK
+        WHERE itemfg.company EQ ipcCompany 
+        AND itemfg.i-no EQ ipcFGItem NO-ERROR.
+   IF AVAIL itemfg THEN
+      opcCalcValue = string(itemfg.q-onh).
+END PROCEDURE.
+
+PROCEDURE calcGetPartDscr1FromFgitem:
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcFGItem     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCalcValue  AS CHARACTER NO-UNDO.
+    
+   FIND FIRST itemfg NO-LOCK
+        WHERE itemfg.company EQ ipcCompany 
+        AND itemfg.i-no EQ ipcFGItem NO-ERROR.
+   IF AVAIL itemfg THEN
+      opcCalcValue = itemfg.part-dscr1.
+END PROCEDURE.
+
+PROCEDURE calcGetPartDscr2FromFgitem:
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcFGItem     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCalcValue  AS CHARACTER NO-UNDO.
+    
+   FIND FIRST itemfg NO-LOCK
+        WHERE itemfg.company EQ ipcCompany 
+        AND itemfg.i-no EQ ipcFGItem NO-ERROR.
+   IF AVAIL itemfg THEN
+      opcCalcValue = itemfg.part-dscr2.
+END PROCEDURE.
+
 PROCEDURE calcShiftEndTime:
     DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplUseTime    AS LOGICAL   NO-UNDO.
@@ -384,6 +420,22 @@ PROCEDURE spDynCalcField:
             ENTRY(1,ipcCalcParam,"|"),
             ENTRY(2,ipcCalcParam,"|"),
             OUTPUT opcCalcValue).   
+            OUTPUT opcCalcValue).   
+        WHEN "calcGetQtyOnHandFromFgitem" THEN
+        RUN VALUE(ipcCalcProc) (
+            ENTRY(1,ipcCalcParam,"|"),
+            ENTRY(2,ipcCalcParam,"|"),
+            OUTPUT opcCalcValue). 
+        WHEN "calcGetPartDscr1FromFgitem" THEN
+        RUN VALUE(ipcCalcProc) (
+            ENTRY(1,ipcCalcParam,"|"),
+            ENTRY(2,ipcCalcParam,"|"),
+            OUTPUT opcCalcValue).
+        WHEN "calcGetPartDscr2FromFgitem" THEN
+        RUN VALUE(ipcCalcProc) (
+            ENTRY(1,ipcCalcParam,"|"),
+            ENTRY(2,ipcCalcParam,"|"),
+            OUTPUT opcCalcValue).    
         WHEN "calcShiftEndTime" THEN
         RUN VALUE(ipcCalcProc) (
             ENTRY(1,ipcCalcParam,"|"),

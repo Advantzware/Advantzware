@@ -24,6 +24,7 @@ DEFINE VARIABLE lUserAMPM           AS LOGICAL   NO-UNDO.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -36,122 +37,153 @@ DEFINE VARIABLE lUserAMPM           AS LOGICAL   NO-UNDO.
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* ************************  Function Prototypes ********************** */
+
+&IF DEFINED(EXCLUDE-sfCommon_CheckIntDecValue) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_CheckIntDecValue Procedure 
+FUNCTION sfCommon_CheckIntDecValue RETURNS CHARACTER
+  ( INPUT pcString AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 &IF DEFINED(EXCLUDE-sfCommon_DateOptionDate) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_DateOptionDate Procedure
-FUNCTION sfCommon_DateOptionDate RETURNS DATE 
-  (ipcDateOption AS CHARACTER,
-   ipdtDate AS DATE) FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_DateOptionDate Procedure 
+FUNCTION sfCommon_DateOptionDate RETURNS DATE
+  ( ipcDateOption AS CHARACTER,
+    ipdtDate AS DATE )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
 
+&IF DEFINED(EXCLUDE-sfCommon_GetDifferenceDays) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_GetDifferenceDays Procedure 
+FUNCTION sfCommon_GetDifferenceDays RETURNS INTEGER
+  ( ipdtTargetDate AS DATETIME, ipdtSourceDate AS DATETIME )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 &IF DEFINED(EXCLUDE-sfCommon_GetNumberOfDaysInMonth) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_GetNumberOfDaysInMonth Procedure
-FUNCTION sfCommon_GetNumberOfDaysInMonth RETURNS INTEGER 
-  (ipcMonth AS INTEGER) FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_GetNumberOfDaysInMonth Procedure 
+FUNCTION sfCommon_GetNumberOfDaysInMonth RETURNS INTEGER
+    ( ipcMonth AS INTEGER ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ENDIF
+
+&IF DEFINED(EXCLUDE-sfCommon_GetWeekDay) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_GetWeekDay Procedure 
+FUNCTION sfCommon_GetWeekDay RETURNS INTEGER
+  ( ipdtDate AS DATETIME ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfCommon_GetWeekDayInText) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_GetWeekDayInText Procedure 
+FUNCTION sfCommon_GetWeekDayInText RETURNS CHARACTER
+  ( INPUT ipiWeekDay AS INTEGER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-sfCommon_HideAMPM) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_HideAMPM Procedure
-FUNCTION sfCommon_HideAMPM RETURNS LOGICAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_HideAMPM Procedure 
+FUNCTION sfCommon_HideAMPM RETURNS LOGICAL
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ENDIF
 
 &IF DEFINED(EXCLUDE-sfCommon_HourMax) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_HourMax Procedure
-FUNCTION sfCommon_HourMax RETURNS INTEGER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_HourMax Procedure 
+FUNCTION sfCommon_HourMax RETURNS INTEGER
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-sfCommon_HourMin) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_HourMin Procedure
-FUNCTION sfCommon_HourMin RETURNS INTEGER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_HourMin Procedure 
+FUNCTION sfCommon_HourMin RETURNS INTEGER
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
 
+&IF DEFINED(EXCLUDE-sfCommon_IsDateWeekend) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_IsDateWeekend Procedure 
+FUNCTION sfCommon_IsDateWeekend RETURNS LOGICAL
+  ( ipdtDate AS DATETIME )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 &IF DEFINED(EXCLUDE-sfCommon_SetDateOptions) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_SetDateOptions Procedure
-FUNCTION sfCommon_SetDateOptions RETURNS LOGICAL 
-  (iphDateOption AS HANDLE) FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_SetDateOptions Procedure 
+FUNCTION sfCommon_SetDateOptions RETURNS LOGICAL
+  ( iphDateOption AS HANDLE ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-sfCommon_TimeDisplay) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_TimeDisplay Procedure
-FUNCTION sfCommon_TimeDisplay RETURNS CHARACTER 
-  (ipiTime AS INTEGER,
-   iplClockTime AS LOGICAL,
-   iplSeconds AS LOGICAL) FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_TimeDisplay Procedure 
+FUNCTION sfCommon_TimeDisplay RETURNS CHARACTER
+  (ipiTime AS INTEGER, iplClockTime AS LOGICAL, iplSeconds AS LOGICAL) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
-
 
 &IF DEFINED(EXCLUDE-sfCommon_UserAMPM) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_UserAMPM Procedure
-FUNCTION sfCommon_UserAMPM RETURNS LOGICAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_UserAMPM Procedure 
+FUNCTION sfCommon_UserAMPM RETURNS LOGICAL
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ENDIF
 
-&IF DEFINED(EXCLUDE-sfCommon_CheckIntDecValue) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_CheckIntDecValue Procedure
-FUNCTION sfCommon_CheckIntDecValue RETURNS CHARACTER 
-  ( pcString AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ENDIF
 
 /* *********************** Procedure Settings ************************ */
 
@@ -176,9 +208,11 @@ FUNCTION sfCommon_CheckIntDecValue RETURNS CHARACTER
                                                                         */
 &ANALYZE-RESUME
 
+ 
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Procedure 
 
-/* ***************************  Main Block  *************************** */
 
 FIND FIRST users NO-LOCK
      WHERE users.user_id EQ USERID("ASI")
@@ -188,12 +222,41 @@ lUserAMPM = AVAILABLE users AND users.AMPM.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* **********************  Internal Procedures  *********************** */
+
+&IF DEFINED(EXCLUDE-pGetHoursFromDateTime) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetHoursFromDateTime Procedure 
+PROCEDURE pGetHoursFromDateTime PRIVATE :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipdtInput  AS DATETIME    NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiHours   AS INTEGER     NO-UNDO.
+
+    DEFINE VARIABLE iMinutes AS INTEGER     NO-UNDO.
+    DEFINE VARIABLE iSeconds AS INTEGER     NO-UNDO.
+    
+    RUN pGetTimeUnitsFromDateTime (
+        INPUT  ipdtInput,
+        OUTPUT opiHours,
+        OUTPUT iMinutes,
+        OUTPUT iSeconds
+        ).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 &IF DEFINED(EXCLUDE-pGetTimeInGMT) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTimeInGMT Procedure
-PROCEDURE pGetTimeInGMT PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTimeInGMT Procedure 
+PROCEDURE pGetTimeInGMT PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -213,18 +276,77 @@ PROCEDURE pGetTimeInGMT PRIVATE:
         .
     
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ENDIF
+
+&IF DEFINED(EXCLUDE-pGetTimeUnitsFromDateTime) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTimeUnitsFromDateTime Procedure 
+PROCEDURE pGetTimeUnitsFromDateTime PRIVATE :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipdtDateTime  AS DATETIME    NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiHours      AS INTEGER     NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiMinutes    AS INTEGER     NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiSeconds    AS INTEGER     NO-UNDO.
+    
+    DEFINE VARIABLE iTotSeconds AS INTEGER     NO-UNDO.
+
+    iTotSeconds = TRUNCATE(MTIME(ipdtDateTime) / 1000, 0).        
+    
+    RUN pGetTimeUnitsFromTime (
+        INPUT  iTotSeconds,
+        OUTPUT opiHours,
+        OUTPUT opiMinutes,
+        OUTPUT opiSeconds        
+        ).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-pGetTimeUnitsFromTime) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTimeUnitsFromTime Procedure 
+PROCEDURE pGetTimeUnitsFromTime PRIVATE :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiTime    AS INTEGER     NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiHours   AS INTEGER     NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiMinutes AS INTEGER     NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiSeconds AS INTEGER     NO-UNDO.
+    
+    DEFINE VARIABLE cTime AS CHARACTER   NO-UNDO.
+    
+    cTime = STRING(ipiTime, "hh:mm:ss").
+    
+    ASSIGN
+        opiHours   = INTEGER(SUBSTRING(cTime, 1, 2))
+        opiMinutes = INTEGER(SUBSTRING(cTime, 4, 2))
+        opiSeconds = INTEGER(SUBSTRING(cTime, 7, 2))
+        NO-ERROR.    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 &IF DEFINED(EXCLUDE-spCommon_DateRule) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_DateRule Procedure
-PROCEDURE spCommon_DateRule:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_DateRule Procedure 
+PROCEDURE spCommon_DateRule :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -379,7 +501,7 @@ PROCEDURE spCommon_DateRule:
     DELETE OBJECT hQuery.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -387,8 +509,8 @@ END PROCEDURE.
 
 &IF DEFINED(EXCLUDE-spCommon_GetCurrentGMTTime) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_GetCurrentGMTTime Procedure
-PROCEDURE spCommon_GetCurrentGMTTime:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_GetCurrentGMTTime Procedure 
+PROCEDURE spCommon_GetCurrentGMTTime :
 /*------------------------------------------------------------------------------
  Purpose: Returns current GMT Time
  Notes:
@@ -400,18 +522,39 @@ PROCEDURE spCommon_GetCurrentGMTTime:
         OUTPUT opdttzCurrentGMTTime
         ).
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ENDIF
+
+&IF DEFINED(EXCLUDE-spCommon_GetHoursFromDateTime) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_GetHoursFromDateTime Procedure 
+PROCEDURE spCommon_GetHoursFromDateTime :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipdtInput  AS DATETIME    NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiHours   AS INTEGER     NO-UNDO.
+
+    RUN pGetHoursFromDateTime (
+        INPUT  ipdtInput,
+        OUTPUT opiHours
+        ).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ENDIF
 
-
 &IF DEFINED(EXCLUDE-spCommon_ParseTime) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_ParseTime Procedure
-PROCEDURE spCommon_ParseTime:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_ParseTime Procedure 
+PROCEDURE spCommon_ParseTime :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -456,7 +599,7 @@ PROCEDURE spCommon_ParseTime:
     END.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -464,8 +607,8 @@ END PROCEDURE.
 
 &IF DEFINED(EXCLUDE-spCommon_ValidateValueByDataType) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_ValidateValueByDataType Procedure
-PROCEDURE spCommon_ValidateValueByDataType:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_ValidateValueByDataType Procedure 
+PROCEDURE spCommon_ValidateValueByDataType :
 /*------------------------------------------------------------------------------
      Purpose: Validate if a given value can be converted to given data type.
               Returns error in case of failure
@@ -506,7 +649,7 @@ PROCEDURE spCommon_ValidateValueByDataType:
     oplValid = TRUE.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -514,9 +657,45 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
+&IF DEFINED(EXCLUDE-sfCommon_CheckIntDecValue) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_CheckIntDecValue Procedure 
+FUNCTION sfCommon_CheckIntDecValue RETURNS CHARACTER
+  ( INPUT pcString AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+        DEFINE VARIABLE iChar AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iAsc AS INTEGER NO-UNDO.
+
+    DEFINE VARIABLE cTemp AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cChar AS CHARACTER NO-UNDO.
+
+    DO iChar = 1 TO LENGTH(pcString):
+        ASSIGN cChar = SUBSTRING(pcString,iChar,1)
+                        iAsc = ASC(cChar).
+
+        IF iAsc GT 47 AND
+             iAsc LT 58 THEN
+           cTemp = cTemp + cChar.
+    END.
+
+    IF (cTemp GT "") EQ TRUE THEN
+        RETURN cTemp.
+    ELSE
+        RETURN ?. /* If no integers in the string return the unknown value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-sfCommon_DateOptionDate) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_DateOptionDate Procedure
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_DateOptionDate Procedure 
 FUNCTION sfCommon_DateOptionDate RETURNS DATE
   ( ipcDateOption AS CHARACTER,
     ipdtDate AS DATE ) :
@@ -646,7 +825,28 @@ FUNCTION sfCommon_DateOptionDate RETURNS DATE
     RETURN dtDate.
 
 END FUNCTION.
-	
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-sfCommon_GetDifferenceDays) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_GetDifferenceDays Procedure 
+FUNCTION sfCommon_GetDifferenceDays RETURNS INTEGER
+  ( ipdtTargetDate AS DATETIME, ipdtSourceDate AS DATETIME ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iDifferenceDays       AS INTEGER     NO-UNDO.
+    
+    iDifferenceDays = INTERVAL(ipdtTargetDate, ipdtSourceDate, "days").
+    
+    RETURN iDifferenceDays.
+END FUNCTION.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -654,8 +854,8 @@ END FUNCTION.
 
 &IF DEFINED(EXCLUDE-sfCommon_GetNumberOfDaysInMonth) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_GetNumberOfDaysInMonth Procedure
-FUNCTION sfCommon_GetNumberOfDaysInMonth RETURNS INTEGER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_GetNumberOfDaysInMonth Procedure 
+FUNCTION sfCommon_GetNumberOfDaysInMonth RETURNS INTEGER
     ( ipcMonth AS INTEGER ):
 /*------------------------------------------------------------------------------
  Purpose: return day in a month
@@ -672,24 +872,79 @@ FUNCTION sfCommon_GetNumberOfDaysInMonth RETURNS INTEGER
     RETURN iReturn.   
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfCommon_GetWeekDay) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_GetWeekDay Procedure 
+FUNCTION sfCommon_GetWeekDay RETURNS INTEGER
+  ( ipdtDate AS DATETIME ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lWeekday AS INTEGER NO-UNDO.
+
+    lWeekday = WEEKDAY(ipdtDate).
+    
+    RETURN lWeekday.
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-sfCommon_GetWeekDayInText) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_GetWeekDayInText Procedure 
+FUNCTION sfCommon_GetWeekDayInText RETURNS CHARACTER
+  ( INPUT ipiWeekDay AS INTEGER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cWeekDayChar AS CHARACTER NO-UNDO EXTENT 7.
+    
+    IF ipiWeekDay LT 1 OR ipiWeekDay GT 7 THEN
+        RETURN "".
+
+    ASSIGN
+        cWeekDayChar[1] = "Sunday"
+        cWeekDayChar[2] = "Monday"
+        cWeekDayChar[3] = "Tuesday"
+        cWeekDayChar[4] = "Wednesday"
+        cWeekDayChar[5] = "Thursday"
+        cWeekDayChar[6] = "Friday"
+        cWeekDayChar[7] = "Saturday"
+        .
+
+    RETURN cWeekDayChar[ipiWeekDay].
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-sfCommon_HideAMPM) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_HideAMPM Procedure
-FUNCTION sfCommon_HideAMPM RETURNS LOGICAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_HideAMPM Procedure 
+FUNCTION sfCommon_HideAMPM RETURNS LOGICAL
   (  ):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-	RETURN NOT lUserAMPM.
+        RETURN NOT lUserAMPM.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -697,17 +952,17 @@ END FUNCTION.
 
 &IF DEFINED(EXCLUDE-sfCommon_HourMax) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_HourMax Procedure
-FUNCTION sfCommon_HourMax RETURNS INTEGER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_HourMax Procedure 
+FUNCTION sfCommon_HourMax RETURNS INTEGER
   (  ):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-	RETURN IF lUserAMPM THEN 12 ELSE 24.
+        RETURN IF lUserAMPM THEN 12 ELSE 24.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -715,17 +970,38 @@ END FUNCTION.
 
 &IF DEFINED(EXCLUDE-sfCommon_HourMin) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_HourMin Procedure
-FUNCTION sfCommon_HourMin RETURNS INTEGER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_HourMin Procedure 
+FUNCTION sfCommon_HourMin RETURNS INTEGER
   (  ):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-	RETURN IF lUserAMPM THEN 1 ELSE 0.
+        RETURN IF lUserAMPM THEN 1 ELSE 0.
 
 END FUNCTION.
-	
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-sfCommon_IsDateWeekend) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_IsDateWeekend Procedure 
+FUNCTION sfCommon_IsDateWeekend RETURNS LOGICAL
+  ( ipdtDate AS DATETIME ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lIsWeekend AS LOGICAL NO-UNDO.
+
+    lIsWeekend = sfCommon_GetWeekDay(ipdtDate) EQ 1 OR sfCommon_GetWeekDay(ipdtDate) EQ 7.
+    
+    RETURN lIsWeekend.
+END FUNCTION.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -733,8 +1009,8 @@ END FUNCTION.
 
 &IF DEFINED(EXCLUDE-sfCommon_SetDateOptions) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_SetDateOptions Procedure
-FUNCTION sfCommon_SetDateOptions RETURNS LOGICAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_SetDateOptions Procedure 
+FUNCTION sfCommon_SetDateOptions RETURNS LOGICAL
   ( iphDateOption AS HANDLE ):
 /*------------------------------------------------------------------------------
  Purpose:
@@ -794,7 +1070,7 @@ FUNCTION sfCommon_SetDateOptions RETURNS LOGICAL
     RETURN TRUE.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -802,15 +1078,15 @@ END FUNCTION.
 
 &IF DEFINED(EXCLUDE-sfCommon_TimeDisplay) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_TimeDisplay Procedure
-FUNCTION sfCommon_TimeDisplay RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_TimeDisplay Procedure 
+FUNCTION sfCommon_TimeDisplay RETURNS CHARACTER
   (ipiTime AS INTEGER, iplClockTime AS LOGICAL, iplSeconds AS LOGICAL):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cFormat        AS CHARACTER NO-UNDO INITIAL "HH:MM".
-	DEFINE VARIABLE opcTimeDisplay AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE opcTimeDisplay AS CHARACTER NO-UNDO.
 
     IF iplSeconds THEN
     cFormat = cFormat + ":SS".
@@ -821,7 +1097,7 @@ FUNCTION sfCommon_TimeDisplay RETURNS CHARACTER
     RETURN opcTimeDisplay.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -829,57 +1105,19 @@ END FUNCTION.
 
 &IF DEFINED(EXCLUDE-sfCommon_UserAMPM) = 0 &THEN
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_UserAMPM Procedure
-FUNCTION sfCommon_UserAMPM RETURNS LOGICAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_UserAMPM Procedure 
+FUNCTION sfCommon_UserAMPM RETURNS LOGICAL
   (  ):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-	RETURN lUserAMPM.
+        RETURN lUserAMPM.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 &ENDIF
-
-
-&IF DEFINED(EXCLUDE-sfCommon_CheckIntDecValue) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_CheckIntDecValue Procedure
-FUNCTION sfCommon_CheckIntDecValue RETURNS CHARACTER 
-  ( INPUT pcString AS CHARACTER ):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-	DEFINE VARIABLE iChar AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iAsc AS INTEGER NO-UNDO.
-
-    DEFINE VARIABLE cTemp AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cChar AS CHARACTER NO-UNDO.
-
-    DO iChar = 1 TO LENGTH(pcString):
-        ASSIGN cChar = SUBSTRING(pcString,iChar,1)
-                        iAsc = ASC(cChar).
-
-        IF iAsc GT 47 AND
-             iAsc LT 58 THEN
-           cTemp = cTemp + cChar.
-    END.
-
-    IF (cTemp GT "") EQ TRUE THEN
-        RETURN cTemp.
-    ELSE
-        RETURN ?. /* If no integers in the string return the unknown value. */
-
-END FUNCTION.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 

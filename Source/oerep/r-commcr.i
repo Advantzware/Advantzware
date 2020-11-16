@@ -287,7 +287,7 @@ v-comm = 0.
                                         COLUMN-LABEL "Sman"
                 ar-inv.cust-no          WHEN FIRST-OF(tt-report.key-02)
                                         COLUMN-LABEL "Customer"
-                ar-inv.inv-no           COLUMN-LABEL "Inv#"
+                ar-inv.inv-no           COLUMN-LABEL "Inv#" FORMAT ">>>>>>9"
                 ar-inv.inv-date         COLUMN-LABEL "Inv Date"
                 ar-invl.part-no         COLUMN-LABEL "Cust Part#"
                 ar-invl.ord-no          COLUMN-LABEL "Order#"
@@ -310,7 +310,7 @@ v-comm = 0.
                                         COLUMN-LABEL "Sman"
                 ar-inv.cust-no          WHEN FIRST-OF(tt-report.key-02)
                                         COLUMN-LABEL "Customer"
-                ar-inv.inv-no           COLUMN-LABEL "Inv#"
+                ar-inv.inv-no           COLUMN-LABEL "Inv#" FORMAT ">>>>>>9"
                 ar-inv.inv-date         COLUMN-LABEL "Inv Date"
                 ar-invl.part-no         COLUMN-LABEL "Cust Part#"
                 ar-invl.ord-no          COLUMN-LABEL "Order#"
@@ -334,7 +334,7 @@ v-comm = 0.
           PUT STREAM excel UNFORMATTED
               '"' tt-report.key-01    '",'
               '"' ar-inv.cust-no      '",'
-              '"' ar-inv.inv-no       '",'
+              '"' ar-inv.inv-no format ">>>>>>9"        '",'
               '"' ar-inv.inv-date     '",'
               '"' REPLACE(ar-invl.part-no, '"', "")     '",'
               '"' ar-invl.ord-no      '",'

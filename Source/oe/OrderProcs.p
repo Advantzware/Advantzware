@@ -3607,6 +3607,157 @@ PROCEDURE pProcessImportedOrderLine:
     DELETE OBJECT hdCostProcs.
 END PROCEDURE.
 
+PROCEDURE Order_GetSurchargeConfig:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the surcharge config
+ Notes:
+------------------------------------------------------------------------------*/    
+    DEFINE INPUT  PARAMETER ipdtOrderDate          AS DATETIME  NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtOrderDeliveryDate  AS DATETIME  NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcSurchargeConfigList AS CHARACTER NO-UNDO.
+    
+    RUN pGetSurchargeConfig (
+        INPUT  ipdtOrderDate,
+        INPUT  ipdtOrderDeliveryDate,
+        OUTPUT opcSurchargeConfigList
+        ).    
+END PROCEDURE.
+
+PROCEDURE Order_GetOrderEvaluationParams:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the order evaluation parameters
+ Notes:
+------------------------------------------------------------------------------*/    
+    DEFINE INPUT  PARAMETER ipdtOrderDate           AS DATETIME NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtOrderDeliveryDate   AS DATETIME NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdtEvaluationOrderDate AS DATETIME NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsWeekendOrder       AS LOGICAL  NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsHolidayOrder       AS LOGICAL  NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsWeekendDelivery    AS LOGICAL  NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsSameDayDelivery    AS LOGICAL  NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsNextDayDelivery    AS LOGICAL  NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsHolidayDelivery    AS LOGICAL  NO-UNDO.
+    
+    RUN pGetOrderEvaluationParams (
+        INPUT  ipdtOrderDate,
+        INPUT  ipdtOrderDeliveryDate,
+        OUTPUT opdtEvaluationOrderDate,
+        OUTPUT oplIsWeekendOrder,
+        OUTPUT oplIsHolidayOrder,
+        OUTPUT oplIsWeekendDelivery,
+        OUTPUT oplIsSameDayDelivery,
+        OUTPUT oplIsNextDayDelivery,
+        OUTPUT oplIsHolidayDelivery
+        ).
+END.
+
+PROCEDURE pGetSurchargeConfig:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the surcharge config
+ Notes:
+------------------------------------------------------------------------------*/    
+    DEFINE INPUT  PARAMETER ipdtOrderDate          AS DATETIME  NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtOrderDeliveryDate  AS DATETIME  NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcSurchargeConfigList AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE dtEvaluationOrderDate    AS DATETIME NO-UNDO.
+    DEFINE VARIABLE lIsWeekendOrder          AS LOGICAL  NO-UNDO.
+    DEFINE VARIABLE lIsHolidayOrder          AS LOGICAL  NO-UNDO.
+    DEFINE VARIABLE lIsWeekendDelivery       AS LOGICAL  NO-UNDO.
+    DEFINE VARIABLE lIsSameDayDelivery       AS LOGICAL  NO-UNDO.
+    DEFINE VARIABLE lIsNextDayDelivery       AS LOGICAL  NO-UNDO.
+    DEFINE VARIABLE lIsHolidayDelivery       AS LOGICAL  NO-UNDO.
+    DEFINE VARIABLE lAllowMultipleSurcharges AS LOGICAL  NO-UNDO.
+    
+    RUN pGetOrderEvaluationParams (
+        INPUT  ipdtOrderDate,
+        INPUT  ipdtOrderDeliveryDate,
+        OUTPUT dtEvaluationOrderDate,
+        OUTPUT lIsWeekendOrder,
+        OUTPUT lIsHolidayOrder,
+        OUTPUT lIsWeekendDelivery,
+        OUTPUT lIsSameDayDelivery,
+        OUTPUT lIsNextDayDelivery,
+        OUTPUT lIsHolidayDelivery
+        ).
+    
+    IF lIsWeekendOrder AND lIsWeekendDelivery THEN
+        opcSurchargeConfigList = opcSurchargeConfigList + "," + "APIOrderSurchargeWeekendOrder".
+
+    IF lIsWeekendDelivery THEN
+        opcSurchargeConfigList = opcSurchargeConfigList + "," + "APIOrderSurchargeWeekendDelivery".
+        
+    IF lIsSameDayDelivery THEN
+        opcSurchargeConfigList = opcSurchargeConfigList + "," + "APIOrderSurchargeSameDay".
+
+    IF lIsNextDayDelivery THEN
+        opcSurchargeConfigList = opcSurchargeConfigList + "," + "APIOrderSurchargeNextDay".
+        
+    opcSurchargeConfigList = TRIM(opcSurchargeConfigList,",").    
+END PROCEDURE.
+
+PROCEDURE pGetOrderEvaluationParams:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the order evaluation parameters
+ Notes:
+------------------------------------------------------------------------------*/    
+    DEFINE INPUT  PARAMETER ipdtOrderDate           AS DATETIME NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdtOrderDeliveryDate   AS DATETIME NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdtEvaluationOrderDate AS DATETIME NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsWeekendOrder       AS LOGICAL  NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsHolidayOrder       AS LOGICAL  NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsWeekendDelivery    AS LOGICAL  NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsSameDayDelivery    AS LOGICAL  NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsNextDayDelivery    AS LOGICAL  NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsHolidayDelivery    AS LOGICAL  NO-UNDO.
+    
+    RUN pGetEvaluationOrderDate (
+        INPUT  ipdtOrderDate,
+        OUTPUT opdtEvaluationOrderDate
+        ).
+        
+    ASSIGN
+        oplIsHolidayOrder    = FALSE   /* Can be used if necessary in future */
+        oplIsHolidayDelivery = FALSE   /* Can be used if necessary in future */
+        oplIsWeekendOrder    = DYNAMIC-FUNCTION("sfCommon_IsDateWeekend", ipdtOrderDate)   
+        oplIsWeekendDelivery = DYNAMIC-FUNCTION("sfCommon_IsDateWeekend", ipdtOrderDeliveryDate)
+        oplIsSameDayDelivery = DYNAMIC-FUNCTION("sfCommon_GetDifferenceDays", ipdtOrderDeliveryDate, opdtEvaluationOrderDate) EQ 0
+        oplIsNextDayDelivery = DYNAMIC-FUNCTION("sfCommon_GetDifferenceDays", ipdtOrderDeliveryDate, opdtEvaluationOrderDate) EQ 1        
+        . 
+    
+    /* Special Case */
+    /* Consider same day evaluation order date if order day is Saturday and delivery date is Monday */
+    IF (DYNAMIC-FUNCTION("sfCommon_GetWeekday", opdtEvaluationOrderDate) EQ 7 AND DYNAMIC-FUNCTION("sfCommon_GetWeekday", ipdtOrderDeliveryDate) EQ 2 AND DYNAMIC-FUNCTION("sfCommon_GetDifferenceDays", ipdtOrderDeliveryDate, opdtEvaluationOrderDate) EQ 2) OR
+    /* Consider same day order if evaluation order date is Sunday and delivery date is Monday */ 
+       (DYNAMIC-FUNCTION("sfCommon_GetWeekday", opdtEvaluationOrderDate) EQ 1 AND DYNAMIC-FUNCTION("sfCommon_GetWeekday", ipdtOrderDeliveryDate) EQ 2 AND DYNAMIC-FUNCTION("sfCommon_GetDifferenceDays", ipdtOrderDeliveryDate, opdtEvaluationOrderDate) EQ 1) THEN
+        ASSIGN
+            oplIsSameDayDelivery = TRUE
+            oplIsNextDayDelivery = FALSE
+            .    
+END.
+
+PROCEDURE pGetEvaluationOrderDate:
+/*------------------------------------------------------------------------------
+ Purpose: Returns the order evaluation date
+ Notes:
+------------------------------------------------------------------------------*/    
+    DEFINE INPUT  PARAMETER ipdtOrderEnteredTime  AS DATETIME    NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdtEvaluationOrdDate AS DATE        NO-UNDO.
+    
+    DEFINE VARIABLE iOrderDateHour AS INTEGER     NO-UNDO.
+    
+    opdtEvaluationOrdDate = ipdtOrderEnteredTime.
+    
+    RUN spCommon_GetHoursFromDateTime (
+        INPUT  ipdtOrderEnteredTime, 
+        OUTPUT iOrderDateHour
+        ).
+
+    /* 14 here is 2:00 PM */
+    IF iOrderDateHour GE 14 THEN
+        opdtEvaluationOrdDate = ADD-INTERVAL(opdtEvaluationOrdDate, 1, "days").
+END PROCEDURE.
+
 /* ************************  Function Implementations ***************** */
 
 
