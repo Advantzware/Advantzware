@@ -1054,6 +1054,11 @@ PROCEDURE hold-invoice :
   DEF VAR li       AS INT   NO-UNDO.
   DEFINE VARIABLE lcheckflg AS LOGICAL INIT YES NO-UNDO .
   DEFINE VARIABLE dAllowableUnderrun AS DECIMAL NO-UNDO .
+  DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
+  DEFINE VARIABLE dInvoiceSubTotal AS DECIMAL   NO-UNDO.
+  DEFINE VARIABLE dTotalTax        AS DECIMAL   NO-UNDO.
+  DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
   DEF BUFFER bf1-head FOR inv-head . 
 /*   DEF VAR v-ThisInv-Date AS DATE NO-UNDO INIT ?.   */
 /*   DEF VAR v-FirstFG-Date AS DATE NO-UNDO INIT ?.   */
@@ -1252,6 +1257,24 @@ PROCEDURE hold-invoice :
 
              END.
              RUN pCombineInvoice(ROWID(inv-head)) .
+             RUN Tax_CalculateForInvHead  (
+                    INPUT  ROWID(inv-head),
+                    INPUT  locode,
+                    INPUT  "QUOTATION",    /*  Message Type "INVOICE" or "QUOTATION" */
+                    INPUT  FALSE,          /* Post To journal */
+                    INPUT  "GetTaxAmount", /* Trigger ID */
+                    OUTPUT dTotalTax,
+                    OUTPUT dInvoiceTotal,
+                    OUTPUT dinvoiceSubTotal,
+                    OUTPUT lSuccess,
+                    OUTPUT cMessage
+                    ).
+             FIND CURRENT inv-head EXCLUSIVE-LOCK NO-ERROR.
+             ASSIGN 
+                inv-head.t-inv-tax   = dTotalTax
+                inv-head.t-inv-rev   = dInvoiceTotal
+                inv-head.spare-int-1 = 0   .             
+             FIND CURRENT inv-head NO-LOCK NO-ERROR.    
              RELEASE bf-head.
           END. /* IF inv-head.stat = "H" */
           ELSE /* ELSE IF inv-head.stat NOT "H" */
@@ -1511,7 +1534,7 @@ PROCEDURE local-display-fields :
      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
         RUN set-status-btn-lbl IN WIDGET-HANDLE(char-hdl) (INPUT inv-head.stat).
   END.
-
+  
   DISABLE inv-status WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
@@ -1552,7 +1575,7 @@ PROCEDURE local-update-record :
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   lv-add-record = adm-adding-record.
-
+   
 /*
   IF INDEX("BCP",inv-head.frt-pay:SCREEN-VALUE IN FRAME {&FRAME-NAME} ) = 0 THEN DO:
       MESSAGE "Invalid freight pay code. Try help." VIEW-AS ALERT-BOX.

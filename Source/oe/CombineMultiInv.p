@@ -31,9 +31,13 @@ DO:
                 ASSIGN
                     bf-inv-misc.r-n = inv-head.r-no
                     .
-            END.       
+            END.      
+            FIND CURRENT inv-head EXCLUSIVE-LOCK NO-ERROR.  
+            inv-head.t-inv-freight = inv-head.t-inv-freight +  bf-inv-head.t-inv-freight .                         
+            FIND CURRENT inv-head NO-LOCK NO-ERROR.
             DELETE bf-inv-head.
         END.     
-    END.             
+    END. 
+    
 END.     
 
