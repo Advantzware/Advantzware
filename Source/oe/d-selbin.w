@@ -561,8 +561,6 @@ DO:
   RUN set-select(
       INPUT NO /* Don't validate fg-bin status */
       ).
-  MESSAGE CAN-FIND(FIRST w-bin WHERE w-bin.selekt-log EQ YES) SKIP CAN-FIND(FIRST w-bin {&w-bin-where})
-  VIEW-AS ALERT-BOX.
   IF CAN-FIND(FIRST w-bin {&w-bin-where}) THEN
   MESSAGE "This will select all bins/tags selected from browser." SKIP
           "Do you want to continue?"
