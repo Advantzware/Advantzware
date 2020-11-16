@@ -63,22 +63,20 @@ CREATE WIDGET-POOL.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-15 RECT-16 Btn_Update Btn_Close ~
 Btn_Clear 
-&Scoped-Define DISPLAYED-FIELDS ar-ctrl.last-inv ar-ctrl.receivables-dscr ~
-ar-ctrl.receivables ar-ctrl.sales ar-ctrl.sales-dscr ar-ctrl.cash-act ~
-ar-ctrl.cash-act-dscr ar-ctrl.discount ar-ctrl.discount-dscr ar-ctrl.onac ~
-ar-ctrl.onac-dscr ar-ctrl.freight ar-ctrl.freight-dscr ar-ctrl.stax ~
-ar-ctrl.stax-dscr ar-ctrl.postUserID ar-ctrl.postStartDtTm ar-ctrl.postType 
+&Scoped-Define DISPLAYED-FIELDS ar-ctrl.last-inv ar-ctrl.receivables ~
+ar-ctrl.sales ar-ctrl.cash-act ar-ctrl.discount ar-ctrl.onac ~
+ar-ctrl.freight ar-ctrl.stax ar-ctrl.postUserID ar-ctrl.postStartDtTm ~
+ar-ctrl.postType 
 &Scoped-define DISPLAYED-TABLES ar-ctrl
 &Scoped-define FIRST-DISPLAYED-TABLE ar-ctrl
-
+&Scoped-Define DISPLAYED-OBJECTS cDscrAccRec cDscrSalesAcc cDscrCaseAcc ~
+cDscrDiscTaken cDscrChargeAcc cDscrFreightAcc cDscrSalesTaxAcc 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
-&Scoped-define List-1 ar-ctrl.last-inv ar-ctrl.receivables-dscr ~
-ar-ctrl.receivables ar-ctrl.sales ar-ctrl.sales-dscr ar-ctrl.cash-act ~
-ar-ctrl.cash-act-dscr ar-ctrl.discount ar-ctrl.discount-dscr ar-ctrl.onac ~
-ar-ctrl.onac-dscr ar-ctrl.freight ar-ctrl.freight-dscr ar-ctrl.stax ~
-ar-ctrl.stax-dscr  
+&Scoped-define List-1 ar-ctrl.last-inv ar-ctrl.receivables ar-ctrl.sales ~
+ar-ctrl.cash-act ar-ctrl.discount ar-ctrl.onac ar-ctrl.freight ar-ctrl.stax ~
+ar-ctrl.postUserID ar-ctrl.postStartDtTm ar-ctrl.postType 
 &Scoped-define F1 F1 F-2 F-3 F-4 F-5 F-6 F-7 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -112,6 +110,41 @@ DEFINE BUTTON Btn_Close
 DEFINE BUTTON Btn_Update 
      LABEL "&Update" 
      SIZE 15 BY 1.14.
+
+DEFINE VARIABLE cDscrAccRec AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 47 BY 1
+     BGCOLOR 7 FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE cDscrCaseAcc AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 47 BY 1
+     BGCOLOR 7 FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE cDscrChargeAcc AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 47 BY 1
+     BGCOLOR 7 FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE cDscrDiscTaken AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 47 BY 1
+     BGCOLOR 7 FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE cDscrFreightAcc AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 47 BY 1
+     BGCOLOR 7 FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE cDscrSalesAcc AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 47 BY 1
+     BGCOLOR 7 FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE cDscrSalesTaxAcc AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 47 BY 1
+     BGCOLOR 7 FGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE F-2 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
       VIEW-AS TEXT 
@@ -164,10 +197,7 @@ DEFINE FRAME ar-ctrl
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
           BGCOLOR 15 
-     ar-ctrl.receivables-dscr AT ROW 2.43 COL 53 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 47 BY 1
-          BGCOLOR 7 FGCOLOR 15  NO-TAB-STOP 
+     cDscrAccRec AT ROW 2.38 COL 53.2 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      ar-ctrl.receivables AT ROW 2.48 COL 24.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 27 BY 1
@@ -176,52 +206,34 @@ DEFINE FRAME ar-ctrl
           VIEW-AS FILL-IN 
           SIZE 27 BY 1
           BGCOLOR 15 
-     ar-ctrl.sales-dscr AT ROW 3.62 COL 53 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 47 BY 1
-          BGCOLOR 7 FGCOLOR 15  NO-TAB-STOP 
+     cDscrSalesAcc AT ROW 3.62 COL 53.2 COLON-ALIGNED NO-LABEL WIDGET-ID 4 NO-TAB-STOP 
      ar-ctrl.cash-act AT ROW 4.81 COL 24.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 27 BY 1
           BGCOLOR 15 
-     ar-ctrl.cash-act-dscr AT ROW 4.81 COL 53 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 47 BY 1
-          BGCOLOR 7 FGCOLOR 15  NO-TAB-STOP 
+     cDscrCaseAcc AT ROW 4.81 COL 53.2 COLON-ALIGNED NO-LABEL WIDGET-ID 6 NO-TAB-STOP 
      ar-ctrl.discount AT ROW 6 COL 24.2 COLON-ALIGNED
           LABEL "Discount Taken"
           VIEW-AS FILL-IN 
           SIZE 27 BY 1
           BGCOLOR 15 
-     ar-ctrl.discount-dscr AT ROW 6 COL 53 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 47 BY 1
-          BGCOLOR 7 FGCOLOR 15  NO-TAB-STOP 
+     cDscrDiscTaken AT ROW 6 COL 53.2 COLON-ALIGNED NO-LABEL WIDGET-ID 8 NO-TAB-STOP 
      ar-ctrl.onac AT ROW 7.19 COL 24.2 COLON-ALIGNED
           LABEL "Finance Charge Account"
           VIEW-AS FILL-IN 
           SIZE 27 BY 1
           BGCOLOR 15 
-     ar-ctrl.onac-dscr AT ROW 7.19 COL 53 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 47 BY 1
-          BGCOLOR 7 FGCOLOR 15  NO-TAB-STOP 
+     cDscrChargeAcc AT ROW 7.19 COL 53.2 COLON-ALIGNED NO-LABEL WIDGET-ID 10 NO-TAB-STOP 
      ar-ctrl.freight AT ROW 8.38 COL 24.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 27 BY 1
           BGCOLOR 15 
-     ar-ctrl.freight-dscr AT ROW 8.38 COL 53 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 47 BY 1
-          BGCOLOR 7 FGCOLOR 15  NO-TAB-STOP 
+     cDscrFreightAcc AT ROW 8.38 COL 53.2 COLON-ALIGNED NO-LABEL WIDGET-ID 12 NO-TAB-STOP 
      ar-ctrl.stax AT ROW 9.57 COL 24.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 27 BY 1
           BGCOLOR 15 
-     ar-ctrl.stax-dscr AT ROW 9.57 COL 53 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 47 BY 1
-          BGCOLOR 7 FGCOLOR 15  NO-TAB-STOP 
+     cDscrSalesTaxAcc AT ROW 9.57 COL 53.2 COLON-ALIGNED NO-LABEL WIDGET-ID 14 NO-TAB-STOP 
      ar-ctrl.postUserID AT ROW 11.05 COL 24 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
@@ -246,13 +258,6 @@ DEFINE FRAME ar-ctrl
      F-4 AT ROW 6 COL 53 NO-LABEL
      F-5 AT ROW 7.19 COL 53 NO-LABEL
      F-6 AT ROW 8.38 COL 53 NO-LABEL
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 102.2 BY 14.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME ar-ctrl
      F-7 AT ROW 9.57 COL 53 NO-LABEL
      RECT-15 AT ROW 13.05 COL 26
      RECT-16 AT ROW 1 COL 1
@@ -323,18 +328,22 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN ar-ctrl.cash-act IN FRAME ar-ctrl
    NO-ENABLE 1                                                          */
-/* SETTINGS FOR FILL-IN ar-ctrl.cash-act-dscr IN FRAME ar-ctrl
-   NO-ENABLE 1                                                          */
-ASSIGN 
-       ar-ctrl.cash-act-dscr:READ-ONLY IN FRAME ar-ctrl        = TRUE.
-
+/* SETTINGS FOR FILL-IN cDscrAccRec IN FRAME ar-ctrl
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN cDscrCaseAcc IN FRAME ar-ctrl
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN cDscrChargeAcc IN FRAME ar-ctrl
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN cDscrDiscTaken IN FRAME ar-ctrl
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN cDscrFreightAcc IN FRAME ar-ctrl
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN cDscrSalesAcc IN FRAME ar-ctrl
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN cDscrSalesTaxAcc IN FRAME ar-ctrl
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ar-ctrl.discount IN FRAME ar-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR FILL-IN ar-ctrl.discount-dscr IN FRAME ar-ctrl
-   NO-ENABLE 1                                                          */
-ASSIGN 
-       ar-ctrl.discount-dscr:READ-ONLY IN FRAME ar-ctrl        = TRUE.
-
 /* SETTINGS FOR FILL-IN F-2 IN FRAME ar-ctrl
    NO-DISPLAY NO-ENABLE ALIGN-L 6                                       */
 ASSIGN 
@@ -372,50 +381,31 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN ar-ctrl.freight IN FRAME ar-ctrl
    NO-ENABLE 1                                                          */
-/* SETTINGS FOR FILL-IN ar-ctrl.freight-dscr IN FRAME ar-ctrl
-   NO-ENABLE 1                                                          */
-ASSIGN 
-       ar-ctrl.freight-dscr:READ-ONLY IN FRAME ar-ctrl        = TRUE.
-
 /* SETTINGS FOR FILL-IN ar-ctrl.last-inv IN FRAME ar-ctrl
    NO-ENABLE 1 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN ar-ctrl.onac IN FRAME ar-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR FILL-IN ar-ctrl.onac-dscr IN FRAME ar-ctrl
-   NO-ENABLE 1                                                          */
-ASSIGN 
-       ar-ctrl.onac-dscr:READ-ONLY IN FRAME ar-ctrl        = TRUE.
-
 /* SETTINGS FOR FILL-IN ar-ctrl.postStartDtTm IN FRAME ar-ctrl
    NO-ENABLE 1                                                          */
+ASSIGN 
+       ar-ctrl.postStartDtTm:READ-ONLY IN FRAME ar-ctrl        = TRUE.
+
 /* SETTINGS FOR FILL-IN ar-ctrl.postType IN FRAME ar-ctrl
    NO-ENABLE 1                                                          */
+ASSIGN 
+       ar-ctrl.postType:READ-ONLY IN FRAME ar-ctrl        = TRUE.
+
 /* SETTINGS FOR FILL-IN ar-ctrl.postUserID IN FRAME ar-ctrl
    NO-ENABLE 1                                                          */
+ASSIGN 
+       ar-ctrl.postUserID:READ-ONLY IN FRAME ar-ctrl        = TRUE.
+
 /* SETTINGS FOR FILL-IN ar-ctrl.receivables IN FRAME ar-ctrl
    NO-ENABLE 1                                                          */
-/* SETTINGS FOR FILL-IN ar-ctrl.receivables-dscr IN FRAME ar-ctrl
-   NO-ENABLE 1                                                          */
-ASSIGN 
-       ar-ctrl.receivables-dscr:READ-ONLY IN FRAME ar-ctrl = TRUE
-       ar-ctrl.postStartDtTm:READ-ONLY IN FRAME ar-ctrl    = TRUE
-       ar-ctrl.postType:READ-ONLY IN FRAME ar-ctrl         = TRUE
-       ar-ctrl.postUserID:READ-ONLY IN FRAME ar-ctrl       = TRUE.
-
 /* SETTINGS FOR FILL-IN ar-ctrl.sales IN FRAME ar-ctrl
    NO-ENABLE 1                                                          */
-/* SETTINGS FOR FILL-IN ar-ctrl.sales-dscr IN FRAME ar-ctrl
-   NO-ENABLE 1                                                          */
-ASSIGN 
-       ar-ctrl.sales-dscr:READ-ONLY IN FRAME ar-ctrl        = TRUE.
-
 /* SETTINGS FOR FILL-IN ar-ctrl.stax IN FRAME ar-ctrl
    NO-ENABLE 1                                                          */
-/* SETTINGS FOR FILL-IN ar-ctrl.stax-dscr IN FRAME ar-ctrl
-   NO-ENABLE 1                                                          */
-ASSIGN 
-       ar-ctrl.stax-dscr:READ-ONLY IN FRAME ar-ctrl        = TRUE.
-
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -564,7 +554,7 @@ END.
 ON LEAVE OF ar-ctrl.cash-act IN FRAME ar-ctrl /* Cash Account */
 DO:
   {custom/actleave.i} 
-  ar-ctrl.cash-act-dscr:SCREEN-VALUE = getAccountDesc(SELF:SCREEN-VALUE).
+  cDscrCaseAcc:SCREEN-VALUE = getAccountDesc(SELF:SCREEN-VALUE).
 
 END.
 
@@ -587,7 +577,7 @@ END.
 ON LEAVE OF ar-ctrl.discount IN FRAME ar-ctrl /* Discount Taken */
 DO:
   {custom/actleave.i}
-  ar-ctrl.discount-dscr:SCREEN-VALUE = getAccountDesc(SELF:SCREEN-VALUE).
+  cDscrDiscTaken:SCREEN-VALUE = getAccountDesc(SELF:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -609,7 +599,7 @@ END.
 ON LEAVE OF ar-ctrl.freight IN FRAME ar-ctrl /* Freight */
 DO:
   {custom/actleave.i}
-   ar-ctrl.freight-dscr:SCREEN-VALUE = getAccountDesc(SELF:SCREEN-VALUE).
+   cDscrFreightAcc:SCREEN-VALUE = getAccountDesc(SELF:SCREEN-VALUE).
 
 END.
 
@@ -632,7 +622,7 @@ END.
 ON LEAVE OF ar-ctrl.onac IN FRAME ar-ctrl /* Finance Charge Account */
 DO:
   {custom/actleave.i}
-  ar-ctrl.onac-dscr:SCREEN-VALUE = getAccountDesc(SELF:SCREEN-VALUE).
+  cDscrChargeAcc:SCREEN-VALUE = getAccountDesc(SELF:SCREEN-VALUE).
 
 END.
 
@@ -655,7 +645,7 @@ END.
 ON LEAVE OF ar-ctrl.receivables IN FRAME ar-ctrl /* Accounts Receivable */
 DO:
   {custom/actleave.i}
-  ar-ctrl.receivables-dscr:SCREEN-VALUE = getAccountDesc(SELF:SCREEN-VALUE).
+  cDscrAccRec:SCREEN-VALUE = getAccountDesc(SELF:SCREEN-VALUE).
 
 END.
 
@@ -678,7 +668,7 @@ END.
 ON LEAVE OF ar-ctrl.sales IN FRAME ar-ctrl /* Sales Account */
 DO:
   {custom/actleave.i}
-   ar-ctrl.sales-dscr:SCREEN-VALUE = getAccountDesc(SELF:SCREEN-VALUE).
+   cDscrSalesAcc:SCREEN-VALUE = getAccountDesc(SELF:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -700,7 +690,7 @@ END.
 ON LEAVE OF ar-ctrl.stax IN FRAME ar-ctrl /* Sales Tax */
 DO:
   {custom/actleave.i}
-   ar-ctrl.stax-dscr:SCREEN-VALUE = getAccountDesc(SELF:SCREEN-VALUE).
+   cDscrSalesTaxAcc:SCREEN-VALUE = getAccountDesc(SELF:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -741,6 +731,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ar-ctrl.company = gcompany.
   END.
   FIND FIRST ar-ctrl WHERE ar-ctrl.company EQ gcompany NO-LOCK NO-ERROR.
+  
+  RUN pDisplayField.
 
   RUN enable_UI.
 
@@ -788,18 +780,42 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
+  DISPLAY cDscrAccRec cDscrSalesAcc cDscrCaseAcc cDscrDiscTaken cDscrChargeAcc 
+          cDscrFreightAcc cDscrSalesTaxAcc 
+      WITH FRAME ar-ctrl IN WINDOW C-Win.
   IF AVAILABLE ar-ctrl THEN 
-    DISPLAY ar-ctrl.last-inv ar-ctrl.receivables-dscr ar-ctrl.receivables 
-          ar-ctrl.sales ar-ctrl.sales-dscr ar-ctrl.cash-act 
-          ar-ctrl.cash-act-dscr ar-ctrl.discount ar-ctrl.discount-dscr 
-          ar-ctrl.onac ar-ctrl.onac-dscr ar-ctrl.freight ar-ctrl.freight-dscr 
-          ar-ctrl.stax ar-ctrl.stax-dscr ar-ctrl.postUserID 
-          ar-ctrl.postStartDtTm ar-ctrl.postType 
+    DISPLAY ar-ctrl.last-inv ar-ctrl.receivables ar-ctrl.sales ar-ctrl.cash-act 
+          ar-ctrl.discount ar-ctrl.onac ar-ctrl.freight ar-ctrl.stax 
+          ar-ctrl.postUserID ar-ctrl.postStartDtTm ar-ctrl.postType 
       WITH FRAME ar-ctrl IN WINDOW C-Win.
   ENABLE RECT-15 RECT-16 Btn_Update Btn_Close Btn_Clear 
       WITH FRAME ar-ctrl IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-ar-ctrl}
   VIEW C-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayField C-Win 
+PROCEDURE pDisplayField :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/    
+   IF AVAIL ar-ctrl THEN
+   DO:
+     ASSIGN
+        cDscrAccRec = getAccountDesc(ar-ctrl.receivables)
+        cDscrSalesAcc = getAccountDesc(ar-ctrl.sales)
+        cDscrCaseAcc = getAccountDesc(ar-ctrl.cash-act)
+        cDscrDiscTaken = getAccountDesc(ar-ctrl.discount)
+        cDscrChargeAcc = getAccountDesc(ar-ctrl.onac)
+        cDscrFreightAcc = getAccountDesc(ar-ctrl.freight)
+        cDscrSalesTaxAcc = getAccountDesc(ar-ctrl.stax)
+        . 
+   END. 
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

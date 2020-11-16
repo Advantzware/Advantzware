@@ -85,6 +85,10 @@ DEF VAR v-print-fmt AS cha NO-UNDO.
 DEF VAR v-ftp-done AS LOG NO-UNDO.
 DEF VAR v-sort AS LOGICAL INIT YES FORMAT "Y/N" NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE cFieldInProcess AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldPostType  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldUserId    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldDateTime  AS CHARACTER NO-UNDO.
 
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 find first sys-ctrl
@@ -410,6 +414,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* A/R Invoice Edit/Posting Register */
 DO:
+   RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
+                                        INPUT "postStartDtTm", INPUT cocode, INPUT "AU4", INPUT YES, 
+                                        OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   IF VALID-HANDLE(hdOutboundProcs) THEN
@@ -447,6 +454,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
+                                        INPUT "postStartDtTm", INPUT cocode, INPUT "AU4", INPUT YES, 
+                                        OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
+                                        
    IF VALID-HANDLE(hdOutboundProcs) THEN
      DELETE PROCEDURE hdOutboundProcs.
    apply "close" to this-procedure.
@@ -461,11 +472,7 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   DEF VAR lv-post AS LOG NO-UNDO.
-  DEFINE VARIABLE cFieldInProcess AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cFieldPostType  AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cFieldUserId    AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cFieldDateTime  AS CHARACTER NO-UNDO.
-
+  
   run check-date.
   if v-invalid then return no-apply.
 
@@ -513,22 +520,9 @@ DO:
             UPDATE lv-post.
 
     IF lv-post THEN do:
-      RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
-                                        INPUT "postStartDtTm", INPUT cocode, INPUT "AU4", INPUT NO, 
-                                        OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
-      IF cFieldInProcess EQ "Yes" THEN
-      DO:    
-          MESSAGE "Another user " cFieldUserId " started posting from " cFieldPostType " at " cFieldDateTime " and this process does not " 
-          "support multiple people posting at the same time. Please try again later." VIEW-AS ALERT-BOX INFO.
-          RETURN NO-APPLY.
-      END.
-    
+          
       RUN post-inv.
-      RUN copy-report-to-audit-dir.
-      
-      RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
-                                        INPUT "postStartDtTm", INPUT cocode, INPUT "AU4", INPUT YES, 
-                                        OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
+      RUN copy-report-to-audit-dir.        
       
       MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.      
     END.
@@ -749,6 +743,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN init-proc.
 
   RUN enable_UI.
+  
+  RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
+                                        INPUT "postStartDtTm", INPUT cocode, INPUT "AU4", INPUT NO, 
+                                        OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
+  IF cFieldInProcess EQ "Yes" THEN
+  DO:    
+      MESSAGE "Another user " cFieldUserId " started posting from " cFieldPostType " at " cFieldDateTime " and this process does not " 
+      "support multiple people posting at the same time. Please try again later." VIEW-AS ALERT-BOX INFO.
+      APPLY "close" TO THIS-PROCEDURE.
+      RETURN .
+  END.
 
   IF NOT ip-post THEN
       ASSIGN tran-date:HIDDEN IN FRAME {&FRAME-NAME} = YES

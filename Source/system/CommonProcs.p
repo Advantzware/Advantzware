@@ -489,8 +489,8 @@ PROCEDURE spCommon_CheckPostingProcess:
   
     DEFINE VARIABLE cQueryString AS CHARACTER NO-UNDO.
                 
-    cQueryString =  "for each " + ipcTableName + " WHERE " + ipcTableName + ".company = " + QUOTER(ipcFieldCompany) .
-                
+    cQueryString =  "for each " + ipcTableName + " WHERE " + ipcTableName + ".company = '" + ipcFieldCompany + "'"  .
+               
     create buffer bh for table ipcTableName.
     create query qh.
     qh:set-buffers( bh ).
