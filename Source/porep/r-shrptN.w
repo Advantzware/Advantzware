@@ -68,6 +68,9 @@ DEF TEMP-TABLE tt-sched NO-UNDO
     FIELD USER-ID LIKE po-ord.USER-ID
     FIELD custNo LIKE po-ordl.cust-no
     FIELD ordNo LIKE po-ordl.ord-no
+    FIELD costLine LIKE po-ordl.cost
+    FIELD costUom LIKE po-ordl.pr-uom
+    FIELD totCost LIKE po-ordl.t-cost      
     INDEX job job-no job-no2
     INDEX i-no i-no
     INDEX vend vend-no.
@@ -86,12 +89,12 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "JOB NO,ITEM NO,ITEM NAME,VEND NO,VEND NAME,P/O#,P/O DATE,UOM," +  /*8*/
                                "QTY ORDER,QTY RECEIVED,REQ DATE,MSF,CARRIER,FIRST RESOURCE,BUYER ID,USER ID," + /*7*/
-                               "Customer#,Order#"
+                               "CUSTOMER#,ORDER#,COST LINE ITEM,COST UOM,TOTAL COST LINE ITEM"
            cFieldListToSelect = "lv-job-no,tt-sched.i-no,tt-sched.i-name,tt-sched.vend-no,tt-sched.vend-name,tt-sched.po-no,tt-sched.po-date,tt-sched.cons-uom," +
                                 "tt-sched.cons-qty,tt-sched.t-rec-qty,tt-sched.due-date,tt-sched.amt-msf,tt-sched.carrier,tt-sched.m-code,tt-sched.buyer,tt-sched.user-id," +
-                                "tt-sched.custno,tt-sched.ordno"
-           cFieldLength = "10,15,30,8,30,8,10,4," + "15,15,8,13,7,14,10,8,10,8"
-           cFieldType = "c,c,c,c,c,c,c,c," + "i,i,c,i,c,c,c,c,c,i"
+                                "tt-sched.custno,tt-sched.ordno,tt-sched.costLine,tt-sched.costUom,tt-sched.totCost"
+           cFieldLength = "10,15,30,8,30,8,10,4," + "15,15,8,13,7,14,10,8,10,8," + "14,8,20"
+           cFieldType = "c,c,c,c,c,c,c,c," + "i,i,c,i,c,c,c,c,c,i," + "i,c,i"
            .
         ASSIGN cTextListToDefault  = "JOB NO,ITEM NO,ITEM NAME,VEND NO,P/O#,P/O DATE,UOM," +  /*8*/
                                      "QTY ORDER,QTY RECEIVED,REQ DATE,MSF,CARRIER"  . /*5*/
@@ -1744,6 +1747,9 @@ DISPLAY "" WITH FRAME r-top.
         tt-sched.USER-ID   = po-ord.USER-ID
         tt-sched.custno    = po-ordl.cust-no
         tt-sched.ordno     = po-ordl.ord-no
+        tt-sched.costLine  = po-ordl.cost
+        tt-sched.costUom   = po-ordl.pr-uom
+        tt-sched.totCost   = po-ordl.t-cost
         .
 
        /*IF v-sort EQ "V" THEN DO:*/
@@ -1792,6 +1798,10 @@ DISPLAY "" WITH FRAME r-top.
                   THEN cTmpField = STRING(decimal(cTmpField),"->>>,>>>,>>9.99"). 
           IF cFieldName = "tt-sched.amt-msf"
                   THEN cTmpField = STRING(decimal(cTmpField),"->,>>>,>>9.99").
+          IF cFieldName = "tt-sched.costline"
+                  THEN cTmpField = STRING(decimal(cTmpField),"->>,>>>,>>9.99<<<<").
+          IF cFieldName = "tt-sched.totCost"
+                  THEN cTmpField = STRING(decimal(cTmpField),"->>,>>>,>>9.99<<").        
           cDisplay = cDisplay + cTmpField + 
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                            .
