@@ -6388,6 +6388,10 @@ PROCEDURE valid-vend-cost :
     
     DO WITH FRAME {&FRAME-NAME}:
     END.    
+     
+    IF po-ordl.job-no:SCREEN-VALUE EQ "" THEN
+        RETURN.
+       
     FIND FIRST bf-job NO-LOCK 
          WHERE bf-job.company EQ po-ordl.company
            AND bf-job.job-no  EQ po-ordl.job-no:SCREEN-VALUE
