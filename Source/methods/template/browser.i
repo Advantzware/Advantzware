@@ -356,6 +356,9 @@ PROCEDURE local-view :
   IF lRunCueCard THEN
   RUN runCueCard.
 
+  /* tell the window container it's handle for audit history context */
+  {methods/run_link.i "CONTAINER-SOURCE" "pSetAuditCtrl-A" (THIS-PROCEDURE)}
+
   IF AVAILABLE {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}} THEN
   APPLY 'ENTRY':U TO BROWSE {&BROWSE-NAME}.
 

@@ -564,23 +564,31 @@ DO:
     DEFINE VARIABLE dTotalQuantity         AS DECIMAL    NO-UNDO.
     DEFINE VARIABLE dSubUnitCount          AS DECIMAL    NO-UNDO.
     DEFINE VARIABLE dSubUnitsPerUnit       AS DECIMAL    NO-UNDO.
+    DEFINE VARIABLE dPartialQuantity       AS DECIMAL    NO-UNDO.
+    DEFINE VARIABLE cAdjReasonCode         AS CHARACTER  NO-UNDO.
     DEFINE VARIABLE lValueReturned         AS LOGICAL    NO-UNDO.
     DEFINE VARIABLE dValue                 AS DECIMAL    NO-UNDO.
     
     RUN inventory/adjustQuantity.w (
-        1020,
-        10,
-        5,
+        INPUT  ttBrowseInventory.quantityOriginal,
+        INPUT  ttBrowseInventory.quantityOfSubUnits,
+        INPUT  1,
+        INPUT  FALSE, /* Required Adj Reason */
+        INPUT  TRUE,  /* Display sub units */
+        INPUT  TRUE,  /* Allow decimal units */
         OUTPUT dTotalQuantity,
         OUTPUT dSubUnitCount,
         OUTPUT dSubUnitsPerUnit,
+        OUTPUT dPartialQuantity,
+        OUTPUT cAdjReasonCode,
         OUTPUT lValueReturned,
         OUTPUT dValue
         ).
         
     MESSAGE "Total Quantity: " dTotalQuantity SKIP
             "Sub Unit Count: " dSubUnitCount SKIP
-            "Sub Units Per Unit: " dSubUnitsPerUnit 
+            "Sub Units Per Unit: " dSubUnitsPerUnit SKIP
+            "Partial Quantity: " dPartialQuantity            
         VIEW-AS ALERT-BOX.        
 END.
 

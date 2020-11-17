@@ -2078,7 +2078,7 @@ FUNCTION fMessageText RETURNS CHARACTER
 ------------------------------------------------------------------------------*/        
     IF zMessage.contextParms EQ "" THEN DO:     
         RETURN IF zMessage.currMessage  NE "" THEN 
-            zMessage.currMessage
+            zMessage.currMessage + " (" + ipcMessageID + ")"
            ELSE zMessage.defaultMsg + " (" + ipcMessageID + ")".
     END.
     
@@ -2087,7 +2087,7 @@ FUNCTION fMessageText RETURNS CHARACTER
             scInstance = SharedConfig:instance.
             
         IF zMessage.currMessage NE "" THEN
-            RETURN pReplaceContext(zMessage.currMessage).
+            RETURN pReplaceContext(zMessage.currMessage) + " (" + ipcMessageID + ")".
         ELSE 
             RETURN pReplaceContext(zMessage.defaultMsg) + " (" + ipcMessageID + ")".
     END.    
@@ -2133,8 +2133,7 @@ FUNCTION pReplaceContext RETURNS CHARACTER PRIVATE
 
     DO iIndex = 1 TO NUM-ENTRIES(zMessage.contextParms,","):
         cContextValue = scInstance:ConsumeValue(TRIM(ENTRY(iIndex,zMessage.contextParms,","))).
-        IF cContextValue NE "" THEN 
-            RUN updateRequestData(INPUT-OUTPUT ipcMessage ,TRIM(ENTRY(iIndex,zMessage.contextParms,",")),cContextValue).        
+        RUN updateRequestData(INPUT-OUTPUT ipcMessage ,TRIM(ENTRY(iIndex,zMessage.contextParms,",")),cContextValue).        
     END.   
     RETURN ipcMessage.
 
@@ -2260,7 +2259,9 @@ FUNCTION sfWebCharacters RETURNS CHARACTER
         4=< (less than)
         5=> (greater than)
         6=\ (back slash)
-        7=/ (forward slash)
+        7=RETURN (line feed)
+        8=EOF (end of file)
+        9=/ (forward slash)
 ------------------------------------------------------------------------------*/
 	DEFINE VARIABLE cWebString AS CHARACTER NO-UNDO.
 

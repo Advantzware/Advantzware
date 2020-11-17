@@ -256,16 +256,27 @@ ELSE DO:
                  WHERE cust.company EQ inv-head.company
                    AND cust.cust-no EQ inv-head.cust-no
                  NO-ERROR.                    
+            
+            cCustomerID = inv-head.cust-no.
 
-            ASSIGN
-                cShipToAddr1    = inv-head.sold-addr[1]
-                cShipToAddr2    = inv-head.sold-addr[2]
-                cShipToCity     = inv-head.sold-city
-                cShipToState    = inv-head.sold-state
-                cShipToZip      = inv-head.sold-zip
-                cShipToCountry  = "" /* Not available in inv-head */
-                cCustomerID     = inv-head.cust-no
-                .
+            IF AVAILABLE shipTo THEN
+                ASSIGN
+                    cShipToAddr1    = shipto.ship-addr[1]
+                    cShipToAddr2    = shipto.ship-addr[2]
+                    cShipToCity     = shipto.ship-city
+                    cShipToState    = shipto.ship-state
+                    cShipToZip      = shipto.ship-zip
+                    cShipToCountry  = shipto.country
+                    .
+            ELSE
+                ASSIGN
+                    cShipToAddr1    = inv-head.sold-addr[1]
+                    cShipToAddr2    = inv-head.sold-addr[2]
+                    cShipToCity     = inv-head.sold-city
+                    cShipToState    = inv-head.sold-state
+                    cShipToZip      = inv-head.sold-zip
+                    cShipToCountry  = "" /* Not available in inv-head */
+                    .
 
             FOR EACH inv-line NO-LOCK 
                 WHERE inv-line.r-no EQ inv-head.r-no:
@@ -276,7 +287,7 @@ ELSE DO:
                     lcLineItemsData          = bf-APIOutboundDetail1.data
                     cItemID                  = inv-line.i-no
                     cItemQuantity            = STRING(inv-line.inv-qty, "->>>>>>>9.9<<")
-                    cItemPrice               = STRING(inv-line.t-price / inv-line.inv-qty, ">>>>>>>9.99<<<<") 
+                    cItemPrice               = STRING(inv-line.t-price / inv-line.inv-qty, ">>>>>>>9.99<<<<<") 
                     cLineID                  = STRING(inv-line.line)
                     lcConcatFlexiCodeData    = ""
                     lcConcatFlexiNumericData = ""
@@ -810,12 +821,12 @@ ELSE DO:
                         cItemPrice      = IF ar-invl.inv-qty EQ 0 THEN 
                                               STRING(ar-invl.amt, ">>>>>>>9.99<<<<")
                                           ELSE
-                                              STRING(ar-invl.amt / ar-invl.inv-qty, ">>>>>>>9.99<<<<")
+                                              STRING(ar-invl.amt / ar-invl.inv-qty, ">>>>>>>9.99<<<<<")
                         .
                 ELSE
                     ASSIGN
                         cItemQuantity   = STRING(ar-invl.inv-qty, "->>>>>>>9.9<<")
-                        cItemPrice      = STRING(ar-invl.amt / ar-invl.inv-qty, ">>>>>>>9.99<<<<")
+                        cItemPrice      = STRING(ar-invl.amt / ar-invl.inv-qty, ">>>>>>>9.99<<<<<")
                         . 
 
                 RUN pGetProductClassForItem (
@@ -1226,7 +1237,7 @@ PROCEDURE pGetAddressForLocation PRIVATE:
         /* If location is not available then use company address set initially */
         ASSIGN
             opcStreetAddr1 = cCompanyAddr1
-            opcStreetAddr2 = cCompanyAddr1
+            opcStreetAddr2 = cCompanyAddr2
             opcStreetAddr3 = ""
             opcCity        = cCompanyCity
             opcState       = cCompanyState
@@ -1255,7 +1266,7 @@ PROCEDURE pGetCompanyAddress PRIVATE:
     IF AVAILABLE bf-company THEN
         ASSIGN
             opcStreetAddr1 = bf-company.addr[1]
-            opcStreetAddr2 = bf-company.addr[1]
+            opcStreetAddr2 = bf-company.addr[2]
             opcCity        = bf-company.city
             opcState       = bf-company.state
             opcZip         = bf-company.zip

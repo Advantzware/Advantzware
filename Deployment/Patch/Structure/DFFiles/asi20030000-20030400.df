@@ -1,0 +1,139 @@
+ADD FIELD "autoIncrement" OF "APIOutbound" AS logical
+  DESCRIPTION "Enable this to auto increment transaction counter"
+  FORMAT "yes/no"
+  POSITION 28
+  INITIAL "no"
+  HELP "Enable this to auto increment transaction counter"
+  LABEL "Auto Increment Transaction Count"
+  COLUMN-LABEL "Auto Increment Transaction Count"
+  VIEW-AS "VIEW-AS TOGGLE-BOX"
+  ORDER 260
+  MAX-WIDTH 1
+
+ADD FIELD "mnemonic" OF "dynParamValue" AS character
+  DESCRIPTION "Menu Mnemonic"
+  FORMAT "x(3)"
+  POSITION 57
+  INITIAL ""
+  HELP "Enter Mnemonic"
+  LABEL "Mnemonic"
+  ORDER 490
+  MAX-WIDTH 16
+
+ADD FIELD "subjectGroup" OF "dynParamValue" AS character
+  FORMAT "x(20)"
+  POSITION 58
+  INITIAL ""
+  HELP "Enter Group"
+  LABEL "Group"
+  ORDER 500
+  MAX-WIDTH 40
+
+ADD FIELD "saveLastRun" OF "dynParamValue" AS logical
+  FORMAT "yes/no"
+  POSITION 59
+  INITIAL "yes"
+  HELP "Save Last Run Parameter Values"
+  LABEL "Save Last Run Parameter Values"
+  COLUMN-LABEL "Save"
+  ORDER 510
+  MAX-WIDTH 1
+
+ADD FIELD "favorite" OF "dynParamValue" AS logical
+  FORMAT "yes/no"
+  POSITION 60
+  INITIAL "no"
+  HELP "Toggle Favorite"
+  LABEL "Favorite"
+  ORDER 520
+  MAX-WIDTH 1
+
+ADD FIELD "mnemonic" OF "dynSubject" AS character
+  DESCRIPTION "Menu Mnemonic"
+  FORMAT "x(3)"
+  POSITION 29
+  INITIAL ""
+  HELP "Enter Mnemonic"
+  LABEL "Mnemonic"
+  ORDER 250
+  MAX-WIDTH 16
+
+ADD FIELD "subjectGroup" OF "dynSubject" AS character
+  FORMAT "x(20)"
+  POSITION 30
+  INITIAL ""
+  HELP "Enter Group"
+  LABEL "Group"
+  ORDER 260
+  MAX-WIDTH 40
+
+ADD FIELD "saveLastRun" OF "dynSubject" AS logical
+  FORMAT "yes/no"
+  POSITION 31
+  INITIAL "yes"
+  HELP "Save Last Run Parameter Values"
+  LABEL "Save Last Run Parameter Values"
+  COLUMN-LABEL "Save"
+  ORDER 270
+  MAX-WIDTH 1
+
+ADD FIELD "over-pct" OF "fgcat" AS decimal
+  FORMAT ">>9.99%"
+  POSITION 31
+  INITIAL "0"
+  HELP "Enter Production Overrun Percent that customer will allow"
+  LABEL "Overrun %"
+  DECIMALS 2
+  ORDER 300
+  MAX-WIDTH 17
+
+ADD FIELD "under-pct" OF "fgcat" AS decimal
+  FORMAT ">>9.99%"
+  POSITION 32
+  INITIAL "0"
+  HELP "Enter Production Underrun Percent that Customer will Allow"
+  LABEL "Underrun %"
+  DECIMALS 2
+  ORDER 310
+  MAX-WIDTH 17
+
+ADD FIELD "expectedRevenue" OF "oe-bolh" AS decimal
+  FORMAT "->>,>>>,>>9.99"
+  POSITION 94
+  INITIAL "0"
+  HELP "Total Expected Revenue"
+  LABEL "Expected Revenue"
+  DECIMALS 2
+  ORDER 890
+  MAX-WIDTH 17
+
+ADD FIELD "p-job" OF "oe-ctrl" AS logical
+  DESCRIPTION "Should Jobs be created when Credit on Hold?"
+  FORMAT "yes/no"
+  POSITION 48
+  INITIAL "no"
+  HELP "Should Jobs be created (Y/N)?"
+  LABEL "Allow Job Creation"
+  ORDER 1270
+  MAX-WIDTH 1
+
+RENAME INDEX "pi-Task" TO "temp-30828" ON "Task"
+
+ADD INDEX "pi-Task" ON "Task"
+  AREA "Index"
+  DESCRIPTION "Primary Index by Subject ID, User ID, Program Name, Parameter Value ID and TaskID"
+  INDEX-FIELD "subjectID" ASCENDING
+  INDEX-FIELD "user-id" ASCENDING
+  INDEX-FIELD "prgmName" ASCENDING
+  INDEX-FIELD "paramValueID" ASCENDING
+  INDEX-FIELD "taskID" ASCENDING
+
+UPDATE PRIMARY INDEX "pi-Task" ON "Task"
+
+DROP INDEX "temp-30828" ON "Task"
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000003202

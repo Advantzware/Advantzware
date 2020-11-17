@@ -40,6 +40,21 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE hdRMInquiry    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdRMInquiryWin AS HANDLE    NO-UNDO.
+
+DEFINE VARIABLE lHasAccess AS LOGICAL NO-UNDO.
+
+DEFINE VARIABLE hdPgmSecurity AS HANDLE  NO-UNDO.
+RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmSecurity.
+
+RUN epCanAccess IN hdPgmSecurity (
+    INPUT  "sharpshooter/b-fgInqBins.w", 
+    INPUT  "", 
+    OUTPUT lHasAccess
+    ).
+    
+DELETE OBJECT hdPgmSecurity.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -367,6 +382,78 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE IssueQuantity B-table-Win 
+PROCEDURE IssueQuantity :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dTotalQuantity   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSubUnitCount    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSubUnitsPerUnit AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dPartialQuantity AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cAdjReasonCode   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValueReturned   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cAdjustType      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dValue           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
+
+    /* If not automatically cleared by security level, ask for password */
+    IF NOT lHasAccess THEN DO:
+        RUN sys/ref/d-passwd.w (
+            INPUT  10, 
+            OUTPUT lHasAccess
+            ). 
+    END.
+
+    IF NOT lHasAccess THEN
+        RETURN.
+
+    IF AVAILABLE job-mat THEN DO:
+        RUN inventory/adjustQuantityIssue.w (
+            INPUT  job-mat.qty,
+            INPUT  TRUE, /* Required Adj Reason  */
+            INPUT  TRUE,  /* Allow decimal units */
+            OUTPUT dTotalQuantity,
+            OUTPUT cAdjustType,
+            OUTPUT cAdjReasonCode,
+            OUTPUT lValueReturned,
+            OUTPUT dValue
+            ).
+  
+        IF lValueReturned THEN DO:  
+            MESSAGE cAdjustType + " quantity to " + STRING(dTotalQuantity) "?" 
+                    VIEW-AS ALERT-BOX QUESTION
+                    BUTTON OK-CANCEL
+                    TITLE "Adjust Quantity" UPDATE lContinue AS LOGICAL.
+/*            IF lContinue THEN DO:                                               */
+/*                RUN Inventory_AdjustFinishedGoodBinQty IN hdInventoryProcs (    */
+/*                    INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),        */
+/*                    INPUT  dTotalQuantity - ttBrowseInventory.quantity,         */
+/*                    INPUT  dPartialQuantity - ttBrowseInventory.quantityPartial,*/
+/*                    INPUT  cAdjReasonCode,                                      */
+/*                    OUTPUT lSuccess,                                            */
+/*                    OUTPUT cMessage                                             */
+/*                    ).                                                          */
+/*                                                                                */
+/*                IF NOT lSuccess THEN                                            */
+/*                    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.                   */
+/*                ELSE                                                            */
+/*                    ttBrowseInventory.quantity = dTotalQuantity.                */
+/*                                                                                */
+/*                {&OPEN-QUERY-{&BROWSE-NAME}}                                    */
+/*                                                                                */
+/*                APPLY "VALUE-CHANGED" TO BROWSE {&BROWSE-NAME}.                 */
+/*            END.                                                                */
+        END.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -405,6 +492,49 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ViewRMInquiry B-table-Win 
+PROCEDURE ViewRMInquiry :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF NOT AVAILABLE job-mat THEN
+        RETURN.
+        
+    IF NOT VALID-HANDLE(hdRMInquiry) THEN DO:         
+        RUN sharpshooter/w-rmInquiry.w PERSISTENT SET hdRMInquiry.
+
+        RUN dispatch IN hdRMInquiry (
+            INPUT 'initialize':U
+            ) NO-ERROR.
+        
+        hdRMInquiryWin = hdRMInquiry:CURRENT-WINDOW.
+    END.
+                                                 
+    IF VALID-HANDLE(hdRMInquiry) AND
+        VALID-HANDLE(hdRMInquiryWin) THEN DO: 
+
+        RUN ScanItem IN hdRMInquiry (
+            INPUT job-mat.company,
+            INPUT "",
+            INPUT "",
+            INPUT job-mat.rm-i-no,
+            INPUT "",
+            INPUT job-mat.job-no,
+            INPUT job-mat.job-no2
+            ) NO-ERROR.            
+
+        IF hdRMInquiryWin:WINDOW-STATE EQ 2 THEN ASSIGN 
+            hdRMInquiryWin:WINDOW-STATE = 3.
+        
+        hdRMInquiryWin:MOVE-TO-TOP().
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

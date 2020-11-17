@@ -6202,20 +6202,21 @@ PROCEDURE valid-s-num :
                 TRIM(po-ordl.job-no:SCREEN-VALUE).
             IF po-ordl.s-num:SCREEN-VALUE EQ "?" AND
                 NOT CAN-FIND(FIRST tt-job-mat)    THEN RUN create-multi-line.
+
             IF po-ordl.s-num:SCREEN-VALUE NE "?" AND
                 NOT CAN-FIND(FIRST job-mat
-                WHERE job-mat.company EQ po-ordl.company
+                WHERE job-mat.company EQ g_company
                 AND job-mat.job-no  EQ po-ordl.job-no:SCREEN-VALUE
                 AND job-mat.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                 AND job-mat.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE)) AND
                 NOT CAN-FIND(FIRST job-farm
-                WHERE job-farm.company EQ po-ordl.company
+                WHERE job-farm.company EQ g_company
                 AND job-farm.i-no    EQ po-ordl.i-no :SCREEN-VALUE
                 AND job-farm.job-no  EQ po-ordl.job-no:SCREEN-VALUE
                 AND job-farm.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                 AND job-farm.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE)) AND
                 NOT CAN-FIND(FIRST tt-job-mat
-                WHERE tt-job-mat.company  EQ po-ordl.company
+                WHERE tt-job-mat.company  EQ g_company
                 AND tt-job-mat.job-no   EQ po-ordl.job-no:SCREEN-VALUE
                 AND tt-job-mat.job-no2  EQ INT(po-ordl.job-no2:SCREEN-VALUE)
                 AND tt-job-mat.frm      EQ INT(po-ordl.s-num:SCREEN-VALUE)
@@ -6387,6 +6388,10 @@ PROCEDURE valid-vend-cost :
     
     DO WITH FRAME {&FRAME-NAME}:
     END.    
+     
+    IF po-ordl.job-no:SCREEN-VALUE EQ "" THEN
+        RETURN.
+       
     FIND FIRST bf-job NO-LOCK 
          WHERE bf-job.company EQ po-ordl.company
            AND bf-job.job-no  EQ po-ordl.job-no:SCREEN-VALUE
@@ -6420,28 +6425,26 @@ PROCEDURE valid-vend-cost :
         END.
     END. 
     dCostPerUom = dCostPerUom + dAddersCost.   
-         
-    DO WITH FRAME {&FRAME-NAME}:        
-        IF DEC(po-ordl.cost:SCREEN-VALUE) GT DEC(STRING(dCostPerUom,po-ordl.cost:FORMAT)) THEN DO:
-            MESSAGE "Vendor Cost ("                          +
-                TRIM(po-ordl.cost:SCREEN-VALUE)              +
-                ") is higher than estimated ("               +
-                TRIM(STRING(dCostPerUom,po-ordl.cost:FORMAT)) +
-                "), continue?"
-                VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE lChoice.
-            IF NOT lChoice THEN 
-            DO:
-                APPLY "entry" TO po-ordl.cost.
-                RETURN ERROR.
-            END.
-            ELSE IF lChoice AND v-hold-op1 AND po-ord.stat NE "H" THEN DO:
-                FIND CURRENT po-ord EXCLUSIVE-LOCK NO-ERROR.
-                IF AVAILABLE po-ord THEN 
-                    po-ord.stat = "H".
-                FIND CURRENT po-ord NO-LOCK NO-ERROR.   
-            END.               
-        END.        
-    END.
+                
+    IF DEC(po-ordl.cost:SCREEN-VALUE) GT DEC(STRING(dCostPerUom,po-ordl.cost:FORMAT)) THEN DO:
+        MESSAGE "Vendor Cost ("                          +
+            TRIM(po-ordl.cost:SCREEN-VALUE)              +
+            ") is higher than estimated ("               +
+            TRIM(STRING(dCostPerUom,po-ordl.cost:FORMAT)) +
+            "), continue?"
+            VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE lChoice.
+        IF NOT lChoice THEN 
+        DO:
+            APPLY "entry" TO po-ordl.cost.
+            RETURN ERROR.
+        END.
+        ELSE IF lChoice AND v-hold-op1 AND po-ord.stat NE "H" THEN DO:
+            FIND CURRENT po-ord EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE po-ord THEN 
+                po-ord.stat = "H".
+            FIND CURRENT po-ord NO-LOCK NO-ERROR.   
+        END.               
+    END.        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

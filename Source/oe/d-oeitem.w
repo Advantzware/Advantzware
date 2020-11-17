@@ -187,6 +187,7 @@ DEFINE VARIABLE lCheckFgForceWarning AS LOGICAL NO-UNDO.
 DEFINE VARIABLE llOEDiscount AS LOGICAL NO-UNDO.
 DEF TEMP-TABLE w-est-no NO-UNDO FIELD w-est-no LIKE itemfg.est-no FIELD w-run AS LOG.
 DEFINE VARIABLE cFreightCalculationValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCheckMessage AS LOGICAL NO-UNDO.
 ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
 
 FIND FIRST sys-ctrl
@@ -984,7 +985,9 @@ DO:
  DEF VAR char-val AS cha NO-UNDO.
  DEF VAR look-recid AS RECID NO-UNDO.
  DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
-
+ DEFINE VARIABLE cMainField AS CHARACTER NO-UNDO.
+ DEFINE VARIABLE cAllFields AS CHARACTER NO-UNDO.
+ DEFINE VARIABLE recRecordID AS RECID    NO-UNDO.   
   
   FIND oe-ord NO-LOCK
       WHERE oe-ord.company EQ cocode
@@ -996,7 +999,10 @@ DO:
     CASE lw-focus:NAME :
          WHEN "est-no" THEN DO:
               RUN windows/l-estcst.w (g_company,g_loc,oe-ord.cust-no,0,lw-focus:SCREEN-VALUE, OUTPUT char-val).
-              IF char-val <> "" THEN RUN display-est-detail (char-val).
+              IF char-val <> "" THEN do:
+                 lCheckMessage = NO.
+                 RUN display-est-detail (char-val).
+              END. 
          END. 
          WHEN "type-code" THEN DO:
               RUN windows/l-ordtyp.w (oe-ordl.type-code:SCREEN-VALUE, OUTPUT char-val).
@@ -1059,14 +1065,28 @@ DO:
          WHEN "part-no" THEN DO:
 /*                IF ll-new-file THEN                                                                                                                        */
 /*                  run windows/l-cstprt.w (g_company, oe-ord.cust-no, lw-focus:screen-value,oe-ordl.i-no:screen-value, output char-val, output look-recid). */
-/*                ELSE                                                                                                                                       */
-              RUN windows/l-itemfp.w (g_company, lw-focus:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
-              IF char-val <> "" THEN DO:
-                 ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val)
-                        oe-ordl.part-dscr1:screen-value = ENTRY(2,char-val)
-                        oe-ordl.part-dscr2:screen-value = ENTRY(3,char-val).
+/*                ELSE                                                                                                                                      */
+              
+              RUN system/openlookup.p (INPUT  "",  /* company */ 
+                                       INPUT  "",  /* lookup field */
+                                       INPUT  152, /* Subject ID */
+                                       INPUT  "",  /* User ID */
+                                       INPUT  0,   /* Param value ID */ 
+                                       OUTPUT cAllFields, 
+                                       OUTPUT cMainField,  
+                                       OUTPUT recRecordID).               
+              IF cMainField <> "" THEN DO:
+                 ASSIGN lw-focus:SCREEN-VALUE = cMainField
+                        oe-ordl.part-dscr1:screen-value = IF NUM-ENTRIES(cAllFields,"|") GE 2 THEN
+                                                           ENTRY(2, cAllFields, "|")
+                                                           ELSE ""
+                        oe-ordl.part-dscr2:screen-value = IF NUM-ENTRIES(cAllFields,"|") GE 6 THEN
+                                                           ENTRY(6, cAllFields, "|")
+                                                           ELSE "".
                  IF oe-ordl.i-no:SCREEN-VALUE = "" OR oe-ordl.i-no:SCREEN-VALUE = "0" 
-                      THEN oe-ordl.i-no:SCREEN-VALUE = ENTRY(4,char-val).
+                      THEN oe-ordl.i-no:SCREEN-VALUE = IF NUM-ENTRIES(cAllFields,"|") GE 5 THEN
+                                                       ENTRY(5, cAllFields, "|")
+                                                       ELSE "".
                  RUN display-fgpart (look-recid).
                  IF oescreen-log AND asi.oe-ordl.est-no:SCREEN-VALUE EQ "" THEN DO:
                      IF oescreen-cha EQ "item-qty" THEN
@@ -1519,6 +1539,16 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&Scoped-define SELF-NAME oe-ordl.est-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.est-no d-oeitem
+ON VALUE-CHANGED OF oe-ordl.est-no IN FRAME d-oeitem /* Estimate # */
+DO:
+    lCheckMessage = NO .    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME    
 
 
 &Scoped-define SELF-NAME oe-ordl.est-no
@@ -4352,6 +4382,18 @@ PROCEDURE display-est-detail :
        ll-do-job = NOT b-eb.pur-man.
      END.
      IF NOT ll-do-job THEN ll-do-job = job#-int EQ 0.
+     
+     FIND FIRST oe-ctrl  NO-LOCK
+             WHERE oe-ctrl.company EQ g_company 
+             NO-ERROR.
+
+     IF AVAIL oe-ord AND oe-ord.stat EQ "H" AND  AVAIL oe-ctrl AND NOT oe-ctrl.p-job THEN
+     DO:
+        ll-do-job = NO .
+        IF NOT lCheckMessage THEN
+        RUN displayMessage ( INPUT "48").
+        lCheckMessage = YES.
+     END.
 
      RUN est/getcscnt.p ((IF eb.est-type EQ 6 AND
                              eb.cas-no NE ""  THEN ROWID(eb) ELSE ROWID(b-eb)),

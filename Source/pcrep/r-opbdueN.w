@@ -73,11 +73,13 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Due Date,Ord Date,Job #,Ord #,Customer Name,FG Item #,"
-                           + "FG Item Name,Job Qty,MSF,RM Item Name,Job Has Board"
+                           + "FG Item Name,Job Qty,MSF,RM Item Name,Job Has Board," 
+                           + "Customer Part#,Job Has Foam"
        cFieldListToSelect = "due-date,ord-date,job,ord,cust-name,fgitem," +
-                            "item-name,job-qty,msf,rm-item-name,job-board"
-       cFieldLength = "8,8,9,6,30,15," + "30,10,8,30,13"
-       cFieldType = "c,c,c,i,c,c," + "c,i,i,c,c" 
+                            "item-name,job-qty,msf,rm-item-name,job-board," + 
+                            "cust-part,has-foam"
+       cFieldLength = "8,8,9,6,30,15," + "30,10,8,30,13," + "15,12"
+       cFieldType = "c,c,c,i,c,c," + "c,i,i,c,c," + "c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1191,6 +1193,7 @@ DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 DEFINE VARIABLE cRmItemName AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lBoard AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lCheckFoam AS LOGICAL NO-UNDO.
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1329,22 +1332,24 @@ display "" with frame r-top.
       i = 0.
       lBoard = NO.
       cRmItemName = "".
+      lCheckFoam = NO.
       FOR EACH job-mat NO-LOCK
           WHERE job-mat.company EQ job-hdr.company
           AND job-mat.job EQ job-hdr.job
           AND job-mat.job-no EQ job-hdr.job-no :
           FIND FIRST item NO-LOCK
                WHERE item.company  EQ job-hdr.company
-                 AND item.i-no     EQ job-mat.i-no
-                 AND LOOKUP(item.mat-type,"B,1,2,3,4") GT 0 
+                 AND item.i-no     EQ job-mat.i-no                 
                NO-ERROR .
-          IF AVAIL ITEM THEN DO:
+          IF AVAIL ITEM AND LOOKUP(item.mat-type,"B,1,2,3,4") GT 0 THEN DO:
               ASSIGN
                   cRmItemName  = ITEM.i-name            
                   i = i + 1.
               IF ITEM.mat-type EQ "B" THEN
                   lBoard = YES.                  
-          END.          
+          END.  
+          IF AVAIL ITEM AND LOOKUP(item.mat-type,"1,2,3,4") GT 0 THEN 
+          lCheckFoam = YES.
       END.
       IF i GT 1 THEN
           cRmItemName = "Kit".
@@ -1363,11 +1368,13 @@ display "" with frame r-top.
                          WHEN "ord"  THEN cVarValue = IF AVAIL oe-ord THEN STRING(oe-ord.ord-no,">>>>>>")  ELSE "".
                          WHEN "cust-name"   THEN cVarValue = STRING(tt-report.key-02,"x(30)") .
                          WHEN "fgitem"  THEN cVarValue = STRING(job-hdr.i-no,"x(15)") .
-                         WHEN "item-name"   THEN cVarValue = STRING(itemfg.i-name,"x(30)") .
+                         WHEN "item-name"   THEN cVarValue = IF AVAIL itemfg THEN STRING(itemfg.i-name,"x(30)") ELSE "" .
                          WHEN "job-qty"  THEN cVarValue = STRING(job-hdr.qty,">>,>>>,>>9") .
                          WHEN "msf"  THEN cVarValue = STRING(v-msf,">>>>9.9") .
                          WHEN "rm-item-name"  THEN cVarValue = STRING(cRmItemName,"x(30)") .
-                         WHEN "job-board"  THEN cVarValue = STRING(lBoard) .                         
+                         WHEN "job-board"  THEN cVarValue = STRING(lBoard) . 
+                         WHEN "cust-part" THEN cVarValue = IF AVAIL itemfg THEN string(itemfg.part-no,"x(15)") ELSE "" .
+                         WHEN "has-foam" THEN cVarValue = STRING(lCheckFoam).
 
                     END CASE.
 
@@ -1414,6 +1421,7 @@ display "" with frame r-top.
                          WHEN "msf"  THEN cVarValue = STRING(v-tot-msf,">>>>9.9") .
                          WHEN "rm-item-name"  THEN cVarValue = "" .
                          WHEN "job-board"  THEN cVarValue = "" .
+                         OTHERWISE  cVarValue = "" .
 
                     END CASE.
 

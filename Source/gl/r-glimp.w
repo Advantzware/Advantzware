@@ -36,6 +36,7 @@ DEF VAR tmp-dir AS cha NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
+{methods/getExecutableFileName.i quoter}
 
 assign
  cocode = gcompany
@@ -612,7 +613,7 @@ DO ON ERROR UNDO:
   DO:
     qtr-file-name = in-file-name + ".q".
 
-    cmdline = "quoter -d , " + in-file-name + " >" + qtr-file-name.
+    cmdline = cQuoterFullPathName + " -d , " + in-file-name + " >" + qtr-file-name.
 
     IF OPSYS = "unix" THEN
     UNIX silent value(cmdline).

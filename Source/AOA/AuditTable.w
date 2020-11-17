@@ -32,9 +32,11 @@ CREATE WIDGET-POOL.
 
 /* Parameters Definitions ---                                           */
 
-DEFINE INPUT  PARAMETER iphQuery AS HANDLE    NO-UNDO.
-DEFINE OUTPUT PARAMETER opcTable AS CHARACTER NO-UNDO.
-DEFINE OUTPUT PARAMETER ophTable AS HANDLE    NO-UNDO.
+DEFINE INPUT  PARAMETER iphQuery     AS HANDLE    NO-UNDO.
+DEFINE INPUT  PARAMETER iphExternal  AS HANDLE    NO-UNDO.
+DEFINE INPUT  PARAMETER ipcTableList AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcTable     AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER ophTable     AS HANDLE    NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 
@@ -43,6 +45,7 @@ DEFINE VARIABLE cTable       AS CHARACTER NO-UNDO EXTENT 20.
 DEFINE VARIABLE hTable       AS HANDLE    NO-UNDO EXTENT 20.
 DEFINE VARIABLE iTableCount  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE idx          AS INTEGER   NO-UNDO.
+DEFINE VARIABLE jdx          AS INTEGER   NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -138,15 +141,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 80
          VIRTUAL-HEIGHT     = 10.95
          VIRTUAL-WIDTH      = 80
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = no
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = NO
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -163,7 +166,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -266,11 +269,32 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  DO idx = 1 TO iphQuery:NUM-BUFFERS:
+  IF ipcTableList EQ ? THEN DO:
+      IF VALID-HANDLE(iphExternal) THEN
+      DO idx = 1 TO iphExternal:NUM-BUFFERS:
+        ASSIGN
+            jdx         = jdx + 1
+            cTable[jdx] = iphExternal:GET-BUFFER-HANDLE(idx):NAME
+            hTable[jdx] = iphExternal:GET-BUFFER-HANDLE(idx):HANDLE
+            .
+      END. /* do idx */
+      IF VALID-HANDLE(iphQuery) THEN
+      DO idx = 1 TO iphQuery:NUM-BUFFERS:
+        ASSIGN
+            jdx         = jdx + 1
+            cTable[jdx] = iphQuery:GET-BUFFER-HANDLE(idx):NAME
+            hTable[jdx] = iphQuery:GET-BUFFER-HANDLE(idx):HANDLE
+            .
+      END. /* do idx */
+  END. /* if ipctablelist */
+  ELSE
+  DO idx = 1 TO NUM-ENTRIES(ipcTableList):
     ASSIGN
-        cTable[idx] = iphQuery:GET-BUFFER-HANDLE(idx):NAME
-        hTable[idx] = iphQuery:GET-BUFFER-HANDLE(idx):HANDLE
+        jdx         = jdx + 1
+        cTable[jdx] = ENTRY(idx,ipcTableList)
         .
+  END. /* do idx */
+  DO idx = 1 TO jdx:
     FIND FIRST ASI._file NO-LOCK
          WHERE ASI._file._file-name EQ cTable[idx]
          NO-ERROR.

@@ -19,6 +19,7 @@ DEFINE TEMP-TABLE ttValidation
     FIELD cHoldOrInfo  AS CHARACTER
     FIELD lHoldResult  AS LOGICAL 
     FIELD cHoldMessage AS CHARACTER 
+    FIELD cNotes       AS CHARACTER
     .
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -98,6 +99,7 @@ PROCEDURE pCreditHold PRIVATE:
     DEFINE PARAMETER BUFFER ipboe-ord FOR oe-ord.
     DEFINE OUTPUT PARAMETER oplHold AS LOG NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNotes   AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER bcust FOR cust.
     
@@ -132,6 +134,7 @@ PROCEDURE pCustomerPN PRIVATE:
     DEFINE PARAMETER BUFFER ipboe-ord FOR oe-ord.
     DEFINE OUTPUT PARAMETER oplHold AS LOG NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNotes   AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER boe-ordl FOR oe-ordl.
     DEFINE BUFFER bitemfg  FOR itemfg.
@@ -159,7 +162,9 @@ PROCEDURE pCustomerPN PRIVATE:
                 NO-ERROR.
             IF NOT AVAILABLE cust-part THEN  
                 ASSIGN 
-                    cBadLines = cBadLines + STRING(boe-ordl.line) + ",".
+                    cBadLines = cBadLines + STRING(boe-ordl.line) + ","
+                    opcNotes  = IF opcNotes EQ "" THEN boe-ordl.i-no ELSE opcNotes + ", " + boe-ordl.i-no
+                    .
         END.
     END.
     IF cBadLines NE "" THEN ASSIGN 
@@ -180,6 +185,7 @@ PROCEDURE pCustomerPO PRIVATE:
     DEFINE PARAMETER BUFFER ipboe-ord FOR oe-ord.
     DEFINE OUTPUT PARAMETER oplHold AS LOG NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNotes   AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER bcust FOR cust.
     
@@ -213,6 +219,7 @@ PROCEDURE pItemHold PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-oe-ord FOR oe-ord.
     DEFINE OUTPUT PARAMETER oplHold AS LOG NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNotes   AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
     DEFINE BUFFER bf-sys-ctrl-shipto FOR sys-ctrl-shipto.
@@ -253,6 +260,7 @@ PROCEDURE pDuplicateItem PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-oe-ord FOR oe-ord.
     DEFINE OUTPUT PARAMETER oplHold AS LOG NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNotes   AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
     DEFINE BUFFER bfDuplicate-oe-ordl FOR oe-ordl.
@@ -292,6 +300,7 @@ PROCEDURE pEstimateExists PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-oe-ord FOR oe-ord.
     DEFINE OUTPUT PARAMETER oplHold AS LOG NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNotes   AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
     
@@ -302,7 +311,10 @@ PROCEDURE pEstimateExists PRIVATE:
           AND bf-oe-ordl.ord-no  EQ ipbf-oe-ord.ord-no
           AND bf-oe-ordl.line    NE 0:
         IF bf-oe-ordl.est-no NE "" THEN
-            cBadLines = cBadLines + STRING(bf-oe-ordl.line) + ",".
+            ASSIGN
+                cBadLines = cBadLines + STRING(bf-oe-ordl.line) + ","
+                opcNotes  = IF opcNotes EQ "" THEN bf-oe-ordl.i-no ELSE opcNotes + ", " + bf-oe-ordl.i-no
+                .
     END.
                     
     IF cBadLines NE "" THEN 
@@ -329,6 +341,7 @@ PROCEDURE pOnHandInventory PRIVATE:
     DEFINE PARAMETER BUFFER ipboe-ord FOR oe-ord.
     DEFINE OUTPUT PARAMETER oplHold AS LOG NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNotes AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER boe-ordl FOR oe-ordl.
     DEFINE VARIABLE cBadLines AS CHARACTER NO-UNDO.
@@ -366,8 +379,11 @@ PROCEDURE pOnHandInventory PRIVATE:
             END.
         END.
         
-        IF iOnHand LT boe-ordl.qty THEN ASSIGN              
-                cBadLines = cBadLines + STRING(boe-ordl.line) + ",".
+        IF iOnHand LT boe-ordl.qty THEN 
+            ASSIGN              
+                cBadLines = cBadLines + STRING(boe-ordl.line) + ","
+                opcNotes  = IF opcNotes EQ "" THEN boe-ordl.i-no ELSE opcNotes + ", " + boe-ordl.i-no
+                 .
     END. 
                     
     IF cBadLines NE "" THEN ASSIGN 
@@ -388,6 +404,7 @@ PROCEDURE pPriceGtCost PRIVATE:
     DEFINE PARAMETER BUFFER ipboe-ord FOR oe-ord.
     DEFINE OUTPUT PARAMETER oplHold AS LOG NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNotes   AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER boe-ordl FOR oe-ordl.
     DEFINE VARIABLE cBadLines AS CHARACTER NO-UNDO.
@@ -396,8 +413,11 @@ PROCEDURE pPriceGtCost PRIVATE:
         boe-ordl.company EQ ipboe-ord.company AND 
         boe-ordl.ord-no EQ ipboe-ord.ord-no AND 
         boe-ordl.line NE 0:
-        IF boe-ordl.t-price LT boe-ordl.t-cost THEN ASSIGN 
-                cBadLines = cBadLines + STRING(boe-ordl.line) + ",".
+        IF boe-ordl.t-price LT boe-ordl.t-cost THEN
+            ASSIGN 
+                cBadLines = cBadLines + STRING(boe-ordl.line) + ","
+                opcNotes  = IF opcNotes EQ "" THEN boe-ordl.i-no ELSE opcNotes + ", " + boe-ordl.i-no
+                .
     END.
     IF cBadLines NE "" THEN ASSIGN 
             cBadLines  = TRIM(cBadLines,",")
@@ -418,6 +438,7 @@ PROCEDURE pPriceHold PRIVATE:
     DEFINE PARAMETER BUFFER ipboe-ord FOR oe-ord.
     DEFINE OUTPUT PARAMETER oplHold AS LOG NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNotes   AS CHARACTER NO-UNDO.
     
     RUN CheckPriceHoldForOrder IN hdPriceProcs (ROWID(ipboe-ord), NO, NO, OUTPUT oplHold, OUTPUT opcMessage).
 
@@ -433,6 +454,7 @@ PROCEDURE pUniquePO PRIVATE:
     DEFINE PARAMETER BUFFER ipboe-ord FOR oe-ord.
     DEFINE OUTPUT PARAMETER oplHold AS LOG NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNotes   AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER coe-ord FOR oe-ord.
     
@@ -458,6 +480,7 @@ PROCEDURE pValidShipTo PRIVATE:
     DEFINE PARAMETER BUFFER ipboe-ord FOR oe-ord.
     DEFINE OUTPUT PARAMETER oplHold AS LOG NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNotes   AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER bcust   FOR cust.
     DEFINE BUFFER bshipto FOR shipto.
@@ -502,6 +525,7 @@ PROCEDURE pValidUoM PRIVATE:
     DEFINE PARAMETER BUFFER ipboe-ord FOR oe-ord.
     DEFINE OUTPUT PARAMETER oplHold AS LOG NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNotes   AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER boe-ordl FOR oe-ordl.
     
@@ -518,12 +542,18 @@ PROCEDURE pValidUoM PRIVATE:
            WHERE itemfg.company EQ boe-ordl.company
            AND itemfg.i-no EQ boe-ordl.i-no:
               
-        IF boe-ordl.pr-uom EQ "" THEN ASSIGN 
-                cBadLines = cBadLines + STRING(boe-ordl.line) + ",".
+        IF boe-ordl.pr-uom EQ "" THEN 
+            ASSIGN 
+                cBadLines = cBadLines + STRING(boe-ordl.line) + ","
+                opcNotes  = IF opcNotes EQ "" THEN boe-ordl.i-no ELSE opcNotes + ", " + boe-ordl.i-no
+                .
         ELSE DO:
                 RUN Conv_GetValidPriceUOMsForItem(ROWID(itemfg),OUTPUT cValidUOMs, OUTPUT lError, OUTPUT cMessage).
                 IF LOOKUP(boe-ordl.pr-uom,cValidUOMs) EQ 0 THEN
-                cBadLines = cBadLines + STRING(boe-ordl.line) + ",".
+                    ASSIGN 
+                        cBadLines = cBadLines + STRING(boe-ordl.line) + ","
+                        opcNotes  = IF opcNotes EQ "" THEN boe-ordl.i-no ELSE opcNotes + ", " + boe-ordl.i-no
+                        .
         END.
     END.
     IF cBadLines NE "" THEN ASSIGN 
@@ -594,29 +624,42 @@ PROCEDURE ValidateOrder:
     FIND FIRST bf-oe-ord NO-LOCK 
         WHERE ROWID(bf-oe-ord) EQ ipriOeOrd 
         NO-ERROR.
-    
     IF NOT AVAILABLE bf-oe-ord THEN 
     DO:
         ASSIGN 
             oplHold    = TRUE
             opcMessage = "Error: Invalid Order RowID provided to Validate Order"
             .
-        RUN AddTagHold IN hTagProcs (bf-oe-ord.rec_key,"oe-ord", opcMessage).
+        RUN AddTagHold IN hTagProcs (
+            INPUT bf-oe-ord.rec_key,
+            INPUT "oe-ord",
+            INPUT opcMessage,
+            INPUT ""
+            ).
         RETURN.  
     END.
    
     RUN pBuildValidationsToRun(bf-oe-ord.company).    
                     
     RUN ClearTagsHold IN hTagProcs (bf-oe-ord.rec_key).
-    
     iCountHold = 0.
     FOR EACH ttValidation NO-LOCK:
-        RUN VALUE(ttValidation.cProgram) IN THIS-PROCEDURE (BUFFER bf-oe-ord, OUTPUT ttValidation.lHoldResult, OUTPUT ttValidation.cHoldMessage).
+        RUN VALUE(ttValidation.cProgram) IN THIS-PROCEDURE(
+            BUFFER bf-oe-ord,
+            OUTPUT ttValidation.lHoldResult,
+            OUTPUT ttValidation.cHoldMessage,
+            OUTPUT ttValidation.cNotes
+            ).
         IF ttValidation.lHoldResult THEN 
         DO:
             IF ttValidation.cHoldOrInfo EQ "HOLD" THEN 
             DO:
-                RUN AddTagHold IN hTagProcs (bf-oe-ord.rec_key,"oe-ord", ttValidation.cHoldMessage).
+                RUN AddTagHold IN hTagProcs (
+                    INPUT bf-oe-ord.rec_key,
+                    INPUT "oe-ord",
+                    INPUT ttValidation.cHoldMessage,
+                    INPUT ttValidation.cNotes
+                    ).
                 ASSIGN
                     iCountHold = iCountHold + 1
                     oplHold = TRUE
@@ -624,7 +667,12 @@ PROCEDURE ValidateOrder:
             END.    
             ELSE 
             DO:
-                RUN AddTagHoldInfo IN hTagProcs (bf-oe-ord.rec_key,"oe-ord", ttValidation.cHoldMessage).
+                RUN AddTagHoldInfo IN hTagProcs (
+                    INPUT bf-oe-ord.rec_key,
+                    INPUT "oe-ord",
+                    INPUT ttValidation.cHoldMessage,
+                    INPUT ttValidation.cNotes
+                    ).
                 ttValidation.lHoldResult = FALSE. 
             END.          
         END.

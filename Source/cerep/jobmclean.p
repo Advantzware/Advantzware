@@ -1175,7 +1175,7 @@ FOR EACH job-hdr NO-LOCK
                                          "<C45><b>FG#: </b>" bff-eb.stock-no  FORMAT "x(15)"    skip 
                                          
                                          "<P10><C20><b>Descr.: </B>" bff-eb.part-dscr1 FORMAT "x(30)"  
-                                         "<C45><b>Cad#: </b>" bff-eb.cad-no FORMAT "x(12)" skip
+                                         "<C45><b>Cad#: </b>" bff-eb.cad-no FORMAT "x(20)" skip
                                          
                                          "<P10><C20><b>Adhesive: </B>" bff-eb.adhesive FORMAT "x(15)"  
                                          "<C45><b>Art#: </b>" bff-eb.Plate-no FORMAT "x(12)" SKIP
@@ -1245,7 +1245,7 @@ FOR EACH job-hdr NO-LOCK
                                     "<C16><FROM><C+13><R+2><BARCODE,TYPE=128A,CHECKSUM=NONE,VALUE= " + string((job-hdr.job-no) + "-" + STRING(job-hdr.job-no2) + "-" + STRING( eb.form-no)) + "><R-2>" FORMAT "x(250)"
                                     "<C30><b>Press: </b>" ef.nsh-wid  SPACE(3) ef.nsh-len  "<C66><b>Total Req. Qty: </b>" STRING(iEbTotalblQty)  SKIP
                                     "<C30><b>Die:    </b>" ef.trim-w FORMAT ">>9.9999" SPACE(3) ef.trim-l FORMAT ">>9.9999"  "<C54><b>Total # Up: </b>" STRING(iEbTotalUpQty)  
-                                     "<C65>   <b>Die#: </b>" eb.die-no FORMAT "x(12)" SKIP(1) .
+                                     "<C65>   <b>Die#: </b>" eb.die-no FORMAT "x(20)" SKIP(1) .
                                 
                                 PUT "<b><C2>Operation             <c20>R Crw.  <c27>R Hrs.    <c33>MR Crw.   <c40>MR Hrs.   <c48>Speed    <c53.5>Mr Wst.   <c61.5>R Wst.  <c68>Beginning   <c77>Yield </b>" SKIP
                                     v-fill SKIP .
@@ -1396,7 +1396,7 @@ FOR EACH job-hdr NO-LOCK
                                   "<C70><B><P10>Yield Qty: </B>" TRIM(STRING(iEbTotalYldQty)) FORMAT "x(12)"  skip 
 
                                   "<P10><C20><b>Descr.: </B>" eb.part-dscr1 FORMAT "x(30)"  
-                                  "<C45><b>Cad#: </b>" eb.cad-no FORMAT "x(12)"
+                                  "<C45><b>Cad#: </b>" eb.cad-no FORMAT "x(20)"
                                   "<C70><B><P10>Req Qty: </B>" TRIM(STRING(iEbTotalblQty)) FORMAT "x(12)"  skip
 
                                   "<P10><C20><b>Adhesive: </B>" eb.adhesive FORMAT "x(15)"  
@@ -1467,7 +1467,7 @@ FOR EACH job-hdr NO-LOCK
                                          "<C70><B><P10>Yield Qty: </B>" TRIM(STRING(iEbTotalYldQty)) FORMAT "x(12)"  skip 
                                          
                                          "<P10><C20><b>Descr.: </B>" bff-eb.part-dscr1 FORMAT "x(30)"  
-                                         "<C45><b>Cad#: </b>" bff-eb.cad-no FORMAT "x(12)"
+                                         "<C45><b>Cad#: </b>" bff-eb.cad-no FORMAT "x(20)"
                                          "<C70><B><P10>Req Qty: </B>" TRIM(STRING(iEbTotalblQty)) FORMAT "x(12)"  skip
                                          
                                          "<P10><C20><b>Adhesive: </B>" bff-eb.adhesive FORMAT "x(15)"  

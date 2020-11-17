@@ -11,6 +11,7 @@ def buffer b-ref1  for reftable.
 def buffer b-ref2  for reftable.
 
 {po/po-print.i}
+{methods/getExecutableFileName.i quoter}
 
 def var v-sname like shipto.ship-name NO-UNDO.
 def var v-saddr like shipto.ship-addr NO-UNDO.
@@ -684,12 +685,9 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     DO:
        output close.
     
-       if opsys eq "unix" then
-          unix silent quoter -c 1-3000 value(v-outfile[2]) >
-                                       value(v-outfile[2] + ".quo").
-       else
-          dos  silent quoter -c 1-3000 value(v-outfile[2]) >
-                                       value(v-outfile[2] + ".quo").
+        ASSIGN 
+            cQuoterCommandString = cQuoterFullPathName + " -c 1-3000 " + v-outfile[2] + " > " + v-outFile[2] + ".quo".
+        OS-COMMAND SILENT VALUE(cQuoterCommandString).
                                       
        input from value(v-outfile[2] + ".quo").
        
@@ -723,12 +721,9 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
     output close.
     
-    if opsys eq "unix" then
-      unix silent quoter -c 1-3000 value(v-outfile[2]) >
-                                   value(v-outfile[2] + ".quo").
-    else
-      dos  silent quoter -c 1-3000 value(v-outfile[2]) >
-                                   value(v-outfile[2] + ".quo").
+      ASSIGN 
+          cQuoterCommandString = cQuoterFullPathName + " -c 1-3000 " + v-outfile[2] + " > " + v-outFile[2] + ".quo".
+      OS-COMMAND SILENT VALUE(cQuoterCommandString).
                                    
     input from value(v-outfile[2] + ".quo").
     

@@ -109,6 +109,761 @@ FUNCTION fItemIsUsed RETURNS CHARACTER
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE Inventory_AdjustRawMaterialBinQty:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriRMBin     AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+
+    RUN pUpdateRawMaterialBinQty (
+        INPUT  ipriRMBin,
+        INPUT  "A",  /* Adjust */
+        INPUT  ipdQty,
+        INPUT  ipcReasonCode,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage        
+        ).
+END PROCEDURE.
+
+PROCEDURE Inventory_AdjustFinishedGoodBinQty:
+/*------------------------------------------------------------------------------
+ Purpose: Procedure to Update FG Bin quantity and create a transaction
+ Notes: This is a business logic copy of procedure cre-pchr.p 
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriFGBin     AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdPartialQty AS DECIMAL   NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+
+    RUN pUpdateFinishedGoodBinQty (
+        INPUT  ipriFGBin,
+        INPUT  "A",  /* Adjust */
+        INPUT  ipdQty,
+        INPUT  ipdPartialQty,
+        INPUT  ipcReasonCode,
+        OUTPUT oplSuccess,
+        OUTPUT opcMessage        
+        ).
+END PROCEDURE.
+
+PROCEDURE Inventory_BuildFGBinForItem:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcWarehouseID AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcLocationID  AS CHARACTER NO-UNDO.    
+    DEFINE INPUT-OUTPUT PARAMETER iopcItemID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcCustItem   AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcJobNo       AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiJobNo2      AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
+    DEFINE INPUT        PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT       PARAMETER oplError       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+
+    RUN pBuildFGBinForItem (
+        INPUT        ipcCompany,
+        INPUT        ipcWarehouseID,
+        INPUT        ipcLocationID,
+        INPUT-OUTPUT iopcItemID,
+        INPUT-OUTPUT iopcCustItem,
+        INPUT        ipcJobNo,
+        INPUT        ipiJobNo2,
+        INPUT        iplZeroQtyBins,
+        INPUT        iplEmptyTags,
+        OUTPUT       opcConsUOM,
+        OUTPUT       oplError,
+        OUTPUT       opcMessage    
+        ).
+END PROCEDURE.
+
+PROCEDURE pUpdateFinishedGoodBinQty PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Procedure to Update FG Bin quantity and create a transaction
+ Notes: This is a business logic copy of procedure cre-pchr.p 
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriFGBin     AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTransType  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdPartialQty AS DECIMAL   NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iNextSeqNo AS INTEGER NO-UNDO.
+
+    DEFINE BUFFER bf-fg-bin   FOR fg-bin.
+    DEFINE BUFFER bf-itemfg   FOR itemfg.
+    DEFINE BUFFER bf-fg-rctd  FOR fg-rctd.
+    DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth.
+    DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh.
+    
+    IF ipdPartialQty EQ ? THEN
+        ipdPartialQty = 0.
+
+    FIND FIRST bf-fg-bin EXCLUSIVE-LOCK
+        WHERE ROWID(bf-fg-bin) EQ ipriFGBin
+        NO-ERROR.
+    IF NOT AVAILABLE bf-fg-bin THEN 
+    DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid FG Bin ROWID passed as input"
+            .
+        RETURN.            
+    END.
+      
+    FIND FIRST bf-itemfg NO-LOCK
+        WHERE bf-itemfg.company EQ bf-fg-bin.company
+          AND bf-itemfg.i-no    EQ bf-fg-bin.i-no
+        NO-ERROR.
+    IF NOT AVAILABLE bf-itemfg THEN 
+    DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid item # '" + bf-fg-bin.i-no + "'"
+            .
+        RETURN.                    
+    END.
+
+    ASSIGN
+        bf-fg-bin.qty           = bf-fg-bin.qty + ipdQty
+        bf-fg-bin.partial-count = bf-fg-bin.partial-count + ipdPartialQty
+        .
+
+    FOR EACH bf-fg-rctd NO-LOCK 
+        BY bf-fg-rctd.r-no DESCENDING:
+        iNextSeqNo = bf-fg-rctd.r-no.
+        LEAVE.
+    END.
+
+    FIND LAST bf-fg-rcpth NO-LOCK 
+         USE-INDEX r-no NO-ERROR.
+    IF AVAILABLE bf-fg-rcpth AND bf-fg-rcpth.r-no GT iNextSeqNo THEN
+        iNextSeqNo = bf-fg-rcpth.r-no.
+
+    CREATE bf-fg-rcpth.
+    ASSIGN
+        bf-fg-rcpth.r-no       = iNextSeqNo + 1
+        bf-fg-rcpth.trans-date = TODAY
+        bf-fg-rcpth.company    = bf-fg-bin.company
+        bf-fg-rcpth.loc        = bf-fg-bin.loc
+        bf-fg-rcpth.rita-code  = ipcTransType
+        bf-fg-rcpth.i-no       = bf-fg-bin.i-no
+        bf-fg-rcpth.job-no     = bf-fg-bin.job-no
+        bf-fg-rcpth.job-no2    = bf-fg-bin.job-no2
+        bf-fg-rcpth.post-date  = TODAY
+        bf-fg-rcpth.i-name     = bf-itemfg.i-name
+        bf-fg-rcpth.pur-uom    = IF bf-fg-bin.pur-uom NE "" THEN 
+                                     bf-fg-bin.pur-uom
+                                 ELSE 
+                                     bf-itemfg.pur-uom.
+
+    CREATE bf-fg-rdtlh.
+    ASSIGN
+        bf-fg-rdtlh.r-no           = bf-fg-rcpth.r-no
+        bf-fg-rdtlh.company        = bf-fg-rcpth.company
+        bf-fg-rdtlh.loc            = bf-fg-bin.loc
+        bf-fg-rdtlh.rita-code      = ipcTransType
+        bf-fg-rdtlh.loc-bin        = bf-fg-bin.loc-bin
+        bf-fg-rdtlh.tag            = bf-fg-bin.tag
+        bf-fg-rdtlh.qty            = ipdQty
+        bf-fg-rdtlh.qty-case       = bf-fg-bin.case-count
+        bf-fg-rdtlh.stacks-unit    = bf-fg-bin.cases-unit
+        bf-fg-rdtlh.units-pallet   = bf-fg-bin.units-pallet
+        bf-fg-rdtlh.cust-no        = bf-fg-bin.cust-no
+        bf-fg-rdtlh.partial        = ipdPartialQty
+        bf-fg-rdtlh.cases          = TRUNC((ipdQty - ipdPartialQty) / bf-fg-bin.case-count,0)
+        bf-fg-rdtlh.cost           = bf-fg-bin.std-tot-cost
+        bf-fg-rdtlh.trans-time     = TIME
+        bf-fg-rdtlh.reject-code[1] = ipcReasonCode
+        .
+
+    IF bf-fg-rdtlh.cases EQ ? THEN
+        bf-fg-rdtlh.cases = 0.
+
+    CREATE bf-fg-rctd.
+    BUFFER-COPY bf-fg-rcpth EXCEPT rec_key TO bf-fg-rctd
+    ASSIGN
+        bf-fg-rctd.rct-date   = bf-fg-rcpth.trans-date
+        bf-fg-rctd.trans-time = bf-fg-rdtlh.trans-time
+        .
+
+    BUFFER-COPY bf-fg-rdtlh EXCEPT rec_key TO bf-fg-rctd
+    ASSIGN
+        bf-fg-rctd.rita-code  = "P"
+        bf-fg-rctd.post-date  = TODAY
+        bf-fg-rctd.t-qty      = bf-fg-rdtlh.qty
+        bf-fg-rctd.ext-cost   = bf-fg-rdtlh.cost * (bf-fg-rdtlh.qty / IF bf-fg-rcpth.pur-uom EQ "M" THEN 1000 ELSE 1)
+        bf-fg-rctd.cases-unit = bf-fg-rdtlh.stacks-unit
+        bf-fg-rctd.partial    = ipdPartialQty
+        .
+    
+    ASSIGN
+        oplSuccess = TRUE
+        opcMessage = "Success"
+        .
+END PROCEDURE.
+
+PROCEDURE pUpdateRawMaterialBinQty PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Procedure to Update RM Bin quantity and create a transaction
+ Notes: This is a business logic copy of procedure cre-tran.p 
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriRMBin     AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTransType  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSuccess    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iNextSeqNo AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-rm-bin   FOR rm-bin.
+    DEFINE BUFFER bf-item     FOR item.
+    DEFINE BUFFER bf-rm-rcpth FOR rm-rcpth.
+    DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
+    
+    FIND FIRST bf-rm-bin EXCLUSIVE-LOCK
+         WHERE ROWID(bf-rm-bin) EQ ipriRMBin 
+         NO-ERROR.
+    IF NOT AVAILABLE bf-rm-bin THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Invalid RM Bin ROWID passed as input"
+            .
+        RETURN.    
+    END.
+        
+    FIND FIRST bf-item NO-LOCK
+         WHERE bf-item.company EQ bf-rm-bin.company
+           AND bf-item.i-no    EQ bf-rm-bin.i-no
+         NO-ERROR.
+    IF NOT AVAILABLE bf-item THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Item '" + bf-rm-bin.i-no + "' not found"
+            .
+        RETURN.
+    END.
+    
+    RUN sys/ref/asiseq.p (
+        INPUT  bf-rm-bin.company, 
+        INPUT  "rm_rcpt_seq", 
+        OUTPUT iNextSeqNo
+        ) NO-ERROR.        
+    IF ERROR-STATUS:ERROR THEN DO:
+        ASSIGN
+            oplSuccess = FALSE
+            opcMessage = "Could not obtain next sequence #, please contact ASI: "
+            .
+        RETURN.
+    END.
+
+    bf-rm-bin.qty = bf-rm-bin.qty + ipdQty.
+
+    CREATE bf-rm-rcpth.
+    ASSIGN
+        bf-rm-rcpth.r-no       = iNextSeqNo
+        bf-rm-rcpth.trans-date = TODAY
+        bf-rm-rcpth.post-date  = TODAY
+        bf-rm-rcpth.company    = bf-rm-bin.company
+        bf-rm-rcpth.loc        = bf-rm-bin.loc
+        bf-rm-rcpth.rita-code  = ipcTransType
+        bf-rm-rcpth.i-no       = bf-rm-bin.i-no
+        bf-rm-rcpth.i-name     = bf-item.i-name
+        bf-rm-rcpth.pur-uom    = bf-item.cons-uom
+        .
+
+    CREATE bf-rm-rdtlh.
+    ASSIGN
+        bf-rm-rdtlh.r-no           = bf-rm-rcpth.r-no
+        bf-rm-rdtlh.company        = bf-rm-rcpth.company
+        bf-rm-rdtlh.rita-code      = ipcTransType
+        bf-rm-rdtlh.loc            = bf-rm-bin.loc
+        bf-rm-rdtlh.loc-bin        = bf-rm-bin.loc-bin
+        bf-rm-rdtlh.tag            = bf-rm-bin.tag
+        bf-rm-rdtlh.qty            = ipdQty
+        bf-rm-rdtlh.cost           = IF ipcTransType EQ "C" THEN 
+                                         0 
+                                     ELSE 
+                                         bf-rm-bin.cost
+        bf-rm-rdtlh.reject-code[1] = ipcReasonCode
+        .
+    
+    ASSIGN
+        oplSuccess = TRUE
+        opcMessage = "Success"
+        .    
+END PROCEDURE.
+
+PROCEDURE Inventory_BuildFGBinSummaryForItem:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iopcItemID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iopcCustItem AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE iTotOnHand  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTotOnOrder AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTotAlloc   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTotBack    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTotAvail   AS INTEGER   NO-UNDO.
+
+    RUN pBuildFGBinSummaryForItem (
+        INPUT  ipcCompany,
+        INPUT  iopcItemID,
+        INPUT  iopcCustItem,
+        INPUT  TRUE,
+        OUTPUT iTotOnHand, 
+        OUTPUT iTotOnOrder,
+        OUTPUT iTotAlloc,  
+        OUTPUT iTotBack,   
+        OUTPUT iTotAvail,          
+        OUTPUT oplError,
+        OUTPUT opcMessage        
+        ).
+END PROCEDURE.
+
+PROCEDURE Inventory_BuildFGBinTotalsForItem:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iopcItemID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iopcCustItem  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotOnHand  AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotOnOrder AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotAlloc   AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotBack    AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotAvail   AS INTEGER   NO-UNDO.    
+    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+
+    RUN pBuildFGBinSummaryForItem (
+        INPUT  ipcCompany,
+        INPUT  iopcItemID,
+        INPUT  iopcCustItem,
+        INPUT  FALSE,
+        OUTPUT opiTotOnHand, 
+        OUTPUT opiTotOnOrder,
+        OUTPUT opiTotAlloc,  
+        OUTPUT opiTotBack,   
+        OUTPUT opiTotAvail,          
+        OUTPUT oplError,
+        OUTPUT opcMessage        
+        ).
+END PROCEDURE.
+
+PROCEDURE pBuildFGBinSummaryForItem PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iopcItemID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iopcCustItem  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplCreateTT   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotOnHand  AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotOnOrder AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotAlloc   AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotBack    AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotAvail   AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.    
+    
+    DEFINE BUFFER bf-itemfg     FOR itemfg.
+    DEFINE BUFFER bf-itemfg-loc FOR itemfg-loc.
+    DEFINE BUFFER bf-loc        FOR loc.
+    
+    IF iopcItemID EQ "" AND iopcCustItem EQ "" THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Item #/Customer Item # is empty"
+            .
+        RETURN.        
+    END.
+    
+    IF iopcItemID NE "" THEN
+        FIND FIRST bf-itemfg NO-LOCK
+             WHERE bf-itemfg.company EQ ipcCompany
+               AND bf-itemfg.i-no    EQ iopcItemID
+             NO-ERROR.
+    
+    IF NOT AVAILABLE bf-itemfg AND iopcCustItem NE "" THEN
+        FIND FIRST bf-itemfg NO-LOCK
+             WHERE bf-itemfg.company EQ ipcCompany
+               AND bf-itemfg.part-no EQ iopcCustItem
+             NO-ERROR.
+    
+    IF NOT AVAILABLE bf-itemfg THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Invalid Item # '" + iopcItemID + "' or Customer Item # '" + iopcCustItem + "'" 
+            .
+        RETURN.
+    END.
+    
+    FOR EACH bf-itemfg-loc NO-LOCK
+        WHERE bf-itemfg-loc.company EQ bf-itemfg.company
+          AND bf-itemfg-loc.i-no    EQ bf-itemfg.i-no,
+        FIRST bf-loc NO-LOCK
+        WHERE bf-loc.company EQ bf-itemfg-loc.company
+          AND bf-loc.loc     EQ bf-itemfg-loc.loc:
+
+        ASSIGN
+            opiTotOnHand  = opiTotOnHand  + bf-itemfg-loc.q-onh
+            opiTotonOrder = opiTotOnOrder + bf-itemfg-loc.q-ono
+            opiTotAlloc   = opiTotAlloc   + bf-itemfg-loc.q-alloc
+            opiTotBack    = opiTotBack    + bf-itemfg-loc.q-back
+            opiTotAvail   = opiTotAvail   + bf-itemfg-loc.q-onh + bf-itemfg-loc.q-ono + bf-itemfg-loc.q-alloc
+            .
+        
+        IF iplCreateTT THEN DO:
+            CREATE ttBrowseInventory.
+            ASSIGN 
+                ttBrowseInventory.fgItemID          = bf-itemfg.i-no
+                ttBrowseInventory.warehouseID       = bf-itemfg-loc.loc    
+                ttBrowseInventory.locDscr           = bf-loc.dscr
+                ttBrowseInventory.leadDays          = bf-itemfg-loc.lead-days
+                ttBrowseInventory.orderLevel        = bf-itemfg-loc.ord-level
+                ttBrowseInventory.orderMax          = bf-itemfg-loc.ord-max
+                ttBrowseInventory.orderMin          = bf-itemfg-loc.ord-min
+                ttBrowseInventory.quantityOnHand    = bf-itemfg-loc.q-onh
+                ttBrowseInventory.quantityOnOrder   = bf-itemfg-loc.q-ono
+                ttBrowseInventory.quantityAllocated = bf-itemfg-loc.q-alloc
+                ttBrowseInventory.quantityBackOrder = bf-itemfg-loc.q-back
+                ttBrowseInventory.quantityAvailable = ttBrowseInventory.quantityOnHand
+                                                    + ttBrowseInventory.quantityOnOrder
+                                                    - ttBrowseInventory.quantityAllocated
+                ttBrowseInventory.inventoryStockID  = STRING(ROWID(bf-itemfg-loc))
+                .      
+    
+            RELEASE ttBrowseInventory.
+        END.
+    END.
+
+    IF iplCreateTT THEN DO:
+        CREATE ttBrowseInventory.
+        ASSIGN 
+            ttBrowseInventory.fgItemID          = bf-itemfg.i-no
+            ttBrowseInventory.warehouse         = "*ALL"
+            ttBrowseInventory.locDscr           = "ALL Locations"
+            ttBrowseInventory.leadDays          = bf-itemfg.lead-days
+            ttBrowseInventory.orderLevel        = bf-itemfg.ord-level
+            ttBrowseInventory.orderMax          = bf-itemfg.ord-max
+            ttBrowseInventory.orderMin          = bf-itemfg.ord-min
+            ttBrowseInventory.quantityOnHand    = bf-itemfg.q-onh
+            ttBrowseInventory.quantityOnOrder   = bf-itemfg.q-ono
+            ttBrowseInventory.quantityAllocated = bf-itemfg.q-alloc
+            ttBrowseInventory.quantityBackOrder = bf-itemfg.q-back
+            ttBrowseInventory.quantityAvailable = bf-itemfg.q-avail
+            ttBrowseInventory.inventoryStockID  = "1"
+            .
+            
+        IF opiTotAlloc   NE bf-itemfg.q-alloc OR 
+           opiTotOnHand  NE bf-itemfg.q-onh   OR 
+           opiTotOnOrder NE bf-itemfg.q-ono   OR
+           opiTotBack    NE bf-itemfg.q-back  OR
+           opiTotAvail   NE bf-itemfg.q-avail THEN DO:
+              
+            CREATE ttBrowseInventory.
+            ASSIGN 
+                ttBrowseInventory.fgItemID          = bf-itemfg.i-no
+                ttBrowseInventory.warehouse         = "*UNSP"
+                ttBrowseInventory.locDscr           = "Unspecified Locations"
+                ttBrowseInventory.leadDays          = 0
+                ttBrowseInventory.orderLevel        = 0
+                ttBrowseInventory.orderMax          = 0
+                ttBrowseInventory.orderMin          = 0
+                ttBrowseInventory.quantityOnHand    = bf-itemfg.q-onh - opiTotOnHand
+                ttBrowseInventory.quantityOnOrder   = bf-itemfg.q-ono - opiTotOnOrder
+                ttBrowseInventory.quantityAllocated = bf-itemfg.q-alloc - opiTotAlloc
+                ttBrowseInventory.quantityBackOrder = bf-itemfg.q-back - opiTotBack
+                ttBrowseInventory.quantityAvailable = bf-itemfg.q-avail - opiTotAvail
+                ttBrowseInventory.inventoryStockID  = "2"
+                .
+        END.
+        
+        IF NOT TEMP-TABLE ttBrowseInventory:HAS-RECORDS THEN DO:
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "No Raw material bins available for Item # '" + iopcItemID + "' or Customer Item # '" + iopcCustItem + "'"
+                .
+            RETURN.        
+        END.
+    END.    
+END PROCEDURE.
+
+PROCEDURE pBuildFGBinForItem PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcWarehouseID AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcLocationID  AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcItemID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcCustItem   AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcJobNo       AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiJobNo2      AS INTEGER   NO-UNDO.    
+    DEFINE INPUT        PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
+    DEFINE INPUT        PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT       PARAMETER oplError       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lRecAvail         AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIsWarehouseEmpty AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIsLocationEmpty  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIsJobNoEmpty     AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+    DEFINE BUFFER bf-fg-bin FOR fg-bin.
+    
+    IF iopcItemID EQ "" AND iopcCustItem EQ "" THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Item #/Customer Item # is empty"
+            .
+        RETURN.        
+    END.
+    
+    IF iopcItemID NE "" THEN
+        FIND FIRST bf-itemfg NO-LOCK
+             WHERE bf-itemfg.company EQ ipcCompany
+               AND bf-itemfg.i-no    EQ iopcItemID
+             NO-ERROR.
+    
+    IF NOT AVAILABLE bf-itemfg AND iopcCustItem NE "" THEN
+        FIND FIRST bf-itemfg NO-LOCK
+             WHERE bf-itemfg.company EQ ipcCompany
+               AND bf-itemfg.part-no EQ iopcCustItem
+             NO-ERROR.
+    
+    IF NOT AVAILABLE bf-itemfg THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Invalid Item # '" + iopcItemID + "' or Customer Item # '" + iopcCustItem + "'" 
+            .
+        RETURN.
+    END.
+    
+    ASSIGN
+        iopcItemID   = bf-itemfg.i-no
+        iopcCustItem = bf-itemfg.part-no
+        opcConsUOM   = IF bf-itemfg.cons-uom EQ "" THEN
+                           "EA"
+                       ELSE
+                           bf-itemfg.cons-uom
+        .
+
+    ASSIGN
+        lIsWarehouseEmpty = ipcWarehouseID EQ ""
+        lIsLocationEmpty  = ipcLocationID EQ ""
+        lIsJobNoEmpty     = ipcJobNo EQ ""
+        .
+        
+    FOR EACH bf-fg-bin NO-LOCK
+        WHERE bf-fg-bin.company EQ bf-itemfg.company
+          AND bf-fg-bin.i-no    EQ bf-itemfg.i-no
+          AND ((bf-fg-bin.loc     EQ ipcWarehouseID) OR lIsWarehouseEmpty)
+          AND ((bf-fg-bin.loc-bin EQ ipcLocationID)  OR lIsLocationEmpty)
+          AND ((bf-fg-bin.job-no  EQ ipcJobNo AND bf-fg-bin.job-no2 EQ ipiJobNo2) OR lIsJobNoEmpty)
+          AND (((bf-fg-bin.qty NE 0)  AND NOT iplZeroQtyBins) OR iplZeroQtyBins)
+          AND (((bf-fg-bin.tag NE "") AND NOT iplEmptyTags)   OR iplEmptyTags):        
+        CREATE ttBrowseInventory.
+        ASSIGN
+            ttBrowseInventory.company                 = bf-fg-bin.company
+            ttBrowseInventory.primaryID               = bf-fg-bin.i-no
+            ttBrowseInventory.fgItemID                = bf-fg-bin.i-no
+            ttBrowseInventory.poID                    = INTEGER(bf-fg-bin.po-no)
+            ttBrowseInventory.jobID                   = bf-fg-bin.job-no
+            ttBrowseInventory.jobID2                  = bf-fg-bin.job-no2
+            ttBrowseInventory.warehouseID             = bf-fg-bin.loc
+            ttBrowseInventory.locationID              = bf-fg-bin.loc-bin
+            ttBrowseInventory.tag                     = bf-fg-bin.tag
+            ttBrowseInventory.quantity                = bf-fg-bin.qty
+            ttBrowseInventory.quantityOfSubUnits      = TRUNC((bf-fg-bin.qty - bf-fg-bin.partial-count) / bf-fg-bin.case-count, 0)
+            ttBrowseInventory.quantityPerSubUnit      = bf-fg-bin.case-count
+            ttBrowseInventory.quantitySubUnitsPerUnit = bf-fg-bin.cases-unit
+            ttBrowseInventory.quantityPartial         = bf-fg-bin.partial-count
+            ttBrowseInventory.costStandardPerUOM      = bf-fg-bin.std-var-cost
+            ttBrowseInventory.inventoryStockID        = STRING(ROWID(bf-fg-bin))
+            NO-ERROR.  
+    END.
+    
+    IF NOT TEMP-TABLE ttBrowseInventory:HAS-RECORDS THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "No Raw material bins available for Item # '" + iopcItemID + "' or Customer Item # '" + iopcCustItem + "'"
+            .
+        RETURN.        
+    END.    
+END PROCEDURE.
+
+PROCEDURE Inventory_BuildRMBinForItem:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcWarehouseID AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcLocationID  AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcItemID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcItemName   AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
+    DEFINE INPUT        PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT       PARAMETER oplError       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+
+    RUN pBuildRMBinForItem (
+        INPUT        ipcCompany,
+        INPUT        ipcWarehouseID,
+        INPUT        ipcLocationID,
+        INPUT-OUTPUT iopcItemID,
+        INPUT-OUTPUT iopcItemName,
+        INPUT        iplZeroQtyBins,
+        INPUT        iplEmptyTags,
+        OUTPUT       opcConsUOM,
+        OUTPUT       oplError,
+        OUTPUT       opcMessage    
+        ).
+END PROCEDURE.
+
+PROCEDURE pBuildRMBinForItem PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcWarehouseID AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcLocationID  AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcItemID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcItemName   AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER iplZeroQtyBins AS LOGICAL   NO-UNDO.
+    DEFINE INPUT        PARAMETER iplEmptyTags   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcConsUOM     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT       PARAMETER oplError       AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT       PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lRecAvail         AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIsWarehouseEmpty AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIsLocationEmpty  AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-item   FOR item.
+    DEFINE BUFFER bf-rm-bin FOR rm-bin.
+    
+    IF iopcItemID EQ "" AND iopcItemName EQ "" THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Item #/Item Name is empty"
+            .
+        RETURN.        
+    END.
+    
+    IF iopcItemID NE "" THEN
+        FIND FIRST bf-item NO-LOCK
+             WHERE bf-item.company EQ ipcCompany
+               AND bf-item.i-no    EQ iopcItemID
+             NO-ERROR.
+    
+    IF NOT AVAILABLE bf-item AND iopcItemName NE "" THEN
+        FIND FIRST bf-item NO-LOCK
+             WHERE bf-item.company EQ     ipcCompany
+               AND bf-item.i-name  BEGINS iopcItemName
+             NO-ERROR.
+    
+    IF NOT AVAILABLE bf-item THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Invalid Item # '" + iopcItemID + "' or Item name '" + iopcItemName + "'" 
+            .
+        RETURN.
+    END.
+    
+    ASSIGN
+        iopcItemID   = bf-item.i-no
+        iopcItemName = bf-item.i-name
+        opcConsUOM   = bf-item.cons-uom
+        .
+
+    ASSIGN
+        lIsWarehouseEmpty = ipcWarehouseID EQ ""
+        lIsLocationEmpty  = ipcLocationID EQ ""
+        .
+
+    FOR EACH bf-rm-bin NO-LOCK
+        WHERE bf-rm-bin.company EQ bf-item.company
+          AND bf-rm-bin.i-no    EQ bf-item.i-no
+          AND ((bf-rm-bin.loc     EQ ipcWarehouseID) OR lIsWarehouseEmpty)
+          AND ((bf-rm-bin.loc-bin EQ ipcLocationID)  OR lIsLocationEmpty)
+          AND (((bf-rm-bin.qty NE 0)  AND NOT iplZeroQtyBins) OR iplZeroQtyBins)
+          AND (((bf-rm-bin.tag NE "") AND NOT iplEmptyTags)   OR iplEmptyTags):        
+        CREATE ttBrowseInventory.
+        ASSIGN
+            ttBrowseInventory.company            = bf-rm-bin.company
+            ttBrowseInventory.primaryID          = bf-rm-bin.i-no
+            ttBrowseInventory.rmItemID           = bf-rm-bin.i-no
+            ttBrowseInventory.poID               = bf-rm-bin.po-no
+            ttBrowseInventory.warehouseID        = bf-rm-bin.loc
+            ttBrowseInventory.locationID         = bf-rm-bin.loc-bin
+            ttBrowseInventory.tag                = bf-rm-bin.tag
+            ttBrowseInventory.quantity           = bf-rm-bin.qty
+            ttBrowseInventory.costStandardPerUOM = bf-rm-bin.cost
+            ttBrowseInventory.inventoryStockID   = STRING(ROWID(bf-rm-bin))
+            .
+        
+        RUN pGetJobFromPOAndRMItem (
+            INPUT  ttBrowseInventory.company,
+            INPUT  ttBrowseInventory.rmItemID,
+            INPUT  ttBrowseInventory.poID,
+            OUTPUT ttBrowseInventory.jobID,
+            OUTPUT ttBrowseInventory.jobID2,
+            OUTPUT ttBrowseInventory.formNo,
+            OUTPUT ttBrowseInventory.blankNo
+            ).  
+    END.
+    
+    IF NOT TEMP-TABLE ttBrowseInventory:HAS-RECORDS THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "No Raw material bins available for Item # '" + iopcItemID + "' or Item name '" + iopcItemName + "'"
+            .
+        RETURN.        
+    END.
+END PROCEDURE.
+
+PROCEDURE Inventory_GetStatusOnHold:
+    DEFINE INPUT  PARAMETER ipcStatusID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplOnHold   AS LOGICAL   NO-UNDO. 
+    
+    FIND FIRST inventoryStatusType NO-LOCK
+         WHERE inventoryStatusType.statusID EQ ipcStatusID
+         NO-ERROR. 
+
+    IF AVAILABLE inventoryStatusType THEN 
+        oplOnHold = inventoryStatusType.onHold.           
+
+
+END PROCEDURE.
+
 PROCEDURE pCalculateAverageRawMaterialCost PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -1050,8 +1805,8 @@ PROCEDURE Inventory_UpdateFGBinOnHold:
         bf-fg-bin.onHold   = iplOnHold
         oplSuccess         = TRUE
         opcMessage         = "Success"
-        .
-    
+        .   
+    RUN UpdateFGLocationOnHandQty(INPUT ipriFGBin, INPUT bf-fg-bin.onHold) .
     RELEASE bf-fg-bin.
 END PROCEDURE.
 
@@ -1151,6 +1906,47 @@ PROCEDURE pCreateRawMaterialHistoryRecords PRIVATE:
         IF bf-rm-rdtlh.tag EQ bf-rm-rdtlh.tag2 THEN
             bf-rm-rdtlh.tag2 = "".
     END.
+END PROCEDURE.
+
+PROCEDURE pGetJobFromPOAndRMItem PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPOID    AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcJobNo   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiJobNo2  AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiFormNo  AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiBlankNo AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-po-ord  FOR po-ord.
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+
+    /* Return if item is empty or PO # is 0 */    
+    IF ipcItemID EQ "" OR ipiPOID EQ 0 THEN
+        RETURN.
+
+    FIND FIRST bf-po-ord NO-LOCK
+         WHERE bf-po-ord.company EQ ipcCompany
+           AND bf-po-ord.po-no   EQ ipiPOID
+           NO-ERROR.
+    IF NOT AVAILABLE bf-po-ord THEN
+        RETURN.
+
+    FIND FIRST bf-po-ordl NO-LOCK
+         WHERE bf-po-ordl.company EQ bf-po-ord.company
+           AND bf-po-ordl.po-no   EQ bf-po-ord.po-no
+           AND bf-po-ordl.i-no    EQ ipcItemID
+         NO-ERROR.
+    IF AVAILABLE bf-po-ordl THEN
+        ASSIGN
+            opcJobNo   = bf-po-ordl.job-no
+            opiJobNo2  = bf-po-ordl.job-no2
+            opiFormNo  = bf-po-ordl.s-num
+            opiBlankNo = bf-po-ordl.b-num
+            .        
 END PROCEDURE.
 
 PROCEDURE pPostRawMaterialsGLTrans PRIVATE:
@@ -1521,7 +2317,7 @@ PROCEDURE pPostRawMaterials PRIVATE:
                     bf-mat-act.qty     = bf-mat-act.qty     + dJobMatUOMQty
                     bf-job-mat.qty-iss = bf-job-mat.qty-iss + dJobMatUOMQty
                     bf-job-mat.qty-all = bf-job-mat.qty-all - dJobMatUOMQty
-                    bf-item.q-comm     = bf-item.q-comm     - bf-rm-rctd.qty
+                    //bf-item.q-comm     = bf-item.q-comm     - bf-rm-rctd.qty -> Should be handled in write trigger of job-mat
                     .
 
                 RUN Conv_QuantityFromUOMToUOM (
@@ -1564,7 +2360,7 @@ PROCEDURE pPostRawMaterials PRIVATE:
 
                     ASSIGN
                         bf-job-mat.qty-all = 0
-                        bf-item.q-comm     = bf-item.q-comm - dJobMatUOMQty
+                        //bf-item.q-comm     = bf-item.q-comm - dJobMatUOMQty
                         .
                 END.
 
@@ -4693,7 +5489,8 @@ PROCEDURE Inventory_RecalculateQuantities:
     IF iplCalculateOnHand THEN 
         FOR EACH fg-bin NO-LOCK 
             WHERE fg-bin.company EQ bf-itemfg.company 
-              AND fg-bin.i-no    EQ bf-itemfg.i-no:        
+              AND fg-bin.i-no    EQ bf-itemfg.i-no
+              AND fg-bin.OnHold  EQ NO:        
             bf-itemfg.q-onh = bf-itemfg.q-onh + fg-bin.qty.
         END.
 
@@ -4725,7 +5522,8 @@ PROCEDURE Inventory_RecalculateQuantities:
             FOR EACH fg-bin NO-LOCK 
                 WHERE fg-bin.company EQ bf-itemfg-loc.company 
                   AND fg-bin.i-no    EQ bf-itemfg-loc.i-no 
-                  AND fg-bin.loc     EQ bf-itemfg-loc.loc:   
+                  AND fg-bin.loc     EQ bf-itemfg-loc.loc
+                  AND fg-bin.OnHold  EQ NO:   
                 bf-itemfg-loc.q-onh = bf-itemfg-loc.q-onh + fg-bin.qty.
             END.
     
@@ -6349,6 +7147,52 @@ PROCEDURE UpdateTagStatusID:
     /* Updates bin status ID */
     bf-fg-bin.statusID = ipcStatusID.
     RELEASE bf-fg-bin.        
+END.
+
+PROCEDURE UpdateFGLocationOnHandQty:
+/*------------------------------------------------------------------------------
+ Purpose: Updates statusID for a FG bin
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iprifgbin   AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER iplOnHold   AS LOGICAL NO-UNDO.
+       
+    DEFINE BUFFER bf-fg-bin FOR fg-bin.    
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+    DEFINE BUFFER bf-itemfg-loc FOR itemfg-loc.
+    
+    FIND FIRST bf-fg-bin NO-LOCK
+         WHERE ROWID(bf-fg-bin) EQ iprifgbin
+         NO-WAIT NO-ERROR.
+    IF AVAIL bf-fg-bin THEN
+    DO:
+       FIND FIRST bf-itemfg EXCLUSIVE-LOCK
+            WHERE bf-itemfg.company EQ bf-fg-bin.company
+            AND bf-itemfg.i-no EQ bf-fg-bin.i-no NO-ERROR.
+              
+       /* Updates On Hand qty */     
+       IF avail bf-itemfg AND iplOnHold THEN
+       bf-itemfg.q-onh =  bf-itemfg.q-onh - bf-fg-bin.qty.
+       ELSE IF AVAIL bf-itemfg THEN
+       bf-itemfg.q-onh =  bf-itemfg.q-onh + bf-fg-bin.qty.
+       
+       FOR EACH bf-itemfg-loc EXCLUSIVE-LOCK 
+           WHERE bf-itemfg-loc.company EQ bf-fg-bin.company 
+           AND bf-itemfg-loc.i-no    EQ bf-fg-bin.i-no
+           AND bf-itemfg-loc.loc EQ bf-fg-bin.loc:  
+           
+           /* Updates On Hand qty */ 
+           IF iplOnHold THEN
+           bf-itemfg-loc.q-onh = bf-itemfg-loc.q-onh - bf-fg-bin.qty.
+           ELSE 
+           bf-itemfg-loc.q-onh = bf-itemfg-loc.q-onh + bf-fg-bin.qty.          
+       END.           
+    END.
+       
+    
+    RELEASE bf-fg-bin.
+    RELEASE bf-itemfg-loc.
+    RELEASE bf-itemfg.
 END.
 /* ************************  Function Implementations ***************** */
 

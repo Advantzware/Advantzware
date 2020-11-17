@@ -79,6 +79,17 @@ FOR EACH ttInputEst NO-LOCK:
         eb.stackHeight  = ttInputEst.iStackHeight
         eb.quantityPartial = ttInputEst.iPartial
         eb.tr-cnt          = eb.cas-cnt * eb.cas-pal + eb.quantityPartial 
+        eb.flute           = ttInputEst.cFlute
+        eb.test            = ttInputEst.cTest
+        eb.cad-no          = ttInputEst.cCadID
+        eb.spc-no          = ttInputEst.cProject
+        ef.cost-msh        = ttInputEst.dMSF
+        ef.fr-msh          = ttInputEst.dForceFrt
+        ef.fr-uom          = ttInputEst.cForceFrtUom
+        ef.adder[7]        = ttInputEst.cAddersDscr1
+        ef.adder[8]        = ttInputEst.cAddersDscr2
+        ef.adder[9]        = ttInputEst.cAddersDscr3
+        
         .
 
      IF AVAIL est-qty THEN do:
@@ -244,9 +255,7 @@ FOR EACH ttInputEst NO-LOCK:
     IF AVAILABLE item THEN
         ASSIGN 
             ef.board = item.i-no
-            ef.cal   = item.cal
-            eb.flute = item.flute
-            eb.test  = item.reg-no
+            ef.cal   = item.cal              
             .
     RUN est/CalcLayout.p ("C",
         ROWID(ef),

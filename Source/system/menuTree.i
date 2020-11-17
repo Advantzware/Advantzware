@@ -59,7 +59,8 @@ DEFINE TEMP-TABLE ttMenuTree NO-UNDO
     FIELD hLevel        AS HANDLE
     FIELD hImage        AS HANDLE
     FIELD hEditor       AS HANDLE
-    FIELD hToggle       AS HANDLE 
+    FIELD hToggle       AS HANDLE
+    FIELD hRectangle    AS HANDLE
         INDEX ttMenuTree IS PRIMARY
             treeOrder
         INDEX ttMnemonic

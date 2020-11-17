@@ -2729,7 +2729,7 @@ PROCEDURE SetInvForm:
         WHEN "Soule" THEN       /* LOYLANG Format */
             ASSIGN
                 v-program      = "oe/rep/invsoule.p"
-                lines-per-page = 71             
+                lines-per-page = 74             
                 is-xprint-form = YES.
         WHEN "SouleMed" THEN   /* LOYLANG Format */
             ASSIGN
@@ -3319,7 +3319,7 @@ PROCEDURE SetInvPostForm:
         WHEN "Soule" THEN /* LOYLANG Format */
             ASSIGN
                 v-program      = "ar/rep/invsoule.p"
-                lines-per-page = 71             
+                lines-per-page = 74             
                 is-xprint-form = YES.
         WHEN "SouleMed" THEN /* LOYLANG Format */
             ASSIGN

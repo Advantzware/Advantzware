@@ -951,6 +951,8 @@ PROCEDURE pGetASIMonitorStartCommand PRIVATE:
             cCommandParamResource = "Esko Monitor".
         WHEN "Schedule" THEN
             cCommandParamResource = "Schedule Monitor".
+        WHEN "API" THEN
+            cCommandParamResource = "API Monitor".
         OTHERWISE
             "".
     END.

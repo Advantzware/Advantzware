@@ -557,7 +557,8 @@ PROCEDURE rm-post-issue :
                      mat-act.qty     = mat-act.qty     + out-qty
                      job-mat.qty-iss = job-mat.qty-iss + out-qty
                      job-mat.qty-all = job-mat.qty-all - out-qty
-                     item.q-comm     = item.q-comm     - asi.rm-rctd.qty.
+                     .
+                    /* item.q-comm     = item.q-comm     - asi.rm-rctd.qty. Handled in Job-mat write trigger*/
 
 
              /* Don't relieve more than were allocated */
@@ -566,7 +567,7 @@ PROCEDURE rm-post-issue :
                                      v-bwt, v-len, v-wid, v-dep,
                                      job-mat.qty-all, output out-qty).
              assign  job-mat.qty-all = 0
-                     item.q-comm     = item.q-comm - out-qty
+                     /*item.q-comm     = item.q-comm - out-qty*/
                      job-mat.all-flg = (job-mat.qty-all gt 0).
             if item.q-comm lt 0 then item.q-comm = 0.
           

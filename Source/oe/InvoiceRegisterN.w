@@ -126,6 +126,11 @@ DEFINE            VARIABLE v-ttl-tax         AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE v-ttl-rate        AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE cItemFgCat        LIKE itemfg.procat NO-UNDO.
 
+DEFINE VARIABLE cFieldInProcess AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldPostType  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldUserId    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFieldDateTime  AS CHARACTER NO-UNDO.
+
 
 {oe/ttSaveLine.i}
   
@@ -675,7 +680,10 @@ ON END-ERROR OF C-Win /* Invoice Posting */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Invoice Posting */
-    DO:
+    DO:         
+        RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
+                                        INPUT "postStartDtTm", INPUT cocode, INPUT "OB4", INPUT YES, 
+                                        OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime). 
         /* This event will close the window and terminate the procedure.  */
         DELETE OBJECT hNotesProcs.
         IF VALID-HANDLE(hdOutboundProcs) THEN
@@ -721,6 +729,11 @@ ON LEAVE OF begin_inv IN FRAME FRAME-A /* Beginning Invoice# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+    
+        RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
+                                        INPUT "postStartDtTm", INPUT cocode, INPUT "OB4", INPUT YES, 
+                                        OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime). 
+                                        
         IF VALID-HANDLE(hdOutboundProcs) THEN
             DELETE PROCEDURE hdOutboundProcs.
         APPLY "close" TO THIS-PROCEDURE.
@@ -738,7 +751,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
         DEFINE VARIABLE v-close-line AS LOG       NO-UNDO.
         DEFINE VARIABLE cStatus      AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cReason      AS CHARACTER NO-UNDO.
-
+        
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
         END.
@@ -816,7 +829,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                     UPDATE lv-post.
 
             IF lv-post THEN 
-            DO:                         
+            DO:                      
                 RUN PostInvoices IN hPostInvoices (
                     cocode,
                     INT(begin_inv),
@@ -832,7 +845,8 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                     OUTPUT iPosted,
                     OUTPUT lError,
                     OUTPUT cMessage
-                    ).
+                    ).                     
+                    
                 MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.                 
             END.
         END.
@@ -1113,6 +1127,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                 tb_export:SENSITIVE    = NO.
 
         APPLY "entry" TO tran-date.
+    END.
+    
+    RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
+                                        INPUT "postStartDtTm", INPUT cocode, INPUT "OB4", INPUT NO, 
+                                        OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
+    IF cFieldInProcess EQ "Yes" THEN
+    DO:    
+        MESSAGE "Another user " cFieldUserId " started posting from " cFieldPostType " at " cFieldDateTime " and this process does not " 
+        "support multiple people posting at the same time. Please try again later." VIEW-AS ALERT-BOX INFO.
+        APPLY "close" TO THIS-PROCEDURE.
+        RETURN .
     END.
               
     RUN displayMessage("41").    

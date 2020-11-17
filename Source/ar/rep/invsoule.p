@@ -103,8 +103,10 @@ DEF VAR v-comp-add1 AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-comp-add2 AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-comp-add3 AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-comp-add4 AS CHAR FORMAT "x(30)" NO-UNDO.
-
+DEFINE VARIABLE iPageNum AS INTEGER NO-UNDO.
 DEF VAR lv-bol-no LIKE ar-invl.bol-no NO-UNDO.
+DEF VAR lv-line-start AS INT INIT 29 NO-UNDO. /*line to start body*/
+DEF VAR lv-line-print AS INT INIT 59 NO-UNDO. /*# of lines in body*/
 
 FOR each report 
   WHERE report.term-id EQ v-term-id NO-LOCK,
@@ -339,7 +341,7 @@ FOR each report
 
      END.
 
-     
+     PUT "[@startPage" + TRIM(STRING(ar-inv.inv-no,">>>>>>9")) + "]" FORMAT "X(50)". 
      {ar/rep/invsoule.i}  /* xprint form */
      ASSIGN 
        v-printline = 29
@@ -353,13 +355,7 @@ FOR each report
            v-case-line = "" 
            v-part-line = "" 
            v-case-cnt = "".          
-
-         IF v-printline GE 57 THEN DO: 
-           PAGE.
-           {ar/rep/invsoule.i}
-           v-printline = 29.
-         END.
-
+                  
          FIND first oe-ordl 
            WHERE oe-ordl.company = cocode 
              AND oe-ordl.ord-no = ar-invl.ord-no 
@@ -406,6 +402,8 @@ FOR each report
 
          IF v-ord-no = 0 AND v-ship-qty = 0 THEN v-ship-qty = v-inv-qty.
          
+         RUN addLines(4).
+         
          PUT 
            SPACE(1)
              /*v-po-no         FORMAT "x(15)" */
@@ -436,17 +434,10 @@ FOR each report
           SKIP
            SPACE(17) ar-invl.part-dscr2 FORMAT "x(30)"
           SKIP.
-
-         ASSIGN v-printline = v-printline + 4.
-
+                  
      END. /* each ar-invl */
 
-     IF v-printline GE 66 THEN do:           
-       PAGE.
-       {ar/rep/invsoule.i}
-        v-printline = 29.
-     END.
-
+     
      ASSIGN v-notes = "" v-notes-line = 0.
 
      NOTES:
@@ -518,9 +509,11 @@ FOR each report
         "<R61><C61><FROM><R63><C61><LINE>" 
         SKIP .
  
-    v-printline = v-printline + 8.
+    
+    iPageNum = PAGE-NUM.
+    PUT "[@endPage" + TRIM(STRING(ar-inv.inv-no,">>>>>>9")) + "]" FORMAT "X(50)".
   
-    IF v-printline <= 66 THEN page. /*PUT SKIP(74 - v-printline). */
+    page. /*PUT SKIP(74 - v-printline). */
      
     DO TRANSACTION:
        FIND FIRST xar-inv WHERE RECID(xar-inv) = RECID(ar-inv).
@@ -531,5 +524,23 @@ FOR each report
     
  
     end. /* each ar-inv */
+    
+    PROCEDURE testNewPage:   
+        IF v-printline GE lv-line-print  THEN
+        DO:               
+            PAGE .
+             {ar/rep/invsoule.i}
+            ASSIGN v-printline = lv-line-start.          
+        END.
+
+    END PROCEDURE.
+
+    PROCEDURE addLines:
+        DEFINE INPUT PARAMETER ipiNumLines AS INTEGER NO-UNDO.
+        
+        v-printline = v-printline + ipiNumLines.
+        RUN testNewPage.
+
+    END PROCEDURE.
 
 /* END ---------------------------------- copr. 1996 Advanced Software, Inc. */

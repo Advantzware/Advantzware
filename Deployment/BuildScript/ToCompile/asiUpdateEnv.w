@@ -109,6 +109,9 @@ DEF TEMP-TABLE ttUserLanguage LIKE userlanguage.
 DEF TEMP-TABLE ttXuserMenu LIKE xuserMenu.
 DEF TEMP-TABLE ttUtilities LIKE utilities.
 DEF TEMP-TABLE ttZmessage LIKE zMessage.
+DEF TEMP-TABLE ttEmailConfig LIKE emailConfig.
+DEF TEMP-TABLE ttServerResource LIKE serverResource.
+
 DEF TEMP-TABLE ttAPIOutbound 
     FIELD apiOutboundID AS INT64 
     FIELD username AS CHAR 
@@ -2751,6 +2754,8 @@ PROCEDURE ipDataFix :
         RUN ipDataFix200200.
     IF fIntVer(cThisEntry) LT 20020200 THEN 
         RUN ipDataFix200202.
+    IF fIntVer(cThisEntry) LT 20030300 THEN 
+        RUN ipDataFix200303.
     IF fIntVer(cThisEntry) LT 99999999 THEN
         RUN ipDataFix999999.
 
@@ -3369,6 +3374,45 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix200303 C-Win
+PROCEDURE ipDataFix200303:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 200303...").
+
+  /* from Jay's known issues list */
+    /* Deactivate estimate type filter in DAOA */
+    DISABLE TRIGGERS FOR LOAD OF dynSubject.
+    FIND FIRST dynSubject EXCLUSIVE WHERE
+        dynSubject.subjectID EQ 99
+        NO-ERROR.
+    IF AVAIL dynSubject THEN ASSIGN 
+        dynSubject.isActive = FALSE. 
+        
+    /* Remove new SharpShooter menu */
+    DISABLE TRIGGERS FOR LOAD OF prgrms.
+    FIND FIRST prgrms EXCLUSIVE WHERE 
+        prgrms.prgmname = "ssMenu."
+        NO-ERROR.
+    IF AVAIL prgrms THEN DELETE prgrms.
+    
+    /* Set oe-ctrl flag for jobs on hold */
+    DISABLE TRIGGERS FOR LOAD OF oe-ctrl.
+    FOR EACH oe-ctrl EXCLUSIVE:
+        ASSIGN 
+            oe-ctrl.p-job = TRUE.
+    END.
+    /* Set default Gain/Loss accounts in currency records */    
+    RUN ipSetCurrencyAccounts.
+     
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
 PROCEDURE ipDataFix999999 :
     /*------------------------------------------------------------------------------
@@ -3380,6 +3424,7 @@ PROCEDURE ipDataFix999999 :
     RUN ipUseOldNK1.
     RUN ipAuditSysCtrl.
     RUN ipLoadDAOAData.
+    RUN ipLoadAPIConfigData.
     RUN ipLoadAPIData.
     RUN ipSetCueCards.
     RUN ipDeleteAudit.
@@ -4134,6 +4179,56 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadAPIConfigData C-Win
+PROCEDURE ipLoadAPIConfigData:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Loading API Config Data").
+
+    /* Only load any new records created on DEVEL */
+    &SCOPED-DEFINE tablename serverResource
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.rec_key EQ tt{&tablename}.rec_key 
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
+        END.
+    END.
+    INPUT CLOSE.
+    EMPTY TEMP-TABLE tt{&tablename}.
+
+    &SCOPED-DEFINE tablename emailConfig
+    DISABLE TRIGGERS FOR LOAD OF {&tablename}.
+    INPUT FROM VALUE(cUpdDataDir + "\APIData\{&tablename}.d") NO-ECHO.
+    REPEAT:
+        CREATE tt{&tablename}.
+        IMPORT tt{&tablename}.
+        FIND FIRST {&tablename} EXCLUSIVE WHERE 
+            {&tablename}.configID EQ tt{&tablename}.configID 
+            NO-ERROR.
+        IF NOT AVAIL {&tablename} THEN 
+        DO:
+            CREATE {&tablename}.
+            BUFFER-COPY tt{&tablename} TO {&tablename}.
+        END.
+    END.
+    INPUT CLOSE.
+    EMPTY TEMP-TABLE tt{&tablename}.
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipLoadAPIData C-Win
 PROCEDURE ipLoadAPIData:
@@ -6299,6 +6394,32 @@ END PROCEDURE.
 
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetCurrencyAccounts C-Win
+PROCEDURE ipSetCurrencyAccounts:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Setting Currency Accounts").
+
+    DEF BUFFER bcurrency FOR currency.
+    
+    FOR EACH bcurrency EXCLUSIVE WHERE 
+        bcurrency.ar-ast-acct EQ "":
+        FIND ar-ctrl NO-LOCK WHERE 
+            ar-ctrl.company = bcurrency.company.
+        IF AVAIL ar-ctrl THEN ASSIGN 
+            bcurrency.ar-ast-acct = ar-ctrl.sales.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetDispVars C-Win 
 PROCEDURE ipSetDispVars :
 /*------------------------------------------------------------------------------
@@ -6733,6 +6854,15 @@ PROCEDURE ipUpdateTTIniFile :
     FIND ttIniFile WHERE ttIniFile.cVarName = "envVerList" NO-ERROR.
     ASSIGN ENTRY(iListEntry,ttIniFile.cVarValue) = fiToVer:{&SV}.
     
+    FIND ttIniFile WHERE ttIniFile.cVarName EQ "modeList" NO-ERROR.
+    IF AVAIL ttIniFile 
+    AND INDEX(ttIniFile.cVarValue,"API Monitor") = 0 THEN ASSIGN 
+        ttIniFile.cVarValue = ttIniFile.cVarValue + ",API Monitor".
+    FIND ttIniFile WHERE ttIniFile.cVarName EQ "pgmList" NO-ERROR.
+    IF AVAIL ttIniFile 
+    AND INDEX(ttIniFile.cVarValue,"api/Monitor.w") = 0 THEN ASSIGN 
+        ttIniFile.cVarValue = ttIniFile.cVarValue + ",api/Monitor.w".
+        
     ASSIGN
         lSuccess = TRUE.
     

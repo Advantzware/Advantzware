@@ -5,6 +5,13 @@
   Date Created: 6.21.2019
 ------------------------------------------------------------------------*/
 
+/*ASSIGN                                            */
+/*    LOG-MANAGER:LOGFILE-NAME    = "temp-table.log"*/
+/*    LOG-MANAGER:LOG-ENTRY-TYPES = "TEMP-TABLES"   */
+/*    LOG-MANAGER:LOGGING-LEVEL   = 3               */
+/*    .                                             */
+/*LOG-MANAGER:CLEAR-LOG ().                         */
+
 /* ***************************  Definitions  ************************** */
 
 &Scoped-define ttTempTable ttPostBolCreateInvoice 
@@ -114,7 +121,6 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE lInvalidDate       AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lUserChoice        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iCountNotPosted    AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE hExtProgramHandle  AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cAutoSelectShipFromAlpha AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lTaglessBOLExists   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cAutoSelectTagAlpha AS CHARACTER NO-UNDO.
@@ -295,6 +301,7 @@ PROCEDURE pBusinessLogic:
         END.    
     END. /* main block */
     OUTPUT STREAM sDebug CLOSE.
+/*    LOG-MANAGER:CLOSE-LOG ().*/
 END PROCEDURE.
 
 PROCEDURE pAutoSelectTags:
@@ -708,8 +715,12 @@ PROCEDURE pPostBols :
            AND sys-ctrl.name    EQ 'EDIBOLPost'
          NO-ERROR.
     /**********************  POSTING BLOCK  ****************************/
+
     post-blok:
     DO TRANSACTION.
+        cExternalProgram = "sbo/oerel-recalc-act.p".
+        RUN VALUE(cExternalProgram) PERSISTENT SET hExtProgramHandle NO-ERROR.
+        hRelLib = hExtProgramHandle.
         bolh:
         FOR EACH w-bolh,
             FIRST bf-oe-bolh NO-LOCK
@@ -837,9 +848,9 @@ PROCEDURE pPostBols :
                      NO-ERROR.
             END. /* avail sys-ctrl */
             fDebugMsg("pPostbols actual qty check " + string(w-bolh.bol-no) + " aail bolh " + string(avail(bf-oe-bolh))).
-            cExternalProgram = "sbo/oerel-recalc-act.p".
-            RUN VALUE(cExternalProgram) PERSISTENT SET hExtProgramHandle NO-ERROR.
-            hRelLib = hExtProgramHandle.
+/*            cExternalProgram = "sbo/oerel-recalc-act.p".                          */
+/*            RUN VALUE(cExternalProgram) PERSISTENT SET hExtProgramHandle NO-ERROR.*/
+/*            hRelLib = hExtProgramHandle.                                          */
 
             FOR EACH oe-boll NO-LOCK WHERE oe-boll.b-no EQ bf-oe-bolh.b-no,
                 EACH oe-ordl NO-LOCK
@@ -863,8 +874,8 @@ PROCEDURE pPostBols :
                 END. /* each oe-rel */
             END. /* each oe-boll */
 
-            IF VALID-HANDLE(hRelLib) THEN
-                DELETE OBJECT hRelLib.
+/*            IF VALID-HANDLE(hRelLib) THEN*/
+/*                DELETE OBJECT hRelLib.   */
                 
             fDebugMsg("pPostbols before each oe-boll " + string(avail(bf-oe-bolh) ) ).
             FOR EACH oe-boll NO-LOCK
@@ -889,6 +900,8 @@ PROCEDURE pPostBols :
         FIND FIRST report WHERE report.term-id = v-term NO-LOCK NO-ERROR.
         fDebugMsg("run oe/oe-bolp3 " + v-term + " avail report " + STRING(AVAIL(report))).
         RUN oe/oe-bolp3.p (v-term, dtPostDate).
+        IF VALID-HANDLE(hRelLib) THEN
+            DELETE OBJECT hRelLib.
     END. /* post-blok*/
     
     DELETE-BLOK:
@@ -918,6 +931,7 @@ PROCEDURE pPostBols :
         END. /* each oe-boll */
         DELETE oe-bolh.
     END. /* each oe-bolh */
+
 END PROCEDURE.
 
 PROCEDURE pProcessNoPostRecs:

@@ -75,8 +75,17 @@ DEF NEW SHARED VAR sh-len AS DEC NO-UNDO.
 DEF VAR k_frac AS DEC INIT 6.25 NO-UNDO.
 DEF VAR ll-is-add-from-tool AS LOG NO-UNDO.
 DEF VAR ll-crt-itemfg AS LOG NO-UNDO.
+DEFINE VARIABLE cNK1Value            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound            AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
 
 {sys/inc/f16to32.i}
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CEAddCustomerOption", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCEAddCustomerOption = logical(cNK1Value) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -780,7 +789,7 @@ DO:
    IF LASTKEY <> -1 AND /*eb.cust-no:screen-value in browse {&browse-name} <> "" and */
       NOT CAN-FIND(cust WHERE cust.company = gcompany AND cust.cust-no = eb.cust-no:screen-value IN BROWSE {&browse-name} )
    THEN DO:
-       IF eb.cust-no:screen-value = "" THEN DO:
+       IF NOT lCEAddCustomerOption OR eb.cust-no:screen-value = "" THEN DO:
            MESSAGE "Invalid Customer Number. Try Help." VIEW-AS ALERT-BOX ERROR. 
            RETURN NO-APPLY.
        END.

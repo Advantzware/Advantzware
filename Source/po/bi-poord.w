@@ -706,8 +706,9 @@ PROCEDURE renumber-lines :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF BUFFER bf-po-ordl FOR po-ordl.
-DEF BUFFER bf-tt-po-ordl FOR tt-po-ordl.
+DEFINE BUFFER bf-po-ordl     FOR po-ordl.
+DEFINE BUFFER bf-tt-po-ordl  FOR tt-po-ordl.
+DEFINE BUFFER bf-po-ordl-add FOR po-ordl-add.
 
 DEF VAR v-new-num AS INT NO-UNDO.
 
@@ -734,7 +735,15 @@ FOR EACH tt-po-ordl-renum:
             FIND bf-tt-po-ordl WHERE ROWID(bf-tt-po-ordl) EQ ROWID(tt-po-ordl).
             bf-tt-po-ordl.LINE = tt-po-ordl-renum.po-line-num.
         END.
+        FOR EACH bf-po-ordl-add EXCLUSIVE-LOCK 
+             WHERE bf-po-ordl-add.company EQ bf-po-ordl.company 
+               AND bf-po-ordl-add.po-no   EQ bf-po-ordl.po-no
+               AND bf-po-ordl-add.line    EQ bf-po-ordl.line:
+                   
+            bf-po-ordl-add.line = tt-po-ordl-renum.po-line-num.         
+        END.             
         bf-po-ordl.LINE = tt-po-ordl-renum.po-line-num.
+
     END.
     DELETE tt-po-ordl-renum.
     FIND CURRENT bf-po-ordl NO-LOCK NO-ERROR.

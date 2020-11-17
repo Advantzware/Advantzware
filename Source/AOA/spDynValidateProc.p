@@ -199,8 +199,7 @@ PROCEDURE dynValDept:
     {&defInputParam}
     {&checkRange}
         CAN-FIND(FIRST dept
-                 WHERE dept.company EQ cCompany
-                   AND dept.CODE EQ iphWidget:SCREEN-VALUE)
+                 WHERE dept.code EQ iphWidget:SCREEN-VALUE)
         ).
 END PROCEDURE.
 

@@ -87,8 +87,8 @@ END TRIGGERS.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnDelete Rect-Top Rect-Left Rect-Right ~
-Rect-Bottom btnSave btnExit 
+&Scoped-Define ENABLED-OBJECTS btnExit btnSaveExit btnDelete Rect-Top ~
+Rect-Left Rect-Right Rect-Bottom btnSave 
 &Scoped-Define DISPLAYED-OBJECTS mfgroupList mfRecKey mfgroupLabel ~
 mfRecKeyLabel 
 
@@ -124,10 +124,16 @@ DEFINE BUTTON btnSave
      SIZE 8 BY 1.91 TOOLTIP "Save"
      FONT 4.
 
+DEFINE BUTTON btnSaveExit 
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.ico":U NO-FOCUS FLAT-BUTTON
+     LABEL "Save Exit" 
+     SIZE 8 BY 1.91 TOOLTIP "Save"
+     FONT 4.
+
 DEFINE VARIABLE mfgroupList AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 1
      DROP-DOWN-LIST
-     SIZE 56.2 BY 1
+     SIZE 48 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE mfgroupLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Group:" 
@@ -136,7 +142,7 @@ DEFINE VARIABLE mfgroupLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Group:"
 
 DEFINE VARIABLE mfRecKey AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 56 BY 1
+     SIZE 48 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE mfRecKeyLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Rec Key:" 
@@ -172,15 +178,17 @@ DEFINE RECTANGLE Rect-Top
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     btnExit AT ROW 21.71 COL 84 HELP
+          "Exit Design Layout Window" WIDGET-ID 2
+     btnSaveExit AT ROW 21.71 COL 60 HELP
+          "Save and Exit" WIDGET-ID 12
      btnDelete AT ROW 21.71 COL 68 HELP
           "Delete" WIDGET-ID 4
+     btnSave AT ROW 21.71 COL 76 HELP
+          "Save" WIDGET-ID 6
      mfgroupList AT ROW 21.48 COL 9 COLON-ALIGNED HELP
           "Select Group Name" NO-LABEL
      mfRecKey AT ROW 22.67 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-     btnSave AT ROW 21.71 COL 76 HELP
-          "Save" WIDGET-ID 6
-     btnExit AT ROW 21.71 COL 84 HELP
-          "Exit Design Layout Window" WIDGET-ID 2
      mfgroupLabel AT ROW 21.48 COL 3 NO-LABEL
      mfRecKeyLabel AT ROW 22.67 COL 1 NO-LABEL WIDGET-ID 10
      Rect-Main AT ROW 2.05 COL 1.6
@@ -328,10 +336,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave C-Win
 ON CHOOSE OF btnSave IN FRAME DEFAULT-FRAME /* Save */
 DO:
-  RUN saveValues.
-  IF VALID-HANDLE(iphSmartMsg) THEN
-  RUN Show-MF-Message IN iphSmartMsg (YES).
+  RUN pSave.
   MESSAGE "UDF Values Saved" VIEW-AS ALERT-BOX TITLE "Save".
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnSaveExit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSaveExit C-Win
+ON CHOOSE OF btnSaveExit IN FRAME DEFAULT-FRAME /* Save Exit */
+DO:
+  RUN pSave.
+  APPLY "CHOOSE":U TO btnExit.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -411,7 +429,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + ipcHeader.
   {methods/nowait.i}
   IF RETURN-VALUE EQ "EMPTY" OR lError THEN
-  DISABLE btnSave btnDelete WITH FRAME {&FRAME-NAME}.
+  DISABLE btnSaveExit btnSave btnDelete WITH FRAME {&FRAME-NAME}.
   ELSE
   APPLY "ENTRY" TO btnSave IN FRAME {&FRAME-NAME}.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -848,7 +866,8 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY mfgroupList mfRecKey mfgroupLabel mfRecKeyLabel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnDelete Rect-Top Rect-Left Rect-Right Rect-Bottom btnSave btnExit 
+  ENABLE btnExit btnSaveExit btnDelete Rect-Top Rect-Left Rect-Right 
+         Rect-Bottom btnSave 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -973,6 +992,7 @@ PROCEDURE moveObjects :
             mfgroupList:Y = Rect-Main:HEIGHT-PIXELS + 26
             mfRecKeyLabel:Y = Rect-Main:HEIGHT-PIXELS + 51
             mfRecKey:Y = Rect-Main:HEIGHT-PIXELS + 51
+            btnSaveExit:Y = Rect-Main:HEIGHT-PIXELS + 31
             btnSave:Y = Rect-Main:HEIGHT-PIXELS + 31
             btnDelete:Y = Rect-Main:HEIGHT-PIXELS + 31
             btnExit:Y = Rect-Main:HEIGHT-PIXELS + 31
@@ -985,6 +1005,21 @@ PROCEDURE moveObjects :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSave C-Win
+PROCEDURE pSave:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN saveValues.
+    IF VALID-HANDLE(iphSmartMsg) THEN
+    RUN Show-MF-Message IN iphSmartMsg (YES).
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

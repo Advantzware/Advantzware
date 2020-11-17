@@ -44,6 +44,22 @@ DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobNo   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iJobNo2  AS INTEGER   NO-UNDO.
 
+DEFINE VARIABLE hdFGInquiry    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdFGInquiryWin AS HANDLE    NO-UNDO.
+
+DEFINE VARIABLE lHasAccess AS LOGICAL NO-UNDO.
+
+DEFINE VARIABLE hdPgmSecurity AS HANDLE  NO-UNDO.
+RUN system/PgmMstrSecur.p PERSISTENT SET hdPgmSecurity.
+
+RUN epCanAccess IN hdPgmSecurity (
+    INPUT  "sharpshooter/b-fgInqBins.w", 
+    INPUT  "", 
+    OUTPUT lHasAccess
+    ).
+    
+DELETE OBJECT hdPgmSecurity.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -319,6 +335,83 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 /* **********************  Internal Procedures  *********************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE AdjustQuantity B-table-Win 
+PROCEDURE AdjustQuantity :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dTotalQuantity   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSubUnitCount    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSubUnitsPerUnit AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dPartialQuantity AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cAdjReasonCode   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValueReturned   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cAdjustType      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dValue           AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
+
+    /* If not automatically cleared by security level, ask for password */
+    IF NOT lHasAccess THEN DO:
+        RUN sys/ref/d-passwd.w (
+            INPUT  10, 
+            OUTPUT lHasAccess
+            ). 
+    END.
+
+    IF NOT lHasAccess THEN
+        RETURN.
+
+    IF AVAILABLE job-hdr THEN DO:
+        RUN inventory/adjustQuantityWithType.w (
+            INPUT  job-hdr.qty,
+            INPUT  1,
+            INPUT  1,
+            INPUT  TRUE, /* Required Adj Reason  */
+            INPUT  FALSE,  /* Allow decimal units */
+            OUTPUT dTotalQuantity,
+            OUTPUT dSubUnitCount,
+            OUTPUT dSubUnitsPerUnit,
+            OUTPUT dPartialQuantity,
+            OUTPUT cAdjustType,
+            OUTPUT cAdjReasonCode,
+            OUTPUT lValueReturned,
+            OUTPUT dValue
+            ).
+  
+        IF lValueReturned THEN DO:  
+            MESSAGE cAdjustType + " quantity to " + STRING(dTotalQuantity) "?" 
+                    VIEW-AS ALERT-BOX QUESTION
+                    BUTTON OK-CANCEL
+                    TITLE "Adjust Quantity" UPDATE lContinue AS LOGICAL.
+/*            IF lContinue THEN DO:                                               */
+/*                RUN Inventory_AdjustFinishedGoodBinQty IN hdInventoryProcs (    */
+/*                    INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),        */
+/*                    INPUT  dTotalQuantity - ttBrowseInventory.quantity,         */
+/*                    INPUT  dPartialQuantity - ttBrowseInventory.quantityPartial,*/
+/*                    INPUT  cAdjReasonCode,                                      */
+/*                    OUTPUT lSuccess,                                            */
+/*                    OUTPUT cMessage                                             */
+/*                    ).                                                          */
+/*                                                                                */
+/*                IF NOT lSuccess THEN                                            */
+/*                    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.                   */
+/*                ELSE                                                            */
+/*                    ttBrowseInventory.quantity = dTotalQuantity.                */
+/*                                                                                */
+/*                {&OPEN-QUERY-{&BROWSE-NAME}}                                    */
+/*                                                                                */
+/*                APPLY "VALUE-CHANGED" TO BROWSE {&BROWSE-NAME}.                 */
+/*            END.                                                                */
+        END.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
 /*------------------------------------------------------------------------------
@@ -420,6 +513,52 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ViewFGInquiry B-table-Win 
+PROCEDURE ViewFGInquiry :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    IF NOT AVAILABLE job-hdr THEN
+        RETURN.
+        
+    IF NOT VALID-HANDLE(hdFGInquiry) THEN DO:         
+        RUN sharpshooter/w-fgInquiry.w PERSISTENT SET hdFGInquiry.
+
+        RUN dispatch IN hdFGInquiry (
+            INPUT 'initialize':U
+            ) NO-ERROR.
+        
+        hdFGInquiryWin = hdFGInquiry:CURRENT-WINDOW.
+    END.
+                                                 
+    IF VALID-HANDLE(hdFGInquiry) AND
+        VALID-HANDLE(hdFGInquiryWin) THEN DO: 
+
+        RUN ScanItem IN hdFGInquiry (
+            INPUT job-hdr.company,
+            INPUT "",
+            INPUT "",
+            INPUT job-hdr.i-no,
+            INPUT "",
+            INPUT "",
+            INPUT 0
+            ) NO-ERROR.            
+
+        IF hdFGInquiryWin:WINDOW-STATE EQ 2 THEN ASSIGN 
+            hdFGInquiryWin:WINDOW-STATE = 3.
+        
+        hdFGInquiryWin:MOVE-TO-TOP().
+    END.      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

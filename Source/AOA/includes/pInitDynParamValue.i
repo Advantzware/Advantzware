@@ -16,7 +16,6 @@ PROCEDURE pInitDynParamValue:
     RUN pGetDynParamValue (ipiSubjectID, ipcUserID, ipcPrgmName, ipiParamValueID).
     IF NOT AVAILABLE dynParamValue THEN RETURN.
     DO TRANSACTION:
-        FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
         DO idx = 1 TO NUM-ENTRIES(ipcParamList,"|"):
             FIND FIRST dynValueParam EXCLUSIVE-LOCK
                  WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
@@ -29,6 +28,5 @@ PROCEDURE pInitDynParamValue:
             dynValueParam.paramValue = ENTRY(idx,ipcParamValue,"|").
             RELEASE dynValueParam.
         END. /* do idx */
-        RELEASE dynParamValue.
     END. /* do trans */
 END PROCEDURE.

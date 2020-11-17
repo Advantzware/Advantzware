@@ -158,6 +158,7 @@
 "ASI" "Score (on Width)" "userField108" "XXXXXXXXXXXXXXXXXXXXXXXX" no  "eb"
 "ASI" "Score (on Length)" "userField109" "XXXXXXXXXXXXXXXXXXXXXXXX" no  "eb"
 "ASI" "Promise Date" "userField110" "XXXXXXXXXX" no "job"
+"ASI" "Order Date" "userField111" "XXXXXXXXXX" no "oe-ord"
 "Demo/Jobs" "User Field" "userField01" "XXXXXXXX" yes ""
 "Demo/Service" "User Field" "userField01" "XXXXXXXX" yes ""
 "MXP/SO" "Item" "userField01" "XXXXXXXXXXXXXXXXXXXXXXXX" no ""

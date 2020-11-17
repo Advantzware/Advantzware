@@ -1144,7 +1144,7 @@ PROCEDURE local-enable-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   APPLY "entry" TO ar-cashl.inv-no IN BROWSE {&browse-name}.
-  APPLY "cursor-left" TO BROWSE {&browse-name}.
+/*  APPLY "cursor-left" TO BROWSE {&browse-name}.*/
 
 END PROCEDURE.
 

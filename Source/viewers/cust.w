@@ -150,7 +150,7 @@ cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
 cust.imported cust.show-set cust.nationalAcct cust.log-field[1] 
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
-&Scoped-Define ENABLED-OBJECTS btn_bank-info showTags 
+&Scoped-Define ENABLED-OBJECTS btn_bank-info 
 &Scoped-Define DISPLAYED-FIELDS cust.cust-no cust.active cust.name ~
 cust.addr[1] cust.addr[2] cust.spare-char-3 cust.city cust.state cust.zip ~
 cust.fax-country cust.spare-char-2 cust.type cust.date-field[1] ~
@@ -210,6 +210,11 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnTags 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.4 BY 1 TOOLTIP "Show Details".
+
 DEFINE BUTTON btn_bank-info 
      LABEL "Bank Info" 
      SIZE 16.4 BY 1
@@ -278,10 +283,6 @@ DEFINE VARIABLE terr_dscr AS CHARACTER FORMAT "x(20)"
      SIZE 23 BY 1
      BGCOLOR 15 FONT 4.
 
-DEFINE IMAGE showTags
-     FILENAME "Graphics/16x16/question.png":U
-     SIZE 3.4 BY .81 TOOLTIP "Show Linked Tags".
-
 DEFINE VARIABLE rd_inv-meth AS LOGICAL 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
@@ -306,6 +307,7 @@ DEFINE RECTANGLE RECT-4
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnTags AT ROW 11.57 COL 64 WIDGET-ID 26
      cust.cust-no AT ROW 1 COL 12 COLON-ALIGNED
           LABEL "Customer"
           VIEW-AS FILL-IN 
@@ -652,7 +654,6 @@ DEFINE FRAME F-Main
      RECT-2 AT ROW 8.14 COL 1
      RECT-3 AT ROW 16.48 COL 1
      RECT-4 AT ROW 8.14 COL 73
-     showTags AT ROW 11.71 COL 64 WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -725,6 +726,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN cust.area-code IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR BUTTON btnTags IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN carr-mtx_del-dscr IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN cust.carrier IN FRAME F-Main
@@ -996,6 +999,20 @@ ON return OF cust.auto-reprice IN FRAME F-Main /* Auto Reprice */
 DO:
    apply "tab" to self.
    return no-apply.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnTags
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTags V-table-Win
+ON CHOOSE OF btnTags IN FRAME F-Main
+DO:
+    RUN system/d-TagViewer.w(
+        INPUT cust.rec_key,
+        INPUT "HOLD"
+        ). 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1453,18 +1470,6 @@ ON return OF cust.ship-part IN FRAME F-Main /* Partial Ship */
 DO:
    apply "tab" to self.
    return no-apply.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME showTags
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL showTags V-table-Win
-ON MOUSE-SELECT-CLICK OF showTags IN FRAME F-Main
-DO:
-    IF AVAILABLE cust THEN
-    RUN sys/ref/dlgTagVwr.w (cust.rec_key, "cust", "HOLD Tags for Customer " + cust.cust-no).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2289,7 +2294,7 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+    DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   IF AVAIL cust AND NOT adm-new-record THEN DO:
     ASSIGN
@@ -2323,11 +2328,23 @@ PROCEDURE local-display-fields :
 
   RUN display-active.
 
-  IF AVAIL cust THEN
-      ASSIGN
-    cAccount = cust.bank-acct   
-    cShift   = cust.SwiftBIC    
-    cRouting = cust.Bank-RTN  .
+  IF AVAIL cust THEN DO:
+       ASSIGN
+           cAccount = cust.bank-acct   
+           cShift   = cust.SwiftBIC    
+           cRouting = cust.Bank-RTN  
+           .
+       RUN Tag_IsTagRecordAvailable(
+           INPUT cust.rec_key,
+           INPUT "cust",
+           OUTPUT lAvailable
+           ).
+         IF lAvailable THEN  
+             btnTags:SENSITIVE = TRUE
+             .
+         ELSE 
+             btnTags:SENSITIVE = FALSE.           
+   END.    
 
 END PROCEDURE.
 
@@ -2537,21 +2554,23 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
 
   RUN disable-fields.
-
   IF cust.cr-hold NE ll-prev-cr-hold THEN DO:
       RUN ClearTagsHold (cust.rec_key).
       CASE cust.cr-hold:
+
           WHEN NO THEN
           RUN AddTagHold (
-              cust.rec_key,
-              "cust",
-              "Released from Hold by " + USERID("ASI")
+              INPUT cust.rec_key,
+              INPUT "cust",
+              INPUT "Released from Hold by " + USERID("ASI"),
+              INPUT ""
               ).
           WHEN YES THEN
           RUN AddTagHold (
-              cust.rec_key,
-              "cust",
-              "Placed on Hold by " + USERID("ASI")
+              INPUT cust.rec_key,
+              INPUT "cust",
+              INPUT "Placed on Hold by " + USERID("ASI"),
+              INPUT ""
               ).
       END CASE.
   END. /* if credit hold changed */

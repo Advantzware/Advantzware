@@ -961,7 +961,8 @@ PROCEDURE pProcessRecord PRIVATE:
                 RUN AddTagHold IN hdTagProcs (
                     INPUT ap-inv.REC_KEY,
                     INPUT "ap-inv",
-                    INPUT ENTRY(iIndex, cHoldNote, "|")
+                    INPUT ENTRY(iIndex, cHoldNote, "|"),
+                    INPUT ""
                     ).
         END.
     END.

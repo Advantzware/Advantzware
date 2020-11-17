@@ -1,0 +1,22 @@
+<detailline>
+   <shipto>$ShipToName$</shipto>
+   <shiptoaddress>$shipToAddress1$ $shipToAddress2$ $shipToCity$ $shipToState$ $shipToZip$</shiptoaddress>
+   <customerponbr>$poNo$</customerponbr>
+   <customerpolineseqnbr>$poLine$</customerpolineseqnbr>
+   <internalprodno>$jobID|X(6)|$-$jobID2|99|DEC|$-$jobIDFormNo|99|DEC|$</internalprodno>
+   <custitemname>$itemName$</custitemname>
+   <custitemdscr1>$itemDesc1$</custitemdscr1>
+   <custitemdscr2>$itemDesc2$</custitemdscr2>
+   <quantityordered>$quantityOrderedInEA|->>>>>>>>9.9|DEC|$</quantityordered>
+   <uom>EA</uom>
+   <duedate>$poLineDueDate|MM/DD/YY|DATE|$</duedate>
+   <currentdatetime>$currentDate|MMDDYY HH:MM|DATE|$</currentdatetime>
+   <boardcode>$itemID$</boardcode>
+   <length>$itemLength$</length>
+   <width>$itemWidth$</width>
+   <instructions />
+   <overrunpcnt>$overpct$</overrunpcnt>
+   <underrunpcnt>$underpct$</underrunpcnt>
+   $LineadderGP$
+$LinescoresGP$
+</detailline>

@@ -114,8 +114,7 @@ END PROCEDURE.
 PROCEDURE dynDescripDepartment:
     {&defInputParam}
     FIND FIRST dept NO-LOCK
-         WHERE dept.company   EQ cCompany           
-           AND dept.CODE EQ (iphWidgetFrom:SCREEN-VALUE)
+         WHERE dept.code EQ (iphWidgetFrom:SCREEN-VALUE)
          NO-ERROR.
     IF AVAILABLE dept THEN
     iphWidgetTo:SCREEN-VALUE = dept.dscr.

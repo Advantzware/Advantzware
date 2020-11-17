@@ -50,9 +50,9 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 Btn_Rcpt Btn_Issues Btn_jobreturns ~
-Btn_Transfers Btn_Move Btn_Adjust-3 Btn_Delete Btn_Post Btn_scan-vend ~
-Btn_Close 
+&Scoped-Define ENABLED-OBJECTS RECT-1 Btn_Rcpt Btn_Inquiry Btn_Issues ~
+Btn_jobreturns Btn_Transfers Btn_Move Btn_Adjust-3 Btn_Delete Btn_Post ~
+Btn_scan-vend Btn_Close 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -78,6 +78,11 @@ DEFINE BUTTON Btn_Close
 
 DEFINE BUTTON Btn_Delete 
      LABEL "&Delete Materials" 
+     SIZE 40 BY 1.52
+     FONT 6.
+
+DEFINE BUTTON Btn_Inquiry 
+     LABEL "Material Inquiry" 
      SIZE 40 BY 1.52
      FONT 6.
 
@@ -118,22 +123,23 @@ DEFINE BUTTON Btn_Transfers
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 44 BY 16.91.
+     SIZE 44 BY 18.57.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
      Btn_Rcpt AT ROW 1.24 COL 3
-     Btn_Issues AT ROW 2.91 COL 3
-     Btn_jobreturns AT ROW 4.57 COL 3
-     Btn_Transfers AT ROW 6.24 COL 3
-     Btn_Move AT ROW 7.91 COL 3
-     Btn_Adjust-3 AT ROW 9.57 COL 3
-     Btn_Delete AT ROW 11.24 COL 3
-     Btn_Post AT ROW 12.91 COL 3
-     Btn_scan-vend AT ROW 14.57 COL 3 WIDGET-ID 2
-     Btn_Close AT ROW 16.24 COL 3
+     Btn_Inquiry AT ROW 2.86 COL 3 WIDGET-ID 4
+     Btn_Issues AT ROW 4.48 COL 3
+     Btn_jobreturns AT ROW 6.14 COL 3
+     Btn_Transfers AT ROW 7.81 COL 3
+     Btn_Move AT ROW 9.48 COL 3
+     Btn_Adjust-3 AT ROW 11.14 COL 3
+     Btn_Delete AT ROW 12.81 COL 3
+     Btn_Post AT ROW 14.48 COL 3
+     Btn_scan-vend AT ROW 16.14 COL 3 WIDGET-ID 2
+     Btn_Close AT ROW 17.81 COL 3
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -166,7 +172,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 17.1
+         HEIGHT             = 18.67
          WIDTH              = 44.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -240,6 +246,20 @@ END.
 ON CHOOSE OF Btn_Delete IN FRAME F-Main /* Delete Materials */
 DO:
   RUN addon/rm/w-rcpt.w ('Delete').
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Inquiry
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Inquiry s-object
+ON CHOOSE OF Btn_Inquiry IN FRAME F-Main /* Material Inquiry */
+DO:
+    RUN inventory/w-rmInquiry.w (
+        INPUT cocode,
+        INPUT locode
+        ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
