@@ -87,17 +87,17 @@ DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
-ASSIGN cTextListToSelect = "JOB NO,ITEM NO,ITEM NAME,VEND NO,VEND NAME,P/O#,P/O DATE,UOM," +  /*8*/
-                               "QTY ORDER,QTY RECEIVED,REQ DATE,MSF,CARRIER,FIRST RESOURCE,BUYER ID,USER ID," + /*7*/
-                               "CUSTOMER#,ORDER#,COST LINE ITEM,COST UOM,TOTAL COST LINE ITEM"
+ASSIGN cTextListToSelect = "Job No,Item No,Item Name,Vend No,Vend Name,P/O#,P/O Date,UOM," +  /*8*/
+                               "Qty Order,Qty Received,Req Date,MSF,Carrier,First Resource,Buyer Id,User Id," + /*7*/
+                               "Customer#,Order#,Cost Line Item,Cost Uom,Total Cost Line Item"
            cFieldListToSelect = "lv-job-no,tt-sched.i-no,tt-sched.i-name,tt-sched.vend-no,tt-sched.vend-name,tt-sched.po-no,tt-sched.po-date,tt-sched.cons-uom," +
                                 "tt-sched.cons-qty,tt-sched.t-rec-qty,tt-sched.due-date,tt-sched.amt-msf,tt-sched.carrier,tt-sched.m-code,tt-sched.buyer,tt-sched.user-id," +
                                 "tt-sched.custno,tt-sched.ordno,tt-sched.costLine,tt-sched.costUom,tt-sched.totCost"
            cFieldLength = "10,15,30,8,30,8,10,4," + "15,15,8,13,7,14,10,8,10,8," + "14,8,20"
            cFieldType = "c,c,c,c,c,c,c,c," + "i,i,c,i,c,c,c,c,c,i," + "i,c,i"
            .
-        ASSIGN cTextListToDefault  = "JOB NO,ITEM NO,ITEM NAME,VEND NO,P/O#,P/O DATE,UOM," +  /*8*/
-                                     "QTY ORDER,QTY RECEIVED,REQ DATE,MSF,CARRIER"  . /*5*/
+        ASSIGN cTextListToDefault  = "Job No,Item No,Item Name,Vend No,P/O#,P/O Date,UOM," +  /*8*/
+                                     "Qty Order,Qty Received,Req Date,MSF,Carrier"  . /*5*/
 
 
 {sys/inc/ttRptSel.i}
