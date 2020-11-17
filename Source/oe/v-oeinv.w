@@ -1256,25 +1256,7 @@ PROCEDURE hold-invoice :
                 RELEASE bf-head.
 
              END.
-             RUN pCombineInvoice(ROWID(inv-head)) .
-             RUN Tax_CalculateForInvHead  (
-                    INPUT  ROWID(inv-head),
-                    INPUT  locode,
-                    INPUT  "QUOTATION",    /*  Message Type "INVOICE" or "QUOTATION" */
-                    INPUT  FALSE,          /* Post To journal */
-                    INPUT  "GetTaxAmount", /* Trigger ID */
-                    OUTPUT dTotalTax,
-                    OUTPUT dInvoiceTotal,
-                    OUTPUT dinvoiceSubTotal,
-                    OUTPUT lSuccess,
-                    OUTPUT cMessage
-                    ).
-             FIND CURRENT inv-head EXCLUSIVE-LOCK NO-ERROR.
-             ASSIGN 
-                inv-head.t-inv-tax   = dTotalTax
-                inv-head.t-inv-rev   = dInvoiceTotal
-                inv-head.spare-int-1 = 0   .             
-             FIND CURRENT inv-head NO-LOCK NO-ERROR.    
+             RUN pCombineInvoice(ROWID(inv-head)) .                 
              RELEASE bf-head.
           END. /* IF inv-head.stat = "H" */
           ELSE /* ELSE IF inv-head.stat NOT "H" */
