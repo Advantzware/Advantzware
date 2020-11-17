@@ -51,9 +51,7 @@ if avail tt-temp-report then
   chWorkSheet:Range("A16"):VALUE = tt-temp-report.key-07  + ", " + tt-temp-report.key-08 + " " + tt-temp-report.key-09 .
   chWorkSheet:Range("A18"):VALUE = tt-temp-report.cSpecInst.
   chWorkSheet:Range("J34"):VALUE = tt-temp-report.key-02.
-
-  chWorkSheet:Range("N29"):VALUE = string(oe-bolh.upd-date) + " At " + fi_upd-time .
-  chWorkSheet:Range("I39"):VALUE = string(oe-bolh.upd-date) + " At " + fi_upd-time .
+  
   chWorkSheet:Range("T34"):VALUE = "".
   
   
