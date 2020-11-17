@@ -237,6 +237,7 @@ DEFINE VARIABLE idx AS INTEGER NO-UNDO.
 DEF VAR v-output AS INT FORM ">,>>>,>>9" NO-UNDO.
 DEFINE VARIABLE cStatus AS CHARACTER NO-UNDO .
 DEFINE VARIABLE iSheetQty AS INTEGER NO-UNDO .
+DEFINE VARIABLE iSheetRequired AS INTEGER NO-UNDO.
 
 FUNCTION barCode RETURNS CHARACTER (ipBarCode AS CHARACTER):
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
@@ -280,7 +281,8 @@ ASSIGN
               by job-hdr.job-no
               by job-hdr.job-no2
               BY job-hdr.frm:       
-                                                         /**/
+              
+     IF lookup(cPrintSheetTicket,"J,B") GT 0 then do:       MESSAGE "hello " VIEW-AS ALERT-BOX ERROR .
       ASSIGN lv-prt-sts = IF NOT job-hdr.ftick-prnt THEN "ORIGINAL" ELSE "REVISED"
              lv-prt-date = TODAY
              lv-prt-time = STRING(TIME,"hh:mm am").
@@ -1523,7 +1525,8 @@ ASSIGN
         end.
         lv-pg-num = PAGE-NUM .
       end.
-
+     END. /* lookup(cPrintSheetTicket,"S,B") GT 0*/
+        
       for each wrk-spec:
         delete wrk-spec.
       end.
@@ -1547,7 +1550,7 @@ ASSIGN
       
       v-first = no.
 
-      IF LAST(job-hdr.job) THEN DO:
+      IF LAST(job-hdr.job) AND lookup(cPrintSheetTicket,"S,B") GT 0 THEN DO:
 
           find first job
               where job.company eq cocode
@@ -1598,43 +1601,7 @@ ASSIGN
           FIND FIRST ef NO-LOCK
               WHERE ef.company EQ eb.company 
               AND ef.est-no EQ eb.est-no 
-              AND ef.form-no EQ eb.form-no NO-ERROR .
-
-          v-job-qty = 0.
-          for each xjob-hdr no-lock
-              where xjob-hdr.company eq cocode
-              and xjob-hdr.job     eq job-hdr.job
-              and xjob-hdr.job-no  eq job-hdr.job-no:
-              v-job-qty = v-job-qty + xjob-hdr.qty.
-          END.
-
-          PAGE.
-
-          PUT  "<FArial>".
-          PUT  "<C+25><#1>".
-          PUT  "<=1>" SKIP.
-
-          PUT "<FArial><=1><C50><B><u> Sheeting Ticket </u>" "</B>" SKIP.
-          
-          PUT "<FArial><=4><R2><C5><B> Job Number: </B>" string(job-hdr.job-no + "-" + string(job-hdr.job-no2)) FORMAT "x(10)"   SKIP.
-          PUT "<FArial><=4><R2><C40><B> Customer Name: </B>" v-cust-name FORMAT "x(30)"   SKIP.
-          PUT "<FArial><=4><R3><C5><B> Die Number: </B>" eb.die-no FORMAT "x(20)"   .
-          PUT "<FArial><=4><R3><C40><B> Due Date: </B>" v-due-date FORMAT "99/99/9999" SKIP.
-          PUT "<FArial><=4><R4><C5><B> Die Size: </B>" string(ef.trim-w) + "x" + string(ef.trim-l) FORM "x(16)"  .
-          PUT "<FArial><=4><R4><C40><B> Estimate: </B>" job.est-no FORMAT "x(8)"  SKIP.
-          PUT "<FArial><=4><R5><C5><B> Sheets Required: </B>" v-job-qty FORMAT ">>>>>>>9"   .
-          PUT "<FArial><=4><R5><C40><B> Ship To: </B>" eb.ship-id FORMAT "x(20)" SKIP.
-          PUT "<FArial><=4><R6><C5><B> #Up: </B>"   SKIP.
-          PUT "<FArial><=4><R7><C5><B> Printed Date: </B>" string(TODAY,"99/99/9999") " " STRING(TIME,"HH:MM:SS")   .
-          PUT "<FArial><=4><R7><C40><FROM><R+1><C42><RECT> <R-1><C43> Die Size OK for Sheet Size listed below " SKIP.
-          PUT "<FArial><=4><R8><C5><B> Status: </B>" cStatus FORMAT "x(10)"  SKIP(1) .
-
-          PUT UNFORMATTED "<R3><#1><UNITS=INCHES><C75.5><FROM><c95.8><r+3.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
-              job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") ">"    
-              "<C76>" job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") .
-
-
-            j = 0 .
+              AND ef.form-no EQ eb.form-no NO-ERROR .              
 
        FOR EACH wrk-sheet :
            DELETE wrk-sheet .
@@ -1679,6 +1646,43 @@ ASSIGN
                    IF wrk-sheet.gsh-qty LT iSheetQty  THEN
                         wrk-sheet.gsh-qty =  iSheetQty .
        END.
+       
+       iSheetRequired = 0.
+       FOR EACH wrk-sheet NO-LOCK
+           BREAK BY wrk-sheet.gsh-qty DESC
+                 BY wrk-sheet.i-no :
+           iSheetRequired = iSheetRequired + wrk-sheet.gsh-qty.
+       END.
+          IF cPrintSheetTicket EQ "B" THEN
+          PAGE.
+
+          PUT  "<OLANDSCAPE><P10><FArial>".
+          PUT  "<C+25><#1>".
+          PUT  "<=1>" SKIP.
+
+          PUT "<FArial><=1><C50><B><u> Sheeting Ticket </u>" "</B>" SKIP.
+          
+          PUT "<FArial><=4><R2><C5><B> Job Number: </B>" string(job-hdr.job-no + "-" + string(job-hdr.job-no2)) FORMAT "x(10)"   SKIP.
+          PUT "<FArial><=4><R2><C40><B> Customer Name: </B>" v-cust-name FORMAT "x(30)"   SKIP.
+          PUT "<FArial><=4><R3><C5><B> Die Number: </B>" eb.die-no FORMAT "x(20)"   .
+          PUT "<FArial><=4><R3><C40><B> Due Date: </B>" v-due-date FORMAT "99/99/9999" SKIP.
+          PUT "<FArial><=4><R4><C5><B> Die Size: </B>" string(ef.trim-w) + "x" + string(ef.trim-l) FORM "x(16)"  .
+          PUT "<FArial><=4><R4><C40><B> Estimate: </B>" job.est-no FORMAT "x(8)"  SKIP.
+          PUT "<FArial><=4><R5><C5><B> Sheets Required: </B>" iSheetRequired FORMAT ">>>>>>>9"   .
+          PUT "<FArial><=4><R5><C40><B> Ship To: </B>" eb.ship-id FORMAT "x(20)" SKIP.
+          PUT "<FArial><=4><R6><C5><B> #Up: </B>"   SKIP.
+          PUT "<FArial><=4><R7><C5><B> Printed Date: </B>" string(TODAY,"99/99/9999") " " STRING(TIME,"HH:MM:SS")   .
+          PUT "<FArial><=4><R7><C40><FROM><R+1><C42><RECT> <R-1><C43> Die Size OK for Sheet Size listed below " SKIP.
+          PUT "<FArial><=4><R8><C5><B> Status: </B>" cStatus FORMAT "x(10)"  SKIP(1) .
+
+          PUT UNFORMATTED "<R3><#1><UNITS=INCHES><C75.5><FROM><c95.8><r+3.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
+              job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") ">"    
+              "<C76>" job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") .
+
+
+            j = 0 .
+       
+       
        
        FOR EACH wrk-sheet NO-LOCK
            BREAK BY wrk-sheet.gsh-qty DESC
@@ -1727,6 +1731,7 @@ ASSIGN
                        PUT "<FArial><R11><C5><B> RM Item#: " item.i-no FORMAT "x(15)"  "</B>" SKIP .
                        PUT "<FArial><R12><C5><B> Board Name: "  item.i-name FORMAT "x(25)" "</B>" SKIP .
                        PUT "<FArial><R13><C5><B> Total Sheets: " wrk-sheet.gsh-qty FORMAT ">>>>,>>9" "</B>" SKIP .
+                       PUT "<FArial><R14><C5><B> Actual Sheets: "  SKIP .
                        PUT "<FArial><R15><C5><B> Board PO: " STRING(v-board-po,">>>>>>9") FORMAT "x(10)" "</B>" SKIP.
                        PUT "<FArial><R16><C5><B> Board Vendor: "  v-vend FORMAT "x(15)"  "</B>" SKIP .
                        PUT "<FArial><R17><C5><B> Roll Width: " string(job-mat.wid,"->>>>>9.9<<<") FORMAT "x(12)"  "</B>" .
@@ -1745,7 +1750,8 @@ ASSIGN
                        PUT "<FArial><=6><R11><C52><B> RM Item#: " item.i-no FORMAT "x(15)" "</B>" .
                        PUT "<FArial><=6><R12><C52><B> Board Name: " item.i-name FORMAT "x(25)" "</B>" .
                        PUT "<FArial><=6><R13><C52><B> Total Sheets: " wrk-sheet.gsh-qty FORMAT ">>>>,>>9" "</B>" .
-                       PUT "<FArial><=6><R14><C52><B> Board PO: " STRING(v-board-po,">>>>>>9") FORMAT "x(10)" "</B>" .
+                       PUT "<FArial><=6><R14><C52><B> Actual Sheets: "  SKIP .
+                       PUT "<FArial><=6><R15><C52><B> Board PO: " STRING(v-board-po,">>>>>>9") FORMAT "x(10)" "</B>" .
                        PUT "<FArial><=6><R16><C52><B> Board Vendor: " v-vend FORMAT "x(15)" "</B>" .
                        PUT "<FArial><=6><R17><C52><B> Roll Width: " string(job-mat.wid,"->>>>>9.9<<<") FORMAT "x(12)"  "</B>" .
                        PUT "<FArial><=6><R17><C74><B> Caliper: " string(ITEM.cal,"->>>>9.9<<<<") FORMAT "x(10)"  "</B>" .
@@ -1762,6 +1768,7 @@ ASSIGN
                        PUT "<FArial><R20><C5><B> RM Item#: " item.i-no FORMAT "x(15)" "</B>" SKIP.
                        PUT "<FArial><R21><C5><B> Board Name: " item.i-name FORMAT "x(25)" "</B>" SKIP.
                        PUT "<FArial><R22><C5><B> Total Sheets: " wrk-sheet.gsh-qty FORMAT ">>>>,>>9" "</B>" SKIP.
+                       PUT "<FArial><R23><C5><B> Actual Sheets: "  "</B>" SKIP.
                        PUT "<FArial><R24><C5><B> Board PO: " STRING(v-board-po,">>>>>>9") FORMAT "x(10)" "</B>" SKIP .
                        PUT "<FArial><R25><C5><B> Board Vendor: " v-vend FORMAT "x(15)" "</B>" SKIP.
                        PUT "<FArial><R26><C5><B> Roll Width: " string(job-mat.wid,"->>>>>9.9<<<") FORMAT "x(12)"  "</B>" SKIP(1).
@@ -1780,6 +1787,7 @@ ASSIGN
                        PUT "<FArial><R20><C52><B> RM Item#: " item.i-no FORMAT "x(15)" "</B>" .
                        PUT "<FArial><R21><C52><B> Board Name: " item.i-name FORMAT "x(25)"  "</B>" .
                        PUT "<FArial><R22><C52><B> Total Sheets: " wrk-sheet.gsh-qty FORMAT ">>>>,>>9" "</B>" .
+                       PUT "<FArial><R23><C52><B> Actual Sheets: " "</B>" .
                        PUT "<FArial><R24><C52><B> Board PO: " STRING(v-board-po,">>>>>>9") FORMAT "x(10)" "</B>" .
                        PUT "<FArial><R25><C52><B> Board Vendor: " v-vend FORMAT "x(15)" "</B>" .
                        PUT "<FArial><R26><C52><B> Roll Width: " string(job-mat.wid,"->>>>>9.9<<<") FORMAT "x(12)" "</B>"   .
@@ -1797,6 +1805,7 @@ ASSIGN
                        PUT "<FArial><R30><C5><B> RM Item#: " item.i-no FORMAT "x(15)" "</B>" SKIP.
                        PUT "<FArial><R31><C5><B> Board Name: " item.i-name FORMAT "x(25)" "</B>" SKIP.
                        PUT "<FArial><R32><C5><B> Total Sheets: " wrk-sheet.gsh-qty FORMAT ">>>>,>>9" "</B>" SKIP.
+                       PUT "<FArial><R33><C5><B> Actual Sheets: "  "</B>" SKIP.
                        PUT "<FArial><R34><C5><B> Board PO: " STRING(v-board-po,">>>>>>9") FORMAT "x(10)" "</B>" SKIP.
                        PUT "<FArial><R35><C5><B> Board Vendor: " v-vend FORMAT "x(15)" "</B>" SKIP.
                        PUT "<FArial><R36><C5><B> Roll Width: " string(job-mat.wid,"->>>>>9.9<<<") FORMAT "x(12)" "</B>" SKIP.
@@ -1814,6 +1823,7 @@ ASSIGN
                        PUT "<FArial><R30><C52><B> RM Item#: " item.i-no FORMAT "x(15)" "</B>" .
                        PUT "<FArial><R31><C52><B> Board Name: " item.i-name FORMAT "x(25)" "</B>" .
                        PUT "<FArial><R32><C52><B> Total Sheets: " wrk-sheet.gsh-qty FORMAT ">>>>,>>9" "</B>" .
+                       PUT "<FArial><R33><C52><B> Actual Sheets: "  "</B>" .
                        PUT "<FArial><R34><C52><B> Board PO: " STRING(v-board-po,">>>>>>9") FORMAT "x(10)" "</B>" .
                        PUT "<FArial><R35><C52><B> Board Vendor: " v-vend FORMAT "x(15)" "</B>" .
                        PUT "<FArial><R36><C52><B> Roll Width: " string(job-mat.wid,"->>>>>9.9<<<") FORMAT "x(12)" "</B>" .
@@ -1831,13 +1841,14 @@ ASSIGN
        END. /* wrk-sheet */
 
 
-       IF j EQ 1 OR j EQ 2 THEN
+       /*IF j EQ 1 OR j EQ 2 THEN
            j = 20 .
        ELSE IF j EQ 3 OR j EQ 4 THEN
            j = 30 .
        ELSE IF j EQ 5 OR j EQ 6 THEN
-           j = 40 .
-
+           j = 40 .*/
+        J = 2.   
+        PAGE.
         PUT "<FArial><=5><R" STRING(j - 1) "><C1><B> Sheeting Specs: "  "</B>" SKIP.
 
         PUT "<FArial><=5><R" STRING(j ) "><C3><B> Vendor Tag # "  "<C58>Vendor Tag # " "</B>" .
