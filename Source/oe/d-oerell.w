@@ -27,6 +27,7 @@ DEFINE OUTPUT PARAMETER ip-rowid AS ROWID     NO-UNDO.
 {custom/globdefs.i}
 
 {sys/inc/var.i new shared}
+{inventory/ttInventory.i "NEW SHARED"}
 
 ASSIGN cocode = g_company.
 ASSIGN locode = g_loc.
@@ -55,6 +56,10 @@ DEFINE VARIABLE ll-order-warned AS LOGICAL       NO-UNDO.
 DEFINE VARIABLE ll-new-record   AS LOGICAL       NO-UNDO.
 DEFINE BUFFER bf-rell FOR oe-rell.
 DEFINE BUFFER bf-ordl FOR oe-ordl.
+
+DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+
+RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -527,7 +532,11 @@ DO:
 
   RUN valid-s-code NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  
+  RUN pValidateTagStatus NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN 
+      RETURN NO-APPLY.
+ 
   DO TRANSACTION:
       FIND CURRENT oe-rell EXCLUSIVE-LOCK NO-ERROR.
 
@@ -1361,6 +1370,42 @@ PROCEDURE import-order-items-look :
   END.
  END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateTagStatus Dialog-Frame 
+PROCEDURE pValidateTagStatus PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose: Checks the tag status using fg-bin and if tag is on hold then display 
+          zMessage 53
+ Notes:
+------------------------------------------------------------------------------*/
+
+    DEFINE VARIABLE lTagStatusOnHold AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lResponse        AS LOGICAL NO-UNDO.
+
+    DO WITH FRAME {&FRAME-NAME}:
+    END.    
+    IF oe-rell.tag:SCREEN-VALUE NE "" THEN DO:
+        lTagStatusOnHold = LOGICAL(DYNAMIC-FUNCTION(
+                               "fCheckFgBinTagOnHold" IN hdInventoryProcs,
+                               cocode,
+                               oe-rell.i-no:SCREEN-VALUE, 
+                               oe-rell.tag:SCREEN-VALUE)
+                               ).
+        IF lTagStatusOnHold THEN DO:
+            RUN displayMessageQuestion (
+                INPUT  "53",
+                OUTPUT lResponse
+                ).
+            IF NOT lResponse THEN DO:
+                APPLY "ENTRY":U TO oe-rell.tag.
+                RETURN ERROR.
+            END.
+        END.      
+    END.     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -2078,7 +2078,7 @@ FUNCTION fMessageText RETURNS CHARACTER
 ------------------------------------------------------------------------------*/        
     IF zMessage.contextParms EQ "" THEN DO:     
         RETURN IF zMessage.currMessage  NE "" THEN 
-            zMessage.currMessage
+            zMessage.currMessage + " (" + ipcMessageID + ")"
            ELSE zMessage.defaultMsg + " (" + ipcMessageID + ")".
     END.
     
@@ -2087,7 +2087,7 @@ FUNCTION fMessageText RETURNS CHARACTER
             scInstance = SharedConfig:instance.
             
         IF zMessage.currMessage NE "" THEN
-            RETURN pReplaceContext(zMessage.currMessage).
+            RETURN pReplaceContext(zMessage.currMessage) + " (" + ipcMessageID + ")".
         ELSE 
             RETURN pReplaceContext(zMessage.defaultMsg) + " (" + ipcMessageID + ")".
     END.    
