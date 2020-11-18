@@ -1,4 +1,4 @@
-/* Amtech.i - rstark - 11.15.2020 */
+/* ado.i - rstark - 11.15.2020 */
 
 PROCEDURE p{&Table}:
     DISABLE TRIGGERS FOR LOAD OF {&Table}.

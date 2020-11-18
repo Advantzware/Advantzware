@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------
-  File:         Amtech.p
+  File:         ado.p
   Description:  Business Logic
   Author:       Ron Stark
   Date Created: 11.15.2020
@@ -56,16 +56,16 @@ PROCEDURE pBusinessLogic:
     /* create record set connection */
     CREATE "ADODB.Recordset.6.0" hRecordSet.
     hRecordSet:LockType = 1. /* read only */    
-    IF lTerms     THEN RUN pAmtech ("Terms").
-    IF lCustomers THEN RUN pAmtech ("Cust").
-    IF lFGItems   THEN RUN pAmtech ("ItemFG").    
+    IF lTerms     THEN RUN pADO ("Terms").
+    IF lCustomers THEN RUN pADO ("Cust").
+    IF lFGItems   THEN RUN pADO ("ItemFG").    
     hConnection:Close ().
     RELEASE OBJECT hRecordSet.
     RELEASE OBJECT hConnection.
 
 END PROCEDURE.
 
-PROCEDURE pAmtech:
+PROCEDURE pADO:
     DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE cSelect AS CHARACTER  NO-UNDO.
@@ -240,19 +240,19 @@ PROCEDURE pCreatettTerms:
 
 END PROCEDURE.
 
-{AOA/dynBL/Amtech.i
+{AOA/dynBL/ado.i
     &table="cust"
     &keyField="cust-no"
     &dscrField="name"
     }
 
-{AOA/dynBL/Amtech.i
+{AOA/dynBL/ado.i
     &table="itemfg"
     &keyField="i-no"
     &dscrField="i-name"
     }
 
-{AOA/dynBL/Amtech.i
+{AOA/dynBL/ado.i
     &table="terms"
     &keyField="t-code"
     &dscrField="dscr"

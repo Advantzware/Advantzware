@@ -747,10 +747,6 @@ PROCEDURE pReturnToPending :
               AND mach.m-code  EQ job-mch.m-code
             :
             scheduleResource = IF mach.sch-m-code NE '' THEN mach.sch-m-code ELSE mach.m-code.
-            MESSAGE 
-            "scheduleResource:" scheduleResource SKIP
-            CAN-FIND(resourceList WHERE resourceList.resource EQ scheduleResource)
-            VIEW-AS ALERT-BOX.
             {{&loads}/resourceUse.i scheduleResource}
             ASSIGN
                 job-mch.end-date      = ?

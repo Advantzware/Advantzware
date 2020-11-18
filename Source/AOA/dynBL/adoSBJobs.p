@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------
-  File:         AmtechSBJobs.p
+  File:         adoSBJobs.p
   Description:  Business Logic
   Author:       Ron Stark
   Date Created: 11.16.2020
@@ -24,9 +24,8 @@ DEFINE TEMP-TABLE ttSBJobs NO-UNDO
     FIELD company  AS CHARACTER 
     FIELD location AS CHARACTER 
     FIELD line     AS INTEGER
-    FIELD d-seq    AS INTEGER
-    FIELD m-seq    AS INTEGER
     FIELD m-code   AS CHARACTER
+    FIELD seq-no   AS INTEGER
     FIELD job-no   AS CHARACTER 
     FIELD job-no2  AS INTEGER
     FIELD frm      AS INTEGER
@@ -64,7 +63,7 @@ END FUNCTION.
 /* **********************  Main Block  ******************************** */
 
 MESSAGE
-    "Refresh Jobs from Amtech?"
+    "Refresh Jobs from ADO Source?"
 VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
 UPDATE lRefresh AS LOGICAL.
 IF lRefresh THEN
@@ -84,7 +83,7 @@ PROCEDURE pBusinessLogic:
     
     RUN spGetSessionParam ("Company",  OUTPUT cCompany).
     RUN spGetSessionParam ("Location", OUTPUT cLocation).
-    RUN pAmtechSBJobs.
+    RUN pADOSBJobs.
     
     hConnection:Close ().
     RELEASE OBJECT hRecordSet.
@@ -92,7 +91,7 @@ PROCEDURE pBusinessLogic:
 
 END PROCEDURE.
 
-PROCEDURE pAmtechSBJobs:
+PROCEDURE pADOSBJobs:
     DEFINE VARIABLE cSelect AS CHARACTER NO-UNDO.
 
     /* set sql select statement */
@@ -125,25 +124,24 @@ PROCEDURE pCreatettSBJobs:
     IF AVAILABLE mach THEN DO:
         CREATE ttSBJobs.
         ASSIGN
-            ttSBJobs.company  = cCompany
-            ttSBJobs.location = cLocation
-            ttSBJobs.line     = 0
-            ttSBJobs.d-seq    = mach.d-seq
-            ttSBJobs.m-seq    = mach.m-seq
-            ttSBJobs.m-code   = mach.m-code
-            ttSBJobs.job-no   = hFields:Item("job_number"):Value
-            ttSBJobs.job-no2  = 0
-            ttSBJobs.frm      = hFields:Item("form_no"):Value
             ttSBJobs.blank-no = 1
-            ttSBJobs.pass     = hFields:Item("pass_no"):Value
-            ttSBJobs.qty      = hFields:Item("qty_ordered"):Value
-            ttSBJobs.i-no     = hFields:Item("item_no"):Value
-            ttSBJobs.i-name   = hFields:Item("cust_ident"):Value
+            ttSBJobs.company  = cCompany
             ttSBJobs.cust-no  = hFields:Item("cscode"):Value
             ttSBJobs.due-date = hFields:Item("due_date"):Value
-            ttSBJobs.run-qty  = hFields:Item("qty_to_run"):Value
+            ttSBJobs.frm      = hFields:Item("form_no"):Value
+            ttSBJobs.i-name   = hFields:Item("cust_ident"):Value
+            ttSBJobs.i-no     = hFields:Item("item_no"):Value
+            ttSBJobs.job-no   = hFields:Item("job_number"):Value
+            ttSBJobs.job-no2  = 0
+            ttSBJobs.line     = 0
+            ttSBJobs.location = cLocation
+            ttSBJobs.m-code   = mach.m-code
             ttSBJobs.mr-hr    = hFields:Item("stnd_su_hrs"):Value
+            ttSBJobs.pass     = hFields:Item("pass_no"):Value
+            ttSBJobs.qty      = hFields:Item("qty_ordered"):Value
             ttSBJobs.run-hr   = hFields:Item("stnd_run_hrs"):Value
+            ttSBJobs.run-qty  = hFields:Item("qty_to_run"):Value
+            ttSBJobs.seq-no   = hFields:Item("mach_seq_no"):Value
             ttSBJobs.speed    = hFields:Item("mach_speed"):Value
             ttSBJobs.run-hr   = ttSBJobs.run-qty / ttSBJobs.speed
             .
@@ -308,10 +306,7 @@ PROCEDURE pSetLineOrder:
     FOR EACH ttSBJobs
         BREAK BY ttSBJobs.company
               BY ttSBJobs.job-no
-              BY ttSBJobs.job-no2
-              BY ttSBJobs.frm
-              BY ttSBJobs.d-seq
-              BY ttSBJobs.m-seq
+              BY ttSBJobs.seq-no
         :
         IF FIRST-OF(ttSBJobs.job-no) THEN
         iLine = 0.
@@ -329,6 +324,7 @@ PROCEDURE pSetSelect:
     /* define sql section statement */
     opcSelect = "Select "
               + "Ord_Mach_Ops.mach_no, "
+              + "Ord_Mach_Ops.mach_seq_no, "
               + "Orders.due_date, "
               + "Orders.completion_flg, "
               + "Orders.for_invt_flg, "

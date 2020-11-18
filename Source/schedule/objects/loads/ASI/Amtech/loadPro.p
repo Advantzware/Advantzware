@@ -400,7 +400,7 @@ FUNCTION fPOMaterial RETURNS LOGICAL (
     RETURN lMaterialReceipted.
 END FUNCTION.
 
-RUN AOA/dynBL/AmtechSBJobs.p.
+RUN AOA/dynBL/adoSBJobs.p.
 
 IF VALID-HANDLE(ipContainerHandle) THEN DO:
     RUN asiCommaList IN ipContainerHandle ('Company',OUTPUT asiCompany).
