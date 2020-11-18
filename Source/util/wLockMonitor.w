@@ -72,6 +72,7 @@ DEF VAR iMyLevel AS INT NO-UNDO.
 DEF VAR lTraceOn AS LOG NO-UNDO.
 DEF VAR lAutoLog AS LOG NO-UNDO INITIAL FALSE.
 DEF VAR lAlreadyRun AS LOG NO-UNDO INITIAL FALSE.
+DEF VAR lSelUser AS LOG NO-UNDO.
 
 {src/adm2/widgetprto.i}
 
@@ -649,6 +650,12 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Show_User_Stack_Trace wWin
 ON CHOOSE OF MENU-ITEM m_Show_User_Stack_Trace /* Show User Stack Trace */
 DO:
+    IF NOT AVAIL users THEN DO:
+        MESSAGE 
+            "No record is selected."
+            VIEW-AS ALERT-BOX.
+        RETURN.
+    END.
     IF lTraceOn THEN 
         RUN util/dStackTrace.w (cThisUser,
                                 INT(fiStackDays:SCREEN-VALUE IN FRAME {&frame-name})).
@@ -1092,18 +1099,20 @@ PROCEDURE pGetTranUser :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    /*
     hThisUser = hTranBrowse:GET-BROWSE-COLUMN (2).
     cThisUser = hThisUser:SCREEN-VALUE.
+    lSelUser = FALSE.
     
     FIND FIRST users NO-LOCK WHERE 
         users.user_id = cThisUser
         NO-ERROR.
+    IF AVAIL users THEN ASSIGN 
+        lSelUser = TRUE.
     IF AVAIL users 
     AND users.track_usage THEN ASSIGN 
-        lTraceOn = TRUE.
+            lTraceOn = TRUE.
     ELSE ASSIGN lTraceOn = FALSE.
-    */
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1117,10 +1126,13 @@ PROCEDURE pGetUser :
     ------------------------------------------------------------------------------*/
     hThisUser = hLockBrowse:GET-BROWSE-COLUMN (2).
     cThisUser = hThisUser:SCREEN-VALUE.
+    lSelUser = FALSE.
     
     FIND FIRST users NO-LOCK WHERE 
         users.user_id = cThisUser
         NO-ERROR.
+    IF AVAIL users THEN ASSIGN 
+        lSelUser = TRUE.
     IF AVAIL users 
         AND users.track_usage THEN ASSIGN 
             lTraceOn = TRUE.
