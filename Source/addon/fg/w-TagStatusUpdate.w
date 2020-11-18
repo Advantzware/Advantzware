@@ -724,62 +724,55 @@ PROCEDURE pEnableTagStatus PRIVATE :
         END.
         
         IF fg-bin.onHold THEN DO:
-            IF lSSTagStatus THEN do:
+            IF scInstance EQ ? THEN 
+                scInstance = SharedConfig:instance.
+        
+            RUN Inventory_GetStatusDescription in hdInventoryProcs(
+                INPUT  fg-bin.statusID,
+                OUTPUT cStatusDescription
+                ).  
+                
+            FIND FIRST itemfg NO-LOCK
+                 WHERE itemfg.company EQ g_company
+                 NO-ERROR.
+            IF AVAILABLE itemfg THEN 
+                cItemName = itemfg.i-name.
+                                               
+            scInstance:SetValue(
+                INPUT "StockId",
+                INPUT fg-bin.tag
+                ). 
+                
+             scInstance:SetValue(
+                INPUT "TagStatus",
+                INPUT IF fg-bin.onHold THEN "Hold" ELSE "Not on Hold"
+                ).
+                
+             scInstance:SetValue(
+                INPUT "TagStatusDescription",
+                INPUT cStatusDescription 
+                ).  
+                 
+             scInstance:SetValue(
+                INPUT "ItemName",
+                INPUT cItemName          
+                ).         
+                    
+            IF lSSTagStatus THEN DO:
                 RUN displayMessage(
                     INPUT "55"
-                    ).   
-                    
+                    ).
+                       
                 ASSIGN
                     fiTagStatus:SENSITIVE   = TRUE                     
                     opcReturnFocus          = "TagStatus"
                     .
             END.        
-            ELSE DO:
-                IF scInstance EQ ? THEN 
-                    scInstance = SharedConfig:instance.
-                RUN Inventory_GetStatusDescription in hdInventoryProcs(
-                    INPUT  fg-bin.statusID,
-                    OUTPUT cStatusDescription
-                    ).  
-                FIND FIRST itemfg NO-LOCK
-                     WHERE itemfg.company EQ g_company
-                       AND itemfg.i-no    EQ fg-bin.i-no
-                     NO-ERROR.
-                IF AVAILABLE itemfg THEN 
-                    cItemName = itemfg.i-name.
-                                                   
-                scInstance:SetValue(
-                    INPUT "StockId",
-                    INPUT fg-bin.tag
-                    ). 
-                 scInstance:SetValue(
-                    INPUT "TagStatus",
-                    INPUT IF fg-bin.onHold THEN "Hold" ELSE "Not on Hold"
-                    ).
-                 scInstance:SetValue(
-                    INPUT "TagStatusDescription",
-                    INPUT cStatusDescription 
-                    ).   
-                 scInstance:SetValue(
-                    INPUT "ItemName",
-                    INPUT cItemName          
-                    ).                                                                                         
+            ELSE DO:                                                                                        
                 RUN displayMessage(
                     INPUT "55"                    
-                    ).   
-                scInstance:DeleteValue(
-                    INPUT "StockID"
-                    ).  
-                scInstance:DeleteValue(
-                    INPUT "TagStatus"
                     ).
-                scInstance:DeleteValue(
-                    INPUT "TagStatusDescription"
-                    ). 
-                 scInstance:DeleteValue(
-                    INPUT "ItemName"
-                    ). 
-                                                                                            
+                                                                                                                        
                  opcReturnFocus = "TagNo".        
             END.               
         END.
