@@ -420,7 +420,6 @@ PROCEDURE spDynCalcField:
             ENTRY(1,ipcCalcParam,"|"),
             ENTRY(2,ipcCalcParam,"|"),
             OUTPUT opcCalcValue).   
-            OUTPUT opcCalcValue).   
         WHEN "calcGetQtyOnHandFromFgitem" THEN
         RUN VALUE(ipcCalcProc) (
             ENTRY(1,ipcCalcParam,"|"),
