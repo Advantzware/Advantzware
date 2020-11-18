@@ -58,8 +58,8 @@ PUT "<FArial><=4><R+1>     Ship Date               FOB                          
      v-fob FORM "x(12)" SPACE(1)
      v-shipvia FORM "x(30)" SPACE(1)
      ar-inv.terms-d FORM "x(15)" space(1) v-salesman FORM "x(8)"
-     v-tot-pallets FORM "->>>,>>9" 
-     lv-bol-no FORM ">>>>>9"
+     v-tot-pallets FORM "->>>,>>9" space(1) 
+     lv-bol-no FORM ">>>>>>9"
     SKIP.
 
 

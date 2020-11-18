@@ -354,6 +354,7 @@ ELSE lv-comp-color = "BLACK".
         find first ar-invl
              where ar-invl.x-no  eq ar-inv.x-no  
                and (ar-invl.misc eq no or ar-invl.billable)
+               AND ar-invl.po-no NE ""
             no-lock no-error.
         if avail ar-invl then
         do:
