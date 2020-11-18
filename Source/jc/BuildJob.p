@@ -282,8 +282,8 @@ PROCEDURE pBuildMachines PRIVATE:
             AND bf-job-mch.job-no EQ ipbf-job.job-no
             AND bf-job-mch.job-no2 EQ ipbf-job.job-no2
             AND bf-job-mch.frm EQ estCostOperation.formNo
-            AND bf-job-mch.pass EQ estCostOperation.formNo
-            AND bf-job-mch.blank-no EQ estCostOperation.pass
+            AND bf-job-mch.blank-no EQ estCostOperation.blankNo
+            AND bf-job-mch.pass EQ estCostOperation.pass
             AND bf-job-mch.m-code EQ estCostOperation.operationID
             NO-ERROR.
         IF NOT AVAILABLE bf-job-mch THEN 
