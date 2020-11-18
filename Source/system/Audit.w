@@ -2345,7 +2345,7 @@ PROCEDURE pPrepareAndExecuteQueryForHeader PRIVATE :
            + ( IF cStartDB       EQ CHR(32) AND cEndDB       EQ CHR(254) THEN "" ELSE " AND AuditHdr.AuditDB    EQ '" + cStartDb + "'")  
            + ( IF cStartTable    EQ CHR(32) AND cEndTable    EQ CHR(254) THEN "" ELSE " AND AuditHdr.AuditTable EQ '" + cStartTable + "'")
            + ( IF cStartType     EQ CHR(32) AND cEndType     EQ CHR(254) THEN "" ELSE " AND AuditHdr.AuditType  EQ '" + cStartType + "'")
-           + ( IF cStartUser     EQ CHR(32) AND cEndType     EQ CHR(254) THEN "" ELSE " AND AuditHdr.AuditUser  EQ '" + cStartUser + "'")
+           + ( IF cStartUser     EQ CHR(32) AND cEndUser     EQ CHR(254) THEN "" ELSE " AND AuditHdr.AuditUser  EQ '" + cStartUser + "'")
            + ( IF cStartAuditKey EQ CHR(32) AND cEndAuditKey EQ CHR(254) THEN "" ELSE " AND AuditHdr.Auditkey   EQ '" + cStartAuditKey + "'")
            + ", FIRST AuditDtl OF AuditHdr NO-LOCK WHERE TRUE"
            + ( IF cStartField        EQ CHR(32) AND cEndField       EQ CHR(254) THEN "" ELSE " AND AuditDtl.AuditField       EQ '" + cStartField + "'")
