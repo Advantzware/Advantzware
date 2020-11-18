@@ -728,23 +728,29 @@ PROCEDURE pReturnToPending :
         .
     FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company EQ asiCompany
-          AND job-hdr.opened EQ YES
-       ,EACH job OF job-hdr NO-LOCK
-       ,FIRST est OF job NO-LOCK
-        WHERE est.est-type GE beginEstType
-          AND est.est-type LE endEstType
+          AND job-hdr.opened EQ YES,
+        EACH job OF job-hdr NO-LOCK
         :
+        IF INDEX(ipID,"Amtech") EQ 0 AND
+           NOT CAN-FIND(FIRST est OF job
+                        WHERE est.est-type GE beginEstType
+                          AND est.est-type LE endEstType) THEN
+        NEXT.
         FOR EACH job-mch EXCLUSIVE-LOCK
             WHERE job-mch.company EQ job.company
               AND job-mch.job EQ job.job
               AND job-mch.job-no EQ job.job-no
               AND job-mch.job-no2 EQ job.job-no2
-              AND job-mch.run-complete EQ NO
-           ,FIRST mach NO-LOCK
+              AND job-mch.run-complete EQ NO,
+            FIRST mach NO-LOCK
             WHERE mach.company EQ job-mch.company
               AND mach.m-code  EQ job-mch.m-code
             :
             scheduleResource = IF mach.sch-m-code NE '' THEN mach.sch-m-code ELSE mach.m-code.
+            MESSAGE 
+            "scheduleResource:" scheduleResource SKIP
+            CAN-FIND(resourceList WHERE resourceList.resource EQ scheduleResource)
+            VIEW-AS ALERT-BOX.
             {{&loads}/resourceUse.i scheduleResource}
             ASSIGN
                 job-mch.end-date      = ?
