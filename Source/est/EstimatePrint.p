@@ -1728,15 +1728,8 @@ FUNCTION fFormatTime RETURNS CHARACTER PRIVATE
     Purpose:  Formats a time in decimal as "HH:MM"
     Notes:
     ------------------------------------------------------------------------------*/    
-    DEFINE VARIABLE cTimeFormatted AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cHours         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cMinutes       AS CHARACTER NO-UNDO.
-    
-    cHours = STRING(TRUNC(ipdTimeInDecimal,0)).
-    cMinutes = STRING(ROUND((ipdTimeInDecimal - TRUNC(ipdTimeInDecimal,0)) * 60,0),"99").
-    
-    cTimeFormatted = cHours + ":" + cMinutes.
-    RETURN cTimeFormatted.
+
+    RETURN DYNAMIC-FUNCTION("sfCommon_DecimalDurationInHHMM", ipdTimeInDecimal).
 		
 END FUNCTION.
 

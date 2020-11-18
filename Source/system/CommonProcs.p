@@ -63,6 +63,19 @@ FUNCTION sfCommon_DateOptionDate RETURNS DATE
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-sfCommon_DecimalTimeInHHMM) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_DecimalDurationInHHMM Procedure
+FUNCTION sfCommon_DecimalDurationInHHMM RETURNS CHARACTER 
+  (ipdTimeInDecimal AS DECIMAL) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfCommon_GetDifferenceDays) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_GetDifferenceDays Procedure 
@@ -915,6 +928,34 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfCommon_DecimalTimeInHHMM) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfCommon_DecimalTimeInHHMM Procedure
+FUNCTION sfCommon_DecimalDurationInHHMM RETURNS CHARACTER 
+    (ipdTimeInDecimal AS DECIMAL):
+    /*------------------------------------------------------------------------------
+    Purpose:  Formats a duration time in decimal as "HH:MM"
+    Notes:  Example:  12.5 hours => 12:30
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE cTimeFormatted AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cHours         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMinutes       AS CHARACTER NO-UNDO.
+    
+    cHours = STRING(TRUNC(ipdTimeInDecimal,0)).
+    cMinutes = STRING(ROUND((ipdTimeInDecimal - TRUNC(ipdTimeInDecimal,0)) * 60,0),"99").
+    
+    cTimeFormatted = cHours + ":" + cMinutes.
+    RETURN cTimeFormatted.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfCommon_GetDifferenceDays) = 0 &THEN
 
