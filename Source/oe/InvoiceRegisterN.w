@@ -847,7 +847,14 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                     OUTPUT cMessage
                     ).                     
                     
-                MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.                 
+                MESSAGE "Posting Complete" VIEW-AS ALERT-BOX. 
+                
+                IF oeclose-log THEN
+                DO:
+                   IF CAN-FIND (FIRST w-ord) THEN
+                   RUN oe/d-close.w.
+                END.
+                
             END.
         END.
 
@@ -1993,6 +2000,10 @@ PROCEDURE list-post-inv :
   
     DEFINE BUFFER bf-inv-line FOR inv-line .
     DEFINE BUFFER bf-inv-misc FOR inv-misc.
+    
+    FOR EACH w-ord :
+     DELETE w-ord.
+    END. 
   
     FORMAT
         inv-head.inv-no FORMAT ">>>>>>9" AT 1
@@ -2091,6 +2102,7 @@ PROCEDURE list-post-inv :
              
             RUN calc-tons (bf-inv-line.i-no, bf-inv-line.inv-qty, OUTPUT dWeight).
             v-line-tot-w = v-line-tot-w + dWeight. 
+            RUN pCreatettWOrd (INPUT bf-inv-line.ord-no, INPUT bf-inv-line.line, INPUT bf-inv-line.i-no).
         END.
         
         FOR EACH ttInvoiceMiscToPost NO-LOCK
@@ -2649,6 +2661,48 @@ PROCEDURE undo-save-line :
     
     RELEASE bf-inv-line.
     RELEASE bf-inv-misc.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreatettWOrd C-Win 
+PROCEDURE pCreatettWOrd :
+    /*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiOrderNo AS INTEGER   NO-UNDO. 
+    DEFINE INPUT PARAMETER ipiLineNo  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFGItem  AS CHARACTER NO-UNDO.
+    
+    FIND FIRST oe-ordl NO-LOCK
+         where oe-ordl.company eq cocode
+         and oe-ordl.ord-no  eq ipiOrderNo
+         and oe-ordl.line    eq ipiLineNo
+         and oe-ordl.i-no    eq ipcFGItem
+      use-index ord-no no-error . 
+      
+    RELEASE oe-ord.
+    IF ipiOrderNo NE 0 AND AVAIL oe-ordl THEN
+      FIND FIRST oe-ord NO-LOCK
+            WHERE oe-ord.company EQ oe-ordl.company
+            AND oe-ord.ord-no  EQ oe-ordl.ord-no
+            NO-ERROR.
+            
+    IF AVAIL oe-ord THEN DO:
+      FIND FIRST w-ord NO-LOCK
+           WHERE w-ord.ord-no EQ oe-ord.ord-no NO-ERROR.
+      IF NOT AVAIL w-ord THEN
+      DO:         
+          CREATE w-ord.
+          ASSIGN
+          w-ord.ord-no = oe-ord.ord-no
+          w-ord.rec-id = RECID(oe-ord).
+      END.
+    END.
 
 END PROCEDURE.
 
