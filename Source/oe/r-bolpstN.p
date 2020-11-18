@@ -544,9 +544,12 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-
+    
   run check-date.
   if v-invalid then return no-apply.
+  
+  run pCheckPeriod  .
+   if v-invalid then return no-apply.    
 
   IF month(tran-date) NE MONTH(TODAY) OR
      YEAR(tran-date)  NE YEAR(TODAY)THEN DO:
@@ -980,6 +983,37 @@ PROCEDURE check-date :
     IF ip-post THEN DO:
       message "No Defined Period Exists for" tran-date view-as alert-box error.
       v-invalid = yes.
+    end.
+  END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPeriod C-Win 
+PROCEDURE pCheckPeriod :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/     
+  DO with frame {&frame-name}:
+    v-invalid = no.
+  
+    FIND FIRST period NO-LOCK
+        where period.company eq cocode
+        and period.pst     le tran-date
+        and period.pend    ge tran-date
+        no-error.
+    if avail period THEN 
+    DO:     
+      IF begin_date LT period.pst OR end_date GT period.pend THEN
+      DO:
+        message "The BOL posting date period is different from bol date " SKIP 
+                  "Please enter same period for posting the bol " view-as alert-box error.
+        v-invalid = yes.          
+      END.      
     end.
   END.
 END PROCEDURE.

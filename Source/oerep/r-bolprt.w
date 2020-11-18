@@ -1016,6 +1016,12 @@ DO:
           ).
       IF NOT lValid THEN 
           RETURN NO-APPLY.
+          
+      RUN pCheckPeriod (
+          OUTPUT lvalid
+          ). 
+      IF NOT lValid THEN
+         RETURN NO-APPLY.     
   
       IF MONTH(fiPostdate) NE MONTH(TODAY) OR 
           YEAR(fiPostDate) NE YEAR(TODAY) THEN DO:
@@ -4091,6 +4097,38 @@ PROCEDURE pCheckPostDate PRIVATE :
         END.               
     END.    
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPeriod C-Win 
+PROCEDURE pCheckPeriod PRIVATE:
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
+  DO with frame {&frame-name}:
+    oplValid = YES.
+  
+    find first period                   
+        where period.company eq cocode
+          and period.pst     le fiPostdate
+          and period.pend    ge fiPostdate
+        no-lock no-error.
+    if avail period THEN 
+    DO:     
+      IF begin_date LT period.pst OR end_date GT period.pend THEN
+      DO:
+        message "The BOL posting date period is different from bol date " SKIP 
+                  "Please enter same period for posting the bol " view-as alert-box error.
+        apply "entry" to fiPostdate.          
+        oplValid = NO.          
+      END.      
+    end.
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
