@@ -363,7 +363,7 @@ PROCEDURE Output_TempTableToJSON:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iphTT AS HANDLE NO-UNDO. 
     DEFINE INPUT PARAMETER ipcFile AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER iplAutoIncrementFilename AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplAutoIncrementFilename AS LOGICAL NO-UNDO.
 
     DEFINE VARIABLE cTargetType     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFormatted      AS LOGICAL   NO-UNDO.

@@ -47,7 +47,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "CapacityHTMLFolder,InvoiceApprovalBillNotes,InvoiceApprovalFreightAmount,InvoiceApprovalFreightTerms,InvoiceApprovalPriceGTCost,InvoiceApprovalInvoiceStatus,"
            + "InvoiceApprovalTaxableCheck,CalcJobDueDate,FGBOLTransferPost,FGMasterLoc,FGOversDefault,InvoiceApprovalTaxCalc,SSTagStatus,CEWindow,"            
            + "ZohoRefreshToken,ZohoClientID,ZohoClientSecret,cXMLCustomerPartSource,CEAddCustomerOption,TruckPlan,SSJobInquiryAdjust,SSJobInquiryIssue,"
-           + "InvoiceApprovalExpectZero".
+           + "InvoiceApprovalExpectZero,CEFormatConfig".
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -1321,6 +1321,16 @@ CASE ip-nk1-value:
             INPUT NO,                                                               /* Logical value */ 
             INPUT 0                                                                 /* Dec value*/
             ).            
+    WHEN "CEFormatConfig" THEN   
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO /* Prompt? */,
+            INPUT "Configuration file for Estimate printing (JSON)",
+            INPUT "" /* Char Value */, 
+            INPUT 0 /* Int value */,
+            INPUT NO /* Logical value */, 
+            INPUT 0 /* dec value*/).
 END CASE.
 ELSE
 CASE ip-nk1-value:

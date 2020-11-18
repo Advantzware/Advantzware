@@ -60,7 +60,7 @@ IF glPurge THEN
         AND estCostHeader.jobID2 EQ iJobID2
         NO-ERROR.
 IF AVAILABLE estCostHeader THEN 
-    RUN est\EstimatePrint.p (estCostHeader.estCostHeaderID, gcOutputFile, "By Form with Summary First Mult Qty","Calibri").
+    RUN est\EstimatePrint.p (estCostHeader.estCostHeaderID, gcOutputFile).
 
 
 /* **********************  Internal Procedures  *********************** */
