@@ -691,34 +691,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteContexts W-Win 
-PROCEDURE pDeleteContexts :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipscInstance AS CLASS system.SharedConfig NO-UNDO.
-    
-    IF ipscInstance NE ? THEN DO:
-        ipscInstance:DeleteValue(
-            INPUT "StockID"
-            ).  
-        ipscInstance:DeleteValue(
-            INPUT "TagStatus"
-            ).
-        ipscInstance:DeleteValue(
-            INPUT "TagStatusDescription"
-            ). 
-         ipscInstance:DeleteValue(
-            INPUT "ItemName"
-            ). 
-    END.            
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEnableTagStatus W-Win 
 PROCEDURE pEnableTagStatus PRIVATE :
 /*------------------------------------------------------------------------------
@@ -791,10 +763,6 @@ PROCEDURE pEnableTagStatus PRIVATE :
                     INPUT "55"
                     ).
                        
-                RUN pDeleteContexts(
-                    INPUT scInstance
-                    ). 
-                      
                 ASSIGN
                     fiTagStatus:SENSITIVE   = TRUE                     
                     opcReturnFocus          = "TagStatus"
@@ -803,10 +771,8 @@ PROCEDURE pEnableTagStatus PRIVATE :
             ELSE DO:                                                                                        
                 RUN displayMessage(
                     INPUT "55"                    
-                    ).  
-                RUN pDeleteContexts(
-                    INPUT scInstance
-                    ).                                                                                                  
+                    ).
+                                                                                                                        
                  opcReturnFocus = "TagNo".        
             END.               
         END.
