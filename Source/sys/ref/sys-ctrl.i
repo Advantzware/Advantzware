@@ -276,7 +276,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[179] = "ROUNDUP,ROUNDDOWN,NONE"
        str-init[180] = ",API"
        str-init[181] = "ItemMatch,NoMatch"
-       str-init[182] = "Standard,McLean,By Form With Summary First,By Form With Summary Last,By Form Mult Qty Analysis,By Form With Summary First Mult Qty"
+       str-init[182] = "Standard,McLean,By Form With Summary First,By Form With Summary Last,By Form Mult Qty Analysis,By Form With Summary First Mult Qty,Config"
        str-init[183] = "HOLD,INFO"
        str-init[184] = "HOLD,INFO"
        str-init[185] = "HOLD,INFO"
@@ -305,7 +305,7 @@ IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:
        str-init[89] = "stmtprint 1,stmtprint 2,StdStatement10,StdStatement2,ARStmt3C,StmtPrint-Mex"  /*stmtprin*/
        str-init[141] = "AckMaster 1,AckMaster 2" /*"3CPack"*/
        str-init[151] = "bolfmt1"
-       str-init[182] = "Standard,By Form With Summary First,By Form With Summary Last,By Form Mult Qty Analysis,By Form With Summary First Mult Qty"
+       str-init[182] = "Standard,By Form With Summary First,By Form With Summary Last,By Form Mult Qty Analysis,By Form With Summary First Mult Qty,Config"
        .
 END.
 
