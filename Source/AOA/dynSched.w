@@ -66,7 +66,9 @@ DEFINE VARIABLE idx                AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iParamValueID      AS INTEGER   NO-UNDO INITIAL ?.
 DEFINE VARIABLE iUserPrintOffSet   AS INTEGER   NO-UNDO INITIAL 5.
 DEFINE VARIABLE iUserSecurityLevel AS INTEGER   NO-UNDO INITIAL 9999.
+DEFINE VARIABLE lAppSrvBin         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lContinue          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lJasper            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSortMove          AS LOGICAL   NO-UNDO INITIAL YES.
 
 DEFINE BUFFER bDynParamValue FOR dynParamValue.
@@ -83,11 +85,13 @@ END. /* do idx */
 IF NOT VALID-HANDLE(hAppSrvBin) THEN DO:
     RUN AOA/appServer/aoaBin.p PERSISTENT SET hAppSrvBin.
     SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).
+    lAppSrvBin = YES.
 END. /* if valid-handle */
 
 IF NOT VALID-HANDLE(hJasper) THEN DO:
     RUN AOA/spJasper.p PERSISTENT SET hJasper.
     SESSION:ADD-SUPER-PROCEDURE (hJasper).
+    lJasper = YES.
 END. /* if valid-handle */
 
 /* function fDateOptions */
@@ -2158,9 +2162,9 @@ PROCEDURE pDeleteProcedure :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-   IF VALID-HANDLE(hAppSrvBin) THEN
+   IF lAppSrvBin AND VALID-HANDLE(hAppSrvBin) THEN
    DELETE PROCEDURE hAppSrvBin.
-   IF VALID-HANDLE(hJasper) THEN
+   IF lJasper AND VALID-HANDLE(hJasper) THEN
    DELETE PROCEDURE hJasper.
 
 END PROCEDURE.
