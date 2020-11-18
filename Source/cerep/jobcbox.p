@@ -282,7 +282,7 @@ ASSIGN
               by job-hdr.job-no2
               BY job-hdr.frm:       
               
-     IF lookup(cPrintSheetTicket,"J,B") GT 0 then do:       MESSAGE "hello " VIEW-AS ALERT-BOX ERROR .
+     IF lookup(cPrintSheetTicket,"J,B") GT 0 then do:       
       ASSIGN lv-prt-sts = IF NOT job-hdr.ftick-prnt THEN "ORIGINAL" ELSE "REVISED"
              lv-prt-date = TODAY
              lv-prt-time = STRING(TIME,"hh:mm am").
