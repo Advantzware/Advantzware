@@ -15,17 +15,12 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+/* MUST be before parm definitions */
+{oe/tt-item-qty-price.i} 
 
 /* Parameters Definitions ---                                           */
-DEFINE INPUT PARAMETER ip-recid AS RECID NO-UNDO.
-DEFINE INPUT PARAMETER ip-ord-no LIKE oe-ord.ord-no NO-UNDO.
-DEFINE INPUT PARAMETER ip-type AS cha NO-UNDO .   /* add,update,view */
-DEFINE INPUT PARAMETER TABLE FOR tt-item-qty-price.
-DEFINE OUTPUT PARAMETER op-rowid-list AS CHARACTER NO-UNDO. /* if added records from history */
-DEFINE OUTPUT PARAMETER op-cancel AS LOG NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
-{oe/tt-item-qty-price.i} 
 {custom/globdefs.i}
 {sys/inc/var.i new shared}
 {oe/ordholdstat.i}
@@ -281,6 +276,7 @@ DO TRANSACTION:
     {sys/inc/oepricecheck.i} 
     {sys/inc/reltype.i} 
     {sys/inc/shiptorep.i}
+    {sys/inc/graphic.i}
 END.
 {sys/ref/fgoecost.i}
 {sys/ref/oecustpart.i}
@@ -1303,7 +1299,7 @@ ON CHOOSE OF Btn_hist IN FRAME d-oeitem /* History */
                     IF AVAILABLE b-oe-ordl THEN 
                     DO:
                         IF ip-type NE 'Update' THEN
-                            ASSIGN oe-ordl.i-no:SCREEN-VALUE = b-oe-ordl.i-no
+                            ASSIGN oe-ordl.i-no:SCREEN-VALUE = b-oe-ordl.i-no.
             
                         FIND FIRST itemfg NO-LOCK
                             WHERE itemfg.company EQ cocode
