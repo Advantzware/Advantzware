@@ -691,6 +691,34 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDeleteContexts W-Win 
+PROCEDURE pDeleteContexts :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipscInstance AS CLASS system.SharedConfig NO-UNDO.
+    
+    IF ipscInstance NE ? THEN DO:
+        ipscInstance:DeleteValue(
+            INPUT "StockID"
+            ).  
+        ipscInstance:DeleteValue(
+            INPUT "TagStatus"
+            ).
+        ipscInstance:DeleteValue(
+            INPUT "TagStatusDescription"
+            ). 
+         ipscInstance:DeleteValue(
+            INPUT "ItemName"
+            ). 
+    END.            
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEnableTagStatus W-Win 
 PROCEDURE pEnableTagStatus PRIVATE :
 /*------------------------------------------------------------------------------
@@ -724,62 +752,61 @@ PROCEDURE pEnableTagStatus PRIVATE :
         END.
         
         IF fg-bin.onHold THEN DO:
-            IF lSSTagStatus THEN do:
+            IF scInstance EQ ? THEN 
+                scInstance = SharedConfig:instance.
+        
+            RUN Inventory_GetStatusDescription in hdInventoryProcs(
+                INPUT  fg-bin.statusID,
+                OUTPUT cStatusDescription
+                ).  
+                
+            FIND FIRST itemfg NO-LOCK
+                 WHERE itemfg.company EQ g_company
+                 NO-ERROR.
+            IF AVAILABLE itemfg THEN 
+                cItemName = itemfg.i-name.
+                                               
+            scInstance:SetValue(
+                INPUT "StockId",
+                INPUT fg-bin.tag
+                ). 
+                
+             scInstance:SetValue(
+                INPUT "TagStatus",
+                INPUT IF fg-bin.onHold THEN "Hold" ELSE "Not on Hold"
+                ).
+                
+             scInstance:SetValue(
+                INPUT "TagStatusDescription",
+                INPUT cStatusDescription 
+                ).  
+                 
+             scInstance:SetValue(
+                INPUT "ItemName",
+                INPUT cItemName          
+                ).         
+                    
+            IF lSSTagStatus THEN DO:
                 RUN displayMessage(
                     INPUT "55"
-                    ).   
-                    
+                    ).
+                       
+                RUN pDeleteContexts(
+                    INPUT scInstance
+                    ). 
+                      
                 ASSIGN
                     fiTagStatus:SENSITIVE   = TRUE                     
                     opcReturnFocus          = "TagStatus"
                     .
             END.        
-            ELSE DO:
-                IF scInstance EQ ? THEN 
-                    scInstance = SharedConfig:instance.
-                RUN Inventory_GetStatusDescription in hdInventoryProcs(
-                    INPUT  fg-bin.statusID,
-                    OUTPUT cStatusDescription
-                    ).  
-                FIND FIRST itemfg NO-LOCK
-                     WHERE itemfg.company EQ g_company
-                       AND itemfg.i-no    EQ fg-bin.i-no
-                     NO-ERROR.
-                IF AVAILABLE itemfg THEN 
-                    cItemName = itemfg.i-name.
-                                                   
-                scInstance:SetValue(
-                    INPUT "StockId",
-                    INPUT fg-bin.tag
-                    ). 
-                 scInstance:SetValue(
-                    INPUT "TagStatus",
-                    INPUT IF fg-bin.onHold THEN "Hold" ELSE "Not on Hold"
-                    ).
-                 scInstance:SetValue(
-                    INPUT "TagStatusDescription",
-                    INPUT cStatusDescription 
-                    ).   
-                 scInstance:SetValue(
-                    INPUT "ItemName",
-                    INPUT cItemName          
-                    ).                                                                                         
+            ELSE DO:                                                                                        
                 RUN displayMessage(
                     INPUT "55"                    
-                    ).   
-                scInstance:DeleteValue(
-                    INPUT "StockID"
                     ).  
-                scInstance:DeleteValue(
-                    INPUT "TagStatus"
-                    ).
-                scInstance:DeleteValue(
-                    INPUT "TagStatusDescription"
-                    ). 
-                 scInstance:DeleteValue(
-                    INPUT "ItemName"
-                    ). 
-                                                                                            
+                RUN pDeleteContexts(
+                    INPUT scInstance
+                    ).                                                                                                  
                  opcReturnFocus = "TagNo".        
             END.               
         END.
