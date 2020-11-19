@@ -3459,7 +3459,7 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
   EXCLUSIVE-LOCK NO-ERROR.
   IF AVAIL cust THEN DO:
     cust.ord-bal  = cust.ord-bal - v-totord.
-    IF cust.ord-bal LT 0 THEN ASSIGN cust.ord-bal = 0.
+/*    IF cust.ord-bal LT 0 THEN ASSIGN cust.ord-bal = 0. Handled in write trigger of cust table*/
     IF v-new-ord THEN
     ASSIGN
     cust.n-sales[13]      = cust.n-sales[13]  - 1
