@@ -19,6 +19,12 @@
 {oe/tt-item-qty-price.i} 
 
 /* Parameters Definitions ---                                           */
+DEFINE INPUT PARAMETER ip-recid AS RECID NO-UNDO.
+DEFINE INPUT PARAMETER ip-ord-no LIKE oe-ord.ord-no NO-UNDO.
+DEFINE INPUT PARAMETER ip-type AS cha NO-UNDO .   /* add,update,view */
+DEFINE INPUT PARAMETER TABLE FOR tt-item-qty-price.
+DEFINE OUTPUT PARAMETER op-rowid-list AS CHARACTER NO-UNDO. /* if added records from history */
+DEFINE OUTPUT PARAMETER op-cancel AS LOG NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
