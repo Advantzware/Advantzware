@@ -755,12 +755,13 @@ PROCEDURE pRunCommand :
     RUN spGetSessionParam ("Password", OUTPUT cPassword).
     IF cPassword NE "" THEN
     cPassword = " -U " + USERID("ASI") + " -P " + cPassword.
-    opcRun = cEXE
-           + REPLACE(opcRun,"-U " + USERID("ASI") + " -P","")
-           + cPassword
-           + " -p &1 -param &2"
-           + " -debugalert"
-           .
+    ASSIGN
+        opcRun = REPLACE(opcRun,"-U " + USERID("ASI") + " -P","")
+        opcRun = cEXE
+               + REPLACE(opcRun,"-ld ASI","-ld ASI " + cPassword)
+               + " -p &1 -param &2"
+               + " -debugalert"
+               .
 
 END PROCEDURE.
 
