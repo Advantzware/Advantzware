@@ -14,319 +14,14 @@
 
 /* ***************************  Definitions  ************************** */
 {system\TaxProcs.i}
+{oe\PostInvoice.i}
+{custom/globdefs.i}    
+{sys/inc/var.i SHARED}
 
-DEFINE TEMP-TABLE ttPostingMaster NO-UNDO 
-    FIELD company               AS CHARACTER
-    FIELD blockZeroCost         AS LOGICAL
-    FIELD deleteEstPrep         AS LOGICAL
-    FIELD invoiceStart          AS INTEGER 
-    FIELD invoiceEnd            AS INTEGER 
-    FIELD invoiceDateStart      AS DATE 
-    FIELD invoiceDateEnd        AS DATE 
-    FIELD customerIDStart       AS CHARACTER 
-    FIELD customerIDEnd         AS CHARACTER
-    FIELD postDate              AS DATE
-    FIELD periodID              AS INTEGER 
-    FIELD periodDateStart       AS DATE
-    FIELD periodDateEnd         AS DATE 
-    FIELD accountAR             AS CHARACTER
-    FIELD accountARFreight      AS CHARACTER
-    FIELD accountARSales        AS CHARACTER
-    FIELD accountARSalesTax     AS CHARACTER
-    FIELD accountARDiscount     AS CHARACTER
-    FIELD accountARCash         AS CHARACTER
-    FIELD accountARCurrency     AS CHARACTER
-    FIELD accountCOGS           AS CHARACTER
-    FIELD accountFG             AS CHARACTER 
-    FIELD journalNote           AS CHARACTER
-    FIELD consolidateOnAR       AS CHARACTER
-    FIELD consolidateOnFG       AS CHARACTER
-    FIELD consolidateOnCOGS     AS CHARACTER
-    FIELD consolidateOnLine     AS CHARACTER
-    FIELD consolidateOnMisc     AS CHARACTER
-    FIELD consolidateOnTax      AS CHARACTER
-    FIELD consolidateOnDisc     AS CHARACTER
-    FIELD consolidateOnFreight  AS CHARACTER
-    FIELD consolidateOnCash     AS CHARACTER
-    FIELD consolidateOnCurrency AS CHARACTER 
-    FIELD currencyCode          AS CHARACTER 
-    FIELD currencyExRate        AS DECIMAL
-    FIELD exportPath            AS CHARACTER
-    FIELD runID                 AS INTEGER
-    .
-    
-DEFINE TEMP-TABLE ttInvoiceToPost NO-UNDO 
-    FIELD riInvHead                    AS ROWID
-    FIELD isOKToPost                   AS LOGICAL
-    FIELD rNo                          AS INTEGER
-    FIELD riCust                       AS ROWID
-    FIELD company                      AS CHARACTER
-    FIELD postDate                     AS DATE  
-    FIELD periodID                     AS INTEGER 
-    FIELD customerID                   AS CHARACTER 
-    FIELD customerName                 AS CHARACTER 
-    FIELD invoiceID                    AS INTEGER 
-    FIELD invoiceDate                  AS DATE    
-    FIELD isFactored                   AS LOGICAL
-    FIELD problemMessage               AS CHARACTER 
-    FIELD orderID                      AS INTEGER
-    FIELD orderDate                    AS DATE
-    FIELD quantityTotal                AS INTEGER
-    FIELD quantityTotalWeight          AS DECIMAL
-    FIELD quantityTotalMSF             AS DECIMAL
-    FIELD currencyCode                 AS CHARACTER 
-    FIELD currencyExRate               AS DECIMAL
-    FIELD accountARCurrency            AS CHARACTER
-    FIELD accountAR                    AS CHARACTER
-    FIELD accountARFreight             AS CHARACTER
-    FIELD accountARSales               AS CHARACTER
-    FIELD accountARSalesTax            AS CHARACTER
-    FIELD accountARDiscount            AS CHARACTER
-    FIELD accountARCash                AS CHARACTER    
-    FIELD amountBilled                 AS DECIMAL
-    FIELD amountBilledIncDiscount      AS DECIMAL
-    FIELD amountBilledExTax            AS DECIMAL 
-    FIELD amountBilledTax              AS DECIMAL
-    FIELD amountBilledFreight          AS DECIMAL
-    FIELD amountBilledMiscOnly         AS DECIMAL
-    FIELD amountBilledLineOnly         AS DECIMAL
-    FIELD amountCommission             AS DECIMAL 
-    FIELD amountDiscount               AS DECIMAL
-    FIELD amountCost                   AS DECIMAL 
-    FIELD isCashTerms                  AS LOGICAL
-    FIELD isFreightBillable            AS LOGICAL
-    FIELD isInvoiceDateInCurrentPeriod AS LOGICAL     
-    FIELD bolID                        AS INTEGER
-    FIELD termsCode                    AS CHARACTER
-    FIELD taxGroup                     AS CHARACTER
-    .
-    
-DEFINE TEMP-TABLE ttInvoiceLineToPost NO-UNDO 
-    FIELD riInvLine               AS ROWID
-    FIELD company                 AS CHARACTER LABEL "Company" FORMAT "x(3)"
-    FIELD invoiceID               AS INTEGER   LABEL "Invoice #" FORMAT ">>>>>>9"
-    FIELD invoiceLine             AS INTEGER   LABEL "Line" FORMAT ">>>9"
-    FIELD invoiceDate             AS DATE      LABEL "Invoice Date" FORMAT 99/99/9999
-    FIELD customerID              AS CHARACTER LABEL "Cust ID" FORMAT "x(10)"
-    FIELD customerName            AS CHARACTER LABEL "Cust Name" FORMAT "x(30)"
-    FIELD itemID                  AS CHARACTER LABEL "Item ID" FORMAT "x(15)"
-    FIELD itemName                AS CHARACTER LABEL "Item Name" FORMAT "x(30)"
-    FIELD quantityOrdered         AS DECIMAL   LABEL "Ordered Qty" FORMAT ">>,>>>,>>9"
-    FIELD quantityShipped         AS DECIMAL   LABEL "Shipped Qty" FORMAT ">>>,>>>,>>9"
-    FIELD quantityInvoiced        AS DECIMAL   LABEL "Invoiced Qty" FORMAT ">>>,>>>,>>9"
-    FIELD orderID                 AS INTEGER   LABEL "Order ID" FORMAT ">>>>>>9"
-    FIELD customerPO              AS CHARACTER LABEL "Customer PO" FORMAT "x(20)"
-    FIELD customerLot             AS CHARACTER LABEL "Customer Lot" FORMAT "x(20)"
-    FIELD salesGroup              AS CHARACTER LABEL "Sales Group" FORMAT "x(5)"
-    FIELD salesGroupName          AS CHARACTER LABEL "Sales Group Name" FORMAT "x(30)"
-    FIELD postDate                AS DATE      LABEL "Post Date" FORMAT 99/99/9999                                                                   
-    FIELD runID                   AS INTEGER   LABEL "Run" FORMAT ">>>>>>>>9"
-    FIELD isMisc                  AS LOGICAL   LABEL "Misc"
-    FIELD rNo                     AS INTEGER 
-    FIELD rNoOld                  AS INTEGER
-    FIELD isOKToPost              AS LOGICAL   LABEL "OK To Post"
-    FIELD problemMessage          AS CHARACTER LABEL "Problem Desc" FORMAT "x(40)"
-    FIELD pricePerUOM             AS DECIMAL   LABEL "Price Per UOM" FORMAT ">>>,>>>9.99"
-    FIELD priceUOM                AS CHARACTER LABEL "Price UOM" FORMAT "x(4)"
-    FIELD costPerUOM              AS DECIMAL   LABEL "Cost Per UOM" FORMAT ">>,>>>,>>9.99"
-    FIELD costUOM                 AS CHARACTER LABEL "Cost UOM" FORMAT "x(4)"
-    FIELD costTotal               AS DECIMAL   LABEL "Cost Total" FORMAT ">>,>>>,>>9.99"
-    FIELD costDirectLabor         AS DECIMAL   LABEL "Cost Direct Labor" FORMAT ">>,>>>,>>9.99"
-    FIELD costFixedOverhead       AS DECIMAL   LABEL "Cost Fixed Overhead" FORMAT ">>,>>>,>>9.99"
-    FIELD costVariableOverhead    AS DECIMAL   LABEL "Cost Variable Overhead" FORMAT ">>,>>>,>>9.99"
-    FIELD costDirectMaterial      AS DECIMAL   LABEL "Cost Direct Material" FORMAT ">>,>>>,>>9.99"
-    FIELD costSource              AS CHARACTER LABEL "Cost Source" FORMAT "x(30)"
-    FIELD costStdFreight          AS DECIMAL   LABEL "Cost Std Freight" FORMAT ">>,>>>,>>9.99"
-    FIELD costStdWarehouse        AS DECIMAL   LABEL "Cost Std Warehouse" FORMAT ">>,>>>,>>9.99"
-    FIELD costStdDeviation        AS DECIMAL   LABEL "Cost Std Deviation" FORMAT ">>,>>>,>>9.99"
-    FIELD costStdManufacture      AS DECIMAL   LABEL "Cost Std Manufacture" FORMAT ">>,>>>,>>9.99"
-    FIELD costFull                AS DECIMAL   LABEL "Cost Full" FORMAT ">>,>>>,>>9.99"
-    FIELD quantityInvoicedWeight  AS DECIMAL   LABEL "Invoiced Weight" FORMAT ">>,>>>,>>9.99"
-    FIELD quantityInvoicedMSF     AS DECIMAL   LABEL "Invoiced MSF" FORMAT ">>,>>>,>>9.99"
-    FIELD weightUOM               AS CHARACTER LABEL "Weight UOM" FORMAT "x(4)"
-    FIELD accountAR               AS CHARACTER LABEL "AR Account" FORMAT "x(20)"
-    FIELD accountARFreight        AS CHARACTER LABEL "Freight Account" FORMAT "x(20)"
-    FIELD accountARSales          AS CHARACTER LABEL "Sales Account" FORMAT "x(20)"
-    FIELD accountARSalesTax       AS CHARACTER LABEL "Sales Tax Account" FORMAT "x(20)"
-    FIELD accountARDiscount       AS CHARACTER LABEL "Discount Account" FORMAT "x(20)"
-    FIELD accountARCash           AS CHARACTER LABEL "Cash Account" FORMAT "x(20)"
-    FIELD accountDLCogs           AS CHARACTER LABEL "COGS DL Account" FORMAT "x(20)"
-    FIELD accountDLFG             AS CHARACTER LABEL "FG DL Account" FORMAT "x(20)"
-    FIELD accountVOCogs           AS CHARACTER LABEL "COGS VO Account" FORMAT "x(20)"
-    FIELD accountVOFG             AS CHARACTER LABEL "FG VO Account" FORMAT "x(20)"
-    FIELD accountFOCogs           AS CHARACTER LABEL "COGS FO Account" FORMAT "x(20)"
-    FIELD accountFOFG             AS CHARACTER LABEL "FG FOAR Account" FORMAT "x(20)"
-    FIELD accountDMCogs           AS CHARACTER LABEL "COGS DM Account" FORMAT "x(20)"
-    FIELD accountDMFG             AS CHARACTER LABEL "FG DM Account" FORMAT "x(20)"
-    FIELD quantityPerSubUnit      AS DECIMAL   LABEL "Case Count" FORMAT ">>,>>9"
-    FIELD amountDiscount          AS DECIMAL   LABEL "Discount" FORMAT ">>,>>>,>>9.99"
-    FIELD amountBilled            AS DECIMAL   LABEL "Billed" FORMAT ">>,>>>,>>9.99"
-    FIELD amountBilledIncDiscount AS DECIMAL   LABEL "Billed Inc. Discount" FORMAT ">>,>>>,>>9.99"
-    FIELD amountCommission        AS DECIMAL   LABEL "Commission" FORMAT ">>,>>>,>>9.99"
-    FIELD locationID              AS CHARACTER LABEL "Location" FORMAT ">>,>>>,>>9.99"
-    FIELD bolID                   AS INTEGER   LABEL "BOL" FORMAT ">>,>>>,>>9.99"
-    FIELD squareFeetPerEA         AS DECIMAL   LABEL "Sq Ft Per EA" FORMAT ">>,>>>,>>9.99"
-    FIELD productCategory         AS CHARACTER LABEL "Product Category" FORMAT "x(8)"
-    FIELD currencyCode            AS CHARACTER LABEL "Currency" FORMAT "x(8)"
-    FIELD currencyExRate          AS DECIMAL   LABEL "Exchange Rate" FORMAT ">>>,>>>9.99" 
-    FIELD periodID                AS INTEGER   LABEL "Period" FORMAT ">9"
-    FIELD isTaxable               AS LOGICAL   LABEL "Taxable"
-    FIELD shipID                  AS CHARACTER LABEL "Ship To" FORMAT "x(10)"
-    FIELD termsCode               AS CHARACTER LABEL "Terms" FORMAT "x(5)"
-    FIELD isFreightBillable       AS LOGICAL   LABEL "Bill Freight"
-    .    
-    
-DEFINE TEMP-TABLE ttInvoiceMiscToPost NO-UNDO 
-    LIKE ttInvoiceLineToPost
-    FIELD riInvMisc  AS ROWID
-    FIELD isBillable AS LOGICAL 
-    FIELD chargeID   AS CHARACTER 
-    .
-    
-DEFINE TEMP-TABLE ttGLTransaction NO-UNDO 
-    FIELD company           AS CHARACTER 
-    FIELD transactionType   AS CHARACTER
-    FIELD transactionDate   AS DATE 
-    FIELD transactionDesc   AS CHARACTER 
-    FIELD transactionPeriod AS INTEGER 
-    FIELD account           AS CHARACTER
-    FIELD amount            AS DECIMAL
-    FIELD currencyCode      AS CHARACTER 
-    FIELD currencyExRate    AS DECIMAL
-    FIELD itemID            AS CHARACTER  
-    FIELD quantityWeight    AS DECIMAL
-    FIELD invoiceID         AS INTEGER
-    FIELD journalNote       AS CHARACTER
-    .
-
-DEFINE TEMP-TABLE ttARLedgerTransaction NO-UNDO 
-    FIELD company        AS CHARACTER
-    FIELD customerID     AS CHARACTER
-    FIELD amount         AS DECIMAL 
-    FIELD referenceDesc  AS CHARACTER
-    FIELD referenceDate  AS DATE
-    FIELD runID          AS INTEGER
-    FIELD accountAR      AS CHARACTER 
-    FIELD postDate       AS DATE
-    FIELD periodID       AS INTEGER
-    FIELD currencyCode   AS CHARACTER 
-    FIELD currencyExRate AS DECIMAL 
-    .
-    
-DEFINE TEMP-TABLE ttFGItemToUpdate NO-UNDO
-    FIELD riItemfg                 AS ROWID
-    FIELD company                  AS CHARACTER 
-    FIELD itemID                   AS CHARACTER
-    FIELD itemName                 AS CHARACTER
-    FIELD quantityInvoicedTotal    AS DECIMAL
-    FIELD quantityInvoicedPTD      AS DECIMAL
-    FIELD quantityShippedTotal     AS DECIMAL
-    FIELD quantityShippedPTD       AS DECIMAL
-    FIELD quantityAllocatedTotal   AS DECIMAL
-    FIELD quantityAllocatedPTD     AS DECIMAL
-    FIELD quantityInvoicedMSFTotal AS DECIMAL
-    FIELD quantityInvoicedMSFPTD   AS DECIMAL
-    FIELD periodID                 AS INTEGER
-    . 
-        
-DEFINE TEMP-TABLE ttOrderToUpdate NO-UNDO 
-    FIELD riOeOrd AS ROWID 
-    FIELD company AS CHARACTER 
-    FIELD orderID AS INTEGER
-    FIELD isClosed AS LOGICAL 
-    FIELD reOeOrd  AS RECID 
-    .
-    
-DEFINE TEMP-TABLE ttBolLineToUpdate NO-UNDO 
-    FIELD riOeBoll  AS ROWID
-    FIELD riOeBolh  AS ROWID
-    FIELD company   AS CHARACTER
-    FIELD bolID     AS INTEGER
-    FIELD invoiceID AS INTEGER
-    FIELD orderID   AS INTEGER
-    FIELD orderLine AS INTEGER
-    FIELD itemID    AS CHARACTER
-    .
-    
-DEFINE TEMP-TABLE ttOrderLineToUpdate NO-UNDO 
-    FIELD riOeOrdl            AS ROWID 
-    FIELD company             AS CHARACTER 
-    FIELD orderID             AS INTEGER
-    FIELD orderLine           AS INTEGER 
-    FIELD itemID              AS CHARACTER
-    FIELD newQuantityInvoiced AS DECIMAL 
-    FIELD newQuantityShipped  AS DECIMAL
-    .    
-
-DEFINE TEMP-TABLE ttOrderMiscToUpdate NO-UNDO 
-    FIELD riOeOrdm   AS ROWID 
-    FIELD company    AS CHARACTER 
-    FIELD orderID    AS INTEGER
-    FIELD orderLine  AS INTEGER 
-    FIELD itemID     AS CHARACTER
-    FIELD billStatus AS CHARACTER
-    FIELD riEstPrep  AS ROWID 
-    .
-
-DEFINE TEMP-TABLE ttCustomerToUpdate NO-UNDO 
-    FIELD riCust                 AS ROWID
-    FIELD company                AS CHARACTER 
-    FIELD customerID             AS CHARACTER 
-    FIELD orderBalanceReduction  AS DECIMAL
-    FIELD periodID               AS INTEGER
-    FIELD postDate               AS DATE
-    FIELD salesTotalExTax        AS DECIMAL
-    FIELD salesPTDExTax          AS DECIMAL
-    FIELD salesTotal             AS DECIMAL
-    FIELD salesPTD               AS DECIMAL 
-    FIELD costTotal              AS DECIMAL
-    FIELD costPTD                AS DECIMAL 
-    FIELD commissionTotal        AS DECIMAL
-    FIELD commissionPTD          AS DECIMAL
-    FIELD lastPayAmount          AS DECIMAL 
-    FIELD lastPayDate            AS DATE
-    FIELD accountBalanceIncrease AS DECIMAL 
-    FIELD lastInvoiceDate        AS DATE       
-    FIELD msfPTD                 AS DECIMAL
-    FIELD msfTotal               AS DECIMAL
-    .
-    
-DEFINE TEMP-TABLE ttEstPrepToUpdate NO-UNDO
-    FIELD riEstPrep     AS ROWID 
-    FIELD deleteEstPrep AS LOGICAL
-    FIELD newSimon      AS CHARACTER
-    .
-    
-DEFINE TEMP-TABLE ttException NO-UNDO
-    FIELD exceptionReason        AS CHARACTER
-    FIELD recordRowid            AS ROWID
-    FIELD company                AS CHARACTER
-    FIELD recordTable            AS CHARACTER
-    FIELD recordTableDescription AS CHARACTER
-    FIELD recordKeyDescription   AS CHARACTER
-    FIELD recordField            AS CHARACTER 
-    FIELD recordFieldDescription AS CHARACTER
-    FIELD recordFieldValue       AS CHARACTER  
-    .
-
-DEFINE TEMP-TABLE rpt NO-UNDO 
-    LIKE ttInvoiceLineToPost
-    .
-    
 DEFINE TEMP-TABLE ttInvoiceTaxDetail NO-UNDO LIKE ttTaxDetail
     FIELD riInvHead AS ROWID
     .
 
-DEFINE TEMP-TABLE ttInvoiceError NO-UNDO 
-    FIELD riInvError     AS ROWID
-    FIELD invoiceID      AS INTEGER 
-    FIELD problemMessage AS CHARACTER
-    FIELD isOKToPost     AS LOGICAL 
-    .    
-
-    
-{custom/globdefs.i}    
-{sys/inc/var.i SHARED}
 /*Program-level Handles for persistent procs*/
 
 DEFINE VARIABLE ghNotesProcs    AS HANDLE NO-UNDO.
@@ -538,18 +233,19 @@ PROCEDURE pAddGLTransaction PRIVATE:
         ttGLTransaction.currencyCode      = ipbf-ttInvoiceToPost.currencyCode
         ttGLTransaction.currencyExRate    = ipbf-ttInvoiceToPost.currencyExRate
         .
-        IF iplConvertCurrency AND ipbf-ttInvoiceToPost.currencyCode NE ipbf-ttPostingMaster.currencyCode THEN DO:
-            IF NOT ipcTransactionType EQ "CURR" THEN 
-                ASSIGN 
-                    ttGLTransaction.amount = ROUND(ipdAmount * ipbf-ttInvoiceToPost.currencyExRate,2) 
-                    iopdCurrencyGainLoss = iopdCurrencyGainLoss + ipdAmount - ttGLTransaction.amount
-                    .
+    IF iplConvertCurrency AND ipbf-ttInvoiceToPost.currencyCode NE ipbf-ttPostingMaster.currencyCode THEN 
+    DO:
+        IF NOT ipcTransactionType EQ "CURR" THEN 
             ASSIGN 
-                ttGLTransaction.currencyCode = ipbf-ttPostingMaster.currencyCode
-                ttGLTransaction.currencyExRate = ipbf-ttPostingMaster.currencyExRate
-                .    
+                ttGLTransaction.amount = ROUND(ipdAmount * ipbf-ttInvoiceToPost.currencyExRate,2) 
+                iopdCurrencyGainLoss   = iopdCurrencyGainLoss + ipdAmount - ttGLTransaction.amount
+                .
+        ASSIGN 
+            ttGLTransaction.currencyCode   = ipbf-ttPostingMaster.currencyCode
+            ttGLTransaction.currencyExRate = ipbf-ttPostingMaster.currencyExRate
+            .    
         
-        END.
+    END.
 END PROCEDURE.
 
 PROCEDURE pAddGLTransactionsForFG PRIVATE:
@@ -639,8 +335,8 @@ PROCEDURE pAddGLTransactionsForTax PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttInvoiceToPost FOR ttInvoiceToPost.
     DEFINE INPUT-OUTPUT PARAMETER iopdCurrencyGainLoss AS DECIMAL NO-UNDO.
     
-    DEFINE VARIABLE dTaxAmount       AS DECIMAL NO-UNDO. 
-    DEFINE VARIABLE lDetailAvailable AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dTaxAmount        AS DECIMAL NO-UNDO. 
+    DEFINE VARIABLE lDetailAvailable  AS LOGICAL NO-UNDO.
     DEFINE VARIABLE dCurrencyGainLoss AS DECIMAL NO-UNDO.
         
     lDetailAvailable = NO.    
@@ -1184,9 +880,9 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
     DEFINE BUFFER bf-ttInvoiceLineToPost        FOR ttInvoiceLineToPost.
     DEFINE BUFFER bf-ttInvoiceMiscToPost        FOR ttInvoiceMiscToPost.
     
-    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lErrorOnInvoice AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lErrorOnInvoice AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
 
     FIND FIRST ttPostingMaster NO-LOCK NO-ERROR.
     IF NOT AVAILABLE ttPostingMaster THEN 
@@ -1789,7 +1485,8 @@ PROCEDURE pExportAllTempTables PRIVATE:
             
     FIND FIRST ttPostingMaster NO-ERROR.      
     
-    IF iplExportForPost AND AVAILABLE ttPostingMaster AND ttPostingMaster.exportPath NE "" THEN
+        
+    IF AVAILABLE ttPostingMaster AND ttPostingMaster.exportPath NE "" THEN
     DO:
         RUN system\OutputProcs.p PERSISTENT SET hdOutput.
         
@@ -1803,68 +1500,55 @@ PROCEDURE pExportAllTempTables PRIVATE:
             hdTempTable = TEMP-TABLE rpt:HANDLE.
         RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage). 
      
-        DELETE OBJECT hdOutput.
-    END.
-    ELSE IF AVAILABLE ttPostingMaster AND ttPostingMaster.exportPath NE "" THEN 
-    DO:
-    
-        RUN system\OutputProcs.p PERSISTENT SET hdOutput.
+        IF NOT iplExportForPost THEN 
+        DO:        
+            ASSIGN 
+                cFile       = fGetFilePath(ttPostingMaster.exportPath, "InvoiceHeaders", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+                hdTempTable = TEMP-TABLE ttInvoiceToPost:HANDLE.
+            RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
         
-        ASSIGN 
-            cFile       = fGetFilePath(ttPostingMaster.exportPath, "InvoiceHeaders", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
-            hdTempTable = TEMP-TABLE ttInvoiceToPost:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
+            ASSIGN 
+                cFile       = fGetFilePath(ttPostingMaster.exportPath, "InvoiceLines", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+                hdTempTable = TEMP-TABLE ttInvoiceLineToPost:HANDLE.
+            RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
         
-        ASSIGN 
-            cFile       = fGetFilePath(ttPostingMaster.exportPath, "InvoiceLines", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
-            hdTempTable = TEMP-TABLE ttInvoiceLineToPost:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
+            ASSIGN 
+                cFile       = fGetFilePath(ttPostingMaster.exportPath, "InvoiceMiscs", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+                hdTempTable = TEMP-TABLE ttInvoiceMiscToPost:HANDLE.
+            RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
+                
+            ASSIGN 
+                cFile       = fGetFilePath(ttPostingMaster.exportPath, "ARLedgerTransactions", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+                hdTempTable = TEMP-TABLE ttARLedgerTransaction:HANDLE.
+            RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
         
-        ASSIGN 
-            cFile       = fGetFilePath(ttPostingMaster.exportPath, "InvoiceMiscs", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
-            hdTempTable = TEMP-TABLE ttInvoiceMiscToPost:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
+            ASSIGN 
+                cFile       = fGetFilePath(ttPostingMaster.exportPath, "Customers", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+                hdTempTable = TEMP-TABLE ttCustomerToUpdate:HANDLE.
+            RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES,INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
         
-        ASSIGN 
-            cFile       = fGetFilePath(ttPostingMaster.exportPath, "GLTransactions", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
-            hdTempTable = TEMP-TABLE ttGLTransaction:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
+            ASSIGN 
+                cFile       = fGetFilePath(ttPostingMaster.exportPath, "OrderHeaders", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+                hdTempTable = TEMP-TABLE ttOrderToUpdate:HANDLE.
+            RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
         
-        ASSIGN 
-            cFile       = fGetFilePath(ttPostingMaster.exportPath, "ARLedgerTransactions", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
-            hdTempTable = TEMP-TABLE ttARLedgerTransaction:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
+            ASSIGN 
+                cFile       = fGetFilePath(ttPostingMaster.exportPath, "OrderLines", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+                hdTempTable = TEMP-TABLE ttOrderLineToUpdate:HANDLE.
+            RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
         
-        ASSIGN 
-            cFile       = fGetFilePath(ttPostingMaster.exportPath, "Customers", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
-            hdTempTable = TEMP-TABLE ttCustomerToUpdate:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES,INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
+            ASSIGN 
+                cFile       = fGetFilePath(ttPostingMaster.exportPath, "BOLLines", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+                hdTempTable = TEMP-TABLE ttBOLLineToUpdate:HANDLE.
+            RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
         
-        ASSIGN 
-            cFile       = fGetFilePath(ttPostingMaster.exportPath, "OrderHeaders", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
-            hdTempTable = TEMP-TABLE ttOrderToUpdate:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
+            ASSIGN 
+                cFile       = fGetFilePath(ttPostingMaster.exportPath, "FGItems", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+                hdTempTable = TEMP-TABLE ttFGItemToUpdate:HANDLE.
+            RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).        
         
-        ASSIGN 
-            cFile       = fGetFilePath(ttPostingMaster.exportPath, "OrderLines", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
-            hdTempTable = TEMP-TABLE ttOrderLineToUpdate:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
-        
-        ASSIGN 
-            cFile       = fGetFilePath(ttPostingMaster.exportPath, "BOLLines", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
-            hdTempTable = TEMP-TABLE ttBOLLineToUpdate:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
-        
-        ASSIGN 
-            cFile       = fGetFilePath(ttPostingMaster.exportPath, "FGItems", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
-            hdTempTable = TEMP-TABLE ttFGItemToUpdate:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).        
-        
-        ASSIGN 
-            cFile       = fGetFilePath(ttPostingMaster.exportPath, "PostingSummary", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
-            hdTempTable = TEMP-TABLE rpt:HANDLE.
-        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage). 
      
+        END.
         DELETE OBJECT hdOutput.
     
     END. /*PostingMaster has export path*/
@@ -2115,7 +1799,7 @@ PROCEDURE pGetCurrencyCodeAndRate PRIVATE:
     DEFINE BUFFER bf-currency FOR currency.
     
     ASSIGN 
-        opcCurrencyCode = ipcCurrCodeInvoice
+        opcCurrencyCode         = ipcCurrCodeInvoice
         opdCurrencyExchangeRate = 1
         .
     IF opcCurrencyCode EQ "" THEN 
@@ -2137,7 +1821,8 @@ PROCEDURE pGetCurrencyCodeAndRate PRIVATE:
             opcMessage = "Currency code is blank for invoice, customer and company (" + ipcCompany + ")"
             .
         
-    IF AVAILABLE bf-currency THEN DO:
+    IF AVAILABLE bf-currency THEN 
+    DO:
         ASSIGN 
             opdCurrencyExchangeRate = bf-currency.ex-rate 
             opcAccountARCurrency    = bf-currency.ar-ast-acct
@@ -2243,7 +1928,7 @@ PROCEDURE pGetSettings PRIVATE:
     DO:
         cReturn = REPLACE(ipbf-ttPostingMaster.exportPath, ENTRY(NUM-ENTRIES(ipbf-ttPostingMaster.exportPath, "\"), ipbf-ttPostingMaster.exportPath, "\"), ""). 
         IF cReturn NE "" THEN
-        ipbf-ttPostingMaster.exportPath = cReturn + "OB4\" + "dir" . /* created sub folder, folder is used befor Backward Slash*/          
+            ipbf-ttPostingMaster.exportPath = cReturn + "OB4\" + "dir" . /* created sub folder, folder is used befor Backward Slash*/          
     END.
        
 END PROCEDURE.
@@ -2466,10 +2151,10 @@ PROCEDURE PostInvoices:
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE lExceptions AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lExceptions    AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lExportForPost AS LOGICAL NO-UNDO.
     
-    lExportForPost = LOOKUP("ExportForPost",ipcOptions) GT 0 .    
+    lExportForPost = LOOKUP("Post",ipcOptions) GT 0 .    
     
     RUN "sys/NotesProcs.p" PERSISTENT SET ghNotesProcs.
 
@@ -2908,7 +2593,7 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
     DEFINE BUFFER bf-inv-line FOR inv-line.
     DEFINE BUFFER bf-inv-misc FOR inv-misc.
    
-    DEFINE VARIABLE dCurrencyGainLoss  AS DECIMAL.
+    DEFINE VARIABLE dCurrencyGainLoss AS DECIMAL.
 
     FIND FIRST ttPostingMaster NO-ERROR.
     IF NOT AVAILABLE ttPostingMaster THEN 
@@ -2931,7 +2616,7 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
         BY ttInvoiceToPost.invoiceID:
         ASSIGN 
             dCurrencyGainLoss = 0
-            opiCountValid = opiCountValid + 1
+            opiCountValid     = opiCountValid + 1
             . 
         LineBlock:
         FOR EACH ttInvoiceLineToPost
@@ -3013,7 +2698,8 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
             ttCustomerToUpdate.lastInvoiceDate = ttInvoiceToPost.invoiceDate.
         
         /*Add discount per invoice*/
-        IF ttInvoiceToPost.amountDiscount NE 0 THEN DO: 
+        IF ttInvoiceToPost.amountDiscount NE 0 THEN 
+        DO: 
             RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "DISC", ttInvoiceToPost.accountARDiscount, ttInvoiceToPost.amountDiscount, "", YES, INPUT-OUTPUT dCurrencyGainLoss).
         END.
         IF ttInvoiceToPost.amountBilledFreight NE 0 THEN 
@@ -3022,7 +2708,8 @@ PROCEDURE pProcessInvoicesToPost PRIVATE:
         IF ttInvoiceToPost.amountBilledTax NE 0 THEN 
             RUN pAddGLTransactionsForTax(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, INPUT-OUTPUT dCurrencyGainLoss).
 
-        IF dCurrencyGainLoss NE 0 THEN DO:
+        IF dCurrencyGainLoss NE 0 THEN 
+        DO:
             RUN pAddGLTransaction(BUFFER ttPostingMaster, BUFFER ttInvoiceToPost, "CURR", ttInvoiceToPost.accountARCurrency, dCurrencyGainLoss , "", YES, INPUT-OUTPUT dCurrencyGainLoss).
         END.
         
@@ -3431,9 +3118,6 @@ PROCEDURE pUpdateOrders PRIVATE:
         FIRST bf-oe-ord NO-LOCK
         WHERE ROWID(bf-oe-ord) EQ ttOrderToUpdate.riOeOrd:
         lFullyClosed = YES.
-        ASSIGN
-            ttOrderToUpdate.isClosed = YES
-            ttOrderToUpdate.reOeOrd  = RECID(bf-oe-ord).  
         FOR EACH bf-oe-ordl EXCLUSIVE-LOCK 
             WHERE bf-oe-ordl.company EQ bf-oe-ord.company 
             AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no 
@@ -3449,8 +3133,12 @@ PROCEDURE pUpdateOrders PRIVATE:
             ELSE 
                 lFullyClosed = NO.
         END.
-        IF lFullyClosed THEN 
+        IF lFullyClosed THEN DO:
             RUN oe\close.p(RECID(bf-oe-ord), YES).
+            ASSIGN
+                ttOrderToUpdate.isClosed = YES
+                ttOrderToUpdate.reOeOrd  = RECID(bf-oe-ord).  
+        END.
     END. /* Each w-ord */            
     
     
@@ -3545,14 +3233,14 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
     DEFINE BUFFER bf-ttInvoiceLineToPost FOR ttInvoiceLineToPost.
     DEFINE BUFFER bf-ttInvoiceMiscToPost FOR ttInvoiceMiscToPost.
     
-    DEFINE VARIABLE lAutoApprove      AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lShiptoTaxAble    AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE lValidateRequired AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE dTotalLineRev     AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE dTotalTax         AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lError            AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lValidateRequiredInvoiceStatus AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lAutoApprove                   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lShiptoTaxAble                 AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lValidateRequired              AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE dTotalLineRev                  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTotalTax                      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lError                         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage                       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValidateRequiredInvoiceStatus AS LOGICAL   NO-UNDO.
     
     FOR EACH bf-ttInvoiceToPost,
         FIRST bf-inv-head NO-LOCK 
@@ -3626,10 +3314,12 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             END.
         END.  
          
-        IF bf-ttInvoiceToPost.amountBilled NE 0 THEN DO:
+        IF bf-ttInvoiceToPost.amountBilled NE 0 THEN 
+        DO:
             lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalExpectZero", bf-inv-head.cust-no,iplIsValidateOnly).
             
-            IF lValidateRequired THEN DO:
+            IF lValidateRequired THEN 
+            DO:
                 RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Expected zero value in the invoice").
                 lAutoApprove = NO.
             END.    
@@ -3668,7 +3358,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             ASSIGN 
                 bf-inv-head.autoApprove = YES.
             IF lValidateRequiredInvoiceStatus AND bf-inv-head.stat EQ "W" THEN
-               bf-inv-head.stat = "".
+                bf-inv-head.stat = "".
             FIND CURRENT bf-inv-head NO-LOCK.
             opiCountValid = opiCountValid + 1.
         END.
@@ -3739,12 +3429,12 @@ PROCEDURE pAddTagInfo PRIVATE:
         WHERE ROWID(bf-inv-head) EQ ipriRowid NO-ERROR .
     IF AVAIL bf-inv-head THEN
     DO:
-       RUN AddTagHoldInfo (
-           INPUT bf-inv-head.rec_key,
-           INPUT "inv-head",
-           INPUT ipcProblemMessage,
-           INPUT ""
-           ). /*From TagProcs Super Proc*/ 
+        RUN AddTagHoldInfo (
+            INPUT bf-inv-head.rec_key,
+            INPUT "inv-head",
+            INPUT ipcProblemMessage,
+            INPUT ""
+            ). /*From TagProcs Super Proc*/ 
     END.
      
 END PROCEDURE.

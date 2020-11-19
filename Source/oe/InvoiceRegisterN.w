@@ -54,6 +54,7 @@ DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
 {custom/gloc.i}
 {custom/getcmpny.i}
 {custom/getloc.i}
+{oe\PostInvoice.i}
 
 {sys/inc/VAR.i new shared}
 DEFINE VARIABLE hNotesProcs     AS HANDLE NO-UNDO.
@@ -200,171 +201,6 @@ DO TRANSACTION:
     RELEASE sys-ctrl.
 END.
 
-DEFINE TEMP-TABLE ttInvoiceToPost NO-UNDO 
-    FIELD riInvHead                    AS ROWID
-    FIELD isOKToPost                   AS LOGICAL
-    FIELD rNo                          AS INTEGER
-    FIELD riCust                       AS ROWID
-    FIELD company                      AS CHARACTER
-    FIELD postDate                     AS DATE  
-    FIELD periodID                     AS INTEGER 
-    FIELD customerID                   AS CHARACTER 
-    FIELD customerName                 AS CHARACTER 
-    FIELD invoiceID                    AS INTEGER 
-    FIELD invoiceDate                  AS DATE    
-    FIELD isFactored                   AS LOGICAL
-    FIELD problemMessage               AS CHARACTER 
-    FIELD orderID                      AS INTEGER
-    FIELD orderDate                    AS DATE
-    FIELD quantityTotal                AS INTEGER
-    FIELD quantityTotalWeight          AS DECIMAL
-    FIELD quantityTotalMSF             AS DECIMAL
-    FIELD currencyCode                 AS CHARACTER 
-    FIELD currencyExRate               AS DECIMAL
-    FIELD accountARCurrency            AS CHARACTER
-    FIELD accountAR                    AS CHARACTER
-    FIELD accountARFreight             AS CHARACTER
-    FIELD accountARSales               AS CHARACTER
-    FIELD accountARSalesTax            AS CHARACTER
-    FIELD accountARDiscount            AS CHARACTER
-    FIELD accountARCash                AS CHARACTER    
-    FIELD amountBilled                 AS DECIMAL
-    FIELD amountBilledIncDiscount      AS DECIMAL
-    FIELD amountBilledExTax            AS DECIMAL 
-    FIELD amountBilledTax              AS DECIMAL
-    FIELD amountBilledFreight          AS DECIMAL
-    FIELD amountBilledMiscOnly         AS DECIMAL
-    FIELD amountBilledLineOnly         AS DECIMAL
-    FIELD amountCommission             AS DECIMAL 
-    FIELD amountDiscount               AS DECIMAL
-    FIELD amountCost                   AS DECIMAL 
-    FIELD isCashTerms                  AS LOGICAL
-    FIELD isFreightBillable            AS LOGICAL
-    FIELD isInvoiceDateInCurrentPeriod AS LOGICAL     
-    FIELD bolID                        AS INTEGER
-    FIELD termsCode                    AS CHARACTER
-    FIELD taxGroup                     AS CHARACTER
-    .
-    
-DEFINE TEMP-TABLE ttInvoiceLineToPost NO-UNDO 
-    FIELD riInvLine               AS ROWID
-    FIELD company                 AS CHARACTER LABEL "Company" FORMAT "x(3)"
-    FIELD invoiceID               AS INTEGER   LABEL "Invoice #" FORMAT ">>>>>>9"
-    FIELD invoiceLine             AS INTEGER   LABEL "Line" FORMAT ">>>9"
-    FIELD invoiceDate             AS DATE      LABEL "Invoice Date" FORMAT 99/99/9999
-    FIELD customerID              AS CHARACTER LABEL "Cust ID" FORMAT "x(10)"
-    FIELD customerName            AS CHARACTER LABEL "Cust Name" FORMAT "x(30)"
-    FIELD itemID                  AS CHARACTER LABEL "Item ID" FORMAT "x(15)"
-    FIELD itemName                AS CHARACTER LABEL "Item Name" FORMAT "x(30)"
-    FIELD quantityOrdered         AS DECIMAL   LABEL "Ordered Qty" FORMAT ">>,>>>,>>9"
-    FIELD quantityShipped         AS DECIMAL   LABEL "Shipped Qty" FORMAT ">>>,>>>,>>9"
-    FIELD quantityInvoiced        AS DECIMAL   LABEL "Invoiced Qty" FORMAT ">>>,>>>,>>9"
-    FIELD orderID                 AS INTEGER   LABEL "Order ID" FORMAT ">>>>>>9"
-    FIELD customerPO              AS CHARACTER LABEL "Customer PO" FORMAT "x(20)"
-    FIELD customerLot             AS CHARACTER LABEL "Customer Lot" FORMAT "x(20)"
-    FIELD salesGroup              AS CHARACTER LABEL "Sales Group" FORMAT "x(5)"
-    FIELD salesGroupName          AS CHARACTER LABEL "Sales Group Name" FORMAT "x(30)"
-    FIELD postDate                AS DATE      LABEL "Post Date" FORMAT 99/99/9999                                                                   
-    FIELD runID                   AS INTEGER   LABEL "Run" FORMAT ">>>>>>>>9"
-    FIELD isMisc                  AS LOGICAL   LABEL "Misc"
-    FIELD rNo                     AS INTEGER 
-    FIELD rNoOld                  AS INTEGER
-    FIELD isOKToPost              AS LOGICAL   LABEL "OK To Post"
-    FIELD problemMessage          AS CHARACTER LABEL "Problem Desc" FORMAT "x(40)"
-    FIELD pricePerUOM             AS DECIMAL   LABEL "Price Per UOM" FORMAT ">>>,>>>9.99"
-    FIELD priceUOM                AS CHARACTER LABEL "Price UOM" FORMAT "x(4)"
-    FIELD costPerUOM              AS DECIMAL   LABEL "Cost Per UOM" FORMAT ">>,>>>,>>9.99"
-    FIELD costUOM                 AS CHARACTER LABEL "Cost UOM" FORMAT "x(4)"
-    FIELD costTotal               AS DECIMAL   LABEL "Cost Total" FORMAT ">>,>>>,>>9.99"
-    FIELD costDirectLabor         AS DECIMAL   LABEL "Cost Direct Labor" FORMAT ">>,>>>,>>9.99"
-    FIELD costFixedOverhead       AS DECIMAL   LABEL "Cost Fixed Overhead" FORMAT ">>,>>>,>>9.99"
-    FIELD costVariableOverhead    AS DECIMAL   LABEL "Cost Variable Overhead" FORMAT ">>,>>>,>>9.99"
-    FIELD costDirectMaterial      AS DECIMAL   LABEL "Cost Direct Material" FORMAT ">>,>>>,>>9.99"
-    FIELD costSource              AS CHARACTER LABEL "Cost Source" FORMAT "x(30)"
-    FIELD costStdFreight          AS DECIMAL   LABEL "Cost Std Freight" FORMAT ">>,>>>,>>9.99"
-    FIELD costStdWarehouse        AS DECIMAL   LABEL "Cost Std Warehouse" FORMAT ">>,>>>,>>9.99"
-    FIELD costStdDeviation        AS DECIMAL   LABEL "Cost Std Deviation" FORMAT ">>,>>>,>>9.99"
-    FIELD costStdManufacture      AS DECIMAL   LABEL "Cost Std Manufacture" FORMAT ">>,>>>,>>9.99"
-    FIELD costFull                AS DECIMAL   LABEL "Cost Full" FORMAT ">>,>>>,>>9.99"
-    FIELD quantityInvoicedWeight  AS DECIMAL   LABEL "Invoiced Weight" FORMAT ">>,>>>,>>9.99"
-    FIELD quantityInvoicedMSF     AS DECIMAL   LABEL "Invoiced MSF" FORMAT ">>,>>>,>>9.99"
-    FIELD weightUOM               AS CHARACTER LABEL "Weight UOM" FORMAT "x(4)"
-    FIELD accountAR               AS CHARACTER LABEL "AR Account" FORMAT "x(20)"
-    FIELD accountARFreight        AS CHARACTER LABEL "Freight Account" FORMAT "x(20)"
-    FIELD accountARSales          AS CHARACTER LABEL "Sales Account" FORMAT "x(20)"
-    FIELD accountARSalesTax       AS CHARACTER LABEL "Sales Tax Account" FORMAT "x(20)"
-    FIELD accountARDiscount       AS CHARACTER LABEL "Discount Account" FORMAT "x(20)"
-    FIELD accountARCash           AS CHARACTER LABEL "Cash Account" FORMAT "x(20)"
-    FIELD accountDLCogs           AS CHARACTER LABEL "COGS DL Account" FORMAT "x(20)"
-    FIELD accountDLFG             AS CHARACTER LABEL "FG DL Account" FORMAT "x(20)"
-    FIELD accountVOCogs           AS CHARACTER LABEL "COGS VO Account" FORMAT "x(20)"
-    FIELD accountVOFG             AS CHARACTER LABEL "FG VO Account" FORMAT "x(20)"
-    FIELD accountFOCogs           AS CHARACTER LABEL "COGS FO Account" FORMAT "x(20)"
-    FIELD accountFOFG             AS CHARACTER LABEL "FG FOAR Account" FORMAT "x(20)"
-    FIELD accountDMCogs           AS CHARACTER LABEL "COGS DM Account" FORMAT "x(20)"
-    FIELD accountDMFG             AS CHARACTER LABEL "FG DM Account" FORMAT "x(20)"
-    FIELD quantityPerSubUnit      AS DECIMAL   LABEL "Case Count" FORMAT ">>,>>9"
-    FIELD amountDiscount          AS DECIMAL   LABEL "Discount" FORMAT ">>,>>>,>>9.99"
-    FIELD amountBilled            AS DECIMAL   LABEL "Billed" FORMAT ">>,>>>,>>9.99"
-    FIELD amountBilledIncDiscount AS DECIMAL   LABEL "Billed Inc. Discount" FORMAT ">>,>>>,>>9.99"
-    FIELD amountCommission        AS DECIMAL   LABEL "Commission" FORMAT ">>,>>>,>>9.99"
-    FIELD locationID              AS CHARACTER LABEL "Location" FORMAT ">>,>>>,>>9.99"
-    FIELD bolID                   AS INTEGER   LABEL "BOL" FORMAT ">>,>>>,>>9.99"
-    FIELD squareFeetPerEA         AS DECIMAL   LABEL "Sq Ft Per EA" FORMAT ">>,>>>,>>9.99"
-    FIELD productCategory         AS CHARACTER LABEL "Product Category" FORMAT "x(8)"
-    FIELD currencyCode            AS CHARACTER LABEL "Currency" FORMAT "x(8)"
-    FIELD currencyExRate          AS DECIMAL   LABEL "Exchange Rate" FORMAT ">>>,>>>9.99" 
-    FIELD periodID                AS INTEGER   LABEL "Period" FORMAT ">9"
-    FIELD isTaxable               AS LOGICAL   LABEL "Taxable"
-    FIELD shipID                  AS CHARACTER LABEL "Ship To" FORMAT "x(10)"
-    FIELD termsCode               AS CHARACTER LABEL "Terms" FORMAT "x(5)"
-    FIELD isFreightBillable       AS LOGICAL   LABEL "Bill Freight"
-    .    
-    
-DEFINE TEMP-TABLE ttInvoiceMiscToPost NO-UNDO 
-    LIKE ttInvoiceLineToPost
-    FIELD riInvMisc  AS ROWID
-    FIELD isBillable AS LOGICAL 
-    FIELD chargeID   AS CHARACTER 
-    .
-    
-DEFINE TEMP-TABLE ttGLTransaction NO-UNDO 
-    FIELD company           AS CHARACTER 
-    FIELD transactionType   AS CHARACTER
-    FIELD transactionDate   AS DATE 
-    FIELD transactionDesc   AS CHARACTER 
-    FIELD transactionPeriod AS INTEGER 
-    FIELD account           AS CHARACTER
-    FIELD amount            AS DECIMAL
-    FIELD currencyCode      AS CHARACTER 
-    FIELD currencyExRate    AS DECIMAL
-    FIELD itemID            AS CHARACTER  
-    FIELD quantityWeight    AS DECIMAL
-    FIELD invoiceID         AS INTEGER
-    FIELD journalNote       AS CHARACTER
-    .
-
-DEFINE TEMP-TABLE ttARLedgerTransaction NO-UNDO 
-    FIELD company        AS CHARACTER
-    FIELD customerID     AS CHARACTER
-    FIELD amount         AS DECIMAL 
-    FIELD referenceDesc  AS CHARACTER
-    FIELD referenceDate  AS DATE
-    FIELD runID          AS INTEGER
-    FIELD accountAR      AS CHARACTER 
-    FIELD postDate       AS DATE
-    FIELD periodID       AS INTEGER
-    FIELD currencyCode   AS CHARACTER 
-    FIELD currencyExRate AS DECIMAL 
-    .
-    
-DEFINE TEMP-TABLE ttOrderToUpdate NO-UNDO 
-    FIELD riOeOrd AS ROWID 
-    FIELD company AS CHARACTER 
-    FIELD orderID AS INTEGER
-    FIELD isClosed AS LOGICAL
-    FIELD reOeOrd  AS RECID 
-    .
 
 
 &SCOPED-DEFINE use-factored
@@ -386,11 +222,11 @@ DEFINE TEMP-TABLE ttOrderToUpdate NO-UNDO
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tran-date begin_cust end_cust ~
 begin_inv end_inv begin_date end_date tb_detailed tb_detailed-2 tb_ton ~
-tb_export tb_expost rd-dest lv-ornt lines-per-page lv-font-no td-show-parm ~
-btn-ok btn-cancel 
+tb_export rd-dest lv-ornt lines-per-page lv-font-no td-show-parm btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tran-date tran-period begin_cust end_cust ~
 begin_inv end_inv begin_date end_date tb_detailed tb_detailed-2 tb_ton ~
-tb_export tb_expost rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
+tb_export rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
 td-show-parm 
 
 /* Custom List Definitions                                              */
@@ -493,7 +329,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 12.86.
+     SIZE 94 BY 12.38.
 
 DEFINE VARIABLE tb_detailed AS LOGICAL INITIAL no 
      LABEL "Invoice Report Detailed?" 
@@ -509,11 +345,6 @@ DEFINE VARIABLE tb_export AS LOGICAL INITIAL no
      LABEL "Export/FTP  Invoices?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY 1 NO-UNDO.
-
-DEFINE VARIABLE tb_expost AS LOGICAL INITIAL no 
-     LABEL "Export for Post" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 28 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_ton AS LOGICAL INITIAL no 
      LABEL "Print $/Ton?" 
@@ -545,7 +376,6 @@ DEFINE FRAME FRAME-A
      tb_detailed-2 AT ROW 9.71 COL 36
      tb_ton AT ROW 10.67 COL 36
      tb_export AT ROW 11.62 COL 36
-     tb_expost AT ROW 12.62 COL 36 WIDGET-ID 2
      rd-dest AT ROW 14.81 COL 5 NO-LABEL
      lv-ornt AT ROW 15.05 COL 29 NO-LABEL
      lines-per-page AT ROW 15.05 COL 82 COLON-ALIGNED
@@ -654,10 +484,6 @@ ASSIGN
 
 ASSIGN 
        tb_export:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-       tb_expost:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -778,7 +604,6 @@ DO:
         DEFINE VARIABLE v-close-line AS LOG       NO-UNDO.
         DEFINE VARIABLE cStatus      AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cReason      AS CHARACTER NO-UNDO.
-        DEFINE VARIABLE cAction      AS CHARACTER NO-UNDO.
         
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
@@ -858,10 +683,6 @@ DO:
 
             IF lv-post THEN 
             DO:   
-                IF tb_expost THEN
-                cAction = "export,post,ExportForPost" .
-                ELSE
-                cAction = "export,post" .
                 RUN PostInvoices IN hPostInvoices (
                     cocode,
                     INT(begin_inv),
@@ -871,7 +692,7 @@ DO:
                     begin_cust,
                     end_cust,
                     DATE(tran-date),
-                    cAction,                        
+                    "export,post",                        
                     OUTPUT iProcessed,
                     OUTPUT iValid,
                     OUTPUT iPosted,
@@ -1026,17 +847,6 @@ DO:
 &Scoped-define SELF-NAME tb_export
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_export C-Win
 ON VALUE-CHANGED OF tb_export IN FRAME FRAME-A /* Export/FTP  Invoices? */
-DO:
-        ASSIGN {&self-name}.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_expost
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_expost C-Win
-ON VALUE-CHANGED OF tb_expost IN FRAME FRAME-A /* Export for Post */
 DO:
         ASSIGN {&self-name}.
     END.
@@ -1408,13 +1218,12 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY tran-date tran-period begin_cust end_cust begin_inv end_inv begin_date 
-          end_date tb_detailed tb_detailed-2 tb_ton tb_export tb_expost rd-dest 
-          lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm 
+          end_date tb_detailed tb_detailed-2 tb_ton tb_export rd-dest lv-ornt 
+          lines-per-page lv-font-no lv-font-name td-show-parm 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 tran-date begin_cust end_cust begin_inv end_inv 
-         begin_date end_date tb_detailed tb_detailed-2 tb_ton tb_export 
-         tb_expost rd-dest lv-ornt lines-per-page lv-font-no td-show-parm 
-         btn-ok btn-cancel 
+         begin_date end_date tb_detailed tb_detailed-2 tb_ton tb_export rd-dest 
+         lv-ornt lines-per-page lv-font-no td-show-parm btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
