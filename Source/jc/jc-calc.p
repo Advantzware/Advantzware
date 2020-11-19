@@ -1420,10 +1420,10 @@ DO:
                 
             END. /* each xprep */
         END. /* if nufile */
-
-        RUN jc/chkalloc.p (ROWID(job)).
         RUN jc/addJobFarm.p (INPUT job.job).
     END. /*Not New Calc*/
+    RUN jc/chkalloc.p (ROWID(job)).
+   
 END. /*Do*/
 DEFINE VARIABLE v-jobcard AS cha NO-UNDO.
 DEFINE VARIABLE v-reprint AS LOG NO-UNDO.

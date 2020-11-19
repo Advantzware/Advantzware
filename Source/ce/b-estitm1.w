@@ -153,6 +153,9 @@ DEFINE VARIABLE lCheckPurMan    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAccessCreateFG AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAccessClose    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cAccessList     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cNK1Value       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound       AS LOGICAL NO-UNDO.
 RUN methods/prgsecur.p
 	    (INPUT "p-upditm.",
 	     INPUT "CREATE", /* based on run, create, update, delete or all */
@@ -165,7 +168,13 @@ RUN methods/prgsecur.p
 	    
 DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.
 
-RUN system/customerProcs.p PERSISTENT SET hdCustomerProcs.	     
+RUN system/customerProcs.p PERSISTENT SET hdCustomerProcs.	
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CEAddCustomerOption", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCEAddCustomerOption = logical(cNK1Value) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -949,7 +958,7 @@ DO:
 
         IF NOT CAN-FIND(cust WHERE cust.company = gcompany AND cust.cust-no = eb.cust-no:screen-value IN BROWSE {&browse-name} )
         THEN DO:
-            IF eb.cust-no:screen-value = "" THEN DO:
+            IF NOT lCEAddCustomerOption OR eb.cust-no:screen-value = "" THEN DO:
                 MESSAGE "Invalid Customer Number. Try Help." VIEW-AS ALERT-BOX ERROR. 
                 RETURN NO-APPLY.
             END.

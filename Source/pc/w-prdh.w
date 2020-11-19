@@ -546,6 +546,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetChargeCode W-Win
+PROCEDURE pGetChargeCode:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcChargeCode AS CHARACTER NO-UNDO.
+
+    {methods/run_link.i "RECORD-SOURCE" "pGetChargeCode" "(OUTPUT opcChargeCode)"}
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Select_Add W-Win 
 PROCEDURE Select_Add :
 /*------------------------------------------------------------------------------

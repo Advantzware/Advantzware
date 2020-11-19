@@ -244,7 +244,7 @@ ON CHOOSE OF Btn-Add IN FRAME F-Main /* Add */
         RUN rm/d-issue.w (?, "add",OUTPUT lv-rowid).
      
         RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
-      
+        IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
         RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
   
     END.
@@ -301,6 +301,7 @@ ON CHOOSE OF Btn-copy IN FRAME F-Main /* Copy */
      
       
             RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
+            IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
             RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
       
         END.
@@ -317,6 +318,7 @@ ON CHOOSE OF Btn-Delete IN FRAME F-Main /* Delete */
         IF AVAILABLE rm-rctd THEN 
         DO: 
             RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
+            IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
             RUN delete_item IN WIDGET-HANDLE(char-hdl).
         END.
     END.
@@ -338,6 +340,7 @@ ON CHOOSE OF Btn-Save IN FRAME F-Main /* Update */
             RUN rm/d-issue.w (RECID(rm-rctd), "update", OUTPUT lv-rowid) . 
        
             RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
+            IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
             RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
       
         END.

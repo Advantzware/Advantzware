@@ -259,8 +259,8 @@ PROCEDURE pResultsBrowser :
                 cFormula = REPLACE(cFormula,"}","")
                 cFormula = REPLACE(cFormula,"__",".")
                 hCalcColumn[dynValueColumn.sortOrder] = hQueryBrowse:ADD-CALC-COLUMN(
-                    "Character",
-                    "x(" + STRING(LENGTH(cFormula)) + ")",
+                    IF INDEX(dynValueColumn.calcFormula,"|") NE 0 THEN dynValueColumn.dataType ELSE "Character",
+                    IF INDEX(dynValueColumn.calcFormula,"|") NE 0 THEN dynValueColumn.colFormat ELSE "x(" + STRING(LENGTH(cFormula)) + ")",
                     "",
                     dynValueColumn.colLabel + "[Calc]"
                     )

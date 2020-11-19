@@ -1061,6 +1061,7 @@ PROCEDURE check-inv-file :
 ------------------------------------------------------------------------------*/
 
    RUN oe/AutoApproveInvoices.w .
+   RUN value-changed-proc. 
 
 END PROCEDURE.
 

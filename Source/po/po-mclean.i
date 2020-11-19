@@ -5,8 +5,10 @@ PUT
        "<P14><C+48> <B>Purchase Order</B> <P10>" v-change-ord SKIP  
       "<C2><R2><#1><R+10><C+40><IMAGE#1=" ls-full-img1  SKIP     
    
-     "<FCourier New>"
-     "Purchase Order To:" AT 4 SPACE(43) "Ship To:"  SKIP.
+     "<FCourier New>".
+IF AVAIL vend THEN PUT
+     "Purchase Order To:" AT 4 SPACE(1) vend.vend-no FORMAT "x(8)" SPACE(32) "Ship To:"  SKIP.
+ELSE PUT "Purchase Order To:" AT 4 SPACE(43) "Ship To:"  SKIP.
 
 IF AVAIL vend THEN
          PUT SPACE(3) vend.name "Phone#:" AT 38 "(" + vend.area-code + ")" + string(vend.phone,"xxx-xxxx") FORM "x(14)" v-sname AT 65 skip

@@ -76,6 +76,7 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-fgStatusupdate AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -211,6 +212,14 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_export ).
+       RUN set-position IN h_export ( 1.00 , 156.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+        
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/movecol.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
@@ -233,6 +242,9 @@ PROCEDURE adm-create-objects :
              OUTPUT h_b-fgStatusupdate ).
        RUN set-position IN h_b-fgStatusupdate ( 3.48 , 1.60 ) NO-ERROR.
        RUN set-size IN h_b-fgStatusupdate ( 23.71 , 177.00 ) NO-ERROR.
+       
+       /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_b-fgStatusupdate , 'export-xl':U , h_export ).
 
        /* Links to SmartObject h_movecol. */
        RUN add-link IN adm-broker-hdl ( h_b-fgStatusupdate , 'move-columns':U , h_movecol ).

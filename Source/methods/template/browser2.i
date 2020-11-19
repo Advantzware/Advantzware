@@ -246,13 +246,13 @@ PROCEDURE local-get-first :
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR v-current-page AS INT NO-UNDO.
 
-  run get-link-handle in adm-broker-hdl(this-procedure,"win-source", output char-hdl).
-  run get-current-page in widget-handle(char-hdl) (OUTPUT v-current-page).
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"win-source", OUTPUT char-hdl).
+  RUN get-current-page IN WIDGET-HANDLE(char-hdl) (OUTPUT v-current-page).
 
   IF v-current-page EQ 2 THEN
   DO:
-     run get-link-handle in adm-broker-hdl(this-procedure,"browse-target", output char-hdl).
-     run local-open-query in widget-handle(char-hdl).
+     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"browse-target", OUTPUT char-hdl).
+     RUN local-open-query IN WIDGET-HANDLE(char-hdl).
   END.
 
 END PROCEDURE.
@@ -278,13 +278,13 @@ PROCEDURE local-get-last :
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR v-current-page AS INT NO-UNDO.
 
-  run get-link-handle in adm-broker-hdl(this-procedure,"win-source", output char-hdl).
-  run get-current-page in widget-handle(char-hdl) (OUTPUT v-current-page).
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"win-source", OUTPUT char-hdl).
+  RUN get-current-page IN WIDGET-HANDLE(char-hdl) (OUTPUT v-current-page).
 
   IF v-current-page EQ 2 THEN
   DO:
-     run get-link-handle in adm-broker-hdl(this-procedure,"browse-target", output char-hdl).
-     run local-open-query in widget-handle(char-hdl).
+     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"browse-target", OUTPUT char-hdl).
+     RUN local-open-query IN WIDGET-HANDLE(char-hdl).
   END.
 
 END PROCEDURE.
@@ -310,13 +310,13 @@ PROCEDURE local-get-next :
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR v-current-page AS INT NO-UNDO.
 
-  run get-link-handle in adm-broker-hdl(this-procedure,"win-source", output char-hdl).
-  run get-current-page in widget-handle(char-hdl) (OUTPUT v-current-page).
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"win-source", OUTPUT char-hdl).
+  RUN get-current-page IN WIDGET-HANDLE(char-hdl) (OUTPUT v-current-page).
 
   IF v-current-page EQ 2 THEN
   DO:
-     run get-link-handle in adm-broker-hdl(this-procedure,"browse-target", output char-hdl).
-     run local-open-query in widget-handle(char-hdl).
+     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"browse-target", OUTPUT char-hdl).
+     RUN local-open-query IN WIDGET-HANDLE(char-hdl).
   END.
   
 END PROCEDURE.
@@ -341,13 +341,13 @@ PROCEDURE local-get-prev :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/template/local/setvalue.i}
   
-  run get-link-handle in adm-broker-hdl(this-procedure,"win-source", output char-hdl).
-  run get-current-page in widget-handle(char-hdl) (OUTPUT v-current-page).
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"win-source", OUTPUT char-hdl).
+  RUN get-current-page IN WIDGET-HANDLE(char-hdl) (OUTPUT v-current-page).
 
   IF v-current-page EQ 2 THEN
   DO:
-     run get-link-handle in adm-broker-hdl(this-procedure,"browse-target", output char-hdl).
-     run local-open-query in widget-handle(char-hdl).
+     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"browse-target", OUTPUT char-hdl).
+     RUN local-open-query IN WIDGET-HANDLE(char-hdl).
   END.
       
 
@@ -403,6 +403,9 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/template/local/setvalue.i}
+
+  /* tell the window container it's handle for audit history context */
+  {methods/run_link.i "CONTAINER-SOURCE" "pSetAuditCtrl-A" (THIS-PROCEDURE)}
 
   IF AVAILABLE {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}} THEN
   APPLY 'ENTRY':U TO BROWSE {&BROWSE-NAME}.

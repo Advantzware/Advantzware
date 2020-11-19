@@ -94,6 +94,14 @@ DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
 
 RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
+DEFINE VARIABLE cdAOABOLPost AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ldAOABOLPost AS LOGICAL   NO-UNDO.
+
+RUN sys/ref/nk1look.p (
+    g_company, "dAOABOLPost", "L", NO, NO, "", "",
+    OUTPUT cdAOABOLPost, OUTPUT ldAOABOLPost
+    ).
+
 FORMAT
   oe-bolh.bol-date
   space(2)
@@ -536,9 +544,12 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-
+    
   run check-date.
   if v-invalid then return no-apply.
+  
+  run pCheckPeriod  .
+   if v-invalid then return no-apply.    
 
   IF month(tran-date) NE MONTH(TODAY) OR
      YEAR(tran-date)  NE YEAR(TODAY)THEN DO:
@@ -622,6 +633,9 @@ DO:
               UPDATE lv-post.
 
       IF lv-post THEN do:
+       IF ldAOABOLPost AND cdAOABOLPost EQ "YES" THEN
+           RUN pdAOABOLPost.
+       ELSE DO:
         RUN post-bols.
        
         /* close transfer order here */
@@ -650,7 +664,7 @@ DO:
 
         FIND FIRST tt-email NO-LOCK NO-ERROR.
         IF AVAIL tt-email THEN RUN email-reorderitems.
-        
+       END. /* else */ 
         MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
       END.
     END.
@@ -969,6 +983,37 @@ PROCEDURE check-date :
     IF ip-post THEN DO:
       message "No Defined Period Exists for" tran-date view-as alert-box error.
       v-invalid = yes.
+    end.
+  END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPeriod C-Win 
+PROCEDURE pCheckPeriod :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/     
+  DO with frame {&frame-name}:
+    v-invalid = no.
+  
+    FIND FIRST period NO-LOCK
+        where period.company eq cocode
+        and period.pst     le tran-date
+        and period.pend    ge tran-date
+        no-error.
+    if avail period THEN 
+    DO:     
+      IF begin_date LT period.pst OR end_date GT period.pend THEN
+      DO:
+        message "The BOL posting date period is different from bol date " SKIP 
+                  "Please enter same period for posting the bol " view-as alert-box error.
+        v-invalid = yes.          
+      END.      
     end.
   END.
 END PROCEDURE.
@@ -1380,6 +1425,83 @@ run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name
  
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pdAOABOLPost C-Win
+PROCEDURE pdAOABOLPost:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cParamList  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cParamValue AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hBOLPost    AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE hTable      AS HANDLE    NO-UNDO.
+
+    /* subject parameter names listed alphabetically */
+    ASSIGN
+        cParamList  = "allBOL|"
+                    + "allCustNo|"
+                    + "allLocBin|"
+                    + "allLocs|"
+                    + "company|"
+                    + "custList|"
+                    + "DatePickList-1|"
+                    + "DatePickList-2|"
+                    + "DatePickList-3|"
+                    + "endBOL|"
+                    + "endBOLDate|"
+                    + "endCustName|"
+                    + "endCustNo|"
+                    + "endLoc|"
+                    + "endLocBin|"
+                    + "endLocDescription|"
+                    + "location|"
+                    + "post|"
+                    + "postDate|"
+                    + "startBOL|"
+                    + "startBOLDate|"
+                    + "startCustName|"
+                    + "startCustNo|"
+                    + "startLoc|"
+                    + "startLocBin|"
+                    + "startLocDescription"
+        /* subject parameter values listed alphabetically */
+        cParamValue = "yes|" // allBOL
+                    + "yes|" // allCustNo
+                    + "yes|" // allLocBin
+                    + "yes|" // allLocs
+                    + g_company + "|" // company
+                    + "no|" // custList
+                    + "Fixed Date|" // DatePickList-1
+                    + "Fixed Date|" // DatePickList-2
+                    + "Fixed Date|" // DatePickList-3
+                    + STRING(end_bolnum) + "|" // endBOL
+                    + STRING(end_date,"99/99/9999") + "|" // endBOLDate
+                    + "<End Range Value>|" // endCustName
+                    + end_cust + "|" // endCustNo
+                    + CHR(254) + "|" // endLoc
+                    + CHR(254) + "|" // endLocBin
+                    + "<End Range Value>|" // endLocDescription
+                    + g_loc + "|" // location
+                    + "yes|" // post
+                    + STRING(tran-date,"99/99/9999") + "|" // postDate
+                    + STRING(begin_bolnum) + "|" // startBOL
+                    + STRING(begin_date,"99/99/9999") + "|" // startBOLDate
+                    + "<Start Range Value>|" // startCustName
+                    + begin_cust + "|" // startCustNo
+                    + "|" // startLoc
+                    + "|" // startLocBin
+                    + "<Start Range Value>" // startLocDescription
+                    .
+    RUN pInitDynParamValue (19, "", "", 0, cParamList, cParamValue).
+    RUN AOA/dynBL/r-bolpst.p PERSISTENT SET hBOLPost.
+    RUN pRunBusinessLogic IN hBOLPost (ROWID(dynParamValue), OUTPUT hTable).
+    DELETE PROCEDURE hBOLPost.
+
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

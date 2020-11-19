@@ -45,8 +45,9 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "RMReceiptRules,FGReceiptRules,POLoadtag,SSCycleCountReset,OEImportConsol,AutoCreateHelp,SSVendTagOnly,ShowRestrictionMessage,MiscEstimateSource,"
            + "JobRecalc,JobBuildVersion,CEWood,SalesTaxRoundingMethod,SalesTaxCalcMethod,FGTagValidation,DynParamValidation,DateRule,VertexTaxClassDefault,"
            + "CapacityHTMLFolder,InvoiceApprovalBillNotes,InvoiceApprovalFreightAmount,InvoiceApprovalFreightTerms,InvoiceApprovalPriceGTCost,InvoiceApprovalInvoiceStatus,"
-           + "InvoiceApprovalTaxableCheck,CalcJobDueDate,FGBOLTransferPost,FGMasterLoc"            
-           .
+           + "InvoiceApprovalTaxableCheck,CalcJobDueDate,FGBOLTransferPost,FGMasterLoc,FGOversDefault,InvoiceApprovalTaxCalc,SSTagStatus,CEWindow,"            
+           + "ZohoRefreshToken,ZohoClientID,ZohoClientSecret,cXMLCustomerPartSource,CEAddCustomerOption,TruckPlan,SSJobInquiryAdjust,SSJobInquiryIssue,"
+           + "InvoiceApprovalExpectZero,CEFormatConfig".
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
@@ -1165,7 +1166,171 @@ CASE ip-nk1-value:
             INPUT 0,                                             /* Int value */
             INPUT NO,                                            /* Logical value */ 
             INPUT 0                                              /* Dec value*/
-            ).         
+            ).     
+    WHEN "FGOversDefault" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "Default overs ability to specify overs/under percentage to default", /* Description */
+            INPUT "Customer",                                    /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT NO,                                            /* Logical value */ 
+            INPUT 0                                              /* Dec value*/
+            ). 
+    WHEN "InvoiceApprovalTaxCalc" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "Unable to calculate tax", /* Description */
+            INPUT "",                                            /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT NO,                                            /* Logical value */ 
+            INPUT 0                                              /* Dec value*/
+            ).
+    WHEN "SSTagStatus" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "Sharp shooter tag status update",             /* Description */
+            INPUT "001",                                         /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT NO,                                            /* Logical value */ 
+            INPUT 0                                              /* Dec value*/
+            ).
+    WHEN "CEWindow" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "Window Overlap to apply to each side",         /* Description */
+            INPUT "",                                            /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT NO,                                            /* Logical value */ 
+            INPUT 0.5                                            /* Dec value*/
+            ).                                 
+    WHEN "CEWindow" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "Window Overlap to apply to each side",         /* Description */
+            INPUT "",                                            /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT NO,                                            /* Logical value */ 
+            INPUT 0.5                                            /* Dec value*/
+            ).
+    WHEN "ZohoRefreshToken" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "ZoHo Refresh Token",                          /* Description */
+            INPUT "",                                            /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT NO,                                            /* Logical value */ 
+            INPUT 0                                              /* Dec value*/
+            ).                                 
+    WHEN "ZohoClientID" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "ZoHo Client ID",                              /* Description */
+            INPUT "",                                            /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT NO,                                            /* Logical value */ 
+            INPUT 0                                              /* Dec value*/
+            ).                                 
+    WHEN "ZohoClientSecret" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "ZoHo Client Secret",                          /* Description */
+            INPUT "",                                            /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT NO,                                            /* Logical value */ 
+            INPUT 0                                              /* Dec value*/
+            ).    
+    WHEN "CEAddCustomerOption" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "Allow estimating to create a new customer on demand", /* Description */
+            INPUT "",                                            /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT YES,                                            /* Logical value */ 
+            INPUT 0                                              /* Dec value*/
+            ).           
+    WHEN "cXMLCustomerPartSource" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                                             /* Prompt? */
+            INPUT "Defined source to obtain the FG item number from cXML order",  /* Description */
+            INPUT "SupplierPartId",                                               /* Char Value */
+            INPUT 0,                                                              /* Int value */
+            INPUT NO,                                                             /* Logical value */ 
+            INPUT 0                                                               /* Dec value*/
+            ). 
+    WHEN "TruckPlan" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                                               /* Prompt? */
+            INPUT "Truck Plan FG# is printing the value - Either FG# or Item Name", /* Description */
+            INPUT "FG Item number",                                                 /* Char Value */
+            INPUT 0,                                                                /* Int value */
+            INPUT NO,                                                               /* Logical value */ 
+            INPUT 0                                                                 /* Dec value*/
+            ).                 
+    WHEN "SSJobInquiryAdjust" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                                               /* Prompt? */
+            INPUT "Job Inquiry Adjust screen configuration options",                /* Description */
+            INPUT "Unitization with options",                                       /* Char Value */
+            INPUT 0,                                                                /* Int value */
+            INPUT NO,                                                               /* Logical value */ 
+            INPUT 0                                                                 /* Dec value*/
+            ).
+    WHEN "SSJobInquiryIssue" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                                               /* Prompt? */
+            INPUT "Job Inquiry Issue screen configuration options",                 /* Description */
+            INPUT "With options",                                                   /* Char Value */
+            INPUT 0,                                                                /* Int value */
+            INPUT NO,                                                               /* Logical value */ 
+            INPUT 0                                                                 /* Dec value*/
+            ).
+    WHEN "InvoiceApprovalExpectZero" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                                               /* Prompt? */
+            INPUT "Expected revenue is zero for invoice in total",                  /* Description */
+            INPUT "",                                                               /* Char Value */
+            INPUT 0,                                                                /* Int value */
+            INPUT NO,                                                               /* Logical value */ 
+            INPUT 0                                                                 /* Dec value*/
+            ).            
+    WHEN "CEFormatConfig" THEN   
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO /* Prompt? */,
+            INPUT "Configuration file for Estimate printing (JSON)",
+            INPUT "" /* Char Value */, 
+            INPUT 0 /* Int value */,
+            INPUT NO /* Logical value */, 
+            INPUT 0 /* dec value*/).
 END CASE.
 ELSE
 CASE ip-nk1-value:

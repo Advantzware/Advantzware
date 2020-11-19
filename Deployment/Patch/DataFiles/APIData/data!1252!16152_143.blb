@@ -1,0 +1,30 @@
+$TareDetailID$<HLLoop1 type="Loop">
+<HL type="Segment">
+<!--Hierarchical ID Number-->
+<HL01>$HLCount$</HL01>
+<!--Hierarchical Parent ID Number-->
+<HL02>$HLItemParent$</HL02>
+<!--Hierarchical Level Code-->
+<HL03><!--Item-->I</HL03>
+</HL>
+<LIN type="Segment">
+<!--Assigned Identification-->
+<LIN01>$ItemLineID$</LIN01>
+<!--Product/Service ID Qualifier-->
+<LIN02><!--Buyer&apos;s Part Number-->BP</LIN02>
+<!--Product/Service ID-->
+<LIN03>$PartID$</LIN03>
+<!--Product/Service ID Qualifier-->
+<LIN04><!--Vendor&apos;s (Seller&apos;s) Part Number-->VP</LIN04>
+<!--Product/Service ID-->
+<LIN05>$ItemID$</LIN05>
+</LIN>
+<SN1 type="Segment">
+<!--Number of Units Shipped-->
+<SN101></SN101>
+<!--Number of Units Shipped-->
+<SN102>$ItemQuantity$</SN102>
+<!--Unit of Measure-->
+<SN103>$ItemQuantityUOM$</SN103>
+</SN1>
+</HLLoop1>

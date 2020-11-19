@@ -108,6 +108,67 @@ PROCEDURE calcDropShipment:
    opcCalcValue = IF ipcPOCust NE "" THEN "Customer" ELSE "Vendor".   
 END PROCEDURE.
 
+PROCEDURE calcGetChgMethod:
+    DEFINE INPUT  PARAMETER ipcChgMethod AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
+    
+    opcCalcValue = IF ipcChgMethod EQ "M" THEN "MSF" 
+              ELSE IF ipcChgMethod EQ "P" THEN "Pallet"
+              ELSE "Weight".
+END PROCEDURE.
+
+PROCEDURE calcGetCarrierInActive:
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCarrier   AS CHARACTER NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
+    
+    FIND FIRST carrier NO-LOCK
+         WHERE carrier.company EQ ipcCompany
+         AND carrier.carrier EQ  ipcCarrier NO-ERROR.
+    IF AVAIL carrier THEN
+    
+    IF AVAILABLE carrier AND
+       NOT DYNAMIC-FUNCTION("IsActive", carrier.rec_key) THEN
+    opcCalcValue = "Yes".
+    ELSE opcCalcValue = "No".
+END PROCEDURE.
+
+PROCEDURE calcGetQtyOnHandFromFgitem:
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcFGItem    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
+    
+   FIND FIRST itemfg NO-LOCK
+        WHERE itemfg.company EQ ipcCompany 
+        AND itemfg.i-no EQ ipcFGItem NO-ERROR.
+   IF AVAIL itemfg THEN
+      opcCalcValue = string(itemfg.q-onh).
+END PROCEDURE.
+
+PROCEDURE calcGetPartDscr1FromFgitem:
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcFGItem    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
+    
+   FIND FIRST itemfg NO-LOCK
+        WHERE itemfg.company EQ ipcCompany 
+        AND itemfg.i-no EQ ipcFGItem NO-ERROR.
+   IF AVAIL itemfg THEN
+      opcCalcValue = itemfg.part-dscr1.
+END PROCEDURE.
+
+PROCEDURE calcGetPartDscr2FromFgitem:
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcFGItem    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
+    
+   FIND FIRST itemfg NO-LOCK
+        WHERE itemfg.company EQ ipcCompany 
+        AND itemfg.i-no EQ ipcFGItem NO-ERROR.
+   IF AVAIL itemfg THEN
+      opcCalcValue = itemfg.part-dscr2.
+END PROCEDURE.
+
 PROCEDURE calcShiftEndTime:
     DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplUseTime    AS LOGICAL   NO-UNDO.
@@ -184,7 +245,8 @@ PROCEDURE calcStringTime:
     DEFINE INPUT  PARAMETER ipiTime      AS INTEGER   NO-UNDO.    
     DEFINE OUTPUT PARAMETER opcCalcValue AS CHARACTER NO-UNDO.
     
-    opcCalcValue = STRING(ipiTime,"hh:mm:ss am").
+    opcCalcValue = IF ipiTime NE ? THEN STRING(ipiTime,"hh:mm:ss am")
+                   ELSE "".
 END PROCEDURE.
 	
 PROCEDURE calcTimeString:
@@ -344,6 +406,30 @@ PROCEDURE spDynCalcField:
             INTEGER(ipcCalcParam),
             OUTPUT opcCalcValue).
         WHEN "calcDropShipment" THEN
+        RUN VALUE(ipcCalcProc) (
+            ENTRY(1,ipcCalcParam,"|"),
+            ENTRY(2,ipcCalcParam,"|"),
+            OUTPUT opcCalcValue). 
+        WHEN "calcGetChgMethod" THEN
+        RUN VALUE(ipcCalcProc) (
+            ipcCalcParam,            
+            OUTPUT opcCalcValue).     
+        WHEN "calcGetCarrierInActive" THEN
+        RUN VALUE(ipcCalcProc) (
+            ENTRY(1,ipcCalcParam,"|"),
+            ENTRY(2,ipcCalcParam,"|"),
+            OUTPUT opcCalcValue).   
+        WHEN "calcGetQtyOnHandFromFgitem" THEN
+        RUN VALUE(ipcCalcProc) (
+            ENTRY(1,ipcCalcParam,"|"),
+            ENTRY(2,ipcCalcParam,"|"),
+            OUTPUT opcCalcValue). 
+        WHEN "calcGetPartDscr1FromFgitem" THEN
+        RUN VALUE(ipcCalcProc) (
+            ENTRY(1,ipcCalcParam,"|"),
+            ENTRY(2,ipcCalcParam,"|"),
+            OUTPUT opcCalcValue).
+        WHEN "calcGetPartDscr2FromFgitem" THEN
         RUN VALUE(ipcCalcProc) (
             ENTRY(1,ipcCalcParam,"|"),
             ENTRY(2,ipcCalcParam,"|"),

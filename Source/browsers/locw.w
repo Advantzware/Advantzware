@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {sys/inc/var.i new shared}
 {Inventory/ttInventory.i "NEW SHARED"}
+{fg/fullset.i NEW}
 
 ASSIGN
     cocode = g_company
@@ -46,6 +47,10 @@ DEFINE VARIABLE lFirst            AS LOGICAL   NO-UNDO INIT YES.
 DEFINE VARIABLE lCalculate        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE iPrevPage         AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iCurrentPage      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lRecalcOnHand     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lRecalcOnOrder    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lRecalcAllocated  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lRecalcBackOrder  AS LOGICAL   NO-UNDO.
 {sys/inc/oeinq.i}
  
 DEFINE NEW SHARED TEMP-TABLE w-job NO-UNDO
@@ -966,13 +971,22 @@ PROCEDURE local-open-query :
     IF iCurrentpage EQ 15
         THEN lfirst = NO.
     RUN pGetPOLocation.
-    RUN pCheckUnspecified.
+    RUN pCheckUnspecified(
+        OUTPUT lUnspecified,
+        OUTPUT lRecalcOnHand,
+        OUTPUT lRecalcOnOrder,
+        OUTPUT lRecalcAllocated,
+        OUTPUT lRecalcBackOrder
+        ).
     OPEN QUERY {&browse-name} {&for-each1}.    
-    IF lFirst AND iCurrentpage NE 15 THEN DO:
-        IF NOT lUnspecified THEN 
-            OPEN QUERY {&browse-name} {&for-each1}. 
-        ELSE 
-            RUN pDisplayRecalculateMsg.
+    IF lFirst AND iCurrentpage NE 15 AND lUnspecified THEN DO:
+        RUN pDisplayRecalculateMsg(
+            INPUT lRecalcOnHand,
+            INPUT lRecalcOnOrder,
+            INPUT lRecalcAllocated,
+            INPUT lRecalcBackOrder
+            ).
+        OPEN QUERY {&browse-name} {&for-each1}.    
         lFirst = NO.  
     END. 
 END PROCEDURE.
@@ -999,9 +1013,20 @@ PROCEDURE local-view:
   RUN GET-ATTRIBUTE IN adm-broker-hdl ('CurrentPage'). 
   iCurrentPage = INTEGER(RETURN-VALUE).
   IF NOT lFirst AND iprevPage EQ 1 THEN DO: 
-      RUN pCheckUnspecified.
+    RUN pCheckUnspecified(
+        OUTPUT lUnspecified,
+        OUTPUT lRecalcOnHand,
+        OUTPUT lRecalcOnOrder,
+        OUTPUT lRecalcAllocated,
+        OUTPUT lRecalcBackOrder
+        ).
       IF lUnspecified THEN 
-          RUN pDisplayRecalculateMsg.  
+        RUN pDisplayRecalculateMsg(
+            INPUT lRecalcOnHand,
+            INPUT lRecalcOnOrder,
+            INPUT lRecalcAllocated,
+            INPUT lRecalcBackOrder
+            ). 
       OPEN QUERY {&browse-name} {&for-each1}. 
   END.
 END PROCEDURE.
@@ -1031,21 +1056,54 @@ PROCEDURE pCheckUnspecified PRIVATE:
  Purpose: To check and delete the unspecified location record from the workfile 
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplUnspecified      AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplRecalcOnHand     AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplRecalcOnOrder    AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplRecalcAllocated  AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplRecalcBackOrder  AS LOGICAL NO-UNDO.
+
     FIND FIRST w-jobs NO-LOCK
          WHERE w-jobs.i-no EQ itemfg.i-no
            AND w-jobs.loc  EQ "*UNSP"
             NO-ERROR.
-            
-    IF AVAILABLE w-jobs 
-       AND w-jobs.onHand       EQ 0      
-       AND w-jobs.onOrder      EQ 0
-       AND w-jobs.allocated    EQ 0               
-       AND w-jobs.backOrder    EQ 0 
-       AND w-jobs.qtyAvailable EQ 0 THEN DO:     
-       DELETE w-jobs.
-       lUnspecified = NO.
-    END.   
-       
+    IF AVAILABLE w-jobs THEN DO:        
+        IF w-jobs.onHand           EQ 0      
+           AND w-jobs.onOrder      EQ 0
+           AND w-jobs.allocated    EQ 0               
+           AND w-jobs.backOrder    EQ 0 
+           AND w-jobs.qtyAvailable EQ 0 THEN DO:  
+                  
+           DELETE w-jobs.
+           
+           ASSIGN 
+               oplRecalcOnHand    = NO
+               oplRecalcOnOrder   = NO
+               oplRecalcAllocated = NO
+               oplRecalcBackOrder = NO    
+               oplUnspecified     = NO
+               .
+        END. 
+        ELSE IF w-jobs.onHand       EQ 0 
+            AND w-jobs.onOrder      EQ 0
+            AND w-jobs.allocated    EQ 0
+            AND w-jobs.backOrder    EQ 0
+            AND w-jobs.qtyAvailable NE 0 THEN 
+            ASSIGN 
+               oplRecalcOnHand    = YES
+               oplRecalcOnOrder   = YES
+               oplRecalcAllocated = YES
+               oplRecalcBackOrder = YES
+               oplUnspecified     = YES
+               .  
+        ELSE
+            ASSIGN 
+               oplRecalcOnHand    = w-jobs.onHand       NE 0
+               oplRecalcOnOrder   = w-jobs.onOrder      NE 0
+               oplRecalcAllocated = w-jobs.allocated    NE 0
+               oplRecalcBackOrder = w-jobs.backOrder    NE 0   
+               oplUnspecified     = YES
+               .
+    END.               
         
 END PROCEDURE.
 	
@@ -1101,18 +1159,56 @@ PROCEDURE pDisplayRecalculateMsg PRIVATE:
  Purpose: To Display a message box to recalculate the quantity
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplRecalcOnHand    AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplRecalcOnOrder   AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplRecalcAllocated AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplRecalcBackOrder AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+        
     RUN displayMessageQuestionLOG(
         INPUT  "20", 
         OUTPUT lCalculate
         ).
+        
     IF lCalculate THEN DO:
-        RUN RecalculateQuantities IN hdInventoryProcs(
+        RUN Inventory_AddLocFromHist IN hdInventoryProcs(
             INPUT ROWID(itemfg),
             INPUT cocode
             ).
+        RUN Inventory_RecalculateQuantities IN hdInventoryProcs(
+            INPUT ROWID(itemfg),
+            INPUT iplRecalcOnHand,   
+            INPUT iplRecalcOnOrder,
+            INPUT iplRecalcAllocated,
+            INPUT iplRecalcBackOrder
+            ).    
+        IF itemfg.isaset THEN DO:
+            FOR EACH tt-fg-set NO-LOCK:
+                DELETE tt-fg-set.
+            END.
+             
+            RUN fg/fullset.p(
+                INPUT ROWID(itemfg)
+                ).   
+            FOR EACH tt-fg-set,
+                FIRST bf-itemfg NO-LOCK 
+                WHERE bf-itemfg.company EQ cocode 
+                  AND bf-itemfg.i-no    EQ tt-fg-set.part-no:  
+                RUN fg/fg-rst2.p(
+                    INPUT RECID(bf-itemfg)
+                    ).
+            END.
+        END.    
         RUN build-table.
         RUN pGetPOLocation.
-        RUN pCheckUnspecified.
+        RUN pCheckUnspecified(
+            OUTPUT lUnspecified,
+            OUTPUT iplRecalcOnHand,
+            OUTPUT iplRecalcOnOrder,
+            OUTPUT iplRecalcAllocated,
+            OUTPUT iplRecalcBackOrder
+            ).
         IF lUnspecified THEN
             RUN displayMessage(
                 INPUT "21"

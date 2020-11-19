@@ -91,7 +91,9 @@ IF FIRST-OF({1}.{2})                   OR
    
     IF invStatus-log THEN
         inv-head.stat = "W".
-
+    IF AVAILABLE cust AND cust.inv-meth EQ ? THEN 
+        inv-head.stat = "H".
+        
   FIND FIRST usergrps WHERE
        usergrps.usergrps = "IN"
        NO-LOCK NO-ERROR.

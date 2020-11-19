@@ -92,6 +92,7 @@ DEFINE VARIABLE cFieldLength AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
+DEFINE BUFFER bf-eb FOR eb.
 
 /*
 (IF {sys/inc/rptDisp.i "oe-ord.due-date"} THEN "DUE DATE " ELSE "" ) +   8
@@ -179,14 +180,17 @@ tb_excel tb_runExcel fi_file tb_batch begin_cust-part end_cust-part
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetInksForJob C-Win 
 FUNCTION fGetInksForJob RETURNS CHARACTER
-  (  ) FORWARD.
+  ( ipiJob AS INTEGER,
+    ipriRowid AS ROWID ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetRoutingForJob C-Win 
 FUNCTION fGetRoutingForJob RETURNS CHARACTER
-  (  ) FORWARD.
+  ( ipiJob AS INTEGER,
+    ipcJobNo AS CHARACTER,
+    ipiJobNo2 AS INTEGER ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2289,40 +2293,43 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetInksForJob C-Win 
 FUNCTION fGetInksForJob RETURNS CHARACTER
-  (  ):
+  ( ipiJob AS INTEGER,
+    ipriRowid AS ROWID ):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
     
     DEFINE VARIABLE dResult    AS CHARACTER NO-UNDO.
-    IF AVAIL job THEN DO:
-        IF AVAIL eb THEN
-            for each job-mat where job-mat.company eq cocode
-                and job-mat.job     eq job.job  
-                and job-mat.frm     eq eb.form-no
-                NO-LOCK ,
-                first item
-                {sys/look/itemivW.i}
-                and item.i-no eq job-mat.i-no:
-                    IF eb.est-type LE 4 THEN do:
-                        do i = 1 to 20:
-                            if eb.i-code2[i] eq job-mat.i-no then do:
-                                IF LOOKUP(job-mat.i-no,dResult) EQ 0 THEN
-                                 dResult = dResult + job-mat.i-no + "," .
-                            end.
-                        end. /* loop i */
-                    END.
-                    ELSE do:
-                        do i = 1 to 10:
-                            if eb.i-code[i] eq job-mat.i-no then do:
-                                IF LOOKUP(job-mat.i-no,dResult) EQ 0 THEN
-                                 dResult = dResult + job-mat.i-no + "," . 
-                            end.
-                        end. /* loop i */
-                    END.
-            END.
-    END.                
+    FIND FIRST bf-eb NO-LOCK
+         WHERE rowid(bf-eb) EQ ipriRowid NO-ERROR .
+    
+    IF AVAIL bf-eb THEN
+        for each job-mat where job-mat.company eq cocode
+            and job-mat.job     eq ipiJob  
+            and job-mat.frm     eq bf-eb.form-no
+            NO-LOCK ,
+            first item
+            {sys/look/itemivW.i}
+            and item.i-no eq job-mat.i-no:
+                IF bf-eb.est-type LE 4 THEN do:
+                    do i = 1 to 20:
+                        if bf-eb.i-code2[i] eq job-mat.i-no then do:
+                            IF LOOKUP(job-mat.i-no,dResult) EQ 0 THEN
+                             dResult = dResult + job-mat.i-no + "," .
+                        end.
+                    end. /* loop i */
+                END.
+                ELSE do:
+                    do i = 1 to 10:
+                        if bf-eb.i-code[i] eq job-mat.i-no then do:
+                            IF LOOKUP(job-mat.i-no,dResult) EQ 0 THEN
+                             dResult = dResult + job-mat.i-no + "," . 
+                        end.
+                    end. /* loop i */
+                END.
+        END.
+                
 
     RETURN dResult.
 
@@ -2333,24 +2340,24 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetRoutingForJob C-Win 
 FUNCTION fGetRoutingForJob RETURNS CHARACTER
-  (  ):
+  ( ipiJob AS INTEGER,
+    ipcJobNo AS CHARACTER,
+    ipiJobNo2 AS INTEGER):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE dResult    AS CHARACTER NO-UNDO.
-
-    IF AVAIL job THEN DO:
-        FOR EACH job-mch WHERE job-mch.company = job.company 
-            AND job-mch.job = job.job 
-            AND job-mch.job-no = job.job-no 
-            AND job-mch.job-no2 = job.job-no2 
-            use-index line-idx NO-LOCK BREAK BY job-mch.job :
-            IF NOT LAST(job-mch.job) THEN
-                dResult = dResult + job-mch.m-code + "," .
-            ELSE dResult = dResult + job-mch.m-code .
-        END.
-    END.                
+    DEFINE VARIABLE dResult    AS CHARACTER NO-UNDO. 
+    
+    FOR EACH job-mch WHERE job-mch.company = cocode
+        AND job-mch.job = ipiJob 
+        AND job-mch.job-no = ipcJobNo 
+        AND job-mch.job-no2 = ipiJobNo2 
+        use-index line-idx NO-LOCK BREAK BY job-mch.job :
+        IF NOT LAST(job-mch.job) THEN
+            dResult = dResult + job-mch.m-code + "," .
+        ELSE dResult = dResult + job-mch.m-code .
+    END.                   
 
     RETURN dResult.
 

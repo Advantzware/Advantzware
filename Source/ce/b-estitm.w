@@ -165,6 +165,7 @@ DEFINE VARIABLE lCheckPurMan    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAccessCreateFG AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAccessClose    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cAccessList     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
 RUN methods/prgsecur.p
             (INPUT "p-upditm.",
              INPUT "CREATE", /* based on run, create, update, delete or all */
@@ -177,7 +178,13 @@ RUN methods/prgsecur.p
              
 DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.
 
-RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.             
+RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs. 
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CEAddCustomerOption", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCEAddCustomerOption = logical(cNK1Value) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -944,7 +951,7 @@ DO:
     
     IF NOT CAN-FIND(cust WHERE cust.company = gcompany AND cust.cust-no = eb.cust-no:screen-value IN BROWSE {&browse-name} )
     THEN DO:
-       IF eb.cust-no:screen-value = "" THEN DO:
+       IF NOT lCEAddCustomerOption OR eb.cust-no:screen-value = "" THEN DO:
            MESSAGE "Invalid Customer Number. Try Help." VIEW-AS ALERT-BOX ERROR. 
            RETURN NO-APPLY.
        END.
@@ -2849,61 +2856,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createVendItemCost B-table-Win
-PROCEDURE createVendItemCost:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
-    DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
-    
-    IF /*eb.stock-no EQ "" AND*/
-        NOT CAN-FIND(FIRST vendItemCost
-        WHERE vendItemCost.company EQ eb.company
-        AND vendItemCost.estimateNo = eb.est-no
-/*        AND vendItemCost.eqty = eb.eqty*/
-        AND vendItemCost.formNo = eb.form-no
-        AND vendItemCost.blankNo = eb.blank-no
-        AND vendItemCost.itemID  EQ eb.stock-no
-        AND vendItemCost.itemType = "FG")
-    THEN 
-    DO TRANSACTION:
-        
-    CREATE bf-vendItemCost.
-    ASSIGN          
-        /*bf-vendItemCost.vendItemCostID*/
-        bf-vendItemCost.company          = eb.company
-        bf-vendItemCost.itemID           = eb.stock-no
-        bf-vendItemCost.itemType         = "FG"
-/*        bf-vendItemCost.vendorID         = ipbf-e-itemfg-vend.vend-no*/
-/*        bf-vendItemCost.customerID       = ipbf-e-itemfg-vend.cust-no*/
-        bf-vendItemCost.estimateNo       = eb.est-no
-        bf-vendItemCost.formNo           = eb.form-no
-        bf-vendItemCost.blankNo          = eb.blank-no
-/*        bf-vendItemCost.vendorItemID     = ipbf-e-itemfg-vend.vend-item*/
-        bf-vendItemCost.vendorUOM        = CAPS(IF AVAIL itemfg THEN itemfg.std-uom ELSE "") 
-/*        bf-vendItemCost.useQuantityFrom  = glUseQtyFrom*/
-  
-        .
-        
-        
-        CREATE bf-vendItemCostLevel.
-        ASSIGN 
-            bf-vendItemCostLevel.vendItemCostID = bf-vendItemCost.VendItemCostID
-/*            bf-vendItemCostLevel.quantityBase   = ipbf-e-itemfg-vend.run-qty[iIndex] */
-/*            bf-vendItemCostLevel.costPerUOM     = ipbf-e-itemfg-vend.run-cost[iIndex]*/
-/*            bf-vendItemCostLevel.costSetup      = ipbf-e-itemfg-vend.setups[iIndex]  */
-            .
-  END.
-  
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE crt-est-childrecord B-table-Win 

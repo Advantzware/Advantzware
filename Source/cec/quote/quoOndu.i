@@ -208,7 +208,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
         WHERE est.company EQ xquo.company
           AND est.est-no  EQ xquo.est-no
         NO-LOCK NO-ERROR.
-    IF AVAIL est AND est.est-type EQ 6 AND est.form-qty GT 1 THEN
+    IF AVAIL est AND (est.est-type EQ 6 OR est.est-type EQ 2) AND est.form-qty GT 1 THEN
     FOR EACH ef WHERE ef.company EQ est.company
                   AND ef.est-no  EQ est.est-no NO-LOCK,      
         EACH eb OF ef NO-LOCK BREAK BY ef.form-no :

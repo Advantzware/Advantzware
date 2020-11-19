@@ -779,7 +779,8 @@ PROCEDURE post-rm:
            mat-act.qty     = mat-act.qty     + out-qty
            job-mat.qty-iss = job-mat.qty-iss + out-qty
            job-mat.qty-all = job-mat.qty-all - out-qty
-           item.q-comm     = item.q-comm     - rm-rctd.qty.
+           //item.q-comm     = item.q-comm     - rm-rctd.qty -> Handled in write trigger of job-mat
+           .
 
           RUN sys/ref/convquom.p(rm-rctd.pur-uom, job-mat.sc-uom,
                                  v-bwt, v-len, v-wid, v-dep,
@@ -794,7 +795,8 @@ PROCEDURE post-rm:
                                    job-mat.qty-all, OUTPUT out-qty).
             ASSIGN
              job-mat.qty-all = 0
-             item.q-comm     = item.q-comm - out-qty.
+             //item.q-comm     = item.q-comm - out-qty
+             .
           END.
           
           IF item.q-comm LT 0 THEN item.q-comm = 0.

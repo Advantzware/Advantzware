@@ -23,7 +23,7 @@ DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lUseCustList   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lOK            AS LOGICAL   NO-UNDO.
 
-{sys/ref/CustList.i}
+{sys/ref/CustList.i NEW}
 {AOA/BL/pBuildCustList.i}
 
 RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.

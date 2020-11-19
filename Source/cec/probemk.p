@@ -93,9 +93,9 @@ ASSIGN
     lv-sell-by         = ce-ctrl.sell-by
     lv-sell-by-ce-ctrl = ce-ctrl.sell-by
     v-msf              = IF v-corr THEN
-                ROUND(((xef.gsh-len * xef.gsh-wid) * .007) * v-gsh-qty,0)
+                (((xef.gsh-len * xef.gsh-wid) * .007) * v-gsh-qty)
               ELSE
-                ROUND(((xef.gsh-len * xef.gsh-wid) / 144) * v-gsh-qty,0).        
+                (((xef.gsh-len * xef.gsh-wid) / 144) * v-gsh-qty).        
 
 IF lv-sell-by EQ "S" THEN 
 DO:
@@ -215,7 +215,7 @@ DO:
         probe.comm          = v-com 
         probe.prof-on       = "Net"
         probe.gsh-qty       = v-gsh-qty
-        probe.tot-lbs       = v-msf                    
+        probe.gshQtyInSF    = v-msf                    
         probe.dscr          = xeb.part-dscr1
         probe.bsf           = (IF v-corr THEN (xeb.t-sqin * .007) ELSE (xeb.t-sqin / 144))
                           / v-sqft-fac

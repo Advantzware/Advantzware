@@ -31,6 +31,7 @@ DEFINE VARIABLE iDynSubjectPage    AS INTEGER   NO-UNDO.
 DEFINE VARIABLE misc_header_value  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE misc_rec_key_value AS CHARACTER NO-UNDO.
 DEFINE VARIABLE rec_key_value      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hAuditCtrl-A       AS HANDLE    NO-UNDO.
 
 {methods/defines/noreckey.i}
 
@@ -436,13 +437,40 @@ PROCEDURE pCallAudit:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    {methods/run_link.i "RECORD-SOURCE" "pCallAudit" "('Window')"}
+    DEFINE VARIABLE cTable AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hTable AS HANDLE    NO-UNDO.
+
+    IF VALID-HANDLE(hAuditCtrl-A) THEN
+    RUN pCallAudit IN hAuditCtrl-A ("Window").
+    ELSE DO:
+        &IF DEFINED(AuditTableList) EQ 0 &THEN
+        {methods/run_link.i "RECORD-SOURCE" "pCallAudit" "('Window')"}
+        &ELSE
+        RUN AOA/AuditTable.w (?, ?, "{&AuditTableList}", OUTPUT cTable, OUTPUT hTable).
+        IF cTable NE "" THEN
+        RUN system/CallAuditList.p (cTable, "Window", PROGRAM-NAME(1)).
+        &ENDIF
+    END. /* else */
 
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetAuditCtrl-A Include
+PROCEDURE pSetAuditCtrl-A:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphAuditCtrl-A AS HANDLE NO-UNDO.
+
+    hAuditCtrl-A = iphAuditCtrl-A.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset-g_rec_key Include 
 PROCEDURE Reset-g_rec_key :

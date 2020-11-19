@@ -32,6 +32,7 @@ DEF INPUT  PARAM ip-i-no AS cha NO-UNDO.
 DEF OUTPUT PARAM op-rowid-list AS CHAR NO-UNDO.
 
 {oe/d-selbin.i}
+{inventory/ttInventory.i "NEW SHARED"}
 
 DEF VAR v-i-no    LIKE oe-ordl.i-no NO-UNDO.
 DEF VAR v-ord     LIKE oe-ordl.ord-no NO-UNDO.
@@ -100,6 +101,10 @@ FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 DEFINE VARIABLE cellColumn AS WIDGET-HANDLE NO-UNDO EXTENT 200.
 DEFINE VARIABLE columnWidth AS DECIMAL NO-UNDO EXTENT 200.
 DEFINE VARIABLE cellColumnDat AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+
+RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 /* create a &SCOPED-DEFINE cellColumnDat value prior to this include
    if another file name is desired to store user cell column order */
@@ -553,8 +558,9 @@ DO:
                               AND ROWID(oe-boll)   NE ROWID(xoe-boll)       ~
                             USE-INDEX b-no)))
 
-  RUN set-select.
-
+  RUN set-select(
+      INPUT NO /* Don't validate fg-bin status */
+      ).
   IF CAN-FIND(FIRST w-bin {&w-bin-where}) THEN
   MESSAGE "This will select all bins/tags selected from browser." SKIP
           "Do you want to continue?"
@@ -1180,7 +1186,10 @@ DEF VAR lv-rowid AS ROWID NO-UNDO.
   DO WITH FRAME {&FRAME-NAME}:
     lv-rowid = IF AVAIL w-bin THEN ROWID(w-bin) ELSE ?.
 
-    RUN set-select.
+    RUN set-select(
+        INPUT YES /* Validate fg-bin status */
+        ).
+        
 
     FOR EACH b-w-bin WHERE b-w-bin.selekt-log EQ NO:
       b-w-bin.seq = 0.
@@ -1272,19 +1281,43 @@ PROCEDURE set-select :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR li AS INT NO-UNDO.
-
+  DEFINE INPUT PARAMETER iplValidate AS LOGICAL NO-UNDO.
+  
+  DEFINE VARIABLE li               AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lTagStatusOnHold AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lResponse        AS LOGICAL NO-UNDO.
+   
   DEF BUFFER b-w-bin FOR w-bin.
-
 
   DO WITH FRAME {&frame-name}:
     FOR EACH b-w-bin:
       b-w-bin.selekt-log = NO.
     END.
+    
     IF {&browse-name}:NUM-SELECTED-ROWS GT 0 THEN
     DO li = 1 TO {&browse-name}:NUM-SELECTED-ROWS:
       {&browse-name}:FETCH-SELECTED-ROW (li) NO-ERROR.
-      IF AVAIL w-bin THEN w-bin.selekt-log = YES.
+       IF AVAILABLE w-bin THEN DO:
+           w-bin.selekt-log = YES.
+           IF w-bin.tag NE "" AND iplValidate THEN DO:
+               lTagStatusOnHold = LOGICAL(DYNAMIC-FUNCTION(
+                                  "fCheckFgBinTagOnHold" IN hdInventoryProcs,
+                                   cocode,
+                                   w-bin.i-no, 
+                                   w-bin.tag)
+                                   ).
+               IF lTagStatusOnHold THEN DO:
+                   RUN displayMessageQuestion (
+                       INPUT  "53",
+                       OUTPUT lResponse
+                       ).
+                   IF NOT lResponse THEN DO:
+                       w-bin.selekt-log = NO.
+                       {&BROWSE-NAME}:DESELECT-FOCUSED-ROW ().
+                   END.
+               END.      
+           END.           
+       END.   
     END.
   END.
 

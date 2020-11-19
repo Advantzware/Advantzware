@@ -235,6 +235,7 @@ find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
                 and fg-bin.i-no     eq oe-rell.i-no
                 and (fg-bin.job-no  eq oe-ordl.job-no  or oe-ordl.job-no eq "")
                 and (fg-bin.job-no2 eq oe-ordl.job-no2 or oe-ordl.job-no eq "")
+                AND fg-bin.OnHold EQ NO 
                 and fg-bin.qty      gt 0
               no-lock:
           

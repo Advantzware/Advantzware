@@ -49,7 +49,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Custom List Definitions                                              */
@@ -74,7 +74,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 40.4 BY 16.81.
+         SIZE 40.6 BY 19.05.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -94,7 +94,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "FG Warehouse Transactions"
-         HEIGHT             = 17
+         HEIGHT             = 19.05
          WIDTH              = 40.8
          MAX-HEIGHT         = 27.48
          MAX-WIDTH          = 160
@@ -206,7 +206,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_option ).
        RUN set-position IN h_option ( 1.00 , 2.00 ) NO-ERROR.
-       /* Size in UIB:  ( 16.19 , 37.00 ) */
+       /* Size in UIB:  ( 18.81 , 37.00 ) */
 
        /* Adjust the tab order of the smart objects. */
     END. /* Page 0 */

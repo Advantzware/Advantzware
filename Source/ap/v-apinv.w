@@ -129,7 +129,7 @@ DEFINE BUTTON btn-exrate
 DEFINE BUTTON btTags 
      IMAGE-UP FILE "Graphics/16x16/question.png":U
      LABEL "" 
-     SIZE 4.4 BY 1.05.
+     SIZE 4.4 BY 1.05 TOOLTIP "Show Details".
 
 DEFINE VARIABLE cb_freq AS CHARACTER FORMAT "X(256)":U 
      LABEL "Frequency" 
@@ -373,8 +373,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btTags V-table-Win
 ON CHOOSE OF btTags IN FRAME F-Main
 DO:
-    IF AVAILABLE ap-inv THEN
-        RUN sys/ref/dlgTagVwr.w (ap-inv.rec_key,"HOLD","").  
+    RUN system/d-TagViewer.w (
+        INPUT ap-inv.rec_key,
+        INPUT "HOLD"
+        ).  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -888,7 +890,7 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+    DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT adm-new-record THEN
   DO:
@@ -918,6 +920,19 @@ PROCEDURE local-display-fields :
      lv-prev-exrate = ap-inv.ex-rate
      lv-got-exrate  = YES.
 
+    IF AVAIL ap-inv THEN DO:
+        RUN Tag_IsTagRecordAvailable(INPUT ap-inv.rec_key,
+                                    INPUT "ap-inv",
+                                    OUTPUT lAvailable
+                                    ).
+        IF lAvailable THEN  
+            btTags:SENSITIVE = TRUE.
+        ELSE 
+            btTags:SENSITIVE = FALSE.
+    END.
+    ELSE
+        btTags:SENSITIVE = FALSE.
+              
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1129,7 +1144,6 @@ PROCEDURE proc-enable :
   ASSIGN
    ll-first         = YES
    ll-date-warning  = NO
-   btTags:SENSITIVE = YES
    .
 
 END PROCEDURE.

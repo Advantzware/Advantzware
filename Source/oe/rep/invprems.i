@@ -10,11 +10,15 @@ PUT "<FTimes New Roman>".
         PUT "<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ */
             "<P10><=2><R+5.5>"
             "<FCourier New>"
-            SPACE(14) "<P11><B>ABN 11 620 887 149</B><P10>" SKIP(1)
-            /*SPACE(12) "REMIT TO: PREMIER PACKAGING" SKIP
-            SPACE(12) "          3254 RELIABLE PARKWAY" SKIP
-            SPACE(12) "          CHICAGO, IL 60686" */
-            SKIP(3)
+            SPACE(14) "<P11><B>ABN 11 620 887 149</B><P10>" SKIP(1).
+       IF company.company = '006' THEN
+         PUT SPACE(12) "REMIT TO: Premier Packaging Canada, LLC" SKIP
+            SPACE(12) "          Dept 400175" SKIP
+            SPACE(12) "          PO Box 4375 STN A" SKIP 
+            SPACE(12) "          Tronto ON M5W OJ3" SKIP .
+         ELSE PUT             
+            SKIP(3) .
+         PUT 
             space(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
             SPACE(12) inv-head.cust-name v-shipto-name AT 64 skip
             SPACE(12) inv-head.addr[1]   v-shipto-addr[1] AT 64 SKIP

@@ -16,7 +16,7 @@ DISABLE TRIGGERS FOR LOAD OF inv-line.
 DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dInvoiceSubTotal AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dTotalTax        AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lError           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
 
 FOR EACH inv-line WHERE inv-line.r-no EQ {&TABLENAME}.r-no:
@@ -32,8 +32,6 @@ FIND FIRST cust NO-LOCK
       AND cust.cust-no EQ {&TABLENAME}.cust-no
     NO-ERROR.
 IF AVAIL cust THEN {&TABLENAME}.curr-code[1] = cust.curr-code.
-
-RUN oe/updmulti.p (BUFFER {&TABLENAME}, BUFFER old-{&TABLENAME}).
 
 /* If spare-int-1 is set to 1, then force re-calculate tax */
 IF old-{&TABLENAME}.t-inv-tax     NE {&TABLENAME}.t-inv-tax     OR
@@ -52,7 +50,7 @@ IF old-{&TABLENAME}.t-inv-tax     NE {&TABLENAME}.t-inv-tax     OR
         OUTPUT dTotalTax,
         OUTPUT dInvoiceTotal,
         OUTPUT dinvoiceSubTotal,
-        OUTPUT lSuccess,
+        OUTPUT lError,
         OUTPUT cMessage
         ).
   

@@ -1,0 +1,20 @@
+<HLLoop1 type="Loop">
+<HL type="Segment">
+<!--Hierarchical ID Number-->
+<HL01>$HLCount$</HL01>
+<!--Hierarchical Parent ID Number-->
+<HL02>1</HL02>
+<!--Hierarchical Level Code-->
+<HL03><!--Order-->O</HL03>
+</HL>
+<PRF type="Segment">
+<!--Purchase Order Number-->
+<PRF01>0476553696</PRF01>
+</PRF>
+<N1 type="Segment">
+<!--Entity Identifier Code-->
+<N101><!--Buying Store-->BY</N101>
+<!--Name-->
+<N102>$ShipToName$</N102>
+</N1>
+</HLLoop1>

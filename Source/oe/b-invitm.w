@@ -593,12 +593,12 @@ PROCEDURE reopen-query :
                          and bf-line.r-no = inv-head.r-no
                          no-lock no-error.
      if avail bf-line then do:
-        reposition {&browse-name} to rowid rowid(bf-line).
+        reposition {&browse-name} to rowid rowid(bf-line) no-error.
         run dispatch ('row-changed').
      end.   
   end.
   else do:
-     reposition {&browse-name} to RECID ip-recid.
+     reposition {&browse-name} to RECID ip-recid no-error.
      run dispatch ('row-changed').
   end.
   /* === reopen browser 

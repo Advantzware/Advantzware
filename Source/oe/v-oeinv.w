@@ -48,6 +48,8 @@ DEF NEW SHARED VAR v-ship-no LIKE shipto.ship-no.
 DEF VAR v-cash-sale AS LOG NO-UNDO.
 DEFINE BUFFER bff-head FOR inv-head.
 
+{oe/ttCombInv.i NEW}
+
 &SCOPED-DEFINE other-enable enable-other
 
 /* _UIB-CODE-BLOCK-END */
@@ -75,12 +77,12 @@ DEFINE BUFFER bff-head FOR inv-head.
 DEFINE QUERY external_tables FOR inv-head.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS inv-head.inv-date inv-head.cust-no ~
-inv-head.sold-no inv-head.contact inv-head.tax-gr inv-head.terms ~
-inv-head.carrier inv-head.frt-pay inv-head.fob-code inv-head.t-inv-weight ~
-inv-head.t-inv-freight inv-head.t-comm inv-head.autoApproved
+inv-head.sold-no inv-head.autoApproved inv-head.contact inv-head.tax-gr ~
+inv-head.terms inv-head.carrier inv-head.frt-pay inv-head.fob-code ~
+inv-head.t-inv-weight inv-head.t-inv-freight inv-head.t-comm 
 &Scoped-define ENABLED-TABLES inv-head
 &Scoped-define FIRST-ENABLED-TABLE inv-head
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-41 imgHoldRsn btnCalendar-1 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-41 btnCalendar-1 
 &Scoped-Define DISPLAYED-FIELDS inv-head.printed inv-head.inv-no ~
 inv-head.inv-date inv-head.bol-no inv-head.r-no inv-head.cust-no ~
 inv-head.sold-no inv-head.cust-name inv-head.sold-name ~
@@ -157,6 +159,11 @@ DEFINE BUTTON btnCalendar-1
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
 
+DEFINE BUTTON btnTags 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.4 BY 1.05 TOOLTIP "Show Details".
+
 DEFINE VARIABLE fi_PO AS CHARACTER FORMAT "X(256)":U 
      LABEL "Cust PO#" 
      VIEW-AS FILL-IN 
@@ -166,10 +173,6 @@ DEFINE VARIABLE inv-status AS CHARACTER FORMAT "X(8)":U
      LABEL "Status" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
-
-DEFINE IMAGE imgHoldRsn
-     FILENAME "graphics/16x16/question.png":U
-     SIZE 4 BY .95.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -211,6 +214,7 @@ DEFINE FRAME F-Main
           LABEL "Ship to"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
+     btnTags AT ROW 4.29 COL 139 WIDGET-ID 8
      inv-head.cust-name AT ROW 4.33 COL 14.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 49 BY 1
@@ -306,7 +310,6 @@ DEFINE FRAME F-Main
           FGCOLOR 9 
      RECT-1 AT ROW 1.19 COL 1
      RECT-41 AT ROW 12.43 COL 9
-     imgHoldRsn AT ROW 4.48 COL 139.2 WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -379,6 +382,8 @@ ASSIGN
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
    3                                                                    */
+/* SETTINGS FOR BUTTON btnTags IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN inv-head.city IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN inv-head.contact IN FRAME F-Main
@@ -547,6 +552,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnTags
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTags V-table-Win
+ON CHOOSE OF btnTags IN FRAME F-Main
+DO:
+    RUN system/d-TagViewer.w(
+        INPUT inv-head.rec_key,
+        INPUT ""
+        ).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME inv-head.carrier
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-head.carrier V-table-Win
 ON LEAVE OF inv-head.carrier IN FRAME F-Main /* Carrier */
@@ -596,17 +615,6 @@ DO:
    IF LASTKEY = -1  THEN RETURN.
    RUN valid-fob NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME imgHoldRsn
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imgHoldRsn V-table-Win
-ON MOUSE-SELECT-CLICK OF imgHoldRsn IN FRAME F-Main
-DO:
-    RUN sys/ref/dlgTagVwr.w (inv-head.rec_key,"","").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1052,12 +1060,18 @@ PROCEDURE hold-invoice :
   DEF VAR li       AS INT   NO-UNDO.
   DEFINE VARIABLE lcheckflg AS LOGICAL INIT YES NO-UNDO .
   DEFINE VARIABLE dAllowableUnderrun AS DECIMAL NO-UNDO .
+  DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
+  DEFINE VARIABLE dInvoiceSubTotal AS DECIMAL   NO-UNDO.
+  DEFINE VARIABLE dTotalTax        AS DECIMAL   NO-UNDO.
+  DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
   DEF BUFFER bf1-head FOR inv-head . 
 /*   DEF VAR v-ThisInv-Date AS DATE NO-UNDO INIT ?.   */
 /*   DEF VAR v-FirstFG-Date AS DATE NO-UNDO INIT ?.   */
 /*   DEF VAR v-ThisCust-Date AS DATE NO-UNDO INIT ?.  */
-  DEF VAR v-stat-multi AS CHAR NO-UNDO.                                      
-
+  DEF VAR v-stat-multi AS CHAR NO-UNDO.
+  
+  EMPTY TEMP-TABLE ttCombInv.
  IF INDEX("HX",inv-head.stat) > 0 OR inv-head.stat = "" THEN DO:
     MESSAGE "Are you sure you wish to"
            ( IF inv-head.stat = "H" THEN "release" ELSE "hold" )
@@ -1094,14 +1108,20 @@ PROCEDURE hold-invoice :
                          bf-head.stat    EQ "H":
                          ASSIGN bf-head.stat = ""
                                 bf-head.inv-date = v-date.
+                    IF inv-head.r-no NE bf-head.r-no AND inv-head.printed EQ NO AND bf-head.printed EQ NO THEN
+                    DO:      
+                      CREATE ttCombInv.
+                      ASSIGN
+                          ttCombInv.company     = bf-head.company
+                          ttCombInv.r-no        = bf-head.r-no 
+                           .      
+                    END.          
                 END.
 
                 FIND bf-head WHERE RECID(bf-head) = RECID(inv-head).
 
                 IF bf-head.stat = "H" THEN
-                   bf-head.stat = "".
-
-                RELEASE bf-head.
+                   bf-head.stat = "".                  
 
                 inv-status:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "RELEASED".
              END. /*  IF v-choice EQ "FG" */
@@ -1115,9 +1135,16 @@ PROCEDURE hold-invoice :
 
                         ASSIGN bf-head.stat = ""
                                bf-head.inv-date = v-date.
-                    END.
-
-                    RELEASE bf-head.
+                        IF inv-head.r-no NE bf-head.r-no AND inv-head.printed EQ NO AND bf-head.printed EQ NO THEN
+                        DO:      
+                          CREATE ttCombInv.
+                          ASSIGN
+                              ttCombInv.company     = bf-head.company
+                              ttCombInv.r-no        = bf-head.r-no 
+                               .      
+                        END.           
+                    END. 
+                    
                     inv-status:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "RELEASED".
                 END.
                 ELSE DO:
@@ -1128,16 +1155,24 @@ PROCEDURE hold-invoice :
                       lv-rowid = TO-ROWID(ENTRY(li, v-rowid-list)).
                       FIND bf-head WHERE ROWID(bf-head) = lv-rowid EXCLUSIVE-LOCK NO-ERROR.
                       IF AVAIL bf-head THEN
+                      do:
                         ASSIGN bf-head.stat = ""
                                bf-head.inv-date = v-date.
+                         IF inv-head.r-no NE bf-head.r-no AND inv-head.printed EQ NO AND bf-head.printed EQ NO THEN
+                         DO:      
+                         CREATE ttCombInv.
+                         ASSIGN
+                              ttCombInv.company     = bf-head.company
+                              ttCombInv.r-no        = bf-head.r-no 
+                               .      
+                         END.      
+                      END.         
+                               
                         IF AVAIL(bf-head) AND bf-head.inv-no EQ inv-head.inv-no THEN
                                  inv-status:SCREEN-VALUE IN FRAME {&FRAME-NAME} = 
-                                 IF bf-head.stat = "H" THEN "ON HOLD" ELSE "RELEASED".
-                      RELEASE bf-head.
-
+                                 IF bf-head.stat = "H" THEN "ON HOLD" ELSE "RELEASED".                       
                     END.
-                END.
-
+                END.                 
              END.
              ELSE IF v-choice EQ "Po" THEN
              DO:
@@ -1190,7 +1225,14 @@ PROCEDURE hold-invoice :
                            bf-head.stat    EQ "H":
                            ASSIGN bf-head.stat = ""
                                bf-head.inv-date = v-date.
-                           
+                           IF inv-head.r-no NE bf-head.r-no AND inv-head.printed EQ NO AND bf-head.printed EQ NO THEN
+                           DO:      
+                             CREATE ttCombInv.
+                             ASSIGN
+                                  ttCombInv.company     = bf-head.company
+                                  ttCombInv.r-no        = bf-head.r-no 
+                                   .      
+                           END.                                   
                            IF bf-head.r-no EQ inv-head.r-no THEN
                                inv-status:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "RELEASED" .
                        END.
@@ -1220,6 +1262,8 @@ PROCEDURE hold-invoice :
                 RELEASE bf-head.
 
              END.
+             RUN pCombineInvoice(ROWID(inv-head)) .                 
+             RELEASE bf-head.
           END. /* IF inv-head.stat = "H" */
           ELSE /* ELSE IF inv-head.stat NOT "H" */
           DO:
@@ -1292,6 +1336,11 @@ PROCEDURE hold-invoice :
      END.
  END.
  RUN dispatch IN THIS-PROCEDURE ('row-changed':U).
+ 
+  
+ RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopen-source",OUTPUT char-hdl).
+IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+ RUN reopen-query IN WIDGET-HANDLE(char-hdl)(RECID(inv-head)).
 
 
 END PROCEDURE.
@@ -1346,7 +1395,12 @@ PROCEDURE local-assign-record :
   IF ld-prev-auto-approved NE inv-head.autoApproved AND inv-head.autoApproved THEN
   DO:
      RUN ClearTagsByRecKey(inv-head.rec_key).  /*Clear all hold tags - TagProcs.p*/
-     RUN AddTagHoldInfo (inv-head.rec_key,"inv-head", "Manually Approved"). /*From TagProcs Super Proc*/       
+     RUN AddTagHoldInfo(
+        INPUT inv-head.rec_key,
+        INPUT "inv-head",
+        INPUT "Manually Approved",
+        INPUT ""
+        ). /*From TagProcs Super Proc*/       
   END.
 
   RUN dispatch ('display-fields').
@@ -1432,6 +1486,7 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR lv-ord-no LIKE inv-line.ord-no.
+  DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
   DEF BUFFER b-inv-line FOR inv-line.
   DEF BUFFER b-inv-misc FOR inv-misc.
   DEF BUFFER b-oe-ord FOR oe-ord.
@@ -1472,8 +1527,19 @@ PROCEDURE local-display-fields :
 
      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
         RUN set-status-btn-lbl IN WIDGET-HANDLE(char-hdl) (INPUT inv-head.stat).
+        
+     RUN Tag_IsTagRecordAvailable(
+         INPUT inv-head.rec_key,
+         INPUT "inv-head",
+         OUTPUT lAvailable
+         ).
+       IF lAvailable THEN
+           btnTags:SENSITIVE = TRUE
+           .
+       ELSE
+           btnTags:SENSITIVE = FALSE.
   END.
-
+  
   DISABLE inv-status WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
@@ -1514,7 +1580,7 @@ PROCEDURE local-update-record :
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   lv-add-record = adm-adding-record.
-
+   
 /*
   IF INDEX("BCP",inv-head.frt-pay:SCREEN-VALUE IN FRAME {&FRAME-NAME} ) = 0 THEN DO:
       MESSAGE "Invalid freight pay code. Try help." VIEW-AS ALERT-BOX.
@@ -1945,6 +2011,22 @@ PROCEDURE valid-terms :
   END.
 
   {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCombineInvoice V-table-Win 
+PROCEDURE pCombineInvoice :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO.     
+  
+  RUN oe/CombineMultiInv.p(INPUT ipriRowid) .  
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

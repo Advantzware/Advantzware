@@ -229,6 +229,7 @@ DEFINE VARIABLE lCheckPurMan    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAccessCreateFG AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAccessClose    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cAccessList     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
 RUN methods/prgsecur.p
 	    (INPUT "p-upditm.",
 	     INPUT "CREATE", /* based on run, create, update, delete or all */
@@ -242,6 +243,12 @@ RUN methods/prgsecur.p
 DEFINE VARIABLE hdCustomerProcs AS HANDLE NO-UNDO.	     
 
 RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CEAddCustomerOption", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRecValue, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCEAddCustomerOption = logical(cRecValue) NO-ERROR. 
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1220,7 +1227,7 @@ DO:
         KEYFUNCTION(LASTKEY) NE "BACK-TAB" AND /*eb.cust-no:screen-value in browse {&browse-name} <> "" and */
         NOT CAN-FIND(cust WHERE cust.company = gcompany AND cust.cust-no = eb.cust-no:screen-value IN BROWSE {&browse-name} )
         THEN DO:
-            IF eb.cust-no:screen-value = "" THEN DO:
+            IF NOT lCEAddCustomerOption OR eb.cust-no:screen-value = "" THEN DO:
                 MESSAGE "Invalid Customer Number. Try Help." VIEW-AS ALERT-BOX ERROR. 
                 RETURN NO-APPLY.
             END.
@@ -7547,9 +7554,12 @@ PROCEDURE set-auto-add-item :
   END.
   
   RUN update-e-itemfg-vend.
-  IF lv-num-created GT 0 THEN    
-
+  IF lv-num-created GT 0 THEN DO:
+  
+    RUN pUpdateVendItemCost(input cocode, input eb.est-no).   
+   
     RUN local-open-query.
+  END.   
 
 END PROCEDURE.
 
@@ -8554,6 +8564,30 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateVendItemCost B-table-Win 
+PROCEDURE pUpdateVendItemCost:
+    DEFINE INPUT PARAMETER ipcCompany as CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimate as CHARACTER NO-UNDO.
+    
+    FOR EACH xeb NO-LOCK 
+        WHERE xeb.company EQ ipcCompany 
+        AND xeb.est-no  EQ ipcEstimate :        
+            RUN VendCost_UpdateVendItemCost(
+                INPUT xeb.company,
+                INPUT xeb.est-no,
+                INPUT xeb.form-no,
+                INPUT xeb.blank-no,
+                INPUT "", /* Old FG Item */
+                INPUT xeb.stock-no /* New FG Item */
+                ).              
+    END.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME        
 
 /* ************************  Function Implementations ***************** */
 

@@ -82,6 +82,7 @@ DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cStatusDEscription AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdInventoryProcs   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lIncludeOnHold AS LOGICAL NO-UNDO.
 
 RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryprocs.
 
@@ -641,11 +642,12 @@ PROCEDURE build-table :
     EMPTY TEMP-TABLE w-job.
     DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
     FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ itemfg.company NO-LOCK NO-ERROR.
-
+       
     IF lv-show-tag-no EQ "" THEN DO:
         FOR EACH fg-bin
             WHERE fg-bin.company eq itemfg.company
             AND  fg-bin.i-no    eq itemfg.i-no
+            AND (fg-bin.onHold EQ NO OR lIncludeOnHold)
             NO-LOCK:
             RUN createwjobs.
         END. /* each fg-bin */
@@ -655,6 +657,7 @@ PROCEDURE build-table :
             WHERE fg-bin.company eq itemfg.company
             AND  fg-bin.i-no    eq itemfg.i-no
             AND fg-bin.tag     BEGINS lv-show-tag-no 
+            AND (fg-bin.onHold EQ NO OR lIncludeOnHold)
             NO-LOCK:
             IF  fg-bin.i-no    eq itemfg.i-no THEN 
                 RUN createwjobs.
@@ -664,6 +667,7 @@ PROCEDURE build-table :
         FOR EACH fg-bin
             WHERE fg-bin.company eq itemfg.company         
             AND  fg-bin.tag MATCHES lv-show-tag-no
+            AND (fg-bin.onHold EQ NO OR lIncludeOnHold)
             NO-LOCK:
             IF  fg-bin.i-no    eq itemfg.i-no THEN 
                 RUN createwjobs. 
@@ -976,10 +980,12 @@ PROCEDURE filterTagBins :
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iplShowZeroBins AS LOGICAL   NO-UNDO.
     DEFINE INPUT PARAMETER iplTagBins      AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplShowOnHold   AS LOGICAL   NO-UNDO.
     
     ASSIGN
         lv-show-zero-bins = iplShowZeroBins
         lv-show-tag-no    = iplTagBins 
+        lIncludeOnHold    = iplShowOnHold
         .
     RUN local-open-query.
     

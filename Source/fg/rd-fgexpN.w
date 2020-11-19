@@ -1864,7 +1864,13 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
         WHEN "dfuncTotMSFPTD"  THEN DO:
             IF g_period NE 0 THEN lc-return = STRING(ipb-itemfg.ptd-msf[g_period]).
         END.
-
+        WHEN "pur-man" THEN
+        DO:
+             IF ipb-itemfg.pur-man EQ TRUE THEN
+                    lc-return = "P".
+                ELSE
+                    lc-return = "M".            
+        END.                               
         WHEN "ship-meth"  THEN DO:
             CASE ipb-itemfg.ship-meth :
                 WHEN YES THEN

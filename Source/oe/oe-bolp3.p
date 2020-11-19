@@ -407,7 +407,9 @@ PROCEDURE ipCreateInvHead:
     
     IF invStatus-log THEN
         inv-head.stat = "W".
-  
+    IF AVAIL bf-cust AND bf-cust.inv-meth EQ ? THEN 
+        inv-head.stat = "H". 
+    
     /*    FIND FIRST usergrps WHERE                                                                               */
     /*        usergrps.usergrps = "IN"                                                                            */
     /*        NO-LOCK NO-ERROR.                                                                                   */
@@ -1393,9 +1395,6 @@ PROCEDURE ipUpdateReleaseStat:
         BREAK BY oe-boll.r-no BY oe-boll.i-no BY oe-boll.ord-no:
         STATUS DEFAULT "Processing BOL Posting 4........ BOL#: " + STRING(oe-bolh.bol-no).
 
-
-
-
         IF LAST-OF(oe-boll.ord-no) THEN 
         DO:
             FIND FIRST oe-rell WHERE oe-rell.r-no EQ oe-boll.r-no
@@ -1409,15 +1408,7 @@ PROCEDURE ipUpdateReleaseStat:
                 RUN oe/rel-stat.p (INPUT ROWID(oe-rel), OUTPUT v-relstat).
                 IF v-relstat NE oe-rel.stat THEN
                     oe-rel.stat = v-relstat.
-                FIND itemfg-loc WHERE itemfg-loc.company EQ oe-boll.company
-                    AND itemfg-loc.i-no EQ oe-boll.i-no
-                    AND itemfg-loc.loc  EQ oe-rel.spare-char-1
-                    EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
-                IF AVAILABLE itemfg-loc THEN
-                    RUN fg/calcqabl.p (ROWID(itemfg), itemfg-loc.loc, 
-                        OUTPUT itemfg-loc.q-alloc, OUTPUT v-q-back).
                 RELEASE oe-rel.
-                RELEASE itemfg-loc.
             END.
             ELSE 
             DO:        
@@ -1428,20 +1419,11 @@ PROCEDURE ipUpdateReleaseStat:
                     RUN oe/rel-stat.p (INPUT ROWID(oe-rel), OUTPUT v-relstat).
                     IF v-relstat NE oe-rel.stat THEN
                         oe-rel.stat = v-relstat.
-                    FIND itemfg-loc WHERE itemfg-loc.company EQ oe-boll.company
-                        AND itemfg-loc.i-no EQ oe-boll.i-no
-                        AND itemfg-loc.loc  EQ oe-rel.spare-char-1
-                        EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
-                    IF AVAILABLE itemfg-loc THEN
-                        RUN fg/calcqabl.p (ROWID(itemfg), itemfg-loc.loc, 
-                            OUTPUT itemfg-loc.q-alloc, OUTPUT v-q-back).
                     RELEASE oe-rel.
-                    RELEASE itemfg-loc.
   
                 END. /* Each oe-rel */
             END. /* Oe-rel not found */
         END. /* last-of ord-no */
-
     END. /* each tt-report */
 
 

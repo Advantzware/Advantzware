@@ -21,11 +21,12 @@
    ASSIGN 
       v-line  = "<C1><FROM><C107><LINE><||3>"
       v-line2 = IF rd_lComments THEN "Comments</B>" ELSE "Style Test</B>".
-  
+            
    FORM HEADER
       "<FCourier New><B><C5><P26>Hots <P8>" skip(1)
       STRING(TODAY) AT 3 FORM "x(5)"  "Begin Date:" AT 30 STRING(begin_date) FORM "x(5)"  "  End date:" STRING(end_date) FORM "x(5)" 
       "Page: " AT 145 PAGE-NUM FORM ">>9" SKIP
+      str-tit3 SKIP
       str-tit4 SKIP
       str-tit5
       SKIP
@@ -380,7 +381,17 @@
             w-ord.prom-date = oe-ordl.prom-date
             w-ord.last-date = oe-ord.ord-date
             w-ord.carrier   = v-carrier
-            w-ord.is-a-component = oe-ordl.is-a-component.
+            w-ord.is-a-component = oe-ordl.is-a-component
+            w-ord.prom-date-reason = oe-ordl.spare-char-3
+            w-ord.ord-prom-date = oe-ord.promiseDate
+            .
+            
+            FIND FIRST job NO-LOCK
+                 WHERE job.company EQ cocode
+                 AND job.job-no EQ oe-ordl.job-no
+                 AND job.job-no2 EQ oe-ordl.job-no2 NO-ERROR.
+            IF AVAIL job THEN
+             w-ord.job-prom-date = job.promiseDate.
          
          IF v-comps AND itemfg.isaset THEN DO:
 

@@ -95,15 +95,14 @@ END.
 {sys/inc/f16to32.i}
 
 RUN methods/prgsecur.p
-	    (INPUT "p-upditm.",
-	     INPUT "CREATE", /* based on run, create, update, delete or all */
-	     INPUT NO,    /* use the directory in addition to the program */
-	     INPUT NO,    /* Show a message if not authorized */
-	     INPUT NO,    /* Group overrides user security? */
-	     OUTPUT lAccessCreateFG, /* Allowed? Yes/NO */
-	     OUTPUT lAccessClose, /* used in template/windows.i  */
-	     OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
-
+            (INPUT "p-upditm.",
+             INPUT "CREATE", /* based on run, create, update, delete or all */
+             INPUT NO,    /* use the directory in addition to the program */
+             INPUT NO,    /* Show a message if not authorized */
+             INPUT NO,    /* Group overrides user security? */
+             OUTPUT lAccessCreateFG, /* Allowed? Yes/NO */
+             OUTPUT lAccessClose, /* used in template/windows.i  */
+             OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -129,26 +128,26 @@ RUN methods/prgsecur.p
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR est, eb, ef.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS eb.cust-no eb.ship-id est.csrUser_id eb.sman eb.comm ~
-eb.procat eb.part-no eb.stock-no eb.part-dscr1 eb.part-dscr2 eb.die-no ~
-ef.cad-image eb.cad-no eb.plate-no eb.spc-no eb.upc-no eb.style est.metric ~
-ef.board eb.len eb.wid eb.dep eb.adhesive eb.dust eb.fpanel eb.lock ~
-eb.gluelap eb.k-len eb.k-wid eb.tuck eb.lin-in eb.t-wid eb.t-len eb.t-sqin ~
-eb.bl-qty 
-&Scoped-define ENABLED-TABLES eb ef est
+&Scoped-Define ENABLED-FIELDS eb.cust-no eb.ship-id est.csrUser_id eb.sman ~
+eb.comm eb.procat eb.part-no eb.stock-no eb.part-dscr1 eb.part-dscr2 ~
+eb.die-no ef.cad-image eb.cad-no eb.plate-no eb.spc-no eb.upc-no eb.style ~
+est.metric ef.board eb.len eb.wid eb.dep eb.adhesive eb.dust eb.fpanel ~
+eb.lock eb.gluelap eb.k-len eb.k-wid eb.tuck eb.lin-in eb.t-wid eb.t-len ~
+eb.t-sqin eb.bl-qty 
+&Scoped-define ENABLED-TABLES eb est ef
 &Scoped-define FIRST-ENABLED-TABLE eb
-&Scoped-define SECOND-ENABLED-TABLE ef
-&Scoped-define THIRD-ENABLED-TABLE est
+&Scoped-define SECOND-ENABLED-TABLE est
+&Scoped-define THIRD-ENABLED-TABLE ef
 &Scoped-Define ENABLED-OBJECTS btn_fgitem btn_from btn_style btn_board ~
-btn_cust RECT-18 RECT-19 RECT-23 RECT-24 
+btn_cust RECT-18 RECT-19 RECT-23 RECT-24 btn_spclist 
 &Scoped-Define DISPLAYED-FIELDS est.est-no eb.form-no est.form-qty ~
 eb.blank-no est.mod-date est.ord-date eb.cust-no eb.ship-id eb.ship-name ~
-eb.ship-addr[1] eb.ship-addr[2] eb.ship-city eb.ship-state eb.ship-zip est.csrUser_id ~
-eb.sman eb.comm eb.procat eb.part-no eb.stock-no eb.part-dscr1 ~
-eb.part-dscr2 eb.die-no ef.cad-image eb.cad-no eb.plate-no eb.spc-no ~
-eb.upc-no eb.style est.metric ef.board ef.brd-dscr eb.len eb.wid eb.dep ~
-eb.adhesive eb.dust eb.fpanel eb.lock eb.gluelap eb.k-len eb.k-wid eb.tuck ~
-eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.bl-qty eb.ord-no 
+eb.ship-addr[1] eb.ship-addr[2] eb.ship-city eb.ship-state eb.ship-zip ~
+est.csrUser_id eb.sman eb.comm eb.procat eb.part-no eb.stock-no ~
+eb.part-dscr1 eb.part-dscr2 eb.die-no ef.cad-image eb.cad-no eb.plate-no ~
+eb.spc-no eb.upc-no eb.style est.metric ef.board ef.brd-dscr eb.len eb.wid ~
+eb.dep eb.adhesive eb.dust eb.fpanel eb.lock eb.gluelap eb.k-len eb.k-wid ~
+eb.tuck eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.bl-qty eb.ord-no 
 &Scoped-define DISPLAYED-TABLES est eb ef
 &Scoped-define FIRST-DISPLAYED-TABLE est
 &Scoped-define SECOND-DISPLAYED-TABLE eb
@@ -226,6 +225,10 @@ DEFINE BUTTON btn_fgitem
 DEFINE BUTTON btn_from 
      LABEL "From:" 
      SIZE 8 BY 1.
+
+DEFINE BUTTON btn_spclist 
+     LABEL "" 
+     SIZE 14 BY 1.
 
 DEFINE BUTTON btn_style 
      LABEL "" 
@@ -308,29 +311,29 @@ DEFINE FRAME fold
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           FONT 6
-     eb.ship-name AT ROW 3.80 COL 21 COLON-ALIGNED
+     eb.ship-name AT ROW 3.81 COL 21 COLON-ALIGNED
           LABEL "Company"
           VIEW-AS FILL-IN 
           SIZE 46 BY 1
           FONT 6
-     eb.ship-addr[1] AT ROW 4.70 COL 21 COLON-ALIGNED
+     eb.ship-addr[1] AT ROW 4.71 COL 21 COLON-ALIGNED
           LABEL "Address"
           VIEW-AS FILL-IN 
           SIZE 46 BY 1
-     eb.ship-addr[2] AT ROW 5.55 COL 21 COLON-ALIGNED NO-LABEL
+     eb.ship-addr[2] AT ROW 5.57 COL 21 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 46 BY 1
-     eb.ship-city AT ROW 6.45 COL 21 COLON-ALIGNED
+     eb.ship-city AT ROW 6.43 COL 21 COLON-ALIGNED
           LABEL "City/State/Zip"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
-     eb.ship-state AT ROW 6.45 COL 44.4 COLON-ALIGNED NO-LABEL
+     eb.ship-state AT ROW 6.43 COL 44.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
-     eb.ship-zip AT ROW 6.45 COL 50.8 COLON-ALIGNED NO-LABEL
+     eb.ship-zip AT ROW 6.43 COL 50.8 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 16.2 BY 1
-     est.csrUser_id AT ROW 7.30 COL 22 COLON-ALIGNED
+     est.csrUser_id AT ROW 7.29 COL 22 COLON-ALIGNED
           LABEL "CSR"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
@@ -381,8 +384,7 @@ DEFINE FRAME fold
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fold
-     ef.cad-image AT ROW 6.95 COL 128.2 COLON-ALIGNED HELP
-          "Filename of the Die image"
+     ef.cad-image AT ROW 6.95 COL 128.2 COLON-ALIGNED
           LABEL "Image" FORMAT "x(80)"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
@@ -400,7 +402,7 @@ DEFINE FRAME fold
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
      eb.upc-no AT ROW 8.86 COL 121.2 COLON-ALIGNED
-          LABEL "UPC#" FORMAT "x(20)"
+          LABEL "UPC#"
           VIEW-AS FILL-IN 
           SIZE 30 BY 1
           FONT 6
@@ -498,6 +500,7 @@ DEFINE FRAME fold
      btn_style AT ROW 10.52 COL 11 WIDGET-ID 16
      btn_board AT ROW 11.71 COL 16 WIDGET-ID 16
      btn_cust AT ROW 2.67 COL 12 WIDGET-ID 16
+     btn_spclist AT ROW 8.9 COL 74 WIDGET-ID 18
      "of" VIEW-AS TEXT
           SIZE 3 BY .95 AT ROW 1.24 COL 72.6
      "of" VIEW-AS TEXT
@@ -586,6 +589,8 @@ ASSIGN
    ALIGN-R EXP-LABEL                                                    */
 /* SETTINGS FOR FILL-IN eb.comm IN FRAME fold
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN est.csrUser_id IN FRAME fold
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.cust-no IN FRAME fold
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.dep IN FRAME fold
@@ -652,8 +657,6 @@ ASSIGN
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN eb.ship-zip IN FRAME fold
    NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN est.csrUser_id IN FRAME fold
-   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.sman IN FRAME fold
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN sman_sname IN FRAME fold
@@ -689,7 +692,7 @@ ASSIGN
 */  /* FRAME fold */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -877,21 +880,6 @@ DO:
     RUN valid-adhesive (FOCUS) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME est.csrUser_id
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est.csrUser_id V-table-Win
-ON LEAVE OF est.csrUser_id IN FRAME fold /* Type */
-DO:
-  
-  IF LASTKEY <> -1 THEN DO:
-     RUN valid-custcsr NO-ERROR.
-     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1091,6 +1079,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btn_spclist
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_spclist V-table-Win
+ON CHOOSE OF btn_spclist IN FRAME fold
+DO:
+  IF AVAIL eb THEN
+   RUN pExportXls.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btn_style
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_style V-table-Win
 ON CHOOSE OF btn_style IN FRAME fold
@@ -1101,6 +1101,22 @@ DO:
 
    IF AVAIL style THEN
    RUN windows/stylef-e.w(RECID(style)) .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME est.csrUser_id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est.csrUser_id V-table-Win
+ON LEAVE OF est.csrUser_id IN FRAME fold /* CSR */
+DO:
+  
+  IF LASTKEY <> -1 THEN DO:
+     RUN valid-custcsr NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1774,6 +1790,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE csr-display V-table-Win 
+PROCEDURE csr-display :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&frame-name}:
+
+      FIND FIRST cust NO-LOCK
+            WHERE cust.company = cocode
+              AND cust.cust-no = eb.cust-no:SCREEN-VALUE NO-ERROR.
+     
+       IF AVAIL cust THEN
+           est.csrUser_id:SCREEN-VALUE = cust.csrUser_id .
+
+  END.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cust-spec V-table-Win 
 PROCEDURE cust-spec :
 /*------------------------------------------------------------------------------
@@ -2315,7 +2355,9 @@ PROCEDURE local-display-fields :
          btn_fgitem:HIDDEN  = FALSE .
 
     btn_from:LABEL = TRIM(fi_from-est-no:LABEL) + ": " /*+ TRIM(eb.stock)*/ .
-
+    
+    btn_spclist:LABEL = TRIM(eb.spc-no:LABEL) + ": ".
+    btn_spclist:HIDDEN = FALSE.
     btn_style:LABEL = TRIM(eb.style:LABEL) + ": " /*+ TRIM(eb.style) */ .
     IF eb.style = "" THEN
             btn_style:HIDDEN  = TRUE .
@@ -2791,7 +2833,8 @@ PROCEDURE proc-enable :
       ASSIGN
           btn_style:HIDDEN = TRUE 
           btn_board:HIDDEN = TRUE 
-          btn_cust:HIDDEN = TRUE .
+          btn_cust:HIDDEN = TRUE 
+          btn_spclist:HIDDEN = TRUE.
 
     FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company EQ eb.company
@@ -2902,32 +2945,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-  
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE csr-display V-table-Win 
-PROCEDURE csr-display :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DO WITH FRAME {&frame-name}:
-
-      FIND FIRST cust NO-LOCK
-            WHERE cust.company = cocode
-              AND cust.cust-no = eb.cust-no:SCREEN-VALUE NO-ERROR.
-     
-       IF AVAIL cust THEN
-           est.csrUser_id:SCREEN-VALUE = cust.csrUser_id .
-
-  END.
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE shipto-enable V-table-Win 
 PROCEDURE shipto-enable :
@@ -3400,6 +3417,21 @@ PROCEDURE valid-wid-len :
   END.
 
   {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pExportXls V-table-Win 
+PROCEDURE pExportXls :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+ RUN ce/ProductListXls.p(INPUT ROWID(eb)).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

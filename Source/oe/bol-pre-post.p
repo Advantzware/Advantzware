@@ -68,7 +68,7 @@ FOR EACH oe-boll WHERE ROWID(oe-boll) EQ ip-rowid,
            sys-ctrl.NAME EQ "BOLPOST"
            NO-LOCK NO-ERROR.
 
-      IF AVAIL sys-ctrl AND sys-ctrl.int-fld EQ 0 THEN
+      IF AVAIL sys-ctrl AND sys-ctrl.int-fld EQ 0 AND oe-boll.qty NE 0 THEN
       DO:
          li = 0.
         

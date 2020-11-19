@@ -15,39 +15,42 @@
 /* ***************************  Definitions  ************************** */
 DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
 DEFINE INPUT PARAMETER ipcOutputFile AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcSectionStyle AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcFormatStyle AS CHARACTER NO-UNDO.
 
-
-DEFINE VARIABLE gcFont              AS CHARACTER NO-UNDO.
-DEFINE VARIABLE glClassic           AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE giQtyMaxColumn      AS INTEGER   NO-UNDO.
-DEFINE VARIABLE giRowsPerPage       AS INTEGER   NO-UNDO.
-DEFINE VARIABLE gcContinue          AS CHARACTER NO-UNDO.
-DEFINE VARIABLE gcNumError          AS CHARACTER NO-UNDO.
-DEFINE VARIABLE glShowAllQuantities AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE glShowProfitPercent AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE gcQtyMasterInd      AS CHARACTER NO-UNDO.
-DEFINE VARIABLE gcSIMONListInclude  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE gcSIMONListSeparate AS CHARACTER NO-UNDO.
-
-ASSIGN 
-    giQtyMaxColumn      = 99
-    gcNumError          = "#"
-    gcContinue          = CHR(187)
-    giRowsPerPage       = 64
-    glShowAllQuantities = NO
-    glShowProfitPercent = YES
-    gcQtyMasterInd      = "*"
-    gcSIMONListInclude  = "I,M"
-    gcSIMONListSeparate = "S,O,N"
-    .
+DEFINE VARIABLE glShowAllQuantities AS LOGICAL NO-UNDO.
 
 DEFINE TEMP-TABLE ttSection
     FIELD rec_keyParent AS CHARACTER 
     FIELD iSequence     AS INTEGER
     FIELD cType         AS CHARACTER 
     .
+    
+DEFINE TEMP-TABLE ttCEFormatConfig NO-UNDO
+    FIELD outputFile              AS CHARACTER 
+    FIELD previewFile             AS LOGICAL 
+    FIELD printInPDF              AS LOGICAL
+    FIELD formatMaster            AS CHARACTER
+    FIELD formatFont              AS CHARACTER
+    FIELD formatFontSize          AS INTEGER 
+    FIELD xprintTags              AS CHARACTER 
+    FIELD isClassic               AS LOGICAL 
+    FIELD maxColumnsForQuantity   AS INTEGER
+    FIELD characterNumberError    AS CHARACTER
+    FIELD characterContinue       AS CHARACTER
+    FIELD characterMasterQuantity AS CHARACTER 
+    FIELD rowsPerPage             AS INTEGER 
+    FIELD showAllQuantities       AS LOGICAL 
+    FIELD showProfitPercent       AS LOGICAL 
+    FIELD SIMONListInclude        AS CHARACTER 
+    FIELD SIMONListSeparate       AS CHARACTER
+    FIELD useReferenceQuantity    AS LOGICAL 
+    FIELD printByForm             AS LOGICAL 
+    FIELD printSummary            AS LOGICAL
+    FIELD printSummaryFirst       AS LOGICAL 
+    FIELD printAnalysis           AS LOGICAL
+    FIELD printNotes              AS LOGICAL
+    FIELD operationTimeInHHMM     AS LOGICAL
+    .
+
 {system\NotesProcs.i}
 
 DEFINE STREAM sEstOutput.
@@ -67,11 +70,14 @@ FUNCTION fFormatNumber RETURNS CHARACTER PRIVATE
     ipiLeftDigits AS INTEGER,
     ipiRightDigits AS INTEGER,
     iplComma AS LOGICAL,
-     iplAllowNegatives AS LOGICAL) FORWARD.
+    iplAllowNegatives AS LOGICAL) FORWARD.
 
 FUNCTION fFormatString RETURNS CHARACTER PRIVATE
     (ipcString AS CHARACTER,
     ipiCharacters AS INTEGER) FORWARD.
+
+FUNCTION fFormatTime RETURNS CHARACTER PRIVATE
+    (ipdTimeInDecimal AS DECIMAL) FORWARD.
 
 FUNCTION fFormIsPurchasedFG RETURNS LOGICAL PRIVATE
     (ipiFormID AS INT64) FORWARD.
@@ -92,18 +98,80 @@ FUNCTION fTypeIsWood RETURNS LOGICAL PRIVATE
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdOutputProcs).
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdNotesProcs).
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdEstimateCalcProcs).
-RUN pBuildSections(ipiEstCostHeaderID, ipcSectionStyle, ipcFormatStyle).
+RUN pBuildSections(ipiEstCostHeaderID, ipcOutputFile, BUFFER ttCeFormatConfig).
 IF CAN-FIND(FIRST ttSection) THEN 
 DO: 
-    RUN Output_InitializeXprint(ipcOutputFile, YES, NO, gcFont, 11,"") .
-    RUN pProcessSections(ipcSectionStyle).
+    RUN Output_InitializeXprint(ttCEFormatConfig.outputFile, 
+        ttCEFormatConfig.previewFile, 
+        ttCEFormatConfig.printInPDF, 
+        ttCEFormatConfig.formatFont, 
+        ttCEFormatConfig.formatFontSize,
+        ttCEFormatConfig.xprintTags) .
+    RUN pProcessSections(BUFFER ttCEFormatConfig).
     RUN Output_Close.
-    RUN Output_PrintXprintFile(ipcOutputFile).
+    RUN Output_PrintXprintFile(ttCEFormatConfig.outputFile).
 END.
 THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE (hdOutputProcs).
 THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE (hdNotesProcs).
 
 /* **********************  Internal Procedures  *********************** */
+
+PROCEDURE pBuildConfigFromTemplate PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcFormatMaster AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFormatFont AS CHARACTER NO-UNDO.
+    DEFINE PARAMETER BUFFER opbf-ttCEFormatConfig FOR ttCEFormatConfig.
+    
+    CREATE opbf-ttCEFormatConfig.
+    ASSIGN 
+        opbf-ttCEFormatConfig.formatMaster      = ipcFormatMaster
+        opbf-ttCEFormatConfig.formatFont        = ipcFormatFont
+        opbf-ttCEFormatConfig.formatFontSize    = 11
+        opbf-ttCEFormatConfig.previewFile       = YES
+        opbf-ttCEFormatConfig.printInPDF        = NO        
+        opbf-ttCEFormatConfig.printSummary      = INDEX(ipcFormatMaster, "Summary") GT 0
+        opbf-ttCEFormatConfig.printSummaryFirst = INDEX(ipcFormatMaster, "First") GT 0
+        opbf-ttCEFormatConfig.showAllQuantities = INDEX(ipcFormatMaster, "Mult Qty") GT 0
+        opbf-ttCEFormatConfig.printByForm       = INDEX(ipcFormatMaster, "By Form") GT 0
+        opbf-ttCEFormatConfig.printAnalysis     = INDEX(ipcFormatMaster, "Analysis") GT 0
+        opbf-ttCEFormatConfig.printNotes        = INDEX(ipcFormatMaster, "No Notes") EQ 0
+        .
+    
+    CASE ipcFormatFont:
+        WHEN "Classic" THEN 
+            ASSIGN 
+                opbf-ttCEFormatConfig.isClassic  = YES
+                opbf-ttCEFormatConfig.formatFont = "Courier New"
+                .
+        OTHERWISE 
+        ASSIGN 
+            opbf-ttCeFormatConfig.isClassic = NO
+            .
+    END.
+        
+    CASE ipcFormatMaster:
+        WHEN "McLean" THEN 
+            ASSIGN
+                opbf-ttCEFormatConfig.showProfitPercent = NO
+                opbf-ttCEFormatConfig.printByForm       = YES
+                opbf-ttCEFormatConfig.printSummary      = YES
+                opbf-ttCEFormatConfig.printSummaryFirst = YES
+                opbf-ttCEFormatConfig.showAllQuantities = YES
+                . 
+        WHEN "Standard" THEN
+            ASSIGN 
+                opbf-ttCEFormatConfig.showProfitPercent = YES
+                opbf-ttCEFormatConfig.printByForm       = YES
+                opbf-ttCEFormatConfig.printSummary      = YES
+                opbf-ttCEFormatConfig.printSummaryFirst = YES
+                opbf-ttCEFormatConfig.showAllQuantities = NO
+                .            
+    END.
+    
+END PROCEDURE.
 
 PROCEDURE pBuildSections PRIVATE:
     /*------------------------------------------------------------------------------
@@ -111,8 +179,8 @@ PROCEDURE pBuildSections PRIVATE:
      Notes: Options are Consolidated or by Form (by Item -TBD or by Blank -TBD)
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
-    DEFINE INPUT PARAMETER ipcSectionStyle AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcFormatStyle AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcOutputFile AS CHARACTER NO-UNDO.
+    DEFINE PARAMETER BUFFER opbf-ttCeFormatConfig FOR ttCEFormatConfig.
     
     DEFINE VARIABLE iSectionCount AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cSectionBy    AS CHARACTER NO-UNDO.
@@ -126,39 +194,14 @@ PROCEDURE pBuildSections PRIVATE:
         NO-ERROR.
     IF AVAILABLE bf-estCostHeader THEN 
     DO:
-        CASE ipcFormatStyle:
-            WHEN "Classic" THEN 
-                ASSIGN 
-                    glClassic = YES
-                    gcFont    = "Courier New"
-                    .
-            OTHERWISE 
-            ASSIGN 
-                glClassic = NO
-                gcFont    = ipcFormatStyle
-                .
+        RUN pBuildConfig(bf-estCostHeader.company, ipcOutputFile, BUFFER opbf-ttCEFormatConfig).
+        IF bf-estCostHeader.estType EQ "Combo/Tandem" AND opbf-ttCEFormatConfig.useReferenceQuantity THEN 
+        DO:
+            FIND CURRENT bf-estCostHeader EXCLUSIVE-LOCK.
+            RUN est\dRefQty.w (INPUT-OUTPUT bf-estCostHeader.quantityReference).
+            FIND CURRENT bf-estCostHeader NO-LOCK.
         END.
-        CASE ipcSectionStyle:
-            WHEN "McLean" THEN 
-                DO:
-                    ASSIGN 
-                        glShowProfitPercent = NO
-                        cSectionBy          = "By Form With Summary First Mult Qty"
-                        .
-                    IF bf-estCostHeader.estType EQ "Combo/Tandem" THEN 
-                    DO:
-                        FIND CURRENT bf-estCostHeader EXCLUSIVE-LOCK.
-                        RUN est\dRefQty.w (INPUT-OUTPUT bf-estCostHeader.quantityReference).
-                        FIND CURRENT bf-estCostHeader NO-LOCK.
-                    END.
-                    
-                END.
-            WHEN "Standard" THEN 
-                cSectionBy = "By Form With Summary First Analysis".
-            OTHERWISE 
-            cSectionBy = ipcSectionStyle.
-        END.
-        IF fTypeAllowsMult(bf-estCostHeader.estType) AND INDEX(cSectionBy, "Mult Qty") GT 0 THEN
+        IF fTypeAllowsMult(bf-estCostHeader.estType) AND opbf-ttCEFormatConfig.showAllQuantities THEN
             glShowAllQuantities = YES.
         FIND CURRENT bf-estCostHeader EXCLUSIVE-LOCK.
         ASSIGN 
@@ -166,7 +209,7 @@ PROCEDURE pBuildSections PRIVATE:
             bf-estCostHeader.printedBy     = USERID("asi")
             . 
         FIND CURRENT bf-estCostHeader NO-LOCK.
-        IF cSectionBy BEGINS "By Form" THEN 
+        IF opbf-ttCEFormatConfig.printByForm THEN 
         DO:
             FOR EACH estCostForm NO-LOCK 
                 WHERE estCostForm.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
@@ -182,27 +225,27 @@ PROCEDURE pBuildSections PRIVATE:
                     .
             END. 
         END.
-        ELSE IF cSectionBy BEGINS "Consolidated" THEN 
-            DO:
-                iSectionCount = iSectionCount + 1.
-                CREATE ttSection.
-                ASSIGN 
-                    ttSection.cType         = "Consolidated"
-                    ttSection.iSequence     = iSectionCount
-                    ttSection.rec_keyParent = bf-estCostHeader.rec_key
-                    .
-            END.
-        IF CAN-DO("Set,Combo/Tandem",bf-estCostHeader.estType) AND INDEX(cSectionBy, "with Summary") GT 0 THEN 
+        ELSE 
+        DO:
+            iSectionCount = iSectionCount + 1.
+            CREATE ttSection.
+            ASSIGN 
+                ttSection.cType         = "Consolidated"
+                ttSection.iSequence     = iSectionCount
+                ttSection.rec_keyParent = bf-estCostHeader.rec_key
+                .
+        END.
+        IF CAN-DO("Set,Combo/Tandem",bf-estCostHeader.estType) AND opbf-ttCEFormatConfig.printSummary THEN 
         DO:
             iSectionCount = iSectionCount + 1.
             CREATE ttSection.
             ASSIGN   
                 ttSection.cType         = "Summary"
-                ttSection.iSequence     = IF INDEX(cSectionBy, "First") GT 0 THEN 0 ELSE iSectionCount
+                ttSection.iSequence     = IF opbf-ttCEFormatConfig.printSummaryFirst THEN 0 ELSE iSectionCount
                 ttSection.rec_keyParent = bf-estCostHeader.rec_key
                 .
         END.
-        IF INDEX(cSectionBy, "Analysis") GT 0 THEN 
+        IF opbf-ttCEFormatConfig.printAnalysis THEN 
         DO:
             iSectionCount = iSectionCount + 1.
             CREATE ttSection.
@@ -212,7 +255,7 @@ PROCEDURE pBuildSections PRIVATE:
                 ttSection.rec_keyParent = bf-estCostHeader.rec_key
                 .
         END.
-        IF NOT INDEX(cSectionBy, "No Notes") GT 0 THEN 
+        IF opbf-ttCEFormatConfig.printNotes THEN 
         DO:
             iSectionCount = iSectionCount + 1.
             CREATE ttSection.
@@ -224,6 +267,72 @@ PROCEDURE pBuildSections PRIVATE:
         END.
 
     END.
+    
+END PROCEDURE.
+
+PROCEDURE pBuildConfig PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcOutputFile AS CHARACTER NO-UNDO.
+    DEFINE PARAMETER BUFFER opbf-ttCEFormatConfig FOR ttCeFormatConfig.
+
+    DEFINE VARIABLE cFile         AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE lRecFound     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lLoaded       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cFormatMaster AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFormatFont   AS CHARACTER NO-UNDO.
+ 
+    EMPTY TEMP-TABLE ttCEFormatConfig.
+        
+    RUN sys/ref/nk1look.p (INPUT ipcCompany, "CEFormat", "C" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cFormatMaster, OUTPUT lRecFound).
+     
+    RUN sys/ref/nk1look.p (INPUT ipcCompany, "CEFormatFont", "C" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cFormatFont, OUTPUT lRecFound).
+                            
+    IF cFormatMaster EQ "Config" THEN 
+    DO:
+        RUN pLoadConfig(ipcCompany, TEMP-TABLE opbf-ttCEFormatConfig:HANDLE, OUTPUT lLoaded).
+    
+        IF NOT lLoaded THEN 
+        DO:
+            RUN pBuildConfigFromTemplate(cFormatMaster, cFormatFont, BUFFER opbf-ttCEFormatConfig).
+        END.
+        ELSE 
+            FIND FIRST opbf-ttCEFormatConfig EXCLUSIVE-LOCK NO-ERROR.
+    
+    END.    
+    ELSE
+        RUN pBuildConfigFromTemplate(cFormatMaster, cFormatFont, BUFFER opbf-ttCEFormatConfig).
+        
+    IF AVAILABLE opbf-ttCEFormatConfig THEN 
+    DO:
+        IF opbf-ttCEFormatConfig.outputFile EQ "" AND ipcOutputFile EQ "" THEN  
+            ttCEFormatConfig.outputFile = "C:\tmp\CheckTest.xpr".
+        ELSE IF ipcOutputFile NE "" THEN 
+                ttCEFormatConfig.outputFile = ipcOutputFile.
+                                        
+        IF opbf-ttCEFormatConfig.characterContinue EQ "" THEN 
+            opbf-ttCEFormatConfig.characterContinue = CHR(187).
+        IF opbf-ttCEFormatConfig.characterMasterQuantity EQ "" THEN 
+            opbf-ttCEFormatConfig.characterMasterQuantity = "*".
+        IF opbf-ttCEFormatConfig.characterNumberError EQ "" THEN 
+            opbf-ttCEFormatConfig.characterNumberError = "#".
+        IF opbf-ttCEFormatConfig.SIMONListInclude EQ "" THEN 
+            opbf-ttCEFormatConfig.SIMONListInclude = "I,M".
+        IF opbf-ttCEFormatConfig.SIMONListSeparate EQ "" THEN 
+            opbf-ttCEFormatConfig.SIMONListSeparate = "S,O,N".
+        IF opbf-ttCEFormatConfig.maxColumnsForQuantity EQ 0 THEN 
+            opbf-ttCEFormatConfig.maxColumnsForQuantity = 99.
+        IF opbf-ttCEFormatConfig.rowsPerPage EQ 0 THEN 
+            opbf-ttCEFormatConfig.rowsPerPage = 64.
+               
+    END.    
     
 END PROCEDURE.
 
@@ -256,12 +365,45 @@ END PROCEDURE.
 
 
 
+PROCEDURE pLoadConfig PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Loads Config file based on NK1 and .json file location
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iphTT AS HANDLE NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplLoaded AS LOGICAL NO-UNDO.
+
+    DEFINE VARIABLE cSourceType AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReadMode   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cFile       AS CHARACTER NO-UNDO.
+
+
+    RUN sys/ref/nk1look.p (INPUT ipcCompany, "CEFormatConfig", "C" /* Logical */, NO /* check by cust */, 
+        INPUT NO /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cFile, OUTPUT lFound). 
+    
+    IF lFound AND cFile NE "" THEN 
+    DO: 
+        
+        ASSIGN
+            cSourceType = "file"
+            cReadMode   = "empty"
+            .
+
+        oplLoaded = iphTT:READ-JSON(cSourceType, cFile, cReadMode).
+    END.
+    
+END PROCEDURE.
+
 PROCEDURE pPrintForm PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Processes the output for a given form
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcEstFormRecKey AS CHARACTER NO-UNDO.
+    DEFINE PARAMETER BUFFER ipbf-ttCEFormatConfig FOR ttCEFormatConfig.
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER NO-UNDO. 
 
@@ -279,12 +421,12 @@ PROCEDURE pPrintForm PRIVATE:
     IF fTypePrintsLayout(estCostHeader.estType) THEN 
         RUN pPrintLayoutInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pPrintMaterialInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Prep", gcSIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Misc", gcSIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pPrintOperationsInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Prep", ipbf-ttCEFormatConfig.SIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Misc", ipbf-ttCEFormatConfig.SIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN pPrintOperationsInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pPrintFreightWarehousingAndHandlingForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pPrintCostSummaryInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, glShowAllQuantities, glShowProfitPercent, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pPrintSeparateChargeInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN pPrintCostSummaryInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN pPrintSeparateChargeInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     
 END PROCEDURE.
 
@@ -301,8 +443,8 @@ PROCEDURE pPrintItemInfoDetail PRIVATE:
     
     DEFINE VARIABLE iItemColumn1 AS INTEGER INITIAL 2.
     DEFINE VARIABLE iItemColumn2 AS INTEGER INITIAL 13.
-    DEFINE VARIABLE iItemColumn3 AS INTEGER INITIAL 43.
-    DEFINE VARIABLE iItemColumn4 AS INTEGER INITIAL 68.
+    DEFINE VARIABLE iItemColumn3 AS INTEGER INITIAL 37.
+    DEFINE VARIABLE iItemColumn4 AS INTEGER INITIAL 64.
     
     DEFINE VARIABLE dQty         AS DECIMAL NO-UNDO.
     
@@ -318,14 +460,14 @@ PROCEDURE pPrintItemInfoDetail PRIVATE:
         ELSE ipbf-estCostBlank.quantityRequired.
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinatesNum(iopiRowCount, iItemColumn1, dQty, 9, 0, YES, YES, YES, NO, NO).
-    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn2, ipbf-estCostItem.itemName , 20, NO, NO, NO).
-    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn3, ipbf-estCostItem.sizeDesc , 20, NO, NO, NO).
-    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn4, ipbf-estCostItem.styleDesc, 16, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn2, ipbf-estCostItem.itemName , 30, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn3, ipbf-estCostItem.sizeDesc , 40, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn4, ipbf-estCostItem.styleDesc, 30, NO, NO, NO).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iItemColumn1, fFormatNumber(ipbf-estCostBlank.formNo,2, 0, YES, NO) + "-" + fFormatNumber(ipbf-estCostBlank.blankNo,2, 0, YES, NO), NO, NO, NO).
-    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn2, ipbf-estCostItem.itemDescription1, 20 , NO, NO, NO).
-    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn3, ipbf-estCostItem.colorDesc, 20, NO, NO, NO).
-    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn4, ipbf-estCostItem.customerPart, 16, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn2, ipbf-estCostItem.itemDescription1, 30 , NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn3, ipbf-estCostItem.colorDesc, 40, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn4, ipbf-estCostItem.customerPart, 30, NO, NO, NO).
     
 END PROCEDURE.
 
@@ -518,36 +660,35 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
      Purpose: Prints the Cost Summary with either Each Qty showing or a Per M plus Total
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
-    DEFINE PARAMETER BUFFER ipbf-estCostForm   FOR estCostForm.
-    DEFINE INPUT PARAMETER iplPerQuantity AS LOGICAL.
-    DEFINE INPUT PARAMETER iplPrintProfitPercent AS LOGICAL.
+    DEFINE PARAMETER BUFFER ipbf-estCostHeader    FOR estCostHeader.
+    DEFINE PARAMETER BUFFER ipbf-estCostForm      FOR estCostForm.
+    DEFINE PARAMETER BUFFER ipbf-ttCEFormatConfig FOR ttCEFormatConfig.
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
         
     DEFINE BUFFER bf-PrimaryestCostHeader FOR estCostHeader.
     DEFINE BUFFER bf-estCostForm          FOR estCostForm.
 
-    DEFINE VARIABLE iRowStart      AS INTEGER.
-    DEFINE VARIABLE iColumn        AS INTEGER   EXTENT 10 INITIAL [2,32,62].
-    DEFINE VARIABLE iColumnWidth   AS INTEGER   INITIAL 10.
+    DEFINE VARIABLE iRowStart            AS INTEGER.
+    DEFINE VARIABLE iColumn              AS INTEGER   EXTENT 10 INITIAL [2,32,62].
+    DEFINE VARIABLE iColumnWidth         AS INTEGER   INITIAL 10.
     
-    DEFINE VARIABLE iQtyCount      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iQtyCountTotal AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cScopeRecKey   AS CHARACTER EXTENT 100.
-    DEFINE VARIABLE cQtyHeader     AS CHARACTER EXTENT 100.
-    DEFINE VARIABLE dCostPerM      AS DECIMAL   EXTENT 100.
-    DEFINE VARIABLE dCostTotalPerM AS DECIMAL.
-    DEFINE VARIABLE dCostTotal     AS DECIMAL.
-    DEFINE VARIABLE dProfitPercent AS DECIMAL.
-    DEFINE VARIABLE lLineStarted   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE iLineStart     AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iLineEnd       AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iCount         AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iHeaderCount   AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iTotCount      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iCountCostSmy  AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iMaxQtyColPerSummary AS INTEGER INITIAL 6 NO-UNDO.
+    DEFINE VARIABLE iQtyCount            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iQtyCountTotal       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cScopeRecKey         AS CHARACTER EXTENT 100.
+    DEFINE VARIABLE cQtyHeader           AS CHARACTER EXTENT 100.
+    DEFINE VARIABLE dCostPerM            AS DECIMAL   EXTENT 100.
+    DEFINE VARIABLE dCostTotalPerM       AS DECIMAL.
+    DEFINE VARIABLE dCostTotal           AS DECIMAL.
+    DEFINE VARIABLE dProfitPercent       AS DECIMAL.
+    DEFINE VARIABLE lLineStarted         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iLineStart           AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iLineEnd             AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCount               AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iHeaderCount         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTotCount            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCountCostSmy        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iMaxQtyColPerSummary AS INTEGER   INITIAL 6 NO-UNDO.
 
     FIND FIRST bf-PrimaryestCostHeader NO-LOCK 
         WHERE bf-PrimaryestCostHeader.estCostHeaderID EQ ipbf-estCostForm.estCostHeaderID
@@ -563,7 +704,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
         cScopeRecKey[iQtyCountTotal] = ipbf-estCostForm.rec_key
         cQtyHeader[iQtyCountTotal]   = fFormatNumber(ipbf-estCostForm.quantityFGOnForm, 7, 0, YES, NO)
         .
-    IF iplPerQuantity THEN 
+    IF ipbf-ttCEFormatConfig.showAllQuantities THEN 
     DO:
         FOR EACH estCostHeader NO-LOCK
             WHERE estCostHeader.estimateNo EQ bf-PrimaryestCostHeader.estimateNo
@@ -579,7 +720,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
                 cScopeRecKey[iQtyCountTotal] = estCostForm.rec_key
                 cQtyHeader[iQtyCountTotal]   = fFormatNumber(estCostForm.quantityFGOnForm, 7, 0, YES, NO)
                 .
-            IF iQtyCountTotal EQ giQtyMaxColumn THEN LEAVE. 
+            IF iQtyCountTotal EQ ipbf-ttCEFormatConfig.maxColumnsForQuantity THEN LEAVE. 
         END.             
     END.
     ELSE 
@@ -609,7 +750,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount). 
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         END.
-        IF iplPerQuantity THEN 
+        IF ipbf-ttCEFormatConfig.showAllQuantities THEN 
         DO:
             RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "*** Totals Per M ", YES, YES, NO).
             DO iQtyCount = 1 TO iMaxQtyColPerSummary:
@@ -617,7 +758,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
                 IF cQtyHeader[iHeaderCount] NE "" THEN
                     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2] + (iQtyCount - 1) * iColumnWidth, cQtyHeader[iHeaderCount], 7, 0, YES, YES, YES, YES, YES).
                 IF iHeaderCount EQ 1 THEN 
-                    RUN pWriteToCoordinates(iopiRowCount, iColumn[2], gcQtyMasterInd, YES, NO, NO).
+                    RUN pWriteToCoordinates(iopiRowCount, iColumn[2], ipbf-ttCEFormatConfig.characterMasterQuantity, YES, NO, NO).
             END.  
         END.
         FOR EACH estCostGroupLevel NO-LOCK
@@ -626,7 +767,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
                 WHERE estCostGroup.estCostGroupLevelID EQ estCostGroupLevel.estCostGroupLevelID
                 BY estCostGroup.costGroupSequence:
             
-                IF iplPerQuantity THEN 
+                IF ipbf-ttCEFormatConfig.showAllQuantities THEN 
                 DO: /*Print values for each quantity (per M)*/                   
                 
                     lLineStarted = NO.
@@ -683,7 +824,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
         
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             RUN pWriteToCoordinates(iopiRowCount, iColumn[1], estCostGroupLevel.estCostGroupLevelDesc, YES, NO, NO).    
-            IF iplPerQuantity THEN
+            IF ipbf-ttCEFormatConfig.showAllQuantities THEN
             DO: /*Print values for each quantity (per M)*/
                 DO iQtyCount = 1 TO iMaxQtyColPerSummary:   
                     IF (iLineStart + iQtyCount - 1) LE iQtyCountTotal THEN
@@ -697,7 +838,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
                 IF ipbf-estCostHeader.quantityReference NE 0 THEN 
                 DO:
                     RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[3] , dCostTotal / (ipbf-estCostHeader.quantityReference / 1000)  , 8, 2, NO, YES, NO, NO, YES)
-                    .                                                                
+                        .                                                                
                 END.
             END.
         END.
@@ -706,7 +847,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
     
     END.
     
-    IF iplPrintProfitPercent THEN 
+    IF ipbf-ttCEFormatConfig.showProfitPercent THEN 
     DO:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         dProfitPercent = 100 * (ipbf-estCostForm.sellPrice - ipbf-estCostForm.costTotalFull) / ipbf-estCostForm.sellPrice.
@@ -800,20 +941,20 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostForm   FOR estCostForm.
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
-    DEFINE VARIABLE cLabelBlank AS CHARACTER INIT "Blank #" NO-UNDO  . 
-    DEFINE VARIABLE cLabelNet AS CHARACTER INIT "Net:" NO-UNDO  .
-    DEFINE VARIABLE cLabelGross AS CHARACTER INIT "Gross:" NO-UNDO  .
-    DEFINE VARIABLE lWoodEstimate AS LOGICAL NO-UNDO  .
+    DEFINE VARIABLE cLabelBlank   AS CHARACTER INIT "Blank #" NO-UNDO  . 
+    DEFINE VARIABLE cLabelNet     AS CHARACTER INIT "Net:" NO-UNDO  .
+    DEFINE VARIABLE cLabelGross   AS CHARACTER INIT "Gross:" NO-UNDO  .
+    DEFINE VARIABLE lWoodEstimate AS LOGICAL   NO-UNDO  .
    
-    DEFINE VARIABLE iColumn AS INTEGER EXTENT 10 INITIAL [12,22,32,45,58,72].
+    DEFINE VARIABLE iColumn       AS INTEGER   EXTENT 10 INITIAL [12,22,32,45,58,72].
     
     lWoodEstimate = fTypeIsWood(ipbf-estCostHeader.estType) .
     IF lWoodEstimate THEN
     DO:
         ASSIGN
-         cLabelBlank  = "Part Size:"
-         cLabelNet    = "Process Size:"
-         cLabelGross  = "Raw Wood Size" .
+            cLabelBlank = "Part Size:"
+            cLabelNet   = "Process Size:"
+            cLabelGross = "Raw Wood Size" .
     END.
        
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
@@ -895,8 +1036,8 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
    
-    DEFINE VARIABLE iColumn    AS INTEGER EXTENT 10 INITIAL [5,20,36,48,60,70,82].
-    DEFINE VARIABLE dTotal     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iColumn      AS INTEGER EXTENT 10 INITIAL [5,20,36,48,60,70,82].
+    DEFINE VARIABLE dTotal       AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQuantityInM AS DECIMAL NO-UNDO.
            
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
@@ -908,7 +1049,7 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
     RUN pWriteToCoordinates(iopiRowCount, iColumn[7], "Total Cost", NO, YES, YES).
     
     ASSIGN 
-        dTotal     = 0
+        dTotal       = 0
         dQuantityInM = ipbf-estCostForm.quantityFGOnForm / 1000. 
     FOR EACH estCostMaterial NO-LOCK 
         WHERE estCostMaterial.estCostHeaderID EQ ipbf-estCostForm.estCostHeaderID 
@@ -951,10 +1092,10 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostMaterial.costSetup / dQuantityInM, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[7], estCostMaterial.costSetup, 7, 2, NO, YES, NO, NO, YES).
             ASSIGN 
-                dTotal     = dTotal + estCostMaterial.costTotalNoWaste
-                dTotal     = dTotal + estCostMaterial.costTotalSetupWaste
-                dTotal     = dTotal + estCostMaterial.costTotalRunWaste
-                dTotal     = dTotal + estCostMaterial.costSetup
+                dTotal = dTotal + estCostMaterial.costTotalNoWaste
+                dTotal = dTotal + estCostMaterial.costTotalSetupWaste
+                dTotal = dTotal + estCostMaterial.costTotalRunWaste
+                dTotal = dTotal + estCostMaterial.costSetup
                 .
         END.
         ELSE 
@@ -970,7 +1111,7 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostMaterial.costTotalPerMFinished, 7, 2, NO, YES, NO, NO, YES).
             RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[7], estCostMaterial.costTotal, 7, 2, NO, YES, NO, NO, YES).
             ASSIGN 
-                dTotal     = dTotal + estCostMaterial.costTotal
+                dTotal = dTotal + estCostMaterial.costTotal
                 .
         END.
     END.
@@ -1053,8 +1194,9 @@ PROCEDURE pPrintOperationsInfoForForm PRIVATE:
      Purpose: Prints the top-most section of each page
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
-    DEFINE PARAMETER BUFFER ipbf-estCostForm   FOR estCostForm.
+    DEFINE PARAMETER BUFFER ipbf-estCostHeader    FOR estCostHeader.
+    DEFINE PARAMETER BUFFER ipbf-estCostForm      FOR estCostForm.
+    DEFINE PARAMETER BUFFER ipbf-ttCEFormatConfig FOR ttCEFormatConfig.
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
    
@@ -1082,8 +1224,16 @@ PROCEDURE pPrintOperationsInfoForForm PRIVATE:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[1], fFormatNumber(estCostOperation.formNo,2, 0, YES, NO) + "-" + fFormatNumber(estCostOperation.blankNo,2, 0, YES, NO), NO, NO, YES).
         RUN pWriteToCoordinatesString(iopiRowCount, iColumn[1] + 1, estCostOperation.operationName, 20, NO, NO, NO).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostOperation.hoursSetup, 7, 2, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostOperation.hoursRun, 7, 2, NO, YES, NO, NO, YES).
+        IF ipbf-ttCEFormatConfig.operationTimeInHHMM THEN 
+        DO:
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn[2], fFormatTime(estCostOperation.hoursSetup), 7, NO, NO, YES).
+            RUN pWriteToCoordinatesString(iopiRowCount, iColumn[3], fFormatTime(estCostOperation.hoursRun), 7, NO, NO, YES).
+        END.
+        ELSE 
+        DO:
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostOperation.hoursSetup, 7, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostOperation.hoursRun, 7, 2, NO, YES, NO, NO, YES).
+        END.
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostOperation.speed, 7, 0, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], estCostOperation.costPerHourTotalSetup, 7, 2, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostOperation.costPerHourTotalRun, 7, 2, NO, YES, NO, NO, YES).
@@ -1110,8 +1260,9 @@ PROCEDURE pPrintSeparateChargeInfoForForm PRIVATE:
      Purpose: Prints the Separate charges for a given form
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
-    DEFINE PARAMETER BUFFER ipbf-estCostForm   FOR estCostForm.
+    DEFINE PARAMETER BUFFER ipbf-estCostHeader    FOR estCostHeader.
+    DEFINE PARAMETER BUFFER ipbf-estCostForm      FOR estCostForm.
+    DEFINE PARAMETER BUFFER ipbf-ttCEFormatConfig FOR ttCEFormatConfig.
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
     
@@ -1119,14 +1270,14 @@ PROCEDURE pPrintSeparateChargeInfoForForm PRIVATE:
     
     IF CAN-FIND(FIRST estCostMisc 
         WHERE estCostMisc.estCostFormID EQ ipbf-estCostForm.estCostFormID
-        AND LOOKUP(estCostMisc.SIMON, gcSIMONListSeparate) GT 0) THEN 
+        AND LOOKUP(estCostMisc.SIMON, ipbf-ttCEFormatConfig.SIMONListSeparate) GT 0) THEN 
     DO:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[1] + 1, "Charges Billed Separately", NO, YES, NO).
-        RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Prep", gcSIMONListSeparate, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Misc", gcSIMONListSeparate, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Prep", ipbf-ttCEFormatConfig.SIMONListSeparate, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Misc", ipbf-ttCEFormatConfig.SIMONListSeparate, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     END.
 END PROCEDURE.
 
@@ -1136,16 +1287,13 @@ PROCEDURE pPrintAnalysis PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcEstHeaderRecKey AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcFormat AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER NO-UNDO.
     
 
     
     DEFINE BUFFER bf-primaryEstCostHeader FOR estCostHeader.
-    
-    IF ipcFormat EQ "McLean" THEN RETURN.
-    
+        
     FIND FIRST bf-primaryEstCostHeader NO-LOCK 
         WHERE bf-primaryEstCostHeader.rec_key EQ ipcEstHeaderRecKey
         NO-ERROR.
@@ -1178,9 +1326,9 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER NO-UNDO.
     
-    DEFINE VARIABLE iColumn AS INTEGER EXTENT 9 INITIAL [2,10,20,30,40,50,60,70,80].
-    DEFINE VARIABLE dQtyInM AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dMSFTotal AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iColumn      AS INTEGER EXTENT 9 INITIAL [2,10,20,30,40,50,60,70,80].
+    DEFINE VARIABLE dQtyInM      AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dMSFTotal    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dSheetsTotal AS INTEGER NO-UNDO.
     
     IF iplHeader THEN 
@@ -1214,9 +1362,9 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
     ELSE 
     DO:
         ASSIGN 
-            dQtyInM = ipbf-estCostHeader.quantityMaster / 1000
+            dQtyInM      = ipbf-estCostHeader.quantityMaster / 1000
             dSheetsTotal = 0
-            dMSFTotal = 0
+            dMSFTotal    = 0
             .
         FOR EACH estCostForm NO-LOCK 
             WHERE estCostForm.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
@@ -1224,7 +1372,7 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
             
             ASSIGN 
                 dSheetsTotal = dSheetsTotal + estCostForm.grossQtyRequiredTotal
-                dMSFTotal = dMSFTotal + estCostForm.grossQtyRequiredTotalArea
+                dMSFTotal    = dMSFTotal + estCostForm.grossQtyRequiredTotalArea
                 .
         END.    
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], ipbf-estCostHeader.quantityMaster , 9, 0, NO, YES, NO, NO, YES).
@@ -1247,7 +1395,7 @@ PROCEDURE pPrintSummary PRIVATE:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcEstHeaderRecKey AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcFormat AS CHARACTER NO-UNDO.
+    DEFINE PARAMETER BUFFER ipbf-ttCEFormatConfig FOR ttCEFormatConfig.
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER NO-UNDO.
         
@@ -1274,13 +1422,13 @@ PROCEDURE pPrintSummary PRIVATE:
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).     
     
-    RUN pPrintSummaryCosts(BUFFER bf-primaryEstCostHeader, ipcFormat, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN pPrintSummaryCosts(BUFFER bf-primaryEstCostHeader, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     FOR EACH estCostHeader NO-LOCK
         WHERE estCostHeader.estimateNo EQ bf-PrimaryestCostHeader.estimateNo
         AND estCostHeader.estCostHeaderID NE bf-PrimaryestCostHeader.estCostHeaderID
         AND estCostHeader.jobID EQ ""
         :
-        RUN pPrintSummaryCosts(BUFFER estCostHeader, ipcFormat, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintSummaryCosts(BUFFER estCostHeader, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     END.
                
 END PROCEDURE.
@@ -1290,7 +1438,8 @@ PROCEDURE pProcessSections PRIVATE:
      Purpose: Processes each section
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcFormat AS CHARACTER NO-UNDO.
+    DEFINE PARAMETER BUFFER ipbf-ttCEFormatConfig FOR ttCEFormatConfig.
+    
     DEFINE VARIABLE iPageCount AS INTEGER NO-UNDO.
     DEFINE VARIABLE iRowCount  AS INTEGER NO-UNDO.
     
@@ -1298,19 +1447,20 @@ PROCEDURE pProcessSections PRIVATE:
         iPageCount = 1
         iRowCount  = 1
         .
+    
     FOR EACH ttSection NO-LOCK
         BY ttSection.iSequence:
         CASE ttSection.cType:
             WHEN "Form" THEN 
-            RUN pPrintForm(ttSection.rec_keyParent, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).
+            RUN pPrintForm(ttSection.rec_keyParent, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).
             WHEN "Consolidated" THEN 
             RUN pPrintConsolidated(ttSection.rec_keyParent, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).
             WHEN "Summary" THEN 
-            RUN pPrintSummary(ttSection.rec_keyParent, ipcFormat, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).      
+            RUN pPrintSummary(ttSection.rec_keyParent, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).      
             WHEN "Notes" THEN 
             RUN pPrintNotes(ttSection.rec_keyParent, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).          
             WHEN "Analysis" THEN 
-            RUN pPrintAnalysis(ttSection.rec_keyParent, ipcFormat, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).          
+            RUN pPrintAnalysis(ttSection.rec_keyParent, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).          
         END CASE.
         RUN AddPage(INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount ).
     END.
@@ -1409,105 +1559,13 @@ PROCEDURE pWriteToCoordinatesString PRIVATE:
     RUN Output_WriteToXprint(ipdR, ipdC, ipcText, iplBold, iplUnderline, NO, iplRightJustified).
 
 END PROCEDURE.
-
-
-/* ************************  Function Implementations ***************** */
-
-FUNCTION fFormatNumber RETURNS CHARACTER PRIVATE
-    ( ipdNumber AS DECIMAL , ipiLeftDigits AS INTEGER , ipiRightDigits AS INTEGER, iplComma AS LOGICAL, iplAllowNegatives AS LOGICAL):
-    /*------------------------------------------------------------------------------
-     Purpose: Formats a number with left and right digits.  Handles problem when 
-     size of number doesn't fit
-     Notes:
-    ------------------------------------------------------------------------------*/	
-    
-    RETURN DYNAMIC-FUNCTION("FormatNumber", ipdNumber, ipiLeftDigits, ipiRightDigits, iplComma, iplAllowNegatives).
-		
-END FUNCTION.
-
-FUNCTION fFormatString RETURNS CHARACTER PRIVATE
-    ( ipcString AS CHARACTER, ipiCharacters AS INTEGER ):
-    /*------------------------------------------------------------------------------
-     Purpose:  Formats string with number of characters.  If string is larger than what fits, 
-     it auto adds a "cont" string to end
-     Notes:
-    ------------------------------------------------------------------------------*/	
-    
-    RETURN DYNAMIC-FUNCTION("FormatString", ipcString, ipiCharacters).
-    
-		
-END FUNCTION.
-
-FUNCTION fFormIsPurchasedFG RETURNS LOGICAL PRIVATE
-    ( ipiFormID AS INT64 ):
-    /*------------------------------------------------------------------------------
-     Purpose: REturns yes, if the form has a purchased FG as a material
-     Notes:
-    ------------------------------------------------------------------------------*/	
-    
-    DEFINE BUFFER bf-estCostMaterial FOR estCostMaterial.
-    
-    FIND FIRST bf-estCostMaterial NO-LOCK 
-        WHERE bf-estCostMaterial.estCostFormID EQ ipiFormID
-        AND bf-estCostMaterial.isPurchasedFG
-        NO-ERROR.
-    RETURN AVAILABLE bf-estCostMaterial.
-		
-END FUNCTION.
-
-FUNCTION fTypeAllowsMult RETURNS LOGICAL PRIVATE
-    (ipcEstType AS CHARACTER):
-    /*------------------------------------------------------------------------------
-     Purpose: Returns if Given Type supports Multiple
-     Notes:
-    ------------------------------------------------------------------------------*/	
-    RETURN DYNAMIC-FUNCTION("IsSetType",ipcEstType) 
-        OR 
-        DYNAMIC-FUNCTION("IsSingleType",ipcEstType)
-        OR
-        DYNAMIC-FUNCTION("IsMiscType",ipcEstType).
-		
-END FUNCTION.
-
-FUNCTION fTypePrintsLayout RETURNS LOGICAL PRIVATE
-    (ipcEstType AS CHARACTER):
-    /*------------------------------------------------------------------------------
-     Purpose: Returns if given type should print Layout
-     Notes:
-    ------------------------------------------------------------------------------*/	
-    RETURN NOT DYNAMIC-FUNCTION("IsMiscType",ipcEstType).
-		
-END FUNCTION.
-
-FUNCTION fTypePrintsBoard RETURNS LOGICAL PRIVATE
-    (ipcEstType AS CHARACTER):
-    /*------------------------------------------------------------------------------
-     Purpose: Returns if given type should print board details
-     Notes:
-    ------------------------------------------------------------------------------*/    
-    RETURN NOT DYNAMIC-FUNCTION("IsMiscType",ipcEstType).
-        
-END FUNCTION.
-
-FUNCTION fTypeIsWood RETURNS LOGICAL PRIVATE
-    (ipcEstType AS CHARACTER):
-    /*------------------------------------------------------------------------------
-     Purpose: Returns if given type should print Wood specific fields
-     Notes:
-    ------------------------------------------------------------------------------*/    
-    
-    RETURN DYNAMIC-FUNCTION("IsWoodType",ipcEstType). 
-    
-END FUNCTION.
-
-
 PROCEDURE pPrintSummaryCosts PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Prints the block of Summary costs for a given cost Header
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
-    DEFINE INPUT PARAMETER ipcFormat AS CHARACTER NO-UNDO.
+    DEFINE PARAMETER BUFFER ipbf-estCostHeader    FOR estCostHeader.
+    DEFINE PARAMETER BUFFER ipbf-ttCEFormatConfig FOR ttCEFormatConfig.
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER NO-UNDO.
 
@@ -1526,7 +1584,7 @@ PROCEDURE pPrintSummaryCosts PRIVATE:
     DEFINE VARIABLE iStartLevelsAfter AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cHeaderItemSumm   AS CHARACTER NO-UNDO.
 
-    IF ipcFormat EQ "McLean" THEN 
+    IF ipbf-ttCEFormatConfig.formatMaster EQ "McLean" THEN 
         ASSIGN 
             cWidths           = "30,9,6,6,6"
             cDecimals         = "0,0,2,2,2"
@@ -1634,4 +1692,107 @@ PROCEDURE pPrintSummaryCosts PRIVATE:
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
 
 END PROCEDURE.
+
+
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fFormatNumber RETURNS CHARACTER PRIVATE
+    ( ipdNumber AS DECIMAL , ipiLeftDigits AS INTEGER , ipiRightDigits AS INTEGER, iplComma AS LOGICAL, iplAllowNegatives AS LOGICAL):
+    /*------------------------------------------------------------------------------
+     Purpose: Formats a number with left and right digits.  Handles problem when 
+     size of number doesn't fit
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    
+    RETURN DYNAMIC-FUNCTION("FormatNumber", ipdNumber, ipiLeftDigits, ipiRightDigits, iplComma, iplAllowNegatives).
+		
+END FUNCTION.
+
+FUNCTION fFormatString RETURNS CHARACTER PRIVATE
+    ( ipcString AS CHARACTER, ipiCharacters AS INTEGER ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Formats string with number of characters.  If string is larger than what fits, 
+     it auto adds a "cont" string to end
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    
+    RETURN DYNAMIC-FUNCTION("FormatString", ipcString, ipiCharacters).
+    
+		
+END FUNCTION.
+
+FUNCTION fFormatTime RETURNS CHARACTER PRIVATE
+    (ipdTimeInDecimal AS DECIMAL):
+    /*------------------------------------------------------------------------------
+    Purpose:  Formats a time in decimal as "HH:MM"
+    Notes:
+    ------------------------------------------------------------------------------*/    
+
+    RETURN DYNAMIC-FUNCTION("sfCommon_DecimalDurationInHHMM", ipdTimeInDecimal).
+		
+END FUNCTION.
+
+FUNCTION fFormIsPurchasedFG RETURNS LOGICAL PRIVATE
+    ( ipiFormID AS INT64 ):
+    /*------------------------------------------------------------------------------
+     Purpose: REturns yes, if the form has a purchased FG as a material
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    
+    DEFINE BUFFER bf-estCostMaterial FOR estCostMaterial.
+    
+    FIND FIRST bf-estCostMaterial NO-LOCK 
+        WHERE bf-estCostMaterial.estCostFormID EQ ipiFormID
+        AND bf-estCostMaterial.isPurchasedFG
+        NO-ERROR.
+    RETURN AVAILABLE bf-estCostMaterial.
+		
+END FUNCTION.
+
+FUNCTION fTypeAllowsMult RETURNS LOGICAL PRIVATE
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns if Given Type supports Multiple
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    RETURN DYNAMIC-FUNCTION("IsSetType",ipcEstType) 
+        OR 
+        DYNAMIC-FUNCTION("IsSingleType",ipcEstType)
+        OR
+        DYNAMIC-FUNCTION("IsMiscType",ipcEstType).
+		
+END FUNCTION.
+
+FUNCTION fTypePrintsLayout RETURNS LOGICAL PRIVATE
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns if given type should print Layout
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    RETURN NOT DYNAMIC-FUNCTION("IsMiscType",ipcEstType).
+		
+END FUNCTION.
+
+FUNCTION fTypePrintsBoard RETURNS LOGICAL PRIVATE
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns if given type should print board details
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN NOT DYNAMIC-FUNCTION("IsMiscType",ipcEstType).
+        
+END FUNCTION.
+
+FUNCTION fTypeIsWood RETURNS LOGICAL PRIVATE
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns if given type should print Wood specific fields
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    
+    RETURN DYNAMIC-FUNCTION("IsWoodType",ipcEstType). 
+    
+END FUNCTION.
+
 

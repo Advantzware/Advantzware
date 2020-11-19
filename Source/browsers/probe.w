@@ -164,24 +164,21 @@ DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
 
 DEFINE VARIABLE glEstimateCalcNew AS LOGICAL NO-UNDO.
 DEFINE VARIABLE glEstimateCalcNewPrompt AS LOGICAL NO-UNDO.
-DEFINE VARIABLE gcEstimateFormat AS CHARACTER NO-UNDO.
-DEFINE VARIABLE gcEstimateFont AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
 DEFINE VARIABLE iLinePerPage AS INTEGER NO-UNDO .
 DEFINE VARIABLE hdEstimateProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE lCEVersion AS LOGICAL NO-UNDO.
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lBussFormModle = LOGICAL(cRtnChar) NO-ERROR. 
-
- RUN sys/ref/nk1look.p (INPUT cocode, "CEFormat", "C" /* Character */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT gcEstimateFormat, OUTPUT lRecFound).
-  RUN sys/ref/nk1look.p (INPUT cocode, "CEFormatFont", "C" /* Character */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT gcEstimateFont, OUTPUT lRecFound).
+    
+ RUN sys/ref/nk1look.p (cocode, "CEVersion", "C" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cRtnChar, OUTPUT lRecFound).
+    lCEVersion = lRecFound AND cRtnChar EQ "New".   
     
 FIND FIRST sys-ctrl NO-LOCK WHERE
     sys-ctrl.company EQ cocode AND
@@ -608,7 +605,8 @@ ASSIGN
 ASSIGN 
        probe.comm:VISIBLE IN BROWSE br_table = FALSE
        probe.sell-price:AUTO-RESIZE IN BROWSE br_table = TRUE.
-
+ IF NOT lCEVersion THEN
+       probe.tot-lbs:VISIBLE IN BROWSE br_table = FALSE.
 
 /* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -2951,7 +2949,7 @@ ASSIGN
     cOutputFile = SESSION:TEMP-DIRECTORY + TRIM(ipbf-probe.est-no) + ipbf-probe.probe-user + STRING(TIME) + ".xpr"
     .
 
-RUN est\EstimatePrint.p (iEstCostHeaderID, cOutputFile, gcEstimateFormat, gcEstimateFont).
+RUN est\EstimatePrint.p (iEstCostHeaderID, cOutputFile).
 
 END PROCEDURE.
     

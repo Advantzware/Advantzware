@@ -396,7 +396,7 @@ else do:
             first bf-quo  where recid(bf-quo) eq bf-report.rec-id NO-LOCK,
             FIRST est WHERE est.company EQ bf-quo.company
                      AND est.est-no  EQ bf-quo.est-no 
-                     AND est.est-type EQ 6 AND est.form-qty GT 1 NO-LOCK,
+                     AND (est.est-type EQ 6 OR est.est-type EQ 2) AND est.form-qty GT 1 NO-LOCK,
             EACH ef WHERE ef.company EQ est.company
                  AND ef.est-no  EQ est.est-no NO-LOCK,      
             EACH eb OF ef NO-LOCK BREAK BY ef.form-no :

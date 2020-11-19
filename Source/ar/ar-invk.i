@@ -7,7 +7,7 @@
 DEFINE VARIABLE dInvoiceTotal    AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dInvoiceSubTotal AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dTotalTax        AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lError           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cmessage         AS CHARACTER NO-UNDO.
 
  assign   
@@ -32,7 +32,7 @@ RUN Tax_CalculateForArInv  (
     OUTPUT dTotalTax,
     OUTPUT dInvoiceTotal,
     OUTPUT dinvoiceSubTotal,
-    OUTPUT lSuccess,
+    OUTPUT lError,
     OUTPUT cMessage
     ).
 

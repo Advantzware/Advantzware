@@ -11,6 +11,7 @@ IF v-first THEN
         "  End date:" STRING(end_date) FORM "x(5)" 
         "Page: " AT 145 PAGE-NUM FORM ">>9"
         SKIP
+        cHeading SKIP
         str-tit4 SKIP
         str-tit5
         "</B>"
@@ -128,30 +129,22 @@ IF AVAIL itemfg THEN DO:
                      LEAVE.
                END.
                lv-routing = "".
-               IF FIRST(tt-fg-set.QtyPerSet) THEN
-                  FOR EACH job-mch WHERE 
-                           job-mch.company EQ job.company
+               IF FIRST(tt-fg-set.QtyPerSet) THEN do:
+                  FIND LAST job-mch NO-LOCK  
+                       WHERE job-mch.company EQ job.company
                        AND job-mch.job     EQ job.job
                        AND job-mch.job-no  EQ job.job-no
                        AND job-mch.job-no2 EQ job.job-no2
-                       AND job-mch.frm     EQ INTEGER(tt-fg-set.QtyPerSet) NO-LOCK
-                     BREAK BY job-mch.line:
+                       AND job-mch.frm     EQ INTEGER(tt-fg-set.QtyPerSet) 
+                     use-index line-idx NO-ERROR  .
 
-                     lv-routing = lv-routing + job-mch.m-code + ",".
-                  END.
+                    IF avail job-mch THEN
+                     lv-routing =  job-mch.m-code .
+                 
+               END.   
          END. /* each tt-fg-set*/
-      END.  /* job*/
-   
-      IF lv-routing = "" AND itemfg.est-no <> "" THEN 
-         FOR EACH est-op NO-LOCK WHERE 
-                  est-op.company = itemfg.company
-              AND est-op.est-no = itemfg.est-no
-              AND est-op.line LT 500 :
-              /*((ASI.est-op.qty eq est-qty.eqty and est.est-type ne 8) or
-                 (ASI.est-op.qty eq lv-eqty and est.est-type ge 7)) NO-LOCK*/
-            lv-routing = lv-routing + est-op.m-code + ",".
-         END.
-
+      END.  /* job*/      
+      
       /* spec notes */
       lv-text = "".
       IF tb_notes AND rd_lComments THEN 
@@ -224,36 +217,9 @@ IF AVAIL itemfg THEN DO:
 
    {custom/statusMsg.i "'Processing Customer # ' + string(w-ord.cust-no)"} 
 
-  /* DISP
-       w-ord.onh-qty   FORMAT "->>>>>>>>9"
-       w-ord.cust-name                                  
-       w-ord.i-no                                      
-       w-ord.i-name    FORMAT "X(27)"
-       itemfg.procat                                   
-       w-ord.po-num    FORMAT "x(15)"                       
-       w-ord.ord-no                                    
-       w-ord.price                                     
-       w-ord.rel-qty                                   
-       w-ord.rel-date                                  
-       w-ord.rel-no
-     WITH DOWN FRAME hots{1} NO-BOX STREAM-IO NO-LABEL WIDTH 250.
-
-
-
-   IF tb_excel THEN
-      PUT STREAM st-excel UNFORMATTED
-           '"' w-ord.onh-qty   '",'
-           '"' w-ord.cust-name '",'
-           '"' w-ord.i-no      '",'
-           '"' w-ord.i-name   '",'
-           '"' itemfg.procat   '",'
-           '"' w-ord.po-num    '",'
-           '"' w-ord.ord-no    '",'
-           '"' w-ord.price     '",'
-           '"' w-ord.rel-qty   '",'
-           '"' w-ord.rel-date  '",'
-           '"' w-ord.rel-no    '"'
-         SKIP.   */
+  FIND FIRST rejct-cd NO-LOCK
+       WHERE rejct-cd.TYPE    EQ "R"
+       AND rejct-cd.CODE EQ w-ord.prom-date-reason NO-ERROR .
 
    ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -278,7 +244,13 @@ IF AVAIL itemfg THEN DO:
                          WHEN "rel"  THEN cVarValue = STRING(w-ord.rel-no,"->,>>>>>9") .
                          WHEN "pro-date"   THEN cVarValue = IF w-ord.prom-date NE ? THEN STRING(date(w-ord.prom-date),"99/99/99") ELSE "" .
                          WHEN "style"   THEN cVarValue = STRING(itemfg.style ,"x(6)").
-                         
+                         WHEN "pro-date-reason"   THEN cVarValue = IF AVAIL rejct-cd THEN STRING(w-ord.prom-date-reason + " " + rejct-cd.dscr ,"x(30)") ELSE "".
+                         WHEN "last-mch"   THEN cVarValue = STRING(lv-routing ,"x(12)").
+                         WHEN "job-no"   THEN cVarValue = IF w-ord.job-no NE "" THEN STRING(w-ord.job-no + "-" + STRING(w-ord.job-no2,"99") ,"x(9)") ELSE "".
+			             WHEN "ord-prom-date"   THEN cVarValue = IF w-ord.ord-prom-date ne ? THEN STRING(w-ord.ord-prom-date,"99/99/9999") ELSE "".
+                         WHEN "job-prom-date"   THEN cVarValue = IF w-ord.job-prom-date ne ? THEN STRING(w-ord.job-prom-date,"99/99/9999") ELSE "".
+                         WHEN "prom-code"   THEN cVarValue = IF w-ord.prom-code ne ? THEN STRING(w-ord.prom-code,"x(10)") ELSE "".
+			
                     END CASE.
                       
                     cExcelVarValue = cVarValue.

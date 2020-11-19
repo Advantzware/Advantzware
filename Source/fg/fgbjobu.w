@@ -58,6 +58,10 @@ DELETE OBJECT hPgmSecurity.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lReqReasonCode AS LOGICAL NO-UNDO .
+DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
+
+RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+
 RUN sys/ref/nk1look.p (INPUT cocode, "AdjustReason", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -460,6 +464,8 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL D-Dialog D-Dialog
 ON WINDOW-CLOSE OF FRAME D-Dialog /* Finished Good Cost Update */
 DO:  
+    IF VALID-HANDLE(hdInventoryProcs) THEN 
+        DELETE PROCEDURE hdInventoryProcs.
     /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
     APPLY "END-ERROR":U TO SELF.
 END.
@@ -472,6 +478,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel D-Dialog
 ON CHOOSE OF btnCancel IN FRAME D-Dialog /* Cancel */
 DO:
+    IF VALID-HANDLE(hdInventoryProcs) THEN 
+        DELETE PROCEDURE hdInventoryProcs.
     APPLY "close" TO THIS-PROCEDURE.
 END.
 
@@ -489,6 +497,7 @@ DO:
     DEFINE VARIABLE ll-changed  AS LOG       NO-UNDO.
     DEFINE VARIABLE cReasonCode AS CHARACTER NO-UNDO .
     DEFINE VARIABLE lCheckError AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lOldValueOnHold AS LOGICAL NO-UNDO.
 
     DEFINE BUFFER b-fg-bin FOR fg-bin.
 
@@ -568,6 +577,7 @@ DO:
                 fg-bin.units-pallet  NE ld-v5  OR
                 fg-bin.partial-count NE ld-v11 OR
                 fg-bin.std-tot-cost  NE w-job.std-tot-cost
+            lOldValueOnHold     = fg-bin.onHold   
             fg-bin.case-count   = ld-v4
             fg-bin.cases-unit   = ld-v3
             fg-bin.unit-count   = ld-v3 * ld-v4
@@ -584,6 +594,13 @@ DO:
             fg-bin.onHold       = w-job.onHold
             fg-bin.ship-default = w-job.ship-default
             .
+        IF lOldValueOnHold NE fg-bin.onHold THEN
+        DO: 
+            RUN UpdateFGLocationOnHandQty IN hdInventoryProcs( 
+                                                INPUT rowid(fg-bin), 
+                                                INPUT fg-bin.onHold) .
+        END.     
+            
         FOR EACH loadtag
             WHERE loadtag.company      EQ fg-bin.company
               AND loadtag.item-type    EQ NO

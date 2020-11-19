@@ -904,8 +904,8 @@ PROCEDURE rm-post-issue :
                      mat-act.cost    = if mat-act.cost eq 0 then out-cost else mat-act.cost
                      mat-act.qty     = mat-act.qty     + out-qty
                      job-mat.qty-iss = job-mat.qty-iss + out-qty
-                     job-mat.qty-all = job-mat.qty-all - out-qty
-                     item.q-comm     = item.q-comm     - out-qty.
+                     job-mat.qty-all = job-mat.qty-all - out-qty.
+                     /*item.q-comm     = item.q-comm     - out-qty Handled in job-mat write trigger*/
             
              run sys/ref/convquom.p(rm-rctd.pur-uom, job-mat.sc-uom,
                                     v-bwt, v-len, v-wid, v-dep,
@@ -919,7 +919,7 @@ PROCEDURE rm-post-issue :
                                      v-bwt, v-len, v-wid, v-dep,
                                      job-mat.qty-all, output out-qty).
              assign  job-mat.qty-all = 0
-                     item.q-comm     = item.q-comm - out-qty
+                     /*item.q-comm     = item.q-comm - out-qty*/
                      job-mat.all-flg = (job-mat.qty-all gt 0).
              if item.q-comm lt 0 then item.q-comm = 0.          
 

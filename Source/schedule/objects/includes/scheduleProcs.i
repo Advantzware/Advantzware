@@ -374,6 +374,10 @@ PROCEDURE pLoadDowntime:
     
     DEFINE BUFFER bttFolder FOR ttFolder.
 
+    // ensure folders exist for non-SB clients to prevent run-time error
+    OS-CREATE-DIR "schedule".
+    OS-CREATE-DIR "schedule\data".
+    OS-CREATE-DIR "schedule\data\ASI".
     CREATE ttFolder.
     ttFolder.folderName = ".\schedule\data\ASI".
     FOR EACH ttFolder

@@ -66,7 +66,14 @@ DEFINE {1} SHARED TEMP-TABLE ttInputEst
     FIELD copy-runship as CHARACTER extent 20  /* Optional */
     FIELD cSourceEst AS CHARACTER /* Optional*/
     FIELD dQtyPerSet AS DECIMAL /* Optional*/
-    FIELD cSetType AS CHARACTER /* Optional*/    
+    FIELD cSetType AS CHARACTER /* Optional*/  
+    FIELD dMSF AS DECIMAL /* Optional*/  
+    FIELD dForceFrt AS DECIMAL /* Optional*/
+    FIELD cForceFrtUom AS CHARACTER /* Optional*/ 
+    FIELD cAddersDscr1 AS CHARACTER /* Optional*/ 
+    FIELD cAddersDscr2 AS CHARACTER /* Optional*/
+    FIELD cAddersDscr3 AS CHARACTER /* Optional*/
+    FIELD cProject AS CHARACTER /* Optional*/
     .
 
 

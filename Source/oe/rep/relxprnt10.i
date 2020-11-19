@@ -344,6 +344,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                where fg-bin.company  eq cocode
                  and fg-bin.i-no     eq w-oe-rell.i-no
                  and fg-bin.qty      gt 0
+                 AND fg-bin.onHold   EQ NO
                no-lock:
           
                IF NOT(

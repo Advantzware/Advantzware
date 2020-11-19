@@ -177,24 +177,24 @@ RUN sys/ref/nk1look.p (INPUT cocode, "XMLJobTicket", "L" /* Logical */, NO /* ch
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_job1 begin_job2 end_job1 ~
 end_job2 tb_fold tb_show-rel tb_RS tb_corr tb_PR tb_reprint tb_DC tb_box ~
-tb_GL tb_SW tb_approve tb_print-metric spec_codes revsn_no tb_prt-label ~
-tb_committed tb_prt-set-header tb_prompt-ship dept_codes TB_sample_req ~
-tb_freeze-note tb_dept-note rd-dest lines-per-page lv-ornt lv-font-no ~
-td-show-parm run_format tb_ExportXML btn-ok btn-cancel 
+tb_GL tb_SW tb_approve tb_print-metric spec_codes revsn_no rd_print-Sheet ~
+tb_prt-label tb_committed tb_prt-set-header tb_prompt-ship dept_codes ~
+TB_sample_req tb_freeze-note tb_dept-note rd-dest lines-per-page lv-ornt ~
+lv-font-no td-show-parm run_format tb_ExportXML btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_job1 begin_job2 end_job1 end_job2 ~
 tb_fold tb_show-rel tb_RS tb_corr tb_PR tb_reprint tb_DC tb_box tb_GL ~
 tb_fgimage tb_SW tb_print-metric spec_codes tb_prt-rev revsn_no tb_prt-dmi ~
-tb_prt-mch rd_print-speed tb_prt-shipto tb_prt-sellprc tb_prt-label ~
-tb_committed tb_prt-set-header tb_prompt-ship dept_codes TB_sample_req ~
-tb_freeze-note tb_dept-note rd-dest lines-per-page lv-ornt lv-font-no ~
-lv-font-name td-show-parm run_format tb_ExportXML 
+rd_print-Sheet tb_prt-mch rd_print-speed tb_prt-shipto tb_prt-sellprc ~
+tb_prt-label tb_committed tb_prt-set-header tb_prompt-ship dept_codes ~
+TB_sample_req tb_freeze-note tb_dept-note rd-dest lines-per-page lv-ornt ~
+lv-font-no lv-font-name td-show-parm run_format tb_ExportXML 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
 &Scoped-define List-1 begin_job1 begin_job2 end_job1 end_job2 tb_reprint ~
-tb_box tb_fgimage tb_approve tb_tray-2 tb_make_hold tb_draft ~
-tb_app-unprinted tb_print-metric tb_prt-rev tb_prt-dmi tb_prt-mch ~
-tb_prt-shipto tb_prt-sellprc tb_prt-label td-show-parm 
+tb_box tb_fgimage tb_approve tb_tray-2 tb_make_hold tb_app-unprinted ~
+tb_print-metric tb_draft tb_prt-rev tb_prt-dmi tb_prt-mch tb_prt-shipto ~
+tb_prt-sellprc tb_prt-label td-show-parm 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -322,6 +322,14 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
 "To Email", 5,
 "To Port Directly", 6
      SIZE 19 BY 5.95 NO-UNDO.
+
+DEFINE VARIABLE rd_print-Sheet AS CHARACTER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Job Ticket", "J",
+"Sheeting Ticket", "S",
+"Both", "B"
+     SIZE 39.6 BY .95 NO-UNDO.
 
 DEFINE VARIABLE rd_print-speed AS CHARACTER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -519,13 +527,14 @@ DEFINE FRAME FRAME-A
      tb_approve AT ROW 8.33 COL 47 RIGHT-ALIGNED
      tb_tray-2 AT ROW 8.33 COL 91 RIGHT-ALIGNED WIDGET-ID 6
      tb_make_hold AT ROW 9.33 COL 91 RIGHT-ALIGNED WIDGET-ID 12
-     tb_draft AT ROW 9.38 COL 56 RIGHT-ALIGNED WIDGET-ID 18
      tb_app-unprinted AT ROW 9.38 COL 56 RIGHT-ALIGNED WIDGET-ID 10
      tb_print-metric AT ROW 9.38 COL 56 RIGHT-ALIGNED WIDGET-ID 22
+     tb_draft AT ROW 9.38 COL 56 RIGHT-ALIGNED WIDGET-ID 18
      spec_codes AT ROW 10.24 COL 18.8 COLON-ALIGNED
      tb_prt-rev AT ROW 11.29 COL 21
      revsn_no AT ROW 11.29 COL 49 COLON-ALIGNED
      tb_prt-dmi AT ROW 11.29 COL 60.8 WIDGET-ID 24
+     rd_print-Sheet AT ROW 12.14 COL 57.2 NO-LABEL WIDGET-ID 26
      tb_prt-mch AT ROW 12.19 COL 21
      fl-jobord AT ROW 12.19 COL 81 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      rd_print-speed AT ROW 13.1 COL 57.4 NO-LABEL
@@ -551,11 +560,11 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 25.14 COL 57
      "Print Machine's Speed or Run Hour ?" VIEW-AS TEXT
           SIZE 36.6 BY .62 AT ROW 13.24 COL 21
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 18.38 COL 1.8
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.1 COL 3
           BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 18.38 COL 1.8
      RECT-6 AT ROW 18.33 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -1523,7 +1532,7 @@ END.
 
 &Scoped-define SELF-NAME tb_prt-dmi
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_prt-dmi C-Win
-ON VALUE-CHANGED OF tb_prt-dmi IN FRAME FRAME-A /* Print DMI Barcode page */
+ON VALUE-CHANGED OF tb_prt-dmi IN FRAME FRAME-A /* Print DMI Barcode page? */
 DO:
   assign {&self-name}.
   
@@ -2614,18 +2623,19 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_job1 begin_job2 end_job1 end_job2 tb_fold tb_show-rel tb_RS 
           tb_corr tb_PR tb_reprint tb_DC tb_box tb_GL tb_fgimage tb_SW 
-          tb_print-metric spec_codes tb_prt-rev revsn_no tb_prt-dmi tb_prt-mch 
-          rd_print-speed tb_prt-shipto tb_prt-sellprc tb_prt-label tb_committed 
-          tb_prt-set-header tb_prompt-ship dept_codes TB_sample_req 
-          tb_freeze-note tb_dept-note rd-dest lines-per-page lv-ornt lv-font-no 
-          lv-font-name td-show-parm run_format tb_ExportXML 
+          tb_print-metric spec_codes tb_prt-rev revsn_no tb_prt-dmi 
+          rd_print-Sheet tb_prt-mch rd_print-speed tb_prt-shipto tb_prt-sellprc 
+          tb_prt-label tb_committed tb_prt-set-header tb_prompt-ship dept_codes 
+          TB_sample_req tb_freeze-note tb_dept-note rd-dest lines-per-page 
+          lv-ornt lv-font-no lv-font-name td-show-parm run_format tb_ExportXML 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_job1 begin_job2 end_job1 end_job2 tb_fold 
          tb_show-rel tb_RS tb_corr tb_PR tb_reprint tb_DC tb_box tb_GL tb_SW 
-         tb_approve tb_print-metric spec_codes revsn_no tb_prt-label 
-         tb_committed tb_prt-set-header tb_prompt-ship dept_codes TB_sample_req 
-         tb_freeze-note tb_dept-note rd-dest lines-per-page lv-ornt lv-font-no 
-         td-show-parm run_format tb_ExportXML btn-ok btn-cancel 
+         tb_approve tb_print-metric spec_codes revsn_no rd_print-Sheet 
+         tb_prt-label tb_committed tb_prt-set-header tb_prompt-ship dept_codes 
+         TB_sample_req tb_freeze-note tb_dept-note rd-dest lines-per-page 
+         lv-ornt lv-font-no td-show-parm run_format tb_ExportXML btn-ok 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -3043,9 +3053,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallOutboundAPI C-Win
-PROCEDURE pCallOutboundAPI PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallOutboundAPI C-Win 
+PROCEDURE pCallOutboundAPI PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose: To call outbound api 
  Notes:
@@ -3089,11 +3098,9 @@ PROCEDURE pCallOutboundAPI PRIVATE:
         RUN Outbound_ResetContext IN hdOutboundProcs. 
     END.                       
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunFormatValueChanged C-Win 
 PROCEDURE pRunFormatValueChanged :
@@ -3289,8 +3296,11 @@ PROCEDURE pRunFormatValueChanged :
                   tb_prt-dmi:SENSITIVE = YES .
             ELSE
                tb_prt-dmi:HIDDEN = YES .
-              
-       
+           IF lv-format-f EQ "CentBox" AND lv-int-f EQ 0 AND tb_fold:SCREEN-VALUE EQ "Yes" THEN
+           DO:
+              rd_print-Sheet:HIDDEN =  NO.  
+           END.
+           ELSE rd_print-Sheet:HIDDEN =  YES.       
     END.
 END PROCEDURE.
 
@@ -3334,6 +3344,7 @@ PROCEDURE run-report :
     lExportXML              = tb_ExportXML
     lPrintMetric            = tb_print-metric
     lPrintDMIPage           = tb_prt-dmi 
+    cPrintSheetTicket       = rd_print-Sheet
     . 
 
   IF s-prt-revno THEN

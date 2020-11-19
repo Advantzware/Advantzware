@@ -107,7 +107,7 @@ AND rm-bin.i-no = ip-i-no  ~
 and (rm-bin.po-no eq ip-PoNo or ip-PoNo eq 0 OR tb_qty eq YES) ~
 and (rm-bin.loc  EQ ip-loc OR ip-loc EQ "" OR tb_qty eq YES) ~
 and (rm-bin.loc-bin  EQ ip-loc-bin OR ip-loc-bin EQ "" OR tb_qty eq YES) ~
-     NO-LOCK ~
+AND ((rm-bin.qty > 0 AND NOT tb_qty) OR tb_qty = YES)  NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH rm-bin WHERE ~{&KEY-PHRASE} ~
       AND rm-bin.company = ip-company ~
@@ -115,7 +115,7 @@ AND rm-bin.i-no = ip-i-no  ~
 and (rm-bin.po-no eq ip-PoNo or ip-PoNo eq 0 OR tb_qty eq YES) ~
 and (rm-bin.loc  EQ ip-loc OR ip-loc EQ "" OR tb_qty eq YES) ~
 and (rm-bin.loc-bin  EQ ip-loc-bin OR ip-loc-bin EQ "" OR tb_qty eq YES) ~
-     NO-LOCK ~
+AND ((rm-bin.qty > 0 AND NOT tb_qty) OR tb_qty = YES)  NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 rm-bin
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 rm-bin
@@ -275,7 +275,8 @@ ASSIGN
      _Where[1]         = "ASI.rm-bin.company = ip-company
 AND ASI.rm-bin.i-no = ip-i-no AND (ASI.rm-bin.po-no = ip-PoNo or ip-PoNo eq 0 OR tb_qty eq YES)
 and (rm-bin.loc  EQ ip-loc OR ip-loc EQ '' OR tb_qty eq YES) 
-and (rm-bin.loc-bin  EQ ip-loc-bin OR ip-loc-bin EQ '' OR tb_qty eq YES)  "
+and (rm-bin.loc-bin  EQ ip-loc-bin OR ip-loc-bin EQ '' OR tb_qty eq YES)  
+AND ((rm-bin.qty > 0 AND NOT tb_qty) OR tb_qty = YES) "
      _FldNameList[1]   = ASI.rm-bin.loc
      _FldNameList[2]   > ASI.rm-bin.loc-bin
 "rm-bin.loc-bin" "Bin" ? "character" ? ? ? ? ? ? no ? no no "11.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no

@@ -626,7 +626,7 @@ PROCEDURE pGetDynParamValue :
         defaultOutputFormat
         .
     FIND FIRST dynSubject NO-LOCK
-         WHERE dynSubject.subjectID EQ dynParamValue.subject
+         WHERE dynSubject.subjectID EQ dynParamValue.subjectID
          NO-ERROR.
 
 END PROCEDURE.

@@ -914,6 +914,7 @@ PROCEDURE import-file :
 ------------------------------------------------------------------------------*/
 
  RUN util/dev/impQuote.p .
+ IF VALID-HANDLE(h_b-qthd) THEN
  RUN local-open-query IN h_b-qthd .
 
 END PROCEDURE.

@@ -38,6 +38,7 @@ CREATE WIDGET-POOL.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}   
+{methods/getExecutableFileName.i quoter}
 
 DEF STREAM s-in.
 
@@ -59,8 +60,11 @@ else
   fname = search(fname).
 
 IF fname matches "*.q" THEN qname = fname.
-
-ELSE DOS silent quoter value(fname) > value(qname).
+ELSE DO:
+    ASSIGN 
+        cQuoterCommandString = cQuoterFullPathName + " " + fname + " > " + qname.
+    OS-COMMAND SILENT VALUE(cQuoterCommandString).
+END.
 
 INPUT STREAM s-in FROM VALUE(qname) no-echo.
 

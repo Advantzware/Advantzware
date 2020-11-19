@@ -1610,9 +1610,9 @@ PROCEDURE pGetUpchargeCostsForVendItemCost PRIVATE:
     IF ipdDimWidth NE 0 AND ipbf-vendItemCost.dimWidthOver NE 0 THEN 
         dCostUpChargeOverWidth = IF dDimWidthInVendorDimUOM GT ipbf-vendItemCost.dimWidthOver THEN ipbf-vendItemCost.dimWidthOverCharge ELSE 0.
     IF ipdDimLength NE 0 AND ipbf-vendItemCost.dimLengthUnder NE 0 THEN 
-        dCostUpChargeUnderLength = IF dDimLengthInVendorDimUOM GT ipbf-vendItemCost.dimLengthUnder THEN ipbf-vendItemCost.dimLengthUnderCharge ELSE 0.
+        dCostUpChargeUnderLength = IF dDimLengthInVendorDimUOM LT ipbf-vendItemCost.dimLengthUnder THEN ipbf-vendItemCost.dimLengthUnderCharge ELSE 0.
     IF ipdDimWidth NE 0 AND ipbf-vendItemCost.dimWidthUnder NE 0 THEN 
-        dCostUpChargeUnderWidth = IF dDimWidthInVendorDimUOM GT ipbf-vendItemCost.dimWidthUnder THEN ipbf-vendItemCost.dimWidthUnderCharge ELSE 0.
+        dCostUpChargeUnderWidth = IF dDimWidthInVendorDimUOM LT ipbf-vendItemCost.dimWidthUnder THEN ipbf-vendItemCost.dimWidthUnderCharge ELSE 0.
     opdCostPerUOMUpCharge = dCostUpChargeOverLength + dCostUpChargeOverWidth + dCostUpChargeUnderLength + dCostUpChargeUnderWidth.   
     IF opdCostPerUOMUpCharge NE 0 THEN 
         iopcMessage = iopcMessage + " Includes Dimension Upcharge".
@@ -2138,11 +2138,7 @@ PROCEDURE VendCost_UpdateVendItemCost:
         AND vendItemCost.blankNo  EQ ipiBlank
         AND vendItemCost.itemID   EQ ipcOldItem:
         FIND FIRST bf-vendItemCost EXCLUSIVE-LOCK
-            WHERE bf-vendItemCost.company  EQ vendItemCost.company
-            AND bf-vendItemCost.estimate EQ vendItemCost.estimate 
-            AND bf-vendItemCost.formNo   EQ vendItemCost.formNo 
-            AND bf-vendItemCost.blankNO  EQ vendItemCost.blankNo
-            AND bf-vendItemCost.itemID   EQ vendItemCost.itemID
+            WHERE ROWID(bf-vendItemCost)  EQ ROWID(vendItemCost)             
             NO-ERROR.
         IF AVAILABLE bf-vendItemCost THEN 
             bf-vendItemCost.itemID = ipcNewItem.                       
@@ -2169,6 +2165,58 @@ PROCEDURE VendCost_GetVendorItemID:
         "","", 0, 0, NO, 
         OUTPUT opcVendorItemID, 
         OUTPUT lError, OUTPUT cMessage).
+
+END PROCEDURE.
+
+PROCEDURE Vendor_GetVendItemNumber:
+/*------------------------------------------------------------------------------
+ Purpose: To get VendorItemID based on company, item and vendor
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcVendNo      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iplUseVendCost AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcVendItemNo  AS CHARACTER NO-UNDO.
+    
+    IF iplUseVendCost THEN DO:
+        FIND FIRST vendItemCost NO-LOCK 
+             WHERE vendItemCost.company  EQ ipcCompany
+               AND vendItemCost.vendorID EQ ipcVendNo
+               AND vendItemCost.itemID   EQ ipcItemID
+               AND vendItemCost.itemType EQ "RM"
+            NO-ERROR.
+        IF AVAILABLE vendItemCost THEN 
+            opcVendItemNo = vendItemCost.vendorItemID.
+        ELSE DO:
+            FIND FIRST vendItemCost NO-LOCK 
+                 WHERE vendItemCost.company  EQ ipcCompany
+                   AND vendItemCost.vendorID EQ ""
+                   AND vendItemCost.itemID   EQ ipcItemID
+                   AND vendItemCost.itemType EQ "RM"
+                 NO-ERROR. 
+            IF AVAILABLE vendItemCost THEN 
+                opcVendItemNo = vendItemCost.vendorItemID.                        
+        END.                          
+    END.
+    ELSE DO:
+        FIND FIRST e-item-vend NO-LOCK 
+             WHERE e-item-vend.company EQ ipcCompany
+               AND e-item-vend.vend-no EQ ipcVendNo
+               AND e-item-vend.i-no    EQ ipcItemID
+             NO-ERROR.
+        IF AVAILABLE e-item-ven THEN 
+            opcVendItemNo = e-item-vend.vend-item.
+        ELSE DO:
+            FIND FIRST e-item-vend NO-LOCK 
+                 WHERE e-item-vend.company EQ ipcCompany
+                   AND e-item-vend.vend-no EQ ""
+                   AND e-item-vend.i-no    EQ ipcItemID
+                 NO-ERROR.
+            IF AVAILABLE e-item-vend THEN 
+                opcVendItemNo = e-item-vend.vend-item.            
+        END.                                
+    END.    
 
 END PROCEDURE.
 

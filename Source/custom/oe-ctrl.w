@@ -88,7 +88,7 @@ sys-ctrl.char-fld
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS n-ord Btn_Update Btn_Close 
 &Scoped-Define DISPLAYED-FIELDS ar-ctrl.last-inv oe-ctrl.n-bol ~
-oe-ctrl.p-fact oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-sep 
+oe-ctrl.p-fact oe-ctrl.p-job oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-sep 
 &Scoped-define DISPLAYED-TABLES ar-ctrl oe-ctrl
 &Scoped-define FIRST-DISPLAYED-TABLE ar-ctrl
 &Scoped-define SECOND-DISPLAYED-TABLE oe-ctrl
@@ -98,7 +98,7 @@ fiHoldTests
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
 &Scoped-define List-1 tgCreateSSBol n-ord oe-ctrl.n-bol oe-ctrl.p-fact ~
-oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-sep fNextRFIDNum 
+oe-ctrl.p-job oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-sep fNextRFIDNum 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -193,6 +193,10 @@ DEFINE FRAME oe-ctrl
           BGCOLOR 15 
      oe-ctrl.p-fact AT ROW 7.43 COL 13
           LABEL "Allow Factory Ticket Printing"
+          VIEW-AS TOGGLE-BOX
+          SIZE 23 BY .81
+     oe-ctrl.p-job AT ROW 7.43 COL 58
+          LABEL "Allow Create Job"
           VIEW-AS TOGGLE-BOX
           SIZE 23 BY .81
      oe-ctrl.p-bol AT ROW 8.43 COL 13
@@ -296,6 +300,8 @@ ASSIGN
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.p-bol IN FRAME oe-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.p-fact IN FRAME oe-ctrl
+   NO-ENABLE 1 EXP-LABEL                                                */
+/* SETTINGS FOR TOGGLE-BOX oe-ctrl.p-job IN FRAME oe-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.p-pick IN FRAME oe-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
@@ -614,8 +620,8 @@ PROCEDURE enable_UI :
     DISPLAY ar-ctrl.last-inv 
       WITH FRAME oe-ctrl IN WINDOW C-Win.
   IF AVAILABLE oe-ctrl THEN 
-    DISPLAY oe-ctrl.n-bol oe-ctrl.p-fact oe-ctrl.p-bol oe-ctrl.p-pick 
-          oe-ctrl.p-sep 
+    DISPLAY oe-ctrl.n-bol oe-ctrl.p-fact oe-ctrl.p-job oe-ctrl.p-bol 
+          oe-ctrl.p-pick oe-ctrl.p-sep 
       WITH FRAME oe-ctrl IN WINDOW C-Win.
   ENABLE n-ord Btn_Update Btn_Close 
       WITH FRAME oe-ctrl IN WINDOW C-Win.

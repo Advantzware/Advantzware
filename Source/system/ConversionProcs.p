@@ -60,6 +60,10 @@ FUNCTION fGetSqin RETURNS DECIMAL PRIVATE
 
 FUNCTION fUseItemUOM RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER) FORWARD.
+    
+FUNCTION fConv_ValidUomForRMItem RETURNS LOGICAL 
+    (ipcType AS CHARACTER,
+     ipcUom AS CHARACTER) FORWARD.    
 
 
 /* ***************************  Main Block  *************************** */
@@ -1217,5 +1221,24 @@ FUNCTION fUseItemUOM RETURNS LOGICAL PRIVATE
             lUseItemUoM = LOGICAL(cReturn) NO-ERROR.
 	
     RETURN lUseItemUOM.
+	
+END FUNCTION.
+
+FUNCTION fConv_ValidUomForRMItem RETURNS LOGICAL 
+    ( ipcType AS CHARACTER,
+      ipcUom AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns setting for FGItemUOM
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE lReturn     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cUomlist    AS CHARACTER NO-UNDO.
+       
+    run sys/ref/uom-rm.p  (ipcType, output cUomlist).
+    IF LOOKUP(ipcUom,cUomlist) EQ 0 THEN
+        lReturn = TRUE.
+    ELSE lReturn = FALSE.    
+        
+    RETURN lReturn.
 	
 END FUNCTION.

@@ -306,8 +306,11 @@ DEF VAR lv-cad-image-list AS cha NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOG NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cXMlFinalDest AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iTotalPass AS INTEGER NO-UNDO .
-DEFINE VARIABLE cEnterBy AS CHARACTER NO-UNDO .
+DEFINE VARIABLE iTotalPass AS INTEGER NO-UNDO.
+DEFINE VARIABLE cEnterBy AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE cCSRID         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cJobHdrDueDate AS CHARACTER NO-UNDO.
 RUN sys/ref/nk1look.p (INPUT cocode, "XMLJobTicket", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -459,10 +462,13 @@ FOR EACH job-hdr NO-LOCK
     IF v-first THEN 
     DO:
         ASSIGN
-            v-job-no  = job-hdr.job-no
-            v-job-no2 = job-hdr.job-no2
-            cJobNo    = v-job-no + "-" + STRING(v-job-no2,"99")
-            iOrder = job-hdr.ord-no.
+            v-job-no       = job-hdr.job-no
+            v-job-no2      = job-hdr.job-no2
+            cJobNo         = v-job-no + "-" + STRING(v-job-no2,"99")
+            iOrder         = job-hdr.ord-no
+            cCSRID         = IF AVAILABLE job THEN job.csrUser_id ELSE ""
+            cJobHdrDueDate = STRING(job-hdr.due-date)
+            .
 
         IF AVAILABLE oe-ord THEN
             IF NOT oe-ctrl.p-fact AND (oe-ord.stat EQ "H" OR oe-ord.priceHold) THEN NEXT.
@@ -563,8 +569,10 @@ FOR EACH job-hdr NO-LOCK
       RUN XMLOutput (lXMLOutput,'Order',iOrder,'Col').
       RUN XMLOutput (lXMLOutput,'NUMBER_UP',v-upnew,'Col').
       RUN XMLOutput (lXMLOutput,'Job_Start_date',v-start-date,'Col').
+      RUN XMLOutput (lXMLOutput,'Due_Date',cJobHdrDueDate,'Col').
       RUN XMLOutput (lXMLOutput,'QC_SPC',v-spc-no,'Col').
       RUN XMLOutput (lXMLOutput,'Category',cProCat,'Col').
+      RUN XMLOutput (lXMLOutput,'CSR_ID',cCSRID,'Col').
       RUN XMLOutput (lXMLOutput,'UserId',cEnterBy,'Col').
       RUN XMLOutput (lXMLOutput,'/JobTicketHeader','','Row').
       

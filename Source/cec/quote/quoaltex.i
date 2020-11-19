@@ -70,12 +70,25 @@ FOR EACH xqitm OF xquo NO-LOCK
     END.
 
  
-    IF numfit LT 5 AND s-print-2nd-dscr THEN numfit = 6.
-    ELSE IF numfit LT 5 THEN numfit = 5.
+    IF numfit LT 7 THEN numfit = 7.
 
     FIND FIRST xqqty OF xqitm NO-LOCK NO-ERROR.
     FIND FIRST itemfg WHERE itemfg.company = xqitm.company
         AND itemfg.i-no = xqitm.part-no NO-LOCK NO-ERROR.
+        
+    /* Output Over Under run */
+    v-over-under = "". 
+    IF AVAIL eb THEN
+    RUN oe/GetOverUnderPct.p(eb.company, 
+                             eb.cust-no,
+                             TRIM(eb.ship-id),
+                             eb.stock-no,
+                             OUTPUT cOverRun , 
+                             OUTPUT cUnderRun ) .
+                             
+     IF lMultiItem THEN
+       v-over-under = "Over-Under%: " + TRIM(STRING(decimal(cOverRun),">>9%")) + "-" +
+                        trim(STRING(decimal(cUnderRun),">>9%")).                           
 
     /* numfit is the number fields to fit */
     DO i = 1 TO numfit :
@@ -253,17 +266,26 @@ FOR EACH xqitm OF xquo NO-LOCK
                         END.
 
                         ELSE
-                            IF numfit EQ 6 THEN 
+                            IF i EQ 6 THEN 
                             DO:
                                 /* Output board number */
                                 v-board = "".
                                 IF NOT adder-print AND NOT logSetPrinting AND AVAILABLE ef THEN
                                     v-board = ef.adder[1] + " " + ef.adder[2] + " " + ef.adder[3] + " " +
                                         ef.adder[4] + " " + ef.adder[5] + " " + ef.adder[6].
+                                  ELSE IF lMultiItem THEN
+                                       ASSIGN
+                                           v-board = v-over-under
+                                           v-over-under = "".
      
-                                IF v-board NE "" THEN PUT SPACE(28) v-board FORM "x(28)".
+                                IF v-board NE "" THEN PUT  v-board AT 8 FORM "x(28)".
                                 ELSE numfit = 5.
                             END.
+                            ELSE
+                            IF i EQ 7 THEN 
+                            DO:       
+                                IF v-over-under NE "" AND lMultiItem THEN PUT  v-over-under AT 8 FORM "x(28)".                                
+                            END.                            
     
         /* wfk - don't see what the purpose of this is, was causing a problem */
         /*

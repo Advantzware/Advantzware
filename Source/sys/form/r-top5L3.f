@@ -16,7 +16,7 @@ form header
      tim_str
      str-tit2 format "x(300)"
      skip(1)
-     str-tit3 format "x(300)"
+     str-tit3 format "x(319)"
      skip
      str-tit4 format "x(319)"
      skip

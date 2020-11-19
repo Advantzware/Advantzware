@@ -31,6 +31,7 @@ DEFINE VARIABLE ppid AS INTEGER NO-UNDO.
 DEFINE VARIABLE lStrongDisconnect AS LOG NO-UNDO.
 DEFINE VARIABLE iLoginUserSecLevel AS INT NO-UNDO.
 DEFINE VARIABLE dtTestDateTime AS DATETIME NO-UNDO.
+DEFINE VARIABLE iSessionLimit AS INT NO-UNDO.
 
 DEFINE BUFFER bf-users FOR users.
 DEFINE BUFFER bf-userlog FOR userLog.
@@ -99,6 +100,8 @@ ASSIGN
             RETURN.
         END. 
     END.
+    ASSIGN 
+        iSessionLimit = userControl.maxSessionsPerUser.
 
 /* Find this user in users table */
     FIND FIRST users NO-LOCK WHERE 
@@ -134,7 +137,8 @@ ASSIGN
 /*    END.                                                         */
     ELSE ASSIGN  
         cUserName = users.user_name
-        iLoginUserSecLevel = users.securityLevel.
+        iLoginUserSecLevel = users.securityLevel
+        iSessionLimit = IF users.sessionLimit NE 0 THEN users.sessionLimit ELSE iSessionLimit.
 
 /* Verify user has "signed" the EULA agreement */
     cEulaFile = SEARCH("{&EulaFile}").
@@ -187,7 +191,7 @@ ASSIGN
         OR iLoginUserSecLevel GE 1000 THEN ASSIGN 
             cResponse = "".
         ELSE  
-            RUN system/wSession.w (INPUT iLoginCnt, INPUT userControl.maxSessionsPerUser, OUTPUT cResponse).
+            RUN system/wSession.w (INPUT iLoginCnt, INPUT iSessionLimit, OUTPUT cResponse).
 
         CASE cResponse:
             WHEN "" THEN ASSIGN     /* First time, or user wants multiple sessions */ 

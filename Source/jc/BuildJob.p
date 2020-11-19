@@ -18,7 +18,17 @@ DEFINE INPUT PARAMETER ipiOrderID AS INTEGER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opcErrorMessage AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE gcAutoIssueTypes AS CHARACTER  NO-UNDO INITIAL "C,D,F,G,I,L,M,P,R,T,V,W,B,1,2,3,4,5,6,7,8,9,X,Y,@".
+
 /* ********************  Preprocessor Definitions  ******************** */
+
+/* ************************  Function Prototypes ********************** */
+
+
+FUNCTION fIsAutoIssue RETURNS LOGICAL PRIVATE
+	(iplAutoIssueArray LIKE jc-ctrl.post,
+	 ipcMaterialType AS CHARACTER) FORWARD.
+
 DEFINE TEMP-TABLE ttJobHdrToKeep
     FIELD riJobHdr AS ROWID.
 
@@ -104,7 +114,7 @@ PROCEDURE pBuildJob PRIVATE:
     DEFINE OUTPUT PARAMETER opcErrorMessage AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-job FOR job.
-    
+        
     DEFINE VARIABLE iEstCostHeaderID AS INT64 NO-UNDO.
     
     FIND FIRST bf-job NO-LOCK 
@@ -273,6 +283,7 @@ PROCEDURE pBuildMachines PRIVATE:
             AND bf-job-mch.job-no2 EQ ipbf-job.job-no2
             AND bf-job-mch.frm EQ estCostOperation.formNo
             AND bf-job-mch.blank-no EQ estCostOperation.blankNo
+            AND bf-job-mch.pass EQ estCostOperation.pass
             AND bf-job-mch.m-code EQ estCostOperation.operationID
             NO-ERROR.
         IF NOT AVAILABLE bf-job-mch THEN 
@@ -286,6 +297,7 @@ PROCEDURE pBuildMachines PRIVATE:
                 bf-job-mch.frm      = estCostOperation.formNo
                 bf-job-mch.blank-no = estCostOperation.blankNo
                 bf-job-mch.m-code   = estCostOperation.operationID
+                bf-job-mch.pass     = estCostOperation.pass
                 .
         END.
         CREATE ttJobMchToKeep.
@@ -323,8 +335,13 @@ PROCEDURE pBuildMaterials PRIVATE:
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
     DEFINE PARAMETER BUFFER ipbf-job   FOR job.
     
-    DEFINE           BUFFER bf-job-mat FOR job-mat.
-        
+    DEFINE BUFFER bf-job-mat FOR job-mat.
+    DEFINE BUFFER bf-jc-ctrl FOR jc-ctrl.        
+    
+    FIND FIRST bf-jc-ctrl NO-LOCK 
+        WHERE bf-jc-ctrl.company EQ ipbf-job.company
+        NO-ERROR.
+    
     FOR EACH estCostMaterial NO-LOCK
         WHERE estCostMaterial.estCostHeaderID EQ ipiEstCostHeaderID
         AND NOT estCostMaterial.isPurchasedFG
@@ -352,6 +369,7 @@ PROCEDURE pBuildMaterials PRIVATE:
                 bf-job-mat.blank-no = estCostMaterial.blankNo
                 bf-job-mat.i-no     = estCostMaterial.itemID
                 bf-job-mat.rm-i-no  = estCostMaterial.itemID
+                
                 .
         END.
         CREATE ttJobMatToKeep.
@@ -368,6 +386,10 @@ PROCEDURE pBuildMaterials PRIVATE:
             bf-job-mat.n-up         = estCostForm.numOut
             bf-job-mat.basis-w      = estCostForm.basisWeight
             .
+        bf-job-mat.post = fIsAutoIssue(bf-jc-ctrl.post, estCostMaterial.materialType).
+        
+        IF bf-job-mat.qty-all EQ 0 OR NOT bf-job-mat.all-flg  THEN
+            bf-job-mat.qty-all = bf-job-mat.qty - bf-job-mat.qty-iss.
         
         RELEASE bf-job-mat.    
     END.
@@ -596,4 +618,23 @@ PROCEDURE pCleanJob PRIVATE:
 
 END PROCEDURE.
 
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fIsAutoIssue RETURNS LOGICAL PRIVATE
+	(iplAutoIssueArray LIKE jc-ctrl.post, ipcMaterialType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+    Purpose: Given the array of auto issues from control file and material type, return
+    where the auto issue is selected.
+    Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE lAutoIssue AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+    
+    iIndex = LOOKUP(ipcMaterialType,gcAutoIssueTypes).
+    lAutoIssue = iIndex GT 0 AND iplAutoIssueArray[iIndex] OR CAN-DO("J",ipcMaterialType).
+	
+	RETURN lAutoIssue.
+		
+END FUNCTION.
 

@@ -97,6 +97,7 @@ DEFINE {1} TEMP-TABLE ttLeaf
     FIELD dDimWidth AS DECIMAL 
     FIELD dDimLength AS DECIMAL
     FIELD dAreaInSQIn AS DECIMAL 
+    FIELD dAreaInSqInAperture AS DECIMAL 
     FIELD cDimUOM AS CHARACTER
     FIELD cQtyUOM AS CHARACTER
     FIELD dCoverageRate AS DECIMAL 
@@ -104,6 +105,7 @@ DEFINE {1} TEMP-TABLE ttLeaf
     FIELD dQtyRequiredPerLeaf AS DECIMAL
     FIELD lIsSheetFed AS LOGICAL 
     FIELD lIsWindow AS LOGICAL
+    FIELD lIsWax AS LOGICAL
     . 
     
 DEFINE {1} TEMP-TABLE ttPack

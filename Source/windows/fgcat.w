@@ -368,7 +368,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 14.10 , 22.00 ) NO-ERROR.
+       RUN set-position IN h_p-updsav ( 16.10 , 22.00 ) NO-ERROR.
        RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -378,7 +378,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = NAV-ICON,
                      Right-to-Left = First-On-Left':U ,
              OUTPUT h_p-navico ).
-       RUN set-position IN h_p-navico ( 16.48 , 31.00 ) NO-ERROR.
+       RUN set-position IN h_p-navico ( 18.48 , 31.00 ) NO-ERROR.
        RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
