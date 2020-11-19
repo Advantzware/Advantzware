@@ -119,6 +119,10 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "windows/prgrms.w" AND ipFunction EQ "") OR /*NS8 Program Master*/
                 (ipProgName EQ "windows/message.w" AND ipFunction EQ "Admin") OR /* Check security for Admin */
                 (ipProgName EQ "jcrep/r-ticket.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "sharpshooter/b-rmInqSumm.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "sharpshooter/b-rmInqBins.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "sharpshooter/b-fgInqLoc.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "sharpshooter/b-fgInqBins.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "" AND ipFunction = "")
                 ) THEN ASSIGN opCanAccess = FALSE.
         END. /* list-based exclusions */       

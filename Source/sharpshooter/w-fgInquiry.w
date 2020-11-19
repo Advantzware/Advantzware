@@ -12,7 +12,7 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: Inventory/w-fgInquiry.w
+  File: sharpshooter/w-fgInquiry.w
 
   Description: FG Inquiry and quantity adjustment
 

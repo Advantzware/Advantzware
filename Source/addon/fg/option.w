@@ -225,10 +225,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFGInquiry s-object
 ON CHOOSE OF btnFGInquiry IN FRAME F-Main /* 10.  Finished Goods Inquiry */
 DO:
-    RUN inventory/w-fgInquiry.w (
-        INPUT cocode,
-        INPUT locode
-        ).
+    RUN sharpshooter/w-fgInquiry.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
