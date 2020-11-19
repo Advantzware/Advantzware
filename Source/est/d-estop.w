@@ -1043,8 +1043,10 @@ DO:
 ON VALUE-CHANGED OF est-op.m-code IN FRAME Dialog-Frame /* Machine */
 DO:
         DEFINE VARIABLE li AS INTEGER NO-UNDO.
-
-
+                
+        IF LASTKEY EQ 32 THEN 
+            RETURN.
+            
         FIND mach
             {sys/look/machW.i}
             AND mach.m-code EQ {&self-name}:SCREEN-VALUE 
