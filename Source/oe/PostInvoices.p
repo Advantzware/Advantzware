@@ -1213,13 +1213,12 @@ PROCEDURE pBuildInvoicesToPost PRIVATE:
         USE-INDEX prnt,
         FIRST bf-cust NO-LOCK
         WHERE bf-cust.company EQ bf-inv-head.company
-        AND bf-cust.cust-no EQ bf-inv-head.cust-no
-        AND ((bf-cust.inv-meth EQ ? AND bf-inv-head.multi-invoice) OR (bf-cust.inv-meth NE ? AND NOT bf-inv-head.multi-invoice) OR iplValidateOnly )   /*Filter multi-invoices correctly based on customer*/
+        AND bf-cust.cust-no EQ bf-inv-head.cust-no        
         :
         
-        IF iplValidateOnly AND NOT iplUnapprove AND (bf-inv-head.autoApproved OR bf-inv-head.multi-invoice) THEN NEXT.
+        IF iplValidateOnly AND NOT iplUnapprove AND (bf-inv-head.autoApproved ) THEN NEXT.
         
-        IF iplValidateOnly AND iplUnapprove AND ( NOT bf-inv-head.autoApproved OR bf-inv-head.multi-invoice) THEN NEXT.
+        IF iplValidateOnly AND iplUnapprove AND ( NOT bf-inv-head.autoApproved ) THEN NEXT.
 
         /*Add CustomerList Exclusions*/
         /*TBD*/

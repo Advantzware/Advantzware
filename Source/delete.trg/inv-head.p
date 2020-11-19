@@ -90,14 +90,8 @@ FOR EACH w-r-no:
        inv-misc.bill EQ "Y" THEN oe-ordm.bill = "Y".
 
     DELETE inv-misc.
-  END. /* each inv-misc */
-
-  FIND FIRST b-{&TABLENAME} WHERE b-{&TABLENAME}.r-no EQ w-r-no EXCLUSIVE NO-ERROR. 
-  IF AVAIL b-{&TABLENAME} THEN DO:
-    IF NOT b-{&TABLENAME}.multi-invoice THEN
-      RUN oe/updmulti.p (BUFFER b-{&TABLENAME}, BUFFER b-{&TABLENAME}).
-    DELETE b-{&TABLENAME}.
-  END.
+  END. /* each inv-misc */ 
+     
 END.
 
 FOR EACH w-b-no,
@@ -125,9 +119,6 @@ FOR EACH w-b-no,
     DELETE oe-bolh.
   END.
 END.
-
-IF NOT {&TABLENAME}.multi-invoice THEN
-  RUN oe/updmulti.p (BUFFER {&TABLENAME}, BUFFER {&TABLENAME}).
 
 FIND FIRST reftable WHERE
      reftable.reftable EQ "brokerbol" AND

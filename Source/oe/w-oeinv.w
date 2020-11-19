@@ -444,13 +444,15 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 2.14 , 13.00 ) */
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('1,3':U) NO-ERROR.
 
        /* Links to SmartViewer h_v-oeinv. */
        RUN add-link IN adm-broker-hdl ( h_b-oeinv , 'Record':U , h_v-oeinv ).
        RUN add-link IN adm-broker-hdl ( h_p-invvw , 'TableIO':U , h_v-oeinv ).
        RUN add-link IN adm-broker-hdl ( h_vp-ivhld , 'hold':U , h_v-oeinv ).
-       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'addPlusButton':U , h_v-oeinv ).
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'addPlusButton':U , h_v-oeinv ).        
+       
+       RUN add-link IN adm-broker-hdl ( h_b-invitm , 'reopen':U , h_v-oeinv ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-oeinv ,
