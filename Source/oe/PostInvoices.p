@@ -233,6 +233,8 @@ DEFINE TEMP-TABLE ttOrderToUpdate NO-UNDO
     FIELD riOeOrd AS ROWID 
     FIELD company AS CHARACTER 
     FIELD orderID AS INTEGER
+    FIELD isClosed AS LOGICAL 
+    FIELD reOeOrd  AS RECID 
     .
     
 DEFINE TEMP-TABLE ttBolLineToUpdate NO-UNDO 
@@ -352,7 +354,10 @@ FUNCTION fGetInvoiceToPostHandle RETURNS HANDLE
     (  ) FORWARD.
     
 FUNCTION fGetInvoiceMiscToPostHandle RETURNS HANDLE 
-    (  ) FORWARD.    
+    (  ) FORWARD.  
+    
+FUNCTION fGetInvoiceOrderPostHandle RETURNS HANDLE 
+    (  ) FORWARD.     
 
 FUNCTION fGetNextRun RETURNS INTEGER PRIVATE
     (ipcCompany AS CHARACTER,
@@ -1774,14 +1779,33 @@ PROCEDURE pExportAllTempTables PRIVATE:
      Purpose:  Exports all TempTables to file
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplExportForPost AS LOGICAL NO-UNDO.
+    
     DEFINE VARIABLE hdOutput    AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cFile       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hdTempTable AS HANDLE    NO-UNDO.
     DEFINE VARIABLE lSuccess    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
             
-    FIND FIRST ttPostingMaster NO-ERROR.
-    IF AVAILABLE ttPostingMaster AND ttPostingMaster.exportPath NE "" THEN 
+    FIND FIRST ttPostingMaster NO-ERROR.      
+    
+    IF iplExportForPost AND AVAILABLE ttPostingMaster AND ttPostingMaster.exportPath NE "" THEN
+    DO:
+        RUN system\OutputProcs.p PERSISTENT SET hdOutput.
+        
+        ASSIGN 
+            cFile       = fGetFilePath(ttPostingMaster.exportPath, "GLTransactions", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+            hdTempTable = TEMP-TABLE ttGLTransaction:HANDLE.
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage).
+        
+        ASSIGN 
+            cFile       = fGetFilePath(ttPostingMaster.exportPath, "PostingSummary", TRIM(STRING(ttPostingMaster.runID,">>>>>>>>>>>9")), "csv")
+            hdTempTable = TEMP-TABLE rpt:HANDLE.
+        RUN Output_TempTableToCSV IN hdOutput (hdTempTable, cFile, YES, INPUT TRUE /* Auto increment File name */, OUTPUT lSuccess, OUTPUT cMessage). 
+     
+        DELETE OBJECT hdOutput.
+    END.
+    ELSE IF AVAILABLE ttPostingMaster AND ttPostingMaster.exportPath NE "" THEN 
     DO:
     
         RUN system\OutputProcs.p PERSISTENT SET hdOutput.
@@ -2214,6 +2238,13 @@ PROCEDURE pGetSettings PRIVATE:
     
     RUN sys/ref/nk1look.p (ipbf-ttPostingMaster.company, "AUDITDIR", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
     IF lFound THEN ipbf-ttPostingMaster.exportPath = cReturn.
+    
+    IF ipbf-ttPostingMaster.exportPath NE "" THEN
+    DO:
+        cReturn = REPLACE(ipbf-ttPostingMaster.exportPath, ENTRY(NUM-ENTRIES(ipbf-ttPostingMaster.exportPath, "\"), ipbf-ttPostingMaster.exportPath, "\"), ""). 
+        IF cReturn NE "" THEN
+        ipbf-ttPostingMaster.exportPath = cReturn + "OB4\" + "dir" . /* created sub folder, folder is used befor Backward Slash*/          
+    END.
        
 END PROCEDURE.
 
@@ -2436,6 +2467,9 @@ PROCEDURE PostInvoices:
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE lExceptions AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lExportForPost AS LOGICAL NO-UNDO.
+    
+    lExportForPost = LOOKUP("ExportForPost",ipcOptions) GT 0 .    
     
     RUN "sys/NotesProcs.p" PERSISTENT SET ghNotesProcs.
 
@@ -2460,7 +2494,7 @@ PROCEDURE PostInvoices:
         RUN pProcessInvoicesToPost(OUTPUT opiCountValid, OUTPUT oplError, OUTPUT opcMessage).
 
     IF NOT oplError AND LOOKUP("Export",ipcOptions) GT 0 THEN
-        RUN pExportAllTempTables.
+        RUN pExportAllTempTables(INPUT lExportForPost).
 
     IF NOT oplError AND LOOKUP("Post",ipcOptions) GT 0 THEN
         RUN pPostAll (OUTPUT opiCountPosted, OUTPUT lExceptions, OUTPUT oplError, OUTPUT opcMessage).
@@ -3397,6 +3431,9 @@ PROCEDURE pUpdateOrders PRIVATE:
         FIRST bf-oe-ord NO-LOCK
         WHERE ROWID(bf-oe-ord) EQ ttOrderToUpdate.riOeOrd:
         lFullyClosed = YES.
+        ASSIGN
+            ttOrderToUpdate.isClosed = YES
+            ttOrderToUpdate.reOeOrd  = RECID(bf-oe-ord).  
         FOR EACH bf-oe-ordl EXCLUSIVE-LOCK 
             WHERE bf-oe-ordl.company EQ bf-oe-ord.company 
             AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no 
@@ -3787,6 +3824,16 @@ FUNCTION fGetInvoiceMiscToPostHandle RETURNS HANDLE
      Notes:
     ------------------------------------------------------------------------------*/	
     RETURN TEMP-TABLE ttInvoiceMiscToPost:HANDLE.
+		
+END FUNCTION.
+
+FUNCTION fGetInvoiceOrderPostHandle RETURNS HANDLE 
+    (  ):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the handle to the ttInvoiceToPost
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    RETURN TEMP-TABLE ttOrderToUpdate:HANDLE.
 		
 END FUNCTION.
 
