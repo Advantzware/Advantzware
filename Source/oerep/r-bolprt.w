@@ -4236,7 +4236,7 @@ PROCEDURE pdAOABOLPost:
                     + "<End Range Value>|" // endLocDescription
                     + g_loc + "|" // location
                     + "yes|" // post
-                    + STRING(TODAY,"99/99/9999") + "|" // postDate
+                    + STRING(fiPostDate,"99/99/9999") + "|" // postDate
                     + STRING(begin_bol#) + "|" // startBOL
                     + STRING(begin_date,"99/99/9999") + "|" // startBOLDate
                     + "<Start Range Value>|" // startCustName
