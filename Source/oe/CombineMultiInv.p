@@ -5,46 +5,70 @@ DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO.
 DEFINE BUFFER bf-inv-line FOR inv-line.
 DEFINE BUFFER bf-inv-head FOR inv-head.
 DEFINE BUFFER bf-inv-misc FOR inv-misc.
+DEFINE BUFFER bf-master-inv-head FOR inv-head.
+
+DEFINE VARIABLE dComm AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dFuel AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dCost AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dWeight AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dFreight AS DECIMAL NO-UNDO.
        
-FIND FIRST inv-head NO-LOCK
-WHERE ROWID(inv-head) EQ ipriRowid NO-ERROR .
+FIND FIRST bf-master-inv-head NO-LOCK
+WHERE ROWID(bf-master-inv-head) EQ ipriRowid NO-ERROR .
 FIND FIRST ttCombInv NO-LOCK NO-ERROR.     
 
-IF AVAIL inv-head AND AVAIL ttCombInv THEN
+IF AVAIL bf-master-inv-head AND AVAIL ttCombInv THEN
 DO:    
-    FIND CURRENT inv-head EXCLUSIVE-LOCK NO-ERROR. 
+    ASSIGN 
+        dComm = bf-master-inv-head.t-comm
+        dFuel = bf-master-inv-head.t-inv-fuel
+        dCost = bf-master-inv-head.t-inv-cost
+        dWeight = bf-master-inv-head.t-inv-weight
+        dFreight = bf-master-inv-head.t-inv-freight
+        .
+     
     FOR EACH ttCombInv:
       FIND FIRST bf-inv-head EXCLUSIVE-LOCK
            WHERE bf-inv-head.company EQ ttCombInv.company
            AND bf-inv-head.r-no EQ ttCombInv.r-no NO-ERROR .
-        IF avail bf-inv-head THEN
+        IF AVAILABLE bf-inv-head THEN
         DO:            
             FOR EACH bf-inv-line EXCLUSIVE-LOCK
                 WHERE bf-inv-line.company EQ bf-inv-head.company
                 AND bf-inv-line.r-no EQ ttCombInv.r-no:
                 
                 ASSIGN
-                   bf-inv-line.r-no = inv-head.r-no
+                   bf-inv-line.r-no = bf-master-inv-head.r-no
                     .                        
             END.
             FOR EACH bf-inv-misc EXCLUSIVE-LOCK
-                WHERE bf-inv-misc.r-no eq ttCombInv.r-no:
+                WHERE bf-inv-misc.r-no EQ ttCombInv.r-no:
                 ASSIGN
-                    bf-inv-misc.r-n = inv-head.r-no
+                    bf-inv-misc.r-n = bf-master-inv-head.r-no
                     .
             END.   
             ASSIGN
-            inv-head.t-comm        = inv-head.t-comm        + bf-inv-head.t-comm
-            inv-head.t-inv-fuel    = inv-head.t-inv-fuel    + bf-inv-head.t-inv-fuel
-            inv-head.t-inv-cost    = inv-head.t-inv-cost    + bf-inv-head.t-inv-cost
-            inv-head.t-inv-weight  = inv-head.t-inv-weight  + bf-inv-head.t-inv-weight
-            inv-head.t-inv-freight = inv-head.t-inv-freight +  bf-inv-head.t-inv-freight .                         
+            dComm        = dComm        + bf-inv-head.t-comm
+            dFuel    = dFuel    + bf-inv-head.t-inv-fuel
+            dCost    = dCost    + bf-inv-head.t-inv-cost
+            dWeight  = dWeight  + bf-inv-head.t-inv-weight
+            dFreight = dFreight +  bf-inv-head.t-inv-freight .                         
             
             DELETE bf-inv-head.
         END.     
     END. 
+    FIND CURRENT bf-master-inv-head EXCLUSIVE-LOCK NO-ERROR.
     ASSIGN
-        inv-head.spare-int-1 = 1.
-    FIND CURRENT inv-head NO-LOCK NO-ERROR.    
+        bf-master-inv-head.t-comm = dComm
+        bf-master-inv-head.t-inv-fuel = dFuel
+        bf-master-inv-head.t-inv-cost = dCost
+        bf-master-inv-head.t-inv-weight = dWeight
+        bf-master-inv-head.t-inv-freight = dFreight
+        bf-master-inv-head.spare-int-1 = 1
+        .
+    FIND CURRENT bf-master-inv-head NO-LOCK NO-ERROR.    
 END.     
-
+RELEASE bf-master-inv-head.
+RELEASE bf-inv-head.
+RELEASE bf-inv-line.
+RELEASE bf-inv-misc.
