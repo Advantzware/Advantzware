@@ -311,9 +311,9 @@ DEFINE FRAME F-Main
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 99
           FGCOLOR 9 FONT 6
-     "Sorted By:" VIEW-AS TEXT
+    /* "Sorted By:" VIEW-AS TEXT
           SIZE 12 BY 1 AT ROW 3.62 COL 59
-          FONT 6
+          FONT 6 */
      "Order#" VIEW-AS TEXT
           SIZE 10 BY .71 AT ROW 1.24 COL 23
           FGCOLOR 9 FONT 6
@@ -329,8 +329,8 @@ DEFINE FRAME F-Main
      "Release#" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 4
           FGCOLOR 9 FONT 6
-     "Click on Yellow Field, Sorts From 1st to Last" VIEW-AS TEXT
-          SIZE 42 BY .95 AT ROW 3.62 COL 102
+    /* "Click on Yellow Field, Sorts From 1st to Last" VIEW-AS TEXT
+          SIZE 42 BY .95 AT ROW 3.62 COL 102 */
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -732,7 +732,10 @@ SESSION:DATA-ENTRY-RETURN = YES.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

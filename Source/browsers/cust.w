@@ -456,9 +456,9 @@ DEFINE FRAME F-Main
      "Customer#" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 1.19 COL 3 WIDGET-ID 24
           BGCOLOR 23 FGCOLOR 24 FONT 22
-     "Sorted By:" VIEW-AS TEXT
+    /* "Sorted By:" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 3.86 COL 1.8 WIDGET-ID 30
-          FONT 22
+          FONT 22 */
      "Zip" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 1.19 COL 81 WIDGET-ID 28
           BGCOLOR 23 FGCOLOR 24 FONT 22
@@ -956,6 +956,11 @@ END.
  {custom\udfimgchange.i}
 FI_moveCol = "Sort".
 DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -414,9 +414,9 @@ DEFINE FRAME F-Main
      "Customer" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 1.24 COL 22
           FGCOLOR 9 FONT 6
-     "Click Field Heading to Sort By:" VIEW-AS TEXT
+    /* "Click Field Heading to Sort By:" VIEW-AS TEXT
           SIZE 36 BY .62 AT ROW 5.05 COL 79
-          FONT 6
+          FONT 6 */
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -1033,7 +1033,10 @@ SESSION:DATA-ENTRY-RETURN = YES.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

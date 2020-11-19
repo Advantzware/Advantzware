@@ -379,8 +379,8 @@ DEFINE FRAME F-Main
      "Vendor#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 5 WIDGET-ID 24
           FGCOLOR 9 FONT 6
-     "Click on Yellow Field to Sort" VIEW-AS TEXT
-          SIZE 28 BY .95 AT ROW 3.62 COL 114 WIDGET-ID 14
+    /* "Click on Yellow Field to Sort" VIEW-AS TEXT
+          SIZE 28 BY .95 AT ROW 3.62 COL 114 WIDGET-ID 14  */
      "Type" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 103 WIDGET-ID 34
           FGCOLOR 9 FONT 6
@@ -390,9 +390,9 @@ DEFINE FRAME F-Main
      "City" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 51.4 WIDGET-ID 22
           FGCOLOR 9 FONT 6
-     "Sorted By:" VIEW-AS TEXT
+    /* "Sorted By:" VIEW-AS TEXT
           SIZE 12 BY 1 AT ROW 3.62 COL 68 WIDGET-ID 30
-          FONT 6
+          FONT 6 */
      "Zip" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 84.8 WIDGET-ID 28
           FGCOLOR 9 FONT 6
@@ -820,7 +820,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 FI_moveCol = "Sort".
 DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -36,7 +36,7 @@ DEF INPUT-OUTPUT PARAM io-qty LIKE rm-bin.qty NO-UNDO.
 {custom/globdefs.i}
 
 {rm/d-selbin.i}
-
+{methods/template/brwcustomdef.i}
 DEF VAR ll-change-qty AS LOG NO-UNDO.
 
 /* 02/06/07 rdb */

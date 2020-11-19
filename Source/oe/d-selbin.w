@@ -296,8 +296,8 @@ DEFINE FRAME Dialog-Frame
      Btn_Cancel AT ROW 19.71 COL 85
      Btn_move-sort AT ROW 19.71 COL 129.2 WIDGET-ID 4
      v-help AT ROW 16.24 COL 1.6 NO-LABEL
-     "Sort By:" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 17.81 COL 55
+     /*"Sort By:" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 17.81 COL 55*/
      RECT-4 AT ROW 17.48 COL 1.2
      SPACE(6.80) SKIP(2.22)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -758,7 +758,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   ELSE DO:
     RUN enable_UI.
-
+      /* Ticket# : 92946
+         Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+      fi_sortby:HIDDEN  = TRUE.
+      fi_sortby:VISIBLE = FALSE.
   RUN setCellColumns. /*get columns from .dat and display in saved order*/
 
   ASSIGN 

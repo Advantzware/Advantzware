@@ -44,7 +44,7 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 {methods/defines/sortByDefs.i}
-
+{methods/template/brwcustomdef.i}
 DEFINE VARIABLE lContinue          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lHeaderSorting     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE dtStartDateTime    AS DATETIME  NO-UNDO.

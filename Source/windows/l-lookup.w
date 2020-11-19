@@ -115,7 +115,7 @@ RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
 {sys/ref/CustList.i NEW}
 {AOA/BL/pBuildCustList.i}
 {AOA/includes/pGetDynParamValue.i}
-
+{methods/template/brwcustomdef.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

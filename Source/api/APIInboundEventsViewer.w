@@ -40,7 +40,7 @@ CREATE WIDGET-POOL.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
-
+{methods/template/brwcustomdef.i}
 DEFINE VARIABLE lReTrigger           AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdOutputProcs        AS HANDLE  NO-UNDO.
 DEFINE VARIABLE hdAPIInboundTestWin  AS HANDLE  NO-UNDO.

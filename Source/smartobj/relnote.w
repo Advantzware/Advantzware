@@ -61,8 +61,9 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_dept2 
-     IMAGE-UP FILE "Graphics/32x32/calendar_clock.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/calendar_clock.png":U
+	 IMAGE-DOWN FILE "Graphics/32x32/calendar_clock_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/calendar_clock_disable.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Notes" 
      SIZE 8 BY 1.81 TOOLTIP "Date Change Notes".
 
@@ -73,7 +74,8 @@ DEFINE FRAME F-Main
      Select_dept2 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+		 BGCOLOR 21.
 
 
 /* *********************** Procedure Settings ************************ */

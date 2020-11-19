@@ -636,9 +636,9 @@ DEFINE FRAME F-Main
      "CAD#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 119
           FGCOLOR 9 FONT 6
-     "Sorted By:" VIEW-AS TEXT
+    /* "Sorted By:" VIEW-AS TEXT
           SIZE 13 BY 1 AT ROW 3.14 COL 76 WIDGET-ID 18
-          FONT 6
+          FONT 6 */
      "Order#" VIEW-AS TEXT
           SIZE 10 BY .71 AT ROW 1.24 COL 2
           FGCOLOR 9 FONT 6
@@ -1323,7 +1323,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &Scoped-define sdQuery {&BROWSE-NAME}
 {methods/pSessionAuditKey.i}
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

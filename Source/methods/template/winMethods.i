@@ -35,7 +35,8 @@ DEFINE VARIABLE rec_key_value      AS CHARACTER NO-UNDO.
 {methods/defines/noreckey.i}
 
 {custom/resizdef.i}  /* resizing window definition include */
-
+{methods/template/globaldef.i}
+deOrigWinWidth = {&WINDOW-NAME}:WIDTH.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

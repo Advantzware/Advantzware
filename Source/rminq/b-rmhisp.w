@@ -1082,9 +1082,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
 /*&IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          */
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).
-/*&ENDIF*/
+    /*&ENDIF*/
 
-
+    /* Ticket# : 92946
+       Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+    fi_sort-by:HIDDEN  = TRUE.
+    fi_sort-by:VISIBLE = FALSE.
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 
 END.

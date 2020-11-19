@@ -239,8 +239,8 @@ DEFINE FRAME F-Main
     fi_sortBy AT ROW 2.67 COL 115 COLON-ALIGNED NO-LABELS WIDGET-ID 12
     Browser-Table AT ROW 4.1 COL 1 HELP
     "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-    "Sort:" VIEW-AS TEXT
-    SIZE 5 BY .95 AT ROW 2.71 COL 112 WIDGET-ID 14
+   /* "Sort:" VIEW-AS TEXT
+    SIZE 5 BY .95 AT ROW 2.71 COL 112 WIDGET-ID 14 */
     "Cleared:" VIEW-AS TEXT
     SIZE 9 BY .95 AT ROW 2.67 COL 93 
     RECT-1 AT ROW 1 COL 1 WIDGET-ID 34
@@ -768,7 +768,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sortby:HIDDEN IN FRAME {&frame-name} = TRUE.
+fi_sortby:VISIBLE IN FRAME {&frame-name}= FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

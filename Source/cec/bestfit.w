@@ -58,7 +58,7 @@ DEFINE BUFFER bf-item FOR ITEM .
 DEFINE BUFFER bff-item FOR ITEM .
 
 {custom/globdefs.i}
-
+{methods/template/brwcustomdef.i}
 {sys/inc/VAR.i NEW SHARED}
 
 ASSIGN cocode = g_company

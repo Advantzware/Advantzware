@@ -28,10 +28,10 @@ FRAME {&frame-name}:BGCOLOR      = 15.
 {&BROWSE-NAME}:ROW-HEIGHT-CHARS  = 0.84.
 {&BROWSE-NAME}:FONT              = 22.
 
-hColumn = {&BROWSE-NAME}:first-column.
-DO WHILE VALID-HANDLE(hColumn).
-    cColHandList =  cColHandList + ","  + string(hColumn).
-    hColumn      = hColumn:NEXT-COLUMN.
+hColumnRowColor = {&BROWSE-NAME}:first-column.
+DO WHILE VALID-HANDLE(hColumnRowColor).
+    cColHandList =  cColHandList + ","  + string(hColumnRowColor).
+    hColumnRowColor      = hColumnRowColor:NEXT-COLUMN.
 END.
 cColHandList = TRIM(cColHandList, ",").
 

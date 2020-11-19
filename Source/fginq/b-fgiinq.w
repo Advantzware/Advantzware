@@ -362,8 +362,8 @@ DEFINE FRAME F-Main
      FI_moveCol AT ROW 4.81 COL 125 COLON-ALIGNED NO-LABEL WIDGET-ID 46
      Browser-Table AT ROW 6 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     "Click on Yellow Field to" VIEW-AS TEXT
-          SIZE 23 BY 1 AT ROW 4.81 COL 104
+    /* "Click on Yellow Field to" VIEW-AS TEXT
+          SIZE 23 BY 1 AT ROW 4.81 COL 104 */
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -874,7 +874,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
  FI_moveCol = "Sort".
 DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

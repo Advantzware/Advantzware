@@ -396,8 +396,8 @@ DEFINE FRAME F-Main
      "Name" VIEW-AS TEXT
           SIZE 7.2 BY .71 AT ROW 1.24 COL 64 WIDGET-ID 26
           FGCOLOR 9 FONT 6
-     "Click on Yellow Field to Sort" VIEW-AS TEXT
-          SIZE 27 BY .95 AT ROW 3.14 COL 129 WIDGET-ID 14
+    /* "Click on Yellow Field to Sort" VIEW-AS TEXT
+          SIZE 27 BY .95 AT ROW 3.14 COL 129 WIDGET-ID 14 */
      "Style" VIEW-AS TEXT
           SIZE 10 BY .71 AT ROW 1.24 COL 115 WIDGET-ID 34
           FGCOLOR 9 FONT 6
@@ -407,9 +407,9 @@ DEFINE FRAME F-Main
      "Customer#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 47 WIDGET-ID 22
           FGCOLOR 9 FONT 6
-     "Sorted By:" VIEW-AS TEXT
+    /* "Sorted By:" VIEW-AS TEXT
           SIZE 12 BY 1 AT ROW 3.14 COL 83 WIDGET-ID 30
-          FONT 6
+          FONT 6 */
      "Estimate#" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 100 WIDGET-ID 28
           FGCOLOR 9 FONT 6
@@ -974,7 +974,10 @@ RUN sys/ref/CustList.p (INPUT cocode,
 {methods/winReSize.i}
 &SCOPED-DEFINE cellColumnDat b-itemfg.w 
  {methods/browsers/setCellColumns.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

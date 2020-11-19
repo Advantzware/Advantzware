@@ -53,6 +53,7 @@ DEF VAR lv-sort-by AS CHAR INIT "job-no" NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "Job#" NO-UNDO.
 DEF VAR ll-sort-asc AS LOG NO-UNDO.
 
+{methods/template/brwcustomdef.i}
 &SCOPED-DEFINE key-phrase rowobject.company EQ g_company
 /*
 &SCOPED-DEFINE for-each1                            ~

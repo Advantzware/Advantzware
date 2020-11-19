@@ -238,8 +238,8 @@ DEFINE FRAME F-Main
      br_table AT ROW 2.19 COL 1
      cb_cust AT ROW 2.91 COL 19 COLON-ALIGNED
      cb_procat AT ROW 2.91 COL 22 COLON-ALIGNED
-     "Sort By:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.29 COL 42
+    /* "Sort By:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.29 COL 42 */
      "Budget per Customer/Category" VIEW-AS TEXT
           SIZE 32 BY .95 AT ROW 1.24 COL 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 

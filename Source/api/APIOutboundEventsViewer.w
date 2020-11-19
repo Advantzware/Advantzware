@@ -39,7 +39,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
-
+{methods/template/brwcustomdef.i}
 DEFINE VARIABLE lReTrigger      AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE hdOutputProcs   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.

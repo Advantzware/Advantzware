@@ -527,9 +527,9 @@ DEFINE FRAME F-Main
      "Style" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.24 COL 73
           FGCOLOR 9 FONT 6
-     "Sort By:" VIEW-AS TEXT
+    /* "Sort By:" VIEW-AS TEXT
           SIZE 9.8 BY .62 AT ROW 5.29 COL 73
-          FONT 6
+          FONT 6 */
      "to" VIEW-AS TEXT
           SIZE 3 BY 1 AT ROW 1.95 COL 101
      "to" VIEW-AS TEXT
@@ -1444,7 +1444,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

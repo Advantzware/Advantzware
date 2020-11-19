@@ -540,9 +540,9 @@ DEFINE FRAME F-Main
      "Browser Col. Mode:" VIEW-AS TEXT
           SIZE 22.6 BY .62 AT ROW 14.40 COL 107 WIDGET-ID 6
           FONT 6
-     "Sort By:" VIEW-AS TEXT
+    /* "Sort By:" VIEW-AS TEXT
           SIZE 9.4 BY 1 AT ROW 14.20 COL 65
-          FONT 6
+          FONT 6 */
      FI_moveCol AT ROW 14.20 COL 128 COLON-ALIGNED NO-LABEL WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -1119,7 +1119,10 @@ IF v-ceSellPrice NE "F" THEN DO lv-int = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAM
   END.
     
 END.
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

@@ -520,8 +520,8 @@ DEFINE FRAME F-Main
      btn_show AT ROW 4.81 COL 18
      fi_sort-by AT ROW 4.81 COL 39.2 COLON-ALIGNED
      FI_moveCol AT ROW 4.81 COL 124 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     "Click on Yellow Field, Sorts From 1st to Last" VIEW-AS TEXT
-          SIZE 43 BY 1 AT ROW 4.81 COL 81.2
+     /* "Click on Yellow Field, Sorts From 1st to Last" VIEW-AS TEXT
+          SIZE 43 BY 1 AT ROW 4.81 COL 81.2 */
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -1221,7 +1221,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

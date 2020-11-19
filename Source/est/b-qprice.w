@@ -1036,7 +1036,10 @@ DO WITH FRAME f-main:
 /*       sortby = YES.                                     */
       
 END.
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sortby:HIDDEN IN FRAME {&frame-name} = TRUE.
+fi_sortby:VISIBLE IN FRAME {&frame-name} = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

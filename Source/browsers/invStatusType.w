@@ -301,8 +301,8 @@ DEFINE FRAME F-Main
      fi_sort-by AT ROW 2.71 COL 74.8 COLON-ALIGNED NO-LABEL WIDGET-ID 12
      Browser-Table AT ROW 3.86 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     "Click on Column Title to Sort" VIEW-AS TEXT
-          SIZE 27 BY .95 AT ROW 2.71 COL 112.4 WIDGET-ID 14
+    /* "Click on Column Title to Sort" VIEW-AS TEXT
+          SIZE 27 BY .95 AT ROW 2.71 COL 112.4 WIDGET-ID 14 */
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -606,7 +606,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &SCOPED-DEFINE cellColumnDat browsers-invStatusType
 
 {methods/browsers/setCellColumns.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

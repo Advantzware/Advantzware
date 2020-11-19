@@ -29,7 +29,6 @@ IF VALID-HANDLE({&WINDOW-NAME}) THEN DO:
     ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        {&WINDOW-NAME}:KEEP-FRAME-Z-ORDER = YES
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
-    deOrigWinWidth = {&WINDOW-NAME}:WIDTH.
     hTemp  = FRAME {&FRAME-NAME}:handle.
     IF VALID-HANDLE(hTemp) THEN
         hTemp  = hTemp:FIRST-CHILD .       

@@ -490,8 +490,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {custom/yellowColumns.i}
 
    RUN enable_UI.
-   /*{custom/lookposL.i &lookup-file = "eb" &lookup-field = "est-no"}  */
-
+    /*{custom/lookposL.i &lookup-file = "eb" &lookup-field = "est-no"}  */
+    /* Ticket# : 92946
+       Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+    fi_sortby:HIDDEN  = TRUE.
+    fi_sortby:VISIBLE = FALSE.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.

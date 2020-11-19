@@ -319,8 +319,8 @@ DEFINE FRAME F-Main
     "Hot Key" VIEW-AS TEXT
     SIZE 10 BY .71 AT ROW 1.24 COL 47.2 WIDGET-ID 34
     FGCOLOR 9 FONT 6
-    "Click on Column Title to Sort" VIEW-AS TEXT
-    SIZE 28 BY .95 AT ROW 3.62 COL 94 WIDGET-ID 14
+  /*  "Click on Column Title to Sort" VIEW-AS TEXT
+    SIZE 28 BY .95 AT ROW 3.62 COL 94 WIDGET-ID 14 */
     "Message ID" VIEW-AS TEXT
     SIZE 18 BY .71 AT ROW 1.24 COL 3 WIDGET-ID 42
     FGCOLOR 9 FONT 6
@@ -588,7 +588,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &SCOPED-DEFINE cellColumnDat browsers-util
 
 {methods/browsers/setCellColumns.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

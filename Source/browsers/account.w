@@ -533,7 +533,10 @@ ASSIGN
 {methods/sortByProc.i "pByInactive" "account.inactive"}
 {methods/sortByProc.i "pBySalesReport" "account.salesReport"}
 {methods/sortByProc.i "pByType" "account.type"}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sortby:HIDDEN  = TRUE.
+fi_sortby:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

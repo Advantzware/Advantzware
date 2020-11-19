@@ -54,7 +54,7 @@ DEF TEMP-TABLE tt-invl LIKE ar-invl.
 DEF VAR lv-sort-by AS CHAR INIT "inv-no" NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "Inv# " NO-UNDO.
 DEF VAR ll-sort-asc AS LOG INIT YES NO-UNDO.
-
+{methods/template/brwcustomdef.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

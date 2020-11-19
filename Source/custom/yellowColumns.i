@@ -1556,8 +1556,8 @@ PROCEDURE startSearch:
     &ENDIF
     .
 
-  IF browserTitle NE '' THEN
-  BROWSE {&BROWSE-NAME}:TITLE = browserTitle + ' (sorted by: ' + sortDisplay + ')'.
+ // IF browserTitle NE '' THEN
+  //BROWSE {&BROWSE-NAME}:TITLE = browserTitle + ' (sorted by: ' + sortDisplay + ')'.
 
   RUN openQuery.
 
@@ -1574,3 +1574,8 @@ END PROCEDURE.
            DAY(tt-arinq.tr-date) + ~
            (IF tt-arinq.inv-no EQ 0 THEN 99999999 ELSE 0),'99999999') ~
   ELSE ~*/
+ 
+&IF DEFINED(noSortByField) EQ 0 &THEN  
+fi_sortBy:HIDDEN IN FRAME {&frame-name}= TRUE.
+fi_sortBy:VISIBLE IN FRAME {&frame-name} = FALSE.
+ &ENDIf

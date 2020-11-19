@@ -38,7 +38,7 @@ CREATE WIDGET-POOL.
 
 {methods/defines/sortByDefs.i}
 {AOA/tempTable/ttSuperProc.i}
-
+{methods/template/brwcustomdef.i}
 DEFINE TEMP-TABLE ttRunning NO-UNDO
     FIELD procHandle AS CHARACTER 
     FIELD procName   AS CHARACTER 

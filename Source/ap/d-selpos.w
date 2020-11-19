@@ -24,16 +24,16 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 {methods/prgsecur.i}
-
+{methods/template/brwcustomdef.i}
 /* Parameters Definitions ---                                           */
-DEF INPUT param ip-ap-recid AS RECID.
+DEF INPUT PARAM ip-ap-recid AS RECID.
 
 /* Local Variable Definitions ---                                       */
 DEF VAR lv-i AS INT NO-UNDO.
 
 DEF SHARED TEMP-TABLE tt-pol FIELD selekt AS LOG LABEL "Selected"
                       FIELD rec-id AS RECID                      
-                      FIELD qty-inv AS log
+                      FIELD qty-inv AS LOG
                       FIELD amt-inv AS LOG
                       FIELD qty-to-inv LIKE ap-invl.qty
                       FIELD qty-to-inv-uom AS CHAR.

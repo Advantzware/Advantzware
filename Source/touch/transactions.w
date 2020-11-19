@@ -44,7 +44,7 @@ DEFINE VARIABLE total-time   AS CHARACTER NO-UNDO.
 {methods/defines/sortByDefs.i}
 {custom/globdefs.i}
 {custom/gcompany.i}
-
+{methods/template/brwcustomdef.i}
 gcompany = "001".
 
 /* _UIB-CODE-BLOCK-END */

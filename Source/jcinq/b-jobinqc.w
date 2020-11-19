@@ -415,8 +415,8 @@ DEFINE FRAME F-Main
      "Order#" VIEW-AS TEXT
           SIZE 10 BY .71 AT ROW 1.24 COL 110
           FGCOLOR 9 FONT 6
-     "Click on Yellow Field Sorts From 1st to Last" VIEW-AS TEXT
-          SIZE 52 BY 1.19 AT ROW 3.38 COL 96
+    /* "Click on Yellow Field Sorts From 1st to Last" VIEW-AS TEXT
+          SIZE 52 BY 1.19 AT ROW 3.38 COL 96  */
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -882,7 +882,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

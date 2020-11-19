@@ -293,8 +293,8 @@ DEFINE FRAME F-Main
      "AR Class ID" VIEW-AS TEXT
           SIZE 18 BY .71 AT ROW 1.24 COL 3 WIDGET-ID 42
           FGCOLOR 9 FONT 6
-     "Click on Column Title to Sort" VIEW-AS TEXT
-          SIZE 28 BY .95 AT ROW 3.38 COL 105.6 WIDGET-ID 14
+    /* "Click on Column Title to Sort" VIEW-AS TEXT
+          SIZE 28 BY .95 AT ROW 3.38 COL 105.6 WIDGET-ID 14 */
      "Inactive" VIEW-AS TEXT
           SIZE 10.4 BY .71 AT ROW 1.24 COL 99
           FGCOLOR 9 FONT 6
@@ -567,7 +567,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &SCOPED-DEFINE cellColumnDat browsers-arclass
 
 {methods/browsers/setCellColumns.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

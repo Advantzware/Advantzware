@@ -61,7 +61,7 @@ DEFINE VARIABLE ipQuery AS HANDLE NO-UNDO.
 {methods/defines/globdefs.i}
 {methods/defines/hndldefs.i}
 {sys/inc/var.i "NEW SHARED"}
-
+{methods/template/brwcustomdef.i}
 DEFINE VARIABLE jobhdrRowID AS ROWID NO-UNDO.
 DEFINE VARIABLE estQty AS INTEGER NO-UNDO.
 DEFINE VARIABLE iv-eqty LIKE est-qty.eqty NO-UNDO.

@@ -86,7 +86,7 @@ DEFINE VARIABLE cFilterBy               AS CHARACTER NO-UNDO.
 {Inventory/ttInventory.i "NEW SHARED"}
 {methods/defines/sortByDefs.i}
 {wip/keyboardDefs.i}
-
+{methods/template/brwcustomdef.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

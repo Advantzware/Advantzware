@@ -528,7 +528,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    rd-sort:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "1".
    
   RUN enable_UI.
-
+    /* Ticket# : 92946
+       Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+    fi_sortby:HIDDEN  = TRUE.
+    fi_sortby:VISIBLE = FALSE.
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     lv-search = ip-cur-val.

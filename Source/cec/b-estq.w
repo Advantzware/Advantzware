@@ -673,9 +673,9 @@ DEFINE FRAME F-Main
           FGCOLOR 9 FONT 6
      "Match" VIEW-AS TEXT
           SIZE 6.8 BY .62 AT ROW 2.76 COL 144 WIDGET-ID 6
-     "Sort By:" VIEW-AS TEXT
+/*"Sort By:" VIEW-AS TEXT
           SIZE 9.4 BY 1 AT ROW 5.05 COL 72.8
-          FONT 6
+          FONT 6 */
      "to" VIEW-AS TEXT
           SIZE 3 BY 1 AT ROW 3.86 COL 101
      "Die # / Cad # / Plate #" VIEW-AS TEXT
@@ -1603,7 +1603,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 {AOA/includes/pDynBrowserParam.i}
 {methods/winReSize.i}
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

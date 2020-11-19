@@ -321,8 +321,8 @@ DEFINE FRAME F-Main
           FGCOLOR 9 FONT 6
      "__" VIEW-AS TEXT
           SIZE 1.6 BY .67 AT ROW 1.91 COL 76.2 WIDGET-ID 64
-     "Click on Yellow Field to " VIEW-AS TEXT
-          SIZE 24 BY .95 AT ROW 3.33 COL 124.4 WIDGET-ID 14
+    /* "Click on Yellow Field to " VIEW-AS TEXT
+          SIZE 24 BY .95 AT ROW 3.33 COL 124.4 WIDGET-ID 14 */
      "__" VIEW-AS TEXT
           SIZE 1.6 BY .67 AT ROW 1.95 COL 54.2 WIDGET-ID 62
      "Run #" VIEW-AS TEXT

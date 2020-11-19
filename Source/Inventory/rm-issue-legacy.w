@@ -92,7 +92,7 @@ DEFINE VARIABLE lAutoPost               AS LOGICAL   NO-UNDO.
 {custom/globdefs.i}
 {sys/inc/var.i}
 {sys/inc/varasgn.i}
-
+{methods/template/brwcustomdef.i}
 ASSIGN
     ipcCompany  = cocode
     ipcLocation = locode

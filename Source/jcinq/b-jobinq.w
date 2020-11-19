@@ -448,8 +448,8 @@ DEFINE FRAME F-Main
      "Order#" VIEW-AS TEXT
           SIZE 10 BY .71 AT ROW 1.14 COL 92.8
           FGCOLOR 9 FONT 6
-     "Click on Yellow Field to" VIEW-AS TEXT
-          SIZE 27 BY 1.19 AT ROW 3.86 COL 96
+    /* "Click on Yellow Field to" VIEW-AS TEXT
+          SIZE 27 BY 1.19 AT ROW 3.86 COL 96 */
      "Begin Due Date" VIEW-AS TEXT
           SIZE 18.4 BY .71 AT ROW 1.14 COL 107.4 WIDGET-ID 52
           FGCOLOR 9 FONT 6
@@ -1070,7 +1070,10 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 FI_moveCol = "Sort".
  
 DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
-
+/* Ticket# : 92946
+   Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+fi_sort-by:HIDDEN  = TRUE.
+fi_sort-by:VISIBLE = FALSE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

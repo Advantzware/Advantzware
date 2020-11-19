@@ -61,7 +61,7 @@ DEF VAR lvcPStack AS CHAR NO-UNDO.
 DEF BUFFER xoe-rell FOR oe-rell.
 DEF BUFFER xoe-boll FOR oe-boll.
 DEF BUFFER b-reftable FOR reftable.
-
+{methods/template/brwcustomdef.i}
 ASSIGN
  cocode = g_company
  locode = g_loc.

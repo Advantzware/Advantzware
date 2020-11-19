@@ -590,8 +590,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/yellowColumns.i}
     RUN enable_UI.
     {methods/nowait.i}
-
-    IF INDEX(PROGRAM-NAME(2),"viewers/shipto.") NE 0 THEN do:
+    /* Ticket# : 92946
+       Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
+    fi_sortby:HIDDEN  = TRUE.
+    fi_sortby:VISIBLE = FALSE.
+    IF INDEX(PROGRAM-NAME(2),"viewers/shipto.") NE 0 THEN DO:
         {custom/usrprint.i}
     END.
 
