@@ -8,3 +8,7 @@ TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.
 
 IF CONNECTED ("SmartDB") THEN
 RUN custom/writeSmartUser.p (users.user_id, users.user_name).
+
+ASSIGN
+    {&TABLENAME}.track_usage    = TRUE.
+

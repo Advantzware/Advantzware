@@ -5092,7 +5092,8 @@ PROCEDURE ipLoadNewUserData :
             users.showMnemonic = IF users.showMnemonic = "" THEN "All" ELSE users.showMnemonic
             users.positionMnemonic = IF users.positionMnemonic = "" THEN "Begin" ELSE users.positionMnemonic
             users.use_colors = FALSE
-            users.use_fonts = FALSE.
+            users.use_fonts = FALSE
+            users.track_usage = TRUE.
 
         IF users.userType = "" OR users.userType = ? THEN DO:
             CASE users.user_id:
