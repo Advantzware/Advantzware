@@ -8,7 +8,8 @@ PROCEDURE pSetDynParamValue:
     DEFINE INPUT PARAMETER ipcPrgmName     AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiParamValueID AS INTEGER   NO-UNDO.
     
-    DEFINE VARIABLE iSortOrder AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iDatePickList AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iSortOrder    AS INTEGER NO-UNDO.
     
     DEFINE BUFFER dynSubject         FOR dynSubject.
     DEFINE BUFFER {1}SubjectParamSet FOR {1}SubjectParamSet.
@@ -151,5 +152,22 @@ PROCEDURE pSetDynParamValue:
             dynValueParam.dataType     = dynParam.dataType
             dynValueParam.paramFormat  = dynParam.paramFormat
             .
+        IF CAN-DO(dynParamSetDtl.action,"DATEPICKLIST") THEN DO:
+            CREATE dynValueParam.
+            ASSIGN
+                iSortOrder                 = iSortOrder + 1
+                iDatePickList              = iDatePickList + 1
+                dynValueParam.subjectID    = ipiSubjectID
+                dynValueParam.user-id      = ipcUserID
+                dynValueParam.prgmName     = ipcPrgmName
+                dynValueParam.paramValueID = ipiParamValueID
+                dynValueParam.sortOrder    = iSortOrder
+                dynValueParam.paramName    = "DatePickList-" + STRING(iDatePickList)
+                dynValueParam.paramLabel   = ?
+                dynValueParam.paramValue   = "Fixed Date"
+                dynValueParam.dataType     = "CHARACTER"
+                dynValueParam.paramFormat  = "x(256)"
+                .
+        END. /* if datepicklist */
     END. /* each dynsubjectparamset */
 END PROCEDURE.
