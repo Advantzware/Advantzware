@@ -30,6 +30,8 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&Scoped-define program-id scr-rpt.
+
 /* Parameters Definitions ---                                           */
 
 DEFINE INPUT PARAMETER ipcListName    AS CHARACTER NO-UNDO.
