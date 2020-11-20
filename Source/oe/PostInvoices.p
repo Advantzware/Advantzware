@@ -3314,15 +3314,16 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             END.
         END.  
          
-        IF bf-ttInvoiceToPost.amountBilled NE 0 THEN 
+        IF bf-ttInvoiceToPost.amountBilled NE 0 AND fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalExpectZero", bf-inv-head.cust-no,iplIsValidateOnly)THEN 
         DO:
-            lValidateRequired = fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalExpectZero", bf-inv-head.cust-no,iplIsValidateOnly).
+            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Expected zero value in the invoice").
+            lAutoApprove = NO.   
             
-            IF lValidateRequired THEN 
-            DO:
-                RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Expected zero value in the invoice").
-                lAutoApprove = NO.
-            END.    
+        END. 
+        IF bf-ttInvoiceToPost.amountBilled EQ 0 AND NOT fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalExpectZero", bf-inv-head.cust-no,iplIsValidateOnly)THEN 
+        DO:
+            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Expected Non zero value in the invoice").
+            lAutoApprove = NO.   
             
         END.    
         dTotalLineRev = 0 .
