@@ -124,7 +124,7 @@ PROCEDURE calcGetCarrierInActive:
     
     FIND FIRST carrier NO-LOCK
          WHERE carrier.company EQ ipcCompany
-         AND carrier.carrier EQ  ipcCarrier NO-ERROR.
+         AND carrier.carrier EQ ipcCarrier NO-ERROR.
     IF AVAIL carrier THEN
     
     IF AVAILABLE carrier AND
@@ -141,8 +141,8 @@ PROCEDURE calcGetQtyOnHandFromFgitem:
    FIND FIRST itemfg NO-LOCK
         WHERE itemfg.company EQ ipcCompany 
         AND itemfg.i-no EQ ipcFGItem NO-ERROR.
-   IF AVAIL itemfg THEN
-      opcCalcValue = string(itemfg.q-onh).
+   IF AVAILABLE itemfg THEN
+   opcCalcValue = STRING(itemfg.q-onh).
 END PROCEDURE.
 
 PROCEDURE calcGetPartDscr1FromFgitem:
@@ -153,8 +153,8 @@ PROCEDURE calcGetPartDscr1FromFgitem:
    FIND FIRST itemfg NO-LOCK
         WHERE itemfg.company EQ ipcCompany 
         AND itemfg.i-no EQ ipcFGItem NO-ERROR.
-   IF AVAIL itemfg THEN
-      opcCalcValue = itemfg.part-dscr1.
+   IF AVAILABLE itemfg THEN
+   opcCalcValue = itemfg.part-dscr1.
 END PROCEDURE.
 
 PROCEDURE calcGetPartDscr2FromFgitem:
@@ -165,8 +165,8 @@ PROCEDURE calcGetPartDscr2FromFgitem:
    FIND FIRST itemfg NO-LOCK
         WHERE itemfg.company EQ ipcCompany 
         AND itemfg.i-no EQ ipcFGItem NO-ERROR.
-   IF AVAIL itemfg THEN
-      opcCalcValue = itemfg.part-dscr2.
+   IF AVAILABLE itemfg THEN
+   opcCalcValue = itemfg.part-dscr2.
 END PROCEDURE.
 
 PROCEDURE calcShiftEndTime:
