@@ -42,3 +42,4 @@ IF AVAIL user-print THEN DO:
     lv-field-hdl = lv-field-hdl:NEXT-SIBLING.
   END.
 END.
+RELEASE user-print.
