@@ -956,6 +956,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
+{AOA/includes/pInitDynParamValue.i}
+{AOA/includes/pGetDynParamValue.i}
+{AOA/includes/pSetDynParamValue.i "dyn"}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
