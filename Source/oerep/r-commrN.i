@@ -1,6 +1,8 @@
-
+    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+    
     FIND FIRST oe-ctrl NO-LOCK WHERE oe-ctrl.company EQ cocode.
-
+    
+   MainLoop:
    for EACH ar-inv NO-LOCK
         WHERE ar-inv.company  EQ cocode
           AND ar-inv.posted   EQ YES
@@ -15,9 +17,30 @@
         FIRST cust NO-LOCK
         WHERE cust.company EQ ar-inv.company
           AND cust.cust-no EQ ar-inv.cust-no:
-
+        lFound = NO.
+        IF v-sman[1] NE "" AND v-sman[2] NE "zzz" THEN DO:
+            ARINVL:
+            FOR EACH ar-invl NO-LOCK
+                WHERE ar-invl.x-no EQ ar-inv.x-no
+                  AND ((tb_prep AND ar-invl.billable) OR NOT ar-invl.misc):
+                DO i = 1 TO 3:
+                    v-slsm[1] = IF ar-invl.sman[i] EQ "" AND i EQ 1 AND NOT ar-invl.misc THEN
+                                cust.sman ELSE ar-invl.sman[i].
+        
+                    IF NOT (v-slsm[1]   LT v-sman[1] OR
+                            v-slsm[1]   GT v-sman[2] OR
+                           ((i NE 1 OR ar-invl.misc) AND
+                            (v-slsm[1] EQ "" OR ar-invl.s-pct[i] EQ 0)))
+                        THEN DO:
+                            lFound = YES.
+                            LEAVE ARINVL.
+                        END.
+                END.
+            END.
+            IF NOT lFound THEN
+                NEXT MainLoop.
+        END.
         {custom/statusMsg.i " 'Processing Customer#  '  + string(cust.cust-no) "}
-
       ld-date = ?.
       FOR EACH ar-cashl NO-LOCK
           WHERE ar-cashl.company  EQ ar-inv.company
