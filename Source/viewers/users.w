@@ -2338,6 +2338,7 @@ PROCEDURE local-update-record :
         ASSIGN 
             users.userAlias = users.userAlias:screen-value in frame {&frame-name}
             users.securityLevel = iSecLevel 
+            users.sessionLimit = INTEGER(users.sessionLimit:SCREEN-VALUE)
             users.userType = cbUserType:SCREEN-VALUE IN FRAME {&FRAME-NAME}
 /* 39245 - User MODE does not save - 12/10/18 - MYT - remove references to db-based fields; use .usr file only */
 /*            users.envList = slEnvironments:SCREEN-VALUE*/
@@ -2354,7 +2355,7 @@ PROCEDURE local-update-record :
             users.menuBGColor[3] = BGColor-3:BGCOLOR
             .
     END.
-    
+    MESSAGE users.sessionLimit VIEW-AS ALERT-BOX.
     IF NOT lCopy THEN
     CASE users.showCueCard:
         WHEN NO THEN
@@ -2374,6 +2375,7 @@ PROCEDURE local-update-record :
         cbUserType
         users.userAlias
         users.securityLevel
+        users.sessionLImit
         slEnvironments
         slDatabases
         slModes
