@@ -91,6 +91,7 @@ DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-massdel AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -424,6 +425,16 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_p-updsav ( 21.48 , 70 ) NO-ERROR.
        RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR. 
        
+        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'panels/p-massdel.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-massdel ).
+       RUN set-position IN h_p-massdel ( 21.48 , 130 ) NO-ERROR.
+       RUN set-size IN h_p-massdel ( 2.14 , 56.00 ) NO-ERROR. 
+       
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
@@ -431,6 +442,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_oe-prmtx , 'Record':U , h_oe-prmtx-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_oe-prmtx-2 ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_oe-prmtx-2 ).
+       RUN add-link IN adm-broker-hdl ( h_oe-prmtx-2 , 'Record':U , h_p-massdel ).
               
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_oe-prmtx-2 ,
