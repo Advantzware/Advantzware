@@ -316,6 +316,15 @@ for each itemfg
        
     if v-reord-qty gt 0 or v-prt-all then
        IF tb_history THEN DO:
+            IF lookup("EST STYLE",cSelectedList) GT 0 OR lookup("EST BOARD",cSelectedList) GT 0 OR lookup("EST LENGTH",cSelectedList) GT 0 OR
+             lookup("EST WIDTH",cSelectedList) GT 0 OR lookup("EST DEPTH",cSelectedList) GT 0 OR lookup("EST PLATE#",cSelectedList) GT 0  THEN
+            DO:
+              RUN pGetEstValues(INPUT itemfg.company, INPUT itemfg.est-no, INPUT itemfg.i-no,
+                                OUTPUT cEstStyle, OUTPUT cEstBoard, OUTPUT dEstLength,
+                                OUTPUT dEstWidth, OUTPUT dEstDepth, OUTPUT cEstPlate).
+            END.                  
+            iCount = (itemfg.case-count * itemfg.case-pall )  + itemfg.quantityPartial . 
+            IF iCount EQ ? THEN iCount = 0.
           
            cDisplay = "".
            cTmpField = "".
@@ -372,6 +381,20 @@ for each itemfg
                               cExcelVarValue = "".
                           WHEN "est-rout" THEN ASSIGN cVarValue = STRING(cMachine,"X(30)")
                               cExcelVarValue = "".
+                          WHEN "est-style" THEN ASSIGN cVarValue = STRING(cEstStyle,"X(9)")
+                              cExcelVarValue = "".
+                          WHEN "est-board" THEN ASSIGN cVarValue = STRING(cEstBoard,"X(10)")
+                                              cExcelVarValue = "". 
+                          WHEN "est-length" THEN ASSIGN cVarValue = STRING(dEstLength,"->>,>>9.99")
+                                              cExcelVarValue = "".                              
+                          WHEN "est-wid" THEN ASSIGN cVarValue = STRING(dEstWidth,"->>,>>9.99")
+                                              cExcelVarValue = "". 
+                          WHEN "est-depth" THEN ASSIGN cVarValue = STRING(dEstDepth,"->>,>>9.99")
+                                              cExcelVarValue = "". 
+                          WHEN "est-plate" THEN ASSIGN cVarValue = STRING(cEstPlate,"X(15)")
+                                              cExcelVarValue = "".  
+                          WHEN "item-count" THEN ASSIGN cVarValue = STRING(iCount,"->,>>>,>>9")
+                                              cExcelVarValue = "".     
                           WHEN "li-hist" THEN do: 
                               cVarValue = "" .
                               cExcelVarValue = "" .
@@ -416,7 +439,18 @@ for each itemfg
              PUT STREAM excel UNFORMATTED  
                cExcelDisplay SKIP.
        END.
-       ELSE DO:                 
+       ELSE DO:   
+       
+            IF lookup("EST STYLE",cSelectedList) GT 0 OR lookup("EST BOARD",cSelectedList) GT 0 OR lookup("EST LENGTH",cSelectedList) GT 0 OR
+             lookup("EST WIDTH",cSelectedList) GT 0 OR lookup("EST DEPTH",cSelectedList) GT 0 OR lookup("EST PLATE#",cSelectedList) GT 0  THEN
+            DO:
+            
+                RUN pGetEstValues(INPUT itemfg.company, INPUT itemfg.est-no, INPUT itemfg.i-no,
+                                  OUTPUT cEstStyle, OUTPUT cEstBoard, OUTPUT dEstLength,
+                                  OUTPUT dEstWidth, OUTPUT dEstDepth, OUTPUT cEstPlate).
+            END.                  
+            iCount = (itemfg.case-count * itemfg.case-pall )  + itemfg.quantityPartial . 
+            IF iCount EQ ? THEN iCount = 0.
           
             cDisplay = "".
             cTmpField = "".
@@ -476,6 +510,20 @@ for each itemfg
                               cExcelVarValue = "".
                           WHEN "est-rout" THEN ASSIGN cVarValue = STRING(cMachine,"X(30)")
                               cExcelVarValue = "".
+                          WHEN "est-style" THEN ASSIGN cVarValue = STRING(cEstStyle,"X(9)")
+                              cExcelVarValue = "".
+                          WHEN "est-board" THEN ASSIGN cVarValue = STRING(cEstBoard,"X(10)")
+                                              cExcelVarValue = "". 
+                          WHEN "est-length" THEN ASSIGN cVarValue = STRING(dEstLength,"->>,>>9.99")
+                                              cExcelVarValue = "".                              
+                          WHEN "est-wid" THEN ASSIGN cVarValue = STRING(dEstWidth,"->>,>>9.99")
+                                              cExcelVarValue = "". 
+                          WHEN "est-depth" THEN ASSIGN cVarValue = STRING(dEstDepth,"->>,>>9.99")
+                                              cExcelVarValue = "". 
+                          WHEN "est-plate" THEN ASSIGN cVarValue = STRING(cEstPlate,"X(15)")
+                                              cExcelVarValue = "".  
+                          WHEN "item-count" THEN ASSIGN cVarValue = STRING(iCount,"->,>>>,>>9")
+                                              cExcelVarValue = "".     
                           WHEN "li-hist" THEN do: 
                               cVarValue = "" .
                               cExcelVarValue = "" .
