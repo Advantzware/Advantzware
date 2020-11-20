@@ -1221,7 +1221,8 @@ FOR EACH job-hdr NO-LOCK
                                 END.
                                 
                                 FOR EACH estCostheader NO-LOCK
-                                         WHERE estCostheader.jobID EQ job-hdr.job-no
+                                         WHERE estCostHeader.company EQ job-hdr.company 
+                                         AND estCostheader.jobID EQ job-hdr.job-no
                                          AND estCostheader.jobID2 EQ job-hdr.job-no2,
                                          EACH estCostOperation NO-LOCK
                                          WHERE estCostOperation.estCostHeaderID EQ estCostheader.estCostHeaderID
@@ -1387,8 +1388,9 @@ FOR EACH job-hdr NO-LOCK
                                       iEbTotalOverQty = iEbTotalOverQty * fg-set.qtyPerSet .
                               END.
                               FOR EACH estCostheader NO-LOCK
-                                         WHERE estCostheader.jobID EQ job-hdr.job-no
-                                         AND estCostheader.jobID2 EQ job-hdr.job-no2,
+                                    WHERE estCostHeader.company EQ job-hdr.company 
+                                    AND estCostheader.jobID EQ job-hdr.job-no
+                                    AND estCostheader.jobID2 EQ job-hdr.job-no2,
                                          EACH estCostOperation NO-LOCK
                                          WHERE estCostOperation.estCostHeaderID EQ estCostheader.estCostHeaderID
                                          AND estCostOperation.formNo EQ eb.form-no
@@ -1470,8 +1472,9 @@ FOR EACH job-hdr NO-LOCK
                                              iEbTotalOverQty = iEbTotalOverQty * fg-set.qtyPerSet.
                                      END.
                                      FOR EACH estCostheader NO-LOCK
-                                         WHERE estCostheader.jobID EQ job-hdr.job-no
-                                         AND estCostheader.jobID2 EQ job-hdr.job-no2,
+                                        WHERE estCostHeader.company EQ job-hdr.company 
+                                        AND estCostheader.jobID EQ job-hdr.job-no
+                                        AND estCostheader.jobID2 EQ job-hdr.job-no2,
                                          EACH estCostOperation NO-LOCK
                                          WHERE estCostOperation.estCostHeaderID EQ estCostheader.estCostHeaderID
                                          AND estCostOperation.formNo EQ eb.form-no
