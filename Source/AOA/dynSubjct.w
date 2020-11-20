@@ -4645,7 +4645,7 @@ PROCEDURE pGenerateDefsInclude :
         cVariable = fGetVariable(dynValueParam.paramName,dynValueParam.dataType).
         PUT UNFORMATTED
             "DEFINE VARIABLE " cVariable            
-            " AS " dynValueParam.dataType " NO-UNDO."
+            " AS " CAPS(dynValueParam.dataType) " NO-UNDO."
             SKIP.
     END. /* each dynvalueparam */
     PUT UNFORMATTED
