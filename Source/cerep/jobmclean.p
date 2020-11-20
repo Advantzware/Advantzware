@@ -1216,23 +1216,23 @@ FOR EACH job-hdr NO-LOCK
                                     FIRST bf-ttSoule WHERE  bf-ttSoule.frm EQ bff-eb.form-no
                                      AND  bf-ttSoule.blank-no EQ bff-eb.blank-no 
                                     AND  bf-ttSoule.runForm EQ YES NO-LOCK :
-                                    ASSIGN                                        
+                                    dPerSetQty = 1 .
+                                    IF cSetFGItem NE "" THEN do:
+                                         FIND FIRST fg-set WHERE fg-set.company = eb.company
+                                             AND fg-set.set-no = cSetFGItem
+                                             AND fg-set.part-no = bff-eb.stock-no NO-ERROR.
+                                         IF AVAIL fg-set THEN
+                                            dPerSetQty = fg-set.qtyPerSet .
+                                     END.
+
+                                    ASSIGN
+                                        iEbTotalYldQty = iEbTotalYldQty + ((IF bff-eb.yld-qty EQ 0 THEN bff-eb.bl-qty ELSE bff-eb.yld-qty) * dPerSetQty )
+                                        iEbTotalblQty  = iEbTotalblQty + ( bff-eb.bl-qty * dPerSetQty )
                                         iEbTotalUpQty  = iEbTotalUpQty + bff-eb.num-up  .
                                 END.
+
                                 
-                                FOR EACH estCostheader NO-LOCK
-                                         WHERE estCostHeader.company EQ job-hdr.company 
-                                         AND estCostheader.jobID EQ job-hdr.job-no
-                                         AND estCostheader.jobID2 EQ job-hdr.job-no2,
-                                         EACH estCostOperation NO-LOCK
-                                         WHERE estCostOperation.estCostHeaderID EQ estCostheader.estCostHeaderID
-                                         AND estCostOperation.formNo EQ eb.form-no
-                                         BY estCostOperation.sequenceOfOperation
-                                         :
-                                         ASSIGN
-                                          iEbTotalblQty = iEbTotalblQty + estCostOperation.quantityIn 
-                                          iEbTotalYldQty = iEbTotalYldQty + estCostOperation.quantityOut  .
-                                END.  
+
 
                                 k = 1 .
                                 PUT 
@@ -1375,8 +1375,8 @@ FOR EACH job-hdr NO-LOCK
                                 END. /* each wrk-op*/
                                 
                               PUT v-fill SKIP  .
-                              iEbTotalYldQty = 0.
-                              iEbTotalblQty  = 0. 
+                              iEbTotalYldQty = IF eb.yld-qty EQ 0 THEN eb.bl-qty ELSE eb.yld-qty .
+                              iEbTotalblQty  = eb.bl-qty  .                                  
                               RUN pGetJobQty(bf-jobhdr.job-no,bf-jobhdr.job-no2,bf-jobhdr.frm,eb.blank-no, OUTPUT iJobQty ) .        
                               iEbTotalOverQty = IF AVAIL oe-ordl THEN( eb.bl-qty * ( 1 + oe-ordl.over-pct / 100 )) ELSE IF iJobQty NE 0 THEN iJobQty ELSE bf-jobhdr.qty .
                               IF cSetFGItem NE "" THEN do:
@@ -1384,24 +1384,11 @@ FOR EACH job-hdr NO-LOCK
                                       AND fg-set.set-no = cSetFGItem
                                       AND fg-set.part-no = eb.stock-no NO-ERROR.
                                   IF AVAIL fg-set THEN
-                                      ASSIGN                                      
+                                      ASSIGN
+                                      iEbTotalYldQty = iEbTotalYldQty * fg-set.qtyPerSet 
+                                      iEbTotalblQty  = iEbTotalblQty  * fg-set.qtyPerSet 
                                       iEbTotalOverQty = iEbTotalOverQty * fg-set.qtyPerSet .
                               END.
-                              FOR EACH estCostheader NO-LOCK
-                                    WHERE estCostHeader.company EQ job-hdr.company 
-                                    AND estCostheader.jobID EQ job-hdr.job-no
-                                    AND estCostheader.jobID2 EQ job-hdr.job-no2,
-                                         EACH estCostOperation NO-LOCK
-                                         WHERE estCostOperation.estCostHeaderID EQ estCostheader.estCostHeaderID
-                                         AND estCostOperation.formNo EQ eb.form-no
-                                         AND estCostOperation.blankNo EQ eb.blank-no
-                                         BY estCostOperation.sequenceOfOperation
-                                         :
-                                         ASSIGN
-                                          iEbTotalblQty = iEbTotalblQty + estCostOperation.quantityIn 
-                                          iEbTotalYldQty = iEbTotalYldQty + estCostOperation.quantityOut  .
-                                END.  
-                              
                                
                               PUT 
                                   "<R-1><P10><C20><b>Customer Part: </B>" eb.part-no FORMAT "x(15)"   
@@ -1459,8 +1446,8 @@ FOR EACH job-hdr NO-LOCK
                                          RUN pPrintHeader .
                                      END.
                                      k = K + 1 .
-                                     iEbTotalYldQty = 0 .
-                                     iEbTotalblQty  = 0  . 
+                                     iEbTotalYldQty = IF bff-eb.yld-qty EQ 0 THEN bff-eb.bl-qty ELSE bff-eb.yld-qty .
+                                     iEbTotalblQty  = bff-eb.bl-qty  .
                                      RUN pGetJobQty(bf-jobhdr.job-no,bf-jobhdr.job-no2,bf-jobhdr.frm,bff-eb.blank-no, OUTPUT iJobQty ) .
                                      iEbTotalOverQty = IF AVAIL oe-ordl THEN (bff-eb.bl-qty * (1 + oe-ordl.over-pct / 100 )) ELSE IF iJobQty NE 0 THEN iJobQty ELSE bf-jobhdr.qty .
                                      IF cSetFGItem NE "" THEN do:
@@ -1468,24 +1455,11 @@ FOR EACH job-hdr NO-LOCK
                                              AND fg-set.set-no = cSetFGItem
                                              AND fg-set.part-no = bff-eb.stock-no NO-ERROR.
                                          IF AVAIL fg-set THEN
-                                             ASSIGN                                             
+                                             ASSIGN
+                                             iEbTotalYldQty = iEbTotalYldQty * fg-set.qtyPerSet 
+                                             iEbTotalblQty  = iEbTotalblQty * fg-set.qtyPerSet 
                                              iEbTotalOverQty = iEbTotalOverQty * fg-set.qtyPerSet.
                                      END.
-                                     FOR EACH estCostheader NO-LOCK
-                                        WHERE estCostHeader.company EQ job-hdr.company 
-                                        AND estCostheader.jobID EQ job-hdr.job-no
-                                        AND estCostheader.jobID2 EQ job-hdr.job-no2,
-                                         EACH estCostOperation NO-LOCK
-                                         WHERE estCostOperation.estCostHeaderID EQ estCostheader.estCostHeaderID
-                                         AND estCostOperation.formNo EQ eb.form-no
-                                         AND estCostOperation.blankNo EQ bff-eb.blank-no
-                                         BY estCostOperation.sequenceOfOperation
-                                         :
-                                         ASSIGN
-                                          iEbTotalblQty = iEbTotalblQty + estCostOperation.quantityIn 
-                                          iEbTotalYldQty = iEbTotalYldQty + estCostOperation.quantityOut  .
-                                     END.  
-                                     
 
                                      PUT 
                                          "<R-1><P10><C20><b>Customer Part: </B>" bff-eb.part-no FORMAT "x(15)"   
