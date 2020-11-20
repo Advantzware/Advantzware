@@ -860,6 +860,7 @@ PROCEDURE spCreateSysCtrlUsage :
     DEFINE INPUT PARAMETER ipcTypeCode      AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcStackTrace    AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiSecurityLevel AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER iplIsPassword    AS LOGICAL   NO-UNDO.
 
     IF sfUserSecurityLevel() LT ipiSecurityLevel THEN 
     ASSIGN 
@@ -873,6 +874,8 @@ PROCEDURE spCreateSysCtrlUsage :
         ipcCustVendNo = ?
         ipcShipID     = ?
         .
+    IF iplIsPassword THEN
+    ipcCharFld = FILL("*",LENGTH(ipcCharFld)).
     FIND FIRST ttSysCtrlUsage
          WHERE ttSysCtrlUsage.company  EQ ipcCompany
            AND ttSysCtrlUsage.module   EQ ipcModule
@@ -900,6 +903,7 @@ PROCEDURE spCreateSysCtrlUsage :
         ttSysCtrlUsage.sysCtrlID    = ipiSysCtrlID
         ttSysCtrlUsage.typeCode     = ipcTypeCode
         ttSysCtrlUsage.stackTrace   = ipcStackTrace
+        ttSysCtrlUsage.isPassword   = iplIsPassword
         .
 
 END PROCEDURE.

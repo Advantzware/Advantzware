@@ -75,15 +75,15 @@ cValidateList = 'QUOPRINT,BOLFMT,ACKHEAD,RELPRINT,POPRINT,'
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR sys-ctrl-shipto.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS sys-ctrl-shipto.ship-id ~
-sys-ctrl-shipto.char-fld sys-ctrl-shipto.date-fld sys-ctrl-shipto.dec-fld ~
-sys-ctrl-shipto.int-fld sys-ctrl-shipto.log-fld 
+&Scoped-Define ENABLED-FIELDS sys-ctrl-shipto.isPassword ~
+sys-ctrl-shipto.ship-id sys-ctrl-shipto.char-fld sys-ctrl-shipto.date-fld ~
+sys-ctrl-shipto.dec-fld sys-ctrl-shipto.int-fld sys-ctrl-shipto.log-fld 
 &Scoped-define ENABLED-TABLES sys-ctrl-shipto
 &Scoped-define FIRST-ENABLED-TABLE sys-ctrl-shipto
 &Scoped-Define DISPLAYED-FIELDS sys-ctrl-shipto.cust-vend ~
-sys-ctrl-shipto.cust-vend-no sys-ctrl-shipto.ship-id ~
-sys-ctrl-shipto.char-fld sys-ctrl-shipto.date-fld sys-ctrl-shipto.dec-fld ~
-sys-ctrl-shipto.int-fld sys-ctrl-shipto.log-fld 
+sys-ctrl-shipto.isPassword sys-ctrl-shipto.cust-vend-no ~
+sys-ctrl-shipto.ship-id sys-ctrl-shipto.char-fld sys-ctrl-shipto.date-fld ~
+sys-ctrl-shipto.dec-fld sys-ctrl-shipto.int-fld sys-ctrl-shipto.log-fld 
 &Scoped-define DISPLAYED-TABLES sys-ctrl-shipto
 &Scoped-define FIRST-DISPLAYED-TABLE sys-ctrl-shipto
 &Scoped-Define DISPLAYED-OBJECTS type_name ship_name 
@@ -149,6 +149,9 @@ DEFINE FRAME F-Main
                     "&Customer", yes,
 "&Vendor", no
           SIZE 34 BY 1
+     sys-ctrl-shipto.isPassword AT ROW 1.24 COL 63 WIDGET-ID 2
+          VIEW-AS TOGGLE-BOX
+          SIZE 18 BY 1
      sys-ctrl-shipto.cust-vend-no AT ROW 2.43 COL 25 COLON-ALIGNED
           LABEL "Customer/Vendor ID"
           VIEW-AS FILL-IN 
@@ -282,7 +285,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -486,7 +489,6 @@ DO:
   {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -541,7 +543,6 @@ DO:
   {methods/dispflds.i}
   {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -671,56 +672,6 @@ PROCEDURE local-display-fields :
         ASSIGN sys-ctrl-shipto.char-fld:LABEL IN FRAME {&FRAME-NAME}  = "Business Form Name" . 
 
     END PROCEDURE.
-
-    /* _UIB-CODE-BLOCK-END */
-    &ANALYZE-RESUME
-
-    &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
-    PROCEDURE local-update-record :
-    /*------------------------------------------------------------------------------
-      Purpose:     Override standard ADM method
-      Notes:       
-    ------------------------------------------------------------------------------*/
-      DEF VAR check-all-update AS LOG NO-UNDO.
-      DEF BUFFER bf-sys-ctrl-shipto FOR sys-ctrl-shipto .
-      /* Code placed here will execute PRIOR to standard behavior. */
-      DO WITH FRAME {&FRAME-NAME}:
-        IF sys-ctrl-shipto.cust-vend-no NE '' THEN
-        APPLY 'LEAVE':U TO sys-ctrl-shipto.cust-vend-no.
-        IF correct-error THEN RETURN.
-        IF sys-ctrl-shipto.ship-id NE '' THEN
-        APPLY 'LEAVE':U TO sys-ctrl-shipto.ship-id.
-        IF correct-error THEN RETURN.
-      END.
-
-  RUN valid-char-fld NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  RUN valid-log-fld NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  RUN valid-cust NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.  
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  {methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT opName,OUTPUT opModule)"}  
-
-  IF opName = "Reports" AND sys-ctrl-shipto.log-fld  THEN do:
-
-    MESSAGE " Would you like to set all reports to yes? "  
-        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO 
-        UPDATE check-all-update . 
-
-    IF check-all-update  THEN do:
-        FOR EACH bf-sys-ctrl-shipto WHERE bf-sys-ctrl-shipto.company = cocode AND 
-             bf-sys-ctrl-shipto.NAME = "Reports" EXCLUSIVE-LOCK:
-
-            ASSIGN bf-sys-ctrl-shipto.log-fld = YES .
-        END. /* for each */
-    END.  /* check-all-update */
-  END. /* opName = "Reports" */
-
-END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
