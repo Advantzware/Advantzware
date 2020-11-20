@@ -5547,51 +5547,59 @@ DEFINE VARIABLE lMsgResponse AS LOGICAL NO-UNDO.
                             AND oe-ord.ord-no  EQ oe-ordl.ord-no
                           NO-ERROR.
 
-  IF oe-ordl.est-no NE "" THEN DO TRANSACTION:
-    fil_id = RECID(oe-ordl).
+    IF oe-ordl.est-no NE "" THEN            /* Est no on line is NOT blank */
+    DO TRANSACTION:
+        ASSIGN 
+            fil_id = RECID(oe-ordl).
 
-    IF NOT v-qty-mod THEN RUN oe/job-qty.p (ROWID(oe-ordl), OUTPUT v-qty-mod).
+        IF NOT v-qty-mod THEN               
+            RUN oe/job-qty.p (INPUT  ROWID(oe-ordl), 
+                OUTPUT v-qty-mod).
 
+        IF  oe-ord.est-no EQ "" OR          /* Est no on order is blank, or */
+            (v-qty-mod AND                  /* qty changed on an existing estimate-based line */
+            (NOT ll-new-record OR 
+            lv-new-tandem NE ?)
+            ) THEN 
+        DO:
+            FRAME {&frame-name}:SENSITIVE = NO.      
+            RUN oe/estupl.p.                /* po/doPo is run from here */
+            FRAME {&frame-name}:SENSITIVE = YES.
+            ASSIGN 
+                fil_id = RECID(oe-ordl).
+        END.
 
-    IF oe-ord.est-no EQ ""                                       OR
-       (v-qty-mod AND (NOT ll-new-record OR lv-new-tandem NE ?)) THEN DO:
-
-      /*03300902 need sensitive = no to display job ticket print*/
-      FRAME {&frame-name}:SENSITIVE = NO.      
-
-      RUN oe/estupl.p.
-      FRAME {&frame-name}:SENSITIVE = YES.
-
-      fil_id = RECID(oe-ordl).
+        IF lv-q-no NE 0 THEN 
+        DO:        
+            FIND CURRENT oe-ordl.
+            ASSIGN 
+                oe-ordl.q-no = lv-q-no.
+        END.
     END.
-
-    IF lv-q-no NE 0 THEN DO:        
-
-      
-      FIND CURRENT oe-ordl.
-      ASSIGN oe-ordl.q-no = lv-q-no.
-    END.
-
-  END.
-  ELSE IF oe-ord.type NE "T" 
-  AND (lv-add-mode 
-      OR (NOT ip-type BEGINS "update-" 
-            AND (v-qty-mod OR oe-ordl.po-no-po EQ 0 
-                 OR lv-new-tandem NE ? 
-                 OR NOT CAN-FIND(FIRST po-ord WHERE 
-                    po-ord.company EQ oe-ordl.company AND 
-                    po-ord.po-no   EQ oe-ordl.po-no-po)))) THEN DO:
-      ASSIGN 
-          lMsgResponse = TRUE.
-      IF oe-ord.Pricehold THEN
-          RUN displayMessageQuestionLog(
-                  INPUT "33",
-                  OUTPUT lMsgResponse 
-                  ).
-                           
-      IF lMsgResponse THEN
-          RUN po/doPo.p(YES).
-  END.
+    ELSE IF oe-ordl.est-no EQ ""            /* Est-no on line is blank and not a transfer order */
+            AND oe-ord.type NE "T" THEN 
+        DO:  
+            IF lv-add-mode                      /* adding a line, */ 
+                OR (NOT ip-type BEGINS "update-"    /* or not updating and qty changes or no pono on line, */
+                AND (v-qty-mod                  /* or new tandem item */
+                OR oe-ordl.po-no-po EQ 0 
+                OR lv-new-tandem NE ?      
+                OR NOT CAN-FIND(FIRST po-ord WHERE 
+                po-ord.company EQ oe-ordl.company AND 
+                po-ord.po-no   EQ oe-ordl.po-no-po)
+                )
+                ) THEN 
+            DO:
+                ASSIGN 
+                    lMsgResponse = TRUE.
+            
+                IF oe-ord.Pricehold THEN
+                    RUN displayMessageQuestionLog (INPUT  "33",
+                        OUTPUT lMsgResponse).
+                IF lMsgResponse THEN
+                    RUN po/doPo.p(YES).
+            END. 
+        END.
   
   DO TRANSACTION:     
     
