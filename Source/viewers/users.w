@@ -2355,7 +2355,7 @@ PROCEDURE local-update-record :
             users.menuBGColor[3] = BGColor-3:BGCOLOR
             .
     END.
-    MESSAGE users.sessionLimit VIEW-AS ALERT-BOX.
+    
     IF NOT lCopy THEN
     CASE users.showCueCard:
         WHEN NO THEN
