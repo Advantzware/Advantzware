@@ -59,6 +59,7 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lReqReasonCode AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cBeforeStatus    AS CHARACTER NO-UNDO.
 
 RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
@@ -925,6 +926,7 @@ DO:
          
         RUN valid-status(OUTPUT lCheckError).
         IF lCheckError THEN RETURN NO-APPLY.           
+        cBeforeStatus = fiStatusID:SCREEN-VALUE.       
     END.
 END.
 
@@ -993,6 +995,7 @@ IF AVAILABLE w-job THEN DO:
         tb_onhold       = w-job.onHold
         tb_lock-cost  = w-job.ship-default
         ld-tag-status-desc = w-job.tagStatusDescription 
+        cBeforeStatus      = fiStatusID
         .
     RUN build-type-list .
 
@@ -1211,6 +1214,10 @@ PROCEDURE valid-status :
          WHERE inventoryStatusType.statusId EQ fiStatusID:SCREEN-VALUE NO-ERROR.
            IF AVAIL inventoryStatusType THEN
            DO:
+             IF cBeforeStatus NE fiStatusID:SCREEN-VALUE THEN DO:
+                tb_onHold:CHECKED = inventoryStatusType.onHold. 
+                APPLY "VALUE-CHANGED":U TO tb_onHold.
+             END.            
              ld-tag-status-desc:SCREEN-VALUE = inventoryStatusType.DESCRIPTION . 
            END.
            IF NOT AVAIL inventoryStatusType THEN
