@@ -187,6 +187,51 @@ PROCEDURE Inventory_BuildFGBinForItem:
         ).
 END PROCEDURE.
 
+PROCEDURE Inventory_GetAverageCostFG:
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns average cost of on-hand bins 
+            in base unit of measure - Finished Goods
+     Notes:  RUN Inventory_GetAverageCostFG (itemfg.company, itemfg.i-no, OUTPUT itemfg.avg-cost).
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdAverageCostInBaseUom AS DECIMAL NO-UNDO.
+
+    DEFINE VARIABLE dCostInBaseUOM     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTotalExtendedCost AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTotalOnHand       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lError             AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage           AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+    DEFINE BUFFER bf-fg-bin FOR fg-bin.
+
+    FIND FIRST bf-itemfg NO-LOCK 
+        WHERE bf-itemfg.company EQ ipcCompany
+        AND bf-itemfg.i-no EQ ipcItemID
+        NO-ERROR.
+    IF AVAILABLE bf-itemfg THEN 
+    DO:
+        FOR EACH bf-fg-bin NO-LOCK 
+            WHERE bf-fg-bin.company EQ bf-itemfg.company
+            AND bf-fg-bin.i-no EQ bf-itemfg.i-no
+            AND bf-fg-bin.qty GT 0:
+            IF bf-fg-bin.pur-uom NE "" AND bf-fg-bin.pur-uom NE bf-itemfg.prod-uom THEN 
+                RUN Conv_ValueFromUOMToUOMForItem(ROWID(itemfg), bf-fg-bin.std-tot-cost, bf-fg-bin.pur-uom, bf-itemfg.prod-uom, 
+                    OUTPUT dCostInBaseUOM, OUTPUT lError, OUTPUT cMessage).
+            ELSE 
+                dCostInBaseUOM = bf-fg-bin.std-tot-cost.
+            ASSIGN 
+                dTotalExtendedCost = dTotalExtendedCost + bf-fg-bin.qty * dCostInBaseUOM
+                dTotalOnHand       = dTotalOnHand + bf-fg-bin.qty.
+        END.
+    END. 
+
+    IF dTotalOnHand GT 0 THEN 
+        opdAverageCostInBaseUOM = dTotalExtendedCost / dTotalOnHand.
+
+END PROCEDURE.
+
 PROCEDURE pUpdateFinishedGoodBinQty PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Procedure to Update FG Bin quantity and create a transaction
