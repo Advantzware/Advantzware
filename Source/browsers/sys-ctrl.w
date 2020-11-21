@@ -71,7 +71,7 @@ CREATE WIDGET-POOL.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table sys-ctrl.name sys-ctrl.descrip ~
 sys-ctrl.module sys-ctrl.int-fld sys-ctrl.dec-fld sys-ctrl.char-fld ~
-sys-ctrl.date-fld sys-ctrl.log-fld sys-ctrl.securityLevelUser sys-ctrl.company
+sys-ctrl.date-fld sys-ctrl.log-fld sys-ctrl.securityLevelUser 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH sys-ctrl WHERE ~{&KEY-PHRASE} ~
       AND sys-ctrl.company = g_company NO-LOCK ~
@@ -132,17 +132,7 @@ DEFINE RECTANGLE RECT-4
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
-      sys-ctrl
-    FIELDS(sys-ctrl.name
-      sys-ctrl.descrip
-      sys-ctrl.module
-      sys-ctrl.int-fld
-      sys-ctrl.dec-fld
-      sys-ctrl.char-fld
-      sys-ctrl.date-fld
-      sys-ctrl.log-fld
-      sys-ctrl.securityLevelUser 
-      sys-ctrl.company) SCROLLING.
+      sys-ctrl SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -163,9 +153,7 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       sys-ctrl.log-fld COLUMN-LABEL "Logical!Value" FORMAT "yes/no":U
             LABEL-BGCOLOR 14
-      sys-ctrl.securityLevelUser COLUMN-LABEL "SecurityLevel" FORMAT ">999"
-            LABEL-BGCOLOR 14
-      sys-ctrl.company COLUMN-LABEL "Company" FORMAT "x(8)"
+      sys-ctrl.securityLevelUser COLUMN-LABEL "Security!Level" FORMAT ">>9":U
             LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -272,26 +260,25 @@ ASSIGN
 /* Query rebuild information for BROWSE Browser-Table
      _TblList          = "ASI.sys-ctrl"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _TblOptList       = "USED"
      _Where[1]         = "ASI.sys-ctrl.company = g_company"
      _FldNameList[1]   > ASI.sys-ctrl.name
-"sys-ctrl.name" ? "x(12)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"name" ? "x(12)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.sys-ctrl.descrip
-"sys-ctrl.descrip" ? "x(65)" "character" ? ? ? 14 ? ? no ? no no "93.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"descrip" ? "x(65)" "character" ? ? ? 14 ? ? no ? no no "93.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.sys-ctrl.module
-"sys-ctrl.module" "Sys!Mod" ? "character" ? ? ? 14 ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"module" "Sys!Mod" ? "character" ? ? ? 14 ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.sys-ctrl.int-fld
-"sys-ctrl.int-fld" "Int!Val" ? "integer" ? ? ? 14 ? ? no ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"int-fld" "Int!Val" ? "integer" ? ? ? 14 ? ? no ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.sys-ctrl.dec-fld
-"sys-ctrl.dec-fld" "Dec!val" ? "decimal" ? ? ? 14 ? ? no ? no no "8.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"dec-fld" "Dec!val" ? "decimal" ? ? ? 14 ? ? no ? no no "8.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.sys-ctrl.char-fld
-"sys-ctrl.char-fld" "Character!Value" "x(9)" "character" ? ? ? 14 ? ? no ? no no "12.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"char-fld" "Character!Value" "x(9)" "character" ? ? ? 14 ? ? no ? no no "12.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.sys-ctrl.date-fld
-"sys-ctrl.date-fld" "Date!Value" ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"date-fld" "Date!Value" ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.sys-ctrl.log-fld
-"sys-ctrl.log-fld" "Logical!Value" ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"log-fld" "Logical!Value" ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.sys-ctrl.securityLevelUser
-"sys-ctrl.securityLevelUser" "Security!Level" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"securityLevelUser" "Security!Level" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -421,6 +408,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+GET FIRST Browser-Table .
+
+RUN windows/sysctrl-exp.w .
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
 /*------------------------------------------------------------------------------
@@ -519,23 +524,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
-PROCEDURE export-xl :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-GET FIRST Browser-Table .
-
-RUN windows/sysctrl-exp.w .
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
