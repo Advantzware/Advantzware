@@ -5,6 +5,7 @@ DEFINE INPUT PARAMETER iprRowID AS ROWID NO-UNDO.
 DEFINE VARIABLE cAppSrv     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJasperFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSubject    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTaskFormat AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dttDateTime AS DATETIME  NO-UNDO.
 DEFINE VARIABLE hAppSrv     AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hAppSrvBin  AS HANDLE    NO-UNDO.
@@ -41,8 +42,10 @@ IF AVAILABLE dynParamValue THEN DO:
                 SESSION:ADD-SUPER-PROCEDURE (hAppSrv).                
                 RUN AOA/spJasper.p PERSISTENT SET hJasper.
                 SESSION:ADD-SUPER-PROCEDURE (hJasper).
+                cTaskFormat = IF CAN-DO("Grid,LocalCSV,View,Print -d",Task.taskFormat) THEN "CSV"
+                              ELSE Task.taskFormat.
                 RUN spJasperQuery (
-                    Task.taskFormat,
+                    cTaskFormat,
                     ROWID(dynParamValue),
                     dynSubject.subjectTitle,
                     Task.user-id,
@@ -58,7 +61,7 @@ IF AVAILABLE dynParamValue THEN DO:
                             IF config.taskName THEN
                             cSubject = cSubject + Task.taskName + " ".
                             IF config.taskType THEN
-                            cSubject = cSubject + Task.taskFormat + " ".
+                            cSubject = cSubject + cTaskFormat + " ".
                             IF config.taskDate THEN
                             cSubject = cSubject + STRING(TODAY,"99/99/9999") + " ".
                             IF config.taskTime THEN

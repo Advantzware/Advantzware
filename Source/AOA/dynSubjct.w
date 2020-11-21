@@ -4754,8 +4754,11 @@ PROCEDURE pGetCustListID :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
     FOR EACH sys-ctrl-shipto NO-LOCK
-        WHERE sys-ctrl-shipto.company EQ "001"
+        WHERE sys-ctrl-shipto.company EQ cCompany
           AND sys-ctrl-shipto.name    EQ "CustomerList"
         BREAK BY sys-ctrl-shipto.char-fld
         :
