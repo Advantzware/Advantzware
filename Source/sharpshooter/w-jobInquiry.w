@@ -13,7 +13,7 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: inventory\job-details.w
+  File: sharpshooter\job-details.w
 
   Description: Displays Job Header, Materials and Machine Details
 
@@ -83,8 +83,8 @@ RUN jc\JobProcs.p PERSISTENT SET hdJobProcs.
 DEFINE QUERY external_tables FOR job.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-31 RECT-32 rSelected btExit fiJobNo ~
-btSearch cbJobNo2 btFGInq btFGItems btMaterials btRoutings btnFirst ~
-btnPrevious btnNext btnLast 
+cbJobNo2 btFGInq btFGItems btMaterials btRoutings btnFirst btnPrevious ~
+btnNext btnLast 
 &Scoped-Define DISPLAYED-OBJECTS fiJobNo cbJobNo2 fiJoblabel fiStatusLabel ~
 fiStatus fiCreatedLabel fiCreated fiDueLabel fiDue fiCSRLabel fiCSR 
 
@@ -157,11 +157,6 @@ DEFINE BUTTON btRMInq
 DEFINE BUTTON btRoutings 
      LABEL "Routings" 
      SIZE 30 BY 2.52
-     FONT 37.
-
-DEFINE BUTTON btSearch 
-     LABEL "Search" 
-     SIZE 15 BY 1.38
      FONT 37.
 
 DEFINE VARIABLE cbJobNo2 AS INTEGER FORMAT "99":U INITIAL 0 
@@ -240,7 +235,6 @@ DEFINE RECTANGLE rSelected
 DEFINE FRAME F-Main
      btExit AT ROW 1.91 COL 192 WIDGET-ID 126
      fiJobNo AT ROW 2.43 COL 19.2 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     btSearch AT ROW 2.43 COL 77.2 WIDGET-ID 134
      cbJobNo2 AT ROW 2.48 COL 61.6 COLON-ALIGNED NO-LABEL WIDGET-ID 50
      fiJoblabel AT ROW 2.57 COL 7.6 COLON-ALIGNED NO-LABEL WIDGET-ID 92
      fiStatusLabel AT ROW 2.57 COL 143 COLON-ALIGNED NO-LABEL WIDGET-ID 94
@@ -528,17 +522,17 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btSearch
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSearch W-Win
-ON CHOOSE OF btSearch IN FRAME F-Main /* Search */
+&Scoped-define SELF-NAME cbJobNo2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbJobNo2 W-Win
+ON VALUE-CHANGED OF cbJobNo2 IN FRAME F-Main
 DO:
     RUN pJobScan (
         INPUT  cocode,
-        INPUT  fiJobNo:SCREEN-VALUE,
+        INPUT  cFormattedJobno,
         INPUT  INTEGER(cbJobNo2:SCREEN-VALUE),
         INPUT  0,
         INPUT  0
-        ).
+        ).  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -549,8 +543,28 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobNo W-Win
 ON LEAVE OF fiJobNo IN FRAME F-Main
 DO:
+    DEFINE VARIABLE cJobNo     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobNo2    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFormNo    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBlankNo   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lParse     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage   AS CHARACTER NO-UNDO.
+    
+    RUN JobParser IN hdJobProcs (
+        SELF:SCREEN-VALUE,
+        OUTPUT cJobNo,
+        OUTPUT cJobNo2,
+        OUTPUT cFormNo,
+        OUTPUT cBlankNo,
+        OUTPUT lParse,
+        OUTPUT cMessage
+        ).
+
+    IF NOT lParse THEN
+        cJobNo = SELF:SCREEN-VALUE.
+
     cFormattedJobno = DYNAMIC-FUNCTION (
-                      "fAddSpacesToString" IN hdJobProcs, SELF:SCREEN-VALUE, 6, TRUE
+                      "fAddSpacesToString" IN hdJobProcs, cJobNo, 6, TRUE
                       ).
 
     RUN GetSecondaryJobForJob IN hdJobProcs (
@@ -561,8 +575,19 @@ DO:
 
     ASSIGN
         cbJobNo2:LIST-ITEMS   = cJobno2ListItems.
-        cbJobNo2:SCREEN-VALUE = ENTRY(1, cJobno2ListItems)
-        NO-ERROR.                                                        
+        cbJobNo2:SCREEN-VALUE = IF cJobNo2 EQ "" THEN 
+                                    ENTRY(1,cJobno2ListItems)
+                                ELSE
+                                    STRING(INTEGER(cJobNo2),"99")
+        NO-ERROR.       
+    
+    RUN pJobScan (
+        INPUT  cocode,
+        INPUT  cFormattedJobno,
+        INPUT  INTEGER(cbJobNo2:SCREEN-VALUE),
+        INPUT  0,
+        INPUT  0
+        ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -759,8 +784,8 @@ PROCEDURE enable_UI :
   DISPLAY fiJobNo cbJobNo2 fiJoblabel fiStatusLabel fiStatus fiCreatedLabel 
           fiCreated fiDueLabel fiDue fiCSRLabel fiCSR 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE RECT-31 RECT-32 rSelected btExit fiJobNo btSearch cbJobNo2 btFGInq 
-         btFGItems btMaterials btRoutings btnFirst btnPrevious btnNext btnLast 
+  ENABLE RECT-31 RECT-32 rSelected btExit fiJobNo cbJobNo2 btFGInq btFGItems 
+         btMaterials btRoutings btnFirst btnPrevious btnNext btnLast 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
@@ -888,9 +913,8 @@ PROCEDURE pJobScan :
         INPUT ipiJobno2,
         OUTPUT lValidJob
         ).
-        
-    IF NOT lValidJob THEN 
-    DO: 
+
+    IF NOT lValidJob THEN DO: 
         MESSAGE "Invalid Job number, please enter a valid Job number" 
             VIEW-AS ALERT-BOX ERROR.
         APPLY "ENTRY" TO fiJobNo.

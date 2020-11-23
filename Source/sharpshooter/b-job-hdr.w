@@ -41,6 +41,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {inventory/ttInventory.i "NEW SHARED"}
+{jc/jcgl-sh.i  NEW}
 
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobNo   AS CHARACTER NO-UNDO.
@@ -371,9 +372,10 @@ PROCEDURE AdjustQuantity :
     DEFINE VARIABLE lValueReturned   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cAdjustType      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dValue           AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lError           AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iProdQty         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dQtyToAdjust     AS DECIMAL   NO-UNDO.
     
     /* If not automatically cleared by security level, ask for password */
     IF NOT lHasAccess THEN DO:
@@ -409,30 +411,48 @@ PROCEDURE AdjustQuantity :
             OUTPUT dValue
             ).
   
-        IF lValueReturned THEN DO:  
-            MESSAGE cAdjustType + " quantity to " + STRING(dTotalQuantity) "?" 
+        IF lValueReturned THEN DO: 
+            IF cAdjustType EQ "Reduce" THEN
+                ASSIGN
+                    dQtyToAdjust = -1 * dTotalQuantity 
+                    cMessage     = "Reduce " + STRING(dTotalQuantity) + " quantity from total on-hand " + STRING(itemfg.q-onh) + "?"
+                    .
+            ELSE IF cAdjustType EQ "Add" THEN
+                ASSIGN
+                    dQtyToAdjust = dTotalQuantity 
+                    cMessage     = "Add " + STRING(dTotalQuantity) + " quantity to total on-hand " + STRING(itemfg.q-onh) + "?"
+                    .
+            IF cAdjustType EQ "Count" THEN
+                ASSIGN
+                    dQtyToAdjust = dTotalQuantity - itemfg.q-onh 
+                    cMessage     = "Adjust total on-hand to " + STRING(dTotalQuantity) + "?"
+                    .
+
+            MESSAGE cMessage 
                     VIEW-AS ALERT-BOX QUESTION
                     BUTTON OK-CANCEL
                     TITLE "Adjust Quantity" UPDATE lContinue AS LOGICAL.
-/*            IF lContinue THEN DO:                                               */
-/*                RUN Inventory_AdjustFinishedGoodBinQty IN hdInventoryProcs (    */
-/*                    INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),        */
-/*                    INPUT  dTotalQuantity - ttBrowseInventory.quantity,         */
-/*                    INPUT  dPartialQuantity - ttBrowseInventory.quantityPartial,*/
-/*                    INPUT  cAdjReasonCode,                                      */
-/*                    OUTPUT lSuccess,                                            */
-/*                    OUTPUT cMessage                                             */
-/*                    ).                                                          */
-/*                                                                                */
-/*                IF NOT lSuccess THEN                                            */
-/*                    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.                   */
-/*                ELSE                                                            */
-/*                    ttBrowseInventory.quantity = dTotalQuantity.                */
-/*                                                                                */
-/*                {&OPEN-QUERY-{&BROWSE-NAME}}                                    */
-/*                                                                                */
-/*                APPLY "VALUE-CHANGED" TO BROWSE {&BROWSE-NAME}.                 */
-/*            END.                                                                */
+            IF lContinue THEN DO:
+                RUN Inventory_FGQuantityAdjust IN hdInventoryProcs (
+                    INPUT  job-hdr.company,
+                    INPUT  job-hdr.i-no,
+                    INPUT  job-hdr.loc,
+                    INPUT  "",
+                    INPUT  job-hdr.job-no,
+                    INPUT  job-hdr.job-no2,
+                    INPUT  dQtyToAdjust,
+                    INPUT  cAdjReasonCode,
+                    OUTPUT lError,
+                    OUTPUT cMessage
+                    ).
+
+                IF lError THEN
+                    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+
+                {&OPEN-QUERY-{&BROWSE-NAME}}
+
+                APPLY "VALUE-CHANGED" TO BROWSE {&BROWSE-NAME}.
+            END.
         END.
     END.
 END PROCEDURE.

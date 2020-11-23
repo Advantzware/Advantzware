@@ -137,20 +137,37 @@ PROCEDURE Inventory_AdjustFinishedGoodBinQty:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipriFGBin     AS ROWID     NO-UNDO.
     DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdPartialQty AS DECIMAL   NO-UNDO.    
     DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess    AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
-
+    
+    DEFINE VARIABLE lPromptForClose AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-fg-bin FOR fg-bin.
+    
     RUN pUpdateFinishedGoodBinQty (
         INPUT  ipriFGBin,
         INPUT  "A",  /* Adjust */
         INPUT  ipdQty,
-        INPUT  ipdPartialQty,
         INPUT  ipcReasonCode,
         OUTPUT oplSuccess,
         OUTPUT opcMessage        
-        ).
+        ).    
+
+    IF oplSuccess THEN DO:
+        FIND FIRST bf-fg-bin NO-LOCK
+             WHERE ROWID(bf-fg-bin) EQ ipriFGBin 
+             NO-ERROR.
+               
+        RUN PostFinishedGoodsForUser (
+            INPUT        bf-fg-bin.company,
+            INPUT        "A",             /* Adjustment */
+            INPUT        USERID("ASI"),
+            INPUT        lPromptForClose, /* Executes API closing orders logic */
+            INPUT-OUTPUT oplSuccess,
+            INPUT-OUTPUT opcMessage
+            ).
+    END.
 END PROCEDURE.
 
 PROCEDURE Inventory_BuildFGBinForItem:
@@ -232,6 +249,202 @@ PROCEDURE Inventory_GetAverageCostFG:
 
 END PROCEDURE.
 
+PROCEDURE Inventory_FGQuantityAdjust:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWarehouse AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobNo     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobNo2    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQuantity  AS DECIMAL   NO-UNDO.  
+    DEFINE INPUT  PARAMETER ipcAdjReason AS CHARACTER NO-UNDO.  
+    DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
+    
+    EMPTY TEMP-TABLE ttFGBin.
+     
+    RUN pFGQuantityAdjust (
+        INPUT  ipcCompany,
+        INPUT  ipcItemID,
+        INPUT  ipcWarehouse,
+        INPUT  ipcLocation,
+        INPUT  ipcJobNo,
+        INPUT  ipiJobNo2,
+        INPUT  ipdQuantity,
+        INPUT  ipcAdjReason,
+        OUTPUT oplError,
+        OUTPUT opcMessage
+        ).
+END PROCEDURE.
+
+PROCEDURE pFGQuantityAdjust PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcWarehouse AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobNo     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobNo2    AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQuantity  AS DECIMAL   NO-UNDO.  
+    DEFINE INPUT  PARAMETER ipcAdjReason AS CHARACTER NO-UNDO.  
+    DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lActiveWarehouse  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lValidBin         AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dQuantityAssigned AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iIndex            AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lSuccess          AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-fg-bin FOR fg-bin.
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+        
+    FIND FIRST bf-itemfg NO-LOCK
+         WHERE bf-itemfg.company EQ ipcCompany
+           AND bf-itemfg.i-no    EQ ipcItemID
+         NO-ERROR.
+    IF NOT AVAILABLE bf-itemfg THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Invalid item # '" + ipcItemID + "'"
+            .
+        RETURN.     
+    END.    
+    
+    IF ipcWarehouse NE "" THEN DO:
+        RUN ValidateLoc (
+            INPUT  ipcCompany, 
+            INPUT  ipcWarehouse, 
+            OUTPUT lActiveWarehouse
+            ).
+        
+        IF NOT lActiveWarehouse THEN DO:
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "Invalid or inactive warehouse '" + ipcWarehouse + "'"
+                .
+            RETURN.
+        END.
+    END.
+        
+    dQuantityAssigned = ipdQuantity.
+    
+    IF dQuantityAssigned GE 0 THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Adjust quantity cannot be a positive value"
+            .
+        RETURN.
+    END.
+
+    /* Bins with same job no takes priority */
+    FOR EACH bf-fg-bin
+        WHERE bf-fg-bin.company EQ ipcCompany
+          AND bf-fg-bin.i-no    EQ ipcItemID
+          AND bf-fg-bin.onHold  EQ NO
+          AND bf-fg-bin.job-no  EQ ipcJobNo
+          AND bf-fg-bin.job-no2 EQ ipiJobNo2
+          AND bf-fg-bin.qty     GT 0
+        USE-INDEX i-no
+        BY bf-fg-bin.rec_key
+        BY bf-fg-bin.job-no
+        BY bf-fg-bin.job-no2
+        BY bf-fg-bin.qty:
+        
+        CREATE ttFGBin.
+        ttFGBin.fgBinRowID = ROWID(bf-fg-bin).                
+
+        IF bf-fg-bin.qty LE ABSOLUTE(dQuantityAssigned) THEN
+            ttFGBin.qty = bf-fg-bin.qty * -1.
+        ELSE
+            ttFGBin.qty = dQuantityAssigned.
+        
+        dQuantityAssigned = dQuantityAssigned - ttFGBin.qty.
+        
+        IF dQuantityAssigned EQ 0 THEN 
+            LEAVE. 
+    END.
+            
+    FOR EACH bf-fg-bin
+        WHERE bf-fg-bin.company EQ ipcCompany
+          AND bf-fg-bin.i-no    EQ ipcItemID
+          AND bf-fg-bin.onHold  EQ NO
+          AND bf-fg-bin.qty     GT 0
+        USE-INDEX i-no
+        BY bf-fg-bin.rec_key
+        BY bf-fg-bin.job-no
+        BY bf-fg-bin.job-no2
+        BY bf-fg-bin.qty:
+        FIND FIRST ttFGBin
+             WHERE ttFGBin.fgBinRowID EQ ROWID(bf-fg-bin)
+             NO-ERROR.
+        IF AVAILABLE ttFGBin THEN
+            NEXT.
+
+        CREATE ttFGBin.
+        ttFGBin.fgBinRowID = ROWID(bf-fg-bin).                
+
+        IF bf-fg-bin.qty LE ABSOLUTE(dQuantityAssigned) THEN
+            ttFGBin.qty = bf-fg-bin.qty * -1.
+        ELSE
+            ttFGBin.qty = dQuantityAssigned.
+        
+        dQuantityAssigned = dQuantityAssigned - ttFGBin.qty.
+        
+        IF dQuantityAssigned EQ 0 THEN 
+            LEAVE. 
+    END.
+    
+    IF dQuantityAssigned NE 0 THEN DO:
+        ASSIGN
+            oplError = TRUE
+            opcMessage = "Not enough inventory to adjust for item " + ipcItemID 
+            .
+        RETURN.    
+    END.
+    
+    DO TRANSACTION ON ERROR UNDO, LEAVE:    
+        FOR EACH ttFGBin:
+            RUN pUpdateFinishedGoodBinQty(
+                INPUT  ttFGBin.fgBinRowID,
+                INPUT  "A",
+                INPUT  ttFGBin.qty,
+                INPUT  ipcAdjReason,
+                OUTPUT lSuccess,
+                OUTPUT opcMessage
+                ).
+            oplError = NOT lSuccess.
+            
+            IF oplError THEN
+                UNDO, LEAVE.
+        END.
+
+        IF NOT oplError THEN DO:
+            RUN PostFinishedGoodsForUser (
+                INPUT        ipcCompany,
+                INPUT        "A",             /* Adjustment */
+                INPUT        USERID("ASI"),
+                INPUT        FALSE, /* Executes API closing orders logic */
+                INPUT-OUTPUT lSuccess,
+                INPUT-OUTPUT opcMessage
+                ).
+            oplError = NOT lSuccess.
+            
+            IF oplError THEN
+                UNDO, LEAVE.            
+        END.
+        
+    END.
+    
+END PROCEDURE.
+
 PROCEDURE pUpdateFinishedGoodBinQty PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Procedure to Update FG Bin quantity and create a transaction
@@ -240,7 +453,6 @@ PROCEDURE pUpdateFinishedGoodBinQty PRIVATE:
     DEFINE INPUT  PARAMETER ipriFGBin     AS ROWID     NO-UNDO.
     DEFINE INPUT  PARAMETER ipcTransType  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdPartialQty AS DECIMAL   NO-UNDO.    
     DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess    AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
@@ -253,10 +465,7 @@ PROCEDURE pUpdateFinishedGoodBinQty PRIVATE:
     DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth.
     DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh.
     
-    IF ipdPartialQty EQ ? THEN
-        ipdPartialQty = 0.
-
-    FIND FIRST bf-fg-bin EXCLUSIVE-LOCK
+    FIND FIRST bf-fg-bin NO-LOCK
         WHERE ROWID(bf-fg-bin) EQ ipriFGBin
         NO-ERROR.
     IF NOT AVAILABLE bf-fg-bin THEN 
@@ -281,11 +490,6 @@ PROCEDURE pUpdateFinishedGoodBinQty PRIVATE:
         RETURN.                    
     END.
 
-    ASSIGN
-        bf-fg-bin.qty           = bf-fg-bin.qty + ipdQty
-        bf-fg-bin.partial-count = bf-fg-bin.partial-count + ipdPartialQty
-        .
-
     FOR EACH bf-fg-rctd NO-LOCK 
         BY bf-fg-rctd.r-no DESCENDING:
         iNextSeqNo = bf-fg-rctd.r-no.
@@ -297,63 +501,44 @@ PROCEDURE pUpdateFinishedGoodBinQty PRIVATE:
     IF AVAILABLE bf-fg-rcpth AND bf-fg-rcpth.r-no GT iNextSeqNo THEN
         iNextSeqNo = bf-fg-rcpth.r-no.
 
-    CREATE bf-fg-rcpth.
-    ASSIGN
-        bf-fg-rcpth.r-no       = iNextSeqNo + 1
-        bf-fg-rcpth.trans-date = TODAY
-        bf-fg-rcpth.company    = bf-fg-bin.company
-        bf-fg-rcpth.loc        = bf-fg-bin.loc
-        bf-fg-rcpth.rita-code  = ipcTransType
-        bf-fg-rcpth.i-no       = bf-fg-bin.i-no
-        bf-fg-rcpth.job-no     = bf-fg-bin.job-no
-        bf-fg-rcpth.job-no2    = bf-fg-bin.job-no2
-        bf-fg-rcpth.post-date  = TODAY
-        bf-fg-rcpth.i-name     = bf-itemfg.i-name
-        bf-fg-rcpth.pur-uom    = IF bf-fg-bin.pur-uom NE "" THEN 
-                                     bf-fg-bin.pur-uom
-                                 ELSE 
-                                     bf-itemfg.pur-uom.
-
-    CREATE bf-fg-rdtlh.
-    ASSIGN
-        bf-fg-rdtlh.r-no           = bf-fg-rcpth.r-no
-        bf-fg-rdtlh.company        = bf-fg-rcpth.company
-        bf-fg-rdtlh.loc            = bf-fg-bin.loc
-        bf-fg-rdtlh.rita-code      = ipcTransType
-        bf-fg-rdtlh.loc-bin        = bf-fg-bin.loc-bin
-        bf-fg-rdtlh.tag            = bf-fg-bin.tag
-        bf-fg-rdtlh.qty            = ipdQty
-        bf-fg-rdtlh.qty-case       = bf-fg-bin.case-count
-        bf-fg-rdtlh.stacks-unit    = bf-fg-bin.cases-unit
-        bf-fg-rdtlh.units-pallet   = bf-fg-bin.units-pallet
-        bf-fg-rdtlh.cust-no        = bf-fg-bin.cust-no
-        bf-fg-rdtlh.partial        = ipdPartialQty
-        bf-fg-rdtlh.cases          = TRUNC((ipdQty - ipdPartialQty) / bf-fg-bin.case-count,0)
-        bf-fg-rdtlh.cost           = bf-fg-bin.std-tot-cost
-        bf-fg-rdtlh.trans-time     = TIME
-        bf-fg-rdtlh.reject-code[1] = ipcReasonCode
-        .
-
-    IF bf-fg-rdtlh.cases EQ ? THEN
-        bf-fg-rdtlh.cases = 0.
-
     CREATE bf-fg-rctd.
-    BUFFER-COPY bf-fg-rcpth EXCEPT rec_key TO bf-fg-rctd
     ASSIGN
-        bf-fg-rctd.rct-date   = bf-fg-rcpth.trans-date
-        bf-fg-rctd.trans-time = bf-fg-rdtlh.trans-time
+        bf-fg-rctd.r-no           = iNextSeqNo + 1
+        bf-fg-rctd.rct-date       = TODAY
+        bf-fg-rctd.post-date      = TODAY
+        bf-fg-rctd.trans-time     = TIME
+        bf-fg-rctd.company        = bf-fg-bin.company
+        bf-fg-rctd.loc            = bf-fg-bin.loc
+        bf-fg-rctd.loc-bin        = bf-fg-bin.loc-bin
+        bf-fg-rctd.i-no           = bf-fg-bin.i-no
+        bf-fg-rctd.i-name         = bf-itemfg.i-name
+        bf-fg-rctd.rita-code      = ipcTransType
+        bf-fg-rctd.tag            = bf-fg-bin.tag
+        bf-fg-rctd.t-qty          = ipdQty
+        bf-fg-rctd.qty            = ipdQty
+        bf-fg-rctd.job-no         = bf-fg-bin.job-no
+        bf-fg-rctd.job-no2        = bf-fg-bin.job-no2
+        bf-fg-rctd.s-num          = 0  /* Assign sheet# to 0. Existing logic from b-fgadj.w */
+        bf-fg-rctd.pur-uom        = IF bf-fg-bin.pur-uom NE "" THEN 
+                                        bf-fg-bin.pur-uom
+                                    ELSE 
+                                        bf-itemfg.pur-uom
+        bf-fg-rctd.qty-case       = bf-fg-bin.case-count
+        bf-fg-rctd.stacks-unit    = bf-fg-bin.cases-unit
+        bf-fg-rctd.units-pallet   = bf-fg-bin.units-pallet
+        bf-fg-rctd.cust-no        = bf-fg-bin.cust-no
+        bf-fg-rctd.cases          = TRUNCATE(ipdQty / bf-fg-rctd.qty-case,0)
+        bf-fg-rctd.partial        = ipdQty - (bf-fg-rctd.cases * bf-fg-rctd.qty-case)
+        bf-fg-rctd.cost           = bf-fg-bin.std-tot-cost
+        bf-fg-rctd.trans-time     = TIME
+        bf-fg-rctd.reject-code[1] = ipcReasonCode
+        bf-fg-rctd.ext-cost       = (bf-fg-rctd.t-qty / (IF bf-fg-rctd.pur-uom EQ "M" THEN 1000 ELSE 1)) * bf-fg-bin.std-tot-cost
+        bf-fg-rctd.cust-no        = bf-fg-bin.cust-no
+        bf-fg-rctd.reject-code[1] = ipcReasonCode
+        bf-fg-rctd.created-by     = USERID("ASI")
+        bf-fg-rctd.updated-by     = USERID("ASI")
         .
 
-    BUFFER-COPY bf-fg-rdtlh EXCEPT rec_key TO bf-fg-rctd
-    ASSIGN
-        bf-fg-rctd.rita-code  = "P"
-        bf-fg-rctd.post-date  = TODAY
-        bf-fg-rctd.t-qty      = bf-fg-rdtlh.qty
-        bf-fg-rctd.ext-cost   = bf-fg-rdtlh.cost * (bf-fg-rdtlh.qty / IF bf-fg-rcpth.pur-uom EQ "M" THEN 1000 ELSE 1)
-        bf-fg-rctd.cases-unit = bf-fg-rdtlh.stacks-unit
-        bf-fg-rctd.partial    = ipdPartialQty
-        .
-    
     ASSIGN
         oplSuccess = TRUE
         opcMessage = "Success"
@@ -7016,12 +7201,12 @@ PROCEDURE PostFinishedGoodsForUser :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE INPUT        PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
-DEFINE INPUT        PARAMETER ipcTransType      AS CHARACTER NO-UNDO.
-DEFINE INPUT        PARAMETER ipcUsername       AS CHARACTER NO-UNDO.
-DEFINE INPUT        PARAMETER iplPromptForClose AS LOGICAL   NO-UNDO.
-DEFINE INPUT-OUTPUT PARAMETER ioplSuccess       AS LOGICAL   NO-UNDO.
-DEFINE INPUT-OUTPUT PARAMETER iopcMessage       AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcTransType      AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcUsername       AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER iplPromptForClose AS LOGICAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER ioplSuccess       AS LOGICAL   NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcMessage       AS CHARACTER NO-UNDO.
 
     /* Create  workfile records for the finished goods being posted */
     RUN fg/fgRecsByUser.p (
