@@ -153,7 +153,7 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       sys-ctrl.log-fld COLUMN-LABEL "Logical!Value" FORMAT "yes/no":U
             LABEL-BGCOLOR 14
-      sys-ctrl.securityLevelUser COLUMN-LABEL "Security!Level" FORMAT ">>9":U
+      sys-ctrl.securityLevelUser COLUMN-LABEL "Security!Level" FORMAT ">>>9":U
             LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -278,7 +278,7 @@ ASSIGN
      _FldNameList[8]   > ASI.sys-ctrl.log-fld
 "log-fld" "Logical!Value" ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.sys-ctrl.securityLevelUser
-"securityLevelUser" "Security!Level" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"securityLevelUser" "Security!Level" ">>>9" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
