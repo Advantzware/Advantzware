@@ -1616,7 +1616,7 @@ PROCEDURE pUpdateLineRequestData PRIVATE:
         ioplgFirst = NO.    
     END.
     RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "Freight", "0").
-    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "InvoiceUnitPrice",STRING(ipbf-ttLines.pricePerEA)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "InvoiceEachPrice",STRING(ipbf-ttLines.pricePerEA)).
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
