@@ -126,14 +126,16 @@ OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile sys-ctrl
 OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
-FOR EACH {&cFile} :
+FOR EACH {&cFile} WHERE 
+    {&cFile}.company EQ "001":
     EXPORT {&cFile}.
 END.
 OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile sys-ctrl-shipto
 OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
-FOR EACH {&cFile} :
+FOR EACH {&cFile} WHERE 
+    {&cFile}.company EQ "001":
     EXPORT {&cFile}.
 END.
 OUTPUT CLOSE.

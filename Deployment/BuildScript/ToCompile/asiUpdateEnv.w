@@ -6848,6 +6848,7 @@ PROCEDURE ipUpdateNK1s :
     INPUT CLOSE.
     FOR EACH sys-ctrl EXCLUSIVE:
         FIND FIRST ttsys-ctrl WHERE
+            ttsys-ctrl.company EQ "001" AND 
             ttsys-ctrl.name EQ sys-ctrl.name
             NO-ERROR.
         IF AVAIL ttsys-ctrl THEN ASSIGN 
@@ -6855,7 +6856,8 @@ PROCEDURE ipUpdateNK1s :
     END.
     FOR EACH sys-ctrl-shipto EXCLUSIVE:
         FIND FIRST ttsys-ctrl-shipto WHERE
-            ttsys-ctrl-shipto.name EQ sys-ctrl-shipto.name
+            ttsys-ctrl-shipto.company EQ "001" AND 
+            ttsys-ctrl-shipto.name EQ sys-ctrl-shipto.name 
             NO-ERROR.
         IF AVAIL ttsys-ctrl-shipto THEN ASSIGN 
             sys-ctrl-shipto.isPassword = ttsys-ctrl-shipto.isPassword.
