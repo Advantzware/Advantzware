@@ -323,6 +323,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 &ELSE
           OS-COMMAND NO-WAIT notepad VALUE(ipcListName).
 &ENDIF
+          APPLY "CLOSE":U TO THIS-PROCEDURE.
           RETURN.
       END.
       ELSE DO:
@@ -335,6 +336,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 &ELSE
               OS-COMMAND NO-WAIT notepad VALUE(ipcListName).
 &ENDIF
+              APPLY "CLOSE":U TO THIS-PROCEDURE.
               RETURN.
           END.
           ELSE DO:
