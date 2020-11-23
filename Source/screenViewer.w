@@ -497,48 +497,48 @@ PROCEDURE pWinReSize :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-/*    SESSION:SET-WAIT-STATE("General").                                */
-/*    DO WITH FRAME {&FRAME-NAME}:                                      */
-/*        HIDE FRAME {&FRAME-NAME}.                                     */
-/*        IF {&WINDOW-NAME}:HEIGHT LT 28.57 THEN                        */
-/*        {&WINDOW-NAME}:HEIGHT = 28.57.                                */
-/*        IF {&WINDOW-NAME}:WIDTH  LT 160   THEN                        */
-/*        {&WINDOW-NAME}:WIDTH  = 160.                                  */
-/*        ASSIGN                                                        */
-/*            {&WINDOW-NAME}:COL = 1                                    */
-/*            {&WINDOW-NAME}:ROW = 1                                    */
-/*            RECT-1:HIDDEN      = YES                                  */
-/*            btn-print:HIDDEN   = YES                                  */
-/*            btn-save:HIDDEN    = YES                                  */
-/*            btn-font:HIDDEN    = YES                                  */
-/*            btn-close:HIDDEN   = YES                                  */
-/*            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT*/
-/*            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH */
-/*            FRAME {&FRAME-NAME}:HEIGHT = {&WINDOW-NAME}:HEIGHT        */
-/*            FRAME {&FRAME-NAME}:WIDTH  = {&WINDOW-NAME}:WIDTH         */
-/*            ed-scr-view:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT - 2.38    */
-/*            ed-scr-view:WIDTH  = FRAME {&FRAME-NAME}:WIDTH            */
-/*            RECT-1:ROW         = FRAME {&FRAME-NAME}:HEIGHT - 1.4     */
-/*            btn-print:ROW      = RECT-1:ROW    + .24                  */
-/*            btn-save:ROW       = btn-print:ROW                        */
-/*            btn-font:ROW       = btn-save:ROW                         */
-/*            btn-close:ROW      = btn-font:ROW                         */
-/*            RECT-1:COL         = FRAME {&FRAME-NAME}:WIDTH  - 33      */
-/*            btn-print:COL      = RECT-1:COL    + 1                    */
-/*            btn-save:COL       = btn-print:COL + btn-print:WIDTH      */
-/*            btn-font:COL       = btn-save:COL  + btn-save:WIDTH       */
-/*            btn-close:COL      = btn-font:COL  + btn-font:WIDTH       */
-/*            .                                                         */
-/*        VIEW FRAME {&FRAME-NAME}.                                     */
-/*        ASSIGN                                                        */
-/*            RECT-1:HIDDEN    = NO                                     */
-/*            btn-print:HIDDEN = NO                                     */
-/*            btn-save:HIDDEN  = NO                                     */
-/*            btn-font:HIDDEN  = NO                                     */
-/*            btn-close:HIDDEN = NO                                     */
-/*            .                                                         */
-/*    END. /* do with */                                                */
-/*    SESSION:SET-WAIT-STATE("").                                       */
+    SESSION:SET-WAIT-STATE("General").
+    DO WITH FRAME {&FRAME-NAME}:
+        HIDE FRAME {&FRAME-NAME}.
+        IF {&WINDOW-NAME}:HEIGHT LT 28.57 THEN
+        {&WINDOW-NAME}:HEIGHT = 28.57.
+        IF {&WINDOW-NAME}:WIDTH  LT 160   THEN
+        {&WINDOW-NAME}:WIDTH  = 160.
+        ASSIGN
+            {&WINDOW-NAME}:COL = 1
+            {&WINDOW-NAME}:ROW = 1
+            RECT-1:HIDDEN      = YES
+            btn-print:HIDDEN   = YES
+            btn-save:HIDDEN    = YES
+            btn-font:HIDDEN    = YES
+            btn-close:HIDDEN   = YES
+            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
+            FRAME {&FRAME-NAME}:HEIGHT = {&WINDOW-NAME}:HEIGHT
+            FRAME {&FRAME-NAME}:WIDTH  = {&WINDOW-NAME}:WIDTH
+            ed-scr-view:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT - 2.38
+            ed-scr-view:WIDTH  = FRAME {&FRAME-NAME}:WIDTH
+            RECT-1:ROW         = FRAME {&FRAME-NAME}:HEIGHT - 1.4
+            btn-print:ROW      = RECT-1:ROW    + .24
+            btn-save:ROW       = btn-print:ROW
+            btn-font:ROW       = btn-save:ROW
+            btn-close:ROW      = btn-font:ROW
+            RECT-1:COL         = FRAME {&FRAME-NAME}:WIDTH  - 33
+            btn-print:COL      = RECT-1:COL    + 1
+            btn-save:COL       = btn-print:COL + btn-print:WIDTH
+            btn-font:COL       = btn-save:COL  + btn-save:WIDTH
+            btn-close:COL      = btn-font:COL  + btn-font:WIDTH
+            .
+        VIEW FRAME {&FRAME-NAME}.
+        ASSIGN
+            RECT-1:HIDDEN    = NO
+            btn-print:HIDDEN = NO
+            btn-save:HIDDEN  = NO
+            btn-font:HIDDEN  = NO
+            btn-close:HIDDEN = NO
+            .
+    END. /* do with */
+    SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.
 
