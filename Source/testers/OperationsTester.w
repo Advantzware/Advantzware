@@ -536,7 +536,7 @@ PROCEDURE pBuildList PRIVATE :
             AND eb.blank-no EQ ipiBlankNo
             ,
             FIRST ef NO-LOCK OF eb:
-            RUN SetAttributesFromEb (ROWID(eb), OUTPUT lError, OUTPUT cMessage).
+            RUN SetAttributesFromEb (ROWID(eb), operationID,1, OUTPUT lError, OUTPUT cMessage).
         END.
     END.
     RUN GetAttributes (OUTPUT TABLE ttAttribute).

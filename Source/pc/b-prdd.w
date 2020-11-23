@@ -49,6 +49,9 @@ DEF VAR lv-crt-rowid AS ROWID NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE oeDateAuto-log AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdOpProcs    AS HANDLE.
+
+RUN est\OperationProcs.p PERSISTENT SET hdOpProcs.
 
 RUN sys/ref/nk1look.p (INPUT g_company, "DCClosedJobs", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -1117,25 +1120,25 @@ PROCEDURE get-num-on :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    tt-job-mch.n-on = tt-job-mch.n-out.
+    job-mch.n-on = job-mch.n-out.
 
     FIND FIRST mach NO-LOCK
-        WHERE mach.company EQ tt-job-mch.company
-          AND mach.m-code  EQ tt-job-mch.m-code
+        WHERE mach.company EQ job-mch.company
+          AND mach.m-code  EQ job-mch.m-code
         NO-ERROR.
     IF AVAIL mach AND NOT CAN-DO("A,P,B",mach.p-type) THEN
     FOR EACH job NO-LOCK
-        WHERE job.company      EQ tt-job-mch.company
-          AND job.job          EQ tt-job-mch.job
-          AND job.job-no       EQ tt-job-mch.job-no
-          AND job.job-no2      EQ tt-job-mch.job-no2
+        WHERE job.company      EQ job-mch.company
+          AND job.job          EQ job-mch.job
+          AND job.job-no       EQ job-mch.job-no
+          AND job.job-no2      EQ job-mch.job-no2
           AND TRIM(job.est-no) NE "",
         FIRST ef NO-LOCK
         WHERE ef.company EQ job.company
           AND ef.est-no  EQ job.est-no
-          AND ef.form-no EQ tt-job-mch.frm:
-      RUN sys/inc/numup.p (ef.company, ef.est-no, ef.form-no, OUTPUT tt-job-mch.n-on).
-      tt-job-mch.n-on = tt-job-mch.n-on * tt-job-mch.n-out.
+          AND ef.form-no EQ job-mch.frm:
+      RUN sys/inc/numup.p (ef.company, ef.est-no, ef.form-no, OUTPUT job-mch.n-on).
+      job-mch.n-on = job-mch.n-on * job-mch.n-out.
       LEAVE.
     END.
   END.
@@ -1225,7 +1228,8 @@ PROCEDURE local-assign-record :
   DEF VAR ls-name AS cha NO-UNDO.
   DEF VAR ll-job-mch AS LOG NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
-
+  DEFINE VARIABLE cAction AS CHARACTER NO-UNDO.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   ls-name = pc-prdd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}.
 
@@ -1257,39 +1261,65 @@ PROCEDURE local-assign-record :
                     (INT(SUBSTR(pc-prdd.stopx,3,2)) * 60).
 
   ll-job-mch = NO.
-  FOR EACH tt-job-mch:
-    FIND FIRST job-mch WHERE ROWID(job-mch) EQ tt-job-mch.row-id NO-ERROR.
-    IF NOT AVAIL job-mch THEN CREATE job-mch.
-    BUFFER-COPY tt-job-mch TO job-mch NO-ERROR.
-    /* this let's SB know data collection made changes */
-    job-mch.est-op_rec_key = "DC " + STRING(TODAY) + " " + STRING(TIME,"HH:MM:SS").
+            
+  IF AVAIL job THEN
+  RUN ProcessOperationChange IN hdOpProcs ( INPUT cocode,
+                                            INPUT pc-prdd.m-code,
+                                            INPUT job.job, 
+                                            INPUT INT(pc-prdd.frm),
+                                            INPUT INT(pc-prdd.blank-no),
+                                            INPUT INT(pc-prdd.pass),
+                                            INPUT pc-prdd.dept,
+                                            OUTPUT cAction).
+   FIND FIRST job-mch
+          WHERE job-mch.company EQ pc-prdd.company
+            AND job-mch.job     EQ li-help-job
+            AND job-mch.job-no  EQ pc-prdd.job-no
+            AND job-mch.job-no2 EQ INT(pc-prdd.job-no2)
+            AND job-mch.m-code  EQ pc-prdd.m-code
+            AND job-mch.frm     EQ INT(pc-prdd.frm)
+            AND (job-mch.blank-no EQ INT(pc-prdd.blank-no) or
+                 ll-no-blk)
+            AND job-mch.dept    EQ pc-prdd.dept
+            AND job-mch.pass    EQ INT(pc-prdd.pass)
+          USE-INDEX seq-idx NO-LOCK NO-ERROR.
 
-    IF tt-job-mch.row-id EQ ? THEN DO:
-      IF ERROR-STATUS:ERROR THEN DELETE job-mch.
-      IF AVAIL job-mch THEN DO:
+      IF NOT AVAIL job-mch THEN
+      /* search without using dept */
+      FIND FIRST job-mch
+          WHERE job-mch.company EQ pc-prdd.company
+            AND job-mch.job     EQ li-help-job
+            AND job-mch.job-no  EQ pc-prdd.job-no
+            AND job-mch.job-no2 EQ INT(pc-prdd.job-no2)
+            AND job-mch.m-code  EQ pc-prdd.m-code
+            AND job-mch.frm     EQ INT(pc-prdd.frm)
+            AND (job-mch.blank-no EQ INT(pc-prdd.blank-no) or
+                 ll-no-blk)
+            AND job-mch.pass    EQ INT(pc-prdd.pass)
+          USE-INDEX seq-idx NO-LOCK NO-ERROR.   
+          
+    IF AVAIL job-mch AND (cAction EQ "Add" OR cAction EQ "AddDept") THEN
+    DO:
+        ll-job-mch       = YES .
+        
+        FIND CURRENT job-mch EXCLUSIVE-LOCK NO-ERROR.
+        
+        job-mch.est-op_rec_key = "DC " + STRING(TODAY) + " " + STRING(TIME,"HH:MM:SS").         
+                 
         ASSIGN
-         ll-job-mch       = YES
          job-mch.j-no     = 1
          job-mch.i-name   = pc-prdd.i-name
          job-mch.dept     = pc-prdd.dept
-         job-mch.run-hr   = pc-prdd.hours
-         job-mch.mr-rate  = mach.mr-rate
-         job-mch.mr-varoh = mach.mr-varoh
-         job-mch.mr-fixoh = mach.mr-fixoh
-         job-mch.wst-prct = mach.run-spoil.
-        IF pc-prdd.speed GT 0 THEN
-          job-mch.speed    = pc-prdd.speed.
-      END.
-
+         job-mch.run-hr   = pc-prdd.hours .
+         IF pc-prdd.speed GT 0 THEN
+          job-mch.speed    = pc-prdd.speed. 
+          
+         IF job-mch.n-out EQ 0 THEN job-mch.n-out = 1.          
+         IF job-mch.n-on  EQ 0 THEN RUN get-num-on.
+       
+         FIND CURRENT job-mch NO-LOCK NO-ERROR.  
     END.
-
-    FIND CURRENT job-mch NO-LOCK NO-ERROR.
-
-    RELEASE job-mch.
-
-    DELETE tt-job-mch.
-  END.
-
+    
   IF ll-job-mch THEN DO:
     EMPTY TEMP-TABLE w-jm.
 
@@ -2996,240 +3026,7 @@ PROCEDURE valid-pass :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR choice AS LOG NO-UNDO.
-  DEF VAR v-msg AS CHAR EXTENT 2 NO-UNDO.
-
-  DEF BUFFER b-tt-job-mch FOR tt-job-mch.
-
-           
-  DO WITH FRAME {&FRAME-NAME}:
-    FIND FIRST tt-job-mch
-        WHERE tt-job-mch.company EQ pc-prdd.company
-          AND tt-job-mch.job     EQ li-help-job
-          AND tt-job-mch.job-no  EQ pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND tt-job-mch.job-no2 EQ INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
-          AND tt-job-mch.m-code  EQ pc-prdd.m-code
-          AND tt-job-mch.frm     EQ INT(pc-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name})
-          AND (tt-job-mch.blank-no EQ INT(pc-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) or
-               ll-no-blk)
-          AND tt-job-mch.dept    EQ pc-prdd.dept
-          AND tt-job-mch.pass    EQ INT(pc-prdd.pass:SCREEN-VALUE IN BROWSE {&browse-name})
-        USE-INDEX seq-idx NO-LOCK NO-ERROR.
-
-    IF AVAIL tt-job-mch THEN
-    FOR EACH b-tt-job-mch WHERE ROWID(b-tt-job-mch) NE ROWID(tt-job-mch)
-        AND b-tt-job-mch.xtra-copy = NO:
-      DELETE b-tt-job-mch.
-    END.
-
-    ELSE DO:
-      FIND FIRST job-mch
-          WHERE job-mch.company EQ pc-prdd.company
-            AND job-mch.job     EQ li-help-job
-            AND job-mch.job-no  EQ pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
-            AND job-mch.job-no2 EQ INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
-            AND job-mch.m-code  EQ pc-prdd.m-code
-            AND job-mch.frm     EQ INT(pc-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name})
-            AND (job-mch.blank-no EQ INT(pc-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) or
-                 ll-no-blk)
-            AND job-mch.dept    EQ pc-prdd.dept
-            AND job-mch.pass    EQ INT(pc-prdd.pass:SCREEN-VALUE IN BROWSE {&browse-name})
-          USE-INDEX seq-idx NO-LOCK NO-ERROR.
-
-      IF NOT AVAIL job-mch THEN
-      /* search without using dept */
-      FIND FIRST job-mch
-          WHERE job-mch.company EQ pc-prdd.company
-            AND job-mch.job     EQ li-help-job
-            AND job-mch.job-no  EQ pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
-            AND job-mch.job-no2 EQ INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
-            AND job-mch.m-code  EQ pc-prdd.m-code
-            AND job-mch.frm     EQ INT(pc-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name})
-            AND (job-mch.blank-no EQ INT(pc-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) or
-                 ll-no-blk)
-            AND job-mch.pass    EQ INT(pc-prdd.pass:SCREEN-VALUE IN BROWSE {&browse-name})
-          USE-INDEX seq-idx NO-LOCK NO-ERROR.
-
-      IF NOT AVAIL job-mch THEN DO:
-        choice = NO.
-
-        FIND FIRST job-mch
-            WHERE job-mch.company EQ pc-prdd.company
-              AND job-mch.job     EQ li-help-job
-              AND job-mch.job-no  EQ pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
-              AND job-mch.job-no2 EQ INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
-              AND job-mch.frm     EQ INT(pc-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name})
-              AND (job-mch.blank-no EQ INT(pc-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) or
-                   ll-no-blk)
-              AND job-mch.dept    EQ pc-prdd.dept
-              AND job-mch.pass    EQ INT(pc-prdd.pass:SCREEN-VALUE IN BROWSE {&browse-name})
-            USE-INDEX seq-idx NO-LOCK NO-ERROR.
-
-        IF AVAIL job-mch THEN DO:
-          IF actual-entered(job-mch.m-code, job-mch.job) = NO AND job-mch.run-hr = 0 then
-              ASSIGN
-               v-msg[1] = "Machine " +
-                          TRIM(pc-prdd.m-code) +
-                          " is not defined in job standards for this job/form/blank/pass."
-               v-msg[2] = "Would you like to replace machine " +
-                          TRIM(job-mch.m-code) +
-                          " with machine " + 
-                          TRIM(pc-prdd.m-code) + "?".
-          ELSE
-               ASSIGN
-               v-msg[1] = "Machine " +
-                           TRIM(pc-prdd.m-code) +
-                           " is not defined in job standards for this job/form/blank/pass."
-               v-msg[2] = "Would you like to copy machine " +
-                           TRIM(job-mch.m-code) +
-                           " to machine " +
-                           TRIM(pc-prdd.m-code) + "?".
-        END.
-        ELSE
-          ASSIGN
-           v-msg[1] = "ERROR: This dept is not valid for this job/form/blank/pass."
-           v-msg[2] = "Would you like to add the department to job standards?".
-        
-        MESSAGE v-msg[1] SKIP v-msg[2]
-                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE choice.
-
-        DEF VAR v-save-n-out LIKE job-mch.n-out.
-        DEF VAR v-save-original-mach LIKE job-mch.m-code NO-UNDO.
-        IF AVAIL(job-mch) THEN
-          v-save-original-mach = job-mch.m-code.
-
-        IF choice THEN DO:
-          CREATE tt-job-mch.
-
-          IF AVAIL job-mch THEN
-            BUFFER-COPY job-mch TO tt-job-mch
-            ASSIGN
-             tt-job-mch.row-id = ROWID(job-mch)
-             tt-job-mch.m-code = pc-prdd.m-code.
-
-          ELSE
-            ASSIGN
-             tt-job-mch.row-id   = ?
-             tt-job-mch.company  = pc-prdd.company
-             tt-job-mch.job      = li-help-job
-             tt-job-mch.job-no   = pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
-             tt-job-mch.job-no2  = INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
-             tt-job-mch.frm      = INT(pc-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name})
-             tt-job-mch.blank-no = INT(pc-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name})
-             tt-job-mch.pass     = INT(pc-prdd.pass:SCREEN-VALUE IN BROWSE {&browse-name})
-             tt-job-mch.m-code   = pc-prdd.m-code
-             tt-job-mch.dept     = pc-prdd.dept
-             tt-job-mch.n-out    = 0
-             tt-job-mch.n-on     = 0.
-
-          /* 08281203 If has mr hr, do not replace, but copy and zero out mr-hr */
-          IF AVAIL(job-mch) AND actual-entered(job-mch.m-code, job-mch.job) = YES THEN
-              tt-job-mch.mr-hr = 0.
-
-          IF tt-job-mch.n-out EQ 0 THEN tt-job-mch.n-out = 1.
-
-          IF tt-job-mch.n-on  EQ 0 THEN RUN get-num-on.
-
-          IF CAN-DO("CR,RC,GU",pc-prdd.dept) THEN DO:
-            tt-job-mch.n-on = tt-job-mch.n-on / tt-job-mch.n-out.
-
-            MESSAGE "Please enter #out for this pass?"
-                UPDATE tt-job-mch.n-out.
-DEF VAR lv-save-n-out LIKE job-mch.n-out.
-            lv-save-n-out = tt-job-mch.n-out.
-            v-save-n-out = tt-job-mch.n-out.
-            tt-job-mch.n-on = tt-job-mch.n-on * tt-job-mch.n-out.
-          END.
-
-          /* task 08281203 - create 2nd record to copy instead of replace */
-          CREATE tt-job-mch.
-
-          IF AVAIL job-mch THEN
-            BUFFER-COPY job-mch TO tt-job-mch
-            ASSIGN
-             /* tt-job-mch.row-id = ROWID(job-mch) */
-             tt-job-mch.m-code = job-mch.m-code.
-        
-          ELSE
-            ASSIGN
-             tt-job-mch.row-id   = ?
-             tt-job-mch.company  = pc-prdd.company
-             tt-job-mch.job      = li-help-job
-             tt-job-mch.job-no   = pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
-             tt-job-mch.job-no2  = INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
-             tt-job-mch.frm      = INT(pc-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name})
-             tt-job-mch.blank-no = INT(pc-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name})
-             tt-job-mch.pass     = INT(pc-prdd.pass:SCREEN-VALUE IN BROWSE {&browse-name})
-             tt-job-mch.m-code   = pc-prdd.m-code
-             tt-job-mch.dept     = pc-prdd.dept
-             tt-job-mch.n-out    = 0
-             tt-job-mch.n-on     = 0.
-        
-          IF tt-job-mch.n-out EQ 0 THEN tt-job-mch.n-out = 1.
-        
-          IF tt-job-mch.n-on  EQ 0 THEN RUN get-num-on.
-        
-          IF CAN-DO("CR,RC,GU",pc-prdd.dept) THEN DO:
-            tt-job-mch.n-on = tt-job-mch.n-on / tt-job-mch.n-out.
-        
-/*            MESSAGE "Please enter #out for this pass?"
-                UPDATE tt-job-mch.n-out. */
-
-            tt-job-mch.n-out = lv-save-n-out.
-        
-            tt-job-mch.n-on = tt-job-mch.n-on * tt-job-mch.n-out.
-
-          END.
-
-
-         IF avail(job-mch) AND actual-entered(job-mch.m-code, job-mch.job) = YES THEN DO:
-            /* task 08281203 - create 2nd record to copy instead of replace */
-            CREATE tt-job-mch.
-            
-            IF AVAIL job-mch THEN
-              BUFFER-COPY job-mch TO tt-job-mch
-                 ASSIGN
-                   /* tt-job-mch.row-id = ROWID(job-mch) */
-                   tt-job-mch.m-code = v-save-original-mach /* job-mch.m-code */
-                   tt-job-mch.row-id = ?
-                   tt-job-mch.xtra-copy = TRUE.          
-            ELSE
-              ASSIGN
-               tt-job-mch.row-id   = ?
-               tt-job-mch.company  = pc-prdd.company
-               tt-job-mch.job      = li-help-job
-               tt-job-mch.job-no   = pc-prdd.job-no
-               tt-job-mch.job-no2  = pc-prdd.job-no2
-               tt-job-mch.frm      = INT(pc-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name})
-               tt-job-mch.blank-no = INT(pc-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name})
-               tt-job-mch.pass     =  INT(pc-prdd.pass:SCREEN-VALUE IN BROWSE {&browse-name})
-               tt-job-mch.m-code   = pc-prdd.m-code
-               tt-job-mch.dept     = pc-prdd.dept
-               tt-job-mch.n-out    = 0
-               tt-job-mch.n-on     = 0.
-          
-            IF tt-job-mch.n-out EQ 0 THEN tt-job-mch.n-out = 1.
-          
-            IF tt-job-mch.n-on  EQ 0 THEN RUN get-num-on.
-          
-            IF CAN-DO("CR,RC,GU",pc-prdd.dept) THEN DO:
-              tt-job-mch.n-on = tt-job-mch.n-on / tt-job-mch.n-out.         
-
-              tt-job-mch.n-out = v-save-n-out.
-          
-              tt-job-mch.n-on = tt-job-mch.n-on * tt-job-mch.n-out.
-            
-            END. 
-         END.                          
-
-        END.
-
-        ELSE DO:
-          APPLY "entry" TO pc-prdd.pass.
-          RETURN ERROR.
-        END.
-      END.
-    END.
-  END.
+  DEF VAR v-msg AS CHAR EXTENT 2 NO-UNDO.     
 
 END PROCEDURE.
 

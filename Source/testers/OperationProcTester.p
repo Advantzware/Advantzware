@@ -41,14 +41,14 @@ PROCEDURE pChangeOperation PRIVATE:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-
+     DEFINE VARIABLE cAction AS CHARACTER NO-UNDO.
     
     FIND FIRST job NO-LOCK 
         WHERE job.company EQ '001'
         AND job.job-no EQ 'W00854'
         AND job.job-no2 EQ 0
         NO-ERROR.
-    RUN ProcessOperationChange IN hdOpProcs (job.company,"PRBV", job.job, 1,1,1,"PR").
+    RUN ProcessOperationChange IN hdOpProcs (job.company,"PRBV", job.job, 1,1,1,"PR", OUTPUT cAction).
 
 END PROCEDURE.
 
@@ -126,7 +126,7 @@ PROCEDURE pGetOperationStandardsSingle PRIVATE:
                 AND est-op.est-no EQ eb.est-no
                 AND est-op.s-num EQ eb.form-no
                 AND est-op.m-code EQ cMachineTarget:
-            RUN SetAttributesFromEb IN hdOpProcs (ROWID(eb), OUTPUT lError, OUTPUT cMessage).
+            RUN SetAttributesFromEb IN hdOpProcs (ROWID(eb),est-op.m-code, est-op.op-pass, OUTPUT lError, OUTPUT cMessage).
             
             RUN GetOperationStandards IN hdOpProcs (est.company, est.loc, cMachineTarget, 
                 OUTPUT dOpMRWaste, OUTPUT dOpMRHours, OUTPUT dOpRunSpeed, OUTPUT dOpRunSpoil, OUTPUT lError, OUTPUT cMessage).
