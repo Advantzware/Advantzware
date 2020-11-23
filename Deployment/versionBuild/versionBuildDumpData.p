@@ -126,8 +126,14 @@ OUTPUT CLOSE.
 
 &SCOPED-DEFINE cFile sys-ctrl
 OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
-FOR EACH {&cFile} WHERE
-    sys-ctrl.module EQ "val":
+FOR EACH {&cFile} :
+    EXPORT {&cFile}.
+END.
+OUTPUT CLOSE.
+
+&SCOPED-DEFINE cFile sys-ctrl-shipto
+OUTPUT TO VALUE(cOutDir + "\{&cFile}.d").
+FOR EACH {&cFile} :
     EXPORT {&cFile}.
 END.
 OUTPUT CLOSE.

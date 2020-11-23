@@ -103,7 +103,7 @@ DEF TEMP-TABLE ttLookups LIKE lookups.
 DEF TEMP-TABLE ttReftable LIKE reftable.
 DEF TEMP-TABLE ttSysCtrl LIKE sys-ctrl.
 DEF TEMP-TABLE ttSys-Ctrl LIKE sys-ctrl.
-DEF TEMP-TABLE ttSysCtrlShipto LIKE sys-ctrl-shipto.
+DEF TEMP-TABLE ttSys-Ctrl-Shipto LIKE sys-ctrl-shipto.
 DEF TEMP-TABLE ttTranslation LIKE translation.
 DEF TEMP-TABLE ttUserLanguage LIKE userlanguage.
 DEF TEMP-TABLE ttXuserMenu LIKE xuserMenu.
@@ -6830,6 +6830,35 @@ PROCEDURE ipUpdateNK1s :
     FOR EACH  sys-ctrl WHERE
         sys-ctrl.name EQ "RMKEEPZEROBIN":
         DELETE sys-ctrl.
+    END.
+    
+    /* 94653 Passwords Displayed in Plain Text */
+    RUN ipStatus ("  NK1 password field").
+    INPUT FROM VALUE(cUpdDataDir + "\sys-ctrl.d") NO-ECHO.
+    REPEAT:
+        CREATE ttsys-ctrl.
+        IMPORT ttsys-ctrl.
+    END.
+    INPUT CLOSE.
+    INPUT FROM VALUE(cUpdDataDir + "\sys-ctrl-shipto.d") NO-ECHO.
+    REPEAT:
+        CREATE ttsys-ctrl-shipto.
+        IMPORT ttsys-ctrl-shipto.
+    END.
+    INPUT CLOSE.
+    FOR EACH sys-ctrl EXCLUSIVE:
+        FIND FIRST ttsys-ctrl WHERE
+            ttsys-ctrl.name EQ sys-ctrl.name
+            NO-ERROR.
+        IF AVAIL ttsys-ctrl THEN ASSIGN 
+                sys-ctrl.isPassword = ttsys-ctrl.isPassword.
+    END.
+    FOR EACH sys-ctrl-shipto EXCLUSIVE:
+        FIND FIRST ttsys-ctrl-shipto WHERE
+            ttsys-ctrl-shipto.name EQ sys-ctrl-shipto.name
+            NO-ERROR.
+        IF AVAIL ttsys-ctrl-shipto THEN ASSIGN 
+            sys-ctrl-shipto.isPassword = ttsys-ctrl-shipto.isPassword.
     END.
     
     ASSIGN 
