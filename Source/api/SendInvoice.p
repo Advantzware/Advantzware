@@ -170,7 +170,8 @@ DEFINE TEMP-TABLE ttLines
     FIELD quantityInvoicedUOM      AS CHARACTER 
     FIELD quantityOrderOriginal    AS INTEGER   
     FIELD quantityOrderOriginalUOM AS CHARACTER 
-    FIELD pricePerUOM              AS DECIMAL   
+    FIELD pricePerUOM              AS DECIMAL  
+    FIELD pricePerEA               AS DECIMAL 
     FIELD priceUOM                 AS CHARACTER 
     FIELD priceTotal               AS DECIMAL   
     FIELD customerPartID           AS CHARACTER 
@@ -200,6 +201,7 @@ DEFINE TEMP-TABLE ttInv NO-UNDO
     FIELD invoiceDate                 AS DATE
     FIELD invoiceDateString           AS CHARACTER
     FIELD customerID                  AS CHARACTER
+    FIELD customerEmail               AS CHARACTER
     FIELD customerName                AS CHARACTER
     FIELD customerAddress1            AS CHARACTER
     FIELD customerAddress2            AS CHARACTER 
@@ -700,6 +702,15 @@ DO:
                 ttLines.customerPONo           = inv-line.po-no
                 ttInv.amountTotalLines         = ttInv.amountTotalLines + inv-line.t-price
                 . 
+            IF ttLines.priceUOM NE "EA" OR ttLines.priceUOM NE "" THEN 
+                RUN pConvertUnitPrice(
+                    INPUT  ttLines.company,
+                    INPUT  ttLines.itemID,
+                    INPUT  ttLines.pricePerUOM,
+                    INPUT  ttLines.priceUOM,
+                    INPUT  "EA",
+                    OUTPUT ttLines.pricePerEA 
+                    ).    
             FIND FIRST oe-ordl NO-LOCK
                  WHERE oe-ordl.company EQ inv-line.company
                    AND oe-ordl.i-no    EQ inv-line.i-no
@@ -831,6 +842,15 @@ DO:
                 ttLines.customerPONo           = ar-invl.po-no
                 ttInv.amountTotalLines         = ttInv.amountTotalLines + ar-invl.amt
                 .
+            IF ttLines.priceUOM NE "EA" OR ttLines.priceUOM NE "" THEN 
+                RUN pConvertUnitPrice(
+                    INPUT  ttLines.company,
+                    INPUT  ttLines.itemID,
+                    INPUT  ttLines.pricePerUOM,
+                    INPUT  ttLines.priceUOM,
+                    INPUT  "EA",
+                    OUTPUT ttLines.pricePerEA 
+                    ). 
             FIND FIRST oe-ordl NO-LOCK
                  WHERE oe-ordl.company EQ ar-invl.company
                    AND oe-ordl.i-no    EQ ar-invl.i-no
@@ -1116,6 +1136,7 @@ DO:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "InvoiceDateString", ttInv.invoiceDateString).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "InvoiceID", ttInv.invoiceIDString).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerName", DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerName)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerEmail", DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerEmai)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerCity", DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerCity)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerState",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerState)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerPostalCode",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerPostalcode)).
@@ -1211,8 +1232,17 @@ PROCEDURE pAssignCommonHeaderData PRIVATE:
                                        + STRING(DAY(ipbf-ttInv.invoiceDate),'99')
                                        + 'T'
                                        + STRING(0,'hh:mm:ss')
-                                       + '-05:00'.
-        .
+                                       + '-05:00'
+         .
+                                       
+    FIND FIRST bf-cust NO-LOCK
+         WHERE bf-cust.company EQ ipcCompany
+           AND bf-cust.cust-no EQ ipcCustomerID
+         NO-ERROR.
+           
+    IF AVAILABLE bf-cust THEN 
+        ttInv.customerEmail = bf-cust.email.
+                 
     FIND FIRST bf-shipto NO-LOCK 
          WHERE bf-shipto.company EQ ipcCompany
            AND bf-shipto.cust-no EQ ipcCustomerID
@@ -1322,6 +1352,40 @@ PROCEDURE pAssignCommonLineData PRIVATE:
             .
 END PROCEDURE.
 
+PROCEDURE pConvertUnitPrice PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO. 
+    DEFINE INPUT  PARAMETER ipcItemID    AS CHARACTER NO-UNDO. 
+    DEFINE INPUT  PARAMETER ipdPrice     AS DECIMAL   NO-UNDO. 
+    DEFINE INPUT  PARAMETER ipcFromUom   AS CHARACTER NO-UNDO.    
+    DEFINE INPUT  PARAMETER ipcToUom     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdPriceInEA AS DECIMAL   NO-UNDO.
+    
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    RUN Conv_ValueFromUOMtoUOM(
+        INPUT  ipcCompany,
+        INPUT  ipcItemID,
+        INPUT  "FG", 
+        INPUT  ipdPrice,
+        INPUT  ipcFromUom,
+        INPUT  ipcToUom, 
+        INPUT  0,
+        INPUT  0,
+        INPUT  0,
+        INPUT  0,
+        INPUT  0,
+        OUTPUT opdPriceInEA, 
+        OUTPUT lError,
+        OUTPUT cMessage
+        ). 
+
+END PROCEDURE.
+
 PROCEDURE pConvQtyPriceUOM:
     /*------------------------------------------------------------------------------
      Purpose: Converts Price to Quantity UOM
@@ -1333,27 +1397,15 @@ PROCEDURE pConvQtyPriceUOM:
     DEFINE INPUT        PARAMETER ipcFromUom   AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER ipcToUom     AS CHARACTER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopdPrice    AS DECIMAL   NO-UNDO.
-    
-    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
                         
-    RUN Conv_ValueFromUOMtoUOM(
+    RUN pConvertUnitPrice(
         INPUT  ipcCompany,
         INPUT  ipcItemID,
-        INPUT  "FG", 
         INPUT  iopdPrice,
         INPUT  ipcFromUom,
-        INPUT  ipcToUom, 
-        INPUT  0,
-        INPUT  0,
-        INPUT  0,
-        INPUT  0,
-        INPUT  0,
-        OUTPUT iopdPrice, 
-        OUTPUT lError,
-        OUTPUT cMessage
-        ). 
-
+        INPUT  ipcToUom,
+        OUTPUT iopdPrice 
+        ).                        
 END PROCEDURE.
 
 PROCEDURE pCreateAddonRecord:
@@ -1564,6 +1616,7 @@ PROCEDURE pUpdateLineRequestData PRIVATE:
         ioplgFirst = NO.    
     END.
     RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "Freight", "0").
+    RUN updateRequestData(INPUT-OUTPUT ioplcLineData, "InvoiceEachPrice",STRING(ipbf-ttLines.pricePerEA)).
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
