@@ -78,7 +78,7 @@ DEFINE BUTTON Select_frac
 DEFINE BUTTON Select_help 
      IMAGE-UP FILE "Graphics/32x32/question.png":U
      IMAGE-DOWN FILE "Graphics/32x32/question_hover.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/question_disbled.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/question_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Help" 
      SIZE 6.4 BY 1.52 TOOLTIP "Help".
 
