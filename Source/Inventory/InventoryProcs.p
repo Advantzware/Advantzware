@@ -120,14 +120,47 @@ PROCEDURE Inventory_AdjustRawMaterialBinQty:
     DEFINE OUTPUT PARAMETER oplSuccess    AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
 
-    RUN pUpdateRawMaterialBinQty (
+    DEFINE VARIABLE riRMRctd AS ROWID NO-UNDO.
+
+    DEFINE BUFFER bf-rm-bin            FOR rm-bin.
+    DEFINE BUFFER bf-ttBrowseInventory FOR ttBrowseInventory.
+    
+    RUN pCreateRMTransaction (
         INPUT  ipriRMBin,
         INPUT  "A",  /* Adjust */
         INPUT  ipdQty,
         INPUT  ipcReasonCode,
+        OUTPUT riRMRctd,
         OUTPUT oplSuccess,
         OUTPUT opcMessage        
         ).
+    
+    IF oplSuccess THEN DO:
+        /* Create ttBrowseInventory records that needs to be posted. These will be deleted later */
+        CREATE bf-ttBrowseInventory.
+        ASSIGN
+            bf-ttBrowseInventory.inventoryStockID = STRING(riRMRctd)
+            bf-ttBrowseInventory.inventoryStatus  = gcStatusStockScanned
+            .
+
+        RELEASE bf-ttBrowseInventory.
+        
+        FIND FIRST bf-rm-bin NO-LOCK
+             WHERE ROWID(bf-rm-bin) EQ ipriRMBin 
+             NO-ERROR.
+
+        RUN Inventory_PostRawMaterials (
+            INPUT  bf-rm-bin.company,
+            INPUT  TODAY,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ).
+        
+        FOR EACH bf-ttBrowseInventory
+            WHERE bf-ttBrowseInventory.inventoryStockID EQ STRING(riRMRctd):
+            DELETE bf-ttBrowseInventory.
+        END.
+    END.    
 END PROCEDURE.
 
 PROCEDURE Inventory_AdjustFinishedGoodBinQty:
@@ -145,7 +178,7 @@ PROCEDURE Inventory_AdjustFinishedGoodBinQty:
     
     DEFINE BUFFER bf-fg-bin FOR fg-bin.
     
-    RUN pUpdateFinishedGoodBinQty (
+    RUN pCreateFGTransaction (
         INPUT  ipriFGBin,
         INPUT  "A",  /* Adjust */
         INPUT  ipdQty,
@@ -412,7 +445,7 @@ PROCEDURE pFGQuantityAdjust PRIVATE:
     
     DO TRANSACTION ON ERROR UNDO, LEAVE:    
         FOR EACH ttFGBin:
-            RUN pUpdateFinishedGoodBinQty(
+            RUN pCreateFGTransaction (
                 INPUT  ttFGBin.fgBinRowID,
                 INPUT  "A",
                 INPUT  ttFGBin.qty,
@@ -445,7 +478,7 @@ PROCEDURE pFGQuantityAdjust PRIVATE:
     
 END PROCEDURE.
 
-PROCEDURE pUpdateFinishedGoodBinQty PRIVATE:
+PROCEDURE pCreateFGTransaction PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Procedure to Update FG Bin quantity and create a transaction
  Notes: This is a business logic copy of procedure cre-pchr.p 
@@ -545,7 +578,7 @@ PROCEDURE pUpdateFinishedGoodBinQty PRIVATE:
         .
 END PROCEDURE.
 
-PROCEDURE pUpdateRawMaterialBinQty PRIVATE:
+PROCEDURE pCreateRMTransaction PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Procedure to Update RM Bin quantity and create a transaction
  Notes: This is a business logic copy of procedure cre-tran.p 
@@ -554,17 +587,17 @@ PROCEDURE pUpdateRawMaterialBinQty PRIVATE:
     DEFINE INPUT  PARAMETER ipcTransType  AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipdQty        AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcReasonCode AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opriRMRctd    AS ROWID     NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess    AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE iNextSeqNo AS INTEGER NO-UNDO.
     
-    DEFINE BUFFER bf-rm-bin   FOR rm-bin.
-    DEFINE BUFFER bf-item     FOR item.
-    DEFINE BUFFER bf-rm-rcpth FOR rm-rcpth.
-    DEFINE BUFFER bf-rm-rdtlh FOR rm-rdtlh.
+    DEFINE BUFFER bf-rm-bin  FOR rm-bin.
+    DEFINE BUFFER bf-item    FOR item.
+    DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
     
-    FIND FIRST bf-rm-bin EXCLUSIVE-LOCK
+    FIND FIRST bf-rm-bin NO-LOCK
          WHERE ROWID(bf-rm-bin) EQ ipriRMBin 
          NO-ERROR.
     IF NOT AVAILABLE bf-rm-bin THEN DO:
@@ -600,37 +633,38 @@ PROCEDURE pUpdateRawMaterialBinQty PRIVATE:
         RETURN.
     END.
 
-    bf-rm-bin.qty = bf-rm-bin.qty + ipdQty.
-
-    CREATE bf-rm-rcpth.
+    CREATE bf-rm-rctd.
     ASSIGN
-        bf-rm-rcpth.r-no       = iNextSeqNo
-        bf-rm-rcpth.trans-date = TODAY
-        bf-rm-rcpth.post-date  = TODAY
-        bf-rm-rcpth.company    = bf-rm-bin.company
-        bf-rm-rcpth.loc        = bf-rm-bin.loc
-        bf-rm-rcpth.rita-code  = ipcTransType
-        bf-rm-rcpth.i-no       = bf-rm-bin.i-no
-        bf-rm-rcpth.i-name     = bf-item.i-name
-        bf-rm-rcpth.pur-uom    = bf-item.cons-uom
+        bf-rm-rctd.company        = bf-rm-bin.company
+        bf-rm-rctd.r-no           = iNextSeqNo
+        bf-rm-rctd.i-no           = bf-item.i-no
+        bf-rm-rctd.i-name         = bf-item.i-name
+        bf-rm-rctd.tag            = bf-rm-bin.tag
+        bf-rm-rctd.po-no          = STRING(bf-rm-bin.po-no)
+        bf-rm-rctd.rita-code      = ipcTransType
+        bf-rm-rctd.rct-date       = TODAY
+        bf-rm-rctd.loc            = bf-rm-bin.loc
+        bf-rm-rctd.loc-bin        = bf-rm-bin.loc-bin
+        bf-rm-rctd.qty            = ipdQty
+        bf-rm-rctd.cost           = bf-rm-bin.cost
+        bf-rm-rctd.pur-uom        = bf-item.cons-uom
+        bf-rm-rctd.cost-uom       = bf-item.cons-uom
+        bf-rm-rctd.adjustmentCode = ipcReasonCode
+        bf-rm-rctd.enteredBy      = USERID("ASI")
+        bf-rm-rctd.enteredDT      = NOW
+        opriRMRctd                = ROWID(bf-rm-rctd)
         .
 
-    CREATE bf-rm-rdtlh.
-    ASSIGN
-        bf-rm-rdtlh.r-no           = bf-rm-rcpth.r-no
-        bf-rm-rdtlh.company        = bf-rm-rcpth.company
-        bf-rm-rdtlh.rita-code      = ipcTransType
-        bf-rm-rdtlh.loc            = bf-rm-bin.loc
-        bf-rm-rdtlh.loc-bin        = bf-rm-bin.loc-bin
-        bf-rm-rdtlh.tag            = bf-rm-bin.tag
-        bf-rm-rdtlh.qty            = ipdQty
-        bf-rm-rdtlh.cost           = IF ipcTransType EQ "C" THEN 
-                                         0 
-                                     ELSE 
-                                         bf-rm-bin.cost
-        bf-rm-rdtlh.reject-code[1] = ipcReasonCode
-        .
-    
+    RUN pGetJobFromPOAndRMItem (
+        INPUT  bf-rm-rctd.company,
+        INPUT  bf-rm-rctd.i-no,
+        INPUT  bf-rm-rctd.po-no,
+        OUTPUT bf-rm-rctd.job-no,
+        OUTPUT bf-rm-rctd.job-no2,
+        OUTPUT bf-rm-rctd.s-num,
+        OUTPUT bf-rm-rctd.b-num
+        ).  
+
     ASSIGN
         oplSuccess = TRUE
         opcMessage = "Success"
@@ -1256,13 +1290,16 @@ PROCEDURE Inventory_PostRawMaterials:
     DEFINE VARIABLE iNextRNo AS INTEGER NO-UNDO.
     DEFINE VARIABLE dAvgCost AS DECIMAL NO-UNDO.
     
+
     EMPTY TEMP-TABLE ttRawMaterialsToPost.
     EMPTY TEMP-TABLE ttRawMaterialsGLTransToPost.
     
     TRANSACTION-BLOCK:    
     DO TRANSACTION ON ERROR UNDO TRANSACTION-BLOCK, LEAVE TRANSACTION-BLOCK:
         FOR EACH ttBrowseInventory 
-            WHERE ttBrowseInventory.inventoryStatus EQ gcStatusStockScanned:
+            WHERE ttBrowseInventory.inventoryStatus EQ gcStatusStockScanned
+              AND CAN-FIND(FIRST rm-rctd
+                           WHERE ROWID(rm-rctd) EQ TO-ROWID(ttBrowseInventory.inventoryStockID)):
             RUN pCreateRawMaterialsToPost (
                 INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),
                 INPUT  TRUE, /* AutoIssue */
