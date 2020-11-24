@@ -376,27 +376,27 @@ PROCEDURE AdjustQuantity :
     DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iProdQty         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE dQtyToAdjust     AS DECIMAL   NO-UNDO.
-    
-    /* If not automatically cleared by security level, ask for password */
-    IF NOT lHasAccess THEN DO:
-        RUN sys/ref/d-passwd.w (
-            INPUT  10, 
-            OUTPUT lHasAccess
-            ). 
-    END.
-
-    IF NOT lHasAccess THEN
-        RETURN.
 
     IF AVAILABLE job-hdr AND AVAILABLE itemfg THEN DO:
+        /* If not automatically cleared by security level, ask for password */
+        IF NOT lHasAccess THEN DO:
+            RUN sys/ref/d-passwd.w (
+                INPUT  10, 
+                OUTPUT lHasAccess
+                ). 
+        END.
+    
+        IF NOT lHasAccess THEN
+            RETURN.
+
         iProdQty = fGetTotalReceived().
         
         RUN inventory/adjustQuantityWithType.w (
             INPUT  itemfg.i-no,
             INPUT  itemfg.i-name,
-            INPUT  job-hdr.qty,
+            INPUT  IF job-hdr.qty LT 0 THEN 0 ELSE job-hdr.qty,
             INPUT  iProdQty,
-            INPUT  itemfg.q-onh,
+            INPUT  IF itemfg.q-onh LT 0 THEN 0 ELSE itemfg.q-onh,
             INPUT  1,
             INPUT  1,
             INPUT  TRUE, /* Required Adj Reason  */
@@ -427,7 +427,13 @@ PROCEDURE AdjustQuantity :
                     dQtyToAdjust = dTotalQuantity - itemfg.q-onh 
                     cMessage     = "Adjust total on-hand to " + STRING(dTotalQuantity) + "?"
                     .
-
+            
+            IF dQtyToAdjust EQ 0 THEN DO:
+                MESSAGE "Cannot adjust zero quantity value"
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN.    
+            END.
+            
             MESSAGE cMessage 
                     VIEW-AS ALERT-BOX QUESTION
                     BUTTON OK-CANCEL
