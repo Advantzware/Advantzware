@@ -40,6 +40,10 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
+{sys/inc/var.i "NEW SHARED"}
+{sys/inc/varasgn.i}
+
 DEFINE VARIABLE hdRMInquiry    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdRMInquiryWin AS HANDLE    NO-UNDO.
 
@@ -424,7 +428,7 @@ PROCEDURE IssueQuantity :
             INPUT  item.i-name,
             INPUT  job-mat.qty-iss,
             INPUT  job-mat.qty,
-            INPUT  TRUE, /* Required Adj Reason  */
+            INPUT  FALSE, /* Required Adj Reason  */
             INPUT  TRUE,  /* Allow decimal units */
             OUTPUT dTotalQuantity,
             OUTPUT cAdjustType,
@@ -434,29 +438,25 @@ PROCEDURE IssueQuantity :
             ).
   
         IF lValueReturned THEN DO:  
-            MESSAGE cAdjustType + " quantity to " + STRING(dTotalQuantity) "?" 
+            MESSAGE "Issue " + STRING(dTotalQuantity) + " quantity ?" 
                     VIEW-AS ALERT-BOX QUESTION
                     BUTTON OK-CANCEL
-                    TITLE "Adjust Quantity" UPDATE lContinue AS LOGICAL.
-/*            IF lContinue THEN DO:                                               */
-/*                RUN Inventory_AdjustFinishedGoodBinQty IN hdInventoryProcs (    */
-/*                    INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),        */
-/*                    INPUT  dTotalQuantity - ttBrowseInventory.quantity,         */
-/*                    INPUT  dPartialQuantity - ttBrowseInventory.quantityPartial,*/
-/*                    INPUT  cAdjReasonCode,                                      */
-/*                    OUTPUT lSuccess,                                            */
-/*                    OUTPUT cMessage                                             */
-/*                    ).                                                          */
-/*                                                                                */
-/*                IF NOT lSuccess THEN                                            */
-/*                    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.                   */
-/*                ELSE                                                            */
-/*                    ttBrowseInventory.quantity = dTotalQuantity.                */
-/*                                                                                */
-/*                {&OPEN-QUERY-{&BROWSE-NAME}}                                    */
-/*                                                                                */
-/*                APPLY "VALUE-CHANGED" TO BROWSE {&BROWSE-NAME}.                 */
-/*            END.                                                                */
+                    TITLE "Issue Quantity" UPDATE lContinue AS LOGICAL.
+            IF lContinue THEN DO:
+                FIND CURRENT job-mat EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE job-mat THEN
+                    job-mat.post = TRUE.
+                    
+                RUN jc/jc-autop.p (
+                    INPUT ROWID(job-mat),
+                    INPUT 0,
+                    INPUT dTotalQuantity
+                    ).
+
+                {&OPEN-QUERY-{&BROWSE-NAME}}
+
+                APPLY "VALUE-CHANGED" TO BROWSE {&BROWSE-NAME}.
+            END.
         END.
     END.
 END PROCEDURE.

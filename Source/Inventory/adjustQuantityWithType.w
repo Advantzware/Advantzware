@@ -249,7 +249,7 @@ DEFINE VARIABLE fiResult AS CHARACTER FORMAT "X(256)":U
      SIZE 39.6 BY 1.76
      FONT 37 NO-UNDO.
 
-DEFINE VARIABLE fiSubUnitCount AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
+DEFINE VARIABLE fiSubUnitCount AS DECIMAL FORMAT ">,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
      FONT 37 NO-UNDO.
@@ -259,7 +259,7 @@ DEFINE VARIABLE fiSubUnitCountLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Case
      SIZE 28.8 BY 1.43
      FONT 36 NO-UNDO.
 
-DEFINE VARIABLE fiSubUnits AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
+DEFINE VARIABLE fiSubUnits AS DECIMAL FORMAT ">,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
      FONT 37 NO-UNDO.
@@ -269,7 +269,7 @@ DEFINE VARIABLE fiSubUnitsLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Case/Bun
      SIZE 19.4 BY 1.43
      FONT 36 NO-UNDO.
 
-DEFINE VARIABLE fiSubUnitsPerUnit AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
+DEFINE VARIABLE fiSubUnitsPerUnit AS DECIMAL FORMAT ">,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
      FONT 37 NO-UNDO.
@@ -284,7 +284,7 @@ DEFINE VARIABLE fiText AS CHARACTER FORMAT "X(256)":U
      SIZE 39.6 BY 1.19
      FONT 35 NO-UNDO.
 
-DEFINE VARIABLE fiTotalQty AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
+DEFINE VARIABLE fiTotalQty AS DECIMAL FORMAT ">,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
      FONT 37 NO-UNDO.
@@ -294,7 +294,7 @@ DEFINE VARIABLE fiTotalQtyLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Total Qu
      SIZE 22.2 BY 1.43
      FONT 36 NO-UNDO.
 
-DEFINE VARIABLE fiUnitCount AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
+DEFINE VARIABLE fiUnitCount AS DECIMAL FORMAT ">,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
      FONT 37 NO-UNDO.
@@ -304,7 +304,7 @@ DEFINE VARIABLE fiUnitCountLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Pallet 
      SIZE 19 BY 1.43
      FONT 36 NO-UNDO.
 
-DEFINE VARIABLE fiUnits AS DECIMAL FORMAT "->,>>>,>>9.99<<<<<":U INITIAL 0 
+DEFINE VARIABLE fiUnits AS DECIMAL FORMAT ">,>>>,>>9.99<<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1.43
      FONT 37 NO-UNDO.
@@ -318,7 +318,6 @@ DEFINE VARIABLE rsAdjustType AS CHARACTER
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Reduce", "Reduce",
-"Add", "Add",
 "Count", "Count"
      SIZE 61 BY 1.43
      FONT 36 NO-UNDO.
@@ -1193,13 +1192,13 @@ PROCEDURE pInit :
     
     IF NOT iplAllowFractions THEN
         ASSIGN
-            fiTotalQty:FORMAT           = "->,>>>,>>>,>>9"
-            fiSubUnits:FORMAT           = "->,>>>,>>>,>>9"
-            fiSubUnitCount:FORMAT       = "->,>>>,>>>,>>9"
-            fiSubUnitsPerUnit:FORMAT    = "->,>>>,>>>,>>9"
-            fiUnitCount:FORMAT          = "->,>>>,>>>,>>9"
-            fiPartial:FORMAT            = "->,>>>,>>>,>>9"
-            fiUnits:FORMAT              = "->,>>>,>>>,>>9"
+            fiTotalQty:FORMAT           = ">,>>>,>>>,>>9"
+            fiSubUnits:FORMAT           = ">,>>>,>>>,>>9"
+            fiSubUnitCount:FORMAT       = ">,>>>,>>>,>>9"
+            fiSubUnitsPerUnit:FORMAT    = ">,>>>,>>>,>>9"
+            fiUnitCount:FORMAT          = ">,>>>,>>>,>>9"
+            fiPartial:FORMAT            = ">,>>>,>>>,>>9"
+            fiUnits:FORMAT              = ">,>>>,>>>,>>9"
             NO-ERROR.
     
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
