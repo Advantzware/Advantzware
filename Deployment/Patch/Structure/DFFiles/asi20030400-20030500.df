@@ -1,0 +1,83 @@
+ADD FIELD "isInactive" OF "dept" AS logical
+  FORMAT "yes/no"
+  POSITION 27
+  INITIAL "no"
+  LABEL "Inactive?"
+  ORDER 270
+  MAX-WIDTH 1
+
+ADD FIELD "isRequired" OF "dept" AS logical
+  FORMAT "yes/no"
+  POSITION 28
+  INITIAL "no"
+  LABEL "Required?"
+  ORDER 280
+  MAX-WIDTH 1
+
+ADD INDEX "iCompanyEstNo" ON "estPacking"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "estimateNo" ASCENDING
+  INDEX-FIELD "formNo" ASCENDING
+  INDEX-FIELD "blankNo" ASCENDING
+
+ADD INDEX "iCompanyPackingID" ON "estPacking"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "estPackingID" ASCENDING
+
+ADD INDEX "iEstPackingID" ON "estPacking"
+  AREA "Index"
+  INDEX-FIELD "estPackingID" ASCENDING
+
+UPDATE PRIMARY INDEX "iCompanyEstNo" ON "estPacking"
+
+ADD INDEX "iExchCode" ON "exchange"
+  AREA "Index"
+  INDEX-FIELD "exch-code" ASCENDING
+
+UPDATE PRIMARY INDEX "iExchCode" ON "exchange"
+
+ADD FIELD "isPassword" OF "sys-ctrl" AS logical
+  FORMAT "yes/no"
+  POSITION 46
+  INITIAL "no"
+  HELP "Select if Char Value is a Password"
+  LABEL "Is Password"
+  ORDER 450
+  MAX-WIDTH 1
+
+ADD FIELD "isPassword" OF "sys-ctrl-shipto" AS logical
+  FORMAT "yes/no"
+  POSITION 35
+  INITIAL "no"
+  HELP "Select if Char Value is a Password"
+  LABEL "Is Password"
+  ORDER 340
+  MAX-WIDTH 1
+
+ADD FIELD "sessionLimit" OF "users" AS integer
+  FORMAT ">>9"
+  POSITION 61
+  INITIAL "0"
+  LABEL "Session Limit"
+  ORDER 561
+  MAX-WIDTH 4
+
+ADD INDEX "iModuleProgram" ON "utilities"
+  AREA "Data"
+  UNIQUE
+  INDEX-FIELD "module" ASCENDING
+  INDEX-FIELD "programName" ASCENDING
+
+ADD INDEX "iProgramName" ON "utilities"
+  AREA "Index"
+  INDEX-FIELD "programName" ASCENDING
+
+UPDATE PRIMARY INDEX "iProgramName" ON "utilities"
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000001782

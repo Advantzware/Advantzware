@@ -1,0 +1,9 @@
+DEF VAR cAuditExceptionList AS CHAR NO-UNDO.
+
+CONNECT -db TESTDEVELd -H EC2AMAZ-VE65OC7 -S 2522 -ld ASI -U mark -P mark.
+CONNECT -db TESTDEVELa -H EC2AMAZ-VE65OC7 -S 2622 -ld AUDIT.
+
+CREATE ALIAS DICTDB FOR DATABASE asi.
+
+run updateAuditTbl2.p.
+quit.

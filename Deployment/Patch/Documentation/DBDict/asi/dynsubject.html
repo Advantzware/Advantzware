@@ -120,6 +120,17 @@
     <td></td>
   </tr>
   <tr class="evenrow">
+    <td>230</td>
+    <td>custListID</td>
+    <td><a href="00-cross-c.html#custListID"><small>X</small></a></td>
+    <td>Customer List ID</td>
+    <td>character</td>
+    <td>x(3)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
     <td>100</td>
     <td>externalForm</td>
     <td><a href="00-cross-e.html#externalForm"><small>X</small></a></td>
@@ -130,7 +141,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>30</td>
     <td>isActive</td>
     <td><a href="00-cross-i.html#isActive"><small>X</small></a></td>
@@ -141,7 +152,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>160</td>
     <td>isLookup</td>
     <td><a href="00-cross-i.html#isLookup"><small>X</small></a></td>
@@ -152,7 +163,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>150</td>
     <td>lastRunDateTime</td>
     <td><a href="00-cross-l.html#lastRunDateTime"><small>X</small></a></td>
@@ -162,6 +173,17 @@
     <td>?</td>
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>250</td>
+    <td>mnemonic</td>
+    <td><a href="00-cross-m.html#mnemonic"><small>X</small></a></td>
+    <td>Mnemonic</td>
+    <td>character</td>
+    <td>x(3)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Menu Mnemonic</td>
   </tr>
   <tr class="evenrow">
     <td>50</td>
@@ -285,6 +307,17 @@
     <td></td>
   </tr>
   <tr class="oddrow">
+    <td>270</td>
+    <td>saveLastRun</td>
+    <td><a href="00-cross-s.html#saveLastRun"><small>X</small></a></td>
+    <td>Save Last Run Parameter Values</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>yes</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
     <td>70</td>
     <td>securityLevel</td>
     <td><a href="00-cross-s.html#securityLevel"><small>X</small></a></td>
@@ -295,11 +328,22 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>210</td>
     <td>subjectAltID</td>
     <td><a href="00-cross-s.html#subjectAltID"><small>X</small></a></td>
     <td>Subject Alt ID</td>
+    <td>character</td>
+    <td>x(20)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>260</td>
+    <td>subjectGroup</td>
+    <td><a href="00-cross-s.html#subjectGroup"><small>X</small></a></td>
+    <td>Group</td>
     <td>character</td>
     <td>x(20)</td>
     <td></td>
@@ -340,6 +384,17 @@
     <td></td>
   </tr>
   <tr class="evenrow">
+    <td>240</td>
+    <td>useCustList</td>
+    <td><a href="00-cross-u.html#useCustList"><small>X</small></a></td>
+    <td>Use Customer List</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
     <td>60</td>
     <td>user-id</td>
     <td><a href="00-cross-u.html#user-id"><small>X</small></a></td>
@@ -615,6 +670,61 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
+  <tr class="oddrow">
+    <td>230</td>
+    <td>custListID</td>
+    <td><a href="00-cross-c.html#custListID"><small>X</small></a></td>
+    <td>Customer List ID</td>
+    <td>character</td>
+    <td>x(3)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="evenrow">
+    <td>240</td>
+    <td>useCustList</td>
+    <td><a href="00-cross-u.html#useCustList"><small>X</small></a></td>
+    <td>Use Customer List</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>250</td>
+    <td>mnemonic</td>
+    <td><a href="00-cross-m.html#mnemonic"><small>X</small></a></td>
+    <td>Mnemonic</td>
+    <td>character</td>
+    <td>x(3)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Menu Mnemonic</td>
+  </tr>
+  <tr class="evenrow">
+    <td>260</td>
+    <td>subjectGroup</td>
+    <td><a href="00-cross-s.html#subjectGroup"><small>X</small></a></td>
+    <td>Group</td>
+    <td>character</td>
+    <td>x(20)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>270</td>
+    <td>saveLastRun</td>
+    <td><a href="00-cross-s.html#saveLastRun"><small>X</small></a></td>
+    <td>Save Last Run Parameter Values</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>yes</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
 </table>
 </div>
 
@@ -695,13 +805,13 @@
       <th>Child tables</th>
     </tr>
     <tr class="shadedrow">
-      <td><a href="dynParamValue.html">dynParamValue</a>&nbsp;&nbsp; <a href="dynprgrmspage.html">dynPrgrmsPage</a>&nbsp;&nbsp; <a href="dynsubjectcolumn.html">dynSubjectColumn</a>&nbsp;&nbsp; <a href="dynsubjectparam.html">dynSubjectParamSet</a>&nbsp;&nbsp; <a href="dynsubjectwhere.html">dynSubjectWhere</a>&nbsp;&nbsp; <a href="prgrms.html">prgrms</a>&nbsp;&nbsp; </td>
+      <td><a href="dynParamValue.html">dynParamValue</a>&nbsp;&nbsp; <a href="dynprgrmspage.html">dynPrgrmsPage</a>&nbsp;&nbsp; <a href="dynsubjectcolumn.html">dynSubjectColumn</a>&nbsp;&nbsp; <a href="dynsubjectparam.html">dynSubjectParamSet</a>&nbsp;&nbsp; <a href="dynsubjectwhere.html">dynSubjectWhere</a>&nbsp;&nbsp; <a href="prgrms.html">prgrms</a>&nbsp;&nbsp; <a href="task.html">Task</a>&nbsp;&nbsp; </td>
     </tr>
   </table>
 <hr style="clear:both">
 <hr>
 <table style="width:100%; margin-top:10px;">
-  <tr><td style="text-align:right;"><i><small>generated 1-7-2020 20:23</small></i></td></tr>
+  <tr><td style="text-align:right;"><i><small>generated 23-11-2020 16:22</small></i></td></tr>
 </table>
 </body>
 </html>

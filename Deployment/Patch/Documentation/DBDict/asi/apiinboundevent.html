@@ -142,6 +142,17 @@
     <td></td>
   </tr>
   <tr class="evenrow">
+    <td>140</td>
+    <td>delayedProcessingStatus</td>
+    <td><a href="00-cross-d.html#delayedProcessingStatus"><small>X</small></a></td>
+    <td>Delayed Processing Status</td>
+    <td>character</td>
+    <td>x(20)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Stores the processing status of an Inbound request. Can be queued, processed and failed</td>
+  </tr>
+  <tr class="oddrow">
     <td>70</td>
     <td>errorMessage</td>
     <td><a href="00-cross-e.html#errorMessage"><small>X</small></a></td>
@@ -152,7 +163,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>120</td>
     <td>externalID</td>
     <td><a href="00-cross-e.html#externalID"><small>X</small></a></td>
@@ -163,7 +174,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>110</td>
     <td>notes</td>
     <td><a href="00-cross-n.html#notes"><small>X</small></a></td>
@@ -174,7 +185,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>100</td>
     <td>recordSource</td>
     <td><a href="00-cross-r.html#recordSource"><small>X</small></a></td>
@@ -185,7 +196,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>10</td>
     <td><a href="addrphone.html">rec_key</a></td>
     <td><a href="00-cross-r.html#rec_key"><small>X</small></a></td>
@@ -196,7 +207,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>40</td>
     <td>requestData</td>
     <td><a href="00-cross-r.html#requestData"><small>X</small></a></td>
@@ -207,7 +218,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>30</td>
     <td>requestDateTime</td>
     <td><a href="00-cross-r.html#requestDateTime"><small>X</small></a></td>
@@ -218,7 +229,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>80</td>
     <td>requestedBy</td>
     <td><a href="00-cross-r.html#requestedBy"><small>X</small></a></td>
@@ -229,7 +240,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>50</td>
     <td>responseData</td>
     <td><a href="00-cross-r.html#responseData"><small>X</small></a></td>
@@ -240,7 +251,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>60</td>
     <td>success</td>
     <td><a href="00-cross-s.html#success"><small>X</small></a></td>
@@ -417,6 +428,17 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
+  <tr class="evenrow">
+    <td>140</td>
+    <td>delayedProcessingStatus</td>
+    <td><a href="00-cross-d.html#delayedProcessingStatus"><small>X</small></a></td>
+    <td>Delayed Processing Status</td>
+    <td>character</td>
+    <td>x(20)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>D: Stores the processing status of an Inbound request. Can be queued, processed and failed</td>
+  </tr>
 </table>
 </div>
 
@@ -467,30 +489,42 @@
     <td>logical</td>
   </tr>
   <tr class="evenrow">
+    <td>delayedProcessingStatus</td>
+    <td>        </td>
+    <td>delayedProcessingStatus (+)</td>
+    <td>character</td>
+  </tr>
+  <tr class="evenrow">
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>apiInboundEventID (+)</td>
+    <td>int64</td>
+  </tr>
+  <tr class="oddrow">
     <td>externalID</td>
     <td>        </td>
     <td>company (+)</td>
     <td>character</td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     <td>externalID (+)</td>
     <td>character</td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>rec_key</td>
     <td>  U     </td>
     <td>rec_key (+)</td>
     <td>character</td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>requestDateTime</td>
     <td>        </td>
     <td>requestDateTime (-)</td>
     <td>datetime</td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     <td>requestedBy (+)</td>
@@ -519,7 +553,7 @@
 <hr style="clear:both">
 <hr>
 <table style="width:100%; margin-top:10px;">
-  <tr><td style="text-align:right;"><i><small>generated 1-7-2020 20:23</small></i></td></tr>
+  <tr><td style="text-align:right;"><i><small>generated 23-11-2020 16:22</small></i></td></tr>
 </table>
 </body>
 </html>

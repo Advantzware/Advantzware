@@ -224,3 +224,6 @@
 "001" "202011028541505818232" "SendPurchaseOrder" "DeletePurchaseOrder" "Trigger when Purchase order is deleted" yes 2020-11-02T23:43:35.185 "mattasi" "trepaper" 5361 5066
 "001" "202011028541505818233" "SendPurchaseOrder" "ReprintPurchaseOrder" "Trigger when Purchase Order Printed flag is ""YES""" no 2020-11-02T23:43:49.713 "mattasi" "trepaper" 5362 5066
 "001" "202011028541505818234" "SendPurchaseOrder" "PrintPurchaseOrder" "Trigger when Purchase Order Printed flag is ""NO""" no 2020-11-02T23:43:42.371 "mattasi" "trepaper" 5363 5066
+"001" "202011166656105856734" "SendInvoice" "PrintInvoice" "Send EDI invoice on print of invoice" no 2020-11-16T18:29:34.691 "mattasi" "matt" 5367 5068
+"001" "202011166656105856735" "SendInvoice" "RePrintInvoice" "Send EDI invoice on re-print of invoice" no 2020-11-16T18:30:02.964 "mattasi" "matt" 5368 5068
+"001" "202011166656105856736" "SendInvoice" "PostInvoice" "Send EDI invoice on post of invoice" yes 2020-11-16T18:29:21.775 "mattasi" "matt" 5369 5068

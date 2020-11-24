@@ -142,6 +142,17 @@
     <td></td>
   </tr>
   <tr class="evenrow">
+    <td>260</td>
+    <td>autoIncrement</td>
+    <td><a href="00-cross-a.html#autoIncrement"><small>X</small></a></td>
+    <td>Auto Increment Transaction Count</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i><br>D: Enable this to auto increment transaction counter</td>
+  </tr>
+  <tr class="oddrow">
     <td>110</td>
     <td>clientID</td>
     <td><a href="00-cross-c.html#clientID"><small>X</small></a></td>
@@ -152,7 +163,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>170</td>
     <td><a href="ap-ctrl.html">company</a></td>
     <td><a href="00-cross-c.html#company"><small>X</small></a></td>
@@ -163,7 +174,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>140</td>
     <td>createBy</td>
     <td><a href="00-cross-c.html#createBy"><small>X</small></a></td>
@@ -174,7 +185,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>130</td>
     <td>createTime</td>
     <td><a href="00-cross-c.html#createTime"><small>X</small></a></td>
@@ -185,7 +196,7 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="evenrow">
+  <tr class="oddrow">
     <td>210</td>
     <td><a href="optconfg.html">description</a></td>
     <td><a href="00-cross-d.html#description"><small>X</small></a></td>
@@ -196,13 +207,24 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
-  <tr class="oddrow">
+  <tr class="evenrow">
     <td>30</td>
     <td>endPoint</td>
     <td><a href="00-cross-e.html#endPoint"><small>X</small></a></td>
     <td>?</td>
     <td>character</td>
     <td>x(200)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>240</td>
+    <td>hostSSHKey</td>
+    <td><a href="00-cross-h.html#hostSSHKey"><small>X</small></a></td>
+    <td>Host SSH Key</td>
+    <td>character</td>
+    <td>x(500)</td>
     <td></td>
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
@@ -351,6 +373,17 @@
     <td></td>
   </tr>
   <tr class="oddrow">
+    <td>250</td>
+    <td>useLocationValidation</td>
+    <td><a href="00-cross-u.html#useLocationValidation"><small>X</small></a></td>
+    <td>Use Location Validation</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i><br>D: If disabled will skip the location validation</td>
+  </tr>
+  <tr class="evenrow">
     <td>60</td>
     <td>userName</td>
     <td><a href="00-cross-u.html#userName"><small>X</small></a></td>
@@ -637,6 +670,39 @@
     <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
     <td></td>
   </tr>
+  <tr class="evenrow">
+    <td>240</td>
+    <td>hostSSHKey</td>
+    <td><a href="00-cross-h.html#hostSSHKey"><small>X</small></a></td>
+    <td>Host SSH Key</td>
+    <td>character</td>
+    <td>x(500)</td>
+    <td></td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td></td>
+  </tr>
+  <tr class="oddrow">
+    <td>250</td>
+    <td>useLocationValidation</td>
+    <td><a href="00-cross-u.html#useLocationValidation"><small>X</small></a></td>
+    <td>Use Location Validation</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i><br>D: If disabled will skip the location validation</td>
+  </tr>
+  <tr class="evenrow">
+    <td>260</td>
+    <td>autoIncrement</td>
+    <td><a href="00-cross-a.html#autoIncrement"><small>X</small></a></td>
+    <td>Auto Increment Transaction Count</td>
+    <td>logical</td>
+    <td>yes/no</td>
+    <td>no</td>
+    <td style="text-align: center;"> <input type="checkbox" disabled         /> </td>
+    <td>V: <i>tb</i><br>D: Enable this to auto increment transaction counter</td>
+  </tr>
 </table>
 </div>
 
@@ -753,7 +819,7 @@
 <hr style="clear:both">
 <hr>
 <table style="width:100%; margin-top:10px;">
-  <tr><td style="text-align:right;"><i><small>generated 1-7-2020 20:23</small></i></td></tr>
+  <tr><td style="text-align:right;"><i><small>generated 23-11-2020 16:22</small></i></td></tr>
 </table>
 </body>
 </html>

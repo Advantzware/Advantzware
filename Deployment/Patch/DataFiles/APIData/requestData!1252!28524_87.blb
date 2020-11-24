@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE cXML SYSTEM "http://xml.cxml.org/schemas/cXML/1.2.025/InvoiceDetail.dtd">
+<cXML payloadID="$cXMLPayloadID$@Prempack.com" timestamp="$TimeStamp$" version="1.2.024" xml:lang="en-US">
+    <Header>
+        <From>
+            <Credential domain="NetworkID">
+                <Identity>$IdentityCust$</Identity>
+                <SharedSecret>$SharedSecret$</SharedSecret>
+            </Credential>
+        </From>
+        <To>
+            <Credential domain="NetworkID">
+                <Identity>$Identity$</Identity>
+            </Credential>
+        </To>
+        <Sender>
+            <Credential domain="NetworkID">
+                <Identity>$IdentityCust$</Identity>
+                <SharedSecret>$SharedSecret$</SharedSecret>
+            </Credential>
+            <UserAgent>Supplier</UserAgent>
+        </Sender>
+    </Header>
+    <Request deploymentMode="$DeploymentMode$">
+        <InvoiceDetailRequest>
+            <InvoiceDetailRequestHeader 
+                invoiceDate="$InvoiceDate|YYYY-MM-DD|DATE|$T12:11:40-05:00"
+                invoiceID="$invoiceID$"
+                operation="new"
+                purpose="standard">
+                <InvoiceDetailHeaderIndicator/>
+                <InvoiceDetailLineIndicator isShippingInLine="yes" isAccountingInLine="yes"  />
+                <InvoicePartner>
+                    <Contact role="billto">
+                        <Name xml:lang="en-US">$CustomerName$</Name>
+                        <PostalAddress>
+                            $BillToStreetData$
+                            <City>$CustomerCity$</City>
+                            <State>$CustomerState$</State>
+                            <PostalCode>$CustomerPostalCode$</PostalCode>
+                            <Country isoCountryCode="US">US</Country>
+                        </PostalAddress>
+                    </Contact>
+                </InvoicePartner>
+                <InvoicePartner>
+                    <Contact addressID="Enter your company name" role="remitTo">
+                        <Name xml:lang="en-US">Name</Name>
+                        <PostalAddress>
+                            <Street>Street</Street>
+                            <City>City</City>
+                            <State>State</State>
+                            <PostalCode>ZipCode</PostalCode>
+                            <Country isoCountryCode = "US">US</Country>
+                        </PostalAddress>
+                    </Contact>
+                </InvoicePartner>
+                <InvoiceDetailShipping>
+                    <Contact addressID="$ShiptoID$" role="shipTo">
+                        <Name xml:lang="en-US">$ShiptoName$</Name>
+                        <PostalAddress>
+                            $ShiptoStreetData$
+                            <City>$ShiptoCity$</City>
+                            <State>$ShiptoState$</State>
+                            <PostalCode>$ShiptoPostalCode$</PostalCode>
+                            <Country isoCountryCode="US">US</Country>
+                        </PostalAddress>
+                    </Contact>
+                    <Contact role="shipFrom">
+                        <Name xml:lang="en-US">Ship from company</Name>
+                        <PostalAddress>
+                            <Street>Ship from streeet</Street>
+                            <City>Ship From City</City>
+                            <State>Ship From State</State>
+                            <PostalCode>Ship From Zip</PostalCode>
+                            <Country isoCountryCode = "US">US</Country>
+                        </PostalAddress>
+                    </Contact>
+                </InvoiceDetailShipping>
+                <PaymentTerm payInNumberOfDays="$Terms$"/>
+               <!-- Custom field on Invoice Header - field name = "Email -->
+              <Extrinsic name="CustomFields">
+               <IdReference identifier="Email" domain="CustomFields">
+                  <Description xml:lang="en">$CustomerEmail$</Description>
+               </IdReference>
+            </Extrinsic>
+           </InvoiceDetailRequestHeader>
+            <InvoiceDetailOrder>
+                <InvoiceDetailOrderInfo>
+                    <OrderReference orderID="$OrderID$">
+                        <DocumentReference payloadID="$PayloadID$"/>
+                    </OrderReference>
+                </InvoiceDetailOrderInfo>
+                  $Detail$
+            </InvoiceDetailOrder>
+            <InvoiceDetailSummary>
+                <SubtotalAmount>
+                    <Money currency="USD">$SubtotalAmount$</Money>
+                </SubtotalAmount>
+                <Tax>
+                    <Money currency="USD">$TotalTax$</Money>
+                    <Description xml:lang="en-US">SalesTax</Description>
+                </Tax>
+               <SpecialHandlingAmount>
+                   <Money currency="USD">0</Money>
+                </SpecialHandlingAmount>
+                <ShippingAmount>
+                    <Money currency="USD">$TotalShippingAmt$</Money>
+                </ShippingAmount>
+                <GrossAmount>
+                    <Money currency="USD">$TotalGrossAmt$</Money>
+                </GrossAmount>
+                <NetAmount>
+                    <Money currency="USD">$TotalNetAmt$</Money>
+                </NetAmount>
+            </InvoiceDetailSummary>
+        </InvoiceDetailRequest>
+    </Request>
+</cXML>
