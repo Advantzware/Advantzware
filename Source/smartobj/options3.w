@@ -76,8 +76,9 @@ DEFINE BUTTON Select_appl
      SIZE 6.4 BY 1.52 TOOLTIP "Utility Application".
 
 DEFINE BUTTON Select_att 
-     IMAGE-UP FILE "Graphics/32x32/paperclip.png":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/pin2.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/pin2_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/pin2_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Attachment" 
      SIZE 6.4 BY 1.52 TOOLTIP "Attachments".
 
@@ -322,7 +323,7 @@ END.
 &ENDIF
 
 RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
-
+{custom\udfimgoptionframe.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

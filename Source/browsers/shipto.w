@@ -105,7 +105,8 @@ shipto.siteID
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
 Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find FI_moveCol 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+//FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -137,12 +138,12 @@ DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U
      LABEL "Auto Find" 
      VIEW-AS FILL-IN 
      SIZE 27 BY 1 NO-UNDO.
-
+/*
 DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1
      BGCOLOR 14 FONT 6 NO-UNDO.
-
+*/
 DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 27 BY 1
@@ -198,7 +199,7 @@ DEFINE FRAME F-Main
           "Enter Auto Find Value"
      Btn_Clear_Find AT ROW 6.24 COL 84.8 HELP
           "CLEAR AUTO FIND Value"
-     FI_moveCol AT ROW 6.24 COL 96.4 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+   //  FI_moveCol AT ROW 6.24 COL 96.4 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      "By:" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 6.24 COL 2
      RECT-4 AT ROW 6 COL 1
@@ -398,8 +399,8 @@ END.
 &SCOPED-DEFINE cellColumnDat browsers-shipto
 
 {methods/browsers/setCellColumns.i}
-  FI_moveCol = "Sort".
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+ /* FI_moveCol = "Sort".
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}. */
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
@@ -532,9 +533,9 @@ DO WITH FRAME {&FRAME-NAME}:
   ASSIGN
      Browser-Table:COLUMN-MOVABLE = v-col-move
      Browser-Table:COLUMN-RESIZABLE = v-col-move
-     v-col-move = NOT v-col-move
-     FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-  DISPLAY FI_moveCol.
+     v-col-move = NOT v-col-move.
+ /*    FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+  DISPLAY FI_moveCol. */
 END.
 END PROCEDURE.
 

@@ -199,7 +199,8 @@ use-index r-no NO-LOCK, ~
 &Scoped-Define ENABLED-OBJECTS tb_posted fi_rel-no fi_ord-no fi_cust-no ~
 fi_i-no fi_po-no fi_job-no fi_job-no2 btn_go Browser-Table btn_prev RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS tb_posted fi_rel-no fi_ord-no fi_cust-no ~
-fi_i-no fi_po-no fi_job-no fi_job-no2 fi_sort-by FI_moveCol 
+fi_i-no fi_po-no fi_job-no fi_job-no2 fi_sort-by 
+//FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -279,10 +280,10 @@ DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0
      SIZE 4 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 8 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
@@ -385,7 +386,7 @@ DEFINE FRAME F-Main
      fi_job-no2 AT ROW 2.19 COL 106 COLON-ALIGNED
      btn_go AT ROW 3.62 COL 2
      fi_sort-by AT ROW 3.62 COL 70 COLON-ALIGNED NO-LABEL
-     FI_moveCol AT ROW 3.62 COL 125 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+   //  FI_moveCol AT ROW 3.62 COL 125 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      Browser-Table AT ROW 5.05 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      btn_prev AT ROW 3.62 COL 17
@@ -411,8 +412,8 @@ DEFINE FRAME F-Main
      "Release#" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 4
           FGCOLOR 9 FONT 6
-     "BrwsrColMode:" VIEW-AS TEXT
-          SIZE 18 BY .95 AT ROW 3.62 COL 112
+   /*  "BrwsrColMode:" VIEW-AS TEXT
+          SIZE 18 BY .95 AT ROW 3.62 COL 112*/
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -1279,8 +1280,8 @@ PROCEDURE local-initialize :
    oe-rell.job-no:READ-ONLY IN BROWSE {&browse-name} = YES
    oe-rell.job-no2:READ-ONLY IN BROWSE {&browse-name} = YES
    oe-relh.printed:READ-ONLY IN BROWSE {&browse-name} = YES
-   oe-relh.ship-id:READ-ONLY IN BROWSE {&browse-name} = YES
-   FI_moveCol = "Sort" .
+   oe-relh.ship-id:READ-ONLY IN BROWSE {&browse-name} = YES.
+  // FI_moveCol = "Sort" .
 
   IF AVAIL oe-relh THEN
   DO:
@@ -1293,7 +1294,7 @@ PROCEDURE local-initialize :
     {methods/run_link.i "CONTAINER-SOURCE" "MF-Message"
        "(CAN-FIND(FIRST mfvalues WHERE mfvalues.rec_key = oe-relh.rec_key))"}
   END.
-    DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+ //   DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
     APPLY 'ENTRY':U TO fi_rel-no IN FRAME {&FRAME-NAME}.   /*Task# 02121406*/
 
 END PROCEDURE.
@@ -1377,9 +1378,9 @@ DO WITH FRAME {&FRAME-NAME}:
   ASSIGN
      Browser-Table:COLUMN-MOVABLE = v-col-move
      Browser-Table:COLUMN-RESIZABLE = v-col-move
-     v-col-move = NOT v-col-move
-     FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-  DISPLAY FI_moveCol.
+     v-col-move = NOT v-col-move.
+    /* FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+  DISPLAY FI_moveCol.*/
 END.
 END PROCEDURE.
 

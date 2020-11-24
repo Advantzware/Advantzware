@@ -368,7 +368,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_b-ordinq ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'inquiry':U , h_b-ordinq ).
        RUN add-link IN adm-broker-hdl ( h_b-ordinq , 'Record':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_optionse ).	
     END. /* Page 1 */
 
     WHEN 2 THEN DO:

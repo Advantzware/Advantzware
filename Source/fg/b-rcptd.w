@@ -188,7 +188,8 @@ use-index fg-rctd NO-LOCK ~
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Browser-Table RECT-1 browse-order auto_find ~
 Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order fi_sortby auto_find fi_movecol
+&Scoped-Define DISPLAYED-OBJECTS browse-order fi_sortby auto_find
+// fi_movecol
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -236,10 +237,10 @@ DEFINE RECTANGLE RECT-1
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
     SIZE 145 BY 2.62.
 
-DEFINE VARIABLE fi_movecol AS CHARACTER FORMAT "X(256)":U 
+/*DEFINE VARIABLE fi_movecol AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 10 BY 1 
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -308,7 +309,7 @@ DEFINE FRAME F-Main
     browse-order AT ROW 15.76 COL 6 HELP
     "Select Browser Sort Order" NO-LABEL
     fi_sortby AT ROW 15.76 COL 96 COLON-ALIGNED NO-LABEL
-    fi_movecol AT ROW 15.76 COL 132 COLON-ALIGNED NO-LABEL 
+   // fi_movecol AT ROW 15.76 COL 132 COLON-ALIGNED NO-LABEL 
     auto_find AT ROW 16.95 COL 11 COLON-ALIGNED HELP
     "Enter Auto Find Value"
     Btn_Clear_Find AT ROW 16.95 COL 132 HELP
@@ -989,8 +990,8 @@ PROCEDURE init-proc :
     ll-set-parts = VALID-HANDLE(WIDGET-HANDLE(char-hdl)).
 
     RUN setCellColumns.
-  FI_moveCol = "Sort".
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+ /* FI_moveCol = "Sort".
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
    
 END PROCEDURE.
 
@@ -1406,9 +1407,9 @@ PROCEDURE move-columns :
      ASSIGN
       {&BROWSE-NAME}:COLUMN-MOVABLE = lColMove
          {&BROWSE-NAME}:COLUMN-RESIZABLE = lColMove
-        lColMove = NOT lColMove
-        FI_moveCol = IF lColMove = NO THEN "Move" ELSE "Sort".
-     DISPLAY FI_moveCol.
+        lColMove = NOT lColMove.
+    /*    FI_moveCol = IF lColMove = NO THEN "Move" ELSE "Sort".
+     DISPLAY FI_moveCol.*/
   END.
 END PROCEDURE.
 

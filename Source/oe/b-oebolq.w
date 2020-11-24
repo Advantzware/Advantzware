@@ -185,8 +185,8 @@ oe-bolh.ship-id
 fi_cust-no fi_i-name tb_posted btn_go btn_show Browser-Table fi_part-no ~
 RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS fi_bol-no fi_ord-no fi_i-no fi_po-no ~
-fi_cust-no fi_i-name tb_posted fi_sort-by FI_moveCol fi_part-no 
-
+fi_cust-no fi_i-name tb_posted fi_sort-by  fi_part-no 
+//FI_moveCol
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -238,10 +238,10 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
@@ -330,16 +330,16 @@ DEFINE FRAME F-Main
      btn_go AT ROW 3.14 COL 6
      btn_show AT ROW 3.14 COL 22
      fi_sort-by AT ROW 3.14 COL 76.4 COLON-ALIGNED NO-LABEL
-     FI_moveCol AT ROW 3.14 COL 132.6 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+  //   FI_moveCol AT ROW 3.14 COL 132.6 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      Browser-Table AT ROW 4.81 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      fi_part-no AT ROW 3.1 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      "BOL#" VIEW-AS TEXT
           SIZE 10 BY .71 AT ROW 1.24 COL 6
           FGCOLOR 9 FONT 6
-     "Browser Col. Mode:" VIEW-AS TEXT
+   /*  "Browser Col. Mode:" VIEW-AS TEXT
           SIZE 22.6 BY .62 AT ROW 3.33 COL 111.8 WIDGET-ID 6
-          FONT 6
+          FONT 6*/
     /* "Sorted By:" VIEW-AS TEXT
           SIZE 12 BY 1 AT ROW 3.14 COL 66.2
           FONT 6 */
@@ -1030,8 +1030,8 @@ PROCEDURE local-initialize :
       oe-bolh.ship-id:READ-ONLY IN BROWSE {&browse-name} = YES
       .
 
-  FI_moveCol = "Sort".
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+ /* FI_moveCol = "Sort".
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
 
 END PROCEDURE.
 
@@ -1150,9 +1150,9 @@ DO WITH FRAME {&FRAME-NAME}:
   ASSIGN
      Browser-Table:COLUMN-MOVABLE = v-col-move
      Browser-Table:COLUMN-RESIZABLE = v-col-move
-     v-col-move = NOT v-col-move
-     FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-  DISPLAY FI_moveCol.
+     v-col-move = NOT v-col-move.
+  /*   FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+  DISPLAY FI_moveCol.*/
 END.
 
 END PROCEDURE.

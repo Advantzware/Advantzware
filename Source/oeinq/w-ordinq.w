@@ -375,7 +375,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_optionse ).
        /* Links to SmartObject h_attach-2. */
        RUN add-link IN adm-broker-hdl ( h_b-ordinq , 'attach':U , h_attach-2 ).
 

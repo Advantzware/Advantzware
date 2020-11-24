@@ -173,7 +173,8 @@ fi_actnum fi_i-no fi_part-no fi_po-no fi_bol-no fi_est-no btn_go btn_show btn_mo
 Browser-Table RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS fi_sort-by tb_open tb_paid fi_inv-no ~
 fi_cust-no fi_date fi_actnum fi_i-no fi_part-no fi_ord-no fi_po-no ~
-fi_bol-no fi_est-no FI_moveCol
+fi_bol-no fi_est-no 
+//FI_moveCol
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -294,10 +295,10 @@ DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 72 BY 1 NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -366,10 +367,10 @@ DEFINE BROWSE Browser-Table
 
 DEFINE FRAME F-Main
      fi_sort-by AT ROW 4.81 COL 73 COLON-ALIGNED
-     "Browser Col. Mode:" VIEW-AS TEXT
+   /*  "Browser Col. Mode:" VIEW-AS TEXT
           SIZE 22.6 BY .62 AT ROW 5.00 COL 110.2 WIDGET-ID 6
-          FONT 6
-     FI_moveCol AT ROW 4.81 COL 131.8 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+          FONT 6*/
+   //  FI_moveCol AT ROW 4.81 COL 131.8 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      tb_open AT ROW 1.24 COL 4
      tb_paid AT ROW 2.43 COL 4
      fi_inv-no AT ROW 1.24 COL 32 COLON-ALIGNED
@@ -1115,8 +1116,8 @@ RUN setCellColumns.
    ar-invl.po-no:READ-ONLY IN BROWSE {&browse-name} = YES
    ar-invl.inv-qty:READ-ONLY IN BROWSE {&browse-name} = YES
    ar-invl.pr-qty-uom:READ-ONLY IN BROWSE {&browse-name} = YES.
-    FI_moveCol = "Sort".
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+  /*  FI_moveCol = "Sort".
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
   RUN set-focus.
   APPLY "entry" TO fi_inv-no IN FRAME {&FRAME-NAME}.
 
@@ -1166,9 +1167,9 @@ DO WITH FRAME {&FRAME-NAME}:
   ASSIGN
      Browser-Table:COLUMN-MOVABLE = v-col-move
      Browser-Table:COLUMN-RESIZABLE = v-col-move
-     v-col-move = NOT v-col-move
-     FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-  DISPLAY FI_moveCol.
+     v-col-move = NOT v-col-move.
+ /*    FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+  DISPLAY FI_moveCol.*/
 END.
 END PROCEDURE.
 

@@ -344,7 +344,7 @@ PROCEDURE adm-create-objects :
 
         /* Links to SmartObject h_options. */
        RUN add-link IN adm-broker-hdl ( h_b-oeinv , 'attach':U , h_options ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Links to SmartObject h_options. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'oeinvopt':U , h_options ).
 

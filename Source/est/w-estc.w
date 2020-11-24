@@ -443,7 +443,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options3 ).
     END. /* Page 0 */
 
     WHEN 1 THEN DO:
@@ -473,6 +473,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartViewer h_movecol. */
        RUN add-link IN adm-broker-hdl ( h_b-estq , 'move-columns':U , h_movecol ).
+      // RUN add-link IN adm-broker-hdl ( h_b-estq , 'udfmsg':U , h_options3 ).
        RUN add-link IN adm-broker-hdl ( h_b-estq , 'attach':U , h_options3 ).
        RUN add-link IN adm-broker-hdl ( h_b-estq , 'export-xl':U , h_export ).
 

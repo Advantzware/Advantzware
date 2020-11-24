@@ -460,7 +460,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartObject h_options3. */
        RUN add-link IN adm-broker-hdl ( h_b-ordinq , 'attach':U , h_options3 ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options3 ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_attcust ,
              h_optonote , 'AFTER':U ).

@@ -179,7 +179,8 @@ vend.buyer vend.city vend.state vend.zip
 fi_zip fi_type fi_buyer tb_in-act btn_go btn_prev btn_next btn_show ~
 Browser-Table 
 &Scoped-Define DISPLAYED-OBJECTS tb_act fi_vend-no fi_i-name fi_city ~
-fi_stat fi_zip fi_type fi_buyer tb_in-act fi_sort-by FI_moveCol 
+fi_stat fi_zip fi_type fi_buyer tb_in-act fi_sort-by
+// FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -270,10 +271,10 @@ DEFINE VARIABLE fi_i-name AS CHARACTER FORMAT "X(20)":U
      SIZE 30 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -370,7 +371,7 @@ DEFINE FRAME F-Main
      btn_next AT ROW 3.62 COL 34 WIDGET-ID 6
      btn_show AT ROW 3.62 COL 49.2 WIDGET-ID 10
      fi_sort-by AT ROW 3.62 COL 78 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     FI_moveCol AT ROW 3.62 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 46
+   //  FI_moveCol AT ROW 3.62 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 46
      Browser-Table AT ROW 5.29 COL 2.4 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      "Name" VIEW-AS TEXT
@@ -818,8 +819,8 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &SCOPED-DEFINE cellColumnDat b-vend
 {methods/browsers/setCellColumns.i}
 
-FI_moveCol = "Sort".
-DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+/*FI_moveCol = "Sort".
+DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}. */
 /* Ticket# : 92946
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
 fi_sort-by:HIDDEN  = TRUE.
@@ -1086,9 +1087,9 @@ PROCEDURE local-initialize :
 /*         vend.city:READ-ONLY IN BROWSE {&browse-name} = YES     */
 /*         vend.state:READ-ONLY IN BROWSE {&browse-name} = YES    */
 /*         vend.zip:READ-ONLY IN BROWSE {&browse-name} = YES      */
-         FI_moveCol = "Sort".
+     /*    FI_moveCol = "Sort".
   
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
 
    APPLY 'ENTRY':U TO fi_vend-no IN FRAME {&FRAME-NAME}.
 
@@ -1175,9 +1176,9 @@ PROCEDURE move-columns :
      ASSIGN
         Browser-Table:COLUMN-MOVABLE = v-col-move
         Browser-Table:COLUMN-RESIZABLE = v-col-move
-        v-col-move = NOT v-col-move
-        FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-     DISPLAY FI_moveCol.
+        v-col-move = NOT v-col-move.
+     /*   FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+     DISPLAY FI_moveCol.*/
   END.
 END PROCEDURE.
 

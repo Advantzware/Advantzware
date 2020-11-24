@@ -208,7 +208,8 @@ cust.cust-no cust.company
 fi_cust-no fi_i-name fi_city fi_stat fi_zip fi_type fi_sman fi_terr ~
 tb_in-act btn_prev btn_next btn_show Browser-Table fi_sort-by 
 &Scoped-Define DISPLAYED-OBJECTS tb_act fi_cust-no fi_i-name fi_city ~
-fi_stat fi_zip fi_type fi_sman fi_terr tb_in-act fi_sort-by FI_moveCol 
+fi_stat fi_zip fi_type fi_sman fi_terr tb_in-act fi_sort-by 
+//FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -306,11 +307,11 @@ DEFINE VARIABLE fi_i-name AS CHARACTER FORMAT "X(20)":U
      VIEW-AS FILL-IN 
      SIZE 30 BY 1.1
      BGCOLOR 15 FONT 22 NO-UNDO.
-
+/*
 DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
       VIEW-AS TEXT 
      SIZE 8.2 BY .71
-     FONT 22 NO-UNDO.
+     FONT 22 NO-UNDO.*/
 
 DEFINE VARIABLE fi_sman AS CHARACTER FORMAT "X(3)":U 
      VIEW-AS FILL-IN 
@@ -446,10 +447,10 @@ DEFINE FRAME F-Main
      Browser-Table AT ROW 4.67 COL 1.6 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      fi_sort-by AT ROW 3.86 COL 11.6 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     FI_moveCol AT ROW 3.86 COL 58.8 COLON-ALIGNED NO-LABEL WIDGET-ID 46
-     "Mode:" VIEW-AS TEXT
+    // FI_moveCol AT ROW 3.86 COL 58.8 COLON-ALIGNED NO-LABEL WIDGET-ID 46
+   /*  "Mode:" VIEW-AS TEXT
           SIZE 7 BY .71 AT ROW 3.86 COL 53.4 WIDGET-ID 66
-          FONT 22
+          FONT 22*/
      "Type" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 1.19 COL 97.8 WIDGET-ID 34
           BGCOLOR 23 FGCOLOR 24 FONT 22
@@ -761,13 +762,13 @@ DO:
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
   
-  assign s-rec_key = cust.rec_key when avail cust.
+  ASSIGN s-rec_key = cust.rec_key WHEN AVAIL cust.
   RUN spec-book-image-proc .  /* task 10221306 */
-  run udf-image-proc.
+ // run udf-image-proc.
   IF AVAIL cust THEN
   DO:
-     run get-link-handle in adm-broker-hdl(this-procedure,"custto-source", output char-hdl).
-     run set-s-rec_key in widget-handle(char-hdl) (INPUT cust.rec_key).
+     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"custto-source", OUTPUT char-hdl).
+     RUN set-s-rec_key IN WIDGET-HANDLE(char-hdl) (INPUT cust.rec_key).
   END.
 END.
 
@@ -953,9 +954,9 @@ IF NOT AVAIL sys-ctrl THEN DO:
         sys-ctrl.log-fld = NO
         sys-ctrl.descrip = "Check credit limit for past due invoices when adding release?".
 END.
- {custom\udfimgchange.i}
-FI_moveCol = "Sort".
-DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+// {custom\udfimgchange.i}
+/*FI_moveCol = "Sort".
+DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
 /* Ticket# : 92946
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
 fi_sort-by:HIDDEN  = TRUE.
@@ -1208,10 +1209,10 @@ PROCEDURE local-initialize :
          cust.sman:READ-ONLY IN BROWSE {&browse-name} = YES
          cust.terr:READ-ONLY IN BROWSE {&browse-name} = YES
          cust.spare-char-2:READ-ONLY IN BROWSE {&browse-name} = YES 
-         cust.rec_key:READ-ONLY IN BROWSE {&browse-name} = YES
-         FI_moveCol = "Sort".
+         cust.rec_key:READ-ONLY IN BROWSE {&browse-name} = YES.
+      /*   FI_moveCol = "Sort".
   
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
 
    APPLY 'ENTRY':U TO fi_cust-no IN FRAME {&FRAME-NAME}.
 
@@ -1318,9 +1319,10 @@ DO WITH FRAME {&FRAME-NAME}:
   ASSIGN
      Browser-Table:COLUMN-MOVABLE = v-col-move
      Browser-Table:COLUMN-RESIZABLE = v-col-move
-     v-col-move = NOT v-col-move
-     FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-  DISPLAY FI_moveCol.
+     v-col-move = NOT v-col-move.
+	 
+     /*FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+  DISPLAY FI_moveCol.*/
 END.
 END PROCEDURE.
 

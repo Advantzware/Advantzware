@@ -154,9 +154,9 @@ rm-rdtlh.user-id rm-rdtlh.receiver-no
 fi_job-no2 fi_rita-code fi_date btn_go btn_show btCopy btDelete fi_po-no ~
 BROWSE-1 
 &Scoped-Define DISPLAYED-OBJECTS fi_rm-i-no fi_tag# fi_job-no fi_job-no2 ~
-fi_rita-code fi_date fi_sort-by FI_moveCol fi_po-no fi_name fi_q-onh ~
+fi_rita-code fi_date fi_sort-by  fi_po-no fi_name fi_q-onh ~
 fi_q-ton fi_q-lf fi_q-msf 
-
+//FI_moveCol
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 &Scoped-define List-1 fi_tag# fi_po-no 
@@ -214,10 +214,10 @@ DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0
      SIZE 4 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 DEFINE VARIABLE fi_name AS CHARACTER FORMAT "x(30)" 
      LABEL "Item Name" 
@@ -365,7 +365,7 @@ DEFINE FRAME Dialog-Frame
      btn_go AT ROW 2.91 COL 2
      btn_show AT ROW 2.91 COL 15
      fi_sort-by AT ROW 2.91 COL 36.4 COLON-ALIGNED
-     FI_moveCol AT ROW 2.91 COL 80.4 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+    // FI_moveCol AT ROW 2.91 COL 80.4 COLON-ALIGNED NO-LABEL WIDGET-ID 4
      btCopy AT ROW 2.91 COL 92 WIDGET-ID 2
      btDelete AT ROW 2.91 COL 106 WIDGET-ID 4
      fi_po-no AT ROW 2.91 COL 130 COLON-ALIGNED
@@ -377,9 +377,9 @@ DEFINE FRAME Dialog-Frame
      fi_q-msf AT ROW 4.33 COL 131 COLON-ALIGNED
      BROWSE-1 AT ROW 5.76 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     "BrwsCol. Mode:" VIEW-AS TEXT
+  /*   "BrwsCol. Mode:" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 3.1 COL 64.6 WIDGET-ID 6
-          FONT 6
+          FONT 6*/
      RECT-1 AT ROW 1 COL 1
      SPACE(0.00) SKIP(15.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -1437,8 +1437,8 @@ PROCEDURE local-initialize :
 
   RUN set-focus.
 
-FI_moveCol = "Sort".
-DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+/*FI_moveCol = "Sort".
+DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
 
 END PROCEDURE.
 
@@ -1509,9 +1509,9 @@ PROCEDURE move-columns :
      ASSIGN
         BROWSE-1:COLUMN-MOVABLE = v-col-move
         BROWSE-1:COLUMN-RESIZABLE = v-col-move
-        v-col-move = NOT v-col-move
-        FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-     DISPLAY FI_moveCol.
+        v-col-move = NOT v-col-move.
+   /*     FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+     DISPLAY FI_moveCol.*/
   END.
 END PROCEDURE.
 

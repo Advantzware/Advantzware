@@ -152,7 +152,8 @@ itemfg.part-dscr2 get-last-rec-unit() @ v-last-receipt-units ~
 fi_i-no fi_part-no fi_part-dscr1 /* fi_date btn_del fi_mat-type# btnPreFix */ ~
 fi_i-name /*btn_copy */ btn_go btn_show  RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS fi_i-no fi_part-no  fi_part-dscr1 ~
-/* fi_date fi_mat-type# */ fi_i-name /* fi_name */ /* fi_q-onh fi_q-avail */ fi_sort-by FI_moveCol 
+/* fi_date fi_mat-type# */ fi_i-name /* fi_name */ /* fi_q-onh fi_q-avail */ fi_sort-by
+// FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* goFields,List-2,List-3,List-4,List-5,List-6                          */
@@ -236,10 +237,10 @@ DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(18)":U
      SIZE 30 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 DEFINE VARIABLE fi_name AS CHARACTER FORMAT "x(30)" 
      LABEL "Item Name" 
@@ -349,7 +350,7 @@ DEFINE FRAME F-Main
      btn_go AT ROW 4.81 COL 3
      btn_show AT ROW 4.81 COL 18
      fi_sort-by AT ROW 4.81 COL 39.2 COLON-ALIGNED
-     FI_moveCol AT ROW 4.81 COL 124 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+ //    FI_moveCol AT ROW 4.81 COL 124 COLON-ALIGNED NO-LABEL WIDGET-ID 10
     /* "Click on Yellow Field, Sorts From 1st to Last" VIEW-AS TEXT
           SIZE 43 BY 1 AT ROW 4.81 COL 81.2 */
      RECT-1 AT ROW 1 COL 1
@@ -1126,10 +1127,10 @@ PROCEDURE local-initialize :
 /*    itemfg.part-no:READ-ONLY IN BROWSE {&browse-name} = YES    */
 /*    itemfg.part-dscr1:READ-ONLY IN BROWSE {&browse-name} = YES */
 /*    itemfg.part-dscr2:READ-ONLY IN BROWSE {&browse-name} = YES */
-   itemfg.case-count:READ-ONLY IN BROWSE {&browse-name} = YES
-   FI_moveCol = "Sort".
+   itemfg.case-count:READ-ONLY IN BROWSE {&browse-name} = YES.
+  /* FI_moveCol = "Sort".
 
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
 /*   IF USERID("NOSWEAT") NE "ASI" THEN  */
 /*       ASSIGN btn_copy:VISIBLE = NO    */
 /*              btn_del:VISIBLE = NO     */
@@ -1179,9 +1180,9 @@ PROCEDURE move-columns :
       ASSIGN
          Browser-Table:COLUMN-MOVABLE = v-col-move
          Browser-Table:COLUMN-RESIZABLE = v-col-move
-         v-col-move = NOT v-col-move
-         FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-      DISPLAY FI_moveCol.
+         v-col-move = NOT v-col-move.
+      /*   FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+      DISPLAY FI_moveCol.*/
    END.
 END PROCEDURE.
 

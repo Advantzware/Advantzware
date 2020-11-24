@@ -346,7 +346,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartObject h_attachvinv-2. */
        RUN add-link IN adm-broker-hdl ( h_b-apinq2 , 'attachinv':U , h_attachvinv-2 ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 

@@ -189,9 +189,11 @@ asi.itemfg.i-no eq "###" NO-LOCK ~
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS tb_act fi_i-no fi_part-no fi_cust-no ~
 fi_i-name fi_est-no fi_style fi_procat tb_in-act btn_go btn_next btn_show ~
-fi_movecol r_table 
+ r_table 
+ // fi_movecol
 &Scoped-Define DISPLAYED-OBJECTS tb_act fi_i-no fi_part-no fi_cust-no ~
-fi_i-name fi_est-no fi_style fi_procat tb_in-act fi_sort-by fi_movecol 
+fi_i-name fi_est-no fi_style fi_procat tb_in-act fi_sort-by
+// fi_movecol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -287,9 +289,9 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 21 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_movecol AS CHARACTER FORMAT "X(256)":U 
+/*DEFINE VARIABLE fi_movecol AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.*/
 
 DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
      VIEW-AS FILL-IN 
@@ -385,7 +387,7 @@ DEFINE FRAME F-Main
      btn_next AT ROW 3.14 COL 47 WIDGET-ID 6
      btn_show AT ROW 3.14 COL 64 WIDGET-ID 10
      fi_sort-by AT ROW 3.14 COL 93 COLON-ALIGNED NO-LABEL WIDGET-ID 12
-     fi_movecol AT ROW 3.14 COL 155 COLON-ALIGNED NO-LABEL WIDGET-ID 46
+  //   fi_movecol AT ROW 3.14 COL 155 COLON-ALIGNED NO-LABEL WIDGET-ID 46
      r_table AT ROW 4.33 COL 1
      "Customer Part#" VIEW-AS TEXT
           SIZE 18 BY .71 AT ROW 1.24 COL 26 WIDGET-ID 42
@@ -1316,10 +1318,10 @@ PROCEDURE local-initialize :
          itemfg.cad-no:READ-ONLY IN BROWSE {&browse-name} = YES
          itemfg.spc-no:READ-ONLY IN BROWSE {&browse-name} = YES
          itemfg.stocked:READ-ONLY IN BROWSE {&browse-name} = YES
-         itemfg.q-onh:READ-ONLY IN BROWSE {&browse-name} = YES                  
-         FI_moveCol = "Sort".
+         itemfg.q-onh:READ-ONLY IN BROWSE {&browse-name} = YES  .                
+      /*   FI_moveCol = "Sort".
 
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
 
    APPLY 'ENTRY':U TO fi_i-no IN FRAME {&FRAME-NAME}.
 
@@ -1406,9 +1408,9 @@ PROCEDURE move-columns :
      ASSIGN
       {&BROWSE-NAME}:COLUMN-MOVABLE = v-col-move
          {&BROWSE-NAME}:COLUMN-RESIZABLE = v-col-move
-        v-col-move = NOT v-col-move
-        FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-     DISPLAY FI_moveCol.
+        v-col-move = NOT v-col-move.
+     /*   FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+     DISPLAY FI_moveCol.*/
   END.
 END PROCEDURE.
 

@@ -171,7 +171,8 @@ fg-rdtlh.rita-code eq fg-rcpth.rita-code NO-LOCK ~
 &Scoped-Define ENABLED-OBJECTS fi_i-no fi_job-no fi_job-no2 fi_rita-code ~
 fi_date btn_go fi_tag# fi_po-no btnPreFix Browser-Table RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS fi_i-no fi_job-no fi_job-no2 fi_rita-code ~
-fi_date fi_name fi_q-onh fi_q-avail fi_sort-by fi_tag# fi_po-no FI_moveCol 
+fi_date fi_name fi_q-onh fi_q-avail fi_sort-by fi_tag# fi_po-no 
+//FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* goFields,List-2,List-3,List-4,List-5,List-6                          */
@@ -232,10 +233,10 @@ DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0
      SIZE 4 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 DEFINE VARIABLE fi_name AS CHARACTER FORMAT "x(30)" 
      LABEL "Item Name" 
@@ -359,7 +360,7 @@ DEFINE FRAME F-Main
      fi_tag# AT ROW 2.43 COL 12 COLON-ALIGNED
      fi_po-no AT ROW 2.43 COL 118 COLON-ALIGNED WIDGET-ID 2
      btnPreFix AT ROW 2.43 COL 54 WIDGET-ID 4
-     FI_moveCol AT ROW 4.81 COL 125 COLON-ALIGNED NO-LABEL WIDGET-ID 46
+   //  FI_moveCol AT ROW 4.81 COL 125 COLON-ALIGNED NO-LABEL WIDGET-ID 46
      Browser-Table AT ROW 6 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
     /* "Click on Yellow Field to" VIEW-AS TEXT
@@ -872,8 +873,8 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &SCOPED-DEFINE cellColumnDat b-fgiinq
 {methods/browsers/setCellColumns.i}
 
- FI_moveCol = "Sort".
-DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+/* FI_moveCol = "Sort".
+DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
 /* Ticket# : 92946
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
 fi_sort-by:HIDDEN  = TRUE.
@@ -1054,10 +1055,10 @@ PROCEDURE local-initialize :
    fg-rdtlh.loc-bin:READ-ONLY IN BROWSE {&browse-name} = YES
    fg-rdtlh.tag:READ-ONLY IN BROWSE {&browse-name} = YES
    fg-rdtlh.qty:READ-ONLY IN BROWSE {&browse-name} = YES
-   fg-rdtlh.cost:READ-ONLY IN BROWSE {&browse-name} = YES
-   FI_moveCol = "Sort"
+   fg-rdtlh.cost:READ-ONLY IN BROWSE {&browse-name} = YES.
+ /*  FI_moveCol = "Sort"
    .
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
 
   RUN set-focus.
 
@@ -1120,9 +1121,9 @@ PROCEDURE move-columns :
      ASSIGN
         Browser-Table:COLUMN-MOVABLE = v-col-move
         Browser-Table:COLUMN-RESIZABLE = v-col-move
-        v-col-move = NOT v-col-move
-        FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-     DISPLAY FI_moveCol.
+        v-col-move = NOT v-col-move.
+      /*  FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+     DISPLAY FI_moveCol.*/
   END.
 END PROCEDURE.
 

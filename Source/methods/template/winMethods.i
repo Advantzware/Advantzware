@@ -408,7 +408,12 @@ PROCEDURE MF-Message :
 
   IF CAN-FIND(FIRST mfgroup
               WHERE LOOKUP(v-prgmname,mfgroup.mfgroup_data,"|") NE 0) THEN
-  RUN Show-MF-Message IN h_smartmsg (ip-misc-flds).
+    DO:
+        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'udficon-target':U, OUTPUT char-hdl).
+        IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+            RUN udf-image IN WIDGET-HANDLE(char-hdl) (INPUT ip-misc-flds).
+    END.
+ // RUN Show-MF-Message IN h_smartmsg (ip-misc-flds).
 
 END PROCEDURE.
 

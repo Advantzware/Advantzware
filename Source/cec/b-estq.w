@@ -347,7 +347,8 @@ tb_tancom btn_go btn_prev Browser-Table RECT-1
 &Scoped-Define DISPLAYED-OBJECTS vi_est-no begin_cust-no begin_ship ~
 vi_part-no vi_stock-no vi_part-dscr1 vi_style vi_len vi_len-2 vi_wid ~
 vi_wid-2 vi_dep vi_dep-2 vi_die-no TG_exact-match vi_cad-no vi_plate-no ~
-tb_single tb_set tb_tancom fi_sort-by FI_moveCol 
+tb_single tb_set tb_tancom fi_sort-by 
+//FI_moveCol 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -416,10 +417,10 @@ DEFINE VARIABLE begin_ship AS CHARACTER FORMAT "X(8)":U
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
+/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
      VIEW-AS FILL-IN 
      SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.
+     BGCOLOR 14 FONT 6 NO-UNDO.*/
 
 DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -646,7 +647,7 @@ DEFINE FRAME F-Main
      btn_next AT ROW 5.05 COL 39
      vi_est-date AT ROW 5.05 COL 54 COLON-ALIGNED NO-LABEL
      fi_sort-by AT ROW 5.05 COL 81 COLON-ALIGNED NO-LABEL
-     FI_moveCol AT ROW 5.05 COL 136.2 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+   //  FI_moveCol AT ROW 5.05 COL 136.2 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      Browser-Table AT ROW 6.24 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      "to" VIEW-AS TEXT
@@ -684,9 +685,9 @@ DEFINE FRAME F-Main
      "L x W x D" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 1.24 COL 96
           FGCOLOR 9 FONT 6
-     "Browser Col. Mode:" VIEW-AS TEXT
+   /*  "Browser Col. Mode:" VIEW-AS TEXT
           SIZE 22.6 BY .62 AT ROW 5.29 COL 115.2 WIDGET-ID 10
-          FONT 6
+          FONT 6*/
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -1093,7 +1094,7 @@ DO:
      RUN paper-clip-image-proc(INPUT est.rec_key).
 
      RUN dept-image-proc.
-
+    // RUN udf-image-proc.
     IF eb.stock-no NE "" THEN
     DO:
        FIND FIRST itemfg WHERE
@@ -1583,6 +1584,7 @@ END.
 /* ***************************  Main Block  *************************** */
 {methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
+//{custom\udfimgchange.i &table-name=est}
  RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT 'EC',
                             INPUT YES,
@@ -2162,10 +2164,10 @@ PROCEDURE local-initialize :
    eb.cad-no:READ-ONLY IN BROWSE {&browse-name} = YES
    eb.plate-no:READ-ONLY IN BROWSE {&browse-name} = YES
    eb.quantityPerSet:READ-ONLY IN BROWSE {&browse-name} = YES 
-   vi_die-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "*"
-   FI_moveCol = "Sort".
+   vi_die-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "*".
+  /* FI_moveCol = "Sort".
 
-  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
+  DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.*/
 
   /*RUN set-focus.*/
   ENABLE {&browse-name} WITH FRAME {&FRAME-NAME}. 
@@ -2277,9 +2279,9 @@ PROCEDURE move-columns :
       ASSIGN
          Browser-Table:COLUMN-MOVABLE = v-col-move
          Browser-Table:COLUMN-RESIZABLE = v-col-move
-         v-col-move = NOT v-col-move
-         FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
-      DISPLAY FI_moveCol.
+         v-col-move = NOT v-col-move.
+    /*     FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
+      DISPLAY FI_moveCol.*/
    END.
 END PROCEDURE.
 

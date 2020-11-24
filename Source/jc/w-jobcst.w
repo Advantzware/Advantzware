@@ -447,7 +447,7 @@ PROCEDURE adm-create-objects :
             
        /* Links to SmartObject h_attach. */
        RUN add-link IN adm-broker-hdl ( h_b-jobinq , 'attach':U , h_attach ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options2 ).
        /* Links to SmartViewer h_expxls. */
        RUN add-link IN adm-broker-hdl ( h_expxls , 'sort-data':U , THIS-PROCEDURE ).
 

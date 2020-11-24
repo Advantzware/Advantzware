@@ -30,7 +30,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 {methods/defines/hndlset.i}
-
+DEFINE VARIABLE flag AS LOGICAL.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -61,8 +61,8 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnMoveCol 
-     IMAGE-UP FILE "Graphics/32x32/config-table.png":U
-     IMAGE-DOWN FILE "Graphics/32x32/config-table_hover.png":U
+     IMAGE-UP FILE "Graphics/32x32/sort_up_down2.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/sort_up_down2.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/config-table_disabled.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Phone" 
      SIZE 6.4 BY 1.52 TOOLTIP "Change Move/Sort Column Mode"
@@ -156,10 +156,20 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMoveCol s-object
 ON CHOOSE OF btnMoveCol IN FRAME F-Main /* Phone */
 DO:
+   
+    
+    SELF:LOAD-IMAGE("Graphics/32x32/"
+        + IF flag THEN "sort_up_down2.png"
+        ELSE "left_right_arrows.png")
+        . 
+    IF flag THEN 
+        flag = FALSE.
+    ELSE
+        flag = TRUE.
     DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'move-columns-source':U,OUTPUT char-hdl).
-    RUN move-columns in WIDGET-HANDLE(char-hdl).
+    RUN move-columns IN WIDGET-HANDLE(char-hdl).
 END.
 
 /* _UIB-CODE-BLOCK-END */

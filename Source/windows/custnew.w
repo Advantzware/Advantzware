@@ -395,7 +395,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartObject h_p-crm. */
        RUN add-link IN adm-broker-hdl ( h_cust , 'CRM':U , h_p-crm ).
-
+	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
        /* Links to SmartObject h_attach. */
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'attach':U , h_attach ).
 
