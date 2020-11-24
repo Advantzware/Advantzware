@@ -72,6 +72,7 @@ DEFINE VARIABLE lCheckStartDate AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lCalcJobDueDate AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cCalcJobDueDate AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCalcDueDateMsg AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cJobType AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (cocode, "CalcJobDueDate", "L", NO, NO, "", "", 
                        OUTPUT cCalcJobDueDate, OUTPUT llRecFound).
@@ -88,6 +89,12 @@ RUN sys/ref/nk1look.p (cocode, "JOBHoldReason", "L", NO, NO, "", "",
                        OUTPUT lcReturn, OUTPUT llRecFound).
 IF llRecFound THEN
 JobHoldReason-log = LOGICAL(lcReturn) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "JobType", "C" /* Logical */, NO /* check by cust */, 
+                     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                     OUTPUT lcReturn, OUTPUT llRecFound).
+IF llRecFound THEN
+    cJobType = lcReturn NO-ERROR.  
 
 DEFINE BUFFER xjob FOR job.
 
@@ -722,7 +729,14 @@ PROCEDURE add-job :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  RUN dispatch ('add-record').
+  IF cJobType EQ "Molded" THEN
+  DO:                          
+    RUN jc/dAddJobWithEst.w("",ROWID(job)).
+  END.
+  ELSE 
+  DO:
+    RUN dispatch ('add-record').
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
