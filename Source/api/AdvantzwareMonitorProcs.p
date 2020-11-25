@@ -281,10 +281,11 @@ PROCEDURE pGetASBrokerStatus PRIVATE:
             
         IF NOT lSuccess THEN
             opcBrokerStatus = cResourceStatusStopped.
+    
+        IF VALID-HANDLE(hdServer) THEN
+            DELETE OBJECT hdServer.        
     END.
-    
-    DELETE OBJECT hdServer.
-    
+        
     OS-DELETE VALUE(cPathDataFile).
 END PROCEDURE.
 
