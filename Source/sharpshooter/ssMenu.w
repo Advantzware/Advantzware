@@ -298,7 +298,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
-ON 'BACKSPACE':U ANYWHERE
+ON 'BACKSPACE':U OF FRAME {&FRAME-NAME} ANYWHERE
 DO:
     APPLY "CHOOSE":U TO btnBack IN FRAME {&FRAME-NAME}.
 END.
