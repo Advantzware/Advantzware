@@ -51,7 +51,6 @@ DEFINE            VARIABLE lv-form-note   AS cha       NO-UNDO.
 DEFINE            VARIABLE v-prev-ext-gap AS INTEGER   NO-UNDO.
 DEFINE            VARIABLE v-po-no        LIKE oe-ordl.po-no NO-UNDO.
 DEFINE            VARIABLE cBoardDscr     AS CHARACTER NO-UNDO.
-DEFINE            VARIABLE cUserId        AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE iPageCount     AS INTEGER   NO-UNDO.
 
 DEFINE WORKFILE w-lo
@@ -166,7 +165,7 @@ FORMAT HEADER
     /*"JOB NUMBER:" v-job-no space(0) "-" space(0)
     v-job-no2 format "99" */
        
-    "Approved By:" AT 30 cUserId 
+    "Approved By:" AT 30  
     "DUE DATE:" AT 110 v-due-date SKIP
     /*v-fill*/
     WITH NO-BOX FRAME head NO-LABELS STREAM-IO WIDTH 132.
@@ -261,7 +260,7 @@ FOR EACH job-hdr NO-LOCK
             NO-LOCK NO-ERROR.  
 
         v-due-date = IF AVAILABLE oe-ord THEN oe-ord.due-date ELSE ?.
-        cUserId = job.USER-ID .
+        
         IF NOT FIRST(job-hdr.job-no) THEN PAGE.
         VIEW FRAME head.
         
