@@ -10,6 +10,8 @@
     Created     : Wed Apr 01 07:33:22 EDT 2020
     Notes       :
   ----------------------------------------------------------------------*/
+USING system.SessionConfig.
+
 {api/ttArgs.i}
 {api/CommonAPIProcs.i}
 {XMLOutput/ttNodes.i NEW}
@@ -40,11 +42,13 @@ DEFINE VARIABLE lcConcatAddress2Data  AS LONGCHAR NO-UNDO.
 DEFINE VARIABLE lcConcatTaxData       AS LONGCHAR NO-UNDO.
 DEFINE VARIABLE lcTaxData             AS LONGCHAR NO-UNDO.         
   
-/* Variables to store Tax request data */ 
-DEFINE VARIABLE lcConcatShiptoStreetData AS LONGCHAR NO-UNDO.
-DEFINE VARIABLE lcShiptoStreetData       AS LONGCHAR NO-UNDO. 
-DEFINE VARIABLE lcConcatBillToStreetData AS LONGCHAR NO-UNDO. 
-DEFINE VARIABLE lcBillToStreetData       AS LONGCHAR NO-UNDO.  
+/* Variables to store Street request data */ 
+DEFINE VARIABLE lcConcatShiptoStreetData  AS LONGCHAR NO-UNDO.
+DEFINE VARIABLE lcShiptoStreetData        AS LONGCHAR NO-UNDO. 
+DEFINE VARIABLE lcConcatBillToStreetData  AS LONGCHAR NO-UNDO. 
+DEFINE VARIABLE lcBillToStreetData        AS LONGCHAR NO-UNDO.  
+DEFINE VARIABLE lcCompanyStreetData       AS LONGCHAR NO-UNDO.
+DEFINE VARIABLE lcConcatCompanyStreetData AS LONGCHAR NO-UNDO.
        
 /* Invoice Header Variables */
 DEFINE VARIABLE cCompany              AS CHARACTER NO-UNDO.
@@ -99,18 +103,6 @@ DEFINE VARIABLE iCurrentAddonNumber   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dTaxRate              AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dTaxRateFreight       AS DECIMAL   NO-UNDO.
     
-/* Invoice Address Variables */
-DEFINE VARIABLE cN1Code               AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iAddressOrder         AS INTEGER   NO-UNDO.
-DEFINE VARIABLE cCode                 LIKE ar-inv.sold-id NO-UNDO.
-DEFINE VARIABLE cName                 LIKE shipto.ship-name NO-UNDO.
-DEFINE VARIABLE cAddress1             AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cAddress2             AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCity                 LIKE shipto.ship-city NO-UNDO.
-DEFINE VARIABLE cState                LIKE shipto.ship-state NO-UNDO.
-DEFINE VARIABLE cZip                  LIKE shipto.ship-zip NO-UNDO.
-DEFINE VARIABLE cCountry              LIKE shipto.country NO-UNDO.
-
 DEFINE VARIABLE cWhsCode              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cQtyPerPack           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPurchaseUnit         AS CHARACTER NO-UNDO.
@@ -131,6 +123,8 @@ DEFINE VARIABLE gcCXMLSharedSecret    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSuffix    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dtInvDate  AS DATE      NO-UNDO.
 DEFINE VARIABLE hdXMLProcs AS HANDLE    NO-UNDO.
+
+DEFINE VARIABLE sessionInstance AS CLASS system.SessionConfig NO-UNDO.
     
 DEFINE BUFFER bf-APIOutboundDetail1 FOR APIOutboundDetail.
 DEFINE BUFFER bf-APIOutboundDetail2 FOR APIOutboundDetail. 
@@ -142,21 +136,10 @@ DEFINE BUFFER bf-ar-invl            FOR ar-invl.
   
 RUN XMLOutput/XMLProcs.p PERSISTENT SET hdXMLProcs.
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hdXMLProcs).
+
+sessionInstance = SessionConfig:instance.
    
 DEFINE TEMP-TABLE ttAddons LIKE edivAddon.
-    
-DEFINE TEMP-TABLE ttN1Address
-    FIELD N1Code       AS CHARACTER 
-    FIELD AddressOrder AS INTEGER   
-    FIELD AddressCode  LIKE ar-inv.sold-id
-    FIELD AddressName  LIKE shipto.ship-name 
-    FIELD Address1     AS CHARACTER 
-    FIELD Address2     AS CHARACTER 
-    FIELD City         LIKE shipto.ship-city 
-    FIELD State        LIKE shipto.ship-state 
-    FIELD Zip          LIKE shipto.ship-zip 
-    FIELD Country      LIKE shipto.country 
-    INDEX iOrder AddressOrder.
         
 DEFINE TEMP-TABLE ttLines
     FIELD rLineDetailRow           AS ROWID 
@@ -275,7 +258,7 @@ DO:
                      
     FIND FIRST bf-APIOutboundDetail2 NO-LOCK
         WHERE bf-APIOutboundDetail2.apiOutboundID EQ ipiAPIOutboundID
-        AND bf-APIOutboundDetail2.detailID      EQ "N1Addresses"
+        AND bf-APIOutboundDetail2.detailID      EQ "Street"
         AND bf-APIOutboundDetail2.parentID      EQ "SendInvoice"
         NO-ERROR.
              
@@ -284,13 +267,7 @@ DO:
     AND bf-APIOutboundDetail3.detailID      EQ "Addons"
         AND bf-APIOutboundDetail3.parentID      EQ "SendInvoice"
         NO-ERROR.
-             
-    FIND FIRST bf-APIOutboundDetail4 NO-LOCK
-        WHERE bf-APIOutboundDetail4.apiOutboundID EQ ipiAPIOutboundID
-        AND bf-APIOutboundDetail4.detailID      EQ "N3Address2"
-        AND bf-APIOutboundDetail4.parentID      EQ "N1Addresses"
-        NO-ERROR.             
-             
+                          
     FIND FIRST ttArgs
         WHERE ttArgs.argType  EQ "ROWID"
         AND ttArgs.argKey   EQ "inv-head"
@@ -384,23 +361,7 @@ DO:
             cCustCountry = cust.country.
         ELSE 
             cCustCountry = "US".
-              
-        FIND FIRST shipto NO-LOCK WHERE shipto.company EQ inv-head.company
-            AND shipto.cust-no EQ inv-head.cust-no
-            AND shipto.ship-id EQ IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to
-            NO-ERROR.
-        /*
-        IF AVAILABLE shipto THEN 
-                RUN pCreateAddress("ST", 4, IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to,
-                                    shipto.ship-name, shipto.ship-addr[1], shipto.ship-addr[2], 
-                                    shipto.ship-city, shipto.ship-state,
-                                    shipto.ship-zip, shipto.country).
-        ELSE */ 
-        DO:
-            RUN pCreateAddress("ST", 4, IF inv-head.sold-no NE "" THEN inv-head.sold-no ELSE inv-head.bill-to,
-                inv-head.sold-name, inv-head.sold-addr[1], inv-head.sold-addr[2], inv-head.sold-city,
-                inv-head.sold-state,inv-head.sold-zip, cCustCountry ).
-        END.    
+                
         RUN pGetSettings(  
             INPUT inv-head.company,
             INPUT inv-head.cust-no,
@@ -440,9 +401,7 @@ DO:
             INPUT inv-head.sold-no,
             INPUT inv-head.terms
             ).
-        RUN pCreateAddress("BT", 1, inv-head.bill-to, inv-head.cust-name, inv-head.addr[1], 
-            inv-head.addr[2], inv-head.city, inv-head.state, inv-head.zip, 
-            cCustCountry).
+
         /* Fetch invoice notes from notes table */    
         FOR EACH notes NO-LOCK
             WHERE notes.rec_key EQ inv-head.rec_key:
@@ -462,23 +421,7 @@ DO:
         IF AVAILABLE cust AND cust.country GT "" THEN 
             cCustCountry = cust.country.
         ELSE 
-            cCustCountry = "US".
-        /*
-      FIND FIRST shipto NO-LOCK WHERE shipto.company EQ ar-inv.company
-          AND shipto.cust-no EQ ar-inv.cust-no
-          AND shipto.ship-id EQ IF ar-inv.sold-id NE "" THEN ar-inv.sold-id ELSE ar-inv.ship-id
-          NO-ERROR.
-      IF AVAILABLE shipto THEN 
-              RUN pCreateAddress("ST", 4, IF ar-inv.sold-id NE "" THEN ar-inv.sold-id ELSE ar-inv.bill-to,
-                                  shipto.ship-name, shipto.ship-addr[1], shipto.ship-addr[2], 
-                                  shipto.ship-city, shipto.ship-state,
-                                  shipto.ship-zip, shipto.country).
-      ELSE */ 
-        DO:
-            RUN pCreateAddress("ST", 4, IF ar-inv.sold-id NE "" THEN ar-inv.sold-id ELSE ar-inv.bill-to,
-                ar-inv.sold-name, ar-inv.sold-addr[1], ar-inv.sold-addr[2], ar-inv.sold-city,
-                ar-inv.sold-state,ar-inv.sold-zip, cCustCountry ).
-        END.    
+            cCustCountry = "US".   
          
         dLineTotalAmt = 0.
         FOR EACH bf-ar-invl NO-LOCK  
@@ -525,25 +468,7 @@ DO:
             INPUT ar-inv.ship-id,
             INPUT ar-inv.terms
             ).                
-        /*
-        IF AVAIL cust THEN 
-            RUN pCreateAddress("BT", 1, cust.cust-no, cust.name, cust.addr[1], 
-                   cust.addr[2], cust.city, cust.state, cust.zip, 
-                   cCustCountry).
-        ELSE
-        */         
-        /* Testing */       
-        FIND FIRST shipto NO-LOCK WHERE shipto.company EQ ar-inv.company
-            AND shipto.cust-no EQ ar-inv.cust-no
-            AND shipto.ship-id EQ ar-inv.cust-no
-            NO-ERROR.
-        RUN pCreateAddress("BT", 1, ar-inv.bill-to, IF AVAIL shipto THEN shipto.ship-name ELSE ar-inv.cust-name, 
-            IF AVAIL shipto THEN shipto.ship-addr[1] ELSE ar-inv.addr[1], 
-            IF AVAIL shipto THEN shipto.ship-addr[2] ELSE ar-inv.addr[2], 
-            IF AVAIL shipto THEN shipto.ship-city ELSE ar-inv.city, 
-            IF AVAIL shipto THEN shipto.ship-state ELSE ar-inv.state, 
-            IF AVAIL shipto THEN shipto.ship-zip ELSE ar-inv.zip, 
-            cCustCountry).            
+                  
         /* Fetch invoice notes from notes table */    
         FOR EACH notes NO-LOCK
             WHERE notes.rec_key EQ ar-inv.rec_key:
@@ -555,36 +480,7 @@ DO:
         cInvoiceDate = STRING(dtInvoiceDate).
     cCurrentDate = STRING(TODAY).
     cCurrentTime = STRING(TIME)
-        .
-
-    FIND FIRST company NO-LOCK 
-         WHERE company.company EQ ar-inv.company
-         NO-ERROR.
-         
-        RUN pCreateAddress(
-            INPUT "RI",
-            INPUT 2,
-            INPUT "0000",
-            INPUT IF AVAILABLE company THEN company.name    ELSE "",
-            INPUT IF AVAILABLE company THEN company.addr[1] ELSE "",
-            INPUT IF AVAILABLE company THEN company.addr[2] ELSE "",
-            INPUT IF AVAILABLE company THEN company.city    ELSE "",
-            INPUT IF AVAILABLE company THEN company.state   ELSE "",
-            INPUT IF AVAILABLE company THEN company.zip     ELSE "",
-            INPUT "US"
-            ).
-        RUN pCreateAddress(
-            INPUT "PE",
-            INPUT 3,
-            INPUT "0000",
-            INPUT IF AVAILABLE company THEN company.name    ELSE "",
-            INPUT IF AVAILABLE company THEN company.addr[1] ELSE "",
-            INPUT IF AVAILABLE company THEN company.addr[2] ELSE "",
-            INPUT IF AVAILABLE company THEN company.city    ELSE "",
-            INPUT IF AVAILABLE company THEN company.state   ELSE "",
-            INPUT IF AVAILABLE company THEN company.zip     ELSE "",
-            INPUT "US"
-            ).                
+        .               
     // RUN pCreateAddress('RI', 2, '0000','PREMIER PACKAGING', '3254 RELIABLE PARKWAY', '', 'CHICAGO',
     //    'IL','60686', 'US' ).
                                
@@ -592,62 +488,36 @@ DO:
     IF AVAILABLE(bf-APIOutboundDetail2) THEN 
     DO: 
         ASSIGN 
-            lcBillToStreetData = STRING(bf-APIOutboundDetail2.data)
-            lcShipToStreetData = STRING(bf-APIOutboundDetail2.data)
+            lcBillToStreetData  = STRING(bf-APIOutboundDetail2.data)
+            lcShipToStreetData  = STRING(bf-APIOutboundDetail2.data)
+            lcCompanyStreetData = STRING(bf-APIOutboundDetail2.data)
             .
+            
         RUN updateRequestData(INPUT-OUTPUT lcBillToStreetData, "Street",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerAddress1)).
         RUN updateRequestData(INPUT-OUTPUT lcShipToStreetData, "Street",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.ShiptoAddress1)).
+        RUN updateRequestData(INPUT-OUTPUT lcCompanyStreetData,"Street",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",sessionInstance:GetValue("CompanyStreet1"))).
         
         ASSIGN 
-            lcConcatBillToStreetData =  lcBillToStreetData
-            lcConcatShiptoStreetData =  lcShipToStreetData.
+            lcConcatBillToStreetData  = lcBillToStreetData
+            lcConcatShiptoStreetData  = lcShipToStreetData
+            lcConcatCompanyStreetData = lcCompanyStreetData 
             .
-        IF ttInv.customerAddress2 NE "" THEN DO:
+            
+        IF ttInv.customerAddress2 NE "" AND ttInv.customerAddress2 NE ttInv.customerAddress1 THEN DO:
             lcBillToStreetData = STRING(bf-APIOutboundDetail2.data).
             RUN updateRequestData(INPUT-OUTPUT lcBillToStreetData, "Street",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerAddress2)).
-            lcConcatBillToStreetData   = lcConcatBillToStreetData + " " + lcBillToStreetData.
+            lcConcatBillToStreetData = lcConcatBillToStreetData + " " + lcBillToStreetData.
         END.
-        IF ttInv.ShiptoAddress2 NE "" AND ttInv.shiptoAddress2 NE '345 Court Street' THEN DO:
+        IF ttInv.ShiptoAddress2 NE "" AND ttInv.shiptoAddress2 NE ttInv.shipToAddress1 THEN DO:
             lcShipToStreetData = STRING(bf-APIOutboundDetail2.data).
             RUN updateRequestData(INPUT-OUTPUT lcShipToStreetData, "Street",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.ShiptoAddress2)).
-            lcConcatShipToStreetData   = lcConcatShipToStreetData + " " + lcShipToStreetData.
+            lcConcatShipToStreetData = lcConcatShipToStreetData + " " + lcShipToStreetData.
         END.
-        FOR EACH ttN1Address                                 
-            :          
-            /* Address section has 3 lines per iteration */        
-            ASSIGN  
-                lcAddressData = STRING(bf-APIOutboundDetail2.data)
-                cN1code       = ttN1Address.N1Code      
-                cCode         = ttN1Address.addressCode 
-                cName         = ttN1Address.addressName 
-                cAddress1     = ttN1Address.address1    
-                cAddress2     = ttN1Address.address2   
-                cState        = ttN1Address.state 
-                cCity         = ttN1Address.city        
-                cZip          = ttN1Address.zip         
-                cCountry      = ttN1Address.country
-                .    
-            IF cAddress1 EQ "" AND cAddress2 GT "" THEN 
-                ASSIGN cAddress1 = cAddress2
-                    cAddress2 = ""
-                    . 
-            IF AVAILABLE bf-APIOutboundDetail4 THEN 
-                lcAddress2Data = STRING(bf-APIOutboundDetail4.data).
-            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N1Qual", cN1Code).
-            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N1Name", cName).
-            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N3Address1", cAddress1).                       
-            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N4City", cCity).
-            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N4State", cState).
-            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N4Zip", cZip).
-            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N4Country", cCountry).
-                
-            IF cAddress2 NE "" THEN 
-                RUN updateRequestData(INPUT-OUTPUT lcAddress2Data, "N3Address2", cAddress2).
-            ELSE 
-                lcAddress2Data = "".
-            RUN updateRequestData(INPUT-OUTPUT lcAddressData, "N3Address2nd", lcAddress2Data). 
-            lcConcatAddressData = lcConcatAddressData + "" + lcAddressData.
-        END.
+        IF sessionInstance:GetValue("CompanyStreet2") NE "" AND sessionInstance:GetValue("CompanyStreet2") NE sessionInstance:GetValue("CompanyStreet1") THEN DO:
+            lcCompanyStreetData = STRING(bf-APIOutboundDetail2.data).
+            RUN updateRequestData(INPUT-OUTPUT lcCompanyStreetData, "Street",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",sessionInstance:GetValue("CompanyStreet2"))).
+            lcConcatCompanyStreetData = lcConcatCompanyStreetData + " " + lcCompanyStreetData.
+        END.    
     END.
     /* Fetch line details for the Invoice */         
     IF AVAIL inv-head THEN 
@@ -702,7 +572,7 @@ DO:
                 ttLines.customerPONo           = inv-line.po-no
                 ttInv.amountTotalLines         = ttInv.amountTotalLines + inv-line.t-price
                 . 
-            IF ttLines.priceUOM NE "EA" OR ttLines.priceUOM NE "" THEN 
+            IF ttLines.priceUOM NE "EA" AND ttLines.priceUOM NE "" THEN 
                 RUN pConvertUnitPrice(
                     INPUT  ttLines.company,
                     INPUT  ttLines.itemID,
@@ -842,7 +712,7 @@ DO:
                 ttLines.customerPONo           = ar-invl.po-no
                 ttInv.amountTotalLines         = ttInv.amountTotalLines + ar-invl.amt
                 .
-            IF ttLines.priceUOM NE "EA" OR ttLines.priceUOM NE "" THEN 
+            IF ttLines.priceUOM NE "EA" AND ttLines.priceUOM NE "" THEN 
                 RUN pConvertUnitPrice(
                     INPUT  ttLines.company,
                     INPUT  ttLines.itemID,
@@ -1140,11 +1010,21 @@ DO:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerCity", DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerCity)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerState",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerState)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerPostalCode",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerPostalcode)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerStreet1",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerAddress1)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerStreet2",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.customerAddress2)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoID", ttInv.shiptoID).    
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoName",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.shiptoName)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoCity", DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.shiptoCity)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoState",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.shiptoState)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoPostalCode",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.shiptoPostalcode)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoStreet1",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.shiptoAddress1)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShiptoStreet2",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",ttInv.shiptoAddress2)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyName",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",sessionInstance:GetValue("CompanyName"))).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyCity", DYNAMIC-FUNCTION("fReplaceExceptionCharacters",sessionInstance:GetValue("CompanyCity"))).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyState",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",sessionInstance:GetValue("CompanyState"))).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyPostalCode",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",sessionInstance:GetValue("CompanyPostalCode"))).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyStreet1",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",sessionInstance:GetValue("CompanyStreet1"))).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CompanyStreet2",DYNAMIC-FUNCTION("fReplaceExceptionCharacters",sessionInstance:GetValue("CompanyStreet2"))).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Terms", STRING(ttInv.termsDays)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "OrderID", ttInv.customerPO).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PayloadID", ttInv.payloadID).  
@@ -1166,9 +1046,6 @@ DO:
     RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatAddressData, cRequestDataType).
     RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatTaxData, cRequestDataType).        
 
-
-    ioplcRequestData = REPLACE(ioplcRequestData, "$N1Addresses$", (IF lcConcatAddressData ne "" THEN "~n" ELSE "") + lcConcatAddressData).
-          
     ioplcRequestData = REPLACE(ioplcRequestData, "$Detail$", (if lcConcatLineData ne "" THEN "~n" ELSE "") + lcConcatLineData).
                                                                  
     ioplcRequestData = REPLACE(ioplcRequestData, "$Addons$", (IF lcConcatLineAddonData ne "" THEN  "~n" ELSE "") + lcConcatLineAddonData).
@@ -1177,7 +1054,8 @@ DO:
 
     ioplcRequestData = REPLACE(ioplcRequestData, "$BillToStreetData$", lcConcatBillToStreetData).
     
-    ioplcRequestData = REPLACE(ioplcRequestData, "$ShipToStreetData$", lcConcatShipToStreetData).
+    ioplcRequestData = REPLACE(ioplcRequestData, "$ShipToStreetData$",lcConcatShipToStreetData).
+    ioplcRequestData = REPLACE(ioplcRequestData, "$CompanyStreetData$",lcConcatCompanyStreetData).
     ASSIGN 
         cFullDocument = ioplcRequestData
         dSELineCount = NUM-ENTRIES(cFullDocument, "~~") - 1   
@@ -1467,37 +1345,6 @@ PROCEDURE pCreateAddonRecord:
   
     RELEASE ttAddons.
 
-END PROCEDURE.
-
-PROCEDURE pCreateAddress PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcN1Code       AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiAddressOrder AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipcCode         LIKE ar-inv.sold-id NO-UNDO.
-    DEFINE INPUT PARAMETER ipcName         LIKE shipto.ship-name NO-UNDO.
-    DEFINE INPUT PARAMETER ipcAddress1     AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcAddress2     AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcCity         LIKE shipto.ship-city NO-UNDO.
-    DEFINE INPUT PARAMETER ipcState        LIKE shipto.ship-state NO-UNDO.
-    DEFINE INPUT PARAMETER ipcZip          LIKE shipto.ship-zip NO-UNDO.
-    DEFINE INPUT PARAMETER ipcCountry      LIKE shipto.country NO-UNDO.
-    
-    CREATE ttN1Address.
-    ASSIGN 
-        ttN1Address.N1Code       = ipcN1code
-        ttN1Address.addressOrder = ipiAddressOrder
-        ttN1Address.addressCode  = ipcCode
-        ttN1Address.addressName  = ipcName
-        ttN1Address.address1     = ipcAddress1
-        ttN1Address.address2     = ipcAddress2
-        ttN1Address.state        = ipcState
-        ttN1Address.city         = ipcCity
-        ttN1Address.zip          = ipcZip
-        ttN1Address.country      = (IF ipcCountry NE "" THEN ipcCountry ELSE "US")
-        .
 END PROCEDURE.
 
 PROCEDURE pGetSettings PRIVATE:
