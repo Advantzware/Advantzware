@@ -19,6 +19,7 @@
 
 /* ***************************  Definitions  ************************** */
 USING system.SharedConfig.
+USING system.SessionConfig.
 
 DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation           AS CHARACTER NO-UNDO.
@@ -52,6 +53,7 @@ DEFINE VARIABLE datMsgRtn           AS DATE      NO-UNDO.
 DEFINE VARIABLE dtmMsgRtn           AS DATETIME  NO-UNDO.
 
 DEFINE VARIABLE scInstance          AS CLASS System.SharedConfig NO-UNDO.
+DEFINE VARIABLE sessionInstance     AS CLASS system.SessionConfig NO-UNDO. 
 
 /* vv alphabetical list of super-procedures comma delimited vv */
 ASSIGN 
@@ -648,6 +650,44 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-pSetCompanyContexts) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetCompanyContexts Procedure
+PROCEDURE pSetCompanyContexts PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-company FOR company.
+    
+    FIND FIRST bf-company NO-LOCK 
+         WHERE bf-company.company EQ ipcCompany
+         NO-ERROR.
+    IF NOT AVAILABLE bf-company THEN 
+        RETURN.
+         
+    IF sessionInstance EQ ? THEN 
+        sessionInstance = SessionConfig:instance.
+    
+    sessionInstance:SetValue("CompanyID",bf-company.company).
+    sessionInstance:SetValue("CompanyName",bf-company.name).
+    sessionInstance:SetValue("CompanyStreet1",bf-company.addr[1]).
+    sessionInstance:SetValue("CompanyStreet2",bf-company.addr[2]).
+    sessionInstance:SetValue("CompanyCity",bf-company.city).
+    sessionInstance:SetValue("CompanyState",bf-company.state).
+    sessionInstance:SetValue("CompanyPostalCode",bf-company.zip). 
+           
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-spActivateCueCards) = 0 &THEN
 
@@ -1945,6 +1985,10 @@ PROCEDURE spSetSessionParam:
         CREATE ttSessionParam.
         ttSessionParam.sessionParam = ipcSessionParam.
     END. /* if not avail */
+    IF ttSessionParam.sessionParam EQ "Company" AND ttSessionParam.sessionValue NE ipcSessionValue THEN
+        RUN pSetCompanyContexts(
+            ipcSessionValue
+            ).
     ttSessionParam.sessionValue = ipcSessionValue.
 
 END PROCEDURE.
