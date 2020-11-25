@@ -437,7 +437,13 @@ PROCEDURE IssueQuantity :
             OUTPUT dValue
             ).
   
-        IF lValueReturned THEN DO:  
+        IF lValueReturned THEN DO: 
+            IF dTotalQuantity EQ 0 THEN DO:
+                MESSAGE "Cannot issue zero quantity value"
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN.    
+            END.
+
             MESSAGE "Issue " + STRING(dTotalQuantity) + " quantity ?" 
                     VIEW-AS ALERT-BOX QUESTION
                     BUTTON OK-CANCEL
