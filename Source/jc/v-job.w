@@ -729,9 +729,23 @@ PROCEDURE add-job :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lCreateJob AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cJobNo AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+  DEFINE BUFFER bf-job-hdr FOR job-hdr.
   IF cJobType EQ "Molded" THEN
   DO:                          
-    RUN jc/dAddJobWithEst.w("",ROWID(job)).
+    RUN jc/dAddJobWithEst.w("",ROWID(job), OUTPUT lCreateJob, OUTPUT cJobNo).
+    IF lCreateJob THEN
+    DO:
+         FIND FIRST bf-job-hdr NO-LOCK
+              WHERE bf-job-hdr.company EQ cocode
+              AND bf-job-hdr.job-no EQ cJobNo NO-ERROR .
+           
+         RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl). 
+         IF AVAILABLE bf-job-hdr THEN
+         RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(bf-job-hdr)).          
+    END.
   END.
   ELSE 
   DO:

@@ -27,6 +27,8 @@ CREATE WIDGET-POOL.
 
 DEFINE INPUT PARAMETER ipType AS CHARACTER NO-UNDO.  /* poup in edit or add mode */
 DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO .
+DEFINE OUTPUT PARAMETER oplCreated AS LOGICAL NO-UNDO .
+DEFINE OUTPUT PARAMETER opcJobNo AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
@@ -107,7 +109,7 @@ DEF NEW SHARED BUFFER xqty           FOR est-qty.
 &Scoped-define INTERNAL-TABLES ttInputEst
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttInputEst.cStockNo ttInputEst.cPartName ttInputEst.iQuantity ttInputEst.iMolds ttInputEst.iEstNo ttInputEst.dSqFt   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttInputEst.cStockNo ttInputEst.cPartName ttInputEst.iQuantity ttInputEst.iMolds ttInputEst.cFgEstNo ttInputEst.dSqFt   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttInputEst WHERE ttInputEst.cCompany = cocode ~         ~{&SORTBY-PHRASE}
@@ -289,7 +291,7 @@ DEFINE RECTANGLE RECT-4
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 62.4 BY 2.52
+     SIZE 62.4 BY 2.72
      BGCOLOR 15 .
 
 DEFINE VARIABLE tb_auto AS LOGICAL INITIAL yes 
@@ -311,7 +313,7 @@ DEFINE BROWSE BROWSE-1
     ttInputEst.cPartName LABEL "Item Name" WIDTH 38 LABEL-BGCOLOR 14 FORMAT "x(30)"
     ttInputEst.iQuantity LABEL "Job Quantity" FORMAT ">>>,>>>,>>9" WIDTH 24 LABEL-BGCOLOR 14
     ttInputEst.iMolds LABEL "Molds" FORMAT ">>>>>>9" WIDTH 15 LABEL-BGCOLOR 14
-    ttInputEst.iEstNo LABEL "Estimate" FORMAT ">>>>>>>>" WIDTH 18 LABEL-BGCOLOR 14
+    ttInputEst.cFgEstNo LABEL "Estimate" FORMAT "x(8)" WIDTH 18 LABEL-BGCOLOR 14
     ttInputEst.dSqFt LABEL "Total Sq Ft" FORMAT "->>,>>>,>>9.99" WIDTH 20 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -341,10 +343,10 @@ DEFINE FRAME D-Dialog
      cStatus AT ROW 4.29 COL 91.2 COLON-ALIGNED WIDGET-ID 274
      dtEstCom AT ROW 4.29 COL 130.8 COLON-ALIGNED WIDGET-ID 276
      cEstNo AT ROW 5.43 COL 91.2 COLON-ALIGNED WIDGET-ID 278       
-     iItem AT ROW 22.76 COL 14.2 COLON-ALIGNED WIDGET-ID 282
-     dTotSqFt AT ROW 22.76 COL 45.2 COLON-ALIGNED WIDGET-ID 286
-     iMolds AT ROW 23.86 COL 14.2 COLON-ALIGNED WIDGET-ID 284
-     dUtilization AT ROW 23.86 COL 45.2 COLON-ALIGNED WIDGET-ID 288
+     iItem AT ROW 22.96 COL 14.2 COLON-ALIGNED WIDGET-ID 282
+     dTotSqFt AT ROW 22.96 COL 45.2 COLON-ALIGNED WIDGET-ID 286
+     iMolds AT ROW 24.06 COL 14.2 COLON-ALIGNED WIDGET-ID 284
+     dUtilization AT ROW 24.06 COL 45.2 COLON-ALIGNED WIDGET-ID 288
      btn-add-multiple AT ROW 6.57 COL 4.2 WIDGET-ID 292
      btn-imp-bal AT ROW 6.57 COL 32.6 WIDGET-ID 296
      btn-sel-head AT ROW 6.57 COL 68.2 WIDGET-ID 294
@@ -353,6 +355,8 @@ DEFINE FRAME D-Dialog
      Btn_Cancel AT ROW 23.91 COL 135.4
      RECT-4 AT ROW 1.48 COL 2 WIDGET-ID 236
      RECT-6 AT ROW 22.52 COL 3.6 WIDGET-ID 290
+     " Head Analysis" VIEW-AS TEXT
+          SIZE 18 BY .71 AT ROW 22.32 COL 6 WIDGET-ID 206
      SPACE(90.59) SKIP(0.66)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -531,20 +535,18 @@ DO:
 ON CHOOSE OF btn-copy IN FRAME D-Dialog /* Copy  */
 DO:
         DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
-        DEFINE BUFFER bff-ttInputEst FOR ttInputEst.         
-    
-        /*IF AVAILABLE ttInputEst THEN
+            
+        IF AVAILABLE ttInputEst THEN
         DO:   
-            BUFFER-COPY ttInputEst  TO bff-ttInputEst .
-            lv-rowid = IF AVAILABLE eb THEN ROWID(eb) ELSE ?.
-            RUN est/dAddEditComp.w (RECID(ttInputEst),lv-rowid,"Copy",cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
-                item-name:SCREEN-VALUE IN FRAME {&frame-name},
-                cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
-                fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
-                LOGICAL(tb_auto:SCREEN-VALUE IN FRAME {&frame-name}), OUTPUT lv-rowid) . 
+            
+            RUN jc/dAddEditMoldItem.w (RECID(ttInputEst),
+                                   "Copy",
+                                   iTargetCyl:SCREEN-VALUE, 
+                                   dMachBlankSqFt,
+                                   OUTPUT lv-rowid) .            
             
             RUN repo-query (lv-rowid).            
-        END.  */    
+        END.      
   
     END.
 
@@ -708,12 +710,14 @@ DO:
         RUN create-ttfrmout.
         
         RUN est/BuildEstimate.p ("C", OUTPUT riEb).
+         
 
         FIND FIRST bff-eb NO-LOCK
              WHERE bff-eb.company EQ cocode
              AND ROWID(bff-eb) EQ riEb NO-ERROR .             
         IF AVAIL bff-eb THEN
         DO:
+          RUN jc/CrtEstopForMold.p(ROWID(bff-eb), cMachCode).
           cEstNo:SCREEN-VALUE IN FRAME {&FRAME-NAME} = bff-eb.est-no.  
           ipType = "created".
         END.
@@ -728,8 +732,10 @@ DO:
            cJobNo:SCREEN-VALUE         =  STRING(bf-job.job-no) + "-" + STRING(bf-job.job-no2)
            dtCreatedDate:SCREEN-VALUE  =  STRING(bf-job.create-date)
            cUserID:SCREEN-VALUE        = STRING(bf-job.user-id)
-           cStatus:SCREEN-VALUE        = STRING(bf-job.stat).   
-           Btn_OK:SENSITIVE            = NO . 
+           cStatus:SCREEN-VALUE        = STRING(bf-job.stat)  
+           Btn_OK:SENSITIVE            = NO 
+           oplCreated                  = YES
+           opcJobNo                    = bf-job.job-no. 
         END.
          
          MESSAGE "Process complete." VIEW-AS ALERT-BOX INFO.            
@@ -844,7 +850,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     DO WITH FRAME {&frame-name}:  
         
         DISABLE btn-viewjob btn-add-multiple btn-imp-bal btn-sel-head tb_auto.     
-            
+        APPLY "entry" TO cMachCode.    
     END.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.           
@@ -910,6 +916,10 @@ PROCEDURE create-ttfrmout :
             AND itemfg.i-no EQ bf-ttInputEst.cStockNo NO-ERROR .
        FIND FIRST cust NO-LOCK
             WHERE cust.company EQ cocode 
+            AND cust.cust-no = itemfg.cust-no NO-ERROR.
+       IF NOT AVAIL cust THEN     
+       FIND FIRST cust NO-LOCK
+            WHERE cust.company EQ cocode 
             AND cust.active = "X" NO-ERROR.
             
         ASSIGN    
@@ -928,6 +938,16 @@ PROCEDURE create-ttfrmout :
           ASSIGN
             bf-ttInputEst.cCustomer = cust.cust-no
             bf-ttInputEst.cShipTo   = cust.cust-no .
+            
+       FIND FIRST ITEM NO-LOCK 
+            WHERE item.company = cocode
+            AND item.i-no = cBoard NO-ERROR.
+       IF AVAIL ITEM THEN
+       DO:
+          ASSIGN
+              bf-ttInputEst.cFlute = item.flute
+              bf-ttInputEst.cTest  = item.reg-no.           
+       END.
         
         ASSIGN 
             iBlank = iBlank + 1.                        

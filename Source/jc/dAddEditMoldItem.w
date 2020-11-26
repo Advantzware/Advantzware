@@ -316,7 +316,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
                 ASSIGN {&displayed-objects}.
             END.            
         END.
-        IF ip-type EQ "Add" THEN
+        IF ip-type EQ "Add" OR ip-type EQ "copy" THEN
         DO:
             CREATE ttInputEst.
             ASSIGN
@@ -339,7 +339,7 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
         DO:
             ASSIGN
                 ttInputEst.cPartName = itemfg.i-no 
-                ttInputEst.iEstNo    = INTEGER(itemfg.est-no) .           
+                ttInputEst.cFgEstNo  = itemfg.est-no .           
              
         END.
             
@@ -406,10 +406,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-        
-    IF ip-type EQ "copy" THEN lv-item-recid = ip-recid. 
     
-
     IF ip-type NE "view" THEN 
     DO: 
         
