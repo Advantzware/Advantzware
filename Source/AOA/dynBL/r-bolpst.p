@@ -290,8 +290,8 @@ PROCEDURE pBusinessLogic:
               ASSIGN 
                  ttPostBolCreateInvoice.bolStatus = "Not Posted"
                  .
-              IF lPost EQ YES AND ttPostBolCreateInvoice.reason EQ "" THEN 
-                ttPostBolCreateInvoice.reason = "".
+/*              IF lPost EQ YES AND ttPostBolCreateInvoice.reason EQ "" THEN*/
+/*                ttPostBolCreateInvoice.reason = "".                       */
               FIND FIRST w-except 
                   WHERE w-except.bol-no EQ ttPostBolCreateInvoice.bolNo
                   NO-ERROR. 
@@ -753,7 +753,7 @@ PROCEDURE pPostBols :
                     IF bf-oe-boll.tag EQ "" THEN
                     lTaglessBOLExists = TRUE.
                 END. /* each bf-oe-boll */
-                fDebugMsg("decide that lTaglessBolExists " + string(lTaglessBOLExists) + string(avail(bf-oe-bolh))).                
+                fDebugMsg("decide that lTaglessBolExists " + string(lTaglessBOLExists) + string(avail(bf-oe-bolh))).
                 IF AVAILABLE w-except OR lTaglessBOLExists THEN DO:                
                     /* Try to assign tags to fulfill BOL Qty */
                     FOR EACH bf-oe-boll NO-LOCK                   
@@ -946,12 +946,12 @@ PROCEDURE pProcessNoPostRecs:
       iCountNotPosted = iCountNotPosted + 1.
       FIND FIRST ttPostBolCreateInvoice
         WHERE ttPostBolCreateInvoice.bolNo EQ w-nopost.bol-no
-          AND ttPostBolCreateInvoice.iNo  EQ w-nopost.i-no
+          AND ttPostBolCreateInvoice.iNo   EQ w-nopost.i-no
         NO-ERROR.
       IF AVAILABLE ttPostBolCreateInvoice THEN 
         ASSIGN 
            ttPostBolCreateInvoice.bolStatus = "Not Posted"
-           ttPostBolCreateInvoice.reason    = w-nopost.reason
+           ttPostBolCreateInvoice.reason    = ttPostBolCreateInvoice.reason + " | " + w-nopost.reason
            .
       ELSE DO:
           CREATE ttPostBolCreateInvoice.
@@ -1104,7 +1104,13 @@ PROCEDURE pRunReport :
                 RUN pCreateNoPostRec ("BOL " + STRING(w-bolh.bol-no) + " is on HOLD Status").    
                 ELSE 
                 RUN pCreateNoPostRec ("BOL is on Hold Status").           
-/*                DELETE w-bolh.*/
+                NEXT mainblok.           
+            END.      
+            IF oe-bolh.printed EQ NO THEN DO:
+                IF lSingleBOL THEN
+                RUN pCreateNoPostRec ("BOL " + STRING(w-bolh.bol-no) + " has not been Printed").    
+                ELSE 
+                RUN pCreateNoPostRec ("BOL has not been Printed").
                 NEXT mainblok.           
             END.      
             FIND FIRST w-except NO-LOCK 
@@ -1115,7 +1121,6 @@ PROCEDURE pRunReport :
                     RUN pCreateNoPostRec ("Not Enough Quantity Available to be shipped for BOL " + STRING(w-bolh.bol-no)).
                 ELSE 
                     RUN pCreateNoPostRec ("Not Enough Quantity Available to be shipped").   
-/*                DELETE w-bolh.*/
                 NEXT MAINBLOK.                                                  
             END.
             IF NOT oe-bolh.deleted THEN DO:
