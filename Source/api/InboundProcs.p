@@ -24,7 +24,7 @@ PROCEDURE Inbound_CreateAndProcessRequestForAPIRoute:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcCompany       AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcAPIRoute      AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER iplcResponseData AS LONGCHAR  NO-UNDO.
+    DEFINE INPUT  PARAMETER iplcRequestData  AS LONGCHAR  NO-UNDO.
     DEFINE OUTPUT PARAMETER oplSuccess       AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage       AS CHARACTER NO-UNDO.
     
@@ -51,7 +51,7 @@ PROCEDURE Inbound_CreateAndProcessRequestForAPIRoute:
     RUN pCreateRequest (
         INPUT  bf-APIInbound.apiRoute,
         INPUT  bf-APIInbound.requestVerb,
-        INPUT  iplcResponseData,
+        INPUT  iplcRequestData,
         INPUT  bf-APIInbound.requestDataType,
         OUTPUT rittInboundRequest
         ).
