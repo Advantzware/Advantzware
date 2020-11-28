@@ -106,6 +106,7 @@ ASSIGN
 {fg/fg-post3.i NEW}
 {jc/jcgl-sh.i }
 {sys/inc/adjustgl.i}
+{fg/ttFGExceptionList.i}
 
 DEF STREAM before.
 DEF STREAM after.
@@ -451,11 +452,16 @@ DO li-loop = 1 TO NUM-ENTRIES(v-postlst):
         cFGTagValidation = cReturnValue.
         
         IF lFGTagValidation AND fg-rctd.tag EQ "" THEN 
+        DO: 
+            RUN pBuildException("FGTagValidation Failure - No Tag").
             NEXT.
+        END.
+        IF cFGTagValidation EQ "ItemMatch" AND NOT fg-rctd.tag BEGINS fg-rctd.i-no THEN
+        DO: 
+            RUN pBuildException("FGTagValidation Failure - Tag does not match the FG item").
+            NEXT.
+        END.    
         
-        IF cFGTagValidation EQ "ItemMatch" AND NOT fg-rctd.tag BEGINS fg-rctd.i-no THEN 
-            NEXT.
-            
         RUN build-tables.
 
     END.
@@ -748,6 +754,28 @@ PROCEDURE build-tables:
     END.
 
 
+END PROCEDURE.
+
+PROCEDURE pBuildException:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcReason AS CHARACTER NO-UNDO.    
+    DO TRANSACTION:   
+        CREATE ttFGExceptionList.             
+        ASSIGN
+            ttFGExceptionList.cCompany  = fg-rctd.company            
+            ttFGExceptionList.cItem     = fg-rctd.i-no
+            ttFGExceptionList.cDesc     = fg-rctd.i-name
+            ttFGExceptionList.cTag      = fg-rctd.tag
+            ttFGExceptionList.dtDate    = fg-rctd.rct-date
+            ttFGExceptionList.cUser     = fg-rctd.USER-ID
+            ttFGExceptionList.cReason   = ipcReason
+            ttFGExceptionList.cRitaCode = fg-rctd.rita-code
+            .            
+    END. 
+    
 END PROCEDURE.
 
 PROCEDURE show-param:

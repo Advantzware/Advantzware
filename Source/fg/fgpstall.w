@@ -128,6 +128,8 @@ DEF TEMP-TABLE tt-set
 
 {fg/invrecpt.i NEW}
 
+{fg/ttFGExceptionList.i NEW}
+
 {sys/ref/fgoecost.i}
 DEF TEMP-TABLE tt-inv LIKE w-inv.
 
@@ -200,6 +202,11 @@ DEF VAR v-uid-sec AS LOG NO-UNDO.
 DEF VAR v-access-close AS LOG NO-UNDO.
 DEF VAR v-access-list AS CHAR NO-UNDO.
 DEF VAR v-source-handle AS HANDLE NO-UNDO.
+DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cOutputFileName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs   AS HANDLE.
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 /* Check if authorized to create PO's */
 RUN methods/prgsecur.p
@@ -3442,6 +3449,8 @@ PROCEDURE print-and-post :
   FOR EACH work-job:
     DELETE work-job.
   END.
+  
+  EMPTY TEMP-TABLE ttFGExceptionList.
 
   RUN run-report.
 
@@ -3943,6 +3952,32 @@ IF tb_excel THEN
         IF tb_runExcel THEN
             OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
     END.
+    
+ FIND FIRST ttFGExceptionList NO-LOCK NO-ERROR.
+ IF AVAIL ttFGExceptionList THEN
+ DO:
+      MESSAGE "Are you want to export exception report"
+        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+        UPDATE lcheckflg as logical.
+      IF lcheckflg THEN
+      DO:
+         cOutputFileName = "C:\tmp\ExceptionList" +  STRING(YEAR(TODAY)) 
+                              + STRING(MONTH(TODAY),"99") 
+                              + STRING(DAY(TODAY),"99") 
+                              + "_"
+                              + REPLACE(STRING(TIME,"HH:MM:SS"),":","")
+                              + ".csv".
+         RUN Output_TempTableToCSV IN hdOutputProcs ( 
+            INPUT TEMP-TABLE ttFGExceptionList:HANDLE,
+            INPUT cOutputFileName,
+            INPUT TRUE,
+            INPUT TRUE /* Auto increment File name */,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).  
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cOutputFileName)).  
+      END.
+ END.
 
 /* Only save screen selections if the screen was enabled */
 IF ip-run-what EQ "" THEN
