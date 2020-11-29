@@ -1686,7 +1686,7 @@ PROCEDURE local-update-record :
                              STRING(v-reprint) + ',' +  "0" ). /* gdm - 07130906 */  
   END.
 
-  IF ll-new THEN
+  IF lCalcJobDueDate AND ll-new THEN
   RUN pCalcDueDate (YES).
 
   /* re-open the query so when user selects Estimate folder, it shows the new estimate added. */
