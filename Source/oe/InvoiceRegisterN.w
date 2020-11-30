@@ -2054,7 +2054,8 @@ PROCEDURE list-post-inv :
                     PUT SKIP(1).
             END.
 
-            FOR EACH ttInvoiceMiscToPost,
+            FOR EACH ttInvoiceMiscToPost
+                WHERE ttInvoiceMiscToPost.rNo EQ ttInvoiceToPost.rNo ,
                 FIRST bf-inv-misc
                 WHERE ROWID(bf-inv-misc) EQ ttInvoiceMiscToPost.riInvMisc 
                 BREAK BY ttInvoiceMiscToPost.orderID WITH FRAME invm:
