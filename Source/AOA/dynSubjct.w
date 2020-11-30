@@ -4670,17 +4670,17 @@ PROCEDURE pGenerateDefsInclude :
             "DYNAMIC-FUNCTION(~"fGetDynParamValue~",~""
             dynValueParam.paramName "~")"
             .
-        IF dynValueParam.dataType EQ "Logical" THEN
-        PUT UNFORMATTED " EQ ~"YES~"".
         IF dynValueParam.dataType EQ "Date" THEN
         PUT UNFORMATTED ")".
+        IF dynValueParam.dataType EQ "Logical" THEN
+        PUT UNFORMATTED " EQ ~"YES~"".
         PUT UNFORMATTED SKIP.
-        IF dynValueParam.paramName BEGINS "DatePickList" THEN
+        IF dynValueParam.dataType EQ "Date" THEN
         cPriorParam = cVariable.
         IF cPriorParam NE "" AND cPriorParam NE cVariable THEN DO:
             PUT UNFORMATTED FILL(" ",8)
-                cVariable " = DYNAMIC-FUNCTION(~"fDateOptionDate~","
-                cPriorParam "," cVariable ")"
+                cPriorParam " = DYNAMIC-FUNCTION(~"fDateOptionDate~","
+                cVariable "," cPriorParam ")"
                 SKIP.
             cPriorParam = "".
         END. /* if cpriorparam */
