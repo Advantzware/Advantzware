@@ -4,13 +4,12 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS s-object 
 /*------------------------------------------------------------------------
 
-  File: sharpshooter/smartobj/exit.w
+  File: sharpshooter/smartobj/printJob.w
 
   Description: 
 
   Author: Mithun Porandla
-  Created: 11/03/2020
-
+  Created: 11/30/2020
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -48,7 +47,7 @@ DEFINE VARIABLE phandle  AS HANDLE    NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btExit 
+&Scoped-Define ENABLED-OBJECTS btPrintJob 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -62,17 +61,18 @@ DEFINE VARIABLE phandle  AS HANDLE    NO-UNDO.
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btExit 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U
-     LABEL "Exit" 
-     SIZE 11 BY 2.62 TOOLTIP "Exit".
+DEFINE BUTTON btPrintJob 
+     IMAGE-UP FILE "Graphics/32x32/document_check_edit.ico":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.ico":U
+     LABEL "Print Job" 
+     SIZE 11 BY 2.62 TOOLTIP "Print Job Card"
+     FONT 35.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btExit AT ROW 1 COL 1
+     btPrintJob AT ROW 1 COL 1 NO-TAB-STOP 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -151,11 +151,11 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME btExit
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btExit s-object
-ON CHOOSE OF btExit IN FRAME F-Main /* Exit */
+&Scoped-define SELF-NAME btPrintJob
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btPrintJob s-object
+ON CHOOSE OF btPrintJob IN FRAME F-Main /* Print Job */
 DO:    
-    {methods/run_link.i "CONTAINER-SOURCE" "WindowExit"}
+    RUN pPrintJob.      
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -198,27 +198,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-insensitive s-object 
-PROCEDURE make-insensitive :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrintJob s-object 
+PROCEDURE pPrintJob :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    btExit:SENSITIVE IN FRAME F-Main = FALSE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-sensitive s-object 
-PROCEDURE make-sensitive :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    btExit:SENSITIVE IN FRAME F-Main = TRUE.
+    DEFINE VARIABLE cJobNo  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iJobNo2 AS INTEGER   NO-UNDO.
+    
+    {methods/run_link.i "PRINTJOB-SOURCE" "GetJob" "(OUTPUT cJobNo, OUTPUT iJobNo2)"}
+    
+    RUN jcrep/r-tickt2.w (
+        INPUT cJobNo, 
+        INPUT iJobNo2
+        ) NO-ERROR.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
