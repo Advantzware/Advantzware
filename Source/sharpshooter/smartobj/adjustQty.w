@@ -69,7 +69,7 @@ DEFINE BUTTON btAdjust
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btAdjust AT ROW 1 COL 1
+     btAdjust AT ROW 1 COL 1 NO-TAB-STOP 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .

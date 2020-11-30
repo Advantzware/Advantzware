@@ -2,15 +2,20 @@
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS s-object 
+/*********************************************************************
+* Copyright (C) 2000 by Progress Software Corporation. All rights    *
+* reserved. Prior versions of this work may contain portions         *
+* contributed by participants of Possenet.                           *
+*                                                                    *
+*********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: sharpshooter/smartobj/exit.w
+  File: sharpshooter/viewFGInquiry.w
 
-  Description: 
+  Description: from SMART.W - Template for basic SmartObject
 
   Author: Mithun Porandla
-  Created: 11/03/2020
-
+  Created: 11/27/2020
 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
@@ -29,8 +34,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-
-{methods/defines/hndlset.i}
+DEFINE VARIABLE hdFGInquiry    AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdFGInquiryWin AS HANDLE    NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -47,7 +52,7 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btExit 
+&Scoped-Define ENABLED-OBJECTS RECT-1 btViewFGInquiry 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -61,20 +66,23 @@ CREATE WIDGET-POOL.
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btExit 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U
-     LABEL "Exit" 
-     SIZE 11 BY 2.62 TOOLTIP "Exit".
+DEFINE BUTTON btViewFGInquiry 
+     LABEL "View FG" 
+     SIZE 15 BY 1.14.
+
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 17 BY 1.62.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btExit AT ROW 1 COL 1 NO-TAB-STOP 
+     btViewFGInquiry AT ROW 1.29 COL 1.8 WIDGET-ID 2
+     RECT-1 AT ROW 1.05 COL 1 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -103,8 +111,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
-         HEIGHT             = 2.62
-         WIDTH              = 24.8.
+         HEIGHT             = 6.52
+         WIDTH              = 50.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -150,11 +158,24 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME btExit
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btExit s-object
-ON CHOOSE OF btExit IN FRAME F-Main /* Exit */
-DO:    
-    {methods/run_link.i "CONTAINER-SOURCE" "WindowExit"}
+&Scoped-define SELF-NAME btViewFGInquiry
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btViewFGInquiry s-object
+ON CHOOSE OF btViewFGInquiry IN FRAME F-Main /* View FG */
+DO:
+    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cItemID  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAvail   AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO. 
+    
+    {methods/run_link.i "FGInq-TARGET" "GetItem" "(OUTPUT cCompany, OUTPUT cItemID, OUTPUT lAvail)"}         
+    
+    IF lAvail THEN
+        RUN pViewFGInquiry (
+            INPUT cCompany,
+            INPUT cItemID
+            ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -172,8 +193,6 @@ END.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
-
-RUN Tool_Tips IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -199,27 +218,44 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-insensitive s-object 
-PROCEDURE make-insensitive :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pViewFGInquiry s-object 
+PROCEDURE pViewFGInquiry PRIVATE :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
-------------------------------------------------------------------------------*/
-    btExit:SENSITIVE IN FRAME F-Main = FALSE.
-END PROCEDURE.
+------------------------------------------------------------------------------*/    
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID  AS CHARACTER NO-UNDO.
+        
+    IF NOT VALID-HANDLE(hdFGInquiry) THEN DO:         
+        RUN sharpshooter/w-fgInquiry.w PERSISTENT SET hdFGInquiry.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+        RUN dispatch IN hdFGInquiry (
+            INPUT 'initialize':U
+            ) NO-ERROR.
+        
+        hdFGInquiryWin = hdFGInquiry:CURRENT-WINDOW.
+    END.
+                                                 
+    IF VALID-HANDLE(hdFGInquiry) AND
+        VALID-HANDLE(hdFGInquiryWin) THEN DO: 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-sensitive s-object 
-PROCEDURE make-sensitive :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    btExit:SENSITIVE IN FRAME F-Main = TRUE.
+        RUN ScanItem IN hdFGInquiry (
+            INPUT ipcCompany,
+            INPUT "",
+            INPUT "",
+            INPUT ipcItemID,
+            INPUT "",
+            INPUT "",
+            INPUT 0
+            ) NO-ERROR.            
+
+        IF hdFGInquiryWin:WINDOW-STATE EQ 2 THEN ASSIGN 
+            hdFGInquiryWin:WINDOW-STATE = 3.
+
+        hdFGInquiryWin:MOVE-TO-TOP().
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
