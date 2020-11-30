@@ -73,7 +73,30 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
                     
             END.
         END.        
-    END.  /* cSetType EQ "Set"*/    
+    END.  /* cSetType EQ "Set"*/ 
+    ELSE IF ttInputEst.cSetType EQ "MoldEstSingle" THEN
+    DO:  
+        IF FIRST(ttInputEst.iFormNo) THEN DO:
+        RUN est/NewEstimate.p ('C', 5,OUTPUT opriEb).                                
+        END.
+        ELSE DO:                
+            IF FIRST-OF(ttInputEst.iFormNo) THEN DO:
+              FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
+              FIND FIRST ef OF eb NO-LOCK NO-ERROR.
+              FIND FIRST est OF ef NO-LOCK NO-ERROR.
+                          
+               RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT opriEb).
+                    
+            END.
+            ELSE IF FIRST-OF(ttInputEst.iBlankNo) THEN DO:
+              FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
+              FIND FIRST ef OF eb NO-LOCK NO-ERROR.
+         
+                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).
+                    
+            END.
+        END.        
+    END.  /* cSetType EQ "MoldEstSingle"*/   
        
     FIND eb 
         WHERE ROWID(eb) EQ opriEb  

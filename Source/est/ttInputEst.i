@@ -74,6 +74,9 @@ DEFINE {1} SHARED TEMP-TABLE ttInputEst
     FIELD cAddersDscr2 AS CHARACTER /* Optional*/
     FIELD cAddersDscr3 AS CHARACTER /* Optional*/
     FIELD cProject AS CHARACTER /* Optional*/
+    FIELD iMolds AS INTEGER /* Optional*/
+    FIELD dSqFt AS DECIMAL /* Optional*/
+    FIELD cFgEstNo AS CHARACTER /* Optional*/
     .
 
 
