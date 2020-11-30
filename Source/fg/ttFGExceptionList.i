@@ -13,7 +13,7 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-DEFINE {1} shared TEMP-TABLE ttFGExceptionList 
+DEFINE TEMP-TABLE ttFGExceptionList 
     FIELD cCompany    AS CHARACTER LABEL "Company"   
     FIELD cItem       AS CHARACTER LABEL "FG Item"
     FIELD cDesc       AS CHARACTER LABEL "Item Name"

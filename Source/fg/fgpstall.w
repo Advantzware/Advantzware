@@ -128,7 +128,7 @@ DEF TEMP-TABLE tt-set
 
 {fg/invrecpt.i NEW}
 
-{fg/ttFGExceptionList.i NEW}
+{fg/ttFGExceptionList.i}
 
 {sys/ref/fgoecost.i}
 DEF TEMP-TABLE tt-inv LIKE w-inv.
@@ -3941,7 +3941,8 @@ IF ip-run-what EQ "" THEN
         tgIssue ,
         tgl-itemCD ,
         INPUT TABLE w-fg-rctd BY-reference ,
-        OUTPUT lv-list-name
+        OUTPUT lv-list-name ,
+        OUTPUT TABLE ttFGExceptionList
   ).
 
 list-name = lv-list-name[1].
@@ -3956,7 +3957,7 @@ IF tb_excel THEN
  FIND FIRST ttFGExceptionList NO-LOCK NO-ERROR.
  IF AVAIL ttFGExceptionList THEN
  DO:
-      MESSAGE "Are you want to export exception report"
+      MESSAGE "Do you want to print exception report"
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
         UPDATE lcheckflg as logical.
       IF lcheckflg THEN

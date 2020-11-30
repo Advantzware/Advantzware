@@ -22,6 +22,8 @@ DEF TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd
     FIELD ret-loc     AS CHAR
     FIELD ret-loc-bin AS CHAR    
     .
+    
+{fg/ttFGExceptionList.i}    
 
 DEF INPUT PARAMETER ip-post-eom-date AS DATE NO-UNDO.
 DEF INPUT PARAMETER ip-run-what AS CHAR NO-UNDO. 
@@ -68,6 +70,7 @@ DEFINE INPUT PARAMETER tgIssue        AS LOGICAL   INITIAL NO.
 DEFINE INPUT PARAMETER tgl-itemCD     AS LOGICAL   INITIAL NO. 
 DEFINE INPUT PARAMETER TABLE FOR w-fg-rctd. 
 DEFINE OUTPUT PARAMETER lv-list-name AS CHARACTER EXTENT 2 NO-UNDO. 
+DEFINE OUTPUT PARAMETER TABLE        FOR ttFGExceptionList. 
 /* Local Variable Definitions ---                                       */
 DEF    VAR      list-name AS cha       NO-UNDO. 
 DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
@@ -106,7 +109,6 @@ ASSIGN
 {fg/fg-post3.i NEW}
 {jc/jcgl-sh.i }
 {sys/inc/adjustgl.i}
-{fg/ttFGExceptionList.i}
 
 DEF STREAM before.
 DEF STREAM after.
