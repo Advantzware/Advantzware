@@ -107,6 +107,7 @@ DEFINE VARIABLE h_b-job-hdr AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-job-mat AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-job-mch AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_issueqty AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_printjob AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btExit 
@@ -218,7 +219,7 @@ DEFINE VARIABLE fiStatusLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Status:"
 
 DEFINE RECTANGLE RECT-31
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 132 BY 4.76.
+     SIZE 114 BY 4.76.
 
 DEFINE RECTANGLE RECT-32
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -237,14 +238,14 @@ DEFINE FRAME F-Main
      fiJobNo AT ROW 2.43 COL 19.2 COLON-ALIGNED NO-LABEL WIDGET-ID 10
      cbJobNo2 AT ROW 2.48 COL 61.6 COLON-ALIGNED NO-LABEL WIDGET-ID 50
      fiJoblabel AT ROW 2.57 COL 7.6 COLON-ALIGNED NO-LABEL WIDGET-ID 92
-     fiStatusLabel AT ROW 2.57 COL 143 COLON-ALIGNED NO-LABEL WIDGET-ID 94
-     fiStatus AT ROW 2.57 COL 155.6 COLON-ALIGNED NO-LABEL WIDGET-ID 104
+     fiStatusLabel AT ROW 2.57 COL 123 COLON-ALIGNED NO-LABEL WIDGET-ID 94
+     fiStatus AT ROW 2.57 COL 135.6 COLON-ALIGNED NO-LABEL WIDGET-ID 104
      fiCreatedLabel AT ROW 4.81 COL 8 COLON-ALIGNED NO-LABEL WIDGET-ID 112
      fiCreated AT ROW 4.81 COL 23.2 COLON-ALIGNED NO-LABEL WIDGET-ID 110
      fiDueLabel AT ROW 4.81 COL 48.8 COLON-ALIGNED NO-LABEL WIDGET-ID 108
      fiDue AT ROW 4.81 COL 58 COLON-ALIGNED NO-LABEL WIDGET-ID 106
-     fiCSRLabel AT ROW 4.81 COL 146.4 COLON-ALIGNED NO-LABEL WIDGET-ID 102
-     fiCSR AT ROW 4.81 COL 155.4 COLON-ALIGNED NO-LABEL WIDGET-ID 100
+     fiCSRLabel AT ROW 4.81 COL 126.4 COLON-ALIGNED NO-LABEL WIDGET-ID 102
+     fiCSR AT ROW 4.81 COL 135.4 COLON-ALIGNED NO-LABEL WIDGET-ID 100
      btFGInq AT ROW 7.91 COL 130 WIDGET-ID 130
      btRMInq AT ROW 7.91 COL 151 WIDGET-ID 132
      btFGItems AT ROW 7.95 COL 7.6 WIDGET-ID 118
@@ -258,7 +259,7 @@ DEFINE FRAME F-Main
           SIZE 2 BY .62 AT ROW 2.76 COL 61.6 WIDGET-ID 86
           FONT 37
      RECT-31 AT ROW 1.95 COL 6 WIDGET-ID 114
-     RECT-32 AT ROW 1.95 COL 141 WIDGET-ID 116
+     RECT-32 AT ROW 1.95 COL 121 WIDGET-ID 116
      rSelected AT ROW 7.57 COL 6 WIDGET-ID 124
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -274,7 +275,6 @@ DEFINE FRAME F-Main
    Type: SmartWindow
    External Tables: ASI.job
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 2
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -624,6 +624,22 @@ PROCEDURE adm-create-objects :
 
   CASE adm-current-page: 
 
+    WHEN 0 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/printjob.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_printjob ).
+       RUN set-position IN h_printjob ( 1.95 , 177.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.62 , 11.00 ) */
+
+       /* Links to SmartObject h_printjob. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'PRINTJOB':U , h_printjob ).
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_printjob ,
+             btExit:HANDLE IN FRAME F-Main , 'AFTER':U ).
+    END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/b-job-hdr.w':U ,
@@ -789,6 +805,28 @@ PROCEDURE enable_UI :
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetJob W-Win 
+PROCEDURE GetJob :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcJobNo  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiJobNo2 AS INTEGER   NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        opcJobNo  = cFormattedJobno
+        opiJobNo2 = INTEGER(cbJobNo2:SCREEN-VALUE)
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
