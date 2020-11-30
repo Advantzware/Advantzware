@@ -320,15 +320,15 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
         DO:
             CREATE ttInputEst.
             ASSIGN
-                ttInputEst.cEstType = "MoldSingle"
-                ttInputEst.cSetType = "MoldEstSingle"
+                ttInputEst.cEstType = "MoldTandem"
+                ttInputEst.cSetType = "MoldEstTandem"
                 ttInputEst.cCompany = cocode .
         END.
               
         ASSIGN
             ttInputEst.cStockNo  = cStock
             ttInputEst.iMolds    = iMolds 
-            ttInputEst.iQuantity = ttInputEst.iMolds * ipiTragetCyc
+            ttInputEst.iQuantityYield = ttInputEst.iMolds * ipiTragetCyc
             ttInputEst.dSqFt     = ipdBlankSqFt * iMolds
                        
             .        

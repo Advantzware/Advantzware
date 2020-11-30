@@ -109,7 +109,7 @@ DEF NEW SHARED BUFFER xqty           FOR est-qty.
 &Scoped-define INTERNAL-TABLES ttInputEst
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttInputEst.cStockNo ttInputEst.cPartName ttInputEst.iQuantity ttInputEst.iMolds ttInputEst.cFgEstNo ttInputEst.dSqFt   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttInputEst.cStockNo ttInputEst.cPartName ttInputEst.iQuantityYield ttInputEst.iMolds ttInputEst.cFgEstNo ttInputEst.dSqFt   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttInputEst WHERE ttInputEst.cCompany = cocode ~         ~{&SORTBY-PHRASE}
@@ -311,7 +311,7 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 DISPLAY
       ttInputEst.cStockNo LABEL "FG Item" WIDTH 21 LABEL-BGCOLOR 14 FORMAT "x(15)"
     ttInputEst.cPartName LABEL "Item Name" WIDTH 38 LABEL-BGCOLOR 14 FORMAT "x(30)"
-    ttInputEst.iQuantity LABEL "Job Quantity" FORMAT ">>>,>>>,>>9" WIDTH 24 LABEL-BGCOLOR 14
+    ttInputEst.iQuantityYield LABEL "Job Quantity" FORMAT ">>>,>>>,>>9" WIDTH 24 LABEL-BGCOLOR 14
     ttInputEst.iMolds LABEL "Molds" FORMAT ">>>>>>9" WIDTH 15 LABEL-BGCOLOR 14
     ttInputEst.cFgEstNo LABEL "Estimate" FORMAT "x(8)" WIDTH 18 LABEL-BGCOLOR 14
     ttInputEst.dSqFt LABEL "Total Sq Ft" FORMAT "->>,>>>,>>9.99" WIDTH 20 LABEL-BGCOLOR 14
@@ -907,6 +907,7 @@ PROCEDURE create-ttfrmout :
     ------------------------------------------------------------------------------*/
     DEFINE BUFFER bf-ttInputEst FOR ttInputEst. 
     DEFINE VARIABLE iBlank AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iQuantity AS INTEGER NO-UNDO.
                      
     iBlank = 1.                 
     FOR EACH  bf-ttInputEst EXCLUSIVE-LOCK:
@@ -939,6 +940,11 @@ PROCEDURE create-ttfrmout :
             bf-ttInputEst.cCustomer = cust.cust-no
             bf-ttInputEst.cShipTo   = cust.cust-no .
             
+       IF iBlank EQ 1 THEN
+       iQuantity = bf-ttInputEst.iQuantityYield.
+       ASSIGN
+           bf-ttInputEst.iQuantity = iQuantity.
+       
        FIND FIRST ITEM NO-LOCK 
             WHERE item.company = cocode
             AND item.i-no = cBoard NO-ERROR.

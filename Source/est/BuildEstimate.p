@@ -74,10 +74,10 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
             END.
         END.        
     END.  /* cSetType EQ "Set"*/ 
-    ELSE IF ttInputEst.cSetType EQ "MoldEstSingle" THEN
+    ELSE IF ttInputEst.cSetType EQ "MoldEstTandem" THEN
     DO:  
         IF FIRST(ttInputEst.iFormNo) THEN DO:
-        RUN est/NewEstimate.p ('C', 5,OUTPUT opriEb).                                
+        RUN est/NewEstimate.p ('C', 8,OUTPUT opriEb).                                
         END.
         ELSE DO:                
             IF FIRST-OF(ttInputEst.iFormNo) THEN DO:
@@ -269,6 +269,12 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
         eb.yld-qty      = ttInputEst.iQuantityYield.
     ELSE 
         eb.yld-qty      = eb.eqty.
+        
+    IF ttInputEst.cEstType EQ "MoldTandem" THEN
+    DO: 
+       IF ttInputEst.iQuantityYield GT 0 THEN 
+         eb.bl-qty      = ttInputEst.iQuantityYield.
+    END.
         
     IF ttInputEst.cCustomer NE "" THEN 
         FIND FIRST cust NO-LOCK 
