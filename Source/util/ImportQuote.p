@@ -364,7 +364,57 @@ PROCEDURE pProcessRecord PRIVATE:
             AND (itemfg.cust-no EQ bf-quotehd.cust-no OR
                  itemfg.i-code  EQ "S")
           NO-LOCK NO-ERROR.
-
+          
+      /* Handle cases where cust-part has been scrambled by exporter */
+      IF NOT AVAIL itemfg THEN DO:
+            /* First, look for cust-part using company/cust-no/i-no */         
+            FIND FIRST cust-part NO-LOCK 
+                WHERE cust-part.company EQ bf-quotehd.company
+                AND cust-part.cust-no EQ bf-quotehd.cust-no
+                AND cust-part.i-no EQ bf-quoteitm.i-no
+                NO-ERROR.
+            /* If cust-part is found, find a matching itemfg */    
+            IF AVAIL cust-part THEN DO:
+                ASSIGN 
+                    bf-quoteitm.part-no = cust-part.part-no.
+                /* Find an itemfg with matching part-no (plus other key matches) */    
+                FIND FIRST itemfg NO-LOCK 
+                    WHERE itemfg.company EQ bf-quotehd.company 
+                    AND itemfg.i-no EQ cust-part.i-no
+                    AND itemfg.part-no EQ cust-part.part-no 
+                    AND itemfg.cust-no EQ cust-part.cust-no 
+                    AND itemfg.stat EQ "A"
+                    NO-ERROR.
+                /* If not found (itemfg not created this way), use only the other keys to match */
+                IF NOT AVAIL itemfg THEN FIND FIRST itemfg NO-LOCK 
+                    WHERE itemfg.company EQ bf-quotehd.company 
+                    AND itemfg.cust-no EQ bf-quotehd.cust-no
+                    AND itemfg.i-no EQ bf-quoteitm.i-no
+                    AND itemfg.stat EQ "A"
+                    NO-ERROR.
+                IF AVAIL itemfg THEN ASSIGN 
+                    riItemfg = ROWID(itemfg).
+            END.
+            /* If cust-part not available, use ONLY itemfg records */
+            ELSE DO:
+                FIND FIRST itemfg NO-LOCK 
+                    WHERE itemfg.company EQ bf-quotehd.company 
+                    AND itemfg.i-no EQ bf-quoteitm.i-no
+                    AND itemfg.part-no EQ bf-quoteitm.part-no 
+                    AND itemfg.cust-no EQ bf-quoteitm.cust-no 
+                    AND itemfg.stat EQ "A"
+                    NO-ERROR.
+                IF NOT AVAIL itemfg THEN FIND FIRST itemfg NO-LOCK 
+                    WHERE itemfg.company EQ bf-quotehd.company 
+                    AND itemfg.cust-no EQ bf-quotehd.cust-no
+                    AND itemfg.i-no EQ bf-quoteitm.i-no
+                    AND itemfg.stat EQ "A"
+                    NO-ERROR.
+                IF AVAIL itemfg THEN ASSIGN 
+                    bf-quoteitm.part-no = itemfg.part-no
+                    riItemfg = ROWID(itemfg).
+            END.
+      END.
 
       IF ipbf-ttImportQuote.style NE "" THEN
           RUN pAssignValueC (ipbf-ttImportQuote.style, iplIgnoreBlanks, INPUT-OUTPUT bf-quoteitm.style).
