@@ -1101,16 +1101,30 @@ PROCEDURE pRunReport :
 
             IF oe-bolh.trailer EQ "HOLD" OR oe-bolh.stat EQ "H" THEN DO:
                 IF lSingleBOL THEN
-                RUN pCreateNoPostRec ("BOL " + STRING(w-bolh.bol-no) + " is on HOLD Status").    
+                    RUN pCreateNoPostRec ("BOL " + STRING(w-bolh.bol-no) + " is on HOLD Status").
                 ELSE 
-                RUN pCreateNoPostRec ("BOL is on Hold Status").           
+                    RUN pCreateNoPostRec ("BOL is on Hold Status").           
                 NEXT mainblok.           
             END.      
             IF oe-bolh.printed EQ NO THEN DO:
                 IF lSingleBOL THEN
-                RUN pCreateNoPostRec ("BOL " + STRING(w-bolh.bol-no) + " has not been Printed").    
+                    RUN pCreateNoPostRec ("BOL " + STRING(w-bolh.bol-no) + " has not been Printed").    
                 ELSE 
-                RUN pCreateNoPostRec ("BOL has not been Printed").
+                    RUN pCreateNoPostRec ("BOL has not been Printed").
+                NEXT mainblok.           
+            END.      
+            IF oe-bolh.freight EQ ? THEN DO:
+                IF lSingleBOL THEN
+                    RUN pCreateNoPostRec ("BOL " + STRING(w-bolh.bol-no) + " has Invalid Freight Value").    
+                ELSE 
+                    RUN pCreateNoPostRec ("BOL has Invalid Freight Value").
+                NEXT mainblok.           
+            END.      
+            IF oe-bolh.tot-wt EQ ? OR oe-bolh.tot-wt EQ 0 THEN DO:
+                IF lSingleBOL THEN
+                    RUN pCreateNoPostRec ("BOL " + STRING(w-bolh.bol-no) + " has Invalid Weight Value").    
+                ELSE 
+                    RUN pCreateNoPostRec ("BOL has Invalid Weight Value").
                 NEXT mainblok.           
             END.      
             FIND FIRST w-except NO-LOCK 
@@ -1133,6 +1147,13 @@ PROCEDURE pRunReport :
                         RUN pCreateNoPostRec ("Order Not Found for BOL " + STRING(w-bolh.bol-no)).
                     ELSE 
                         RUN pCreateNoPostRec ("Order Was Not Found").
+                    NEXT mainblok.
+                END.
+                IF oe-ord.priceHold THEN DO:
+                    IF lSingleBOL THEN
+                        RUN pCreateNoPostRec ("Order on Price Hold for BOL " + STRING(w-bolh.bol-no)).
+                    ELSE 
+                        RUN pCreateNoPostRec ("Order on Price Hold").
                     NEXT mainblok.
                 END.
                 /* 04301302 - If customer 'x' and shipto = shipfrom, don't post */
