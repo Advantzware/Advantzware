@@ -287,7 +287,7 @@ ELSE DO:
                     lcLineItemsData          = bf-APIOutboundDetail1.data
                     cItemID                  = inv-line.i-no
                     cItemQuantity            = STRING(inv-line.inv-qty, "->>>>>>>9.9<<")
-                    cItemPrice               = STRING(inv-line.t-price / inv-line.inv-qty, ">>>>>>>9.99<<<<<") 
+                    cItemPrice               = STRING(inv-line.t-price / inv-line.inv-qty, ">>>>>>>9.99<<<<<<<") 
                     cLineID                  = STRING(inv-line.line)
                     lcConcatFlexiCodeData    = ""
                     lcConcatFlexiNumericData = ""
@@ -821,12 +821,12 @@ ELSE DO:
                         cItemPrice      = IF ar-invl.inv-qty EQ 0 THEN 
                                               STRING(ar-invl.amt, ">>>>>>>9.99<<<<")
                                           ELSE
-                                              STRING(ar-invl.amt / ar-invl.inv-qty, ">>>>>>>9.99<<<<<")
+                                              STRING(ar-invl.amt / ar-invl.inv-qty, ">>>>>>>9.99<<<<<<<")
                         .
                 ELSE
                     ASSIGN
                         cItemQuantity   = STRING(ar-invl.inv-qty, "->>>>>>>9.9<<")
-                        cItemPrice      = STRING(ar-invl.amt / ar-invl.inv-qty, ">>>>>>>9.99<<<<<")
+                        cItemPrice      = STRING(ar-invl.amt / ar-invl.inv-qty, ">>>>>>>9.99<<<<<<<")
                         . 
 
                 RUN pGetProductClassForItem (
