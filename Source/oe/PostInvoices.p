@@ -1925,10 +1925,8 @@ PROCEDURE pGetSettings PRIVATE:
     IF lFound THEN ipbf-ttPostingMaster.exportPath = cReturn.
     
     IF ipbf-ttPostingMaster.exportPath NE "" THEN
-    DO:
-        cReturn = REPLACE(ipbf-ttPostingMaster.exportPath, ENTRY(NUM-ENTRIES(ipbf-ttPostingMaster.exportPath, "\"), ipbf-ttPostingMaster.exportPath, "\"), ""). 
-        IF cReturn NE "" THEN
-            ipbf-ttPostingMaster.exportPath = cReturn + "OB4\" + "dir" . /* created sub folder, folder is used befor Backward Slash*/          
+    DO:            
+         ipbf-ttPostingMaster.exportPath = cReturn + "\OB4\" . /* created sub folder*/             
     END.
        
 END PROCEDURE.
