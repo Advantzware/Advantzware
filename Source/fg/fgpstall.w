@@ -128,6 +128,8 @@ DEF TEMP-TABLE tt-set
 
 {fg/invrecpt.i NEW}
 
+{fg/ttFGExceptionList.i}
+
 {sys/ref/fgoecost.i}
 DEF TEMP-TABLE tt-inv LIKE w-inv.
 
@@ -200,6 +202,11 @@ DEF VAR v-uid-sec AS LOG NO-UNDO.
 DEF VAR v-access-close AS LOG NO-UNDO.
 DEF VAR v-access-list AS CHAR NO-UNDO.
 DEF VAR v-source-handle AS HANDLE NO-UNDO.
+DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cOutputFileName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs   AS HANDLE.
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 /* Check if authorized to create PO's */
 RUN methods/prgsecur.p
@@ -3442,6 +3449,8 @@ PROCEDURE print-and-post :
   FOR EACH work-job:
     DELETE work-job.
   END.
+  
+  EMPTY TEMP-TABLE ttFGExceptionList.
 
   RUN run-report.
 
@@ -3679,6 +3688,7 @@ DEF VAR v-uom-lbl  AS CHAR FORMAT "x(10)" NO-UNDO.
 DEF VAR v-uom-dsh  AS CHAR FORMAT "x(10)" NO-UNDO.
 DEF VAR v-cstprt   AS CHAR FORMAT "x(15)" NO-UNDO.
 DEF VAR v-pr-tots2 LIKE v-pr-tots         NO-UNDO.
+DEFINE VARIABLE cTempDir AS CHARACTER NO-UNDO.
 
 IF rd-Itm#Cst# EQ 1 
   THEN ASSIGN v-itm-lbl = "ITEM"
@@ -3932,7 +3942,8 @@ IF ip-run-what EQ "" THEN
         tgIssue ,
         tgl-itemCD ,
         INPUT TABLE w-fg-rctd BY-reference ,
-        OUTPUT lv-list-name
+        OUTPUT lv-list-name ,
+        OUTPUT TABLE ttFGExceptionList
   ).
 
 list-name = lv-list-name[1].
@@ -3943,6 +3954,35 @@ IF tb_excel THEN
         IF tb_runExcel THEN
             OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
     END.
+    
+ FIND FIRST ttFGExceptionList NO-LOCK NO-ERROR.
+ IF AVAIL ttFGExceptionList THEN
+ DO:
+      MESSAGE "Do you want to print exception report"
+        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+        UPDATE lcheckflg as logical.
+      IF lcheckflg THEN
+      DO:
+         RUN FileSys_GetTempDirectory (
+             OUTPUT cTempDir
+             ).    
+         cOutputFileName = cTempDir +  "\ExceptionList" +  STRING(YEAR(TODAY)) 
+                              + STRING(MONTH(TODAY),"99") 
+                              + STRING(DAY(TODAY),"99") 
+                              + "_"
+                              + REPLACE(STRING(TIME,"HH:MM:SS"),":","")
+                              + ".csv".
+         RUN Output_TempTableToCSV IN hdOutputProcs ( 
+            INPUT TEMP-TABLE ttFGExceptionList:HANDLE,
+            INPUT cOutputFileName,
+            INPUT TRUE,
+            INPUT TRUE /* Auto increment File name */,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).  
+         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(cOutputFileName)).  
+      END.
+ END.
 
 /* Only save screen selections if the screen was enabled */
 IF ip-run-what EQ "" THEN
