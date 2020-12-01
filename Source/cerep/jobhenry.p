@@ -159,14 +159,14 @@ v-fill = FILL("=",132).
 DEFINE NEW SHARED FRAME head.
 
 FORMAT HEADER
-    "HENRY MOLDED PRODUCTS,INC." AT 52  SKIP
-    "Job/Head Specification" AT 52 SKIP
-    "DATE:" AT 114 v-today  SKIP
+    "<C45>HENRY MOLDED PRODUCTS,INC."   SKIP
+    "<C45>Job/Head Specification"  SKIP
+    "<C94>DATE:"  v-today  SKIP
     /*"JOB NUMBER:" v-job-no space(0) "-" space(0)
     v-job-no2 format "99" */
        
-    "Approved By:" AT 30  
-    "DUE DATE:" AT 110 v-due-date SKIP
+    "<C29>Approved By:"   
+    "<C94>DUE DATE:"  v-due-date SKIP
     /*v-fill*/
     WITH NO-BOX FRAME head NO-LABELS STREAM-IO WIDTH 132.
 
@@ -262,6 +262,7 @@ FOR EACH job-hdr NO-LOCK
         v-due-date = IF AVAILABLE oe-ord THEN oe-ord.due-date ELSE ?.
         
         IF NOT FIRST(job-hdr.job-no) THEN PAGE.
+        PUT "<FCalibri>" .
         VIEW FRAME head.
         
         PUT "<R-4><UNITS=INCHES><C3><FROM><C25><r+3><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
@@ -474,13 +475,13 @@ FOR EACH ef
                 "<#4><R+10><C+36><RECT#4><|3>" SKIP.
             
             PUT "<=#2> <C3>Job #: " STRING(job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99")) FORMAT "x(12)" SKIP
-                "<C3>Machine:" (IF AVAILABLE wrk-op THEN (wrk-op.m-code + " - " + wrk-op.m-dscr) ELSE "") FORMAT "x(40)" SKIP
-                "<C3>Cycles:" (IF AVAILABLE wrk-op THEN STRING(wrk-op.num-sh[1]) ELSE "") FORMAT "x(20)"  SKIP(1)
-                "<P8><C3>Furnish:"  cBoardDscr  FORMAT "x(36)" SKIP
-                "<C3>Pulp:"  SKIP(4) "<P10>".
+                "<C3>Machine: " (IF AVAILABLE wrk-op THEN (wrk-op.m-code + " - " + wrk-op.m-dscr) ELSE "") FORMAT "x(40)" SKIP
+                "<C3>Cycles: " (IF AVAILABLE wrk-op THEN STRING(wrk-op.num-sh[1]) ELSE "") FORMAT "x(20)"  SKIP(1)
+                "<P9><C3>Furnish: "  cBoardDscr  FORMAT "x(40)" SKIP
+                "<C3>Pulp: "  SKIP(4) "<P10>".
    
-            PUT "<=#3><R-10> <C31.5><B> Item List </b> "  SKIP
-                "<C32>  Item ID        Item Name              Mold Count  <P9>" FORMAT "x(200)" SKIP    .
+            PUT "<=#3><R-10> <C32><B> Item List </b> "  SKIP
+                "<C33>  Item ID        <C45>Item Name              <C66.5>Mold Count  <P9>" FORMAT "x(200)" SKIP    .
             j = 9.     
             FOR EACH bf-jobhdr NO-LOCK WHERE bf-jobhdr.company = job-hdr.company
                 AND bf-jobhdr.job-no = job-hdr.job-no
@@ -497,13 +498,13 @@ FOR EACH ef
                     AND b-ef.est-no EQ job-hdr.est-no
                     AND b-ef.form-no EQ job-hdr.frm NO-ERROR .
                 i = i + 1.
-                PUT "<=#3><C31.5><R-" + STRING(j - i) + ">" FORMAT "x(18)" i FORMAT "9"  SPACE(1) bf-jobhdr.i-no  FORMAT "x(15)" 
-                    (IF AVAILABLE itemfg THEN itemfg.i-name ELSE "" ) FORMAT "x(27)" (IF AVAILABLE b-ef THEN b-ef.n-out ELSE 0)  SKIP   .
+                PUT "<=#3><C31.9><R-" + STRING(j - i) + ">" FORMAT "x(18)" i FORMAT "9"  "<C33>  " bf-jobhdr.i-no  FORMAT "x(15)" 
+                    "<C45>" (IF AVAILABLE itemfg THEN itemfg.i-name ELSE "" ) FORMAT "x(27)" "<C69.5>" (IF AVAILABLE b-ef THEN b-ef.n-out ELSE 0)  SKIP   .
                
             END. 
             PUT SKIP(j - i) .
          
-            PUT "<=#4><P10> <C73.5><B> General Notes </b> "  SKIP .
+            PUT "<=#4><P10> <C74><B> General Notes </b> "  SKIP .
          
             FOR EACH notes
                 WHERE notes.rec_key   EQ job.rec_key
@@ -525,15 +526,15 @@ FOR EACH ef
                     CREATE tt-formtext.
                     ASSIGN
                         tt-line-no = li
-                        tt-length  = 55.
+                        tt-length  = 76.
                 END.
 
                 RUN custom/formtext.p (lv-text).
                 i = 0.
                 FOR EACH tt-formtext WHERE tt-text NE "" BREAK BY tt-line-no:
                     i = i + 1 .
-                    PUT "<=#4><P8><C73.7><R+" + STRING(i) + ">" FORMAT "x(22)" tt-formtext.tt-text FORMAT "x(80)"  SKIP.
-                    /*v-printline = v-printline + 1.*/
+                    PUT "<=#4><P8><C74><R+" + STRING(i) + ">" FORMAT "x(22)" tt-formtext.tt-text FORMAT "x(80)"  SKIP.
+                    
                     IF i GE 9 THEN LEAVE.
                 END.
             END.
@@ -689,19 +690,19 @@ FOR EACH ef
             AND itemfg.i-no    EQ job-hdr.i-no
             NO-ERROR .           
             
-        PUT "<=#5> <C3>Item: " job-hdr.i-no FORMAT "x(15)"  (IF AVAILABLE itemfg THEN itemfg.i-name ELSE "") FORMAT "x(30)"  "<C55>Molds:" ef.n-out   "<C75>Wet Weight:"  SKIP
-            "<C3>Dscr:" ( IF AVAILABLE itemfg THEN itemfg.i-dscr ELSE "") FORMAT "x(30)" "<C35>Estimate:" (IF AVAILABLE itemfg THEN itemfg.est-no ELSE "") FORMAT "x(8)"   "<C55>Mold IDs:"  "<C75>Bone Dry:"   SKIP
-            "<C3>Size:"  eb.len " x " eb.wid " x " eb.dep  "<C35>Style:" eb.style FORMAT "x(10)" "<C55>Jig Available:"  "<C75>Min Weight:"  SKIP
+        PUT "<=#5> <C3>Item: " job-hdr.i-no FORMAT "x(15)"  (IF AVAILABLE itemfg THEN itemfg.i-name ELSE "") FORMAT "x(30)"  "<C55>Molds: " ef.n-out   "<C75>Wet Weight: "  SKIP
+            "<C3>Dscr: " ( IF AVAILABLE itemfg THEN itemfg.i-dscr ELSE "") FORMAT "x(30)" "<C35>Estimate: " (IF AVAILABLE itemfg THEN itemfg.est-no ELSE "") FORMAT "x(8)"   "<C55>Mold IDs:"  "<C75>Bone Dry:"   SKIP
+            "<C3>Size: "  eb.len " x " eb.wid " x " eb.dep  "<C35>Style: " eb.style FORMAT "x(10)" "<C55>Jig Available:"  "<C75>Min Weight:"  SKIP
             .
                
         PUT "<=#5><R+0.5><UNITS=INCHES><C88><FROM><C109><r+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
             job-hdr.i-no FORMAT "x(15)" "><R-3>" . 
                
         PUT "<=#6> <C3><B>Packing</B>" SKIP
-            "<C3>Pallet Count:" TRIM(STRING(( IF AVAILABLE itemfg THEN (itemfg.case-count * itemfg.case-pall + itemfg.quantityPartial) ELSE 0),"->>,>>>,>>9"))    
-            "<C30>Pallet Size:" ( IF AVAILABLE itemfg THEN (STRING(itemfg.UnitLength) + " x " +  string(itemfg.UnitWidth) + " x " + string(itemfg.UnitHeight)) ELSE "") 
+            "<C3>Pallet Count: " TRIM(STRING(( IF AVAILABLE itemfg THEN (itemfg.case-count * itemfg.case-pall + itemfg.quantityPartial) ELSE 0),"->>,>>>,>>9"))    
+            "<C30>Pallet Size: " ( IF AVAILABLE itemfg THEN (STRING(itemfg.UnitLength) + " x " +  string(itemfg.UnitWidth) + " x " + string(itemfg.UnitHeight)) ELSE "") 
             SKIP
-            "<C3>Carton Size:" (STRING(eb.cas-len) + " x " + string(eb.cas-wid) + " x " + string(eb.cas-dep) ) FORMAT "x(40)" SKIP
+            "<C3>Carton Size: " (STRING(eb.cas-len) + " x " + string(eb.cas-wid) + " x " + string(eb.cas-dep) ) FORMAT "x(40)" SKIP
             "<C2><FROM><C57><LINE>"
             "<C3>Instructions" SKIP(9).
         RUN stackImage .
@@ -736,7 +737,7 @@ FOR EACH ef
             i = 0.
             FOR EACH tt-formtext WHERE tt-text NE "" BREAK BY tt-line-no:
                 i = i + 1.
-                PUT "<=#7><R-" + STRING(j - i) + "><C55><P8>" FORMAT "x(25)" tt-formtext.tt-text FORMAT "x(80)"  SKIP.
+                PUT "<=#7><R-" + STRING(j - i) + "><C57.2><P8>" FORMAT "x(25)" tt-formtext.tt-text FORMAT "x(80)"  SKIP.
                 IF i GE 11 THEN LEAVE.    
             END.
            
@@ -821,7 +822,7 @@ PROCEDURE stackImage:
     FIND FIRST stackPattern NO-LOCK
         WHERE stackPattern.stackCode EQ "D" NO-ERROR.
     IF AVAILABLE stackPattern AND SEARCH(stackPattern.stackImage) NE ? THEN
-        PUT UNFORMATTED SKIP "<C100><R-9>"
+        PUT UNFORMATTED SKIP "<C100><R-9.5>"
             "<#71><C20><R+8><C+20>"
             "<IMAGE#71=" stackPattern.stackImage ">"
             "<R-6>".
