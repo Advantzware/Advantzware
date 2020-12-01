@@ -610,7 +610,8 @@ form header
        w-ord.ord-due-date      = IF oe-ord.due-date NE ? THEN string(oe-ord.due-date) ELSE ""  
        w-ord.rel-due-date      = IF cRelDueDate NE ? THEN cRelDueDate ELSE "" 
        w-ord.Printed           = lPrinted 
-       w-ord.promiseDate       = IF oe-ord.promiseDate NE ? THEN  string(oe-ord.promiseDate) ELSE "" .
+       w-ord.promiseDate       = IF oe-ord.promiseDate NE ? THEN  string(oe-ord.promiseDate) ELSE ""
+       w-ord.priority          = oe-ord.priority .
 
       {sys/inc/roundup.i ld-palls}
 
