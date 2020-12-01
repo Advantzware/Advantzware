@@ -1039,6 +1039,34 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resetQueryForDelete B-table-Win 
+PROCEDURE resetQueryForDelete :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    
+  ASSIGN
+    q-noValue[1] = 0
+    q-noValue[2] = 999999
+    fi_q-no      = 0
+    fi_quo-date  = ?
+    fi_cust-no   = ''
+    fi_contact   = ''
+    fi_est-no    = ''
+    rd_status    = 2
+    fi_part-no   = ''
+    fi_item-decr = ''.  
+  DISPLAY {&filterFields} WITH FRAME {&FRAME-NAME}.
+  RUN openQuery.
+  APPLY 'VALUE-CHANGED':U TO BROWSE {&BROWSE-NAME}.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
