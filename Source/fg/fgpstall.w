@@ -3688,6 +3688,7 @@ DEF VAR v-uom-lbl  AS CHAR FORMAT "x(10)" NO-UNDO.
 DEF VAR v-uom-dsh  AS CHAR FORMAT "x(10)" NO-UNDO.
 DEF VAR v-cstprt   AS CHAR FORMAT "x(15)" NO-UNDO.
 DEF VAR v-pr-tots2 LIKE v-pr-tots         NO-UNDO.
+DEFINE VARIABLE cTempDir AS CHARACTER NO-UNDO.
 
 IF rd-Itm#Cst# EQ 1 
   THEN ASSIGN v-itm-lbl = "ITEM"
@@ -3962,7 +3963,10 @@ IF tb_excel THEN
         UPDATE lcheckflg as logical.
       IF lcheckflg THEN
       DO:
-         cOutputFileName = "C:\tmp\ExceptionList" +  STRING(YEAR(TODAY)) 
+         RUN FileSys_GetTempDirectory (
+             OUTPUT cTempDir
+             ).    
+         cOutputFileName = cTempDir +  "\ExceptionList" +  STRING(YEAR(TODAY)) 
                               + STRING(MONTH(TODAY),"99") 
                               + STRING(DAY(TODAY),"99") 
                               + "_"
