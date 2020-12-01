@@ -89,6 +89,7 @@ DEFINE VARIABLE h_p-updcan AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-post AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-ucptd AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_viewfginquiry AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -348,6 +349,14 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-updcan ( 1.76 , 31.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/viewfginquiry.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_viewfginquiry ).
+       RUN set-position IN h_viewfginquiry ( 22.67 , 39.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.67 , 17.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'addon/fg/v-post.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -362,6 +371,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-updcan , 'TableIO':U , h_b-ucptd ).
        RUN add-link IN adm-broker-hdl ( h_v-post , 'State':U , h_b-ucptd ).
        RUN add-link IN adm-broker-hdl ( h_v-ucptd , 'srch':U , h_b-ucptd ).
+       RUN add-link IN adm-broker-hdl ( h_viewfginquiry , 'FGInq':U , h_b-ucptd ).
        RUN add-link IN adm-broker-hdl ( h_b-ucptd , 'can-exit':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_b-ucptd , 'Record':U , THIS-PROCEDURE ).
 
@@ -372,8 +382,10 @@ PROCEDURE adm-create-objects :
              h_v-ucptd , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updcan ,
              h_b-ucptd , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_v-post ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_viewfginquiry ,
              h_p-updcan , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_v-post ,
+             h_viewfginquiry , 'AFTER':U ).
     END. /* Page 1 */
 
   END CASE.
