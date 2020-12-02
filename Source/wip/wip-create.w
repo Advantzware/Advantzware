@@ -777,11 +777,11 @@ DO:
     /* Print All Option */
     IF cOption EQ "All" THEN DO:
         FOR EACH ttBrowseInventory:
-    
-            RUN PostReceivedInventory IN hdInventoryProcs (
-                INPUT ipcCompany,
-                INPUT ttBrowseInventory.inventoryStockID
-                ).
+            IF ttBrowseInventory.inventoryStatus EQ gcStatusStockInitial THEN
+                RUN PostReceivedInventory IN hdInventoryProcs (
+                    INPUT ipcCompany,
+                    INPUT ttBrowseInventory.inventoryStockID
+                    ).
     
             RUN CreatePrintInventory IN hdInventoryProcs (
                 INPUT ttBrowseInventory.inventoryStockID
