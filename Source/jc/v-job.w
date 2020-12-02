@@ -2231,7 +2231,7 @@ PROCEDURE update-job-mch :
       RUN custom/schedule.p PERSISTENT SET scheduleHndl.
       RUN scheduleJob IN scheduleHndl (ROWID(job),OUTPUT calcStartDate,OUTPUT calcDueDate).
       IF calcDueDate NE job.due-date THEN
-      MESSAGE 'Machine Capacity calulated Scheduled Completion date of'
+      MESSAGE 'Machine Capacity calculated Scheduled Completion date of'
         calcDueDate SKIP 'Update Due Date?'
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
         UPDATE updateDueDate AS LOGICAL.
