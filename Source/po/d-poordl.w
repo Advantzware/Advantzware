@@ -15,6 +15,8 @@
 
 /* ***************************  Definitions  ************************** */
 
+USING system.SharedConfig.
+
 /*Gets rid of stack trace window when pressing F1*/
 SESSION:DEBUG-ALERT = FALSE.
 
@@ -150,6 +152,8 @@ DEFINE            VARIABLE lv-t-cost          AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE ld-dim-charge      AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE v-index            AS INTEGER   NO-UNDO.
 DEFINE            VARIABLE lCheckFGCustHold   AS LOGICAL NO-UNDO.
+DEFINE            VARIABLE scInstance         AS CLASS system.SharedConfig NO-UNDO.
+
 /* gdm - 06040918 */
 DEFINE BUFFER bf-itemfg        FOR itemfg.  
 DEFINE BUFFER bf-e-itemfg      FOR e-itemfg.  
@@ -1015,6 +1019,8 @@ DO:
   DEFINE VARIABLE v-qty    AS DECIMAL NO-UNDO.
   DEFINE VARIABLE ll       AS LOG     NO-UNDO.
   DEFINE VARIABLE op-error AS LOG     NO-UNDO.
+  DEFINE VARIABLE lHoldPoStatus  AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE dPurchaseLimit AS DECIMAL NO-UNDO.
 
   DEFINE BUFFER b-po-ordl FOR po-ordl.
 
@@ -1171,25 +1177,29 @@ IF po-ord.type EQ "D"               AND
 
         LEAVE.
     END.
-
+    
+FIND CURRENT po-ord EXCLUSIVE-LOCK NO-ERROR.
 IF ll THEN 
-DO :
-    FIND CURRENT po-ord EXCLUSIVE-LOCK NO-ERROR.
+DO :    
     ASSIGN
         po-ord.frt-pay = IF oe-ord.frt-pay EQ "T" THEN "B" ELSE oe-ord.frt-pay
-        po-ord.carrier = oe-rel.carrier .
-      IF trim(v-postatus-cha) = "Hold" THEN
-          po-ord.stat    = "H"   .
-    FIND CURRENT po-ord NO-LOCK NO-ERROR.
-END.
-ELSE DO:
-    FIND CURRENT po-ord EXCLUSIVE-LOCK NO-ERROR.
-    IF trim(v-postatus-cha) = "Hold" THEN
-        ASSIGN
-        po-ord.stat    = "H"   .
-    FIND CURRENT po-ord NO-LOCK NO-ERROR.
+        po-ord.carrier = oe-rel.carrier .    
 END.
 
+IF trim(v-postatus-cha) = "Hold" THEN
+   ASSIGN
+       po-ord.stat    = "H"   .
+ELSE IF trim(v-postatus-cha) = "User Limit" THEN
+DO: 
+   RUN PO_CheckPurchaseLimit IN hdPOProcs(BUFFER po-ord, OUTPUT lHoldPoStatus, OUTPUT dPurchaseLimit) .
+   IF lHoldPoStatus THEN do:
+      po-ord.stat    = "H"   . 
+      scInstance = SharedConfig:instance.
+      scInstance:SetValue("PurchaseLimit",TRIM(STRING(dPurchaseLimit))).
+      RUN displayMessage ( INPUT 57).          
+   END.
+END.
+FIND CURRENT po-ord NO-LOCK NO-ERROR.
 
 FOR EACH tt-job-mat:
     IF tt-job-mat.frm NE ? THEN 

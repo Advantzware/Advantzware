@@ -262,3 +262,30 @@ PROCEDURE PO_UpdatePoAdders:
     RELEASE bf-Po-ordl-add. 
 END PROCEDURE.
 
+PROCEDURE PO_CheckPurchaseLimit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-po-ord FOR po-ord.
+    DEFINE OUTPUT PARAMETER oplCheckHold AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdPurchaseLimit AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE dPurchaseCost AS DECIMAL NO-UNDO.    
+    DEFINE BUFFER bf-po-ordl FOR po-ordl.
+    
+    FIND FIRST users NO-LOCK
+         WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR .
+    opdPurchaseLimit = users.purchaseLimit .
+         
+    FOR EACH bf-po-ordl NO-LOCK
+        WHERE bf-po-ordl.company EQ ipbf-po-ord.company
+        AND bf-po-ordl.po-no EQ ipbf-po-ord.po-no :
+        dPurchaseCost = dPurchaseCost + bf-po-ordl.t-cost .
+    END.
+    IF dPurchaseCost GT opdPurchaseLimit THEN
+    DO:
+        oplCheckHold = YES .
+    END.
+END PROCEDURE.
+
