@@ -11,7 +11,7 @@ RELEASE rm-bin.
 
 ll-neg = {4} LT 0.
 
-IF PROGRAM-NAME(1) BEGINS "jc/issuemat." THEN
+IF {6} THEN
   RUN rm/d-selbin.w (ROWID(job-mat), "Job Material Issue", INPUT-OUTPUT {4}).
 
 ELSE

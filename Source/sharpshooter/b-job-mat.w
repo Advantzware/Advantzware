@@ -453,10 +453,10 @@ PROCEDURE IssueQuantity :
                 IF AVAILABLE job-mat THEN
                     job-mat.post = TRUE.
                     
-                RUN jc/jc-autop.p (
+                RUN jc/issuemat.p (
                     INPUT ROWID(job-mat),
-                    INPUT 0,
-                    INPUT dTotalQuantity
+                    INPUT dTotalQuantity,
+                    INPUT FALSE  /* Prompt for bin selection */
                     ).
 
                 {&OPEN-QUERY-{&BROWSE-NAME}}

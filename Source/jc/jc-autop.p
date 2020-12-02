@@ -116,6 +116,6 @@ IF AVAIL item THEN DO:
      {sys/inc/roundup.i ip-qty}
    END.                        
 
-   {rm/rm-autoi.i rm-rctd rm-rctd item ip-qty I}
+   {rm/rm-autoi.i rm-rctd rm-rctd item ip-qty I FALSE}
   END.
 END.
