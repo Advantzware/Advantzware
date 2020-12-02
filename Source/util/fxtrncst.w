@@ -491,7 +491,8 @@ DEF    VAR      lv-po-no       AS INT       NO-UNDO.
     DEF    BUFFER b-fg-bin    FOR fg-bin.
     DEFINE BUFFER bf-fg-rcpth FOR fg-rcpth.
     DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh.
-
+    DEF BUFFER bf-fg-rctd FOR fg-rctd.
+DISABLE TRIGGERS FOR LOAD OF fg-bin.    
     IF tb_excel THEN 
     do:
         OUTPUT STREAM excel TO VALUE(fi_file).
@@ -516,11 +517,11 @@ DEF    VAR      lv-po-no       AS INT       NO-UNDO.
         iCountItem = iCountItem + 1.
         STATUS DEFAULT "Processing FG Item#: " + TRIM(itemfg.i-no).
 
-        FOR EACH fg-rcpth
+        FOR EACH fg-rcpth NO-LOCK 
             WHERE fg-rcpth.company EQ itemfg.company
             AND fg-rcpth.i-no    EQ itemfg.i-no
             USE-INDEX i-no,
-            EACH fg-rdtlh
+            EACH fg-rdtlh NO-LOCK 
             WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no
             AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
             AND (fg-rdtlh.cost EQ 0                           OR
@@ -533,9 +534,7 @@ DEF    VAR      lv-po-no       AS INT       NO-UNDO.
             BY fg-rcpth.trans-date
             BY fg-rdtlh.trans-time
             BY fg-rcpth.r-no
-            BY fg-rdtlh.rec_key
-
-            TRANSACTION:
+            BY fg-rdtlh.rec_key:
             ASSIGN 
                 iCountTotal = iCountTotal + 1
                 lv-cost[1]  = 0
@@ -566,43 +565,53 @@ DEF    VAR      lv-po-no       AS INT       NO-UNDO.
                 IF lv-cost[5] EQ ? THEN lv-cost[5] = 0.
     
                 IF (lv-cost[5] NE 0 OR fg-rcpth.po-no NE "") AND (lSourceFound OR tb_FallBack) THEN 
-                DO:  /*if cost was found from PO or Job, lSourceFound = YES, otherwise, fall back cost of IF1 cost*/
+                DO TRANSACTION:  /*if cost was found from PO or Job, lSourceFound = YES, otherwise, fall back cost of IF1 cost*/
+                    FIND bf-fg-rcpth EXCLUSIVE 
+                        WHERE ROWID(bf-fg-rcpth) EQ ROWID(fg-rcpth)
+                        NO-ERROR.
+                    FIND bf-fg-rdtlh EXCLUSIVE 
+                        WHERE ROWID(bf-fg-rdtlh) EQ ROWID(fg-rdtlh)
+                        NO-ERROR.
+                    
+                    
                     iCountChanged = iCountChanged + 1.
 
                     IF NOT tb_pro-only THEN 
                     do:
                         ASSIGN 
-                            fg-rdtlh.spare-dec-1  = fg-rdtlh.cost /*store old cost before NY12*/
-                            fg-rdtlh.spare-char-2 = fg-rcpth.pur-uom /*store old cost uom before NY12*/
-                            fg-rdtlh.cost         = lv-cost[5]
-                            fg-rcpth.pur-uom      = lv-uom
-                            fg-rdtlh.std-tot-cost = lv-cost[5]
-                            fg-rdtlh.std-fix-cost = lv-cost[4]
-                            fg-rdtlh.std-var-cost = lv-cost[3]
-                            fg-rdtlh.std-mat-cost = lv-cost[2]
-                            fg-rdtlh.std-lab-cost = lv-cost[1]
-                            fg-rdtlh.spare-char-1 = cSource  /*Store cost source*/
+                            bf-fg-rdtlh.spare-dec-1  = fg-rdtlh.cost /*store old cost before NY12*/
+                            bf-fg-rdtlh.spare-char-2 = fg-rcpth.pur-uom /*store old cost uom before NY12*/
+                            bf-fg-rdtlh.cost         = lv-cost[5]
+                            bf-fg-rcpth.pur-uom      = lv-uom
+                            bf-fg-rdtlh.std-tot-cost = lv-cost[5]
+                            bf-fg-rdtlh.std-fix-cost = lv-cost[4]
+                            bf-fg-rdtlh.std-var-cost = lv-cost[3]
+                            bf-fg-rdtlh.std-mat-cost = lv-cost[2]
+                            bf-fg-rdtlh.std-lab-cost = lv-cost[1]
+                            bf-fg-rdtlh.spare-char-1 = cSource  /*Store cost source*/
            
                             .
     
-                        FIND FIRST fg-rctd WHERE fg-rctd.r-no EQ fg-rcpth.r-no USE-INDEX fg-rctd NO-ERROR.
-                        IF AVAIL fg-rctd THEN  
+                        FIND FIRST bf-fg-rctd EXCLUSIVE 
+                            WHERE bf-fg-rctd.r-no EQ bf-fg-rcpth.r-no 
+                            USE-INDEX fg-rctd NO-ERROR.
+                        IF AVAIL bf-fg-rctd THEN  
                             ASSIGN 
-                                fg-rctd.std-cost = lv-cost[5]
-                                fg-rctd.cost-uom = itemfg.prod-uom
-                                fg-rctd.ext-cost = fg-rctd.std-cost *
-                                (fg-rctd.t-qty / IF fg-rctd.cost-uom EQ "M" THEN 1000 ELSE 1).
+                                bf-fg-rctd.std-cost = lv-cost[5]
+                                bf-fg-rctd.cost-uom = itemfg.prod-uom
+                                bf-fg-rctd.ext-cost = bf-fg-rctd.std-cost *
+                                (bf-fg-rctd.t-qty / IF bf-fg-rctd.cost-uom EQ "M" THEN 1000 ELSE 1).
            
                     END. /*Apply cost changes*/
          
                     IF tb_excel THEN 
                     DO:
                         EXPORT STREAM excel DELIMITER "," 
-                            fg-rcpth.i-no
-                            fg-rcpth.rita-code
-                            fg-rcpth.job-no 
-                            fg-rcpth.job-no2
-                            fg-rcpth.po-no
+                            bf-fg-rcpth.i-no
+                            bf-fg-rcpth.rita-code
+                            bf-fg-rcpth.job-no 
+                            bf-fg-rcpth.job-no2
+                            bf-fg-rcpth.po-no
                             lv-cost[5]
                             lv-uom
                             lv-cost[5]
@@ -611,12 +620,13 @@ DEF    VAR      lv-po-no       AS INT       NO-UNDO.
                             lv-cost[2]
                             lv-cost[1] 
                             cSource 
-                            ( IF tb_pro-only THEN fg-rdtlh.cost ELSE fg-rdtlh.spare-dec-1)
-                            ( IF tb_pro-only THEN fg-rcpth.pur-uom ELSE fg-rdtlh.spare-char-2) .
+                            ( IF tb_pro-only THEN bf-fg-rdtlh.cost ELSE bf-fg-rdtlh.spare-dec-1)
+                            ( IF tb_pro-only THEN bf-fg-rcpth.pur-uom ELSE bf-fg-rdtlh.spare-char-2) .
                     END. /* Excel Report */
                 END.  /*Apply/record cost changes*/
             END. /*History record eligible for processing*/
         END. /*Each History record*/
+        STATUS DEFAULT "Recalculating cost for FG Item#: " + TRIM(itemfg.i-no).
         IF tb_RecalcCosts THEN 
             RUN fg/updfgcst.p (INPUT itemfg.i-no, INPUT YES).
     END. /*Each itemfg*/
