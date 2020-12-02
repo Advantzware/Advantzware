@@ -31,6 +31,7 @@ CREATE WIDGET-POOL.
 &ENDIF
 DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 &scoped-define proc-enable  ENABLE-detail
+&scoped-define proc-delete  proc-delete
 
 {custom/gcompany.i}
 {custom/gloc.i}
@@ -930,6 +931,24 @@ PROCEDURE enable-detail :
        WITH FRAME {&FRAME-NAME}.
 
 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-delete V-table-Win 
+PROCEDURE proc-delete :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   
+   IF NOT AVAIL quotehd THEN
+   DO:      
+     {methods/run_link.i "RECORD-SOURCE" "resetQueryForDelete" }      
+   END.                                                        
 
 END PROCEDURE.
 
