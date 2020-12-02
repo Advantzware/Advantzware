@@ -1,8 +1,9 @@
-DEFINE {1} SHARED TEMP-TABLE ttPOGroups
+DEFINE TEMP-TABLE ttPOGroups NO-UNDO
     FIELD VendNo LIKE po-ordl.vend-no
     FIELD INo LIKE po-ordl.i-no
     FIELD Len LIKE po-ordl.s-len
     FIELD Wid LIKE po-ordl.s-wid
+    FIELD Dep LIKE po-ordl.s-dep
     FIELD Scores AS CHAR
     FIELD Adders AS CHAR
     FIELD AdderCost AS DECIMAL
@@ -14,9 +15,12 @@ DEFINE {1} SHARED TEMP-TABLE ttPOGroups
     FIELD Multi AS LOG
     FIELD UpdateCost AS LOG
     FIELD BasisWeight LIKE ITEM.basis-w
-    FIELD LineCount AS INT.
+    FIELD LineCount AS INT
+    FIELD itemType AS CHARACTER
+    FIELD customerID AS CHARACTER
+    .
 
-DEFINE {1} SHARED TEMP-TABLE ttPOLineXRef /*allows for easy re-finding of po-ordl*/
+DEFINE TEMP-TABLE ttPOLineXRef /*allows for easy re-finding of po-ordl*/ NO-UNDO 
     FIELD POGroupRowId AS ROWID
     FIELD PoOrdlRowId AS ROWID
     FIELD OldCost LIKE po-ordl.cost

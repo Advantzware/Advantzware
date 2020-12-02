@@ -6731,7 +6731,7 @@ PROCEDURE vend-cost :
             IF DEC(po-ordl.disc:SCREEN-VALUE) NE 0 THEN
                 dTotalCost = dTotalCost * (1 - (DEC(po-ordl.disc:SCREEN-VALUE) / 100)).
             po-ordl.t-cost:SCREEN-VALUE = STRING(dTotalCost). 
-            RUN po\RecostBoardPO.p(INPUT ROWID(po-ord),INPUT No).                                             
+            
         END.                
     END. 
       
