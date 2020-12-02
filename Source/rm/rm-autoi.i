@@ -11,7 +11,11 @@ RELEASE rm-bin.
 
 ll-neg = {4} LT 0.
 
-IF PROGRAM-NAME(1) BEGINS "jc/issuemat." THEN
+DEFINE VARIABLE lPromptBinSelection AS LOGICAL NO-UNDO.
+
+lPromptBinSelection = {6}.
+
+IF lPromptBinSelection THEN
   RUN rm/d-selbin.w (ROWID(job-mat), "Job Material Issue", INPUT-OUTPUT {4}).
 
 ELSE

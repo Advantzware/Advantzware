@@ -378,61 +378,65 @@ PROCEDURE pFGQuantityAdjust PRIVATE:
     END.
 
     /* Bins with same job no takes priority */
-    FOR EACH bf-fg-bin
-        WHERE bf-fg-bin.company EQ ipcCompany
-          AND bf-fg-bin.i-no    EQ ipcItemID
-          AND bf-fg-bin.onHold  EQ NO
-          AND bf-fg-bin.job-no  EQ ipcJobNo
-          AND bf-fg-bin.job-no2 EQ ipiJobNo2
-          AND bf-fg-bin.qty     GT 0
-        USE-INDEX i-no
-        BY bf-fg-bin.rec_key
-        BY bf-fg-bin.job-no
-        BY bf-fg-bin.job-no2
-        BY bf-fg-bin.qty:
-        
-        CREATE ttFGBin.
-        ttFGBin.fgBinRowID = ROWID(bf-fg-bin).                
-
-        IF bf-fg-bin.qty LE ABSOLUTE(dQuantityAssigned) THEN
-            ttFGBin.qty = bf-fg-bin.qty * -1.
-        ELSE
-            ttFGBin.qty = dQuantityAssigned.
-        
-        dQuantityAssigned = dQuantityAssigned - ttFGBin.qty.
-        
-        IF dQuantityAssigned EQ 0 THEN 
-            LEAVE. 
+    IF dQuantityAssigned LT 0 THEN DO:
+        FOR EACH bf-fg-bin
+            WHERE bf-fg-bin.company EQ ipcCompany
+              AND bf-fg-bin.i-no    EQ ipcItemID
+              AND bf-fg-bin.onHold  EQ NO
+              AND bf-fg-bin.job-no  EQ ipcJobNo
+              AND bf-fg-bin.job-no2 EQ ipiJobNo2
+              AND bf-fg-bin.qty     GT 0
+            USE-INDEX i-no
+            BY bf-fg-bin.rec_key
+            BY bf-fg-bin.job-no
+            BY bf-fg-bin.job-no2
+            BY bf-fg-bin.qty:
+            
+            CREATE ttFGBin.
+            ttFGBin.fgBinRowID = ROWID(bf-fg-bin).                
+    
+            IF bf-fg-bin.qty LE ABSOLUTE(dQuantityAssigned) THEN
+                ttFGBin.qty = bf-fg-bin.qty * -1.
+            ELSE
+                ttFGBin.qty = dQuantityAssigned.
+            
+            dQuantityAssigned = dQuantityAssigned - ttFGBin.qty.
+            
+            IF dQuantityAssigned EQ 0 THEN 
+                LEAVE. 
+        END.
     END.
             
-    FOR EACH bf-fg-bin
-        WHERE bf-fg-bin.company EQ ipcCompany
-          AND bf-fg-bin.i-no    EQ ipcItemID
-          AND bf-fg-bin.onHold  EQ NO
-          AND bf-fg-bin.qty     GT 0
-        USE-INDEX i-no
-        BY bf-fg-bin.rec_key
-        BY bf-fg-bin.job-no
-        BY bf-fg-bin.job-no2
-        BY bf-fg-bin.qty:
-        FIND FIRST ttFGBin
-             WHERE ttFGBin.fgBinRowID EQ ROWID(bf-fg-bin)
-             NO-ERROR.
-        IF AVAILABLE ttFGBin THEN
-            NEXT.
-
-        CREATE ttFGBin.
-        ttFGBin.fgBinRowID = ROWID(bf-fg-bin).                
-
-        IF bf-fg-bin.qty LE ABSOLUTE(dQuantityAssigned) THEN
-            ttFGBin.qty = bf-fg-bin.qty * -1.
-        ELSE
-            ttFGBin.qty = dQuantityAssigned.
-        
-        dQuantityAssigned = dQuantityAssigned - ttFGBin.qty.
-        
-        IF dQuantityAssigned EQ 0 THEN 
-            LEAVE. 
+    IF dQuantityAssigned LT 0 THEN DO:
+        FOR EACH bf-fg-bin
+            WHERE bf-fg-bin.company EQ ipcCompany
+              AND bf-fg-bin.i-no    EQ ipcItemID
+              AND bf-fg-bin.onHold  EQ NO
+              AND bf-fg-bin.qty     GT 0
+            USE-INDEX i-no
+            BY bf-fg-bin.rec_key
+            BY bf-fg-bin.job-no
+            BY bf-fg-bin.job-no2
+            BY bf-fg-bin.qty:
+            FIND FIRST ttFGBin
+                 WHERE ttFGBin.fgBinRowID EQ ROWID(bf-fg-bin)
+                 NO-ERROR.
+            IF AVAILABLE ttFGBin THEN
+                NEXT.
+    
+            CREATE ttFGBin.
+            ttFGBin.fgBinRowID = ROWID(bf-fg-bin).                
+    
+            IF bf-fg-bin.qty LE ABSOLUTE(dQuantityAssigned) THEN
+                ttFGBin.qty = bf-fg-bin.qty * -1.
+            ELSE
+                ttFGBin.qty = dQuantityAssigned.
+            
+            dQuantityAssigned = dQuantityAssigned - ttFGBin.qty.
+            
+            IF dQuantityAssigned EQ 0 THEN 
+                LEAVE. 
+        END.
     END.
     
     IF dQuantityAssigned NE 0 THEN DO:
@@ -1289,7 +1293,7 @@ PROCEDURE Inventory_PostRawMaterials:
     
     DEFINE VARIABLE iNextRNo AS INTEGER NO-UNDO.
     DEFINE VARIABLE dAvgCost AS DECIMAL NO-UNDO.
-    
+    DEFINE VARIABLE lError   AS LOGICAL NO-UNDO.
 
     EMPTY TEMP-TABLE ttRawMaterialsToPost.
     EMPTY TEMP-TABLE ttRawMaterialsGLTransToPost.
@@ -1303,9 +1307,11 @@ PROCEDURE Inventory_PostRawMaterials:
             RUN pCreateRawMaterialsToPost (
                 INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),
                 INPUT  TRUE, /* AutoIssue */
-                OUTPUT oplSuccess,
+                OUTPUT lError,
                 OUTPUT opcMessage
                 ).
+            oplSuccess = NOT lError.
+            
             IF NOT oplSuccess THEN
                 UNDO TRANSACTION-BLOCK, LEAVE TRANSACTION-BLOCK.                
         END.
@@ -2879,7 +2885,7 @@ PROCEDURE pCreateRawMaterialsToPost PRIVATE:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipriRmRctd   AS ROWID     NO-UNDO.
     DEFINE INPUT  PARAMETER iplAutoIssue AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplSuccess   AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE iPOValidator    AS INTEGER NO-UNDO.
@@ -2901,7 +2907,7 @@ PROCEDURE pCreateRawMaterialsToPost PRIVATE:
          NO-ERROR.
     IF NOT AVAILABLE bf-rm-rctd THEN DO:
         ASSIGN
-            oplSuccess = FALSE
+            oplError   = TRUE
             opcMessage = "Invalid rm-rctd record"
             .
         RETURN.
@@ -3052,12 +3058,7 @@ PROCEDURE pCreateRawMaterialsToPost PRIVATE:
               AND bf-adder-item.i-code   EQ "E":
             bf-ttRawMaterialsToPost.sequenceID = 3.
         END.
-    END.    
-    
-    ASSIGN
-        oplSuccess = TRUE
-        opcMessage = "Success"
-        .
+    END.
         
 END PROCEDURE.
 

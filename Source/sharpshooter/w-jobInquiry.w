@@ -566,7 +566,9 @@ DO:
     cFormattedJobno = DYNAMIC-FUNCTION (
                       "fAddSpacesToString" IN hdJobProcs, cJobNo, 6, TRUE
                       ).
-
+    
+    cJobno2ListItems = "".
+    
     RUN GetSecondaryJobForJob IN hdJobProcs (
         INPUT        cCompany,
         INPUT        cFormattedJobno,
