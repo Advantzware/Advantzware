@@ -3318,12 +3318,7 @@ PROCEDURE pValidateInvoicesToPost PRIVATE:
             lAutoApprove = NO.   
             
         END. 
-        IF bf-ttInvoiceToPost.amountBilled EQ 0 AND NOT fGetInvoiceApprovalVal(bf-inv-head.company, "InvoiceApprovalExpectZero", bf-inv-head.cust-no,iplIsValidateOnly)THEN 
-        DO:
-            RUN pAddValidationError(BUFFER bf-ttInvoiceToPost,"Expected Non zero value in the invoice").
-            lAutoApprove = NO.   
-            
-        END.    
+       
         dTotalLineRev = 0 .
         FOR EACH bf-ttInvoiceLineToPost WHERE
             bf-ttInvoiceLineToPost.rNo EQ bf-inv-head.r-no:          
