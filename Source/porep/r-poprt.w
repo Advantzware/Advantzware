@@ -632,7 +632,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_po-no C-Win
 ON VALUE-CHANGED OF begin_po-no IN FRAME FRAME-A /* Beginning PO# */
 DO:
-  RUN pPrintLoadTagOpt.
+ 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -667,7 +667,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
-    DEFINE VARIABLE lNotPrintLoadtag AS LOGICAL  NO-UNDO .
+    DEFINE VARIABLE lCheckEmailPo AS LOGICAL INIT YES NO-UNDO.
     DEFINE BUFFER bff-po-ord FOR po-ord .
     SESSION:SET-WAIT-STATE ("general").
 
@@ -785,19 +785,15 @@ DO:
                     IF FIRST-OF (b1-po-ord.po-no) THEN DO:
                            RUN SetGlobalVariables(INPUT b1-po-ord.po-no).
                            RUN run-report(b1-po-ord.po-no,b1-po-ord.vend-no, TRUE) . 
-                           RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
-                           
-                           IF tb_print-loadtag AND iPOLoadtagInt EQ 2 THEN do:
-                             FOR EACH tt-report BREAK BY tt-report.key-01 BY  tt-report.key-02:
-                                 IF FIRST-OF (tt-report.key-02) THEN DO: 
-                                   RUN run-report-loadtag(tt-report.key-02,tt-report.key-01) . 
-                                   RUN GenerateReportTag(tt-report.key-01, tt-report.key-01) .
-                                 END.
-                             END.     
-                           END.  /* tb_print-loadtag AND iPOLoadtagInt EQ 2*/                             
+                           RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .                                                        
                     END. /* first-of(po-no) */
                     IF LAST-OF (b1-po-ord.vend-no) THEN
+                    DO:
+                       IF tb_print-loadtag AND iPOLoadtagInt EQ 3 THEN
+                       lCheckEmailPo = NO .
+                       IF lCheckEmailPo THEN
                        RUN GenerateMail(NO,"") .
+                    END.   
                 END.  /* rd-dest EQ 5 */
             END. /* FIRST-OF (b1-po-ord.vend-no) */
         END. /* FOR EACH b1-po-ord */
@@ -849,19 +845,16 @@ DO:
                 IF FIRST-OF (b1-po-ord.po-no) THEN DO:
                     RUN SetGlobalVariables(INPUT b1-po-ord.po-no).
                     RUN run-report(b1-po-ord.po-no,b1-po-ord.vend-no, TRUE) . 
-                    RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
-                    
-                    IF tb_print-loadtag AND iPOLoadtagInt EQ 2 THEN do:
-                        FOR EACH tt-report BREAK BY tt-report.key-01 BY  tt-report.key-02:
-                             IF FIRST-OF (tt-report.key-02) THEN DO: 
-                               RUN run-report-loadtag(tt-report.key-02,tt-report.key-01) . 
-                               RUN GenerateReportTag(tt-report.key-01, tt-report.key-01) .
-                             END.
-                        END.     
-                    END.  /* tb_print-loadtag AND iPOLoadtagInt EQ 2*/                       
+                    RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .                    
+                                        
                 END. /* first-of(po-no) */
-                IF LAST-OF (b1-po-ord.vend-no) THEN
-                   RUN GenerateMail(NO,"") .
+                IF LAST-OF (b1-po-ord.vend-no)  THEN
+                DO:
+                   IF tb_print-loadtag AND iPOLoadtagInt EQ 3 THEN
+                       lCheckEmailPo = NO .
+                   IF lCheckEmailPo THEN
+                   RUN GenerateMail(NO,"") .               
+                END.
             END.  /* rd-dest EQ 5 */
         END. /* FOR EACH b1-po-ord */
         ELSE do:
@@ -871,21 +864,20 @@ DO:
  
     END.  /* NOT vendor-specific formst */
     
-    IF tb_print-loadtag AND (iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 2) THEN
+    IF tb_print-loadtag AND (iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 2 OR iPOLoadtagInt EQ 3) THEN
     DO:
-        PAUSE 1.
-        IF rd-dest EQ 5 AND iPOLoadtagInt EQ 2 THEN lNotPrintLoadtag = YES .
-        FOR EACH tt-report BREAK BY tt-report.key-01 BY  tt-report.key-02:           
-            IF NOT lNotPrintLoadtag THEN do:
-                cPdfFilesAttach = "" .
-                IF FIRST-OF (tt-report.key-02) THEN DO:                      
-                    RUN run-report-loadtag(tt-report.key-02,tt-report.key-01) . 
-                    RUN GenerateReportTag(tt-report.key-01, tt-report.key-01) .
-                END. /* first-of(po-no) */
-                IF LAST-OF (tt-report.key-01) AND iPOLoadtagInt EQ 1 THEN
-                   RUN GenerateMail(YES,tt-report.key-03) .
-            END.  /* not lNotPrintLoadtag */
-            DELETE tt-report .
+        PAUSE 1.           
+        FOR EACH tt-report BREAK BY tt-report.key-01 BY  tt-report.key-02:
+          IF iPOLoadtagInt NE 3 THEN
+          cPdfFilesAttach = "" .
+          IF FIRST-OF (tt-report.key-02) THEN DO:                      
+             RUN run-report-loadtag(tt-report.key-02,tt-report.key-01) . 
+             RUN GenerateReportTag(tt-report.key-01, tt-report.key-01) .
+          END. /* first-of(po-no) */
+          IF LAST-OF (tt-report.key-01) AND (iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 3) THEN
+             RUN GenerateMail(YES,tt-report.key-03) .
+           
+          DELETE tt-report .
         END. /* FOR EACH tt-report */        
         
     END.    /* tb_print-loadtag*/
@@ -1318,8 +1310,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_po-no IN FRAME {&FRAME-NAME}.
   END.
 
-  RUN pRunFormatValueChanged .
-  RUN pPrintLoadTagOpt .
+  RUN pRunFormatValueChanged .  
 
   IF NOT lAsiUser THEN
          RUN_format:HIDDEN IN FRAME FRAME-A = YES .
@@ -1501,11 +1492,17 @@ PROCEDURE GenerateMail :
               lcSubject = "Purchase Orders: " + STRING(cPoMailList) 
               . 
        cMailId = "Vendor" .       
-       IF iplLoadtagMail THEN
+       IF iplLoadtagMail THEN DO:
+          IF iPOLoadtagInt EQ 1 then
              ASSIGN                 
               lcSubject = "PO Load Tag(s) Attached"
               cMailId = "Loc" .
-         
+          ELSE 
+             ASSIGN                 
+              lcSubject = "Purchase Orders: " + STRING(cPoMailList)  + ", PO Load Tag(s) Attached"
+              cMailId = "Loc" .
+       END.
+               
       RUN custom/xpmail2.p   (INPUT   cMailId,
                               INPUT   'R-POPRT.',
                               INPUT   cPdfFilesAttach,
@@ -2303,51 +2300,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPrintLoadTagOpt C-Win 
-PROCEDURE pPrintLoadTagOpt :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lv-frame-hdl AS HANDLE NO-UNDO.
-  DEFINE VARIABLE lv-group-hdl AS HANDLE NO-UNDO.
-  DEFINE VARIABLE lv-field-hdl AS HANDLE NO-UNDO.
-  DEFINE VARIABLE lv-field2-hdl AS HANDLE NO-UNDO.
-  DEFINE VARIABLE parm-fld-list AS cha NO-UNDO.
-  DEFINE VARIABLE parm-lbl-list AS cha NO-UNDO.
-  DEFINE VARIABLE i AS INTEGER NO-UNDO.
-  DEFINE VARIABLE lv-label AS cha.
-  
-  DEFINE BUFFER bff-po-ord FOR po-ord .
-  DEFINE BUFFER bff-po-ordl FOR po-ordl .
-   DO WITH FRAME {&FRAME-NAME}: 
-       FIND FIRST bff-po-ord NO-LOCK
-               WHERE bff-po-ord.company EQ cocode
-               AND bff-po-ord.po-no   EQ INTEGER(begin_po-no:SCREEN-VALUE IN FRAME {&FRAME-NAME})
-               AND bff-po-ord.TYPE EQ "D"
-               NO-ERROR .  
-        IF AVAIL bff-po-ord THEN
-        FIND FIRST bff-po-ordl NO-LOCK
-               WHERE bff-po-ordl.company EQ cocode
-               AND bff-po-ordl.po-no   EQ bff-po-ord.po-no
-               AND bff-po-ordl.item-type EQ FALSE
-               NO-ERROR .       
-              
-            IF AVAIL bff-po-ord AND AVAIL bff-po-ordl AND cPOLoadtagFormat NE "" THEN
-            DO:               
-               tb_print-loadtag:SENSITIVE IN FRAME {&FRAME-NAME} = YES.             
-            END.
-            ELSE DO:
-                tb_print-loadtag:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
-                tb_print-loadtag:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "No".
-            END.
-    END.    
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report-loadtag C-Win 
 PROCEDURE run-report-loadtag :
@@ -2371,13 +2323,13 @@ PROCEDURE run-report-loadtag :
       
       CASE rd-dest:
           WHEN 1 THEN do:
-            IF iPOLoadtagInt EQ 1 THEN
+            IF iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 3 THEN
                PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file  + ".pdf>" FORM "x(180)".
             ELSE IF iPOLoadtagInt EQ 2 THEN  
             PUT  "<PRINTER?></PROGRESS>".
           END.
           WHEN 2 THEN do:
-            IF iPOLoadtagInt EQ 1 THEN
+            IF iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 3 THEN
                PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file  + ".pdf>" FORM "x(180)".
             ELSE IF iPOLoadtagInt EQ 2 THEN do:
               IF NOT lBussFormModle THEN
@@ -2392,7 +2344,7 @@ PROCEDURE run-report-loadtag :
               PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
           END.
           WHEN 5 OR WHEN 6 THEN DO:
-              IF iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 2 THEN
+              IF iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 2 OR iPOLoadtagInt EQ 3 THEN
               PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file  + ".pdf>" FORM "x(180)".
           END.
       END CASE.
@@ -2432,21 +2384,21 @@ PROCEDURE GenerateReportTag :
   DO WITH FRAME {&FRAME-NAME}: 
      CASE rd-dest:
        WHEN 1 THEN do:
-         IF iPOLoadtagInt EQ 1 THEN DO:
+         IF iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 3 THEN DO:
            RUN pRunxPrint.         
          END.
          ELSE IF iPOLoadtagInt EQ 2 THEN
          RUN output-to-printer.
        END.
        WHEN 2 THEN do:
-          IF iPOLoadtagInt EQ 1 THEN DO:
+          IF iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 3 THEN DO:
             RUN pRunxPrint. 
           END.
           ELSE IF iPOLoadtagInt EQ 2 THEN
           RUN output-to-screen.
        END.
        WHEN 3 THEN do:
-          IF iPOLoadtagInt EQ 1 THEN DO:
+          IF iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 3 THEN DO:
             RUN pRunxPrint. 
           END.
           ELSE IF iPOLoadtagInt EQ 2 THEN
@@ -2478,7 +2430,7 @@ PROCEDURE GenerateReportTag :
        END.
 
        WHEN 6 THEN do:
-          IF iPOLoadtagInt EQ 1 THEN DO:
+          IF iPOLoadtagInt EQ 1 OR iPOLoadtagInt EQ 3 THEN DO:
             RUN pRunxPrint. 
           END.
           ELSE IF iPOLoadtagInt EQ 2 THEN
