@@ -776,8 +776,7 @@ DO:
     
     /* Print All Option */
     IF cOption EQ "All" THEN DO:
-        FOR EACH ttBrowseInventory
-           WHERE ttBrowseInventory.inventoryStatus EQ gcStatusStockInitial:
+        FOR EACH ttBrowseInventory:
     
             RUN PostReceivedInventory IN hdInventoryProcs (
                 INPUT ipcCompany,
