@@ -11,11 +11,7 @@ RELEASE rm-bin.
 
 ll-neg = {4} LT 0.
 
-DEFINE VARIABLE lPromptBinSelection AS LOGICAL NO-UNDO.
-
-lPromptBinSelection = {6}.
-
-IF lPromptBinSelection THEN
+IF {6} THEN
   RUN rm/d-selbin.w (ROWID(job-mat), "Job Material Issue", INPUT-OUTPUT {4}).
 
 ELSE
