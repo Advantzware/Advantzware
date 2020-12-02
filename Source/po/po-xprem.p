@@ -109,15 +109,33 @@ DEF VAR lv-add-line AS LOG NO-UNDO.
 DEFINE SHARED VARIABLE s-print-prices AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cCustPo LIKE oe-ord.po-no no-undo.
 
-def var v-dec-fld as decimal no-undo.
-
+def var v-dec-fld as decimal no-undo.  
 
 DEF VAR v-lstloc AS CHAR FORM "x(20)" NO-UNDO.
+DEFINE VARIABLE iPOLoadtagInt AS INTEGER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lPrintPrice AS LOGICAL NO-UNDO.
 
 v-dash-line = fill ("_",80).
 
 {po/po-print.f}
 {ce/msfcalc.i}
+
+RUN sys/ref/nk1look.p (INPUT cocode,
+                       INPUT "POLoadtag",
+                       INPUT "I" ,
+                       INPUT NO /* check by cust */,
+                       INPUT YES /* use cust not vendor */,
+                       INPUT "" /* cust */,
+                       INPUT "" /* ship-to*/,
+                       OUTPUT cRtnChar,
+                       OUTPUT lRecFound).
+IF lRecFound THEN
+    iPOLoadtagInt = INTEGER(cRtnChar) NO-ERROR. 
+lPrintPrice =  s-print-prices .
+IF iPOLoadtagInt EQ 3 THEN
+ lPrintPrice = NO.
 
 assign v-hdr = "VEND ITEM".
        
@@ -406,7 +424,7 @@ v-printline = 0.
             v-adder[1] 
             "<C52>" v-job-no FORM "x(12)" SPACE(1).
 
-        IF s-print-prices THEN
+        IF lPrintPrice THEN
            PUT
             "<C61.5>" po-ordl.cost FORM "->>>9.99"
             "<C69>" po-ordl.pr-uom
@@ -508,7 +526,7 @@ v-printline = 0.
             " "/*v-adder[2]*/ FORM "x(8)" SPACE(1)
             "<C53>" po-ordl.due-date
             "<C63>" v-change-dscr.
-          IF s-print-prices THEN
+          IF lPrintPrice THEN
             PUT "<C70>" v-tot-msf.
           PUT SKIP.
         v-printline = v-printline + 1.
@@ -606,7 +624,7 @@ v-printline = 0.
         put "W: " at 25 v-wid space(2) "L: " v-len  
                  /*"                   "*/
               /*  "  Flute:"*/  lv-flute FORM "x(13)" /*"Test:" */ lv-reg-no FORM "x(10)".
-             IF s-print-prices THEN
+             IF lPrintPrice THEN
                PUT  "<C61.5>" STRING(v-cost,"->>,>>9.99<<") + po-ordl.pr-uom + " $" +
                 STRING(v-setup) + "SETUP" FORM "x(25)" .
              PUT SKIP.
@@ -823,7 +841,7 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
   END.
 
   /*v-printline 46*/
-IF s-print-prices THEN
+IF lPrintPrice THEN
       PUT "Grand Total MSF: " +
           TRIM(STRING(v-tot-sqft / 1000,">>>,>>9.9<<")) AT 50 FORMAT "x(30)".
         PUT SKIP.
@@ -864,7 +882,7 @@ IF s-print-prices THEN
           "<R54><C1>" v-inst[2]
           "<R55><C1>" v-inst[3]
           "<R56><C1>" v-inst[4].
-     IF s-print-prices THEN
+     IF lPrintPrice THEN
         PUT "<R58><C59><#8><FROM><R+5><C+21><RECT> " 
           "<=8><R+1> Sub Total  :" po-ord.t-cost - po-ord.tax FORM ">,>>>,>>9.99"
           "<=8><R+2> "  v-bot-lab[1] 
