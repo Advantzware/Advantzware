@@ -63,7 +63,6 @@ DEFINE VARIABLE phandle  AS HANDLE    NO-UNDO.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btPrintJob 
      IMAGE-UP FILE "Graphics/32x32/document_check_edit.ico":U
-     IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.ico":U
      LABEL "Print Job" 
      SIZE 11 BY 2.62 TOOLTIP "Print Job Card"
      FONT 35.
