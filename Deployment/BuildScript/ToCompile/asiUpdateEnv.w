@@ -3766,6 +3766,12 @@ PROCEDURE ipExpandFiles :
     OS-COMMAND SILENT VALUE(cCmdLine2).
     OS-COMMAND SILENT VALUE(cCmdLine3).
 
+    /* Copy DataDigger saved files to CustFiles\DDBackups */
+    OS-CREATE-DIR VALUE(cTgtEnv + "\CustFiles\DDBackups").
+    OS-CREATE-DIR VALUE(cTgtEnv + "\CustFiles\DDBackups\Cache").
+    OS-COPY VALUE(cTgtEnv + "\Programs\DataDigger\Datadigger-*.ini") VALUE(cTgtEnv + "\CustFiles\DDBackups").
+    OS-COPY VALUE(cTgtEnv + "\Programs\DataDigger\Cache\*.*") VALUE(cTgtEnv + "\CustFiles\DDBackups\Cache").
+    
     /* Skip the copy part, just MOVE the files  */
     RUN ipStatus ("  Moving expanded files from ").
     RUN ipStatus ("    " + cUpdProgramDir + " to").
@@ -3790,6 +3796,11 @@ PROCEDURE ipExpandFiles :
     OS-DELETE VALUE(cTgtEnv + "\ProgramsO") RECURSIVE.
     OS-DELETE VALUE(cTgtEnv + "\ResourcesO") RECURSIVE.
 
+    /* Now restore DD files from backed up copies and remove Backup dirs */
+    OS-COPY VALUE(cTgtEnv + "\CustFiles\DDBackups\*.*") VALUE(cTgtEnv + "\Programs\DataDigger").
+    OS-COPY VALUE(cTgtEnv + "\CustFiles\DDBackups\Cache\*.*") VALUE(cTgtEnv + "\\Programs\DataDigger\Cache").
+    OS-DELETE VALUE(cTgtEnv + "\CustFiles\DDBackups") RECURSIVE.
+    
     RUN ipStatus ("Installation of new system files complete").
     
     ASSIGN 
