@@ -599,7 +599,7 @@ PROCEDURE pDeleteOrphanRecords PRIVATE:
                 IF lProcess THEN 
                     EXPORT STREAM soe-boll bf-oe-boll.
                 ELSE IF lSimulate 
-                    THEN EXPORT STREAM soe-boll DELIMITER "," oe-boll.
+                    THEN EXPORT STREAM soe-boll DELIMITER "," bf-oe-boll.
             END.
             IF lProcess THEN DO: 
                 FIND CURRENT bf-oe-boll EXCLUSIVE-LOCK NO-ERROR.
