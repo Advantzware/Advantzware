@@ -18,6 +18,8 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+     
+USING system.SharedConfig.     
 
 CREATE WIDGET-POOL.
 
@@ -69,6 +71,8 @@ DEFINE            VARIABLE lRecFound          AS LOGICAL   NO-UNDO.
 DEFINE            VARIABLE lPOChangeDueDate   AS LOGICAL   NO-UNDO.
 DEF SHARED VAR lNewOrd AS LOG NO-UNDO.
 DEFINE VARIABLE lUpdateMode AS LOGICAL NO-UNDO.
+DEFINE VARIABLE hdPOProcs   AS HANDLE  NO-UNDO.
+DEFINE VARIABLE scInstance  AS CLASS system.SharedConfig NO-UNDO.
 
 DEFINE TEMP-TABLE tt-ei NO-UNDO
 FIELD std-uom AS CHARACTER.
@@ -108,6 +112,8 @@ RUN sys/ref/nk1look.p (INPUT cocode, "POChangeDueDate", "L" /* Logical */, NO /*
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lPOChangeDueDate = LOGICAL(cRtnChar) NO-ERROR.
+    
+RUN Po/POProcs.p PERSISTENT SET hdPOProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1357,19 +1363,31 @@ PROCEDURE hold-release :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+ DEFINE VARIABLE lHoldPoStatus  AS LOGICAL NO-UNDO.
+ DEFINE VARIABLE dPurchaseLimit AS DECIMAL NO-UNDO.
+ 
  IF po-ord.po-date:SENSITIVE IN FRAME {&FRAME-NAME} THEN DO:
     MESSAGE "You can not change status middle of modification. " VIEW-AS ALERT-BOX
         ERROR.
     RETURN.
  END.
  IF AVAILABLE po-ord THEN DO:
+     IF po-ord.stat = "H" AND trim(v-postatus-cha) = "User Limit" THEN DO:
+       RUN PO_CheckPurchaseLimit IN hdPOProcs(BUFFER po-ord, OUTPUT lHoldPoStatus, OUTPUT dPurchaseLimit) .
+       IF lHoldPoStatus THEN do:         
+          scInstance = SharedConfig:instance.
+          scInstance:SetValue("PurchaseLimit",TRIM(STRING(dPurchaseLimit))).
+          RUN displayMessage ( INPUT 57). 
+          RETURN.
+       END.
+     END.
      MESSAGE "Are you sure you wish to " +
           trim(STRING(po-ord.stat EQ "H","release/hold")) + " this PO?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE choice AS LOG.
      IF choice THEN DO:  
         DEFINE BUFFER bf-po-ord FOR po-ord.
         FIND bf-po-ord EXCLUSIVE-LOCK WHERE RECID(bf-po-ord) EQ recid(po-ord) NO-ERROR.
-        IF bf-po-ord.stat = "H" THEN DO:
+        IF bf-po-ord.stat = "H" THEN DO:                    
             RUN pRunAPIOutboundTrigger (
                 BUFFER po-ord,
                 INPUT "ReleasePurchaseOrder"
@@ -1715,6 +1733,10 @@ PROCEDURE local-create-record :
 
   IF trim(v-postatus-cha) = "Hold" THEN DO:
      po-ord.stat = "H" .
+  END.
+  ELSE IF trim(v-postatus-cha) = "User Limit"  THEN
+  DO:
+      po-ord.stat = "O" . 
   END.
   DISPLAY po-ord.stat fc_app_time RECT-13 approved_text po-ord.approved-date
           po-ord.approved-id WITH FRAME {&frame-name}.

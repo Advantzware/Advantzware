@@ -17,6 +17,8 @@
   ----------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
+USING system.SharedConfig.
+
 DEFINE INPUT  PARAMETER iplPromptRM AS LOGICAL     NO-UNDO.
 /* ***************************  Definitions  ************************** */
 DEFINE VARIABLE gvlDebug AS LOG NO-UNDO.
@@ -196,6 +198,8 @@ DEFINE VARIABLE lNextOuters     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cRtnChar  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE dOeAutoFg AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE hdPOProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 
 DEFINE NEW SHARED WORKFILE work-vend NO-UNDO
     FIELD cost AS DECIMAL FORMAT ">>,>>9.9999"
@@ -380,6 +384,7 @@ DO TRANSACTION:
     {sys/inc/oeautofg.i}
     {sys/inc/pouom.i}
     {sys/inc/aptax.i}
+    {sys/ref/postatus.i} 
 END.
 {sys/inc/vendItemCost.i}
 
@@ -3594,7 +3599,10 @@ PROCEDURE processJobMat :
                 VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
             NEXT.
         END.
-
+        
+        /* Check user po limit */
+        RUN pCheckUserLimit(BUFFER po-ord).
+        
         /* Calculate PO Header Totals */
         RUN po/po-total.p (RECID(po-ord)).
 
@@ -5171,7 +5179,42 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+ 
+ 
+&IF DEFINED(EXCLUDE-pCheckFGItemCustHold) = 0 &THEN
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckUserLimit Procedure 
+PROCEDURE pCheckUserLimit :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-po-ord FOR po-ord.
+    DEFINE VARIABLE lHoldPoStatus  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dPurchaseLimit AS DECIMAL NO-UNDO.
+
+    IF trim(v-postatus-cha) = "User Limit" THEN
+    DO: 
+       RUN Po/POProcs.p PERSISTENT SET hdPOProcs. 
+       RUN PO_CheckPurchaseLimit IN hdPOProcs(BUFFER ipbf-po-ord, OUTPUT lHoldPoStatus, OUTPUT dPurchaseLimit) .
+       IF lHoldPoStatus THEN do:
+           FIND CURRENT ipbf-po-ord EXCLUSIVE-LOCK NO-ERROR.
+           ipbf-po-ord.stat    = "H"   . 
+           scInstance = SharedConfig:instance.
+           scInstance:SetValue("PurchaseLimit",TRIM(STRING(dPurchaseLimit))).
+           RUN displayMessage ( INPUT 57).  
+           FIND CURRENT ipbf-po-ord NO-LOCK NO-ERROR.
+       END.
+       DELETE OBJECT hdPOProcs.
+    END.       
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF 
 
 
 /* ************************  Function Implementations ***************** */
