@@ -141,18 +141,26 @@ PROCEDURE CloseHandle EXTERNAL "kernel32" :
   DEFINE RETURN PARAMETER ReturnValue AS LONG.
 END PROCEDURE.
 
-DEFINE TEMP-TABLE ttWidget NO-UNDO RCODE-INFORMATION
-  FIELD hWidget   AS HANDLE
-  FIELD iPosX     AS INTEGER
-  FIELD iWidth    AS INTEGER
-  INDEX iPrim AS PRIMARY hWidget.
+/* Used in update check / about window */
+PROCEDURE URLDownloadToFileA EXTERNAL "URLMON.DLL" :
+  DEFINE INPUT PARAMETER pCaller    AS LONG.
+  DEFINE INPUT PARAMETER szURL      AS CHARACTER.
+  DEFINE INPUT PARAMETER szFilename AS CHARACTER.
+  DEFINE INPUT PARAMETER dwReserved AS LONG.
+  DEFINE INPUT PARAMETER lpfnCB     AS LONG.
+  DEFINE RETURN PARAMETER ReturnValue AS LONG.
+END PROCEDURE. /* URLDownloadToFileA */
 
-DEFINE TEMP-TABLE ttColor NO-UNDO RCODE-INFORMATION
+PROCEDURE DeleteUrlCacheEntry EXTERNAL "WININET.DLL" :
+  DEFINE INPUT PARAMETER lbszUrlName AS CHARACTER.
+END PROCEDURE. /* DeleteUrlCacheEntry */
+
+DEFINE TEMP-TABLE ttColor NO-UNDO
   FIELD cName  AS CHARACTER
   FIELD iColor AS INTEGER
   INDEX iPrim AS PRIMARY cName.
 
-DEFINE TEMP-TABLE ttFont NO-UNDO RCODE-INFORMATION
+DEFINE TEMP-TABLE ttFont NO-UNDO
   FIELD cName  AS CHARACTER
   FIELD iFont  AS INTEGER
   INDEX iPrim AS PRIMARY cName.
@@ -249,646 +257,6 @@ FUNCTION getColumnLabel RETURNS CHARACTER
 &ANALYZE-RESUME
 
 &ENDIF
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD addConnection Procedure
-FUNCTION addConnection RETURNS LOGICAL
-  ( pcDatabase AS CHARACTER
-  , pcSection  AS CHARACTER ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &IF DEFINED(EXCLUDE-getColumnWidthList) = 0 &THEN
 
@@ -1184,17 +552,6 @@ FUNCTION getXmlNodeName RETURNS CHARACTER
 
 &ENDIF
 
-&IF DEFINED(EXCLUDE-isBrowseChanged) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD isBrowseChanged Procedure 
-FUNCTION isBrowseChanged RETURNS LOGICAL
-  ( INPUT phBrowse AS HANDLE )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
 &IF DEFINED(EXCLUDE-isDataServer) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD isDataServer Procedure 
@@ -1256,17 +613,6 @@ FUNCTION isTableFilterUsed RETURNS LOGICAL
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD isValidCodePage Procedure 
 FUNCTION isValidCodePage RETURNS LOGICAL
   (pcCodepage AS CHARACTER) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-isWidgetChanged) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD isWidgetChanged Procedure 
-FUNCTION isWidgetChanged RETURNS LOGICAL
-  ( INPUT phWidget AS HANDLE )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1386,7 +732,7 @@ FUNCTION setRegistry RETURNS CHARACTER
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW Procedure ASSIGN
-         HEIGHT             = 24.91
+         HEIGHT             = 30.19
          WIDTH              = 53.4.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -1410,10 +756,6 @@ DO:
   UNLOAD 'DataDigger'     NO-ERROR.
   UNLOAD cEnvironment     NO-ERROR.
 END. /* CLOSE OF THIS-PROCEDURE  */
-
-/* Subscribe to setUsage event to track user behaviour */
-SUBSCRIBE TO "setUsage" ANYWHERE.
-
 
 /* Caching settings must be set from within UI.
  * Since the library might be started from DataDigger.p
@@ -2330,6 +1672,43 @@ END PROCEDURE. /* getDumpFileName */
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-getFavourites) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getFavourites Procedure 
+PROCEDURE getFavourites :
+/* Extract favourites from config table into own tt
+*/
+  DEFINE OUTPUT PARAMETER TABLE FOR ttFavGroup.
+
+  DEFINE BUFFER bfConfig   FOR ttConfig.
+  DEFINE BUFFER btFavGroup FOR ttFavGroup.
+
+  EMPTY TEMP-TABLE ttFavGroup.
+
+  FOR EACH bfConfig
+    WHERE bfConfig.cSection = 'DataDigger:Favourites'
+      AND bfConfig.cSetting > "":
+
+    CREATE btFavGroup.
+    ASSIGN 
+      btFavGroup.cGroup  = bfConfig.cSetting
+      btFavGroup.cTables = bfConfig.cValue.
+  END. 
+
+  /* If no groups are found, create a default one */
+  IF NOT CAN-FIND(FIRST btFavGroup) THEN
+  DO:
+    CREATE btFavGroup.
+    ASSIGN btFavGroup.cGroup = 'MyFavourites'.
+  END.
+
+END PROCEDURE. /* getFavourites */
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-getFields) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getFields Procedure 
@@ -3099,18 +2478,6 @@ PROCEDURE getTableStats :
 
     END. /* lastUsed */
 
-    ELSE
-    IF cLine MATCHES "*:Favourites=*" THEN
-    DO:
-      FIND FIRST ttTable
-        WHERE ttTable.cDatabase = cDatabase
-          AND ttTable.cTableName = ENTRY(1,cLine,':') NO-ERROR.
-
-      IF AVAILABLE ttTable THEN
-        ttTable.cFavourites = ENTRY(2,cLine,'=') NO-ERROR.
-
-    END. /* favourite */
-
   END. /* repeat */
   INPUT CLOSE.
 
@@ -3392,11 +2759,6 @@ PROCEDURE resizeFilterFields :
   DEFINE VARIABLE iFilter       AS INTEGER NO-UNDO.
 
   {&timerStart}
-
-  /* Find out if there has been a change in the browse or in one of
-   * its columns. If no changes, save a little time by not redrawing
-   */
-  IF NOT isBrowseChanged(phBrowse) THEN RETURN.
 
   /* To prevent drawing error, make all fields small */
   PUBLISH "DD:Timer" ("start", "resizeFilterFields:makeSmall").
@@ -3749,6 +3111,47 @@ END PROCEDURE. /* setCaching */
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-setFavourite) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setFavourite Procedure 
+PROCEDURE setFavourite :
+/* Set / unset / toggle a table as favourite
+*/
+  DEFINE INPUT PARAMETER pcTable     AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER pcGroupName AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER plFavourite AS LOGICAL   NO-UNDO.
+
+  DEFINE VARIABLE i     AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE cList AS CHARACTER NO-UNDO.
+
+  cList = getRegistry("DataDigger:Favourites", pcGroupName).
+  IF cList = ? THEN cList = ''.
+  i = LOOKUP(pcTable, cList).
+
+  /* Toggle setting? */
+  IF plFavourite = ? THEN plFavourite = (i = 0).
+
+  /* Add to favourites */
+  IF NOT plFavourite AND i > 0 THEN 
+  DO:
+    ENTRY(i, cList) = ''.
+    cList = REPLACE(cList,',,',',').
+    cList = TRIM(cList,',').
+  END.
+
+  /* Remove from favourites */
+  IF plFavourite AND i = 0 THEN 
+    cList = TRIM(SUBSTITUTE('&1,&2', cList, pcTable),',').
+
+  setRegistry("DataDigger:Favourites", pcGroupName, cList).
+
+END PROCEDURE. /* setFavourite */
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-setLabelPosition) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setLabelPosition Procedure 
@@ -3846,32 +3249,6 @@ PROCEDURE setTransparency :
   RUN SetLayeredWindowAttributes(phFrame:HWND, 0, piLevel, {&LWA_ALPHA}, OUTPUT stat).
 
 END PROCEDURE. /* setTransparency */
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-setUsage) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setUsage Procedure 
-PROCEDURE setUsage :
-/* Save DataDigger usage in the INI file
-  */
-  DEFINE INPUT PARAMETER pcName AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE i AS INTEGER NO-UNDO.
-
-  {&timerStart}
-
-  i = INTEGER(getRegistry("DataDigger:Usage", SUBSTITUTE("&1:numUsed", pcName))).
-  IF i = ? THEN i = 0.
-
-  i = i + 1.
-  setRegistry("DataDigger:Usage", SUBSTITUTE("&1:numUsed", pcName), STRING(i)).
-
-  {&timerStop}
-
-END PROCEDURE. /* setUsage */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -5224,7 +4601,7 @@ FUNCTION getUserName RETURNS CHARACTER
   RUN GetUserNameA(INPUT mUserId, INPUT-OUTPUT intSize, OUTPUT intResult).
   COPY-LOB mUserId FOR (intSize - 1) TO cUserName NO-CONVERT.
 
-  IF intResult <> 1 THEN
+  IF intResult <> 1 OR cUserName = "" OR cUserName = ? THEN
     cUserName = "default".
   ELSE
     cUserName = REPLACE(cUserName,".","").
@@ -5321,41 +4698,6 @@ FUNCTION getXmlNodeName RETURNS CHARACTER
   RETURN pcFieldName.
 
 END FUNCTION. /* getXmlNodeName */
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-isBrowseChanged) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION isBrowseChanged Procedure 
-FUNCTION isBrowseChanged RETURNS LOGICAL
-  ( INPUT phBrowse AS HANDLE ) :
-  /* Check the browse to see if its size has changed
-  */
-  DEFINE VARIABLE iField  AS INTEGER NO-UNDO.
-  DEFINE VARIABLE hColumn AS HANDLE  NO-UNDO.
-
-  IF NOT VALID-HANDLE(phBrowse) THEN RETURN FALSE.
-  IF phBrowse:TYPE <> "BROWSE" THEN RETURN FALSE.
-
-  {&TimerStart}
-
-  /* First check the browse itself */
-  IF isWidgetChanged(phBrowse) THEN RETURN TRUE.
-
-  DO iField = 1 TO phBrowse:NUM-COLUMNS:
-    hColumn = phBrowse:GET-BROWSE-COLUMN(iField):handle.
-    IF isWidgetChanged(hColumn) THEN RETURN TRUE.
-  END. /* browse */
-
-  /* apparently nothing changed, so... */
-  PUBLISH "debugInfo" (2, SUBSTITUTE("Nothing changed in browse: &1", phBrowse:NAME)).
-
-  RETURN FALSE.
-  {&timerStop}
-END FUNCTION. /* isBrowseChanged */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -5537,48 +4879,6 @@ FUNCTION isValidCodePage RETURNS LOGICAL
   RETURN NOT ERROR-STATUS:ERROR.
 
 END FUNCTION. /* isValidCodePage */
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ENDIF
-
-&IF DEFINED(EXCLUDE-isWidgetChanged) = 0 &THEN
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION isWidgetChanged Procedure 
-FUNCTION isWidgetChanged RETURNS LOGICAL
-  ( INPUT phWidget AS HANDLE ) :
-  /* Returns whether a widget is changed (position or size)
-  */
-  DEFINE VARIABLE lChangeDetected AS LOGICAL NO-UNDO.
-  DEFINE BUFFER ttWidget FOR ttWidget.
-
-  IF NOT VALID-HANDLE(phWidget) THEN RETURN FALSE.
-  {&timerStart}
-
-  FIND ttWidget WHERE ttWidget.hWidget = phWidget NO-ERROR.
-  IF NOT AVAILABLE ttWidget THEN
-  DO:
-    CREATE ttWidget.
-    ASSIGN ttWidget.hWidget = phWidget.
-  END.
-
-  PUBLISH "debugInfo" (3, SUBSTITUTE("Widget: &1 &2", phWidget:TYPE, phWidget:NAME)).
-
-  IF ttWidget.iPosX  <> phWidget:X
-  OR ttWidget.iWidth <> phWidget:WIDTH-PIXELS THEN
-  DO:
-    ASSIGN
-      ttWidget.iPosX  = phWidget:X
-      ttWidget.iWidth = phWidget:WIDTH-PIXELS
-      lChangeDetected = TRUE.
-  END.
-
-  PUBLISH "debugInfo" (2, SUBSTITUTE("  Widget changed: &1", lChangeDetected)).
-
-  RETURN lChangeDetected.
-  {&TimerStop}
-END FUNCTION. /* isWidgetChanged */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
