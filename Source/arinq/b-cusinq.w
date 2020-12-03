@@ -29,7 +29,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE yellowColumnsName b-cusinq
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE sizeOption HEIGHT
+//&SCOPED-DEFINE sizeOption HEIGHT
 &SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
 

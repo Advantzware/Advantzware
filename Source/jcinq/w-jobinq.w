@@ -1008,20 +1008,20 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-change-page W-Win 
 PROCEDURE local-change-page :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
+    /*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
   /* Code placed here will execute PRIOR to standard behavior. */
   {methods/winReSizePgChg.i}
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
+  
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN get-attribute ('Current-Page':U).
-  lv-current-page = int(return-value).
+  lv-current-page = int(RETURN-VALUE).
 
   IF lv-current-page EQ 1 THEN
      RUN value-changed-proc IN h_b-jobinq.

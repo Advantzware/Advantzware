@@ -35,9 +35,13 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var ll-enable-trx as log no-undo.
+DEF VAR ll-enable-trx AS LOG NO-UNDO.
 {custom/gcompany.i}
-
+&SCOPED-DEFINE winReSize
+&SCOPED-DEFINE h_Browse01 h_b-rfqlst
+&SCOPED-DEFINE h_Object01 h_v-set
+&SCOPED-DEFINE h_Object02 h_rfqtoest
+&SCOPED-DEFINE h_Object03 h_p-updsav-2
 /*&SCOPED-DEFINE setUserPrint*/
 
 /* _UIB-CODE-BLOCK-END */
@@ -830,12 +834,12 @@ PROCEDURE local-change-page :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
-  if integer(return-value) > 3 and not ll-enable-trx then do:
-     ll-enable-trx = yes.
+  IF INTEGER(RETURN-VALUE) > 3 AND NOT ll-enable-trx THEN DO:
+     ll-enable-trx = YES.
     /* RUN enable_UI IN h_rfqtoest NO-ERROR .*/
-     run dispatch in h_rfqtoest ('enable').     
-  end.
-
+     RUN dispatch IN h_rfqtoest ('enable').     
+  END.
+    {methods/winReSizePgChg.i}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

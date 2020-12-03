@@ -33,7 +33,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE yellowColumnsName procat
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE sizeOption HEIGHT
+//&SCOPED-DEFINE sizeOption HEIGHT
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */

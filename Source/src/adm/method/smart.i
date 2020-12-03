@@ -731,7 +731,8 @@ PROCEDURE get-position :
     IF VALID-HANDLE(adm-object-hdl) THEN         
      /* Get object's position */
       ASSIGN p-row = adm-object-hdl:ROW        
-             p-col = adm-object-hdl:COLUMN.         
+             p-col = adm-object-hdl:COLUMN
+             NO-ERROR.         
     RETURN.
   &global-define EXCLUDE-get-position true  
 END PROCEDURE.
@@ -756,7 +757,8 @@ PROCEDURE get-size :
     DEFINE OUTPUT PARAMETER p-width    AS DECIMAL NO-UNDO.     
       /* Get object's size */
       ASSIGN p-height = adm-object-hdl:HEIGHT-CHARS
-             p-width = adm-object-hdl:WIDTH-CHARS.    
+             p-width = adm-object-hdl:WIDTH-CHARS
+             NO-ERROR.    
     RETURN.
   &global-define EXCLUDE-get-size true  
 END PROCEDURE.

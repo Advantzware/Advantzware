@@ -43,6 +43,9 @@ CREATE WIDGET-POOL.
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
+&SCOPED-DEFINE winReSize
+&SCOPED-DEFINE h_Browse01 h_itemfg2
+&SCOPED-DEFINE h_Object01 h_p-updcan
 
 &Scoped-define PROCEDURE-TYPE SmartWindow
 &Scoped-define DB-AWARE no
@@ -125,7 +128,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 150
          VIRTUAL-HEIGHT     = 24
          VIRTUAL-WIDTH      = 150
-         RESIZE             = no
+         RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
          BGCOLOR            = ?

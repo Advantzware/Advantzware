@@ -215,7 +215,9 @@ OPEN QUERY {&SELF-NAME} FOR EACH temp-rec.
       the object is explicitly initialized from its container. */
    RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
-
+PROCEDURE browse-identifier:
+/* Purpose: To make external programs identify this is a navigation brower using current procedure handle. */
+END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

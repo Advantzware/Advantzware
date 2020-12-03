@@ -24,7 +24,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 &SCOPED-DEFINE setUserPrint
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE sizeOption HEIGHT
+//&SCOPED-DEFINE sizeOption HEIGHT
 &SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
 

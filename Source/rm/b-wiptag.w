@@ -25,6 +25,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE yellowColumnsName b-wiptag
 &SCOPED-DEFINE winReSize
+//&SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */

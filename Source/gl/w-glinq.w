@@ -493,15 +493,15 @@ PROCEDURE local-change-page :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  {methods/winReSizePgChg.i}
+ // {methods/winReSizePgChg.i}
 
-  run get-attribute ("current-page").
-  assign li-prev-page = li-cur-page
-         li-cur-page = int(return-value).
+  RUN get-attribute ("current-page").
+  ASSIGN li-prev-page = li-cur-page
+         li-cur-page = int(RETURN-VALUE).
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
-  
+    {methods/winReSizePgChg.i}
    IF li-cur-page EQ 3 THEN
    DO:
      RUN local-open-query IN h_b-glbal .

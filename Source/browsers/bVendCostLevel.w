@@ -31,10 +31,10 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE winReSize
+/*&SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT
 &SCOPED-DEFINE browseOnly
-{methods/defines/winReSize.i}
+{methods/defines/winReSize.i}*/
 
 /* Parameters Definitions ---                                           */
 
@@ -345,7 +345,7 @@ END.
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
-{methods/winReSize.i}
+//{methods/winReSize.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

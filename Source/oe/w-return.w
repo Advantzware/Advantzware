@@ -35,8 +35,8 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_b-return
-&SCOPED-DEFINE h_Object01 h_v-retlin
-&SCOPED-DEFINE h_Object02 h_p-oeretl
+//&SCOPED-DEFINE h_Object01 h_v-retlin
+//&SCOPED-DEFINE h_Object02 h_p-oeretl
 
 /* Parameters Definitions ---                                           */
 

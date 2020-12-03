@@ -25,7 +25,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE cellColumnDat browsers-soldto
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE sizeOption HEIGHT
+//&SCOPED-DEFINE sizeOption HEIGHT
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */

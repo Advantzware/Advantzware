@@ -149,3 +149,58 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+
+&IF DEFINED(EXCLUDE-get-position) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-position Method-Library 
+PROCEDURE get-position :
+/* -----------------------------------------------------------
+  Purpose:     Moves an object to a specified position.
+  Parameters:  ROW and COLUMN 
+  Notes:       
+-------------------------------------------------------------*/
+  
+    DEFINE OUTPUT PARAMETER p-row    AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER p-col    AS DECIMAL NO-UNDO.
+    
+    IF VALID-HANDLE(adm-object-hdl) THEN         
+     /* Get object's position */
+      ASSIGN p-row = adm-object-hdl:ROW        
+             p-col = adm-object-hdl:COLUMN
+             NO-ERROR.         
+    RETURN.
+  &global-define EXCLUDE-get-position true  
+END PROCEDURE.
+
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-get-size) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-size Method-Library 
+PROCEDURE get-size :
+/* -----------------------------------------------------------
+  Purpose:     Moves an object to a specified size.
+  Parameters:  ROW and COLUMN 
+  Notes:       
+-------------------------------------------------------------*/
+  
+    DEFINE OUTPUT PARAMETER p-height   AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER p-width    AS DECIMAL NO-UNDO.     
+      /* Get object's size */
+      ASSIGN p-height = adm-object-hdl:HEIGHT-CHARS
+             p-width = adm-object-hdl:WIDTH-CHARS
+             NO-ERROR.    
+    RETURN.
+  &global-define EXCLUDE-get-size true  
+END PROCEDURE.
+
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF

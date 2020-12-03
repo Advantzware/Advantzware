@@ -24,7 +24,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE browseOnly
-&SCOPED-DEFINE sizeOption HEIGHT
+//&SCOPED-DEFINE sizeOption HEIGHT
 &SCOPED-DEFINE yellowColumnsName b-reconc
 {methods/defines/winReSize.i}
 

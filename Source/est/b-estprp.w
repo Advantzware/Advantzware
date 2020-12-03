@@ -26,6 +26,7 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE yellowColumnsName b-estprp           /*Task# 01211414*/
 &SCOPED-DEFINE winReSize
+&SCOPED-DEFINE sizeOption width
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */

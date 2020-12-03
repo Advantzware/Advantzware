@@ -27,7 +27,8 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Browse01 h_sman
 &SCOPED-DEFINE h_Object01 h_smnbudcp
 &SCOPED-DEFINE h_Object02 h_p-updsav-5
-
+&SCOPED-DEFINE h_Object03 h_p-updsav-2
+&SCOPED-DEFINE moveRight {&h_Object03}
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

@@ -394,9 +394,9 @@ PROCEDURE adm-create-objects :
 
   END CASE.
   /* Select a Startup page. */
-  IF adm-current-page eq 0 
+  IF adm-current-page EQ 0 
   THEN RUN select-page IN THIS-PROCEDURE ( 1 ).
-
+{methods/winReSizePgChg.i}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

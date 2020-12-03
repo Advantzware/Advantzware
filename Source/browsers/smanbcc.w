@@ -32,7 +32,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE sizeOption HEIGHT
+//&SCOPED-DEFINE sizeOption HEIGHT
 &SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
 
@@ -358,26 +358,26 @@ ON HELP OF br_table IN FRAME F-Main
 DO:
    DEF VAR char-val AS cha NO-UNDO.
    CASE FOCUS:NAME:
-        when "cust-no" then do:
-             run windows/l-cust.w (g_company,focus:screen-value, output char-val).
-             if char-val <> "" AND AVAIL tt-bud then DO:
-                assign tt-bud.cust-no:screen-value IN BROWSE {&browse-name} = entry(1,char-val)
+        WHEN "cust-no" THEN DO:
+             RUN windows/l-cust.w (g_company,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+             IF char-val <> "" AND AVAIL tt-bud THEN DO:
+                ASSIGN tt-bud.cust-no:screen-value IN BROWSE {&browse-name} = ENTRY(1,char-val)
                        /*ocat-desc:screen-value = entry(2,char-val)*/
                        .
                 APPLY 'tab' TO tt-bud.cust-no.
              END.
-        end.
-        when "procat" then do:
+        END.
+        WHEN "procat" THEN DO:
              IF rd_cust-procat = "C" THEN
-                run windows/l-fgcat.w (g_company,focus:screen-value, output char-val).
-             ELSE run windows/l-cust.w (g_company,focus:screen-value, output char-val).
-             if char-val <> "" AND AVAIL tt-bud then DO:
-                assign tt-bud.procat:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val)
+                RUN windows/l-fgcat.w (g_company,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+             ELSE RUN windows/l-cust.w (g_company,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+             IF char-val <> "" AND AVAIL tt-bud THEN DO:
+                ASSIGN tt-bud.procat:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val)
                        /*ocat-desc:screen-value = entry(2,char-val)*/
                        .
                 APPLY 'tab' TO tt-bud.procat.
              END.
-        end.
+        END.
    END CASE.
    RETURN NO-APPLY.
 END.

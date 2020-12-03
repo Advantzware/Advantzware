@@ -537,12 +537,12 @@ PROCEDURE local-change-page :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-  {methods/winReSizePgChg.i}
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
+  /* Code placed here will execute PRIOR to standard behavior. */
+    {methods/winReSizePgChg.i}
   /* Code placed here will execute AFTER standard behavior.    */
   
 END PROCEDURE.

@@ -26,6 +26,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+&SCOPED-DEFINE winReSize
+{methods/defines/winReSize.i}
 {custom/globdefs.i}
 {custom/gcompany.i}
 
@@ -1242,6 +1244,7 @@ END.
 /* ***************************  Main Block  *************************** */
 {methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
+{methods/winReSize.i}
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF

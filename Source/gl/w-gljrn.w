@@ -668,18 +668,18 @@ PROCEDURE local-change-page :
   DEF VAR lv-balanced AS LOG NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  {methods/winReSizePgChg.i}
+
 
   RUN GET-ATTRIBUTE ("current-page").
   ASSIGN lv-prev-page = lv-curr-page
-         lv-curr-page = int(return-value).
+         lv-curr-page = int(RETURN-VALUE).
   
   IF lv-prev-page = 2  THEN DO:
      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"is-balanced-source",OUTPUT char-hdl).
      RUN check-balanced IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-balanced).
-     IF NOT lv-balanced THEN do:
+     IF NOT lv-balanced THEN DO:
          MESSAGE "You are out of balance." VIEW-AS ALERT-BOX ERROR. 
-         run select-page (lv-prev-page).
+         RUN select-page (lv-prev-page).
          RETURN NO-APPLY.
      END.
   END.
@@ -687,9 +687,9 @@ PROCEDURE local-change-page :
      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"is-recurbal-source",OUTPUT char-hdl).
      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:     
         RUN check-balanced IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-balanced).
-        IF NOT lv-balanced THEN do:
+        IF NOT lv-balanced THEN DO:
            MESSAGE "Recuring Entry is out of balance." VIEW-AS ALERT-BOX ERROR. 
-           run select-page (lv-prev-page).
+           RUN select-page (lv-prev-page).
            RETURN NO-APPLY.
         END.
      END.
@@ -698,7 +698,7 @@ PROCEDURE local-change-page :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+    {methods/winReSizePgChg.i}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

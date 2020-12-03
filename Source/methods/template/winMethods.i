@@ -38,6 +38,7 @@ DEFINE VARIABLE hAuditCtrl-A       AS HANDLE    NO-UNDO.
 {custom/resizdef.i}  /* resizing window definition include */
 {methods/template/globaldef.i}
 deOrigWinWidth = {&WINDOW-NAME}:WIDTH.
+deOrigWinHeight = {&WINDOW-NAME}:HEIGHT.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -97,7 +98,7 @@ hTable = BUFFER {&FIRST-EXTERNAL-TABLE}:HANDLE.
 FIND FIRST company NO-LOCK WHERE company.company EQ g_company NO-ERROR .
 
 {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - {&awversion}" + " - " + string(company.name) + " - " + g_loc  .
- 
+ /*
 ON WINDOW-MAXIMIZED OF {&WINDOW-NAME} DO:
 
     DEFINE VARIABLE cSmartObjList AS CHARACTER NO-UNDO.
@@ -159,7 +160,7 @@ ON WINDOW-MAXIMIZED OF {&WINDOW-NAME} DO:
     END.  
   
 END.
-
+*/
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

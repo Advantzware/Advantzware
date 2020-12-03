@@ -30,7 +30,8 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object03 h_vp-est
 &SCOPED-DEFINE h_Object04 h_p-probe
 &SCOPED-DEFINE h_Object05 h_p-estop
-&SCOPED-DEFINE moveRight {&h_Object05}
+&SCOPED-DEFINE h_Object06 h_p-estprp
+&SCOPED-DEFINE moveRight {&h_Object05},{&h_Object06}
 
 &SCOPED-DEFINE winViewPrgmName w-est
 

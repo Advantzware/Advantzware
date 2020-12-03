@@ -39,14 +39,17 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+&SCOPED-DEFINE winReSize
+&SCOPED-DEFINE browseOnly
+{methods/defines/winReSize.i}
 {methods/defines/hndldefs.i}
 {custom/globdefs.i}
 {methods/template/brwCustomDef.i}
 /*&Scoped-define Item-KEY-PHRASE TRUE */
 
-def var CurRowIdent as rowid no-undo.
-def var ll-is-corr-style as log no-undo.
-def var K_frac as dec init 6.25 no-undo.
+DEF VAR CurRowIdent AS ROWID NO-UNDO.
+DEF VAR ll-is-corr-style AS LOG NO-UNDO.
+DEF VAR K_frac AS DEC INIT 6.25 NO-UNDO.
 
 {sys/inc/VAR.i NEW SHARED}
 {sys/inc/varasgn.i}
@@ -150,10 +153,10 @@ DEF VAR browser-log AS LOG NO-UNDO.
 DEF VAR lv-rfqbrows-int AS INT NO-UNDO.
 
 DO TRANSACTION:
-  find first sys-ctrl where sys-ctrl.company eq g_company
-                        and sys-ctrl.name    eq "RFQBROWS" no-lock no-error.
-  if not avail sys-ctrl then do:
-     create sys-ctrl.
+  FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ g_company
+                        AND sys-ctrl.name    EQ "RFQBROWS" NO-LOCK NO-ERROR.
+  IF NOT AVAIL sys-ctrl THEN DO:
+     CREATE sys-ctrl.
      ASSIGN sys-ctrl.company = cocode
             sys-ctrl.name    = "RFQBROWS"
             sys-ctrl.descrip = "Show records when first entering RFQ browsers."
@@ -161,7 +164,7 @@ DO TRANSACTION:
             sys-ctrl.int-fld = 10.
      MESSAGE sys-ctrl.descrip VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
      UPDATE sys-ctrl.log-fld.
-  end.
+  END.
   ASSIGN browser-log = sys-ctrl.log-fld.
 END.
 lv-rfqbrows-int = sys-ctrl.int-fld.
@@ -169,7 +172,7 @@ lv-rfqbrows-int = sys-ctrl.int-fld.
 ll-initial = browser-log.
 
 DEF BUFFER blast-rfq FOR rfq.
-DEF VAR lv-last-rfq-no AS int NO-UNDO.
+DEF VAR lv-last-rfq-no AS INT NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -241,7 +244,7 @@ vi_part-dscr1 vi_style vi_est-no vi_len vi_wid vi_dep fi_sort-by
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD to-corrware-dim B-table-Win 
 FUNCTION to-corrware-dim RETURNS DECIMAL
-  ( input ip-is-corr-style as log, input  ip-dim as decimal )  FORWARD.
+  ( INPUT ip-is-corr-style AS LOG, INPUT  ip-dim AS DECIMAL )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -659,21 +662,21 @@ ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:
     &SCOPED-DEFINE exclude-row-display true
     {methods/template/brwRowDisplay.i} 
-    find style where style.company = rfq.company and
+    FIND style WHERE style.company = rfq.company AND
                       style.style = rfqitem.style
-                      no-lock no-error.
+                      NO-LOCK NO-ERROR.
 
-   if avail style and style.industry = "2" then   ll-is-corr-style = yes.
-   else ll-is-corr-style = no.
+   IF AVAIL style AND style.industry = "2" THEN   ll-is-corr-style = YES.
+   ELSE ll-is-corr-style = NO.
 
-   IF ll-is-corr-style then
-      assign rfqitem.len:format in browse {&browse-name} = ">>>>9.99"
-             rfqitem.wid:format in browse {&browse-name} = ">>>>9.99"
-             rfqitem.dep:format in browse {&browse-name} = ">>>>9.99"
+   IF ll-is-corr-style THEN
+      ASSIGN rfqitem.len:format IN BROWSE {&browse-name} = ">>>>9.99"
+             rfqitem.wid:format IN BROWSE {&browse-name} = ">>>>9.99"
+             rfqitem.dep:format IN BROWSE {&browse-name} = ">>>>9.99"
              .
-   else assign rfqitem.len:format in browse {&browse-name} = ">>9.99999"
-               rfqitem.wid:format in browse {&browse-name} = ">>9.99999"
-               rfqitem.dep:format in browse {&browse-name} = ">>9.99999"
+   ELSE ASSIGN rfqitem.len:format IN BROWSE {&browse-name} = ">>9.99999"
+               rfqitem.wid:format IN BROWSE {&browse-name} = ">>9.99999"
+               rfqitem.dep:format IN BROWSE {&browse-name} = ">>9.99999"
              .
 END.
 
@@ -744,7 +747,7 @@ DO:
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
     
-  CurRowIdent = rowid(rfq).
+  CurRowIdent = ROWID(rfq).
   
 END.
 
@@ -859,9 +862,9 @@ ON HELP OF vi_est-no IN FRAME F-Main
 DO:
    DEF VAR char-val AS cha NO-UNDO.
 
-    run windows/l-esttyp.w (g_company,g_loc,"1234","EST",focus:screen-value, output char-val).
-    if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-    return no-apply.
+    RUN windows/l-esttyp.w (g_company,g_loc,"1234","EST",FOCUS:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -917,9 +920,9 @@ ON HELP OF vi_part-no IN FRAME F-Main
 DO:
   DEF VAR char-val AS cha NO-UNDO.
 
-    run windows/l-esttyp.w (g_company,g_loc,"1234","part",focus:screen-value, output char-val).
-    if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(2,char-val).
-    return no-apply.
+    RUN windows/l-esttyp.w (g_company,g_loc,"1234","part",FOCUS:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(2,char-val).
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -962,9 +965,9 @@ ON HELP OF vi_rfq-no IN FRAME F-Main
 DO:
    DEF VAR char-val AS cha NO-UNDO.
 
-    run windows/l-esttyp.w (g_company,g_loc,"1234","EST",focus:screen-value, output char-val).
-    if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-    return no-apply.
+    RUN windows/l-esttyp.w (g_company,g_loc,"1234","EST",FOCUS:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1018,6 +1021,7 @@ END.
 /* ***************************  Main Block  *************************** */
 {methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
+{methods/winReSize.i}
 /*
 FIND FIRST ce-ctrl WHERE ce-ctrl.company = gcompany and
                          ce-ctrl.loc = gloc NO-LOCK NO-ERROR.
@@ -1236,7 +1240,7 @@ PROCEDURE local-hide :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-   def buffer bf-first for est.
+   DEF BUFFER bf-first FOR est.
   
   /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -1427,23 +1431,23 @@ PROCEDURE New_record :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- def input parameter ip-rowid as rowid no-undo.
+ DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
   
   lv-first-run = YES.
   
-  run local-open-query.
+  RUN local-open-query.
   
   /*
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"itemrec-target",OUTPUT char-hdl).
   RUN dispatch IN WIDGET-HANDLE(char-hdl) ('open-query').
   */
 
-  do with frame {&frame-name}:
-    reposition {&browse-name} to rowid ip-rowid no-error.  
-    run dispatch ('row-changed').
-    apply "value-changed" to {&browse-name}.
-    return no-apply.  
-  end.
+  DO WITH FRAME {&frame-name}:
+    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.  
+    RUN dispatch ('row-changed').
+    APPLY "value-changed" TO {&browse-name}.
+    RETURN NO-APPLY.  
+  END.
 
 END PROCEDURE.
 
@@ -1457,12 +1461,12 @@ PROCEDURE RefreshRow :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  define input parameter pcMode     as character no-undo.
-  define input parameter prRowIdent as rowid     no-undo.
+  DEFINE INPUT PARAMETER pcMode     AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER prRowIdent AS ROWID     NO-UNDO.
   
-  if pcMode = 'newRecord':U then do:
-     def var lv-rowid-rfqitem as rowid no-undo.
-     run get-rowid (output lv-rowid-rfqitem).
+  IF pcMode = 'newRecord':U THEN DO:
+     DEF VAR lv-rowid-rfqitem AS ROWID NO-UNDO.
+     RUN get-rowid (OUTPUT lv-rowid-rfqitem).
 
     /*run dispatch ( 'open-query':U ). */
     {&open-query-{&browse-name}}
@@ -1474,21 +1478,21 @@ message  string(prrowident) string(lv-rowid-rfqitem) string(currowident)
         view-as alert-box.
 */
 
-    reposition browser-table to rowid if prrowident <> ? then prrowident else CurRowIdent. /* prRowIdent.  lv-rowid-rfqitem. */
+    REPOSITION browser-table TO ROWID IF prrowident <> ? THEN prrowident ELSE CurRowIdent. /* prRowIdent.  lv-rowid-rfqitem. */
 
-    do while true:
-      if available rfq then
-         if (prrowident <> ? and rowid(rfq) = prRowIdent) or
+    DO WHILE TRUE:
+      IF AVAILABLE rfq THEN
+         IF (prrowident <> ? AND rowid(rfq) = prRowIdent) OR
             (currowident = rowid(rfq) ) 
-          then leave.
-      browse browser-Table:select-next-row().
-      browse browser-Table:fetch-selected-row(1).
-    end.  
+          THEN LEAVE.
+      BROWSE browser-Table:select-next-row().
+      BROWSE browser-Table:fetch-selected-row(1).
+    END.  
    
-  end.
-  else do :
+  END.
+  ELSE DO :
 /*    find current rfqitem no-lock no-error.*/
-  end.
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1531,9 +1535,9 @@ PROCEDURE set-defaults :
           vi_style = ""
           vi_len = 0
           vi_req-date = ? /* DATE(1,1,YEAR(TODAY)) */
-          /*tb_single = YES
-          tb_set = YES
-          tb_tancom = YES*/.
+        /*tb_single = YES
+        tb_set = YES
+        tb_tancom = YES*/.
 
    DISP  vi_est-no 
          begin_cust-no
@@ -1650,17 +1654,17 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION to-corrware-dim B-table-Win 
 FUNCTION to-corrware-dim RETURNS DECIMAL
-  ( input ip-is-corr-style as log, input  ip-dim as decimal ) :
+  ( INPUT ip-is-corr-style AS LOG, INPUT  ip-dim AS DECIMAL ) :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  def var out-dim as dec no-undo.
+  DEF VAR out-dim AS DEC NO-UNDO.
   
-  if ip-is-corr-style then 
+  IF ip-is-corr-style THEN 
      /*round(trunc({1},0) + (({1} - trunc({1},0)) / K_FRAC),2)   sys/inc/k16.i */
-     out-dim = round(trunc(ip-dim,0) + ((ip-dim - trunc(ip-dim,0)) / K_FRAC),2).
-  else out-dim = ip-dim.
+     out-dim = ROUND(trunc(ip-dim,0) + ((ip-dim - trunc(ip-dim,0)) / K_FRAC),2).
+  ELSE out-dim = ip-dim.
 /*
   if rfqitem.rfq-no = 343 then
     message "rfqpart, function is corr-style? " ip-is-corr-style 

@@ -35,6 +35,8 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE h_Browse01 h_scoreType
+&SCOPED-DEFINE h_Object01 h_p-updsav
+&SCOPED-DEFINE moveRight {&h_Object01}
 
 /* Parameters Definitions ---                                           */
 

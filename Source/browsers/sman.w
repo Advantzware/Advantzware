@@ -35,7 +35,7 @@ CREATE WIDGET-POOL.
 /* gdm - 09150810 */
 &SCOPED-DEFINE yellowColumnsName sman
 &SCOPED-DEFINE winReSize
-&SCOPED-DEFINE sizeOption HEIGHT
+//&SCOPED-DEFINE sizeOption HEIGHT
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */

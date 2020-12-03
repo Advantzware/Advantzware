@@ -601,7 +601,7 @@ PROCEDURE local-change-page :
   DEF VAR viCurrentPage AS INT NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  {methods/winReSizePgChg.i}
+
 
   RUN GET-ATTRIBUTE('current-page').
 
@@ -613,7 +613,7 @@ PROCEDURE local-change-page :
   /* Code placed here will execute AFTER standard behavior.    */
   IF viCurrentPage  = 4 THEN
      RUN get-po-recs.
-  
+    {methods/winReSizePgChg.i}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

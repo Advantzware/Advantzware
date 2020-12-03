@@ -8,46 +8,63 @@
 /* Skip all of this if no window was created. */
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 
-DEFINE VARIABLE hTemp           AS HANDLE    NO-UNDO.
-DEFINE VARIABLE deResizeVal     AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE cSmartObjList   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iCntWidHand            AS INTEGER   NO-UNDO.
-DEFINE VARIABLE deRowPos        AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE deColPos        AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE deWidth         AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE deHeight        AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE deTempColPos    AS DECIMAL   NO-UNDO.
-
-
-DEFINE TEMP-TABLE toreposition 
-    FIELDS widhand  AS CHARACTER 
-    FIELDS colpos   AS DECIMAL
-    FIELDS rowpos   AS DECIMAL  
-    FIELDS widwidth AS DECIMAL.
+ASSIGN
+    hTempWinmn    = ?
+    deResizeVal   = 0
+    deTempColPos  = 0
+    cSmartObjList = ""
+    deRowPos      = 0
+    deColPos      = 0
+    deWidth       = 0
+    deHeight      = 0
+    .
 
 IF VALID-HANDLE({&WINDOW-NAME}) THEN DO:
     ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        {&WINDOW-NAME}:KEEP-FRAME-Z-ORDER = YES
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
-    hTemp  = FRAME {&FRAME-NAME}:handle.
-    IF VALID-HANDLE(hTemp) THEN
-        hTemp  = hTemp:FIRST-CHILD .       
-    IF hTemp:TYPE = "FIELD-GROUP" THEN  
-        hTemp  = hTemp:FIRST-CHILD .
-    REPEAT WHILE VALID-HANDLE(hTemp):
-        IF hTemp:NAME = "OPTIONS-FRAME"  THEN
-        ASSIGN
-            hTemp:ROW                   = 1
-            hTemp:COLUMN                = 1
-            hTemp:BGCOLOR               = 21
-            hTemp:WIDTH                 = {&WINDOW-NAME}:width
-            hTemp:VIRTUAL-HEIGHT-PIXELS = hTemp:HEIGHT-PIXELS
-            hTemp:VIRTUAL-WIDTH-PIXELS  = hTemp:WIDTH-PIXELS
-            . 
-        hTemp = hTemp:NEXT-SIBLING.
-    END.
+    FRAME {&FRAME-NAME}:height =  {&WINDOW-NAME}:height.
+    FRAME {&FRAME-NAME}:width = {&WINDOW-NAME}:width.  
+    FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = FRAME {&FRAME-NAME}:HEIGHT-PIXELS.
+    FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS = FRAME {&FRAME-NAME}:WIDTH-PIXELS.
+    FRAME {&FRAME-NAME}:row =  1.
+    FRAME {&FRAME-NAME}:COLUMN = 1.
     
-    hTemp = ?.
+    hTempWinmn  = FRAME {&FRAME-NAME}:handle.
+    
+    IF VALID-HANDLE(hTempWinmn) THEN
+        hTempWinmn  = hTempWinmn:FIRST-CHILD. 
+              
+    IF hTempWinmn:TYPE = "FIELD-GROUP" THEN  
+        hTempWinmn  = hTempWinmn:FIRST-CHILD.
+        
+    REPEAT WHILE VALID-HANDLE(hTempWinmn):
+        IF hTempWinmn:NAME = "OPTIONS-FRAME"  THEN
+        DO:
+            ASSIGN
+                hTempWinmn:ROW                   = 1
+                hTempWinmn:COLUMN                = 1
+                hTempWinmn:BGCOLOR               = 21
+                hTempWinmn:WIDTH                 = {&WINDOW-NAME}:width
+                hTempWinmn:VIRTUAL-HEIGHT-PIXELS = hTempWinmn:HEIGHT-PIXELS
+                hTempWinmn:VIRTUAL-WIDTH-PIXELS  = hTempWinmn:WIDTH-PIXELS
+                . 
+            FIND FIRST toreposition WHERE toreposition.widhand =  STRING(hTempWinmn) NO-ERROR.
+            IF NOT AVAILABLE toreposition THEN
+            CREATE toreposition.
+            ASSIGN 
+                toreposition.widhand   = STRING(hTempWinmn)
+                toreposition.colpos    = hTempWinmn:COLUMN
+                toreposition.rowpos    = hTempWinmn:ROW
+                toreposition.widwidth  = hTempWinmn:WIDTH
+                toreposition.widheight = hTempWinmn:height
+                toreposition.widtype   = "Option-frame"
+                .  
+         END.
+        hTempWinmn        = hTempWinmn:NEXT-SIBLING.
+    END.
+
+    hTempWinmn = ?.
      
     /* The CLOSE event can be used from inside or outside the procedure to  */
     /* terminate it.                                                        */
@@ -55,7 +72,147 @@ IF VALID-HANDLE({&WINDOW-NAME}) THEN DO:
        RUN dispatch IN THIS-PROCEDURE ('destroy':U).
 
     RUN dispatch ('create-objects':U).
-
+    
+    &IF DEFINED(h_Object01) NE 0 &THEN
+        FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object01}) NO-ERROR.
+        IF NOT AVAILABLE toreposition THEN
+            CREATE toreposition.
+        ASSIGN 
+            toreposition.widhand    = STRING({&h_Object01})
+            toreposition.resizepage = "1"       
+            toreposition.widtype   = "movedown".
+        &IF DEFINED(moveRight) NE 0 &THEN 
+            IF LOOKUP('{&h_Object01}',"{&moveRight}",",") > 0  THEN
+                toreposition.widtype   = "moveright".         
+        &endif         
+    &endif
+    
+    &IF DEFINED(h_Object02) NE 0 &THEN
+        FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object02}) NO-ERROR.
+        IF NOT AVAILABLE toreposition THEN
+            CREATE toreposition.
+        ASSIGN 
+            toreposition.widhand    = STRING({&h_Object02})
+            toreposition.resizepage = "1"      
+            toreposition.widtype   = "movedown".
+        &IF DEFINED(moveRight) NE 0 &THEN 
+            IF LOOKUP('{&h_Object02}',"{&moveRight}",",") > 0 THEN
+                toreposition.widtype   = "moveright".
+        &endif
+    &endif
+        
+    &IF DEFINED(h_Object03) NE 0 &THEN
+        FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object03}) NO-ERROR.
+        IF NOT AVAILABLE toreposition THEN
+            CREATE toreposition.
+        ASSIGN 
+            toreposition.widhand    = STRING({&h_Object03})
+            toreposition.resizepage = "1"      
+            toreposition.widtype   = "movedown".
+        &IF DEFINED(moveRight) NE 0 &THEN 
+        IF LOOKUP('{&h_Object03}',"{&moveRight}",",") > 0  THEN
+              toreposition.widtype   = "moveright".
+        &endif   
+    &endif
+    
+    &IF DEFINED(h_Object04) NE 0 &THEN
+        FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object04}) NO-ERROR.
+        IF NOT AVAILABLE toreposition THEN
+            CREATE toreposition.
+        ASSIGN 
+            toreposition.widhand    = STRING({&h_Object04})
+            toreposition.resizepage = "1"       
+            toreposition.widtype   = "movedown".
+        &IF DEFINED(moveRight) NE 0 &THEN 
+            IF LOOKUP('{&h_Object04}',"{&moveRight}",",") > 0  THEN
+                toreposition.widtype   = "moveright".
+        &endif
+    &endif 
+    
+    &IF DEFINED(h_Object05) NE 0 &THEN
+        FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object05}) NO-ERROR.
+        IF NOT AVAILABLE toreposition THEN
+            CREATE toreposition.
+        ASSIGN 
+            toreposition.widhand    = STRING({&h_Object05})
+            toreposition.resizepage = "1"  
+            toreposition.widtype   = "movedown".
+        &IF DEFINED(moveRight) NE 0 &THEN 
+            IF LOOKUP('{&h_Object05}',"{&moveRight}",",") > 0  THEN
+                toreposition.widtype   = "moveright".
+        &endif  
+    &endif
+    
+    &IF DEFINED(h_Object06) NE 0 &THEN
+        FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object06}) NO-ERROR.
+        IF NOT AVAILABLE toreposition THEN
+            CREATE toreposition.
+        ASSIGN 
+            toreposition.widhand    = STRING({&h_Object06})
+            toreposition.resizepage = "1"    
+            toreposition.widtype   = "movedown".
+        &IF DEFINED(moveRight) NE 0 &THEN 
+            IF LOOKUP('{&h_Object06}',"{&moveRight}",",") > 0  THEN
+                toreposition.widtype   = "moveright".
+        &endif 
+    &endif
+    
+    &IF DEFINED(h_Object07) NE 0 &THEN
+        FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object07}) NO-ERROR.
+        IF NOT AVAILABLE toreposition THEN
+            CREATE toreposition.
+        ASSIGN 
+            toreposition.widhand    = STRING({&h_Object07})
+            toreposition.resizepage = "1"
+            toreposition.widtype   = "movedown".
+        &IF DEFINED(moveRight) NE 0 &THEN 
+            IF LOOKUP('{&h_Object03}',"{&moveRight}",",") > 0  THEN
+                toreposition.widtype   = "moveright".
+        &endif   
+    &endif
+    
+    &IF DEFINED(h_Object08) NE 0 &THEN
+        FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object08}) NO-ERROR.
+        IF NOT AVAILABLE toreposition THEN
+            CREATE toreposition.
+        ASSIGN 
+            toreposition.widhand    = STRING({&h_Object08})
+            toreposition.resizepage = "1"      
+        toreposition.widtype   = "movedown".
+        &IF DEFINED(moveRight) NE 0 &THEN 
+            IF LOOKUP('{&h_Object04}',"{&moveRight}",",") > 0  THEN
+            toreposition.widtype   = "moveright".
+        &endif
+    &endif 
+    
+    &IF DEFINED(h_Object09) NE 0 &THEN
+        FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object09}) NO-ERROR.
+        IF NOT AVAILABLE toreposition THEN
+            CREATE toreposition.
+        ASSIGN 
+            toreposition.widhand    = STRING({&h_Object09})
+            toreposition.resizepage = "1"  
+            toreposition.widtype   = "movedown".
+        &IF DEFINED(moveRight) NE 0 &THEN 
+            IF LOOKUP('{&h_Object05}',"{&moveRight}",",") > 0  THEN
+                toreposition.widtype   = "moveright".
+        &endif  
+    &endif
+    
+    &IF DEFINED(h_Object10) NE 0 &THEN
+        FIND FIRST toreposition WHERE toreposition.widhand =  STRING({&h_Object10}) NO-ERROR.
+        IF NOT AVAILABLE toreposition THEN
+            CREATE toreposition.
+        ASSIGN 
+            toreposition.widhand    = STRING({&h_Object10})
+            toreposition.resizepage = "1"     
+            toreposition.widtype   = "movedown".
+        &IF DEFINED(moveRight) NE 0 &THEN 
+            IF LOOKUP('{&h_Object06}',"{&moveRight}",",") > 0  THEN
+                toreposition.widtype   = "moveright".
+        &endif 
+    &endif
+    
 /* Execute this code only if not being run PERSISTENT, i.e., if in test mode
    of one kind or another or if this is a Main Window. Otherwise postpone 
    'initialize' until told to do so. */
@@ -70,140 +227,79 @@ IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
        // MESSAGE 0 STRING(h_import) VIEW-AS ALERT-BOX.
     /* Now enable the interface and wait for the exit condition.            */
        RUN dispatch ('initialize':U).
-       
+        CREATE pagewinsize.
+        ASSIGN 
+            pagewinsize.pageNo    = "Default"
+            pagewinsize.WinWidth  = {&WINDOW-NAME}:WIDTH
+            pagewinsize.winHeight = {&WINDOW-NAME}:HEIGHT 
+            . 
        RUN getlinktable IN adm-broker-hdl(
            INPUT THIS-PROCEDURE:UNIQUE-ID, 
            OUTPUT cSmartObjList
            ).
 
         DO iCntWidHand = 1 TO NUM-ENTRIES(cSmartObjList,","): 
-            
-            &IF DEFINED (h_Object01) <> 0 &THEN
-                IF STRING({&h_Object01}) = entry(iCntWidHand,cSmartObjList,",")  
-                    THEN NEXT.
-            &ENDIF
-            &IF DEFINED (h_Object02) <> 0 &THEN
-                IF STRING({&h_Object02}) = entry(iCntWidHand,cSmartObjList,",")  
-                    THEN NEXT.
-            &ENDIF
-            &IF DEFINED (h_Object03) <> 0 &THEN
-                IF STRING({&h_Object03}) = entry(iCntWidHand,cSmartObjList,",")  
-                    THEN NEXT.
-            &ENDIF
-            &IF DEFINED (h_Object04) <> 0 &THEN
-                IF STRING({&h_Object04}) = entry(iCntWidHand,cSmartObjList,",")  
-                    THEN NEXT.
-            &ENDIF
-            &IF DEFINED (h_Object05) <> 0 &THEN
-                IF STRING({&h_Object05}) = entry(iCntWidHand,cSmartObjList,",")  
-                    THEN NEXT.
-            &ENDIF
-            &IF DEFINED (h_Object06) <> 0 &THEN
-                IF STRING({&h_Object06}) = entry(iCntWidHand,cSmartObjList,",")  
-                    THEN NEXT.
-            &ENDIF
-            &IF DEFINED (h_Object07) <> 0 &THEN
-                IF STRING({&h_Object07}) = entry(iCntWidHand,cSmartObjList,",")  
-                    THEN NEXT.
-            &ENDIF
-            &IF DEFINED (h_Object08) <> 0 &THEN
-                IF STRING({&h_Object08}) = entry(iCntWidHand,cSmartObjList,",")  
-                    THEN NEXT.
-            &ENDIF
-            &IF DEFINED (h_Object09) <> 0 &THEN
-                IF STRING({&h_Object09}) = entry(iCntWidHand,cSmartObjList,",")  
-                    THEN NEXT.
-            &ENDIF
-            &IF DEFINED (h_Object10) <> 0 &THEN
-                IF STRING({&h_Object05}) = entry(iCntWidHand,cSmartObjList,",")  
-                    THEN NEXT.
-            &ENDIF
-            &IF DEFINED (h_Object11) <> 0 &THEN
-                IF STRING({&h_Object11}) = entry(iCntWidHand,cSmartObjList,",")  
-                    THEN NEXT.
-            &ENDIF
-            &IF DEFINED (h_Object12) <> 0 &THEN
-                IF STRING({&h_Object12}) = entry(iCntWidHand,cSmartObjList,",")  
-                    THEN NEXT.
-            &ENDIF
-            &IF DEFINED (h_Object13) <> 0 &THEN
-                 IF STRING({&h_Object13}) = entry(iCntWidHand,cSmartObjList,",")  
-                    THEN NEXT.
-            &ENDIF
-            &IF DEFINED (h_Object14) <> 0 &THEN
-                IF STRING({&h_Object14}) = entry(iCntWidHand,cSmartObjList,",")  
-                    THEN NEXT.
-            &ENDIF
-            &IF DEFINED (h_Object15) <> 0 &THEN
-                IF STRING({&h_Object15}) = entry(iCntWidHand,cSmartObjList,",")  
-                    THEN NEXT.
-            &ENDIF
-            &IF DEFINED (h_Object16) <> 0 &THEN
-                IF STRING({&h_Object16}) = entry(iCntWidHand,cSmartObjList,",")  
-                    THEN NEXT.
-            &ENDIF
-            &IF DEFINED (h_Object17) <> 0 &THEN
-                IF STRING({&h_Object17}) = entry(iCntWidHand,cSmartObjList,",")  
-                    THEN NEXT.
-            &ENDIF
-            &IF DEFINED (h_Object18) <> 0 &THEN
-                IF STRING({&h_Object18}) = entry(iCntWidHand,cSmartObjList,",")  
-                    THEN NEXT.
-            &ENDIF
-            &IF DEFINED (h_Object19) <> 0 &THEN
-                IF STRING({&h_Object19}) = entry(iCntWidHand,cSmartObjList,",")  
-                    THEN NEXT.
-            &ENDIF
-            &IF DEFINED (h_Object20) <> 0 &THEN
-                IF STRING({&h_Object20}) = entry(iCntWidHand,cSmartObjList,",")  
-                    THEN NEXT.
-            &ENDIF          
-    
-            hTemp = HANDLE(ENTRY(iCntWidHand,cSmartObjList,",")).
+                       
+            hTempWinmn = HANDLE(ENTRY(iCntWidHand,cSmartObjList,",")).
 
-            IF NOT VALID-HANDLE(hTemp) THEN 
+            IF NOT VALID-HANDLE(hTempWinmn) THEN 
                 NEXT.
     
-            IF LOOKUP( "nav-browse-identIFier", hTemp:INTERNAL-ENTRIES, ",")  > 0 OR
-               LOOKUP( "browse-identifier",     hTemp:INTERNAL-ENTRIES, ",")  > 0 OR
-               LOOKUP( "panel-identifier",      hTemp:INTERNAL-ENTRIES, ",")  > 0 OR
-               LOOKUP( "viewer-identifier",     hTemp:INTERNAL-ENTRIES, ",")  > 0 OR
-               LOOKUP( "count-buttons",         hTemp:INTERNAL-ENTRIES, ",")  > 0 OR
-               INDEX(hTemp:INTERNAL-ENTRIES, "folder")                        > 0 OR
-               THIS-PROCEDURE:FILE-NAME =  hTemp:NAME                             OR
-               hTemp:NAME = "smartobj/smartmsg.w"
-                THEN NEXT.   
+            IF LOOKUP( "panel-identifier",      hTempWinmn:INTERNAL-ENTRIES, ",")  > 0 OR
+               LOOKUP( "viewer-identifier",     hTempWinmn:INTERNAL-ENTRIES, ",")  > 0 OR
+               LOOKUP( "count-buttons",         hTempWinmn:INTERNAL-ENTRIES, ",")  > 0 OR
+               INDEX(hTempWinmn:INTERNAL-ENTRIES, "folder")                        > 0 OR
+               THIS-PROCEDURE:FILE-NAME =  hTempWinmn:NAME                             OR
+               hTempWinmn:NAME = "smartobj/smartmsg.w"
+                THEN NEXT.  
+                 
+            deRowPos      = 0.
+            deColPos      = 0.
+            RUN get-position IN hTempWinmn (OUTPUT deRowPos ,OUTPUT deColPos ) NO-ERROR.
             
-            RUN get-position IN hTemp ( 
-                OUTPUT deRowPos ,
-                OUTPUT deColPos
-                ) NO-ERROR.
-            RUN get-size IN hTemp (
-                OUTPUT deHeight , 
-                OUTPUT deWidth 
-                ) NO-ERROR. 
+            deWidth       = 0.
+            deHeight      = 0.
+            RUN get-size IN hTempWinmn (OUTPUT deHeight ,OUTPUT deWidth) NO-ERROR. 
             
+            FIND FIRST toreposition WHERE toreposition.widhand =  ENTRY(iCntWidHand,cSmartObjList,",") NO-ERROR.
+            IF NOT AVAILABLE toreposition THEN
             CREATE toreposition.
             ASSIGN 
-                toreposition.widhand   = ENTRY(iCntWidHand,cSmartObjList,",")
-                toreposition.colpos    = deColPos
-                toreposition.rowpos    = deRowPos
-                toreposition.widwidth  = deWidth
+                toreposition.widhand    = ENTRY(iCntWidHand,cSmartObjList,",")
+                toreposition.colpos     = deColPos
+                toreposition.rowpos     = deRowPos
+                toreposition.widwidth   = deWidth
+                toreposition.widheight  = deHeight
+                toreposition.resizepage = "1"
+                toreposition.widtype    = hTempWinmn:NAME
                 .
+            IF LOOKUP( "nav-browse-identIFier", hTempWinmn:INTERNAL-ENTRIES, ",")  > 0 OR
+               LOOKUP( "browse-identifier",     hTempWinmn:INTERNAL-ENTRIES, ",")  > 0 THEN
+                toreposition.widtype   = "Browse".
         END.  
+        
         IF VALID-HANDLE({&WINDOW-NAME}) THEN 
             deResizeVal = {&WINDOW-NAME}:WIDTH.
        
         FOR EACH toreposition BY toreposition.colpos DESCENDING :
+            IF toreposition.widtype = "Browse" THEN 
+                NEXT.
+            IF toreposition.widtype = "movedown" THEN 
+                NEXT.
+            IF toreposition.widtype = "moveright" THEN 
+                NEXT.
+            IF toreposition.widtype = "Option-frame" THEN 
+                NEXT.
+                
             IF deTempColPos NE toreposition.colpos THEN 
-                deResizeVal = deResizeVal -  (toreposition.widwidth + 2 ).
-            RUN set-position IN WIDGET-HANDLE(toreposition.widhand) ( 
-                INPUT toreposition.rowpos , 
-                INPUT deResizeVal 
-                ) NO-ERROR. 
-            deTempColPos = toreposition.colpos.
+                deResizeVal = deResizeVal - (toreposition.widwidth + 2).
+                
+            RUN set-position IN WIDGET-HANDLE(toreposition.widhand)( INPUT toreposition.rowpos , INPUT deResizeVal) NO-ERROR.
+             
+            deTempColPos = toreposition.colpos.          
         END.
-       
+        lastBtnPos = deResizeVal.
+        
        IF NOT THIS-PROCEDURE:PERSISTENT THEN
            WAIT-FOR CLOSE OF THIS-PROCEDURE.
     END.
