@@ -184,6 +184,19 @@ FUNCTION sfGetBeginSearch RETURNS CHARACTER
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-sfGetRecKeyPrefix) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetRecKeyPrefix Procedure
+FUNCTION sfGetRecKeyPrefix RETURNS CHARACTER 
+  (INPUT ipcRecKey AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfGetTtPermissionsHandle) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetTtPermissionsHandle Procedure
@@ -2242,6 +2255,28 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfGetRecKeyPrefix) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfGetRecKeyPrefix Procedure
+FUNCTION sfGetRecKeyPrefix RETURNS CHARACTER 
+  (INPUT ipcRecKey AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes: Converts given rec_key into YYYMMDD format
+------------------------------------------------------------------------------*/
+    IF SUBSTRING(ipcRecKey,1,1) EQ "2" THEN
+        RETURN SUBSTRING(ipcRecKey,1,8).      
+    ELSE 
+        RETURN SUBSTRING(ipcRecKey,5,4) + SUBSTRING(ipcRecKey,1,2) + SUBSTRING(ipcRecKey,3,2).   
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfGetTtPermissionsHandle) = 0 &THEN
 

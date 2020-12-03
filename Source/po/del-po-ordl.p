@@ -6,6 +6,7 @@ DEF BUFFER b-po-ordl FOR po-ordl.
 DEF BUFFER b-ref1 FOR reftable.
 DEF BUFFER b-ref2 FOR reftable.
 DEFINE BUFFER bf-po-ordl-add FOR po-ordl-add.
+DEFINE BUFFER bf-po-all      FOR po-all.
 
 DEF NEW SHARED VAR cocode AS CHAR NO-UNDO.
 
@@ -152,3 +153,12 @@ FOR EACH bf-po-ordl-add NO-LOCK
     DELETE bf-po-ordl-add.          
 END.          
       
+
+FOR EACH bf-po-all EXCLUSIVE-LOCK
+    WHERE bf-po-all.company EQ io-po-ordl.company
+      AND bf-po-all.po-no   EQ io-po-ordl.po-no
+      AND bf-po-all.line    EQ io-po-ordl.line:
+    DELETE bf-po-all.
+END.              
+ 
+    
