@@ -78,100 +78,12 @@ IF AVAIL job-code THEN
                               (IF mch-act.qty EQ ? THEN 0 ELSE mch-act.qty).
      
       IF work-tmp.qty EQ ? THEN work-tmp.qty = 0.
-      lFoundJobHdr = NO.
-      IF tb_msf THEN
-         for each job-hdr
-             where job-hdr.company   eq cocode
-               and job-hdr.job       eq work-tmp.job
-               and job-hdr.frm       eq work-tmp.frm
-               and (job-hdr.blank-no eq mch-act.blank-no or mch-act.blank-no eq 0)
-             no-lock,
-             first itemfg
-             where itemfg.company eq cocode
-               and itemfg.i-no    eq job-hdr.i-no
-             no-lock:
-        
-             assign
-               v-on  = 1
-               v-out = 1.
-             lFoundJobHdr = YES.  
-             
-             RELEASE eb.
-
-             if avail mach and index("APB",mach.p-type) le 0 then do:
-                find first eb
-                     where eb.company   eq job-hdr.company
-                       and eb.est-no    EQ job-hdr.est-no
-                       and eb.form-no   eq job-hdr.frm
-                       and (eb.blank-no eq job-hdr.blank-no or job-hdr.blank-no eq 0)
-                     no-lock no-error.
-               
-                if avail eb then v-up = eb.num-up.
-               
-                if job-hdr.n-on ne 0 then v-up = job-hdr.n-on.
-               
-                find first ef
-                    where ef.company eq job-hdr.company
-                      and ef.est-no  EQ job-hdr.est-no
-                      and ef.form-no eq job-hdr.frm
-                    no-lock no-error.
-               
-                IF AVAIL ef THEN RUN est/ef-#out.p (ROWID(ef), OUTPUT v-out).
-               
-                v-on = v-up * v-out.
-                 
-                find first est-op
-                    where est-op.company eq job-hdr.company
-                      AND est-op.est-no  EQ job-hdr.est-no
-                      and est-op.s-num   eq mch-act.frm
-                      and (est-op.b-num  eq mch-act.blank-no or
-                           mch-act.blank-no eq 0)
-                      and est-op.m-code  eq mch-act.m-code
-                      and est-op.op-pass eq mch-act.pass
-                      and est-op.dept    eq mch-act.dept
-                      and est-op.line    lt 500
-                    no-lock no-error.
-
-                if not avail est-op then
-                   find first est-op
-                        where est-op.company eq job-hdr.company
-                          AND est-op.est-no  EQ job-hdr.est-no
-                          and est-op.s-num   eq mch-act.frm
-                          and (est-op.b-num  eq mch-act.blank-no or
-                               mch-act.blank-no eq 0)
-                          and est-op.op-pass eq mch-act.pass
-                          and est-op.dept    eq mch-act.dept
-                          and est-op.line    lt 500
-                        no-lock no-error.
-               
-                if avail est-op then
-                   run sys/inc/numout.p (recid(est-op), output v-out).
-                else
-                   v-out = 1.
-               
-                v-on = v-on / v-out.
-             end.
-             
-             IF NOT AVAIL eb THEN
-                find first eb
-                     where eb.company   eq job-hdr.company
-                       and eb.est-no    EQ job-hdr.est-no
-                       and eb.form-no   eq job-hdr.frm
-                       and (eb.blank-no eq job-hdr.blank-no or job-hdr.blank-no eq 0)
-                     no-lock no-error.
-
-             RUN fg/GetFGArea.p (ROWID(itemfg), "MSF", OUTPUT v-t-sqft).
-
-             work-tmp.msf = work-tmp.msf + (mch-act.qty * v-t-sqft).
-         END. /*each job-hdr*/
-             
-         IF tb_msf AND NOT lFoundJobHdr THEN
-         DO:    
-          RUN jc/GetFeedQty.p (ROWID(mch-act),
-                          Output dQtyInMSF
-                          ).    
-           work-tmp.msf = work-tmp.msf + dQtyInMSF.  
-         END.           
+       
+       RUN jc/GetFeedQty.p (ROWID(mch-act),
+           OUTPUT dQtyInMSF
+           ).    
+           
+       work-tmp.msf = work-tmp.msf + dQtyInMSF.  
    END.
   
    ELSE
