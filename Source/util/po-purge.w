@@ -43,8 +43,6 @@ DEFINE VARIABLE hPgmSecurity                 AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lResult                      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cLocation                    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lPurge                       AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE lCreated                     AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cMessage                     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lIsReceiptOrInvoiceAvailable AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hdOutputProcs                AS HANDLE    NO-UNDO.
 
@@ -562,7 +560,7 @@ IF lPurge THEN
 IF v-process OR NOT lPurge THEN DO:  
   RUN FileSys_CreateDirectory(
      INPUT  cLocation,
-     OUTPUT lCreated,
+     OUTPUT lSuccess,
      OUTPUT cMessage
      ).   
   IF lPurge THEN DO:
