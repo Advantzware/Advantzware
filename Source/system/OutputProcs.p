@@ -310,12 +310,21 @@ PROCEDURE Output_TempTableToCSV:
         DO iIndex = 1 TO hBuffer:NUM-FIELDS: 
             IF hBuffer:BUFFER-FIELD(iIndex):EXTENT GT 0 THEN DO:
                 DO eIndex = 1 to hBuffer:BUFFER-FIELD(iIndex):EXTENT:
-                    PUT STREAM sOutput UNFORMATTED hBuffer:BUFFER-FIELD(iIndex):COLUMN-LABEL + STRING(eIndex) + 
+                    PUT STREAM sOutput UNFORMATTED 
+                    (IF hBuffer:BUFFER-FIELD(iIndex):LABEL NE "" AND hBuffer:BUFFER-FIELD(iIndex):LABEL NE ? THEN
+                        hBuffer:BUFFER-FIELD(iIndex):LABEL 
+                    ELSE 
+                        hBuffer:BUFFER-FIELD(iIndex):NAME) +
+                    "[" + STRING(eIndex) + "]" + 
                     (IF iIndex EQ hBuffer:NUM-FIELDS AND eIndex EQ hBuffer:BUFFER-FIELD(iIndex):EXTENT THEN '' ELSE ',').
                 END.
             END.
             ELSE
-                PUT STREAM sOutput UNFORMATTED hBuffer:BUFFER-FIELD(iIndex):COLUMN-LABEL + 
+                PUT STREAM sOutput UNFORMATTED 
+                (IF hBuffer:BUFFER-FIELD(iIndex):LABEL NE "" AND hBuffer:BUFFER-FIELD(iIndex):LABEL NE ? THEN
+                    hBuffer:BUFFER-FIELD(iIndex):LABEL 
+                 ELSE 
+                    hBuffer:BUFFER-FIELD(iIndex):NAME) + 
                 (IF iIndex NE hBuffer:NUM-FIELDS THEN "," ELSE ""). 
         END. 
         PUT STREAM sOutput UNFORMATTED SKIP. 
