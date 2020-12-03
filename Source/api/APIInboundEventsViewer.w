@@ -44,8 +44,6 @@ CREATE WIDGET-POOL.
 
 DEFINE VARIABLE lReTrigger           AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdOutputProcs        AS HANDLE  NO-UNDO.
-DEFINE VARIABLE hdAPIInboundTestWin  AS HANDLE  NO-UNDO.
-DEFINE VARIABLE hdAPIInboundTestProc AS HANDLE  NO-UNDO.
 DEFINE VARIABLE hdInboundProcs       AS HANDLE  NO-UNDO.
 DEFINE VARIABLE hdBuffer             AS HANDLE  NO-UNDO.
 DEFINE VARIABLE hdQuery              AS HANDLE  NO-UNDO.
@@ -123,10 +121,10 @@ hdQuery:SET-BUFFERS(BUFFER APIInboundEvent:HANDLE).
     ~{&OPEN-QUERY-ttAPIInboundEvent}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-26 btTest btExit fieventID btFilter ~
+&Scoped-Define ENABLED-OBJECTS RECT-26 btExport btExit fieventID btFilter ~
 btAPIIDLookup fiAPIId cbSuccess btBeginRequestDateCal btEndRequestDateCal ~
 fiBeginRequestDate fiBeginHours fiBeginMins fiEndRequestDate fiEndHours ~
-fiEndMins btRestart btExport fiRequestData ttAPIInboundEvent 
+fiEndMins btRestart fiRequestData ttAPIInboundEvent 
 &Scoped-Define DISPLAYED-OBJECTS fieventIDlb fieventID fiAPIIdLabel fiAPIId ~
 fiSuccessLabel cbSuccess fiBeginRequestDatelabel fiBeginRequestDate ~
 fiBeginHours fiBeginMins fiendRequestDatelabel fiEndRequestDate fiEndHours ~
@@ -180,11 +178,6 @@ DEFINE BUTTON btRestart
      IMAGE-UP FILE "Graphics/32x32/refresh.ico":U
      LABEL "Restart" 
      SIZE 9 BY 2.14 TOOLTIP "Retry Event(s)".
-
-DEFINE BUTTON btTest 
-     IMAGE-UP FILE "Graphics/32x32/add.ico":U
-     LABEL "Test" 
-     SIZE 11 BY 2.62 TOOLTIP "Add Inbound Event".
 
 DEFINE VARIABLE cbSuccess AS CHARACTER FORMAT "X(256)":U INITIAL "ALL" 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -260,7 +253,7 @@ DEFINE VARIABLE fiRequestData AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE fiSuccessLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Status:" 
      VIEW-AS FILL-IN 
-     SIZE 9.1 BY 1
+     SIZE 9.2 BY 1
      FONT 6 NO-UNDO.
 
 DEFINE RECTANGLE RECT-26
@@ -305,7 +298,7 @@ DEFINE BROWSE ttAPIInboundEvent
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btTest AT ROW 1.24 COL 140.8 WIDGET-ID 20
+     btExport AT ROW 1.24 COL 202 WIDGET-ID 50
      btExit AT ROW 1.24 COL 216.8 WIDGET-ID 2
      fieventIDlb AT ROW 1.67 COL 13.4 COLON-ALIGNED NO-LABEL WIDGET-ID 32
      fieventID AT ROW 1.67 COL 25.2 COLON-ALIGNED NO-LABEL WIDGET-ID 30
@@ -326,17 +319,16 @@ DEFINE FRAME DEFAULT-FRAME
      fiEndHours AT ROW 3.95 COL 112.4 COLON-ALIGNED NO-LABEL WIDGET-ID 64
      fiEndMins AT ROW 3.95 COL 117.8 COLON-ALIGNED NO-LABEL WIDGET-ID 66
      btRestart AT ROW 4.1 COL 129.6 WIDGET-ID 26
-     btExport AT ROW 4.1 COL 140.8 WIDGET-ID 50
      fiRequestData AT ROW 5.1 COL 25.2 COLON-ALIGNED WIDGET-ID 56
      fiMessage AT ROW 5.1 COL 78.8 COLON-ALIGNED NO-LABEL WIDGET-ID 70
      ttAPIInboundEvent AT ROW 6.95 COL 2 WIDGET-ID 200
-     ":" VIEW-AS TEXT
-          SIZE 1 BY .62 AT ROW 4.1 COL 118.8 WIDGET-ID 68
      ":" VIEW-AS TEXT
           SIZE 1 BY .62 AT ROW 4.1 COL 53 WIDGET-ID 60
      " Filter" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 1 COL 4.2 WIDGET-ID 52
           FONT 6
+     ":" VIEW-AS TEXT
+          SIZE 1 BY .62 AT ROW 4.1 COL 118.8 WIDGET-ID 68
      RECT-26 AT ROW 1.24 COL 2 WIDGET-ID 34
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -514,12 +506,6 @@ DO:
     IF VALID-HANDLE(hdInboundProcs) THEN
         DELETE PROCEDURE hdInboundProcs.
         
-    IF VALID-HANDLE(hdAPIInboundTestWin) THEN
-        APPLY "WINDOW-CLOSE" TO hdAPIInboundTestWin.
-
-    IF VALID-HANDLE(hdAPIInboundTestProc) THEN
-        DELETE OBJECT hdAPIInboundTestProc.
-                
     APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
 
@@ -800,33 +786,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btTest
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btTest C-Win
-ON CHOOSE OF btTest IN FRAME DEFAULT-FRAME /* Test */
-DO:
-    DO WITH FRAME {&FRAME-NAME}:
-    END.
-
-    IF NOT VALID-HANDLE(hdAPIInboundTestProc) THEN DO:         
-        RUN api/APIInboundTest.w PERSISTENT SET hdAPIInboundTestProc.
-        
-        hdAPIInboundTestWin = hdAPIInboundTestProc:CURRENT-WINDOW.
-    END.
-                                                 
-    IF VALID-HANDLE(hdAPIInboundTestProc) AND
-        VALID-HANDLE(hdAPIInboundTestWin) THEN DO:        
-
-        IF hdAPIInboundTestWin:WINDOW-STATE EQ 2 THEN ASSIGN 
-            hdAPIInboundTestWin:WINDOW-STATE = 3.
-        
-        hdAPIInboundTestWin:MOVE-TO-TOP().
-    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME fiAPIId
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiAPIId C-Win
 ON HELP OF fiAPIId IN FRAME DEFAULT-FRAME
@@ -1018,10 +977,10 @@ PROCEDURE enable_UI :
           fiendRequestDatelabel fiEndRequestDate fiEndHours fiEndMins 
           fiRequestData fiMessage 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-26 btTest btExit fieventID btFilter btAPIIDLookup fiAPIId 
+  ENABLE RECT-26 btExport btExit fieventID btFilter btAPIIDLookup fiAPIId 
          cbSuccess btBeginRequestDateCal btEndRequestDateCal fiBeginRequestDate 
          fiBeginHours fiBeginMins fiEndRequestDate fiEndHours fiEndMins 
-         btRestart btExport fiRequestData ttAPIInboundEvent 
+         btRestart fiRequestData ttAPIInboundEvent 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
