@@ -571,14 +571,14 @@ PROCEDURE generateCode :
             + SUBSTITUTE('    Description : TT definition for &1.&2 ~n', pcDatabase, pcTable )
             + SUBSTITUTE(' ~n' )
             + SUBSTITUTE('    History: ~n' )
-            + SUBSTITUTE('    &1 &2 Created ~n', STRING(TODAY,'99/99/9999'), getUserName() )
+            + SUBSTITUTE('    &1 &2 Created ~n', STRING(TODAY,'99-99-9999'), getUserName() )
             + SUBSTITUTE(' ~n' )
             + SUBSTITUTE('  ---------------------------------------------------------------------- ~n' )
             + SUBSTITUTE('            This file was generated with the DataDigger                  ~n' )
             + SUBSTITUTE('  ----------------------------------------------------------------------*/ ~n' )
             .
             
-    cMask = '&1~nDEFINE TEMP-TABLE &2 NO-UNDO&3&4 RCODE-INFORMATION'.
+    cMask = '&1~nDEFINE TEMP-TABLE &2 NO-UNDO&3&4'.
     IF tgLowerCase:CHECKED THEN cMask = LC(cMask).
     cText = SUBSTITUTE(cMask
                       , cHeader
@@ -1015,4 +1015,3 @@ END FUNCTION. /* getTypeString */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
