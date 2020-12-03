@@ -881,18 +881,25 @@ PROCEDURE pTaskEmails :
                     FILE-INFO:FILE-NAME = "AOA\TaskEmail.p" 
                     cRunProgram = FILE-INFO:FULL-PATHNAME
                     .
-                OS-COMMAND NO-WAIT VALUE(
-                    SUBSTITUTE(
-                        cRun,
-                        cRunProgram,           "~"" +
-                        PROPATH               + "+" +
-                        bTaskEmail.subject    + "+" +
-                        bTaskEmail.body       + "+" +
-                        bTaskEmail.attachment + "+" +
-                        bTaskEmail.recipients + "+" +
-                        bTaskEmail.rec_key    + "~""
-                        )
+                RUN VALUE(cRunProgram) (
+                    bTaskEmail.subject,
+                    bTaskEmail.body,
+                    bTaskEmail.attachment,
+                    bTaskEmail.recipients,
+                    bTaskEmail.rec_key
                     ).
+/*                OS-COMMAND NO-WAIT VALUE(            */
+/*                    SUBSTITUTE(                      */
+/*                        cRun,                        */
+/*                        cRunProgram,           "~"" +*/
+/*                        PROPATH               + "+" +*/
+/*                        bTaskEmail.subject    + "+" +*/
+/*                        bTaskEmail.body       + "+" +*/
+/*                        bTaskEmail.attachment + "+" +*/
+/*                        bTaskEmail.recipients + "+" +*/
+/*                        bTaskEmail.rec_key    + "~"" */
+/*                        )                            */
+/*                    ).                               */
             END. /* else */
             DELETE bTaskEmail.
             lRefresh = YES.
@@ -987,7 +994,7 @@ PROCEDURE pTrackAudit:
     DEFINE VARIABLE iAuditID AS INTEGER NO-UNDO.
 
     RUN spCreateAuditHdr (
-        "LOG",         /* type  */
+        "LOG",           /* type  */
         "ASI",           /* db    */
         "{&program-id}", /* table */
         "ND1",           /* key   */
