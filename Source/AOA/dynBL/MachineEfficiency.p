@@ -80,7 +80,9 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE iOutTmp       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE dQty          AS DECIMAL   NO-UNDO.   
     DEFINE VARIABLE dtDate        AS DATE      NO-UNDO.
-    DEFINE VARIABLE dBlanks       AS DECIMAL   FORMAT "->>>>,>>>,>>9" .  
+    DEFINE VARIABLE dBlanks       AS DECIMAL   FORMAT "->>>>,>>>,>>9" .
+    DEFINE VARIABLE lFoundJobHdr  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dQtyInMSF     AS DECIMAL NO-UNDO.
  
     DEFINE BUFFER b-mach FOR mach.
 

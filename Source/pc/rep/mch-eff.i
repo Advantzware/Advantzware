@@ -78,7 +78,7 @@ IF AVAIL job-code THEN
                               (IF mch-act.qty EQ ? THEN 0 ELSE mch-act.qty).
      
       IF work-tmp.qty EQ ? THEN work-tmp.qty = 0.
-     
+      lFoundJobHdr = NO.
       IF tb_msf THEN
          for each job-hdr
              where job-hdr.company   eq cocode
@@ -94,6 +94,7 @@ IF AVAIL job-code THEN
              assign
                v-on  = 1
                v-out = 1.
+             lFoundJobHdr = YES.  
              
              RELEASE eb.
 
@@ -163,6 +164,14 @@ IF AVAIL job-code THEN
 
              work-tmp.msf = work-tmp.msf + (mch-act.qty * v-t-sqft).
          END. /*each job-hdr*/
+             
+         IF tb_msf AND NOT lFoundJobHdr THEN
+         DO:    
+          RUN jc/GetFeedQty.p (ROWID(mch-act),
+                          Output dQtyInMSF
+                          ).    
+           work-tmp.msf = work-tmp.msf + dQtyInMSF.  
+         END.           
    END.
   
    ELSE

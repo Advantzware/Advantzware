@@ -4,6 +4,8 @@ DEF VAR v-qty AS DEC NO-UNDO.
 DEF BUFFER b-mach FOR mach.
 DEF VAR v-date2 AS DATE NO-UNDO.
 def var v-blanks    as   dec format "->>>>,>>>,>>9" .
+DEFINE VARIABLE lFoundJobHdr AS LOGICAL NO-UNDO.
+DEFINE VARIABLE dQtyInMSF AS DECIMAL NO-UNDO.
 
 EMPTY TEMP-TABLE work-tmp.
 EMPTY TEMP-TABLE work-rep.
