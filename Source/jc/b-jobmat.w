@@ -950,7 +950,8 @@ PROCEDURE issue-mat :
       RUN jc/issuemat.p (
           INPUT ROWID(job-mat),
           INPUT job-mat.qty,
-          INPUT TRUE /* Prompt for bin selection */
+          INPUT TRUE, /* Prompt for bin selection */
+          INPUT FALSE
           ).
 
 END PROCEDURE.
