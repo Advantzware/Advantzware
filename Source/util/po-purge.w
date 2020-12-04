@@ -460,41 +460,41 @@ PROCEDURE pDeleteOrphanRecord PRIVATE :
     FOR EACH bf-po-ordl-add NO-LOCK 
         WHERE(bf-po-ordl-add.company EQ ipcCompany OR bf-po-ordl-add.company EQ "")
           AND bf-po-ordl-add.po-no   GE ipiBeginPo
-          AND bf-po-ordl-add.po-no   LE ipiEndPo
-          AND DYNAMIC-FUNCTION("sfGetRecKeyPrefix",bf-po-ordl-add.rec_key) GE ipcBeginRecKey
-          AND DYNAMIC-FUNCTION("sfGetRecKeyPrefix",bf-po-ordl-add.rec_key) LE ipcEndRecKey: 
-         IF bf-po-ordl-add.company EQ "" OR 
-            (NOT CAN-FIND(FIRST po-ord 
-                          WHERE po-ord.company EQ bf-po-ordl-add.company
-                            AND po-ord.po-no   EQ bf-po-ordl-add.po-no)) THEN DO:
-            CREATE ttPoOrdlAdd.
-            BUFFER-COPY bf-po-ordl-add TO ttPoOrdlAdd.                   
-            IF lPurge THEN DO:  
-                EXPORT STREAM sPoOrdlAdd bf-po-ordl-add.                  
-                FIND CURRENT bf-po-ordl-add EXCLUSIVE-LOCK NO-ERROR.
-                DELETE bf-po-ordl-add.
-            END.
-         END.   
+          AND bf-po-ordl-add.po-no   LE ipiEndPo:
+        IF(DYNAMIC-FUNCTION("sfGetRecKeyPrefix",bf-po-ordl-add.rec_key)     GE ipcBeginRecKey
+           AND DYNAMIC-FUNCTION("sfGetRecKeyPrefix",bf-po-ordl-add.rec_key) LE ipcEndRecKey)
+           AND(bf-po-ordl-add.company EQ "" OR 
+           NOT CAN-FIND(FIRST po-ord 
+                        WHERE po-ord.company EQ bf-po-ordl-add.company
+                          AND po-ord.po-no   EQ bf-po-ordl-add.po-no)) THEN DO:
+           CREATE ttPoOrdlAdd.
+           BUFFER-COPY bf-po-ordl-add TO ttPoOrdlAdd.                   
+           IF lPurge THEN DO:  
+               EXPORT STREAM sPoOrdlAdd bf-po-ordl-add.                  
+               FIND CURRENT bf-po-ordl-add EXCLUSIVE-LOCK NO-ERROR.
+               DELETE bf-po-ordl-add.
+           END.
+        END.   
     END.                                            
                          
     FOR EACH bf-po-all NO-LOCK 
         WHERE (bf-po-all.company EQ ipcCompany OR bf-po-all.company EQ "")
           AND bf-po-all.po-no    GE ipiBeginPo
-          AND bf-po-all.po-no    LE ipiEndPo
-          AND DYNAMIC-FUNCTION("sfGetRecKeyPrefix",bf-po-all.rec_key) GE ipcBeginRecKey
-          AND DYNAMIC-FUNCTION("sfGetRecKeyPrefix",bf-po-all.rec_key) LE ipcEndRecKey: 
-         IF bf-po-all.company EQ "" OR 
-            (NOT CAN-FIND(FIRST po-ord 
-                          WHERE po-ord.company EQ bf-po-all.company
-                            AND po-ord.po-no   EQ bf-po-all.po-no)) THEN DO: 
-            CREATE ttPoAll.
-            BUFFER-COPY bf-Po-All TO ttPoAll.
-            IF lPurge THEN DO:  
-                EXPORT STREAM sPoAll bf-po-all.                
-                FIND CURRENT bf-po-all EXCLUSIVE-LOCK NO-ERROR.
-                DELETE bf-po-all. 
-            END.
-         END.                     
+          AND bf-po-all.po-no    LE ipiEndPo: 
+        IF(DYNAMIC-FUNCTION("sfGetRecKeyPrefix",bf-po-all.rec_key)     GE ipcBeginRecKey
+           AND DYNAMIC-FUNCTION("sfGetRecKeyPrefix",bf-po-all.rec_key) LE ipcEndRecKey)
+           AND(bf-po-all.company EQ "" OR 
+              NOT CAN-FIND(FIRST po-ord 
+                            WHERE po-ord.company EQ bf-po-all.company
+                              AND po-ord.po-no   EQ bf-po-all.po-no)) THEN DO: 
+           CREATE ttPoAll.
+           BUFFER-COPY bf-Po-All TO ttPoAll.
+           IF lPurge THEN DO:  
+               EXPORT STREAM sPoAll bf-po-all.                
+               FIND CURRENT bf-po-all EXCLUSIVE-LOCK NO-ERROR.
+               DELETE bf-po-all. 
+           END.
+        END.                     
     END.          
 END PROCEDURE.
 
