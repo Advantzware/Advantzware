@@ -21,9 +21,6 @@ DEFINE VARIABLE cRoundMethodUp   AS CHARACTER NO-UNDO INITIAL "ROUNDUP".
 DEFINE VARIABLE cRoundMethodDown AS CHARACTER NO-UNDO INITIAL "ROUNDDOWN".
 DEFINE VARIABLE cCalcMethod      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCalcMethodAPI   AS CHARACTER NO-UNDO INITIAL "API".
-DEFINE VARIABLE hdVertexProcs    AS HANDLE    NO-UNDO.
-
-RUN system/VertexProcs.p PERSISTENT SET hdVertexProcs.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -860,6 +857,8 @@ PROCEDURE pAPICalculateForInvHead PRIVATE:
     DEFINE OUTPUT PARAMETER TABLE              FOR ttTaxDetail.
     DEFINE OUTPUT PARAMETER oplError           AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE hdVertexProcs AS HANDLE NO-UNDO.
     
     DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
     
@@ -890,6 +889,8 @@ PROCEDURE pAPICalculateForInvHead PRIVATE:
         RETURN.
     END.
 
+    RUN system/VertexProcs.p PERSISTENT SET hdVertexProcs.
+    
     RUN Vertex_CalculateTaxForInvHead IN hdVertexProcs (
         INPUT  ROWID(bf-inv-head),
         INPUT  ipcLocation,
@@ -903,7 +904,9 @@ PROCEDURE pAPICalculateForInvHead PRIVATE:
         OUTPUT lSuccess,
         OUTPUT opcMessage    
         ).
-    oplError = NOT lSuccess. /* Vertex still sends success flag rather than error flag */        
+    oplError = NOT lSuccess. /* Vertex still sends success flag rather than error flag */    
+    
+    DELETE PROCEDURE hdVertexProcs.    
 END PROCEDURE.
 
 PROCEDURE pAPICalculateForArInv PRIVATE:
@@ -923,7 +926,8 @@ PROCEDURE pAPICalculateForArInv PRIVATE:
     DEFINE OUTPUT PARAMETER oplError           AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage         AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lSuccess      AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE hdVertexProcs AS HANDLE  NO-UNDO.
     
     DEFINE BUFFER bf-ar-inv FOR ar-inv.
     
@@ -952,6 +956,8 @@ PROCEDURE pAPICalculateForArInv PRIVATE:
         RETURN.
     END.
     
+    RUN system/VertexProcs.p PERSISTENT SET hdVertexProcs.
+    
     RUN Vertex_CalculateTaxForArInv IN hdVertexProcs (
         INPUT  ROWID(bf-ar-inv),
         INPUT  ipcLocation,
@@ -966,6 +972,8 @@ PROCEDURE pAPICalculateForArInv PRIVATE:
         OUTPUT opcMessage    
         ).
     oplError = NOT lSuccess. /* Vertex still sends success flag rather than error flag */
+    
+    DELETE PROCEDURE hdVertexProcs.
 END PROCEDURE.
 
 PROCEDURE pCalculateForInvHead PRIVATE:
