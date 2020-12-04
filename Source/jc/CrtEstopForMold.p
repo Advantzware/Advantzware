@@ -25,6 +25,7 @@ DEFINE VARIABLE dOpWaste AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dOpSpoil AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dOpMr    AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dOpSpeed AS DECIMAL NO-UNDO.
+DEFINE VARIABLE lRoutingExist AS LOGICAL NO-UNDO.
 DEFINE BUFFER bf-est-op FOR est-op.
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -37,6 +38,14 @@ FIND FIRST eb NO-LOCK
 FIND FIRST est NO-LOCK
     WHERE est.company EQ eb.company
     AND est.est-no EQ eb.est-no NO-ERROR .
+
+RUN pCheckExistRouting(
+         INPUT eb.company,
+         INPUT eb.est-no,
+         INPUT ipcMachine,
+         OUTPUT lRoutingExist).
+ 
+ IF lRoutingExist THEN RETURN.       
      
 RUN pGetEstRouting (
     INPUT  eb.company,
@@ -119,5 +128,24 @@ PROCEDURE pGetEstRouting PRIVATE :
       LEAVE.
    END.
 
+END PROCEDURE.
+
+PROCEDURE pCheckExistRouting PRIVATE :
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimate AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcMachine  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplExitMach AS LOGICAL   NO-UNDO.
+   
+    FOR EACH est-op WHERE est-op.company EQ ipcCompany
+              AND est-op.est-no EQ ipcEstimate
+              AND est-op.m-code EQ ipcMachine
+              AND est-op.line LT 500  NO-LOCK:  
+     oplExitMach = YES.
+     LEAVE.
+    END.
 END PROCEDURE.
 
