@@ -25,30 +25,62 @@ DEFINE TEMP-TABLE ttSection
     .
     
 DEFINE TEMP-TABLE ttCEFormatConfig NO-UNDO
-    FIELD outputFile              AS CHARACTER 
-    FIELD previewFile             AS LOGICAL 
-    FIELD printInPDF              AS LOGICAL
-    FIELD formatMaster            AS CHARACTER
-    FIELD formatFont              AS CHARACTER
-    FIELD formatFontSize          AS INTEGER 
-    FIELD xprintTags              AS CHARACTER 
-    FIELD isClassic               AS LOGICAL 
-    FIELD maxColumnsForQuantity   AS INTEGER
-    FIELD characterNumberError    AS CHARACTER
-    FIELD characterContinue       AS CHARACTER
-    FIELD characterMasterQuantity AS CHARACTER 
-    FIELD rowsPerPage             AS INTEGER 
-    FIELD showAllQuantities       AS LOGICAL 
-    FIELD showProfitPercent       AS LOGICAL 
-    FIELD SIMONListInclude        AS CHARACTER 
-    FIELD SIMONListSeparate       AS CHARACTER
-    FIELD useReferenceQuantity    AS LOGICAL 
-    FIELD printByForm             AS LOGICAL 
-    FIELD printSummary            AS LOGICAL
-    FIELD printSummaryFirst       AS LOGICAL 
-    FIELD printAnalysis           AS LOGICAL
-    FIELD printNotes              AS LOGICAL
-    FIELD operationTimeInHHMM     AS LOGICAL
+    FIELD outputFile                  AS CHARACTER 
+    FIELD previewFile                 AS LOGICAL INITIAL YES
+    FIELD printInPDF                  AS LOGICAL
+    FIELD formatMaster                AS CHARACTER
+    FIELD formatFont                  AS CHARACTER INITIAL "Calibri"
+    FIELD formatFontSize              AS INTEGER INITIAL 11
+    FIELD xprintTags                  AS CHARACTER 
+    FIELD isClassic                   AS LOGICAL 
+    FIELD maxColumnsForQuantity       AS INTEGER INITIAL 99
+    FIELD characterNumberError        AS CHARACTER INITIAL "#"
+    FIELD characterContinue           AS CHARACTER INITIAL ">>"
+    FIELD characterMasterQuantity     AS CHARACTER INITIAL "*"
+    FIELD rowsPerPage                 AS INTEGER INITIAL 64
+    FIELD showAllQuantities           AS LOGICAL INITIAL YES
+    FIELD showProfitPercent           AS LOGICAL INITIAL YES
+    FIELD SIMONListInclude            AS CHARACTER INITIAL "I,M"
+    FIELD SIMONListSeparate           AS CHARACTER INITIAL "S,O,N"
+    FIELD useReferenceQuantity        AS LOGICAL INITIAL NO
+    FIELD printByForm                 AS LOGICAL INITIAL YES
+    FIELD printSummary                AS LOGICAL INITIAL YES
+    FIELD printSummaryFirst           AS LOGICAL INITIAL YES
+    FIELD printAnalysis               AS LOGICAL INITIAL YES
+    FIELD printNotes                  AS LOGICAL INITIAL YES
+    FIELD operationTimeInHHMM         AS LOGICAL 
+    FIELD summColQuantityShow         AS LOGICAL INITIAL NO
+    FIELD summColQuantityLabel        AS CHARACTER INITIAL "Quantity"
+    FIELD summColQuantityCol          AS DECIMAL INITIAL 36
+    FIELD summColQuantityWidth        AS INTEGER INITIAL 9
+    FIELD summColQuantityRequestShow  AS LOGICAL INITIAL YES
+    FIELD summColQuantityRequestLabel AS CHARACTER INITIAL "Requested"
+    FIELD summColQuantityRequestCol   AS DECIMAL INITIAL 26
+    FIELD summColQuantityRequestWidth AS INTEGER INITIAL 9
+    FIELD summColQuantityYieldShow    AS LOGICAL INITIAL YES
+    FIELD summColQuantityYieldLabel   AS CHARACTER INITIAL "Yielded" 
+    FIELD summColQuantityYieldCol     AS DECIMAL INITIAL 36
+    FIELD summColQuantityYieldWidth   AS INTEGER INITIAL 9
+    FIELD summColWeightShow           AS LOGICAL INITIAL YES
+    FIELD summColWeightLabel          AS CHARACTER INITIAL "Weight"
+    FIELD summColWeightCol            AS DECIMAL INITIAL 46
+    FIELD summColWeightWidth          AS INTEGER INITIAL 9
+    FIELD summColItemNameShow         AS LOGICAL INITIAL YES
+    FIELD summColItemNameLabel        AS CHARACTER INITIAL "Item Name"
+    FIELD summColItemNameCol          AS DECIMAL INITIAL 2
+    FIELD summColItemNameWidth        AS INTEGER INITIAL 30
+    FIELD summColDirectCostShow       AS LOGICAL INITIAL NO
+    FIELD summColDirectCostCol        AS DECIMAL INITIAL 46
+    FIELD summColDirectCostWidth      AS INTEGER INITIAL 6
+    FIELD summColFactoryCostShow      AS LOGICAL INITIAL YES
+    FIELD summColFactoryCostCol       AS DECIMAL INITIAL 56
+    FIELD summColFactoryCostWidth     AS INTEGER INITIAL 6
+    FIELD summColFullCostShow         AS LOGICAL INITIAL YES
+    FIELD summColFullCostCol          AS DECIMAL INITIAL 66
+    FIELD summColFullCostWidth        AS INTEGER INITIAL 6
+    FIELD summColSellPriceShow        AS LOGICAL INITIAL YES
+    FIELD summColSellPriceCol         AS DECIMAL INITIAL 76
+    FIELD summColSellPriceWidth       AS INTEGER INITIAL 6
     .
 
 {system\NotesProcs.i}
@@ -127,17 +159,54 @@ PROCEDURE pBuildConfigFromTemplate PRIVATE:
     
     CREATE opbf-ttCEFormatConfig.
     ASSIGN 
-        opbf-ttCEFormatConfig.formatMaster      = ipcFormatMaster
-        opbf-ttCEFormatConfig.formatFont        = ipcFormatFont
-        opbf-ttCEFormatConfig.formatFontSize    = 11
-        opbf-ttCEFormatConfig.previewFile       = YES
-        opbf-ttCEFormatConfig.printInPDF        = NO        
-        opbf-ttCEFormatConfig.printSummary      = INDEX(ipcFormatMaster, "Summary") GT 0
-        opbf-ttCEFormatConfig.printSummaryFirst = INDEX(ipcFormatMaster, "First") GT 0
-        opbf-ttCEFormatConfig.showAllQuantities = INDEX(ipcFormatMaster, "Mult Qty") GT 0
-        opbf-ttCEFormatConfig.printByForm       = INDEX(ipcFormatMaster, "By Form") GT 0
-        opbf-ttCEFormatConfig.printAnalysis     = INDEX(ipcFormatMaster, "Analysis") GT 0
-        opbf-ttCEFormatConfig.printNotes        = INDEX(ipcFormatMaster, "No Notes") EQ 0
+        opbf-ttCEFormatConfig.formatMaster                = ipcFormatMaster
+        opbf-ttCEFormatConfig.formatFont                  = ipcFormatFont
+        opbf-ttCEFormatConfig.formatFontSize              = 11
+        opbf-ttCEFormatConfig.previewFile                 = YES
+        opbf-ttCEFormatConfig.printInPDF                  = NO        
+        opbf-ttCEFormatConfig.printSummary                = INDEX(ipcFormatMaster, "Summary") GT 0
+        opbf-ttCEFormatConfig.printSummaryFirst           = INDEX(ipcFormatMaster, "First") GT 0
+        opbf-ttCEFormatConfig.showAllQuantities           = INDEX(ipcFormatMaster, "Mult Qty") GT 0
+        opbf-ttCEFormatConfig.printByForm                 = INDEX(ipcFormatMaster, "By Form") GT 0
+        opbf-ttCEFormatConfig.printAnalysis               = INDEX(ipcFormatMaster, "Analysis") GT 0
+        opbf-ttCEFormatConfig.printNotes                  = INDEX(ipcFormatMaster, "No Notes") EQ 0
+        opbf-ttCEFormatConfig.showProfitPercent           = YES
+        opbf-ttCEFormatConfig.printByForm                 = YES
+        opbf-ttCEFormatConfig.printSummary                = YES
+        opbf-ttCEFormatConfig.printSummaryFirst           = YES
+        opbf-ttCEFormatConfig.showAllQuantities           = NO
+        opbf-ttCEFormatConfig.summColItemNameShow         = YES
+        opbf-ttCEFormatConfig.summColItemNameCol          = 2
+        opbf-ttCEFormatConfig.summColItemNameWidth        = 30
+        opbf-ttCEFormatConfig.summColItemNameLabel        = "Item Name"
+        opbf-ttCEFormatConfig.summColQuantityShow         = NO
+        opbf-ttCEFormatConfig.summColQuantityCol          = 36
+        opbf-ttCEFormatConfig.summColQuantityWidth        = 9
+        opbf-ttCEFormatConfig.summColQuantityLabel        = "Quantity"
+        opbf-ttCEFormatConfig.summColQuantityRequestShow  = YES
+        opbf-ttCEFormatConfig.summColQuantityRequestCol   = 26
+        opbf-ttCEFormatConfig.summColQuantityRequestWidth = 9
+        opbf-ttCEFormatConfig.summColQuantityRequestLabel = "Requested"
+        opbf-ttCEFormatConfig.summColQuantityYieldShow    = YES
+        opbf-ttCEFormatConfig.summColQuantityYieldCol     = 36
+        opbf-ttCEFormatConfig.summColQuantityYieldWidth   = 9
+        opbf-ttCEFormatConfig.summColQuantityYieldLabel   = "Yielded"
+        opbf-ttCEFormatConfig.summColWeightShow           = YES
+        opbf-ttCEFormatConfig.summColWeightCol            = 46
+        opbf-ttCEFormatConfig.summColWeightWidth          = 9
+        opbf-ttCEFormatConfig.summColWeightLabel          = "Weight"
+        opbf-ttCEFormatConfig.summColDirectCostShow       = NO
+        opbf-ttCEFormatConfig.summColDirectCostCol        = 46
+        opbf-ttCEFormatConfig.summColDirectCostWidth      = 6
+        opbf-ttCEFormatConfig.summColFactoryCostShow      = YES
+        opbf-ttCEFormatConfig.summColFactoryCostCol       = 56
+        opbf-ttCEFormatConfig.summColFactoryCostWidth     = 6
+        opbf-ttCEFormatConfig.summColFullCostShow         = YES
+        opbf-ttCEFormatConfig.summColFullCostCol          = 66
+        opbf-ttCEFormatConfig.summColFullCostWidth        = 6
+        opbf-ttCEFormatConfig.summColSellPriceShow        = YES
+        opbf-ttCEFormatConfig.summColSellPriceCol         = 76
+        opbf-ttCEFormatConfig.summColSellPriceWidth       = 6
         .
     
     CASE ipcFormatFont:
@@ -153,22 +222,14 @@ PROCEDURE pBuildConfigFromTemplate PRIVATE:
     END.
         
     CASE ipcFormatMaster:
-        WHEN "McLean" THEN 
-            ASSIGN
-                opbf-ttCEFormatConfig.showProfitPercent = NO
-                opbf-ttCEFormatConfig.printByForm       = YES
-                opbf-ttCEFormatConfig.printSummary      = YES
-                opbf-ttCEFormatConfig.printSummaryFirst = YES
-                opbf-ttCEFormatConfig.showAllQuantities = YES
-                . 
         WHEN "Standard" THEN
-            ASSIGN 
+            ASSIGN
                 opbf-ttCEFormatConfig.showProfitPercent = YES
                 opbf-ttCEFormatConfig.printByForm       = YES
                 opbf-ttCEFormatConfig.printSummary      = YES
                 opbf-ttCEFormatConfig.printSummaryFirst = YES
                 opbf-ttCEFormatConfig.showAllQuantities = NO
-                .            
+                .
     END.
     
 END PROCEDURE.
@@ -284,7 +345,7 @@ PROCEDURE pBuildConfig PRIVATE:
     DEFINE VARIABLE lLoaded       AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cFormatMaster AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFormatFont   AS CHARACTER NO-UNDO.
- 
+
     EMPTY TEMP-TABLE ttCEFormatConfig.
         
     RUN sys/ref/nk1look.p (INPUT ipcCompany, "CEFormat", "C" /* Character */, NO /* check by cust */, 
@@ -294,11 +355,11 @@ PROCEDURE pBuildConfig PRIVATE:
     RUN sys/ref/nk1look.p (INPUT ipcCompany, "CEFormatFont", "C" /* Character */, NO /* check by cust */, 
         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
         OUTPUT cFormatFont, OUTPUT lRecFound).
-                            
+    
     IF cFormatMaster EQ "Config" THEN 
     DO:
         RUN pLoadConfig(ipcCompany, TEMP-TABLE opbf-ttCEFormatConfig:HANDLE, OUTPUT lLoaded).
-    
+
         IF NOT lLoaded THEN 
         DO:
             RUN pBuildConfigFromTemplate(cFormatMaster, cFormatFont, BUFFER opbf-ttCEFormatConfig).
@@ -309,7 +370,7 @@ PROCEDURE pBuildConfig PRIVATE:
     END.    
     ELSE
         RUN pBuildConfigFromTemplate(cFormatMaster, cFormatFont, BUFFER opbf-ttCEFormatConfig).
-        
+    
     IF AVAILABLE opbf-ttCEFormatConfig THEN 
     DO:
         IF opbf-ttCEFormatConfig.outputFile EQ "" AND ipcOutputFile EQ "" THEN  
@@ -331,8 +392,9 @@ PROCEDURE pBuildConfig PRIVATE:
             opbf-ttCEFormatConfig.maxColumnsForQuantity = 99.
         IF opbf-ttCEFormatConfig.rowsPerPage EQ 0 THEN 
             opbf-ttCEFormatConfig.rowsPerPage = 64.
-               
     END.    
+    
+    //RUN Output_TempTableToJSON(TEMP-TABLE opbf-ttCEFormatConfig:HANDLE, "C:\temp\CEFormatConfig.json", YES).
     
 END PROCEDURE.
 
@@ -1569,8 +1631,8 @@ PROCEDURE pPrintSummaryCosts PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER NO-UNDO.
 
-    DEFINE VARIABLE iRowStart         AS INTEGER.
-    DEFINE VARIABLE iColumn           AS INTEGER   EXTENT 7 INITIAL [2,26,36,46,56,66,76].
+    DEFINE VARIABLE iRowStart         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iColumn           AS INTEGER   EXTENT 7 NO-UNDO.
     DEFINE VARIABLE dQtyInM           AS DECIMAL   NO-UNDO.   
     DEFINE VARIABLE dCostTotal        AS DECIMAL   EXTENT 5 NO-UNDO.
     DEFINE VARIABLE dCostPerM         AS DECIMAL   EXTENT 5 NO-UNDO.
@@ -1584,32 +1646,103 @@ PROCEDURE pPrintSummaryCosts PRIVATE:
     DEFINE VARIABLE iStartLevelsAfter AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cHeaderItemSumm   AS CHARACTER NO-UNDO.
 
-    IF ipbf-ttCEFormatConfig.formatMaster EQ "McLean" THEN 
+    iIndex = 0.
+    IF ipbf-ttCEFormatConfig.summColItemNameShow THEN 
         ASSIGN 
-            cWidths           = "30,9,6,6,6"
-            cDecimals         = "0,0,2,2,2"
-            cHeaders          = "Item Name,Quantity"
-            iStartLevelsAfter = 2
-            cLevelsToPrint    = "1,2,4"
+            iIndex            = iIndex + 1
+            iStartLevelsAfter = iIndex
+            cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.summColItemNameWidth) + ","
+            cDecimals         = cDecimals + "0,"
+            cHeaders          = cHeaders + ipbf-ttCEFormatConfig.summColItemNameLabel + ","
+            iColumn[iIndex]   = ipbf-ttCEFormatConfig.summColItemNameCol
             .
-    ELSE 
+    IF ipbf-ttCEFormatConfig.summColQuantityShow THEN 
         ASSIGN 
-            cWidths           = "30,9,9,9,6,6,6"
-            cDecimals         = "0,0,0,0,2,2,2"
-            cHeaders          = "Item Name,Required,Yielded,Weight (" + ipbf-estCostHeader.weightUOM + "s)"
-            iStartLevelsAfter = 4
-            cLevelsToPrint    = "2,3,4"
+            iIndex            = iIndex + 1
+            iStartLevelsAfter = iIndex
+            cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.summColQuantityWidth) + ","
+            cDecimals         = cDecimals + "0,"
+            cHeaders          = cHeaders + ipbf-ttCEFormatConfig.summColQuantityLabel + ","
+            iColumn[iIndex]   = ipbf-ttCEFormatConfig.summColQuantityCol
             .
-    
+    IF ipbf-ttCEFormatConfig.summColQuantityYieldShow THEN 
+        ASSIGN 
+            iIndex            = iIndex + 1
+            iStartLevelsAfter = iIndex
+            cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.summColQuantityYieldWidth) + ","
+            cDecimals         = cDecimals + "0,"
+            cHeaders          = cHeaders + ipbf-ttCEFormatConfig.summColQuantityYieldLabel + ","
+            iColumn[iIndex]   = ipbf-ttCEFormatConfig.summColQuantityYieldCol
+            .
+    IF ipbf-ttCEFormatConfig.summColQuantityRequestShow THEN 
+        ASSIGN 
+            iIndex            = iIndex + 1
+            iStartLevelsAfter = iIndex
+            cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.summColQuantityRequestWidth) + ","
+            cDecimals         = cDecimals + "0,"
+            cHeaders          = cHeaders + ipbf-ttCEFormatConfig.summColQuantityRequestLabel + ","
+            iColumn[iIndex]   = ipbf-ttCEFormatConfig.summColQuantityRequestCol
+            .
+    IF ipbf-ttCEFormatConfig.summColWeightShow THEN 
+        ASSIGN 
+            iIndex            = iIndex + 1
+            iStartLevelsAfter = iIndex
+            cWidths           = cWidths + STRING(ipbf-ttCEFormatConfig.summColWeightWidth) + ","
+            cDecimals         = cDecimals + "0,"
+            cHeaders          = cHeaders + ipbf-ttCEFormatConfig.summColWeightLabel + " (" + ipbf-estCostHeader.weightUOM + "s),"
+            iColumn[iIndex]   = ipbf-ttCEFormatConfig.summColWeightCol
+            .            
+    IF ipbf-ttCEFormatConfig.summColDirectCostShow THEN 
+        ASSIGN 
+            iIndex          = iIndex + 1
+            cWidths         = cWidths + STRING(ipbf-ttCEFormatConfig.summColDirectCostWidth) + ","
+            cDecimals       = cDecimals + "2,"
+            iColumn[iIndex] = ipbf-ttCEFormatConfig.summColDirectCostCol
+            cLevelsToPrint  = cLevelsToPrint + "1,"
+            .
+    IF ipbf-ttCEFormatConfig.summColFactoryCostShow THEN 
+        ASSIGN 
+            iIndex          = iIndex + 1
+            cWidths         = cWidths + STRING(ipbf-ttCEFormatConfig.summColFactoryCostWidth) + ","
+            cDecimals       = cDecimals + "2,"
+            iColumn[iIndex] = ipbf-ttCEFormatConfig.summColFactoryCostCol
+            cLevelsToPrint  = cLevelsToPrint + "2,"
+            .
+    IF ipbf-ttCEFormatConfig.summColFullCostShow THEN 
+        ASSIGN 
+            iIndex          = iIndex + 1
+            cWidths         = cWidths + STRING(ipbf-ttCEFormatConfig.summColFullCostWidth) + ","
+            cDecimals       = cDecimals + "2,"
+            iColumn[iIndex] = ipbf-ttCEFormatConfig.summColFullCostCol
+            cLevelsToPrint  = cLevelsToPrint + "3,"
+            .
+    IF ipbf-ttCEFormatConfig.summColSellPriceShow THEN 
+        ASSIGN 
+            iIndex          = iIndex + 1
+            cWidths         = cWidths + STRING(ipbf-ttCEFormatConfig.summColSellPriceWidth) + ","
+            cDecimals       = cDecimals + "2,"
+            iColumn[iIndex] = ipbf-ttCEFormatConfig.summColSellPriceCol
+            cLevelsToPrint  = cLevelsToPrint + "4,"
+            .
+        
     
     FOR EACH estCostGroupLevel NO-LOCK
         BY estCostGroupLevel.estCostGroupLevelID:
         IF LOOKUP(STRING(estCostGroupLevel.estCostGroupLevelID), cLevelsToPrint) GT 0 THEN
             ASSIGN 
-                cHeaders = cHeaders + "," + estCostGroupLevel.estCostGroupLevelDesc
-                cLevels  = cLevels + "," + estCostGroupLevel.estCostGroupLevelDesc.
+                cHeaders = cHeaders + estCostGroupLevel.estCostGroupLevelDesc + ","  
+                cLevels  = cLevels + estCostGroupLevel.estCostGroupLevelDesc + "," 
+                .
     END.
     
+    ASSIGN 
+        cWidths        = TRIM(cWidths,",")
+        cDecimals      = TRIM(cDecimals,",")
+        cLevelsToPrint = TRIM(cLevelsToPrint,",")
+        cHeaders       = TRIM(cHeaders,",")
+        cLevels        = TRIM(cLevels,",")
+        .            
+
     IF ipbf-estCostHeader.estType EQ "Set" THEN     
         cHeaderItemSumm = "Component Summary Totals (Costs per M) for " + STRING(ipbf-estCostHeader.quantityMaster) + " sets".
     ELSE 
@@ -1658,7 +1791,6 @@ PROCEDURE pPrintSummaryCosts PRIVATE:
     
     RUN pGetSummaryCosts(ipbf-estCostHeader.estCostHeaderID, ipbf-estCostHeader.rec_key, OUTPUT dCostTotal, OUTPUT dCostPerM).
     
-    cLevels = TRIM(cLevels,",").
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     
