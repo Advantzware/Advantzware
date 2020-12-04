@@ -82,7 +82,7 @@ RUN jc\JobProcs.p PERSISTENT SET hdJobProcs.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR job.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-31 RECT-32 rSelected btExit fiJobNo ~
+&Scoped-Define ENABLED-OBJECTS fiJobNo RECT-31 btExit RECT-32 rSelected ~
 cbJobNo2 btFGInq btFGItems btMaterials btRoutings btnFirst btnPrevious ~
 btnNext btnLast 
 &Scoped-Define DISPLAYED-OBJECTS fiJobNo cbJobNo2 fiJoblabel fiStatusLabel ~
@@ -234,8 +234,8 @@ DEFINE RECTANGLE rSelected
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btExit AT ROW 1.91 COL 192 WIDGET-ID 126
      fiJobNo AT ROW 2.43 COL 19.2 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     btExit AT ROW 1.91 COL 192 WIDGET-ID 126
      cbJobNo2 AT ROW 2.48 COL 61.6 COLON-ALIGNED NO-LABEL WIDGET-ID 50
      fiJoblabel AT ROW 2.57 COL 7.6 COLON-ALIGNED NO-LABEL WIDGET-ID 92
      fiStatusLabel AT ROW 2.57 COL 123 COLON-ALIGNED NO-LABEL WIDGET-ID 94
@@ -323,7 +323,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   FRAME-NAME                                                           */
+   FRAME-NAME Custom                                                    */
 /* SETTINGS FOR BUTTON btRMInq IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiCreated IN FRAME F-Main
@@ -802,7 +802,7 @@ PROCEDURE enable_UI :
   DISPLAY fiJobNo cbJobNo2 fiJoblabel fiStatusLabel fiStatus fiCreatedLabel 
           fiCreated fiDueLabel fiDue fiCSRLabel fiCSR 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE RECT-31 RECT-32 rSelected btExit fiJobNo cbJobNo2 btFGInq btFGItems 
+  ENABLE fiJobNo RECT-31 btExit RECT-32 rSelected cbJobNo2 btFGInq btFGItems 
          btMaterials btRoutings btnFirst btnPrevious btnNext btnLast 
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}

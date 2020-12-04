@@ -456,7 +456,8 @@ PROCEDURE IssueQuantity :
                 RUN jc/issuemat.p (
                     INPUT ROWID(job-mat),
                     INPUT dTotalQuantity,
-                    INPUT FALSE  /* Prompt for bin selection */
+                    INPUT FALSE,  /* Prompt for bin selection */
+                    INPUT TRUE
                     ).
 
                 {&OPEN-QUERY-{&BROWSE-NAME}}

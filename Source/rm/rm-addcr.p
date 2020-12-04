@@ -86,7 +86,7 @@ FOR EACH job NO-LOCK
                         ld-qty,
                         OUTPUT ld-qty).
 
-  {rm/rm-autoi.i rm-rctd rm-rctd item ld-qty ADDER FALSE}
+  {rm/rm-autoi.i rm-rctd rm-rctd item ld-qty ADDER FALSE FALSE}
 END.
 
 /* end ---------------------------------- copr. 1997  advanced software, inc. */

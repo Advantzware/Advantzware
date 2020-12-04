@@ -7245,7 +7245,9 @@ PROCEDURE PostFinishedGoodsForUser :
     DEFINE INPUT        PARAMETER iplPromptForClose AS LOGICAL   NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER ioplSuccess       AS LOGICAL   NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopcMessage       AS CHARACTER NO-UNDO.
-
+    
+    EMPTY TEMP-TABLE w-fg-rctd.
+    
     /* Create  workfile records for the finished goods being posted */
     RUN fg/fgRecsByUser.p (
         INPUT ipcCompany,

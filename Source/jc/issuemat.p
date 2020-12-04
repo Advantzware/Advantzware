@@ -2,7 +2,7 @@
 DEFINE INPUT PARAMETER ip-rowid              AS ROWID   NO-UNDO.
 DEFINE INPUT PARAMETER ipdQuantity           AS DECIMAL NO-UNDO.
 DEFINE INPUT PARAMETER iplPromptBinSelection AS LOGICAL NO-UNDO.
-
+DEFINE INPUT PARAMETER iplPostIssues         AS LOGICAL NO-UNDO.
 {sys/inc/var.i SHARED}
 
 DO TRANSACTION:
@@ -55,6 +55,7 @@ IF AVAIL job-mat THEN DO:
                              ld-qty,
                              OUTPUT ld-qty).
 
-    {rm/rm-autoi.i rm-rctd rm-rctd item ld-qty I iplPromptBinSelection}
+    {rm/rm-autoi.i rm-rctd rm-rctd item ld-qty I iplPromptBinSelection iplPostIssues}
   END.
 END.
+ 

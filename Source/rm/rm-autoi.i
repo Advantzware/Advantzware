@@ -300,7 +300,7 @@ DO WHILE {4} GT 0 OR ll-neg:
   END.
 
   /*Post automatically*/
-  IF sys-ctrl.int-fld EQ 1 THEN
+  IF sys-ctrl.int-fld EQ 1 OR {7} THEN
   DO:
      RUN pre-post.
      RUN post-rm.
