@@ -407,14 +407,24 @@ FOR EACH rm-rcpth
    v-dep   = item.s-dep
    lv-uom  = item.cons-uom
    lv-cost = item.avg-cost.
-
-  FIND FIRST rm-bin
-      WHERE rm-bin.company EQ rm-rcpth.company
-        AND rm-bin.i-no    EQ rm-rcpth.i-no
-        AND rm-bin.loc     EQ rm-rdtlh.loc
-        AND rm-bin.loc-bin EQ rm-rdtlh.loc-bin
-        AND rm-bin.tag     EQ rm-rdtlh.tag
-      NO-ERROR.
+   
+  IF rm-rdtlh.tag NE "" THEN 
+  DO:
+      FIND FIRST rm-bin
+          WHERE rm-bin.company EQ rm-rcpth.company
+            AND rm-bin.i-no    EQ rm-rcpth.i-no        
+            AND rm-bin.tag     EQ rm-rdtlh.tag
+          NO-ERROR.
+  END.
+  ELSE DO:       
+      FIND FIRST rm-bin
+          WHERE rm-bin.company EQ rm-rcpth.company
+            AND rm-bin.i-no    EQ rm-rcpth.i-no
+            AND rm-bin.loc     EQ rm-rdtlh.loc
+            AND rm-bin.loc-bin EQ rm-rdtlh.loc-bin
+            AND rm-bin.tag     EQ rm-rdtlh.tag
+          NO-ERROR.   
+  END.
   IF AVAIL rm-bin     AND
      rm-bin.cost NE 0 AND
      rm-bin.cost NE ? THEN lv-cost = rm-bin.cost.
