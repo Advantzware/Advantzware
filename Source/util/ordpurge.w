@@ -593,8 +593,8 @@ PROCEDURE pDeleteOrphanRecords PRIVATE:
     
     FOR EACH bf-oe-boll NO-LOCK 
         WHERE (bf-oe-boll.company EQ ipcCompany OR bf-oe-boll.company EQ "") 
-          AND DYNAMIC-FUNCTION("sfGetRecKeyPrefix",bf-oe-boll.rec_key) LT ipcRecKeyPrefix:
-        IF bf-oe-boll.company EQ "" OR (bf-oe-boll.b-no EQ 0 OR bf-oe-boll.b-no EQ ?) THEN DO:   
+          AND (IF bf-oe-boll.company EQ "" THEN YES ELSE (bf-oe-boll.b-no EQ 0 OR bf-oe-boll.b-no EQ ?)):
+        IF DYNAMIC-FUNCTION("sfGetRecKeyPrefix",bf-oe-boll.rec_key) LT ipcRecKeyPrefix THEN DO:   
             IF tbArchive THEN DO:
                 IF lProcess THEN 
                     EXPORT STREAM soe-boll bf-oe-boll.
@@ -610,65 +610,66 @@ PROCEDURE pDeleteOrphanRecords PRIVATE:
     
     FOR EACH bf-oe-bolh NO-LOCK
         WHERE bf-oe-bolh.company EQ ipcCompany 
-          AND DYNAMIC-FUNCTION("sfGetRecKeyPrefix",bf-oe-bolh.rec_key) LT ipcRecKeyPrefix
           AND NOT CAN-FIND(FIRST bf-oe-boll
                            WHERE bf-oe-boll.company EQ bf-oe-bolh.company
-                             AND bf-oe-boll.b-no    EQ bf-oe-bolh.b-no): 
-        IF iplDeleteInvoices THEN DO:
-            FOR EACH bf-inv-head NO-LOCK  
-                WHERE bf-inv-head.company EQ bf-oe-bolh.company 
-                  AND bf-inv-head.bol-no  EQ bf-oe-bolh.bol-no:
-
-                FOR EACH bf-inv-line NO-LOCK 
-                    WHERE bf-inv-line.r-no    EQ bf-inv-head.r-no 
-                      AND bf-inv-line.company EQ bf-inv-head.company:
+                             AND bf-oe-boll.b-no    EQ bf-oe-bolh.b-no):
+        IF DYNAMIC-FUNCTION("sfGetRecKeyPrefix",bf-oe-bolh.rec_key) LT ipcRecKeyPrefix THEN DO:
+            IF iplDeleteInvoices THEN DO:
+                FOR EACH bf-inv-head NO-LOCK  
+                    WHERE bf-inv-head.company EQ bf-oe-bolh.company 
+                      AND bf-inv-head.bol-no  EQ bf-oe-bolh.bol-no:
+    
+                    FOR EACH bf-inv-line NO-LOCK 
+                        WHERE bf-inv-line.r-no    EQ bf-inv-head.r-no 
+                          AND bf-inv-line.company EQ bf-inv-head.company:
+                        IF tbArchive THEN DO:
+                            IF lProcess THEN 
+                                EXPORT STREAM sinv-line bf-inv-line.
+                            ELSE IF lSimulate THEN 
+                                EXPORT STREAM sinv-line DELIMITER "," bf-inv-line.
+                        END.
+                        IF lProcess THEN DO: 
+                            FIND CURRENT bf-inv-line EXCLUSIVE-LOCK NO-ERROR.
+                            DELETE bf-inv-line.
+                        END.    
+                    END. /* inv-line */
+                    FOR EACH bf-inv-misc NO-LOCK  
+                        WHERE bf-inv-misc.r-no    EQ bf-inv-head.r-no 
+                          AND bf-inv-misc.company EQ bf-inv-head.company:
+                        IF tbArchive THEN DO:
+                            IF lProcess THEN 
+                                EXPORT STREAM sinv-misc bf-inv-misc.
+                            ELSE IF lSimulate THEN 
+                                EXPORT STREAM sinv-misc DELIMITER "," bf-inv-misc.
+                        END.
+                        IF lProcess THEN DO:
+                            FIND CURRENT bf-inv-misc EXCLUSIVE-LOCK NO-ERROR.
+                            DELETE bf-inv-misc.
+                        END.    
+                    END. /* inv-misc */
                     IF tbArchive THEN DO:
                         IF lProcess THEN 
-                            EXPORT STREAM sinv-line bf-inv-line.
+                            EXPORT STREAM sinv-head bf-inv-head.
                         ELSE IF lSimulate THEN 
-                            EXPORT STREAM sinv-line DELIMITER "," bf-inv-line.
-                    END.
-                    IF lProcess THEN DO: 
-                        FIND CURRENT bf-inv-line EXCLUSIVE-LOCK NO-ERROR.
-                        DELETE bf-inv-line.
-                    END.    
-                END. /* inv-line */
-                FOR EACH bf-inv-misc NO-LOCK  
-                    WHERE bf-inv-misc.r-no    EQ bf-inv-head.r-no 
-                      AND bf-inv-misc.company EQ bf-inv-head.company:
-                    IF tbArchive THEN DO:
-                        IF lProcess THEN 
-                            EXPORT STREAM sinv-misc bf-inv-misc.
-                        ELSE IF lSimulate THEN 
-                            EXPORT STREAM sinv-misc DELIMITER "," bf-inv-misc.
+                            EXPORT STREAM sinv-head DELIMITER "," bf-inv-head.
                     END.
                     IF lProcess THEN DO:
-                        FIND CURRENT bf-inv-misc EXCLUSIVE-LOCK NO-ERROR.
-                        DELETE bf-inv-misc.
+                        FIND CURRENT bf-inv-head EXCLUSIVE-LOCK NO-ERROR.
+                        DELETE bf-inv-head.
                     END.    
-                END. /* inv-misc */
-                IF tbArchive THEN DO:
-                    IF lProcess THEN 
-                        EXPORT STREAM sinv-head bf-inv-head.
-                    ELSE IF lSimulate THEN 
-                        EXPORT STREAM sinv-head DELIMITER "," bf-inv-head.
-                END.
-                IF lProcess THEN DO:
-                    FIND CURRENT bf-inv-head EXCLUSIVE-LOCK NO-ERROR.
-                    DELETE bf-inv-head.
-                END.    
-            END. /* inv-head */
-        END.                          
-        IF tbArchive THEN DO:
-            IF lProcess THEN 
-                EXPORT STREAM soe-bolh bf-oe-bolh.
-            ELSE IF lSimulate 
-                THEN EXPORT STREAM soe-bolh DELIMITER "," bf-oe-bolh.
-        END.
-        IF lProcess THEN DO:
-            FIND CURRENT bf-oe-bolh EXCLUSIVE-LOCK NO-ERROR.
-            DELETE bf-oe-bolh.
-        END.              
+                END. /* inv-head */
+            END.                          
+            IF tbArchive THEN DO:
+                IF lProcess THEN 
+                    EXPORT STREAM soe-bolh bf-oe-bolh.
+                ELSE IF lSimulate 
+                    THEN EXPORT STREAM soe-bolh DELIMITER "," bf-oe-bolh.
+            END.
+            IF lProcess THEN DO:
+                FIND CURRENT bf-oe-bolh EXCLUSIVE-LOCK NO-ERROR.
+                DELETE bf-oe-bolh.
+            END.  
+        END.                    
     END.
 END PROCEDURE.
 	
